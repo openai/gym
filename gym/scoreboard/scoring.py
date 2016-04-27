@@ -27,11 +27,13 @@ def score_from_merged(episode_lengths, episode_rewards, timestamps, trials, rewa
     """
     # Make sure everything is a float -- no pesky ints.
     episode_rewards = np.array(episode_rewards, dtype='float64')
-    episode_t_value = timestep_t_value = mean = error = time_in_seconds = None
+
+    episode_t_value = timestep_t_value = mean = error = None
+    seconds_to_solve = seconds_in_total = None
 
     if len(timestamps) > 2:
         # This is: time from the first *step* to the last *step*.
-        time_in_seconds = timestamps[-1] - timestamps[0]
+        seconds_in_total = timestamps[-1] - timestamps[0]
     if len(episode_rewards) >= trials:
         means = running_mean(episode_rewards, trials)
         if reward_threshold is not None:
@@ -46,6 +48,8 @@ def score_from_merged(episode_lengths, episode_rewards, timestamps, trials, rewa
                 cumulative_timesteps = np.cumsum(np.insert(episode_lengths, 0, 0))
                 # Convert that into timesteps
                 timestep_t_value = cumulative_timesteps[episode_t_value]
+                # This is: time from the first *step* to the solving *step*
+                seconds_to_solve = timestamps[episode_t_value] - timestamps[0]
 
         # Find the window with the best mean
         best_idx = np.argmax(means)
@@ -59,7 +63,8 @@ def score_from_merged(episode_lengths, episode_rewards, timestamps, trials, rewa
         'error': error,
         'number_episodes': len(episode_rewards),
         'number_timesteps': sum(episode_lengths),
-        'time_in_seconds': time_in_seconds,
+        'seconds_to_solve': seconds_to_solve,
+        'seconds_in_total': seconds_in_total,
     }
 
 def running_mean(x, N):
