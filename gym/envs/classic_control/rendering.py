@@ -10,7 +10,13 @@ if "Apple" in sys.version:
 
 from gym import error
 
-import pyglet
+try:
+    import pyglet
+except ImportError as e:
+    raise error.DependencyNotInstalled("""{}
+
+(HINT: you can install pyglet directly via 'pip install pyglet'. But if you really just want to install all Gym dependencies and not have to think about it, 'pip install -e .[all]' or 'pip install gym[all]' will do it.)""")
+
 try:
     from pyglet.gl import *
 except ImportError as e:
