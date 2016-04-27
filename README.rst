@@ -41,6 +41,12 @@ You can perform a minimal install of ``gym`` with:
 	  cd gym
 	  pip install -e .
 
+If you prefer, you can install the packaged version directly from PyPI:
+
+.. code:: shell
+
+	  pip install gym
+
 You'll be able to run a few environments right away:
 
 - `algorithmic <https://gym.openai.com/envs#algorithmic>`_
