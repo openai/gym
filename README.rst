@@ -74,7 +74,7 @@ On Ubuntu 14.04:
 
 .. code:: shell
 	  
-	  apt-get install -y numpy python-dev cmake zlib1g-dev libjpeg-dev xvfb libav-tools xorg-dev python-opengl
+	  apt-get install -y python-numpy python-dev cmake zlib1g-dev libjpeg-dev xvfb libav-tools xorg-dev python-opengl
 
 Supported systems
 -----------------
