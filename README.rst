@@ -41,7 +41,7 @@ You can perform a minimal install of ``gym`` with:
 	  cd gym
 	  pip install -e .
 
-If you prefer, you can install the packaged version directly from PyPI:
+If you prefer, you can do a minimal install of the packaged version directly from PyPI:
 
 .. code:: shell
 
@@ -59,7 +59,7 @@ installing the dependencies for the remaining environments.
 Installing everything
 ---------------------
 
-Once you're ready to install everything, run ``pip install -e .[all]``.
+Once you're ready to install everything, run ``pip install -e .[all]`` (or ``pip install gym[all]``).
 
 MuJoCo has a proprietary dependency we can't set up for you. Follow
 the
