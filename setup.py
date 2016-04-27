@@ -30,5 +30,6 @@ setup(name='gym',
           'classic_control': ['pyglet'],
           'mujoco': ['mujoco_py>=0.4.0', 'imageio'],
       },
+      package_data={'gym': ['envs/mujoco/assets/*.xml', 'envs/classic_control/assets/*.png']},
       tests_require=['nose2', 'mock'],
 )
