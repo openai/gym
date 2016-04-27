@@ -17,7 +17,8 @@ def score_from_remote(url):
     episode_lengths = parsed['episode_lengths']
     episode_rewards = parsed['episode_rewards']
     timestamps = parsed['timestamps']
-    initial_reset_timestamp = parsed['initial_reset_timestamp']
+    # Handle legacy entries where initial_reset_timestamp wasn't set
+    initial_reset_timestamp = parsed.get('initial_reset_timestamp', timestamps[0])
     env_id = parsed['env_id']
 
     spec = gym.spec(env_id)
