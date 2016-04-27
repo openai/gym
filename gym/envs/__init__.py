@@ -73,6 +73,7 @@ register(
     id='Acrobot-v0',
     entry_point='gym.envs.classic_control:AcrobotEnv',
     timestep_limit=200,
+    reward_threshold=-100
 )
 
 # Toy Text

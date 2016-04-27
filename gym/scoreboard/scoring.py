@@ -17,12 +17,13 @@ def score_from_remote(url):
     episode_lengths = parsed['episode_lengths']
     episode_rewards = parsed['episode_rewards']
     timestamps = parsed['timestamps']
+    initial_reset_timestamp = parsed['initial_reset_timestamp']
     env_id = parsed['env_id']
 
     spec = gym.spec(env_id)
-    return score_from_merged(episode_lengths, episode_rewards, timestamps, spec.trials, spec.reward_threshold)
+    return score_from_merged(episode_lengths, episode_rewards, timestamps, initial_reset_timestamp, spec.trials, spec.reward_threshold)
 
-def score_from_merged(episode_lengths, episode_rewards, timestamps, trials, reward_threshold):
+def score_from_merged(episode_lengths, episode_rewards, timestamps, initial_reset_timestamp, trials, reward_threshold):
     """Method to calculate the score from merged monitor files.
     """
     # Make sure everything is a float -- no pesky ints.
@@ -31,9 +32,9 @@ def score_from_merged(episode_lengths, episode_rewards, timestamps, trials, rewa
     episode_t_value = timestep_t_value = mean = error = None
     seconds_to_solve = seconds_in_total = None
 
-    if len(timestamps) > 2:
-        # This is: time from the first *step* to the last *step*.
-        seconds_in_total = timestamps[-1] - timestamps[0]
+    if len(timestamps) > 0:
+        # This is: time from the first reset to the end of the last episode
+        seconds_in_total = timestamps[-1] - initial_reset_timestamp
     if len(episode_rewards) >= trials:
         means = running_mean(episode_rewards, trials)
         if reward_threshold is not None:
@@ -48,8 +49,8 @@ def score_from_merged(episode_lengths, episode_rewards, timestamps, trials, rewa
                 cumulative_timesteps = np.cumsum(np.insert(episode_lengths, 0, 0))
                 # Convert that into timesteps
                 timestep_t_value = cumulative_timesteps[episode_t_value]
-                # This is: time from the first *step* to the solving *step*
-                seconds_to_solve = timestamps[episode_t_value] - timestamps[0]
+                # This is: time from the first reset to the end of the first solving episode
+                seconds_to_solve = timestamps[episode_t_value] - initial_reset_timestamp
 
         # Find the window with the best mean
         best_idx = np.argmax(means)

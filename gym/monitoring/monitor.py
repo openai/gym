@@ -285,7 +285,7 @@ def load_results(training_dir):
             env_infos.append(contents['env_info'])
 
     env_info = collapse_env_infos(env_infos, training_dir)
-    timestamps, episode_lengths, episode_rewards = merge_stats_files(stats_files)
+    timestamps, episode_lengths, episode_rewards, initial_reset_timestamp = merge_stats_files(stats_files)
 
     return {
         'manifests': manifests,
@@ -293,6 +293,7 @@ def load_results(training_dir):
         'timestamps': timestamps,
         'episode_lengths': episode_lengths,
         'episode_rewards': episode_rewards,
+        'initial_reset_timestamp': initial_reset_timestamp,
         'videos': videos,
     }
 
@@ -300,6 +301,7 @@ def merge_stats_files(stats_files):
     timestamps = []
     episode_lengths = []
     episode_rewards = []
+    initial_reset_timestamps = []
 
     for path in stats_files:
         with open(path) as f:
@@ -307,12 +309,14 @@ def merge_stats_files(stats_files):
             timestamps += content['timestamps']
             episode_lengths += content['episode_lengths']
             episode_rewards += content['episode_rewards']
+            initial_reset_timestamps.append(content['initial_reset_timestamp'])
 
     idxs = np.argsort(timestamps)
     timestamps = np.array(timestamps)[idxs].tolist()
     episode_lengths = np.array(episode_lengths)[idxs].tolist()
     episode_rewards = np.array(episode_rewards)[idxs].tolist()
-    return timestamps, episode_lengths, episode_rewards
+    initial_reset_timestamp = min(initial_reset_timestamps)
+    return timestamps, episode_lengths, episode_rewards, initial_reset_timestamp
 
 def collapse_env_infos(env_infos, training_dir):
     assert len(env_infos) > 0
