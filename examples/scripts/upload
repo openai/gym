@@ -1,0 +1,44 @@
+#!/usr/bin/env python
+#
+# This script assumes you have set an OPENAI_GYM_API_KEY environment
+# variable. You can find your API key in the web interface:
+# https://gym.openai.com/settings/profile.
+import argparse
+import logging
+import os
+import sys
+
+import gym
+
+# In modules, use `logger = logging.getLogger(__name__)`
+logger = logging.getLogger()
+
+class Uploader(object):
+    def __init__(self, training_dir, algorithm_id, writeup):
+        self.training_dir = training_dir
+        self.algorithm_id = algorithm_id
+        self.writeup = writeup
+
+    def run(self):
+        gym.upload(self.training_dir, algorithm_id=self.algorithm_id, writeup=self.writeup)
+
+def main():
+    parser = argparse.ArgumentParser(description=None)
+    parser.add_argument('-t', '--training-dir', required=True, help='What directory to upload.')
+    parser.add_argument('-a', '--algorithm_id', help='Set the algorithm id.')
+    parser.add_argument('-w', '--writeup', help='Writeup to attach.')
+    parser.add_argument('-v', '--verbose', action='count', dest='verbosity', default=0, help='Set verbosity.')
+    args = parser.parse_args()
+
+    if args.verbosity == 0:
+        logger.setLevel(logging.INFO)
+    elif args.verbosity >= 1:
+        logger.setLevel(logging.DEBUG)
+
+    runner = Uploader(training_dir=args.training_dir, algorithm_id=args.algorithm_id, writeup=args.writeup)
+    runner.run()
+
+    return 0
+
+if __name__ == '__main__':
+    sys.exit(main())
