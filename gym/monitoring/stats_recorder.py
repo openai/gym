@@ -6,6 +6,7 @@ from gym import error
 
 class StatsRecorder(object):
     def __init__(self, directory, file_prefix):
+        self.initial_reset_timestamp = None
         self.directory = directory
         self.file_prefix = file_prefix
         self.episode_lengths = []
@@ -30,6 +31,8 @@ class StatsRecorder(object):
 
     def before_reset(self):
         self.done = False
+        if self.initial_reset_timestamp is None:
+            self.initial_reset_timestamp = time.time()
 
     def after_reset(self, observation):
         self.flush()
@@ -49,6 +52,7 @@ class StatsRecorder(object):
         path = os.path.join(self.directory, filename)
         with open(path, 'w') as f:
             json.dump({
+                'initial_reset_timestamp': self.initial_reset_timestamp,
                 'timestamps': self.timestamps,
                 'episode_lengths': self.episode_lengths,
                 'episode_rewards': self.episode_rewards,
