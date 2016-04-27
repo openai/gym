@@ -56,7 +56,8 @@ class MujocoEnv(gym.Env):
 
     def _render(self, mode='human', close=False):
         if close:
-            self._get_viewer().finish()
+            if self.viewer is not None:
+                self._get_viewer().finish()
             return
 
         if mode == 'rgb_array':
