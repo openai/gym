@@ -30,7 +30,7 @@ def upload(training_dir, algorithm_id=None, writeup=None, api_key=None):
         envs = [m.env.spec.id if m.env.spec else '(unknown)' for m in open_monitors]
         raise error.Error("Still have an open monitor on {}. You must run 'env.monitor.close()' before uploading.".format(', '.join(envs)))
 
-    env_info, training_episode_batch, training_video = upload_training_data(training_dir, api_key=None)
+    env_info, training_episode_batch, training_video = upload_training_data(training_dir, api_key=api_key)
     training_episode_batch_id = training_video_id = None
     if training_episode_batch:
         training_episode_batch_id = training_episode_batch.id
