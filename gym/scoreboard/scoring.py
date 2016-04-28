@@ -39,9 +39,9 @@ def score_from_merged(episode_lengths, episode_rewards, timestamps, initial_rese
     if len(episode_rewards) >= trials:
         means = running_mean(episode_rewards, trials)
         if reward_threshold is not None:
-            # Compute t-value by finding the first index above the
-            # threshold. It comes out as a singleton tuple.
-            (indexes_above_threshold, ) = np.where(means > reward_threshold)
+            # Compute t-value by finding the first index at or above
+            # the threshold. It comes out as a singleton tuple.
+            (indexes_above_threshold, ) = np.where(means >= reward_threshold)
             if len(indexes_above_threshold) > 0:
                 # Grab the first episode index that is above the threshold value
                 episode_t_value = indexes_above_threshold[0]
