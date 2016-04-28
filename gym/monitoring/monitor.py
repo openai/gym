@@ -162,7 +162,7 @@ class Monitor(object):
                 key = self.env
             # We don't want to avoid writing the manifest simply
             # because we couldn't close the renderer.
-            logger.warn('Could not close renderer for %s: %s'.format(key, e))
+            logger.error('Could not close renderer for %s: %s', key, e)
 
         # Give it a very distiguished name, since we need to pick it
         # up from the filesystem later.
