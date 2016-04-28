@@ -10,6 +10,7 @@ import gym
 from gym import spaces
 import StringIO
 import sys
+import six
 
 
 # The coordinate representation of Pachi (and pachi_py) is defined on a board
@@ -191,7 +192,7 @@ class GoEnv(gym.Env):
             self.state = self.state.act(action)
         except pachi_py.IllegalMove:
             if self.illegal_move_mode == 'raise':
-                raise
+                six.reraise(*sys.exc_info())
             elif self.illegal_move_mode == 'lose':
                 # Automatic loss on illegal move
                 self.done = True

@@ -64,7 +64,7 @@ class EnvSpec(object):
             # This likely indicates unsupported kwargs
             six.reraise(type, """Could not 'make' {} ({}): {}.
 
-(For reference, the environment was instantiated with kwargs: {}).""".format(self.id, cls, e.message, self._kwargs), traceback)
+(For reference, the environment was instantiated with kwargs: {}).""".format(self.id, cls, e, self._kwargs), traceback)
 
         # Make the enviroment aware of which spec it came from.
         env.spec = self

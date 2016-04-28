@@ -6,7 +6,8 @@ import tempfile
 import os.path
 import distutils.spawn
 import numpy as np
-import StringIO
+from six import StringIO
+import six.moves.urllib as urlparse
 
 from gym import error
 
@@ -179,7 +180,7 @@ class TextEncoder(object):
         string = None
         if isinstance(frame, str):
             string = frame
-        elif isinstance(frame, StringIO.StringIO):
+        elif isinstance(frame, StringIO):
             string = frame.getvalue()
         else:
             raise error.InvalidFrame('Wrong type {} for {}: text frame must be a string or StringIO'.format(type(frame), frame))

@@ -1,5 +1,6 @@
 import numpy as np
-import StringIO, sys
+import sys
+from six import StringIO
 
 from gym import spaces, utils
 from gym.envs.toy_text import discrete
@@ -42,12 +43,12 @@ class TaxiEnv(discrete.DiscreteEnv):
         maxC = nC-1
         isd = np.zeros(nS)
         nA = 6
-        P = {s : {a : [] for a in xrange(nA)} for s in xrange(nS)}
-        for row in xrange(5):
-            for col in xrange(5):
-                for passidx in xrange(5):
-                    for destidx in xrange(4):
-                        for a in xrange(nA):
+        P = {s : {a : [] for a in range(nA)} for s in range(nS)}
+        for row in range(5):
+            for col in range(5):
+                for passidx in range(5):
+                    for destidx in range(4):
+                        for a in range(nA):
                             state = self.encode(row, col, passidx, destidx)
                             # defaults
                             newrow, newcol, newpassidx = row, col, passidx
@@ -111,7 +112,7 @@ class TaxiEnv(discrete.DiscreteEnv):
         if close:
             return
 
-        outfile = StringIO.StringIO() if mode == 'ansi' else sys.stdout
+        outfile = StringIO() if mode == 'ansi' else sys.stdout
 
         out = self.desc.copy().tolist()
         taxirow, taxicol, passidx, destidx = self.decode(self.s)
