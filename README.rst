@@ -194,7 +194,7 @@ Toy environments which are text-based. There's no extra dependency to install, s
 .. code:: python
 
 	  import gym
-	  env = gym.make('FrozenLake')
+	  env = gym.make('FrozenLake-v0')
 	  env.reset()
 	  env.render()
 
