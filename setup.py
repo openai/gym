@@ -19,13 +19,13 @@ setup(name='gym',
           'numpy>=1.10.4', 'requests', 'six'
       ],
       extras_require={
-          'all': ['atari_py>=0.0.14', 'Pillow', 'pyglet',
+          'all': ['atari_py>=0.0.16', 'Pillow', 'pyglet',
                   'pachi-py>=0.0.16',
                   'mujoco_py>=0.4.0', 'imageio'],
 
           # Environment-specific dependencies. Keep these in sync with
           # 'all'!
-          'atari': ['atari_py>=0.0.14', 'Pillow', 'pyglet'],
+          'atari': ['atari_py>=0.0.16', 'Pillow', 'pyglet'],
           'board_game' : ['pachi-py>=0.0.16'],
           'classic_control': ['pyglet'],
           'mujoco': ['mujoco_py>=0.4.0', 'imageio'],
