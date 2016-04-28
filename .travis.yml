@@ -1,7 +1,6 @@
-dist: trusty
-sudo: required
 cache:
   apt: true
+  pip: false
 language: python
 addons:
   apt:
