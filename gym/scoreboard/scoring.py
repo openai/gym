@@ -111,7 +111,7 @@ def compute_graph_stats(episode_lengths, episode_rewards, timestamps, buckets):
         'x_episode_y_reward': graphable_binned_statistic(x_episode_y_reward),
         'x_episode_y_length': graphable_binned_statistic(x_episode_y_length),
         'x_timestamp_y_length': graphable_binned_statistic(x_timestamp_y_length),
-        'x_timestamp_y_length': graphable_binned_statistic(x_timestamp_y_length),
+        'x_timestamp_y_reward': graphable_binned_statistic(x_timestamp_y_reward),
     }
 
 def graphable_binned_statistic(binned):
