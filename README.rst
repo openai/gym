@@ -70,6 +70,12 @@ For the install to succeed, you'll need to have some system packages
 installed. We'll build out the list here over time; please let us know
 what you end up installing on your platform.
 
+On OSX:
+
+.. code:: shell
+
+	  brew install cmake
+
 On Ubuntu 14.04:
 
 .. code:: shell
@@ -129,7 +135,7 @@ sequence.
 Atari
 -----
 
-The Atari environments are a variety of Atari video games. If you didn't do the full install, you can install dependencies via ``pip install -e .[atari]`` and then get started as follow:
+The Atari environments are a variety of Atari video games. If you didn't do the full install, you can install dependencies via ``pip install -e .[atari]`` (you'll need ``cmake`` installed) and then get started as follow:
 
 .. code:: python
 
@@ -143,7 +149,7 @@ This will install ``atari-py``, which automatically compiles the `Arcade Learnin
 Board games
 -----------
 
-The board game environments are a variety of board games. If you didn't do the full install, you can install dependencies via ``pip install -e .[board_game]`` and then get started as follow:
+The board game environments are a variety of board games. If you didn't do the full install, you can install dependencies via ``pip install -e .[board_game]`` (you'll need ``cmake`` installed) and then get started as follow:
 
 .. code:: python
 
