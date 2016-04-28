@@ -7,6 +7,7 @@ import os.path
 import distutils.spawn
 import numpy as np
 from six import StringIO
+import six
 import six.moves.urllib as urlparse
 
 from gym import error
@@ -185,13 +186,15 @@ class TextEncoder(object):
         else:
             raise error.InvalidFrame('Wrong type {} for {}: text frame must be a string or StringIO'.format(type(frame), frame))
 
-        if string[-1] != '\n':
+        frame_bytes = string.encode('utf-8')
+
+        if frame_bytes[-1:] != six.b('\n'):
             raise error.InvalidFrame('Frame must end with a newline: """{}"""'.format(string))
 
-        if '\r\n' in string:
+        if six.b('\r') in frame_bytes:
             raise error.InvalidFrame('Frame contains carriage returns (only newlines are allowed: """{}"""'.format(string))
 
-        self.frames.append(string)
+        self.frames.append(frame_bytes)
 
     def close(self):
         #frame_duration = float(1) / self.frames_per_sec
@@ -200,13 +203,14 @@ class TextEncoder(object):
         # Turn frames into events: clear screen beforehand
         # https://rosettacode.org/wiki/Terminal_control/Clear_the_screen#Python
         # https://rosettacode.org/wiki/Terminal_control/Cursor_positioning#Python
-        clear_code = "%c[2J\033[1;1H" % (27)
-        events = [ (frame_duration, clear_code+frame.replace('\n','\r\n')) for frame in self.frames ]
+        clear_code = six.b("%c[2J\033[1;1H" % (27))
+        # Decode the bytes as UTF-8 since JSON may only contain UTF-8
+        events = [ (frame_duration, (clear_code+frame.replace(six.b('\n'),six.b('\r\n'))).decode('utf-8'))  for frame in self.frames ]
 
         # Calculate frame size from the largest frames.
         # Add some padding since we'll get cut off otherwise.
-        height = max([frame.count('\n') for frame in self.frames]) + 1
-        width = max([max([len(line) for line in frame.split('\n')])]) + 2
+        height = max([frame.count(six.b('\n')) for frame in self.frames]) + 1
+        width = max([max([len(line) for line in frame.split(six.b('\n'))]) for frame in self.frames]) + 2
 
         data = {
             "version": 1,

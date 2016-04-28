@@ -1,6 +1,6 @@
 import numpy as np
 import sys
-from six import StringIO
+from six import StringIO, b
 
 from gym import utils
 from gym.envs.toy_text import discrete
@@ -118,8 +118,7 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
         row, col = self.s // self.ncol, self.s % self.ncol
         desc = self.desc.tolist()
         desc[row][col] = utils.colorize(desc[row][col], "red", highlight=True)
-
-        outfile.write("\n".join("".join(row) for row in desc)+"\n")
+        outfile.write("\n".join(b('').join(line).decode('utf-8') for line in desc)+"\n")
         if self.lastaction is not None:
             outfile.write("  ({})\n".format(["Left","Down","Right","Up"][self.lastaction]))
         else:
