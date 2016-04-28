@@ -8,7 +8,7 @@ except ImportError as e:
 import numpy as np
 import gym
 from gym import spaces
-import StringIO
+from six import StringIO
 import sys
 import six
 
@@ -175,7 +175,7 @@ class GoEnv(gym.Env):
     def _render(self, mode="human", close=False):
         if close:
             return
-        outfile = StringIO.StringIO() if mode == 'ansi' else sys.stdout
+        outfile = StringIO() if mode == 'ansi' else sys.stdout
         outfile.write(repr(self.state) + '\n')
         return outfile
 
