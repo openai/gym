@@ -7,7 +7,14 @@ from gym import error, monitoring
 
 class Env(object):
     """The main OpenAI Gym class. It encapsulates an environment with
-    arbitrary behind-the-scenes dynamics.
+    arbitrary behind-the-scenes dynamics. An environment can be
+    partially or fully observed.
+
+    The main API methods that users of this class need to know are:
+
+        reset
+        step
+        render
 
     When implementing an environment, override the following methods
     in your subclass:
@@ -24,6 +31,7 @@ class Env(object):
     The methods are accessed publicly as "step", "reset", etc.. The
     non-underscored versions are wrapper methods to which we may add
     functionality to over time.
+
     """
 
     # Set this in SOME subclasses
@@ -52,9 +60,9 @@ class Env(object):
         return self._monitor
 
     def step(self, action):
-        """
-        Run one timestep of the environment's dynamics. When end of episode
-        is reached, the environment will automatically reset its internal state.
+        """Run one timestep of the environment's dynamics. When end of
+        episode is reached, you are responsible for calling `reset()`
+        to reset this environment's state.
 
         Input
         -----
