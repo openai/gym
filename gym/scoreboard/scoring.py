@@ -74,7 +74,7 @@ def running_mean(x, N):
     cumsum = np.cumsum(np.insert(x, 0, 0))
     return (cumsum[N:] - cumsum[:-N]) / N
 
-def compute_graph_stats(episode_lengths, episode_rewards, timestamps, buckets):
+def compute_graph_stats(episode_lengths, episode_rewards, timestamps, initial_reset_timestamp, buckets):
     """Method to compute the aggregates for the graphs."""
     # Not a dependency of OpenAI Gym generally.
     import scipy
@@ -88,8 +88,8 @@ def compute_graph_stats(episode_lengths, episode_rewards, timestamps, buckets):
     x_timestep = np.cumsum(np.insert(episode_lengths, 0, 0))[:-1]
     assert len(x_timestep) == num_episodes
 
-    # Nothing to compute here
-    x_timestamp = timestamps
+    # Delta since the beginning of time
+    x_seconds = [timestamp - initial_reset_timestamp for timestamp in timestamps]
 
     # The index of each episode
     x_episode = range(num_episodes)
@@ -101,17 +101,17 @@ def compute_graph_stats(episode_lengths, episode_rewards, timestamps, buckets):
     x_episode_y_reward = scipy.stats.binned_statistic(x_episode, episode_rewards, 'median', buckets)
     x_episode_y_length = scipy.stats.binned_statistic(x_episode, episode_lengths, 'median', buckets)
 
-    x_timestamp_y_reward = scipy.stats.binned_statistic(x_timestamp, episode_rewards, 'median', buckets)
-    x_timestamp_y_length = scipy.stats.binned_statistic(x_timestamp, episode_lengths, 'median', buckets)
-
+    x_seconds_y_reward = scipy.stats.binned_statistic(x_seconds, episode_rewards, 'median', buckets)
+    x_seconds_y_length = scipy.stats.binned_statistic(x_seconds, episode_lengths, 'median', buckets)
 
     return {
+        'initial_reset_timestamp': initial_reset_timestamp,
         'x_timestep_y_reward': graphable_binned_statistic(x_timestep_y_reward),
         'x_timestep_y_length': graphable_binned_statistic(x_timestep_y_length),
         'x_episode_y_reward': graphable_binned_statistic(x_episode_y_reward),
         'x_episode_y_length': graphable_binned_statistic(x_episode_y_length),
-        'x_timestamp_y_length': graphable_binned_statistic(x_timestamp_y_length),
-        'x_timestamp_y_reward': graphable_binned_statistic(x_timestamp_y_reward),
+        'x_seconds_y_length': graphable_binned_statistic(x_seconds_y_length),
+        'x_seconds_y_reward': graphable_binned_statistic(x_seconds_y_reward),
     }
 
 def graphable_binned_statistic(binned):
