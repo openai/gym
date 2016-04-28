@@ -4,7 +4,12 @@ cache:
 language: python
 addons:
   apt:
+    sources:
+      - george-edison55-precise-backports # cmake 3.2.3
     packages:
+      - cmake
+      - cmake-data
+
       - python-dev
 python:
   - "2.7"
