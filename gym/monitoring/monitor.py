@@ -71,7 +71,7 @@ class Monitor(object):
     to record every 100 episodes. ('count' is how many episodes have completed)
 
     Depending on the environment, video can slow down execution. You
-    can also use 'monitor.configure(video=lambda count: False)' to disable
+    can also use 'monitor.configure(video_callable=lambda count: False)' to disable
     video.
 
     Monitor supports multiple threads and multiple processes writing

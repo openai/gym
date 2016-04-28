@@ -3,7 +3,7 @@ try:
     import pachi_py
 except ImportError as e:
     # The dependency group [pachi] should match the name is setup.py.
-    raise error.DependencyNotInstalled('{}. (HINT: you may need to install the Go dependencies via "pip install gym[pachi].)"'.format(e))
+    raise error.DependencyNotInstalled('{}. (HINT: you may need to install the Go dependencies via "pip install gym[pachi]".)'.format(e))
 
 import numpy as np
 import gym

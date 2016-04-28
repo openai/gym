@@ -7,7 +7,7 @@ from gym import utils
 try:
     import atari_py
 except ImportError:
-    raise error.DependencyNotInstalled("{}. (HINT: you can install Atari dependencies with 'pip install gym[atari].)'")
+    raise error.DependencyNotInstalled("{}. (HINT: you can install Atari dependencies with 'pip install gym[atari]'.)")
 
 import logging
 logger = logging.getLogger(__name__)
