@@ -19,7 +19,9 @@ addons:
 before_install:
   - Xvfb :12 -screen 0 800x600x24 +extension RANDR &
   - mkdir -p ~/.mujoco
-  - curl https://openai-public.s3-us-west-2.amazonaws.com/mujoco/$MUJOCO_KEY_BUNDLE.tar.gz | tar xz -C ~/.mujoco
+    # In a pull request, there are no secrets, and hence no MuJoCo:
+    # https://docs.travis-ci.com/user/pull-requests#Security-Restrictions-when-testing-Pull-Requests.
+  - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && ( curl https://openai-public.s3-us-west-2.amazonaws.com/mujoco/$MUJOCO_KEY_BUNDLE.tar.gz | tar xz -C ~/.mujoco )'
 env:
   - DISPLAY=:12
 
