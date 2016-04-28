@@ -19,7 +19,7 @@ setup(name='gym',
           'numpy>=1.10.4', 'requests', 'six'
       ],
       extras_require={
-          'all': ['atari_py>=0.0.17', 'Pillow', 'pyglet', 'PyOpenGL'
+          'all': ['atari_py>=0.0.17', 'Pillow', 'pyglet', 'PyOpenGL',
                   'pachi-py>=0.0.18',
                   'mujoco_py>=0.4.1', 'imageio'],
 
