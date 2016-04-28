@@ -155,14 +155,14 @@ class Monitor(object):
         # during video recording.
         try:
             self.env.render(close=True)
-        except Exception:
-            type, value, traceback = sys.exc_info()
+        except Exception as e:
             if self.env.spec:
                 key = self.env.spec.id
             else:
                 key = self.env
-            # This likely indicates unsupported kwargs
-            six.reraise(type, '{} (when closing {})'.format(value, key), traceback)
+            # We don't want to avoid writing the manifest simply
+            # because we couldn't close the renderer.
+            logger.warn('Could not close renderer for %s: %s'.format(key, e))
 
         # Give it a very distiguished name, since we need to pick it
         # up from the filesystem later.
