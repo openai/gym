@@ -281,9 +281,9 @@ class ImageEncoder(object):
         if frame.dtype != np.uint8:
             raise error.InvalidFrame("Your frame has data type {}, but we require uint8 (i.e. RGB values from 0-255).".format(frame.dtype))
 
-        try:
+        if np.__version__ >= '1.9.0':
             self.proc.stdin.write(frame.tobytes())
-        except:
+        else:
             self.proc.stdin.write(frame.tostring())
 
     def close(self):
