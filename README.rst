@@ -205,7 +205,7 @@ See the ``examples`` directory.
 Testing
 =======
 
-We are using `nose2 <https://github.com/nose-devs/nose2>`_ for tests. You can run them via
+We are using `nose2 <https://github.com/nose-devs/nose2>`_ for tests. You can run them via:
 
 .. code:: shell
 
