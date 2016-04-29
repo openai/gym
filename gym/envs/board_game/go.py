@@ -201,7 +201,7 @@ class GoEnv(gym.Env):
 
         # Opponent play
         if not self.state.board.is_terminal:
-            self.state = self._exec_opponent_play(self.state, prev_state, action)
+            self.state, self.opponent_resigned = self._exec_opponent_play(self.state, prev_state, action)
             # After opponent play, we should be back to the original color
             assert self.state.color == self.player_color
 
@@ -209,7 +209,8 @@ class GoEnv(gym.Env):
         if self.state.board.is_terminal:
             self.done = True
             white_wins = self.state.board.official_score > 0
-            reward = 1. if (white_wins and self.player_color == pachi_py.WHITE) else -1.
+            player_wins = (white_wins and self.player_color == pachi_py.WHITE) or (not white_wins and self.player_color == pachi_py.BLACK)
+            reward = 1. if (self.opponent_resigned or player_wins) else -1.
         else:
             self.done = False
             reward = 0.
@@ -218,7 +219,8 @@ class GoEnv(gym.Env):
     def _exec_opponent_play(self, curr_state, prev_state, prev_action):
         assert curr_state.color != self.player_color
         opponent_action = self.opponent_policy(curr_state, prev_state, prev_action)
-        return curr_state.act(opponent_action)
+        opponent_resigned = opponent_action == self.board_size**2+1
+        return curr_state.act(opponent_action), opponent_resigned
 
     @property
     def _state(self):
