@@ -18,10 +18,6 @@ if __name__ == '__main__':
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
 
-    outdir = '/tmp/random-agent-results'
-    gym.upload(outdir, algorithm_id='random')
-    raise"hi"
-
     env = gym.make('CartPole-v0')
     agent = RandomAgent(env.action_space)
 
