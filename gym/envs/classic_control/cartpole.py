@@ -3,10 +3,13 @@ Classic cart-pole system implemented by Rich Sutton et al.
 Copied from https://webdocs.cs.ualberta.ca/~sutton/book/code/pole.c
 """
 
+import logging
 import math
 import gym
 from gym import spaces
 import numpy as np
+
+logger = logging.getLogger(__name__)
 
 class CartPoleEnv(gym.Env):
     metadata = {
@@ -34,6 +37,8 @@ class CartPoleEnv(gym.Env):
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Box(-high, high)
 
+        self.steps_beyond_done = None
+
     def _step(self, action):
         action = action
         assert action==0 or action==1, "%r (%s) invalid"%(action, type(action))
@@ -55,11 +60,24 @@ class CartPoleEnv(gym.Env):
                 or theta < -self.theta_threshold_radians \
                 or theta > self.theta_threshold_radians
         done = bool(done)
-        reward = 1.0
+
+        if not done:
+            reward = 1.0
+        elif self.steps_beyond_done is None:
+            # Pole just fell!
+            self.steps_beyond_done = 0
+            reward = 1.0
+        else:
+            if self.steps_beyond_done == 0:
+                logger.warn("You are calling 'step()' even though this environment has already returned done = True. You should always call 'reset()' once you receive 'done = True' -- any further steps are undefined behavior.")
+            self.steps_beyond_done += 1
+            reward = 0.0
+
         return np.array(self.state), reward, done, {}
 
     def _reset(self):
         self.state = np.random.uniform(low=-0.05, high=0.05, size=(4,))
+        self.steps_beyond_done = 0
         return np.array(self.state)
 
     def _render(self, mode='human', close=False):
