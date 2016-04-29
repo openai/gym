@@ -17,18 +17,23 @@ import sys
 # are not numbers in [0, board_size**2) as one would expect. For this Go env, we instead
 # use an action representation that does fall in this more natural range.
 
+def _pass_action(board_size):
+    return board_size**2
+
+def _resign_action(board_size):
+    return board_size**2 + 1
+
 def _coord_to_action(board, c):
     '''Converts Pachi coordinates to actions'''
-    if c == pachi_py.PASS_COORD: return board.size**2 # pass
-    if c == pachi_py.RESIGN_COORD: return board.size**2 + 1 # resign
+    if c == pachi_py.PASS_COORD: return _pass_action(board.size)
+    if c == pachi_py.RESIGN_COORD: return _resign_action(board.size)
     i, j = board.coord_to_ij(c)
     return i*board.size + j
 
-
 def _action_to_coord(board, a):
     '''Converts actions to Pachi coordinates'''
-    if a == board.size**2: return pachi_py.PASS_COORD
-    if a == board.size**2 + 1: return pachi_py.RESIGN_COORD
+    if a == _pass_action(board.size): return pachi_py.PASS_COORD
+    if a == _resign_action(board.size): return pachi_py.RESIGN_COORD
     return board.ij_to_coord(a // board.size, a % board.size)
 
 def str_to_action(board, s):
@@ -219,7 +224,7 @@ class GoEnv(gym.Env):
     def _exec_opponent_play(self, curr_state, prev_state, prev_action):
         assert curr_state.color != self.player_color
         opponent_action = self.opponent_policy(curr_state, prev_state, prev_action)
-        opponent_resigned = opponent_action == self.board_size**2+1
+        opponent_resigned = opponent_action == _resign_action(self.board_size)
         return curr_state.act(opponent_action), opponent_resigned
 
     @property
