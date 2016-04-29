@@ -62,7 +62,7 @@ class GoState(object):
             pachi_py.stone_other(self.color))
 
     def __repr__(self):
-        return 'To play: {}\n{}'.format(pachi_py.color_to_str(self.color), repr(self.board))
+        return 'To play: {}\n{}'.format(six.u(pachi_py.color_to_str(self.color)), six.u(self.board.__repr__()))
 
 
 ### Adversary policies ###
@@ -72,7 +72,7 @@ def random_policy(curr_state, prev_state, prev_action):
     return _coord_to_action(b, np.random.choice(legal_coords))
 
 def make_pachi_policy(board, engine_type='uct', threads=1, pachi_timestr=''):
-    engine = pachi_py.PyPachiEngine(board, engine_type, 'threads=%d' % threads)
+    engine = pachi_py.PyPachiEngine(board, engine_type, six.b('threads=%d' % threads))
 
     def pachi_policy(curr_state, prev_state, prev_action):
         if prev_state is not None:
@@ -229,6 +229,6 @@ class GoEnv(gym.Env):
         if self.opponent == 'random':
             self.opponent_policy = random_policy
         elif self.opponent == 'pachi:uct:_2400':
-            self.opponent_policy = make_pachi_policy(board=board, engine_type='uct', pachi_timestr='_2400') # TODO: strength as argument
+            self.opponent_policy = make_pachi_policy(board=board, engine_type=six.b('uct'), pachi_timestr=six.b('_2400')) # TODO: strength as argument
         else:
             raise error.Error('Unrecognized opponent policy {}'.format(self.opponent))
