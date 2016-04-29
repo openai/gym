@@ -44,8 +44,8 @@ class HexEnv(gym.Env):
         except KeyError:
             raise error.Error("player_color must be 'black' or 'white', not {}".format(player_color))
 
+        self.opponent = opponent or 'random'
         self.opponent_policy = None
-        self.opponent = opponent
 
         assert observation_type in ['numpy3c']
         self.observation_type = observation_type
@@ -86,17 +86,15 @@ class HexEnv(gym.Env):
             elif self.illegal_move_mode == 'lose':
                 # Automatic loss on illegal move
                 self.done = True
-                return self.state.board.encode(), -1., True, {'state': self.state}
+                return self.state, -1., True, {'state': self.state}
             else:
                 raise error.Error('Unsupported illegal move action: {}'.format(self.illegal_move_mode))
 
         HexEnv.make_move(self.state, action, self.player_color)
-        self.to_play = HexEnv.BLACK if self.player_color == HexEnv.WHITE else HexEnv.WHITE
 
         # Opponent play
         a = self.opponent_policy(self.state)
-        HexEnv.make_move(self.state, a, HexEnv.BLACK if self.player_color == HexEnv.WHITE else HexEnv.WHITE)
-        self.to_play = self.player_color
+        HexEnv.make_move(self.state, a, 1 - self.player_color)
 
         reward = HexEnv.game_finished(self.state)
         if self.player_color == HexEnv.WHITE:
@@ -111,7 +109,30 @@ class HexEnv(gym.Env):
             raise error.Error('Unrecognized opponent policy {}'.format(self.opponent))
 
     def _render(self, mode='asi', close=False):
-        pass
+        board = self.state
+        print(" " * 6, end="")
+        for j in range(board.shape[1]):
+            print(" ", j + 1, " ", end="")
+            print("|", end="")
+        print("")
+        print(" " * 5, end="")
+        print("-" * (board.shape[1] * (board.shape[1] + 1) + 1), end="")
+        print("")
+        for i in range(board.shape[1]):
+            print(" " * (1 + i * 3), i + 1, " ", end="")
+            print("|", end="")
+            for j in range(board.shape[1]):
+                if board[2, i, j] == 1:
+                    print("  O  ", end="")
+                elif board[0, i, j] == 1:
+                    print("  B  ", end="")
+                else:
+                    print("  W  ", end="")
+                print("|", end="")
+            print("")
+            print(" " * (i * 3 + 1), end="")
+            print("-" * (board.shape[1] * (board.shape[1] + 2)), end="")
+            print("")
 
     @staticmethod
     def valid_move(board, action):
