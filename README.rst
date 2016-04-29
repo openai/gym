@@ -59,7 +59,7 @@ installing the dependencies for the remaining environments.
 Installing everything
 ---------------------
 
-Once you're ready to install everything, run ``pip install -e .[all]`` (or ``pip install gym[all]``).
+Once you're ready to install everything, run ``pip install -e '.[all]'`` (or ``pip install 'gym[all]'``).
 
 MuJoCo has a proprietary dependency we can't set up for you. Follow
 the
@@ -94,7 +94,7 @@ callable from any platform.
 Pip version
 -----------
 
-To run ``pip install -e .[all]``, you'll need a semi-recent pip.
+To run ``pip install -e '.[all]'``, you'll need a semi-recent pip.
 Please make sure your pip is at least at version ``1.5.0``. You can
 upgrade using the following: ``pip install --ignore-installed
 pip``. Alternatively, you can open `setup.py
@@ -135,7 +135,7 @@ sequence.
 Atari
 -----
 
-The Atari environments are a variety of Atari video games. If you didn't do the full install, you can install dependencies via ``pip install -e .[atari]`` (you'll need ``cmake`` installed) and then get started as follow:
+The Atari environments are a variety of Atari video games. If you didn't do the full install, you can install dependencies via ``pip install -e '.[atari]'`` (you'll need ``cmake`` installed) and then get started as follow:
 
 .. code:: python
 
@@ -149,7 +149,7 @@ This will install ``atari-py``, which automatically compiles the `Arcade Learnin
 Board games
 -----------
 
-The board game environments are a variety of board games. If you didn't do the full install, you can install dependencies via ``pip install -e .[board_game]`` (you'll need ``cmake`` installed) and then get started as follow:
+The board game environments are a variety of board games. If you didn't do the full install, you can install dependencies via ``pip install -e '.[board_game]'`` (you'll need ``cmake`` installed) and then get started as follow:
 
 .. code:: python
 
@@ -161,7 +161,7 @@ The board game environments are a variety of board games. If you didn't do the f
 Classic control
 ---------------
 
-These are a variety of classic control tasks, which would appear in a typical reinforcement learning textbook. If you didn't do the full install, you will need to run ``pip install -e .[classic_control]`` to enable rendering. You can get started with them via:
+These are a variety of classic control tasks, which would appear in a typical reinforcement learning textbook. If you didn't do the full install, you will need to run ``pip install -e '.[classic_control]'`` to enable rendering. You can get started with them via:
 
 .. code:: python
 
@@ -177,7 +177,7 @@ MuJoCo
 very detailed efficient simulations with contacts. It's not
 open-source, so you'll have to follow the instructions in `mujoco-py
 <https://github.com/openai/mujoco-py#obtaining-the-binaries-and-license-key>`_
-to set it up. You'll have to also run ``pip install -e .[mujoco]`` if you didn't do the full install.
+to set it up. You'll have to also run ``pip install -e '.[mujoco]'`` if you didn't do the full install.
 
 .. code:: python
 
