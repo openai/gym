@@ -18,10 +18,6 @@ if __name__ == '__main__':
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
 
-    outdir = '/tmp/random-agent-results'
-    gym.upload(outdir, algorithm_id='random')
-    raise"hi"
-
     env = gym.make('CartPole-v0')
     agent = RandomAgent(env.action_space)
 
@@ -31,8 +27,8 @@ if __name__ == '__main__':
     outdir = '/tmp/random-agent-results'
     env.monitor.start(outdir, force=True)
 
-    episode_count = 200
-    max_steps = 100
+    episode_count = 100
+    max_steps = 200
     reward = 0
     done = False
 
