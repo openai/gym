@@ -169,11 +169,14 @@ class GoEnv(gym.Env):
         self._reset_opponent(self.state.board)
 
         # Let the opponent play if it's not the agent's turn
+        opponent_resigned = False
         if self.state.color != self.player_color:
-            self.state = self._exec_opponent_play(self.state, None, None)
+            self.state, opponent_resigned = self._exec_opponent_play(self.state, None, None)
+
+        # We should be back to the agent color
         assert self.state.color == self.player_color
 
-        self.done = self.state.board.is_terminal
+        self.done = self.state.board.is_terminal or opponent_resigned
         return self.state.board.encode()
 
     def _render(self, mode="human", close=False):
@@ -189,6 +192,11 @@ class GoEnv(gym.Env):
         # If already terminal, then don't do anything
         if self.done:
             return self.state.board.encode(), 0., True, {'state': self.state}
+
+        # If resigned, then we're done
+        if action == _resign_action(self.board_size):
+            self.done = True
+            return self.state.board.encode(), -1., True, {'state': self.state}
 
         # Play
         prev_state = self.state
@@ -206,20 +214,27 @@ class GoEnv(gym.Env):
 
         # Opponent play
         if not self.state.board.is_terminal:
-            self.state, self.opponent_resigned = self._exec_opponent_play(self.state, prev_state, action)
+            self.state, opponent_resigned = self._exec_opponent_play(self.state, prev_state, action)
             # After opponent play, we should be back to the original color
             assert self.state.color == self.player_color
 
-        # Reward: 0 if nonterminal, 1 if won, -1 if lost
-        if self.state.board.is_terminal:
-            self.done = True
-            white_wins = self.state.board.official_score > 0
-            player_wins = (white_wins and self.player_color == pachi_py.WHITE) or (not white_wins and self.player_color == pachi_py.BLACK)
-            reward = 1. if (self.opponent_resigned or player_wins) else -1.
-        else:
+            # If the opponent resigns, then the agent wins
+            if opponent_resigned:
+                self.done = True
+                return self.state.board.encode(), 1., True, {'state': self.state}
+
+        # Reward: if nonterminal, then the reward is 0
+        if not self.state.board.is_terminal:
             self.done = False
-            reward = 0.
-        return self.state.board.encode(), reward, self.done, {'state': self.state}
+            return self.state.board.encode(), 0., False, {'state': self.state}
+
+        # We're in a terminal state. Reward is 1 if won, -1 if lost
+        assert self.state.board.is_terminal
+        self.done = True
+        white_wins = self.state.board.official_score > 0
+        player_wins = (white_wins and self.player_color == pachi_py.WHITE) or (not white_wins and self.player_color == pachi_py.BLACK)
+        reward = 1. if player_wins else -1.
+        return self.state.board.encode(), reward, True, {'state': self.state}
 
     def _exec_opponent_play(self, curr_state, prev_state, prev_action):
         assert curr_state.color != self.player_color
