@@ -29,3 +29,6 @@ mujoco-bundle
 rllab_mujoco
 
 tutorial/*.html
+
+# IDE files
+.idea/
