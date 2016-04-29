@@ -134,3 +134,18 @@ class CartPoleEnv(gym.Env):
             pass
         else:
             return super(CartPoleEnv, self).render(mode=mode)
+
+
+class CartPoleHardEnv(CartPoleEnv):
+    def __init__(self):
+        super(CartPoleHardEnv, self).__init__()
+        high = np.array([self.x_threshold, self.theta_threshold_radians])
+        self.observation_space = spaces.Box(-high, high)
+
+    def _step(self, action):
+        _, reward, done, info = super(CartPoleHardEnv, self)._step(action)
+        return np.array(self.state)[::2], reward, done, info
+
+    def _reset(self):
+        super(CartPoleHardEnv, self)._reset()
+        return np.array(self.state)[::2]
