@@ -115,6 +115,7 @@ class TaxiEnv(discrete.DiscreteEnv):
         outfile = StringIO() if mode == 'ansi' else sys.stdout
 
         out = self.desc.copy().tolist()
+        out = [[c.decode('utf-8') for c in line] for line in out]
         taxirow, taxicol, passidx, destidx = self.decode(self.s)
         def ul(x): return "_" if x == " " else x
         if passidx < 4:

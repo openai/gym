@@ -25,10 +25,10 @@ def colorize(string, color, bold=False, highlight = False):
     attr = []
     num = color2num[color]
     if highlight: num += 10
-    attr.append(six.b(str(num)))
-    if bold: attr.append(six.b('1'))
-    attrs = six.b(';').join(attr)
-    return six.b('\x1b[%sm%s\x1b[0m') % (attrs, string)
+    attr.append(six.u(str(num)))
+    if bold: attr.append(six.u('1'))
+    attrs = six.u(';').join(attr)
+    return six.u('\x1b[%sm%s\x1b[0m') % (attrs, string)
 
 class EzPickle(object):
     """Objects that are pickled and unpickled via their constructor
