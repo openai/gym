@@ -31,8 +31,10 @@ def _action_to_coord(board, a):
     if a == board.size**2 + 1: return pachi_py.RESIGN_COORD
     return board.ij_to_coord(a // board.size, a % board.size)
 
+
 def str_to_action(board, s):
     return _coord_to_action(board, board.str_to_coord(s))
+
 
 class GoState(object):
     '''
@@ -69,6 +71,7 @@ def random_policy(curr_state, prev_state, prev_action):
     b = curr_state.board
     legal_coords = b.get_legal_coords(curr_state.color)
     return _coord_to_action(b, np.random.choice(legal_coords))
+
 
 def make_pachi_policy(board, engine_type='uct', threads=1, pachi_timestr=''):
     engine = pachi_py.PyPachiEngine(board, engine_type, 'threads=%d' % threads)
@@ -229,5 +232,7 @@ class GoEnv(gym.Env):
             self.opponent_policy = random_policy
         elif self.opponent == 'pachi:uct:_2400':
             self.opponent_policy = make_pachi_policy(board=board, engine_type='uct', pachi_timestr='_2400') # TODO: strength as argument
+        elif callable(self.opponent):
+            self.opponent_policy = self.opponent
         else:
             raise error.Error('Unrecognized opponent policy {}'.format(self.opponent))
