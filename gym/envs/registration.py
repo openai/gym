@@ -1,7 +1,6 @@
 import logging
 import pkg_resources
 import re
-import six
 import sys
 from gym import error
 
@@ -11,14 +10,8 @@ env_id_re = re.compile(r'^([\w:-]+)-v(\d+)$')
 
 def load(name):
     entry_point = pkg_resources.EntryPoint.parse('x={}'.format(name))
-    try:
-        result = entry_point.load(False)
-    except ImportError as e:
-        _, _, traceback = sys.exc_info()
-        new_e = ImportError("{} (while loading {})".format(e, name))
-        six.reraise(type(new_e), new_e, traceback)
-    else:
-        return result
+    result = entry_point.load(False)
+    return result
 
 class EnvSpec(object):
     """A specification for a particular instance of the environment. Used
@@ -56,15 +49,7 @@ class EnvSpec(object):
     def make(self):
         """Instantiates an instance of the environment with appropriate kwargs"""
         cls = load(self._entry_point)
-        try:
-            env = cls(**self._kwargs)
-        except TypeError as e:
-            type, value, traceback = sys.exc_info()
-
-            # This likely indicates unsupported kwargs
-            six.reraise(type, """Could not 'make' {} ({}): {}.
-
-(For reference, the environment was instantiated with kwargs: {}).""".format(self.id, cls, e, self._kwargs), traceback)
+        env = cls(**self._kwargs)
 
         # Make the enviroment aware of which spec it came from.
         env.spec = self
