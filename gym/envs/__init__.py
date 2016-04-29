@@ -58,6 +58,13 @@ register(
 )
 
 register(
+    id='CartPoleHard-v0',
+    entry_point='gym.envs.classic_control:CartPoleHardEnv',
+    timestep_limit=200,
+    reward_threshold=195,
+)
+
+register(
     id='MountainCar-v0',
     entry_point='gym.envs.classic_control:MountainCarEnv',
     timestep_limit=200,
