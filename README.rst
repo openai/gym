@@ -85,7 +85,7 @@ On Ubuntu 14.04:
 Supported systems
 -----------------
 
-We currenty support Python 2.7 on Linux and OSX.
+We currently support Python 2.7 on Linux and OSX.
 
 We will expand support to Python 3 and Windows based on demand. We
 will also soon ship a Docker container exposing OpenAI Gym as an API
