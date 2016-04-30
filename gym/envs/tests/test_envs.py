@@ -33,7 +33,7 @@ def test_random_rollout():
     for env in [envs.make('CartPole-v0'), envs.make('FrozenLake-v0')]:
         agent = lambda ob: env.action_space.sample()
         ob = env.reset()
-        for _ in xrange(10):
+        for _ in range(10):
             assert env.observation_space.contains(ob)
             a = agent(ob)
             assert env.action_space.contains(a)

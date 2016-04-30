@@ -1,5 +1,6 @@
 import numpy as np
-import StringIO, sys
+import sys
+from six import StringIO, b
 
 from gym import utils
 from gym.envs.toy_text import discrete
@@ -67,10 +68,10 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
         nA = 4
         nS = nrow * ncol
 
-        isd = (desc == 'S').ravel().astype('float64')
+        isd = np.array(desc == 'S').astype('float64')
         isd /= isd.sum()
 
-        P = {s : {a : [] for a in xrange(nA)} for s in xrange(nS)}
+        P = {s : {a : [] for a in range(nA)} for s in range(nS)}
 
         def to_s(row, col):
             return row*ncol + col
@@ -85,24 +86,24 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
                 row = max(row-1,0)
             return (row, col)
 
-        for row in xrange(nrow):
-            for col in xrange(ncol):
+        for row in range(nrow):
+            for col in range(ncol):
                 s = to_s(row, col)
-                for a in xrange(4):
+                for a in range(4):
                     li = P[s][a]
                     if is_slippery:
                         for b in [(a-1)%4, a, (a+1)%4]:
                             newrow, newcol = inc(row, col, b)
                             newstate = to_s(newrow, newcol)
                             letter = desc[newrow, newcol]
-                            done = letter in 'GH'
+                            done = str(letter) in 'GH'
                             rew = float(letter == 'G')
                             li.append((1.0/3.0, newstate, rew, done))
                     else:
                         newrow, newcol = inc(row, col, a)
                         newstate = to_s(newrow, newcol)
                         letter = desc[newrow, newcol]
-                        done = letter in 'GH'
+                        done = str(letter) in 'GH'
                         rew = float(letter == 'G')
                         li.append((1.0/3.0, newstate, rew, done))
 
@@ -112,13 +113,13 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
         if close:
             return
 
-        outfile = StringIO.StringIO() if mode == 'ansi' else sys.stdout
+        outfile = StringIO() if mode == 'ansi' else sys.stdout
 
         row, col = self.s // self.ncol, self.s % self.ncol
         desc = self.desc.tolist()
+        desc = [[c.decode('utf-8') for c in line] for line in desc]
         desc[row][col] = utils.colorize(desc[row][col], "red", highlight=True)
-
-        outfile.write("\n".join("".join(row) for row in desc)+"\n")
+        outfile.write("\n".join(''.join(line) for line in desc)+"\n")
         if self.lastaction is not None:
             outfile.write("  ({})\n".format(["Left","Down","Right","Up"][self.lastaction]))
         else:

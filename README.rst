@@ -8,6 +8,16 @@ gym
 If you're not sure where to start, we recommend beginning with the
 `docs <https://gym.openai.com/docs>`_ on our site.
 
+Supported systems
+-----------------
+
+We currently support Linux and OS X running Python 2.7 or 3.5.
+Python 3 support should still be considered experimental -- if you find any bugs, please report them!
+
+We will expand support to Windows based on demand. We
+will also soon ship a Docker container exposing the environments
+callable from any platform, for use with any non-Python framework, such as Torch.
+
 .. contents:: **Contents of this document**
    :depth: 2
 
@@ -36,7 +46,7 @@ Installation
 You can perform a minimal install of ``gym`` with:
 
 .. code:: shell
-	  
+
 	  git clone https://github.com/openai/gym.git
 	  cd gym
 	  pip install -e .
@@ -79,17 +89,8 @@ On OSX:
 On Ubuntu 14.04:
 
 .. code:: shell
-	  
+
 	  apt-get install -y python-numpy python-dev cmake zlib1g-dev libjpeg-dev xvfb libav-tools xorg-dev python-opengl
-
-Supported systems
------------------
-
-We currently support Python 2.7 on Linux and OSX.
-
-We will expand support to Python 3 and Windows based on demand. We
-will also soon ship a Docker container exposing OpenAI Gym as an API
-callable from any platform.
 
 Pip version
 -----------

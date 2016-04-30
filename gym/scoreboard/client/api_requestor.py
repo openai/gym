@@ -1,6 +1,7 @@
 import json
 import platform
-import urlparse
+import six.moves.urllib as urlparse
+from six import iteritems
 
 from gym import error, version
 import gym.scoreboard.client
@@ -20,7 +21,7 @@ def _build_api_url(url, query):
 def _strip_nulls(params):
     if isinstance(params, dict):
         stripped = {}
-        for key, value in params.iteritems():
+        for key, value in iteritems(params):
             value = _strip_nulls(value)
             if value is not None:
                 stripped[key] = value

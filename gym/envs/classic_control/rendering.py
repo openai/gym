@@ -196,7 +196,7 @@ class FilledPolygon(Geom):
 
 def make_circle(radius=10, res=30, filled=True):
     points = []
-    for i in xrange(res):
+    for i in range(res):
         ang = 2*math.pi*i / res
         points.append((math.cos(ang)*radius, math.sin(ang)*radius))
     if filled:
