@@ -4,7 +4,7 @@ import os
 import subprocess
 import tempfile
 import os.path
-import distutils.spawn
+import distutils.spawn, distutils.version
 import numpy as np
 from six import StringIO
 import six
@@ -286,7 +286,10 @@ class ImageEncoder(object):
         if frame.dtype != np.uint8:
             raise error.InvalidFrame("Your frame has data type {}, but we require uint8 (i.e. RGB values from 0-255).".format(frame.dtype))
 
-        self.proc.stdin.write(frame.tobytes())
+        if distutils.version.StrictVersion(np.__version__) >= distutils.version.StrictVersion('1.9.0'):
+            self.proc.stdin.write(frame.tobytes())
+        else:
+            self.proc.stdin.write(frame.tostring())
 
     def close(self):
         self.proc.stdin.close()

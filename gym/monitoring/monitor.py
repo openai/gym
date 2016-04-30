@@ -71,7 +71,7 @@ class Monitor(object):
     to record every 100 episodes. ('count' is how many episodes have completed)
 
     Depending on the environment, video can slow down execution. You
-    can also use 'monitor.configure(video=lambda count: False)' to disable
+    can also use 'monitor.configure(video_callable=lambda count: False)' to disable
     video.
 
     Monitor supports multiple threads and multiple processes writing
@@ -155,14 +155,14 @@ class Monitor(object):
         # during video recording.
         try:
             self.env.render(close=True)
-        except Exception:
-            type, value, traceback = sys.exc_info()
+        except Exception as e:
             if self.env.spec:
                 key = self.env.spec.id
             else:
                 key = self.env
-            # This likely indicates unsupported kwargs
-            six.reraise(type, '{} (when closing {})'.format(value, key), traceback)
+            # We don't want to avoid writing the manifest simply
+            # because we couldn't close the renderer.
+            logger.error('Could not close renderer for %s: %s', key, e)
 
         # Give it a very distiguished name, since we need to pick it
         # up from the filesystem later.

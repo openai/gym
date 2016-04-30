@@ -1,13 +1,19 @@
 import numpy as np
 from nose2 import tools
+import os
+
 from gym import envs
 
 # This runs a smoketest on each official registered env. We may want
 # to try also running environments which are not officially registered
 # envs.
-specs = [spec for spec in envs.registry.all() if (not spec.id.startswith("atari")) or ("space_invaders" in spec.id)] # only test space invaders out of atari games
+specs = [spec for spec in envs.registry.all()]
 @tools.params(*specs)
 def test_env(spec):
+    skip_mujoco = os.environ.get('TRAVIS_PULL_REQUEST', 'false') != 'false'
+    if skip_mujoco and spec.entry_point.startswith('gym.envs.mujoco:'):
+        return
+
     env = spec.make()
     ob_space = env.observation_space
     act_space = env.action_space
