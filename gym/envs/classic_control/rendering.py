@@ -15,7 +15,7 @@ try:
 except ImportError as e:
     raise error.DependencyNotInstalled("""{}
 
-(HINT: you can install pyglet directly via 'pip install pyglet'. But if you really just want to install all Gym dependencies and not have to think about it, 'pip install -e .[all]' or 'pip install gym[all]' will do it.)""")
+(HINT: you can install pyglet directly via 'pip install pyglet'. But if you really just want to install all Gym dependencies and not have to think about it, 'pip install -e .[all]' or 'pip install gym[all]' will do it.)""".format(e))
 
 try:
     from pyglet.gl import *
@@ -196,7 +196,7 @@ class FilledPolygon(Geom):
 
 def make_circle(radius=10, res=30, filled=True):
     points = []
-    for i in xrange(res):
+    for i in range(res):
         ang = 2*math.pi*i / res
         points.append((math.cos(ang)*radius, math.sin(ang)*radius))
     if filled:

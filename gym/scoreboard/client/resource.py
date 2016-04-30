@@ -1,7 +1,9 @@
 import json
-import urllib
 import warnings
 import sys
+from six import string_types
+from six import iteritems
+import six.moves.urllib as urllib
 
 import gym
 from gym import error
@@ -18,7 +20,7 @@ def convert_to_gym_object(resp, api_key):
     elif isinstance(resp, dict) and not isinstance(resp, GymObject):
         resp = resp.copy()
         klass_name = resp.get('object')
-        if isinstance(klass_name, basestring):
+        if isinstance(klass_name, string_types):
             klass = types.get(klass_name, GymObject)
         else:
             klass = GymObject
@@ -142,7 +144,7 @@ class GymObject(dict):
 
         self._transient_values = self._transient_values - set(values)
 
-        for k, v in values.iteritems():
+        for k, v in iteritems(values):
             super(GymObject, self).__setitem__(
                 k, convert_to_gym_object(v, api_key))
 
@@ -164,10 +166,10 @@ class GymObject(dict):
     def __repr__(self):
         ident_parts = [type(self).__name__]
 
-        if isinstance(self.get('object'), basestring):
+        if isinstance(self.get('object'), string_types):
             ident_parts.append(self.get('object'))
 
-        if isinstance(self.get('id'), basestring):
+        if isinstance(self.get('id'), string_types):
             ident_parts.append('id=%s' % (self.get('id'),))
 
         unicode_repr = '<%s at %s> JSON: %s' % (
@@ -228,7 +230,7 @@ class APIResource(GymObject):
             raise NotImplementedError(
                 'APIResource is an abstract class.  You should perform '
                 'actions on its subclasses (e.g. Charge, Customer)')
-        return str(urllib.quote_plus(cls.__name__.lower()))
+        return str(urllib.parse.quote_plus(cls.__name__.lower()))
 
     @classmethod
     def class_path(cls):
@@ -243,7 +245,7 @@ class APIResource(GymObject):
                 'has invalid ID: %r' % (type(self).__name__, id), 'id')
         id = util.utf8(id)
         base = self.class_path()
-        extn = urllib.quote_plus(id)
+        extn = urllib.parse.quote_plus(id)
         return "%s/%s" % (base, extn)
 
 class ListObject(GymObject):
@@ -280,7 +282,7 @@ class ListObject(GymObject):
     def retrieve(self, id, **params):
         base = self.get('url')
         id = util.utf8(id)
-        extn = urllib.quote_plus(id)
+        extn = urllib.parse.quote_plus(id)
         url = "%s/%s" % (base, extn)
 
         return self.request('get', url, params)

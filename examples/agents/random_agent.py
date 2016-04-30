@@ -27,8 +27,8 @@ if __name__ == '__main__':
     outdir = '/tmp/random-agent-results'
     env.monitor.start(outdir, force=True)
 
-    episode_count = 200
-    max_steps = 100
+    episode_count = 100
+    max_steps = 200
     reward = 0
     done = False
 

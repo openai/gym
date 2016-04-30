@@ -36,8 +36,8 @@ Installation
 You can perform a minimal install of ``gym`` with:
 
 .. code:: shell
-	  
-	  git clone git@github.com:openai/gym.git
+
+	  git clone https://github.com/openai/gym.git
 	  cd gym
 	  pip install -e .
 
@@ -59,7 +59,7 @@ installing the dependencies for the remaining environments.
 Installing everything
 ---------------------
 
-Once you're ready to install everything, run ``pip install -e .[all]`` (or ``pip install gym[all]``).
+Once you're ready to install everything, run ``pip install -e '.[all]'`` (or ``pip install 'gym[all]'``).
 
 MuJoCo has a proprietary dependency we can't set up for you. Follow
 the
@@ -70,25 +70,32 @@ For the install to succeed, you'll need to have some system packages
 installed. We'll build out the list here over time; please let us know
 what you end up installing on your platform.
 
+On OSX:
+
+.. code:: shell
+
+	  brew install cmake
+
 On Ubuntu 14.04:
 
 .. code:: shell
-	  
+
 	  apt-get install -y python-numpy python-dev cmake zlib1g-dev libjpeg-dev xvfb libav-tools xorg-dev python-opengl
 
 Supported systems
 -----------------
 
-We currenty support Python 2.7 on Linux and OSX.
+We currently support Linux and OS X running Python 2.7 or 3.5.
+Python 3 support should still be considered experimental -- if you find any bugs, please report them!
 
-We will expand support to Python 3 and Windows based on demand. We
-will also soon ship a Docker container exposing OpenAI Gym as an API
-callable from any platform.
+We will expand support to Windows based on demand. We
+will also soon ship a Docker container exposing the environments
+callable from any platform, for use with any non-Python framework, such as Torch.
 
 Pip version
 -----------
 
-To run ``pip install -e .[all]``, you'll need a semi-recent pip.
+To run ``pip install -e '.[all]'``, you'll need a semi-recent pip.
 Please make sure your pip is at least at version ``1.5.0``. You can
 upgrade using the following: ``pip install --ignore-installed
 pip``. Alternatively, you can open `setup.py
@@ -129,7 +136,7 @@ sequence.
 Atari
 -----
 
-The Atari environments are a variety of Atari video games. If you didn't do the full install, you can install dependencies via ``pip install -e .[atari]`` and then get started as follow:
+The Atari environments are a variety of Atari video games. If you didn't do the full install, you can install dependencies via ``pip install -e '.[atari]'`` (you'll need ``cmake`` installed) and then get started as follow:
 
 .. code:: python
 
@@ -143,7 +150,7 @@ This will install ``atari-py``, which automatically compiles the `Arcade Learnin
 Board games
 -----------
 
-The board game environments are a variety of board games. If you didn't do the full install, you can install dependencies via ``pip install -e .[board_game]`` and then get started as follow:
+The board game environments are a variety of board games. If you didn't do the full install, you can install dependencies via ``pip install -e '.[board_game]'`` (you'll need ``cmake`` installed) and then get started as follow:
 
 .. code:: python
 
@@ -155,7 +162,7 @@ The board game environments are a variety of board games. If you didn't do the f
 Classic control
 ---------------
 
-These are a variety of classic control tasks, which would appear in a typical reinforcement learning textbook. If you didn't do the full install, you will need to run ``pip install -e .[classic_control]`` to enable rendering. You can get started with them via:
+These are a variety of classic control tasks, which would appear in a typical reinforcement learning textbook. If you didn't do the full install, you will need to run ``pip install -e '.[classic_control]'`` to enable rendering. You can get started with them via:
 
 .. code:: python
 
@@ -171,7 +178,7 @@ MuJoCo
 very detailed efficient simulations with contacts. It's not
 open-source, so you'll have to follow the instructions in `mujoco-py
 <https://github.com/openai/mujoco-py#obtaining-the-binaries-and-license-key>`_
-to set it up. You'll have to also run ``pip install -e .[mujoco]`` if you didn't do the full install.
+to set it up. You'll have to also run ``pip install -e '.[mujoco]'`` if you didn't do the full install.
 
 .. code:: python
 
@@ -188,7 +195,7 @@ Toy environments which are text-based. There's no extra dependency to install, s
 .. code:: python
 
 	  import gym
-	  env = gym.make('FrozenLake')
+	  env = gym.make('FrozenLake-v0')
 	  env.reset()
 	  env.render()
 
@@ -205,7 +212,7 @@ See the ``examples`` directory.
 Testing
 =======
 
-We are using `nose2 <https://github.com/nose-devs/nose2>`_ for tests. You can run them via
+We are using `nose2 <https://github.com/nose-devs/nose2>`_ for tests. You can run them via:
 
 .. code:: shell
 

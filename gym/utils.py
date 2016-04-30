@@ -2,6 +2,8 @@
 not intended as API functions, and will not remain stable over time.
 """
 
+import six
+
 color2num = dict(
     gray=30,
     red=31,
@@ -14,6 +16,7 @@ color2num = dict(
     crimson=38
 )
 
+
 def colorize(string, color, bold=False, highlight = False):
     """Return string surrounded by appropriate terminal color codes to
     print colorized text.  Valid colors: gray, red, green, yellow,
@@ -22,9 +25,10 @@ def colorize(string, color, bold=False, highlight = False):
     attr = []
     num = color2num[color]
     if highlight: num += 10
-    attr.append(unicode(num))
-    if bold: attr.append('1')
-    return '\x1b[%sm%s\x1b[0m' % (';'.join(attr), string)
+    attr.append(six.u(str(num)))
+    if bold: attr.append(six.u('1'))
+    attrs = six.u(';').join(attr)
+    return six.u('\x1b[%sm%s\x1b[0m') % (attrs, string)
 
 class EzPickle(object):
     """Objects that are pickled and unpickled via their constructor

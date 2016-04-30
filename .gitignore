@@ -29,3 +29,5 @@ mujoco-bundle
 rllab_mujoco
 
 tutorial/*.html
+.eggs
+.tox
