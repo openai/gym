@@ -16,7 +16,7 @@ setup(name='gym',
                 if package.startswith('gym')],
       zip_safe=False,
       install_requires=[
-          'numpy>=1.10.4', 'requests', 'six'
+          'numpy>=1.10.4', 'requests>=2.0', 'six'
       ],
       extras_require={
           'all': ['atari_py>=0.0.17', 'Pillow', 'pyglet', 'PyOpenGL',
