@@ -183,7 +183,7 @@ to set it up. You'll have to also run ``pip install -e '.[mujoco]'`` if you didn
 .. code:: python
 
 	  import gym
-	  env = gym.make('Humanoid')
+	  env = gym.make('Humanoid-v0')
 	  env.reset()
 	  env.render()
 
