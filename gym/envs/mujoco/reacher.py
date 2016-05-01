@@ -6,7 +6,6 @@ class ReacherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     def __init__(self):
         utils.EzPickle.__init__(self)
         mujoco_env.MujocoEnv.__init__(self, 'reacher.xml', 2)
-        self.finalize()
 
     def _step(self, a):
         vec = self.get_body_com("fingertip")-self.get_body_com("target")
@@ -21,17 +20,16 @@ class ReacherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     def viewer_setup(self):
         self.viewer.cam.trackbodyid=0
 
-    def _reset(self):
-        qpos = np.random.uniform(low=-0.1, high=0.1, size=(self.model.nq,1)) + self.init_qpos
+    def reset_model(self):
+        qpos = np.random.uniform(low=-0.1, high=0.1, size=self.model.nq) + self.init_qpos
         while True:
-            self.goal = np.random.uniform(low=-.2, high=.2, size=(2,1))
+            self.goal = np.random.uniform(low=-.2, high=.2, size=2)
             if np.linalg.norm(self.goal) < 2: break
         qpos[-2:] = self.goal
         self.model.data.qpos = qpos
-        qvel = self.init_qvel + np.random.rand(self.model.nv,1)*.01-.005
+        qvel = self.init_qvel + np.random.uniform(low=-.005, high=.005, size=self.model.nv)
         qvel[-2:] = 0
-        self.model.data.qvel = qvel
-        self.reset_viewer_if_necessary()
+        self.set_state(qpos, qvel)
         return self._get_obs()
 
     def _get_obs(self):
