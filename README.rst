@@ -102,6 +102,17 @@ pip``. Alternatively, you can open `setup.py
 <https://github.com/openai/gym/blob/master/setup.py>`_ and
 install the dependencies by hand.
 
+Rendering on a server
+---------------------
+
+If you're trying to render video on a server, you'll need to connect a
+fake display. The easiest way to do this is by running under
+``xvfb-run`` (on Ubuntu, install the ``xvfb`` package):
+
+.. code:: shell
+
+     xvfb-run -s "-screen 0 1400x900x24" bash
+
 Installing dependencies for specific environments
 -------------------------------------------------
 
