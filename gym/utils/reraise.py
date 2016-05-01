@@ -1,7 +1,7 @@
 import sys
 
-# We keep the actual reraising in different modules since the
-# Python 2 version SyntaxError's in Python 3.
+# We keep the actual reraising in different modules, since the
+# reraising code uses syntax mutually exclusive to Python 2/3.
 if sys.version_info[0] < 3:
     from .reraise_impl_py2 import reraise_impl
 else:
