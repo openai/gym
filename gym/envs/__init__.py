@@ -111,48 +111,48 @@ register(
 # 2D
 
 register(
-    id='Reacher-v0',
+    id='Reacher-v1',
     entry_point='gym.envs.mujoco:ReacherEnv',
     timestep_limit=50
 )
 
 register(
-    id='InvertedPendulum-v0',
+    id='InvertedPendulum-v1',
     entry_point='gym.envs.mujoco:InvertedPendulumEnv',
 )
 
 register(
-    id='InvertedDoublePendulum-v0',
+    id='InvertedDoublePendulum-v1',
     entry_point='gym.envs.mujoco:InvertedDoublePendulumEnv',
 )
 
 register(
-    id='HalfCheetah-v0',
+    id='HalfCheetah-v1',
     entry_point='gym.envs.mujoco:HalfCheetahEnv',
 )
 
 register(
-    id='Hopper-v0',
+    id='Hopper-v1',
     entry_point='gym.envs.mujoco:HopperEnv',
 )
 
 register(
-    id='Swimmer-v0',
+    id='Swimmer-v1',
     entry_point='gym.envs.mujoco:SwimmerEnv',
 )
 
 register(
-    id='Walker2d-v0',
+    id='Walker2d-v1',
     entry_point='gym.envs.mujoco:Walker2dEnv',
 )
 
 register(
-    id='Ant-v0',
+    id='Ant-v1',
     entry_point='gym.envs.mujoco:AntEnv',
 )
 
 register(
-    id='Humanoid-v0',
+    id='Humanoid-v1',
     entry_point='gym.envs.mujoco:HumanoidEnv',
 )
 

@@ -1,24 +1,38 @@
-import os.path
+import os
 
+from gym import error, spaces
 import numpy as np
+from os import path
 import gym
 import six
-from gym import error, spaces
 
 try:
     import mujoco_py
 except ImportError as e:
     raise error.DependencyNotInstalled("{}. (HINT: you need to install mujoco_py, and also perform the setup instructions here: https://github.com/openai/mujoco-py/.)".format(e))
 
-BIG=10000
+
+# move this into mujoco-py next time we upgrade it!!! 
+# ---------------------------------------------------
+from mujoco_py.mjlib import mjlib
+from mujoco_py.mjtypes import POINTER, MJMODEL, MJDATA
+mjlib.mj_resetData.argtypes = [POINTER(MJMODEL), POINTER(MJDATA)]
+mjlib.mj_resetData.restype = None
+# ---------------------------------------------------
+
 
 class MujocoEnv(gym.Env):
+
+    """
+    Superclass of MuJoCo environments.
+    """
+
     def __init__(self, model_path, frame_skip):
         if model_path.startswith("/"):
             fullpath = model_path
         else:
             fullpath = os.path.join(os.path.dirname(__file__), "assets", model_path)
-        if not os.path.exists(fullpath):
+        if not path.exists(fullpath):
             raise IOError("File %s does not exist"%fullpath)
         self.frame_skip= frame_skip
         self.model = mujoco_py.MjModel(fullpath)
@@ -30,6 +44,57 @@ class MujocoEnv(gym.Env):
             'video.frames_per_second' : int(np.round(1.0 / self.dt))
         }
 
+        self.init_qpos = self.model.data.qpos.ravel().copy()
+        self.init_qvel = self.model.data.qvel.ravel().copy()
+        observation, _reward, done, _info = self.step(np.zeros(self.model.nu))
+        assert not done
+        self.obs_dim = observation.size
+
+        bounds = self.model.actuator_ctrlrange.copy()
+        low = bounds[:, 0]
+        high = bounds[:, 1]
+        self.action_space = spaces.Box(low, high)
+
+        high = np.inf*np.ones(self.obs_dim)
+        low = -high
+        self.observation_space = spaces.Box(low, high)        
+
+    # methods to override:
+    # ----------------------------
+
+    def reset_model(self):
+        """
+        Reset the robot degrees of freedom (qpos and qvel).
+        Implement this in each subclass.
+        """
+        raise NotImplementedError
+
+    def viewer_setup(self):
+        """
+        This method is called when the viewer is initialized and after every reset
+        Optionally implement this method, if you need to tinker with camera position
+        and so forth.
+        """
+        pass
+
+    # -----------------------------
+
+    def _reset(self):
+        ob = self.reset_model()
+        # mjlib.mj_resetData(self.model.ptr, self.data.ptr)
+        if self.viewer is not None:
+            self.viewer.autoscale()
+            self.viewer_setup()
+        return ob
+
+    def set_state(self, qpos, qvel):
+        assert qpos.shape == (self.model.nq,) and qvel.shape == (self.model.nv,)
+        self.model.data.qpos = qpos
+        self.model.data.qvel = qvel
+        self.model._compute_subtree() #pylint: disable=W0212
+        self.model.forward()
+
+
     @property
     def dt(self):
         return self.model.opt.timestep * self.frame_skip
@@ -38,22 +103,6 @@ class MujocoEnv(gym.Env):
         self.model.data.ctrl = ctrl
         for _ in range(n_frames):
             self.model.step()
-
-    def finalize(self):
-        self.init_qpos = self.model.data.qpos.copy()
-        self.init_qvel = self.model.data.qvel.copy()
-        self.ctrl_dim = self.model.data.ctrl.size
-        observation, _reward, done, _info = self.step(np.zeros(self.ctrl_dim))
-        assert not done
-        self.obs_dim = observation.size
-
-        high = np.ones(self.ctrl_dim)
-        low = -high
-        self.action_space = spaces.Box(low, high)
-
-        high = BIG*np.ones(self.obs_dim)
-        low = -high
-        self.observation_space = spaces.Box(low, high)
 
     def _render(self, mode='human', close=False):
         if close:
@@ -76,14 +125,6 @@ class MujocoEnv(gym.Env):
             self.viewer_setup()
         return self.viewer
 
-    def viewer_setup(self):
-        pass
-
-    def reset_viewer_if_necessary(self):
-        if self.viewer is not None:
-            self.viewer.autoscale()
-            self.viewer_setup()
-
     def get_body_com(self, body_name):
         idx = self.model.body_names.index(six.b(body_name))
         return self.model.data.com_subtree[idx]
@@ -96,15 +137,7 @@ class MujocoEnv(gym.Env):
         idx = self.model.body_names.index(six.b(body_name))
         return self.model.data.xmat[idx].reshape((3, 3))
 
-    @property
-    def action_bounds(self):
-        bounds = self.model.actuator_ctrlrange
-        lb = bounds[:, 0]
-        ub = bounds[:, 1]
-        return lb, ub
-
-    @property
-    def _state(self):
+    def state_vector(self):
         return np.concatenate([
             self.model.data.qpos.flat,
             self.model.data.qvel.flat
