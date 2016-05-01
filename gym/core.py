@@ -36,6 +36,7 @@ class Env(object):
 
     # Set this in SOME subclasses
     metadata = {'render.modes': []}
+    reward_range = (-np.inf, np.inf)
 
     # Set these in ALL subclasses
     action_space = None
