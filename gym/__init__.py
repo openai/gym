@@ -2,6 +2,7 @@ import distutils.version
 import logging
 import sys
 
+from gym import error
 from gym.utils import reraise
 
 # Do this before importing any other gym modules, as most of them import some
