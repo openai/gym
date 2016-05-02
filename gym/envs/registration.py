@@ -19,7 +19,7 @@ class EnvSpec(object):
 
     Args:
         id (str): The official environment ID
-        entry_point (str): The Python entrypoint of the environment class (e.g. module.name:Class)
+        entry_point (Optional[str]): The Python entrypoint of the environment class (e.g. module.name:Class)
         timestep_limit (int): The max number of timesteps per episode during training
         trials (int): The number of trials to average reward over
         reward_threshold (Optional[int]): The reward threshold before the task is considered solved
@@ -31,7 +31,7 @@ class EnvSpec(object):
         trials (int): The number of trials run in official evaluation
     """
 
-    def __init__(self, id, entry_point, timestep_limit=1000, trials=100, reward_threshold=None, kwargs=None):
+    def __init__(self, id, entry_point=None, timestep_limit=1000, trials=100, reward_threshold=None, kwargs=None):
         self.id = id
         # Evaluation parameters
         self.timestep_limit = timestep_limit
@@ -88,10 +88,10 @@ class EnvRegistry(object):
         except KeyError:
             raise error.UnregisteredEnv('No registered env with id: {}'.format(id))
 
-    def register(self, id, entry_point, **kwargs):
+    def register(self, id, **kwargs):
         if id in self.env_specs:
             raise error.Error('Cannot re-register id: {}'.format(id))
-        self.env_specs[id] = EnvSpec(id, entry_point, **kwargs)
+        self.env_specs[id] = EnvSpec(id, **kwargs)
 
 # Have a global registry
 registry = EnvRegistry()
