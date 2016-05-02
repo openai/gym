@@ -34,8 +34,8 @@ class ReraisedException(Exception):
 
         orig = "%s: %s" % (full_class_name(self.old_exc), klass.__str__(self.old_exc))
         prefixpart = suffixpart = ''
-        if self.prefix != '':
+        if self.prefix is not None:
             prefixpart = self.prefix + "\n"
-        if self.suffix != '':
+        if self.suffix is not None:
             suffixpart = "\n\n" + self.suffix
         return "%sThe original exception was:\n\n%s%s" % (prefixpart, orig, suffixpart)
