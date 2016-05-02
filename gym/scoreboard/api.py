@@ -25,8 +25,8 @@ def upload(training_dir, algorithm_id=None, writeup=None, api_key=None):
         api_key (Optional[str]): Your OpenAI API key. Can also be provided as an environment variable (OPENAI_GYM_API_KEY).
     """
 
-    open_monitors = monitoring._monitors.values()
-    if open_monitors:
+    open_monitors = list(monitoring._monitors.values())
+    if len(open_monitors) > 0:
         envs = [m.env.spec.id if m.env.spec else '(unknown)' for m in open_monitors]
         raise error.Error("Still have an open monitor on {}. You must run 'env.monitor.close()' before uploading.".format(', '.join(envs)))
 
