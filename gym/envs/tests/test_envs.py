@@ -13,6 +13,8 @@ def test_env(spec):
     skip_mujoco = os.environ.get('TRAVIS_PULL_REQUEST', 'false') != 'false'
     if skip_mujoco and spec._entry_point.startswith('gym.envs.mujoco:'):
         return
+    elif spec._entry_point is None:
+        return
 
     env = spec.make()
     ob_space = env.observation_space
