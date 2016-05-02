@@ -31,6 +31,8 @@ class Viewer(object):
         self.width = width
         self.height = height
         self.window = pyglet.window.Window(width=width, height=height)
+        self.window.on_close = self.window_closed_by_user
+        self._window_closed = False
         self.geoms = []
         self.onetime_geoms = []
         self.transform = Transform()
@@ -40,6 +42,9 @@ class Viewer(object):
 
     def close(self):
         self.window.close()
+
+    def window_closed_by_user(self):
+        self._window_closed = True
 
     def set_bounds(self, left, right, bottom, top):
         assert right > left and top > bottom
@@ -56,6 +61,8 @@ class Viewer(object):
         self.onetime_geoms.append(geom)
 
     def render(self):
+        if self._window_closed:
+            raise SystemExit("Window is closed")
         glClearColor(1,1,1,1)
         self.window.clear()
         self.window.switch_to()
