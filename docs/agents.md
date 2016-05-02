@@ -20,6 +20,12 @@ Agent implementing tabular Q-learning located in this repo at `gym/examples/agen
 
 This is a very basic DQN (with experience replay) implementation, which uses OpenAI's gym environment and Keras/Theano neural networks. [/sherjilozair/dqn](https://github.com/sherjilozair/dqn)
 
+## AgentNet
+A library that allows you to develop custom deep/convolutional/recurrent reinforcement learning agent with full integration with Theano/Lasagne. Also contains a toolkit for various reinforcement reinforcement learning algorithms, policies, memory augmentations, etc.
+
+ - The repo's here: [AgentNet](https://github.com/yandexdataschool/AgentNet)
+ - [A step-by-step demo for Atari SpaceInvaders ](https://github.com/yandexdataschool/AgentNet/blob/master/examples/Playing%20Atari%20with%20Deep%20Reinforcement%20Learning%20%28OpenAI%20Gym%29.ipynb)
+
 ## rllab
 
 a framework for developing and evaluating reinforcement learning algorithms, fully compatible with OpenAI Gym. It includes a wide range of continuous control tasks plus implementations of many algorithms. [/rllab/rllab](https://github.com/rllab/rllab)
