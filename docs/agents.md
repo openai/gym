@@ -20,6 +20,10 @@ Agent implementing tabular Q-learning located in this repo at `gym/examples/agen
 
 This is a very basic DQN (with experience replay) implementation, which uses OpenAI's gym environment and Keras/Theano neural networks. [/sherjilozair/dqn](https://github.com/sherjilozair/dqn)
 
+## Simple DQN
+
+Simple, fast and easy to extend DQN implementation using [Neon](https://github.com/NervanaSystems/neon) deep learning library. Comes with out-of-box tools to train, test and visualize models. For details see [this blog post](http://www.nervanasys.com/deep-reinforcement-learning-with-neon/) or check out the [repo](https://github.com/tambetm/simple_dqn).
+
 ## AgentNet
 A library that allows you to develop custom deep/convolutional/recurrent reinforcement learning agent with full integration with Theano/Lasagne. Also contains a toolkit for various reinforcement reinforcement learning algorithms, policies, memory augmentations, etc.
 
