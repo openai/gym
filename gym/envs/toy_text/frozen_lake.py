@@ -5,10 +5,11 @@ from six import StringIO, b
 from gym import utils
 from gym.envs.toy_text import discrete
 
-UP = 0
-RIGHT = 1
-DOWN = 2
-LEFT = 3
+# Directions (when not slippery)
+LEFT = 0
+DOWN = 1
+RIGHT = 2
+UP = 3
 
 MAPS = {
     "4x4": [
