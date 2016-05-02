@@ -32,7 +32,7 @@ if args.mode == "human":
 while True:
     env.reset()
     print("Starting a new trajectory")
-    for t in xrange(args.max_steps) if args.max_steps else itertools.count():
+    for t in range(args.max_steps) if args.max_steps else itertools.count():
         done = False
         if args.mode == "noop":
             if isinstance(ac_space, spaces.Box):

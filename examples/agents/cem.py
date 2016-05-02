@@ -20,7 +20,7 @@ def cem(f, th_mean, batch_size, n_iter, elite_frac, initial_std=1.0):
     n_elite = int(np.round(batch_size*elite_frac))
     th_std = np.ones_like(th_mean) * initial_std
 
-    for _ in xrange(n_iter):
+    for _ in range(n_iter):
         ths = np.array([th_mean + dth for dth in  th_std[None,:]*np.random.randn(batch_size, th_mean.size)])
         ys = np.array([f(th) for th in ths])
         elite_inds = ys.argsort()[::-1][:n_elite]
@@ -32,7 +32,7 @@ def cem(f, th_mean, batch_size, n_iter, elite_frac, initial_std=1.0):
 def do_rollout(agent, env, num_steps, render=False):
     total_rew = 0
     ob = env.reset()
-    for t in xrange(num_steps):
+    for t in range(num_steps):
         a = agent.act(ob)
         (ob, reward, done, _info) = env.step(a)
         total_rew += reward

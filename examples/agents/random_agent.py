@@ -32,10 +32,10 @@ if __name__ == '__main__':
     reward = 0
     done = False
 
-    for i in xrange(episode_count):
+    for i in range(episode_count):
         ob = env.reset()
 
-        for j in xrange(max_steps):
+        for j in range(max_steps):
             action = agent.act(ob, reward, done)
             ob, reward, done, _ = env.step(action)
             if done:
