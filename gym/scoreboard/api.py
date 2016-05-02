@@ -175,7 +175,7 @@ def write_archive(videos, archive_file, env_id=None):
             tar.add(metadata_path, arcname=metadata_name, recursive=False)
 
         # Actually write the manifest file
-        with tempfile.NamedTemporaryFile() as f:
+        with tempfile.NamedTemporaryFile(mode='w+') as f:
             json.dump(manifest, f)
             f.flush()
 
