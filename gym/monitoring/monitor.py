@@ -54,7 +54,10 @@ def ensure_close_at_exit(monitor):
 
 @atexit.register
 def close_all_monitors():
-    for key, monitor in monitors.items():
+    # Explicitly fetch all monitors first so that they can't disappear while
+    # we iterate. cf. http://stackoverflow.com/a/12429620
+    open_monitors = list(monitors.items())
+    for key, monitor in open_monitors:
         monitor.close()
 
 class Monitor(object):
