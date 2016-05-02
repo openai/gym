@@ -10,7 +10,7 @@ from gym import envs
 specs = [spec for spec in envs.registry.all()]
 @tools.params(*specs)
 def test_env(spec):
-    skip_mujoco = os.environ.get('TRAVIS_PULL_REQUEST', 'false') != 'false'
+    skip_mujoco = os.environ.get('TRAVIS_PULL_REQUEST', 'false') == 'false'
     if skip_mujoco and spec._entry_point.startswith('gym.envs.mujoco:'):
         return
 
