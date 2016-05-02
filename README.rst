@@ -1,6 +1,9 @@
 gym
 ******
 
+.. image:: https://travis-ci.org/openai/gym.svg?branch=master
+    :target: https://travis-ci.org/openai/gym
+
 **OpenAI Gym is a toolkit for developing and comparing reinforcement learning algorithms.** This is the ``gym`` open-source library, which gives you access to an ever-growing variety of environments.
 
 ``gym`` makes no assumptions about the structure of your agent, and is compatible with any numerical computation library, such as TensorFlow or Theano. You can use it from Python code, and soon from other languages.
