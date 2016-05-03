@@ -1,5 +1,5 @@
 import logging
-import os
+import os, sys
 
 import gym
 
@@ -14,11 +14,11 @@ class RandomAgent(object):
 if __name__ == '__main__':
     # You can optionally set up the logger. Also fine to set the level
     # to logging.DEBUG or logging.WARN if you want to change the
-    # amount of outut.
+    # amount of output.
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
 
-    env = gym.make('CartPole-v0')
+    env = gym.make('CartPole-v0' if len(sys.argv)<2 else sys.argv[1])
     agent = RandomAgent(env.action_space)
 
     # You provide the directory to write to (can be an existing
