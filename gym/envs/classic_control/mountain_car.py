@@ -29,11 +29,9 @@ class MountainCarEnv(gym.Env):
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(self.low, self.high)
 
-        self.action_set = (0, 1, 2)
-
     def _step(self, action):
         # action = np.sign((self.state[0]+math.pi/2) * self.state[1])+1
-        if (action not in self.action_set):
+        if (self.action_space.contains(action) == False):
             raise ValueError("Invalid action '%s' selected" % action)
 
         position, velocity = self.state
