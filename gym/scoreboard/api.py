@@ -6,6 +6,7 @@ import tarfile
 import tempfile
 from gym import error, monitoring
 from gym.scoreboard.client import resource, util
+import numpy as np
 
 MAX_VIDEOS = 100
 
@@ -100,8 +101,8 @@ def upload_training_data(training_dir, api_key=None):
 
     if len(videos) > MAX_VIDEOS:
         logger.warn('[%s] You recorded videos for %s episodes, but the scoreboard only supports up to %s. We will automatically subsample for you, but you also might wish to adjust your video recording rate.', env_id, len(videos), MAX_VIDEOS)
-        skip = len(videos) / (MAX_VIDEOS - 1)
-        videos = videos[::skip]
+        subsample_inds = np.linspace(0, len(videos)-1, MAX_VIDEOS).astype('int')
+        videos = [videos[i] for i in subsample_inds]
 
     if len(videos) > 0:
         training_video = upload_training_video(videos, api_key, env_id=env_id)
