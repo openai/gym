@@ -83,7 +83,7 @@ On Ubuntu 14.04:
 
 .. code:: shell
 
-	  apt-get install -y python-numpy python-dev cmake zlib1g-dev libjpeg-dev xvfb libav-tools xorg-dev python-opengl
+	  apt-get install -y python-numpy python-dev cmake zlib1g-dev libjpeg-dev xvfb libav-tools xorg-dev python-opengl libboost-all-dev gcc libsdl2-dev wget unzip
 
 Supported systems
 -----------------
@@ -184,6 +184,20 @@ These are a variety of classic control tasks, which would appear in a typical re
 	  env = gym.make('CartPole-v0')
 	  env.reset()
 	  env.render()
+
+Doom
+-----
+
+The Doom environments are a series of training missions on the original Doom video game. If you didn't do the full install, you can install dependencies via ``pip install -e '.[doom]'`` (you'll need ``cmake, zlib1g-dev, libjpeg-dev, libboost-all-dev, gcc, libsdl12-dev`` installed) and then get started as follow:
+
+.. code:: python
+
+	  import gym
+	  env = gym.make('DoomBasic-v0')
+	  env.reset()
+	  env.render()
+
+This will install ``doom-py``, which automatically compiles the `Visual ZDoom Environment (ViZDoom) <http://vizdoom.cs.put.edu.pl/>`_. This can take quite a while (a few minutes on a decent laptop), so just be prepared.
 
 MuJoCo
 ------
