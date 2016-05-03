@@ -10,10 +10,13 @@ from gym import envs
 specs = [spec for spec in envs.registry.all()]
 @tools.params(*specs)
 def test_env(spec):
+    # Skip for deprecated envs
+    if spec._entry_point is None:
+        return
+
+    # Skip mujoco tests for pull request CI
     skip_mujoco = os.environ.get('TRAVIS_PULL_REQUEST', 'false') != 'false'
     if skip_mujoco and spec._entry_point.startswith('gym.envs.mujoco:'):
-        return
-    elif spec._entry_point is None:
         return
 
     env = spec.make()
