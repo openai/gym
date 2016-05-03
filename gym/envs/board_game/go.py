@@ -10,6 +10,10 @@ import gym
 from gym import spaces
 import sys
 
+if sys.version_info.major < 3:
+    from StringIO import StringIO
+else:
+    from io import StringIO
 
 # The coordinate representation of Pachi (and pachi_py) is defined on a board
 # with extra rows and columns on the margin of the board, so positions on the board
