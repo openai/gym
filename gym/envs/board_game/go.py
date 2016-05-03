@@ -8,7 +8,6 @@ except ImportError as e:
 import numpy as np
 import gym
 from gym import spaces
-import StringIO
 import sys
 
 

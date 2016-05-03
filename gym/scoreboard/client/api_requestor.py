@@ -1,6 +1,11 @@
 import json
 import platform
-import urlparse
+import sys
+
+if sys.version_info.major < 3:
+    import urlparse
+else:
+    import urllib.parse as urlparse
 
 from gym import error, version
 import gym.scoreboard.client

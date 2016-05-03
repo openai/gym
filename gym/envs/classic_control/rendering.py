@@ -3,6 +3,11 @@
 """
 from __future__ import division
 import os, sys
+
+if sys.version_info.major >= 3:
+    def xrange(*args, **kwargs):
+        return range(*args, **kwargs)
+
 if "Apple" in sys.version:
     if 'DYLD_FALLBACK_LIBRARY_PATH' in os.environ:
         os.environ['DYLD_FALLBACK_LIBRARY_PATH'] += ':/usr/lib'

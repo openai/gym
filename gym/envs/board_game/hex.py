@@ -10,9 +10,9 @@ from gym import error
 
 
 def random_policy(state):
-    possible_moves = HexEnv.get_possible_moves(state)
+    possible_moves = HexEnv.get_possible_actions(state)
     a = np.random.randint(len(possible_moves))
-    return HexEnv.coordinate_to_action(state.shape[1], possible_moves[a])
+    return possible_moves[a]
 
 
 class HexEnv(gym.Env):
@@ -44,8 +44,14 @@ class HexEnv(gym.Env):
         except KeyError:
             raise error.Error("player_color must be 'black' or 'white', not {}".format(player_color))
 
-        self.opponent = opponent or 'random'
-        self.opponent_policy = None
+        self.opponent = opponent
+        if isinstance(self.opponent, str):
+            if opponent == 'random':
+                self.opponent_policy = random_policy
+            else:
+                raise error.Error('Unrecognized opponent policy {}'.format(self.opponent))
+        else:
+            self.opponent_policy = opponent
 
         assert observation_type in ['numpy3c']
         self.observation_type = observation_type
@@ -53,8 +59,8 @@ class HexEnv(gym.Env):
         assert illegal_move_mode in ['lose', 'raise']
         self.illegal_move_mode = illegal_move_mode
 
-        # One action for each board position, pass, and resign
-        self.action_space = spaces.Discrete(self.board_size ** 2 + 2)
+        # One action for each board position and resign
+        self.action_space = spaces.Discrete(self.board_size ** 2 + 1)
 
         if self.observation_type != 'numpy3c':
             raise error.Error('Unsupported observation type: {}'.format(self.observation_type))
@@ -80,7 +86,11 @@ class HexEnv(gym.Env):
         if self.done:
             return self.state, 0., True, {'state': self.state}
 
-        if not HexEnv.valid_move(self.state, action):
+        # if HexEnv.pass_move(self.board_size, action):
+        #     pass
+        if HexEnv.reisgn_move(self.board_size, action):
+            return self.state, -1, True, {'state': self.state}
+        elif not HexEnv.valid_move(self.state, action):
             if self.illegal_move_mode == 'raise':
                 raise
             elif self.illegal_move_mode == 'lose':
@@ -89,24 +99,29 @@ class HexEnv(gym.Env):
                 return self.state, -1., True, {'state': self.state}
             else:
                 raise error.Error('Unsupported illegal move action: {}'.format(self.illegal_move_mode))
-
-        HexEnv.make_move(self.state, action, self.player_color)
+        else:
+            HexEnv.make_move(self.state, action, self.player_color)
 
         # Opponent play
         a = self.opponent_policy(self.state)
-        HexEnv.make_move(self.state, a, 1 - self.player_color)
+        # if HexEnv.pass_move(self.board_size, action):
+        #     pass
+        if HexEnv.reisgn_move(self.board_size, action):
+            return self.state, 1, True, {'state': self.state}
+        else:
+            HexEnv.make_move(self.state, a, 1 - self.player_color)
 
         reward = HexEnv.game_finished(self.state)
         if self.player_color == HexEnv.WHITE:
             reward = - reward
-        self.done = reward == 0
+        self.done = reward != 0
         return self.state, reward, self.done, {'state': self.state}
 
-    def _reset_opponent(self):
-        if self.opponent == 'random':
-            self.opponent_policy = random_policy
-        else:
-            raise error.Error('Unrecognized opponent policy {}'.format(self.opponent))
+    # def _reset_opponent(self):
+    #     if self.opponent == 'random':
+    #         self.opponent_policy = random_policy
+    #     else:
+    #         raise error.Error('Unrecognized opponent policy {}'.format(self.opponent))
 
     def _render(self, mode='asi', close=False):
         board = self.state
@@ -116,7 +131,7 @@ class HexEnv(gym.Env):
             print("|", end="")
         print("")
         print(" " * 5, end="")
-        print("-" * (board.shape[1] * (board.shape[1] + 1) + 1), end="")
+        print("-" * (board.shape[1] * 6 - 1), end="")
         print("")
         for i in range(board.shape[1]):
             print(" " * (1 + i * 3), i + 1, " ", end="")
@@ -131,8 +146,16 @@ class HexEnv(gym.Env):
                 print("|", end="")
             print("")
             print(" " * (i * 3 + 1), end="")
-            print("-" * (board.shape[1] * (board.shape[1] + 2)), end="")
+            print("-" * (board.shape[1] * 7 - 1), end="")
             print("")
+
+    # @staticmethod
+    # def pass_move(board_size, action):
+    #     return action == board_size ** 2
+
+    @staticmethod
+    def reisgn_move(board_size, action):
+        return action == board_size ** 2
 
     @staticmethod
     def valid_move(board, action):
