@@ -29,8 +29,13 @@ class MountainCarEnv(gym.Env):
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(self.low, self.high)
 
+        self.action_set = (0, 1, 2)
+
     def _step(self, action):
         # action = np.sign((self.state[0]+math.pi/2) * self.state[1])+1
+        if (action not in self.action_set):
+            raise ValueError("Invalid action '%s' selected" % action)
+
         position, velocity = self.state
         velocity += (action-1)*0.001 + math.cos(3*position)*(-0.0025)
         if (velocity > self.max_speed): velocity = self.max_speed
