@@ -104,7 +104,7 @@ class Viewer(object):
 
 def _add_attrs(geom, attrs):
     if "color" in attrs:
-        geom.set_color(attrs["color"])
+        geom.set_color(*attrs["color"])
     if "linewidth" in attrs:
         geom.set_linewidth(attrs["linewidth"])
 
