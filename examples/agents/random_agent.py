@@ -14,7 +14,7 @@ class RandomAgent(object):
 if __name__ == '__main__':
     # You can optionally set up the logger. Also fine to set the level
     # to logging.DEBUG or logging.WARN if you want to change the
-    # amount of outut.
+    # amount of output.
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
 
