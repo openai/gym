@@ -12,7 +12,7 @@ except ImportError as e:
     raise error.DependencyNotInstalled("{}. (HINT: you need to install mujoco_py, and also perform the setup instructions here: https://github.com/openai/mujoco-py/.)".format(e))
 
 
-# move this into mujoco-py next time we upgrade it!!! 
+# move this into mujoco-py next time we upgrade it!!!
 # ---------------------------------------------------
 from mujoco_py.mjlib import mjlib
 from mujoco_py.mjtypes import POINTER, MJMODEL, MJDATA
@@ -46,7 +46,7 @@ class MujocoEnv(gym.Env):
 
         self.init_qpos = self.model.data.qpos.ravel().copy()
         self.init_qvel = self.model.data.qvel.ravel().copy()
-        observation, _reward, done, _info = self.step(np.zeros(self.model.nu))
+        observation, _reward, done, _info = self._step(np.zeros(self.model.nu))
         assert not done
         self.obs_dim = observation.size
 
@@ -57,7 +57,7 @@ class MujocoEnv(gym.Env):
 
         high = np.inf*np.ones(self.obs_dim)
         low = -high
-        self.observation_space = spaces.Box(low, high)        
+        self.observation_space = spaces.Box(low, high)
 
     # methods to override:
     # ----------------------------
