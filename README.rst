@@ -30,7 +30,7 @@ that part is left to you. The following are the ``Env`` methods you
 should know:
 
 - `reset(self)`: Reset the environment's state. Returns `observation`.
-- `step(self, action)`: Step the environment by one timestep. Returns `observation`, `action`, `reward`, `done`.
+- `step(self, action)`: Step the environment by one timestep. Returns `observation`, `reward`, `done`, `info`.
 - `render(self, mode='human', close=False)`: Render one frame of the environment. The default mode will do something human friendly, such as pop up a window. Passing the `close` flag signals the renderer to close any such windows.
 
 Installation
