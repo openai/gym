@@ -47,7 +47,9 @@ class StatsRecorder(object):
 
     def close(self):
         self.flush()
+        return self.save()
 
+    def save(self):
         filename = '{}.{}.stats.json'.format(self.file_prefix, os.getpid())
         path = os.path.join(self.directory, filename)
         with open(path, 'w') as f:

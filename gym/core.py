@@ -2,6 +2,7 @@ import logging
 import numpy as np
 
 from gym import error, monitoring
+from gym.scoreboard import scoring
 
 # Env-related abstractions
 
@@ -98,6 +99,9 @@ class Env(object):
         observation = self._reset()
         self.monitor._after_reset(observation)
         return observation
+
+    def score(self):
+        return scoring.score_from_local(self.monitor.stats_recorder.save(), self.spec.id)
 
     def render(self, mode='human', close=False):
         """Renders the environment.
