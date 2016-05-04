@@ -31,8 +31,6 @@ class MountainCarEnv(gym.Env):
 
     def _step(self, action):
         # action = np.sign((self.state[0]+math.pi/2) * self.state[1])+1
-        if (self.action_space.contains(action) == False):
-            raise ValueError("Invalid action '%s' selected" % action)
 
         position, velocity = self.state
         velocity += (action-1)*0.001 + math.cos(3*position)*(-0.0025)
