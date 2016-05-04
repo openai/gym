@@ -31,6 +31,7 @@ class MountainCarEnv(gym.Env):
 
     def _step(self, action):
         # action = np.sign((self.state[0]+math.pi/2) * self.state[1])+1
+
         position, velocity = self.state
         velocity += (action-1)*0.001 + math.cos(3*position)*(-0.0025)
         if (velocity > self.max_speed): velocity = self.max_speed

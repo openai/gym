@@ -78,6 +78,9 @@ class Env(object):
         done (boolean): whether the episode has ended, in which case further step() calls will return undefined results
         info (dict): contains auxiliary diagnostic information (helpful for debugging, and sometimes learning)
         """
+        if not self.action_space.contains(action):
+            raise error.InvalidAction('Invalid action selected: {}'.format(action))
+
         self.monitor._before_step(action)
         observation, reward, done, info = self._step(action)
         done = self.monitor._after_step(observation, reward, done, info)
