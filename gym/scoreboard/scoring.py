@@ -25,33 +25,19 @@ def score_from_remote(url):
     spec = gym.spec(env_id)
     return score_from_merged(episode_lengths, episode_rewards, timestamps, initial_reset_timestamp, spec.trials, spec.reward_threshold)
 
-def score_from_local(path, env_id):
-    with open(path) as score_file:
-        parsed = json.load(score_file)
+
+def score_from_local(path):
+    parsed = gym.monitoring.monitor.load_results(path)
 
     episode_lengths = parsed['episode_lengths']
     episode_rewards = parsed['episode_rewards']
     timestamps = parsed['timestamps']
-
-    # Return empty values if no output saved yet to stop invalid range errors
-    if len(episode_lengths) == 0:
-        return {
-            'episode_t_value': None,
-            'timestep_t_value': None,
-            'mean': None,
-            'error': None,
-            'number_episodes': None,
-            'number_timesteps': None,
-            'seconds_to_solve': None,
-            'seconds_in_total': None,
-        }
-
-    # Handle legacy entries where initial_reset_timestamp wasn't set
     initial_reset_timestamp = parsed.get('initial_reset_timestamp', timestamps[0])
+    spec = gym.spec(parsed['env_info']['env_id'])
 
-    spec = gym.spec(env_id)
     return score_from_merged(episode_lengths, episode_rewards, timestamps, initial_reset_timestamp, spec.trials,
                              spec.reward_threshold)
+
 
 def score_from_merged(episode_lengths, episode_rewards, timestamps, initial_reset_timestamp, trials, reward_threshold):
     """Method to calculate the score from merged monitor files.

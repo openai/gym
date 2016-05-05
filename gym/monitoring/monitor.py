@@ -146,12 +146,12 @@ class Monitor(object):
         """Flush all monitor data to disk and close any open rending windows."""
         if not self.enabled:
             return
-        stats_file = None
 
-        if self.stats_recorder:
-            stats_file = self.stats_recorder.close()
+        self.write_scores()
+
         if self.video_recorder is not None:
             self._close_video_recorder()
+
         # Note we'll close the env's rendering window even if we did
         # not open it. There isn't a particular great way to know if
         # we did, since some environments will have a window pop up
@@ -167,9 +167,22 @@ class Monitor(object):
             # because we couldn't close the renderer.
             logger.error('Could not close renderer for %s: %s', key, e)
 
+        self.enabled = False
+        # Stop tracking this for autoclose
+        del monitors[self.monitor_id]
+
+        logger.info('''Finished writing results. You can upload them to the scoreboard via gym.upload(%r)''', self.directory)
+
+    def write_scores(self):
+        stats_file = None
+
+        if self.stats_recorder:
+            stats_file = self.stats_recorder.close()
+
         # Give it a very distiguished name, since we need to pick it
         # up from the filesystem later.
-        path = os.path.join(self.directory, '{}.manifest.{}.{}.manifest.json'.format(self.file_prefix, self.file_infix, os.getpid()))
+        path = os.path.join(self.directory,
+                            '{}.manifest.{}.{}.manifest.json'.format(self.file_prefix, self.file_infix, os.getpid()))
         logger.debug('Writing training manifest file to %s', path)
         with open(path, 'w') as f:
             # We need to write relative paths here since people may
@@ -182,11 +195,6 @@ class Monitor(object):
                            for v, m in self.videos],
                 'env_info': self._env_info(),
             }, f)
-        self.enabled = False
-        # Stop tracking this for autoclose
-        del monitors[self.monitor_id]
-
-        logger.info('''Finished writing results. You can upload them to the scoreboard via gym.upload(%r)''', self.directory)
 
     def configure(self, video_callable=None):
         """Reconfigure the monitor.
@@ -222,7 +230,6 @@ class Monitor(object):
 
     def _after_reset(self, observation):
         if not self.enabled: return
-
         # Reset the stat count
         self.stats_recorder.after_reset(observation)
 
@@ -248,7 +255,7 @@ class Monitor(object):
             self.videos.append((self.video_recorder.path, self.video_recorder.metadata_path))
 
     def _video_enabled(self):
-        return self.video_callable(self.episode_id)
+        return self.video_callable(self.episode_id) and self.monitor_id == 0
 
     def _env_info(self):
         if self.env.spec:

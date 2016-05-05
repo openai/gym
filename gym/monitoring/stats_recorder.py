@@ -1,6 +1,7 @@
 import json
 import os
 import time
+import copy
 
 from gym import error
 
@@ -36,27 +37,24 @@ class StatsRecorder(object):
 
     def after_reset(self, observation):
         self.flush()
+        self.steps = 0
+        self.rewards = 0
 
     def flush(self):
         if self.steps is not None:
             self.episode_lengths.append(self.steps)
             self.episode_rewards.append(self.rewards)
             self.timestamps.append(time.time())
-        self.steps = 0
-        self.rewards = 0
 
     def close(self):
-        self.flush()
-        return self.save()
-
-    def save(self):
         filename = '{}.{}.stats.json'.format(self.file_prefix, os.getpid())
         path = os.path.join(self.directory, filename)
+
         with open(path, 'w') as f:
             json.dump({
                 'initial_reset_timestamp': self.initial_reset_timestamp,
-                'timestamps': self.timestamps,
-                'episode_lengths': self.episode_lengths,
-                'episode_rewards': self.episode_rewards,
+                'timestamps': self.timestamps + [time.time()],
+                'episode_lengths': self.episode_lengths + [self.steps],
+                'episode_rewards': self.episode_rewards + [self.rewards],
             }, f)
         return path

@@ -100,9 +100,6 @@ class Env(object):
         self.monitor._after_reset(observation)
         return observation
 
-    def score(self):
-        return scoring.score_from_local(self.monitor.stats_recorder.save(), self.spec.id)
-
     def render(self, mode='human', close=False):
         """Renders the environment.
 
