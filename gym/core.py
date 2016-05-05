@@ -2,7 +2,6 @@ import logging
 import numpy as np
 
 from gym import error, monitoring
-from gym.scoreboard import scoring
 
 # Env-related abstractions
 

@@ -1,7 +1,6 @@
 import json
 import os
 import time
-import copy
 
 from gym import error
 

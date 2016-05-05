@@ -7,7 +7,6 @@ We correspondly do not currently import this module.
 """
 
 import numpy as np
-import json
 import requests
 
 import gym
