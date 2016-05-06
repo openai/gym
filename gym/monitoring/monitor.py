@@ -39,7 +39,7 @@ def clear_monitor_files(training_dir):
     for file in files:
         os.unlink(file)
 
-def capped_cubic_video_schedule(episode_id, monitor_id):
+def capped_cubic_video_schedule(episode_id):
     if episode_id < 1000:
         return int(round(episode_id ** (1. / 3))) ** 3 == episode_id
     else:
@@ -264,7 +264,7 @@ class Monitor(object):
             self.videos.append((self.video_recorder.path, self.video_recorder.metadata_path))
 
     def _video_enabled(self):
-        return self.video_callable(self.episode_id, self.monitor_id)
+        return self.video_callable(self.episode_id)
 
     def _env_info(self):
         if self.env.spec:
