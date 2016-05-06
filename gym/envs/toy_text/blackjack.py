@@ -1,29 +1,36 @@
 import gym
-import logging
-import numpy as np
+import random
 from gym import spaces
 
-logger = logging.getLogger(__name__)
-
 # 1 = Ace, 2-10 = Number cards, Jack/Queen/King = 10
-deck = [1,2,3,4,5,6,7,8,9,10,10,10,10]
+deck = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10]
+
 
 def draw_card():
-    return np.random.choice(deck)
+    return random.choice(deck)
+
 
 def draw_hand():
     return [draw_card(), draw_card()]
 
+
 def usable_ace(hand):  # Does this hand have a usable ace?
     return 1 in hand and sum(hand) + 10 <= 21
+
 
 def sum_hand(hand):  # Return current hand total
     if usable_ace(hand):
             return sum(hand) + 10
     return sum(hand)
 
+
 def is_bust(hand):  # Is this hand a bust?
     return sum_hand(hand) > 21
+
+
+def is_natural(hand):  # Is this hand a natural blackjack?
+    return sorted(hand) == [1, 10]
+
 
 class BlackjackEnv(gym.Env):
     """Simple blackjack environment
@@ -43,9 +50,9 @@ class BlackjackEnv(gym.Env):
     After the player sticks, the dealer reveals their facedown card, and draws
     until their sum is 17 or greater.  If the dealer goes bust the player wins.
 
-    If neither player nor dealer busts, the outcome (win, lose, draw) is decided
-    by whose sum is closer to 21.  The reward for winning is +1, drawing is 0,
-    and losing is -1.
+    If neither player nor dealer busts, the outcome (win, lose, draw) is
+    decided by whose sum is closer to 21.  The reward for winning is +1,
+    drawing is 0, and losing is -1.
 
     The observation of a 3-tuple of: the players current sum,
     the dealer's one showing card (1-10 where 1 is ace),
