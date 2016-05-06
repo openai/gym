@@ -149,6 +149,10 @@ class Monitor(object):
         if not self.enabled:
             return
 
+        # Add values from final episode to file (because env.reset() won't be called to do it)
+        if self.stats_recorder:
+            self.stats_recorder.flush()
+
         self.write_scores()
 
         if self.video_recorder is not None:
