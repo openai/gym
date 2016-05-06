@@ -39,7 +39,7 @@ def clear_monitor_files(training_dir):
     for file in files:
         os.unlink(file)
 
-def capped_cubic_video_schedule(episode_id):
+def capped_cubic_video_schedule(episode_id, monitor_id):
     if episode_id < 1000:
         return int(round(episode_id ** (1. / 3))) ** 3 == episode_id
     else:
@@ -102,13 +102,14 @@ class Monitor(object):
 
         ensure_close_at_exit(self)
 
-    def start(self, directory, video_callable=None, force=False):
+    def start(self, directory, video_callable=None, force=False, n_monitors=1):
         """Start monitoring.
 
         Args:
             directory (str): A per-training run directory where to record stats.
             video_callable: function that takes in the index of the episode and outputs a boolean, indicating whether we should record a video on this episode. The default is to take perfect cubes.
             force (bool): Clear out existing training data from this directory (by deleting every file prefixed with "openaigym.").
+            n_monitors (int): Number of concurrent monitors running. Used for determining correct video episode ID over all monitors
         """
         if self.env.spec is None:
             logger.warn("Trying to monitor an environment which has no 'spec' set. This usually means you did not create it via 'gym.make', and is recommended only for advanced users.")
@@ -130,6 +131,7 @@ class Monitor(object):
 
  You should use a unique directory for each training run, or use 'force=True' to automatically clear previous monitor files.'''.format(directory, ', '.join(training_manifests[:5])))
 
+        self.n_monitors = n_monitors  # Holds the total monitors running so video episode id's are correct
 
         self.enabled = True
         self.directory = os.path.abspath(directory)
@@ -233,15 +235,22 @@ class Monitor(object):
         # Reset the stat count
         self.stats_recorder.after_reset(observation)
 
+        # Writes scores to file. Must run after stats_recorder.after_reset
+        if self.episode_id != 0:  # Stops is writing default values to file (ep 0 is before any actions have been taken)
+            self.write_scores()
+
         # Close any existing video recorder
         if self.video_recorder:
             self._close_video_recorder()
 
+        # Set the video ID to match the true episode ID if multiple monitors running
+        video_id = self.n_monitors * self.episode_id + self.monitor_id
+
         # Start recording the next video.
         self.video_recorder = video_recorder.VideoRecorder(
             env=self.env,
-            base_path=os.path.join(self.directory, '{}.video.{}.{}.video{:06}'.format(self.file_prefix, self.file_infix, os.getpid(), self.episode_id)),
-            metadata={'episode_id': self.episode_id},
+            base_path=os.path.join(self.directory, '{}.video.{}.{}.video{:06}'.format(self.file_prefix, self.file_infix, os.getpid(), video_id)),
+            metadata={'episode_id': video_id},
             enabled=self._video_enabled(),
         )
         self.video_recorder.capture_frame()
@@ -255,7 +264,7 @@ class Monitor(object):
             self.videos.append((self.video_recorder.path, self.video_recorder.metadata_path))
 
     def _video_enabled(self):
-        return self.video_callable(self.episode_id) and self.monitor_id == 0
+        return self.video_callable(self.episode_id, self.monitor_id)
 
     def _env_info(self):
         if self.env.spec:

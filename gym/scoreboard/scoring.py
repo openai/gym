@@ -28,6 +28,19 @@ def score_from_remote(url):
 def score_from_local(path):
     parsed = gym.monitoring.monitor.load_results(path)
 
+    # If no scores yet saved (after original env.reset() called to initialise the environment) then return default
+    if parsed is None:
+        return {
+            'episode_t_value': None,
+            'timestep_t_value': None,
+            'mean': None,
+            'error': None,
+            'number_episodes': 0,
+            'number_timesteps': 0,
+            'seconds_to_solve': None,
+            'seconds_in_total': 0,
+        }
+
     episode_lengths = parsed['episode_lengths']
     episode_rewards = parsed['episode_rewards']
     timestamps = parsed['timestamps']

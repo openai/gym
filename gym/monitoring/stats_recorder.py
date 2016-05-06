@@ -52,8 +52,8 @@ class StatsRecorder(object):
         with open(path, 'w') as f:
             json.dump({
                 'initial_reset_timestamp': self.initial_reset_timestamp,
-                'timestamps': self.timestamps + [time.time()],
-                'episode_lengths': self.episode_lengths + [self.steps],
-                'episode_rewards': self.episode_rewards + [self.rewards],
+                'timestamps': self.timestamps,
+                'episode_lengths': self.episode_lengths,
+                'episode_rewards': self.episode_rewards,
             }, f)
         return path
