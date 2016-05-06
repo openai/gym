@@ -28,6 +28,10 @@ def is_bust(hand):  # Is this hand a bust?
     return sum_hand(hand) > 21
 
 
+def score(hand):  # What is the score of this hand (0 if bust)
+    return 0 if is_bust(hand) else sum_hand(hand)
+
+
 def is_natural(hand):  # Is this hand a natural blackjack?
     return sorted(hand) == [1, 10]
 
@@ -88,12 +92,9 @@ class BlackjackEnv(gym.Env):
             done = True
             while sum_hand(self.dealer) < 17:
                 self.dealer.append(draw_card())
-            if is_bust(self.dealer):
-                reward = 1
-            else:
-                reward = cmp(sum_hand(self.player), sum_hand(self.dealer))
-                if self.natural and is_natural(self.player) and reward == 1:
-                    reward = 1.5
+            reward = cmp(score(self.player), score(self.dealer))
+            if self.natural and is_natural(self.player) and reward == 1:
+                reward = 1.5
         return self._get_obs(), reward, done, {}
 
     def _get_obs(self):
