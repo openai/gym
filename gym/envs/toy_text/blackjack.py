@@ -56,11 +56,14 @@ class BlackjackEnv(gym.Env):
     by Sutton and Barto (1998).
     https://webdocs.cs.ualberta.ca/~sutton/book/the-book.html
     """
-    def __init__(self):
+    def __init__(self, natural=False):
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Tuple((spaces.Discrete(32),
                                                spaces.Discrete(11),
                                                spaces.Discrete(2)))
+        # Flag to payout 1.5 on a "natural" blackjack win, like casino rules
+        # Ref: http://www.bicyclecards.com/how-to-play/blackjack/
+        self.natural = natural
         # Start the first game
         self._reset()
 
@@ -82,6 +85,8 @@ class BlackjackEnv(gym.Env):
                 reward = 1
             else:
                 reward = cmp(sum_hand(self.player), sum_hand(self.dealer))
+                if self.natural and is_natural(self.player) and reward == 1:
+                    reward = 1.5
         return self._get_obs(), reward, done, {}
 
     def _get_obs(self):
