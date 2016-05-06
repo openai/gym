@@ -99,7 +99,7 @@ register(
 register(
     id='NChain-v0',
     entry_point='gym.envs.toy_text:NChainEnv',
-    timestep_limit=200,
+    timestep_limit=1000,
 )
 
 register(
