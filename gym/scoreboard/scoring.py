@@ -24,6 +24,33 @@ def score_from_remote(url):
     spec = gym.spec(env_id)
     return score_from_merged(episode_lengths, episode_rewards, timestamps, initial_reset_timestamp, spec.trials, spec.reward_threshold)
 
+
+def score_from_local(path):
+    parsed = gym.monitoring.monitor.load_results(path)
+
+    # If no scores yet saved (after original env.reset() called to initialise the environment) then return default
+    if parsed is None:
+        return {
+            'episode_t_value': None,
+            'timestep_t_value': None,
+            'mean': None,
+            'error': None,
+            'number_episodes': 0,
+            'number_timesteps': 0,
+            'seconds_to_solve': None,
+            'seconds_in_total': 0,
+        }
+
+    episode_lengths = parsed['episode_lengths']
+    episode_rewards = parsed['episode_rewards']
+    timestamps = parsed['timestamps']
+    initial_reset_timestamp = parsed.get('initial_reset_timestamp', timestamps[0])
+    spec = gym.spec(parsed['env_info']['env_id'])
+
+    return score_from_merged(episode_lengths, episode_rewards, timestamps, initial_reset_timestamp, spec.trials,
+                             spec.reward_threshold)
+
+
 def score_from_merged(episode_lengths, episode_rewards, timestamps, initial_reset_timestamp, trials, reward_threshold):
     """Method to calculate the score from merged monitor files.
     """
