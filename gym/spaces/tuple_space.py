@@ -11,6 +11,8 @@ class Tuple(Space):
         return tuple([space.sample() for space in self.spaces])
 
     def contains(self, x):
+        if isinstance(x, list):
+            x = tuple(x)  # Promote list to tuple for contains check
         return isinstance(x, tuple) and len(x) == len(self.spaces) and all(
             space.contains(part) for (space,part) in zip(self.spaces,x))
 

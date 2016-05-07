@@ -31,3 +31,6 @@ rllab_mujoco
 tutorial/*.html
 .eggs
 .tox
+
+# PyCharm project files
+.idea

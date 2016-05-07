@@ -5,6 +5,7 @@ import shutil
 import tempfile
 
 import gym
+from gym import error
 from gym.monitoring import monitor
 
 class FakeEnv(gym.Env):
@@ -34,3 +35,13 @@ def test_close_monitor():
 
         manifests = monitor.detect_training_manifests(temp)
         assert len(manifests) == 1
+
+def test_video_callable():
+    with tempdir() as temp:
+        env = gym.make('Acrobot-v0')
+        try:
+            env.monitor.start(temp, video_callable=False)
+        except error.Error:
+            pass
+        else:
+            assert False

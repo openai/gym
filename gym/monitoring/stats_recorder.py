@@ -3,6 +3,7 @@ import os
 import time
 
 from gym import error
+from gym.utils import atomic_write
 
 class StatsRecorder(object):
     def __init__(self, directory, file_prefix):
@@ -35,22 +36,21 @@ class StatsRecorder(object):
             self.initial_reset_timestamp = time.time()
 
     def after_reset(self, observation):
-        self.flush()
+        self.save_complete()
+        self.steps = 0
+        self.rewards = 0
 
-    def flush(self):
+    def save_complete(self):
         if self.steps is not None:
             self.episode_lengths.append(self.steps)
             self.episode_rewards.append(self.rewards)
             self.timestamps.append(time.time())
-        self.steps = 0
-        self.rewards = 0
 
-    def close(self):
-        self.flush()
-
+    def flush(self):
         filename = '{}.{}.stats.json'.format(self.file_prefix, os.getpid())
         path = os.path.join(self.directory, filename)
-        with open(path, 'w') as f:
+
+        with atomic_write.atomic_write(path) as f:
             json.dump({
                 'initial_reset_timestamp': self.initial_reset_timestamp,
                 'timestamps': self.timestamps,
