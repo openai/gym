@@ -17,8 +17,14 @@ class StatsRecorder(object):
         self.rewards = None
 
         self.done = None
+        self.closed = False
+
+        filename = '{}.{}.stats.json'.format(self.file_prefix, os.getpid())
+        self.path = os.path.join(self.directory, filename)
 
     def before_step(self, action):
+        assert not self.closed
+
         if self.done:
             raise error.ResetNeeded("Trying to step environment which is currently done. While the monitor is active, you cannot step beyond the end of an episode. Call 'env.reset()' to start the next episode.")
         elif self.steps is None:
@@ -31,6 +37,8 @@ class StatsRecorder(object):
             self.done = True
 
     def before_reset(self):
+        assert not self.closed
+
         self.done = False
         if self.initial_reset_timestamp is None:
             self.initial_reset_timestamp = time.time()
@@ -46,15 +54,19 @@ class StatsRecorder(object):
             self.episode_rewards.append(self.rewards)
             self.timestamps.append(time.time())
 
-    def flush(self):
-        filename = '{}.{}.stats.json'.format(self.file_prefix, os.getpid())
-        path = os.path.join(self.directory, filename)
+    def close(self):
+        self.save_complete()
+        self.flush()
+        self.closed = True
 
-        with atomic_write.atomic_write(path) as f:
+    def flush(self):
+        if self.closed:
+            return
+
+        with atomic_write.atomic_write(self.path) as f:
             json.dump({
                 'initial_reset_timestamp': self.initial_reset_timestamp,
                 'timestamps': self.timestamps,
                 'episode_lengths': self.episode_lengths,
                 'episode_rewards': self.episode_rewards,
             }, f)
-        return path
