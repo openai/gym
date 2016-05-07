@@ -241,6 +241,8 @@ class Monitor(object):
             self._close_video_recorder()
 
         # Start recording the next video.
+        #
+        # TODO: calculate a more correct 'episode_id' upon merge
         self.video_recorder = video_recorder.VideoRecorder(
             env=self.env,
             base_path=os.path.join(self.directory, '{}.video.{}.{}.video{:06}'.format(self.file_prefix, self.file_infix, os.getpid(), self.episode_id)),
