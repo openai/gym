@@ -10,6 +10,7 @@ import weakref
 
 from gym import error, version
 from gym.monitoring import stats_recorder, video_recorder
+from gym.utils import atomic_write
 
 logger = logging.getLogger(__name__)
 
@@ -102,14 +103,13 @@ class Monitor(object):
 
         ensure_close_at_exit(self)
 
-    def start(self, directory, video_callable=None, force=False, n_monitors=1):
+    def start(self, directory, video_callable=None, force=False):
         """Start monitoring.
 
         Args:
             directory (str): A per-training run directory where to record stats.
-            video_callable: function that takes in the index of the episode and outputs a boolean, indicating whether we should record a video on this episode. The default is to take perfect cubes.
+            video_callable (Optional[function]): function that takes in the index of the episode and outputs a boolean, indicating whether we should record a video on this episode. The default (for video_callable is None) is to take perfect cubes.
             force (bool): Clear out existing training data from this directory (by deleting every file prefixed with "openaigym.").
-            n_monitors (int): Number of concurrent monitors running. Used for determining correct video episode ID over all monitors
         """
         if self.env.spec is None:
             logger.warn("Trying to monitor an environment which has no 'spec' set. This usually means you did not create it via 'gym.make', and is recommended only for advanced users.")
@@ -120,6 +120,8 @@ class Monitor(object):
 
         if video_callable is None:
             video_callable = capped_cubic_video_schedule
+        elif not callable(video_callable):
+            raise error.Error('You must provide a function, None, or False for video_callable, not {}: {}'.format(type(video_callable), video_callable))
 
         # Check on whether we need to clear anything
         if force:
@@ -131,7 +133,6 @@ class Monitor(object):
 
  You should use a unique directory for each training run, or use 'force=True' to automatically clear previous monitor files.'''.format(directory, ', '.join(training_manifests[:5])))
 
-        self.n_monitors = n_monitors  # Holds the total monitors running so video episode id's are correct
 
         self.enabled = True
         self.directory = os.path.abspath(directory)
@@ -144,17 +145,34 @@ class Monitor(object):
         if not os.path.exists(directory):
             os.mkdir(directory)
 
+    def flush(self):
+        """Flush all relevant monitor information to disk."""
+        stats_file = None
+
+        if self.stats_recorder:
+            stats_file = self.stats_recorder.flush()
+
+        # Give it a very distiguished name, since we need to pick it
+        # up from the filesystem later.
+        path = os.path.join(self.directory, '{}.manifest.{}.{}.manifest.json'.format(self.file_prefix, self.file_infix, os.getpid()))
+        logger.debug('Writing training manifest file to %s', path)
+        with atomic_write.atomic_write(path) as f:
+            # We need to write relative paths here since people may
+            # move the training_dir around. It would be cleaner to
+            # already have the basenames rather than basename'ing
+            # manually, but this works for now.
+            json.dump({
+                'stats': os.path.basename(stats_file),
+                'videos': [(os.path.basename(v), os.path.basename(m))
+                           for v, m in self.videos],
+                'env_info': self._env_info(),
+            }, f)
+
     def close(self):
         """Flush all monitor data to disk and close any open rending windows."""
         if not self.enabled:
             return
-
-        # Add values from final episode to file (because env.reset() won't be called to do it)
-        if self.stats_recorder:
-            self.stats_recorder.flush()
-
-        self.write_scores()
-
+        self.flush()
         if self.video_recorder is not None:
             self._close_video_recorder()
 
@@ -179,34 +197,12 @@ class Monitor(object):
 
         logger.info('''Finished writing results. You can upload them to the scoreboard via gym.upload(%r)''', self.directory)
 
-    def write_scores(self):
-        stats_file = None
-
-        if self.stats_recorder:
-            stats_file = self.stats_recorder.close()
-
-        # Give it a very distiguished name, since we need to pick it
-        # up from the filesystem later.
-        path = os.path.join(self.directory,
-                            '{}.manifest.{}.{}.manifest.json'.format(self.file_prefix, self.file_infix, os.getpid()))
-        logger.debug('Writing training manifest file to %s', path)
-        with open(path, 'w') as f:
-            # We need to write relative paths here since people may
-            # move the training_dir around. It would be cleaner to
-            # already have the basenames rather than basename'ing
-            # manually, but this works for now.
-            json.dump({
-                'stats': os.path.basename(stats_file),
-                'videos': [(os.path.basename(v), os.path.basename(m))
-                           for v, m in self.videos],
-                'env_info': self._env_info(),
-            }, f)
-
     def configure(self, video_callable=None):
         """Reconfigure the monitor.
 
             video_callable (function): Whether to record video to upload to the scoreboard.
         """
+
         if video_callable is not None:
             self.video_callable = video_callable
 
@@ -236,31 +232,27 @@ class Monitor(object):
 
     def _after_reset(self, observation):
         if not self.enabled: return
+
         # Reset the stat count
         self.stats_recorder.after_reset(observation)
-
-        # Writes scores to file. Must run after stats_recorder.after_reset
-        if self.episode_id != 0:  # Stops is writing default values to file (ep 0 is before any actions have been taken)
-            self.write_scores()
 
         # Close any existing video recorder
         if self.video_recorder:
             self._close_video_recorder()
 
-        # Set the video ID to match the true episode ID if multiple monitors running
-        video_id = self.n_monitors * self.episode_id + self.monitor_id
-
         # Start recording the next video.
         self.video_recorder = video_recorder.VideoRecorder(
             env=self.env,
-            base_path=os.path.join(self.directory, '{}.video.{}.{}.video{:06}'.format(self.file_prefix, self.file_infix, os.getpid(), video_id)),
-            metadata={'episode_id': video_id},
+            base_path=os.path.join(self.directory, '{}.video.{}.{}.video{:06}'.format(self.file_prefix, self.file_infix, os.getpid(), self.episode_id)),
+            metadata={'episode_id': self.episode_id},
             enabled=self._video_enabled(),
         )
         self.video_recorder.capture_frame()
 
         # Bump *after* all reset activity has finished
         self.episode_id += 1
+
+        self.flush()
 
     def _close_video_recorder(self):
         self.video_recorder.close()
