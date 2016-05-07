@@ -10,6 +10,7 @@ import weakref
 
 from gym import error, version
 from gym.monitoring import stats_recorder, video_recorder
+from gym.utils import atomic_write
 
 logger = logging.getLogger(__name__)
 
@@ -155,7 +156,7 @@ class Monitor(object):
         # up from the filesystem later.
         path = os.path.join(self.directory, '{}.manifest.{}.{}.manifest.json'.format(self.file_prefix, self.file_infix, os.getpid()))
         logger.debug('Writing training manifest file to %s', path)
-        with open(path, 'w') as f:
+        with atomic_write.atomic_write(path) as f:
             # We need to write relative paths here since people may
             # move the training_dir around. It would be cleaner to
             # already have the basenames rather than basename'ing

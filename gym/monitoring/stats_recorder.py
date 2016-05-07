@@ -3,6 +3,7 @@ import os
 import time
 
 from gym import error
+from gym.utils import atomic_write
 
 class StatsRecorder(object):
     def __init__(self, directory, file_prefix):
@@ -49,7 +50,7 @@ class StatsRecorder(object):
         filename = '{}.{}.stats.json'.format(self.file_prefix, os.getpid())
         path = os.path.join(self.directory, filename)
 
-        with open(path, 'w') as f:
+        with atomic_write.atomic_write(path) as f:
             json.dump({
                 'initial_reset_timestamp': self.initial_reset_timestamp,
                 'timestamps': self.timestamps,
