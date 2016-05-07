@@ -107,7 +107,7 @@ class Monitor(object):
 
         Args:
             directory (str): A per-training run directory where to record stats.
-            video_callable: function that takes in the index of the episode and outputs a boolean, indicating whether we should record a video on this episode. The default is to take perfect cubes.
+            video_callable (Optional[function]): function that takes in the index of the episode and outputs a boolean, indicating whether we should record a video on this episode. The default (for video_callable is None) is to take perfect cubes.
             force (bool): Clear out existing training data from this directory (by deleting every file prefixed with "openaigym.").
             n_monitors (int): Number of concurrent monitors running. Used for determining correct video episode ID over all monitors
         """
@@ -120,6 +120,8 @@ class Monitor(object):
 
         if video_callable is None:
             video_callable = capped_cubic_video_schedule
+        elif not callable(video_callable):
+            raise error.Error('You must provide a function, None, or False for video_callable, not {}: {}'.format(type(video_callable), video_callable))
 
         # Check on whether we need to clear anything
         if force:
@@ -207,6 +209,7 @@ class Monitor(object):
 
             video_callable (function): Whether to record video to upload to the scoreboard.
         """
+
         if video_callable is not None:
             self.video_callable = video_callable
 
