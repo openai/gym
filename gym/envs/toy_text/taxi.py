@@ -10,7 +10,7 @@ MAP = [
     "|R: | : :G|",
     "| : : : : |",
     "| : : : : |",
-    "| | :F| : |",
+    "| | : | : |",
     "|Y| : |B: |",
     "+---------+",
 ]
@@ -34,7 +34,7 @@ class TaxiEnv(discrete.DiscreteEnv):
     def __init__(self):
         self.desc = np.asarray(MAP,dtype='c')
 
-        self.locs = locs = [(0,0), (0,4), (4,0), (3,2), (4,3)]
+        self.locs = locs = [(0,0), (0,4), (4,0), (4,3)]
 
         nS = 500
         nR = 5
@@ -65,13 +65,14 @@ class TaxiEnv(discrete.DiscreteEnv):
                             elif a==3 and self.desc[1+row,2*col]==":":
                                 newcol = max(col-1, 0)
                             elif a==4: # pickup
-                                if (taxiloc == locs[passidx]):
+                                if (passidx < 4 and taxiloc == locs[passidx]):
                                     newpassidx = 4
                                 else:
                                     reward = -10
                             elif a==5: # dropoff
                                 if (taxiloc == locs[destidx]) and passidx==4:
                                     done = True
+                                    reward = 20
                                 elif (taxiloc in locs) and passidx==4:
                                     newpassidx = locs.index(taxiloc)
                                 else:

@@ -103,7 +103,7 @@ register(
 )
 
 register(
-    id='Taxi-v0',
+    id='Taxi-v1',
     entry_point='gym.envs.toy_text.taxi:TaxiEnv',
     timestep_limit=200,
 )
