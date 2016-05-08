@@ -80,7 +80,7 @@ class PendulumEnv(gym.Env):
         self.viewer.render()
         if mode == 'rgb_array':
             return self.viewer.get_array()
-        elif mode is 'human':
+        elif mode == 'human':
             pass
         else:
             return super(PendulumEnv, self).render(mode=mode)

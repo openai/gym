@@ -88,7 +88,7 @@ class AtariEnv(gym.Env, utils.EzPickle):
         img = self._get_image()
         if mode == 'rgb_array':
             return img
-        elif mode is 'human':
+        elif mode == 'human':
             from gym.envs.classic_control import rendering
             if self.viewer is None:
                 self.viewer = rendering.SimpleImageViewer()
