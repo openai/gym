@@ -32,6 +32,7 @@ def test_env(spec):
 
     for mode in env.metadata.get('render.modes'):
         env.render(mode=mode)
+    env.render(close=True)
 
 # Run a longer rollout on some environments
 def test_random_rollout():
