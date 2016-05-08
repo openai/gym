@@ -13,19 +13,31 @@ def categorical_sample(prob_n):
 
 
 class DiscreteEnv(Env):
-    def __init__(self, nS, nA, P, isd):
-        """
-        Compute a transition probabilities, of the form
-        P[s][a] == [(probability, nextstate, reward, done)]
 
-        also compute initial state distribution
-        """
+    """
+    Has the following members
+    - nS: number of states
+    - nA: number of actions
+    - P: transitions (*)
+    - isd: initial state distribution (**)
+
+    (*) dictionary dict of dicts of lists, where
+      P[s][a] == [(probability, nextstate, reward, done), ...]
+    (**) list or array of length nS
+
+
+    """
+    def __init__(self, nS, nA, P, isd):
         self.action_space = spaces.Discrete(nA)
         self.observation_space = spaces.Discrete(nS)
         self.nA = nA
         self.P = P
         self.isd = isd
         self.lastaction=None # for rendering
+
+    @property
+    def nS(self):
+        return self.observation_space.n
 
     def _reset(self):
         self.s = categorical_sample(self.isd)

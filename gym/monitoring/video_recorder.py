@@ -36,22 +36,26 @@ class VideoRecorder(object):
 
     def __init__(self, env, path=None, metadata=None, enabled=True, base_path=None):
         modes = env.metadata.get('render.modes', [])
+        self.enabled = enabled
+
+        # Don't bother setting anything else if not enabled
+        if not self.enabled:
+            return
+
         self.ansi_mode = False
         if 'rgb_array' not in modes:
             if 'ansi' in modes:
                 self.ansi_mode = True
             else:
                 logger.info('Disabling video recorder because {} neither supports video mode "rgb_array" nor "ansi".'.format(env))
-                enabled = False
+                # Whoops, turns out we shouldn't be enabled after all
+                self.enabled = False
+                return
 
         if path is not None and base_path is not None:
             raise error.Error("You can pass at most one of `path` or `base_path`.")
 
-        self.enabled = enabled
         self.last_frame = None
-        if not self.enabled:
-            return
-
         self.env = env
 
         required_ext = '.json' if self.ansi_mode else '.mp4'

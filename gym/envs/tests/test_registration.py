@@ -8,6 +8,14 @@ def test_make():
     assert env.spec.id == 'CartPole-v0'
     assert isinstance(env, cartpole.CartPoleEnv)
 
+def test_make_deprecated():
+    try:
+        envs.make('Humanoid-v0')
+    except error.Error:
+        pass
+    else:
+        assert False
+
 def test_spec():
     spec = envs.spec('CartPole-v0')
     assert spec.id == 'CartPole-v0'

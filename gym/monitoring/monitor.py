@@ -139,7 +139,7 @@ class Monitor(object):
         # We use the 'openai-gym' prefix to determine if a file is
         # ours
         self.file_prefix = FILE_PREFIX
-        self.file_infix = str(self.monitor_id)
+        self.file_infix = '{}.{}'.format(self.monitor_id, os.getpid())
         self.stats_recorder = stats_recorder.StatsRecorder(directory, '{}.episode_batch.{}'.format(self.file_prefix, self.file_infix))
         self.configure(video_callable=video_callable)
         if not os.path.exists(directory):
@@ -147,14 +147,11 @@ class Monitor(object):
 
     def flush(self):
         """Flush all relevant monitor information to disk."""
-        stats_file = None
-
-        if self.stats_recorder:
-            stats_file = self.stats_recorder.flush()
+        self.stats_recorder.flush()
 
         # Give it a very distiguished name, since we need to pick it
         # up from the filesystem later.
-        path = os.path.join(self.directory, '{}.manifest.{}.{}.manifest.json'.format(self.file_prefix, self.file_infix, os.getpid()))
+        path = os.path.join(self.directory, '{}.manifest.{}.manifest.json'.format(self.file_prefix, self.file_infix))
         logger.debug('Writing training manifest file to %s', path)
         with atomic_write.atomic_write(path) as f:
             # We need to write relative paths here since people may
@@ -162,7 +159,7 @@ class Monitor(object):
             # already have the basenames rather than basename'ing
             # manually, but this works for now.
             json.dump({
-                'stats': os.path.basename(stats_file),
+                'stats': os.path.basename(self.stats_recorder.path),
                 'videos': [(os.path.basename(v), os.path.basename(m))
                            for v, m in self.videos],
                 'env_info': self._env_info(),
@@ -172,6 +169,7 @@ class Monitor(object):
         """Flush all monitor data to disk and close any open rending windows."""
         if not self.enabled:
             return
+        self.stats_recorder.close()
         self.flush()
         if self.video_recorder is not None:
             self._close_video_recorder()
@@ -245,7 +243,7 @@ class Monitor(object):
         # TODO: calculate a more correct 'episode_id' upon merge
         self.video_recorder = video_recorder.VideoRecorder(
             env=self.env,
-            base_path=os.path.join(self.directory, '{}.video.{}.{}.video{:06}'.format(self.file_prefix, self.file_infix, os.getpid(), self.episode_id)),
+            base_path=os.path.join(self.directory, '{}.video.{}.video{:06}'.format(self.file_prefix, self.file_infix, self.episode_id)),
             metadata={'episode_id': self.episode_id},
             enabled=self._video_enabled(),
         )
