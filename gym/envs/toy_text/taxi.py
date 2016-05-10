@@ -48,6 +48,8 @@ class TaxiEnv(discrete.DiscreteEnv):
             for col in range(5):
                 for passidx in range(5):
                     for destidx in range(4):
+                        if passidx < 4 and passidx != destidx: 
+                            isd[state] += 1                        
                         for a in range(nA):
                             state = self.encode(row, col, passidx, destidx)
                             # defaults
@@ -78,7 +80,6 @@ class TaxiEnv(discrete.DiscreteEnv):
                                 else:
                                     reward = -10
                             newstate = self.encode(newrow, newcol, newpassidx, destidx)
-                            if passidx < 4: isd[state] += 1
                             P[state][a].append((1.0, newstate, reward, done))
         isd /= isd.sum()
         discrete.DiscreteEnv.__init__(self, nS, nA, P, isd)
@@ -130,7 +131,7 @@ class TaxiEnv(discrete.DiscreteEnv):
         out[1+di][2*dj+1] = utils.colorize(out[1+di][2*dj+1], 'magenta')
         outfile.write("\n".join(["".join(row) for row in out])+"\n")
         if self.lastaction is not None:
-            outfile.write("  ({})\n".format(["North", "South", "East", "West", "Pickup", "Dropoff"][self.lastaction]))
+            outfile.write("  ({})\n".format(["South", "North", "East", "West", "Pickup", "Dropoff"][self.lastaction]))
         else: outfile.write("\n")
 
         # No need to return anything for human
