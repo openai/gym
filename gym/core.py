@@ -102,9 +102,6 @@ class Env(object):
         """
         self.monitor._before_reset()
         observation = self._reset()
-        if not self.observation_space.contains(observation):
-            logger.warn("Observation '{}' is not contained within observation space '{}'.".format(observation, self.observation_space))
-
         self.monitor._after_reset(observation)
         return observation
 
