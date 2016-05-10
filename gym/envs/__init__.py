@@ -79,6 +79,30 @@ register(
     reward_threshold=-100
 )
 
+# Box2d
+# ----------------------------------------
+
+register(
+    id='LunarLander-v0',
+    entry_point='gym.envs.box2d:LunarLander',
+    timestep_limit=300,
+    reward_threshold=1,
+)
+
+register(
+    id='BipedalWalker-v0',
+    entry_point='gym.envs.box2d:BipedalWalker',
+    timestep_limit=1000,
+    reward_threshold=1.5,
+)
+
+register(
+    id='BipedalWalkerHardcore-v0',
+    entry_point='gym.envs.box2d:BipedalWalkerHardcore',
+    timestep_limit=1000,
+    reward_threshold=1.5,
+)
+
 # Toy Text
 # ----------------------------------------
 
