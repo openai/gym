@@ -97,6 +97,12 @@ register(
 )
 
 register(
+    id='NChain-v0',
+    entry_point='gym.envs.toy_text:NChainEnv',
+    timestep_limit=1000,
+)
+
+register(
     id='Roulette-v0',
     entry_point='gym.envs.toy_text:RouletteEnv',
     timestep_limit=100,
