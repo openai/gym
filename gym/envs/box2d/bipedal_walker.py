@@ -1,5 +1,6 @@
 import sys
 import numpy as np
+from six.moves import xrange
 
 import gym
 import math
@@ -55,7 +56,7 @@ class BipedalWalker(gym.Env):
     def __init__(self):
         self.viewer = None
 
-        high = np.array([np.inf, np.inf, np.inf, np.inf, np.inf])
+        high = np.array([np.inf]*22)
         self.action_space = spaces.Box( np.array([-1,-1,-1,-1]), np.array([+1,+1,+1,+1]) )
         self.observation_space = spaces.Box(-high, high)
 
@@ -205,7 +206,7 @@ class BipedalWalker(gym.Env):
     def _generate_clouds(self):
         # Sorry for the clouds, couldn't resist
         self.cloud_poly   = []
-        for i in xrange(TERRAIN_LENGTH/20):
+        for i in xrange(TERRAIN_LENGTH//20):
             x = np.random.uniform(0, TERRAIN_LENGTH)*TERRAIN_STEP
             y = VIEWPORT_H/SCALE*3/4
             poly = [
@@ -309,19 +310,19 @@ class BipedalWalker(gym.Env):
         #self.hull.ApplyForceToCenter((0, 20), True) -- Uncomment this to receive a bit of stability help
         control_speed = False  # Should be easier as well
         if control_speed:
-            self.joints[0].motorSpeed = SPEED_HIP  * np.clip(-1, 1, action[0])
-            self.joints[1].motorSpeed = SPEED_KNEE * np.clip(-1, 1, action[1])
-            self.joints[2].motorSpeed = SPEED_HIP  * np.clip(-1, 1, action[2])
-            self.joints[2].motorSpeed = SPEED_KNEE * np.clip(-1, 1, action[3])
+            self.joints[0].motorSpeed = float(SPEED_HIP  * np.clip(-1, 1, action[0]))
+            self.joints[1].motorSpeed = float(SPEED_KNEE * np.clip(-1, 1, action[1]))
+            self.joints[2].motorSpeed = float(SPEED_HIP  * np.clip(-1, 1, action[2]))
+            self.joints[2].motorSpeed = float(SPEED_KNEE * np.clip(-1, 1, action[3]))
         else:
-            self.joints[0].motorSpeed     = SPEED_HIP     * np.sign(action[0])
-            self.joints[0].maxMotorTorque = MOTORS_TORQUE * np.clip(0, 1, np.abs(action[0]))
-            self.joints[1].motorSpeed     = SPEED_KNEE    * np.sign(action[1])
-            self.joints[1].maxMotorTorque = MOTORS_TORQUE * np.clip(0, 1, np.abs(action[1]))
-            self.joints[2].motorSpeed     = SPEED_HIP     * np.sign(action[2])
-            self.joints[2].maxMotorTorque = MOTORS_TORQUE * np.clip(0, 1, np.abs(action[2]))
-            self.joints[3].motorSpeed     = SPEED_KNEE    * np.sign(action[3])
-            self.joints[3].maxMotorTorque = MOTORS_TORQUE * np.clip(0, 1, np.abs(action[3]))
+            self.joints[0].motorSpeed     = float(SPEED_HIP     * np.sign(action[0]))
+            self.joints[0].maxMotorTorque = float(MOTORS_TORQUE * np.clip(0, 1, np.abs(action[0])))
+            self.joints[1].motorSpeed     = float(SPEED_KNEE    * np.sign(action[1]))
+            self.joints[1].maxMotorTorque = float(MOTORS_TORQUE * np.clip(0, 1, np.abs(action[1])))
+            self.joints[2].motorSpeed     = float(SPEED_HIP     * np.sign(action[2]))
+            self.joints[2].maxMotorTorque = float(MOTORS_TORQUE * np.clip(0, 1, np.abs(action[2])))
+            self.joints[3].motorSpeed     = float(SPEED_KNEE    * np.sign(action[3]))
+            self.joints[3].maxMotorTorque = float(MOTORS_TORQUE * np.clip(0, 1, np.abs(action[3])))
 
         self.world.Step(1.0/FPS, 6*30, 2*30)
 

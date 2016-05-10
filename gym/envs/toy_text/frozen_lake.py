@@ -87,11 +87,11 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
             return (row, col)
 
         for row in range(nrow):
-            for col in range(ncol):                
+            for col in range(ncol):
                 s = to_s(row, col)
                 for a in range(4):
                     li = P[s][a]
-                    letter = desc[row, col]
+                    letter = str(desc[row, col])
                     if letter in 'GH':
                         li.append((1.0, s, 0, True))
                     else:
