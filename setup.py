@@ -22,7 +22,7 @@ setup(name='gym',
           'all': ['atari_py>=0.0.17', 'Pillow', 'pyglet', 'PyOpenGL',
                   'pachi-py>=0.0.19',
                   'box2d-py',
-                  'mujoco_py>=0.4.2', 'imageio'],
+                  'mujoco_py>=0.4.3', 'imageio'],
 
           # Environment-specific dependencies. Keep these in sync with
           # 'all'!
@@ -30,7 +30,7 @@ setup(name='gym',
           'board_game' : ['pachi-py>=0.0.19'],
           'box2d': ['box2d-py'],
           'classic_control': ['pyglet', 'PyOpenGL'],
-          'mujoco': ['mujoco_py>=0.4.2', 'imageio'],
+          'mujoco': ['mujoco_py>=0.4.3', 'imageio'],
       },
       package_data={'gym': ['envs/mujoco/assets/*.xml', 'envs/classic_control/assets/*.png']},
       tests_require=['nose2', 'mock'],
