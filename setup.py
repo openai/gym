@@ -21,12 +21,14 @@ setup(name='gym',
       extras_require={
           'all': ['atari_py>=0.0.17', 'Pillow', 'pyglet', 'PyOpenGL',
                   'pachi-py>=0.0.19',
+                  'box2d-py',
                   'mujoco_py>=0.4.2', 'imageio'],
 
           # Environment-specific dependencies. Keep these in sync with
           # 'all'!
           'atari': ['atari_py>=0.0.17', 'Pillow', 'pyglet', 'PyOpenGL'],
           'board_game' : ['pachi-py>=0.0.19'],
+          'box2d': ['box2d-py'],
           'classic_control': ['pyglet', 'PyOpenGL'],
           'mujoco': ['mujoco_py>=0.4.2', 'imageio'],
       },

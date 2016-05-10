@@ -79,8 +79,37 @@ register(
     reward_threshold=-100
 )
 
+# Box2d
+# ----------------------------------------
+
+register(
+    id='LunarLander-v0',
+    entry_point='gym.envs.box2d:LunarLander',
+    timestep_limit=300,
+    reward_threshold=1,
+)
+
+register(
+    id='BipedalWalker-v0',
+    entry_point='gym.envs.box2d:BipedalWalker',
+    timestep_limit=1000,
+    reward_threshold=1.5,
+)
+
+register(
+    id='BipedalWalkerHardcore-v0',
+    entry_point='gym.envs.box2d:BipedalWalkerHardcore',
+    timestep_limit=1000,
+    reward_threshold=1.5,
+)
+
 # Toy Text
 # ----------------------------------------
+
+register(
+    id='Blackjack-v0',
+    entry_point='gym.envs.toy_text:BlackjackEnv',
+)
 
 register(
     id='FrozenLake-v0',
@@ -94,6 +123,12 @@ register(
     entry_point='gym.envs.toy_text:FrozenLakeEnv',
     kwargs={'map_name' : '8x8'},
     timestep_limit=200,
+)
+
+register(
+    id='NChain-v0',
+    entry_point='gym.envs.toy_text:NChainEnv',
+    timestep_limit=1000,
 )
 
 register(

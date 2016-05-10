@@ -40,6 +40,12 @@ add_group(
 )
 
 add_group(
+    id='box2d',
+    name='Box2D',
+    description='Continuous control tasks in the Box2D simulator.',
+)
+
+add_group(
     id='mujoco',
     name='MuJoCo',
     description='Continuous control tasks, running in a fast physics simulator.'
@@ -207,6 +213,26 @@ add_task(
     id='Go19x19-v0',
     group='board_game',
     summary='The ancient game of Go, played on a 19x19 board.',
+)
+
+# box2d
+
+add_task(
+    id='LunarLander-v0',
+    group='box2d',
+    experimental=True,
+)
+
+add_task(
+    id='BipedalWalker-v0',
+    group='box2d',
+    experimental=True,
+)
+
+add_task(
+    id='BipedalWalkerHardcore-v0',
+    group='box2d',
+    experimental=True,
 )
 
 # mujoco
@@ -378,6 +404,18 @@ learn more quickly that the reward from betting on any number is uniformly
 distributed. Additionally, rational agents should learn that the best long-term
 move is not to play at all, but to walk away from the table.
 """,
+)
+
+add_task(
+    id='NChain-v0',
+    group='toy_text',
+    experimental=True,
+)
+
+add_task(
+    id='Blackjack-v0',
+    group='toy_text',
+    experimental=True,
 )
 
 ram_desc = "In this environment, the observation is the RAM of the Atari machine, consisting of (only!) 128 bytes."
