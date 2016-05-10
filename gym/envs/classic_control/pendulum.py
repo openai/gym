@@ -82,8 +82,6 @@ class PendulumEnv(gym.Env):
             return self.viewer.get_array()
         elif mode == 'human':
             pass
-        else:
-            return super(PendulumEnv, self).render(mode=mode)
 
 def angle_normalize(x):
     return (((x+np.pi) % (2*np.pi)) - np.pi)

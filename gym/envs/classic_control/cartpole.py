@@ -132,5 +132,3 @@ class CartPoleEnv(gym.Env):
             return self.viewer.get_array()
         elif mode == 'human':
             pass
-        else:
-            return super(CartPoleEnv, self).render(mode=mode)

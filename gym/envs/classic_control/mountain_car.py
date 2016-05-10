@@ -116,5 +116,3 @@ class MountainCarEnv(gym.Env):
             return self.viewer.get_array()
         elif mode == 'human':
             pass
-        else:
-            return super(MountainCarEnv, self).render(mode=mode)
