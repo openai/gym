@@ -114,7 +114,7 @@ class MujocoEnv(gym.Env):
             self._get_viewer().render()
             data, width, height = self._get_viewer().get_image()
             return np.fromstring(data, dtype='uint8').reshape(height, width, 3)[::-1,:,:]
-        elif mode is 'human':
+        elif mode == 'human':
             self._get_viewer().loop_once()
 
     def _get_viewer(self):
