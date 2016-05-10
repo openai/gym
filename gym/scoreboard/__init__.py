@@ -380,6 +380,16 @@ move is not to play at all, but to walk away from the table.
 """,
 )
 
+add_task(
+    id='NChain-v0',
+    group='toy_text',
+)
+
+add_task(
+    id='Blackjack-v0',
+    group='toy_text',
+)
+
 ram_desc = "In this environment, the observation is the RAM of the Atari machine, consisting of (only!) 128 bytes."
 image_desc = "In this environment, the observation is an RGB image of the screen, which is an array of shape (210, 160, 3)"
 
