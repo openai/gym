@@ -7,7 +7,8 @@ import six
 import sys
 import threading
 import weakref
-
+import matplotlib
+import matplotlib.pyplot as plt
 from gym import error, version
 from gym.monitoring import stats_recorder, video_recorder
 from gym.utils import atomic_write
@@ -103,13 +104,15 @@ class Monitor(object):
 
         ensure_close_at_exit(self)
 
-    def start(self, directory, video_callable=None, force=False):
+    def start(self, directory, video_callable=None, force=False, live_plot=False):
         """Start monitoring.
 
         Args:
             directory (str): A per-training run directory where to record stats.
             video_callable (Optional[function]): function that takes in the index of the episode and outputs a boolean, indicating whether we should record a video on this episode. The default (for video_callable is None) is to take perfect cubes.
             force (bool): Clear out existing training data from this directory (by deleting every file prefixed with "openaigym.").
+            live_plot (bool): Display a line graph to show how the model is doing in real time
+
         """
         if self.env.spec is None:
             logger.warn("Trying to monitor an environment which has no 'spec' set. This usually means you did not create it via 'gym.make', and is recommended only for advanced users.")
@@ -144,6 +147,17 @@ class Monitor(object):
         self.configure(video_callable=video_callable)
         if not os.path.exists(directory):
             os.mkdir(directory)
+
+        self.live_plot = live_plot
+        self.rewards_list = []
+        if live_plot:
+            matplotlib.rcParams['toolbar'] = 'None'
+            plt.style.use('ggplot')
+            plt.xlabel("step")
+            plt.ylabel("reward")
+            fig = plt.gcf().canvas.set_window_title(sys.argv[0])
+            plt.ion()
+
 
     def flush(self):
         """Flush all relevant monitor information to disk."""
@@ -220,7 +234,6 @@ class Monitor(object):
         self.stats_recorder.after_step(observation, reward, done, info)
         # Record video
         self.video_recorder.capture_frame()
-
         return done
 
 
@@ -230,6 +243,13 @@ class Monitor(object):
 
     def _after_reset(self, observation):
         if not self.enabled: return
+
+
+        # Update live plot
+        if self.live_plot and self.stats_recorder.rewards:
+            self.rewards_list.append(self.stats_recorder.rewards)
+            plt.plot(self.rewards_list, color='blue')
+            plt.pause(0.000001) #pause so matplotlib will display
 
         # Reset the stat count
         self.stats_recorder.after_reset(observation)
@@ -251,6 +271,7 @@ class Monitor(object):
 
         # Bump *after* all reset activity has finished
         self.episode_id += 1
+
 
         self.flush()
 
