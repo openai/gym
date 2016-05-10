@@ -83,13 +83,6 @@ register(
 # ----------------------------------------
 
 register(
-    id='CartPoleSwingUp-v0',
-    entry_point='gym.envs.box2d:CartPoleSwingUp',
-    timestep_limit=200,
-    reward_threshold=100,
-)
-
-register(
     id='LunarLander-v0',
     entry_point='gym.envs.box2d:LunarLander',
     timestep_limit=300,
