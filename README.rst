@@ -173,6 +173,18 @@ The board game environments are a variety of board games. If you didn't do the f
 	  env.reset()
 	  env.render()
 
+Box2d
+-----------
+
+Box2d is a 2D physics engine. You can install it via  ``pip install -e '.[box2d]'`` and then get started as follow:
+
+.. code:: python
+
+	  import gym
+	  env = gym.make('LunarLander-v0')
+	  env.reset()
+	  env.render()
+
 Classic control
 ---------------
 

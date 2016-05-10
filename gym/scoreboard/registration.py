@@ -23,7 +23,7 @@ class Registry(object):
             'envs': []
         }
 
-    def add_task(self, id, group, summary=None, description=None, background=None, deprecated=False):
+    def add_task(self, id, group, summary=None, description=None, background=None, deprecated=False, experimental=False):
         self.envs[id] = {
             'group': group,
             'id': id,
@@ -31,6 +31,7 @@ class Registry(object):
             'description': description,
             'background': background,
             'deprecated': deprecated,
+            'experimental': experimental,
         }
         if not deprecated:
             self.groups[group]['envs'].append(id)
