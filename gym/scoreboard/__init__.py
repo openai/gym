@@ -146,7 +146,7 @@ add_task(
     group='algorithmic',
     summary='Copy symbols from the input tape multiple times.',
     description=r"""
-A generic input is :math:`[mx_1 x_2 \ldots x_k]` and the desired output is :math:`[x_1 x_2 \ldots x_k x_1 x_2 \ldots x_k x_1 x_2 \ldots x_k]`, where the number of copies is given by m. Thus the goal is to copy the input m times, where m can be only 2 or 3.
+A generic input is :math:`[mx_1 x_2 \ldots x_k]` and the desired output is :math:`[x_1 x_2 \ldots x_k x_k \ldots x_2 x_1 x_1 x_2 \ldots x_k x_1 x_2 \ldots x_k]`. Thus the goal is to copy the input, revert it and copy it again.
 """
 )
 
