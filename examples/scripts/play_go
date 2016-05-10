@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from six.moves import input as raw_input
 import argparse
 import pachi_py
 import gym
@@ -28,8 +29,8 @@ def main():
             break
 
     print
-    print 'You win!' if r > 0 else 'Opponent wins!'
-    print 'Final score:', env._state.board.official_score
+    print('You win!' if r > 0 else 'Opponent wins!')
+    print('Final score:', env._state.board.official_score)
 
 if __name__ == '__main__':
     main()
