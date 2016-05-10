@@ -7,9 +7,6 @@ class Tuple(Space):
     def __init__(self, spaces):
         self.spaces = spaces
 
-    def __len__(self):
-        return len(self.spaces)
-
     def sample(self):
         return tuple([space.sample() for space in self.spaces])
 

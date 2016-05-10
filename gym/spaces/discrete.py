@@ -21,5 +21,3 @@ class Discrete(Space):
         return "Discrete(%d)" % self.n
     def __eq__(self, other):
         return self.n == other.n
-    def __len__(self):
-        return  n

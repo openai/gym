@@ -38,7 +38,7 @@ def _action_to_coord(board, a):
     return board.ij_to_coord(a // board.size, a % board.size)
 
 def str_to_action(board, s):
-    return _coord_to_action(board, board.str_to_coord(s))
+    return _coord_to_action(board, board.str_to_coord(s.encode()))
 
 class GoState(object):
     '''
@@ -67,7 +67,7 @@ class GoState(object):
             pachi_py.stone_other(self.color))
 
     def __repr__(self):
-        return 'To play: {}\n{}'.format(six.u(pachi_py.color_to_str(self.color)), six.u(self.board.__repr__()))
+        return 'To play: {}\n{}'.format(six.u(pachi_py.color_to_str(self.color)), self.board.__repr__().decode())
 
 
 ### Adversary policies ###
