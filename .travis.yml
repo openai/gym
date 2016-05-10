@@ -11,8 +11,8 @@ addons:
     packages:
       - cmake
       - cmake-data
-
       - python-dev
+      - swig
 python:
   - "2.7"
 #  - "3.5"
