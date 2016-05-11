@@ -3,7 +3,7 @@ from gym.spaces import Discrete, Tuple
 from gym.utils import colorize
 import numpy as np
 import random
-import StringIO
+from six import StringIO
 import sys
 import math
 
@@ -91,7 +91,7 @@ class AlgorithmicEnv(Env):
             # Nothing interesting to close
             return
 
-        outfile = StringIO.StringIO() if mode == 'ansi' else sys.stdout
+        outfile = StringIO() if mode == 'ansi' else sys.stdout
         inp = "Total length of input instance: %d, step: %d\n" % (self.total_len, self.time)
         outfile.write(inp)
         x, y, action = self.x, self.y, self.last_action

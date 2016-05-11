@@ -32,7 +32,7 @@ class TabularQAgent(object):
         config = self.config
         obs = env.reset()
         q = self.q
-        for t in xrange(config["n_iter"]):
+        for t in range(config["n_iter"]):
             action, _ = self.act(obs)
             obs2, reward, done, _ = env.step(action)
             future = 0.0

@@ -10,6 +10,7 @@ import weakref
 
 from gym import error, version
 from gym.monitoring import stats_recorder, video_recorder
+from gym.utils import atomic_write
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +55,10 @@ def ensure_close_at_exit(monitor):
 
 @atexit.register
 def close_all_monitors():
-    for key, monitor in monitors.items():
+    # Explicitly fetch all monitors first so that they can't disappear while
+    # we iterate. cf. http://stackoverflow.com/a/12429620
+    open_monitors = list(monitors.items())
+    for key, monitor in open_monitors:
         monitor.close()
 
 class Monitor(object):
@@ -104,7 +108,7 @@ class Monitor(object):
 
         Args:
             directory (str): A per-training run directory where to record stats.
-            video_callable: function that takes in the index of the episode and outputs a boolean, indicating whether we should record a video on this episode. The default is to take perfect cubes.
+            video_callable (Optional[function]): function that takes in the index of the episode and outputs a boolean, indicating whether we should record a video on this episode. The default (for video_callable is None) is to take perfect cubes.
             force (bool): Clear out existing training data from this directory (by deleting every file prefixed with "openaigym.").
         """
         if self.env.spec is None:
@@ -116,6 +120,8 @@ class Monitor(object):
 
         if video_callable is None:
             video_callable = capped_cubic_video_schedule
+        elif not callable(video_callable):
+            raise error.Error('You must provide a function, None, or False for video_callable, not {}: {}'.format(type(video_callable), video_callable))
 
         # Check on whether we need to clear anything
         if force:
@@ -133,22 +139,41 @@ class Monitor(object):
         # We use the 'openai-gym' prefix to determine if a file is
         # ours
         self.file_prefix = FILE_PREFIX
-        self.file_infix = str(self.monitor_id)
+        self.file_infix = '{}.{}'.format(self.monitor_id, os.getpid())
         self.stats_recorder = stats_recorder.StatsRecorder(directory, '{}.episode_batch.{}'.format(self.file_prefix, self.file_infix))
         self.configure(video_callable=video_callable)
         if not os.path.exists(directory):
             os.mkdir(directory)
 
+    def flush(self):
+        """Flush all relevant monitor information to disk."""
+        self.stats_recorder.flush()
+
+        # Give it a very distiguished name, since we need to pick it
+        # up from the filesystem later.
+        path = os.path.join(self.directory, '{}.manifest.{}.manifest.json'.format(self.file_prefix, self.file_infix))
+        logger.debug('Writing training manifest file to %s', path)
+        with atomic_write.atomic_write(path) as f:
+            # We need to write relative paths here since people may
+            # move the training_dir around. It would be cleaner to
+            # already have the basenames rather than basename'ing
+            # manually, but this works for now.
+            json.dump({
+                'stats': os.path.basename(self.stats_recorder.path),
+                'videos': [(os.path.basename(v), os.path.basename(m))
+                           for v, m in self.videos],
+                'env_info': self._env_info(),
+            }, f)
+
     def close(self):
         """Flush all monitor data to disk and close any open rending windows."""
         if not self.enabled:
             return
-        stats_file = None
-
-        if self.stats_recorder:
-            stats_file = self.stats_recorder.close()
+        self.stats_recorder.close()
+        self.flush()
         if self.video_recorder is not None:
             self._close_video_recorder()
+
         # Note we'll close the env's rendering window even if we did
         # not open it. There isn't a particular great way to know if
         # we did, since some environments will have a window pop up
@@ -164,21 +189,6 @@ class Monitor(object):
             # because we couldn't close the renderer.
             logger.error('Could not close renderer for %s: %s', key, e)
 
-        # Give it a very distiguished name, since we need to pick it
-        # up from the filesystem later.
-        path = os.path.join(self.directory, '{}.manifest.{}.{}.manifest.json'.format(self.file_prefix, self.file_infix, os.getpid()))
-        logger.debug('Writing training manifest file to %s', path)
-        with open(path, 'w') as f:
-            # We need to write relative paths here since people may
-            # move the training_dir around. It would be cleaner to
-            # already have the basenames rather than basename'ing
-            # manually, but this works for now.
-            json.dump({
-                'stats': os.path.basename(stats_file),
-                'videos': [(os.path.basename(v), os.path.basename(m))
-                           for v, m in self.videos],
-                'env_info': self._env_info(),
-            }, f)
         self.enabled = False
         # Stop tracking this for autoclose
         del monitors[self.monitor_id]
@@ -190,6 +200,7 @@ class Monitor(object):
 
             video_callable (function): Whether to record video to upload to the scoreboard.
         """
+
         if video_callable is not None:
             self.video_callable = video_callable
 
@@ -228,9 +239,11 @@ class Monitor(object):
             self._close_video_recorder()
 
         # Start recording the next video.
+        #
+        # TODO: calculate a more correct 'episode_id' upon merge
         self.video_recorder = video_recorder.VideoRecorder(
             env=self.env,
-            base_path=os.path.join(self.directory, '{}.video.{}.{}.video{:06}'.format(self.file_prefix, self.file_infix, os.getpid(), self.episode_id)),
+            base_path=os.path.join(self.directory, '{}.video.{}.video{:06}'.format(self.file_prefix, self.file_infix, self.episode_id)),
             metadata={'episode_id': self.episode_id},
             enabled=self._video_enabled(),
         )
@@ -238,6 +251,8 @@ class Monitor(object):
 
         # Bump *after* all reset activity has finished
         self.episode_id += 1
+
+        self.flush()
 
     def _close_video_recorder(self):
         self.video_recorder.close()

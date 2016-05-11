@@ -32,6 +32,12 @@ class ResetNotAllowed(Exception):
     """
     pass
 
+class InvalidAction(Exception):
+    """Raised when the user performs an action not contained within the
+    action space
+    """
+    pass
+
 # API errors
 
 class APIError(Error):

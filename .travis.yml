@@ -4,29 +4,28 @@ cache:
   apt: true
   pip: false
 language: python
+addons:
+  apt:
+    sources:
+      - george-edison55-precise-backports # cmake 3.2.3
+    packages:
+      - cmake
+      - cmake-data
+
+      - python-dev
 python:
   - "2.7"
-  # - "3.2"
-
-# Install numpy and scipy so we don't need to compile them
-addons:
-    apt:
-      packages:
-        - python-numpy
-        - python-matplotlib
-        - python-tk
-
+#  - "3.5"
 before_install:
   - Xvfb :12 -screen 0 800x600x24 +extension RANDR &
   - mkdir -p ~/.mujoco
     # In a pull request, there are no secrets, and hence no MuJoCo:
     # https://docs.travis-ci.com/user/pull-requests#Security-Restrictions-when-testing-Pull-Requests.
-  - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && ( curl https://openai-public.s3-us-west-2.amazonaws.com/mujoco/$MUJOCO_KEY_BUNDLE.tar.gz | tar xz -C ~/.mujoco )'
+  - '[ "${TRAVIS_PULL_REQUEST}" != "false" ] || ( curl https://openai-public.s3-us-west-2.amazonaws.com/mujoco/$MUJOCO_KEY_BUNDLE.tar.gz | tar xz -C ~/.mujoco )'
 env:
   - DISPLAY=:12
-
-install: pip install -r requirements.txt
-script: nose2
+install: pip install tox-travis
+script: tox
 
 notifications:
   slack:

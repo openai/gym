@@ -1,6 +1,9 @@
 gym
 ******
 
+.. image:: https://travis-ci.org/openai/gym.svg?branch=master
+    :target: https://travis-ci.org/openai/gym
+
 **OpenAI Gym is a toolkit for developing and comparing reinforcement learning algorithms.** This is the ``gym`` open-source library, which gives you access to an ever-growing variety of environments.
 
 ``gym`` makes no assumptions about the structure of your agent, and is compatible with any numerical computation library, such as TensorFlow or Theano. You can use it from Python code, and soon from other languages.
@@ -27,7 +30,7 @@ that part is left to you. The following are the ``Env`` methods you
 should know:
 
 - `reset(self)`: Reset the environment's state. Returns `observation`.
-- `step(self, action)`: Step the environment by one timestep. Returns `observation`, `action`, `reward`, `done`.
+- `step(self, action)`: Step the environment by one timestep. Returns `observation`, `reward`, `done`, `info`.
 - `render(self, mode='human', close=False)`: Render one frame of the environment. The default mode will do something human friendly, such as pop up a window. Passing the `close` flag signals the renderer to close any such windows.
 
 Installation
@@ -36,7 +39,7 @@ Installation
 You can perform a minimal install of ``gym`` with:
 
 .. code:: shell
-	  
+
 	  git clone https://github.com/openai/gym.git
 	  cd gym
 	  pip install -e .
@@ -59,7 +62,7 @@ installing the dependencies for the remaining environments.
 Installing everything
 ---------------------
 
-Once you're ready to install everything, run ``pip install -e .[all]`` (or ``pip install gym[all]``).
+Once you're ready to install everything, run ``pip install -e '.[all]'`` (or ``pip install 'gym[all]'``).
 
 MuJoCo has a proprietary dependency we can't set up for you. Follow
 the
@@ -79,27 +82,39 @@ On OSX:
 On Ubuntu 14.04:
 
 .. code:: shell
-	  
+
 	  apt-get install -y python-numpy python-dev cmake zlib1g-dev libjpeg-dev xvfb libav-tools xorg-dev python-opengl
 
 Supported systems
 -----------------
 
-We currenty support Python 2.7 on Linux and OSX.
+We currently support Linux and OS X running Python 2.7 or 3.5.
+Python 3 support should still be considered experimental -- if you find any bugs, please report them!
 
-We will expand support to Python 3 and Windows based on demand. We
-will also soon ship a Docker container exposing OpenAI Gym as an API
-callable from any platform.
+We will expand support to Windows based on demand. We
+will also soon ship a Docker container exposing the environments
+callable from any platform, for use with any non-Python framework, such as Torch.
 
 Pip version
 -----------
 
-To run ``pip install -e .[all]``, you'll need a semi-recent pip.
+To run ``pip install -e '.[all]'``, you'll need a semi-recent pip.
 Please make sure your pip is at least at version ``1.5.0``. You can
 upgrade using the following: ``pip install --ignore-installed
 pip``. Alternatively, you can open `setup.py
 <https://github.com/openai/gym/blob/master/setup.py>`_ and
 install the dependencies by hand.
+
+Rendering on a server
+---------------------
+
+If you're trying to render video on a server, you'll need to connect a
+fake display. The easiest way to do this is by running under
+``xvfb-run`` (on Ubuntu, install the ``xvfb`` package):
+
+.. code:: shell
+
+     xvfb-run -s "-screen 0 1400x900x24" bash
 
 Installing dependencies for specific environments
 -------------------------------------------------
@@ -135,7 +150,7 @@ sequence.
 Atari
 -----
 
-The Atari environments are a variety of Atari video games. If you didn't do the full install, you can install dependencies via ``pip install -e .[atari]`` (you'll need ``cmake`` installed) and then get started as follow:
+The Atari environments are a variety of Atari video games. If you didn't do the full install, you can install dependencies via ``pip install -e '.[atari]'`` (you'll need ``cmake`` installed) and then get started as follow:
 
 .. code:: python
 
@@ -149,7 +164,7 @@ This will install ``atari-py``, which automatically compiles the `Arcade Learnin
 Board games
 -----------
 
-The board game environments are a variety of board games. If you didn't do the full install, you can install dependencies via ``pip install -e .[board_game]`` (you'll need ``cmake`` installed) and then get started as follow:
+The board game environments are a variety of board games. If you didn't do the full install, you can install dependencies via ``pip install -e '.[board_game]'`` (you'll need ``cmake`` installed) and then get started as follow:
 
 .. code:: python
 
@@ -161,7 +176,7 @@ The board game environments are a variety of board games. If you didn't do the f
 Classic control
 ---------------
 
-These are a variety of classic control tasks, which would appear in a typical reinforcement learning textbook. If you didn't do the full install, you will need to run ``pip install -e .[classic_control]`` to enable rendering. You can get started with them via:
+These are a variety of classic control tasks, which would appear in a typical reinforcement learning textbook. If you didn't do the full install, you will need to run ``pip install -e '.[classic_control]'`` to enable rendering. You can get started with them via:
 
 .. code:: python
 
@@ -177,12 +192,12 @@ MuJoCo
 very detailed efficient simulations with contacts. It's not
 open-source, so you'll have to follow the instructions in `mujoco-py
 <https://github.com/openai/mujoco-py#obtaining-the-binaries-and-license-key>`_
-to set it up. You'll have to also run ``pip install -e .[mujoco]`` if you didn't do the full install.
+to set it up. You'll have to also run ``pip install -e '.[mujoco]'`` if you didn't do the full install.
 
 .. code:: python
 
 	  import gym
-	  env = gym.make('Humanoid')
+	  env = gym.make('Humanoid-v0')
 	  env.reset()
 	  env.render()
 

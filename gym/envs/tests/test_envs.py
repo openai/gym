@@ -10,8 +10,13 @@ from gym import envs
 specs = [spec for spec in envs.registry.all()]
 @tools.params(*specs)
 def test_env(spec):
+    # Skip for deprecated envs
+    if spec._entry_point is None:
+        return
+
+    # Skip mujoco tests for pull request CI
     skip_mujoco = os.environ.get('TRAVIS_PULL_REQUEST', 'false') != 'false'
-    if skip_mujoco and spec.entry_point.startswith('gym.envs.mujoco:'):
+    if skip_mujoco and spec._entry_point.startswith('gym.envs.mujoco:'):
         return
 
     env = spec.make()
@@ -33,7 +38,7 @@ def test_random_rollout():
     for env in [envs.make('CartPole-v0'), envs.make('FrozenLake-v0')]:
         agent = lambda ob: env.action_space.sample()
         ob = env.reset()
-        for _ in xrange(10):
+        for _ in range(10):
             assert env.observation_space.contains(ob)
             a = agent(ob)
             assert env.action_space.contains(a)

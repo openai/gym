@@ -1,7 +1,6 @@
 import logging
 import pkg_resources
 import re
-import six
 import sys
 from gym import error
 
@@ -11,14 +10,8 @@ env_id_re = re.compile(r'^([\w:-]+)-v(\d+)$')
 
 def load(name):
     entry_point = pkg_resources.EntryPoint.parse('x={}'.format(name))
-    try:
-        result = entry_point.load(False)
-    except ImportError as e:
-        _, _, traceback = sys.exc_info()
-        new_e = ImportError("{} (while loading {})".format(e, name))
-        six.reraise(type(new_e), new_e, traceback)
-    else:
-        return result
+    result = entry_point.load(False)
+    return result
 
 class EnvSpec(object):
     """A specification for a particular instance of the environment. Used
@@ -26,7 +19,7 @@ class EnvSpec(object):
 
     Args:
         id (str): The official environment ID
-        entry_point (str): The Python entrypoint of the environment class (e.g. module.name:Class)
+        entry_point (Optional[str]): The Python entrypoint of the environment class (e.g. module.name:Class)
         timestep_limit (int): The max number of timesteps per episode during training
         trials (int): The number of trials to average reward over
         reward_threshold (Optional[int]): The reward threshold before the task is considered solved
@@ -38,7 +31,7 @@ class EnvSpec(object):
         trials (int): The number of trials run in official evaluation
     """
 
-    def __init__(self, id, entry_point, timestep_limit=1000, trials=100, reward_threshold=None, kwargs=None):
+    def __init__(self, id, entry_point=None, timestep_limit=1000, trials=100, reward_threshold=None, kwargs=None):
         self.id = id
         # Evaluation parameters
         self.timestep_limit = timestep_limit
@@ -55,16 +48,11 @@ class EnvSpec(object):
 
     def make(self):
         """Instantiates an instance of the environment with appropriate kwargs"""
+        if self._entry_point is None:
+            raise error.Error('Attempting to make deprecated env {}. (HINT: is there a newer registered version of this env?)'.format(self.id))
+
         cls = load(self._entry_point)
-        try:
-            env = cls(**self._kwargs)
-        except TypeError as e:
-            type, value, traceback = sys.exc_info()
-
-            # This likely indicates unsupported kwargs
-            six.reraise(type, """Could not 'make' {} ({}): {}.
-
-(For reference, the environment was instantiated with kwargs: {}).""".format(self.id, cls, e.message, self._kwargs), traceback)
+        env = cls(**self._kwargs)
 
         # Make the enviroment aware of which spec it came from.
         env.spec = self
@@ -103,10 +91,10 @@ class EnvRegistry(object):
         except KeyError:
             raise error.UnregisteredEnv('No registered env with id: {}'.format(id))
 
-    def register(self, id, entry_point, **kwargs):
+    def register(self, id, **kwargs):
         if id in self.env_specs:
             raise error.Error('Cannot re-register id: {}'.format(id))
-        self.env_specs[id] = EnvSpec(id, entry_point, **kwargs)
+        self.env_specs[id] = EnvSpec(id, **kwargs)
 
 # Have a global registry
 registry = EnvRegistry()

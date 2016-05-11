@@ -1,7 +1,7 @@
-# Forked from
 import logging
 import requests
 import textwrap
+import six
 
 from gym import error
 from gym.scoreboard.client import util
@@ -12,7 +12,7 @@ warned = False
 def render_post_data(post_data):
     if hasattr(post_data, 'fileno'): # todo: is this the right way of checking if it's a file?
         return '%r (%d bytes)' % (post_data, util.file_size(post_data))
-    elif isinstance(post_data, basestring):
+    elif isinstance(post_data, (six.string_types, six.binary_type)):
         return '%r (%d bytes)' % (post_data, len(post_data))
     else:
         return None
