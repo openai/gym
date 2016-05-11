@@ -18,11 +18,18 @@ python:
   - "2.7"
   - "3.5"
 before_install:
+  # Start a framebuffer for our windows to render to
   - Xvfb :12 -screen 0 800x600x24 +extension RANDR &
+
+  # Fetch Mujoco. When testing a pull request, we don't have the Travis
+  # secrets, and hence no Mujoco.
   - mkdir -p ~/.mujoco
-    # In a pull request, there are no secrets, and hence no MuJoCo:
-    # https://docs.travis-ci.com/user/pull-requests#Security-Restrictions-when-testing-Pull-Requests.
   - '[ "${TRAVIS_PULL_REQUEST}" != "false" ] || ( curl https://openai-public.s3-us-west-2.amazonaws.com/mujoco/$MUJOCO_KEY_BUNDLE.tar.gz | tar xz -C ~/.mujoco )'
+
+  # Install SWIG >= 3 for Box2D tests (See #83).
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then echo deb http://archive.ubuntu.com/ubuntu trusty-backports main restricted universe multiverse | sudo tee /etc/apt/sources.list.d/box2d-py-swig.list; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get update && sudo apt-get remove swig swig2.0 && sudo apt-get install -t trusty-backports swig3.0; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo ln -s /usr/bin/swig3.0 /usr/bin/swig; fi
 env:
   - DISPLAY=:12
 install: pip install tox-travis
