@@ -4,32 +4,31 @@ cache:
   apt: true
   pip: false
 language: python
-addons:
-  apt:
-    sources:
-      - george-edison55-precise-backports # cmake 3.2.3
-    packages:
-      - cmake
-      - cmake-data
-      - python-dev
-      - swig
-      - libav-tools
 python:
   - "2.7"
   - "3.5"
+
 before_install:
-  # Start a framebuffer for our windows to render to
-  - Xvfb :12 -screen 0 800x600x24 +extension RANDR &
+  # Add apt sources
+  - sudo -E apt-add-repository -y ppa:george-edison55/cmake-3.x
+  - echo deb http://archive.ubuntu.com/ubuntu trusty-backports main restricted universe multiverse | sudo tee /etc/apt/sources.list.d/trusty-backports.list
+  - sudo apt-get update -qq
+
+  # Install CMake >= 3 for pachi-py
+  - sudo apt-get -y install cmake cmake-data python-dev libav-tools
+
+  # Install SWIG >= 3 for box2d-py (See #83).
+  - sudo apt-get -y install -t trusty-backports swig3.0
+  - sudo ln -s /usr/bin/swig3.0 /usr/bin/swig
 
   # Fetch Mujoco. When testing a pull request, we don't have the Travis
   # secrets, and hence no Mujoco.
   - mkdir -p ~/.mujoco
   - '[ "${TRAVIS_PULL_REQUEST}" != "false" ] || ( curl https://openai-public.s3-us-west-2.amazonaws.com/mujoco/$MUJOCO_KEY_BUNDLE.tar.gz | tar xz -C ~/.mujoco )'
 
-  # Install SWIG >= 3 for Box2D tests (See #83).
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then echo deb http://archive.ubuntu.com/ubuntu trusty-backports main restricted universe multiverse | sudo tee /etc/apt/sources.list.d/box2d-py-swig.list; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get update; sudo apt-get install -t trusty-backports swig3.0; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo ln -s /usr/bin/swig3.0 /usr/bin/swig; fi
+  # Start a framebuffer for our windows to render to
+  - Xvfb :12 -screen 0 800x600x24 +extension RANDR &
+
 env:
   - DISPLAY=:12
 install: pip install tox-travis
