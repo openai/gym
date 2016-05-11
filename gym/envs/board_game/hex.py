@@ -88,7 +88,7 @@ class HexEnv(gym.Env):
 
         # if HexEnv.pass_move(self.board_size, action):
         #     pass
-        if HexEnv.reisgn_move(self.board_size, action):
+        if HexEnv.resign_move(self.board_size, action):
             return self.state, -1, True, {'state': self.state}
         elif not HexEnv.valid_move(self.state, action):
             if self.illegal_move_mode == 'raise':
@@ -106,7 +106,7 @@ class HexEnv(gym.Env):
         a = self.opponent_policy(self.state)
         # if HexEnv.pass_move(self.board_size, action):
         #     pass
-        if HexEnv.reisgn_move(self.board_size, action):
+        if HexEnv.resign_move(self.board_size, action):
             return self.state, 1, True, {'state': self.state}
         else:
             HexEnv.make_move(self.state, a, 1 - self.player_color)
@@ -159,7 +159,7 @@ class HexEnv(gym.Env):
     #     return action == board_size ** 2
 
     @staticmethod
-    def reisgn_move(board_size, action):
+    def resign_move(board_size, action):
         return action == board_size ** 2
 
     @staticmethod
