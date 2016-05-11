@@ -8,18 +8,9 @@ import six
 
 try:
     import mujoco_py
+    from mujoco_py.mjlib import mjlib
 except ImportError as e:
     raise error.DependencyNotInstalled("{}. (HINT: you need to install mujoco_py, and also perform the setup instructions here: https://github.com/openai/mujoco-py/.)".format(e))
-
-
-# move this into mujoco-py next time we upgrade it!!!
-# ---------------------------------------------------
-from mujoco_py.mjlib import mjlib
-from mujoco_py.mjtypes import POINTER, MJMODEL, MJDATA
-mjlib.mj_resetData.argtypes = [POINTER(MJMODEL), POINTER(MJDATA)]
-mjlib.mj_resetData.restype = None
-# ---------------------------------------------------
-
 
 class MujocoEnv(gym.Env):
 

@@ -245,3 +245,15 @@ register(
         'board_size': 19,
     },
 )
+
+register(
+    id='Hex9x9-v0',
+    entry_point='gym.envs.board_game:HexEnv',
+    kwargs={
+        'player_color': 'black',
+        'opponent': 'random',
+        'observation_type': 'numpy3c',
+        'illegal_move_mode': 'lose',
+        'board_size': 9,
+    },
+)

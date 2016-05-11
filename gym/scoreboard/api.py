@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 video_name_re = re.compile('^[\w.-]+\.(mp4|avi|json)$')
 metadata_name_re = re.compile('^[\w.-]+\.meta\.json$')
 
-def upload(training_dir, algorithm_id=None, writeup=None, api_key=None):
+def upload(training_dir, algorithm_id=None, writeup=None, api_key=None, ignore_open_monitors=False):
     """Upload the results of training (as automatically recorded by your
     env's monitor) to OpenAI Gym.
 
@@ -26,10 +26,11 @@ def upload(training_dir, algorithm_id=None, writeup=None, api_key=None):
         api_key (Optional[str]): Your OpenAI API key. Can also be provided as an environment variable (OPENAI_GYM_API_KEY).
     """
 
-    open_monitors = list(monitoring._monitors.values())
-    if len(open_monitors) > 0:
-        envs = [m.env.spec.id if m.env.spec else '(unknown)' for m in open_monitors]
-        raise error.Error("Still have an open monitor on {}. You must run 'env.monitor.close()' before uploading.".format(', '.join(envs)))
+    if not ignore_open_monitors:
+        open_monitors = list(monitoring._monitors.values())
+        if len(open_monitors) > 0:
+            envs = [m.env.spec.id if m.env.spec else '(unknown)' for m in open_monitors]
+            raise error.Error("Still have an open monitor on {}. You must run 'env.monitor.close()' before uploading.".format(', '.join(envs)))
 
     env_info, training_episode_batch, training_video = upload_training_data(training_dir, api_key=api_key)
     env_id = env_info['env_id']
