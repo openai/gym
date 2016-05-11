@@ -2,6 +2,7 @@
 Game of Hex
 """
 
+from six import StringIO
 import sys
 import gym
 from gym import spaces
@@ -65,7 +66,8 @@ class HexEnv(gym.Env):
         if self.observation_type != 'numpy3c':
             raise error.Error('Unsupported observation type: {}'.format(self.observation_type))
 
-        self.reset()
+        observation = self.reset()
+        self.observation_space = spaces.Box(np.zeros(observation.shape), np.ones(observation.shape))
 
     def _reset(self):
         self.state = np.zeros((3, self.board_size, self.board_size))
