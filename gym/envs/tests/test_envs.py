@@ -18,11 +18,6 @@ def test_env(spec):
     if skip_mujoco and spec._entry_point.startswith('gym.envs.mujoco:'):
         return
 
-    # TODO(jonas 2016-05-11): Re-enable these tests after fixing box2d-py
-    if spec._entry_point.startswith('gym.envs.box2d:'):
-        logger.warn("Skipping tests for box2d env {}".format(spec._entry_point))
-        return
-
     env = spec.make()
     ob_space = env.observation_space
     act_space = env.action_space
