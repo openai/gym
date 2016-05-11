@@ -6,7 +6,6 @@ import tempfile
 import os.path
 import distutils.spawn, distutils.version
 import numpy as np
-import sys
 from six import StringIO
 import six
 import six.moves.urllib as urlparse

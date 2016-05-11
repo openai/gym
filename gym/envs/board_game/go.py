@@ -12,6 +12,7 @@ from six import StringIO
 import sys
 import six
 
+
 # The coordinate representation of Pachi (and pachi_py) is defined on a board
 # with extra rows and columns on the margin of the board, so positions on the board
 # are not numbers in [0, board_size**2) as one would expect. For this Go env, we instead
