@@ -92,9 +92,21 @@ def running_mean(x, N):
 def compute_graph_stats(episode_lengths, episode_rewards, timestamps, initial_reset_timestamp, buckets):
     """Method to compute the aggregates for the graphs."""
     # Not a dependency of OpenAI Gym generally.
-    import scipy
+    import scipy.stats
 
     num_episodes = len(episode_lengths)
+
+    # Catch for if no files written which causes error with scipy.stats.binned_statistic
+    if num_episodes == 0:
+        return {
+            'initial_reset_timestamp': 0,
+            'x_timestep_y_reward': {'x': 0, 'y': 0 },
+            'x_timestep_y_length': {'x': 0, 'y': 0 },
+            'x_episode_y_reward': {'x': 0, 'y': 0 },
+            'x_episode_y_length': {'x': 0, 'y': 0 },
+            'x_seconds_y_length': {'x': 0, 'y': 0 },
+            'x_seconds_y_reward': {'x': 0, 'y': 0 },
+        }
 
     episode_rewards = np.array(episode_rewards)
     episode_lengths = np.array(episode_lengths)
