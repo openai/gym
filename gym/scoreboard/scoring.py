@@ -98,15 +98,7 @@ def compute_graph_stats(episode_lengths, episode_rewards, timestamps, initial_re
 
     # Catch for if no files written which causes error with scipy.stats.binned_statistic
     if num_episodes == 0:
-        return {
-            'initial_reset_timestamp': 0,
-            'x_timestep_y_reward': {'x': 0, 'y': 0 },
-            'x_timestep_y_length': {'x': 0, 'y': 0 },
-            'x_episode_y_reward': {'x': 0, 'y': 0 },
-            'x_episode_y_length': {'x': 0, 'y': 0 },
-            'x_seconds_y_length': {'x': 0, 'y': 0 },
-            'x_seconds_y_reward': {'x': 0, 'y': 0 },
-        }
+        return None
 
     episode_rewards = np.array(episode_rewards)
     episode_lengths = np.array(episode_lengths)
