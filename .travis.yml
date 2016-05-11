@@ -28,7 +28,7 @@ before_install:
 
   # Install SWIG >= 3 for Box2D tests (See #83).
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then echo deb http://archive.ubuntu.com/ubuntu trusty-backports main restricted universe multiverse | sudo tee /etc/apt/sources.list.d/box2d-py-swig.list; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get update && sudo apt-get remove swig swig2.0 && sudo apt-get install -t trusty-backports swig3.0; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get update; sudo apt-get install -t trusty-backports swig3.0; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo ln -s /usr/bin/swig3.0 /usr/bin/swig; fi
 env:
   - DISPLAY=:12
