@@ -86,8 +86,11 @@ class Env(object):
 
         self.monitor._before_step(action)
         observation, reward, done, info = self._step(action)
-        if not self.observation_space.contains(observation):
-            logger.warn("Observation '{}' is not contained within observation space '{}'.".format(observation, self.observation_space))
+        # TODO (gdb 2016-05-10): This is currently spewing on
+        # CartPole. Should figure out why.
+        #
+        # if not self.observation_space.contains(observation):
+        #     logger.warn("Observation '{}' is not contained within observation space '{}'.".format(observation, self.observation_space))
 
         done = self.monitor._after_step(observation, reward, done, info)
         return observation, reward, done, info
