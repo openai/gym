@@ -1,8 +1,8 @@
 """
-Classic cart-pole system implemented by Rich Sutton et al.
-Copied from https://webdocs.cs.ualberta.ca/~sutton/book/code/pole.c
+Game of Hex
 """
 
+import sys
 import gym
 from gym import spaces
 import numpy as np
@@ -21,7 +21,7 @@ class HexEnv(gym.Env):
     """
     BLACK = 0
     WHITE = 1
-    metadata = {"render.modes": ["ansi"]}
+    metadata = {"render.modes": ["ansi","human"]}
 
     def __init__(self, player_color, opponent, observation_type, illegal_move_mode, board_size):
         """
@@ -123,31 +123,36 @@ class HexEnv(gym.Env):
     #     else:
     #         raise error.Error('Unrecognized opponent policy {}'.format(self.opponent))
 
-    def _render(self, mode='asi', close=False):
+    def _render(self, mode='human', close=False):
+        if close:
+            return
         board = self.state
-        print(" " * 6, end="")
+        outfile = StringIO() if mode == 'ansi' else sys.stdout
+
+        outfile.write(' ' * 5)
         for j in range(board.shape[1]):
-            print(" ", j + 1, " ", end="")
-            print("|", end="")
-        print("")
-        print(" " * 5, end="")
-        print("-" * (board.shape[1] * 6 - 1), end="")
-        print("")
+            outfile.write(' ' +  str(j + 1) + '  | ')
+        outfile.write('\n')
+        outfile.write(' ' * 5)
+        outfile.write('-' * (board.shape[1] * 6 - 1))
+        outfile.write('\n')
         for i in range(board.shape[1]):
-            print(" " * (1 + i * 3), i + 1, " ", end="")
-            print("|", end="")
+            outfile.write(' ' * (2 + i * 3) +  str(i + 1) + '  |')
             for j in range(board.shape[1]):
                 if board[2, i, j] == 1:
-                    print("  O  ", end="")
+                    outfile.write('  O  ')
                 elif board[0, i, j] == 1:
-                    print("  B  ", end="")
+                    outfile.write('  B  ')
                 else:
-                    print("  W  ", end="")
-                print("|", end="")
-            print("")
-            print(" " * (i * 3 + 1), end="")
-            print("-" * (board.shape[1] * 7 - 1), end="")
-            print("")
+                    outfile.write('  W  ')
+                outfile.write('|')
+            outfile.write('\n')
+            outfile.write(' ' * (i * 3 + 1))
+            outfile.write('-' * (board.shape[1] * 7 - 1))
+            outfile.write('\n')
+
+        if mode != 'human':
+            return outfile
 
     # @staticmethod
     # def pass_move(board_size, action):

@@ -215,6 +215,12 @@ add_task(
     summary='The ancient game of Go, played on a 19x19 board.',
 )
 
+add_task(
+    id='Hex9x9-v0',
+    group='board_game',
+    summary='Hex played on a 9x9 board.',
+)
+
 # box2d
 
 add_task(
