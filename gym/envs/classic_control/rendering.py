@@ -32,6 +32,7 @@ class Viewer(object):
         self.width = width
         self.height = height
         self.window = pyglet.window.Window(width=width, height=height)
+        self.window.on_close = self.window_closed_by_user
         self.geoms = []
         self.onetime_geoms = []
         self.transform = Transform()
@@ -41,6 +42,9 @@ class Viewer(object):
 
     def close(self):
         self.window.close()
+
+    def window_closed_by_user(self):
+        self.close()
 
     def set_bounds(self, left, right, bottom, top):
         assert right > left and top > bottom
