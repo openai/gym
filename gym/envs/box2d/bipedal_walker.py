@@ -313,16 +313,16 @@ class BipedalWalker(gym.Env):
             self.joints[0].motorSpeed = float(SPEED_HIP  * np.clip(-1, 1, action[0]))
             self.joints[1].motorSpeed = float(SPEED_KNEE * np.clip(-1, 1, action[1]))
             self.joints[2].motorSpeed = float(SPEED_HIP  * np.clip(-1, 1, action[2]))
-            self.joints[2].motorSpeed = float(SPEED_KNEE * np.clip(-1, 1, action[3]))
+            self.joints[3].motorSpeed = float(SPEED_KNEE * np.clip(-1, 1, action[3]))
         else:
             self.joints[0].motorSpeed     = float(SPEED_HIP     * np.sign(action[0]))
-            self.joints[0].maxMotorTorque = float(MOTORS_TORQUE * np.clip(0, 1, np.abs(action[0])))
+            self.joints[0].maxMotorTorque = float(MOTORS_TORQUE * np.clip(np.abs(action[0]), 0, 1))
             self.joints[1].motorSpeed     = float(SPEED_KNEE    * np.sign(action[1]))
-            self.joints[1].maxMotorTorque = float(MOTORS_TORQUE * np.clip(0, 1, np.abs(action[1])))
+            self.joints[1].maxMotorTorque = float(MOTORS_TORQUE * np.clip(np.abs(action[1]), 0, 1))
             self.joints[2].motorSpeed     = float(SPEED_HIP     * np.sign(action[2]))
-            self.joints[2].maxMotorTorque = float(MOTORS_TORQUE * np.clip(0, 1, np.abs(action[2])))
+            self.joints[2].maxMotorTorque = float(MOTORS_TORQUE * np.clip(np.abs(action[2]), 0, 1))
             self.joints[3].motorSpeed     = float(SPEED_KNEE    * np.sign(action[3]))
-            self.joints[3].maxMotorTorque = float(MOTORS_TORQUE * np.clip(0, 1, np.abs(action[3])))
+            self.joints[3].maxMotorTorque = float(MOTORS_TORQUE * np.clip(np.abs(action[3]), 0, 1))
 
         self.world.Step(1.0/FPS, 6*30, 2*30)
 
