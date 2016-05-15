@@ -85,8 +85,8 @@ register(
 register(
     id='LunarLander-v0',
     entry_point='gym.envs.box2d:LunarLander',
-    timestep_limit=300,
-    reward_threshold=1,
+    timestep_limit=1000,
+    reward_threshold=200,
 )
 
 register(
