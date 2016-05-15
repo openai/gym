@@ -45,3 +45,18 @@ def test_video_callable():
             pass
         else:
             assert False
+
+def test_env_reuse():
+    with tempdir() as temp:
+        env = gym.make('CartPole-v0')
+        env.monitor.start(temp)
+        env.monitor.close()
+
+        env.monitor.start(temp, force=True)
+        env.reset()
+        env.step(env.action_space.sample())
+        env.step(env.action_space.sample())
+        env.monitor.close()
+
+        results = monitor.load_results(temp)
+        assert results['episode_lengths'] == [2], 'Results: {}'.format(results)
