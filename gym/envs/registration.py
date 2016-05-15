@@ -3,6 +3,7 @@ import pkg_resources
 import re
 import sys
 from gym import error
+from gym.utils.atexit_utils import env_close_registry
 
 logger = logging.getLogger(__name__)
 # This format is true today, but it's *not* an official spec.
@@ -56,6 +57,8 @@ class EnvSpec(object):
 
         # Make the enviroment aware of which spec it came from.
         env.spec = self
+        # Register the env for atexit
+        env.env_exit_id = env_close_registry.register(env)
         return env
 
     def __repr__(self):
