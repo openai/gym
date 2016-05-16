@@ -52,6 +52,7 @@ class PendulumEnv(gym.Env):
         if close:
             if self.viewer is not None:
                 self.viewer.close()
+                self.viewer = None
             return
 
         if self.viewer is None:

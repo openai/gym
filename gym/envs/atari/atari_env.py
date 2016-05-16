@@ -84,6 +84,7 @@ class AtariEnv(gym.Env, utils.EzPickle):
         if close:
             if self.viewer is not None:
                 self.viewer.close()
+                self.viewer = None
             return
         img = self._get_image()
         if mode == 'rgb_array':

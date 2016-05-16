@@ -241,6 +241,7 @@ class LunarLander(gym.Env):
         if close:
             if self.viewer is not None:
                 self.viewer.close()
+                self.viewer = None
             return
 
         from gym.envs.classic_control import rendering

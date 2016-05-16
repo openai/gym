@@ -1,25 +1,17 @@
-import contextlib
 import glob
 import os
-import shutil
-import tempfile
 
 import gym
 from gym import error
 from gym.monitoring import monitor
+from gym.monitoring.tests import helpers
 
 class FakeEnv(gym.Env):
     def _render(self, close=True):
         raise RuntimeError('Raising')
 
-@contextlib.contextmanager
-def tempdir():
-    temp = tempfile.mkdtemp()
-    yield temp
-    shutil.rmtree(temp)
-
 def test_monitor_filename():
-    with tempdir() as temp:
+    with helpers.tempdir() as temp:
         env = gym.make('Acrobot-v0')
         env.monitor.start(temp)
         env.monitor.close()
@@ -28,7 +20,7 @@ def test_monitor_filename():
         assert len(manifests) == 1
 
 def test_close_monitor():
-    with tempdir() as temp:
+    with helpers.tempdir() as temp:
         env = FakeEnv()
         env.monitor.start(temp)
         env.monitor.close()
@@ -37,7 +29,7 @@ def test_close_monitor():
         assert len(manifests) == 1
 
 def test_video_callable():
-    with tempdir() as temp:
+    with helpers.tempdir() as temp:
         env = gym.make('Acrobot-v0')
         try:
             env.monitor.start(temp, video_callable=False)
@@ -47,7 +39,7 @@ def test_video_callable():
             assert False
 
 def test_env_reuse():
-    with tempdir() as temp:
+    with helpers.tempdir() as temp:
         env = gym.make('CartPole-v0')
         env.monitor.start(temp)
         env.monitor.close()

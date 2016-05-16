@@ -58,6 +58,7 @@ class MountainCarEnv(gym.Env):
         if close:
             if self.viewer is not None:
                 self.viewer.close()
+                self.viewer = None
             return
 
         screen_width = 600

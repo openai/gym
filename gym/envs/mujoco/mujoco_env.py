@@ -99,6 +99,7 @@ class MujocoEnv(gym.Env):
         if close:
             if self.viewer is not None:
                 self._get_viewer().finish()
+                self.viewer = None
             return
 
         if mode == 'rgb_array':
