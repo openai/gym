@@ -257,3 +257,11 @@ register(
         'board_size': 9,
     },
 )
+
+
+# Hyperparameter tuning
+# ----------------------------------------
+register(
+    id='ConvergenceControl-v0',
+    entry_point='gym.envs.parameter_tuning:ConvergenceControl',
+)

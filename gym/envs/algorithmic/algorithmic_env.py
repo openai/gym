@@ -127,8 +127,8 @@ class AlgorithmicEnv(Env):
         outfile.write(target_str + "\n\n")
 
         if action is not None:
-            outfile.write("Current reward      :   %.3f\n" % self.reward)
-            outfile.write("Cumulative reward   :   %.3f\n" % self.sum_reward)
+            outfile.write("Current previous_acc      :   %.3f\n" % self.previous_acc)
+            outfile.write("Cumulative previous_acc   :   %.3f\n" % self.sum_reward)
             move = ""
             if inp_act == 0:
                 move = "left"
@@ -181,7 +181,7 @@ class AlgorithmicEnv(Env):
                 reward = -1.0
                 done = True
         obs = self._get_obs()
-        self.reward = reward
+        self.previous_acc = reward
         self.sum_reward += reward
         return (obs, reward, done, {})
 
