@@ -57,6 +57,12 @@ add_group(
     description='Simple text environments to get you started.'
 )
 
+add_group(
+    id='doom',
+    name='Doom',
+    description='3D environments based on the Doom engine.'
+)
+
 # classic control
 
 add_task(
@@ -455,6 +461,13 @@ The game is simulated through the Arcade Learning Environment [ALE]_, which uses
 .. [Stella] Stella: A Multi-Platform Atari 2600 VCS emulator http://stella.sourceforge.net/
 """,
     )
+
+# Doom
+add_task(
+    id='DoomTakeCover-v0',
+    group='doom',
+    experimental=True,
+)
 
 # Deprecated
 

@@ -42,3 +42,8 @@ register(
 register(
     id='Humanoid-v0',
 )
+
+# External Doom envs; will be moved out of deprecated once the envs are merged
+register(
+    id='DoomTakeCover-v0',
+)
