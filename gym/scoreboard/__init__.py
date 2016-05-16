@@ -224,19 +224,19 @@ add_task(
 # box2d
 
 add_task(
-    id='LunarLander-v0',
+    id='LunarLander-v1',
     group='box2d',
     experimental=True,
 )
 
 add_task(
-    id='BipedalWalker-v0',
+    id='BipedalWalker-v1',
     group='box2d',
     experimental=True,
 )
 
 add_task(
-    id='BipedalWalkerHardcore-v0',
+    id='BipedalWalkerHardcore-v1',
     group='box2d',
     experimental=True,
 )

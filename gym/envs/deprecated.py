@@ -42,3 +42,15 @@ register(
 register(
     id='Humanoid-v0',
 )
+
+register(
+    id='LunarLander-v0',
+)
+
+register(
+    id='BipedalWalker-v0',
+)
+
+register(
+    id='BipedalWalkerHardcore-v0',
+)

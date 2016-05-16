@@ -83,21 +83,21 @@ register(
 # ----------------------------------------
 
 register(
-    id='LunarLander-v0',
+    id='LunarLander-v1',
     entry_point='gym.envs.box2d:LunarLander',
     timestep_limit=1000,
     reward_threshold=200,
 )
 
 register(
-    id='BipedalWalker-v0',
+    id='BipedalWalker-v1',
     entry_point='gym.envs.box2d:BipedalWalker',
     timestep_limit=1600,
     reward_threshold=300,
 )
 
 register(
-    id='BipedalWalkerHardcore-v0',
+    id='BipedalWalkerHardcore-v1',
     entry_point='gym.envs.box2d:BipedalWalkerHardcore',
     timestep_limit=2000,
     reward_threshold=300,
