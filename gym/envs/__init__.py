@@ -92,15 +92,15 @@ register(
 register(
     id='BipedalWalker-v0',
     entry_point='gym.envs.box2d:BipedalWalker',
-    timestep_limit=1000,
-    reward_threshold=1.5,
+    timestep_limit=1600,
+    reward_threshold=300,
 )
 
 register(
     id='BipedalWalkerHardcore-v0',
     entry_point='gym.envs.box2d:BipedalWalkerHardcore',
-    timestep_limit=1000,
-    reward_threshold=1.5,
+    timestep_limit=2000,
+    reward_threshold=300,
 )
 
 # Toy Text
