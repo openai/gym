@@ -1,6 +1,5 @@
 import sys, math
 import numpy as np
-from six.moves import xrange
 
 import Box2D
 from Box2D.b2 import (edgeShape, circleShape, fixtureDef, polygonShape, revoluteJointDef, contactListener)
@@ -8,13 +7,35 @@ from Box2D.b2 import (edgeShape, circleShape, fixtureDef, polygonShape, revolute
 import gym
 from gym import spaces
 
+# Rocket trajectory optimization is a classic topic in Optimal Control.
+#
+# According to Pontryagin's maximum principle it's optimal to fire engine full throttle or
+# turn it off. That's the reason this environment is OK to have discreet actions (engine on or off).
+#
+# Landing pad is always at coordinates (0,0). Coordinates are the first two numbers in state vector.
+# Reward for moving from the top of the screen to landing pad and zero speed is about 100..140 points.
+# If lander moves away from landing pad it loses reward back. Episode finishes if the lander crashes or
+# comes to rest, receiving additional -100 or +100 points. Each leg ground contact is +10. Solved is 200 points.
+# Landing outside landing pad is possible. Fuel is infinite, so an agent can learn to fly and then land
+# on its first attempt. Please see source code for details.
+#
+# Too see heuristic landing, run:
+#
+# python gym/envs/box2d/lunar_lander.py
+#
+# To play yourself, run:
+#
+# python examples/agents/keyboard_agent.py LunarLander-v0
+#
+# Created by Oleg Klimov. Licensed on the same terms as the rest of OpenAI Gym.
+
 FPS    = 50
 SCALE  = 30.0   # affects how fast-paced the game is, forces should be adjusted as well
 
 MAIN_ENGINE_POWER  = 13.0
 SIDE_ENGINE_POWER  =  0.6
 
-INITIAL_RANDOM = 500.0
+INITIAL_RANDOM = 1000.0   # Set 1500 to make game harder
 
 LANDER_POLY =[
     (-14,+17), (-17,0), (-17,-10),
@@ -38,6 +59,13 @@ class ContactDetector(contactListener):
     def BeginContact(self, contact):
         if self.env.lander==contact.fixtureA.body or self.env.lander==contact.fixtureB.body:
             self.env.game_over = True
+        for i in range(2):
+            if self.env.legs[i] in [contact.fixtureA.body, contact.fixtureB.body]:
+                self.env.legs[i].ground_contact = True
+    def EndContact(self, contact):
+        for i in range(2):
+            if self.env.legs[i] in [contact.fixtureA.body, contact.fixtureB.body]:
+                self.env.legs[i].ground_contact = False
 
 class LunarLander(gym.Env):
     metadata = {
@@ -48,7 +76,7 @@ class LunarLander(gym.Env):
     def __init__(self):
         self.viewer = None
 
-        high = np.array([np.inf, np.inf, np.inf, np.inf, np.inf]) # useful range is -1 .. +1
+        high = np.array([np.inf]*8)                               # useful range is -1 .. +1
         self.action_space = spaces.Discrete(4)                    # nop, fire left engine, main engine, right engine
         self.observation_space = spaces.Box(-high, high)
 
@@ -81,7 +109,7 @@ class LunarLander(gym.Env):
         # terrain
         CHUNKS = 11
         height = np.random.uniform(0, H/2, size=(CHUNKS+1,) )
-        chunk_x  = [W/(CHUNKS-1)*i for i in xrange(CHUNKS)]
+        chunk_x  = [W/(CHUNKS-1)*i for i in range(CHUNKS)]
         self.helipad_x1 = chunk_x[CHUNKS//2-1]
         self.helipad_x2 = chunk_x[CHUNKS//2+1]
         self.helipad_y  = H/4
@@ -90,11 +118,11 @@ class LunarLander(gym.Env):
         height[CHUNKS//2+0] = self.helipad_y
         height[CHUNKS//2+1] = self.helipad_y
         height[CHUNKS//2+2] = self.helipad_y
-        smooth_y = [0.33*(height[i-1] + height[i+0] + height[i+1]) for i in xrange(CHUNKS)]
+        smooth_y = [0.33*(height[i-1] + height[i+0] + height[i+1]) for i in range(CHUNKS)]
 
         self.moon = self.world.CreateStaticBody( shapes=edgeShape(vertices=[(0, 0), (W, 0)]) )
         self.sky_polys = []
-        for i in xrange(CHUNKS-1):
+        for i in range(CHUNKS-1):
             p1 = (chunk_x[i],   smooth_y[i])
             p2 = (chunk_x[i+1], smooth_y[i+1])
             self.moon.CreateEdgeFixture(
@@ -137,6 +165,7 @@ class LunarLander(gym.Env):
                     categoryBits=0x0020,
                     maskBits=0x001)
                 )
+            leg.ground_contact = False
             leg.color1 = (0.5,0.4,0.9)
             leg.color2 = (0.3,0.3,0.5)
             rjd = revoluteJointDef(
@@ -172,7 +201,7 @@ class LunarLander(gym.Env):
                 friction=0.1,
                 categoryBits=0x0100,
                 maskBits=0x001,  # collide only with ground
-                restitution=0.9)
+                restitution=0.3)
                 )
         p.ttl = 1
         self.particles.append(p)
@@ -189,7 +218,7 @@ class LunarLander(gym.Env):
         # Engines
         tip  = (math.sin(self.lander.angle), math.cos(self.lander.angle))
         side = (-tip[1], tip[0]);
-        dispersion = [np.random.uniform(-1.0, +1.0) / SCALE for _ in xrange(2)]
+        dispersion = [np.random.uniform(-1.0, +1.0) / SCALE for _ in range(2)]
         if action==2: # Main engine
             ox =  tip[0]*(4/SCALE + 2*dispersion[0]) + side[0]*dispersion[1]   # 4 is move a bit downwards, +-2 for randomness
             oy = -tip[1]*(4/SCALE + 2*dispersion[0]) - side[1]*dispersion[1]
@@ -216,13 +245,19 @@ class LunarLander(gym.Env):
             (pos.y - (self.helipad_y+LEG_DOWN/SCALE)) / (VIEWPORT_W/SCALE/2),
             vel.x*(VIEWPORT_W/SCALE/2)/FPS,
             vel.y*(VIEWPORT_H/SCALE/2)/FPS,
-            0.2*self.lander.angularVelocity
+            self.lander.angle,
+            20.0*self.lander.angularVelocity/FPS,
+            1.0 if self.legs[0].ground_contact else 0.0,
+            1.0 if self.legs[1].ground_contact else 0.0
             ]
-        #print np.array(state)
+        assert(len(state)==8)
 
         reward = 0
-        shaping = - abs(state[0]) - abs(state[1]) - abs(state[2]) - abs(state[3]) - abs(state[4])
-        #print "shaping", shaping
+        shaping = \
+            - 100*np.sqrt(state[0]*state[0] + state[1]*state[1]) \
+            - 100*np.sqrt(state[2]*state[2] + state[3]*state[3]) \
+            - 100*abs(state[4]) + 10*state[6] + 10*state[7]   # And ten points for legs contact, the idea is if you
+                                                              # lose contact again after landing, you get negative reward
         if self.prev_shaping is not None:
             reward = shaping - self.prev_shaping
         self.prev_shaping = shaping
@@ -230,11 +265,10 @@ class LunarLander(gym.Env):
         done = False
         if self.game_over or abs(state[0]) >= 1.0:
             done   = True
-            reward = -1
+            reward = -100
         if not self.lander.awake:
             done   = True
-            reward = +1
-        #print "REWARD", reward
+            reward = +100
         return np.array(state), reward, done, {}
 
     def _render(self, mode='human', close=False):
@@ -250,9 +284,9 @@ class LunarLander(gym.Env):
             self.viewer.set_bounds(0, VIEWPORT_W/SCALE, 0, VIEWPORT_H/SCALE)
 
         for obj in self.particles:
-            obj.ttl -= 0.05
-            obj.color1 = (max(0.2,obj.ttl), 0.2, 0.2)
-            obj.color2 = (max(0.2,obj.ttl), 0.2, 0.2)
+            obj.ttl -= 0.15
+            obj.color1 = (max(0.2,0.2+obj.ttl), max(0.2,0.5*obj.ttl), max(0.2,0.5*obj.ttl))
+            obj.color2 = (max(0.2,0.2+obj.ttl), max(0.2,0.5*obj.ttl), max(0.2,0.5*obj.ttl))
 
         self._clean_particles(False)
 
@@ -264,8 +298,8 @@ class LunarLander(gym.Env):
                 trans = f.body.transform
                 if type(f.shape) is circleShape:
                     t = rendering.Transform(translation=trans*f.shape.pos)
-                    self.viewer.draw_circle(f.shape.radius, 30, color=obj.color1).add_attr(t)
-                    self.viewer.draw_circle(f.shape.radius, 30, color=obj.color2, filled=False, linewidth=2).add_attr(t)
+                    self.viewer.draw_circle(f.shape.radius, 20, color=obj.color1).add_attr(t)
+                    self.viewer.draw_circle(f.shape.radius, 20, color=obj.color2, filled=False, linewidth=2).add_attr(t)
                 else:
                     path = [trans*v for v in f.shape.vertices]
                     self.viewer.draw_polygon(path, color=obj.color1)
@@ -285,3 +319,44 @@ class LunarLander(gym.Env):
             pass
         else:
             return super(LunarLander, self).render(mode=mode)
+
+if __name__=="__main__":
+    # Heuristic for testing.
+    env = LunarLander()
+    env.reset()
+    steps = 0
+    total_reward = 0
+    a = 0
+    while True:
+        s, r, done, info = env.step(a)
+        total_reward += r
+        if steps % 20 == 0 or done:
+            print(["{:+0.2f}".format(x) for x in s])
+            print("step {} total_reward {:+0.2f}".format(steps, total_reward))
+        steps += 1
+
+        angle_targ = s[0]*0.5 + s[2]*1.0         # angle should point towards center (s[0] is horizontal coordinate, s[2] hor speed)
+        if angle_targ >  0.4: angle_targ =  0.4  # more than 0.4 radians (22 degrees) is bad
+        if angle_targ < -0.4: angle_targ = -0.4
+        hover_targ = 0.55*np.abs(s[0])           # target y should be proporional to horizontal offset
+
+        # PID controller: s[4] angle, s[5] angularSpeed
+        angle_todo = (angle_targ - s[4])*0.5 - (s[5])*1.0
+        #print("angle_targ=%0.2f, angle_todo=%0.2f" % (angle_targ, angle_todo))
+
+        # PID controller: s[1] vertical coordinate s[3] vertical speed
+        hover_todo = (hover_targ - s[1])*0.5 - (s[3])*0.5
+        #print("hover_targ=%0.2f, hover_todo=%0.2f" % (hover_targ, hover_todo))
+
+        if s[6] or s[7]: # legs have contact
+            angle_todo = 0
+            hover_todo = -(s[3])*0.5  # override to reduce fall speed, that's all we need after contact
+
+        a = 0
+        if hover_todo > np.abs(angle_todo) and hover_todo > 0.05: a = 2
+        elif angle_todo < -0.05: a = 3
+        elif angle_todo > +0.05: a = 1
+
+        env.render()
+        if done: break
+
