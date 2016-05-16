@@ -27,8 +27,7 @@ from gym import spaces
 #
 # python examples/agents/keyboard_agent.py LunarLander-v0
 #
-# Created by Oleg Klimov for OpenAI in support for its mission.
-# License: you can use, modify, redistribute this code without restrictions.
+# Created by Oleg Klimov. Licensed on the same terms as the rest of OpenAI Gym.
 
 FPS    = 50
 SCALE  = 30.0   # affects how fast-paced the game is, forces should be adjusted as well
