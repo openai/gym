@@ -278,23 +278,44 @@ class SimpleImageViewer(object):
     def __init__(self):
         self.window = None
         self.isopen = False
+        self.width = None
+        self.height = None
+
+    def set_display_dimensions(self, width, height):
+        self.width = width
+        self.height = height
+        self.window = pyglet.window.Window(width=self.width, height=self.height, resizable=True)
+        self.isopen = True
+
     def imshow(self, arr):
+        input_height, input_width, channels = arr.shape
+
+        # If no window initialised then used default rom values
         if self.window is None:
-            height, width, channels = arr.shape
-            self.window = pyglet.window.Window(width=width, height=height)
-            self.width = width
-            self.height = height
-            self.isopen = True
-        assert arr.shape == (self.height, self.width, 3), "You passed in an image with the wrong number shape"
-        image = pyglet.image.ImageData(self.width, self.height, 'RGB', arr.tobytes(), pitch=self.width * -3)
+            self.set_display_dimensions(input_width, input_height)
+
+        # Generate the image from the input array
+        image = pyglet.image.ImageData(input_width, input_height, 'RGB', arr.tobytes(), pitch=input_width * -3)
+
+        # Scale the image
+        texture = image.get_texture()
+        gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_NEAREST)
+        texture.width = self.width
+        texture.height = self.height
+
+        # Clear the current display
         self.window.clear()
         self.window.switch_to()
+
+        # Display the new image
+        texture.blit(0, 0)  # draw
         self.window.dispatch_events()
-        image.blit(0,0)
         self.window.flip()
+
     def close(self):
         if self.isopen:
             self.window.close()
             self.isopen = False
+
     def __del__(self):
         self.close()

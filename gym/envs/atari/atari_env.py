@@ -98,6 +98,11 @@ class AtariEnv(gym.Env, utils.EzPickle):
     def get_action_meanings(self):
         return [ACTION_MEANING[i] for i in self._action_set]
 
+    def set_display_dimensions(self, width, height):
+        if self.viewer is None:
+            from gym.envs.classic_control import rendering
+            self.viewer = rendering.SimpleImageViewer()
+        self.viewer.set_display_dimensions(width, height)
 
 
 ACTION_MEANING = {
