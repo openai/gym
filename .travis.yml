@@ -13,6 +13,7 @@ addons:
       - cmake-data
       - python-dev
       - swig
+      - libav-tools
 python:
   - "2.7"
   - "3.5"
