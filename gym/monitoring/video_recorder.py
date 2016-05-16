@@ -271,7 +271,7 @@ class ImageEncoder(object):
                      '-f', 'rawvideo',
                      '-s:v', '{}x{}'.format(*self.wh),
                      '-pix_fmt',('rgb32' if self.includes_alpha else 'rgb24'),
-                     '-i', '/dev/stdin',
+                     '-i', '-', # this used to be /dev/stdin, which is not Windows-friendly
 
                      # output
                      '-vcodec', 'libx264',
