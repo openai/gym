@@ -124,10 +124,21 @@ class ConvergenceControl(gym.Env):
             """ maybe not set to a very large value; if you get something nice,
             but then diverge, maybe it is not too bad 
             """
-            reward = -10.0
+            reward = -100.0
         else:
             reward = self.best_val
-        
+            
+            # as for number of labels increases, learning problem becomes 
+            # more difficult for fixed dataset size. In order to avoid
+            # for the agent to ignore more complex datasets, on which
+            # accuracy is low and concentrate on simple cases which bring bulk 
+            # of reward, I normalize by number of labels in dataset
+            
+            reward = reward * self.nb_classes
+            
+            # formula below encourages higher best validation
+            
+            reward = reward + reward ** 2
             
         return self._get_obs(), reward, done, {}
 
