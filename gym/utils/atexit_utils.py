@@ -23,10 +23,10 @@ class CloseRegistry(object):
         self.close_objects[next_id] = close_object
         return next_id
 
-    def unregister(self, id_):
+    def unregister(self, id):
         # envs not created with make() are not registered
-        if id_ is not None and id_ in self.close_objects:
-            del self.close_objects[id_]
+        if id is not None and id in self.close_objects:
+            del self.close_objects[id]
 
     def close(self):
         # Explicitly fetch all monitors first so that they can't disappear while

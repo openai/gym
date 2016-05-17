@@ -61,7 +61,8 @@ class Env(object):
     # Will be automatically set when creating an environment via
     # 'make'.
     spec = None
-    env_exit_id = None
+    _close_called = False
+    _env_exit_id = None
 
     @property
     def monitor(self):
@@ -167,8 +168,12 @@ class Env(object):
         __del__) or when the program exits (via env_close_registry's atexit behavior).
         Override _close in your subclass to perform any necessary cleanup.
         """
-        self._close()
-        env_close_registry.unregister(self.env_exit_id)
+        if not self._close_called:
+            self._close()
+            env_close_registry.unregister(self._env_exit_id)
+            # N.B. you might still get a double close() if an error happens
+            # before we set _close_called, but this is probably good for now.
+            self._close_called = True
 
     def __del__(self):
         self.close()

@@ -5,6 +5,7 @@ import os
 import logging
 logger = logging.getLogger(__name__)
 
+import gym
 from gym import envs
 
 # This runs a smoketest on each official registered env. We may want
@@ -54,3 +55,22 @@ def test_random_rollout():
             assert env.action_space.contains(a)
             (ob, _reward, done, _info) = env.step(a)
             if done: break
+
+class TestEnv(gym.Env):
+    def __init__(self):
+        self.close_count = 0
+
+    def _close(self):
+        self.close_count += 1
+
+def test_double_close():
+    envs.registration.register(
+        id='TestEnv-v0',
+        entry_point='gym.envs.tests.test_envs:TestEnv',
+    )
+    env = envs.make('TestEnv-v0')
+    assert env.close_count == 0
+    env.close()
+    assert env.close_count == 1
+    env.close()
+    assert env.close_count == 1
