@@ -22,6 +22,7 @@ setup(name='gym',
           'all': ['atari_py>=0.0.17', 'Pillow', 'PyOpenGL',
                   'pachi-py>=0.0.19',
                   'box2d-py',
+                  'doom-py',
                   'mujoco_py>=0.4.3', 'imageio'],
 
           # Environment-specific dependencies. Keep these in sync with
@@ -30,8 +31,9 @@ setup(name='gym',
           'board_game' : ['pachi-py>=0.0.19'],
           'box2d': ['box2d-py'],
           'classic_control': ['PyOpenGL'],
+          'doom': ['doom-py'],
           'mujoco': ['mujoco_py>=0.4.3', 'imageio'],
       },
-      package_data={'gym': ['envs/mujoco/assets/*.xml', 'envs/classic_control/assets/*.png']},
+      package_data={'gym': ['envs/mujoco/assets/*.xml', 'envs/classic_control/assets/*.png', 'envs/doom/assets/*.cfg']},
       tests_require=['nose2', 'mock'],
 )

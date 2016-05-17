@@ -254,3 +254,51 @@ register(
         'board_size': 9,
     },
 )
+
+# Doom
+# ----------------------------------------
+
+register(
+    id='DoomBasic-v0',
+    entry_point='gym.envs.doom:DoomBasicEnv',
+)
+
+register(
+    id='DoomCorridor-v0',
+    entry_point='gym.envs.doom:DoomCorridorEnv',
+)
+
+register(
+    id='DoomDefendCenter-v0',
+    entry_point='gym.envs.doom:DoomDefendCenterEnv',
+)
+
+register(
+    id='DoomDefendLine-v0',
+    entry_point='gym.envs.doom:DoomDefendLineEnv',
+)
+
+register(
+    id='DoomHealthGathering-v0',
+    entry_point='gym.envs.doom:DoomHealthGatheringEnv',
+)
+
+register(
+    id='DoomMyWayHome-v0',
+    entry_point='gym.envs.doom:DoomMyWayHomeEnv',
+)
+
+register(
+    id='DoomPredictPosition-v0',
+    entry_point='gym.envs.doom:DoomPredictPositionEnv',
+)
+
+register(
+    id='DoomTakeCover-v0',
+    entry_point='gym.envs.doom:DoomTakeCoverEnv',
+)
+
+register(
+    id='DoomDeathmatch-v0',
+    entry_point='gym.envs.doom:DoomDeathmatchEnv',
+)
