@@ -58,7 +58,8 @@ class EnvSpec(object):
         # Make the enviroment aware of which spec it came from.
         env.spec = self
         # Register the env for atexit
-        env.env_exit_id = env_close_registry.register(env)
+        env._close_called = False
+        env._env_exit_id = env_close_registry.register(env)
         return env
 
     def __repr__(self):
