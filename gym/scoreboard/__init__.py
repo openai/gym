@@ -57,6 +57,12 @@ add_group(
     description='Simple text environments to get you started.'
 )
 
+add_group(
+    id='doom',
+    name='Doom',
+    description='Doom environments based on VizDoom.'
+)
+
 # classic control
 
 add_task(
@@ -455,6 +461,61 @@ The game is simulated through the Arcade Learning Environment [ALE]_, which uses
 .. [Stella] Stella: A Multi-Platform Atari 2600 VCS emulator http://stella.sourceforge.net/
 """,
     )
+
+# doom
+add_task(
+    id='DoomBasic-v0',
+    group='doom',
+    experimental=True,
+)
+
+add_task(
+    id='DoomCorridor-v0',
+    group='doom',
+    experimental=True,
+)
+
+add_task(
+    id='DoomDefendCenter-v0',
+    group='doom',
+    experimental=True,
+)
+
+add_task(
+    id='DoomDefendLine-v0',
+    group='doom',
+    experimental=True,
+)
+
+add_task(
+    id='DoomHealthGathering-v0',
+    group='doom',
+    experimental=True,
+)
+
+add_task(
+    id='DoomMyWayHome-v0',
+    group='doom',
+    experimental=True,
+)
+
+add_task(
+    id='DoomPredictPosition-v0',
+    group='doom',
+    experimental=True,
+)
+
+add_task(
+    id='DoomTakeCover-v0',
+    group='doom',
+    experimental=True,
+)
+
+add_task(
+    id='DoomDeathmatch-v0',
+    group='doom',
+    experimental=True,
+)
 
 # Deprecated
 
