@@ -27,7 +27,7 @@ def upload(training_dir, algorithm_id=None, writeup=None, api_key=None, ignore_o
     """
 
     if not ignore_open_monitors:
-        open_monitors = list(monitoring._monitors.values())
+        open_monitors = monitoring.get_running_monitors()
         if len(open_monitors) > 0:
             envs = [m.env.spec.id if m.env.spec else '(unknown)' for m in open_monitors]
             raise error.Error("Still have an open monitor on {}. You must run 'env.monitor.close()' before uploading.".format(', '.join(envs)))

@@ -11,19 +11,12 @@ import weakref
 from gym import error, version
 from gym.monitoring import stats_recorder, video_recorder
 from gym.utils import atomic_write
+from gym.utils.atexit_utils import monitor_close_registry
 
 logger = logging.getLogger(__name__)
 
 FILE_PREFIX = 'openaigym'
 MANIFEST_PREFIX = FILE_PREFIX + '.manifest'
-
-i = -1
-lock = threading.Lock()
-def next_monitor_id():
-    global i
-    with lock:
-        i += 1
-        return i
 
 def detect_training_manifests(training_dir):
     return [os.path.join(training_dir, f) for f in os.listdir(training_dir) if f.startswith(MANIFEST_PREFIX + '.')]
@@ -46,20 +39,8 @@ def capped_cubic_video_schedule(episode_id):
     else:
         return episode_id % 1000 == 0
 
-# Monitors will automatically close themselves when garbage collected
-# (via __del__) or when the program exits (via close_all_monitors's
-# atexit behavior).
-monitors = weakref.WeakValueDictionary()
-def ensure_close_at_exit(monitor):
-    monitors[monitor.monitor_id] = monitor
-
-@atexit.register
-def close_all_monitors():
-    # Explicitly fetch all monitors first so that they can't disappear while
-    # we iterate. cf. http://stackoverflow.com/a/12429620
-    open_monitors = list(monitors.items())
-    for key, monitor in open_monitors:
-        monitor.close()
+def get_running_monitors():
+    return list(monitor_close_registry.close_objects.values())
 
 class Monitor(object):
     """A configurable monitor for your training runs.
@@ -98,10 +79,7 @@ class Monitor(object):
         self.video_recorder = None
         self.enabled = False
         self.episode_id = 0
-
-        self.monitor_id = next_monitor_id()
-
-        ensure_close_at_exit(self)
+        self._monitor_id = None
 
     def start(self, directory, video_callable=None, force=False, resume=False):
         """Start monitoring.
@@ -140,11 +118,12 @@ class Monitor(object):
         # We use the 'openai-gym' prefix to determine if a file is
         # ours
         self.file_prefix = FILE_PREFIX
-        self.file_infix = '{}.{}'.format(self.monitor_id, os.getpid())
+        self.file_infix = '{}.{}'.format(self._monitor_id, os.getpid())
         self.stats_recorder = stats_recorder.StatsRecorder(directory, '{}.episode_batch.{}'.format(self.file_prefix, self.file_infix))
         self.configure(video_callable=video_callable)
         if not os.path.exists(directory):
             os.mkdir(directory)
+        self._monitor_id = monitor_close_registry.register(self)
 
     def flush(self):
         """Flush all relevant monitor information to disk."""
@@ -190,11 +169,12 @@ class Monitor(object):
             # because we couldn't close the renderer.
             logger.error('Could not close renderer for %s: %s', key, e)
 
-        self.enabled = False
         # Remove the env's pointer to this monitor
         del self.env._monitor
         # Stop tracking this for autoclose
-        del monitors[self.monitor_id]
+        monitor_close_registry.unregister(self._monitor_id)
+
+        self.enabled = False
 
         logger.info('''Finished writing results. You can upload them to the scoreboard via gym.upload(%r)''', self.directory)
 

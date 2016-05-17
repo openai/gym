@@ -36,7 +36,9 @@ class CloseRegistry(object):
             obj.close()
 
 env_close_registry = CloseRegistry()
+monitor_close_registry = CloseRegistry()
 
 @atexit.register
-def close_all_envs():
+def close_envs_and_monitors():
     env_close_registry.close()
+    monitor_close_registry.close()
