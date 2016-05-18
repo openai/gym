@@ -1,8 +1,5 @@
 from gym.envs.registration import registry, register, make, spec
 
-# Make sure that deprecated environments are still registered.
-import gym.envs.deprecated
-
 # Algorithmic
 # ----------------------------------------
 
