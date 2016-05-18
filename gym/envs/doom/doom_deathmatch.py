@@ -30,6 +30,7 @@ class DoomDeathmatchEnv(doom_env.DoomEnv):
     -----------------------------------------------------
     """
     def __init__(self):
+        super(DoomDeathmatchEnv, self).__init__()
         package_directory = os.path.dirname(os.path.abspath(__file__))
         self.loader = Loader()
         self.game = DoomGame()

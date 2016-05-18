@@ -4,6 +4,7 @@ from time import sleep
 import numpy
 
 import gym
+from gym import utils
 
 try:
     import doom_py
@@ -12,8 +13,11 @@ except ImportError as e:
 
 logger = logging.getLogger(__name__)
 
-class DoomEnv(gym.Env):
+class DoomEnv(gym.Env, utils.EzPickle):
     metadata = {'render.modes': ['human', 'rgb_array']}
+
+    def __init__(self):
+        utils.EzPickle.__init__(self)
 
     def _step(self, action):
         # action is a np array but DoomGame.make_action expects a list of ints
