@@ -35,10 +35,10 @@ class CloseRegistry(object):
         for _, obj in objects:
             obj.close()
 
-env_close_registry = CloseRegistry()
-monitor_close_registry = CloseRegistry()
+env_closer = CloseRegistry()
+monitor_closer = CloseRegistry()
 
 @atexit.register
 def close_envs_and_monitors():
-    env_close_registry.close()
-    monitor_close_registry.close()
+    env_closer.close()
+    monitor_closer.close()
