@@ -11,7 +11,7 @@ import weakref
 from gym import error, version
 from gym.monitoring import stats_recorder, video_recorder
 from gym.utils import atomic_write
-from gym.utils.atexit_utils import monitor_close_registry
+from gym.utils.atexit_utils import monitor_closer
 
 logger = logging.getLogger(__name__)
 
@@ -39,8 +39,8 @@ def capped_cubic_video_schedule(episode_id):
     else:
         return episode_id % 1000 == 0
 
-def get_running_monitors():
-    return list(monitor_close_registry.close_objects.values())
+def _open_monitors():
+    return list(monitor_closer.close_objects.values())
 
 class Monitor(object):
     """A configurable monitor for your training runs.
@@ -123,7 +123,7 @@ class Monitor(object):
         self.configure(video_callable=video_callable)
         if not os.path.exists(directory):
             os.mkdir(directory)
-        self._monitor_id = monitor_close_registry.register(self)
+        self._monitor_id = monitor_closer.register(self)
 
     def flush(self):
         """Flush all relevant monitor information to disk."""
@@ -172,7 +172,7 @@ class Monitor(object):
         # Remove the env's pointer to this monitor
         del self.env._monitor
         # Stop tracking this for autoclose
-        monitor_close_registry.unregister(self._monitor_id)
+        monitor_closer.unregister(self._monitor_id)
 
         self.enabled = False
 
