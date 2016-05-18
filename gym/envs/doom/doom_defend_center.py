@@ -39,6 +39,7 @@ class DoomDefendCenterEnv(doom_env.DoomEnv):
     -----------------------------------------------------
     """
     def __init__(self):
+        super(DoomDefendCenterEnv, self).__init__()
         package_directory = os.path.dirname(os.path.abspath(__file__))
         self.loader = Loader()
         self.game = DoomGame()
