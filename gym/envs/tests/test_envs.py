@@ -56,19 +56,14 @@ def test_random_rollout():
             (ob, _reward, done, _info) = env.step(a)
             if done: break
 
-class TestEnv(gym.Env):
-    def __init__(self):
-        self.close_count = 0
-
-    def _close(self):
-        self.close_count += 1
-
 def test_double_close():
-    envs.registration.register(
-        id='TestEnv-v0',
-        entry_point='gym.envs.tests.test_envs:TestEnv',
-    )
-    env = envs.make('TestEnv-v0')
+    class TestEnv(gym.Env):
+        def __init__(self):
+            self.close_count = 0
+
+        def _close(self):
+            self.close_count += 1
+
     assert env.close_count == 0
     env.close()
     assert env.close_count == 1
