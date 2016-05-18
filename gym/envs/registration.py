@@ -89,7 +89,15 @@ class EnvRegistry(object):
         try:
             return self.env_specs[id]
         except KeyError:
-            raise error.UnregisteredEnv('No registered env with id: {}'.format(id))
+            # Parse the env name and check to see if it matches the non-version
+            # part of a valid env (could also check the exact number here)
+            env_name = match.group(1)
+            matching_envs = [full_env_name for full_env_name in self.env_specs
+                             if full_env_name.startswith(env_name + '-v')]
+            if matching_envs:
+                raise error.DeprecatedEnv('Env {} not found (valid versions include {})'.format(id, matching_envs))
+            else:
+                raise error.UnregisteredEnv('No registered env with id: {}'.format(id))
 
     def register(self, id, **kwargs):
         if id in self.env_specs:
