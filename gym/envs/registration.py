@@ -43,6 +43,7 @@ class EnvSpec(object):
         match = env_id_re.search(id)
         if not match:
             raise error.Error('Attempted to register malformed environment ID: {}. (Currently all IDs must be of the form {}.)'.format(id, env_id_re.pattern))
+        self._env_name = match.group(1)
         self._entry_point = entry_point
         self._kwargs = {} if kwargs is None else kwargs
 
@@ -92,8 +93,8 @@ class EnvRegistry(object):
             # Parse the env name and check to see if it matches the non-version
             # part of a valid env (could also check the exact number here)
             env_name = match.group(1)
-            matching_envs = [full_env_name for full_env_name in self.env_specs
-                             if full_env_name.startswith(env_name + '-v')]
+            matching_envs = [valid_env_name for valid_env_name, valid_env_spec in self.env_specs.items()
+                             if env_name == valid_env_spec._env_name]
             if matching_envs:
                 raise error.DeprecatedEnv('Env {} not found (valid versions include {})'.format(id, matching_envs))
             else:
