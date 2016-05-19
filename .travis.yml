@@ -14,6 +14,11 @@ addons:
       - python-dev
       - swig
       - libav-tools
+      - python-numpy
+      - libboost-all-dev
+      - libsdl2-dev
+      - libjpeg-dev
+      - zlib1g-dev
 python:
   - "2.7"
   - "3.5"
