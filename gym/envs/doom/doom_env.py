@@ -31,7 +31,7 @@ class DoomEnv(gym.Env, utils.EzPickle):
                 is_finished = False
             return state.image_buffer.copy(), reward, is_finished, {}
 
-        except doom_py.vizdoom.doom_is_not_running_exception:
+        except doom_py.vizdoom.ViZDoomIsNotRunningException:
             return [], 0, True, {}
 
     def _reset(self):
@@ -58,7 +58,7 @@ class DoomEnv(gym.Env, utils.EzPickle):
                     self.viewer = rendering.SimpleImageViewer()
                 self.viewer.imshow(img)
                 sleep(0.02857)  # 35 fps = 0.02857 sleep between frames
-        except doom_py.vizdoom.doom_is_not_running_exception:
+        except doom_py.vizdoom.ViZDoomIsNotRunningException:
             pass # Doom has been closed
 
     def _close(self):
