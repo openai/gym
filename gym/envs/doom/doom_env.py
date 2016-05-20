@@ -48,11 +48,11 @@ class DoomEnv(gym.Env, utils.EzPickle):
         try:
             state = self.game.get_state()
             img = state.image_buffer
+            # VizDoom returns None if the episode is finished, let's make it
+            # an empty image so the recorder doesn't stop
+            if img is None:
+                img = numpy.zeros((self.screen_height, self.screen_width, 3), dtype=numpy.uint8)
             if mode == 'rgb_array':
-                # VizDoom returns None if the episode is finished, let's make it
-                # an empty image so the recorder doesn't stop
-                if img is None:
-                    return numpy.zeros((self.screen_height, self.screen_width, 3), dtype=numpy.uint8)
                 return img
             elif mode is 'human':
                 from gym.envs.classic_control import rendering
