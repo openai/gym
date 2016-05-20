@@ -42,6 +42,8 @@ class DoomEnv(gym.Env, utils.EzPickle):
         if close:
             if self.viewer is not None:
                 self.viewer.close()
+                # If we don't None out this reference pyglet becomes unhappy
+                self.viewer = None
             return
         try:
             state = self.game.get_state()
