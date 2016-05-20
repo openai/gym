@@ -12,6 +12,7 @@ addons:
       - cmake
       - cmake-data
       - python-dev
+      - python3-dev
       - swig
       - libav-tools
       - python-numpy
