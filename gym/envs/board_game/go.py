@@ -233,8 +233,9 @@ class GoEnv(gym.Env):
         assert self.state.board.is_terminal
         self.done = True
         white_wins = self.state.board.official_score > 0
-        player_wins = (white_wins and self.player_color == pachi_py.WHITE) or (not white_wins and self.player_color == pachi_py.BLACK)
-        reward = 1. if player_wins else -1.
+        black_wins = self.state.board.official_score < 0
+        player_wins = (white_wins and self.player_color == pachi_py.WHITE) or (black_wins and self.player_color == pachi_py.BLACK)
+        reward = 1. if player_wins else -1. if (white_wins or black_wins) else 0.
         return self.state.board.encode(), reward, True, {'state': self.state}
 
     def _exec_opponent_play(self, curr_state, prev_state, prev_action):
