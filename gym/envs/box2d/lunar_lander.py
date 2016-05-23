@@ -54,8 +54,8 @@ VIEWPORT_H = 400
 
 class ContactDetector(contactListener):
     def __init__(self, env):
-            contactListener.__init__(self)
-            self.env = env
+        contactListener.__init__(self)
+        self.env = env
     def BeginContact(self, contact):
         if self.env.lander==contact.fixtureA.body or self.env.lander==contact.fixtureB.body:
             self.env.game_over = True
@@ -80,7 +80,7 @@ class LunarLander(gym.Env):
         self.action_space = spaces.Discrete(4)                    # nop, fire left engine, main engine, right engine
         self.observation_space = spaces.Box(-high, high)
 
-        self.world = Box2D.b2World(contactListener=ContactDetector(self))
+        self.world = Box2D.b2World()
         self.moon = None
         self.lander = None
         self.particles = []
@@ -90,6 +90,7 @@ class LunarLander(gym.Env):
 
     def _destroy(self):
         if not self.moon: return
+        self.world.contactListener = None
         self._clean_particles(True)
         self.world.DestroyBody(self.moon)
         self.moon = None
@@ -100,6 +101,7 @@ class LunarLander(gym.Env):
 
     def _reset(self):
         self._destroy()
+        self.world.contactListener = ContactDetector(self)
         self.game_over = False
         self.prev_shaping = None
 

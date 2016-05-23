@@ -61,8 +61,8 @@ FRICTION = 2.5
 
 class ContactDetector(contactListener):
     def __init__(self, env):
-            contactListener.__init__(self)
-            self.env = env
+        contactListener.__init__(self)
+        self.env = env
     def BeginContact(self, contact):
         if self.env.hull==contact.fixtureA.body or self.env.hull==contact.fixtureB.body:
             self.env.game_over = True
@@ -89,7 +89,7 @@ class BipedalWalker(gym.Env):
         self.action_space = spaces.Box( np.array([-1,-1,-1,-1]), np.array([+1,+1,+1,+1]) )
         self.observation_space = spaces.Box(-high, high)
 
-        self.world = Box2D.b2World(contactListener=ContactDetector(self))
+        self.world = Box2D.b2World()
         self.terrain = None
         self.hull = None
 
@@ -98,6 +98,7 @@ class BipedalWalker(gym.Env):
 
     def _destroy(self):
         if not self.terrain: return
+        self.world.contactListener = None
         for t in self.terrain:
             self.world.DestroyBody(t)
         self.terrain = []
@@ -248,6 +249,7 @@ class BipedalWalker(gym.Env):
 
     def _reset(self):
         self._destroy()
+        self.world.contactListener = ContactDetector(self)
         self.game_over = False
         self.prev_shaping = None
         self.scroll = 0.0
