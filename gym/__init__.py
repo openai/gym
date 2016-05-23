@@ -15,10 +15,10 @@ def sanity_check_dependencies():
     import requests
     import six
 
-    if distutils.version.StrictVersion(numpy.__version__) < distutils.version.StrictVersion('1.10.4'):
+    if distutils.version.LooseVersion(numpy.__version__) < distutils.version.LooseVersion('1.10.4'):
         logger.warn("You have 'numpy' version %s installed, but 'gym' requires at least 1.10.4. HINT: upgrade via 'pip install -U numpy'.", numpy.__version__)
 
-    if distutils.version.StrictVersion(requests.__version__) < distutils.version.StrictVersion('2.0'):
+    if distutils.version.LooseVersion(requests.__version__) < distutils.version.LooseVersion('2.0'):
         logger.warn("You have 'requests' version %s installed, but 'gym' requires at least 2.0. HINT: upgrade via 'pip install -U requests'.", requests.__version__)
 
 # We automatically configure a logger with a simple stderr handler. If
