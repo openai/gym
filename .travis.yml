@@ -8,11 +8,12 @@ addons:
   apt:
     sources:
       - george-edison55-precise-backports # cmake 3.2.3
+      - deadsnakes
     packages:
       - cmake
       - cmake-data
       - python-dev
-      - python3-dev
+      - python3.4-dev
       - swig
       - libav-tools
       - python-numpy
