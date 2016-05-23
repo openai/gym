@@ -89,8 +89,7 @@ class Env(object):
         info (dict): contains auxiliary diagnostic information (helpful for debugging, and sometimes learning)
         """
         if not self.action_space.contains(action):
-            hint = self.action_space.sample()
-            logger.warn("Action '{}' is not contained within action space '{}'. HINT: Try using a value like '{}' instead.".format(action, self.action_space, hint))
+            logger.warn("Action '{}' is not contained within action space '{}'.".format(action, self.action_space))
 
         self.monitor._before_step(action)
         observation, reward, done, info = self._step(action)
