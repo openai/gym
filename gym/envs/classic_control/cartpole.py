@@ -129,8 +129,4 @@ class CartPoleEnv(gym.Env):
         self.carttrans.set_translation(cartx, carty)
         self.poletrans.set_rotation(-x[2])
 
-        self.viewer.render()
-        if mode == 'rgb_array':
-            return self.viewer.get_array()
-        elif mode == 'human':
-            pass
+        return self.viewer.render(return_rgb_array = mode=='rgb_array')
