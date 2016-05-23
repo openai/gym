@@ -77,13 +77,13 @@ On OSX:
 
 .. code:: shell
 
-	  brew install cmake
+	  brew install cmake boost boost-python sdl2
 
 On Ubuntu 14.04:
 
 .. code:: shell
 
-	  apt-get install -y python-numpy python-dev cmake zlib1g-dev libjpeg-dev xvfb libav-tools xorg-dev python-opengl
+	  apt-get install -y python-numpy python-dev cmake zlib1g-dev libjpeg-dev xvfb libav-tools xorg-dev python-opengl libboost-all-dev libsdl2-dev swig
 
 Supported systems
 -----------------
