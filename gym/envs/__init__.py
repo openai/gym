@@ -205,6 +205,10 @@ register(
     id='Humanoid-v1',
     entry_point='gym.envs.mujoco:HumanoidEnv',
 )
+register(
+    id='HumanoidStandup-v1',
+    entry_point='gym.envs.mujoco:HumanoidStandupEnv',
+)
 
 # Atari
 # ----------------------------------------
