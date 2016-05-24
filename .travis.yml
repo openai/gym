@@ -23,7 +23,7 @@ addons:
       - zlib1g-dev
 python:
   - "2.7"
-  - "3.5"
+  - "3.4"
 before_install:
   - Xvfb :12 -screen 0 800x600x24 +extension RANDR &
   - mkdir -p ~/.mujoco
