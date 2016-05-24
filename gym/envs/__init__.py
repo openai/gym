@@ -302,3 +302,11 @@ register(
     id='DoomDeathmatch-v0',
     entry_point='gym.envs.doom:DoomDeathmatchEnv',
 )
+
+# Debugging
+# ----------------------------------------
+
+register(
+    id='JustActions-v0',
+    entry_point='gym.envs.debugging:JustActionsEnv',
+)

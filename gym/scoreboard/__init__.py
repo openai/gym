@@ -63,6 +63,12 @@ add_group(
     description='Doom environments based on VizDoom.'
 )
 
+add_group(
+    id='debugging',
+    name='Debugging',
+    description='Simple environments for developers to debug their agents.'
+)
+
 # classic control
 
 add_task(
@@ -624,6 +630,15 @@ The robot model was originally created by Tassa et al. [Tassa12]_.
 .. [Tassa12] Y Tassa, T Erez, E Todorov, "Synthesis and Stabilization of Complex Behaviors through Online Trajectory Optimization".
 """,
     deprecated=True,
+)
+
+# Debugging
+
+add_task(
+    id='JustActions-v0',
+    group='debugging',
+    summary='Environment with just two actions.',
+    experimental=True,
 )
 
 registry.finalize()
