@@ -9,7 +9,7 @@ def mass_center(model):
 
 class HumanoidlyEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     def __init__(self):
-        mujoco_env.MujocoEnv.__init__(self, 'humanoid.xml', 5)
+        mujoco_env.MujocoEnv.__init__(self, 'humanoidly.xml', 5)
         utils.EzPickle.__init__(self)
 
     def _get_obs(self):
