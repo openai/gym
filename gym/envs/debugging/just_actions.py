@@ -11,9 +11,11 @@ class JustActionsEnv(gym.Env):
     def _step(self, action):
         assert(self.action_space.contains(action))
         if action:
-                reward = 0
-        else:
                 reward = 1
+        else:
+                reward = 0
+
+        done = True
         return self._get_obs(), reward, done, {}
 
     def _get_obs(self):
