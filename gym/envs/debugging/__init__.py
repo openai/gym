@@ -1,1 +1,1 @@
-from gym.envs.debugging.just_actions import JustActionsEnv
+from gym.envs.debugging.one_round_deterministic_reward import OneRoundDeterministicRewardEnv

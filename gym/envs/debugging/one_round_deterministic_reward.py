@@ -2,7 +2,7 @@ import gym
 import random
 from gym import spaces
 
-class JustActionsEnv(gym.Env):
+class OneRoundDeterministicRewardEnv(gym.Env):
     def __init__(self):
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Discrete(1)

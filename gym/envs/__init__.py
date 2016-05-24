@@ -307,6 +307,6 @@ register(
 # ----------------------------------------
 
 register(
-    id='JustActions-v0',
-    entry_point='gym.envs.debugging:JustActionsEnv',
+    id='OneRoundDeterministicReward-v0',
+    entry_point='gym.envs.debugging:OneRoundDeterministicRewardEnv',
 )

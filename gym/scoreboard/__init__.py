@@ -635,7 +635,7 @@ The robot model was originally created by Tassa et al. [Tassa12]_.
 # Debugging
 
 add_task(
-    id='JustActions-v0',
+    id='OneRoundDeterministicReward-v0',
     group='debugging',
     summary='Environment with just two actions.',
     experimental=True,
