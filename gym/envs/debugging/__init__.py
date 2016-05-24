@@ -1,1 +1,2 @@
 from gym.envs.debugging.one_round_deterministic_reward import OneRoundDeterministicRewardEnv
+from gym.envs.debugging.two_round_deterministic_reward import TwoRoundDeterministicRewardEnv
