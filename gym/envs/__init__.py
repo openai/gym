@@ -114,6 +114,7 @@ register(
     entry_point='gym.envs.toy_text:FrozenLakeEnv',
     kwargs={'map_name' : '4x4'},
     timestep_limit=100,
+    reward_threshold=0.78, # optimum = .8196
 )
 
 register(
@@ -121,6 +122,7 @@ register(
     entry_point='gym.envs.toy_text:FrozenLakeEnv',
     kwargs={'map_name' : '8x8'},
     timestep_limit=200,
+    reward_threshold=0.99, # optimum = 1
 )
 
 register(
@@ -139,6 +141,7 @@ register(
     id='Taxi-v1',
     entry_point='gym.envs.toy_text.taxi:TaxiEnv',
     timestep_limit=200,
+    reward_threshold=9.7, # optimum = 10.2
 )
 
 # Mujoco
