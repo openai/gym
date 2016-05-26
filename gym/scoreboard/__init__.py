@@ -638,11 +638,17 @@ add_task(
     id='OneRoundDeterministicReward-v0',
     group='debugging',
     summary=
-        'Simple environment for debugging agents. \
-        This environment has just two actions. \
-        Action 0 yields 0 reward and then terminates the session. \
-        Action 1 yields 1 reward and then terminates the session. \
-        The best policy in this environment is action 1.',
+        """
+        Simple environment with known optimal policy and value function.
+
+        This environment has just two actions.
+        Action 0 yields 0 reward and then terminates the session.
+        Action 1 yields 1 reward and then terminates the session.
+
+        Optimal policy: action 1.
+
+        Optimal value function: v(0)=1 (there is only one state, state 0)
+        """,
     experimental=True,
 )
 
@@ -650,8 +656,22 @@ add_task(
     id='TwoRoundDeterministicReward-v0',
     group='debugging',
     summary=
-        'Simple environment for debugging agents. \
-        The best policy in this environment is action 0 then action 1.',
+        """
+        Simple environment with known optimal policy and value function.
+
+        Action 0 then 0 yields 0 reward and terminates the session.
+        Action 0 then 1 yields 3 reward and terminates the session.
+        Action 0 then 0 yields 1 reward and terminates the session.
+        Action 1 then 1 yields 2 reward and terminates the session.
+
+        Optimal policy: action 0 then 1.
+
+        Optimal value function v(observation): (this is a fully observable MDP so observation==state)
+
+        v(0)= 3 (you get observation 0 after taking action 0)
+        v(1)= 2 (you get observation 1 after taking action 1)
+        v(2)= 3 (you get observation 2 in the starting state)
+        """,
     experimental=True,
 )
 
@@ -659,11 +679,17 @@ add_task(
     id='OneRoundNondeterministicReward-v0',
     group='debugging',
     summary=
-        'Simple environment for debugging agents. \
-        This environment has just two actions. \
-        Action 0 yields randomly 0 or 5 reward and then terminates the session. \
-        Action 1 yields randomly 1 or 3 reward and then terminates the session. \
-        The best policy in this environment is action 0',
+        """
+        Simple environment with known optimal policy and value function.
+
+        This environment has just two actions.
+        Action 0 yields randomly 0 or 5 reward and then terminates the session.
+        Action 1 yields randomly 1 or 3 reward and then terminates the session.
+
+        Optimal policy: action 0.
+
+        Optimal value function: v(0)=2.5 (there is only one state, state 0)
+        """,
     experimental=True,
 )
 
@@ -671,8 +697,22 @@ add_task(
     id='TwoRoundNondeterministicReward-v0',
     group='debugging',
     summary=
-        'Simple environment for debugging agents. \
-        The best policy in this environment is action 0 then action 1.',
+        """
+        Simple environment with known optimal policy and value function.
+
+        Action 0 then 0 yields randomly -1 or 1 reward and terminates the session.
+        Action 0 then 1 yields randomly 0, 0, or 9 reward and terminates the session.
+        Action 0 then 0 yields randomly 0 or 2 reward and terminates the session.
+        Action 1 then 1 yields randomly 2 or 3 reward and terminates the session.
+
+        Optimal policy: action 0 then 1.
+
+        Optimal value function v(observation): (this is a fully observable MDP so observation==state)
+
+        v(0)= 3   (you get observation 0 after taking action 0)
+        v(1)= 2.5 (you get observation 1 after taking action 1)
+        v(2)= 3   (you get observation 2 in the starting state)
+        """,
     experimental=True,
 )
 
