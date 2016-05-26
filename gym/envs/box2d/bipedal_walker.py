@@ -15,8 +15,11 @@ from gym import spaces
 #
 # - Hardcore with ladders, stumps, pitfalls.
 #
-# Reward is given for moving forward, total 300 points up to the far end. If the robot falls,
-# it gets -100. Heuristic is provided for testing, it's also useful to get demonstrations to
+# Reward is given for moving forward, total 300+ points up to the far end. If the robot falls,
+# it gets -100. Applying motor torque costs a small amount of points, more optimal agent
+# will get better score.
+#
+# Heuristic is provided for testing, it's also useful to get demonstrations to
 # learn from. To run heuristic:
 #
 # python gym/envs/box2d/bipedal_walker.py
@@ -352,10 +355,10 @@ class BipedalWalker(gym.Env):
         #self.hull.ApplyForceToCenter((0, 20), True) -- Uncomment this to receive a bit of stability help
         control_speed = False  # Should be easier as well
         if control_speed:
-            self.joints[0].motorSpeed = float(SPEED_HIP  * np.clip(-1, 1, action[0]))
-            self.joints[1].motorSpeed = float(SPEED_KNEE * np.clip(-1, 1, action[1]))
-            self.joints[2].motorSpeed = float(SPEED_HIP  * np.clip(-1, 1, action[2]))
-            self.joints[3].motorSpeed = float(SPEED_KNEE * np.clip(-1, 1, action[3]))
+            self.joints[0].motorSpeed = float(SPEED_HIP  * np.clip(action[0], -1, 1))
+            self.joints[1].motorSpeed = float(SPEED_KNEE * np.clip(action[1], -1, 1))
+            self.joints[2].motorSpeed = float(SPEED_HIP  * np.clip(action[2], -1, 1))
+            self.joints[3].motorSpeed = float(SPEED_KNEE * np.clip(action[3], -1, 1))
         else:
             self.joints[0].motorSpeed     = float(SPEED_HIP     * np.sign(action[0]))
             self.joints[0].maxMotorTorque = float(MOTORS_TORQUE * np.clip(np.abs(action[0]), 0, 1))
@@ -400,13 +403,17 @@ class BipedalWalker(gym.Env):
 
         self.scroll = pos.x - VIEWPORT_W/SCALE/5
 
-        shaping  = 110*pos[0]/SCALE   # moving forward is a way to receive reward (normalized to get 300 on completion)
+        shaping  = 130*pos[0]/SCALE   # moving forward is a way to receive reward (normalized to get 300 on completion)
         shaping -= 5.0*abs(state[0])  # keep head straight, other than that and falling, any behavior is unpunished
 
         reward = 0
         if self.prev_shaping is not None:
             reward = shaping - self.prev_shaping
         self.prev_shaping = shaping
+
+        for a in action:
+            reward -= 0.00035 * MOTORS_TORQUE * np.clip(np.abs(a), 0, 1)
+            # normalized to about -50.0 using heuristic, more optimal agent should spend less
 
         done = False
         if self.game_over or pos[0] < 0:

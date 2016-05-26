@@ -227,25 +227,52 @@ add_task(
     summary='Hex played on a 9x9 board.',
 )
 
+
 # box2d
 
 add_task(
-    id='LunarLander-v1',
+    id='LunarLander-v2',
     group='box2d',
     experimental=True,
+    description="""
+Landing pad is always at coordinates (0,0). Coordinates are the first two numbers in state vector.
+Reward for moving from the top of the screen to landing pad and zero speed is about 100..140 points.
+If lander moves away from landing pad it loses reward back. Episode finishes if the lander crashes or
+comes to rest, receiving additional -100 or +100 points. Each leg ground contact is +10. Firing main
+engine is -0.3 points each frame. Solved is 200 points.
+Landing outside landing pad is possible. Fuel is infinite, so an agent can learn to fly and then land
+on its first attempt.
+""")
+
+add_task(
+    id='BipedalWalker-v2',
+    group='box2d',
+    experimental=True,
+    description="""
+Reward is given for moving forward, total 300+ points up to the far end. If the robot falls,
+it gets -100. Applying motor torque costs a small amount of points, more optimal agent
+will get better score.
+State consists of hull angle speed, angular velocity, horizontal speed,
+vertical speed, position of joints and joints angular speed, legs contact with ground,
+and 10 lidar rangefinder measurements. There's no coordinates in the state vector.
+"""
 )
 
 add_task(
-    id='BipedalWalker-v1',
+    id='BipedalWalkerHardcore-v2',
     group='box2d',
     experimental=True,
+    description="""
+Hardcore version with ladders, stumps, pitfalls. Time limit is increased due to obstacles.
+Reward is given for moving forward, total 300+ points up to the far end. If the robot falls,
+it gets -100. Applying motor torque costs a small amount of points, more optimal agent
+will get better score.
+State consists of hull angle speed, angular velocity, horizontal speed,
+vertical speed, position of joints and joints angular speed, legs contact with ground,
+and 10 lidar rangefinder measurements. There's no coordinates in the state vector.
+"""
 )
 
-add_task(
-    id='BipedalWalkerHardcore-v1',
-    group='box2d',
-    experimental=True,
-)
 
 # mujoco
 
