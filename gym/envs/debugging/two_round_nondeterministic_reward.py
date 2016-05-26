@@ -33,7 +33,7 @@ class TwoRoundNondeterministicRewardEnv(gym.Env):
             ],
             [
                 [0, 2], #expected value 1
-                [2, 3] #expected value 2
+                [2, 3] #expected value 2.5
             ]
         ]
 
