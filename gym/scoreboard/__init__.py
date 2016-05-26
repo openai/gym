@@ -632,21 +632,47 @@ The robot model was originally created by Tassa et al. [Tassa12]_.
     deprecated=True,
 )
 
-# Debugging
+# Debugging envs
 
 add_task(
     id='OneRoundDeterministicReward-v0',
     group='debugging',
-    summary='Environment with just two actions. \
-    Action 0 yields 0 reward and then terminates the session. \
-    Action 1 yields 1 reward and then terminates the session.',
+    summary=
+        'Simple environment for debugging agents. \
+        This environment has just two actions. \
+        Action 0 yields 0 reward and then terminates the session. \
+        Action 1 yields 1 reward and then terminates the session. \
+        The best policy in this environment is action 1.',
     experimental=True,
 )
 
 add_task(
     id='TwoRoundDeterministicReward-v0',
     group='debugging',
-    summary='Environment with just two actions.',
+    summary=
+        'Simple environment for debugging agents. \
+        The best policy in this environment is action 0 then action 1.',
+    experimental=True,
+)
+
+add_task(
+    id='OneRoundNondeterministicReward-v0',
+    group='debugging',
+    summary=
+        'Simple environment for debugging agents. \
+        This environment has just two actions. \
+        Action 0 yields randomly 0 or 5 reward and then terminates the session. \
+        Action 1 yields randomly 1 or 3 reward and then terminates the session. \
+        The best policy in this environment is action 0',
+    experimental=True,
+)
+
+add_task(
+    id='TwoRoundNondeterministicReward-v0',
+    group='debugging',
+    summary=
+        'Simple environment for debugging agents. \
+        The best policy in this environment is action 0 then action 1.',
     experimental=True,
 )
 

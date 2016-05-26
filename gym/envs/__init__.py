@@ -315,3 +315,13 @@ register(
     id='TwoRoundDeterministicReward-v0',
     entry_point='gym.envs.debugging:TwoRoundDeterministicRewardEnv',
 )
+
+register(
+    id='OneRoundNondeterministicReward-v0',
+    entry_point='gym.envs.debugging:OneRoundNondeterministicRewardEnv',
+)
+
+register(
+    id='TwoRoundNondeterministicReward-v0',
+    entry_point='gym.envs.debugging:TwoRoundNondeterministicRewardEnv',
+)
