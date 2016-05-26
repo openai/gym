@@ -22,8 +22,9 @@ if __name__ == '__main__':
     agent = RandomAgent(env.action_space)
 
     # You provide the directory to write to (can be an existing
-    # directory, but can't contain previous monitor results. You can
-    # also dump to a tempdir if you'd like: tempfile.mkdtemp().
+    # directory, including one with existing data -- all monitor files
+    # will be namespaced). You can also dump to a tempdir if you'd
+    # like: tempfile.mkdtemp().
     outdir = '/tmp/random-agent-results'
     env.monitor.start(outdir, force=True)
 
