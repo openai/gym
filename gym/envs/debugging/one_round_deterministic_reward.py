@@ -1,3 +1,15 @@
+"""
+Simple environment with known optimal policy and value function.
+
+This environment has just two actions.
+Action 0 yields 0 reward and then terminates the session.
+Action 1 yields 1 reward and then terminates the session.
+
+Optimal policy: action 1.
+
+Optimal value function: v(0)=1 (there is only one state, state 0)
+"""
+
 import gym
 import random
 from gym import spaces
