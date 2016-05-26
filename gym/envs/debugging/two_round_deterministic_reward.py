@@ -5,7 +5,7 @@ from gym import spaces
 class TwoRoundDeterministicRewardEnv(gym.Env):
     def __init__(self):
         self.action_space = spaces.Discrete(2)
-        self.observation_space = spaces.Discrete(2)
+        self.observation_space = spaces.Discrete(3)
         self._reset()
 
     def _step(self, action):
@@ -25,9 +25,9 @@ class TwoRoundDeterministicRewardEnv(gym.Env):
 
     def _get_obs(self):
         if self.firstAction is None:
-            return 0
+            return 2
         else:
-            return 1
+            return self.firstAction
 
     def _reset(self):
         self.firstAction = None
