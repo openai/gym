@@ -29,3 +29,5 @@ def test_renderable_after_monitor_close(spec):
         env.reset()
         env.render()
         env.render(close=True)
+
+        env.close()
