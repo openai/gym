@@ -11,7 +11,7 @@ class Closer(object):
     closer = Closer()
     class Example(object):
         def __init__(self):
-        self._id = closer.register(self)
+            self._id = closer.register(self)
 
         def close(self):
             # Probably worth making idempotent too!

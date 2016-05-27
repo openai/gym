@@ -44,9 +44,11 @@ class Env(object):
         # We use __new__ since we want the env author to be able to
         # override __init__ without remebering to call super.
         env = super(Env, cls).__new__(cls)
-        env.spec = None
         env._env_closer_id = env_closer.register(env)
         env._closed = False
+
+        # Will be automatically set when creating an environment via 'make'
+        env.spec = None
         return env
 
     # Set this in SOME subclasses
