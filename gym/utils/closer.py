@@ -10,16 +10,16 @@ class Closer(object):
     ```
     closer = Closer()
     class Example(object):
-      def __init__(self):
+        def __init__(self):
         self._id = closer.register(self)
 
-      def close(self):
-        # Probably worth making idempotent too!
-        ...
-        closer.unregister(self._id)
+        def close(self):
+            # Probably worth making idempotent too!
+            ...
+            closer.unregister(self._id)
 
-      def __del__(self):
-        self.close()
+        def __del__(self):
+            self.close()
     ```
 
     That is, your objects should:
