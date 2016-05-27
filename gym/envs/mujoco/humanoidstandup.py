@@ -35,7 +35,7 @@ class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         reward = uph_cost - quad_ctrl_cost - quad_impact_cost
 
         done = bool((pos_after[1] - pos_before[1] > 15.0) or (pos_after[0] - pos_before[0] > 15.0))
-        return self._get_obs(), reward, done, dict(reward_linup=uph_cost, reward_quadctrl=-quad_ctrl_cost, reward_impact=-quad_impact_cost)
+        return self._get_obs(), reward[0], done, dict(reward_linup=uph_cost, reward_quadctrl=-quad_ctrl_cost, reward_impact=-quad_impact_cost)
 
     def reset_model(self):
         c = 0.01
