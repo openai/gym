@@ -20,7 +20,10 @@ elif sys.platform.startswith("win"):
         # TODO: on Windows, this will raise if the file is in use,
         # which is possible. We'll need to make this more robust over
         # time.
-        os.remove(dst)
+        try:
+            os.remove(dst)
+        except OSError:
+            pass
         os.rename(src, dst)
 else:
     # POSIX rename() is always atomic
