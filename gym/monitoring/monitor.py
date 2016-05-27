@@ -10,8 +10,7 @@ import weakref
 
 from gym import error, version
 from gym.monitoring import stats_recorder, video_recorder
-from gym.utils import atomic_write
-from gym.utils.atexit_utils import monitor_closer
+from gym.utils import atomic_write, closer
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +38,10 @@ def capped_cubic_video_schedule(episode_id):
     else:
         return episode_id % 1000 == 0
 
+monitor_closer = closer.Closer()
+
+# This method gets used for a sanity check in scoreboard/api.py. It's
+# not intended for use outside of the gym codebase.
 def _open_monitors():
     return list(monitor_closer.close_objects.values())
 

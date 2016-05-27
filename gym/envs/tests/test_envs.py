@@ -44,6 +44,8 @@ def test_env(spec):
         env.render(mode=mode)
     env.render(close=True)
 
+    env.close()
+
 # Run a longer rollout on some environments
 def test_random_rollout():
     for env in [envs.make('CartPole-v0'), envs.make('FrozenLake-v0')]:

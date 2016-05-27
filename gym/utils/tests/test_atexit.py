@@ -1,14 +1,14 @@
-from gym.utils.atexit_utils import CloseRegistry
+from gym.utils.closer import Closer
 
-class CloseObject(object):
+class Closeable(object):
     close_called = False
     def close(self):
         self.close_called = True
 
 def test_register_unregister():
-    registry = CloseRegistry()
-    c1 = CloseObject()
-    c2 = CloseObject()
+    registry = Closer(atexit_register=False)
+    c1 = Closeable()
+    c2 = Closeable()
 
     assert not c1.close_called
     assert not c2.close_called
