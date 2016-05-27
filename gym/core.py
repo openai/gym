@@ -41,9 +41,9 @@ class Env(object):
     """
 
     def __new__(cls, *args, **kwargs):
-        # We use __new__ since it's expected that __init__ will be
-        # overridden in most envs.
-        env = super(Env, cls).__new__(cls, *args, **kwargs)
+        # We use __new__ since we want the env author to be able to
+        # override __init__ without remebering to call super.
+        env = super(Env, cls).__new__(cls)
         env.spec = None
         env._env_closer_id = env_closer.register(env)
         env._closed = False
