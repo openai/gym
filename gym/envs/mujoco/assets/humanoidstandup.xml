@@ -1,4 +1,4 @@
-<mujoco model="humanoidly">
+<mujoco model="humanoidstandup">
     <compiler angle="degree" inertiafromgeom="true"/>
     <default>
         <joint armature="1" damping="1" limited="true"/>

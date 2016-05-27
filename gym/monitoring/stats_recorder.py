@@ -68,5 +68,5 @@ class StatsRecorder(object):
                 'initial_reset_timestamp': self.initial_reset_timestamp,
                 'timestamps': self.timestamps,
                 'episode_lengths': self.episode_lengths,
-                'episode_rewards': str(self.episode_rewards),
+                'episode_rewards': self.episode_rewards,
             }, f)

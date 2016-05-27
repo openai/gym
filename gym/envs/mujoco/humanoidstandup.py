@@ -7,9 +7,9 @@ def mass_center(model):
     xpos = model.data.xipos
     return (np.sum(mass * xpos, 0) / np.sum(mass))[0]
 
-class HumanoidlyEnv(mujoco_env.MujocoEnv, utils.EzPickle):
+class HumanoidstandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     def __init__(self):
-        mujoco_env.MujocoEnv.__init__(self, 'humanoidly.xml', 5)
+        mujoco_env.MujocoEnv.__init__(self, 'humanoidstandup.xml', 5)
         utils.EzPickle.__init__(self)
 
     def _get_obs(self):
