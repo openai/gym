@@ -80,18 +80,16 @@ class Env(object):
         episode is reached, you are responsible for calling `reset()`
         to reset this environment's state.
 
-        Input
-        -----
-        action : an action provided by the environment
+        Accepts an action and returns a tuple (observation, reward, done, info).
 
-        Outputs
-        -------
-        (observation, reward, done, info)
+        Args:
+            action (object): an action provided by the environment
 
-        observation (object): agent's observation of the current environment
-        reward (float) : amount of reward returned after previous action
-        done (boolean): whether the episode has ended, in which case further step() calls will return undefined results
-        info (dict): contains auxiliary diagnostic information (helpful for debugging, and sometimes learning)
+        Returns:
+            observation (object): agent's observation of the current environment
+            reward (float) : amount of reward returned after previous action
+            done (boolean): whether the episode has ended, in which case further step() calls will return undefined results
+            info (dict): contains auxiliary diagnostic information (helpful for debugging, and sometimes learning)
         """
         if not self.action_space.contains(action):
             logger.warn("Action '{}' is not contained within action space '{}'.".format(action, self.action_space))
@@ -108,9 +106,8 @@ class Env(object):
         """
         Resets the state of the environment and returns an initial observation.
 
-        Outputs
-        -------
-        observation (object): the initial observation of the space. (Initial reward is assumed to be 0.)
+        Returns:
+            observation (object): the initial observation of the space. (Initial reward is assumed to be 0.)
         """
         self.monitor._before_reset()
         observation = self._reset()
@@ -145,15 +142,15 @@ class Env(object):
         Example:
 
         class MyEnv(Env):
-          metadata = {'render.modes': ['human', 'rgb_array']}
+            metadata = {'render.modes': ['human', 'rgb_array']}
 
-          def render(self, mode='human'):
-            if mode == 'rgb_array':
-               return np.array(...) # return RGB frame suitable for video
-            elif mode is 'human':
-               ... # pop up a window and render
-            else:
-               super(MyEnv, self).render(mode=mode) # just raise an exception
+            def render(self, mode='human'):
+                if mode == 'rgb_array':
+                    return np.array(...) # return RGB frame suitable for video
+                elif mode is 'human':
+                    ... # pop up a window and render
+                else:
+                    super(MyEnv, self).render(mode=mode) # just raise an exception
         """
         if close:
             return self._render(close=close)
