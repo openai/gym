@@ -1,9 +1,4 @@
-import hashlib
-import numpy as np
 import logging
-import os
-import random
-import struct
 import sys
 
 import gym

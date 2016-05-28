@@ -46,10 +46,11 @@ class AtariEnv(gym.Env, utils.EzPickle):
 
     def _seed(self, seed=None):
         self.np_random, seed1 = seeding.np_random(seed)
-        seed2 = self.np_random.randrange(2**32)
+        # Derive a random seed.
+        seed2 = seeding.hash_seed(seed1 + 1) % 2**32
         self.ale.setInt('random_seed', seed2)
 
-        self.action_space = spaces.Discrete(len(self._action_set), np_random=np_random)
+        self.action_space = spaces.Discrete(len(self._action_set), np_random=self.np_random)
         if self._obs_type == 'ram':
             self.observation_space = spaces.Box(low=np.zeros(128), high=np.zeros(128)+255, np_random=np_random)
         elif self._obs_type == 'image':
