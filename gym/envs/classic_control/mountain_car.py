@@ -15,12 +15,6 @@ class MountainCarEnv(gym.Env):
     }
 
     def __init__(self):
-        self._seed()
-
-        self.reset()
-        self.viewer = None
-        self.reset()
-
         self.min_position = -1.2
         self.max_position = 0.6
         self.max_speed = 0.07
@@ -29,11 +23,15 @@ class MountainCarEnv(gym.Env):
         self.low = np.array([self.min_position, -self.max_speed])
         self.high = np.array([self.max_position, self.max_speed])
 
-        self.action_space = spaces.Discrete(3)
-        self.observation_space = spaces.Box(self.low, self.high)
+        self.viewer = None
+
+        self._seed()
+        self.reset()
 
     def _seed(self, seed=None):
         self.np_random = seeding.np_random(seed)
+        self.action_space = spaces.Discrete(3, np_random=self.np_random)
+        self.observation_space = spaces.Box(self.low, self.high, np_random=self.np_random)
 
     def _step(self, action):
         # action = np.sign((self.state[0]+math.pi/2) * self.state[1])+1

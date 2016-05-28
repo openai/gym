@@ -17,14 +17,14 @@ class RouletteEnv(gym.Env):
     The last action (38) stops the rollout for a return of 0 (walking away)
     """
     def __init__(self, spots=37):
-        self._seed()
-
         self.n = spots + 1
-        self.action_space = spaces.Discrete(self.n)
-        self.observation_space = spaces.Discrete(1)
+        self._seed()
 
     def _seed(self, seed=None):
         self.np_random = seeding.np_random(seed)
+
+        self.action_space = spaces.Discrete(self.n, np_random=self.np_random)
+        self.observation_space = spaces.Discrete(1, np_random=self.np_random)
 
     def _step(self, action):
         assert(action >= 0 and action < self.n)

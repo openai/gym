@@ -108,8 +108,6 @@ class CarRacing(gym.Env):
 
     def __init__(self):
         self._seed()
-        self.action_space = spaces.Box( np.array([-1,0,0]), np.array([+1,+1,+1]) )  # steer, gas, brake
-        self.observation_space = spaces.Box(low=0, high=255, shape=(STATE_H, STATE_W, 3))
         self.world = Box2D.b2World((0,0), contactListener=FrictionDetector(self))
         self.viewer = None
         self.invisible_state_window = None
@@ -121,6 +119,8 @@ class CarRacing(gym.Env):
 
     def _seed(self, seed=None):
         self.np_random = seeding.np_random(seed)
+        self.action_space = spaces.Box( np.array([-1,0,0]), np.array([+1,+1,+1]), np_random=np_random)  # steer, gas, brake
+        self.observation_space = spaces.Box(low=0, high=255, shape=(STATE_H, STATE_W, 3), np_random=np_random)
 
     def _destroy(self):
         if not self.road: return

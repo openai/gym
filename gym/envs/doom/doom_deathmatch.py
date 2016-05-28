@@ -5,6 +5,7 @@ import numpy as np
 
 from doom_py import DoomGame, Mode, Button, GameVariable, ScreenFormat, ScreenResolution, Loader
 from gym import error, spaces
+from gym.utils import seeding
 from gym.envs.doom import doom_env
 
 logger = logging.getLogger(__name__)
@@ -40,10 +41,16 @@ class DoomDeathmatchEnv(doom_env.DoomEnv):
         self.game.set_doom_scenario_path(self.loader.get_scenario_path('deathmatch.wad'))
         self.screen_height = 480                    # Must match .cfg file
         self.screen_width = 640                     # Must match .cfg file
-        # 41 allowed actions (must match .cfg file)
-        self.action_space = spaces.HighLow(np.matrix([[0, 1, 0]] * 37 + [[0, 10, 0]] * 5))
-        self.observation_space = spaces.Box(low=0, high=255, shape=(self.screen_height, self.screen_width, 3))
         self.game.set_window_visible(False)
         self.viewer = None
         self.game.init()
         self.game.new_episode()
+
+        self._seed()
+
+    def _seed(self, seed=None):
+        np_random = seeding.np_random(seed)
+
+        # 41 allowed actions (must match .cfg file)
+        self.action_space = spaces.HighLow(np.matrix([[0, 1, 0]] * 37 + [[0, 10, 0]] * 5), np_random=np_random)
+        self.observation_space = spaces.Box(low=0, high=255, shape=(self.screen_height, self.screen_width, 3), np_random=np_random)

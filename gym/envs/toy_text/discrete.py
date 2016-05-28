@@ -30,19 +30,16 @@ class DiscreteEnv(Env):
     def __init__(self, nS, nA, P, isd):
         self._seed()
 
-        self.action_space = spaces.Discrete(nA)
-        self.observation_space = spaces.Discrete(nS)
-        self.nA = nA
         self.P = P
         self.isd = isd
         self.lastaction=None # for rendering
+        self.nS = nS
+        self.nA = nA
 
     def _seed(self, seed=None):
         self.np_random = seeding.np_random(seed)
-
-    @property
-    def nS(self):
-        return self.observation_space.n
+        self.action_space = spaces.Discrete(self.nA, np_random=self.np_random)
+        self.observation_space = spaces.Discrete(self.nS, np_random=self.np_random)
 
     def _reset(self):
         self.s = categorical_sample(self.isd, self.np_random)

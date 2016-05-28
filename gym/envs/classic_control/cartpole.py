@@ -19,8 +19,6 @@ class CartPoleEnv(gym.Env):
     }
 
     def __init__(self):
-        self._seed()
-
         self.gravity = 9.8
         self.masscart = 1.0
         self.masspole = 0.1
@@ -33,18 +31,19 @@ class CartPoleEnv(gym.Env):
         # Angle at which to fail the episode
         self.theta_threshold_radians = 12 * 2 * math.pi / 360
         self.x_threshold = 2.4
+
+        self._seed()
         self.reset()
         self.viewer = None
-
-        # Angle limit set to 2 * theta_threshold_radians so failing observation is still within bounds
-        high = np.array([self.x_threshold, np.inf, self.theta_threshold_radians * 2, np.inf])
-        self.action_space = spaces.Discrete(2)
-        self.observation_space = spaces.Box(-high, high)
 
         self.steps_beyond_done = None
 
     def _seed(self, seed=None):
         self.np_random = seeding.np_random(seed)
+        # Angle limit set to 2 * theta_threshold_radians so failing observation is still within bounds
+        high = np.array([self.x_threshold, np.inf, self.theta_threshold_radians * 2, np.inf])
+        self.action_space = spaces.Discrete(2, np_random=self.np_random)
+        self.observation_space = spaces.Box(-high, high, np_random=self.np_random)
 
     def _step(self, action):
         action = action

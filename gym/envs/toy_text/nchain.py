@@ -22,18 +22,19 @@ class NChainEnv(gym.Env):
     http://ceit.aut.ac.ir/~shiry/lecture/machine-learning/papers/BRL-2000.pdf
     """
     def __init__(self, n=5, slip=0.2, small=2, large=10):
-        self._seed()
-
         self.n = n
         self.slip = slip  # probability of 'slipping' an action
         self.small = small  # payout for 'backwards' action
         self.large = large  # payout at end of chain for 'forwards' action
-        self.action_space = spaces.Discrete(2)
-        self.observation_space = spaces.Discrete(n)
         self.state = 0  # Start at beginning of the chain
+        self._seed()
 
     def _seed(self, seed=None):
         self.random = seeding.random(seed)
+        np_random = seeding.np_random(self.random.randrange(2**32))
+
+        self.action_space = spaces.Discrete(2, np_random=np_random)
+        self.observation_space = spaces.Discrete(self.n, np_random=np_random)
 
     def _step(self, action):
         assert(self.action_space.contains(action))

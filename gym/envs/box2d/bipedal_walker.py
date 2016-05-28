@@ -90,10 +90,6 @@ class BipedalWalker(gym.Env):
         self._seed()
         self.viewer = None
 
-        high = np.array([np.inf]*24)
-        self.action_space = spaces.Box( np.array([-1,-1,-1,-1]), np.array([+1,+1,+1,+1]) )
-        self.observation_space = spaces.Box(-high, high)
-
         self.world = Box2D.b2World()
         self.terrain = None
         self.hull = None
@@ -103,6 +99,9 @@ class BipedalWalker(gym.Env):
 
     def _seed(self, seed=None):
         self.np_random = seeding.np_random(seed)
+        high = np.array([np.inf]*24)
+        self.action_space = spaces.Box(np.array([-1,-1,-1,-1]), np.array([+1,+1,+1,+1]), np_random=self.np_random)
+        self.observation_space = spaces.Box(-high, high, np_random=self.np_random)
 
     def _destroy(self):
         if not self.terrain: return

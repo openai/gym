@@ -154,16 +154,17 @@ class GoEnv(gym.Env):
         assert illegal_move_mode in ['lose', 'raise']
         self.illegal_move_mode = illegal_move_mode
 
-        # One action for each board position, pass, and resign
-        self.action_space = spaces.Discrete(self.board_size**2 + 2)
-
-        if self.observation_type == 'image3c':
-            shape = pachi_py.CreateBoard(self.board_size).encode().shape
-            self.observation_space = spaces.Box(np.zeros(shape), np.ones(shape))
-        else:
+        if self.observation_type != 'image3c':
             raise error.Error('Unsupported observation type: {}'.format(self.observation_type))
-
         self.reset()
+
+    def _seed(self, seed=None):
+        self.np_random = seeding.np_random(seed)
+
+        shape = pachi_py.CreateBoard(self.board_size).encode().shape
+        self.observation_space = spaces.Box(np.zeros(shape), np.ones(shape), np_random=self.np_random)
+        # One action for each board position, pass, and resign
+        self.action_space = spaces.Discrete(self.board_size**2 + 2, np_random=self.np_random)
 
     def _reset(self):
         self.state = GoState(pachi_py.CreateBoard(self.board_size), pachi_py.BLACK)
@@ -247,9 +248,6 @@ class GoEnv(gym.Env):
         opponent_action = self.opponent_policy(curr_state, prev_state, prev_action)
         opponent_resigned = opponent_action == _resign_action(self.board_size)
         return curr_state.act(opponent_action), opponent_resigned
-
-    def _seed(self, seed=None):
-        self.np_random = seeding.np_random(seed)
 
     @property
     def _state(self):

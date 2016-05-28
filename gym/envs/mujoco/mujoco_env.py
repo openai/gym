@@ -18,8 +18,6 @@ class MujocoEnv(gym.Env):
     """
 
     def __init__(self, model_path, frame_skip):
-        self._seed()
-
         if model_path.startswith("/"):
             fullpath = model_path
         else:
@@ -41,18 +39,19 @@ class MujocoEnv(gym.Env):
         observation, _reward, done, _info = self._step(np.zeros(self.model.nu))
         assert not done
         self.obs_dim = observation.size
+        self._seed()
+
+    def _seed(self, seed=None):
+        self.np_random = seeding.np_random(seed)
 
         bounds = self.model.actuator_ctrlrange.copy()
         low = bounds[:, 0]
         high = bounds[:, 1]
-        self.action_space = spaces.Box(low, high)
+        self.action_space = spaces.Box(low, high, np_random=self.np_random)
 
         high = np.inf*np.ones(self.obs_dim)
         low = -high
-        self.observation_space = spaces.Box(low, high)
-
-    def _seed(self, seed=None):
-        self.np_random = seeding.np_random(seed)
+        self.observation_space = spaces.Box(low, high, np_random=self.np_random)
 
     # methods to override:
     # ----------------------------

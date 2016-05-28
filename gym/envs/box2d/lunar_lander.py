@@ -80,10 +80,6 @@ class LunarLander(gym.Env):
         self._seed()
         self.viewer = None
 
-        high = np.array([np.inf]*8)                               # useful range is -1 .. +1
-        self.action_space = spaces.Discrete(4)                    # nop, fire left engine, main engine, right engine
-        self.observation_space = spaces.Box(-high, high)
-
         self.world = Box2D.b2World()
         self.moon = None
         self.lander = None
@@ -94,6 +90,12 @@ class LunarLander(gym.Env):
 
     def _seed(self, seed=None):
         self.np_random = seeding.np_random(seed)
+
+        # useful range is -1 .. +1
+        high = np.array([np.inf]*8)
+        # nop, fire left engine, main engine, right engine
+        self.action_space = spaces.Discrete(4, np_random=self.np_random)
+        self.observation_space = spaces.Box(-high, high, np_random=self.np_random)
 
     def _destroy(self):
         if not self.moon: return

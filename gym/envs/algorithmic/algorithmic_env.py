@@ -16,7 +16,6 @@ class AlgorithmicEnv(Env):
 
     def __init__(self, inp_dim=1, base=10, chars=False):
         global hash_base
-        self._seed()
 
         hash_base = 50 ** np.arange(inp_dim)
         self.base = base
@@ -28,12 +27,16 @@ class AlgorithmicEnv(Env):
         self.inp_dim = inp_dim
         AlgorithmicEnv.current_length = 2
         tape_control = []
-        self.action_space = Tuple(([Discrete(2 * inp_dim), Discrete(2), Discrete(self.base)]))
-        self.observation_space = Discrete(self.base + 1)
+
+        self._seed()
         self.reset()
 
     def _seed(self, seed=None):
         self.random = seeding.random(seed)
+        np_random = seeding.np_random(self.random.randrange(2**32))
+
+        self.action_space = Tuple(([Discrete(2 * self.inp_dim), Discrete(2), Discrete(self.base)]), np_random=np_random)
+        self.observation_space = Discrete(self.base + 1, np_random=np_random)
 
     def _get_obs(self, pos=None):
         if pos is None:

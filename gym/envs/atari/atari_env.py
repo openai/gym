@@ -42,24 +42,20 @@ class AtariEnv(gym.Env, utils.EzPickle):
 
         (screen_width,screen_height) = self.ale.getScreenDims()
 
-        self.action_space = spaces.Discrete(len(self._action_set))
-        if self._obs_type == 'ram':
-            self.observation_space = spaces.Box(low=np.zeros(128), high=np.zeros(128)+255)
-        elif self._obs_type == 'image':
-            self.observation_space = spaces.Box(low=0, high=255, shape=(screen_height, screen_width, 3))
-        else:
-            raise error.Error('Unrecognized observation type: {}'.format(self._obs_type))
         self._seed()
 
     def _seed(self, seed=None):
         seed = seeding.uint_32_seed(seed)
-        # Do the ale seed first to ensure it stays a uint32 (it'll be
-        # parsed by atoi in the underlying C++)
-        self.ale.setInt('random_seed', seed)
-        # Then use a different seed for numpy. They almost certainly
-        # don't use the same PRNG, but this is a sanity way to be even
-        # more certain that the random outputs are uncorrelated.
-        self.np_random = seeding.np_random(seed+1)
+        self.np_random = seeding.np_random(seed)
+        self.ale.setInt('random_seed', self.np_random.randrange(2**32))
+
+        self.action_space = spaces.Discrete(len(self._action_set), np_random=np_random)
+        if self._obs_type == 'ram':
+            self.observation_space = spaces.Box(low=np.zeros(128), high=np.zeros(128)+255, np_random=np_random)
+        elif self._obs_type == 'image':
+            self.observation_space = spaces.Box(low=0, high=255, shape=(screen_height, screen_width, 3), np_random=np_random)
+        else:
+            raise error.Error('Unrecognized observation type: {}'.format(self._obs_type))
 
     def _step(self, a):
         reward = 0.0

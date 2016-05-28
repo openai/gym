@@ -63,17 +63,16 @@ class HexEnv(gym.Env):
         assert illegal_move_mode in ['lose', 'raise']
         self.illegal_move_mode = illegal_move_mode
 
-        # One action for each board position and resign
-        self.action_space = spaces.Discrete(self.board_size ** 2 + 1)
-
         if self.observation_type != 'numpy3c':
             raise error.Error('Unsupported observation type: {}'.format(self.observation_type))
 
-        observation = self.reset()
-        self.observation_space = spaces.Box(np.zeros(observation.shape), np.ones(observation.shape))
-
     def _seed(self, seed=None):
         self.np_random = seeding.np_random(seed)
+
+        # One action for each board position and resign
+        self.action_space = spaces.Discrete(self.board_size ** 2 + 1, np_random=self.np_random)
+        observation = self.reset()
+        self.observation_space = spaces.Box(np.zeros(observation.shape), np.ones(observation.shape), np_random=self.np_random)
 
     def _reset(self):
         self.state = np.zeros((3, self.board_size, self.board_size))
