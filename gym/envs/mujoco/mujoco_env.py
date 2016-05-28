@@ -42,7 +42,7 @@ class MujocoEnv(gym.Env):
         self._seed()
 
     def _seed(self, seed=None):
-        self.np_random = seeding.np_random(seed)
+        self.np_random, seed = seeding.np_random(seed)
 
         bounds = self.model.actuator_ctrlrange.copy()
         low = bounds[:, 0]
@@ -52,6 +52,7 @@ class MujocoEnv(gym.Env):
         high = np.inf*np.ones(self.obs_dim)
         low = -high
         self.observation_space = spaces.Box(low, high, np_random=self.np_random)
+        return [seed]
 
     # methods to override:
     # ----------------------------

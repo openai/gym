@@ -67,12 +67,13 @@ class HexEnv(gym.Env):
             raise error.Error('Unsupported observation type: {}'.format(self.observation_type))
 
     def _seed(self, seed=None):
-        self.np_random = seeding.np_random(seed)
+        self.np_random, seed = seeding.np_random(seed)
 
         # One action for each board position and resign
         self.action_space = spaces.Discrete(self.board_size ** 2 + 1, np_random=self.np_random)
         observation = self.reset()
         self.observation_space = spaces.Box(np.zeros(observation.shape), np.ones(observation.shape), np_random=self.np_random)
+        return [seed]
 
     def _reset(self):
         self.state = np.zeros((3, self.board_size, self.board_size))

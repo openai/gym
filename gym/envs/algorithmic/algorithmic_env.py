@@ -32,11 +32,12 @@ class AlgorithmicEnv(Env):
         self.reset()
 
     def _seed(self, seed=None):
-        self.random = seeding.random(seed)
-        np_random = seeding.np_random(self.random.randrange(2**32))
+        self.random, seed1 = seeding.random(seed)
+        np_random, seed2 = seeding.np_random(self.random.randrange(2**128))
 
         self.action_space = Tuple(([Discrete(2 * self.inp_dim), Discrete(2), Discrete(self.base)]), np_random=np_random)
         self.observation_space = Discrete(self.base + 1, np_random=np_random)
+        return [seed1, seed2]
 
     def _get_obs(self, pos=None):
         if pos is None:

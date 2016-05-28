@@ -29,9 +29,10 @@ class MountainCarEnv(gym.Env):
         self.reset()
 
     def _seed(self, seed=None):
-        self.np_random = seeding.np_random(seed)
+        self.np_random, seed = seeding.np_random(seed)
         self.action_space = spaces.Discrete(3, np_random=self.np_random)
         self.observation_space = spaces.Box(self.low, self.high, np_random=self.np_random)
+        return [seed]
 
     def _step(self, action):
         # action = np.sign((self.state[0]+math.pi/2) * self.state[1])+1

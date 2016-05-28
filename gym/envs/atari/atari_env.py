@@ -45,9 +45,9 @@ class AtariEnv(gym.Env, utils.EzPickle):
         self._seed()
 
     def _seed(self, seed=None):
-        seed = seeding.uint_32_seed(seed)
-        self.np_random = seeding.np_random(seed)
-        self.ale.setInt('random_seed', self.np_random.randrange(2**32))
+        self.np_random, seed1 = seeding.np_random(seed)
+        seed2 = self.np_random.randrange(2**32)
+        self.ale.setInt('random_seed', seed2)
 
         self.action_space = spaces.Discrete(len(self._action_set), np_random=np_random)
         if self._obs_type == 'ram':
@@ -56,6 +56,7 @@ class AtariEnv(gym.Env, utils.EzPickle):
             self.observation_space = spaces.Box(low=0, high=255, shape=(screen_height, screen_width, 3), np_random=np_random)
         else:
             raise error.Error('Unrecognized observation type: {}'.format(self._obs_type))
+        return [seed1, seed2]
 
     def _step(self, a):
         reward = 0.0

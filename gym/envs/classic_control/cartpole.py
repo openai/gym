@@ -39,11 +39,12 @@ class CartPoleEnv(gym.Env):
         self.steps_beyond_done = None
 
     def _seed(self, seed=None):
-        self.np_random = seeding.np_random(seed)
+        self.np_random, seed = seeding.np_random(seed)
         # Angle limit set to 2 * theta_threshold_radians so failing observation is still within bounds
         high = np.array([self.x_threshold, np.inf, self.theta_threshold_radians * 2, np.inf])
         self.action_space = spaces.Discrete(2, np_random=self.np_random)
         self.observation_space = spaces.Box(-high, high, np_random=self.np_random)
+        return [seed]
 
     def _step(self, action):
         action = action

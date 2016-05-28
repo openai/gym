@@ -159,12 +159,13 @@ class GoEnv(gym.Env):
         self.reset()
 
     def _seed(self, seed=None):
-        self.np_random = seeding.np_random(seed)
+        self.np_random, seed = seeding.np_random(seed)
 
         shape = pachi_py.CreateBoard(self.board_size).encode().shape
         self.observation_space = spaces.Box(np.zeros(shape), np.ones(shape), np_random=self.np_random)
         # One action for each board position, pass, and resign
         self.action_space = spaces.Discrete(self.board_size**2 + 2, np_random=self.np_random)
+        return [seed]
 
     def _reset(self):
         self.state = GoState(pachi_py.CreateBoard(self.board_size), pachi_py.BLACK)

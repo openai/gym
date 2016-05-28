@@ -49,8 +49,9 @@ class DoomDeathmatchEnv(doom_env.DoomEnv):
         self._seed()
 
     def _seed(self, seed=None):
-        np_random = seeding.np_random(seed)
+        np_random, seed = seeding.np_random(seed)
 
         # 41 allowed actions (must match .cfg file)
         self.action_space = spaces.HighLow(np.matrix([[0, 1, 0]] * 37 + [[0, 10, 0]] * 5), np_random=np_random)
         self.observation_space = spaces.Box(low=0, high=255, shape=(self.screen_height, self.screen_width, 3), np_random=np_random)
+        return [seed]

@@ -37,9 +37,10 @@ class DiscreteEnv(Env):
         self.nA = nA
 
     def _seed(self, seed=None):
-        self.np_random = seeding.np_random(seed)
+        self.np_random, seed = seeding.np_random(seed)
         self.action_space = spaces.Discrete(self.nA, np_random=self.np_random)
         self.observation_space = spaces.Discrete(self.nS, np_random=self.np_random)
+        return [seed]
 
     def _reset(self):
         self.s = categorical_sample(self.isd, self.np_random)

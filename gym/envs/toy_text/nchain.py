@@ -30,11 +30,13 @@ class NChainEnv(gym.Env):
         self._seed()
 
     def _seed(self, seed=None):
-        self.random = seeding.random(seed)
-        np_random = seeding.np_random(self.random.randrange(2**32))
+        self.random, seed1 = seeding.random(seed)
+        np_random, seed2 = seeding.np_random(self.random.randrange(2**128))
 
         self.action_space = spaces.Discrete(2, np_random=np_random)
         self.observation_space = spaces.Discrete(self.n, np_random=np_random)
+
+        return [seed1, seed2]
 
     def _step(self, action):
         assert(self.action_space.contains(action))

@@ -130,11 +130,8 @@ class Monitor(object):
         if not os.path.exists(directory):
             os.mkdir(directory)
 
-        # Some envs don't support more than a uint32, so for now we
-        # limit the monitor to such seeds. If this becomes an issue,
-        # we could use bigger seeds for most environments.
-        self.seed = seeding.uint_32_seed(seed)
-        self.env.seed(self.seed)
+        seeds = self.env.seed(self.seed)
+        self.seeds = seeds
 
     def flush(self):
         """Flush all relevant monitor information to disk."""
@@ -154,7 +151,7 @@ class Monitor(object):
                 'videos': [(os.path.basename(v), os.path.basename(m))
                            for v, m in self.videos],
                 'env_info': self._env_info(),
-                'seed': self.seed,
+                'seeds': self.seeds,
             }, f)
 
     def close(self):
@@ -293,7 +290,7 @@ def load_results(training_dir):
             videos += [(os.path.join(training_dir, v), os.path.join(training_dir, m))
                        for v, m in contents['videos']]
             env_infos.append(contents['env_info'])
-            seeds.append(contents.get('seed'))
+            seeds += contents.get('seeds', [])
 
     env_info = collapse_env_infos(env_infos, training_dir)
     timestamps, episode_lengths, episode_rewards, initial_reset_timestamp = merge_stats_files(stats_files)

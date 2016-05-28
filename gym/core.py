@@ -73,7 +73,7 @@ class Env(object):
         if close:
             return
         raise NotImplementedError
-    def _seed(self, seed=None): pass
+    def _seed(self, seed=None): return []
 
     @property
     def monitor(self):
@@ -188,8 +188,16 @@ class Env(object):
         self._closed = True
 
     def seed(self, seed=None):
-        """Sets the seed for this env's random number generator."""
-        self._seed(seed)
+        """Sets the seed for this env's random number generator(s).
+
+        Note:
+            Some environments use multiple pseudorandom number generators.
+            We want to capture all such seeds used in order to ensure that
+            there aren't accidental correlations between multiple generators.
+
+        Returns:
+            list<bigint>: Returns the list of seeds used in this env's random number generators."""
+        return self._seed(seed)
 
     def __del__(self):
         self.close()

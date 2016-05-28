@@ -4,32 +4,18 @@ import random as _random
 import struct
 
 def random(seed=None):
-    seed = _random_seed(seed)
+    seed = _seed(seed)
 
     rng = _random.Random()
     rng.seed(seed)
-    return rng
+    return rng, seed
 
 def np_random(seed=None):
-    seed = _np_random_seed(seed)
+    seed = _seed(seed)
 
     rng = np.random.RandomState()
-    rng.seed(seed)
-    return rng
-
-def uint_32_seed(seed=None):
-    """Create a uint32 random seed.
-
-    Args:
-        seed (Optional[int, str]): The base form of the seed to use
-    """
-    return _seed(seed) % 2 ** 32
-
-def _random_seed(seed):
-    return _seed(seed)
-
-def _np_random_seed(seed):
-    return _int_list_from_bigint(_seed(seed))
+    rng.seed(_int_list_from_bigint(seed))
+    return rng, seed
 
 def _seed(a=None):
     """Create a strong random seed. Otherwise, Python 2 would seed using

@@ -83,12 +83,13 @@ class AcrobotEnv(core.Env):
         self._seed()
 
     def _seed(self, seed=None):
-        self.np_random = seeding.np_random(seed)
+        self.np_random, seed = seeding.np_random(seed)
 
         high = np.array([np.pi, np.pi, self.MAX_VEL_1, self.MAX_VEL_2])
         low = -high
         self.observation_space = spaces.Box(low, high, np_random=self.np_random)
         self.action_space = spaces.Discrete(3, np_random=self.np_random)
+        return [seed]
 
     def _reset(self):
         self.state = self.np_random.uniform(low=-0.1, high=0.1, size=(4,))
