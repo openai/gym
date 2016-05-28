@@ -34,8 +34,6 @@ class HexEnv(gym.Env):
             illegal_move_mode: What to do when the agent makes an illegal move. Choices: 'raise' or 'lose'
             board_size: size of the Hex board
         """
-        self._seed()
-
         assert isinstance(board_size, int) and board_size >= 1, 'Invalid board size: {}'.format(board_size)
         self.board_size = board_size
 
@@ -49,13 +47,6 @@ class HexEnv(gym.Env):
             raise error.Error("player_color must be 'black' or 'white', not {}".format(player_color))
 
         self.opponent = opponent
-        if isinstance(self.opponent, str):
-            if opponent == 'random':
-                self.opponent_policy = make_random_policy(self.np_random)
-            else:
-                raise error.Error('Unrecognized opponent policy {}'.format(self.opponent))
-        else:
-            self.opponent_policy = opponent
 
         assert observation_type in ['numpy3c']
         self.observation_type = observation_type
@@ -65,6 +56,7 @@ class HexEnv(gym.Env):
 
         if self.observation_type != 'numpy3c':
             raise error.Error('Unsupported observation type: {}'.format(self.observation_type))
+        self._seed()
 
     def _seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
@@ -73,6 +65,16 @@ class HexEnv(gym.Env):
         self.action_space = spaces.Discrete(self.board_size ** 2 + 1, np_random=self.np_random)
         observation = self.reset()
         self.observation_space = spaces.Box(np.zeros(observation.shape), np.ones(observation.shape), np_random=self.np_random)
+
+        # Update the random policy if needed
+        if isinstance(self.opponent, str):
+            if self.opponent == 'random':
+                self.opponent_policy = make_random_policy(self.np_random)
+            else:
+                raise error.Error('Unrecognized opponent policy {}'.format(self.opponent))
+        else:
+            self.opponent_policy = self.opponent
+
         return [seed]
 
     def _reset(self):

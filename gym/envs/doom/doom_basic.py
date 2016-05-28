@@ -54,7 +54,6 @@ class DoomBasicEnv(doom_env.DoomEnv):
         self.viewer = None
         self.game.init()
         self.game.new_episode()
-
         self._seed()
 
     def _seed(self, seed=None):

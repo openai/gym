@@ -183,7 +183,7 @@ class BipedalWalker(gym.Env):
                 self.terrain.append(t)
 
             elif state==STAIRS and oneshot:
-                stair_height = +1 if self.np_random.ranf() > 0.5 else -1
+                stair_height = +1 if self.np_random.rand() > 0.5 else -1
                 stair_width = self.np_random.randint(4, 5)
                 stair_steps = self.np_random.randint(3, 5)
                 original_y = y

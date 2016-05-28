@@ -55,7 +55,7 @@ class Env(object):
         return env
 
     # Set this in SOME subclasses
-    metadata = {'render.modes': []}
+    metadata = {'render.modes': [], 'seed.nondetermistic': False}
     reward_range = (-np.inf, np.inf)
 
     # Override in SOME subclasses
@@ -195,9 +195,20 @@ class Env(object):
             We want to capture all such seeds used in order to ensure that
             there aren't accidental correlations between multiple generators.
 
+            Set 'seed.nondeterministic' in metadata if the seed is not
+            enough to make this environment fully deterministic.
+
         Returns:
-            list<bigint>: Returns the list of seeds used in this env's random number generators."""
-        return self._seed(seed)
+            list<bigint>: Returns the list of seeds used in this env's random
+              number generators. The first value in the list should be the
+              "main" seed, or the value which a reproducer should pass to
+              'seed'. Often, the main seed equals the provided 'seed', but
+              this won't be true if seed=None, for example.
+        """
+        seeds = self._seed(seed)
+        if len(seeds) == 0:
+            raise error.Error("Implementation bug detected: {}'s 'seed' method returned {}, but 'seed' must return at least one element.".format(self, seeds))
+        return seeds
 
     def __del__(self):
         self.close()

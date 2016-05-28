@@ -37,7 +37,7 @@ class NChainEnv(gym.Env):
 
     def _step(self, action):
         assert(self.action_space.contains(action))
-        if self.np_random.random() < self.slip:
+        if self.np_random.rand() < self.slip:
             action = not action  # agent slipped, reverse action taken
         if action:  # 'backwards': go back to the beginning, get small reward
             reward = self.small

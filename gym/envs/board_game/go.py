@@ -122,7 +122,11 @@ class GoEnv(gym.Env):
     '''
     Go environment. Play against a fixed opponent.
     '''
-    metadata = {"render.modes": ["human", "ansi"]}
+    # The pachi player seems not to be determistic given a fixed seed.
+    # (Reproduce by running 'import gym; h = gym.make('Go9x9-v0'); h.seed(1); h.reset(); h.step(15); h.step(16); h.step(17)' a few times.)
+    #
+    # It seems likely there's a time limit.
+    metadata = {"render.modes": ["human", "ansi"], "seed.nondetermistic": True}
 
     def __init__(self, player_color, opponent, observation_type, illegal_move_mode, board_size):
         """
@@ -132,9 +136,10 @@ class GoEnv(gym.Env):
             observation_type: State encoding
             illegal_move_mode: What to do when the agent makes an illegal move. Choices: 'raise' or 'lose'
         """
-        self._seed()
         assert isinstance(board_size, int) and board_size >= 1, 'Invalid board size: {}'.format(board_size)
         self.board_size = board_size
+
+        self._seed()
 
         colormap = {
             'black': pachi_py.BLACK,
@@ -159,13 +164,16 @@ class GoEnv(gym.Env):
         self.reset()
 
     def _seed(self, seed=None):
-        self.np_random, seed = seeding.np_random(seed)
+        self.np_random, seed1 = seeding.np_random(seed)
+        # Derive a random seed.
+        seed2 = seeding.hash_seed(seed1 + 1) % 2**32
+        pachi_py.pachi_srand(seed2)
 
         shape = pachi_py.CreateBoard(self.board_size).encode().shape
         self.observation_space = spaces.Box(np.zeros(shape), np.ones(shape), np_random=self.np_random)
         # One action for each board position, pass, and resign
         self.action_space = spaces.Discrete(self.board_size**2 + 2, np_random=self.np_random)
-        return [seed]
+        return [seed1, seed2]
 
     def _reset(self):
         self.state = GoState(pachi_py.CreateBoard(self.board_size), pachi_py.BLACK)

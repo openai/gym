@@ -28,13 +28,13 @@ class DiscreteEnv(Env):
 
     """
     def __init__(self, nS, nA, P, isd):
-        self._seed()
-
         self.P = P
         self.isd = isd
         self.lastaction=None # for rendering
         self.nS = nS
         self.nA = nA
+
+        self._seed()
 
     def _seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)

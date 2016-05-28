@@ -279,6 +279,7 @@ def load_results(training_dir):
     # Load up stats + video files
     stats_files = []
     videos = []
+    main_seeds = []
     seeds = []
     env_infos = []
 
@@ -290,7 +291,9 @@ def load_results(training_dir):
             videos += [(os.path.join(training_dir, v), os.path.join(training_dir, m))
                        for v, m in contents['videos']]
             env_infos.append(contents['env_info'])
-            seeds += contents.get('seeds', [])
+            manifest_seeds = contents.get('seeds', [None])
+            seeds += manifest_seeds
+            main_seeds.append(manifest_seeds[0])
 
     env_info = collapse_env_infos(env_infos, training_dir)
     timestamps, episode_lengths, episode_rewards, initial_reset_timestamp = merge_stats_files(stats_files)
@@ -303,6 +306,7 @@ def load_results(training_dir):
         'episode_rewards': episode_rewards,
         'initial_reset_timestamp': initial_reset_timestamp,
         'videos': videos,
+        'main_seeds': main_seeds,
         'seeds': seeds,
     }
 

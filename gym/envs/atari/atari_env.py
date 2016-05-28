@@ -40,8 +40,6 @@ class AtariEnv(gym.Env, utils.EzPickle):
         self._action_set = self.ale.getMinimalActionSet()
         self.viewer = None
 
-        (screen_width,screen_height) = self.ale.getScreenDims()
-
         self._seed()
 
     def _seed(self, seed=None):
@@ -51,10 +49,12 @@ class AtariEnv(gym.Env, utils.EzPickle):
         self.ale.setInt('random_seed', seed2)
 
         self.action_space = spaces.Discrete(len(self._action_set), np_random=self.np_random)
+
+        (screen_width,screen_height) = self.ale.getScreenDims()
         if self._obs_type == 'ram':
-            self.observation_space = spaces.Box(low=np.zeros(128), high=np.zeros(128)+255, np_random=np_random)
+            self.observation_space = spaces.Box(low=np.zeros(128), high=np.zeros(128)+255, np_random=self.np_random)
         elif self._obs_type == 'image':
-            self.observation_space = spaces.Box(low=0, high=255, shape=(screen_height, screen_width, 3), np_random=np_random)
+            self.observation_space = spaces.Box(low=0, high=255, shape=(screen_height, screen_width, 3), np_random=self.np_random)
         else:
             raise error.Error('Unrecognized observation type: {}'.format(self._obs_type))
         return [seed1, seed2]
