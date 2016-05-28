@@ -1,6 +1,6 @@
 import gym
-import random
 from gym import spaces
+from gym.utils import seeding
 
 def cmp(a, b):
     return (a > b) - (a < b)
@@ -9,12 +9,12 @@ def cmp(a, b):
 deck = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10]
 
 
-def draw_card():
+def draw_card(random):
     return random.choice(deck)
 
 
-def draw_hand():
-    return [draw_card(), draw_card()]
+def draw_hand(random):
+    return [draw_card(random), draw_card(random)]
 
 
 def usable_ace(hand):  # Does this hand have a usable ace?
@@ -71,6 +71,8 @@ class BlackjackEnv(gym.Env):
     https://webdocs.cs.ualberta.ca/~sutton/book/the-book.html
     """
     def __init__(self, natural=False):
+        self._seed()
+
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Tuple((spaces.Discrete(32),
                                                spaces.Discrete(11),
@@ -81,10 +83,13 @@ class BlackjackEnv(gym.Env):
         # Start the first game
         self._reset()
 
+    def _seed(self, seed=None):
+        self.random = seeding.random(seed)
+
     def _step(self, action):
         assert(self.action_space.contains(action))
         if action:  # hit: add a card to players hand and return
-            self.player.append(draw_card())
+            self.player.append(draw_card(self.random))
             if is_bust(self.player):
                 done = True
                 reward = -1
@@ -94,7 +99,7 @@ class BlackjackEnv(gym.Env):
         else:  # stick: play out the dealers hand, and score
             done = True
             while sum_hand(self.dealer) < 17:
-                self.dealer.append(draw_card())
+                self.dealer.append(draw_card(self.random))
             reward = cmp(score(self.player), score(self.dealer))
             if self.natural and is_natural(self.player) and reward == 1:
                 reward = 1.5
@@ -104,6 +109,6 @@ class BlackjackEnv(gym.Env):
         return (sum_hand(self.player), self.dealer[0], usable_ace(self.player))
 
     def _reset(self):
-        self.dealer = draw_hand()
-        self.player = draw_hand()
+        self.dealer = draw_hand(self.random)
+        self.player = draw_hand(self.random)
         return self._get_obs()

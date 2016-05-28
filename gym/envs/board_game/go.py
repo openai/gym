@@ -8,6 +8,7 @@ except ImportError as e:
 import numpy as np
 import gym
 from gym import spaces
+from gym.utils import seeding
 from six import StringIO
 import sys
 import six
@@ -71,10 +72,12 @@ class GoState(object):
 
 
 ### Adversary policies ###
-def random_policy(curr_state, prev_state, prev_action):
-    b = curr_state.board
-    legal_coords = b.get_legal_coords(curr_state.color)
-    return _coord_to_action(b, np.random.choice(legal_coords))
+def make_random_policy(np_random):
+    def random_policy(curr_state, prev_state, prev_action):
+        b = curr_state.board
+        legal_coords = b.get_legal_coords(curr_state.color)
+        return _coord_to_action(b, np_random.choice(legal_coords))
+    return random_policy
 
 def make_pachi_policy(board, engine_type='uct', threads=1, pachi_timestr=''):
     engine = pachi_py.PyPachiEngine(board, engine_type, six.b('threads=%d' % threads))
@@ -122,13 +125,14 @@ class GoEnv(gym.Env):
     metadata = {"render.modes": ["human", "ansi"]}
 
     def __init__(self, player_color, opponent, observation_type, illegal_move_mode, board_size):
-        '''
+        """
         Args:
             player_color: Stone color for the agent. Either 'black' or 'white'
             opponent: An opponent policy
             observation_type: State encoding
             illegal_move_mode: What to do when the agent makes an illegal move. Choices: 'raise' or 'lose'
-        '''
+        """
+        self._seed()
         assert isinstance(board_size, int) and board_size >= 1, 'Invalid board size: {}'.format(board_size)
         self.board_size = board_size
 
@@ -244,13 +248,16 @@ class GoEnv(gym.Env):
         opponent_resigned = opponent_action == _resign_action(self.board_size)
         return curr_state.act(opponent_action), opponent_resigned
 
+    def _seed(self, seed=None):
+        self.np_random = seeding.np_random(seed)
+
     @property
     def _state(self):
         return self.state
 
     def _reset_opponent(self, board):
         if self.opponent == 'random':
-            self.opponent_policy = random_policy
+            self.opponent_policy = make_random_policy(self.np_random)
         elif self.opponent == 'pachi:uct:_2400':
             self.opponent_policy = make_pachi_policy(board=board, engine_type=six.b('uct'), pachi_timestr=six.b('_2400')) # TODO: strength as argument
         else:

@@ -1,15 +1,15 @@
-from gym import Env
-from gym import spaces
+from gym import Env, spaces
+from gym.utils import seeding
 import numpy as np
 
-def categorical_sample(prob_n):
+def categorical_sample(prob_n, np_random):
     """
     Sample from categorical distribution
     Each row specifies class probabilities
     """
     prob_n = np.asarray(prob_n)
     csprob_n = np.cumsum(prob_n)
-    return (csprob_n > np.random.rand()).argmax()
+    return (csprob_n > np_random.rand()).argmax()
 
 
 class DiscreteEnv(Env):
@@ -28,6 +28,8 @@ class DiscreteEnv(Env):
 
     """
     def __init__(self, nS, nA, P, isd):
+        self._seed()
+
         self.action_space = spaces.Discrete(nA)
         self.observation_space = spaces.Discrete(nS)
         self.nA = nA
@@ -35,17 +37,20 @@ class DiscreteEnv(Env):
         self.isd = isd
         self.lastaction=None # for rendering
 
+    def _seed(self, seed=None):
+        self.np_random = seeding.np_random(seed)
+
     @property
     def nS(self):
         return self.observation_space.n
 
     def _reset(self):
-        self.s = categorical_sample(self.isd)
+        self.s = categorical_sample(self.isd, self.np_random)
         return self.s
 
     def _step(self, a):
         transitions = self.P[self.s][a]
-        i = categorical_sample([t[0] for t in transitions])
+        i = categorical_sample([t[0] for t in transitions], self.np_random)
         p, s, r, d= transitions[i]
         self.s = s
         self.lastaction=a

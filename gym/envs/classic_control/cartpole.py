@@ -7,6 +7,7 @@ import logging
 import math
 import gym
 from gym import spaces
+from gym.utils import seeding
 import numpy as np
 
 logger = logging.getLogger(__name__)
@@ -18,6 +19,8 @@ class CartPoleEnv(gym.Env):
     }
 
     def __init__(self):
+        self._seed()
+
         self.gravity = 9.8
         self.masscart = 1.0
         self.masspole = 0.1
@@ -39,6 +42,9 @@ class CartPoleEnv(gym.Env):
         self.observation_space = spaces.Box(-high, high)
 
         self.steps_beyond_done = None
+
+    def _seed(self, seed=None):
+        self.np_random = seeding.np_random(seed)
 
     def _step(self, action):
         action = action
@@ -77,7 +83,7 @@ class CartPoleEnv(gym.Env):
         return np.array(self.state), reward, done, {}
 
     def _reset(self):
-        self.state = np.random.uniform(low=-0.05, high=0.05, size=(4,))
+        self.state = self.np_random.uniform(low=-0.05, high=0.05, size=(4,))
         self.steps_beyond_done = None
         return np.array(self.state)
 

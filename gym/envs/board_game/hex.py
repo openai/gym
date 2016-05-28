@@ -8,13 +8,14 @@ import gym
 from gym import spaces
 import numpy as np
 from gym import error
+from gym.utils import seeding
 
-
-def random_policy(state):
-    possible_moves = HexEnv.get_possible_actions(state)
-    a = np.random.randint(len(possible_moves))
-    return possible_moves[a]
-
+def make_random_policy(np_random):
+    def random_policy(state):
+        possible_moves = HexEnv.get_possible_actions(state)
+        a = np_random.randint(len(possible_moves))
+        return possible_moves[a]
+    return random_policy
 
 class HexEnv(gym.Env):
     """
@@ -33,6 +34,8 @@ class HexEnv(gym.Env):
             illegal_move_mode: What to do when the agent makes an illegal move. Choices: 'raise' or 'lose'
             board_size: size of the Hex board
         """
+        self._seed()
+
         assert isinstance(board_size, int) and board_size >= 1, 'Invalid board size: {}'.format(board_size)
         self.board_size = board_size
 
@@ -48,7 +51,7 @@ class HexEnv(gym.Env):
         self.opponent = opponent
         if isinstance(self.opponent, str):
             if opponent == 'random':
-                self.opponent_policy = random_policy
+                self.opponent_policy = make_random_policy(self.np_random)
             else:
                 raise error.Error('Unrecognized opponent policy {}'.format(self.opponent))
         else:
@@ -68,6 +71,9 @@ class HexEnv(gym.Env):
 
         observation = self.reset()
         self.observation_space = spaces.Box(np.zeros(observation.shape), np.ones(observation.shape))
+
+    def _seed(self, seed=None):
+        self.np_random = seeding.np_random(seed)
 
     def _reset(self):
         self.state = np.zeros((3, self.board_size, self.board_size))

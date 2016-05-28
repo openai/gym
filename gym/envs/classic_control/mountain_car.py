@@ -5,6 +5,7 @@ https://webdocs.cs.ualberta.ca/~sutton/MountainCar/MountainCar1.cp
 import math
 import gym
 from gym import spaces
+from gym.utils import seeding
 import numpy as np
 
 class MountainCarEnv(gym.Env):
@@ -14,6 +15,8 @@ class MountainCarEnv(gym.Env):
     }
 
     def __init__(self):
+        self._seed()
+
         self.reset()
         self.viewer = None
         self.reset()
@@ -28,6 +31,9 @@ class MountainCarEnv(gym.Env):
 
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(self.low, self.high)
+
+    def _seed(self, seed=None):
+        self.np_random = seeding.np_random(seed)
 
     def _step(self, action):
         # action = np.sign((self.state[0]+math.pi/2) * self.state[1])+1
@@ -48,7 +54,7 @@ class MountainCarEnv(gym.Env):
         return np.array(self.state), reward, done, {}
 
     def _reset(self):
-        self.state = np.array([np.random.uniform(low=-0.6, high=-0.4), 0])
+        self.state = np.array([self.np_random.uniform(low=-0.6, high=-0.4), 0])
         return np.array(self.state)
 
     def _height(self, xs):

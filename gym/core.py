@@ -17,10 +17,11 @@ class Env(object):
 
     The main API methods that users of this class need to know are:
 
-        reset
         step
+        reset
         render
         close
+        seed
 
     When implementing an environment, override the following methods
     in your subclass:
@@ -28,6 +29,8 @@ class Env(object):
         _step
         _reset
         _render
+        _close
+        _seed
 
     And set the following attributes:
 
@@ -70,6 +73,7 @@ class Env(object):
         if close:
             return
         raise NotImplementedError
+    def _seed(self, seed=None): pass
 
     @property
     def monitor(self):
@@ -172,7 +176,9 @@ class Env(object):
         Environments will automatically close() themselves when
         garbage collected or when the program exits.
         """
-        if self._closed:
+        # _closed will be missing if this instance is still
+        # initializing.
+        if not hasattr(self, '_closed') or self._closed:
             return
 
         self._close()
@@ -180,6 +186,10 @@ class Env(object):
         # If an error occurs before this line, it's possible to
         # end up with double close.
         self._closed = True
+
+    def seed(self, seed=None):
+        """Sets the seed for this env's random number generator."""
+        self._seed(seed)
 
     def __del__(self):
         self.close()

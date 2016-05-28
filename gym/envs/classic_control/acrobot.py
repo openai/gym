@@ -1,5 +1,6 @@
 """classic Acrobot task"""
 from gym import core, spaces
+from gym.utils import seeding
 import numpy as np
 import time
 
@@ -78,14 +79,19 @@ class AcrobotEnv(core.Env):
     actions_num = 3
 
     def __init__(self):
+        self._seed()
+
         high = np.array([np.pi, np.pi, self.MAX_VEL_1, self.MAX_VEL_2])
         low = -high
         self.observation_space = spaces.Box(low, high)
         self.action_space = spaces.Discrete(3)
         self.viewer = None
 
+    def _seed(self, seed=None):
+        self.np_random = seeding.np_random(seed)
+
     def _reset(self):
-        self.state = np.random.uniform(low=-0.1, high=0.1, size=(4,))
+        self.state = self.np_random.uniform(low=-0.1, high=0.1, size=(4,))
         return self.state
 
     def _step(self, a):
@@ -94,7 +100,7 @@ class AcrobotEnv(core.Env):
 
         # Add noise to the force action
         if self.torque_noise_max > 0:
-            torque += np.random.uniform(-self.torque_noise_max, self.torque_noise_max)
+            torque += self.np_random.uniform(-self.torque_noise_max, self.torque_noise_max)
 
         # Now, augment the state with our force action so it can be passed to
         # _dsdt

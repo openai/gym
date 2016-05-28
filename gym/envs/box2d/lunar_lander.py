@@ -6,6 +6,7 @@ from Box2D.b2 import (edgeShape, circleShape, fixtureDef, polygonShape, revolute
 
 import gym
 from gym import spaces
+from gym.utils import seeding
 
 # Rocket trajectory optimization is a classic topic in Optimal Control.
 #
@@ -76,6 +77,7 @@ class LunarLander(gym.Env):
     }
 
     def __init__(self):
+        self._seed()
         self.viewer = None
 
         high = np.array([np.inf]*8)                               # useful range is -1 .. +1
@@ -89,6 +91,9 @@ class LunarLander(gym.Env):
 
         self.prev_reward = None
         self._reset()
+
+    def _seed(self, seed=None):
+        self.np_random = seeding.np_random(seed)
 
     def _destroy(self):
         if not self.moon: return
@@ -112,7 +117,7 @@ class LunarLander(gym.Env):
 
         # terrain
         CHUNKS = 11
-        height = np.random.uniform(0, H/2, size=(CHUNKS+1,) )
+        height = self.np_random.uniform(0, H/2, size=(CHUNKS+1,) )
         chunk_x  = [W/(CHUNKS-1)*i for i in range(CHUNKS)]
         self.helipad_x1 = chunk_x[CHUNKS//2-1]
         self.helipad_x2 = chunk_x[CHUNKS//2+1]
@@ -153,8 +158,8 @@ class LunarLander(gym.Env):
         self.lander.color1 = (0.5,0.4,0.9)
         self.lander.color2 = (0.3,0.3,0.5)
         self.lander.ApplyForceToCenter( (
-            np.random.uniform(-INITIAL_RANDOM, INITIAL_RANDOM),
-            np.random.uniform(-INITIAL_RANDOM, INITIAL_RANDOM)
+            self.np_random.uniform(-INITIAL_RANDOM, INITIAL_RANDOM),
+            self.np_random.uniform(-INITIAL_RANDOM, INITIAL_RANDOM)
             ), True)
 
         self.legs = []
@@ -222,7 +227,7 @@ class LunarLander(gym.Env):
         # Engines
         tip  = (math.sin(self.lander.angle), math.cos(self.lander.angle))
         side = (-tip[1], tip[0]);
-        dispersion = [np.random.uniform(-1.0, +1.0) / SCALE for _ in range(2)]
+        dispersion = [self.np_random.uniform(-1.0, +1.0) / SCALE for _ in range(2)]
         if action==2: # Main engine
             ox =  tip[0]*(4/SCALE + 2*dispersion[0]) + side[0]*dispersion[1]   # 4 is move a bit downwards, +-2 for randomness
             oy = -tip[1]*(4/SCALE + 2*dispersion[0]) - side[1]*dispersion[1]
@@ -368,4 +373,3 @@ if __name__=="__main__":
 
         env.render()
         if done: break
-

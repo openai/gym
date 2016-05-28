@@ -10,7 +10,7 @@ import weakref
 
 from gym import error, version
 from gym.monitoring import stats_recorder, video_recorder
-from gym.utils import atomic_write, closer
+from gym.utils import atomic_write, closer, seeding
 
 logger = logging.getLogger(__name__)
 
@@ -83,8 +83,9 @@ class Monitor(object):
         self.enabled = False
         self.episode_id = 0
         self._monitor_id = None
+        self.seed = None
 
-    def start(self, directory, video_callable=None, force=False, resume=False):
+    def start(self, directory, video_callable=None, force=False, resume=False, seed=None):
         """Start monitoring.
 
         Args:
@@ -126,7 +127,12 @@ class Monitor(object):
         self.configure(video_callable=video_callable)
         if not os.path.exists(directory):
             os.mkdir(directory)
-        self._monitor_id = monitor_closer.register(self)
+
+        # Some envs don't support more than a uint32, so for now we
+        # limit the monitor to such seeds. If this becomes an issue,
+        # we could use bigger seeds for most environments.
+        self.seed = seeding.uint_32_seed(seed)
+        self.env.seed(self.seed)
 
     def flush(self):
         """Flush all relevant monitor information to disk."""
@@ -146,6 +152,7 @@ class Monitor(object):
                 'videos': [(os.path.basename(v), os.path.basename(m))
                            for v, m in self.videos],
                 'env_info': self._env_info(),
+                'seed': self.seed,
             }, f)
 
     def close(self):
@@ -249,13 +256,12 @@ class Monitor(object):
         return self.video_callable(self.episode_id)
 
     def _env_info(self):
+        env_info = {
+            'gym_version': version.VERSION,
+        }
         if self.env.spec:
-            return {
-                'env_id': self.env.spec.id,
-                'gym_version': version.VERSION,
-            }
-        else:
-            return {}
+            env_info['env_id'] = self.env.spec.id
+        return env_info
 
     def __del__(self):
         # Make sure we've closed up shop when garbage collecting
@@ -274,6 +280,7 @@ def load_results(training_dir):
     # Load up stats + video files
     stats_files = []
     videos = []
+    seeds = []
     env_infos = []
 
     for manifest in manifests:
@@ -284,6 +291,7 @@ def load_results(training_dir):
             videos += [(os.path.join(training_dir, v), os.path.join(training_dir, m))
                        for v, m in contents['videos']]
             env_infos.append(contents['env_info'])
+            seeds.append(contents.get('seed'))
 
     env_info = collapse_env_infos(env_infos, training_dir)
     timestamps, episode_lengths, episode_rewards, initial_reset_timestamp = merge_stats_files(stats_files)
