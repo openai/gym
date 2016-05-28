@@ -306,6 +306,7 @@ def load_results(training_dir):
         'episode_rewards': episode_rewards,
         'initial_reset_timestamp': initial_reset_timestamp,
         'videos': videos,
+        'seeds': seeds,
     }
 
 def merge_stats_files(stats_files):
