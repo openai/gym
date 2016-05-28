@@ -26,7 +26,7 @@ if __name__ == '__main__':
     # will be namespaced). You can also dump to a tempdir if you'd
     # like: tempfile.mkdtemp().
     outdir = '/tmp/random-agent-results'
-    env.monitor.start(outdir, force=True)
+    env.monitor.start(outdir, force=True, seed=0)
 
     episode_count = 100
     max_steps = 200
