@@ -43,7 +43,7 @@ monitor_closer = closer.Closer()
 # This method gets used for a sanity check in scoreboard/api.py. It's
 # not intended for use outside of the gym codebase.
 def _open_monitors():
-    return list(monitor_closer.close_objects.values())
+    return list(monitor_closer.closeables.values())
 
 class Monitor(object):
     """A configurable monitor for your training runs.
