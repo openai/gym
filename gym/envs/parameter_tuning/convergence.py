@@ -98,9 +98,7 @@ class ConvergenceControl(gym.Env):
         
         self.reg.l1.set_value(l1)
         self.reg.l2.set_value(l2)
-        
-        batch_size = 128
-        
+                
         # train model for one epoch_idx
         H = self.model.fit(X, Y,
                       batch_size=int(batch_size),
@@ -128,7 +126,7 @@ class ConvergenceControl(gym.Env):
         else:
             reward = self.best_val
             
-            # as for number of labels increases, learning problem becomes 
+            # as number of labels increases, learning problem becomes 
             # more difficult for fixed dataset size. In order to avoid
             # for the agent to ignore more complex datasets, on which
             # accuracy is low and concentrate on simple cases which bring bulk 
