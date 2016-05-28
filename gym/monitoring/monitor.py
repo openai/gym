@@ -117,6 +117,8 @@ class Monitor(object):
  You should use a unique directory for each training run, or use 'force=True' to automatically clear previous monitor files.'''.format(directory, ', '.join(training_manifests[:5])))
 
 
+        self._monitor_id = monitor_closer.register(self)
+
         self.enabled = True
         self.directory = os.path.abspath(directory)
         # We use the 'openai-gym' prefix to determine if a file is
