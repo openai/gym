@@ -176,9 +176,11 @@ def write_archive(videos, archive_file, env_id=None):
             tar.add(video_path, arcname=video_name, recursive=False)
             tar.add(metadata_path, arcname=metadata_name, recursive=False)
 
-        # Actually write the manifest file
-        with tempfile.NamedTemporaryFile(mode='w+') as f:
+        f = tempfile.NamedTemporaryFile(mode='w+', delete=False)
+        try:
             json.dump(manifest, f)
-            f.flush()
-
+            f.close()
             tar.add(f.name, arcname='manifest.json')
+        finally:
+            f.close()
+            os.remove(f.name) 
