@@ -321,3 +321,30 @@ register(
     id='DoomDeathmatch-v0',
     entry_point='gym.envs.doom:DoomDeathmatchEnv',
 )
+
+# Debugging
+# ----------------------------------------
+
+register(
+    id='OneRoundDeterministicReward-v0',
+    entry_point='gym.envs.debugging:OneRoundDeterministicRewardEnv',
+    local_only=True
+)
+
+register(
+    id='TwoRoundDeterministicReward-v0',
+    entry_point='gym.envs.debugging:TwoRoundDeterministicRewardEnv',
+    local_only=True
+)
+
+register(
+    id='OneRoundNondeterministicReward-v0',
+    entry_point='gym.envs.debugging:OneRoundNondeterministicRewardEnv',
+    local_only=True
+)
+
+register(
+    id='TwoRoundNondeterministicReward-v0',
+    entry_point='gym.envs.debugging:TwoRoundNondeterministicRewardEnv',
+    local_only=True
+)

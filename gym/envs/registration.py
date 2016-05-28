@@ -23,6 +23,7 @@ class EnvSpec(object):
         timestep_limit (int): The max number of timesteps per episode during training
         trials (int): The number of trials to average reward over
         reward_threshold (Optional[int]): The reward threshold before the task is considered solved
+        local_only: True iff the environment is to be used only on the local machine (e.g. debugging envs)
         kwargs (dict): The kwargs to pass to the environment class
 
     Attributes:
@@ -31,7 +32,7 @@ class EnvSpec(object):
         trials (int): The number of trials run in official evaluation
     """
 
-    def __init__(self, id, entry_point=None, timestep_limit=1000, trials=100, reward_threshold=None, kwargs=None):
+    def __init__(self, id, entry_point=None, timestep_limit=1000, trials=100, reward_threshold=None, local_only=False, kwargs=None):
         self.id = id
         # Evaluation parameters
         self.timestep_limit = timestep_limit
@@ -45,6 +46,7 @@ class EnvSpec(object):
             raise error.Error('Attempted to register malformed environment ID: {}. (Currently all IDs must be of the form {}.)'.format(id, env_id_re.pattern))
         self._env_name = match.group(1)
         self._entry_point = entry_point
+        self._local_only = local_only
         self._kwargs = {} if kwargs is None else kwargs
 
     def make(self):

@@ -63,6 +63,12 @@ add_group(
     description='Doom environments based on VizDoom.'
 )
 
+add_group(
+    id='debugging',
+    name='Debugging',
+    description='Simple environments for developers to debug their agents.'
+)
+
 # classic control
 
 add_task(
