@@ -47,7 +47,7 @@ class AtariEnv(gym.Env, utils.EzPickle):
         # 2**31.
         seed2 = seeding.hash_seed(seed1 + 1) % 2**31
         # Empirically, we need to seed before loading the ROM.
-        self.ale.setInt('random_seed', seed2)
+        self.ale.setInt(b'random_seed', seed2)
         self.ale.loadROM(self.game_path)
         self._action_set = self.ale.getMinimalActionSet()
 
