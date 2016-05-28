@@ -30,17 +30,14 @@ class NChainEnv(gym.Env):
         self._seed()
 
     def _seed(self, seed=None):
-        self.random, seed1 = seeding.random(seed)
-        np_random, seed2 = seeding.np_random(self.random.randrange(2**128))
-
-        self.action_space = spaces.Discrete(2, np_random=np_random)
-        self.observation_space = spaces.Discrete(self.n, np_random=np_random)
-
-        return [seed1, seed2]
+        self.np_random, seed = seeding.np_random(seed)
+        self.action_space = spaces.Discrete(2, np_random=self.np_random)
+        self.observation_space = spaces.Discrete(self.n, np_random=self.np_random)
+        return [seed]
 
     def _step(self, action):
         assert(self.action_space.contains(action))
-        if self.random.random() < self.slip:
+        if self.np_random.random() < self.slip:
             action = not action  # agent slipped, reverse action taken
         if action:  # 'backwards': go back to the beginning, get small reward
             reward = self.small

@@ -20,7 +20,7 @@ class ReverseEnv(algorithmic_env.AlgorithmicEnv):
         self.content = {}
         self.target = {}
         for i in range(self.total_len):
-            val = self.random.randrange(self.base)
+            val = self.np_random.randint(self.base)
             self.content[ha(np.array([i]))] = val
             self.target[self.total_len - i - 1] = val
         self.total_reward = self.total_len + 0.9

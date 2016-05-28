@@ -16,7 +16,7 @@ class CopyEnv(algorithmic_env.AlgorithmicEnv):
         self.content = {}
         self.target = {}
         for i in range(self.total_len):
-            val = self.random.randrange(self.base)
+            val = self.np_random.randint(self.base)
             self.content[ha(np.array([i]))] = val
             self.target[i] = val
         self.total_reward = self.total_len

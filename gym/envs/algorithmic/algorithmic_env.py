@@ -32,12 +32,11 @@ class AlgorithmicEnv(Env):
         self.reset()
 
     def _seed(self, seed=None):
-        self.random, seed1 = seeding.random(seed)
-        np_random, seed2 = seeding.np_random(self.random.randrange(2**128))
+        self.np_random, seed = seeding.np_random(seed)
 
-        self.action_space = Tuple(([Discrete(2 * self.inp_dim), Discrete(2), Discrete(self.base)]), np_random=np_random)
-        self.observation_space = Discrete(self.base + 1, np_random=np_random)
-        return [seed1, seed2]
+        self.action_space = Tuple(([Discrete(2 * self.inp_dim), Discrete(2), Discrete(self.base)]), np_random=self.np_random)
+        self.observation_space = Discrete(self.base + 1, np_random=self.np_random)
+        return [seed]
 
     def _get_obs(self, pos=None):
         if pos is None:
@@ -206,6 +205,6 @@ class AlgorithmicEnv(Env):
             AlgorithmicEnv.sum_rewards = []
         self.sum_reward = 0.0
         self.time = 0
-        self.total_len = self.random.randrange(3) + AlgorithmicEnv.current_length
+        self.total_len = self.np_random.randint(3) + AlgorithmicEnv.current_length
         self.set_data()
         return self._get_obs()

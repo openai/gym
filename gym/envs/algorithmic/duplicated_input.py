@@ -19,7 +19,7 @@ class DuplicatedInputEnv(algorithmic_env.AlgorithmicEnv):
         self.target = {}
         copies = int(self.total_len / self.duplication)
         for i in range(copies):
-            val = self.random.randrange(self.base)
+            val = self.np_random.randint(self.base)
             self.target[i] = val
             for d in range(self.duplication):
                 self.content[ha(np.array([i * self.duplication + d]))] = val

@@ -16,7 +16,7 @@ class ReversedAdditionEnv(algorithmic_env.AlgorithmicEnv):
         for i in range(self.total_len):
             vals = []
             for k in range(self.rows):
-                val = self.random.randrange(self.base)
+                val = self.np_random.randint(self.base)
                 self.content[ha(np.array([i, k]))] = val
                 vals.append(val)
             total = sum(vals) + curry
