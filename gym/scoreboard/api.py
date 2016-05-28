@@ -178,7 +178,7 @@ def write_archive(videos, archive_file, env_id=None):
 
         # Actually write the manifest file
         # 'delete = False' avoids deleting the file when closing
-        with tempfile.NamedTemporaryFile(mode='w+', delete = False) as f:
+        with tempfile.NamedTemporaryFile(mode='w+', delete=False) as f:
             json.dump(manifest, f)
             f.flush()
             # Closing the file is necessary before adding to tar in Windows
