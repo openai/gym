@@ -177,8 +177,13 @@ def write_archive(videos, archive_file, env_id=None):
             tar.add(metadata_path, arcname=metadata_name, recursive=False)
 
         # Actually write the manifest file
-        with tempfile.NamedTemporaryFile(mode='w+') as f:
+        # 'delete = False' avoids deleting the file when closing
+        with tempfile.NamedTemporaryFile(mode='w+', delete = False) as f:
             json.dump(manifest, f)
             f.flush()
-
+            # Closing the file is necessary before adding to tar in Windows
+            f.close()
+            
             tar.add(f.name, arcname='manifest.json')
+            # Manually delete temporary file
+            os.remove(f.name)
