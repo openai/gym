@@ -5,10 +5,13 @@ class Discrete(Space):
     """
     {0,1,...,n-1}
     """
-    def __init__(self, n):
+    def __init__(self, n, np_random=None):
+        if np_random is None:
+            np_random = np.random
+        self.np_random = np_random
         self.n = n
     def sample(self):
-        return np.random.randint(self.n)
+        return self.np_random.randint(self.n)
     def contains(self, x):
         if isinstance(x, int):
             as_int = x
