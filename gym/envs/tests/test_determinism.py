@@ -44,10 +44,7 @@ def test_env(spec):
     if env1.metadata.get('seed.nondetermistic'):
         return
 
-    try:
-        assert np.array_equal(initial_observation1, initial_observation2), 'initial_observation1: {}, initial_observation2: {}'.format(initial_observation1, initial_observation2)
-    except:
-        import pdb;pdb.set_trace()
+    assert np.array_equal(initial_observation1, initial_observation2), 'initial_observation1: {}, initial_observation2: {}'.format(initial_observation1, initial_observation2)
 
     for i, ((o1, r1, d1, i1), (o2, r2, d2, i2)) in enumerate(zip(step_responses1, step_responses2)):
         assert_equals(o1, o2, '[{}] '.format(i))
@@ -70,9 +67,6 @@ def assert_equals(a, b, prefix=None):
             v_b = b[k]
             assert_equals(v_a, v_b)
     elif isinstance(a, np.ndarray):
-        try:
-            np.testing.assert_array_equal(a, b)
-        except AssertionError:
-            import pdb;pdb.set_trace()
+        np.testing.assert_array_equal(a, b)
     else:
         assert a == b
