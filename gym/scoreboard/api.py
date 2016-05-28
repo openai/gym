@@ -178,9 +178,9 @@ def write_archive(videos, archive_file, env_id=None):
 
         f = tempfile.NamedTemporaryFile(mode='w+', delete=False)
         try:
-          json.dump(manifest, f)
-          f.close()
-          tar.add(f.name, arcname='manifest.json')
+            json.dump(manifest, f)
+            f.close()
+            tar.add(f.name, arcname='manifest.json')
         finally:
-          f.close()
-          os.remove(f.name) 
+            f.close()
+            os.remove(f.name) 
