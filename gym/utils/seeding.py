@@ -54,8 +54,8 @@ def _seed(a=None):
 def _bigint_from_bytes(bytes):
     sizeof_int = 4
     padding = sizeof_int - len(bytes) % sizeof_int
-    bytes += '\0' * padding
-    int_count = len(bytes) / sizeof_int
+    bytes += b'\0' * padding
+    int_count = int(len(bytes) / sizeof_int)
     unpacked = struct.unpack("{}I".format(int_count), bytes)
     accum = 0
     for i, val in enumerate(unpacked):
