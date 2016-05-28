@@ -35,7 +35,7 @@ def hash_seed(seed):
     is likely not crypto-strength, but it should be good enough to get
     rid of simple correlations.)
     """
-    hash = hashlib.sha512(str(seed)).digest()
+    hash = hashlib.sha512(str(seed).encode('utf8')).digest()
     return _bigint_from_bytes(hash)
 
 def _seed(a=None):
