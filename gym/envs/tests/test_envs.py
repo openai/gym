@@ -27,6 +27,11 @@ def test_env(spec):
         logger.warn("Skipping tests for box2d env {}".format(spec._entry_point))
         return
 
+    # Skip ConvergenceControl tests (the only env in parameter_tuning) according to pull #104
+    if spec._entry_point.startswith('gym.envs.parameter_tuning:'):
+        logger.warn("Skipping tests for parameter_tuning env {}".format(spec._entry_point))
+        return
+
     env = spec.make()
     ob_space = env.observation_space
     act_space = env.action_space
