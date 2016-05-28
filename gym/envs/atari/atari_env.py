@@ -31,22 +31,25 @@ class AtariEnv(gym.Env, utils.EzPickle):
     def __init__(self, game='pong', obs_type='ram'):
         utils.EzPickle.__init__(self, game, obs_type)
         assert obs_type in ('ram', 'image')
-        game_path = atari_py.get_game_path(game)
-        if not os.path.exists(game_path):
-            raise IOError('You asked for game %s but path %s does not exist'%(game, game_path))
-        self.ale = atari_py.ALEInterface()
-        self.ale.loadROM(game_path)
+        self.game_path = atari_py.get_game_path(game)
+        if not os.path.exists(self.game_path):
+            raise IOError('You asked for game %s but path %s does not exist'%(game, self.game_path))
         self._obs_type = obs_type
-        self._action_set = self.ale.getMinimalActionSet()
+        self.ale = atari_py.ALEInterface()
         self.viewer = None
 
         self._seed()
 
     def _seed(self, seed=None):
         self.np_random, seed1 = seeding.np_random(seed)
-        # Derive a random seed.
-        seed2 = seeding.hash_seed(seed1 + 1) % 2**32
+        # Derive a random seed. This gets passed as a uint, but gets
+        # checked as an int elsewhere, so we need to keep it below
+        # 2**31.
+        seed2 = seeding.hash_seed(seed1 + 1) % 2**31
+        # Empirically, we need to seed before loading the ROM.
         self.ale.setInt('random_seed', seed2)
+        self.ale.loadROM(self.game_path)
+        self._action_set = self.ale.getMinimalActionSet()
 
         self.action_space = spaces.Discrete(len(self._action_set), np_random=self.np_random)
 
