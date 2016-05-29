@@ -16,7 +16,7 @@ from gym import error
 #     return rng, seed
 
 def np_random(seed=None):
-    if seed is not None and not (isinstance(seed, int) and 0 <= seed):
+    if seed is not None and not ((isinstance(seed, int) or isinstance(seed, long)) and 0 <= seed):
         raise error.Error('Seed must be a non-negative integer or omitted, not {}'.format(seed))
 
     seed = _seed(seed)
