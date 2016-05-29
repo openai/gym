@@ -46,7 +46,7 @@ def test_env(spec):
 
     # Don't check rollout equality if it's a a nondetermistic
     # environment.
-    if env1.metadata.get('seed.nondetermistic'):
+    if spec.nondetermistic:
         return
 
     assert np.array_equal(initial_observation1, initial_observation2), 'initial_observation1: {}, initial_observation2: {}'.format(initial_observation1, initial_observation2)

@@ -228,11 +228,21 @@ for game in ['air_raid', 'alien', 'amidar', 'assault', 'asterix', 'asteroids', '
         name = ''.join([g.capitalize() for g in game.split('_')])
         if obs_type == 'ram':
             name = '{}-ram'.format(name)
+
+        nondeterministic = False
+        if game == 'elevator_action' and obs_type == 'ram':
+            # ElevatorAction-ram-v0 seems to yield slightly
+            # non-deterministic observations about 10% of the time. We
+            # should track this down eventually, but for now we just
+            # mark it as nondetermistic.
+            nondeterministic = True
+
         register(
             id='{}-v0'.format(name),
             entry_point='gym.envs.atari:AtariEnv',
             kwargs={'game': game, 'obs_type': obs_type},
             timestep_limit=10000,
+            nondeterministic=nondeterministic,
         )
 
 # Board games
@@ -248,6 +258,11 @@ register(
         'illegal_move_mode': 'lose',
         'board_size': 9,
     },
+    # The pachi player seems not to be determistic given a fixed seed.
+    # (Reproduce by running 'import gym; h = gym.make('Go9x9-v0'); h.seed(1); h.reset(); h.step(15); h.step(16); h.step(17)' a few times.)
+    #
+    # This is probably due to a computation time limit.
+    nondetermistic=True,
 )
 
 register(
@@ -260,6 +275,7 @@ register(
         'illegal_move_mode': 'lose',
         'board_size': 19,
     },
+    nondetermistic=True,
 )
 
 register(

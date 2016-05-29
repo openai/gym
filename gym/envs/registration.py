@@ -24,6 +24,7 @@ class EnvSpec(object):
         trials (int): The number of trials to average reward over
         reward_threshold (Optional[int]): The reward threshold before the task is considered solved
         kwargs (dict): The kwargs to pass to the environment class
+        nondeterministic (bool): Whether this environment is non-deterministic even after seeding
 
     Attributes:
         id (str): The official environment ID
@@ -31,7 +32,7 @@ class EnvSpec(object):
         trials (int): The number of trials run in official evaluation
     """
 
-    def __init__(self, id, entry_point=None, timestep_limit=1000, trials=100, reward_threshold=None, kwargs=None):
+    def __init__(self, id, entry_point=None, timestep_limit=1000, trials=100, reward_threshold=None, kwargs=None, nondeterministic=False):
         self.id = id
         # Evaluation parameters
         self.timestep_limit = timestep_limit
@@ -46,6 +47,7 @@ class EnvSpec(object):
         self._env_name = match.group(1)
         self._entry_point = entry_point
         self._kwargs = {} if kwargs is None else kwargs
+        self._nondeterministic = nondeterministic
 
     def make(self):
         """Instantiates an instance of the environment with appropriate kwargs"""

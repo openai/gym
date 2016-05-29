@@ -55,7 +55,7 @@ class Env(object):
         return env
 
     # Set this in SOME subclasses
-    metadata = {'render.modes': [], 'seed.nondetermistic': False}
+    metadata = {'render.modes': []}
     reward_range = (-np.inf, np.inf)
 
     # Override in SOME subclasses
@@ -194,9 +194,6 @@ class Env(object):
             Some environments use multiple pseudorandom number generators.
             We want to capture all such seeds used in order to ensure that
             there aren't accidental correlations between multiple generators.
-
-            Set 'seed.nondeterministic' in metadata if the seed is not
-            enough to make this environment fully deterministic.
 
         Returns:
             list<bigint>: Returns the list of seeds used in this env's random

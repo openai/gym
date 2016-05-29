@@ -32,14 +32,6 @@ class AtariEnv(gym.Env, utils.EzPickle):
         utils.EzPickle.__init__(self, game, obs_type)
         assert obs_type in ('ram', 'image')
 
-        if game == 'elevator_action' and obs_type == 'ram':
-            # ElevatorAction-ram-v0 seems to yield slightly
-            # non-deterministic observations about 10% of the time. We
-            # should track this down eventually, but for now we just
-            # mark it as nondetermistic.
-            self.metadata = dict(self.metadata)
-            self.metadata['seed.nondetermistic'] = True
-
         self.game_path = atari_py.get_game_path(game)
         if not os.path.exists(self.game_path):
             raise IOError('You asked for game %s but path %s does not exist'%(game, self.game_path))

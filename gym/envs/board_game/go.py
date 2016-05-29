@@ -122,11 +122,7 @@ class GoEnv(gym.Env):
     '''
     Go environment. Play against a fixed opponent.
     '''
-    # The pachi player seems not to be determistic given a fixed seed.
-    # (Reproduce by running 'import gym; h = gym.make('Go9x9-v0'); h.seed(1); h.reset(); h.step(15); h.step(16); h.step(17)' a few times.)
-    #
-    # It seems likely there's a time limit.
-    metadata = {"render.modes": ["human", "ansi"], "seed.nondetermistic": True}
+    metadata = {"render.modes": ["human", "ansi"]}
 
     def __init__(self, player_color, opponent, observation_type, illegal_move_mode, board_size):
         """
