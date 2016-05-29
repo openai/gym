@@ -32,8 +32,8 @@ before_install:
   - '[ -z ${MUJOCO_KEY_BUNDLE+x} ] || ( curl https://openai-public.s3-us-west-2.amazonaws.com/mujoco/$MUJOCO_KEY_BUNDLE.tar.gz | tar xz -C ~/.mujoco )'
   - sysctl vm.overcommit_memory
   - sysctl vm.overcommit_ratio
-  - sysctl -w vm.overcommit_memory 1
-  - sysctl -w vm.overcommit_ratio 1024
+  - sudo sysctl -w vm.overcommit_memory=1
+  - sudo sysctl -w vm.overcommit_ratio=1024
 env:
   - DISPLAY=:12
 install: pip install tox-travis
