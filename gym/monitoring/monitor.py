@@ -165,9 +165,9 @@ class Monitor(object):
         if not self.enabled:
             return
         self.stats_recorder.close()
-        self.flush()
         if self.video_recorder is not None:
             self._close_video_recorder()
+        self.flush()
 
         # Note we'll close the env's rendering window even if we did
         # not open it. There isn't a particular great way to know if
