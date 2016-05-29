@@ -30,10 +30,12 @@ before_install:
     # In a pull request, there are no secrets, and hence no MuJoCo:
     # https://docs.travis-ci.com/user/pull-requests#Security-Restrictions-when-testing-Pull-Requests.
   - '[ -z ${MUJOCO_KEY_BUNDLE+x} ] || ( curl https://openai-public.s3-us-west-2.amazonaws.com/mujoco/$MUJOCO_KEY_BUNDLE.tar.gz | tar xz -C ~/.mujoco )'
+  - df -h
   - free -m
   - sudo dd if=/dev/zero of=/tmp/swapfile bs=1024 count=1024k
   - sudo mkswap /tmp/swapfile
   - sudo swapon /tmp/swapfile
+  - free -m
 env:
   - DISPLAY=:12
 install: pip install tox-travis
