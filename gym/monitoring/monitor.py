@@ -38,6 +38,9 @@ def capped_cubic_video_schedule(episode_id):
     else:
         return episode_id % 1000 == 0
 
+def disable_videos(episode_id):
+    return False
+
 monitor_closer = closer.Closer()
 
 # This method gets used for a sanity check in scoreboard/api.py. It's
@@ -90,7 +93,7 @@ class Monitor(object):
 
         Args:
             directory (str): A per-training run directory where to record stats.
-            video_callable (Optional[function]): function that takes in the index of the episode and outputs a boolean, indicating whether we should record a video on this episode. The default (for video_callable is None) is to take perfect cubes.
+            video_callable (Optional[function, False]): function that takes in the index of the episode and outputs a boolean, indicating whether we should record a video on this episode. The default (for video_callable is None) is to take perfect cubes, capped at 1000. False disables video recording.
             force (bool): Clear out existing training data from this directory (by deleting every file prefixed with "openaigym.").
             resume (bool): Retain the training data already in this directory, which will be merged with our new data
             seed (Optional[int]): The seed to run this environment with. By default, a random seed will be chosen.
@@ -104,6 +107,8 @@ class Monitor(object):
 
         if video_callable is None:
             video_callable = capped_cubic_video_schedule
+        elif video_callable == False:
+            video_callable = disable_videos
         elif not callable(video_callable):
             raise error.Error('You must provide a function, None, or False for video_callable, not {}: {}'.format(type(video_callable), video_callable))
 
@@ -160,9 +165,9 @@ class Monitor(object):
         if not self.enabled:
             return
         self.stats_recorder.close()
-        self.flush()
         if self.video_recorder is not None:
             self._close_video_recorder()
+        self.flush()
 
         # Note we'll close the env's rendering window even if we did
         # not open it. There isn't a particular great way to know if
