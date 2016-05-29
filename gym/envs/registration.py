@@ -38,6 +38,8 @@ class EnvSpec(object):
         self.timestep_limit = timestep_limit
         self.trials = trials
         self.reward_threshold = reward_threshold
+        # Environment properties
+        self.nondeterministic = nondeterministic
 
         # We may make some of these other parameters public if they're
         # useful.
@@ -47,7 +49,6 @@ class EnvSpec(object):
         self._env_name = match.group(1)
         self._entry_point = entry_point
         self._kwargs = {} if kwargs is None else kwargs
-        self._nondeterministic = nondeterministic
 
     def make(self):
         """Instantiates an instance of the environment with appropriate kwargs"""
