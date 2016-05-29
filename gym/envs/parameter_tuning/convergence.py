@@ -181,7 +181,7 @@ class ConvergenceControl(gym.Env):
         
         # not using full dataset to make regularization more important and 
         # speed up testing a little bit
-        data_size = int( 2000 * (1-r) + 20000 * r )
+        data_size = int( 2000 * (1-r) + 40000 * r )
         
         # I do not use test data for validation, but last 10000 instances in dataset 
         # so that trained models can be compared to results in literature
