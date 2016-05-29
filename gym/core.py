@@ -205,10 +205,7 @@ class Env(object):
               'seed'. Often, the main seed equals the provided 'seed', but
               this won't be true if seed=None, for example.
         """
-        seeds = self._seed(seed)
-        if len(seeds) == 0:
-            raise error.Error("Implementation bug detected: {}'s 'seed' method returned {}, but 'seed' must return at least one element.".format(self, seeds))
-        return seeds
+        return self._seed(seed)
 
     def __del__(self):
         self.close()

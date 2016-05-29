@@ -83,7 +83,7 @@ class Monitor(object):
         self.enabled = False
         self.episode_id = 0
         self._monitor_id = None
-        self.seed = None
+        self.seeds = None
 
     def start(self, directory, video_callable=None, force=False, resume=False, seed=None):
         """Start monitoring.
@@ -130,7 +130,7 @@ class Monitor(object):
         if not os.path.exists(directory):
             os.mkdir(directory)
 
-        seeds = self.env.seed(self.seed)
+        seeds = self.env.seed(seed)
         self.seeds = seeds
 
     def flush(self):
@@ -291,9 +291,13 @@ def load_results(training_dir):
             videos += [(os.path.join(training_dir, v), os.path.join(training_dir, m))
                        for v, m in contents['videos']]
             env_infos.append(contents['env_info'])
-            manifest_seeds = contents.get('seeds', [None])
-            seeds += manifest_seeds
-            main_seeds.append(manifest_seeds[0])
+            current_seeds = contents.get('seeds', [])
+            seeds += current_seeds
+            if current_seeds:
+                main_seeds.append(current_seeds[0])
+            else:
+                # current_seeds could be None or []
+                main_seeds.append(None)
 
     env_info = collapse_env_infos(env_infos, training_dir)
     timestamps, episode_lengths, episode_rewards, initial_reset_timestamp = merge_stats_files(stats_files)

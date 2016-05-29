@@ -25,7 +25,7 @@ def np_random(seed=None):
     rng.seed(_int_list_from_bigint(hash_seed(seed)))
     return rng, seed
 
-def hash_seed(seed):
+def hash_seed(seed, max_bytes=8):
     """Any given evaluation is likely to have many PRNG's active at
     once. (Most commonly, because the environment is running in
     multiple processes.) There's literature indicating that having
@@ -41,10 +41,9 @@ def hash_seed(seed):
     rid of simple correlations.)
     """
     hash = hashlib.sha512(str(seed).encode('utf8')).digest()
-    return _bigint_from_bytes(hash)
+    return _bigint_from_bytes(hash[:max_bytes])
 
-def _seed(a=None):
-
+def _seed(a=None, max_bytes=8):
     """Create a strong random seed. Otherwise, Python 2 would seed using
     the system time, which might be non-robust especially in the
     presence of concurrency.
@@ -54,12 +53,15 @@ def _seed(a=None):
     """
     # Adapted from https://svn.python.org/projects/python/tags/r32/Lib/random.py
     if a is None:
-        a = _bigint_from_bytes(os.urandom(32))
-
-    if isinstance(a, str):
+        a = _bigint_from_bytes(os.urandom(max_bytes))
+    elif isinstance(a, str):
         a = a.encode('utf8')
         a += hashlib.sha512(a).digest()
-        a = _bigint_from_bytes(a)
+        a = _bigint_from_bytes(a[:max_bytes])
+    elif isinstance(a, int) or isinstance(a, long):
+        a = a % 2**(8 * max_bytes)
+    else:
+        raise error.Error('Invalid type for seed: {} ({})'.format(type(a), a))
 
     return a
 
