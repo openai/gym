@@ -89,6 +89,8 @@ def upload_training_data(training_dir, api_key=None):
     timestamps = results['timestamps']
     episode_lengths = results['episode_lengths']
     episode_rewards = results['episode_rewards']
+    main_seeds = results['main_seeds']
+    seeds = results['seeds']
     videos = results['videos']
 
     env_id = env_info['env_id']
@@ -96,7 +98,7 @@ def upload_training_data(training_dir, api_key=None):
 
     # Do the relevant uploads
     if len(episode_lengths) > 0:
-        training_episode_batch = upload_training_episode_batch(episode_lengths, episode_rewards, timestamps, api_key, env_id=env_id)
+        training_episode_batch = upload_training_episode_batch(episode_lengths, episode_rewards, timestamps, main_seeds, seeds, api_key, env_id=env_id)
     else:
         training_episode_batch = None
 
@@ -112,13 +114,15 @@ def upload_training_data(training_dir, api_key=None):
 
     return env_info, training_episode_batch, training_video
 
-def upload_training_episode_batch(episode_lengths, episode_rewards, timestamps, api_key=None, env_id=None):
+def upload_training_episode_batch(episode_lengths, episode_rewards, timestamps, main_seeds, seeds, api_key=None, env_id=None):
     logger.info('[%s] Uploading %d episodes of training data', env_id, len(episode_lengths))
     file_upload = resource.FileUpload.create(purpose='episode_batch', api_key=api_key)
     file_upload.put({
         'episode_lengths': episode_lengths,
         'episode_rewards': episode_rewards,
         'timestamps': timestamps,
+        'main_seeds': main_seeds,
+        'seeds': seeds,
     })
     return file_upload
 

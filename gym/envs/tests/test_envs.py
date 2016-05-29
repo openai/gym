@@ -15,7 +15,7 @@ specs = [spec for spec in envs.registry.all() if spec._entry_point is not None]
 @tools.params(*specs)
 def test_env(spec):
     # Skip mujoco tests for pull request CI
-    skip_mujoco = not os.environ.get('MUJOCO_KEY_BUNDLE')
+    skip_mujoco = not (os.environ.get('MUJOCO_KEY_BUNDLE') or os.path.exists(os.path.expanduser('~/.mujoco')))
     if skip_mujoco and spec._entry_point.startswith('gym.envs.mujoco:'):
         return
 

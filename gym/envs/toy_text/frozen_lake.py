@@ -111,7 +111,7 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
                             rew = float(newletter == b'G')
                             li.append((1.0, newstate, rew, done))
 
-        super(FrozenLakeEnv, self).__init__(nrow * ncol, 4, P, isd)
+        super(FrozenLakeEnv, self).__init__(nS, nA, P, isd)
 
     def _render(self, mode='human', close=False):
         if close:

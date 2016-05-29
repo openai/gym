@@ -19,14 +19,18 @@ if __name__ == '__main__':
     logger.setLevel(logging.INFO)
 
     env = gym.make('CartPole-v0' if len(sys.argv)<2 else sys.argv[1])
-    agent = RandomAgent(env.action_space)
 
     # You provide the directory to write to (can be an existing
     # directory, including one with existing data -- all monitor files
     # will be namespaced). You can also dump to a tempdir if you'd
     # like: tempfile.mkdtemp().
     outdir = '/tmp/random-agent-results'
-    env.monitor.start(outdir, force=True)
+    env.monitor.start(outdir, force=True, seed=0)
+
+    # This declaration must go *after* the monitor call, since the
+    # monitor's seeding creates a new action_space instance with the
+    # appropriate pseudorandom number generator.
+    agent = RandomAgent(env.action_space)
 
     episode_count = 100
     max_steps = 200

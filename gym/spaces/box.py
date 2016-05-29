@@ -6,12 +6,15 @@ class Box(Space):
     A box in R^n.
     I.e., each coordinate is bounded.
     """
-    def __init__(self, low, high, shape=None):
+    def __init__(self, low, high, shape=None, np_random=None):
         """
         Two kinds of valid input:
             Box(-1.0, 1.0, (3,4)) # low and high are scalars, and shape is provided
             Box(np.array([-1.0,-2.0]), np.array([2.0,4.0])) # low and high are arrays of the same shape
         """
+        if np_random is None:
+            np_random = np.random
+        self.np_random = np_random
         if shape is None:
             assert low.shape == high.shape
             self.low = low
@@ -21,7 +24,7 @@ class Box(Space):
             self.low = low + np.zeros(shape)
             self.high = high + np.zeros(shape)
     def sample(self):
-        return np.random.uniform(low=self.low, high=self.high, size=self.low.shape)
+        return self.np_random.uniform(low=self.low, high=self.high, size=self.low.shape)
     def contains(self, x):
         return x.shape == self.shape and (x >= self.low).all() and (x <= self.high).all()
 

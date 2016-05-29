@@ -48,8 +48,8 @@ class TaxiEnv(discrete.DiscreteEnv):
             for col in range(5):
                 for passidx in range(5):
                     for destidx in range(4):
-                        if passidx < 4 and passidx != destidx: 
-                            isd[state] += 1                        
+                        if passidx < 4 and passidx != destidx:
+                            isd[state] += 1
                         for a in range(nA):
                             state = self.encode(row, col, passidx, destidx)
                             # defaults
@@ -83,9 +83,6 @@ class TaxiEnv(discrete.DiscreteEnv):
                             P[state][a].append((1.0, newstate, reward, done))
         isd /= isd.sum()
         discrete.DiscreteEnv.__init__(self, nS, nA, P, isd)
-
-        self.observation_space = spaces.Discrete(500)
-        self.action_space = spaces.Discrete(6)
 
     def encode(self, taxirow, taxicol, passloc, destidx):
         # (5) 5, 5, 4
