@@ -251,3 +251,10 @@ We are using `nose2 <https://github.com/nose-devs/nose2>`_ for tests. You can ru
 	  nose2
 
 You can also run tests in a specific directory by using the ``-s`` option, or by passing in the specific name of the test. See the `nose2 docs <http://nose2.readthedocs.org/en/latest/usage.html#naming-tests>`_ for more details.
+
+What's new
+----------
+
+- 2016-05-28: For controlled reproducibility, envs now support seeding
+  (cf #91 and #135). The monitor records which seeds are used. We will
+  soon add seed information to the display on the scoreboard.
