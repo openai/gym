@@ -234,7 +234,7 @@ for game in ['air_raid', 'alien', 'amidar', 'assault', 'asterix', 'asteroids', '
             # ElevatorAction-ram-v0 seems to yield slightly
             # non-deterministic observations about 10% of the time. We
             # should track this down eventually, but for now we just
-            # mark it as nondetermistic.
+            # mark it as nondeterministic.
             nondeterministic = True
 
         register(
@@ -262,7 +262,7 @@ register(
     # (Reproduce by running 'import gym; h = gym.make('Go9x9-v0'); h.seed(1); h.reset(); h.step(15); h.step(16); h.step(17)' a few times.)
     #
     # This is probably due to a computation time limit.
-    nondetermistic=True,
+    nondeterministic=True,
 )
 
 register(
@@ -275,7 +275,7 @@ register(
         'illegal_move_mode': 'lose',
         'board_size': 19,
     },
-    nondetermistic=True,
+    nondeterministic=True,
 )
 
 register(
