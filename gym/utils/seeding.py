@@ -3,8 +3,14 @@ import numpy as np
 import os
 import random as _random
 import struct
+import sys
 
 from gym import error
+
+if sys.version_info < (3,):
+    integer_types = (int, long)
+else:
+    integer_types = (int,)
 
 # Fortunately not needed right now!
 #
@@ -16,7 +22,7 @@ from gym import error
 #     return rng, seed
 
 def np_random(seed=None):
-    if seed is not None and not ((isinstance(seed, int) or isinstance(seed, long)) and 0 <= seed):
+    if seed is not None and not (isinstance(seed, integer_types) and 0 <= seed):
         raise error.Error('Seed must be a non-negative integer or omitted, not {}'.format(seed))
 
     seed = _seed(seed)
@@ -58,7 +64,7 @@ def _seed(a=None, max_bytes=8):
         a = a.encode('utf8')
         a += hashlib.sha512(a).digest()
         a = _bigint_from_bytes(a[:max_bytes])
-    elif isinstance(a, int) or isinstance(a, long):
+    elif isinstance(a, integer_types):
         a = a % 2**(8 * max_bytes)
     else:
         raise error.Error('Invalid type for seed: {} ({})'.format(type(a), a))
