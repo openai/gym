@@ -44,9 +44,9 @@ def test_env(spec):
         # Allows for NaNs
         np.testing.assert_array_equal(observation_sample1, observation_sample2)
 
-    # Don't check rollout equality if it's a a nondetermistic
+    # Don't check rollout equality if it's a a nondeterministic
     # environment.
-    if spec.nondetermistic:
+    if spec.nondeterministic:
         return
 
     assert np.array_equal(initial_observation1, initial_observation2), 'initial_observation1: {}, initial_observation2: {}'.format(initial_observation1, initial_observation2)
