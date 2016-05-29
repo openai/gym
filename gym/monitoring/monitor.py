@@ -93,6 +93,7 @@ class Monitor(object):
             video_callable (Optional[function]): function that takes in the index of the episode and outputs a boolean, indicating whether we should record a video on this episode. The default (for video_callable is None) is to take perfect cubes.
             force (bool): Clear out existing training data from this directory (by deleting every file prefixed with "openaigym.").
             resume (bool): Retain the training data already in this directory, which will be merged with our new data
+            seed (Optional[int]): The seed to run this environment with. By default, a random seed will be chosen.
         """
         if self.env.spec is None:
             logger.warn("Trying to monitor an environment which has no 'spec' set. This usually means you did not create it via 'gym.make', and is recommended only for advanced users.")
