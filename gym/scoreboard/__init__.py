@@ -234,6 +234,7 @@ add_task(
     id='LunarLander-v2',
     group='box2d',
     experimental=True,
+    summary='Navigate a lander to its landing pad.',
     description="""
 Landing pad is always at coordinates (0,0). Coordinates are the first two numbers in state vector.
 Reward for moving from the top of the screen to landing pad and zero speed is about 100..140 points.
@@ -248,6 +249,7 @@ add_task(
     id='BipedalWalker-v2',
     group='box2d',
     experimental=True,
+    summary='Train a bipedal robot to walk.',
     description="""
 Reward is given for moving forward, total 300+ points up to the far end. If the robot falls,
 it gets -100. Applying motor torque costs a small amount of points, more optimal agent
@@ -262,6 +264,7 @@ add_task(
     id='BipedalWalkerHardcore-v2',
     group='box2d',
     experimental=True,
+    summary='Train a bipedal robot to walk over rough terrain.',
     description="""
 Hardcore version with ladders, stumps, pitfalls. Time limit is increased due to obstacles.
 Reward is given for moving forward, total 300+ points up to the far end. If the robot falls,
@@ -277,6 +280,7 @@ add_task(
     id='CarRacing-v0',
     group='box2d',
     experimental=True,
+    summary='Race a car around a track.',
     description="""
 Easiest continuous control task to learn from pixels, a top-down racing environment.
 Discreet control is reasonable in this environment as well, on/off discretisation is
