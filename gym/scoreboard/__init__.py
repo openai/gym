@@ -368,7 +368,7 @@ Architecture of neural network and dataset used are selected randomly at the beg
 of an episode. Datasets used are MNIST, CIFAR10, CIFAR100. Network architectures contain
 multilayer convnets 66 % of the time, and are [classic] feedforward nets otherwise.
 
-Number of instances in datasets are chosen at random in range from around 100% to 10%
+Number of instances in datasets are chosen at random in range from around 100% to 5%
 such that adjustment of l1, l2 penalty coefficients makes more difference.
 
 Let the best accuracy achieved so far at every epoch be denoted as a; Then reward at
