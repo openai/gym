@@ -25,13 +25,14 @@ class MountainCarEnv(gym.Env):
 
         self.viewer = None
 
+        self.action_space = spaces.Discrete(3)
+        self.observation_space = spaces.Box(self.low, self.high)
+
         self._seed()
         self.reset()
 
     def _seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
-        self.action_space = spaces.Discrete(3, np_random=self.np_random)
-        self.observation_space = spaces.Box(self.low, self.high, np_random=self.np_random)
         return [seed]
 
     def _step(self, action):

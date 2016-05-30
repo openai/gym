@@ -18,14 +18,12 @@ class RouletteEnv(gym.Env):
     """
     def __init__(self, spots=37):
         self.n = spots + 1
+        self.action_space = spaces.Discrete(self.n)
+        self.observation_space = spaces.Discrete(1)
         self._seed()
 
     def _seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
-
-        self.action_space = spaces.Discrete(self.n, np_random=self.np_random)
-        self.observation_space = spaces.Discrete(1, np_random=self.np_random)
-
         return [seed]
 
     def _step(self, action):

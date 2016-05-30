@@ -27,12 +27,12 @@ class NChainEnv(gym.Env):
         self.small = small  # payout for 'backwards' action
         self.large = large  # payout at end of chain for 'forwards' action
         self.state = 0  # Start at beginning of the chain
+        self.action_space = spaces.Discrete(2)
+        self.observation_space = spaces.Discrete(self.n)
         self._seed()
 
     def _seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
-        self.action_space = spaces.Discrete(2, np_random=self.np_random)
-        self.observation_space = spaces.Discrete(self.n, np_random=self.np_random)
         return [seed]
 
     def _step(self, action):

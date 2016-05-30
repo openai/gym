@@ -1,6 +1,7 @@
+import numpy as np
+
 from gym import Env, spaces
 from gym.utils import seeding
-import numpy as np
 
 def categorical_sample(prob_n, np_random):
     """
@@ -34,12 +35,13 @@ class DiscreteEnv(Env):
         self.nS = nS
         self.nA = nA
 
+        self.action_space = spaces.Discrete(self.nA)
+        self.observation_space = spaces.Discrete(self.nS)
+
         self._seed()
 
     def _seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
-        self.action_space = spaces.Discrete(self.nA, np_random=self.np_random)
-        self.observation_space = spaces.Discrete(self.nS, np_random=self.np_random)
         return [seed]
 
     def _reset(self):

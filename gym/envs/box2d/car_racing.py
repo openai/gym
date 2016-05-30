@@ -117,10 +117,11 @@ class CarRacing(gym.Env):
         self.reward = 0.0
         self.prev_reward = 0.0
 
+        self.action_space = spaces.Box( np.array([-1,0,0]), np.array([+1,+1,+1]))  # steer, gas, brake
+        self.observation_space = spaces.Box(low=0, high=255, shape=(STATE_H, STATE_W, 3))
+
     def _seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
-        self.action_space = spaces.Box( np.array([-1,0,0]), np.array([+1,+1,+1]), np_random=self.np_random)  # steer, gas, brake
-        self.observation_space = spaces.Box(low=0, high=255, shape=(STATE_H, STATE_W, 3), np_random=self.np_random)
         return [seed]
 
     def _destroy(self):

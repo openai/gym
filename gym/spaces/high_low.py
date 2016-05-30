@@ -1,7 +1,9 @@
-from gym import Space
 import numpy as np
 
-class HighLow(Space):
+import gym
+from gym.spaces import prng
+
+class HighLow(gym.Space):
     """
     A matrix of dimensions n x 3, where
 
@@ -13,17 +15,13 @@ class HighLow(Space):
     e.g. if the space is composed of ATTACK (values: 0-100), MOVE_LEFT(0-1), MOVE_RIGHT(0,1)
     the space would be [ [0.0, 100.0, 2], [0, 1, 0], [0, 1, 0] ]
     """
-    def __init__(self, matrix, np_random=None):
+    def __init__(self, matrix):
         """
         A matrix of shape (n, 3), where the first column is the minimum (inclusive), the second column
         is the maximum (inclusive), and the third column is the precision (number of decimals to keep)
 
         e.g. np.matrix([[0, 1, 0], [0, 1, 0], [0.0, 100.0, 2]])
         """
-        if np_random is None:
-            np_random = np.random
-        self.np_random = np_random
-
         (num_rows, num_cols) = matrix.shape
         assert num_rows >= 1
         assert num_cols == 3
@@ -33,7 +31,7 @@ class HighLow(Space):
     def sample(self):
         # For each row: round(random .* (max - min) + min, precision)
         max_minus_min = self.matrix[:, 1] - self.matrix[:, 0]
-        random_matrix = np.multiply(max_minus_min, self.np_random.rand(self.num_rows, 1)) + self.matrix[:, 0]
+        random_matrix = np.multiply(max_minus_min, prng.np_random.rand(self.num_rows, 1)) + self.matrix[:, 0]
         rounded_matrix = np.zeros(self.num_rows)
         for i in range(self.num_rows):
             rounded_matrix[i] = round(random_matrix[i, 0], int(self.matrix[i, 2]))

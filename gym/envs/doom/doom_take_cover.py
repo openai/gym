@@ -50,16 +50,13 @@ class DoomTakeCoverEnv(doom_env.DoomEnv):
         self.game.init()
         self.game.new_episode()
 
+        # 2 allowed actions [9, 10] (must match .cfg file)
+        self.action_space = spaces.HighLow(np.matrix([[0, 1, 0]] * 2))
+        self.observation_space = spaces.Box(low=0, high=255, shape=(self.screen_height, self.screen_width, 3))
+
         self._seed()
 
     def _seed(self, seed=None):
-        np_random, seed1 = seeding.np_random(seed)
-        # Derive a random seed.
-        seed2 = seeding.hash_seed(seed1 + 1) % 2**32
-        self.game.set_seed(seed2)
-
-        # 2 allowed actions [9, 10] (must match .cfg file)
-        self.action_space = spaces.HighLow(np.matrix([[0, 1, 0]] * 2), np_random=np_random)
-        self.observation_space = spaces.Box(low=0, high=255, shape=(self.screen_height, self.screen_width, 3), np_random=np_random)
-
-        return [seed1, seed2]
+        seed = seeding.hash_seed(seed) % 2**32
+        self.game.set_seed(seed)
+        return [seed]
