@@ -206,7 +206,7 @@ register(
     entry_point='gym.envs.mujoco:HumanoidEnv',
 )
 register(
-    id='HumanoidStandup-v0',
+    id='HumanoidStandup-v1',
     entry_point='gym.envs.mujoco:HumanoidStandupEnv',
 )
 
