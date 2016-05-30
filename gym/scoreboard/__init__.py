@@ -352,7 +352,7 @@ add_task(
     id='ConvergenceControl-v0',
     group='parameter_tuning',
     experimental=True,
-    summary="Set and adjust training parameters of Deep CNN to improve the end result.",
+    summary="Adjust parameters of training of Deep CNN classifier at every training epoch to improve the end result.",
     description ="""\
     Agent can adjust parameters like step size, momentum etc during
     training of deep convolutional neural net to improve its convergence / quality
