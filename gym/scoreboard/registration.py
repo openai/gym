@@ -38,7 +38,7 @@ class Registry(object):
 
     def finalize(self, strict=False):
         # Extract all IDs we know about
-        registered_ids = set(env_id for group in self.groups.itervalues() for env_id in group['envs'])
+        registered_ids = set(env_id for group in self.groups.values() for env_id in group['envs'])
         # Extract all IDs gym knows about
         all_ids = set(spec.id for spec in gym.envs.registry.all() if spec._entry_point)
 

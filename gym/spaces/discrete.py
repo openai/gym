@@ -1,14 +1,16 @@
 import numpy as np
-from gym import Space
 
-class Discrete(Space):
+import gym
+from gym.spaces import prng
+
+class Discrete(gym.Space):
     """
     {0,1,...,n-1}
     """
     def __init__(self, n):
         self.n = n
     def sample(self):
-        return np.random.randint(self.n)
+        return prng.np_random.randint(self.n)
     def contains(self, x):
         if isinstance(x, int):
             as_int = x

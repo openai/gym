@@ -68,7 +68,7 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
         nA = 4
         nS = nrow * ncol
 
-        isd = np.array(desc == 'S').astype('float64').ravel()
+        isd = np.array(desc == b'S').astype('float64').ravel()
         isd /= isd.sum()
 
         P = {s : {a : [] for a in range(nA)} for s in range(nS)}
@@ -87,11 +87,11 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
             return (row, col)
 
         for row in range(nrow):
-            for col in range(ncol):                
+            for col in range(ncol):
                 s = to_s(row, col)
                 for a in range(4):
                     li = P[s][a]
-                    letter = desc[row, col]
+                    letter = str(desc[row, col])
                     if letter in 'GH':
                         li.append((1.0, s, 0, True))
                     else:
@@ -100,18 +100,18 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
                                 newrow, newcol = inc(row, col, b)
                                 newstate = to_s(newrow, newcol)
                                 newletter = desc[newrow, newcol]
-                                done = str(newletter) in 'GH'
-                                rew = float(newletter == 'G')
+                                done = bytes(newletter) in b'GH'
+                                rew = float(newletter == b'G')
                                 li.append((1.0/3.0, newstate, rew, done))
                         else:
                             newrow, newcol = inc(row, col, a)
                             newstate = to_s(newrow, newcol)
                             newletter = desc[newrow, newcol]
-                            done = str(newletter) in 'GH'
-                            rew = float(newletter == 'G')
+                            done = bytes(newletter) in b'GH'
+                            rew = float(newletter == b'G')
                             li.append((1.0, newstate, rew, done))
 
-        super(FrozenLakeEnv, self).__init__(nrow * ncol, 4, P, isd)
+        super(FrozenLakeEnv, self).__init__(nS, nA, P, isd)
 
     def _render(self, mode='human', close=False):
         if close:

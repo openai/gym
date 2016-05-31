@@ -271,7 +271,7 @@ class ImageEncoder(object):
                      '-f', 'rawvideo',
                      '-s:v', '{}x{}'.format(*self.wh),
                      '-pix_fmt',('rgb32' if self.includes_alpha else 'rgb24'),
-                     '-i', '/dev/stdin',
+                     '-i', '-', # this used to be /dev/stdin, which is not Windows-friendly
 
                      # output
                      '-vcodec', 'libx264',
@@ -290,7 +290,7 @@ class ImageEncoder(object):
         if frame.dtype != np.uint8:
             raise error.InvalidFrame("Your frame has data type {}, but we require uint8 (i.e. RGB values from 0-255).".format(frame.dtype))
 
-        if distutils.version.StrictVersion(np.__version__) >= distutils.version.StrictVersion('1.9.0'):
+        if distutils.version.LooseVersion(np.__version__) >= distutils.version.LooseVersion('1.9.0'):
             self.proc.stdin.write(frame.tobytes())
         else:
             self.proc.stdin.write(frame.tostring())

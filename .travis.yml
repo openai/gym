@@ -2,26 +2,39 @@ dist: trusty
 sudo: required
 cache:
   apt: true
-  pip: false
+  pip: true
 language: python
 addons:
   apt:
     sources:
       - george-edison55-precise-backports # cmake 3.2.3
+      - deadsnakes
     packages:
       - cmake
       - cmake-data
       - python-dev
+      - python3.4-dev
       - swig
+      - libav-tools
+      - python-numpy
+      - libboost-all-dev
+      - libsdl2-dev
+      - libjpeg-dev
+      - zlib1g-dev
 python:
   - "2.7"
-#  - "3.5"
+  - "3.4"
 before_install:
   - Xvfb :12 -screen 0 800x600x24 +extension RANDR &
   - mkdir -p ~/.mujoco
     # In a pull request, there are no secrets, and hence no MuJoCo:
     # https://docs.travis-ci.com/user/pull-requests#Security-Restrictions-when-testing-Pull-Requests.
-  - '[ "${TRAVIS_PULL_REQUEST}" != "false" ] || ( curl https://openai-public.s3-us-west-2.amazonaws.com/mujoco/$MUJOCO_KEY_BUNDLE.tar.gz | tar xz -C ~/.mujoco )'
+  - '[ -z ${MUJOCO_KEY_BUNDLE+x} ] || ( curl https://openai-public.s3-us-west-2.amazonaws.com/mujoco/$MUJOCO_KEY_BUNDLE.tar.gz | tar xz -C ~/.mujoco )'
+  # Without this line, Travis has fork()s fail with an out of memory
+  # error. (These fork()s are for spawning the subprocess for video
+  # recording.) We should debug the memory usage at some stage, but
+  # simply setting overcommit is a good starting point.
+  - sudo sysctl -w vm.overcommit_memory=1
 env:
   - DISPLAY=:12
 install: pip install tox-travis

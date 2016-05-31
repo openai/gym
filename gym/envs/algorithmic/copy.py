@@ -2,7 +2,6 @@
 Task is to copy content from the input tape to
 the output tape. http://arxiv.org/abs/1511.07275
 """
-import random
 import numpy as np
 from gym.envs.algorithmic import algorithmic_env
 from gym.envs.algorithmic.algorithmic_env import ha
@@ -17,8 +16,7 @@ class CopyEnv(algorithmic_env.AlgorithmicEnv):
         self.content = {}
         self.target = {}
         for i in range(self.total_len):
-            val = random.randrange(self.base)
+            val = self.np_random.randint(self.base)
             self.content[ha(np.array([i]))] = val
             self.target[i] = val
-        self.total_reward = self.total_len 
-
+        self.total_reward = self.total_len

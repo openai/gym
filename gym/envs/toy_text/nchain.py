@@ -1,7 +1,6 @@
 import gym
-import random
 from gym import spaces
-
+from gym.utils import seeding
 
 class NChainEnv(gym.Env):
     """n-Chain environment
@@ -27,13 +26,18 @@ class NChainEnv(gym.Env):
         self.slip = slip  # probability of 'slipping' an action
         self.small = small  # payout for 'backwards' action
         self.large = large  # payout at end of chain for 'forwards' action
-        self.action_space = spaces.Discrete(2)
-        self.observation_space = spaces.Discrete(n)
         self.state = 0  # Start at beginning of the chain
+        self.action_space = spaces.Discrete(2)
+        self.observation_space = spaces.Discrete(self.n)
+        self._seed()
+
+    def _seed(self, seed=None):
+        self.np_random, seed = seeding.np_random(seed)
+        return [seed]
 
     def _step(self, action):
         assert(self.action_space.contains(action))
-        if random.random() < self.slip:
+        if self.np_random.rand() < self.slip:
             action = not action  # agent slipped, reverse action taken
         if action:  # 'backwards': go back to the beginning, get small reward
             reward = self.small
