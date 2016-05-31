@@ -159,7 +159,7 @@ register(
 register(
     id='Reacher-v1',
     entry_point='gym.envs.mujoco:ReacherEnv',
-    timestep_limit=50
+    timestep_limit=50,
     reward_threshold=-3.75,
 )
 
