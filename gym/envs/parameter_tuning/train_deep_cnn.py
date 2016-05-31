@@ -48,7 +48,7 @@ class CNNClassifierTraining(gym.Env):
 
         # observation features, in order: num of instances, num of labels,
         # validation accuracy after training with given parameters
-        self.observation_space = spaces.Box(-1e5, 1e5, 3)  # validation accuracy
+        self.observation_space = spaces.Box(-1e5, 1e5, 2)  # validation accuracy
 
         # Start the first game
         self._reset()
