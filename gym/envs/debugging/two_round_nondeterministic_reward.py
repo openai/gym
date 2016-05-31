@@ -18,6 +18,7 @@ v(2)= 3   (you get observation 2 in the starting state)
 import gym
 import random
 from gym import spaces
+from gym.utils import seeding
 
 class TwoRoundNondeterministicRewardEnv(gym.Env):
     def __init__(self):
@@ -58,3 +59,8 @@ class TwoRoundNondeterministicRewardEnv(gym.Env):
     def _reset(self):
         self.firstAction = None
         return self._get_obs()
+
+    def _seed(self, seed=None):
+        seed = seed if seed else seeding.hash_seed(seed) % 2**32
+        random.seed(seed)
+        return [seed]

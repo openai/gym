@@ -8,25 +8,35 @@ logger = logging.getLogger(__name__)
 import gym
 from gym import envs
 
+def should_skip_env_spec_for_tests(spec):
+    # We skip tests for envs that require dependencies or are otherwise
+    # troublesome to run frequently
+
+    # Skip mujoco tests for pull request CI
+    skip_mujoco = not (os.environ.get('MUJOCO_KEY_BUNDLE') or os.path.exists(os.path.expanduser('~/.mujoco')))
+    if skip_mujoco and spec._entry_point.startswith('gym.envs.mujoco:'):
+        return True
+
+    # TODO(jonas 2016-05-11): Re-enable these tests after fixing box2d-py
+    if spec._entry_point.startswith('gym.envs.box2d:'):
+        logger.warn("Skipping tests for box2d env {}".format(spec._entry_point))
+        return True
+
+    # Skip ConvergenceControl tests (the only env in parameter_tuning) according to pull #104
+    if spec._entry_point.startswith('gym.envs.parameter_tuning:'):
+        logger.warn("Skipping tests for parameter_tuning env {}".format(spec._entry_point))
+        return True
+
+    return False
+
+
 # This runs a smoketest on each official registered env. We may want
 # to try also running environments which are not officially registered
 # envs.
 specs = [spec for spec in envs.registry.all() if spec._entry_point is not None]
 @tools.params(*specs)
 def test_env(spec):
-    # Skip mujoco tests for pull request CI
-    skip_mujoco = not (os.environ.get('MUJOCO_KEY_BUNDLE') or os.path.exists(os.path.expanduser('~/.mujoco')))
-    if skip_mujoco and spec._entry_point.startswith('gym.envs.mujoco:'):
-        return
-
-    # TODO(jonas 2016-05-11): Re-enable these tests after fixing box2d-py
-    if spec._entry_point.startswith('gym.envs.box2d:'):
-        logger.warn("Skipping tests for box2d env {}".format(spec._entry_point))
-        return
-
-    # Skip ConvergenceControl tests (the only env in parameter_tuning) according to pull #104
-    if spec._entry_point.startswith('gym.envs.parameter_tuning:'):
-        logger.warn("Skipping tests for parameter_tuning env {}".format(spec._entry_point))
+    if should_skip_env_spec_for_tests(spec):
         return
 
     env = spec.make()
