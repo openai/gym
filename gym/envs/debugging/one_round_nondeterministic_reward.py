@@ -13,6 +13,7 @@ Optimal value function: v(0)=2.5 (there is only one state, state 0)
 import gym
 import random
 from gym import spaces
+from gym.utils import seeding
 
 class OneRoundNondeterministicRewardEnv(gym.Env):
     def __init__(self):
@@ -37,3 +38,8 @@ class OneRoundNondeterministicRewardEnv(gym.Env):
 
     def _reset(self):
         return self._get_obs()
+
+    def _seed(self, seed=None):
+        seed = seed if seed else seeding.hash_seed(seed) % 2**32
+        random.seed(seed)
+        return [seed]
