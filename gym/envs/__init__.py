@@ -160,16 +160,19 @@ register(
     id='Reacher-v1',
     entry_point='gym.envs.mujoco:ReacherEnv',
     timestep_limit=50
+    reward_threshold=-3.75,
 )
 
 register(
     id='InvertedPendulum-v1',
     entry_point='gym.envs.mujoco:InvertedPendulumEnv',
+    reward_threshold=950.0,
 )
 
 register(
     id='InvertedDoublePendulum-v1',
     entry_point='gym.envs.mujoco:InvertedDoublePendulumEnv',
+    reward_threshold=9100.0,
 )
 
 register(
