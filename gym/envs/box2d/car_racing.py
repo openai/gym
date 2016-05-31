@@ -357,8 +357,9 @@ class CarRacing(gym.Env):
 
         arr = None
         win = self.viewer.window
-        win.switch_to()
-        win.dispatch_events()
+        if mode != 'state_pixels':
+            win.switch_to()
+            win.dispatch_events()
         if mode=="rgb_array" or mode=="state_pixels":
             win.clear()
             t = self.transform
