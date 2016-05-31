@@ -63,6 +63,12 @@ add_group(
     description='Simple text environments to get you started.'
 )
 
+add_group(
+    id='doom',
+    name='Doom',
+    description='Doom environments based on VizDoom.'
+)
+
 # classic control
 
 add_task(
@@ -227,24 +233,70 @@ add_task(
     summary='Hex played on a 9x9 board.',
 )
 
+
 # box2d
 
 add_task(
-    id='LunarLander-v0',
+    id='LunarLander-v2',
     group='box2d',
     experimental=True,
+    summary='Navigate a lander to its landing pad.',
+    description="""
+Landing pad is always at coordinates (0,0). Coordinates are the first two numbers in state vector.
+Reward for moving from the top of the screen to landing pad and zero speed is about 100..140 points.
+If lander moves away from landing pad it loses reward back. Episode finishes if the lander crashes or
+comes to rest, receiving additional -100 or +100 points. Each leg ground contact is +10. Firing main
+engine is -0.3 points each frame. Solved is 200 points.
+Landing outside landing pad is possible. Fuel is infinite, so an agent can learn to fly and then land
+on its first attempt.
+""")
+
+add_task(
+    id='BipedalWalker-v2',
+    group='box2d',
+    experimental=True,
+    summary='Train a bipedal robot to walk.',
+    description="""
+Reward is given for moving forward, total 300+ points up to the far end. If the robot falls,
+it gets -100. Applying motor torque costs a small amount of points, more optimal agent
+will get better score.
+State consists of hull angle speed, angular velocity, horizontal speed,
+vertical speed, position of joints and joints angular speed, legs contact with ground,
+and 10 lidar rangefinder measurements. There's no coordinates in the state vector.
+"""
 )
 
 add_task(
-    id='BipedalWalker-v0',
+    id='BipedalWalkerHardcore-v2',
     group='box2d',
     experimental=True,
+    summary='Train a bipedal robot to walk over rough terrain.',
+    description="""
+Hardcore version with ladders, stumps, pitfalls. Time limit is increased due to obstacles.
+Reward is given for moving forward, total 300+ points up to the far end. If the robot falls,
+it gets -100. Applying motor torque costs a small amount of points, more optimal agent
+will get better score.
+State consists of hull angle speed, angular velocity, horizontal speed,
+vertical speed, position of joints and joints angular speed, legs contact with ground,
+and 10 lidar rangefinder measurements. There's no coordinates in the state vector.
+"""
 )
 
 add_task(
-    id='BipedalWalkerHardcore-v0',
+    id='CarRacing-v0',
     group='box2d',
     experimental=True,
+    summary='Race a car around a track.',
+    description="""
+Easiest continuous control task to learn from pixels, a top-down racing environment.
+Discreet control is reasonable in this environment as well, on/off discretisation is
+fine. State consists of 96x96 pixels. Reward is -0.1 every frame and +1000/N for every track
+tile visited, where N is the total number of tiles in track. For example, if you have
+finished in 732 frames, your reward is 1000 - 0.1*732 = 926.8 points.
+Episode finishes when all tiles are visited.
+Some indicators shown at the bottom of the window and the state RGB buffer. From
+left to right: true speed, four ABS sensors, steering wheel position, gyroscope.
+"""
 )
 
 # mujoco
@@ -346,8 +398,17 @@ The robot model was originally created by Tassa et al. [Tassa12]_.
 """,
 )
 
-# parameter tuning
+add_task(
+    id='HumanoidStandup-v1',
+    group='mujoco',
+    summary="Make a 3D two-legged robot standup.",
+    description="""\
+Make a three-dimensional bipedal robot standup as fast as possible.
+""",
+    experimental=True,
+)
 
+# parameter tuning
 add_task(
     id='ConvergenceControl-v0',
     group='parameter_tuning',
@@ -499,6 +560,61 @@ The game is simulated through the Arcade Learning Environment [ALE]_, which uses
 .. [Stella] Stella: A Multi-Platform Atari 2600 VCS emulator http://stella.sourceforge.net/
 """,
     )
+
+# doom
+add_task(
+    id='DoomBasic-v0',
+    group='doom',
+    experimental=True,
+)
+
+add_task(
+    id='DoomCorridor-v0',
+    group='doom',
+    experimental=True,
+)
+
+add_task(
+    id='DoomDefendCenter-v0',
+    group='doom',
+    experimental=True,
+)
+
+add_task(
+    id='DoomDefendLine-v0',
+    group='doom',
+    experimental=True,
+)
+
+add_task(
+    id='DoomHealthGathering-v0',
+    group='doom',
+    experimental=True,
+)
+
+add_task(
+    id='DoomMyWayHome-v0',
+    group='doom',
+    experimental=True,
+)
+
+add_task(
+    id='DoomPredictPosition-v0',
+    group='doom',
+    experimental=True,
+)
+
+add_task(
+    id='DoomTakeCover-v0',
+    group='doom',
+    experimental=True,
+)
+
+add_task(
+    id='DoomDeathmatch-v0',
+    group='doom',
+    experimental=True,
+)
 
 # Deprecated
 

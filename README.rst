@@ -77,19 +77,25 @@ On OSX:
 
 .. code:: shell
 
-	  brew install cmake
+	  brew install cmake boost boost-python sdl2
 
 On Ubuntu 14.04:
 
 .. code:: shell
 
-	  apt-get install -y python-numpy python-dev cmake zlib1g-dev libjpeg-dev xvfb libav-tools xorg-dev python-opengl
+	  apt-get install -y python-numpy python-dev cmake zlib1g-dev libjpeg-dev xvfb libav-tools xorg-dev python-opengl libboost-all-dev libsdl2-dev swig
 
 Supported systems
 -----------------
 
 We currently support Linux and OS X running Python 2.7 or 3.5.
 Python 3 support should still be considered experimental -- if you find any bugs, please report them!
+
+In particular on OSX + Python3 you may need to run
+
+.. code:: shell
+
+	  brew install boost-python --with-python3
 
 We will expand support to Windows based on demand. We
 will also soon ship a Docker container exposing the environments
@@ -245,3 +251,10 @@ We are using `nose2 <https://github.com/nose-devs/nose2>`_ for tests. You can ru
 	  nose2
 
 You can also run tests in a specific directory by using the ``-s`` option, or by passing in the specific name of the test. See the `nose2 docs <http://nose2.readthedocs.org/en/latest/usage.html#naming-tests>`_ for more details.
+
+What's new
+----------
+
+- 2016-05-28: For controlled reproducibility, envs now support seeding
+  (cf #91 and #135). The monitor records which seeds are used. We will
+  soon add seed information to the display on the scoreboard.

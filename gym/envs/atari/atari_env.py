@@ -3,6 +3,7 @@ import os
 import gym
 from gym import error, spaces
 from gym import utils
+from gym.utils import seeding
 
 try:
     import atari_py
@@ -30,18 +31,20 @@ class AtariEnv(gym.Env, utils.EzPickle):
     def __init__(self, game='pong', obs_type='ram'):
         utils.EzPickle.__init__(self, game, obs_type)
         assert obs_type in ('ram', 'image')
-        game_path = atari_py.get_game_path(game)
-        if not os.path.exists(game_path):
-            raise IOError('You asked for game %s but path %s does not exist'%(game, game_path))
-        self.ale = atari_py.ALEInterface()
-        self.ale.loadROM(game_path)
+
+        self.game_path = atari_py.get_game_path(game)
+        if not os.path.exists(self.game_path):
+            raise IOError('You asked for game %s but path %s does not exist'%(game, self.game_path))
         self._obs_type = obs_type
-        self._action_set = self.ale.getMinimalActionSet()
+        self.ale = atari_py.ALEInterface()
         self.viewer = None
 
-        (screen_width,screen_height) = self.ale.getScreenDims()
+        self._seed()
 
+        self._action_set = self.ale.getMinimalActionSet()
         self.action_space = spaces.Discrete(len(self._action_set))
+
+        (screen_width,screen_height) = self.ale.getScreenDims()
         if self._obs_type == 'ram':
             self.observation_space = spaces.Box(low=np.zeros(128), high=np.zeros(128)+255)
         elif self._obs_type == 'image':
@@ -49,10 +52,21 @@ class AtariEnv(gym.Env, utils.EzPickle):
         else:
             raise error.Error('Unrecognized observation type: {}'.format(self._obs_type))
 
+    def _seed(self, seed=None):
+        self.np_random, seed1 = seeding.np_random(seed)
+        # Derive a random seed. This gets passed as a uint, but gets
+        # checked as an int elsewhere, so we need to keep it below
+        # 2**31.
+        seed2 = seeding.hash_seed(seed1 + 1) % 2**31
+        # Empirically, we need to seed before loading the ROM.
+        self.ale.setInt(b'random_seed', seed2)
+        self.ale.loadROM(self.game_path)
+        return [seed1, seed2]
+
     def _step(self, a):
         reward = 0.0
         action = self._action_set[a]
-        num_steps = np.random.randint(2, 5)
+        num_steps = self.np_random.randint(2, 5)
         for _ in range(num_steps):
             reward += self.ale.act(action)
         ob = self._get_obs()
@@ -84,6 +98,7 @@ class AtariEnv(gym.Env, utils.EzPickle):
         if close:
             if self.viewer is not None:
                 self.viewer.close()
+                self.viewer = None
             return
         img = self._get_image()
         if mode == 'rgb_array':

@@ -1,3 +1,4 @@
 numpy>=1.10.4
 requests>=2.0
 six
+pyglet

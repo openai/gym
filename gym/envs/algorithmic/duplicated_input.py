@@ -3,7 +3,6 @@ Task is to return every second character from the input tape.
 http://arxiv.org/abs/1511.07275
 """
 
-import random
 import numpy as np
 from gym.envs.algorithmic import algorithmic_env
 from gym.envs.algorithmic.algorithmic_env import ha
@@ -20,7 +19,7 @@ class DuplicatedInputEnv(algorithmic_env.AlgorithmicEnv):
         self.target = {}
         copies = int(self.total_len / self.duplication)
         for i in range(copies):
-            val = random.randrange(self.base)
+            val = self.np_random.randint(self.base)
             self.target[i] = val
             for d in range(self.duplication):
                 self.content[ha(np.array([i * self.duplication + d]))] = val

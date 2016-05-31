@@ -1,6 +1,7 @@
 import os
 
 from gym import error, spaces
+from gym.utils import seeding
 import numpy as np
 from os import path
 import gym
@@ -13,9 +14,7 @@ except ImportError as e:
     raise error.DependencyNotInstalled("{}. (HINT: you need to install mujoco_py, and also perform the setup instructions here: https://github.com/openai/mujoco-py/.)".format(e))
 
 class MujocoEnv(gym.Env):
-
-    """
-    Superclass of MuJoCo environments.
+    """Superclass for all MuJoCo environments.
     """
 
     def __init__(self, model_path, frame_skip):
@@ -49,6 +48,12 @@ class MujocoEnv(gym.Env):
         high = np.inf*np.ones(self.obs_dim)
         low = -high
         self.observation_space = spaces.Box(low, high)
+
+        self._seed()
+
+    def _seed(self, seed=None):
+        self.np_random, seed = seeding.np_random(seed)
+        return [seed]
 
     # methods to override:
     # ----------------------------
@@ -99,6 +104,7 @@ class MujocoEnv(gym.Env):
         if close:
             if self.viewer is not None:
                 self._get_viewer().finish()
+                self.viewer = None
             return
 
         if mode == 'rgb_array':

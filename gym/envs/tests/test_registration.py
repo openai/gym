@@ -27,7 +27,14 @@ def test_missing_lookup():
     registry.register(id='Test-v9', entry_point=None)
     registry.register(id='Other-v100', entry_point=None)
     try:
-        registry.spec('Test-v1')
+        registry.spec('Test-v1')  # must match an env name but not the version above
+    except error.DeprecatedEnv:
+        pass
+    else:
+        assert False
+
+    try:
+        registry.spec('Unknown-v1')
     except error.UnregisteredEnv:
         pass
     else:

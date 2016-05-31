@@ -23,7 +23,9 @@ class EnvSpec(object):
         timestep_limit (int): The max number of timesteps per episode during training
         trials (int): The number of trials to average reward over
         reward_threshold (Optional[int]): The reward threshold before the task is considered solved
+        local_only: True iff the environment is to be used only on the local machine (e.g. debugging envs)
         kwargs (dict): The kwargs to pass to the environment class
+        nondeterministic (bool): Whether this environment is non-deterministic even after seeding
 
     Attributes:
         id (str): The official environment ID
@@ -31,19 +33,23 @@ class EnvSpec(object):
         trials (int): The number of trials run in official evaluation
     """
 
-    def __init__(self, id, entry_point=None, timestep_limit=1000, trials=100, reward_threshold=None, kwargs=None):
+    def __init__(self, id, entry_point=None, timestep_limit=1000, trials=100, reward_threshold=None, local_only=False, kwargs=None, nondeterministic=False):
         self.id = id
         # Evaluation parameters
         self.timestep_limit = timestep_limit
         self.trials = trials
         self.reward_threshold = reward_threshold
+        # Environment properties
+        self.nondeterministic = nondeterministic
 
         # We may make some of these other parameters public if they're
         # useful.
         match = env_id_re.search(id)
         if not match:
             raise error.Error('Attempted to register malformed environment ID: {}. (Currently all IDs must be of the form {}.)'.format(id, env_id_re.pattern))
+        self._env_name = match.group(1)
         self._entry_point = entry_point
+        self._local_only = local_only
         self._kwargs = {} if kwargs is None else kwargs
 
     def make(self):
@@ -89,7 +95,15 @@ class EnvRegistry(object):
         try:
             return self.env_specs[id]
         except KeyError:
-            raise error.UnregisteredEnv('No registered env with id: {}'.format(id))
+            # Parse the env name and check to see if it matches the non-version
+            # part of a valid env (could also check the exact number here)
+            env_name = match.group(1)
+            matching_envs = [valid_env_name for valid_env_name, valid_env_spec in self.env_specs.items()
+                             if env_name == valid_env_spec._env_name]
+            if matching_envs:
+                raise error.DeprecatedEnv('Env {} not found (valid versions include {})'.format(id, matching_envs))
+            else:
+                raise error.UnregisteredEnv('No registered env with id: {}'.format(id))
 
     def register(self, id, **kwargs):
         if id in self.env_specs:

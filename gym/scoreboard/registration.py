@@ -40,7 +40,7 @@ class Registry(object):
         # Extract all IDs we know about
         registered_ids = set(env_id for group in self.groups.values() for env_id in group['envs'])
         # Extract all IDs gym knows about
-        all_ids = set(spec.id for spec in gym.envs.registry.all() if spec._entry_point)
+        all_ids = set(spec.id for spec in gym.envs.registry.all() if spec._entry_point and not spec._local_only)
 
         missing = all_ids - registered_ids
         extra = registered_ids - all_ids

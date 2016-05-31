@@ -19,7 +19,7 @@ class StatsRecorder(object):
         self.done = None
         self.closed = False
 
-        filename = '{}.{}.stats.json'.format(self.file_prefix, os.getpid())
+        filename = '{}.stats.json'.format(self.file_prefix)
         self.path = os.path.join(self.directory, filename)
 
     def before_step(self, action):
