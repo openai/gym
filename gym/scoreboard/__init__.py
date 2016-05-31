@@ -52,6 +52,12 @@ add_group(
 )
 
 add_group(
+    id='parameter_tuning',
+    name='Parameter tuning',
+    description='Tune parameters of costly experiments to obtain better outcomes.'
+)
+
+add_group(
     id='toy_text',
     name='Toy text',
     description='Simple text environments to get you started.'
@@ -400,6 +406,43 @@ add_task(
 Make a three-dimensional bipedal robot standup as fast as possible.
 """,
     experimental=True,
+)
+
+# parameter tuning
+add_task(
+    id='ConvergenceControl-v0',
+    group='parameter_tuning',
+    experimental=True,
+    summary="Adjust parameters of training of Deep CNN classifier at every training epoch to improve the end result.",
+    description ="""\
+    Agent can adjust parameters like step size, momentum etc during
+    training of deep convolutional neural net to improve its convergence / quality
+    of end - result. One episode in this environment is a training of one neural net
+    for 20 epochs. Agent can adjust parameters in the beginning of every epoch.
+""",
+    background="""\
+Parameters that agent can adjust are learning rate and momentum coefficients for SGD,
+batch size, l1 and l2 penalty. As a feedback, agent receives # of instances / labels
+in dataset, description of network architecture, and validation accuracy for every epoch.
+
+Architecture of neural network and dataset used are selected randomly at the beginning
+of an episode. Datasets used are MNIST, CIFAR10, CIFAR100. Network architectures contain
+multilayer convnets 66 % of the time, and are [classic] feedforward nets otherwise.
+
+Number of instances in datasets are chosen at random in range from around 100% to 5%
+such that adjustment of l1, l2 penalty coefficients makes more difference.
+
+Let the best accuracy achieved so far at every epoch be denoted as a; Then reward at
+every step is a + a*a. On the one hand side, this encourages fast convergence, as it
+improves cumulative reward over the episode. On the other hand side, improving best
+achieved accuracy is expected to quadratically improve cumulative reward, thus
+encouraging agent to converge fast while achieving high best validation accuracy value.
+
+As the number of labels increases, learning problem becomes more difficult for a fixed
+dataset size. In order to avoid for the agent to ignore more complex datasets, on which
+accuracy is low and concentrate on simple cases which bring bulk of reward, accuracy is
+normalized by the number of labels in a dataset.
+""",
 )
 
 # toy text

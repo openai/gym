@@ -365,5 +365,12 @@ register(
 register(
     id='TwoRoundNondeterministicReward-v0',
     entry_point='gym.envs.debugging:TwoRoundNondeterministicRewardEnv',
-    local_only=True
+    local_only=True,
+)
+
+# Hyperparameter tuning
+# ----------------------------------------
+register(
+    id='ConvergenceControl-v0',
+    entry_point='gym.envs.parameter_tuning:ConvergenceControl',
 )
