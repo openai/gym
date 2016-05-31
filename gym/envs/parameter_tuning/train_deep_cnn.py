@@ -90,20 +90,17 @@ class CNNClassifierTraining(gym.Env):
         self.epoch_idx += 1
         done = self.epoch_idx == 10
 
-        if diverged:
-            reward = -10.0
-        else:
-            reward = self.best_val
+        reward = self.best_val
 
-            # as for number of labels increases, learning problem becomes
-            # more difficult for fixed dataset size. In order to avoid
-            # for the agent to ignore more complex datasets, on which
-            # accuracy is low and concentrate on simple cases which bring bulk
-            # of reward, I normalize by number of labels in dataset
-            reward *= self.nb_classes
+        # as for number of labels increases, learning problem becomes
+        # more difficult for fixed dataset size. In order to avoid
+        # for the agent to ignore more complex datasets, on which
+        # accuracy is low and concentrate on simple cases which bring bulk
+        # of reward, reward is normalized by number of labels in dataset
+        reward *= self.nb_classes
 
-            # formula below encourages higher best validation
-            reward += reward ** 2
+        # formula below encourages higher best validation
+        reward += reward ** 2
 
         return self._get_obs(), reward, done, {}
 
