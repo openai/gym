@@ -451,10 +451,37 @@ add_task(
     experimental=True,
     summary="Select architecture of CNN and training parameters to obtain high accuracy.",
     description ="""\
-
+    Agent selects an architecture of deep CNN classifier and training parameters
+    such that it results in high accuracy.
 """,
     background="""\
+One step in this environment is a training of a deep network for 10 epochs, where
+architecture and training parameters are selected by an agent. One episode in this
+environment consists of 10 steps.
 
+Training parameters that agent can adjust are learning rate, momentum, batch size,
+l1 and l2 penalty coefficients. Agent can select up to 5 layers of CNN and up to
+2 layers of fully connected layers.  As a feedback, agent receives # of instances in
+a dataset and a validation accuracy for every step.
+
+Datasets used are MNIST, CIFAR10, CIFAR100. Number of instances in datasets are
+chosen at random in range from around 100% to 5% such that adjustment of l1, l2
+penalty coefficients makes more difference.
+
+Let the best accuracy achieved so far at every epoch be denoted as a; Then reward at
+every step is a + a*a. On the one hand side, this encourages fast selection of good
+architecture, as it improves cumulative reward over the episode. On the other hand side,
+improving best achieved accuracy is expected to quadratically improve cumulative reward,
+thus encouraging agent to find quickly architectrue and training parameters which lead
+to high accuracy.
+
+As the number of labels increases, learning problem becomes more difficult for a fixed
+dataset size. In order to avoid for the agent to ignore more complex datasets, on which
+accuracy is low and concentrate on simple cases which bring bulk of reward, accuracy is
+normalized by the number of labels in a dataset.
+
+This environment requires Keras with Theano or TensorFlow to run. When run on laptop
+gpu (GTX960M) one step takes on average 2 min.
 """,
 )
 
