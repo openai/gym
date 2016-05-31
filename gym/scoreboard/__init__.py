@@ -445,6 +445,19 @@ normalized by the number of labels in a dataset.
 """,
 )
 
+add_task(
+    id='CNNClassifierTraining-v0',
+    group='parameter_tuning',
+    experimental=True,
+    summary="Select architecture of CNN and training parameters to obtain high accuracy.",
+    description ="""\
+
+""",
+    background="""\
+
+""",
+)
+
 # toy text
 
 add_task(
