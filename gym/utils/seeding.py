@@ -31,7 +31,7 @@ def np_random(seed=None):
     rng.seed(_int_list_from_bigint(hash_seed(seed)))
     return rng, seed
 
-def hash_seed(seed, max_bytes=8):
+def hash_seed(seed=None, max_bytes=8):
     """Any given evaluation is likely to have many PRNG's active at
     once. (Most commonly, because the environment is running in
     multiple processes.) There's literature indicating that having
@@ -45,7 +45,13 @@ def hash_seed(seed, max_bytes=8):
     Thus, for sanity we hash the seeds before using them. (This scheme
     is likely not crypto-strength, but it should be good enough to get
     rid of simple correlations.)
+
+    Args:
+        seed (Optional[int]): None seeds from an operating system specific randomness source.
+        max_bytes: Maximum number of bytes to use in the hashed seed.
     """
+    if seed is None:
+        seed = _seed(max_bytes=max_bytes)
     hash = hashlib.sha512(str(seed).encode('utf8')).digest()
     return _bigint_from_bytes(hash[:max_bytes])
 
@@ -55,7 +61,8 @@ def _seed(a=None, max_bytes=8):
     presence of concurrency.
 
     Args:
-        a (Optional[int, str]): None seeds from an operating system specific randomness source. If an int or str passed, all of the bits are used.
+        a (Optional[int, str]): None seeds from an operating system specific randomness source.
+        max_bytes: Maximum number of bytes to use in the seed.
     """
     # Adapted from https://svn.python.org/projects/python/tags/r32/Lib/random.py
     if a is None:

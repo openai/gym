@@ -159,16 +159,16 @@ class GoEnv(gym.Env):
             raise error.Error('Unsupported observation type: {}'.format(self.observation_type))
         self.reset()
 
+        shape = pachi_py.CreateBoard(self.board_size).encode().shape
+        self.observation_space = spaces.Box(np.zeros(shape), np.ones(shape))
+        # One action for each board position, pass, and resign
+        self.action_space = spaces.Discrete(self.board_size**2 + 2)
+
     def _seed(self, seed=None):
         self.np_random, seed1 = seeding.np_random(seed)
         # Derive a random seed.
         seed2 = seeding.hash_seed(seed1 + 1) % 2**32
         pachi_py.pachi_srand(seed2)
-
-        shape = pachi_py.CreateBoard(self.board_size).encode().shape
-        self.observation_space = spaces.Box(np.zeros(shape), np.ones(shape), np_random=self.np_random)
-        # One action for each board position, pass, and resign
-        self.action_space = spaces.Discrete(self.board_size**2 + 2, np_random=self.np_random)
         return [seed1, seed2]
 
     def _reset(self):

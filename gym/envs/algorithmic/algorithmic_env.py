@@ -28,14 +28,14 @@ class AlgorithmicEnv(Env):
         AlgorithmicEnv.current_length = 2
         tape_control = []
 
+        self.action_space = Tuple(([Discrete(2 * self.inp_dim), Discrete(2), Discrete(self.base)]))
+        self.observation_space = Discrete(self.base + 1)
+
         self._seed()
         self.reset()
 
     def _seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
-
-        self.action_space = Tuple(([Discrete(2 * self.inp_dim, np_random=self.np_random), Discrete(2, np_random=self.np_random), Discrete(self.base, np_random=self.np_random)]))
-        self.observation_space = Discrete(self.base + 1, np_random=self.np_random)
         return [seed]
 
     def _get_obs(self, pos=None):

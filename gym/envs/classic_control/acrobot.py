@@ -80,15 +80,14 @@ class AcrobotEnv(core.Env):
 
     def __init__(self):
         self.viewer = None
+        high = np.array([np.pi, np.pi, self.MAX_VEL_1, self.MAX_VEL_2])
+        low = -high
+        self.observation_space = spaces.Box(low, high)
+        self.action_space = spaces.Discrete(3)
         self._seed()
 
     def _seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
-
-        high = np.array([np.pi, np.pi, self.MAX_VEL_1, self.MAX_VEL_2])
-        low = -high
-        self.observation_space = spaces.Box(low, high, np_random=self.np_random)
-        self.action_space = spaces.Discrete(3, np_random=self.np_random)
         return [seed]
 
     def _reset(self):

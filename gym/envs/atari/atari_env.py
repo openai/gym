@@ -41,6 +41,17 @@ class AtariEnv(gym.Env, utils.EzPickle):
 
         self._seed()
 
+        self._action_set = self.ale.getMinimalActionSet()
+        self.action_space = spaces.Discrete(len(self._action_set))
+
+        (screen_width,screen_height) = self.ale.getScreenDims()
+        if self._obs_type == 'ram':
+            self.observation_space = spaces.Box(low=np.zeros(128), high=np.zeros(128)+255)
+        elif self._obs_type == 'image':
+            self.observation_space = spaces.Box(low=0, high=255, shape=(screen_height, screen_width, 3))
+        else:
+            raise error.Error('Unrecognized observation type: {}'.format(self._obs_type))
+
     def _seed(self, seed=None):
         self.np_random, seed1 = seeding.np_random(seed)
         # Derive a random seed. This gets passed as a uint, but gets
@@ -50,17 +61,6 @@ class AtariEnv(gym.Env, utils.EzPickle):
         # Empirically, we need to seed before loading the ROM.
         self.ale.setInt(b'random_seed', seed2)
         self.ale.loadROM(self.game_path)
-        self._action_set = self.ale.getMinimalActionSet()
-
-        self.action_space = spaces.Discrete(len(self._action_set), np_random=self.np_random)
-
-        (screen_width,screen_height) = self.ale.getScreenDims()
-        if self._obs_type == 'ram':
-            self.observation_space = spaces.Box(low=np.zeros(128), high=np.zeros(128)+255, np_random=self.np_random)
-        elif self._obs_type == 'image':
-            self.observation_space = spaces.Box(low=0, high=255, shape=(screen_height, screen_width, 3), np_random=self.np_random)
-        else:
-            raise error.Error('Unrecognized observation type: {}'.format(self._obs_type))
         return [seed1, seed2]
 
     def _step(self, a):

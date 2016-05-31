@@ -97,11 +97,12 @@ class BipedalWalker(gym.Env):
         self.prev_shaping = None
         self._reset()
 
+        high = np.array([np.inf]*24)
+        self.action_space = spaces.Box(np.array([-1,-1,-1,-1]), np.array([+1,+1,+1,+1]))
+        self.observation_space = spaces.Box(-high, high)
+
     def _seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
-        high = np.array([np.inf]*24)
-        self.action_space = spaces.Box(np.array([-1,-1,-1,-1]), np.array([+1,+1,+1,+1]), np_random=self.np_random)
-        self.observation_space = spaces.Box(-high, high, np_random=self.np_random)
         return [seed]
 
     def _destroy(self):

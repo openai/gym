@@ -71,6 +71,11 @@ class BlackjackEnv(gym.Env):
     https://webdocs.cs.ualberta.ca/~sutton/book/the-book.html
     """
     def __init__(self, natural=False):
+        self.action_space = spaces.Discrete(2)
+        self.observation_space = spaces.Tuple((
+            spaces.Discrete(32),
+            spaces.Discrete(11),
+            spaces.Discrete(2)))
         self._seed()
 
         # Flag to payout 1.5 on a "natural" blackjack win, like casino rules
@@ -81,11 +86,6 @@ class BlackjackEnv(gym.Env):
 
     def _seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
-        self.action_space = spaces.Discrete(2, np_random=self.np_random)
-        self.observation_space = spaces.Tuple((
-            spaces.Discrete(32, np_random=self.np_random),
-            spaces.Discrete(11, np_random=self.np_random),
-            spaces.Discrete(2, np_random=self.np_random)))
         return [seed]
 
     def _step(self, action):

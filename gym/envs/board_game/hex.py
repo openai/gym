@@ -56,15 +56,16 @@ class HexEnv(gym.Env):
 
         if self.observation_type != 'numpy3c':
             raise error.Error('Unsupported observation type: {}'.format(self.observation_type))
+
+        # One action for each board position and resign
+        self.action_space = spaces.Discrete(self.board_size ** 2 + 1)
+        observation = self.reset()
+        self.observation_space = spaces.Box(np.zeros(observation.shape), np.ones(observation.shape))
+
         self._seed()
 
     def _seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
-
-        # One action for each board position and resign
-        self.action_space = spaces.Discrete(self.board_size ** 2 + 1, np_random=self.np_random)
-        observation = self.reset()
-        self.observation_space = spaces.Box(np.zeros(observation.shape), np.ones(observation.shape), np_random=self.np_random)
 
         # Update the random policy if needed
         if isinstance(self.opponent, str):

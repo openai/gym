@@ -15,14 +15,15 @@ class PendulumEnv(gym.Env):
         self.max_torque=2.
         self.dt=.05
         self.viewer = None
+
+        high = np.array([1., 1., self.max_speed])
+        self.action_space = spaces.Box(low=-self.max_torque, high=self.max_torque, shape=(1,))
+        self.observation_space = spaces.Box(low=-high, high=high)
+
         self._seed()
 
     def _seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
-
-        high = np.array([1., 1., self.max_speed])
-        self.action_space = spaces.Box(low=-self.max_torque, high=self.max_torque, shape=(1,), np_random=self.np_random)
-        self.observation_space = spaces.Box(low=-high, high=high, np_random=self.np_random)
         return [seed]
 
     def _step(self,u):
