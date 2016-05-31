@@ -81,7 +81,7 @@ class MountainCarEnv(gym.Env):
             self.viewer = rendering.Viewer(screen_width, screen_height)
             xs = np.linspace(self.min_position, self.max_position, 100)
             ys = self._height(xs)
-            xys = zip((xs-self.min_position)*scale, ys*scale)
+            xys = list(zip((xs-self.min_position)*scale, ys*scale))
 
             self.track = rendering.make_polyline(xys)
             self.track.set_linewidth(4)
