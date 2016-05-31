@@ -42,8 +42,8 @@ class CNNClassifierTraining(gym.Env):
             spaces.Box(2, 8, 1),  # batch size
             spaces.Box(-6.0, 1.0, 1),  # l1 reg
             spaces.Box(-6.0, 1.0, 1),  # l2 reg
-            spaces.Box(0.0, 1.0, 5 * 2),  # convolutional layer parameters
-            spaces.Box(0.0, 1.0, 2 * 2),  # fully connected layer parameters
+            spaces.Box(0.0, 1.0, (5, 2)),  # convolutional layer parameters
+            spaces.Box(0.0, 1.0, (2, 2)),  # fully connected layer parameters
         ))
 
         # observation features, in order: num of instances, num of labels,
@@ -194,10 +194,10 @@ class CNNClassifierTraining(gym.Env):
 
         has_convs = False
         # create all convolutional layers
-        for val, use in convs.reshape((5, 2)):
+        for val, use in convs:
 
             # Size of convolutional layer
-            cnvSz = int(val * 128) + 1
+            cnvSz = int(val * 127) + 1
 
             if use < 0.5:
                 continue
@@ -217,13 +217,13 @@ class CNNClassifierTraining(gym.Env):
             model.add(Flatten(input_shape=(img_channels, img_rows, img_cols)))  # avoid excetpions on no convs
 
         # create all fully connected layers
-        for val, use in fcs.reshape((2, 2)):
+        for val, use in fcs:
 
             if use < 0.5:
                 continue
 
             # choose fully connected layer size
-            densesz = int(1024 * val) + 1
+            densesz = int(1023 * val) + 1
 
             model.add(Dense(densesz,
                             W_regularizer=reg,

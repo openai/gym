@@ -449,7 +449,7 @@ add_task(
     id='CNNClassifierTraining-v0',
     group='parameter_tuning',
     experimental=True,
-    summary="Select architecture of CNN and training parameters to obtain high accuracy.",
+    summary="Select architecture of a deep CNN classifier and its training parameters to obtain high accuracy.",
     description ="""\
     Agent selects an architecture of deep CNN classifier and training parameters
     such that it results in high accuracy.
@@ -457,16 +457,26 @@ add_task(
     background="""\
 One step in this environment is a training of a deep network for 10 epochs, where
 architecture and training parameters are selected by an agent. One episode in this
-environment consists of 10 steps.
+environment have a fixed size of 10 steps.
 
-Training parameters that agent can adjust are learning rate, momentum, batch size,
-l1 and l2 penalty coefficients. Agent can select up to 5 layers of CNN and up to
-2 layers of fully connected layers.  As a feedback, agent receives # of instances in
-a dataset and a validation accuracy for every step.
+Training parameters that agent can adjust are learning rate, learning rate decay,
+momentum, batch size, l1 and l2 penalty coefficients. Agent can select up to 5 layers
+of CNN and up to 2 layers of fully connected layers. As a feedback, agent receives
+# of instances in a dataset and a validation accuracy for every step.
 
+For CNN layers architecture selection is done with 5 x 2 matrix, sequence of rows
+in which corresponds to sequence of layers3 of CNN; For every row, if the first entry
+is > 0.5, then a layer is used with # of filters in [1 .. 128] chosen by second entry in
+the row, normalized to [0,1] range. Similarily, architecture of fully connected net
+on used on top of CNN is chosen by 2 x 2 matrix, with number of neurons in [1 ... 1024].
+
+At the beginning of every episode, a dataset to train on is chosen at random.
 Datasets used are MNIST, CIFAR10, CIFAR100. Number of instances in datasets are
 chosen at random in range from around 100% to 5% such that adjustment of l1, l2
 penalty coefficients makes more difference.
+
+Some of the parameters of the dataset are not provided to the agent in order to make
+agent figure it out through experimentation during an episode.
 
 Let the best accuracy achieved so far at every epoch be denoted as a; Then reward at
 every step is a + a*a. On the one hand side, this encourages fast selection of good
