@@ -23,8 +23,10 @@ class CNNClassifierTraining(gym.Env):
     Training parameters that the agent can adjust are learning
     rate, learning rate decay, momentum, batch size, L1 / L2 regularization.
 
+    Agent can select up to 5 cnn layers and up to 2 fc layers.
+
     Agent is provided with feedback on validation accuracy, as well as on
-    the size of a dataset and a number of classes.
+    the size of a dataset.
     """
 
     metadata = {"render.modes": ["human"]}
