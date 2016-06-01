@@ -21,7 +21,7 @@ def upload(training_dir, algorithm_id=None, writeup=None, api_key=None, ignore_o
 
     Args:
         training_dir (Optional[str]): A directory containing the results of a training run.
-        algorithm_id (Optional[str]): An arbitrary string indicating the paricular version of the algorithm (including choices of parameters) you are running.
+        algorithm_id (Optional[str]): An algorithm id indicating the paricular version of the algorithm (including choices of parameters) you are running (visit https://gym.openai.com/algorithms to create an id)
         writeup (Optional[str]): A Gist URL (of the form https://gist.github.com/<user>/<id>) containing your writeup for this evaluation.
         api_key (Optional[str]): Your OpenAI API key. Can also be provided as an environment variable (OPENAI_GYM_API_KEY).
     """
@@ -187,4 +187,4 @@ def write_archive(videos, archive_file, env_id=None):
             tar.add(f.name, arcname='manifest.json')
         finally:
             f.close()
-            os.remove(f.name) 
+            os.remove(f.name)
