@@ -21,6 +21,9 @@ addons:
       - libsdl2-dev
       - libjpeg-dev
       - zlib1g-dev
+      - libblas-dev
+      - liblapack-dev
+      - gfortran
 python:
   - "2.7"
   - "3.4"
