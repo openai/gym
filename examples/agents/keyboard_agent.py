@@ -1,11 +1,13 @@
 #!/usr/bin/env python
+from __future__ import print_function
+
 import sys, gym
 
 #
 # Test yourself as a learning agent! Pass environment name as a command-line argument.
 #
 
-env = gym.make('LunarLander-v0' if len(sys.argv)<2 else sys.argv[1])
+env = gym.make('LunarLander-v2' if len(sys.argv)<2 else sys.argv[1])
 
 ACTIONS = env.action_space.n
 ROLLOUT_TIME = 1000
@@ -40,9 +42,9 @@ def rollout(env):
     human_wants_restart = False
     obser = env.reset()
     skip = 0
-    for t in xrange(ROLLOUT_TIME):
+    for t in range(ROLLOUT_TIME):
         if not skip:
-            #print "taking action {}".format(human_agent_action)
+            #print("taking action {}".format(human_agent_action))
             a = human_agent_action
             skip = SKIP_CONTROL
         else:
@@ -57,9 +59,9 @@ def rollout(env):
             import time
             time.sleep(0.1)
 
-print "ACTIONS={}".format(ACTIONS)
-print "Press keys 1 2 3 ... to take actions 1 2 3 ..."
-print "No keys pressed is taking action 0"
+print("ACTIONS={}".format(ACTIONS))
+print("Press keys 1 2 3 ... to take actions 1 2 3 ...")
+print("No keys pressed is taking action 0")
 
 while 1:
     rollout(env)

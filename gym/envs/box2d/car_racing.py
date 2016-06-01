@@ -12,7 +12,7 @@ from gym.utils import colorize, seeding
 import pyglet
 from pyglet.gl import *
 
-from car_dynamics import Car
+from .car_dynamics import Car
 
 # Easiest continuous control task to learn from pixels, a top-down racing environment.
 # Discreet control is reasonable in this environment as well, on/off discretisation is
