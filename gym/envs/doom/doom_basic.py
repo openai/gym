@@ -19,8 +19,8 @@ class DoomBasicEnv(doom_env.DoomEnv):
 
     Allowed actions:
         [0]  - ATTACK                           - Shoot weapon - Values 0 or 1
-        [9]  - MOVE_RIGHT                       - Move to the right - Values 0 or 1
-        [10] - MOVE_LEFT                        - Move to the left - Values 0 or 1
+        [10] - MOVE_RIGHT                       - Move to the right - Values 0 or 1
+        [11] - MOVE_LEFT                        - Move to the left - Values 0 or 1
     Note: see controls.md for details
 
     Rewards:
@@ -54,8 +54,9 @@ class DoomBasicEnv(doom_env.DoomEnv):
         self.game.init()
         self.game.new_episode()
 
-        # 3 allowed actions [0, 9, 10] (must match .cfg file)
-        self.action_space = spaces.HighLow(np.matrix([[0, 1, 0]] * 3))
+        # 3 allowed actions [0, 10, 11] (must match .cfg file)
+        self.action_space = spaces.HighLow(np.matrix([[0, 1, 0]] * 36 + [[0, 0, 0]] * 5))
         self.observation_space = spaces.Box(low=0, high=255, shape=(self.screen_height, self.screen_width, 3))
+        self.allowed_actions = [0, 10, 11]
 
         self._seed()

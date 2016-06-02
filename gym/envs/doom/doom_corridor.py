@@ -18,11 +18,11 @@ class DoomCorridorEnv(doom_env.DoomEnv):
 
     Allowed actions:
         [0]  - ATTACK                           - Shoot weapon - Values 0 or 1
-        [9]  - MOVE_RIGHT                       - Move to the right - Values 0 or 1
-        [10] - MOVE_LEFT                        - Move to the left - Values 0 or 1
-        [12] - MOVE_FORWARD                     - Move forward - Values 0 or 1
-        [13] - TURN_RIGHT                       - Turn right - Values 0 or 1
-        [14] - TURN_LEFT                        - Turn left - Values 0 or 1
+        [10] - MOVE_RIGHT                       - Move to the right - Values 0 or 1
+        [11] - MOVE_LEFT                        - Move to the left - Values 0 or 1
+        [13] - MOVE_FORWARD                     - Move forward - Values 0 or 1
+        [14] - TURN_RIGHT                       - Turn right - Values 0 or 1
+        [15] - TURN_LEFT                        - Turn left - Values 0 or 1
     Note: see controls.md for details
 
     Rewards:
@@ -55,8 +55,9 @@ class DoomCorridorEnv(doom_env.DoomEnv):
         self.game.init()
         self.game.new_episode()
 
-        # action indexes are [0, 9, 10, 12, 13, 14]
-        self.action_space = spaces.HighLow(np.matrix([[0, 1, 0]] * 6))
+        # action indexes are [0, 10, 11, 13, 14, 15]
+        self.action_space = spaces.HighLow(np.matrix([[0, 1, 0]] * 36 + [[0, 0, 0]] * 5))
         self.observation_space = spaces.Box(low=0, high=255, shape=(self.screen_height, self.screen_width, 3))
+        self.allowed_actions = [0, 10, 11, 13, 14, 15]
 
         self._seed()

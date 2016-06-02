@@ -22,8 +22,8 @@ class DoomDefendCenterEnv(doom_env.DoomEnv):
 
     Allowed actions:
         [0]  - ATTACK                           - Shoot weapon - Values 0 or 1
-        [13] - TURN_RIGHT                       - Turn right - Values 0 or 1
-        [14] - TURN_LEFT                        - Turn left - Values 0 or 1
+        [14] - TURN_RIGHT                       - Turn right - Values 0 or 1
+        [15] - TURN_LEFT                        - Turn left - Values 0 or 1
     Note: see controls.md for details
 
     Rewards:
@@ -54,8 +54,9 @@ class DoomDefendCenterEnv(doom_env.DoomEnv):
         self.game.init()
         self.game.new_episode()
 
-        # 3 allowed actions [0, 13, 14] (must match .cfg file)
-        self.action_space = spaces.HighLow(np.matrix([[0, 1, 0]] * 3))
+        # 3 allowed actions [0, 14, 15] (must match .cfg file)
+        self.action_space = spaces.HighLow(np.matrix([[0, 1, 0]] * 36 + [[0, 0, 0]] * 5))
         self.observation_space = spaces.Box(low=0, high=255, shape=(self.screen_height, self.screen_width, 3))
+        self.allowed_actions = [0, 14, 15]
 
         self._seed()

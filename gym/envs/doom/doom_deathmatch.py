@@ -46,7 +46,9 @@ class DoomDeathmatchEnv(doom_env.DoomEnv):
         self.game.new_episode()
 
         # 41 allowed actions (must match .cfg file)
-        self.action_space = spaces.HighLow(np.matrix([[0, 1, 0]] * 39 + [[0, 10, 0]] * 5))
+        # [0 to 35 are either 0 or 1, 36 to 40 (delta) are disabled (value of 0)
+        self.action_space = spaces.HighLow(np.matrix([[0, 1, 0]] * 36 + [[0, 0, 0]] * 5))
         self.observation_space = spaces.Box(low=0, high=255, shape=(self.screen_height, self.screen_width, 3))
+        self.allowed_actions = list(range(41))
 
         self._seed()
