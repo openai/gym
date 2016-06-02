@@ -49,6 +49,8 @@ class Env(object):
         env = super(Env, cls).__new__(cls)
         env._env_closer_id = env_closer.register(env)
         env._closed = False
+        env._action_warned = False
+        env._observation_warned = False
 
         # Will be automatically set when creating an environment via 'make'
         env.spec = None
@@ -97,12 +99,14 @@ class Env(object):
             done (boolean): whether the episode has ended, in which case further step() calls will return undefined results
             info (dict): contains auxiliary diagnostic information (helpful for debugging, and sometimes learning)
         """
-        if not self.action_space.contains(action):
+        if not self.action_space.contains(action) and not self._action_warned:
+            self._action_warned = True
             logger.warn("Action '{}' is not contained within action space '{}'.".format(action, self.action_space))
 
         self.monitor._before_step(action)
         observation, reward, done, info = self._step(action)
-        if not self.observation_space.contains(observation):
+        if not self.observation_space.contains(observation) and not self._observation_warned:
+            self._observation_warned = True
             logger.warn("Observation '{}' is not contained within observation space '{}'.".format(observation, self.observation_space))
 
         done = self.monitor._after_step(observation, reward, done, info)
