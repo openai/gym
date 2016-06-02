@@ -29,13 +29,21 @@ class Envs(object):
         [observation, reward, done, info] = env.step(action_from_json)
         obs_jsonable = env.observation_space.to_jsonable(observation)
         return [obs_jsonable, reward, done, info]
+    
+    def monitor_start(self, instance_id, directory, force, resume):
+        env = self.envs[instance_id]
+        env.monitor.start(directory, force=force, resume=resume)
+
+    def monitor_close(self, instance_id):
+        env = self.envs[instance_id]
+        env.monitor.close()
 
 app = Flask(__name__)
 envs = Envs()
 
 @app.route('/v1/envs/', methods=['POST'])
 def env_create():
-    env_id = request.form['env_id']
+    env_id = request.get_json()['env_id']
     instance_id = envs.create(env_id)
     return jsonify(instance_id = instance_id)
 
@@ -51,10 +59,27 @@ def env_reset(instance_id):
 
 @app.route('/v1/envs/<instance_id>/step/', methods=['POST'])
 def env_step(instance_id):
-    action = request.form['action']
+    action = request.get_json()['action']
     [obs_jsonable, reward, done, info] = envs.step(instance_id, action)
     return jsonify(observation = obs_jsonable,
                     reward = reward, done = done, info = info)
+
+@app.route('/v1/envs/<instance_id>/monitor/start/', methods=['POST'])
+def env_monitor_start(instance_id):
+    request_data = request.get_json()
+
+    directory = request_data['directory']
+    force = request_data.get('force', False)
+    resume = request_data.get('resume', False)
+
+    envs.monitor_start(instance_id, directory, force, resume)
+    # NOTE: no video_callable implemented yet
+    return ('', 204)
+
+@app.route('/v1/envs/<instance_id>/monitor/close/', methods=['POST'])
+def env_monitor_close(instance_id):
+    envs.monitor_close(instance_id)
+    return ('', 204)
 
 if __name__ == '__main__':
     app.run()

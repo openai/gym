@@ -1,13 +1,17 @@
 import requests
 import urlparse
+import json
 
 class Client(object):
     def __init__(self, remote_base):
         self.remote_base = remote_base
 
     def _request(self, route, data):
+        headers = {'Content-type': 'application/json'}
         resp = requests.post(urlparse.urljoin(self.remote_base, route),
-                            data = data)
+                            data=json.dumps(data),
+                            headers=headers)
+        resp.raise_for_status()
         return resp
     
     def env_create(self, env_id):
@@ -31,16 +35,25 @@ class Client(object):
 
     def env_step(self, instance_id, action):    
         route = '/v1/envs/{}/step/'.format(instance_id)
-        data = {'action':action}
-                    
+        data = {'action': action}
         resp = self._request(route, data)
-
         observation = resp.json()['observation']
         reward = resp.json()['reward']
         done = resp.json()['done']
         info = resp.json()['info']
-
         return [observation, reward, done, info]
+
+    def env_monitor_start(self, instance_id, directory,
+                              force=False, resume=False):
+        route = '/v1/envs/{}/monitor/start/'.format(instance_id)
+        data = {'directory': directory,
+                'force': force,
+                'resume': resume}
+        self._request(route, data)
+
+    def env_monitor_close(self, instance_id):
+        route = '/v1/envs/{}/monitor/close/'.format(instance_id)
+        self._request(route, None)
 
 if __name__ == '__main__':
     remote_base = 'http://127.0.0.1:5000'
@@ -49,8 +62,10 @@ if __name__ == '__main__':
     env_id = 'CartPole-v0'
     instance_id = client.env_create(env_id)
     exists = client.env_check_exists(instance_id)
+    client.env_monitor_start(instance_id, directory='tmp', force=True)
     init_obs = client.env_reset(instance_id)
     [observation, reward, done, info] = client.env_step(instance_id, 1)
+    client.env_monitor_close(instance_id)
     
     
 
