@@ -55,6 +55,16 @@ class Client(object):
         route = '/v1/envs/{}/monitor/close/'.format(instance_id)
         self._request(route, None)
 
+    def upload(self, training_dir, algorithm_id=None, writeup=None,
+                   api_key=None, ignore_open_monitors=False):
+        route = '/v1/upload/'
+        data = {'training_dir': training_dir,
+                'algorithm_id': algorithm_id,
+                'writeup': writeup,
+                'api_key': api_key,
+                'ignore_open_monitors': ignore_open_monitors}
+        self._request(route, data)
+
 if __name__ == '__main__':
     remote_base = 'http://127.0.0.1:5000'
     client = Client(remote_base)
@@ -66,7 +76,8 @@ if __name__ == '__main__':
     init_obs = client.env_reset(instance_id)
     [observation, reward, done, info] = client.env_step(instance_id, 1)
     client.env_monitor_close(instance_id)
-    
+    client.upload(training_dir='tmp')
+        # NOTE: currently failing because no API_key provided
     
 
 

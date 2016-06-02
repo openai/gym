@@ -81,6 +81,19 @@ def env_monitor_close(instance_id):
     envs.monitor_close(instance_id)
     return ('', 204)
 
+@app.route('/v1/upload/', methods=['POST'])
+def upload():
+    request_data = request.get_json()
+
+    training_dir = request_data['training_dir']
+    algorithm_id = request_data.get('algorithm_id', None)
+    writeup = request_data.get('writeup', None)
+    api_key = request_data.get('api_key', None)
+    ignore_open_monitors = request_data.get('ignore_open_monitors', False)
+
+    gym.upload(training_dir, algorithm_id, writeup, api_key,
+                   ignore_open_monitors)
+
 if __name__ == '__main__':
     app.run()
  
