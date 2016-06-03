@@ -237,8 +237,8 @@ class TextEncoder(object):
 import imageio
 class ImageEncoder(object):
     def __init__(self, output_path, frame_shape, frames_per_sec):
-        self.writer = imageio.get_writer(output_path, fps=frames_per_sec)
-
+        self.writer = imageio.get_writer(output_path, fps=frames_per_sec, ffmpeg_params=['-loglevel','error'])
+    
     @property
     def version_info(self):
         return {'backend': 'imageio','version': imageio.__version__}
