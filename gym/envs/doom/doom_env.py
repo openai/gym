@@ -1,7 +1,7 @@
 import logging
 from time import sleep
 
-import numpy
+import numpy as np
 
 import gym
 from gym import utils
@@ -32,12 +32,13 @@ class DoomEnv(gym.Env, utils.EzPickle):
             reward = self.game.make_action(list_action)
             if self.game.is_episode_finished():
                 is_finished = True
+                return np.zeros(shape=self.observation_space.shape), reward, is_finished, {}
             else:
                 is_finished = False
-            return state.image_buffer.copy(), reward, is_finished, {}
+                return state.image_buffer.copy(), reward, is_finished, {}
 
         except doom_py.vizdoom.ViZDoomIsNotRunningException:
-            return [], 0, True, {}
+            return np.zeros(shape=self.observation_space.shape), 0, True, {}
 
     def _reset(self):
         self.game.new_episode()
@@ -56,7 +57,7 @@ class DoomEnv(gym.Env, utils.EzPickle):
             # VizDoom returns None if the episode is finished, let's make it
             # an empty image so the recorder doesn't stop
             if img is None:
-                img = numpy.zeros((self.screen_height, self.screen_width, 3), dtype=numpy.uint8)
+                img = np.zeros(shape=self.observation_space.shape)
             if mode == 'rgb_array':
                 return img
             elif mode is 'human':
