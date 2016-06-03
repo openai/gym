@@ -33,6 +33,18 @@ class DoomMyWayHomeEnv(doom_env.DoomEnv):
     Ends when:
         - Vest is found
         - Timeout (2 minutes - 4,200 frames)
+
+    Actions:
+    Either of
+        1) action = [0, 1, 0]
+            where parameter #1 is MOVE_FORWARD (0 or 1)
+            where parameter #2 is TURN_RIGHT (0 or 1)
+            where parameter #3 is TURN_LEFT (0 or 1)
+        or
+        2) actions = [0] * 41
+           actions[13] = 0      # MOVE_FORWARD
+           actions[14] = 1      # TURN_RIGHT
+           actions[15] = 0      # TURN_LEFT
     -----------------------------------------------------
     """
     def __init__(self):
@@ -52,8 +64,8 @@ class DoomMyWayHomeEnv(doom_env.DoomEnv):
         self.game.new_episode()
 
         # 3 allowed actions [13, 14, 15] (must match .cfg file)
-        self.action_space = spaces.HighLow(np.matrix([[0, 1, 0]] * 36 + [[0, 0, 0]] * 5))
+        self.action_space = spaces.HighLow(np.matrix([[0, 1, 0]] * 36 + [[-10, 10, 0]] * 2 + [[0, 100, 0]] * 3))
         self.observation_space = spaces.Box(low=0, high=255, shape=(self.screen_height, self.screen_width, 3))
-        self.allowed_actions = [13, 14, 15]
+        self.action_space.allowed_actions = [13, 14, 15]
 
         self._seed()

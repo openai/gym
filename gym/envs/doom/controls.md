@@ -55,8 +55,8 @@ The full list of possible actions is:
 * [33] - SELECT_NEXT_ITEM                 - Select next item - Values 0 or 1
 * [34] - SELECT_PREV_ITEM                 - Select previous item - Values 0 or 1
 * [35] - DROP_SELECTED_ITEM               - Drop selected item - Values 0 or 1
-* [36] - LOOK_UP_DOWN_DELTA               - Disabled - Value of 0.
-* [37] - TURN_LEFT_RIGHT_DELTA            - Disabled - Value of 0.
-* [38] - MOVE_FORWARD_BACKWARD_DELTA      - Disabled - Value of 0.
-* [39] - MOVE_LEFT_RIGHT_DELTA            - Disabled - Value of 0.
-* [40] - MOVE_UP_DOWN_DELTA               - Disabled - Value of 0.
+* [36] - LOOK_UP_DOWN_DELTA               - Disabled - Value ignored - Range of -10 to 10.
+* [37] - TURN_LEFT_RIGHT_DELTA            - Disabled - Value ignored - Range of -10 to 10.
+* [38] - MOVE_FORWARD_BACKWARD_DELTA      - Disabled - Value ignored - Range 0 to 100.
+* [39] - MOVE_LEFT_RIGHT_DELTA            - Disabled - Value ignored - Range 0 to 100.
+* [40] - MOVE_UP_DOWN_DELTA               - Disabled - Value ignored - Range 0 to 100.

@@ -22,8 +22,11 @@ class DoomEnv(gym.Env, utils.EzPickle):
 
     def _step(self, action):
         # action is a list of numbers but DoomGame.make_action expects a list of ints
-        # Only passing allowed actions
-        list_action = [int(action[x]) for x in self.allowed_actions]
+        if len(action) > len(self.action_space.allowed_actions):
+            # Long list of actions passed
+            list_action = [int(action[x]) for x in self.action_space.allowed_actions]
+        else:
+            list_action = [int(x) for x in action]
         try:
             state = self.game.get_state()
             reward = self.game.make_action(list_action)

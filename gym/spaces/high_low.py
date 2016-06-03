@@ -27,6 +27,7 @@ class HighLow(gym.Space):
         assert num_cols == 3
         self.matrix = matrix
         self.num_rows = num_rows
+        self.allowed_actions = []
 
     def sample(self):
         # For each row: round(random .* (max - min) + min, precision)
@@ -38,12 +39,20 @@ class HighLow(gym.Space):
         return rounded_matrix.tolist()
 
     def contains(self, x):
-        if len(x) != self.num_rows:
+        if len(x) != self.num_rows and len(x) != len(self.allowed_actions):
             return False
-        for i in range(self.num_rows):
-            if not (self.matrix[i, 0] <= x[i] <= self.matrix[i, 1]):
-                return False
-        return True
+        if len(x) == len(self.allowed_actions):
+            # Short list (only allowed actions)
+            for i in range(len(self.allowed_actions)):
+                if not (self.matrix[self.allowed_actions[i], 0] <= x[i] <= self.matrix[self.allowed_actions[i], 1]):
+                    return False
+            return True
+        else:
+            # Long list (all actions)
+            for i in range(self.num_rows):
+                if not (self.matrix[i, 0] <= x[i] <= self.matrix[i, 1]):
+                    return False
+            return True
 
     def to_jsonable(self, sample_n):
         return np.array(sample_n).tolist()

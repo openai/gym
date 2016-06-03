@@ -17,7 +17,7 @@ class DoomTakeCoverEnv(doom_env.DoomEnv):
     at you. You need to survive as long as possible.
 
     Allowed actions:
-        [10]  - MOVE_RIGHT                       - Move to the right - Values 0 or 1
+        [10] - MOVE_RIGHT                       - Move to the right - Values 0 or 1
         [11] - MOVE_LEFT                        - Move to the left - Values 0 or 1
     Note: see controls.md for details
 
@@ -30,6 +30,16 @@ class DoomTakeCoverEnv(doom_env.DoomEnv):
     Ends when:
         - Player is dead (one or two fireballs should be enough to kill you)
         - Timeout (60 seconds - 2,100 frames)
+
+    Actions:
+    Either of
+        1) action = [0, 1]
+            where parameter #1 is MOVE_RIGHT (0 or 1)
+            where parameter #2 is MOVE_LEFT (0 or 1)
+        or
+        2) actions = [0] * 41
+           actions[10] = 0      # MOVE_RIGHT
+           actions[11] = 1      # MOVE_LEFT
     -----------------------------------------------------
     """
     def __init__(self):
@@ -50,8 +60,8 @@ class DoomTakeCoverEnv(doom_env.DoomEnv):
         self.game.new_episode()
 
         # 2 allowed actions [10, 11] (must match .cfg file)
-        self.action_space = spaces.HighLow(np.matrix([[0, 1, 0]] * 36 + [[0, 0, 0]] * 5))
+        self.action_space = spaces.HighLow(np.matrix([[0, 1, 0]] * 36 + [[-10, 10, 0]] * 2 + [[0, 100, 0]] * 3))
         self.observation_space = spaces.Box(low=0, high=255, shape=(self.screen_height, self.screen_width, 3))
-        self.allowed_actions = [10, 11]
+        self.action_space.allowed_actions = [10, 11]
 
         self._seed()

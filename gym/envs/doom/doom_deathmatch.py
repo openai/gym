@@ -15,7 +15,7 @@ class DoomDeathmatchEnv(doom_env.DoomEnv):
     Kill as many monsters as possible without being killed.
 
     Allowed actions:
-        ALL
+        ALL (except Deltas)
     Note: see controls.md for details
 
     Rewards:
@@ -27,6 +27,21 @@ class DoomDeathmatchEnv(doom_env.DoomEnv):
     Ends when:
         - Player is dead
         - Timeout (3 minutes - 6,300 frames)
+
+    Actions:
+        1) actions = [0] * 36
+           actions[0] = 0       # ATTACK
+           actions[1] = 0       # USE
+           [...]
+           actions[35] = 0      # DROP_SELECTED_ITEM
+        or
+        2) actions = [0] * 41
+           actions[0] = 0       # ATTACK
+           actions[1] = 0       # USE
+           [...]
+           actions[40] = 0      # MOVE_UP_DOWN_DELTA
+           N.B. actions 36 to 40 (Deltas) are ignored
+           A full list of possible actions is available in controls.md
     -----------------------------------------------------
     """
     def __init__(self):
@@ -46,9 +61,9 @@ class DoomDeathmatchEnv(doom_env.DoomEnv):
         self.game.new_episode()
 
         # 41 allowed actions (must match .cfg file)
-        # [0 to 35 are either 0 or 1, 36 to 40 (delta) are disabled (value of 0)
-        self.action_space = spaces.HighLow(np.matrix([[0, 1, 0]] * 36 + [[0, 0, 0]] * 5))
+        # [0 to 35 are either 0 or 1, 36 to 40 (delta) are disabled
+        self.action_space = spaces.HighLow(np.matrix([[0, 1, 0]] * 36 + [[-10, 10, 0]] * 2 + [[0, 100, 0]] * 3))
         self.observation_space = spaces.Box(low=0, high=255, shape=(self.screen_height, self.screen_width, 3))
-        self.allowed_actions = list(range(41))
+        self.action_space.allowed_actions = list(range(36))
 
         self._seed()
