@@ -40,7 +40,7 @@ class DoomCorridorEnv(doom_env.DoomEnv):
 
     Actions:
     Either of
-        1) action = [0, 1, 0, 0, 0, 0]
+        1) action = [0, 1, 0, 0, 0, 0]      # Recommended
             where parameter #1 is ATTACK (0 or 1)
             where parameter #2 is MOVE_RIGHT (0 or 1)
             where parameter #3 is MOVE_LEFT (0 or 1)
@@ -48,7 +48,7 @@ class DoomCorridorEnv(doom_env.DoomEnv):
             where parameter #5 is TURN_RIGHT (0 or 1)
             where parameter #6 is TURN_LEFT (0 or 1)
         or
-        2) actions = [0] * 41
+        2) actions = [0] * 41               # To train for the Deathmatch level
            actions[0] = 0       # ATTACK
            actions[10] = 1      # MOVE_RIGHT
            actions[11] = 0      # MOVE_LEFT

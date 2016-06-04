@@ -33,11 +33,11 @@ class DoomTakeCoverEnv(doom_env.DoomEnv):
 
     Actions:
     Either of
-        1) action = [0, 1]
+        1) action = [0, 1]          # Recommended
             where parameter #1 is MOVE_RIGHT (0 or 1)
             where parameter #2 is MOVE_LEFT (0 or 1)
         or
-        2) actions = [0] * 41
+        2) actions = [0] * 41       # To train for the Deathmatch level
            actions[10] = 0      # MOVE_RIGHT
            actions[11] = 1      # MOVE_LEFT
     -----------------------------------------------------

@@ -36,12 +36,12 @@ class DoomMyWayHomeEnv(doom_env.DoomEnv):
 
     Actions:
     Either of
-        1) action = [0, 1, 0]
+        1) action = [0, 1, 0]       # Recommended
             where parameter #1 is MOVE_FORWARD (0 or 1)
             where parameter #2 is TURN_RIGHT (0 or 1)
             where parameter #3 is TURN_LEFT (0 or 1)
         or
-        2) actions = [0] * 41
+        2) actions = [0] * 41       # To train for the Deathmatch level
            actions[13] = 0      # MOVE_FORWARD
            actions[14] = 1      # TURN_RIGHT
            actions[15] = 0      # TURN_LEFT

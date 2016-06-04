@@ -36,7 +36,14 @@ class HighLow(gym.Space):
         rounded_matrix = np.zeros(self.num_rows)
         for i in range(self.num_rows):
             rounded_matrix[i] = round(random_matrix[i, 0], int(self.matrix[i, 2]))
-        return rounded_matrix.tolist()
+        if len(self.allowed_actions) == 0:
+            return rounded_matrix.tolist()
+        else:
+            # Returning small list
+            small_list = [0] * len(self.allowed_actions)
+            for j in range(len(self.allowed_actions)):
+                small_list[j] = rounded_matrix[self.allowed_actions[j]]
+            return small_list
 
     def contains(self, x):
         if len(x) != self.num_rows and len(x) != len(self.allowed_actions):
@@ -61,7 +68,7 @@ class HighLow(gym.Space):
 
     @property
     def shape(self):
-        return self.matrix.shape
+        return self.matrix.shape[0]
     def __repr__(self):
         return "High-Low" + str(self.shape)
     def __eq__(self, other):

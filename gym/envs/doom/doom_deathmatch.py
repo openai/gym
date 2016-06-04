@@ -29,19 +29,13 @@ class DoomDeathmatchEnv(doom_env.DoomEnv):
         - Timeout (3 minutes - 6,300 frames)
 
     Actions:
-        1) actions = [0] * 36
-           actions[0] = 0       # ATTACK
-           actions[1] = 0       # USE
-           [...]
-           actions[35] = 0      # DROP_SELECTED_ITEM
-        or
-        2) actions = [0] * 41
-           actions[0] = 0       # ATTACK
-           actions[1] = 0       # USE
-           [...]
-           actions[40] = 0      # MOVE_UP_DOWN_DELTA
-           N.B. actions 36 to 40 (Deltas) are ignored
-           A full list of possible actions is available in controls.md
+       actions = [0] * 41
+       actions[0] = 0       # ATTACK
+       actions[1] = 0       # USE
+       [...]
+       actions[40] = 0      # MOVE_UP_DOWN_DELTA
+       N.B. actions 36 to 40 (Deltas) are ignored
+       A full list of possible actions is available in controls.md
     -----------------------------------------------------
     """
     def __init__(self):
