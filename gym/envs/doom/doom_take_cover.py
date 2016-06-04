@@ -37,7 +37,7 @@ class DoomTakeCoverEnv(doom_env.DoomEnv):
             where parameter #1 is MOVE_RIGHT (0 or 1)
             where parameter #2 is MOVE_LEFT (0 or 1)
         or
-        2) actions = [0] * 41       # To train for the Deathmatch level
+        2) actions = [0] * 43       # To train for the Deathmatch level
            actions[10] = 0      # MOVE_RIGHT
            actions[11] = 1      # MOVE_LEFT
     -----------------------------------------------------
@@ -60,7 +60,7 @@ class DoomTakeCoverEnv(doom_env.DoomEnv):
         self.game.new_episode()
 
         # 2 allowed actions [10, 11] (must match .cfg file)
-        self.action_space = spaces.HighLow(np.matrix([[0, 1, 0]] * 36 + [[-10, 10, 0]] * 2 + [[0, 100, 0]] * 3))
+        self.action_space = spaces.HighLow(np.matrix([[0, 1, 0]] * 38 + [[-10, 10, 0]] * 2 + [[-100, 100, 0]] * 3))
         self.observation_space = spaces.Box(low=0, high=255, shape=(self.screen_height, self.screen_width, 3))
         self.action_space.allowed_actions = [10, 11]
 
