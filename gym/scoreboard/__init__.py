@@ -240,6 +240,7 @@ add_task(
     id='LunarLander-v2',
     group='box2d',
     experimental=True,
+    contributor='olegklimov',
     summary='Navigate a lander to its landing pad.',
     description="""
 Landing pad is always at coordinates (0,0). Coordinates are the first two numbers in state vector.
@@ -255,6 +256,7 @@ add_task(
     id='BipedalWalker-v2',
     group='box2d',
     experimental=True,
+    contributor='olegklimov',
     summary='Train a bipedal robot to walk.',
     description="""
 Reward is given for moving forward, total 300+ points up to the far end. If the robot falls,
@@ -270,6 +272,7 @@ add_task(
     id='BipedalWalkerHardcore-v2',
     group='box2d',
     experimental=True,
+    contributor='olegklimov',
     summary='Train a bipedal robot to walk over rough terrain.',
     description="""
 Hardcore version with ladders, stumps, pitfalls. Time limit is increased due to obstacles.
@@ -286,6 +289,7 @@ add_task(
     id='CarRacing-v0',
     group='box2d',
     experimental=True,
+    contributor='olegklimov',
     summary='Race a car around a track.',
     description="""
 Easiest continuous control task to learn from pixels, a top-down racing environment.
@@ -406,6 +410,7 @@ add_task(
 Make a three-dimensional bipedal robot standup as fast as possible.
 """,
     experimental=True,
+    contributor="zdx3578",
 )
 
 # parameter tuning
@@ -413,6 +418,7 @@ add_task(
     id='ConvergenceControl-v0',
     group='parameter_tuning',
     experimental=True,
+    contributor='iaroslav-ai',
     summary="Adjust parameters of training of Deep CNN classifier at every training epoch to improve the end result.",
     description ="""\
     Agent can adjust parameters like step size, momentum etc during
@@ -449,6 +455,7 @@ add_task(
     id='CNNClassifierTraining-v0',
     group='parameter_tuning',
     experimental=True,
+    contributor='iaroslav-ai',
     summary="Select architecture of a deep CNN classifier and its training parameters to obtain high accuracy.",
     description ="""\
     Agent selects an architecture of deep CNN classifier and training parameters
@@ -571,12 +578,14 @@ add_task(
     id='NChain-v0',
     group='toy_text',
     experimental=True,
+    contributor='machinaut',
 )
 
 add_task(
     id='Blackjack-v0',
     group='toy_text',
     experimental=True,
+    contributor='machinaut',
 )
 
 ram_desc = "In this environment, the observation is the RAM of the Atari machine, consisting of (only!) 128 bytes."
@@ -616,54 +625,63 @@ add_task(
     id='DoomBasic-v0',
     group='doom',
     experimental=True,
+    contributor='ppaquette',
 )
 
 add_task(
     id='DoomCorridor-v0',
     group='doom',
     experimental=True,
+    contributor='ppaquette',
 )
 
 add_task(
     id='DoomDefendCenter-v0',
     group='doom',
     experimental=True,
+    contributor='ppaquette',
 )
 
 add_task(
     id='DoomDefendLine-v0',
     group='doom',
     experimental=True,
+    contributor='ppaquette',
 )
 
 add_task(
     id='DoomHealthGathering-v0',
     group='doom',
     experimental=True,
+    contributor='ppaquette',
 )
 
 add_task(
     id='DoomMyWayHome-v0',
     group='doom',
     experimental=True,
+    contributor='ppaquette',
 )
 
 add_task(
     id='DoomPredictPosition-v0',
     group='doom',
     experimental=True,
+    contributor='ppaquette',
 )
 
 add_task(
     id='DoomTakeCover-v0',
     group='doom',
     experimental=True,
+    contributor='ppaquette',
 )
 
 add_task(
     id='DoomDeathmatch-v0',
     group='doom',
     experimental=True,
+    contributor='ppaquette',
 )
 
 # Deprecated
