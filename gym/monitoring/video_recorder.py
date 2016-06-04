@@ -234,69 +234,17 @@ class TextEncoder(object):
     def version_info(self):
         return {'backend':'TextEncoder','version':1}
 
+import imageio
 class ImageEncoder(object):
     def __init__(self, output_path, frame_shape, frames_per_sec):
-        self.proc = None
-        self.output_path = output_path
-        # Frame shape should be lines-first, so w and h are swapped
-        h, w, pixfmt = frame_shape
-        if pixfmt != 3 and pixfmt != 4:
-            raise error.InvalidFrame("Your frame has shape {}, but we require (w,h,3) or (w,h,4), i.e. RGB values for a w-by-h image, with an optional alpha channl.".format(frame_shape))
-        self.wh = (w,h)
-        self.includes_alpha = (pixfmt == 4)
-        self.frame_shape = frame_shape
-        self.frames_per_sec = frames_per_sec
-
-        if distutils.spawn.find_executable('ffmpeg') is not None:
-            self.backend = 'ffmpeg'
-        elif distutils.spawn.find_executable('avconv') is not None:
-            self.backend = 'avconv'
-        else:
-            raise error.DependencyNotInstalled("""Found neither the ffmpeg nor avconv executables. On OS X, you can install ffmpeg via `brew install ffmpeg`. On most Ubuntu variants, `sudo apt-get install ffmpeg` should do it. On Ubuntu 14.04, however, you'll need to install avconv with `sudo apt-get install libav-tools`.""")
-
-        self.start()
-
+        self.writer = imageio.get_writer(output_path, fps=frames_per_sec, ffmpeg_params=['-loglevel','error'])
+    
     @property
     def version_info(self):
-        return {'backend':self.backend,'version':str(subprocess.check_output([self.backend, '-version'])),'cmdline':self.cmdline}
-
-    def start(self):
-        self.cmdline = (self.backend,
-                     '-nostats',
-                     '-loglevel', 'error', # suppress warnings
-                     '-y',
-                     '-r', '%d' % self.frames_per_sec,
-
-                     # input
-                     '-f', 'rawvideo',
-                     '-s:v', '{}x{}'.format(*self.wh),
-                     '-pix_fmt',('rgb32' if self.includes_alpha else 'rgb24'),
-                     '-i', '-', # this used to be /dev/stdin, which is not Windows-friendly
-
-                     # output
-                     '-vcodec', 'libx264',
-                     '-pix_fmt', 'yuv420p',
-                     self.output_path
-                     )
-
-        logger.debug('Starting ffmpeg with "%s"', ' '.join(self.cmdline))
-        self.proc = subprocess.Popen(self.cmdline, stdin=subprocess.PIPE)
+        return {'backend': 'imageio','version': imageio.__version__}
 
     def capture_frame(self, frame):
-        if not isinstance(frame, (np.ndarray, np.generic)):
-            raise error.InvalidFrame('Wrong type {} for {} (must be np.ndarray or np.generic)'.format(type(frame), frame))
-        if frame.shape != self.frame_shape:
-            raise error.InvalidFrame("Your frame has shape {}, but the VideoRecorder is configured for shape {}.".format(frame.shape, self.frame_shape))
-        if frame.dtype != np.uint8:
-            raise error.InvalidFrame("Your frame has data type {}, but we require uint8 (i.e. RGB values from 0-255).".format(frame.dtype))
-
-        if distutils.version.LooseVersion(np.__version__) >= distutils.version.LooseVersion('1.9.0'):
-            self.proc.stdin.write(frame.tobytes())
-        else:
-            self.proc.stdin.write(frame.tostring())
+        self.writer.append_data(frame)
 
     def close(self):
-        self.proc.stdin.close()
-        ret = self.proc.wait()
-        if ret != 0:
-            logger.error("VideoRecorder encoder exited with status {}".format(ret))
+        self.writer.close()

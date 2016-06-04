@@ -116,7 +116,7 @@ class MujocoEnv(gym.Env):
 
     def _get_viewer(self):
         if self.viewer is None:
-            self.viewer = mujoco_py.MjViewer()
+            self.viewer = mujoco_py.MjViewer(init_width=512,init_height=512)
             self.viewer.start()
             self.viewer.set_model(self.model)
             self.viewer_setup()
