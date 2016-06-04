@@ -321,7 +321,7 @@ register(
     id='DoomDefendLine-v0',
     entry_point='gym.envs.doom:DoomDefendLineEnv',
     timestep_limit=10000,
-    reward_threshold=25.0,
+    reward_threshold=15.0,
 )
 
 register(
@@ -356,7 +356,7 @@ register(
     id='DoomDeathmatch-v0',
     entry_point='gym.envs.doom:DoomDeathmatchEnv',
     timestep_limit=10000,
-    reward_threshold=25.0,
+    reward_threshold=20.0,
 )
 
 # Debugging

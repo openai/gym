@@ -30,8 +30,8 @@ class DoomDefendLineEnv(doom_env.DoomEnv):
         +  1    - Killing the monster
         -  1    - Penalty for being killed
 
-    Goal: 25 points
-        Kill 25 monsters
+    Goal: 15 points
+        Kill 15 monsters
 
     Ends when:
         - Player is dead

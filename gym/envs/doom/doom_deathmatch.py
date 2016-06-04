@@ -21,8 +21,8 @@ class DoomDeathmatchEnv(doom_env.DoomEnv):
     Rewards:
         +1      - Killing a monster
 
-    Goal: 25 points
-        Kill 25 monsters without being killed
+    Goal: 20 points
+        Kill 20 monsters without being killed
 
     Ends when:
         - Player is dead
