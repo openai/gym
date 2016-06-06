@@ -412,7 +412,16 @@ Make a three-dimensional bipedal robot standup as fast as possible.
     experimental=True,
     contributor="zdx3578",
 )
-
+add_task(
+    id='HumanoidModelWalk-v0',
+    group='mujoco',
+    summary="Make a 3D two-legged robot walk like model.",
+    description="""\
+    Make a three-dimensional bipedal robot walk like model.
+    """,
+    experimental=True,
+    contributor="zdx3578",
+ )
 # parameter tuning
 add_task(
     id='ConvergenceControl-v0',

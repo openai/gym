@@ -11,3 +11,4 @@ from gym.envs.mujoco.inverted_double_pendulum import InvertedDoublePendulumEnv
 from gym.envs.mujoco.reacher import ReacherEnv
 from gym.envs.mujoco.swimmer import SwimmerEnv
 from gym.envs.mujoco.humanoidstandup import HumanoidStandupEnv
+from gym.envs.mujoco.humanoidmodelwalk import HumanoidModelWalkEnv
