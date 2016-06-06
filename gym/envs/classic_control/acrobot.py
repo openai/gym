@@ -197,11 +197,7 @@ class AcrobotEnv(core.Env):
             circ.set_color(.8, .8, 0)
             circ.add_attr(jtransform)
 
-        self.viewer.render()
-        if mode == 'rgb_array':
-            return self.viewer.get_array()
-        elif mode == 'human':
-            pass
+        return self.viewer.render(return_rgb_array = mode=='rgb_array')
 
 def wrap(x, m, M):
     """

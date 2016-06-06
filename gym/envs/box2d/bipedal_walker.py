@@ -483,13 +483,7 @@ class BipedalWalker(gym.Env):
         self.viewer.draw_polygon(f, color=(0.9,0.2,0) )
         self.viewer.draw_polyline(f + [f[0]], color=(0,0,0), linewidth=2 )
 
-        self.viewer.render()
-        if mode == 'rgb_array':
-            return self.viewer.get_array()
-        elif mode is 'human':
-            pass
-        else:
-            return super(BipedalWalker, self).render(mode=mode)
+        return self.viewer.render(return_rgb_array = mode=='rgb_array')
 
 class BipedalWalkerHardcore(BipedalWalker):
     hardcore = True

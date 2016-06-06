@@ -329,13 +329,7 @@ class LunarLander(gym.Env):
             self.viewer.draw_polyline( [(x, flagy1), (x, flagy2)], color=(1,1,1) )
             self.viewer.draw_polygon( [(x, flagy2), (x, flagy2-10/SCALE), (x+25/SCALE, flagy2-5/SCALE)], color=(0.8,0.8,0) )
 
-        self.viewer.render()
-        if mode == 'rgb_array':
-            return self.viewer.get_array()
-        elif mode is 'human':
-            pass
-        else:
-            return super(LunarLander, self).render(mode=mode)
+        return self.viewer.render(return_rgb_array = mode=='rgb_array')
 
 if __name__=="__main__":
     # Heuristic for testing.

@@ -84,12 +84,7 @@ class PendulumEnv(gym.Env):
         if self.last_u:
             self.imgtrans.scale = (-self.last_u/2, np.abs(self.last_u)/2)
 
-
-        self.viewer.render()
-        if mode == 'rgb_array':
-            return self.viewer.get_array()
-        elif mode == 'human':
-            pass
+        return self.viewer.render(return_rgb_array = mode=='rgb_array')
 
 def angle_normalize(x):
     return (((x+np.pi) % (2*np.pi)) - np.pi)
