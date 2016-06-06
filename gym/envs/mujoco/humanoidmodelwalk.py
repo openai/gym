@@ -31,7 +31,7 @@ class HumanoidModelWalkEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         quad_ctrl_cost =  0.1 * np.square(data.ctrl).sum()
         quad_impact_cost = .5e-6 * np.square(data.cfrc_ext).sum()
         quad_impact_cost = min(quad_impact_cost, 10)
-        modelreward=  1 / ( 0.1 + (self.model.data.xipos[6][1]+ self.model.data.xipos[9][1]))
+        modelreward=  1 / ( 0.3 + (self.model.data.xipos[6][1]+ self.model.data.xipos[9][1]))
         reward = lin_vel_cost - quad_ctrl_cost - quad_impact_cost + alive_bonus + modelreward
         qpos = self.model.data.qpos
         done = bool((qpos[2] < 1.0) or (qpos[2] > 2.0) or ( (self.model.data.xipos[6][2] > 0.2) and (self.model.data.xipos[9][2] > 0.2) ) )
