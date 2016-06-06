@@ -187,7 +187,7 @@ Box2d is a 2D physics engine. You can install it via  ``pip install -e '.[box2d]
 .. code:: python
 
 	  import gym
-	  env = gym.make('LunarLander-v0')
+	  env = gym.make('LunarLander-v2')
 	  env.reset()
 	  env.render()
 
