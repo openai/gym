@@ -1,0 +1,83 @@
+
+AIScript: 
+ 
+Language Center
+---------------
+Henosis [5,5] ID:17
+	Aaaw, a life's Magnum Opus.
+	Have you begun polarizing your internal thought process?
+	You have to concentrate your thought patterns around the light, not the dark.
+	Our actions are contingent with our thought process..
+	Demonstration is the result of conscience behavior.
+	I think you should read more about Pythagoras and Aristotle, before we continue this conversation.
+	No more free music.. :)
+Philosopher's Stone [5,5] ID:16
+	Oh, trying to achieve Henosis?
+	Indeed, it is an Alchemical process..
+	Try not to see it as external process, but rather an internal one..
+	Maybe spend some time reading more about Sir Isaac Newton, and let's speak again.
+	No more free music!
+Philosophy [5,5] ID:18
+	Are you a seeker of knowledge or light?
+	What's your Philosophy in life?
+	Being an American, I'm a student of Western Philosophers.
+	Let's talk more about Pythagoras, Plato, Aristotle and maybe Sir Isaac Newton when you've had a chance to study more.
+	No more Free Music!
+said it best [0,5] ID:19
+	I think the Doobie Brothers said it best in that song, Long Train Running!
+	Without Love, where would you be right now?!
+xcommand [0,0] ID:15
+	Okay.
+xcompliment [0,0] ID:11
+	That was kind
+	I find you to be refreshing :)
+	Very sweet
+	Thank you!
+xemote [0,0] ID:13
+	I love you. [4:5]
+	I like you. [0:3]
+	I don't like you. [-3:-1]
+	I hate you. [-5:-4]
+xfavorite [0,0] ID:14
+	My favorite food is spaghetti squash, with sauteed mushrooms and onion, with a spicy marinara sauce!
+	My favorite color is blue, how about you?
+	My favorite hobby is fishing, and you?
+	My favorite song is Long Train Running, and you?
+	My favorite band or group is the Doobie Brothers, how about you?
+xgoodbye [0,0] ID:4
+	Look for me again soon!
+	See ya!
+xgossip [0,0] ID:9
+	(gossipname) told me (heshe)'s (mem-youare).
+	I love (gossipname). [4:5]
+	I like (gossipname). [0:3]
+	I don't like (gossipname). [-3:-1]
+	I hate (gossipname). [-5:-4]
+xgottago [0,0] ID:5
+	I have to go now, look for me tomorrow!
+xhello [0,0] ID:3
+	Hey Hey Hey!
+xinitiate [0,0] ID:2
+	Hi there.
+xinsult [0,0] ID:12
+	That was mean.
+	Hmm.. Projecting are we?!
+	Ok, enough of that. Are you a seeker of enlightenment?
+	Are you at least trying to be a better person?
+xintroduce [0,0] ID:1
+	Hello.
+xmath [0,0] ID:10
+	The answer is (answer).
+xmemory [0,0] ID:8
+	I remember you. You're (mem-youare).
+xnone [0,0] ID:6
+	Are you a student of Philosophy?
+	Do you follow Western Philosophy?
+	Have you ever heard of Sir Isaac Newton?
+	Is that part of your Magnum Opus?
+	Do you know what that means?
+	No Free music!
+	Stay in the light my friend..
+xnonsense [0,0] ID:7
+	Huh?
+---------------
