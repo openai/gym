@@ -54,6 +54,7 @@ class Env(object):
 
         # Will be automatically set when creating an environment via 'make'
         env.spec = None
+        env.monitor = monitoring.Monitor(self)
         return env
 
     # Set this in SOME subclasses
@@ -76,12 +77,6 @@ class Env(object):
             return
         raise NotImplementedError
     def _seed(self, seed=None): return []
-
-    @property
-    def monitor(self):
-        if not hasattr(self, '_monitor'):
-            self._monitor = monitoring.Monitor(self)
-        return self._monitor
 
     def step(self, action):
         """Run one timestep of the environment's dynamics. When end of
