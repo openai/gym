@@ -54,7 +54,7 @@ class Env(object):
 
         # Will be automatically set when creating an environment via 'make'
         env.spec = None
-        env.monitor = monitoring.Monitor(self)
+        env.monitor = monitoring.Monitor(env)
         return env
 
     # Set this in SOME subclasses
