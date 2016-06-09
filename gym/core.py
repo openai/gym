@@ -79,6 +79,14 @@ class Env(object):
 
     @property
     def monitor(self):
+        """Lazily creates a monitor instance.
+
+        We do this lazily rather than at environment creation time
+        since when the monitor closes, we need remove the existing
+        monitor but also make it easy to start a new one. We could
+        still just forcibly create a new monitor instance on old
+        monitor close, but that seems less clean.
+        """
         if not hasattr(self, '_monitor'):
             self._monitor = monitoring.Monitor(self)
         return self._monitor
