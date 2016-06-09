@@ -185,7 +185,7 @@ class Monitor(object):
             logger.error('Could not close renderer for %s: %s', key, e)
 
         # Remove the env's pointer to this monitor
-        del self.env._monitor
+        self.env._refesh_monitor()
         # Stop tracking this for autoclose
         monitor_closer.unregister(self._monitor_id)
 

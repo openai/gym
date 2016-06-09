@@ -54,8 +54,11 @@ class Env(object):
 
         # Will be automatically set when creating an environment via 'make'
         env.spec = None
-        env.monitor = monitoring.Monitor(env)
+        env._refresh_monitor()
         return env
+
+    def _refresh_monitor(self):
+        self.monitor = monitoring.Monitor(self)
 
     # Set this in SOME subclasses
     metadata = {'render.modes': []}
