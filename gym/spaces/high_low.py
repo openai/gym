@@ -27,39 +27,25 @@ class HighLow(gym.Space):
         assert num_cols == 3
         self.matrix = matrix
         self.num_rows = num_rows
-        self.allowed_actions = []
 
     def sample(self):
         # For each row: round(random .* (max - min) + min, precision)
-        max_minus_min = self.matrix[:, 1] - self.matrix[:, 0]
+        max_minus_min = np.zeros(shape=(self.matrix.shape[0], 1), dtype=np.int32)
+        for i in range(self.matrix.shape[0]):                   # Must use this conversion to avoid overflows
+            max_minus_min[i] = int(self.matrix[i, 1]) - int(self.matrix[i, 0])
         random_matrix = np.multiply(max_minus_min, prng.np_random.rand(self.num_rows, 1)) + self.matrix[:, 0]
-        rounded_matrix = np.zeros(self.num_rows)
+        rounded_matrix = np.zeros(self.num_rows, dtype=np.int32)
         for i in range(self.num_rows):
             rounded_matrix[i] = round(random_matrix[i, 0], int(self.matrix[i, 2]))
-        if len(self.allowed_actions) == 0:
-            return rounded_matrix.tolist()
-        else:
-            # Returning small list
-            small_list = [0] * len(self.allowed_actions)
-            for j in range(len(self.allowed_actions)):
-                small_list[j] = rounded_matrix[self.allowed_actions[j]]
-            return small_list
+        return rounded_matrix.tolist()
 
     def contains(self, x):
-        if len(x) != self.num_rows and len(x) != len(self.allowed_actions):
+        if len(x) != self.num_rows:
             return False
-        if len(x) == len(self.allowed_actions):
-            # Short list (only allowed actions)
-            for i in range(len(self.allowed_actions)):
-                if not (self.matrix[self.allowed_actions[i], 0] <= x[i] <= self.matrix[self.allowed_actions[i], 1]):
-                    return False
-            return True
-        else:
-            # Long list (all actions)
-            for i in range(self.num_rows):
-                if not (self.matrix[i, 0] <= x[i] <= self.matrix[i, 1]):
-                    return False
-            return True
+        for i in range(self.num_rows):
+            if not (self.matrix[i, 0] <= x[i] <= self.matrix[i, 1]):
+                return False
+        return True
 
     def to_jsonable(self, sample_n):
         return np.array(sample_n).tolist()

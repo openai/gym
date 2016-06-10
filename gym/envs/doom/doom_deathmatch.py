@@ -1,10 +1,4 @@
 import logging
-import os
-
-import numpy as np
-
-from doom_py import DoomGame, Mode, Button, GameVariable, ScreenFormat, ScreenResolution, Loader
-from gym import spaces
 from gym.envs.doom import doom_env
 
 logger = logging.getLogger(__name__)
@@ -22,46 +16,30 @@ class DoomDeathmatchEnv(doom_env.DoomEnv):
         +1      - Killing a monster
 
     Goal: 20 points
-        Kill 20 monsters without being killed
+        Kill 20 monsters
 
     Mode:
-        - env.mode can be 'fast' or 'normal' (e.g. env.mode = 'fast')
-        - 'fast' (default) will run as fast as possible (~75 fps) (best for simulation, harder for human to watch)
-        - 'normal' will run at roughly 30 fps (easier for human to watch)
+        - env.mode can be 'fast', 'normal' or 'human' (e.g. env.mode = 'fast')
+        - 'fast' (default) will run as fast as possible (~75 fps) (best for simulation)
+        - 'normal' will run at roughly 35 fps (easier for human to watch)
+        - 'human' will let you play the game (mouse and full keyboard)
 
     Ends when:
         - Player is dead
         - Timeout (3 minutes - 6,300 frames)
 
     Actions:
-       actions = [0] * 43
-       actions[0] = 0       # ATTACK
-       actions[1] = 0       # USE
-       [...]
-       actions[42] = 0      # MOVE_UP_DOWN_DELTA
-       A full list of possible actions is available in controls.md
+        actions = [0] * 43
+        actions[0] = 0       # ATTACK
+        actions[1] = 0       # USE
+        [...]
+        actions[42] = 0      # MOVE_UP_DOWN_DELTA
+        A full list of possible actions is available in controls.md
     -----------------------------------------------------
     """
     def __init__(self):
         super(DoomDeathmatchEnv, self).__init__()
-        package_directory = os.path.dirname(os.path.abspath(__file__))
-        self.loader = Loader()
-        self.game = DoomGame()
-        self.game.load_config(os.path.join(package_directory, 'assets/deathmatch.cfg'))
-        self.game.set_vizdoom_path(self.loader.get_vizdoom_path())
-        self.game.set_doom_game_path(self.loader.get_freedoom_path())
-        self.game.set_doom_scenario_path(self.loader.get_scenario_path('deathmatch.wad'))
-        self.screen_height = 480                    # Must match .cfg file
-        self.screen_width = 640                     # Must match .cfg file
-        self.game.set_window_visible(False)
-        self.viewer = None
-        self.game.init()
-        self.game.new_episode()
-
-        # 43 allowed actions (must match .cfg file)
-        # [0 to 37 are either 0 or 1, 38 and 39 are -10 to +10, 40 to 42 are -100 to +100]
-        self.action_space = spaces.HighLow(np.matrix([[0, 1, 0]] * 38 + [[-10, 10, 0]] * 2 + [[-100, 100, 0]] * 3))
-        self.observation_space = spaces.Box(low=0, high=255, shape=(self.screen_height, self.screen_width, 3))
-        self.action_space.allowed_actions = list(range(43))
-
-        self._seed()
+        self.config = 'deathmatch.cfg'
+        self.scenario = 'deathmatch.wad'
+        self.difficulty = 5
+        self.allowed_actions = list(range(43))

@@ -76,3 +76,8 @@ The full list of possible actions is:
 * [42] - MOVE_UP_DOWN_DELTA               - Speed of up/down movement - Range -100 to 100 (integer).
                                           - +100 is max speed up, -100 is max speed down, 0 is no movement
 
+To control the player in 'human' mode, the following keys should work:
+
+* Arrow Keys for MOVE_FORWARD, MOVE_BACKWARD, LEFT_TURN, RIGHT_TURN
+* '<' and '>' for MOVE_RIGHT and MOVE_LEFT
+* Ctrl (or left mouse click) for ATTACK

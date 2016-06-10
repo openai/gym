@@ -1,5 +1,9 @@
 from gym.envs.registration import registry, register, make, spec
 
+# To be able to create new-style properties
+class Env(object):
+    pass
+
 # Algorithmic
 # ----------------------------------------
 
@@ -301,13 +305,15 @@ register(
     entry_point='gym.envs.doom:DoomBasicEnv',
     timestep_limit=10000,
     reward_threshold=10.0,
+    nondeterministic=True,
 )
 
 register(
     id='DoomCorridor-v0',
     entry_point='gym.envs.doom:DoomCorridorEnv',
     timestep_limit=10000,
-    reward_threshold=1270.0,
+    reward_threshold=1000.0,
+    nondeterministic=True,
 )
 
 register(
@@ -315,6 +321,7 @@ register(
     entry_point='gym.envs.doom:DoomDefendCenterEnv',
     timestep_limit=10000,
     reward_threshold=10.0,
+    nondeterministic=True,
 )
 
 register(
@@ -322,6 +329,7 @@ register(
     entry_point='gym.envs.doom:DoomDefendLineEnv',
     timestep_limit=10000,
     reward_threshold=15.0,
+    nondeterministic=True,
 )
 
 register(
@@ -329,6 +337,7 @@ register(
     entry_point='gym.envs.doom:DoomHealthGatheringEnv',
     timestep_limit=10000,
     reward_threshold=1000.0,
+    nondeterministic=True,
 )
 
 register(
@@ -336,6 +345,7 @@ register(
     entry_point='gym.envs.doom:DoomMyWayHomeEnv',
     timestep_limit=10000,
     reward_threshold=0.5,
+    nondeterministic=True,
 )
 
 register(
@@ -343,6 +353,7 @@ register(
     entry_point='gym.envs.doom:DoomPredictPositionEnv',
     timestep_limit=10000,
     reward_threshold=0.5,
+    nondeterministic=True,
 )
 
 register(
@@ -350,6 +361,7 @@ register(
     entry_point='gym.envs.doom:DoomTakeCoverEnv',
     timestep_limit=10000,
     reward_threshold=750.0,
+    nondeterministic=True,
 )
 
 register(
@@ -357,6 +369,7 @@ register(
     entry_point='gym.envs.doom:DoomDeathmatchEnv',
     timestep_limit=10000,
     reward_threshold=20.0,
+    nondeterministic=True,
 )
 
 # Debugging
