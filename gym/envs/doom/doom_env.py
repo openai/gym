@@ -15,6 +15,9 @@ except ImportError as e:
 
 logger = logging.getLogger(__name__)
 
+# Constants
+NUM_ACTIONS = 43
+
 class DoomEnv(gym.Env, utils.EzPickle):
     metadata = {'render.modes': ['human', 'rgb_array'], 'video.frames_per_second': 35}
 
@@ -33,18 +36,18 @@ class DoomEnv(gym.Env, utils.EzPickle):
         self.action_space = spaces.HighLow(
             np.matrix([[0, 1, 0]] * 38 + [[-10, 10, 0]] * 2 + [[-100, 100, 0]] * 3, dtype=np.int8))
         self.observation_space = spaces.Box(low=0, high=255, shape=(self.screen_height, self.screen_width, 3))
-        self.allowed_actions = list(range(43))
+        self.allowed_actions = list(range(NUM_ACTIONS))
 
     def _step(self, action):
-        if 43 != len(action):
-            logger.warn('Doom action list must contain 43 items. Padding missing items with 0')
+        if NUM_ACTIONS != len(action):
+            logger.warn('Doom action list must contain %d items. Padding missing items with 0' % NUM_ACTIONS)
             old_action = action
-            action = [0] * 43
+            action = [0] * NUM_ACTIONS
             for i in range(len(old_action)):
                 action[i] = old_action[i]
         # action is a list of numbers but DoomGame.make_action expects a list of ints
         if len(self.allowed_actions) > 0:
-            list_action = [int(action[x]) for x in self.allowed_actions]
+            list_action = [int(action[action_idx]) for action_idx in self.allowed_actions]
         else:
             list_action = [int(x) for x in action]
         try:
