@@ -39,6 +39,7 @@ class DiscreteEnv(Env):
         self.observation_space = spaces.Discrete(self.nS)
 
         self._seed()
+        self._reset()
 
     def _seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
