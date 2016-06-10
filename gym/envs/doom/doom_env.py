@@ -5,6 +5,7 @@ import numpy
 
 import gym
 from gym import utils
+from gym.utils import seeding
 
 try:
     import doom_py
@@ -65,3 +66,8 @@ class DoomEnv(gym.Env, utils.EzPickle):
 
     def _close(self):
         self.game.close()
+
+    def _seed(self, seed=None):
+        seed = seeding.hash_seed(seed) % 2 ** 32
+        self.game.set_seed(seed)
+        return [seed]

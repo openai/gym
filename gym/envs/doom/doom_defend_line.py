@@ -4,9 +4,8 @@ import os
 import numpy as np
 
 from doom_py import DoomGame, Mode, Button, GameVariable, ScreenFormat, ScreenResolution, Loader
-from gym import error, spaces
+from gym import spaces
 from gym.envs.doom import doom_env
-from gym.utils import seeding
 
 logger = logging.getLogger(__name__)
 
@@ -52,14 +51,11 @@ class DoomDefendLineEnv(doom_env.DoomEnv):
         self.screen_width = 640                     # Must match .cfg file
         self.game.set_window_visible(False)
         self.viewer = None
-        # 3 allowed actions [0, 13, 14] (must match .cfg file)
-        self.action_space = spaces.HighLow(np.matrix([[0, 1, 0]] * 3))
-        self.observation_space = spaces.Box(low=0, high=255, shape=(self.screen_height, self.screen_width, 3))
-        self._seed()
         self.game.init()
         self.game.new_episode()
 
-    def _seed(self, seed=None):
-        seed = seeding.hash_seed(seed) % 2**32
-        self.game.set_seed(seed)
-        return [seed]
+        # 3 allowed actions [0, 13, 14] (must match .cfg file)
+        self.action_space = spaces.HighLow(np.matrix([[0, 1, 0]] * 3))
+        self.observation_space = spaces.Box(low=0, high=255, shape=(self.screen_height, self.screen_width, 3))
+
+        self._seed()

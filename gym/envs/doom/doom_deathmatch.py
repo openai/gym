@@ -4,8 +4,7 @@ import os
 import numpy as np
 
 from doom_py import DoomGame, Mode, Button, GameVariable, ScreenFormat, ScreenResolution, Loader
-from gym import error, spaces
-from gym.utils import seeding
+from gym import spaces
 from gym.envs.doom import doom_env
 
 logger = logging.getLogger(__name__)
@@ -51,8 +50,3 @@ class DoomDeathmatchEnv(doom_env.DoomEnv):
         self.observation_space = spaces.Box(low=0, high=255, shape=(self.screen_height, self.screen_width, 3))
 
         self._seed()
-
-    def _seed(self, seed=None):
-        seed = seeding.hash_seed(seed) % 2**32
-        self.game.set_seed(seed)
-        return [seed]
