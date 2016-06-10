@@ -4,7 +4,9 @@ logger = logging.getLogger(__name__)
 import numpy as np
 
 from gym import error, monitoring
-from gym.utils.atexit_utils import env_closer
+from gym.utils import closer
+
+env_closer = closer.Closer()
 
 # Env-related abstractions
 
@@ -15,10 +17,11 @@ class Env(object):
 
     The main API methods that users of this class need to know are:
 
-        reset
         step
+        reset
         render
         close
+        seed
 
     When implementing an environment, override the following methods
     in your subclass:
@@ -26,17 +29,32 @@ class Env(object):
         _step
         _reset
         _render
+        _close
+        _seed
 
     And set the following attributes:
 
         action_space: The Space object corresponding to valid actions
         observation_space: The Space object corresponding to valid observations
+        reward_range: A tuple corresponding to the min and max possible rewards
 
     The methods are accessed publicly as "step", "reset", etc.. The
     non-underscored versions are wrapper methods to which we may add
     functionality to over time.
-
     """
+
+    def __new__(cls, *args, **kwargs):
+        # We use __new__ since we want the env author to be able to
+        # override __init__ without remebering to call super.
+        env = super(Env, cls).__new__(cls)
+        env._env_closer_id = env_closer.register(env)
+        env._closed = False
+        env._action_warned = False
+        env._observation_warned = False
+
+        # Will be automatically set when creating an environment via 'make'
+        env.spec = None
+        return env
 
     # Set this in SOME subclasses
     metadata = {'render.modes': []}
@@ -57,15 +75,18 @@ class Env(object):
         if close:
             return
         raise NotImplementedError
-
-    # Will be automatically set when creating an environment via
-    # 'make'.
-    spec = None
-    _close_called = False
-    _env_exit_id = None
+    def _seed(self, seed=None): return []
 
     @property
     def monitor(self):
+        """Lazily creates a monitor instance.
+
+        We do this lazily rather than at environment creation time
+        since when the monitor closes, we need remove the existing
+        monitor but also make it easy to start a new one. We could
+        still just forcibly create a new monitor instance on old
+        monitor close, but that seems less clean.
+        """
         if not hasattr(self, '_monitor'):
             self._monitor = monitoring.Monitor(self)
         return self._monitor
@@ -75,25 +96,25 @@ class Env(object):
         episode is reached, you are responsible for calling `reset()`
         to reset this environment's state.
 
-        Input
-        -----
-        action : an action provided by the environment
+        Accepts an action and returns a tuple (observation, reward, done, info).
 
-        Outputs
-        -------
-        (observation, reward, done, info)
+        Args:
+            action (object): an action provided by the environment
 
-        observation (object): agent's observation of the current environment
-        reward (float) : amount of reward returned after previous action
-        done (boolean): whether the episode has ended, in which case further step() calls will return undefined results
-        info (dict): contains auxiliary diagnostic information (helpful for debugging, and sometimes learning)
+        Returns:
+            observation (object): agent's observation of the current environment
+            reward (float) : amount of reward returned after previous action
+            done (boolean): whether the episode has ended, in which case further step() calls will return undefined results
+            info (dict): contains auxiliary diagnostic information (helpful for debugging, and sometimes learning)
         """
-        if not self.action_space.contains(action):
+        if not self.action_space.contains(action) and not self._action_warned:
+            self._action_warned = True
             logger.warn("Action '{}' is not contained within action space '{}'.".format(action, self.action_space))
 
         self.monitor._before_step(action)
         observation, reward, done, info = self._step(action)
-        if not self.observation_space.contains(observation):
+        if not self.observation_space.contains(observation) and not self._observation_warned:
+            self._observation_warned = True
             logger.warn("Observation '{}' is not contained within observation space '{}'.".format(observation, self.observation_space))
 
         done = self.monitor._after_step(observation, reward, done, info)
@@ -103,9 +124,8 @@ class Env(object):
         """
         Resets the state of the environment and returns an initial observation.
 
-        Outputs
-        -------
-        observation (object): the initial observation of the space. (Initial reward is assumed to be 0.)
+        Returns:
+            observation (object): the initial observation of the space. (Initial reward is assumed to be 0.)
         """
         self.monitor._before_reset()
         observation = self._reset()
@@ -140,15 +160,15 @@ class Env(object):
         Example:
 
         class MyEnv(Env):
-          metadata = {'render.modes': ['human', 'rgb_array']}
+            metadata = {'render.modes': ['human', 'rgb_array']}
 
-          def render(self, mode='human'):
-            if mode == 'rgb_array':
-               return np.array(...) # return RGB frame suitable for video
-            elif mode is 'human':
-               ... # pop up a window and render
-            else:
-               super(MyEnv, self).render(mode=mode) # just raise an exception
+            def render(self, mode='human'):
+                if mode == 'rgb_array':
+                    return np.array(...) # return RGB frame suitable for video
+                elif mode is 'human':
+                    ... # pop up a window and render
+                else:
+                    super(MyEnv, self).render(mode=mode) # just raise an exception
         """
         if close:
             return self._render(close=close)
@@ -163,16 +183,38 @@ class Env(object):
         return self._render(mode=mode, close=close)
 
     def close(self):
-        """Environments will automatically close() themselves when garbage collected (via
-        __del__) or when the program exits (via env_closer's atexit behavior).
-        Override _close in your subclass to perform any necessary cleanup.
+        """Override _close in your subclass to perform any necessary cleanup.
+
+        Environments will automatically close() themselves when
+        garbage collected or when the program exits.
         """
-        if not self._close_called:
-            self._close()
-            env_closer.unregister(self._env_exit_id)
-            # N.B. you might still get a double close() if an error happens
-            # before we set _close_called, but this is probably good for now.
-            self._close_called = True
+        # _closed will be missing if this instance is still
+        # initializing.
+        if not hasattr(self, '_closed') or self._closed:
+            return
+
+        self._close()
+        env_closer.unregister(self._env_closer_id)
+        # If an error occurs before this line, it's possible to
+        # end up with double close.
+        self._closed = True
+
+    def seed(self, seed=None):
+        """Sets the seed for this env's random number generator(s).
+
+        Note:
+            Some environments use multiple pseudorandom number generators.
+            We want to capture all such seeds used in order to ensure that
+            there aren't accidental correlations between multiple generators.
+
+        Returns:
+            list<bigint>: Returns the list of seeds used in this env's random
+              number generators. The first value in the list should be the
+              "main" seed, or the value which a reproducer should pass to
+              'seed'. Often, the main seed equals the provided 'seed', but
+              this won't be true if seed=None, for example.
+        """
+        return self._seed(seed)
 
     def __del__(self):
         self.close()

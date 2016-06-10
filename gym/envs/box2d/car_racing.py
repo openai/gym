@@ -6,12 +6,12 @@ from Box2D.b2 import (edgeShape, circleShape, fixtureDef, polygonShape, revolute
 
 import gym
 from gym import spaces
+from gym.envs.box2d.car_dynamics import Car
 from gym.envs.classic_control import rendering
+from gym.utils import colorize, seeding
 
 import pyglet
 from pyglet.gl import *
-
-from car_dynamics import Car
 
 # Easiest continuous control task to learn from pixels, a top-down racing environment.
 # Discreet control is reasonable in this environment as well, on/off discretisation is
@@ -106,8 +106,7 @@ class CarRacing(gym.Env):
     }
 
     def __init__(self):
-        self.action_space = spaces.Box( np.array([-1,0,0]), np.array([+1,+1,+1]) )  # steer, gas, brake
-        self.observation_space = spaces.Box(low=0, high=255, shape=(STATE_H, STATE_W, 3))
+        self._seed()
         self.world = Box2D.b2World((0,0), contactListener=FrictionDetector(self))
         self.viewer = None
         self.invisible_state_window = None
@@ -116,6 +115,13 @@ class CarRacing(gym.Env):
         self.car = None
         self.reward = 0.0
         self.prev_reward = 0.0
+
+        self.action_space = spaces.Box( np.array([-1,0,0]), np.array([+1,+1,+1]))  # steer, gas, brake
+        self.observation_space = spaces.Box(low=0, high=255, shape=(STATE_H, STATE_W, 3))
+
+    def _seed(self, seed=None):
+        self.np_random, seed = seeding.np_random(seed)
+        return [seed]
 
     def _destroy(self):
         if not self.road: return
@@ -130,8 +136,8 @@ class CarRacing(gym.Env):
         # Create checkpoints
         checkpoints = []
         for c in range(CHECKPOINTS):
-            alpha = 2*math.pi*c/CHECKPOINTS + np.random.uniform(0, 2*math.pi*1/CHECKPOINTS)
-            rad = np.random.uniform(TRACK_RAD/3, TRACK_RAD)
+            alpha = 2*math.pi*c/CHECKPOINTS + self.np_random.uniform(0, 2*math.pi*1/CHECKPOINTS)
+            rad = self.np_random.uniform(TRACK_RAD/3, TRACK_RAD)
             if c==0:
                 alpha = 0
                 rad = 1.5*TRACK_RAD
@@ -350,8 +356,9 @@ class CarRacing(gym.Env):
 
         arr = None
         win = self.viewer.window
-        win.switch_to()
-        win.dispatch_events()
+        if mode != 'state_pixels':
+            win.switch_to()
+            win.dispatch_events()
         if mode=="rgb_array" or mode=="state_pixels":
             win.clear()
             t = self.transform

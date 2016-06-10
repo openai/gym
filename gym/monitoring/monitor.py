@@ -10,8 +10,7 @@ import weakref
 
 from gym import error, version
 from gym.monitoring import stats_recorder, video_recorder
-from gym.utils import atomic_write
-from gym.utils.atexit_utils import monitor_closer
+from gym.utils import atomic_write, closer, seeding
 
 logger = logging.getLogger(__name__)
 
@@ -39,8 +38,15 @@ def capped_cubic_video_schedule(episode_id):
     else:
         return episode_id % 1000 == 0
 
+def disable_videos(episode_id):
+    return False
+
+monitor_closer = closer.Closer()
+
+# This method gets used for a sanity check in scoreboard/api.py. It's
+# not intended for use outside of the gym codebase.
 def _open_monitors():
-    return list(monitor_closer.close_objects.values())
+    return list(monitor_closer.closeables.values())
 
 class Monitor(object):
     """A configurable monitor for your training runs.
@@ -80,15 +86,17 @@ class Monitor(object):
         self.enabled = False
         self.episode_id = 0
         self._monitor_id = None
+        self.seeds = None
 
-    def start(self, directory, video_callable=None, force=False, resume=False):
+    def start(self, directory, video_callable=None, force=False, resume=False, seed=None):
         """Start monitoring.
 
         Args:
             directory (str): A per-training run directory where to record stats.
-            video_callable (Optional[function]): function that takes in the index of the episode and outputs a boolean, indicating whether we should record a video on this episode. The default (for video_callable is None) is to take perfect cubes.
+            video_callable (Optional[function, False]): function that takes in the index of the episode and outputs a boolean, indicating whether we should record a video on this episode. The default (for video_callable is None) is to take perfect cubes, capped at 1000. False disables video recording.
             force (bool): Clear out existing training data from this directory (by deleting every file prefixed with "openaigym.").
             resume (bool): Retain the training data already in this directory, which will be merged with our new data
+            seed (Optional[int]): The seed to run this environment with. By default, a random seed will be chosen.
         """
         if self.env.spec is None:
             logger.warn("Trying to monitor an environment which has no 'spec' set. This usually means you did not create it via 'gym.make', and is recommended only for advanced users.")
@@ -99,6 +107,8 @@ class Monitor(object):
 
         if video_callable is None:
             video_callable = capped_cubic_video_schedule
+        elif video_callable == False:
+            video_callable = disable_videos
         elif not callable(video_callable):
             raise error.Error('You must provide a function, None, or False for video_callable, not {}: {}'.format(type(video_callable), video_callable))
 
@@ -113,6 +123,8 @@ class Monitor(object):
  You should use a unique directory for each training run, or use 'force=True' to automatically clear previous monitor files.'''.format(directory, ', '.join(training_manifests[:5])))
 
 
+        self._monitor_id = monitor_closer.register(self)
+
         self.enabled = True
         self.directory = os.path.abspath(directory)
         # We use the 'openai-gym' prefix to determine if a file is
@@ -123,7 +135,9 @@ class Monitor(object):
         self.configure(video_callable=video_callable)
         if not os.path.exists(directory):
             os.mkdir(directory)
-        self._monitor_id = monitor_closer.register(self)
+
+        seeds = self.env.seed(seed)
+        self.seeds = seeds
 
     def flush(self):
         """Flush all relevant monitor information to disk."""
@@ -143,6 +157,7 @@ class Monitor(object):
                 'videos': [(os.path.basename(v), os.path.basename(m))
                            for v, m in self.videos],
                 'env_info': self._env_info(),
+                'seeds': self.seeds,
             }, f)
 
     def close(self):
@@ -150,9 +165,9 @@ class Monitor(object):
         if not self.enabled:
             return
         self.stats_recorder.close()
-        self.flush()
         if self.video_recorder is not None:
             self._close_video_recorder()
+        self.flush()
 
         # Note we'll close the env's rendering window even if we did
         # not open it. There isn't a particular great way to know if
@@ -246,13 +261,12 @@ class Monitor(object):
         return self.video_callable(self.episode_id)
 
     def _env_info(self):
+        env_info = {
+            'gym_version': version.VERSION,
+        }
         if self.env.spec:
-            return {
-                'env_id': self.env.spec.id,
-                'gym_version': version.VERSION,
-            }
-        else:
-            return {}
+            env_info['env_id'] = self.env.spec.id
+        return env_info
 
     def __del__(self):
         # Make sure we've closed up shop when garbage collecting
@@ -271,6 +285,8 @@ def load_results(training_dir):
     # Load up stats + video files
     stats_files = []
     videos = []
+    main_seeds = []
+    seeds = []
     env_infos = []
 
     for manifest in manifests:
@@ -281,6 +297,13 @@ def load_results(training_dir):
             videos += [(os.path.join(training_dir, v), os.path.join(training_dir, m))
                        for v, m in contents['videos']]
             env_infos.append(contents['env_info'])
+            current_seeds = contents.get('seeds', [])
+            seeds += current_seeds
+            if current_seeds:
+                main_seeds.append(current_seeds[0])
+            else:
+                # current_seeds could be None or []
+                main_seeds.append(None)
 
     env_info = collapse_env_infos(env_infos, training_dir)
     timestamps, episode_lengths, episode_rewards, initial_reset_timestamp = merge_stats_files(stats_files)
@@ -293,6 +316,8 @@ def load_results(training_dir):
         'episode_rewards': episode_rewards,
         'initial_reset_timestamp': initial_reset_timestamp,
         'videos': videos,
+        'main_seeds': main_seeds,
+        'seeds': seeds,
     }
 
 def merge_stats_files(stats_files):

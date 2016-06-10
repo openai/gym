@@ -1,8 +1,7 @@
 from gym import Env
 from gym.spaces import Discrete, Tuple
-from gym.utils import colorize
+from gym.utils import colorize, seeding
 import numpy as np
-import random
 from six import StringIO
 import sys
 import math
@@ -17,6 +16,7 @@ class AlgorithmicEnv(Env):
 
     def __init__(self, inp_dim=1, base=10, chars=False):
         global hash_base
+
         hash_base = 50 ** np.arange(inp_dim)
         self.base = base
         self.last = 10
@@ -27,9 +27,16 @@ class AlgorithmicEnv(Env):
         self.inp_dim = inp_dim
         AlgorithmicEnv.current_length = 2
         tape_control = []
-        self.action_space = Tuple(([Discrete(2 * inp_dim), Discrete(2), Discrete(self.base)]))
+
+        self.action_space = Tuple(([Discrete(2 * self.inp_dim), Discrete(2), Discrete(self.base)]))
         self.observation_space = Discrete(self.base + 1)
+
+        self._seed()
         self.reset()
+
+    def _seed(self, seed=None):
+        self.np_random, seed = seeding.np_random(seed)
+        return [seed]
 
     def _get_obs(self, pos=None):
         if pos is None:
@@ -198,6 +205,6 @@ class AlgorithmicEnv(Env):
             AlgorithmicEnv.sum_rewards = []
         self.sum_reward = 0.0
         self.time = 0
-        self.total_len = random.randrange(3) + AlgorithmicEnv.current_length
+        self.total_len = self.np_random.randint(3) + AlgorithmicEnv.current_length
         self.set_data()
         return self._get_obs()

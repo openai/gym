@@ -1,7 +1,9 @@
-from gym import Space
 import numpy as np
 
-class HighLow(Space):
+import gym
+from gym.spaces import prng
+
+class HighLow(gym.Space):
     """
     A matrix of dimensions n x 3, where
 
@@ -29,7 +31,7 @@ class HighLow(Space):
     def sample(self):
         # For each row: round(random .* (max - min) + min, precision)
         max_minus_min = self.matrix[:, 1] - self.matrix[:, 0]
-        random_matrix = np.multiply(max_minus_min, np.random.rand(self.num_rows, 1)) + self.matrix[:, 0]
+        random_matrix = np.multiply(max_minus_min, prng.np_random.rand(self.num_rows, 1)) + self.matrix[:, 0]
         rounded_matrix = np.zeros(self.num_rows)
         for i in range(self.num_rows):
             rounded_matrix[i] = round(random_matrix[i, 0], int(self.matrix[i, 2]))

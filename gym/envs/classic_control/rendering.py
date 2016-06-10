@@ -60,7 +60,7 @@ class Viewer(object):
     def add_onetime(self, geom):
         self.onetime_geoms.append(geom)
 
-    def render(self):
+    def render(self, return_rgb_array=False):
         glClearColor(1,1,1,1)
         self.window.clear()
         self.window.switch_to()
@@ -71,8 +71,15 @@ class Viewer(object):
         for geom in self.onetime_geoms:
             geom.render()
         self.transform.disable()
+        arr = None
+        if return_rgb_array:
+            image_data = pyglet.image.get_buffer_manager().get_color_buffer().get_image_data()
+            arr = np.fromstring(image_data.data, dtype=np.uint8, sep='')
+            arr = arr.reshape(self.height, self.width, 4)
+            arr = arr[::-1,:,0:3]
         self.window.flip()
         self.onetime_geoms = []
+        return arr
 
     # Convenience
     def draw_circle(self, radius=10, res=30, filled=True, **attrs):

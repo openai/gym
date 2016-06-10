@@ -6,6 +6,7 @@ import numpy as np
 from doom_py import DoomGame, Mode, Button, GameVariable, ScreenFormat, ScreenResolution, Loader
 from gym import error, spaces
 from gym.envs.doom import doom_env
+from gym.utils import seeding
 
 logger = logging.getLogger(__name__)
 
@@ -49,10 +50,18 @@ class DoomDefendCenterEnv(doom_env.DoomEnv):
         self.game.set_doom_scenario_path(self.loader.get_scenario_path('defend_the_center.wad'))
         self.screen_height = 480                    # Must match .cfg file
         self.screen_width = 640                     # Must match .cfg file
-        # 3 allowed actions [0, 13, 14] (must match .cfg file)
-        self.action_space = spaces.HighLow(np.matrix([[0, 1, 0]] * 3))
-        self.observation_space = spaces.Box(low=0, high=255, shape=(self.screen_height, self.screen_width, 3))
         self.game.set_window_visible(False)
         self.viewer = None
         self.game.init()
         self.game.new_episode()
+
+        # 3 allowed actions [0, 13, 14] (must match .cfg file)
+        self.action_space = spaces.HighLow(np.matrix([[0, 1, 0]] * 3))
+        self.observation_space = spaces.Box(low=0, high=255, shape=(self.screen_height, self.screen_width, 3))
+
+        self._seed()
+
+    def _seed(self, seed=None):
+        seed = seeding.hash_seed(seed) % 2**32
+        self.game.set_seed(seed)
+        return [seed]

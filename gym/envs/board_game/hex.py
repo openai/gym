@@ -8,13 +8,14 @@ import gym
 from gym import spaces
 import numpy as np
 from gym import error
+from gym.utils import seeding
 
-
-def random_policy(state):
-    possible_moves = HexEnv.get_possible_actions(state)
-    a = np.random.randint(len(possible_moves))
-    return possible_moves[a]
-
+def make_random_policy(np_random):
+    def random_policy(state):
+        possible_moves = HexEnv.get_possible_actions(state)
+        a = np_random.randint(len(possible_moves))
+        return possible_moves[a]
+    return random_policy
 
 class HexEnv(gym.Env):
     """
@@ -46,13 +47,6 @@ class HexEnv(gym.Env):
             raise error.Error("player_color must be 'black' or 'white', not {}".format(player_color))
 
         self.opponent = opponent
-        if isinstance(self.opponent, str):
-            if opponent == 'random':
-                self.opponent_policy = random_policy
-            else:
-                raise error.Error('Unrecognized opponent policy {}'.format(self.opponent))
-        else:
-            self.opponent_policy = opponent
 
         assert observation_type in ['numpy3c']
         self.observation_type = observation_type
@@ -60,14 +54,29 @@ class HexEnv(gym.Env):
         assert illegal_move_mode in ['lose', 'raise']
         self.illegal_move_mode = illegal_move_mode
 
-        # One action for each board position and resign
-        self.action_space = spaces.Discrete(self.board_size ** 2 + 1)
-
         if self.observation_type != 'numpy3c':
             raise error.Error('Unsupported observation type: {}'.format(self.observation_type))
 
+        # One action for each board position and resign
+        self.action_space = spaces.Discrete(self.board_size ** 2 + 1)
         observation = self.reset()
         self.observation_space = spaces.Box(np.zeros(observation.shape), np.ones(observation.shape))
+
+        self._seed()
+
+    def _seed(self, seed=None):
+        self.np_random, seed = seeding.np_random(seed)
+
+        # Update the random policy if needed
+        if isinstance(self.opponent, str):
+            if self.opponent == 'random':
+                self.opponent_policy = make_random_policy(self.np_random)
+            else:
+                raise error.Error('Unrecognized opponent policy {}'.format(self.opponent))
+        else:
+            self.opponent_policy = self.opponent
+
+        return [seed]
 
     def _reset(self):
         self.state = np.zeros((3, self.board_size, self.board_size))

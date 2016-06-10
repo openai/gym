@@ -159,17 +159,20 @@ register(
 register(
     id='Reacher-v1',
     entry_point='gym.envs.mujoco:ReacherEnv',
-    timestep_limit=50
+    timestep_limit=50,
+    reward_threshold=-3.75,
 )
 
 register(
     id='InvertedPendulum-v1',
     entry_point='gym.envs.mujoco:InvertedPendulumEnv',
+    reward_threshold=950.0,
 )
 
 register(
     id='InvertedDoublePendulum-v1',
     entry_point='gym.envs.mujoco:InvertedDoublePendulumEnv',
+    reward_threshold=9100.0,
 )
 
 register(
@@ -206,7 +209,7 @@ register(
     entry_point='gym.envs.mujoco:HumanoidEnv',
 )
 register(
-    id='HumanoidStandup-v0',
+    id='HumanoidStandup-v1',
     entry_point='gym.envs.mujoco:HumanoidStandupEnv',
 )
 
@@ -228,11 +231,21 @@ for game in ['air_raid', 'alien', 'amidar', 'assault', 'asterix', 'asteroids', '
         name = ''.join([g.capitalize() for g in game.split('_')])
         if obs_type == 'ram':
             name = '{}-ram'.format(name)
+
+        nondeterministic = False
+        if game == 'elevator_action' and obs_type == 'ram':
+            # ElevatorAction-ram-v0 seems to yield slightly
+            # non-deterministic observations about 10% of the time. We
+            # should track this down eventually, but for now we just
+            # mark it as nondeterministic.
+            nondeterministic = True
+
         register(
             id='{}-v0'.format(name),
             entry_point='gym.envs.atari:AtariEnv',
             kwargs={'game': game, 'obs_type': obs_type},
             timestep_limit=10000,
+            nondeterministic=nondeterministic,
         )
 
 # Board games
@@ -248,6 +261,11 @@ register(
         'illegal_move_mode': 'lose',
         'board_size': 9,
     },
+    # The pachi player seems not to be determistic given a fixed seed.
+    # (Reproduce by running 'import gym; h = gym.make('Go9x9-v0'); h.seed(1); h.reset(); h.step(15); h.step(16); h.step(17)' a few times.)
+    #
+    # This is probably due to a computation time limit.
+    nondeterministic=True,
 )
 
 register(
@@ -260,6 +278,7 @@ register(
         'illegal_move_mode': 'lose',
         'board_size': 19,
     },
+    nondeterministic=True,
 )
 
 register(
@@ -320,4 +339,43 @@ register(
 register(
     id='DoomDeathmatch-v0',
     entry_point='gym.envs.doom:DoomDeathmatchEnv',
+)
+
+# Debugging
+# ----------------------------------------
+
+register(
+    id='OneRoundDeterministicReward-v0',
+    entry_point='gym.envs.debugging:OneRoundDeterministicRewardEnv',
+    local_only=True
+)
+
+register(
+    id='TwoRoundDeterministicReward-v0',
+    entry_point='gym.envs.debugging:TwoRoundDeterministicRewardEnv',
+    local_only=True
+)
+
+register(
+    id='OneRoundNondeterministicReward-v0',
+    entry_point='gym.envs.debugging:OneRoundNondeterministicRewardEnv',
+    local_only=True
+)
+
+register(
+    id='TwoRoundNondeterministicReward-v0',
+    entry_point='gym.envs.debugging:TwoRoundNondeterministicRewardEnv',
+    local_only=True,
+)
+
+# Parameter tuning
+# ----------------------------------------
+register(
+    id='ConvergenceControl-v0',
+    entry_point='gym.envs.parameter_tuning:ConvergenceControl',
+)
+
+register(
+    id='CNNClassifierTraining-v0',
+    entry_point='gym.envs.parameter_tuning:CNNClassifierTraining',
 )

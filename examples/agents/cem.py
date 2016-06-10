@@ -1,7 +1,13 @@
+from __future__ import print_function
+
 import gym
 import logging
 import numpy as np
-import json, sys, cPickle, os
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
+import json, sys, os
 from os import path
 from _policies import BinaryActionLinearPolicy # Different file so it can be unpickled
 import argparse
@@ -77,10 +83,10 @@ if __name__ == '__main__':
     # Train the agent, and snapshot each stage
     for (i, iterdata) in enumerate(
         cem(noisy_evaluation, np.zeros(env.observation_space.shape[0]+1), **params)):
-        print 'Iteration %2i. Episode mean reward: %7.3f'%(i, iterdata['y_mean'])
+        print('Iteration %2i. Episode mean reward: %7.3f'%(i, iterdata['y_mean']))
         agent = BinaryActionLinearPolicy(iterdata['theta_mean'])
         if args.display: do_rollout(agent, env, 200, render=True)
-        writefile('agent-%.4i.pkl'%i, cPickle.dumps(agent, -1))
+        writefile('agent-%.4i.pkl'%i, str(pickle.dumps(agent, -1)))
 
     # Write out the env at the end so we store the parameters of this
     # environment.
@@ -89,4 +95,4 @@ if __name__ == '__main__':
     env.monitor.close()
 
     logger.info("Successfully ran RandomAgent. Now trying to upload results to the scoreboard. If it breaks, you can always just try re-uploading the same results.")
-    gym.upload(outdir, algorithm_id='cem')
+    gym.upload(outdir)

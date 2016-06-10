@@ -22,26 +22,24 @@ class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
                                data.cfrc_ext.flat])
 
     def _step(self, a):
-        pos_before = self.model.data.qpos
         self.do_simulation(a, self.frame_skip)
-        pos_after = self.model.data.qpos
+        pos_after = self.model.data.qpos[2][0]
         data = self.model.data
-        qpos = self.model.data.qpos
-        uph_cost=(pos_after[2]-pos_before[2]) / self.model.opt.timestep
+        uph_cost=(pos_after - 0 ) / self.model.opt.timestep
 
         quad_ctrl_cost =  0.1 * np.square(data.ctrl).sum()
         quad_impact_cost = .5e-6 * np.square(data.cfrc_ext).sum()
         quad_impact_cost = min(quad_impact_cost, 10)
-        reward = uph_cost - quad_ctrl_cost - quad_impact_cost
+        reward = uph_cost - quad_ctrl_cost - quad_impact_cost + 1
 
-        done = bool((pos_after[1] - pos_before[1] > 15.0) or (pos_after[0] - pos_before[0] > 15.0))
-        return self._get_obs(), reward[0], done, dict(reward_linup=uph_cost, reward_quadctrl=-quad_ctrl_cost, reward_impact=-quad_impact_cost)
+        done = bool(False)
+        return self._get_obs(), reward, done, dict(reward_linup=uph_cost, reward_quadctrl=-quad_ctrl_cost, reward_impact=-quad_impact_cost)
 
     def reset_model(self):
         c = 0.01
         self.set_state(
-            self.init_qpos + np.random.uniform(low=-c, high=c, size=self.model.nq),
-            self.init_qvel + np.random.uniform(low=-c, high=c, size=self.model.nv,)
+            self.init_qpos + self.np_random.uniform(low=-c, high=c, size=self.model.nq),
+            self.init_qvel + self.np_random.uniform(low=-c, high=c, size=self.model.nv,)
         )
         return self._get_obs()
 

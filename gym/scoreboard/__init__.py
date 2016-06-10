@@ -52,6 +52,12 @@ add_group(
 )
 
 add_group(
+    id='parameter_tuning',
+    name='Parameter tuning',
+    description='Tune parameters of costly experiments to obtain better outcomes.'
+)
+
+add_group(
     id='toy_text',
     name='Toy text',
     description='Simple text environments to get you started.'
@@ -234,6 +240,8 @@ add_task(
     id='LunarLander-v2',
     group='box2d',
     experimental=True,
+    contributor='olegklimov',
+    summary='Navigate a lander to its landing pad.',
     description="""
 Landing pad is always at coordinates (0,0). Coordinates are the first two numbers in state vector.
 Reward for moving from the top of the screen to landing pad and zero speed is about 100..140 points.
@@ -248,6 +256,8 @@ add_task(
     id='BipedalWalker-v2',
     group='box2d',
     experimental=True,
+    contributor='olegklimov',
+    summary='Train a bipedal robot to walk.',
     description="""
 Reward is given for moving forward, total 300+ points up to the far end. If the robot falls,
 it gets -100. Applying motor torque costs a small amount of points, more optimal agent
@@ -262,6 +272,8 @@ add_task(
     id='BipedalWalkerHardcore-v2',
     group='box2d',
     experimental=True,
+    contributor='olegklimov',
+    summary='Train a bipedal robot to walk over rough terrain.',
     description="""
 Hardcore version with ladders, stumps, pitfalls. Time limit is increased due to obstacles.
 Reward is given for moving forward, total 300+ points up to the far end. If the robot falls,
@@ -277,6 +289,8 @@ add_task(
     id='CarRacing-v0',
     group='box2d',
     experimental=True,
+    contributor='olegklimov',
+    summary='Race a car around a track.',
     description="""
 Easiest continuous control task to learn from pixels, a top-down racing environment.
 Discreet control is reasonable in this environment as well, on/off discretisation is
@@ -389,13 +403,103 @@ The robot model was originally created by Tassa et al. [Tassa12]_.
 )
 
 add_task(
-    id='HumanoidStandup-v0',
+    id='HumanoidStandup-v1',
     group='mujoco',
     summary="Make a 3D two-legged robot standup.",
     description="""\
 Make a three-dimensional bipedal robot standup as fast as possible.
 """,
     experimental=True,
+    contributor="zdx3578",
+)
+
+# parameter tuning
+add_task(
+    id='ConvergenceControl-v0',
+    group='parameter_tuning',
+    experimental=True,
+    contributor='iaroslav-ai',
+    summary="Adjust parameters of training of Deep CNN classifier at every training epoch to improve the end result.",
+    description ="""\
+    Agent can adjust parameters like step size, momentum etc during
+    training of deep convolutional neural net to improve its convergence / quality
+    of end - result. One episode in this environment is a training of one neural net
+    for 20 epochs. Agent can adjust parameters in the beginning of every epoch.
+""",
+    background="""\
+Parameters that agent can adjust are learning rate and momentum coefficients for SGD,
+batch size, l1 and l2 penalty. As a feedback, agent receives # of instances / labels
+in dataset, description of network architecture, and validation accuracy for every epoch.
+
+Architecture of neural network and dataset used are selected randomly at the beginning
+of an episode. Datasets used are MNIST, CIFAR10, CIFAR100. Network architectures contain
+multilayer convnets 66 % of the time, and are [classic] feedforward nets otherwise.
+
+Number of instances in datasets are chosen at random in range from around 100% to 5%
+such that adjustment of l1, l2 penalty coefficients makes more difference.
+
+Let the best accuracy achieved so far at every epoch be denoted as a; Then reward at
+every step is a + a*a. On the one hand side, this encourages fast convergence, as it
+improves cumulative reward over the episode. On the other hand side, improving best
+achieved accuracy is expected to quadratically improve cumulative reward, thus
+encouraging agent to converge fast while achieving high best validation accuracy value.
+
+As the number of labels increases, learning problem becomes more difficult for a fixed
+dataset size. In order to avoid for the agent to ignore more complex datasets, on which
+accuracy is low and concentrate on simple cases which bring bulk of reward, accuracy is
+normalized by the number of labels in a dataset.
+""",
+)
+
+add_task(
+    id='CNNClassifierTraining-v0',
+    group='parameter_tuning',
+    experimental=True,
+    contributor='iaroslav-ai',
+    summary="Select architecture of a deep CNN classifier and its training parameters to obtain high accuracy.",
+    description ="""\
+    Agent selects an architecture of deep CNN classifier and training parameters
+    such that it results in high accuracy.
+""",
+    background="""\
+One step in this environment is a training of a deep network for 10 epochs, where
+architecture and training parameters are selected by an agent. One episode in this
+environment have a fixed size of 10 steps.
+
+Training parameters that agent can adjust are learning rate, learning rate decay,
+momentum, batch size, l1 and l2 penalty coefficients. Agent can select up to 5 layers
+of CNN and up to 2 layers of fully connected layers. As a feedback, agent receives
+# of instances in a dataset and a validation accuracy for every step.
+
+For CNN layers architecture selection is done with 5 x 2 matrix, sequence of rows
+in which corresponds to sequence of layers3 of CNN; For every row, if the first entry
+is > 0.5, then a layer is used with # of filters in [1 .. 128] chosen by second entry in
+the row, normalized to [0,1] range. Similarily, architecture of fully connected net
+on used on top of CNN is chosen by 2 x 2 matrix, with number of neurons in [1 ... 1024].
+
+At the beginning of every episode, a dataset to train on is chosen at random.
+Datasets used are MNIST, CIFAR10, CIFAR100. Number of instances in datasets are
+chosen at random in range from around 100% to 5% such that adjustment of l1, l2
+penalty coefficients makes more difference.
+
+Some of the parameters of the dataset are not provided to the agent in order to make
+agent figure it out through experimentation during an episode.
+
+Let the best accuracy achieved so far at every epoch be denoted as a; Then reward at
+every step is a + a*a. On the one hand side, this encourages fast selection of good
+architecture, as it improves cumulative reward over the episode. On the other hand side,
+improving best achieved accuracy is expected to quadratically improve cumulative reward,
+thus encouraging agent to find quickly architectrue and training parameters which lead
+to high accuracy.
+
+As the number of labels increases, learning problem becomes more difficult for a fixed
+dataset size. In order to avoid for the agent to ignore more complex datasets, on which
+accuracy is low and concentrate on simple cases which bring bulk of reward, accuracy is
+normalized by the number of labels in a dataset.
+
+This environment requires Keras with Theano or TensorFlow to run. When run on laptop
+gpu (GTX960M) one step takes on average 2 min.
+""",
 )
 
 # toy text
@@ -474,12 +578,14 @@ add_task(
     id='NChain-v0',
     group='toy_text',
     experimental=True,
+    contributor='machinaut',
 )
 
 add_task(
     id='Blackjack-v0',
     group='toy_text',
     experimental=True,
+    contributor='machinaut',
 )
 
 ram_desc = "In this environment, the observation is the RAM of the Atari machine, consisting of (only!) 128 bytes."
@@ -519,54 +625,63 @@ add_task(
     id='DoomBasic-v0',
     group='doom',
     experimental=True,
+    contributor='ppaquette',
 )
 
 add_task(
     id='DoomCorridor-v0',
     group='doom',
     experimental=True,
+    contributor='ppaquette',
 )
 
 add_task(
     id='DoomDefendCenter-v0',
     group='doom',
     experimental=True,
+    contributor='ppaquette',
 )
 
 add_task(
     id='DoomDefendLine-v0',
     group='doom',
     experimental=True,
+    contributor='ppaquette',
 )
 
 add_task(
     id='DoomHealthGathering-v0',
     group='doom',
     experimental=True,
+    contributor='ppaquette',
 )
 
 add_task(
     id='DoomMyWayHome-v0',
     group='doom',
     experimental=True,
+    contributor='ppaquette',
 )
 
 add_task(
     id='DoomPredictPosition-v0',
     group='doom',
     experimental=True,
+    contributor='ppaquette',
 )
 
 add_task(
     id='DoomTakeCover-v0',
     group='doom',
     experimental=True,
+    contributor='ppaquette',
 )
 
 add_task(
     id='DoomDeathmatch-v0',
     group='doom',
     experimental=True,
+    contributor='ppaquette',
 )
 
 # Deprecated

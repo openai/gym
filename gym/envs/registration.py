@@ -3,7 +3,6 @@ import pkg_resources
 import re
 import sys
 from gym import error
-from gym.utils.atexit_utils import env_closer
 
 logger = logging.getLogger(__name__)
 # This format is true today, but it's *not* an official spec.
@@ -24,7 +23,9 @@ class EnvSpec(object):
         timestep_limit (int): The max number of timesteps per episode during training
         trials (int): The number of trials to average reward over
         reward_threshold (Optional[int]): The reward threshold before the task is considered solved
+        local_only: True iff the environment is to be used only on the local machine (e.g. debugging envs)
         kwargs (dict): The kwargs to pass to the environment class
+        nondeterministic (bool): Whether this environment is non-deterministic even after seeding
 
     Attributes:
         id (str): The official environment ID
@@ -32,12 +33,14 @@ class EnvSpec(object):
         trials (int): The number of trials run in official evaluation
     """
 
-    def __init__(self, id, entry_point=None, timestep_limit=1000, trials=100, reward_threshold=None, kwargs=None):
+    def __init__(self, id, entry_point=None, timestep_limit=1000, trials=100, reward_threshold=None, local_only=False, kwargs=None, nondeterministic=False):
         self.id = id
         # Evaluation parameters
         self.timestep_limit = timestep_limit
         self.trials = trials
         self.reward_threshold = reward_threshold
+        # Environment properties
+        self.nondeterministic = nondeterministic
 
         # We may make some of these other parameters public if they're
         # useful.
@@ -46,6 +49,7 @@ class EnvSpec(object):
             raise error.Error('Attempted to register malformed environment ID: {}. (Currently all IDs must be of the form {}.)'.format(id, env_id_re.pattern))
         self._env_name = match.group(1)
         self._entry_point = entry_point
+        self._local_only = local_only
         self._kwargs = {} if kwargs is None else kwargs
 
     def make(self):
@@ -58,9 +62,6 @@ class EnvSpec(object):
 
         # Make the enviroment aware of which spec it came from.
         env.spec = self
-        # Register the env for atexit
-        env._close_called = False
-        env._env_exit_id = env_closer.register(env)
         return env
 
     def __repr__(self):

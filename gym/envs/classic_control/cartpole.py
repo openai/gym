@@ -7,6 +7,7 @@ import logging
 import math
 import gym
 from gym import spaces
+from gym.utils import seeding
 import numpy as np
 
 logger = logging.getLogger(__name__)
@@ -30,15 +31,21 @@ class CartPoleEnv(gym.Env):
         # Angle at which to fail the episode
         self.theta_threshold_radians = 12 * 2 * math.pi / 360
         self.x_threshold = 2.4
-        self.reset()
-        self.viewer = None
 
         # Angle limit set to 2 * theta_threshold_radians so failing observation is still within bounds
-        high = np.array([self.x_threshold, np.inf, self.theta_threshold_radians * 2, np.inf])
+        high = np.array([self.x_threshold * 2, np.inf, self.theta_threshold_radians * 2, np.inf])
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Box(-high, high)
 
+        self._seed()
+        self.reset()
+        self.viewer = None
+
         self.steps_beyond_done = None
+
+    def _seed(self, seed=None):
+        self.np_random, seed = seeding.np_random(seed)
+        return [seed]
 
     def _step(self, action):
         action = action
@@ -77,7 +84,7 @@ class CartPoleEnv(gym.Env):
         return np.array(self.state), reward, done, {}
 
     def _reset(self):
-        self.state = np.random.uniform(low=-0.05, high=0.05, size=(4,))
+        self.state = self.np_random.uniform(low=-0.05, high=0.05, size=(4,))
         self.steps_beyond_done = None
         return np.array(self.state)
 
@@ -129,8 +136,4 @@ class CartPoleEnv(gym.Env):
         self.carttrans.set_translation(cartx, carty)
         self.poletrans.set_rotation(-x[2])
 
-        self.viewer.render()
-        if mode == 'rgb_array':
-            return self.viewer.get_array()
-        elif mode == 'human':
-            pass
+        return self.viewer.render(return_rgb_array = mode=='rgb_array')

@@ -11,6 +11,15 @@ gym
 If you're not sure where to start, we recommend beginning with the
 `docs <https://gym.openai.com/docs>`_ on our site.
 
+A whitepaper for OpenAI Gym is available at http://arxiv.org/abs/1606.01540, and here's a BibTeX entry that you can use to cite it in a publication::
+
+	@misc{1606.01540,
+		Author = {Greg Brockman and Vicki Cheung and Ludwig Pettersson and Jonas Schneider and John Schulman and Jie Tang and Wojciech Zaremba},
+		Title = {OpenAI Gym},
+		Year = {2016},
+		Eprint = {arXiv:1606.01540},
+	}
+
 .. contents:: **Contents of this document**
    :depth: 2
 
@@ -77,7 +86,7 @@ On OSX:
 
 .. code:: shell
 
-	  brew install cmake boost boost-python sdl2
+	  brew install cmake boost boost-python sdl2 swig
 
 On Ubuntu 14.04:
 
@@ -187,7 +196,7 @@ Box2d is a 2D physics engine. You can install it via  ``pip install -e '.[box2d]
 .. code:: python
 
 	  import gym
-	  env = gym.make('LunarLander-v0')
+	  env = gym.make('LunarLander-v2')
 	  env.reset()
 	  env.render()
 
@@ -200,6 +209,18 @@ These are a variety of classic control tasks, which would appear in a typical re
 
 	  import gym
 	  env = gym.make('CartPole-v0')
+	  env.reset()
+	  env.render()
+
+Doom
+---------------
+
+These tasks take place inside a Doom game (via the VizDoom project). If you didn't do the full install, you will need to run ``pip install -e '.[doom]'``. You can get started with them via:
+
+.. code:: python
+
+	  import gym
+	  env = gym.make('DoomBasic-v0')
 	  env.reset()
 	  env.render()
 
@@ -251,3 +272,10 @@ We are using `nose2 <https://github.com/nose-devs/nose2>`_ for tests. You can ru
 	  nose2
 
 You can also run tests in a specific directory by using the ``-s`` option, or by passing in the specific name of the test. See the `nose2 docs <http://nose2.readthedocs.org/en/latest/usage.html#naming-tests>`_ for more details.
+
+What's new
+----------
+
+- 2016-05-28: For controlled reproducibility, envs now support seeding
+  (cf #91 and #135). The monitor records which seeds are used. We will
+  soon add seed information to the display on the scoreboard.
