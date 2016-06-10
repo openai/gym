@@ -33,6 +33,7 @@ class DiscreteEnv(Env):
         self.nA = nA
         self.P = P
         self.isd = isd
+        self.s = categorical_sample(self.isd)
         self.lastaction=None # for rendering
 
     @property
