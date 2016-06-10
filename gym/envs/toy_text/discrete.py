@@ -34,6 +34,7 @@ class DiscreteEnv(Env):
         self.P = P
         self.isd = isd
         self.lastaction=None # for rendering
+        self._reset()
 
     @property
     def nS(self):
