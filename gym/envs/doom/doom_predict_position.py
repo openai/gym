@@ -34,6 +34,11 @@ class DoomPredictPositionEnv(doom_env.DoomEnv):
     Hint: Missile launcher takes longer to load. You must wait a good second after the game starts
         before trying to fire it.
 
+    Mode:
+        - env.mode can be 'fast' or 'normal' (e.g. env.mode = 'fast')
+        - 'fast' (default) will run as fast as possible (~75 fps) (best for simulation, harder for human to watch)
+        - 'normal' will run at roughly 30 fps (easier for human to watch)
+
     Ends when:
         - Monster is dead
         - Out of missile (you only have one)
@@ -53,6 +58,7 @@ class DoomPredictPositionEnv(doom_env.DoomEnv):
     -----------------------------------------------------
     """
     def __init__(self):
+        super(DoomPredictPositionEnv, self).__init__()
         package_directory = os.path.dirname(os.path.abspath(__file__))
         self.loader = Loader()
         self.game = DoomGame()

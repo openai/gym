@@ -24,6 +24,11 @@ class DoomDeathmatchEnv(doom_env.DoomEnv):
     Goal: 20 points
         Kill 20 monsters without being killed
 
+    Mode:
+        - env.mode can be 'fast' or 'normal' (e.g. env.mode = 'fast')
+        - 'fast' (default) will run as fast as possible (~75 fps) (best for simulation, harder for human to watch)
+        - 'normal' will run at roughly 30 fps (easier for human to watch)
+
     Ends when:
         - Player is dead
         - Timeout (3 minutes - 6,300 frames)

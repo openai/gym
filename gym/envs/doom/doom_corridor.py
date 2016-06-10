@@ -31,7 +31,12 @@ class DoomCorridorEnv(doom_env.DoomEnv):
         -100    - Penalty for being killed
 
     Goal: 1,270 points
-     Reach the vest (try also killing guards, rather than just running)
+        Reach the vest (try also killing guards, rather than just running)
+
+    Mode:
+        - env.mode can be 'fast' or 'normal' (e.g. env.mode = 'fast')
+        - 'fast' (default) will run as fast as possible (~75 fps) (best for simulation, harder for human to watch)
+        - 'normal' will run at roughly 30 fps (easier for human to watch)
 
     Ends when:
         - Player touches vest

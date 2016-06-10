@@ -30,6 +30,11 @@ class DoomMyWayHomeEnv(doom_env.DoomEnv):
     Goal: 0.50 point
         Find the vest
 
+    Mode:
+        - env.mode can be 'fast' or 'normal' (e.g. env.mode = 'fast')
+        - 'fast' (default) will run as fast as possible (~75 fps) (best for simulation, harder for human to watch)
+        - 'normal' will run at roughly 30 fps (easier for human to watch)
+
     Ends when:
         - Vest is found
         - Timeout (2 minutes - 4,200 frames)

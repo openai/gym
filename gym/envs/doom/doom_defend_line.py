@@ -33,6 +33,11 @@ class DoomDefendLineEnv(doom_env.DoomEnv):
     Goal: 15 points
         Kill 15 monsters
 
+    Mode:
+        - env.mode can be 'fast' or 'normal' (e.g. env.mode = 'fast')
+        - 'fast' (default) will run as fast as possible (~75 fps) (best for simulation, harder for human to watch)
+        - 'normal' will run at roughly 30 fps (easier for human to watch)
+
     Ends when:
         - Player is dead
         - Timeout (60 seconds - 2100 frames)

@@ -19,6 +19,7 @@ class DoomEnv(gym.Env, utils.EzPickle):
 
     def __init__(self):
         utils.EzPickle.__init__(self)
+        self.mode = 'fast'
 
     def _step(self, action):
         # action is a list of numbers but DoomGame.make_action expects a list of ints
@@ -65,7 +66,8 @@ class DoomEnv(gym.Env, utils.EzPickle):
                 if self.viewer is None:
                     self.viewer = rendering.SimpleImageViewer()
                 self.viewer.imshow(img)
-                sleep(0.02857)  # 35 fps = 0.02857 sleep between frames
+                if 'fast' != self.mode:
+                    sleep(0.02857)  # 35 fps = 0.02857 sleep between frames
         except doom_py.vizdoom.ViZDoomIsNotRunningException:
             pass # Doom has been closed
 
