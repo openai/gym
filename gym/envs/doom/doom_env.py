@@ -1,4 +1,4 @@
-import logging, warnings, os
+import logging, os
 from time import sleep
 
 import numpy as np
@@ -37,7 +37,7 @@ class DoomEnv(gym.Env, utils.EzPickle):
 
     def _step(self, action):
         if 43 != len(action):
-            warnings.warn('Doom action list must contain 43 items. Padding missing items with 0')
+            logger.warn('Doom action list must contain 43 items. Padding missing items with 0')
             old_action = action
             action = [0] * 43
             for i in range(len(old_action)):
