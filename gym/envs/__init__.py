@@ -1,9 +1,5 @@
 from gym.envs.registration import registry, register, make, spec
 
-# To be able to create new-style properties
-class Env(object):
-    pass
-
 # Algorithmic
 # ----------------------------------------
 
