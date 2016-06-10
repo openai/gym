@@ -31,6 +31,7 @@ class DoomEnv(gym.Env, utils.EzPickle):
         self.map = ''                               # Map
         self.difficulty = 5                         # Difficulty (1 = Easy, 10 = Impossible)
         self.viewer = None
+        self.is_initialized = False                 # Indicates that reset() has been called
         self.screen_height = 480
         self.screen_width = 640
         self.action_space = spaces.HighLow(
@@ -66,7 +67,11 @@ class DoomEnv(gym.Env, utils.EzPickle):
             return np.zeros(shape=self.observation_space.shape, dtype=np.uint8), 0, True, {}
 
     def _reset(self):
+        if self.is_initialized and not self._closed:
+            self.game.new_episode()
+            return self.game.get_state().image_buffer.copy()
         self._closed = False
+
         package_directory = os.path.dirname(os.path.abspath(__file__))
 
         # Common settings
@@ -89,6 +94,7 @@ class DoomEnv(gym.Env, utils.EzPickle):
             self.no_render = False
             self.game.init()
             self.game.new_episode()
+            self.is_initialized = True
             return self.game.get_state().image_buffer.copy()
 
         # Human mode
@@ -99,6 +105,7 @@ class DoomEnv(gym.Env, utils.EzPickle):
             self.no_render = True
             self.game.init()
             self.game.new_episode()
+            self.is_initialized = True
 
             while not self.game.is_episode_finished():
                 self.game.advance_action()
