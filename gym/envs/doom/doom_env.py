@@ -32,6 +32,7 @@ class DoomEnv(gym.Env, utils.EzPickle):
         self.difficulty = 5                         # Difficulty (1 = Easy, 10 = Impossible)
         self.viewer = None
         self.is_initialized = False                 # Indicates that reset() has been called
+        self.curr_seed  = 0
         self.screen_height = 480
         self.screen_width = 640
         self.action_space = spaces.HighLow(
@@ -68,15 +69,15 @@ class DoomEnv(gym.Env, utils.EzPickle):
 
     def _reset(self):
         if self.is_initialized and not self._closed:
+            if self.curr_seed > 0:
+                self.game.set_seed(self.curr_seed)
             self.game.new_episode()
             return self.game.get_state().image_buffer.copy()
         self._closed = False
-
         package_directory = os.path.dirname(os.path.abspath(__file__))
 
         # Common settings
         self.loader = Loader()
-        self.game = DoomGame()
         if self.config != '':
             self.game.load_config(os.path.join(package_directory, 'assets/%s' % self.config))
         self.game.set_vizdoom_path(self.loader.get_vizdoom_path())
@@ -93,6 +94,8 @@ class DoomEnv(gym.Env, utils.EzPickle):
             self.game.set_mode(Mode.PLAYER)
             self.no_render = False
             self.game.init()
+            if self.curr_seed > 0:
+                self.game.set_seed(self.curr_seed)
             self.game.new_episode()
             self.is_initialized = True
             return self.game.get_state().image_buffer.copy()
@@ -104,6 +107,8 @@ class DoomEnv(gym.Env, utils.EzPickle):
             self.game.set_mode(Mode.SPECTATOR)
             self.no_render = True
             self.game.init()
+            if self.curr_seed > 0:
+                self.game.set_seed(self.curr_seed)
             self.game.new_episode()
             self.is_initialized = True
 
@@ -154,9 +159,8 @@ class DoomEnv(gym.Env, utils.EzPickle):
         self.game.close()
 
     def _seed(self, seed=None):
-        seed = seeding.hash_seed(seed) % 2 ** 32
-        self.game.set_seed(seed)
-        return [seed]
+        self.curr_seed = seeding.hash_seed(seed) % 2 ** 32
+        return [ self.curr_seed ]
 
     def _get_game_variables(self, state_variables, total_reward):
         info = {}
