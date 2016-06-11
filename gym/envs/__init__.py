@@ -379,3 +379,10 @@ register(
     id='CNNClassifierTraining-v0',
     entry_point='gym.envs.parameter_tuning:CNNClassifierTraining',
 )
+
+# Robotics
+# ----------------------------------------
+register(
+    id='FetchRobot-v0',
+    entry_point='gym.envs.robotics:FetchRobot',
+)

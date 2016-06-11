@@ -69,6 +69,13 @@ add_group(
     description='Doom environments based on VizDoom.'
 )
 
+add_group(
+    id='robotics',
+    name='Robotics',
+    description='Real (and simulated) robots.'
+)
+
+
 # classic control
 
 add_task(
@@ -684,6 +691,16 @@ add_task(
     contributor='ppaquette',
 )
 
+# Robotics
+add_task(
+    id='FetchRobot-v0',
+    group='robotics',
+    experimental=True,
+    contributor='tlbtlbtlb',
+)
+
+
+
 # Deprecated
 
 # MuJoCo
@@ -792,5 +809,6 @@ The robot model was originally created by Tassa et al. [Tassa12]_.
 """,
     deprecated=True,
 )
+
 
 registry.finalize()
