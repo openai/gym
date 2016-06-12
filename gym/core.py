@@ -21,6 +21,7 @@ class Env(object):
         reset
         render
         close
+        configure
         seed
 
     When implementing an environment, override the following methods
@@ -30,6 +31,7 @@ class Env(object):
         _reset
         _render
         _close
+        _configure
         _seed
 
     And set the following attributes:
@@ -62,6 +64,9 @@ class Env(object):
 
     # Override in SOME subclasses
     def _close(self):
+        pass
+
+    def _configure(self):
         pass
 
     # Set these in ALL subclasses

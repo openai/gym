@@ -2,7 +2,9 @@
 2D rendering framework
 """
 from __future__ import division
-import os, sys
+import os
+import six
+import sys
 
 if "Apple" in sys.version:
     if 'DYLD_FALLBACK_LIBRARY_PATH' in os.environ:
@@ -27,11 +29,26 @@ import numpy as np
 
 RAD2DEG = 57.29577951308232
 
+def get_display(spec):
+    """Convert a display specification (such as :0) into an actual Display
+    object.
+
+    Pyglet only supports multiple Displays on Linux.
+    """
+    if spec is None:
+        return None
+    elif isinstance(spec, six.string_types):
+        return pyglet.canvas.Display(spec)
+    else:
+        raise error.Error('Invalid display specification: {}. (Must be a string like :0 or None.)'.format(spec))
+
 class Viewer(object):
-    def __init__(self, width, height):
+    def __init__(self, width, height, display=None):
+        display = get_display(display)
+
         self.width = width
         self.height = height
-        self.window = pyglet.window.Window(width=width, height=height)
+        self.window = pyglet.window.Window(width=width, height=height, display=display)
         self.window.on_close = self.window_closed_by_user
         self.geoms = []
         self.onetime_geoms = []
@@ -282,13 +299,14 @@ class Image(Geom):
 # ================================================================
 
 class SimpleImageViewer(object):
-    def __init__(self):
+    def __init__(self, display=None):
         self.window = None
         self.isopen = False
+        self.display = display
     def imshow(self, arr):
         if self.window is None:
             height, width, channels = arr.shape
-            self.window = pyglet.window.Window(width=width, height=height)
+            self.window = pyglet.window.Window(width=width, height=height, display=self.display)
             self.width = width
             self.height = height
             self.isopen = True
