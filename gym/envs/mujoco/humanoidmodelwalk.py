@@ -7,6 +7,8 @@ def mass_center(model):
     xpos = model.data.xipos
     return (np.sum(mass * xpos, 0) / np.sum(mass))[0]
 
+
+
 class HumanoidModelWalkEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     def __init__(self):
         mujoco_env.MujocoEnv.__init__(self, 'humanoid.xml', 5)
@@ -27,12 +29,13 @@ class HumanoidModelWalkEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         pos_after = mass_center(self.model)
         alive_bonus = 5.0
         data = self.model.data
-        lin_vel_cost = 0.25 * (pos_after - pos_before) / self.model.opt.timestep
+        lin_vel_cost = 0.1 * (pos_after - pos_before) / self.model.opt.timestep
         quad_ctrl_cost =  0.1 * np.square(data.ctrl).sum()
         quad_impact_cost = .5e-6 * np.square(data.cfrc_ext).sum()
         quad_impact_cost = min(quad_impact_cost, 10)
-        modelreward=  1 / ( 5.3 + (self.model.data.xipos[6][1]+ self.model.data.xipos[9][1]))
-        reward = lin_vel_cost - quad_ctrl_cost - quad_impact_cost + alive_bonus + modelreward
+        modelreward=  1 / ( 20 + (self.model.data.xipos[6][1]+ self.model.data.xipos[9][1]))
+        walkreward= abs( self.model.data.xipos[6][0]  - self.model.data.xipos[9][0] )
+        reward = lin_vel_cost - quad_ctrl_cost - quad_impact_cost + alive_bonus + modelreward + walkreward
         qpos = self.model.data.qpos
         done = bool((qpos[2] < 1.0) or (qpos[2] > 2.0) or ( (self.model.data.xipos[6][2] > 0.2) and (self.model.data.xipos[9][2] > 0.2) ) )
         return self._get_obs(), reward, done, dict(reward_linvel=lin_vel_cost, reward_quadctrl=-quad_ctrl_cost, reward_alive=alive_bonus, reward_impact=-quad_impact_cost)
