@@ -6,6 +6,9 @@ from gym.spaces import prng
 class Discrete(gym.Space):
     """
     {0,1,...,n-1}
+
+    Example usage:
+    self.observation_space = spaces.Discrete(2)
     """
     def __init__(self, n):
         self.n = n

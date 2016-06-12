@@ -7,6 +7,9 @@ class Box(gym.Space):
     """
     A box in R^n.
     I.e., each coordinate is bounded.
+
+    Example usage:
+    self.action_space = spaces.Box(low=-10, high=10, shape=(1,))
     """
     def __init__(self, low, high, shape=None):
         """
