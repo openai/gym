@@ -29,10 +29,9 @@ python:
   - "3.4"
 before_install:
   - Xvfb :12 -screen 0 800x600x24 +extension RANDR &
-  - mkdir -p ~/.mujoco
     # In a pull request, there are no secrets, and hence no MuJoCo:
     # https://docs.travis-ci.com/user/pull-requests#Security-Restrictions-when-testing-Pull-Requests.
-  - '[ -z ${MUJOCO_KEY_BUNDLE+x} ] || ( curl https://openai-public.s3-us-west-2.amazonaws.com/mujoco/$MUJOCO_KEY_BUNDLE.tar.gz | tar xz -C ~/.mujoco )'
+  - '[ -z ${MUJOCO_KEY_BUNDLE+x} ] || ( mkdir -p ~/.mujoco && curl https://openai-public.s3-us-west-2.amazonaws.com/mujoco/$MUJOCO_KEY_BUNDLE.tar.gz | tar xz -C ~/.mujoco )'
   # Without this line, Travis has fork()s fail with an out of memory
   # error. (These fork()s are for spawning the subprocess for video
   # recording.) We should debug the memory usage at some stage, but
