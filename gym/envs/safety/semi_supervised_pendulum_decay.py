@@ -14,9 +14,6 @@ and should still perform as well as possible.
 
 from gym.envs.classic_control.pendulum import PendulumEnv
 
-import numpy as np
-import random
-
 DECAY_RATE = 0.999
 
 class SemiSupervisedPendulumDecayEnv(PendulumEnv):
@@ -29,7 +26,7 @@ class SemiSupervisedPendulumDecayEnv(PendulumEnv):
     def _step(self, action):
         observation, true_reward, done, info = super(SemiSupervisedPendulumDecayEnv, self)._step(action)
 
-        if random.random() < self.prob_get_reward:
+        if self.np_random.uniform() < self.prob_get_reward:
             perceived_reward = true_reward
         else:
             perceived_reward = 0

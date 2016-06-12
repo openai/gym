@@ -13,14 +13,12 @@ function of just the state of the environment and the agent's actions.
 
 from gym.envs.classic_control.pendulum import PendulumEnv
 
-import numpy as np
-
 NOISE_STANDARD_DEVIATION = 3.0
 
 class SemiSupervisedPendulumNoiseEnv(PendulumEnv):
     def _step(self, action):
         observation, true_reward, done, info = super(SemiSupervisedPendulumNoiseEnv, self)._step(action)
 
-        perceived_reward = true_reward + np.random.normal(scale=NOISE_STANDARD_DEVIATION)
+        perceived_reward = true_reward + self.np_random.normal(scale=NOISE_STANDARD_DEVIATION)
 
         return observation, perceived_reward, done, info

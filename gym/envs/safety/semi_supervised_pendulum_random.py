@@ -14,16 +14,13 @@ and should still perform as well as possible.
 
 from gym.envs.classic_control.pendulum import PendulumEnv
 
-import numpy as np
-import random
-
 PROB_GET_REWARD = 0.1
 
 class SemiSupervisedPendulumRandomEnv(PendulumEnv):
     def _step(self, action):
         observation, true_reward, done, info = super(SemiSupervisedPendulumRandomEnv, self)._step(action)
 
-        if random.random() < PROB_GET_REWARD:
+        if self.np_random.uniform() < PROB_GET_REWARD:
             perceived_reward = true_reward
         else:
             perceived_reward = 0
