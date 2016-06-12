@@ -27,7 +27,7 @@ class InterpretabilityCartpoleActionsEnv(CartPoleEnv):
         # the first element of action is the actual current action
         current_action = action[0]
 
-        state, reward, done, info = super(InterpretabilityCartpoleActionsEnv, self)._step(current_action)
+        observation, reward, done, info = super(InterpretabilityCartpoleActionsEnv, self)._step(current_action)
 
         if not done:
             if self.iteration > TIME_BEFORE_BONUS_ALLOWED:
@@ -39,9 +39,10 @@ class InterpretabilityCartpoleActionsEnv(CartPoleEnv):
 
             self.iteration += 1
 
-        return state, reward, done, info
+        return observation, reward, done, info
 
     def _reset(self):
-        super(InterpretabilityCartpoleActionsEnv, self)._reset()
+        observation = super(InterpretabilityCartpoleActionsEnv, self)._reset()
         self.predicted_actions = []
         self.iteration = 0
+        return observation

@@ -57,6 +57,7 @@ class InterpretabilityCartpoleObservationsEnv(CartPoleEnv):
         return observation, reward, done, info
 
     def _reset(self):
-        super(InterpretabilityCartpoleObservationsEnv, self)._reset()
+        observation = super(InterpretabilityCartpoleObservationsEnv, self)._reset()
         self.predicted_observations = []
         self.iteration = 0
+        return observation
