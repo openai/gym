@@ -21,6 +21,7 @@ class PendulumEnv(gym.Env):
         self.observation_space = spaces.Box(low=-high, high=high)
 
         self._seed()
+        self.reset()
 
     def _seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
