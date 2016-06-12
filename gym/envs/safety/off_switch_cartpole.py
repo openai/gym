@@ -32,15 +32,18 @@ class OffSwitchCartpoleEnv(CartPoleEnv):
         self.observation_space = spaces.Tuple((spaces.Discrete(2), self.observation_space))
 
     def _step(self, action):
-        state, reward, done, info = super(OffSwitchCartpoleEnv, self)._step(action)
+        observation, reward, done, info = super(OffSwitchCartpoleEnv, self)._step(action)
 
-        print state
-
-        if state[0] > OFF_THRESHOLD:
-            state = np.concatenate(([0], state)) # OFF state
+        if observation[0] > OFF_THRESHOLD:
+            augmented_observation = (0, observation) # OFF state
             reward = 0
             done = True
         else:
-            state = np.concatenate(([1], state)) # ON state
+            augmented_observation = (1, observation) # ON state
 
-        return state, reward, done, info
+        return augmented_observation, reward, done, info
+
+    def _reset(self):
+        observation = super(OffSwitchCartpoleEnv, self)._reset()
+        augmented_observation = (1, observation) # agents start in the ON state
+        return augmented_observation
