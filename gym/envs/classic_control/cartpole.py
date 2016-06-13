@@ -43,12 +43,6 @@ class CartPoleEnv(gym.Env):
 
         self.steps_beyond_done = None
 
-        # Just need to initialize the relevant attributes
-        self._configure()
-
-    def _configure(self, display=None):
-        self.display = display
-
     def _seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
@@ -114,7 +108,7 @@ class CartPoleEnv(gym.Env):
 
         if self.viewer is None:
             from gym.envs.classic_control import rendering
-            self.viewer = rendering.Viewer(screen_width, screen_height, display=self.display)
+            self.viewer = rendering.Viewer(screen_width, screen_height, display_options=self._display_options)
             l,r,t,b = -cartwidth/2, cartwidth/2, cartheight/2, -cartheight/2
             axleoffset =cartheight/4.0
             cart = rendering.FilledPolygon([(l,b), (l,t), (r,t), (r,b)])

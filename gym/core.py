@@ -54,6 +54,11 @@ class Env(object):
         env._action_warned = False
         env._observation_warned = False
         env._configured = False
+        class DisplayOptions: pass
+        env._display_options = DisplayOptions()
+        env._display_options.display_n    = None
+        env._display_options.display_mode = "human"
+        env._display_options.window_pos   = None
 
         # Will be automatically set when creating an environment via 'make'
         env.spec = None
@@ -67,7 +72,7 @@ class Env(object):
     def _close(self):
         pass
 
-    def _configure(self):
+    def _configure(self, options_dict):
         pass
 
     # Set these in ALL subclasses
@@ -225,7 +230,7 @@ class Env(object):
         """
         return self._seed(seed)
 
-    def configure(self, *args, **kwargs):
+    def configure(self, window_pos=None, display_mode="human", display_n=None, **env_specific):
         """Provides runtime configuration to the environment.
 
         This configuration should consist of data that tells your
@@ -235,7 +240,15 @@ class Env(object):
         """
 
         self._configured = True
-        return self._configure(*args, **kwargs)
+        if display_n is not None:
+            self._display_options.display_n = display_n
+        if display_mode is not None:
+            assert(display_mode in ["human", "batch_mode"])
+            self._display_options.display_mode = display_mode
+        if window_pos is not None:
+            assert(type(window_pos[0])==int and type(window_pos[1])==int)
+            self._display_options.window_pos = window_pos
+        return self._configure(env_specific)
 
     def __del__(self):
         self.close()
