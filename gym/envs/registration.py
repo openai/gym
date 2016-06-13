@@ -2,6 +2,7 @@ import logging
 import pkg_resources
 import re
 import sys
+
 from gym import error
 
 logger = logging.getLogger(__name__)
@@ -52,14 +53,13 @@ class EnvSpec(object):
         self._local_only = local_only
         self._kwargs = {} if kwargs is None else kwargs
 
-    def make(self, *args, **kwargs):
+    def make(self):
         """Instantiates an instance of the environment with appropriate kwargs"""
         if self._entry_point is None:
             raise error.Error('Attempting to make deprecated env {}. (HINT: is there a newer registered version of this env?)'.format(self.id))
 
         cls = load(self._entry_point)
         env = cls(**self._kwargs)
-        env._configure(*args, **kwargs)
 
         # Make the enviroment aware of which spec it came from.
         env.spec = self
@@ -80,10 +80,10 @@ class EnvRegistry(object):
     def __init__(self):
         self.env_specs = {}
 
-    def make(self, id, *args, **kwargs):
+    def make(self, id):
         logger.info('Making new env: %s', id)
         spec = self.spec(id)
-        return spec.make(*args, **kwargs)
+        return spec.make()
 
     def all(self):
         return self.env_specs.values()
