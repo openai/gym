@@ -42,10 +42,9 @@ class GymProxyClientSocket(WebSocketClient):
 
     def opened(self):
         logger.info('GymProxyClient opened')
-        self.rpc_ready.acquire()
-        self.ws_opened = True
-        self.rpc_ready.notify_all()
-        self.rpc_ready.release()
+        with self.rpc_ready:
+            self.ws_opened = True
+            self.rpc_ready.notify_all()
 
     def closed(self, code, reason=None):
         logger.info('Closed %s %s', code, reason)
@@ -53,10 +52,9 @@ class GymProxyClientSocket(WebSocketClient):
     def received_message(self, msg):
         logger.debug('received %s', msg)
         rpc_ans = ujson.loads(msg.data)
-        self.rpc_ready.acquire()
-        self.rpc_pending.append(rpc_ans)
-        self.rpc_ready.notify()
-        self.rpc_ready.release()
+        with self.rpc_ready:
+            self.rpc_pending.append(rpc_ans)
+            self.rpc_ready.notify()
 
     def rpc(self, method, params):
         with self.rpc_ready:
@@ -73,11 +71,10 @@ class GymProxyClientSocket(WebSocketClient):
         }))
 
         # This RPC mechanism only allows a single outstanding query at a time
-        self.rpc_ready.acquire()
-        while len(self.rpc_pending) == 0:
-            self.rpc_ready.wait(10)
-        rpc_ans = self.rpc_pending.pop(0)
-        self.rpc_ready.release()
+        with self.rpc_ready:
+            while len(self.rpc_pending) == 0:
+                self.rpc_ready.wait(10)
+            rpc_ans = self.rpc_pending.pop(0)
         assert rpc_ans['id'] == rpc_id
 
         if rpc_ans['error'] is not None:
@@ -90,6 +87,8 @@ class GymProxyClientSocket(WebSocketClient):
         logger.info('Connecting to %s', url)
         ret.connect()
         ws_thread = threading.Thread(target=ret.run_forever)
+        ws_thread.daemon = True
+        ws_thread.start()
         return ret
 
 
@@ -102,9 +101,10 @@ class GymProxyClient(Env):
 
         # Expand environment variable refs in url
         def expand_env(m):
-            rep = os.environ.get(m.group(1), None)
-            if rep is None:
+            ret = os.environ.get(m.group(1), None)
+            if ret is None:
                 logger.warn('No environment var $%s defined', m.group(1))
+            return ret
         url = re.sub(r'\$(\w+)', expand_env, url)
 
         self.proxy = GymProxyClientSocket.setup(url)

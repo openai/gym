@@ -9,7 +9,7 @@ where FooEnv is a class implementing the Gym Environment protocol.
 import math, random, time, logging, re, base64, argparse, collections, sys, os, traceback
 import numpy as np
 import ujson
-from wand.image import Image
+#from wand.image import Image
 import gym
 from gym.spaces import Box, Tuple, Discrete
 import wsaccel
@@ -50,6 +50,7 @@ def register(id, cls):
 
 class GymProxyServerSocket(WebSocket):
     def opened(self):
+        self.env_name = None
         self.op_count = 0
         logger.info('GymProxyServerSocket opened')
 
@@ -70,10 +71,10 @@ class GymProxyServerSocket(WebSocket):
             })
             self.send(rpc_out)
         try:
-            if rpc_method == 'reset':
-                reply(self.handle_reset(rpc_params))
-            elif rpc_method == 'step':
+            if rpc_method == 'step':
                 reply(self.handle_step(rpc_params))
+            elif rpc_method == 'reset':
+                reply(self.handle_reset(rpc_params))
             elif rpc_method == 'setup':
                 reply(self.handle_setup(rpc_params))
             elif rpc_method == 'render':
@@ -112,6 +113,8 @@ class GymProxyServerSocket(WebSocket):
         }
 
     def handle_setup(self, params):
+        if self.env_name is not None:
+            raise Exception('already set up')
         # Override me
         self.env_name = params['env_name']
         logger.info('Creating env %s for client', self.env_name)
