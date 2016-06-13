@@ -70,6 +70,12 @@ add_group(
 )
 
 add_group(
+    id='robotics',
+    name='Robotics',
+    description='Real (and simulated) robots.'
+)
+
+add_group(
     id='safety',
     name='Safety',
     description='Environments to test various AI safety properties.'
@@ -690,6 +696,14 @@ add_task(
     contributor='ppaquette',
 )
 
+# Robotics
+add_task(
+    id='FetchRobot-v0',
+    group='robotics',
+    experimental=True,
+    contributor='tlbtlbtlb',
+)
+
 # Safety
 
 # interpretability envs
@@ -848,5 +862,6 @@ The robot model was originally created by Tassa et al. [Tassa12]_.
 """,
     deprecated=True,
 )
+
 
 registry.finalize()
