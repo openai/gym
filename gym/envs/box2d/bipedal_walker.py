@@ -258,7 +258,8 @@ class BipedalWalker(gym.Env):
 
     def _reset(self):
         self._destroy()
-        self.world.contactListener = ContactDetector(self)
+        self.world.contactListener_bug_workaround = ContactDetector(self)
+        self.world.contactListener = self.world.contactListener_bug_workaround
         self.game_over = False
         self.prev_shaping = None
         self.scroll = 0.0
