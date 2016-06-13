@@ -1,95 +1,49 @@
 """
-A proxy environment. It looks like a regular environment, but it connects over a websocket
-to a server which runs the actual code.
+A proxy environment. It looks like a regular environment, but it connects over ZMQ to a
+server which runs the actual code.
 
-There's a Python implementation of the other side of this protocol in ./server.py, but most likely you'd be
-implementing the server in another language.
+There's a Python implementation of the other side of this protocol in ./server.py, but most
+likely you'd be implementing the server in another language.
 
 """
 import numpy as np
-import re, os
+import re, os, threading, logging
 from gym import Env, utils, error
-from gym.spaces import Box, Discrete, Tuple
-import threading
-import logging
 try:
+    from gym.envs.proxy import zmq_serialize
     import ujson
-    import wsaccel
-    wsaccel.patch_ws4py()
-    from ws4py.client.threadedclient import WebSocketClient
+    import zmq
 except ImportError as e:
-    raise error.DependencyNotInstalled("{}. (HINT: you need to install ws4py, wsaccel and ujson)".format(e))
+    raise error.DependencyNotInstalled("{}. (HINT: you need to install zmq and ujson)".format(e))
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-def load_space(s):
-    if s['type'] == 'Box':
-        return Box(np.array(s['low']), np.array(s['high']))
-    elif s['type'] == 'Tuple':
-        return Tuple([load_space(x) for x in s['spaces']])
-    else:
-        raise Exception('Unknown space type %s' % s)
 
-class GymProxyClientSocket(WebSocketClient):
+class GymProxyClientSocket(object):
     def  __init__(self, url):
-        self.ws_opened = False
-        self.rpc_lock = threading.Lock()
-        self.rpc_ready = threading.Condition(self.rpc_lock)
-        self.rpc_counter = 485
-        self.rpc_pending = []
-        WebSocketClient.__init__(self, url, protocols=['http-only', 'chat'])
-
-    def opened(self):
-        logger.info('GymProxyClient opened')
-        with self.rpc_ready:
-            self.ws_opened = True
-            self.rpc_ready.notify_all()
-
-    def closed(self, code, reason=None):
-        logger.info('Closed %s %s', code, reason)
-
-    def received_message(self, msg):
-        logger.debug('received %s', msg)
-        rpc_ans = ujson.loads(msg.data)
-        with self.rpc_ready:
-            self.rpc_pending.append(rpc_ans)
-            self.rpc_ready.notify()
+        self.url = url
+        self.ctx = zmq.Context()
+        self.sock = self.ctx.socket(zmq.REQ)
+        logger.info('Connecting to %s...', self.url)
+        self.sock.connect(url)
 
     def rpc(self, method, params):
-        with self.rpc_ready:
-            while not self.ws_opened:
-                logger.info('self.ws_opened==%s (waiting)', self.ws_opened)
-                self.rpc_ready.wait(5)
-
-        rpc_id = self.rpc_counter
-        self.rpc_counter += 1
-        self.send(ujson.dumps({
+        tx = zmq_serialize.dump_msg({
             'method': method,
             'params': params,
-            'id': rpc_id,
-        }))
+        })
+        logger.debug('%s < %s', self.url, tx[0])
+        self.sock.send_multipart(tx, flags=0, copy=True, track=False)
 
-        # This RPC mechanism only allows a single outstanding query at a time
-        with self.rpc_ready:
-            while len(self.rpc_pending) == 0:
-                self.rpc_ready.wait(10)
-            rpc_ans = self.rpc_pending.pop(0)
-        assert rpc_ans['id'] == rpc_id
+        rx = self.sock.recv_multipart(flags=0, copy=True, track=False)
+        logger.debug('%s > %s', self.url, rx[0])
+        rpc_ans = zmq_serialize.load_msg(rx)
+
 
         if rpc_ans['error'] is not None:
             raise Exception(rpc_ans['error'])
         return rpc_ans['result']
-
-    @classmethod
-    def setup(cls, url):
-        ret = cls(url)
-        logger.info('Connecting to %s', url)
-        ret.connect()
-        ws_thread = threading.Thread(target=ret.run_forever)
-        ws_thread.daemon = True
-        ws_thread.start()
-        return ret
 
 
 class GymProxyClient(Env):
@@ -97,7 +51,7 @@ class GymProxyClient(Env):
         'render.modes': ['human', 'rgb_array'],
     }
 
-    def __init__(self, url='ws://127.0.0.1:9000/gymenv', **kwargs):
+    def __init__(self, url='tcp://127.0.0.1:6911', **kwargs):
 
         # Expand environment variable refs in url
         def expand_env(m):
@@ -107,26 +61,39 @@ class GymProxyClient(Env):
             return ret
         url = re.sub(r'\$(\w+)', expand_env, url)
 
-        self.proxy = GymProxyClientSocket.setup(url)
+        self.proxy = GymProxyClientSocket(url)
         setup_result = self.proxy.rpc('setup', kwargs)
-        self.action_space = load_space(setup_result['action_space'])
-        self.observation_space = load_space(setup_result['observation_space'])
+        self.action_space = setup_result['action_space']
+        self.observation_space = setup_result['observation_space']
         self.reward_range = tuple(setup_result['reward_range'])
+        self.session_id = setup_result['session_id']
+        logger.info('GymProxyClient configured action_space=%s observation_space=%s reward_range=%s',
+            self.action_space, self.observation_space, self.reward_range)
         self.reset()
 
     def _step(self, action):
         ret = self.proxy.rpc('step', {
             'action': action,
+            'session_id': self.session_id,
         })
-        return self.observation_space.from_jsonable([ret['obs']])[0], ret['reward'], ret['done'], ret['info']
+        if ret['session_id'] != self.session_id:
+            raise Exception('Wrong session id')
+        return ret['obs'], ret['reward'], ret['done'], ret['info']
 
     def _reset(self):
-        ret = self.proxy.rpc('reset', {})
-        return self.observation_space.from_jsonable([ret['obs']])[0]
+        ret = self.proxy.rpc('reset', {
+            'session_id': self.session_id,
+        })
+        if ret['session_id'] != self.session_id:
+            raise Exception('Wrong session id')
+        return ret['obs']
 
     def _render(self, mode='human', close=False):
         ret = self.proxy.rpc('render', {
             'mode': mode,
             'close': close,
+            'session_id': self.session_id,
         })
-        return np.array(ret['img'], dtype=np.uint8)
+        if ret['session_id'] != self.session_id:
+            raise Exception('Wrong session id')
+        return ret['img']

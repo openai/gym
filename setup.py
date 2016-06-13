@@ -24,7 +24,8 @@ setup(name='gym',
                   'box2d-py',
                   'doom_py>=0.0.11',
                   'mujoco_py>=0.4.3', 'imageio',
-                  'keras', 'theano'],
+                  'keras', 'theano',
+                  'pyzmq>=15.2.0'],
 
           # Environment-specific dependencies. Keep these in sync with
           # 'all'!
@@ -35,6 +36,7 @@ setup(name='gym',
           'doom': ['doom_py>=0.0.11'],
           'mujoco': ['mujoco_py>=0.4.3', 'imageio'],
           'parameter_tuning': ['keras', 'theano'],
+          'robotics': ['pyzmq>=15.2.0'],
       },
       package_data={'gym': ['envs/mujoco/assets/*.xml', 'envs/classic_control/assets/*.png', 'envs/doom/assets/*.cfg']},
       tests_require=['nose2', 'mock'],

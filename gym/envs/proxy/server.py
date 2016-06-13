@@ -1,75 +1,88 @@
 #!/usr/bin/python
 """
-Defines a class that listens on an HTTP/websocket port, creates an environement when connected to,
+Defines a class GymProxyZmqServer that listens on a zmq port, creates an environment when connected to,
 and accepts step & reset calls on that environment.
-To use this, you'll want to call
-  gym.envs.proxy.server.register('FooEnv-v0', FooEnv)
-where FooEnv is a class implementing the Gym Environment protocol.
+
+Call:
+    s = GymProxyZmqServer(url, make_env)
+    s.main_thr.run()
+
+where make_env takes a string and returns an environment
+
 """
-import math, random, time, logging, re, base64, argparse, collections, sys, os, traceback
+import math, random, time, logging, re, base64, argparse, collections, sys, os, traceback, threading
 import numpy as np
 import ujson
-#from wand.image import Image
+import zmq, zmq.utils.monitor
 import gym
-from gym.spaces import Box, Tuple, Discrete
-import wsaccel
-wsaccel.patch_ws4py()
-import cherrypy
-from ws4py.server.cherrypyserver import WebSocketPlugin, WebSocketTool
-from ws4py.websocket import WebSocket
+from gym.envs.proxy import zmq_serialize
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-def dump_space(s):
-    """
-    Convert a gym.spaces.Space to something jsonable.
-    See .client.load_space
-    """
-    if isinstance(s, Box):
-        return {
-            'type': 'Box',
-            'low': list(s.low),
-            'high': list(s.high),
-        }
-    elif isinstance(s, Tuple):
-        return {
-            'type': 'Tuple',
-            'spaces': [dump_space(x) for x in s.spaces],
-        }
-    else:
-        raise Exception('Unknown space type %s' % s.__class__.name)
+class GymProxyZmqServer(object):
+    def __init__(self, url, make_env):
+        self.url = url
+        self.make_env = make_env
+        self.env = None
+        self.env_name = None
 
-registry = {}
-def register(id, cls):
-    """
-    Register an environement by name. We don't use the regular Gym registry, because there'll already
-    be an entry there pointing to GymProxyClient, which would put us in a cycle
-    """
-    registry[id] = cls
+        self.ctx = zmq.Context()
+        self.sock = self.ctx.socket(zmq.REP)
+        self.sock.bind(self.url)
+        self.monitor_sock = self.sock.get_monitor_socket()
+        self.rpc_lock = threading.Lock()
+        self.rpc_rd = threading.Condition(self.rpc_lock)
+        self.monitor_thr = threading.Thread(target = self.run_monitor)
+        self.monitor_thr.daemon = True
+        self.monitor_thr.start()
+        self.main_thr = threading.Thread(target = self.run_main)
 
-class GymProxyServerSocket(WebSocket):
+    def run_main(self):
+        logger.info('zmq gym server running on %s', self.url)
+        while True:
+            rx = self.sock.recv_multipart(flags=0, copy=True, track=False)
+            logger.debug('%s > %s', self.url, rx[0])
+            self.handle_msg(rx)
+
+    def run_monitor(self):
+        logger.info('zmq gym server listening on monitoring socket')
+        while True:
+            ev = zmq.utils.monitor.recv_monitor_message(self.monitor_sock)
+            logger.debug('Monitor Event %s', ev)
+            if ev['event'] == zmq.EVENT_DISCONNECTED:
+                self.closed()
+            elif ev['event'] == zmq.EVENT_ACCEPTED:
+                self.opened()
+
     def opened(self):
         self.env_name = None
         self.op_count = 0
-        logger.info('GymProxyServerSocket opened')
+        logger.info('GymProxyZmqServer opened')
 
-    def received_message(self, message):
-        rpc = ujson.loads(message.data)
-        logger.debug('rpc > %s', rpc)
+    def closed(self):
+        logger.info('GymProxyZmqServer closed')
+        self.env_name = None
+        if self.env is not None:
+            self.env.close()
+        self.env = None
+
+    def handle_msg(self, rx):
+        rpc = zmq_serialize.load_msg(rx)
         rpc_method = rpc.get('method', None)
         rpc_params = rpc.get('params', None)
-        rpc_id = rpc.get('id', None)
+
+        def reply(rpc_result, rpc_error=None):
+            tx = zmq_serialize.dump_msg({
+                'result': rpc_result,
+                'error': rpc_error,
+            })
+            logger.debug('%s < %s', self.url, tx[0])
+            self.sock.send_multipart(tx, flags=0, copy=False, track=False)
+
         self.op_count += 1
         if self.op_count % 1000 == 0:
             logger.info('%s: %d ops', self.env_name, self.op_count)
-        def reply(result, error=None):
-            rpc_out = ujson.dumps({
-                'id': rpc_id,
-                'error': error,
-                'result': result,
-            })
-            self.send(rpc_out)
         try:
             if rpc_method == 'step':
                 reply(self.handle_step(rpc_params))
@@ -77,81 +90,79 @@ class GymProxyServerSocket(WebSocket):
                 reply(self.handle_reset(rpc_params))
             elif rpc_method == 'setup':
                 reply(self.handle_setup(rpc_params))
+            elif rpc_method == 'close':
+                reply(self.handle_close(rpc_params))
             elif rpc_method == 'render':
                 reply(self.handle_render(rpc_params))
-            elif rpc_method == 'close':
-                self.close(reason='requested')
             else:
                 raise Exception('unknown method %s' % rpc_method)
         except:
             ex_type, ex_value, ex_tb = sys.exc_info()
             traceback.print_exception(ex_type, ex_value, ex_tb)
-            reply(None, ex_type)
-
-    def closed(self, code, reason=None):
-        logger.info('GymProxyServer closed %s %s', code, reason)
-        pass
-
-    def start_robot(self):
-        # override me
-        pass
+            reply(None, str(ex_type) + ': ' + str(ex_value))
 
     def handle_reset(self, params):
+        if params['session_id'] != self.session_id:
+            raise Exception('Wrong session id')
         obs = self.env.reset()
         return {
-            'obs': obs
+            'obs': obs,
+            'session_id': self.session_id,
         }
 
     def handle_step(self, params):
-        action = self.env.action_space.from_jsonable([params['action']])[0]
+        if params['session_id'] != self.session_id:
+            raise Exception('Wrong session id')
+        action = params['action']
         obs, reward, done, info = self.env.step(action)
         return {
-            'obs': self.env.observation_space.to_jsonable(obs),
+            'obs': obs,
             'reward': reward,
             'done': done,
             'info': info,
+            'session_id': self.session_id,
         }
 
     def handle_setup(self, params):
         if self.env_name is not None:
-            raise Exception('already set up')
-        # Override me
+            raise Exception('Already set up')
+        self.env = self.make_env(params['env_name'])
         self.env_name = params['env_name']
-        logger.info('Creating env %s for client', self.env_name)
-
-        self.env = registry[self.env_name]()
+        self.session_id = zmq_serialize.mk_random_cookie()
+        logger.info('Creating env %s. session_id=%s', self.env_name, self.session_id)
 
         return {
-            'observation_space': dump_space(self.env.observation_space),
-            'action_space' : dump_space(self.env.action_space),
+            'observation_space': self.env.observation_space,
+            'action_space' : self.env.action_space,
             'reward_range': self.env.reward_range,
+            'session_id': self.session_id,
+        }
+
+    def handle_close(self, params):
+        if params['session_id'] != self.session_id:
+            raise Exception('Wrong session id')
+        self.env_name = None
+        if self.env:
+            self.env.close()
+        self.env = None
+        return {
+            'session_id': self.session_id,
         }
 
     def handle_render(self, params):
+        if params['session_id'] != self.session_id:
+            raise Exception('Wrong session id')
         mode = params['mode']
         close = params['close']
         img = self.env.render(mode, close)
         return {
-            'img': img
+            'img': img,
+            'session_id': self.session_id,
         }
 
-def serve_forever(port=9000):
-
-    cherrypy.config.update({'server.socket_port': port, 'server.socket_host': '0.0.0.0'})
-    WebSocketPlugin(cherrypy.engine).subscribe()
-    cherrypy.tools.websocket = WebSocketTool()
-
-    class WebRoot(object):
-        @cherrypy.expose
-        def index(self):
-            return 'some HTML with a websocket javascript connection'
-
-        @cherrypy.expose
-        def gymenv(self):
-            # you can access the class instance through
-            handler = cherrypy.request.ws_handler
-
-    cherrypy.quickstart(WebRoot(), '/', config={'/gymenv': {
-        'tools.websocket.on': True,
-        'tools.websocket.handler_cls': GymProxyServerSocket
-    }})
+# If invoked directory, serve any environment
+if __name__ == '__main__':
+    def make_env(name):
+        return gym.make(name)
+    zmqs = GymProxyZmqServer('tcp://127.0.0.1:6911', make_env)
+    zmqs.main_thr.run()

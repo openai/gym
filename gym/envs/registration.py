@@ -2,6 +2,7 @@ import logging
 import pkg_resources
 import re
 import sys
+import os
 from gym import error
 
 logger = logging.getLogger(__name__)
@@ -57,8 +58,15 @@ class EnvSpec(object):
         if self._entry_point is None:
             raise error.Error('Attempting to make deprecated env {}. (HINT: is there a newer registered version of this env?)'.format(self.id))
 
-        cls = load(self._entry_point)
-        env = cls(**self._kwargs)
+        # If $OPENAI_GYM_ENV_SERVER is set to something like 'tcp://host:port', create a proxy
+        # environment that connects to a remote environment server instead. See gym/envs/proxy directory
+        gym_env_server = os.environ.get('OPENAI_GYM_ENV_SERVER', '')
+        if gym_env_server != '':
+            import gym.envs.proxy.client
+            env = gym.envs.proxy.client.GymProxyClient(gym_env_server, env_name=self.id)
+        else:
+            cls = load(self._entry_point)
+            env = cls(**self._kwargs)
 
         # Make the enviroment aware of which spec it came from.
         env.spec = self
