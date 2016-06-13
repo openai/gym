@@ -221,6 +221,16 @@ class Env(object):
         """
         return self._seed(seed)
 
+    def configure(self, *args, **kwargs):
+        """Provides runtime configuration to the environment.
+
+        This configuration should consist of data that tells your
+        environment how to run (such as an address of a remote server,
+        or path to your ImageNet data). It should not affect the
+        semantics of the environment.
+        """
+        return self._configure(*args, **kwargs)
+
     def __del__(self):
         self.close()
 
