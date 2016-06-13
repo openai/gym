@@ -137,7 +137,7 @@ class GymProxyServerSocket(WebSocket):
 
 def serve_forever(port=9000):
 
-    cherrypy.config.update({'server.socket_port': port})
+    cherrypy.config.update({'server.socket_port': port, 'server.socket_host': '0.0.0.0'})
     WebSocketPlugin(cherrypy.engine).subscribe()
     cherrypy.tools.websocket = WebSocketTool()
 
