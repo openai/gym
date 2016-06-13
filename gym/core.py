@@ -53,6 +53,7 @@ class Env(object):
         env._closed = False
         env._action_warned = False
         env._observation_warned = False
+        env._configured = False
 
         # Will be automatically set when creating an environment via 'make'
         env.spec = None
@@ -132,6 +133,9 @@ class Env(object):
         Returns:
             observation (object): the initial observation of the space. (Initial reward is assumed to be 0.)
         """
+        if self.metadata.get('configure.required') and not self._configured:
+            raise error.Error("{} requires calling 'configure()' before 'reset()'".format(self))
+
         self.monitor._before_reset()
         observation = self._reset()
         self.monitor._after_reset(observation)
@@ -229,6 +233,8 @@ class Env(object):
         or path to your ImageNet data). It should not affect the
         semantics of the environment.
         """
+
+        self._configured = True
         return self._configure(*args, **kwargs)
 
     def __del__(self):
