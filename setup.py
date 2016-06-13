@@ -16,7 +16,7 @@ setup(name='gym',
                 if package.startswith('gym')],
       zip_safe=False,
       install_requires=[
-          'numpy>=1.10.4', 'requests>=2.0', 'six', 'pyglet',
+          'numpy>=1.10.4', 'requests>=2.0', 'six', 'pyglet>=1.2.0',
       ],
       extras_require={
           'all': ['atari_py>=0.0.17', 'Pillow', 'PyOpenGL',
@@ -28,7 +28,7 @@ setup(name='gym',
 
           # Environment-specific dependencies. Keep these in sync with
           # 'all'!
-          'atari': ['atari_py>=0.0.17', 'Pillow', 'pyglet', 'PyOpenGL'],
+          'atari': ['atari_py>=0.0.17', 'Pillow', 'PyOpenGL'],
           'board_game' : ['pachi-py>=0.0.19'],
           'box2d': ['box2d-py'],
           'classic_control': ['PyOpenGL'],

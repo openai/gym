@@ -2,6 +2,7 @@ import logging
 import pkg_resources
 import re
 import sys
+
 from gym import error
 
 logger = logging.getLogger(__name__)

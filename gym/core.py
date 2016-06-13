@@ -21,6 +21,7 @@ class Env(object):
         reset
         render
         close
+        configure
         seed
 
     When implementing an environment, override the following methods
@@ -30,6 +31,7 @@ class Env(object):
         _reset
         _render
         _close
+        _configure
         _seed
 
     And set the following attributes:
@@ -51,6 +53,7 @@ class Env(object):
         env._closed = False
         env._action_warned = False
         env._observation_warned = False
+        env._configured = False
 
         # Will be automatically set when creating an environment via 'make'
         env.spec = None
@@ -62,6 +65,9 @@ class Env(object):
 
     # Override in SOME subclasses
     def _close(self):
+        pass
+
+    def _configure(self):
         pass
 
     # Set these in ALL subclasses
@@ -127,6 +133,9 @@ class Env(object):
         Returns:
             observation (object): the initial observation of the space. (Initial reward is assumed to be 0.)
         """
+        if self.metadata.get('configure.required') and not self._configured:
+            raise error.Error("{} requires calling 'configure()' before 'reset()'".format(self))
+
         self.monitor._before_reset()
         observation = self._reset()
         self.monitor._after_reset(observation)
@@ -215,6 +224,18 @@ class Env(object):
               this won't be true if seed=None, for example.
         """
         return self._seed(seed)
+
+    def configure(self, *args, **kwargs):
+        """Provides runtime configuration to the environment.
+
+        This configuration should consist of data that tells your
+        environment how to run (such as an address of a remote server,
+        or path to your ImageNet data). It should not affect the
+        semantics of the environment.
+        """
+
+        self._configured = True
+        return self._configure(*args, **kwargs)
 
     def __del__(self):
         self.close()
