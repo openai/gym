@@ -390,3 +390,40 @@ register(
         'url': 'ws://$FETCH_ROBOT_HOST:$FETCH_ROBOT_PORT/gymenv',
     }
 )
+
+# Safety
+# ----------------------------------------
+
+# interpretability envs
+register(
+    id='InterpretabilityCartpoleActions-v0',
+    entry_point='gym.envs.safety:InterpretabilityCartpoleActionsEnv',
+)
+
+register(
+    id='InterpretabilityCartpoleObservations-v0',
+    entry_point='gym.envs.safety:InterpretabilityCartpoleObservationsEnv',
+)
+
+# semi_supervised envs
+    # probably the easiest:
+register(
+    id='SemiSupervisedPendulumNoise-v0',
+    entry_point='gym.envs.safety:SemiSupervisedPendulumNoiseEnv',
+)
+    # somewhat harder because of higher variance:
+register(
+    id='SemiSupervisedPendulumRandom-v0',
+    entry_point='gym.envs.safety:SemiSupervisedPendulumRandomEnv',
+)
+    # probably the hardest because you only get a constant number of rewards in total:
+register(
+    id='SemiSupervisedPendulumDecay-v0',
+    entry_point='gym.envs.safety:SemiSupervisedPendulumDecayEnv',
+)
+
+# off_switch envs
+register(
+    id='OffSwitchCartpole-v0',
+    entry_point='gym.envs.safety:OffSwitchCartpoleEnv',
+)

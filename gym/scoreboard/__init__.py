@@ -75,6 +75,11 @@ add_group(
     description='Real (and simulated) robots.'
 )
 
+add_group(
+    id='safety',
+    name='Safety',
+    description='Environments to test various AI safety properties.'
+)
 
 # classic control
 
@@ -699,7 +704,55 @@ add_task(
     contributor='tlbtlbtlb',
 )
 
+# Safety
 
+# interpretability envs
+add_task(
+    id='InterpretabilityCartpoleActions-v0',
+    group='safety',
+    experimental=True,
+    contributor='rafaelcosman',
+)
+
+add_task(
+    id='InterpretabilityCartpoleObservations-v0',
+    group='safety',
+    experimental=True,
+    contributor='rafaelcosman',
+)
+
+# semi_supervised envs
+    # probably the easiest:
+add_task(
+    id='SemiSupervisedPendulumNoise-v0',
+    group='safety',
+    experimental=True,
+    contributor='rafaelcosman',
+)
+
+    # somewhat harder because of higher variance:
+add_task(
+    id='SemiSupervisedPendulumRandom-v0',
+    group='safety',
+    experimental=True,
+    contributor='rafaelcosman',
+)
+
+    # probably the hardest because you only get a constant number of rewards in total:
+add_task(
+    id='SemiSupervisedPendulumDecay-v0',
+    group='safety',
+    experimental=True,
+    contributor='rafaelcosman',
+)
+
+# off_switch envs
+add_task(
+    id='OffSwitchCartpole-v0',
+    group='safety',
+    experimental=True,
+    contributor='rafaelcosman',
+)
 
 # Deprecated
 

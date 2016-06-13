@@ -40,18 +40,17 @@ def test_env(spec):
     env2.close()
 
     for i, (action_sample1, action_sample2) in enumerate(zip(action_samples1, action_samples2)):
-        assert np.array_equal(action_sample1, action_sample2), '[{}] action_sample1: {}, action_sample2: {}'.format(i, action_sample1, action_sample2)
+        assert_equals(action_sample1, action_sample2), '[{}] action_sample1: {}, action_sample2: {}'.format(i, action_sample1, action_sample2)
 
-    for i, (observation_sample1, observation_sample2) in enumerate(zip(observation_samples1, observation_samples2)):
-        # Allows for NaNs
-        np.testing.assert_array_equal(observation_sample1, observation_sample2)
+    for (observation_sample1, observation_sample2) in zip(observation_samples1, observation_samples2):
+        assert_equals(observation_sample1, observation_sample2)
 
     # Don't check rollout equality if it's a a nondeterministic
     # environment.
     if spec.nondeterministic:
         return
 
-    assert np.array_equal(initial_observation1, initial_observation2), 'initial_observation1: {}, initial_observation2: {}'.format(initial_observation1, initial_observation2)
+    assert_equals(initial_observation1, initial_observation2)
 
     for i, ((o1, r1, d1, i1), (o2, r2, d2, i2)) in enumerate(zip(step_responses1, step_responses2)):
         assert_equals(o1, o2, '[{}] '.format(i))
@@ -75,5 +74,8 @@ def assert_equals(a, b, prefix=None):
             assert_equals(v_a, v_b)
     elif isinstance(a, np.ndarray):
         np.testing.assert_array_equal(a, b)
+    elif isinstance(a, tuple):
+        for elem_from_a, elem_from_b in zip(a, b):
+            assert_equals(elem_from_a, elem_from_b)
     else:
         assert a == b
