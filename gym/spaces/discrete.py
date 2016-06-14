@@ -13,9 +13,6 @@ class Discrete(gym.Space):
     def __init__(self, n):
         self.n = n
     def sample(self):
-        # prng is terminating VizDoom with Fatal Error - Address not mapped to object (signal 11)
-        # 82 is for HexEnv (9x9), which is the environment causing the Vizdoom crash
-        if 82 == self.n: return int(round(time.time(), -1) % self.n)
         return prng.np_random.randint(self.n)
     def contains(self, x):
         if isinstance(x, int):
