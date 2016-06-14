@@ -1,13 +1,23 @@
 import numpy as np
 import json
+import hashlib
+import os
 
 import logging
 
 import gym
 from gym import envs, spaces
 
+from generate_json import create_rollout
+
 DATA_DIR = './rollout_data/'
-ROLLOUT_FILE = DATA_DIR + '2016-06-11-rollout-filenames.json'
+ROLLOUT_FILE = DATA_DIR + 'rollout-filenames.json'
+
+if not os.path.exists(DATA_DIR):
+    os.makedirs(DATA_DIR)
+if not os.path.isfile(ROLLOUT_FILE): 
+  with open(ROLLOUT_FILE, "w") as outfile:
+    json.dump({}, outfile, indent=2)
 
 def test_env_semantics(spec):
   with open(ROLLOUT_FILE) as data_file:
@@ -15,11 +25,12 @@ def test_env_semantics(spec):
 
   if spec.id not in rollout_filenames:
     print "Rollout not found for {} environment".format(spec.id)
-    return
-
-  # TODO: why is from_jsonable throwing errors for the Box action_space?
-  if spec.id == 'Pendulum-v0':
-    return
+    added = create_rollout(spec)
+    if added: 
+      with open(ROLLOUT_FILE) as data_file:
+        rollout_filenames = json.load(data_file)
+    else:
+      return
 
   with open(rollout_filenames[spec.id]) as data_file:
     data = json.load(data_file)
@@ -34,14 +45,14 @@ def test_env_semantics(spec):
 
   num_passed = 0
   for (action, observation, reward, done) in data:
-    action = env.action_space.from_jsonable(action)
-    observation = env.observation_space.from_jsonable(observation)
+    action = env.action_space.from_jsonable(action)[0]
 
     observation_now, reward_now, done_now, _ = env.step(action)
+    observation_now = hashlib.sha1(str(observation_now)).hexdigest()
 
-    assert np.array_equal(observation, observation_now), 'Observation not equal for action number {}'.format(num_passed)
-    assert np.array_equal(reward, str(reward_now)), 'Reward not equal for action number {}'.format(num_passed)
-    assert np.array_equal(done, str(done_now)), 'Done not equal for action number {}'.format(num_passed)
+    assert observation == observation_now, 'Observation not equal for action number {}'.format(num_passed)
+    assert reward == str(reward_now), 'Reward not equal for action number {}'.format(num_passed)
+    assert done == str(done_now), 'Done not equal for action number {}'.format(num_passed)
 
     num_passed += 1
 
@@ -49,10 +60,10 @@ def test_env_semantics(spec):
       observation_now = env.reset()
 
 def test_all_env_semantics():
-  specs = [spec for spec in envs.registry.all() if spec._entry_point is not None and spec.id != 'ElevatorAction-v0']
+  specs = [spec for spec in envs.registry.all() if spec._entry_point is not None]
 
   for spec in specs: 
     test_env_semantics(spec)
 
-test_all_env_semantics()
 
+test_all_env_semantics()

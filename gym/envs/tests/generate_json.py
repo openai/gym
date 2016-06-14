@@ -4,37 +4,64 @@ import json
 import numpy as np
 import datetime
 import os
+import hashlib
 
 from test_envs import should_skip_env_spec_for_tests
 
 DATA_DIR = './rollout_data/'
-ROLLOUT_STEPS = 25
+ROLLOUT_FILE = DATA_DIR + 'rollout-filenames.json'
+ROLLOUT_STEPS = 100
 episodes = ROLLOUT_STEPS
 steps = ROLLOUT_STEPS
 
 if not os.path.exists(DATA_DIR):
     os.makedirs(DATA_DIR)
+if not os.path.isfile(ROLLOUT_FILE): 
+  with open(ROLLOUT_FILE, "w") as outfile:
+    json.dump({}, outfile, indent=2)
 
-environments = [spec for spec in envs.registry.all() if spec._entry_point is not None]
+def create_rollout(spec):
+  """
+  Takes as input the environment spec for which the rollout is to be generated.
+  Returns a bool which indicates whether the new rollout was added to the json file.  
 
-json_file_dict = {}
+  """
 
-for spec in environments:
+  filename = DATA_DIR + spec.id + '-rollout.json'
 
   if should_skip_env_spec_for_tests(spec):
-    continue
+    return False
 
   # Skip environments that are nondeterministic
   if spec.nondeterministic:
     print "Skipping tests for", spec.id
-    continue
+    return False
 
   # Temporarily skip Doom environments until setup issues resolved
   if 'Doom' in spec.id:
     print "Skipping tests for", spec.id
-    continue
+    return False
+
+  # Skip broken environments
+  # TODO: look into these environments
+  if spec.id in ['InterpretabilityCartpoleObservations-v0']:
+    print "Skipping tests for", spec.id
+    return False
+
+  with open(ROLLOUT_FILE) as data_file:
+    rollout_filenames = json.load(data_file)
+
+  # Skip generating rollouts that already exist
+  if spec.id in rollout_filenames:
+    print "Rollout already exists for", spec.id
+    return False   
 
   print "Generating rollout for {}".format(spec.id)
+
+  rollout_filenames[spec.id] = filename
+
+  with open(ROLLOUT_FILE, "w") as outfile:
+    json.dump(rollout_filenames, outfile, indent=2)
 
   spaces.seed(0)
   env = spec.make()
@@ -51,10 +78,8 @@ for spec in environments:
       action = env.action_space.sample()
       observation, reward, done, _ = env.step(action)
 
-      #rollout.append((np.array(action).tolist(), np.array(observation).tolist(), str(reward), str(done)))
-
-      action = env.action_space.to_jsonable(action)
-      observation = env.observation_space.to_jsonable(observation)
+      action = env.action_space.to_jsonable([action])
+      observation = hashlib.sha1(str(observation)).hexdigest()
 
       rollout.append((action, observation, str(reward), str(done)))
 
@@ -63,17 +88,13 @@ for spec in environments:
 
       if done: break
 
-  date = datetime.datetime.now().date()
-
-  filename = DATA_DIR + str(date) + '-' + spec.id + '-rollout.json'
-  json_file_dict[spec.id] = filename
   with open(filename, "w") as outfile:
     json.dump(rollout, outfile, indent=2)
 
+  return True
 
-with open(DATA_DIR + str(date) + '-rollout-filenames.json', "w") as outfile:
-  json.dump(json_file_dict, outfile, indent=2)
+def create_all_rollouts():
+  environments = [spec for spec in envs.registry.all() if spec._entry_point is not None]
 
-
-
-
+  for spec in environments:
+    create_rollout(spec)
