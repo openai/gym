@@ -640,6 +640,50 @@ add_task(
     group='doom',
     experimental=True,
     contributor='ppaquette',
+    summary='Mission #1 to #9 - Beat all 9 Doom missions.',
+    description="""
+This is a meta map that combines all 9 Doom levels.
+
+Levels:
+
+    0   - Doom Basic
+    1   - Doom Corridor
+    2   - Doom DefendCenter
+    3   - Doom DefendLine
+    4   - Doom HealthGathering
+    5   - Doom MyWayHome
+    6   - Doom PredictPosition
+    7   - Doom TakeCover
+    8   - Doom Deathmatch
+
+Goal: 9,000 points
+    - Pass all levels
+
+Scoring:
+    - Each level score has been standardized on a scale of 0 to 1,000
+    - The passing score for a level is 990 (99th percentile)
+    - A bonus of 450 (50 * 9 levels) is given if all levels are passed
+    - The score for a level is the average of the last 3 tries
+    - If there has been less than 3 tries for a level, the missing tries will have a score of 0
+      (e.g. if you score 1,000 on the first level on your first try, your level score will be (1,000 + 0 + 0) / 3 = 333.33)
+    - The total score is the sum of the level scores, plus the bonus if you passed all levels.
+
+    e.g. List of tries:
+
+    - Level 0: 500
+    - Level 0: 750
+    - Level 0: 800
+    - Level 0: 1,000
+    - Level 1: 100
+    - Level 1: 200
+
+    Level score for level 0 = [1,000 + 800 + 750] / 3 = 850     (Average of last 3 tries)
+    Level score for level 1 = [200 + 100 + 0] / 3 = 100         (Tries not completed have a score of 0)
+    Level score for levels 2 to 8 = 0
+    Bonus score for passing all levels = 0
+    ------------------------
+    Total score = 850 + 100 + 0 + 0 = 950
+"""
 )
 
 add_task(
