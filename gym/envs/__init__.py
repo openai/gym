@@ -387,7 +387,7 @@ register(
     entry_point='gym.envs.proxy:GymProxyClient',
     kwargs={
         'env_name': 'FetchRobot-v0',
-        'url': 'tcp://$FETCH_ROBOT_HOST:$FETCH_ROBOT_PORT',
+        'url': '$FETCH_ROBOT_URL',
     }
 )
 
