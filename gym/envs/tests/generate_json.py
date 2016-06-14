@@ -6,9 +6,12 @@ import datetime
 import os
 import hashlib
 
+import logging
+logger = logging.getLogger(__name__)
+
 from test_envs import should_skip_env_spec_for_tests
 
-DATA_DIR = './rollout_data/'
+DATA_DIR = './gym/envs/tests/rollout_data/'
 ROLLOUT_FILE = DATA_DIR + 'rollout-filenames.json'
 ROLLOUT_STEPS = 100
 episodes = ROLLOUT_STEPS
@@ -34,18 +37,18 @@ def create_rollout(spec):
 
   # Skip environments that are nondeterministic
   if spec.nondeterministic:
-    print "Skipping tests for", spec.id
+    logger.warn("Skipping tests for {}".format(spec.id))
     return False
 
   # Temporarily skip Doom environments until setup issues resolved
   if 'Doom' in spec.id:
-    print "Skipping tests for", spec.id
+    logger.warn("Skipping tests for {}".format(spec.id))
     return False
 
   # Skip broken environments
   # TODO: look into these environments
   if spec.id in ['InterpretabilityCartpoleObservations-v0']:
-    print "Skipping tests for", spec.id
+    logger.warn("Skipping tests for {}".format(spec.id))
     return False
 
   with open(ROLLOUT_FILE) as data_file:
@@ -53,10 +56,10 @@ def create_rollout(spec):
 
   # Skip generating rollouts that already exist
   if spec.id in rollout_filenames:
-    print "Rollout already exists for", spec.id
+    logger.warn("Rollout already exists for {}".format(spec.id))
     return False   
 
-  print "Generating rollout for {}".format(spec.id)
+  logger.log("Generating rollout for {}".format(spec.id))
 
   rollout_filenames[spec.id] = filename
 

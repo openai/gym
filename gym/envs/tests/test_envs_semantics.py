@@ -4,13 +4,14 @@ import hashlib
 import os
 
 import logging
+logger = logging.getLogger(__name__)
 
 import gym
 from gym import envs, spaces
 
 from generate_json import create_rollout
 
-DATA_DIR = './rollout_data/'
+DATA_DIR = './gym/envs/tests/rollout_data/'
 ROLLOUT_FILE = DATA_DIR + 'rollout-filenames.json'
 
 if not os.path.exists(DATA_DIR):
@@ -24,7 +25,7 @@ def test_env_semantics(spec):
     rollout_filenames = json.load(data_file)
 
   if spec.id not in rollout_filenames:
-    print "Rollout not found for {} environment".format(spec.id)
+    logger.warn("Rollout not found for {} environment".format(spec.id))
     added = create_rollout(spec)
     if added: 
       with open(ROLLOUT_FILE) as data_file:
@@ -35,7 +36,7 @@ def test_env_semantics(spec):
   with open(rollout_filenames[spec.id]) as data_file:
     data = json.load(data_file)
 
-  print "Testing rollout with {} actions for {} environment...".format(len(data), spec.id)
+  logger.log("Testing rollout with {} actions for {} environment...".format(len(data), spec.id))
 
   # Set same seeds as set in generate_json.py 
   spaces.seed(0)
