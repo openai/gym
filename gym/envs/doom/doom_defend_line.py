@@ -45,8 +45,4 @@ class DoomDefendLineEnv(doom_env.DoomEnv):
     -----------------------------------------------------
     """
     def __init__(self):
-        super(DoomDefendLineEnv, self).__init__()
-        self.config = 'defend_the_line.cfg'
-        self.scenario = 'defend_the_line.wad'
-        self.difficulty = 5
-        self.allowed_actions = [0, 14, 15]
+        super(DoomDefendLineEnv, self).__init__(3)

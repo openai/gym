@@ -32,7 +32,7 @@ class DoomMyWayHomeEnv(doom_env.DoomEnv):
 
     Ends when:
         - Vest is found
-        - Timeout (2 minutes - 4,200 frames)
+        - Timeout (1 minutes - 2,100 frames)
 
     Actions:
         actions = [0] * 43
@@ -42,8 +42,4 @@ class DoomMyWayHomeEnv(doom_env.DoomEnv):
     -----------------------------------------------------
     """
     def __init__(self):
-        super(DoomMyWayHomeEnv, self).__init__()
-        self.config = 'my_way_home.cfg'
-        self.scenario = 'my_way_home.wad'
-        self.difficulty = 5
-        self.allowed_actions = [13, 14, 15]
+        super(DoomMyWayHomeEnv, self).__init__(5)

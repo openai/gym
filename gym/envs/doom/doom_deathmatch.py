@@ -38,8 +38,4 @@ class DoomDeathmatchEnv(doom_env.DoomEnv):
     -----------------------------------------------------
     """
     def __init__(self):
-        super(DoomDeathmatchEnv, self).__init__()
-        self.config = 'deathmatch.cfg'
-        self.scenario = 'deathmatch.wad'
-        self.difficulty = 5
-        self.allowed_actions = list(range(43))
+        super(DoomDeathmatchEnv, self).__init__(8)

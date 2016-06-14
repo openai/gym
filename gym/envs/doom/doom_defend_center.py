@@ -45,8 +45,4 @@ class DoomDefendCenterEnv(doom_env.DoomEnv):
     -----------------------------------------------------
     """
     def __init__(self):
-        super(DoomDefendCenterEnv, self).__init__()
-        self.config = 'defend_the_center.cfg'
-        self.scenario = 'defend_the_center.wad'
-        self.difficulty = 3
-        self.allowed_actions = [0, 14, 15]
+        super(DoomDefendCenterEnv, self).__init__(2)

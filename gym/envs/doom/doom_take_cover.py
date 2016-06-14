@@ -38,9 +38,4 @@ class DoomTakeCoverEnv(doom_env.DoomEnv):
     -----------------------------------------------------
     """
     def __init__(self):
-        super(DoomTakeCoverEnv, self).__init__()
-        self.config = 'take_cover.cfg'
-        self.scenario = 'take_cover.wad'
-        self.map = 'map01'
-        self.difficulty = 5
-        self.allowed_actions = [10, 11]
+        super(DoomTakeCoverEnv, self).__init__(7)

@@ -49,8 +49,4 @@ class DoomCorridorEnv(doom_env.DoomEnv):
     -----------------------------------------------------
     """
     def __init__(self):
-        super(DoomCorridorEnv, self).__init__()
-        self.config = 'deadly_corridor.cfg'
-        self.scenario = 'deadly_corridor.wad'
-        self.difficulty = 1
-        self.allowed_actions = [0, 10, 11, 13, 14, 15]
+        super(DoomCorridorEnv, self).__init__(1)

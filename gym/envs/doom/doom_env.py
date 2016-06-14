@@ -17,21 +17,43 @@ logger = logging.getLogger(__name__)
 
 # Constants
 NUM_ACTIONS = 43
+NUM_LEVELS = 9
+CONFIG = 0
+SCENARIO = 1
+MAP = 2
+DIFFICULTY = 3
+ACTIONS = 4
+MIN_SCORE = 5
+TARGET_SCORE = 6
+
+# Format (config, scenario, map, difficulty, actions, min, target)
+DOOM_SETTINGS = [
+    ['basic.cfg', 'basic.wad', 'map01', 5, [0, 10, 11], -485, 10],                                  # 0 - Basic
+    ['deadly_corridor.cfg', 'deadly_corridor.wad', '', 1, [0, 10, 11, 13, 14, 15], -120, 1000],     # 1 - Corridor
+    ['defend_the_center.cfg', 'defend_the_center.wad', '', 5, [0, 14, 15], -1, 10],                 # 2 - DefendCenter
+    ['defend_the_line.cfg', 'defend_the_line.wad', '', 5, [0, 14, 15], -1, 15],                     # 3 - DefendLine
+    ['health_gathering.cfg', 'health_gathering.wad', 'map01', 5, [13, 14, 15], 0, 1000],            # 4 - HealthGathering
+    ['my_way_home.cfg', 'my_way_home.wad', '', 5, [13, 14, 15], -0.22, 0.5],                        # 5 - MyWayHome
+    ['predict_position.cfg', 'predict_position.wad', 'map01', 3, [0, 14, 15], -0.075, 0.5],         # 6 - PredictPosition
+    ['take_cover.cfg', 'take_cover.wad', 'map01', 5, [10, 11], 0, 750],                             # 7 - TakeCover
+    ['deathmatch.cfg', 'deathmatch.wad', '', 5, list(range(NUM_ACTIONS)), 0, 20]                    # 8 - Deathmatch
+]
 
 class DoomEnv(gym.Env, utils.EzPickle):
     metadata = {'render.modes': ['human', 'rgb_array'], 'video.frames_per_second': 35}
 
-    def __init__(self):
+    def __init__(self, level):
         utils.EzPickle.__init__(self)
+        self.previous_level = -1
+        self.level = level
         self.game = DoomGame()
+        self.loader = Loader()
+        self.doom_dir = os.path.dirname(os.path.abspath(__file__))
         self.mode = 'fast'                          # 'human', 'fast' or 'normal'
         self.no_render = False                      # To disable double rendering in human mode
-        self.config = ''                            # Configuration file
-        self.scenario = ''                          # Scenario file
-        self.map = ''                               # Map
-        self.difficulty = 5                         # Difficulty (1 = Easy, 10 = Impossible)
         self.viewer = None
         self.is_initialized = False                 # Indicates that reset() has been called
+        self.find_new_level = False                 # Indicates that we need a level change
         self.curr_seed  = 0
         self.screen_height = 480
         self.screen_width = 640
@@ -39,6 +61,74 @@ class DoomEnv(gym.Env, utils.EzPickle):
             np.matrix([[0, 1, 0]] * 38 + [[-10, 10, 0]] * 2 + [[-100, 100, 0]] * 3, dtype=np.int8))
         self.observation_space = spaces.Box(low=0, high=255, shape=(self.screen_height, self.screen_width, 3))
         self.allowed_actions = list(range(NUM_ACTIONS))
+
+    def _load_level(self):
+        # Closing if is_initialized
+        if self.is_initialized:
+            self.is_initialized = False
+            self.game.close()
+            self.game = DoomGame()
+
+        # Loading Paths
+        if not self.is_initialized:
+            self.game.set_vizdoom_path(self.loader.get_vizdoom_path())
+            self.game.set_doom_game_path(self.loader.get_freedoom_path())
+
+        # Common settings
+        self._closed = False
+        self.game.load_config(os.path.join(self.doom_dir, 'assets/%s' % DOOM_SETTINGS[self.level][CONFIG]))
+        self.game.set_doom_scenario_path(self.loader.get_scenario_path(DOOM_SETTINGS[self.level][SCENARIO]))
+        if DOOM_SETTINGS[self.level][MAP] != '':
+            self.game.set_doom_map(DOOM_SETTINGS[self.level][MAP])
+        self.game.set_doom_skill(DOOM_SETTINGS[self.level][DIFFICULTY])
+        self.previous_level = self.level
+        self.allowed_actions = DOOM_SETTINGS[self.level][ACTIONS]
+
+        # Algo mode
+        if 'human' != self.mode:
+            self.game.set_window_visible(False)
+            self.game.set_mode(Mode.PLAYER)
+            self.no_render = False
+            self.game.init()
+            self._start_episode()
+            self.is_initialized = True
+            return self.game.get_state().image_buffer.copy()
+
+        # Human mode
+        else:
+            self.game.add_game_args('+freelook 1')
+            self.game.set_window_visible(True)
+            self.game.set_mode(Mode.SPECTATOR)
+            self.no_render = True
+            self.game.init()
+            self._start_episode()
+            self.is_initialized = True
+            self._play_human_mode()
+            return np.zeros(shape=self.observation_space.shape, dtype=np.uint8)
+
+    def _start_episode(self):
+        if self.curr_seed > 0:
+            self.game.set_seed(self.curr_seed)
+        self.game.new_episode()
+        return
+
+    def _play_human_mode(self):
+        while not self.game.is_episode_finished():
+            self.game.advance_action()
+            state = self.game.get_state()
+            total_reward = self.game.get_total_reward()
+            info = self._get_game_variables(state.game_variables)
+            info["TOTAL_REWARD"] = round(total_reward, 4)
+            print('===============================')
+            print('State: #' + str(state.number))
+            print('Action: \t' + str(self.game.get_last_action()) + '\t (=> only allowed actions)')
+            print('Reward: \t' + str(self.game.get_last_reward()))
+            print('Total Reward: \t' + str(total_reward))
+            print('Variables: \n' + str(info))
+            sleep(0.02857)  # 35 fps = 0.02857 sleep between frames
+        print('===============================')
+        print('Done')
+        return
 
     def _step(self, action):
         if NUM_ACTIONS != len(action):
@@ -55,7 +145,8 @@ class DoomEnv(gym.Env, utils.EzPickle):
         try:
             reward = self.game.make_action(list_action)
             state = self.game.get_state()
-            info = self._get_game_variables(state.game_variables, self.game.get_total_reward())
+            info = self._get_game_variables(state.game_variables)
+            info["TOTAL_REWARD"] = round(self.game.get_total_reward(), 4)
 
             if self.game.is_episode_finished():
                 is_finished = True
@@ -69,71 +160,16 @@ class DoomEnv(gym.Env, utils.EzPickle):
 
     def _reset(self):
         if self.is_initialized and not self._closed:
-            if self.curr_seed > 0:
-                self.game.set_seed(self.curr_seed)
-            self.game.new_episode()
+            self._start_episode()
             return self.game.get_state().image_buffer.copy()
-        self._closed = False
-        package_directory = os.path.dirname(os.path.abspath(__file__))
-
-        # Common settings
-        self.loader = Loader()
-        if self.config != '':
-            self.game.load_config(os.path.join(package_directory, 'assets/%s' % self.config))
-        self.game.set_vizdoom_path(self.loader.get_vizdoom_path())
-        self.game.set_doom_game_path(self.loader.get_freedoom_path())
-        if self.scenario != '':
-            self.game.set_doom_scenario_path(self.loader.get_scenario_path(self.scenario))
-        if self.map != '':
-            self.game.set_doom_map(self.map)
-        self.game.set_doom_skill(self.difficulty)
-
-        # Algo mode
-        if 'human' != self.mode:
-            self.game.set_window_visible(False)
-            self.game.set_mode(Mode.PLAYER)
-            self.no_render = False
-            self.game.init()
-            if self.curr_seed > 0:
-                self.game.set_seed(self.curr_seed)
-            self.game.new_episode()
-            self.is_initialized = True
-            return self.game.get_state().image_buffer.copy()
-
-        # Human mode
         else:
-            self.game.add_game_args('+freelook 1')
-            self.game.set_window_visible(True)
-            self.game.set_mode(Mode.SPECTATOR)
-            self.no_render = True
-            self.game.init()
-            if self.curr_seed > 0:
-                self.game.set_seed(self.curr_seed)
-            self.game.new_episode()
-            self.is_initialized = True
-
-            while not self.game.is_episode_finished():
-                self.game.advance_action()
-                state = self.game.get_state()
-                info = state.game_variables
-                total_reward = self.game.get_total_reward()
-                print('===============================')
-                print('State: #' + str(state.number))
-                print('Action: \t' + str(self.game.get_last_action()) + '\t (=> only allowed actions)')
-                print('Reward: \t' + str(self.game.get_last_reward()))
-                print('Total Reward: \t' + str(total_reward))
-                print('Variables: \n' + str(self._get_game_variables(info, total_reward)))
-                sleep(0.02857)  # 35 fps = 0.02857 sleep between frames
-            print('===============================')
-            print('Done')
-            return
+            return self._load_level()
 
     def _render(self, mode='human', close=False):
         if close:
             if self.viewer is not None:
                 self.viewer.close()
-                # If we don't None out this reference pyglet becomes unhappy
-                self.viewer = None
+                self.viewer = None      # If we don't None out this reference pyglet becomes unhappy
             return
         try:
             if 'human' == mode and self.no_render: return
@@ -162,8 +198,9 @@ class DoomEnv(gym.Env, utils.EzPickle):
         self.curr_seed = seeding.hash_seed(seed) % 2 ** 32
         return [ self.curr_seed ]
 
-    def _get_game_variables(self, state_variables, total_reward):
+    def _get_game_variables(self, state_variables):
         info = {}
+        info["LEVEL"] = self.level
         if state_variables is None: return info
         info['KILLCOUNT'] = state_variables[0]
         info['ITEMCOUNT'] = state_variables[1]
@@ -187,5 +224,4 @@ class DoomEnv(gym.Env, utils.EzPickle):
         info['AMMO8'] = state_variables[19]
         info['AMMO9'] = state_variables[20]
         info['AMMO0'] = state_variables[21]
-        info['TOTAL_REWARD'] = total_reward
         return info

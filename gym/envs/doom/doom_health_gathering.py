@@ -42,9 +42,4 @@ class DoomHealthGatheringEnv(doom_env.DoomEnv):
     -----------------------------------------------------
     """
     def __init__(self):
-        super(DoomHealthGatheringEnv, self).__init__()
-        self.config = 'health_gathering.cfg'
-        self.scenario = 'health_gathering.wad'
-        self.map = 'map01'
-        self.difficulty = 5
-        self.allowed_actions = [13, 14, 15]
+        super(DoomHealthGatheringEnv, self).__init__(4)

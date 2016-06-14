@@ -44,9 +44,4 @@ class DoomBasicEnv(doom_env.DoomEnv):
     -----------------------------------------------------
     """
     def __init__(self):
-        super(DoomBasicEnv, self).__init__()
-        self.config = 'basic.cfg'
-        self.scenario = 'basic.wad'
-        self.map = 'map01'
-        self.difficulty = 5
-        self.allowed_actions = [0, 10, 11]
+        super(DoomBasicEnv, self).__init__(0)

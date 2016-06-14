@@ -47,9 +47,4 @@ class DoomPredictPositionEnv(doom_env.DoomEnv):
     -----------------------------------------------------
     """
     def __init__(self):
-        super(DoomPredictPositionEnv, self).__init__()
-        self.config = 'predict_position.cfg'
-        self.scenario = 'predict_position.wad'
-        self.map = 'map01'
-        self.difficulty = 3
-        self.allowed_actions = [0, 14, 15]
+        super(DoomPredictPositionEnv, self).__init__(6)
