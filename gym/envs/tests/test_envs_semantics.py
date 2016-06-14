@@ -25,7 +25,6 @@ def test_env_semantics(spec):
     rollout_filenames = json.load(data_file)
 
   if spec.id not in rollout_filenames:
-    logger.warn("Rollout not found for {} environment".format(spec.id))
     added = create_rollout(spec)
     if added: 
       with open(ROLLOUT_FILE) as data_file:
@@ -36,7 +35,7 @@ def test_env_semantics(spec):
   with open(rollout_filenames[spec.id]) as data_file:
     data = json.load(data_file)
 
-  logger.log("Testing rollout with {} actions for {} environment...".format(len(data), spec.id))
+  logger.info("Testing rollout with {} actions for {} environment...".format(len(data), spec.id))
 
   # Set same seeds as set in generate_json.py 
   spaces.seed(0)

@@ -33,11 +33,12 @@ def create_rollout(spec):
   filename = DATA_DIR + spec.id + '-rollout.json'
 
   if should_skip_env_spec_for_tests(spec):
+    logger.warn("Skipping tests for {}".format(spec.id))
     return False
 
   # Skip environments that are nondeterministic
   if spec.nondeterministic:
-    logger.warn("Skipping tests for {}".format(spec.id))
+    logger.warn("Skipping tests for nondeterministic env {}".format(spec.id))
     return False
 
   # Temporarily skip Doom environments until setup issues resolved
@@ -59,12 +60,7 @@ def create_rollout(spec):
     logger.warn("Rollout already exists for {}".format(spec.id))
     return False   
 
-  logger.log("Generating rollout for {}".format(spec.id))
-
-  rollout_filenames[spec.id] = filename
-
-  with open(ROLLOUT_FILE, "w") as outfile:
-    json.dump(rollout_filenames, outfile, indent=2)
+  logger.info("Generating rollout for {}".format(spec.id))
 
   spaces.seed(0)
   env = spec.make()
@@ -93,6 +89,11 @@ def create_rollout(spec):
 
   with open(filename, "w") as outfile:
     json.dump(rollout, outfile, indent=2)
+
+  rollout_filenames[spec.id] = filename
+
+  with open(ROLLOUT_FILE, "w") as outfile:
+    json.dump(rollout_filenames, outfile, indent=2)
 
   return True
 
