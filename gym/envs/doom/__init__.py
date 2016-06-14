@@ -1,4 +1,4 @@
-from gym.envs.doom.doom_env import DoomEnv
+from gym.envs.doom.doom_env import DoomEnv, MetaDoomEnv
 from gym.envs.doom.doom_basic import DoomBasicEnv
 from gym.envs.doom.doom_corridor import DoomCorridorEnv
 from gym.envs.doom.doom_defend_center import DoomDefendCenterEnv

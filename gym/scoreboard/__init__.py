@@ -636,6 +636,13 @@ The game is simulated through the Arcade Learning Environment [ALE]_, which uses
 
 # doom
 add_task(
+    id='meta-Doom-v0',
+    group='doom',
+    experimental=True,
+    contributor='ppaquette',
+)
+
+add_task(
     id='DoomBasic-v0',
     group='doom',
     experimental=True,
