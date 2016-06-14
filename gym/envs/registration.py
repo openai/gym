@@ -58,12 +58,12 @@ class EnvSpec(object):
         if self._entry_point is None:
             raise error.Error('Attempting to make deprecated env {}. (HINT: is there a newer registered version of this env?)'.format(self.id))
 
-        # If $OPENAI_GYM_ENV_SERVER is set to something like 'tcp://host:port', create a proxy
+        # If $OPENAI_GYM_REMOTE_ENV_URL is set to something like 'tcp://host:port', create a proxy
         # environment that connects to a remote environment server instead. See gym/envs/proxy directory
-        gym_env_server = os.environ.get('OPENAI_GYM_ENV_SERVER', '')
-        if gym_env_server != '':
+        gym_env_url = os.environ.get('OPENAI_GYM_REMOTE_ENV_URL', '')
+        if gym_env_url != '':
             import gym.envs.proxy.client
-            env = gym.envs.proxy.client.GymProxyClient(gym_env_server, env_name=self.id)
+            env = gym.envs.proxy.client.GymProxyClient(gym_env_url, env_name=self.id)
         else:
             cls = load(self._entry_point)
             env = cls(**self._kwargs)

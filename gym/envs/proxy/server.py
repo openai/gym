@@ -1,13 +1,17 @@
-#!/usr/bin/python
 """
-Defines a class GymProxyZmqServer that listens on a zmq port, creates an environment when connected to,
+Defines a class GymProxyZmqServer that listens on a zmq port, creates an environment as requested over the port,
 and accepts step & reset calls on that environment.
 
-Call:
+Usage:
+    def make_env(env_name):
+        if env_name == 'MyRemoteEnv':
+            return MyRemoteEnv(...)
     s = GymProxyZmqServer(url, make_env)
-    s.main_thr.run()
+    s.run_main()
 
-where make_env takes a string and returns an environment
+As a special bonus, if you run this module directly:
+  python gym/envs/proxy/server.py tcp://127.0.0.1:6911
+it will serve all the Gym environments over zmq at tcp://127.0.0.1:6911
 
 """
 import math, random, time, logging, re, base64, argparse, collections, sys, os, traceback, threading
@@ -36,14 +40,14 @@ class GymProxyZmqServer(object):
         self.monitor_thr = threading.Thread(target = self.run_monitor)
         self.monitor_thr.daemon = True
         self.monitor_thr.start()
-        self.main_thr = threading.Thread(target = self.run_main)
 
     def run_main(self):
         logger.info('zmq gym server running on %s', self.url)
         while True:
             rx = self.sock.recv_multipart(flags=0, copy=True, track=False)
             logger.debug('%s > %s', self.url, rx[0])
-            self.handle_msg(rx)
+            rpc = zmq_serialize.load_msg(rx)
+            self.handle_rpc(rpc)
 
     def run_monitor(self):
         logger.info('zmq gym server listening on monitoring socket')
@@ -67,8 +71,7 @@ class GymProxyZmqServer(object):
             self.env.close()
         self.env = None
 
-    def handle_msg(self, rx):
-        rpc = zmq_serialize.load_msg(rx)
+    def handle_rpc(self, rpc):
         rpc_method = rpc.get('method', None)
         rpc_params = rpc.get('params', None)
 
@@ -127,6 +130,8 @@ class GymProxyZmqServer(object):
         if self.env_name is not None:
             raise Exception('Already set up')
         self.env = self.make_env(params['env_name'])
+        if self.env is None:
+            raise Exception('No such environment')
         self.env_name = params['env_name']
         self.session_id = zmq_serialize.mk_random_cookie()
         logger.info('Creating env %s. session_id=%s', self.env_name, self.session_id)
@@ -160,9 +165,8 @@ class GymProxyZmqServer(object):
             'session_id': self.session_id,
         }
 
-# If invoked directory, serve any environment
+
 if __name__ == '__main__':
-    def make_env(name):
-        return gym.make(name)
-    zmqs = GymProxyZmqServer('tcp://127.0.0.1:6911', make_env)
-    zmqs.main_thr.run()
+    server_url = sys.argv[1]
+    zmqs = GymProxyZmqServer(server_url, gym.make)
+    zmqs.run_main()

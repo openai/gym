@@ -42,7 +42,7 @@ class GymProxyClientSocket(object):
 
 
         if rpc_ans['error'] is not None:
-            raise Exception(rpc_ans['error'])
+            raise Exception('Remote gym server reports: ' + rpc_ans['error'])
         return rpc_ans['result']
 
 
