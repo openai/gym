@@ -297,6 +297,18 @@ register(
 # ----------------------------------------
 
 register(
+    id='meta-Doom-v0',
+    entry_point='gym.envs.doom:MetaDoomEnv',
+    timestep_limit=999999,
+    reward_threshold=9000.0,
+    kwargs={
+        'average_over': 3,
+        'passing_grade': 600,
+        'min_tries_for_avg': 3
+    },
+)
+
+register(
     id='DoomBasic-v0',
     entry_point='gym.envs.doom:DoomBasicEnv',
     timestep_limit=10000,
