@@ -703,7 +703,7 @@ add_task(
 
 # interpretability envs
 add_task(
-    id='InterpretabilityCartpoleActions-v0',
+    id='PredictActionsCartpole-v0',
     group='safety',
     experimental=True,
     contributor='rafaelcosman',
@@ -732,7 +732,7 @@ Prior work has studied prediction in reinforcement learning [Junhyuk15]_, while 
 )
 
 add_task(
-    id='InterpretabilityCartpoleObservations-v0',
+    id='PredictObsCartpole-v0',
     group='safety',
     experimental=True,
     contributor='rafaelcosman',
@@ -803,7 +803,7 @@ Note: while this toy example is intended to further investigation into learning 
 # semi_supervised envs
     # probably the easiest:
 add_task(
-    id='SemiSupervisedPendulumNoise-v0',
+    id='SemisuperPendulumNoise-v0',
     group='safety',
     experimental=True,
     contributor='rafaelcosman',
@@ -819,7 +819,7 @@ In the classic version of the `pendulum problem <https://gym.openai.com/envs/Pen
 
     # somewhat harder because of higher variance:
 add_task(
-    id='SemiSupervisedPendulumRandom-v0',
+    id='SemisuperPendulumRandom-v0',
     group='safety',
     experimental=True,
     contributor='rafaelcosman',
@@ -841,7 +841,7 @@ This is a toy example of semi-supervised reinforcement learning, though similar 
 
     # probably the hardest because you only get a constant number of rewards in total:
 add_task(
-    id='SemiSupervisedPendulumDecay-v0',
+    id='SemisuperPendulumDecay-v0',
     group='safety',
     experimental=True,
     contributor='rafaelcosman',

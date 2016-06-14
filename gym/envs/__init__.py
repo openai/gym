@@ -385,30 +385,30 @@ register(
 
 # interpretability envs
 register(
-    id='InterpretabilityCartpoleActions-v0',
-    entry_point='gym.envs.safety:InterpretabilityCartpoleActionsEnv',
+    id='PredictActionsCartpole-v0',
+    entry_point='gym.envs.safety:PredictActionsCartpoleEnv',
 )
 
 register(
-    id='InterpretabilityCartpoleObservations-v0',
-    entry_point='gym.envs.safety:InterpretabilityCartpoleObservationsEnv',
+    id='PredictObsCartpole-v0',
+    entry_point='gym.envs.safety:PredictObsCartpoleEnv',
 )
 
 # semi_supervised envs
     # probably the easiest:
 register(
-    id='SemiSupervisedPendulumNoise-v0',
-    entry_point='gym.envs.safety:SemiSupervisedPendulumNoiseEnv',
+    id='SemisuperPendulumNoise-v0',
+    entry_point='gym.envs.safety:SemisuperPendulumNoiseEnv',
 )
     # somewhat harder because of higher variance:
 register(
-    id='SemiSupervisedPendulumRandom-v0',
-    entry_point='gym.envs.safety:SemiSupervisedPendulumRandomEnv',
+    id='SemisuperPendulumRandom-v0',
+    entry_point='gym.envs.safety:SemisuperPendulumRandomEnv',
 )
     # probably the hardest because you only get a constant number of rewards in total:
 register(
-    id='SemiSupervisedPendulumDecay-v0',
-    entry_point='gym.envs.safety:SemiSupervisedPendulumDecayEnv',
+    id='SemisuperPendulumDecay-v0',
+    entry_point='gym.envs.safety:SemisuperPendulumDecayEnv',
 )
 
 # off_switch envs
