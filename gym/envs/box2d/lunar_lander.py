@@ -111,7 +111,8 @@ class LunarLander(gym.Env):
 
     def _reset(self):
         self._destroy()
-        self.world.contactListener = ContactDetector(self)
+        self.world.contactListener_keepref = ContactDetector(self)
+        self.world.contactListener = self.world.contactListener_keepref
         self.game_over = False
         self.prev_shaping = None
 

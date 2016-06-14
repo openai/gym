@@ -107,7 +107,8 @@ class CarRacing(gym.Env):
 
     def __init__(self):
         self._seed()
-        self.world = Box2D.b2World((0,0), contactListener=FrictionDetector(self))
+        self.contactListener_keepref = FrictionDetector(self)
+        self.world = Box2D.b2World((0,0), contactListener=self.contactListener_keepref)
         self.viewer = None
         self.invisible_state_window = None
         self.invisible_video_window = None
