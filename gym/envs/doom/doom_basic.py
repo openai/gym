@@ -20,7 +20,7 @@ class DoomBasicEnv(doom_env.DoomEnv):
     Rewards:
         +101    - Killing the monster
         -  5    - Missing a shot
-        -  1    - Several times per second - Kill the monster faster!
+        -  1    - 35 times per second - Kill the monster faster!
 
     Goal: 10 points
         Kill the monster in 3 secs with 1 shot

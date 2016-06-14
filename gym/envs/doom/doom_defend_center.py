@@ -10,7 +10,7 @@ class DoomDefendCenterEnv(doom_env.DoomEnv):
     You will also need to keep an eye on your ammunition level. You are only
     rewarded for kills, so figure out how to stay alive.
 
-    The map is a circle with monsters in the middle. Monsters will
+    The map is a circle with monsters. You are in the middle. Monsters will
     respawn with additional health when killed. Kill as many as you can
     before you run out of ammo.
 

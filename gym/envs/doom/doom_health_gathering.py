@@ -18,7 +18,7 @@ class DoomHealthGatheringEnv(doom_env.DoomEnv):
     Note: see controls.md for details
 
     Rewards:
-        +  1    - Several times per second - Survive as long as possible
+        +  1    - 35 times per second - Survive as long as possible
         -100    - Death penalty
 
     Goal: 1000 points

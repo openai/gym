@@ -20,7 +20,7 @@ class DoomPredictPositionEnv(doom_env.DoomEnv):
 
     Rewards:
         +  1    - Killing the monster
-        -0.0001 - Several times per second - Kill the monster faster!
+        -0.0001 - 35 times per second - Kill the monster faster!
 
     Goal: 0.5 point
         Kill the monster

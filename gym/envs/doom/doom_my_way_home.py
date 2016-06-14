@@ -19,7 +19,7 @@ class DoomMyWayHomeEnv(doom_env.DoomEnv):
 
     Rewards:
         +  1    - Finding the vest
-        -0.0001 - Several times per second - Find the vest quick!
+        -0.0001 - 35 times per second - Find the vest quick!
 
     Goal: 0.50 point
         Find the vest

@@ -10,7 +10,7 @@ class DoomDefendLineEnv(doom_env.DoomEnv):
     Your ammo will automatically replenish. You are only rewarded for kills,
     so figure out how to stay alive.
 
-    The map is a rectangle with monsters in the middle. Monsters will
+    The map is a rectangle with monsters on the other side. Monsters will
     respawn with additional health when killed. Kill as many as you can
     before they kill you. This map is harder than the previous.
 

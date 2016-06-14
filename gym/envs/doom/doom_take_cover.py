@@ -16,7 +16,7 @@ class DoomTakeCoverEnv(doom_env.DoomEnv):
     Note: see controls.md for details
 
     Rewards:
-        +  1    - Several times per second - Survive as long as possible
+        +  1    - 35 times per second - Survive as long as possible
 
     Goal: 750 points
         Survive for ~ 20 seconds
