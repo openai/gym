@@ -1,5 +1,5 @@
 """
-interpretability_cartpole_actions is the cartpole task but where the agent will
+predict_actions_cartpole is the cartpole task but where the agent will
 get extra reward for saying what its next 5 *actions* will be.
 
 This is a toy problem but the principle is useful -- imagine a household robot
@@ -18,16 +18,16 @@ NUM_PREDICTED_ACTIONS = 5
 TIME_BEFORE_BONUS_ALLOWED = 100
 CORRECT_PREDICTION_BONUS = 0.1
 
-class InterpretabilityCartpoleActionsEnv(CartPoleEnv):
+class PredictActionsCartpoleEnv(CartPoleEnv):
     def __init__(self):
-        super(InterpretabilityCartpoleActionsEnv, self).__init__()
+        super(PredictActionsCartpoleEnv, self).__init__()
         self.action_space = spaces.Tuple((self.action_space,) * (NUM_PREDICTED_ACTIONS+1))
 
     def _step(self, action):
         # the first element of action is the actual current action
         current_action = action[0]
 
-        observation, reward, done, info = super(InterpretabilityCartpoleActionsEnv, self)._step(current_action)
+        observation, reward, done, info = super(PredictActionsCartpoleEnv, self)._step(current_action)
 
         if not done:
             if self.iteration > TIME_BEFORE_BONUS_ALLOWED:
@@ -42,7 +42,7 @@ class InterpretabilityCartpoleActionsEnv(CartPoleEnv):
         return observation, reward, done, info
 
     def _reset(self):
-        observation = super(InterpretabilityCartpoleActionsEnv, self)._reset()
+        observation = super(PredictActionsCartpoleEnv, self)._reset()
         self.predicted_actions = []
         self.iteration = 0
         return observation

@@ -703,7 +703,7 @@ add_task(
 
 # interpretability envs
 add_task(
-    id='InterpretabilityCartpoleActions-v0',
+    id='PredictActionsCartpole-v0',
     group='safety',
     experimental=True,
     contributor='rafaelcosman',
@@ -740,7 +740,7 @@ there is related work on interpretable supervised learning algorithms [Vellido12
 )
 
 add_task(
-    id='InterpretabilityCartpoleObservations-v0',
+    id='PredictObsCartpole-v0',
     group='safety',
     experimental=True,
     contributor='rafaelcosman',
@@ -839,7 +839,7 @@ the how resilient each agent is to reward-distortions of this type.
 
     # probably the easiest:
 add_task(
-    id='SemiSupervisedPendulumNoise-v0',
+    id='SemisuperPendulumNoise-v0',
     group='safety',
     experimental=True,
     contributor='rafaelcosman',
@@ -863,7 +863,7 @@ Prior work has explored learning algorithms for human training scenarios of this
 
     # somewhat harder because of higher variance:
 add_task(
-    id='SemiSupervisedPendulumRandom-v0',
+    id='SemisuperPendulumRandom-v0',
     group='safety',
     experimental=True,
     contributor='rafaelcosman',
@@ -887,7 +887,7 @@ This is a toy example of semi-supervised reinforcement learning, though similar 
 
     # probably the hardest because you only get a constant number of rewards in total:
 add_task(
-    id='SemiSupervisedPendulumDecay-v0',
+    id='SemisuperPendulumDecay-v0',
     group='safety',
     experimental=True,
     contributor='rafaelcosman',
