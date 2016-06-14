@@ -640,6 +640,31 @@ add_task(
     group='doom',
     experimental=True,
     contributor='ppaquette',
+    summary='Mission #1 - Kill a single monster using your pistol.',
+    description="""
+This map is rectangular with gray walls, ceiling and floor.
+You are spawned in the center of the longer wall, and a red
+circular monster is spawned randomly on the opposite wall.
+You need to kill the monster (one bullet is enough).
+
+Allowed actions:
+    [0]  - ATTACK                           - Shoot weapon - Values 0 or 1
+    [10] - MOVE_RIGHT                       - Move to the right - Values 0 or 1
+    [11] - MOVE_LEFT                        - Move to the left - Values 0 or 1
+
+Rewards:
+    +101    - Killing the monster
+    -  5    - Missing a shot
+    -  1    - 35 times per second - Kill the monster faster!
+
+Goal: 10 points
+    Kill the monster in 3 secs with 1 shot
+
+Ends when:
+    - Monster is dead
+    - Player is dead
+    - Timeout (10 seconds - 350 frames)
+"""
 )
 
 add_task(
@@ -647,6 +672,33 @@ add_task(
     group='doom',
     experimental=True,
     contributor='ppaquette',
+    summary='Mission #2 - Run as fast as possible to grab a vest.',
+    description="""
+This map is designed to improve your navigation. There is a vest
+at the end of the corridor, with 6 enemies (3 groups of 2). Your goal
+is to get to the vest as soon as possible, without being killed.
+
+Allowed actions:
+    [0]  - ATTACK                           - Shoot weapon - Values 0 or 1
+    [10] - MOVE_RIGHT                       - Move to the right - Values 0 or 1
+    [11] - MOVE_LEFT                        - Move to the left - Values 0 or 1
+    [13] - MOVE_FORWARD                     - Move forward - Values 0 or 1
+    [14] - TURN_RIGHT                       - Turn right - Values 0 or 1
+    [15] - TURN_LEFT                        - Turn left - Values 0 or 1
+
+Rewards:
+    + dX    - For getting closer to the vest
+    - dX    - For getting further from the vest
+    -100    - Penalty for being killed
+
+Goal: 1,000 points
+    Reach the vest (or at least get past the guards in the 3rd group)
+
+Ends when:
+    - Player touches vest
+    - Player is dead
+    - Timeout (1 minutes - 2,100 frames)
+"""
 )
 
 add_task(
@@ -654,6 +706,32 @@ add_task(
     group='doom',
     experimental=True,
     contributor='ppaquette',
+    summary='Mission #3 - Kill enemies coming at your from all sides.',
+    description="""
+This map is designed to teach you how to kill and how to stay alive.
+You will also need to keep an eye on your ammunition level. You are only
+rewarded for kills, so figure out how to stay alive.
+
+The map is a circle with monsters. You are in the middle. Monsters will
+respawn with additional health when killed. Kill as many as you can
+before you run out of ammo.
+
+Allowed actions:
+    [0]  - ATTACK                           - Shoot weapon - Values 0 or 1
+    [14] - TURN_RIGHT                       - Turn right - Values 0 or 1
+    [15] - TURN_LEFT                        - Turn left - Values 0 or 1
+
+Rewards:
+    +  1    - Killing a monster
+    -  1    - Penalty for being killed
+
+Goal: 10 points
+    Kill 11 monsters (you have 26 ammo)
+
+Ends when:
+    - Player is dead
+    - Timeout (60 seconds - 2100 frames)
+"""
 )
 
 add_task(
@@ -661,6 +739,32 @@ add_task(
     group='doom',
     experimental=True,
     contributor='ppaquette',
+    summary='Mission #4 - Kill enemies on the other side of the room.',
+    description="""
+This map is designed to teach you how to kill and how to stay alive.
+Your ammo will automatically replenish. You are only rewarded for kills,
+so figure out how to stay alive.
+
+The map is a rectangle with monsters on the other side. Monsters will
+respawn with additional health when killed. Kill as many as you can
+before they kill you. This map is harder than the previous.
+
+Allowed actions:
+    [0]  - ATTACK                           - Shoot weapon - Values 0 or 1
+    [14] - TURN_RIGHT                       - Turn right - Values 0 or 1
+    [15] - TURN_LEFT                        - Turn left - Values 0 or 1
+
+Rewards:
+    +  1    - Killing a monster
+    -  1    - Penalty for being killed
+
+Goal: 15 points
+    Kill 16 monsters
+
+Ends when:
+    - Player is dead
+    - Timeout (60 seconds - 2100 frames)
+"""
 )
 
 add_task(
@@ -668,6 +772,29 @@ add_task(
     group='doom',
     experimental=True,
     contributor='ppaquette',
+    summary='Mission #5 - Learn to grad medkits to survive as long as possible.',
+    description="""
+This map is a guide on how to survive by collecting health packs.
+It is a rectangle with green, acidic floor which hurts the player
+periodically. There are also medkits spread around the map, and
+additional kits will spawn at interval.
+
+Allowed actions:
+    [13] - MOVE_FORWARD                     - Move forward - Values 0 or 1
+    [14] - TURN_RIGHT                       - Turn right - Values 0 or 1
+    [15] - TURN_LEFT                        - Turn left - Values 0 or 1
+
+Rewards:
+    +  1    - 35 times per second - Survive as long as possible
+    -100    - Death penalty
+
+Goal: 1000 points
+    Stay alive long enough to reach 1,000 points (~ 30 secs)
+
+Ends when:
+    - Player is dead
+    - Timeout (60 seconds - 2,100 frames)
+"""
 )
 
 add_task(
@@ -675,6 +802,29 @@ add_task(
     group='doom',
     experimental=True,
     contributor='ppaquette',
+    summary='Mission #6 - Find the vest in one the 4 rooms.',
+    description="""
+This map is designed to improve navigational skills. It is a series of
+interconnected rooms and 1 corridor with a dead end. Each room
+has a separate color. There is a green vest in one of the room.
+The vest is always in the same room. Player must find the vest.
+
+Allowed actions:
+    [13] - MOVE_FORWARD                     - Move forward - Values 0 or 1
+    [14] - TURN_RIGHT                       - Turn right - Values 0 or 1
+    [15] - TURN_LEFT                        - Turn left - Values 0 or 1
+
+Rewards:
+    +  1    - Finding the vest
+    -0.0001 - 35 times per second - Find the vest quick!
+
+Goal: 0.50 point
+    Find the vest
+
+Ends when:
+    - Vest is found
+    - Timeout (1 minutes - 2,100 frames)
+"""
 )
 
 add_task(
@@ -682,6 +832,34 @@ add_task(
     group='doom',
     experimental=True,
     contributor='ppaquette',
+    summary='Mission #7 - Learn how to kill an enemy with a rocket launcher.',
+    description="""
+This map is designed to train you on using a rocket launcher.
+It is a rectangular map with a monster on the opposite side. You need
+to use your rocket launcher to kill it. The rocket adds a delay between
+the moment it is fired and the moment it reaches the other side of the room.
+You need to predict the position of the monster to kill it.
+
+Allowed actions:
+    [0]  - ATTACK                           - Shoot weapon - Values 0 or 1
+    [14] - TURN_RIGHT                       - Turn right - Values 0 or 1
+    [15] - TURN_LEFT                        - Turn left - Values 0 or 1
+
+Rewards:
+    +  1    - Killing the monster
+    -0.0001 - 35 times per second - Kill the monster faster!
+
+Goal: 0.5 point
+    Kill the monster
+
+Hint: Missile launcher takes longer to load. You must wait a good second after the game starts
+    before trying to fire it.
+
+Ends when:
+    - Monster is dead
+    - Out of missile (you only have one)
+    - Timeout (20 seconds - 700 frames)
+"""
 )
 
 add_task(
@@ -689,6 +867,26 @@ add_task(
     group='doom',
     experimental=True,
     contributor='ppaquette',
+    summary='Mission #8 - Survive as long as possible with enemies shooting at you.',
+    description="""
+This map is to train you on the damage of incoming missiles.
+It is a rectangular map with monsters firing missiles and fireballs
+at you. You need to survive as long as possible.
+
+Allowed actions:
+    [10] - MOVE_RIGHT                       - Move to the right - Values 0 or 1
+    [11] - MOVE_LEFT                        - Move to the left - Values 0 or 1
+
+Rewards:
+    +  1    - 35 times per second - Survive as long as possible
+
+Goal: 750 points
+    Survive for ~ 20 seconds
+
+Ends when:
+    - Player is dead (one or two fireballs should be enough to kill you)
+    - Timeout (60 seconds - 2,100 frames)
+"""
 )
 
 add_task(
@@ -696,6 +894,23 @@ add_task(
     group='doom',
     experimental=True,
     contributor='ppaquette',
+    summary='Mission #9 - Kill as many enemies as possible without being killed.',
+    description="""
+Kill as many monsters as possible without being killed.
+
+Allowed actions:
+    ALL
+
+Rewards:
+    +1      - Killing a monster
+
+Goal: 20 points
+    Kill 20 monsters
+
+Ends when:
+    - Player is dead
+    - Timeout (3 minutes - 6,300 frames)
+"""
 )
 
 

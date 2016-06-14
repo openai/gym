@@ -1,6 +1,6 @@
 import numpy as np
 
-import gym
+import gym, time
 from gym.spaces import prng
 
 class Discrete(gym.Space):
