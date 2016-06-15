@@ -20,6 +20,9 @@ if not os.path.isfile(ROLLOUT_FILE):
   with open(ROLLOUT_FILE, "w") as outfile:
     json.dump({}, outfile, indent=2)
 
+def hash_object(unhashed):
+  return hashlib.sha1(str(unhashed).encode('utf-8')).hexdigest()
+
 def generate_rollout_hash(spec):
   spaces.seed(0)
   env = spec.make()
@@ -49,10 +52,10 @@ def generate_rollout_hash(spec):
 
       if done: break
 
-  observations_hash = hashlib.sha1(str(observation_list)).hexdigest()
-  actions_hash = hashlib.sha1(str(action_list)).hexdigest()
-  rewards_hash = hashlib.sha1(str(reward_list)).hexdigest()
-  dones_hash = hashlib.sha1(str(done_list)).hexdigest()
+  observations_hash = hash_object(observation_list)
+  actions_hash = hash_object(action_list)
+  rewards_hash = hash_object(reward_list)
+  dones_hash = hash_object(done_list)
 
   return observations_hash, actions_hash, rewards_hash, dones_hash
 

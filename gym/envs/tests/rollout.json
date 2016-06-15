@@ -65,17 +65,11 @@
     "observations": "075c80e0f50f674e6aca9341da24b152dbd20701", 
     "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5"
   }, 
-  "SemisuperPendulumDecay-v0": {
-    "actions": "04c524f02d0b142f8b1280c1f77db66dd83f23f5", 
-    "rewards": "7ee1e8971818b3c6cf96b2c74fe5cbdc379e7d21", 
-    "observations": "7c72c9bfe355b02ac5ed7d1cb37b95fa41882c6a", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
-  }, 
   "Gopher-ram-v0": {
+    "actions": "b29117a3c3ff1b1f11a4ddf6e0fd3e6a9f567fc1", 
     "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
     "observations": "bb4e802fd47e393693c0436bb82733c5d0dc2f2d", 
-    "actions": "b29117a3c3ff1b1f11a4ddf6e0fd3e6a9f567fc1"
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
   }, 
   "Robotank-v0": {
     "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
@@ -84,76 +78,76 @@
     "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5"
   }, 
   "Pooyan-ram-v0": {
+    "actions": "2a14517e489d9449dcf7c0d64b9bd9a5b8dcb675", 
     "rewards": "739fa458b886ef3afa3eb2237ec996126fc22ef7", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
     "observations": "12257bb06eae3519f47c22c029756a421877878d", 
-    "actions": "2a14517e489d9449dcf7c0d64b9bd9a5b8dcb675"
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
   }, 
   "SpaceInvaders-ram-v0": {
+    "actions": "2a14517e489d9449dcf7c0d64b9bd9a5b8dcb675", 
     "rewards": "a0ad494299ab50a82bd95f4ef718dd559a490490", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
     "observations": "8e9c408fbf6fab92a680fb34e0605ea272cee4c4", 
-    "actions": "2a14517e489d9449dcf7c0d64b9bd9a5b8dcb675"
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
   }, 
   "ChopperCommand-ram-v0": {
-    "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5", 
     "rewards": "350cf501c77a515a3cb8b92ad652fac83361a8e6", 
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
     "observations": "706381c93e460ab990c9d75f4fc0360ae5df5851", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
+    "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5"
   }, 
   "DoubleDunk-ram-v0": {
+    "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5", 
+    "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
+    "observations": "13478322e1c468a4966fdf0c571aca96246aab03", 
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
+  }, 
+  "BankHeist-v0": {
     "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
     "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
-    "observations": "13478322e1c468a4966fdf0c571aca96246aab03", 
+    "observations": "a4e42ba729b37a035504b0366c9d2cd75be612be", 
     "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5"
-  }, 
-  "AirRaid-ram-v0": {
-    "actions": "2a14517e489d9449dcf7c0d64b9bd9a5b8dcb675", 
-    "rewards": "53bf1c788a26a5ff490a7ab391e3a570fd1f3343", 
-    "observations": "60d6a3c89bf359fccb9dbaae376e13b59ce7d0d6", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
   }, 
   "Gravitar-ram-v0": {
+    "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5", 
     "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
     "observations": "6c91b6edb82a0132005a2f2d3d6d0c760db82afe", 
-    "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5"
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
   }, 
   "Centipede-v0": {
-    "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5", 
     "rewards": "a055eedae6ff86e5e48a273d8dfa8cfd0a257dec", 
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
     "observations": "a4e42ba729b37a035504b0366c9d2cd75be612be", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
+    "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5"
   }, 
   "Carnival-ram-v0": {
+    "actions": "2a14517e489d9449dcf7c0d64b9bd9a5b8dcb675", 
     "rewards": "6ebaf5c334cf112cdf89f46488e4857c4b4837b5", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
     "observations": "d8a5d171e5d7bd93f3c4acec9360fd5a0ede46c6", 
-    "actions": "2a14517e489d9449dcf7c0d64b9bd9a5b8dcb675"
-  }, 
-  "Zaxxon-v0": {
-    "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5", 
-    "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
-    "observations": "a4e42ba729b37a035504b0366c9d2cd75be612be", 
     "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
   }, 
-  "Venture-v0": {
+  "Zaxxon-v0": {
     "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
     "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
     "observations": "a4e42ba729b37a035504b0366c9d2cd75be612be", 
     "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5"
   }, 
-  "Frostbite-v0": {
+  "Venture-v0": {
     "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5", 
-    "rewards": "2f0c3826754fb3d0e6c08df6b05d76862ec48728", 
+    "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
     "observations": "a4e42ba729b37a035504b0366c9d2cd75be612be", 
     "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
   }, 
-  "NChain-v0": {
-    "rewards": "68fd879801e1727815ae29656904a2dce61a0f0c", 
+  "Frostbite-v0": {
+    "rewards": "2f0c3826754fb3d0e6c08df6b05d76862ec48728", 
     "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
+    "observations": "a4e42ba729b37a035504b0366c9d2cd75be612be", 
+    "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5"
+  }, 
+  "NChain-v0": {
+    "actions": "7e2119f46de5ef496ab605167d267f87c09ef57e", 
+    "rewards": "68fd879801e1727815ae29656904a2dce61a0f0c", 
     "observations": "344e3888959c33dcbf53cac33407bb0e5d9686a7", 
-    "actions": "7e2119f46de5ef496ab605167d267f87c09ef57e"
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
   }, 
   "Tennis-ram-v0": {
     "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5", 
@@ -162,82 +156,76 @@
     "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
   }, 
   "DemonAttack-v0": {
-    "actions": "2a14517e489d9449dcf7c0d64b9bd9a5b8dcb675", 
     "rewards": "7316fb13214f65286d14349da61eda056e60bce6", 
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
     "observations": "dc0591208037e57130b9700ca0bc07b491f9146b", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
+    "actions": "2a14517e489d9449dcf7c0d64b9bd9a5b8dcb675"
   }, 
   "Seaquest-v0": {
-    "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
-    "observations": "a4e42ba729b37a035504b0366c9d2cd75be612be", 
-    "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5"
-  }, 
-  "CrazyClimber-v0": {
-    "actions": "dace9ad42f7f94bc08ea513ea0485b4cbd4da776", 
-    "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
-    "observations": "a4e42ba729b37a035504b0366c9d2cd75be612be", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
-  }, 
-  "Freeway-v0": {
-    "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
-    "observations": "a4e42ba729b37a035504b0366c9d2cd75be612be", 
-    "actions": "f46bb778cb375e4fe2170f5a1d7d6570741f7cec"
-  }, 
-  "NameThisGame-v0": {
-    "actions": "2a14517e489d9449dcf7c0d64b9bd9a5b8dcb675", 
-    "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
-    "observations": "2cfc1182d28681152931bf6096bc82e96de8780f", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
-  }, 
-  "Enduro-ram-v0": {
-    "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
-    "observations": "8fe073e14d93ec72cbbfe546273e903508aaf878", 
-    "actions": "dace9ad42f7f94bc08ea513ea0485b4cbd4da776"
-  }, 
-  "Hex9x9-v0": {
-    "actions": "2659291f73a6c7525732fe93a187e299fe3d8cfa", 
-    "rewards": "9e04ec653c31b43caa77dce4231dc76546d58067", 
-    "observations": "d410ce3417b276b38a8caf66b2e9d8ee0079e6bd", 
-    "dones": "901d1f73a89dcec2323f181b910c2cc4f7c5f417"
-  }, 
-  "SemiSupervisedPendulumRandom-v0": {
-    "actions": "04c524f02d0b142f8b1280c1f77db66dd83f23f5", 
-    "rewards": "c6471d87aed23a7efac7b20ccf3027c7559a8432", 
-    "observations": "7c72c9bfe355b02ac5ed7d1cb37b95fa41882c6a", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
-  }, 
-  "Bowling-ram-v0": {
-    "actions": "2a14517e489d9449dcf7c0d64b9bd9a5b8dcb675", 
-    "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
-    "observations": "719f6b3676499ec4b86e6597cf9c621da6bbc3ce", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
-  }, 
-  "Krull-ram-v0": {
     "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5", 
     "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
-    "observations": "f8d4a96e5dcf54d38c6788fac2cd34797e28172a", 
+    "observations": "a4e42ba729b37a035504b0366c9d2cd75be612be", 
     "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
   }, 
-  "PrivateEye-ram-v0": {
+  "CrazyClimber-v0": {
     "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
     "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
-    "observations": "50012ddd507f817a40dc91f5c3d6fe72110d35b6", 
-    "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5"
+    "observations": "a4e42ba729b37a035504b0366c9d2cd75be612be", 
+    "actions": "dace9ad42f7f94bc08ea513ea0485b4cbd4da776"
   }, 
-  "Asteroids-ram-v0": {
-    "actions": "3c4919f02a4fa833111e202c0a8687111bc2efaa", 
-    "rewards": "b8635c8d9e4ab621982edfcdab22d358e0122532", 
-    "observations": "3267a850fc74a86c677e43ae51be7b4f326a5fb2", 
+  "Freeway-v0": {
+    "actions": "f46bb778cb375e4fe2170f5a1d7d6570741f7cec", 
+    "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
+    "observations": "a4e42ba729b37a035504b0366c9d2cd75be612be", 
     "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
   }, 
-  "SemisuperPendulumRandom-v0": {
+  "NameThisGame-v0": {
+    "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
+    "observations": "2cfc1182d28681152931bf6096bc82e96de8780f", 
+    "actions": "2a14517e489d9449dcf7c0d64b9bd9a5b8dcb675"
+  }, 
+  "Enduro-ram-v0": {
+    "actions": "dace9ad42f7f94bc08ea513ea0485b4cbd4da776", 
+    "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
+    "observations": "8fe073e14d93ec72cbbfe546273e903508aaf878", 
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
+  }, 
+  "Hex9x9-v0": {
+    "rewards": "9e04ec653c31b43caa77dce4231dc76546d58067", 
+    "dones": "901d1f73a89dcec2323f181b910c2cc4f7c5f417", 
+    "observations": "d410ce3417b276b38a8caf66b2e9d8ee0079e6bd", 
+    "actions": "2659291f73a6c7525732fe93a187e299fe3d8cfa"
+  }, 
+  "SemiSupervisedPendulumRandom-v0": {
     "rewards": "c6471d87aed23a7efac7b20ccf3027c7559a8432", 
     "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
     "observations": "7c72c9bfe355b02ac5ed7d1cb37b95fa41882c6a", 
     "actions": "04c524f02d0b142f8b1280c1f77db66dd83f23f5"
+  }, 
+  "Bowling-ram-v0": {
+    "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
+    "observations": "719f6b3676499ec4b86e6597cf9c621da6bbc3ce", 
+    "actions": "2a14517e489d9449dcf7c0d64b9bd9a5b8dcb675"
+  }, 
+  "Krull-ram-v0": {
+    "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
+    "observations": "f8d4a96e5dcf54d38c6788fac2cd34797e28172a", 
+    "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5"
+  }, 
+  "PrivateEye-ram-v0": {
+    "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5", 
+    "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
+    "observations": "50012ddd507f817a40dc91f5c3d6fe72110d35b6", 
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
+  }, 
+  "Asteroids-ram-v0": {
+    "rewards": "b8635c8d9e4ab621982edfcdab22d358e0122532", 
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
+    "observations": "3267a850fc74a86c677e43ae51be7b4f326a5fb2", 
+    "actions": "3c4919f02a4fa833111e202c0a8687111bc2efaa"
   }, 
   "Seaquest-ram-v0": {
     "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5", 
@@ -252,10 +240,10 @@
     "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5"
   }, 
   "SpaceInvaders-v0": {
+    "actions": "2a14517e489d9449dcf7c0d64b9bd9a5b8dcb675", 
     "rewards": "a0ad494299ab50a82bd95f4ef718dd559a490490", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
     "observations": "f1bbce273bc040f4053479313bf5883ef64996db", 
-    "actions": "2a14517e489d9449dcf7c0d64b9bd9a5b8dcb675"
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
   }, 
   "RepeatCopy-v0": {
     "actions": "388631bee439c27df01ccacc8ac37aeeaedaa7d4", 
@@ -336,10 +324,10 @@
     "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
   }, 
   "Skiing-v0": {
+    "actions": "f46bb778cb375e4fe2170f5a1d7d6570741f7cec", 
     "rewards": "6b855a0e377c5159f1b2d8e78c39f24c4b9ca7ec", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
     "observations": "a4e42ba729b37a035504b0366c9d2cd75be612be", 
-    "actions": "f46bb778cb375e4fe2170f5a1d7d6570741f7cec"
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
   }, 
   "Venture-ram-v0": {
     "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
@@ -372,10 +360,10 @@
     "actions": "2a14517e489d9449dcf7c0d64b9bd9a5b8dcb675"
   }, 
   "MontezumaRevenge-v0": {
-    "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5", 
     "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
     "observations": "a4e42ba729b37a035504b0366c9d2cd75be612be", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
+    "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5"
   }, 
   "Skiing-ram-v0": {
     "actions": "f46bb778cb375e4fe2170f5a1d7d6570741f7cec", 
@@ -389,83 +377,77 @@
     "observations": "d0d0f37ae340914f2b3f405dc02e6cef77bd97d7", 
     "actions": "f46bb778cb375e4fe2170f5a1d7d6570741f7cec"
   }, 
-  "SemisuperPendulumNoise-v0": {
-    "actions": "04c524f02d0b142f8b1280c1f77db66dd83f23f5", 
-    "rewards": "b096d79fd6117dd71190acc3ea4d399ba67062a1", 
-    "observations": "7c72c9bfe355b02ac5ed7d1cb37b95fa41882c6a", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
-  }, 
   "FrozenLake-v0": {
+    "actions": "76b83213ffb8fde5fa9ccd2812d24650f6a6ae2e", 
     "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
-    "dones": "1af26d65df160977aebcbd0d7291072e9a2daa2e", 
     "observations": "ccbfdf0cde06f9e5cde8bd058f0fcd1e7b4be2e7", 
-    "actions": "76b83213ffb8fde5fa9ccd2812d24650f6a6ae2e"
+    "dones": "1af26d65df160977aebcbd0d7291072e9a2daa2e"
   }, 
   "Taxi-v1": {
-    "actions": "2a14517e489d9449dcf7c0d64b9bd9a5b8dcb675", 
     "rewards": "119a13fc242753543ffb157f4aa525e3e74a0903", 
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
     "observations": "85cbb00f2b56b87fdfec083a2c845e231a0a3db1", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
+    "actions": "2a14517e489d9449dcf7c0d64b9bd9a5b8dcb675"
   }, 
   "KungFuMaster-ram-v0": {
+    "actions": "3c4919f02a4fa833111e202c0a8687111bc2efaa", 
     "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
     "observations": "b7801fbf538c26c41883914a743730bfa333a68e", 
-    "actions": "3c4919f02a4fa833111e202c0a8687111bc2efaa"
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
   }, 
   "Pong-v0": {
-    "actions": "2a14517e489d9449dcf7c0d64b9bd9a5b8dcb675", 
     "rewards": "a782cd29d2ba8c8cfad0a1621ee01ed6fc8bf2fa", 
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
     "observations": "6c44b885b23714173e13ea40726bf2ce45f64235", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
+    "actions": "2a14517e489d9449dcf7c0d64b9bd9a5b8dcb675"
   }, 
   "Pong-ram-v0": {
+    "actions": "2a14517e489d9449dcf7c0d64b9bd9a5b8dcb675", 
     "rewards": "a782cd29d2ba8c8cfad0a1621ee01ed6fc8bf2fa", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
     "observations": "6ce1d5c97de6e5fb96d2bae896d7ce580bc6711a", 
-    "actions": "2a14517e489d9449dcf7c0d64b9bd9a5b8dcb675"
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
   }, 
   "Pendulum-v0": {
-    "actions": "04c524f02d0b142f8b1280c1f77db66dd83f23f5", 
     "rewards": "fda73b6b695e0f3aa883df49f624038050fbda64", 
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
     "observations": "7c72c9bfe355b02ac5ed7d1cb37b95fa41882c6a", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
+    "actions": "04c524f02d0b142f8b1280c1f77db66dd83f23f5"
   }, 
   "Enduro-v0": {
+    "actions": "dace9ad42f7f94bc08ea513ea0485b4cbd4da776", 
     "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
     "observations": "0de36656fbcb5617f8c38bfdafa41da4e8c9c434", 
-    "actions": "dace9ad42f7f94bc08ea513ea0485b4cbd4da776"
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
   }, 
   "OneRoundNondeterministicReward-v0": {
-    "actions": "7e2119f46de5ef496ab605167d267f87c09ef57e", 
     "rewards": "38fe39c39a6a66b9b4142381d540835528db96fc", 
+    "dones": "9efbc0a7c5f11870733ab81e7b87de679f7a7e59", 
     "observations": "719e79ac761ae37d1af3a9fe792cad95ef4244e5", 
-    "dones": "9efbc0a7c5f11870733ab81e7b87de679f7a7e59"
+    "actions": "7e2119f46de5ef496ab605167d267f87c09ef57e"
   }, 
   "Breakout-v0": {
+    "actions": "2a14517e489d9449dcf7c0d64b9bd9a5b8dcb675", 
     "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
     "observations": "a4e42ba729b37a035504b0366c9d2cd75be612be", 
-    "actions": "2a14517e489d9449dcf7c0d64b9bd9a5b8dcb675"
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
   }, 
   "JourneyEscape-v0": {
-    "actions": "123eb44ce879e6da3c58015a2156c3ad36c980f6", 
     "rewards": "3454a225fc2e7632840664d36bb4bf0aa6ccaaa4", 
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
     "observations": "a4e42ba729b37a035504b0366c9d2cd75be612be", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
+    "actions": "123eb44ce879e6da3c58015a2156c3ad36c980f6"
   }, 
   "TimePilot-ram-v0": {
-    "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
-    "observations": "54cba4e32fa56118becced6188e9ce0e1612ded7", 
-    "actions": "632c8569c4169595e351a18df6790a0bc8e3af65"
-  }, 
-  "Amidar-v0": {
     "actions": "632c8569c4169595e351a18df6790a0bc8e3af65", 
     "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
-    "observations": "a4e42ba729b37a035504b0366c9d2cd75be612be", 
+    "observations": "54cba4e32fa56118becced6188e9ce0e1612ded7", 
     "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
+  }, 
+  "Amidar-v0": {
+    "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
+    "observations": "a4e42ba729b37a035504b0366c9d2cd75be612be", 
+    "actions": "632c8569c4169595e351a18df6790a0bc8e3af65"
   }, 
   "BeamRider-ram-v0": {
     "actions": "dace9ad42f7f94bc08ea513ea0485b4cbd4da776", 
@@ -480,10 +462,10 @@
     "actions": "2a14517e489d9449dcf7c0d64b9bd9a5b8dcb675"
   }, 
   "YarsRevenge-ram-v0": {
+    "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5", 
     "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
     "observations": "c8bfe832dd1cd27ad8ad1a20cb01c5e03bfcd38e", 
-    "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5"
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
   }, 
   "VideoPinball-v0": {
     "rewards": "65eb61ab44701cdeef64e7aeba1f33cda4d0fba5", 
@@ -551,47 +533,47 @@
     "observations": "992e9121c4761be944840e7e92c66925dcc99966", 
     "actions": "f46bb778cb375e4fe2170f5a1d7d6570741f7cec"
   }, 
-  "BankHeist-v0": {
-    "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5", 
-    "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
-    "observations": "a4e42ba729b37a035504b0366c9d2cd75be612be", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
-  }, 
-  "Carnival-v0": {
-    "rewards": "6ebaf5c334cf112cdf89f46488e4857c4b4837b5", 
+  "AirRaid-ram-v0": {
+    "rewards": "53bf1c788a26a5ff490a7ab391e3a570fd1f3343", 
     "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
-    "observations": "a4e42ba729b37a035504b0366c9d2cd75be612be", 
+    "observations": "60d6a3c89bf359fccb9dbaae376e13b59ce7d0d6", 
     "actions": "2a14517e489d9449dcf7c0d64b9bd9a5b8dcb675"
   }, 
-  "Pooyan-v0": {
+  "Carnival-v0": {
     "actions": "2a14517e489d9449dcf7c0d64b9bd9a5b8dcb675", 
-    "rewards": "739fa458b886ef3afa3eb2237ec996126fc22ef7", 
-    "observations": "db43ebfb911945b0a1d50369380e097b112de2d1", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
-  }, 
-  "Boxing-ram-v0": {
-    "rewards": "5bdf8ce03042e823de60b81b50178d655c329a1c", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
-    "observations": "a081ee4d7be2ccc27c9cb9a86d3080ce4568facb", 
-    "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5"
-  }, 
-  "PrivateEye-v0": {
-    "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5", 
-    "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
+    "rewards": "6ebaf5c334cf112cdf89f46488e4857c4b4837b5", 
     "observations": "a4e42ba729b37a035504b0366c9d2cd75be612be", 
     "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
   }, 
-  "FrozenLake8x8-v0": {
-    "actions": "76b83213ffb8fde5fa9ccd2812d24650f6a6ae2e", 
-    "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
-    "observations": "c3529519a66d2aa9d6ccd6467ce4549a3a1c8ee3", 
-    "dones": "5c265e2a1ccc59f1d7a557ab60594367f4177119"
+  "Pooyan-v0": {
+    "rewards": "739fa458b886ef3afa3eb2237ec996126fc22ef7", 
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
+    "observations": "db43ebfb911945b0a1d50369380e097b112de2d1", 
+    "actions": "2a14517e489d9449dcf7c0d64b9bd9a5b8dcb675"
   }, 
-  "StarGunner-v0": {
+  "Boxing-ram-v0": {
+    "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5", 
+    "rewards": "5bdf8ce03042e823de60b81b50178d655c329a1c", 
+    "observations": "a081ee4d7be2ccc27c9cb9a86d3080ce4568facb", 
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
+  }, 
+  "PrivateEye-v0": {
     "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
     "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
-    "observations": "e2510e139ca415393979d0eb5823bed71a83ba3a", 
+    "observations": "a4e42ba729b37a035504b0366c9d2cd75be612be", 
     "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5"
+  }, 
+  "FrozenLake8x8-v0": {
+    "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
+    "dones": "5c265e2a1ccc59f1d7a557ab60594367f4177119", 
+    "observations": "c3529519a66d2aa9d6ccd6467ce4549a3a1c8ee3", 
+    "actions": "76b83213ffb8fde5fa9ccd2812d24650f6a6ae2e"
+  }, 
+  "StarGunner-v0": {
+    "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5", 
+    "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
+    "observations": "e2510e139ca415393979d0eb5823bed71a83ba3a", 
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
   }, 
   "YarsRevenge-v0": {
     "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5", 
@@ -654,16 +636,16 @@
     "dones": "db202f17e00c22cddff6e85f0fe7ee9f4b80bae0"
   }, 
   "SemiSupervisedPendulumDecay-v0": {
+    "actions": "04c524f02d0b142f8b1280c1f77db66dd83f23f5", 
     "rewards": "7ee1e8971818b3c6cf96b2c74fe5cbdc379e7d21", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
     "observations": "7c72c9bfe355b02ac5ed7d1cb37b95fa41882c6a", 
-    "actions": "04c524f02d0b142f8b1280c1f77db66dd83f23f5"
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
   }, 
   "InterpretabilityCartpoleActions-v0": {
-    "actions": "a939db1f0398181fd9dec7d51be46fd13e095309", 
     "rewards": "fd458137c66282649fbf754e77ef1b4c6bac1153", 
+    "dones": "c15ace748395035a237648a716ddf6da32235e35", 
     "observations": "acd142fdd1260ee7d1d1d58ede910021378438a1", 
-    "dones": "c15ace748395035a237648a716ddf6da32235e35"
+    "actions": "a939db1f0398181fd9dec7d51be46fd13e095309"
   }, 
   "Riverraid-ram-v0": {
     "rewards": "7e39641410e8582f6a13dc32926ad3dd06f778f8", 
@@ -696,94 +678,88 @@
     "actions": "2a14517e489d9449dcf7c0d64b9bd9a5b8dcb675"
   }, 
   "SemiSupervisedPendulumNoise-v0": {
+    "actions": "04c524f02d0b142f8b1280c1f77db66dd83f23f5", 
     "rewards": "b096d79fd6117dd71190acc3ea4d399ba67062a1", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
     "observations": "7c72c9bfe355b02ac5ed7d1cb37b95fa41882c6a", 
-    "actions": "04c524f02d0b142f8b1280c1f77db66dd83f23f5"
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
   }, 
   "Copy-v0": {
-    "actions": "388631bee439c27df01ccacc8ac37aeeaedaa7d4", 
     "rewards": "12c2df5633fce439b37f619f8828e4cf7b976cca", 
+    "dones": "c7f0fd87eff156337da9f3e3aabe3bd91a9495b2", 
     "observations": "c08dab2732bffe27b83f38922dd230fb61f1bc70", 
-    "dones": "c7f0fd87eff156337da9f3e3aabe3bd91a9495b2"
+    "actions": "388631bee439c27df01ccacc8ac37aeeaedaa7d4"
   }, 
   "TwoRoundDeterministicReward-v0": {
+    "actions": "7e2119f46de5ef496ab605167d267f87c09ef57e", 
     "rewards": "823ad8af5cb6dba153754824caa5115b642a9867", 
-    "dones": "ec20ebd6c65cd6d21a5244b7cbc9797f0417a103", 
     "observations": "4ef72db86cd1a9700133f05179033c63900028bb", 
-    "actions": "7e2119f46de5ef496ab605167d267f87c09ef57e"
+    "dones": "ec20ebd6c65cd6d21a5244b7cbc9797f0417a103"
   }, 
   "Phoenix-v0": {
-    "actions": "b29117a3c3ff1b1f11a4ddf6e0fd3e6a9f567fc1", 
     "rewards": "d5a2238e491aa74b01646a6b433bf2f95ab32c60", 
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
     "observations": "1d0bef5a5a086cd4ee9d7ad65273d153193baa73", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
+    "actions": "b29117a3c3ff1b1f11a4ddf6e0fd3e6a9f567fc1"
   }, 
   "TwoRoundNondeterministicReward-v0": {
+    "actions": "7e2119f46de5ef496ab605167d267f87c09ef57e", 
     "rewards": "8aa89a59d5407544e903c0c93116ea075862702f", 
-    "dones": "ec20ebd6c65cd6d21a5244b7cbc9797f0417a103", 
     "observations": "4ef72db86cd1a9700133f05179033c63900028bb", 
-    "actions": "7e2119f46de5ef496ab605167d267f87c09ef57e"
+    "dones": "ec20ebd6c65cd6d21a5244b7cbc9797f0417a103"
   }, 
   "StarGunner-ram-v0": {
-    "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5", 
     "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
     "observations": "cf4ce322a5072892c0db5fa0010890ddb63063b5", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
-  }, 
-  "Asteroids-v0": {
-    "rewards": "b8635c8d9e4ab621982edfcdab22d358e0122532", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
-    "observations": "a4e42ba729b37a035504b0366c9d2cd75be612be", 
-    "actions": "3c4919f02a4fa833111e202c0a8687111bc2efaa"
-  }, 
-  "WizardOfWor-ram-v0": {
-    "actions": "632c8569c4169595e351a18df6790a0bc8e3af65", 
-    "rewards": "8911e5d01616cbccf91f0114c81e540545f1bbce", 
-    "observations": "9c84989e80896494b78d506897ffeb529b99b194", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
-  }, 
-  "Pitfall-ram-v0": {
-    "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
-    "observations": "a55e72288457a04734ac25219c327a99eb18a100", 
     "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5"
   }, 
-  "Gravitar-v0": {
-    "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5", 
-    "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
+  "Asteroids-v0": {
+    "actions": "3c4919f02a4fa833111e202c0a8687111bc2efaa", 
+    "rewards": "b8635c8d9e4ab621982edfcdab22d358e0122532", 
     "observations": "a4e42ba729b37a035504b0366c9d2cd75be612be", 
     "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
+  }, 
+  "WizardOfWor-ram-v0": {
+    "rewards": "8911e5d01616cbccf91f0114c81e540545f1bbce", 
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
+    "observations": "9c84989e80896494b78d506897ffeb529b99b194", 
+    "actions": "632c8569c4169595e351a18df6790a0bc8e3af65"
+  }, 
+  "Pitfall-ram-v0": {
+    "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5", 
+    "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
+    "observations": "a55e72288457a04734ac25219c327a99eb18a100", 
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
+  }, 
+  "Gravitar-v0": {
+    "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
+    "observations": "a4e42ba729b37a035504b0366c9d2cd75be612be", 
+    "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5"
   }, 
   "AirRaid-v0": {
+    "actions": "2a14517e489d9449dcf7c0d64b9bd9a5b8dcb675", 
     "rewards": "53bf1c788a26a5ff490a7ab391e3a570fd1f3343", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
     "observations": "62cf70aa4c31342765d91ceea707a87485c1dc5e", 
-    "actions": "2a14517e489d9449dcf7c0d64b9bd9a5b8dcb675"
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
   }, 
   "RoadRunner-v0": {
-    "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5", 
-    "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
-    "observations": "a4e42ba729b37a035504b0366c9d2cd75be612be", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
-  }, 
-  "CrazyClimber-ram-v0": {
     "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
     "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
-    "observations": "4b1f468f1b6a86e1e59bd522e9cb01344419fa80", 
-    "actions": "dace9ad42f7f94bc08ea513ea0485b4cbd4da776"
+    "observations": "a4e42ba729b37a035504b0366c9d2cd75be612be", 
+    "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5"
   }, 
-  "MontezumaRevenge-ram-v0": {
-    "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5", 
+  "CrazyClimber-ram-v0": {
+    "actions": "dace9ad42f7f94bc08ea513ea0485b4cbd4da776", 
     "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
-    "observations": "f0ba3f36d09276f28bac9d6be050b3008a85855e", 
+    "observations": "4b1f468f1b6a86e1e59bd522e9cb01344419fa80", 
     "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
   }, 
-  "PredictActionsCartpole-v0": {
-    "rewards": "fd458137c66282649fbf754e77ef1b4c6bac1153", 
-    "dones": "c15ace748395035a237648a716ddf6da32235e35", 
-    "observations": "acd142fdd1260ee7d1d1d58ede910021378438a1", 
-    "actions": "a939db1f0398181fd9dec7d51be46fd13e095309"
+  "MontezumaRevenge-ram-v0": {
+    "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
+    "observations": "f0ba3f36d09276f28bac9d6be050b3008a85855e", 
+    "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5"
   }, 
   "Centipede-ram-v0": {
     "actions": "e6ec2c0ef38fe1d9a28babc0c9be60d2cabb32e5", 
