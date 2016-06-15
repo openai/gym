@@ -11,14 +11,12 @@ logger = logging.getLogger(__name__)
 
 from test_envs import should_skip_env_spec_for_tests
 
-DATA_DIR = './'
-ROLLOUT_FILE = DATA_DIR + 'rollout.json'
-ROLLOUT_STEPS = 2
+DATA_DIR = os.path.dirname(__file__)
+ROLLOUT_FILE = os.path.join(DATA_DIR, 'rollout.json')
+ROLLOUT_STEPS = 100
 episodes = ROLLOUT_STEPS
 steps = ROLLOUT_STEPS
 
-if not os.path.exists(DATA_DIR):
-    os.makedirs(DATA_DIR)
 if not os.path.isfile(ROLLOUT_FILE): 
   with open(ROLLOUT_FILE, "w") as outfile:
     json.dump({}, outfile, indent=2)

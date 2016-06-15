@@ -11,14 +11,12 @@ from gym import envs, spaces
 
 from generate_json import create_rollout
 
-DATA_DIR = './'
-ROLLOUT_FILE = DATA_DIR + 'rollout.json'
-ROLLOUT_STEPS = 2
+DATA_DIR = os.path.dirname(__file__)
+ROLLOUT_FILE = os.path.join(DATA_DIR, 'rollout.json')
+ROLLOUT_STEPS = 100
 episodes = ROLLOUT_STEPS
 steps = ROLLOUT_STEPS
 
-if not os.path.exists(DATA_DIR):
-    os.makedirs(DATA_DIR)
 if not os.path.isfile(ROLLOUT_FILE): 
   with open(ROLLOUT_FILE, "w") as outfile:
     json.dump({}, outfile, indent=2)
@@ -35,7 +33,7 @@ def test_env_semantics(spec):
     else:
       return
 
-  logger.info("Testing rollout for {} environment...".format(spec.id))
+  print ("Testing rollout for {} environment...".format(spec.id))
 
   # Set same seeds as set in generate_json.py 
   spaces.seed(0)
