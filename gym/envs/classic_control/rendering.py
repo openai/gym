@@ -43,12 +43,20 @@ def get_display(spec):
         raise error.Error('Invalid display specification: {}. (Must be a string like :0 or None.)'.format(spec))
 
 class Viewer(object):
-    def __init__(self, width, height, display=None):
-        display = get_display(display)
-
+    def __init__(self, width, height, display_options=None):
         self.width = width
         self.height = height
-        self.window = pyglet.window.Window(width=width, height=height, display=display)
+        if display_options is None:
+            self.window = pyglet.window.Window(width=width, height=height)
+        else:
+            self.window = pyglet.window.Window(
+                width=width,
+                height=height,
+                display=get_display(display_options.display_n),
+                vsync=display_options.display_mode=="human"
+                )
+            if display_options.window_pos is not None:
+                self.window.set_location(*display_options.window_pos)
         self.window.on_close = self.window_closed_by_user
         self.geoms = []
         self.onetime_geoms = []
