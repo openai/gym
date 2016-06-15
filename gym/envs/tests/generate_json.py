@@ -11,9 +11,9 @@ logger = logging.getLogger(__name__)
 
 from test_envs import should_skip_env_spec_for_tests
 
-DATA_DIR = './gym/envs/tests/rollout_data/'
-ROLLOUT_FILE = DATA_DIR + 'rollout-filenames.json'
-ROLLOUT_STEPS = 100
+DATA_DIR = './'
+ROLLOUT_FILE = DATA_DIR + 'rollout.json'
+ROLLOUT_STEPS = 2
 episodes = ROLLOUT_STEPS
 steps = ROLLOUT_STEPS
 
@@ -30,8 +30,6 @@ def create_rollout(spec):
 
   """
 
-  filename = DATA_DIR + spec.id + '-rollout.json'
-
   if should_skip_env_spec_for_tests(spec):
     logger.warn("Skipping tests for {}".format(spec.id))
     return False
@@ -41,17 +39,22 @@ def create_rollout(spec):
     logger.warn("Skipping tests for nondeterministic env {}".format(spec.id))
     return False
 
+  # Temporarily skip Doom environments until setup issues resolved
+  if 'Doom' in spec.id:
+    logger.warn("Skipping tests for {}".format(spec.id))
+    return False
+
   # Skip broken environments
   # TODO: look into these environments
-  if spec.id in ['InterpretabilityCartpoleObservations-v0']:
+  if spec.id in ['PredictObsCartpole-v0']:
     logger.warn("Skipping tests for {}".format(spec.id))
     return False
 
   with open(ROLLOUT_FILE) as data_file:
-    rollout_filenames = json.load(data_file)
+    rollout_dict = json.load(data_file)
 
   # Skip generating rollouts that already exist
-  if spec.id in rollout_filenames:
+  if spec.id in rollout_dict:
     logger.warn("Rollout already exists for {}".format(spec.id))
     return False   
 
@@ -61,7 +64,12 @@ def create_rollout(spec):
   env = spec.make()
   env.seed(0)
 
-  rollout = []
+  rollout = {}
+
+  action_list = []
+  observation_list = []
+  reward_list = []
+  done_list = []
 
   total_steps = 0
   for episode in xrange(episodes):
@@ -72,23 +80,25 @@ def create_rollout(spec):
       action = env.action_space.sample()
       observation, reward, done, _ = env.step(action)
 
-      action = env.action_space.to_jsonable([action])
-      observation = hashlib.sha1(str(observation)).hexdigest()
-
-      rollout.append((action, observation, str(reward), str(done)))
+      action_list.append(action)
+      observation_list.append(observation)
+      reward_list.append(reward)
+      done_list.append(done)
 
       total_steps += 1
       if total_steps >= ROLLOUT_STEPS: break
 
       if done: break
 
-  with open(filename, "w") as outfile:
-    json.dump(rollout, outfile, indent=2)
+  rollout['observations'] = hashlib.sha1(str(observation_list)).hexdigest()
+  rollout['actions'] = hashlib.sha1(str(action_list)).hexdigest()
+  rollout['rewards'] = hashlib.sha1(str(reward_list)).hexdigest()
+  rollout['dones'] = hashlib.sha1(str(done_list)).hexdigest()
 
-  rollout_filenames[spec.id] = filename
+  rollout_dict[spec.id] = rollout
 
   with open(ROLLOUT_FILE, "w") as outfile:
-    json.dump(rollout_filenames, outfile, indent=2)
+    json.dump(rollout_dict, outfile, indent=2)
 
   return True
 
