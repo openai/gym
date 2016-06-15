@@ -109,6 +109,7 @@ class DoomEnv(gym.Env, utils.EzPickle):
     def _start_episode(self):
         if self.curr_seed > 0:
             self.game.set_seed(self.curr_seed)
+            self.curr_seed = 0
         self.game.new_episode()
         return
 
