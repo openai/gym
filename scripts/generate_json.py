@@ -3,6 +3,7 @@ import json
 import os
 import sys
 import hashlib
+import warnings
 
 import logging
 logger = logging.getLogger(__name__)
@@ -11,10 +12,12 @@ from gym.envs.tests.test_envs import should_skip_env_spec_for_tests
 from gym.envs.tests.test_envs_semantics import generate_rollout_hash
 
 DATA_DIR = os.path.join(os.pardir, 'gym', 'envs', 'tests')
-ROLLOUT_FILE = os.path.join(DATA_DIR, 'rollout_test.json')
+ROLLOUT_FILE = os.path.join(DATA_DIR, 'rollout.json')
 ROLLOUT_STEPS = 100
 episodes = ROLLOUT_STEPS
 steps = ROLLOUT_STEPS
+
+warnings.filterwarnings('error')
 
 if not os.path.isfile(ROLLOUT_FILE): 
   with open(ROLLOUT_FILE, "w") as outfile:
@@ -35,12 +38,6 @@ def create_rollout(spec):
     logger.warn("Skipping tests for nondeterministic env {}".format(spec.id))
     return False
 
-  # Skip broken environments
-  # TODO: look into these environments
-  if spec.id in ['PredictObsCartpole-v0', 'InterpretabilityCartpoleObservations-v0']:
-    logger.warn("Skipping tests for {}".format(spec.id))
-    return False
-
   with open(ROLLOUT_FILE) as data_file:
     rollout_dict = json.load(data_file)
 
@@ -55,7 +52,7 @@ def create_rollout(spec):
     observations_hash, actions_hash, rewards_hash, dones_hash = generate_rollout_hash(spec)
   except:
     # If running the env generates an exception, don't write to the rollout file
-    logger.warn("Exception {} thrown while generating rollout for {}".format(sys.exc_info()[0], spec.id))
+    logger.warn("Exception {} thrown while generating rollout for {}. Rollout not added.".format(sys.exc_info()[0], spec.id))
     return False
 
   rollout = {}
