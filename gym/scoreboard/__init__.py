@@ -422,6 +422,16 @@ add_task(
     experimental=True,
     contributor="zdx3578",
  )
+add_task(
+    id='HumanoidStand-v0',
+    group='mujoco',
+    summary="Make a 3D two-legged robot stand.",
+    description="""\
+Make a three-dimensional bipedal robot stand as stable as possible.
+""",
+    experimental=True,
+    contributor="zdx3578",
+)
 # parameter tuning
 add_task(
     id='ConvergenceControl-v0',

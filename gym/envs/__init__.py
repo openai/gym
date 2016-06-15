@@ -216,6 +216,10 @@ register(
      id='HumanoidModelWalk-v0',
      entry_point='gym.envs.mujoco:HumanoidModelWalkEnv',
 )
+register(
+    id='HumanoidStand-v0',
+    entry_point='gym.envs.mujoco:HumanoidStandEnv',
+)
 
 
 # Atari
