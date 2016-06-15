@@ -31,11 +31,11 @@ def generate_rollout_hash(spec):
   done_list = []
 
   total_steps = 0
-  for episode in xrange(episodes):
+  for episode in range(episodes):
     if total_steps >= ROLLOUT_STEPS: break
     observation = env.reset()
 
-    for step in xrange(steps):
+    for step in range(steps):
       action = env.action_space.sample()
       observation, reward, done, _ = env.step(action)
 
