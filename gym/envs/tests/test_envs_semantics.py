@@ -26,12 +26,8 @@ def test_env_semantics(spec):
     rollout_dict = json.load(data_file)
 
   if spec.id not in rollout_dict:
-    added = create_rollout(spec)
-    if added: 
-      with open(ROLLOUT_FILE) as data_file:
-        rollout_dict = json.load(data_file)
-    else:
-      return
+    logger.warn("Rollout does not exist for {}".format(spec.id))
+    return
 
   logger.info("Testing rollout for {} environment...".format(spec.id))
 
