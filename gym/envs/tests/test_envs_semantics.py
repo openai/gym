@@ -1,4 +1,3 @@
-import numpy as np
 import json
 import hashlib
 import os
@@ -77,12 +76,3 @@ def test_env_semantics(spec):
   assert rollout_dict[spec.id]['rewards'] == rewards_now, 'Rewards not equal for {}'.format(spec.id)
   assert rollout_dict[spec.id]['dones'] == dones_now, 'Dones not equal for {}'.format(spec.id)
 
-
-def test_all_env_semantics():
-  specs = [spec for spec in envs.registry.all() if spec._entry_point is not None]
-
-  for spec in specs: 
-    test_env_semantics(spec)
-
-
-#test_all_env_semantics()

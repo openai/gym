@@ -1,8 +1,7 @@
 from gym import envs, spaces 
 import json
-import numpy as np
-import datetime
 import os
+import sys
 import hashlib
 
 import logging
@@ -12,7 +11,7 @@ from gym.envs.tests.test_envs import should_skip_env_spec_for_tests
 from gym.envs.tests.test_envs_semantics import generate_rollout_hash
 
 DATA_DIR = os.path.join(os.pardir, 'gym', 'envs', 'tests')
-ROLLOUT_FILE = os.path.join(DATA_DIR, 'rollout.json')
+ROLLOUT_FILE = os.path.join(DATA_DIR, 'rollout_test.json')
 ROLLOUT_STEPS = 100
 episodes = ROLLOUT_STEPS
 steps = ROLLOUT_STEPS
@@ -42,22 +41,22 @@ def create_rollout(spec):
     logger.warn("Skipping tests for {}".format(spec.id))
     return False
 
-  # Temporarily skip Doom environments until setup issues resolved
-  if 'Doom' in spec.id:
-    logger.warn("Skipping tests for {}".format(spec.id))
-    return False
-
   with open(ROLLOUT_FILE) as data_file:
     rollout_dict = json.load(data_file)
 
   # Skip generating rollouts that already exist
   if spec.id in rollout_dict:
     logger.warn("Rollout already exists for {}".format(spec.id))
-    return False   
+    return False
 
   logger.info("Generating rollout for {}".format(spec.id))
 
-  observations_hash, actions_hash, rewards_hash, dones_hash = generate_rollout_hash(spec)
+  try:
+    observations_hash, actions_hash, rewards_hash, dones_hash = generate_rollout_hash(spec)
+  except:
+    # If running the env generates an exception, don't write to the rollout file
+    logger.warn("Exception {} thrown while generating rollout for {}".format(sys.exc_info()[0], spec.id))
+    return False
 
   rollout = {}
   rollout['observations'] = observations_hash

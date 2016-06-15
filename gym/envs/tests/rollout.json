@@ -203,11 +203,11 @@
     "observations": "d410ce3417b276b38a8caf66b2e9d8ee0079e6bd", 
     "dones": "901d1f73a89dcec2323f181b910c2cc4f7c5f417"
   }, 
-  "Skiing-v0": {
-    "rewards": "6b855a0e377c5159f1b2d8e78c39f24c4b9ca7ec", 
-    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
-    "observations": "a4e42ba729b37a035504b0366c9d2cd75be612be", 
-    "actions": "f46bb778cb375e4fe2170f5a1d7d6570741f7cec"
+  "SemiSupervisedPendulumRandom-v0": {
+    "actions": "04c524f02d0b142f8b1280c1f77db66dd83f23f5", 
+    "rewards": "c6471d87aed23a7efac7b20ccf3027c7559a8432", 
+    "observations": "7c72c9bfe355b02ac5ed7d1cb37b95fa41882c6a", 
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
   }, 
   "Bowling-ram-v0": {
     "actions": "2a14517e489d9449dcf7c0d64b9bd9a5b8dcb675", 
@@ -334,6 +334,12 @@
     "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
     "observations": "a4e42ba729b37a035504b0366c9d2cd75be612be", 
     "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34"
+  }, 
+  "Skiing-v0": {
+    "rewards": "6b855a0e377c5159f1b2d8e78c39f24c4b9ca7ec", 
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
+    "observations": "a4e42ba729b37a035504b0366c9d2cd75be612be", 
+    "actions": "f46bb778cb375e4fe2170f5a1d7d6570741f7cec"
   }, 
   "Venture-ram-v0": {
     "rewards": "9abee7a8e76c4e39de0ac3f7d6c85fd6f2509f9a", 
@@ -647,6 +653,18 @@
     "observations": "133c61035b45db1d20c5c978c6c1a44fcb08da3f", 
     "dones": "db202f17e00c22cddff6e85f0fe7ee9f4b80bae0"
   }, 
+  "SemiSupervisedPendulumDecay-v0": {
+    "rewards": "7ee1e8971818b3c6cf96b2c74fe5cbdc379e7d21", 
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
+    "observations": "7c72c9bfe355b02ac5ed7d1cb37b95fa41882c6a", 
+    "actions": "04c524f02d0b142f8b1280c1f77db66dd83f23f5"
+  }, 
+  "InterpretabilityCartpoleActions-v0": {
+    "actions": "a939db1f0398181fd9dec7d51be46fd13e095309", 
+    "rewards": "fd458137c66282649fbf754e77ef1b4c6bac1153", 
+    "observations": "acd142fdd1260ee7d1d1d58ede910021378438a1", 
+    "dones": "c15ace748395035a237648a716ddf6da32235e35"
+  }, 
   "Riverraid-ram-v0": {
     "rewards": "7e39641410e8582f6a13dc32926ad3dd06f778f8", 
     "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
@@ -676,6 +694,12 @@
     "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
     "observations": "cf0657312bbdecd1258c0103654289a1763c33e6", 
     "actions": "2a14517e489d9449dcf7c0d64b9bd9a5b8dcb675"
+  }, 
+  "SemiSupervisedPendulumNoise-v0": {
+    "rewards": "b096d79fd6117dd71190acc3ea4d399ba67062a1", 
+    "dones": "d88c5d67f9eb6f3eeaaaad267194bde2a3dd6a34", 
+    "observations": "7c72c9bfe355b02ac5ed7d1cb37b95fa41882c6a", 
+    "actions": "04c524f02d0b142f8b1280c1f77db66dd83f23f5"
   }, 
   "Copy-v0": {
     "actions": "388631bee439c27df01ccacc8ac37aeeaedaa7d4", 
