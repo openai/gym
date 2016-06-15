@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 from gym import envs, spaces
 
-from test_envs import should_skip_env_spec_for_tests
+from gym.envs.tests.test_envs import should_skip_env_spec_for_tests
 
 DATA_DIR = os.path.dirname(__file__)
 ROLLOUT_FILE = os.path.join(DATA_DIR, 'rollout.json')

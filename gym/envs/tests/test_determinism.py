@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 import gym
 from gym import envs, spaces
 
-from test_envs import should_skip_env_spec_for_tests
+from gym.envs.tests.test_envs import should_skip_env_spec_for_tests
 
 specs = [spec for spec in envs.registry.all() if spec._entry_point is not None]
 @tools.params(*specs)
