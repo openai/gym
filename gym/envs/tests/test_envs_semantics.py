@@ -33,7 +33,7 @@ def test_env_semantics(spec):
     else:
       return
 
-  print ("Testing rollout for {} environment...".format(spec.id))
+  logger.info("Testing rollout for {} environment...".format(spec.id))
 
   # Set same seeds as set in generate_json.py 
   spaces.seed(0)

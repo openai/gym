@@ -37,11 +37,6 @@ def create_rollout(spec):
     logger.warn("Skipping tests for nondeterministic env {}".format(spec.id))
     return False
 
-  # Temporarily skip Doom environments until setup issues resolved
-  if 'Doom' in spec.id:
-    logger.warn("Skipping tests for {}".format(spec.id))
-    return False
-
   # Skip broken environments
   # TODO: look into these environments
   if spec.id in ['PredictObsCartpole-v0']:
