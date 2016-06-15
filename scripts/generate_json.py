@@ -1,4 +1,3 @@
-import gym
 from gym import envs, spaces 
 import json
 import numpy as np
@@ -9,10 +8,10 @@ import hashlib
 import logging
 logger = logging.getLogger(__name__)
 
-from test_envs import should_skip_env_spec_for_tests
+from gym.envs.tests.test_envs import should_skip_env_spec_for_tests
 
-DATA_DIR = os.path.dirname(__file__)
-ROLLOUT_FILE = os.path.join(DATA_DIR, 'rollout.json')
+DATA_DIR = os.path.join(os.pardir, 'gym', 'envs', 'tests')
+ROLLOUT_FILE = os.path.join(DATA_DIR, 'rollout_test.json')
 ROLLOUT_STEPS = 100
 episodes = ROLLOUT_STEPS
 steps = ROLLOUT_STEPS
@@ -95,8 +94,10 @@ def create_rollout(spec):
 
   return True
 
-def create_all_rollouts():
+def add_new_rollouts():
   environments = [spec for spec in envs.registry.all() if spec._entry_point is not None]
 
   for spec in environments:
     create_rollout(spec)
+
+add_new_rollouts()
