@@ -9,9 +9,10 @@ import logging
 logger = logging.getLogger(__name__)
 
 from gym.envs.tests.test_envs import should_skip_env_spec_for_tests
+from gym.envs.tests.test_envs_semantics import generate_rollout_hash
 
 DATA_DIR = os.path.join(os.pardir, 'gym', 'envs', 'tests')
-ROLLOUT_FILE = os.path.join(DATA_DIR, 'rollout_test.json')
+ROLLOUT_FILE = os.path.join(DATA_DIR, 'rollout.json')
 ROLLOUT_STEPS = 100
 episodes = ROLLOUT_STEPS
 steps = ROLLOUT_STEPS
@@ -26,7 +27,6 @@ def create_rollout(spec):
   Returns a bool which indicates whether the new rollout was added to the json file.  
 
   """
-
   if should_skip_env_spec_for_tests(spec):
     logger.warn("Skipping tests for {}".format(spec.id))
     return False
@@ -38,7 +38,12 @@ def create_rollout(spec):
 
   # Skip broken environments
   # TODO: look into these environments
-  if spec.id in ['PredictObsCartpole-v0']:
+  if spec.id in ['PredictObsCartpole-v0', 'InterpretabilityCartpoleObservations-v0']:
+    logger.warn("Skipping tests for {}".format(spec.id))
+    return False
+
+  # Temporarily skip Doom environments until setup issues resolved
+  if 'Doom' in spec.id:
     logger.warn("Skipping tests for {}".format(spec.id))
     return False
 
@@ -52,40 +57,13 @@ def create_rollout(spec):
 
   logger.info("Generating rollout for {}".format(spec.id))
 
-  spaces.seed(0)
-  env = spec.make()
-  env.seed(0)
+  observations_hash, actions_hash, rewards_hash, dones_hash = generate_rollout_hash(spec)
 
   rollout = {}
-
-  action_list = []
-  observation_list = []
-  reward_list = []
-  done_list = []
-
-  total_steps = 0
-  for episode in xrange(episodes):
-    if total_steps >= ROLLOUT_STEPS: break
-    observation = env.reset()
-
-    for step in xrange(steps):
-      action = env.action_space.sample()
-      observation, reward, done, _ = env.step(action)
-
-      action_list.append(action)
-      observation_list.append(observation)
-      reward_list.append(reward)
-      done_list.append(done)
-
-      total_steps += 1
-      if total_steps >= ROLLOUT_STEPS: break
-
-      if done: break
-
-  rollout['observations'] = hashlib.sha1(str(observation_list)).hexdigest()
-  rollout['actions'] = hashlib.sha1(str(action_list)).hexdigest()
-  rollout['rewards'] = hashlib.sha1(str(reward_list)).hexdigest()
-  rollout['dones'] = hashlib.sha1(str(done_list)).hexdigest()
+  rollout['observations'] = observations_hash
+  rollout['actions'] = actions_hash
+  rollout['rewards'] = rewards_hash
+  rollout['dones'] = dones_hash
 
   rollout_dict[spec.id] = rollout
 

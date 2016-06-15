@@ -3,13 +3,13 @@ import json
 import hashlib
 import os
 
+from nose2 import tools
 import logging
 logger = logging.getLogger(__name__)
 
-import gym
 from gym import envs, spaces
 
-from generate_json import create_rollout
+from test_envs import should_skip_env_spec_for_tests
 
 DATA_DIR = os.path.dirname(__file__)
 ROLLOUT_FILE = os.path.join(DATA_DIR, 'rollout.json')
@@ -21,17 +21,7 @@ if not os.path.isfile(ROLLOUT_FILE):
   with open(ROLLOUT_FILE, "w") as outfile:
     json.dump({}, outfile, indent=2)
 
-def test_env_semantics(spec):
-  with open(ROLLOUT_FILE) as data_file:
-    rollout_dict = json.load(data_file)
-
-  if spec.id not in rollout_dict:
-    logger.warn("Rollout does not exist for {}".format(spec.id))
-    return
-
-  logger.info("Testing rollout for {} environment...".format(spec.id))
-
-  # Set same seeds as set in generate_json.py 
+def generate_rollout_hash(spec):
   spaces.seed(0)
   env = spec.make()
   env.seed(0)
@@ -60,10 +50,27 @@ def test_env_semantics(spec):
 
       if done: break
 
-  observations_now = hashlib.sha1(str(observation_list)).hexdigest()
-  actions_now = hashlib.sha1(str(action_list)).hexdigest()
-  rewards_now = hashlib.sha1(str(reward_list)).hexdigest()
-  dones_now = hashlib.sha1(str(done_list)).hexdigest()
+  observations_hash = hashlib.sha1(str(observation_list)).hexdigest()
+  actions_hash = hashlib.sha1(str(action_list)).hexdigest()
+  rewards_hash = hashlib.sha1(str(reward_list)).hexdigest()
+  dones_hash = hashlib.sha1(str(done_list)).hexdigest()
+
+  return observations_hash, actions_hash, rewards_hash, dones_hash
+
+specs = [spec for spec in envs.registry.all() if spec._entry_point is not None]
+@tools.params(*specs)
+def test_env_semantics(spec):
+  with open(ROLLOUT_FILE) as data_file:
+    rollout_dict = json.load(data_file)
+
+  if spec.id not in rollout_dict:
+    if not spec.nondeterministic or should_skip_env_spec_for_tests(spec):
+      logger.warn("Rollout does not exist for {}, run generate_json.py to generate rollouts for new envs".format(spec.id))
+    return
+
+  logger.info("Testing rollout for {} environment...".format(spec.id))
+
+  observations_now, actions_now, rewards_now, dones_now = generate_rollout_hash(spec)
 
   assert rollout_dict[spec.id]['observations'] == observations_now, 'Observations not equal for {}'.format(spec.id)
   assert rollout_dict[spec.id]['actions'] == actions_now, 'Actions not equal for {}'.format(spec.id)
@@ -78,4 +85,4 @@ def test_all_env_semantics():
     test_env_semantics(spec)
 
 
-test_all_env_semantics()
+#test_all_env_semantics()
