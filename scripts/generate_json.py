@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from gym import envs, spaces 
 import json
 import os
