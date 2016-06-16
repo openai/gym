@@ -12,22 +12,34 @@ being interpretable. We don't want bad agents just focusing on predicting their 
 """
 
 from gym.envs.classic_control.cartpole import CartPoleEnv
-from gym import spaces
+from gym import Env, spaces
 
 NUM_PREDICTED_ACTIONS = 5
 TIME_BEFORE_BONUS_ALLOWED = 100
 CORRECT_PREDICTION_BONUS = 0.1
 
-class PredictActionsCartpoleEnv(CartPoleEnv):
+class PredictActionsCartpoleEnv(Env):
     def __init__(self):
         super(PredictActionsCartpoleEnv, self).__init__()
-        self.action_space = spaces.Tuple((self.action_space,) * (NUM_PREDICTED_ACTIONS+1))
+        self.cartpole = CartPoleEnv()
+
+        self.observation_space = self.cartpole.observation_space
+        self.action_space = spaces.Tuple((self.cartpole.action_space,) * (NUM_PREDICTED_ACTIONS+1))
+
+    def _seed(self, *n, **kw):
+        return self.cartpole._seed(*n, **kw)
+
+    def _render(self, *n, **kw):
+        return self.cartpole._render(*n, **kw)
+
+    def _configure(self, *n, **kw):
+        return self.cartpole._configure(*n, **kw)
 
     def _step(self, action):
         # the first element of action is the actual current action
         current_action = action[0]
 
-        observation, reward, done, info = super(PredictActionsCartpoleEnv, self)._step(current_action)
+        observation, reward, done, info = self.cartpole._step(current_action)
 
         if not done:
             if self.iteration > TIME_BEFORE_BONUS_ALLOWED:
@@ -42,7 +54,7 @@ class PredictActionsCartpoleEnv(CartPoleEnv):
         return observation, reward, done, info
 
     def _reset(self):
-        observation = super(PredictActionsCartpoleEnv, self)._reset()
+        observation = self.cartpole._reset()
         self.predicted_actions = []
         self.iteration = 0
         return observation
