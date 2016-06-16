@@ -3,7 +3,6 @@ import logging
 import sys
 
 from gym import error
-from gym.configuration import logger_setup, undo_logger_setup
 from gym.utils import reraise
 
 logger = logging.getLogger(__name__)
@@ -21,13 +20,21 @@ def sanity_check_dependencies():
     if distutils.version.LooseVersion(requests.__version__) < distutils.version.LooseVersion('2.0'):
         logger.warn("You have 'requests' version %s installed, but 'gym' requires at least 2.0. HINT: upgrade via 'pip install -U requests'.", requests.__version__)
 
-# We automatically configure a logger with a simple stderr handler. If
-# you'd rather customize logging yourself, run undo_logger_setup.
-#
-# (Note: this needs to happen before importing the rest of gym, since
-# we may print a warning at load time.)
-logger_setup(logger)
-del logger_setup
+
+def set_up_logger():
+    """Set up gym logger with simple stream handler
+
+    Note: this needs to happen before importing the rest of gym, since
+    we may print a warning at load time.
+    """
+    formatter = logging.Formatter('[%(asctime)s] %(message)s')
+    handler = logging.StreamHandler(sys.stderr)
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
+    logger.propagate = False
+
+set_up_logger()
 
 sanity_check_dependencies()
 
