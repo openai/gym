@@ -54,8 +54,7 @@ class CartPoleEnv(gym.Env):
         return [seed]
 
     def _step(self, action):
-        action = action
-        assert action==0 or action==1, "%r (%s) invalid"%(action, type(action))
+        assert self.action_space.contains(action), "%r (%s) invalid"%(action, type(action))
         state = self.state
         x, x_dot, theta, theta_dot = state
         force = self.force_mag if action==1 else -self.force_mag
