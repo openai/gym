@@ -406,7 +406,7 @@ class BipedalWalker(gym.Env):
             1.0 if self.legs[3].ground_contact else 0.0
             ]
         state += [l.fraction for l in self.lidar]
-        assert(len(state)==24)
+        assert len(state)==24
 
         self.scroll = pos.x - VIEWPORT_W/SCALE/5
 

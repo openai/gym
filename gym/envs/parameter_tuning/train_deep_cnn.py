@@ -59,7 +59,7 @@ class CNNClassifierTraining(gym.Env):
         """
         Perform some action in the environment
         """
-        assert (self.action_space.contains(action))
+        assert self.action_space.contains(action)
 
         lr, decay, momentum, batch_size, l1, l2, convs, fcs = action
 
