@@ -27,7 +27,7 @@ class HumanoidStandEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         pos_after = mass_center(self.model)
         alive_bonus = 15.0
         data = self.model.data
-        lin_vel_cost = 0.25 * (pos_after - pos_before) / self.model.opt.timestep
+        lin_vel_cost = abs(0.25 * (pos_after - pos_before) / self.model.opt.timestep)
         quad_ctrl_cost =  0.1 * np.square(data.ctrl).sum()
         quad_impact_cost = .5e-6 * np.square(data.cfrc_ext).sum()
         quad_impact_cost = min(quad_impact_cost, 10)
