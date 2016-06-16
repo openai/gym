@@ -317,12 +317,6 @@
     "observations": "01bc2647e2df61bfa95036ae892f69cba51909cf6d87ab94ba8168d105358b97", 
     "actions": "7364c36f0f18ebecf3d6086b3e09a8944af50d3f40f25c2efb338bc42cc7255a"
   }, 
-  "DoomHealthGathering-v0": {
-    "rewards": "ec9ed1056f4910faf5586950b4923cfc32f7c8402db2ac8cf0be94567e27009a", 
-    "dones": "ecfbe8578a5aac6442d7b65f2e4bd4f6d70e5cdc76c1d6868ee031460c7477b9", 
-    "observations": "9cb317c5cbec77dc948547cfbe62ee15cda1e4f78c0391d0ead13c63e884fc39", 
-    "actions": "dd9bd4a4b09738e861fd0d8c9c58050f4d7fd317e8d4a66a8df263edbf8a9d13"
-  }, 
   "FishingDerby-v0": {
     "actions": "a642086826823e658c283b56dd79f14af59846af2c3d93fad08c3bc84bf3b748", 
     "rewards": "04db9812be236ea437cbda6cea214bba8c79760fb57a66176704503576f6f390", 
@@ -419,12 +413,6 @@
     "observations": "40f9b5c321e4dbd00f5d0a45ac312512aad9d6a661d593b114f6d14f07503848", 
     "actions": "c24fdfa0a9e514876d23bc60f067a5fbd401a50b5d54867bde3ce98d8d2b0ee1"
   }, 
-  "DoomPredictPosition-v0": {
-    "actions": "dd9bd4a4b09738e861fd0d8c9c58050f4d7fd317e8d4a66a8df263edbf8a9d13", 
-    "rewards": "e61b904426869b1261c88bb32b4b915d9f529d03db924d8fae39be12e1c07bfe", 
-    "observations": "ec9a9501d83897fdf21c419da96a7bec7d257b55af1ed87c8479403be946bfce", 
-    "dones": "aba732a342d26915ee9a494646cca93b436643505fd3bd17fd5b7361d4564f72"
-  }, 
   "Enduro-v0": {
     "actions": "680dc83e85ea9c0ec0bed4ba7ae3a87dbf66cc40db1922a0ec9debfca671766f", 
     "rewards": "04db9812be236ea437cbda6cea214bba8c79760fb57a66176704503576f6f390", 
@@ -491,10 +479,10 @@
     "observations": "4a0aad3c8106f278b5876aa745e926b93101c98e840d032eec3ddf231256b601", 
     "dones": "ecfbe8578a5aac6442d7b65f2e4bd4f6d70e5cdc76c1d6868ee031460c7477b9"
   }, 
-  "BattleZone-ram-v0": {
+  "Kangaroo-ram-v0": {
     "rewards": "04db9812be236ea437cbda6cea214bba8c79760fb57a66176704503576f6f390", 
     "dones": "ecfbe8578a5aac6442d7b65f2e4bd4f6d70e5cdc76c1d6868ee031460c7477b9", 
-    "observations": "ee35be196a169269215a2c1e836eaeb85ac9cac0f7ede4d7055373d928f950df", 
+    "observations": "1baac426a5b5bd6646d9c26a3428104def0b8810e539c98cefa8641bacafd0f9", 
     "actions": "a642086826823e658c283b56dd79f14af59846af2c3d93fad08c3bc84bf3b748"
   }, 
   "ReversedAddition3-v0": {
@@ -515,10 +503,10 @@
     "observations": "7f68008d156691e29e1918797f35681f3971ccfae4ea77ad7b8c817265a65ecd", 
     "dones": "cb8de93a094fbf9c1f610ee8138cfce279a0084284ecea7681ef7bc5f89dacdb"
   }, 
-  "Kangaroo-ram-v0": {
+  "BattleZone-ram-v0": {
     "rewards": "04db9812be236ea437cbda6cea214bba8c79760fb57a66176704503576f6f390", 
     "dones": "ecfbe8578a5aac6442d7b65f2e4bd4f6d70e5cdc76c1d6868ee031460c7477b9", 
-    "observations": "1baac426a5b5bd6646d9c26a3428104def0b8810e539c98cefa8641bacafd0f9", 
+    "observations": "ee35be196a169269215a2c1e836eaeb85ac9cac0f7ede4d7055373d928f950df", 
     "actions": "a642086826823e658c283b56dd79f14af59846af2c3d93fad08c3bc84bf3b748"
   }, 
   "IceHockey-ram-v0": {
@@ -544,12 +532,6 @@
     "dones": "ecfbe8578a5aac6442d7b65f2e4bd4f6d70e5cdc76c1d6868ee031460c7477b9", 
     "observations": "439c080d500ea65f7abb7f1ae10433dd48477d57bbe21e1be6b372949789b909", 
     "actions": "5138748c3c039a57ee365473ef13e5b99329e75a4f71459cd1a0d7919fd6e97b"
-  }, 
-  "SemiSupervisedPendulumDecay-v0": {
-    "actions": "c24fdfa0a9e514876d23bc60f067a5fbd401a50b5d54867bde3ce98d8d2b0ee1", 
-    "rewards": "2e7db250db53b6f602e0e2139168eb8da8f073579fe598bf365b236a60c0c7a7", 
-    "observations": "40f9b5c321e4dbd00f5d0a45ac312512aad9d6a661d593b114f6d14f07503848", 
-    "dones": "ecfbe8578a5aac6442d7b65f2e4bd4f6d70e5cdc76c1d6868ee031460c7477b9"
   }, 
   "AirRaid-ram-v0": {
     "rewards": "49bf48ac6831ac4bfa478b736f8b6e7700dbc4c247590fd4fa1bb736ea69bcf2", 
@@ -580,12 +562,6 @@
     "dones": "ecfbe8578a5aac6442d7b65f2e4bd4f6d70e5cdc76c1d6868ee031460c7477b9", 
     "observations": "01bc2647e2df61bfa95036ae892f69cba51909cf6d87ab94ba8168d105358b97", 
     "actions": "a642086826823e658c283b56dd79f14af59846af2c3d93fad08c3bc84bf3b748"
-  }, 
-  "KungFuMaster-v0": {
-    "actions": "ae43ac06914f7dab6de7889e1f7b99a91aa10f0204e012bd95e21e929ceda91d", 
-    "rewards": "04db9812be236ea437cbda6cea214bba8c79760fb57a66176704503576f6f390", 
-    "observations": "01bc2647e2df61bfa95036ae892f69cba51909cf6d87ab94ba8168d105358b97", 
-    "dones": "ecfbe8578a5aac6442d7b65f2e4bd4f6d70e5cdc76c1d6868ee031460c7477b9"
   }, 
   "FrozenLake8x8-v0": {
     "rewards": "04db9812be236ea437cbda6cea214bba8c79760fb57a66176704503576f6f390", 
@@ -629,12 +605,6 @@
     "observations": "441816ae1822e3712143a72cf1c0fc99b0f965ecfe90db8416d223f185cd8a91", 
     "actions": "d8701aff9cdc2b141b4766483c2221e701c3e1e0e7ba94be54a005402022bc92"
   }, 
-  "DoomBasic-v0": {
-    "rewards": "15f410f8e2be5f944bb82b6aeb97bb97aec5f56be19b5231d1270b164cd532be", 
-    "dones": "ecfbe8578a5aac6442d7b65f2e4bd4f6d70e5cdc76c1d6868ee031460c7477b9", 
-    "observations": "0974102c183c0ce85955e1e940052f9eeabd1f5275d20ccd42fe3f65d9e79e16", 
-    "actions": "dd9bd4a4b09738e861fd0d8c9c58050f4d7fd317e8d4a66a8df263edbf8a9d13"
-  }, 
   "Amidar-ram-v0": {
     "actions": "b199b81b77e4e2a8aad9a5663315bd9f7a65ba9ad191c7f8645848e7291df62e", 
     "rewards": "04db9812be236ea437cbda6cea214bba8c79760fb57a66176704503576f6f390", 
@@ -665,10 +635,10 @@
     "observations": "3dd32b888e7fc61455a738e64bc140fe619f56f145ddb1c371d3d13785efc054", 
     "dones": "c2d3c3e91e8a2c6d0db1acbddfadc8f1e5bb192508f8a8dc3a05b2c46a87f679"
   }, 
-  "DoomTakeCover-v0": {
-    "actions": "c0be003a0c0a9387d64af953077cf3450b40f9dc13635114f9a14e4219bceb9f", 
-    "rewards": "ec9ed1056f4910faf5586950b4923cfc32f7c8402db2ac8cf0be94567e27009a", 
-    "observations": "f60a51bfea7a45f6b25b128e6df013e26c851c862cadd606870db3933e4a42b1", 
+  "SemiSupervisedPendulumDecay-v0": {
+    "actions": "c24fdfa0a9e514876d23bc60f067a5fbd401a50b5d54867bde3ce98d8d2b0ee1", 
+    "rewards": "2e7db250db53b6f602e0e2139168eb8da8f073579fe598bf365b236a60c0c7a7", 
+    "observations": "40f9b5c321e4dbd00f5d0a45ac312512aad9d6a661d593b114f6d14f07503848", 
     "dones": "ecfbe8578a5aac6442d7b65f2e4bd4f6d70e5cdc76c1d6868ee031460c7477b9"
   }, 
   "InterpretabilityCartpoleActions-v0": {
@@ -682,12 +652,6 @@
     "dones": "ecfbe8578a5aac6442d7b65f2e4bd4f6d70e5cdc76c1d6868ee031460c7477b9", 
     "observations": "05addc90a2a2b60d9d71c5211f3d60330692349a80ceeb20801aa529c4dc634b", 
     "actions": "a642086826823e658c283b56dd79f14af59846af2c3d93fad08c3bc84bf3b748"
-  }, 
-  "DoomMyWayHome-v0": {
-    "rewards": "e61b904426869b1261c88bb32b4b915d9f529d03db924d8fae39be12e1c07bfe", 
-    "dones": "ecfbe8578a5aac6442d7b65f2e4bd4f6d70e5cdc76c1d6868ee031460c7477b9", 
-    "observations": "9560cb962a7207aa42feae54b9b416841cb85d88ca99dc78cd2f6698577788a7", 
-    "actions": "dd9bd4a4b09738e861fd0d8c9c58050f4d7fd317e8d4a66a8df263edbf8a9d13"
   }, 
   "Solaris-v0": {
     "actions": "a642086826823e658c283b56dd79f14af59846af2c3d93fad08c3bc84bf3b748", 
@@ -821,10 +785,10 @@
     "observations": "aa313c1e4cc868d869fff3774cb16a0af7ba5384bedac4b37cb6e99ab625c605", 
     "actions": "a642086826823e658c283b56dd79f14af59846af2c3d93fad08c3bc84bf3b748"
   }, 
-  "DoomDefendCenter-v0": {
-    "actions": "dd9bd4a4b09738e861fd0d8c9c58050f4d7fd317e8d4a66a8df263edbf8a9d13", 
-    "rewards": "2c5c81f01da90039dd586742d062c70a6ec1de507c843f970f87ee8ae5e7b7e4", 
-    "observations": "cbd90f885fc4c7682ab45453940a8af9346ba1219f5109e6f7095a4dcac7a423", 
+  "KungFuMaster-v0": {
+    "actions": "ae43ac06914f7dab6de7889e1f7b99a91aa10f0204e012bd95e21e929ceda91d", 
+    "rewards": "04db9812be236ea437cbda6cea214bba8c79760fb57a66176704503576f6f390", 
+    "observations": "01bc2647e2df61bfa95036ae892f69cba51909cf6d87ab94ba8168d105358b97", 
     "dones": "ecfbe8578a5aac6442d7b65f2e4bd4f6d70e5cdc76c1d6868ee031460c7477b9"
   }, 
   "Riverraid-v0": {
@@ -839,12 +803,6 @@
     "observations": "01bc2647e2df61bfa95036ae892f69cba51909cf6d87ab94ba8168d105358b97", 
     "dones": "ecfbe8578a5aac6442d7b65f2e4bd4f6d70e5cdc76c1d6868ee031460c7477b9"
   }, 
-  "DoomDefendLine-v0": {
-    "actions": "dd9bd4a4b09738e861fd0d8c9c58050f4d7fd317e8d4a66a8df263edbf8a9d13", 
-    "rewards": "d1c61ef3101c418c28fdd31c8b647cdace5b4cead605562e0cc1c6b11b97e72c", 
-    "observations": "1970ca5cfad85a2109175b6a4b3e6cf96bb377c172d1200079f6e0eef5c486b6", 
-    "dones": "ecfbe8578a5aac6442d7b65f2e4bd4f6d70e5cdc76c1d6868ee031460c7477b9"
-  }, 
   "VideoPinball-ram-v0": {
     "rewards": "86a5ee144f3fa5812bf836306529afd206122cc790406510d32a7a6fc240cb29", 
     "dones": "ecfbe8578a5aac6442d7b65f2e4bd4f6d70e5cdc76c1d6868ee031460c7477b9", 
@@ -856,12 +814,6 @@
     "rewards": "5e0b7b7798e655375f01b6b728750e389373992b8712b6f8f5cd0013352f4151", 
     "observations": "01bc2647e2df61bfa95036ae892f69cba51909cf6d87ab94ba8168d105358b97", 
     "dones": "ecfbe8578a5aac6442d7b65f2e4bd4f6d70e5cdc76c1d6868ee031460c7477b9"
-  }, 
-  "DoomCorridor-v0": {
-    "rewards": "9a5fe57a0a47b163ed0c7f79c6ee2ea80d0b50d01a880a397624f2be9a15f57b", 
-    "dones": "ecfbe8578a5aac6442d7b65f2e4bd4f6d70e5cdc76c1d6868ee031460c7477b9", 
-    "observations": "0c0efbb49dac5ab6e4406e90f2e0e94c23045cd859a1e46331ec81dbf000a20c", 
-    "actions": "ba934fc9960c28476817c85b29f0500eeef0d0bef9d6dbe0e4bcc3d3ddf70db9"
   }, 
   "OneRoundDeterministicReward-v0": {
     "rewards": "b46fec206818dc19dccdcbe5160180f174500e5c035483c463b7ea680319cd99", 
