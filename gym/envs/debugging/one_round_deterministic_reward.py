@@ -21,7 +21,7 @@ class OneRoundDeterministicRewardEnv(gym.Env):
         self._reset()
 
     def _step(self, action):
-        assert(self.action_space.contains(action))
+        assert self.action_space.contains(action)
         if action:
                 reward = 1
         else:

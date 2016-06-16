@@ -226,7 +226,7 @@ class LunarLander(gym.Env):
             self.world.DestroyBody(self.particles.pop(0))
 
     def _step(self, action):
-        assert action in [0,1,2,3], "%r (%s) invalid " % (action,type(action))
+        assert self.action_space.contains(action), "%r (%s) invalid " % (action,type(action))
 
         # Engines
         tip  = (math.sin(self.lander.angle), math.cos(self.lander.angle))
@@ -263,7 +263,7 @@ class LunarLander(gym.Env):
             1.0 if self.legs[0].ground_contact else 0.0,
             1.0 if self.legs[1].ground_contact else 0.0
             ]
-        assert(len(state)==8)
+        assert len(state)==8
 
         reward = 0
         shaping = \

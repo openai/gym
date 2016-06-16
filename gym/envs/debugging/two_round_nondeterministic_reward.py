@@ -38,7 +38,7 @@ class TwoRoundNondeterministicRewardEnv(gym.Env):
             ]
         ]
 
-        assert(self.action_space.contains(action))
+        assert self.action_space.contains(action)
 
         if self.firstAction is None:
             self.firstAction = action
