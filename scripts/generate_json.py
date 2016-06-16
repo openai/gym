@@ -12,10 +12,16 @@ from gym.envs.tests.test_envs import should_skip_env_spec_for_tests
 from gym.envs.tests.test_envs_semantics import generate_rollout_hash, hash_object
 
 DATA_DIR = os.path.join(os.pardir, 'gym', 'envs', 'tests')
-ROLLOUT_FILE = os.path.join(DATA_DIR, 'rollout.json')
 ROLLOUT_STEPS = 100
 episodes = ROLLOUT_STEPS
 steps = ROLLOUT_STEPS
+
+python_version = sys.version_info.major
+if python_version == 3:
+    ROLLOUT_FILE = os.path.join(DATA_DIR, 'rollout_py3.json')
+else:
+    ROLLOUT_FILE = os.path.join(DATA_DIR, 'rollout_py2.json')
+
 
 if not os.path.isfile(ROLLOUT_FILE): 
   with open(ROLLOUT_FILE, "w") as outfile:

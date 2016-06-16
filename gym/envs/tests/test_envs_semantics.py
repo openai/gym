@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 import json
 import hashlib
 import os
+import sys
 
 from nose2 import tools
 import logging
@@ -12,17 +13,22 @@ from gym import envs, spaces
 from gym.envs.tests.test_envs import should_skip_env_spec_for_tests
 
 DATA_DIR = os.path.dirname(__file__)
-ROLLOUT_FILE = os.path.join(DATA_DIR, 'rollout.json')
 ROLLOUT_STEPS = 100
 episodes = ROLLOUT_STEPS
 steps = ROLLOUT_STEPS
+
+python_version = sys.version_info.major
+if python_version == 3:
+    ROLLOUT_FILE = os.path.join(DATA_DIR, 'rollout_py3.json')
+else:
+    ROLLOUT_FILE = os.path.join(DATA_DIR, 'rollout_py2.json')
 
 if not os.path.isfile(ROLLOUT_FILE): 
   with open(ROLLOUT_FILE, "w") as outfile:
     json.dump({}, outfile, indent=2)
 
 def hash_object(unhashed):
-  return hashlib.sha1(str(unhashed).encode('utf-8')).hexdigest()
+  return hashlib.sha256(str(unhashed).encode('utf-16')).hexdigest()
 
 def generate_rollout_hash(spec):
   spaces.seed(0)
@@ -79,4 +85,3 @@ def test_env_semantics(spec):
   assert rollout_dict[spec.id]['actions'] == actions_now, 'Actions not equal for {}'.format(spec.id)
   assert rollout_dict[spec.id]['rewards'] == rewards_now, 'Rewards not equal for {}'.format(spec.id)
   assert rollout_dict[spec.id]['dones'] == dones_now, 'Dones not equal for {}'.format(spec.id)
-
