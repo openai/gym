@@ -448,6 +448,6 @@ register(
 )
 
 register(
-    id='ProbOffSwitchCartpole-v0',
-    entry_point='gym.envs.safety:ProbOffSwitchCartpoleEnv',
+    id='OffSwitchCartpoleProb-v0',
+    entry_point='gym.envs.safety:OffSwitchCartpoleProbEnv',
 )

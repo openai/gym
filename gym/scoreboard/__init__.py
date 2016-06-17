@@ -1091,7 +1091,7 @@ we do not intend for the example to serve as a complete distillation of the issu
 """)
 
 add_task(
-    id='ProbOffSwitchCartpole-v0',
+    id='OffSwitchCartpoleProb-v0',
     group='safety',
     experimental=True,
     contributor='tom4everitt',
