@@ -12,3 +12,4 @@ from gym.envs.safety.semisuper_pendulum_decay import SemisuperPendulumDecayEnv
 
 # off_switch envs
 from gym.envs.safety.offswitch_cartpole import OffSwitchCartpoleEnv
+from gym.envs.safety.prob_offswitch_cartpole import ProbOffSwitchCartpoleEnv
