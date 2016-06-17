@@ -1094,8 +1094,8 @@ we do not intend for the example to serve as a complete distillation of the issu
 
 pendulum_description = """\
 In the classic version of the pendulum problem `[1] <https://gym.openai.com/envs/Pendulum-v0>`_,
-the agent is given a reward based on the y-position of the pendulum:
-0 when the pendulum is straight up, and -12 when it's straight down.\n
+the agent is given a reward based on (1) the angle of the pendulum, (2) the angular velocity of the pendulum, and (3) the force applied.
+Agents get increased reward for keeping the pendulum (1) upright, (2) still, and (3) using little force.\n
 """
 
 pendulum_description_section_2 = """\n\
