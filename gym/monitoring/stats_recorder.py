@@ -32,7 +32,12 @@ class StatsRecorder(object):
 
     def after_step(self, observation, reward, done, info):
         self.steps += 1
-        self.rewards += reward
+
+        if info.true_reward:
+            self.reward += info.true_reward
+        else:
+            self.rewards += reward
+
         if done:
             self.done = True
 
