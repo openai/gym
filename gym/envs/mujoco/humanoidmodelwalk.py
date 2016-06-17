@@ -24,20 +24,16 @@ class HumanoidModelWalkEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     def _step(self, a):
         pos_before = mass_center(self.model)
-        foot_bf1=self.model.data.xipos[6][0]
-        foot_bf2=self.model.data.xipos[9][0]
         self.do_simulation(a, self.frame_skip)
-
         pos_after = mass_center(self.model)
         alive_bonus = 5.0
         data = self.model.data
-        lin_vel_cost = 0.25 * (pos_after - pos_before) / self.model.opt.timestep
+        lin_vel_cost = 0.1 * (pos_after - pos_before) / self.model.opt.timestep
         quad_ctrl_cost =  0.1 * np.square(data.ctrl).sum()
         quad_impact_cost = .5e-6 * np.square(data.cfrc_ext).sum()
         quad_impact_cost = min(quad_impact_cost, 10)
         modelreward=  1 / ( 20 + abs(self.model.data.xipos[6][1] - self.model.data.xipos[9][1])  )
-        walkreward=  (self.model.data.xipos[6][0] - foot_bf1 )  +  (self.model.data.xipos[9][0] - foot_bf2 ) 
-        reward = lin_vel_cost - quad_ctrl_cost - quad_impact_cost + alive_bonus + modelreward + walkreward
+        reward = lin_vel_cost - quad_ctrl_cost - quad_impact_cost + alive_bonus + modelreward 
         qpos = self.model.data.qpos
         done = bool((qpos[2] < 1.0) or (qpos[2] > 2.0) or ( (self.model.data.xipos[6][2] > 0.2) and (self.model.data.xipos[9][2] > 0.2) ) )
         return self._get_obs(), reward, done, dict(reward_linvel=lin_vel_cost, reward_quadctrl=-quad_ctrl_cost, reward_alive=alive_bonus, reward_impact=-quad_impact_cost)
