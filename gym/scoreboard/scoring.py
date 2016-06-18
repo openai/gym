@@ -72,7 +72,10 @@ def score_from_merged(episode_lengths, episode_rewards, timestamps, initial_rese
         best_idx = np.argmax(means)
         best_rewards = episode_rewards[best_idx:best_idx+trials]
         mean = np.mean(best_rewards)
-        error = np.std(best_rewards) / (np.sqrt(trials) - 1)
+        if trials == 1: # avoid NaN
+            error = 0.
+        else:
+            error = np.std(best_rewards) / (np.sqrt(trials) - 1)
     return {
         'episode_t_value': episode_t_value,
         'timestep_t_value': timestep_t_value,
