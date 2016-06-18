@@ -151,6 +151,18 @@ register(
     reward_threshold=9.7, # optimum = 10.2
 )
 
+register(
+    id='GuessingGame-v0',
+    entry_point='gym.envs.toy_text.guessing_game:GuessingGame',
+    timestep_limit=200,
+)
+
+register(
+    id='HotterColder-v0',
+    entry_point='gym.envs.toy_text.hotter_colder:HotterColder',
+    timestep_limit=200,
+)
+
 # Mujoco
 # ----------------------------------------
 
