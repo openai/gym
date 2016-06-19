@@ -86,13 +86,14 @@ class LunarLander(gym.Env):
         self.particles = []
 
         self.prev_reward = None
-        self._reset()
 
         # useful range is -1 .. +1
         high = np.array([np.inf]*8)
         # nop, fire left engine, main engine, right engine
         self.action_space = spaces.Discrete(4)
         self.observation_space = spaces.Box(-high, high)
+        
+        self._reset()
 
     def _seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
