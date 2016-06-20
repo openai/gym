@@ -71,15 +71,8 @@ installing the dependencies for the remaining environments.
 Installing everything
 ---------------------
 
-Once you're ready to install everything, run ``pip install -e '.[all]'`` (or ``pip install 'gym[all]'``).
-
-MuJoCo has a proprietary dependency we can't set up for you. Follow
-the
-`instructions <https://github.com/openai/mujoco-py#obtaining-the-binaries-and-license-key>`_
-in the ``mujoco-py`` package for help.
-
-For the install to succeed, you'll need to have some system packages
-installed. We'll build out the list here over time; please let us know
+To install the full set of environments, you'll need to have some system
+packages installed. We'll build out the list here over time; please let us know
 what you end up installing on your platform.
 
 On OSX:
@@ -93,6 +86,13 @@ On Ubuntu 14.04:
 .. code:: shell
 
 	  apt-get install -y python-numpy python-dev cmake zlib1g-dev libjpeg-dev xvfb libav-tools xorg-dev python-opengl libboost-all-dev libsdl2-dev swig
+
+MuJoCo has a proprietary dependency we can't set up for you. Follow
+the
+`instructions <https://github.com/openai/mujoco-py#obtaining-the-binaries-and-license-key>`_
+in the ``mujoco-py`` package for help.
+
+Once you're ready to install everything, run ``pip install -e '.[all]'`` (or ``pip install 'gym[all]'``).
 
 Supported systems
 -----------------
