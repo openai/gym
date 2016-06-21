@@ -52,10 +52,12 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--display', action='store_true')
+    parser.add_argument('target', nargs="?", default="CartPole-v0")
     args = parser.parse_args()
 
+    env = gym.make(args.target)
+    env.seed(0)
     np.random.seed(0)
-    env = gym.make('CartPole-v0')
     params = dict(n_iter=10, batch_size=25, elite_frac = 0.2)
     num_steps = 200
 
@@ -94,5 +96,5 @@ if __name__ == '__main__':
 
     env.monitor.close()
 
-    logger.info("Successfully ran RandomAgent. Now trying to upload results to the scoreboard. If it breaks, you can always just try re-uploading the same results.")
+    logger.info("Successfully ran cross-entropy method. Now trying to upload results to the scoreboard. If it breaks, you can always just try re-uploading the same results.")
     gym.upload(outdir)
