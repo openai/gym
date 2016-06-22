@@ -55,12 +55,24 @@ class DoomEnv(gym.Env, utils.EzPickle):
         self.is_initialized = False                 # Indicates that reset() has been called
         self.find_new_level = False                 # Indicates that we need a level change
         self.curr_seed  = 0
-        self.screen_height = 480
-        self.screen_width = 640
         self.action_space = spaces.HighLow(
             np.matrix([[0, 1, 0]] * 38 + [[-10, 10, 0]] * 2 + [[-100, 100, 0]] * 3, dtype=np.int8))
-        self.observation_space = spaces.Box(low=0, high=255, shape=(self.screen_height, self.screen_width, 3))
         self.allowed_actions = list(range(NUM_ACTIONS))
+        self._configure()
+
+    def _configure(self, screen_resolution=ScreenResolution.RES_640X480):
+        # Often agents end up downsampling the observations. Configuring Doom to
+        # return a smaller image yields significant (~10x) speedups
+        if screen_resolution == ScreenResolution.RES_640X480:
+            self.screen_height = 480
+            self.screen_width = 640
+            self.screen_resolution = ScreenResolution.RES_640X480
+        elif screen_resolution == ScreenResolution.RES_160X120:
+            self.screen_height = 120
+            self.screen_width = 160
+            self.screen_resolution = ScreenResolution.RES_160X120
+
+        self.observation_space = spaces.Box(low=0, high=255, shape=(self.screen_height, self.screen_width, 3))
 
     def _load_level(self):
         # Closing if is_initialized
@@ -83,6 +95,7 @@ class DoomEnv(gym.Env, utils.EzPickle):
         self.game.set_doom_skill(DOOM_SETTINGS[self.level][DIFFICULTY])
         self.previous_level = self.level
         self.allowed_actions = DOOM_SETTINGS[self.level][ACTIONS]
+        self.game.set_screen_resolution(self.screen_resolution)
 
         # Algo mode
         if 'human' != self.mode:
@@ -227,7 +240,6 @@ class DoomEnv(gym.Env, utils.EzPickle):
         info['AMMO0'] = state_variables[21]
         return info
 
-        
 class MetaDoomEnv(DoomEnv):
 
     def __init__(self, average_over=10, passing_grade=600, min_tries_for_avg=5):
