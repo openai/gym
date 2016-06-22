@@ -113,13 +113,14 @@ class Env(object):
             done (boolean): whether the episode has ended, in which case further step() calls will return undefined results
             info (dict): contains auxiliary diagnostic information (helpful for debugging, and sometimes learning)
         """
-        if not self.action_space.contains(action) and not self._action_warned:
+        check_bounds = self.metadata.get('step.check_bounds', True)
+        if check_bounds and not self._action_warned and not self.action_space.contains(action):
             self._action_warned = True
             logger.warn("Action '{}' is not contained within action space '{}'.".format(action, self.action_space))
 
         self.monitor._before_step(action)
         observation, reward, done, info = self._step(action)
-        if not self.observation_space.contains(observation) and not self._observation_warned:
+        if check_bounds and not self._observation_warned and not self.observation_space.contains(observation):
             self._observation_warned = True
             logger.warn("Observation '{}' is not contained within observation space '{}'.".format(observation, self.observation_space))
 
@@ -235,6 +236,11 @@ class Env(object):
         """
 
         self._configured = True
+
+        # Whether to warn if action or observation exceed limits. Turning this
+        # off can give a significant performance boost (20-50%) when observation
+        # spaces or action spaces are large (e.g. images)
+        self.metadata['step.check_bounds'] = kwargs.pop('check_bounds', True)
         return self._configure(*args, **kwargs)
 
     def __del__(self):
