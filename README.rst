@@ -79,7 +79,7 @@ On OSX:
 
 .. code:: shell
 
-	  brew install cmake boost boost-python sdl2 swig
+	  brew install cmake boost boost-python sdl2 swig wget
 
 On Ubuntu 14.04:
 
