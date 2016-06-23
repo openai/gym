@@ -52,7 +52,6 @@ class Env(object):
         env._env_closer_id = env_closer.register(env)
         env._closed = False
         env._action_warned = False
-        env._observation_warned = False
         env._configured = False
 
         # Will be automatically set when creating an environment via 'make'
@@ -120,9 +119,6 @@ class Env(object):
 
         self.monitor._before_step(action)
         observation, reward, done, info = self._step(action)
-        if check_bounds and not self._observation_warned and not self.observation_space.contains(observation):
-            self._observation_warned = True
-            logger.warn("Observation '{}' is not contained within observation space '{}'.".format(observation, self.observation_space))
 
         done = self.monitor._after_step(observation, reward, done, info)
         return observation, reward, done, info
