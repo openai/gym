@@ -453,3 +453,10 @@ register(
     entry_point='gym.envs.safety:OffSwitchCartpoleProbEnv',
     timestep_limit=200,
 )
+
+
+# POMDP envs
+register(
+    id='GenericPOMDP-v0',
+    entry_point='gym.envs.pomdp:GenericPOMDPEnv',
+)

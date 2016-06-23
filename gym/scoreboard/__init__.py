@@ -83,6 +83,12 @@ add_group(
     description='Environments to test various AI safety properties.'
 )
 
+add_group(
+    id='pomdp',
+    name='POMDP',
+    description='Environments to test generic POMDPs.'
+)
+
 # classic control
 
 add_task(
@@ -1340,6 +1346,16 @@ The robot model was originally created by Tassa et al. [Tassa12]_.
 .. [Tassa12] Y Tassa, T Erez, E Todorov, "Synthesis and Stabilization of Complex Behaviors through Online Trajectory Optimization".
 """,
     deprecated=True,
+)
+
+
+# POMDP
+
+add_task(
+    id='GenericPOMDP-v0',
+    summary="Generic POMDP environment with arbitrary underlying MDP, level of confusion and degree of observability.",
+    group='pomdp',
+    contributor='@fatemi',
 )
 
 registry.finalize()
