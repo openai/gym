@@ -42,7 +42,7 @@ class Env(object):
 
     The methods are accessed publicly as "step", "reset", etc.. The
     non-underscored versions are wrapper methods to which we may add
-    functionality to over time.
+    functionality over time.
     """
 
     def __new__(cls, *args, **kwargs):
