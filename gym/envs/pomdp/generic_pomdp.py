@@ -47,10 +47,10 @@ class GenericPOMDPEnv(gym.Env):
             self.max_move = max_move
 
     def _step(self, action):
-        if self.done or self.move >= self.max_move:
-            self.done = False
-            return self.obs, -1., self.done, {'state': self.state}
-        assert action < self.nb_actions
+        if self.done or self.move > self.max_move:
+            self.done = True
+            return self.obs, None, self.done, {'state': self.state, 'step': self.move}
+        self.move += 1
         next_state = self.state  # self-loop if not in transition_table
         for t in self.transition_table:
             if t[0] == self.state and t[1] == action:
@@ -64,10 +64,13 @@ class GenericPOMDPEnv(gym.Env):
         elif next_state in self.bad_terminals:
             self.done = True
             reward = -1.
+        elif self.move == self.max_move:
+            self.done = True
+            reward = -1.
         else:
             self.done = False
             reward = -1. / self.max_move
-        return self.obs, reward, self.done, {'state': self.state}
+        return self.obs, reward, self.done, {'state': self.state, 'step': self.move}
 
     def _reset(self):
         self.move = 0
@@ -90,22 +93,22 @@ class GenericPOMDPEnv(gym.Env):
             return output
 
     def state2obs(self, s_id):
-        s = np.zeros(self.nb_states - self.nb_unobservable + self.confusion_dim, dtype='float32')
+        dim = self.confusion_dim + self.nb_states
+        s = np.zeros(dim, dtype='float32')
         s[: self.confusion_dim] = np.random.uniform(-self.confusion_level, self.confusion_level,
                                                     size=self.confusion_dim)
         s[self.confusion_dim + s_id] = 1.
 
-        # TODO: remove random indices of unobservable states
+        # TODO: remove indices of unobservable states
         if self.nb_unobservable > 0:
             pass
 
         if not hasattr(self, "randproj"):
             # put confusion lazily
-            shape = self.nb_states + self.confusion_dim
-            shape = (shape, shape)
-            self.randproj = np.random.uniform(-1, 1, size=shape)
+            self.randproj = np.eye(dim) - np.random.uniform(-self.confusion_level, self.confusion_level,
+                                                            size=(dim, dim))
             self.invrandproj = np.linalg.inv(self.randproj)
-            np.save('confusion.npz', (self.randproj, self.invrandproj))
+            np.save('confusion.npy', (self.randproj, self.invrandproj))
         s = np.dot(self.randproj, s)
         return s
 
