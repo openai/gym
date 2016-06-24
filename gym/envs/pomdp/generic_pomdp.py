@@ -47,10 +47,10 @@ class GenericPOMDPEnv(gym.Env):
             self.max_move = max_move
 
     def _step(self, action):
-        if self.done or self.move >= self.max_move:
-            self.done = False
-            return self.obs, -1., self.done, {'state': self.state}
-        assert action < self.nb_actions
+        if self.done or self.move > self.max_move:
+            self.done = True
+            return self.obs, None, self.done, {'state': self.state, 'step': self.move}
+        self.move += 1
         next_state = self.state  # self-loop if not in transition_table
         for t in self.transition_table:
             if t[0] == self.state and t[1] == action:
@@ -64,10 +64,13 @@ class GenericPOMDPEnv(gym.Env):
         elif next_state in self.bad_terminals:
             self.done = True
             reward = -1.
+        elif self.move == self.max_move:
+            self.done = True
+            reward = -1.
         else:
             self.done = False
             reward = -1. / self.max_move
-        return self.obs, reward, self.done, {'state': self.state}
+        return self.obs, reward, self.done, {'state': self.state, 'step': self.move}
 
     def _reset(self):
         self.move = 0
