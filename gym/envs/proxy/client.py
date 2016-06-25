@@ -14,7 +14,7 @@ try:
     import ujson
     import zmq
 except ImportError as e:
-    raise error.DependencyNotInstalled("{}. (HINT: you need to install zmq and ujson)".format(e))
+    raise error.DependencyNotInstalled("{}. (HINT: you need to install pyzmq and ujson)".format(e))
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)

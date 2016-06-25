@@ -711,6 +711,12 @@ add_task(
     experimental=True,
     contributor='tlbtlbtlb',
 )
+add_task(
+    id='FetchRobotRGB-v0',
+    group='robotics',
+    experimental=True,
+    contributor='tlbtlbtlb',
+)
 
 # Safety
 

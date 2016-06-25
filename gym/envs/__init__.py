@@ -390,6 +390,15 @@ register(
         'url': '$FETCH_ROBOT_URL',
     }
 )
+register(
+    id='FetchRobotRGB-v0',
+    entry_point='gym.envs.proxy:GymProxyClient',
+    kwargs={
+        'env_name': 'FetchRobotRGB-v0',
+        'url': '$FETCH_ROBOT_URL',
+    }
+)
+
 
 # Safety
 # ----------------------------------------
