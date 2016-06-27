@@ -8,43 +8,10 @@ from gym.utils import seeding
 
 
 class GenericPOMDPEnv(gym.Env):
-    def __init__(self, nb_base_states=None, nb_actions=None, confusion_dim=None, transition_table=None,
+    def __init__(self, nb_states=None, nb_actions=None, confusion_dim=None, transition_table=None,
                  nb_unobservable=0, init_state=None, confusion_level=0.1, good_terminals=list(),
                  bad_terminals=list(), max_move=100, overwrite=False):
-        if transition_table is not None:
-            self.__dict__.update(locals())
-        else:  # default POMDP
-            self.nb_states = 10
-            self.nb_actions = 4
-            self.nb_unobservable = 0
-            self.confusion_dim = self.nb_states
-            self.confusion_level = confusion_level
-            self.overwrite = overwrite
-            self.good_terminals = [9]
-            self.bad_terminals = [8]
-            self.transition_table = np.array([
-                [0, 0, 1],
-                [0, 1, 2],
-                [0, 2, 3],
-                [1, 1, 4],
-                [1, 2, 5],
-                [2, 0, 4],
-                [2, 2, 6],
-                [3, 0, 5],
-                [3, 1, 6],
-                [4, 2, 7],
-                [5, 1, 7],
-                [6, 0, 7],
-                [0, 3, 8],
-                [1, 3, 8],
-                [2, 3, 8],
-                [3, 3, 8],
-                [4, 3, 8],
-                [5, 3, 8],
-                [6, 3, 8],
-                [7, 3, 9]], dtype='int32')
-            self.init_state = 0
-            self.max_move = max_move
+        self.__dict__.update(locals())
 
     def _step(self, action):
         if self.done or self.move > self.max_move:
