@@ -4,16 +4,20 @@ import numpy as np
 import gym
 from gym import spaces
 from gym import error
-from gym.utils import seeding
+from gym.utils import seeding, colorize
 
 
 class GenericPOMDPEnv(gym.Env):
+    metadata = {"render.modes": ["human", "ansi"]}
+
     def __init__(self, nb_states=None, nb_actions=None, confusion_dim=None, transition_table=None,
                  nb_unobservable=0, init_state=None, confusion_level=0.1, good_terminals=list(),
-                 bad_terminals=list(), max_move=100, overwrite=False):
+                 bad_terminals=list(), max_move=100, overwrite=False, pretty_printing=True):
         assert None not in (nb_states, nb_actions, confusion_dim, transition_table, init_state) and \
             len(good_terminals) > 0, 'Bad one or more input arguments.'
         self.__dict__.update(locals())
+        if pretty_printing:
+            np.set_printoptions(precision=3, suppress=True)
 
     def _seed(self, seed=None):
         self.np_random, seed1 = seeding.np_random(seed)
@@ -56,12 +60,12 @@ class GenericPOMDPEnv(gym.Env):
         self.done = False
         return self.obs
 
-    def _render(self, mode='std', close=False):
+    def _render(self, mode='human', close=False):
         if close:
             return
         output = StringIO() if mode == 'ansi' else sys.stdout
-        output.write('base state: ', self.state)
-        output.write('observation: ', self.obs)
+        output.write(colorize('base state: ', color='cyan', bold=True) + str(self.state) + '\n')
+        output.write(colorize('observation: ', color='blue') + str(self.obs) + '\n')
         if mode == 'ansi':
             return output
 

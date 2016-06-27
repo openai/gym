@@ -466,6 +466,7 @@ register(
         'confusion_dim': 10,
         'confusion_level': 0.3,
         'overwrite': True,
+        'pretty_printing': True,
         'good_terminals': [9],
         'bad_terminals': [8],
         'transition_table': [[0, 0, 1, 1.],
