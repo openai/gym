@@ -11,7 +11,13 @@ class GenericPOMDPEnv(gym.Env):
     def __init__(self, nb_states=None, nb_actions=None, confusion_dim=None, transition_table=None,
                  nb_unobservable=0, init_state=None, confusion_level=0.1, good_terminals=list(),
                  bad_terminals=list(), max_move=100, overwrite=False):
+        assert None not in (nb_states, nb_actions, confusion_dim, transition_table, init_state) and \
+            len(good_terminals) > 0, 'Bad one or more input arguments.'
         self.__dict__.update(locals())
+
+    def _seed(self, seed=None):
+        self.np_random, seed1 = seeding.np_random(seed)
+        return seed1
 
     def _step(self, action):
         if self.done or self.move > self.max_move:
