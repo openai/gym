@@ -5,14 +5,42 @@ import gym
 from gym import spaces
 from gym import error
 from gym.utils import seeding, colorize
+import logging
+logger = logging.getLogger(__name__)
 
 
 class GenericPOMDPEnv(gym.Env):
+    """
+    A generic POMDP implementation. It supports an underlying MDP with additional clutter (random) state.
+    The observables are then produced by multiplying the cluttered state with a confusion matrix
+        Obs = (I - Rand(#State + #Clutter x #State + #Clutter)) * (State concat Clutter)
+    It also includes a set of good states and a set of bad states.
+    The reward signal is next computed using the following scheme:
+        -1.0  if entering a bad state
+        +1.0  if entering a good state
+        -1.0  if reaching the maximum number of moves
+        -1.0/max_num_moves  otherwise
+    """
     metadata = {"render.modes": ["human", "ansi"]}
 
     def __init__(self, nb_states=None, nb_actions=None, confusion_dim=None, transition_table=None,
                  nb_unobservable=0, init_state=None, confusion_level=0.1, good_terminals=list(),
                  bad_terminals=list(), max_move=100, overwrite=False, pretty_printing=True):
+        """
+        Args:
+            nb_states:  number of MDP states
+            nb_actions: number of actions
+            confusion_dim: number of clutter states
+            transition_table: MDP transition table [s, a, s', p] --> p = transition probability
+            nb_unobservable: number of unobservable states
+            init_state: MDP init state
+            confusion_level: in [0, 1], level of confusion --  0 == no confusion
+            good_terminals: list of good terminal states resulting in reward +1
+            bad_terminals: list of bad terminal states resulting in reward -1
+            max_move: maximum allowable number of steps (terminal state if reached with reward -1)
+            overwrite: boolean for overwriting saved confusion matrix
+            pretty_printing: boolean for numpy output
+        """
         assert None not in (nb_states, nb_actions, confusion_dim, transition_table, init_state) and \
             len(good_terminals) > 0, 'Bad one or more input arguments.'
         self.__dict__.update(locals())
@@ -89,7 +117,10 @@ class GenericPOMDPEnv(gym.Env):
             self.randproj = np.eye(dim) - np.random.uniform(-self.confusion_level, self.confusion_level,
                                                             size=(dim, dim))
             self.invrandproj = np.linalg.inv(self.randproj)
-            np.save('confusion.npy', (self.randproj, self.invrandproj))
+            if self.overwrite:
+                np.save('confusion.npy', (self.randproj, self.invrandproj))
+            else:
+                logger.warning('Confusion matrices exist! Set overwrite=True to let overwrite.')
         s = np.dot(self.randproj, s)
         return s
 
