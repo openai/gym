@@ -28,17 +28,21 @@ class GenericPOMDPEnv(gym.Env):
             self.done = True
             return self.obs, None, self.done, {'state': self.state, 'step': self.move}
         self.move += 1
-        next_state = self.state  # self-loop if not in transition_table
+
+        t_list = []
         for t in self.transition_table:
             if t[0] == self.state and t[1] == action:
-                next_state = t[2]
-                break
-        self.state = next_state
-        self.obs = self.state2obs(next_state)
-        if next_state in self.good_terminals:
+                t_list.append(t)
+        if t_list:  # otherwise self-loop (if not in the transition_table)
+            t_probs = [item[-1] for item in t_list]
+            t_idx = np.random.multinomial(n=1, pvals=np.array(t_probs)).argmax()
+            self.state = t_list[t_idx][2]
+
+        self.obs = self.state2obs(self.state)
+        if self.state in self.good_terminals:
             self.done = True
             reward = 1.
-        elif next_state in self.bad_terminals:
+        elif self.state in self.bad_terminals:
             self.done = True
             reward = -1.
         elif self.move == self.max_move:
