@@ -20,6 +20,8 @@ class GenericPOMDPEnv(gym.Env):
         +1.0  if entering a good state
         -1.0  if reaching the maximum number of moves
         -1.0/max_num_moves  otherwise
+
+    Note: In order to have a MDP, simply use confusion_level=0.0, clutter_dim=0, and unobservable_states=[]
     """
     metadata = {"render.modes": ["human", "ansi"]}
 
