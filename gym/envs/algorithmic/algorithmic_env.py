@@ -41,7 +41,7 @@ class AlgorithmicEnv(Env):
     def _get_obs(self, pos=None):
         if pos is None:
             pos = self.x
-        assert(isinstance(pos, np.ndarray) and pos.shape[0] == self.inp_dim)
+        assert isinstance(pos, np.ndarray) and pos.shape[0] == self.inp_dim
         if ha(pos) not in self.content:
             self.content[ha(pos)] = self.base
         return self.content[ha(pos)]
@@ -90,7 +90,7 @@ class AlgorithmicEnv(Env):
             x_str = label + x_str
             return x_str
         else:
-            assert(False)
+            assert False
 
 
     def _render(self, mode='human', close=False):

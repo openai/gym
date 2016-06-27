@@ -297,48 +297,78 @@ register(
 # ----------------------------------------
 
 register(
+    id='meta-Doom-v0',
+    entry_point='gym.envs.doom:MetaDoomEnv',
+    timestep_limit=999999,
+    reward_threshold=9000.0,
+    kwargs={
+        'average_over': 3,
+        'passing_grade': 600,
+        'min_tries_for_avg': 3
+    },
+)
+
+register(
     id='DoomBasic-v0',
     entry_point='gym.envs.doom:DoomBasicEnv',
+    timestep_limit=10000,
+    reward_threshold=10.0,
 )
 
 register(
     id='DoomCorridor-v0',
     entry_point='gym.envs.doom:DoomCorridorEnv',
+    timestep_limit=10000,
+    reward_threshold=1000.0,
 )
 
 register(
     id='DoomDefendCenter-v0',
     entry_point='gym.envs.doom:DoomDefendCenterEnv',
+    timestep_limit=10000,
+    reward_threshold=10.0,
 )
 
 register(
     id='DoomDefendLine-v0',
     entry_point='gym.envs.doom:DoomDefendLineEnv',
+    timestep_limit=10000,
+    reward_threshold=15.0,
 )
 
 register(
     id='DoomHealthGathering-v0',
     entry_point='gym.envs.doom:DoomHealthGatheringEnv',
+    timestep_limit=10000,
+    reward_threshold=1000.0,
 )
 
 register(
     id='DoomMyWayHome-v0',
     entry_point='gym.envs.doom:DoomMyWayHomeEnv',
+    timestep_limit=10000,
+    reward_threshold=0.5,
 )
 
 register(
     id='DoomPredictPosition-v0',
     entry_point='gym.envs.doom:DoomPredictPositionEnv',
+    timestep_limit=10000,
+    reward_threshold=0.5,
 )
 
 register(
     id='DoomTakeCover-v0',
     entry_point='gym.envs.doom:DoomTakeCoverEnv',
+    timestep_limit=10000,
+    reward_threshold=750.0,
 )
 
 register(
     id='DoomDeathmatch-v0',
     entry_point='gym.envs.doom:DoomDeathmatchEnv',
+    timestep_limit=10000,
+    reward_threshold=20.0,
 )
 
 # Debugging
@@ -405,34 +435,41 @@ register(
 
 # interpretability envs
 register(
-    id='InterpretabilityCartpoleActions-v0',
-    entry_point='gym.envs.safety:InterpretabilityCartpoleActionsEnv',
+    id='PredictActionsCartpole-v0',
+    entry_point='gym.envs.safety:PredictActionsCartpoleEnv',
 )
 
 register(
-    id='InterpretabilityCartpoleObservations-v0',
-    entry_point='gym.envs.safety:InterpretabilityCartpoleObservationsEnv',
+    id='PredictObsCartpole-v0',
+    entry_point='gym.envs.safety:PredictObsCartpoleEnv',
 )
 
 # semi_supervised envs
     # probably the easiest:
 register(
-    id='SemiSupervisedPendulumNoise-v0',
-    entry_point='gym.envs.safety:SemiSupervisedPendulumNoiseEnv',
+    id='SemisuperPendulumNoise-v0',
+    entry_point='gym.envs.safety:SemisuperPendulumNoiseEnv',
 )
     # somewhat harder because of higher variance:
 register(
-    id='SemiSupervisedPendulumRandom-v0',
-    entry_point='gym.envs.safety:SemiSupervisedPendulumRandomEnv',
+    id='SemisuperPendulumRandom-v0',
+    entry_point='gym.envs.safety:SemisuperPendulumRandomEnv',
 )
     # probably the hardest because you only get a constant number of rewards in total:
 register(
-    id='SemiSupervisedPendulumDecay-v0',
-    entry_point='gym.envs.safety:SemiSupervisedPendulumDecayEnv',
+    id='SemisuperPendulumDecay-v0',
+    entry_point='gym.envs.safety:SemisuperPendulumDecayEnv',
 )
 
 # off_switch envs
 register(
     id='OffSwitchCartpole-v0',
     entry_point='gym.envs.safety:OffSwitchCartpoleEnv',
+    timestep_limit=200,
+)
+
+register(
+    id='OffSwitchCartpoleProb-v0',
+    entry_point='gym.envs.safety:OffSwitchCartpoleProbEnv',
+    timestep_limit=200,
 )
