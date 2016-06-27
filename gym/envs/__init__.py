@@ -462,8 +462,8 @@ register(
     kwargs={
         'nb_states': 10,
         'nb_actions': 4,
-        'nb_unobservable': 0,
-        'confusion_dim': 10,
+        'unobservable_states': [],
+        'clutter_dim': 10,
         'confusion_level': 0.3,
         'overwrite': True,
         'pretty_printing': True,

@@ -23,16 +23,16 @@ class GenericPOMDPEnv(gym.Env):
     """
     metadata = {"render.modes": ["human", "ansi"]}
 
-    def __init__(self, nb_states=None, nb_actions=None, confusion_dim=None, transition_table=None,
-                 nb_unobservable=0, init_state=None, confusion_level=0.1, good_terminals=list(),
+    def __init__(self, nb_states=None, nb_actions=None, clutter_dim=None, transition_table=None,
+                 unobservable_states=list(), init_state=None, confusion_level=0.1, good_terminals=list(),
                  bad_terminals=list(), max_move=100, overwrite=False, pretty_printing=True):
         """
         Args:
             nb_states:  number of MDP states
             nb_actions: number of actions
-            confusion_dim: number of clutter states
+            clutter_dim: number of clutter states
             transition_table: MDP transition table [s, a, s', p] --> p = transition probability
-            nb_unobservable: number of unobservable states
+            unobservable_states: unobservable MDP states or empty list if fully observable
             init_state: MDP init state
             confusion_level: in [0, 1], level of confusion --  0 == no confusion
             good_terminals: list of good terminal states resulting in reward +1
@@ -41,9 +41,11 @@ class GenericPOMDPEnv(gym.Env):
             overwrite: boolean for overwriting saved confusion matrix
             pretty_printing: boolean for numpy output
         """
-        assert None not in (nb_states, nb_actions, confusion_dim, transition_table, init_state) and \
+        assert None not in (nb_states, nb_actions, clutter_dim, transition_table, init_state) and \
             len(good_terminals) > 0, 'Bad one or more input arguments.'
         self.__dict__.update(locals())
+        self.unobservable_states = sorted(unobservable_states, reverse=True)
+        self.nb_unobservable = len(unobservable_states)
         if pretty_printing:
             np.set_printoptions(precision=3, suppress=True)
 
@@ -88,7 +90,7 @@ class GenericPOMDPEnv(gym.Env):
         self.action_space = spaces.Discrete(self.nb_actions)
         self.observation_space = spaces.Box(low=-np.inf,
                                             high=np.inf,
-                                            shape=(self.nb_states - self.nb_unobservable + self.confusion_dim,))
+                                            shape=(self.nb_states - self.nb_unobservable + self.clutter_dim,))
         self.done = False
         return self.obs
 
@@ -102,15 +104,14 @@ class GenericPOMDPEnv(gym.Env):
             return output
 
     def state2obs(self, s_id):
-        dim = self.confusion_dim + self.nb_states
+        dim = self.clutter_dim + self.nb_states - self.nb_unobservable
         s = np.zeros(dim, dtype='float32')
-        s[: self.confusion_dim] = np.random.uniform(-self.confusion_level, self.confusion_level,
-                                                    size=self.confusion_dim)
-        s[self.confusion_dim + s_id] = 1.
+        s[:self.clutter_dim] = np.random.uniform(-self.confusion_level, self.confusion_level, size=self.clutter_dim)
+        s[self.clutter_dim + s_id] = 1.
 
-        # TODO: remove indices of unobservable states
-        if self.nb_unobservable > 0:
-            pass
+        # remove unobservable states
+        for k in self.unobservable_states:
+            del s[self.self.confusion_dim + k]
 
         if not hasattr(self, "randproj"):
             # put confusion lazily
@@ -126,7 +127,7 @@ class GenericPOMDPEnv(gym.Env):
 
     def obs2state(self, s):
         s = np.dot(self.invrandproj, s)
-        s1 = s[self.confusion_dim:]
+        s1 = s[self.clutter_dim:]
         return np.argmax(s1)
 
     def write_mdp_to_dot(self, file='mdp.dot'):
