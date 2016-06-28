@@ -1,5 +1,6 @@
 from six import StringIO
 import sys
+import os
 import numpy as np
 import gym
 from gym import spaces
@@ -21,8 +22,8 @@ class GenericPOMDPEnv(gym.Env):
     The environment also supports two separate sets of "good" and "bad" states, entering to which will define rewards.
 
     The reward signal is next computed using the following scheme:
-        +1.0  if entering a good state
-        -1.0  if entering a bad state
+        +1.0  if entering a good terminal state
+        -1.0  if entering a bad terminal state
         -1.0  if reaching max_move
         -1.0/max_move  otherwise
 
@@ -35,7 +36,7 @@ class GenericPOMDPEnv(gym.Env):
 
     def __init__(self, nb_states=None, nb_actions=None, clutter_dim=None, transition_table=None,
                  unobservable_states=list(), init_state=None, confusion_level=0.1, good_terminals=list(),
-                 bad_terminals=list(), max_move=100, overwrite=False):
+                 bad_terminals=list(), max_move=100, confusion_file='confusion.npy', overwrite=False):
         """
         Args:
             nb_states:  number of MDP states
@@ -59,10 +60,10 @@ class GenericPOMDPEnv(gym.Env):
         self.confusion = np.eye(self.dim) - np.random.uniform(-self.confusion_level,
                                                               self.confusion_level,
                                                               size=(self.dim, self.dim))
-        if self.overwrite:
-            np.save('confusion.npy', self.confusion)
+        if not os.path.isfile(self.confusion_file) or self.overwrite:
+            np.save(self.confusion_file, self.confusion)
         else:
-            logger.warning('Confusion matrices exist! Set overwrite=True to let overwrite.')
+            logger.warning('File "{0}" exists. Set `overwrite=True` to permit overwrite.'.format(self.confusion_file))
 
     def _seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
@@ -135,12 +136,19 @@ class GenericPOMDPEnv(gym.Env):
         s = np.delete(s, self.clutter_dim + self.unobservable_states)  # remove unobservable states
         return s
 
-    def write_mdp_to_dot(self, file='mdp.dot'):
-        # after calling this method use the following for example:
-        #    $ dot -T png -O mdp.dot
-        import networkx as nx
-        g = nx.DiGraph()
-        g.add_nodes_from(np.arange(self.nb_states))
-        edges = [(tr[0], tr[2], {'label': tr[1]}) for tr in self.transition_table]
-        g.add_edges_from(edges)
-        nx.drawing.nx_pydot.write_dot(g, file)
+    def write_mdp_to_dot(self, file_path='mdp.dot', overwrite=False):
+        # To save DOT files as image files use for example: $ dot -T png -O mdp.dot
+        if not os.path.isfile(file_path) or overwrite:
+            with open(file_path, 'w') as writer:
+                writer.write('digraph MDP {\n')
+                for tr in self.transition_table:
+                    writer.write(str(tr[0]) + ' -> ' + str(tr[2]) +
+                                 ' [label="a:' + str(tr[1]) + ' ; p:' + str(tr[3]) + '"];\n')
+                writer.write(str(self.init_state) + " [shape=diamond,color=lightblue,style=filled]\n")
+                for node in self.good_terminals:
+                    writer.write(str(node) + " [shape=box,color=green,style=filled]\n")
+                for node in self.bad_terminals:
+                    writer.write(str(node) + " [shape=box,color=red,style=filled]\n")
+                writer.write('}')
+        else:
+            logger.warning('File "{0}" exists. Call with `overwrite=True` to permit overwrite.'.format(file_path))
