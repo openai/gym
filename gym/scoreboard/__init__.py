@@ -143,6 +143,18 @@ This problem was first described by Andrew Moore in his PhD thesis [Moore90]_.
 )
 
 add_task(
+    id='Hoodle-v0',
+    group='classic_control',
+    summary="Push the hoodle to the goal position.",
+    description="""
+A hoole is on a one-dimensional wood surface.
+The goal is to push the hoodle to the goal position on theright, 
+and hoodle will do the slow movement after give a start velocity. 
+Therefore, the only way to succeed is to give a correct start velocity to move the hoodle to goal position.
+"""  
+)
+
+add_task(
     id='Pendulum-v0',
     group='classic_control',
     summary="Swing up a pendulum.",
