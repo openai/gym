@@ -17,14 +17,14 @@ class GenericPOMDPEnv(gym.Env):
     It supports an underlying MDP with additional clutter (random) state variables.
     The observables are then produced by multiplying the cluttered state vector with a confusion matrix:
 
-        Obs = (I - Rand(square: size = #State + #Clutter)) * (State .concat. Clutter)
+        Obs = (I - Rand(square: size = #Clutters + #States)) * (Clutter_vec .concat. State_vec)
 
-    The environment also supports two separate sets of "good" and "bad" states, entering to which will define rewards.
+    The environment also supports two separate sets of "good" and "bad" terminal states. Entering such states
+    will cause proper rewards. The reward signal is therefore computed using the following scheme:
 
-    The reward signal is next computed using the following scheme:
         +1.0  if entering a good terminal state
         -1.0  if entering a bad terminal state
-        -1.0  if reaching max_move
+        -1.0  if reaching max_move before reaching a terminal state
         -1.0/max_move  otherwise
 
     Additionally, GenericPOMDPEnv supports partial observability. Any state in `unobservable_states` will be removed
