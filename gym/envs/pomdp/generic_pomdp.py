@@ -54,6 +54,7 @@ class GenericPOMDPEnv(gym.Env):
         assert None not in (nb_states, nb_actions, clutter_dim, transition_table, init_state) and \
             len(good_terminals) > 0, 'Bad one or more input arguments.'
         self.__dict__.update(locals())
+        self._seed()
         self.unobservable_states = np.asarray(unobservable_states)
         self.nb_unobservable = len(unobservable_states)
         self.dim = self.clutter_dim + self.nb_states

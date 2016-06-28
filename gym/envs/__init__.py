@@ -491,4 +491,5 @@ register(
         'init_state': 0,
         'max_move': 100
     },
+    nondeterministic=True,
 )
