@@ -60,6 +60,14 @@ class GenericPOMDPEnv(gym.Env):
         self.confusion = np.eye(self.dim) - np.random.uniform(-self.confusion_level,
                                                               self.confusion_level,
                                                               size=(self.dim, self.dim))
+        self.action_space = spaces.Discrete(self.nb_actions)
+        self.observation_space = spaces.Box(low=-np.inf,
+                                            high=np.inf,
+                                            shape=(self.nb_states - self.nb_unobservable + self.clutter_dim,))
+        self.done = False
+        self.move = 0
+        self.state = None
+        self.obs = None
         if not os.path.isfile(self.confusion_file) or self.overwrite:
             np.save(self.confusion_file, self.confusion)
         else:
