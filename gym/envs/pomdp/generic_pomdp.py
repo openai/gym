@@ -11,17 +11,25 @@ logger = logging.getLogger(__name__)
 
 class GenericPOMDPEnv(gym.Env):
     """
-    A generic POMDP implementation. It supports an underlying MDP with additional clutter (random) state.
-    The observables are then produced by multiplying the cluttered state with a confusion matrix
-        Obs = (I - Rand(#State + #Clutter x #State + #Clutter)) * (State concat Clutter)
-    It also includes a set of good states and a set of bad states.
-    The reward signal is next computed using the following scheme:
-        -1.0  if entering a bad state
-        +1.0  if entering a good state
-        -1.0  if reaching the maximum number of moves
-        -1.0/max_num_moves  otherwise
+    A generic POMDP implementation.
 
-    Note: In order to have a MDP, simply use confusion_level=0.0, clutter_dim=0, and unobservable_states=[]
+    It supports an underlying MDP with additional clutter (random) state variables.
+    The observables are then produced by multiplying the cluttered state vector with a confusion matrix:
+
+        Obs = (I - Rand(square: size = #State + #Clutter)) * (State .concat. Clutter)
+
+    The environment also supports two separate sets of "good" and "bad" states, entering to which will define rewards.
+
+    The reward signal is next computed using the following scheme:
+        +1.0  if entering a good state
+        -1.0  if entering a bad state
+        -1.0  if reaching max_move
+        -1.0/max_move  otherwise
+
+    Additionally, GenericPOMDPEnv supports partial observability. Any state in `unobservable_states` will be removed
+    from above equation for computing Obs and the size of matrices will be set accordingly.
+
+    Note: In order to have a MDP, simply use `confusion_level=0.0`, `clutter_dim=0`, and `unobservable_states=[]`.
     """
     metadata = {"render.modes": ["human", "ansi"]}
 
@@ -33,7 +41,7 @@ class GenericPOMDPEnv(gym.Env):
             nb_states:  number of MDP states
             nb_actions: number of actions
             clutter_dim: number of clutter states
-            transition_table: MDP transition table [s, a, s', p] --> p = transition probability
+            transition_table: MDP transition table: list([s, a, s', p]) --> p = transition probability
             unobservable_states: unobservable MDP states or empty list if fully observable
             init_state: MDP init state
             confusion_level: in [0, 1], level of confusion --  0 == no confusion
@@ -41,7 +49,7 @@ class GenericPOMDPEnv(gym.Env):
             bad_terminals: list of bad terminal states resulting in reward -1
             max_move: maximum allowable number of steps (terminal state if reached with reward -1)
             overwrite: boolean for overwriting saved confusion matrix
-            pretty_printing: boolean for numpy output
+            pretty_printing: boolean, set pretty numpy outputs
         """
         assert None not in (nb_states, nb_actions, clutter_dim, transition_table, init_state) and \
             len(good_terminals) > 0, 'Bad one or more input arguments.'
