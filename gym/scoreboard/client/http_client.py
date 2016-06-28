@@ -62,14 +62,14 @@ class RequestsClient(object):
             # also raise ValueError, RuntimeError, etc.
             self._handle_request_error(e, method, url)
 
-        if util.logger.level <= logging.DEBUG:
-            util.logger.debug(
+        if logger.level <= logging.DEBUG:
+            logger.debug(
             """API request to %s returned (response code, response body) of
 (%d, %r)
 
 Request body was: %s""", url, status_code, content, render_post_data(post_data))
-        elif util.logger.level <= logging.INFO:
-            util.logger.info('HTTP request: %s %s %d', method.upper(), url, status_code)
+        elif logger.level <= logging.INFO:
+            logger.info('HTTP request: %s %s %d', method.upper(), url, status_code)
         return content, status_code, result.headers
 
     def _handle_request_error(self, e, method, url):
