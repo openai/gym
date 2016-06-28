@@ -35,7 +35,7 @@ class GenericPOMDPEnv(gym.Env):
 
     def __init__(self, nb_states=None, nb_actions=None, clutter_dim=None, transition_table=None,
                  unobservable_states=list(), init_state=None, confusion_level=0.1, good_terminals=list(),
-                 bad_terminals=list(), max_move=100, overwrite=False, pretty_printing=True):
+                 bad_terminals=list(), max_move=100, overwrite=False):
         """
         Args:
             nb_states:  number of MDP states
@@ -49,19 +49,29 @@ class GenericPOMDPEnv(gym.Env):
             bad_terminals: list of bad terminal states resulting in reward -1
             max_move: maximum allowable number of steps (terminal state if reached with reward -1)
             overwrite: boolean for overwriting saved confusion matrix
-            pretty_printing: boolean, set pretty numpy outputs
         """
         assert None not in (nb_states, nb_actions, clutter_dim, transition_table, init_state) and \
             len(good_terminals) > 0, 'Bad one or more input arguments.'
         self.__dict__.update(locals())
-        self.unobservable_states = sorted(unobservable_states, reverse=True)
+        self.unobservable_states = np.asarray(unobservable_states)
         self.nb_unobservable = len(unobservable_states)
-        if pretty_printing:
-            np.set_printoptions(precision=3, suppress=True)
+        self.dim = self.clutter_dim + self.nb_states
+        self.confusion = np.eye(self.dim) - np.random.uniform(-self.confusion_level,
+                                                              self.confusion_level,
+                                                              size=(self.dim, self.dim))
+        if self.overwrite:
+            np.save('confusion.npy', self.confusion)
+        else:
+            logger.warning('Confusion matrices exist! Set overwrite=True to let overwrite.')
 
     def _seed(self, seed=None):
-        self.np_random, seed1 = seeding.np_random(seed)
-        return seed1
+        self.np_random, seed = seeding.np_random(seed)
+        return [seed]
+
+    def _configure(self, confusion_matrix):
+        assert confusion_matrix.shape[0] == confusion_matrix.shape[1] == self.dim, \
+            'Provided confusion matrix does not match observable dim {0}.'.format(self.dim)
+        self.confusion = confusion_matrix
 
     def _step(self, action):
         if self.done or self.move > self.max_move:
@@ -108,37 +118,22 @@ class GenericPOMDPEnv(gym.Env):
         if close:
             return
         output = StringIO() if mode == 'ansi' else sys.stdout
-        output.write(colorize('base state: ', color='cyan', bold=True) + str(self.state) + '\n')
-        output.write(colorize('observation: ', color='blue') + str(self.obs) + '\n')
+        output.write(colorize('base state: ', color='cyan', bold=True))
+        output.write(str(self.state))
+        output.write('\n')
+        output.write(colorize('observation: ', color='blue'))
+        output.write(str(self.obs))
+        output.write('\n')
         if mode == 'ansi':
             return output
 
     def state2obs(self, s_id):
-        dim = self.clutter_dim + self.nb_states - self.nb_unobservable
-        s = np.zeros(dim, dtype='float32')
+        s = np.zeros(self.dim, dtype='float32')
         s[:self.clutter_dim] = np.random.uniform(-self.confusion_level, self.confusion_level, size=self.clutter_dim)
         s[self.clutter_dim + s_id] = 1.
-
-        # remove unobservable states
-        for k in self.unobservable_states:
-            del s[self.self.confusion_dim + k]
-
-        if not hasattr(self, "randproj"):
-            # put confusion lazily
-            self.randproj = np.eye(dim) - np.random.uniform(-self.confusion_level, self.confusion_level,
-                                                            size=(dim, dim))
-            self.invrandproj = np.linalg.inv(self.randproj)
-            if self.overwrite:
-                np.save('confusion.npy', (self.randproj, self.invrandproj))
-            else:
-                logger.warning('Confusion matrices exist! Set overwrite=True to let overwrite.')
-        s = np.dot(self.randproj, s)
+        s = np.dot(self.confusion, s)
+        s = np.delete(s, self.clutter_dim + self.unobservable_states)  # remove unobservable states
         return s
-
-    def obs2state(self, s):
-        s = np.dot(self.invrandproj, s)
-        s1 = s[self.clutter_dim:]
-        return np.argmax(s1)
 
     def write_mdp_to_dot(self, file='mdp.dot'):
         # after calling this method use the following for example:
