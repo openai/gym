@@ -18,6 +18,7 @@ def render_post_data(post_data):
         return None
 
 class RequestsClient(object):
+    global warned
     name = 'requests'
 
     def __init__(self, verify_ssl_certs=True):
