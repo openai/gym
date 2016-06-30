@@ -25,6 +25,7 @@ class RequestsClient(object):
         self.session = requests.Session()
 
     def request(self, method, url, headers, post_data=None, files=None):
+        global warned
         kwargs = {}
 
         # Really, really only turn this off while debugging.
