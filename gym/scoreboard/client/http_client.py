@@ -18,7 +18,6 @@ def render_post_data(post_data):
         return None
 
 class RequestsClient(object):
-    global warned
     name = 'requests'
 
     def __init__(self, verify_ssl_certs=True):
@@ -26,6 +25,7 @@ class RequestsClient(object):
         self.session = requests.Session()
 
     def request(self, method, url, headers, post_data=None, files=None):
+        global warned
         kwargs = {}
 
         # Really, really only turn this off while debugging.
