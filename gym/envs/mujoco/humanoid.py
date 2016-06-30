@@ -8,11 +8,9 @@ def mass_center(model):
     return (np.sum(mass * xpos, 0) / np.sum(mass))[0]
 
 class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
-    def __init__(self, initial_randomness=0.01):
+    def __init__(self):
         mujoco_env.MujocoEnv.__init__(self, 'humanoid.xml', 5)
         utils.EzPickle.__init__(self)
-        self.initial_randomness = initial_randomness
-        self.finalize()
 
     def _get_obs(self):
         data = self.model.data
@@ -38,12 +36,12 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         done = bool((qpos[2] < 1.0) or (qpos[2] > 2.0))
         return self._get_obs(), reward, done, dict(reward_linvel=lin_vel_cost, reward_quadctrl=-quad_ctrl_cost, reward_alive=alive_bonus, reward_impact=-quad_impact_cost)
 
-    # TODO: requires more complicated reset.
-    def _reset(self):
-        self.model.data.qpos = self.init_qpos + (np.random.rand(self.model.nq,1)-0.5)*2*self.initial_randomness
-        self.model.data.qvel = self.init_qvel + (np.random.rand(self.model.nv,1)-0.5)*2*self.initial_randomness
-        self.model.forward()
-        self.reset_viewer_if_necessary()        
+    def reset_model(self):
+        c = 0.01
+        self.set_state(
+            self.init_qpos + self.np_random.uniform(low=-c, high=c, size=self.model.nq),
+            self.init_qvel + self.np_random.uniform(low=-c, high=c, size=self.model.nv,)
+        )
         return self._get_obs()
 
     def viewer_setup(self):

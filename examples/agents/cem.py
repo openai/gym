@@ -1,7 +1,13 @@
+from __future__ import print_function
+
 import gym
 import logging
 import numpy as np
-import json, sys, cPickle, os
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
+import json, sys, os
 from os import path
 from _policies import BinaryActionLinearPolicy # Different file so it can be unpickled
 import argparse
@@ -20,7 +26,7 @@ def cem(f, th_mean, batch_size, n_iter, elite_frac, initial_std=1.0):
     n_elite = int(np.round(batch_size*elite_frac))
     th_std = np.ones_like(th_mean) * initial_std
 
-    for _ in xrange(n_iter):
+    for _ in range(n_iter):
         ths = np.array([th_mean + dth for dth in  th_std[None,:]*np.random.randn(batch_size, th_mean.size)])
         ys = np.array([f(th) for th in ths])
         elite_inds = ys.argsort()[::-1][:n_elite]
@@ -32,7 +38,7 @@ def cem(f, th_mean, batch_size, n_iter, elite_frac, initial_std=1.0):
 def do_rollout(agent, env, num_steps, render=False):
     total_rew = 0
     ob = env.reset()
-    for t in xrange(num_steps):
+    for t in range(num_steps):
         a = agent.act(ob)
         (ob, reward, done, _info) = env.step(a)
         total_rew += reward
@@ -46,10 +52,12 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--display', action='store_true')
+    parser.add_argument('target', nargs="?", default="CartPole-v0")
     args = parser.parse_args()
 
+    env = gym.make(args.target)
+    env.seed(0)
     np.random.seed(0)
-    env = gym.make('CartPole-v0')
     params = dict(n_iter=10, batch_size=25, elite_frac = 0.2)
     num_steps = 200
 
@@ -77,10 +85,10 @@ if __name__ == '__main__':
     # Train the agent, and snapshot each stage
     for (i, iterdata) in enumerate(
         cem(noisy_evaluation, np.zeros(env.observation_space.shape[0]+1), **params)):
-        print 'Iteration %2i. Episode mean reward: %7.3f'%(i, iterdata['y_mean'])
+        print('Iteration %2i. Episode mean reward: %7.3f'%(i, iterdata['y_mean']))
         agent = BinaryActionLinearPolicy(iterdata['theta_mean'])
         if args.display: do_rollout(agent, env, 200, render=True)
-        writefile('agent-%.4i.pkl'%i, cPickle.dumps(agent, -1))
+        writefile('agent-%.4i.pkl'%i, str(pickle.dumps(agent, -1)))
 
     # Write out the env at the end so we store the parameters of this
     # environment.
@@ -88,5 +96,5 @@ if __name__ == '__main__':
 
     env.monitor.close()
 
-    logger.info("Successfully ran RandomAgent. Now trying to upload results to the scoreboard. If it breaks, you can always just try re-uploading the same results.")
-    gym.upload(outdir, algorithm_id='cem')
+    logger.info("Successfully ran cross-entropy method. Now trying to upload results to the scoreboard. If it breaks, you can always just try re-uploading the same results.")
+    gym.upload(outdir)

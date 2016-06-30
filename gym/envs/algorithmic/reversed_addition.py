@@ -1,4 +1,3 @@
-import random
 import numpy as np
 from gym.envs.algorithmic import algorithmic_env
 from gym.envs.algorithmic.algorithmic_env import ha
@@ -17,7 +16,7 @@ class ReversedAdditionEnv(algorithmic_env.AlgorithmicEnv):
         for i in range(self.total_len):
             vals = []
             for k in range(self.rows):
-                val = random.randrange(self.base)
+                val = self.np_random.randint(self.base)
                 self.content[ha(np.array([i, k]))] = val
                 vals.append(val)
             total = sum(vals) + curry
@@ -25,6 +24,4 @@ class ReversedAdditionEnv(algorithmic_env.AlgorithmicEnv):
             curry = total / self.base
         if curry > 0:
             self.target[self.total_len] = curry
-        self.total_reward = self.total_len 
-
-
+        self.total_reward = self.total_len

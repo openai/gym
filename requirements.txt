@@ -1,5 +1,4 @@
-# Testing
-nose2
-mock
-
--e .[all]
+numpy>=1.10.4
+requests>=2.0
+six
+pyglet>=1.2.0

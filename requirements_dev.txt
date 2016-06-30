@@ -1,0 +1,5 @@
+# Testing
+nose2
+mock
+
+-e .[all]

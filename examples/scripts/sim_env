@@ -22,17 +22,11 @@ ac_space = env.action_space
 fps = args.fps or env.metadata.get('video.frames_per_second') or 100
 if args.max_steps == 0: args.max_steps = env.spec.timestep_limit
 
-if args.mode == "human":
-    if isinstance(ac_space, spaces.Discrete):
-        print("Press keys 0-{} to choose the agent's actions".format(ac_space.n-1))
-        import cv2
-    else:
-        raise ValueError("Can only use human on discrete action space. Got {}".format(type(ac_space)))
-
 while True:
     env.reset()
+    env.render(mode='human')
     print("Starting a new trajectory")
-    for t in xrange(args.max_steps) if args.max_steps else itertools.count():
+    for t in range(args.max_steps) if args.max_steps else itertools.count():
         done = False
         if args.mode == "noop":
             if isinstance(ac_space, spaces.Box):
@@ -50,15 +44,16 @@ while True:
         elif args.mode == "static":
             time.sleep(1.0/fps)
         elif args.mode == "human":
-            if t == 0:
+            a = raw_input("type action from {0,...,%i} and press enter: "%(ac_space.n-1))
+            try:
+                a = int(a)
+            except ValueError:
+                print("WARNING: ignoring illegal action '{}'.".format(a))
                 a = 0
-            else:
-                key = cv2.waitKey(-1)
-                a = key - ord('0')
-                if a >= ac_space.n:
-                    print("WARNING: ignoring illegal action {}.".format(a))
-                    a = 0
-            _, _, done, _ = env.step(a)
+            if a >= ac_space.n:
+                print("WARNING: ignoring illegal action {}.".format(a))
+                a = 0
+        _, _, done, _ = env.step(a)
 
         env.render()
         if done and not args.ignore_done: break

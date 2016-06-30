@@ -1,10 +1,15 @@
-from gym import Space
 import numpy as np
 
-class Box(Space):
+import gym
+from gym.spaces import prng
+
+class Box(gym.Space):
     """
     A box in R^n.
     I.e., each coordinate is bounded.
+
+    Example usage:
+    self.action_space = spaces.Box(low=-10, high=10, shape=(1,))
     """
     def __init__(self, low, high, shape=None):
         """
@@ -21,7 +26,7 @@ class Box(Space):
             self.low = low + np.zeros(shape)
             self.high = high + np.zeros(shape)
     def sample(self):
-        return np.random.uniform(low=self.low, high=self.high, size=self.low.shape)
+        return prng.np_random.uniform(low=self.low, high=self.high, size=self.low.shape)
     def contains(self, x):
         return x.shape == self.shape and (x >= self.low).all() and (x <= self.high).all()
 

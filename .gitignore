@@ -23,11 +23,15 @@ ghostdriver.log
 
 junk
 MUJOCO_LOG.txt
-mujoco-bundle
-
 
 rllab_mujoco
 
 tutorial/*.html
+
+# IDE files
 .eggs
 .tox
+
+# PyCharm project files
+.idea
+vizdoom.ini

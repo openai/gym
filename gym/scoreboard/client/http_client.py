@@ -1,7 +1,7 @@
-# Forked from
 import logging
 import requests
 import textwrap
+import six
 
 from gym import error
 from gym.scoreboard.client import util
@@ -12,7 +12,7 @@ warned = False
 def render_post_data(post_data):
     if hasattr(post_data, 'fileno'): # todo: is this the right way of checking if it's a file?
         return '%r (%d bytes)' % (post_data, util.file_size(post_data))
-    elif isinstance(post_data, basestring):
+    elif isinstance(post_data, (six.string_types, six.binary_type)):
         return '%r (%d bytes)' % (post_data, len(post_data))
     else:
         return None
@@ -25,6 +25,7 @@ class RequestsClient(object):
         self.session = requests.Session()
 
     def request(self, method, url, headers, post_data=None, files=None):
+        global warned
         kwargs = {}
 
         # Really, really only turn this off while debugging.
@@ -62,14 +63,14 @@ class RequestsClient(object):
             # also raise ValueError, RuntimeError, etc.
             self._handle_request_error(e, method, url)
 
-        if util.logger.level <= logging.DEBUG:
-            util.logger.debug(
+        if logger.level <= logging.DEBUG:
+            logger.debug(
             """API request to %s returned (response code, response body) of
 (%d, %r)
 
 Request body was: %s""", url, status_code, content, render_post_data(post_data))
-        elif util.logger.level <= logging.INFO:
-            util.logger.info('HTTP request: %s %s %d', method.upper(), url, status_code)
+        elif logger.level <= logging.INFO:
+            logger.info('HTTP request: %s %s %d', method.upper(), url, status_code)
         return content, status_code, result.headers
 
     def _handle_request_error(self, e, method, url):

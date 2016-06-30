@@ -6,6 +6,7 @@ import tarfile
 import tempfile
 from gym import error, monitoring
 from gym.scoreboard.client import resource, util
+import numpy as np
 
 MAX_VIDEOS = 100
 
@@ -14,21 +15,22 @@ logger = logging.getLogger(__name__)
 video_name_re = re.compile('^[\w.-]+\.(mp4|avi|json)$')
 metadata_name_re = re.compile('^[\w.-]+\.meta\.json$')
 
-def upload(training_dir, algorithm_id=None, writeup=None, api_key=None):
+def upload(training_dir, algorithm_id=None, writeup=None, api_key=None, ignore_open_monitors=False):
     """Upload the results of training (as automatically recorded by your
     env's monitor) to OpenAI Gym.
 
     Args:
         training_dir (Optional[str]): A directory containing the results of a training run.
-        algorithm_id (Optional[str]): An arbitrary string indicating the paricular version of the algorithm (including choices of parameters) you are running.
+        algorithm_id (Optional[str]): An algorithm id indicating the paricular version of the algorithm (including choices of parameters) you are running (visit https://gym.openai.com/algorithms to create an id)
         writeup (Optional[str]): A Gist URL (of the form https://gist.github.com/<user>/<id>) containing your writeup for this evaluation.
         api_key (Optional[str]): Your OpenAI API key. Can also be provided as an environment variable (OPENAI_GYM_API_KEY).
     """
 
-    open_monitors = monitoring._monitors.values()
-    if open_monitors:
-        envs = [m.env.spec.id if m.env.spec else '(unknown)' for m in open_monitors]
-        raise error.Error("Still have an open monitor on {}. You must run 'env.monitor.close()' before uploading.".format(', '.join(envs)))
+    if not ignore_open_monitors:
+        open_monitors = monitoring._open_monitors()
+        if len(open_monitors) > 0:
+            envs = [m.env.spec.id if m.env.spec else '(unknown)' for m in open_monitors]
+            raise error.Error("Still have an open monitor on {}. You must run 'env.monitor.close()' before uploading.".format(', '.join(envs)))
 
     env_info, training_episode_batch, training_video = upload_training_data(training_dir, api_key=api_key)
     env_id = env_info['env_id']
@@ -87,6 +89,8 @@ def upload_training_data(training_dir, api_key=None):
     timestamps = results['timestamps']
     episode_lengths = results['episode_lengths']
     episode_rewards = results['episode_rewards']
+    main_seeds = results['main_seeds']
+    seeds = results['seeds']
     videos = results['videos']
 
     env_id = env_info['env_id']
@@ -94,14 +98,14 @@ def upload_training_data(training_dir, api_key=None):
 
     # Do the relevant uploads
     if len(episode_lengths) > 0:
-        training_episode_batch = upload_training_episode_batch(episode_lengths, episode_rewards, timestamps, api_key, env_id=env_id)
+        training_episode_batch = upload_training_episode_batch(episode_lengths, episode_rewards, timestamps, main_seeds, seeds, api_key, env_id=env_id)
     else:
         training_episode_batch = None
 
     if len(videos) > MAX_VIDEOS:
         logger.warn('[%s] You recorded videos for %s episodes, but the scoreboard only supports up to %s. We will automatically subsample for you, but you also might wish to adjust your video recording rate.', env_id, len(videos), MAX_VIDEOS)
-        skip = len(videos) / (MAX_VIDEOS - 1)
-        videos = videos[::skip]
+        subsample_inds = np.linspace(0, len(videos)-1, MAX_VIDEOS).astype('int')
+        videos = [videos[i] for i in subsample_inds]
 
     if len(videos) > 0:
         training_video = upload_training_video(videos, api_key, env_id=env_id)
@@ -110,13 +114,15 @@ def upload_training_data(training_dir, api_key=None):
 
     return env_info, training_episode_batch, training_video
 
-def upload_training_episode_batch(episode_lengths, episode_rewards, timestamps, api_key=None, env_id=None):
+def upload_training_episode_batch(episode_lengths, episode_rewards, timestamps, main_seeds, seeds, api_key=None, env_id=None):
     logger.info('[%s] Uploading %d episodes of training data', env_id, len(episode_lengths))
     file_upload = resource.FileUpload.create(purpose='episode_batch', api_key=api_key)
     file_upload.put({
         'episode_lengths': episode_lengths,
         'episode_rewards': episode_rewards,
         'timestamps': timestamps,
+        'main_seeds': main_seeds,
+        'seeds': seeds,
     })
     return file_upload
 
@@ -174,9 +180,11 @@ def write_archive(videos, archive_file, env_id=None):
             tar.add(video_path, arcname=video_name, recursive=False)
             tar.add(metadata_path, arcname=metadata_name, recursive=False)
 
-        # Actually write the manifest file
-        with tempfile.NamedTemporaryFile() as f:
+        f = tempfile.NamedTemporaryFile(mode='w+', delete=False)
+        try:
             json.dump(manifest, f)
-            f.flush()
-
+            f.close()
             tar.add(f.name, arcname='manifest.json')
+        finally:
+            f.close()
+            os.remove(f.name)

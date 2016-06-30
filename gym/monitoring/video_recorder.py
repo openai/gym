@@ -36,22 +36,26 @@ class VideoRecorder(object):
 
     def __init__(self, env, path=None, metadata=None, enabled=True, base_path=None):
         modes = env.metadata.get('render.modes', [])
+        self.enabled = enabled
+
+        # Don't bother setting anything else if not enabled
+        if not self.enabled:
+            return
+
         self.ansi_mode = False
         if 'rgb_array' not in modes:
             if 'ansi' in modes:
                 self.ansi_mode = True
             else:
                 logger.info('Disabling video recorder because {} neither supports video mode "rgb_array" nor "ansi".'.format(env))
-                enabled = False
+                # Whoops, turns out we shouldn't be enabled after all
+                self.enabled = False
+                return
 
         if path is not None and base_path is not None:
             raise error.Error("You can pass at most one of `path` or `base_path`.")
 
-        self.enabled = enabled
         self.last_frame = None
-        if not self.enabled:
-            return
-
         self.env = env
 
         required_ext = '.json' if self.ansi_mode else '.mp4'
@@ -254,7 +258,7 @@ class ImageEncoder(object):
 
     @property
     def version_info(self):
-        return {'backend':self.backend,'version':subprocess.check_output([self.backend, '-version']),'cmdline':self.cmdline}
+        return {'backend':self.backend,'version':str(subprocess.check_output([self.backend, '-version'])),'cmdline':self.cmdline}
 
     def start(self):
         self.cmdline = (self.backend,
@@ -267,7 +271,7 @@ class ImageEncoder(object):
                      '-f', 'rawvideo',
                      '-s:v', '{}x{}'.format(*self.wh),
                      '-pix_fmt',('rgb32' if self.includes_alpha else 'rgb24'),
-                     '-i', '/dev/stdin',
+                     '-i', '-', # this used to be /dev/stdin, which is not Windows-friendly
 
                      # output
                      '-vcodec', 'libx264',
@@ -282,11 +286,11 @@ class ImageEncoder(object):
         if not isinstance(frame, (np.ndarray, np.generic)):
             raise error.InvalidFrame('Wrong type {} for {} (must be np.ndarray or np.generic)'.format(type(frame), frame))
         if frame.shape != self.frame_shape:
-            raise error.InvalidFrame("Your frame has shape {}, but the VideoRecorder is configured for shape {}.".format(frame_shape, self.frame_shape))
+            raise error.InvalidFrame("Your frame has shape {}, but the VideoRecorder is configured for shape {}.".format(frame.shape, self.frame_shape))
         if frame.dtype != np.uint8:
             raise error.InvalidFrame("Your frame has data type {}, but we require uint8 (i.e. RGB values from 0-255).".format(frame.dtype))
 
-        if distutils.version.StrictVersion(np.__version__) >= distutils.version.StrictVersion('1.9.0'):
+        if distutils.version.LooseVersion(np.__version__) >= distutils.version.LooseVersion('1.9.0'):
             self.proc.stdin.write(frame.tobytes())
         else:
             self.proc.stdin.write(frame.tostring())

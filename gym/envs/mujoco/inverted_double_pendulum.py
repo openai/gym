@@ -7,7 +7,6 @@ class InvertedDoublePendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     def __init__(self):
         mujoco_env.MujocoEnv.__init__(self, 'inverted_double_pendulum.xml', 5)
         utils.EzPickle.__init__(self)
-        self.finalize()
 
     def _step(self, action):
         self.do_simulation(action, self.frame_skip)
@@ -30,10 +29,11 @@ class InvertedDoublePendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             np.clip(self.model.data.qfrc_constraint, -10, 10)
         ]).ravel()
 
-    def _reset(self):
-        self.model.data.qpos = self.init_qpos + np.random.uniform(size=(self.model.nq,1),low=-.1,high=.1)
-        self.model.data.qvel = self.init_qvel + np.random.randn(self.model.nv,1)*.1
-        self.reset_viewer_if_necessary()
+    def reset_model(self):
+        self.set_state(
+            self.init_qpos + self.np_random.uniform(low=-.1, high=.1, size=self.model.nq),
+            self.init_qvel + self.np_random.randn(self.model.nv) * .1
+        )
         return self._get_obs()
 
     def viewer_setup(self):

@@ -2,13 +2,11 @@ import numpy as np
 from gym import utils
 from gym.envs.mujoco import mujoco_env
 
-# copied from hopper
 class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     def __init__(self):
         mujoco_env.MujocoEnv.__init__(self, "walker2d.xml", 4)
         utils.EzPickle.__init__(self)
-        self.finalize()
 
     def _step(self, a):
         posbefore = self.model.data.qpos[0,0]
@@ -28,10 +26,11 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         qvel = self.model.data.qvel
         return np.concatenate([qpos[1:], np.clip(qvel,-10,10)]).ravel()
 
-    def _reset(self):
-        self.model.data.qpos = self.init_qpos + np.random.rand(self.model.nq,1)*.01-.005
-        self.model.data.qvel = self.init_qvel + np.random.rand(self.model.nv,1)*.01-.005
-        self.reset_viewer_if_necessary()        
+    def reset_model(self):
+        self.set_state(
+            self.init_qpos + self.np_random.uniform(low=-.005, high=.005, size=self.model.nq),
+            self.init_qvel + self.np_random.uniform(low=-.005, high=.005, size=self.model.nv)
+        )
         return self._get_obs()
 
     def viewer_setup(self):

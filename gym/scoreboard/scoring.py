@@ -24,6 +24,21 @@ def score_from_remote(url):
     spec = gym.spec(env_id)
     return score_from_merged(episode_lengths, episode_rewards, timestamps, initial_reset_timestamp, spec.trials, spec.reward_threshold)
 
+def score_from_local(directory):
+    """Calculate score from a local results directory"""
+    results = gym.monitoring.monitor.load_results(directory)
+    # No scores yet saved
+    if results is None:
+        return None
+
+    episode_lengths = results['episode_lengths']
+    episode_rewards = results['episode_rewards']
+    timestamps = results['timestamps']
+    initial_reset_timestamp = results['initial_reset_timestamp']
+    spec = gym.spec(results['env_info']['env_id'])
+
+    return score_from_merged(episode_lengths, episode_rewards, timestamps, initial_reset_timestamp, spec.trials, spec.reward_threshold)
+
 def score_from_merged(episode_lengths, episode_rewards, timestamps, initial_reset_timestamp, trials, reward_threshold):
     """Method to calculate the score from merged monitor files.
     """
@@ -57,7 +72,10 @@ def score_from_merged(episode_lengths, episode_rewards, timestamps, initial_rese
         best_idx = np.argmax(means)
         best_rewards = episode_rewards[best_idx:best_idx+trials]
         mean = np.mean(best_rewards)
-        error = np.std(best_rewards) / (np.sqrt(trials) - 1)
+        if trials == 1: # avoid NaN
+            error = 0.
+        else:
+            error = np.std(best_rewards) / (np.sqrt(trials) - 1)
     return {
         'episode_t_value': episode_t_value,
         'timestep_t_value': timestep_t_value,
@@ -77,9 +95,13 @@ def running_mean(x, N):
 def compute_graph_stats(episode_lengths, episode_rewards, timestamps, initial_reset_timestamp, buckets):
     """Method to compute the aggregates for the graphs."""
     # Not a dependency of OpenAI Gym generally.
-    import scipy
+    import scipy.stats
 
     num_episodes = len(episode_lengths)
+
+    # Catch for if no files written which causes error with scipy.stats.binned_statistic
+    if num_episodes == 0:
+        return None
 
     episode_rewards = np.array(episode_rewards)
     episode_lengths = np.array(episode_lengths)
