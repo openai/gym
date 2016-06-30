@@ -65,12 +65,6 @@ register(
 )
 
 register(
-    id='Hoodle-v0',
-    entry_point='gym.envs.classic_control:HoodleEnv',
-    timestep_limit=200,
-)
-
-register(
     id='Pendulum-v0',
     entry_point='gym.envs.classic_control:PendulumEnv',
     timestep_limit=200,
@@ -464,3 +458,13 @@ register(
     entry_point='gym.envs.safety:OffSwitchCartpoleProbEnv',
     timestep_limit=200,
 )
+
+# Contrib
+# ----------------------------------------
+
+register(
+    id='Hoodle-v0',
+    entry_point='gym.envs.contrib:HoodleEnv',
+    timestep_limit=200,
+)
+

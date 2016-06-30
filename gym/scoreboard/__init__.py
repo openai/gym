@@ -83,6 +83,12 @@ add_group(
     description='Environments to test various AI safety properties.'
 )
 
+add_group(
+    id='contrib',
+    name='Contrib',
+    description='contributor's environments.'
+)
+
 # classic control
 
 add_task(
@@ -140,18 +146,6 @@ This problem was first described by Andrew Moore in his PhD thesis [Moore90]_.
 
 .. [Moore90] A Moore, Efficient Memory-Based Learning for Robot Control, PhD thesis, University of Cambridge, 1990.
 """,
-)
-
-add_task(
-    id='Hoodle-v0',
-    group='classic_control',
-    summary="Push the hoodle to the goal position.",
-    description="""
-A hoole is on a one-dimensional wood surface.
-The goal is to push the hoodle to the goal position on theright, 
-and hoodle will do the slow movement after give a start velocity. 
-Therefore, the only way to succeed is to give a correct start velocity to move the hoodle to goal position.
-"""  
 )
 
 add_task(
@@ -1352,6 +1346,21 @@ The robot model was originally created by Tassa et al. [Tassa12]_.
 .. [Tassa12] Y Tassa, T Erez, E Todorov, "Synthesis and Stabilization of Complex Behaviors through Online Trajectory Optimization".
 """,
     deprecated=True,
+)
+
+# contrib
+
+add_task(
+    id='Hoodle-v0',
+    group='classic_control',
+    summary="Push the hoodle to the goal position.",
+	experimental=True
+    description="""
+A hoole is on a one-dimensional wood surface.
+The goal is to push the hoodle to the goal position on theright, 
+and hoodle will do the slow movement after give a start velocity. 
+Therefore, the only way to succeed is to give a correct start velocity to move the hoodle to goal position.
+"""  
 )
 
 registry.finalize()
