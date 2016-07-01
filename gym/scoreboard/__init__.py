@@ -1354,7 +1354,7 @@ add_task(
     id='Hoodle-v0',
     group='contrib',
     summary="Push the hoodle to the goal position.",
-	experimental=True
+	experimental=True,
     description="""
 A hoole is on a one-dimensional wood surface.
 The goal is to push the hoodle to the goal position on theright, 
