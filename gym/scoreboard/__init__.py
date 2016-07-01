@@ -86,7 +86,7 @@ add_group(
 add_group(
     id='contrib',
     name='Contrib',
-    description='contributor's environments.'
+    description="contributor's environments."
 )
 
 # classic control
@@ -1352,7 +1352,7 @@ The robot model was originally created by Tassa et al. [Tassa12]_.
 
 add_task(
     id='Hoodle-v0',
-    group='classic_control',
+    group='contrib',
     summary="Push the hoodle to the goal position.",
 	experimental=True
     description="""
