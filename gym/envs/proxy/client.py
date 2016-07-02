@@ -33,17 +33,24 @@ class GymProxyClientSocket(object):
             'method': method,
             'params': params,
         })
-        logger.debug('%s < %s', self.url, tx[0])
+        if 0: logger.debug('%s < %s', self.url, tx[0])
         self.sock.send_multipart(tx, flags=0, copy=True, track=False)
 
         rx = self.sock.recv_multipart(flags=0, copy=True, track=False)
-        logger.debug('%s > %s', self.url, rx[0])
+        if 0: logger.debug('%s > %s', self.url, rx[0])
         rpc_ans = zmq_serialize.load_msg(rx)
 
+        log_msgs = rpc_ans.get('log_msgs', None)
+        if log_msgs is not None and len(log_msgs):
+            for log_msg in log_msgs:
+                logger.info('%s > %s', self.url, log_msg)
 
         if rpc_ans['error'] is not None:
             raise Exception('Remote gym server reports: ' + rpc_ans['error'])
         return rpc_ans['result']
+
+    def close(self):
+        self.sock.close()
 
 
 class GymProxyClient(Env):
@@ -52,7 +59,6 @@ class GymProxyClient(Env):
     }
 
     def __init__(self, url='tcp://127.0.0.1:6911', **kwargs):
-
         # Expand environment variable refs in url
         def expand_env(m):
             ret = os.environ.get(m.group(1), None)
@@ -62,6 +68,7 @@ class GymProxyClient(Env):
         url = re.sub(r'\$(\w+)', expand_env, url)
 
         self.proxy = GymProxyClientSocket(url)
+        self.session_id = None
         setup_result = self.proxy.rpc('setup', kwargs)
         self.action_space = setup_result['action_space']
         self.observation_space = setup_result['observation_space']
@@ -97,3 +104,11 @@ class GymProxyClient(Env):
         if ret['session_id'] != self.session_id:
             raise Exception('Wrong session id')
         return ret['img']
+
+    def _close(self):
+        if self.session_id is not None:
+            self.proxy.rpc('close', {
+                'session_id': self.session_id,
+            })
+        self.proxy.close()
+        self.proxy = None

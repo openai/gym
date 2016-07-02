@@ -33,6 +33,7 @@ class GymProxyZmqServer(object):
         self.session_id = None
         self.session_last_use = 0.0
         self.op_count = 0
+        self.log_msgs = []
 
         self.ctx = zmq.Context()
         self.sock = self.ctx.socket(zmq.REP)
@@ -79,11 +80,18 @@ class GymProxyZmqServer(object):
             time.sleep(1)
 
     def close_env(self):
-        logger.info('GymProxyZmqServer closed')
+        if self.env is not None and hasattr(self.env, 'save_logs'):
+            log_url = self.env.save_logs()
+            if log_url is not None:
+                self.log_to_client('See high-res traces at %s' % log_url)
         self.env_name = None
         if self.env is not None:
             self.env.close()
         self.env = None
+        logger.info('GymProxyZmqServer closed')
+
+    def log_to_client(self, msg):
+        self.log_msgs.append(msg)
 
     def handle_rpc(self, rpc):
         rpc_method = rpc.get('method', None)
@@ -93,7 +101,9 @@ class GymProxyZmqServer(object):
             tx = zmq_serialize.dump_msg({
                 'result': rpc_result,
                 'error': rpc_error,
+                'log_msgs': self.log_msgs,
             })
+            del self.log_msgs[:]
             logger.debug('%s < %s', self.url, tx[0])
             self.sock.send_multipart(tx, flags=0, copy=False, track=False)
 
