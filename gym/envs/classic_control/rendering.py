@@ -92,7 +92,7 @@ class Viewer(object):
         if return_rgb_array:
             image_data = pyglet.image.get_buffer_manager().get_color_buffer().get_image_data()
             arr = np.fromstring(image_data.data, dtype=np.uint8, sep='')
-            height, width = determine_height_width(len(arr)/4, self.height, self.width)
+            height, width = self.determine_height_width(len(arr)/4, self.height, self.width)
             arr = arr.reshape(height, width, 4)
             arr = arr[::-1,:,0:3]
         self.window.flip()
