@@ -92,11 +92,33 @@ class Viewer(object):
         if return_rgb_array:
             image_data = pyglet.image.get_buffer_manager().get_color_buffer().get_image_data()
             arr = np.fromstring(image_data.data, dtype=np.uint8, sep='')
-            arr = arr.reshape(self.height, self.width, 4)
+            height, width = determine_height_width(len(arr)/4, self.height, self.width)
+            arr = arr.reshape(height, width, 4)
             arr = arr[::-1,:,0:3]
         self.window.flip()
         self.onetime_geoms = []
         return arr
+
+    def determine_height_width(height_times_width, target_height, target_width):
+        """In the simple case, this will just return (target_height,
+        target_width).
+
+        In https://github.com/openai/gym-http-api/issues/2, we
+        discovered that someone using Xmonad on Arch was having a
+        window of size 598 x 398, though a 600 x 400 window was
+        requested. (Guess Xmonad was preserving a pixel for the
+        boundary.) Thus, we need to find the largest factor of
+        height_times_width that is <= target_width.
+
+        So for example:
+
+        determine_height_width(598*398, 600, 400) #=> (598, 398)
+        """
+        height = height_times_width / target_width
+        while height_times_width % height != 0:
+            assert height <= target_height
+            height += 1
+        return height, height_times_width / height
 
     # Convenience
     def draw_circle(self, radius=10, res=30, filled=True, **attrs):
