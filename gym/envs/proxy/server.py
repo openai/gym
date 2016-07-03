@@ -32,7 +32,6 @@ class GymProxyZmqServer(object):
         self.env_name = None
         self.session_id = None
         self.session_last_use = 0.0
-        self.op_count = 0
         self.log_msgs = []
 
         self.ctx = zmq.Context()
@@ -76,7 +75,6 @@ class GymProxyZmqServer(object):
                     self.close_env()
                     self.session_last_use = 0.0
                     self.session_id = None
-                    self.op_count = 0
             time.sleep(1)
 
     def close_env(self):
@@ -88,6 +86,8 @@ class GymProxyZmqServer(object):
         if self.env is not None:
             self.env.close()
         self.env = None
+        self.session_id = None
+        self.session_last_use = 0.0
         logger.info('GymProxyZmqServer closed')
 
     def log_to_client(self, msg):
@@ -107,9 +107,6 @@ class GymProxyZmqServer(object):
             logger.debug('%s < %s', self.url, tx[0])
             self.sock.send_multipart(tx, flags=0, copy=False, track=False)
 
-        self.op_count += 1
-        if self.op_count % 1000 == 0:
-            logger.info('%s: %d ops', self.env_name, self.op_count)
         try:
             if rpc_method == 'step':
                 reply(self.handle_step(rpc_params))
@@ -129,19 +126,18 @@ class GymProxyZmqServer(object):
             reply(None, str(ex_type) + ': ' + str(ex_value))
 
     def expire_session(self):
-        if time.time() - self.session_last_use > 1.0:
+        if time.time() - self.session_last_use > 5.0:
             if self.session_id is not None:
                 self.closed()
             self.session_last_use = 0.0
             self.session_id = None
-            self.op_count = 0
 
     def check_session(self, params):
         session_id = params['session_id']
         if session_id == self.session_id:
             self.session_last_use = time.time()
         else:
-            raise Exception('Wrong session id')
+            raise Exception('Wrong session id. Expected %s, got %s' % (str(self.session_id), str(session_id)))
 
     def handle_reset(self, params):
         self.check_session(params)
@@ -164,12 +160,7 @@ class GymProxyZmqServer(object):
         }
 
     def handle_setup(self, params):
-        if self.session_id is not None and time.time() - self.session_last_use > 1.0:
-            self.close_env()
-            self.session_last_use = 0.0
-            self.session_id = None
-            self.op_count = 0
-        elif self.session_id is not None:
+        if self.session_id is not None:
             raise Exception('Robot in use')
 
         self.env = self.make_env(params['env_name'])
@@ -188,7 +179,8 @@ class GymProxyZmqServer(object):
         }
 
     def handle_close(self, params):
-        self.check_session(params)
+        if self.session_id is not None:
+            self.check_session(params)
         prev_session_id = self.session_id
         self.close_env()
         return {

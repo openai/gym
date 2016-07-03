@@ -50,7 +50,9 @@ class GymProxyClientSocket(object):
         return rpc_ans['result']
 
     def close(self):
-        self.sock.close()
+        if self.sock is not None:
+            self.sock.close()
+            self.sock = None
 
 
 class GymProxyClient(Env):
@@ -110,5 +112,6 @@ class GymProxyClient(Env):
             self.proxy.rpc('close', {
                 'session_id': self.session_id,
             })
+            self.session_id = None
         self.proxy.close()
         self.proxy = None
