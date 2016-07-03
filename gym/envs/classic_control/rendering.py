@@ -99,7 +99,7 @@ class Viewer(object):
         self.onetime_geoms = []
         return arr
 
-    def determine_height_width(height_times_width, target_height, target_width):
+    def determine_height_width(self, height_times_width, target_height, target_width):
         """In the simple case, this will just return (target_height,
         target_width).
 
