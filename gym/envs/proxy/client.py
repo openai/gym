@@ -60,7 +60,7 @@ class GymProxyClient(Env):
         'render.modes': ['human', 'rgb_array'],
     }
 
-    def __init__(self, url='tcp://127.0.0.1:6911', **kwargs):
+    def __init__(self, url='tcp://127.0.0.1:6911', env_name=None, **kwargs):
         # Expand environment variable refs in url
         def expand_env(m):
             ret = os.environ.get(m.group(1), None)
@@ -71,7 +71,13 @@ class GymProxyClient(Env):
 
         self.proxy = GymProxyClientSocket(url)
         self.session_id = None
-        setup_result = self.proxy.rpc('setup', kwargs)
+        session_owner = 'user %s on %s in %s' % (os.getlogin(), os.uname()[1], os.getcwd())
+        setup_args = {
+            'env_name': env_name,
+            'session_owner': session_owner,
+        }
+        setup_args.update(kwargs)
+        setup_result = self.proxy.rpc('setup', setup_args)
         self.action_space = setup_result['action_space']
         self.observation_space = setup_result['observation_space']
         self.reward_range = tuple(setup_result['reward_range'])

@@ -32,6 +32,7 @@ class GymProxyZmqServer(object):
         self.env_name = None
         self.session_id = None
         self.session_last_use = 0.0
+        self.session_owner = None
         self.log_msgs = []
 
         self.ctx = zmq.Context()
@@ -75,6 +76,7 @@ class GymProxyZmqServer(object):
                     self.close_env()
                     self.session_last_use = 0.0
                     self.session_id = None
+                    self.session_owner = None
             time.sleep(1)
 
     def close_env(self):
@@ -87,6 +89,7 @@ class GymProxyZmqServer(object):
             self.env.close()
         self.env = None
         self.session_id = None
+        self.session_owner = None
         self.session_last_use = 0.0
         logger.info('GymProxyZmqServer closed')
 
@@ -125,13 +128,6 @@ class GymProxyZmqServer(object):
             traceback.print_exception(ex_type, ex_value, ex_tb)
             reply(None, str(ex_type) + ': ' + str(ex_value))
 
-    def expire_session(self):
-        if time.time() - self.session_last_use > 5.0:
-            if self.session_id is not None:
-                self.closed()
-            self.session_last_use = 0.0
-            self.session_id = None
-
     def check_session(self, params):
         session_id = params['session_id']
         if session_id == self.session_id:
@@ -161,7 +157,7 @@ class GymProxyZmqServer(object):
 
     def handle_setup(self, params):
         if self.session_id is not None:
-            raise Exception('Robot in use')
+            raise Exception('Robot in use by %s' % str(self.session_owner))
 
         self.env = self.make_env(params['env_name'])
         if self.env is None:
@@ -169,7 +165,8 @@ class GymProxyZmqServer(object):
         self.env_name = params['env_name']
         self.session_id = zmq_serialize.mk_random_cookie()
         self.session_last_use = time.time()
-        logger.info('Creating env %s. session_id=%s', self.env_name, self.session_id)
+        self.session_owner = params.get('session_owner', 'unknown')
+        logger.info('Creating env %s. session_id=%s owner=%s', self.env_name, self.session_id, self.session_owner)
 
         return {
             'observation_space': self.env.observation_space,
