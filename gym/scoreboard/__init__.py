@@ -1352,8 +1352,58 @@ The robot model was originally created by Tassa et al. [Tassa12]_.
 # POMDP
 
 add_task(
-    id='GenericPOMDP-v0',
+    id='RestaurantSeekingDialog-v0',
     summary="Generic POMDP environment with arbitrary underlying MDP, level of confusion and degree of observability.",
+    description="""
+The underlying MDP for this env is a simple user-simulator in a "restaurant-seeking" dialogue system.
+The POMDP then extends it by doubling the state-space with random clutter and adds uncertainty into the cluttered, just as the base class.
+
+There are three constraints that the user has in mind as her goal: 0: food_type, 1: price_range, and 2: area.
+
+The agent starts with no information about the user goal and it has four actions:
+
+0: ask about constraint 0 (food_type),
+1: ask about constraint 1 (price_range)
+2: ask about constraint 2 (area)
+3: offer a restaurant
+
+In this simple MDP, it is assumed that the offer can only be acceptable if the agent knows about all the three user constraints (i.e., if the agent has already asked the three of them).
+Therefore, the following state exists:
+
+0: no information about constraints
+1: constraint 0 is known
+2: constraint 1 is known
+3: constraint 2 is known
+4: constraint 0 and 1 are known
+5: constraint 0 and 2 are known
+6: constraint 1 and 2 are known
+7: constraint 0 and 1 and 2 are known
+8: a non-acceptable offer has been made (bad terminal)
+9: an acceptable offer has been made (good terminal)
+
+The state transitions are deterministic and can be defined as the following (s, a, s', p):
+
+[[0, 0, 1, 1.],
+[0, 1, 2, 1.],
+[0, 2, 3, 1.],
+[1, 1, 4, 1.],
+[1, 2, 5, 1.],
+[2, 0, 4, 1.],
+[2, 2, 6, 1.],
+[3, 0, 5, 1.],
+[3, 1, 6, 1.],
+[4, 2, 7, 1.],
+[5, 1, 7, 1.],
+[6, 0, 7, 1.],
+[0, 3, 8, 1.],
+[1, 3, 8, 1.],
+[2, 3, 8, 1.],
+[3, 3, 8, 1.],
+[4, 3, 8, 1.],
+[5, 3, 8, 1.],
+[6, 3, 8, 1.],
+[7, 3, 9, 1.]]
+    """,
     group='pomdp',
     contributor='@fatemi',
 )

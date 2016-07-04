@@ -457,7 +457,7 @@ register(
 
 # POMDP envs
 register(
-    id='GenericPOMDP-v0',
+    id='RestaurantSeekingDialog-v0',
     entry_point='gym.envs.pomdp:GenericPOMDPEnv',
     kwargs={
         'nb_states': 10,
