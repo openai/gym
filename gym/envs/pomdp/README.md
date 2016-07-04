@@ -7,7 +7,7 @@ The observables are then produced by multiplying the cluttered state vector with
 
     Obs = (I - Rand(square: size = #Clutters + #States)) * (Clutter_vec .concat. State_vec)
 
-The environment also supports two separate sets of "good" and "bad" terminal states. Entering such states
+The environment also supports two separate sets of `good` and `bad` terminal states. Entering such states
 will cause proper rewards. The reward signal is therefore computed using the following scheme:
 
     +1.0  if entering a good terminal state
@@ -72,3 +72,13 @@ The state transitions are deterministic and can be defined as the following (s, 
 [6, 3, 8, 1.],
 [7, 3, 9, 1.]]
 ```
+
+To see the corresponding graph of the MDP, simply do the following:
+
+```
+env = gym.make('RestaurantSeekingDialog-v0')
+env.reset()
+env.write_mdp_to_dot(file_path='mdp.dot')
+```
+
+In the `dot` file, `blue diamond` is the initial state and `green squares` and `red squares` are the `good` and `bad` terminals, respectively. In this environment there is only one `good` terminal (`9`) and one `bad` terminal (`8`). The caption on the arrows illustrate corresponding action and transition probability. In order to make an image, you can for example use: `dot -T png -O mdp.dot`.
