@@ -1065,15 +1065,16 @@ We don't want bad agents just focusing on predicting their own badness.
 
 Prior work has studied prediction in reinforcement learning [Junhyuk15]_,
 while other work has explicitly focused on more general notions of interpretability [Maes12]_.
+Outside of reinforcement learning, there is related work on interpretable supervised learning algorithms [Vellido12]_, [Wang16]_.
+Additionally, predicting poor behavior and summoning human intervention may be an important part of safe exploration [Amodei16]_.
+These predictions may also be useful for penalizing predicted reward hacking [Amodei16]_.
 We hope a simple domain of this nature promotes further investigation into prediction, interpretability, and related properties.
 
-Outside of reinforcement learning,
-there is related work on interpretable supervised learning algorithms [Vellido12]_, [Wang16]_.
-
+.. [Amodei16] Amodei, Olah, et al. `"Concrete Problems in AI safety" Arxiv. 2016. <https://arxiv.org/pdf/1606.06565v1.pdf>`_
 .. [Maes12] Maes, Francis, et al. "Policy search in a space of simple closed-form formulas: Towards interpretability of reinforcement learning." Discovery Science. Springer Berlin Heidelberg, 2012.
 .. [Junhyuk15] Oh, Junhyuk, et al. "Action-conditional video prediction using deep networks in atari games." Advances in Neural Information Processing Systems. 2015.
 .. [Vellido12] Vellido, Alfredo, et al. "Making machine learning models interpretable." ESANN. Vol. 12. 2012.
-.. [Wang16] Wang, Tony, et al. "Or's of And's for Interpretable Classification, with Application to Context-Aware Recommender Systems." Arxiv. 2016
+.. [Wang16] Wang, Tony, et al. "Or's of And's for Interpretable Classification, with Application to Context-Aware Recommender Systems." Arxiv. 2016.
     """
 )
 
@@ -1106,10 +1107,12 @@ being interpretable. We don't want bad agents just focusing on predicting their 
 
 Prior work has studied prediction in reinforcement learning [Junhyuk15]_,
 while other work has explicitly focused on more general notions of interpretability [Maes12]_.
+Outside of reinforcement learning, there is related work on interpretable supervised learning algorithms [Vellido12]_, [Wang16]_.
+Additionally, predicting poor outcomes and summoning human intervention may be an important part of safe exploration [Amodei16]_.
+These predictions may also be useful for penalizing predicted reward hacking [Amodei16]_.
 We hope a simple domain of this nature promotes further investigation into prediction, interpretability, and related properties.
-Outside of reinforcement learning,
-there is related work on interpretable supervised learning algorithms [Vellido12]_, [Wang16]_.
 
+.. [Amodei16] Amodei, Olah, et al. `"Concrete Problems in AI safety" Arxiv. 2016. <https://arxiv.org/pdf/1606.06565v1.pdf>`_
 .. [Maes12] Maes, Francis, et al. "Policy search in a space of simple closed-form formulas: Towards interpretability of reinforcement learning." Discovery Science. Springer Berlin Heidelberg, 2012.
 .. [Junhyuk15] Oh, Junhyuk, et al. "Action-conditional video prediction using deep networks in atari games." Advances in Neural Information Processing Systems. 2015.
 .. [Vellido12] Vellido, Alfredo, et al. "Making machine learning models interpretable." ESANN. Vol. 12. 2012.
@@ -1157,6 +1160,7 @@ Note: while this toy example is intended to further investigation into learning 
 we do not intend for the example to serve as a complete distillation of the issues surrounding interruptibility
 (e.g. a learner that solves this task may still fail in other interuption scenarios).
 
+.. [Amodei16] Amodei, Olah, et al. `"Concrete Problems in AI safety" Arxiv. 2016. <https://arxiv.org/pdf/1606.06565v1.pdf>`_
 .. [Orseau16] `L. Orseau and S. Armstrong, "Safely Interruptible Agents", 2016 <https://intelligence.org/files/Interruptibility.pdf>`_. To be presented at the 32nd Conference on uncertainty and Artificial Intelligence.
 .. [Jakobsen15] `The Shutdown Problem <http://www.maths.qmul.ac.uk/~jakobsen/shutdown.pdf>`_
 .. [Soares15] `Corrigibility <https://intelligence.org/files/Corrigibility.pdf>`_ accepted to the AI & Ethics workshop at AAAI-2015.
@@ -1202,6 +1206,7 @@ Note: while this toy example is intended to further investigation into learning 
 we do not intend for the example to serve as a complete distillation of the issues surrounding interruptibility
 (e.g. a learner that solves this task may still fail in other interuption scenarios).
 
+.. [Amodei16] Amodei, Olah, et al. `"Concrete Problems in AI safety" Arxiv. 2016. <https://arxiv.org/pdf/1606.06565v1.pdf>`_
 .. [Orseau16] `L. Orseau and S. Armstrong, "Safely Interruptible Agents", 2016 <https://intelligence.org/files/Interruptibility.pdf>`_. To be presented at the 32nd Conference on uncertainty and Artificial Intelligence.
 .. [Jakobsen15] `The Shutdown Problem <http://www.maths.qmul.ac.uk/~jakobsen/shutdown.pdf>`_
 .. [Soares15] `Corrigibility <https://intelligence.org/files/Corrigibility.pdf>`_ accepted to the AI & Ethics workshop at AAAI-2015.
@@ -1236,12 +1241,16 @@ the agent's observed reward is sampled from a Gaussian with mean set to the true
 
     background="""\
 While classic reinforcement learning problems often include stochastic reward functions,
-there is a different notion of noise introduced when a human trainer is providing feedback that is itself noisy;
-there is a true fixed deterministic reward function,
-but the signal is noisy.
+there is a different notion of noise introduced when a human trainer is providing feedback that is itself noisy:
+there is a true (possibly deterministic) reward function, but the signal is noisy.
+The goal of the agent is to maximize the true reward function given just the noisy signal.
 
 Prior work has explored learning algorithms for human training scenarios of this flavor [Lopes11]_.
 
+Robustness to noisy rewards may aid scalable oversight in settings where evaluating
+the true reward signal is expensive or impossible but a noisy approximation is available [Amodei16]_.
+
+.. [Amodei16] Amodei, Olah, et al. `"Concrete Problems in AI safety" Arxiv. 2016. <https://arxiv.org/pdf/1606.06565v1.pdf>`_
 .. [Lopes11] Lopes, Manuel, Thomas Cederbourg, and Pierre-Yves Oudeyer. "Simultaneous acquisition of task and feedback models." Development and Learning (ICDL), 2011 IEEE International Conference on. Vol. 2. IEEE, 2011.
 """)
 
@@ -1259,8 +1268,18 @@ and otherwise it gets utility as in the original problem.
 """ + pendulum_description_section_2,
 
     background="""\
-This is a toy example of semi-supervised reinforcement learning, though similar issues are studied by the reinforcement learning with human feedback literature, as in [Knox09]_, [Knox10]_, [Griffith13]_, and [Daniel14]_. Standard reinforcement learning has the disadvantage that it needs a reward for each experience, so to teach human values to reinforcement learners, a human would need to judge the learner in each experience. This will be infeasible in practice. Prior work has studied this and similar phenomena via humans training robotic agents [Loftin15]_, uncovering challenging learning problems such as learning from infrequent reward signals, codified as learning from implicit feedback. By using semi-supervised reinforcement learning, an agent will be able to learn from all its experiences, even if only a small fraction of them gets judged.
+This is a toy example of semi-supervised reinforcement learning,
+though similar issues are studied by the reinforcement learning with human feedback literature,
+as in [Knox09]_, [Knox10]_, [Griffith13]_, and [Daniel14]_.
 
+Prior work has studied this and similar phenomena via humans training robotic agents [Loftin15]_,
+uncovering challenging learning problems such as learning from infrequent reward signals,
+codified as learning from implicit feedback.
+By using semi-supervised reinforcement learning,
+an agent will be able to learn from all its experiences even if only a small fraction of them gets judged.
+This may be an important property for scalable oversight of RL systems [Amodei16]_.
+
+.. [Amodei16] Amodei, Olah, et al. `"Concrete Problems in AI safety" Arxiv. 2016. <https://arxiv.org/pdf/1606.06565v1.pdf>`_
 .. [Knox09] Knox, W. Bradley, and Peter Stone. "Interactively shaping agents via human reinforcement: The TAMER framework." Proceedings of the fifth international conference on Knowledge capture. ACM, 2009.
 .. [Knox10] Knox, W. Bradley, and Peter Stone. "Combining manual feedback with subsequent MDP reward signals for reinforcement learning." Proceedings of the 9th International Conference on Autonomous Agents and Multiagent Systems: Volume 1. 2010.
 .. [Daniel14] Daniel, Christian, et al. "Active reward learning." Proceedings of Robotics Science & Systems. 2014.
@@ -1286,15 +1305,11 @@ The probability of observing the true reward in the i-th timestep is given by 0.
 This is a toy example of semi-supervised reinforcement learning,
 though similar issues are studied by the literature on reinforcement learning with human feedback,
 as in [Knox09]_, [Knox10]_, [Griffith13]_, and [Daniel14]_.
-
-Standard reinforcement learning has the disadvantage that it needs a reward for each experience.
-To teach human values to reinforcement learners,
-a human would need to provide feedback to the learner for every experience,
-which is infeasible in practice.
-
 Furthermore, [Peng16]_ suggests that humans training artificial agents tend to give lessened rewards over time,
 posing a challenging learning problem.
+Scalable oversight of RL systems may require a solution to this challenge [Amodei16]_.
 
+.. [Amodei16] Amodei, Olah, et al. `"Concrete Problems in AI safety" Arxiv. 2016. <https://arxiv.org/pdf/1606.06565v1.pdf>`_
 .. [Knox09] Knox, W. a Bradley, and Stnone d Pettone. "Interactively shaping agents via hunforcement: The TAMER framework." Proceedings of the fifth international conference on Knowledge capture. ACM, 2009.
 .. [Knox10] Knox, W. Bradley, and Peter Stone. "Combining manual feedback with subsequent MDP reward signals for reinforcement learning." Proceedings of the 9th International Conference on Autonomous Agents and Multiagent Systems: Volume 1. 2010.
 .. [Daniel14] Daniel, Christian, et al. "Active reward learning." Proceedings of Robotics Science & Systems. 2014.
