@@ -1065,7 +1065,7 @@ We don't want bad agents just focusing on predicting their own badness.
 Prior work has studied prediction in reinforcement learning [Junhyuk15]_,
 while other work has explicitly focused on more general notions of interpretability [Maes12]_.
 Outside of reinforcement learning, there is related work on interpretable supervised learning algorithms [Vellido12]_, [Wang16]_.
-Additionally, predicting poor behavior and summoning human intervention may be an important part of safe exploration [Amodei16]_.
+Additionally, predicting poor behavior and summoning human intervention may be an important part of safe exploration [Amodei16]_ with oversight [Christiano15]_.
 These predictions may also be useful for penalizing predicted reward hacking [Amodei16]_.
 We hope a simple domain of this nature promotes further investigation into prediction, interpretability, and related properties.
 
@@ -1074,7 +1074,8 @@ We hope a simple domain of this nature promotes further investigation into predi
 .. [Junhyuk15] Oh, Junhyuk, et al. "Action-conditional video prediction using deep networks in atari games." Advances in Neural Information Processing Systems. 2015.
 .. [Vellido12] Vellido, Alfredo, et al. "Making machine learning models interpretable." ESANN. Vol. 12. 2012.
 .. [Wang16] Wang, Tony, et al. "Or's of And's for Interpretable Classification, with Application to Context-Aware Recommender Systems." Arxiv. 2016.
-    """
+.. [Christiano15] `AI Control <https://medium.com/ai-control/>`_
+"""
 )
 
 add_task(
@@ -1106,7 +1107,7 @@ being interpretable. We don't want bad agents just focusing on predicting their 
 Prior work has studied prediction in reinforcement learning [Junhyuk15]_,
 while other work has explicitly focused on more general notions of interpretability [Maes12]_.
 Outside of reinforcement learning, there is related work on interpretable supervised learning algorithms [Vellido12]_, [Wang16]_.
-Additionally, predicting poor outcomes and summoning human intervention may be an important part of safe exploration [Amodei16]_.
+Additionally, predicting poor outcomes and summoning human intervention may be an important part of safe exploration [Amodei16]_ with oversight [Christiano15]_.
 These predictions may also be useful for penalizing predicted reward hacking [Amodei16]_.
 We hope a simple domain of this nature promotes further investigation into prediction, interpretability, and related properties.
 
@@ -1115,6 +1116,7 @@ We hope a simple domain of this nature promotes further investigation into predi
 .. [Junhyuk15] Oh, Junhyuk, et al. "Action-conditional video prediction using deep networks in atari games." Advances in Neural Information Processing Systems. 2015.
 .. [Vellido12] Vellido, Alfredo, et al. "Making machine learning models interpretable." ESANN. Vol. 12. 2012.
 .. [Wang16] Wang, Tony, et al. "Or's of And's for Interpretable Classification, with Application to Context-Aware Recommender Systems." Arxiv. 2016
+.. [Christiano15] `AI Control <https://medium.com/ai-control/>`_
 """
 )
 
@@ -1237,17 +1239,17 @@ the agent's observed reward is sampled from a Gaussian with mean set to the true
 
     background="""\
 While classic reinforcement learning problems often include stochastic reward functions,
-there is a different notion of noise introduced when a human trainer is providing feedback that is itself noisy:
-there is a true (possibly deterministic) reward function, but the signal is noisy.
+in this setting there is a true (possibly deterministic) reward function, but the signal observed by the agent is noisy.
 The goal of the agent is to maximize the true reward function given just the noisy signal.
 
 Prior work has explored learning algorithms for human training scenarios of this flavor [Lopes11]_.
 
 Robustness to noisy rewards may aid scalable oversight in settings where evaluating
-the true reward signal is expensive or impossible but a noisy approximation is available [Amodei16]_.
+the true reward signal is expensive or impossible but a noisy approximation is available [Amodei16]_, [Christiano15]_.
 
 .. [Amodei16] Amodei, Olah, et al. `"Concrete Problems in AI safety" Arxiv. 2016. <https://arxiv.org/pdf/1606.06565v1.pdf>`_
 .. [Lopes11] Lopes, Manuel, Thomas Cederbourg, and Pierre-Yves Oudeyer. "Simultaneous acquisition of task and feedback models." Development and Learning (ICDL), 2011 IEEE International Conference on. Vol. 2. IEEE, 2011.
+.. [Christiano15] `AI Control <https://medium.com/ai-control/>`_
 """)
 
     # somewhat harder because of higher variance:
@@ -1272,7 +1274,7 @@ uncovering challenging learning problems such as learning from infrequent reward
 codified as learning from implicit feedback.
 By using semi-supervised reinforcement learning,
 an agent will be able to learn from all its experiences even if only a small fraction of them gets judged.
-This may be an important property for scalable oversight of RL systems [Amodei16]_.
+This may be an important property for scalable oversight of RL systems [Amodei16]_, [Christiano15]_.
 
 .. [Amodei16] Amodei, Olah, et al. `"Concrete Problems in AI safety" Arxiv. 2016. <https://arxiv.org/pdf/1606.06565v1.pdf>`_
 .. [Knox09] Knox, W. Bradley, and Peter Stone. "Interactively shaping agents via human reinforcement: The TAMER framework." Proceedings of the fifth international conference on Knowledge capture. ACM, 2009.
@@ -1280,7 +1282,8 @@ This may be an important property for scalable oversight of RL systems [Amodei16
 .. [Daniel14] Daniel, Christian, et al. "Active reward learning." Proceedings of Robotics Science & Systems. 2014.
 .. [Griffith13] Griffith, Shane, et al. "Policy shaping: Integrating human feedback with reinforcement learning." Advances in Neural Information Processing Systems. 2013.
 .. [Loftin15] Loftin, Robert, et al. "A strategy-aware technique for learning behaviors from discrete human feedback." AI Access Foundation. 2014.
-    """
+.. [Christiano15] `AI Control <https://medium.com/ai-control/>`_
+"""
 )
 
     # probably the hardest because you only get a constant number of rewards in total:
@@ -1301,7 +1304,7 @@ though similar issues are studied by the literature on reinforcement learning wi
 as in [Knox09]_, [Knox10]_, [Griffith13]_, and [Daniel14]_.
 Furthermore, [Peng16]_ suggests that humans training artificial agents tend to give lessened rewards over time,
 posing a challenging learning problem.
-Scalable oversight of RL systems may require a solution to this challenge [Amodei16]_.
+Scalable oversight of RL systems may require a solution to this challenge [Amodei16]_, [Christiano15]_.
 
 .. [Amodei16] Amodei, Olah, et al. `"Concrete Problems in AI safety" Arxiv. 2016. <https://arxiv.org/pdf/1606.06565v1.pdf>`_
 .. [Knox09] Knox, W. a Bradley, and Stnone d Pettone. "Interactively shaping agents via hunforcement: The TAMER framework." Proceedings of the fifth international conference on Knowledge capture. ACM, 2009.
@@ -1309,6 +1312,7 @@ Scalable oversight of RL systems may require a solution to this challenge [Amode
 .. [Daniel14] Daniel, Christian, et al. "Active reward learning." Proceedings of Robotics Science & Systems. 2014.
 .. [Peng16] Peng, Bei, et al. "A Need for Speed: Adapting Agent Action Speed to Improve Task Learning from Non-Expert Humans." Proceedings of the 2016 International Conference on Autonomous Agents & Multiagent Systems. International Foundation for Autonomous Agents and Multiagent Systems, 2016.
 .. [Griffith13] Griffith, Shane, et al. "Policy shaping: Integrating human feedback with reinforcement learning." Advances in Neural Information Processing Systems. 2013.
+.. [Christiano15] `AI Control <https://medium.com/ai-control/>`_
 """
 )
 
