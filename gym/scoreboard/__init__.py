@@ -717,16 +717,15 @@ add_task(
 This is a meta map that combines all 9 Doom levels.
 
 Levels:
-
-    0   - Doom Basic
-    1   - Doom Corridor
-    2   - Doom DefendCenter
-    3   - Doom DefendLine
-    4   - Doom HealthGathering
-    5   - Doom MyWayHome
-    6   - Doom PredictPosition
-    7   - Doom TakeCover
-    8   - Doom Deathmatch
+    - #0 Doom Basic
+    - #1 Doom Corridor
+    - #2 Doom DefendCenter
+    - #3 Doom DefendLine
+    - #4 Doom HealthGathering
+    - #5 Doom MyWayHome
+    - #6 Doom PredictPosition
+    - #7 Doom TakeCover
+    - #8 Doom Deathmatch
 
 Goal: 9,000 points
     - Pass all levels
@@ -736,25 +735,6 @@ Scoring:
     - The passing score for a level is 990 (99th percentile)
     - A bonus of 450 (50 * 9 levels) is given if all levels are passed
     - The score for a level is the average of the last 3 tries
-    - If there has been less than 3 tries for a level, the missing tries will have a score of 0
-      (e.g. if you score 1,000 on the first level on your first try, your level score will be (1,000 + 0 + 0) / 3 = 333.33)
-    - The total score is the sum of the level scores, plus the bonus if you passed all levels.
-
-    e.g. List of tries:
-
-    - Level 0: 500
-    - Level 0: 750
-    - Level 0: 800
-    - Level 0: 1,000
-    - Level 1: 100
-    - Level 1: 200
-
-    Level score for level 0 = [1,000 + 800 + 750] / 3 = 850     (Average of last 3 tries)
-    Level score for level 1 = [200 + 100 + 0] / 3 = 100         (Tries not completed have a score of 0)
-    Level score for levels 2 to 8 = 0
-    Bonus score for passing all levels = 0
-    ------------------------
-    Total score = 850 + 100 + 0 + 0 = 950
 """
 )
 
@@ -770,23 +750,23 @@ You are spawned in the center of the longer wall, and a red
 circular monster is spawned randomly on the opposite wall.
 You need to kill the monster (one bullet is enough).
 
-Allowed actions:
-    [0]  - ATTACK                           - Shoot weapon - Values 0 or 1
-    [10] - MOVE_RIGHT                       - Move to the right - Values 0 or 1
-    [11] - MOVE_LEFT                        - Move to the left - Values 0 or 1
+Goal: 10 points
+    - Kill the monster in 3 secs with 1 shot
 
 Rewards:
-    +101    - Killing the monster
-    -  5    - Missing a shot
-    -  1    - 35 times per second - Kill the monster faster!
-
-Goal: 10 points
-    Kill the monster in 3 secs with 1 shot
+    - Plus 101 pts for killing the monster
+    - Minus  5 pts for missing a shot
+    - Minus  1 pts every 0.028 secs
 
 Ends when:
     - Monster is dead
     - Player is dead
     - Timeout (10 seconds - 350 frames)
+
+Allowed actions:
+    - ATTACK
+    - MOVE_RIGHT
+    - MOVE_LEFT
 """
 )
 
@@ -801,26 +781,26 @@ This map is designed to improve your navigation. There is a vest
 at the end of the corridor, with 6 enemies (3 groups of 2). Your goal
 is to get to the vest as soon as possible, without being killed.
 
-Allowed actions:
-    [0]  - ATTACK                           - Shoot weapon - Values 0 or 1
-    [10] - MOVE_RIGHT                       - Move to the right - Values 0 or 1
-    [11] - MOVE_LEFT                        - Move to the left - Values 0 or 1
-    [13] - MOVE_FORWARD                     - Move forward - Values 0 or 1
-    [14] - TURN_RIGHT                       - Turn right - Values 0 or 1
-    [15] - TURN_LEFT                        - Turn left - Values 0 or 1
+Goal: 1,000 points
+    - Reach the vest (or get very close to it)
 
 Rewards:
-    + dX    - For getting closer to the vest
-    - dX    - For getting further from the vest
-    -100    - Penalty for being killed
-
-Goal: 1,000 points
-    Reach the vest (or at least get past the guards in the 3rd group)
+    - Plus distance for getting closer to the vest
+    - Minus distance for getting further from the vest
+    - Minus 100 pts for getting killed
 
 Ends when:
     - Player touches vest
     - Player is dead
     - Timeout (1 minutes - 2,100 frames)
+
+Allowed actions:
+    - ATTACK
+    - MOVE_RIGHT
+    - MOVE_LEFT
+    - MOVE_FORWARD
+    - TURN_RIGHT
+    - TURN_LEFT
 """
 )
 
@@ -839,21 +819,21 @@ The map is a circle with monsters. You are in the middle. Monsters will
 respawn with additional health when killed. Kill as many as you can
 before you run out of ammo.
 
-Allowed actions:
-    [0]  - ATTACK                           - Shoot weapon - Values 0 or 1
-    [14] - TURN_RIGHT                       - Turn right - Values 0 or 1
-    [15] - TURN_LEFT                        - Turn left - Values 0 or 1
+Goal: 10 points
+    - Kill 11 monsters (you have 26 ammo)
 
 Rewards:
-    +  1    - Killing a monster
-    -  1    - Penalty for being killed
-
-Goal: 10 points
-    Kill 11 monsters (you have 26 ammo)
+    - Plus 1 point for killing a monster
+    - Minus 1 point for getting killed
 
 Ends when:
     - Player is dead
     - Timeout (60 seconds - 2100 frames)
+
+Allowed actions:
+    - ATTACK
+    - TURN_RIGHT
+    - TURN_LEFT
 """
 )
 
@@ -872,21 +852,21 @@ The map is a rectangle with monsters on the other side. Monsters will
 respawn with additional health when killed. Kill as many as you can
 before they kill you. This map is harder than the previous.
 
-Allowed actions:
-    [0]  - ATTACK                           - Shoot weapon - Values 0 or 1
-    [14] - TURN_RIGHT                       - Turn right - Values 0 or 1
-    [15] - TURN_LEFT                        - Turn left - Values 0 or 1
+Goal: 15 points
+    - Kill 16 monsters
 
 Rewards:
-    +  1    - Killing a monster
-    -  1    - Penalty for being killed
-
-Goal: 15 points
-    Kill 16 monsters
+    - Plus 1 point for killing a monster
+    - Minus 1 point for getting killed
 
 Ends when:
     - Player is dead
     - Timeout (60 seconds - 2100 frames)
+
+Allowed actions:
+    - ATTACK
+    - TURN_RIGHT
+    - TURN_LEFT
 """
 )
 
@@ -902,21 +882,21 @@ It is a rectangle with green, acidic floor which hurts the player
 periodically. There are also medkits spread around the map, and
 additional kits will spawn at interval.
 
-Allowed actions:
-    [13] - MOVE_FORWARD                     - Move forward - Values 0 or 1
-    [14] - TURN_RIGHT                       - Turn right - Values 0 or 1
-    [15] - TURN_LEFT                        - Turn left - Values 0 or 1
+Goal: 1000 points
+    - Stay alive long enough for approx. 30 secs
 
 Rewards:
-    +  1    - 35 times per second - Survive as long as possible
-    -100    - Death penalty
-
-Goal: 1000 points
-    Stay alive long enough to reach 1,000 points (~ 30 secs)
+    - Plus 1 point every 0.028 secs
+    - Minus 100 pts for dying
 
 Ends when:
     - Player is dead
     - Timeout (60 seconds - 2,100 frames)
+
+Allowed actions:
+    - MOVE_FORWARD
+    - TURN_RIGHT
+    - TURN_LEFT
 """
 )
 
@@ -932,21 +912,21 @@ interconnected rooms and 1 corridor with a dead end. Each room
 has a separate color. There is a green vest in one of the room.
 The vest is always in the same room. Player must find the vest.
 
-Allowed actions:
-    [13] - MOVE_FORWARD                     - Move forward - Values 0 or 1
-    [14] - TURN_RIGHT                       - Turn right - Values 0 or 1
-    [15] - TURN_LEFT                        - Turn left - Values 0 or 1
+Goal: 0.50 point
+    - Find the vest
 
 Rewards:
-    +  1    - Finding the vest
-    -0.0001 - 35 times per second - Find the vest quick!
-
-Goal: 0.50 point
-    Find the vest
+    - Plus 1 point for finding the vest
+    - Minus 0.0001 point every 0.028 secs
 
 Ends when:
     - Vest is found
     - Timeout (1 minutes - 2,100 frames)
+
+Allowed actions:
+    - MOVE_FORWARD
+    - TURN_RIGHT
+    - TURN_LEFT
 """
 )
 
@@ -963,25 +943,24 @@ to use your rocket launcher to kill it. The rocket adds a delay between
 the moment it is fired and the moment it reaches the other side of the room.
 You need to predict the position of the monster to kill it.
 
-Allowed actions:
-    [0]  - ATTACK                           - Shoot weapon - Values 0 or 1
-    [14] - TURN_RIGHT                       - Turn right - Values 0 or 1
-    [15] - TURN_LEFT                        - Turn left - Values 0 or 1
+Goal: 0.5 point
+    - Kill the monster
 
 Rewards:
-    +  1    - Killing the monster
-    -0.0001 - 35 times per second - Kill the monster faster!
-
-Goal: 0.5 point
-    Kill the monster
-
-Hint: Missile launcher takes longer to load. You must wait a good second after the game starts
-    before trying to fire it.
+    - Plus 1 point for killing the monster
+    - Minus 0.0001 point every 0.028 secs
 
 Ends when:
     - Monster is dead
     - Out of missile (you only have one)
     - Timeout (20 seconds - 700 frames)
+
+Hint: Wait 1 sec for the missile launcher to load.
+
+Allowed actions:
+    - ATTACK
+    - TURN_RIGHT
+    - TURN_LEFT
 """
 )
 
@@ -996,19 +975,19 @@ This map is to train you on the damage of incoming missiles.
 It is a rectangular map with monsters firing missiles and fireballs
 at you. You need to survive as long as possible.
 
-Allowed actions:
-    [10] - MOVE_RIGHT                       - Move to the right - Values 0 or 1
-    [11] - MOVE_LEFT                        - Move to the left - Values 0 or 1
+Goal: 750 points
+    - Survive for approx. 20 seconds
 
 Rewards:
-    +  1    - 35 times per second - Survive as long as possible
-
-Goal: 750 points
-    Survive for ~ 20 seconds
+    - Plus 1 point every 0.028 secs
 
 Ends when:
-    - Player is dead (one or two fireballs should be enough to kill you)
+    - Player is dead (1 or 2 fireballs is enough)
     - Timeout (60 seconds - 2,100 frames)
+
+Allowed actions:
+    - MOVE_RIGHT
+    - MOVE_LEFT
 """
 )
 
@@ -1021,18 +1000,18 @@ add_task(
     description="""
 Kill as many monsters as possible without being killed.
 
-Allowed actions:
-    ALL
+Goal: 20 points
+    - Kill 20 monsters
 
 Rewards:
-    +1      - Killing a monster
-
-Goal: 20 points
-    Kill 20 monsters
+    - Plus 1 point for killing a monster
 
 Ends when:
     - Player is dead
     - Timeout (3 minutes - 6,300 frames)
+
+Allowed actions:
+    - ALL
 """
 )
 

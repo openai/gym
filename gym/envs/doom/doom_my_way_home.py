@@ -3,6 +3,7 @@ from gym.envs.doom import doom_env
 
 logger = logging.getLogger(__name__)
 
+
 class DoomMyWayHomeEnv(doom_env.DoomEnv):
     """
     ------------ Training Mission 6 - My Way Home ------------

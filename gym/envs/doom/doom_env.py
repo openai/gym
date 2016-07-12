@@ -1,4 +1,5 @@
-import logging, os
+import logging
+import os
 from time import sleep
 
 import numpy as np
@@ -11,7 +12,8 @@ try:
     import doom_py
     from doom_py import DoomGame, Mode, Button, GameVariable, ScreenFormat, ScreenResolution, Loader
 except ImportError as e:
-    raise gym.error.DependencyNotInstalled("{}. (HINT: you can install Doom dependencies with 'pip install gym[doom].)'".format(e))
+    raise gym.error.DependencyNotInstalled("{}. (HINT: you can install Doom dependencies " +
+                                           "with 'pip install gym[doom].)'".format(e))
 
 logger = logging.getLogger(__name__)
 
@@ -28,16 +30,17 @@ TARGET_SCORE = 6
 
 # Format (config, scenario, map, difficulty, actions, min, target)
 DOOM_SETTINGS = [
-    ['basic.cfg', 'basic.wad', 'map01', 5, [0, 10, 11], -485, 10],                                  # 0 - Basic
-    ['deadly_corridor.cfg', 'deadly_corridor.wad', '', 1, [0, 10, 11, 13, 14, 15], -120, 1000],     # 1 - Corridor
-    ['defend_the_center.cfg', 'defend_the_center.wad', '', 5, [0, 14, 15], -1, 10],                 # 2 - DefendCenter
-    ['defend_the_line.cfg', 'defend_the_line.wad', '', 5, [0, 14, 15], -1, 15],                     # 3 - DefendLine
-    ['health_gathering.cfg', 'health_gathering.wad', 'map01', 5, [13, 14, 15], 0, 1000],            # 4 - HealthGathering
-    ['my_way_home.cfg', 'my_way_home.wad', '', 5, [13, 14, 15], -0.22, 0.5],                        # 5 - MyWayHome
-    ['predict_position.cfg', 'predict_position.wad', 'map01', 3, [0, 14, 15], -0.075, 0.5],         # 6 - PredictPosition
-    ['take_cover.cfg', 'take_cover.wad', 'map01', 5, [10, 11], 0, 750],                             # 7 - TakeCover
-    ['deathmatch.cfg', 'deathmatch.wad', '', 5, list(range(NUM_ACTIONS)), 0, 20]                    # 8 - Deathmatch
+    ['basic.cfg', 'basic.wad', 'map01', 5, [0, 10, 11], -485, 10],                               # 0 - Basic
+    ['deadly_corridor.cfg', 'deadly_corridor.wad', '', 1, [0, 10, 11, 13, 14, 15], -120, 1000],  # 1 - Corridor
+    ['defend_the_center.cfg', 'defend_the_center.wad', '', 5, [0, 14, 15], -1, 10],              # 2 - DefendCenter
+    ['defend_the_line.cfg', 'defend_the_line.wad', '', 5, [0, 14, 15], -1, 15],                  # 3 - DefendLine
+    ['health_gathering.cfg', 'health_gathering.wad', 'map01', 5, [13, 14, 15], 0, 1000],         # 4 - HealthGathering
+    ['my_way_home.cfg', 'my_way_home.wad', '', 5, [13, 14, 15], -0.22, 0.5],                     # 5 - MyWayHome
+    ['predict_position.cfg', 'predict_position.wad', 'map01', 3, [0, 14, 15], -0.075, 0.5],      # 6 - PredictPosition
+    ['take_cover.cfg', 'take_cover.wad', 'map01', 5, [10, 11], 0, 750],                          # 7 - TakeCover
+    ['deathmatch.cfg', 'deathmatch.wad', '', 5, list(range(NUM_ACTIONS)), 0, 20]                 # 8 - Deathmatch
 ]
+
 
 class DoomEnv(gym.Env, utils.EzPickle):
     metadata = {'render.modes': ['human', 'rgb_array'], 'video.frames_per_second': 35}
@@ -53,8 +56,7 @@ class DoomEnv(gym.Env, utils.EzPickle):
         self.no_render = False                      # To disable double rendering in human mode
         self.viewer = None
         self.is_initialized = False                 # Indicates that reset() has been called
-        self.find_new_level = False                 # Indicates that we need a level change
-        self.curr_seed  = 0
+        self.curr_seed = 0
         self.action_space = spaces.HighLow(
             np.matrix([[0, 1, 0]] * 38 + [[-10, 10, 0]] * 2 + [[-100, 100, 0]] * 3, dtype=np.int8))
         self.allowed_actions = list(range(NUM_ACTIONS))
@@ -186,7 +188,8 @@ class DoomEnv(gym.Env, utils.EzPickle):
                 self.viewer = None      # If we don't None out this reference pyglet becomes unhappy
             return
         try:
-            if 'human' == mode and self.no_render: return
+            if 'human' == mode and self.no_render:
+                return
             state = self.game.get_state()
             img = state.image_buffer
             # VizDoom returns None if the episode is finished, let's make it
@@ -203,19 +206,21 @@ class DoomEnv(gym.Env, utils.EzPickle):
                 if 'normal' == self.mode:
                     sleep(0.02857)  # 35 fps = 0.02857 sleep between frames
         except doom_py.vizdoom.ViZDoomIsNotRunningException:
-            pass # Doom has been closed
+            pass  # Doom has been closed
 
     def _close(self):
         self.game.close()
 
     def _seed(self, seed=None):
         self.curr_seed = seeding.hash_seed(seed) % 2 ** 32
-        return [ self.curr_seed ]
+        return [self.curr_seed]
 
     def _get_game_variables(self, state_variables):
-        info = {}
-        info["LEVEL"] = self.level
-        if state_variables is None: return info
+        info = {
+            "LEVEL": self.level
+        }
+        if state_variables is None:
+            return info
         info['KILLCOUNT'] = state_variables[0]
         info['ITEMCOUNT'] = state_variables[1]
         info['SECRETCOUNT'] = state_variables[2]
@@ -240,6 +245,7 @@ class DoomEnv(gym.Env, utils.EzPickle):
         info['AMMO0'] = state_variables[21]
         return info
 
+
 class MetaDoomEnv(DoomEnv):
 
     def __init__(self, average_over=10, passing_grade=600, min_tries_for_avg=5):
@@ -251,6 +257,7 @@ class MetaDoomEnv(DoomEnv):
         self.locked_levels = [True] * NUM_LEVELS                # Locking all levels but the first
         self.locked_levels[0] = False
         self.total_reward = 0
+        self.find_new_level = False                             # Indicates that we need a level change
         self._unlock_levels()
 
     def _play_human_mode(self):
@@ -314,8 +321,8 @@ class MetaDoomEnv(DoomEnv):
 
     def _get_standard_reward(self, episode_reward):
         # Returns a standardized reward for an episode (i.e. between 0 and 1,000)
-        min_score = DOOM_SETTINGS[self.level][MIN_SCORE]
-        target_score = DOOM_SETTINGS[self.level][TARGET_SCORE]
+        min_score = float(DOOM_SETTINGS[self.level][MIN_SCORE])
+        target_score = float(DOOM_SETTINGS[self.level][TARGET_SCORE])
         max_score = min_score + (target_score - min_score) / 0.99           # Target is 99th percentile (Scale 0-1000)
         std_reward = round(1000 * (episode_reward - min_score) / (max_score - min_score), 4)
         std_reward = min(1000, std_reward)                                  # Cannot be more than 1,000
