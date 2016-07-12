@@ -379,6 +379,7 @@ class MetaDoomEnv(DoomEnv):
         # Changing level
         if self.find_new_level:
             self.change_level()
+        is_new_level = (0 == self.scores[self.level][0])
 
         if 'human' == self.mode:
             self._play_human_mode()
@@ -389,6 +390,10 @@ class MetaDoomEnv(DoomEnv):
         else:
             obs, step_reward, is_finished, info = super(MetaDoomEnv, self)._step(action)
             reward, self.total_reward = self._calculate_reward(self.game.get_total_reward(), self.total_reward)
+            # First step() after new episode returns the entire total reward
+            # because stats_recorder resets the episode score to 0 after reset() is called
+            if is_new_level:
+                reward = self.total_reward
 
         info["SCORES"] = self.get_scores()
         info["TOTAL_REWARD"] = round(self.total_reward, 4)
