@@ -2,7 +2,7 @@
 
 ###Install ROS-Indigo
 
-Ubuntu: Follow http://wiki.ros.org/indigo/Installation/Ubuntu
+Ubuntu: http://wiki.ros.org/indigo/Installation/Ubuntu
 
 Others: http://wiki.ros.org/indigo/Installation 
 
