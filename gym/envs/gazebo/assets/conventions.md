@@ -1,7 +1,7 @@
 #Gazebo conventions
 
 ##Environment naming
-Gazebo\<World\>\<Robot\>\<Sensors\>.v\<version\>
+Gazebo\<World\>\<Robot\>\<Sensors\>-v\<version\>
 
 * World: Descriptive name of the world or main model starting with capital letter.
 
@@ -13,4 +13,4 @@ Gazebo\<World\>\<Robot\>\<Sensors\>.v\<version\>
 
 Examples:
 
-GazeboTurtlebotLidar_v0, GazeboTurtlebotLidar_v1, GazeboKobukiLidar-Camera-DepthSensor_v0
+GazeboTurtlebotLidar-v0, GazeboTurtlebotLidar-v1, GazeboKobukiLidar-Camera-DepthSensor-v0
