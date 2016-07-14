@@ -1223,9 +1223,12 @@ The goal of the agent is to maximize the true reward function given just the noi
 
 Prior work has explored learning algorithms for human training scenarios of this flavor [Lopes11]_.
 
+Additionally, Baird and others have noted the relationship between update noise, timestep size, and convergence rate for Q-learners [Baird94]_.
+
 Robustness to noisy rewards may aid scalable oversight in settings where evaluating
 the true reward signal is expensive or impossible but a noisy approximation is available [Amodei16]_, [Christiano15]_.
 
+.. [Baird94] Baird, Leemon C. "Reinforcement learning in continuous time: Advantage updating." Neural Networks, 1994. IEEE World Congress on Computational Intelligence., 1994 IEEE International Conference on. Vol. 4. IEEE, 1994.
 .. [Amodei16] Amodei, Olah, et al. `"Concrete Problems in AI safety" Arxiv. 2016. <https://arxiv.org/pdf/1606.06565v1.pdf>`_
 .. [Lopes11] Lopes, Manuel, Thomas Cederbourg, and Pierre-Yves Oudeyer. "Simultaneous acquisition of task and feedback models." Development and Learning (ICDL), 2011 IEEE International Conference on. Vol. 2. IEEE, 2011.
 .. [Christiano15] `AI Control <https://medium.com/ai-control/>`_
