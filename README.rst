@@ -310,6 +310,7 @@ Gazebo physics simulator environment commonly used for robotics.
 	  env.reset()
 	  env.render()
 
+Check Gazebo `conventions <https://github.com/openai/gym/blob/master/gym/envs/gazebo/>`_ to create new environments.
 
 Examples
 ========
