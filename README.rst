@@ -158,12 +158,12 @@ maintain the lists of dependencies on a per-environment group basis.
 Installing the Gazebo environment
 ------------------------------------------------------
 
-### ROS Indigo
+**ROS Indigo**
 Install the Robot Operating System via:
 - Ubuntu: http://wiki.ros.org/indigo/Installation/Ubuntu
 - Others: http://wiki.ros.org/indigo/Installation 
 
-### Gazebo
+**Gazebo**
 
 1. Setup your computer to accept software from packages.osrfoundation.org.
 '''
@@ -303,7 +303,7 @@ Toy environments which are text-based. There's no extra dependency to install, s
 Gazebo
 --------
 
-Gazebo physics simulator environment commonly used for robotics. To install this environment follow the [install instructions](#installing-the-gazebo-environment).
+Gazebo physics simulator environment commonly used for robotics.
 
 .. code:: python
 
