@@ -3,6 +3,7 @@ from gym.envs.doom import doom_env
 
 logger = logging.getLogger(__name__)
 
+
 class DoomDeathmatchEnv(doom_env.DoomEnv):
     """
     ------------ Final Mission - Deathmatch ------------

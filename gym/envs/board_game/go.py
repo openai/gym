@@ -157,12 +157,15 @@ class GoEnv(gym.Env):
 
         if self.observation_type != 'image3c':
             raise error.Error('Unsupported observation type: {}'.format(self.observation_type))
-        self.reset()
 
         shape = pachi_py.CreateBoard(self.board_size).encode().shape
         self.observation_space = spaces.Box(np.zeros(shape), np.ones(shape))
         # One action for each board position, pass, and resign
         self.action_space = spaces.Discrete(self.board_size**2 + 2)
+
+        # Filled in by _reset()
+        self.state = None
+        self.done = True
 
     def _seed(self, seed=None):
         self.np_random, seed1 = seeding.np_random(seed)
@@ -189,6 +192,10 @@ class GoEnv(gym.Env):
 
         self.done = self.state.board.is_terminal or opponent_resigned
         return self.state.board.encode()
+
+    def _close(self):
+        self.opponent_policy = None
+        self.state = None
 
     def _render(self, mode="human", close=False):
         if close:

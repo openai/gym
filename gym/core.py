@@ -51,7 +51,6 @@ class Env(object):
         env = super(Env, cls).__new__(cls)
         env._env_closer_id = env_closer.register(env)
         env._closed = False
-        env._action_warned = False
         env._configured = False
 
         # Will be automatically set when creating an environment via 'make'
@@ -112,11 +111,6 @@ class Env(object):
             done (boolean): whether the episode has ended, in which case further step() calls will return undefined results
             info (dict): contains auxiliary diagnostic information (helpful for debugging, and sometimes learning)
         """
-        check_bounds = self.metadata.get('step.check_bounds', True)
-        if check_bounds and not self._action_warned and not self.action_space.contains(action):
-            self._action_warned = True
-            logger.warn("Action '{}' is not contained within action space '{}'.".format(action, self.action_space))
-
         self.monitor._before_step(action)
         observation, reward, done, info = self._step(action)
 
@@ -232,11 +226,6 @@ class Env(object):
         """
 
         self._configured = True
-
-        # Whether to warn if action or observation exceed limits. Turning this
-        # off can give a significant performance boost (20-50%) when observation
-        # spaces or action spaces are large (e.g. images)
-        self.metadata['step.check_bounds'] = kwargs.pop('check_bounds', True)
         return self._configure(*args, **kwargs)
 
     def __del__(self):
