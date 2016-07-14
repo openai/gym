@@ -193,10 +193,12 @@ Install the Robot Operating System via:
 	gazebo
 
 **Dependencies**
+
 Install dependencies running `gazebo_dependencies.sh
 <https://github.com/openai/gym/blob/master/gym/envs/gazebo/installation/gazebo_dependencies.sh>`_.
 
 .. code:: bash
+
 	./gazebo_dependencies.sh
 
 Environments
