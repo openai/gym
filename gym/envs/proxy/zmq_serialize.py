@@ -35,7 +35,7 @@ def dump_msg(msg):
     """
     parts = [None]
     msg1 = _dump_msg1(msg, parts)
-    parts[0] = ujson.dumps(msg1)
+    parts[0] = ujson.dumps(msg1, escape_forward_slashes=False)
     return parts
 
 def _dump_msg1(o, parts):
