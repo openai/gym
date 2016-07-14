@@ -1,0 +1,125 @@
+repositories:
+  ar_track_alvar:
+    type: git
+    url: https://github.com/sniekum/ar_track_alvar
+    version: indigo-devel
+  ar_track_alvar_msgs:
+    type: git
+    url: https://github.com/sniekum/ar_track_alvar_msgs
+    version: indigo-devel
+  catkin_simple:
+    type: git
+    url: https://github.com/catkin/catkin_simple.git
+    version: master
+  control_toolbox:
+    type: git
+    url: https://github.com/ros-controls/control_toolbox.git
+    version: indigo-devel
+  ecl_core:
+    type: git
+    url: https://github.com/stonier/ecl_core
+    version: indigo-devel
+  ecl_lite:
+    type: git
+    url: https://github.com/stonier/ecl_lite
+    version: indigo-stable
+  ecl_navigation:
+    type: git
+    url: https://github.com/stonier/ecl_navigation
+    version: indigo-stable
+  ecl_tools:
+    type: git
+    url: https://github.com/stonier/ecl_tools
+    version: indigo-stable
+  gazebo_ros_pkgs:
+    type: git
+    url: https://github.com/ros-simulation/gazebo_ros_pkgs
+    version: indigo-devel
+  glog_catkin:
+    type: git
+    url: https://github.com/ethz-asl/glog_catkin.git
+    version: master
+  hector_gazebo:
+    type: git
+    url: https://github.com/tu-darmstadt-ros-pkg/hector_gazebo/
+    version: indigo-devel
+  joystick_drivers:
+    type: git
+    url: https://github.com/ros-drivers/joystick_drivers.git
+    version: indigo-devel
+  kobuki:
+    type: git
+    url: https://github.com/yujinrobot/kobuki
+    version: indigo
+  kobuki_core:
+    type: git
+    url: https://github.com/yujinrobot/kobuki_core
+    version: indigo
+  kobuki_desktop:
+    type: git
+    url: https://github.com/yujinrobot/kobuki_desktop
+    version: indigo
+  kobuki_msgs:
+    type: git
+    url: https://github.com/yujinrobot/kobuki_msgs
+    version: indigo
+  navigation:
+    type: git
+    url: https://github.com/ros-planning/navigation
+    version: indigo-devel
+  python_qt_binding:
+    type: git
+    url: https://github.com/ros-visualization/python_qt_binding
+    version: groovy-devel
+  qt_gui_core:
+    type: git
+    url: https://github.com/ros-visualization/qt_gui_core
+    version: groovy-devel
+  realtime_tools:
+    type: git
+    url: https://github.com/ros-controls/realtime_tools
+    version: indigo-devel
+  ros_control:
+    type: git
+    url: https://github.com/ros-controls/ros_control
+    version: indigo-devel
+  roslint:
+    type: git
+    url: https://github.com/ros/roslint
+    version: master
+  rqt:
+    type: git
+    url: https://github.com/ros-visualization/rqt
+    version: groovy-devel
+  rqt_common_plugins:
+    type: git
+    url: https://github.com/ros-visualization/rqt_common_plugins
+    version: master
+  rqt_robot_plugins:
+    type: git
+    url: https://github.com/ros-visualization/rqt_robot_plugins
+    version: master
+  turtlebot:
+    type: git
+    url: https://github.com/turtlebot/turtlebot
+    version: indigo
+  turtlebot_create:
+    type: git
+    url: https://github.com/turtlebot/turtlebot_create
+    version: indigo
+  turtlebot_simulator:
+    type: git
+    url: https://github.com/turtlebot/turtlebot_simulator
+    version: indigo
+  xacro:
+    type: git
+    url: https://github.com/ros/xacro
+    version: indigo-devel
+  yocs_msgs:
+    type: git
+    url: https://github.com/yujinrobot/yocs_msgs
+    version: indigo
+  yujin_ocs:
+    type: git
+    url: https://github.com/yujinrobot/yujin_ocs
+    version: indigo
