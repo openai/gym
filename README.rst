@@ -178,12 +178,13 @@ Install the Robot Operating System via:
 
 **Dependencies**
 
-Install dependencies running `gazebo_dependencies.sh
-<https://github.com/openai/gym/blob/master/gym/envs/gazebo/installation/gazebo_dependencies.sh>`_.
+Install dependencies running `setup.bash
+<gym/envs/gazebo/installation/setup.bash>`_.
 
 .. code:: bash
 
-	./gazebo_dependencies.sh
+	cd gym/envs/gazebo/installation
+	./setup.bash
 
 Environments
 ============
@@ -310,7 +311,7 @@ Gazebo physics simulator environment commonly used for robotics.
 	  env.reset()
 	  env.render()
 
-Check Gazebo `conventions <https://github.com/openai/gym/blob/master/gym/envs/gazebo/assets/conventions.md/>`_ to create new environments.
+Check Gazebo `conventions <gym/envs/gazebo/assets/conventions.md/>`_ to create new environments.
 
 Examples
 ========
