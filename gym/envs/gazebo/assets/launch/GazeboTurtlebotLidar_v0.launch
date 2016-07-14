@@ -36,3 +36,4 @@
     <remap from="scan" to="/scan"/>
   </node>
 </launch>
+
