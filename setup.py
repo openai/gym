@@ -36,6 +36,6 @@ setup(name='gym',
           'mujoco': ['mujoco_py>=0.4.3', 'imageio'],
           'parameter_tuning': ['keras', 'theano'],
       },
-      package_data={'gym': ['envs/mujoco/assets/*.xml', 'envs/classic_control/assets/*.png', 'envs/doom/assets/*.cfg']},
+      package_data={'gym': ['envs/mujoco/assets/*.xml', 'envs/classic_control/assets/*.png', 'envs/doom/assets/*.cfg', 'envs/gazebo/assets/launch/*.launch', 'envs/gazebo/assets/models/*', 'envs/gazebo/assets/worlds/*']},
       tests_require=['nose2', 'mock'],
 )
