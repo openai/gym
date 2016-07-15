@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 source /opt/ros/indigo/setup.bash
 
@@ -29,7 +29,6 @@ cd ..
 source devel_isolated/setup.bash
 catkin_make_isolated
 
-# Do not exit once the job is finished
-#exit 0
+exit 0
 
 
