@@ -5,7 +5,9 @@ import os
 import subprocess
 
 from os import path
+
 from std_srvs.srv import Empty
+
 
 class GazeboEnv(gym.Env):
     """Superclass for all Gazebo environments.
@@ -80,7 +82,19 @@ class GazeboEnv(gym.Env):
 
         # TODO
         # From OpenAI API: Perform any necessary cleanup
-        pass
+        tmp = os.popen("ps -Af").read()
+        gzclient_count = tmp.count('gzclient')
+        gzserver_count = tmp.count('gzserver')
+        roscore_count = tmp.count('roscore')
+
+        if gzclient_count > 0:
+            subprocess.Popen("kill `pidof gzclient`")
+        if gzserver_count > 0:
+            subprocess.Popen("kill `pidof gzserver`")
+        if roscore_count > 0:
+            subprocess.Popen("kill `pidof roscore`")
+
+
     def _configure(self):
 
         # TODO
