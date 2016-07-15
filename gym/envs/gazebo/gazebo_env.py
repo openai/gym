@@ -16,6 +16,9 @@ class GazeboEnv(gym.Env):
     
     def __init__(self, launchfile):
 
+        #start roscore
+        subprocess.Popen("roscore")
+
         # Launch the simulation with the given launchfile name
         rospy.init_node('gym', anonymous=True)
 
@@ -66,7 +69,7 @@ class GazeboEnv(gym.Env):
             tmp = os.popen("ps -Af").read()
             proccount = tmp.count('gzclient')
             if proccount > 0:
-                subprocess.call("kill `pidof gzclient`")
+                os.system("killall -9 gzclient")
             else:
                 print "gzclient is not running"
             return
@@ -74,7 +77,7 @@ class GazeboEnv(gym.Env):
         tmp = os.popen("ps -Af").read()
         proccount = tmp.count('gzclient')
         if proccount < 1:
-            subprocess.call("gzclient")
+            subprocess.Popen("gzclient")
         else:
             print "gzclient already running"
 
@@ -86,13 +89,16 @@ class GazeboEnv(gym.Env):
         gzclient_count = tmp.count('gzclient')
         gzserver_count = tmp.count('gzserver')
         roscore_count = tmp.count('roscore')
+        rosmaster_count = tmp.count('rosmaster')
 
         if gzclient_count > 0:
-            subprocess.call("kill `pidof gzclient`")
+            os.system("killall -9 gzclient")
         if gzserver_count > 0:
-            subprocess.call("kill `pidof gzserver`")
+            os.system("killall -9 gzserver")
+        if rosmaster_count > 0:
+            os.system("killall -9 rosmaster")
         if roscore_count > 0:
-            subprocess.call("kill `pidof roscore`")
+            os.system("killall -9 roscore")
 
 
     def _configure(self):

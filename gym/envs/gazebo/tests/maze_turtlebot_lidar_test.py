@@ -1,4 +1,20 @@
 import gym
+import time
 
-if __name__ == '__main__':
-    env = gym.make('GazeboMazeTurtlebotLidar-v0')
+env = gym.make('GazeboMazeTurtlebotLidar-v0')
+
+time.sleep(5)
+
+print "Render starting"
+env.render()
+
+time.sleep(1)
+env.reset()
+print "reset simulation"
+
+time.sleep(1)
+print "Render starting"
+env.render(close=True)
+
+
+env.close()
