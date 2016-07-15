@@ -32,22 +32,15 @@ class GazeboEnv(gym.Env):
 
         print "Gazebo launched!"
 
-    def _spawn_robot(self):
-
-        # TODO
-        # Spawn robot
-        # Optional
-        # Another option is to spawn the robot in the __init__ method
-        pass
-
     def _step(self, action):
 
-        # TODO
+        # Implement this method in every subclass
         # Perform a step in gazebo. E.g. move the robot
-        pass
+        raise NotImplementedError
+
     def _reset(self):
 
-        # TODO
+        # Resets the state of the environment and returns an initial observation.
         rospy.wait_for_service('/gazebo/reset_simulation')
         try:
             reset_proxy = rospy.ServiceProxy('/gazebo/reset_simulation', Empty)
@@ -58,7 +51,8 @@ class GazeboEnv(gym.Env):
 
     def _render(self, mode="human", close=False):
 
-        # Open GUI
+        # Open/Close GUI
+
         if close:
             #Close gzclient
             tmp = os.popen("ps -Af").read()
@@ -78,8 +72,7 @@ class GazeboEnv(gym.Env):
 
     def _close(self):
 
-        # TODO
-        # From OpenAI API: Perform any necessary cleanup
+        # Kill gzclient, gzserver and roscore
         tmp = os.popen("ps -Af").read()
         gzclient_count = tmp.count('gzclient')
         gzserver_count = tmp.count('gzserver')
