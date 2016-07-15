@@ -47,13 +47,34 @@ class GazeboEnv(gym.Env):
     def _reset(self):
 
         # TODO
-        # Reset world/simulation
-        pass
-    def _render(self, episodes):
+        node.wait_for_service('/gazebo/reset_simulation')
+        try:
+            reset_proxy = node.ServiceProxy('/gazebo/reset_simulation', Empty)
+            reset_proxy.call()
+        except rospy.ServiceException, e:
+            print "/gazebo/reset_simulation service call failed"
 
-        # Open GUI (if it's not allready opened?)
-        # episodes = number of episodes that GUI is going to be opened. Another option is to use _close to close the gui
-        pass
+
+    def _render(self, close=False):
+
+        # Open GUI
+        if close:
+            #Close gzclient
+            tmp = os.popen("ps -Af").read()
+            proccount = tmp.count('gzclient')
+            if proccount > 0:
+                subprocess.Popen("kill `pidof gzclient`", stdout=subprocess.PIPE, shell=True)
+            else:
+                print "gzclient is not running"
+            return
+
+        tmp = os.popen("ps -Af").read()
+        proccount = tmp.count('gzclient')
+        if proccount < 1:
+            subprocess.Popen("gzclient", stdout=subprocess.PIPE, shell=True)
+        else:
+            print "gzclient already running"
+
     def _close(self):
 
         # TODO
