@@ -482,17 +482,7 @@ register(
 
 # Example envs
 register(
-    id='MazeKobukiWithLaser-v0',
-    entry_point='gym.envs.gazebo:MazeKobukiWithLaser',
-    timestep_limit=200, # Just an example
-    reward_threshold=10, # Just an example
-    # More arguments here
-)
-
-register(
-    id='MazeTurtlebotWithLaser-v0',
-    entry_point='gym.envs.gazebo:MazeTurtlebotWithLaser',
-    timestep_limit=200, # Just an example
-    reward_threshold=10, # Just an example
+    id='GazeboMazeTurtlebotLidar-v0',
+    entry_point='gym.envs.gazebo:GazeboMazeTurtlebotLidarEnv',
     # More arguments here
 )
