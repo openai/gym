@@ -29,6 +29,7 @@ cd ..
 source devel_isolated/setup.bash
 catkin_make_isolated
 
-exit 0
+# Do not exit once the job is finished
+#exit 0
 
 
