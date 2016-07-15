@@ -1,26 +1,14 @@
 import gym
 import rospy
 import roslaunch
+from gym.envs.gazebo import gazebo_env
 
+class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
 
-class GazeboEnv(gym.Env):
-
-	def __init__(self, launchfile_path):
+	def __init__(self):
 
 		# Launch the simulation with the given launchfile name
-		this.node = rospy.init_node('gym', anonymous=True)
-
-		if model_path.startswith("/"):
-            fullpath = launchfile_path
-        else:
-            fullpath = os.path.join(os.path.dirname(__file__), "assets/launch", launchfile_path)
-        if not path.exists(fullpath):
-            raise IOError("File %s does not exist"%fullpath)
-
-		this.uuid = roslaunch.rlutitl.get_or_generate_uuid(None, False)
-		this.launch = roslaunch.parent.ROSLaunchParent(uuid, fullpath)
-		launch.start()
-
+		
 
 	def _spawn_robot(self):
 
