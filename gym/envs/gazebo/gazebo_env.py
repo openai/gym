@@ -64,7 +64,7 @@ class GazeboEnv(gym.Env):
             tmp = os.popen("ps -Af").read()
             proccount = tmp.count('gzclient')
             if proccount > 0:
-                subprocess.Popen("kill `pidof gzclient`", stdout=subprocess.PIPE, shell=True)
+                subprocess.call("kill `pidof gzclient`")
             else:
                 print "gzclient is not running"
             return
@@ -72,7 +72,7 @@ class GazeboEnv(gym.Env):
         tmp = os.popen("ps -Af").read()
         proccount = tmp.count('gzclient')
         if proccount < 1:
-            subprocess.Popen("gzclient", stdout=subprocess.PIPE, shell=True)
+            subprocess.call("gzclient")
         else:
             print "gzclient already running"
 
@@ -86,11 +86,11 @@ class GazeboEnv(gym.Env):
         roscore_count = tmp.count('roscore')
 
         if gzclient_count > 0:
-            subprocess.Popen("kill `pidof gzclient`")
+            subprocess.call("kill `pidof gzclient`")
         if gzserver_count > 0:
-            subprocess.Popen("kill `pidof gzserver`")
+            subprocess.call("kill `pidof gzserver`")
         if roscore_count > 0:
-            subprocess.Popen("kill `pidof roscore`")
+            subprocess.call("kill `pidof roscore`")
 
 
     def _configure(self):
