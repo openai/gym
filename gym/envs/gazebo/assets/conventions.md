@@ -13,4 +13,4 @@ Gazebo\<World\>\<Robot\>\<Sensors\>-v\<version\>
 
 Examples:
 
-GazeboTurtlebotLidar-v0, GazeboTurtlebotLidar-v1, GazeboKobukiLidar-Camera-DepthSensor-v0
+GazeboMazeTurtlebotLidar-v0, GazeboMazeTurtlebotLidar-v1, GazeboCircuitKobukiLidar-Camera-DepthSensor-v0
