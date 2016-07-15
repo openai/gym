@@ -10,7 +10,8 @@ class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
         # Launch the simulation with the given launchfile name
         gazebo_env.GazeboEnv.__init__(self, "GazeboMazeTurtlebotLidar_v0.launch")
 
-    def _spawn_robot(self):
+    
+    '''def _spawn_robot(self):
 
         # TODO
         # Spawn robot
@@ -31,7 +32,8 @@ class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
 
         # Open GUI (if it's not allready opened?)
         # episodes = number of episodes that GUI is going to be opened. Another option is to use _close to close the gui
-        pass
+        super(GazeboMazeTurtlebotLidarEnv, self)._render()
+
     def _close(self):
 
         # TODO
@@ -48,3 +50,4 @@ class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
         # TODO
         # From OpenAI API: Sets the seed for this env's random number generator(s)  
         pass
+'''
