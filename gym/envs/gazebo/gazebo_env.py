@@ -5,15 +5,17 @@ import os
 import subprocess
 
 from os import path
+from std_srvs.srv import Empty
 
 class GazeboEnv(gym.Env):
     """Superclass for all Gazebo environments.
     """
-    
+    metadata = {'render.modes': ['human']}
+
     def __init__(self, launchfile):
 
         # Launch the simulation with the given launchfile name
-        self.node = rospy.init_node('gym', anonymous=True)
+        rospy.init_node('gym', anonymous=True)
 
         if launchfile.startswith("/"):
             fullpath = launchfile
@@ -46,15 +48,15 @@ class GazeboEnv(gym.Env):
     def _reset(self):
 
         # TODO
-        node.wait_for_service('/gazebo/reset_simulation')
+        rospy.wait_for_service('/gazebo/reset_simulation')
         try:
-            reset_proxy = node.ServiceProxy('/gazebo/reset_simulation', Empty)
+            reset_proxy = rospy.ServiceProxy('/gazebo/reset_simulation', Empty)
             reset_proxy.call()
         except rospy.ServiceException, e:
             print "/gazebo/reset_simulation service call failed"
 
 
-    def _render(self, close=False):
+    def _render(self, mode="human", close=False):
 
         # Open GUI
         if close:
@@ -98,7 +100,7 @@ class GazeboEnv(gym.Env):
         # Maybe set the Real Time Factor?
         pass
     def _seed(self):
-        
+
         # TODO
-        # From OpenAI API: Sets the seed for this env's random number generator(s)  
+        # From OpenAI API: Sets the seed for this env's random number generator(s)
         pass
