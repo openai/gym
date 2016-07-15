@@ -41,7 +41,7 @@ class GazeboEnv(gym.Env):
 
         # Implement this method in every subclass
         # Perform a step in gazebo. E.g. move the robot
-        raise NotImplementedError
+        pass
 
     def _reset(self):
 
