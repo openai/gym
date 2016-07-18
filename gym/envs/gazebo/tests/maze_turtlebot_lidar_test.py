@@ -62,17 +62,19 @@ for x in range(3000):
     done = False
     env.reset()
 
-    #Show render every 200 steps for 50 iterations
-    print "Iteration: "+str(x)
-    if (x%100 == 0) and (x != 0):
+    render_interval = 5 #Show render Every X episodes.
+    render_episodes = 2 #Show Y episodes every rendering.
+
+    print "Episode: "+str(x)
+    if (x%render_interval == 0) and (x != 0):
         print "starting render"
         env.render()
-    elif (x%50 == 0) and (x != 0) and (x != 50):
+    elif (x%(render_interval+render_episodes) == 0) and (x != 0):
         print "closing render"
         env.render(close=True)
 
 
-    for i in range(500):
+    for i in range(200):
 
         #action = env.action_space.sample() #not implemented
         #observation, reward, done, info = env.step(action)
