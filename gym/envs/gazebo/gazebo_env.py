@@ -30,12 +30,8 @@ class GazeboEnv(gym.Env):
         if not path.exists(fullpath):
             raise IOError("File "+fullpath+" does not exist")
 
-        #uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
-        #launch = roslaunch.parent.ROSLaunchParent(uuid, fullpath)
-        #launch.start()
-
         subprocess.Popen(["roslaunch",fullpath])
-        print "Gazebo launched!"
+        print "Gazebo launched!"        
 
     def _step(self, action):
 
