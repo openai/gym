@@ -29,7 +29,9 @@ sudo apt-get install git                            \
                      pyqt4-dev-tools                \
                      python-vcstool                 \
                      ros-indigo-bfl
-
+sudo apt-get python-pip
+sudo pip install numpy --upgrade
+sudo pip install pandas
 # Import and build dependencies
 vcs import < ../../gazebo.repos
 echo 'SET(CMAKE_CXX_FLAGS "-std=c++11")' >> kobuki_desktop/kobuki_gazebo_plugins/CMakeLists.txt
