@@ -39,6 +39,8 @@ cd ..
 source devel_isolated/setup.bash
 catkin_make_isolated
 
-exit 0
+#Load turtlebot variables. Temporal solution
+chmod +x $src/turtlebot_simulator/turtlebot_gazebo/env-hooks/25.turtlebot-gazebo.sh.em
+bash $src/turtlebot_simulator/turtlebot_gazebo/env-hooks/25.turtlebot-gazebo.sh.em
 
-
+#exit 0
