@@ -7,6 +7,10 @@ repositories:
     type: git
     url: https://github.com/sniekum/ar_track_alvar_msgs
     version: indigo-devel
+  camera_info_manager:
+    type: git
+    url: https://github.com/ros-perception/image_common.git
+    version: hydro-devel
   catkin_simple:
     type: git
     url: https://github.com/catkin/catkin_simple.git
@@ -14,6 +18,10 @@ repositories:
   control_toolbox:
     type: git
     url: https://github.com/ros-controls/control_toolbox.git
+    version: indigo-devel
+  driver_base:
+    type: git
+    url: https://github.com/ros-drivers/driver_common.git
     version: indigo-devel
   ecl_core:
     type: git
@@ -67,6 +75,14 @@ repositories:
     type: git
     url: https://github.com/ros-planning/navigation
     version: indigo-devel
+  pcl_ros:
+    type: git
+    url: https://github.com/ros-perception/perception_pcl.git
+    version: indigo-devel
+  polled_camera:
+    type: git
+    url: https://github.com/ros-perception/image_common.git
+    version: hydro-devel
   python_qt_binding:
     type: git
     url: https://github.com/ros-visualization/python_qt_binding
@@ -99,6 +115,10 @@ repositories:
     type: git
     url: https://github.com/ros-visualization/rqt_robot_plugins
     version: master
+  sophus:
+    type: git
+    url: https://github.com/stonier/sophus.git
+    version: indigo
   turtlebot:
     type: git
     url: https://github.com/turtlebot/turtlebot

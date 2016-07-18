@@ -28,12 +28,7 @@ sudo apt-get install git                            \
                      libusb-dev libftdi-dev         \
                      pyqt4-dev-tools                \
                      python-vcstool                 \
-                     ros-indigo-bfl                 \
-                     ros-indigo-camera-info-manager \
-                     ros-indigo-driver-base         \
-                     ros-indigo-pcl-ros             \
-                     ros-indigo-polled-camera       \
-                     ros-indigo-sophus
+                     ros-indigo-bfl
 
 # Import and build dependencies
 vcs import < ../../gazebo.repos
