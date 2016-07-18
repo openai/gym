@@ -17,6 +17,14 @@ class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
         gazebo_env.GazeboEnv.__init__(self, "GazeboMazeTurtlebotLidar_v0.launch")
         self.vel_pub = rospy.Publisher('/mobile_base/commands/velocity', Twist, queue_size=10)
 
+
+        #THIS IS UNCLEAR
+        #low = bounds[:, 0]
+        #high = bounds[:, 1]
+        self.action_space = spaces.Discrete(3) #F,L,R
+        #self.observation_space = spaces.Box(low, high) LASER ARRAY HERE?
+        self.reward_range = (-np.inf, np.inf)
+
     def _step(self, action):
 
         # TODO
