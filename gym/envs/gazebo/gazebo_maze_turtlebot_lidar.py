@@ -8,6 +8,7 @@ from gym.envs.gazebo import gazebo_env
 from geometry_msgs.msg import Twist
 from std_srvs.srv import Empty
 
+from sensor_msgs.msg import LaserScan
 
 class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
 
@@ -38,14 +39,32 @@ class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
         #step delimiter (time or position change)
         #time.sleep(0.05) 
 
-        #TEST
-        if action == 1:
+
+        if action == 0: #FORWARD
             vel_cmd = Twist()
             vel_cmd.linear.x = 0.5
+            vel_cmd.angular.z = 0
+            self.vel_pub.publish(vel_cmd)
+        elif action == 1: #LEFT
+            vel_cmd = Twist()
+            vel_cmd.linear.x = 0
+            vel_cmd.angular.z = -0.5
+            self.vel_pub.publish(vel_cmd)
+        elif action == 2: #RIGHT
+            vel_cmd = Twist()
+            vel_cmd.linear.x = 0
+            vel_cmd.angular.z = 0.5
             self.vel_pub.publish(vel_cmd)
 
 
         time.sleep(0.2)
+
+
+
+        #read laser data
+        data = rospy.wait_for_message('/scan', LaserScan, timeout=5)
+        state = data.ranges
+
 
 
         rospy.wait_for_service('/gazebo/pause_physics')
@@ -59,7 +78,8 @@ class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
 
         #test params
 
-        state = np.array([1, 2])
+
+
         reward = 1
         done = False
 
