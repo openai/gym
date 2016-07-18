@@ -18,6 +18,7 @@ class GazeboEnv(gym.Env):
 
         #start roscore
         subprocess.Popen("roscore")
+        print "Roscore launched!"
 
         # Launch the simulation with the given launchfile name
         rospy.init_node('gym', anonymous=True)
@@ -34,14 +35,13 @@ class GazeboEnv(gym.Env):
         #launch.start()
 
         subprocess.Popen(["roslaunch",fullpath])
-
         print "Gazebo launched!"
 
     def _step(self, action):
 
         # Implement this method in every subclass
         # Perform a step in gazebo. E.g. move the robot
-        pass
+        raise NotImplementedError
 
     def _reset(self):
 
