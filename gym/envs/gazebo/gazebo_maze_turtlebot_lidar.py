@@ -4,6 +4,7 @@ import roslaunch
 import time
 import numpy as np
 
+from gym import utils, spaces
 from gym.envs.gazebo import gazebo_env
 from geometry_msgs.msg import Twist
 from std_srvs.srv import Empty
@@ -20,9 +21,9 @@ class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
 
 
         #THIS IS UNCLEAR
-        self.action_space = spaces.Discrete(3) #F,L,R
-        self.observation_space = spaces.Box(low=0, high=20) #laser values
-        self.reward_range = (-np.inf, np.inf)
+        #self.action_space = spaces.Discrete(3) #F,L,R
+        #self.observation_space = spaces.Box(low=0, high=20) #laser values
+        #self.reward_range = (-np.inf, np.inf)
 
     def _step(self, action):
 
