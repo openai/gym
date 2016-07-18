@@ -62,14 +62,15 @@ for x in range(3000):
     done = False
     env.reset()
 
-    render_interval = 5 #Show render Every X episodes.
-    render_episodes = 2 #Show Y episodes every rendering.
+    render_skip = 4 #Skip first X episodes.
+    render_interval = 5 #Show render Every Y episodes.
+    render_episodes = 2 #Show Z episodes every rendering.
 
     print "Episode: "+str(x)
-    if (x%render_interval == 0) and (x != 0):
+    if (x%render_interval == 0) and (x != 0) and (x > render_skip):
         print "starting render"
         env.render()
-    elif (x%(render_interval+render_episodes) == 0) and (x != 0):
+    elif ((x-render_episodes)%(render_interval) == 0) and (x != 0) and (x > render_skip):
         print "closing render"
         env.render(close=True)
 
@@ -79,9 +80,13 @@ for x in range(3000):
         #action = env.action_space.sample() #not implemented
         #observation, reward, done, info = env.step(action)
 
+        print "Ep: "+str(x)+" Ev:"+str(i)
+
         env.step(1)
 
-        if (i%25 == 0) and (i != 0):
+
+        #Must change
+        if (i%10 == 0) and (i != 0):
             done = True
         if done:
             break 
