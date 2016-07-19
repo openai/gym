@@ -69,15 +69,13 @@ class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
             if (i%mod==0) and (i!=0):
                 if data.ranges[i] == float ('Inf'):
                     discretized_ranges.append(int(data.range_max))
-                elif data.ranges[i] == float ('NaN'):
+                elif np.isnan(data.ranges[i]):
                     discretized_ranges.append(0)
                 else:
                     discretized_ranges.append(int(data.ranges[i]))
             if (min_range > data.ranges[i] > 0):
                 done = True
                 break
-            if data.ranges[i] < 0.5:
-                print "COLLISION"
 
         if not done:
             reward = 1
@@ -99,8 +97,32 @@ class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
 
     def _reset(self):
 
-        #read laser data
+        # Resets the state of the environment and returns an initial observation.
+        rospy.wait_for_service('/gazebo/reset_simulation')
+        try:
+            reset_proxy = rospy.ServiceProxy('/gazebo/reset_simulation', Empty)
+            reset_proxy.call()
+        except rospy.ServiceException, e:
+            print "/gazebo/reset_simulation service call failed"
+
+        # Unpause simulation to make observation
+        rospy.wait_for_service('/gazebo/unpause_physics')
+        try:
+            pause = rospy.ServiceProxy('/gazebo/unpause_physics', Empty)
+            resp_pause = pause.call()
+        except rospy.ServiceException, e:
+            print "/gazebo/unpause_physics service call failed"
+
+        # Read laser scan
         data = rospy.wait_for_message('/scan', LaserScan, timeout=5)
+
+        rospy.wait_for_service('/gazebo/pause_physics')
+        try:
+            pause = rospy.ServiceProxy('/gazebo/pause_physics', Empty)
+            resp_pause = pause.call()
+        except rospy.ServiceException, e:
+            print "/gazebo/pause_physics service call failed"
+
 
         #simplify ranges - discretize
         discretized_ranges = []
@@ -114,7 +136,7 @@ class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
             if (i%mod==0) and (i!=0):
                 if data.ranges[i] == float ('Inf'):
                     discretized_ranges.append(int(data.range_max))
-                elif data.ranges[i] == float ('Nan'):
+                elif np.isnan(data.ranges[i]):
                     discretized_ranges.append(0)
                 else:
                     discretized_ranges.append(int(data.ranges[i]))
