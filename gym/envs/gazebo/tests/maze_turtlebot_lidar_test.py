@@ -64,6 +64,10 @@ def render():
     elif ((x-render_episodes)%(render_interval) == 0) and (x != 0) and (x > render_skip):
         env.render(close=True)
 
+def build_state(features):
+    return int("".join(map(lambda feature: str(int(feature)), features)))
+
+
 if __name__ == '__main__':
 
     env = gym.make('GazeboMazeTurtlebotLidar-v0')
@@ -76,6 +80,8 @@ if __name__ == '__main__':
         env.reset()
 
         render() #defined above, not env.render()
+
+        state = build_state()
 
         for i in range(200):
 
@@ -90,9 +96,14 @@ if __name__ == '__main__':
             
 
             #Must change
-            if (i%10 == 0) and (i != 0):
-                done = True
-            if done:
+            if not(done):
+                qlearn.learn(state, action, reward, nextState)
+                state = nextState
+            else:
+                # Q-learn stuff
+                reward = -200
+                qlearn.learn(state, action, reward, nextState)
+                last_time_steps = numpy.append(last_time_steps, [int(t + 1)])
                 break 
 
     env.close()

@@ -21,11 +21,13 @@ class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
 
 
         #THIS IS UNCLEAR
-        #self.action_space = spaces.Discrete(3) #F,L,R
+        self.action_space = spaces.Discrete(3) #F,L,R
         #self.observation_space = spaces.Box(low=0, high=20) #laser values
-        #self.reward_range = (-np.inf, np.inf)
+        self.reward_range = (-np.inf, np.inf)
 
     def _step(self, action):
+
+        state = self.state
 
         rospy.wait_for_service('/gazebo/unpause_physics')
         try:
@@ -63,7 +65,6 @@ class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
         min_range = 0.3 #collision
 
         done = False
-        reward = 0
 
         mod = (len(data.ranges) / discretized_ranges_amount)
         for i, item in enumerate(data.ranges):
@@ -76,10 +77,12 @@ class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
                     discretized_ranges.append(int(data.ranges[i]))
             if (min_range > data.ranges[i] > 0):
                 done = True
-                reward -= 200
                 break
-            else:
-                reward += 1
+
+        if not done:
+            reward = 1
+        else:
+            reward = 0
 
         state = discretized_ranges 
 
