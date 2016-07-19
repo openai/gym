@@ -64,8 +64,6 @@ def render():
     elif ((x-render_episodes)%(render_interval) == 0) and (x != 0) and (x > render_skip):
         env.render(close=True)
 
-def build_state(features):
-    return int("".join(map(lambda feature: str(int(feature)), features)))
 
 
 if __name__ == '__main__':
@@ -81,7 +79,7 @@ if __name__ == '__main__':
 
         render() #defined above, not env.render()
 
-        state = build_state()
+        state = observation
 
         for i in range(200):
 
@@ -93,7 +91,7 @@ if __name__ == '__main__':
             # Execute the action and get feedback
             observation, reward, done, info = env.step(action)
 
-            
+            nextState = observation
 
             #Must change
             if not(done):
