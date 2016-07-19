@@ -39,6 +39,10 @@ repositories:
     type: git
     url: https://github.com/stonier/ecl_tools
     version: indigo-stable
+  gazebo_reinforcement_learning:
+    type: git
+    url: https://github.com/erlerobot/gazebo_reinforcement_learning
+    version: master
   gazebo_ros_pkgs:
     type: git
     url: https://github.com/ros-simulation/gazebo_ros_pkgs
