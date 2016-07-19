@@ -27,8 +27,6 @@ class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
 
     def _step(self, action):
 
-        state = self.state
-
         rospy.wait_for_service('/gazebo/unpause_physics')
         try:
             pause = rospy.ServiceProxy('/gazebo/unpause_physics', Empty)
@@ -62,7 +60,7 @@ class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
         #simplify ranges - discretize
         discretized_ranges = []
         discretized_ranges_amount = 10
-        min_range = 0.3 #collision
+        min_range = 0.4 #collision
 
         done = False
 
@@ -71,13 +69,15 @@ class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
             if (i%mod==0) and (i!=0):
                 if data.ranges[i] == float ('Inf'):
                     discretized_ranges.append(int(data.range_max))
-                elif data.ranges[i] == float ('Nan'):
+                elif data.ranges[i] == float ('NaN'):
                     discretized_ranges.append(0)
                 else:
                     discretized_ranges.append(int(data.ranges[i]))
             if (min_range > data.ranges[i] > 0):
                 done = True
                 break
+            if data.ranges[i] < 0.5:
+                print "COLLISION"
 
         if not done:
             reward = 1

@@ -79,7 +79,7 @@ if __name__ == '__main__':
 
         render() #defined above, not env.render()
 
-        state = observation
+        state = ''.join(map(str, observation))
 
         for i in range(200):
 
@@ -91,7 +91,7 @@ if __name__ == '__main__':
             # Execute the action and get feedback
             observation, reward, done, info = env.step(action)
 
-            nextState = observation
+            nextState = ''.join(map(str, observation))
 
             #Must change
             if not(done):
