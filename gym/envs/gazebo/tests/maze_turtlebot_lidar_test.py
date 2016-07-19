@@ -54,57 +54,40 @@ class QLearn:
         maxqnew = max([self.getQ(state2, a) for a in self.actions])
         self.learnQ(state1, action1, reward, reward + self.gamma*maxqnew)
 
-
-env = gym.make('GazeboMazeTurtlebotLidar-v0')
-
-
-for x in range(3000):
-    done = False
-    env.reset()
-
+def render():
     render_skip = 4 #Skip first X episodes.
     render_interval = 5 #Show render Every Y episodes.
     render_episodes = 2 #Show Z episodes every rendering.
 
-    print "Episode: "+str(x)
     if (x%render_interval == 0) and (x != 0) and (x > render_skip):
-        print "starting render"
         env.render()
     elif ((x-render_episodes)%(render_interval) == 0) and (x != 0) and (x > render_skip):
-        print "closing render"
         env.render(close=True)
 
+if __name__ == '__main__':
 
-    for i in range(200):
-
-        #action = env.action_space.sample() #not implemented
-        #observation, reward, done, info = env.step(action)
-
-        print "Ep: "+str(x)+" Ev:"+str(i)
-
-        env.step(0)
+    env = gym.make('GazeboMazeTurtlebotLidar-v0')
 
 
-        #Must change
-        if (i%10 == 0) and (i != 0):
-            done = True
-        if done:
-            break 
+    for x in range(3000):
+        done = False
+        env.reset()
 
-env.close()
+        render() #defined above, not env.render()
 
+        for i in range(200):
 
-'''
-print "Render starting"
-env.render()
+            #action = env.action_space.sample() #not implemented
+            #observation, reward, done, info = env.step(action)
 
-time.sleep(1)
-env.reset()
-print "reset simulation"
+            print "Ep: "+str(x)+" Ev:"+str(i)
 
-time.sleep(1)
-print "Render starting"
-env.render(close=True)
+            env.step(0)
 
+            #Must change
+            if (i%10 == 0) and (i != 0):
+                done = True
+            if done:
+                break 
 
-env.close()'''
+    env.close()
