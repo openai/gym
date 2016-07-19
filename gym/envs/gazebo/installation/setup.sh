@@ -39,6 +39,14 @@ cd ..
 source devel_isolated/setup.bash
 catkin_make_isolated
 
+#add own models path to gazebo models path
+if [ -z "$GAZEBO_MODEL_PATH" ]; then
+  bash -c 'echo "export GAZEBO_MODEL_PATH="`pwd`/../assets/models >> ~/.bashrc'
+  exec bash #reload bashrc
+fi
+
+
+#---------------TURTLEBOT------------------#
 #Load turtlebot variables. Temporal solution
 chmod +x $src/turtlebot_simulator/turtlebot_gazebo/env-hooks/25.turtlebot-gazebo.sh.em
 bash $src/turtlebot_simulator/turtlebot_gazebo/env-hooks/25.turtlebot-gazebo.sh.em
@@ -48,5 +56,8 @@ if [ -z "$GYM_GAZEBO_WORLD_MAZE" ]; then
   bash -c 'echo "export GYM_GAZEBO_WORLD_MAZE="`pwd`/../assets/worlds/maze.world >> ~/.bashrc'
   exec bash #reload bashrc
 fi
+
+#copy altered urdf model
+bash -c "cp -r ../assets/urdf/kobuki_urdf/urdf/ catkin_ws/src/kobuki/kobuki_description"
 
 #exit 0
