@@ -1,5 +1,13 @@
 #!/bin/sh
 
+# Create catkin_ws
+ws="catkin_ws"
+if [ -d $ws ]; then
+  echo "Error: catkin_ws directory already exists" 1>&2
+  exit 1
+fi
+src=$ws"/src"
+
 if [ -z "$GAZEBO_MODEL_PATH" ]; then
   bash -c 'echo "export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:"`pwd`/../assets/models >> ~/.bashrc'
   exec bash #reload bashrc
