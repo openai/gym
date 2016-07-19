@@ -55,7 +55,7 @@ class QLearn:
         self.learnQ(state1, action1, reward, reward + self.gamma*maxqnew)
 
 def render():
-    render_skip = 4 #Skip first X episodes.
+    render_skip = 100 #Skip first X episodes.
     render_interval = 5 #Show render Every Y episodes.
     render_episodes = 2 #Show Z episodes every rendering.
 
@@ -70,6 +70,8 @@ if __name__ == '__main__':
 
     env = gym.make('GazeboMazeTurtlebotLidar-v0')
 
+    last_time_steps = numpy.ndarray(0)
+
     qlearn = QLearn(actions=range(env.action_space.n),
                     alpha=0.5, gamma=0.90, epsilon=0.1)
 
@@ -81,7 +83,7 @@ if __name__ == '__main__':
 
         state = ''.join(map(str, observation))
 
-        for i in range(200):
+        for i in range(100):
 
             print "Ep: "+str(x)+" Ev:"+str(i)
 
@@ -101,7 +103,10 @@ if __name__ == '__main__':
                 # Q-learn stuff
                 reward = -200
                 qlearn.learn(state, action, reward, nextState)
-                last_time_steps = numpy.append(last_time_steps, [int(t + 1)])
+                last_time_steps = numpy.append(last_time_steps, [int(i + 1)])
                 break 
+
+    l = last_time_steps.tolist()
+    l.sort()
 
     env.close()
