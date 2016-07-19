@@ -39,14 +39,8 @@ class GazeboEnv(gym.Env):
 
     def _reset(self):
 
-        # Resets the state of the environment and returns an initial observation.
-        rospy.wait_for_service('/gazebo/reset_simulation')
-        try:
-            reset_proxy = rospy.ServiceProxy('/gazebo/reset_simulation', Empty)
-            reset_proxy.call()
-        except rospy.ServiceException, e:
-            print "/gazebo/reset_simulation service call failed"
-
+        # Implemented in subclass
+        raise NotImplementedError
 
     def _render(self, mode="human", close=False):
 
