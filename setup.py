@@ -44,6 +44,6 @@ setup(name='gym',
         'envs/robotics/assets/stls/hand/*.stl',
         'envs/robotics/assets/textures/*.png']
       },
-      package_data={'gym': ['envs/mujoco/assets/*.xml', 'envs/classic_control/assets/*.png', 'envs/doom/assets/*.cfg', 'envs/gazebo/assets/launch/*.launch', 'envs/gazebo/assets/models/*', 'envs/gazebo/assets/worlds/*']},
+      package_data={'gym': ['envs/mujoco/assets/*.xml', 'envs/classic_control/assets/*.png', 'envs/doom/assets/*.cfg', 'envs/gazebo/assets/launch/*.launch', 'envs/gazebo/assets/worlds/*']},
       tests_require=['nose2', 'mock'],
 )
