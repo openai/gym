@@ -1,8 +1,7 @@
 #!/bin/sh
 
-#add own models path to gazebo models path
 if [ -z "$GAZEBO_MODEL_PATH" ]; then
-  bash -c 'echo "export GAZEBO_MODEL_PATH="`pwd`/../assets/models >> ~/.bashrc'
+  bash -c 'echo "export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:"`pwd`/../assets/models >> ~/.bashrc'
   exec bash #reload bashrc
 fi
 
@@ -18,3 +17,8 @@ fi
 
 #copy altered urdf model
 bash -c "cp -r ../assets/urdf/kobuki_urdf/urdf/ catkin_ws/src/kobuki/kobuki_description"
+
+if [ -z "$GAZEBO_PLUGIN_PATH" ]; then
+  bash -c 'echo "export GAZEBO_PLUGIN_PATH=$GAZEBO_PLUGIN_PATH:"`pwd`/catkin_ws/build_isolated/iterations_gazebo_plugin >> ~/.bashrc'
+  exec bash #reload bashrc
+fi
