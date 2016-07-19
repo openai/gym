@@ -82,7 +82,7 @@ for x in range(3000):
 
         print "Ep: "+str(x)+" Ev:"+str(i)
 
-        env.step(1)
+        env.step(0)
 
 
         #Must change
