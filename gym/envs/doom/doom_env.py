@@ -306,6 +306,7 @@ class MetaDoomEnv(DoomEnv):
         else:
             self.scores[self.level].insert(0, 0)
             self.scores[self.level] = self.scores[self.level][:self.min_tries_for_avg]
+        self.is_new_episode = True
         return super(MetaDoomEnv, self)._start_episode()
 
     def change_level(self, new_level=None):
@@ -396,7 +397,12 @@ class MetaDoomEnv(DoomEnv):
         else:
             obs, step_reward, is_finished, info = super(MetaDoomEnv, self)._step(action)
             reward, self.total_reward = self._calculate_reward(self.game.get_total_reward(), self.total_reward)
+            # First step() after new episode returns the entire total reward
+            # because stats_recorder resets the episode score to 0 after reset() is called
+            if self.is_new_episode:
+                reward = self.total_reward
 
+        self.is_new_episode = False
         info["SCORES"] = self.get_scores()
         info["TOTAL_REWARD"] = round(self.total_reward, 4)
         info["LOCKED_LEVELS"] = self.locked_levels
