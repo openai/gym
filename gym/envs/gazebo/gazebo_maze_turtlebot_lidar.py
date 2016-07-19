@@ -57,15 +57,24 @@ class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
             vel_cmd.angular.z = 0.5
             self.vel_pub.publish(vel_cmd)
 
-
         time.sleep(0.2)
-
 
 
         #read laser data
         data = rospy.wait_for_message('/scan', LaserScan, timeout=5)
-        state = data.ranges
 
+        #simplify ranges - discretize
+
+        discretized_ranges = []
+        discretized_ranges_amount = 10
+
+        mod = (len(data.ranges) / discretized_ranges_amount)
+        for i, item in enumerate(data.ranges):
+            if (i%mod==0) and (i!=0):
+                discretized_ranges.append(int(data.ranges[i]))
+
+
+        state = discretized_ranges 
 
 
         rospy.wait_for_service('/gazebo/pause_physics')
