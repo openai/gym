@@ -27,19 +27,12 @@ class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
 
     def _step(self, action):
 
-        # TODO
-        # Perform a step in gazebo. E.g. move the robot
         rospy.wait_for_service('/gazebo/unpause_physics')
         try:
             pause = rospy.ServiceProxy('/gazebo/unpause_physics', Empty)
             resp_pause = pause.call()
         except rospy.ServiceException, e:
             print "/gazebo/unpause_physics service call failed"
-
-        #self.move()
-        #step delimiter (time or position change)
-        #time.sleep(0.05) 
-
 
         if action == 0: #FORWARD
             vel_cmd = Twist()
@@ -57,6 +50,7 @@ class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
             vel_cmd.angular.z = 0.5
             self.vel_pub.publish(vel_cmd)
 
+        #change for iterations
         time.sleep(0.2)
 
 
@@ -64,18 +58,30 @@ class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
         data = rospy.wait_for_message('/scan', LaserScan, timeout=5)
 
         #simplify ranges - discretize
-
         discretized_ranges = []
         discretized_ranges_amount = 10
+        min_range = 0.3 #collision
+
+        done = False
+        reward = 0
 
         mod = (len(data.ranges) / discretized_ranges_amount)
         for i, item in enumerate(data.ranges):
             if (i%mod==0) and (i!=0):
-                discretized_ranges.append(int(data.ranges[i]))
-
+                if data.ranges[i] == float ('Inf'):
+                    discretized_ranges.append(int(data.range_max))
+                elif data.ranges[i] == float ('Nan'):
+                    discretized_ranges.append(0)
+                else:
+                    discretized_ranges.append(int(data.ranges[i]))
+            if (min_range > data.ranges[i] > 0):
+                done = True
+                reward -= 200
+                break
+            else:
+                reward += 1
 
         state = discretized_ranges 
-
 
         rospy.wait_for_service('/gazebo/pause_physics')
         try:
@@ -84,13 +90,5 @@ class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
         except rospy.ServiceException, e:
             print "/gazebo/pause_physics service call failed"
 
-
-
-        #test params
-
-
-
-        reward = 1
-        done = False
-
+        print "STEP - state: "+str(state)+" reward: "+str(reward)+" done: "+str(done)
         return state, reward, done, {}
