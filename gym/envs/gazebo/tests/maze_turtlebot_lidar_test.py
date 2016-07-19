@@ -77,7 +77,7 @@ if __name__ == '__main__':
 
     for x in range(3000):
         done = False
-        env.reset()
+        observation = env.reset()
 
         render() #defined above, not env.render()
 

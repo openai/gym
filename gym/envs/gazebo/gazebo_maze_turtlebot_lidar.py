@@ -95,3 +95,30 @@ class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
 
         print "STEP - state: "+str(state)+" reward: "+str(reward)+" done: "+str(done)
         return state, reward, done, {}
+
+
+    def _reset(self):
+
+        #read laser data
+        data = rospy.wait_for_message('/scan', LaserScan, timeout=5)
+
+        #simplify ranges - discretize
+        discretized_ranges = []
+        discretized_ranges_amount = 10
+        min_range = 0.3 #collision
+
+        done = False
+
+        mod = (len(data.ranges) / discretized_ranges_amount)
+        for i, item in enumerate(data.ranges):
+            if (i%mod==0) and (i!=0):
+                if data.ranges[i] == float ('Inf'):
+                    discretized_ranges.append(int(data.range_max))
+                elif data.ranges[i] == float ('Nan'):
+                    discretized_ranges.append(0)
+                else:
+                    discretized_ranges.append(int(data.ranges[i]))
+
+        state = discretized_ranges 
+
+        return state
