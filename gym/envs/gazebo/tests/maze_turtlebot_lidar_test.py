@@ -68,6 +68,8 @@ if __name__ == '__main__':
 
     env = gym.make('GazeboMazeTurtlebotLidar-v0')
 
+    qlearn = QLearn(actions=range(env.action_space.n),
+                    alpha=0.5, gamma=0.90, epsilon=0.1)
 
     for x in range(3000):
         done = False
@@ -77,12 +79,15 @@ if __name__ == '__main__':
 
         for i in range(200):
 
-            #action = env.action_space.sample() #not implemented
-            #observation, reward, done, info = env.step(action)
-
             print "Ep: "+str(x)+" Ev:"+str(i)
 
-            env.step(0)
+            # Pick an action based on the current state
+            action = qlearn.chooseAction(state)
+
+            # Execute the action and get feedback
+            observation, reward, done, info = env.step(action)
+
+            
 
             #Must change
             if (i%10 == 0) and (i != 0):
