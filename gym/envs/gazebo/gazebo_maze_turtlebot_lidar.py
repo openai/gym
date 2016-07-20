@@ -7,6 +7,7 @@ import numpy as np
 from gym import utils, spaces
 from gym.envs.gazebo import gazebo_env
 from geometry_msgs.msg import Twist
+from std_msgs.msg import UInt64
 from std_srvs.srv import Empty
 
 from sensor_msgs.msg import LaserScan
@@ -24,6 +25,8 @@ class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
         self.action_space = spaces.Discrete(3) #F,L,R
         #self.observation_space = spaces.Box(low=0, high=20) #laser values
         self.reward_range = (-np.inf, np.inf)
+
+        self.gazebo_step_size = long(200)
 
         # TESTING
 
@@ -59,9 +62,13 @@ class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
             vel_cmd.angular.z = 0.5
             self.vel_pub.publish(vel_cmd)
 
-        #change for iterations
-        time.sleep(0.2)
+        # Initialize the current gazebo iteration
+        first_gazebo_iteration = rospy.wait_for_message('/gazebo_iterations', UInt64, timeout=5)
+        current_gazebo_iteration = first_gazebo_iteration
 
+        # Wait until we do all the gazebo iterations to consider the step completed
+        while (current_gazebo_iteration.data < first_gazebo_iteration.data + self.gazebo_step_size):
+            current_gazebo_iteration = rospy.wait_for_message('/gazebo_iterations', UInt64, timeout=5)
 
         #read laser data
         data = rospy.wait_for_message('/scan', LaserScan, timeout=5)
