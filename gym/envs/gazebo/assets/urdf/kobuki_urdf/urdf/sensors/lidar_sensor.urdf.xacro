@@ -14,13 +14,16 @@
         <origin xyz="0 0 0" rpy="0 0 0" />
         <inertia ixx="0.000000017" ixy="0" ixz="0" iyy="0.000000017" iyz="0" izz="0.000000017" />
       </inertial>
-      <visual>
-        <origin xyz="0 0 0" rpy="0 0 0" />
+      <!--<visual>-->
+        <!--<origin xyz="0 0 0" rpy="0 0 0" />-->
         <!--<geometry>-->
           <!--<box size="0.01 0.01 0.01" /> -->
-                     
+          <!-- <mesh filename="package://rotors_description/meshes/sonar_sensor/max_sonar_ez4.dae"/> -->
+           <!--<mesh filename="package://ardupilot_sitl_gazebo_plugin/meshes/${sensor_mesh}"/>-->
+           
+         <!-- <mesh filename="package://ardupilot_sitl_gazebo_plugin/meshes/lidar_lite_v2/meshes/lidar_lite_v2.dae"/> -->
         <!--</geometry>-->
-      </visual>
+      <!--</visual>-->
    <!--   <collision>
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
@@ -57,7 +60,11 @@
           </range>
         </ray>
 
-
+        <plugin name="gazebo_ros_${name}_controller" filename="librotors_gazebo_sonar_plugin.so">
+          <gaussianNoise>0.005</gaussianNoise>
+          <topicName>${ros_topic}</topicName>
+          <frameId>${name}_link</frameId>
+        </plugin>
   <plugin name="gazebo_ros_${name}_controller" filename="libgazebo_ros_laser.so">
           <topicName>/scan</topicName>
           <frameName>${name}_link</frameName>
