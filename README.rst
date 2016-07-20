@@ -178,13 +178,13 @@ Install the Robot Operating System via:
 
 **Dependencies**
 
-Install dependencies running `setup.sh
-<gym/envs/gazebo/installation/setup.sh>`_.
+Install dependencies running `setup.bash
+<gym/envs/gazebo/installation/setup.bash>`_.
 
 .. code:: bash
 
 	cd gym/envs/gazebo/installation
-	sh setup.sh
+	bash setup.bash
 
 Environments
 ============
