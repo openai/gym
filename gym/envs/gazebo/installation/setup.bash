@@ -27,7 +27,7 @@ sudo apt-get install -y git                            \
                         python-vcstool                 \
                         ros-indigo-bfl                 \
                         python-pip
-sudo pip install numpy --upgrade
+sudo easy_install numpy
 sudo pip install pandas
 # Import and build dependencies
 vcs import < ../../gazebo.repos
