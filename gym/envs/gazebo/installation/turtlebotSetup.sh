@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source catkin_ws/devel/setup.bash
+source catkin_ws/devel_isolated/setup.bash
 
 if [ -z "$GAZEBO_MODEL_PATH" ]; then
   bash -c 'echo "export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:"`pwd`/../assets/models >> ~/.bashrc'

@@ -33,8 +33,8 @@ sudo pip install pandas
 vcs import < ../../gazebo.repos
 echo 'SET(CMAKE_CXX_FLAGS "-std=c++11")' >> kobuki_desktop/kobuki_gazebo_plugins/CMakeLists.txt
 cd ..
-catkin_make
-source devel/setup.bash
+catkin_make_isolated
+source devel_isolated/setup.bash
 
 #add own models path to gazebo models path
 if [ -z "$GAZEBO_MODEL_PATH" ]; then
