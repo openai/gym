@@ -18,10 +18,6 @@
         <!--<origin xyz="0 0 0" rpy="0 0 0" />-->
         <!--<geometry>-->
           <!--<box size="0.01 0.01 0.01" /> -->
-          <!-- <mesh filename="package://rotors_description/meshes/sonar_sensor/max_sonar_ez4.dae"/> -->
-           <!--<mesh filename="package://ardupilot_sitl_gazebo_plugin/meshes/${sensor_mesh}"/>-->
-           
-         <!-- <mesh filename="package://ardupilot_sitl_gazebo_plugin/meshes/lidar_lite_v2/meshes/lidar_lite_v2.dae"/> -->
         <!--</geometry>-->
       <!--</visual>-->
    <!--   <collision>
