@@ -17,18 +17,18 @@ catkin_init_workspace
 sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
 sudo apt-key adv --keyserver hkp://pool.sks-keyservers.net --recv-key 0xB01FA116
 sudo apt-get update
-sudo apt-get install git                            \
-                     libsdl-image1.2-dev            \
-                     libspnav-dev                   \
-                     libtbb-dev                     \
-                     libtbb2                        \
-                     libusb-dev libftdi-dev         \
-                     pyqt4-dev-tools                \
-                     python-vcstool                 \
-                     ros-indigo-bfl                 \
-                     python-pip
-sudo pip install numpy --upgrade
-sudo pip install pandas
+sudo apt-get install -y git                            \
+                        libsdl-image1.2-dev            \
+                        libspnav-dev                   \
+                        libtbb-dev                     \
+                        libtbb2                        \
+                        libusb-dev libftdi-dev         \
+                        pyqt4-dev-tools                \
+                        python-vcstool                 \
+                        ros-indigo-bfl                 \
+                        python-pip
+sudo easy_install numpy
+
 # Import and build dependencies
 vcs import < ../../gazebo.repos
 echo 'SET(CMAKE_CXX_FLAGS "-std=c++11")' >> kobuki_desktop/kobuki_gazebo_plugins/CMakeLists.txt
@@ -43,4 +43,5 @@ if [ -z "$GAZEBO_MODEL_PATH" ]; then
 fi
 
 #--TURTLEBOT--#
+cd ..
 bash ./turtlebotSetup.bash
