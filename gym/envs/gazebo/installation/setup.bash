@@ -43,4 +43,5 @@ if [ -z "$GAZEBO_MODEL_PATH" ]; then
 fi
 
 #--TURTLEBOT--#
+cd ..
 bash ./turtlebotSetup.bash
