@@ -25,7 +25,16 @@ class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
         #self.observation_space = spaces.Box(low=0, high=20) #laser values
         self.reward_range = (-np.inf, np.inf)
 
+        # TESTING
+
+        # Use at _step . First line
+        #assert self.action_space.contains(action)
+
+        # Use after reset() and step(). 
+        #assert self.observation_space.contains(observation)
+
     def _step(self, action):
+
 
         rospy.wait_for_service('/gazebo/unpause_physics')
         try:
@@ -91,7 +100,8 @@ class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
         except rospy.ServiceException, e:
             print "/gazebo/pause_physics service call failed"
 
-        print "STEP - state: "+str(state)+" reward: "+str(reward)+" done: "+str(done)
+        #print "STEP - state: "+str(state)+" reward: "+str(reward)+" done: "+str(done)
+
         return state, reward, done, {}
 
 
