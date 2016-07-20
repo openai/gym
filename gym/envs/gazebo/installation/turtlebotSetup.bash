@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 source catkin_ws/devel_isolated/setup.bash
 
 if [ -z "$GAZEBO_MODEL_PATH" ]; then
