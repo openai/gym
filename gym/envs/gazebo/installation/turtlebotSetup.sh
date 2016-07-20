@@ -20,6 +20,10 @@ fi
 #copy altered urdf model
 cp -r ../assets/urdf/kobuki_urdf/urdf/ catkin_ws/src/kobuki/kobuki_description
 
+#copy laser mesh file
+cp ../assets/meshes/lidar_lite_v2_withRay.dae catkin_ws/src/kobuki/kobuki_description/meshes
+
+
 if [ -z "$GAZEBO_PLUGIN_PATH" ]; then
   bash -c 'echo "export GAZEBO_PLUGIN_PATH=$GAZEBO_PLUGIN_PATH:"`pwd`/catkin_ws/build_isolated/iterations_gazebo_plugin >> ~/.bashrc'
   exec bash #reload bashrc
