@@ -101,7 +101,10 @@ class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
                 break
 
         if not done:
-            reward = 1
+            if action == 0:
+                reward = 3 #prevail forward action
+            else:
+                reward = 1
         else:
             reward = 0
 
