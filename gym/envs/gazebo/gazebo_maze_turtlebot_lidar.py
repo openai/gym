@@ -73,6 +73,13 @@ class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
         #read laser data
         data = rospy.wait_for_message('/scan', LaserScan, timeout=5)
 
+        rospy.wait_for_service('/gazebo/pause_physics')
+        try:
+            pause = rospy.ServiceProxy('/gazebo/pause_physics', Empty)
+            resp_pause = pause.call()
+        except rospy.ServiceException, e:
+            print "/gazebo/pause_physics service call failed"
+
         #simplify ranges - discretize
         discretized_ranges = []
         discretized_ranges_amount = 10
@@ -102,13 +109,6 @@ class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
             reward = 0
 
         state = discretized_ranges 
-
-        rospy.wait_for_service('/gazebo/pause_physics')
-        try:
-            pause = rospy.ServiceProxy('/gazebo/pause_physics', Empty)
-            resp_pause = pause.call()
-        except rospy.ServiceException, e:
-            print "/gazebo/pause_physics service call failed"
 
         #print "STEP - state: "+str(state)+" reward: "+str(reward)+" done: "+str(done)
 
