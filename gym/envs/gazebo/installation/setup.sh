@@ -28,8 +28,8 @@ sudo apt-get install git                            \
                      libusb-dev libftdi-dev         \
                      pyqt4-dev-tools                \
                      python-vcstool                 \
-                     ros-indigo-bfl
-sudo apt-get python-pip
+                     ros-indigo-bfl                 \
+                     python-pip
 sudo pip install numpy --upgrade
 sudo pip install pandas
 # Import and build dependencies
