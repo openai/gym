@@ -3,7 +3,7 @@ import gym
 import time
 import numpy
 import random
-import pandas
+#import pandas
 
 class QLearn:
     def __init__(self, actions, epsilon, alpha, gamma):
