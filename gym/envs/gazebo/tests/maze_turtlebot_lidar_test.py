@@ -73,10 +73,13 @@ if __name__ == '__main__':
     last_time_steps = numpy.ndarray(0)
 
     qlearn = QLearn(actions=range(env.action_space.n),
-                    alpha=0.5, gamma=0.90, epsilon=0.1)
+                    alpha=0.7, gamma=0.8, epsilon=0.1)
 
     for x in range(3000):
         done = False
+
+        accululated_reward = 0 #Should going forward give more reward then L/R ?
+
         observation = env.reset()
 
         render() #defined above, not env.render()
@@ -84,8 +87,6 @@ if __name__ == '__main__':
         state = ''.join(map(str, observation))
 
         for i in range(100):
-
-            print "Ep: "+str(x)+" Ev:"+str(i)
 
             # Pick an action based on the current state
             action = qlearn.chooseAction(state)
@@ -99,6 +100,7 @@ if __name__ == '__main__':
             if not(done):
                 qlearn.learn(state, action, reward, nextState)
                 state = nextState
+
             else:
                 # Q-learn stuff
                 reward = -200
@@ -106,7 +108,14 @@ if __name__ == '__main__':
                 last_time_steps = numpy.append(last_time_steps, [int(i + 1)])
                 break 
 
+            accululated_reward += reward
+            print "EP:"+str(x+1)+" - IT:"+str(i+1)+" AR:"+str(accululated_reward)
+
+
     l = last_time_steps.tolist()
     l.sort()
+
+    print("Overall score: {:0.2f}".format(last_time_steps.mean()))
+    print("Best 100 score: {:0.2f}".format(reduce(lambda x, y: x + y, l[-100:]) / len(l[-100:])))
 
     env.close()
