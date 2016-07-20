@@ -28,7 +28,7 @@ sudo apt-get install -y git                            \
                         ros-indigo-bfl                 \
                         python-pip
 sudo easy_install numpy
-sudo pip install pandas
+
 # Import and build dependencies
 vcs import < ../../gazebo.repos
 echo 'SET(CMAKE_CXX_FLAGS "-std=c++11")' >> kobuki_desktop/kobuki_gazebo_plugins/CMakeLists.txt
