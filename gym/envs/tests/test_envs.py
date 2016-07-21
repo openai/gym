@@ -22,11 +22,6 @@ def should_skip_env_spec_for_tests(spec):
         logger.warn("Skipping tests for box2d env {}".format(spec._entry_point))
         return True
 
-    # TODO: Issue #167 - Re-enable these tests after fixing DoomDeathmatch crash
-    if spec._entry_point.startswith('gym.envs.doom:DoomDeathmatchEnv'):
-        logger.warn("Skipping tests for DoomDeathmatchEnv {}".format(spec._entry_point))
-        return True
-
     # Skip ConvergenceControl tests (the only env in parameter_tuning) according to pull #104
     if spec._entry_point.startswith('gym.envs.parameter_tuning:'):
         logger.warn("Skipping tests for parameter_tuning env {}".format(spec._entry_point))
