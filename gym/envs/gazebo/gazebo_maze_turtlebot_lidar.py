@@ -26,7 +26,7 @@ class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
         #self.observation_space = spaces.Box(low=0, high=20) #laser values
         self.reward_range = (-np.inf, np.inf)
 
-        self.gazebo_step_size = long(2000)
+        self.gazebo_step_size = long(200)
 
         # TESTING
 
@@ -67,9 +67,10 @@ class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
         current_gazebo_iteration = first_gazebo_iteration
 
         # Wait until we do all the gazebo iterations to consider the step completed
-        while (current_gazebo_iteration.data < first_gazebo_iteration.data + self.gazebo_step_size):
+        
+        '''while (current_gazebo_iteration.data < first_gazebo_iteration.data + self.gazebo_step_size):
             current_gazebo_iteration = rospy.wait_for_message('/gazebo_iterations', UInt64, timeout=5)
-
+        '''
         #read laser data
         data = rospy.wait_for_message('/scan', LaserScan, timeout=5)
 
