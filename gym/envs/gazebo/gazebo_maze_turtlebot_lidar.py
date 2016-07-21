@@ -7,7 +7,6 @@ import numpy as np
 from gym import utils, spaces
 from gym.envs.gazebo import gazebo_env
 from geometry_msgs.msg import Twist
-from std_msgs.msg import UInt64
 from std_srvs.srv import Empty
 
 from sensor_msgs.msg import LaserScan
@@ -20,21 +19,11 @@ class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
         gazebo_env.GazeboEnv.__init__(self, "GazeboMazeTurtlebotLidar_v0.launch")
         self.vel_pub = rospy.Publisher('/mobile_base/commands/velocity', Twist, queue_size=5)
 
-
-        #THIS IS UNCLEAR
         self.action_space = spaces.Discrete(3) #F,L,R
         #self.observation_space = spaces.Box(low=0, high=20) #laser values
         self.reward_range = (-np.inf, np.inf)
 
         self.gazebo_step_size = long(200)
-
-        # TESTING
-
-        # Use at _step . First line
-        #assert self.action_space.contains(action)
-
-        # Use after reset() and step(). 
-        #assert self.observation_space.contains(observation)
 
     def _step(self, action):
 
@@ -62,15 +51,6 @@ class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
             vel_cmd.angular.z = -1.2
             self.vel_pub.publish(vel_cmd)
 
-        # Initialize the current gazebo iteration
-        first_gazebo_iteration = rospy.wait_for_message('/gazebo_iterations', UInt64, timeout=5)
-        current_gazebo_iteration = first_gazebo_iteration
-
-        # Wait until we do all the gazebo iterations to consider the step completed
-        
-        '''while (current_gazebo_iteration.data < first_gazebo_iteration.data + self.gazebo_step_size):
-            current_gazebo_iteration = rospy.wait_for_message('/gazebo_iterations', UInt64, timeout=5)
-        '''
         #read laser data
         data = rospy.wait_for_message('/scan', LaserScan, timeout=5)
 
@@ -84,7 +64,7 @@ class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
         #simplify ranges - discretize
         discretized_ranges = []
         discretized_ranges_amount = 10
-        min_range = 0.4 #collision
+        min_range = 0.2 #collision
 
         done = False
 
@@ -108,10 +88,7 @@ class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
 
         state = discretized_ranges 
 
-        #print "STEP - state: "+str(state)+" reward: "+str(reward)+" done: "+str(done)
-
         return state, reward, done, {}
-
 
     def _reset(self):
 
@@ -141,13 +118,9 @@ class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
         except rospy.ServiceException, e:
             print "/gazebo/pause_physics service call failed"
 
-
         #simplify ranges - discretize
         discretized_ranges = []
         discretized_ranges_amount = 10
-        min_range = 0.3 #collision
-
-        done = False
 
         mod = (len(data.ranges) / discretized_ranges_amount)
         for i, item in enumerate(data.ranges):
