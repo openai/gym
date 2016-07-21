@@ -4,6 +4,7 @@ import time
 import numpy
 import random
 #import pandas
+import time
 
 class QLearn:
     def __init__(self, actions, epsilon, alpha, gamma):
@@ -76,10 +77,12 @@ if __name__ == '__main__':
     qlearn = QLearn(actions=range(env.action_space.n),
                     alpha=0.7, gamma=0.8, epsilon=0.1)
 
-    for x in range(3000):
+    start_time = time.time()
+
+    for x in range(1000):
         done = False
 
-        accululated_reward = 0 #Should going forward give more reward then L/R ?
+        accumulated_reward = 0 #Should going forward give more reward then L/R ?
 
         observation = env.reset()
 
@@ -109,13 +112,18 @@ if __name__ == '__main__':
                 last_time_steps = numpy.append(last_time_steps, [int(i + 1)])
                 break 
 
-            accululated_reward += reward
-            print "EP:"+str(x+1)+" - IT:"+str(i+1)+" AR:"+str(accululated_reward)
+            accumulated_reward += reward
+            print "EP:"+str(x+1)+" - IT:"+str(i+1)+" -- AR:"+str(accumulated_reward)
 
+
+        m, s = divmod(int(time.time() - start_time), 60)
+        h, m = divmod(m, 60)
+        print "\nEpisode:"+str(x+1)+" Time: %d:%02d:%02d" % (h, m, s)+"\n"
 
     l = last_time_steps.tolist()
     l.sort()
 
+    #print("Parameters: a="+str)
     print("Overall score: {:0.2f}".format(last_time_steps.mean()))
     print("Best 100 score: {:0.2f}".format(reduce(lambda x, y: x + y, l[-100:]) / len(l[-100:])))
 
