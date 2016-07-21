@@ -62,7 +62,7 @@ def render():
 
     if (x%render_interval == 0) and (x != 0) and (x > render_skip):
         env.render()
-    elif ((x-render_episodes)%render_interval == 0) and (x != 0) and (render_episodes > x > render_skip):
+    elif ((x-render_episodes)%render_interval == 0) and (x != 0) and (x > render_skip) and (render_episodes < x):
         env.render(close=True)
 
 if __name__ == '__main__':
