@@ -57,14 +57,13 @@ class QLearn:
 
 def render():
     render_skip = 0 #Skip first X episodes.
-    render_interval = 5 #Show render Every Y episodes.
-    render_episodes = 2 #Show Z episodes every rendering.
+    render_interval = 50 #Show render Every Y episodes.
+    render_episodes = 10 #Show Z episodes every rendering.
 
     if (x%render_interval == 0) and (x != 0) and (x > render_skip):
         env.render()
-    elif ((x-render_episodes)%(render_interval) == 0) and (x != 0) and (x > render_skip):
+    elif ((x-render_episodes)%render_interval == 0) and (x != 0) and (render_episodes > x > render_skip):
         env.render(close=True)
-
 
 if __name__ == '__main__':
 
@@ -114,7 +113,7 @@ if __name__ == '__main__':
 
         m, s = divmod(int(time.time() - start_time), 60)
         h, m = divmod(m, 60)
-        print "Episode: "+str(x+1)+" Reward: "+str(accumulated_reward)+"Time: %d:%02d:%02d" % (h, m, s)+""
+        print "EP: "+str(x+1)+" Reward: "+str(accumulated_reward)+"     Time: %d:%02d:%02d" % (h, m, s)+""
 
     l = last_time_steps.tolist()
     l.sort()

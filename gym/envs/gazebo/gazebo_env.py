@@ -48,10 +48,7 @@ class GazeboEnv(gym.Env):
 
     def _render(self, mode="human", close=False):
 
-        # Open/Close GUI
-
         if close:
-            #Close gzclient
             tmp = os.popen("ps -Af").read()
             proccount = tmp.count('gzclient')
             if proccount > 0:
