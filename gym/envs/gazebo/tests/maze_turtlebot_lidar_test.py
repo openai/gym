@@ -3,7 +3,6 @@ import gym
 import time
 import numpy
 import random
-#import pandas
 import time
 
 class QLearn:
@@ -57,7 +56,7 @@ class QLearn:
         self.learnQ(state1, action1, reward, reward + self.gamma*maxqnew)
 
 def render():
-    render_skip = 100 #Skip first X episodes.
+    render_skip = 0 #Skip first X episodes.
     render_interval = 5 #Show render Every Y episodes.
     render_episodes = 2 #Show Z episodes every rendering.
 
@@ -65,7 +64,6 @@ def render():
         env.render()
     elif ((x-render_episodes)%(render_interval) == 0) and (x != 0) and (x > render_skip):
         env.render(close=True)
-
 
 
 if __name__ == '__main__':
@@ -78,8 +76,9 @@ if __name__ == '__main__':
                     alpha=0.7, gamma=0.8, epsilon=0.1)
 
     start_time = time.time()
+    total_episodes = 10000
 
-    for x in range(1000):
+    for x in range(total_episodes):
         done = False
 
         accumulated_reward = 0 #Should going forward give more reward then L/R ?
@@ -100,7 +99,6 @@ if __name__ == '__main__':
 
             nextState = ''.join(map(str, observation))
 
-            #Must change
             if not(done):
                 qlearn.learn(state, action, reward, nextState)
                 state = nextState
@@ -113,12 +111,10 @@ if __name__ == '__main__':
                 break 
 
             accumulated_reward += reward
-            print "EP:"+str(x+1)+" - IT:"+str(i+1)+" -- AR:"+str(accumulated_reward)
-
 
         m, s = divmod(int(time.time() - start_time), 60)
         h, m = divmod(m, 60)
-        print "\nEpisode:"+str(x+1)+" Time: %d:%02d:%02d" % (h, m, s)+"\n"
+        print "Episode: "+str(x+1)+" Reward: "+str(accumulated_reward)+"Time: %d:%02d:%02d" % (h, m, s)+""
 
     l = last_time_steps.tolist()
     l.sort()
