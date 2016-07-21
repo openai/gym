@@ -18,7 +18,7 @@ class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
 
         # Launch the simulation with the given launchfile name
         gazebo_env.GazeboEnv.__init__(self, "GazeboMazeTurtlebotLidar_v0.launch")
-        self.vel_pub = rospy.Publisher('/mobile_base/commands/velocity', Twist, queue_size=10)
+        self.vel_pub = rospy.Publisher('/mobile_base/commands/velocity', Twist, queue_size=5)
 
 
         #THIS IS UNCLEAR
@@ -26,7 +26,7 @@ class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
         #self.observation_space = spaces.Box(low=0, high=20) #laser values
         self.reward_range = (-np.inf, np.inf)
 
-        self.gazebo_step_size = long(200)
+        self.gazebo_step_size = long(2000)
 
         # TESTING
 
@@ -48,18 +48,18 @@ class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
 
         if action == 0: #FORWARD
             vel_cmd = Twist()
-            vel_cmd.linear.x = 0.5
-            vel_cmd.angular.z = 0
+            vel_cmd.linear.x = 1
+            vel_cmd.angular.z = 0.0
             self.vel_pub.publish(vel_cmd)
         elif action == 1: #LEFT
             vel_cmd = Twist()
-            vel_cmd.linear.x = 0
-            vel_cmd.angular.z = -0.5
+            vel_cmd.linear.x = 0.3
+            vel_cmd.angular.z = 1.2
             self.vel_pub.publish(vel_cmd)
         elif action == 2: #RIGHT
             vel_cmd = Twist()
-            vel_cmd.linear.x = 0
-            vel_cmd.angular.z = 0.5
+            vel_cmd.linear.x = 0.3
+            vel_cmd.angular.z = -1.2
             self.vel_pub.publish(vel_cmd)
 
         # Initialize the current gazebo iteration
@@ -102,7 +102,7 @@ class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
 
         if not done:
             if action == 0:
-                reward = 3 #prevail forward action
+                reward = 2 #prevail forward action
             else:
                 reward = 1
         else:
