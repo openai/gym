@@ -1,5 +1,15 @@
 #!/bin/bash
 
+if [ -z "$ROS_DISTRO" ]; then
+  echo "ROS not installed. Check the installation steps: https://github.com/erlerobot/gym#installing-the-gazebo-environment"
+fi
+
+program="gazebo"
+condition=$(which $program 2>/dev/null | grep -v "not found" | wc -l)
+if [ $condition -eq 0 ] ; then
+    echo "Gazebo is not installed. Check the installation steps: https://github.com/erlerobot/gym#installing-the-gazebo-environment"
+fi
+
 source /opt/ros/indigo/setup.bash
 
 # Create catkin_ws
