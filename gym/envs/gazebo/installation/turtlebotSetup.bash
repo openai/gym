@@ -14,6 +14,10 @@ bash catkin_ws/src/turtlebot_simulator/turtlebot_gazebo/env-hooks/25.turtlebot-g
 if [ -z "$GYM_GAZEBO_WORLD_MAZE" ]; then
   bash -c 'echo "export GYM_GAZEBO_WORLD_MAZE="`pwd`/../assets/worlds/maze.world >> ~/.bashrc'
 fi
+if [ -z "$GYM_GAZEBO_WORLD_CIRCUIT" ]; then
+  bash -c 'echo "export GYM_GAZEBO_WORLD_CIRCUIT="`pwd`/../assets/worlds/circuit.world >> ~/.bashrc'
+fi
+
 
 #copy altered urdf model
 cp -r ../assets/urdf/kobuki_urdf/urdf/ catkin_ws/src/kobuki/kobuki_description
