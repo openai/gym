@@ -83,6 +83,13 @@ add_group(
     description='Environments to test various AI safety properties.'
 )
 
+add_group(
+    id='gazebo',
+    name='Gazebo',
+    description='TODO.'
+)
+
+
 # classic control
 
 add_task(
@@ -1404,6 +1411,18 @@ The robot model was originally created by Tassa et al. [Tassa12]_.
 .. [Tassa12] Y Tassa, T Erez, E Todorov, "Synthesis and Stabilization of Complex Behaviors through Online Trajectory Optimization".
 """,
     deprecated=True,
+)
+
+add_task(
+    id='GazeboCircuitTurtlebotLidar-v0',
+    group='gazebo',
+    summary='Obstacle avoidance in a Circuit.',
+)
+
+add_task(
+    id='GazeboMazeTurtlebotLidar-v0',
+    group='gazebo',
+    summary='Obstacle avoidance in a Maze.',
 )
 
 registry.finalize()

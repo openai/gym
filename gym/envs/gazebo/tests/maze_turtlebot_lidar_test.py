@@ -84,7 +84,7 @@ if __name__ == '__main__':
 
         observation = env.reset()
 
-        #render() #defined above, not env.render()
+        render() #defined above, not env.render()
 
         state = ''.join(map(str, observation))
 

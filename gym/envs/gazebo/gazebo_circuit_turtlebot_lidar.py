@@ -11,6 +11,8 @@ from std_srvs.srv import Empty
 
 from sensor_msgs.msg import LaserScan
 
+from gym.utils import seeding
+
 class GazeboCircuitTurtlebotLidarEnv(gazebo_env.GazeboEnv):
 
     def __init__(self):
@@ -25,13 +27,27 @@ class GazeboCircuitTurtlebotLidarEnv(gazebo_env.GazeboEnv):
 
         self.gazebo_step_size = long(200)
 
+
+        self.unpause = rospy.ServiceProxy('/gazebo/unpause_physics', Empty)
+
+        self.pause = rospy.ServiceProxy('/gazebo/pause_physics', Empty)
+
+        self.reset_proxy = rospy.ServiceProxy('/gazebo/reset_simulation', Empty)
+
+        self._seed()
+
+    def _seed(self, seed=None):
+        self.np_random, seed = seeding.np_random(seed)
+        return [seed]
+
     def _step(self, action):
 
 
         rospy.wait_for_service('/gazebo/unpause_physics')
         try:
-            pause = rospy.ServiceProxy('/gazebo/unpause_physics', Empty)
-            resp_pause = pause.call()
+
+            #resp_pause = pause.call()
+            self.unpause()
         except rospy.ServiceException, e:
             print "/gazebo/unpause_physics service call failed"
 
@@ -56,8 +72,8 @@ class GazeboCircuitTurtlebotLidarEnv(gazebo_env.GazeboEnv):
 
         rospy.wait_for_service('/gazebo/pause_physics')
         try:
-            pause = rospy.ServiceProxy('/gazebo/pause_physics', Empty)
-            resp_pause = pause.call()
+            #resp_pause = pause.call()
+            self.pause()
         except rospy.ServiceException, e:
             print "/gazebo/pause_physics service call failed"
 
@@ -95,16 +111,16 @@ class GazeboCircuitTurtlebotLidarEnv(gazebo_env.GazeboEnv):
         # Resets the state of the environment and returns an initial observation.
         rospy.wait_for_service('/gazebo/reset_simulation')
         try:
-            reset_proxy = rospy.ServiceProxy('/gazebo/reset_simulation', Empty)
-            reset_proxy.call()
+            #reset_proxy.call()
+            self.reset_proxy()
         except rospy.ServiceException, e:
             print "/gazebo/reset_simulation service call failed"
 
         # Unpause simulation to make observation
         rospy.wait_for_service('/gazebo/unpause_physics')
         try:
-            pause = rospy.ServiceProxy('/gazebo/unpause_physics', Empty)
-            resp_pause = pause.call()
+            #resp_pause = pause.call()
+            self.unpause()
         except rospy.ServiceException, e:
             print "/gazebo/unpause_physics service call failed"
 
@@ -113,8 +129,8 @@ class GazeboCircuitTurtlebotLidarEnv(gazebo_env.GazeboEnv):
 
         rospy.wait_for_service('/gazebo/pause_physics')
         try:
-            pause = rospy.ServiceProxy('/gazebo/pause_physics', Empty)
-            resp_pause = pause.call()
+            #resp_pause = pause.call()
+            self.pause()
         except rospy.ServiceException, e:
             print "/gazebo/pause_physics service call failed"
 
