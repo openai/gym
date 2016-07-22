@@ -92,7 +92,8 @@ class GazeboCircuitTurtlebotLidarEnv(gazebo_env.GazeboEnv):
                 elif np.isnan(data.ranges[i]):
                     discretized_ranges.append(0)
                 else:
-                    discretized_ranges.append(int(data.ranges[i]))
+                    #discretized_ranges.append(int(data.ranges[i]))
+                    discretized_ranges.append(round(data.ranges[i] * 2) / 2)
             if (min_range > data.ranges[i] > 0):
                 done = True
                 break
@@ -100,7 +101,7 @@ class GazeboCircuitTurtlebotLidarEnv(gazebo_env.GazeboEnv):
         if not done:
             reward = 1
         else:
-            reward = 0
+            reward = -200
 
         state = discretized_ranges 
 
