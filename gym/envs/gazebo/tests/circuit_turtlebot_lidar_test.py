@@ -77,7 +77,7 @@ class LivePlot(object):
         plt.style.use('ggplot')
         plt.xlabel("")
         plt.ylabel(data_key)
-        fig = plt.gcf().canvas.set_window_title('')
+        fig = plt.gcf().canvas.set_window_title('simulation_graph')
 
     def plot(self):
         results = gym.monitoring.monitor.load_results(self.outdir)
@@ -113,10 +113,13 @@ if __name__ == '__main__':
     last_time_steps = numpy.ndarray(0)
 
     qlearn = QLearn(actions=range(env.action_space.n),
-                    alpha=0.7, gamma=0.8, epsilon=0.1)
+                    alpha=0.1, gamma=0.9, epsilon=0.9)
+
+    initial_epsilon = qlearn.epsilon
+    epsilon_discount = 0.997
 
     start_time = time.time()
-    total_episodes = 10000
+    total_episodes = 100
 
     for x in range(total_episodes):
         done = False
@@ -124,6 +127,8 @@ if __name__ == '__main__':
         accumulated_reward = 0 #Should going forward give more reward then L/R ?
 
         observation = env.reset()
+
+        qlearn.epsilon *= epsilon_discount
 
         #render() #defined above, not env.render()
 
@@ -139,24 +144,23 @@ if __name__ == '__main__':
 
             nextState = ''.join(map(str, observation))
 
+            qlearn.learn(state, action, reward, nextState)
             if not(done):
-                qlearn.learn(state, action, reward, nextState)
                 state = nextState
-
             else:
-                # Q-learn stuff
-                reward = -200
-                qlearn.learn(state, action, reward, nextState)
                 last_time_steps = numpy.append(last_time_steps, [int(i + 1)])
                 break 
 
             accumulated_reward += reward
 
-            plotter.plot()
+        plotter.plot()
 
         m, s = divmod(int(time.time() - start_time), 60)
         h, m = divmod(m, 60)
         print "EP: "+str(x+1)+" Reward: "+str(accumulated_reward)+"     Time: %d:%02d:%02d" % (h, m, s)+""
+
+    #Github table content
+    print "\n|"+str(total_episodes)+"|"+str(qlearn.alpha)+"|"+str(qlearn.gamma)+"|"+str(initial_epsilon)+"*"+str(epsilon_discount)+"|"+str(accumulated_reward)+"| PICTURE |"
 
     l = last_time_steps.tolist()
     l.sort()
