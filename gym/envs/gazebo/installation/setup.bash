@@ -38,6 +38,7 @@ sudo apt-get install -y git                            \
                         ros-indigo-bfl                 \
                         python-pip
 sudo easy_install numpy
+sudo pip install --upgrade matplotlib
 
 # Import and build dependencies
 vcs import < ../../gazebo.repos

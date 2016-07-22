@@ -5,6 +5,9 @@ import numpy
 import random
 import time
 
+import matplotlib
+import matplotlib.pyplot as plt
+
 class QLearn:
     def __init__(self, actions, epsilon, alpha, gamma):
         self.q = {}
@@ -55,6 +58,40 @@ class QLearn:
         maxqnew = max([self.getQ(state2, a) for a in self.actions])
         self.learnQ(state1, action1, reward, reward + self.gamma*maxqnew)
 
+class LivePlot(object):
+    def __init__(self, outdir, data_key='episode_rewards', line_color='blue'):
+        """
+        Liveplot renders a graph of either episode_rewards or episode_lengths
+        Args:
+            outdir (outdir): Monitor output file location used to populate the graph
+            data_key (Optional[str]): The key in the json to graph (episode_rewards or episode_lengths).
+            line_color (Optional[dict]): Color of the plot.
+        """
+        self.outdir = outdir
+        self._last_data = None
+        self.data_key = data_key
+        self.line_color = line_color
+
+        #styling options
+        matplotlib.rcParams['toolbar'] = 'None'
+        plt.style.use('ggplot')
+        plt.xlabel("")
+        plt.ylabel(data_key)
+        fig = plt.gcf().canvas.set_window_title('')
+
+    def plot(self):
+        results = gym.monitoring.monitor.load_results(self.outdir)
+        data =  results[self.data_key]
+
+        #only update plot if data is different (plot calls are expensive)
+        if data !=  self._last_data:
+            self._last_data = data
+            plt.plot(data, color=self.line_color)
+
+            # pause so matplotlib will display
+            # may want to figure out matplotlib animation or use a different library in the future
+            plt.pause(0.000001)
+
 def render():
     render_skip = 0 #Skip first X episodes.
     render_interval = 50 #Show render Every Y episodes.
@@ -68,6 +105,10 @@ def render():
 if __name__ == '__main__':
 
     env = gym.make('GazeboCircuitTurtlebotLidar-v0')
+
+    outdir = '/tmp/cartpole-experiment-1'
+    env.monitor.start(outdir, force=True, seed=None)
+    plotter = LivePlot(outdir)
 
     last_time_steps = numpy.ndarray(0)
 
@@ -111,6 +152,8 @@ if __name__ == '__main__':
 
             accumulated_reward += reward
 
+            plotter.plot()
+
         m, s = divmod(int(time.time() - start_time), 60)
         h, m = divmod(m, 60)
         print "EP: "+str(x+1)+" Reward: "+str(accumulated_reward)+"     Time: %d:%02d:%02d" % (h, m, s)+""
@@ -122,4 +165,5 @@ if __name__ == '__main__':
     print("Overall score: {:0.2f}".format(last_time_steps.mean()))
     print("Best 100 score: {:0.2f}".format(reduce(lambda x, y: x + y, l[-100:]) / len(l[-100:])))
 
+    env.monitor.close()
     env.close()
