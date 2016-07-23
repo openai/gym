@@ -186,6 +186,14 @@ Install dependencies running `setup.bash
 	cd gym/envs/gazebo/installation
 	bash setup.bash
 
+Load environment. Example:
+
+.. code:: bash
+
+	cd gym/envs/gazebo/installation
+	bash turtlebotSetup.bash
+
+
 Environments
 ============
 
