@@ -54,7 +54,7 @@ register(
     id='CartPole-v0',
     entry_point='gym.envs.classic_control:CartPoleEnv',
     timestep_limit=200,
-    reward_threshold=475.0,
+    reward_threshold=195.0,
 )
 
 register(
