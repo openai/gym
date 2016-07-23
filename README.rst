@@ -193,6 +193,11 @@ Load environment. Example:
 	cd gym/envs/gazebo/installation
 	bash turtlebotSetup.bash
 
+Load ROS workspace.
+
+.. code:: bash
+
+	source gym/envs/gazebo/installation/catkin_ws/devel_isolated/setup.bash
 
 Environments
 ============
