@@ -141,7 +141,8 @@ if __name__ == '__main__':
 
             # Execute the action and get feedback
             observation, reward, done, info = env.step(action)
-
+            accumulated_reward += reward
+            
             nextState = ''.join(map(str, observation))
 
             qlearn.learn(state, action, reward, nextState)
@@ -150,8 +151,6 @@ if __name__ == '__main__':
             else:
                 last_time_steps = numpy.append(last_time_steps, [int(i + 1)])
                 break 
-
-            accumulated_reward += reward
 
         plotter.plot()
 
