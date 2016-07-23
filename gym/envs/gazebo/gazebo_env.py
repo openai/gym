@@ -33,8 +33,6 @@ class GazeboEnv(gym.Env):
         subprocess.Popen(["roslaunch",fullpath])
         print "Gazebo launched!"
 
-        subprocess.Popen(["rosrun", "gazebo_iterations", "gazebo_iterations"])
-
     def _step(self, action):
 
         # Implement this method in every subclass
