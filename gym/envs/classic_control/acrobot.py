@@ -2,6 +2,7 @@
 from gym import core, spaces
 from gym.utils import seeding
 import numpy as np
+from numpy import sin, cos, pi
 import time
 
 __copyright__ = "Copyright 2013, RLPy http://acl.mit.edu/RLPy"
@@ -80,7 +81,7 @@ class AcrobotEnv(core.Env):
 
     def __init__(self):
         self.viewer = None
-        high = np.array([np.pi, np.pi, self.MAX_VEL_1, self.MAX_VEL_2])
+        high = np.array([1.0, 1.0, 1.0, 1.0, self.MAX_VEL_1, self.MAX_VEL_2])
         low = -high
         self.observation_space = spaces.Box(low, high)
         self.action_space = spaces.Discrete(3)
@@ -92,7 +93,7 @@ class AcrobotEnv(core.Env):
 
     def _reset(self):
         self.state = self.np_random.uniform(low=-0.1, high=0.1, size=(4,))
-        return self.state
+        return self._get_ob()
 
     def _step(self, a):
         s = self.state
@@ -115,14 +116,18 @@ class AcrobotEnv(core.Env):
         # self.s_continuous = ns_continuous[-1] # We only care about the state
         # at the ''final timestep'', self.dt
 
-        ns[0] = wrap(ns[0], -np.pi, np.pi)
-        ns[1] = wrap(ns[1], -np.pi, np.pi)
+        ns[0] = wrap(ns[0], -pi, pi)
+        ns[1] = wrap(ns[1], -pi, pi)
         ns[2] = bound(ns[2], -self.MAX_VEL_1, self.MAX_VEL_1)
         ns[3] = bound(ns[3], -self.MAX_VEL_2, self.MAX_VEL_2)
-        self.state = ns.copy()
+        self.state = ns
         terminal = self._terminal()
         reward = -1. if not terminal else 0.
-        return (np.array(self.state), reward, terminal, {})
+        return (self._get_ob(), reward, terminal, {})
+
+    def _get_ob(self):
+        s = self.state
+        return np.array([cos(s[0]), np.sin(s[0]), cos(s[1]), sin(s[1]), s[2], s[3]])
 
     def _terminal(self):
         s = self.state
