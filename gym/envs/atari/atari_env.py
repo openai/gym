@@ -8,7 +8,7 @@ from gym.utils import seeding
 try:
     import atari_py
 except ImportError as e:
-    raise error.DependencyNotInstalled("{}. (HINT: you can install Atari dependencies with 'pip install gym[atari].)'".format(e))
+    raise error.DependencyNotInstalled("{}. (HINT: you can install Atari dependencies by running 'pip install gym[atari]'.)".format(e))
 
 import logging
 logger = logging.getLogger(__name__)
