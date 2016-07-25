@@ -3,7 +3,7 @@ Simple environment with known optimal policy and value function.
 
 Action 0 then 0 yields randomly -1 or 1 reward and terminates the session.
 Action 0 then 1 yields randomly 0, 0, or 9 reward and terminates the session.
-Action 0 then 0 yields randomly 0 or 2 reward and terminates the session.
+Action 1 then 0 yields randomly 0 or 2 reward and terminates the session.
 Action 1 then 1 yields randomly 2 or 3 reward and terminates the session.
 
 Optimal policy: action 0 then 1.
