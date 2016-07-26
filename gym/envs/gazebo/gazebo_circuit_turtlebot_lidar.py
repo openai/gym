@@ -139,7 +139,6 @@ class GazeboCircuitTurtlebotLidarEnv(gazebo_env.GazeboEnv):
         discretized_ranges = []
         discretized_ranges_amount = 20
 
-        print len(data.ranges)
         mod = (len(data.ranges) / discretized_ranges_amount)
         for i, item in enumerate(data.ranges):
             if (i%mod==0):
