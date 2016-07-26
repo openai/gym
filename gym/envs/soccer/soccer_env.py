@@ -46,53 +46,47 @@ class SoccerEnv(gym.Env, utils.EzPickle):
         """
         self._start_hfo_server()
 
-    def _start_hfo_server(self, headless=True, frames_per_trial=500,
+    def _start_hfo_server(self, frames_per_trial=500,
                           untouched_time=100, offense_agents=1,
                           defense_agents=0, offense_npcs=0,
-                          defense_npcs=0, offense_team="base",
-                          defense_team="base", no_sync=False,
-                          port=6000, record=False, offense_on_ball=0,
-                          fullstate=False, seed=-1, message_size=1000,
+                          defense_npcs=0, sync_mode=True, port=6000,
+                          offense_on_ball=0, fullstate=False, seed=-1,
                           ball_x_min=0.0, ball_x_max=0.2,
-                          verbose=False, log_dir="log"):
+                          verbose=False, log_game=False,
+                          log_dir="log"):
         """
         Starts the Half-Field-Offense server.
-        headless: Run without a visual display.
-        frames_per_trial: Trials end after this many steps.
-        untouched_time: Trials end if the ball is untouched for this many steps.
+        frames_per_trial: Episodes end after this many steps.
+        untouched_time: Episodes end if the ball is untouched for this many steps.
         offense_agents: Number of user-controlled offensive players.
         defense_agents: Number of user-controlled defenders.
         offense_npcs: Number of offensive bots.
         defense_npcs: Number of defense bots.
-        offense_team: Policy that offensive bots should use: either base/helios.
-        defense_team: Policy that defense bots should use: either base/helios.
-        no_sync: Disable sync mode, and run in real time. Slow!
+        sync_mode: Disabling sync mode runs server in real time (SLOW!).
         port: Port to start the server on.
-        record: Enable recording of states & actions from all players.
         offense_on_ball: Player to give the ball to at beginning of episode.
         fullstate: Enable noise-free perception.
         seed: Seed the starting positions of the players and ball.
-        message_size: Buffer size for spoken communication.
         ball_x_[min/max]: Initialize the ball this far downfield: [0,1]
-        verbose: Don't suppress server messages.
+        verbose: Verbose server messages.
+        log_game: Enable game logging. Logs can be used for replay + visualization.
         log_dir: Directory to place game logs (*.rcg).
         """
         self.server_port = port
         cmd = self.hfo_path + \
-              " --frames-per-trial %i --untouched-time %i" \
-              " --offense-agents %i --defense-agents %i --offense-npcs %i"\
-              " --defense-npcs %i --offense-team %s --defense-team %s --port %i"\
-              " --offense-on-ball %i --seed %i --message-size %i --ball-x-min %f"\
+              " --headless --frames-per-trial %i --untouched-time %i --offense-agents %i"\
+              " --defense-agents %i --offense-npcs %i --defense-npcs %i"\
+              " --port %i --offense-on-ball %i --seed %i --ball-x-min %f"\
               " --ball-x-max %f --log-dir %s"\
               % (frames_per_trial, untouched_time, offense_agents,
-                 defense_agents, offense_npcs, defense_npcs, offense_team, defense_team,
-                 port, offense_on_ball, seed, message_size, ball_x_min, ball_x_max, log_dir)
-        if headless: cmd += " --headless"
-        if no_sync: cmd += " --no-sync"
-        if record: cmd += " --record"
-        if fullstate: cmd += " --fullstate"
-        if verbose: cmd += " --verbose"
-        print "Starting server with command: %s" % cmd
+                 defense_agents, offense_npcs, defense_npcs, port,
+                 offense_on_ball, seed, ball_x_min, ball_x_max,
+                 log_dir)
+        if not sync_mode: cmd += " --no-sync"
+        if fullstate:     cmd += " --fullstate"
+        if verbose:       cmd += " --verbose"
+        if not log_game:  cmd += " --no-logging"
+        print('Starting server with command: %s' % cmd)
         self.server_process = subprocess.Popen(cmd.split(' '), shell=False)
         time.sleep(10) # Wait for server to startup before connecting a player
 
@@ -130,7 +124,7 @@ class SoccerEnv(gym.Env, utils.EzPickle):
         elif action_type == hfo_py.CATCH:
             self.env.act(action_type)
         else:
-            print "Unrecognized action %d" % action_type
+            print('Unrecognized action %d' % action_type)
             self.env.act(hfo_py.NOOP)
 
     def _get_reward(self):
