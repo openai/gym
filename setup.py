@@ -25,7 +25,7 @@ setup(name='gym',
                   'doom_py>=0.0.11',
                   'mujoco_py>=0.5.2', 'imageio',
                   'keras', 'theano',
-                  'hfo_py>=0.1'],
+                  'hfo_py>=0.2'],
 
           # Environment-specific dependencies. Keep these in sync with
           # 'all'!
@@ -36,7 +36,7 @@ setup(name='gym',
           'doom': ['doom_py>=0.0.11'],
           'mujoco': ['mujoco_py>=0.4.3', 'imageio'],
           'parameter_tuning': ['keras', 'theano'],
-          'soccer': ['hfo_py>=0.1'],
+          'soccer': ['hfo_py>=0.2'],
       },
       package_data={'gym': ['envs/mujoco/assets/*.xml', 'envs/classic_control/assets/*.png', 'envs/doom/assets/*.cfg']},
       tests_require=['nose2', 'mock'],
