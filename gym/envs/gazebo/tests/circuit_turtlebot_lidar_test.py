@@ -116,10 +116,10 @@ if __name__ == '__main__':
                     alpha=0.1, gamma=0.9, epsilon=0.9)
 
     initial_epsilon = qlearn.epsilon
-    epsilon_discount = 0.997
+    epsilon_discount = 0.998
 
     start_time = time.time()
-    total_episodes = 100
+    total_episodes = 1000
 
     for x in range(total_episodes):
         done = False
@@ -156,7 +156,7 @@ if __name__ == '__main__':
 
         m, s = divmod(int(time.time() - start_time), 60)
         h, m = divmod(m, 60)
-        print "EP: "+str(x+1)+" Reward: "+str(accumulated_reward)+"     Time: %d:%02d:%02d" % (h, m, s)+""
+        print "EP: "+str(x+1)+" - epsilon: "+str(round(qlearn.epsilon,2))+" - Reward: "+str(accumulated_reward)+"     Time: %d:%02d:%02d" % (h, m, s)
 
     #Github table content
     print "\n|"+str(total_episodes)+"|"+str(qlearn.alpha)+"|"+str(qlearn.gamma)+"|"+str(initial_epsilon)+"*"+str(epsilon_discount)+"|"+str(accumulated_reward)+"| PICTURE |"
