@@ -120,11 +120,12 @@ if __name__ == '__main__':
 
     start_time = time.time()
     total_episodes = 1000
+    highest_reward = 0
 
     for x in range(total_episodes):
         done = False
 
-        accumulated_reward = 0 #Should going forward give more reward then L/R ?
+        cumulated_reward = 0 #Should going forward give more reward then L/R ?
 
         observation = env.reset()
 
@@ -141,8 +142,11 @@ if __name__ == '__main__':
 
             # Execute the action and get feedback
             observation, reward, done, info = env.step(action)
-            accumulated_reward += reward
-            
+            cumulated_reward += reward
+
+            if highest_reward < cumulated_reward:
+                highest_reward = cumulated_reward
+
             nextState = ''.join(map(str, observation))
 
             qlearn.learn(state, action, reward, nextState)
@@ -156,10 +160,10 @@ if __name__ == '__main__':
 
         m, s = divmod(int(time.time() - start_time), 60)
         h, m = divmod(m, 60)
-        print "EP: "+str(x+1)+" - epsilon: "+str(round(qlearn.epsilon,2))+" - Reward: "+str(accumulated_reward)+"     Time: %d:%02d:%02d" % (h, m, s)
+        print "EP: "+str(x+1)+" - epsilon: "+str(round(qlearn.epsilon,2))+" - Reward: "+str(cumulated_reward)+"     Time: %d:%02d:%02d" % (h, m, s)
 
     #Github table content
-    print "\n|"+str(total_episodes)+"|"+str(qlearn.alpha)+"|"+str(qlearn.gamma)+"|"+str(initial_epsilon)+"*"+str(epsilon_discount)+"|"+str(accumulated_reward)+"| PICTURE |"
+    print "\n|"+str(total_episodes)+"|"+str(qlearn.alpha)+"|"+str(qlearn.gamma)+"|"+str(initial_epsilon)+"*"+str(epsilon_discount)+"|"+str(highest_reward)+"| PICTURE |"
 
     l = last_time_steps.tolist()
     l.sort()
