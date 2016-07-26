@@ -24,7 +24,8 @@ setup(name='gym',
                   'box2d-py',
                   'doom_py>=0.0.11',
                   'mujoco_py>=0.4.3', 'imageio',
-                  'keras', 'theano'],
+                  'keras', 'theano',
+                  'hfo_py>=0.1'],
 
           # Environment-specific dependencies. Keep these in sync with
           # 'all'!
