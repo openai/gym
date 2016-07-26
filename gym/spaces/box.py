@@ -17,6 +17,7 @@ class Box(gym.Space):
             Box(-1.0, 1.0, (3,4)) # low and high are scalars, and shape is provided
             Box(np.array([-1.0,-2.0]), np.array([2.0,4.0])) # low and high are arrays of the same shape
         """
+        self.prng = prng
         if shape is None:
             assert low.shape == high.shape
             self.low = low

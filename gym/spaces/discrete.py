@@ -11,6 +11,7 @@ class Discrete(gym.Space):
     self.observation_space = spaces.Discrete(2)
     """
     def __init__(self, n):
+        self.prng = prng
         self.n = n
     def sample(self):
         return prng.np_random.randint(self.n)
