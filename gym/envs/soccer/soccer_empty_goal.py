@@ -62,14 +62,14 @@ class SoccerEmptyGoalEnv(soccer_env.SoccerEnv):
         if not self.first_step:
             # Reward the agent for moving towards the ball
             reward += ball_prox_delta
-        if kickable_delta > 0 and not self.got_kickable_reward:
-            reward += 1.
-            self.got_kickable_reward = True
-        # Reward the agent for kicking towards the goal
-        reward += 0.6 * -ball_dist_goal_delta
-        # Reward the agent for scoring
-        if self.status == hfo_py.GOAL:
-            reward += 5.0
+            if kickable_delta > 0 and not self.got_kickable_reward:
+                reward += 1.
+                self.got_kickable_reward = True
+            # Reward the agent for kicking towards the goal
+            reward += 0.6 * -ball_dist_goal_delta
+            # Reward the agent for scoring
+            if self.status == hfo_py.GOAL:
+                reward += 5.0
         self.first_step = False
         return reward
 
