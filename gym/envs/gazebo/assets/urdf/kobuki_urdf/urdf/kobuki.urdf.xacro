@@ -236,7 +236,7 @@
     max_range="20.0"
     field_of_view_horizontal="${270*M_PI/180}"
     field_of_view_vertical="${1*M_PI/180}"
-    ray_count_horizontal="542"
+    ray_count_horizontal="40"
     ray_count_vertical="1"
     sensor_mesh="lidar_lite_v2_withRay/meshes/lidar_lite_v2_withRay.dae">
     <origin xyz="0.1 0 0.42" rpy="0 0 0"/>

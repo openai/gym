@@ -79,24 +79,24 @@ class GazeboCircuitTurtlebotLidarEnv(gazebo_env.GazeboEnv):
 
         #simplify ranges - discretize
         discretized_ranges = []
-        discretized_ranges_amount = 10
+        discretized_ranges_amount = 20
         min_range = 0.2 #collision
 
         done = False
 
         mod = (len(data.ranges) / discretized_ranges_amount)
         for i, item in enumerate(data.ranges):
-            if (i%mod==0) and (i!=0):
+            if (i%mod==0):
                 if data.ranges[i] == float ('Inf'):
                     discretized_ranges.append(int(data.range_max))
                 elif np.isnan(data.ranges[i]):
                     discretized_ranges.append(0)
                 else:
-                    #discretized_ranges.append(int(data.ranges[i]))
-                    discretized_ranges.append(round(data.ranges[i] * 2) / 2)
+                    discretized_ranges.append(int(data.ranges[i]))
+                    #discretized_ranges.append(round(data.ranges[i] * 2) / 2)
             if (min_range > data.ranges[i] > 0):
                 done = True
-                break
+                #break
 
         if not done:
             reward = 1
@@ -137,11 +137,12 @@ class GazeboCircuitTurtlebotLidarEnv(gazebo_env.GazeboEnv):
 
         #simplify ranges - discretize
         discretized_ranges = []
-        discretized_ranges_amount = 10
+        discretized_ranges_amount = 20
 
+        print len(data.ranges)
         mod = (len(data.ranges) / discretized_ranges_amount)
         for i, item in enumerate(data.ranges):
-            if (i%mod==0) and (i!=0):
+            if (i%mod==0):
                 if data.ranges[i] == float ('Inf'):
                     discretized_ranges.append(int(data.range_max))
                 elif np.isnan(data.ranges[i]):
