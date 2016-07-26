@@ -79,7 +79,7 @@ class GazeboCircuitTurtlebotLidarEnv(gazebo_env.GazeboEnv):
 
         #simplify ranges - discretize
         discretized_ranges = []
-        discretized_ranges_amount = 20
+        discretized_ranges_amount = 5
         min_range = 0.2 #collision
 
         done = False
@@ -137,7 +137,7 @@ class GazeboCircuitTurtlebotLidarEnv(gazebo_env.GazeboEnv):
 
         #simplify ranges - discretize
         discretized_ranges = []
-        discretized_ranges_amount = 20
+        discretized_ranges_amount = 5
 
         mod = (len(data.ranges) / discretized_ranges_amount)
         for i, item in enumerate(data.ranges):
