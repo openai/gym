@@ -23,7 +23,7 @@ setup(name='gym',
                   'pachi-py>=0.0.19',
                   'box2d-py',
                   'doom_py>=0.0.11',
-                  'mujoco_py>=0.4.3', 'imageio',
+                  'mujoco_py>=0.5.2', 'imageio',
                   'keras', 'theano',
                   'hfo_py>=0.1'],
 

@@ -378,3 +378,6 @@ class FileUpload(ListableAPIResource):
 class Evaluation(CreateableAPIResource):
     def web_url(self):
         return "%s/evaluations/%s" % (gym.scoreboard.web_base, self.get('id'))
+
+class Algorithm(CreateableAPIResource):
+    pass
