@@ -116,7 +116,9 @@ if __name__ == '__main__':
                     alpha=0.1, gamma=0.9, epsilon=0.9)
 
     initial_epsilon = qlearn.epsilon
+
     epsilon_discount = 0.998
+
 
     start_time = time.time()
     total_episodes = 1000
@@ -129,7 +131,8 @@ if __name__ == '__main__':
 
         observation = env.reset()
 
-        qlearn.epsilon *= epsilon_discount
+        if qlearn.epsilon > 0.1:
+            qlearn.epsilon *= epsilon_discount
 
         #render() #defined above, not env.render()
 
