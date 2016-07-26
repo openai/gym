@@ -229,7 +229,7 @@ class APIResource(GymObject):
         if cls == APIResource:
             raise NotImplementedError(
                 'APIResource is an abstract class.  You should perform '
-                'actions on its subclasses (e.g. Charge, Customer)')
+                'actions on its subclasses')
         return str(urllib.parse.quote_plus(cls.__name__.lower()))
 
     @classmethod
@@ -381,3 +381,8 @@ class Evaluation(CreateableAPIResource):
 
 class Algorithm(CreateableAPIResource):
     pass
+
+class BenchmarkRun(CreateableAPIResource):
+    @classmethod
+    def class_name(cls):
+        return 'benchmark_run'
