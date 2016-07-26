@@ -2,7 +2,7 @@ import numpy
 
 np_random = numpy.random.RandomState()
 
-def seed(seed=None):
+def seed_action_space(seed=None):
     """Seed the common numpy.random.RandomState used in spaces
 
     CF
@@ -17,4 +17,4 @@ def seed(seed=None):
 # This numpy.random.RandomState gets used in all spaces for their
 # 'sample' method. It's not really expected that people will be using
 # these in their algorithms.
-seed(0)
+seed_action_space(0)

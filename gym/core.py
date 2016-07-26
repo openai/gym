@@ -265,3 +265,9 @@ class Space(object):
         """Convert a JSONable data type to a batch of samples from this space."""
         # By default, assume identity is JSONable
         return sample_n
+
+    def seed_prng(self, seed):
+        """
+        Seed the random number generator associated with the class.
+        """
+        self.prng.seed_action_space(seed)

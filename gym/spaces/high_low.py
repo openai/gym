@@ -22,6 +22,7 @@ class HighLow(gym.Space):
 
         e.g. np.matrix([[0, 1, 0], [0, 1, 0], [0.0, 100.0, 2]])
         """
+        self.prng = prng
         (num_rows, num_cols) = matrix.shape
         assert num_rows >= 1
         assert num_cols == 3
