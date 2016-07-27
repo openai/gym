@@ -79,14 +79,14 @@
     </state>
     <gui fullscreen='0'>
       <camera name='user_camera'>
-        <pose>2.6 -1.69 12.2 0 1.56 3.14</pose>
+        <pose>0.03 -2.63 16.04 0 1.56 3.14</pose>
         <view_controller>orbit</view_controller>
       </camera>
     </gui>
     <!-- A simple circuit -->
     <include>
       <uri>model://Circuit_ql_2</uri>
-      <pose>2.4 -2.1 0 0 0 0</pose>
+      <pose>0 -3.85 0 0 0 1.567</pose>
     </include>
   </world>
 </sdf>
