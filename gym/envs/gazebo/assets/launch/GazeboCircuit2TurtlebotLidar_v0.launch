@@ -1,0 +1,28 @@
+<launch>
+  <arg name="world_file"  default="$(env GYM_GAZEBO_WORLD_CIRCUIT2)"/>
+  <arg name="base"      value="$(optenv TURTLEBOT_BASE kobuki)"/> <!-- create, roomba -->
+  <arg name="battery"   value="$(optenv TURTLEBOT_BATTERY /proc/acpi/battery/BAT0)"/>  <!-- /proc/acpi/battery/BAT0 --> 
+  <arg name="paused" value="true"/>
+  <arg name="gui" default="false"/>
+  <arg name="headless" value="true"/>
+  <arg name="stacks"    value="$(optenv TURTLEBOT_STACKS hexagons)"/>  <!-- circles, hexagons --> 
+  <arg name="3d_sensor" value="$(optenv TURTLEBOT_3D_SENSOR kinect)"/>  <!-- kinect, asus_xtion_pro --> 
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="use_sim_time" value="true"/>
+    <arg name="debug" value="false"/>
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="world_name" value="$(arg world_file)"/>
+  </include>
+  
+  <include file="$(find turtlebot_gazebo)/launch/includes/$(arg base).launch.xml">
+    <arg name="base" value="$(arg base)"/>
+    <arg name="stacks" value="$(arg stacks)"/>
+    <arg name="3d_sensor" value="$(arg 3d_sensor)"/>
+  </include>
+  
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+    <param name="publish_frequency" type="double" value="30.0" />
+  </node>
+
+</launch>
