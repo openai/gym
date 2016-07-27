@@ -77,18 +77,3 @@ def test_random_rollout():
             assert env.action_space.contains(a)
             (ob, _reward, done, _info) = env.step(a)
             if done: break
-
-def test_double_close():
-    class TestEnv(gym.Env):
-        def __init__(self):
-            self.close_count = 0
-
-        def _close(self):
-            self.close_count += 1
-
-    env = TestEnv()
-    assert env.close_count == 0
-    env.close()
-    assert env.close_count == 1
-    env.close()
-    assert env.close_count == 1
