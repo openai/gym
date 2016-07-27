@@ -487,6 +487,6 @@ register(
 )
 register(
     id='GazeboCircuit2TurtlebotLidar-v0',
-    entry_point='gym.envs.gazebo:GazeboCircuitTurtlebotLidarEnv',
+    entry_point='gym.envs.gazebo:GazeboCircuit2TurtlebotLidarEnv',
     # More arguments here
 )
