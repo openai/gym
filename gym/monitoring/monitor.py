@@ -78,7 +78,7 @@ class Monitor(object):
     """
 
     def __init__(self, env):
-        self.env = env
+        self._env_weakref = weakref.ref(env)
         self.videos = []
 
         self.stats_recorder = None
@@ -87,6 +87,10 @@ class Monitor(object):
         self.episode_id = 0
         self._monitor_id = None
         self.seeds = None
+
+    @property
+    def env(self):
+        return self._env_weakref()
 
     def start(self, directory, video_callable=None, force=False, resume=False, seed=None):
         """Start monitoring.
@@ -169,23 +173,26 @@ class Monitor(object):
             self._close_video_recorder()
         self.flush()
 
-        # Note we'll close the env's rendering window even if we did
-        # not open it. There isn't a particular great way to know if
-        # we did, since some environments will have a window pop up
-        # during video recording.
-        try:
-            self.env.render(close=True)
-        except Exception as e:
-            if self.env.spec:
-                key = self.env.spec.id
-            else:
-                key = self.env
-            # We don't want to avoid writing the manifest simply
-            # because we couldn't close the renderer.
-            logger.error('Could not close renderer for %s: %s', key, e)
+        # Only execute if the env is still around.
+        if self.env is not None:
+            # Note we'll close the env's rendering window even if we did
+            # not open it. There isn't a particular great way to know if
+            # we did, since some environments will have a window pop up
+            # during video recording.
+            try:
+                self.env.render(close=True)
+            except Exception as e:
+                if self.env.spec:
+                    key = self.env.spec.id
+                else:
+                    key = self.env
+                # We don't want to avoid writing the manifest simply
+                # because we couldn't close the renderer.
+                logger.error('Could not close renderer for %s: %s', key, e)
 
-        # Remove the env's pointer to this monitor
-        del self.env._monitor
+            # Remove the env's pointer to this monitor
+            del self.env._monitor
+
         # Stop tracking this for autoclose
         monitor_closer.unregister(self._monitor_id)
 

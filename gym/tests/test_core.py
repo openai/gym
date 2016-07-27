@@ -13,3 +13,33 @@ def test_env_instantiation():
     env = ArgumentEnv('arg')
     assert env.arg == 'arg'
     assert env.calls == 1
+
+class RefcountingEnv(core.Env):
+    instances = 0
+
+    def __init__(self):
+        RefcountingEnv.instances += 1
+
+    def __del__(self):
+        RefcountingEnv.instances -= 1
+
+    def _reset(self):
+        pass
+
+# Monitors are kept around until the termination of the current process,
+# unless explicitly closed. Ensure that the monitor does not keep the env
+# itself around, too.
+def test_monitor_does_not_block_gc():
+    def make_and_use_env(call_reset=False):
+        env = RefcountingEnv()
+        assert 1 == RefcountingEnv.instances
+        if call_reset:
+            env.reset()
+
+    assert 0 == RefcountingEnv.instances
+    make_and_use_env()
+    assert 0 == RefcountingEnv.instances
+
+    assert 0 == RefcountingEnv.instances
+    make_and_use_env(call_reset=True)
+    assert 0 == RefcountingEnv.instances
