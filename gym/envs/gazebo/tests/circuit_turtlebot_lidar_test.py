@@ -117,7 +117,7 @@ if __name__ == '__main__':
 
     initial_epsilon = qlearn.epsilon
 
-    epsilon_discount = 0.998
+    epsilon_discount = 0.998 # 1098 eps to reach 0.1
 
     start_time = time.time()
     total_episodes = 10000
