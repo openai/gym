@@ -113,11 +113,11 @@ if __name__ == '__main__':
     last_time_steps = numpy.ndarray(0)
 
     qlearn = QLearn(actions=range(env.action_space.n),
-                    alpha=0.1, gamma=0.8, epsilon=0.9)
+                    alpha=0.2, gamma=0.8, epsilon=0.9)
 
     initial_epsilon = qlearn.epsilon
 
-    epsilon_discount = 0.998
+    epsilon_discount = 0.9986
 
     start_time = time.time()
     total_episodes = 10000
@@ -137,7 +137,7 @@ if __name__ == '__main__':
 
         state = ''.join(map(str, observation))
 
-        for i in range(500):
+        for i in range(1500):
 
             # Pick an action based on the current state
             action = qlearn.chooseAction(state)
