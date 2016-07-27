@@ -3,6 +3,7 @@ from gym.envs.doom import doom_env
 
 logger = logging.getLogger(__name__)
 
+
 class DoomHealthGatheringEnv(doom_env.DoomEnv):
     """
     ------------ Training Mission 5 - Health Gathering ------------

@@ -3,6 +3,7 @@ from gym.envs.doom import doom_env
 
 logger = logging.getLogger(__name__)
 
+
 class DoomDeathmatchEnv(doom_env.DoomEnv):
     """
     ------------ Final Mission - Deathmatch ------------
@@ -35,6 +36,9 @@ class DoomDeathmatchEnv(doom_env.DoomEnv):
         [...]
         actions[42] = 0      # MOVE_UP_DOWN_DELTA
         A full list of possible actions is available in controls.md
+
+    Note:
+        actions[33] (DROP_SELECTED_WEAPON) is currently disabled, because it causes VizDoom to crash
     -----------------------------------------------------
     """
     def __init__(self):
