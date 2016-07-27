@@ -5,6 +5,18 @@ import sys, os.path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'gym'))
 from version import VERSION
 
+extras = {
+    'atari': ['atari_py>=0.0.17', 'Pillow', 'PyOpenGL'],
+    'board_game' : ['pachi-py>=0.0.19'],
+    'box2d': ['box2d-py'],
+    'classic_control': ['PyOpenGL'],
+    'doom': ['doom_py>=0.0.11'],
+    'mujoco': ['mujoco_py>=0.5.4', 'imageio'],
+    'parameter_tuning': ['keras', 'theano'],
+}
+all_deps = reduce(lambda a, b: a+b, extras.values())
+extras['all'] = all_deps
+
 setup(name='gym',
       version=VERSION,
       description='The OpenAI Gym: A toolkit for developing and comparing your reinforcement learning agents.',
@@ -18,24 +30,7 @@ setup(name='gym',
       install_requires=[
           'numpy>=1.10.4', 'requests>=2.0', 'six', 'pyglet>=1.2.0',
       ],
-      extras_require={
-          'all': ['atari_py>=0.0.17', 'Pillow', 'PyOpenGL',
-                  'pachi-py>=0.0.19',
-                  'box2d-py',
-                  'doom_py>=0.0.11',
-                  'mujoco_py>=0.5.2', 'imageio',
-                  'keras', 'theano'],
-
-          # Environment-specific dependencies. Keep these in sync with
-          # 'all'!
-          'atari': ['atari_py>=0.0.17', 'Pillow', 'PyOpenGL'],
-          'board_game' : ['pachi-py>=0.0.19'],
-          'box2d': ['box2d-py'],
-          'classic_control': ['PyOpenGL'],
-          'doom': ['doom_py>=0.0.11'],
-          'mujoco': ['mujoco_py>=0.4.3', 'imageio'],
-          'parameter_tuning': ['keras', 'theano'],
-      },
+      extras_require=extras,
       package_data={'gym': ['envs/mujoco/assets/*.xml', 'envs/classic_control/assets/*.png', 'envs/doom/assets/*.cfg']},
       tests_require=['nose2', 'mock'],
 )
