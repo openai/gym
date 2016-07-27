@@ -136,7 +136,7 @@
       <collision name='Wall_14_Collision'>
         <geometry>
           <box>
-            <size>2.5 0.15 1</size>
+            <size>2.25 0.15 1</size>
           </box>
         </geometry>
         <pose frame=''>0 0 0.5 0 -0 0</pose>
@@ -145,7 +145,7 @@
         <pose frame=''>0 0 0.5 0 -0 0</pose>
         <geometry>
           <box>
-            <size>2.5 0.15 1</size>
+            <size>2.25 0.15 1</size>
           </box>
         </geometry>
         <material>
@@ -156,7 +156,7 @@
           <ambient>1 1 1 1</ambient>
         </material>
       </visual>
-      <pose frame=''>1.989 -3.091 0 0 -0 0</pose>
+      <pose frame=''>1.9 -3.091 0 0 -0 0</pose>
     </link>
     <link name='Wall_15'>
       <collision name='Wall_15_Collision'>
@@ -182,13 +182,13 @@
           <ambient>1 1 1 1</ambient>
         </material>
       </visual>
-      <pose frame=''>3.1715 -0.1735 0 0 -0 1.56823</pose>
+      <pose frame=''>3.0215 -0.1735 0 0 -0 1.56823</pose>
     </link>
     <link name='Wall_16'>
       <collision name='Wall_16_Collision'>
         <geometry>
           <box>
-            <size>6.25 0.15 1</size>
+            <size>6.2 0.15 1</size>
           </box>
         </geometry>
         <pose frame=''>0 0 0.5 0 -0 0</pose>
@@ -197,7 +197,7 @@
         <pose frame=''>0 0 0.5 0 -0 0</pose>
         <geometry>
           <box>
-            <size>6.25 0.15 1</size>
+            <size>6.2 0.15 1</size>
           </box>
         </geometry>
         <material>
@@ -208,13 +208,13 @@
           <ambient>1 1 1 1</ambient>
         </material>
       </visual>
-      <pose frame=''>0.129 2.744 0 0 -0 3.14159</pose>
+      <pose frame=''>-0.02 2.744 0 0 -0 3.14159</pose>
     </link>
     <link name='Wall_2'>
       <collision name='Wall_2_Collision'>
         <geometry>
           <box>
-            <size>3.75 0.15 1</size>
+            <size>3.7 0.15 1</size>
           </box>
         </geometry>
         <pose frame=''>0 0 0.5 0 -0 0</pose>
@@ -223,7 +223,7 @@
         <pose frame=''>0 0 0.5 0 -0 0</pose>
         <geometry>
           <box>
-            <size>3.75 0.15 1</size>
+            <size>3.7 0.15 1</size>
           </box>
         </geometry>
         <material>
