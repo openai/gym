@@ -27,7 +27,6 @@ class GazeboCircuitTurtlebotLidarEnv(gazebo_env.GazeboEnv):
 
         self.gazebo_step_size = long(200)
 
-
         self.unpause = rospy.ServiceProxy('/gazebo/unpause_physics', Empty)
 
         self.pause = rospy.ServiceProxy('/gazebo/pause_physics', Empty)
@@ -42,7 +41,6 @@ class GazeboCircuitTurtlebotLidarEnv(gazebo_env.GazeboEnv):
 
     def _step(self, action):
 
-
         rospy.wait_for_service('/gazebo/unpause_physics')
         try:
 
@@ -53,7 +51,7 @@ class GazeboCircuitTurtlebotLidarEnv(gazebo_env.GazeboEnv):
 
         if action == 0: #FORWARD
             vel_cmd = Twist()
-            vel_cmd.linear.x = 1
+            vel_cmd.linear.x = 0.6
             vel_cmd.angular.z = 0.0
             self.vel_pub.publish(vel_cmd)
         elif action == 1: #LEFT
@@ -84,12 +82,13 @@ class GazeboCircuitTurtlebotLidarEnv(gazebo_env.GazeboEnv):
 
         #simplify ranges - discretize
         discretized_ranges = []
-        discretized_ranges_amount = 5
+
         min_range = 0.2 #collision
 
         done = False
 
-        mod = (len(data.ranges) / discretized_ranges_amount)
+        #Discretizing to take 5 ranges.
+        mod = 4 #currently taking 20 readings [urdf]
         for i, item in enumerate(data.ranges):
             if (i%mod==0):
                 if data.ranges[i] == float ('Inf'):
@@ -98,13 +97,15 @@ class GazeboCircuitTurtlebotLidarEnv(gazebo_env.GazeboEnv):
                     discretized_ranges.append(0)
                 else:
                     discretized_ranges.append(int(data.ranges[i]))
-                    #discretized_ranges.append(round(data.ranges[i] * 2) / 2)
             if (min_range > data.ranges[i] > 0):
                 done = True
                 #break
 
         if not done:
-            reward = 1
+            if action == 0:
+                reward = 5
+            else:
+                reward = 1
         else:
             reward = -200
 
@@ -147,9 +148,9 @@ class GazeboCircuitTurtlebotLidarEnv(gazebo_env.GazeboEnv):
 
         #simplify ranges - discretize
         discretized_ranges = []
-        discretized_ranges_amount = 5
 
-        mod = (len(data.ranges) / discretized_ranges_amount)
+        #Discretizing to take 5 ranges.
+        mod = 4 #currently taking 20 readings [urdf]
         for i, item in enumerate(data.ranges):
             if (i%mod==0):
                 if data.ranges[i] == float ('Inf'):
@@ -158,7 +159,6 @@ class GazeboCircuitTurtlebotLidarEnv(gazebo_env.GazeboEnv):
                     discretized_ranges.append(0)
                 else:
                     discretized_ranges.append(int(data.ranges[i]))
-
         state = discretized_ranges 
 
         return state
