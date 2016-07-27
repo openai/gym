@@ -68,7 +68,12 @@ class GazeboCircuitTurtlebotLidarEnv(gazebo_env.GazeboEnv):
             self.vel_pub.publish(vel_cmd)
 
         #read laser data
-        data = rospy.wait_for_message('/scan', LaserScan, timeout=5)
+        data = None
+        while data is None:
+            try:
+                data = rospy.wait_for_message('/scan', LaserScan, timeout=5)
+            except:
+                pass
 
         rospy.wait_for_service('/gazebo/pause_physics')
         try:
@@ -125,8 +130,13 @@ class GazeboCircuitTurtlebotLidarEnv(gazebo_env.GazeboEnv):
         except rospy.ServiceException, e:
             print "/gazebo/unpause_physics service call failed"
 
-        # Read laser scan
-        data = rospy.wait_for_message('/scan', LaserScan, timeout=5)
+        #read laser data
+        data = None
+        while data is None:
+            try:
+                data = rospy.wait_for_message('/scan', LaserScan, timeout=5)
+            except:
+                pass
 
         rospy.wait_for_service('/gazebo/pause_physics')
         try:
