@@ -1456,15 +1456,19 @@ The robot model was originally created by Tassa et al. [Tassa12]_.
 )
 
 add_task(
+    id='GazeboMazeTurtlebotLidar-v0',
+    group='gazebo',
+    summary='Obstacle avoidance in a Maze.',
+)
+add_task(
     id='GazeboCircuitTurtlebotLidar-v0',
     group='gazebo',
     summary='Obstacle avoidance in a Circuit.',
 )
-
 add_task(
-    id='GazeboMazeTurtlebotLidar-v0',
+    id='GazeboCircuit2TurtlebotLidar-v0',
     group='gazebo',
-    summary='Obstacle avoidance in a Maze.',
+    summary='Obstacle avoidance in a Circuit 2.',
 )
 
 registry.finalize()
