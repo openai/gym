@@ -14,7 +14,8 @@ extras = {
     'mujoco': ['mujoco_py>=0.5.4', 'imageio'],
     'parameter_tuning': ['keras', 'theano'],
 }
-all_deps = reduce(lambda a, b: a+b, extras.values())
+all_deps = []
+for _, deps in extras.items(): all_deps += deps
 extras['all'] = all_deps
 
 setup(name='gym',
