@@ -23,7 +23,7 @@ def should_skip_env_spec_for_tests(spec):
         return True
 
     # TODO: Issue #167 - Re-enable these tests after fixing DoomDeathmatch crash
-    if spec._entry_point.startswith('gym.envs.doom:DoomDeathmatchEnv'):
+    if spec._entry_point.startswith('gym.envs.doom:'):
         logger.warn("Skipping tests for DoomDeathmatchEnv {}".format(spec._entry_point))
         return True
 
