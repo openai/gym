@@ -28,6 +28,9 @@ class SoccerEnv(gym.Env, utils.EzPickle):
         # Action space omits the Tackle/Catch actions, which are useful on defense
         self.action_space = spaces.Tuple((spaces.Discrete(3),
                                           spaces.Box(low=0, high=100, shape=1),
+                                          spaces.Box(low=-180, high=180, shape=1),
+                                          spaces.Box(low=-180, high=180, shape=1),
+                                          spaces.Box(low=0, high=100, shape=1),
                                           spaces.Box(low=-180, high=180, shape=1)))
         self.status = hfo_py.IN_GAME
 
@@ -50,7 +53,7 @@ class SoccerEnv(gym.Env, utils.EzPickle):
                           untouched_time=100, offense_agents=1,
                           defense_agents=0, offense_npcs=0,
                           defense_npcs=0, sync_mode=True, port=6000,
-                          offense_on_ball=0, fullstate=False, seed=-1,
+                          offense_on_ball=0, fullstate=True, seed=-1,
                           ball_x_min=0.0, ball_x_max=0.2,
                           verbose=False, log_game=False,
                           log_dir="log"):
@@ -111,18 +114,12 @@ class SoccerEnv(gym.Env, utils.EzPickle):
     def _take_action(self, action):
         """ Converts the action space into an HFO action. """
         action_type = ACTION_LOOKUP[action[0]]
-        power = action[1]
-        direction = action[2]
         if action_type == hfo_py.DASH:
-            self.env.act(action_type, power, direction)
+            self.env.act(action_type, action[1], action[2])
         elif action_type == hfo_py.TURN:
-            self.env.act(action_type, direction)
+            self.env.act(action_type, action[3])
         elif action_type == hfo_py.KICK:
-            self.env.act(action_type, power, direction)
-        elif action_type == hfo_py.TACKLE:
-            self.env.act(action_type, direction)
-        elif action_type == hfo_py.CATCH:
-            self.env.act(action_type)
+            self.env.act(action_type, action[4], action[5])
         else:
             print('Unrecognized action %d' % action_type)
             self.env.act(hfo_py.NOOP)
