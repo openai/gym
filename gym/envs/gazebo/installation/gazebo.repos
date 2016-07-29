@@ -65,7 +65,7 @@ repositories:
     version: indigo
   kobuki_desktop:
     type: git
-    url: https://github.com/yujinrobot/kobuki_desktop
+    url: https://github.com/erlerobot/kobuki_desktop
     version: indigo
   kobuki_msgs:
     type: git
