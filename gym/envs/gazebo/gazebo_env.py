@@ -2,6 +2,7 @@ import gym
 import rospy
 #import roslaunch
 import os
+import signal
 import subprocess
 
 from os import path
@@ -31,6 +32,8 @@ class GazeboEnv(gym.Env):
         subprocess.Popen(["roslaunch",fullpath])
         print "Gazebo launched!"
 
+        self.gzclient_pid = 0
+
     def _step(self, action):
 
         # Implement this method in every subclass
@@ -48,18 +51,18 @@ class GazeboEnv(gym.Env):
             tmp = os.popen("ps -Af").read()
             proccount = tmp.count('gzclient')
             if proccount > 0:
-                os.system("killall -9 gzclient")
-                os.wait()
-            else:
-                print "gzclient is not running"
+                if self.gzclient_pid != 0:
+                    os.kill(self.gzclient_pid, signal.SIGTERM)
+                    os.wait()
             return
 
         tmp = os.popen("ps -Af").read()
         proccount = tmp.count('gzclient')
         if proccount < 1:
             subprocess.Popen("gzclient")
+            self.gzclient_pid = int(subprocess.check_output(["pidof","-s","gzclient"]))
         else:
-            print "gzclient already running"
+            self.gzclient_pid = 0
 
     def _close(self):
 
