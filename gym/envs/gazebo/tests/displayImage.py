@@ -42,7 +42,7 @@ def pause():
 
 if __name__ == '__main__':
 
-    outdir = '/tmp/cartpole-experiment-1'
+    outdir = '/tmp/gazebo_gym_experiments'
     plotter = LivePlot(outdir)
     plotter.plot()
     pause()
