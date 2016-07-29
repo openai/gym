@@ -184,7 +184,7 @@ Install the Robot Operating System via:
 .. code:: bash
 
 	sudo apt-get update
-	sudo apt-get remove .*gazebo.* && sudo apt-get update && sudo apt-get install gazebo6 libgazebo6-dev
+	sudo apt-get remove .*gazebo.* && sudo apt-get update && sudo apt-get install gazebo7 libgazebo7-dev
 
 - Check your installation:
 
