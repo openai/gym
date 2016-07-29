@@ -239,7 +239,7 @@
     ray_count_horizontal="40"
     ray_count_vertical="1"
     sensor_mesh="lidar_lite_v2_withRay/meshes/lidar_lite_v2_withRay.dae">
-    <origin xyz="0.1 0 0.42" rpy="0 0 0"/>
+    <origin xyz="0 0.0 0.5" rpy="0 0 0"/>
   </xacro:lidar_sensor>
 
 </robot>
