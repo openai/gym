@@ -191,7 +191,7 @@ Load environment. Example:
 .. code:: bash
 
 	cd gym/envs/gazebo/installation
-	bash turtlebotSetup.bash
+	bash turtlebot_setup.bash
 
 Load ROS workspace.
 
