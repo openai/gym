@@ -104,11 +104,11 @@ def render():
 
 if __name__ == '__main__':
 
-    env = gym.make('GazeboCircuitTurtlebotLidar-v0')
+    env = gym.make('GazeboCircuit2ErleCopterLidar-v0')
 
-    #outdir = '/tmp/cartpole-experiment-1'
-    #env.monitor.start(outdir, force=True, seed=None)
-    #plotter = LivePlot(outdir)
+    outdir = '/tmp/cartpole-experiment-1'
+    env.monitor.start(outdir, force=True, seed=None)
+    plotter = LivePlot(outdir)
 
     last_time_steps = numpy.ndarray(0)
 
@@ -117,7 +117,7 @@ if __name__ == '__main__':
 
     initial_epsilon = qlearn.epsilon
 
-    epsilon_discount = 0.998
+    epsilon_discount = 0.9983
 
     start_time = time.time()
     total_episodes = 10000
@@ -137,7 +137,7 @@ if __name__ == '__main__':
 
         state = ''.join(map(str, observation))
 
-        for i in range(500):
+        for i in range(1500):
 
             # Pick an action based on the current state
             action = qlearn.chooseAction(state)
@@ -158,7 +158,7 @@ if __name__ == '__main__':
                 last_time_steps = numpy.append(last_time_steps, [int(i + 1)])
                 break 
 
-        #plotter.plot()
+        plotter.plot()
 
         m, s = divmod(int(time.time() - start_time), 60)
         h, m = divmod(m, 60)
