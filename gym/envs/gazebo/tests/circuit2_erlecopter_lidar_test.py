@@ -22,7 +22,7 @@ class QLearn:
     def learnQ(self, state, action, reward, value):
         '''
         Q-learning:
-            Q(s, a) += alpha * (reward(s,a) + max(Q(s') - Q(s,a))
+            Q(s, a) += alpha * (reward(s,a) + max(Q(s') - Q(s,a))            
         '''
         oldv = self.q.get((state, action), None)
         if oldv is None:
@@ -37,11 +37,11 @@ class QLearn:
         if random.random() < self.epsilon:
             minQ = min(q); mag = max(abs(minQ), abs(maxQ))
             # add random values to all the actions, recalculate maxQ
-            q = [q[i] + random.random() * mag - .5 * mag for i in range(len(self.actions))]
+            q = [q[i] + random.random() * mag - .5 * mag for i in range(len(self.actions))] 
             maxQ = max(q)
 
         count = q.count(maxQ)
-        # In case there're several state-action max values
+        # In case there're several state-action max values 
         # we select a random one among them
         if count > 1:
             best = [i for i in range(len(self.actions)) if q[i] == maxQ]
@@ -49,7 +49,7 @@ class QLearn:
         else:
             i = q.index(maxQ)
 
-        action = self.actions[i]
+        action = self.actions[i]        
         if return_q: # if they want it, give it!
             return action, q
         return action
@@ -104,11 +104,11 @@ def render():
 
 if __name__ == '__main__':
 
-    env = gym.make('GazeboCircuitTurtlebotLidar-v0')
+    env = gym.make('GazeboCircuit2ErleCopterLidar-v0')
 
-    #outdir = '/tmp/cartpole-experiment-1'
-    #env.monitor.start(outdir, force=True, seed=None)
-    #plotter = LivePlot(outdir)
+    outdir = '/tmp/cartpole-experiment-1'
+    env.monitor.start(outdir, force=True, seed=None)
+    plotter = LivePlot(outdir)
 
     last_time_steps = numpy.ndarray(0)
 
@@ -117,7 +117,7 @@ if __name__ == '__main__':
 
     initial_epsilon = qlearn.epsilon
 
-    epsilon_discount = 0.999 # 1098 eps to reach 0.1
+    epsilon_discount = 0.9983
 
     start_time = time.time()
     total_episodes = 10000
@@ -137,7 +137,7 @@ if __name__ == '__main__':
 
         state = ''.join(map(str, observation))
 
-        for i in range(500):
+        for i in range(1500):
 
             # Pick an action based on the current state
             action = qlearn.chooseAction(state)
@@ -156,9 +156,9 @@ if __name__ == '__main__':
                 state = nextState
             else:
                 last_time_steps = numpy.append(last_time_steps, [int(i + 1)])
-                break
+                break 
 
-        #plotter.plot()
+        plotter.plot()
 
         m, s = divmod(int(time.time() - start_time), 60)
         h, m = divmod(m, 60)
@@ -174,5 +174,5 @@ if __name__ == '__main__':
     print("Overall score: {:0.2f}".format(last_time_steps.mean()))
     print("Best 100 score: {:0.2f}".format(reduce(lambda x, y: x + y, l[-100:]) / len(l[-100:])))
 
-    #env.monitor.close()
+    env.monitor.close()
     env.close()
