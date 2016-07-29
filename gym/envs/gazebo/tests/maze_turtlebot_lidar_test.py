@@ -75,7 +75,7 @@ class LivePlot(object):
         #styling options
         matplotlib.rcParams['toolbar'] = 'None'
         plt.style.use('ggplot')
-        plt.xlabel("")
+        plt.xlabel("Episodes")
         plt.ylabel(data_key)
         fig = plt.gcf().canvas.set_window_title('simulation_graph')
 
@@ -106,14 +106,14 @@ if __name__ == '__main__':
 
     env = gym.make('GazeboMazeTurtlebotLidar-v0')
 
-    outdir = '/tmp/cartpole-experiment-1'
+    outdir = '/tmp/gazebo_gym_experiments'
     env.monitor.start(outdir, force=True, seed=None)
     plotter = LivePlot(outdir)
 
     last_time_steps = numpy.ndarray(0)
 
     qlearn = QLearn(actions=range(env.action_space.n),
-                    alpha=0.1, gamma=0.8, epsilon=0.9)
+                    alpha=0.2, gamma=0.9, epsilon=0.9)
 
     initial_epsilon = qlearn.epsilon
 
@@ -137,7 +137,7 @@ if __name__ == '__main__':
 
         state = ''.join(map(str, observation))
 
-        for i in range(500):
+        for i in range(1000):
 
             # Pick an action based on the current state
             action = qlearn.chooseAction(state)
@@ -158,7 +158,8 @@ if __name__ == '__main__':
                 last_time_steps = numpy.append(last_time_steps, [int(i + 1)])
                 break 
 
-        plotter.plot()
+        if x%100==0:
+            plotter.plot()
 
         m, s = divmod(int(time.time() - start_time), 60)
         h, m = divmod(m, 60)
