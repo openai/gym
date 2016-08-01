@@ -32,12 +32,13 @@ class LivePlot(object):
         data =  results[self.data_key]
 
         avg_data = []
+        mod = len(data)/50
         for i, val in enumerate(data):
-            if i%10==0:
-                avg =  sum(data[i:i+10])/10
+            if i%mod==0:
+                avg =  sum(data[i:i+mod])/mod
                 avg_data.append(avg)
 
-        new_data = expand(avg_data,10)
+        new_data = expand(avg_data,mod)
 
         #only update plot if data is different (plot calls are expensive)
         '''if data !=  self._last_data:
