@@ -3,6 +3,7 @@ import os
 import gym
 import matplotlib
 import matplotlib.pyplot as plt
+import itertools
 
 class LivePlot(object):
     def __init__(self, outdir, data_key='episode_rewards', line_color='blue'):
@@ -13,6 +14,7 @@ class LivePlot(object):
             data_key (Optional[str]): The key in the json to graph (episode_rewards or episode_lengths).
             line_color (Optional[dict]): Color of the plot.
         """
+        #data_key can be set to 'episode_lengths'
         self.outdir = outdir
         self._last_data = None
         self.data_key = data_key
@@ -29,14 +31,36 @@ class LivePlot(object):
         results = gym.monitoring.monitor.load_results(self.outdir)
         data =  results[self.data_key]
 
+        avg_data = []
+        for i, val in enumerate(data):
+            if i%20==0:
+                avg =  sum(data[i:i+10])/10
+                avg_data.append(avg)
+
+        new_data = expand(avg_data,10)
+        print "\n"+str(new_data)+"\n"
+
         #only update plot if data is different (plot calls are expensive)
-        if data !=  self._last_data:
+        '''if data !=  self._last_data:
             self._last_data = data
-            plt.plot(data, color=self.line_color)
+            plt.plot(data, color=self.line_color, )
+
+            # pause so matplotlib will display
+            # may want to figure out matplotlib animation or use a different library in the future
+            plt.pause(0.000001)'''
+
+        if new_data !=  self._last_data:
+            self._last_data = new_data
+            plt.plot(new_data, color=self.line_color)
 
             # pause so matplotlib will display
             # may want to figure out matplotlib animation or use a different library in the future
             plt.pause(0.000001)
+
+def expand(lst, n):
+    lst = [[i]*n for i in lst]
+    lst = list(itertools.chain.from_iterable(lst))
+    return lst
 
 def pause():
     programPause = raw_input("Press the <ENTER> key to finish...")
