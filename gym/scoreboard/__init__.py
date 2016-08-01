@@ -83,6 +83,12 @@ add_group(
     description='Environments to test various AI safety properties.'
 )
 
+add_group(
+    id='pygame',
+    name='PyGame',
+    description='Reach high scores in pygame games.',
+)
+
 # classic control
 
 add_task(
@@ -1413,5 +1419,30 @@ The robot model was originally created by Tassa et al. [Tassa12]_.
 """,
     deprecated=True,
 )
+
+for id in sorted(['Catcher-v0', 'MonsterKong-v0', 'FlappyBird-v0', 'PixelCopter-v0', 'PuckWorld-v0', 'RaycastMaze-v0', 'Snake-v0', 'WaterWorld-v0']):
+    try:
+        split = id.split("-")
+        game = split[0]
+        if len(split) == 2:
+            ob_type = 'image'
+        else:
+            ob_type = 'ram'
+    except ValueError as e:
+        raise ValueError('{}: id={}'.format(e, id))
+    ob_desc = ram_desc if ob_type == "ram" else image_desc
+    add_task(
+        id=id,
+        group='pygame',
+        contributor='lusob',
+        summary="Maximize score in the game %(game)s, with %(ob_type)s as input"%dict(game=game, ob_type="RAM" if ob_type=="ram" else "screen images"),
+        description="""\
+Maximize your score in the pygame game %(game)s.
+%(ob_desc)s.
+"""%dict(game=game, ob_desc=ob_desc),
+        background="""\
+Every game environment adapts an existent game made with the pygame framework.
+""",
+    )
 
 registry.finalize()
