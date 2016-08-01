@@ -38,7 +38,6 @@ class LivePlot(object):
                 avg_data.append(avg)
 
         new_data = expand(avg_data,10)
-        print "\n"+str(new_data)+"\n"
 
         #only update plot if data is different (plot calls are expensive)
         '''if data !=  self._last_data:
