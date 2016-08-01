@@ -108,7 +108,7 @@ if __name__ == '__main__':
 
     outdir = '/tmp/cartpole-experiment-1'
     env.monitor.start(outdir, force=True, seed=None)
-    plotter = LivePlot(outdir)
+    #plotter = LivePlot(outdir)
 
     last_time_steps = numpy.ndarray(0)
 
@@ -158,7 +158,7 @@ if __name__ == '__main__':
                 last_time_steps = numpy.append(last_time_steps, [int(i + 1)])
                 break 
 
-        plotter.plot()
+        #plotter.plot()
 
         m, s = divmod(int(time.time() - start_time), 60)
         h, m = divmod(m, 60)

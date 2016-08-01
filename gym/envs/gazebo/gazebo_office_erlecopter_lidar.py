@@ -65,10 +65,6 @@ class GazeboOfficeErleCopterLidarEnv(gazebo_env.GazeboEnv):
 
     def __init__(self):
 
-        #Launch ardupilot
-
-        #TODO
-
         # Launch the simulation with the given launchfile name
         gazebo_env.GazeboEnv.__init__(self, "GazeboCircuit2ErleCopterLidar-v0.launch")    
 
