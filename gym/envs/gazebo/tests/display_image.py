@@ -33,6 +33,8 @@ class LivePlot(object):
 
         avg_data = []
         mod = len(data)/50
+        if mod == 0:
+            mod = 1
         for i, val in enumerate(data):
             if i%mod==0:
                 avg =  sum(data[i:i+mod])/mod
