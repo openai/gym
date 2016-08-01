@@ -14,7 +14,7 @@ from sensor_msgs.msg import LaserScan
 
 from gym.utils import seeding
 
-class GazeboCircuit2ErleCopterLidarEnv(gazebo_env.GazeboEnv):
+class GazeboOfficeErleCopterLidarEnv(gazebo_env.GazeboEnv):
 
     def _takeoff(self, altitude):
         # Set throttle at 1500

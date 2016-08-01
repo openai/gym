@@ -104,7 +104,7 @@ def render():
 
 if __name__ == '__main__':
 
-    env = gym.make('GazeboCircuit2ErleCopterLidar-v0')
+    env = gym.make('GazeboOfficeErleCopterLidar-v0')
 
     outdir = '/tmp/cartpole-experiment-1'
     env.monitor.start(outdir, force=True, seed=None)
