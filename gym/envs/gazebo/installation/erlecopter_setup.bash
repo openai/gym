@@ -5,6 +5,6 @@ if [ -z "$GAZEBO_MODEL_PATH" ]; then
 fi
 
 #copy altered urdf model
-cp -r ../assets/urdf/erlecopter catkin_ws/src/ardupilot_sitl_gazebo_plugin/ardupilot_sitl_gazebo_plugin/urdf/
+cp -r ../assets/urdf/erlecopter/* catkin_ws/src/ardupilot_sitl_gazebo_plugin/ardupilot_sitl_gazebo_plugin/urdf/
 
 exec bash # reload bash
