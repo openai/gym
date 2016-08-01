@@ -255,18 +255,17 @@ The Pygame Learning Environment (PLE) contains a variety of different video game
 PyGame can be installed using this tutorial (Ubuntu). For mac you can use these following instructions;
 
 .. code:: shell
-    brew install sdl sdl_ttf sdl_image sdl_mixer portmidi  # brew or use equivalent means
-    conda install -c https://conda.binstar.org/quasiben pygame  # using Anaconda
 
-Afterwards to install PLE first clone the repo:
+	  brew install sdl sdl_ttf sdl_image sdl_mixer portmidi  # brew or use equivalent means
+	  conda install -c https://conda.binstar.org/quasiben pygame  # using Anaconda
 
-.. code:: shell
-    git clone https://github.com/ntasfi/PyGame-Learning-Environment
-
-Then use the cd command to enter the PyGame-Learning-Environment directory and run the command:
+Then to install PLE first clone the repo:
 
 .. code:: shell
-    sudo pip install -e .
+
+	  git clone https://github.com/ntasfi/PyGame-Learning-Environment
+	  cd PyGame-Learning-Environment
+	  pip install -e .
 
 This will install PLE as an editable library with pip.
 
