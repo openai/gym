@@ -1470,5 +1470,15 @@ add_task(
     group='gazebo',
     summary='Obstacle avoidance in a Circuit 2.',
 )
+add_task(
+    id='GazeboCircuit3TurtlebotLidar-v0',
+    group='gazebo',
+    summary='Obstacle avoidance in a Circuit 3.',
+)
+add_task(
+    id='GazeboRoundTurtlebotLidar-v0',
+    group='gazebo',
+    summary='Obstacle avoidance in a Round circuit.',
+)
 
 registry.finalize()

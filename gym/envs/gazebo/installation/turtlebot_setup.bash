@@ -20,6 +20,12 @@ fi
 if [ -z "$GYM_GAZEBO_WORLD_CIRCUIT2" ]; then
   bash -c 'echo "export GYM_GAZEBO_WORLD_CIRCUIT2="`pwd`/../assets/worlds/circuit2.world >> ~/.bashrc'
 fi
+if [ -z "$GYM_GAZEBO_WORLD_CIRCUIT3" ]; then
+  bash -c 'echo "export GYM_GAZEBO_WORLD_CIRCUIT3="`pwd`/../assets/worlds/circuit3.world >> ~/.bashrc'
+fi
+if [ -z "$GYM_GAZEBO_WORLD_ROUND" ]; then
+  bash -c 'echo "export GYM_GAZEBO_WORLD_ROUND="`pwd`/../assets/worlds/round.world >> ~/.bashrc'
+fi
 
 #copy altered urdf model
 cp -r ../assets/urdf/kobuki_urdf/urdf/ catkin_ws/src/kobuki/kobuki_description
