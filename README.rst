@@ -235,11 +235,6 @@ to set it up. You'll have to also run ``pip install -e '.[mujoco]'`` if you didn
 
 .. code:: python
 
-	  import gym
-	  env = gym.make('Humanoid-v0')
-	  env.reset()
-	  env.render()
-
 PyGame
 ------
 
@@ -252,6 +247,21 @@ The Pygame Learning Environment (PLE) contains a variety of different video game
 	  env.reset()
 	  env.render()
 
+<<<<<<< HEAD
+PyGame
+------
+
+The Pygame Learning Environment (PLE) contains a variety of different video games. If you didn't do the full install, you can install dependencies via ``pip install -e '.[ple]'`` (you'll need ``python-pygame`` installed) and then get started as follow:
+
+.. code:: python
+
+	  import gym
+	  env = gym.make('Flappybirds-v0')
+	  env.reset()
+	  env.render()
+
+=======
+>>>>>>> a202cfc7ff6f09b289267159a95b06b0f18bae03
 PyGame can be installed using this tutorial (Ubuntu). For mac you can use these following instructions;
 
 .. code:: shell
