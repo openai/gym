@@ -91,7 +91,7 @@ class GazeboMazeTurtlebotLidarEnv(gazebo_env.GazeboEnv):
 
         if not done:
             if action == 0:
-                reward = 4
+                reward = 3
             else:
                 reward = 1
         else:
