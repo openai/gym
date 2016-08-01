@@ -61,30 +61,18 @@ class GazeboCircuitTurtlebotLidarEnv(gazebo_env.GazeboEnv):
 
         if action == 0: #FORWARD
             vel_cmd = Twist()
-<<<<<<< 8c09757b77d2eeb42cf0d0fe66f2e09876d503e3
-            vel_cmd.linear.x = 0.3
-=======
             vel_cmd.linear.x = 0.5
->>>>>>> New branch with Erle-Copter prototype
             vel_cmd.angular.z = 0.0
             self.vel_pub.publish(vel_cmd)
         elif action == 1: #LEFT
             vel_cmd = Twist()
             vel_cmd.linear.x = 0
-<<<<<<< 8c09757b77d2eeb42cf0d0fe66f2e09876d503e3
-            vel_cmd.angular.z = 0.3
-=======
             vel_cmd.angular.z = 0.5
->>>>>>> New branch with Erle-Copter prototype
             self.vel_pub.publish(vel_cmd)
         elif action == 2: #RIGHT
             vel_cmd = Twist()
             vel_cmd.linear.x = 0
-<<<<<<< 8c09757b77d2eeb42cf0d0fe66f2e09876d503e3
-            vel_cmd.angular.z = -0.3
-=======
             vel_cmd.angular.z = -0.5
->>>>>>> New branch with Erle-Copter prototype
             self.vel_pub.publish(vel_cmd)
 
         data = None
@@ -149,6 +137,6 @@ class GazeboCircuitTurtlebotLidarEnv(gazebo_env.GazeboEnv):
         except rospy.ServiceException, e:
             print "/gazebo/pause_physics service call failed"
 
-        state = self.discretize_observation(data,5) 
+        state = self.discretize_observation(data,5)
 
         return state
