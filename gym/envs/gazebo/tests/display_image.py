@@ -25,7 +25,7 @@ class LivePlot(object):
         plt.style.use('ggplot')
         plt.xlabel("")
         plt.ylabel(data_key)
-        fig = plt.gcf().canvas.set_window_title('simulation_graph')
+        fig = plt.gcf().canvas.set_window_title('averaged_simulation_graph')
 
     def plot(self):
         results = gym.monitoring.monitor.load_results(self.outdir)
