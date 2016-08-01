@@ -33,7 +33,7 @@ class LivePlot(object):
 
         avg_data = []
         for i, val in enumerate(data):
-            if i%20==0:
+            if i%10==0:
                 avg =  sum(data[i:i+10])/10
                 avg_data.append(avg)
 
