@@ -26,6 +26,7 @@ class LivePlot(object):
         plt.xlabel("")
         plt.ylabel(data_key)
         fig = plt.gcf().canvas.set_window_title('averaged_simulation_graph')
+        matplotlib.rcParams.update({'font.size': 20})
 
     def plot(self):
         results = gym.monitoring.monitor.load_results(self.outdir)
@@ -37,8 +38,9 @@ class LivePlot(object):
             mod = 1
         for i, val in enumerate(data):
             if i%mod==0:
-                avg =  sum(data[i:i+mod])/mod
-                avg_data.append(avg)
+                if (i+mod) < len(data):
+                    avg =  sum(data[i:i+mod])/mod
+                    avg_data.append(avg)
 
         new_data = expand(avg_data,mod)
 
