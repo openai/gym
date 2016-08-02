@@ -1,0 +1,360 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="rover">
+  <joint name="front_left_steering_joint" type="revolute">
+    <parent link="chassis"/>
+    <child link="front_left_wheel_steering_block"/>
+    <origin rpy="-1.52 0 0" xyz="1.20222  0.5 0.35515"/>
+    <axis xyz="0  -1  0"/>
+    <limit effort="10.0" lower="-0.7727" upper="0.7727" velocity="0.0"/>
+  </joint>
+  <joint name="front_right_steering_joint" type="revolute">
+    <parent link="chassis"/>
+    <child link="front_right_wheel_steering_block"/>
+    <origin rpy="1.52 0 0" xyz="1.20222 -0.5 0.35515"/>
+    <axis xyz="0  1  0"/>
+    <limit effort="10.0" lower="-0.7727" upper="0.7727" velocity="0.0"/>
+  </joint>
+  <joint name="front_left_wheel_joint" type="revolute">
+    <parent link="front_left_wheel_steering_block"/>
+    <child link="front_left_wheel"/>
+    <origin rpy="0 0 0" xyz="0 0 0.21562"/>
+    <axis xyz="0.00000000e+00 8.30000000e-04 1.00000000e+00"/>
+    <limit effort="10.0" lower="0" upper="0" velocity="0"/>
+  </joint>
+  <joint name="front_right_wheel_joint" type="revolute">
+    <parent link="front_right_wheel_steering_block"/>
+    <child link="front_right_wheel"/>
+    <origin rpy="0 0 0" xyz="0 0 0.21562"/>
+    <axis xyz="0.00000000e+00 8.30000000e-04 -1.00000000e+00"/>
+    <limit effort="0" lower="0" upper="0" velocity="0"/>
+  </joint>
+  <joint name="rear_left_wheel_joint" type="revolute">
+    <parent link="chassis"/>
+    <child link="rear_left_wheel"/>
+    <origin rpy="-1.52 0 0" xyz="-0.75 0.75 0.34697"/>
+    <axis xyz="0.00000000e+00 8.30000000e-04 1.00000000e+00"/>
+    <limit effort="0" lower="0" upper="0" velocity="0"/>
+  </joint>
+  <joint name="rear_right_wheel_joint" type="revolute">
+    <parent link="chassis"/>
+    <child link="rear_right_wheel"/>
+    <origin rpy="1.52 0 0" xyz="-0.75 -0.75 0.34697"/>
+    <axis xyz="0.00000000e+00 8.30000000e-04 -1.00000000e+00"/>
+    <limit effort="0" lower="0" upper="0" velocity="0"/>
+  </joint>
+
+  <link name="chassis">
+    <inertial>
+      <mass value="800.0"/>
+      <origin rpy="0 0 0" xyz="0.1 0 0.4"/>
+      <inertia ixx="140" ixy="0.0" ixz="0.0" iyy="550" iyz="0.0" izz="550"/>
+    </inertial>
+    <collision name="chassis_bottom">
+      <origin rpy="0 0 0" xyz="0.2 0 0.335"/>
+      <geometry>
+        <box size="1.34 1.0 0.06"/>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <origin rpy="-1.5708 0 3.1416" xyz="0.2 1.96 0.26"/>
+      <geometry>
+        <mesh filename="package://ardupilot_sitl_gazebo_plugin/meshes/meshes_rover/ErleRover_chassis.STL" scale="0.0055 0.0055 0.0055"/>
+      </geometry>
+    </visual>
+  </link>
+  <link name="front_left_wheel">
+    <inertial>
+      <mass value="20"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="0.5" ixy="0.0" ixz="0.0" iyy="0.5" iyz="0.0" izz="1.0"/>
+    </inertial>
+    <collision name="collision">
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.2794" radius="0.3175"/>
+      </geometry>
+    </collision>
+    <visual name="tire_visual">
+      <origin rpy="3.1416 0 0" xyz="-1.2 -0.1 1.67"/>
+      <geometry>
+        <mesh filename="package://ardupilot_sitl_gazebo_plugin/meshes/meshes_rover/ErleRover_wheel4.STL" scale="0.007 0.007 0.007"/>
+      </geometry>
+    </visual>
+  </link>
+  <link name="front_right_wheel">
+    <inertial>
+      <mass value="20"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="0.5" ixy="0.0" ixz="0.0" iyy="0.5" iyz="0.0" izz="1.0"/>
+    </inertial>
+    <collision name="collision">
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.2794" radius="0.3175"/>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <origin rpy="3.1416 0 0" xyz="1.25 -0.1 1.67"/>
+      <geometry>
+        <mesh filename="package://ardupilot_sitl_gazebo_plugin/meshes/meshes_rover/ErleRover_wheel2.STL" scale="0.007 0.007 0.007"/>
+      </geometry>
+    </visual>
+  </link>
+  <link name="rear_left_wheel">
+    <inertial>
+      <mass value="20"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="0.5" ixy="0.0" ixz="0.0" iyy="0.5" iyz="0.0" izz="1.0"/>
+    </inertial>
+    <collision name="collision">
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.2794" radius="0.3175"/>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <origin rpy="0 0 0" xyz="1.25 0.1 -3.33"/>
+      <geometry>
+        <mesh filename="package://ardupilot_sitl_gazebo_plugin/meshes/meshes_rover/ErleRover_wheel3.STL" scale="0.007 0.007 0.007"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <link name="rear_right_wheel">
+    <inertial>
+      <mass value="20"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="0.5" ixy="0.0" ixz="0.0" iyy="0.5" iyz="0.0" izz="1.0"/>
+    </inertial>
+    <collision name="collision">
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.2794" radius="0.3175"/>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <origin rpy="0 0 0" xyz="1.25 0.1 -3.33"/>
+      <geometry>
+        <mesh filename="package://ardupilot_sitl_gazebo_plugin/meshes/meshes_rover/ErleRover_wheel1.STL" scale="0.007 0.007 0.007"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <gazebo reference="rear_left_wheel">
+    <mu1>1.0</mu1>
+    <mu2>1.0</mu2>
+    <fdir1>1 0 0</fdir1>
+    <kp>1e6</kp>
+  </gazebo>
+  <gazebo reference="rear_right_wheel">
+    <mu1>1.0</mu1>
+    <mu2>1.0</mu2>
+    <fdir1>1 0 0</fdir1>
+    <kp>1e6</kp>
+  </gazebo>
+
+  <gazebo reference="front_left_wheel">
+    <mu1>1.0</mu1>
+    <mu2>1.0</mu2>
+    <fdir1>1 0 0</fdir1>
+    <kp>1e7</kp>
+  </gazebo>
+
+  <gazebo reference="front_right_wheel">
+    <mu1>1.0</mu1>
+    <mu2>1.0</mu2>
+    <fdir1>1 0 0</fdir1>
+    <kp>1e7</kp>
+  </gazebo>
+
+  <link name="front_right_wheel_steering_block">
+    <inertial>
+      <mass value="1"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
+    </inertial>
+    <collision name="collision">
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.01" radius="0.05"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="front_left_wheel_steering_block">
+    <inertial>
+      <mass value="1"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
+    </inertial>
+    <collision name="collision">
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.01" radius="0.05"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <!--*********************
+  *************************
+  *********PLUGINS*********
+  ************************* 
+  **********************-->
+
+  <xacro:property name="namespace" value="rover" />
+  <!-- Specify reference parameters for GNSS receiver. -->
+  <xacro:include filename="$(find ardupilot_sitl_gazebo_plugin)/urdf/gps_home_location.xacro" />
+  <!-- in degrees, 0 so North is towards positive X values, and East is towards negative Y values -->
+  <xacro:property name="referenceHeading" value="0" />
+  
+  <xacro:property name="M_PI" value="3.1415926535897931" />
+  
+  <!-- Instantiate a controller. -->
+  <xacro:controller_plugin_macro
+    namespace="${namespace}"
+    imu_sub_topic="imu"
+    >
+  </xacro:controller_plugin_macro>
+
+  <!-- Mount an ADIS16448 IMU. -->
+  <xacro:imu_plugin_macro
+    namespace="${namespace}"
+    imu_suffix=""
+    parent_link="chassis"
+    imu_topic="imu"
+    mass_imu_sensor="0.015"
+    gyroscope_noise_density="0.0003394"
+    gyroscopoe_random_walk="0.000038785"
+    gyroscope_bias_correlation_time="1000.0"
+    gyroscope_turn_on_bias_sigma="0.0087"
+    accelerometer_noise_density="0.004"
+    accelerometer_random_walk="0.006"
+    accelerometer_bias_correlation_time="300.0"
+    accelerometer_turn_on_bias_sigma="0.1960"
+  >
+    <inertia ixx="0.00001" ixy="0.0" ixz="0.0" iyy="0.00001" iyz="0.0" izz="0.00001" />
+    <origin xyz="0 0 0" rpy="0 0 0" />
+  </xacro:imu_plugin_macro>
+
+  <!-- Mount a GNSS receiver. -->
+   
+  <gazebo>
+    <plugin name="${namespace}_gps_sim" filename="libhector_gazebo_ros_gps.so">
+      <updateRate>90.0</updateRate>
+      <alwaysOn>true</alwaysOn>
+      <topicName>${namespace}/fix</topicName>
+      <velocityTopicName>${namespace}/fix_velocity</velocityTopicName>
+      <referenceLatitude>${referenceLatitude}</referenceLatitude>
+      <referenceLongitude>${referenceLongitude}</referenceLongitude>
+      <referenceHeading>${referenceHeading}</referenceHeading>
+      <referenceAltitude>${referenceAltitude}</referenceAltitude>
+      
+      <!-- Sensor errors model for GPS Position measures -->
+      <!-- Units: [m], and [1/s] for drift frequency -->
+      <!-- For now, use Ardupilot's internal error models -->
+      <offset>0 0 0</offset>
+      <drift>0 0 0</drift>
+      <driftFrequency>0 0 0</driftFrequency>
+      <gaussianNoise>0 0 0</gaussianNoise>
+      <scaleError>1 1 1</scaleError>
+      
+      <!-- Note:
+       For the moment there is no barometer, so axis Z of the GPS is
+       used as a barometer sensor (with the according error model) -->
+      
+      <!-- Sensor errors model for GPS Velocity measures -->
+      <!-- Units: [m/s], and [1/s] for drift frequency -->
+      <!-- For now, use Ardupilot's internal error models -->
+      <velocityOffset>0 0 0</velocityOffset>
+      <velocityDrift>0 0 0</velocityDrift>
+      <velocityDriftFrequency>0 0 0</velocityDriftFrequency>
+      <velocityGaussianNoise>0 0 0</velocityGaussianNoise>
+      <velocityScaleError>1 1 1</velocityScaleError>
+      
+      <!-- Note:
+        The velocity Z does not really make sense, it is not used by
+        Ardupilot (right?).
+        However Z velocity drift is added to the Z position drift. -->
+        
+      <!-- Explanations:
+         offset:          constant added to the real value
+         gaussian noise:  randomly generated noise added to the real value
+         drift:           amount of drift
+         drift frequency: time constant (as a frequency) for the drift
+         scale error:     scaling of the real value (before adding other noises)
+       -->
+         
+    </plugin>
+  </gazebo>
+  
+  <xacro:include filename="$(find rotors_description)/urdf/component_snippets.xacro" />
+    
+  <xacro:if value="$(arg enable_ground_truth)">
+    <!-- Mount an IMU providing ground truth. -->
+    <xacro:imu_plugin_macro
+      namespace="${namespace}"
+      imu_suffix="gt"
+      parent_link="chassis"
+      imu_topic="ground_truth/imu"
+      mass_imu_sensor="0.00001"
+      gyroscope_noise_density="0.0"
+      gyroscopoe_random_walk="0.0"
+      gyroscope_bias_correlation_time="1000.0"
+      gyroscope_turn_on_bias_sigma="0.0"
+      accelerometer_noise_density="0.0"
+      accelerometer_random_walk="0.0"
+      accelerometer_bias_correlation_time="300.0"
+      accelerometer_turn_on_bias_sigma="0.0"
+    >
+      <inertia ixx="0.00001" ixy="0.0" ixz="0.0" iyy="0.00001" iyz="0.0" izz="0.00001" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
+    </xacro:imu_plugin_macro>
+
+    <!-- Mount a generic odometry sensor providing ground truth. -->
+    <xacro:odometry_plugin_macro
+      namespace="${namespace}/ground_truth"
+      odometry_sensor_suffix="gt"
+      parent_link="chassis"
+      pose_topic="pose"
+      pose_with_covariance_topic="pose_with_covariance"
+      position_topic="position"
+      transform_topic="transform"
+      odometry_topic="odometry"
+      parent_frame_id="world"
+      mass_odometry_sensor="0.00001"
+      measurement_divisor="1"
+      measurement_delay="0"
+      unknown_delay="0.0"
+      noise_normal_position="0 0 0"
+      noise_normal_quaternion="0 0 0"
+      noise_normal_linear_velocity="0 0 0"
+      noise_normal_angular_velocity="0 0 0"
+      noise_uniform_position="0 0 0"
+      noise_uniform_quaternion="0 0 0"
+      noise_uniform_linear_velocity="0 0 0"
+      noise_uniform_angular_velocity="0 0 0"
+      enable_odometry_map="false"
+      odometry_map=""
+      image_scale=""
+    >
+      <inertia ixx="0.00001" ixy="0.0" ixz="0.0" iyy="0.00001" iyz="0.0" izz="0.00001" /> <!-- [kg.m^2] [kg.m^2] [kg.m^2] [kg.m^2] [kg.m^2] [kg.m^2] -->
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+    </xacro:odometry_plugin_macro>
+  </xacro:if>
+
+<xacro:include filename="$(find ardupilot_sitl_gazebo_plugin)/urdf/sensors/lidar_sensor.urdf.xacro" />
+  <xacro:lidar_sensor
+    name="sonar2"
+    parent="chassis"
+    ros_topic="sonar_front"
+    update_rate="10"
+    min_range="0.06"
+    max_range="20.0"
+    field_of_view_horizontal="${270*M_PI/180}"
+    field_of_view_vertical="${1*M_PI/180}"
+    ray_count_horizontal="542"
+    ray_count_vertical="1"
+    sensor_mesh="lidar_lite_v2_withRay/meshes/lidar_lite_v2_withRay.dae">
+    <origin xyz="0.5 0 0.8" rpy="0 0 0"/>
+  </xacro:lidar_sensor>
+
+</robot>
