@@ -104,12 +104,10 @@ def render():
 
 if __name__ == '__main__':
 
-    env = gym.make('GazeboCircuitTurtlebotLidar-v0')
+    env = gym.make('GazeboOfficeErleCopterLidar-v0')
 
-
-    outdir = '/tmp/gazebo_gym_experiments'
+    outdir = '/tmp/cartpole-experiment-1'
     env.monitor.start(outdir, force=True, seed=None)
-
     #plotter = LivePlot(outdir)
 
     last_time_steps = numpy.ndarray(0)
@@ -119,7 +117,7 @@ if __name__ == '__main__':
 
     initial_epsilon = qlearn.epsilon
 
-    epsilon_discount = 0.999 # 1098 eps to reach 0.1
+    epsilon_discount = 0.9983
 
     start_time = time.time()
     total_episodes = 10000
@@ -139,7 +137,7 @@ if __name__ == '__main__':
 
         state = ''.join(map(str, observation))
 
-        for i in range(500):
+        for i in range(1500):
 
             # Pick an action based on the current state
             action = qlearn.chooseAction(state)
@@ -160,6 +158,8 @@ if __name__ == '__main__':
                 last_time_steps = numpy.append(last_time_steps, [int(i + 1)])
                 break 
 
+        #plotter.plot()
+
         m, s = divmod(int(time.time() - start_time), 60)
         h, m = divmod(m, 60)
         print "EP: "+str(x+1)+" - [alpha: "+str(round(qlearn.alpha,2))+" - gamma: "+str(round(qlearn.gamma,2))+" - epsilon: "+str(round(qlearn.epsilon,2))+"] - Reward: "+str(cumulated_reward)+"     Time: %d:%02d:%02d" % (h, m, s)
@@ -174,5 +174,5 @@ if __name__ == '__main__':
     print("Overall score: {:0.2f}".format(last_time_steps.mean()))
     print("Best 100 score: {:0.2f}".format(reduce(lambda x, y: x + y, l[-100:]) / len(l[-100:])))
 
-    #env.monitor.close()
+    env.monitor.close()
     env.close()
