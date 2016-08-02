@@ -113,15 +113,12 @@ class GazeboOfficeErleCopterLidarEnv(gazebo_env.GazeboEnv):
         msg = OverrideRCIn()
 
         if action == 0: #FORWARD
-            print "F"
             msg.channels[0] = 1500 # Roll
             msg.channels[1] = 1400 # Pitch
         elif action == 1: #LEFT
-            print "L"
             msg.channels[0] = 1400 # Roll
             msg.channels[1] = 1500 # Pitch
         elif action == 2: #RIGHT
-            print "R"
             msg.channels[0] = 1600 # Roll
             msg.channels[1] = 1500 # Pitch
 
