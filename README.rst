@@ -158,63 +158,8 @@ maintain the lists of dependencies on a per-environment group basis.
 Installing the Gazebo environment
 ------------------------------------------------------
 
-**ROS Indigo**
-
-Install the Robot Operating System via:
-
-- Ubuntu: http://wiki.ros.org/indigo/Installation/Ubuntu
-- Others: http://wiki.ros.org/indigo/Installation 
-
-**Gazebo**
-
-- Setup your computer to accept software from packages.osrfoundation.org:
-
-.. code:: bash
-
-	sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list'
-
-- Setup keys:
-
-.. code:: bash
-
-	wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
-
-- Install Gazebo:
-
-.. code:: bash
-
-	sudo apt-get update
-	sudo apt-get remove .*gazebo.* && sudo apt-get update && sudo apt-get install gazebo7 libgazebo7-dev
-
-- Check your installation:
-
-.. code:: bash
-
-	gazebo
-
-**Dependencies**
-
-Install dependencies running `setup.bash
-<gym/envs/gazebo/installation/setup.bash>`_.
-
-.. code:: bash
-
-	cd gym/envs/gazebo/installation
-	bash setup.bash
-
-Load environment. Example:
-
-.. code:: bash
-
-	cd gym/envs/gazebo/installation
-	bash turtlebot_setup.bash
-
-Load ROS workspace.
-
-.. code:: bash
-
-	source gym/envs/gazebo/installation/catkin_ws/devel_isolated/setup.bash
-
+In order to install the Gazebo environment, please refer to the `installation instructions
+<gym/envs/gazebo/INSTALL.md>`_.
 Environments
 ============
 
