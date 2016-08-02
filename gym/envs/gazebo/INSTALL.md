@@ -38,8 +38,7 @@ There are two options to install dependencies: automatic installation or step-by
 
 ### Automatic installation
 
-Install dependencies running `setup.bash
-</installation/setup.bash>`_.
+Install dependencies running [setup.bash](installation/setup.bash).
 
 ```bash
 cd gym/envs/gazebo/installation
