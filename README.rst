@@ -158,8 +158,9 @@ maintain the lists of dependencies on a per-environment group basis.
 Installing the Gazebo environment
 ------------------------------------------------------
 
-In order to install the Gazebo environment, please refer to the `installation instructions
+In order to install the Gazebo environment, please refer to the corresponding `installation instructions
 <gym/envs/gazebo/INSTALL.md>`_.
+
 Environments
 ============
 
