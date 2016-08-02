@@ -75,7 +75,7 @@ class LivePlot(object):
         #styling options
         matplotlib.rcParams['toolbar'] = 'None'
         plt.style.use('ggplot')
-        plt.xlabel("Episodes")
+        plt.xlabel("")
         plt.ylabel(data_key)
         fig = plt.gcf().canvas.set_window_title('simulation_graph')
 
@@ -104,7 +104,7 @@ def render():
 
 if __name__ == '__main__':
 
-    env = gym.make('GazeboMazeTurtlebotLidar-v0')
+    env = gym.make('GazeboRoundTurtlebotLidar-v0')
 
     outdir = '/tmp/gazebo_gym_experiments'
     env.monitor.start(outdir, force=True, seed=None)
@@ -113,11 +113,11 @@ if __name__ == '__main__':
     last_time_steps = numpy.ndarray(0)
 
     qlearn = QLearn(actions=range(env.action_space.n),
-                    alpha=0.1, gamma=0.9, epsilon=0.9)
+                    alpha=0.2, gamma=0.8, epsilon=0.9)
 
     initial_epsilon = qlearn.epsilon
 
-    epsilon_discount = 0.998 # 1098 eps to reach 0.1
+    epsilon_discount = 0.9986
 
     start_time = time.time()
     total_episodes = 10000
@@ -130,14 +130,14 @@ if __name__ == '__main__':
 
         observation = env.reset()
 
-        if qlearn.epsilon > 0.1:
+        if qlearn.epsilon > 0.05:
             qlearn.epsilon *= epsilon_discount
 
-        render() #defined above, not env.render()
+        #render() #defined above, not env.render()
 
         state = ''.join(map(str, observation))
 
-        for i in range(1000):
+        for i in range(1500):
 
             # Pick an action based on the current state
             action = qlearn.chooseAction(state)
