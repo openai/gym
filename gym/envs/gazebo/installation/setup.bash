@@ -51,7 +51,6 @@ sudo apt-get install -y git                            \
                         ros-indigo-geodesy             \
                         ros-indigo-octomap-ros         \
                         ros-indigo-control-toolbox     \
-                        drcsim                         \
                         gawk
 sudo easy_install numpy
 sudo pip2 install pymavlink MAVProxy catkin_pkg --upgrade
