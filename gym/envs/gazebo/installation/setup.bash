@@ -36,18 +36,65 @@ sudo apt-get install -y git                            \
                         pyqt4-dev-tools                \
                         python-vcstool                 \
                         ros-indigo-bfl                 \
-                        python-pip
+                        python-pip                     \
+                        g++                            \
+                        ccache                         \
+                        realpath                       \
+                        libopencv-dev                  \
+                        libtool                        \
+                        automake                       \
+                        autoconf                       \
+                        libexpat1-dev                  \
+                        ros-indigo-mavlink             \
+                        ros-indigo-octomap-msgs        \
+                        ros-indigo-joy                 \
+                        ros-indigo-geodesy             \
+                        ros-indigo-octomap-ros         \
+                        ros-indigo-control-toolbox     \
+                        drcsim                         \
+                        gawk
 sudo easy_install numpy
-sudo pip install --upgrade matplotlib
+sudo pip2 install pymavlink MAVProxy catkin_pkg --upgrade
+echo "\nDependencies installed\n"
+
+
+#Install Sophus
+cd ../../
+git clone https://github.com/stonier/sophus -b indigo
+cd sophus
+mkdir build
+cd build
+cmake ..
+make
+sudo make install
+echo "## Sophus installed ##\n"
+
+#Install APM/Ardupilot
+cd ../../
+mkdir apm
+cd apm
+git clone https://github.com/erlerobot/ardupilot.git -b gazebo
+git clone https://github.com/tridge/jsbsim.git
+cd jsbsim
+./autogen.sh --enable-libraries
+make -j2
+sudo make install
+echo "## AMP/Ardupilot installed ##"
 
 # Import and build dependencies
+cd ../../catkin_ws/src/
 vcs import < ../../gazebo.repos
-echo 'SET(CMAKE_CXX_FLAGS "-std=c++11")' >> kobuki_desktop/kobuki_gazebo_plugins/CMakeLists.txt
 cd ..
-catkin_make_isolated
+catkin_make --pkg mav_msgs
+source devel/setup.bash
+#Try catkin_make -j 1 if this fails
+catkin_make
+bash -c 'echo source `pwd`/devel/setup.bash >> ~/.bashrc'
+echo "## ROS workspace compiled ##"
 
 #add own models path to gazebo models path
 if [ -z "$GAZEBO_MODEL_PATH" ]; then
   bash -c 'echo "export GAZEBO_MODEL_PATH="`pwd`/../../assets/models >> ~/.bashrc'
   exec bash #reload bashrc
 fi
+echo "## Installation finished ##"
