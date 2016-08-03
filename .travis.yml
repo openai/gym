@@ -24,9 +24,12 @@ addons:
       - libblas-dev
       - liblapack-dev
       - gfortran
-python:
-  - "2.7"
-  - "3.4"
+matrix:
+    include:
+        - python: 2.7
+          env: DISPLAY=:12 TOX_ENV=py27
+        - python: 3.4
+          env: DISPLAY=:12 TOX_ENV=py34
 before_install:
   - Xvfb :12 -screen 0 800x600x24 +extension RANDR &
     # In a pull request, there are no secrets, and hence no MuJoCo:
@@ -37,10 +40,11 @@ before_install:
   # recording.) We should debug the memory usage at some stage, but
   # simply setting overcommit is a good starting point.
   - sudo sysctl -w vm.overcommit_memory=1
-env:
-  - DISPLAY=:12
 install: pip install tox-travis
-script: tox
+script:
+  - tox
+  - rm -rf ./.tox/$TOX_ENV/lib/python*/site-packages/gym*
+  - source ./.tox/$TOX_ENV/bin/activate && nose2
 
 notifications:
   slack:
