@@ -4,6 +4,7 @@ import gym
 import matplotlib
 import matplotlib.pyplot as plt
 import itertools
+import sys
 
 class LivePlot(object):
     def __init__(self, outdir, data_key='episode_rewards', line_color='blue'):
@@ -28,14 +29,15 @@ class LivePlot(object):
         fig = plt.gcf().canvas.set_window_title('averaged_simulation_graph')
         matplotlib.rcParams.update({'font.size': 15})
 
-    def plot(self):
+    def plot(self, mod):
         results = gym.monitoring.monitor.load_results(self.outdir)
         data =  results[self.data_key]
-
         avg_data = []
-        mod = len(data)/50
-        if mod == 0:
-            mod = 1
+
+        if mod == None:
+            mod = len(data)/50
+            if mod == 0:
+                mod = 1
         for i, val in enumerate(data):
             if i%mod==0:
                 if (i+mod) < len(data):
@@ -73,5 +75,8 @@ if __name__ == '__main__':
 
     outdir = '/tmp/gazebo_gym_experiments'
     plotter = LivePlot(outdir)
-    plotter.plot()
+    if len(sys.argv)==1:
+        plotter.plot(None)
+    else:
+        plotter.plot(int(sys.argv[1]))
     pause()
