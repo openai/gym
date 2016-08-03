@@ -28,6 +28,7 @@ sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main
 sudo apt-key adv --keyserver hkp://pool.sks-keyservers.net --recv-key 0xB01FA116
 sudo apt-get update
 sudo apt-get install -y git                            \
+                        mercurial                      \
                         libsdl-image1.2-dev            \
                         libspnav-dev                   \
                         libtbb-dev                     \
@@ -51,7 +52,8 @@ sudo apt-get install -y git                            \
                         ros-indigo-geodesy             \
                         ros-indigo-octomap-ros         \
                         ros-indigo-control-toolbox     \
-                        gawk
+                        gawk                           \
+                        libtinyxml2-dev
 sudo easy_install numpy
 sudo pip2 install pymavlink MAVProxy catkin_pkg --upgrade
 echo "\nDependencies installed\n"
@@ -86,8 +88,7 @@ vcs import < ../../gazebo.repos
 cd ..
 catkin_make --pkg mav_msgs
 source devel/setup.bash
-#Try catkin_make -j 1 if this fails
-catkin_make
+catkin_make -j 1
 bash -c 'echo source `pwd`/devel/setup.bash >> ~/.bashrc'
 echo "## ROS workspace compiled ##"
 
