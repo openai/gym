@@ -1,5 +1,10 @@
 # Installing the Gazebo environment
 
+## Requirements
+
+- Ubuntu 14.04
+- 2GB free space
+
 ## ROS Indigo
 
 Install the Robot Operating System via:
@@ -66,11 +71,6 @@ cd gym/envs/gazebo/installation
 bash erlecopter_setup.bash
 ```
 
-Finally load ROS workspace.
-
-```bash
-source gym/envs/gazebo/installation/catkin_ws/devel_isolated/setup.bash
-```
 ### Step-by-step installation
 
 **1.** Install dependencies
@@ -125,11 +125,11 @@ cd build
 cmake ..
 make
 sudo make install
-cd ../..
 ```
 
 Clone Ardupilot
 ```bash
+cd ../..
 mkdir apm && cd apm
 git clone https://github.com/erlerobot/ardupilot -b gazebo
 ```
@@ -162,8 +162,8 @@ catkin_init_workspace
 **3.** Import packages into catkin workspace and build
 
 ```bash
+cd ../../catkin_ws/src/
 vcs import < ../../gazebo.repos
-echo 'SET(CMAKE_CXX_FLAGS "-std=c++11")' >> kobuki_desktop/kobuki_gazebo_plugins/CMakeLists.txt
 cd ..
 catkin_make_isolated
 ```

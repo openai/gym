@@ -15,9 +15,7 @@ from sensor_msgs.msg import LaserScan
 from gym.utils import seeding
 
 class GazeboMazeErleRoverLidarEnv(gazebo_env.GazeboEnv):
-
-    
-        
+  
     def __init__(self):
 
         # Launch the simulation with the given launchfile name
@@ -137,6 +135,13 @@ class GazeboMazeErleRoverLidarEnv(gazebo_env.GazeboEnv):
             self.reset_proxy()
         except rospy.ServiceException, e:
             print "/gazebo/reset_world service call failed"
+
+        # Set MANUAL mode
+        rospy.wait_for_service('mavros/set_mode')
+        try:
+            self.mode_proxy(0,'MANUAL')
+        except rospy.ServiceException, e:
+            print "mavros/set_mode service call failed: %s"%e
 
         #read laser data
         data = None

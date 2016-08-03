@@ -21,7 +21,7 @@ repositories:
     version: indigo-devel
   drcsim:
     type: hg
-    url https://bitbucket.org/osrf/drcsim
+    url: https://bitbucket.org/osrf/drcsim
     version: default
   driver_base:
     type: git
