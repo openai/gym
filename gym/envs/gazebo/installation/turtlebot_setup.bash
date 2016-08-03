@@ -1,7 +1,5 @@
 #!/bin/bash
 
-source catkin_ws/devel_isolated/setup.bash
-
 if [ -z "$GAZEBO_MODEL_PATH" ]; then
   bash -c 'echo "export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:"`pwd`/../assets/models >> ~/.bashrc'
 fi
@@ -31,3 +29,4 @@ cp -r ../assets/urdf/kobuki_urdf/urdf/ catkin_ws/src/kobuki/kobuki_description
 cp ../assets/meshes/lidar_lite_v2_withRay.dae catkin_ws/src/kobuki/kobuki_description/meshes
  
 exec bash # reload bash
+

@@ -1,4 +1,8 @@
 repositories:
+  ardupilot_sitl_gazebo_plugin:
+    type: git
+    url: https://github.com/erlerobot/ardupilot_sitl_gazebo_plugin
+    version: master
   ar_track_alvar:
     type: git
     url: https://github.com/sniekum/ar_track_alvar
@@ -15,6 +19,10 @@ repositories:
     type: git
     url: https://github.com/ros-controls/control_toolbox.git
     version: indigo-devel
+  drcsim:
+    type: hg
+    url https://bitbucket.org/osrf/drcsim
+    version: default
   driver_base:
     type: git
     url: https://github.com/ros-drivers/driver_common.git
@@ -71,10 +79,22 @@ repositories:
     type: git
     url: https://github.com/yujinrobot/kobuki_msgs
     version: indigo
+  mavros:
+    type: git
+    url: https://github.com/erlerobot/mavros.git
+    version: master
+  mav_comm:
+    type: git
+    url: https://github.com/PX4/mav_comm.git
+    version: master
   navigation:
     type: git
     url: https://github.com/ros-planning/navigation
     version: indigo-devel
+  osrf-common:
+    type: hg
+    url: https://bitbucket.org/osrf/osrf-common
+    version: default
   pcl_ros:
     type: git
     url: https://github.com/ros-perception/perception_pcl.git
@@ -99,6 +119,10 @@ repositories:
     type: git
     url: https://github.com/ros/roslint
     version: master
+  rotors_simulator:
+    type: git
+    url: https://github.com/erlerobot/rotors_simulator
+    version: sonar_plugin
   rqt:
     type: git
     url: https://github.com/ros-visualization/rqt
@@ -111,10 +135,10 @@ repositories:
     type: git
     url: https://github.com/ros-visualization/rqt_robot_plugins
     version: master
-  sophus:
-    type: git
-    url: https://github.com/stonier/sophus.git
-    version: indigo
+  sandia-hand:
+    type: hg
+    url: https://bitbucket.org/osrf/sandia-hand
+    version: default
   turtlebot:
     type: git
     url: https://github.com/turtlebot/turtlebot
