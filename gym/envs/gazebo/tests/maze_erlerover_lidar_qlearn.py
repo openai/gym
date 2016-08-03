@@ -106,7 +106,7 @@ if __name__ == '__main__':
 
     env = gym.make('GazeboMazeErleRoverLidar-v0')
 
-    outdir = '/tmp/cartpole-experiment-1'
+    outdir = '/tmp/gazebo_gym_experiments'
     env.monitor.start(outdir, force=True, seed=None)
     #plotter = LivePlot(outdir)
 

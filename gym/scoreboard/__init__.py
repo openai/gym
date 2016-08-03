@@ -1475,5 +1475,15 @@ add_task(
     group='gazebo',
     summary='Obstacle avoidance in a Round circuit.',
 )
+add_task(
+    id='GazeboMazeErleRoverLidar-v0',
+    group='gazebo',
+    summary='Obstacle avoidance with Erle-Rover in a maze.',
+)
+add_task(
+    id='GazeboOfficeErleCopterLidar-v0',
+    group='gazebo',
+    summary='Obstacle avoidance with Erle-Copter in the Erle Office.',
+)
 
 registry.finalize()
