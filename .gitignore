@@ -39,3 +39,5 @@ vizdoom.ini
 
 # Gazebo project files
 catkin_ws/
+apm/
+sophus/
