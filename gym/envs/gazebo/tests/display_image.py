@@ -23,10 +23,10 @@ class LivePlot(object):
         #styling options
         matplotlib.rcParams['toolbar'] = 'None'
         plt.style.use('ggplot')
-        plt.xlabel("")
-        plt.ylabel(data_key)
+        plt.xlabel("episodes")
+        plt.ylabel("averaged episode rewards")
         fig = plt.gcf().canvas.set_window_title('averaged_simulation_graph')
-        matplotlib.rcParams.update({'font.size': 20})
+        matplotlib.rcParams.update({'font.size': 15})
 
     def plot(self):
         results = gym.monitoring.monitor.load_results(self.outdir)
