@@ -2,8 +2,7 @@
 
 ## Requirements
 
-- Ubuntu 14.0
-- Gazebo7
+- Ubuntu 14.04
 - 2GB free space
 
 ## ROS Indigo
@@ -163,6 +162,7 @@ catkin_init_workspace
 **3.** Import packages into catkin workspace and build
 
 ```bash
+cd ../../catkin_ws/src/
 vcs import < ../../gazebo.repos
 cd ..
 catkin_make_isolated
