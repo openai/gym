@@ -24,12 +24,9 @@ addons:
       - libblas-dev
       - liblapack-dev
       - gfortran
-matrix:
-    include:
-        - python: 2.7
-          env: DISPLAY=:12 TOX_ENV=py27
-        - python: 3.4
-          env: DISPLAY=:12 TOX_ENV=py34
+python:
+  - "2.7"
+  - "3.4"
 before_install:
   - Xvfb :12 -screen 0 800x600x24 +extension RANDR &
     # In a pull request, there are no secrets, and hence no MuJoCo:
@@ -40,11 +37,16 @@ before_install:
   # recording.) We should debug the memory usage at some stage, but
   # simply setting overcommit is a good starting point.
   - sudo sysctl -w vm.overcommit_memory=1
-install: pip install tox-travis
+  # Installs Miniconda to avoid having to compile NumPy, SciPy, etc.
+  - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh && chmod +x miniconda.sh && ./miniconda.sh -b && export PATH=$HOME/miniconda2/bin:$PATH && conda update --yes conda
+env:
+  - DISPLAY=:12
+install:
+  - conda install --yes python=$TRAVIS_PYTHON_VERSION numpy scipy
+  - pip install -r requirements.txt
+  - pip install -r requirements_dev.txt
 script:
-  - tox
-  - rm -rf ./.tox/$TOX_ENV/lib/python*/site-packages/gym*
-  - source ./.tox/$TOX_ENV/bin/activate && nose2
+  - nose2
 
 notifications:
   slack:
