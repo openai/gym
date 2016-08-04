@@ -42,7 +42,7 @@ before_install:
   - sudo sysctl -w vm.overcommit_memory=1
 env:
   - DISPLAY=:12
-install: pip install -r requirements_dev.txt
+install: travis_wait pip install -r requirements_dev.txt
 script: nose2
 
 notifications:
