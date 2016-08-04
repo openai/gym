@@ -1,9 +1,12 @@
+language: python
+python:
+  - "2.7"
+  - "3.4"
 dist: trusty
 sudo: required
 cache:
   apt: true
   pip: true
-language: python
 addons:
   apt:
     sources:
@@ -24,29 +27,23 @@ addons:
       - libblas-dev
       - liblapack-dev
       - gfortran
-python:
-  - "2.7"
-  - "3.4"
 before_install:
+  # Start an X server so rendering works.
   - Xvfb :12 -screen 0 800x600x24 +extension RANDR &
-    # In a pull request, there are no secrets, and hence no MuJoCo:
-    # https://docs.travis-ci.com/user/pull-requests#Security-Restrictions-when-testing-Pull-Requests.
+
+  # In a pull request, there are no secrets, and hence no MuJoCo:
+  # https://docs.travis-ci.com/user/pull-requests#Security-Restrictions-when-testing-Pull-Requests.
   - '[ -z ${MUJOCO_KEY_BUNDLE+x} ] || ( mkdir -p ~/.mujoco && curl https://openai-public.s3-us-west-2.amazonaws.com/mujoco/$MUJOCO_KEY_BUNDLE.tar.gz | tar xz -C ~/.mujoco )'
+
   # Without this line, Travis has fork()s fail with an out of memory
   # error. (These fork()s are for spawning the subprocess for video
   # recording.) We should debug the memory usage at some stage, but
   # simply setting overcommit is a good starting point.
   - sudo sysctl -w vm.overcommit_memory=1
-  # Installs Miniconda to avoid having to compile NumPy, SciPy, etc.
-  - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh && chmod +x miniconda.sh && ./miniconda.sh -b && export PATH=$HOME/miniconda2/bin:$PATH && conda update --yes conda
 env:
   - DISPLAY=:12
-install:
-  - conda install --yes python=$TRAVIS_PYTHON_VERSION numpy scipy
-  - pip install -r requirements.txt
-  - pip install -r requirements_dev.txt
-script:
-  - nose2
+install: pip install -r requirements_dev.txt
+script: nose2
 
 notifications:
   slack:
