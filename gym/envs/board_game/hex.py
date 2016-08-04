@@ -13,6 +13,9 @@ from gym.utils import seeding
 def make_random_policy(np_random):
     def random_policy(state):
         possible_moves = HexEnv.get_possible_actions(state)
+        # No moves left
+        if len(possible_moves) == 0:
+            return None
         a = np_random.randint(len(possible_moves))
         return possible_moves[a]
     return random_policy
@@ -115,12 +118,16 @@ class HexEnv(gym.Env):
 
         # Opponent play
         a = self.opponent_policy(self.state)
+
         # if HexEnv.pass_move(self.board_size, action):
         #     pass
-        if HexEnv.resign_move(self.board_size, action):
-            return self.state, 1, True, {'state': self.state}
-        else:
-            HexEnv.make_move(self.state, a, 1 - self.player_color)
+
+        # Making move if there are moves left
+        if a is not None:
+            if HexEnv.resign_move(self.board_size, action):
+                return self.state, 1, True, {'state': self.state}
+            else:
+                HexEnv.make_move(self.state, a, 1 - self.player_color)
 
         reward = HexEnv.game_finished(self.state)
         if self.player_color == HexEnv.WHITE:
