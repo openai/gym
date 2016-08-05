@@ -4,7 +4,7 @@ logger = logging.getLogger(__name__)
 import numpy as np
 
 from gym import error, monitoring
-from gym.utils import closer
+from gym.utils import closer, reraise
 
 env_closer = closer.Closer()
 
@@ -226,7 +226,17 @@ class Env(object):
         """
 
         self._configured = True
-        return self._configure(*args, **kwargs)
+
+        try:
+            return self._configure(*args, **kwargs)
+        except TypeError as e:
+            # It can be confusing if you have the wrong environment
+            # and try calling with unsupported arguments, since your
+            # stack trace will only show core.py.
+            if self.spec:
+                reraise(suffix='(for {})'.format(self.spec.id))
+            else:
+                raise
 
     def __del__(self):
         self.close()
