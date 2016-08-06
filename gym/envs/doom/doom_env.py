@@ -60,6 +60,7 @@ class DoomEnv(gym.Env, utils.EzPickle):
         self.action_space = spaces.HighLow(
             np.matrix([[0, 1, 0]] * 38 + [[-10, 10, 0]] * 2 + [[-100, 100, 0]] * 3, dtype=np.int8))
         self.allowed_actions = list(range(NUM_ACTIONS))
+        self._seed()
         self._configure()
 
     def _configure(self, screen_resolution=ScreenResolution.RES_640X480):
