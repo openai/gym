@@ -509,12 +509,6 @@
     "actions": "a642086826823e658c283b56dd79f14af59846af2c3d93fad08c3bc84bf3b748",
     "observations": "ef8fd5dc6e04dc7d431e193a9992dcbe69ab7e92ff73f41d1cd243fa57f6ad2e"
   },
-  "Acrobot-v0": {
-    "rewards": "2231c0a73135676c2b9147c3db34e881195ecd983243c4b3760ff5d47f63bece",
-    "dones": "ecfbe8578a5aac6442d7b65f2e4bd4f6d70e5cdc76c1d6868ee031460c7477b9",
-    "actions": "5138748c3c039a57ee365473ef13e5b99329e75a4f71459cd1a0d7919fd6e97b",
-    "observations": "82ce5940672550e12b1fd33836e1c58d4f592e8f352eccfa764c98cf323bc68b"
-  },
   "CartPole-v0": {
     "rewards": "ec9ed1056f4910faf5586950b4923cfc32f7c8402db2ac8cf0be94567e27009a",
     "dones": "8f706dc507474dc873deaceae35d28450c67ac430f30773ebe9c1c751afc6130",

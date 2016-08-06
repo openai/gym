@@ -13,7 +13,7 @@ class FakeEnv(gym.Env):
 
 def test_monitor_filename():
     with helpers.tempdir() as temp:
-        env = gym.make('Acrobot-v0')
+        env = gym.make('CartPole-v0')
         env.monitor.start(temp)
         env.monitor.close()
 
@@ -31,7 +31,7 @@ def test_close_monitor():
 
 def test_video_callable_true_not_allowed():
     with helpers.tempdir() as temp:
-        env = gym.make('Acrobot-v0')
+        env = gym.make('CartPole-v0')
         try:
             env.monitor.start(temp, video_callable=True)
         except error.Error:
@@ -41,7 +41,7 @@ def test_video_callable_true_not_allowed():
 
 def test_video_callable_false_does_not_record():
     with helpers.tempdir() as temp:
-        env = gym.make('Acrobot-v0')
+        env = gym.make('CartPole-v0')
         env.monitor.start(temp, video_callable=False)
         env.reset()
         env.monitor.close()
@@ -50,7 +50,7 @@ def test_video_callable_false_does_not_record():
 
 def test_video_callable_records_videos():
     with helpers.tempdir() as temp:
-        env = gym.make('Acrobot-v0')
+        env = gym.make('CartPole-v0')
         env.monitor.start(temp)
         env.reset()
         env.monitor.close()
