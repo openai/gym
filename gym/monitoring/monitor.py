@@ -78,7 +78,11 @@ class Monitor(object):
     """
 
     def __init__(self, env):
-        self.env = env
+        # Python's GC allows refcycles *or* for objects to have a
+        # __del__ method. So we need to maintain a weakref to env.
+        #
+        # https://docs.python.org/2/library/gc.html#gc.garbage
+        self._env_ref = weakref.ref(env)
         self.videos = []
 
         self.stats_recorder = None
@@ -87,6 +91,13 @@ class Monitor(object):
         self.episode_id = 0
         self._monitor_id = None
         self.seeds = None
+
+    @property
+    def env(self):
+        env = self._env_ref()
+        if env is None:
+            raise error.Error("env has been garbage collected. To keep using a monitor, you must keep around a reference to the env object. (HINT: try assigning the env to a variable in your code.)")
+        return env
 
     def start(self, directory, video_callable=None, force=False, resume=False, seed=None):
         """Start monitoring.
@@ -169,26 +180,29 @@ class Monitor(object):
             self._close_video_recorder()
         self.flush()
 
-        # Note we'll close the env's rendering window even if we did
-        # not open it. There isn't a particular great way to know if
-        # we did, since some environments will have a window pop up
-        # during video recording.
-        try:
-            self.env.render(close=True)
-        except Exception as e:
-            if self.env.spec:
-                key = self.env.spec.id
-            else:
-                key = self.env
-            # We don't want to avoid writing the manifest simply
-            # because we couldn't close the renderer.
-            logger.error('Could not close renderer for %s: %s', key, e)
+        env = self._env_ref()
+        # Only take action if the env hasn't been GC'd
+        if env is not None:
+            # Note we'll close the env's rendering window even if we did
+            # not open it. There isn't a particular great way to know if
+            # we did, since some environments will have a window pop up
+            # during video recording.
+            try:
+                env.render(close=True)
+            except Exception as e:
+                if env.spec:
+                    key = env.spec.id
+                else:
+                    key = env
+                # We don't want to avoid writing the manifest simply
+                # because we couldn't close the renderer.
+                logger.error('Could not close renderer for %s: %s', key, e)
 
-        # Remove the env's pointer to this monitor
-        del self.env._monitor
+            # Remove the env's pointer to this monitor
+            del env._monitor
+
         # Stop tracking this for autoclose
         monitor_closer.unregister(self._monitor_id)
-
         self.enabled = False
 
         logger.info('''Finished writing results. You can upload them to the scoreboard via gym.upload(%r)''', self.directory)
