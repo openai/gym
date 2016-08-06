@@ -58,6 +58,13 @@ register(
 )
 
 register(
+    id='CartPole-v1',
+    entry_point='gym.envs.classic_control:CartPoleEnv',
+    timestep_limit=500,
+    reward_threshold=475.0,
+)
+
+register(
     id='MountainCar-v0',
     entry_point='gym.envs.classic_control:MountainCarEnv',
     timestep_limit=200,
@@ -71,10 +78,9 @@ register(
 )
 
 register(
-    id='Acrobot-v0',
+    id='Acrobot-v1',
     entry_point='gym.envs.classic_control:AcrobotEnv',
-    timestep_limit=200,
-    reward_threshold=-100
+    timestep_limit=500,
 )
 
 # Box2d
