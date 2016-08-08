@@ -15,6 +15,9 @@ def test_renderable_after_monitor_close(spec):
     if spec._entry_point.startswith('gym.envs.box2d:'):
         logger.warn("Skipping tests for box2d env {}".format(spec._entry_point))
         return
+    elif spec._entry_point.startswith('gym.envs.parameter_tuning:'):
+        logger.warn("Skipping tests for parameter tuning".format(spec._entry_point))
+        return
 
     # Skip mujoco tests
     skip_mujoco = not (os.environ.get('MUJOCO_KEY_BUNDLE') or os.path.exists(os.path.expanduser('~/.mujoco')))
