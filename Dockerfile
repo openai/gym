@@ -21,15 +21,17 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/* \
  && easy_install pip
 
-WORKDIR /usr/local/gym
+WORKDIR /usr/local/gym/
 RUN mkdir gym && touch gym/__init__.py
-COPY ./gym/version.py ./gym
-COPY ./requirements.txt .
-COPY ./setup.py .
+COPY ./gym/version.py ./gym/
+COPY ./requirements.txt ./
+COPY ./setup.py ./
 RUN pip install -r requirements.txt
 
 # Finally, upload our actual code!
-COPY . /usr/local/gym
+COPY . /usr/local/gym/
 
-WORKDIR /root
+RUN export PYTHONPATH="${PYTHONPATH}:/usr/local/gym"
+
+WORKDIR /root/
 ENTRYPOINT ["/usr/local/gym/bin/docker_entrypoint"]
