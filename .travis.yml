@@ -34,9 +34,6 @@ addons:
       - libxinerama1
       - libxcursor1
 before_install:
-  # Start an X server so rendering works.
-  - Xvfb :12 -screen 0 800x600x24 +extension RANDR &
-
   # In a pull request, there are no secrets, and hence no MuJoCo:
   # https://docs.travis-ci.com/user/pull-requests#Security-Restrictions-when-testing-Pull-Requests.
   - '[ -z ${MUJOCO_KEY_BUNDLE+x} ] || ( mkdir -p ~/.mujoco && curl https://openai-public.s3-us-west-2.amazonaws.com/mujoco/$MUJOCO_KEY_BUNDLE.tar.gz | tar xz -C ~/.mujoco )'
@@ -49,7 +46,7 @@ before_install:
 env:
   - DISPLAY=:12
 install: travis_wait pip install -r requirements_dev.txt
-script: nose2
+script: xvfb-run -a -s "-screen 0 1400x900x24 +extension RANDR" -- nose2
 
 notifications:
   slack:
