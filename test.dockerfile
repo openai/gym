@@ -32,8 +32,8 @@ COPY ./setup.py .
 COPY ./tox.ini .
 
 RUN pip install tox
-# Install the relevant dependencies
-RUN tox --notest
+# Install the relevant dependencies. Keep printing so Travis knows we're alive.
+RUN ["bash", "-c", "( while true; do echo '.'; sleep 60; done ) & tox --notest"]
 
 # Finally, upload our actual code!
 COPY . /usr/local/gym
