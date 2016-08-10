@@ -28,11 +28,7 @@ addons:
       - liblapack-dev
       - gfortran
       - python-opengl
-      - xorg-dev
-      - libglu1-mesa
-      - libgl1-mesa-dev
-      - libxinerama1
-      - libxcursor1
+      - xpra
 before_install:
   # Start an X server so rendering works.
   - ./vendor/Xdummy :12 &

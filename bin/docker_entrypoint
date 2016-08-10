@@ -4,9 +4,9 @@
 
 set -e
 
-# Set up display; otherwise rendering will cause segfaults
+# Set up display; otherwise rendering will fail
 rm -f /tmp/.X12-lock
-Xvfb :12 -screen 0 800x600x24 +extension RANDR 2>/dev/null &
+./vendor/Xdummy :12 &
 export DISPLAY=:12
 
 exec "$@"
