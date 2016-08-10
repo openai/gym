@@ -28,6 +28,11 @@ addons:
       - liblapack-dev
       - gfortran
       - python-opengl
+      - xorg-dev
+      - libglu1-mesa
+      - libgl1-mesa-dev
+      - libxinerama1
+      - libxcursor1
 before_install:
   # Start an X server so rendering works.
   - Xvfb :12 -screen 0 800x600x24 +extension RANDR &
