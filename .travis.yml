@@ -1,50 +1,15 @@
-language: python
-python:
-  - "2.7"
-  - "3.4"
-dist: trusty
 sudo: required
-cache:
-  apt: true
-  pip: true
-addons:
-  apt:
-    sources:
-      - george-edison55-precise-backports # cmake 3.2.3
-      - deadsnakes
-    packages:
-      - cmake
-      - cmake-data
-      - python-dev
-      - python3.4-dev
-      - swig
-      - libav-tools
-      - python-numpy
-      - libboost-all-dev
-      - libsdl2-dev
-      - libjpeg-dev
-      - zlib1g-dev
-      - libblas-dev
-      - liblapack-dev
-      - gfortran
-      - python-opengl
+language: python
+services:
+  - docker
 before_install:
-  # Start an X server so rendering works.
-  - Xvfb :12 -screen 0 800x600x24 +extension RANDR &
-
+  # Prime the cache. We currently manually keep this synced.
+  - docker pull quay.io/openai/gym:test
+  - docker build -f test.dockerfile -t quay.io/openai/gym:test .
+script:
   # In a pull request, there are no secrets, and hence no MuJoCo:
   # https://docs.travis-ci.com/user/pull-requests#Security-Restrictions-when-testing-Pull-Requests.
-  - '[ -z ${MUJOCO_KEY_BUNDLE+x} ] || ( mkdir -p ~/.mujoco && curl https://openai-public.s3-us-west-2.amazonaws.com/mujoco/$MUJOCO_KEY_BUNDLE.tar.gz | tar xz -C ~/.mujoco )'
-
-  # Without this line, Travis has fork()s fail with an out of memory
-  # error. (These fork()s are for spawning the subprocess for video
-  # recording.) We should debug the memory usage at some stage, but
-  # simply setting overcommit is a good starting point.
-  - sudo sysctl -w vm.overcommit_memory=1
-env:
-  - DISPLAY=:12
-install: travis_wait pip install -r requirements_dev.txt
-script: nose2
+  - docker run -e MUJOCO_KEY_BUNDLE="${MUJOCO_KEY_BUNDLE:-}" quay.io/openai/gym:test tox
 
 notifications:
   slack:
