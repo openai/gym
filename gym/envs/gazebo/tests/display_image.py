@@ -29,22 +29,22 @@ class LivePlot(object):
         fig = plt.gcf().canvas.set_window_title('averaged_simulation_graph')
         matplotlib.rcParams.update({'font.size': 15})
 
-    def plot(self, mod):
+    def plot(self, mod1, mod2):
         results = gym.monitoring.monitor.load_results(self.outdir)
         data =  results[self.data_key]
         avg_data = []
 
-        if mod == None:
-            mod = len(data)/50
-            if mod == 0:
-                mod = 1
+        if mod1 == None:
+            mod1 = len(data)/50
+            if mod1 == 0:
+                mod1 = 1
         for i, val in enumerate(data):
-            if i%mod==0:
-                if (i+mod) < len(data):
-                    avg =  sum(data[i:i+mod])/mod
+            if i%mod1==0:
+                if (i+mod1) < len(data):
+                    avg =  sum(data[i:i+mod1])/mod1
                     avg_data.append(avg)
 
-        new_data = expand(avg_data,mod)
+        new_data = expand(avg_data,mod1)    
 
         #only update plot if data is different (plot calls are expensive)
         '''if data !=  self._last_data:
@@ -57,8 +57,11 @@ class LivePlot(object):
 
         if new_data !=  self._last_data:
             self._last_data = new_data
-            plt.plot(new_data, color=self.line_color)
-
+            if mod2 == 'b':
+                plt.plot(data, color='blue')
+                plt.plot(new_data, color='red')
+            else:
+                plt.plot(new_data, color=self.line_color)
             # pause so matplotlib will display
             # may want to figure out matplotlib animation or use a different library in the future
             plt.pause(0.000001)
@@ -76,7 +79,9 @@ if __name__ == '__main__':
     outdir = '/tmp/gazebo_gym_experiments'
     plotter = LivePlot(outdir)
     if len(sys.argv)==1:
-        plotter.plot(None)
+        plotter.plot(None, None)
+    elif len(sys.argv)==2:
+        plotter.plot(int(sys.argv[1]), None)
     else:
-        plotter.plot(int(sys.argv[1]))
+        plotter.plot(int(sys.argv[1]), sys.argv[2])
     pause()
