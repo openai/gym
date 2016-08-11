@@ -63,6 +63,8 @@ class EnvSpec(object):
 
         # Make the enviroment aware of which spec it came from.
         env.spec = self
+        env = env.build()
+
         return env
 
     def __repr__(self):
