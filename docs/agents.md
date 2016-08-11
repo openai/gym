@@ -33,3 +33,7 @@ A library that allows you to develop custom deep/convolutional/recurrent reinfor
 ## rllab
 
 a framework for developing and evaluating reinforcement learning algorithms, fully compatible with OpenAI Gym. It includes a wide range of continuous control tasks plus implementations of many algorithms. [/rllab/rllab](https://github.com/rllab/rllab)
+
+## [keras-rl](https://github.com/matthiasplappert/keras-rl)
+
+[keras-rl](https://github.com/matthiasplappert/keras-rl) implements some state-of-the art deep reinforcement learning algorithms. It was built with OpenAI Gym in mind, and also built on top of the deep learning library [Keras](http://keras.io/) and utilises similar design patterns like callbacks and user-definable metrics.
