@@ -32,6 +32,11 @@ def should_skip_env_spec_for_tests(spec):
         logger.warn("Skipping tests for parameter_tuning env {}".format(spec._entry_point))
         return True
 
+    # Skipping nes envs (they take too long to run)
+    if spec._entry_point.startswith('gym.envs.nes:'):
+        logger.warn("Skipping tests for nes env {}".format(spec._entry_point))
+        return True
+
     return False
 
 

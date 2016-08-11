@@ -19,6 +19,7 @@ RUN apt-get update \
     unzip \
     git \
     xpra \
+    fceux \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     && easy_install pip
