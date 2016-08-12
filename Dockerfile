@@ -24,7 +24,7 @@ RUN apt-get update \
     && easy_install pip
 
 WORKDIR /usr/local/gym
-RUN mkdir gym && touch gym/__init__.py
+RUN mkdir -p gym && touch gym/__init__.py
 COPY ./gym/version.py ./gym
 COPY ./requirements.txt .
 COPY ./setup.py .
