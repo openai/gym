@@ -133,7 +133,7 @@ if __name__ == '__main__':
         if qlearn.epsilon > 0.1:
             qlearn.epsilon *= epsilon_discount
 
-        render() #defined above, not env.render()
+        #render() #defined above, not env.render()
 
         state = ''.join(map(str, observation))
 
