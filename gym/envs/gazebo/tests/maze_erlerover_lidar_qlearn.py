@@ -113,7 +113,7 @@ if __name__ == '__main__':
     last_time_steps = numpy.ndarray(0)
 
     qlearn = QLearn(actions=range(env.action_space.n),
-                    alpha=0.1, gamma=0.8, epsilon=0.9)
+                    alpha=0.2, gamma=0.8, epsilon=0.9)
 
     initial_epsilon = qlearn.epsilon
 
