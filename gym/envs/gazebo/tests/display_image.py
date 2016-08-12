@@ -4,7 +4,7 @@ This script plots environemnt monitoring data obtained from
 '/tmp/gazebo_gym_experiments/', which has been created when 
 calling a gazebo environment monitoring function in a test.
 
-Running options:
+Args:
 
   default    Plots an averaged graph.
   arg1       Plots an averaged graph using 'arg1' as average 
