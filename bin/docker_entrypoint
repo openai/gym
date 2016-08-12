@@ -6,7 +6,7 @@ set -e
 
 path=$(cd $(dirname "$0") && pwd)
 
-[ -z ${MUJOCO_KEY_BUNDLE+x} ] || ( mkdir -p ~/.mujoco && curl https://openai-public.s3-us-west-2.amazonaws.com/mujoco/$MUJOCO_KEY_BUNDLE.tar.gz | tar xz -C ~/.mujoco )
+[ -z "${MUJOCO_KEY_BUNDLE}" ] || ( mkdir -p ~/.mujoco && curl https://openai-public.s3-us-west-2.amazonaws.com/mujoco/$MUJOCO_KEY_BUNDLE.tar.gz | tar xz -C ~/.mujoco )
 
 # Set up display; otherwise rendering will fail
 rm -f /tmp/.X12-lock

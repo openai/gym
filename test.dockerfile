@@ -26,10 +26,10 @@ RUN apt-get update \
 
 WORKDIR /usr/local/gym
 RUN mkdir -p gym && touch gym/__init__.py
-COPY ./gym/version.py ./gym
-COPY ./requirements.txt .
-COPY ./setup.py .
-COPY ./tox.ini .
+COPY ./gym/version.py ./gym/
+COPY ./requirements.txt ./
+COPY ./setup.py ./
+COPY ./tox.ini ./
 
 RUN pip install tox
 # Install the relevant dependencies. Keep printing so Travis knows we're alive.
