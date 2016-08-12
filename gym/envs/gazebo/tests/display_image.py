@@ -1,10 +1,31 @@
 #!/usr/bin/env python
+'''
+This script plots environemnt monitoring data obtained from 
+'/tmp/gazebo_gym_experiments/', which has been created when 
+calling a gazebo environment monitoring function in a test.
+
+Running options:
+
+  default    Plots an averaged graph.
+  arg1       Plots an averaged graph using 'arg1' as average 
+             size delimiter.
+  arg2='b'   Prints both graphs, the averaged one using 'arg1' 
+             and the full data plot. 'arg2' must be 'b'.
+
+Examples:
+
+  python display_image.py
+  python display_image.py 20
+  python display_image.py 20 b
+
+'''
 import os
 import gym
 import matplotlib
 import matplotlib.pyplot as plt
 import itertools
 import sys
+import argparse
 
 class LivePlot(object):
     def __init__(self, outdir, data_key='episode_rewards', line_color='blue'):
@@ -25,7 +46,7 @@ class LivePlot(object):
         matplotlib.rcParams['toolbar'] = 'None'
         plt.style.use('ggplot')
         plt.xlabel("episodes")
-        plt.ylabel("averaged episode rewards")
+        plt.ylabel("cumulated episode rewards")
         fig = plt.gcf().canvas.set_window_title('averaged_simulation_graph')
         matplotlib.rcParams.update({'font.size': 15})
 
@@ -59,7 +80,7 @@ class LivePlot(object):
             self._last_data = new_data
             if mod2 == 'b':
                 plt.plot(data, color='blue')
-                plt.plot(new_data, color='red')
+                plt.plot(new_data, color='red', linewidth=2.0)
             else:
                 plt.plot(new_data, color=self.line_color)
             # pause so matplotlib will display
