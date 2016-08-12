@@ -1,16 +1,19 @@
 import logging
 import os
 from time import sleep
+import multiprocessing
 
 import numpy as np
 
 import gym
-from gym import utils, spaces
+from gym.wrappers.doom import Res640x480
+from gym import spaces, error
 from gym.utils import seeding
 
 try:
     import doom_py
     from doom_py import DoomGame, Mode, Button, GameVariable, ScreenFormat, ScreenResolution, Loader
+    from doom_py.vizdoom import ViZDoomUnexpectedExitException, ViZDoomErrorException
 except ImportError as e:
     raise gym.error.DependencyNotInstalled("{}. (HINT: you can install Doom dependencies " +
                                            "with 'pip install gym[doom].)'".format(e))
@@ -41,41 +44,50 @@ DOOM_SETTINGS = [
     ['deathmatch.cfg', 'deathmatch.wad', '', 5, [x for x in range(NUM_ACTIONS) if x != 33], 0, 20] # 8 - Deathmatch
 ]
 
+# Singleton pattern
+class DoomLock:
+    class __DoomLock:
+        def __init__(self):
+            self.lock = multiprocessing.Lock()
+    instance = None
+    def __init__(self):
+        if not DoomLock.instance:
+            DoomLock.instance = DoomLock.__DoomLock()
+    def get_lock(self):
+        return DoomLock.instance.lock
 
-class DoomEnv(gym.Env, utils.EzPickle):
-    metadata = {'render.modes': ['human', 'rgb_array'], 'video.frames_per_second': 35}
+
+class DoomEnv(gym.Env):
+    metadata = {
+        'render.modes': ['human', 'rgb_array'],
+        'video.frames_per_second': 35,
+        'wrappers': [ Res640x480 ]
+    }
 
     def __init__(self, level):
-        utils.EzPickle.__init__(self)
         self.previous_level = -1
         self.level = level
         self.game = DoomGame()
         self.loader = Loader()
         self.doom_dir = os.path.dirname(os.path.abspath(__file__))
-        self.mode = 'fast'                          # 'human', 'fast' or 'normal'
         self.no_render = False                      # To disable double rendering in human mode
         self.viewer = None
         self.is_initialized = False                 # Indicates that reset() has been called
         self.curr_seed = 0
+        self.lock = (DoomLock()).get_lock()
         self.action_space = spaces.HighLow(
             np.matrix([[0, 1, 0]] * 38 + [[-10, 10, 0]] * 2 + [[-100, 100, 0]] * 3, dtype=np.int8))
         self.allowed_actions = list(range(NUM_ACTIONS))
+        self._mode = 'algo'                         # 'human', 'algo'
         self._seed()
         self._configure()
 
-    def _configure(self, screen_resolution=ScreenResolution.RES_640X480):
-        # Often agents end up downsampling the observations. Configuring Doom to
-        # return a smaller image yields significant (~10x) speedups
-        if screen_resolution == ScreenResolution.RES_640X480:
-            self.screen_height = 480
-            self.screen_width = 640
-            self.screen_resolution = ScreenResolution.RES_640X480
-        elif screen_resolution == ScreenResolution.RES_160X120:
-            self.screen_height = 120
-            self.screen_width = 160
-            self.screen_resolution = ScreenResolution.RES_160X120
-
-        self.observation_space = spaces.Box(low=0, high=255, shape=(self.screen_height, self.screen_width, 3))
+    def _configure(self, lock=None, **kwargs):
+        if 'screen_resolution' in kwargs:
+            logger.warn('Deprecated - Screen resolution must now be set using a wrapper. See documentation for details.')
+        # Multiprocessing lock
+        if lock is not None:
+            self.lock = lock
 
     def _load_level(self):
         # Closing if is_initialized
@@ -101,11 +113,20 @@ class DoomEnv(gym.Env, utils.EzPickle):
         self.game.set_screen_resolution(self.screen_resolution)
 
         # Algo mode
-        if 'human' != self.mode:
+        if 'human' != self._mode:
             self.game.set_window_visible(False)
             self.game.set_mode(Mode.PLAYER)
             self.no_render = False
-            self.game.init()
+            try:
+                with self.lock:
+                    self.game.init()
+            except (ViZDoomUnexpectedExitException, ViZDoomErrorException):
+                raise error.Error(
+                    'VizDoom exited unexpectedly. This is likely caused by a missing multiprocessing lock. ' +
+                    'To run VizDoom across multiple processes, you need to pass a lock when you configure the env ' +
+                    '[e.g. env.configure(lock=my_multiprocessing_lock)], or create and close an env ' +
+                    'before starting your processes [e.g. env = gym.make("DoomBasic-v0"); env.close()] to cache a ' +
+                    'singleton lock in memory.')
             self._start_episode()
             self.is_initialized = True
             return self.game.get_state().image_buffer.copy()
@@ -116,7 +137,8 @@ class DoomEnv(gym.Env, utils.EzPickle):
             self.game.set_window_visible(True)
             self.game.set_mode(Mode.SPECTATOR)
             self.no_render = True
-            self.game.init()
+            with self.lock:
+                self.game.init()
             self._start_episode()
             self.is_initialized = True
             self._play_human_mode()
@@ -178,7 +200,15 @@ class DoomEnv(gym.Env, utils.EzPickle):
     def _reset(self):
         if self.is_initialized and not self._closed:
             self._start_episode()
-            return self.game.get_state().image_buffer.copy()
+            image_buffer = self.game.get_state().image_buffer
+            if image_buffer is None:
+                raise error.Error(
+                    'VizDoom incorrectly initiated. This is likely caused by a missing multiprocessing lock. ' +
+                    'To run VizDoom across multiple processes, you need to pass a lock when you configure the env ' +
+                    '[e.g. env.configure(lock=my_multiprocessing_lock)], or create and close an env ' +
+                    'before starting your processes [e.g. env = gym.make("DoomBasic-v0"); env.close()] to cache a ' +
+                    'singleton lock in memory.')
+            return image_buffer.copy()
         else:
             return self._load_level()
 
@@ -204,13 +234,13 @@ class DoomEnv(gym.Env, utils.EzPickle):
                 if self.viewer is None:
                     self.viewer = rendering.SimpleImageViewer()
                 self.viewer.imshow(img)
-                if 'normal' == self.mode:
-                    sleep(0.02857)  # 35 fps = 0.02857 sleep between frames
         except doom_py.vizdoom.ViZDoomIsNotRunningException:
             pass  # Doom has been closed
 
     def _close(self):
-        self.game.close()
+        # Lock required for VizDoom to close processes properly
+        with self.lock:
+            self.game.close()
 
     def _seed(self, seed=None):
         self.curr_seed = seeding.hash_seed(seed) % 2 ** 32
@@ -389,7 +419,7 @@ class MetaDoomEnv(DoomEnv):
         if self.find_new_level:
             self.change_level()
 
-        if 'human' == self.mode:
+        if 'human' == self._mode:
             self._play_human_mode()
             obs = np.zeros(shape=self.observation_space.shape, dtype=np.uint8)
             reward = 0
