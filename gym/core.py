@@ -54,7 +54,6 @@ class Env(object):
         env._closed = False
         env._configured = False
         env._unwrapped = None
-        env._step_count = 0
 
         # Will be automatically set when creating an environment via 'make'
         env.spec = None
@@ -116,7 +115,7 @@ class Env(object):
         """
         self.monitor._before_step(action)
         observation, reward, done, info = self._step(action)
-        self._step_count += 1
+
         done = self.monitor._after_step(observation, reward, done, info)
         return observation, reward, done, info
 
@@ -132,7 +131,6 @@ class Env(object):
 
         self.monitor._before_reset()
         observation = self._reset()
-        self._step_count = 0
         self.monitor._after_reset(observation)
         return observation
 
@@ -279,10 +277,6 @@ class Env(object):
             return self
 
     @property
-    def step_count(self):
-        return self._step_count
-
-    @property
     def wrappers(self):
         return []
 
@@ -359,10 +353,6 @@ class Wrapper(Env):
 
     def _seed(self, seed=None):
         return self.env.seed(seed)
-
-    @property
-    def step_count(self):
-        return self.env.step_count
 
     @property
     def wrappers(self):

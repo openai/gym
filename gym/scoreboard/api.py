@@ -54,7 +54,6 @@ def upload(training_dir, algorithm_id=None, writeup=None, api_key=None, ignore_o
         training_episode_batch=training_episode_batch_id,
         training_video=training_video_id,
         env=env_info['env_id'],
-        wrappers=env_info['wrappers'],
         algorithm={
             'id': algorithm_id,
         },

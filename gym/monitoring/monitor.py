@@ -277,7 +277,6 @@ class Monitor(object):
     def _env_info(self):
         env_info = {
             'gym_version': version.VERSION,
-            'wrappers': self.env.wrappers,
         }
         if self.env.spec:
             env_info['env_id'] = self.env.spec.id
@@ -364,7 +363,7 @@ def collapse_env_infos(env_infos, training_dir):
         if first != other:
             raise error.Error('Found two unequal env_infos: {} and {}. This usually indicates that your training directory {} has commingled results from multiple runs.'.format(first, other, training_dir))
 
-    for key in ['env_id', 'gym_version', 'wrappers']:
+    for key in ['env_id', 'gym_version']:
         if key not in first:
-            raise error.Error("env_info {} from training directory {} is missing expected key {}. This is unexpected and likely indicates a bug in gym or a deprecated training directory.".format(first, training_dir, key))
+            raise error.Error("env_info {} from training directory {} is missing expected key {}. This is unexpected and likely indicates a bug in gym.".format(first, training_dir, key))
     return first
