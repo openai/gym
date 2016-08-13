@@ -240,7 +240,7 @@ class Env(object):
             else:
                 raise
 
-    def build(self):
+    def build(self, extra_wrappers=None):
         """[EXPERIMENTAL: may be removed in a later version of Gym] Builds an
         environment by applying any provided wrappers, with the
         outmost wrapper supplied first. This method is automatically
@@ -259,12 +259,19 @@ class Env(object):
 
             Calling 'env.build' will return 'Wrapper1(Wrapper2(env))'.
 
+        Args:
+            extra_wrappers (Optional[list]): Any extra wrappers to apply to the wrapped instance
+
         Returns:
             gym.Env: A potentially wrapped environment instance.
 
         """
+        wrappers = self.metadata.get('wrappers', [])
+        if extra_wrappers:
+            wrappers = wrappers + extra_wrappers
+
         wrapped = self
-        for wrapper in reversed(self.metadata.get('wrappers', [])):
+        for wrapper in reversed(wrappers):
             wrapped = wrapper(wrapped)
         return wrapped
 

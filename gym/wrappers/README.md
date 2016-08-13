@@ -1,4 +1,4 @@
-# Wrappers
+# Wrappers (experimental)
 
 This is a placeholder for now: we will likely soon start adding
 standardized wrappers for environments. (Only stable and
