@@ -48,7 +48,7 @@ class Env(object):
 
     def __new__(cls, *args, **kwargs):
         # We use __new__ since we want the env author to be able to
-        # override __init__ without remebering to call super.
+        # override __init__ without remembering to call super.
         env = super(Env, cls).__new__(cls)
         env._env_closer_id = env_closer.register(env)
         env._closed = False
@@ -314,14 +314,23 @@ class Space(object):
         return sample_n
 
 class Wrapper(Env):
+
+    def __new__(cls, env, *args, **kwargs):
+        # We use __new__ since we want the wrapper author to be able to
+        # override __init__ without remembering to call super.
+        wrapper = super(Wrapper, cls).__new__(cls)
+        wrapper.env = env
+        wrapper.metadata = env.metadata
+        wrapper.action_space = env.action_space
+        wrapper.observation_space = env.observation_space
+        wrapper.reward_range = env.reward_range
+        wrapper.spec = env.spec
+        wrapper._unwrapped = env.unwrapped
+        return wrapper
+
+    # Overridable
     def __init__(self, env):
-        self.env = env
-        self.metadata = env.metadata
-        self.action_space = env.action_space
-        self.observation_space = env.observation_space
-        self.reward_range = env.reward_range
-        self.spec = env.spec
-        self._unwrapped = env.unwrapped
+        pass
 
     def _step(self, action):
         return self.env.step(action)
