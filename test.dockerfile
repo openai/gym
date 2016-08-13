@@ -35,8 +35,8 @@ RUN pip install tox
 # Install the relevant dependencies. Keep printing so Travis knows we're alive.
 RUN ["bash", "-c", "( while true; do echo '.'; sleep 60; done ) & tox --notest"]
 
-# Finally, cleans cached code and upload our actual code!
-RUN rm -rf ./gym*
+# Finally, clean cached code and upload our actual code!
+RUN mv .tox /tmp/.tox && rm -rf ./* && mv /tmp/.tox .tox
 COPY . /usr/local/gym
 
 ENTRYPOINT ["/usr/local/gym/bin/docker_entrypoint"]
