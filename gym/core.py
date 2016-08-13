@@ -276,10 +276,6 @@ class Env(object):
         else:
             return self
 
-    @property
-    def wrappers(self):
-        return []
-
     def __del__(self):
         self.close()
 
@@ -353,22 +349,6 @@ class Wrapper(Env):
 
     def _seed(self, seed=None):
         return self.env.seed(seed)
-
-    @property
-    def wrappers(self):
-        target = self
-        wrappers_list = []
-        while target._unwrapped is not None:
-            wrappers_list.append(target.name)
-            target = target.env
-        return wrappers_list
-
-    @property
-    def name(self):
-        return '{}.{}'.format(
-            '.'.join(self.__module__.split('.')[:-1]).replace('gym.wrappers.', ''),
-            self.__class__.__name__
-        )
 
     def __str__(self):
         return '<{}{} instance>'.format(type(self).__name__, self.env)
