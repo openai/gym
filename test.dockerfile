@@ -36,7 +36,7 @@ RUN pip install tox
 RUN ["bash", "-c", "( while true; do echo '.'; sleep 60; done ) & tox --notest"]
 
 # Finally, clean cached code and upload our actual code!
-RUN mv .tox /tmp/.tox && rm -rf ./* && mv /tmp/.tox .tox
+RUN mv .tox /tmp/.tox && cd .. & rm -rf gym && mkdir gym && cd gym && mv /tmp/.tox .tox
 COPY . /usr/local/gym
 
 ENTRYPOINT ["/usr/local/gym/bin/docker_entrypoint"]
