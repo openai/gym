@@ -24,7 +24,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* \
     && easy_install pip
 
-WORKDIR /usr/local/gym
+WORKDIR /usr/local/gym/
 RUN mkdir -p gym && touch gym/__init__.py
 COPY ./gym/version.py ./gym/
 COPY ./requirements.txt ./
@@ -35,9 +35,9 @@ RUN pip install tox
 # Install the relevant dependencies. Keep printing so Travis knows we're alive.
 RUN ["bash", "-c", "( while true; do echo '.'; sleep 60; done ) & tox --notest"]
 
-# Finally, clean cached code and upload our actual code!
-RUN mv .tox /tmp/.tox && cd .. & rm -rf gym && mkdir gym && cd gym && mv /tmp/.tox .tox
-COPY . /usr/local/gym
+# Finally, clean cached code (including dot files) and upload our actual code!
+RUN mv .tox /tmp/.tox && rm -rf .??* * && mv /tmp/.tox .tox
+COPY . /usr/local/gym/
 
 ENTRYPOINT ["/usr/local/gym/bin/docker_entrypoint"]
 CMD ["tox"]
