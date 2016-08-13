@@ -48,12 +48,13 @@ class Env(object):
 
     def __new__(cls, *args, **kwargs):
         # We use __new__ since we want the env author to be able to
-        # override __init__ without remebering to call super.
+        # override __init__ without remembering to call super.
         env = super(Env, cls).__new__(cls)
         env._env_closer_id = env_closer.register(env)
         env._closed = False
         env._configured = False
         env._unwrapped = None
+        env._step_count = 0
 
         # Will be automatically set when creating an environment via 'make'
         env.spec = None
@@ -115,7 +116,7 @@ class Env(object):
         """
         self.monitor._before_step(action)
         observation, reward, done, info = self._step(action)
-
+        self._step_count += 1
         done = self.monitor._after_step(observation, reward, done, info)
         return observation, reward, done, info
 
@@ -131,6 +132,7 @@ class Env(object):
 
         self.monitor._before_reset()
         observation = self._reset()
+        self._step_count = 0
         self.monitor._after_reset(observation)
         return observation
 
@@ -276,6 +278,14 @@ class Env(object):
         else:
             return self
 
+    @property
+    def step_count(self):
+        return self._step_count
+
+    @property
+    def wrappers(self):
+        return []
+
     def __del__(self):
         self.close()
 
@@ -314,14 +324,23 @@ class Space(object):
         return sample_n
 
 class Wrapper(Env):
+
+    def __new__(cls, env, *args, **kwargs):
+        # We use __new__ since we want the wrapper author to be able to
+        # override __init__ without remembering to call super.
+        wrapper = super(Wrapper, cls).__new__(cls)
+        wrapper.env = env
+        wrapper.metadata = env.metadata
+        wrapper.action_space = env.action_space
+        wrapper.observation_space = env.observation_space
+        wrapper.reward_range = env.reward_range
+        wrapper.spec = env.spec
+        wrapper._unwrapped = env.unwrapped
+        return wrapper
+
+    # Overridable
     def __init__(self, env):
-        self.env = env
-        self.metadata = env.metadata
-        self.action_space = env.action_space
-        self.observation_space = env.observation_space
-        self.reward_range = env.reward_range
-        self.spec = env.spec
-        self._unwrapped = env.unwrapped
+        pass
 
     def _step(self, action):
         return self.env.step(action)
@@ -340,6 +359,26 @@ class Wrapper(Env):
 
     def _seed(self, seed=None):
         return self.env.seed(seed)
+
+    @property
+    def step_count(self):
+        return self.env.step_count
+
+    @property
+    def wrappers(self):
+        target = self
+        wrappers_list = []
+        while target._unwrapped is not None:
+            wrappers_list.append(target.name)
+            target = target.env
+        return wrappers_list
+
+    @property
+    def name(self):
+        return '{}.{}'.format(
+            '.'.join(self.__module__.split('.')[:-1]).replace('gym.wrappers.', ''),
+            self.__class__.__name__
+        )
 
     def __str__(self):
         return '<{}{} instance>'.format(type(self).__name__, self.env)
