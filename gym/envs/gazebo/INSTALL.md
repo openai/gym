@@ -1,5 +1,14 @@
 # Installing the Gazebo environment
 
+## Table of Contents
+1. [Requirements](#requirements)
+2. [ROS Indigo](#ros-indigo)
+3. [Gazebo](#gazebo)
+4. [Dependencies](#dependencies)
+4.1. [Automatic Installation](#automatic-installation)
+4.2. [Step-by-step installation](#step-by-step-installation)
+5. [Troubleshooting](#troubleshooting)
+
 ## Requirements
 
 - Ubuntu 14.04
@@ -118,7 +127,7 @@ sudo pip2 install pymavlink MAVProxy catkin_pkg --upgrade
 Install Sophus
 ```bash
 cd gym/envs/gazebo/installation
-git clone https://github.com/strasdat/Sophus
+git clone https://github.com/stonier/sophus -b indigo
 cd Sophus
 mkdir build
 cd build
@@ -154,8 +163,8 @@ source /opt/ros/indigo/setup.bash
 Then, create the catkin workspace inside `gym/envs/gazebo/installation/` directory
 
 ```bash
-# Inside installation/ folder
-mkdir -p catkin_ws/src
+cd ../..
+mkdir -p catkin_ws/src # Inside installation/ folder
 cd catkin_ws/src
 catkin_init_workspace
 ```
@@ -165,7 +174,7 @@ catkin_init_workspace
 cd ../../catkin_ws/src/
 vcs import < ../../gazebo.repos
 cd ..
-catkin_make_isolated
+catkin_make --pkg mav_msgs
 ```
 **4.** Add GAZEBO_MODEL_PATH to your `bashrc`
 
@@ -194,3 +203,6 @@ bash erlerover_setup.bash
 cd gym/envs/gazebo/installation
 bash erlecopter_setup.bash
 ```
+
+## Troubleshooting
+- [I can't install drcsim from Ubuntu packages](https://github.com/erlerobot/gym/issues/21)
