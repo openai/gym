@@ -128,7 +128,7 @@ Install Sophus
 ```bash
 cd gym/envs/gazebo/installation
 git clone https://github.com/stonier/sophus -b indigo
-cd Sophus
+cd sophus
 mkdir build
 cd build
 cmake ..
@@ -179,7 +179,8 @@ catkin_make --pkg mav_msgs
 **4.** Add GAZEBO_MODEL_PATH to your `bashrc`
 
 ```bash
-echo "export GAZEBO_MODEL_PATH="`pwd`/../../assets/models >> ~/.bashrc
+cd ../../assets/models
+echo "export GAZEBO_MODEL_PATH=\$GAZEBO_MODEL_PATH:$(pwd)" >> ~/.bashrc
 ```
 
 **5.** Before running a environment, load the corresponding setup script:
