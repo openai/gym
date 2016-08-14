@@ -176,11 +176,12 @@ vcs import < ../../gazebo.repos
 cd ..
 catkin_make --pkg mav_msgs
 ```
-**4.** Add GAZEBO_MODEL_PATH to your `bashrc`
+**4.** Add GAZEBO_MODEL_PATH to your `bashrc` and load it
 
 ```bash
 cd ../../assets/models
 echo "export GAZEBO_MODEL_PATH=\$GAZEBO_MODEL_PATH:$(pwd)" >> ~/.bashrc
+source ~/.bashrc
 ```
 
 **5.** Before running a environment, load the corresponding setup script:
