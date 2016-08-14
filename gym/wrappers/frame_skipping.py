@@ -20,10 +20,12 @@ def SkipWrapper(repeat_count):
             while current_step < (self.repeat_count + 1) and not done:
                 self.stepcount += 1
                 obs, reward, done, info = self.env.step(action)
-                if 'skip.stepcount' not in info:
-                    info['skip.stepcount'] = self.stepcount
                 total_reward += reward
                 current_step += 1
+            if 'skip.stepcount' in info:
+                raise gym.error.Error('Key "skip.stepcount" already in info. Make sure you are not stacking ' \
+                                      'the SkipWrapper wrappers.')
+            info['skip.stepcount'] = self.stepcount
             return obs, total_reward, done, info
 
         def _reset(self):
