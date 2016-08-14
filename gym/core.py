@@ -240,7 +240,7 @@ class Env(object):
             else:
                 raise
 
-    def build(self):
+    def build(self, extra_wrappers=None):
         """[EXPERIMENTAL: may be removed in a later version of Gym] Builds an
         environment by applying any provided wrappers, with the
         outmost wrapper supplied first. This method is automatically
@@ -259,12 +259,19 @@ class Env(object):
 
             Calling 'env.build' will return 'Wrapper1(Wrapper2(env))'.
 
+        Args:
+            extra_wrappers (Optional[list]): Any extra wrappers to apply to the wrapped instance
+
         Returns:
             gym.Env: A potentially wrapped environment instance.
 
         """
+        wrappers = self.metadata.get('wrappers', [])
+        if extra_wrappers:
+            wrappers = wrappers + extra_wrappers
+
         wrapped = self
-        for wrapper in reversed(self.metadata.get('wrappers', [])):
+        for wrapper in reversed(wrappers):
             wrapped = wrapper(wrapped)
         return wrapped
 
@@ -314,23 +321,14 @@ class Space(object):
         return sample_n
 
 class Wrapper(Env):
-
-    def __new__(cls, env, *args, **kwargs):
-        # We use __new__ since we want the wrapper author to be able to
-        # override __init__ without remembering to call super.
-        wrapper = super(Wrapper, cls).__new__(cls)
-        wrapper.env = env
-        wrapper.metadata = env.metadata
-        wrapper.action_space = env.action_space
-        wrapper.observation_space = env.observation_space
-        wrapper.reward_range = env.reward_range
-        wrapper.spec = env.spec
-        wrapper._unwrapped = env.unwrapped
-        return wrapper
-
-    # Overridable
     def __init__(self, env):
-        pass
+        self.env = env
+        self.metadata = env.metadata
+        self.action_space = env.action_space
+        self.observation_space = env.observation_space
+        self.reward_range = env.reward_range
+        self.spec = env.spec
+        self._unwrapped = env.unwrapped
 
     def _step(self, action):
         return self.env.step(action)

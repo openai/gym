@@ -1,9 +1,12 @@
-# Wrappers
+# Wrappers (experimental)
 
-These are the wrappers to customize environments. Note that we may later
-restructure any of the files, but will keep the wrappers available
-at the relevant package's top-level. So for example, you should access
-`MyWrapper` as follows:
+This is a placeholder for now: we will likely soon start adding
+standardized wrappers for environments. (Only stable and
+general-purpose wrappers will be accepted into gym core.)
+
+Note that we may later restructure any of the files, but will keep the
+wrappers available at the relevant package's top-level. So for
+example, you should access `MyWrapper` as follows:
 
 ```
 # Will be supported in future releases
