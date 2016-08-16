@@ -285,7 +285,7 @@ Gazebo physics simulator environment commonly used for robotics.
 .. code:: python
 
 	  import gym
-	  env = gym.make('Gazeboword-v1')
+	  env = gym.make('GazeboMazeTurtlebotLidar-v0')
 	  env.reset()
 	  env.render()
 
