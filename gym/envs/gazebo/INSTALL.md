@@ -1,13 +1,13 @@
 # Installing the Gazebo environment
 
 ## Table of Contents
-1. [Requirements](#requirements)
-2. [ROS Indigo](#ros-indigo)
-3. [Gazebo](#gazebo)
-4. [Dependencies](#dependencies)
-4.1. [Automatic Installation](#automatic-installation)
-4.2. [Step-by-step installation](#step-by-step-installation)
-5. [Troubleshooting](#troubleshooting)
+- [Requirements](#requirements)
+- [ROS Indigo](#ros-indigo)
+- [Gazebo](#gazebo)
+- [Dependencies](#dependencies)
+  - [Automatic Installation](#automatic-installation)
+  - [Step-by-step installation](#step-by-step-installation)
+- [Troubleshooting](#troubleshooting)
 
 ## Requirements
 
