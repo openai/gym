@@ -1,0 +1,29 @@
+envs:
+  - id: Acrobot
+    version: 0
+    entry_point: envs:AcrobotEnv
+    timestep_limit: 500
+    description: |
+      The acrobot system includes two joints and two links, where the joint between the two links is actuated.
+      Initially, the links are hanging downwards, and the goal is to swing the end of the lower link
+      up to a given height.
+    trials: 100
+    reward_threshold: 100
+    kwargs:
+      arg1: value
+      arg2: value2
+    nondeterministic: false
+    requirements:
+      - gym
+      - numpy
+    files:
+      - envs/__init__.py
+      - envs/acrobot.py
+      - envs/cartpole.py
+      - envs/assets/clockwise.png
+    username: openai
+    repository: gym
+    commit_hash: 2038a0478da31941049364746c8d8c56b1073630
+
+username: openai
+repository: gym
