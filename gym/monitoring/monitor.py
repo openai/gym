@@ -99,7 +99,7 @@ class Monitor(object):
             raise error.Error("env has been garbage collected. To keep using a monitor, you must keep around a reference to the env object. (HINT: try assigning the env to a variable in your code.)")
         return env
 
-    def start(self, directory, video_callable=None, force=False, resume=False, seed=None):
+    def start(self, directory, video_callable=None, force=False, resume=False, seed=None, write_upon_reset=False):
         """Start monitoring.
 
         Args:
@@ -108,6 +108,7 @@ class Monitor(object):
             force (bool): Clear out existing training data from this directory (by deleting every file prefixed with "openaigym.").
             resume (bool): Retain the training data already in this directory, which will be merged with our new data
             seed (Optional[int]): The seed to run this environment with. By default, a random seed will be chosen.
+            write_upon_reset (bool): Write the manifest file on each reset. (This is currently a JSON file, so writing it is somewhat expensive.)
         """
         if self.env.spec is None:
             logger.warn("Trying to monitor an environment which has no 'spec' set. This usually means you did not create it via 'gym.make', and is recommended only for advanced users.")
@@ -146,13 +147,17 @@ class Monitor(object):
         self.configure(video_callable=video_callable)
         if not os.path.exists(directory):
             os.mkdir(directory)
+        self.write_upon_reset = write_upon_reset
 
         seeds = self.env.seed(seed)
         self.seeds = seeds
 
-    def flush(self):
+    def flush(self, force=False):
         """Flush all relevant monitor information to disk."""
         self.stats_recorder.flush()
+
+        if not self.write_upon_reset and not force:
+            return
 
         # Give it a very distiguished name, since we need to pick it
         # up from the filesystem later.
@@ -178,7 +183,7 @@ class Monitor(object):
         self.stats_recorder.close()
         if self.video_recorder is not None:
             self._close_video_recorder()
-        self.flush()
+        self.flush(force=True)
 
         env = self._env_ref()
         # Only take action if the env hasn't been GC'd

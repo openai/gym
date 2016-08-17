@@ -20,6 +20,32 @@ def test_monitor_filename():
         manifests = glob.glob(os.path.join(temp, '*.manifest.*'))
         assert len(manifests) == 1
 
+def test_write_upon_reset_false():
+    with helpers.tempdir() as temp:
+        env = gym.make('CartPole-v0')
+        env.monitor.start(temp, write_upon_reset=False)
+        env.reset()
+
+        manifests = glob.glob(os.path.join(temp, '*.manifest.*'))
+        assert not manifests
+
+        env.monitor.close()
+        manifests = glob.glob(os.path.join(temp, '*.manifest.*'))
+        assert len(manifests) == 1
+
+def test_write_upon_reset_true():
+    with helpers.tempdir() as temp:
+        env = gym.make('CartPole-v0')
+        env.monitor.start(temp, write_upon_reset=True)
+        env.reset()
+
+        manifests = glob.glob(os.path.join(temp, '*.manifest.*'))
+        assert len(manifests) == 1
+
+        env.monitor.close()
+        manifests = glob.glob(os.path.join(temp, '*.manifest.*'))
+        assert len(manifests) == 1
+
 def test_close_monitor():
     with helpers.tempdir() as temp:
         env = FakeEnv()
