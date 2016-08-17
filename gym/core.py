@@ -195,6 +195,10 @@ class Env(object):
         if not hasattr(self, '_closed') or self._closed:
             return
 
+        # Automatically close the monitor and any render window
+        self.monitor.close()
+        self.render(close=True)
+
         self._close()
         env_closer.unregister(self._env_closer_id)
         # If an error occurs before this line, it's possible to
