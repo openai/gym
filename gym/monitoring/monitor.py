@@ -293,10 +293,12 @@ class Monitor(object):
 
 def load_results(training_dir):
     if not os.path.exists(training_dir):
+        logger.error("Training directory not found")
         return
 
     manifests = detect_training_manifests(training_dir)
     if not manifests:
+        logger.error("Manifests not found")
         return
 
     logger.debug('Uploading data from manifest %s', ', '.join(manifests))
