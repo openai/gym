@@ -276,6 +276,8 @@ You can also run tests in a specific directory by using the ``-s`` option, or by
 What's new
 ----------
 
+- 2016-08-17: The monitor will no longer write manifest files in
+  real-time, unless `write_upon_reset=True` is passed.
 - 2016-05-28: For controlled reproducibility, envs now support seeding
   (cf #91 and #135). The monitor records which seeds are used. We will
   soon add seed information to the display on the scoreboard.
