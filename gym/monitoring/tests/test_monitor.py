@@ -23,28 +23,28 @@ def test_monitor_filename():
 def test_write_upon_reset_false():
     with helpers.tempdir() as temp:
         env = gym.make('CartPole-v0')
-        env.monitor.start(temp, write_upon_reset=False)
+        env.monitor.start(temp, video_callable=False, write_upon_reset=False)
         env.reset()
 
-        manifests = glob.glob(os.path.join(temp, '*.manifest.*'))
-        assert not manifests
+        files = glob.glob(os.path.join(temp, '*'))
+        assert not files, "Files: {}".format(files)
 
         env.monitor.close()
-        manifests = glob.glob(os.path.join(temp, '*.manifest.*'))
-        assert len(manifests) == 1
+        files = glob.glob(os.path.join(temp, '*'))
+        assert len(files) > 0
 
 def test_write_upon_reset_true():
     with helpers.tempdir() as temp:
         env = gym.make('CartPole-v0')
-        env.monitor.start(temp, write_upon_reset=True)
+        env.monitor.start(temp, video_callable=False, write_upon_reset=True)
         env.reset()
 
-        manifests = glob.glob(os.path.join(temp, '*.manifest.*'))
-        assert len(manifests) == 1
+        files = glob.glob(os.path.join(temp, '*'))
+        assert len(files) > 0, "Files: {}".format(files)
 
         env.monitor.close()
-        manifests = glob.glob(os.path.join(temp, '*.manifest.*'))
-        assert len(manifests) == 1
+        files = glob.glob(os.path.join(temp, '*'))
+        assert len(files) > 0
 
 def test_close_monitor():
     with helpers.tempdir() as temp:

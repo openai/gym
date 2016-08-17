@@ -154,10 +154,10 @@ class Monitor(object):
 
     def flush(self, force=False):
         """Flush all relevant monitor information to disk."""
-        self.stats_recorder.flush()
-
         if not self.write_upon_reset and not force:
             return
+
+        self.stats_recorder.flush()
 
         # Give it a very distiguished name, since we need to pick it
         # up from the filesystem later.
