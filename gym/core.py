@@ -244,44 +244,18 @@ class Env(object):
             else:
                 raise
 
-    def build(self, extra_wrappers=None):
-        """[EXPERIMENTAL: may be removed in a later version of Gym] Builds an
-        environment by applying any provided wrappers, with the
-        outmost wrapper supplied first. This method is automatically
-        invoked by 'gym.make', and should be manually invoked if
-        instantiating an environment by hand.
-
-        Notes:
-            The default implementation will wrap the environment in the
-            list of wrappers provided in self.metadata['wrappers'], in reverse
-            order. So for example, given:
-
-            class FooEnv(gym.Env):
-                metadata = {
-                    'wrappers': [Wrapper1, Wrapper2]
-                }
-
-            Calling 'env.build' will return 'Wrapper1(Wrapper2(env))'.
-
-        Args:
-            extra_wrappers (Optional[list]): Any extra wrappers to apply to the wrapped instance
-
-        Returns:
-            gym.Env: A potentially wrapped environment instance.
-
-        """
-        wrappers = self.metadata.get('wrappers', [])
-        if extra_wrappers:
-            wrappers = wrappers + extra_wrappers
-
-        wrapped = self
-        for wrapper in reversed(wrappers):
-            wrapped = wrapper(wrapped)
-        return wrapped
-
     @property
     def unwrapped(self):
-        """Avoid refcycles by making this into a property."""
+        """Completely unwrap this env.
+
+        Notes:
+            EXPERIMENTAL: may be removed in a later version of Gym
+
+            This is a dynamic property in order to avoid refcycles.
+
+        Returns:
+            gym.Env: The base non-wrapped gym.Env instance
+        """
         if self._unwrapped is not None:
             return self._unwrapped
         else:
@@ -331,7 +305,7 @@ class Wrapper(Env):
         self.action_space = env.action_space
         self.observation_space = env.observation_space
         self.reward_range = env.reward_range
-        self.spec = env.spec
+        self._spec = env.spec
         self._unwrapped = env.unwrapped
 
     def _step(self, action):
@@ -354,3 +328,14 @@ class Wrapper(Env):
 
     def __str__(self):
         return '<{}{} instance>'.format(type(self).__name__, self.env)
+
+    @property
+    def spec(self):
+        return self._spec
+
+    @spec.setter
+    def spec(self, spec):
+        # Won't have an env attr when in the __new__ from gym.Env
+        if hasattr(self, 'env'):
+            self.env.spec = spec
+        self._spec = spec

@@ -34,7 +34,7 @@ class EnvSpec(object):
         trials (int): The number of trials run in official evaluation
     """
 
-    def __init__(self, id, entry_point=None, timestep_limit=1000, trials=100, reward_threshold=None, local_only=False, kwargs=None, nondeterministic=False, wrappers=None):
+    def __init__(self, id, entry_point=None, timestep_limit=1000, trials=100, reward_threshold=None, local_only=False, kwargs=None, nondeterministic=False):
         self.id = id
         # Evaluation parameters
         self.timestep_limit = timestep_limit
@@ -52,7 +52,6 @@ class EnvSpec(object):
         self._entry_point = entry_point
         self._local_only = local_only
         self._kwargs = {} if kwargs is None else kwargs
-        self._wrappers = wrappers
 
     def make(self):
         """Instantiates an instance of the environment with appropriate kwargs"""
@@ -64,8 +63,6 @@ class EnvSpec(object):
 
         # Make the enviroment aware of which spec it came from.
         env.spec = self
-        env = env.build(extra_wrappers=self._wrappers)
-
         return env
 
     def __repr__(self):
