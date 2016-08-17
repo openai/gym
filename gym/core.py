@@ -331,11 +331,13 @@ class Wrapper(Env):
 
     @property
     def spec(self):
+        if self._spec is None:
+            self._spec = self.env.spec
         return self._spec
 
     @spec.setter
     def spec(self, spec):
-        # Won't have an env attr when in the __new__ from gym.Env
+        # Won't have an env attr while in the __new__ from gym.Env
         if hasattr(self, 'env'):
             self.env.spec = spec
         self._spec = spec
