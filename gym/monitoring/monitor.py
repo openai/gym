@@ -350,6 +350,7 @@ def merge_stats_files(stats_files):
     for path in stats_files:
         with open(path) as f:
             content = json.load(f)
+            if len(content['timestamps'])==0: continue # so empty file doesn't mess up results, due to null initial_reset_timestamp
             timestamps += content['timestamps']
             episode_lengths += content['episode_lengths']
             episode_rewards += content['episode_rewards']
