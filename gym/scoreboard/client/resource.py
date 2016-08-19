@@ -1,5 +1,6 @@
 import json
 import warnings
+import yaml
 import sys
 from six import string_types
 from six import iteritems
@@ -13,6 +14,7 @@ def convert_to_gym_object(resp, api_key):
     types = {
         'evaluation': Evaluation,
         'file': FileUpload,
+        'userenvconfig': UserEnvConfig,
     }
 
     if isinstance(resp, list):
@@ -381,3 +383,36 @@ class Evaluation(CreateableAPIResource):
 
 class Algorithm(CreateableAPIResource):
     pass
+
+class UserEnvConfig(APIResource):
+    """ YAML config file hosted on top-level folder of github repo """
+    @classmethod
+    def api_base(cls):
+        return gym.scoreboard.github_raw_base
+
+    @classmethod
+    def class_path(cls):
+        return ''
+
+    def instance_path(self):
+        user_repo = self.get('id', '').split('/')     # id is username/repository
+
+        if not len(user_repo) == 2:
+            raise error.InvalidRequestError(
+                'Could not determine which URL to request: %s instance '
+                'has missing id: %r' % (type(self).__name__, 'username/repository'), None)
+
+        commit_hash = self.get('commit_hash', 'master')     # Downloading from master branch by default
+
+        username = urllib.parse.quote_plus(util.utf8(user_repo[0]))
+        repository = urllib.parse.quote_plus(util.utf8(user_repo[1]))
+        commit_hash = urllib.parse.quote_plus(util.utf8(commit_hash))
+        config_file = urllib.parse.quote_plus(util.utf8(gym.versioning.github_yaml_file))
+        return "/%s/%s/%s/%s" % (username, repository, commit_hash, config_file)
+
+    def refresh(self):
+        values = self.request('get', self.instance_path())
+        values = yaml.safe_load(values)
+        values['object'] = 'userenvconfig'
+        self.refresh_from(values)
+        return self

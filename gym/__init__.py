@@ -32,7 +32,8 @@ del logger_setup
 sanity_check_dependencies()
 
 from gym.core import Env, Space, Wrapper
-from gym.envs import make, spec
+from gym.envs import list, make, spec
 from gym.scoreboard.api import upload
+from gym.versioning import pull
 
-__all__ = ["Env", "Space", "Wrapper", "make", "spec", "upload"]
+__all__ = ["Env", "Space", "Wrapper", "list", "make", "pull", "spec", "upload"]

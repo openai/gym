@@ -30,3 +30,9 @@ class TestData(object):
             'id': fake_id('file'),
             'object': 'evaluation',
         }
+
+    @classmethod
+    def user_env_config_response(cls):
+        return """
+object: userenvconfig
+"""

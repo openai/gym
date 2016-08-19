@@ -7,7 +7,7 @@ from gym import error
 
 logger = logging.getLogger(__name__)
 # This format is true today, but it's *not* an official spec.
-env_id_re = re.compile(r'^([\w:-]+)-v(\d+)$')
+env_id_re = re.compile(r'^([\w/:-]+)-v(\d+)$')
 
 def load(name):
     entry_point = pkg_resources.EntryPoint.parse('x={}'.format(name))
@@ -111,8 +111,19 @@ class EnvRegistry(object):
             raise error.Error('Cannot re-register id: {}'.format(id))
         self.env_specs[id] = EnvSpec(id, **kwargs)
 
+    def deregister(self, id):
+        if not id in self.env_specs:
+            logger.warn('Unable to deregister id: %s. Are you certain it is registered?', id)
+        else:
+            del self.env_specs[id]
+
+    def list(self):
+        return sorted([spec.id for spec in self.all()], key=lambda s: s.lower())
+
 # Have a global registry
 registry = EnvRegistry()
 register = registry.register
+deregister = registry.deregister
 make = registry.make
 spec = registry.spec
+list = registry.list

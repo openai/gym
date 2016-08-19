@@ -77,7 +77,7 @@ class APIRequestor(object):
         else:
             my_api_key = gym.scoreboard.api_key
 
-        if my_api_key is None:
+        if my_api_key is None and self.api_base not in gym.scoreboard.base_without_api_key:
             raise error.AuthenticationError("""You must provide an OpenAI Gym API key.
 
 (HINT: Set your API key using "gym.scoreboard.api_key = .." or "export OPENAI_GYM_API_KEY=..."). You can find your API key in the OpenAI Gym web interface: https://gym.openai.com/settings/profile.""")
@@ -118,8 +118,9 @@ class APIRequestor(object):
         headers = {
             'Openai-Gym-User-Agent': json.dumps(ua),
             'User-Agent': 'Openai-Gym/v1 PythonBindings/%s' % (version.VERSION,),
-            'Authorization': 'Bearer %s' % (my_api_key,)
         }
+        if my_api_key is not None and self.api_base not in gym.scoreboard.base_without_api_key:
+            headers['Authorization'] = 'Bearer %s' % (my_api_key,)
 
         if method == 'post':
             headers['Content-Type'] = 'application/json'
