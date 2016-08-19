@@ -230,7 +230,7 @@ class Monitor(object):
 
         # Add 1 since about to take another step
         if self.env.spec and self.stats_recorder.steps+1 >= self.env.spec.timestep_limit:
-            logger.info('Ending episode %i because it reached the timestep limit of %i.', self.episode_id, self.env.spec.timestep_limit)
+            logger.debug('Ending episode %i because it reached the timestep limit of %i.', self.episode_id, self.env.spec.timestep_limit)
             done = True
 
         # Record stats
