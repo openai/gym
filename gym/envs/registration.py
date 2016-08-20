@@ -113,6 +113,12 @@ class EnvRegistry(object):
 
 # Have a global registry
 registry = EnvRegistry()
-register = registry.register
-make = registry.make
-spec = registry.spec
+
+def register(id, **kwargs):
+    return registry.register(id, **kwargs)
+
+def make(id):
+    return registry.make(id)
+
+def spec(id):
+    return registry.spec(id)
