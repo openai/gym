@@ -77,6 +77,16 @@ add_group(
     description='Doom environments based on VizDoom.'
 )
 
+# nes
+
+add_group(
+    id='nes',
+    name='NES',
+    description='Nintendo Entertainment Systems games running on FCEUX engine.'
+)
+
+# safety
+
 add_group(
     id='safety',
     name='Safety',
@@ -1053,6 +1063,39 @@ Allowed actions:
     - ALL
 """
 )
+
+# NES - Super Mario Bros
+add_task(
+    id='meta-SuperMarioBros-v0',
+    group='nes',
+    experimental=True,
+    contributor='ppaquette',
+    summary='Compilation of all 32 levels of Super Mario Bros. on Nintendo platform - Screen version.',
+)
+add_task(
+    id='meta-SuperMarioBros-Tiles-v0',
+    group='nes',
+    experimental=True,
+    contributor='ppaquette',
+    summary='Compilation of all 32 levels of Super Mario Bros. on Nintendo platform - Tiles version.',
+)
+
+for world in range(8):
+    for level in range(4):
+        add_task(
+            id='SuperMarioBros-%d-%d-v0' % (world + 1, level + 1),
+            group='nes',
+            experimental=True,
+            contributor='ppaquette',
+            summary='Level: %d-%d of Super Mario Bros. on Nintendo platform - Screen version.' % (world + 1, level + 1),
+        )
+        add_task(
+            id='SuperMarioBros-%d-%d-Tiles-v0' % (world + 1, level + 1),
+            group='nes',
+            experimental=True,
+            contributor='ppaquette',
+            summary='Level: %d-%d of Super Mario Bros. on Nintendo platform - Tiles version.' % (world + 1, level + 1),
+        )
 
 
 # Safety

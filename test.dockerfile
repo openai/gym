@@ -20,6 +20,7 @@ RUN apt-get update \
     git \
     xpra \
     python3-dev \
+    fceux \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     && easy_install pip

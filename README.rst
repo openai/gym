@@ -79,13 +79,13 @@ On OSX:
 
 .. code:: shell
 
-	  brew install cmake boost boost-python sdl2 swig wget
+	  brew install cmake boost boost-python sdl2 swig wget fceux
 
 On Ubuntu 14.04:
 
 .. code:: shell
 
-	  apt-get install -y python-numpy python-dev cmake zlib1g-dev libjpeg-dev xvfb libav-tools xorg-dev python-opengl libboost-all-dev libsdl2-dev swig
+	  apt-get install -y python-numpy python-dev cmake zlib1g-dev libjpeg-dev xvfb libav-tools xorg-dev python-opengl libboost-all-dev libsdl2-dev swig fceux
 
 MuJoCo has a proprietary dependency we can't set up for you. Follow
 the
@@ -239,6 +239,21 @@ to set it up. You'll have to also run ``pip install -e '.[mujoco]'`` if you didn
 	  env = gym.make('Humanoid-v0')
 	  env.reset()
 	  env.render()
+
+NES (Nintendo Entertainment System)
+---------------
+
+These tasks take place inside the FCEUX engine. You can get started with them via:
+
+.. code:: python
+
+	  import gym
+	  env = gym.make('SuperMarioBros-1-1-v0')
+	  env.rom_path = '<path_to_rom_file>'
+	  env.reset()
+	  env.render()
+
+Note: ROMs are not provided and must be downloaded from the Internet. A Google search for 'rom fceux <name of game>' should point you in the right direction.
 
 Toy text
 --------
