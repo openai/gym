@@ -80,7 +80,7 @@ class LivePlot(object):
             self._last_data = new_data
             if mod2 == 'b':
                 plt.plot(data, color='blue')
-                plt.plot(new_data, color='red', linewidth=2.0)
+                plt.plot(new_data, color='red', linewidth=2.5)
             else:
                 plt.plot(new_data, color=self.line_color)
             # pause so matplotlib will display
