@@ -119,7 +119,7 @@ class APIRequestor(object):
             'Openai-Gym-User-Agent': json.dumps(ua),
             'User-Agent': 'Openai-Gym/v1 PythonBindings/%s' % (version.VERSION,),
         }
-        if my_api_key is not None and self.api_base not in gym.scoreboard.base_without_api_key:
+        if my_api_key is not None:
             headers['Authorization'] = 'Bearer %s' % (my_api_key,)
 
         if method == 'post':

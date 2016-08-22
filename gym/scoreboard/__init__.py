@@ -8,7 +8,7 @@ http://rst.ninjs.org/
 
 import os
 
-from gym.scoreboard.client.resource import Algorithm, Evaluation, FileUpload, UserEnvConfig
+from gym.scoreboard.client.resource import Algorithm, CommitHash, Evaluation, FileUpload, UserEnvConfig
 from gym.scoreboard.registration import registry, add_task, add_group
 
 # Discover API key from the environment. (You should never have to
@@ -16,9 +16,12 @@ from gym.scoreboard.registration import registry, add_task, add_group
 api_key = os.environ.get('OPENAI_GYM_API_KEY')
 api_base = os.environ.get('OPENAI_GYM_API_BASE', 'https://gym-api.openai.com')
 web_base = os.environ.get('OPENAI_GYM_WEB_BASE', 'https://gym.openai.com')
+
+github_api_key = os.environ.get('GITHUB_API_KEY')
+github_api_base = os.environ.get('OPENAI_GITHUB_API_BASE', 'https://api.github.com')
 github_raw_base = os.environ.get('OPENAI_GITHUB_RAW_BASE', 'https://raw.githubusercontent.com')
 
-base_without_api_key = [ github_raw_base ]
+base_without_api_key = [ github_api_base, github_raw_base ]
 
 # The following controls how various tasks appear on the
 # scoreboard. These registrations can differ from what's registered in

@@ -416,3 +416,47 @@ class UserEnvConfig(APIResource):
         values['object'] = 'userenvconfig'
         self.refresh_from(values)
         return self
+
+class CommitHash(APIResource):
+    """ Returns the full commit hash from a commit ref """
+    @classmethod
+    def api_base(cls):
+        return gym.scoreboard.github_api_base
+
+    @classmethod
+    def class_path(cls):
+        return '/repos'
+
+    def instance_path(self):
+        user_repo = self.get('id', '').split('/')  # id is owner/repository/commit_ref
+
+        if not len(user_repo) == 3:
+            raise error.InvalidRequestError(
+                'Could not determine which URL to request: %s instance '
+                'has missing id: %r' % (type(self).__name__, 'owner/repository/commit_ref'), None)
+
+        owner = urllib.parse.quote_plus(util.utf8(user_repo[0]))
+        repository = urllib.parse.quote_plus(util.utf8(user_repo[1]))
+        commit_ref = urllib.parse.quote_plus(util.utf8(user_repo[2]))
+        return "%s/%s/%s/commits/%s" % (self.class_path(), owner, repository, commit_ref)
+
+    def refresh(self):
+        supplied_headers = {"Accept": "application/vnd.github.v3.sha"}
+        if self.api_key is not None:
+            supplied_headers["Authorization"] = "token {}".format(self.api_key)
+        url = '{}{}'.format(self.api_base(), self.instance_path())
+        body, code, headers = api_requestor.http_client.request('get', url, headers=supplied_headers)
+        if code == 200:
+            self['commit_hash'] = body
+        elif code == 404:   # commit_ref not found
+            self['commit_hash'] = None
+        elif code == 403:   # Likely X-LimitRate exceeded
+            raise error.Error(
+                'Unabled to retrieve full commit hash. GitHub returned a 403/Forbidden error. Try setting the environment ' \
+                'variable GITHUB_API_KEY with your GitHub OAuth2.0 key, which can be retrieved from your GitHub profile. ' \
+                '-- Details: GitHub returned "{} -- {}". Tried "GET {}".'.format(code, body, self.instance_path()))
+        else:               # Unhandled error
+            raise error.Error(
+                'Unabled to retrieve full commit hash. If error persists, please contact us at gym@openai.com with ' \
+                'this message. GitHub returned "{} -- {}". Tried "GET {}".'.format(code, body, self.instance_path()))
+        return self

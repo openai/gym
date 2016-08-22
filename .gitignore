@@ -37,6 +37,5 @@ tutorial/*.html
 vizdoom.ini
 
 # User envs
-gym/envs/.user_envs.json
-gym/envs/.user_envs.json.bak
+gym/envs/custom/*
 

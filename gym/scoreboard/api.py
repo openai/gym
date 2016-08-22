@@ -93,6 +93,9 @@ def upload_training_data(training_dir, api_key=None):
     seeds = results['seeds']
     videos = results['videos']
 
+    if '/' in env_info['env_id']:
+        raise error.Error('Custom user environments downloaded from gym.pull() can not be uploaded to the scoreboard.')
+
     env_id = env_info['env_id']
     logger.debug('[%s] Uploading data from manifest %s', env_id, ', '.join(manifests))
 

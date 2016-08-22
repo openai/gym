@@ -21,9 +21,4 @@ envs:
       - envs/acrobot.py
       - envs/cartpole.py
       - envs/assets/clockwise.png
-    username: openai
-    repository: gym
-    commit_hash: 2038a0478da31941049364746c8d8c56b1073630
-
-username: openai
-repository: gym
+    commit_ref: master
