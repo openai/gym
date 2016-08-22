@@ -106,8 +106,10 @@ if __name__ == '__main__':
 
     env = gym.make('GazeboCircuitTurtlebotLidar-v0')
 
+
     outdir = '/tmp/gazebo_gym_experiments'
     env.monitor.start(outdir, force=True, seed=None)
+
     #plotter = LivePlot(outdir)
 
     last_time_steps = numpy.ndarray(0)
@@ -158,15 +160,12 @@ if __name__ == '__main__':
                 last_time_steps = numpy.append(last_time_steps, [int(i + 1)])
                 break 
 
-        #if x%100==0:
-        #    plotter.plot()
-
         m, s = divmod(int(time.time() - start_time), 60)
         h, m = divmod(m, 60)
-        print "EP: "+str(x+1)+" - [alpha: "+str(round(qlearn.alpha,2))+" - gamma: "+str(round(qlearn.gamma,2))+" - epsilon: "+str(round(qlearn.epsilon,2))+"] - Reward: "+str(cumulated_reward)+"     Time: %d:%02d:%02d" % (h, m, s)
+        print ("EP: "+str(x+1)+" - [alpha: "+str(round(qlearn.alpha,2))+" - gamma: "+str(round(qlearn.gamma,2))+" - epsilon: "+str(round(qlearn.epsilon,2))+"] - Reward: "+str(cumulated_reward)+"     Time: %d:%02d:%02d" % (h, m, s))
 
     #Github table content
-    print "\n|"+str(total_episodes)+"|"+str(qlearn.alpha)+"|"+str(qlearn.gamma)+"|"+str(initial_epsilon)+"*"+str(epsilon_discount)+"|"+str(highest_reward)+"| PICTURE |"
+    print ("\n|"+str(total_episodes)+"|"+str(qlearn.alpha)+"|"+str(qlearn.gamma)+"|"+str(initial_epsilon)+"*"+str(epsilon_discount)+"|"+str(highest_reward)+"| PICTURE |")
 
     l = last_time_steps.tolist()
     l.sort()
