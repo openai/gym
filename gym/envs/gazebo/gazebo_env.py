@@ -17,7 +17,7 @@ class GazeboEnv(gym.Env):
 
         #start roscore
         subprocess.Popen("roscore")
-        print "Roscore launched!"
+        print ("Roscore launched!")
 
         # Launch the simulation with the given launchfile name
         rospy.init_node('gym', anonymous=True)
@@ -30,7 +30,7 @@ class GazeboEnv(gym.Env):
             raise IOError("File "+fullpath+" does not exist")
 
         subprocess.Popen(["roslaunch",fullpath])
-        print "Gazebo launched!"
+        print ("Gazebo launched!")
 
         self.gzclient_pid = 0
 

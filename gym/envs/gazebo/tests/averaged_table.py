@@ -40,8 +40,8 @@ if __name__ == '__main__':
                 avg =  sum(data[i:i+mod1])/mod1
                 avg_data.append(avg)
 
-    print "Printing averaged graph with interval="+str(mod1)+" ..."
-    print"----------------"
+    print ("Printing averaged graph with interval="+str(mod1)+" ...")
+    print ("----------------")
     for i, val in enumerate(avg_data):
         print str(i*mod1)+"-"+str(i*mod1+mod1)+" | "+str(val)
-    print"----------------"
+    print ("----------------")

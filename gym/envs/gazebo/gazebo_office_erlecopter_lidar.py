@@ -34,7 +34,7 @@ class GazeboOfficeErleCopterLidarEnv(gazebo_env.GazeboEnv):
         try:
             self.mode_proxy(0,'GUIDED')
         except rospy.ServiceException, e:
-            print "mavros/set_mode service call failed: %s"%e
+            print ("mavros/set_mode service call failed: %s"%e)
 
         # Wait 2 seconds
         time.sleep(2)
@@ -44,14 +44,14 @@ class GazeboOfficeErleCopterLidarEnv(gazebo_env.GazeboEnv):
         try:
             self.arm_proxy(True)
         except rospy.ServiceException, e:
-            print "mavros/set_mode service call failed: %s"%e
+            print ("mavros/set_mode service call failed: %s"%e)
 
         # Takeoff
         rospy.wait_for_service('mavros/cmd/takeoff')
         try:
             self.takeoff_proxy(0, 0, 0, 0, altitude) # 1m altitude
         except rospy.ServiceException, e:
-            print "mavros/cmd/takeoff service call failed: %s"%e
+            print ("mavros/cmd/takeoff service call failed: %s"%e)
 
         # Wait 3 seconds
         time.sleep(3)
@@ -61,7 +61,7 @@ class GazeboOfficeErleCopterLidarEnv(gazebo_env.GazeboEnv):
         try:
             self.mode_proxy(0,'ALT_HOLD')
         except rospy.ServiceException, e:
-            print "mavros/set_mode service call failed: %s"%e
+            print ("mavros/set_mode service call failed: %s"%e)
 
     def __init__(self):
 
@@ -91,7 +91,7 @@ class GazeboOfficeErleCopterLidarEnv(gazebo_env.GazeboEnv):
 
         countdown = 10
         while countdown > 0:
-            print "Taking off in in %ds"%countdown
+            print ("Taking off in in %ds"%countdown)
             countdown-=1
             time.sleep(1)
 
@@ -180,7 +180,7 @@ class GazeboOfficeErleCopterLidarEnv(gazebo_env.GazeboEnv):
             #reset_proxy.call()
             self.reset_proxy()
         except rospy.ServiceException, e:
-            print "/gazebo/reset_world service call failed"
+            print ("/gazebo/reset_world service call failed")
 
         self._takeoff(1)
 
