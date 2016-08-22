@@ -75,6 +75,7 @@ properties:
     # Will be added automatically
     # - username
     # - repository
+    # - requirements
 """
 
 
@@ -175,18 +176,7 @@ def parse_config(config, target_env, target_version=None):
 
                 parsed_envs.append(user_env)
 
-    # Checking requirements
-    missing_requirements = []
-    for req in requirements:
-        try:
-            import_module(req)
-        except ImportError:
-            missing_requirements.append(req)
-
-    if len(missing_requirements) > 0:
-        logger.warn('The environment(s) depend on the following '
-                    'missing requirements: %s', ', '.join(missing_requirements))
-
+    # Checking if we found the correct version
     if not found_env_correct_version:
         if found_env_wrong_version:
             logger.warn('The environment "%s" does not have a version "%s". The most recent version '
@@ -194,4 +184,4 @@ def parse_config(config, target_env, target_version=None):
         else:
             logger.warn('No environments were found with the name: "%s"', target_env)
 
-    return parsed_envs
+    return parsed_envs, requirements

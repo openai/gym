@@ -1,5 +1,6 @@
 import json
 import logging
+import pip
 import requests
 import os
 import gym
@@ -76,6 +77,7 @@ The repository must have a ".openai.yml" in its top-level folder on its master b
         username = user_env_parts[0]
         repository = user_env_parts[1]
         target_env = user_env_parts[2]
+        logger.info('Downloading configuration file "%s/%s/master/%s"', username, repository, gym.versioning.github_yaml_file)
         try:
             config = UserEnvConfig(id='{}/{}'.format(username, repository))  # id is username/repo
             config.refresh()
@@ -91,15 +93,17 @@ The repository must have a ".openai.yml" in its top-level folder on its master b
         config['repository'] = repository
 
         # Parsing (might return more than one env if target_env == '*')
-        parsed_envs = parse_config(config, target_env, target_version)
+        parsed_envs, requirements = parse_config(config, target_env, target_version)
         if len(parsed_envs) == 0:
             return
 
         # Downloading, and registering
+        registered_envs = []
         for parsed_env in parsed_envs:
             env_prefix = '{}/{}'.format(parsed_env['username'], parsed_env['commit_hash']).replace('-', '_').lower() # username/commit_hash
             env_root_path = os.path.join(self.custom_env_path, env_prefix)
 
+            logger.info('Downloading environment files for "%s"', parsed_env['id'])
             for env_file in parsed_env['files']:
                 self._download_user_env_file(parsed_env, env_file, env_root_path)
 
@@ -115,9 +119,16 @@ The repository must have a ".openai.yml" in its top-level folder on its master b
                     open(current_target, 'w').close()
 
             if self._register(parsed_env):
-                logger.info('Registered the environment: "%s"', parsed_env['id'])
+                registered_envs.append(parsed_env['id'])
 
+        # Installing requirements, and updating cache
+        self._install_requirements(requirements)
         self._update_cache()
+
+        # Displaying results
+        logger.info('--------------------------------------------------')
+        for reg_env in registered_envs:
+            logger.info('Successfully registered the environment: "%s"', reg_env)
         return
 
     def _download_user_env_file(self, user_env, env_file, env_root_path):
@@ -152,6 +163,11 @@ The repository must have a ".openai.yml" in its top-level folder on its master b
 
             for block in response.iter_content(1024):
                 handle.write(block)
+
+    def _install_requirements(self, requirements):
+        logger.info('Installing environment requirements: "%s"', ','.join(requirements))
+        for req in requirements:
+            pip.main(['install', req])
 
     def _register(self, user_env):
         if user_env['id'].lower() in self.env_ids:
