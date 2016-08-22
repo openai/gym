@@ -109,12 +109,12 @@ The repository must have a ".openai.yml" in its top-level folder on its master b
 
             # Adding missing __init__ files
             target_files = [
-                os.path.join(self.custom_env_path, '__init__.py'),
-                os.path.join(self.custom_env_path, parsed_env['username'], '__init__.py'),
-                os.path.join(self.custom_env_path, parsed_env['username'], parsed_env['commit_hash'], '__init__.py')
+                os.path.join('__init__.py'),
+                os.path.join(parsed_env['username'], '__init__.py'),
+                os.path.join(parsed_env['username'], parsed_env['commit_hash'], '__init__.py')
             ]
             for target_file in target_files:
-                current_target = target_file.replace('-', '_').lower()
+                current_target = os.path.join(self.custom_env_path, target_file.replace('-', '_').lower())
                 if not os.path.isfile(current_target):
                     open(current_target, 'w').close()
 

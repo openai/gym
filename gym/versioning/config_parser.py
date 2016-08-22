@@ -68,6 +68,7 @@ properties:
             required:
             - id
             - version
+            - entry_point
             - requirements
             - files
             - commit_ref
