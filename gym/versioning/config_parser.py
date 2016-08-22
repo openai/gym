@@ -81,6 +81,18 @@ properties:
 
 
 def parse_config(config, target_env, target_version=None):
+    # Removing object wrapper 'env' for environments in 'envs' list
+    # the 'env' prefix is supported to permit copying properties between envs
+    envs = []
+    if 'envs' in config and isinstance(config['envs'], list):
+        for current_env in config['envs']:
+            if 'env' in current_env:
+                envs.append(current_env['env'])
+            else:
+                envs.append(current_env)
+    config['envs'] = envs
+
+    # Validating
     try:
         validate(config, yaml.safe_load(schema))
     except ValidationError as err:
