@@ -21,7 +21,7 @@ if __name__ == '__main__':
     last_time_steps = numpy.ndarray(0)
 
     sarsa = sarsa.Sarsa(actions=range(env.action_space.n),
-                    epsilon=0.9, alpha=0.2, gamma=0.8)
+                    epsilon=0.9, alpha=0.2, gamma=0.9)
 
     initial_epsilon = sarsa.epsilon
 
