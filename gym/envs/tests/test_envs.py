@@ -1,7 +1,38 @@
 import numpy as np
 import pytest
 from gym import envs
-from gym.envs.tests.spec_list import spec_list
+
+def should_skip_env_spec_for_tests(spec):
+    # We skip tests for envs that require dependencies or are otherwise
+    # troublesome to run frequently
+
+    # Skip mujoco tests for pull request CI
+    skip_mujoco = not (os.environ.get('MUJOCO_KEY_BUNDLE') or os.path.exists(os.path.expanduser('~/.mujoco')))
+    if skip_mujoco and spec._entry_point.startswith('gym.envs.mujoco:'):
+        return True
+
+    # TODO(jonas 2016-05-11): Re-enable these tests after fixing box2d-py
+    if spec._entry_point.startswith('gym.envs.box2d:'):
+        logger.warn("Skipping tests for box2d env {}".format(spec._entry_point))
+        return True
+
+    # TODO: Issue #167 - Re-enable these tests after fixing DoomDeathmatch crash
+    if spec._entry_point.startswith('gym.envs.doom:DoomDeathmatchEnv'):
+        logger.warn("Skipping tests for DoomDeathmatchEnv {}".format(spec._entry_point))
+        return True
+
+    # Skip ConvergenceControl tests (the only env in parameter_tuning) according to pull #104
+    if spec._entry_point.startswith('gym.envs.parameter_tuning:'):
+        logger.warn("Skipping tests for parameter_tuning env {}".format(spec._entry_point))
+        return True
+
+    # Skip Gazebo tests for pull request CI
+    if spec._entry_point.startswith('gym.envs.gazebo:'):
+        logger.warn("Skipping tests for gazebo env {}".format(spec._entry_point))
+        return True
+
+    return False
+
 
 # This runs a smoketest on each official registered env. We may want
 # to try also running environments which are not officially registered
@@ -40,4 +71,3 @@ def test_random_rollout():
             (ob, _reward, done, _info) = env.step(a)
             if done: break
         env.close()
-

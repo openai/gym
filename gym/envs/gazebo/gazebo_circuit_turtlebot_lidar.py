@@ -55,7 +55,7 @@ class GazeboCircuitTurtlebotLidarEnv(gazebo_env.GazeboEnv):
         try:
             self.unpause()
         except rospy.ServiceException, e:
-            print "/gazebo/unpause_physics service call failed"
+            print ("/gazebo/unpause_physics service call failed")
 
         startTime = time.time()
 
@@ -83,14 +83,14 @@ class GazeboCircuitTurtlebotLidarEnv(gazebo_env.GazeboEnv):
                 pass
 
         elapsedTime = time.time() - startTime
-        print "Time: " + str(elapsedTime)
+        print ("Time: " + str(elapsedTime))
 
         rospy.wait_for_service('/gazebo/pause_physics')
         try:
             #resp_pause = pause.call()
             self.pause()
         except rospy.ServiceException, e:
-            print "/gazebo/pause_physics service call failed"
+            print ("/gazebo/pause_physics service call failed")
 
         state,done = self.discretize_observation(data,5)
 
@@ -112,7 +112,7 @@ class GazeboCircuitTurtlebotLidarEnv(gazebo_env.GazeboEnv):
             #reset_proxy.call()
             self.reset_proxy()
         except rospy.ServiceException, e:
-            print "/gazebo/reset_simulation service call failed"
+            print ("/gazebo/reset_simulation service call failed")
 
         # Unpause simulation to make observation
         rospy.wait_for_service('/gazebo/unpause_physics')
@@ -120,7 +120,7 @@ class GazeboCircuitTurtlebotLidarEnv(gazebo_env.GazeboEnv):
             #resp_pause = pause.call()
             self.unpause()
         except rospy.ServiceException, e:
-            print "/gazebo/unpause_physics service call failed"
+            print ("/gazebo/unpause_physics service call failed")
 
         #read laser data
         data = None
@@ -135,7 +135,7 @@ class GazeboCircuitTurtlebotLidarEnv(gazebo_env.GazeboEnv):
             #resp_pause = pause.call()
             self.pause()
         except rospy.ServiceException, e:
-            print "/gazebo/pause_physics service call failed"
+            print ("/gazebo/pause_physics service call failed")
 
         state = self.discretize_observation(data,5)
 
