@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 '''
 Based on: https://github.com/vmayoral/basic_reinforcement_learning
 '''
