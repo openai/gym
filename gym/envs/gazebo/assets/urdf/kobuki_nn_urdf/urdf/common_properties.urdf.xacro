@@ -1,0 +1,57 @@
+<?xml version="1.0" ?>
+<!--
+  Various useful properties such as constants and materials 
+ -->
+<robot name="xacro_properties" xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:property name="M_PI" value="3.1415926535897931" /> 
+  <xacro:property name="material_white">
+    <material name="white">
+      <color rgba="1 1 1 1"/>
+    </material>
+  </xacro:property>
+  <xacro:property name="material_grey">
+    <material name="grey">
+      <color rgba="0.5 0.5 0.5 1"/>
+    </material>
+  </xacro:property>
+  <xacro:property name="material_light_grey">
+    <material name="light_grey">
+      <color rgba="0.6 0.6 0.6 1"/>
+    </material>
+  </xacro:property>
+  <xacro:property name="material_dark_grey">
+    <material name="dark_grey">
+      <color rgba="0.3 0.3 0.3 1"/>
+    </material>
+  </xacro:property>
+  <xacro:property name="material_black">
+    <material name="black">
+      <color rgba="0.1 0.1 0.1 1"/>
+    </material>
+  </xacro:property>
+  <xacro:property name="material_red">
+    <material name="red">
+      <color rgba="1 0 0 1"/>
+    </material>
+  </xacro:property>
+  <xacro:property name="material_green">
+    <material name="green">
+      <color rgba="0.0 0.8 0.0 1"/>
+    </material>
+  </xacro:property>
+  <xacro:property name="material_blue">
+    <material name="blue">
+      <color rgba="0.0 0.0 1.0 1"/>
+    </material>
+  </xacro:property>
+  <xacro:property name="material_grey_blue">
+    <material name="grey_blue">
+      <color rgba="0.4 0.4 1.0 1"/>
+    </material>
+  </xacro:property>
+  <xacro:property name="material_orange">
+    <material name="orange">
+      <color rgba="1.0 0.7 0.0 1"/>
+    </material>
+  </xacro:property>
+</robot>
