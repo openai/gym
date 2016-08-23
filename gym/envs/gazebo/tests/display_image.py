@@ -7,14 +7,17 @@ calling a gazebo environment monitoring function in a test.
 Args:
 
   default    Plots an averaged graph.
-  arg1       Plots an averaged graph using 'arg1' as average 
+  arg1='i'   Prints an interpolated graph.
+
+  arg1=int   Plots an averaged graph using 'arg1' as average 
              size delimiter.
   arg2='b'   Prints both graphs, the averaged one using 'arg1' 
              and the full data plot. 'arg2' must be 'b'.
-
+  
 Examples:
 
   python display_image.py
+  python display_image.py i
   python display_image.py 20
   python display_image.py 20 b
 
@@ -26,6 +29,8 @@ import matplotlib.pyplot as plt
 import itertools
 import sys
 import argparse
+import numpy as np
+from scipy.interpolate import pchip
 
 class LivePlot(object):
     def __init__(self, outdir, data_key='episode_rewards', line_color='blue'):
@@ -54,38 +59,58 @@ class LivePlot(object):
         results = gym.monitoring.monitor.load_results(self.outdir)
         data =  results[self.data_key]
         avg_data = []
-
         if mod1 == None:
             mod1 = len(data)/50
             if mod1 == 0:
                 mod1 = 1
-        for i, val in enumerate(data):
-            if i%mod1==0:
-                if (i+mod1) < len(data):
-                    avg =  sum(data[i:i+mod1])/mod1
-                    avg_data.append(avg)
-
-        new_data = expand(avg_data,mod1)    
-
-        #only update plot if data is different (plot calls are expensive)
-        '''if data !=  self._last_data:
-            self._last_data = data
-            plt.plot(data, color=self.line_color, )
-
-            # pause so matplotlib will display
-            # may want to figure out matplotlib animation or use a different library in the future
-            plt.pause(0.000001)'''
-
-        if new_data !=  self._last_data:
-            self._last_data = new_data
-            if mod2 == 'b':
+        elif mod1.isdigit():
+            for i, val in enumerate(data):
+                mod1=int(mod1)
+                if i%mod1==0:
+                    if (i+mod1) < len(data):
+                        avg =  sum(data[i:i+mod1])/mod1
+                        avg_data.append(avg)
+            new_data = expand(avg_data,mod1)
+            if mod2 == 'b': #both avg and full
                 plt.plot(data, color='blue')
                 plt.plot(new_data, color='red', linewidth=2.5)
             else:
                 plt.plot(new_data, color=self.line_color)
-            # pause so matplotlib will display
-            # may want to figure out matplotlib animation or use a different library in the future
-            plt.pause(0.000001)
+
+        elif mod1 == 'i': #interpolate data
+            avg_data = []
+            avg_data_points = []
+            mod1 = len(data)/50
+            if mod1 == 0:
+                mod1 = 1
+            data_fix = 0
+            for i, val in enumerate(data):
+                if i%mod1==0:
+                    if (i+mod1) < len(data):
+                        avg =  sum(data[i:i+mod1])/mod1
+                        avg_data.append(avg)
+                        avg_data_points.append(i)
+                if (i+mod1) == len(data):
+                    data_fix = mod1
+
+            
+            x = np.arange(len(avg_data))
+            y = np.array(avg_data)
+            #print x
+            #print y
+            #print str(len(avg_data)*mod1)
+            #print data_fix
+            interp = pchip(avg_data_points, avg_data)
+            xx = np.linspace(0, len(data)-data_fix, 1000)
+            plt.plot(xx, interp(xx))
+
+        
+
+        
+
+        # pause so matplotlib will display
+        # may want to figure out matplotlib animation or use a different library in the future
+        plt.pause(0.000001)
 
 def expand(lst, n):
     lst = [[i]*n for i in lst]
@@ -102,7 +127,7 @@ if __name__ == '__main__':
     if len(sys.argv)==1:
         plotter.plot(None, None)
     elif len(sys.argv)==2:
-        plotter.plot(int(sys.argv[1]), None)
+        plotter.plot(sys.argv[1], None)
     else:
-        plotter.plot(int(sys.argv[1]), sys.argv[2])
+        plotter.plot(sys.argv[1], sys.argv[2])
     pause()
