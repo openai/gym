@@ -23,7 +23,6 @@ class GazeboCircuit2TurtlebotLidarNnEnv(gazebo_env.GazeboEnv):
         self.pause = rospy.ServiceProxy('/gazebo/pause_physics', Empty)
         self.reset_proxy = rospy.ServiceProxy('/gazebo/reset_simulation', Empty)
 
-        self.action_space = spaces.Discrete(3) #F,L,R
         self.reward_range = (-np.inf, np.inf)
 
         self._seed()
@@ -48,21 +47,13 @@ class GazeboCircuit2TurtlebotLidarNnEnv(gazebo_env.GazeboEnv):
         except rospy.ServiceException, e:
             print ("/gazebo/unpause_physics service call failed")
 
-        if action == 0: #FORWARD
-            vel_cmd = Twist()
-            vel_cmd.linear.x = 0.3
-            vel_cmd.angular.z = 0.0
-            self.vel_pub.publish(vel_cmd)
-        elif action == 1: #LEFT
-            vel_cmd = Twist()
-            vel_cmd.linear.x = 0.05
-            vel_cmd.angular.z = 0.3
-            self.vel_pub.publish(vel_cmd)
-        elif action == 2: #RIGHT
-            vel_cmd = Twist()
-            vel_cmd.linear.x = 0.05
-            vel_cmd.angular.z = -0.3
-            self.vel_pub.publish(vel_cmd)
+        max_ang_speed = 0.3
+        ang_vel = (action-10)*max_ang_speed*0.1 #from (-0.33 to + 0.33)
+
+        vel_cmd = Twist()
+        vel_cmd.linear.x = 0.2
+        vel_cmd.angular.z = ang_vel
+        self.vel_pub.publish(vel_cmd)
 
         data = None
         while data is None:
@@ -81,10 +72,9 @@ class GazeboCircuit2TurtlebotLidarNnEnv(gazebo_env.GazeboEnv):
         state,done = self.calculate_observation(data)
 
         if not done:
-            if action == 0:
-                reward = 5
-            else:
-                reward = 1
+            # Straight reward = 5, Max angle reward = 0.5
+            reward = round(15*(max_ang_speed - abs(ang_vel) +0.0335), 2)
+            # print ("Action : "+str(action)+" Ang_vel : "+str(ang_vel)+" reward="+str(reward))
         else:
             reward = -200
 
