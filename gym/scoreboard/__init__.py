@@ -78,6 +78,12 @@ add_group(
 )
 
 add_group(
+    id='dolphin',
+    name='Dolphin',
+    description='Play games for the GameCube and Wii.'
+)
+
+add_group(
     id='safety',
     name='Safety',
     description='Environments to test various AI safety properties.'
@@ -1337,7 +1343,14 @@ Scalable oversight of RL systems may require a solution to this challenge [Amode
 """
 )
 
+# dolphin
 
+add_task(
+    id='SSBM-v0',
+    summary="Super Smash Brothers Melee for the Nintendo Gamecube",
+    group='dolphin',
+    contributor='vladfi1',
+)
 
 # Deprecated
 
