@@ -4,6 +4,7 @@ Based on: https://github.com/vmayoral/basic_reinforcement_learning
 
 import gym
 import deepq
+import time
 
 if __name__ == '__main__':
 
@@ -35,6 +36,8 @@ if __name__ == '__main__':
 
     stepCounter = 0
     highest_reward = 0
+
+    start_time = time.time()
 
     # number of reruns
     for epoch in xrange(epochs):
@@ -77,7 +80,9 @@ if __name__ == '__main__':
                 if not last100Filled:
                     print ("EP "+str(epoch)+" - {} timesteps".format(t+1)+"   Exploration="+str(round(explorationRate, 2)))
                 else :
-                    print ("EP "+str(epoch)+" - {} timesteps".format(t+1)+" - last100 Steps : "+str((sum(last100Scores)/len(last100Scores)))+" - Cumulated Reward : "+str(cumulated_reward)+"   Exploration="+str(round(explorationRate, 2)))
+                    m, s = divmod(int(time.time() - start_time), 60)
+                    h, m = divmod(m, 60)
+                    print ("EP "+str(epoch)+" - {} timesteps".format(t+1)+" - last100 Steps : "+str((sum(last100Scores)/len(last100Scores)))+" - Cumulated R: "+str(cumulated_reward)+"   Eps="+str(round(explorationRate, 2))+"     Time: %d:%02d:%02d" % (h, m, s))
                 break
 
             stepCounter += 1
