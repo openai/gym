@@ -40,3 +40,6 @@ vizdoom.ini
 catkin_ws/
 apm/
 sophus/
+eeprom.bin
+mav.tlog
+mav.tlog.raw
