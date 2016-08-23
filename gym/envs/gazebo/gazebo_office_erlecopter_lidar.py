@@ -1,8 +1,10 @@
 import gym
+import numpy as np
+import os
 import rospy
 import roslaunch
+import subprocess
 import time
-import numpy as np
 
 from gym import utils, spaces
 from gym.envs.gazebo import gazebo_env
@@ -17,6 +19,7 @@ from gym.utils import seeding
 class GazeboOfficeErleCopterLidarEnv(gazebo_env.GazeboEnv):
 
     def _takeoff(self, altitude):
+        print "###### TAKEOFF ######"
         # Set throttle at 1500
         msg = OverrideRCIn()
         msg.channels[0] = 1500
@@ -64,6 +67,7 @@ class GazeboOfficeErleCopterLidarEnv(gazebo_env.GazeboEnv):
             print ("mavros/set_mode service call failed: %s"%e)
 
     def __init__(self):
+        print "###### INIT ######"
 
         # Launch the simulation with the given launchfile name
         gazebo_env.GazeboEnv.__init__(self, "GazeboCircuit2ErleCopterLidar-v0.launch")    
@@ -100,16 +104,19 @@ class GazeboOfficeErleCopterLidarEnv(gazebo_env.GazeboEnv):
         self._seed()
 
     def _seed(self, seed=None):
+        print "###### SEED ######"
+
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
     def _laser_state(self, action):
-        
+        print "###### LASER_STATE ######"
 
         return discretized_ranges, done
 
     def _step(self, action):
 
+        print "###### STEP ######"
         msg = OverrideRCIn()
 
         if action == 0: #FORWARD
@@ -172,8 +179,28 @@ class GazeboOfficeErleCopterLidarEnv(gazebo_env.GazeboEnv):
 
         return state, reward, done, {}
 
-    def _reset(self):
 
+    def _killall(self, process_name):
+        print "###### KILLALL ######"
+        pids = subprocess.check_output(["pidof",process_name]).split()
+        for pid in pids:
+            os.system("kill -9 "+str(pid))
+
+    def _relaunch_apm(self):
+        print "###### RELAUNCH APM ######"
+        # Kill autopilot and mavlink
+        self._killall("ArduCopter.elf")
+        #self._killall("sim_vehicle.sh")
+        grep_cmd = "ps -af | grep sim_vehicle.sh"
+        result = subprocess.check_output([grep_cmd], shell=True).split()
+        pid = result[1]
+        os.system("kill -9 "+str(pid))
+        
+        # Launch them again
+        subprocess.Popen(["/home/erle/simulation/ardupilot/Tools/autotest/sim_vehicle.sh","-j4","-f","Gazebo","-v","ArduCopter"])
+
+    def _reset(self):
+        print "###### RESET ######"
         # Resets the state of the environment and returns an initial observation.
         rospy.wait_for_service('/gazebo/reset_world')
         try:
@@ -181,6 +208,11 @@ class GazeboOfficeErleCopterLidarEnv(gazebo_env.GazeboEnv):
             self.reset_proxy()
         except rospy.ServiceException, e:
             print ("/gazebo/reset_world service call failed")
+
+        # Relaunch autopilot
+        self._relaunch_apm()
+
+        time.sleep(5) # this is ugly
 
         self._takeoff(1)
 
