@@ -59,13 +59,15 @@ class LivePlot(object):
         results = gym.monitoring.monitor.load_results(self.outdir)
         data =  results[self.data_key]
         avg_data = []
-        if mod1 == None:
-            mod1 = len(data)/50
-            if mod1 == 0:
-                mod1 = 1
-        elif mod1.isdigit():
-            for i, val in enumerate(data):
+
+        if mod1 == None or mod1.isdigit():
+            if mod1 == None:
+                mod1 = len(data)/50
+                if mod1 == 0:
+                    mod1 = 1
+            else:
                 mod1=int(mod1)
+            for i, val in enumerate(data):
                 if i%mod1==0:
                     if (i+mod1) < len(data):
                         avg =  sum(data[i:i+mod1])/mod1
@@ -102,7 +104,7 @@ class LivePlot(object):
             #print data_fix
             interp = pchip(avg_data_points, avg_data)
             xx = np.linspace(0, len(data)-data_fix, 1000)
-            plt.plot(xx, interp(xx))
+            plt.plot(xx, interp(xx), color='green', linewidth=2.5)
 
         
 
