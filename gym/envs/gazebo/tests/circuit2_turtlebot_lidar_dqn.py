@@ -14,7 +14,7 @@ if __name__ == '__main__':
     #Each time we take a sample and update our weights it is called a mini-batch. 
     #Each time we run through the entire dataset, it's called an epoch.
     epochs = 1000
-    steps = 1500
+    steps = 10000
     updateTargetNetwork = 10000
     explorationRate = 1 #epsilon
     minibatch_size = 128
@@ -57,6 +57,10 @@ if __name__ == '__main__':
 
             observation = newObservation
 
+            if (t >= 3000):
+                print ("reached the end! :D")
+                done = True
+
             if done:
                 last100Scores[last100ScoresIndex] = t
                 last100ScoresIndex += 1
@@ -64,9 +68,9 @@ if __name__ == '__main__':
                     last100Filled = True
                     last100ScoresIndex = 0
                 if not last100Filled:
-                    print ("Episode "+str(epoch)+" finished after {} timesteps".format(t+1)+"   Epsilon="+str(round(explorationRate, 2)))
+                    print ("EP "+str(epoch)+" - {} timesteps".format(t+1)+"   Exploration="+str(round(explorationRate, 2)))
                 else :
-                    print ("Episode "+str(epoch)+" finished after {} timesteps".format(t+1)+" last 100 average: ",(sum(last100Scores)/len(last100Scores)))
+                    print ("EP "+str(epoch)+" - {} timesteps".format(t+1)+" - last 100 avg: "+(sum(last100Scores)/len(last100Scores))+"   Exploration="+str(round(explorationRate, 2)))
                 break
 
             stepCounter += 1
