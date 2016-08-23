@@ -28,16 +28,19 @@ if __name__ == '__main__':
     last100Filled = False
 
     # turtlebot_nn_setup.bash must be executed.
-    deepQ = deepq.DeepQ(100, 2, memorySize, discountFactor, learningRate, learnStart)
+    deepQ = deepq.DeepQ(100, 21, memorySize, discountFactor, learningRate, learnStart)
     # deepQ.initNetworks([30,30,30])
     # deepQ.initNetworks([30,30])
     deepQ.initNetworks([300,300])
 
     stepCounter = 0
+    highest_reward = 0
 
     # number of reruns
     for epoch in xrange(epochs):
         observation = env.reset()
+        cumulated_reward = 0
+
         # number of timesteps
         for t in xrange(steps):
             # env.render()
@@ -46,6 +49,10 @@ if __name__ == '__main__':
             action = deepQ.selectAction(qValues, explorationRate)
 
             newObservation, reward, done, info = env.step(action)
+
+            cumulated_reward += reward
+            if highest_reward < cumulated_reward:
+                highest_reward = cumulated_reward
 
             deepQ.addMemory(observation, action, reward, newObservation, done)
 
@@ -70,7 +77,7 @@ if __name__ == '__main__':
                 if not last100Filled:
                     print ("EP "+str(epoch)+" - {} timesteps".format(t+1)+"   Exploration="+str(round(explorationRate, 2)))
                 else :
-                    print ("EP "+str(epoch)+" - {} timesteps".format(t+1)+" - last 100 avg: "+(sum(last100Scores)/len(last100Scores))+"   Exploration="+str(round(explorationRate, 2)))
+                    print ("EP "+str(epoch)+" - {} timesteps".format(t+1)+" - last100 Steps : "+str((sum(last100Scores)/len(last100Scores)))+" - Cumulated Reward : "+str(cumulated_reward)+"   Exploration="+str(round(explorationRate, 2)))
                 break
 
             stepCounter += 1
