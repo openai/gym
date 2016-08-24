@@ -1,6 +1,6 @@
 import random
 import numpy as np
-from keras.models import Sequential
+from keras.models import Sequential, load_model
 from keras import optimizers
 from keras.layers.core import Dense, Dropout, Activation
 from keras.layers.normalization import BatchNormalization
@@ -228,3 +228,17 @@ class DeepQ:
                     X_batch = np.append(X_batch, np.array([newState.copy()]), axis=0)
                     Y_batch = np.append(Y_batch, np.array([[reward]*self.output_size]), axis=0)
             self.model.fit(X_batch, Y_batch, batch_size = len(miniBatch), nb_epoch=1, verbose = 0)
+
+    def saveModel(self, path):
+        self.model.save(path)
+        #self.model.save_weights(path)
+
+    def loadModel(self, path):
+        #h5py required
+        #pip install pyparsing==1.5.7 --user
+        #https://github.com/fchollet/keras 
+        #sudo python setup.py install
+        #export PYTHONPATH=$PYTHONPATH:/usr/local/lib/python2.7/dist-packages/Keras-1.0.7-py2.7.egg
+
+        self.model.load_model(path)
+        #self.model.load_weights(path)
