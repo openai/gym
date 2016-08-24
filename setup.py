@@ -11,7 +11,6 @@ extras = {
   'board_game' : ['pachi-py>=0.0.19'],
   'box2d': ['box2d-py'],
   'classic_control': ['PyOpenGL'],
-  'doom': ['doom_py>=0.0.11'],
   'mujoco': ['mujoco_py>=0.4.3', 'imageio'],
   'parameter_tuning': ['keras', 'theano'],
 }
@@ -36,6 +35,6 @@ setup(name='gym',
           'numpy>=1.10.4', 'requests>=2.0', 'six', 'pyglet>=1.2.0',
       ],
       extras_require=extras,
-      package_data={'gym': ['envs/mujoco/assets/*.xml', 'envs/classic_control/assets/*.png', 'envs/doom/assets/*.cfg']},
+      package_data={'gym': ['envs/mujoco/assets/*.xml', 'envs/classic_control/assets/*.png']},
       tests_require=['nose2', 'mock'],
 )
