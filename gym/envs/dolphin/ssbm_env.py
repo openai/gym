@@ -200,8 +200,16 @@ class SmashEnv(gym.Env):
     
     time.sleep(1) # give pads time to set up
     
-    # TODO: add config options
-    self.dolphin_process = runDolphin(user=self.dolphin_dir, gui=True, cpus=self.cpus, **kwargs)
+    config = dict(
+      user=self.dolphin_dir,
+      cpus=self.cpus,
+      cpu_thread=True,
+      gfx='OGL',
+      #exe='dolphin-emu-headless',
+    )
+    config.update(kwargs)
+    
+    self.dolphin_process = runDolphin(**config)
     
     try:
       self.pads = self.get_pads()
