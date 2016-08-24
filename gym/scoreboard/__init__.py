@@ -77,12 +77,6 @@ add_group(
     description='Environments to test various AI safety properties.'
 )
 
-add_group(
-    id='pygame',
-    name='PyGame Learning Environment',
-    description='Reach high scores in games from the PyGame Learning Environment.',
-)
-
 # classic control
 
 add_task(
@@ -785,119 +779,6 @@ The game is simulated through the Arcade Learning Environment [ALE]_, which uses
 .. [Stella] Stella: A Multi-Platform Atari 2600 VCS emulator http://stella.sourceforge.net/
 """,
     )
-
-# pygame
-add_task(
-    id='Catcher-v0',
-    group='pygame',
-    experimental=True,
-    contributor='lusob',
-    summary='Catch falling fruit with a paddle.',
-    description="""
-This environment adapts a game from the PyGame Learning Environment (PLE) (http://pygame-learning-environment.readthedocs.io/en/latest/).
-To run it, you will need to install gym-ple from https://github.com/lusob/gym-ple.
-
-In Catcher the agent must catch falling fruit with its paddle. Left and right control the direction of the paddle. The paddle has a little velocity added to it to allow smooth movements. The agent receives a positive reward, of +1, for each successful fruit catch, while it loses a point, -1, if the fruit is not caught.
-"""
-)
-
-add_task(
-    id='MonsterKong-v0',
-    group='pygame',
-    experimental=True,
-    contributor='lusob',
-    summary='Avoid fireballs while collecting coins and rescuing the princess.',
-    description="""
-This environment adapts a game from the PyGame Learning Environment (PLE) (http://pygame-learning-environment.readthedocs.io/en/latest/).
-To run it, you will need to install gym-ple from https://github.com/lusob/gym-ple.
-
-A spinoff of the original Donkey Kong game. The objective of the game is to avoid fireballs while collecting coins and rescuing the princess. An additional monster is added each time the princess is rescued. Use w, a, s, d and space keys to move the player around. The game is over when the player hits three fireballs. Touching a monster does not cause the agent to lose lives. The player gains +5 for collecting a coin while losing a life and receiving a reward of -25 for hitting a fireball. The player gains +50 points for rescuing a princess.
-"""
-)
-
-add_task(
-    id='FlappyBird-v0',
-    group='pygame',
-    experimental=True,
-    contributor='lusob',
-    summary='Navigate through gaps between pipes',
-    description="""
-This environment adapts a game from the PyGame Learning Environment (PLE) (http://pygame-learning-environment.readthedocs.io/en/latest/).
-To run it, you will need to install gym-ple from https://github.com/lusob/gym-ple.
-
-Flappybird is a side-scrolling game where the agent must successfully navigate through gaps between pipes. The up arrow causes the bird to accelerate upwards. If the bird makes contact with the ground or pipes, or goes above the top of the screen, the game is over. For each pipe it passes through it gains a positive reward of +1. Each time a terminal state is reached it receives a negative reward of -1.
-"""
-)
-
-add_task(
-    id='PixelCopter-v0',
-    group='pygame',
-    experimental=True,
-    contributor='lusob',
-    summary='Navigate through a cavern',
-    description="""
-This environment adapts a game from the PyGame Learning Environment (PLE) (http://pygame-learning-environment.readthedocs.io/en/latest/).
-To run it, you will need to install gym-ple from https://github.com/lusob/gym-ple.
-
-Pixelcopter is a side-scrolling game where the agent must successfully navigate through a cavern. The up arrow causes the bird to accelerate upwards. If the agent makes contact with anything green the game is over. For each vertical block it passes through it gains a positive reward of +1. Each time a terminal state is reached it receives a negative reward of -1.
-"""
-)
-
-add_task(
-    id='PuckWorld-v0',
-    group='pygame',
-    experimental=True,
-    contributor='lusob',
-    summary='Seek the green dot while avoiding a large red puck',
-    description="""
-This environment adapts a game from the PyGame Learning Environment (PLE) (http://pygame-learning-environment.readthedocs.io/en/latest/).
-To run it, you will need to install gym-ple from https://github.com/lusob/gym-ple.
-
-In PuckWorld the agent, a blue circle, must navigate towards the green dot while avoiding the larger red puck. The green dot randomly moves around the screen while the red puck slowly follows the agent. Up, down, left and right apply thrusters to the agent. It adds velocity to the agent which decays over time. There are no terminal states in this game. The agent is rewarded based on its distance to the green dot, where a smaller distance is better. If the agent is within the large red radius it receives a negative reward. The negative reward is proportional to the agents distance from the pucks center.
-"""
-)
-
-add_task(
-    id='RaycastMaze-v0',
-    group='pygame',
-    experimental=True,
-    contributor='lusob',
-    summary='Search for the maze exit',
-    description="""
-This environment adapts a game from the PyGame Learning Environment (PLE) (http://pygame-learning-environment.readthedocs.io/en/latest/).
-To run it, you will need to install gym-ple from https://github.com/lusob/gym-ple.
-
-In RaycastMaze the agent must navigate a 3D environment searching for the exit denoted with a bright red square. The valid actions are forwards, backwards, turn left, and turn right. When the agent is a short distance, nearly touching the red square, the game is considered over.
-"""
-)
-
-add_task(
-    id='Snake-v0',
-    group='pygame',
-    experimental=True,
-    contributor='lusob',
-    summary='Seek food while avoiding your own tail',
-    description="""
-This environment adapts a game from the PyGame Learning Environment (PLE) (http://pygame-learning-environment.readthedocs.io/en/latest/).
-To run it, you will need to install gym-ple from https://github.com/lusob/gym-ple.
-
-Snake is a game where the agent must maneuver a line which grows in length each time food is touched by the head of the segment. The line follows the previous paths taken which eventually become obstacles for the agent to avoid. The food is randomly spawned inside of the valid window while checking it does not make contact with the snake body. Valid actions are Up, down, left, and right. The agent cannot turn back on itself, e.g. if it is moving downwards it cannot move up. If the head of the snake comes in contact with any of the walls or its own body the game is over. The agent recieves a positive reward, +1, for each red square the head comes in contact with, while getting -1 for each terminal state it reaches.
-"""
-)
-
-add_task(
-    id='Snake-v0',
-    group='pygame',
-    experimental=True,
-    contributor='lusob',
-    summary='Capture green circles while avoiding red circles',
-    description="""
-This environment adapts a game from the PyGame Learning Environment (PLE) (http://pygame-learning-environment.readthedocs.io/en/latest/).
-To run it, you will need to install gym-ple from https://github.com/lusob/gym-ple.
-
-In WaterWorld, the agent, a blue circle, must navigate around the world capturing green circles while avoiding red ones. After a circle is captured, it will respawn in a random location as either red or green. The game is over if all the green circles have been captured. Up, down, left and right apply thrusters to the agent. It adds velocity to the agent which decays over time. The game ends when all the green circles have been captured by the agent. For each green circle captured the agent receives a positive reward of +1; while hitting a red circle causes a negative reward of -1.
-"""
-)
 
 # Safety
 
