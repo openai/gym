@@ -212,18 +212,6 @@ These are a variety of classic control tasks, which would appear in a typical re
 	  env.reset()
 	  env.render()
 
-Doom
----------------
-
-These tasks take place inside a Doom game (via the VizDoom project). If you didn't do the full install, you will need to run ``pip install -e '.[doom]'``. You can get started with them via:
-
-.. code:: python
-
-	  import gym
-	  env = gym.make('DoomBasic-v0')
-	  env.reset()
-	  env.render()
-
 MuJoCo
 ------
 

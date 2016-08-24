@@ -33,8 +33,8 @@ def create_rollout(spec):
   Returns a bool which indicates whether the new rollout was added to the json file.  
 
   """
-  # Skip platform-dependent Doom environments
-  if should_skip_env_spec_for_tests(spec) or 'Doom' in spec.id:
+  # Skip platform-dependent
+  if should_skip_env_spec_for_tests(spec):
     logger.warn("Skipping tests for {}".format(spec.id))
     return False
 
