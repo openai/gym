@@ -1352,6 +1352,13 @@ add_task(
     contributor='vladfi1',
 )
 
+add_task(
+    id='SimpleSSBM-v0',
+    summary="SSBM, with simplified controls.",
+    group='dolphin',
+    contributor='vladfi1',
+)
+
 # Deprecated
 
 # MuJoCo
