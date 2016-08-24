@@ -41,8 +41,8 @@ class ConcatConvertor:
         self.out_space = Box(low, high)
     
     def __call__(self, xs):
-        assert(self.in_space.contains(x))
-        return np.concatenate([c(x) for c, x in enumerate(self.convertors, xs)])
+        #assert(self.in_space.contains(xs))
+        return np.concatenate([c(x) for c, x in zip(self.convertors, xs)])
 
 def convertor(space):
     if isinstance(space, Box):
@@ -65,4 +65,8 @@ class BoxWrapper(gym.Wrapper):
         obs, reward, done, info = self.env.step(action)
         obs = self.convertor(obs)
         return obs, reward, done, info
+    
+    def _reset(self):
+        obs = self.env._reset()
+        return self.convertor(obs)
 
