@@ -485,3 +485,9 @@ register(
   kwargs={'iso' : '~/ISO/SSBM.iso'},
 )
 
+register(
+  id='SimpleSSBM-v0',
+  entry_point='gym.envs.dolphin.ssbm_env:simpleSmashEnv',
+  kwargs={'iso' : '~/ISO/SSBM.iso'},
+)
+
