@@ -95,11 +95,11 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--full", action='store_true', help="print the full data plot")
-    parser.add_argument("-a", "--average", type=int, metavar="AVG", help="plot an averaged graph using the given integer as average size delimiter")
+    parser.add_argument("-a", "--average", type=int, nargs='?', const=50, metavar="AVG", help="plot an averaged graph using the given number as average size delimiter. Default = 50")
     parser.add_argument("-i", "--interpolated", action='store_true', help="print an interpolated graph")
     args = parser.parse_args()
 
-    if not args.funcs:
+    if len(sys.argv)==1:
         # When no arguments given, plot full data graph
         plotter.plot(full=True)
     else:
