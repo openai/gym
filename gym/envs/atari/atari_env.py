@@ -13,12 +13,6 @@ except ImportError as e:
 import logging
 logger = logging.getLogger(__name__)
 
-def to_rgb(ale):
-    (screen_width,screen_height) = ale.getScreenDims()
-    arr = np.zeros((screen_height, screen_width, 4), dtype=np.uint8)
-    ale.getScreenRGB(arr) # says rgb but actually bgr
-    return arr[:,:,[2, 1, 0]].copy()
-
 def to_ram(ale):
     ram_size = ale.getRAMSize()
     ram = np.zeros((ram_size),dtype=np.uint8)
@@ -40,6 +34,9 @@ class AtariEnv(gym.Env, utils.EzPickle):
         self.viewer = None
 
         self._seed()
+
+        (screen_width, screen_height) = self.ale.getScreenDims()
+        self._buffer = np.empty((screen_height, screen_width, 4), dtype=np.uint8)
 
         self._action_set = self.ale.getMinimalActionSet()
         self.action_space = spaces.Discrete(len(self._action_set))
@@ -74,7 +71,9 @@ class AtariEnv(gym.Env, utils.EzPickle):
         return ob, reward, self.ale.game_over(), {}
 
     def _get_image(self):
-        return to_rgb(self.ale)
+        self.ale.getScreenRGB(self._buffer)  # says rgb but actually bgr
+        return self._buffer[:, :, [2, 1, 0]]
+
     def _get_ram(self):
         return to_ram(self.ale)
 
