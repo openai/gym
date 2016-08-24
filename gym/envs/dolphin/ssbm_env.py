@@ -53,15 +53,16 @@ def clip(x, min_x, max_x):
   return min(max(x, min_x), max_x)
 
 class RealConv:
-  def __init__(self, low, high, name=None):
+  def __init__(self, low, high, verbose=True):
     self.low = low
     self.high = high
     self.space = spaces.Box(low, high, [1])
-    self.name = name
+    self.verbose = verbose
   
   def __call__(self, x, name=None):
     if self.low > x or x > self.high:
-      warn("%f out of bounds in real space \"%s\"" % (x, name))
+      if self.verbose:
+        warn("%f out of bounds in real space \"%s\"" % (x, name))
       x = clip(x, self.low, self.high)
     return np.array([x])
 
@@ -69,9 +70,10 @@ class DiscreteConv:
   def __init__(self, size):
     self.space = spaces.Discrete(size)
   
-  def __call__(self, x, name=None):
+  def __call__(self, x, name=None, verbose=True):
     if 0 > x or x >= self.space.n:
-      warn("%d out of bounds in discrete space \"%s\"" % (x, name))
+      if verbose:
+        warn("%d out of bounds in discrete space \"%s\"" % (x, name))
       x = 0
     return x
 
@@ -100,13 +102,13 @@ maxAction = 0x017E
 numActions = 1 + maxAction
 
 frameConv = RealConv(0, 100, 'frame')
-speedConv = RealConv(-10, 10, 'speed') # generally less than 1 in magnitude
+speedConv = RealConv(-20, 20, 'speed') # generally less than 1 in magnitude
 
 player_spec = [
   ('percent', RealConv(0, 200)),
   ('facing', RealConv(-1, 1)),
-  ('x', RealConv(-100, 100)),
-  ('y', RealConv(-100, 100)),
+  ('x', RealConv(-200, 200)),
+  ('y', RealConv(-200, 200)),
   ('action_state', DiscreteConv(numActions)),
   ('action_frame', frameConv),
   ('character', DiscreteConv(maxCharacter)),
@@ -264,11 +266,15 @@ class SmashEnv(gym.Env):
           mm.move(self.state)
         
         if done:
+          #print("menu_managers done")
           if self.settings_mm.reached:
+            #print("playing movie")
             self.movie.play(self.pads[0])
           else:
+            #print("settings_mm")
             self.settings_mm.move(self.state)
     
+    print("setup finished")
     assert(self.state.menu == Menu.Game.value)
 
   def _seed(self, seed=None):
