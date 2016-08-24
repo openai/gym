@@ -35,7 +35,7 @@ class GazeboCircuit2TurtlebotLidarEnv(gazebo_env.GazeboEnv):
         mod = len(data.ranges)/new_ranges
         for i, item in enumerate(data.ranges):
             if (i%mod==0):
-                if data.ranges[i] == float ('Inf'):
+                if data.ranges[i] == float ('Inf') or np.isinf(data.ranges[i]):
                     discretized_ranges.append(6)
                 elif np.isnan(data.ranges[i]):
                     discretized_ranges.append(0)
