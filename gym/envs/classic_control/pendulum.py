@@ -34,8 +34,8 @@ class PendulumEnv(gym.Env):
         l = 1.
         dt = self.dt
 
-        self.last_u = u # for rendering
         u = np.clip(u, -self.max_torque, self.max_torque)[0]
+        self.last_u = u # for rendering
         costs = angle_normalize(th)**2 + .1*thdot**2 + .001*(u**2)
 
         newthdot = thdot + (-3*g/(2*l) * np.sin(th + np.pi) + 3./(m*l**2)*u) * dt

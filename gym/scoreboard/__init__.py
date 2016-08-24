@@ -162,6 +162,26 @@ This problem was first described by Andrew Moore in his PhD thesis [Moore90]_.
 )
 
 add_task(
+    id='MountainCarContinuous-v0',
+    group='classic_control',
+    summary="Drive up a big hill with continuous control.",
+    description="""
+A car is on a one-dimensional track,
+positioned between two "mountains".
+The goal is to drive up the mountain on the right; however, the car's engine is not
+strong enough to scale the mountain in a single pass.
+Therefore, the only way to succeed is to drive back and forth to build up momentum.
+Here, the reward is greater if you spend less energy to reach the goal
+""",
+    background="""\
+This problem was first described by Andrew Moore in his PhD thesis [Moore90]_.
+
+.. [Moore90] A Moore, Efficient Memory-Based Learning for Robot Control, PhD thesis, University of Cambridge, 1990.
+Here, this is the continuous version.
+""",
+)
+
+add_task(
     id='Pendulum-v0',
     group='classic_control',
     summary="Swing up a pendulum.",
