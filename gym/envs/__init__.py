@@ -101,6 +101,13 @@ register(
 )
 
 register(
+    id='LunarLanderContinuous-v2',
+    entry_point='gym.envs.box2d:LunarLanderContinuous',
+    timestep_limit=1000,
+    reward_threshold=200,
+)
+
+register(
     id='BipedalWalker-v2',
     entry_point='gym.envs.box2d:BipedalWalker',
     timestep_limit=1600,
