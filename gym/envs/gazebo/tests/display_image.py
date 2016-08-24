@@ -33,7 +33,7 @@ class LivePlot(object):
         fig = plt.gcf().canvas.set_window_title('averaged_simulation_graph')
         matplotlib.rcParams.update({'font.size': 15})
 
-    def plot(self, full=True, average=0, interpolated=False):
+    def plot(self, full=True, average=0, interpolated=0):
         results = gym.monitoring.monitor.load_results(self.outdir)
         data =  results[self.data_key]
         avg_data = []
@@ -49,10 +49,10 @@ class LivePlot(object):
                         avg_data.append(avg)
             new_data = expand(avg_data,average)
             plt.plot(new_data, color='red', linewidth=2.5) 
-        if interpolated:
+        if interpolated > 0:
             avg_data = []
             avg_data_points = []
-            n = len(data)/50
+            n = len(data)/interpolated
             if n == 0:
                 n = 1
             data_fix = 0
@@ -95,8 +95,8 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--full", action='store_true', help="print the full data plot")
-    parser.add_argument("-a", "--average", type=int, nargs='?', const=50, metavar="AVG", help="plot an averaged graph using the given number as average size delimiter. Default = 50")
-    parser.add_argument("-i", "--interpolated", action='store_true', help="print an interpolated graph")
+    parser.add_argument("-a", "--average", type=int, nargs='?', const=50, metavar="N", help="plot an averaged graph using the given number as average size delimiter. Default = 50")
+    parser.add_argument("-i", "--interpolated", type=int, nargs='?', const=50, metavar="M", help="plot an interpolated graph using the given number as interpolation amount. Default = 50")
     args = parser.parse_args()
 
     if len(sys.argv)==1:
