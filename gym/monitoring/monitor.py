@@ -360,7 +360,7 @@ def merge_stats_files(stats_files):
     timestamps = np.array(timestamps)[idxs].tolist()
     episode_lengths = np.array(episode_lengths)[idxs].tolist()
     episode_rewards = np.array(episode_rewards)[idxs].tolist()
-    initial_reset_timestamp = min(initial_reset_timestamps)
+    initial_reset_timestamp = min(initial_reset_timestamps) if len(initial_reset_timestamps) > 0 else []
     return timestamps, episode_lengths, episode_rewards, initial_reset_timestamp
 
 def collapse_env_infos(env_infos, training_dir):
