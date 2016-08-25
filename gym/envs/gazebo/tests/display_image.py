@@ -33,13 +33,15 @@ class LivePlot(object):
         fig = plt.gcf().canvas.set_window_title('averaged_simulation_graph')
         matplotlib.rcParams.update({'font.size': 15})
 
-    def plot(self, full=True, average=0, interpolated=0):
+    def plot(self, full=True, dots=False, average=0, interpolated=0):
         results = gym.monitoring.monitor.load_results(self.outdir)
         data =  results[self.data_key]
         avg_data = []
 
         if full:
             plt.plot(data, color='blue')
+        if dots:
+            plt.plot(data, '.', color='black')
         if average > 0:
             average = int(average)
             for i, val in enumerate(data):
@@ -94,7 +96,8 @@ if __name__ == '__main__':
     plotter = LivePlot(outdir)
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-f", "--full", action='store_true', help="print the full data plot")
+    parser.add_argument("-f", "--full", action='store_true', help="print the full data plot with lines")
+    parser.add_argument("-d", "--dots", action='store_true', help="print the full data plot with dots")
     parser.add_argument("-a", "--average", type=int, nargs='?', const=50, metavar="N", help="plot an averaged graph using N as average size delimiter. Default = 50")
     parser.add_argument("-i", "--interpolated", type=int, nargs='?', const=50, metavar="M", help="plot an interpolated graph using M as interpolation amount. Default = 50")
     args = parser.parse_args()
@@ -103,6 +106,6 @@ if __name__ == '__main__':
         # When no arguments given, plot full data graph
         plotter.plot(full=True)
     else:
-        plotter.plot(full=args.full, average=args.average, interpolated=args.interpolated)
+        plotter.plot(full=args.full, dots=args.dots, average=args.average, interpolated=args.interpolated)
 
     pause()
