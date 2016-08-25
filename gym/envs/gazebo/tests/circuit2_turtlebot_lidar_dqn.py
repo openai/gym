@@ -32,9 +32,9 @@ if __name__ == '__main__':
 
     continue_execution = False
     #fill this if continue_execution=True
-    weights_path = '/tmp/turtle_c2_dqn_ep200.h5' 
-    monitor_path = '/tmp/turtle_c2_dqn_ep200'
-    params_json  = '/tmp/turtle_c2_dqn_ep200.json'
+    weights_path = '/tmp/turtle_c2_dqn_ep201.h5' 
+    monitor_path = '/tmp/turtle_c2_dqn_ep201'
+    params_json  = '/tmp/turtle_c2_dqn_ep201.json'
 
 
     if not continue_execution:
@@ -137,9 +137,9 @@ if __name__ == '__main__':
                     m, s = divmod(int(time.time() - start_time), 60)
                     h, m = divmod(m, 60)
                     print ("EP "+str(epoch+1)+" - {} timesteps".format(t+1)+" - last100 Steps : "+str((sum(last100Scores)/len(last100Scores)))+" - Cumulated R: "+str(cumulated_reward)+"   Eps="+str(round(explorationRate, 2))+"     Time: %d:%02d:%02d" % (h, m, s))
-                    if epoch%100==0:
+                    if (epoch+1)%100==0:
                         #save model weights and monitoring data every 100 epochs. 
-                        deepQ.saveWeights('/tmp/turtle_c2_dqn_ep'+str(epoch+1)+'.h5')
+                        deepQ.saveModel('/tmp/turtle_c2_dqn_ep'+str(epoch+1)+'.h5')
                         env.monitor.flush()
                         copy_tree(outdir,'/tmp/turtle_c2_dqn_ep'+str(epoch+1))
                         #save simulation parameters.
