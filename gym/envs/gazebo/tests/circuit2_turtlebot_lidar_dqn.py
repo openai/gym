@@ -32,6 +32,7 @@ if __name__ == '__main__':
 
     continue_execution = False
     #fill this if continue_execution=True
+<<<<<<< 4c65e44023e58ef881c33988fae5fd0bfe476f40
     weights_path = '/tmp/turtle_c2_dqn_ep100.h5'
     monitor_path = '/tmp/turtle_c2_dqn_ep100'
 
@@ -56,6 +57,56 @@ if __name__ == '__main__':
     # deepQ.initNetworks([30,30,30])
     # deepQ.initNetworks([30,30])
     deepQ.initNetworks([100,100])
+=======
+    weights_path = '/tmp/turtle_c2_dqn_ep201.h5' 
+    monitor_path = '/tmp/turtle_c2_dqn_ep201'
+    params_json  = '/tmp/turtle_c2_dqn_ep201.json'
+
+
+    if not continue_execution:
+        #Each time we take a sample and update our weights it is called a mini-batch. 
+        #Each time we run through the entire dataset, it's called an epoch.
+        #PARAMETER LIST
+        epochs = 1000
+        steps = 10000
+        updateTargetNetwork = 10000
+        explorationRate = 1
+        minibatch_size = 128
+        learnStart = 128
+        learningRate = 0.00025
+        discountFactor = 0.99
+        memorySize = 1000000
+        network_inputs = 100
+        network_outputs = 21
+        network_structure = [300,300]
+        current_epoch = 0
+
+        deepQ = deepq.DeepQ(network_inputs, network_outputs, memorySize, discountFactor, learningRate, learnStart)
+        deepQ.initNetworks(network_structure)
+        env.monitor.start(outdir, force=True, seed=None)
+    else:
+        #Load weights, monitor info and parameter info.
+        #ADD TRY CATCH fro this else
+        with open(params_json) as outfile:
+            d = json.load(outfile)
+            epochs = d.get('epochs')
+            steps = d.get('steps')
+            updateTargetNetwork = d.get('updateTargetNetwork')
+            explorationRate = d.get('explorationRate')
+            minibatch_size = d.get('minibatch_size')
+            learnStart = d.get('learnStart')
+            learningRate = d.get('learningRate')
+            discountFactor = d.get('discountFactor')
+            memorySize = d.get('memorySize')
+            network_inputs = d.get('network_inputs')
+            network_outputs = d.get('network_outputs')
+            network_layers = d.get('network_structure')
+            current_epoch = d.get('current_epoch')
+
+        deepQ = deepq.DeepQ(network_inputs, network_outputs, memorySize, discountFactor, learningRate, learnStart)
+        deepQ.initNetworks(network_layers)
+        deepQ.loadWeights(weights_path)
+>>>>>>> fix dqn bug
 
         clear_monitor_files(outdir)
         copy_tree(monitor_path,outdir)
@@ -113,9 +164,15 @@ if __name__ == '__main__':
                     m, s = divmod(int(time.time() - start_time), 60)
                     h, m = divmod(m, 60)
                     print ("EP "+str(epoch+1)+" - {} timesteps".format(t+1)+" - last100 Steps : "+str((sum(last100Scores)/len(last100Scores)))+" - Cumulated R: "+str(cumulated_reward)+"   Eps="+str(round(explorationRate, 2))+"     Time: %d:%02d:%02d" % (h, m, s))
+<<<<<<< 4c65e44023e58ef881c33988fae5fd0bfe476f40
                     if epoch%100==0:
                         #save model weights and monitoring data every 100 epochs.
                         deepQ.saveWeights('/tmp/turtle_c2_dqn_ep'+str(epoch+1)+'.h5')
+=======
+                    if (epoch+1)%100==0:
+                        #save model weights and monitoring data every 100 epochs. 
+                        deepQ.saveModel('/tmp/turtle_c2_dqn_ep'+str(epoch+1)+'.h5')
+>>>>>>> fix dqn bug
                         env.monitor.flush()
                         copy_tree(outdir,'/tmp/turtle_c2_dqn_ep'+str(epoch+1))
                         #save simulation parameters.
