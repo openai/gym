@@ -94,7 +94,8 @@ if __name__ == '__main__':
     start_time = time.time()
 
     #start iterating from 'current epoch'.
-    for epoch in xrange(current_epoch, epochs, 1):
+
+    for epoch in xrange(current_epoch+1, epochs, 1):
         observation = env.reset()
         cumulated_reward = 0
 
@@ -137,16 +138,16 @@ if __name__ == '__main__':
                     m, s = divmod(int(time.time() - start_time), 60)
                     h, m = divmod(m, 60)
                     print ("EP "+str(epoch+1)+" - {} timesteps".format(t+1)+" - last100 Steps : "+str((sum(last100Scores)/len(last100Scores)))+" - Cumulated R: "+str(cumulated_reward)+"   Eps="+str(round(explorationRate, 2))+"     Time: %d:%02d:%02d" % (h, m, s))
-                    if (epoch+1)%100==0:
+                    if (epoch)%100==0:
                         #save model weights and monitoring data every 100 epochs. 
-                        deepQ.saveModel('/tmp/turtle_c2_dqn_ep'+str(epoch+1)+'.h5')
+                        deepQ.saveModel('/tmp/turtle_c2_dqn_ep'+str(epoch)+'.h5')
                         env.monitor.flush()
-                        copy_tree(outdir,'/tmp/turtle_c2_dqn_ep'+str(epoch+1))
+                        copy_tree(outdir,'/tmp/turtle_c2_dqn_ep'+str(epoch))
                         #save simulation parameters.
                         parameter_keys = ['epochs','steps','updateTargetNetwork','explorationRate','minibatch_size','learnStart','learningRate','discountFactor','memorySize','network_inputs','network_outputs','network_structure','current_epoch']
                         parameter_values = [epochs, steps, updateTargetNetwork, explorationRate, minibatch_size, learnStart, learningRate, discountFactor, memorySize, network_inputs, network_outputs, network_structure, epoch]
                         parameter_dictionary = dict(zip(parameter_keys, parameter_values))
-                        with open('/tmp/turtle_c2_dqn_ep'+str(epoch+1)+'.json', 'w') as outfile:
+                        with open('/tmp/turtle_c2_dqn_ep'+str(epoch)+'.json', 'w') as outfile:
                             json.dump(parameter_dictionary, outfile)
                 break
 
