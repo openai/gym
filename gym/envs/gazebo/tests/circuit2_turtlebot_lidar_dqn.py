@@ -32,10 +32,10 @@ if __name__ == '__main__':
 
     continue_execution = False
     #fill this if continue_execution=True
-    weights_path = '/tmp/turtle_c2_dqn_ep201.h5' 
-    monitor_path = '/tmp/turtle_c2_dqn_ep201'
-    params_json  = '/tmp/turtle_c2_dqn_ep201.json'
 
+    weights_path = '/tmp/turtle_c2_dqn_ep200.h5' 
+    monitor_path = '/tmp/turtle_c2_dqn_ep200'
+    params_json  = '/tmp/turtle_c2_dqn_ep200.json'
 
     if not continue_execution:
         #Each time we take a sample and update our weights it is called a mini-batch. 
