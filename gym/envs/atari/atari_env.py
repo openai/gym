@@ -22,7 +22,10 @@ def to_ram(ale):
 class AtariEnv(gym.Env, utils.EzPickle):
     metadata = {'render.modes': ['human', 'rgb_array']}
 
-    def __init__(self, game='pong', obs_type='ram'):
+    def __init__(self, game='pong', obs_type='ram', frameskip=(2, 5)):
+        """Frameskip should be either a tuple (indicating a random range to
+        choose from, with the top value exclude), or an int."""
+
         utils.EzPickle.__init__(self, game, obs_type)
         assert obs_type in ('ram', 'image')
 
@@ -30,6 +33,7 @@ class AtariEnv(gym.Env, utils.EzPickle):
         if not os.path.exists(self.game_path):
             raise IOError('You asked for game %s but path %s does not exist'%(game, self.game_path))
         self._obs_type = obs_type
+        self.frameskip = frameskip
         self.ale = atari_py.ALEInterface()
         self.viewer = None
 
@@ -63,7 +67,11 @@ class AtariEnv(gym.Env, utils.EzPickle):
     def _step(self, a):
         reward = 0.0
         action = self._action_set[a]
-        num_steps = self.np_random.randint(2, 5)
+
+        if isinstance(self.frameskip, int):
+            num_steps = self.frameskip
+        else:
+            num_steps = self.np_random.randint(self.frameskip[0], self.frameskip[1])
         for _ in range(num_steps):
             reward += self.ale.act(action)
         ob = self._get_obs()

@@ -38,27 +38,11 @@ class Registry(object):
             self.groups[group]['envs'].append(id)
 
     def finalize(self, strict=False):
-        # Extract all IDs the scoreboard knows about
-        scoreboard_ids = set(env_id for group in self.groups.values() for env_id in group['envs'])
-        # Extract all IDs gym core knows about, which does not include
-        # any external packages
-        gym_core_ids = set(spec.id for spec in gym.envs.registry.all() if spec._entry_point and not spec._local_only)
-
-        missing = gym_core_ids - scoreboard_ids
-        # Note: it is not an error if the scoreboard contains envs that are
-        # not registered in gym core, because some scoreboard envs may come from
-        # external packages
-
-        message = []
-        if missing:
-            message.append('Scoreboard did not register all envs: {}'.format(missing))
-
-        if len(message) > 0:
-            message = ' '.join(message)
-            if strict:
-                raise RegistrationError(message)
-            else:
-                logger.warn('Site environment registry incorrect: %s', message)
+        # We used to check whether the scoreboard and environment ID
+        # registries matched here. However, we now support various
+        # registrations living in various repos, so this is less
+        # important.
+        pass
 
 registry = Registry()
 add_group = registry.add_group

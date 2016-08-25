@@ -280,6 +280,20 @@ for game in ['air_raid', 'alien', 'amidar', 'assault', 'asterix', 'asteroids', '
             nondeterministic=nondeterministic,
         )
 
+        if game == 'space_invaders':
+            frameskip = 3
+        else:
+            frameskip = 4
+
+        register(
+            # Use a deterministic frame skip.
+            id='{}Deterministic-v0'.format(name),
+            entry_point='gym.envs.atari:AtariEnv',
+            kwargs={'game': game, 'obs_type': obs_type, 'frameskip': frameskip},
+            timestep_limit=10000,
+            nondeterministic=nondeterministic,
+        )
+
 # Board games
 # ----------------------------------------
 
