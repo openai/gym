@@ -60,7 +60,7 @@ class LivePlot(object):
             data_fix = 0
             for i, val in enumerate(data):
                 if i%n==0:
-                    if (i+n) <= len(data):
+                    if (i+n) <= len(data)+n:
                         avg =  sum(data[i:i+n])/n
                         avg_data.append(avg)
                         avg_data_points.append(i)
