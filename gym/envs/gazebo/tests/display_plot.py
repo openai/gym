@@ -46,7 +46,7 @@ class LivePlot(object):
             average = int(average)
             for i, val in enumerate(data):
                 if i%average==0:
-                    if (i+average) < len(data):
+                    if (i+average) < len(data)+average:
                         avg =  sum(data[i:i+average])/average
                         avg_data.append(avg)
             new_data = expand(avg_data,average)
@@ -60,13 +60,12 @@ class LivePlot(object):
             data_fix = 0
             for i, val in enumerate(data):
                 if i%n==0:
-                    if (i+n) < len(data):
+                    if (i+n) <= len(data)+n:
                         avg =  sum(data[i:i+n])/n
                         avg_data.append(avg)
                         avg_data_points.append(i)
                 if (i+n) == len(data):
                     data_fix = n
-
             
             x = np.arange(len(avg_data))
             y = np.array(avg_data)

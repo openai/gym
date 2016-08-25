@@ -13,8 +13,6 @@ from sensor_msgs.msg import LaserScan
 
 from gym.utils import seeding
 
-import sys
-
 class GazeboCircuit2TurtlebotLidarNnEnv(gazebo_env.GazeboEnv):
 
     def __init__(self):
@@ -42,7 +40,6 @@ class GazeboCircuit2TurtlebotLidarNnEnv(gazebo_env.GazeboEnv):
         return [seed]
 
     def _step(self, action):
-        sys.stdout.write("0")
         rospy.wait_for_service('/gazebo/unpause_physics')
         try:
             self.unpause()
@@ -58,13 +55,12 @@ class GazeboCircuit2TurtlebotLidarNnEnv(gazebo_env.GazeboEnv):
         self.vel_pub.publish(vel_cmd)
 
         data = None
-        sys.stdout.write("1")
         while data is None:
             try:
                 data = rospy.wait_for_message('/scan', LaserScan, timeout=5)
             except:
                 pass
-        sys.stdout.write("2")
+
         rospy.wait_for_service('/gazebo/pause_physics')
         try:
             #resp_pause = pause.call()
@@ -84,7 +80,6 @@ class GazeboCircuit2TurtlebotLidarNnEnv(gazebo_env.GazeboEnv):
         return np.asarray(state), reward, done, {}
 
     def _reset(self):
-        sys.stdout.write("4")
         # Resets the state of the environment and returns an initial observation.
         rospy.wait_for_service('/gazebo/reset_simulation')
         try:
@@ -102,13 +97,12 @@ class GazeboCircuit2TurtlebotLidarNnEnv(gazebo_env.GazeboEnv):
             print ("/gazebo/unpause_physics service call failed")
         #read laser data
         data = None
-        sys.stdout.write("5")
         while data is None:
             try:
                 data = rospy.wait_for_message('/scan', LaserScan, timeout=5)
             except:
                 pass
-        sys.stdout.write("6")
+
         rospy.wait_for_service('/gazebo/pause_physics')
         try:
             #resp_pause = pause.call()
