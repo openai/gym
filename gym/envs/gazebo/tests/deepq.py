@@ -35,7 +35,7 @@ class DeepQ:
         self.discountFactor = discountFactor
         self.learnStart = learnStart
         self.learningRate = learningRate
-   
+
     def initNetworks(self, hiddenLayers):
         model = self.createModel(self.input_size, self.output_size, hiddenLayers, "relu", self.learningRate)
         self.model = model
@@ -229,16 +229,8 @@ class DeepQ:
                     Y_batch = np.append(Y_batch, np.array([[reward]*self.output_size]), axis=0)
             self.model.fit(X_batch, Y_batch, batch_size = len(miniBatch), nb_epoch=1, verbose = 0)
 
-    def saveModel(self, path):
-        self.model.save(path)
-        #self.model.save_weights(path)
+    def saveWeights(self, path):
+        self.model.save_weights(path)
 
-    def loadModel(self, path):
-        #h5py required
-        #pip install pyparsing==1.5.7 --user
-        #https://github.com/fchollet/keras 
-        #sudo python setup.py install
-        #export PYTHONPATH=$PYTHONPATH:/usr/local/lib/python2.7/dist-packages/Keras-1.0.7-py2.7.egg
-
-        self.model.load_model(path)
-        #self.model.load_weights(path)
+    def loadWeights(self, path):
+        self.model.set_weights(load_model(path).get_weights())
