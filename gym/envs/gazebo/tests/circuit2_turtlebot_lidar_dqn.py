@@ -53,7 +53,7 @@ if __name__ == '__main__':
     deepQ = deepq.DeepQ(100, 21, memorySize, discountFactor, learningRate, learnStart)
     # deepQ.initNetworks([30,30,30])
     # deepQ.initNetworks([30,30])
-    deepQ.initNetworks([300,300])
+    deepQ.initNetworks([100,100])
 
     if continue_execution:
         clear_monitor_files(outdir)
