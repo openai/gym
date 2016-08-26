@@ -55,6 +55,8 @@ sudo apt-get install -y git                            \
                         gawk                           \
                         libtinyxml2-dev
 sudo easy_install numpy
+sudo easy_install --upgrade numpy
+sudo pip install --upgrade matplotlib
 sudo pip2 install pymavlink MAVProxy catkin_pkg --upgrade
 echo "\nDependencies installed\n"
 
@@ -97,4 +99,14 @@ if [ -z "$GAZEBO_MODEL_PATH" ]; then
   bash -c 'echo "export GAZEBO_MODEL_PATH="`pwd`/../../assets/models >> ~/.bashrc'
   exec bash #reload bashrc
 fi
+
+# Theano and Keras installation and requisites
+cd ../
+sudo pip install h5py
+sudo apt-get install gfortran
+git clone git://github.com/Theano/Theano.git
+cd Theano/
+sudo python setup.py develop
+
+echo "## Theano and Keras installed ##"
 echo "## Installation finished ##"
