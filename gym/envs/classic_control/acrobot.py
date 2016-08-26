@@ -169,12 +169,12 @@ class AcrobotEnv(core.Env):
         return (dtheta1, dtheta2, ddtheta1, ddtheta2, 0.)
 
     def _render(self, mode='human', close=False):
-        from gym.envs.classic_control import rendering
         if close:
             if self.viewer is not None:
                 self.viewer.close()
                 self.viewer = None
             return
+        from gym.envs.classic_control import rendering
 
         s = self.state
 
