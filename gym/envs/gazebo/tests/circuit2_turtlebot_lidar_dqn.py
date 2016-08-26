@@ -45,8 +45,8 @@ if __name__ == '__main__':
         steps = 10000
         updateTargetNetwork = 10000
         explorationRate = 1
-        minibatch_size = 128
-        learnStart = 128
+        minibatch_size = 64
+        learnStart = 64
         learningRate = 0.00025
         discountFactor = 0.99
         memorySize = 1000000
@@ -95,7 +95,7 @@ if __name__ == '__main__':
 
     #start iterating from 'current epoch'.
 
-    for epoch in xrange(current_epoch+1, epochs, 1):
+    for epoch in xrange(current_epoch+1, epochs+1, 1):
         observation = env.reset()
         cumulated_reward = 0
 
@@ -137,7 +137,7 @@ if __name__ == '__main__':
                 else :
                     m, s = divmod(int(time.time() - start_time), 60)
                     h, m = divmod(m, 60)
-                    print ("EP "+str(epoch+1)+" - {} timesteps".format(t+1)+" - last100 Steps : "+str((sum(last100Scores)/len(last100Scores)))+" - Cumulated R: "+str(cumulated_reward)+"   Eps="+str(round(explorationRate, 2))+"     Time: %d:%02d:%02d" % (h, m, s))
+                    print ("EP "+str(epoch)+" - {} timesteps".format(t+1)+" - last100 Steps : "+str((sum(last100Scores)/len(last100Scores)))+" - Cumulated R: "+str(cumulated_reward)+"   Eps="+str(round(explorationRate, 2))+"     Time: %d:%02d:%02d" % (h, m, s))
                     if (epoch)%100==0:
                         #save model weights and monitoring data every 100 epochs. 
                         deepQ.saveModel('/tmp/turtle_c2_dqn_ep'+str(epoch)+'.h5')
