@@ -18,6 +18,9 @@ fi
 if [ -z "$GYM_GAZEBO_WORLD_CIRCUIT2" ]; then
   bash -c 'echo "export GYM_GAZEBO_WORLD_CIRCUIT2="`pwd`/../assets/worlds/circuit2.world >> ~/.bashrc'
 fi
+if [ -z "$GYM_GAZEBO_WORLD_CIRCUIT2C" ]; then
+  bash -c 'echo "export GYM_GAZEBO_WORLD_CIRCUIT2C="`pwd`/../assets/worlds/circuit2c.world >> ~/.bashrc'
+fi
 if [ -z "$GYM_GAZEBO_WORLD_ROUND" ]; then
   bash -c 'echo "export GYM_GAZEBO_WORLD_ROUND="`pwd`/../assets/worlds/round.world >> ~/.bashrc'
 fi
