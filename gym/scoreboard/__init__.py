@@ -1434,6 +1434,11 @@ add_task(
     summary='Obstacle avoidance in a Circuit 2 using continuous data.',
 )
 add_task(
+    id='GazeboCircuit2cTurtlebotCameraNnEnv-v0',
+    group='gazebo',
+    summary='Obstacle avoidance in Circuit 2 with colors using camera data.',
+)
+add_task(
     id='GazeboRoundTurtlebotLidar-v0',
     group='gazebo',
     summary='Obstacle avoidance in a Round circuit.',

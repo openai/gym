@@ -13,6 +13,7 @@
     <arg name="debug" value="false"/>
     <arg name="gui" value="$(arg gui)" />
     <arg name="world_name" value="$(arg world_file)"/>
+    <arg name="verbose" value="true"/>
   </include>
   
   <include file="$(find turtlebot_gazebo)/launch/includes/$(arg base).launch.xml">
