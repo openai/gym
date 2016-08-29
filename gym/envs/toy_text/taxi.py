@@ -62,9 +62,9 @@ class TaxiEnv(discrete.DiscreteEnv):
                                 newrow = min(row+1, maxR)
                             elif a==1:
                                 newrow = max(row-1, 0)
-                            if a==2 and self.desc[1+row,2*col+2]==":":
+                            if a==2 and self.desc[1+row,2*col+2]==b":":
                                 newcol = min(col+1, maxC)
-                            elif a==3 and self.desc[1+row,2*col]==":":
+                            elif a==3 and self.desc[1+row,2*col]==b":":
                                 newcol = max(col-1, 0)
                             elif a==4: # pickup
                                 if (passidx < 4 and taxiloc == locs[passidx]):
