@@ -19,6 +19,7 @@ RUN apt-get update \
     unzip \
     git \
     xpra \
+    ffmpeg \
     python3-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
