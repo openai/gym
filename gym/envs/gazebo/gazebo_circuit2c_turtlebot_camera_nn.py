@@ -13,7 +13,7 @@ from sensor_msgs.msg import Image
 
 from gym.utils import seeding
 
-import PIL; from PIL import Image
+import PIL; from PIL import Image as Img
 
 
 class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
@@ -101,7 +101,7 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
             self.reset_proxy()
         except rospy.ServiceException, e:
             print ("/gazebo/reset_simulation service call failed")
-
+        
         # Unpause simulation to make observation
         rospy.wait_for_service('/gazebo/unpause_physics')
         try:
@@ -126,7 +126,7 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
 
         print ("RESET -------------")
         maxsize = (48, 64)
-        state = image_data.thumbnail(maxsize, PIL.Image.ANTIALIAS)
+        state = image_data.thumbnail(maxsize, PIL.Img.ANTIALIAS)
         cv2.imshow(state,img)
 
 
