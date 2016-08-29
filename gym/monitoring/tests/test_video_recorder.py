@@ -21,7 +21,6 @@ class UnrecordableEnv(object):
     def render(self, mode=None):
         pass
 
-# TODO(jonas): disabled until we have ffmpeg on travis
 def test_record_simple():
     env = gym.make("CartPole-v1")
     rec = VideoRecorder(env)
