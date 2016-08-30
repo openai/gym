@@ -121,7 +121,7 @@ class DeepQ:
         model.compile(loss="mse", optimizer=optimizer)
         model.summary()'''
         model = Sequential()
-        model.add(Convolution2D(16, nb_row=3, nb_col=3, input_shape=(3, 48, 64), activation='relu'))
+        model.add(Convolution2D(16, nb_row=3, nb_col=3, input_shape=(3, 64, 48), activation='relu'))
         model.add(Convolution2D(16, nb_row=3, nb_col=3, activation='relu'))
         model.add(Flatten())
         model.add(Dense(100, activation='relu'))
