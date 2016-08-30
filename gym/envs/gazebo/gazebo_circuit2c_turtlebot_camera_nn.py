@@ -12,9 +12,8 @@ from std_srvs.srv import Empty
 from sensor_msgs.msg import Image
 
 from gym.utils import seeding
-
-import PIL; from PIL import Image
-
+import cv2
+from cv_bridge import CvBridge, CvBridgeError
 
 class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
 
@@ -117,18 +116,26 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
         except rospy.ServiceException, e:
             print ("/gazebo/pause_physics service call failed")
 
+
         image_data = None
-        while image_data is None:
+        success=False
+        cv_image = None
+        while image_data is None or success is False:
             try:
                 image_data = rospy.wait_for_message('/camera/rgb/image_raw', Image, timeout=5)
+                cv_image = CvBridge().imgmsg_to_cv2(image_data, "bgr8")
+                #temporal fix
+                if not (cv_image[240,320,0]==178 and cv_image[240,320,1]==178 and cv_image[240,320,2]==178):
+                    success = True
+                print(success)
             except:
                 pass
 
-        print ("RESET -------------")
-        maxsize = (48, 64)
-        state = image_data.thumbnail(maxsize, PIL.Image.ANTIALIAS)
-        cv2.imshow(state,img)
 
+        state = cv2.resize(cv_image, (64, 48))
+        #cv2.imshow('img', state)
+        #cv2.waitKey()
+        #raw_input("ENTER..")
 
         #state = image.data
-        return np.asarray(state)
+        return state
