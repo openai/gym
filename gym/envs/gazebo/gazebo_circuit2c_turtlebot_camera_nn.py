@@ -71,15 +71,20 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
         done = self.calculate_observation(data)
 
         image_data = None
-        while image_data is None:
+        success=False
+        cv_image = None
+        while image_data is None or success is False:
             try:
                 image_data = rospy.wait_for_message('/camera/rgb/image_raw', Image, timeout=5)
+                cv_image = CvBridge().imgmsg_to_cv2(image_data, "bgr8")
+                #temporal fix
+                if not (cv_image[240,320,0]==178 and cv_image[240,320,1]==178 and cv_image[240,320,2]==178):
+                    success = True
+                print(success)
             except:
                 pass
 
-        maxsize = (48, 64)
-        state = image_data.thumbnail(maxsize, PIL.Image.ANTIALIAS)
-
+        state = cv2.resize(cv_image, (64, 48))
 
         if not done:
             # Straight reward = 5, Max angle reward = 0.5
@@ -114,7 +119,6 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
         except rospy.ServiceException, e:
             print ("/gazebo/pause_physics service call failed")
 
-
         image_data = None
         success=False
         cv_image = None
@@ -128,14 +132,6 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
                 print(success)
             except:
                 pass
-
-<<<<<<< HEAD
-=======
-        print ("RESET -------------")
-        maxsize = (48, 64)
-        state = image_data.thumbnail(maxsize, PIL.Img.ANTIALIAS)
-        cv2.imshow(state,img)
->>>>>>> bbd4413cc6b03abc791809c6f0f613f3544b3ad3
 
         state = cv2.resize(cv_image, (64, 48))
         #cv2.imshow('img', state)
