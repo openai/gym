@@ -3,16 +3,14 @@ import rospy
 import roslaunch
 import time
 import numpy as np
+import cv2
 
 from gym import utils, spaces
 from gym.envs.gazebo import gazebo_env
 from geometry_msgs.msg import Twist
 from std_srvs.srv import Empty
-
 from sensor_msgs.msg import Image
-
 from gym.utils import seeding
-import cv2
 from cv_bridge import CvBridge, CvBridgeError
 
 class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
@@ -100,7 +98,7 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
             self.reset_proxy()
         except rospy.ServiceException, e:
             print ("/gazebo/reset_simulation service call failed")
-
+        
         # Unpause simulation to make observation
         rospy.wait_for_service('/gazebo/unpause_physics')
         try:
@@ -131,6 +129,13 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
             except:
                 pass
 
+<<<<<<< HEAD
+=======
+        print ("RESET -------------")
+        maxsize = (48, 64)
+        state = image_data.thumbnail(maxsize, PIL.Img.ANTIALIAS)
+        cv2.imshow(state,img)
+>>>>>>> bbd4413cc6b03abc791809c6f0f613f3544b3ad3
 
         state = cv2.resize(cv_image, (64, 48))
         #cv2.imshow('img', state)
