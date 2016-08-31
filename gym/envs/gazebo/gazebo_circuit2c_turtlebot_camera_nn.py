@@ -10,7 +10,7 @@ from geometry_msgs.msg import Twist
 from std_srvs.srv import Empty
 
 from sensor_msgs.msg import Image
-
+from sensor_msgs.msg import LaserScan
 from gym.utils import seeding
 import cv2
 from cv_bridge import CvBridge, CvBridgeError
@@ -55,20 +55,12 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
         vel_cmd.linear.x = 0.2
         vel_cmd.angular.z = ang_vel
         self.vel_pub.publish(vel_cmd)
-
         data = None
         while data is None:
             try:
                 data = rospy.wait_for_message('/scan', LaserScan, timeout=5)
             except:
                 pass
-
-        rospy.wait_for_service('/gazebo/pause_physics')
-        try:
-            #resp_pause = pause.call()
-            self.pause()
-        except rospy.ServiceException, e:
-            print ("/gazebo/pause_physics service call failed")
 
         done = self.calculate_observation(data)
 
@@ -82,9 +74,16 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
                 #temporal fix
                 if not (cv_image[240,320,0]==178 and cv_image[240,320,1]==178 and cv_image[240,320,2]==178):
                     success = True
-                print(success)
             except:
                 pass
+
+        rospy.wait_for_service('/gazebo/pause_physics')
+        try:
+            #resp_pause = pause.call()
+            self.pause()
+        except rospy.ServiceException, e:
+            print ("/gazebo/pause_physics service call failed")
+
 
         state = cv2.resize(cv_image, (64, 48))
 
@@ -95,7 +94,8 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
         else:
             reward = -200
 
-        return np.asarray(state), reward, done, {}
+        state = state.reshape(3,64,48)
+        return state, reward, done, {}
 
     def _reset(self):
         # Resets the state of the environment and returns an initial observation.
@@ -114,12 +114,7 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
         except rospy.ServiceException, e:
             print ("/gazebo/unpause_physics service call failed")
 
-        rospy.wait_for_service('/gazebo/pause_physics')
-        try:
-            #resp_pause = pause.call()
-            self.pause()
-        except rospy.ServiceException, e:
-            print ("/gazebo/pause_physics service call failed")
+
 
         image_data = None
         success=False
@@ -131,9 +126,16 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
                 #temporal fix
                 if not (cv_image[240,320,0]==178 and cv_image[240,320,1]==178 and cv_image[240,320,2]==178):
                     success = True
-                print(success)
             except:
                 pass
+
+        rospy.wait_for_service('/gazebo/pause_physics')
+        try:
+            #resp_pause = pause.call()
+            self.pause()
+        except rospy.ServiceException, e:
+            print ("/gazebo/pause_physics service call failed")
+
 
         state = cv2.resize(cv_image, (64, 48))
         #cv2.imshow('img', state)
@@ -141,4 +143,5 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
         #raw_input("ENTER..")
 
         #state = image.data
+        state = state.reshape(3,64,48)
         return state

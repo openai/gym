@@ -124,8 +124,8 @@ class DeepQ:
         model.add(Convolution2D(16, nb_row=3, nb_col=3, input_shape=(3, 64, 48), activation='relu'))
         model.add(Convolution2D(16, nb_row=3, nb_col=3, activation='relu'))
         model.add(Flatten())
-        model.add(Dense(100, activation='relu'))
-        model.add(Dense(3))
+        model.add(Dense(100, activation='relu'))#?
+        model.add(Dense(21))
         model.compile(RMSprop(), 'MSE')
         model.summary()
 
@@ -155,13 +155,11 @@ class DeepQ:
 
     # predict Q values for all the actions
     def getQValues(self, state):
-        predicted = self.model.predict(state.reshape(1,len(state)))
+        predicted = self.model.predict(state.reshape(1,3,64,48))
         return predicted[0]
 
     def getTargetQValues(self, state):
-        #predicted = self.targetModel.predict(state.reshape(1,len(state)))
-        predicted = self.targetModel.predict(state.reshape(1,len(state)))
-
+        predicted = self.targetModel.predict(state.reshape(1,3,64,48))
         return predicted[0]
 
     def getMaxQ(self, qValues):
@@ -227,8 +225,8 @@ class DeepQ:
         if self.memory.getCurrentSize() > self.learnStart:
             # learn in batches of 128
             miniBatch = self.memory.getMiniBatch(miniBatchSize)
-            X_batch = np.empty((0,self.input_size), dtype = np.float64)
-            Y_batch = np.empty((0,self.output_size), dtype = np.float64)
+            X_batch = np.empty((1,3,64,48), dtype = np.float64)
+            Y_batch = np.empty((1,self.output_size), dtype = np.float64)
             for sample in miniBatch:
                 isFinal = sample['isFinal']
                 state = sample['state']
@@ -243,14 +241,79 @@ class DeepQ:
                     qValuesNewState = self.getQValues(newState)
                 targetValue = self.calculateTarget(qValuesNewState, reward, isFinal)
 
+                #print("X_BATCH debug")
+                #print(X_batch.shape)
+                #print(np.array([state.copy()]).shape)
                 X_batch = np.append(X_batch, np.array([state.copy()]), axis=0)
+
                 Y_sample = qValues.copy()
                 Y_sample[action] = targetValue
                 Y_batch = np.append(Y_batch, np.array([Y_sample]), axis=0)
                 if isFinal:
                     X_batch = np.append(X_batch, np.array([newState.copy()]), axis=0)
                     Y_batch = np.append(Y_batch, np.array([[reward]*self.output_size]), axis=0)
+            print("model FIT debug-------")
+            print(X_batch.shape)
+            print(Y_batch.shape)
             self.model.fit(X_batch, Y_batch, batch_size = len(miniBatch), nb_epoch=1, verbose = 0)
+
+
+    '''def learnOnMiniBatch(self, miniBatchSize, useTargetNetwork=True):
+
+        # Do not learn until we've got self.learnStart samples        
+        if self.memory.getCurrentSize() > self.learnStart:
+            # learn in batches of 128
+            miniBatch = self.memory.getMiniBatch(miniBatchSize)
+            X_batch = np.empty((1,3,64,48), dtype = object)
+            Y_batch = np.empty((21,), dtype = np.float64)
+            for sample in miniBatch:
+                isFinal = sample['isFinal']
+                state = sample['state']
+                action = sample['action']
+                reward = sample['reward']
+                newState = sample['newState']
+
+                qValues = self.getQValues(state)
+                if useTargetNetwork:
+                    qValuesNewState = self.getTargetQValues(newState)
+                else :
+                    qValuesNewState = self.getQValues(newState)
+                targetValue = self.calculateTarget(qValuesNewState, reward, isFinal)
+
+                #X_batch = np.append(X_batch, np.array([state.copy()]), axis=0)
+                state = state.reshape(3,64,48)
+                print(X_batch.shape)
+                print(np.array([state]).shape)
+                state.reshape(1,3,64,48)
+                print(state.shape)
+                X_batch = np.append(X_batch, np.array([state.copy()]), axis=0)
+                print(X_batch.shape)
+
+                Y_sample = qValues.copy()
+
+                print(Y_sample.shape)
+                print("Y_batch: "+str(Y_batch.shape))
+                Y_sample[action] = targetValue
+                Y_batch = np.append(Y_batch, Y_sample, axis=0)
+
+                if isFinal:
+                    print("-- isFinal --")
+
+                    X_batch = np.append(X_batch, np.array([newState.copy()]), axis=0)
+
+                    a = np.array([Y_batch])
+                    b = np.array([[reward]*self.output_size])
+                    b.resize(a.shape)
+
+                    Y_batch = np.hstack((a, b))
+                    print("Y_batch: "+str(Y_batch.shape))
+                    #break
+                    #Y_batch = np.append(np.array([Y_batch]), np.array([[reward]*self.output_size]), axis=0)
+            
+            print("Fit --")
+            print(X_batch.shape)
+            print(Y_batch.shape)
+            self.model.fit(X_batch, Y_batch, batch_size = len(miniBatch), nb_epoch=1, verbose = 0)'''
 
     def saveModel(self, path):
         self.model.save(path)
@@ -290,8 +353,8 @@ if __name__ == '__main__':
         steps = 10000
         updateTargetNetwork = 10000
         explorationRate = 1
-        minibatch_size = 128
-        learnStart = 128
+        minibatch_size = 64
+        learnStart = 64
         learningRate = 0.00025
         discountFactor = 0.99
         memorySize = 1000000
