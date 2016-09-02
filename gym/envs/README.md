@@ -26,7 +26,7 @@ ant.AntEnv
 * A good example is https://github.com/openai/gym-soccer.
 
 * It should have at least the following files:
-```
+  ```sh
   gym-foo/
     README.md
     setup.py
@@ -36,7 +36,7 @@ ant.AntEnv
         __init__.py
         foo_env.py
         foo_extrahard_env.py
-```
+  ```
 
 * `gym-foo/setup.py` should have:
 
