@@ -297,7 +297,6 @@ for game in ['air_raid', 'alien', 'amidar', 'assault', 'asterix', 'asteroids', '
 
         # Deterministic without a frameskip
         register(
-            # Use a deterministic frame skip.
             id='{}DeterministicNoFrameskip-v0'.format(name),
             entry_point='gym.envs.atari:AtariEnv',
             kwargs={'game': game, 'obs_type': obs_type, 'frameskip': 1}, # 1 frameskip means we get every frame
