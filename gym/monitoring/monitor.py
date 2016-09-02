@@ -9,7 +9,7 @@ import threading
 import weakref
 
 from gym import error, version
-from gym.monitoring import stats_recorder, video_recorder
+from gym.monitoring import stats_recorder, video_recorder, trace_recorder
 from gym.utils import atomic_write, closer, seeding
 
 logger = logging.getLogger(__name__)
@@ -83,12 +83,13 @@ class Monitor(object):
 
         self.stats_recorder = None
         self.video_recorder = None
+        self.trace_recorder = None
         self.enabled = False
         self.episode_id = 0
         self._monitor_id = None
         self.seeds = None
 
-    def start(self, directory, video_callable=None, force=False, resume=False, seed=None):
+    def start(self, directory, video_callable=None, force=False, resume=False, seed=None, save_trace=False):
         """Start monitoring.
 
         Args:
@@ -139,6 +140,9 @@ class Monitor(object):
         seeds = self.env.seed(seed)
         self.seeds = seeds
 
+        if save_trace:
+            self.trace_recorder = trace_recorder.TraceRecorder(directory, '{}.trace.{}'.format(self.file_prefix, self.file_infix))
+
     def flush(self):
         """Flush all relevant monitor information to disk."""
         self.stats_recorder.flush()
@@ -167,6 +171,9 @@ class Monitor(object):
         self.stats_recorder.close()
         if self.video_recorder is not None:
             self._close_video_recorder()
+        if self.trace_recorder is not None:
+            self.trace_recorder.close()
+            self.trace_recorder = None
         self.flush()
 
         # Note we'll close the env's rendering window even if we did
@@ -205,6 +212,8 @@ class Monitor(object):
     def _before_step(self, action):
         if not self.enabled: return
         self.stats_recorder.before_step(action)
+        if self.trace_recorder is not None:
+            self.trace_recorder.before_step(action)
 
     def _after_step(self, observation, reward, done, info):
         if not self.enabled: return done
@@ -219,12 +228,17 @@ class Monitor(object):
         # Record video
         self.video_recorder.capture_frame()
 
+        if self.trace_recorder is not None:
+            self.trace_recorder.after_step(observation, reward, done, info)
+
         return done
 
 
     def _before_reset(self):
         if not self.enabled: return
         self.stats_recorder.before_reset()
+        if self.trace_recorder is not None:
+            self.trace_recorder.before_reset()
 
     def _after_reset(self, observation):
         if not self.enabled: return
@@ -235,6 +249,9 @@ class Monitor(object):
         # Close any existing video recorder
         if self.video_recorder:
             self._close_video_recorder()
+
+        if self.trace_recorder is not None:
+            self.trace_recorder.after_reset(observation)
 
         # Start recording the next video.
         #
