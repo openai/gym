@@ -236,7 +236,7 @@ class Env(object):
         self._configured = True
 
         try:
-            return self._configure(*args, **kwargs)
+            self._configure(*args, **kwargs)
         except TypeError as e:
             # It can be confusing if you have the wrong environment
             # and try calling with unsupported arguments, since your
