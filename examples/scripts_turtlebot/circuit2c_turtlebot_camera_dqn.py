@@ -435,6 +435,7 @@ if __name__ == '__main__':
                 print ("reached the end! :D")
                 done = True
 
+            env.monitor.flush(force=True)
             if done:
                 last100Scores[last100ScoresIndex] = t
                 last100ScoresIndex += 1
@@ -465,6 +466,7 @@ if __name__ == '__main__':
                 deepQ.updateTargetNetwork()
                 print ("updating target network")
 
+            env.monitor.flush(force=True)
         explorationRate *= 0.995 #epsilon decay
         # explorationRate -= (2.0/epochs)
         explorationRate = max (0.05, explorationRate)
