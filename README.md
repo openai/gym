@@ -225,6 +225,7 @@ bash erlecopter_setup.bash
 ```
 
 ### Keras and Theano installation
+This par of the installation is required only for the environments using DQN.
 
 ```bash
 # install dependencies
@@ -250,3 +251,8 @@ sudo pip install --upgrade pyparsing
 Follow the instructions [here](http://deeplearning.net/software/theano/install.html#gpu-linux) and change $PATH instead of $CUDA_ROOT.
 
 Working on a clean installation of Ubuntu 14.04 using CUDA 7.5.
+
+The following flags are needed in order to execute in GPU mode, using an alias is recommeneded.
+```bash
+THEANO_FLAGS=mode=FAST_RUN,device=gpu,floatX=float32
+```
