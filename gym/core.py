@@ -86,7 +86,6 @@ class Env(object):
     def _seed(self, seed=None): return []
 
     # Do not override
-    _owns_monitor = True
     _owns_render = True
 
     @property
@@ -203,10 +202,9 @@ class Env(object):
         if not hasattr(self, '_closed') or self._closed:
             return
 
-        if self._owns_monitor:
-            # Automatically close the monitor and any render window.
-            if hasattr(self, '_monitor'):
-                self.monitor.close()
+        # Automatically close the monitor and any render window.
+        if hasattr(self, '_monitor'):
+            self.monitor.close()
         if self._owns_render:
             self.render(close=True)
 
@@ -310,7 +308,6 @@ class Space(object):
         return sample_n
 
 class Wrapper(Env):
-    _owns_monitor = False
     _owns_render = False
 
     # Make sure self.env is always defined, even if things break
@@ -329,13 +326,6 @@ class Wrapper(Env):
         self.reward_range = self.env.reward_range
         self._spec = self.env.spec
         self._unwrapped = self.env.unwrapped
-
-    @property
-    def monitor(self):
-        if self._owns_monitor:
-            return super(Wrapper, self).monitor
-        else:
-            return self.unwrapped.monitor
 
     def _step(self, action):
         return self.env.step(action)
