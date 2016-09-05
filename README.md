@@ -69,32 +69,19 @@ There are two options to install dependencies: automatic installation or step-by
 
 ### Automatic installation
 
-Install dependencies running [setup.bash](installation/setup.bash).
+Install dependencies running [setup.bash](gym_gazebo/envs/installation/setup.bash). If you are going to use DQN with Keras, also install [Keras and Theano](#keras-and-theano-installation).
 
 ```bash
 cd gym_gazebo/envs/installation
 bash setup.bash
 ```
-Before running a environment, load the corresponding setup script:
+Before running a environment, load the corresponding setup script. For example, to load the Turtlebot execute:
 
 - Turtlebot
 
 ```bash
 cd gym_gazebo/envs/installation
 bash turtlebot_setup.bash
-```
-- Erle-Rover
-
-```bash
-cd gym_gazebo/envs/installation
-bash erlerover_setup.bash
-```
-
-- Erle-Copter
-
-```bash
-cd gym_gazebo/envs/installation
-bash erlecopter_setup.bash
 ```
 
 ### Step-by-step installation
@@ -204,26 +191,13 @@ echo "export GAZEBO_MODEL_PATH=\$GAZEBO_MODEL_PATH:$(pwd)" >> ~/.bashrc
 source ~/.bashrc
 ```
 
-**5.** Before running a environment, load the corresponding setup script:
+**5.** Before running a environment, load the corresponding setup script. For example, to load the Turtlebot execute:
 
 - Turtlebot
 
 ```bash
 cd gym_gazebo/envs/installation
 bash turtlebot_setup.bash
-```
-- Erle-Rover
-
-```bash
-cd gym_gazebo/envs/installation
-bash erlerover_setup.bash
-```
-
-- Erle-Copter
-
-```bash
-cd gym_gazebo/envs/installation
-bash erlecopter_setup.bash
 ```
 
 ### Keras and Theano installation
