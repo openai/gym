@@ -466,7 +466,6 @@ if __name__ == '__main__':
                 deepQ.updateTargetNetwork()
                 print ("updating target network")
 
-            env.monitor.flush(force=True)
         explorationRate *= 0.995 #epsilon decay
         # explorationRate -= (2.0/epochs)
         explorationRate = max (0.05, explorationRate)
