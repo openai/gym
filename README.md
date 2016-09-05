@@ -1,20 +1,20 @@
 #gym-gazebo
 
-Extending the OpenAI Gym for robotics: a toolkit for reinforcement learning using ROS and Gazebo. Visit [erlerobot/gym](http://erlerobotics.com/docs/Simulation/Gym/) for more information and videos.
+Extending the OpenAI Gym for robotics: a toolkit for reinforcement learning using ROS and Gazebo.__ Visit [erlerobotics/gym](http://erlerobotics.com/docs/Simulation/Gym/) for more information and videos.
 
 The following are some of the available gazebo environments for the [Turtlebot]([Soccer environment]), one of the currently supported robots:
 
 ### GazeboCircuit2TurtlebotLidar-v0
 
-A simple circuit with straight tracks and 90 degree turns. Scripts implementing **Q-learning** and **Sarsa** can be found in the _examples_ folder.
+A simple circuit with straight tracks and 90 degree turns. Highly discretized LIDAR readings are used to train the Turtlebot. Scripts implementing **Q-learning** and **Sarsa** can be found in the _examples_ folder.
 
 ### GazeboCircuit2TurtlebotLidarNn-v0
 
-A simple circuit with straight tracks and 90 degree turns. Scripts implementing **DQN** can be found in the _examples_ folder.
+A simple circuit with straight tracks and 90 degree turns. A LIDAR is used to train the Turtlebot. Scripts implementing **DQN** can be found in the _examples_ folder.
 
 ### GazeboCircuit2cTurtlebotCameraNnEnv-v0
 
-A simple circuit with straight tracks and 90 degree turns with high contrast colors between the floor and the walls. Scripts implementing **DQN using CNN** can be found in the _examples_ folder.
+A simple circuit with straight tracks and 90 degree turns with high contrast colors between the floor and the walls. A camera is used to train the Turtlebot. Scripts implementing **DQN** using **CNN** can be found in the _examples_ folder.
 
 
 # Installation
