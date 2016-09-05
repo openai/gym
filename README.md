@@ -1,6 +1,8 @@
 #gym-gazebo
 
-Extending the OpenAI Gym for robotics: a toolkit for reinforcement learning using ROS and Gazebo.__ Visit [erlerobotics/gym](http://erlerobotics.com/docs/Simulation/Gym/) for more information and videos.
+Extending the OpenAI Gym for robotics: a toolkit for reinforcement learning using ROS and Gazebo.
+
+Visit [erlerobotics/gym](http://erlerobotics.com/docs/Simulation/Gym/) for more information and videos.
 
 The following are some of the available gazebo environments for the [Turtlebot]([Soccer environment]), one of the currently supported robots:
 
