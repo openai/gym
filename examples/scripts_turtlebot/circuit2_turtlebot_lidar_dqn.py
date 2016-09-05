@@ -361,6 +361,7 @@ if __name__ == '__main__':
                 print ("reached the end! :D")
                 done = True
 
+            env.monitor.flush(force=True)
             if done:
                 last100Scores[last100ScoresIndex] = t
                 last100ScoresIndex += 1

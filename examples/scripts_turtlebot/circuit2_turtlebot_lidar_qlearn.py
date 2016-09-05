@@ -70,14 +70,14 @@ if __name__ == '__main__':
             nextState = ''.join(map(str, observation))
 
             qlearn.learn(state, action, reward, nextState)
+
+            env.monitor.flush(force=True)
+
             if not(done):
                 state = nextState
             else:
                 last_time_steps = numpy.append(last_time_steps, [int(i + 1)])
                 break 
-
-        #if x%100==0:
-        #    plotter.plot()
 
         m, s = divmod(int(time.time() - start_time), 60)
         h, m = divmod(m, 60)

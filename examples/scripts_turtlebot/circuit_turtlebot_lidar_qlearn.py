@@ -155,6 +155,9 @@ if __name__ == '__main__':
             nextState = ''.join(map(str, observation))
 
             qlearn.learn(state, action, reward, nextState)
+
+            env.monitor.flush(force=True)
+
             if not(done):
                 state = nextState
             else:
