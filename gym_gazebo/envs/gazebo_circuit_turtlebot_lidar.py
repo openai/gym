@@ -57,8 +57,6 @@ class GazeboCircuitTurtlebotLidarEnv(gazebo_env.GazeboEnv):
         except rospy.ServiceException, e:
             print ("/gazebo/unpause_physics service call failed")
 
-        startTime = time.time()
-
         if action == 0: #FORWARD
             vel_cmd = Twist()
             vel_cmd.linear.x = 0.3
@@ -81,9 +79,6 @@ class GazeboCircuitTurtlebotLidarEnv(gazebo_env.GazeboEnv):
                 data = rospy.wait_for_message('/scan', LaserScan, timeout=5)
             except:
                 pass
-
-        elapsedTime = time.time() - startTime
-        print ("Time: " + str(elapsedTime))
 
         rospy.wait_for_service('/gazebo/pause_physics')
         try:
