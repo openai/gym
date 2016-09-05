@@ -24,8 +24,10 @@ A simple circuit with straight tracks and 90 degree turns with high contrast col
 - [ROS Indigo](#ros-indigo)
 - [Gazebo](#gazebo)
 - [Dependencies](#dependencies)
-  - [Automatic Installation](#automatic-installation)
+  - [Automatic installation](#automatic-installation)
   - [Step-by-step installation](#step-by-step-installation)
+  - [Keras and Theano installation](#keras)
+    - [Enablig GPU for Theano](#theanogpu)
 - [Troubleshooting](#troubleshooting)
 
 ## Requirements
@@ -221,3 +223,30 @@ bash erlerover_setup.bash
 cd gym_gazebo/envs/installation
 bash erlecopter_setup.bash
 ```
+
+### Keras and Theano installation
+
+```bash
+# install dependencies
+sudo pip install h5py
+sudo apt-get install gfortran
+
+# install Theano
+git clone git://github.com/Theano/Theano.git
+cd Theano/
+sudo python setup.py develop
+
+#isntall Keras
+sudo pip install keras
+```
+dot_parser error fix:
+```bash
+sudo pip install --upgrade pydot
+sudo pip install --upgrade pyparsing
+```
+
+#### Enablig GPU for Theano
+
+Follow the instructions [here](http://deeplearning.net/software/theano/install.html#gpu-linux) and change $PATH instead of $CUDA_ROOT.
+
+Working on a clean installation of Ubuntu 14.04 using CUDA 7.5.
