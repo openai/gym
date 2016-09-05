@@ -28,8 +28,8 @@ A simple circuit with straight tracks and 90 degree turns with high contrast col
 - [Dependencies](#dependencies)
   - [Automatic installation](#automatic-installation)
   - [Step-by-step installation](#step-by-step-installation)
-  - [Keras and Theano installation](#keras)
-    - [Enablig GPU for Theano](#theanogpu)
+  - [Keras and Theano installation](#keras-and-theano-installation)
+    - [Enablig GPU for Theano](#enablig-gpu-for-theano)
 - [Troubleshooting](#troubleshooting)
 
 ## Requirements
