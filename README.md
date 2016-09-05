@@ -227,7 +227,7 @@ bash erlecopter_setup.bash
 ```
 
 ### Keras and Theano installation
-This par of the installation is required only for the environments using DQN.
+This part of the installation is required only for the environments using DQN.
 
 ```bash
 # install dependencies
