@@ -8,7 +8,7 @@ import time
 import matplotlib
 import matplotlib.pyplot as plt
 import qlearn
-import liveplot
+#import liveplot
 
 def render():
     render_skip = 0 #Skip first X episodes.
