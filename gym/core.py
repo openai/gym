@@ -200,7 +200,8 @@ class Env(object):
             return
 
         # Automatically close the monitor and any render window
-        self.monitor.close()
+        if hasattr(self, '_monitor'):
+            self.monitor.close()
         self.render(close=True)
 
         self._close()

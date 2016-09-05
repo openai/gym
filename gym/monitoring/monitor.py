@@ -208,7 +208,8 @@ class Monitor(object):
                 logger.error('Could not close renderer for %s: %s', key, e)
 
             # Remove the env's pointer to this monitor
-            del env._monitor
+            if hasattr(env, '_monitor'):
+                del env._monitor
 
         # Stop tracking this for autoclose
         monitor_closer.unregister(self._monitor_id)
