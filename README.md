@@ -42,6 +42,8 @@ A simple circuit with straight tracks and 90 degree turns with high contrast col
 
 Install the Robot Operating System via:
 
+**ros-indigo-desktop-full** is the only recommended installation.
+
 - Ubuntu: http://wiki.ros.org/indigo/Installation/Ubuntu
 - Others: http://wiki.ros.org/indigo/Installation 
 
@@ -57,7 +59,7 @@ sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `ls
 ```bash
 wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
 ```
-- Install Gazebo:
+- 4Install Gazebo:
 
 ```bash
 sudo apt-get update
