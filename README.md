@@ -25,6 +25,7 @@ A simple circuit with straight tracks and 90 degree turns with high contrast col
 - [Requirements](#requirements)
 - [ROS Indigo](#ros-indigo)
 - [Gazebo](#gazebo)
+- [Gym Gazebo](#gym-gazebo)
 - [Dependencies](#dependencies)
   - [Automatic installation](#automatic-installation)
   - [Step-by-step installation](#step-by-step-installation)
@@ -61,6 +62,13 @@ wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
 ```bash
 sudo apt-get update
 sudo apt-get remove .*gazebo.* && sudo apt-get update && sudo apt-get install gazebo7 libgazebo7-dev
+```
+
+## Gym Gazebo
+
+```bash
+cd gym-gazebo
+sudo pip install -e .
 ```
 
 ## Dependencies
