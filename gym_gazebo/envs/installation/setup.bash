@@ -52,6 +52,17 @@ sudo apt-get install -y git                            \
                         ros-indigo-geodesy             \
                         ros-indigo-octomap-ros         \
                         ros-indigo-control-toolbox     \
+			ros-indigo-pluginlib	       \
+			ros-indigo-trajectory-msgs     \
+			ros-indigo-control-msgs	       \
+			ros-indigo-std-srvs 	       \
+			ros-indigo-nodelet	       \
+			ros-indigo-urdf		       \
+			ros-indigo-rviz		       \
+			ros-indigo-kdl-conversions     \
+			ros-indigo-eigen-conversions   \
+			ros-indigo-tf2-sensor-msgs     \
+			ros-indigo-pcl-ros	       \
                         gawk                           \
                         libtinyxml2-dev
 sudo easy_install numpy
