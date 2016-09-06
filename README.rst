@@ -4,6 +4,17 @@ gym
 .. image:: https://travis-ci.org/openai/gym.svg?branch=master
     :target: https://travis-ci.org/openai/gym
 
+This work presents an extension of the initial OpenAI gym for robotics using ROS and Gazebo. A whitepaper about this work is available at https://arxiv.org/abs/1608.05742. Please use the following BibTex entry to cite our work:
+
+	@misc{1608.05742,
+		Author = {Iker Zamora and Nestor Gonzalez Lopez and Victor Mayoral Vilches and Alejandro Hernandez Cordero},
+		Title = {Extending the OpenAI Gym for robotics: a toolkit for reinforcement learning using ROS and Gazebo},
+		Year = {2016},
+		Eprint = {arXiv:1608.05742},
+	}
+
+----------
+
 **OpenAI Gym is a toolkit for developing and comparing reinforcement learning algorithms.** This is the ``gym`` open-source library, which gives you access to an ever-growing variety of environments.
 
 ``gym`` makes no assumptions about the structure of your agent, and is compatible with any numerical computation library, such as TensorFlow or Theano. You can use it from Python code, and soon from other languages.
@@ -139,6 +150,12 @@ environments, see `setup.py
 <https://github.com/openai/gym/blob/master/setup.py>`_. We
 maintain the lists of dependencies on a per-environment group basis.
 
+Installing the Gazebo environment
+------------------------------------------------------
+
+In order to install the Gazebo environment, please refer to the corresponding `installation instructions
+<gym/envs/gazebo/INSTALL.md>`_.
+
 Environments
 ============
 
@@ -239,6 +256,20 @@ Toy environments which are text-based. There's no extra dependency to install, s
 	  env = gym.make('FrozenLake-v0')
 	  env.reset()
 	  env.render()
+
+Gazebo
+--------
+
+Gazebo physics simulator environment commonly used for robotics.
+
+.. code:: python
+
+	  import gym
+	  env = gym.make('GazeboMazeTurtlebotLidar-v0')
+	  env.reset()
+	  env.render()
+
+Check Gazebo `conventions <gym/envs/gazebo/assets/conventions.md/>`_ to create new environments.
 
 Examples
 ========

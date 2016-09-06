@@ -27,6 +27,11 @@ def should_skip_env_spec_for_tests(spec):
         logger.warn("Skipping tests for parameter_tuning env {}".format(spec._entry_point))
         return True
 
+    # Skip Gazebo tests for pull request CI
+    if spec._entry_point.startswith('gym.envs.gazebo:'):
+        logger.warn("Skipping tests for gazebo env {}".format(spec._entry_point))
+        return True
+
     return False
 
 

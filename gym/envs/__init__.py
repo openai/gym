@@ -462,3 +462,40 @@ register(
     entry_point='gym.envs.safety:OffSwitchCartpoleProbEnv',
     timestep_limit=200,
 )
+
+# Gazebo
+# ----------------------------------------
+
+# Turtlebot envs
+register(
+    id='GazeboMazeTurtlebotLidar-v0',
+    entry_point='gym.envs.gazebo:GazeboMazeTurtlebotLidarEnv',
+    # More arguments here
+)
+register(
+    id='GazeboCircuitTurtlebotLidar-v0',
+    entry_point='gym.envs.gazebo:GazeboCircuitTurtlebotLidarEnv',
+    # More arguments here
+)
+register(
+    id='GazeboCircuit2TurtlebotLidar-v0',
+    entry_point='gym.envs.gazebo:GazeboCircuit2TurtlebotLidarEnv',
+    # More arguments here
+)
+register(
+    id='GazeboRoundTurtlebotLidar-v0',
+    entry_point='gym.envs.gazebo:GazeboRoundTurtlebotLidarEnv',
+    # More arguments here
+)
+
+# Erle-Copter envs
+register(
+    id='GazeboOfficeErleCopterLidar-v0',
+    entry_point='gym.envs.gazebo:GazeboOfficeErleCopterLidarEnv',
+)
+
+#Erle-Rover envs
+register(
+    id='GazeboMazeErleRoverLidar-v0',
+    entry_point='gym.envs.gazebo:GazeboMazeErleRoverLidarEnv',
+)

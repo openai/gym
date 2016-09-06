@@ -1,0 +1,306 @@
+<?xml version="1.0"?>
+
+<robot name="erlecopter" xmlns:xacro="http://ros.org/wiki/xacro">
+  <!-- Properties -->
+  <xacro:property name="namespace" value="erlecopter" />
+  <xacro:property name="rotor_velocity_slowdown_sim" value="10" />
+  <xacro:property name="mesh_file" value="erlecopter.dae" />
+  <xacro:property name="mesh_scale" value="1 1 1"/> <!-- 1 1 1 -->
+  <xacro:property name="mesh_scale_prop" value="1 1 1"/>
+  <xacro:property name="mass" value="1.1" /> <!-- [kg] -->
+  <xacro:property name="body_length" value="0.18" /> <!-- [m] 0.10 -->
+  <xacro:property name="body_width" value="0.12" /> <!-- [m] 0.10 -->
+  <xacro:property name="body_height" value="0.10" /> <!-- [m] -->
+  <xacro:property name="mass_rotor" value="0.005" /> <!-- [kg] -->
+  <xacro:property name="arm_length_front_x" value="0.141" /> <!-- [m] 0.1425  0.22 -->
+  <xacro:property name="arm_length_back_x" value="0.141" /> <!-- [m] 0.154  0.22 -->
+  <xacro:property name="arm_length_front_y" value="0.141" /> <!-- [m] 0.251  0.22 -->
+  <xacro:property name="arm_length_back_y" value="0.141" /> <!-- [m] 0.234  0.22 -->
+  <xacro:property name="rotor_offset_top" value="0.030" /> <!-- [m] 0.023-->
+  <xacro:property name="radius_rotor" value="0.12" /> <!-- [m] -->
+  <xacro:property name="motor_constant" value="8.54858e-06" /> <!-- [kg.m/s^2] -->
+  <xacro:property name="moment_constant" value="0.016" /> <!-- [m] -->
+  <xacro:property name="time_constant_up" value="0.0125" /> <!-- [s] -->
+  <xacro:property name="time_constant_down" value="0.025" /> <!-- [s] -->
+  <xacro:property name="max_rot_velocity" value="838" /> <!-- [rad/s] -->
+  <xacro:property name="sin30" value="0.5" />
+  <xacro:property name="cos30" value="0.866025403784" />
+  <xacro:property name="sqrt2" value="1.4142135623730951" />
+  <xacro:property name="rotor_drag_coefficient" value="8.06428e-05" />
+  <xacro:property name="rolling_moment_coefficient" value="0.000001" />
+  <xacro:property name="color" value="DarkGrey" />
+
+  <!-- Property Blocks -->
+  <xacro:property name="body_inertia">
+    <inertia ixx="0.0347563" ixy="0.0" ixz="0.0" iyy="0.0458929" iyz="0.0" izz="0.0977" /> <!-- [kg.m^2] [kg.m^2] [kg.m^2] [kg.m^2] [kg.m^2] [kg.m^2] -->
+  </xacro:property>
+
+  <!-- inertia of a single rotor, assuming it is a cuboid. Height=3mm, width=15mm -->
+  <xacro:property name="rotor_inertia">
+    <inertia
+    ixx="${1/12 * mass_rotor * (0.015 * 0.015 + 0.003 * 0.003) * rotor_velocity_slowdown_sim}"
+    iyy="${1/12 * mass_rotor * (4 * radius_rotor * radius_rotor + 0.003 * 0.003) * rotor_velocity_slowdown_sim}"
+    izz="${1/12 * mass_rotor * (4 * radius_rotor * radius_rotor + 0.015 * 0.015) * rotor_velocity_slowdown_sim}"
+    ixy="0.0" ixz="0.0"  iyz="0.0" /> <!-- [kg.m^2] [kg.m^2] [kg.m^2] [kg.m^2] [kg.m^2] [kg.m^2] -->
+  </xacro:property>
+
+  <!-- Included URDF Files -->
+  <!-- <xacro:include filename="$(find rotors_description)/urdf/multirotor_base.xacro" /> -->
+  <xacro:include filename="$(find ardupilot_sitl_gazebo_plugin)/urdf/multirotor_base.xacro" />
+  
+  <!-- Instantiate multirotor_base_macro once -->
+  <xacro:multirotor_base_macro
+    robot_namespace="${namespace}"
+    mass="${mass}"
+    body_length="${body_length}"
+    body_width="${body_width}"
+    body_height="${body_height}"
+    mesh_file="${mesh_file}"
+    mesh_scale="${mesh_scale}"
+    color="${color}"
+    >
+    <xacro:insert_block name="body_inertia" />
+  </xacro:multirotor_base_macro>
+  
+  <xacro:property name="M_PI" value="3.1415926535897931" />
+  
+  <!-- Recorder cameras -->
+  <xacro:include filename="$(find ardupilot_sitl_gazebo_plugin)/urdf/recorder_camera.xacro" />
+  <!--
+<xacro:recorder_camera
+    name="recorder_cam_front_with_uav"
+    parent="base_link"
+    ros_topic="recorder_cam_front_with_uav"
+    update_rate="90"
+    res_x="1680"
+    res_y="1050"
+    image_format="R8G8B8"
+    hfov="81"
+    video_dir="/home/aurelien/Videos/shots/"
+    video_filename="cam_front_with_uav"
+    video_fileext="avi">
+    <origin xyz="-0.8 0.0 0.12" rpy="0 0 0"/>
+  </xacro:recorder_camera>
+-->
+
+  <!--
+  <xacro:recorder_camera
+    name="recorder_cam_front_with_uav2"
+    parent="base_link"
+    ros_topic="recorder_cam_front_with_uav2"
+    update_rate="30"
+    res_x="1680"
+    res_y="1050"
+    image_format="R8G8B8"
+    hfov="81"
+    video_dir="/home/aurelien/Videos/shots/"
+    video_filename="cam_front_with_uav2"
+    video_fileext="avi">
+    <origin xyz="-0.3 0.0 0.15" rpy="0 0.2 0"/>
+  </xacro:recorder_camera>
+  -->
+
+  <!--
+  <xacro:recorder_camera
+    name="recorder_cam_rear_with_uav"
+    parent="base_link"
+    ros_topic="recorder_cam_rear_with_uav"
+    update_rate="30"
+    res_x="1680"
+    res_y="1050"
+    image_format="R8G8B8"
+    hfov="81"
+    video_dir="/home/aurelien/Videos/shots/"
+    video_filename="cam_rear_with_uav"
+    video_fileext="avi">
+    <origin xyz="0.6 0.0 -0.12" rpy="0 ${-20*M_PI/180} ${180*M_PI/180}"/>
+  </xacro:recorder_camera> 
+  -->
+  
+  <!--
+  <xacro:recorder_camera
+    name="recorder_cam_rear_with_uav2"
+    parent="base_link"
+    ros_topic="recorder_cam_rear_with_uav2"
+    update_rate="90"
+    res_x="1680"
+    res_y="1050"
+    image_format="R8G8B8"
+    hfov="81"
+    video_dir="/home/aurelien/Videos/shots/"
+    video_filename="cam_rear_with_uav2"
+    video_fileext="avi">
+    <origin xyz="0.4 0.0 0.12" rpy="0 ${20*M_PI/180} ${180*M_PI/180}"/>
+  </xacro:recorder_camera> 
+  -->
+  
+  <!-- Recorder cameras END -->
+
+  <!-- Sonar height sensor -->
+  <xacro:include filename="$(find ardupilot_sitl_gazebo_plugin)/urdf/sensors/sonar_sensor.urdf.xacro" />
+
+  <xacro:sonar_sensor
+    name="sonar"
+    parent="base_link"
+    ros_topic="sonar_down"
+    update_rate="10"
+    min_range="0.01"
+    max_range="50.0"
+    field_of_view="${1*M_PI/180}"
+    ray_count="1"
+    sensor_mesh="lidar_lite_v2/meshes/lidar_lite_v2.dae">
+    <origin xyz="0.12 0.0 0.0" rpy="0 ${90*M_PI/180} 0"/>
+  </xacro:sonar_sensor>
+
+    <!-- Frontal range sensor -->
+<!--  <xacro:sonar_sensor
+    name="sonar2"
+    parent="base_link"
+    ros_topic="sonar_front"
+    update_rate="10"
+    min_range="0.01"
+    max_range="50.0"
+    field_of_view="${1*M_PI/180}"
+    ray_count="1"
+    sensor_mesh="lidar_lite_v2_withRay/meshes/lidar_lite_v2_withRay.dae">
+    <origin xyz="0.13 0.0 0.02" rpy="0 0 0"/>
+  </xacro:sonar_sensor>
+-->
+
+  <xacro:include filename="$(find ardupilot_sitl_gazebo_plugin)/urdf/sensors/lidar_sensor.urdf.xacro" />
+   <xacro:lidar_sensor
+    name="sonar2"
+    parent="base_link"
+    ros_topic="sonar_front"
+    update_rate="10"
+    min_range="0.01"
+    max_range="10.0"
+    field_of_view_horizontal="${270*M_PI/180}"
+    field_of_view_vertical="${1*M_PI/180}"
+    ray_count_horizontal="140"
+    ray_count_vertical="1"
+    sensor_mesh="lidar_lite_v2_withRay/meshes/lidar_lite_v2_withRay.dae">
+    <origin xyz="0.15 0.0 0.15" rpy="0 0 0"/>
+  </xacro:lidar_sensor>
+
+
+  <!-- Downward facing camera -->
+  <xacro:include filename="$(find ardupilot_sitl_gazebo_plugin)/urdf/sensors/generic_camera.urdf.xacro" />
+  <xacro:generic_camera
+    name="erlecopter/bottom"
+    parent="base_link"
+    ros_topic="image_raw"
+    cam_info_topic="camera_info"
+    update_rate="60"
+    res_x="640"
+    res_y="360"
+    image_format="R8G8B8"
+    hfov="81"
+    framename="erlecopter_bottomcam">
+    <origin xyz="0.14 0.0 -0.02" rpy="0 ${M_PI/2} 0"/>
+  </xacro:generic_camera>  
+
+  <!-- Front facing camera -->
+  <xacro:include filename="$(find ardupilot_sitl_gazebo_plugin)/urdf/sensors/generic_camera.urdf.xacro" />
+  <xacro:generic_camera
+    name="erlecopter/front"
+    parent="base_link"
+    ros_topic="image_front_raw"
+    cam_info_topic="camera_front_info"
+    update_rate="25"
+    res_x="640"
+    res_y="360"
+    image_format="R8G8B8"
+    hfov="81"
+    framename="erlecopter_frontcam">
+    <origin xyz="0.17 0.0 0.0" rpy="0 0 0"/>
+  </xacro:generic_camera>  
+
+  <!-- Instantiate rotors -->
+  <xacro:vertical_rotor
+    robot_namespace="${namespace}"
+    suffix="front_right"
+    direction="ccw"
+    motor_constant="${motor_constant}"
+    moment_constant="${moment_constant}"
+    parent="base_link"
+    mass_rotor="${mass_rotor}"
+    radius_rotor="${radius_rotor}"
+    time_constant_up="${time_constant_up}"
+    time_constant_down="${time_constant_down}"
+    max_rot_velocity="${max_rot_velocity}"
+    motor_number="0"
+    rotor_drag_coefficient="${rotor_drag_coefficient}"
+    rolling_moment_coefficient="${rolling_moment_coefficient}"
+    mesh="erlecopter_prop"
+    mesh_scale="${mesh_scale_prop}"
+    color="Yellow">
+    <origin xyz="${arm_length_front_x} -${arm_length_front_y} ${rotor_offset_top}" rpy="0 0 0" />
+    <xacro:insert_block name="rotor_inertia" />
+  </xacro:vertical_rotor>
+
+  <xacro:vertical_rotor
+    robot_namespace="${namespace}"
+    suffix="back_left"
+    direction="ccw"
+    motor_constant="${motor_constant}"
+    moment_constant="${moment_constant}"
+    parent="base_link"
+    mass_rotor="${mass_rotor}"
+    radius_rotor="${radius_rotor}"
+    time_constant_up="${time_constant_up}"
+    time_constant_down="${time_constant_down}"
+    max_rot_velocity="${max_rot_velocity}"
+    motor_number="1"
+    rotor_drag_coefficient="${rotor_drag_coefficient}"
+    rolling_moment_coefficient="${rolling_moment_coefficient}"
+    mesh="erlecopter_prop"
+    mesh_scale="${mesh_scale_prop}"
+    color="Black">
+    <origin xyz="-${arm_length_back_x} ${arm_length_back_y} ${rotor_offset_top}" rpy="0 0 0" />
+    <xacro:insert_block name="rotor_inertia" />
+  </xacro:vertical_rotor>
+
+  <xacro:vertical_rotor robot_namespace="${namespace}"
+    suffix="front_left"
+    direction="cw"
+    motor_constant="${motor_constant}"
+    moment_constant="${moment_constant}"
+    parent="base_link"
+    mass_rotor="${mass_rotor}"
+    radius_rotor="${radius_rotor}"
+    time_constant_up="${time_constant_up}"
+    time_constant_down="${time_constant_down}"
+    max_rot_velocity="${max_rot_velocity}"
+    motor_number="2"
+    rotor_drag_coefficient="${rotor_drag_coefficient}"
+    rolling_moment_coefficient="${rolling_moment_coefficient}"
+    mesh="erlecopter_prop"
+    mesh_scale="${mesh_scale_prop}"
+    color="Yellow">
+    <origin xyz="${arm_length_front_x} ${arm_length_front_y} ${rotor_offset_top}" rpy="0 0 0" />
+    <xacro:insert_block name="rotor_inertia" />
+  </xacro:vertical_rotor>
+
+  <xacro:vertical_rotor robot_namespace="${namespace}"
+    suffix="back_right"
+    direction="cw"
+    motor_constant="${motor_constant}"
+    moment_constant="${moment_constant}"
+    parent="base_link"
+    mass_rotor="${mass_rotor}"
+    radius_rotor="${radius_rotor}"
+    time_constant_up="${time_constant_up}"
+    time_constant_down="${time_constant_down}"
+    max_rot_velocity="${max_rot_velocity}"
+    motor_number="3"
+    rotor_drag_coefficient="${rotor_drag_coefficient}"
+    rolling_moment_coefficient="${rolling_moment_coefficient}"
+    mesh="erlecopter_prop"
+    mesh_scale="${mesh_scale_prop}"
+    color="Black">
+    <origin xyz="-${arm_length_back_x} -${arm_length_back_y} ${rotor_offset_top}" rpy="0 0 0" />
+    <xacro:insert_block name="rotor_inertia" />
+  </xacro:vertical_rotor>
+
+</robot>
