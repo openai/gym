@@ -280,6 +280,14 @@ for game in ['air_raid', 'alien', 'amidar', 'assault', 'asterix', 'asteroids', '
             nondeterministic=nondeterministic,
         )
 
+        register(
+            id='{}-v1'.format(name),
+            entry_point='gym.envs.atari:AtariEnv',
+            kwargs={'game': game, 'obs_type': obs_type},
+            timestep_limit=100000,
+            nondeterministic=nondeterministic,
+        )
+
         # Standard Deterministic (as in the original DeepMind paper)
         if game == 'space_invaders':
             frameskip = 3
@@ -295,12 +303,30 @@ for game in ['air_raid', 'alien', 'amidar', 'assault', 'asterix', 'asteroids', '
             nondeterministic=nondeterministic,
         )
 
-        # Deterministic without a frameskip
+        register(
+            # Use a deterministic frame skip.
+            id='{}Deterministic-v1'.format(name),
+            entry_point='gym.envs.atari:AtariEnv',
+            kwargs={'game': game, 'obs_type': obs_type, 'frameskip': frameskip},
+            timestep_limit=100000,
+            nondeterministic=nondeterministic,
+        )
+
+        # No frameskip. (Atari has no entropy source, so these are
+        # deterministic environments.)
         register(
             id='{}NoFrameskip-v0'.format(name),
             entry_point='gym.envs.atari:AtariEnv',
             kwargs={'game': game, 'obs_type': obs_type, 'frameskip': 1}, # A frameskip of 1 means we get every frame
-            timestep_limit=10000,
+            timestep_limit=40000,
+            nondeterministic=nondeterministic,
+        )
+
+        register(
+            id='{}NoFrameskip-v1'.format(name),
+            entry_point='gym.envs.atari:AtariEnv',
+            kwargs={'game': game, 'obs_type': obs_type, 'frameskip': 1}, # A frameskip of 1 means we get every frame
+            timestep_limit=400000,
             nondeterministic=nondeterministic,
         )
 
