@@ -31,7 +31,7 @@ A simple circuit with straight tracks and 90 degree turns with high contrast col
   - [Step-by-step installation](#step-by-step-installation)
   - [Keras and Theano installation](#keras-and-theano-installation)
     - [Enablig GPU for Theano](#enablig-gpu-for-theano)
-- [Troubleshooting](#troubleshooting)
+- [Usage](#usage)
 
 ## Requirements
 
@@ -239,4 +239,79 @@ Working on a clean installation of Ubuntu 14.04 using CUDA 7.5.
 The following flags are needed in order to execute in GPU mode, using an alias is recommeneded.
 ```bash
 THEANO_FLAGS=mode=FAST_RUN,device=gpu,floatX=float32
+```
+
+## Usage
+
+### Build and install gym-gazebo
+
+In the root directory of the repository:
+
+```bash
+sudo python setup.py install
+```
+
+### Running an environment
+
+- Load the environment variables corresponding to the robot you want to launch. E.g. to load the Turtlebot:
+
+```bash
+cd gym_gazebo/envs/installation
+bash turtlebot_setup.bash
+```
+
+Note: all the setup scripts are available in `gym_gazebo/envs/installation`
+
+- Load catkin workspace:
+
+```bash
+source catkin_ws/devel/setup.bash
+```
+You want to do this everytime you want to 
+
+- Run any of the examples available in `examples/`. E.g.:
+
+```bash
+cd examples/scripts_turtlebot
+python circuit2_turtlebot_lidar_qlearn.py
+```
+
+### Display the simulation
+
+To see what's going on in Gazebo during a simulation, simply run gazebo client:
+
+```bash
+gzclient
+```
+
+### Display reward plot
+
+Display a graph showing the current reward history by running the following script:
+
+```bash
+cd examples/utilities
+python display_plot.py
+```
+
+HINT: use `--help` flag for more options.
+
+### Killing background processes
+
+Sometimes, after ending or killing the simulation some processes might stay on the background. These are some of the process names you might want to look for:
+
+- `gzserver`
+- `gzclient`
+- `roslaunch`
+- `rosmaster`
+
+Kill any of these by running:
+
+```bash
+killalll -9 <process_name>
+```
+
+Or kill all of them:
+
+```bash
+killall -9 gzserver gzclient roslaunch rosmaster
 ```
