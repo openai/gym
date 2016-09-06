@@ -42,6 +42,9 @@ class MultiDiscrete(gym.Space):
     @property
     def shape(self):
         return self.num_discrete_space
+    @property
+    def dim(self):
+        return np.sum(self.high - self.low)
     def __repr__(self):
         return "MultiDiscrete" + str(self.num_discrete_space)
     def __eq__(self, other):
@@ -146,6 +149,10 @@ class DiscreteToMultiDiscrete(Discrete):
     def __call__(self, discrete_action):
         return self.mapping[discrete_action]
 
+    @property
+    def dim(self):
+        return self.multi_discrete.dim
+ 
 
 class BoxToMultiDiscrete(Box):
     """
@@ -210,3 +217,8 @@ class BoxToMultiDiscrete(Box):
         for i in self.mapping:
             multi_discrete_action[self.mapping[i]] = int(round(box_action[i], 0))
         return multi_discrete_action
+
+    @property
+    def dim(self):
+        return self.multi_discrete.dim
+ 
