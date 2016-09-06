@@ -14,6 +14,7 @@ import json
 import random
 import numpy as np
 from keras.models import Sequential, load_model
+from keras.initializations import normal
 from keras import optimizers
 from keras.optimizers import RMSprop
 from keras.layers import Convolution2D, Flatten
@@ -21,6 +22,7 @@ from keras.layers.core import Dense, Dropout, Activation
 from keras.layers.normalization import BatchNormalization
 from keras.layers.advanced_activations import LeakyReLU
 from keras.regularizers import l2
+from keras.optimizers import SGD , Adam
 import memory
 
 class DeepQ:
@@ -98,36 +100,41 @@ class DeepQ:
 
     def createModel(self, inputs, outputs, hiddenLayers, activationType, learningRate):
         '''model = Sequential()
-        if len(hiddenLayers) == 0: 
-            model.add(Dense(self.output_size, input_shape=(self.input_size,), init='lecun_uniform'))
-            model.add(Activation("linear"))
-        else :
-            model.add(Dense(hiddenLayers[0], input_shape=(self.input_size,), init='lecun_uniform'))
-            if (activationType == "LeakyReLU") :
-                model.add(LeakyReLU(alpha=0.01))
-            else :
-                model.add(Activation(activationType))
-            
-            for index in range(1, len(hiddenLayers)):
-                # print("adding layer "+str(index))
-                layerSize = hiddenLayers[index]
-                model.add(Dense(layerSize, init='lecun_uniform'))
-                if (activationType == "LeakyReLU") :
-                    model.add(LeakyReLU(alpha=0.01))
-                else :
-                    model.add(Activation(activationType))
-            model.add(Dense(self.output_size, init='lecun_uniform'))
-            model.add(Activation("linear"))
-        optimizer = optimizers.RMSprop(lr=learningRate, rho=0.9, epsilon=1e-06)
-        model.compile(loss="mse", optimizer=optimizer)
-        model.summary()'''
-        model = Sequential()
-        model.add(Convolution2D(16, nb_row=3, nb_col=3, input_shape=(3, 64, 48), activation='relu'))
-        model.add(Convolution2D(16, nb_row=3, nb_col=3, activation='relu'))
+        model.add(Convolution2D(32, 8, 8, subsample=(4,4),input_shape=(1,80,80)))
+        model.add(Activation('relu'))
+        model.add(Convolution2D(64, 4, 4, subsample=(2,2)))
+        model.add(Activation('relu'))
+        model.add(Convolution2D(64, 3, 3, subsample=(1,1)))
+        model.add(Activation('relu'))
         model.add(Flatten())
-        model.add(Dense(100, activation='relu'))#?
-        model.add(Dense(21))
+        model.add(Dense(512))
+        model.add(Activation('relu'))
+        model.add(Dense(3))
+        adam = Adam(lr=1e-6)
+        model.compile(loss='mse',optimizer=adam)
+        model.add(Convolution2D(32, 3, 3, input_shape=(1,80,80)))
+        model.add(Activation('relu'))
+        model.add(Flatten())
+        model.add(Dense(96))
+        model.add(Activation('relu'))
+        model.add(Dense(3))
         model.compile(RMSprop(), 'MSE')
+        model.summary()'''
+
+        #Flapply bird cnn
+        model = Sequential()
+        model.add(Convolution2D(8, 4, 4, subsample=(2,2), init=lambda shape, name: normal(shape, scale=0.01, name=name), border_mode='same',input_shape=(1,16,16)))
+        model.add(Activation('relu'))
+        model.add(Convolution2D(16, 2, 2, subsample=(1,1), init=lambda shape, name: normal(shape, scale=0.01, name=name), border_mode='same'))
+        model.add(Activation('relu'))
+
+        model.add(Flatten())
+        model.add(Dense(64, init=lambda shape, name: normal(shape, scale=0.01, name=name)))
+        model.add(Activation('relu'))
+        model.add(Dense(3,init=lambda shape, name: normal(shape, scale=0.01, name=name)))
+
+        adam = Adam(lr=1e-6)
+        model.compile(loss='mse',optimizer=adam)
         model.summary()
 
         return model
@@ -156,11 +163,11 @@ class DeepQ:
 
     # predict Q values for all the actions
     def getQValues(self, state):
-        predicted = self.model.predict(state.reshape(1,3,64,48))
+        predicted = self.model.predict(state.reshape(1,1,16,16))
         return predicted[0]
 
     def getTargetQValues(self, state):
-        predicted = self.targetModel.predict(state.reshape(1,3,64,48))
+        predicted = self.targetModel.predict(state.reshape(1,1,16,16))
         return predicted[0]
 
     def getMaxQ(self, qValues):
@@ -226,7 +233,7 @@ class DeepQ:
         if self.memory.getCurrentSize() > self.learnStart:
             # learn in batches of 128
             miniBatch = self.memory.getMiniBatch(miniBatchSize)
-            X_batch = np.empty((1,3,64,48), dtype = np.float64)
+            X_batch = np.empty((1,1,16,16), dtype = np.float64)
             Y_batch = np.empty((1,self.output_size), dtype = np.float64)
             for sample in miniBatch:
                 isFinal = sample['isFinal']
@@ -242,79 +249,20 @@ class DeepQ:
                     qValuesNewState = self.getQValues(newState)
                 targetValue = self.calculateTarget(qValuesNewState, reward, isFinal)
 
-                #print("X_BATCH debug")
-                #print(X_batch.shape)
-                #print(np.array([state.copy()]).shape)
-                X_batch = np.append(X_batch, np.array([state.copy()]), axis=0)
+                #print "Batch.shape %s, state.shape %s" % (str(X_batch.shape), str(state.shape))
+
+                X_batch = np.append(X_batch, state.copy(), axis=0)
 
                 Y_sample = qValues.copy()
                 Y_sample[action] = targetValue
                 Y_batch = np.append(Y_batch, np.array([Y_sample]), axis=0)
                 if isFinal:
-                    X_batch = np.append(X_batch, np.array([newState.copy()]), axis=0)
+                    X_batch = np.append(X_batch, newState.copy(), axis=0)
                     Y_batch = np.append(Y_batch, np.array([[reward]*self.output_size]), axis=0)
-            print("model FIT debug-------")
-            print(X_batch.shape)
-            print(Y_batch.shape)
+            #print("model FIT debug-------")
+            #print(X_batch.shape)
+            #print(Y_batch.shape)
             self.model.fit(X_batch, Y_batch, batch_size = len(miniBatch), nb_epoch=1, verbose = 0)
-
-
-    '''def learnOnMiniBatch(self, miniBatchSize, useTargetNetwork=True):
-
-        # Do not learn until we've got self.learnStart samples        
-        if self.memory.getCurrentSize() > self.learnStart:
-            # learn in batches of 128
-            miniBatch = self.memory.getMiniBatch(miniBatchSize)
-            X_batch = np.empty((1,3,64,48), dtype = object)
-            Y_batch = np.empty((21,), dtype = np.float64)
-            for sample in miniBatch:
-                isFinal = sample['isFinal']
-                state = sample['state']
-                action = sample['action']
-                reward = sample['reward']
-                newState = sample['newState']
-
-                qValues = self.getQValues(state)
-                if useTargetNetwork:
-                    qValuesNewState = self.getTargetQValues(newState)
-                else :
-                    qValuesNewState = self.getQValues(newState)
-                targetValue = self.calculateTarget(qValuesNewState, reward, isFinal)
-
-                #X_batch = np.append(X_batch, np.array([state.copy()]), axis=0)
-                state = state.reshape(3,64,48)
-                print(X_batch.shape)
-                print(np.array([state]).shape)
-                state.reshape(1,3,64,48)
-                print(state.shape)
-                X_batch = np.append(X_batch, np.array([state.copy()]), axis=0)
-                print(X_batch.shape)
-
-                Y_sample = qValues.copy()
-
-                print(Y_sample.shape)
-                print("Y_batch: "+str(Y_batch.shape))
-                Y_sample[action] = targetValue
-                Y_batch = np.append(Y_batch, Y_sample, axis=0)
-
-                if isFinal:
-                    print("-- isFinal --")
-
-                    X_batch = np.append(X_batch, np.array([newState.copy()]), axis=0)
-
-                    a = np.array([Y_batch])
-                    b = np.array([[reward]*self.output_size])
-                    b.resize(a.shape)
-
-                    Y_batch = np.hstack((a, b))
-                    print("Y_batch: "+str(Y_batch.shape))
-                    #break
-                    #Y_batch = np.append(np.array([Y_batch]), np.array([[reward]*self.output_size]), axis=0)
-            
-            print("Fit --")
-            print(X_batch.shape)
-            print(Y_batch.shape)
-            self.model.fit(X_batch, Y_batch, batch_size = len(miniBatch), nb_epoch=1, verbose = 0)'''
 
     def saveModel(self, path):
         self.model.save(path)
@@ -342,9 +290,9 @@ if __name__ == '__main__':
     continue_execution = False
     #fill this if continue_execution=True
 
-    weights_path = '/tmp/turtle_c2_dqn_ep200.h5' 
-    monitor_path = '/tmp/turtle_c2_dqn_ep200'
-    params_json  = '/tmp/turtle_c2_dqn_ep200.json'
+    weights_path = '/tmp/turtle_c2_dqn_ep1000.h5' 
+    monitor_path = '/tmp/turtle_c2_dqn_ep1000'
+    params_json  = '/tmp/turtle_c2_dqn_ep1000.json'
 
     if not continue_execution:
         #Each time we take a sample and update our weights it is called a mini-batch. 
@@ -353,15 +301,16 @@ if __name__ == '__main__':
         epochs = 1000
         steps = 10000
         updateTargetNetwork = 10000
-        explorationRate = 1
-        minibatch_size = 64
-        learnStart = 64
+        explorationRate = 0.5
+        minibatch_size = 32
+        learnStart = 10000
         learningRate = 0.00025
         discountFactor = 0.99
         memorySize = 1000000
         network_inputs = 100
-        network_outputs = 21
+        network_outputs = 3
         network_structure = [300,300]
+
         current_epoch = 0
 
         deepQ = DeepQ(network_inputs, network_outputs, memorySize, discountFactor, learningRate, learnStart)
@@ -414,7 +363,6 @@ if __name__ == '__main__':
             qValues = deepQ.getQValues(observation)
 
             action = deepQ.selectAction(qValues, explorationRate)
-
             newObservation, reward, done, info = env.step(action)
 
             cumulated_reward += reward
@@ -422,6 +370,10 @@ if __name__ == '__main__':
                 highest_reward = cumulated_reward
 
             deepQ.addMemory(observation, action, reward, newObservation, done)
+
+
+            if learnStart == stepCounter:
+                print("Starting learning")
 
             if stepCounter >= learnStart:
                 if stepCounter <= updateTargetNetwork:
@@ -436,6 +388,7 @@ if __name__ == '__main__':
                 done = True
 
             env.monitor.flush(force=True)
+
             if done:
                 last100Scores[last100ScoresIndex] = t
                 last100ScoresIndex += 1
