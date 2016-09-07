@@ -307,6 +307,10 @@ class Space(object):
         # By default, assume identity is JSONable
         return sample_n
 
+    @property
+    def dim(self):
+        raise NotImplementedError
+
 class Wrapper(Env):
     _owns_render = False
 
