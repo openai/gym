@@ -150,6 +150,9 @@ class Monitor(object):
         self.write_upon_reset = write_upon_reset
 
         seeds = self.env.seed(seed)
+        if not isinstance(seeds, list):
+            logger.warn('env.seed returned unexpected result: %s (should be a list of ints)', seeds)
+
         self.seeds = seeds
 
     def flush(self, force=False):
