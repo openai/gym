@@ -22,11 +22,25 @@ def upload(training_dir, algorithm_id=None, writeup=None, benchmark_run_id=None,
     Args:
         training_dir (Optional[str]): A directory containing the results of a training run.
         algorithm_id (Optional[str]): An algorithm id indicating the particular version of the algorithm (including choices of parameters) you are running (visit https://gym.openai.com/algorithms to create an id)
-        benchmark_run_id (Optional[str]): A benchmark_run id indicating that this evaluation is part of a larger run of the benchmark. This feature is currently pre-release.
+        benchmark_run_id (Optional[str]): A benchmark_run id indicating that this evaluation is part of a larger run of the benchmark. Will recursively search through training_dir for any Gym manifests. This feature is currently pre-release.
         writeup (Optional[str]): A Gist URL (of the form https://gist.github.com/<user>/<id>) containing your writeup for this evaluation.
         api_key (Optional[str]): Your OpenAI API key. Can also be provided as an environment variable (OPENAI_GYM_API_KEY).
     """
 
+    recurse = benchmark_run_id is not None
+
+    directories = []
+    if recurse:
+        for name, _, files in os.walk(training_dir):
+            if monitoring.detect_training_manifests(name, files=files):
+                directories.append(name)
+    else:
+        directories.append(training_dir)
+
+    for training_dir in directories:
+        _upload(training_dir, algorithm_id, writeup, benchmark_run_id, api_key, ignore_open_monitors)
+
+def _upload(training_dir, algorithm_id=None, writeup=None, benchmark_run_id=None, api_key=None, ignore_open_monitors=False):
     if not ignore_open_monitors:
         open_monitors = monitoring._open_monitors()
         if len(open_monitors) > 0:

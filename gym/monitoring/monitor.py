@@ -17,8 +17,10 @@ logger = logging.getLogger(__name__)
 FILE_PREFIX = 'openaigym'
 MANIFEST_PREFIX = FILE_PREFIX + '.manifest'
 
-def detect_training_manifests(training_dir):
-    return [os.path.join(training_dir, f) for f in os.listdir(training_dir) if f.startswith(MANIFEST_PREFIX + '.')]
+def detect_training_manifests(training_dir, files=None):
+    if files is None:
+        files = os.listdir(training_dir)
+    return [os.path.join(training_dir, f) for f in files if f.startswith(MANIFEST_PREFIX + '.')]
 
 def detect_monitor_files(training_dir):
     return [os.path.join(training_dir, f) for f in os.listdir(training_dir) if f.startswith(FILE_PREFIX + '.')]

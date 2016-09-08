@@ -13,6 +13,7 @@ def convert_to_gym_object(resp, api_key):
     types = {
         'evaluation': Evaluation,
         'file': FileUpload,
+        'benchmark_run': BenchmarkRun,
     }
 
     if isinstance(resp, list):
@@ -382,7 +383,10 @@ class Evaluation(CreateableAPIResource):
 class Algorithm(CreateableAPIResource):
     pass
 
-class BenchmarkRun(CreateableAPIResource):
+class BenchmarkRun(CreateableAPIResource, UpdateableAPIResource):
     @classmethod
     def class_name(cls):
         return 'benchmark_run'
+
+    def commit(self):
+        return self.request('post', '{}/commit'.format(self.instance_path()))
