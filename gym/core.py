@@ -85,6 +85,9 @@ class Env(object):
         raise NotImplementedError
     def _seed(self, seed=None): return []
 
+    # Do not override
+    _owns_render = True
+
     @property
     def monitor(self):
         """Lazily creates a monitor instance.
@@ -122,14 +125,16 @@ class Env(object):
         return observation, reward, done, info
 
     def reset(self):
-        """
-        Resets the state of the environment and returns an initial observation.
+        """Resets the state of the environment and returns an initial
+        observation. Will call 'configure()' if not already called.
 
-        Returns:
-            observation (object): the initial observation of the space. (Initial reward is assumed to be 0.)
+        Returns: observation (object): the initial observation of the
+            space. (Initial reward is assumed to be 0.)
         """
         if self.metadata.get('configure.required') and not self._configured:
-            raise error.Error("{} requires calling 'configure()' before 'reset()'".format(self))
+            raise error.Error("{} requires manually calling 'configure()' before 'reset()'".format(self))
+        elif not self._configured:
+            self.configure()
 
         self.monitor._before_reset()
         observation = self._reset()
@@ -197,9 +202,11 @@ class Env(object):
         if not hasattr(self, '_closed') or self._closed:
             return
 
-        # Automatically close the monitor and any render window
-        self.monitor.close()
-        self.render(close=True)
+        # Automatically close the monitor and any render window.
+        if hasattr(self, '_monitor'):
+            self.monitor.close()
+        if self._owns_render:
+            self.render(close=True)
 
         self._close()
         env_closer.unregister(self._env_closer_id)
@@ -236,7 +243,7 @@ class Env(object):
         self._configured = True
 
         try:
-            return self._configure(*args, **kwargs)
+            self._configure(*args, **kwargs)
         except TypeError as e:
             # It can be confusing if you have the wrong environment
             # and try calling with unsupported arguments, since your
@@ -301,14 +308,24 @@ class Space(object):
         return sample_n
 
 class Wrapper(Env):
-    def __init__(self, env):
+    _owns_render = False
+
+    # Make sure self.env is always defined, even if things break
+    # early.
+    env = None
+
+    def __init__(self, env=None):
         self.env = env
-        self.metadata = env.metadata
-        self.action_space = env.action_space
-        self.observation_space = env.observation_space
-        self.reward_range = env.reward_range
-        self._spec = env.spec
-        self._unwrapped = env.unwrapped
+        # Merge with the base metadata
+        metadata = self.metadata
+        self.metadata = self.env.metadata.copy()
+        self.metadata.update(metadata)
+
+        self.action_space = self.env.action_space
+        self.observation_space = self.env.observation_space
+        self.reward_range = self.env.reward_range
+        self._spec = self.env.spec
+        self._unwrapped = self.env.unwrapped
 
     def _step(self, action):
         return self.env.step(action)
@@ -317,9 +334,13 @@ class Wrapper(Env):
         return self.env.reset()
 
     def _render(self, mode='human', close=False):
+        if self.env is None:
+            return
         return self.env.render(mode, close)
 
     def _close(self):
+        if self.env is None:
+            return
         return self.env.close()
 
     def _configure(self, *args, **kwargs):
@@ -329,7 +350,10 @@ class Wrapper(Env):
         return self.env.seed(seed)
 
     def __str__(self):
-        return '<{}{} instance>'.format(type(self).__name__, self.env)
+        return '<{}{}>'.format(type(self).__name__, self.env)
+
+    def __repr__(self):
+        return str(self)
 
     @property
     def spec(self):
@@ -340,6 +364,43 @@ class Wrapper(Env):
     @spec.setter
     def spec(self, spec):
         # Won't have an env attr while in the __new__ from gym.Env
-        if hasattr(self, 'env'):
+        if self.env is not None:
             self.env.spec = spec
         self._spec = spec
+
+class ObservationWrapper(Wrapper):
+    def _reset(self):
+        observation = self.env.reset()
+        return self._observation(observation)
+
+    def _step(self, action):
+        observation, reward, done, info = self.env.step(action)
+        return self.observation(observation), reward, done, info
+
+    def observation(self, observation):
+        return self._observation(observation)
+
+    def _observation(self, observation):
+        raise NotImplementedError
+
+class RewardWrapper(Wrapper):
+    def _step(self, action):
+        observation, reward, done, info = self.env.step(action)
+        return observation, self.reward(reward), done, info
+
+    def reward(self, reward):
+        return self._reward(reward)
+
+    def _reward(self, reward):
+        raise NotImplementedError
+
+class ActionWrapper(Wrapper):
+    def _step(self, action):
+        action = self.action(action)
+        return self.env.step(action)
+
+    def action(self, action):
+        return self._action(action)
+
+    def _action(self, action):
+        raise NotImplementedError

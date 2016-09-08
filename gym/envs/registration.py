@@ -27,6 +27,7 @@ class EnvSpec(object):
         local_only: True iff the environment is to be used only on the local machine (e.g. debugging envs)
         kwargs (dict): The kwargs to pass to the environment class
         nondeterministic (bool): Whether this environment is non-deterministic even after seeding
+        tags (list[str]): A set of arbitrary tags on this environment
 
     Attributes:
         id (str): The official environment ID
@@ -34,7 +35,7 @@ class EnvSpec(object):
         trials (int): The number of trials run in official evaluation
     """
 
-    def __init__(self, id, entry_point=None, timestep_limit=1000, trials=100, reward_threshold=None, local_only=False, kwargs=None, nondeterministic=False):
+    def __init__(self, id, entry_point=None, timestep_limit=1000, trials=100, reward_threshold=None, local_only=False, kwargs=None, nondeterministic=False, tags=[]):
         self.id = id
         # Evaluation parameters
         self.timestep_limit = timestep_limit
@@ -42,6 +43,7 @@ class EnvSpec(object):
         self.reward_threshold = reward_threshold
         # Environment properties
         self.nondeterministic = nondeterministic
+        self.tags = tags
 
         # We may make some of these other parameters public if they're
         # useful.
