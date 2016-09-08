@@ -21,15 +21,21 @@ class Benchmark(object):
         self.score_method = score_method
         self.tasks = tasks
 
+    def task_spec(self, env_id):
+        for task in self.tasks:
+            if task.env_id == env_id:
+                return task
+        raise error.Unregistered('No task with env_id {} registered for benchmark {}', env_id, self.id)
+
 class Registry(object):
     def __init__(self):
         self.benchmarks = collections.OrderedDict()
 
-    def add_benchmark(self, id, score_method, tasks):
+    def register_benchmark(self, id, score_method, tasks):
         task_objects = []
-        for task in tasks:
+        for name, task in tasks.items():
             task_objects.append(Task(
-                name=task['name'],
+                name=name,
                 env_id=task['env_id'],
                 seeds=task['seeds'],
                 timesteps=task['timesteps'],
