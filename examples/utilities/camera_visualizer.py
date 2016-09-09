@@ -6,6 +6,11 @@ from std_msgs.msg import String
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 
+import skimage as skimage
+from skimage import transform, color, exposure
+from skimage.transform import rotate
+from skimage.viewer import ImageViewer
+
 class image_converter:
 
   def __init__(self):
@@ -20,7 +25,8 @@ class image_converter:
       print(e)
 
     cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
-    #cv_image = cv2.resize(cv_image, (64, 48))
+    cv_image = cv2.resize(cv_image, (400, 400))
+    cv_image = skimage.exposure.rescale_intensity(cv_image,out_range=(0,255))
 
     cv2.imshow("Image window", cv_image)
     cv2.waitKey(3)
