@@ -250,6 +250,8 @@ The following flags are needed in order to execute in GPU mode, using an alias i
 THEANO_FLAGS=mode=FAST_RUN,device=gpu,floatX=float32
 ```
 
+---
+
 ## Usage
 
 ### Build and install gym-gazebo
@@ -257,7 +259,7 @@ THEANO_FLAGS=mode=FAST_RUN,device=gpu,floatX=float32
 In the root directory of the repository:
 
 ```bash
-sudo python setup.py install
+sudo pip install -e .
 ```
 
 ### Running an environment
@@ -270,13 +272,6 @@ bash turtlebot_setup.bash
 ```
 
 Note: all the setup scripts are available in `gym_gazebo/envs/installation`
-
-- Load catkin workspace:
-
-```bash
-source catkin_ws/devel/setup.bash
-```
-You want to do this everytime you want to 
 
 - Run any of the examples available in `examples/`. E.g.:
 
@@ -306,21 +301,10 @@ HINT: use `--help` flag for more options.
 
 ### Killing background processes
 
-Sometimes, after ending or killing the simulation some processes might stay on the background. These are some of the process names you might want to look for:
+Sometimes, after ending or killing the simulation `gzserver` and `rosmaster` stay on the background, make sure you end them before starting new tests.
 
-- `gzserver`
-- `gzclient`
-- `roslaunch`
-- `rosmaster`
-
-Kill any of these by running:
+We recommend creating an alias to kill those processes.
 
 ```bash
-killalll -9 <process_name>
-```
-
-Or kill all of them:
-
-```bash
-killall -9 gzserver gzclient roslaunch rosmaster
+echo "alias k='killall -9 gzserver gzclient roslaunch rosmaster'" >> ~/.bashrc
 ```
