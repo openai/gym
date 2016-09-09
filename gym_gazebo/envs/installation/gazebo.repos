@@ -82,7 +82,7 @@ repositories:
   mavros:
     type: git
     url: https://github.com/erlerobot/mavros.git
-    version: master
+    version: gazebo_udp
   mav_comm:
     type: git
     url: https://github.com/PX4/mav_comm.git

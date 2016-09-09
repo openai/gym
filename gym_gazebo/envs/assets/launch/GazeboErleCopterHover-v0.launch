@@ -10,13 +10,13 @@
   <arg name="log_file" default="erlecopter"/>
   <arg name="headless" default="false"/>
   <arg name="gui" default="true"/>
-  <arg name="world_name" default="$(find ardupilot_sitl_gazebo_plugin)/worlds/empty_world/empty.world"/>
-  <env name="GAZEBO_MODEL_PATH" value="$(find drcsim_model_resources)/gazebo_models/environments:$(find ardupilot_sitl_gazebo_plugin)/meshes/meshes_sensors:$(find ardupilot_sitl_gazebo_plugin)/meshes/meshes_outdoor:$(find ardupilot_sitl_gazebo_plugin)/meshes/meshes_warehouse"/>
+  <arg name="world_name" default="$(env GYM_GAZEBO_WORLD_CIRCLE)"/>
+  <env name="GAZEBO_MODEL_PATH" value="$(env GAZEBO_MODEL_PATH):"/>
   <arg name="name" default="erlecopter"/>
   <arg name="model" default="$(find ardupilot_sitl_gazebo_plugin)/urdf/erlecopter_base.xacro"/>
   <arg name="tf_prefix" default="$(optenv ROS_NAMESPACE)"/>
-  <arg name="debug" default="true"/>
-  <arg name="verbose" default="true"/>
+  <arg name="debug" default="false"/>
+  <arg name="verbose" default="false"/>
 
   <!-- Initial pose for the drone -->
   <arg name="x" default="0.0"/> <!-- [m], positive to the North -->
@@ -54,6 +54,8 @@
     <arg name="headless" value="$(arg headless)"/>
     <arg name="gui" value="$(arg gui)"/>
     <arg name="world_name" value="$(arg world_name)"/>
+    <arg name="debug" value="$(arg debug)"/>
+    <arg name="verbose" value="$(arg verbose)"/>
   </include>
 <!--  <node name="tag1" pkg="gazebo_ros" type="spawn_model" args="-file $(find rotors_description)/urdf/ARtag.urdf -urdf -x 0.0 -y 0.0 -z 0.01 -model ARtag1" respawn="false" />-->
 

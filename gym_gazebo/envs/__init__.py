@@ -9,7 +9,7 @@ from gym_gazebo.envs.gazebo_circuit2c_turtlebot_camera_nn import GazeboCircuit2c
 from gym_gazebo.envs.gazebo_round_turtlebot_lidar import GazeboRoundTurtlebotLidarEnv
 
 # Erle-Copter
-from gym_gazebo.envs.gazebo_office_erlecopter_lidar import GazeboOfficeErleCopterLidarEnv
+from gym_gazebo.envs.gazebo_erlecopter_hover import GazeboErleCopterHoverEnv
 
 #Erle-Rover
 from gym_gazebo.envs.gazebo_maze_erlerover_lidar import GazeboMazeErleRoverLidarEnv

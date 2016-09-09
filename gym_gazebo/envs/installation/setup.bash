@@ -87,7 +87,7 @@ echo "## Sophus installed ##\n"
 cd ../../
 mkdir apm
 cd apm
-git clone https://github.com/erlerobot/ardupilot.git -b gazebo
+git clone https://github.com/erlerobot/ardupilot.git -b gazebo_udp
 git clone https://github.com/tridge/jsbsim.git
 cd jsbsim
 ./autogen.sh --enable-libraries
