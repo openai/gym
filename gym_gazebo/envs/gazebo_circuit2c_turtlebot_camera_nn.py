@@ -38,6 +38,10 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
 
         self.last50actions = [0] * 50
 
+        self.img_rows = 32
+        self.img_cols = 32
+        self.img_channels = 1
+
     def calculate_observation(self,data):
         min_range = 0.2
         done = False
@@ -98,9 +102,11 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
         while image_data is None or success is False:
             try:
                 image_data = rospy.wait_for_message('/camera/rgb/image_raw', Image, timeout=5)
+                h = image_data.height
+                w = image_data.width
                 cv_image = CvBridge().imgmsg_to_cv2(image_data, "bgr8")
-                #temporal fix
-                if not (cv_image[240,320,0]==178 and cv_image[240,320,1]==178 and cv_image[240,320,2]==178):
+                #temporal fix, check image is not corrupted
+                if not (cv_image[h/2,w/2,0]==178 and cv_image[h/2,w/2,1]==178 and cv_image[h/2,w/2,2]==178):
                     success = True
                 else:
                     pass
@@ -156,7 +162,7 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
 
 
         cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
-        cv_image = cv2.resize(cv_image, (32, 32))
+        cv_image = cv2.resize(cv_image, (self.img_rows, self.img_cols))
         cv_image = skimage.exposure.rescale_intensity(cv_image,out_range=(0,255))
 
 
@@ -176,8 +182,8 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
         except rospy.ServiceException, e:
             print ("/gazebo/reset_simulation service call failed")
 
-        '''
-        # move the robot to a new random location
+        
+        '''# move the robot to a new random location
         # S 1 (0,0, y=0)
         # C 1 (3.85,0, y=-1.57)
         # C 2 (3.85,-3.8, y=3,14)
@@ -186,7 +192,7 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
 
         rand_pose = random.randint(0,4)
         if rand_pose == 0:
-            os.ssystem("gz model -m mobile_base -x 0 -y 0 -Y 0")
+            os.system("gz model -m mobile_base -x 0 -y 0 -Y 0")
         elif rand_pose == 1:
             os.system("gz model -m mobile_base -x 3.85 -y 0 -Y -1.57")
         elif rand_pose == 2:
@@ -210,9 +216,11 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
         while image_data is None or success is False:
             try:
                 image_data = rospy.wait_for_message('/camera/rgb/image_raw', Image, timeout=5)
+                h = image_data.height
+                w = image_data.width
                 cv_image = CvBridge().imgmsg_to_cv2(image_data, "bgr8")
-                #temporal fix
-                if not (cv_image[240,320,0]==178 and cv_image[240,320,1]==178 and cv_image[240,320,2]==178):
+                #temporal fix, check image is not corrupted
+                if not (cv_image[h/2,w/2,0]==178 and cv_image[h/2,w/2,1]==178 and cv_image[h/2,w/2,2]==178):
                     success = True
                 else:
                     pass
@@ -232,7 +240,7 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
         x_t = skimage.exposure.rescale_intensity(x_t,out_range=(0,255))'''
 
         cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
-        cv_image = cv2.resize(cv_image, (32, 32))
+        cv_image = cv2.resize(cv_image, (self.img_rows, self.img_cols))
         cv_image = skimage.exposure.rescale_intensity(cv_image,out_range=(0,255))
 
         state = cv_image.reshape(1, 1, cv_image.shape[0], cv_image.shape[1])
