@@ -40,7 +40,8 @@ def score_from_local(directory):
     return score_from_merged(episode_lengths, episode_rewards, timestamps, initial_reset_timestamp, spec.trials, spec.reward_threshold)
 
 def score_from_merged(episode_lengths, episode_rewards, timestamps, initial_reset_timestamp, trials, reward_threshold):
-    """Method to calculate the score from merged monitor files.
+    """Method to calculate the score from merged monitor files. Scores
+    only a single environment; mostly legacy.
     """
     # Make sure everything is a float -- no pesky ints.
     episode_rewards = np.array(episode_rewards, dtype='float64')
@@ -86,6 +87,12 @@ def score_from_merged(episode_lengths, episode_rewards, timestamps, initial_rese
         'seconds_to_solve': seconds_to_solve,
         'seconds_in_total': seconds_in_total,
     }
+
+def benchmark_score_from_merged(benchmark, env_id, episode_lengths, episode_rewards, episode_types):
+    """Method to calculate an environment's benchmark score from merged
+    monitor files.
+    """
+    return benchmark.score(benchmark, env_id, episode_lengths, episode_rewards, episode_types)
 
 def running_mean(x, N):
     x = np.array(x, dtype='float64')

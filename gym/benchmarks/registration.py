@@ -9,39 +9,45 @@ from gym import error
 logger = logging.getLogger(__name__)
 
 class Task(object):
-    def __init__(self, name, env_id, seeds, timesteps):
-        self.name = name
+    def __init__(self, env_id, seeds, timesteps):
         self.env_id = env_id
         self.seeds = seeds
         self.timesteps = timesteps
 
 class Benchmark(object):
-    def __init__(self, id, score_method, tasks):
+    def __init__(self, id, scorer, task_groups):
         self.id = id
-        self.score_method = score_method
-        self.tasks = tasks
+        self.scorer = scorer
+
+        task_map = {}
+        for env_id, tasks in task_groups.items():
+            task_map[env_id] = []
+            for task in tasks:
+                task_map[env_id].append(Task(
+                    env_id=env_id,
+                    seeds=task['seeds'],
+                    timesteps=task['timesteps'],
+                ))
+        self.task_groups = task_map
 
     def task_spec(self, env_id):
-        for task in self.tasks:
-            if task.env_id == env_id:
-                return task
-        raise error.Unregistered('No task with env_id {} registered for benchmark {}', env_id, self.id)
+        try:
+            return self.task_groups[env_id]
+        except KeyError:
+            raise error.Unregistered('No task with env_id {} registered for benchmark {}', env_id, self.id)
+
+    def score_evaluation(self, env_id, episode_lengths, episode_rewards, episode_types):
+        return self.scorer.score_evaluation(self, env_id, episode_lengths, episode_rewards, episode_types)
+
+    def score_benchmark(self, score_map):
+        return self.scorer.score_benchmark(self, score_map)
 
 class Registry(object):
     def __init__(self):
         self.benchmarks = collections.OrderedDict()
 
-    def register_benchmark(self, id, score_method, tasks):
-        task_objects = []
-        for name, task in tasks.items():
-            task_objects.append(Task(
-                name=name,
-                env_id=task['env_id'],
-                seeds=task['seeds'],
-                timesteps=task['timesteps'],
-            ))
-
-        self.benchmarks[id] = Benchmark(id=id, score_method=score_method, tasks=task_objects)
+    def register_benchmark(self, id, scorer, task_groups):
+        self.benchmarks[id] = Benchmark(id=id, scorer=scorer, task_groups=task_groups)
 
     def benchmark_spec(self, id):
         try:
