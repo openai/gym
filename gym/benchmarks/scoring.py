@@ -24,6 +24,7 @@ class ClipTo01ThenAverage(object):
         elapsed_timesteps = np.cumsum(training_lengths)
 
         scores = []
+        solves = []
         for task in tasks:
             # Find the first episode where we're over the allotted
             # training timesteps.
@@ -52,17 +53,21 @@ class ClipTo01ThenAverage(object):
             floor = task.reward_floor
             ceiling = task.reward_ceiling
 
+            # Grab the indexes where we reached the ceiling
+            solved = rewards >= ceiling
             # Linearly rescale rewards to between 0 and 1
             clipped = np.clip((rewards - floor) / (ceiling - floor), 0, 1)
 
             # Take the mean rescaled score
             score = np.mean(clipped)
             scores.append(score)
+            solves.append(solved)
 
-        return scores
+        return scores, solves
 
     def score_benchmark(self, benchmark, episode_scores):
         all_scores = []
         for env_id, scores in episode_scores.items():
             all_scores += scores
+
         return np.mean(all_scores)
