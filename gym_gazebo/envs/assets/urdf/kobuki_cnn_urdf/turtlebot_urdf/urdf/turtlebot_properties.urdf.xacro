@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+  <!-- 
+    These properties must be observed by any machine
+    that wants to be defined as a turtlebot. Refer
+    to the REP for more details.
+    
+    http://www.ros.org/reps/rep-0119.html
+   -->
+   
+  <!--
+   ======================================================================
+   - REP 119 : Rgb camera link relative to the Base link 
+   ====================================================================== 
+     Base link is currently defined as the rotational centre on the bottom
+     of the base mould. For both create and kobuki this is actually exactly
+     the same 3d world point. 
+     
+     This may cause an issue with a base with much different floor clearance.
+     Should we be using base_footprint for this specification instead?
+ 
+     Note: REP needs to be updated with the information below 
+     (currently in development and awaiting feedback)
+   -->
+	<xacro:property name="cam_px" value="0.1" />
+<!--	<xacro:property name="cam_py" value="-0.0125" /> Y varies for different configurations. get sets in sensors_urdf -->
+  <xacro:property name="cam_py" value="0" />
+	<xacro:property name="cam_pz" value="0.6" />
+	<xacro:property name="cam_or" value="0" />
+	<xacro:property name="cam_op" value="0.6" />
+	<xacro:property name="cam_oy" value="0" />
+</robot>
