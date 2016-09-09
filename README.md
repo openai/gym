@@ -96,6 +96,9 @@ bash turtlebot_setup.bash
 
 ### Step-by-step installation
 
+Needs to be updated, use automatic installation.
+
+<!--
 **1.** Install dependencies
 
 Install ubuntu packages
@@ -209,6 +212,7 @@ source ~/.bashrc
 cd gym_gazebo/envs/installation
 bash turtlebot_setup.bash
 ```
+-->
 
 ### Keras and Theano installation
 This part of the installation is required only for the environments using DQN.
@@ -217,6 +221,9 @@ This part of the installation is required only for the environments using DQN.
 # install dependencies
 sudo pip install h5py
 sudo apt-get install gfortran
+
+# install sript specific dependencies (temporal)
+sudo apt-get install python-skimage
 
 # install Theano
 git clone git://github.com/Theano/Theano.git
