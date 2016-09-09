@@ -87,17 +87,17 @@ class DeepQ:
         #Flapply bird cnn
         model = Sequential()
         model.add(Convolution2D(16, 8, 8, subsample=(2,2), init=lambda shape, name: normal(shape, scale=0.01, name=name), border_mode='same',input_shape=(img_channels,img_rows,img_cols)))
-        model.add(Activation('tanh'))
+        model.add(Activation('relu'))
         #model.add(MaxPooling2D(pool_size=(2, 2)))
         #model.add(Dropout(0.5))
 
         model.add(Convolution2D(32, 4, 4, init=lambda shape, name: normal(shape, scale=0.01, name=name), border_mode='same'))
-        model.add(Activation('tanh'))
+        model.add(Activation('relu'))
         #model.add(MaxPooling2D(pool_size=(2, 2)))
         #model.add(Dropout(0.5))
 
         model.add(Convolution2D(32, 3, 3, init=lambda shape, name: normal(shape, scale=0.01, name=name), border_mode='same'))
-        model.add(Activation('tanh'))
+        model.add(Activation('relu'))
         model.add(MaxPooling2D(pool_size=(2, 2)))
         model.add(Dropout(0.5))
 
@@ -106,7 +106,7 @@ class DeepQ:
         model.add(Activation('relu'))
         model.add(Dense(3,init=lambda shape, name: normal(shape, scale=0.01, name=name)))
 
-        adam = Adam(lr=1e-1)
+        adam = Adam(lr=1e-6)
         model.compile(loss='mse',optimizer=adam)
         model.summary()
 
