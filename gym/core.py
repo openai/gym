@@ -308,6 +308,9 @@ class Space(object):
         return sample_n
 
 class Wrapper(Env):
+    # Clear metadata so by default we don't override any keys.
+    metadata = {}
+
     _owns_render = False
 
     # Make sure self.env is always defined, even if things break

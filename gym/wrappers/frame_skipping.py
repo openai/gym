@@ -33,4 +33,3 @@ def SkipWrapper(repeat_count):
             return self.env.reset()
 
     return SkipWrapper
-
