@@ -64,9 +64,9 @@ add_task(
     summary='Obstacle avoidance with Erle-Rover in a maze.',
 )
 add_task(
-    id='GazeboOfficeErleCopterLidar-v0',
+    id='GazeboErleCopterHover-v0',
     group='gazebo',
-    summary='Obstacle avoidance with Erle-Copter in the Erle Office.',
+    summary='Hover a point with Erle-Copter',
 )
 
 registry.finalize()

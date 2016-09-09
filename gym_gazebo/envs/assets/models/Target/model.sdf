@@ -1,0 +1,66 @@
+<?xml version="1.0" ?>
+<sdf version="1.5">
+  <model name="Target">
+    <static>true</static>
+    <link name="green">
+      <pose>0 0 0 0 0 0</pose>
+      <visual name="visual">
+        <geometry>
+          <cylinder>
+              <radius>0.5</radius>
+              <length>.05</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/Green</name>
+          </script>
+          <ambient>1 1 1 1</ambient>        
+        </material>
+        <cast_shadows>0</cast_shadows>
+        <transparency>0</transparency>
+      </visual>
+    </link>
+    <link name="yellow">
+      <pose>0 0 0 0 0 0</pose>
+      <visual name="visual">
+        <geometry>
+          <cylinder>
+              <radius>1</radius>
+              <length>.04</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/Yellow</name>
+          </script>
+          <ambient>1 1 1 1</ambient>
+        </material>
+        <cast_shadows>0</cast_shadows>
+        <transparency>0</transparency>
+      </visual>
+    </link>
+    <link name="red">
+      <pose>0 0 0 0 0 0</pose>
+      <visual name="visual">
+        <geometry>
+          <cylinder>
+              <radius>1.5</radius>
+              <length>.03</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/Red</name>
+          </script>
+          <ambient>1 1 1 1</ambient>
+        </material>
+        <cast_shadows>0</cast_shadows>
+        <transparency>0</transparency>
+      </visual>
+    </link>
+  </model>
+</sdf>
