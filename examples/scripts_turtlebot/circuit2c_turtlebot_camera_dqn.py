@@ -21,9 +21,11 @@ from keras.layers import Convolution2D, Flatten
 from keras.layers.core import Dense, Dropout, Activation
 from keras.layers.normalization import BatchNormalization
 from keras.layers.advanced_activations import LeakyReLU
+from keras.layers.pooling import MaxPooling2D
 from keras.regularizers import l2
 from keras.optimizers import SGD , Adam
 import memory
+from getch import getch, pause
 
 class DeepQ:
     """
@@ -60,44 +62,6 @@ class DeepQ:
         targetModel = self.createModel(self.input_size, self.output_size, hiddenLayers, "relu", self.learningRate)
         self.targetModel = targetModel
 
-    def createRegularizedModel(self, inputs, outputs, hiddenLayers, activationType, learningRate):
-        bias = True
-        dropout = 0
-        regularizationFactor = 0.01
-        model = Sequential()
-        if len(hiddenLayers) == 0: 
-            model.add(Dense(self.output_size, input_shape=(self.input_size,), init='lecun_uniform', bias=bias))
-            model.add(Activation("linear"))
-        else :
-            if regularizationFactor > 0:
-                model.add(Dense(hiddenLayers[0], input_shape=(self.input_size,), init='lecun_uniform', W_regularizer=l2(regularizationFactor),  bias=bias))
-            else:
-                model.add(Dense(hiddenLayers[0], input_shape=(self.input_size,), init='lecun_uniform', bias=bias))
-
-            if (activationType == "LeakyReLU") :
-                model.add(LeakyReLU(alpha=0.01))
-            else :
-                model.add(Activation(activationType))
-            
-            for index in range(1, len(hiddenLayers)):
-                layerSize = hiddenLayers[index]
-                if regularizationFactor > 0:
-                    model.add(Dense(layerSize, init='lecun_uniform', W_regularizer=l2(regularizationFactor), bias=bias))
-                else:
-                    model.add(Dense(layerSize, init='lecun_uniform', bias=bias))
-                if (activationType == "LeakyReLU") :
-                    model.add(LeakyReLU(alpha=0.01))
-                else :
-                    model.add(Activation(activationType))
-                if dropout > 0:
-                    model.add(Dropout(dropout))
-            model.add(Dense(self.output_size, init='lecun_uniform', bias=bias))
-            model.add(Activation("linear"))
-        optimizer = optimizers.RMSprop(lr=learningRate, rho=0.9, epsilon=1e-06)
-        model.compile(loss="mse", optimizer=optimizer)
-        model.summary()
-        return model
-
     def createModel(self, inputs, outputs, hiddenLayers, activationType, learningRate):
         '''model = Sequential()
         model.add(Convolution2D(32, 8, 8, subsample=(4,4),input_shape=(1,80,80)))
@@ -123,13 +87,23 @@ class DeepQ:
 
         #Flapply bird cnn
         model = Sequential()
-        model.add(Convolution2D(8, 4, 4, subsample=(2,2), init=lambda shape, name: normal(shape, scale=0.01, name=name), border_mode='same',input_shape=(1,16,16)))
+        model.add(Convolution2D(16, 8, 8, subsample=(2,2), init=lambda shape, name: normal(shape, scale=0.01, name=name), border_mode='same',input_shape=(1,32,32)))
         model.add(Activation('relu'))
-        model.add(Convolution2D(16, 2, 2, subsample=(1,1), init=lambda shape, name: normal(shape, scale=0.01, name=name), border_mode='same'))
+        #model.add(MaxPooling2D(pool_size=(2, 2)))
+        #model.add(Dropout(0.5))
+
+        model.add(Convolution2D(32, 4, 4, init=lambda shape, name: normal(shape, scale=0.01, name=name), border_mode='same'))
         model.add(Activation('relu'))
+        #model.add(MaxPooling2D(pool_size=(2, 2)))
+        #model.add(Dropout(0.5))
+
+        model.add(Convolution2D(32, 3, 3, init=lambda shape, name: normal(shape, scale=0.01, name=name), border_mode='same'))
+        model.add(Activation('relu'))
+        model.add(MaxPooling2D(pool_size=(2, 2)))
+        model.add(Dropout(0.5))
 
         model.add(Flatten())
-        model.add(Dense(64, init=lambda shape, name: normal(shape, scale=0.01, name=name)))
+        model.add(Dense(256, init=lambda shape, name: normal(shape, scale=0.01, name=name)))
         model.add(Activation('relu'))
         model.add(Dense(3,init=lambda shape, name: normal(shape, scale=0.01, name=name)))
 
@@ -163,11 +137,11 @@ class DeepQ:
 
     # predict Q values for all the actions
     def getQValues(self, state):
-        predicted = self.model.predict(state.reshape(1,1,16,16))
+        predicted = self.model.predict(state.reshape(1,1,32,32))
         return predicted[0]
 
     def getTargetQValues(self, state):
-        predicted = self.targetModel.predict(state.reshape(1,1,16,16))
+        predicted = self.targetModel.predict(state.reshape(1,1,32,32))
         return predicted[0]
 
     def getMaxQ(self, qValues):
@@ -233,7 +207,7 @@ class DeepQ:
         if self.memory.getCurrentSize() > self.learnStart:
             # learn in batches of 128
             miniBatch = self.memory.getMiniBatch(miniBatchSize)
-            X_batch = np.empty((1,1,16,16), dtype = np.float64)
+            X_batch = np.empty((1,1,32,32), dtype = np.float64)
             Y_batch = np.empty((1,self.output_size), dtype = np.float64)
             for sample in miniBatch:
                 isFinal = sample['isFinal']
@@ -298,15 +272,15 @@ if __name__ == '__main__':
         #Each time we take a sample and update our weights it is called a mini-batch. 
         #Each time we run through the entire dataset, it's called an epoch.
         #PARAMETER LIST
-        epochs = 1000
-        steps = 10000
-        updateTargetNetwork = 10000
-        explorationRate = 0.5
+        epochs = 100000
+        steps = 1000
+        updateTargetNetwork = 5000
+        explorationRate = 1
         minibatch_size = 32
         learnStart = 10000
         learningRate = 0.00025
-        discountFactor = 0.99
-        memorySize = 1000000
+        discountFactor = 0.95
+        memorySize = 10000
         network_inputs = 100
         network_outputs = 3
         network_structure = [300,300]
@@ -353,6 +327,7 @@ if __name__ == '__main__':
 
     #start iterating from 'current epoch'.
 
+
     for epoch in xrange(current_epoch+1, epochs+1, 1):
         observation = env.reset()
         cumulated_reward = 0
@@ -362,7 +337,17 @@ if __name__ == '__main__':
             # env.render()
             qValues = deepQ.getQValues(observation)
 
+            # manual pre training for 2 EPS
+            '''if epoch<3:
+                #PRETRAINING
+                print("Input action: ") #1,2,3 -> 0.1.2
+                key = getch()
+                action = int(key)-1
+            else:
+                action = deepQ.selectAction(qValues, explorationRate)'''
+
             action = deepQ.selectAction(qValues, explorationRate)
+            
             newObservation, reward, done, info = env.step(action)
 
             cumulated_reward += reward
@@ -384,7 +369,7 @@ if __name__ == '__main__':
             observation = newObservation
 
             if (t >= 1000):
-                print ("reached the end! :D")
+                print ("reached the end")
                 done = True
 
             env.monitor.flush(force=True)
@@ -417,11 +402,11 @@ if __name__ == '__main__':
             stepCounter += 1
             if stepCounter % updateTargetNetwork == 0:
                 deepQ.updateTargetNetwork()
-                print ("updating target network")
+                print ("updating target network. total steps: "+str(stepCounter))
 
-        explorationRate *= 0.995 #epsilon decay
+        explorationRate *= 0.9992 #epsilon decay [if initial e=1, 2878 epsisodes to reach 0.1]
         # explorationRate -= (2.0/epochs)
-        explorationRate = max (0.05, explorationRate)
+        explorationRate = max (0.1, explorationRate)
 
     env.monitor.close()
     env.close()

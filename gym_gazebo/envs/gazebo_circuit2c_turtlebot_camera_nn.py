@@ -5,6 +5,8 @@ import time
 import numpy as np
 import cv2
 import sys
+import os
+import random
 
 from gym import utils, spaces
 from gym_gazebo.envs import gazebo_env
@@ -34,6 +36,8 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
 
         self._seed()
 
+        self.last50actions = [0] * 50
+
     def calculate_observation(self,data):
         min_range = 0.2
         done = False
@@ -53,7 +57,8 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
         except rospy.ServiceException, e:
             print ("/gazebo/unpause_physics service call failed")
 
-        '''max_ang_speed = 0.3
+        '''# 21 actions
+        max_ang_speed = 0.3
         ang_vel = (action-10)*max_ang_speed*0.1 #from (-0.33 to + 0.33)
 
         vel_cmd = Twist()
@@ -61,20 +66,21 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
         vel_cmd.angular.z = ang_vel
         self.vel_pub.publish(vel_cmd)'''
 
+        # 3 actions
         if action == 0: #FORWARD
             vel_cmd = Twist()
-            vel_cmd.linear.x = 0.2
+            vel_cmd.linear.x = 0.3
             vel_cmd.angular.z = 0.0
             self.vel_pub.publish(vel_cmd)
         elif action == 1: #LEFT
             vel_cmd = Twist()
             vel_cmd.linear.x = 0.05
-            vel_cmd.angular.z = 0.3
+            vel_cmd.angular.z = 0.2
             self.vel_pub.publish(vel_cmd)
         elif action == 2: #RIGHT
             vel_cmd = Twist()
             vel_cmd.linear.x = 0.05
-            vel_cmd.angular.z = -0.3
+            vel_cmd.angular.z = -0.2
             self.vel_pub.publish(vel_cmd)
 
         data = None
@@ -109,32 +115,59 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
         except rospy.ServiceException, e:
             print ("/gazebo/pause_physics service call failed")
 
-        '''if not done:
+
+        self.last50actions.pop(0) #remove oldest
+        if action == 0:
+            self.last50actions.append(0)
+        else:
+            self.last50actions.append(1)
+
+        action_sum = sum(self.last50actions)
+
+
+        '''# 21 actions
+        if not done:
             # Straight reward = 5, Max angle reward = 0.5
             reward = round(15*(max_ang_speed - abs(ang_vel) +0.0335), 2)
             # print ("Action : "+str(action)+" Ang_vel : "+str(ang_vel)+" reward="+str(reward))
+        
+            if action_sum > 45: #L or R looping
+                #print("90 percent of the last 50 actions were turns. LOOPING")
+                reward = -5
         else:
             reward = -200'''
 
+
+        # 3 actions
         if not done:
             if action == 0:
-                reward = 2
-            else:
-                reward = -0.1
+                reward = 1
+            elif action_sum > 45: #L or R looping
+                #print("90 percent of the last 50 actions were turns. LOOPING")
+                reward = -0.5
+            else: #L or R no looping
+                reward = 0.5
         else:
-            reward = -200
+            reward = -1
 
-        x_t1 = skimage.color.rgb2gray(cv_image)
-        x_t1 = skimage.transform.resize(x_t1,(16,16))
-        #x_t1 = skimage.exposure.rescale_intensity(x_t1, out_range=(0, 255))
-        x_t1 = x_t1.reshape(1, 1, x_t1.shape[0], x_t1.shape[1])
+        '''x_t = skimage.color.rgb2gray(cv_image)
+        x_t = skimage.transform.resize(x_t,(32,32))
+        x_t = skimage.exposure.rescale_intensity(x_t,out_range=(0,255))'''
 
-        ###state = np.append(x_t1, s_t[:, :3, :, :], axis=1)
 
-        state = x_t1
+        cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
+        cv_image = cv2.resize(cv_image, (32, 32))
+        cv_image = skimage.exposure.rescale_intensity(cv_image,out_range=(0,255))
+
+
+        state = cv_image.reshape(1, 1, cv_image.shape[0], cv_image.shape[1])
+
         return state, reward, done, {}
 
     def _reset(self):
+
+        self.last50actions = [0] * 50 #used for looping avoidance
+
         # Resets the state of the environment and returns an initial observation.
         rospy.wait_for_service('/gazebo/reset_simulation')
         try:
@@ -142,7 +175,27 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
             self.reset_proxy()
         except rospy.ServiceException, e:
             print ("/gazebo/reset_simulation service call failed")
-        
+
+        '''
+        # move the robot to a new random location
+        # S 1 (0,0, y=0)
+        # C 1 (3.85,0, y=-1.57)
+        # C 2 (3.85,-3.8, y=3,14)
+        # C 2_2 (3.85,-2.9, y=-1,57)
+        # C 3 (0.26,-3.9, y=-1,57)
+
+        rand_pose = random.randint(0,4)
+        if rand_pose == 0:
+            os.ssystem("gz model -m mobile_base -x 0 -y 0 -Y 0")
+        elif rand_pose == 1:
+            os.system("gz model -m mobile_base -x 3.85 -y 0 -Y -1.57")
+        elif rand_pose == 2:
+            os.system("gz model -m mobile_base -x 3.85 -y -3.8 -Y 3.14")
+        elif rand_pose == 3:
+            os.system("gz model -m mobile_base -x 3.85 -y -2.9 -Y -1.57")
+        elif rand_pose == 4:
+            os.system("gz model -m mobile_base -x 0.26 -y -3.9 -Y -1.57")'''
+
         # Unpause simulation to make observation
         rospy.wait_for_service('/gazebo/unpause_physics')
         try:
@@ -150,8 +203,6 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
             self.unpause()
         except rospy.ServiceException, e:
             print ("/gazebo/unpause_physics service call failed")
-
-
 
         image_data = None
         success=False
@@ -176,18 +227,13 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
         except rospy.ServiceException, e:
             print ("/gazebo/pause_physics service call failed")
 
+        '''x_t = skimage.color.rgb2gray(cv_image)
+        x_t = skimage.transform.resize(x_t,(32,32))
+        x_t = skimage.exposure.rescale_intensity(x_t,out_range=(0,255))'''
 
-        #cv2.imshow('img', state)
-        #cv2.waitKey()
-        #raw_input("ENTER..")
+        cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
+        cv_image = cv2.resize(cv_image, (32, 32))
+        cv_image = skimage.exposure.rescale_intensity(cv_image,out_range=(0,255))
 
-        #state = image.data
-        #state = state.reshape(3,64,48)
-
-        x_t = skimage.color.rgb2gray(cv_image)
-        x_t = skimage.transform.resize(x_t,(16,16))
-        #x_t = skimage.exposure.rescale_intensity(x_t,out_range=(0,255))
-        
-        ###s_t = np.stack((x_t, x_t, x_t, x_t), axis=0)#not needed
-        state = x_t.reshape(1, 1, x_t.shape[0], x_t.shape[1])
+        state = cv_image.reshape(1, 1, cv_image.shape[0], cv_image.shape[1])
         return state
