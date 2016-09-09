@@ -44,8 +44,13 @@ class ClipTo01ThenAverage(object):
             allowed_episode_rewards = np.array(episode_rewards)[allowed_e_idx]
             rewards = allowed_episode_rewards[-self.num_episodes:]
 
-            floor = spec.reward_floor
-            ceiling = spec.reward_threshold
+            if len(rewards) == 0:
+                logger.info('No rewards for %s', env_id)
+                scores.append(0)
+                return
+
+            floor = task.reward_floor
+            ceiling = task.reward_ceiling
 
             # Linearly rescale rewards to between 0 and 1
             clipped = np.clip((rewards - floor) / (ceiling - floor), 0, 1)

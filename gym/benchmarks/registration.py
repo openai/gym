@@ -9,10 +9,12 @@ from gym import error
 logger = logging.getLogger(__name__)
 
 class Task(object):
-    def __init__(self, env_id, seeds, timesteps):
+    def __init__(self, env_id, seeds, timesteps, reward_floor, reward_ceiling):
         self.env_id = env_id
         self.seeds = seeds
         self.timesteps = timesteps
+        self.reward_floor = reward_floor
+        self.reward_ceiling = reward_ceiling
 
 class Benchmark(object):
     def __init__(self, id, scorer, task_groups):
@@ -27,6 +29,8 @@ class Benchmark(object):
                     env_id=env_id,
                     seeds=task['seeds'],
                     timesteps=task['timesteps'],
+                    reward_floor=task.get('reward_floor', 0),
+                    reward_ceiling=task.get('reward_ceiling', 100),
                 ))
         self.task_groups = task_map
 
