@@ -25,7 +25,6 @@ from keras.layers.pooling import MaxPooling2D
 from keras.regularizers import l2
 from keras.optimizers import SGD , Adam
 import memory
-from getch import getch, pause
 
 class DeepQ:
     """
