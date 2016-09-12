@@ -158,7 +158,7 @@ Clone Ardupilot
 ```bash
 cd ../..
 mkdir apm && cd apm
-git clone https://github.com/erlerobot/ardupilot -b gazebo
+git clone https://github.com/erlerobot/ardupilot -b gazebo_udp
 ```
 
 Install JSBSim
