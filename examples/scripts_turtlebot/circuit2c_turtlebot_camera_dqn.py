@@ -278,11 +278,11 @@ if __name__ == '__main__':
         updateTargetNetwork = 5000
         explorationRate = 1
         minibatch_size = 32
-        learnStart = 10000
+        learnStart = 15000
         learningRate = 0.00025
         discountFactor = 0.95
         memorySize = 10000
-        #network_inputs = 100
+        network_inputs = 100 #NOT USED
         network_outputs = 3
         network_structure = [300,300]
 
