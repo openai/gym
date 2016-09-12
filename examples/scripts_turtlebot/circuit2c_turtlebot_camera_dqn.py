@@ -86,7 +86,7 @@ class DeepQ:
 
         #Flapply bird cnn
         model = Sequential()
-        model.add(Convolution2D(16, 8, 8, subsample=(2,2), init=lambda shape, name: normal(shape, scale=0.01, name=name), border_mode='same',input_shape=(1,32,32)))
+        model.add(Convolution2D(16, 8, 8, subsample=(2,2), init=lambda shape, name: normal(shape, scale=0.01, name=name), border_mode='same',input_shape=(img_channels,img_rows,img_cols)))
         model.add(Activation('relu'))
         #model.add(MaxPooling2D(pool_size=(2, 2)))
         #model.add(Dropout(0.5))
@@ -136,11 +136,11 @@ class DeepQ:
 
     # predict Q values for all the actions
     def getQValues(self, state):
-        predicted = self.model.predict(state.reshape(1,1,32,32))
+        predicted = self.model.predict(state.reshape(1,img_channels,img_rows,img_cols))
         return predicted[0]
 
     def getTargetQValues(self, state):
-        predicted = self.targetModel.predict(state.reshape(1,1,32,32))
+        predicted = self.targetModel.predict(state.reshape(1,img_channels,img_rows,img_cols))
         return predicted[0]
 
     def getMaxQ(self, qValues):
@@ -206,7 +206,7 @@ class DeepQ:
         if self.memory.getCurrentSize() > self.learnStart:
             # learn in batches of 128
             miniBatch = self.memory.getMiniBatch(miniBatchSize)
-            X_batch = np.empty((1,1,32,32), dtype = np.float64)
+            X_batch = np.empty((1,img_channels,img_rows,img_cols), dtype = np.float64)
             Y_batch = np.empty((1,self.output_size), dtype = np.float64)
             for sample in miniBatch:
                 isFinal = sample['isFinal']
@@ -267,6 +267,8 @@ if __name__ == '__main__':
     monitor_path = '/tmp/turtle_c2_dqn_ep1000'
     params_json  = '/tmp/turtle_c2_dqn_ep1000.json'
 
+    img_rows, img_cols, img_channels = 32, 32, 1
+
     if not continue_execution:
         #Each time we take a sample and update our weights it is called a mini-batch. 
         #Each time we run through the entire dataset, it's called an epoch.
@@ -307,6 +309,9 @@ if __name__ == '__main__':
             network_outputs = d.get('network_outputs')
             network_layers = d.get('network_structure')
             current_epoch = d.get('current_epoch')
+            img_rows = d.get('img_rows')
+            img_cols = d.get('img_cols')
+            img_channels = d.get('img_channels')
 
         deepQ = DeepQ(network_inputs, network_outputs, memorySize, discountFactor, learningRate, learnStart)
         deepQ.initNetworks(network_layers)
@@ -346,7 +351,6 @@ if __name__ == '__main__':
                 action = deepQ.selectAction(qValues, explorationRate)'''
 
             action = deepQ.selectAction(qValues, explorationRate)
-            
             newObservation, reward, done, info = env.step(action)
 
             cumulated_reward += reward
@@ -391,8 +395,8 @@ if __name__ == '__main__':
                         env.monitor.flush()
                         copy_tree(outdir,'/tmp/turtle_c2_dqn_ep'+str(epoch))
                         #save simulation parameters.
-                        parameter_keys = ['epochs','steps','updateTargetNetwork','explorationRate','minibatch_size','learnStart','learningRate','discountFactor','memorySize','network_inputs','network_outputs','network_structure','current_epoch']
-                        parameter_values = [epochs, steps, updateTargetNetwork, explorationRate, minibatch_size, learnStart, learningRate, discountFactor, memorySize, network_inputs, network_outputs, network_structure, epoch]
+                        parameter_keys = ['epochs','steps','updateTargetNetwork','explorationRate','minibatch_size','learnStart','learningRate','discountFactor','memorySize','network_inputs','network_outputs','network_structure','current_epoch', 'img_rows', 'img_cols', 'img_channels']
+                        parameter_values = [epochs, steps, updateTargetNetwork, explorationRate, minibatch_size, learnStart, learningRate, discountFactor, memorySize, network_inputs, network_outputs, network_structure, epoch, img_rows, img_cols, img_channels]
                         parameter_dictionary = dict(zip(parameter_keys, parameter_values))
                         with open('/tmp/turtle_c2_dqn_ep'+str(epoch)+'.json', 'w') as outfile:
                             json.dump(parameter_dictionary, outfile)
@@ -403,7 +407,7 @@ if __name__ == '__main__':
                 deepQ.updateTargetNetwork()
                 print ("updating target network. total steps: "+str(stepCounter))
 
-        explorationRate *= 0.9992 #epsilon decay [if initial e=1, 2878 epsisodes to reach 0.1]
+        explorationRate *= 0.997 #0.9992 epsilon decay [if initial e=1, 2878 epsisodes to reach 0.1]
         # explorationRate -= (2.0/epochs)
         explorationRate = max (0.1, explorationRate)
 
