@@ -282,7 +282,7 @@ if __name__ == '__main__':
         learningRate = 0.00025
         discountFactor = 0.95
         memorySize = 10000
-        network_inputs = 100
+        #network_inputs = 100
         network_outputs = 3
         network_structure = [300,300]
 
