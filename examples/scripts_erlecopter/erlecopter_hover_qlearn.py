@@ -3,14 +3,10 @@ import gym
 import gym_gazebo
 import time
 import numpy
-import random
 import time
 import pandas
 
-import matplotlib
-import matplotlib.pyplot as plt
 import qlearn
-import liveplot
 
 def render():
     render_skip = 0 #Skip first X episodes.
