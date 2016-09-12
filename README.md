@@ -59,7 +59,7 @@ sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `ls
 ```bash
 wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
 ```
-- 4Install Gazebo:
+- Install Gazebo:
 
 ```bash
 sudo apt-get update
