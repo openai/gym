@@ -1,6 +1,15 @@
 #gym-gazebo
 
-Extending the OpenAI Gym for robotics: a toolkit for reinforcement learning using ROS and Gazebo.
+<!--[![alt tag](https://travis-ci.org/erlerobot/gym.svg?branch=master)](https://travis-ci.org/erlerobot/gym)-->
+
+This work presents an extension of the initial OpenAI gym for robotics using ROS and Gazebo. A whitepaper about this work is available at https://arxiv.org/abs/1608.05742. Please use the following BibTex entry to cite our work:
+
+	@misc{1608.05742,
+		Author = {Iker Zamora and Nestor Gonzalez Lopez and Victor Mayoral Vilches and Alejandro Hernandez Cordero},
+		Title = {Extending the OpenAI Gym for robotics: a toolkit for reinforcement learning using ROS and Gazebo},
+		Year = {2016},
+		Eprint = {arXiv:1608.05742},
+	}
 
 Visit [erlerobotics/gym](http://erlerobotics.com/docs/Simulation/Gym/) for more information and videos.
 
@@ -59,7 +68,7 @@ sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `ls
 ```bash
 wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
 ```
-- 4Install Gazebo:
+- Install Gazebo:
 
 ```bash
 sudo apt-get update

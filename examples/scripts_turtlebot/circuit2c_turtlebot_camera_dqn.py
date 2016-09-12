@@ -136,11 +136,11 @@ class DeepQ:
 
     # predict Q values for all the actions
     def getQValues(self, state):
-        predicted = self.model.predict(state.reshape(1,img_channels,img_rows,img_cols))
+        predicted = self.model.predict(state)
         return predicted[0]
 
     def getTargetQValues(self, state):
-        predicted = self.targetModel.predict(state.reshape(1,img_channels,img_rows,img_cols))
+        predicted = self.targetModel.predict(state)
         return predicted[0]
 
     def getMaxQ(self, qValues):
