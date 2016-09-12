@@ -267,7 +267,7 @@ if __name__ == '__main__':
     monitor_path = '/tmp/turtle_c2_dqn_ep1000'
     params_json  = '/tmp/turtle_c2_dqn_ep1000.json'
 
-    img_rows, img_cols, img_channels = 32, 32, 1
+    img_rows, img_cols, img_channels = env.img_rows, env.img_cols, env.img_channels #32, 32, 1
 
     if not continue_execution:
         #Each time we take a sample and update our weights it is called a mini-batch. 
