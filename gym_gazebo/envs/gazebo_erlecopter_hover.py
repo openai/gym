@@ -8,7 +8,7 @@ import time
 import math
 
 from gym import utils, spaces
-from gym.envs.gazebo import gazebo_env
+from gym_gazebo.envs import gazebo_env
 from gym.utils import seeding
 
 from mavros_msgs.msg import OverrideRCIn
