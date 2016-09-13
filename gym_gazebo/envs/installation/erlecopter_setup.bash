@@ -18,6 +18,12 @@ else
   bash -c 'sed "s,ARDUPILOT_PATH=[^;]*,'ARDUPILOT_PATH=`pwd`/apm/ardupilot'," -i ~/.bashrc'
 fi
 
+if [ -z "$ERLE_COPTER_PARAM_PATH" ]; then
+	bash -c 'echo "export ERLE_COPTER_PARAM_PATH="`pwd`/../assets/params/Erle-Copter.param >> ~/.bashrc'
+else
+	bash -c 'sed "s,ERLE_COPTER_PARAM_PATH=[^;]*,'ERLE_COPTER_PARAM_PATH=`pwd`/../assets/params/Erle-Copter.param'," -i ~/.bashrc'
+fi
+
 #copy altered urdf model
 cp -r ../assets/urdf/erlecopter/* catkin_ws/src/ardupilot_sitl_gazebo_plugin/ardupilot_sitl_gazebo_plugin/urdf/
 
