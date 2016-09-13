@@ -115,7 +115,16 @@ class GazeboErleCopterHoverEnv(gazebo_env.GazeboEnv):
     def __init__(self):
 
         self._launch_apm()
-        self._pause("\n##############################################################################\nLoad Erle-Copter parameters in MavProxy console (sim_vehicle.sh):\n\n MAV> param load %s\n\n Then, press <Enter> to launch Gazebo..." % (str(os.environ["ERLE_COPTER_PARAM_PATH"])))
+
+        RED = '\033[91m'
+        BOLD = '\033[1m'
+        ENDC = '\033[0m'        
+        LINE = "%s%s##############################################################################%s" % (RED, BOLD, ENDC)
+        msg = "\n%s\n" % (LINE)
+        msg += "%sLoad Erle-Copter parameters in MavProxy console (sim_vehicle.sh):%s\n\n" % (BOLD, ENDC)
+        msg += "MAV> param load %s\n\n" % (str(os.environ["ERLE_COPTER_PARAM_PATH"]))
+        msg += "%sThen, press <Enter> here to launch Gazebo...%s\n\n%s" % (BOLD, ENDC,  LINE)
+        self._pause(msg)
 
         # Launch the simulation with the given launchfile name
         gazebo_env.GazeboEnv.__init__(self, "GazeboErleCopterHover-v0.launch")    
