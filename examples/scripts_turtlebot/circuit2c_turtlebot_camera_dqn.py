@@ -277,12 +277,12 @@ if __name__ == '__main__':
         steps = 1000
         updateTargetNetwork = 5000
         explorationRate = 1
+        finalExplorationRate = 0.1
         minibatch_size = 32
         learnStart = 15000
         learningRate = 0.00025
         discountFactor = 0.95
         memorySize = 10000
-        network_inputs = 100 #NOT USED
         network_outputs = 3
         network_structure = [300,300]
 
@@ -407,9 +407,9 @@ if __name__ == '__main__':
                 deepQ.updateTargetNetwork()
                 print ("updating target network. total steps: "+str(stepCounter))
 
-        explorationRate *= 0.997 #0.9992 epsilon decay [if initial e=1, 2878 epsisodes to reach 0.1]
+        explorationRate *= discountFactor
         # explorationRate -= (2.0/epochs)
-        explorationRate = max (0.1, explorationRate)
+        explorationRate = max (finalExplorationRate, explorationRate)
 
     env.monitor.close()
     env.close()
