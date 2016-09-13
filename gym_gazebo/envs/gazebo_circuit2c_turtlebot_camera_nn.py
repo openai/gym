@@ -38,9 +38,9 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
 
         self.last50actions = [0] * 50
 
-        self.img_rows = 32
-        self.img_cols = 32
-        self.img_channels = 1
+        self.img_rows = 64
+        self.img_cols = 64
+        self.img_channels = 4
 
     def calculate_observation(self,data):
         min_range = 0.2
@@ -163,12 +163,11 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
 
         cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
         cv_image = cv2.resize(cv_image, (self.img_rows, self.img_cols))
-        cv_image = skimage.exposure.rescale_intensity(cv_image,out_range=(0,255))
 
+        cv_image = cv_image.reshape(1, 1, cv_image.shape[0], cv_image.shape[1])
+        self.state = np.append(cv_image, self.state[:, :3, :, :], axis=1)
 
-        state = cv_image.reshape(1, 1, cv_image.shape[0], cv_image.shape[1])
-
-        return state, reward, done, {}
+        return self.state, reward, done, {}
 
     def _reset(self):
 
@@ -183,7 +182,7 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
             print ("/gazebo/reset_simulation service call failed")
 
         
-        '''# move the robot to a new random location
+        # move the robot to a new random location
         # S 1 (0,0, y=0)
         # C 1 (3.85,0, y=-1.57)
         # C 2 (3.85,-3.8, y=3,14)
@@ -200,7 +199,7 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
         elif rand_pose == 3:
             os.system("gz model -m mobile_base -x 3.85 -y -2.9 -Y -1.57")
         elif rand_pose == 4:
-            os.system("gz model -m mobile_base -x 0.26 -y -3.9 -Y -1.57")'''
+            os.system("gz model -m mobile_base -x 0.26 -y -3.9 -Y -1.57")
 
         # Unpause simulation to make observation
         rospy.wait_for_service('/gazebo/unpause_physics')
@@ -241,7 +240,9 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
 
         cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
         cv_image = cv2.resize(cv_image, (self.img_rows, self.img_cols))
-        cv_image = skimage.exposure.rescale_intensity(cv_image,out_range=(0,255))
 
-        state = cv_image.reshape(1, 1, cv_image.shape[0], cv_image.shape[1])
-        return state
+        #state = cv_image.reshape(1, 1, cv_image.shape[0], cv_image.shape[1])
+        self.state = np.stack((cv_image, cv_image, cv_image, cv_image))
+        self.state = self.state.reshape(1, self.state.shape[0], self.state.shape[1],self.state.shape[2])
+
+        return self.state
