@@ -92,7 +92,6 @@ class GazeboErleCopterHoverEnv(gazebo_env.GazeboEnv):
                 else:
                     erlecopter_index +=1
             erlecopter_alt = alt_msg.pose[erlecopter_index].position.z * 2
-            print "erlecopter_alt : %f | alt - err : %f" % (erlecopter_alt, alt - err) 
             if erlecopter_alt > (alt - err):
                 takeoff_successful = True
                 print "Takeoff successful"
@@ -114,10 +113,18 @@ class GazeboErleCopterHoverEnv(gazebo_env.GazeboEnv):
         programPause = raw_input(str(msg))
 
     def __init__(self):
-        print "###### INIT ######"
 
         self._launch_apm()
-        self._pause("Load Erle-Copter parameters in MavProxy console and press <Enter> to launch Gazebo...")
+
+        RED = '\033[91m'
+        BOLD = '\033[1m'
+        ENDC = '\033[0m'        
+        LINE = "%s%s##############################################################################%s" % (RED, BOLD, ENDC)
+        msg = "\n%s\n" % (LINE)
+        msg += "%sLoad Erle-Copter parameters in MavProxy console (sim_vehicle.sh):%s\n\n" % (BOLD, ENDC)
+        msg += "MAV> param load %s\n\n" % (str(os.environ["ERLE_COPTER_PARAM_PATH"]))
+        msg += "%sThen, press <Enter> here to launch Gazebo...%s\n\n%s" % (BOLD, ENDC,  LINE)
+        self._pause(msg)
 
         # Launch the simulation with the given launchfile name
         gazebo_env.GazeboEnv.__init__(self, "GazeboErleCopterHover-v0.launch")    
@@ -162,19 +169,13 @@ class GazeboErleCopterHoverEnv(gazebo_env.GazeboEnv):
         self._seed()
 
     def _seed(self, seed=None):
-        print "###### SEED ######"
-
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
     def _state(self, action):
-        print "###### LASER_STATE ######"
-
         return discretized_ranges, done
 
     def _step(self, action):
-
-        print "###### STEP ######"
         msg = OverrideRCIn()
 
         if action == 0: #FORWARD
@@ -214,13 +215,11 @@ class GazeboErleCopterHoverEnv(gazebo_env.GazeboEnv):
 
 
     def _killall(self, process_name):
-        print "###### KILLALL ######"
         pids = subprocess.check_output(["pidof",process_name]).split()
         for pid in pids:
             os.system("kill -9 "+str(pid))
 
     def _relaunch_apm(self):
-        print "###### RELAUNCH APM ######"
         pids = subprocess.check_output(["pidof","ArduCopter.elf"]).split()
         for pid in pids:
             os.system("kill -9 "+str(pid))
@@ -270,7 +269,6 @@ class GazeboErleCopterHoverEnv(gazebo_env.GazeboEnv):
         return math.sqrt(self.diff_latitude**2 + self.diff_longitude**2)
 
     def _reset(self):
-        print "###### RESET ######"
         # Resets the state of the environment and returns an initial observation.
         rospy.wait_for_service('/gazebo/reset_world')
         try:

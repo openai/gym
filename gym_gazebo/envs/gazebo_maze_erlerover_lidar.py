@@ -1,22 +1,37 @@
 import gym
+import os
 import rospy
 import roslaunch
+import subprocess
 import time
 import numpy as np
 
 from gym import utils, spaces
 from gym_gazebo.envs import gazebo_env
+from gym.utils import seeding
+
 from mavros_msgs.msg import OverrideRCIn
+from sensor_msgs.msg import LaserScan
+from std_msgs.msg import Float64
+
 from mavros_msgs.srv import CommandBool, CommandTOL, SetMode
 from std_srvs.srv import Empty
 
-from sensor_msgs.msg import LaserScan
-
-from gym.utils import seeding
 
 class GazeboMazeErleRoverLidarEnv(gazebo_env.GazeboEnv):
   
     def __init__(self):
+
+        self._launch_apm()
+        RED = '\033[91m'
+        BOLD = '\033[1m'
+        ENDC = '\033[0m'        
+        LINE = "%s%s##############################################################################%s" % (RED, BOLD, ENDC)
+        msg = "\n%s\n" % (LINE)
+        msg += "%sLoad Erle-Rover parameters in MavProxy console (sim_vehicle.sh):%s\n\n" % (BOLD, ENDC)
+        msg += "MAV> param load %s\n\n" % (str(os.environ["ERLE_ROVER_PARAM_PATH"]))
+        msg += "%sThen, press <Enter> here to launch Gazebo...%s\n\n%s" % (BOLD, ENDC,  LINE)
+        self._pause(msg)
 
         # Launch the simulation with the given launchfile name
         gazebo_env.GazeboEnv.__init__(self, "GazeboMazeErleRoverLidar_v0.launch")    
@@ -38,10 +53,6 @@ class GazeboMazeErleRoverLidarEnv(gazebo_env.GazeboEnv):
 
         self.mode_proxy = rospy.ServiceProxy('mavros/set_mode', SetMode)
 
-        self.arm_proxy = rospy.ServiceProxy('mavros/cmd/arming', CommandBool)
-        
-        self.takeoff_proxy = rospy.ServiceProxy('mavros/cmd/takeoff', CommandTOL)
-
         time.sleep(10) # Wait for gzserver to launch
 
         # Set MANUAL mode
@@ -51,7 +62,23 @@ class GazeboMazeErleRoverLidarEnv(gazebo_env.GazeboEnv):
         except rospy.ServiceException, e:
             print ("mavros/set_mode service call failed: %s"%e)
 
+        print "Waiting for mavros..."
+        data = None
+        while data is None:
+            try:
+                data = rospy.wait_for_message('/mavros/global_position/rel_alt', Float64, timeout=5)
+            except:
+                pass
+
         self._seed()
+
+    def _launch_apm(self):
+        sim_vehicle_sh = str(os.environ["ARDUPILOT_PATH"]) + "/Tools/autotest/sim_vehicle.sh"
+        subprocess.Popen(["xterm","-e",sim_vehicle_sh,"-j4","-f","Gazebo","-v","APMrover2"])
+
+    def _pause(self, msg):
+        programPause = raw_input(str(msg))
+
 
     def _seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)

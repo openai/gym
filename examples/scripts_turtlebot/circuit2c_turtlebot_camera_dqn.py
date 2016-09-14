@@ -283,6 +283,7 @@ if __name__ == '__main__':
 
     img_rows, img_cols, img_channels = env.img_rows, env.img_cols, env.img_channels
 
+
     if not continue_execution:
         #Each time we take a sample and update our weights it is called a mini-batch. 
         #Each time we run through the entire dataset, it's called an epoch.
@@ -291,6 +292,7 @@ if __name__ == '__main__':
         steps = 1000
         updateTargetNetwork = 10000000000#5000
         explorationRate = 1
+        finalExplorationRate = 0.01
         minibatch_size = 32
         learnStart = 5000
         learningRate = 0.00025
@@ -425,9 +427,9 @@ if __name__ == '__main__':
             if stepCounter % 2500 == 0:
                 print("stepCounter = "+str(stepCounter))
 
-        explorationRate *= 0.995#5 #0.9992 epsilon decay [if initial e=1, 2878 epsisodes to reach 0.1]
+        explorationRate *= discountFactor
         # explorationRate -= (2.0/epochs)
-        explorationRate = max (0.01, explorationRate)
+        explorationRate = max (finalExplorationRate, explorationRate)
 
     env.monitor.close()
     env.close()
