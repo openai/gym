@@ -255,7 +255,7 @@ Follow the instructions [here](http://deeplearning.net/software/theano/install.h
 
 Working on a clean installation of Ubuntu 14.04 using CUDA 7.5.
 
-The following flags are needed in order to execute in GPU mode, using an alias is recommeneded.
+The following flags are needed in order to execute in GPU mode, using an alias is recommended.
 ```bash
 THEANO_FLAGS=mode=FAST_RUN,device=gpu,floatX=float32
 ```
