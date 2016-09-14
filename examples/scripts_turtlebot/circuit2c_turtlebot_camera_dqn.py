@@ -17,7 +17,7 @@ from keras.models import Sequential, load_model
 from keras.initializations import normal
 from keras import optimizers
 from keras.optimizers import RMSprop
-from keras.layers import Convolution2D, Flatten
+from keras.layers import Convolution2D, Flatten, ZeroPadding2D
 from keras.layers.core import Dense, Dropout, Activation
 from keras.layers.normalization import BatchNormalization
 from keras.layers.advanced_activations import LeakyReLU
@@ -86,28 +86,42 @@ class DeepQ:
 
         #Flapply bird cnn
         model = Sequential()
-        model.add(Convolution2D(16, 8, 8, subsample=(2,2), init=lambda shape, name: normal(shape, scale=0.01, name=name), border_mode='same',input_shape=(img_channels,img_rows,img_cols)))
+        model.add(Convolution2D(16, 3, 3, subsample=(2,2), input_shape=(img_channels,img_rows,img_cols)))
         model.add(Activation('relu'))
-        #model.add(MaxPooling2D(pool_size=(2, 2)))
+        model.add(ZeroPadding2D((1, 1)))
+        model.add(Convolution2D(16, 3, 3, subsample=(2,2)))
+        model.add(Activation('relu'))
+        model.add(MaxPooling2D(pool_size=(2, 2), strides=(2,2)))
         #model.add(Dropout(0.5))
 
-        model.add(Convolution2D(32, 4, 4, init=lambda shape, name: normal(shape, scale=0.01, name=name), border_mode='same'))
-        model.add(Activation('relu'))
-        #model.add(MaxPooling2D(pool_size=(2, 2)))
-        #model.add(Dropout(0.5))
+        #model.add(ZeroPadding2D((1, 1)))
+        #model.add(Convolution2D(32, 3, 3))
+        #model.add(Activation('relu'))
+        #model.add(ZeroPadding2D((1, 1)))
+        #model.add(Convolution2D(32, 3, 3))
+        #model.add(Activation('relu'))
+        #model.add(MaxPooling2D(pool_size=(2, 2), strides=(2,2)))
+        ##model.add(Dropout(0.5))
+#
+#        #model.add(ZeroPadding2D((1, 1)))
+#        #model.add(Convolution2D(64, 3, 3))
+#        #model.add(Activation('relu'))
+#        #model.add(ZeroPadding2D((1, 1)))
+#        #model.add(Convolution2D(64, 3, 3))
+#        #model.add(Activation('relu'))
+        #model.add(MaxPooling2D(pool_size=(2, 2), strides=(2,2)))
 
-        model.add(Convolution2D(32, 3, 3, init=lambda shape, name: normal(shape, scale=0.01, name=name), border_mode='same'))
-        model.add(Activation('relu'))
-        model.add(MaxPooling2D(pool_size=(2, 2)))
-        model.add(Dropout(0.5))
 
         model.add(Flatten())
-        model.add(Dense(256, init=lambda shape, name: normal(shape, scale=0.01, name=name)))
+        model.add(Dense(256))
         model.add(Activation('relu'))
-        model.add(Dense(3,init=lambda shape, name: normal(shape, scale=0.01, name=name)))
+        model.add(Dense(network_outputs))
 
-        adam = Adam(lr=1e-6)
-        model.compile(loss='mse',optimizer=adam)
+        #adam = Adam(lr=1e-6)
+        #model.compile(loss='mse',optimizer=adam)
+
+        sgd = SGD(lr=0.001, decay=1e-6, momentum=0.9, nesterov=True)
+        model.compile(loss='mse',optimizer=sgd)
         model.summary()
 
         return model
@@ -235,7 +249,7 @@ class DeepQ:
             #print("model FIT debug-------")
             #print(X_batch.shape)
             #print(Y_batch.shape)
-            self.model.fit(X_batch, Y_batch, batch_size = len(miniBatch), nb_epoch=1, verbose = 0)
+            self.model.fit(X_batch, Y_batch, validation_split=0.2, batch_size = len(miniBatch), nb_epoch=1, verbose = 0)
 
     def saveModel(self, path):
         self.model.save(path)
@@ -267,7 +281,7 @@ if __name__ == '__main__':
     monitor_path = '/tmp/turtle_c2_dqn_ep1000'
     params_json  = '/tmp/turtle_c2_dqn_ep1000.json'
 
-    img_rows, img_cols, img_channels = 32, 32, 1
+    img_rows, img_cols, img_channels = env.img_rows, env.img_cols, env.img_channels
 
     if not continue_execution:
         #Each time we take a sample and update our weights it is called a mini-batch. 
@@ -275,13 +289,13 @@ if __name__ == '__main__':
         #PARAMETER LIST
         epochs = 100000
         steps = 1000
-        updateTargetNetwork = 5000
+        updateTargetNetwork = 10000000000#5000
         explorationRate = 1
         minibatch_size = 32
-        learnStart = 15000
+        learnStart = 5000
         learningRate = 0.00025
         discountFactor = 0.95
-        memorySize = 10000
+        memorySize = 100000
         network_inputs = 100 #NOT USED
         network_outputs = 3
         network_structure = [300,300]
@@ -321,8 +335,8 @@ if __name__ == '__main__':
         copy_tree(monitor_path,outdir)
         env.monitor.start(outdir, resume=True, seed=None)
 
-    last100Scores = [0] * 100
-    last100ScoresIndex = 0
+    last100Rewards = [0] * 100
+    last100RewardsIndex = 0
     last100Filled = False
     stepCounter = 0
     highest_reward = 0
@@ -360,10 +374,12 @@ if __name__ == '__main__':
             deepQ.addMemory(observation, action, reward, newObservation, done)
 
 
-            if learnStart == stepCounter:
+            #if learnStart == stepCounter:
+            if explorationRate == learnStart:
                 print("Starting learning")
 
-            if stepCounter >= learnStart:
+            #if stepCounter >= learnStart:
+            if explorationRate <= 0.2:
                 if stepCounter <= updateTargetNetwork:
                     deepQ.learnOnMiniBatch(minibatch_size, False)
                 else :
@@ -378,17 +394,17 @@ if __name__ == '__main__':
             env.monitor.flush(force=True)
 
             if done:
-                last100Scores[last100ScoresIndex] = t
-                last100ScoresIndex += 1
-                if last100ScoresIndex >= 100:
+                last100Rewards[last100RewardsIndex] = cumulated_reward
+                last100RewardsIndex += 1
+                if last100RewardsIndex >= 100:
                     last100Filled = True
-                    last100ScoresIndex = 0
+                    last100RewardsIndex = 0
                 if not last100Filled:
                     print ("EP "+str(epoch)+" - {} timesteps".format(t+1)+"   Exploration="+str(round(explorationRate, 2)))
                 else :
                     m, s = divmod(int(time.time() - start_time), 60)
                     h, m = divmod(m, 60)
-                    print ("EP "+str(epoch)+" - {} timesteps".format(t+1)+" - last100 Steps : "+str((sum(last100Scores)/len(last100Scores)))+" - Cumulated R: "+str(cumulated_reward)+"   Eps="+str(round(explorationRate, 2))+"     Time: %d:%02d:%02d" % (h, m, s))
+                    print ("EP "+str(epoch)+" - {} timesteps".format(t+1)+" - last100 C_Rewards : "+str(int((sum(last100Rewards)/len(last100Rewards))))+" - Cumulated R: "+str(cumulated_reward)+"   Eps="+str(round(explorationRate, 2))+"     Time: %d:%02d:%02d" % (h, m, s))
                     if (epoch)%100==0:
                         #save model weights and monitoring data every 100 epochs. 
                         deepQ.saveModel('/tmp/turtle_c2_dqn_ep'+str(epoch)+'.h5')
@@ -406,10 +422,12 @@ if __name__ == '__main__':
             if stepCounter % updateTargetNetwork == 0:
                 deepQ.updateTargetNetwork()
                 print ("updating target network. total steps: "+str(stepCounter))
+            if stepCounter % 2500 == 0:
+                print("stepCounter = "+str(stepCounter))
 
-        explorationRate *= 0.997 #0.9992 epsilon decay [if initial e=1, 2878 epsisodes to reach 0.1]
+        explorationRate *= 0.995#5 #0.9992 epsilon decay [if initial e=1, 2878 epsisodes to reach 0.1]
         # explorationRate -= (2.0/epochs)
-        explorationRate = max (0.1, explorationRate)
+        explorationRate = max (0.01, explorationRate)
 
     env.monitor.close()
     env.close()
