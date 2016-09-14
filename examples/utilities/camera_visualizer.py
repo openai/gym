@@ -25,9 +25,11 @@ class image_converter:
       print(e)
 
     cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
-    cv_image = cv2.resize(cv_image, (400, 400))
-    cv_image = skimage.exposure.rescale_intensity(cv_image,out_range=(0,255))
+    cv_image = cv2.resize(cv_image, (32, 32))
+    #cv_image = skimage.exposure.rescale_intensity(cv_image,out_range=(0,255))
 
+    cv2.namedWindow("Image window", cv2.WINDOW_NORMAL)
+    cv2.resizeWindow("Image window",480,480)
     cv2.imshow("Image window", cv_image)
     cv2.waitKey(3)
 
