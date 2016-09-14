@@ -300,6 +300,7 @@ if __name__ == '__main__':
         network_inputs = 100 #NOT USED
         network_outputs = 3
         network_structure = [300,300]
+        explorationDecay = 0.995
 
         current_epoch = 0
 
@@ -426,7 +427,7 @@ if __name__ == '__main__':
             if stepCounter % 2500 == 0:
                 print("stepCounter = "+str(stepCounter))
 
-        explorationRate *= 0.995#5 #0.9992 epsilon decay [if initial e=1, 2878 epsisodes to reach 0.1]
+        explorationRate *= explorationDecay
         # explorationRate -= (2.0/epochs)
         explorationRate = max (0.01, explorationRate)
 
