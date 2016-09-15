@@ -78,12 +78,12 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
             self.vel_pub.publish(vel_cmd)
         elif action == 1: #LEFT
             vel_cmd = Twist()
-            vel_cmd.linear.x = 0.2
+            vel_cmd.linear.x = 0.05
             vel_cmd.angular.z = 0.2
             self.vel_pub.publish(vel_cmd)
         elif action == 2: #RIGHT
             vel_cmd = Twist()
-            vel_cmd.linear.x = 0.2
+            vel_cmd.linear.x = 0.05
             vel_cmd.angular.z = -0.2
             self.vel_pub.publish(vel_cmd)
 
@@ -150,7 +150,7 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
         left_sum = sum(data.ranges[laser_len-(laser_len/5):laser_len-(laser_len/10)]) #80-90
         right_sum = sum(data.ranges[(laser_len/10):(laser_len/5)]) #10-20
 
-        center_detour = abs(right_sum - left_sum)/3
+        center_detour = abs(right_sum - left_sum)/5
 
         # 3 actions
         if not done:
@@ -163,7 +163,7 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
         else:
             reward = -1
 
-        print("detour= "+str(center_detour)+" :: reward= "+str(reward)+" ::action="+str(action))
+        #print("detour= "+str(center_detour)+" :: reward= "+str(reward)+" ::action="+str(action))
 
         '''x_t = skimage.color.rgb2gray(cv_image)
         x_t = skimage.transform.resize(x_t,(32,32))
@@ -195,27 +195,6 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
             self.reset_proxy()
         except rospy.ServiceException, e:
             print ("/gazebo/reset_simulation service call failed")
-
-        
-        # move the robot to a new random location
-        # S 1 (0,0, y=0)
-        # C 1 (3.85,0, y=-1.57)
-        # C 2 (3.85,-3.8, y=3,14)
-        # C 2_2 (3.85,-2.9, y=-1,57)
-        # C 3 (0.26,-3.9, y=-1,57)
-        #os.system("gz model -m mobile_base -x -2.5 -y 0 -Y 0")
-        '''rand_pose = random.randint(0,3)
-        if rand_pose == 0:
-            #os.system("gz model -m mobile_base -x 0 -y 0 -Y 3.14")
-            os.system("gz model -m mobile_base -x -2 -y 0 -Y 3.14")
-        elif rand_pose == 1:
-            os.system("gz model -m mobile_base -x 3.85 -y 0 -Y -1.57")
-        elif rand_pose == 2:
-            os.system("gz model -m mobile_base -x 3.85 -y -3.8 -Y 3.14")
-        elif rand_pose == 3:
-            os.system("gz model -m mobile_base -x 3.85 -y -2.9 -Y 1.57")
-        #elif rand_pose == 4:
-        #    os.system("gz model -m mobile_base -x 0.26 -y -3.9 -Y -1.57")'''
 
         # Unpause simulation to make observation
         rospy.wait_for_service('/gazebo/unpause_physics')
