@@ -69,8 +69,9 @@ class DeepQ:
         model.add(Dense(256))
         model.add(Activation('relu'))
         model.add(Dense(network_outputs))
-        adam = Adam(lr=self.learningRate)
-        model.compile(loss='mse',optimizer=adam)
+        #adam = Adam(lr=self.learningRate)
+        #model.compile(loss='mse',optimizer=adam)
+        model.compile(RMSprop(lr=self.learningRate), 'MSE')
         model.summary()
 
         return model
@@ -210,11 +211,11 @@ def clear_monitor_files(training_dir):
 
 if __name__ == '__main__':
 
-    #REMEMBER!: turtlebot_nn_setup.bash must be executed.
+    #REMEMBER!: turtlebot_cnn_setup.bash must be executed.
     env = gym.make('GazeboCircuit2cTurtlebotCameraNnEnv-v0')
     outdir = '/tmp/gazebo_gym_experiments/'
 
-    continue_execution = True
+    continue_execution = False
     #fill this if continue_execution=True
     weights_path = '/tmp/turtle_c2c_dqn_ep200.h5'
     monitor_path = '/tmp/turtle_c2c_dqn_ep200'
@@ -226,10 +227,10 @@ if __name__ == '__main__':
 
     if not continue_execution:
         minibatch_size = 32
-        learningRate = 1e-6
+        learningRate = 1e-3#1e6
         discountFactor = 0.95
         network_outputs = 3
-        memorySize = 50000
+        memorySize = 100000
         learnStart = 10000 # timesteps to observe before training
         EXPLORE = memorySize # frames over which to anneal epsilon
         INITIAL_EPSILON = 1 # starting value of epsilon
@@ -334,7 +335,7 @@ if __name__ == '__main__':
 
             stepCounter += 1
             if stepCounter % 2500 == 0:
-                print("stepCounter = "+str(stepCounter))
+                print("Frames = "+str(stepCounter))
 
     env.monitor.close() #not needed in latest gym update
     env.close()
