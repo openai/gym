@@ -168,12 +168,11 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
         '''x_t = skimage.color.rgb2gray(cv_image)
         x_t = skimage.transform.resize(x_t,(32,32))
         x_t = skimage.exposure.rescale_intensity(x_t,out_range=(0,255))'''
-
-
+        
         cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
         cv_image = cv2.resize(cv_image, (self.img_rows, self.img_cols))
         #cv_image = cv_image[(self.img_rows/20):self.img_rows-(self.img_rows/20),(self.img_cols/10):self.img_cols] #crop image
-        cv_image = skimage.exposure.rescale_intensity(cv_image,out_range=(0,255))
+        #cv_image = skimage.exposure.rescale_intensity(cv_image,out_range=(0,255))
 
 
         state = cv_image.reshape(1, 1, cv_image.shape[0], cv_image.shape[1])
@@ -233,10 +232,11 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
         x_t = skimage.transform.resize(x_t,(32,32))
         x_t = skimage.exposure.rescale_intensity(x_t,out_range=(0,255))'''
 
+
         cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
         cv_image = cv2.resize(cv_image, (self.img_rows, self.img_cols))
         #cv_image = cv_image[(self.img_rows/20):self.img_rows-(self.img_rows/20),(self.img_cols/10):self.img_cols] #crop image
-        cv_image = skimage.exposure.rescale_intensity(cv_image,out_range=(0,255))
+        #cv_image = skimage.exposure.rescale_intensity(cv_image,out_range=(0,255))
 
         state = cv_image.reshape(1, 1, cv_image.shape[0], cv_image.shape[1])
         return state
