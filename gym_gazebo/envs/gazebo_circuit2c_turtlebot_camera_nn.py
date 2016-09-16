@@ -43,7 +43,7 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
         self.img_channels = 1
 
     def calculate_observation(self,data):
-        min_range = 0.2
+        min_range = 0.21
         done = False
         for i, item in enumerate(data.ranges):
             if (min_range > data.ranges[i] > 0):
@@ -73,7 +73,7 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
         # 3 actions
         if action == 0: #FORWARD
             vel_cmd = Twist()
-            vel_cmd.linear.x = 0.3
+            vel_cmd.linear.x = 0.2
             vel_cmd.angular.z = 0.0
             self.vel_pub.publish(vel_cmd)
         elif action == 1: #LEFT
@@ -144,31 +144,44 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
             reward = -200'''
 
 
+        # Add center of the track reward
+        # len(data.ranges) = 100
+        laser_len = len(data.ranges)
+        left_sum = sum(data.ranges[laser_len-(laser_len/5):laser_len-(laser_len/10)]) #80-90
+        right_sum = sum(data.ranges[(laser_len/10):(laser_len/5)]) #10-20
+
+        center_detour = abs(right_sum - left_sum)/5
+
         # 3 actions
         if not done:
             if action == 0:
-                reward = 1
+                reward = 1 / float(center_detour+1)
             elif action_sum > 45: #L or R looping
-                #print("90 percent of the last 50 actions were turns. LOOPING")
                 reward = -0.5
             else: #L or R no looping
-                reward = 0.5
+                reward = 0.5 / float(center_detour+1)
         else:
             reward = -1
+
+        #print("detour= "+str(center_detour)+" :: reward= "+str(reward)+" ::action="+str(action))
 
         '''x_t = skimage.color.rgb2gray(cv_image)
         x_t = skimage.transform.resize(x_t,(32,32))
         x_t = skimage.exposure.rescale_intensity(x_t,out_range=(0,255))'''
-
-
+        
         cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
         cv_image = cv2.resize(cv_image, (self.img_rows, self.img_cols))
-        cv_image = skimage.exposure.rescale_intensity(cv_image,out_range=(0,255))
+        #cv_image = cv_image[(self.img_rows/20):self.img_rows-(self.img_rows/20),(self.img_cols/10):self.img_cols] #crop image
+        #cv_image = skimage.exposure.rescale_intensity(cv_image,out_range=(0,255))
 
 
         state = cv_image.reshape(1, 1, cv_image.shape[0], cv_image.shape[1])
-
         return state, reward, done, {}
+
+        # test STACK 4
+        #cv_image = cv_image.reshape(1, 1, cv_image.shape[0], cv_image.shape[1])
+        #self.s_t = np.append(cv_image, self.s_t[:, :3, :, :], axis=1)
+        #return self.s_t, reward, done, {} # observation, reward, done, info
 
     def _reset(self):
 
@@ -181,26 +194,6 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
             self.reset_proxy()
         except rospy.ServiceException, e:
             print ("/gazebo/reset_simulation service call failed")
-
-        
-        '''# move the robot to a new random location
-        # S 1 (0,0, y=0)
-        # C 1 (3.85,0, y=-1.57)
-        # C 2 (3.85,-3.8, y=3,14)
-        # C 2_2 (3.85,-2.9, y=-1,57)
-        # C 3 (0.26,-3.9, y=-1,57)
-
-        rand_pose = random.randint(0,4)
-        if rand_pose == 0:
-            os.system("gz model -m mobile_base -x 0 -y 0 -Y 0")
-        elif rand_pose == 1:
-            os.system("gz model -m mobile_base -x 3.85 -y 0 -Y -1.57")
-        elif rand_pose == 2:
-            os.system("gz model -m mobile_base -x 3.85 -y -3.8 -Y 3.14")
-        elif rand_pose == 3:
-            os.system("gz model -m mobile_base -x 3.85 -y -2.9 -Y -1.57")
-        elif rand_pose == 4:
-            os.system("gz model -m mobile_base -x 0.26 -y -3.9 -Y -1.57")'''
 
         # Unpause simulation to make observation
         rospy.wait_for_service('/gazebo/unpause_physics')
@@ -239,9 +232,16 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
         x_t = skimage.transform.resize(x_t,(32,32))
         x_t = skimage.exposure.rescale_intensity(x_t,out_range=(0,255))'''
 
+
         cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
         cv_image = cv2.resize(cv_image, (self.img_rows, self.img_cols))
-        cv_image = skimage.exposure.rescale_intensity(cv_image,out_range=(0,255))
+        #cv_image = cv_image[(self.img_rows/20):self.img_rows-(self.img_rows/20),(self.img_cols/10):self.img_cols] #crop image
+        #cv_image = skimage.exposure.rescale_intensity(cv_image,out_range=(0,255))
 
         state = cv_image.reshape(1, 1, cv_image.shape[0], cv_image.shape[1])
         return state
+
+        # test STACK 4
+        #self.s_t = np.stack((cv_image, cv_image, cv_image, cv_image), axis=0)
+        #self.s_t = self.s_t.reshape(1, self.s_t.shape[0], self.s_t.shape[1], self.s_t.shape[2])
+        #return self.s_t
