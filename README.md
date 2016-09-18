@@ -31,16 +31,35 @@ A simple circuit with straight tracks and 90 degree turns with high contrast col
 # Installation
 
 ## Table of Contents
-- [Requirements](#requirements)
-- [ROS Indigo](#ros-indigo)
-- [Gazebo](#gazebo)
-- [Gym Gazebo Pip](#gym-gazebo-pip)
-- [Dependencies](#dependencies)
-  - [Automatic installation](#automatic-installation)
-  - [Step-by-step installation](#step-by-step-installation)
-  - [Keras and Theano installation](#keras-and-theano-installation)
-    - [Enablig GPU for Theano](#enablig-gpu-for-theano)
-- [Usage](#usage)
+
+- [Docker](#docker)
+- [Ubuntu](#ubuntu)
+    - [Requirements](#requirements)
+    - [ROS Indigo](#ros-indigo)
+    - [Gazebo](#gazebo)
+    - [Gym Gazebo Pip](#gym-gazebo-pip)
+    - [Dependencies](#dependencies)
+      - [Automatic installation](#automatic-installation)
+      - [Step-by-step installation](#step-by-step-installation)
+      - [Keras and Theano installation](#keras-and-theano-installation)
+        - [Enablig GPU for Theano](#enablig-gpu-for-theano)
+    - [Usage](#usage)
+
+
+## Docker (work in progress)
+
+Build/fetch the container:
+```bash
+# docker pull erlerobotics:gym-gazebo # to fetch the container
+docker build -t gym-gazebo .
+```
+
+Enter the container
+```bash
+docker run -it gym-gazebo
+```
+
+## Ubuntu
 
 ## Requirements
 

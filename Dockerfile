@@ -20,6 +20,7 @@ RUN apt-get update \
     python-setuptools \
     libpq-dev \
     libjpeg-dev \
+    wget \
     curl \
     cmake \
     git \
@@ -85,6 +86,9 @@ RUN apt-get update && apt-get install -y \
     ros-indigo-ros-core=1.1.4-0* \
     && rm -rf /var/lib/apt/lists/*
 
+# Install additional dependencies
+RUN apt-get install -y ros-indigo-cv-bridge
+
 #--------------------
 # Install Gazebo
 #--------------------
@@ -93,23 +97,49 @@ RUN sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable
 RUN wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
 
 RUN sudo apt-get update
-RUN sudo apt-get remove .*gazebo.* && sudo apt-get update && sudo apt-get install gazebo7 libgazebo7-dev
+RUN sudo apt-get install gazebo7 libgazebo7-dev -y
+
+
+#--------------------
+# Install deep learning toolkits
+#--------------------
+# install dependencies
+RUN sudo pip install h5py
+RUN sudo apt-get install gfortran -y
+
+# install sript specific dependencies (temporal)
+RUN sudo apt-get install python-skimage -y
+
+# install Theano
+#RUN git clone git://github.com/Theano/Theano.git
+#RUN cd Theano/ && sudo python setup.py develop
+RUN sudo pip install Theano
+
+# install Keras
+RUN sudo pip install keras
 
 #--------------------
 # Install gym-gazebo
 #--------------------
 
+RUN cd gym-gazebo && sudo pip install -e .
+
 # install dependencies
-#RUN cd /usr/local/gym/gym-gazebo/gym_gazebo/envs/installation && bash setup.bash
+RUN cd /usr/local/gym/gym-gazebo/gym_gazebo/envs/installation && bash setup.bash
 
 #WORKDIR /root
 #ENTRYPOINT ["/usr/local/gym/bin/docker_entrypoint"]
 
-
-
-
 # setup entrypoint
-COPY /usr/local/gym/gym-gazebo/entrypoint.sh /
+#RUN ls /usr/local/gym/gym-gazebo/
+#RUN ls ./gym-gazebo
+#COPY /usr/local/gym/gym-gazebo/entrypoint.sh /
+
+#--------------------
+# Entry point
+#--------------------
+
+COPY entrypoint.sh /
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["bash"]
