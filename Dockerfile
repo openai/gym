@@ -12,6 +12,7 @@ RUN apt-get update \
     xvfb \
     libxinerama1 \
     libxcursor1 \
+    unzip \
     libglu1-mesa \
     libav-tools \
     python-numpy \
