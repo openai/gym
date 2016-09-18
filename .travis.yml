@@ -1,44 +1,10 @@
 sudo: required
-language: python
-addons:
-  apt:
-    sources:
-      - george-edison55-precise-backports # cmake 3.2.3
-      - deadsnakes
-    packages:
-      - cmake
-      - cmake-data
-      - python-dev
-      - python3.4-dev
-      - swig
-      - libav-tools
-      - python-numpy
-      - libboost-all-dev
-      - libsdl2-dev
-      - libjpeg-dev
-      - zlib1g-dev
-      - libblas-dev
-      - liblapack-dev
-      - gfortran
-python:
-  - "2.7"
-  - "3.4"
-before_install:
-  - Xvfb :12 -screen 0 800x600x24 +extension RANDR &
-    # In a pull request, there are no secrets, and hence no MuJoCo:
-    # https://docs.travis-ci.com/user/pull-requests#Security-Restrictions-when-testing-Pull-Requests.
-  #- '[ -z ${MUJOCO_KEY_BUNDLE+x} ] || ( mkdir -p ~/.mujoco && curl https://openai-public.s3-us-west-2.amazonaws.com/mujoco/$MUJOCO_KEY_BUNDLE.tar.gz | tar xz -C ~/.mujoco )'
-  # Without this line, Travis has fork()s fail with an out of memory
-  # error. (These fork()s are for spawning the subprocess for video
-  # recording.) We should debug the memory usage at some stage, but
-  # simply setting overcommit is a good starting point.
-  - sudo sysctl -w vm.overcommit_memory=1
-env:
-  - UBUNTU_VER=14.04
-  - UBUNTU_VER=16.04
-  - UBUNTU_VER=18.04
 
-install: "" # so travis doesn't do pip install requirements.txt
-script:
-  - docker build -f test.dockerfile.${UBUNTU_VER} -t gym-test .
-  - docker run -e MUJOCO_KEY=$MUJOCO_KEY gym-test tox
+language: python
+
+services:
+  - docker
+
+before_install:
+  - docker build -t gym-gazebo .
+  - docker images
