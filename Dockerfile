@@ -98,6 +98,9 @@ RUN wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
 RUN sudo apt-get update
 RUN sudo apt-get install gazebo7 libgazebo7-dev -y
 
+# setup environment
+EXPOSE 11345
+
 # Install additional dependencies
 RUN apt-get install -y ros-indigo-cv-bridge
 RUN apt-get install -y ros-indigo-robot-state-publisher
