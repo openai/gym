@@ -100,6 +100,7 @@ RUN sudo apt-get install gazebo7 libgazebo7-dev -y
 
 # Install additional dependencies
 RUN apt-get install -y ros-indigo-cv-bridge
+RUN apt-get install -y ros-indigo-robot-state-publisher
 
 
 #--------------------
