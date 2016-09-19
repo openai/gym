@@ -64,6 +64,13 @@ If you wish to run examples that require plugins like cameras, create a fake scr
 xvfb-run -s "-screen 0 1400x900x24" bash
 ```
 
+If you have an equivalent release of Gazebo installed locally, you can connect to the gzserver inside the container using gzclient GUI by setting the address of the master URI to the containers public address.
+```
+export GAZEBO_MASTER_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' "id of running container")
+export GAZEBO_MASTER_URI=$GAZEBO_MASTER_IP:11345
+gzclient
+```
+
 ## Ubuntu
 
 ## Requirements
