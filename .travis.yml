@@ -6,5 +6,12 @@ services:
   - docker
 
 before_install:
-  - docker build -t gym-gazebo .
+#  - docker build -t gym-gazebo .
+  - docker pull erlerobotics:gym-gazebo # to fetch the container
   - docker images
+  - docker run -it erlerobotics/gym-gazebo
+  - cd gym-gazebo/gym_gazebo/envs/installation
+  - . turtlebot_setup.bash
+  - cd /usr/local/gym/gym-gazebo/examples/scripts_turtlebot/
+  - python maze_turtlebot_lidar_qlearn.py
+
