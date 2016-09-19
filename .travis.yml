@@ -7,7 +7,7 @@ services:
 
 before_install:
 #  - docker build -t gym-gazebo .
-  - docker pull erlerobotics:gym-gazebo # to fetch the container
+  - docker pull erlerobotics/gym-gazebo # to fetch the container
   - docker images
   - docker run -it erlerobotics/gym-gazebo
   - cd gym-gazebo/gym_gazebo/envs/installation
