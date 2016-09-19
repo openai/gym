@@ -12,7 +12,7 @@ before_install:
 
 #  - docker run -it erlerobotics/gym-gazebo
 
-  - docker run erlerobotics/gym-gazebo /bin/sh -c "cd cd gym-gazebo/gym_gazebo/envs/installation; . turtlebot_setup.bash; cd /usr/local/gym/gym-gazebo/examples/scripts_turtlebot/; python maze_turtlebot_lidar_qlearn.py"
+  - docker run erlerobotics/gym-gazebo /bin/sh -c "cd gym-gazebo/gym_gazebo/envs/installation; . turtlebot_setup.bash; cd /usr/local/gym/gym-gazebo/examples/scripts_turtlebot/; python maze_turtlebot_lidar_qlearn.py"
 
   # - cd gym-gazebo/gym_gazebo/envs/installation
   # - . turtlebot_setup.bash
