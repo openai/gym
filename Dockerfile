@@ -86,9 +86,7 @@ ENV ROS_DISTRO indigo
 RUN apt-get update && apt-get install -y \
     ros-indigo-ros-core=1.1.4-0* \
     && rm -rf /var/lib/apt/lists/*
-
-# Install additional dependencies
-RUN apt-get install -y ros-indigo-cv-bridge
+#    ros-indigo-desktop-full
 
 #--------------------
 # Install Gazebo
@@ -99,6 +97,9 @@ RUN wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
 
 RUN sudo apt-get update
 RUN sudo apt-get install gazebo7 libgazebo7-dev -y
+
+# Install additional dependencies
+RUN apt-get install -y ros-indigo-cv-bridge
 
 
 #--------------------
