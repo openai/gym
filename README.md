@@ -46,17 +46,22 @@ A simple circuit with straight tracks and 90 degree turns with high contrast col
     - [Usage](#usage)
 
 
-## Docker (work in progress)
+## Docker
 
 Build/fetch the container:
 ```bash
-# docker pull erlerobotics:gym-gazebo # to fetch the container
-docker build -t gym-gazebo .
+docker pull erlerobotics:gym-gazebo # to fetch the container
+# docker build -t gym-gazebo .
 ```
 
 Enter the container
 ```bash
 docker run -it gym-gazebo
+```
+
+If you wish to run examples that require plugins like cameras, create a fake screen with:
+```
+xvfb-run -s "-screen 0 1400x900x24" bash
 ```
 
 ## Ubuntu
