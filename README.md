@@ -50,7 +50,7 @@ A simple circuit with straight tracks and 90 degree turns with high contrast col
 
 Build/fetch the container:
 ```bash
-docker pull erlerobotics:gym-gazebo # to fetch the container
+docker pull erlerobotics/gym-gazebo:latest # to fetch the container
 # docker build -t gym-gazebo .
 ```
 
