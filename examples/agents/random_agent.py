@@ -1,5 +1,7 @@
+import argparse
 import logging
-import os, sys
+import os
+import sys
 
 import gym
 
@@ -12,13 +14,25 @@ class RandomAgent(object):
         return self.action_space.sample()
 
 if __name__ == '__main__':
-    # You can optionally set up the logger. Also fine to set the level
-    # to logging.DEBUG or logging.WARN if you want to change the
-    # amount of output.
+    parser = argparse.ArgumentParser(description=None)
+    parser.add_argument('env_id', nargs='?', default='CartPole-v0', help='Select the environment to run')
+    args = parser.parse_args()
+
+    # Call `undo_logger_setup` if you want to undo Gym's logger setup
+    # and configure things manually. (The default should be fine most
+    # of the time.)
+    gym.undo_logger_setup()
     logger = logging.getLogger()
+    formatter = logging.Formatter('[%(asctime)s] %(message)s')
+    handler = logging.StreamHandler(sys.stderr)
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+
+    # You can set the level to logging.DEBUG or logging.WARN if you
+    # want to change the amount of output.
     logger.setLevel(logging.INFO)
 
-    env = gym.make('CartPole-v0' if len(sys.argv)<2 else sys.argv[1])
+    env = gym.make(args.env_id)
 
     # You provide the directory to write to (can be an existing
     # directory, including one with existing data -- all monitor files
