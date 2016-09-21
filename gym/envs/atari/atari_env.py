@@ -48,7 +48,7 @@ class AtariEnv(gym.Env, utils.EzPickle):
         # Tune (or disable) ALE's action repeat:
         # https://github.com/openai/gym/issues/349
         assert isinstance(repeat_action_probability, (float, int)), "Invalid repeat_action_probability: {!r}".format(repeat_action_probability)
-        self.ale.setFloat('repeat_action_probability', repeat_action_probability)
+        self.ale.setFloat('repeat_action_probability'.encode('utf-8'), repeat_action_probability)
 
         (screen_width,screen_height) = self.ale.getScreenDims()
         if self._obs_type == 'ram':
