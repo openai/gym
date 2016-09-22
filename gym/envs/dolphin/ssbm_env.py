@@ -5,7 +5,6 @@ import numpy as np
 import random
 
 import os
-import shutil
 import time
 from warnings import warn
 
@@ -149,7 +148,7 @@ default_args = dict(
   self_play = True,
   zmq=True,
   p1="marth",
-  p2="zelda",
+  p2="fox",
   stage="battlefield",
   iso="SSBM.iso",
 )
@@ -238,8 +237,8 @@ class SmashEnv(gym.Env):
     print('Writing locations to:', path)
     with open(path + 'Locations.txt', 'w') as f:
       f.write('\n'.join(self.sm.locations()))
-
-  def __del__(self):
+  
+  def _close(self):
     self.dolphin_process.terminate()
     shutil.rmtree(self.dolphin_dir)
   
