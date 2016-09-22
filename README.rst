@@ -264,6 +264,8 @@ You can also run tests in a specific directory by using the ``-s`` option, or by
 What's new
 ----------
 
+- 2016-09-21: Switch the Gym automated logger setup to configure the
+  root logger rather than just the 'gym' logger.
 - 2016-08-17: Calling `close` on an env will also close the monitor
   and any rendering windows.
 - 2016-08-17: The monitor will no longer write manifest files in

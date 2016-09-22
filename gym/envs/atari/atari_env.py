@@ -22,7 +22,7 @@ def to_ram(ale):
 class AtariEnv(gym.Env, utils.EzPickle):
     metadata = {'render.modes': ['human', 'rgb_array']}
 
-    def __init__(self, game='pong', obs_type='ram', frameskip=(2, 5)):
+    def __init__(self, game='pong', obs_type='ram', frameskip=(2, 5), repeat_action_probability=0.):
         """Frameskip should be either a tuple (indicating a random range to
         choose from, with the top value exclude), or an int."""
 
@@ -44,6 +44,11 @@ class AtariEnv(gym.Env, utils.EzPickle):
 
         self._action_set = self.ale.getMinimalActionSet()
         self.action_space = spaces.Discrete(len(self._action_set))
+
+        # Tune (or disable) ALE's action repeat:
+        # https://github.com/openai/gym/issues/349
+        assert isinstance(repeat_action_probability, (float, int)), "Invalid repeat_action_probability: {!r}".format(repeat_action_probability)
+        self.ale.setFloat('repeat_action_probability'.encode('utf-8'), repeat_action_probability)
 
         (screen_width,screen_height) = self.ale.getScreenDims()
         if self._obs_type == 'ram':

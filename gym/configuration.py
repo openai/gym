@@ -17,10 +17,10 @@ handler.setFormatter(formatter)
 # at initialization time.
 def logger_setup(gym_logger):
     root_logger.addHandler(handler)
-    gym_logger.setLevel(logging.INFO)
+    root_logger.setLevel(logging.INFO)
     # When set to INFO, this will print out the hostname of every
     # connection it makes.
-    # requests_logger.setLevel(logging.WARN)
+    requests_logger.setLevel(logging.WARN)
 
 def undo_logger_setup():
     """Undoes the automatic logging setup done by OpenAI Gym. You should call
@@ -33,5 +33,5 @@ def undo_logger_setup():
     logger.addHandler(logging.StreamHandler(sys.stderr))
     """
     root_logger.removeHandler(handler)
-    gym.logger.setLevel(logging.NOTSET)
+    root_logger.setLevel(logging.NOTSET)
     requests_logger.setLevel(logging.NOTSET)
