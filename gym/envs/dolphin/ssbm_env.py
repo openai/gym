@@ -240,6 +240,7 @@ class SmashEnv(gym.Env):
   
   def _close(self):
     self.dolphin_process.terminate()
+    import shutil
     shutil.rmtree(self.dolphin_dir)
   
   def update_state(self):
