@@ -36,7 +36,7 @@ def test():
 
         env.monitor.close()
         results = monitoring.load_results(temp)
-        evaluation_score = benchmark.score_evaluation('CartPole-v0', results['episode_lengths'], results['episode_rewards'], results['episode_types'])
+        evaluation_score = benchmark.score_evaluation('CartPole-v0', results['episode_lengths'], results['episode_rewards'], results['episode_types'], results['timestamps'])
         benchmark_score = benchmark.score_benchmark({
             'CartPole-v0': evaluation_score,
         })

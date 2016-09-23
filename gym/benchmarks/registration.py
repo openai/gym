@@ -41,8 +41,8 @@ class Benchmark(object):
         except KeyError:
             raise error.Unregistered('No task with env_id {} registered for benchmark {}', env_id, self.id)
 
-    def score_evaluation(self, env_id, episode_lengths, episode_rewards, episode_types, episode_timestamps):
-        return self.scorer.score_evaluation(self, env_id, episode_lengths, episode_rewards, episode_types, episode_timestamps)
+    def score_evaluation(self, env_id, episode_lengths, episode_rewards, episode_types, timestamps):
+        return self.scorer.score_evaluation(self, env_id, episode_lengths, episode_rewards, episode_types, timestamps)
 
     def score_benchmark(self, score_map):
         return self.scorer.score_benchmark(self, score_map)

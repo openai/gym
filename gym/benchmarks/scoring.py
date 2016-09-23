@@ -8,7 +8,7 @@ class ClipTo01ThenAverage(object):
     def __init__(self, num_episodes=100):
         self.num_episodes = num_episodes
 
-    def score_evaluation(self, benchmark, env_id, episode_lengths, episode_rewards, episode_types, episode_timestamps):
+    def score_evaluation(self, benchmark, env_id, episode_lengths, episode_rewards, episode_types, timestamps):
         tasks = benchmark.task_groups[env_id]
         spec = envs.spec(env_id)
 
@@ -75,7 +75,7 @@ class ClipTo01ThenAverage(object):
             # Record the list of rewards
             rewards.append(reward)
             # Record the timestamp of the last episode timestamp
-            timestamps.append(episode_timestamps[e_idx[-1]])
+            timestamps.append(timestamps[e_idx[-1]])
 
         return {
             'rewards': rewards,

@@ -3,7 +3,7 @@
 import numpy as np
 
 from gym.benchmarks import scoring
-from gym.benchmarks.registration import register_benchmark, benchmark_spec
+from gym.benchmarks.registration import register_benchmark, benchmark_spec, registry
 
 register_benchmark(
     id='Atari7Pixel-v0',
