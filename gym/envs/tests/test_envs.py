@@ -27,6 +27,18 @@ def should_skip_env_spec_for_tests(spec):
         logger.warn("Skipping tests for parameter_tuning env {}".format(spec._entry_point))
         return True
 
+    is_windows = os.name == 'nt'
+
+    if is_windows and spec._entry_point.startswith('gym.envs.atari:'):
+        # TODO(Craig 2016-09-22): Reenable once workable windows install for atari is found (possible?)
+        logger.warn("Skipping tests for atari env {}".format(spec._entry_point))
+        return True
+
+    if is_windows and spec._entry_point.startswith('gym.envs.board_game:'):
+        # TODO(Craig 2016-09-22): Reenable once workable windows install for pachi is found (should be possible)
+        logger.warn("Skipping tests for board_game env {}".format(spec._entry_point))
+        return True
+
     return False
 
 

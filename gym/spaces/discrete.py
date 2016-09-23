@@ -15,7 +15,7 @@ class Discrete(gym.Space):
     def sample(self):
         return prng.np_random.randint(self.n)
     def contains(self, x):
-        if isinstance(x, int):
+        if isinstance(x, int) or isinstance(x, long):
             as_int = x
         elif isinstance(x, (np.generic, np.ndarray)) and (x.dtype.kind in np.typecodes['AllInteger'] and x.shape == ()):
             as_int = int(x)

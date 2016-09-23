@@ -69,6 +69,10 @@ def generate_rollout_hash(spec):
 specs = [spec for spec in envs.registry.all() if spec._entry_point is not None]
 @tools.params(*specs)
 def test_env_semantics(spec):
+  if should_skip_env_spec_for_tests(spec):
+    logger.warn("Skipping env semantics tests for {}".format(spec._entry_point))
+    return
+
   with open(ROLLOUT_FILE) as data_file:
     rollout_dict = json.load(data_file)
 

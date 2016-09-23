@@ -22,6 +22,14 @@ def test_renderable_after_monitor_close(spec):
     # Skip mujoco tests
     skip_mujoco = not (os.environ.get('MUJOCO_KEY_BUNDLE') or os.path.exists(os.path.expanduser('~/.mujoco')))
     if skip_mujoco and spec._entry_point.startswith('gym.envs.mujoco:'):
+        logger.warn("Skipping tests for mujoco env {}".format(spec._entry_point))
+        return
+
+    is_windows = os.name == 'nt'
+
+    if is_windows:
+        # TODO(Craig 2016-09-22): Understand why these cause python to crash
+        logger.warn("Skipping monitor tests in windows - env {}".format(spec._entry_point))
         return
 
     with helpers.tempdir() as temp:
