@@ -8,23 +8,32 @@ class ClipTo01ThenAverage(object):
     def __init__(self, num_episodes=100):
         self.num_episodes = num_episodes
 
-    def score_evaluation(self, benchmark, env_id, episode_lengths, episode_rewards, episode_types):
+    def score_evaluation(self, benchmark, env_id, episode_lengths, episode_rewards, episode_types, episode_timestamps):
         tasks = benchmark.task_groups[env_id]
         spec = envs.spec(env_id)
 
         (t_idx,) = np.where([t == 't' for t in episode_types]) # training episodes
         (e_idx,) = np.where([t == 'e' for t in episode_types]) # evaluation episodes
+        if not e_idx:
+            # If no episodes marked for evaluation, consider
+            # everything both a training and evaluation episode.
+            (t_idx,) = np.where([True for t in episode_types])
+            (e_idx,) = np.where([True for t in episode_types])
+
         training_lengths = np.array(episode_lengths)[t_idx]
         training_rewards = np.array(episode_rewards)[t_idx]
 
         evaluation_lengths = np.array(episode_lengths)[e_idx]
         evaluation_rewards = np.array(episode_rewards)[e_idx]
 
-        # How many training timesteps have elapsed by the end of each episode
+        # How many training timesteps have elapsed by the end of each
+        # episode. Not to be confused with Unix timestamps.
         elapsed_timesteps = np.cumsum(training_lengths)
 
         scores = []
         solves = []
+        rewards = []
+        timestamps = []
         for task in tasks:
             # Find the first episode where we're over the allotted
             # training timesteps.
@@ -43,9 +52,9 @@ class ClipTo01ThenAverage(object):
             #
             # This probably won't work long-term but is fine for now.
             allowed_episode_rewards = np.array(episode_rewards)[allowed_e_idx]
-            rewards = allowed_episode_rewards[-self.num_episodes:]
+            reward = allowed_episode_rewards[-self.num_episodes:]
 
-            if len(rewards) == 0:
+            if len(reward) == 0:
                 logger.info('No rewards for %s', env_id)
                 scores.append(0)
                 return
@@ -54,16 +63,26 @@ class ClipTo01ThenAverage(object):
             ceiling = task.reward_ceiling
 
             # Grab the indexes where we reached the ceiling
-            solved = rewards >= ceiling
+            solved = reward >= ceiling
             # Linearly rescale rewards to between 0 and 1
-            clipped = np.clip((rewards - floor) / (ceiling - floor), 0, 1)
+            clipped = np.clip((reward - floor) / (ceiling - floor), 0, 1)
 
             # Take the mean rescaled score
             score = np.mean(clipped)
             scores.append(score)
+            # Record the list of solved episodes
             solves.append(solved)
+            # Record the list of rewards
+            rewards.append(reward)
+            # Record the timestamp of the last episode timestamp
+            timestamps.append(episode_timestamps[e_idx[-1]])
 
-        return scores, solves
+        return {
+            'rewards': rewards,
+            'scores': scores,
+            'solves': solves,
+            'timestamps': timestamps,
+        }
 
     def score_benchmark(self, benchmark, episode_scores):
         all_scores = []

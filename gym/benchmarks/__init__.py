@@ -8,6 +8,7 @@ from gym.benchmarks.registration import register_benchmark, benchmark_spec
 register_benchmark(
     id='Atari7Pixel-v0',
     scorer=scoring.ClipTo01ThenAverage(),
+    description='7 Atari games, with pixel observations',
     task_groups={
         'BeamRider-v0': [{
             'seeds': 1,
@@ -41,6 +42,7 @@ register_benchmark(
 
 register_benchmark(
     id='Atari7Ram-v0',
+    description='7 Atari games, with RAM observations',
     scorer=scoring.ClipTo01ThenAverage(),
     task_groups={
         'BeamRider-ram-v0': [{

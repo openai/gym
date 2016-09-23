@@ -17,9 +17,10 @@ class Task(object):
         self.reward_ceiling = reward_ceiling
 
 class Benchmark(object):
-    def __init__(self, id, scorer, task_groups):
+    def __init__(self, id, scorer, task_groups, description=None):
         self.id = id
         self.scorer = scorer
+        self.description = description
 
         task_map = {}
         for env_id, tasks in task_groups.items():
@@ -40,8 +41,8 @@ class Benchmark(object):
         except KeyError:
             raise error.Unregistered('No task with env_id {} registered for benchmark {}', env_id, self.id)
 
-    def score_evaluation(self, env_id, episode_lengths, episode_rewards, episode_types):
-        return self.scorer.score_evaluation(self, env_id, episode_lengths, episode_rewards, episode_types)
+    def score_evaluation(self, env_id, episode_lengths, episode_rewards, episode_types, episode_timestamps):
+        return self.scorer.score_evaluation(self, env_id, episode_lengths, episode_rewards, episode_types, episode_timestamps)
 
     def score_benchmark(self, score_map):
         return self.scorer.score_benchmark(self, score_map)
@@ -50,8 +51,8 @@ class Registry(object):
     def __init__(self):
         self.benchmarks = collections.OrderedDict()
 
-    def register_benchmark(self, id, scorer, task_groups):
-        self.benchmarks[id] = Benchmark(id=id, scorer=scorer, task_groups=task_groups)
+    def register_benchmark(self, id, **kwargs):
+        self.benchmarks[id] = Benchmark(id=id, **kwargs)
 
     def benchmark_spec(self, id):
         try:
