@@ -8,13 +8,13 @@ class ClipTo01ThenAverage(object):
     def __init__(self, num_episodes=100):
         self.num_episodes = num_episodes
 
-    def score_evaluation(self, benchmark, env_id, episode_lengths, episode_rewards, episode_types, timestamps):
+    def score_evaluation(self, benchmark, env_id, episode_lengths, episode_rewards, episode_types, timestamps, initial_reset_timestamp):
         tasks = benchmark.task_groups[env_id]
         spec = envs.spec(env_id)
 
         (t_idx,) = np.where([t == 't' for t in episode_types]) # training episodes
         (e_idx,) = np.where([t == 'e' for t in episode_types]) # evaluation episodes
-        if not e_idx:
+        if len(e_idx) == 0:
             # If no episodes marked for evaluation, consider
             # everything both a training and evaluation episode.
             (t_idx,) = np.where([True for t in episode_types])
@@ -33,7 +33,7 @@ class ClipTo01ThenAverage(object):
         scores = []
         solves = []
         rewards = []
-        timestamps = []
+        _timestamps = []
         for task in tasks:
             # Find the first episode where we're over the allotted
             # training timesteps.
@@ -45,6 +45,13 @@ class ClipTo01ThenAverage(object):
             else:
                 # All episodes are fair game
                 allowed_e_idx = e_idx
+
+            if len(allowed_e_idx) > 0:
+                last_timestamp = timestamps[allowed_e_idx[-1]]
+            else:
+                # If we don't have any evaluation episodes, then the
+                # last valid timestamp is when we started.
+                last_timestamp = initial_reset_timestamp
 
             # Grab the last num_episodes evaluation episodes from
             # before the cutoff (at which point we've gathered too
@@ -75,13 +82,13 @@ class ClipTo01ThenAverage(object):
             # Record the list of rewards
             rewards.append(reward)
             # Record the timestamp of the last episode timestamp
-            timestamps.append(timestamps[e_idx[-1]])
+            _timestamps.append(last_timestamp)
 
         return {
             'rewards': rewards,
             'scores': scores,
             'solves': solves,
-            'timestamps': timestamps,
+            'timestamps': _timestamps,
         }
 
     def score_benchmark(self, benchmark, episode_scores):

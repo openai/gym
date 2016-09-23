@@ -29,9 +29,12 @@ def upload(training_dir, algorithm_id=None, writeup=None, benchmark_id=None, api
 
     if benchmark_id:
         # TODO: validate the number of matching evaluations
-        benchmark_run = resource.BenchmarkRun.create(benchmark_id=benchmark_id)
+        benchmark_run = resource.BenchmarkRun.create(benchmark_id=benchmark_id, algorithm_id=algorithm_id)
         benchmark_run_id = benchmark_run.id
         recurse = True
+
+        # Don't propagate algorithm_id to Evaluation if we're running as part of a benchmark
+        algorithm_id = None
     else:
         benchmark_run_id = None
         recurse = False

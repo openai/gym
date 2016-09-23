@@ -38,13 +38,11 @@ def test():
         results = monitoring.load_results(temp)
         evaluation_score = benchmark.score_evaluation('CartPole-v0', results['episode_lengths'], results['episode_rewards'], results['episode_types'], results['timestamps'], results['initial_reset_timestamp'])
         benchmark_score = benchmark.score_benchmark({
-            'CartPole-v0': evaluation_score,
+            'CartPole-v0': evaluation_score['scores'],
         })
 
-        # TODO:
-        assert np.isclose(evaluation_score[0], 0.046153846153846156), "evaluation_score={}".format(evaluation_score)
-        assert np.isclose(evaluation_score[1], 0.13846153846153847), "evaluation_score={}".format(evaluation_score)
-        assert np.isclose(benchmark_score, 0.0923076923077), "benchmark_score={}".format(benchmark_score)
+        assert np.all(np.isclose(evaluation_score['scores'], [0.089999999999999997, 0.27000000000000002])), "evaluation_score={}".format(evaluation_score)
+        assert np.isclose(benchmark_score, 0.18), "benchmark_score={}".format(benchmark_score)
 
 def rollout(env, good=False):
     env.reset()
