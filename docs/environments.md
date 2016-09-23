@@ -7,4 +7,11 @@ _**NOTICE**: Its possible that in time OpenAI will develop a full fledged reposi
 ## PGE: Parallel Game Engine
 
 PGE is a FOSS 3D engine for AI simulations, and can interoperate with the Gym. Contains environments with modern 3D graphics, and uses Bullet for physics.
+
 Learn more here: https://github.com/222464/PGE
+
+## gym-inventory: Inventory Control Environments
+
+gym-inventory is a single agent domain featuring discrete state and action spaces that an AI agent might encounter in inventory control problems. 
+
+Learn more here: https://github.com/paulhendricks/gym-inventory
