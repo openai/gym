@@ -75,7 +75,7 @@ class ClipTo01ThenAverage(object):
             clipped = np.clip((reward - floor) / (ceiling - floor), 0, 1)
 
             # Take the mean rescaled score
-            score = np.mean(clipped)
+            score = np.sum(clipped) / self.num_episodes
             scores.append(score)
             # Record the list of solved episodes
             solves.append(solved)
