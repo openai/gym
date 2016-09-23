@@ -143,6 +143,11 @@ install:
   # to run script as a PowerShell command prepend it with ps:
   - ps: choco install ffmpeg
   - ps: choco install golang
+  - ps: choco feature enable -n allowGlobalConfirmation
+  - ps: choco install python2
+  - ps: python.exe -m pip install --upgrade pip
+  - ps: setx PATH "$env:path;C:\tools\python2\Scripts" -m
+  - ps: setx PYTHONPATH "C:\tools\python2;C:\tools\python2\Lib;C:\tools\python2\DLLs;C:\tools\python2\Lib\lib-tk;C:\Workspace\gym-vnc" -m
   - ps: pip install nose2
   - ps: pip install mock
   - ps: pip install go-vncdriver
