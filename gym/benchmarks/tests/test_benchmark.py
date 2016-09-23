@@ -41,8 +41,8 @@ def test():
             'CartPole-v0': evaluation_score['scores'],
         })
 
-        assert np.all(np.isclose(evaluation_score['scores'], [0.089999999999999997, 0.27000000000000002])), "evaluation_score={}".format(evaluation_score)
-        assert np.isclose(benchmark_score, 0.18), "benchmark_score={}".format(benchmark_score)
+        assert np.all(np.isclose(evaluation_score['scores'], [0.00089999999999999998, 0.0054000000000000003])), "evaluation_score={}".format(evaluation_score)
+        assert np.isclose(benchmark_score, 0.00315), "benchmark_score={}".format(benchmark_score)
 
 def rollout(env, good=False):
     env.reset()

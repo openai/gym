@@ -61,13 +61,13 @@ class ClipTo01ThenAverage(object):
             allowed_episode_rewards = np.array(episode_rewards)[allowed_e_idx]
             reward = allowed_episode_rewards[-self.num_episodes:]
 
-            if len(reward) == 0:
-                logger.info('No rewards for %s', env_id)
-                scores.append(0)
-                return
-
             floor = task.reward_floor
             ceiling = task.reward_ceiling
+
+            if len(reward) < self.num_episodes:
+                extra = self.num_episodes-len(reward)
+                logger.info('Only %s rewards for %s; adding %s', len(reward), env_id, extra)
+                reward = np.concatenate([reward, [floor] * extra])
 
             # Grab the indexes where we reached the ceiling
             solved = reward >= ceiling
@@ -75,7 +75,7 @@ class ClipTo01ThenAverage(object):
             clipped = np.clip((reward - floor) / (ceiling - floor), 0, 1)
 
             # Take the mean rescaled score
-            score = np.sum(clipped) / self.num_episodes
+            score = np.mean(clipped)
             scores.append(score)
             # Record the list of solved episodes
             solves.append(solved)
