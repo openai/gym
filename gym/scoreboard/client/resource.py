@@ -13,6 +13,7 @@ def convert_to_gym_object(resp, api_key):
     types = {
         'evaluation': Evaluation,
         'file': FileUpload,
+        'benchmark_run': BenchmarkRun,
     }
 
     if isinstance(resp, list):
@@ -229,7 +230,7 @@ class APIResource(GymObject):
         if cls == APIResource:
             raise NotImplementedError(
                 'APIResource is an abstract class.  You should perform '
-                'actions on its subclasses (e.g. Charge, Customer)')
+                'actions on its subclasses')
         return str(urllib.parse.quote_plus(cls.__name__.lower()))
 
     @classmethod
@@ -381,3 +382,11 @@ class Evaluation(CreateableAPIResource):
 
 class Algorithm(CreateableAPIResource):
     pass
+
+class BenchmarkRun(CreateableAPIResource, UpdateableAPIResource):
+    @classmethod
+    def class_name(cls):
+        return 'benchmark_run'
+
+    def commit(self):
+        return self.request('post', '{}/commit'.format(self.instance_path()))

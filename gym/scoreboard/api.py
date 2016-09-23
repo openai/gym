@@ -15,17 +15,46 @@ logger = logging.getLogger(__name__)
 video_name_re = re.compile('^[\w.-]+\.(mp4|avi|json)$')
 metadata_name_re = re.compile('^[\w.-]+\.meta\.json$')
 
-def upload(training_dir, algorithm_id=None, writeup=None, api_key=None, ignore_open_monitors=False):
+def upload(training_dir, algorithm_id=None, writeup=None, benchmark_id=None, api_key=None, ignore_open_monitors=False):
     """Upload the results of training (as automatically recorded by your
     env's monitor) to OpenAI Gym.
 
     Args:
         training_dir (Optional[str]): A directory containing the results of a training run.
         algorithm_id (Optional[str]): An algorithm id indicating the particular version of the algorithm (including choices of parameters) you are running (visit https://gym.openai.com/algorithms to create an id)
+        benchmark_id (Optional[str]): The benchmark that these evaluations belong to. Will recursively search through training_dir for any Gym manifests. This feature is currently pre-release.
         writeup (Optional[str]): A Gist URL (of the form https://gist.github.com/<user>/<id>) containing your writeup for this evaluation.
         api_key (Optional[str]): Your OpenAI API key. Can also be provided as an environment variable (OPENAI_GYM_API_KEY).
     """
 
+    if benchmark_id:
+        # TODO: validate the number of matching evaluations
+        benchmark_run = resource.BenchmarkRun.create(benchmark_id=benchmark_id, algorithm_id=algorithm_id)
+        benchmark_run_id = benchmark_run.id
+        recurse = True
+
+        # Don't propagate algorithm_id to Evaluation if we're running as part of a benchmark
+        algorithm_id = None
+    else:
+        benchmark_run_id = None
+        recurse = False
+
+    # Discover training directories
+    directories = []
+    if recurse:
+        for name, _, files in os.walk(training_dir):
+            if monitoring.detect_training_manifests(name, files=files):
+                directories.append(name)
+    else:
+        directories.append(training_dir)
+
+    # Actually do the uploads.
+    for training_dir in directories:
+        _upload(training_dir, algorithm_id, writeup, benchmark_run_id, api_key, ignore_open_monitors)
+
+    return benchmark_run_id
+
+def _upload(training_dir, algorithm_id=None, writeup=None, benchmark_run_id=None, api_key=None, ignore_open_monitors=False):
     if not ignore_open_monitors:
         open_monitors = monitoring._open_monitors()
         if len(open_monitors) > 0:
@@ -57,6 +86,7 @@ def upload(training_dir, algorithm_id=None, writeup=None, api_key=None, ignore_o
         algorithm={
             'id': algorithm_id,
         },
+        benchmark_run_id=benchmark_run_id,
         writeup=writeup,
         gym_version=env_info['gym_version'],
         api_key=api_key,
@@ -89,6 +119,7 @@ def upload_training_data(training_dir, api_key=None):
     timestamps = results['timestamps']
     episode_lengths = results['episode_lengths']
     episode_rewards = results['episode_rewards']
+    episode_types = results['episode_types']
     main_seeds = results['main_seeds']
     seeds = results['seeds']
     videos = results['videos']
@@ -98,7 +129,7 @@ def upload_training_data(training_dir, api_key=None):
 
     # Do the relevant uploads
     if len(episode_lengths) > 0:
-        training_episode_batch = upload_training_episode_batch(episode_lengths, episode_rewards, timestamps, main_seeds, seeds, api_key, env_id=env_id)
+        training_episode_batch = upload_training_episode_batch(episode_lengths, episode_rewards, episode_types, timestamps, main_seeds, seeds, api_key, env_id=env_id)
     else:
         training_episode_batch = None
 
@@ -114,12 +145,13 @@ def upload_training_data(training_dir, api_key=None):
 
     return env_info, training_episode_batch, training_video
 
-def upload_training_episode_batch(episode_lengths, episode_rewards, timestamps, main_seeds, seeds, api_key=None, env_id=None):
+def upload_training_episode_batch(episode_lengths, episode_rewards, episode_types, timestamps, main_seeds, seeds, api_key=None, env_id=None):
     logger.info('[%s] Uploading %d episodes of training data', env_id, len(episode_lengths))
     file_upload = resource.FileUpload.create(purpose='episode_batch', api_key=api_key)
     file_upload.put({
         'episode_lengths': episode_lengths,
         'episode_rewards': episode_rewards,
+        'episode_types': episode_types,
         'timestamps': timestamps,
         'main_seeds': main_seeds,
         'seeds': seeds,

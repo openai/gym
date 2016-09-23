@@ -17,8 +17,10 @@ logger = logging.getLogger(__name__)
 FILE_PREFIX = 'openaigym'
 MANIFEST_PREFIX = FILE_PREFIX + '.manifest'
 
-def detect_training_manifests(training_dir):
-    return [os.path.join(training_dir, f) for f in os.listdir(training_dir) if f.startswith(MANIFEST_PREFIX + '.')]
+def detect_training_manifests(training_dir, files=None):
+    if files is None:
+        files = os.listdir(training_dir)
+    return [os.path.join(training_dir, f) for f in files if f.startswith(MANIFEST_PREFIX + '.')]
 
 def detect_monitor_files(training_dir):
     return [os.path.join(training_dir, f) for f in os.listdir(training_dir) if f.startswith(FILE_PREFIX + '.')]
@@ -74,7 +76,6 @@ class Monitor(object):
 
     Attributes:
         id (Optional[str]): The ID of the monitored environment
-
     """
 
     def __init__(self, env):
@@ -216,14 +217,27 @@ class Monitor(object):
 
         logger.info('''Finished writing results. You can upload them to the scoreboard via gym.upload(%r)''', self.directory)
 
-    def configure(self, video_callable=None):
+    def configure(self, video_callable=None, mode=None):
         """Reconfigure the monitor.
 
             video_callable (function): Whether to record video to upload to the scoreboard.
+            mode (['evaluation', 'training']): Whether this is an evaluation or training episode.
         """
+
+        if not self.enabled:
+            raise error.Error('Can only configure an enabled monitor. (HINT: did you already close this monitor?)')
 
         if video_callable is not None:
             self.video_callable = video_callable
+
+        if mode is not None:
+            if mode == 'evaluation':
+                type = 'e'
+            elif mode == 'training':
+                type = 't'
+            else:
+                raise error.Error('Invalid mode {}: must be "training" or "evaluation"', mode)
+            self.stats_recorder.type = type
 
     def _before_step(self, action):
         if not self.enabled: return
@@ -331,7 +345,7 @@ def load_results(training_dir):
                 main_seeds.append(None)
 
     env_info = collapse_env_infos(env_infos, training_dir)
-    timestamps, episode_lengths, episode_rewards, initial_reset_timestamp = merge_stats_files(stats_files)
+    timestamps, episode_lengths, episode_rewards, episode_types, initial_reset_timestamp = merge_stats_files(stats_files)
 
     return {
         'manifests': manifests,
@@ -339,6 +353,7 @@ def load_results(training_dir):
         'timestamps': timestamps,
         'episode_lengths': episode_lengths,
         'episode_rewards': episode_rewards,
+        'episode_types': episode_types,
         'initial_reset_timestamp': initial_reset_timestamp,
         'videos': videos,
         'main_seeds': main_seeds,
@@ -349,6 +364,7 @@ def merge_stats_files(stats_files):
     timestamps = []
     episode_lengths = []
     episode_rewards = []
+    episode_types = []
     initial_reset_timestamps = []
 
     for path in stats_files:
@@ -358,6 +374,8 @@ def merge_stats_files(stats_files):
             timestamps += content['timestamps']
             episode_lengths += content['episode_lengths']
             episode_rewards += content['episode_rewards']
+            # Recent addition
+            episode_types += content.get('episode_types', [])
             initial_reset_timestamps.append(content['initial_reset_timestamp'])
 
     idxs = np.argsort(timestamps)
@@ -365,12 +383,17 @@ def merge_stats_files(stats_files):
     episode_lengths = np.array(episode_lengths)[idxs].tolist()
     episode_rewards = np.array(episode_rewards)[idxs].tolist()
 
+    if episode_types:
+        episode_types = np.array(episode_types)[idxs].tolist()
+    else:
+        episode_types = None
+
     if len(initial_reset_timestamps) > 0:
         initial_reset_timestamp = min(initial_reset_timestamps)
     else:
         initial_reset_timestamp = 0
 
-    return timestamps, episode_lengths, episode_rewards, initial_reset_timestamp
+    return timestamps, episode_lengths, episode_rewards, episode_types, initial_reset_timestamp
 
 def collapse_env_infos(env_infos, training_dir):
     assert len(env_infos) > 0

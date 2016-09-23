@@ -16,13 +16,14 @@ def score_from_remote(url):
     parsed = result.json()
     episode_lengths = parsed['episode_lengths']
     episode_rewards = parsed['episode_rewards']
+    episode_types = parsed.get('episode_types')
     timestamps = parsed['timestamps']
     # Handle legacy entries where initial_reset_timestamp wasn't set
     initial_reset_timestamp = parsed.get('initial_reset_timestamp', timestamps[0])
     env_id = parsed['env_id']
 
     spec = gym.spec(env_id)
-    return score_from_merged(episode_lengths, episode_rewards, timestamps, initial_reset_timestamp, spec.trials, spec.reward_threshold)
+    return score_from_merged(episode_lengths, episode_rewards, episode_types, timestamps, initial_reset_timestamp, spec.trials, spec.reward_threshold)
 
 def score_from_local(directory):
     """Calculate score from a local results directory"""
@@ -33,15 +34,24 @@ def score_from_local(directory):
 
     episode_lengths = results['episode_lengths']
     episode_rewards = results['episode_rewards']
+    episode_types = results['episode_types']
     timestamps = results['timestamps']
     initial_reset_timestamp = results['initial_reset_timestamp']
     spec = gym.spec(results['env_info']['env_id'])
 
-    return score_from_merged(episode_lengths, episode_rewards, timestamps, initial_reset_timestamp, spec.trials, spec.reward_threshold)
+    return score_from_merged(episode_lengths, episode_rewards, episode_types, timestamps, initial_reset_timestamp, spec.trials, spec.reward_threshold)
 
-def score_from_merged(episode_lengths, episode_rewards, timestamps, initial_reset_timestamp, trials, reward_threshold):
-    """Method to calculate the score from merged monitor files.
+def score_from_merged(episode_lengths, episode_rewards, episode_types, timestamps, initial_reset_timestamp, trials, reward_threshold):
+    """Method to calculate the score from merged monitor files. Scores
+    only a single environment; mostly legacy.
     """
+    if episode_types is not None:
+        # Select only the training episodes
+        t_idx = np.where(e == 't' for e in episode_types)
+        episode_lengths = np.array(episode_lengths)[t_idx]
+        episode_rewards = np.array(episode_rewards)[t_idx]
+        timestamps = np.array(timestamps)[t_idx]
+
     # Make sure everything is a float -- no pesky ints.
     episode_rewards = np.array(episode_rewards, dtype='float64')
 
@@ -86,6 +96,12 @@ def score_from_merged(episode_lengths, episode_rewards, timestamps, initial_rese
         'seconds_to_solve': seconds_to_solve,
         'seconds_in_total': seconds_in_total,
     }
+
+def benchmark_score_from_merged(benchmark, env_id, episode_lengths, episode_rewards, episode_types):
+    """Method to calculate an environment's benchmark score from merged
+    monitor files.
+    """
+    return benchmark.score(benchmark, env_id, episode_lengths, episode_rewards, episode_types)
 
 def running_mean(x, N):
     x = np.array(x, dtype='float64')

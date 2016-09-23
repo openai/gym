@@ -12,6 +12,8 @@ class StatsRecorder(object):
         self.file_prefix = file_prefix
         self.episode_lengths = []
         self.episode_rewards = []
+        self.episode_types = [] # experimental addition
+        self._type = 't'
         self.timestamps = []
         self.steps = None
         self.rewards = None
@@ -21,6 +23,16 @@ class StatsRecorder(object):
 
         filename = '{}.stats.json'.format(self.file_prefix)
         self.path = os.path.join(self.directory, filename)
+
+    @property
+    def type(self):
+        return self._type
+
+    @type.setter
+    def type(self, type):
+        if type not in ['t', 'e']:
+            raise error.Error('Invalid episode type {}: must be t for training or e for evaluation', type)
+        self._type = type
 
     def before_step(self, action):
         assert not self.closed
@@ -47,6 +59,10 @@ class StatsRecorder(object):
         self.save_complete()
         self.steps = 0
         self.rewards = 0
+        # We write the type at the beginning of the episode. If a user
+        # changes the type, it's more natural for it to apply next
+        # time the user calls reset().
+        self.episode_types.append(self._type)
 
     def save_complete(self):
         if self.steps is not None:
@@ -69,4 +85,5 @@ class StatsRecorder(object):
                 'timestamps': self.timestamps,
                 'episode_lengths': self.episode_lengths,
                 'episode_rewards': self.episode_rewards,
+                'episode_types': self.episode_types,
             }, f)
