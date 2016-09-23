@@ -15,3 +15,10 @@ Learn more here: https://github.com/222464/PGE
 gym-inventory is a single agent domain featuring discrete state and action spaces that an AI agent might encounter in inventory control problems. 
 
 Learn more here: https://github.com/paulhendricks/gym-inventory
+
+## gym-gazebo: training Robots in Gazebo
+
+gym-gazebo presents an extension of the initial OpenAI gym for robotics using ROS and Gazebo, an advanced 3D modeling and
+rendering  tool.
+
+Learn more here: https://github.com/erlerobot/gym-gazebo/
