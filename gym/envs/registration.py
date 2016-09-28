@@ -35,7 +35,7 @@ class EnvSpec(object):
         trials (int): The number of trials run in official evaluation
     """
 
-    def __init__(self, id, entry_point=None, timestep_limit=1000, trials=100, reward_threshold=None, local_only=False, kwargs=None, nondeterministic=False, tags={}):
+    def __init__(self, id, entry_point=None, timestep_limit=1000, trials=100, reward_threshold=None, local_only=False, kwargs=None, nondeterministic=False, tags=None):
         self.id = id
         # Evaluation parameters
         self.timestep_limit = timestep_limit
@@ -43,7 +43,11 @@ class EnvSpec(object):
         self.reward_threshold = reward_threshold
         # Environment properties
         self.nondeterministic = nondeterministic
-        self.tags = tags
+        
+        if tags is None:
+            self.tags = {}
+        else:
+            self.tags = tags
 
         # We may make some of these other parameters public if they're
         # useful.
