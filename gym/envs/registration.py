@@ -45,9 +45,8 @@ class EnvSpec(object):
         self.nondeterministic = nondeterministic
         
         if tags is None:
-            self.tags = {}
-        else:
-            self.tags = tags
+            tags = {}
+        self.tags = tags
 
         # We may make some of these other parameters public if they're
         # useful.
