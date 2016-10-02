@@ -74,3 +74,18 @@ register_benchmark(
             'timesteps': 10000000
         }],
     })
+
+register_benchmark(
+    id='ClassicControl2-v0',
+    description='Simple classic control benchmark',
+    scorer=scoring.ClipTo01ThenAverage(),
+    task_groups={
+        'CartPole-v0': [{
+            'seeds': 1,
+            'timesteps': 2000,
+        }],
+        'Pendulum-v0': [{
+            'seeds': 1,
+            'timesteps': 1000,
+        }],
+    })
