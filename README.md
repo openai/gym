@@ -56,7 +56,7 @@ docker pull erlerobotics/gym-gazebo:latest # to fetch the container
 
 Enter the container
 ```bash
-docker run -it gym-gazebo
+docker run -it erlerobotics/gym-gazebo
 ```
 
 If you wish to run examples that require plugins like cameras, create a fake screen with:
