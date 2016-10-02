@@ -24,8 +24,20 @@ def sanity_check_dependencies():
 # We automatically configure a logger with a simple stderr handler. If
 # you'd rather customize logging yourself, run undo_logger_setup.
 #
-# (Note: this needs to happen before importing the rest of gym, since
-# we may print a warning at load time.)
+# (Note: this code runs before importing the rest of gym, since we may
+# print a warning at load time.)
+#
+# It's generally not best practice to configure the logger in a
+# library. We choose to do so because, empirically, many of our users
+# are unfamiliar with Python's logging configuration, and never find
+# their way to enabling our logging. Users who are aware of how to
+# configure Python's logging do have to accept a bit of incovenience
+# (generally by caling `gym.undo_logger_setup()`), but in exchange,
+# the library becomes much more usable for the uninitiated.
+#
+# Gym's design goal generally is to be simple and intuitive, and while
+# the tradeoff is definitely not obvious in this case, we've come down
+# on the side of auto-configuring the logger.
 logger_setup(logger)
 del logger_setup
 

@@ -6,7 +6,10 @@ import gym
 logger = logging.getLogger(__name__)
 
 root_logger = logging.getLogger()
-requests_logger = logging.getLogger('requests')
+
+# Should be modified only by official Gym plugins. This is an
+# unsupported API and may be removed in future versions.
+_extra_loggers = []
 
 # Set up the default handler
 formatter = logging.Formatter('[%(asctime)s] %(message)s')
@@ -17,7 +20,8 @@ handler.setFormatter(formatter)
 # at initialization time.
 def logger_setup(gym_logger):
     root_logger.addHandler(handler)
-    gym_logger.setLevel(logging.INFO)
+    for logger in [gym_logger] + _extra_loggers:
+        logger.setLevel(logging.INFO)
 
 def undo_logger_setup():
     """Undoes the automatic logging setup done by OpenAI Gym. You should call
@@ -30,4 +34,5 @@ def undo_logger_setup():
     logger.addHandler(logging.StreamHandler(sys.stderr))
     """
     root_logger.removeHandler(handler)
-    gym.logger.setLevel(logging.NOTSET)
+    for logger in [gym_logger] + _extra_loggers:
+        logger.setLevel(logging.NOTSET)
