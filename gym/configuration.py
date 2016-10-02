@@ -23,7 +23,9 @@ handler.setFormatter(formatter)
 
 # We need to take in the gym logger explicitly since this is called
 # at initialization time.
-def logger_setup():
+def logger_setup(_=None):
+    # This used to take in an argument; we still take an (ignored)
+    # argument for compatibility.
     root_logger.addHandler(handler)
     for logger in _extra_loggers:
         logger.setLevel(logging.INFO)
