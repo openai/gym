@@ -7,9 +7,14 @@ logger = logging.getLogger(__name__)
 
 root_logger = logging.getLogger()
 
+# Should be "gym", but we'll support people doing somewhat crazy
+# things.
+package_name = '.'.join(__name__.split('.')[:-1])
+gym_logger = logging.getLogger(package_name)
+
 # Should be modified only by official Gym plugins. This is an
 # unsupported API and may be removed in future versions.
-_extra_loggers = []
+_extra_loggers = [gym_logger]
 
 # Set up the default handler
 formatter = logging.Formatter('[%(asctime)s] %(message)s')
@@ -18,9 +23,9 @@ handler.setFormatter(formatter)
 
 # We need to take in the gym logger explicitly since this is called
 # at initialization time.
-def logger_setup(gym_logger):
+def logger_setup():
     root_logger.addHandler(handler)
-    for logger in [gym_logger] + _extra_loggers:
+    for logger in _extra_loggers:
         logger.setLevel(logging.INFO)
 
 def undo_logger_setup():
@@ -34,5 +39,5 @@ def undo_logger_setup():
     logger.addHandler(logging.StreamHandler(sys.stderr))
     """
     root_logger.removeHandler(handler)
-    for logger in [gym_logger] + _extra_loggers:
+    for logger in _extra_loggers:
         logger.setLevel(logging.NOTSET)
