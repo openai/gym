@@ -247,10 +247,10 @@ class ImageEncoder(object):
         self.frame_shape = frame_shape
         self.frames_per_sec = frames_per_sec
 
-        if distutils.spawn.find_executable('ffmpeg') is not None:
-            self.backend = 'ffmpeg'
-        elif distutils.spawn.find_executable('avconv') is not None:
+        if distutils.spawn.find_executable('avconv') is not None:
             self.backend = 'avconv'
+        elif distutils.spawn.find_executable('ffmpeg') is not None:
+            self.backend = 'ffmpeg'
         else:
             raise error.DependencyNotInstalled("""Found neither the ffmpeg nor avconv executables. On OS X, you can install ffmpeg via `brew install ffmpeg`. On most Ubuntu variants, `sudo apt-get install ffmpeg` should do it. On Ubuntu 14.04, however, you'll need to install avconv with `sudo apt-get install libav-tools`.""")
 
