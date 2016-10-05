@@ -100,7 +100,8 @@ class Monitor(object):
             raise error.Error("env has been garbage collected. To keep using a monitor, you must keep around a reference to the env object. (HINT: try assigning the env to a variable in your code.)")
         return env
 
-    def start(self, directory, video_callable=None, force=False, resume=False, seed=None, write_upon_reset=False):
+    def start(self, directory, video_callable=None, force=False, resume=False,
+              seed=None, write_upon_reset=False, uid=None):
         """Start monitoring.
 
         Args:
@@ -143,7 +144,10 @@ class Monitor(object):
         # We use the 'openai-gym' prefix to determine if a file is
         # ours
         self.file_prefix = FILE_PREFIX
-        self.file_infix = '{}.{}'.format(self._monitor_id, os.getpid())
+        self.file_infix = '{}.{}'.format(self._monitor_id, uid if uid else os.getpid())
+
+        logger.warn('Infix: %s', self.file_infix)
+
         self.stats_recorder = stats_recorder.StatsRecorder(directory, '{}.episode_batch.{}'.format(self.file_prefix, self.file_infix))
         self.configure(video_callable=video_callable)
         if not os.path.exists(directory):
