@@ -4,7 +4,7 @@ import os
 import re
 import tarfile
 import tempfile
-from gym import error, monitoring
+from gym import benchmark_spec, error, monitoring
 from gym.scoreboard.client import resource, util
 import numpy as np
 
@@ -21,38 +21,69 @@ def upload(training_dir, algorithm_id=None, writeup=None, benchmark_id=None, api
 
     Args:
         training_dir (Optional[str]): A directory containing the results of a training run.
-        algorithm_id (Optional[str]): An algorithm id indicating the particular version of the algorithm (including choices of parameters) you are running (visit https://gym.openai.com/algorithms to create an id)
+        algorithm_id (Optional[str]): An algorithm id indicating the particular version of the algorithm (including choices of parameters) you are running (visit https://gym.openai.com/algorithms to create an id). If the id doesn't match an existing server id it will create a new algorithm using algorithm_id as the name
         benchmark_id (Optional[str]): The benchmark that these evaluations belong to. Will recursively search through training_dir for any Gym manifests. This feature is currently pre-release.
         writeup (Optional[str]): A Gist URL (of the form https://gist.github.com/<user>/<id>) containing your writeup for this evaluation.
         api_key (Optional[str]): Your OpenAI API key. Can also be provided as an environment variable (OPENAI_GYM_API_KEY).
     """
 
     if benchmark_id:
-        # TODO: validate the number of matching evaluations
+        # We're uploading a benchmark run.
+
+        directories = []
+        env_ids = []
+        for name, _, files in os.walk(training_dir):
+            manifests = monitoring.detect_training_manifests(name, files=files)
+            if manifests:
+                env_info = monitoring.load_env_info_from_manifests(manifests, training_dir)
+                env_ids.append(env_info['env_id'])
+                directories.append(name)
+
+        # Validate against benchmark spec
+        try:
+            spec = benchmark_spec(benchmark_id)
+        except error.UnregisteredBenchmark as e:
+            raise error.Error("Invalid benchmark id: {}. Are you using a benchmark registered in gym/benchmarks/__init__.py?".format(benchmark_id))
+
+        # This could be more stringent
+        if sorted(env_ids) != sorted(spec.task_groups):
+            raise error.Error("Evaluations do not match spec for benchmark {}. We found {}, expected {}".format(benchmark_id, sorted(env_ids), sorted(spec.task_groups)))
+
         benchmark_run = resource.BenchmarkRun.create(benchmark_id=benchmark_id, algorithm_id=algorithm_id)
         benchmark_run_id = benchmark_run.id
-        recurse = True
 
-        # Don't propagate algorithm_id to Evaluation if we're running as part of a benchmark
-        algorithm_id = None
+        # Actually do the uploads.
+        for training_dir in directories:
+            # N.B. we don't propagate algorithm_id to Evaluation if we're running as part of a benchmark
+            _upload(training_dir, None, writeup, benchmark_run_id, api_key, ignore_open_monitors)
+
+        logger.info("""
+****************************************************
+You successfully uploaded your benchmark on %s to
+OpenAI Gym! You can find it at:
+
+    %s
+
+****************************************************
+        """.rstrip(), benchmark_id, benchmark_run.web_url())
+
+        return benchmark_run_id
     else:
+        # Single evalution upload
         benchmark_run_id = None
-        recurse = False
+        evaluation = _upload(training_dir, algorithm_id, writeup, benchmark_run_id, api_key, ignore_open_monitors)
 
-    # Discover training directories
-    directories = []
-    if recurse:
-        for name, _, files in os.walk(training_dir):
-            if monitoring.detect_training_manifests(name, files=files):
-                directories.append(name)
-    else:
-        directories.append(training_dir)
+        logger.info("""
+****************************************************
+You successfully uploaded your evaluation on %s to
+OpenAI Gym! You can find it at:
 
-    # Actually do the uploads.
-    for training_dir in directories:
-        _upload(training_dir, algorithm_id, writeup, benchmark_run_id, api_key, ignore_open_monitors)
+    %s
 
-    return benchmark_run_id
+****************************************************
+        """.rstrip(), evaluation.env, evaluation.web_url())
+
+        return None
 
 def _upload(training_dir, algorithm_id=None, writeup=None, benchmark_run_id=None, api_key=None, ignore_open_monitors=False):
     if not ignore_open_monitors:
@@ -91,18 +122,6 @@ def _upload(training_dir, algorithm_id=None, writeup=None, benchmark_run_id=None
         gym_version=env_info['gym_version'],
         api_key=api_key,
     )
-
-    logger.info(
-
-    """
-****************************************************
-You successfully uploaded your evaluation on %s to
-OpenAI Gym! You can find it at:
-
-    %s
-
-****************************************************
-    """.rstrip(), env_id, evaluation.web_url())
 
     return evaluation
 

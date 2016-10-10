@@ -309,6 +309,16 @@ class Monitor(object):
         # Make sure we've closed up shop when garbage collecting
         self.close()
 
+def load_env_info_from_manifests(manifests, training_dir):
+    env_infos = []
+    for manifest in manifests:
+        with open(manifest) as f:
+            contents = json.load(f)
+            env_infos.append(contents['env_info'])
+
+    env_info = collapse_env_infos(env_infos, training_dir)
+    return env_info
+
 def load_results(training_dir):
     if not os.path.exists(training_dir):
         logger.error('Training directory %s not found', training_dir)
@@ -395,6 +405,7 @@ def merge_stats_files(stats_files):
 
     return timestamps, episode_lengths, episode_rewards, episode_types, initial_reset_timestamp
 
+# TODO training_dir isn't used except for error messages, clean up the layering
 def collapse_env_infos(env_infos, training_dir):
     assert len(env_infos) > 0
 
