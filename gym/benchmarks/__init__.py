@@ -1,7 +1,7 @@
 # EXPERIMENTAL: all may be removed soon
 
 from gym.benchmarks import scoring
-from gym.benchmarks.registration import register_benchmark
+from gym.benchmarks.registration import benchmark_spec, register_benchmark, registry  # imports used elsewhere
 
 register_benchmark(
     id='Atari7Pixel-v0',
