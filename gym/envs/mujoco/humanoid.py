@@ -28,7 +28,7 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         alive_bonus = 5.0
         data = self.model.data
         lin_vel_cost = 0.25 * (pos_after - pos_before) / self.model.opt.timestep
-        quad_ctrl_cost =  0.1 * np.square(data.ctrl).sum()
+        quad_ctrl_cost = 0.1 * np.square(data.ctrl).sum()
         quad_impact_cost = .5e-6 * np.square(data.cfrc_ext).sum()
         quad_impact_cost = min(quad_impact_cost, 10)
         reward = lin_vel_cost - quad_ctrl_cost - quad_impact_cost + alive_bonus
