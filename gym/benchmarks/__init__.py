@@ -1,9 +1,7 @@
 # EXPERIMENTAL: all may be removed soon
 
-import numpy as np
-
 from gym.benchmarks import scoring
-from gym.benchmarks.registration import register_benchmark, benchmark_spec, registry
+from gym.benchmarks.registration import register_benchmark
 
 register_benchmark(
     id='Atari7Pixel-v0',
@@ -180,27 +178,6 @@ register_benchmark(
         {
             "seeds": 1,
             "timesteps": 1000000
-        }
-    ]
-}
-)
-
-register_benchmark(
-    id="MinecraftSimple-v0",
-    name="MinecraftSimple",
-    description="Simple Minecraft benchmark",
-    scorer=scoring.ClipTo01ThenAverage(),
-    task_groups={
-    "MinecraftBasic-v0": [
-        {
-            "seeds": 1,
-            "timesteps": 100000
-        }
-    ],
-    "MinecraftCliffWalking1-v0": [
-        {
-            "seeds": 1,
-            "timesteps": 100000
         }
     ]
 }
