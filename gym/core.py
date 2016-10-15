@@ -407,3 +407,9 @@ class ActionWrapper(Wrapper):
 
     def _action(self, action):
         raise NotImplementedError
+
+    def reverse_action(self, action):
+        return self._reverse_action(action)
+
+    def _reverse_action(self, action):
+        raise NotImplementedError
