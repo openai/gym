@@ -56,8 +56,7 @@ def main():
 
     logger.info("""Done running, upload results using the following command:
 
-import gym
-gym.upload("{}", benchmark_id="{}")
+python -c "import gym; gym.upload('{}', benchmark_id='{}')"
 
     """.rstrip().format(args.training_dir, benchmark_id))
 
