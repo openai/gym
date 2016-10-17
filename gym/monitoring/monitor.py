@@ -309,15 +309,18 @@ class Monitor(object):
         # Make sure we've closed up shop when garbage collecting
         self.close()
 
-def load_env_info_from_manifests(manifests, training_dir):
+def load_env_seed_info_from_manifests(manifests, training_dir):
     env_infos = []
+    main_seeds = []
     for manifest in manifests:
         with open(manifest) as f:
             contents = json.load(f)
             env_infos.append(contents['env_info'])
+            # The first seed is the "main" seed used to reset the env
+            main_seeds.append(contents.get('seeds', [None])[0])
 
     env_info = collapse_env_infos(env_infos, training_dir)
-    return env_info
+    return env_info, main_seeds
 
 def load_results(training_dir):
     if not os.path.exists(training_dir):
