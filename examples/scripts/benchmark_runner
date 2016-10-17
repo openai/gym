@@ -43,14 +43,16 @@ def main():
     for env_name, task_list in benchmark.task_groups.items():
         logger.info("Running on env: {}".format(env_name))
         env = gym.make(env_name)
-        env.monitor.start("{}/{}".format(args.training_dir, env_name))
         for task in task_list:
-            env.reset()
-            for _ in range(task.timesteps):
-                o, r, done, _ = env.step(env.action_space.sample())
-                if done:
-                    env.reset()
-        env.monitor.close()
+            for seed in range(task.seeds):
+                training_dir_name = "{}/{}-{}".format(args.training_dir, env_name, seed)
+                env.monitor.start(training_dir_name, seed=seed)
+                env.reset()
+                for _ in range(task.timesteps):
+                    o, r, done, _ = env.step(env.action_space.sample())
+                    if done:
+                        env.reset()
+                env.monitor.close()
 
     logger.info("""Done running, upload results using the following command:
 
