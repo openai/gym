@@ -1,0 +1,65 @@
+#!/usr/bin/env python
+#
+# Run all the tasks on a benchmark using a random agent.
+#
+# This script assumes you have set an OPENAI_GYM_API_KEY environment
+# variable. You can find your API key in the web interface:
+# https://gym.openai.com/settings/profile.
+#
+import argparse
+import logging
+import os
+import sys
+
+import gym
+
+# In modules, use `logger = logging.getLogger(__name__)`
+logger = logging.getLogger()
+
+def main():
+    parser = argparse.ArgumentParser(description=None)
+    parser.add_argument('-b', '--benchmark-id', help='id of benchmark to run e.g. Atari7Ram-v0')
+    parser.add_argument('-v', '--verbose', action='count', dest='verbosity', default=0, help='Set verbosity.')
+    parser.add_argument('-t', '--training-dir', default="/tmp/gym-results/", help='What directory to upload.')
+    args = parser.parse_args()
+
+    if args.verbosity == 0:
+        logger.setLevel(logging.INFO)
+    elif args.verbosity >= 1:
+        logger.setLevel(logging.DEBUG)
+
+    benchmark_id = args.benchmark_id
+    if benchmark_id is None:
+        logger.info("Must supply a valid benchmark")
+        return 1
+
+    try:
+        benchmark = gym.benchmark_spec(benchmark_id)
+    except Exception:
+        logger.info("Invalid benchmark")
+        return 1
+
+    # run benchmark tasks
+    for env_name, task_list in benchmark.task_groups.items():
+        logger.info("Running on env: {}".format(env_name))
+        env = gym.make(env_name)
+        env.monitor.start("{}/{}".format(args.training_dir, env_name))
+        for task in task_list:
+            env.reset()
+            for _ in range(task.timesteps):
+                o, r, done, _ = env.step(env.action_space.sample())
+                if done:
+                    env.reset()
+        env.monitor.close()
+
+    logger.info("""Done running, upload results using the following command:
+
+import gym
+gym.upload("{}", benchmark_id="{}")
+
+    """.rstrip().format(args.training_dir, benchmark_id))
+
+    return 0
+
+if __name__ == '__main__':
+    sys.exit(main())

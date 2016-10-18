@@ -388,5 +388,8 @@ class BenchmarkRun(CreateableAPIResource, UpdateableAPIResource):
     def class_name(cls):
         return 'benchmark_run'
 
+    def web_url(self):
+        return "%s/benchmark_runs/%s" % (gym.scoreboard.web_base, self.get('id'))
+
     def commit(self):
         return self.request('post', '{}/commit'.format(self.instance_path()))

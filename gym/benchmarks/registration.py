@@ -17,10 +17,11 @@ class Task(object):
         self.reward_ceiling = reward_ceiling
 
 class Benchmark(object):
-    def __init__(self, id, scorer, task_groups, description=None):
+    def __init__(self, id, scorer, task_groups, description=None, name=None):
         self.id = id
         self.scorer = scorer
         self.description = description
+        self.name = name
 
         task_map = {}
         for env_id, tasks in task_groups.items():
