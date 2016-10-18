@@ -111,6 +111,7 @@ class Monitor(object):
             resume (bool): Retain the training data already in this directory, which will be merged with our new data
             seed (Optional[int]): The seed to run this environment with. By default, a random seed will be chosen.
             write_upon_reset (bool): Write the manifest file on each reset. (This is currently a JSON file, so writing it is somewhat expensive.)
+            uid (Optional[str]): A unique id used as part of the suffix for the file. By default, uses os.getpid().
         """
         if self.env.spec is None:
             logger.warn("Trying to monitor an environment which has no 'spec' set. This usually means you did not create it via 'gym.make', and is recommended only for advanced users.")
