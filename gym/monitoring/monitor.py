@@ -100,7 +100,8 @@ class Monitor(object):
             raise error.Error("env has been garbage collected. To keep using a monitor, you must keep around a reference to the env object. (HINT: try assigning the env to a variable in your code.)")
         return env
 
-    def start(self, directory, video_callable=None, force=False, resume=False, seed=None, write_upon_reset=False):
+    def start(self, directory, video_callable=None, force=False, resume=False,
+              seed=None, write_upon_reset=False, uid=None):
         """Start monitoring.
 
         Args:
@@ -110,6 +111,7 @@ class Monitor(object):
             resume (bool): Retain the training data already in this directory, which will be merged with our new data
             seed (Optional[int]): The seed to run this environment with. By default, a random seed will be chosen.
             write_upon_reset (bool): Write the manifest file on each reset. (This is currently a JSON file, so writing it is somewhat expensive.)
+            uid (Optional[str]): A unique id used as part of the suffix for the file. By default, uses os.getpid().
         """
         if self.env.spec is None:
             logger.warn("Trying to monitor an environment which has no 'spec' set. This usually means you did not create it via 'gym.make', and is recommended only for advanced users.")
@@ -143,7 +145,8 @@ class Monitor(object):
         # We use the 'openai-gym' prefix to determine if a file is
         # ours
         self.file_prefix = FILE_PREFIX
-        self.file_infix = '{}.{}'.format(self._monitor_id, os.getpid())
+        self.file_infix = '{}.{}'.format(self._monitor_id, uid if uid else os.getpid())
+
         self.stats_recorder = stats_recorder.StatsRecorder(directory, '{}.episode_batch.{}'.format(self.file_prefix, self.file_infix))
         self.configure(video_callable=video_callable)
         if not os.path.exists(directory):
