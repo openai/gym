@@ -35,8 +35,8 @@ def upload(training_dir, algorithm_id=None, writeup=None, benchmark_id=None, api
         for name, _, files in os.walk(training_dir):
             manifests = monitoring.detect_training_manifests(name, files=files)
             if manifests:
-                env_info, main_seeds = monitoring.load_env_seed_info_from_manifests(manifests, training_dir)
-                env_ids.extend(env_info['env_id'] for seed in main_seeds)
+                env_info = monitoring.load_env_info_from_manifests(manifests, training_dir)
+                env_ids.append(env_info['env_id'])
                 directories.append(name)
 
         # Validate against benchmark spec

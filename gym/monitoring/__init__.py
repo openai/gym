@@ -1,7 +1,7 @@
 from gym.monitoring.monitor import (
     _open_monitors,
     detect_training_manifests,
-    load_env_seed_info_from_manifests,
+    load_env_info_from_manifests,
     load_results,
     Monitor,
 )
