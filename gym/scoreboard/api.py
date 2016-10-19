@@ -45,12 +45,12 @@ def upload(training_dir, algorithm_id=None, writeup=None, benchmark_id=None, api
         except error.UnregisteredBenchmark as e:
             raise error.Error("Invalid benchmark id: {}. Are you using a benchmark registered in gym/benchmarks/__init__.py?".format(benchmark_id))
 
-        # just verify that the number of seeds match for now
+        # TODO: verify that the number of trials matches
         spec_env_ids = [task[0].env_id for task in spec.task_groups.values() for _ in range(task[0].seeds)]
 
         # This could be more stringent about mixing evaluations
         if sorted(env_ids) != sorted(spec_env_ids):
-            raise error.Error("Evaluations do not match spec for benchmark {}. We found {}, expected {}".format(benchmark_id, sorted(env_ids), sorted(spec_env_ids)))
+            raise error.Error("Evaluations do not match spec for benchmark {}. In {}, we found evaluations for {}, expected {}".format(benchmark_id, training_dir, sorted(env_ids), sorted(spec_env_ids)))
 
         benchmark_run = resource.BenchmarkRun.create(benchmark_id=benchmark_id, algorithm_id=algorithm_id)
         benchmark_run_id = benchmark_run.id
