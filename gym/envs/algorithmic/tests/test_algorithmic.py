@@ -166,6 +166,15 @@ class TestTargets(unittest.TestCase):
         for (input_grid, expected_target) in input_expected:
             self.assertEqual(env.target_from_input_data(input_grid), expected_target)
 
+    def test_reversed_addition_3rows(self):
+        env = alg.reversed_addition.ReversedAdditionEnv(base=3, rows=3)
+        input_expected = [
+            ([[1,1,0],[0,1,1]], [2, 2]),
+            ([[1,1,2],[0,1,1]], [1,0,1]),
+        ]
+        for (input_grid, expected_target) in input_expected:
+            self.assertEqual(env.target_from_input_data(input_grid), expected_target)
+
     def test_copy_target(self):
         env = alg.copy_.CopyEnv()
         self.assertEqual(env.target_from_input_data([0, 1, 2]), [0, 1, 2])
