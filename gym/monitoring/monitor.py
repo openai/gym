@@ -153,9 +153,6 @@ class Monitor(object):
         self.stats_recorder = stats_recorder.StatsRecorder(directory, '{}.episode_batch.{}'.format(self.file_prefix, self.file_infix))
         self.configure(video_callable=video_callable)
         if not os.path.exists(directory):
-            if six.PY3:
-                os.mkdir(directory, exist_ok=True)
-            else:
                 os.mkdir(directory)
         self.write_upon_reset = write_upon_reset
 
