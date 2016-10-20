@@ -9,6 +9,9 @@ class ClipTo01ThenAverage(object):
         self.num_episodes = num_episodes
 
     def score_evaluation(self, benchmark, env_id, episode_lengths, episode_rewards, episode_types, timestamps, initial_reset_timestamp):
+        # TODO: support other experience_units
+        assert task.experience_units == 'timesteps'
+
         tasks = benchmark.task_groups[env_id]
         spec = envs.spec(env_id)
 
@@ -37,7 +40,7 @@ class ClipTo01ThenAverage(object):
         for task in tasks:
             # Find the first episode where we're over the allotted
             # training timesteps.
-            (cutoff,) = np.where(elapsed_timesteps > task.timesteps)
+            (cutoff,) = np.where(elapsed_timesteps > task.experience_limit)
             if len(cutoff) > 0:
                 cutoff_idx = cutoff[-1]
                 orig_cutoff_idx = t_idx[cutoff_idx] # cutoff index in the original

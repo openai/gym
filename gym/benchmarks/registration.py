@@ -9,10 +9,14 @@ from gym import error
 logger = logging.getLogger(__name__)
 
 class Task(object):
-    def __init__(self, env_id, seeds, timesteps, reward_floor, reward_ceiling):
+    def __init__(self, env_id, trials, experience_limit, experience_units, real_time, reward_floor, reward_ceiling):
+        if experience_units not in ['seconds', 'timesteps', 'episodes']:
+            raise error.Error('Invalid experience units: {}', experience_units)
+
         self.env_id = env_id
-        self.seeds = seeds
-        self.timesteps = timesteps
+        self.trials = trials
+        self.experience_limit = experience_limit
+        self.experience_units = experience_units
         self.reward_floor = reward_floor
         self.reward_ceiling = reward_ceiling
 
@@ -29,8 +33,9 @@ class Benchmark(object):
             for task in tasks:
                 task_map[env_id].append(Task(
                     env_id=env_id,
-                    seeds=task['seeds'],
-                    timesteps=task['timesteps'],
+                    trials=task['trials'],
+                    experience_limit=task['experience_limit'],
+                    experience_units=task.get('experience_units', 'timesteps'),
                     reward_floor=task.get('reward_floor', 0),
                     reward_ceiling=task.get('reward_ceiling', 100),
                 ))

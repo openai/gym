@@ -12,11 +12,11 @@ def test():
         scorer=scoring.ClipTo01ThenAverage(),
         task_groups={
             'CartPole-v0': [{
-                'seeds': 1,
-                'timesteps': 5
+                'trials': 1,
+                'experience_limit': 5
             }, {
-                'seeds': 1,
-                'timesteps': 100
+                'trials': 1,
+                'experience_limit': 100
             }],
         })
 
