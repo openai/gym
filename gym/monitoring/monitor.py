@@ -118,7 +118,10 @@ class Monitor(object):
 
         if not os.path.exists(directory):
             logger.info('Creating monitor directory %s', directory)
-            os.makedirs(directory)
+            if six.PY3:
+                os.makedirs(directory, exist_ok=True)
+            else:
+                os.makedirs(directory)
 
         if video_callable is None:
             video_callable = capped_cubic_video_schedule
@@ -150,7 +153,10 @@ class Monitor(object):
         self.stats_recorder = stats_recorder.StatsRecorder(directory, '{}.episode_batch.{}'.format(self.file_prefix, self.file_infix))
         self.configure(video_callable=video_callable)
         if not os.path.exists(directory):
-            os.mkdir(directory)
+            if six.PY3:
+                os.mkdir(directory, exist_ok=True)
+            else:
+                os.mkdir(directory)
         self.write_upon_reset = write_upon_reset
 
         seeds = self.env.seed(seed)
