@@ -42,15 +42,15 @@ class Benchmark(object):
             ))
         self.tasks = compiled_tasks
 
-    def task_spec(self, env_id):
+    def task_specs(self, env_id):
         try:
             # Could precompute this, but no need yet
             return [task for task in self.tasks if task.env_id == env_id]
         except KeyError:
             raise error.Unregistered('No task with env_id {} registered for benchmark {}', env_id, self.id)
 
-    def score_evaluation(self, env_id, episode_lengths, episode_rewards, episode_types, timestamps, initial_reset_timestamp):
-        return self.scorer.score_evaluation(self, env_id, episode_lengths, episode_rewards, episode_types, timestamps, initial_reset_timestamp)
+    def score_evaluation(self, env_id, data_sources, initial_reset_timestamps, episode_lengths, episode_rewards, episode_types, timestamps):
+        return self.scorer.score_evaluation(self, env_id, data_sources, initial_reset_timestamps, episode_lengths, episode_rewards, episode_types, timestamps)
 
     def score_benchmark(self, score_map):
         return self.scorer.score_benchmark(self, score_map)
