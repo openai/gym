@@ -140,43 +140,43 @@ register_benchmark(
     task_groups={
     "HalfCheetah-v1": [
         {
-            "seeds": 1,
+            "seeds": 3,
             "timesteps": 1000000
         }
     ],
     "Hopper-v1": [
         {
-            "seeds": 1,
+            "seeds": 3,
             "timesteps": 1000000
         }
     ],
     "InvertedDoublePendulum-v1": [
         {
-            "seeds": 1,
+            "seeds": 3,
             "timesteps": 1000000
         }
     ],
     "InvertedPendulum-v1": [
         {
-            "seeds": 1,
+            "seeds": 3,
             "timesteps": 1000000
         }
     ],
     "Reacher-v1": [
         {
-            "seeds": 1,
+            "seeds": 3,
             "timesteps": 1000000
         }
     ],
     "Swimmer-v1": [
         {
-            "seeds": 1,
+            "seeds": 3,
             "timesteps": 1000000
         }
     ],
     "Walker2d-v1": [
         {
-            "seeds": 1,
+            "seeds": 3,
             "timesteps": 1000000
         }
     ]
