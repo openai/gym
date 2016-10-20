@@ -16,3 +16,10 @@ class ReversedAdditionEnv(algorithmic_env.GridAlgorithmicEnv):
         if curry > 0:
             target.append(curry)
         return target
+
+    @property
+    def time_limit(self):
+        # Quirk preserved for the sake of consistency: add the length of the input
+        # rather than the length of the desired output (which may differ if there's
+        # an extra carried digit).
+        return self.input_width*2 + 4
