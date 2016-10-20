@@ -1,27 +1,18 @@
 import numpy as np
 from gym.envs.algorithmic import algorithmic_env
-from gym.envs.algorithmic.algorithmic_env import ha
 
-class ReversedAdditionEnv(algorithmic_env.AlgorithmicEnv):
+class ReversedAdditionEnv(algorithmic_env.GridAlgorithmicEnv):
     def __init__(self, rows=2, base=3):
-        self.rows = rows
-        algorithmic_env.AlgorithmicEnv.__init__(self,
-                                                inp_dim=2,
-                                                base=base,
-                                                chars=False)
-    def set_data(self):
-        self.content = {}
-        self.target = {}
+        super(ReversedAdditionEnv, self).__init__(rows=rows, base=base, chars=False)
+
+    def target_from_input_data(self, input_strings):
         curry = 0
-        for i in range(self.total_len):
-            vals = []
-            for k in range(self.rows):
-                val = self.np_random.randint(self.base)
-                self.content[ha(np.array([i, k]))] = val
-                vals.append(val)
-            total = sum(vals) + curry
-            self.target[i] = total % self.base
+        target = []
+        for digits in input_strings:
+            total = sum(digits) + curry
+            target.append(total % self.base)
             curry = total / self.base
+
         if curry > 0:
-            self.target[self.total_len] = curry
-        self.total_reward = self.total_len
+            target.append(curry)
+        return target
