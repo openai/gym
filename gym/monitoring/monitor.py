@@ -101,7 +101,7 @@ class Monitor(object):
         return env
 
     def start(self, directory, video_callable=None, force=False, resume=False,
-              seed=None, write_upon_reset=False, uid=None):
+              seed=None, write_upon_reset=False, uid=None, mode=None):
         """Start monitoring.
 
         Args:
@@ -112,6 +112,7 @@ class Monitor(object):
             seed (Optional[int]): The seed to run this environment with. By default, a random seed will be chosen.
             write_upon_reset (bool): Write the manifest file on each reset. (This is currently a JSON file, so writing it is somewhat expensive.)
             uid (Optional[str]): A unique id used as part of the suffix for the file. By default, uses os.getpid().
+            mode (['evaluation', 'training']): Whether this is an evaluation or training episode.
         """
         if self.env.spec is None:
             logger.warn("Trying to monitor an environment which has no 'spec' set. This usually means you did not create it via 'gym.make', and is recommended only for advanced users.")
@@ -161,6 +162,8 @@ class Monitor(object):
             logger.warn('env.seed returned unexpected result: %s (should be a list of ints)', seeds)
 
         self.seeds = seeds
+        if mode is not None:
+            self._set_mode(mode)
 
     def flush(self, force=False):
         """Flush all relevant monitor information to disk."""
@@ -237,13 +240,16 @@ class Monitor(object):
             self.video_callable = video_callable
 
         if mode is not None:
-            if mode == 'evaluation':
-                type = 'e'
-            elif mode == 'training':
-                type = 't'
-            else:
-                raise error.Error('Invalid mode {}: must be "training" or "evaluation"', mode)
-            self.stats_recorder.type = type
+            self._set_mode(mode)
+
+    def _set_mode(self, mode):
+        if mode == 'evaluation':
+            type = 'e'
+        elif mode == 'training':
+            type = 't'
+        else:
+            raise error.Error('Invalid mode {}: must be "training" or "evaluation"', mode)
+        self.stats_recorder.type = type
 
     def _before_step(self, action):
         if not self.enabled: return
@@ -361,15 +367,17 @@ def load_results(training_dir):
                 main_seeds.append(None)
 
     env_info = collapse_env_infos(env_infos, training_dir)
-    timestamps, episode_lengths, episode_rewards, episode_types, initial_reset_timestamp = merge_stats_files(stats_files)
+    data_sources, initial_reset_timestamps, timestamps, episode_lengths, episode_rewards, episode_types, initial_reset_timestamp = merge_stats_files(stats_files)
 
     return {
         'manifests': manifests,
         'env_info': env_info,
+        'data_sources': data_sources,
         'timestamps': timestamps,
         'episode_lengths': episode_lengths,
         'episode_rewards': episode_rewards,
         'episode_types': episode_types,
+        'initial_reset_timestamps': initial_reset_timestamps,
         'initial_reset_timestamp': initial_reset_timestamp,
         'videos': videos,
         'main_seeds': main_seeds,
@@ -382,22 +390,26 @@ def merge_stats_files(stats_files):
     episode_rewards = []
     episode_types = []
     initial_reset_timestamps = []
+    data_sources = []
 
-    for path in stats_files:
+    for i, path in enumerate(stats_files):
         with open(path) as f:
             content = json.load(f)
             if len(content['timestamps'])==0: continue # so empty file doesn't mess up results, due to null initial_reset_timestamp
+            data_sources += [i] * len(content['timestamps'])
             timestamps += content['timestamps']
             episode_lengths += content['episode_lengths']
             episode_rewards += content['episode_rewards']
             # Recent addition
             episode_types += content.get('episode_types', [])
+            # Keep track of where each episode came from.
             initial_reset_timestamps.append(content['initial_reset_timestamp'])
 
     idxs = np.argsort(timestamps)
     timestamps = np.array(timestamps)[idxs].tolist()
     episode_lengths = np.array(episode_lengths)[idxs].tolist()
     episode_rewards = np.array(episode_rewards)[idxs].tolist()
+    data_sources = np.array(data_sources)[idxs].tolist()
 
     if episode_types:
         episode_types = np.array(episode_types)[idxs].tolist()
@@ -409,7 +421,7 @@ def merge_stats_files(stats_files):
     else:
         initial_reset_timestamp = 0
 
-    return timestamps, episode_lengths, episode_rewards, episode_types, initial_reset_timestamp
+    return data_sources, initial_reset_timestamps, timestamps, episode_lengths, episode_rewards, episode_types, initial_reset_timestamp
 
 # TODO training_dir isn't used except for error messages, clean up the layering
 def collapse_env_infos(env_infos, training_dir):

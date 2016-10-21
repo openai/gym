@@ -10,15 +10,15 @@ def test():
     benchmark = registration.Benchmark(
         id='MyBenchmark-v0',
         scorer=scoring.ClipTo01ThenAverage(),
-        task_groups={
-            'CartPole-v0': [{
-                'seeds': 1,
-                'timesteps': 5
-            }, {
-                'seeds': 1,
-                'timesteps': 100
-            }],
-        })
+        tasks=[
+            {'env_id': 'CartPole-v0',
+             'trials': 1,
+             'max_timesteps': 5
+            },
+            {'env_id': 'CartPole-v0',
+             'trials': 1,
+             'max_timesteps': 100,
+            }])
 
     with helpers.tempdir() as temp:
         env = gym.make('CartPole-v0')
@@ -36,7 +36,7 @@ def test():
 
         env.monitor.close()
         results = monitoring.load_results(temp)
-        evaluation_score = benchmark.score_evaluation('CartPole-v0', results['episode_lengths'], results['episode_rewards'], results['episode_types'], results['timestamps'], results['initial_reset_timestamp'])
+        evaluation_score = benchmark.score_evaluation('CartPole-v0', results['data_sources'], results['initial_reset_timestamps'], results['episode_lengths'], results['episode_rewards'], results['episode_types'], results['timestamps'])
         benchmark_score = benchmark.score_benchmark({
             'CartPole-v0': evaluation_score['scores'],
         })

@@ -9,41 +9,48 @@ from gym import error
 logger = logging.getLogger(__name__)
 
 class Task(object):
-    def __init__(self, env_id, seeds, timesteps, reward_floor, reward_ceiling):
+    def __init__(self, env_id, trials, max_timesteps, max_seconds, reward_floor, reward_ceiling):
         self.env_id = env_id
-        self.seeds = seeds
-        self.timesteps = timesteps
+        self.trials = trials
+        self.max_timesteps = max_timesteps
+        self.max_seconds = max_seconds
         self.reward_floor = reward_floor
         self.reward_ceiling = reward_ceiling
 
+        if max_timesteps is None and max_seconds is None:
+            raise error.Error('Must provide at least one of max_timesteps and max_seconds for {}'.format(self))
+
+    def __str__(self):
+        return 'Task<env_id={} trials={} max_timesteps={} max_seconds={} reward_floor={} reward_ceiling={}>'.format(self.env_id, self.trials, self.max_timesteps, self.max_seconds, self.reward_floor, self.reward_ceiling)
+
 class Benchmark(object):
-    def __init__(self, id, scorer, task_groups, description=None, name=None):
+    def __init__(self, id, scorer, tasks, description=None, name=None):
         self.id = id
         self.scorer = scorer
         self.description = description
         self.name = name
 
-        task_map = {}
-        for env_id, tasks in task_groups.items():
-            task_map[env_id] = []
-            for task in tasks:
-                task_map[env_id].append(Task(
-                    env_id=env_id,
-                    seeds=task['seeds'],
-                    timesteps=task['timesteps'],
-                    reward_floor=task.get('reward_floor', 0),
-                    reward_ceiling=task.get('reward_ceiling', 100),
-                ))
-        self.task_groups = task_map
+        compiled_tasks = []
+        for task in tasks:
+            compiled_tasks.append(Task(
+                env_id=task['env_id'],
+                trials=task['trials'],
+                max_timesteps=task.get('max_timesteps'),
+                max_seconds=task.get('max_seconds'),
+                reward_floor=task.get('reward_floor', 0),
+                reward_ceiling=task.get('reward_ceiling', 100),
+            ))
+        self.tasks = compiled_tasks
 
-    def task_spec(self, env_id):
+    def task_specs(self, env_id):
         try:
-            return self.task_groups[env_id]
+            # Could precompute this, but no need yet
+            return [task for task in self.tasks if task.env_id == env_id]
         except KeyError:
             raise error.Unregistered('No task with env_id {} registered for benchmark {}', env_id, self.id)
 
-    def score_evaluation(self, env_id, episode_lengths, episode_rewards, episode_types, timestamps, initial_reset_timestamp):
-        return self.scorer.score_evaluation(self, env_id, episode_lengths, episode_rewards, episode_types, timestamps, initial_reset_timestamp)
+    def score_evaluation(self, env_id, data_sources, initial_reset_timestamps, episode_lengths, episode_rewards, episode_types, timestamps):
+        return self.scorer.score_evaluation(self, env_id, data_sources, initial_reset_timestamps, episode_lengths, episode_rewards, episode_types, timestamps)
 
     def score_benchmark(self, score_map):
         return self.scorer.score_benchmark(self, score_map)
