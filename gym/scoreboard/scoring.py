@@ -47,7 +47,8 @@ def score_from_merged(episode_lengths, episode_rewards, episode_types, timestamp
     """
     if episode_types is not None:
         # Select only the training episodes
-        t_idx = np.where(e == 't' for e in episode_types)
+        episode_types = np.array(episode_types)
+        t_idx = np.where(episode_types == 't')
         episode_lengths = np.array(episode_lengths)[t_idx]
         episode_rewards = np.array(episode_rewards)[t_idx]
         timestamps = np.array(timestamps)[t_idx]
