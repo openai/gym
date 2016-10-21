@@ -1,27 +1,30 @@
+from __future__ import division
 import numpy as np
 from gym.envs.algorithmic import algorithmic_env
-from gym.envs.algorithmic.algorithmic_env import ha
 
-class ReversedAdditionEnv(algorithmic_env.AlgorithmicEnv):
+class ReversedAdditionEnv(algorithmic_env.GridAlgorithmicEnv):
     def __init__(self, rows=2, base=3):
-        self.rows = rows
-        algorithmic_env.AlgorithmicEnv.__init__(self,
-                                                inp_dim=2,
-                                                base=base,
-                                                chars=False)
-    def set_data(self):
-        self.content = {}
-        self.target = {}
+        super(ReversedAdditionEnv, self).__init__(rows=rows, base=base, chars=False)
+
+    def target_from_input_data(self, input_strings):
         curry = 0
-        for i in range(self.total_len):
-            vals = []
-            for k in range(self.rows):
-                val = self.np_random.randint(self.base)
-                self.content[ha(np.array([i, k]))] = val
-                vals.append(val)
-            total = sum(vals) + curry
-            self.target[i] = total % self.base
-            curry = total / self.base
+        target = []
+        for digits in input_strings:
+            total = sum(digits) + curry
+            target.append(total % self.base)
+            curry = total // self.base
+
         if curry > 0:
-            self.target[self.total_len] = curry
-        self.total_reward = self.total_len
+            target.append(curry)
+        return target
+
+    @property
+    def time_limit(self):
+        # Quirk preserved for the sake of consistency: add the length of the input
+        # rather than the length of the desired output (which may differ if there's
+        # an extra carried digit).
+        # TODO: It seems like this time limit is so strict as to make Addition3-v0
+        # unsolvable, since agents aren't even given enough time steps to look at
+        # all the digits. (The solutions on the scoreboard seem to only work by
+        # save-scumming.)
+        return self.input_width*2 + 4
