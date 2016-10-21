@@ -31,7 +31,7 @@ class ClipTo01ThenAverage(object):
             # adjoining values
             source_indexes = np.where(data_sources == source)
 
-            durations[source_indexes[0]] = timestamps[source_indexes[0]] - initial_reset_timestamps[i]
+            durations[source_indexes[0]] = timestamps[source_indexes[0]] - initial_reset_timestamps[source]
             durations[source_indexes[1:]] = timestamps[source_indexes[1:]] - timestamps[source_indexes[:-1]]
 
         #### 1. Select out which indexes are for evaluation and which are for training
