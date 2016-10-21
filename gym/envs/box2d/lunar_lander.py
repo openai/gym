@@ -235,8 +235,6 @@ class LunarLander(gym.Env):
             self.world.DestroyBody(self.particles.pop(0))
 
     def _step(self, action):
-        assert self.action_space.contains(action), "%r (%s) invalid " % (action,type(action))
-
         # Engines
         tip  = (math.sin(self.lander.angle), math.cos(self.lander.angle))
         side = (-tip[1], tip[0]);

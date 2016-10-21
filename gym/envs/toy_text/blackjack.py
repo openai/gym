@@ -89,7 +89,6 @@ class BlackjackEnv(gym.Env):
         return [seed]
 
     def _step(self, action):
-        assert self.action_space.contains(action)
         if action:  # hit: add a card to players hand and return
             self.player.append(draw_card(self.np_random))
             if is_bust(self.player):

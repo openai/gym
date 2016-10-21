@@ -41,8 +41,6 @@ class HotterColder(gym.Env):
         return [seed]
 
     def _step(self, action):
-        assert self.action_space.contains(action)
-
         if action < self.number:
             self.observation = 1
 
