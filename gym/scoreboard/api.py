@@ -46,7 +46,7 @@ def upload(training_dir, algorithm_id=None, writeup=None, benchmark_id=None, api
             raise error.Error("Invalid benchmark id: {}. Are you using a benchmark registered in gym/benchmarks/__init__.py?".format(benchmark_id))
 
         # TODO: verify that the number of trials matches
-        spec_env_ids = [task[0].env_id for task in spec.task_groups.values() for _ in range(task[0].seeds)]
+        spec_env_ids = [task.env_id for task in spec.tasks for _ in range(task.trials)]
 
         # This could be more stringent about mixing evaluations
         if sorted(env_ids) != sorted(spec_env_ids):
