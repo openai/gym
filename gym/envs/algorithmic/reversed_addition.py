@@ -1,3 +1,4 @@
+from __future __ import division
 import numpy as np
 from gym.envs.algorithmic import algorithmic_env
 
@@ -11,7 +12,7 @@ class ReversedAdditionEnv(algorithmic_env.GridAlgorithmicEnv):
         for digits in input_strings:
             total = sum(digits) + curry
             target.append(total % self.base)
-            curry = total / self.base
+            curry = total // self.base
 
         if curry > 0:
             target.append(curry)
