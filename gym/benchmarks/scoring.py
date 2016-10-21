@@ -25,7 +25,7 @@ class ClipTo01ThenAverage(object):
         # (Details computing duration.)
         data_sources = np.array(data_sources)
         timestamps = np.array(timestamps)
-        for i, source in enumerate(initial_reset_timestamps):
+        for source in range(len(initial_reset_timestamps)):
             # Once we know the indexes corresponding to a particular
             # source (i.e. worker thread), we can just subtract
             # adjoining values
