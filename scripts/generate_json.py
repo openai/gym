@@ -17,14 +17,10 @@ ROLLOUT_STEPS = 100
 episodes = ROLLOUT_STEPS
 steps = ROLLOUT_STEPS
 
-python_version = sys.version_info.major
-if python_version == 3:
-    ROLLOUT_FILE = os.path.join(DATA_DIR, 'rollout_py3.json')
-else:
-    ROLLOUT_FILE = os.path.join(DATA_DIR, 'rollout_py2.json')
-
+ROLLOUT_FILE = os.path.join(DATA_DIR, 'rollout.json')
 
 if not os.path.isfile(ROLLOUT_FILE):
+  logger.info("No rollout file found. Writing empty json file to {}".format(ROLLOUT_FILE))
   with open(ROLLOUT_FILE, "w") as outfile:
     json.dump({}, outfile, indent=2)
 
@@ -68,7 +64,7 @@ def update_rollout_dict(spec, rollout_dict):
   existing = rollout_dict.get(spec.id)
   if existing:
     differs = False
-    for key, new_hash in rollout.iteritems():
+    for key, new_hash in rollout.items():
       differs = differs or existing[key] != new_hash
     if not differs:
       logger.debug("Hashes match with existing for {}".format(spec.id))
@@ -79,8 +75,11 @@ def update_rollout_dict(spec, rollout_dict):
   rollout_dict[spec.id] = rollout
   return True
 
-def add_new_rollouts(overwrite):
+def add_new_rollouts(spec_ids, overwrite):
   environments = [spec for spec in envs.registry.all() if spec._entry_point is not None]
+  if spec_ids:
+    environments = [spec for spec in environments if spec.id in spec_ids]
+    assert len(environments) == len(spec_ids), "Some specs not found"
   with open(ROLLOUT_FILE) as data_file:
     rollout_dict = json.load(data_file)
   modified = False
@@ -102,7 +101,8 @@ if __name__ == '__main__':
   parser.add_argument('-f', '--force', action='store_true', help='Overwrite '+
     'existing rollouts if hashes differ.')
   parser.add_argument('-v', '--verbose', action='store_true')
+  parser.add_argument('specs', nargs='*', help='ids of env specs to check (default: all)')
   args = parser.parse_args()
   if args.verbose:
     logger.setLevel(logging.DEBUG)
-  add_new_rollouts(args.force)
+  add_new_rollouts(args.specs, args.force)
