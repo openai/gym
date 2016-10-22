@@ -17,11 +17,7 @@ ROLLOUT_STEPS = 100
 episodes = ROLLOUT_STEPS
 steps = ROLLOUT_STEPS
 
-python_version = sys.version_info.major
-if python_version == 3:
-    ROLLOUT_FILE = os.path.join(DATA_DIR, 'rollout_py3.json')
-else:
-    ROLLOUT_FILE = os.path.join(DATA_DIR, 'rollout_py2.json')
+ROLLOUT_FILE = os.path.join(DATA_DIR, 'rollout.json')
 
 if not os.path.isfile(ROLLOUT_FILE): 
   with open(ROLLOUT_FILE, "w") as outfile:
