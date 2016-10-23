@@ -106,10 +106,10 @@ class AutoresetEnv(gym.Env):
         self.observation_space = spaces.Discrete(1)
 
     def _reset(self):
-        return None
+        return 0
 
     def _step(self, action):
-        return None, 0, False, {}
+        return 0, 0, False, {}
 
 gym.envs.register(
     id='Autoreset-v0',
