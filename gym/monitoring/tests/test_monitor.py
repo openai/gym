@@ -2,7 +2,7 @@ import glob
 import os
 
 import gym
-from gym import error
+from gym import error, spaces
 from gym import monitoring
 from gym.monitoring import monitor
 from gym.monitoring.tests import helpers
@@ -100,6 +100,10 @@ def test_env_reuse():
 
 class AutoresetEnv(gym.Env):
     metadata = {'semantics.autoreset': True}
+
+    def __init__(self):
+        self.action_space = spaces.Discrete(1)
+        self.observation_space = spaces.Discrete(1)
 
     def _reset(self):
         return None
