@@ -116,6 +116,7 @@ class Monitor(object):
         """
         if self.env.spec is None:
             logger.warn("Trying to monitor an environment which has no 'spec' set. This usually means you did not create it via 'gym.make', and is recommended only for advanced users.")
+            autoreset = None
 
         if not os.path.exists(directory):
             logger.info('Creating monitor directory %s', directory)
@@ -151,7 +152,7 @@ class Monitor(object):
         self.file_prefix = FILE_PREFIX
         self.file_infix = '{}.{}'.format(self._monitor_id, uid if uid else os.getpid())
 
-        self.stats_recorder = stats_recorder.StatsRecorder(directory, '{}.episode_batch.{}'.format(self.file_prefix, self.file_infix))
+        self.stats_recorder = stats_recorder.StatsRecorder(directory, '{}.episode_batch.{}'.format(self.file_prefix, self.file_infix), autoreset=self.env.metadata.get('semantics.autoreset'))
         self.configure(video_callable=video_callable)
         if not os.path.exists(directory):
                 os.mkdir(directory)

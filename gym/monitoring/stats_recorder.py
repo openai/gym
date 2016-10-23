@@ -6,7 +6,9 @@ from gym import error
 from gym.utils import atomic_write
 
 class StatsRecorder(object):
-    def __init__(self, directory, file_prefix):
+    def __init__(self, directory, file_prefix, autoreset=False):
+        self.autoreset = autoreset
+
         self.initial_reset_timestamp = None
         self.directory = directory
         self.file_prefix = file_prefix
@@ -46,7 +48,11 @@ class StatsRecorder(object):
         self.steps += 1
         self.rewards += reward
         if done:
-            self.done = True
+            if self.autoreset:
+                self.before_reset()
+                self.after_reset(observation)
+            else:
+                self.done = True
 
     def before_reset(self):
         assert not self.closed

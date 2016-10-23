@@ -97,3 +97,32 @@ def test_env_reuse():
 
         results = monitor.load_results(temp)
         assert results['episode_lengths'] == [2], 'Results: {}'.format(results)
+
+class AutoresetEnv(gym.Env):
+    metadata = {'semantics.autoreset': True}
+
+    def _reset(self):
+        return None
+
+    def _step(self, action):
+        return None, 0, False, {}
+
+gym.envs.register(
+    id='Autoreset-v0',
+    entry_point='gym.monitoring.tests.test_monitor:AutoresetEnv',
+    timestep_limit=2,
+)
+def test_env_reuse():
+    with helpers.tempdir() as temp:
+        env = gym.make('Autoreset-v0')
+        env.monitor.start(temp)
+
+        env.reset()
+
+        env.step(None)
+        _, _, done, _ = env.step(None)
+        assert done
+
+        env.step(None)
+        _, _, done, _ = env.step(None)
+        assert done
