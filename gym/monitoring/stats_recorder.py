@@ -6,8 +6,9 @@ from gym import error
 from gym.utils import atomic_write
 
 class StatsRecorder(object):
-    def __init__(self, directory, file_prefix, autoreset=False):
+    def __init__(self, directory, file_prefix, autoreset=False, env_id=None):
         self.autoreset = autoreset
+        self.env_id = env_id
 
         self.initial_reset_timestamp = None
         self.directory = directory
@@ -40,9 +41,9 @@ class StatsRecorder(object):
         assert not self.closed
 
         if self.done:
-            raise error.ResetNeeded("Trying to step environment which is currently done. While the monitor is active, you cannot step beyond the end of an episode. Call 'env.reset()' to start the next episode.")
+            raise error.ResetNeeded("Trying to step environment which is currently done. While the monitor is active for {}, you cannot step beyond the end of an episode. Call 'env.reset()' to start the next episode.".format(self.env_id))
         elif self.steps is None:
-            raise error.ResetNeeded("Trying to step an environment before reset. While the monitor is active, you must call 'env.reset()' before taking an initial step.")
+            raise error.ResetNeeded("Trying to step an environment before reset. While the monitor is active for {}, you must call 'env.reset()' before taking an initial step.".format(self.env_id))
 
     def after_step(self, observation, reward, done, info):
         self.steps += 1
