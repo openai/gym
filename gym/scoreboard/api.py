@@ -50,7 +50,7 @@ def upload(training_dir, algorithm_id=None, writeup=None, benchmark_id=None, api
 
         # This could be more stringent about mixing evaluations
         if sorted(env_ids) != sorted(spec_env_ids):
-            raise error.Error("Evaluations do not match spec for benchmark {}. In {}, we found evaluations for {}, expected {}".format(benchmark_id, training_dir, sorted(env_ids), sorted(spec_env_ids)))
+            logger.info("WARNING: Evaluations do not match spec for benchmark {}. In {}, we found evaluations for {}, expected {}".format(benchmark_id, training_dir, sorted(env_ids), sorted(spec_env_ids)))
 
         benchmark_run = resource.BenchmarkRun.create(benchmark_id=benchmark_id, algorithm_id=algorithm_id)
         benchmark_run_id = benchmark_run.id
