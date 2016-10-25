@@ -29,25 +29,31 @@ class Benchmark(object):
         self.scorer = scorer
         self.description = description
         self.name = name
+        self.env_ids = set()
 
         compiled_tasks = []
         for task in tasks:
-            compiled_tasks.append(Task(
+            task = Task(
                 env_id=task['env_id'],
                 trials=task['trials'],
                 max_timesteps=task.get('max_timesteps'),
                 max_seconds=task.get('max_seconds'),
                 reward_floor=task.get('reward_floor', 0),
                 reward_ceiling=task.get('reward_ceiling', 100),
-            ))
+            )
+            self.env_ids.add(task.env_id)
+            compiled_tasks.append(task)
+
         self.tasks = compiled_tasks
 
     def task_specs(self, env_id):
-        try:
-            # Could precompute this, but no need yet
-            return [task for task in self.tasks if task.env_id == env_id]
-        except KeyError:
+        # Could precompute this, but no need yet
+        # Note that if we do precompute it we need to preserve the order in
+        # which tasks are returned
+        results = [task for task in self.tasks if task.env_id == env_id]
+        if not results:
             raise error.Unregistered('No task with env_id {} registered for benchmark {}', env_id, self.id)
+        return results
 
     def score_evaluation(self, env_id, data_sources, initial_reset_timestamps, episode_lengths, episode_rewards, episode_types, timestamps):
         return self.scorer.score_evaluation(self, env_id, data_sources, initial_reset_timestamps, episode_lengths, episode_rewards, episode_types, timestamps)
