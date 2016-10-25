@@ -23,6 +23,24 @@ class Discrete(gym.Space):
             return False
         return as_int >= 0 and as_int < self.n
     def __repr__(self):
-        return "Discrete(%d)" % self.n
+        return "Discrete({})".format(self.n)
     def __eq__(self, other):
         return self.n == other.n
+
+class Categorical(Discrete):
+    """A discrete space with named elements. Element indices are made available
+    as attributes (as long as they're legal Python names). e.g.
+    >>> shapes = Categorical(['circle', 'triangle', 'rectangle'])
+    >>> shapes.circle
+    0
+    """
+    def __init__(self, named_members):
+        self.n = len(named_members)
+        self.named_members = list(named_members)
+    def __repr__(self):
+        return "Categorical({!r})".format(self.named_members)
+    def __getattr__(self, attr):
+        try:
+            return self.named_members.index(attr)
+        except IndexError:
+            raise AttributeError("{} has no attribute {}".format(self, attr))
