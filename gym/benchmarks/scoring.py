@@ -5,8 +5,9 @@ from gym import envs
 logger = logging.getLogger(__name__)
 
 class ClipTo01ThenAverage(object):
-    def __init__(self, num_episodes=100):
+    def __init__(self, num_episodes=100, null_score=0.0):
         self.num_episodes = num_episodes
+        self.null_score = null_score
 
     def score_evaluation(self, benchmark, env_id, data_sources, initial_reset_timestamps, episode_lengths, episode_rewards, episode_types, timestamps):
         tasks = benchmark.task_specs(env_id)
@@ -131,6 +132,7 @@ class ClipTo01ThenAverage(object):
             'scores': scores,
             'solves': solves,
             'timestamps': _timestamps,
+            'initial_reset_timestamp': initial_reset_timestamp,
         }
 
     def score_benchmark(self, benchmark, episode_scores):

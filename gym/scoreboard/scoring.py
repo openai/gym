@@ -104,6 +104,61 @@ def benchmark_score_from_merged(benchmark, env_id, episode_lengths, episode_rewa
     """
     return benchmark.score(benchmark, env_id, episode_lengths, episode_rewards, episode_types)
 
+def benchmark_aggregate_results(benchmark, env_id_to_benchmark_results):
+    scores = {}
+    solves = {}
+    start_times = []
+    end_times = []
+
+    scorer = benchmark.scorer
+
+    # N.B. for each env_id, our benchmark_results will have a list of scores,
+    # solves, and times corresponding to the different tasks for that env_id. If
+    # we don't have enough trials, we zero out the score.
+    # TODO could do smarter matching of results to trials if we have extras
+    for env_id in benchmark.env_ids:
+        # TODO for now, baked in assumption that the number of trials is the
+        # same for all tasks involving a particular env.
+        task_list = benchmark.task_specs(env_id)
+        num_trials = task_list[0].trials
+        benchmark_results = env_id_to_benchmark_results[env_id]
+        for trial in range(num_trials):
+            if trial < len(benchmark_results):
+                # okay process this benchmark result against this trial
+                benchmark_result = benchmark_results[trial]
+
+                env_scores = scores.setdefault(env_id, [])
+                env_scores.append(benchmark_result['scores'])
+
+                # note: solves is a list of lists - for each task for this env,
+                # does each episode solve that task. We consider the env solved
+                # if every episode for every task is individually solved.
+                solved = solves.setdefault(env_id, True)
+                solves[env_id] = solved and np.all(benchmark_result['solves'])
+
+                # these timestamps are a list of the first / last valid timestamp
+                # for each task involving this env.
+                start_times.append(benchmark_result['initial_reset_timestamp'])
+                end_times.append(max(benchmark_result['timestamps']))
+            else:
+                # no matching benchmark result for this trial
+                env_scores = scores.setdefault(env_id, [])
+                env_scores.append([scorer.null_score for _ in task_list])
+                solves[env_id] = False
+
+
+    score = benchmark.score_benchmark(scores)
+    num_envs_solved = len([s for s in solves.values() if s])
+    start_to_finish_seconds = max(end_times) - min(start_times)
+    summed_training_seconds = np.sum([end - start for end, start in zip(end_times, start_times)])
+
+    return dict(
+        score=score,
+        num_envs_solved=num_envs_solved,
+        start_to_finish_seconds=start_to_finish_seconds,
+        summed_training_seconds=summed_training_seconds,
+    )
+
 def running_mean(x, N):
     x = np.array(x, dtype='float64')
     cumsum = np.cumsum(np.insert(x, 0, 0))
