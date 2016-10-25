@@ -37,10 +37,11 @@ class Categorical(Discrete):
     def __init__(self, named_members):
         self.n = len(named_members)
         self.named_members = list(named_members)
+        for i, named_member in enumerate(named_members):
+            if hasattr(self, named_member):
+                raise ValueError("Element name {} collides with existing attribute.")
+            else:
+                setattr(self, named_member, i)
+
     def __repr__(self):
         return "Categorical({!r})".format(self.named_members)
-    def __getattr__(self, attr):
-        try:
-            return self.named_members.index(attr)
-        except IndexError:
-            raise AttributeError("{} has no attribute {}".format(self, attr))
