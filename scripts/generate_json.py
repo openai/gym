@@ -40,12 +40,6 @@ def update_rollout_dict(spec, rollout_dict):
     logger.info("Skipping tests for nondeterministic env {}".format(spec.id))
     return False
 
-  # Skip broken environments
-  # TODO: look into these environments
-  if spec.id in ['PredictObsCartpole-v0', 'InterpretabilityCartpoleObservations-v0']:
-    logger.info("Skipping tests for {}".format(spec.id))
-    return False
-
   logger.info("Generating rollout for {}".format(spec.id))
 
   try:

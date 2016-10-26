@@ -2963,6 +2963,12 @@
     "observations": "2d24ae81de8703862d072e14c913eca9b7e9a89ed03ce67bb37f4c9c2a89ab5a", 
     "rewards": "ec9ed1056f4910faf5586950b4923cfc32f7c8402db2ac8cf0be94567e27009a"
   }, 
+  "PredictObsCartpole-v0": {
+    "actions": "649a13d003b807e247c2185eacfc568673025e03290b0ded9cdca69065692eea", 
+    "dones": "1f60d3cc098dd5154365f3503905c18ff7dcb88bb40dc4cf8fcbd3f715c9849c", 
+    "observations": "8da2607efe4f8e0e715f5a1df588ddd3f9aca51571cfcfc95b0468b8553a436c", 
+    "rewards": "ec9ed1056f4910faf5586950b4923cfc32f7c8402db2ac8cf0be94567e27009a"
+  }, 
   "PrivateEye-ram-v0": {
     "actions": "a642086826823e658c283b56dd79f14af59846af2c3d93fad08c3bc84bf3b748", 
     "dones": "ecfbe8578a5aac6442d7b65f2e4bd4f6d70e5cdc76c1d6868ee031460c7477b9", 
