@@ -48,7 +48,7 @@ def score_from_merged(episode_lengths, episode_rewards, episode_types, timestamp
     if episode_types is not None:
         # Select only the training episodes
         episode_types = np.array(episode_types)
-        t_idx = np.where(episode_types == 't')
+        (t_idx,) = np.where(episode_types == 't')
         episode_lengths = np.array(episode_lengths)[t_idx]
         episode_rewards = np.array(episode_rewards)[t_idx]
         timestamps = np.array(timestamps)[t_idx]
@@ -110,8 +110,6 @@ def benchmark_aggregate_results(benchmark, env_id_to_benchmark_results):
     start_times = []
     end_times = []
 
-    scorer = benchmark.scorer
-
     # N.B. for each env_id, our benchmark_results will have a list of scores,
     # solves, and times corresponding to the different tasks for that env_id. If
     # we don't have enough trials, we zero out the score.
@@ -143,7 +141,7 @@ def benchmark_aggregate_results(benchmark, env_id_to_benchmark_results):
             else:
                 # no matching benchmark result for this trial
                 env_scores = scores.setdefault(env_id, [])
-                env_scores.append([scorer.null_score for _ in task_list])
+                env_scores.append([benchmark.scorer.null_score() for _ in task_list])
                 solves[env_id] = False
 
 
