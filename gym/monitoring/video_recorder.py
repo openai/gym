@@ -258,7 +258,12 @@ class ImageEncoder(object):
 
     @property
     def version_info(self):
-        return {'backend':self.backend,'version':str(subprocess.check_output([self.backend, '-version'])),'cmdline':self.cmdline}
+        return {
+            'backend':self.backend,
+            'version':str(subprocess.check_output([self.backend, '-version'],
+                                                  stderr=subprocess.STDOUT)),
+            'cmdline':self.cmdline
+        }
 
     def start(self):
         self.cmdline = (self.backend,
