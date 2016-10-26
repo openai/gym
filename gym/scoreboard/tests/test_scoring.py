@@ -1,7 +1,6 @@
 import numpy as np
 from collections import defaultdict
 from gym.benchmarks import registration, scoring
-from gym.scoreboard.scoring import benchmark_aggregate_results
 
 import gym
 gym.undo_logger_setup()
@@ -109,7 +108,7 @@ def test_benchmark_scoring():
             episode_types=['t'],
             timestamps=[i + 2],
         ))
-    scores = benchmark_aggregate_results(benchmark, benchmark_results)
+    scores = scoring.benchmark_aggregate_score(benchmark, benchmark_results)
 
     debug_str = "scores={}".format(scores)
     assert np.all(np.isclose(scores['summed_training_seconds'], 3.0)), debug_str
@@ -131,7 +130,7 @@ def test_benchmark_solved():
             episode_types=['t'] * N,
             timestamps=list(range(N)),
         ))
-    scores = benchmark_aggregate_results(benchmark, benchmark_results)
+    scores = scoring.benchmark_aggregate_score(benchmark, benchmark_results)
     debug_str = "scores={}".format(scores)
     assert np.all(np.isclose(scores['score'], 1.0)), "scores={}".format(scores)
     assert scores['num_envs_solved'] == len(benchmark.tasks), debug_str
@@ -148,7 +147,7 @@ def test_benchmark_incomplete():
         episode_types=['t'],
         timestamps=[2],
     ))
-    scores = benchmark_aggregate_results(benchmark, benchmark_results)
+    scores = scoring.benchmark_aggregate_score(benchmark, benchmark_results)
 
     debug_str = "scores={}".format(scores)
     assert np.all(np.isclose(scores['summed_training_seconds'], 1.0)), debug_str
@@ -181,7 +180,7 @@ def test_benchmark_extra():
         timestamps=[2],
     ))
 
-    scores = benchmark_aggregate_results(benchmark, benchmark_results)
+    scores = scoring.benchmark_aggregate_score(benchmark, benchmark_results)
 
     debug_str = "scores={}".format(scores)
     assert np.all(np.isclose(scores['score'], 0.0001)), "scores={}".format(scores)
