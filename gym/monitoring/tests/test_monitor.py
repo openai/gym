@@ -123,10 +123,10 @@ def test_env_reuse():
 
         env.reset()
 
-        env.step(None)
-        _, _, done, _ = env.step(None)
+        env.step(0)
+        _, _, done, _ = env.step(0)
         assert done
 
-        env.step(None)
-        _, _, done, _ = env.step(None)
+        env.step(0)
+        _, _, done, _ = env.step(0)
         assert done
