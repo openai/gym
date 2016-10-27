@@ -48,6 +48,9 @@ def upload(training_dir, algorithm_id=None, writeup=None, benchmark_id=None, api
         # TODO: verify that the number of trials matches
         spec_env_ids = [task.env_id for task in spec.tasks for _ in range(task.trials)]
 
+        if not env_ids:
+            raise error.Error("Could not find any evaluations in {}".format(training_dir))
+
         # This could be more stringent about mixing evaluations
         if sorted(env_ids) != sorted(spec_env_ids):
             logger.info("WARNING: Evaluations do not match spec for benchmark {}. In {}, we found evaluations for {}, expected {}".format(benchmark_id, training_dir, sorted(env_ids), sorted(spec_env_ids)))
