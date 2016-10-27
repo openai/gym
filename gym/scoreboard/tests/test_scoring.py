@@ -116,6 +116,29 @@ def test_benchmark_scoring():
     assert np.all(np.isclose(scores['score'], 0.0001)), "scores={}".format(scores)
     assert scores['num_envs_solved'] == 0, debug_str
 
+def test_benchmark_empty():
+    benchmark_results = defaultdict(list)
+    task = benchmark.tasks[0]
+    env_id = task.env_id
+    benchmark_results[env_id].append(benchmark.score_evaluation(
+        env_id,
+        data_sources=[0],
+        initial_reset_timestamps=[1],
+        episode_lengths=[1],
+        episode_rewards=[1],
+        episode_types=['t'],
+        timestamps=[2],
+    ))
+    scores = scoring.benchmark_aggregate_score(benchmark, benchmark_results)
+
+    debug_str = "scores={}".format(scores)
+    assert np.all(np.isclose(scores['summed_training_seconds'], 1.0)), debug_str
+    assert np.all(np.isclose(scores['start_to_finish_seconds'], 1.0)), debug_str
+    assert np.all(np.isclose(scores['score'], 0.00005)), "scores={}".format(scores)
+    assert scores['num_envs_solved'] == 0, debug_str
+
+    scores = scoring.benchmark_aggregate_score(benchmark, {})
+
 def test_benchmark_solved():
     benchmark_results = defaultdict(list)
     N = 200

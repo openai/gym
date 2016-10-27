@@ -21,7 +21,7 @@ def benchmark_aggregate_score(benchmark, env_id_to_benchmark_results):
     for env_id in benchmark.env_ids:
         task_list = benchmark.task_specs(env_id)
         num_trials = task_list[0].trials
-        benchmark_results = env_id_to_benchmark_results[env_id]
+        benchmark_results = env_id_to_benchmark_results.get(env_id, [])
         for trial in range(num_trials):
             if trial < len(benchmark_results):
                 # okay process this benchmark result against this trial
@@ -46,10 +46,9 @@ def benchmark_aggregate_score(benchmark, env_id_to_benchmark_results):
                 env_scores.append([benchmark.scorer.null_score() for _ in task_list])
                 solves[env_id] = False
 
-
     score = benchmark.score_benchmark(scores)
     num_envs_solved = len([s for s in solves.values() if s])
-    start_to_finish_seconds = max(end_times) - min(start_times)
+    start_to_finish_seconds = max(end_times) - min(start_times) if start_times and end_times else 0.0
     summed_training_seconds = np.sum([end - start for end, start in zip(end_times, start_times)])
 
     return dict(
@@ -77,20 +76,19 @@ class ClipTo01ThenAverage(object):
         else:
             initial_reset_timestamp = 0
 
+
         # How long each episode actually took
         durations = np.zeros(len(timestamps))
 
-        # (Details computing duration.)
-        data_sources = np.array(data_sources)
-        timestamps = np.array(timestamps)
-        for source in range(len(initial_reset_timestamps)):
+        for source, initial_reset_timestamp in enumerate(initial_reset_timestamps):
+            temp_data_sources = np.array([source] + data_sources)
+            temp_timestamps = np.array([initial_reset_timestamp] + timestamps)
+            (source_indexes,) = np.where(temp_data_sources == source)
+
             # Once we know the indexes corresponding to a particular
             # source (i.e. worker thread), we can just subtract
             # adjoining values
-            (source_indexes,) = np.where(data_sources == source)
-
-            durations[source_indexes[0]] = timestamps[source_indexes[0]] - initial_reset_timestamps[source]
-            durations[source_indexes[1:]] = timestamps[source_indexes[1:]] - timestamps[source_indexes[:-1]]
+            durations[source_indexes[:-1]] = temp_timestamps[source_indexes[1:]] - temp_timestamps[source_indexes[:-1]]
 
         #### 1. Select out which indexes are for evaluation and which are for training
 
@@ -146,13 +144,6 @@ class ClipTo01ThenAverage(object):
                 # All episodes are fair game
                 allowed_e_idx = e_idx
 
-            if len(allowed_e_idx) > 0:
-                last_timestamp = timestamps[allowed_e_idx[-1]]
-            else:
-                # If we don't have any evaluation episodes, then the
-                # last valid timestamp is when we started.
-                last_timestamp = initial_reset_timestamp
-
             # Grab the last num_episodes evaluation episodes from
             # before the cutoff (at which point we've gathered too
             # much experience).
@@ -181,6 +172,14 @@ class ClipTo01ThenAverage(object):
             solves.append(solved)
             # Record the list of rewards
             rewards.append(reward)
+
+            if len(allowed_e_idx) > 0:
+                last_timestamp = timestamps[allowed_e_idx[-1]]
+            else:
+                # If we don't have any evaluation episodes, then the
+                # last valid timestamp is when we started.
+                last_timestamp = initial_reset_timestamp
+
             # Record the timestamp of the last episode timestamp
             _timestamps.append(last_timestamp)
 
