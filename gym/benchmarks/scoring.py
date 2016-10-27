@@ -59,10 +59,27 @@ def benchmark_aggregate_score(benchmark, env_id_to_benchmark_results):
     )
 
 class ClipTo01ThenAverage(object):
+    """Benchmark scoring rule
+
+    For each task, we take the last num_episodes (default: 100) evaluation
+    episodes before either the max_seconds or max_timesteps limit, whichever is
+    earlier. If there are not num_episodes evaluations, we fill in the rest with
+    scores of reward_floor.
+
+    For each valid evaluation episode, we clip the reward to be between the
+    reward_floor and reward_ceiling for that task. The score for the task is the
+    average across all episodes.
+
+    The benchmark score is the average of all task scores.
+
+    """
     def __init__(self, num_episodes=100):
         self.num_episodes = num_episodes
 
     def null_score(self):
+        """
+        This is used to compute benchmark scores when we are missing an evaluation
+        """
         return 0.0
 
     def score_evaluation(self, benchmark, env_id, data_sources, initial_reset_timestamps, episode_lengths, episode_rewards, episode_types, timestamps):
