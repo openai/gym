@@ -30,7 +30,7 @@ def _assert_benchmark_result(result, score=None, solves=None, summed_training_se
     if solves is not None:
         assert np.all(result['solves']) == solves, debug_str
 
-def _assert_benchmark_score(scores, score=None, num_envs_solved=None, summed_training_seconds=None, start_to_finish_seconds=None):
+def _assert_benchmark_score(scores, score=None, num_envs_solved=None, summed_training_seconds=None, summed_task_wall_time=None, start_to_finish_seconds=None):
     debug_str = "scores={}".format(scores)
     if score is not None:
         assert _is_close(scores['score'], score), debug_str
@@ -38,6 +38,8 @@ def _assert_benchmark_score(scores, score=None, num_envs_solved=None, summed_tra
         assert scores['num_envs_solved'] == num_envs_solved, debug_str
     if summed_training_seconds is not None:
         assert _is_close(scores['summed_training_seconds'], summed_training_seconds), debug_str
+    if summed_task_wall_time is not None:
+        assert _is_close(scores['summed_task_wall_time'], summed_task_wall_time), debug_str
     if start_to_finish_seconds is not None:
         assert _is_close(scores['start_to_finish_seconds'], start_to_finish_seconds), debug_str
 
@@ -165,7 +167,7 @@ def test_clip_average_benchmark_extra():
     benchmark_results[env_id].append(_benchmark_result_helper(benchmark, env_id=env_id, episode_rewards=[100], timestamps=[2]))
 
     scores = scoring.benchmark_aggregate_score(benchmark, benchmark_results)
-    _assert_benchmark_score(scores, score=0.0001, num_envs_solved=0, summed_training_seconds=3.0, start_to_finish_seconds=2.0)
+    _assert_benchmark_score(scores, score=0.0001, num_envs_solved=0, summed_training_seconds=3.0, summed_task_wall_time=3.0, start_to_finish_seconds=2.0)
 
 # Tests for total reward scoring
 
@@ -248,7 +250,7 @@ def test_total_reward_benchmark_scoring():
         benchmark_results[env_id].append(_benchmark_result_helper(reward_benchmark, env_id=env_id, timestamps=[i + 2]))
     scores = scoring.benchmark_aggregate_score(reward_benchmark, benchmark_results)
 
-    _assert_benchmark_score(scores, score=0.01, num_envs_solved=0, summed_training_seconds=3.0, start_to_finish_seconds=2.0)
+    _assert_benchmark_score(scores, score=0.01, num_envs_solved=0, summed_training_seconds=3.0, summed_task_wall_time=3.0, start_to_finish_seconds=2.0)
 
 def test_total_reward_benchmark_empty():
     scores = scoring.benchmark_aggregate_score(reward_benchmark, {})
@@ -320,4 +322,4 @@ def test_total_reward_benchmark_eval_handling():
             timestamps=[i + 2, i + 3, i + 4],
         ))
     scores = scoring.benchmark_aggregate_score(reward_benchmark, benchmark_results)
-    _assert_benchmark_score(scores, score=0.02, num_envs_solved=0, summed_training_seconds=8.0, start_to_finish_seconds=4.0)
+    _assert_benchmark_score(scores, score=0.02, num_envs_solved=0, summed_training_seconds=8.0, summed_task_wall_time=7.0, start_to_finish_seconds=4.0)

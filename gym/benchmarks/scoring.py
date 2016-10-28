@@ -51,12 +51,14 @@ def benchmark_aggregate_score(benchmark, env_id_to_benchmark_results):
     score = benchmark.score_benchmark(scores)
     num_envs_solved = len([s for s in solves.values() if s])
     start_to_finish_seconds = max(end_times) - min(start_times) if end_times and start_times else 0.0
+    summed_task_wall_time = np.sum([end - start for end, start in zip(end_times, start_times)])
     summed_training_seconds = np.sum(elapsed_times)
 
     return dict(
         score=score,
         num_envs_solved=num_envs_solved,
         start_to_finish_seconds=start_to_finish_seconds,
+        summed_task_wall_time=summed_task_wall_time,
         summed_training_seconds=summed_training_seconds,
     )
 
