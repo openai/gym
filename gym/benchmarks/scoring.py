@@ -95,17 +95,19 @@ class ClipTo01ThenAverage(object):
 
 
         # How long each episode actually took
+        # How long each episode actually took
         durations = np.zeros(len(timestamps))
 
+        data_sources = np.array(data_sources)
+        timestamps = np.array(timestamps)
         for source, initial_reset_timestamp in enumerate(initial_reset_timestamps):
-            temp_data_sources = np.array([source] + data_sources)
-            temp_timestamps = np.array([initial_reset_timestamp] + timestamps)
-            (source_indexes,) = np.where(temp_data_sources == source)
+            (source_indexes,) = np.where(data_sources == source)
 
             # Once we know the indexes corresponding to a particular
             # source (i.e. worker thread), we can just subtract
             # adjoining values
-            durations[source_indexes[:-1]] = temp_timestamps[source_indexes[1:]] - temp_timestamps[source_indexes[:-1]]
+            durations[source_indexes[0]] = timestamps[source_indexes[0]] - initial_reset_timestamp
+            durations[source_indexes[1:]] = timestamps[source_indexes[1:]] - timestamps[source_indexes[:-1]]
 
         #### 1. Select out which indexes are for evaluation and which are for training
 
@@ -194,6 +196,129 @@ class ClipTo01ThenAverage(object):
                 last_timestamp = timestamps[allowed_e_idx[-1]]
             else:
                 # If we don't have any evaluation episodes, then the
+                # last valid timestamp is when we started.
+                last_timestamp = initial_reset_timestamp
+
+            # Record the timestamp of the last episode timestamp
+            _timestamps.append(last_timestamp)
+
+        return {
+            'rewards': rewards,
+            'scores': scores,
+            'solves': solves,
+            'timestamps': _timestamps,
+            'initial_reset_timestamp': initial_reset_timestamp,
+        }
+
+    def score_benchmark(self, benchmark, episode_scores):
+        all_scores = []
+        for env_id, scores in episode_scores.items():
+            all_scores += scores
+
+        return np.mean(all_scores)
+
+
+class TotalReward(object):
+    """Benchmark scoring rule
+
+    For each task, we take all evaluation episodes before either the max_seconds
+    or max_timesteps limit, whichever is earlier.
+
+    We sum up rewards; for each task, we clip the total reward to be between the
+    reward_floor and reward_ceiling for the task and normalize so scores are between 0 and 1
+
+    The benchmark score is the average of all task scores.
+    """
+
+    def __init__(self):
+        pass
+
+    def null_score(self):
+        return 0.0
+
+    def score_evaluation(self, benchmark, env_id, data_sources, initial_reset_timestamps, episode_lengths, episode_rewards, episode_types, timestamps):
+        # TODO refactor code shared with the clip scoring rule above
+        tasks = benchmark.task_specs(env_id)
+        spec = envs.spec(env_id)
+
+        #### 0. Compute timing stats
+
+        if len(initial_reset_timestamps) > 0:
+            initial_reset_timestamp = min(initial_reset_timestamps)
+        else:
+            initial_reset_timestamp = 0
+
+
+        # How long each episode actually took
+        durations = np.zeros(len(timestamps))
+
+        data_sources = np.array(data_sources)
+        timestamps = np.array(timestamps)
+        for source, initial_reset_timestamp in enumerate(initial_reset_timestamps):
+            (source_indexes,) = np.where(data_sources == source)
+
+            # Once we know the indexes corresponding to a particular
+            # source (i.e. worker thread), we can just subtract
+            # adjoining values
+            durations[source_indexes[0]] = timestamps[source_indexes[0]] - initial_reset_timestamp
+            durations[source_indexes[1:]] = timestamps[source_indexes[1:]] - timestamps[source_indexes[:-1]]
+
+        #### 1. Grab the data corresponding to each of evaluation/training
+        lengths = np.array(episode_lengths)
+        rewards = np.array(episode_rewards)
+        durations = np.array(durations)
+
+        #### 3. Calculate the total elapsed time (in various units)
+        #### for each episode
+
+        # How many training timesteps have elapsed by the end of each
+        # episode. Not to be confused with Unix timestamps.
+        elapsed_timesteps = np.cumsum(lengths)
+        # Total number of seconds elapsed by the end of each
+        # episode. Note that with n parallel workers each running for
+        # m seconds, we want to count the total time as n * m.
+        elapsed_seconds = np.cumsum(durations)
+
+        scores = []
+        solves = []
+        rewards = []
+        _timestamps = []
+        for task in tasks:
+            # Find the first episode where we're over the allotted
+            # training timesteps.
+            cutoff_idx = np.inf
+            if task.max_timesteps:
+                (timestep_cutoff,) = np.where(elapsed_timesteps > task.max_timesteps)
+                if len(timestep_cutoff) > 0:
+                    cutoff_idx = min(cutoff_idx, timestep_cutoff[-1])
+            if task.max_seconds:
+                (seconds_cutoff,) = np.where(elapsed_seconds > task.max_seconds)
+                if len(seconds_cutoff) > 0:
+                    cutoff_idx = min(cutoff_idx, seconds_cutoff[-1])
+            if not np.isfinite(cutoff_idx):
+                # All episodes are fair game
+                cutoff_idx = len(lengths)
+
+            reward = np.array(episode_rewards)[:cutoff_idx]
+
+            floor = task.reward_floor
+            ceiling = task.reward_ceiling
+
+            solved = reward >= ceiling
+            # Sum raw rewards, linearly rescale to between 0 and 1
+            score = np.clip((np.mean(reward) - floor) / (ceiling - floor), 0, 1)
+
+            # Take the mean rescaled score
+            scores.append(score)
+            # Record the list of solved episodes
+            solves.append(solved)
+            # Record the list of rewards
+            rewards.append(reward)
+
+            if np.any(timestamps[:cutoff_idx]):
+                last_timestamp = timestamps[cutoff_idx - 1]
+            else:
+                # If we don't have any valid episodes, then the
                 # last valid timestamp is when we started.
                 last_timestamp = initial_reset_timestamp
 
