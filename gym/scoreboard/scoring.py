@@ -101,7 +101,9 @@ def score_from_merged(episode_lengths, episode_rewards, episode_types, timestamp
         'seconds_in_total': seconds_in_total,
     }
 
-def benchmark_score_from_local(benchmark, training_dir):
+def benchmark_score_from_local(benchmark_id, training_dir):
+    spec = gym.benchmark_spec(benchmark_id)
+
     directories = []
     for name, _, files in os.walk(training_dir):
         manifests = gym.monitoring.detect_training_manifests(name, files=files)
@@ -113,12 +115,12 @@ def benchmark_score_from_local(benchmark, training_dir):
         results = gym.monitoring.load_results(training_dir)
 
         env_id = results['env_info']['env_id']
-        benchmark_result = benchmark.score_evaluation(env_id, results['data_sources'], results['initial_reset_timestamps'], results['episode_lengths'], results['episode_rewards'], results['episode_types'], results['timestamps'])
+        benchmark_result = spec.score_evaluation(env_id, results['data_sources'], results['initial_reset_timestamps'], results['episode_lengths'], results['episode_rewards'], results['episode_types'], results['timestamps'])
         # from pprint import pprint
         # pprint(benchmark_result)
         benchmark_results[env_id].append(benchmark_result)
 
-    return gym.benchmarks.scoring.benchmark_aggregate_score(benchmark, benchmark_results)
+    return gym.benchmarks.scoring.benchmark_aggregate_score(spec, benchmark_results)
 
 def benchmark_score_from_merged(benchmark, env_id, episode_lengths, episode_rewards, episode_types):
     """Method to calculate an environment's benchmark score from merged
