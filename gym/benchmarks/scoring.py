@@ -200,9 +200,13 @@ class ClipTo01ThenAverage(object):
             rewards.append(reward)
 
             if len(allowed_e_idx) > 0:
-                last_e_idx = allowed_e_idx[-1]
-                last_timestamp = timestamps[last_e_idx]
-                elapsed_time = elapsed_seconds[last_e_idx]
+                if not np.isfinite(cutoff_idx):
+                    cutoff_idx = len(elapsed_seconds) - 1
+                last_t_idx = t_idx[cutoff_idx]
+                # timestamps is full length
+                last_timestamp = timestamps[last_t_idx]
+                # elapsed seconds contains only training
+                elapsed_time = elapsed_seconds[cutoff_idx]
             else:
                 # If we don't have any evaluation episodes, then the
                 # last valid timestamp is when we started.

@@ -169,6 +169,23 @@ def test_clip_average_benchmark_extra():
     scores = scoring.benchmark_aggregate_score(benchmark, benchmark_results)
     _assert_benchmark_score(scores, score=0.0001, num_envs_solved=0, summed_training_seconds=3.0, summed_task_wall_time=3.0, start_to_finish_seconds=2.0)
 
+def test_clip_average_benchmark_eval_handling():
+    # make sure we handle separate evaluation, training episodes properly
+    benchmark_results = defaultdict(list)
+    for i, task in enumerate(benchmark.tasks):
+        env_id = task.env_id
+        benchmark_results[env_id].append(benchmark.score_evaluation(
+            env_id,
+            data_sources=[0, 1, 1],
+            initial_reset_timestamps=[1, 1],
+            episode_lengths=[1, 1, 1],
+            episode_rewards=[1, 2, 3],
+            episode_types=['e', 't', 'e'],
+            timestamps=[i + 2, i + 3, i + 4],
+        ))
+    scores = scoring.benchmark_aggregate_score(benchmark, benchmark_results)
+    _assert_benchmark_score(scores, score=0.0004, num_envs_solved=0, summed_training_seconds=5.0, summed_task_wall_time=5.0, start_to_finish_seconds=3.0)
+
 # Tests for total reward scoring
 
 reward_benchmark = registration.Benchmark(
