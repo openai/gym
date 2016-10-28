@@ -11,11 +11,11 @@ benchmark = registration.Benchmark(
     tasks=[
         {'env_id': 'CartPole-v0',
          'trials': 1,
-         'max_timesteps': 5,
+         'max_timesteps': 100,
         },
         {'env_id': 'Pendulum-v0',
          'trials': 1,
-         'max_timesteps': 5,
+         'max_timesteps': 100,
         },
     ]
 )
@@ -140,7 +140,7 @@ def test_clip_average_benchmark_solved():
             env_id,
             data_sources=[0] * N,
             initial_reset_timestamps=[1],
-            episode_lengths=[1000] * N,
+            episode_lengths=[1] * N,
             episode_rewards=[1000] * N,
             episode_types=['t'] * N,
             timestamps=list(range(N)),
@@ -270,7 +270,7 @@ def test_total_reward_benchmark_solved():
             env_id,
             data_sources=[0] * N,
             initial_reset_timestamps=[1],
-            episode_lengths=[1000] * N,
+            episode_lengths=[1] * N,
             episode_rewards=[1000] * N,
             episode_types=['t'] * N,
             timestamps=list(range(N)),
@@ -313,11 +313,11 @@ def test_total_reward_benchmark_eval_handling():
         benchmark_results[env_id].append(reward_benchmark.score_evaluation(
             env_id,
             data_sources=[0, 1, 1],
-            initial_reset_timestamps=[1, 1],
+            initial_reset_timestamps=[1, 2],
             episode_lengths=[1, 1, 1],
             episode_rewards=[1, 2, 3],
             episode_types=['e', 't', 'e'],
             timestamps=[i + 2, i + 3, i + 4],
         ))
     scores = scoring.benchmark_aggregate_score(reward_benchmark, benchmark_results)
-    _assert_benchmark_score(scores, score=0.02, num_envs_solved=0, summed_training_seconds=10.0, start_to_finish_seconds=4.0)
+    _assert_benchmark_score(scores, score=0.02, num_envs_solved=0, summed_training_seconds=8.0, start_to_finish_seconds=4.0)

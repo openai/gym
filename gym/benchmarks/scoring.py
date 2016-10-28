@@ -102,13 +102,13 @@ class ClipTo01ThenAverage(object):
 
         data_sources = np.array(data_sources)
         timestamps = np.array(timestamps)
-        for source, initial_reset_timestamp in enumerate(initial_reset_timestamps):
+        for source, initial_ts in enumerate(initial_reset_timestamps):
             (source_indexes,) = np.where(data_sources == source)
 
             # Once we know the indexes corresponding to a particular
             # source (i.e. worker thread), we can just subtract
             # adjoining values
-            durations[source_indexes[0]] = timestamps[source_indexes[0]] - initial_reset_timestamp
+            durations[source_indexes[0]] = timestamps[source_indexes[0]] - initial_ts
             durations[source_indexes[1:]] = timestamps[source_indexes[1:]] - timestamps[source_indexes[:-1]]
 
         #### 1. Select out which indexes are for evaluation and which are for training
@@ -199,8 +199,8 @@ class ClipTo01ThenAverage(object):
 
             if len(allowed_e_idx) > 0:
                 last_e_idx = allowed_e_idx[-1]
-                last_timestamp = timestamps[last_e_idx] + durations[last_e_idx]
-                elapsed_time = elapsed_seconds[last_e_idx] + durations[last_e_idx]
+                last_timestamp = timestamps[last_e_idx]
+                elapsed_time = elapsed_seconds[last_e_idx]
             else:
                 # If we don't have any evaluation episodes, then the
                 # last valid timestamp is when we started.
@@ -264,13 +264,13 @@ class TotalReward(object):
 
         data_sources = np.array(data_sources)
         timestamps = np.array(timestamps)
-        for source, initial_reset_timestamp in enumerate(initial_reset_timestamps):
+        for source, initial_ts in enumerate(initial_reset_timestamps):
             (source_indexes,) = np.where(data_sources == source)
 
             # Once we know the indexes corresponding to a particular
             # source (i.e. worker thread), we can just subtract
             # adjoining values
-            durations[source_indexes[0]] = timestamps[source_indexes[0]] - initial_reset_timestamp
+            durations[source_indexes[0]] = timestamps[source_indexes[0]] - initial_ts
             durations[source_indexes[1:]] = timestamps[source_indexes[1:]] - timestamps[source_indexes[:-1]]
 
         #### Grab the data corresponding to each of evaluation/training
@@ -330,8 +330,8 @@ class TotalReward(object):
 
             if np.any(timestamps[:cutoff_idx]):
                 last_idx = cutoff_idx - 1
-                last_timestamp = timestamps[last_idx] + durations[last_idx]
-                elapsed_time = elapsed_seconds[last_idx] + durations[last_idx]
+                last_timestamp = timestamps[last_idx]
+                elapsed_time = elapsed_seconds[last_idx]
             else:
                 # If we don't have any valid episodes, then the
                 # last valid timestamp is when we started.
