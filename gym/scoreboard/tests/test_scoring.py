@@ -115,15 +115,7 @@ def test_clip_average_benchmark_scoring():
     benchmark_results = defaultdict(list)
     for i, task in enumerate(benchmark.tasks):
         env_id = task.env_id
-        benchmark_results[env_id].append(benchmark.score_evaluation(
-            env_id,
-            data_sources=[0],
-            initial_reset_timestamps=[1],
-            episode_lengths=[1],
-            episode_rewards=[1],
-            episode_types=['t'],
-            timestamps=[i + 2],
-        ))
+        benchmark_results[env_id].append(_benchmark_result_helper(benchmark, env_id=env_id, timestamps=[i + 2]))
     scores = scoring.benchmark_aggregate_score(benchmark, benchmark_results)
 
     _assert_benchmark_score(scores, score=0.0001, num_envs_solved=0, summed_training_seconds=3.0, start_to_finish_seconds=2.0)
@@ -134,15 +126,7 @@ def test_clip_average_benchmark_empty():
     benchmark_results = defaultdict(list)
     task = benchmark.tasks[0]
     env_id = task.env_id
-    benchmark_results[env_id].append(benchmark.score_evaluation(
-        env_id,
-        data_sources=[0],
-        initial_reset_timestamps=[1],
-        episode_lengths=[1],
-        episode_rewards=[1],
-        episode_types=['t'],
-        timestamps=[2],
-    ))
+    benchmark_results[env_id].append(_benchmark_result_helper(benchmark, env_id=env_id))
     scores = scoring.benchmark_aggregate_score(benchmark, benchmark_results)
 
     _assert_benchmark_score(scores, score=0.00005, num_envs_solved=0, summed_training_seconds=1.0, start_to_finish_seconds=1.0)
@@ -154,7 +138,7 @@ def test_clip_average_benchmark_solved():
         env_id = task.env_id
         benchmark_results[env_id].append(benchmark.score_evaluation(
             env_id,
-            data_sources=[0],
+            data_sources=[0] * N,
             initial_reset_timestamps=[1],
             episode_lengths=[1000] * N,
             episode_rewards=[1000] * N,
@@ -167,15 +151,7 @@ def test_clip_average_benchmark_solved():
 def test_clip_average_benchmark_incomplete():
     benchmark_results = defaultdict(list)
     env_id = benchmark.tasks[0].env_id
-    benchmark_results[env_id].append(benchmark.score_evaluation(
-        env_id,
-        data_sources=[0],
-        initial_reset_timestamps=[1],
-        episode_lengths=[1],
-        episode_rewards=[1],
-        episode_types=['t'],
-        timestamps=[2],
-    ))
+    benchmark_results[env_id].append(_benchmark_result_helper(benchmark, env_id=env_id, timestamps=[2]))
     scores = scoring.benchmark_aggregate_score(benchmark, benchmark_results)
     _assert_benchmark_score(scores, score=0.00005, num_envs_solved=0, summed_training_seconds=1.0, start_to_finish_seconds=1.0)
 
@@ -183,26 +159,10 @@ def test_clip_average_benchmark_extra():
     benchmark_results = defaultdict(list)
     for i, task in enumerate(benchmark.tasks):
         env_id = task.env_id
-        benchmark_results[env_id].append(benchmark.score_evaluation(
-            env_id,
-            data_sources=[0],
-            initial_reset_timestamps=[1],
-            episode_lengths=[1],
-            episode_rewards=[1],
-            episode_types=['t'],
-            timestamps=[i + 2],
-        ))
+        benchmark_results[env_id].append(_benchmark_result_helper(benchmark, env_id=env_id, timestamps=[i + 2]))
 
     # add one more at the end with a high reward
-    benchmark_results[env_id].append(benchmark.score_evaluation(
-        env_id,
-        data_sources=[0],
-        initial_reset_timestamps=[1],
-        episode_lengths=[1],
-        episode_rewards=[100],
-        episode_types=['t'],
-        timestamps=[2],
-    ))
+    benchmark_results[env_id].append(_benchmark_result_helper(benchmark, env_id=env_id, episode_rewards=[100], timestamps=[2]))
 
     scores = scoring.benchmark_aggregate_score(benchmark, benchmark_results)
     _assert_benchmark_score(scores, score=0.0001, num_envs_solved=0, summed_training_seconds=3.0, start_to_finish_seconds=2.0)
@@ -285,15 +245,7 @@ def test_total_reward_benchmark_scoring():
     benchmark_results = defaultdict(list)
     for i, task in enumerate(reward_benchmark.tasks):
         env_id = task.env_id
-        benchmark_results[env_id].append(reward_benchmark.score_evaluation(
-            env_id,
-            data_sources=[0],
-            initial_reset_timestamps=[1],
-            episode_lengths=[1],
-            episode_rewards=[1],
-            episode_types=['t'],
-            timestamps=[i + 2],
-        ))
+        benchmark_results[env_id].append(_benchmark_result_helper(reward_benchmark, env_id=env_id, timestamps=[i + 2]))
     scores = scoring.benchmark_aggregate_score(reward_benchmark, benchmark_results)
 
     _assert_benchmark_score(scores, score=0.01, num_envs_solved=0, summed_training_seconds=3.0, start_to_finish_seconds=2.0)
@@ -304,15 +256,7 @@ def test_total_reward_benchmark_empty():
     benchmark_results = defaultdict(list)
     task = reward_benchmark.tasks[0]
     env_id = task.env_id
-    benchmark_results[env_id].append(reward_benchmark.score_evaluation(
-        env_id,
-        data_sources=[0],
-        initial_reset_timestamps=[1],
-        episode_lengths=[1],
-        episode_rewards=[1],
-        episode_types=['t'],
-        timestamps=[2],
-    ))
+    benchmark_results[env_id].append(_benchmark_result_helper(reward_benchmark, env_id=env_id))
     scores = scoring.benchmark_aggregate_score(reward_benchmark, benchmark_results)
 
     _assert_benchmark_score(scores, score=0.005, num_envs_solved=0, summed_training_seconds=1.0, start_to_finish_seconds=1.0)
@@ -324,7 +268,7 @@ def test_total_reward_benchmark_solved():
         env_id = task.env_id
         benchmark_results[env_id].append(reward_benchmark.score_evaluation(
             env_id,
-            data_sources=[0],
+            data_sources=[0] * N,
             initial_reset_timestamps=[1],
             episode_lengths=[1000] * N,
             episode_rewards=[1000] * N,
@@ -337,15 +281,7 @@ def test_total_reward_benchmark_solved():
 def test_total_reward_benchmark_incomplete():
     benchmark_results = defaultdict(list)
     env_id = reward_benchmark.tasks[0].env_id
-    benchmark_results[env_id].append(reward_benchmark.score_evaluation(
-        env_id,
-        data_sources=[0],
-        initial_reset_timestamps=[1],
-        episode_lengths=[1],
-        episode_rewards=[1],
-        episode_types=['t'],
-        timestamps=[2],
-    ))
+    benchmark_results[env_id].append(_benchmark_result_helper(reward_benchmark, env_id=env_id, timestamps=[2]))
     scores = scoring.benchmark_aggregate_score(reward_benchmark, benchmark_results)
     _assert_benchmark_score(scores, score=0.005, num_envs_solved=0, summed_training_seconds=1.0, start_to_finish_seconds=1.0)
 
@@ -353,26 +289,10 @@ def test_total_reward_benchmark_extra():
     benchmark_results = defaultdict(list)
     for i, task in enumerate(reward_benchmark.tasks):
         env_id = task.env_id
-        benchmark_results[env_id].append(reward_benchmark.score_evaluation(
-            env_id,
-            data_sources=[0],
-            initial_reset_timestamps=[1],
-            episode_lengths=[1],
-            episode_rewards=[1],
-            episode_types=['t'],
-            timestamps=[i + 2],
-        ))
+        benchmark_results[env_id].append(_benchmark_result_helper(reward_benchmark, env_id=env_id, timestamps=[i + 2]))
 
     # add one more at the end with a high reward
-    benchmark_results[env_id].append(reward_benchmark.score_evaluation(
-        env_id,
-        data_sources=[0],
-        initial_reset_timestamps=[1],
-        episode_lengths=[1],
-        episode_rewards=[100],
-        episode_types=['t'],
-        timestamps=[2],
-    ))
+    benchmark_results[env_id].append(_benchmark_result_helper(reward_benchmark, env_id=env_id, episode_rewards=[100], timestamps=[2]))
 
     scores = scoring.benchmark_aggregate_score(reward_benchmark, benchmark_results)
     _assert_benchmark_score(scores, score=0.01, num_envs_solved=0, summed_training_seconds=3.0, start_to_finish_seconds=2.0)
@@ -381,15 +301,7 @@ def test_total_reward_benchmark_simple():
     benchmark_results = defaultdict(list)
     for i, task in enumerate(reward_benchmark.tasks):
         env_id = task.env_id
-        benchmark_results[env_id].append(reward_benchmark.score_evaluation(
-            env_id,
-            data_sources=[0],
-            initial_reset_timestamps=[1],
-            episode_lengths=[1],
-            episode_rewards=[1],
-            episode_types=['t'],
-            timestamps=[i + 2],
-        ))
+        benchmark_results[env_id].append(_benchmark_result_helper(reward_benchmark, env_id=env_id, timestamps=[i + 2]))
     scores = scoring.benchmark_aggregate_score(reward_benchmark, benchmark_results)
     _assert_benchmark_score(scores, score=0.01, num_envs_solved=0, summed_training_seconds=3.0, start_to_finish_seconds=2.0)
 
@@ -400,14 +312,12 @@ def test_total_reward_benchmark_eval_handling():
         env_id = task.env_id
         benchmark_results[env_id].append(reward_benchmark.score_evaluation(
             env_id,
-            data_sources=[0, 1],
+            data_sources=[0, 1, 1],
             initial_reset_timestamps=[1, 1],
-            episode_lengths=[1, 1],
-            episode_rewards=[1, 2],
-            episode_types=['e', 't'],
-            timestamps=[i + 2, i + 3],
+            episode_lengths=[1, 1, 1],
+            episode_rewards=[1, 2, 3],
+            episode_types=['e', 't', 'e'],
+            timestamps=[i + 2, i + 3, i + 4],
         ))
     scores = scoring.benchmark_aggregate_score(reward_benchmark, benchmark_results)
-    _assert_benchmark_score(scores, score=0.015, num_envs_solved=0, summed_training_seconds=5.0, start_to_finish_seconds=3.0)
-
-# TODO make sure we don't count partial episodes at the end
+    _assert_benchmark_score(scores, score=0.02, num_envs_solved=0, summed_training_seconds=10.0, start_to_finish_seconds=4.0)

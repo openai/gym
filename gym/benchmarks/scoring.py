@@ -11,6 +11,7 @@ def benchmark_aggregate_score(benchmark, env_id_to_benchmark_results):
     solves = {}
     start_times = []
     end_times = []
+    elapsed_times = []
 
     # N.B. for each env_id, our benchmark_results will have a list of scores,
     # solves, and times corresponding to the different tasks for that env_id. If
@@ -40,6 +41,7 @@ def benchmark_aggregate_score(benchmark, env_id_to_benchmark_results):
                 # for each task involving this env.
                 start_times.append(benchmark_result['initial_reset_timestamp'])
                 end_times.append(max(benchmark_result['timestamps']))
+                elapsed_times.extend(benchmark_result['elapsed_times'])
             else:
                 # no matching benchmark result for this trial
                 env_scores = scores.setdefault(env_id, [])
@@ -48,8 +50,8 @@ def benchmark_aggregate_score(benchmark, env_id_to_benchmark_results):
 
     score = benchmark.score_benchmark(scores)
     num_envs_solved = len([s for s in solves.values() if s])
-    start_to_finish_seconds = max(end_times) - min(start_times) if start_times and end_times else 0.0
-    summed_training_seconds = np.sum([end - start for end, start in zip(end_times, start_times)])
+    start_to_finish_seconds = max(end_times) - min(start_times) if end_times and start_times else 0.0
+    summed_training_seconds = np.sum(elapsed_times)
 
     return dict(
         score=score,
@@ -144,6 +146,7 @@ class ClipTo01ThenAverage(object):
         solves = []
         rewards = []
         _timestamps = []
+        elapsed_times = []
         for task in tasks:
             # Find the first episode where we're over the allotted
             # training timesteps.
@@ -194,19 +197,23 @@ class ClipTo01ThenAverage(object):
 
             if len(allowed_e_idx) > 0:
                 last_timestamp = timestamps[allowed_e_idx[-1]]
+                elapsed_time = elapsed_seconds[allowed_e_idx[-1]]
             else:
                 # If we don't have any evaluation episodes, then the
                 # last valid timestamp is when we started.
                 last_timestamp = initial_reset_timestamp
+                elapsed_time = 0.0
 
             # Record the timestamp of the last episode timestamp
             _timestamps.append(last_timestamp)
+            elapsed_times.append(elapsed_time)
 
         return {
             'rewards': rewards,
             'scores': scores,
             'solves': solves,
             'timestamps': _timestamps,
+            'elapsed_times': elapsed_times,
             'initial_reset_timestamp': initial_reset_timestamp,
         }
 
@@ -263,12 +270,12 @@ class TotalReward(object):
             durations[source_indexes[0]] = timestamps[source_indexes[0]] - initial_reset_timestamp
             durations[source_indexes[1:]] = timestamps[source_indexes[1:]] - timestamps[source_indexes[:-1]]
 
-        #### 1. Grab the data corresponding to each of evaluation/training
+        #### Grab the data corresponding to each of evaluation/training
         lengths = np.array(episode_lengths)
         rewards = np.array(episode_rewards)
         durations = np.array(durations)
 
-        #### 3. Calculate the total elapsed time (in various units)
+        #### Calculate the total elapsed time (in various units)
         #### for each episode
 
         # How many training timesteps have elapsed by the end of each
@@ -283,6 +290,7 @@ class TotalReward(object):
         solves = []
         rewards = []
         _timestamps = []
+        elapsed_times = []
         for task in tasks:
             # Find the first episode where we're over the allotted
             # training timesteps.
@@ -317,19 +325,23 @@ class TotalReward(object):
 
             if np.any(timestamps[:cutoff_idx]):
                 last_timestamp = timestamps[cutoff_idx - 1]
+                elapsed_time = elapsed_seconds[cutoff_idx - 1]
             else:
                 # If we don't have any valid episodes, then the
                 # last valid timestamp is when we started.
                 last_timestamp = initial_reset_timestamp
+                elapsed_time = 0.0
 
             # Record the timestamp of the last episode timestamp
             _timestamps.append(last_timestamp)
+            elapsed_times.append(elapsed_time)
 
         return {
             'rewards': rewards,
             'scores': scores,
             'solves': solves,
             'timestamps': _timestamps,
+            'elapsed_times': elapsed_times,
             'initial_reset_timestamp': initial_reset_timestamp,
         }
 
