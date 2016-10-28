@@ -152,13 +152,15 @@ class ClipTo01ThenAverage(object):
             # training timesteps.
             cutoff_idx = np.inf
             if task.max_timesteps:
+                # this looks a little funny, but we want the first idx greater
+                # than the cutoff
                 (timestep_cutoff,) = np.where(elapsed_timesteps > task.max_timesteps)
                 if len(timestep_cutoff) > 0:
-                    cutoff_idx = min(cutoff_idx, timestep_cutoff[-1])
+                    cutoff_idx = min(cutoff_idx, timestep_cutoff[0])
             if task.max_seconds:
                 (seconds_cutoff,) = np.where(elapsed_seconds > task.max_seconds)
                 if len(seconds_cutoff) > 0:
-                    cutoff_idx = min(cutoff_idx, seconds_cutoff[-1])
+                    cutoff_idx = min(cutoff_idx, seconds_cutoff[0])
             if np.isfinite(cutoff_idx):
                 orig_cutoff_idx = t_idx[cutoff_idx] # cutoff index in the original (i.e. before filtering to training/evaluation)
                 (allowed_e_idx,) = np.where(e_idx < orig_cutoff_idx) # restrict to earlier episodes
@@ -196,8 +198,9 @@ class ClipTo01ThenAverage(object):
             rewards.append(reward)
 
             if len(allowed_e_idx) > 0:
-                last_timestamp = timestamps[allowed_e_idx[-1]]
-                elapsed_time = elapsed_seconds[allowed_e_idx[-1]]
+                last_e_idx = allowed_e_idx[-1]
+                last_timestamp = timestamps[last_e_idx] + durations[last_e_idx]
+                elapsed_time = elapsed_seconds[last_e_idx] + durations[last_e_idx]
             else:
                 # If we don't have any evaluation episodes, then the
                 # last valid timestamp is when we started.
@@ -296,13 +299,15 @@ class TotalReward(object):
             # training timesteps.
             cutoff_idx = np.inf
             if task.max_timesteps:
+                # this looks a little funny, but we want the first idx greater
+                # than the cutoff
                 (timestep_cutoff,) = np.where(elapsed_timesteps > task.max_timesteps)
                 if len(timestep_cutoff) > 0:
-                    cutoff_idx = min(cutoff_idx, timestep_cutoff[-1])
+                    cutoff_idx = min(cutoff_idx, timestep_cutoff[0])
             if task.max_seconds:
                 (seconds_cutoff,) = np.where(elapsed_seconds > task.max_seconds)
                 if len(seconds_cutoff) > 0:
-                    cutoff_idx = min(cutoff_idx, seconds_cutoff[-1])
+                    cutoff_idx = min(cutoff_idx, seconds_cutoff[0])
             if not np.isfinite(cutoff_idx):
                 # All episodes are fair game
                 cutoff_idx = len(lengths)
@@ -324,8 +329,9 @@ class TotalReward(object):
             rewards.append(reward)
 
             if np.any(timestamps[:cutoff_idx]):
-                last_timestamp = timestamps[cutoff_idx - 1]
-                elapsed_time = elapsed_seconds[cutoff_idx - 1]
+                last_idx = cutoff_idx - 1
+                last_timestamp = timestamps[last_idx] + durations[last_idx]
+                elapsed_time = elapsed_seconds[last_idx] + durations[last_idx]
             else:
                 # If we don't have any valid episodes, then the
                 # last valid timestamp is when we started.

@@ -89,7 +89,7 @@ def test_clip_average_max_timesteps():
     _assert_benchmark_result(benchmark_result, score=0.01)
 
     # make sure we only include the first result because of timesteps
-    benchmark_result = _benchmark_result_helper(benchmark, data_sources=[0,0], episode_lengths=[1,100], episode_rewards=[1,100], episode_types=['t','t'], timestamps=[2,102])
+    benchmark_result = _benchmark_result_helper(benchmark, data_sources=[0,0,0], episode_lengths=[1,100,100], episode_rewards=[1,100,100], episode_types=['t','t','t'], timestamps=[2,102,202])
     _assert_benchmark_result(benchmark_result, score=0.005, solves=False)
 
 def test_clip_average_max_seconds():
@@ -108,7 +108,7 @@ def test_clip_average_max_seconds():
     _assert_benchmark_result(benchmark_result, score=0.5)
 
     # make sure we only include the first result because of wall clock time
-    benchmark_result = _benchmark_result_helper(benchmark, data_sources=[0,0], episode_lengths=[100,100], episode_rewards=[0,100], episode_types=['t','t'], timestamps=[2,100])
+    benchmark_result = _benchmark_result_helper(benchmark, data_sources=[0,0,0], episode_lengths=[100,100,100], episode_rewards=[0,100,100], episode_types=['t','t','t'], timestamps=[2,102,202])
     _assert_benchmark_result(benchmark_result, score=0.0)
 
 def test_clip_average_benchmark_scoring():
@@ -219,7 +219,7 @@ def test_total_reward_max_timesteps():
     _assert_benchmark_result(benchmark_result, score=0.01)
 
     # make sure we only include the first result because of timesteps
-    benchmark_result = _benchmark_result_helper(benchmark, data_sources=[0,0], episode_lengths=[1,100], episode_rewards=[1,100], episode_types=['t','t'], timestamps=[2,102])
+    benchmark_result = _benchmark_result_helper(benchmark, data_sources=[0,0,0], episode_lengths=[1,100,100], episode_rewards=[1,100,100], episode_types=['t','t','t'], timestamps=[2,102,202])
     _assert_benchmark_result(benchmark_result, score=0.01, solves=False)
 
 def test_total_reward_max_seconds():
@@ -238,7 +238,7 @@ def test_total_reward_max_seconds():
     _assert_benchmark_result(benchmark_result, score=0.5)
 
     # make sure we only include the first result because of wall clock time
-    benchmark_result = _benchmark_result_helper(benchmark, data_sources=[0,0], episode_lengths=[100,100], episode_rewards=[0,100], episode_types=['t','t'], timestamps=[2,100])
+    benchmark_result = _benchmark_result_helper(benchmark, data_sources=[0,0,0], episode_lengths=[100,100,100], episode_rewards=[0,100,100], episode_types=['t','t','t'], timestamps=[2,102,202])
     _assert_benchmark_result(benchmark_result, score=0.0)
 
 def test_total_reward_benchmark_scoring():
