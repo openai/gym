@@ -7,7 +7,11 @@ from gym import error
 
 logger = logging.getLogger(__name__)
 # This format is true today, but it's *not* an official spec.
-env_id_re = re.compile(r'^([\w:-]+)-v(\d+)$')
+# [username/](env-name)-v(version)    env-name is group 1, version is group 2
+#
+# 2016-10-31: We're experimentally expanding the environment ID format
+# to include an optional username.
+env_id_re = re.compile(r'^(?:[\w:-]+\/)?([\w:-]+)-v(\d+)$')
 
 def load(name):
     entry_point = pkg_resources.EntryPoint.parse('x={}'.format(name))
@@ -43,7 +47,7 @@ class EnvSpec(object):
         self.reward_threshold = reward_threshold
         # Environment properties
         self.nondeterministic = nondeterministic
-        
+
         if tags is None:
             tags = {}
         self.tags = tags
