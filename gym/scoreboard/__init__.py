@@ -9,7 +9,7 @@ http://rst.ninjs.org/
 import os
 
 from gym.scoreboard.client.resource import Algorithm, BenchmarkRun, Evaluation, FileUpload
-from gym.scoreboard.registration import registry, add_task, add_group
+from gym.scoreboard.registration import registry, add_task, add_group, add_benchmark
 
 # Discover API key from the environment. (You should never have to
 # change api_base / web_base.)
