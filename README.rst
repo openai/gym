@@ -264,6 +264,11 @@ You can also run tests in a specific directory by using the ``-s`` option, or by
 What's new
 ----------
 
+- 2016-11-1: Several experimental changes to how a running monitor interacts
+  with environments. The monitor will now raise an error if reset() is called
+  when the env has not returned done=True. The monitor will only record complete
+  episodes where done=True. Finally, the monitor no longer calls seed() on the
+  underlying env, nor does it record or upload seed information.
 - 2016-10-31: We're experimentally expanding the environment ID format
   to include an optional username.
 - 2016-09-21: Switch the Gym automated logger setup to configure the
