@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 from gym import envs
 from gym.monitoring.tests import helpers
 
-specs = [spec for spec in envs.registry.all() if spec._entry_point is not None]
+specs = [spec for spec in sorted(envs.registry.all(), key=lambda x: x.id) if spec._entry_point is not None]
 @tools.params(*specs)
 def test_renderable_after_monitor_close(spec):
     # TODO(gdb 2016-05-15): Re-enable these tests after fixing box2d-py

@@ -19,7 +19,7 @@ steps = ROLLOUT_STEPS
 
 ROLLOUT_FILE = os.path.join(DATA_DIR, 'rollout.json')
 
-if not os.path.isfile(ROLLOUT_FILE): 
+if not os.path.isfile(ROLLOUT_FILE):
   with open(ROLLOUT_FILE, "w") as outfile:
     json.dump({}, outfile, indent=2)
 
@@ -62,7 +62,7 @@ def generate_rollout_hash(spec):
 
   return observations_hash, actions_hash, rewards_hash, dones_hash
 
-specs = [spec for spec in envs.registry.all() if spec._entry_point is not None]
+specs = [spec for spec in sorted(envs.registry.all(), key=lambda x: x.id) if spec._entry_point is not None]
 @tools.params(*specs)
 def test_env_semantics(spec):
   with open(ROLLOUT_FILE) as data_file:
