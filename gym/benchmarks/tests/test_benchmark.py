@@ -22,7 +22,8 @@ def test():
 
     with helpers.tempdir() as temp:
         env = gym.make('CartPole-v0')
-        env.monitor.start(temp, video_callable=False, seed=0)
+        env.seed(0)
+        env.monitor.start(temp, video_callable=False)
 
         env.monitor.configure(mode='evaluation')
         rollout(env)

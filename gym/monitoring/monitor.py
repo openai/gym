@@ -91,7 +91,6 @@ class Monitor(object):
         self.enabled = False
         self.episode_id = 0
         self._monitor_id = None
-        self.seeds = None
 
     @property
     def env(self):
@@ -101,7 +100,7 @@ class Monitor(object):
         return env
 
     def start(self, directory, video_callable=None, force=False, resume=False,
-              seed=None, write_upon_reset=False, uid=None, mode=None):
+              write_upon_reset=False, uid=None, mode=None):
         """Start monitoring.
 
         Args:
@@ -109,7 +108,6 @@ class Monitor(object):
             video_callable (Optional[function, False]): function that takes in the index of the episode and outputs a boolean, indicating whether we should record a video on this episode. The default (for video_callable is None) is to take perfect cubes, capped at 1000. False disables video recording.
             force (bool): Clear out existing training data from this directory (by deleting every file prefixed with "openaigym.").
             resume (bool): Retain the training data already in this directory, which will be merged with our new data
-            seed (Optional[int]): The seed to run this environment with. By default, a random seed will be chosen.
             write_upon_reset (bool): Write the manifest file on each reset. (This is currently a JSON file, so writing it is somewhat expensive.)
             uid (Optional[str]): A unique id used as part of the suffix for the file. By default, uses os.getpid().
             mode (['evaluation', 'training']): Whether this is an evaluation or training episode.
@@ -160,11 +158,6 @@ class Monitor(object):
                 os.mkdir(directory)
         self.write_upon_reset = write_upon_reset
 
-        seeds = self.env.seed(seed)
-        if not isinstance(seeds, list):
-            logger.warn('env.seed returned unexpected result: %s (should be a list of ints)', seeds)
-
-        self.seeds = seeds
         if mode is not None:
             self._set_mode(mode)
 
@@ -189,7 +182,6 @@ class Monitor(object):
                 'videos': [(os.path.basename(v), os.path.basename(m))
                            for v, m in self.videos],
                 'env_info': self._env_info(),
-                'seeds': self.seeds,
             }, f)
 
     def close(self):
@@ -349,8 +341,6 @@ def load_results(training_dir):
     # Load up stats + video files
     stats_files = []
     videos = []
-    main_seeds = []
-    seeds = []
     env_infos = []
 
     for manifest in manifests:
@@ -361,13 +351,6 @@ def load_results(training_dir):
             videos += [(os.path.join(training_dir, v), os.path.join(training_dir, m))
                        for v, m in contents['videos']]
             env_infos.append(contents['env_info'])
-            current_seeds = contents.get('seeds', [])
-            seeds += current_seeds
-            if current_seeds:
-                main_seeds.append(current_seeds[0])
-            else:
-                # current_seeds could be None or []
-                main_seeds.append(None)
 
     env_info = collapse_env_infos(env_infos, training_dir)
     data_sources, initial_reset_timestamps, timestamps, episode_lengths, episode_rewards, episode_types, initial_reset_timestamp = merge_stats_files(stats_files)
@@ -383,8 +366,6 @@ def load_results(training_dir):
         'initial_reset_timestamps': initial_reset_timestamps,
         'initial_reset_timestamp': initial_reset_timestamp,
         'videos': videos,
-        'main_seeds': main_seeds,
-        'seeds': seeds,
     }
 
 def merge_stats_files(stats_files):

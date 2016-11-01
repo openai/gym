@@ -41,7 +41,8 @@ class LivePlot(object):
 if __name__ == '__main__':
     env = gym.make('CartPole-v0')
     outdir = '/tmp/random-agent-results'
-    env.monitor.start(outdir, force=True, seed=0)
+    env.seed(0)
+    env.monitor.start(outdir, force=True)
 
     # You may optionally include a LivePlot so that you can see
     # how your agent is performing.  Use plotter.plot() to update
