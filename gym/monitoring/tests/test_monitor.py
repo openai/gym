@@ -130,3 +130,41 @@ def test_env_reuse():
         env.step(None)
         _, _, done, _ = env.step(None)
         assert done
+
+def test_no_monitor_reset_unless_done():
+    def assert_reset_raises(env):
+        errored = False
+        try:
+            env.reset()
+        except error.Error:
+            errored = True
+        assert errored, "Env allowed a reset when it shouldn't have"
+
+    with helpers.tempdir() as temp:
+        # Make sure we can reset as we please without monitor
+        env = gym.make('CartPole-v0')
+        env.reset()
+        env.step(env.action_space.sample())
+        env.step(env.action_space.sample())
+        env.reset()
+
+        # can reset once as soon as we start
+        env.monitor.start(temp, video_callable=False)
+        env.reset()
+        assert_reset_raises(env)
+
+        env.step(env.action_space.sample())
+        env.step(env.action_space.sample())
+        assert_reset_raises(env)
+
+        # should allow resets after the episode is done
+        d = False
+        while not d:
+            _, _, d, _ = env.step(env.action_space.sample())
+
+        env.reset()
+
+        env.step(env.action_space.sample())
+        assert_reset_raises(env)
+
+        env.monitor.close()

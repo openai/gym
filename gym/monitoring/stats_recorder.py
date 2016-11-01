@@ -49,14 +49,16 @@ class StatsRecorder(object):
         self.steps += 1
         self.rewards += reward
         if done:
+            self.done = True
             if self.autoreset:
                 self.before_reset()
                 self.after_reset(observation)
-            else:
-                self.done = True
 
     def before_reset(self):
         assert not self.closed
+
+        if self.done is not None and not self.done:
+            raise error.Error("Tried to reset environment which is not done. While the monitor is active for {}, you cannot call reset() unless the episode is over.".format(self.env_id))
 
         self.done = False
         if self.initial_reset_timestamp is None:
