@@ -12,7 +12,6 @@ import os
 import sys
 
 import gym
-import openai_benchmark
 # In modules, use `logger = logging.getLogger(__name__)`
 logger = logging.getLogger()
 
@@ -55,7 +54,7 @@ def main():
 
     logger.info("""Done running, upload results using the following command:
 
-python -c "import gym; gym.upload('{}', benchmark_id='{}')"
+python -c "import gym; gym.upload('{}', benchmark_id='{}', algorithm_id='(unknown)')"
 
     """.rstrip().format(args.training_dir, benchmark_id))
 
