@@ -48,6 +48,10 @@ class StatsRecorder(object):
     def after_step(self, observation, reward, done, info):
         self.steps += 1
         self.rewards += reward
+
+        if done:
+            self.save_complete()
+
         if done:
             self.done = True
             if self.autoreset:
@@ -65,7 +69,6 @@ class StatsRecorder(object):
             self.initial_reset_timestamp = time.time()
 
     def after_reset(self, observation):
-        self.save_complete()
         self.steps = 0
         self.rewards = 0
         # We write the type at the beginning of the episode. If a user
@@ -80,7 +83,6 @@ class StatsRecorder(object):
             self.timestamps.append(time.time())
 
     def close(self):
-        self.save_complete()
         self.flush()
         self.closed = True
 

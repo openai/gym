@@ -168,3 +168,22 @@ def test_no_monitor_reset_unless_done():
         assert_reset_raises(env)
 
         env.monitor.close()
+
+def test_only_complete_episodes_written():
+    with helpers.tempdir() as temp:
+        env = gym.make('CartPole-v0')
+
+        env.monitor.start(temp, video_callable=False)
+        env.reset()
+        d = False
+        while not d:
+            _, _, d, _ = env.step(env.action_space.sample())
+
+        env.reset()
+        env.step(env.action_space.sample())
+
+        env.monitor.close()
+
+        # Only 1 episode should be written
+        results = monitoring.load_results(temp)
+        assert len(results['episode_lengths']) == 1, "Found {} episodes written; expecting 1".format(len(results['episode_lengths']))
