@@ -151,7 +151,10 @@ def test_no_monitor_reset_unless_done():
         # can reset once as soon as we start
         env.monitor.start(temp, video_callable=False)
         env.reset()
-        assert_reset_raises(env)
+
+        # can reset multiple times in a row
+        env.reset()
+        env.reset()
 
         env.step(env.action_space.sample())
         env.step(env.action_space.sample())
@@ -162,6 +165,7 @@ def test_no_monitor_reset_unless_done():
         while not d:
             _, _, d, _ = env.step(env.action_space.sample())
 
+        env.reset()
         env.reset()
 
         env.step(env.action_space.sample())
