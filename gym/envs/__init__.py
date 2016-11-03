@@ -329,6 +329,71 @@ for game in ['air_raid', 'alien', 'amidar', 'assault', 'asterix', 'asteroids', '
             nondeterministic=nondeterministic,
         )
 
+# Rle
+# ----------------------------------------
+
+# # print ', '.join(["'{}'".format(name.split('.')[0]) for name in atari_py.list_games()])
+for game in ['mortal_kombat', 'f_zero', 'gradius_iii', 'final_fight', 'super_mario_world', 'wolfenstein']:
+    for obs_type in ['image']:
+        name = ''.join([g.capitalize() for g in game.split('_')])
+        nondeterministic = False
+
+        register(
+            id='{}-v0'.format(name),
+            entry_point='gym.envs.rle:RleEnv',
+            kwargs={'game': game, 'obs_type': obs_type, 'repeat_action_probability': 0.25},
+            timestep_limit=10000,
+            nondeterministic=nondeterministic,
+        )
+
+        register(
+            id='{}-v3'.format(name),
+            entry_point='gym.envs.rle:RleEnv',
+            kwargs={'game': game, 'obs_type': obs_type},
+            timestep_limit=100000,
+            nondeterministic=nondeterministic,
+        )
+
+        # Standard Deterministic (as in the original DeepMind paper)
+        frameskip = 4
+
+        # Use a deterministic frame skip.
+        register(
+            id='{}Deterministic-v0'.format(name),
+            entry_point='gym.envs.rle:RleEnv',
+            kwargs={'game': game, 'obs_type': obs_type, 'frameskip': frameskip, 'repeat_action_probability': 0.25},
+            timestep_limit=100000,
+            nondeterministic=nondeterministic,
+        )
+
+        register(
+            id='{}Deterministic-v3'.format(name),
+            entry_point='gym.envs.rle:RleEnv',
+            kwargs={'game': game, 'obs_type': obs_type, 'frameskip': frameskip},
+            timestep_limit=100000,
+            nondeterministic=nondeterministic,
+        )
+
+        register(
+            id='{}NoFrameskip-v0'.format(name),
+            entry_point='gym.envs.rle:RleEnv',
+            kwargs={'game': game, 'obs_type': obs_type, 'frameskip': 1, 'repeat_action_probability': 0.25},
+            # A frameskip of 1 means we get every frame
+            timestep_limit=frameskip * 100000,
+            nondeterministic=nondeterministic,
+        )
+
+        # No frameskip. (Atari has no entropy source, so these are
+        # deterministic environments.)
+        register(
+            id='{}NoFrameskip-v3'.format(name),
+            entry_point='gym.envs.rle:RleEnv',
+            kwargs={'game': game, 'obs_type': obs_type, 'frameskip': 1},
+            # A frameskip of 1 means we get every frame
+            timestep_limit=frameskip * 100000,
+            nondeterministic=nondeterministic,
+        )
+
 # Board games
 # ----------------------------------------
 
