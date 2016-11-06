@@ -3740,7 +3740,7 @@
   "Taxi-v2": {
     "actions": "7364c36f0f18ebecf3d6086b3e09a8944af50d3f40f25c2efb338bc42cc7255a",
     "dones": "ecfbe8578a5aac6442d7b65f2e4bd4f6d70e5cdc76c1d6868ee031460c7477b9",
-    "observations": "cbf716b5409407e877006bfdd0705889ce324ff0b7883e70984401b62c15322c",
+    "observations": "4a9b043754645cd675313e42a2fd8c41a7644b1720465a9567c728b57dde8320",
     "rewards": "36cef7344bd1692a0ecf95ae868270fe39c57686a8076abfe58bd11a6f255bb9"
   },
   "Tennis-ram-v0": {
