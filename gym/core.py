@@ -373,8 +373,12 @@ class Wrapper(Env):
 
 class ObservationWrapper(Wrapper):
     def _reset(self):
-        observation = self.env.reset()
-        return self._observation(observation)
+        if self.metadata.get('semantics.async'):
+            info = self.env.reset()
+            return info
+        else:
+            observation = self.env.reset()
+            return self._observation(observation)
 
     def _step(self, action):
         observation, reward, done, info = self.env.step(action)
