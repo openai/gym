@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 #
 # 2016-10-31: We're experimentally expanding the environment ID format
 # to include an optional username.
-env_id_re = re.compile(r'^(?:[\w:-]+\/)?([\w:-]+)-v(\d+)$')
+env_id_re = re.compile(r'^(?:[\w:-]+\/)?([\w:.-]+)-v(\d+)$')
 
 def load(name):
     entry_point = pkg_resources.EntryPoint.parse('x={}'.format(name))
