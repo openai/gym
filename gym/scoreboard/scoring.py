@@ -158,14 +158,14 @@ def compute_graph_stats(episode_lengths, episode_rewards, timestamps, initial_re
     x_episode = range(num_episodes)
 
     # Calculate the appropriate x/y statistics
-    x_timestep_y_reward = scipy.stats.binned_statistic(x_timestep, episode_rewards, 'median', buckets)
-    x_timestep_y_length = scipy.stats.binned_statistic(x_timestep, episode_lengths, 'median', buckets)
+    x_timestep_y_reward = scipy.stats.binned_statistic(x_timestep, episode_rewards, 'mean', buckets)
+    x_timestep_y_length = scipy.stats.binned_statistic(x_timestep, episode_lengths, 'mean', buckets)
 
-    x_episode_y_reward = scipy.stats.binned_statistic(x_episode, episode_rewards, 'median', buckets)
-    x_episode_y_length = scipy.stats.binned_statistic(x_episode, episode_lengths, 'median', buckets)
+    x_episode_y_reward = scipy.stats.binned_statistic(x_episode, episode_rewards, 'mean', buckets)
+    x_episode_y_length = scipy.stats.binned_statistic(x_episode, episode_lengths, 'mean', buckets)
 
-    x_seconds_y_reward = scipy.stats.binned_statistic(x_seconds, episode_rewards, 'median', buckets)
-    x_seconds_y_length = scipy.stats.binned_statistic(x_seconds, episode_lengths, 'median', buckets)
+    x_seconds_y_reward = scipy.stats.binned_statistic(x_seconds, episode_rewards, 'mean', buckets)
+    x_seconds_y_length = scipy.stats.binned_statistic(x_seconds, episode_lengths, 'mean', buckets)
 
     return {
         'initial_reset_timestamp': initial_reset_timestamp,
