@@ -461,3 +461,33 @@ register(
     entry_point='gym.envs.safety:OffSwitchCartpoleProbEnv',
     timestep_limit=200,
 )
+
+
+# RL^2
+# ----------------------------------------
+
+# Bandits
+
+for n_arms in [5, 10, 50]:
+    for n_episodes in [10, 100, 500, 1000]:
+        register(
+            id='BernoulliBandit-{k}.arms-{n}.episodes-v0'.format(k=n_arms, n=n_episodes),
+            entry_point='gym.envs.rl2:BernoulliBanditEnv',
+            kwargs={'n_arms': n_arms, 'n_episodes': n_episodes},
+            timestep_limit=n_episodes,
+        )
+
+# Tabular MDPs
+
+for n_states in [10]:
+    for n_actions in [5]:
+        for episode_length in [10]:
+            for n_episodes in [10, 25, 50, 75, 100, 200, 400]:
+                register(
+                    id='RandomTabularMDP-{s}.states-{a}.actions-{t}.timesteps-{n}.episodes-v0'.format(
+                        s=n_states, a=n_actions, t=episode_length, n=n_episodes),
+                    entry_point='gym.envs.rl2:RandomTabularMDPEnv',
+                    kwargs={'n_states': n_states, 'n_actions': n_actions, 'episode_length': episode_length,
+                            'n_episodes': n_episodes},
+                    timestep_limit=n_episodes * episode_length,
+                )
