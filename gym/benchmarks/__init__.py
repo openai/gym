@@ -76,6 +76,42 @@ register_benchmark(
     ])
 
 register_benchmark(
+    id='Atari7PixelDeterministic-v3',
+    scorer=scoring.ClipTo01ThenAverage(),
+    name='Atari7PixelDeterministic-v3',
+    description='7 Atari games, with pixel observations',
+    tasks=[
+        {'env_id': 'BeamRiderDeterministic-v3',
+         'trials': 2,
+         'max_timesteps': 25000000,
+        },
+        {'env_id': 'BreakoutDeterministic-v3',
+         'trials': 2,
+         'max_timesteps': 25000000,
+        },
+        {'env_id': 'EnduroDeterministic-v3',
+         'trials': 2,
+         'max_timesteps': 25000000,
+        },
+        {'env_id': 'PongDeterministic-v3',
+         'trials': 2,
+         'max_timesteps': 25000000,
+        },
+        {'env_id': 'QbertDeterministic-v3',
+         'trials': 2,
+         'max_timesteps': 25000000,
+        },
+        {'env_id': 'SeaquestDeterministic-v3',
+         'trials': 2,
+         'max_timesteps': 25000000,
+        },
+        {'env_id': 'SpaceInvadersDeterministic-v3',
+         'trials': 2,
+         'max_timesteps': 25000000,
+        }
+    ])
+
+register_benchmark(
     id='Atari7Pixel-v3',
     scorer=scoring.ClipTo01ThenAverage(),
     name='Atari7Pixel',
