@@ -67,19 +67,6 @@ def test_random_tabular_mdps():
 
 
 def test_benchmarks():
-    # benchmark = registration.Benchmark(
-    #     id='MyBenchmark-v0',
-    #     scorer=scoring.ClipTo01ThenAverage(),
-    #     tasks=[
-    #         {'env_id': 'CartPole-v0',
-    #          'trials': 1,
-    #          'max_timesteps': 5
-    #         },
-    #         {'env_id': 'CartPole-v0',
-    #          'trials': 1,
-    #          'max_timesteps': 100,
-    #         }])
-
     for benchmark_id in ['BernoulliBandit-v0', 'RandomTabularMDP-v0']:
 
         benchmark = registration.benchmark_spec(benchmark_id)
@@ -104,19 +91,13 @@ def test_benchmarks():
                 env.monitor.close()
                 results = monitoring.load_results(temp)
                 evaluation_score = benchmark.score_evaluation(env_id, results['data_sources'],
-                                                              results['initial_reset_timestamps'], results['episode_lengths'],
+                                                              results['initial_reset_timestamps'],
+                                                              results['episode_lengths'],
                                                               results['episode_rewards'], results['episode_types'],
                                                               results['timestamps'])
-                benchmark_score = benchmark.score_benchmark({
+                benchmark.score_benchmark({
                     env_id: evaluation_score['scores'],
                 })
-
-                # import ipdb; ipdb.set_trace()
-                #
-                # assert np.all(np.isclose(evaluation_score['scores'],
-                #                          [0.00089999999999999998, 0.0054000000000000003])), "evaluation_score={}".format(
-                #     evaluation_score)
-                # assert np.isclose(benchmark_score, 0.00315), "benchmark_score={}".format(benchmark_score)
 
 
 def rollout(env, good=False):
@@ -146,5 +127,5 @@ def random_rollout(env, n_steps):
         obs = next_obs
     return dict(observations=observations, actions=actions, rewards=rewards, dones=dones)
 
-test_benchmarks()
 
+test_benchmarks()
