@@ -36,6 +36,7 @@ class VideoRecorder(object):
 
     def __init__(self, env, path=None, metadata=None, enabled=True, base_path=None):
         modes = env.metadata.get('render.modes', [])
+        self._async = self.env.metadata.get('semantics.async')
         self.enabled = enabled
 
         # Don't bother setting anything else if not enabled
@@ -105,10 +106,13 @@ class VideoRecorder(object):
         frame = self.env.render(mode=render_mode)
 
         if frame is None:
-            # Indicates a bug in the environment: don't want to raise
-            # an error here.
-            logger.warn('Env returned None on render(). Disabling further rendering for video recorder by marking as disabled: path=%s metadata_path=%s', self.path, self.metadata_path)
-            self.broken = True
+            if self._async:
+                return
+            else:
+                # Indicates a bug in the environment: don't want to raise
+                # an error here.
+                logger.warn('Env returned None on render(). Disabling further rendering for video recorder by marking as disabled: path=%s metadata_path=%s', self.path, self.metadata_path)
+                self.broken = True
         else:
             self.last_frame = frame
             if self.ansi_mode:
