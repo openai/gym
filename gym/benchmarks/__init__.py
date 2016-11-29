@@ -292,8 +292,8 @@ register_benchmark(
     ])
 
 register_benchmark(
-    id='ClassicControl2-v1',
-    name='ClassicControl2',
+    id='ClassicControl-v0',
+    name='ClassicControl',
     description='Simple classic control benchmark',
     scorer=scoring.ClipTo01ThenAverage(),
     tasks=[
