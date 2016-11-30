@@ -380,3 +380,45 @@ register_benchmark(
          'max_timesteps': 1000000,
         }
     ])
+
+bandit_tasks = []
+for n_arms in [5, 10, 50]:
+    for n_episodes in [10, 100, 500]:
+        bandit_tasks.append({
+            'env_id': 'BernoulliBandit-{k}.arms-{n}.episodes-v0'.format(k=n_arms, n=n_episodes),
+            'trials': 1,
+            'max_timesteps': 10 ** 9,
+            'reward_floor': 0,
+            'reward_ceiling': n_episodes,
+        })
+
+register_benchmark(
+    id='BernoulliBandit-v0',
+    name='BernoulliBandit',
+    description='Multi-armed Bernoulli bandits',
+    scorer=scoring.ClipTo01ThenAverage(num_episodes=1000),
+    tasks=bandit_tasks
+)
+
+tabular_mdp_tasks = []
+for n_states in [10]:
+    for n_actions in [5]:
+        for episode_length in [10]:
+            for n_episodes in [10, 25, 50, 75, 100]:
+                tabular_mdp_tasks.append({
+                    'env_id': 'RandomTabularMDP-{s}.states-{a}.actions-{t}.timesteps-{n}.episodes-v0'.format(
+                        s=n_states, a=n_actions, t=episode_length, n=n_episodes,
+                    ),
+                    'trials': 1,
+                    'max_timesteps': 10 ** 9,
+                    'reward_floor': 0,
+                    'reward_ceiling': episode_length * n_episodes * 2,
+                })
+
+register_benchmark(
+    id='RandomTabularMDP-v0',
+    name='RandomTabularMDP',
+    description='Random tabular MDPs',
+    scorer=scoring.ClipTo01ThenAverage(num_episodes=1000),
+    tasks=tabular_mdp_tasks
+)

@@ -20,7 +20,7 @@ register(
 register(
     id='ReversedAddition-v0',
     entry_point='gym.envs.algorithmic:ReversedAdditionEnv',
-    kwargs={'rows' : 2},
+    kwargs={'rows': 2},
     timestep_limit=200,
     reward_threshold=25.0,
 )
@@ -28,7 +28,7 @@ register(
 register(
     id='ReversedAddition3-v0',
     entry_point='gym.envs.algorithmic:ReversedAdditionEnv',
-    kwargs={'rows' : 3},
+    kwargs={'rows': 3},
     timestep_limit=200,
     reward_threshold=25.0,
 )
@@ -139,17 +139,17 @@ register(
 register(
     id='FrozenLake-v0',
     entry_point='gym.envs.toy_text:FrozenLakeEnv',
-    kwargs={'map_name' : '4x4'},
+    kwargs={'map_name': '4x4'},
     timestep_limit=100,
-    reward_threshold=0.78, # optimum = .8196
+    reward_threshold=0.78,  # optimum = .8196
 )
 
 register(
     id='FrozenLake8x8-v0',
     entry_point='gym.envs.toy_text:FrozenLakeEnv',
-    kwargs={'map_name' : '8x8'},
+    kwargs={'map_name': '8x8'},
     timestep_limit=200,
-    reward_threshold=0.99, # optimum = 1
+    reward_threshold=0.99,  # optimum = 1
 )
 
 register(
@@ -168,7 +168,7 @@ register(
     id='Taxi-v1',
     entry_point='gym.envs.toy_text.taxi:TaxiEnv',
     timestep_limit=200,
-    reward_threshold=9.7, # optimum = 10.2
+    reward_threshold=9.7,  # optimum = 10.2
 )
 
 register(
@@ -250,14 +250,14 @@ register(
 
 # # print ', '.join(["'{}'".format(name.split('.')[0]) for name in atari_py.list_games()])
 for game in ['air_raid', 'alien', 'amidar', 'assault', 'asterix', 'asteroids', 'atlantis',
-    'bank_heist', 'battle_zone', 'beam_rider', 'berzerk', 'bowling', 'boxing', 'breakout', 'carnival',
-    'centipede', 'chopper_command', 'crazy_climber', 'demon_attack', 'double_dunk',
-    'elevator_action', 'enduro', 'fishing_derby', 'freeway', 'frostbite', 'gopher', 'gravitar',
-    'ice_hockey', 'jamesbond', 'journey_escape', 'kangaroo', 'krull', 'kung_fu_master',
-    'montezuma_revenge', 'ms_pacman', 'name_this_game', 'phoenix', 'pitfall', 'pong', 'pooyan',
-    'private_eye', 'qbert', 'riverraid', 'road_runner', 'robotank', 'seaquest', 'skiing',
-    'solaris', 'space_invaders', 'star_gunner', 'tennis', 'time_pilot', 'tutankham', 'up_n_down',
-    'venture', 'video_pinball', 'wizard_of_wor', 'yars_revenge', 'zaxxon']:
+             'bank_heist', 'battle_zone', 'beam_rider', 'berzerk', 'bowling', 'boxing', 'breakout', 'carnival',
+             'centipede', 'chopper_command', 'crazy_climber', 'demon_attack', 'double_dunk',
+             'elevator_action', 'enduro', 'fishing_derby', 'freeway', 'frostbite', 'gopher', 'gravitar',
+             'ice_hockey', 'jamesbond', 'journey_escape', 'kangaroo', 'krull', 'kung_fu_master',
+             'montezuma_revenge', 'ms_pacman', 'name_this_game', 'phoenix', 'pitfall', 'pong', 'pooyan',
+             'private_eye', 'qbert', 'riverraid', 'road_runner', 'robotank', 'seaquest', 'skiing',
+             'solaris', 'space_invaders', 'star_gunner', 'tennis', 'time_pilot', 'tutankham', 'up_n_down',
+             'venture', 'video_pinball', 'wizard_of_wor', 'yars_revenge', 'zaxxon']:
     for obs_type in ['image', 'ram']:
         # space_invaders should yield SpaceInvaders-v0 and SpaceInvaders-ram-v0
         name = ''.join([g.capitalize() for g in game.split('_')])
@@ -314,7 +314,8 @@ for game in ['air_raid', 'alien', 'amidar', 'assault', 'asterix', 'asteroids', '
         register(
             id='{}NoFrameskip-v0'.format(name),
             entry_point='gym.envs.atari:AtariEnv',
-            kwargs={'game': game, 'obs_type': obs_type, 'frameskip': 1, 'repeat_action_probability': 0.25}, # A frameskip of 1 means we get every frame
+            kwargs={'game': game, 'obs_type': obs_type, 'frameskip': 1, 'repeat_action_probability': 0.25},
+            # A frameskip of 1 means we get every frame
             timestep_limit=frameskip * 100000,
             nondeterministic=nondeterministic,
         )
@@ -324,7 +325,7 @@ for game in ['air_raid', 'alien', 'amidar', 'assault', 'asterix', 'asteroids', '
         register(
             id='{}NoFrameskip-v3'.format(name),
             entry_point='gym.envs.atari:AtariEnv',
-            kwargs={'game': game, 'obs_type': obs_type, 'frameskip': 1}, # A frameskip of 1 means we get every frame
+            kwargs={'game': game, 'obs_type': obs_type, 'frameskip': 1},  # A frameskip of 1 means we get every frame
             timestep_limit=frameskip * 100000,
             nondeterministic=nondeterministic,
         )
@@ -430,19 +431,19 @@ register(
 )
 
 # semi_supervised envs
-    # probably the easiest:
+# probably the easiest:
 register(
     id='SemisuperPendulumNoise-v0',
     entry_point='gym.envs.safety:SemisuperPendulumNoiseEnv',
     timestep_limit=200,
 )
-    # somewhat harder because of higher variance:
+# somewhat harder because of higher variance:
 register(
     id='SemisuperPendulumRandom-v0',
     entry_point='gym.envs.safety:SemisuperPendulumRandomEnv',
     timestep_limit=200,
 )
-    # probably the hardest because you only get a constant number of rewards in total:
+# probably the hardest because you only get a constant number of rewards in total:
 register(
     id='SemisuperPendulumDecay-v0',
     entry_point='gym.envs.safety:SemisuperPendulumDecayEnv',
@@ -461,3 +462,32 @@ register(
     entry_point='gym.envs.safety:OffSwitchCartpoleProbEnv',
     timestep_limit=200,
 )
+
+# RL^2
+# ----------------------------------------
+
+# Bandits
+
+for n_arms in [5, 10, 50]:
+    for n_episodes in [10, 100, 500, 1000]:
+        register(
+            id='BernoulliBandit-{k}.arms-{n}.episodes-v0'.format(k=n_arms, n=n_episodes),
+            entry_point='gym.envs.rl2:BernoulliBanditEnv',
+            kwargs={'n_arms': n_arms, 'n_episodes': n_episodes},
+            timestep_limit=n_episodes,
+        )
+
+# Tabular MDPs
+
+for n_states in [10]:
+    for n_actions in [5]:
+        for episode_length in [10]:
+            for n_episodes in [10, 25, 50, 75, 100, 200, 400]:
+                register(
+                    id='RandomTabularMDP-{s}.states-{a}.actions-{t}.timesteps-{n}.episodes-v0'.format(
+                        s=n_states, a=n_actions, t=episode_length, n=n_episodes),
+                    entry_point='gym.envs.rl2:RandomTabularMDPEnv',
+                    kwargs={'n_states': n_states, 'n_actions': n_actions, 'episode_length': episode_length,
+                            'n_episodes': n_episodes},
+                    timestep_limit=n_episodes * episode_length,
+                )
