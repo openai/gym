@@ -221,12 +221,6 @@
     "observations": "01bc2647e2df61bfa95036ae892f69cba51909cf6d87ab94ba8168d105358b97",
     "rewards": "04db9812be236ea437cbda6cea214bba8c79760fb57a66176704503576f6f390"
   },
-  "Ant-v1": {
-    "actions": "3e0743aaeb595a6c622687dd25d81392694a4688ee3cb476bd08ee830b7ecb39",
-    "dones": "ecfbe8578a5aac6442d7b65f2e4bd4f6d70e5cdc76c1d6868ee031460c7477b9",
-    "observations": "4e846040b22c83fdd3b7c3915a4853237766eb57d0e1d66f69b048b7c0249b70",
-    "rewards": "853172b315778577bdc39d8e8527ee08aedaa1db07847b559f6f77864d63d99f"
-  },
   "Assault-ram-v0": {
     "actions": "d8701aff9cdc2b141b4766483c2221e701c3e1e0e7ba94be54a005402022bc92",
     "dones": "ecfbe8578a5aac6442d7b65f2e4bd4f6d70e5cdc76c1d6868ee031460c7477b9",
@@ -1967,41 +1961,17 @@
     "observations": "3aa327b90f6f237615fa88758ea61d1e1ecc20881d95fad069c3aabb2a919114",
     "rewards": "7f68008d156691e29e1918797f35681f3971ccfae4ea77ad7b8c817265a65ecd"
   },
-  "HalfCheetah-v1": {
-    "actions": "ff24e7c65ca086b35a1b22338957b41d1cf4087f3a5f0546c9e6a5033ad9acf8",
-    "dones": "ecfbe8578a5aac6442d7b65f2e4bd4f6d70e5cdc76c1d6868ee031460c7477b9",
-    "observations": "86bc80619cdf76a4d55793bd8c2503c513ce5144483e8aeb22751faca160f9ac",
-    "rewards": "51b547ff06f1dc49f232be3f5e4c28ddbde8dd8161701e5dc0ddb0756d9acacd"
-  },
   "Hex9x9-v0": {
     "actions": "9c8312c08ac1aa971a732e1facd18a383a78379ff96e1a7cf74b6492874998e9",
     "dones": "73f8dbb9a436a852fe911e62ee41bf2f81c6106b57be839dbad202dfc36a9b7e",
     "observations": "009389f1eab1497ec8f3a3fe0479e94cb089d4104eeb4e606a08bf0efee029d6",
     "rewards": "3920205de2b516fc678c03f055a5bf6c0a467b89c5c0767d85ea49265b2778da"
   },
-  "Hopper-v1": {
-    "actions": "4c32608c88f4d21d5ca1782da4cfe53dd8baeb8cf5dceccc7618cd573828ffaa",
-    "dones": "aa4d138db68da72b4530073e266f2044a32a92ec4e69dd62c04cb7cc41c10085",
-    "observations": "b6cbe3746389f4ae0744f161a0289dbc78f4f2f561a7d0f7ea58aaeca2b1fe51",
-    "rewards": "031773dff110cb5131f1991a70a4bae5f686310fc0fd03a78b10d1feb4e90c5e"
-  },
   "HotterColder-v0": {
     "actions": "daba1f0fad5d3d9310536746bf1ef8b7b0506f2945c396909b59eebf28e46492",
     "dones": "ecfbe8578a5aac6442d7b65f2e4bd4f6d70e5cdc76c1d6868ee031460c7477b9",
     "observations": "43bfbe01aff42900f0e1faf58786ac9e1592f1ceae51c9d4d2ef4ef992b87a6a",
     "rewards": "2cf3b0e38a84ffbe905f05c622b32acdba579c9abff76199e6cb4217e723bdc1"
-  },
-  "Humanoid-v1": {
-    "actions": "654b6f1b50fcfb90b77d21ae73336f10ccfe0ad070ca5d27bfc291f46c44c700",
-    "dones": "97e990499b157f496145069819c571dca0ec52d645d3abe815f9a2cf9cf3e1c5",
-    "observations": "ac9db052b7c806bf6a93f364a94986a63ba84ddfc1996a89cf131723c46ae8f1",
-    "rewards": "bd3ae0f8ad3ec5f047599bfcbda95b222cc0295ec59de7ce33b2f8a56e2e1e5d"
-  },
-  "HumanoidStandup-v1": {
-    "actions": "654b6f1b50fcfb90b77d21ae73336f10ccfe0ad070ca5d27bfc291f46c44c700",
-    "dones": "ecfbe8578a5aac6442d7b65f2e4bd4f6d70e5cdc76c1d6868ee031460c7477b9",
-    "observations": "2438b6053c9dd32bca4831a7efc6e674119071187d469202d28795c9525eef8c",
-    "rewards": "b074c7d1aea31f8deb26a8d083c03c210c9055147addaddf3bcbaeede93a2e0b"
   },
   "IceHockey-ram-v0": {
     "actions": "a642086826823e658c283b56dd79f14af59846af2c3d93fad08c3bc84bf3b748",
@@ -3155,12 +3125,6 @@
     "observations": "01bc2647e2df61bfa95036ae892f69cba51909cf6d87ab94ba8168d105358b97",
     "rewards": "04db9812be236ea437cbda6cea214bba8c79760fb57a66176704503576f6f390"
   },
-  "Reacher-v1": {
-    "actions": "5d60deacdd16c8b97c7da8aa2fee4a3f56cc71620108968f3d6c321dccf69bae",
-    "dones": "ecfbe8578a5aac6442d7b65f2e4bd4f6d70e5cdc76c1d6868ee031460c7477b9",
-    "observations": "b78f6b7814e4d6019a627e16361af9b7762451cfb38ee49ed23a111f06845f47",
-    "rewards": "2e0a8d36870f5922f121b6fbd9552570718fa82440e6af13a25fd2e11fcac160"
-  },
   "RepeatCopy-v0": {
     "actions": "ee9c25f85496f4e9891c67940ddbad5c590af191e95cf813c2c27ff93a861f0a",
     "dones": "8ee6c0c36abcc368709556086f6c307a4efc09733fb85be03ac67e36731ffc1a",
@@ -3785,12 +3749,6 @@
     "observations": "dc6a89cebe2307516a293b41439499bc899adeca63abddd0ebd36b042355bafb",
     "rewards": "04db9812be236ea437cbda6cea214bba8c79760fb57a66176704503576f6f390"
   },
-  "Swimmer-v1": {
-    "actions": "5d60deacdd16c8b97c7da8aa2fee4a3f56cc71620108968f3d6c321dccf69bae",
-    "dones": "ecfbe8578a5aac6442d7b65f2e4bd4f6d70e5cdc76c1d6868ee031460c7477b9",
-    "observations": "8e2442c840d980ab88ffa2447ddd034fff530a0225419ceeecd21a5ee57277a1",
-    "rewards": "ee504e0a75f36551d0d410c3ccc60d9b180eaf88439962bb7af2c7eda174718c"
-  },
   "Taxi-v1": {
     "actions": "7364c36f0f18ebecf3d6086b3e09a8944af50d3f40f25c2efb338bc42cc7255a",
     "dones": "ecfbe8578a5aac6442d7b65f2e4bd4f6d70e5cdc76c1d6868ee031460c7477b9",
@@ -4240,12 +4198,6 @@
     "dones": "ecfbe8578a5aac6442d7b65f2e4bd4f6d70e5cdc76c1d6868ee031460c7477b9",
     "observations": "01bc2647e2df61bfa95036ae892f69cba51909cf6d87ab94ba8168d105358b97",
     "rewards": "04db9812be236ea437cbda6cea214bba8c79760fb57a66176704503576f6f390"
-  },
-  "Walker2d-v1": {
-    "actions": "ff24e7c65ca086b35a1b22338957b41d1cf4087f3a5f0546c9e6a5033ad9acf8",
-    "dones": "8a5711de022610cd25268d3964c378888bc6840a29ab05d68d0b93e0a3fbd808",
-    "observations": "0451ea5bd3c933528f93828e466b390a747c1e0c81d409d6d3d34b87d6a0a3f1",
-    "rewards": "3b85e3dda79af39b29db2ae605c70b6638396a921d1778b8ff38713d40df276e"
   },
   "WizardOfWor-ram-v0": {
     "actions": "b199b81b77e4e2a8aad9a5663315bd9f7a65ba9ad191c7f8645848e7291df62e",
