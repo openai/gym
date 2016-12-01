@@ -3453,7 +3453,7 @@
     "actions": "c24fdfa0a9e514876d23bc60f067a5fbd401a50b5d54867bde3ce98d8d2b0ee1",
     "dones": "ecfbe8578a5aac6442d7b65f2e4bd4f6d70e5cdc76c1d6868ee031460c7477b9",
     "observations": "40f9b5c321e4dbd00f5d0a45ac312512aad9d6a661d593b114f6d14f07503848",
-    "rewards": "75428fc7d07a89818066b6380737f518072ed466358f5e50a7f2d04cca237277"
+    "rewards": "4d0294b80fe951276b570dc9f6b1abf0a3b7b09d485736c201458411b0f9f7df"
   },
   "SemisuperPendulumRandom-v0": {
     "actions": "c24fdfa0a9e514876d23bc60f067a5fbd401a50b5d54867bde3ce98d8d2b0ee1",
