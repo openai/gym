@@ -107,6 +107,8 @@ class ClipTo01ThenAverage(object):
         for source, initial_ts in enumerate(initial_reset_timestamps):
             (source_indexes,) = np.where(data_sources == source)
 
+            if len(source_indexes) == 0:
+                continue
             # Once we know the indexes corresponding to a particular
             # source (i.e. worker thread), we can just subtract
             # adjoining values
@@ -273,6 +275,8 @@ class TotalReward(object):
         for source, initial_ts in enumerate(initial_reset_timestamps):
             (source_indexes,) = np.where(data_sources == source)
 
+            if len(source_indexes) == 0:
+                continue
             # Once we know the indexes corresponding to a particular
             # source (i.e. worker thread), we can just subtract
             # adjoining values
