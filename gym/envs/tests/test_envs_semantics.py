@@ -77,7 +77,7 @@ def test_env_semantics(spec):
 
   observations_now, actions_now, rewards_now, dones_now = generate_rollout_hash(spec)
 
-  assert rollout_dict[spec.id]['observations'] == observations_now, 'Observations not equal for {}'.format(spec.id)
-  assert rollout_dict[spec.id]['actions'] == actions_now, 'Actions not equal for {}'.format(spec.id)
-  assert rollout_dict[spec.id]['rewards'] == rewards_now, 'Rewards not equal for {}'.format(spec.id)
-  assert rollout_dict[spec.id]['dones'] == dones_now, 'Dones not equal for {}'.format(spec.id)
+  assert rollout_dict[spec.id]['observations'] == observations_now, 'Observations not equal for {} -- expected {} but got {}'.format(spec.id, rollout_dict[spec.id]['observations'], observations_now)
+  assert rollout_dict[spec.id]['actions'] == actions_now, 'Actions not equal for {} -- expected {} but got {}'.format(spec.id, rollout_dict[spec.id]['actions'], actions_now)
+  assert rollout_dict[spec.id]['rewards'] == rewards_now, 'Rewards not equal for {} -- expected {} but got {}'.format(spec.id, rollout_dict[spec.id]['rewards'], rewards_now)
+  assert rollout_dict[spec.id]['dones'] == dones_now, 'Dones not equal for {} -- expected {} but got {}'.format(spec.id, rollout_dict[spec.id]['dones'], dones_now)
