@@ -97,18 +97,14 @@ Once you're ready to install everything, run ``pip install -e '.[all]'`` (or ``p
 Supported systems
 -----------------
 
-We currently support Linux and OS X running Python 2.7 or 3.5.
-Python 3 support should still be considered experimental -- if you find any bugs, please report them!
-
-In particular on OSX + Python3 you may need to run
+We currently support Linux and OS X running Python 2.7 or 3.5. Some users on OSX + Python3 may need to run
 
 .. code:: shell
 
 	  brew install boost-python --with-python3
 
-We will expand support to Windows based on demand. We
-will also soon ship a Docker container exposing the environments
-callable from any platform, for use with any non-Python framework, such as Torch.
+If you want to access Gym from languages other than python, we have limited support for non-python
+frameworks, such as lua/Torch, using the OpenAI Gym `HTTP API <https://github.com/openai/gym-http-api>`_.
 
 Pip version
 -----------
