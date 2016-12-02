@@ -2045,12 +2045,6 @@
     "observations": "01bc2647e2df61bfa95036ae892f69cba51909cf6d87ab94ba8168d105358b97",
     "rewards": "04db9812be236ea437cbda6cea214bba8c79760fb57a66176704503576f6f390"
   },
-  "InvertedDoublePendulum-v1": {
-    "actions": "d887e12ae2318452309f400823ba9a140aa5f88d0627d6c5a035071278fd5116",
-    "dones": "60d2023af88ac597ec03000572847411fb7ecaa0b9e1c28645f536f9ee6cf103",
-    "observations": "a599587be4edc73eb793684300c3007ecf55240c0de936b602df4fab85dc0fac",
-    "rewards": "30ae83443c6b0f019d054706718b3c39061de222ef8afda8e7842a0ffafe2e16"
-  },
   "InvertedPendulum-v1": {
     "actions": "f2d7147796103900b9d23c6fc172c31090814e2c759a9cece14aa4138c54c858",
     "dones": "9a1ed3e388031c168da7edfc3a64f70d6481db1e780b05259cc123c70cbadbb3",
@@ -3448,12 +3442,6 @@
     "dones": "ecfbe8578a5aac6442d7b65f2e4bd4f6d70e5cdc76c1d6868ee031460c7477b9",
     "observations": "40f9b5c321e4dbd00f5d0a45ac312512aad9d6a661d593b114f6d14f07503848",
     "rewards": "2e7db250db53b6f602e0e2139168eb8da8f073579fe598bf365b236a60c0c7a7"
-  },
-  "SemisuperPendulumNoise-v0": {
-    "actions": "c24fdfa0a9e514876d23bc60f067a5fbd401a50b5d54867bde3ce98d8d2b0ee1",
-    "dones": "ecfbe8578a5aac6442d7b65f2e4bd4f6d70e5cdc76c1d6868ee031460c7477b9",
-    "observations": "40f9b5c321e4dbd00f5d0a45ac312512aad9d6a661d593b114f6d14f07503848",
-    "rewards": "4d0294b80fe951276b570dc9f6b1abf0a3b7b09d485736c201458411b0f9f7df"
   },
   "SemisuperPendulumRandom-v0": {
     "actions": "c24fdfa0a9e514876d23bc60f067a5fbd401a50b5d54867bde3ce98d8d2b0ee1",
