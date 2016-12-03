@@ -91,6 +91,7 @@ class Monitor(object):
         self.enabled = False
         self.episode_id = 0
         self._monitor_id = None
+        self.env_semantics_autoreset = env.metadata.get('semantics.autoreset')
 
     @property
     def env(self):
@@ -152,7 +153,7 @@ class Monitor(object):
         self.file_prefix = FILE_PREFIX
         self.file_infix = '{}.{}'.format(self._monitor_id, uid if uid else os.getpid())
 
-        self.stats_recorder = stats_recorder.StatsRecorder(directory, '{}.episode_batch.{}'.format(self.file_prefix, self.file_infix), autoreset=self.env.metadata.get('semantics.autoreset'), env_id=env_id)
+        self.stats_recorder = stats_recorder.StatsRecorder(directory, '{}.episode_batch.{}'.format(self.file_prefix, self.file_infix), autoreset=self.env_semantics_autoreset, env_id=env_id)
         self.configure(video_callable=video_callable)
         if not os.path.exists(directory):
                 os.mkdir(directory)
@@ -258,6 +259,12 @@ class Monitor(object):
             logger.debug('Ending episode %i because it reached the timestep limit of %i.', self.episode_id, self.env.spec.timestep_limit)
             done = True
 
+        if done and self.env_semantics_autoreset:
+            # For envs with BlockingReset wrapping VNCEnv, this observation will be the first one of the new episode
+            self._reset_video_recorder()
+            self.episode_id += 1
+            self.flush()
+
         # Record stats
         self.stats_recorder.after_step(observation, reward, done, info)
         # Record video
@@ -276,6 +283,15 @@ class Monitor(object):
         # Reset the stat count
         self.stats_recorder.after_reset(observation)
 
+        self._reset_video_recorder()
+
+        # Bump *after* all reset activity has finished
+        self.episode_id += 1
+
+        self.flush()
+
+    def _reset_video_recorder(self):
+
         # Close any existing video recorder
         if self.video_recorder:
             self._close_video_recorder()
@@ -290,11 +306,6 @@ class Monitor(object):
             enabled=self._video_enabled(),
         )
         self.video_recorder.capture_frame()
-
-        # Bump *after* all reset activity has finished
-        self.episode_id += 1
-
-        self.flush()
 
     def _close_video_recorder(self):
         self.video_recorder.close()
