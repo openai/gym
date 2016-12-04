@@ -16,12 +16,13 @@ class Registry(object):
     def env(self, id):
         return self.envs[id]
 
-    def add_group(self, id, name, description):
+    def add_group(self, id, name, description, universe=False):
         self.groups[id] = {
             'id': id,
             'name': name,
             'description': description,
-            'envs': []
+            'envs': [],
+            'universe': universe,
         }
 
     def add_task(self, id, group, summary=None, description=None, background=None, deprecated=False, experimental=False, contributor=None):
