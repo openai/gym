@@ -22,3 +22,8 @@ gym-gazebo presents an extension of the initial OpenAI gym for robotics using RO
 rendering  tool.
 
 Learn more here: https://github.com/erlerobot/gym-gazebo/
+
+## gym-maze: 2D maze environment
+A simple 2D maze environment where an agent finds its way from the start position to the goal. 
+
+Learn more here: https://github.com/tuzzer/gym-maze/
