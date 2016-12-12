@@ -4,6 +4,7 @@ import re
 import sys
 
 from gym import error
+from gym.core import MonitorWrapper
 
 logger = logging.getLogger(__name__)
 # This format is true today, but it's *not* an official spec.
@@ -68,7 +69,7 @@ class EnvSpec(object):
             raise error.Error('Attempting to make deprecated env {}. (HINT: is there a newer registered version of this env?)'.format(self.id))
 
         cls = load(self._entry_point)
-        env = cls(**self._kwargs)
+        env = MonitorWrapper(cls(**self._kwargs))
 
         # Make the enviroment aware of which spec it came from.
         env.spec = self

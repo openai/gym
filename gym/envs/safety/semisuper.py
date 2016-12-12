@@ -15,6 +15,7 @@ import gym
 class SemisuperEnv(gym.Env):
     def step(self, action):
         assert self.action_space.contains(action)
+        # TODO: is this right? Should already be done in parent class. 
         self.monitor._before_step(action)
 
         observation, true_reward, done, info = self._step(action)
