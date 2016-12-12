@@ -25,20 +25,31 @@ class Box(gym.Space):
             assert np.isscalar(low) and np.isscalar(high)
             self.low = low + np.zeros(shape)
             self.high = high + np.zeros(shape)
+
+        self._actions = xrange(low, high)
+
+    @property
+    def actions(self):
+        return self._actions
+
     def sample(self):
         return prng.np_random.uniform(low=self.low, high=self.high, size=self.low.shape)
+
     def contains(self, x):
         return x.shape == self.shape and (x >= self.low).all() and (x <= self.high).all()
 
     def to_jsonable(self, sample_n):
         return np.array(sample_n).tolist()
+
     def from_jsonable(self, sample_n):
         return [np.asarray(sample) for sample in sample_n]
 
     @property
     def shape(self):
         return self.low.shape
+
     def __repr__(self):
         return "Box" + str(self.shape)
+
     def __eq__(self, other):
         return np.allclose(self.low, other.low) and np.allclose(self.high, other.high)
