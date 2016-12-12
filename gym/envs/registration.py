@@ -69,7 +69,10 @@ class EnvSpec(object):
             raise error.Error('Attempting to make deprecated env {}. (HINT: is there a newer registered version of this env?)'.format(self.id))
 
         cls = load(self._entry_point)
-        env = MonitorWrapper(cls(**self._kwargs))
+        env = cls(**self._kwargs)
+        # hack
+        if not env.metadata.get('runtime.vectorized'):
+            env = MonitorWrapper(env)
 
         # Make the enviroment aware of which spec it came from.
         env.spec = self
