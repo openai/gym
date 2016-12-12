@@ -58,6 +58,10 @@ class Monitor(object):
     to begin monitoring and 'monitor.close()' when training is
     complete. This will record stats and will periodically record a video.
 
+    *(If you call en environment's constructor directly rather than using
+    make(), you will not be able to interact with the monitor. See
+    gym.core.MonitorWrapper.)
+
     For finer-grained control over how often videos are collected, use the
     video_callable argument, e.g.
     'monitor.start(video_callable=lambda count: count % 100 == 0)'

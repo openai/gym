@@ -87,19 +87,12 @@ class Env(object):
 
     # Do not override
     _owns_render = True
-    
+
     @property
     def monitor(self):
-        """
-        We do this lazily rather than at environment creation time
-        since when the monitor closes, we need remove the existing
-        monitor but also make it easy to start a new one. We could
-        still just forcibly create a new monitor instance on old
-        monitor close, but that seems less clean.
-        """
-        if not hasattr(self, '_monitor'):
-            self._monitor = monitoring.Monitor(self)
-        return self._monitor
+        raise NotImplemented("Use the MonitorWrapper wrapper if you need a " +
+            "monitor. (You get this for free if you instantiate using gym.make())")
+    
 
     def step(self, action):
         """Run one timestep of the environment's dynamics. When end of
@@ -363,6 +356,18 @@ class Wrapper(Env):
         self._spec = spec
 
 class MonitorWrapper(Wrapper):
+    @property
+    def monitor(self):
+        """
+        We do this lazily rather than at environment creation time
+        since when the monitor closes, we need remove the existing
+        monitor but also make it easy to start a new one. We could
+        still just forcibly create a new monitor instance on old
+        monitor close, but that seems less clean.
+        """
+        if not hasattr(self, '_monitor'):
+            self._monitor = monitoring.Monitor(self)
+        return self._monitor
 
     def _step(self, action):
         self.monitor._before_step(action)
