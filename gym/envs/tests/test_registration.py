@@ -6,7 +6,6 @@ from gym.envs.classic_control import cartpole
 def test_make():
     env = envs.make('CartPole-v0')
     assert env.spec.id == 'CartPole-v0'
-    assert isinstance(env, cartpole.CartPoleEnv)
 
 def test_make_deprecated():
     try:

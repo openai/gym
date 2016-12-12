@@ -70,8 +70,8 @@ class EnvSpec(object):
 
         cls = load(self._entry_point)
         env = cls(**self._kwargs)
-        # hack
-        if not env.metadata.get('runtime.vectorized'):
+        # (Some envs aren't compatible with MonitorWrapper.)
+        if getattr(env, 'monitor_wrapper_friendly', True):
             env = MonitorWrapper(env)
 
         # Make the enviroment aware of which spec it came from.
