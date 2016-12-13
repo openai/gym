@@ -48,7 +48,7 @@ def test_write_upon_reset_true():
 
 def test_close_monitor():
     with helpers.tempdir() as temp:
-        env = FakeEnv()
+        env = gym.core.MonitorWrapper(FakeEnv())
         env.monitor.start(temp)
         env.monitor.close()
 
