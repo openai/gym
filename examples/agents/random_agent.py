@@ -14,8 +14,10 @@ class RandomAgent(object):
         return self.action_space.sample()
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description=None)
-    parser.add_argument('env_id', nargs='?', default='CartPole-v0', help='Select the environment to run')
+    parser = argparse.ArgumentParser(description='Run an agent that takes a random '+
+        'action at each step. Records results to a temporary directory and uploads them '+
+        'to the scoreboard if an API key is set.')
+    parser.add_argument('env_id', nargs='?', default='CartPole-v0', help='The environment to run (default: Cartpole-v0)')
     args = parser.parse_args()
 
     # Call `undo_logger_setup` if you want to undo Gym's logger setup

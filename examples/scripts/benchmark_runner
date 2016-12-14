@@ -16,10 +16,12 @@ import gym
 logger = logging.getLogger()
 
 def main():
-    parser = argparse.ArgumentParser(description=None)
+    parser = argparse.ArgumentParser(description='Run a random agent over the '+
+        'given benchmark and tries to upload the results (API key must be set)')
     parser.add_argument('-b', '--benchmark-id', help='id of benchmark to run e.g. Atari7Ram-v0')
     parser.add_argument('-v', '--verbose', action='count', dest='verbosity', default=0, help='Set verbosity.')
-    parser.add_argument('-t', '--training-dir', default="/tmp/gym-results/", help='What directory to upload.')
+    parser.add_argument('-t', '--training-dir', default="/tmp/gym-results/", help='What directory to upload (default: /tmp/gym-results/)')
+    parser.add_argument('--no-upload', dest='upload', action='store_false')
     args = parser.parse_args()
 
     if args.verbosity == 0:
@@ -52,11 +54,9 @@ def main():
                     env.reset()
             env.monitor.close()
 
-    logger.info("""Done running, upload results using the following command:
-
-python -c "import gym; gym.upload('{}', benchmark_id='{}', algorithm_id='(unknown)')"
-
-    """.rstrip().format(args.training_dir, benchmark_id))
+    if args.upload:
+        gym.upload(args.training_dir, benchmark_id=benchmark_id,
+            algorithm_id='random_agent')
 
     return 0
 
