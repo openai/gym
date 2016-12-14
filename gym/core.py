@@ -349,27 +349,6 @@ class Wrapper(Env):
             self.env.spec = spec
         self._spec = spec
 
-class Monitored(Wrapper):
-    def __init__(self, monitor, env=None):
-        self._monitor = monitor
-        super(Monitored, self).__init__(env)
-
-    def _step(self, action):
-        self.monitor._before_step(action)
-        observation, reward, done, info = self.env.step(action)
-        done = self.monitor._after_step(observation, reward, done, info)
-        return observation, reward, done, info
-
-    def _reset(self):
-        self.monitor._before_reset()
-        observation = self.env.reset()
-        self.monitor._after_reset(observation)
-        return observation
-
-    def _close(self):
-        if hasattr(self, '_monitor'):
-            self.monitor.close()
-        self.env.close()
 
 class ObservationWrapper(Wrapper):
     def _reset(self):
