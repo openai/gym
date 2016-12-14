@@ -13,9 +13,13 @@ class Monitored(Wrapper):
         """Monitor is started immediately when this wrapper is created, using
         the provided args. See monitoring.Monitor.start for documentation of 
         start parameters."""
-        self.monitor = monitoring.Monitor(env)
+        self.monitor = self._monitor_factory(env)
         super(Monitored, self).__init__(env)
         self.monitor.start(*start_args, **start_kwargs)
+
+    def _monitor_factory(self, env):
+        # Subclasses can override this to wrap with different kinds of monitors.
+        return monitoring.Monitor(env)
 
     def _step(self, action):
         self.monitor._before_step(action)
