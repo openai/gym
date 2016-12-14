@@ -15,12 +15,12 @@ import gym
 class SemisuperEnv(gym.Env):
     def step(self, action):
         assert self.action_space.contains(action)
-        self.monitor._before_step(action)
+        #self.monitor._before_step(action)
 
         observation, true_reward, done, info = self._step(action)
         assert self.observation_space.contains(observation)
 
-        done = self.monitor._after_step(observation, true_reward, done, info)
+        #done = self.monitor._after_step(observation, true_reward, done, info)
 
         perceived_reward = self._distort_reward(true_reward)
         return observation, perceived_reward, done, info

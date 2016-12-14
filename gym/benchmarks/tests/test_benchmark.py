@@ -1,7 +1,7 @@
 import numpy as np
 
 import gym
-from gym import monitoring
+from gym import monitoring, Monitored
 from gym.monitoring.tests import helpers
 
 from gym.benchmarks import registration, scoring
@@ -21,7 +21,7 @@ def test():
             }])
 
     with helpers.tempdir() as temp:
-        env = gym.make('CartPole-v0')
+        env = Monitored(gym.make('CartPole-v0'))
         env.seed(0)
         env.monitor.start(temp, video_callable=False)
 

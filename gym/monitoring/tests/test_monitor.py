@@ -4,6 +4,7 @@ import os
 import gym
 from gym import error, spaces
 from gym import monitoring
+from gym import Monitored
 from gym.monitoring import monitor
 from gym.monitoring.tests import helpers
 
@@ -13,7 +14,7 @@ class FakeEnv(gym.Env):
 
 def test_monitor_filename():
     with helpers.tempdir() as temp:
-        env = gym.make('CartPole-v0')
+        env = Monitored(gym.make('CartPole-v0'))
         env.monitor.start(temp)
         env.monitor.close()
 
@@ -22,7 +23,7 @@ def test_monitor_filename():
 
 def test_write_upon_reset_false():
     with helpers.tempdir() as temp:
-        env = gym.make('CartPole-v0')
+        env = Monitored(gym.make('CartPole-v0'))
         env.monitor.start(temp, video_callable=False, write_upon_reset=False)
         env.reset()
 
@@ -35,7 +36,7 @@ def test_write_upon_reset_false():
 
 def test_write_upon_reset_true():
     with helpers.tempdir() as temp:
-        env = gym.make('CartPole-v0')
+        env = Monitored(gym.make('CartPole-v0'))
         env.monitor.start(temp, video_callable=False, write_upon_reset=True)
         env.reset()
 
@@ -48,7 +49,7 @@ def test_write_upon_reset_true():
 
 def test_close_monitor():
     with helpers.tempdir() as temp:
-        env = FakeEnv()
+        env = Monitored(FakeEnv())
         env.monitor.start(temp)
         env.monitor.close()
 
@@ -57,7 +58,7 @@ def test_close_monitor():
 
 def test_video_callable_true_not_allowed():
     with helpers.tempdir() as temp:
-        env = gym.make('CartPole-v0')
+        env = Monitored(gym.make('CartPole-v0'))
         try:
             env.monitor.start(temp, video_callable=True)
         except error.Error:
@@ -67,7 +68,7 @@ def test_video_callable_true_not_allowed():
 
 def test_video_callable_false_does_not_record():
     with helpers.tempdir() as temp:
-        env = gym.make('CartPole-v0')
+        env = Monitored(gym.make('CartPole-v0'))
         env.monitor.start(temp, video_callable=False)
         env.reset()
         env.monitor.close()
@@ -76,7 +77,7 @@ def test_video_callable_false_does_not_record():
 
 def test_video_callable_records_videos():
     with helpers.tempdir() as temp:
-        env = gym.make('CartPole-v0')
+        env = Monitored(gym.make('CartPole-v0'))
         env.monitor.start(temp)
         env.reset()
         env.monitor.close()
@@ -85,7 +86,7 @@ def test_video_callable_records_videos():
 
 def test_env_reuse():
     with helpers.tempdir() as temp:
-        env = gym.make('CartPole-v0')
+        env = Monitored(gym.make('CartPole-v0'))
         env.monitor.start(temp)
         env.monitor.close()
 
@@ -118,7 +119,7 @@ gym.envs.register(
 )
 def test_env_reuse():
     with helpers.tempdir() as temp:
-        env = gym.make('Autoreset-v0')
+        env = Monitored(gym.make('Autoreset-v0'))
         env.monitor.start(temp)
 
         env.reset()
@@ -142,7 +143,7 @@ def test_no_monitor_reset_unless_done():
 
     with helpers.tempdir() as temp:
         # Make sure we can reset as we please without monitor
-        env = gym.make('CartPole-v0')
+        env = Monitored(gym.make('CartPole-v0'))
         env.reset()
         env.step(env.action_space.sample())
         env.step(env.action_space.sample())
@@ -175,7 +176,7 @@ def test_no_monitor_reset_unless_done():
 
 def test_only_complete_episodes_written():
     with helpers.tempdir() as temp:
-        env = gym.make('CartPole-v0')
+        env = Monitored(gym.make('CartPole-v0'))
 
         env.monitor.start(temp, video_callable=False)
         env.reset()
