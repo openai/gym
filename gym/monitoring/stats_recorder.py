@@ -19,6 +19,7 @@ class StatsRecorder(object):
         self._type = 't'
         self.timestamps = []
         self.steps = None
+        self.total_steps = 0
         self.rewards = None
 
         self.done = None
@@ -47,6 +48,7 @@ class StatsRecorder(object):
 
     def after_step(self, observation, reward, done, info):
         self.steps += 1
+        self.total_steps += 1
         self.rewards += reward
         self.done = done
 
