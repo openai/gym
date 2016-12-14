@@ -367,3 +367,139 @@ class TotalReward(object):
             all_scores += scores
 
         return np.mean(all_scores)
+
+class RewardPerTime(object):
+    """Benchmark scoring rule
+
+    For each task, we take all evaluation episodes before either the max_seconds
+    or max_timesteps limit, whichever is earlier.
+
+    The score for each evaluation is the sum of rewards for all episodes divided by the total time taken for all episodes. We clip the score to be between the reward_floor and reward_ceiling for the task and normalize so scores are between 0 and 1
+
+    The benchmark score is the average of all task scores.
+
+    """
+
+    def __init__(self):
+        pass
+
+    def null_score(self):
+        return 0.0
+
+    def score_evaluation(self, benchmark, env_id, data_sources, initial_reset_timestamps, episode_lengths, episode_rewards, episode_types, timestamps):
+        # TODO refactor code shared with the clip scoring rule above
+        tasks = benchmark.task_specs(env_id)
+        spec = envs.spec(env_id)
+
+        #### 0. Compute timing stats
+
+        if len(initial_reset_timestamps) > 0:
+            initial_reset_timestamp = min(initial_reset_timestamps)
+        else:
+            initial_reset_timestamp = 0
+
+
+        # How long each episode actually took
+        durations = np.zeros(len(timestamps))
+
+        data_sources = np.array(data_sources)
+        timestamps = np.array(timestamps)
+        for source, initial_ts in enumerate(initial_reset_timestamps):
+            (source_indexes,) = np.where(data_sources == source)
+
+            if len(source_indexes) == 0:
+                continue
+            # Once we know the indexes corresponding to a particular
+            # source (i.e. worker thread), we can just subtract
+            # adjoining values
+            durations[source_indexes[0]] = timestamps[source_indexes[0]] - initial_ts
+            durations[source_indexes[1:]] = timestamps[source_indexes[1:]] - timestamps[source_indexes[:-1]]
+
+        #### Grab the data corresponding to each of evaluation/training
+        lengths = np.array(episode_lengths)
+        rewards = np.array(episode_rewards)
+        durations = np.array(durations)
+
+        #### Calculate the total elapsed time (in various units)
+        #### for each episode
+
+        # How many training timesteps have elapsed by the end of each
+        # episode. Not to be confused with Unix timestamps.
+        elapsed_timesteps = np.cumsum(lengths)
+        # Total number of seconds elapsed by the end of each
+        # episode. Note that with n parallel workers each running for
+        # m seconds, we want to count the total time as n * m.
+        elapsed_seconds = np.cumsum(durations)
+
+        scores = []
+        solves = []
+        rewards = []
+        _timestamps = []
+        elapsed_times = []
+        for task in tasks:
+            # Find the first episode where we're over the allotted
+            # training timesteps.
+            cutoff_idx = np.inf
+            if task.max_timesteps:
+                # this looks a little funny, but we want the first idx greater
+                # than the cutoff
+                (timestep_cutoff,) = np.where(elapsed_timesteps > task.max_timesteps)
+                if len(timestep_cutoff) > 0:
+                    cutoff_idx = min(cutoff_idx, timestep_cutoff[0])
+            if task.max_seconds:
+                (seconds_cutoff,) = np.where(elapsed_seconds > task.max_seconds)
+                if len(seconds_cutoff) > 0:
+                    cutoff_idx = min(cutoff_idx, seconds_cutoff[0])
+            if not np.isfinite(cutoff_idx):
+                # All episodes are fair game
+                cutoff_idx = len(lengths)
+
+            reward = np.array(episode_rewards)[:cutoff_idx]
+
+            floor = task.reward_floor
+            ceiling = task.reward_ceiling
+
+            # skip computing this for now
+            solved = [False] * len(reward)
+
+            # Sum the rewards for all episodes, divide by total time taken for
+            # all episodes
+            reward_per_second = np.sum(reward) / elapsed_seconds[cutoff_idx - 1]
+            score = np.clip((reward_per_second - floor) / (ceiling - floor), 0, 1)
+
+            # Take the mean rescaled score
+            scores.append(score)
+            # Record the list of solved episodes
+            solves.append(solved)
+            # Record the list of rewards
+            rewards.append(reward)
+
+            if np.any(timestamps[:cutoff_idx]):
+                last_idx = cutoff_idx - 1
+                last_timestamp = timestamps[last_idx]
+                elapsed_time = elapsed_seconds[last_idx]
+            else:
+                # If we don't have any valid episodes, then the
+                # last valid timestamp is when we started.
+                last_timestamp = initial_reset_timestamp
+                elapsed_time = 0.0
+
+            # Record the timestamp of the last episode timestamp
+            _timestamps.append(last_timestamp)
+            elapsed_times.append(elapsed_time)
+
+        return {
+            'rewards': rewards,
+            'scores': scores,
+            'solves': solves,
+            'timestamps': _timestamps,
+            'elapsed_times': elapsed_times,
+            'initial_reset_timestamp': initial_reset_timestamp,
+        }
+
+    def score_benchmark(self, benchmark, episode_scores):
+        all_scores = []
+        for env_id, scores in episode_scores.items():
+            all_scores += scores
+
+        return np.mean(all_scores)
