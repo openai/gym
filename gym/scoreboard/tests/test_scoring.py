@@ -373,10 +373,10 @@ def test_reward_per_time_benchmark_empty():
     benchmark_results = defaultdict(list)
     task = reward_per_time_benchmark.tasks[0]
     env_id = task.env_id
-    benchmark_results[env_id].append(_benchmark_result_helper(reward_per_time_benchmark, env_id=env_id, timestamps=[11]))
+    benchmark_results[env_id].append(_benchmark_result_helper(reward_per_time_benchmark, env_id=env_id, episode_lengths=[10]))
     scores = scoring.benchmark_aggregate_score(reward_per_time_benchmark, benchmark_results)
 
-    _assert_benchmark_score(scores, score=0.0005, num_envs_solved=0, summed_training_seconds=10.0, start_to_finish_seconds=10.0)
+    _assert_benchmark_score(scores, score=0.0, num_envs_solved=0, summed_training_seconds=0.0, start_to_finish_seconds=0.0)
 
 def test_reward_per_time_benchmark_solved():
     benchmark_results = defaultdict(list)
