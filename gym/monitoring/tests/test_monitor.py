@@ -14,9 +14,11 @@ class FakeEnv(gym.Env):
 
 def test_monitor_filename():
     with helpers.tempdir() as temp:
-        env = Monitored(gym.make('CartPole-v0'))
-        env.monitor.start(temp)
-        env.monitor.close()
+        env = gym.make('Cartpole-v0')
+        monitor = monitoring.Monitor(env)
+        env = Monitored(env, monitor)
+        monitor.start(temp)
+        monitor.close()
 
         manifests = glob.glob(os.path.join(temp, '*.manifest.*'))
         assert len(manifests) == 1

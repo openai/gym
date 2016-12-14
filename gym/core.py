@@ -350,23 +350,9 @@ class Wrapper(Env):
         self._spec = spec
 
 class Monitored(Wrapper):
-    def __init__(self, env=None, monitor=None):
-        if monitor is not None:
-            self._monitor = monitor
+    def __init__(self, monitor, env=None):
+        self._monitor = monitor
         super(Monitored, self).__init__(env)
-
-    @property
-    def monitor(self):
-        """
-        We do this lazily rather than at environment creation time
-        since when the monitor closes, we need remove the existing
-        monitor but also make it easy to start a new one. We could
-        still just forcibly create a new monitor instance on old
-        monitor close, but that seems less clean.
-        """
-        if not hasattr(self, '_monitor'):
-            self._monitor = monitoring.Monitor(self)
-        return self._monitor
 
     def _step(self, action):
         self.monitor._before_step(action)
