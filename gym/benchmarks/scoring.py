@@ -35,7 +35,7 @@ def benchmark_aggregate_score(benchmark, env_id_to_benchmark_results):
                 # does each episode solve that task. We consider the env solved
                 # if every episode for every task is individually solved.
                 solved = solves.setdefault(env_id, True)
-                solves[env_id] = solved and np.all(benchmark_result['solves'])
+                solves[env_id] = solved and np.sum(benchmark_result['solves'])
 
                 # these timestamps are a list of the first / last valid timestamp
                 # for each task involving this env.
@@ -383,6 +383,7 @@ class BenchmarkScoringRule(object):
 
 def TotalReward():
     def total_reward_from_episode_rewards(task, reward, elapsed_seconds):
+        "TotalReward scoring takes the mean of all rewards earned over the course of the episode and clips it between reward_floor and reward_ceiling"
         # reward is an array containing valid rewards for the episode
         floor = task.reward_floor
         ceiling = task.reward_ceiling
@@ -396,14 +397,14 @@ def TotalReward():
 
 def RewardPerTime():
     def reward_per_time_from_episode_rewards(task, reward, elapsed_seconds):
+        "RewardPerTime scoring takes the total reward earned over the course of the episode, divides by the elapsed time, and clips it between reward_floor and reward_ceiling"
         floor = task.reward_floor
         ceiling = task.reward_ceiling
 
         # TODO actually compute solves for this
         solved = [False] * len(reward)
 
-        # Sum the rewards for all episodes, divide by total time taken for
-        # all episodes
+        # Sum the rewards for all episodes, divide by total time taken for all episodes
         reward_per_second = np.sum(reward) / elapsed_seconds[-1] if np.any(elapsed_seconds) else 0.0
         score = np.clip((reward_per_second - floor) / (ceiling - floor), 0, 1)
         return score, solved
