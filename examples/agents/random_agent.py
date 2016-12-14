@@ -4,6 +4,7 @@ import os
 import sys
 
 import gym
+from gym.wrappers import Monitored
 
 # The world's simplest agent!
 class RandomAgent(object):
@@ -40,7 +41,7 @@ if __name__ == '__main__':
     # like: tempfile.mkdtemp().
     outdir = '/tmp/random-agent-results'
     env.seed(0)
-    env.monitor.start(outdir, force=True)
+    env = Monitored(env, outdir, force=True)
 
     # This declaration must go *after* the monitor call, since the
     # monitor's seeding creates a new action_space instance with the
@@ -63,7 +64,7 @@ if __name__ == '__main__':
             # Video is not recorded every episode, see capped_cubic_video_schedule for details.
 
     # Dump result info to disk
-    env.monitor.close()
+    env.close()
 
     # Upload to the scoreboard. We could also do this from another
     # process if we wanted.

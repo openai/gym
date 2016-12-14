@@ -9,6 +9,7 @@ from gym import spaces
 from gym.envs.box2d.car_dynamics import Car
 from gym.envs.classic_control import rendering
 from gym.utils import colorize, seeding
+from gym.wrappers import Monitored
 
 import pyglet
 from pyglet.gl import *
@@ -474,7 +475,7 @@ if __name__=="__main__":
     env.render()
     record_video = False
     if record_video:
-        env.monitor.start('/tmp/video-test', force=True)
+        env = Monitored(env, '/tmp/video-test', force=True)
     env.viewer.window.on_key_press = key_press
     env.viewer.window.on_key_release = key_release
     while True:
@@ -495,4 +496,4 @@ if __name__=="__main__":
             if not record_video: # Faster, but you can as well call env.render() every time to play full window.
                 env.render()
             if done or restart: break
-    env.monitor.close()
+    env.close()

@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import gym
+from gym.wrappers import Monitored
 import logging
 import numpy as np
 try:
@@ -65,7 +66,7 @@ if __name__ == '__main__':
     # directory, but can't contain previous monitor results. You can
     # also dump to a tempdir if you'd like: tempfile.mkdtemp().
     outdir = '/tmp/cem-agent-results'
-    env.monitor.start(outdir, force=True)
+    env = Monitored(env, outdir, force=True)
 
     # Prepare snapshotting
     # ----------------------------------------
@@ -94,7 +95,7 @@ if __name__ == '__main__':
     # environment.
     writefile('info.json', json.dumps(info))
 
-    env.monitor.close()
+    env.close()
 
     logger.info("Successfully ran cross-entropy method. Now trying to upload results to the scoreboard. If it breaks, you can always just try re-uploading the same results.")
     gym.upload(outdir)
