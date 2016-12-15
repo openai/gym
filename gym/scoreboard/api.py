@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 video_name_re = re.compile('^[\w.-]+\.(mp4|avi|json)$')
 metadata_name_re = re.compile('^[\w.-]+\.meta\.json$')
 
-def upload(training_dir, algorithm_id=None, writeup=None, benchmark_id=None, api_key=None, ignore_open_monitors=False):
+def upload(training_dir, algorithm_id=None, writeup=None, tags=None, benchmark_id=None, api_key=None, ignore_open_monitors=False):
     """Upload the results of training (as automatically recorded by your
     env's monitor) to OpenAI Gym.
 
@@ -24,6 +24,7 @@ def upload(training_dir, algorithm_id=None, writeup=None, benchmark_id=None, api
         algorithm_id (Optional[str]): An algorithm id indicating the particular version of the algorithm (including choices of parameters) you are running (visit https://gym.openai.com/algorithms to create an id). If the id doesn't match an existing server id it will create a new algorithm using algorithm_id as the name
         benchmark_id (Optional[str]): The benchmark that these evaluations belong to. Will recursively search through training_dir for any Gym manifests. This feature is currently pre-release.
         writeup (Optional[str]): A Gist URL (of the form https://gist.github.com/<user>/<id>) containing your writeup for this evaluation.
+        tags (Optional[dict]): A dictionary of key/values to store with the benchmark run (ignored for nonbenchmark evaluations). Must be jsonable.
         api_key (Optional[str]): Your OpenAI API key. Can also be provided as an environment variable (OPENAI_GYM_API_KEY).
     """
 
@@ -55,7 +56,7 @@ def upload(training_dir, algorithm_id=None, writeup=None, benchmark_id=None, api
         if sorted(env_ids) != sorted(spec_env_ids):
             logger.info("WARNING: Evaluations do not match spec for benchmark {}. In {}, we found evaluations for {}, expected {}".format(benchmark_id, training_dir, sorted(env_ids), sorted(spec_env_ids)))
 
-        benchmark_run = resource.BenchmarkRun.create(benchmark_id=benchmark_id, algorithm_id=algorithm_id)
+        benchmark_run = resource.BenchmarkRun.create(benchmark_id=benchmark_id, algorithm_id=algorithm_id, tags=json.dumps(tags))
         benchmark_run_id = benchmark_run.id
 
         # Actually do the uploads.
@@ -75,6 +76,8 @@ OpenAI Gym! You can find it at:
 
         return benchmark_run_id
     else:
+        if tags is not None:
+             logger.warn("Tags will NOT be uploaded for this submission.")
         # Single evalution upload
         benchmark_run_id = None
         evaluation = _upload(training_dir, algorithm_id, writeup, benchmark_run_id, api_key, ignore_open_monitors)
