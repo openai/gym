@@ -28,7 +28,7 @@ def should_skip_env_spec_for_tests(spec):
         return True
 
     # Skip Semisuper tests for now (broken due to monitor refactor)
-    if spec._entry_point.startswith('gym.envs.safety.Semisuper:'):
+    if spec._entry_point.startswith('gym.envs.safety:Semisuper'):
         logger.warn("Skipping tests for semisuper env {}".format(spec._entry_point))
         return True
 
