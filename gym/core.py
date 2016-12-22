@@ -310,6 +310,23 @@ class Wrapper(Env):
         self._spec = self.env.spec
         self._unwrapped = self.env.unwrapped
 
+        self._update_wrapper_stack()
+
+    def _update_wrapper_stack(self):
+        """
+        Keep a list of all the wrappers that have been appended to the stack.
+        Raises an error if this wrapper type has already been applied
+        """
+        self._wrapper_stack = getattr(self.env, '_wrapper_stack', [])
+        if self.class_name() in [wrapper.class_name() for wrapper in self._wrapper_stack]:
+            raise error.DoubleWrapperError("Attempted to double wrap with Wrapper: {}".format(self.class_name()))
+
+        self._wrapper_stack.append(self)
+
+    @classmethod
+    def class_name(cls):
+        return cls.__name__
+
     def _step(self, action):
         return self.env.step(action)
 

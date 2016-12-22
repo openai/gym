@@ -125,3 +125,8 @@ class VideoRecorderError(Error):
 
 class InvalidFrame(Error):
     pass
+
+# Wrapper errors
+
+class DoubleWrapperError(Error):
+    pass
