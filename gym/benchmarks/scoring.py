@@ -402,7 +402,7 @@ def RewardPerTime():
         ceiling = task.reward_ceiling
 
         # TODO actually compute solves for this
-        solved = [False] * len(reward)
+        solved = np.zeros(len(reward))
 
         # Sum the rewards for all episodes, divide by total time taken for all episodes
         reward_per_second = np.sum(reward) / elapsed_seconds[-1] if np.any(elapsed_seconds) else 0.0
