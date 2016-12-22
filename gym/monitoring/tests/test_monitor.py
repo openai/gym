@@ -4,13 +4,9 @@ import os
 import gym
 from gym import error, spaces
 from gym import monitoring
-from gym.monitoring import monitor
 from gym.monitoring.tests import helpers
 from gym.wrappers import Monitored
 
-class FakeEnv(gym.Env):
-    def _render(self, close=True):
-        raise RuntimeError('Raising')
 
 def test_monitor_filename():
     with helpers.tempdir() as temp:
@@ -82,21 +78,6 @@ def test_video_callable_records_videos():
         env.close()
         results = monitoring.load_results(temp)
         assert len(results['videos']) == 1, "Videos: {}".format(results['videos'])
-
-# def test_env_reuse():
-#     with helpers.tempdir() as temp:
-#         env = gym.make('CartPole-v0')
-#         env = Monitored(temp)(env)
-#         env.close()
-
-#         env.monitor.start(temp, force=True)
-#         env.reset()
-#         env.step(env.action_space.sample())
-#         env.step(env.action_space.sample())
-#         env.monitor.close()
-
-#         results = monitor.load_results(temp)
-#         assert results['episode_lengths'] == [2], 'Results: {}'.format(results)
 
 class AutoresetEnv(gym.Env):
     metadata = {'semantics.autoreset': True}
