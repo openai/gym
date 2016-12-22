@@ -3,6 +3,10 @@ from gym import error
 from gym import wrappers
 from gym.wrappers import SkipWrapper
 
+import tempfile
+import shutil
+
+
 def test_skip():
     every_two_frame = SkipWrapper(2)
     env = gym.make("FrozenLake-v0")
@@ -12,12 +16,16 @@ def test_skip():
 
 
 def test_no_double_wrapping():
-    env = gym.make("FrozenLake-v0")
-    env = wrappers.Monitored('/tmp', force=True)(env)
+    temp = tempfile.mkdtemp()
     try:
-        env = wrappers.Monitored('/tmp', force=True)(env)
-    except error.DoubleWrapperError:
-        pass
-    else:
-        assert False, "Should not allow double wrapping"
-    assert False
+        env = gym.make("FrozenLake-v0")
+        env = wrappers.Monitored(temp)(env)
+        try:
+            env = wrappers.Monitored(temp)(env)
+        except error.DoubleWrapperError:
+            pass
+        else:
+            assert False, "Should not allow double wrapping"
+        env.close()
+    finally:
+        shutil.rmtree(temp)
