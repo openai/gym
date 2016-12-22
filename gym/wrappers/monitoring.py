@@ -1,4 +1,3 @@
-from gym import error
 from gym import monitoring
 from gym import Wrapper
 
@@ -6,43 +5,34 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-class Monitored(Wrapper):
-    def __init__(self, env):
-        super(Monitored, self).__init__(env)
-        self._monitor = monitoring.Monitor(env)
+def Monitored(directory, video_callable=None, force=False, resume=False,
+              write_upon_reset=False, uid=None, mode=None):
+    class Monitored(Wrapper):
+        def __init__(self, env):
+            super(Monitored, self).__init__(env)
+            self._monitor = monitoring.Monitor(env)
+            self._monitor.start(directory, video_callable, force, resume,
+                                write_upon_reset, uid, mode)
 
-    def _configure(self, *args, **kwargs):
-        # Pull out monitor config before going to superclass
-        monitor_config = kwargs.pop('monitor_config')
+        def _step(self, action):
+            self._monitor._before_step(action)
+            observation, reward, done, info = self.env.step(action)
+            self._monitor._after_step(observation, reward, done, info)
 
-        super(Monitored, self)._configure(*args, **kwargs)
+            return observation, reward, done, info
 
-        if not monitor_config:
-            monitor_config = {}
+        def _reset(self):
+            self._monitor._before_reset()
+            observation = self.env.reset()
+            self._monitor._after_reset(observation)
 
-        if not 'directory' in monitor_config:
-            raise error.Error("Required argument 'directory' not found in monitor_config")
+            return observation
 
-        self._monitor.start(**monitor_config)
+        def _close(self):
+            super(Monitored, self)._close()
+            self._monitor.close()
 
-    def _step(self, action):
-        self._monitor._before_step(action)
-        observation, reward, done, info = self.env.step(action)
-        self._monitor._after_step(observation, reward, done, info)
-
-        return observation, reward, done, info
-
-    def _reset(self):
-        self._monitor._before_reset()
-        observation= self.env.reset()
-        self._monitor._after_reset(observation)
-
-        return observation
-
-    def _close(self):
-        super(Monitored, self)._close()
-        self._monitor.close()
-
-    def set_monitor_mode(self, mode):
-        logger.info("Setting the monitor mode is deprecated and will be removed soon")
-        self._monitor._set_mode(mode)
+        def set_monitor_mode(self, mode):
+            logger.info("Setting the monitor mode is deprecated and will be removed soon")
+            self._monitor._set_mode(mode)
+    return Monitored
