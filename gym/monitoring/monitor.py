@@ -1,16 +1,13 @@
-import atexit
-import logging
 import json
-import numpy as np
+import logging
 import os
-import six
-import sys
-import threading
 import weakref
 
+import numpy as np
+import six
 from gym import error, version
 from gym.monitoring import stats_recorder, video_recorder
-from gym.utils import atomic_write, closer, seeding
+from gym.utils import atomic_write, closer
 
 logger = logging.getLogger(__name__)
 
@@ -132,6 +129,7 @@ class Monitor(object):
             video_callable = disable_videos
         elif not callable(video_callable):
             raise error.Error('You must provide a function, None, or False for video_callable, not {}: {}'.format(type(video_callable), video_callable))
+        self.video_callable = video_callable
 
         # Check on whether we need to clear anything
         if force:
@@ -143,7 +141,6 @@ class Monitor(object):
 
  You should use a unique directory for each training run, or use 'force=True' to automatically clear previous monitor files.'''.format(directory, ', '.join(training_manifests[:5])))
 
-
         self._monitor_id = monitor_closer.register(self)
 
         self.enabled = True
@@ -154,7 +151,7 @@ class Monitor(object):
         self.file_infix = '{}.{}'.format(self._monitor_id, uid if uid else os.getpid())
 
         self.stats_recorder = stats_recorder.StatsRecorder(directory, '{}.episode_batch.{}'.format(self.file_prefix, self.file_infix), autoreset=self.env_semantics_autoreset, env_id=env_id)
-        self.configure(video_callable=video_callable)
+
         if not os.path.exists(directory):
                 os.mkdir(directory)
         self.write_upon_reset = write_upon_reset
@@ -162,7 +159,7 @@ class Monitor(object):
         if mode is not None:
             self._set_mode(mode)
 
-    def flush(self, force=False):
+    def _flush(self, force=False):
         """Flush all relevant monitor information to disk."""
         if not self.write_upon_reset and not force:
             return
@@ -192,7 +189,7 @@ class Monitor(object):
         self.stats_recorder.close()
         if self.video_recorder is not None:
             self._close_video_recorder()
-        self.flush(force=True)
+        self._flush(force=True)
 
         env = self._env_ref()
         # Only take action if the env hasn't been GC'd
@@ -222,22 +219,6 @@ class Monitor(object):
 
         logger.info('''Finished writing results. You can upload them to the scoreboard via gym.upload(%r)''', self.directory)
 
-    def configure(self, video_callable=None, mode=None):
-        """Reconfigure the monitor.
-
-            video_callable (function): Whether to record video to upload to the scoreboard.
-            mode (['evaluation', 'training']): Whether this is an evaluation or training episode.
-        """
-
-        if not self.enabled:
-            raise error.Error('Can only configure an enabled monitor. (HINT: did you already close this monitor?)')
-
-        if video_callable is not None:
-            self.video_callable = video_callable
-
-        if mode is not None:
-            self._set_mode(mode)
-
     def _set_mode(self, mode):
         if mode == 'evaluation':
             type = 'e'
@@ -263,7 +244,7 @@ class Monitor(object):
             # For envs with BlockingReset wrapping VNCEnv, this observation will be the first one of the new episode
             self._reset_video_recorder()
             self.episode_id += 1
-            self.flush()
+            self._flush()
 
         # Record stats
         self.stats_recorder.after_step(observation, reward, done, info)
@@ -271,7 +252,6 @@ class Monitor(object):
         self.video_recorder.capture_frame()
 
         return done
-
 
     def _before_reset(self):
         if not self.enabled: return
@@ -288,7 +268,7 @@ class Monitor(object):
         # Bump *after* all reset activity has finished
         self.episode_id += 1
 
-        self.flush()
+        self._flush()
 
     def _reset_video_recorder(self):
 
