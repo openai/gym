@@ -12,7 +12,10 @@ class Monitored(Wrapper):
         super(Monitored, self).__init__(env)
         self._monitor = monitoring.Monitor(env)
 
-    def _configure(self, *args, monitor_config=None, **kwargs):
+    def _configure(self, *args, **kwargs):
+        # Pull out monitor config before going to superclass
+        monitor_config = kwargs.pop('monitor_config')
+
         super(Monitored, self)._configure(*args, **kwargs)
 
         if not monitor_config:
