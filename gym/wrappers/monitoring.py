@@ -17,7 +17,7 @@ def Monitored(directory, video_callable=None, force=False, resume=False,
         def _step(self, action):
             self._monitor._before_step(action)
             observation, reward, done, info = self.env.step(action)
-            self._monitor._after_step(observation, reward, done, info)
+            done = self._monitor._after_step(observation, reward, done, info)
 
             return observation, reward, done, info
 
