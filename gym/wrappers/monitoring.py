@@ -10,7 +10,7 @@ def Monitored(directory, video_callable=None, force=False, resume=False,
     class Monitored(Wrapper):
         def __init__(self, env):
             super(Monitored, self).__init__(env)
-            self._monitor = monitoring.Monitor(env)
+            self._monitor = monitoring.MonitorManager(env)
             self._monitor.start(directory, video_callable, force, resume,
                                 write_upon_reset, uid, mode)
 

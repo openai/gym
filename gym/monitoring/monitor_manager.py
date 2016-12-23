@@ -47,7 +47,7 @@ monitor_closer = closer.Closer()
 def _open_monitors():
     return list(monitor_closer.closeables.values())
 
-class Monitor(object):
+class MonitorManager(object):
     """A configurable monitor for your training runs.
 
     Every env has an attached monitor, which you can access as
@@ -64,7 +64,7 @@ class Monitor(object):
     can also use 'monitor.configure(video_callable=lambda count: False)' to disable
     video.
 
-    Monitor supports multiple threads and multiple processes writing
+    MonitorManager supports multiple threads and multiple processes writing
     to the same directory of training data. The data will later be
     joined by scoreboard.upload_training_data and on the server.
 
