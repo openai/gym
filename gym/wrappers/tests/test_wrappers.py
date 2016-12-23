@@ -14,10 +14,10 @@ def test_skip():
 def test_no_double_wrapping():
     env = gym.make("FrozenLake-v0")
     env = wrappers.Monitored('/tmp', force=True)(env)
+
     try:
         env = wrappers.Monitored('/tmp', force=True)(env)
     except error.DoubleWrapperError:
         pass
     else:
         assert False, "Should not allow double wrapping"
-    assert False

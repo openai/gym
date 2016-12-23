@@ -30,7 +30,10 @@ def Monitored(directory, video_callable=None, force=False, resume=False,
 
         def _close(self):
             super(Monitored, self)._close()
-            self._monitor.close()
+
+            # _monitor will not be set here if super(Monitored, self) throws an error
+            if getattr(self, '_monitor', None):
+                self._monitor.close()
 
         def set_monitor_mode(self, mode):
             logger.info("Setting the monitor mode is deprecated and will be removed soon")
