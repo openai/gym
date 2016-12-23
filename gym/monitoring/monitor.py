@@ -246,6 +246,9 @@ class Monitor(object):
             self.episode_id += 1
             self._flush()
 
+        if info.get('true_reward', None):  # Semi-super modifies the rewards, but we want the original
+            reward = info['true_reward']
+
         # Record stats
         self.stats_recorder.after_step(observation, reward, done, info)
         # Record video

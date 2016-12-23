@@ -79,6 +79,15 @@ def test_video_callable_records_videos():
         results = monitoring.load_results(temp)
         assert len(results['videos']) == 1, "Videos: {}".format(results['videos'])
 
+def test_semisuper_succeeds():
+    """Regression test. Ensure that this can write"""
+    with helpers.tempdir() as temp:
+        env = gym.make('SemisuperPendulumDecay-v0')
+        env = Monitored(temp)(env)
+        env.reset()
+        env.step(env.action_space.sample())
+        env.close()
+
 class AutoresetEnv(gym.Env):
     metadata = {'semantics.autoreset': True}
 
@@ -175,3 +184,6 @@ def test_only_complete_episodes_written():
         # Only 1 episode should be written
         results = monitoring.load_results(temp)
         assert len(results['episode_lengths']) == 1, "Found {} episodes written; expecting 1".format(len(results['episode_lengths']))
+
+if __name__ == '__main__':
+    test_semisuper_succeeds()
