@@ -114,6 +114,8 @@ def test_env_reuse():
         _, _, done, _ = env.step(None)
         assert done
 
+        env.close()
+
 def test_no_monitor_reset_unless_done():
     def assert_reset_raises(env):
         errored = False
