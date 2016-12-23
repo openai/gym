@@ -43,14 +43,6 @@ def test_write_upon_reset_true():
         files = glob.glob(os.path.join(temp, '*'))
         assert len(files) > 0
 
-# def test_close_monitor():
-#     with helpers.tempdir() as temp:
-#         env = FakeEnv()
-#         env = Monitored(temp)(env)
-#         env.close()
-
-#         manifests = monitor.detect_training_manifests(temp)
-#         assert len(manifests) == 1
 def test_video_callable_true_not_allowed():
     with helpers.tempdir() as temp:
         env = gym.make('CartPole-v0')

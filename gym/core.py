@@ -89,7 +89,7 @@ class Env(object):
 
     @property
     def monitor(self):
-        raise error.Error('env.monitor is deprecated. Wrap your env with gym.wrappers.Monitored to record data.')
+        raise error.Error('env.monitor is deprecated. Wrap your env with gym.wrappers.Monitor to record data.')
 
     def step(self, action):
         """Run one timestep of the environment's dynamics. When end of
@@ -321,7 +321,7 @@ class Wrapper(Env):
         self._wrapper_stack.append(self)
 
     def _check_for_duplicate_wrappers(self):
-        """Raise an error if there are duplicate wrappers. Can be overwritten"""
+        """Raise an error if there are duplicate wrappers. Can be overwritten by subclasses"""
         if self.class_name() in [wrapper.class_name() for wrapper in self._wrapper_stack]:
             raise error.DoubleWrapperError("Attempted to double wrap with Wrapper: {}".format(self.class_name()))
 

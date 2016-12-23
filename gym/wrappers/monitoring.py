@@ -31,7 +31,7 @@ def Monitor(directory, video_callable=None, force=False, resume=False,
         def _close(self):
             super(Monitor, self)._close()
 
-            # _monitor will not be set here if super(Monitored, self) throws an error
+            # _monitor will not be set if super(Monitor, self).__init__ raises, this check prevents a confusing error message
             if getattr(self, '_monitor', None):
                 self._monitor.close()
 
