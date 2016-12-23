@@ -176,6 +176,3 @@ def test_only_complete_episodes_written():
         # Only 1 episode should be written
         results = monitoring.load_results(temp)
         assert len(results['episode_lengths']) == 1, "Found {} episodes written; expecting 1".format(len(results['episode_lengths']))
-
-if __name__ == '__main__':
-    test_semisuper_succeeds()
