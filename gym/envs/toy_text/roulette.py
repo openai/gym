@@ -27,7 +27,6 @@ class RouletteEnv(gym.Env):
         return [seed]
 
     def _step(self, action):
-        assert self.action_space.contains(action)
         if action == self.n - 1:
             # observation, reward, done, info
             return 0, 0, True, {}

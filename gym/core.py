@@ -118,6 +118,7 @@ class Env(object):
             done (boolean): whether the episode has ended, in which case further step() calls will return undefined results
             info (dict): contains auxiliary diagnostic information (helpful for debugging, and sometimes learning)
         """
+        assert self.action_space.contains(action), "{} not contained in action space {}".format(action, self.action_space)
         self.monitor._before_step(action)
         observation, reward, done, info = self._step(action)
 
@@ -286,7 +287,7 @@ class Space(object):
 
     def sample(self, seed=0):
         """
-        Uniformly randomly sample a random elemnt of this space
+        Uniformly randomly sample a random element of this space
         """
         raise NotImplementedError
 

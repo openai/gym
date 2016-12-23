@@ -28,8 +28,6 @@ class TwoRoundDeterministicRewardEnv(gym.Env):
     def _step(self, action):
         rewards = [[0, 3], [1, 2]]
 
-        assert self.action_space.contains(action)
-
         if self.firstAction is None:
             self.firstAction = action
             reward = 0

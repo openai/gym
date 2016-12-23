@@ -36,8 +36,6 @@ class MountainCarEnv(gym.Env):
         return [seed]
 
     def _step(self, action):
-        assert self.action_space.contains(action), "%r (%s) invalid" % (action, type(action))
-
         position, velocity = self.state
         velocity += (action-1)*0.001 + math.cos(3*position)*(-0.0025)
         velocity = np.clip(velocity, -self.max_speed, self.max_speed)

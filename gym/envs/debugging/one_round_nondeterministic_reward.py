@@ -22,7 +22,6 @@ class OneRoundNondeterministicRewardEnv(gym.Env):
         self._reset()
 
     def _step(self, action):
-        assert self.action_space.contains(action)
         if action:
             #your agent should figure out that this option has expected value 2.5
             reward = self.np_random.choice([0, 5])
