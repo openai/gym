@@ -88,20 +88,6 @@ class Env(object):
     # Do not override
     _owns_render = True
 
-    @property
-    def monitor(self):
-        """Lazily creates a monitor instance.
-
-        We do this lazily rather than at environment creation time
-        since when the monitor closes, we need remove the existing
-        monitor but also make it easy to start a new one. We could
-        still just forcibly create a new monitor instance on old
-        monitor close, but that seems less clean.
-        """
-        if not hasattr(self, '_monitor'):
-            self._monitor = monitoring.Monitor(self)
-        return self._monitor
-
     def step(self, action):
         """Run one timestep of the environment's dynamics. When end of
         episode is reached, you are responsible for calling `reset()`
@@ -118,11 +104,7 @@ class Env(object):
             done (boolean): whether the episode has ended, in which case further step() calls will return undefined results
             info (dict): contains auxiliary diagnostic information (helpful for debugging, and sometimes learning)
         """
-        self.monitor._before_step(action)
-        observation, reward, done, info = self._step(action)
-
-        done = self.monitor._after_step(observation, reward, done, info)
-        return observation, reward, done, info
+        return self._step(action)
 
     def reset(self):
         """Resets the state of the environment and returns an initial
@@ -136,9 +118,7 @@ class Env(object):
         elif not self._configured:
             self.configure()
 
-        self.monitor._before_reset()
         observation = self._reset()
-        self.monitor._after_reset(observation)
         return observation
 
     def render(self, mode='human', close=False):
@@ -202,9 +182,7 @@ class Env(object):
         if not hasattr(self, '_closed') or self._closed:
             return
 
-        # Automatically close the monitor and any render window.
-        if hasattr(self, '_monitor'):
-            self.monitor.close()
+        # Automatically close any render window.
         if self._owns_render:
             self.render(close=True)
 
@@ -370,6 +348,7 @@ class Wrapper(Env):
         if self.env is not None:
             self.env.spec = spec
         self._spec = spec
+
 
 class ObservationWrapper(Wrapper):
     def _reset(self):

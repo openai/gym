@@ -1,4 +1,5 @@
 import gym
+from gym.wrappers import Monitored
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -42,7 +43,7 @@ if __name__ == '__main__':
     env = gym.make('CartPole-v0')
     outdir = '/tmp/random-agent-results'
     env.seed(0)
-    env.monitor.start(outdir, force=True)
+    env = Monitored(env, outdir, force=True)
 
     # You may optionally include a LivePlot so that you can see
     # how your agent is performing.  Use plotter.plot() to update

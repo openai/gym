@@ -53,18 +53,24 @@ def _open_monitors():
 class Monitor(object):
     """A configurable monitor for your training runs.
 
-    Every env has an attached monitor, which you can access as
-    'env.monitor'. Simple usage is just to call 'monitor.start(dir)'
-    to begin monitoring and 'monitor.close()' when training is
-    complete. This will record stats and will periodically record a video.
+    Simple usage is just to use the Monitored wrapper, e.g.
+    
+    >>> env = Monitored(gym.make('CartPole-v0'), '/tmp/cartpole')
+    >>> env.reset()
+    >>> env.step(...)
+    >>> env.close() # calls env.monitor.close()
+
+    This will record stats and periodically record a video.
 
     For finer-grained control over how often videos are collected, use the
-    video_callable argument, e.g.
-    'monitor.start(video_callable=lambda count: count % 100 == 0)'
-    to record every 100 episodes. ('count' is how many episodes have completed)
+    video_callable argument, e.g. to record every 100 episodes:
 
-    Depending on the environment, video can slow down execution. You
-    can also use 'monitor.configure(video_callable=lambda count: False)' to disable
+    >>> env = Monitored(env, tmpdir, video_callable=lambda count: count % 100 == 0)
+
+    ('count' is how many episodes have completed)
+
+    Depending on the environment, video can slow down execution. You can also 
+    use 'monitor.configure(video_callable=lambda count: False)' to disable
     video.
 
     Monitor supports multiple threads and multiple processes writing
@@ -73,9 +79,6 @@ class Monitor(object):
 
     Args:
         env (gym.Env): The environment instance to monitor.
-
-    Attributes:
-        id (Optional[str]): The ID of the monitored environment
     """
 
     def __init__(self, env):

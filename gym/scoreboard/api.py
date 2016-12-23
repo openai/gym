@@ -114,7 +114,7 @@ def _upload(training_dir, algorithm_id=None, writeup=None, benchmark_run_id=None
         elif training_video_id is not None:
             logger.info('[%s] Creating evaluation object from %s with training video', env_id, training_dir)
         else:
-            raise error.Error("[%s] You didn't have any recorded training data in {}. Once you've used 'env.monitor.start(training_dir)' to start recording, you need to actually run some rollouts. Please join the community chat on https://gym.openai.com if you have any issues.".format(env_id, training_dir))
+            raise error.Error("[%s] You didn't have any recorded training data in {}. Once you've done 'env = wrappers.Monitored(env, training_dir)' to start recording, you need to actually run some rollouts. Please join the community chat on https://gym.openai.com if you have any issues.".format(env_id, training_dir))
 
     evaluation = resource.Evaluation.create(
         training_episode_batch=training_episode_batch_id,
@@ -137,7 +137,7 @@ def upload_training_data(training_dir, api_key=None):
     if not results:
         raise error.Error('''Could not find any manifest files in {}.
 
-(HINT: this usually means you did not yet close() your env.monitor and have not yet exited the process. You should call 'env.monitor.start(training_dir)' at the start of training and 'env.monitor.close()' at the end, or exit the process.)'''.format(training_dir))
+(HINT: this usually means you did not yet close() your env.monitor and have not yet exited the process. You should wrap your env with wrappers.Monitored() at the start of training and call 'env.close()' at the end, or exit the process.)'''.format(training_dir))
 
     manifests = results['manifests']
     env_info = results['env_info']
