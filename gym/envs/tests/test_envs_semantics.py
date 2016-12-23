@@ -68,7 +68,7 @@ def test_env_semantics(spec):
   with open(ROLLOUT_FILE) as data_file:
     rollout_dict = json.load(data_file)
 
-  if spec.id not in rollout_dict:
+  if spec.id not in rollout_dict or should_skip_env_spec_for_tests(spec):
     if not spec.nondeterministic or should_skip_env_spec_for_tests(spec):
       logger.warn("Rollout does not exist for {}, run generate_json.py to generate rollouts for new envs".format(spec.id))
     return
