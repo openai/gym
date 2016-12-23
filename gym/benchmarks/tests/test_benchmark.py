@@ -22,7 +22,7 @@ def test():
 
     with helpers.tempdir() as temp:
         env = gym.make('CartPole-v0')
-        env = wrappers.Monitored(directory=temp, video_callable=False)(env)
+        env = wrappers.Monitor(directory=temp, video_callable=False)(env)
         env.seed(0)
 
         env.set_monitor_mode('evaluation')

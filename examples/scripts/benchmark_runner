@@ -46,7 +46,7 @@ def main():
         for trial in range(task.trials):
             env = gym.make(task.env_id)
             training_dir_name = "{}/{}-{}".format(args.training_dir, task.env_id, trial)
-            env = wrappers.Monitored(training_dir_name)(env)
+            env = wrappers.Monitor(training_dir_name)(env)
             env.reset()
             for _ in range(task.max_timesteps):
                 o, r, done, _ = env.step(env.action_space.sample())

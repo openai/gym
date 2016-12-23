@@ -19,9 +19,9 @@ def test_no_double_wrapping():
     temp = tempfile.mkdtemp()
     try:
         env = gym.make("FrozenLake-v0")
-        env = wrappers.Monitored(temp)(env)
+        env = wrappers.Monitor(temp)(env)
         try:
-            env = wrappers.Monitored(temp)(env)
+            env = wrappers.Monitor(temp)(env)
         except error.DoubleWrapperError:
             pass
         else:

@@ -5,11 +5,11 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def Monitored(directory, video_callable=None, force=False, resume=False,
-              write_upon_reset=False, uid=None, mode=None):
-    class Monitored(Wrapper):
+def Monitor(directory, video_callable=None, force=False, resume=False,
+            write_upon_reset=False, uid=None, mode=None):
+    class Monitor(Wrapper):
         def __init__(self, env):
-            super(Monitored, self).__init__(env)
+            super(Monitor, self).__init__(env)
             self._monitor = monitoring.MonitorManager(env)
             self._monitor.start(directory, video_callable, force, resume,
                                 write_upon_reset, uid, mode)
@@ -29,7 +29,7 @@ def Monitored(directory, video_callable=None, force=False, resume=False,
             return observation
 
         def _close(self):
-            super(Monitored, self)._close()
+            super(Monitor, self)._close()
 
             # _monitor will not be set here if super(Monitored, self) throws an error
             if getattr(self, '_monitor', None):
@@ -38,4 +38,4 @@ def Monitored(directory, video_callable=None, force=False, resume=False,
         def set_monitor_mode(self, mode):
             logger.info("Setting the monitor mode is deprecated and will be removed soon")
             self._monitor._set_mode(mode)
-    return Monitored
+    return Monitor
