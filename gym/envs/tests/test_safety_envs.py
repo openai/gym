@@ -9,6 +9,3 @@ def test_semisuper_true_rewards():
     true_reward = info['true_reward']
 
     assert perceived_reward != true_reward
-
-if __name__ == '__main__':
-    test_semisuper_true_rewards()

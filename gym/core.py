@@ -315,13 +315,15 @@ class Wrapper(Env):
     def _update_wrapper_stack(self):
         """
         Keep a list of all the wrappers that have been appended to the stack.
-        Raises an error if this wrapper type has already been applied
         """
         self._wrapper_stack = getattr(self.env, '_wrapper_stack', [])
+        self._check_for_duplicate_wrappers()
+        self._wrapper_stack.append(self)
+
+    def _check_for_duplicate_wrappers(self):
+        """Raise an error if there are duplicate wrappers. Can be overwritten"""
         if self.class_name() in [wrapper.class_name() for wrapper in self._wrapper_stack]:
             raise error.DoubleWrapperError("Attempted to double wrap with Wrapper: {}".format(self.class_name()))
-
-        self._wrapper_stack.append(self)
 
     @classmethod
     def class_name(cls):
