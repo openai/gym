@@ -1,12 +1,13 @@
 import argparse
 import logging
-import os
 import sys
 
 import gym
+from gym import wrappers
 
-# The world's simplest agent!
+
 class RandomAgent(object):
+    """The world's simplest agent!"""
     def __init__(self, action_space):
         self.action_space = action_space
 
@@ -39,12 +40,8 @@ if __name__ == '__main__':
     # will be namespaced). You can also dump to a tempdir if you'd
     # like: tempfile.mkdtemp().
     outdir = '/tmp/random-agent-results'
+    env = wrappers.Monitor(directory=outdir, force=True)(env)
     env.seed(0)
-    env.monitor.start(outdir, force=True)
-
-    # This declaration must go *after* the monitor call, since the
-    # monitor's seeding creates a new action_space instance with the
-    # appropriate pseudorandom number generator.
     agent = RandomAgent(env.action_space)
 
     episode_count = 100
@@ -62,8 +59,8 @@ if __name__ == '__main__':
             # render if asked by env.monitor: it calls env.render('rgb_array') to record video.
             # Video is not recorded every episode, see capped_cubic_video_schedule for details.
 
-    # Dump result info to disk
-    env.monitor.close()
+    # Close the env and write monitor result info to disk
+    env.close()
 
     # Upload to the scoreboard. We could also do this from another
     # process if we wanted.
