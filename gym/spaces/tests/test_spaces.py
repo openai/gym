@@ -3,7 +3,7 @@ import json # note: ujson fails this test due to float equality
 import numpy as np
 from nose2 import tools
 
-from gym.spaces import Tuple, Box, Discrete, MultiDiscrete
+from gym.spaces import Tuple, Box, Discrete, MultiDiscrete, DiscreteToMultiDiscrete
 
 @tools.params(Discrete(3),
               Tuple([Discrete(5), Discrete(10)]),
@@ -29,3 +29,16 @@ def test_roundtripping(space):
     s2p = space.to_jsonable([sample_2_prime])
     assert s1 == s1p, "Expected {} to equal {}".format(s1, s1p)
     assert s2 == s2p, "Expected {} to equal {}".format(s2, s2p)
+
+@tools.params(
+    ([[0, 1], [2, 3]], [(0, 2), (0, 3), (1, 2), (1, 3)]),
+    ([[0, 1], [2, 4]], [(0, 2), (0, 3), (0, 4), (1, 2), (1, 3), (1, 4)]))
+def test_multidiscrete_enumerate_options(space, expected_options):
+    actual_options = list(MultiDiscrete(space).enumerate_options())
+    assert actual_options == expected_options
+
+@tools.params( ([1], 2), ([1, 2], 6), ([3, 4, 5], 120))
+def test_multidiscrete_to_discreet(high, expected_n):
+    space = MultiDiscrete([[0, i] for i in high])
+    wrapped = DiscreteToMultiDiscrete(space, 'all')
+    assert wrapped.n == expected_n
