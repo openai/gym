@@ -99,7 +99,9 @@ logger = logging.getLogger()
 gym.envs.register(
     id='Autoreset-v0',
     entry_point='gym.monitoring.tests.test_monitor:AutoresetEnv',
-    timestep_limit=2,
+    tags={
+        'wrapper_config.TimeLimit.max_episode_steps': 2,
+        },
 )
 def test_env_reuse():
     with helpers.tempdir() as temp:
@@ -108,11 +110,13 @@ def test_env_reuse():
 
         env.reset()
 
-        env.step(None)
+        _, _, done, _ = env.step(None)
+        assert not done
         _, _, done, _ = env.step(None)
         assert done
 
-        env.step(None)
+        _, _, done, _ = env.step(None)
+        assert not done
         _, _, done, _ = env.step(None)
         assert done
 
@@ -182,7 +186,7 @@ register(
     id='test.StepsLimitCartpole-v0',
     entry_point='gym.envs.classic_control:CartPoleEnv',
     tags={
-        'wrapper_config.TimeLimit.max_episode_steps': 1
+        'wrapper_config.TimeLimit.max_episode_steps': 2
         }
     )
 
