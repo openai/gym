@@ -6,6 +6,7 @@ from gym import error, spaces
 from gym import monitoring
 from gym.monitoring.tests import helpers
 from gym.wrappers import Monitor
+from gym.envs.registration import register
 
 
 def test_monitor_filename():
@@ -176,3 +177,29 @@ def test_only_complete_episodes_written():
         # Only 1 episode should be written
         results = monitoring.load_results(temp)
         assert len(results['episode_lengths']) == 1, "Found {} episodes written; expecting 1".format(len(results['episode_lengths']))
+
+register(
+    id='test.StepsLimitCartpole-v0',
+    entry_point='gym.envs.classic_control:CartPoleEnv',
+    tags={
+        'wrapper_config.TimeLimit.max_episode_steps': 1
+        }
+    )
+
+def test_steps_limit_restart():
+    with helpers.tempdir() as temp:
+        env = gym.make('test.StepsLimitCartpole-v0')
+        env = Monitor(temp, video_callable=False)(env)
+        env.reset()
+
+        # Episode has started
+        _, _, done, info = env.step(env.action_space.sample())
+        assert done == False
+
+        # Limit reached, now we get a done signal and the env resets itself
+        _, _, done, info = env.step(env.action_space.sample())
+        logging.error("JT done? {}".format(done))
+        assert done == True
+        assert env._monitor.episode_id == 1
+
+        env.close()

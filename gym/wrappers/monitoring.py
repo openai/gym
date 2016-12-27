@@ -1,5 +1,6 @@
 from gym import monitoring
 from gym import Wrapper
+from gym.wrappers.time_limit import TimeLimit
 
 import logging
 
@@ -38,4 +39,8 @@ def Monitor(directory, video_callable=None, force=False, resume=False,
         def set_monitor_mode(self, mode):
             logger.info("Setting the monitor mode is deprecated and will be removed soon")
             self._monitor._set_mode(mode)
-    return Monitor
+
+    def monitor_wrap(env):
+        return Monitor(TimeLimit(env))
+
+    return monitor_wrap
