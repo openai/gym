@@ -25,7 +25,6 @@ class EnvSpec(object):
     Args:
         id (str): The official environment ID
         entry_point (Optional[str]): The Python entrypoint of the environment class (e.g. module.name:Class)
-        timestep_limit (int): The max number of timesteps per episode during training
         trials (int): The number of trials to average reward over
         reward_threshold (Optional[int]): The reward threshold before the task is considered solved
         local_only: True iff the environment is to be used only on the local machine (e.g. debugging envs)
@@ -35,14 +34,12 @@ class EnvSpec(object):
 
     Attributes:
         id (str): The official environment ID
-        timestep_limit (int): The max number of timesteps per episode in official evaluation
         trials (int): The number of trials run in official evaluation
     """
 
-    def __init__(self, id, entry_point=None, timestep_limit=1000, trials=100, reward_threshold=None, local_only=False, kwargs=None, nondeterministic=False, tags=None):
+    def __init__(self, id, entry_point=None, trials=100, reward_threshold=None, local_only=False, kwargs=None, nondeterministic=False, tags=None):
         self.id = id
         # Evaluation parameters
-        self.timestep_limit = timestep_limit
         self.trials = trials
         self.reward_threshold = reward_threshold
         # Environment properties
