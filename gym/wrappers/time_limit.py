@@ -42,9 +42,10 @@ class TimeLimit(Wrapper):
         self._elapsed_steps += 1
 
         if self._past_limit():
-            # TODO(jie) this seems to assume some default autoreset behavior,
-            # test to see what breaks? specifically we end up missing the first
-            # post-reset observation
+            # TODO(jie) we are resetting and discarding the observation here.
+            # This _should_ be fine since you can always call reset() again to
+            # get a new, freshly initialized observation, but it would be better
+            # to clean this up.
             _ = self.reset()  # Force a reset, discard the observation
             done = True  # Force a done = True
 
