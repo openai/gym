@@ -235,11 +235,6 @@ class MonitorManager(object):
     def _after_step(self, observation, reward, done, info):
         if not self.enabled: return done
 
-        # Add 1 since about to take another step
-        if self.env.spec and self.stats_recorder.steps+1 >= self.env.spec.timestep_limit:
-            logger.debug('Ending episode %i because it reached the timestep limit of %i.', self.episode_id, self.env.spec.timestep_limit)
-            done = True
-
         if done and self.env_semantics_autoreset:
             # For envs with BlockingReset wrapping VNCEnv, this observation will be the first one of the new episode
             self._reset_video_recorder()

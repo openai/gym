@@ -26,11 +26,11 @@ class TimeLimit(Wrapper):
 
     def _past_limit(self):
         """Return true if we are past our limit"""
-        if self._max_episode_steps is not None and self._max_episode_steps < self._elapsed_steps:
+        if self._max_episode_steps is not None and self._max_episode_steps <= self._elapsed_steps:
             logger.debug("Env has passed the step limit defined by TimeLimit.")
             return True
 
-        if self._max_episode_seconds is not None and self._max_episode_seconds < self._elapsed_seconds:
+        if self._max_episode_seconds is not None and self._max_episode_seconds <= self._elapsed_seconds:
             logger.debug("Env has passed the seconds limit defined by TimeLimit.")
             return True
 
