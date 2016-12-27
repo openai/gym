@@ -20,7 +20,7 @@ env = envs.make(args.env)
 ac_space = env.action_space
 
 fps = args.fps or env.metadata.get('video.frames_per_second') or 100
-if args.max_steps == 0: args.max_steps = env.spec.timestep_limit
+if args.max_steps == 0: args.max_steps = env.spec.tags['wrapper_config.TimeLimit.max_episode_steps']
 
 while True:
     env.reset()
