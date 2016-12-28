@@ -12,7 +12,7 @@ from gym.envs.registration import register
 def test_monitor_filename():
     with helpers.tempdir() as temp:
         env = gym.make('CartPole-v0')
-        env = Monitor(directory=temp)(env)
+        env = Monitor(env, directory=temp)
         env.close()
 
         manifests = glob.glob(os.path.join(temp, '*.manifest.*'))
@@ -21,7 +21,7 @@ def test_monitor_filename():
 def test_write_upon_reset_false():
     with helpers.tempdir() as temp:
         env = gym.make('CartPole-v0')
-        env = Monitor(directory=temp, video_callable=False, write_upon_reset=False)(env)
+        env = Monitor(env, directory=temp, video_callable=False, write_upon_reset=False)
         env.reset()
 
         files = glob.glob(os.path.join(temp, '*'))
@@ -34,7 +34,7 @@ def test_write_upon_reset_false():
 def test_write_upon_reset_true():
     with helpers.tempdir() as temp:
         env = gym.make('CartPole-v0')
-        env = Monitor(directory=temp, video_callable=False, write_upon_reset=True)(env)
+        env = Monitor(env, directory=temp, video_callable=False, write_upon_reset=True)
         env.reset()
 
         files = glob.glob(os.path.join(temp, '*'))
@@ -48,7 +48,7 @@ def test_video_callable_true_not_allowed():
     with helpers.tempdir() as temp:
         env = gym.make('CartPole-v0')
         try:
-            env = Monitor(temp, video_callable=True)(env)
+            env = Monitor(env, temp, video_callable=True)
         except error.Error:
             pass
         else:
@@ -57,7 +57,7 @@ def test_video_callable_true_not_allowed():
 def test_video_callable_false_does_not_record():
     with helpers.tempdir() as temp:
         env = gym.make('CartPole-v0')
-        env = Monitor(temp, video_callable=False)(env)
+        env = Monitor(env, temp, video_callable=False)
         env.reset()
         env.close()
         results = monitoring.load_results(temp)
@@ -66,7 +66,7 @@ def test_video_callable_false_does_not_record():
 def test_video_callable_records_videos():
     with helpers.tempdir() as temp:
         env = gym.make('CartPole-v0')
-        env = Monitor(temp)(env)
+        env = Monitor(env, temp)
         env.reset()
         env.close()
         results = monitoring.load_results(temp)
@@ -76,7 +76,7 @@ def test_semisuper_succeeds():
     """Regression test. Ensure that this can write"""
     with helpers.tempdir() as temp:
         env = gym.make('SemisuperPendulumDecay-v0')
-        env = Monitor(temp)(env)
+        env = Monitor(env, temp)
         env.reset()
         env.step(env.action_space.sample())
         env.close()
@@ -106,7 +106,7 @@ gym.envs.register(
 def test_env_reuse():
     with helpers.tempdir() as temp:
         env = gym.make('Autoreset-v0')
-        env = Monitor(temp)(env)
+        env = Monitor(env, temp)
 
         env.reset()
 
@@ -140,7 +140,7 @@ def test_no_monitor_reset_unless_done():
         env.reset()
 
         # can reset once as soon as we start
-        env = Monitor(temp, video_callable=False)(env)
+        env = Monitor(env, temp, video_callable=False)
         env.reset()
 
         # can reset multiple times in a row
@@ -167,7 +167,7 @@ def test_no_monitor_reset_unless_done():
 def test_only_complete_episodes_written():
     with helpers.tempdir() as temp:
         env = gym.make('CartPole-v0')
-        env = Monitor(temp, video_callable=False)(env)
+        env = Monitor(env, temp, video_callable=False)
         env.reset()
         d = False
         while not d:
@@ -193,7 +193,7 @@ register(
 def test_steps_limit_restart():
     with helpers.tempdir() as temp:
         env = gym.make('test.StepsLimitCartpole-v0')
-        env = Monitor(temp, video_callable=False)(env)
+        env = Monitor(env, temp, video_callable=False)
         env.reset()
 
         # Episode has started
