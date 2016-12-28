@@ -260,10 +260,11 @@ You can also run tests in a specific directory by using the ``-s`` option, or by
 What's new
 ----------
 
-- 2016-12-27: We've made a backwards-incompatible change to make the gym monitor
-  a wrapper. Instead of `env.monitor.start(directory)`, wrap your envs with an
-  `env = wrappers.Monitor(env, directory).` This will also give advanced users
-  more flexibility with what exactly is run.
+- 2016-12-27: BACKWARDS INCOMPATIBILITY: The gym monitor is now a
+  wrapper. Rather than starting monitoring as
+  `env.monitor.start(directory)`, envs are now wrapped as follows:
+  `env = wrappers.Monitor(env, directory)`. This change is on master
+  and will be released with 0.6.0.
 - 2016-11-1: Several experimental changes to how a running monitor interacts
   with environments. The monitor will now raise an error if reset() is called
   when the env has not returned done=True. The monitor will only record complete
