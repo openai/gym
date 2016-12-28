@@ -289,7 +289,10 @@ class ImageEncoder(object):
                      )
 
         logger.debug('Starting ffmpeg with "%s"', ' '.join(self.cmdline))
-        self.proc = subprocess.Popen(self.cmdline, stdin=subprocess.PIPE, preexec_fn=os.setsid)
+        if hasattr(os,'setsid'): #setsid not present on Windows
+            self.proc = subprocess.Popen(self.cmdline, stdin=subprocess.PIPE, preexec_fn=os.setsid)
+        else:
+            self.proc = subprocess.Popen(self.cmdline, stdin=subprocess.PIPE)
 
     def capture_frame(self, frame):
         if not isinstance(frame, (np.ndarray, np.generic)):
