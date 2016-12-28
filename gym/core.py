@@ -219,7 +219,6 @@ class Env(object):
         or path to your ImageNet data). It should not affect the
         semantics of the environment.
         """
-
         self._configured = True
 
         try:
@@ -312,7 +311,9 @@ class Wrapper(Env):
 
         self._update_wrapper_stack()
         if env and env._configured:
-            raise error.WrapAfterConfigureError("Attempted to wrap env {} after .configure() was called. All wrappers must be applied before calling .configure()".format(env))
+            # TODO: CartPole currently calls configure on `make`. Fix this so that we can use WrapAfterConfigureError
+            # raise error.WrapAfterConfigureError("Attempted to wrap env {} after .configure() was called. All wrappers must be applied before calling .configure()".format(env))
+            logger.warn("Attempted to wrap env {} after .configure() was called. All wrappers must be applied before calling .configure()".format(env))
 
     def _update_wrapper_stack(self):
         """
