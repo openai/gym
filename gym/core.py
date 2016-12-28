@@ -89,8 +89,7 @@ class Env(object):
 
     @property
     def monitor(self):
-        raise error.Error(
-            "env.monitor has been deprecated as of 12/23/2016. Remove your call to `env.monitor.start(directory)` and instead wrap your env with `env = gym.wrappers.Monitor(directory)(env)` to record data.")
+        raise error.Error("env.monitor has been deprecated as of 12/23/2016. Remove your call to `env.monitor.start(directory)` and instead wrap your env with `env = gym.wrappers.Monitor(env, directory)` to record data.")
 
     def step(self, action):
         """Run one timestep of the environment's dynamics. When end of
