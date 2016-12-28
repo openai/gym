@@ -42,13 +42,14 @@ class EnvSpec(object):
         # Evaluation parameters
         self.trials = trials
         self.reward_threshold = reward_threshold
-        self.timestep_limit = timestep_limit
         # Environment properties
         self.nondeterministic = nondeterministic
 
         if tags is None:
             tags = {}
         self.tags = tags
+
+        self.timestep_limit = timestep_limit
 
         # We may make some of these other parameters public if they're
         # useful.
@@ -84,7 +85,7 @@ class EnvSpec(object):
     def timestep_limit(self, timestep_limit):
         if timestep_limit is not None:
             logger.warn(
-                "DEPRECATION WARNING: env.spec.timestep_limit has been deprecated. Replace any calls to `register(timestep_limit=200)` with `register(tags={'wrapper_config.TimeLimit.max_episode_steps': 200)}`, . This change was made 12/28/2016 and is included in version 0.7.0")
+                "DEPRECATION WARNING: env.spec.timestep_limit has been deprecated. Replace any calls to `register(timestep_limit=200)` with `register(tags={'wrapper_config.TimeLimit.max_episode_steps': 200)}`, . This change was made 12/28/2016 and is included in gym version 0.7.0. If you are getting many of these warnings, you may need to update universe past version 0.21.1")
             self.tags['wrapper_config.TimeLimit.max_episode_steps'] = timestep_limit
 
 class EnvRegistry(object):
