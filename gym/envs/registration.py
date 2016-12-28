@@ -37,11 +37,12 @@ class EnvSpec(object):
         trials (int): The number of trials run in official evaluation
     """
 
-    def __init__(self, id, entry_point=None, trials=100, reward_threshold=None, local_only=False, kwargs=None, nondeterministic=False, tags=None):
+    def __init__(self, id, entry_point=None, trials=100, reward_threshold=None, local_only=False, kwargs=None, nondeterministic=False, tags=None, timestep_limit=None):
         self.id = id
         # Evaluation parameters
         self.trials = trials
         self.reward_threshold = reward_threshold
+        self.timestep_limit = timestep_limit
         # Environment properties
         self.nondeterministic = nondeterministic
 
@@ -79,6 +80,12 @@ class EnvSpec(object):
         logger.warn("DEPRECATION WARNING: env.spec.timestep_limit has been deprecated. Replace your call to `env.spec.timestep_limit` with `env.spec.tags.get('wrapper_config.TimeLimit.max_episode_steps')`. This change was made 12/28/2016 and is included in version 0.7.0")
         return self.tags.get('wrapper_config.TimeLimit.max_episode_steps')
 
+    @timestep_limit.setter
+    def timestep_limit(self, timestep_limit):
+        if timestep_limit is not None:
+            logger.warn(
+                "DEPRECATION WARNING: env.spec.timestep_limit has been deprecated. Replace any calls to `register(timestep_limit=200)` with `register(tags={'wrapper_config.TimeLimit.max_episode_steps': 200)}`, . This change was made 12/28/2016 and is included in version 0.7.0")
+            self.tags['wrapper_config.TimeLimit.max_episode_steps'] = timestep_limit
 
 class EnvRegistry(object):
     """Register an env by ID. IDs remain stable over time and are
