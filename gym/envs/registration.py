@@ -74,6 +74,11 @@ class EnvSpec(object):
     def __repr__(self):
         return "EnvSpec({})".format(self.id)
 
+    @property
+    def timestep_limit(self):
+        logger.warn("DEPRECATION WARNING: env.spec.timestep_limit has been deprecated. Replace your call to `env.spec.timestep_limit` with `env.spec.tags.get('wrapper_config.TimeLimit.max_episode_steps')`. This change was made 12/28/2016 and is included in version 0.7.0")
+        return self.tags.get('wrapper_config.TimeLimit.max_episode_steps')
+
 
 class EnvRegistry(object):
     """Register an env by ID. IDs remain stable over time and are
