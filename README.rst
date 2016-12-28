@@ -264,7 +264,7 @@ What's new
   wrapper. Rather than starting monitoring as
   `env.monitor.start(directory)`, envs are now wrapped as follows:
   `env = wrappers.Monitor(env, directory)`. This change is on master
-  and will be released with 0.6.0.
+  and will be released with 0.7.0.
 - 2016-11-1: Several experimental changes to how a running monitor interacts
   with environments. The monitor will now raise an error if reset() is called
   when the env has not returned done=True. The monitor will only record complete
