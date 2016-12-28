@@ -29,13 +29,14 @@ def test_double_configured():
     every_two_frame = SkipWrapper(2)
     env = every_two_frame(env)
 
-    env = wrappers.TimeLimit(env)
     env.configure()
+    try:
+        env = wrappers.TimeLimit(env)
+    except error.WrapAfterConfigureError: # XXX
+        pass
+    else:
+        assert False
 
-    # Make sure all layers of wrapping are configured
-    assert env._configured
-    assert env.env._configured
-    assert env.env.env._configured
     env.close()
 
 def test_no_double_wrapping():
