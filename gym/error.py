@@ -130,3 +130,7 @@ class InvalidFrame(Error):
 
 class DoubleWrapperError(Error):
     pass
+
+
+class WrapAfterConfigureError(Error):
+    pass
