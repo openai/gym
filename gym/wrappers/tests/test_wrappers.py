@@ -14,6 +14,29 @@ def test_skip():
     obs = env.reset()
     env.render()
 
+def test_configured():
+    env = gym.make("FrozenLake-v0")
+    env = wrappers.TimeLimit(env)
+    env.configure()
+
+    # Make sure all layers of wrapping are configured
+    assert env._configured
+    assert env.env._configured
+    env.close()
+
+def test_double_configured():
+    env = gym.make("FrozenLake-v0")
+    every_two_frame = SkipWrapper(2)
+    env = every_two_frame(env)
+
+    env = wrappers.TimeLimit(env)
+    env.configure()
+
+    # Make sure all layers of wrapping are configured
+    assert env._configured
+    assert env.env._configured
+    assert env.env.env._configured
+    env.close()
 
 def test_no_double_wrapping():
     temp = tempfile.mkdtemp()
@@ -29,7 +52,3 @@ def test_no_double_wrapping():
         env.close()
     finally:
         shutil.rmtree(temp)
-
-
-if __name__ == '__main__':
-    test_no_double_wrapping()
