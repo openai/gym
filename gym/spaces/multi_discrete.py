@@ -4,6 +4,17 @@ import gym
 from gym.spaces import prng, Discrete, Box
 from gym.error import Error
 
+
+def lows_and_highs_to_options(lows, highs):
+    return [range(low, high+1) for low, high in zip(lows, highs)]
+
+def combinatorial_product(options):
+    result = [[]]
+    for pool in options:
+        result = [x+[y] for x in result for y in pool]
+    for prod in result:
+        yield tuple(prod)
+
 class MultiDiscrete(gym.Space):
     """
     - The multi-discrete action space consists of a series of discrete action spaces with different parameters
@@ -47,6 +58,15 @@ class MultiDiscrete(gym.Space):
     def __eq__(self, other):
         return np.array_equal(self.low, other.low) and np.array_equal(self.high, other.high)
 
+    def enumerate_options(self):
+        """
+        Generate combinatorial product of all options.
+        list(MultiDiscrete([[0, 1], [2, 4]]).enumerate_options()) ->
+        [(0, 2), (0, 3), (0, 4), (1, 2), (1, 3), (1, 4)]
+        :return: generator yielding tuples of options
+        """
+        return combinatorial_product(lows_and_highs_to_options(self.low, self.high))
+
 
 # Adapters
 
@@ -71,7 +91,16 @@ class DiscreteToMultiDiscrete(Discrete):
             2   returns max for the second discrete space   [  0, max,   0, ...]
             etc.
 
-    Configuration 2) - DiscreteToMultiDiscrete(multi_discrete, list_of_discrete) [2nd param is a list]
+    Configuration 2) - DiscreteToMultiDiscrete(multi_discrete, 'all') [2nd param is keyword 'all']
+
+        Would adapt to a Discrete action space of all combinations of size np.prod(high+1-low)
+        DiscreteToMultiDiscrete(MultiDiscrete([[0,1],[2,3]]))
+            0 [0,2]
+            1 [0,3]
+            2 [1,2]
+            3 [1,3]
+
+    Configuration 3) - DiscreteToMultiDiscrete(multi_discrete, list_of_discrete) [2nd param is a list]
 
         Would adapt to a Discrete action space of size (1 + nb of items in list_of_discrete)
         e.g.
@@ -81,7 +110,7 @@ class DiscreteToMultiDiscrete(Discrete):
             2   returns max for second discrete in list     [  0,   0,  max, ...]
             etc.
 
-    Configuration 3) - DiscreteToMultiDiscrete(multi_discrete, discrete_mapping) [2nd param is a dict]
+    Configuration 4) - DiscreteToMultiDiscrete(multi_discrete, discrete_mapping) [2nd param is a dict]
 
         Would adapt to a Discrete action space of size (nb_keys in discrete_mapping)
         where discrete_mapping is a dictionnary in the format { discrete_key: multi_discrete_mapping }
@@ -111,6 +140,10 @@ class DiscreteToMultiDiscrete(Discrete):
         self.multi_discrete = multi_discrete
         self.num_discrete_space = self.multi_discrete.num_discrete_space
 
+        #Config 2
+        if options == 'all':
+            options = {k: v for k, v in enumerate(multi_discrete.enumerate_options())}
+
         # Config 1
         if options is None:
             self.n = self.num_discrete_space + 1                # +1 for NOOP at beginning
@@ -118,7 +151,7 @@ class DiscreteToMultiDiscrete(Discrete):
             for i in range(self.num_discrete_space):
                 self.mapping[i + 1][i] = self.multi_discrete.high[i]
 
-        # Config 2
+        # Config 3
         elif isinstance(options, list):
             assert len(options) <= self.num_discrete_space
             self.n = len(options) + 1                          # +1 for NOOP at beginning
@@ -127,7 +160,7 @@ class DiscreteToMultiDiscrete(Discrete):
                 assert disc_num < self.num_discrete_space
                 self.mapping[i + 1][disc_num] = self.multi_discrete.high[disc_num]
 
-        # Config 3
+        # Config 2 or 4
         elif isinstance(options, dict):
             self.n = len(options.keys())
             self.mapping = options
