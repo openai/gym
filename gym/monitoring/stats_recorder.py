@@ -81,7 +81,7 @@ class StatsRecorder(object):
     def save_complete(self):
         if self.steps is not None:
             self.episode_lengths.append(self.steps)
-            self.episode_rewards.append(self.rewards)
+            self.episode_rewards.append(float(self.rewards))
             self.timestamps.append(time.time())
 
     def close(self):
