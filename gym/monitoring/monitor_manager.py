@@ -8,6 +8,7 @@ import six
 from gym import error, version
 from gym.monitoring import stats_recorder, video_recorder
 from gym.utils import atomic_write, closer
+from gym.utils.json_utils import json_encode_np
 
 logger = logging.getLogger(__name__)
 
@@ -180,7 +181,7 @@ class MonitorManager(object):
                 'videos': [(os.path.basename(v), os.path.basename(m))
                            for v, m in self.videos],
                 'env_info': self._env_info(),
-            }, f, default=json_encode)
+            }, f, default=json_encode_np)
 
     def close(self):
         """Flush all monitor data to disk and close any open rending windows."""
@@ -408,21 +409,3 @@ def collapse_env_infos(env_infos, training_dir):
         if key not in first:
             raise error.Error("env_info {} from training directory {} is missing expected key {}. This is unexpected and likely indicates a bug in gym.".format(first, training_dir, key))
     return first
-
-
-def json_encode(obj):
-    """
-    JSON can't serialize numpy types, so convert to pure python
-    """
-    if isinstance(obj, np.ndarray):
-        return list(obj)
-    elif isinstance(obj, np.float32):
-        return float(obj)
-    elif isinstance(obj, np.float64):
-        return float(obj)
-    elif isinstance(obj, np.int32):
-        return int(obj)
-    elif isinstance(obj, np.int64):
-        return int(obj)
-    else:
-        return obj
