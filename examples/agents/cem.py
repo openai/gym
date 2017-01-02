@@ -66,7 +66,7 @@ if __name__ == '__main__':
     # directory, but can't contain previous monitor results. You can
     # also dump to a tempdir if you'd like: tempfile.mkdtemp().
     outdir = '/tmp/cem-agent-results'
-    env = wrappers.Monitor(outdir, force=True)(env)
+    env = wrappers.Monitor(env, outdir, force=True)
 
     # Prepare snapshotting
     # ----------------------------------------
