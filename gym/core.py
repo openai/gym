@@ -311,9 +311,7 @@ class Wrapper(Env):
 
         self._update_wrapper_stack()
         if env and env._configured:
-            # TODO: CartPole currently calls configure on `make`. Fix this so that we can use WrapAfterConfigureError
-            # raise error.WrapAfterConfigureError("Attempted to wrap env {} after .configure() was called. All wrappers must be applied before calling .configure()".format(env))
-            logger.warn("Attempted to wrap env {} after .configure() was called. All wrappers must be applied before calling .configure()".format(env))
+            raise error.WrapAfterConfigureError("Attempted to wrap env {} after .configure() was called. All wrappers must be applied before calling .configure()".format(env))
 
     def _update_wrapper_stack(self):
         """

@@ -48,12 +48,6 @@ class CartPoleEnv(gym.Env):
 
         self.steps_beyond_done = None
 
-        # Just need to initialize the relevant attributes
-        self._configure()
-
-    def _configure(self, display=None):
-        self.display = display
-
     def _seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
