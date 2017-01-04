@@ -311,7 +311,7 @@ class Wrapper(Env):
 
         self._update_wrapper_stack()
         if env and env._configured:
-            raise error.WrapAfterConfigureError("Attempted to wrap env {} after .configure() was called. All wrappers must be applied before calling .configure()".format(env))
+            logger.warning("Attempted to wrap env %s after .configure() was called.", env)
 
     def _update_wrapper_stack(self):
         """

@@ -43,7 +43,6 @@ class CartPoleEnv(gym.Env):
         self.observation_space = spaces.Box(-high, high)
 
         self._seed()
-        self.reset()
         self.viewer = None
 
         self.steps_beyond_done = None
@@ -81,7 +80,7 @@ class CartPoleEnv(gym.Env):
             reward = 1.0
         else:
             if self.steps_beyond_done == 0:
-                logger.warn("You are calling 'step()' even though this environment has already returned done = True. You should always call 'reset()' once you receive 'done = True' -- any further steps are undefined behavior.")
+                logger.warning("You are calling 'step()' even though this environment has already returned done = True. You should always call 'reset()' once you receive 'done = True' -- any further steps are undefined behavior.")
             self.steps_beyond_done += 1
             reward = 0.0
 
