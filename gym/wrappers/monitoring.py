@@ -46,5 +46,6 @@ def Monitor(env=None, directory=None, video_callable=None, force=False, resume=F
     if not isinstance(env, gym.Env):
         raise error.Error("Monitor decorator syntax is deprecated as of 12/28/2016. Replace your call to `env = gym.wrappers.Monitor(directory)(env)` with `env = gym.wrappers.Monitor(env, directory)`")
 
-    return _Monitor(TimeLimit(env), directory, video_callable, force, resume,
+    # TODO: add duration in seconds also
+    return _Monitor(TimeLimit(env, max_episode_steps=env.spec.timestep_limit), directory, video_callable, force, resume,
                     write_upon_reset, uid, mode)

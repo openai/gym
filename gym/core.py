@@ -119,8 +119,6 @@ class Env(object):
         """
         if self.metadata.get('configure.required') and not self._configured:
             raise error.Error("{} requires manually calling 'configure()' before 'reset()'".format(self))
-        elif not self._configured:
-            self.configure()
         observation = self._reset()
         return observation
 

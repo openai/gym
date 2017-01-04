@@ -6,16 +6,11 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_MAX_EPISODE_SECONDS = 20 * 60.  # Default to 20 minutes if there is no explicit limit
-
 class TimeLimit(Wrapper):
-    def _configure(self, **kwargs):
-        super(TimeLimit, self)._configure(**kwargs)
-        self._max_episode_seconds = self.env.spec.tags.get('wrapper_config.TimeLimit.max_episode_seconds', None)
-        self._max_episode_steps = self.env.spec.tags.get('wrapper_config.TimeLimit.max_episode_steps', None)
-
-        if self._max_episode_seconds is None and self._max_episode_steps is None:
-            self._max_episode_seconds = DEFAULT_MAX_EPISODE_SECONDS
+    def __init__(self, env, max_episode_seconds=None, max_episode_steps=None):
+        super(TimeLimit, self).__init__(env)
+        self._max_episode_seconds = max_episode_seconds
+        self._max_episode_steps = max_episode_steps
 
         self._elapsed_steps = 0
         self._episode_started_at = None
