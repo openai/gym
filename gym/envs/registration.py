@@ -37,7 +37,7 @@ class EnvSpec(object):
         trials (int): The number of trials run in official evaluation
     """
 
-    def __init__(self, id, entry_point=None, trials=100, reward_threshold=None, local_only=False, kwargs=None, nondeterministic=False, tags=None, timestep_limit=None):
+    def __init__(self, id, entry_point=None, trials=100, reward_threshold=None, local_only=False, kwargs=None, nondeterministic=False, tags=None):
         self.id = id
         # Evaluation parameters
         self.trials = trials
@@ -48,8 +48,6 @@ class EnvSpec(object):
         if tags is None:
             tags = {}
         self.tags = tags
-
-        self.timestep_limit = timestep_limit
 
         # We may make some of these other parameters public if they're
         # useful.
@@ -80,9 +78,9 @@ class EnvSpec(object):
     def timestep_limit(self):
         return self.tags.get('wrapper_config.TimeLimit.max_episode_steps')
 
-    @timestep_limit.setter
-    def timestep_limit(self, timestep_limit):
-        self.tags['wrapper_config.TimeLimit.max_episode_steps'] = timestep_limit
+    # @timestep_limit.setter
+    # def timestep_limit(self, timestep_limit):
+    #     self.tags['wrapper_config.TimeLimit.max_episode_steps'] = timestep_limit
 
 class EnvRegistry(object):
     """Register an env by ID. IDs remain stable over time and are
