@@ -198,51 +198,61 @@ register(
 register(
     id='InvertedPendulum-v1',
     entry_point='gym.envs.mujoco:InvertedPendulumEnv',
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 1000},
     reward_threshold=950.0,
 )
 
 register(
     id='InvertedDoublePendulum-v1',
     entry_point='gym.envs.mujoco:InvertedDoublePendulumEnv',
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 1000},
     reward_threshold=9100.0,
 )
 
 register(
     id='HalfCheetah-v1',
     entry_point='gym.envs.mujoco:HalfCheetahEnv',
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 1000},
     reward_threshold=4800.0,
 )
 
 register(
     id='Hopper-v1',
     entry_point='gym.envs.mujoco:HopperEnv',
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 1000},
     reward_threshold=3800.0,
 )
 
 register(
     id='Swimmer-v1',
     entry_point='gym.envs.mujoco:SwimmerEnv',
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 1000},
     reward_threshold=360.0,
 )
 
 register(
     id='Walker2d-v1',
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 1000},
     entry_point='gym.envs.mujoco:Walker2dEnv',
 )
 
 register(
     id='Ant-v1',
     entry_point='gym.envs.mujoco:AntEnv',
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 1000},
     reward_threshold=6000.0,
 )
 
 register(
     id='Humanoid-v1',
     entry_point='gym.envs.mujoco:HumanoidEnv',
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 1000},
 )
+
 register(
     id='HumanoidStandup-v1',
     entry_point='gym.envs.mujoco:HumanoidStandupEnv',
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 1000},
 )
 
 # Atari
