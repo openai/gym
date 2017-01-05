@@ -41,6 +41,16 @@ class _Monitor(Wrapper):
         logger.info("Setting the monitor mode is deprecated and will be removed soon")
         self._monitor._set_mode(mode)
 
+    def get_total_steps(self):
+        return self._monitor.stats_recorder.total_steps        
+
+    def get_episode_rewards(self):
+        return self._monitor.stats_recorder.episode_rewards
+
+    def get_episode_lengths(self):
+        return self._monitor.stats_recorder.episode_lengths
+
+
 def Monitor(env=None, directory=None, video_callable=None, force=False, resume=False,
             write_upon_reset=False, uid=None, mode=None):
     if not isinstance(env, gym.Env):
