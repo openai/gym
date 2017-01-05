@@ -118,7 +118,8 @@ class Env(object):
             space. (Initial reward is assumed to be 0.)
         """
         if self.metadata.get('configure.required') and not self._configured:
-            raise error.Error("{} requires manually calling 'configure()' before 'reset()'".format(self))
+            logger.warning("Called reset on %s before configuring. Configuring automatically with default arguments", self)
+            self.configure()
         observation = self._reset()
         return observation
 
