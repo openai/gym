@@ -225,7 +225,22 @@ to set it up. You'll have to also run ``pip install -e '.[mujoco]'`` if you didn
 	  env = gym.make('Humanoid-v0')
 	  env.reset()
 	  env.render()
+	  
+RLE
+-----
 
+The `Retro Learning Environment <https://github.com/nadavbh12/Retro-Learning-Environment>`_ supports SNES (Super Nintendo Entertainment System) video games.
+To install this environment, visit RLE's `github page <https://github.com/nadavbh12/Retro-Learning-Environment>`_ and follow the instructions for installing with pip.
+After installation, copy (or link) snes9x2010_libretro.so to gym/envs/rle/cores dir.
+Roms for the available games need to put in the gym/envs/rle/roms dir with lowercase separated names (e.g. mortal_kombat.sfc).
+
+.. code:: python
+
+	  import gym
+	  env = gym.make('MortalKombat-v0')
+	  env.reset()
+	  env.render()
+	  
 Toy text
 --------
 
@@ -237,23 +252,6 @@ Toy environments which are text-based. There's no extra dependency to install, s
 	  env = gym.make('FrozenLake-v0')
 	  env.reset()
 	  env.render()
-
-RLE
------
-
-The `Retro Learning Environment <https://github.com/nadavbh12/Retro-Learning-Environment>` supports SNES (Super Nintendo Entertainment System) video games.
-To install this environment, visit RLE's `github page <https://github.com/nadavbh12/Retro-Learning-Environment>` and follow the instructions for installing with pip.
-After installation, copy (or link) snes9x2010_libretro.so to gym/envs/rle/cores dir.
-Roms for the available games need to put in the gym/envs/rle/roms dir with lowercase separated names (e.g. mortal_kombat.sfc).
-
-.. code:: python
-
-	  import gym
-	  env = gym.make('MortalKombat-v0')
-	  env.reset()
-	  env.render()
-
-This will install ``atari-py``, which automatically compiles the `Arcade Learning Environment <http://www.arcadelearningenvironment.org/>`_. This can take quite a while (a few minutes on a decent laptop), so just be prepared.
 
 
 Examples
