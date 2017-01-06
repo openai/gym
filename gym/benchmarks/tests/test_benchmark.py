@@ -1,7 +1,7 @@
 import numpy as np
 
 import gym
-from gym import monitoring
+from gym import monitoring, wrappers
 from gym.monitoring.tests import helpers
 
 from gym.benchmarks import registration, scoring
@@ -22,19 +22,20 @@ def test():
 
     with helpers.tempdir() as temp:
         env = gym.make('CartPole-v0')
-        env.monitor.start(temp, video_callable=False, seed=0)
+        env = wrappers.Monitor(env, directory=temp, video_callable=False)
+        env.seed(0)
 
-        env.monitor.configure(mode='evaluation')
+        env.set_monitor_mode('evaluation')
         rollout(env)
 
-        env.monitor.configure(mode='training')
+        env.set_monitor_mode('training')
         for i in range(2):
             rollout(env)
 
-        env.monitor.configure(mode='evaluation')
+        env.set_monitor_mode('evaluation')
         rollout(env, good=True)
 
-        env.monitor.close()
+        env.close()
         results = monitoring.load_results(temp)
         evaluation_score = benchmark.score_evaluation('CartPole-v0', results['data_sources'], results['initial_reset_timestamps'], results['episode_lengths'], results['episode_rewards'], results['episode_types'], results['timestamps'])
         benchmark_score = benchmark.score_benchmark({

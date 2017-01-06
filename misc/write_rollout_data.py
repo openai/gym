@@ -13,13 +13,13 @@ class RandomAgent(object):
     def act(self, _):
         return self.ac_space.sample()
 
-def rollout(env, agent, timestep_limit):
+def rollout(env, agent, max_episode_steps):
     """
-    Simulate the env and agent for timestep_limit steps
+    Simulate the env and agent for max_episode_steps
     """
     ob = env.reset()
     data = collections.defaultdict(list)
-    for _ in xrange(timestep_limit):
+    for _ in xrange(max_episode_steps):
         data["observation"].append(ob)
         action = agent.act(ob)
         data["action"].append(action)
@@ -46,7 +46,7 @@ def main():
     alldata = {}
     for i in xrange(2):
         np.random.seed(i)
-        data = rollout(env, agent, env.spec.timestep_limit)
+        data = rollout(env, agent, env.spec.tags['wrapper_config.TimeLimit.max_episode_steps'])
         for (k, v) in data.items():
             alldata["%i-%s"%(i, k)] = v
     np.savez(args.outfile, **alldata)

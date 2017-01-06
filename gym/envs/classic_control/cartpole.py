@@ -43,16 +43,9 @@ class CartPoleEnv(gym.Env):
         self.observation_space = spaces.Box(-high, high)
 
         self._seed()
-        self.reset()
         self.viewer = None
 
         self.steps_beyond_done = None
-
-        # Just need to initialize the relevant attributes
-        self._configure()
-
-    def _configure(self, display=None):
-        self.display = display
 
     def _seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
@@ -87,7 +80,7 @@ class CartPoleEnv(gym.Env):
             reward = 1.0
         else:
             if self.steps_beyond_done == 0:
-                logger.warn("You are calling 'step()' even though this environment has already returned done = True. You should always call 'reset()' once you receive 'done = True' -- any further steps are undefined behavior.")
+                logger.warning("You are calling 'step()' even though this environment has already returned done = True. You should always call 'reset()' once you receive 'done = True' -- any further steps are undefined behavior.")
             self.steps_beyond_done += 1
             reward = 0.0
 
@@ -118,7 +111,7 @@ class CartPoleEnv(gym.Env):
 
         if self.viewer is None:
             from gym.envs.classic_control import rendering
-            self.viewer = rendering.Viewer(screen_width, screen_height, display=self.display)
+            self.viewer = rendering.Viewer(screen_width, screen_height)
             l,r,t,b = -cartwidth/2, cartwidth/2, cartheight/2, -cartheight/2
             axleoffset =cartheight/4.0
             cart = rendering.FilledPolygon([(l,b), (l,t), (r,t), (r,b)])

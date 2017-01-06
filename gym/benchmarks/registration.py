@@ -61,12 +61,49 @@ class Benchmark(object):
     def score_benchmark(self, score_map):
         return self.scorer.score_benchmark(self, score_map)
 
+BenchmarkView = collections.namedtuple("BenchmarkView", ["name", "benchmarks", "primary", "group"])
+
 class Registry(object):
     def __init__(self):
-        self.benchmarks = collections.OrderedDict()
+        self.benchmarks            = collections.OrderedDict()
+        self.benchmark_views       = collections.OrderedDict()
+        self.benchmark_view_groups = collections.OrderedDict()
 
-    def register_benchmark(self, id, **kwargs):
-        self.benchmarks[id] = Benchmark(id=id, **kwargs)
+    def register_benchmark_view(self, name, benchmarks, primary, group):
+        """Sometimes there's very little change between one
+        benchmark and another. BenchmarkView will allow to
+        display results from multiple benchmarks in a single
+        table.
+
+        name: str
+            Name to display on the website
+        benchmarks: [str]
+            list of benchmark ids to include
+        primary: str
+            primary benchmark - this is one to be used
+            to display as the most recent benchmark to be
+            used when submitting for future evaluations.
+        group: str
+            group in which to display the benchmark on the website.
+        """
+        assert name.replace("_", '').replace('-', '').isalnum(), \
+                "Name of benchmark must be combination of letters, numbers, - and _"
+        if group is None:
+            group = "Miscellaneous"
+        bw = BenchmarkView(name=name, benchmarks=benchmarks, primary=primary, group=group)
+        assert bw.primary in bw.benchmarks
+        self.benchmark_views[bw.name] = bw
+        if group not in self.benchmark_view_groups:
+            self.benchmark_view_groups[group] = []
+        self.benchmark_view_groups[group].append(bw)
+
+    def register_benchmark(self, id, scorer, tasks, description=None, name=None, add_view=True, view_group=None):
+        self.benchmarks[id] = Benchmark(id=id, scorer=scorer, tasks=tasks, name=name, description=description)
+        if add_view:
+            self.register_benchmark_view(name=name if name is not None else id,
+                                         benchmarks=[id],
+                                         primary=id,
+                                         group=view_group)
 
     def benchmark_spec(self, id):
         try:
@@ -75,5 +112,6 @@ class Registry(object):
             raise error.UnregisteredBenchmark('No registered benchmark with id: {}'.format(id))
 
 registry = Registry()
-register_benchmark = registry.register_benchmark
-benchmark_spec = registry.benchmark_spec
+register_benchmark      = registry.register_benchmark
+register_benchmark_view = registry.register_benchmark_view
+benchmark_spec          = registry.benchmark_spec

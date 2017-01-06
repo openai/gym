@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 video_name_re = re.compile('^[\w.-]+\.(mp4|avi|json)$')
 metadata_name_re = re.compile('^[\w.-]+\.meta\.json$')
 
-def upload(training_dir, algorithm_id=None, writeup=None, benchmark_id=None, api_key=None, ignore_open_monitors=False):
+def upload(training_dir, algorithm_id=None, writeup=None, tags=None, benchmark_id=None, api_key=None, ignore_open_monitors=False):
     """Upload the results of training (as automatically recorded by your
     env's monitor) to OpenAI Gym.
 
@@ -24,6 +24,7 @@ def upload(training_dir, algorithm_id=None, writeup=None, benchmark_id=None, api
         algorithm_id (Optional[str]): An algorithm id indicating the particular version of the algorithm (including choices of parameters) you are running (visit https://gym.openai.com/algorithms to create an id). If the id doesn't match an existing server id it will create a new algorithm using algorithm_id as the name
         benchmark_id (Optional[str]): The benchmark that these evaluations belong to. Will recursively search through training_dir for any Gym manifests. This feature is currently pre-release.
         writeup (Optional[str]): A Gist URL (of the form https://gist.github.com/<user>/<id>) containing your writeup for this evaluation.
+        tags (Optional[dict]): A dictionary of key/values to store with the benchmark run (ignored for nonbenchmark evaluations). Must be jsonable.
         api_key (Optional[str]): Your OpenAI API key. Can also be provided as an environment variable (OPENAI_GYM_API_KEY).
     """
 
@@ -55,7 +56,7 @@ def upload(training_dir, algorithm_id=None, writeup=None, benchmark_id=None, api
         if sorted(env_ids) != sorted(spec_env_ids):
             logger.info("WARNING: Evaluations do not match spec for benchmark {}. In {}, we found evaluations for {}, expected {}".format(benchmark_id, training_dir, sorted(env_ids), sorted(spec_env_ids)))
 
-        benchmark_run = resource.BenchmarkRun.create(benchmark_id=benchmark_id, algorithm_id=algorithm_id)
+        benchmark_run = resource.BenchmarkRun.create(benchmark_id=benchmark_id, algorithm_id=algorithm_id, tags=json.dumps(tags))
         benchmark_run_id = benchmark_run.id
 
         # Actually do the uploads.
@@ -75,6 +76,8 @@ OpenAI Gym! You can find it at:
 
         return benchmark_run_id
     else:
+        if tags is not None:
+             logger.warn("Tags will NOT be uploaded for this submission.")
         # Single evalution upload
         benchmark_run_id = None
         evaluation = _upload(training_dir, algorithm_id, writeup, benchmark_run_id, api_key, ignore_open_monitors)
@@ -96,7 +99,7 @@ def _upload(training_dir, algorithm_id=None, writeup=None, benchmark_run_id=None
         open_monitors = monitoring._open_monitors()
         if len(open_monitors) > 0:
             envs = [m.env.spec.id if m.env.spec else '(unknown)' for m in open_monitors]
-            raise error.Error("Still have an open monitor on {}. You must run 'env.monitor.close()' before uploading.".format(', '.join(envs)))
+            raise error.Error("Still have an open monitor on {}. You must run 'env.close()' before uploading.".format(', '.join(envs)))
 
     env_info, training_episode_batch, training_video = upload_training_data(training_dir, api_key=api_key)
     env_id = env_info['env_id']
@@ -147,8 +150,6 @@ def upload_training_data(training_dir, api_key=None):
     episode_rewards = results['episode_rewards']
     episode_types = results['episode_types']
     initial_reset_timestamps = results['initial_reset_timestamps']
-    main_seeds = results['main_seeds']
-    seeds = results['seeds']
     videos = results['videos']
 
     env_id = env_info['env_id']
@@ -156,7 +157,7 @@ def upload_training_data(training_dir, api_key=None):
 
     # Do the relevant uploads
     if len(episode_lengths) > 0:
-        training_episode_batch = upload_training_episode_batch(data_sources, episode_lengths, episode_rewards, episode_types, initial_reset_timestamps, timestamps, main_seeds, seeds, api_key, env_id=env_id)
+        training_episode_batch = upload_training_episode_batch(data_sources, episode_lengths, episode_rewards, episode_types, initial_reset_timestamps, timestamps, api_key, env_id=env_id)
     else:
         training_episode_batch = None
 
@@ -172,7 +173,7 @@ def upload_training_data(training_dir, api_key=None):
 
     return env_info, training_episode_batch, training_video
 
-def upload_training_episode_batch(data_sources, episode_lengths, episode_rewards, episode_types, initial_reset_timestamps, timestamps, main_seeds, seeds, api_key=None, env_id=None):
+def upload_training_episode_batch(data_sources, episode_lengths, episode_rewards, episode_types, initial_reset_timestamps, timestamps, api_key=None, env_id=None):
     logger.info('[%s] Uploading %d episodes of training data', env_id, len(episode_lengths))
     file_upload = resource.FileUpload.create(purpose='episode_batch', api_key=api_key)
     file_upload.put({
@@ -182,8 +183,6 @@ def upload_training_episode_batch(data_sources, episode_lengths, episode_rewards
         'episode_types': episode_types,
         'initial_reset_timestamps': initial_reset_timestamps,
         'timestamps': timestamps,
-        'main_seeds': main_seeds,
-        'seeds': seeds,
     })
     return file_upload
 

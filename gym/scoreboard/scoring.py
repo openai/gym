@@ -9,6 +9,7 @@ We correspondly do not currently import this module.
 import os
 from collections import defaultdict
 
+import json
 import numpy as np
 import requests
 
@@ -41,6 +42,24 @@ def score_from_local(directory):
     timestamps = results['timestamps']
     initial_reset_timestamp = results['initial_reset_timestamp']
     spec = gym.spec(results['env_info']['env_id'])
+
+    return score_from_merged(episode_lengths, episode_rewards, episode_types, timestamps, initial_reset_timestamp, spec.trials, spec.reward_threshold)
+
+def score_from_file(json_file):
+    """Calculate score from an episode_batch.json file"""
+    with open(json_file) as f:
+        results = json.load(f)
+
+    # No scores yet saved
+    if results is None:
+        return None
+
+    episode_lengths = results['episode_lengths']
+    episode_rewards = results['episode_rewards']
+    episode_types = results['episode_types']
+    timestamps = results['timestamps']
+    initial_reset_timestamp = results['initial_reset_timestamp']
+    spec = gym.spec(results['env_id'])
 
     return score_from_merged(episode_lengths, episode_rewards, episode_types, timestamps, initial_reset_timestamp, spec.trials, spec.reward_threshold)
 
@@ -90,6 +109,7 @@ def score_from_merged(episode_lengths, episode_rewards, episode_types, timestamp
             error = 0.
         else:
             error = np.std(best_rewards) / (np.sqrt(trials) - 1)
+
     return {
         'episode_t_value': episode_t_value,
         'timestep_t_value': timestep_t_value,
@@ -158,14 +178,14 @@ def compute_graph_stats(episode_lengths, episode_rewards, timestamps, initial_re
     x_episode = range(num_episodes)
 
     # Calculate the appropriate x/y statistics
-    x_timestep_y_reward = scipy.stats.binned_statistic(x_timestep, episode_rewards, 'median', buckets)
-    x_timestep_y_length = scipy.stats.binned_statistic(x_timestep, episode_lengths, 'median', buckets)
+    x_timestep_y_reward = scipy.stats.binned_statistic(x_timestep, episode_rewards, 'mean', buckets)
+    x_timestep_y_length = scipy.stats.binned_statistic(x_timestep, episode_lengths, 'mean', buckets)
 
-    x_episode_y_reward = scipy.stats.binned_statistic(x_episode, episode_rewards, 'median', buckets)
-    x_episode_y_length = scipy.stats.binned_statistic(x_episode, episode_lengths, 'median', buckets)
+    x_episode_y_reward = scipy.stats.binned_statistic(x_episode, episode_rewards, 'mean', buckets)
+    x_episode_y_length = scipy.stats.binned_statistic(x_episode, episode_lengths, 'mean', buckets)
 
-    x_seconds_y_reward = scipy.stats.binned_statistic(x_seconds, episode_rewards, 'median', buckets)
-    x_seconds_y_length = scipy.stats.binned_statistic(x_seconds, episode_lengths, 'median', buckets)
+    x_seconds_y_reward = scipy.stats.binned_statistic(x_seconds, episode_rewards, 'mean', buckets)
+    x_seconds_y_length = scipy.stats.binned_statistic(x_seconds, episode_lengths, 'mean', buckets)
 
     return {
         'initial_reset_timestamp': initial_reset_timestamp,

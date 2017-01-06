@@ -97,18 +97,14 @@ Once you're ready to install everything, run ``pip install -e '.[all]'`` (or ``p
 Supported systems
 -----------------
 
-We currently support Linux and OS X running Python 2.7 or 3.5.
-Python 3 support should still be considered experimental -- if you find any bugs, please report them!
-
-In particular on OSX + Python3 you may need to run
+We currently support Linux and OS X running Python 2.7 or 3.5. Some users on OSX + Python3 may need to run
 
 .. code:: shell
 
 	  brew install boost-python --with-python3
 
-We will expand support to Windows based on demand. We
-will also soon ship a Docker container exposing the environments
-callable from any platform, for use with any non-Python framework, such as Torch.
+If you want to access Gym from languages other than python, we have limited support for non-python
+frameworks, such as lua/Torch, using the OpenAI Gym `HTTP API <https://github.com/openai/gym-http-api>`_.
 
 Pip version
 -----------
@@ -264,6 +260,18 @@ You can also run tests in a specific directory by using the ``-s`` option, or by
 What's new
 ----------
 
+- 2016-12-27: BACKWARDS INCOMPATIBILITY: The gym monitor is now a
+  wrapper. Rather than starting monitoring as
+  `env.monitor.start(directory)`, envs are now wrapped as follows:
+  `env = wrappers.Monitor(env, directory)`. This change is on master
+  and will be released with 0.7.0.
+- 2016-11-1: Several experimental changes to how a running monitor interacts
+  with environments. The monitor will now raise an error if reset() is called
+  when the env has not returned done=True. The monitor will only record complete
+  episodes where done=True. Finally, the monitor no longer calls seed() on the
+  underlying env, nor does it record or upload seed information.
+- 2016-10-31: We're experimentally expanding the environment ID format
+  to include an optional username.
 - 2016-09-21: Switch the Gym automated logger setup to configure the
   root logger rather than just the 'gym' logger.
 - 2016-08-17: Calling `close` on an env will also close the monitor

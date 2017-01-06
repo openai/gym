@@ -56,12 +56,10 @@ ant.AntEnv
   register(
       id='foo-v0',
       entry_point='gym_foo.envs:FooEnv',
-      timestep_limit=1000,
   )
   register(
       id='foo-extrahard-v0',
       entry_point='gym_foo.envs:FooExtraHardEnv',
-      timestep_limit=1000,
   )
   ```
 

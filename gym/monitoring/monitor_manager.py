@@ -1,16 +1,14 @@
-import atexit
-import logging
 import json
-import numpy as np
+import logging
 import os
-import six
-import sys
-import threading
 import weakref
 
+import numpy as np
+import six
 from gym import error, version
 from gym.monitoring import stats_recorder, video_recorder
-from gym.utils import atomic_write, closer, seeding
+from gym.utils import atomic_write, closer
+from gym.utils.json_utils import json_encode_np
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +48,7 @@ monitor_closer = closer.Closer()
 def _open_monitors():
     return list(monitor_closer.closeables.values())
 
-class Monitor(object):
+class MonitorManager(object):
     """A configurable monitor for your training runs.
 
     Every env has an attached monitor, which you can access as
@@ -67,7 +65,7 @@ class Monitor(object):
     can also use 'monitor.configure(video_callable=lambda count: False)' to disable
     video.
 
-    Monitor supports multiple threads and multiple processes writing
+    MonitorManager supports multiple threads and multiple processes writing
     to the same directory of training data. The data will later be
     joined by scoreboard.upload_training_data and on the server.
 
@@ -91,7 +89,7 @@ class Monitor(object):
         self.enabled = False
         self.episode_id = 0
         self._monitor_id = None
-        self.seeds = None
+        self.env_semantics_autoreset = env.metadata.get('semantics.autoreset')
 
     @property
     def env(self):
@@ -101,7 +99,7 @@ class Monitor(object):
         return env
 
     def start(self, directory, video_callable=None, force=False, resume=False,
-              seed=None, write_upon_reset=False, uid=None, mode=None):
+              write_upon_reset=False, uid=None, mode=None):
         """Start monitoring.
 
         Args:
@@ -109,7 +107,6 @@ class Monitor(object):
             video_callable (Optional[function, False]): function that takes in the index of the episode and outputs a boolean, indicating whether we should record a video on this episode. The default (for video_callable is None) is to take perfect cubes, capped at 1000. False disables video recording.
             force (bool): Clear out existing training data from this directory (by deleting every file prefixed with "openaigym.").
             resume (bool): Retain the training data already in this directory, which will be merged with our new data
-            seed (Optional[int]): The seed to run this environment with. By default, a random seed will be chosen.
             write_upon_reset (bool): Write the manifest file on each reset. (This is currently a JSON file, so writing it is somewhat expensive.)
             uid (Optional[str]): A unique id used as part of the suffix for the file. By default, uses os.getpid().
             mode (['evaluation', 'training']): Whether this is an evaluation or training episode.
@@ -133,6 +130,7 @@ class Monitor(object):
             video_callable = disable_videos
         elif not callable(video_callable):
             raise error.Error('You must provide a function, None, or False for video_callable, not {}: {}'.format(type(video_callable), video_callable))
+        self.video_callable = video_callable
 
         # Check on whether we need to clear anything
         if force:
@@ -144,7 +142,6 @@ class Monitor(object):
 
  You should use a unique directory for each training run, or use 'force=True' to automatically clear previous monitor files.'''.format(directory, ', '.join(training_manifests[:5])))
 
-
         self._monitor_id = monitor_closer.register(self)
 
         self.enabled = True
@@ -154,21 +151,16 @@ class Monitor(object):
         self.file_prefix = FILE_PREFIX
         self.file_infix = '{}.{}'.format(self._monitor_id, uid if uid else os.getpid())
 
-        self.stats_recorder = stats_recorder.StatsRecorder(directory, '{}.episode_batch.{}'.format(self.file_prefix, self.file_infix), autoreset=self.env.metadata.get('semantics.autoreset'), env_id=env_id)
-        self.configure(video_callable=video_callable)
+        self.stats_recorder = stats_recorder.StatsRecorder(directory, '{}.episode_batch.{}'.format(self.file_prefix, self.file_infix), autoreset=self.env_semantics_autoreset, env_id=env_id)
+
         if not os.path.exists(directory):
                 os.mkdir(directory)
         self.write_upon_reset = write_upon_reset
 
-        seeds = self.env.seed(seed)
-        if not isinstance(seeds, list):
-            logger.warn('env.seed returned unexpected result: %s (should be a list of ints)', seeds)
-
-        self.seeds = seeds
         if mode is not None:
             self._set_mode(mode)
 
-    def flush(self, force=False):
+    def _flush(self, force=False):
         """Flush all relevant monitor information to disk."""
         if not self.write_upon_reset and not force:
             return
@@ -189,8 +181,7 @@ class Monitor(object):
                 'videos': [(os.path.basename(v), os.path.basename(m))
                            for v, m in self.videos],
                 'env_info': self._env_info(),
-                'seeds': self.seeds,
-            }, f)
+            }, f, default=json_encode_np)
 
     def close(self):
         """Flush all monitor data to disk and close any open rending windows."""
@@ -199,7 +190,7 @@ class Monitor(object):
         self.stats_recorder.close()
         if self.video_recorder is not None:
             self._close_video_recorder()
-        self.flush(force=True)
+        self._flush(force=True)
 
         env = self._env_ref()
         # Only take action if the env hasn't been GC'd
@@ -229,22 +220,6 @@ class Monitor(object):
 
         logger.info('''Finished writing results. You can upload them to the scoreboard via gym.upload(%r)''', self.directory)
 
-    def configure(self, video_callable=None, mode=None):
-        """Reconfigure the monitor.
-
-            video_callable (function): Whether to record video to upload to the scoreboard.
-            mode (['evaluation', 'training']): Whether this is an evaluation or training episode.
-        """
-
-        if not self.enabled:
-            raise error.Error('Can only configure an enabled monitor. (HINT: did you already close this monitor?)')
-
-        if video_callable is not None:
-            self.video_callable = video_callable
-
-        if mode is not None:
-            self._set_mode(mode)
-
     def _set_mode(self, mode):
         if mode == 'evaluation':
             type = 'e'
@@ -261,10 +236,14 @@ class Monitor(object):
     def _after_step(self, observation, reward, done, info):
         if not self.enabled: return done
 
-        # Add 1 since about to take another step
-        if self.env.spec and self.stats_recorder.steps+1 >= self.env.spec.timestep_limit:
-            logger.debug('Ending episode %i because it reached the timestep limit of %i.', self.episode_id, self.env.spec.timestep_limit)
-            done = True
+        if done and self.env_semantics_autoreset:
+            # For envs with BlockingReset wrapping VNCEnv, this observation will be the first one of the new episode
+            self._reset_video_recorder()
+            self.episode_id += 1
+            self._flush()
+
+        if info.get('true_reward', None):  # Semisupervised envs modify the rewards, but we want the original when scoring
+            reward = info['true_reward']
 
         # Record stats
         self.stats_recorder.after_step(observation, reward, done, info)
@@ -272,7 +251,6 @@ class Monitor(object):
         self.video_recorder.capture_frame()
 
         return done
-
 
     def _before_reset(self):
         if not self.enabled: return
@@ -284,6 +262,14 @@ class Monitor(object):
         # Reset the stat count
         self.stats_recorder.after_reset(observation)
 
+        self._reset_video_recorder()
+
+        # Bump *after* all reset activity has finished
+        self.episode_id += 1
+
+        self._flush()
+
+    def _reset_video_recorder(self):
         # Close any existing video recorder
         if self.video_recorder:
             self._close_video_recorder()
@@ -298,11 +284,6 @@ class Monitor(object):
             enabled=self._video_enabled(),
         )
         self.video_recorder.capture_frame()
-
-        # Bump *after* all reset activity has finished
-        self.episode_id += 1
-
-        self.flush()
 
     def _close_video_recorder(self):
         self.video_recorder.close()
@@ -349,8 +330,6 @@ def load_results(training_dir):
     # Load up stats + video files
     stats_files = []
     videos = []
-    main_seeds = []
-    seeds = []
     env_infos = []
 
     for manifest in manifests:
@@ -361,13 +340,6 @@ def load_results(training_dir):
             videos += [(os.path.join(training_dir, v), os.path.join(training_dir, m))
                        for v, m in contents['videos']]
             env_infos.append(contents['env_info'])
-            current_seeds = contents.get('seeds', [])
-            seeds += current_seeds
-            if current_seeds:
-                main_seeds.append(current_seeds[0])
-            else:
-                # current_seeds could be None or []
-                main_seeds.append(None)
 
     env_info = collapse_env_infos(env_infos, training_dir)
     data_sources, initial_reset_timestamps, timestamps, episode_lengths, episode_rewards, episode_types, initial_reset_timestamp = merge_stats_files(stats_files)
@@ -383,8 +355,6 @@ def load_results(training_dir):
         'initial_reset_timestamps': initial_reset_timestamps,
         'initial_reset_timestamp': initial_reset_timestamp,
         'videos': videos,
-        'main_seeds': main_seeds,
-        'seeds': seeds,
     }
 
 def merge_stats_files(stats_files):

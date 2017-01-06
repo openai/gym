@@ -6,14 +6,14 @@ from gym.envs.registration import registry, register, make, spec
 register(
     id='Copy-v0',
     entry_point='gym.envs.algorithmic:CopyEnv',
-    timestep_limit=200,
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 200},
     reward_threshold=25.0,
 )
 
 register(
     id='RepeatCopy-v0',
     entry_point='gym.envs.algorithmic:RepeatCopyEnv',
-    timestep_limit=200,
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 200},
     reward_threshold=75.0,
 )
 
@@ -21,7 +21,7 @@ register(
     id='ReversedAddition-v0',
     entry_point='gym.envs.algorithmic:ReversedAdditionEnv',
     kwargs={'rows' : 2},
-    timestep_limit=200,
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 200},
     reward_threshold=25.0,
 )
 
@@ -29,21 +29,21 @@ register(
     id='ReversedAddition3-v0',
     entry_point='gym.envs.algorithmic:ReversedAdditionEnv',
     kwargs={'rows' : 3},
-    timestep_limit=200,
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 200},
     reward_threshold=25.0,
 )
 
 register(
     id='DuplicatedInput-v0',
     entry_point='gym.envs.algorithmic:DuplicatedInputEnv',
-    timestep_limit=200,
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 200},
     reward_threshold=9.0,
 )
 
 register(
     id='Reverse-v0',
     entry_point='gym.envs.algorithmic:ReverseEnv',
-    timestep_limit=200,
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 200},
     reward_threshold=25.0,
 )
 
@@ -53,41 +53,41 @@ register(
 register(
     id='CartPole-v0',
     entry_point='gym.envs.classic_control:CartPoleEnv',
-    timestep_limit=200,
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 200},
     reward_threshold=195.0,
 )
 
 register(
     id='CartPole-v1',
     entry_point='gym.envs.classic_control:CartPoleEnv',
-    timestep_limit=500,
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 500},
     reward_threshold=475.0,
 )
 
 register(
     id='MountainCar-v0',
     entry_point='gym.envs.classic_control:MountainCarEnv',
-    timestep_limit=200,
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 200},
     reward_threshold=-110.0,
 )
 
 register(
     id='MountainCarContinuous-v0',
     entry_point='gym.envs.classic_control:Continuous_MountainCarEnv',
-    timestep_limit=999,
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 999},
     reward_threshold=90.0,
 )
 
 register(
     id='Pendulum-v0',
     entry_point='gym.envs.classic_control:PendulumEnv',
-    timestep_limit=200,
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 200},
 )
 
 register(
     id='Acrobot-v1',
     entry_point='gym.envs.classic_control:AcrobotEnv',
-    timestep_limit=500,
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 500},
 )
 
 # Box2d
@@ -96,35 +96,35 @@ register(
 register(
     id='LunarLander-v2',
     entry_point='gym.envs.box2d:LunarLander',
-    timestep_limit=1000,
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 1000},
     reward_threshold=200,
 )
 
 register(
     id='LunarLanderContinuous-v2',
     entry_point='gym.envs.box2d:LunarLanderContinuous',
-    timestep_limit=1000,
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 1000},
     reward_threshold=200,
 )
 
 register(
     id='BipedalWalker-v2',
     entry_point='gym.envs.box2d:BipedalWalker',
-    timestep_limit=1600,
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 1600},
     reward_threshold=300,
 )
 
 register(
     id='BipedalWalkerHardcore-v2',
     entry_point='gym.envs.box2d:BipedalWalkerHardcore',
-    timestep_limit=2000,
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 2000},
     reward_threshold=300,
 )
 
 register(
     id='CarRacing-v0',
     entry_point='gym.envs.box2d:CarRacing',
-    timestep_limit=1000,
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 1000},
     reward_threshold=900,
 )
 
@@ -140,7 +140,7 @@ register(
     id='FrozenLake-v0',
     entry_point='gym.envs.toy_text:FrozenLakeEnv',
     kwargs={'map_name' : '4x4'},
-    timestep_limit=100,
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 100},
     reward_threshold=0.78, # optimum = .8196
 )
 
@@ -148,39 +148,39 @@ register(
     id='FrozenLake8x8-v0',
     entry_point='gym.envs.toy_text:FrozenLakeEnv',
     kwargs={'map_name' : '8x8'},
-    timestep_limit=200,
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 200},
     reward_threshold=0.99, # optimum = 1
 )
 
 register(
     id='NChain-v0',
     entry_point='gym.envs.toy_text:NChainEnv',
-    timestep_limit=1000,
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 1000},
 )
 
 register(
     id='Roulette-v0',
     entry_point='gym.envs.toy_text:RouletteEnv',
-    timestep_limit=100,
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 100},
 )
 
 register(
     id='Taxi-v1',
     entry_point='gym.envs.toy_text.taxi:TaxiEnv',
-    timestep_limit=200,
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 200},
     reward_threshold=9.7, # optimum = 10.2
 )
 
 register(
     id='GuessingGame-v0',
     entry_point='gym.envs.toy_text.guessing_game:GuessingGame',
-    timestep_limit=200,
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 200},
 )
 
 register(
     id='HotterColder-v0',
     entry_point='gym.envs.toy_text.hotter_colder:HotterColder',
-    timestep_limit=200,
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 200},
 )
 
 # Mujoco
@@ -191,58 +191,68 @@ register(
 register(
     id='Reacher-v1',
     entry_point='gym.envs.mujoco:ReacherEnv',
-    timestep_limit=50,
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 50},
     reward_threshold=-3.75,
 )
 
 register(
     id='InvertedPendulum-v1',
     entry_point='gym.envs.mujoco:InvertedPendulumEnv',
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 1000},
     reward_threshold=950.0,
 )
 
 register(
     id='InvertedDoublePendulum-v1',
     entry_point='gym.envs.mujoco:InvertedDoublePendulumEnv',
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 1000},
     reward_threshold=9100.0,
 )
 
 register(
     id='HalfCheetah-v1',
     entry_point='gym.envs.mujoco:HalfCheetahEnv',
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 1000},
     reward_threshold=4800.0,
 )
 
 register(
     id='Hopper-v1',
     entry_point='gym.envs.mujoco:HopperEnv',
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 1000},
     reward_threshold=3800.0,
 )
 
 register(
     id='Swimmer-v1',
     entry_point='gym.envs.mujoco:SwimmerEnv',
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 1000},
     reward_threshold=360.0,
 )
 
 register(
     id='Walker2d-v1',
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 1000},
     entry_point='gym.envs.mujoco:Walker2dEnv',
 )
 
 register(
     id='Ant-v1',
     entry_point='gym.envs.mujoco:AntEnv',
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 1000},
     reward_threshold=6000.0,
 )
 
 register(
     id='Humanoid-v1',
     entry_point='gym.envs.mujoco:HumanoidEnv',
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 1000},
 )
+
 register(
     id='HumanoidStandup-v1',
     entry_point='gym.envs.mujoco:HumanoidStandupEnv',
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 1000},
 )
 
 # Atari
@@ -276,7 +286,7 @@ for game in ['air_raid', 'alien', 'amidar', 'assault', 'asterix', 'asteroids', '
             id='{}-v0'.format(name),
             entry_point='gym.envs.atari:AtariEnv',
             kwargs={'game': game, 'obs_type': obs_type, 'repeat_action_probability': 0.25},
-            timestep_limit=10000,
+            tags={'wrapper_config.TimeLimit.max_episode_steps': 10000},
             nondeterministic=nondeterministic,
         )
 
@@ -284,7 +294,7 @@ for game in ['air_raid', 'alien', 'amidar', 'assault', 'asterix', 'asteroids', '
             id='{}-v3'.format(name),
             entry_point='gym.envs.atari:AtariEnv',
             kwargs={'game': game, 'obs_type': obs_type},
-            timestep_limit=100000,
+            tags={'wrapper_config.TimeLimit.max_episode_steps': 100000},
             nondeterministic=nondeterministic,
         )
 
@@ -299,7 +309,7 @@ for game in ['air_raid', 'alien', 'amidar', 'assault', 'asterix', 'asteroids', '
             id='{}Deterministic-v0'.format(name),
             entry_point='gym.envs.atari:AtariEnv',
             kwargs={'game': game, 'obs_type': obs_type, 'frameskip': frameskip, 'repeat_action_probability': 0.25},
-            timestep_limit=100000,
+            tags={'wrapper_config.TimeLimit.max_episode_steps': 100000},
             nondeterministic=nondeterministic,
         )
 
@@ -307,7 +317,7 @@ for game in ['air_raid', 'alien', 'amidar', 'assault', 'asterix', 'asteroids', '
             id='{}Deterministic-v3'.format(name),
             entry_point='gym.envs.atari:AtariEnv',
             kwargs={'game': game, 'obs_type': obs_type, 'frameskip': frameskip},
-            timestep_limit=100000,
+            tags={'wrapper_config.TimeLimit.max_episode_steps': 100000},
             nondeterministic=nondeterministic,
         )
 
@@ -315,7 +325,7 @@ for game in ['air_raid', 'alien', 'amidar', 'assault', 'asterix', 'asteroids', '
             id='{}NoFrameskip-v0'.format(name),
             entry_point='gym.envs.atari:AtariEnv',
             kwargs={'game': game, 'obs_type': obs_type, 'frameskip': 1, 'repeat_action_probability': 0.25}, # A frameskip of 1 means we get every frame
-            timestep_limit=frameskip * 100000,
+            tags={'wrapper_config.TimeLimit.max_episode_steps': frameskip * 100000},
             nondeterministic=nondeterministic,
         )
 
@@ -325,7 +335,7 @@ for game in ['air_raid', 'alien', 'amidar', 'assault', 'asterix', 'asteroids', '
             id='{}NoFrameskip-v3'.format(name),
             entry_point='gym.envs.atari:AtariEnv',
             kwargs={'game': game, 'obs_type': obs_type, 'frameskip': 1}, # A frameskip of 1 means we get every frame
-            timestep_limit=frameskip * 100000,
+            tags={'wrapper_config.TimeLimit.max_episode_steps': frameskip * 100000},
             nondeterministic=nondeterministic,
         )
 
@@ -485,13 +495,13 @@ register(
 register(
     id='PredictActionsCartpole-v0',
     entry_point='gym.envs.safety:PredictActionsCartpoleEnv',
-    timestep_limit=200,
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 200},
 )
 
 register(
     id='PredictObsCartpole-v0',
     entry_point='gym.envs.safety:PredictObsCartpoleEnv',
-    timestep_limit=200,
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 200},
 )
 
 # semi_supervised envs
@@ -499,30 +509,30 @@ register(
 register(
     id='SemisuperPendulumNoise-v0',
     entry_point='gym.envs.safety:SemisuperPendulumNoiseEnv',
-    timestep_limit=200,
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 200},
 )
     # somewhat harder because of higher variance:
 register(
     id='SemisuperPendulumRandom-v0',
     entry_point='gym.envs.safety:SemisuperPendulumRandomEnv',
-    timestep_limit=200,
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 200},
 )
     # probably the hardest because you only get a constant number of rewards in total:
 register(
     id='SemisuperPendulumDecay-v0',
     entry_point='gym.envs.safety:SemisuperPendulumDecayEnv',
-    timestep_limit=200,
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 200},
 )
 
 # off_switch envs
 register(
     id='OffSwitchCartpole-v0',
     entry_point='gym.envs.safety:OffSwitchCartpoleEnv',
-    timestep_limit=200,
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 200},
 )
 
 register(
     id='OffSwitchCartpoleProb-v0',
     entry_point='gym.envs.safety:OffSwitchCartpoleProbEnv',
-    timestep_limit=200,
+    tags={'wrapper_config.TimeLimit.max_episode_steps': 200},
 )
