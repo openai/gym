@@ -1,15 +1,16 @@
 import numpy as np
 import os
 import gym
+import inspect
 from gym import error, spaces
 from gym import utils
 from gym.utils import seeding
 
 try:
     # import atari_py
-    import ale_python_interface
+    import rle_python_interface
 except ImportError as e:
-    raise error.DependencyNotInstalled("{}. (Go to https://github.com/nadavbh12/Arcade-Learning-Environment-2.0 to install RLe.)".format(e))
+    raise error.DependencyNotInstalled("{}. (Go to https://github.com/nadavbh12/Retro-Learning-Environment to install RLE.)".format(e))
 
 import logging
 logger = logging.getLogger(__name__)
@@ -46,11 +47,12 @@ def get_action_meaning(action):
 
     return action_string
 
-# def to_ram(ale):
-#     ram_size = ale.getRAMSize()
-#     ram = np.zeros((ram_size),dtype=np.uint8)
-#     ale.getRAM(ram)
-#     return ram
+def to_ram(rle):
+    ram_size = rle.getRAMSize()
+    ram = np.zeros((ram_size),dtype=np.uint8)
+    rle.getRAM(ram)
+    return ram
+
 
 class RleEnv(gym.Env, utils.EzPickle):
     metadata = {'render.modes': ['human', 'rgb_array']}
@@ -62,36 +64,47 @@ class RleEnv(gym.Env, utils.EzPickle):
         utils.EzPickle.__init__(self, game, obs_type)
         assert obs_type in ('ram', 'image')
 
-        # self.game_path = atari_py.get_game_path(game)
-        self.game_path = '/home/shai/DQN/roms/mortal_kombat.sfc'
+        self.game_path = self.get_rom_path(game)
+        self.core_path = self.get_core_path()
+
         if not os.path.exists(self.game_path):
             raise IOError('You asked for game %s but path %s does not exist'%(game, self.game_path))
         self._obs_type = obs_type
         self.frameskip = frameskip
-        self.ale = ale_python_interface.ALEInterface()
+        self.rle = rle_python_interface.RLEInterface()
         self.viewer = None
 
-        # Tune (or disable) ALE's action repeat:
+        # Tune (or disable) RLE's action repeat:
         # https://github.com/openai/gym/issues/349
         assert isinstance(repeat_action_probability, (float, int)), "Invalid repeat_action_probability: {!r}".format(repeat_action_probability)
-        self.ale.setFloat('repeat_action_probability'.encode('utf-8'), repeat_action_probability)
+        self.rle.setFloat('repeat_action_probability'.encode('utf-8'), repeat_action_probability)
 
         self._seed()
-        self.ale.loadROM(self.game_path, '/home/shai/DQN/Atari/cores/snes9x2010_libretro.so')
+        self.rle.loadROM(self.game_path, self.core_path)
 
-        (screen_width, screen_height) = self.ale.getScreenDims()
+        (screen_width, screen_height) = self.rle.getScreenDims()
         self._buffer = np.empty((screen_height, screen_width, 4), dtype=np.uint8)
 
-        self._action_set = self.ale.getMinimalActionSet()
+        self._action_set = self.rle.getMinimalActionSet()
         self.action_space = spaces.Discrete(len(self._action_set))
 
-        (screen_width,screen_height) = self.ale.getScreenDims()
-        # if self._obs_type == 'ram':
-        #     self.observation_space = spaces.Box(low=np.zeros(128), high=np.zeros(128)+255)
-        if self._obs_type == 'image':
+        (screen_width,screen_height) = self.rle.getScreenDims()
+        ram_size = self.rle.getRAMSize()
+        if self._obs_type == 'ram':
+            self.observation_space = spaces.Box(low=np.zeros(ram_size), high=np.zeros(ram_size)+255)
+        elif self._obs_type == 'image':
             self.observation_space = spaces.Box(low=0, high=255, shape=(screen_height, screen_width, 3))
         else:
             raise error.Error('Unrecognized observation type: {}'.format(self._obs_type))
+
+    def get_rom_path(self, game):
+        cwd = os.path.dirname(__file__)
+        rom_path = os.path.join(cwd, 'roms', game + '.sfc')
+        return rom_path
+
+    def get_core_path(self):
+        cwd = os.path.dirname(__file__)
+        return os.path.join(cwd, 'cores', 'snes9x2010_libretro.so')
 
     def _seed(self, seed=None):
         self.np_random, seed1 = seeding.np_random(seed)
@@ -100,7 +113,7 @@ class RleEnv(gym.Env, utils.EzPickle):
         # 2**31.
         seed2 = seeding.hash_seed(seed1 + 1) % 2**31
         # Empirically, we need to seed before loading the ROM.
-        self.ale.setInt(b'random_seed', seed2)
+        self.rle.setInt(b'random_seed', seed2)
         return [seed1, seed2]
 
     def _step(self, a):
@@ -112,34 +125,32 @@ class RleEnv(gym.Env, utils.EzPickle):
         else:
             num_steps = self.np_random.randint(self.frameskip[0], self.frameskip[1])
         for _ in range(num_steps):
-            reward += self.ale.act(action)
+            reward += self.rle.act(action)
         ob = self._get_obs()
 
-        return ob, reward, self.ale.game_over(), {}
+        return ob, reward, self.rle.game_over(), {}
 
     def _get_image(self):
-        self.ale.getScreenRGB(self._buffer)  # says rgb but actually bgr
-        # self.ale.getScreenGrayscale(self._buffer)
-        # return self._buffer
+        self.rle.getScreenRGB(self._buffer)
         return self._buffer[:, :, [0, 1, 2]]
-    #
-    # def _get_ram(self):
-    #     return to_ram(self.ale)
+
+    def _get_ram(self):
+        return to_ram(self.rle)
 
     @property
     def _n_actions(self):
         return len(self._action_set)
 
     def _get_obs(self):
-        # if self._obs_type == 'ram':
-        #     return self._get_ram()
+        if self._obs_type == 'ram':
+            return self._get_ram()
         if self._obs_type == 'image':
             img = self._get_image()
         return img
 
     # return: (states, observations)
     def _reset(self):
-        self.ale.reset_game()
+        self.rle.reset_game()
         return self._get_obs()
 
     def _render(self, mode='human', close=False):
@@ -159,25 +170,3 @@ class RleEnv(gym.Env, utils.EzPickle):
 
     def get_action_meanings(self):
         return [get_action_meaning(i) for i in self._action_set]
-
-
-# ACTION_MEANING = {
-#     0 : "NOOP",
-#     1 : "FIRE",
-#     2 : "UP",
-#     3 : "RIGHT",
-#     4 : "LEFT",
-#     5 : "DOWN",
-#     6 : "UPRIGHT",
-#     7 : "UPLEFT",
-#     8 : "DOWNRIGHT",
-#     9 : "DOWNLEFT",
-#     10 : "UPFIRE",
-#     11 : "RIGHTFIRE",
-#     12 : "LEFTFIRE",
-#     13 : "DOWNFIRE",
-#     14 : "UPRIGHTFIRE",
-#     15 : "UPLEFTFIRE",
-#     16 : "DOWNRIGHTFIRE",
-#     17 : "DOWNLEFTFIRE",
-# }

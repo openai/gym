@@ -1,0 +1,1 @@
+In this directory goes snes9x2010_libretro.so from the RLE installation.

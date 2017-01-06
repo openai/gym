@@ -342,67 +342,74 @@ for game in ['air_raid', 'alien', 'amidar', 'assault', 'asterix', 'asteroids', '
 # Rle
 # ----------------------------------------
 
-# # print ', '.join(["'{}'".format(name.split('.')[0]) for name in atari_py.list_games()])
-for game in ['mortal_kombat', 'f_zero', 'gradius_iii', 'final_fight', 'super_mario_world', 'wolfenstein']:
+# print ', '.join(["'{}'".format(name.split('.')[0]) for name in atari_py.list_games()])
+for game in ['final_fight', 'f_zero', 'gradius_iii', 'mortal_kombat', 'nba_give_n_go', 'super_mario_all_stars',
+             'super_mario_world', 'tetris_and_dr_mario' 'wolfenstein']:
     for obs_type in ['image']:
-        name = ''.join([g.capitalize() for g in game.split('_')])
-        nondeterministic = False
+        for obs_type in ['image', 'ram']:
+            name = ''.join([g.capitalize() for g in game.split('_')])
+            if obs_type == 'ram':
+                name = '{}-ram'.format(name)
+            nondeterministic = False
 
-        register(
-            id='{}-v0'.format(name),
-            entry_point='gym.envs.rle:RleEnv',
-            kwargs={'game': game, 'obs_type': obs_type, 'repeat_action_probability': 0.25},
-            timestep_limit=10000,
-            nondeterministic=nondeterministic,
-        )
+            register(
+                id='{}-v0'.format(name),
+                entry_point='gym.envs.rle:RleEnv',
+                kwargs={'game': game, 'obs_type': obs_type, 'repeat_action_probability': 0.25},
+                tags={'wrapper_config.TimeLimit.max_episode_steps': 10000},
+                nondeterministic=nondeterministic,
+            )
 
-        register(
-            id='{}-v3'.format(name),
-            entry_point='gym.envs.rle:RleEnv',
-            kwargs={'game': game, 'obs_type': obs_type},
-            timestep_limit=100000,
-            nondeterministic=nondeterministic,
-        )
+            register(
+                id='{}-v3'.format(name),
+                entry_point='gym.envs.rle:RleEnv',
+                kwargs={'game': game, 'obs_type': obs_type},
+                tags={'wrapper_config.TimeLimit.max_episode_steps': 100000},
+                nondeterministic=nondeterministic,
+            )
 
-        # Standard Deterministic (as in the original DeepMind paper)
-        frameskip = 4
+            # Standard Deterministic (as in the original DeepMind paper)
+            if game == 'space_invaders':
+                frameskip = 3
+            else:
+                frameskip = 4
 
-        # Use a deterministic frame skip.
-        register(
-            id='{}Deterministic-v0'.format(name),
-            entry_point='gym.envs.rle:RleEnv',
-            kwargs={'game': game, 'obs_type': obs_type, 'frameskip': frameskip, 'repeat_action_probability': 0.25},
-            timestep_limit=100000,
-            nondeterministic=nondeterministic,
-        )
+            # Use a deterministic frame skip.
+            register(
+                id='{}Deterministic-v0'.format(name),
+                entry_point='gym.envs.rle:RleEnv',
+                kwargs={'game': game, 'obs_type': obs_type, 'frameskip': frameskip, 'repeat_action_probability': 0.25},
+                tags={'wrapper_config.TimeLimit.max_episode_steps': 100000},
+                nondeterministic=nondeterministic,
+            )
 
-        register(
-            id='{}Deterministic-v3'.format(name),
-            entry_point='gym.envs.rle:RleEnv',
-            kwargs={'game': game, 'obs_type': obs_type, 'frameskip': frameskip},
-            timestep_limit=100000,
-            nondeterministic=nondeterministic,
-        )
+            register(
+                id='{}Deterministic-v3'.format(name),
+                entry_point='gym.envs.rle:RleEnv',
+                kwargs={'game': game, 'obs_type': obs_type, 'frameskip': frameskip},
+                tags={'wrapper_config.TimeLimit.max_episode_steps': 100000},
+                nondeterministic=nondeterministic,
+            )
 
-        register(
-            id='{}NoFrameskip-v0'.format(name),
-            entry_point='gym.envs.rle:RleEnv',
-            kwargs={'game': game, 'obs_type': obs_type, 'frameskip': 1, 'repeat_action_probability': 0.25},
-            # A frameskip of 1 means we get every frame
-            timestep_limit=frameskip * 100000,
-            nondeterministic=nondeterministic,
-        )
+            register(
+                id='{}NoFrameskip-v0'.format(name),
+                entry_point='gym.envs.rle:RleEnv',
+                kwargs={'game': game, 'obs_type': obs_type, 'frameskip': 1, 'repeat_action_probability': 0.25},
+                # A frameskip of 1 means we get every frame
+                tags={'wrapper_config.TimeLimit.max_episode_steps': frameskip * 100000},
+                nondeterministic=nondeterministic,
+            )
 
-        # No frameskip. (Atari has no entropy source, so these are
-        # deterministic environments.)
-        register(
-            id='{}NoFrameskip-v3'.format(name),
-            entry_point='gym.envs.rle:RleEnv',
-            kwargs={'game': game, 'obs_type': obs_type, 'frameskip': 1},
-            # A frameskip of 1 means we get every frame
-            timestep_limit=frameskip * 100000,
-            nondeterministic=nondeterministic,
-        )
+            # No frameskip. (Atari has no entropy source, so these are
+            # deterministic environments.)
+            register(
+                id='{}NoFrameskip-v3'.format(name),
+                entry_point='gym.envs.rle:RleEnv',
+                kwargs={'game': game, 'obs_type': obs_type, 'frameskip': 1},
+                # A frameskip of 1 means we get every frame
+                tags={'wrapper_config.TimeLimit.max_episode_steps': frameskip * 100000},
+                nondeterministic=nondeterministic,
+            )
 
 # Board games
 # ----------------------------------------
