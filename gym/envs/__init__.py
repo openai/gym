@@ -360,57 +360,6 @@ for game in ['final_fight', 'f_zero', 'gradius_iii', 'mortal_kombat', 'nba_give_
                 nondeterministic=nondeterministic,
             )
 
-            register(
-                id='{}-v3'.format(name),
-                entry_point='gym.envs.rle:RleEnv',
-                kwargs={'game': game, 'obs_type': obs_type},
-                tags={'wrapper_config.TimeLimit.max_episode_steps': 100000},
-                nondeterministic=nondeterministic,
-            )
-
-            # Standard Deterministic (as in the original DeepMind paper)
-            if game == 'space_invaders':
-                frameskip = 3
-            else:
-                frameskip = 4
-
-            # Use a deterministic frame skip.
-            register(
-                id='{}Deterministic-v0'.format(name),
-                entry_point='gym.envs.rle:RleEnv',
-                kwargs={'game': game, 'obs_type': obs_type, 'frameskip': frameskip, 'repeat_action_probability': 0.25},
-                tags={'wrapper_config.TimeLimit.max_episode_steps': 100000},
-                nondeterministic=nondeterministic,
-            )
-
-            register(
-                id='{}Deterministic-v3'.format(name),
-                entry_point='gym.envs.rle:RleEnv',
-                kwargs={'game': game, 'obs_type': obs_type, 'frameskip': frameskip},
-                tags={'wrapper_config.TimeLimit.max_episode_steps': 100000},
-                nondeterministic=nondeterministic,
-            )
-
-            register(
-                id='{}NoFrameskip-v0'.format(name),
-                entry_point='gym.envs.rle:RleEnv',
-                kwargs={'game': game, 'obs_type': obs_type, 'frameskip': 1, 'repeat_action_probability': 0.25},
-                # A frameskip of 1 means we get every frame
-                tags={'wrapper_config.TimeLimit.max_episode_steps': frameskip * 100000},
-                nondeterministic=nondeterministic,
-            )
-
-            # No frameskip. (Atari has no entropy source, so these are
-            # deterministic environments.)
-            register(
-                id='{}NoFrameskip-v3'.format(name),
-                entry_point='gym.envs.rle:RleEnv',
-                kwargs={'game': game, 'obs_type': obs_type, 'frameskip': 1},
-                # A frameskip of 1 means we get every frame
-                tags={'wrapper_config.TimeLimit.max_episode_steps': frameskip * 100000},
-                nondeterministic=nondeterministic,
-            )
-
 # Board games
 # ----------------------------------------
 
