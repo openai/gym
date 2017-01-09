@@ -610,7 +610,7 @@ add_task(
 )
 
 add_task(
-    id='Taxi-v1',
+    id='Taxi-v2',
     group='toy_text',
     summary='As a taxi driver, you need to pick up and drop off passengers as fast as possible.',
     description="""

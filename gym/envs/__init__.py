@@ -165,10 +165,10 @@ register(
 )
 
 register(
-    id='Taxi-v1',
+    id='Taxi-v2',
     entry_point='gym.envs.toy_text.taxi:TaxiEnv',
     tags={'wrapper_config.TimeLimit.max_episode_steps': 200},
-    reward_threshold=9.7, # optimum = 10.2
+    reward_threshold=8, # optimum = 8.46
 )
 
 register(
