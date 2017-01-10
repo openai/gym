@@ -236,8 +236,7 @@ class Env(object):
 
         To simply play the game use:
 
-            env = gym.make("Pong-v3")
-            env.play()
+            gym.make("Pong-v3").play()
 
         Above code works also if env is wrapped, so it's particularly useful in
         verifying that the frame-level preprocessing does not render the game
