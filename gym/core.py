@@ -4,7 +4,7 @@ logger = logging.getLogger(__name__)
 import numpy as np
 
 from gym import error
-from gym.utils import closer, reraise, play
+from gym.utils import closer, reraise
 
 env_closer = closer.Closer()
 
