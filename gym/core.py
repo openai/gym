@@ -231,67 +231,6 @@ class Env(object):
             else:
                 raise
 
-    def play(self, transpose=True, fps=30, zoom=None, callback=None, keys_to_action=None):
-        """Allows one to play the game using keyboard.
-
-        To simply play the game use:
-
-            gym.make("Pong-v3").play()
-
-        Above code works also if env is wrapped, so it's particularly useful in
-        verifying that the frame-level preprocessing does not render the game
-        unplayable.
-
-        If you wish to plot real time statistics as you play, you can use
-        gym.utils.play.PlayPlot. Here's a sample code for plotting the reward
-        for last 5 second of gameplay.
-
-            def callback(obs_t, obs_tp1, rew, done, info):
-                return [rew,]
-            env_plotter = EnvPlotter(callback, 30 * 5, ["reward"])
-
-            env = gym.make("Pong-v3")
-            env.play(callback=env_plotter.callback)
-
-
-        Arguments
-        ---------
-        transpose: bool
-            If True the output of observation is transposed.
-            Defaults to true.
-        fps: int
-            Maximum number of steps of the environment to execute every second.
-            Defaults to 30.
-        zoom: float
-            Make screen edge this many times bigger
-        callback: lambda or None
-            Callback if a callback is provided it will be executed after
-            every step. It takes the following input:
-                obs_t: observation before performing action
-                obs_tp1: observation after performing action
-                action: action that was executed
-                rew: reward that was received
-                done: whether the environemnt is done or not
-                info: debug info
-        keys_to_action: dict: tuple(int) -> int or None
-            Mapping from keys pressed to action performed.
-            For example if pressed 'w' and space at the same time is supposed
-            to trigger action number 2 then key_to_action dict would look like this:
-
-                {
-                    # ...
-                    sorted(ord('w'), ord(' ')) -> 2
-                    # ...
-                }
-            If None, default key_to_action mapping for that env is used, if provided.
-        """
-        play.play(env=self,
-                  transpose=transpose,
-                  fps=fps,
-                  zoom=zoom,
-                  callback=callback,
-                  keys_to_action=keys_to_action)
-
     @property
     def unwrapped(self):
         """Completely unwrap this env.
