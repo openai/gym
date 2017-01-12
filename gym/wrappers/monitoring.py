@@ -240,13 +240,13 @@ class _Monitor(Wrapper):
         self.close()
 
     def get_total_steps(self):
-        return self._monitor.stats_recorder.total_steps        
+        return self.stats_recorder.total_steps        
 
     def get_episode_rewards(self):
-        return self._monitor.stats_recorder.episode_rewards
+        return self.stats_recorder.episode_rewards
 
     def get_episode_lengths(self):
-        return self._monitor.stats_recorder.episode_lengths
+        return self.stats_recorder.episode_lengths
 
 
 def Monitor(env=None, directory=None, video_callable=None, force=False, resume=False,
