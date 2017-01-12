@@ -43,7 +43,7 @@ def upload(training_dir, algorithm_id=None, writeup=None, tags=None, benchmark_i
         # Validate against benchmark spec
         try:
             spec = benchmark_spec(benchmark_id)
-        except error.UnregisteredBenchmark as e:
+        except error.UnregisteredBenchmark:
             raise error.Error("Invalid benchmark id: {}. Are you using a benchmark registered in gym/benchmarks/__init__.py?".format(benchmark_id))
 
         # TODO: verify that the number of trials matches
@@ -54,7 +54,7 @@ def upload(training_dir, algorithm_id=None, writeup=None, tags=None, benchmark_i
 
         # This could be more stringent about mixing evaluations
         if sorted(env_ids) != sorted(spec_env_ids):
-            logger.info("WARNING: Evaluations do not match spec for benchmark {}. In {}, we found evaluations for {}, expected {}".format(benchmark_id, training_dir, sorted(env_ids), sorted(spec_env_ids)))
+            logger.info("WARNING: Evaluations do not match spec for benchmark %s. In %s, we found evaluations for %s, expected %s", benchmark_id, training_dir, sorted(env_ids), sorted(spec_env_ids))
 
         benchmark_run = resource.BenchmarkRun.create(benchmark_id=benchmark_id, algorithm_id=algorithm_id, tags=json.dumps(tags))
         benchmark_run_id = benchmark_run.id
@@ -77,7 +77,7 @@ OpenAI Gym! You can find it at:
         return benchmark_run_id
     else:
         if tags is not None:
-             logger.warn("Tags will NOT be uploaded for this submission.")
+             logger.warning("Tags will NOT be uploaded for this submission.")
         # Single evalution upload
         benchmark_run_id = None
         evaluation = _upload(training_dir, algorithm_id, writeup, benchmark_run_id, api_key, ignore_open_monitors)
@@ -117,7 +117,7 @@ def _upload(training_dir, algorithm_id=None, writeup=None, benchmark_run_id=None
         elif training_video_id is not None:
             logger.info('[%s] Creating evaluation object from %s with training video', env_id, training_dir)
         else:
-            raise error.Error("[{}] You didn't have any recorded training data in {}. Once you've used 'env.monitor.start(training_dir)' to start recording, you need to actually run some rollouts. Please join the community chat on https://gym.openai.com if you have any issues.".format(env_id, training_dir))
+            raise error.Error("[%s] You didn't have any recorded training data in %s. Once you've used 'env.monitor.start(training_dir)' to start recording, you need to actually run some rollouts. Please join the community chat on https://gym.openai.com if you have any issues."%(env_id, training_dir))
 
     evaluation = resource.Evaluation.create(
         training_episode_batch=training_episode_batch_id,
@@ -162,8 +162,8 @@ def upload_training_data(training_dir, api_key=None):
         training_episode_batch = None
 
     if len(videos) > MAX_VIDEOS:
-        logger.warn('[%s] You recorded videos for %s episodes, but the scoreboard only supports up to %s. We will automatically subsample for you, but you also might wish to adjust your video recording rate.', env_id, len(videos), MAX_VIDEOS)
-        subsample_inds = np.linspace(0, len(videos)-1, MAX_VIDEOS).astype('int')
+        logger.warning('[%s] You recorded videos for %s episodes, but the scoreboard only supports up to %s. We will automatically subsample for you, but you also might wish to adjust your video recording rate.', env_id, len(videos), MAX_VIDEOS)
+        subsample_inds = np.linspace(0, len(videos)-1, MAX_VIDEOS).astype('int') #pylint: disable=E1101
         videos = [videos[i] for i in subsample_inds]
 
     if len(videos) > 0:
