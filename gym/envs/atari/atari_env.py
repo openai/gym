@@ -81,7 +81,7 @@ class AtariEnv(gym.Env, utils.EzPickle):
             reward += self.ale.act(action)
         ob = self._get_obs()
 
-        return ob, reward, self.ale.game_over(), {}
+        return ob, reward, self.ale.game_over(), {"ale.lives": self.ale.lives()}
 
     def _get_image(self):
         self.ale.getScreenRGB(self._buffer)  # says rgb but actually bgr
