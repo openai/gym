@@ -329,30 +329,12 @@ for game in ['air_raid', 'alien', 'amidar', 'assault', 'asterix', 'asteroids', '
             nondeterministic=nondeterministic,
         )
 
-        env_id = '{}NoFrameskip-v0'.format(name)
-        register(
-            id='{}NoFrameskipEpisodicLife-v0'.format(name),
-            entry_point='gym.envs.atari:EpisodicLifeAtariEnv',
-            kwargs={'env_id': env_id},
-            tags={'wrapper_config.TimeLimit.max_episode_steps': frameskip * 100000},
-            nondeterministic=nondeterministic,
-        )
-
         # No frameskip. (Atari has no entropy source, so these are
         # deterministic environments.)
         register(
             id='{}NoFrameskip-v3'.format(name),
             entry_point='gym.envs.atari:AtariEnv',
             kwargs={'game': game, 'obs_type': obs_type, 'frameskip': 1}, # A frameskip of 1 means we get every frame
-            tags={'wrapper_config.TimeLimit.max_episode_steps': frameskip * 100000},
-            nondeterministic=nondeterministic,
-        )
-
-        env_id = '{}NoFrameskip-v3'.format(name)
-        register(
-            id='{}NoFrameskipEpisodicLife-v3'.format(name),
-            kwargs={'env_id': env_id},
-            entry_point='gym.envs.atari:EpisodicLifeAtariEnv',
             tags={'wrapper_config.TimeLimit.max_episode_steps': frameskip * 100000},
             nondeterministic=nondeterministic,
         )
