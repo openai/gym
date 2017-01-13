@@ -4,6 +4,7 @@ import gym
 from gym import error, spaces
 from gym import utils
 from gym.utils import seeding
+from gym.wrappers import EpisodicLifeWrapper
 
 try:
     import atari_py
@@ -18,6 +19,11 @@ def to_ram(ale):
     ram = np.zeros((ram_size),dtype=np.uint8)
     ale.getRAM(ram)
     return ram
+
+def EpisodicLifeAtariEnv(env_id):
+    env = gym.make(env_id)
+    env = EpisodicLifeWrapper(env)
+    return env
 
 class AtariEnv(gym.Env, utils.EzPickle):
     metadata = {'render.modes': ['human', 'rgb_array']}
