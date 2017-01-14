@@ -3,7 +3,7 @@ import json # note: ujson fails this test due to float equality
 import numpy as np
 from nose2 import tools
 
-from gym.spaces import Tuple, Box, Discrete, MultiDiscrete
+from gym.spaces import Tuple, Box, Discrete, MultiDiscrete, Categorical
 
 @tools.params(Discrete(3),
               Tuple([Discrete(5), Discrete(10)]),
@@ -29,3 +29,15 @@ def test_roundtripping(space):
     s2p = space.to_jsonable([sample_2_prime])
     assert s1 == s1p, "Expected {} to equal {}".format(s1, s1p)
     assert s2 == s2p, "Expected {} to equal {}".format(s2, s2p)
+
+def test_categoricals():
+    shapes = Categorical(['circle', 'triangle', 'square'])
+    assert shapes.n == 3
+    assert shapes.circle == 0 and shapes.triangle == 1 and shapes.square == 2
+
+    # 'contains' is the name of a method.
+    try:
+        synonyms = Categorical(['holds', 'encompasses', 'contains'])
+        assert False, "exception should have been raised"
+    except ValueError:
+        pass

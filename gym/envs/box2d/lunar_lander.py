@@ -99,7 +99,9 @@ class LunarLander(gym.Env):
             self.action_space = spaces.Box(-1, +1, (2,))
         else:
             # Nop, fire left engine, main engine, right engine
-            self.action_space = spaces.Discrete(4)
+            self.action_space = spaces.Categorical(
+                ['NO_OP', 'LEFT_ENGINE', 'MAIN_ENGINE', 'RIGHT_ENGINE']
+            )
 
         self._reset()
 

@@ -39,8 +39,10 @@ class CartPoleEnv(gym.Env):
             self.theta_threshold_radians * 2,
             np.finfo(np.float32).max])
 
-        self.action_space = spaces.Discrete(2)
-        self.observation_space = spaces.Box(-high, high)
+        self.action_space = spaces.Categorical(['LEFT', 'RIGHT'])
+        self.observation_space = spaces.Box(-high, high, named=
+            ['x', 'x_dot', 'theta', 'theta_dot']
+        )
 
         self._seed()
         self.viewer = None
@@ -55,7 +57,7 @@ class CartPoleEnv(gym.Env):
         assert self.action_space.contains(action), "%r (%s) invalid"%(action, type(action))
         state = self.state
         x, x_dot, theta, theta_dot = state
-        force = self.force_mag if action==1 else -self.force_mag
+        force = self.force_mag if action==self.action_space.RIGHT else -self.force_mag
         costheta = math.cos(theta)
         sintheta = math.sin(theta)
         temp = (force + self.polemass_length * theta_dot * theta_dot * sintheta) / self.total_mass
