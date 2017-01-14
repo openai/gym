@@ -1,6 +1,6 @@
 import numpy as np
 
-import gym, time
+import gym
 from gym.spaces import prng
 
 class Discrete(gym.Space):
@@ -11,9 +11,17 @@ class Discrete(gym.Space):
     self.observation_space = spaces.Discrete(2)
     """
     def __init__(self, n):
+        # Keep n for backwards compatability
         self.n = n
+        self._actions = xrange(0, self.n)
+
+    @property
+    def actions(self):
+        return self._actions
+
     def sample(self):
         return prng.np_random.randint(self.n)
+
     def contains(self, x):
         if isinstance(x, int):
             as_int = x
@@ -22,7 +30,9 @@ class Discrete(gym.Space):
         else:
             return False
         return as_int >= 0 and as_int < self.n
+
     def __repr__(self):
         return "Discrete(%d)" % self.n
+
     def __eq__(self, other):
         return self.n == other.n

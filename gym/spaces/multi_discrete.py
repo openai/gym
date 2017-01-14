@@ -31,19 +31,29 @@ class MultiDiscrete(gym.Space):
         self.high = np.array([x[1] for x in array_of_param_array])
         self.num_discrete_space = self.low.shape[0]
 
+        self._actions = [action for action_space in array_of_param_array for action in xrange(action_space[0],
+                                                                                              action_space[1])]
+
+    @property
+    def actions(self):
+        return self._actions
+
     def sample(self):
         """ Returns a array with one sample from each discrete action space """
         # For each row: round(random .* (max - min) + min, 0)
         random_array = prng.np_random.rand(self.num_discrete_space)
         return [int(x) for x in np.rint(np.multiply((self.high - self.low), random_array) + self.low)]
+
     def contains(self, x):
         return len(x) == self.num_discrete_space and (np.array(x) >= self.low).all() and (np.array(x) <= self.high).all()
 
     @property
     def shape(self):
         return self.num_discrete_space
+
     def __repr__(self):
         return "MultiDiscrete" + str(self.num_discrete_space)
+
     def __eq__(self, other):
         return np.array_equal(self.low, other.low) and np.array_equal(self.high, other.high)
 
@@ -113,7 +123,7 @@ class DiscreteToMultiDiscrete(Discrete):
 
         # Config 1
         if options is None:
-            self.n = self.num_discrete_space + 1                # +1 for NOOP at beginning
+            self.n = self.num_discrete_space + 1  # +1 for NOOP at beginning
             self.mapping = {i: [0] * self.num_discrete_space for i in range(self.n)}
             for i in range(self.num_discrete_space):
                 self.mapping[i + 1][i] = self.multi_discrete.high[i]
@@ -121,7 +131,7 @@ class DiscreteToMultiDiscrete(Discrete):
         # Config 2
         elif isinstance(options, list):
             assert len(options) <= self.num_discrete_space
-            self.n = len(options) + 1                          # +1 for NOOP at beginning
+            self.n = len(options) + 1  # +1 for NOOP at beginning
             self.mapping = {i: [0] * self.num_discrete_space for i in range(self.n)}
             for i, disc_num in enumerate(options):
                 assert disc_num < self.num_discrete_space

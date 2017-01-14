@@ -275,6 +275,18 @@ class Space(object):
         """
         raise NotImplementedError
 
+    @property
+    def actions(self):
+        """
+        Return iterable with all legal actions
+        for this space.
+
+        This allows general agents (not specifically written for gym)
+        to get the range of available actions by len(env.action_space.actions)
+        as well as indexing. Actions must therefore be a flattened iterable.
+        """
+        raise NotImplementedError
+
     def to_jsonable(self, sample_n):
         """Convert a batch of samples from this space to a JSONable data type."""
         # By default, assume identity is JSONable
