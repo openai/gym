@@ -1,6 +1,5 @@
 import gym
 from gym import Wrapper
-from gym.wrappers.time_limit import TimeLimit
 from gym import error, version
 import os, json, logging, numpy as np, six
 from gym.monitoring import stats_recorder, video_recorder
@@ -253,10 +252,7 @@ def Monitor(env=None, directory=None, video_callable=None, force=False, resume=F
             write_upon_reset=False, uid=None, mode=None):
     if not isinstance(env, gym.Env):
         raise error.Error("Monitor decorator syntax is deprecated as of 12/28/2016. Replace your call to `env = gym.wrappers.Monitor(directory)(env)` with `env = gym.wrappers.Monitor(env, directory)`")
-
-    # TODO: add duration in seconds also
-    return _Monitor(TimeLimit(env, max_episode_steps=env.spec.timestep_limit), directory, video_callable, force, resume,
-                    write_upon_reset, uid, mode)
+    return _Monitor(env, directory, video_callable, force, resume, write_upon_reset, uid, mode)
 
 def detect_training_manifests(training_dir, files=None):
     if files is None:
