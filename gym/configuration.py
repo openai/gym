@@ -1,8 +1,6 @@
 import logging
 import sys
 
-import gym
-
 logger = logging.getLogger(__name__)
 
 root_logger = logging.getLogger()

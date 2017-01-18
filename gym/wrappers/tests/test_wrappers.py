@@ -16,7 +16,6 @@ def test_skip():
 
 def test_configured():
     env = gym.make("FrozenLake-v0")
-    env = wrappers.TimeLimit(env)
     env.configure()
 
     # Make sure all layers of wrapping are configured

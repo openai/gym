@@ -1,9 +1,8 @@
 import logging
 import pkg_resources
 import re
-import sys
-
 from gym import error
+import warnings
 
 logger = logging.getLogger(__name__)
 # This format is true today, but it's *not* an official spec.
@@ -49,6 +48,14 @@ class EnvSpec(object):
             tags = {}
         self.tags = tags
 
+
+        # BACKWARDS COMPAT 2017/1/18
+        maybe_timestep_limit = tags.get('wrapper_config.TimeLimit.max_episode_steps')
+        if maybe_timestep_limit:
+            timestep_limit = maybe_timestep_limit
+            warnings.warn("tags['wrapper_config.TimeLimit.max_episode_steps'] is deprecated. Use timestep_limit argument.")
+        tags['wrapper_config.TimeLimit.max_episode_steps'] = timestep_limit
+        ######
         self.timestep_limit = timestep_limit
 
         # We may make some of these other parameters public if they're
@@ -71,19 +78,11 @@ class EnvSpec(object):
 
         # Make the enviroment aware of which spec it came from.
         env.spec = self
+
         return env
 
     def __repr__(self):
         return "EnvSpec({})".format(self.id)
-
-    @property
-    def timestep_limit(self):
-        return self.tags.get('wrapper_config.TimeLimit.max_episode_steps')
-
-    @timestep_limit.setter
-    def timestep_limit(self, timestep_limit):
-        if timestep_limit is not None:
-            self.tags['wrapper_config.TimeLimit.max_episode_steps'] = timestep_limit
 
 class EnvRegistry(object):
     """Register an env by ID. IDs remain stable over time and are
@@ -99,7 +98,12 @@ class EnvRegistry(object):
     def make(self, id):
         logger.info('Making new env: %s', id)
         spec = self.spec(id)
-        return spec.make()
+        env = spec.make()
+        if env.spec.timestep_limit is not None:
+            from gym.wrappers.time_limit import TimeLimit
+            env = TimeLimit(env, max_episode_steps=env.spec.timestep_limit)
+        return env
+
 
     def all(self):
         return self.env_specs.values()
