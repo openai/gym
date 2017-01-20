@@ -88,6 +88,7 @@ register(
     id='Acrobot-v1',
     entry_point='gym.envs.classic_control:AcrobotEnv',
     tags={'wrapper_config.TimeLimit.max_episode_steps': 500},
+    reward_threshold=-100.0,
 )
 
 # Box2d
