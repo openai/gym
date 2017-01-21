@@ -19,6 +19,9 @@ class MountainCarEnv(gym.Env):
         self.max_position = 0.6
         self.max_speed = 0.07
         self.goal_position = 0.5
+        
+        self.force=0.001
+        self.gravity=0.0025
 
         self.low = np.array([self.min_position, -self.max_speed])
         self.high = np.array([self.max_position, self.max_speed])
@@ -39,7 +42,7 @@ class MountainCarEnv(gym.Env):
         assert self.action_space.contains(action), "%r (%s) invalid" % (action, type(action))
 
         position, velocity = self.state
-        velocity += (action-1)*0.001 + math.cos(3*position)*(-0.0025)
+        velocity += (action-1)*self.force + math.cos(3*position)*(-self.gravity)
         velocity = np.clip(velocity, -self.max_speed, self.max_speed)
         position += velocity
         position = np.clip(position, self.min_position, self.max_position)
