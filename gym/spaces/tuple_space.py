@@ -5,7 +5,8 @@ class Tuple(Space):
     A tuple (i.e., product) of simpler spaces
 
     Example usage:
-    self.observation_space = spaces.Tuple((spaces.Discrete(2), spaces.Discrete(3)))
+    self.observation_space = spaces.tuple_space.Tuple((spaces.Discrete(2),
+                                                       spaces.Discrete(3)))
     """
     def __init__(self, spaces):
         self.spaces = spaces
