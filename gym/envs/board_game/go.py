@@ -105,16 +105,15 @@ def _play(black_policy_fn, white_policy_fn, board_size=19):
     moves = []
 
     prev_state, prev_action = None, None
-    curr_state = GoState(pachi_py.CreateBoard(board_size), BLACK)
+    curr_state = GoState(pachi_py.CreateBoard(board_size), pachi_py.BLACK)
 
     while not curr_state.board.is_terminal:
-        a = (black_policy_fn if curr_state.color == BLACK else white_policy_fn)(curr_state, prev_state, prev_action)
+        a = (black_policy_fn if curr_state.color == pachi_py.BLACK else white_policy_fn)(curr_state, prev_state, prev_action)
         next_state = curr_state.act(a)
         moves.append((curr_state, a, next_state))
 
         prev_state, prev_action = curr_state, a
         curr_state = next_state
-
     return moves
 
 
@@ -124,13 +123,15 @@ class GoEnv(gym.Env):
     '''
     metadata = {"render.modes": ["human", "ansi"]}
 
-    def __init__(self, player_color, opponent, observation_type, illegal_move_mode, board_size):
+    def __init__(self, player_color, opponent,
+                 illegal_move_mode='raise',
+                 board_size=19):
         """
         Args:
             player_color: Stone color for the agent. Either 'black' or 'white'
             opponent: An opponent policy
-            observation_type: State encoding
-            illegal_move_mode: What to do when the agent makes an illegal move. Choices: 'raise' or 'lose'
+            illegal_move_mode: What to do when the agent makes an illegal move. Choices: 'raise' or 'lose'. Defaults to 'raise'.
+            board_size: The size of the board. Defaults to 19.
         """
         assert isinstance(board_size, int) and board_size >= 1, 'Invalid board size: {}'.format(board_size)
         self.board_size = board_size
@@ -149,14 +150,8 @@ class GoEnv(gym.Env):
         self.opponent_policy = None
         self.opponent = opponent
 
-        assert observation_type in ['image3c']
-        self.observation_type = observation_type
-
         assert illegal_move_mode in ['lose', 'raise']
         self.illegal_move_mode = illegal_move_mode
-
-        if self.observation_type != 'image3c':
-            raise error.Error('Unsupported observation type: {}'.format(self.observation_type))
 
         shape = pachi_py.CreateBoard(self.board_size).encode().shape
         self.observation_space = spaces.Box(np.zeros(shape), np.ones(shape))
