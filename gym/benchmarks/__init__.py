@@ -120,6 +120,65 @@ register_benchmark(
     ])
 
 register_benchmark(
+    id='AtariExploration40M',
+    scorer=scoring.TotalReward(),
+    name='AtariExploration40M',
+    view_group="Atari",
+    description='7 Atari games, with pixel observations',
+    tasks=[
+        {
+            'env_id': 'FreewayNoFrameskip-v3',
+            'trials': 2,
+            'max_timesteps': 4e7,
+            'reward_floor':   0.1,
+            'reward_ceiling': 31.0,
+        },
+        {
+            'env_id': 'GravitarNoFrameskip-v3',
+            'trials': 2,
+            'max_timesteps': 4e7,
+            'reward_floor':   245.5,
+            'reward_ceiling': 1000.0,
+        },
+        {
+            'env_id': 'MontezumaRevengeNoFrameskip-v3',
+            'trials': 2,
+            'max_timesteps': 4e7,
+            'reward_floor':   25.0,
+            'reward_ceiling': 10000.0,
+        },
+        {
+            'env_id': 'PitfallNoFrameskip-v3',
+            'trials': 2,
+            'max_timesteps': 4e7,
+            'reward_floor':  -348.8,
+            'reward_ceiling': 1000.0,
+        },
+        {
+            'env_id': 'PrivateEyeNoFrameskip-v3',
+            'trials': 2,
+            'max_timesteps': 4e7,
+            'reward_floor':   662.8,
+            'reward_ceiling': 100.0,
+        },
+        {
+            'env_id': 'SolarisNoFrameskip-v3',
+            'trials': 2,
+            'max_timesteps': 4e7,
+            'reward_floor':   2047.2,
+            'reward_ceiling': 5000.0,
+        },
+        {
+            'env_id': 'VentureNoFrameskip-v3',
+            'trials': 2,
+            'max_timesteps': 4e7,
+            'reward_floor':   18.0,
+            'reward_ceiling': 100.0,
+        }
+    ])
+
+
+register_benchmark(
     id='ClassicControl2-v0',
     name='ClassicControl2',
     view_group="Control",
