@@ -279,21 +279,18 @@ def _find_cutoffs_for_task(task, elapsed_timesteps, elapsed_seconds):
     return cutoff_idx
 
 class BenchmarkScoringRule(object):
-    """Benchmark scoring rule class
+    """Benchmark scoring rule abstract class
 
     Takes care of munging the monitor files to identify which episodes for each
     task appear before the max_seconds or max_timesteps limit, whichever is
     earlier.
 
-    It passes the rewards for the episodes to the "score_and_solved_func"
-    callback given in __init__
+    It passes the rewards for the episodes to the "score_and_solved"
+    defined by its subclass.
 
     The benchmark score is the average of all task scores.
 
     """
-    def __init__(self, score_and_solved_func):
-        self.score_and_solved_func = score_and_solved_func
-
     def null_score(self):
         return 0.0
 
@@ -346,7 +343,7 @@ class BenchmarkScoringRule(object):
 
             reward = np.array(episode_rewards)[:cutoff_idx]
 
-            score, solved = self.score_and_solved_func(task, reward, elapsed_seconds[:cutoff_idx])
+            score, solved = self.score_and_solved(task, reward, elapsed_seconds[:cutoff_idx])
 
             scores.append(score)
             solves.append(solved)
@@ -381,8 +378,8 @@ class BenchmarkScoringRule(object):
 
         return np.mean(all_scores)
 
-def TotalReward():
-    def total_reward_from_episode_rewards(task, reward, elapsed_seconds):
+class TotalReward(BenchmarkScoringRule):
+    def score_and_solved(self, task, reward, elapsed_seconds):
         "TotalReward scoring takes the mean of all rewards earned over the course of the episode and clips it between reward_floor and reward_ceiling"
         # reward is an array containing valid rewards for the episode
         floor = task.reward_floor
@@ -393,10 +390,8 @@ def TotalReward():
         score = np.clip((np.mean(reward) - floor) / (ceiling - floor), 0, 1)
         return score, solved
 
-    return BenchmarkScoringRule(total_reward_from_episode_rewards)
-
-def RewardPerTime():
-    def reward_per_time_from_episode_rewards(task, reward, elapsed_seconds):
+class RewardPerTime(BenchmarkScoringRule):
+    def score_and_solved(self, task, reward, elapsed_seconds):
         "RewardPerTime scoring takes the total reward earned over the course of the episode, divides by the elapsed time, and clips it between reward_floor and reward_ceiling"
         floor = task.reward_floor
         ceiling = task.reward_ceiling
@@ -408,5 +403,3 @@ def RewardPerTime():
         reward_per_second = np.sum(reward) / elapsed_seconds[-1] if np.any(elapsed_seconds) else 0.0
         score = np.clip((reward_per_second - floor) / (ceiling - floor), 0, 1)
         return score, solved
-
-    return BenchmarkScoringRule(reward_per_time_from_episode_rewards)
