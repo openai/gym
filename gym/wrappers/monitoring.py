@@ -47,5 +47,6 @@ def Monitor(env=None, directory=None, video_callable=None, force=False, resume=F
         raise error.Error("Monitor decorator syntax is deprecated as of 12/28/2016. Replace your call to `env = gym.wrappers.Monitor(directory)(env)` with `env = gym.wrappers.Monitor(env, directory)`")
 
     # TODO: add duration in seconds also
-    return _Monitor(TimeLimit(env, max_episode_steps=env.spec.timestep_limit), directory, video_callable, force, resume,
-                    write_upon_reset, uid, mode)
+    return _Monitor(TimeLimit(env, max_episode_steps=env.spec.tags.get('wrapper_config.TimeLimit.max_episode_steps')),
+                    directory, video_callable, force, resume, write_upon_reset,
+                    uid, mode)
