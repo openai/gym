@@ -36,7 +36,7 @@ class EnvSpec(object):
         trials (int): The number of trials run in official evaluation
     """
 
-    def __init__(self, id, entry_point=None, trials=100, reward_threshold=None, local_only=False, kwargs=None, nondeterministic=False, tags=None, timestep_limit=None):
+    def __init__(self, id, entry_point=None, trials=100, reward_threshold=None, local_only=False, kwargs=None, nondeterministic=False, tags=None, max_episode_steps=None, timestep_limit=None):
         self.id = id
         # Evaluation parameters
         self.trials = trials
@@ -50,13 +50,19 @@ class EnvSpec(object):
 
 
         # BACKWARDS COMPAT 2017/1/18
-        maybe_timestep_limit = tags.get('wrapper_config.TimeLimit.max_episode_steps')
-        if maybe_timestep_limit:
-            timestep_limit = maybe_timestep_limit
-            warnings.warn("tags['wrapper_config.TimeLimit.max_episode_steps'] is deprecated. Use timestep_limit argument.")
-        tags['wrapper_config.TimeLimit.max_episode_steps'] = timestep_limit
+        if tags.get('wrapper_config.TimeLimit.max_episode_steps'):
+            max_episode_steps = tags.get('wrapper_config.TimeLimit.max_episode_steps')
+            warnings.warn("tags['wrapper_config.TimeLimit.max_episode_steps'] is deprecated. Use max_episode_steps argument.")
+        tags['wrapper_config.TimeLimit.max_episode_steps'] = max_episode_steps
         ######
-        self.timestep_limit = timestep_limit
+
+        # BACKWARDS COMPAT 2017/1/31
+        if max_episode_steps is not None:
+            max_episode_steps = max_episode_steps
+            # TODO: Add deprecation warning after 2017/03/01
+        ######
+
+        self.max_episode_steps = max_episode_steps
 
         # We may make some of these other parameters public if they're
         # useful.
@@ -84,6 +90,15 @@ class EnvSpec(object):
     def __repr__(self):
         return "EnvSpec({})".format(self.id)
 
+    @property
+    def timestep_limit(self):
+        return self.max_episode_steps
+
+    @timestep_limit.setter
+    def timestep_limit(self, value):
+        self.max_episode_steps = value
+
+
 class EnvRegistry(object):
     """Register an env by ID. IDs remain stable over time and are
     guaranteed to resolve to the same environment dynamics (or be
@@ -99,9 +114,9 @@ class EnvRegistry(object):
         logger.info('Making new env: %s', id)
         spec = self.spec(id)
         env = spec.make()
-        if env.spec.timestep_limit is not None:
+        if env.spec.max_episode_steps is not None:
             from gym.wrappers.time_limit import TimeLimit
-            env = TimeLimit(env, max_episode_steps=env.spec.timestep_limit)
+            env = TimeLimit(env, max_episode_steps=env.spec.max_episode_steps)
         return env
 
 

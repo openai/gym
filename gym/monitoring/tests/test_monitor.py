@@ -103,7 +103,7 @@ logger = logging.getLogger()
 gym.envs.register(
     id='Autoreset-v0',
     entry_point='gym.monitoring.tests.test_monitor:AutoresetEnv',
-    timestep_limit=2,
+    max_episode_steps=2,
 )
 def test_env_reuse():
     with helpers.tempdir() as temp:
@@ -187,7 +187,7 @@ def test_only_complete_episodes_written():
 register(
     id='test.StepsLimitCartpole-v0',
     entry_point='gym.envs.classic_control:CartPoleEnv',
-    timestep_limit=2
+    max_episode_steps=2
     )
 
 def test_steps_limit_restart():
