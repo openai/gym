@@ -36,7 +36,7 @@ class EnvSpec(object):
         trials (int): The number of trials run in official evaluation
     """
 
-    def __init__(self, id, entry_point=None, trials=100, reward_threshold=None, local_only=False, kwargs=None, nondeterministic=False, tags=None, max_episode_steps=None, timestep_limit=None):
+    def __init__(self, id, entry_point=None, trials=100, reward_threshold=None, local_only=False, kwargs=None, nondeterministic=False, tags=None, max_episode_steps=None, max_episode_seconds=None, timestep_limit=None):
         self.id = id
         # Evaluation parameters
         self.trials = trials
@@ -47,7 +47,6 @@ class EnvSpec(object):
         if tags is None:
             tags = {}
         self.tags = tags
-
 
         # BACKWARDS COMPAT 2017/1/18
         if tags.get('wrapper_config.TimeLimit.max_episode_steps'):
@@ -64,6 +63,7 @@ class EnvSpec(object):
         ######
 
         self.max_episode_steps = max_episode_steps
+        self.max_episode_seconds = max_episode_seconds
 
         # We may make some of these other parameters public if they're
         # useful.
@@ -121,7 +121,9 @@ class EnvRegistry(object):
         # We will add TimeLimit to all envs after we remove `configure` from the env API
         if not env.spec.tags.get('vnc'):
             from gym.wrappers.time_limit import TimeLimit
-            env = TimeLimit(env, max_episode_steps=env.spec.max_episode_steps)
+            env = TimeLimit(env,
+                            max_episode_steps=env.spec.max_episode_steps,
+                            max_episode_seconds=env.spec.max_episode_seconds)
         return env
 
     def all(self):
