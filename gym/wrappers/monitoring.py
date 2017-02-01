@@ -1,10 +1,9 @@
-import gym
-from gym import monitoring
-from gym import Wrapper
-from gym.wrappers.time_limit import TimeLimit
-from gym import error
-
 import logging
+
+import gym
+from gym import Wrapper
+from gym import error
+from gym import monitoring
 
 logger = logging.getLogger(__name__)
 
@@ -41,11 +40,20 @@ class _Monitor(Wrapper):
         logger.info("Setting the monitor mode is deprecated and will be removed soon")
         self._monitor._set_mode(mode)
 
+    def get_total_steps(self):
+        return self._monitor.stats_recorder.total_steps        
+
+    def get_episode_rewards(self):
+        return self._monitor.stats_recorder.episode_rewards
+
+    def get_episode_lengths(self):
+        return self._monitor.stats_recorder.episode_lengths
+
+
 def Monitor(env=None, directory=None, video_callable=None, force=False, resume=False,
             write_upon_reset=False, uid=None, mode=None):
     if not isinstance(env, gym.Env):
         raise error.Error("Monitor decorator syntax is deprecated as of 12/28/2016. Replace your call to `env = gym.wrappers.Monitor(directory)(env)` with `env = gym.wrappers.Monitor(env, directory)`")
 
     # TODO: add duration in seconds also
-    return _Monitor(TimeLimit(env, max_episode_steps=env.spec.timestep_limit), directory, video_callable, force, resume,
-                    write_upon_reset, uid, mode)
+    return _Monitor(env, directory, video_callable, force, resume, write_upon_reset, uid, mode)
