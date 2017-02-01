@@ -31,7 +31,7 @@ def score_from_remote(url):
 
 def score_from_local(directory):
     """Calculate score from a local results directory"""
-    results = gym.monitoring.monitor.load_results(directory)
+    results = gym.monitoring.load_results(directory)
     # No scores yet saved
     if results is None:
         return None

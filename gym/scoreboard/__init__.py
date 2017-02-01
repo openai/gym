@@ -13,6 +13,7 @@ from gym.scoreboard.registration import registry, add_task, add_group, add_bench
 
 # Discover API key from the environment. (You should never have to
 # change api_base / web_base.)
+env_key_names = ['OPENAI_GYM_API_KEY', 'OPENAI_GYM_API_BASE', 'OPENAI_GYM_WEB_BASE']
 api_key = os.environ.get('OPENAI_GYM_API_KEY')
 api_base = os.environ.get('OPENAI_GYM_API_BASE', 'https://gym-api.openai.com')
 web_base = os.environ.get('OPENAI_GYM_WEB_BASE', 'https://gym.openai.com')

@@ -495,4 +495,4 @@ if __name__=="__main__":
             if not record_video: # Faster, but you can as well call env.render() every time to play full window.
                 env.render()
             if done or restart: break
-    env.monitor.close()
+    env.close()
