@@ -51,7 +51,9 @@ class EnvSpec(object):
         # BACKWARDS COMPAT 2017/1/18
         if tags.get('wrapper_config.TimeLimit.max_episode_steps'):
             max_episode_steps = tags.get('wrapper_config.TimeLimit.max_episode_steps')
-            warnings.warn("tags['wrapper_config.TimeLimit.max_episode_steps'] is deprecated. Use max_episode_steps argument.")
+            # TODO: Add the following deprecation warning after 2017/02/18
+            # warnings.warn("DEPRECATION WARNING wrapper_config.TimeLimit has been deprecated. Replace any calls to `register(tags={'wrapper_config.TimeLimit.max_episode_steps': 200)}` with `register(max_episode_steps=200)`. This change was made 2017/1/31 and is included in gym version 0.8.0. If you are getting many of these warnings, you may need to update universe past version 0.21.3")
+
         tags['wrapper_config.TimeLimit.max_episode_steps'] = max_episode_steps
         ######
 
