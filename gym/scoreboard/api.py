@@ -140,7 +140,7 @@ def upload_training_data(training_dir, api_key=None):
     if not results:
         raise error.Error('''Could not find any manifest files in {}.
 
-(HINT: this usually means you did not yet close() your env.monitor and have not yet exited the process. You should call 'env.monitor.start(training_dir)' at the start of training and 'env.monitor.close()' at the end, or exit the process.)'''.format(training_dir))
+(HINT: this usually means you did not yet close() your env.monitor and have not yet exited the process. You should call 'env.monitor.start(training_dir)' at the start of training and 'env.close()' at the end, or exit the process.)'''.format(training_dir))
 
     manifests = results['manifests']
     env_info = results['env_info']
