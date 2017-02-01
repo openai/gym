@@ -114,9 +114,14 @@ class EnvRegistry(object):
         logger.info('Making new env: %s', id)
         spec = self.spec(id)
         env = spec.make()
-        if env.spec.max_episode_steps is not None:
+
+        # Set a TimeLimit wrapper on all envs where it is defined
+        time_limit_set = env.spec.max_episode_steps is not None
+        env_is_vnc = env.spec.tags.get('vnc')  # Omit vnc envs for now, because autowrapping breaks configure semantics
+        if time_limit_set and not env_is_vnc:
             from gym.wrappers.time_limit import TimeLimit
             env = TimeLimit(env, max_episode_steps=env.spec.max_episode_steps)
+
         return env
 
 
