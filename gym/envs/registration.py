@@ -57,9 +57,10 @@ class EnvSpec(object):
         ######
 
         # BACKWARDS COMPAT 2017/1/31
-        if max_episode_steps is not None:
-            max_episode_steps = max_episode_steps
-            # TODO: Add deprecation warning after 2017/03/01
+        if timestep_limit is not None:
+            max_episode_steps = timestep_limit
+            # TODO: Add the following deprecation warning after 2017/03/01
+            # warnings.warn("register(timestep_limit={}) is deprecated. Use register(max_episode_steps={}) instead.".format(timestep_limit, timestep_limit))
         ######
 
         self.max_episode_steps = max_episode_steps
