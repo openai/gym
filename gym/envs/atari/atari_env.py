@@ -124,6 +124,29 @@ class AtariEnv(gym.Env, utils.EzPickle):
     def get_action_meanings(self):
         return [ACTION_MEANING[i] for i in self._action_set]
 
+    def get_keys_to_action(self):
+        KEYWORD_TO_KEY = {
+            'UP':      ord('w'),
+            'DOWN':    ord('s'),
+            'LEFT':    ord('a'),
+            'RIGHT':   ord('d'),
+            'FIRE':    ord(' '),
+        }
+
+        keys_to_action = {}
+
+        for action_id, action_meaning in enumerate(self.get_action_meanings()):
+            keys = []
+            for keyword, key in KEYWORD_TO_KEY.items():
+                if keyword in action_meaning:
+                    keys.append(key)
+            keys = tuple(sorted(keys))
+
+            assert keys not in keys_to_action
+            keys_to_action[keys] = action_id
+
+        return keys_to_action
+
     # def save_state(self):
     #     return self.ale.saveState()
 
