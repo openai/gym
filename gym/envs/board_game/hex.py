@@ -124,7 +124,7 @@ class HexEnv(gym.Env):
 
         # Making move if there are moves left
         if a is not None:
-            if HexEnv.resign_move(self.board_size, action):
+            if HexEnv.resign_move(self.board_size, a):
                 return self.state, 1, True, {'state': self.state}
             else:
                 HexEnv.make_move(self.state, a, 1 - self.player_color)

@@ -22,7 +22,7 @@ def to_ram(ale):
 class AtariEnv(gym.Env, utils.EzPickle):
     metadata = {'render.modes': ['human', 'rgb_array']}
 
-    def __init__(self, game='pong', obs_type='ram', frameskip=(2, 5)):
+    def __init__(self, game='pong', obs_type='ram', frameskip=(2, 5), repeat_action_probability=0.):
         """Frameskip should be either a tuple (indicating a random range to
         choose from, with the top value exclude), or an int."""
 
@@ -36,6 +36,11 @@ class AtariEnv(gym.Env, utils.EzPickle):
         self.frameskip = frameskip
         self.ale = atari_py.ALEInterface()
         self.viewer = None
+
+        # Tune (or disable) ALE's action repeat:
+        # https://github.com/openai/gym/issues/349
+        assert isinstance(repeat_action_probability, (float, int)), "Invalid repeat_action_probability: {!r}".format(repeat_action_probability)
+        self.ale.setFloat('repeat_action_probability'.encode('utf-8'), repeat_action_probability)
 
         self._seed()
 
@@ -76,7 +81,7 @@ class AtariEnv(gym.Env, utils.EzPickle):
             reward += self.ale.act(action)
         ob = self._get_obs()
 
-        return ob, reward, self.ale.game_over(), {}
+        return ob, reward, self.ale.game_over(), {"ale.lives": self.ale.lives()}
 
     def _get_image(self):
         self.ale.getScreenRGB(self._buffer)  # says rgb but actually bgr
@@ -118,6 +123,29 @@ class AtariEnv(gym.Env, utils.EzPickle):
 
     def get_action_meanings(self):
         return [ACTION_MEANING[i] for i in self._action_set]
+
+    def get_keys_to_action(self):
+        KEYWORD_TO_KEY = {
+            'UP':      ord('w'),
+            'DOWN':    ord('s'),
+            'LEFT':    ord('a'),
+            'RIGHT':   ord('d'),
+            'FIRE':    ord(' '),
+        }
+
+        keys_to_action = {}
+
+        for action_id, action_meaning in enumerate(self.get_action_meanings()):
+            keys = []
+            for keyword, key in KEYWORD_TO_KEY.items():
+                if keyword in action_meaning:
+                    keys.append(key)
+            keys = tuple(sorted(keys))
+
+            assert keys not in keys_to_action
+            keys_to_action[keys] = action_id
+
+        return keys_to_action
 
     # def save_state(self):
     #     return self.ale.saveState()

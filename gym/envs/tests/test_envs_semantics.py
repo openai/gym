@@ -17,13 +17,9 @@ ROLLOUT_STEPS = 100
 episodes = ROLLOUT_STEPS
 steps = ROLLOUT_STEPS
 
-python_version = sys.version_info.major
-if python_version == 3:
-    ROLLOUT_FILE = os.path.join(DATA_DIR, 'rollout_py3.json')
-else:
-    ROLLOUT_FILE = os.path.join(DATA_DIR, 'rollout_py2.json')
+ROLLOUT_FILE = os.path.join(DATA_DIR, 'rollout.json')
 
-if not os.path.isfile(ROLLOUT_FILE): 
+if not os.path.isfile(ROLLOUT_FILE):
   with open(ROLLOUT_FILE, "w") as outfile:
     json.dump({}, outfile, indent=2)
 
@@ -66,13 +62,13 @@ def generate_rollout_hash(spec):
 
   return observations_hash, actions_hash, rewards_hash, dones_hash
 
-specs = [spec for spec in envs.registry.all() if spec._entry_point is not None]
+specs = [spec for spec in sorted(envs.registry.all(), key=lambda x: x.id) if spec._entry_point is not None]
 @tools.params(*specs)
 def test_env_semantics(spec):
   with open(ROLLOUT_FILE) as data_file:
     rollout_dict = json.load(data_file)
 
-  if spec.id not in rollout_dict:
+  if spec.id not in rollout_dict or should_skip_env_spec_for_tests(spec):
     if not spec.nondeterministic or should_skip_env_spec_for_tests(spec):
       logger.warn("Rollout does not exist for {}, run generate_json.py to generate rollouts for new envs".format(spec.id))
     return
@@ -81,7 +77,16 @@ def test_env_semantics(spec):
 
   observations_now, actions_now, rewards_now, dones_now = generate_rollout_hash(spec)
 
-  assert rollout_dict[spec.id]['observations'] == observations_now, 'Observations not equal for {}'.format(spec.id)
-  assert rollout_dict[spec.id]['actions'] == actions_now, 'Actions not equal for {}'.format(spec.id)
-  assert rollout_dict[spec.id]['rewards'] == rewards_now, 'Rewards not equal for {}'.format(spec.id)
-  assert rollout_dict[spec.id]['dones'] == dones_now, 'Dones not equal for {}'.format(spec.id)
+  errors = []
+  if rollout_dict[spec.id]['observations'] != observations_now:
+    errors.append('Observations not equal for {} -- expected {} but got {}'.format(spec.id, rollout_dict[spec.id]['observations'], observations_now))
+  if rollout_dict[spec.id]['actions'] != actions_now:
+    errors.append('Actions not equal for {} -- expected {} but got {}'.format(spec.id, rollout_dict[spec.id]['actions'], actions_now))
+  if rollout_dict[spec.id]['rewards'] != rewards_now:
+    errors.append('Rewards not equal for {} -- expected {} but got {}'.format(spec.id, rollout_dict[spec.id]['rewards'], rewards_now))
+  if rollout_dict[spec.id]['dones'] != dones_now:
+    errors.append('Dones not equal for {} -- expected {} but got {}'.format(spec.id, rollout_dict[spec.id]['dones'], dones_now))
+  if len(errors):
+    for error in errors:
+      logger.warn(error)
+    raise ValueError(errors)

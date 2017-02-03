@@ -2,9 +2,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 import numpy as np
-import weakref
 
-from gym import error, monitoring
+from gym import error
 from gym.utils import closer, reraise
 
 env_closer = closer.Closer()
@@ -90,17 +89,7 @@ class Env(object):
 
     @property
     def monitor(self):
-        """Lazily creates a monitor instance.
-
-        We do this lazily rather than at environment creation time
-        since when the monitor closes, we need remove the existing
-        monitor but also make it easy to start a new one. We could
-        still just forcibly create a new monitor instance on old
-        monitor close, but that seems less clean.
-        """
-        if not hasattr(self, '_monitor'):
-            self._monitor = monitoring.Monitor(self)
-        return self._monitor
+        raise error.Error("env.monitor has been deprecated as of 12/23/2016. Remove your call to `env.monitor.start(directory)` and instead wrap your env with `env = gym.wrappers.Monitor(env, directory)` to record data.")
 
     def step(self, action):
         """Run one timestep of the environment's dynamics. When end of
@@ -118,10 +107,7 @@ class Env(object):
             done (boolean): whether the episode has ended, in which case further step() calls will return undefined results
             info (dict): contains auxiliary diagnostic information (helpful for debugging, and sometimes learning)
         """
-        self.monitor._before_step(action)
         observation, reward, done, info = self._step(action)
-
-        done = self.monitor._after_step(observation, reward, done, info)
         return observation, reward, done, info
 
     def reset(self):
@@ -132,13 +118,9 @@ class Env(object):
             space. (Initial reward is assumed to be 0.)
         """
         if self.metadata.get('configure.required') and not self._configured:
-            raise error.Error("{} requires manually calling 'configure()' before 'reset()'".format(self))
-        elif not self._configured:
+            logger.warning("Called reset on %s before configuring. Configuring automatically with default arguments", self)
             self.configure()
-
-        self.monitor._before_reset()
         observation = self._reset()
-        self.monitor._after_reset(observation)
         return observation
 
     def render(self, mode='human', close=False):
@@ -202,9 +184,6 @@ class Env(object):
         if not hasattr(self, '_closed') or self._closed:
             return
 
-        # Automatically close the monitor and any render window.
-        if hasattr(self, '_monitor'):
-            self.monitor.close()
         if self._owns_render:
             self.render(close=True)
 
@@ -239,7 +218,6 @@ class Env(object):
         or path to your ImageNet data). It should not affect the
         semantics of the environment.
         """
-
         self._configured = True
 
         try:
@@ -330,6 +308,27 @@ class Wrapper(Env):
         self._spec = self.env.spec
         self._unwrapped = self.env.unwrapped
 
+        self._update_wrapper_stack()
+        if env and env._configured:
+            logger.warning("Attempted to wrap env %s after .configure() was called.", env)
+
+    def _update_wrapper_stack(self):
+        """
+        Keep a list of all the wrappers that have been appended to the stack.
+        """
+        self._wrapper_stack = getattr(self.env, '_wrapper_stack', [])
+        self._check_for_duplicate_wrappers()
+        self._wrapper_stack.append(self)
+
+    def _check_for_duplicate_wrappers(self):
+        """Raise an error if there are duplicate wrappers. Can be overwritten by subclasses"""
+        if self.class_name() in [wrapper.class_name() for wrapper in self._wrapper_stack]:
+            raise error.DoubleWrapperError("Attempted to double wrap with Wrapper: {}".format(self.class_name()))
+
+    @classmethod
+    def class_name(cls):
+        return cls.__name__
+
     def _step(self, action):
         return self.env.step(action)
 
@@ -406,4 +405,10 @@ class ActionWrapper(Wrapper):
         return self._action(action)
 
     def _action(self, action):
+        raise NotImplementedError
+
+    def reverse_action(self, action):
+        return self._reverse_action(action)
+
+    def _reverse_action(self, action):
         raise NotImplementedError

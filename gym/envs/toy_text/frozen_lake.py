@@ -5,10 +5,10 @@ from six import StringIO, b
 from gym import utils
 from gym.envs.toy_text import discrete
 
-UP = 0
-RIGHT = 1
-DOWN = 2
-LEFT = 3
+LEFT = 0
+DOWN = 1
+RIGHT = 2
+UP = 3
 
 MAPS = {
     "4x4": [
@@ -91,8 +91,8 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
                 s = to_s(row, col)
                 for a in range(4):
                     li = P[s][a]
-                    letter = str(desc[row, col])
-                    if letter in 'GH':
+                    letter = desc[row, col]
+                    if letter in b'GH':
                         li.append((1.0, s, 0, True))
                     else:
                         if is_slippery:

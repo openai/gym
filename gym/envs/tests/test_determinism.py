@@ -10,7 +10,7 @@ from gym import envs, spaces
 
 from gym.envs.tests.test_envs import should_skip_env_spec_for_tests
 
-specs = [spec for spec in envs.registry.all() if spec._entry_point is not None]
+specs = [spec for spec in sorted(envs.registry.all(), key=lambda x: x.id) if spec._entry_point is not None]
 @tools.params(*specs)
 def test_env(spec):
     if should_skip_env_spec_for_tests(spec):

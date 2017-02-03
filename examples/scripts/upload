@@ -14,18 +14,20 @@ import gym
 logger = logging.getLogger()
 
 class Uploader(object):
-    def __init__(self, training_dir, algorithm_id, writeup):
+    def __init__(self, training_dir, algorithm_id, benchmark_run_id, writeup):
         self.training_dir = training_dir
         self.algorithm_id = algorithm_id
+        self.benchmark_run_id = benchmark_run_id
         self.writeup = writeup
 
     def run(self):
-        gym.upload(self.training_dir, algorithm_id=self.algorithm_id, writeup=self.writeup)
+        gym.upload(self.training_dir, algorithm_id=self.algorithm_id, benchmark_run_id=self.benchmark_run_id, writeup=self.writeup)
 
 def main():
     parser = argparse.ArgumentParser(description=None)
     parser.add_argument('-t', '--training-dir', required=True, help='What directory to upload.')
     parser.add_argument('-a', '--algorithm_id', help='Set the algorithm id.')
+    parser.add_argument('-b', '--benchmark-run-id', help='Set the algorithm id.')
     parser.add_argument('-w', '--writeup', help='Writeup to attach.')
     parser.add_argument('-v', '--verbose', action='count', dest='verbosity', default=0, help='Set verbosity.')
     args = parser.parse_args()
@@ -35,7 +37,7 @@ def main():
     elif args.verbosity >= 1:
         logger.setLevel(logging.DEBUG)
 
-    runner = Uploader(training_dir=args.training_dir, algorithm_id=args.algorithm_id, writeup=args.writeup)
+    runner = Uploader(training_dir=args.training_dir, algorithm_id=args.algorithm_id, benchmark_run_id=args.benchmark_run_id, writeup=args.writeup)
     runner.run()
 
     return 0

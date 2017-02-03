@@ -8,11 +8,12 @@ http://rst.ninjs.org/
 
 import os
 
-from gym.scoreboard.client.resource import Algorithm, Evaluation, FileUpload
-from gym.scoreboard.registration import registry, add_task, add_group
+from gym.scoreboard.client.resource import Algorithm, BenchmarkRun, Evaluation, FileUpload
+from gym.scoreboard.registration import registry, add_task, add_group, add_benchmark
 
 # Discover API key from the environment. (You should never have to
 # change api_base / web_base.)
+env_key_names = ['OPENAI_GYM_API_KEY', 'OPENAI_GYM_API_BASE', 'OPENAI_GYM_WEB_BASE']
 api_key = os.environ.get('OPENAI_GYM_API_KEY')
 api_base = os.environ.get('OPENAI_GYM_API_BASE', 'https://gym-api.openai.com')
 web_base = os.environ.get('OPENAI_GYM_WEB_BASE', 'https://gym.openai.com')
@@ -610,7 +611,7 @@ add_task(
 )
 
 add_task(
-    id='Taxi-v1',
+    id='Taxi-v2',
     group='toy_text',
     summary='As a taxi driver, you need to pick up and drop off passengers as fast as possible.',
     description="""
