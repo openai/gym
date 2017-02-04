@@ -5,6 +5,7 @@ import sys
 from gym import error
 from gym.configuration import logger_setup, undo_logger_setup
 from gym.utils import reraise
+from gym.version import VERSION as __version__
 
 logger = logging.getLogger(__name__)
 
