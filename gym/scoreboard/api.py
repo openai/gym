@@ -74,7 +74,7 @@ OpenAI Gym! You can find it at:
 ****************************************************
         """.rstrip(), benchmark_id, benchmark_run.web_url())
 
-        return benchmark_run_id
+        return benchmark_run
     else:
         if tags is not None:
              logger.warn("Tags will NOT be uploaded for this submission.")
