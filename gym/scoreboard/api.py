@@ -7,6 +7,8 @@ import tempfile
 from gym import benchmark_spec, error, monitoring
 from gym.scoreboard.client import resource, util
 import numpy as np
+from time import sleep
+from six import iteritems
 
 MAX_VIDEOS = 100
 
@@ -15,7 +17,25 @@ logger = logging.getLogger(__name__)
 video_name_re = re.compile('^[\w.-]+\.(mp4|avi|json)$')
 metadata_name_re = re.compile('^[\w.-]+\.meta\.json$')
 
-def upload(training_dir, algorithm_id=None, writeup=None, tags=None, benchmark_id=None, api_key=None, ignore_open_monitors=False):
+def continuous_upload(*args, **kwargs):
+    evaluations = {}
+    benchmark_run = None
+    try:
+        while True:
+            benchmark_run = upload(*args, evaluations=evaluations,
+                                   benchmark_run=benchmark_run, **kwargs)
+            sleep(3)
+    except KeyboardInterrupt:
+        # We'll be out in a moment
+        pass
+    for _, e in iteritems(evaluations):
+        e.complete = True
+        e.save()
+    raise KeyboardInterrupt()
+
+def upload(training_dir, algorithm_id=None, writeup=None, tags=None,
+           benchmark_id=None, api_key=None, ignore_open_monitors=False,
+           evaluations=None, benchmark_run=None):
     """Upload the results of training (as automatically recorded by your
     env's monitor) to OpenAI Gym.
 
@@ -56,13 +76,18 @@ def upload(training_dir, algorithm_id=None, writeup=None, tags=None, benchmark_i
         if sorted(env_ids) != sorted(spec_env_ids):
             logger.info("WARNING: Evaluations do not match spec for benchmark {}. In {}, we found evaluations for {}, expected {}".format(benchmark_id, training_dir, sorted(env_ids), sorted(spec_env_ids)))
 
-        benchmark_run = resource.BenchmarkRun.create(benchmark_id=benchmark_id, algorithm_id=algorithm_id, tags=json.dumps(tags))
+        if benchmark_run is None:
+            benchmark_run = resource.BenchmarkRun.create(benchmark_id=benchmark_id, algorithm_id=algorithm_id,
+                                                         tags=json.dumps(tags))
         benchmark_run_id = benchmark_run.id
 
         # Actually do the uploads.
         for training_dir in directories:
             # N.B. we don't propagate algorithm_id to Evaluation if we're running as part of a benchmark
-            _upload(training_dir, None, writeup, benchmark_run_id, api_key, ignore_open_monitors)
+            evaluation = evaluations.get(training_dir)
+            evaluation = _upload(training_dir, None, writeup, benchmark_run_id,
+                                 api_key, ignore_open_monitors, evaluation, evaluations is not None)
+            evaluations[training_dir] = evaluation
 
         logger.info("""
 ****************************************************
@@ -94,7 +119,8 @@ OpenAI Gym! You can find it at:
 
         return None
 
-def _upload(training_dir, algorithm_id=None, writeup=None, benchmark_run_id=None, api_key=None, ignore_open_monitors=False):
+def _upload(training_dir, algorithm_id=None, writeup=None, benchmark_run_id=None,
+            api_key=None, ignore_open_monitors=False, evaluation=None, partial=False):
     if not ignore_open_monitors:
         open_monitors = monitoring._open_monitors()
         if len(open_monitors) > 0:
@@ -119,18 +145,25 @@ def _upload(training_dir, algorithm_id=None, writeup=None, benchmark_run_id=None
         else:
             raise error.Error("[%s] You didn't have any recorded training data in {}. Once you've used 'env.monitor.start(training_dir)' to start recording, you need to actually run some rollouts. Please join the community chat on https://gym.openai.com if you have any issues.".format(env_id, training_dir))
 
-    evaluation = resource.Evaluation.create(
-        training_episode_batch=training_episode_batch_id,
-        training_video=training_video_id,
-        env=env_info['env_id'],
-        algorithm={
-            'id': algorithm_id,
-        },
-        benchmark_run_id=benchmark_run_id,
-        writeup=writeup,
-        gym_version=env_info['gym_version'],
-        api_key=api_key,
-    )
+    if evaluation:
+        evaluation.training_episode_batch=training_episode_batch_id
+        evaluation.training_video=training_video_id
+        evaluation.complete=False
+        evaluation.save()
+    else:
+        evaluation = resource.Evaluation.create(
+            training_episode_batch=training_episode_batch_id,
+            training_video=training_video_id,
+            env=env_info['env_id'],
+            complete=not partial,
+            algorithm={
+                'id': algorithm_id,
+            },
+            benchmark_run_id=benchmark_run_id,
+            writeup=writeup,
+            gym_version=env_info['gym_version'],
+            api_key=api_key,
+        )
 
     return evaluation
 

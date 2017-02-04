@@ -376,7 +376,7 @@ class FileUpload(ListableAPIResource):
         if code != 204:
             raise error.Error("Upload to S3 failed. If error persists, please contact us at gym@openai.com this message. S3 returned '{} -- {}'. Tried 'POST {}' with fields {}.".format(code, body, self.post_url, self.post_fields))
 
-class Evaluation(CreateableAPIResource):
+class Evaluation(CreateableAPIResource, UpdateableAPIResource):
     def web_url(self):
         return "%s/evaluations/%s" % (gym.scoreboard.web_base, self.get('id'))
 
