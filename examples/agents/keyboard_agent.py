@@ -34,8 +34,8 @@ def key_release(key, mod):
         human_agent_action = 0
 
 env.render()
-env.viewer.window.on_key_press = key_press
-env.viewer.window.on_key_release = key_release
+env.unwrapped.viewer.window.on_key_press = key_press
+env.unwrapped.viewer.window.on_key_release = key_release
 
 def rollout(env):
     global human_agent_action, human_wants_restart, human_sets_pause

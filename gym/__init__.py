@@ -5,6 +5,7 @@ import sys
 from gym import error
 from gym.configuration import logger_setup, undo_logger_setup
 from gym.utils import reraise
+from gym.version import VERSION as __version__
 
 logger = logging.getLogger(__name__)
 
@@ -47,5 +48,6 @@ from gym.core import Env, Space, Wrapper, ObservationWrapper, ActionWrapper, Rew
 from gym.benchmarks import benchmark_spec
 from gym.envs import make, spec
 from gym.scoreboard.api import upload, continuous_upload
+from gym import wrappers
 
-__all__ = ["Env", "Space", "Wrapper", "make", "spec", "upload"]
+__all__ = ["Env", "Space", "Wrapper", "make", "spec", "upload", "wrappers"]

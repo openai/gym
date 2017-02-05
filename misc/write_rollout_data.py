@@ -46,7 +46,7 @@ def main():
     alldata = {}
     for i in xrange(2):
         np.random.seed(i)
-        data = rollout(env, agent, env.spec.tags['wrapper_config.TimeLimit.max_episode_steps'])
+        data = rollout(env, agent, env.spec.max_episode_steps)
         for (k, v) in data.items():
             alldata["%i-%s"%(i, k)] = v
     np.savez(args.outfile, **alldata)
