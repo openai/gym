@@ -285,6 +285,10 @@ class Space(object):
         # By default, assume identity is JSONable
         return sample_n
 
+    @property
+    def dim(self):
+        raise NotImplementedError
+
 class Wrapper(Env):
     # Clear metadata so by default we don't override any keys.
     metadata = {}

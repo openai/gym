@@ -26,3 +26,8 @@ class Discrete(gym.Space):
         return "Discrete(%d)" % self.n
     def __eq__(self, other):
         return self.n == other.n
+
+    @property
+    def dim(self):
+        return self.n
+ 

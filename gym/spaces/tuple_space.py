@@ -29,3 +29,7 @@ class Tuple(Space):
 
     def from_jsonable(self, sample_n):
         return zip(*[space.from_jsonable(sample_n[i]) for i, space in enumerate(self.spaces)])
+
+    @property
+    def dim(self):
+        return sum([space.dim for space in self.spaces])
