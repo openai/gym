@@ -43,7 +43,7 @@ class Monitor(Wrapper):
         return observation
 
     def _close(self):
-        super(_Monitor, self)._close()
+        super(Monitor, self)._close()
 
         # _monitor will not be set if super(Monitor, self).__init__ raises, this check prevents a confusing error message
         if getattr(self, '_monitor', None):
