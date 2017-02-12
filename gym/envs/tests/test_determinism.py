@@ -1,20 +1,14 @@
 import numpy as np
-from nose2 import tools
+import pytest
 import os
-
 import logging
 logger = logging.getLogger(__name__)
-
 import gym
 from gym import envs, spaces
+from gym.envs.tests.spec_list import spec_list
 
-from gym.envs.tests.test_envs import should_skip_env_spec_for_tests
-
-specs = [spec for spec in sorted(envs.registry.all(), key=lambda x: x.id) if spec._entry_point is not None]
-@tools.params(*specs)
+@pytest.mark.parametrize("spec", spec_list)
 def test_env(spec):
-    if should_skip_env_spec_for_tests(spec):
-        return
 
     # Note that this precludes running this test in multiple
     # threads. However, we probably already can't do multithreading
@@ -24,7 +18,6 @@ def test_env(spec):
     env1 = spec.make()
     env1.seed(0)
     action_samples1 = [env1.action_space.sample() for i in range(4)]
-    observation_samples1 = [env1.observation_space.sample() for i in range(4)]
     initial_observation1 = env1.reset()
     step_responses1 = [env1.step(action) for action in action_samples1]
     env1.close()
@@ -34,16 +27,12 @@ def test_env(spec):
     env2 = spec.make()
     env2.seed(0)
     action_samples2 = [env2.action_space.sample() for i in range(4)]
-    observation_samples2 = [env2.observation_space.sample() for i in range(4)]
     initial_observation2 = env2.reset()
     step_responses2 = [env2.step(action) for action in action_samples2]
     env2.close()
 
     for i, (action_sample1, action_sample2) in enumerate(zip(action_samples1, action_samples2)):
         assert_equals(action_sample1, action_sample2), '[{}] action_sample1: {}, action_sample2: {}'.format(i, action_sample1, action_sample2)
-
-    for (observation_sample1, observation_sample2) in zip(observation_samples1, observation_samples2):
-        assert_equals(observation_sample1, observation_sample2)
 
     # Don't check rollout equality if it's a a nondeterministic
     # environment.

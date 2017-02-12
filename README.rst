@@ -249,13 +249,11 @@ See the ``examples`` directory.
 Testing
 =======
 
-We are using `nose2 <https://github.com/nose-devs/nose2>`_ for tests. You can run them via:
+We are using `pytest <http://doc.pytest.org>`_ for tests. You can run them via:
 
 .. code:: shell
 
-	  nose2
-
-You can also run tests in a specific directory by using the ``-s`` option, or by passing in the specific name of the test. See the `nose2 docs <http://nose2.readthedocs.org/en/latest/usage.html#naming-tests>`_ for more details.
+	  pytest
 
 What's new
 ----------

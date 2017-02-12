@@ -36,5 +36,5 @@ setup(name='gym',
       ],
       extras_require=extras,
       package_data={'gym': ['envs/mujoco/assets/*.xml', 'envs/classic_control/assets/*.png']},
-      tests_require=['nose2', 'mock'],
+      tests_require=['pytest', 'mock'],
 )

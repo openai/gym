@@ -254,6 +254,8 @@ class TapeAlgorithmicEnv(AlgorithmicEnv):
             pos = self.read_head_position
         if pos < 0:
             return self.base
+        if isinstance(pos, np.ndarray):
+            pos = pos.item()
         try:
             return self.input_data[pos]
         except IndexError:
