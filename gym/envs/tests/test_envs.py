@@ -1,46 +1,18 @@
 import numpy as np
-from nose2 import tools
+import pytest
 import os
-
 import logging
 logger = logging.getLogger(__name__)
-
 import gym
 from gym import envs
-
-def should_skip_env_spec_for_tests(spec):
-    # We skip tests for envs that require dependencies or are otherwise
-    # troublesome to run frequently
-
-    ep = spec._entry_point
-
-    # Skip mujoco tests for pull request CI
-    skip_mujoco = not (os.environ.get('MUJOCO_KEY_BUNDLE') or os.path.exists(os.path.expanduser('~/.mujoco')))
-    if skip_mujoco and ep.startswith('gym.envs.mujoco:'):
-        return True
-    if (    spec.id.startswith("Go") or 
-            spec.id.startswith("Hex") or 
-            ep.startswith('gym.envs.box2d:') or 
-            ep.startswith('gym.envs.parameter_tuning:') or 
-            ep.startswith('gym.envs.safety:Semisuper') or
-            (ep.startswith("gym.envs.atari") and not spec.id.startswith("Pong"))
-    ):
-        logger.warning("Skipping tests for env {}".format(ep))
-        return True
-
-    return False
+from gym.envs.tests.spec_list import spec_list
 
 
 # This runs a smoketest on each official registered env. We may want
 # to try also running environments which are not officially registered
 # envs.
-specs = [spec for spec in sorted(envs.registry.all(), key=lambda x: x.id) if spec._entry_point is not None]
-
-@tools.params(*specs)
+@pytest.mark.parametrize("spec", spec_list)
 def test_env(spec):
-    if should_skip_env_spec_for_tests(spec):
-        return
-
     env = spec.make()
     ob_space = env.observation_space
     act_space = env.action_space

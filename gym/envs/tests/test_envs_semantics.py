@@ -3,14 +3,11 @@ import json
 import hashlib
 import os
 import sys
-
-from nose2 import tools
 import logging
+import pytest
 logger = logging.getLogger(__name__)
-
 from gym import envs, spaces
-
-from gym.envs.tests.test_envs import should_skip_env_spec_for_tests
+from gym.envs.tests.spec_list import spec_list
 
 DATA_DIR = os.path.dirname(__file__)
 ROLLOUT_STEPS = 100
@@ -62,14 +59,13 @@ def generate_rollout_hash(spec):
 
   return observations_hash, actions_hash, rewards_hash, dones_hash
 
-specs = [spec for spec in sorted(envs.registry.all(), key=lambda x: x.id) if spec._entry_point is not None]
-@tools.params(*specs)
+@pytest.mark.parametrize("spec", spec_list)
 def test_env_semantics(spec):
   with open(ROLLOUT_FILE) as data_file:
     rollout_dict = json.load(data_file)
 
-  if spec.id not in rollout_dict or should_skip_env_spec_for_tests(spec):
-    if not spec.nondeterministic or should_skip_env_spec_for_tests(spec):
+  if spec.id not in rollout_dict:
+    if not spec.nondeterministic:
       logger.warn("Rollout does not exist for {}, run generate_json.py to generate rollouts for new envs".format(spec.id))
     return
 

@@ -1,16 +1,16 @@
 import json # note: ujson fails this test due to float equality
-
 import numpy as np
-from nose2 import tools
-
+import pytest
 from gym.spaces import Tuple, Box, Discrete, MultiDiscrete
 
-@tools.params(Discrete(3),
+
+@pytest.mark.parametrize("space", [
+              Discrete(3),
               Tuple([Discrete(5), Discrete(10)]),
               Tuple([Discrete(5), Box(np.array([0,0]),np.array([1,5]))]),
               Tuple((Discrete(5), Discrete(2), Discrete(2))),
-              MultiDiscrete([ [0, 1], [0, 1], [0, 100] ]),
-              )
+              MultiDiscrete([ [0, 1], [0, 1], [0, 100] ])
+              ])
 def test_roundtripping(space):
     sample_1 = space.sample()
     sample_2 = space.sample()

@@ -1,20 +1,14 @@
 import numpy as np
-from nose2 import tools
+import pytest
 import os
-
 import logging
 logger = logging.getLogger(__name__)
-
 import gym
 from gym import envs, spaces
+from gym.envs.tests.spec_list import spec_list
 
-from gym.envs.tests.test_envs import should_skip_env_spec_for_tests
-
-specs = [spec for spec in sorted(envs.registry.all(), key=lambda x: x.id) if spec._entry_point is not None]
-@tools.params(*specs)
+@pytest.mark.parametrize("spec", spec_list)
 def test_env(spec):
-    if should_skip_env_spec_for_tests(spec):
-        return
 
     # Note that this precludes running this test in multiple
     # threads. However, we probably already can't do multithreading
