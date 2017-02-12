@@ -18,7 +18,6 @@ def test_env(spec):
     env1 = spec.make()
     env1.seed(0)
     action_samples1 = [env1.action_space.sample() for i in range(4)]
-    observation_samples1 = [env1.observation_space.sample() for i in range(4)]
     initial_observation1 = env1.reset()
     step_responses1 = [env1.step(action) for action in action_samples1]
     env1.close()
@@ -28,16 +27,12 @@ def test_env(spec):
     env2 = spec.make()
     env2.seed(0)
     action_samples2 = [env2.action_space.sample() for i in range(4)]
-    observation_samples2 = [env2.observation_space.sample() for i in range(4)]
     initial_observation2 = env2.reset()
     step_responses2 = [env2.step(action) for action in action_samples2]
     env2.close()
 
     for i, (action_sample1, action_sample2) in enumerate(zip(action_samples1, action_samples2)):
         assert_equals(action_sample1, action_sample2), '[{}] action_sample1: {}, action_sample2: {}'.format(i, action_sample1, action_sample2)
-
-    for (observation_sample1, observation_sample2) in zip(observation_samples1, observation_samples2):
-        assert_equals(observation_sample1, observation_sample2)
 
     # Don't check rollout equality if it's a a nondeterministic
     # environment.
