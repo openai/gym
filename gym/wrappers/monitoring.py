@@ -11,10 +11,10 @@ logger = logging.getLogger(__name__)
 FILE_PREFIX = 'openaigym'
 MANIFEST_PREFIX = FILE_PREFIX + '.manifest'
 
-class _Monitor(Wrapper):
+class Monitor(Wrapper):
     def __init__(self, env, directory, video_callable=None, force=False, resume=False,
                  write_upon_reset=False, uid=None, mode=None):
-        super(_Monitor, self).__init__(env)
+        super(Monitor, self).__init__(env)
 
         self.videos = []
 
@@ -246,13 +246,6 @@ class _Monitor(Wrapper):
 
     def get_episode_lengths(self):
         return self.stats_recorder.episode_lengths
-
-
-def Monitor(env=None, directory=None, video_callable=None, force=False, resume=False,
-            write_upon_reset=False, uid=None, mode=None):
-    if not isinstance(env, gym.Env):
-        raise error.Error("Monitor decorator syntax is deprecated as of 12/28/2016. Replace your call to `env = gym.wrappers.Monitor(directory)(env)` with `env = gym.wrappers.Monitor(env, directory)`")
-    return _Monitor(env, directory, video_callable, force, resume, write_upon_reset, uid, mode)
 
 def detect_training_manifests(training_dir, files=None):
     if files is None:
