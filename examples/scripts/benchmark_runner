@@ -16,6 +16,8 @@ import gym
 from gym import wrappers
 from gym.scoreboard.scoring import benchmark_score_from_local
 
+import openai_benchmark
+
 logger = logging.getLogger()
 
 def main():

@@ -149,6 +149,7 @@ class ClipTo01ThenAverage(object):
         scores = []
         solves = []
         rewards = []
+        lengths = []
         _timestamps = []
         elapsed_times = []
         for task in tasks:
@@ -179,6 +180,8 @@ class ClipTo01ThenAverage(object):
             # This probably won't work long-term but is fine for now.
             allowed_episode_rewards = np.array(episode_rewards)[allowed_e_idx]
             reward = allowed_episode_rewards[-self.num_episodes:]
+            allowed_episode_lengths = np.array(episode_lengths)[allowed_e_idx]
+            length = allowed_episode_lengths[-self.num_episodes:]
 
             floor = task.reward_floor
             ceiling = task.reward_ceiling
@@ -187,6 +190,7 @@ class ClipTo01ThenAverage(object):
                 extra = self.num_episodes-len(reward)
                 logger.info('Only %s rewards for %s; adding %s', len(reward), env_id, extra)
                 reward = np.concatenate([reward, [floor] * extra])
+                length = np.concatenate([length, [0] * extra])
 
             # Grab the indexes where we reached the ceiling
             solved = reward >= ceiling
@@ -200,6 +204,8 @@ class ClipTo01ThenAverage(object):
             solves.append(solved)
             # Record the list of rewards
             rewards.append(reward)
+            # Record the list of lengths
+            lengths.append(length)
 
             if len(allowed_e_idx) > 0:
                 if not np.isfinite(cutoff_idx):
@@ -221,6 +227,7 @@ class ClipTo01ThenAverage(object):
 
         return {
             'rewards': rewards,
+            'lengths': lengths,
             'scores': scores,
             'solves': solves,
             'timestamps': _timestamps,
@@ -334,6 +341,8 @@ class BenchmarkScoringRule(object):
         solves = []
         # List of lists of episode rewards for each task
         rewards = []
+        # List of lists of relevant episode lengths for each task
+        cutoff_lengths = []
         _timestamps = []
         elapsed_times = []
         for task in tasks:
@@ -351,6 +360,7 @@ class BenchmarkScoringRule(object):
             scores.append(score)
             solves.append(solved)
             rewards.append(reward)
+            cutoff_lengths.append(lengths[:cutoff_idx])
 
             if np.any(timestamps[:cutoff_idx]):
                 last_timestamp = timestamps[cutoff_idx - 1]
@@ -367,6 +377,7 @@ class BenchmarkScoringRule(object):
 
         return {
             'rewards': rewards,
+            'lengths': cutoff_lengths,
             'scores': scores,
             'solves': solves,
             'timestamps': _timestamps,

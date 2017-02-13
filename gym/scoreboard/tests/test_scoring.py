@@ -23,6 +23,20 @@ benchmark = registration.Benchmark(
 def _is_close(x, target):
     return np.all(np.isclose(x, target))
 
+def _eq_list_of_arrays(x, y):
+    return np.all([len(a) == len(b) and np.all(a == b) for a, b in zip(x, y)])
+
+def _assert_evaluation_result(result, score=None, solves=None, rewards=None, lengths=None, timestamps=None):
+    debug_str = "score_evaluation={}".format(result)
+    if score is not None:
+        assert _is_close(result['scores'], score), debug_str
+    if solves is not None:
+        assert _eq_list_of_arrays(result['solves'], solves), debug_str
+    if rewards is not None:
+        assert _eq_list_of_arrays(result['rewards'], rewards), debug_str
+    if lengths is not None:
+        assert _eq_list_of_arrays(result['lengths'], lengths), debug_str
+
 def _assert_benchmark_result(result, score=None, solves=None, summed_training_seconds=None, start_to_finish_seconds=None):
     debug_str = "benchmark_result={}".format(result)
     if score is not None:
@@ -56,7 +70,7 @@ def _benchmark_result_helper(benchmark, **kwargs):
 
     return benchmark.score_evaluation(**kwargs)
 
-def test_clip_average_scoring():
+def test_clip_average_evaluation_scoring():
     benchmark = registration.Benchmark(
         id='TestBenchmark-v0',
         scorer=scoring.ClipTo01ThenAverage(num_episodes=1),
@@ -72,8 +86,28 @@ def test_clip_average_scoring():
     _assert_benchmark_result(benchmark_result, score=0.01)
 
     # test a successful run
-    benchmark_result = _benchmark_result_helper(benchmark, episode_rewards=[100])
+    benchmark_result = _benchmark_result_helper(benchmark, episode_rewards=[100, 100], episode_lengths=[1, 1])
     _assert_benchmark_result(benchmark_result, score=1.0, solves=True)
+
+def test_clip_average_evaluation_not_enough_rewards():
+    benchmark = registration.Benchmark(
+        id='TestBenchmark-v0',
+        scorer=scoring.ClipTo01ThenAverage(num_episodes=2),
+        tasks=[
+            {'env_id': 'CartPole-v0',
+             'trials': 1,
+             'max_timesteps': 5,
+            },
+        ]
+    )
+    # simple scoring
+    benchmark_result = _benchmark_result_helper(benchmark)
+    _assert_evaluation_result(
+        benchmark_result,
+        score=0.005,
+        rewards=[np.array([1, 0])],
+        lengths=[np.array([1, 0])],
+    )
 
 def test_clip_average_max_timesteps():
     benchmark = registration.Benchmark(
@@ -259,6 +293,15 @@ reward_benchmark = registration.Benchmark(
         },
     ]
 )
+
+def test_total_reward_evaluation_scoring():
+    benchmark_result = _benchmark_result_helper(reward_benchmark)
+    _assert_evaluation_result(
+        benchmark_result,
+        score=0.01,
+        rewards=[np.array([1])],
+        lengths=[np.array([1])],
+    )
 
 def test_total_reward_benchmark_scoring():
     benchmark_results = defaultdict(list)
