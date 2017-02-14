@@ -8,7 +8,7 @@ from version import VERSION
 # Environment-specific dependencies.
 extras = {
   'atari': ['atari_py>=0.0.17', 'Pillow', 'PyOpenGL'],
-  # 'rle': ['git+https://github.com/nadavbh12/Retro-Learning-Environment'],
+  'rle': ['rle_python_interface=>1.1.0'],
   'board_game' : ['pachi-py>=0.0.19'],
   'box2d': ['box2d-py'],
   'classic_control': ['PyOpenGL'],

@@ -1,6 +1,7 @@
 import numpy as np
 import os
 import gym
+import fnmatch
 import inspect
 from gym import error, spaces
 from gym import utils
@@ -10,7 +11,7 @@ try:
     # import atari_py
     import rle_python_interface
 except ImportError as e:
-    raise error.DependencyNotInstalled("{}. (Go to https://github.com/nadavbh12/Retro-Learning-Environment to install RLE.)".format(e))
+    raise error.DependencyNotInstalled("{}. (HINT: you can install Atari dependencies by running 'pip install gym[rle]'.)".format(e))
 
 import logging
 logger = logging.getLogger(__name__)
@@ -57,7 +58,7 @@ def to_ram(rle):
 class RleEnv(gym.Env, utils.EzPickle):
     metadata = {'render.modes': ['human', 'rgb_array']}
 
-    def __init__(self, game='mortal_kombat', obs_type='ram', frameskip=(2, 5), repeat_action_probability=0.):
+    def __init__(self, game='classic_kong', obs_type='ram', frameskip=(2, 5), repeat_action_probability=0.):
         """Frameskip should be either a tuple (indicating a random range to
         choose from, with the top value exclude), or an int."""
 
@@ -65,10 +66,7 @@ class RleEnv(gym.Env, utils.EzPickle):
         assert obs_type in ('ram', 'image')
 
         self.game_path = self.get_rom_path(game)
-        self.core_path = self.get_core_path()
 
-        if not os.path.exists(self.game_path):
-            raise IOError('You asked for game %s but path %s does not exist'%(game, self.game_path))
         self._obs_type = obs_type
         self.frameskip = frameskip
         self.rle = rle_python_interface.RLEInterface()
@@ -80,7 +78,7 @@ class RleEnv(gym.Env, utils.EzPickle):
         self.rle.setFloat('repeat_action_probability'.encode('utf-8'), repeat_action_probability)
 
         self._seed()
-        self.rle.loadROM(self.game_path, self.core_path)
+        self.rle.loadROM(self.game_path, 'snes')
 
         (screen_width, screen_height) = self.rle.getScreenDims()
         self._buffer = np.empty((screen_height, screen_width, 4), dtype=np.uint8)
@@ -93,18 +91,16 @@ class RleEnv(gym.Env, utils.EzPickle):
         if self._obs_type == 'ram':
             self.observation_space = spaces.Box(low=np.zeros(ram_size), high=np.zeros(ram_size)+255)
         elif self._obs_type == 'image':
-            self.observation_space = spaces.Box(low=0, high=255, shape=(screen_height, screen_width, 3))
+            self.observation_space = spaces.Box(low=0, high=255, shape=(screen_height, screen_width, ))
         else:
             raise error.Error('Unrecognized observation type: {}'.format(self._obs_type))
 
     def get_rom_path(self, game):
         cwd = os.path.dirname(__file__)
-        rom_path = os.path.join(cwd, 'roms', game + '.sfc')
-        return rom_path
-
-    def get_core_path(self):
-        cwd = os.path.dirname(__file__)
-        return os.path.join(cwd, 'cores', 'snes9x2010_libretro.so')
+        roms_path = os.path.join(cwd, 'roms')
+        for file in os.listdir(roms_path):
+            if fnmatch.fnmatch(file, game + '*'):
+                return os.path.join(roms_path, file)
 
     def _seed(self, seed=None):
         self.np_random, seed1 = seeding.np_random(seed)
