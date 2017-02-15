@@ -139,3 +139,22 @@ class MujocoEnv(gym.Env):
             self.model.data.qpos.flat,
             self.model.data.qvel.flat
         ])
+
+
+class MujocoPixelWrapper(gym.ObservationWrapper):
+    def __init__(self, env):
+        super(MujocoPixelWrapper, self).__init__(env)
+        data, width, height = self.get_viewer().get_image()
+        self.observation_space = spaces.Box(0, 255, [height-1, width, 3])
+
+    def get_viewer(self):
+        return self.env.unwrapped._get_viewer()
+
+    def _observation(self, observation):
+        self.get_viewer().render()
+        data, width, height = self.get_viewer().get_image()
+        return np.fromstring(data, dtype='uint8').reshape(height, width, 3)[::-1,:,:]
+
+
+def MujocoPixelEnv(base_env_id):
+    return MujocoPixelWrapper(gym.make(base_env_id))

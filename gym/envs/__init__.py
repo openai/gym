@@ -255,6 +255,14 @@ register(
     max_episode_steps=1000,
 )
 
+for task in ['Reacher', 'InvertedPendulum', 'InvertedDoublePendulum', 'HalfCheetah',
+             'Hopper', 'Swimmer', 'Walker2d', 'Ant', 'Humanoid', 'HumanoidStandup']:
+    register(
+        id='{}Pixel-v1'.format(task),
+        entry_point='gym.envs.mujoco:MujocoPixelEnv',
+        kwargs={'base_env_id': '{}-v1'.format(task)}
+    )
+
 # Atari
 # ----------------------------------------
 
