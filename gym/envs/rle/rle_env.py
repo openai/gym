@@ -78,7 +78,6 @@ class RleEnv(gym.Env, utils.EzPickle):
         self.rle.setFloat('repeat_action_probability'.encode('utf-8'), repeat_action_probability)
 
         self._seed()
-        self.rle.loadROM(self.game_path, 'snes')
 
         (screen_width, screen_height) = self.rle.getScreenDims()
         self._buffer = np.empty((screen_height, screen_width, 4), dtype=np.uint8)
@@ -110,6 +109,7 @@ class RleEnv(gym.Env, utils.EzPickle):
         seed2 = seeding.hash_seed(seed1 + 1) % 2**31
         # Empirically, we need to seed before loading the ROM.
         self.rle.setInt(b'random_seed', seed2)
+        self.rle.loadROM(self.game_path, 'snes')
         return [seed1, seed2]
 
     def _step(self, a):

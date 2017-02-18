@@ -342,8 +342,9 @@ for game in ['air_raid', 'alien', 'amidar', 'assault', 'asterix', 'asteroids', '
 # Rle
 # ----------------------------------------
 
-for game in ['classic_kong','final_fight', 'f_zero', 'gradius_iii', 'mortal_kombat', 'nba_give_n_go', 'super_mario_all_stars',
-             'super_mario_world', 'tetris_and_dr_mario', 'wolfenstein']:
+for game in ['aladdin', 'bust_a_move', 'classic_kong','final_fight', 'f_zero', 'gradius_iii',
+             'mortal_kombat', 'nba_give_n_go', 'super_mario_all_stars',
+             'super_mario_world', 'street_fighter_ii','tetris_and_dr_mario', 'wolfenstein']:
     for obs_type in ['image']:
         for obs_type in ['image', 'ram']:
             name = ''.join([g.capitalize() for g in game.split('_')])

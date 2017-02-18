@@ -92,8 +92,6 @@ the
 `instructions <https://github.com/openai/mujoco-py#obtaining-the-binaries-and-license-key>`_
 in the ``mujoco-py`` package for help.
 
-RLE has different installation instructions. You can follow them below.
-
 Once you're ready to install everything, run ``pip install -e '.[all]'`` (or ``pip install 'gym[all]'``).
 
 Supported systems
@@ -230,17 +228,17 @@ RLE
 -----
 
 The `Retro Learning Environment <https://github.com/nadavbh12/Retro-Learning-Environment>`_ supports SNES (Super Nintendo Entertainment System) video games.
-To install this environment, visit RLE's `github page <https://github.com/nadavbh12/Retro-Learning-Environment>`_ and follow the instructions for installing with pip.
-After installation, copy (or link) snes9x2010_libretro.so to gym/envs/rle/cores dir.
-Roms for the available games need to put in the gym/envs/rle/roms dir with lowercase separated names (e.g. mortal_kombat.sfc).
+If you didn't do the full install, you can install dependencies via ``pip install -e '.[rle_python_interface]'`` (you'll need ``cmake`` installed) and then get started as follow:
 
 .. code:: python
 
 	  import gym
-	  env = gym.make('MortalKombat-v0')
+	  env = gym.make('ClassicKong-v0')
 	  env.reset()
 	  env.render()
-	  
+
+Roms for the available games need to put in the gym/envs/rle/roms dir with lowercase separated names (e.g. mortal_kombat.sfc).
+
 Toy text
 --------
 
@@ -299,3 +297,4 @@ What's new
 - 2016-05-28: For controlled reproducibility, envs now support seeding
   (cf #91 and #135). The monitor records which seeds are used. We will
   soon add seed information to the display on the scoreboard.
+
