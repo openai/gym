@@ -2,9 +2,7 @@ import json
 import os
 import shutil
 import tempfile
-
 import numpy as np
-from nose2 import tools
 
 import gym
 from gym.monitoring import VideoRecorder

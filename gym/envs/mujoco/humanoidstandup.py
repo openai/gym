@@ -25,9 +25,9 @@ class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         self.do_simulation(a, self.frame_skip)
         pos_after = self.model.data.qpos[2][0]
         data = self.model.data
-        uph_cost=(pos_after - 0 ) / self.model.opt.timestep
+        uph_cost = (pos_after - 0) / self.model.opt.timestep
 
-        quad_ctrl_cost =  0.1 * np.square(data.ctrl).sum()
+        quad_ctrl_cost = 0.1 * np.square(data.ctrl).sum()
         quad_impact_cost = .5e-6 * np.square(data.cfrc_ext).sum()
         quad_impact_cost = min(quad_impact_cost, 10)
         reward = uph_cost - quad_ctrl_cost - quad_impact_cost + 1

@@ -14,6 +14,9 @@ import sys
 import gym
 # In modules, use `logger = logging.getLogger(__name__)`
 from gym import wrappers
+from gym.scoreboard.scoring import benchmark_score_from_local
+
+import openai_benchmark
 
 logger = logging.getLogger()
 
@@ -21,7 +24,8 @@ def main():
     parser = argparse.ArgumentParser(description=None)
     parser.add_argument('-b', '--benchmark-id', help='id of benchmark to run e.g. Atari7Ram-v0')
     parser.add_argument('-v', '--verbose', action='count', dest='verbosity', default=0, help='Set verbosity.')
-    parser.add_argument('-t', '--training-dir', default="/tmp/gym-results/", help='What directory to upload.')
+    parser.add_argument('-f', '--force', action='store_true', dest='force', default=False)
+    parser.add_argument('-t', '--training-dir', default="/tmp/gym-results", help='What directory to upload.')
     args = parser.parse_args()
 
     if args.verbosity == 0:
@@ -46,13 +50,23 @@ def main():
         for trial in range(task.trials):
             env = gym.make(task.env_id)
             training_dir_name = "{}/{}-{}".format(args.training_dir, task.env_id, trial)
-            env = wrappers.Monitor(env, training_dir_name)
+            env = wrappers.Monitor(env, training_dir_name, video_callable=False, force=args.force)
             env.reset()
             for _ in range(task.max_timesteps):
                 o, r, done, _ = env.step(env.action_space.sample())
                 if done:
                     env.reset()
             env.close()
+
+    logger.info("""Computing statistics for this benchmark run...
+{{
+    score: {score},
+    num_envs_solved: {num_envs_solved},
+    summed_training_seconds: {summed_training_seconds},
+    start_to_finish_seconds: {start_to_finish_seconds},
+}}
+
+    """.rstrip().format(**benchmark_score_from_local(benchmark_id, args.training_dir)))
 
     logger.info("""Done running, upload results using the following command:
 

@@ -1,5 +1,5 @@
 # Testing
-nose2
+pytest
 mock
 
 -e .[all]
