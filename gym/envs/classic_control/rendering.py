@@ -5,6 +5,8 @@ from __future__ import division
 import os
 import six
 import sys
+import scipy.ndimage
+from time import time
 
 if "Apple" in sys.version:
     if 'DYLD_FALLBACK_LIBRARY_PATH' in os.environ:
@@ -305,25 +307,55 @@ class Image(Geom):
 
 # ================================================================
 
+
+
+
+MAX_FPS = 24
+RATELIMIT_FPS = 1 / MAX_FPS
+DOUBLE_SIZE = False  # Good for Retina / HiDPI monitors
+FILE_ONLY = False
+SET_POSITION = False
+POSITION_X = 100
+POSITION_Y = 200
+
 class SimpleImageViewer(object):
     def __init__(self, display=None):
         self.window = None
         self.isopen = False
         self.display = display
+        self.last = 0
+
     def imshow(self, arr):
-        if self.window is None:
+        if not FILE_ONLY and self.window is None:
             height, width, channels = arr.shape
-            self.window = pyglet.window.Window(width=width, height=height, display=self.display)
+            if DOUBLE_SIZE:
+                self.window = pyglet.window.Window(width=2*width, height=2*height, display=self.display)
+            else:
+                self.window = pyglet.window.Window(width=width, height=height, display=self.display)
+            if SET_POSITION:
+                self.window.set_location(POSITION_X,POSITION_Y)
             self.width = width
             self.height = height
             self.isopen = True
-        assert arr.shape == (self.height, self.width, 3), "You passed in an image with the wrong number shape"
-        image = pyglet.image.ImageData(self.width, self.height, 'RGB', arr.tobytes(), pitch=self.width * -3)
-        self.window.clear()
-        self.window.switch_to()
-        self.window.dispatch_events()
-        image.blit(0,0)
-        self.window.flip()
+
+        if not FILE_ONLY and time() - self.last > RATELIMIT_FPS:
+            assert arr.shape == (self.height, self.width, 3), "You passed in an image with the wrong number shape"
+            if DOUBLE_SIZE:
+                image = pyglet.image.ImageData(2*self.width, 2*self.height, 'RGB', scipy.ndimage.interpolation.zoom(arr, (2,2,1), order=0).tobytes(), pitch=self.width * -6)
+            else:
+                image = pyglet.image.ImageData(self.width, self.height, 'RGB', arr.tobytes(), pitch=self.width * -3)
+            scipy.misc.imsave('/tmp/gym.png', arr)
+            self.window.clear()
+            self.window.switch_to()
+            self.window.dispatch_events()
+            image.blit(0,0)
+            self.window.flip()
+            self.last = time()
+
+        if FILE_ONLY and time() - self.last > RATELIMIT_FPS:
+            scipy.misc.imsave('/tmp/gym.png', arr)
+            self.last = time()
+
     def close(self):
         if self.isopen:
             self.window.close()
