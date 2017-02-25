@@ -68,7 +68,7 @@ class Viewer(object):
         scalex = self.width/(right-left)
         scaley = self.height/(top-bottom)
         self.transform = Transform(
-            translation=(-left*scalex, -bottom*scalex),
+            translation=(-left*scalex, -bottom*scaley),
             scale=(scalex, scaley))
 
     def add_geom(self, geom):
