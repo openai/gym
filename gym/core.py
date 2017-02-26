@@ -51,7 +51,6 @@ class Env(object):
         env = super(Env, cls).__new__(cls)
         env._env_closer_id = env_closer.register(env)
         env._closed = False
-        env._configured = False # TODO: remove
 
         # Will be automatically set when creating an environment via 'make'
         env.spec = None
@@ -248,7 +247,7 @@ class Wrapper(Env):
         # Merge with the base metadata
         metadata = self.metadata
         self.metadata = self.env.metadata.copy()
-        self.metadata.update(metadata)        
+        self.metadata.update(metadata)
 
         self.action_space = self.env.action_space
         self.observation_space = self.env.observation_space
