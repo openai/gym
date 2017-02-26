@@ -35,10 +35,7 @@ def test_write_upon_reset_true():
     with helpers.tempdir() as temp:
         env = gym.make('CartPole-v0')
 
-        # TODO: Fix Cartpole to not configure itself automatically
-        # assert not env._configured
         env = Monitor(env, directory=temp, video_callable=False, write_upon_reset=True)
-        env.configure()
         env.reset()
 
         files = glob.glob(os.path.join(temp, '*'))
