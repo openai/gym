@@ -71,6 +71,13 @@ add_group(
     description='Simple text environments to get you started.'
 )
 
+
+add_group(
+    id='rle',
+    name='Retro Learning Environment',
+    description='Reach high scores in SNES games.',
+)
+
 add_group(
     id='safety',
     name='Safety',
@@ -777,6 +784,39 @@ The game is simulated through the Arcade Learning Environment [ALE]_, which uses
 
 .. [ALE] MG Bellemare, Y Naddaf, J Veness, and M Bowling. "The arcade learning environment: An evaluation platform for general agents." Journal of Artificial Intelligence Research (2012).
 .. [Stella] Stella: A Multi-Platform Atari 2600 VCS emulator http://stella.sourceforge.net/
+""",
+    )
+
+ram_desc_rle = "In this environment, the observation is the RAM of the SNES machine, consisting of 128 KB."
+image_desc_rle = "In this environment, the observation is an RGB image of the screen, which is an array of shape (256, 224, 3)"
+
+for id in sorted(['aladdin-v0', 'bust_a_move-v0', 'classic_kong-v0', 'final_fight-v0', 'f_zero-v0', 'gradius_iii-v0', 'mortal_kombat-v0', 'nba_give_n_go-v0', 'super_mario_all_stars-v0', 'super_mario_world-v0', 'street_fighter_ii-v0', 'tetris_and_dr_mario-v0', 'wolfenstein-v0']):
+    try:
+        split = id.split("-")
+        game = split[0]
+        if len(split) == 2:
+            ob_type = 'image'
+        else:
+            ob_type = 'ram'
+    except ValueError as e:
+        raise ValueError('{}: id={}'.format(e, id))
+    ob_desc = ram_desc_rle if ob_type == "ram" else image_desc_rle
+    add_task(
+        id=id,
+        group='rle',
+        summary="Maximize score in the game %(game)s, with %(ob_type)s as input"%dict(game=game, ob_type="RAM" if ob_type=="ram" else "screen images"),
+        description="""\
+Maximize your score in the SNES game %(game)s.
+%(ob_desc)s
+Each action is repeatedly performed for a duration of :math:`k` frames,
+where :math:`k` is uniformly sampled from :math:`\{2, 3, 4\}`.
+"""%dict(game=game, ob_desc=ob_desc),
+        background="""\
+The game is simulated through the Retro Learning Environment [RLE]_, which uses the LibRetro [libretro] interface with the SNES9X [SNES9X]_ SNES emulator.
+
+.. [RLE] Bhonker, Nadav, Shai Rozenberg, and Itay Hubara. "Playing SNES in the Retro Learning Environment." arXiv preprint arXiv:1611.02205 (2016).
+.. [libretro] www.libretro.com.
+.. [SNES9X] SNES9X: A SNES emulator www.snes9x.com
 """,
     )
 
