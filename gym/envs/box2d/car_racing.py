@@ -7,7 +7,6 @@ from Box2D.b2 import (edgeShape, circleShape, fixtureDef, polygonShape, revolute
 import gym
 from gym import spaces
 from gym.envs.box2d.car_dynamics import Car
-from gym.envs.classic_control import rendering
 from gym.utils import colorize, seeding
 
 import pyglet
@@ -330,6 +329,7 @@ class CarRacing(gym.Env):
             return
 
         if self.viewer is None:
+            from gym.envs.classic_control import rendering
             self.viewer = rendering.Viewer(WINDOW_W, WINDOW_H)
             self.score_label = pyglet.text.Label('0000', font_size=36,
                 x=20, y=WINDOW_H*2.5/40.00, anchor_x='left', anchor_y='center',
