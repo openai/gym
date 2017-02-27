@@ -85,6 +85,7 @@ class AcrobotEnv(core.Env):
         low = -high
         self.observation_space = spaces.Box(low, high)
         self.action_space = spaces.Discrete(3)
+        self.state = None
         self._seed()
 
     def _seed(self, seed=None):
@@ -181,6 +182,8 @@ class AcrobotEnv(core.Env):
         if self.viewer is None:
             self.viewer = rendering.Viewer(500,500)
             self.viewer.set_bounds(-2.2,2.2,-2.2,2.2)
+
+        if s is None: return None
 
         p1 = [-self.LINK_LENGTH_1 *
               np.cos(s[0]), self.LINK_LENGTH_1 * np.sin(s[0])]

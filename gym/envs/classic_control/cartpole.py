@@ -44,6 +44,7 @@ class CartPoleEnv(gym.Env):
 
         self._seed()
         self.viewer = None
+        self.state = None
 
         self.steps_beyond_done = None
 
@@ -133,6 +134,8 @@ class CartPoleEnv(gym.Env):
             self.track = rendering.Line((0,carty), (screen_width,carty))
             self.track.set_color(0,0,0)
             self.viewer.add_geom(self.track)
+
+        if self.state is None: return None
 
         x = self.state
         cartx = x[0]*scale+screen_width/2.0 # MIDDLE OF CART
