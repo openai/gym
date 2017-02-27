@@ -10,7 +10,7 @@ from gym.envs.box2d.car_dynamics import Car
 from gym.utils import colorize, seeding
 
 import pyglet
-from pyglet.gl import *
+from pyglet import gl
 
 # Easiest continuous control task to learn from pixels, a top-down racing environment.
 # Discreet control is reasonable in this environment as well, on/off discretisation is
@@ -369,7 +369,7 @@ class CarRacing(gym.Env):
             else:
                 VP_W = STATE_W
                 VP_H = STATE_H
-            glViewport(0, 0, VP_W, VP_H)
+            gl.glViewport(0, 0, VP_W, VP_H)
             t.enable()
             self._render_road()
             for geom in self.viewer.onetime_geoms:
@@ -388,7 +388,7 @@ class CarRacing(gym.Env):
             self.human_render = True
             win.clear()
             t = self.transform
-            glViewport(0, 0, WINDOW_W, WINDOW_H)
+            gl.glViewport(0, 0, WINDOW_W, WINDOW_H)
             t.enable()
             self._render_road()
             for geom in self.viewer.onetime_geoms:
@@ -401,47 +401,47 @@ class CarRacing(gym.Env):
         return arr
 
     def _render_road(self):
-        glBegin(GL_QUADS)
-        glColor4f(0.4, 0.8, 0.4, 1.0)
-        glVertex3f(-PLAYFIELD, +PLAYFIELD, 0)
-        glVertex3f(+PLAYFIELD, +PLAYFIELD, 0)
-        glVertex3f(+PLAYFIELD, -PLAYFIELD, 0)
-        glVertex3f(-PLAYFIELD, -PLAYFIELD, 0)
-        glColor4f(0.4, 0.9, 0.4, 1.0)
+        gl.glBegin(gl.GL_QUADS)
+        gl.glColor4f(0.4, 0.8, 0.4, 1.0)
+        gl.glVertex3f(-PLAYFIELD, +PLAYFIELD, 0)
+        gl.glVertex3f(+PLAYFIELD, +PLAYFIELD, 0)
+        gl.glVertex3f(+PLAYFIELD, -PLAYFIELD, 0)
+        gl.glVertex3f(-PLAYFIELD, -PLAYFIELD, 0)
+        gl.glColor4f(0.4, 0.9, 0.4, 1.0)
         k = PLAYFIELD/20.0
         for x in range(-20, 20, 2):
             for y in range(-20, 20, 2):
-                glVertex3f(k*x + k, k*y + 0, 0)
-                glVertex3f(k*x + 0, k*y + 0, 0)
-                glVertex3f(k*x + 0, k*y + k, 0)
-                glVertex3f(k*x + k, k*y + k, 0)
+                gl.glVertex3f(k*x + k, k*y + 0, 0)
+                gl.glVertex3f(k*x + 0, k*y + 0, 0)
+                gl.glVertex3f(k*x + 0, k*y + k, 0)
+                gl.glVertex3f(k*x + k, k*y + k, 0)
         for poly, color in self.road_poly:
-            glColor4f(color[0], color[1], color[2], 1)
+            gl.glColor4f(color[0], color[1], color[2], 1)
             for p in poly:
-                glVertex3f(p[0], p[1], 0)
-        glEnd()
+                gl.glVertex3f(p[0], p[1], 0)
+        gl.glEnd()
 
     def _render_indicators(self, W, H):
-        glBegin(GL_QUADS)
+        gl.glBegin(gl.GL_QUADS)
         s = W/40.0
         h = H/40.0
-        glColor4f(0,0,0,1)
-        glVertex3f(W, 0, 0)
-        glVertex3f(W, 5*h, 0)
-        glVertex3f(0, 5*h, 0)
-        glVertex3f(0, 0, 0)
+        gl.glColor4f(0,0,0,1)
+        gl.glVertex3f(W, 0, 0)
+        gl.glVertex3f(W, 5*h, 0)
+        gl.glVertex3f(0, 5*h, 0)
+        gl.glVertex3f(0, 0, 0)
         def vertical_ind(place, val, color):
-            glColor4f(color[0], color[1], color[2], 1)
-            glVertex3f((place+0)*s, h + h*val, 0)
-            glVertex3f((place+1)*s, h + h*val, 0)
-            glVertex3f((place+1)*s, h, 0)
-            glVertex3f((place+0)*s, h, 0)
+            gl.glColor4f(color[0], color[1], color[2], 1)
+            gl.glVertex3f((place+0)*s, h + h*val, 0)
+            gl.glVertex3f((place+1)*s, h + h*val, 0)
+            gl.glVertex3f((place+1)*s, h, 0)
+            gl.glVertex3f((place+0)*s, h, 0)
         def horiz_ind(place, val, color):
-            glColor4f(color[0], color[1], color[2], 1)
-            glVertex3f((place+0)*s, 4*h , 0)
-            glVertex3f((place+val)*s, 4*h, 0)
-            glVertex3f((place+val)*s, 2*h, 0)
-            glVertex3f((place+0)*s, 2*h, 0)
+            gl.glColor4f(color[0], color[1], color[2], 1)
+            gl.glVertex3f((place+0)*s, 4*h , 0)
+            gl.glVertex3f((place+val)*s, 4*h, 0)
+            gl.glVertex3f((place+val)*s, 2*h, 0)
+            gl.glVertex3f((place+0)*s, 2*h, 0)
         true_speed = np.sqrt(np.square(self.car.hull.linearVelocity[0]) + np.square(self.car.hull.linearVelocity[1]))
         vertical_ind(5, 0.02*true_speed, (1,1,1))
         vertical_ind(7, 0.01*self.car.wheels[0].omega, (0.0,0,1)) # ABS sensors
@@ -450,7 +450,7 @@ class CarRacing(gym.Env):
         vertical_ind(10,0.01*self.car.wheels[3].omega, (0.2,0,1))
         horiz_ind(20, -10.0*self.car.wheels[0].joint.angle, (0,1,0))
         horiz_ind(30, -0.8*self.car.hull.angularVelocity, (1,0,0))
-        glEnd()
+        gl.glEnd()
         self.score_label.text = "%04i" % self.reward
         self.score_label.draw()
 
