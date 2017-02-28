@@ -2,9 +2,7 @@ import json
 import os
 import shutil
 import tempfile
-
 import numpy as np
-from nose2 import tools
 
 import gym
 from gym.monitoring import VideoRecorder
@@ -21,17 +19,17 @@ class UnrecordableEnv(object):
     def render(self, mode=None):
         pass
 
-# TODO(jonas): disabled until we have ffmpeg on travis
-# def test_record_simple():
-#     rec = VideoRecorder()
-#     env, id = gym.make("CartPole")
-#     rec.capture_frame(env)
-#     rec.close()
-#     assert not rec.empty
-#     assert not rec.broken
-#     assert os.path.exists(rec.path)
-#     f = open(rec.path)
-#     assert os.fstat(f.fileno()).st_size > 100
+def test_record_simple():
+    env = gym.make("CartPole-v1")
+    rec = VideoRecorder(env)
+    env.reset()
+    rec.capture_frame()
+    rec.close()
+    assert not rec.empty
+    assert not rec.broken
+    assert os.path.exists(rec.path)
+    f = open(rec.path)
+    assert os.fstat(f.fileno()).st_size > 100
 
 def test_no_frames():
     env = BrokenRecordableEnv()

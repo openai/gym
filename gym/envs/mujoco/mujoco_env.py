@@ -23,15 +23,15 @@ class MujocoEnv(gym.Env):
         else:
             fullpath = os.path.join(os.path.dirname(__file__), "assets", model_path)
         if not path.exists(fullpath):
-            raise IOError("File %s does not exist"%fullpath)
-        self.frame_skip= frame_skip
+            raise IOError("File %s does not exist" % fullpath)
+        self.frame_skip = frame_skip
         self.model = mujoco_py.MjModel(fullpath)
         self.data = self.model.data
         self.viewer = None
 
         self.metadata = {
             'render.modes': ['human', 'rgb_array'],
-            'video.frames_per_second' : int(np.round(1.0 / self.dt))
+            'video.frames_per_second': int(np.round(1.0 / self.dt))
         }
 
         self.init_qpos = self.model.data.qpos.ravel().copy()
@@ -87,9 +87,8 @@ class MujocoEnv(gym.Env):
         assert qpos.shape == (self.model.nq,) and qvel.shape == (self.model.nv,)
         self.model.data.qpos = qpos
         self.model.data.qvel = qvel
-        self.model._compute_subtree() #pylint: disable=W0212
+        self.model._compute_subtree()  # pylint: disable=W0212
         self.model.forward()
-
 
     @property
     def dt(self):
@@ -110,7 +109,7 @@ class MujocoEnv(gym.Env):
         if mode == 'rgb_array':
             self._get_viewer().render()
             data, width, height = self._get_viewer().get_image()
-            return np.fromstring(data, dtype='uint8').reshape(height, width, 3)[::-1,:,:]
+            return np.fromstring(data, dtype='uint8').reshape(height, width, 3)[::-1, :, :]
         elif mode == 'human':
             self._get_viewer().loop_once()
 

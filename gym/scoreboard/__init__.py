@@ -8,11 +8,12 @@ http://rst.ninjs.org/
 
 import os
 
-from gym.scoreboard.client.resource import Algorithm, Evaluation, FileUpload
-from gym.scoreboard.registration import registry, add_task, add_group
+from gym.scoreboard.client.resource import Algorithm, BenchmarkRun, Evaluation, FileUpload
+from gym.scoreboard.registration import registry, add_task, add_group, add_benchmark
 
 # Discover API key from the environment. (You should never have to
 # change api_base / web_base.)
+env_key_names = ['OPENAI_GYM_API_KEY', 'OPENAI_GYM_API_BASE', 'OPENAI_GYM_WEB_BASE']
 api_key = os.environ.get('OPENAI_GYM_API_KEY')
 api_base = os.environ.get('OPENAI_GYM_API_BASE', 'https://gym-api.openai.com')
 web_base = os.environ.get('OPENAI_GYM_WEB_BASE', 'https://gym.openai.com')
@@ -72,12 +73,6 @@ add_group(
 )
 
 add_group(
-    id='doom',
-    name='Doom',
-    description='Doom environments based on VizDoom.'
-)
-
-add_group(
     id='safety',
     name='Safety',
     description='Environments to test various AI safety properties.'
@@ -87,6 +82,26 @@ add_group(
 
 add_task(
     id='CartPole-v0',
+    group='classic_control',
+    summary="Balance a pole on a cart (for a short time).",
+    description="""\
+A pole is attached by an un-actuated joint to a cart, which moves along a frictionless track.
+The system is controlled by applying a force of +1 or -1 to the cart.
+The pendulum starts upright, and the goal is to prevent it from falling over.
+A reward of +1 is provided for every timestep that the pole remains upright.
+The episode ends when the pole is more than 15 degrees from vertical, or the
+cart moves more than 2.4 units from the center.
+""",
+    background="""\
+This environment corresponds to the version of the cart-pole problem described by
+Barto, Sutton, and Anderson [Barto83]_.
+
+.. [Barto83] AG Barto, RS Sutton and CW Anderson, "Neuronlike Adaptive Elements That Can Solve Difficult Learning Control Problem", IEEE Transactions on Systems, Man, and Cybernetics, 1983.
+""",
+)
+
+add_task(
+    id='CartPole-v1',
     group='classic_control',
     summary="Balance a pole on a cart.",
     description="""\
@@ -105,9 +120,8 @@ Barto, Sutton, and Anderson [Barto83]_.
 """,
 )
 
-
 add_task(
-    id='Acrobot-v0',
+    id='Acrobot-v1',
     group='classic_control',
     summary="Swing up a two-link robot.",
     description="""\
@@ -139,6 +153,26 @@ Therefore, the only way to succeed is to drive back and forth to build up moment
 This problem was first described by Andrew Moore in his PhD thesis [Moore90]_.
 
 .. [Moore90] A Moore, Efficient Memory-Based Learning for Robot Control, PhD thesis, University of Cambridge, 1990.
+""",
+)
+
+add_task(
+    id='MountainCarContinuous-v0',
+    group='classic_control',
+    summary="Drive up a big hill with continuous control.",
+    description="""
+A car is on a one-dimensional track,
+positioned between two "mountains".
+The goal is to drive up the mountain on the right; however, the car's engine is not
+strong enough to scale the mountain in a single pass.
+Therefore, the only way to succeed is to drive back and forth to build up momentum.
+Here, the reward is greater if you spend less energy to reach the goal
+""",
+    background="""\
+This problem was first described by Andrew Moore in his PhD thesis [Moore90]_.
+
+.. [Moore90] A Moore, Efficient Memory-Based Learning for Robot Control, PhD thesis, University of Cambridge, 1990.
+Here, this is the continuous version.
 """,
 )
 
@@ -264,6 +298,27 @@ comes to rest, receiving additional -100 or +100 points. Each leg ground contact
 engine is -0.3 points each frame. Solved is 200 points.
 Landing outside landing pad is possible. Fuel is infinite, so an agent can learn to fly and then land
 on its first attempt.
+Four discrete actions available: do nothing, fire left orientation engine, fire main engine, fire
+right orientation engine.
+""")
+
+add_task(
+    id='LunarLanderContinuous-v2',
+    group='box2d',
+    experimental=True,
+    contributor='olegklimov',
+    summary='Navigate a lander to its landing pad.',
+    description="""
+Landing pad is always at coordinates (0,0). Coordinates are the first two numbers in state vector.
+Reward for moving from the top of the screen to landing pad and zero speed is about 100..140 points.
+If lander moves away from landing pad it loses reward back. Episode finishes if the lander crashes or
+comes to rest, receiving additional -100 or +100 points. Each leg ground contact is +10. Firing main
+engine is -0.3 points each frame. Solved is 200 points.
+Landing outside landing pad is possible. Fuel is infinite, so an agent can learn to fly and then land
+on its first attempt.
+Action is two real values vector from -1 to +1. First controls main engine, -1..0 off, 0..+1 throttle
+from 50% to 100% power. Engine can't work with less than 50% power. Second value -1.0..-0.5 fire left
+engine, +0.5..+1.0 fire right engine, -0.5..0.5 off.
 """)
 
 add_task(
@@ -556,7 +611,7 @@ add_task(
 )
 
 add_task(
-    id='Taxi-v1',
+    id='Taxi-v2',
     group='toy_text',
     summary='As a taxi driver, you need to pick up and drop off passengers as fast as possible.',
     description="""
@@ -593,6 +648,26 @@ add_task(
     group='toy_text',
     experimental=True,
     contributor='machinaut',
+    description="""
+        n-Chain environment
+
+        This game presents moves along a linear chain of states, with two actions:
+         0) forward, which moves along the chain but returns no reward
+         1) backward, which returns to the beginning and has a small reward
+
+        The end of the chain, however, presents a large reward, and by moving
+        'forward' at the end of the chain this large reward can be repeated.
+
+        At each action, there is a small probability that the agent 'slips' and the
+        opposite transition is instead taken.
+
+        The observed state is the current state in the chain (0 to n-1).
+        """,
+    background="""
+        This environment is described in section 6.1 of:
+        A Bayesian Framework for Reinforcement Learning by Malcolm Strens (2000)
+        http://ceit.aut.ac.ir/~shiry/lecture/machine-learning/papers/BRL-2000.pdf
+        """
 )
 
 add_task(
@@ -705,316 +780,6 @@ The game is simulated through the Arcade Learning Environment [ALE]_, which uses
 .. [Stella] Stella: A Multi-Platform Atari 2600 VCS emulator http://stella.sourceforge.net/
 """,
     )
-
-# doom
-add_task(
-    id='meta-Doom-v0',
-    group='doom',
-    experimental=True,
-    contributor='ppaquette',
-    summary='Mission #1 to #9 - Beat all 9 Doom missions.',
-    description="""
-This is a meta map that combines all 9 Doom levels.
-
-Levels:
-    - #0 Doom Basic
-    - #1 Doom Corridor
-    - #2 Doom DefendCenter
-    - #3 Doom DefendLine
-    - #4 Doom HealthGathering
-    - #5 Doom MyWayHome
-    - #6 Doom PredictPosition
-    - #7 Doom TakeCover
-    - #8 Doom Deathmatch
-
-Goal: 9,000 points
-    - Pass all levels
-
-Scoring:
-    - Each level score has been standardized on a scale of 0 to 1,000
-    - The passing score for a level is 990 (99th percentile)
-    - A bonus of 450 (50 * 9 levels) is given if all levels are passed
-    - The score for a level is the average of the last 3 tries
-"""
-)
-
-add_task(
-    id='DoomBasic-v0',
-    group='doom',
-    experimental=True,
-    contributor='ppaquette',
-    summary='Mission #1 - Kill a single monster using your pistol.',
-    description="""
-This map is rectangular with gray walls, ceiling and floor.
-You are spawned in the center of the longer wall, and a red
-circular monster is spawned randomly on the opposite wall.
-You need to kill the monster (one bullet is enough).
-
-Goal: 10 points
-    - Kill the monster in 3 secs with 1 shot
-
-Rewards:
-    - Plus 101 pts for killing the monster
-    - Minus  5 pts for missing a shot
-    - Minus  1 pts every 0.028 secs
-
-Ends when:
-    - Monster is dead
-    - Player is dead
-    - Timeout (10 seconds - 350 frames)
-
-Allowed actions:
-    - ATTACK
-    - MOVE_RIGHT
-    - MOVE_LEFT
-"""
-)
-
-add_task(
-    id='DoomCorridor-v0',
-    group='doom',
-    experimental=True,
-    contributor='ppaquette',
-    summary='Mission #2 - Run as fast as possible to grab a vest.',
-    description="""
-This map is designed to improve your navigation. There is a vest
-at the end of the corridor, with 6 enemies (3 groups of 2). Your goal
-is to get to the vest as soon as possible, without being killed.
-
-Goal: 1,000 points
-    - Reach the vest (or get very close to it)
-
-Rewards:
-    - Plus distance for getting closer to the vest
-    - Minus distance for getting further from the vest
-    - Minus 100 pts for getting killed
-
-Ends when:
-    - Player touches vest
-    - Player is dead
-    - Timeout (1 minutes - 2,100 frames)
-
-Allowed actions:
-    - ATTACK
-    - MOVE_RIGHT
-    - MOVE_LEFT
-    - MOVE_FORWARD
-    - TURN_RIGHT
-    - TURN_LEFT
-"""
-)
-
-add_task(
-    id='DoomDefendCenter-v0',
-    group='doom',
-    experimental=True,
-    contributor='ppaquette',
-    summary='Mission #3 - Kill enemies coming at your from all sides.',
-    description="""
-This map is designed to teach you how to kill and how to stay alive.
-You will also need to keep an eye on your ammunition level. You are only
-rewarded for kills, so figure out how to stay alive.
-
-The map is a circle with monsters. You are in the middle. Monsters will
-respawn with additional health when killed. Kill as many as you can
-before you run out of ammo.
-
-Goal: 10 points
-    - Kill 11 monsters (you have 26 ammo)
-
-Rewards:
-    - Plus 1 point for killing a monster
-    - Minus 1 point for getting killed
-
-Ends when:
-    - Player is dead
-    - Timeout (60 seconds - 2100 frames)
-
-Allowed actions:
-    - ATTACK
-    - TURN_RIGHT
-    - TURN_LEFT
-"""
-)
-
-add_task(
-    id='DoomDefendLine-v0',
-    group='doom',
-    experimental=True,
-    contributor='ppaquette',
-    summary='Mission #4 - Kill enemies on the other side of the room.',
-    description="""
-This map is designed to teach you how to kill and how to stay alive.
-Your ammo will automatically replenish. You are only rewarded for kills,
-so figure out how to stay alive.
-
-The map is a rectangle with monsters on the other side. Monsters will
-respawn with additional health when killed. Kill as many as you can
-before they kill you. This map is harder than the previous.
-
-Goal: 15 points
-    - Kill 16 monsters
-
-Rewards:
-    - Plus 1 point for killing a monster
-    - Minus 1 point for getting killed
-
-Ends when:
-    - Player is dead
-    - Timeout (60 seconds - 2100 frames)
-
-Allowed actions:
-    - ATTACK
-    - TURN_RIGHT
-    - TURN_LEFT
-"""
-)
-
-add_task(
-    id='DoomHealthGathering-v0',
-    group='doom',
-    experimental=True,
-    contributor='ppaquette',
-    summary='Mission #5 - Learn to grad medkits to survive as long as possible.',
-    description="""
-This map is a guide on how to survive by collecting health packs.
-It is a rectangle with green, acidic floor which hurts the player
-periodically. There are also medkits spread around the map, and
-additional kits will spawn at interval.
-
-Goal: 1000 points
-    - Stay alive long enough for approx. 30 secs
-
-Rewards:
-    - Plus 1 point every 0.028 secs
-    - Minus 100 pts for dying
-
-Ends when:
-    - Player is dead
-    - Timeout (60 seconds - 2,100 frames)
-
-Allowed actions:
-    - MOVE_FORWARD
-    - TURN_RIGHT
-    - TURN_LEFT
-"""
-)
-
-add_task(
-    id='DoomMyWayHome-v0',
-    group='doom',
-    experimental=True,
-    contributor='ppaquette',
-    summary='Mission #6 - Find the vest in one the 4 rooms.',
-    description="""
-This map is designed to improve navigational skills. It is a series of
-interconnected rooms and 1 corridor with a dead end. Each room
-has a separate color. There is a green vest in one of the room.
-The vest is always in the same room. Player must find the vest.
-
-Goal: 0.50 point
-    - Find the vest
-
-Rewards:
-    - Plus 1 point for finding the vest
-    - Minus 0.0001 point every 0.028 secs
-
-Ends when:
-    - Vest is found
-    - Timeout (1 minutes - 2,100 frames)
-
-Allowed actions:
-    - MOVE_FORWARD
-    - TURN_RIGHT
-    - TURN_LEFT
-"""
-)
-
-add_task(
-    id='DoomPredictPosition-v0',
-    group='doom',
-    experimental=True,
-    contributor='ppaquette',
-    summary='Mission #7 - Learn how to kill an enemy with a rocket launcher.',
-    description="""
-This map is designed to train you on using a rocket launcher.
-It is a rectangular map with a monster on the opposite side. You need
-to use your rocket launcher to kill it. The rocket adds a delay between
-the moment it is fired and the moment it reaches the other side of the room.
-You need to predict the position of the monster to kill it.
-
-Goal: 0.5 point
-    - Kill the monster
-
-Rewards:
-    - Plus 1 point for killing the monster
-    - Minus 0.0001 point every 0.028 secs
-
-Ends when:
-    - Monster is dead
-    - Out of missile (you only have one)
-    - Timeout (20 seconds - 700 frames)
-
-Hint: Wait 1 sec for the missile launcher to load.
-
-Allowed actions:
-    - ATTACK
-    - TURN_RIGHT
-    - TURN_LEFT
-"""
-)
-
-add_task(
-    id='DoomTakeCover-v0',
-    group='doom',
-    experimental=True,
-    contributor='ppaquette',
-    summary='Mission #8 - Survive as long as possible with enemies shooting at you.',
-    description="""
-This map is to train you on the damage of incoming missiles.
-It is a rectangular map with monsters firing missiles and fireballs
-at you. You need to survive as long as possible.
-
-Goal: 750 points
-    - Survive for approx. 20 seconds
-
-Rewards:
-    - Plus 1 point every 0.028 secs
-
-Ends when:
-    - Player is dead (1 or 2 fireballs is enough)
-    - Timeout (60 seconds - 2,100 frames)
-
-Allowed actions:
-    - MOVE_RIGHT
-    - MOVE_LEFT
-"""
-)
-
-add_task(
-    id='DoomDeathmatch-v0',
-    group='doom',
-    experimental=True,
-    contributor='ppaquette',
-    summary='Mission #9 - Kill as many enemies as possible without being killed.',
-    description="""
-Kill as many monsters as possible without being killed.
-
-Goal: 20 points
-    - Kill 20 monsters
-
-Rewards:
-    - Plus 1 point for killing a monster
-
-Ends when:
-    - Player is dead
-    - Timeout (3 minutes - 6,300 frames)
-
-Allowed actions:
-    - ALL
-"""
-)
-
 
 # Safety
 

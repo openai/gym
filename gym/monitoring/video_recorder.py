@@ -36,6 +36,7 @@ class VideoRecorder(object):
 
     def __init__(self, env, path=None, metadata=None, enabled=True, base_path=None):
         modes = env.metadata.get('render.modes', [])
+        self._async = env.metadata.get('semantics.async')
         self.enabled = enabled
 
         # Don't bother setting anything else if not enabled
@@ -105,10 +106,13 @@ class VideoRecorder(object):
         frame = self.env.render(mode=render_mode)
 
         if frame is None:
-            # Indicates a bug in the environment: don't want to raise
-            # an error here.
-            logger.warn('Env returned None on render(). Disabling further rendering for video recorder by marking as disabled: path=%s metadata_path=%s', self.path, self.metadata_path)
-            self.broken = True
+            if self._async:
+                return
+            else:
+                # Indicates a bug in the environment: don't want to raise
+                # an error here.
+                logger.warn('Env returned None on render(). Disabling further rendering for video recorder by marking as disabled: path=%s metadata_path=%s', self.path, self.metadata_path)
+                self.broken = True
         else:
             self.last_frame = frame
             if self.ansi_mode:
@@ -247,10 +251,10 @@ class ImageEncoder(object):
         self.frame_shape = frame_shape
         self.frames_per_sec = frames_per_sec
 
-        if distutils.spawn.find_executable('ffmpeg') is not None:
-            self.backend = 'ffmpeg'
-        elif distutils.spawn.find_executable('avconv') is not None:
+        if distutils.spawn.find_executable('avconv') is not None:
             self.backend = 'avconv'
+        elif distutils.spawn.find_executable('ffmpeg') is not None:
+            self.backend = 'ffmpeg'
         else:
             raise error.DependencyNotInstalled("""Found neither the ffmpeg nor avconv executables. On OS X, you can install ffmpeg via `brew install ffmpeg`. On most Ubuntu variants, `sudo apt-get install ffmpeg` should do it. On Ubuntu 14.04, however, you'll need to install avconv with `sudo apt-get install libav-tools`.""")
 
@@ -258,7 +262,12 @@ class ImageEncoder(object):
 
     @property
     def version_info(self):
-        return {'backend':self.backend,'version':str(subprocess.check_output([self.backend, '-version'])),'cmdline':self.cmdline}
+        return {
+            'backend':self.backend,
+            'version':str(subprocess.check_output([self.backend, '-version'],
+                                                  stderr=subprocess.STDOUT)),
+            'cmdline':self.cmdline
+        }
 
     def start(self):
         self.cmdline = (self.backend,
@@ -280,7 +289,10 @@ class ImageEncoder(object):
                      )
 
         logger.debug('Starting ffmpeg with "%s"', ' '.join(self.cmdline))
-        self.proc = subprocess.Popen(self.cmdline, stdin=subprocess.PIPE)
+        if hasattr(os,'setsid'): #setsid not present on Windows
+            self.proc = subprocess.Popen(self.cmdline, stdin=subprocess.PIPE, preexec_fn=os.setsid)
+        else:
+            self.proc = subprocess.Popen(self.cmdline, stdin=subprocess.PIPE)
 
     def capture_frame(self, frame):
         if not isinstance(frame, (np.ndarray, np.generic)):

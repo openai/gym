@@ -5,10 +5,10 @@ from six import StringIO, b
 from gym import utils
 from gym.envs.toy_text import discrete
 
-UP = 0
-RIGHT = 1
-DOWN = 2
-LEFT = 3
+LEFT = 0
+DOWN = 1
+RIGHT = 2
+UP = 3
 
 MAPS = {
     "4x4": [
@@ -76,13 +76,13 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
         def to_s(row, col):
             return row*ncol + col
         def inc(row, col, a):
-            if a==0:
+            if a==0: # left
                 col = max(col-1,0)
-            elif a==1:
+            elif a==1: # down
                 row = min(row+1,nrow-1)
-            elif a==2:
+            elif a==2: # right
                 col = min(col+1,ncol-1)
-            elif a==3:
+            elif a==3: # up
                 row = max(row-1,0)
             return (row, col)
 
@@ -91,8 +91,8 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
                 s = to_s(row, col)
                 for a in range(4):
                     li = P[s][a]
-                    letter = str(desc[row, col])
-                    if letter in 'GH':
+                    letter = desc[row, col]
+                    if letter in b'GH':
                         li.append((1.0, s, 0, True))
                     else:
                         if is_slippery:
@@ -116,17 +116,16 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
     def _render(self, mode='human', close=False):
         if close:
             return
-
         outfile = StringIO() if mode == 'ansi' else sys.stdout
 
         row, col = self.s // self.ncol, self.s % self.ncol
         desc = self.desc.tolist()
         desc = [[c.decode('utf-8') for c in line] for line in desc]
         desc[row][col] = utils.colorize(desc[row][col], "red", highlight=True)
-        outfile.write("\n".join(''.join(line) for line in desc)+"\n")
         if self.lastaction is not None:
             outfile.write("  ({})\n".format(["Left","Down","Right","Up"][self.lastaction]))
         else:
             outfile.write("\n")
+        outfile.write("\n".join(''.join(line) for line in desc)+"\n")
 
         return outfile

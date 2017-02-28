@@ -11,7 +11,6 @@ Optimal value function: v(0)=2.5 (there is only one state, state 0)
 """
 
 import gym
-import random
 from gym import spaces
 from gym.utils import seeding
 
@@ -19,16 +18,17 @@ class OneRoundNondeterministicRewardEnv(gym.Env):
     def __init__(self):
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Discrete(1)
+        self._seed()
         self._reset()
 
     def _step(self, action):
         assert self.action_space.contains(action)
         if action:
             #your agent should figure out that this option has expected value 2.5
-            reward = random.choice([0, 5])
+            reward = self.np_random.choice([0, 5])
         else:
             #your agent should figure out that this option has expected value 2.0
-            reward = random.choice([1, 3])
+            reward = self.np_random.choice([1, 3])
 
         done = True
         return self._get_obs(), reward, done, {}
@@ -40,6 +40,5 @@ class OneRoundNondeterministicRewardEnv(gym.Env):
         return self._get_obs()
 
     def _seed(self, seed=None):
-        seed = seed if seed else seeding.hash_seed(seed) % 2**32
-        random.seed(seed)
+        self.np_random, seed = seeding.np_random(seed)
         return [seed]

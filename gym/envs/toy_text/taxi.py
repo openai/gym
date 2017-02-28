@@ -48,10 +48,10 @@ class TaxiEnv(discrete.DiscreteEnv):
             for col in range(5):
                 for passidx in range(5):
                     for destidx in range(4):
+                        state = self.encode(row, col, passidx, destidx)
                         if passidx < 4 and passidx != destidx:
                             isd[state] += 1
                         for a in range(nA):
-                            state = self.encode(row, col, passidx, destidx)
                             # defaults
                             newrow, newcol, newpassidx = row, col, passidx
                             reward = -1
@@ -62,9 +62,9 @@ class TaxiEnv(discrete.DiscreteEnv):
                                 newrow = min(row+1, maxR)
                             elif a==1:
                                 newrow = max(row-1, 0)
-                            if a==2 and self.desc[1+row,2*col+2]==":":
+                            if a==2 and self.desc[1+row,2*col+2]==b":":
                                 newcol = min(col+1, maxC)
-                            elif a==3 and self.desc[1+row,2*col]==":":
+                            elif a==3 and self.desc[1+row,2*col]==b":":
                                 newcol = max(col-1, 0)
                             elif a==4: # pickup
                                 if (passidx < 4 and taxiloc == locs[passidx]):

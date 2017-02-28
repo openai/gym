@@ -1,12 +1,18 @@
 import logging
 import sys
 
-import gym
-
 logger = logging.getLogger(__name__)
 
 root_logger = logging.getLogger()
-requests_logger = logging.getLogger('requests')
+
+# Should be "gym", but we'll support people doing somewhat crazy
+# things.
+package_name = '.'.join(__name__.split('.')[:-1])
+gym_logger = logging.getLogger(package_name)
+
+# Should be modified only by official Gym plugins. This is an
+# unsupported API and may be removed in future versions.
+_extra_loggers = [gym_logger]
 
 # Set up the default handler
 formatter = logging.Formatter('[%(asctime)s] %(message)s')
@@ -15,12 +21,12 @@ handler.setFormatter(formatter)
 
 # We need to take in the gym logger explicitly since this is called
 # at initialization time.
-def logger_setup(gym_logger):
+def logger_setup(_=None):
+    # This used to take in an argument; we still take an (ignored)
+    # argument for compatibility.
     root_logger.addHandler(handler)
-    gym_logger.setLevel(logging.INFO)
-    # When set to INFO, this will print out the hostname of every
-    # connection it makes.
-    # requests_logger.setLevel(logging.WARN)
+    for logger in _extra_loggers:
+        logger.setLevel(logging.INFO)
 
 def undo_logger_setup():
     """Undoes the automatic logging setup done by OpenAI Gym. You should call
@@ -33,5 +39,5 @@ def undo_logger_setup():
     logger.addHandler(logging.StreamHandler(sys.stderr))
     """
     root_logger.removeHandler(handler)
-    gym.logger.setLevel(logging.NOTSET)
-    requests_logger.setLevel(logging.NOTSET)
+    for logger in _extra_loggers:
+        logger.setLevel(logging.NOTSET)

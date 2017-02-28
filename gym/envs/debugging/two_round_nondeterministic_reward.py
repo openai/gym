@@ -3,7 +3,7 @@ Simple environment with known optimal policy and value function.
 
 Action 0 then 0 yields randomly -1 or 1 reward and terminates the session.
 Action 0 then 1 yields randomly 0, 0, or 9 reward and terminates the session.
-Action 0 then 0 yields randomly 0 or 2 reward and terminates the session.
+Action 1 then 0 yields randomly 0 or 2 reward and terminates the session.
 Action 1 then 1 yields randomly 2 or 3 reward and terminates the session.
 
 Optimal policy: action 0 then 1.
@@ -16,7 +16,6 @@ v(2)= 3   (you get observation 2 in the starting state)
 """
 
 import gym
-import random
 from gym import spaces
 from gym.utils import seeding
 
@@ -45,7 +44,7 @@ class TwoRoundNondeterministicRewardEnv(gym.Env):
             reward = 0
             done = False
         else:
-            reward = random.choice(rewards[self.firstAction][action])
+            reward = self.np_random.choice(rewards[self.firstAction][action])
             done = True
 
         return self._get_obs(), reward, done, {}
@@ -61,6 +60,5 @@ class TwoRoundNondeterministicRewardEnv(gym.Env):
         return self._get_obs()
 
     def _seed(self, seed=None):
-        seed = seed if seed else seeding.hash_seed(seed) % 2**32
-        random.seed(seed)
+        self.np_random, seed = seeding.np_random(seed)
         return [seed]

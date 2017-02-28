@@ -5,7 +5,19 @@ class Error(Exception):
 
 # Local errors
 
-class UnregisteredEnv(Error):
+class Unregistered(Error):
+    """Raised when the user requests an item from the registry that does
+    not actually exist.
+    """
+    pass
+
+class UnregisteredEnv(Unregistered):
+    """Raised when the user requests an env from the registry that does
+    not actually exist.
+    """
+    pass
+
+class UnregisteredBenchmark(Unregistered):
     """Raised when the user requests an env from the registry that does
     not actually exist.
     """
@@ -112,4 +124,13 @@ class VideoRecorderError(Error):
     pass
 
 class InvalidFrame(Error):
+    pass
+
+# Wrapper errors
+
+class DoubleWrapperError(Error):
+    pass
+
+
+class WrapAfterConfigureError(Error):
     pass

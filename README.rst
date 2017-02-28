@@ -97,18 +97,14 @@ Once you're ready to install everything, run ``pip install -e '.[all]'`` (or ``p
 Supported systems
 -----------------
 
-We currently support Linux and OS X running Python 2.7 or 3.5.
-Python 3 support should still be considered experimental -- if you find any bugs, please report them!
-
-In particular on OSX + Python3 you may need to run
+We currently support Linux and OS X running Python 2.7 or 3.5. Some users on OSX + Python3 may need to run
 
 .. code:: shell
 
 	  brew install boost-python --with-python3
 
-We will expand support to Windows based on demand. We
-will also soon ship a Docker container exposing the environments
-callable from any platform, for use with any non-Python framework, such as Torch.
+If you want to access Gym from languages other than python, we have limited support for non-python
+frameworks, such as lua/Torch, using the OpenAI Gym `HTTP API <https://github.com/openai/gym-http-api>`_.
 
 Pip version
 -----------
@@ -212,18 +208,6 @@ These are a variety of classic control tasks, which would appear in a typical re
 	  env.reset()
 	  env.render()
 
-Doom
----------------
-
-These tasks take place inside a Doom game (via the VizDoom project). If you didn't do the full install, you will need to run ``pip install -e '.[doom]'``. You can get started with them via:
-
-.. code:: python
-
-	  import gym
-	  env = gym.make('DoomBasic-v0')
-	  env.reset()
-	  env.render()
-
 MuJoCo
 ------
 
@@ -265,17 +249,33 @@ See the ``examples`` directory.
 Testing
 =======
 
-We are using `nose2 <https://github.com/nose-devs/nose2>`_ for tests. You can run them via:
+We are using `pytest <http://doc.pytest.org>`_ for tests. You can run them via:
 
 .. code:: shell
 
-	  nose2
-
-You can also run tests in a specific directory by using the ``-s`` option, or by passing in the specific name of the test. See the `nose2 docs <http://nose2.readthedocs.org/en/latest/usage.html#naming-tests>`_ for more details.
+	  pytest
 
 What's new
 ----------
 
+- 2016-12-27: BACKWARDS INCOMPATIBILITY: The gym monitor is now a
+  wrapper. Rather than starting monitoring as
+  `env.monitor.start(directory)`, envs are now wrapped as follows:
+  `env = wrappers.Monitor(env, directory)`. This change is on master
+  and will be released with 0.7.0.
+- 2016-11-1: Several experimental changes to how a running monitor interacts
+  with environments. The monitor will now raise an error if reset() is called
+  when the env has not returned done=True. The monitor will only record complete
+  episodes where done=True. Finally, the monitor no longer calls seed() on the
+  underlying env, nor does it record or upload seed information.
+- 2016-10-31: We're experimentally expanding the environment ID format
+  to include an optional username.
+- 2016-09-21: Switch the Gym automated logger setup to configure the
+  root logger rather than just the 'gym' logger.
+- 2016-08-17: Calling `close` on an env will also close the monitor
+  and any rendering windows.
+- 2016-08-17: The monitor will no longer write manifest files in
+  real-time, unless `write_upon_reset=True` is passed.
 - 2016-05-28: For controlled reproducibility, envs now support seeding
   (cf #91 and #135). The monitor records which seeds are used. We will
   soon add seed information to the display on the scoreboard.

@@ -2,13 +2,7 @@
 FROM ubuntu:14.04
 
 RUN apt-get update \
-    && apt-get install -y xorg-dev \
-    libgl1-mesa-dev \
-    xvfb \
-    libxinerama1 \
-    libxcursor1 \
-    libglu1-mesa \
-    libav-tools \
+    && apt-get install -y libav-tools \
     python-numpy \
     python-scipy \
     python-pyglet \
@@ -17,16 +11,24 @@ RUN apt-get update \
     libjpeg-dev \
     curl \
     cmake \
- && apt-get clean \
- && rm -rf /var/lib/apt/lists/* \
- && easy_install pip
+    swig \
+    python-opengl \
+    libboost-all-dev \
+    libsdl2-dev \
+    wget \
+    unzip \
+    git \
+    xpra \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && easy_install pip
 
 WORKDIR /usr/local/gym
-RUN mkdir gym && touch gym/__init__.py
+RUN mkdir -p gym && touch gym/__init__.py
 COPY ./gym/version.py ./gym
 COPY ./requirements.txt .
 COPY ./setup.py .
-RUN pip install -r requirements.txt
+RUN pip install -e .[all]
 
 # Finally, upload our actual code!
 COPY . /usr/local/gym

@@ -9,6 +9,8 @@ import sys, gym
 
 env = gym.make('LunarLander-v2' if len(sys.argv)<2 else sys.argv[1])
 
+if not hasattr(env.action_space, 'n'):
+    raise Exception('Keyboard agent only supports discrete action spaces')
 ACTIONS = env.action_space.n
 ROLLOUT_TIME = 1000
 SKIP_CONTROL = 0    # Use previous control decision SKIP_CONTROL times, that's how you
@@ -22,20 +24,20 @@ def key_press(key, mod):
     global human_agent_action, human_wants_restart, human_sets_pause
     if key==0xff0d: human_wants_restart = True
     if key==32: human_sets_pause = not human_sets_pause
-    a = key - ord('0')
+    a = int( key - ord('0') )
     if a <= 0 or a >= ACTIONS: return
     human_agent_action = a
 
 def key_release(key, mod):
     global human_agent_action
-    a = key - ord('0')
+    a = int( key - ord('0') )
     if a <= 0 or a >= ACTIONS: return
     if human_agent_action == a:
         human_agent_action = 0
 
 env.render()
-env.viewer.window.on_key_press = key_press
-env.viewer.window.on_key_release = key_release
+env.unwrapped.viewer.window.on_key_press = key_press
+env.unwrapped.viewer.window.on_key_release = key_release
 
 def rollout(env):
     global human_agent_action, human_wants_restart, human_sets_pause

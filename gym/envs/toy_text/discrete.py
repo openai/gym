@@ -47,6 +47,7 @@ class DiscreteEnv(Env):
 
     def _reset(self):
         self.s = categorical_sample(self.isd, self.np_random)
+        self.lastaction=None
         return self.s
 
     def _step(self, a):

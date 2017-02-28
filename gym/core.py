@@ -3,8 +3,8 @@ logger = logging.getLogger(__name__)
 
 import numpy as np
 
-from gym import error, monitoring
-from gym.utils import closer
+from gym import error
+from gym.utils import closer, reraise
 
 env_closer = closer.Closer()
 
@@ -40,6 +40,8 @@ class Env(object):
         observation_space: The Space object corresponding to valid observations
         reward_range: A tuple corresponding to the min and max possible rewards
 
+    Note: a default reward range set to [-inf,+inf] already exists. Set it if you want a narrower range.
+
     The methods are accessed publicly as "step", "reset", etc.. The
     non-underscored versions are wrapper methods to which we may add
     functionality over time.
@@ -47,11 +49,12 @@ class Env(object):
 
     def __new__(cls, *args, **kwargs):
         # We use __new__ since we want the env author to be able to
-        # override __init__ without remebering to call super.
+        # override __init__ without remembering to call super.
         env = super(Env, cls).__new__(cls)
         env._env_closer_id = env_closer.register(env)
         env._closed = False
         env._configured = False
+        env._unwrapped = None
 
         # Will be automatically set when creating an environment via 'make'
         env.spec = None
@@ -81,19 +84,12 @@ class Env(object):
         raise NotImplementedError
     def _seed(self, seed=None): return []
 
+    # Do not override
+    _owns_render = True
+
     @property
     def monitor(self):
-        """Lazily creates a monitor instance.
-
-        We do this lazily rather than at environment creation time
-        since when the monitor closes, we need remove the existing
-        monitor but also make it easy to start a new one. We could
-        still just forcibly create a new monitor instance on old
-        monitor close, but that seems less clean.
-        """
-        if not hasattr(self, '_monitor'):
-            self._monitor = monitoring.Monitor(self)
-        return self._monitor
+        raise error.Error("env.monitor has been deprecated as of 12/23/2016. Remove your call to `env.monitor.start(directory)` and instead wrap your env with `env = gym.wrappers.Monitor(env, directory)` to record data.")
 
     def step(self, action):
         """Run one timestep of the environment's dynamics. When end of
@@ -111,25 +107,20 @@ class Env(object):
             done (boolean): whether the episode has ended, in which case further step() calls will return undefined results
             info (dict): contains auxiliary diagnostic information (helpful for debugging, and sometimes learning)
         """
-        self.monitor._before_step(action)
         observation, reward, done, info = self._step(action)
-
-        done = self.monitor._after_step(observation, reward, done, info)
         return observation, reward, done, info
 
     def reset(self):
-        """
-        Resets the state of the environment and returns an initial observation.
+        """Resets the state of the environment and returns an initial
+        observation. Will call 'configure()' if not already called.
 
-        Returns:
-            observation (object): the initial observation of the space. (Initial reward is assumed to be 0.)
+        Returns: observation (object): the initial observation of the
+            space. (Initial reward is assumed to be 0.)
         """
         if self.metadata.get('configure.required') and not self._configured:
-            raise error.Error("{} requires calling 'configure()' before 'reset()'".format(self))
-
-        self.monitor._before_reset()
+            logger.warning("Called reset on %s before configuring. Configuring automatically with default arguments", self)
+            self.configure()
         observation = self._reset()
-        self.monitor._after_reset(observation)
         return observation
 
     def render(self, mode='human', close=False):
@@ -193,6 +184,9 @@ class Env(object):
         if not hasattr(self, '_closed') or self._closed:
             return
 
+        if self._owns_render:
+            self.render(close=True)
+
         self._close()
         env_closer.unregister(self._env_closer_id)
         # If an error occurs before this line, it's possible to
@@ -224,9 +218,35 @@ class Env(object):
         or path to your ImageNet data). It should not affect the
         semantics of the environment.
         """
-
         self._configured = True
-        return self._configure(*args, **kwargs)
+
+        try:
+            self._configure(*args, **kwargs)
+        except TypeError as e:
+            # It can be confusing if you have the wrong environment
+            # and try calling with unsupported arguments, since your
+            # stack trace will only show core.py.
+            if self.spec:
+                reraise(suffix='(for {})'.format(self.spec.id))
+            else:
+                raise
+
+    @property
+    def unwrapped(self):
+        """Completely unwrap this env.
+
+        Notes:
+            EXPERIMENTAL: may be removed in a later version of Gym
+
+            This is a dynamic property in order to avoid refcycles.
+
+        Returns:
+            gym.Env: The base non-wrapped gym.Env instance
+        """
+        if self._unwrapped is not None:
+            return self._unwrapped
+        else:
+            return self
 
     def __del__(self):
         self.close()
@@ -237,15 +257,14 @@ class Env(object):
 # Space-related abstractions
 
 class Space(object):
-    """
-    Provides a classification state spaces and action spaces,
-    so you can write generic code that applies to any Environment.
-    E.g. to choose a random action.
+    """Defines the observation and action spaces, so you can write generic
+    code that applies to any Env. For example, you can choose a random
+    action.
     """
 
-    def sample(self, seed=0):
+    def sample(self):
         """
-        Uniformly randomly sample a random elemnt of this space
+        Uniformly randomly sample a random element of this space
         """
         raise NotImplementedError
 
@@ -265,3 +284,131 @@ class Space(object):
         """Convert a JSONable data type to a batch of samples from this space."""
         # By default, assume identity is JSONable
         return sample_n
+
+class Wrapper(Env):
+    # Clear metadata so by default we don't override any keys.
+    metadata = {}
+
+    _owns_render = False
+
+    # Make sure self.env is always defined, even if things break
+    # early.
+    env = None
+
+    def __init__(self, env=None):
+        self.env = env
+        # Merge with the base metadata
+        metadata = self.metadata
+        self.metadata = self.env.metadata.copy()
+        self.metadata.update(metadata)
+
+        self.action_space = self.env.action_space
+        self.observation_space = self.env.observation_space
+        self.reward_range = self.env.reward_range
+        self._spec = self.env.spec
+        self._unwrapped = self.env.unwrapped
+
+        self._update_wrapper_stack()
+        if env and env._configured:
+            logger.warning("Attempted to wrap env %s after .configure() was called.", env)
+
+    def _update_wrapper_stack(self):
+        """
+        Keep a list of all the wrappers that have been appended to the stack.
+        """
+        self._wrapper_stack = getattr(self.env, '_wrapper_stack', [])
+        self._check_for_duplicate_wrappers()
+        self._wrapper_stack.append(self)
+
+    def _check_for_duplicate_wrappers(self):
+        """Raise an error if there are duplicate wrappers. Can be overwritten by subclasses"""
+        if self.class_name() in [wrapper.class_name() for wrapper in self._wrapper_stack]:
+            raise error.DoubleWrapperError("Attempted to double wrap with Wrapper: {}".format(self.class_name()))
+
+    @classmethod
+    def class_name(cls):
+        return cls.__name__
+
+    def _step(self, action):
+        return self.env.step(action)
+
+    def _reset(self):
+        return self.env.reset()
+
+    def _render(self, mode='human', close=False):
+        if self.env is None:
+            return
+        return self.env.render(mode, close)
+
+    def _close(self):
+        if self.env is None:
+            return
+        return self.env.close()
+
+    def _configure(self, *args, **kwargs):
+        return self.env.configure(*args, **kwargs)
+
+    def _seed(self, seed=None):
+        return self.env.seed(seed)
+
+    def __str__(self):
+        return '<{}{}>'.format(type(self).__name__, self.env)
+
+    def __repr__(self):
+        return str(self)
+
+    @property
+    def spec(self):
+        if self._spec is None:
+            self._spec = self.env.spec
+        return self._spec
+
+    @spec.setter
+    def spec(self, spec):
+        # Won't have an env attr while in the __new__ from gym.Env
+        if self.env is not None:
+            self.env.spec = spec
+        self._spec = spec
+
+class ObservationWrapper(Wrapper):
+    def _reset(self):
+        observation = self.env.reset()
+        return self._observation(observation)
+
+    def _step(self, action):
+        observation, reward, done, info = self.env.step(action)
+        return self.observation(observation), reward, done, info
+
+    def observation(self, observation):
+        return self._observation(observation)
+
+    def _observation(self, observation):
+        raise NotImplementedError
+
+class RewardWrapper(Wrapper):
+    def _step(self, action):
+        observation, reward, done, info = self.env.step(action)
+        return observation, self.reward(reward), done, info
+
+    def reward(self, reward):
+        return self._reward(reward)
+
+    def _reward(self, reward):
+        raise NotImplementedError
+
+class ActionWrapper(Wrapper):
+    def _step(self, action):
+        action = self.action(action)
+        return self.env.step(action)
+
+    def action(self, action):
+        return self._action(action)
+
+    def _action(self, action):
+        raise NotImplementedError
+
+    def reverse_action(self, action):
+        return self._reverse_action(action)
+
+    def _reverse_action(self, action):
+        raise NotImplementedError
