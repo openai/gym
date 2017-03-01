@@ -8,7 +8,7 @@ from gym import utils
 from gym.utils import seeding
 
 try:
-    import rle_python_interface
+    from rle_python_interface import rle_python_interface
 except ImportError as e:
     raise error.DependencyNotInstalled("{}. (HINT: you can install RLE dependencies by running 'pip install gym[rle]'.)".format(e))
 
