@@ -204,7 +204,7 @@ class Env(object):
         return '<{} instance>'.format(type(self).__name__)
 
     def configure(self, *args, **kwargs):
-        raise NotImplementedError("Env.configure has been removed. If you need it, please go back to gym commit 6f27709.")
+        raise error.Error("Env.configure has been removed in gym v0.8.0, released on 2017/03/05. If you need Env.configure, please use gym version 0.7.x from pip, or checkout the `gym:v0.7.4` tag from git.")
 
 # Space-related abstractions
 
