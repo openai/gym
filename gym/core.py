@@ -203,7 +203,7 @@ class Env(object):
     def __str__(self):
         return '<{} instance>'.format(type(self).__name__)
 
-    def configure(self):
+    def configure(self, *args, **kwargs):
         raise NotImplementedError("Env.configure has been removed. If you need it, please go back to gym commit 6f27709.")
 
 # Space-related abstractions
