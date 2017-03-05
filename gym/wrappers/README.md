@@ -26,5 +26,5 @@ from gym.wrappers import MyWrapper
 - You can access the inner environment with `self.unwrapped`
 - You can access the previous layer using `self.env`
 - The variables `metadata`, `action_space`, `observation_space`, `reward_range`, and `spec` are copied to `self` from the previous layer
-- Create a wrapped function for at least one of the following: `__init__(self, env)`, `_step`, `_reset`, `_render`, `_close`, `_configure`, or `_seed`
+- Create a wrapped function for at least one of the following: `__init__(self, env)`, `_step`, `_reset`, `_render`, `_close`, or `_seed`
 - Your layered function should take its input from the previous layer (`self.env`) and/or the inner layer (`self.unwrapped`)

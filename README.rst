@@ -257,7 +257,10 @@ We are using `pytest <http://doc.pytest.org>`_ for tests. You can run them via:
 
 What's new
 ----------
-
+- 2017-03-05: BACKWARDS INCOMPATIBILITY: The `configure` method has been removed
+  from `Env`. `configure` was not used by `gym`, but was used by some dependent
+  libraries including `universe`. These libraries will migrate away from the
+  configure method by using wrappers instead. This change is on master and will be released with 0.8.0.
 - 2016-12-27: BACKWARDS INCOMPATIBILITY: The gym monitor is now a
   wrapper. Rather than starting monitoring as
   `env.monitor.start(directory)`, envs are now wrapped as follows:
