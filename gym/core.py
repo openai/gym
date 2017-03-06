@@ -71,7 +71,10 @@ class Env(object):
     # Override in ALL subclasses
     def _step(self, action): raise NotImplementedError
     def _reset(self): raise NotImplementedError
-    def _render(self, mode='human', close=False): raise NotImplementedError
+    def _render(self, mode='human', close=False):
+        if close:
+            return
+        raise NotImplementedError
     def _seed(self, seed=None): return []
 
     # Do not override
@@ -159,7 +162,9 @@ class Env(object):
         Environments will automatically close() themselves when
         garbage collected or when the program exits.
         """
-        if self._closed:
+        # _closed will be missing if this instance is still
+        # initializing.
+        if not hasattr(self, '_closed') or self._closed:
             return
 
         if self._owns_render:
