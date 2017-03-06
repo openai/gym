@@ -20,12 +20,14 @@ def upload(training_dir, algorithm_id=None, writeup=None, tags=None, benchmark_i
     env's monitor) to OpenAI Gym.
 
     Args:
-        training_dir (Optional[str]): A directory containing the results of a training run.
+        training_dir (str): A directory containing the results of a training run.
         algorithm_id (Optional[str]): An algorithm id indicating the particular version of the algorithm (including choices of parameters) you are running (visit https://gym.openai.com/algorithms to create an id). If the id doesn't match an existing server id it will create a new algorithm using algorithm_id as the name
         benchmark_id (Optional[str]): The benchmark that these evaluations belong to. Will recursively search through training_dir for any Gym manifests. This feature is currently pre-release.
         writeup (Optional[str]): A Gist URL (of the form https://gist.github.com/<user>/<id>) containing your writeup for this evaluation.
         tags (Optional[dict]): A dictionary of key/values to store with the benchmark run (ignored for nonbenchmark evaluations). Must be jsonable.
         api_key (Optional[str]): Your OpenAI API key. Can also be provided as an environment variable (OPENAI_GYM_API_KEY).
+        ignore_open_monitors (Optional[bool]): Whether to check for open monitors before uploading. An open monitor can indicate that data has not been completely written. Defaults to False.
+        skip_videos (Optional[bool]): Whether to skip videos when uploading. Can be useful when submitting a benchmark with many trials. Defaults to False.
     """
 
     if benchmark_id:
