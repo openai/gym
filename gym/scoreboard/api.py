@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 video_name_re = re.compile('^[\w.-]+\.(mp4|avi|json)$')
 metadata_name_re = re.compile('^[\w.-]+\.meta\.json$')
 
-def upload(training_dir, algorithm_id=None, writeup=None, tags=None, benchmark_id=None, api_key=None, ignore_open_monitors=False):
+def upload(training_dir, algorithm_id=None, writeup=None, tags=None, benchmark_id=None, api_key=None, ignore_open_monitors=False, skip_videos=False):
     """Upload the results of training (as automatically recorded by your
     env's monitor) to OpenAI Gym.
 
@@ -36,6 +36,7 @@ def upload(training_dir, algorithm_id=None, writeup=None, tags=None, benchmark_i
             benchmark_run_tags=tags,
             api_key=api_key,
             ignore_open_monitors=ignore_open_monitors,
+            skip_videos=skip_videos,
         )
     else:
         if tags is not None:
@@ -48,6 +49,7 @@ def upload(training_dir, algorithm_id=None, writeup=None, tags=None, benchmark_i
             benchmark_run_id=None,
             api_key=api_key,
             ignore_open_monitors=ignore_open_monitors,
+            skip_videos=skip_videos,
         )
 
         logger.info("""
@@ -63,7 +65,7 @@ OpenAI Gym! You can find it at:
         return None
 
 
-def _upload_benchmark(training_dir, algorithm_id, benchmark_id, benchmark_run_tags, api_key, ignore_open_monitors):
+def _upload_benchmark(training_dir, algorithm_id, benchmark_id, benchmark_run_tags, api_key, ignore_open_monitors, skip_videos):
     # We're uploading a benchmark run.
     directories = []
     env_ids = []
@@ -95,7 +97,7 @@ def _upload_benchmark(training_dir, algorithm_id, benchmark_id, benchmark_run_ta
     # Actually do the uploads.
     for training_dir in directories:
         # N.B. we don't propagate algorithm_id to Evaluation if we're running as part of a benchmark
-        _upload(training_dir, None, None, benchmark_run_id, api_key, ignore_open_monitors)
+        _upload(training_dir, None, None, benchmark_run_id, api_key, ignore_open_monitors, skip_videos)
 
     logger.info("""
 ****************************************************
@@ -110,14 +112,14 @@ OpenAI Gym! You can find it at:
     return benchmark_run_id
 
 
-def _upload(training_dir, algorithm_id=None, writeup=None, benchmark_run_id=None, api_key=None, ignore_open_monitors=False):
+def _upload(training_dir, algorithm_id=None, writeup=None, benchmark_run_id=None, api_key=None, ignore_open_monitors=False, skip_videos=False):
     if not ignore_open_monitors:
         open_monitors = monitoring._open_monitors()
         if len(open_monitors) > 0:
             envs = [m.env.spec.id if m.env.spec else '(unknown)' for m in open_monitors]
             raise error.Error("Still have an open monitor on {}. You must run 'env.close()' before uploading.".format(', '.join(envs)))
 
-    env_info, training_episode_batch, training_video = upload_training_data(training_dir, api_key=api_key)
+    env_info, training_episode_batch, training_video = upload_training_data(training_dir, api_key=api_key, skip_videos=skip_videos)
     env_id = env_info['env_id']
     training_episode_batch_id = training_video_id = None
     if training_episode_batch:
@@ -150,7 +152,7 @@ def _upload(training_dir, algorithm_id=None, writeup=None, benchmark_run_id=None
 
     return evaluation
 
-def upload_training_data(training_dir, api_key=None):
+def upload_training_data(training_dir, api_key=None, skip_videos=False):
     # Could have multiple manifests
     results = monitoring.load_results(training_dir)
     if not results:
@@ -166,7 +168,7 @@ def upload_training_data(training_dir, api_key=None):
     episode_rewards = results['episode_rewards']
     episode_types = results['episode_types']
     initial_reset_timestamps = results['initial_reset_timestamps']
-    videos = results['videos']
+    videos = results['videos'] if not skip_videos else []
 
     env_id = env_info['env_id']
     logger.debug('[%s] Uploading data from manifest %s', env_id, ', '.join(manifests))
