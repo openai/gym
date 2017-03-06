@@ -99,7 +99,13 @@ def _upload_benchmark(training_dir, algorithm_id, benchmark_id, benchmark_run_ta
     # Actually do the uploads.
     for training_dir in directories:
         # N.B. we don't propagate algorithm_id to Evaluation if we're running as part of a benchmark
-        _upload(training_dir, None, None, benchmark_run_id, api_key, ignore_open_monitors, skip_videos)
+        _upload_with_retries = util.retry_exponential_backoff(
+            _upload,
+            (error.APIConnectionError,),
+            max_retries=5,
+            interval=3,
+        )
+        _upload_with_retries(training_dir, None, None, benchmark_run_id, api_key, ignore_open_monitors, skip_videos)
 
     logger.info("""
 ****************************************************
