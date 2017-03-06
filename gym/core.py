@@ -71,10 +71,7 @@ class Env(object):
     # Override in ALL subclasses
     def _step(self, action): raise NotImplementedError
     def _reset(self): raise NotImplementedError
-    def _render(self, mode='human', close=False):
-        if close:
-            return
-        raise NotImplementedError
+    def _render(self, mode='human', close=False): raise NotImplementedError
     def _seed(self, seed=None): return []
 
     # Do not override
@@ -146,15 +143,20 @@ class Env(object):
                 elif mode is 'human':
                     ... # pop up a window and render
                 else:
-                    super(MyEnv, self).render(mode=mode) # just raise an exception
+                    raise NotImplementedError
         """
-        if close: return        
-        modes = self.metadata.get('render.modes', [])
-        if len(modes) == 0:
-            raise error.UnsupportedMode('{} does not support rendering (requested mode: {})'.format(self, mode))
-        elif mode not in modes:
-            raise error.UnsupportedMode('Unsupported rendering mode: {}. (Supported modes for {}: {})'.format(mode, self, modes))
-        return self._render(mode=mode, close=close)
+        if close:
+            try:
+                return self._render(mode=mode, close=close)
+            except NotImplementedError: # _render not defined
+                pass
+        else:
+            modes = self.metadata.get('render.modes', [])
+            if len(modes) == 0:
+                raise error.UnsupportedMode('{} does not support rendering (requested mode: {})'.format(self, mode))
+            elif mode not in modes:
+                raise error.UnsupportedMode('Unsupported rendering mode: {}. (Supported modes for {}: {})'.format(mode, self, modes))
+            return self._render(mode=mode, close=close)
 
     def close(self):
         """Override _close in your subclass to perform any necessary cleanup.
