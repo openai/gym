@@ -44,6 +44,7 @@ def benchmark_aggregate_score(benchmark, env_id_to_benchmark_results):
                 elapsed_times.extend(benchmark_result['elapsed_times'])
             else:
                 # no matching benchmark result for this trial
+                # TODOJT bug?
                 env_scores = scores.setdefault(env_id, [])
                 env_scores.append([benchmark.scorer.null_score for _ in task_list])
                 solves[env_id] = False
@@ -79,14 +80,6 @@ class ClipTo01ThenAverage(object):
     """
     def __init__(self, num_episodes=100):
         self.num_episodes = num_episodes
-
-    @property
-    def description(self):
-        return """
-The scorer takes the average reward over the last {num_episodes} full episodes collected before a certain number of steps or seconds of experience have elapsed for each trial.
-
-This reward is clipped and normalized to be between 0.0 and 1.0 using thresholds defined on a per-environment basis.
-        """.rstrip().format(num_episodes=self.num_episodes)
 
     @property
     def null_score(self):
@@ -419,14 +412,6 @@ class TotalReward(BenchmarkScoringRule):
     def __init__(self):
         super(TotalReward, self).__init__(total_reward_from_episode_rewards)
 
-    @property
-    def description(self):
-        return """
-The scorer takes the average reward over all episodes collected before a certain number of steps or seconds of experience have elapsed for each trial.
-
-This reward is clipped and normalized to be between 0.0 and 1.0 using thresholds defined on a per-environment basis.
-        """.rstrip()
-
 
 def reward_per_time_from_episode_rewards(task, reward, elapsed_seconds):
     "RewardPerTime scoring takes the total reward earned over the course of the episode, divides by the elapsed time, and clips it between reward_floor and reward_ceiling"
@@ -445,11 +430,3 @@ def reward_per_time_from_episode_rewards(task, reward, elapsed_seconds):
 class RewardPerTime(BenchmarkScoringRule):
     def __init__(self):
         super(RewardPerTime, self).__init__(reward_per_time_from_episode_rewards)
-
-    @property
-    def description(self):
-        return """
-The score is the average reward divided by the number of timesteps across all episodes collected before a certain number of steps or seconds of experience have elapsed for each trial.
-
-This reward is clipped and normalized to be between 0.0 and 1.0 using thresholds defined on a per-environment basis.
-        """.rstrip()
