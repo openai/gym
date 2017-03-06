@@ -29,58 +29,26 @@ def upload(training_dir, algorithm_id=None, writeup=None, tags=None, benchmark_i
     """
 
     if benchmark_id:
-        # We're uploading a benchmark run.
-
-        directories = []
-        env_ids = []
-        for name, _, files in os.walk(training_dir):
-            manifests = monitoring.detect_training_manifests(name, files=files)
-            if manifests:
-                env_info = monitoring.load_env_info_from_manifests(manifests, training_dir)
-                env_ids.append(env_info['env_id'])
-                directories.append(name)
-
-        # Validate against benchmark spec
-        try:
-            spec = benchmark_spec(benchmark_id)
-        except error.UnregisteredBenchmark:
-            raise error.Error("Invalid benchmark id: {}. Are you using a benchmark registered in gym/benchmarks/__init__.py?".format(benchmark_id))
-
-        # TODO: verify that the number of trials matches
-        spec_env_ids = [task.env_id for task in spec.tasks for _ in range(task.trials)]
-
-        if not env_ids:
-            raise error.Error("Could not find any evaluations in {}".format(training_dir))
-
-        # This could be more stringent about mixing evaluations
-        if sorted(env_ids) != sorted(spec_env_ids):
-            logger.info("WARNING: Evaluations do not match spec for benchmark %s. In %s, we found evaluations for %s, expected %s", benchmark_id, training_dir, sorted(env_ids), sorted(spec_env_ids))
-
-        benchmark_run = resource.BenchmarkRun.create(benchmark_id=benchmark_id, algorithm_id=algorithm_id, tags=json.dumps(tags))
-        benchmark_run_id = benchmark_run.id
-
-        # Actually do the uploads.
-        for training_dir in directories:
-            # N.B. we don't propagate algorithm_id to Evaluation if we're running as part of a benchmark
-            _upload(training_dir, None, writeup, benchmark_run_id, api_key, ignore_open_monitors)
-
-        logger.info("""
-****************************************************
-You successfully uploaded your benchmark on %s to
-OpenAI Gym! You can find it at:
-
-    %s
-
-****************************************************
-        """.rstrip(), benchmark_id, benchmark_run.web_url())
-
-        return benchmark_run_id
+        return _upload_benchmark(
+            training_dir,
+            algorithm_id,
+            benchmark_id,
+            benchmark_run_tags=tags,
+            api_key=api_key,
+            ignore_open_monitors=ignore_open_monitors,
+        )
     else:
         if tags is not None:
-             logger.warning("Tags will NOT be uploaded for this submission.")
+             logger.warning("Tags are NOT uploaded for evaluation submissions.")
         # Single evalution upload
-        benchmark_run_id = None
-        evaluation = _upload(training_dir, algorithm_id, writeup, benchmark_run_id, api_key, ignore_open_monitors)
+        evaluation = _upload(
+            training_dir,
+            algorithm_id,
+            writeup,
+            benchmark_run_id=None,
+            api_key=api_key,
+            ignore_open_monitors=ignore_open_monitors,
+        )
 
         logger.info("""
 ****************************************************
@@ -93,6 +61,54 @@ OpenAI Gym! You can find it at:
         """.rstrip(), evaluation.env, evaluation.web_url())
 
         return None
+
+
+def _upload_benchmark(training_dir, algorithm_id, benchmark_id, benchmark_run_tags, api_key, ignore_open_monitors):
+    # We're uploading a benchmark run.
+    directories = []
+    env_ids = []
+    for name, _, files in os.walk(training_dir):
+        manifests = monitoring.detect_training_manifests(name, files=files)
+        if manifests:
+            env_info = monitoring.load_env_info_from_manifests(manifests, training_dir)
+            env_ids.append(env_info['env_id'])
+            directories.append(name)
+
+    # Validate against benchmark spec
+    try:
+        spec = benchmark_spec(benchmark_id)
+    except error.UnregisteredBenchmark:
+        raise error.Error("Invalid benchmark id: {}. Are you using a benchmark registered in gym/benchmarks/__init__.py?".format(benchmark_id))
+
+    spec_env_ids = [task.env_id for task in spec.tasks for _ in range(task.trials)]
+
+    if not env_ids:
+        raise error.Error("Could not find any evaluations in {}".format(training_dir))
+
+    # This could be more stringent about mixing evaluations
+    if sorted(env_ids) != sorted(spec_env_ids):
+        logger.info("WARNING: Evaluations do not match spec for benchmark %s. In %s, we found evaluations for %s, expected %s", benchmark_id, training_dir, sorted(env_ids), sorted(spec_env_ids))
+
+    benchmark_run = resource.BenchmarkRun.create(benchmark_id=benchmark_id, algorithm_id=algorithm_id, tags=json.dumps(benchmark_run_tags))
+    benchmark_run_id = benchmark_run.id
+
+    # Actually do the uploads.
+    for training_dir in directories:
+        # N.B. we don't propagate algorithm_id to Evaluation if we're running as part of a benchmark
+        _upload(training_dir, None, None, benchmark_run_id, api_key, ignore_open_monitors)
+
+    logger.info("""
+****************************************************
+You successfully uploaded your benchmark on %s to
+OpenAI Gym! You can find it at:
+
+    %s
+
+****************************************************
+    """.rstrip(), benchmark_id, benchmark_run.web_url())
+
+    return benchmark_run_id
+
 
 def _upload(training_dir, algorithm_id=None, writeup=None, benchmark_run_id=None, api_key=None, ignore_open_monitors=False):
     if not ignore_open_monitors:
