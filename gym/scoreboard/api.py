@@ -93,7 +93,14 @@ def _upload_benchmark(training_dir, algorithm_id, benchmark_id, benchmark_run_ta
     if sorted(env_ids) != sorted(spec_env_ids):
         logger.info("WARNING: Evaluations do not match spec for benchmark %s. In %s, we found evaluations for %s, expected %s", benchmark_id, training_dir, sorted(env_ids), sorted(spec_env_ids))
 
-    benchmark_run = resource.BenchmarkRun.create(benchmark_id=benchmark_id, algorithm_id=algorithm_id, tags=json.dumps(benchmark_run_tags))
+    tags = json.dumps(benchmark_run_tags)
+    _create_with_retries = util.retry_exponential_backoff(
+        resource.BenchmarkRun.create,
+        (error.APIConnectionError,),
+        max_retries=5,
+        interval=3,
+    )
+    benchmark_run = _create_with_retries(benchmark_id=benchmark_id, algorithm_id=algorithm_id, tags=tags)
     benchmark_run_id = benchmark_run.id
 
     # Actually do the uploads.
