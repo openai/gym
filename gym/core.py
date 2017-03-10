@@ -53,7 +53,6 @@ class Env(object):
         env._closed = False
 
         # Will be automatically set when creating an environment via 'make'
-        env.spec = None
         return env
 
     # Set this in SOME subclasses
@@ -203,7 +202,10 @@ class Env(object):
         self.close()
 
     def __str__(self):
-        return '<{} instance>'.format(type(self).__name__)
+        if self.spec is not None:
+            return '<{}<{}>>'.format(type(self).__name__, self.spec.id)
+        else:
+            return '<{} instance>'.format(type(self).__name__)
 
     def configure(self, *args, **kwargs):
         raise error.Error("Env.configure has been removed in gym v0.8.0, released on 2017/03/05. If you need Env.configure, please use gym version 0.7.x from pip, or checkout the `gym:v0.7.4` tag from git.")
@@ -257,7 +259,6 @@ class Wrapper(Env):
         self.action_space = self.env.action_space
         self.observation_space = self.env.observation_space
         self.reward_range = self.env.reward_range
-        self.spec = self.env.spec
         self._ensure_no_double_wrap()
 
     @classmethod
@@ -267,7 +268,7 @@ class Wrapper(Env):
     def _ensure_no_double_wrap(self):
         env = self.env
         while True:
-            if isinstance(env, Wrapper): 
+            if isinstance(env, Wrapper):
                 if env.class_name() == self.class_name():
                     raise error.DoubleWrapperError("Attempted to double wrap with Wrapper: {}".format(self.__class__.__name__))
                 env = env.env
@@ -298,6 +299,10 @@ class Wrapper(Env):
     @property
     def unwrapped(self):
         return self.env.unwrapped
+
+    @property
+    def spec(self):
+        return self.env.spec
 
 class ObservationWrapper(Wrapper):
     def _reset(self):
