@@ -137,6 +137,12 @@ register(
 )
 
 register(
+    id='KellyCoinflip-v0',
+    entry_point='gym.envs.toy_text:KellyCoinflipEnv',
+    reward_threshold=246.61,
+)
+
+register(
     id='FrozenLake-v0',
     entry_point='gym.envs.toy_text:FrozenLakeEnv',
     kwargs={'map_name' : '4x4'},
