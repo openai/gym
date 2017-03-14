@@ -1,7 +1,6 @@
 from gym.envs.registration import registry, register, make, spec
 
-# Algorithmic
-# ----------------------------------------
+# Algorithmic # ----------------------------------------
 
 register(
     id='Copy-v0',

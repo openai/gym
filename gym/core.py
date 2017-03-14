@@ -110,9 +110,12 @@ class Env(object):
         observation, reward, done, info = self._step(action)
         return observation, reward, done, info
 
-    def reset(self):
+    def reset(self, **kwargs):
         """Resets the state of the environment and returns an initial
         observation. Will call 'configure()' if not already called.
+
+        Args:
+            kwargs: forward episode-specific config to the environment.
 
         Returns: observation (object): the initial observation of the
             space. (Initial reward is assumed to be 0.)
@@ -120,7 +123,7 @@ class Env(object):
         if self.metadata.get('configure.required') and not self._configured:
             logger.warning("Called reset on %s before configuring. Configuring automatically with default arguments", self)
             self.configure()
-        observation = self._reset()
+        observation = self._reset(**kwargs)
         return observation
 
     def render(self, mode='human', close=False):
@@ -332,8 +335,8 @@ class Wrapper(Env):
     def _step(self, action):
         return self.env.step(action)
 
-    def _reset(self):
-        return self.env.reset()
+    def _reset(self, **kwargs):
+        return self.env.reset(**kwargs)
 
     def _render(self, mode='human', close=False):
         if self.env is None:

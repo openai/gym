@@ -35,3 +35,8 @@ tutorial/*.html
 # PyCharm project files
 .idea
 vizdoom.ini
+
+# vim
+.ropeproject
+tags
+*.swo

@@ -28,8 +28,8 @@ def SkipWrapper(repeat_count):
             info['skip.stepcount'] = self.stepcount
             return obs, total_reward, done, info
 
-        def _reset(self):
+        def _reset(self, **kwargs):
             self.stepcount = 0
-            return self.env.reset()
+            return self.env.reset(**kwargs)
 
     return SkipWrapper

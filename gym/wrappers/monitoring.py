@@ -23,9 +23,9 @@ class _Monitor(Wrapper):
 
         return observation, reward, done, info
 
-    def _reset(self):
+    def _reset(self, **kwargs):
         self._monitor._before_reset()
-        observation = self.env.reset()
+        observation = self.env.reset(**kwargs)
         self._monitor._after_reset(observation)
 
         return observation
