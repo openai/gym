@@ -27,6 +27,8 @@ class Benchmark(object):
     def __init__(self, id, scorer, tasks, description=None, name=None):
         self.id = id
         self.scorer = scorer
+        if scorer:
+            raise error.Error('benchmark scorer is deprecated')
         self.description = description
         self.name = name
         self.env_ids = set()

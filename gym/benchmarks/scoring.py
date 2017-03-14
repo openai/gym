@@ -427,6 +427,73 @@ def reward_per_time_from_episode_rewards(task, reward, elapsed_seconds):
     return score, solved
 
 
-class RewardPerTime(BenchmarkScoringRule):
-    def __init__(self):
-        super(RewardPerTime, self).__init__(reward_per_time_from_episode_rewards)
+def truncate_episode_to_benchmark_limits(benchmark, env_id, data_sources, initial_reset_timestamps, episode_lengths, episode_rewards, episode_types, timestamps):
+    tasks = benchmark.task_specs(env_id)
+    spec = envs.spec(env_id)
+
+    #### 0. Compute timing stats
+
+    if len(initial_reset_timestamps) > 0:
+        initial_reset_timestamp = min(initial_reset_timestamps)
+    else:
+        initial_reset_timestamp = 0
+
+
+    # How long each episode actually took
+    timestamps = np.array(timestamps)
+    durations = _compute_episode_durations(initial_reset_timestamps, data_sources, timestamps)
+
+    #### Grab the data corresponding to each of evaluation/training
+    lengths = np.array(episode_lengths)
+    rewards = np.array(episode_rewards)
+
+    #### Calculate the total elapsed time (in various units)
+    #### for each episode
+
+    # How many training timesteps have elapsed by the end of each
+    # episode. Not to be confused with Unix timestamps.
+    elapsed_timesteps = np.cumsum(lengths)
+    # Total number of seconds elapsed by the end of each
+    # episode. Note that with n parallel workers each running for
+    # m seconds, we want to count the total time as n * m.
+    elapsed_seconds = np.cumsum(durations)
+
+    # List of lists of episode rewards for each task
+    rewards = []
+    # List of lists of relevant episode lengths for each task
+    cutoff_lengths = []
+    _timestamps = []
+    elapsed_times = []
+    for task in tasks:
+        # Find the first episode where we're over the allotted
+        # training timesteps.
+        cutoff_idx = _find_cutoffs_for_task(task, elapsed_timesteps, elapsed_seconds)
+        if not np.isfinite(cutoff_idx):
+            # All episodes are fair game
+            cutoff_idx = len(lengths)
+
+        reward = np.array(episode_rewards)[:cutoff_idx]
+
+        rewards.append(reward)
+        cutoff_lengths.append(lengths[:cutoff_idx])
+
+        if np.any(timestamps[:cutoff_idx]):
+            last_timestamp = timestamps[cutoff_idx - 1]
+            elapsed_time = elapsed_seconds[cutoff_idx - 1]
+        else:
+            # If we don't have any valid episodes, then the
+            # last valid timestamp is when we started.
+            last_timestamp = initial_reset_timestamp
+            elapsed_time = 0.0
+
+        # Record the timestamp of the last episode
+        _timestamps.append(last_timestamp)
+        elapsed_times.append(elapsed_time)
+
+    return {
+        'rewards': rewards,
+        'lengths': cutoff_lengths,
+        'timestamps': _timestamps,
+        'elapsed_times': elapsed_times,
+        'initial_reset_timestamp': initial_reset_timestamp,
+    }
