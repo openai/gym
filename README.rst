@@ -11,7 +11,7 @@ OpenAI Gym
 ``gym`` makes no assumptions about the structure of your agent, and is compatible with any numerical computation library, such as TensorFlow or Theano. You can use it from Python code, and soon from other languages.
 
 If you're not sure where to start, we recommend beginning with the
-`docs <https://gym.openai.com/docs>`_ on our site.
+`docs <https://gym.openai.com/docs>`_ on our site. See also the `FAQ <https://github.com/openai/gym/wiki/FAQ>`.
 
 A whitepaper for OpenAI Gym is available at http://arxiv.org/abs/1606.01540, and here's a BibTeX entry that you can use to cite it in a publication::
 
