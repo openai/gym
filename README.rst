@@ -11,7 +11,7 @@ OpenAI Gym
 ``gym`` makes no assumptions about the structure of your agent, and is compatible with any numerical computation library, such as TensorFlow or Theano. You can use it from Python code, and soon from other languages.
 
 If you're not sure where to start, we recommend beginning with the
-`docs <https://gym.openai.com/docs>`_ on our site. See also the `FAQ <https://github.com/openai/gym/wiki/FAQ>`.
+`docs <https://gym.openai.com/docs>`_ on our site. See also the `FAQ <https://github.com/openai/gym/wiki/FAQ>`_.
 
 A whitepaper for OpenAI Gym is available at http://arxiv.org/abs/1606.01540, and here's a BibTeX entry that you can use to cite it in a publication::
 
@@ -34,8 +34,7 @@ algorithm you are writing). The agent sends `actions` to the
 environment, and the environment replies with `observations` and
 `rewards` (that is, a score).
 
-The core `gym` interface is `Env
-<https://github.com/openai/gym/blob/master/gym/core.py>`_, which is
+The core `gym` interface is `Env <https://github.com/openai/gym/blob/master/gym/core.py>`_, which is
 the unified environment interface. There is no interface for agents;
 that part is left to you. The following are the ``Env`` methods you
 should know:
