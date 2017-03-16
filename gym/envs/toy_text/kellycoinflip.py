@@ -12,8 +12,8 @@ class KellyCoinflipEnv(gym.Env):
 
         self.action_space = spaces.Discrete(maxWealth*100) # betting in penny increments
         self.observation_space = spaces.Tuple((
-            spaces.Discrete(maxWealth*100), # (w,b)
-            spaces.Discrete(maxRounds)))
+            spaces.Discrete(maxWealth*100+1), # (w,b)
+            spaces.Discrete(maxRounds+1)))
         self.reward_range = (0, maxWealth)
         self.edge = edge
         self.wealth = initialWealth
