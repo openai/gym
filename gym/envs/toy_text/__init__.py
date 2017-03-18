@@ -5,3 +5,4 @@ from gym.envs.toy_text.nchain import NChainEnv
 from gym.envs.toy_text.hotter_colder import HotterColder
 from gym.envs.toy_text.guessing_game import GuessingGame
 from gym.envs.toy_text.kellycoinflip import KellyCoinflipEnv
+from gym.envs.toy_text.kellycoinflip import KellyCoinflipGeneralizedEnv
