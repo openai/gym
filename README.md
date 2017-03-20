@@ -15,15 +15,15 @@ You need to install these packages first:
 
 ###Install
 
-To facilitate installation, we have uploaded the entire project base including the original openai gym code. To install, simply do 
+The installation is the same as for <a href="https://github.com/openai/gym">**openai gym**</a>. To install, simply do 
 
 
-    git clone https://github.com/VincentYu68/DartEnv.git
+    git clone https://github.com/VincentYu68/dart-env.git
     cd DartEnv
     pip install -e .
 
 
-Please find the detailed installation instruction of using <a href="https://github.com/openai/rllab">Rllab</a> to learn DartEnv in the <a href="https://github.com/VincentYu68/DartEnv/wiki">wiki</a> page.
+Please find the detailed installation instruction of using <a href="https://github.com/openai/rllab">Rllab</a> to learn DartEnv in the <a href="https://github.com/VincentYu68/dart-env/wiki">wiki</a> page.
 
 
 ###Example
