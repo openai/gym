@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+
+<robot xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"
+       xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
+       xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
+       xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find pr2_description)/urdf/sensors/double_stereo_camera.gazebo.xacro" />
+  <xacro:include filename="$(find pr2_description)/urdf/sensors/stereo_camera.urdf.xacro" />
+
+  <property name="stereo_size_x" value="0.02" />
+  <property name="stereo_size_y" value="0.12" />
+  <property name="stereo_size_z" value="0.05" />
+  <property name="stereo_center_box_center_offset_x" value="-0.01" />
+  <property name="stereo_center_box_center_offset_z" value="0.025" />
+
+  <!-- Made by Kevin for double stereo camera for PR-2 Beta. -->
+  <!-- Needs calibration verification, and CAD check. -->
+  <xacro:macro name="double_stereo_camera_v0" params="name parent *origin">
+    <!-- Define link to stereo cameras, set origin relative to that -->
+    <joint name="${name}_frame_joint" type="fixed">
+      <insert_block name="origin" />
+      <parent link="${parent}"/>
+      <child link="${name}_link"/>
+    </joint>
+    <link name="${name}_link">
+
+      <inertial>
+        <!-- Needs verification with CAD -->
+        <mass value="0.1" />
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <inertia ixx="0.001" ixy="0.0" ixz="0.0"
+                 iyy="0.001" iyz="0.0" izz="0.01" />
+      </inertial>
+
+      <!-- Should probably get real visuals here at some point -->
+      <visual>
+        <origin xyz="${stereo_center_box_center_offset_x} 0 ${stereo_center_box_center_offset_z}" rpy="0 0 0" />
+        <geometry>
+          <box size="${stereo_size_x} ${stereo_size_y} ${stereo_size_z}" />
+        </geometry>
+        <material name="Blue" />
+      </visual>
+
+    </link>
+
+    <!-- Wide camera is on robot right (hca1), narrow on left (hca2)? -->
+    <!-- 15mm offset from center needs check with CAD -->
+    <xacro:stereo_camera_v0 parent="${name}_link" name="wide_stereo" focal_length="320.000105" hfov="90" image_format="BAYER_BGGR8" image_width="640" image_height="480" >
+      <origin xyz="0.045 ${0.045-0.015} 0.0501" rpy="0.0   0.0   0.0" />
+    </xacro:stereo_camera_v0>
+    <xacro:stereo_camera_v0 parent="${name}_link" name="narrow_stereo" focal_length="772.548518" hfov="45" image_format="L8" image_width="640" image_height="480" >
+      <origin xyz="0.045 ${0.045+0.015} 0.0501" rpy="0.0   0.0   0.0" />
+    </xacro:stereo_camera_v0>
+
+    <!-- extensions -->
+    <xacro:double_stereo_camera_gazebo_v0 name="${name}" />
+    
+  </xacro:macro>
+
+</robot>

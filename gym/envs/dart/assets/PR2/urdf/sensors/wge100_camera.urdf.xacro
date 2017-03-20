@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<!-- XML namespaces -->
+<robot xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"
+       xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
+       xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
+       xmlns:xacro="http://ros.org/wiki/xacro">
+  
+  <xacro:include filename="$(find pr2_description)/urdf/sensors/wge100_camera.gazebo.xacro" />
+
+  <!-- hack_baseline is used to simulate right stereo camera projection matrix translation to left stereo camera frame, currently on the hardware,
+       custom left stereo camera frame_id is passed to right stereo wge100 camera node at launch time, baseline is stored on the camera. -->
+  <xacro:macro name="wge100_camera_v0" params="name camera_name image_format image_topic_name camera_info_topic_name parent hfov focal_length frame_id hack_baseline image_width image_height *origin">
+
+    <joint name="${name}_frame_joint" type="fixed">
+      <insert_block name="origin" />
+      <parent link="${parent}"/>
+      <child link="${name}_frame"/>
+    </joint>
+    <link name="${name}_frame">
+
+      <inertial>
+        <mass value="0.01" />
+        <origin xyz="0 0 0" />
+        <inertia ixx="0.001"  ixy="0.0"  ixz="0.0"
+                 iyy="0.001"  iyz="0.0"
+                 izz="0.001" />
+      </inertial>
+
+    </link>
+
+    <joint name="${name}_optical_frame_joint" type="fixed">
+      <origin xyz="0 0 0" rpy="${-M_PI/2} 0.0 ${-M_PI/2}" />
+      <parent link="${name}_frame" />
+      <child link="${name}_optical_frame"/>
+    </joint>
+    <link name="${name}_optical_frame"/>
+
+    <!-- extensions -->
+    <xacro:wge100_camera_gazebo_v0 name="${name}" camera_name="${camera_name}" image_format="${image_format}" image_topic_name="${image_topic_name}"
+                                   camera_info_topic_name="${camera_info_topic_name}"
+                                   hfov="${hfov}" focal_length="${focal_length}"
+                                   frame_id="${frame_id}" hack_baseline="${hack_baseline}"
+                                   image_width="${image_width}" image_height="${image_height}"/>
+
+  </xacro:macro>
+
+</robot>

@@ -189,6 +189,64 @@ register(
     max_episode_steps=200,
 )
 
+# Dart
+# ----------------------------------------
+register(
+    id='DartHopper-v1',
+    entry_point='gym.envs.dart:DartHopperEnv',
+    reward_threshold=3800.0,
+    max_episode_steps=1000,
+)
+
+'''register(
+    id='DartHopperCont-v1',
+    entry_point='gym.envs.dart:DartHopperEnvCont',
+    reward_threshold=3800.0,
+    max_episode_steps=1000,
+)'''
+
+register(
+    id='DartCartPole-v1',
+    entry_point='gym.envs.dart:DartCartPoleEnv',
+    reward_threshold=950.0,
+    max_episode_steps=1000,
+)
+
+register(
+    id='DartReacher-v1',
+    entry_point='gym.envs.dart:DartReacherEnv',
+    reward_threshold=950.0,
+    max_episode_steps=1000,
+)
+
+register(
+    id='DartRobotWalk-v1',
+    entry_point='gym.envs.dart:DartRobotWalk',
+    max_episode_steps=1000,
+)
+
+'''register(
+    id='DartSwimmer-v1',
+    entry_point='gym.envs.dart:DartSwimmerEnv',
+    reward_threshold=3800.0,
+    max_episode_steps=1000,
+)'''
+
+register(
+    id='DartCartPole-v0',
+    entry_point='gym.envs.dart:DartCartPoleImgEnv',
+    reward_threshold=950.0,
+    max_episode_steps=2000,
+)
+
+'''register(
+    id='DartSwing-v0',
+    entry_point='gym.envs.dart:DartSwingEnv',
+    reward_threshold=950.0,
+    max_episode_steps=2000,
+)'''
+
+
 # Mujoco
 # ----------------------------------------
 

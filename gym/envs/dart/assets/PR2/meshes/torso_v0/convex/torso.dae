@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="utf-8"?>
+<COLLADA version="1.4.0" xmlns="http://www.collada.org/2005/11/COLLADASchema">
+	<asset>
+		<contributor>
+			<author>NxuStream2 converter - http://www.ageia.com</author>
+			<authoring_tool>PhysX Rocket, PhysX Viewer, or CreateDynamics</authoring_tool>
+			<comments>questions to: jratcliff@ageia.com</comments>
+			<copyright></copyright>
+			<source_data>chair_gothic_tilted</source_data>
+		</contributor>
+		<unit meter="1" name="meter"/>
+		<up_axis>Y_UP</up_axis>
+	</asset>
+   <library_materials>
+      <material id="Material" name="Material">
+         <instance_effect url="#Material-fx"></instance_effect>
+      </material>
+   </library_materials>
+   <library_effects>
+      <effect id="Material-fx" name="Material">
+         <profile_COMMON>
+            <technique id="Material-fx-COMMON" sid="COMMON">
+               <phong>
+                  <ambient>
+                     <color>0.803922 0.588235 0.92549 1</color>
+                  </ambient>
+                  <diffuse>
+                     <color>0.803922 0.588235 0.92549 1</color>
+                  </diffuse>
+                  <specular>
+                     <color>0.631373 0.631373 0.631373 1</color>
+                  </specular>
+                  <shininess>
+                     <float>1</float>
+                  </shininess>
+                  <reflective>
+                     <color>0 0 0 1</color>
+                  </reflective>
+                  <transparent>
+                     <color>1 1 1 1</color>
+                  </transparent>
+                  <transparency>
+                     <float>0</float>
+                  </transparency>
+               </phong>
+           </technique>
+         </profile_COMMON>
+      </effect>
+   </library_effects>
+  <library_geometries>
+    <geometry id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_0-Mesh" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_0-Mesh">
+      <convex_mesh>
+        <source id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_0-Position">
+          <float_array count="36" id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_0-Position-array">
+            -0.108902998 -0.097498998 0.102337502  -0.1124385 -0.093963504 0.102337502  -0.108902998 -0.097498998 -0.498149991  -0.0219 -0.000030028 0.102337502  
+            -0.029222 -0.017818 -0.498149991  -0.026900001 0 -0.498149991  -0.026113 -0.01403 0.102337502  -0.02238 -0.005018 -0.498149991  
+            -0.1124385 -0.093963504 -0.498149991  -0.0219 0 -0.498149991  -0.026900001 -0.000006697 0.102337502  -0.02238 -0.005018 0.102337502  
+          </float_array>
+          <technique_common>
+            <accessor count="12" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_0-Position-array" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+    		   </technique_common>
+				 </source>
+   		 <vertices id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_0-Vertex">
+					<input semantic="POSITION" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_0-Position"/>
+				</vertices>
+				<triangles material="Material" count="20">
+					<input offset="0" semantic="VERTEX" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_0-Vertex"/>
+           <p>
+             0 1 2  1 0 3  4 2 5  4 0 2  
+             6 3 0  6 0 4  7 6 4  7 4 5  
+             8 2 1  8 1 5  8 5 2  9 3 7  
+             9 7 5  10 3 9  10 9 5  10 1 3  
+             10 5 1  11 3 6  11 6 7  11 7 3  
+           </p>
+				</triangles>
+      </convex_mesh>
+		</geometry>
+    <geometry id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_1-Mesh" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_1-Mesh">
+      <convex_mesh>
+        <source id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_1-Position">
+          <float_array count="36" id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_1-Position-array">
+            -0.1124385 0.093963496 0.102337502  -0.0219 0 0.102337502  -0.108902998 0.097498998 0.102337502  -0.1124385 0.093963496 -0.498149991  
+            -0.026900001 0 -0.498149991  -0.029222 0.017818 -0.498149991  -0.029222 0.017818 0.102337502  -0.02238 0.005018 -0.498149991  
+            -0.108902998 0.097498998 -0.498149991  -0.0219 0 -0.498149991  -0.026900001 0 0.102337502  -0.023802999 0.009708 0.102337502  
+          </float_array>
+          <technique_common>
+            <accessor count="12" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_1-Position-array" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+    		   </technique_common>
+				 </source>
+   		 <vertices id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_1-Vertex">
+					<input semantic="POSITION" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_1-Position"/>
+				</vertices>
+				<triangles material="Material" count="20">
+					<input offset="0" semantic="VERTEX" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_1-Vertex"/>
+           <p>
+             0 1 2  3 4 0  3 0 2  5 4 3  
+             6 2 1  6 5 2  7 4 5  8 3 2  
+             8 2 5  8 5 3  9 1 4  9 4 7  
+             9 7 1  10 0 4  10 4 1  10 1 0  
+             11 6 1  11 1 7  11 5 6  11 7 5  
+           </p>
+				</triangles>
+      </convex_mesh>
+		</geometry>
+    <geometry id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_2-Mesh" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_2-Mesh">
+      <convex_mesh>
+        <source id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_2-Position">
+          <float_array count="36" id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_2-Position-array">
+            -0.215903997 -0.170000002 0.102337502  -0.183577999 -0.171629995 0.102337502  -0.1124385 -0.093963504 0.102337502  -0.183577999 -0.171629995 -0.498149991  
+            -0.210904002 -0.174999997 -0.498149991  -0.108902998 -0.097498998 -0.498149991  -0.215903997 -0.170000002 -0.493149996  -0.108902998 -0.097498998 0.102337502  
+            -0.215903997 -0.174999997 0.102337502  -0.1124385 -0.093963504 -0.498149991  -0.215903997 -0.174999997 -0.493149996  -0.214439005 -0.170000002 -0.496684998  
+          </float_array>
+          <technique_common>
+            <accessor count="12" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_2-Position-array" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+    		   </technique_common>
+				 </source>
+   		 <vertices id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_2-Vertex">
+					<input semantic="POSITION" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_2-Position"/>
+				</vertices>
+				<triangles material="Material" count="20">
+					<input offset="0" semantic="VERTEX" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_2-Vertex"/>
+           <p>
+             0 1 2  3 1 4  3 4 5  3 5 1  
+             6 0 2  7 5 2  7 2 1  7 1 5  
+             8 0 6  8 4 1  8 1 0  9 2 5  
+             9 6 2  9 5 4  10 4 8  10 8 6  
+             11 4 10  11 10 6  11 6 9  11 9 4  
+           </p>
+				</triangles>
+      </convex_mesh>
+		</geometry>
+    <geometry id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_3-Mesh" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_3-Mesh">
+      <convex_mesh>
+        <source id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_3-Position">
+          <float_array count="36" id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_3-Position-array">
+            -0.1124385 0.093963496 0.102337502  -0.215903997 0.170000002 0.102337502  -0.1124385 0.093963496 -0.498149991  -0.187034994 0.173478007 0.102337502  
+            -0.108902998 0.097498998 0.102337502  -0.183577999 0.171629995 -0.498149991  -0.108902998 0.097498998 -0.498149991  -0.215903997 0.174999997 0.102337502  
+            -0.215903997 0.170000002 -0.493149996  -0.214439005 0.174999997 -0.496684998  -0.211880997 0.170000002 -0.498053998  -0.190785006 0.174614996 -0.498149991  
+          </float_array>
+          <technique_common>
+            <accessor count="12" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_3-Position-array" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+    		   </technique_common>
+				 </source>
+   		 <vertices id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_3-Vertex">
+					<input semantic="POSITION" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_3-Position"/>
+				</vertices>
+				<triangles material="Material" count="20">
+					<input offset="0" semantic="VERTEX" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_3-Vertex"/>
+           <p>
+             0 1 2  1 0 3  4 0 2  4 3 0  
+             4 5 3  6 2 5  6 5 4  6 4 2  
+             7 1 3  8 1 7  8 7 9  8 2 1  
+             10 2 8  10 8 9  11 5 2  11 2 10  
+             11 10 9  11 9 7  11 7 3  11 3 5  
+           </p>
+				</triangles>
+      </convex_mesh>
+		</geometry>
+    <geometry id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_4-Mesh" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_4-Mesh">
+      <convex_mesh>
+        <source id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_4-Position">
+          <float_array count="36" id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_4-Position-array">
+            -0.094499998 -0.181250006 0.30250001  0.054499999 -0.186832994 0.300686002  0.054499999 0.181250006 0.30250001  0.115000002 0.069200002 0.160500005  
+            0.021127 0.259963006 0.156499997  0.049114 -0.244681001 0.156499997  -0.215903997 -0.174999997 0.102337502  -0.094499998 0.184185997 0.302035004  
+            -0.255715996 0.156479999 0.160500005  -0.257423997 -0.150850996 0.160500005  -0.215903997 0.174999997 0.102337502  -0.026211999 -0.258269995 0.160500005  
+          </float_array>
+          <technique_common>
+            <accessor count="12" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_4-Position-array" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+    		   </technique_common>
+				 </source>
+   		 <vertices id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_4-Vertex">
+					<input semantic="POSITION" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_4-Position"/>
+				</vertices>
+				<triangles material="Material" count="20">
+					<input offset="0" semantic="VERTEX" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_4-Vertex"/>
+           <p>
+             0 1 2  3 2 1  4 2 3  5 6 3  
+             5 3 1  7 2 4  7 4 8  7 0 2  
+             9 0 7  9 7 8  10 6 9  10 9 8  
+             10 3 6  10 4 3  10 8 4  11 0 9  
+             11 9 6  11 1 0  11 5 1  11 6 5  
+           </p>
+				</triangles>
+      </convex_mesh>
+		</geometry>
+  </library_geometries>
+  <library_visual_scenes>
+	  <visual_scene id="Scene0-Visual" name="Scene0-Visual">
+      <node id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso-Node" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso" type="NODE">
+        <translate>0 0 0</translate>
+        <rotate>1 0 0  0</rotate>
+      </node>
+  	  </visual_scene>
+  </library_visual_scenes>
+  <library_physics_materials>
+    <physics_material id="pmat0_0-PhysicsMaterial" name="pmat0_0-PhysicsMaterial">
+      <technique_common>
+        <dynamic_friction>0.5</dynamic_friction>
+        <restitution>0</restitution>
+        <static_friction>0.5</static_friction>
+      </technique_common>
+    </physics_material>
+  </library_physics_materials>
+  <library_physics_models>
+    <physics_model id="Scene0-PhysicsModel">
+      <rigid_body sid="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso-RigidBody" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso">
+        <technique_common>
+          <instance_physics_material url="#pmat0_0-PhysicsMaterial"/>
+         <shape>
+            <translate>0 0 0</translate>
+            <rotate>1 0 0  0</rotate>
+            <instance_physics_material url="#pmat0_0-PhysicsMaterial"/>
+            <density>1</density>
+            <extra>
+              <technique profile="PhysX">
+               <skinWidth>0</skinWidth>
+              </technique>
+            </extra>
+            <instance_geometry url="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_0-Mesh"/>
+         </shape>
+         <shape>
+            <translate>0 0 0</translate>
+            <rotate>1 0 0  0</rotate>
+            <instance_physics_material url="#pmat0_0-PhysicsMaterial"/>
+            <density>1</density>
+            <extra>
+              <technique profile="PhysX">
+               <skinWidth>0</skinWidth>
+              </technique>
+            </extra>
+            <instance_geometry url="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_1-Mesh"/>
+         </shape>
+         <shape>
+            <translate>0 0 0</translate>
+            <rotate>1 0 0  0</rotate>
+            <instance_physics_material url="#pmat0_0-PhysicsMaterial"/>
+            <density>1</density>
+            <extra>
+              <technique profile="PhysX">
+               <skinWidth>0</skinWidth>
+              </technique>
+            </extra>
+            <instance_geometry url="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_2-Mesh"/>
+         </shape>
+         <shape>
+            <translate>0 0 0</translate>
+            <rotate>1 0 0  0</rotate>
+            <instance_physics_material url="#pmat0_0-PhysicsMaterial"/>
+            <density>1</density>
+            <extra>
+              <technique profile="PhysX">
+               <skinWidth>0</skinWidth>
+              </technique>
+            </extra>
+            <instance_geometry url="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_3-Mesh"/>
+         </shape>
+         <shape>
+            <translate>0 0 0</translate>
+            <rotate>1 0 0  0</rotate>
+            <instance_physics_material url="#pmat0_0-PhysicsMaterial"/>
+            <density>1</density>
+            <extra>
+              <technique profile="PhysX">
+               <skinWidth>0</skinWidth>
+              </technique>
+            </extra>
+            <instance_geometry url="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_4-Mesh"/>
+         </shape>
+        <dynamic>true</dynamic>
+        <mass>1</mass>
+		   	</technique_common>
+        <extra>
+          <technique profile="PhysX">
+            <extra>
+              <technique profile="PhysX">
+                <linearDamping>0</linearDamping>
+                <angularDamping>0</angularDamping>
+                <solverIterationCount>32</solverIterationCount>
+              </technique>
+            </extra>
+            <disable_collision>false</disable_collision>
+          </technique>
+        </extra>
+  	  </rigid_body>
+    </physics_model>
+  </library_physics_models>
+  <library_physics_scenes>
+    <physics_scene id="Scene0-Physics">
+      <instance_physics_model url="#Scene0-PhysicsModel">
+        <instance_rigid_body target="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso-Node" body="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso-RigidBody"/>
+      <extra>
+        <technique profile="PhysX">
+        </technique>
+      </extra>
+      </instance_physics_model>
+      <technique_common>
+        <gravity>0 -9.800000191 0</gravity>
+      </technique_common>
+    </physics_scene>
+  </library_physics_scenes>
+  <scene>
+    <instance_visual_scene url="#Scene0-Visual"/>
+    <instance_physics_scene url="#Scene0-Physics"/>
+  </scene>
+</COLLADA>

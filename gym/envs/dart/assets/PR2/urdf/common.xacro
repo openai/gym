@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<robot>
+
+  <property name="M_PI" value="3.1415926535897931" />
+  <property name="VELOCITY_LIMIT_SCALE" value="0.6" />
+
+  <!-- Gear Ratio Corrections: Divide transmission reductions by these factors (Nominally 1)-->
+  <property name="cal_r_shoulder_pan_gearing"   value="1.0" />
+  <property name="cal_r_shoulder_lift_gearing"  value="1.0" />
+  <property name="cal_r_upper_arm_roll_gearing" value="1.0" />
+
+  <!-- ********** Right Arm ********** -->
+  <!-- Flag offsets: Add to the optical flag locations (Nominally 0) -->
+  <property name="cal_r_shoulder_pan_flag"   value="0.0" />
+  <property name="cal_r_shoulder_lift_flag"  value="0.0" />
+  <property name="cal_r_upper_arm_roll_flag" value="0.0" />
+  <property name="cal_r_elbow_flex_flag"     value="0.0" />
+  <property name="cal_r_forearm_roll_flag"   value="0.0" />
+  <property name="cal_r_wrist_flex_flag"     value="0.0" />
+  <property name="cal_r_wrist_roll_flag"     value="0.0" />
+  
+  <!-- ********** Head ********** -->
+  <!-- Head Location: Add to the transform from torso to head_pan_link (Nominally 0) -->
+  <property name="cal_head_x" value="0.0" />
+  <property name="cal_head_y" value="0.0" />
+  <property name="cal_head_z" value="0.0" />
+  <property name="cal_head_roll" value="0.0" />
+  <property name="cal_head_pitch" value="0.0" />
+  <property name="cal_head_yaw" value="0.0" />
+
+  <!-- Flag Offsets -->  
+  <property name="cal_head_pan_flag"  value="0.0" />
+  <property name="cal_head_tilt_flag" value="0.0" />
+
+  <property name="cal_head_pan_flag" value="0.0"/>
+  <property name="cal_head_tilt_flag" value="0.0"/>
+  
+  <!-- Casters -->
+  <property name="cal_caster_fl" value="0.0" />
+  <property name="cal_caster_fr" value="0.0" />
+  <property name="cal_caster_bl" value="0.0" />
+  <property name="cal_caster_br" value="0.0" />
+
+  <!-- Stereo Camera Location (Nominally 0) -->
+  <property name="cal_stereo_x" value="0.0" />
+  <property name="cal_stereo_y" value="0.0" />
+  <property name="cal_stereo_z" value="0.0" />
+  <property name="cal_stereo_roll" value="0.0" />
+  <property name="cal_stereo_pitch" value="0.0" />
+  <property name="cal_stereo_yaw" value="0.0" />
+
+  <!-- Kinect Camera Location (Nominally 0) -->
+  <property name="cal_kinect_x" value="0.0" />
+  <property name="cal_kinect_y" value="0.0" />
+  <property name="cal_kinect_z" value="0.0" />
+  <property name="cal_kinect_roll" value="0.0" />
+  <property name="cal_kinect_pitch" value="0.0" />
+  <property name="cal_kinect_yaw" value="0.0" />
+
+  <!-- HighDef Camera Location (Nominally 0) -->
+  <property name="cal_high_def_x" value="0.0" />
+  <property name="cal_high_def_y" value="0.0" />
+  <property name="cal_high_def_z" value="0.0" />
+  <property name="cal_high_def_roll" value="0.0" />
+  <property name="cal_high_def_pitch" value="0.0" />
+  <property name="cal_high_def_yaw" value="0.0" />
+
+  <!-- Throwing in left arm constants to appease the xacro parser -->
+  <property name="cal_l_shoulder_pan_flag" value="0.000000" />
+  <property name="cal_l_wrist_roll_flag" value="0.0" />
+</robot>

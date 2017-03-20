@@ -1,0 +1,173 @@
+<?xml version="1.0"?>
+
+<!-- XML namespaces -->
+<robot xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"
+       xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
+       xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
+       xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- Things that are needed only for Gazebo (not the physical robot).  These include
+       sensor and controller plugin specifications -->
+  <xacro:include filename="$(find pr2_description)/urdf/upper_arm_v0/upper_arm.gazebo.xacro" />
+  <xacro:include filename="$(find pr2_description)/urdf/upper_arm_v0/upper_arm.transmission.xacro" />
+  <xacro:include filename="$(find pr2_description)/urdf/common.xacro" />
+
+  <!-- Inertial properties differ slightly for left vs right arm -->
+  <property name="uar_xyz1" value= "0.21398" />
+  <property name="uar_xyz2" value="-0.01621" />
+  <property name="uar_xyz3" value="-0.00020" />
+  <property name="uar_ixx"  value= "0.01537748957" />
+  <property name="uar_ixy"  value= "0.00375711247" />
+  <property name="uar_ixz"  value="-0.00070852914" />
+  <property name="uar_iyy"  value= "0.07473670440" />
+  <property name="uar_iyz"  value="-0.00017936450" />
+  <property name="uar_izz"  value= "0.07608763307" />
+
+  <property name="ual_xyz1" value= "0.21405" />
+  <property name="ual_xyz2" value= "0.01658" />
+  <property name="ual_xyz3" value="-0.00057" />
+  <property name="ual_ixx"  value= "0.01530603856" />
+  <property name="ual_ixy"  value="-0.00339324862" />
+  <property name="ual_ixz"  value= "0.00060765455" />
+  <property name="ual_iyy"  value= "0.07473694455" />
+  <property name="ual_iyz"  value="-0.00019953729" />
+  <property name="ual_izz"  value= "0.07601594191" />
+
+
+  <!-- ============================   Upper Arm   ============================ -->
+  <!-- Includes elbow flex, FA roll joints in macros below -->
+  <xacro:macro name="pr2_upper_arm_v0" params="side parent reflect">
+    <joint name="${side}_upper_arm_joint" type="fixed">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <parent link="${parent}"/>
+      <child link="${side}_upper_arm_link"/>
+    </joint>
+    <link name="${side}_upper_arm_link">
+
+      <inertial>
+        <!-- NOTE:reflect==-1 for right side, reflect==1 for the left side -->
+        <mass value="6.01769" />
+        <origin xyz="${0.5*((reflect+1)*ual_xyz1+(1-reflect)*uar_xyz1)} ${0.5*((reflect+1)*ual_xyz2+(1-reflect)*uar_xyz2)} ${0.5*((reflect+1)*ual_xyz3+(1-reflect)*uar_xyz3)}" />
+        <inertia  ixx="${0.5*((reflect+1)*ual_ixx+(1-reflect)*uar_ixx)}"
+                  ixy="${0.5*((reflect+1)*ual_ixy+(1-reflect)*uar_ixy)}"
+                  ixz="${0.5*((reflect+1)*ual_ixz+(1-reflect)*uar_ixz)}"
+                  iyy="${0.5*((reflect+1)*ual_iyy+(1-reflect)*uar_iyy)}"
+                  iyz="${0.5*((reflect+1)*ual_iyz+(1-reflect)*uar_iyz)}"
+                  izz="${0.5*((reflect+1)*ual_izz+(1-reflect)*uar_izz)}" />
+      </inertial>
+
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://pr2_description/meshes/upper_arm_v0/upper_arm.dae"  />
+        </geometry>
+
+        <material name="Green" />
+      </visual>
+
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://pr2_description/meshes/upper_arm_v0/upper_arm.stl"  />
+        </geometry>
+      </collision>
+
+    </link>
+
+    <!-- extensions-->
+    <xacro:pr2_upper_arm_gazebo_v0 side="${side}" /> <!-- Has upperarm link -->
+    <!-- No transmission, since this a fixed joint w/o actuator -->
+
+    <!-- Elbow flex, FA roll macros -->
+    <xacro:pr2_forearm_roll_v0 side="${side}" parent="${side}_elbow_flex_link" reflect="${reflect}" />
+    <xacro:pr2_elbow_flex_v0 side="${side}" parent="${side}_upper_arm_link" reflect="${reflect}" />
+  </xacro:macro>
+
+  <xacro:macro name="pr2_elbow_flex_v0" params="side parent reflect">
+    <!-- Elbow flex -->
+    <joint name="${side}_elbow_flex_joint" type="revolute">
+      <axis xyz="0 1 0" />
+      <!-- Note: Overtravel limits are 140, -7 degrees instead of 133, 0 -->
+      <limit lower="-2.3213" upper="0.00" effort="30" velocity="${VELOCITY_LIMIT_SCALE*5.5}" /> <!-- alpha tested velocity and effort limits -->
+      <safety_controller k_position="100" k_velocity="3" soft_lower_limit="${-2.3213+0.2}" soft_upper_limit="${0.00-0.15}" />
+      <calibration falling="${-1.1606 + cal_r_elbow_flex_flag}"/>
+      <dynamics damping="1.0" />
+      <origin xyz="0.4 0 0" rpy="0 0 0" />
+      <parent link="${parent}"/>
+      <child link="${side}_elbow_flex_link"/>
+    </joint>
+    <link name="${side}_elbow_flex_link">
+      <inertial>
+        <mass value="1.90327" />
+        <origin xyz="0.01014 0.00032 -0.01211" />
+        <inertia  ixx="0.00346541989" ixy="0.00004066825"  ixz="0.00043171614"
+                  iyy="0.00441606455"  iyz="-0.00003968914"
+                  izz="0.00359156824" />
+      </inertial>
+
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://pr2_description/meshes/upper_arm_v0/elbow_flex.dae"  />
+        </geometry>
+
+        <material name="Grey" />
+      </visual>
+
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://pr2_description/meshes/upper_arm_v0/elbow_flex.stl"  />
+        </geometry>
+      </collision>
+    </link>
+
+    <xacro:pr2_elbow_flex_gazebo_v0 side="${side}" />
+    <xacro:pr2_elbow_flex_transmission_v0 side="${side}" />
+  </xacro:macro>
+  
+  <!-- FA roll joint only -->
+  <xacro:macro name="pr2_forearm_roll_v0" params="side parent reflect">
+    <!-- forearm_roll_link is a fictitious link internal to elbow_flex_link, provides an attachment point for the actual forearm -->
+    <joint name="${side}_forearm_roll_joint" type="continuous">
+      <axis xyz="1 0 0" />
+      <limit effort="30" velocity="${VELOCITY_LIMIT_SCALE*6}" /> <!-- alpha tested velocity and effort limits -->
+      <safety_controller k_velocity="1" />
+      <calibration rising="${0.0 + cal_r_forearm_roll_flag}" />
+      <dynamics damping="0.1" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <parent link="${parent}"/>
+      <child link="${side}_forearm_roll_link"/>
+    </joint>
+    <!-- TODO: inertial tag should be optional -->
+    <link name="${side}_forearm_roll_link">
+      <inertial>
+        <!-- dummy masses, to be removed -->
+        <mass value="0.1" />
+        <origin xyz="0 0 0" />
+        <inertia  ixx="0.01" ixy="0.00"  ixz="0.00"
+                  iyy="0.01" iyz="0.00"
+                  izz="0.01" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://pr2_description/meshes/upper_arm_v0/forearm_roll.stl"  />
+        </geometry>
+
+        <material name="RollLinks" />
+      </visual>
+      <!-- TODO: collision tag should be optional -->
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://pr2_description/meshes/upper_arm_v0/forearm_roll_L.stl"  />
+        </geometry>
+      </collision>
+    </link>
+
+    <xacro:pr2_forearm_roll_gazebo_v0 side="${side}" />
+    <xacro:pr2_forearm_roll_transmission_v0 side="${side}" />
+  </xacro:macro>
+
+</robot>

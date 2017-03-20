@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:macro name="wge100_camera_gazebo_v0" params="name camera_name image_format image_topic_name camera_info_topic_name hfov focal_length frame_id hack_baseline image_width image_height">
+    <gazebo reference="${name}_frame">
+      <sensor type="camera" name="${name}_sensor">
+        <always_on>true</always_on>
+        <update_rate>25.0</update_rate>
+        <camera>
+          <horizontal_fov>${hfov*M_PI/180.0}</horizontal_fov>
+          <image>
+            <format>${image_format}</format>
+            <width>${image_width}</width>
+            <height>${image_height}</height>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>100</far>
+          </clip>
+        </camera>
+        <plugin name="${name}_controller" filename="libgazebo_ros_camera.so">
+          <alwaysOn>true</alwaysOn>
+          <updateRate>25.0</updateRate>
+          <cameraName>${camera_name}</cameraName>
+          <imageTopicName>${image_topic_name}</imageTopicName>
+          <cameraInfoTopicName>${camera_info_topic_name}</cameraInfoTopicName>
+          <frameName>${frame_id}</frameName>
+          <hackBaseline>${hack_baseline}</hackBaseline>
+          <CxPrime>${(image_width+1)/2}</CxPrime>
+          <Cx>${(image_width+1)/2}</Cx>
+          <Cy>${(image_height+1)/2}</Cy>
+          <!-- image_width / (2*tan(hfov_radian /2)) -->
+          <!-- 320 for wide and 772.55 for narrow stereo camera -->
+          <focalLength>${focal_length}</focalLength>
+          <distortionK1>0.0</distortionK1>
+          <distortionK2>0.0</distortionK2>
+          <distortionK3>0.0</distortionK3>
+          <distortionT1>0.0</distortionT1>
+          <distortionT2>0.0</distortionT2>
+        </plugin>
+      </sensor>
+      <turnGravityOff>true</turnGravityOff>
+      <material>PR2/Blue</material>
+    </gazebo>
+  </xacro:macro>
+
+</robot>

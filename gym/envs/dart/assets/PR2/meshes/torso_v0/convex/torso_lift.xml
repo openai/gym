@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+  <NXUSTREAM2>
+    <NxuPhysicsCollection id="beshon" sdkVersion="244" nxuVersion="100">
+      <NxPhysicsSDKDesc id="SDK">
+        <hwPageSize>65536</hwPageSize>
+        <hwPageMax>256</hwPageMax>
+        <hwConvexMax>2048</hwConvexMax>
+      </NxPhysicsSDKDesc>
+  <NxConvexMeshDesc id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_lift_0">
+    <points>
+      -0.031489357 -0.018131593 -0.094813503  -0.158295512 -0.14518109 0.110663749  -0.158295512 -0.144363552 -0.094813503  -0.025691358 -0.000353 0.110663749  
+      -0.025557498 -0.000353 -0.094813503  -0.030643612 -0.017145127 0.110663749  -0.025058025 -0.00468736 -0.094813503  -0.025777994 -0.005230932 0.110663749  
+    </points>
+    <triangles>
+      0 1 2  3 2 1  4 0 2  4 2 3  
+      5 3 1  5 1 0  6 4 3  6 0 4  
+      6 5 0  7 3 5  7 5 6  7 6 3  
+    </triangles>
+  </NxConvexMeshDesc>
+  <NxConvexMeshDesc id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_lift_1">
+    <points>
+      -0.025692191 -0.000332899 0.110780247  -0.159185365 0.145854235 -0.094813503  -0.025557498 -0.000353 -0.094813503  -0.159185365 0.146013603 0.110780247  
+      -0.029288655 0.01567743 0.110780247  -0.034327999 0.021213001 -0.094813503  -0.027737999 0.011289 -0.094813503  -0.027534414 0.013052532 0.110780247  
+      -0.030484 0.016507 -0.094813503  -0.026776999 0.008541 -0.094813503  -0.02609 0.00573 -0.050492  -0.025677999 0.002876 0.085010998  
+    </points>
+    <triangles>
+      0 1 2  1 0 3  4 3 0  5 1 3  
+      5 3 4  5 2 1  6 2 5  7 4 0  
+      8 6 5  8 7 6  8 5 4  8 4 7  
+      9 6 7  9 7 10  9 2 6  9 10 2  
+      11 7 0  11 10 7  11 0 2  11 2 10  
+    </triangles>
+  </NxConvexMeshDesc>
+  <NxConvexMeshDesc id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_lift_2">
+    <points>
+      -0.158295512 -0.144363552 -0.094813503  -0.212071002 -0.206340998 -0.044909  -0.211772069 -0.170628712 -0.094813503  -0.158295512 -0.14518109 0.110663749  
+      -0.26288265 -0.195463747 0.110663749  -0.286364913 -0.104316741 0.110663749  -0.272015989 -0.195658997 -0.044906002  -0.211856842 -0.10222625 -0.094813503  
+      -0.288543344 -0.104377866 -0.044909466  -0.212048396 -0.198168561 0.110663749  -0.281452 -0.171177998 0.100547999  -0.286597997 -0.172066003 -0.044911001  
+    </points>
+    <triangles>
+      0 1 2  1 0 3  4 3 5  6 1 4  
+      6 2 1  7 8 5  7 0 2  7 2 8  
+      7 3 0  7 5 3  9 1 3  9 3 4  
+      9 4 1  10 4 5  10 6 4  11 6 10  
+      11 5 8  11 10 5  11 8 2  11 2 6  
+    </triangles>
+  </NxConvexMeshDesc>
+  <NxConvexMeshDesc id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_lift_3">
+    <points>
+      -0.159185365 0.146013603 0.110780247  -0.212026492 0.198171332 0.110780247  -0.286313236 0.104944609 0.110780247  -0.212016687 0.100772202 -0.094813503  
+      -0.159185365 0.145854235 -0.094813503  -0.289937198 0.105148129 -0.044902816  -0.269850314 0.187775567 0.110780247  -0.266555995 0.201986998 -0.044900998  
+      -0.212071002 0.206366003 -0.044909  -0.212071002 0.169749483 -0.094813503  -0.286339015 0.173032999 -0.044899002  -0.189711288 0.168994814 -0.094813503  
+    </points>
+    <triangles>
+      0 1 2  0 2 3  4 0 3  5 3 2  
+      6 2 1  6 1 7  8 1 0  8 0 4  
+      8 7 1  9 7 8  9 3 5  9 4 3  
+      10 7 9  10 9 5  10 5 2  10 2 6  
+      10 6 7  11 8 4  11 4 9  11 9 8  
+    </triangles>
+  </NxConvexMeshDesc>
+  <NxConvexMeshDesc id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_lift_4">
+    <points>
+      -0.212016687 0.100772202 -0.094813503  -0.211856842 -0.10222625 -0.094813503  -0.292937994 0.048533998 -0.044906002  -0.288543344 -0.104377866 -0.044909466  
+      -0.286364913 -0.104316741 0.110663749  -0.289937198 0.105148129 -0.044902816  -0.286313236 0.104944609 0.110780247  -0.211856857 -0.10222625 -0.044909  
+      -0.212016687 0.100772202 -0.044909  -0.290405691 -0.000353 0.110780247  -0.288446993 0.102595001 0.080746002  -0.288200974 -0.104368255 0.0222911  
+    </points>
+    <triangles>
+      0 1 2  3 2 1  3 1 4  5 6 0  
+      5 0 2  7 1 0  7 6 4  7 4 1  
+      8 0 6  8 6 7  8 7 0  9 4 6  
+      10 2 9  10 9 6  10 6 5  10 5 2  
+      11 3 4  11 4 9  11 2 3  11 9 2  
+    </triangles>
+  </NxConvexMeshDesc>
+  <NxConvexMeshDesc id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_lift_5">
+    <points>
+      -0.211772069 -0.170628712 -0.094813503  -0.212071002 0.169749483 -0.094813503  -0.211799994 -0.170623004 -0.506000996  -0.175339878 0.161902919 -0.094813503  
+      -0.189348996 0.168750003 -0.505999982  -0.024765 -0.00227 -0.505997002  -0.025058025 -0.00468736 -0.094813503  -0.212065995 0.169814005 -0.505999982  
+      -0.174902007 -0.161759004 -0.505999982  -0.168906212 -0.155041069 -0.094813503  -0.032401536 0.019082669 -0.094813503  -0.028948 0.014759 -0.505998015  
+    </points>
+    <triangles>
+      0 1 2  1 0 3  4 1 3  5 2 4  
+      6 3 0  7 2 1  7 1 4  7 4 2  
+      8 2 5  8 5 6  8 0 2  9 6 0  
+      9 0 8  9 8 6  10 3 6  11 5 4  
+      11 4 3  11 3 10  11 6 5  11 10 6  
+    </triangles>
+  </NxConvexMeshDesc>
+  <NxConvexMeshDesc id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_lift_6">
+    <points>
+      -0.263226688 0.195354149 0.110780247  0.113929003 0.039395001 0.157499999  -0.26288265 -0.195463747 0.110663749  0.020479999 0.261478007 0.150235996  
+      -0.262111008 0.014311 0.284859002  0.063088998 -0.190767005 0.30121699  0.035574999 0.098413996 0.316374004  0.047839999 -0.246629 0.150033996  
+      -0.124986 0.185418993 0.301874995  -0.261615008 -0.167864993 0.244834006  0.062134001 0.189913005 0.303651989  -0.262089998 0.154238999 0.25474599  
+    </points>
+    <triangles>
+      0 1 2  3 1 0  4 0 2  4 5 6  
+      7 2 1  7 1 5  8 4 6  8 3 0  
+      9 2 7  9 7 5  9 5 4  9 4 2  
+      10 3 8  10 8 6  10 1 3  10 6 5  
+      10 5 1  11 0 4  11 4 8  11 8 0  
+    </triangles>
+  </NxConvexMeshDesc>
+  <NxSceneDesc id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_lift">
+        <filterBool>false</filterBool>
+        <filterOp0>NX_FILTEROP_AND</filterOp0>
+        <filterOp1>NX_FILTEROP_AND</filterOp1>
+        <filterOp2>NX_FILTEROP_AND</filterOp2>
+        <NxGroupsMask id="groupMask0" bits0="0" bits1="0" bits2="0" bits3="0"/>
+        <NxGroupsMask id="groupMask1" bits0="0" bits1="0" bits2="0" bits3="0"/>
+        <gravity>0 -9.800000191 0</gravity>
+        <maxTimestep>0.016666668</maxTimestep>
+        <maxIter>8</maxIter>
+        <timeStepMethod>NX_TIMESTEP_FIXED</timeStepMethod>
+        <maxBounds>FLT_MIN FLT_MIN FLT_MIN  FLT_MAX FLT_MAX FLT_MAX</maxBounds>
+        <NxSceneLimits id="limits">
+          <maxNbActors>0</maxNbActors>
+          <maxNbBodies>0</maxNbBodies>
+          <maxNbStaticShapes>0</maxNbStaticShapes>
+          <maxNbDynamicShapes>0</maxNbDynamicShapes>
+          <maxNbJoints>0</maxNbJoints>
+        </NxSceneLimits>
+        <simType>NX_SIMULATION_SW</simType>
+        <groundPlane>true</groundPlane>
+        <boundsPlanes>false</boundsPlanes>
+        <NxSceneFlags id="flags">
+          <NX_SF_DISABLE_SSE>false</NX_SF_DISABLE_SSE>
+          <NX_SF_DISABLE_COLLISIONS>false</NX_SF_DISABLE_COLLISIONS>
+          <NX_SF_SIMULATE_SEPARATE_THREAD>true</NX_SF_SIMULATE_SEPARATE_THREAD>
+          <NX_SF_ENABLE_MULTITHREAD>false</NX_SF_ENABLE_MULTITHREAD>
+        </NxSceneFlags>
+        <internalThreadCount>0</internalThreadCount>
+        <backgroundThreadCount>0</backgroundThreadCount>
+        <threadMask>1431655764</threadMask>
+        <backgroundThreadMask>1431655764</backgroundThreadMask>
+        <NxMaterialDesc id="Material_0" userProperties="" hasSpring="false" materialIndex="0">
+          <dynamicFriction>0.5</dynamicFriction>
+          <staticFriction>0.5</staticFriction>
+          <restitution>0</restitution>
+          <dynamicFrictionV>0</dynamicFrictionV>
+          <staticFrictionV>0</staticFrictionV>
+          <frictionCombineMode>NX_CM_AVERAGE</frictionCombineMode>
+          <restitutionCombineMode>NX_CM_AVERAGE</restitutionCombineMode>
+          <dirOfAnisotropy>1 0 0</dirOfAnisotropy>
+          <NxMaterialFlag id="flags">
+            <NX_MF_ANISOTROPIC>false</NX_MF_ANISOTROPIC>
+            <NX_MF_DISABLE_FRICTION>false</NX_MF_DISABLE_FRICTION>
+            <NX_MF_DISABLE_STRONG_FRICTION>false</NX_MF_DISABLE_STRONG_FRICTION>
+          </NxMaterialFlag>
+        </NxMaterialDesc>
+    <NxActorDesc id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_lift" userProperties="" hasBody="true" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_lift">
+      <globalPose>1 0 0    0 1 0    0 0 1    0 0 0 </globalPose>
+			<NxBodyDesc>
+        <mass>1</mass>
+        <linearDamping>0</linearDamping>
+        <angularDamping>0</angularDamping>
+        <solverIterationCount>32</solverIterationCount>
+        <NxBodyFlag id="flags">
+          <NX_BF_POSE_SLEEP_TEST>true</NX_BF_POSE_SLEEP_TEST>
+          <NX_AF_DISABLE_COLLISION>false</NX_AF_DISABLE_COLLISION>
+        </NxBodyFlag>
+      </NxBodyDesc>
+      <name>Bip01 Pelvis</name>
+      <NxConvexShapeDesc id="Shape_0" meshData="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_lift_0">
+      <NxShapeDesc>
+        <localPose>1 0 0    0 1 0    0 0 1    0 0 0 </localPose>
+        <skinWidth>0</skinWidth>
+      </NxShapeDesc>
+      </NxConvexShapeDesc>
+      <NxConvexShapeDesc id="Shape_1" meshData="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_lift_1">
+      <NxShapeDesc>
+        <localPose>1 0 0    0 1 0    0 0 1    0 0 0 </localPose>
+        <skinWidth>0</skinWidth>
+      </NxShapeDesc>
+      </NxConvexShapeDesc>
+      <NxConvexShapeDesc id="Shape_2" meshData="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_lift_2">
+      <NxShapeDesc>
+        <localPose>1 0 0    0 1 0    0 0 1    0 0 0 </localPose>
+        <skinWidth>0</skinWidth>
+      </NxShapeDesc>
+      </NxConvexShapeDesc>
+      <NxConvexShapeDesc id="Shape_3" meshData="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_lift_3">
+      <NxShapeDesc>
+        <localPose>1 0 0    0 1 0    0 0 1    0 0 0 </localPose>
+        <skinWidth>0</skinWidth>
+      </NxShapeDesc>
+      </NxConvexShapeDesc>
+      <NxConvexShapeDesc id="Shape_4" meshData="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_lift_4">
+      <NxShapeDesc>
+        <localPose>1 0 0    0 1 0    0 0 1    0 0 0 </localPose>
+        <skinWidth>0</skinWidth>
+      </NxShapeDesc>
+      </NxConvexShapeDesc>
+      <NxConvexShapeDesc id="Shape_5" meshData="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_lift_5">
+      <NxShapeDesc>
+        <localPose>1 0 0    0 1 0    0 0 1    0 0 0 </localPose>
+        <skinWidth>0</skinWidth>
+      </NxShapeDesc>
+      </NxConvexShapeDesc>
+      <NxConvexShapeDesc id="Shape_6" meshData="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_lift_6">
+      <NxShapeDesc>
+        <localPose>1 0 0    0 1 0    0 0 1    0 0 0 </localPose>
+        <skinWidth>0</skinWidth>
+      </NxShapeDesc>
+      </NxConvexShapeDesc>
+    </NxActorDesc>
+  </NxSceneDesc>
+	 <NxSceneInstance id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/torso_v0/convex/torso_lift">
+	 	 <sceneName>beshon</sceneName>
+	 	 <NxuUserProperties></NxuUserProperties>
+	 	 <rootNode>1	0	0	0	1	0	0	0	1	0	0 0</rootNode>
+	 	 <newScene>false</newScene>
+	 	 <ignorePlane>true</ignorePlane>
+	 	 <numSceneInstances>0</numSceneInstances>
+	 </NxSceneInstance>
+  </NxuPhysicsCollection>
+</NXUSTREAM2>

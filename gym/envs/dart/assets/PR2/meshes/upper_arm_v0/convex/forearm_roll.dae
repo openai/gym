@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="utf-8"?>
+<COLLADA version="1.4.0" xmlns="http://www.collada.org/2005/11/COLLADASchema">
+	<asset>
+		<contributor>
+			<author>NxuStream2 converter - http://www.ageia.com</author>
+			<authoring_tool>PhysX Rocket, PhysX Viewer, or CreateDynamics</authoring_tool>
+			<comments>questions to: jratcliff@ageia.com</comments>
+			<copyright></copyright>
+			<source_data>chair_gothic_tilted</source_data>
+		</contributor>
+		<unit meter="1" name="meter"/>
+		<up_axis>Y_UP</up_axis>
+	</asset>
+   <library_materials>
+      <material id="Material" name="Material">
+         <instance_effect url="#Material-fx"></instance_effect>
+      </material>
+   </library_materials>
+   <library_effects>
+      <effect id="Material-fx" name="Material">
+         <profile_COMMON>
+            <technique id="Material-fx-COMMON" sid="COMMON">
+               <phong>
+                  <ambient>
+                     <color>0.803922 0.588235 0.92549 1</color>
+                  </ambient>
+                  <diffuse>
+                     <color>0.803922 0.588235 0.92549 1</color>
+                  </diffuse>
+                  <specular>
+                     <color>0.631373 0.631373 0.631373 1</color>
+                  </specular>
+                  <shininess>
+                     <float>1</float>
+                  </shininess>
+                  <reflective>
+                     <color>0 0 0 1</color>
+                  </reflective>
+                  <transparent>
+                     <color>1 1 1 1</color>
+                  </transparent>
+                  <transparency>
+                     <float>0</float>
+                  </transparency>
+               </phong>
+           </technique>
+         </profile_COMMON>
+      </effect>
+   </library_effects>
+  <library_geometries>
+    <geometry id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_0-Mesh" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_0-Mesh">
+      <convex_mesh>
+        <source id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_0-Position">
+          <float_array count="36" id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_0-Position-array">
+            0.092398115 -0.02885218 -0.029629542  0.093900003 0.00017855 0.001350153  0.091899998 -0.000589842 0.002736147  0.080263428 -0.002874732 -0.006943  
+            0.091899998 0.015337566 -0.037679031  0.092399999 -0.000087 -0.041299999  0.086971752 0.006603815 -0.003382447  0.087201491 -0.007454679 0.000298265  
+            0.093900003 0.014138978 -0.038170539  0.081880808 0.002876 -0.006942  0.093900003 -0.01898 -0.036389001  0.091899998 -0.01743 -0.037005998  
+          </float_array>
+          <technique_common>
+            <accessor count="12" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_0-Position-array" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+    		   </technique_common>
+				 </source>
+   		 <vertices id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_0-Vertex">
+					<input semantic="POSITION" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_0-Position"/>
+				</vertices>
+				<triangles material="Material" count="20">
+					<input offset="0" semantic="VERTEX" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_0-Vertex"/>
+           <p>
+             0 1 2  3 4 5  6 3 2  6 2 1  
+             6 1 4  7 0 2  7 2 3  7 3 0  
+             8 5 4  8 4 1  9 4 3  9 3 6  
+             9 6 4  10 1 0  10 8 1  10 5 8  
+             11 5 10  11 10 0  11 0 3  11 3 5  
+           </p>
+				</triangles>
+      </convex_mesh>
+		</geometry>
+    <geometry id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_1-Mesh" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_1-Mesh">
+      <convex_mesh>
+        <source id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_1-Position">
+          <float_array count="36" id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_1-Position-array">
+            0.093900003 -0.000823681 0.000222288  0.084885135 -0.005314 0.005314  0.092737012 -0.026091749 0.031907439  0.1065 -0.016233187 0.019545196  
+            0.093724996 -0.027928818 -0.030083647  0.105999999 -0.037687 -0.001467  0.106504999 -0.037296001 -0.015037  0.092414998 -0.041515999 -0.000527  
+            0.093401998 -0.036711 0.019200999  0.106503002 -0.028053001 -0.015215  0.105999999 -0.020087 0.024377724  0.092390999 -0.037257999 -0.018208999  
+          </float_array>
+          <technique_common>
+            <accessor count="12" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_1-Position-array" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+    		   </technique_common>
+				 </source>
+   		 <vertices id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_1-Vertex">
+					<input semantic="POSITION" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_1-Position"/>
+				</vertices>
+				<triangles material="Material" count="20">
+					<input offset="0" semantic="VERTEX" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_1-Vertex"/>
+           <p>
+             0 1 2  0 2 3  0 4 1  5 6 3  
+             5 7 6  8 7 5  8 2 1  8 1 7  
+             9 6 4  9 4 0  9 3 6  9 0 3  
+             10 2 8  10 8 5  10 3 2  10 5 3  
+             11 4 6  11 6 7  11 1 4  11 7 1  
+           </p>
+				</triangles>
+      </convex_mesh>
+		</geometry>
+    <geometry id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_2-Mesh" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_2-Mesh">
+      <convex_mesh>
+        <source id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_2-Position">
+          <float_array count="36" id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_2-Position-array">
+            -0.024499999 0.005314 0.005314  -0.024499999 0 -0.007514  -0.024499999 -0.007514 0  0.083903685 0.007514 0  
+            0.0882442 0 0.007514  0.091899998 0.001219287 0.002288519  0.086846024 -0.007514 0  0.080421127 -0.000023806 -0.007509565  
+            -0.024499999 -0.002876 0.006942  -0.024499999 0.006942 -0.002876  0.086971752 0.006603815 -0.003382447  -0.024499999 -0.005314 -0.005314  
+          </float_array>
+          <technique_common>
+            <accessor count="12" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_2-Position-array" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+    		   </technique_common>
+				 </source>
+   		 <vertices id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_2-Vertex">
+					<input semantic="POSITION" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_2-Position"/>
+				</vertices>
+				<triangles material="Material" count="20">
+					<input offset="0" semantic="VERTEX" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_2-Vertex"/>
+           <p>
+             0 1 2  3 0 4  5 6 7  5 4 6  
+             5 3 4  8 2 6  8 6 4  8 4 0  
+             8 0 2  9 1 0  9 0 3  10 9 3  
+             10 7 1  10 1 9  10 3 5  10 5 7  
+             11 7 6  11 6 2  11 2 1  11 1 7  
+           </p>
+				</triangles>
+      </convex_mesh>
+		</geometry>
+    <geometry id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_3-Mesh" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_3-Mesh">
+      <convex_mesh>
+        <source id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_3-Position">
+          <float_array count="36" id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_3-Position-array">
+            0.092737012 -0.026091749 0.031907439  0.084999181 -0.005033538 0.005501281  0.093900003 -0.000823681 0.000222288  0.093396664 0.02651595 0.031555481  
+            0.1065 0.024707172 0.014774075  0.1065 0.018573999 0.037960999  0.1065 -0.01953 0.037023  0.1065 -0.019587999 0.023751998  
+            0.105999999 -0.011088 0.041289002  0.093400002 -0.000088 0.042800002  0.092403002 0.015613 0.039825  0.092384003 -0.015034 0.040139001  
+          </float_array>
+          <technique_common>
+            <accessor count="12" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_3-Position-array" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+    		   </technique_common>
+				 </source>
+   		 <vertices id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_3-Vertex">
+					<input semantic="POSITION" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_3-Position"/>
+				</vertices>
+				<triangles material="Material" count="20">
+					<input offset="0" semantic="VERTEX" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_3-Vertex"/>
+           <p>
+             0 1 2  3 2 1  4 2 3  5 6 4  
+             5 4 3  7 2 4  7 4 6  7 0 2  
+             7 6 0  8 6 5  8 5 9  10 9 5  
+             10 5 3  10 3 1  11 9 10  11 10 1  
+             11 0 6  11 6 8  11 8 9  11 1 0  
+           </p>
+				</triangles>
+      </convex_mesh>
+		</geometry>
+    <geometry id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_4-Mesh" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_4-Mesh">
+      <convex_mesh>
+        <source id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_4-Position">
+          <float_array count="36" id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_4-Position-array">
+            0.093900003 0.00017855 0.001350153  0.083256654 0.006942 0.002876  0.092828915 0.014992249 -0.038505707  0.1065 0.024707172 0.014774075  
+            0.092391856 0.025963245 0.032064259  0.092386998 0.030787 -0.027629999  0.091899998 0.040521 -0.005227  0.1065 0.037413001 -0.014  
+            0.093401998 0.038474001 0.014962  0.089518867 0.001083228 0.00729856  0.1065 0.027412999 -0.014  0.1065 0.037333999 -0.002189  
+          </float_array>
+          <technique_common>
+            <accessor count="12" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_4-Position-array" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+    		   </technique_common>
+				 </source>
+   		 <vertices id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_4-Vertex">
+					<input semantic="POSITION" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_4-Position"/>
+				</vertices>
+				<triangles material="Material" count="20">
+					<input offset="0" semantic="VERTEX" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_4-Vertex"/>
+           <p>
+             0 1 2  3 4 0  5 2 1  5 1 6  
+             5 7 2  5 6 7  8 4 3  8 1 4  
+             8 6 1  9 0 4  9 4 1  9 1 0  
+             10 2 7  10 7 3  10 0 2  10 3 0  
+             11 7 6  11 6 8  11 3 7  11 8 3  
+           </p>
+				</triangles>
+      </convex_mesh>
+		</geometry>
+  </library_geometries>
+  <library_visual_scenes>
+	  <visual_scene id="Scene0-Visual" name="Scene0-Visual">
+      <node id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll-Node" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll" type="NODE">
+        <translate>0 0 0</translate>
+        <rotate>1 0 0  0</rotate>
+      </node>
+  	  </visual_scene>
+  </library_visual_scenes>
+  <library_physics_materials>
+    <physics_material id="pmat0_0-PhysicsMaterial" name="pmat0_0-PhysicsMaterial">
+      <technique_common>
+        <dynamic_friction>0.5</dynamic_friction>
+        <restitution>0</restitution>
+        <static_friction>0.5</static_friction>
+      </technique_common>
+    </physics_material>
+  </library_physics_materials>
+  <library_physics_models>
+    <physics_model id="Scene0-PhysicsModel">
+      <rigid_body sid="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll-RigidBody" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll">
+        <technique_common>
+          <instance_physics_material url="#pmat0_0-PhysicsMaterial"/>
+         <shape>
+            <translate>0 0 0</translate>
+            <rotate>1 0 0  0</rotate>
+            <instance_physics_material url="#pmat0_0-PhysicsMaterial"/>
+            <density>1</density>
+            <extra>
+              <technique profile="PhysX">
+               <skinWidth>0</skinWidth>
+              </technique>
+            </extra>
+            <instance_geometry url="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_0-Mesh"/>
+         </shape>
+         <shape>
+            <translate>0 0 0</translate>
+            <rotate>1 0 0  0</rotate>
+            <instance_physics_material url="#pmat0_0-PhysicsMaterial"/>
+            <density>1</density>
+            <extra>
+              <technique profile="PhysX">
+               <skinWidth>0</skinWidth>
+              </technique>
+            </extra>
+            <instance_geometry url="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_1-Mesh"/>
+         </shape>
+         <shape>
+            <translate>0 0 0</translate>
+            <rotate>1 0 0  0</rotate>
+            <instance_physics_material url="#pmat0_0-PhysicsMaterial"/>
+            <density>1</density>
+            <extra>
+              <technique profile="PhysX">
+               <skinWidth>0</skinWidth>
+              </technique>
+            </extra>
+            <instance_geometry url="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_2-Mesh"/>
+         </shape>
+         <shape>
+            <translate>0 0 0</translate>
+            <rotate>1 0 0  0</rotate>
+            <instance_physics_material url="#pmat0_0-PhysicsMaterial"/>
+            <density>1</density>
+            <extra>
+              <technique profile="PhysX">
+               <skinWidth>0</skinWidth>
+              </technique>
+            </extra>
+            <instance_geometry url="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_3-Mesh"/>
+         </shape>
+         <shape>
+            <translate>0 0 0</translate>
+            <rotate>1 0 0  0</rotate>
+            <instance_physics_material url="#pmat0_0-PhysicsMaterial"/>
+            <density>1</density>
+            <extra>
+              <technique profile="PhysX">
+               <skinWidth>0</skinWidth>
+              </technique>
+            </extra>
+            <instance_geometry url="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll_4-Mesh"/>
+         </shape>
+        <dynamic>true</dynamic>
+        <mass>1</mass>
+		   	</technique_common>
+        <extra>
+          <technique profile="PhysX">
+            <extra>
+              <technique profile="PhysX">
+                <linearDamping>0</linearDamping>
+                <angularDamping>0</angularDamping>
+                <solverIterationCount>32</solverIterationCount>
+              </technique>
+            </extra>
+            <disable_collision>false</disable_collision>
+          </technique>
+        </extra>
+  	  </rigid_body>
+    </physics_model>
+  </library_physics_models>
+  <library_physics_scenes>
+    <physics_scene id="Scene0-Physics">
+      <instance_physics_model url="#Scene0-PhysicsModel">
+        <instance_rigid_body target="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll-Node" body="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/forearm_roll-RigidBody"/>
+      <extra>
+        <technique profile="PhysX">
+        </technique>
+      </extra>
+      </instance_physics_model>
+      <technique_common>
+        <gravity>0 -9.800000191 0</gravity>
+      </technique_common>
+    </physics_scene>
+  </library_physics_scenes>
+  <scene>
+    <instance_visual_scene url="#Scene0-Visual"/>
+    <instance_physics_scene url="#Scene0-Physics"/>
+  </scene>
+</COLLADA>

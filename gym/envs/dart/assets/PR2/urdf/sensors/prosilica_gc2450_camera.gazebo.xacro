@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<root xmlns:xacro="http://ros.org/wiki/xacro">
+  
+<xacro:macro name="prosilica_cam_gazebo_v0" params="camera_name frame_name">
+  <gazebo reference="${frame_name}_frame">
+    <sensor type="camera" name="${frame_name}_sensor">
+      <always_on>true</always_on>
+      <update_rate>20.0</update_rate>
+      <camera>
+        <horizontal_fov>${M_PI/4}</horizontal_fov>
+        <image>
+          <format>R8G8B8</format>
+          <width>2448</width>
+          <height>2050</height>
+        </image>
+        <clip>
+          <near>0.1</near>
+          <far>100</far>
+        </clip>
+      </camera>
+      <plugin name="${frame_name}_controller" filename="libgazebo_ros_prosilica.so">
+        <updateRate>20.0</updateRate>
+        <cameraName>${camera_name}</cameraName>
+        <imageTopicName>image_raw</imageTopicName>
+        <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+        <pollServiceName>request_image</pollServiceName>
+        <frameName>${frame_name}_optical_frame</frameName>
+        <CxPrime>1224.5</CxPrime>
+        <Cx>1224.5</Cx>
+        <Cy>1025.5</Cy>
+        <focalLength>2954.998083</focalLength>
+        <distortionK1>0.0</distortionK1>
+        <distortionK2>0.0</distortionK2>
+        <distortionK3>0.0</distortionK3>
+        <distortionT1>0.0</distortionT1>
+        <distortionT2>0.0</distortionT2>
+      </plugin>
+    </sensor>
+    <material value="Gazebo/Black" />
+  </gazebo>
+</xacro:macro>
+
+</root>

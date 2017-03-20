@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="utf-8"?>
+<COLLADA version="1.4.0" xmlns="http://www.collada.org/2005/11/COLLADASchema">
+	<asset>
+		<contributor>
+			<author>NxuStream2 converter - http://www.ageia.com</author>
+			<authoring_tool>PhysX Rocket, PhysX Viewer, or CreateDynamics</authoring_tool>
+			<comments>questions to: jratcliff@ageia.com</comments>
+			<copyright></copyright>
+			<source_data>chair_gothic_tilted</source_data>
+		</contributor>
+		<unit meter="1" name="meter"/>
+		<up_axis>Y_UP</up_axis>
+	</asset>
+   <library_materials>
+      <material id="Material" name="Material">
+         <instance_effect url="#Material-fx"></instance_effect>
+      </material>
+   </library_materials>
+   <library_effects>
+      <effect id="Material-fx" name="Material">
+         <profile_COMMON>
+            <technique id="Material-fx-COMMON" sid="COMMON">
+               <phong>
+                  <ambient>
+                     <color>0.803922 0.588235 0.92549 1</color>
+                  </ambient>
+                  <diffuse>
+                     <color>0.803922 0.588235 0.92549 1</color>
+                  </diffuse>
+                  <specular>
+                     <color>0.631373 0.631373 0.631373 1</color>
+                  </specular>
+                  <shininess>
+                     <float>1</float>
+                  </shininess>
+                  <reflective>
+                     <color>0 0 0 1</color>
+                  </reflective>
+                  <transparent>
+                     <color>1 1 1 1</color>
+                  </transparent>
+                  <transparency>
+                     <float>0</float>
+                  </transparency>
+               </phong>
+           </technique>
+         </profile_COMMON>
+      </effect>
+   </library_effects>
+  <library_geometries>
+    <geometry id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_0-Mesh" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_0-Mesh">
+      <convex_mesh>
+        <source id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_0-Position">
+          <float_array count="36" id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_0-Position-array">
+            0.176961005 0.079392001 -0.101310998  0.226503 0.079393998 0.014043  0.138097495 0.079398997 0.120943181  0.137276307 0.079408832 -0.121165872  
+            0.137276307 0.125525564 -0.100109875  0.138097495 0.126995325 0.049438935  0.205594003 0.124402002 -0.037847001  0.196339995 0.121258996 0.066335  
+            0.138097495 0.118697956 0.112938248  0.224163994 0.079392001 -0.029159  0.180401996 0.121262997 -0.086613998  0.220669001 0.079395004 0.040890999  
+          </float_array>
+          <technique_common>
+            <accessor count="12" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_0-Position-array" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+    		   </technique_common>
+				 </source>
+   		 <vertices id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_0-Vertex">
+					<input semantic="POSITION" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_0-Position"/>
+				</vertices>
+				<triangles material="Material" count="20">
+					<input offset="0" semantic="VERTEX" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_0-Vertex"/>
+           <p>
+             0 1 2  2 3 0  4 5 6  4 3 2  
+             7 1 6  7 6 5  8 2 7  8 7 5  
+             8 5 4  8 4 2  9 1 0  9 6 1  
+             10 6 9  10 9 0  10 4 6  10 0 3  
+             10 3 4  11 2 1  11 1 7  11 7 2  
+           </p>
+				</triangles>
+      </convex_mesh>
+		</geometry>
+    <geometry id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_1-Mesh" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_1-Mesh">
+      <convex_mesh>
+        <source id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_1-Position">
+          <float_array count="36" id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_1-Position-array">
+            0.137784004 -0.079398416 -0.120416284  0.137771234 -0.079410896 0.121398062  0.225876004 -0.079392001 -0.017441999  0.203509003 -0.079407997 0.074386001  
+            0.137771234 -0.125275433 0.098850355  0.137784004 -0.126947656 -0.083600208  0.171564996 -0.127006993 0.061691001  0.213358 -0.123866998 -0.006075  
+            0.180401996 -0.121262997 -0.086613998  0.197762996 -0.079396002 -0.081758998  0.137784004 -0.118537888 -0.113687873  0.207987994 -0.120166004 0.048401002  
+          </float_array>
+          <technique_common>
+            <accessor count="12" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_1-Position-array" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+    		   </technique_common>
+				 </source>
+   		 <vertices id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_1-Vertex">
+					<input semantic="POSITION" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_1-Position"/>
+				</vertices>
+				<triangles material="Material" count="20">
+					<input offset="0" semantic="VERTEX" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_1-Vertex"/>
+           <p>
+             0 1 2  3 2 1  4 3 1  4 1 0  
+             4 0 5  4 5 6  7 6 5  7 5 8  
+             7 8 2  9 0 2  9 2 8  9 8 0  
+             10 0 8  10 8 5  10 5 0  11 6 7  
+             11 2 3  11 7 2  11 3 4  11 4 6  
+           </p>
+				</triangles>
+      </convex_mesh>
+		</geometry>
+    <geometry id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_2-Mesh" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_2-Mesh">
+      <convex_mesh>
+        <source id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_2-Position">
+          <float_array count="36" id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_2-Position-array">
+            0.049692001 -0.118896931 0.141943514  0.049692001 -0.000046931 0.141944006  0.049692001 -0.102962345 -0.174529001  0.058870718 -0.000046931 0.141944006  
+            0.049692001 -0.000033961 -0.126922995  0.137771234 -0.112687111 0.116255946  0.137784004 -0.126947656 -0.083600208  0.137784004 -0.079398416 -0.120416284  
+            0.049692001 -0.127020672 -0.110849455  0.137771234 -0.079410896 0.121398062  0.137784004 -0.118537888 -0.113687873  0.0512219 -0.073278882 -0.174529001  
+          </float_array>
+          <technique_common>
+            <accessor count="12" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_2-Position-array" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+    		   </technique_common>
+				 </source>
+   		 <vertices id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_2-Vertex">
+					<input semantic="POSITION" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_2-Position"/>
+				</vertices>
+				<triangles material="Material" count="20">
+					<input offset="0" semantic="VERTEX" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_2-Vertex"/>
+           <p>
+             0 1 2  1 0 3  4 2 1  4 1 3  
+             5 0 6  7 4 3  7 5 6  8 0 2  
+             8 6 0  9 5 7  9 7 3  9 3 0  
+             9 0 5  10 6 8  10 8 2  10 2 7  
+             10 7 6  11 2 4  11 4 7  11 7 2  
+           </p>
+				</triangles>
+      </convex_mesh>
+		</geometry>
+    <geometry id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_3-Mesh" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_3-Mesh">
+      <convex_mesh>
+        <source id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_3-Position">
+          <float_array count="36" id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_3-Position-array">
+            0.049692001 -0.000046931 0.141944006  0.058870718 -0.000046931 0.141944006  0.050127 0.121437997 0.141944006  0.0622955 -0.000033961 -0.126922995  
+            0.049692001 0.072250403 -0.174529001  0.049692001 0.125356629 -0.125210613  0.137276307 0.079408832 -0.121165872  0.049692001 0.103727475 -0.174529001  
+            0.137276307 0.125525564 -0.100109875  0.138097495 0.12671949 0.093457304  0.138097495 0.104211204 0.118071057  0.138097495 0.079398997 0.120943181  
+          </float_array>
+          <technique_common>
+            <accessor count="12" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_3-Position-array" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+    		   </technique_common>
+				 </source>
+   		 <vertices id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_3-Vertex">
+					<input semantic="POSITION" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_3-Position"/>
+				</vertices>
+				<triangles material="Material" count="20">
+					<input offset="0" semantic="VERTEX" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_3-Vertex"/>
+           <p>
+             0 1 2  3 0 4  3 1 0  5 4 0  
+             5 0 2  6 3 4  7 8 6  7 6 4  
+             7 4 5  7 5 8  9 6 8  9 8 5  
+             9 5 2  9 2 10  11 6 9  11 9 10  
+             11 1 3  11 3 6  11 2 1  11 10 2  
+           </p>
+				</triangles>
+      </convex_mesh>
+		</geometry>
+    <geometry id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_4-Mesh" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_4-Mesh">
+      <convex_mesh>
+        <source id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_4-Position">
+          <float_array count="36" id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_4-Position-array">
+            -0.127119005 0.003812 0.141944006  0.023114 -0.126986995 0.141944006  0.049692001 0.121531747 0.141944006  0.060451001 -0.107006997 -0.483204991  
+            -0.057018999 -0.106445998 -0.490925014  -0.126324996 -0.014508 -0.483058006  -0.065084003 0.109269999 -0.484548986  -0.072979003 0.104066998 0.141944006  
+            -0.084997997 -0.094729997 0.141944006  0.031249 0.123545997 -0.486728013  0.068173997 0.080649003 -0.479582012  0.049692001 -0.118896931 0.141943514  
+          </float_array>
+          <technique_common>
+            <accessor count="12" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_4-Position-array" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+    		   </technique_common>
+				 </source>
+   		 <vertices id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_4-Vertex">
+					<input semantic="POSITION" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_4-Position"/>
+				</vertices>
+				<triangles material="Material" count="20">
+					<input offset="0" semantic="VERTEX" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_4-Vertex"/>
+           <p>
+             0 1 2  3 1 4  5 0 6  5 6 4  
+             7 0 2  7 6 0  8 0 5  8 5 4  
+             8 4 1  8 1 0  9 6 7  9 7 2  
+             9 10 3  9 3 4  9 2 10  9 4 6  
+             11 10 2  11 3 10  11 2 1  11 1 3  
+           </p>
+				</triangles>
+      </convex_mesh>
+		</geometry>
+  </library_geometries>
+  <library_visual_scenes>
+	  <visual_scene id="Scene0-Visual" name="Scene0-Visual">
+      <node id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw-Node" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw" type="NODE">
+        <translate>0 0 0</translate>
+        <rotate>1 0 0  0</rotate>
+      </node>
+  	  </visual_scene>
+  </library_visual_scenes>
+  <library_physics_materials>
+    <physics_material id="pmat0_0-PhysicsMaterial" name="pmat0_0-PhysicsMaterial">
+      <technique_common>
+        <dynamic_friction>0.5</dynamic_friction>
+        <restitution>0</restitution>
+        <static_friction>0.5</static_friction>
+      </technique_common>
+    </physics_material>
+  </library_physics_materials>
+  <library_physics_models>
+    <physics_model id="Scene0-PhysicsModel">
+      <rigid_body sid="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw-RigidBody" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw">
+        <technique_common>
+          <instance_physics_material url="#pmat0_0-PhysicsMaterial"/>
+         <shape>
+            <translate>0 0 0</translate>
+            <rotate>1 0 0  0</rotate>
+            <instance_physics_material url="#pmat0_0-PhysicsMaterial"/>
+            <density>1</density>
+            <extra>
+              <technique profile="PhysX">
+               <skinWidth>0</skinWidth>
+              </technique>
+            </extra>
+            <instance_geometry url="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_0-Mesh"/>
+         </shape>
+         <shape>
+            <translate>0 0 0</translate>
+            <rotate>1 0 0  0</rotate>
+            <instance_physics_material url="#pmat0_0-PhysicsMaterial"/>
+            <density>1</density>
+            <extra>
+              <technique profile="PhysX">
+               <skinWidth>0</skinWidth>
+              </technique>
+            </extra>
+            <instance_geometry url="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_1-Mesh"/>
+         </shape>
+         <shape>
+            <translate>0 0 0</translate>
+            <rotate>1 0 0  0</rotate>
+            <instance_physics_material url="#pmat0_0-PhysicsMaterial"/>
+            <density>1</density>
+            <extra>
+              <technique profile="PhysX">
+               <skinWidth>0</skinWidth>
+              </technique>
+            </extra>
+            <instance_geometry url="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_2-Mesh"/>
+         </shape>
+         <shape>
+            <translate>0 0 0</translate>
+            <rotate>1 0 0  0</rotate>
+            <instance_physics_material url="#pmat0_0-PhysicsMaterial"/>
+            <density>1</density>
+            <extra>
+              <technique profile="PhysX">
+               <skinWidth>0</skinWidth>
+              </technique>
+            </extra>
+            <instance_geometry url="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_3-Mesh"/>
+         </shape>
+         <shape>
+            <translate>0 0 0</translate>
+            <rotate>1 0 0  0</rotate>
+            <instance_physics_material url="#pmat0_0-PhysicsMaterial"/>
+            <density>1</density>
+            <extra>
+              <technique profile="PhysX">
+               <skinWidth>0</skinWidth>
+              </technique>
+            </extra>
+            <instance_geometry url="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_4-Mesh"/>
+         </shape>
+        <dynamic>true</dynamic>
+        <mass>1</mass>
+		   	</technique_common>
+        <extra>
+          <technique profile="PhysX">
+            <extra>
+              <technique profile="PhysX">
+                <linearDamping>0</linearDamping>
+                <angularDamping>0</angularDamping>
+                <solverIterationCount>32</solverIterationCount>
+              </technique>
+            </extra>
+            <disable_collision>false</disable_collision>
+          </technique>
+        </extra>
+  	  </rigid_body>
+    </physics_model>
+  </library_physics_models>
+  <library_physics_scenes>
+    <physics_scene id="Scene0-Physics">
+      <instance_physics_model url="#Scene0-PhysicsModel">
+        <instance_rigid_body target="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw-Node" body="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw-RigidBody"/>
+      <extra>
+        <technique profile="PhysX">
+        </technique>
+      </extra>
+      </instance_physics_model>
+      <technique_common>
+        <gravity>0 -9.800000191 0</gravity>
+      </technique_common>
+    </physics_scene>
+  </library_physics_scenes>
+  <scene>
+    <instance_visual_scene url="#Scene0-Visual"/>
+    <instance_physics_scene url="#Scene0-Physics"/>
+  </scene>
+</COLLADA>

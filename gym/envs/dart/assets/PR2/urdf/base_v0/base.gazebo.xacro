@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:macro name="pr2_wheel_gazebo_v0" params="suffix parent">
+    <gazebo reference="${parent}_${suffix}_wheel_link">
+      <mu1 value="100.0" />
+      <mu2 value="100.0" />
+      <kp  value="1000000.0" />
+      <kd  value="1.0" />
+      <maxVel  value="100.0" />
+      <minDepth  value="0.0" />
+    </gazebo>
+  </xacro:macro>
+
+  <xacro:macro name="pr2_caster_gazebo_v0" params="suffix">
+    <gazebo reference="${suffix}_caster_rotation_link">
+      <material value="PR2/caster_texture" />
+    </gazebo>
+  </xacro:macro>
+
+  <xacro:macro name="pr2_base_gazebo_v0" params="name">
+    <gazebo reference="${name}_link">
+      <selfCollide>false</selfCollide>
+      <sensor type="contact" name="${name}_contact_sensor">
+        <always_on>true</always_on>
+        <update_rate>100.0</update_rate>
+        <contact>
+          <collision>${name}_link_collision</collision>
+        </contact>
+        <plugin name="${name}_gazebo_ros_bumper_controller" filename="libgazebo_ros_bumper.so">
+          <alwaysOn>true</alwaysOn>
+          <updateRate>100.0</updateRate>
+          <bumperTopicName>${name}_bumper</bumperTopicName>
+          <frameName>world</frameName>
+        </plugin>
+      </sensor>
+    </gazebo>
+    <gazebo reference="${name}_bellow_link">
+      <material value="PR2/Black" />
+    </gazebo>
+    <gazebo>
+      <plugin name="p3d_base_controller" filename="libgazebo_ros_p3d.so">
+        <alwaysOn>true</alwaysOn>
+        <updateRate>100.0</updateRate>
+        <bodyName>${name}_link</bodyName>
+        <topicName>${name}_pose_ground_truth</topicName>
+        <gaussianNoise>0.01</gaussianNoise>
+        <frameName>map</frameName>
+        <xyzOffsets>0 0 0</xyzOffsets>
+        <rpyOffsets>0 0 0</rpyOffsets>
+      </plugin>
+    </gazebo>
+  </xacro:macro>
+
+
+
+
+
+</robot>

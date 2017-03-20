@@ -1,0 +1,497 @@
+<?xml version="1.0" encoding="utf-8"?>
+<COLLADA version="1.4.0" xmlns="http://www.collada.org/2005/11/COLLADASchema">
+	<asset>
+		<contributor>
+			<author>NxuStream2 converter - http://www.ageia.com</author>
+			<authoring_tool>PhysX Rocket, PhysX Viewer, or CreateDynamics</authoring_tool>
+			<comments>questions to: jratcliff@ageia.com</comments>
+			<copyright></copyright>
+			<source_data>chair_gothic_tilted</source_data>
+		</contributor>
+		<unit meter="1" name="meter"/>
+		<up_axis>Y_UP</up_axis>
+	</asset>
+   <library_materials>
+      <material id="Material" name="Material">
+         <instance_effect url="#Material-fx"></instance_effect>
+      </material>
+   </library_materials>
+   <library_effects>
+      <effect id="Material-fx" name="Material">
+         <profile_COMMON>
+            <technique id="Material-fx-COMMON" sid="COMMON">
+               <phong>
+                  <ambient>
+                     <color>0.803922 0.588235 0.92549 1</color>
+                  </ambient>
+                  <diffuse>
+                     <color>0.803922 0.588235 0.92549 1</color>
+                  </diffuse>
+                  <specular>
+                     <color>0.631373 0.631373 0.631373 1</color>
+                  </specular>
+                  <shininess>
+                     <float>1</float>
+                  </shininess>
+                  <reflective>
+                     <color>0 0 0 1</color>
+                  </reflective>
+                  <transparent>
+                     <color>1 1 1 1</color>
+                  </transparent>
+                  <transparency>
+                     <float>0</float>
+                  </transparency>
+               </phong>
+           </technique>
+         </profile_COMMON>
+      </effect>
+   </library_effects>
+  <library_geometries>
+    <geometry id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_0-Mesh" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_0-Mesh">
+      <convex_mesh>
+        <source id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_0-Position">
+          <float_array count="36" id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_0-Position-array">
+            0.051194835 -0.000568702 -0.07346449  0.050496336 -0.000568702 -0.06102654  0.006105 -0.000568702 -0.078682326  0.050492451 0.018640514 -0.060957368  
+            0.051021915 0.009987243 -0.070385389  0.022382 0.017398 -0.077192001  0.013445 0.018347999 -0.077815004  0.006105 -0.000568702 -0.077353373  
+            0.006105 0.017618675 -0.078037605  0.006105 0.018202648 -0.07814943  0.051079217 0.008345103 -0.071405724  0.051184688 0.000889043 -0.073283784  
+          </float_array>
+          <technique_common>
+            <accessor count="12" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_0-Position-array" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+    		   </technique_common>
+				 </source>
+   		 <vertices id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_0-Vertex">
+					<input semantic="POSITION" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_0-Position"/>
+				</vertices>
+				<triangles material="Material" count="20">
+					<input offset="0" semantic="VERTEX" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_0-Vertex"/>
+           <p>
+             0 1 2  1 0 3  4 3 0  5 6 3  
+             5 3 4  5 0 2  5 2 6  7 1 3  
+             7 3 8  7 2 1  7 8 2  9 6 2  
+             9 2 8  9 3 6  9 8 3  10 4 0  
+             10 5 4  11 0 5  11 5 10  11 10 0  
+           </p>
+				</triangles>
+      </convex_mesh>
+		</geometry>
+    <geometry id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_1-Mesh" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_1-Mesh">
+      <convex_mesh>
+        <source id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_1-Position">
+          <float_array count="36" id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_1-Position-array">
+            -0.053666383 0.018293517 0.05650701  -0.054630607 -0.018472575 0.057471234  -0.078960769 -0.018420791 0.0000845  -0.077799425 0.018339604 0.0000845  
+            -0.055366974 0.015385127 0.058207601  -0.066051997 -0.018399 0.044286001  -0.074865997 0.017383 0.029372999  -0.074362002 -0.018224001 0.028378  
+            -0.079613782 0.017125938 0.0000845  -0.055319048 0.017585274 0.058159675  -0.079190999 -0.018408 0.00635  -0.074390002 0.018453 0.026887  
+          </float_array>
+          <technique_common>
+            <accessor count="12" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_1-Position-array" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+    		   </technique_common>
+				 </source>
+   		 <vertices id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_1-Vertex">
+					<input semantic="POSITION" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_1-Position"/>
+				</vertices>
+				<triangles material="Material" count="20">
+					<input offset="0" semantic="VERTEX" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_1-Vertex"/>
+           <p>
+             0 1 2  0 2 3  0 4 1  5 4 6  
+             5 6 7  5 1 4  8 3 2  9 6 4  
+             9 4 0  10 6 8  10 8 2  10 2 1  
+             10 1 5  10 5 7  10 7 6  11 6 9  
+             11 9 0  11 3 8  11 8 6  11 0 3  
+           </p>
+				</triangles>
+      </convex_mesh>
+		</geometry>
+    <geometry id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_2-Mesh" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_2-Mesh">
+      <convex_mesh>
+        <source id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_2-Position">
+          <float_array count="36" id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_2-Position-array">
+            0.006105 -0.01836507 0.076996073  0.05968767 0.018480716 0.050243851  0.059828985 -0.001233274 0.050385166  0.060608417 -0.018334188 0.051164597  
+            0.041352 -0.018439 0.067739002  0.044504002 0.017263001 0.066634998  0.021095 -0.018261001 0.076935999  0.019684 0.017387001 0.077848002  
+            0.006105 -0.017880075 0.079093687  0.006105 0.017316613 0.078976899  0.006105 0.018301615 0.077167407  0.060353737 0.017696276 0.050909922  
+          </float_array>
+          <technique_common>
+            <accessor count="12" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_2-Position-array" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+    		   </technique_common>
+				 </source>
+   		 <vertices id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_2-Vertex">
+					<input semantic="POSITION" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_2-Position"/>
+				</vertices>
+				<triangles material="Material" count="20">
+					<input offset="0" semantic="VERTEX" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_2-Vertex"/>
+           <p>
+             0 1 2  3 0 2  3 2 1  4 5 6  
+             4 3 5  4 6 0  4 0 3  7 5 1  
+             7 6 5  8 6 7  8 7 9  8 9 0  
+             8 0 6  10 9 7  10 7 1  10 1 0  
+             10 0 9  11 1 5  11 5 3  11 3 1  
+           </p>
+				</triangles>
+      </convex_mesh>
+		</geometry>
+    <geometry id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_3-Mesh" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_3-Mesh">
+      <convex_mesh>
+        <source id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_3-Position">
+          <float_array count="36" id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_3-Position-array">
+            -0.05487768 0.017998127 -0.057325501  -0.072384998 0.017535999 -0.034754001  -0.077799425 0.018339604 0.0000845  -0.080296002 0.017089 -0.004124  
+            -0.075112998 -0.018071 -0.027156999  -0.066027001 -0.017391 -0.045600999  -0.05489048 -0.01746618 -0.057338297  -0.053546216 -0.018800467 -0.055994034  
+            -0.078960769 -0.018420791 0.0000845  -0.079613782 0.017125938 0.0000845  -0.078597002 -0.018440999 -0.009815  -0.066081002 -0.018741 -0.043148  
+          </float_array>
+          <technique_common>
+            <accessor count="12" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_3-Position-array" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+    		   </technique_common>
+				 </source>
+   		 <vertices id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_3-Vertex">
+					<input semantic="POSITION" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_3-Position"/>
+				</vertices>
+				<triangles material="Material" count="20">
+					<input offset="0" semantic="VERTEX" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_3-Vertex"/>
+           <p>
+             0 1 2  3 2 1  3 1 4  5 4 1  
+             5 1 0  5 0 6  7 6 0  7 0 2  
+             7 2 8  9 8 2  9 2 3  9 3 8  
+             10 8 3  10 3 4  11 7 8  11 8 10  
+             11 10 4  11 5 6  11 6 7  11 4 5  
+           </p>
+				</triangles>
+      </convex_mesh>
+		</geometry>
+    <geometry id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_4-Mesh" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_4-Mesh">
+      <convex_mesh>
+        <source id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_4-Position">
+          <float_array count="36" id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_4-Position-array">
+            0.006105 -0.018445995 -0.077010863  -0.0188 -0.018719999 -0.076669  -0.007285 -0.017653 -0.07999  -0.053546216 -0.018800467 -0.055994034  
+            0.006105 0.018202648 -0.07814943  -0.05487768 0.017998127 -0.057325501  -0.037691999 0.017890001 -0.070092998  -0.049139999 -0.017504999 -0.063399002  
+            -0.0114 0.017856 -0.078947  -0.030587999 -0.017504999 -0.073990002  -0.05489048 -0.01746618 -0.057338297  0.006105 -0.017965419 -0.078627385  
+          </float_array>
+          <technique_common>
+            <accessor count="12" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_4-Position-array" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+    		   </technique_common>
+				 </source>
+   		 <vertices id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_4-Vertex">
+					<input semantic="POSITION" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_4-Position"/>
+				</vertices>
+				<triangles material="Material" count="20">
+					<input offset="0" semantic="VERTEX" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_4-Vertex"/>
+           <p>
+             0 1 2  1 0 3  4 3 0  4 5 3  
+             6 5 4  7 5 6  7 1 3  8 4 2  
+             8 6 4  9 6 8  9 2 1  9 8 2  
+             9 1 7  9 7 6  10 3 5  10 5 7  
+             10 7 3  11 0 2  11 2 4  11 4 0  
+           </p>
+				</triangles>
+      </convex_mesh>
+		</geometry>
+    <geometry id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_5-Mesh" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_5-Mesh">
+      <convex_mesh>
+        <source id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_5-Position">
+          <float_array count="36" id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_5-Position-array">
+            0.006105 0.018301615 0.077167407  0.006105 -0.01836507 0.076996073  -0.053666383 0.018293517 0.05650701  -0.054630607 -0.018472575 0.057471234  
+            -0.037537001 -0.018305 0.070184998  -0.028756 0.017704999 0.074680999  -0.005203 0.017258 0.079916999  -0.001296 -0.017692 0.080159001  
+            -0.054669 0.017592 0.059117001  0.006105 -0.005317373 0.079343759  0.006105 -0.017880075 0.079093687  0.006105 0.017316613 0.078976899  
+          </float_array>
+          <technique_common>
+            <accessor count="12" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_5-Position-array" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+    		   </technique_common>
+				 </source>
+   		 <vertices id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_5-Vertex">
+					<input semantic="POSITION" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_5-Position"/>
+				</vertices>
+				<triangles material="Material" count="20">
+					<input offset="0" semantic="VERTEX" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_5-Vertex"/>
+           <p>
+             0 1 2  3 2 1  3 1 4  5 6 0  
+             5 0 2  7 6 5  7 5 4  7 4 1  
+             8 4 5  8 5 2  8 2 3  8 3 4  
+             9 1 0  9 6 7  10 7 1  10 1 9  
+             10 9 7  11 0 6  11 6 9  11 9 0  
+           </p>
+				</triangles>
+      </convex_mesh>
+		</geometry>
+    <geometry id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_6-Mesh" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_6-Mesh">
+      <convex_mesh>
+        <source id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_6-Position">
+          <float_array count="36" id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_6-Position-array">
+            0.077788875 0.045344904 0.00030831  0.092398591 -0.000568702 0.00030831  0.092330016 0.045074511 0.00030831  0.092378259 -0.000568702 -0.072067022  
+            0.051194835 -0.000568702 -0.07346449  0.078077056 -0.000568702 0.00030831  0.092416003 0.04084 -0.020517001  0.091261998 0.012101 -0.067492001  
+            0.050492451 0.018640514 -0.060957368  0.050496336 -0.000568702 -0.06102654  0.076985002 0.043834001 -0.016217001  0.051021915 0.009987243 -0.070385389  
+          </float_array>
+          <technique_common>
+            <accessor count="12" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_6-Position-array" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+    		   </technique_common>
+				 </source>
+   		 <vertices id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_6-Vertex">
+					<input semantic="POSITION" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_6-Position"/>
+				</vertices>
+				<triangles material="Material" count="20">
+					<input offset="0" semantic="VERTEX" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_6-Vertex"/>
+           <p>
+             0 1 2  3 1 4  5 4 1  5 1 0  
+             6 7 8  6 3 7  6 2 1  6 1 3  
+             9 5 0  9 0 8  9 4 5  9 8 4  
+             10 8 0  10 6 8  10 0 2  10 2 6  
+             11 4 8  11 8 7  11 3 4  11 7 3  
+           </p>
+				</triangles>
+      </convex_mesh>
+		</geometry>
+    <geometry id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_7-Mesh" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_7-Mesh">
+      <convex_mesh>
+        <source id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_7-Position">
+          <float_array count="36" id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_7-Position-array">
+            0.060608417 -0.018334188 0.051164597  0.05968767 0.018480716 0.050243851  0.078289263 -0.046731386 0.00030831  0.060353737 0.017696276 0.050909922  
+            0.09232077 -0.044743888 0.00030831  0.092330016 0.045074511 0.00030831  0.077788875 0.045344904 0.00030831  0.092436999 0.037158001 0.027167  
+            0.092253998 0.021245001 0.040876999  0.092451997 -0.037696999 0.026759  0.092347004 -0.023296 0.040130999  0.092308998 -0.000133 0.046452001  
+          </float_array>
+          <technique_common>
+            <accessor count="12" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_7-Position-array" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+    		   </technique_common>
+				 </source>
+   		 <vertices id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_7-Vertex">
+					<input semantic="POSITION" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_7-Position"/>
+				</vertices>
+				<triangles material="Material" count="20">
+					<input offset="0" semantic="VERTEX" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_7-Vertex"/>
+           <p>
+             0 1 2  1 0 3  4 2 5  6 2 1  
+             6 5 2  7 5 6  7 6 1  7 1 3  
+             7 3 8  9 4 5  9 5 7  9 2 4  
+             9 0 2  9 10 0  11 10 9  11 9 7  
+             11 7 8  11 0 10  11 3 0  11 8 3  
+           </p>
+				</triangles>
+      </convex_mesh>
+		</geometry>
+    <geometry id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_8-Mesh" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_8-Mesh">
+      <convex_mesh>
+        <source id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_8-Position">
+          <float_array count="36" id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_8-Position-array">
+            0.006105 -0.000568702 -0.078682326  0.092353001 -0.001866 -0.072228998  0.006105 -0.017965419 -0.078627385  0.078077056 -0.000568702 0.00030831  
+            0.092398591 -0.000568702 0.00030831  0.09232077 -0.044743888 0.00030831  0.078289263 -0.046731386 0.00030831  0.092386998 -0.044162001 -0.015036  
+            0.091945 -0.010658 -0.069383003  0.076265998 -0.043310001 -0.017391  0.020102 -0.018292001 -0.077202998  0.092378259 -0.000568702 -0.072067022  
+          </float_array>
+          <technique_common>
+            <accessor count="12" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_8-Position-array" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+    		   </technique_common>
+				 </source>
+   		 <vertices id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_8-Vertex">
+					<input semantic="POSITION" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_8-Position"/>
+				</vertices>
+				<triangles material="Material" count="20">
+					<input offset="0" semantic="VERTEX" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_8-Vertex"/>
+           <p>
+             0 1 2  3 4 0  3 0 2  3 5 4  
+             6 5 3  6 3 2  7 5 6  7 4 5  
+             8 1 7  9 6 2  9 2 7  9 7 6  
+             10 7 2  10 8 7  10 2 1  10 1 8  
+             11 4 7  11 7 1  11 1 0  11 0 4  
+           </p>
+				</triangles>
+      </convex_mesh>
+		</geometry>
+  </library_geometries>
+  <library_visual_scenes>
+	  <visual_scene id="Scene0-Visual" name="Scene0-Visual">
+      <node id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex-Node" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex" type="NODE">
+        <translate>0 0 0</translate>
+        <rotate>1 0 0  0</rotate>
+      </node>
+  	  </visual_scene>
+  </library_visual_scenes>
+  <library_physics_materials>
+    <physics_material id="pmat0_0-PhysicsMaterial" name="pmat0_0-PhysicsMaterial">
+      <technique_common>
+        <dynamic_friction>0.5</dynamic_friction>
+        <restitution>0</restitution>
+        <static_friction>0.5</static_friction>
+      </technique_common>
+    </physics_material>
+  </library_physics_materials>
+  <library_physics_models>
+    <physics_model id="Scene0-PhysicsModel">
+      <rigid_body sid="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex-RigidBody" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex">
+        <technique_common>
+          <instance_physics_material url="#pmat0_0-PhysicsMaterial"/>
+         <shape>
+            <translate>0 0 0</translate>
+            <rotate>1 0 0  0</rotate>
+            <instance_physics_material url="#pmat0_0-PhysicsMaterial"/>
+            <density>1</density>
+            <extra>
+              <technique profile="PhysX">
+               <skinWidth>0</skinWidth>
+              </technique>
+            </extra>
+            <instance_geometry url="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_0-Mesh"/>
+         </shape>
+         <shape>
+            <translate>0 0 0</translate>
+            <rotate>1 0 0  0</rotate>
+            <instance_physics_material url="#pmat0_0-PhysicsMaterial"/>
+            <density>1</density>
+            <extra>
+              <technique profile="PhysX">
+               <skinWidth>0</skinWidth>
+              </technique>
+            </extra>
+            <instance_geometry url="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_1-Mesh"/>
+         </shape>
+         <shape>
+            <translate>0 0 0</translate>
+            <rotate>1 0 0  0</rotate>
+            <instance_physics_material url="#pmat0_0-PhysicsMaterial"/>
+            <density>1</density>
+            <extra>
+              <technique profile="PhysX">
+               <skinWidth>0</skinWidth>
+              </technique>
+            </extra>
+            <instance_geometry url="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_2-Mesh"/>
+         </shape>
+         <shape>
+            <translate>0 0 0</translate>
+            <rotate>1 0 0  0</rotate>
+            <instance_physics_material url="#pmat0_0-PhysicsMaterial"/>
+            <density>1</density>
+            <extra>
+              <technique profile="PhysX">
+               <skinWidth>0</skinWidth>
+              </technique>
+            </extra>
+            <instance_geometry url="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_3-Mesh"/>
+         </shape>
+         <shape>
+            <translate>0 0 0</translate>
+            <rotate>1 0 0  0</rotate>
+            <instance_physics_material url="#pmat0_0-PhysicsMaterial"/>
+            <density>1</density>
+            <extra>
+              <technique profile="PhysX">
+               <skinWidth>0</skinWidth>
+              </technique>
+            </extra>
+            <instance_geometry url="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_4-Mesh"/>
+         </shape>
+         <shape>
+            <translate>0 0 0</translate>
+            <rotate>1 0 0  0</rotate>
+            <instance_physics_material url="#pmat0_0-PhysicsMaterial"/>
+            <density>1</density>
+            <extra>
+              <technique profile="PhysX">
+               <skinWidth>0</skinWidth>
+              </technique>
+            </extra>
+            <instance_geometry url="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_5-Mesh"/>
+         </shape>
+         <shape>
+            <translate>0 0 0</translate>
+            <rotate>1 0 0  0</rotate>
+            <instance_physics_material url="#pmat0_0-PhysicsMaterial"/>
+            <density>1</density>
+            <extra>
+              <technique profile="PhysX">
+               <skinWidth>0</skinWidth>
+              </technique>
+            </extra>
+            <instance_geometry url="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_6-Mesh"/>
+         </shape>
+         <shape>
+            <translate>0 0 0</translate>
+            <rotate>1 0 0  0</rotate>
+            <instance_physics_material url="#pmat0_0-PhysicsMaterial"/>
+            <density>1</density>
+            <extra>
+              <technique profile="PhysX">
+               <skinWidth>0</skinWidth>
+              </technique>
+            </extra>
+            <instance_geometry url="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_7-Mesh"/>
+         </shape>
+         <shape>
+            <translate>0 0 0</translate>
+            <rotate>1 0 0  0</rotate>
+            <instance_physics_material url="#pmat0_0-PhysicsMaterial"/>
+            <density>1</density>
+            <extra>
+              <technique profile="PhysX">
+               <skinWidth>0</skinWidth>
+              </technique>
+            </extra>
+            <instance_geometry url="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex_8-Mesh"/>
+         </shape>
+        <dynamic>true</dynamic>
+        <mass>1</mass>
+		   	</technique_common>
+        <extra>
+          <technique profile="PhysX">
+            <extra>
+              <technique profile="PhysX">
+                <linearDamping>0</linearDamping>
+                <angularDamping>0</angularDamping>
+                <solverIterationCount>32</solverIterationCount>
+              </technique>
+            </extra>
+            <disable_collision>false</disable_collision>
+          </technique>
+        </extra>
+  	  </rigid_body>
+    </physics_model>
+  </library_physics_models>
+  <library_physics_scenes>
+    <physics_scene id="Scene0-Physics">
+      <instance_physics_model url="#Scene0-PhysicsModel">
+        <instance_rigid_body target="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex-Node" body="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/upper_arm_v0/convex/elbow_flex-RigidBody"/>
+      <extra>
+        <technique profile="PhysX">
+        </technique>
+      </extra>
+      </instance_physics_model>
+      <technique_common>
+        <gravity>0 -9.800000191 0</gravity>
+      </technique_common>
+    </physics_scene>
+  </library_physics_scenes>
+  <scene>
+    <instance_visual_scene url="#Scene0-Visual"/>
+    <instance_physics_scene url="#Scene0-Physics"/>
+  </scene>
+</COLLADA>

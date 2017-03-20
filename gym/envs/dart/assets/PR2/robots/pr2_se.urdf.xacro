@@ -1,0 +1,158 @@
+<?xml version="1.0"?>
+<robot xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"
+       xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
+       xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
+       xmlns:xacro="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
+       name="pr2" >
+  
+  <!-- The following included files set up definitions of parts of the robot body -->
+  <!-- misc common stuff? -->
+  <xacro:include filename="$(find pr2_description)/urdf/common.xacro" />
+  <!-- PR2 Arm -->
+  <xacro:include filename="$(find pr2_description)/urdf/shoulder_v0/shoulder.urdf.xacro" />
+  <xacro:include filename="$(find pr2_description)/urdf/upper_arm_v0/upper_arm.urdf.xacro" />
+  <xacro:include filename="$(find pr2_description)/urdf/forearm_v0/forearm.urdf.xacro" />
+  <!-- PR2 gripper -->
+  <xacro:include filename="$(find pr2_description)/urdf/gripper_v0/gripper.urdf.xacro" />
+  <!-- PR2 head -->
+  <xacro:include filename="$(find pr2_description)/urdf/head_v0/head.urdf.xacro" />
+  <!-- PR2 tilting laser mount -->
+  <xacro:include filename="$(find pr2_description)/urdf/tilting_laser_v0/tilting_laser.urdf.xacro" />
+  <!-- PR2 torso -->
+  <xacro:include filename="$(find pr2_description)/urdf/torso_v0/torso.urdf.xacro" />
+  <!-- PR2 base -->
+  <xacro:include filename="$(find pr2_description)/urdf/base_v0/base.urdf.xacro" />
+  <!-- Head sensors -->
+  <!-- kinect/prosilica model -->
+  <xacro:include filename="$(find pr2_description)/urdf/sensors/kinect_prosilica_camera.urdf.xacro" />
+  <!-- Camera sensors -->
+  <xacro:include filename="$(find pr2_description)/urdf/sensors/wge100_camera.urdf.xacro" />
+  <!-- Texture projector -->
+  <xacro:include filename="$(find pr2_description)/urdf/sensors/projector_wg6802418.urdf.xacro" />
+  <!-- generic simulator_gazebo plugins for starting mechanism control, ros time, ros battery -->
+  <xacro:include filename="$(find pr2_description)/gazebo/gazebo.urdf.xacro" />
+  <!-- materials for visualization -->
+  <xacro:include filename="$(find pr2_description)/urdf/materials.urdf.xacro" />
+
+  <!-- Now we can start using the macros included above to define the actual PR2 -->
+
+  <!-- The first use of a macro.  This one was defined in base.urdf.xacro above.
+       A macro like this will expand to a set of link and joint definitions, and to additional
+       Gazebo-related extensions (sensor plugins, etc).  The macro takes an argument, name, 
+       that equals "base", and uses it to generate names for its component links and joints 
+       (e.g., base_link).  The included origin block is also an argument to the macro.  By convention, 
+       the origin block defines where the component is w.r.t its parent (in this case the parent 
+       is the world frame). For more, see http://www.ros.org/wiki/xacro -->
+  <xacro:pr2_base_v0 name="base"/>
+
+  <xacro:pr2_torso_v0 name="torso_lift" parent="base_link">
+    <origin xyz="-0.05 0 0.739675" rpy="0 0 0" />
+  </xacro:pr2_torso_v0>
+
+  <!-- The xacro preprocesser will replace the parameters below, such as ${cal_head_x}, with
+       numerical values that were specified in common.xacro which was included above -->
+  <xacro:pr2_head_v0 name="head" parent="torso_lift_link">
+    <origin xyz="-0.01707 0.0 0.38145"
+            rpy="0.0 0.0 0.0" />
+  </xacro:pr2_head_v0>
+
+
+  <!-- Base of Kinect/Prosilica Mount -->
+  <xacro:kinect_prosilica_camera_swept_back_v0 name="head_mount" parent="head_plate_frame" >
+    <origin xyz="-0.137376 0 0.091746" rpy="0 0 0" />
+    <!--  
+          Was -0.1 0 0.09225, -0.138 0 0.09225 looks good front back and sheet metal on bolt pattern, 
+          -0.138 0 0.06225 is where Prosilica FOV just clears the head.  
+          This is 30 mm (!) below the position in SolidWorks.  
+          Lowering the Prosilica by this amount in SW makes the FOV hit around the aluminum / plastic junction.
+
+          Turns out that head_plate_frame is in some random position in space.  
+          It is [0.0232 0 0.0645 from its parent, head_tilt_link. 
+          The distance from head_plate_frame to the head_kinect_prosilica is 137.376 mm X and 91.746 mm Z.  
+          So the origin should in fact be -0.137376 0 0.091746.  
+          John is changing the Prosilica FOV based on my numbers.  
+          Just need to roscd and svn up. 
+    -->
+
+  </xacro:kinect_prosilica_camera_swept_back_v0>
+
+
+  <!-- Projector 
+  <xacro:projector_wg6802418_v0 name="projector_wg6802418" parent="head_plate_frame" >
+    <origin xyz="0 0.110 0.0546" rpy="0 0 0" />        
+  </xacro:projector_wg6802418_v0>
+  -->
+
+  <xacro:pr2_tilting_laser_v0 name="laser_tilt" parent="torso_lift_link" laser_calib_ref="0.0">
+    <origin xyz="0.09893 0 0.227" rpy="0 0 0" />
+  </xacro:pr2_tilting_laser_v0>
+
+  <!-- This is a common convention, to use a reflect parameter that equals +-1 to distinguish left from right -->
+  <xacro:pr2_shoulder_v0 side="r" reflect="-1" parent="torso_lift_link">
+    <origin xyz="0.0 -0.188 0.0" rpy="0 0 0" />
+  </xacro:pr2_shoulder_v0>
+  <xacro:pr2_upper_arm_v0 side="r" reflect="-1" parent="r_upper_arm_roll_link"/>
+  <xacro:pr2_forearm_v0 side="r" reflect="-1" parent="r_forearm_roll_link">
+    <origin xyz="0 0 0" rpy="0 0 0" />
+  </xacro:pr2_forearm_v0>
+
+  <xacro:pr2_gripper_v0 reflect="-1.0" side="r" parent="r_wrist_roll_link"
+               screw_reduction="${4.0/1000.0}"
+               gear_ratio="${(729.0/25.0)*(22.0/16.0)}"
+               theta0="${3.6029*M_PI/180.0}"
+               phi0="${29.7089*M_PI/180.0}"
+               t0="${-0.1914/1000.0}"
+               L0="${37.5528/1000.0}"
+               h="${0.0/1000.0}"
+               a="${68.3698/1000.0}"
+               b="${43.3849/1000.0}"
+               r="${91.5/1000.0}" >
+    <origin xyz="0 0 0" rpy="0 0 0" />
+  </xacro:pr2_gripper_v0>
+
+  <!-- PR2 SE does not have a left arm -->
+  <!--
+  <xacro:pr2_shoulder_v0 side="l" reflect="1" parent="torso_lift_link">
+    <origin xyz="0.0 0.188 0.0" rpy="0 0 0" />
+  </xacro:pr2_shoulder_v0>
+  <xacro:pr2_upper_arm_v0 side="l" reflect="1" parent="l_upper_arm_roll_link"/>
+  <xacro:pr2_forearm_v0 side="l" reflect="1" parent="l_forearm_roll_link">
+    <origin xyz="0 0 0" rpy="0 0 0" />
+  </xacro:pr2_forearm_v0>
+
+  <xacro:pr2_gripper_v0 reflect="1.0" side="l" parent="l_wrist_roll_link"
+               screw_reduction="${4.0/1000.0}"
+               gear_ratio="${(729.0/25.0)*(22.0/16.0)}"
+               theta0="${3.6029*M_PI/180.0}"
+               phi0="${29.7089*M_PI/180.0}"
+               t0="${-0.1914/1000.0}"
+               L0="${37.5528/1000.0}"
+               h="${0.0/1000.0}"
+               a="${68.3698/1000.0}"
+               b="${43.3849/1000.0}"
+               r="${91.5/1000.0}" >
+    <origin xyz="0 0 0" rpy="0 0 0" />
+  </xacro:pr2_gripper_v0>
+  -->
+
+
+  <!-- Forearm cam Position is a guess, based on full robot calibration -->
+  <!-- Forearm cam Orientation is from Function -->
+  <xacro:wge100_camera_v0 name="r_forearm_cam" image_format="R8G8B8" camera_name="r_forearm_cam" image_topic_name="image_raw"
+                          camera_info_topic_name="camera_info"
+                          parent="r_forearm_roll_link" hfov="90" focal_length="320"
+                          frame_id="r_forearm_cam_optical_frame" hack_baseline="0"
+                          image_width="640" image_height="480">
+    <origin xyz=".135 0 .044" rpy="${M_PI/2} ${-32.25*M_PI/180} 0" />
+  </xacro:wge100_camera_v0>
+  <!-- PR2 SE does not have a left arm, so no left forearm camera :)
+  <xacro:wge100_camera_v0 name="l_forearm_cam" image_format="R8G8B8" camera_name="l_forearm_cam" image_topic_name="image_raw"
+                          camera_info_topic_name="camera_info"
+                          parent="l_forearm_roll_link" hfov="90" focal_length="320"
+                          frame_id="l_forearm_cam_optical_frame" hack_baseline="0"
+                          image_width="640" image_height="480">
+    <origin xyz=".135 0 .044" rpy="${-M_PI/2} ${-32.25*M_PI/180} 0" />
+  </xacro:wge100_camera_v0>
+  -->
+
+</robot>

@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+  <NXUSTREAM2>
+    <NxuPhysicsCollection id="beshon" sdkVersion="244" nxuVersion="100">
+      <NxPhysicsSDKDesc id="SDK">
+        <hwPageSize>65536</hwPageSize>
+        <hwPageMax>256</hwPageMax>
+        <hwConvexMax>2048</hwConvexMax>
+      </NxPhysicsSDKDesc>
+  <NxConvexMeshDesc id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/tilting_laser_v0/convex/tilting_hokuyo_L_0">
+    <points>
+      0.032723017 0.040658001 0.039969131  0.039575249 0.081316002 0.0106  0.032723017 0.081316002 0.039969131  -0.007669059 0.081316002 0.002572869  
+      0.039575249 0.040658001 0.0106  -0.009032924 0.040658001 0.0106  -0.009032924 0.081316002 0.0106  0.022016369 0.081316002 0.038150001  
+      0.022016369 0.040658001 0.038150001  
+    </points>
+    <triangles>
+      0 1 2  3 2 1  4 3 1  4 1 0  
+      5 3 4  5 4 0  6 2 3  6 3 5  
+      7 2 6  7 6 5  7 0 2  8 5 0  
+      8 0 7  8 7 5  
+    </triangles>
+  </NxConvexMeshDesc>
+  <NxConvexMeshDesc id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/tilting_laser_v0/convex/tilting_hokuyo_L_1">
+    <points>
+      0.039575249 -0.040658001 0.0106  0.039575249 -0.081316002 0.0106  -0.007669059 -0.081316002 0.002572869  0.032723017 -0.040658001 0.039969131  
+      -0.009032924 -0.040658001 0.0106  0.022016369 -0.081316002 0.038150001  0.032723017 -0.081316002 0.039969131  -0.009032924 -0.081316002 0.0106  
+      0.022016369 -0.040658001 0.038150001  
+    </points>
+    <triangles>
+      0 1 2  1 0 3  4 3 0  4 0 2  
+      5 2 1  6 1 3  6 3 5  6 5 1  
+      7 4 2  7 2 5  7 5 4  8 3 4  
+      8 4 5  8 5 3  
+    </triangles>
+  </NxConvexMeshDesc>
+  <NxConvexMeshDesc id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/tilting_laser_v0/convex/tilting_hokuyo_L_2">
+    <points>
+      -0.013334355 0.018939665 0.035916414  0.030272016 -0.040658001 0.038365297  0.030272016 0.040658001 0.038365297  -0.009032924 0.040658001 0.0106  
+      -0.008937606 -0.023180822 0.010039  0.039575249 0.040658001 0.0106  0.039575249 -0.040658001 0.0106  -0.013 -0.040658001 0.03593519  
+      -0.013 0.040658001 0.03593519  -0.009032924 -0.040658001 0.0106  0 0.026883001 0.010039  -0.008937606 0.023180822 0.010039  
+    </points>
+    <triangles>
+      0 1 2  3 4 0  5 3 2  5 2 1  
+      6 5 1  7 6 1  7 1 0  8 0 2  
+      8 2 3  8 3 0  9 0 4  9 7 0  
+      9 4 6  9 6 7  10 5 6  10 6 4  
+      10 3 5  11 4 3  11 3 10  11 10 4  
+    </triangles>
+  </NxConvexMeshDesc>
+  <NxConvexMeshDesc id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/tilting_laser_v0/convex/tilting_hokuyo_L_3">
+    <points>
+      -0.017753594 0.081316002 0.061926186  0.00901 -0.081316002 0.065458998  0.00901 0.081316002 0.065458998  0.036904 0.081316002 0.042704999  
+      0.036904 -0.081316002 0.042704999  -0.013 -0.081316002 0.033948537  -0.013 0.081316002 0.033948537  -0.017753594 -0.081316002 0.061926186  
+      0.031858999 -0.081316002 0.055874001  0.031858999 0.081316002 0.055874001  0.030272016 -0.040658001 0.038365297  0.037108999 -0.081316002 0.050393999  
+    </points>
+    <triangles>
+      0 1 2  3 0 2  4 1 5  6 5 0  
+      6 0 3  7 0 5  7 5 1  7 1 0  
+      8 1 4  8 2 1  9 3 2  9 2 8  
+      10 5 6  10 6 3  10 3 4  10 4 5  
+      11 3 9  11 9 8  11 4 3  11 8 4  
+    </triangles>
+  </NxConvexMeshDesc>
+  <NxConvexMeshDesc id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/tilting_laser_v0/convex/tilting_hokuyo_L_4">
+    <points>
+      -0.017753594 -0.081316002 0.061926186  -0.063468002 -0.081316002 0.019616  -0.058949757 -0.081316002 -0.006140072  -0.058949757 0.081316002 -0.006140072  
+      -0.007669059 -0.081316002 0.002572869  -0.017753594 0.081316002 0.061926186  -0.007669059 0.081316002 0.002572869  -0.063468002 0.081316002 0.019616  
+      -0.037717 0.081316002 0.059291001  -0.037717 -0.081316002 0.059291001  
+    </points>
+    <triangles>
+      0 1 2  3 2 1  4 2 3  4 5 0  
+      4 0 2  6 3 5  6 5 4  6 4 3  
+      7 5 3  7 3 1  8 5 7  8 7 1  
+      8 0 5  9 1 0  9 0 8  9 8 1  
+    </triangles>
+  </NxConvexMeshDesc>
+  <NxConvexMeshDesc id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/tilting_laser_v0/convex/tilting_hokuyo_L_5">
+    <points>
+      0.051417999 -0.081316002 0.0106  -0.058949757 -0.081316002 -0.006140072  -0.001362 -0.081316002 -0.058178999  0.051417999 0.081316002 0.0106  
+      0.029769 0.081316002 -0.049837999  -0.055282 0.081316002 -0.027047999  0.052558001 -0.081316002 -0.027047999  -0.058949757 0.081316002 -0.006140072  
+      -0.001362 0.081316002 -0.058178999  0.052558001 0.081316002 -0.027047999  -0.055282 -0.081316002 -0.027047999  0.029769 -0.081316002 -0.049837999  
+    </points>
+    <triangles>
+      0 1 2  1 0 3  4 5 3  6 0 2  
+      6 3 0  7 1 3  7 3 5  7 5 1  
+      8 2 5  8 5 4  8 4 2  9 4 3  
+      9 3 6  9 6 4  10 2 1  10 1 5  
+      10 5 2  11 2 4  11 4 6  11 6 2  
+    </triangles>
+  </NxConvexMeshDesc>
+  <NxSceneDesc id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/tilting_laser_v0/convex/tilting_hokuyo_L">
+        <filterBool>false</filterBool>
+        <filterOp0>NX_FILTEROP_AND</filterOp0>
+        <filterOp1>NX_FILTEROP_AND</filterOp1>
+        <filterOp2>NX_FILTEROP_AND</filterOp2>
+        <NxGroupsMask id="groupMask0" bits0="0" bits1="0" bits2="0" bits3="0"/>
+        <NxGroupsMask id="groupMask1" bits0="0" bits1="0" bits2="0" bits3="0"/>
+        <gravity>0 -9.800000191 0</gravity>
+        <maxTimestep>0.016666668</maxTimestep>
+        <maxIter>8</maxIter>
+        <timeStepMethod>NX_TIMESTEP_FIXED</timeStepMethod>
+        <maxBounds>FLT_MIN FLT_MIN FLT_MIN  FLT_MAX FLT_MAX FLT_MAX</maxBounds>
+        <NxSceneLimits id="limits">
+          <maxNbActors>0</maxNbActors>
+          <maxNbBodies>0</maxNbBodies>
+          <maxNbStaticShapes>0</maxNbStaticShapes>
+          <maxNbDynamicShapes>0</maxNbDynamicShapes>
+          <maxNbJoints>0</maxNbJoints>
+        </NxSceneLimits>
+        <simType>NX_SIMULATION_SW</simType>
+        <groundPlane>true</groundPlane>
+        <boundsPlanes>false</boundsPlanes>
+        <NxSceneFlags id="flags">
+          <NX_SF_DISABLE_SSE>false</NX_SF_DISABLE_SSE>
+          <NX_SF_DISABLE_COLLISIONS>false</NX_SF_DISABLE_COLLISIONS>
+          <NX_SF_SIMULATE_SEPARATE_THREAD>true</NX_SF_SIMULATE_SEPARATE_THREAD>
+          <NX_SF_ENABLE_MULTITHREAD>false</NX_SF_ENABLE_MULTITHREAD>
+        </NxSceneFlags>
+        <internalThreadCount>0</internalThreadCount>
+        <backgroundThreadCount>0</backgroundThreadCount>
+        <threadMask>1431655764</threadMask>
+        <backgroundThreadMask>1431655764</backgroundThreadMask>
+        <NxMaterialDesc id="Material_0" userProperties="" hasSpring="false" materialIndex="0">
+          <dynamicFriction>0.5</dynamicFriction>
+          <staticFriction>0.5</staticFriction>
+          <restitution>0</restitution>
+          <dynamicFrictionV>0</dynamicFrictionV>
+          <staticFrictionV>0</staticFrictionV>
+          <frictionCombineMode>NX_CM_AVERAGE</frictionCombineMode>
+          <restitutionCombineMode>NX_CM_AVERAGE</restitutionCombineMode>
+          <dirOfAnisotropy>1 0 0</dirOfAnisotropy>
+          <NxMaterialFlag id="flags">
+            <NX_MF_ANISOTROPIC>false</NX_MF_ANISOTROPIC>
+            <NX_MF_DISABLE_FRICTION>false</NX_MF_DISABLE_FRICTION>
+            <NX_MF_DISABLE_STRONG_FRICTION>false</NX_MF_DISABLE_STRONG_FRICTION>
+          </NxMaterialFlag>
+        </NxMaterialDesc>
+    <NxActorDesc id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/tilting_laser_v0/convex/tilting_hokuyo_L" userProperties="" hasBody="true" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/tilting_laser_v0/convex/tilting_hokuyo_L">
+      <globalPose>1 0 0    0 1 0    0 0 1    0 0 0 </globalPose>
+			<NxBodyDesc>
+        <mass>1</mass>
+        <linearDamping>0</linearDamping>
+        <angularDamping>0</angularDamping>
+        <solverIterationCount>32</solverIterationCount>
+        <NxBodyFlag id="flags">
+          <NX_BF_POSE_SLEEP_TEST>true</NX_BF_POSE_SLEEP_TEST>
+          <NX_AF_DISABLE_COLLISION>false</NX_AF_DISABLE_COLLISION>
+        </NxBodyFlag>
+      </NxBodyDesc>
+      <name>Bip01 Pelvis</name>
+      <NxConvexShapeDesc id="Shape_0" meshData="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/tilting_laser_v0/convex/tilting_hokuyo_L_0">
+      <NxShapeDesc>
+        <localPose>1 0 0    0 1 0    0 0 1    0 0 0 </localPose>
+        <skinWidth>0</skinWidth>
+      </NxShapeDesc>
+      </NxConvexShapeDesc>
+      <NxConvexShapeDesc id="Shape_1" meshData="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/tilting_laser_v0/convex/tilting_hokuyo_L_1">
+      <NxShapeDesc>
+        <localPose>1 0 0    0 1 0    0 0 1    0 0 0 </localPose>
+        <skinWidth>0</skinWidth>
+      </NxShapeDesc>
+      </NxConvexShapeDesc>
+      <NxConvexShapeDesc id="Shape_2" meshData="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/tilting_laser_v0/convex/tilting_hokuyo_L_2">
+      <NxShapeDesc>
+        <localPose>1 0 0    0 1 0    0 0 1    0 0 0 </localPose>
+        <skinWidth>0</skinWidth>
+      </NxShapeDesc>
+      </NxConvexShapeDesc>
+      <NxConvexShapeDesc id="Shape_3" meshData="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/tilting_laser_v0/convex/tilting_hokuyo_L_3">
+      <NxShapeDesc>
+        <localPose>1 0 0    0 1 0    0 0 1    0 0 0 </localPose>
+        <skinWidth>0</skinWidth>
+      </NxShapeDesc>
+      </NxConvexShapeDesc>
+      <NxConvexShapeDesc id="Shape_4" meshData="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/tilting_laser_v0/convex/tilting_hokuyo_L_4">
+      <NxShapeDesc>
+        <localPose>1 0 0    0 1 0    0 0 1    0 0 0 </localPose>
+        <skinWidth>0</skinWidth>
+      </NxShapeDesc>
+      </NxConvexShapeDesc>
+      <NxConvexShapeDesc id="Shape_5" meshData="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/tilting_laser_v0/convex/tilting_hokuyo_L_5">
+      <NxShapeDesc>
+        <localPose>1 0 0    0 1 0    0 0 1    0 0 0 </localPose>
+        <skinWidth>0</skinWidth>
+      </NxShapeDesc>
+      </NxConvexShapeDesc>
+    </NxActorDesc>
+  </NxSceneDesc>
+	 <NxSceneInstance id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/tilting_laser_v0/convex/tilting_hokuyo_L">
+	 	 <sceneName>beshon</sceneName>
+	 	 <NxuUserProperties></NxuUserProperties>
+	 	 <rootNode>1	0	0	0	1	0	0	0	1	0	0 0</rootNode>
+	 	 <newScene>false</newScene>
+	 	 <ignorePlane>true</ignorePlane>
+	 	 <numSceneInstances>0</numSceneInstances>
+	 </NxSceneInstance>
+  </NxuPhysicsCollection>
+</NXUSTREAM2>

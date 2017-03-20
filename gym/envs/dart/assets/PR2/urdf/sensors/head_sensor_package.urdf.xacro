@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+
+<robot xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"
+       xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
+       xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
+       xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- This urdf macro defines following sensors:
+       prosilica
+       double stereo camera
+  -->
+  <xacro:include filename="$(find pr2_description)/urdf/sensors/head_sensor_package.gazebo.xacro" />
+  <xacro:include filename="$(find pr2_description)/urdf/sensors/double_stereo_camera.urdf.xacro" />
+  <xacro:include filename="$(find pr2_description)/urdf/sensors/prosilica_gc2450_camera.urdf.xacro" />
+
+  <!-- Made by Kevin for A2 sensor package -->
+  <!-- Origin is center mount screw on sensor plate mount -->
+  <!-- When mounted properly, should have same origin as head plate frame -->
+  <xacro:macro name="pr2_head_sensor_package_v0" params="name hd_frame_name hd_camera_name stereo_name parent *origin">
+    <joint name="${name}_frame_joint" type="fixed">
+      <insert_block name="origin" />
+      <parent link="${parent}"/>
+      <child link="${name}_link"/>
+    </joint>
+    <link name="${name}_link" >
+
+      <inertial>
+        <!-- Needs verification with CAD -->
+        <mass value="0.05" />
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <inertia ixx="0.001" ixy="0.0" ixz="0.0"
+                 iyy="0.001" iyz="0.0" izz="0.01" />
+      </inertial>
+
+      <!-- Should probably get real visuals here at some point -->
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <box size="0.01 0.01 0.01" />
+        </geometry>
+        
+        <material name="Blue" />
+      </visual>
+
+    </link>
+
+    <!-- Prosilica Camera -->
+    <xacro:prosilica_cam_v0 frame_name="${hd_frame_name}" camera_name="${hd_camera_name}" parent="${name}_link" >
+      <!-- camera focal point update from S. Stanford (called Kowa from Prosilica) 2011-08-18 -->
+      <origin xyz="0.046457 -0.110 0.054600" rpy="0 0 0" />        
+    </xacro:prosilica_cam_v0>
+
+    <!-- construct wide and narrow double stereo camera -->
+    <xacro:double_stereo_camera_v0 name="${stereo_name}" parent="${name}_link" >
+      <origin xyz="0.0 0.0 0.0" rpy="0 0 0" />
+    </xacro:double_stereo_camera_v0>
+
+    <!-- extensions -->
+    <xacro:pr2_head_sensor_package_gazebo_v0 name="${name}" />
+
+  </xacro:macro>
+
+</robot>

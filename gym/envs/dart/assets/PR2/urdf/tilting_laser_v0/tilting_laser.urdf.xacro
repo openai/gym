@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+
+<robot xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"
+       xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
+       xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
+       xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find pr2_description)/urdf/tilting_laser_v0/tilting_laser.gazebo.xacro" />
+  <xacro:include filename="$(find pr2_description)/urdf/tilting_laser_v0/tilting_laser.transmission.xacro" />
+  <xacro:include filename="$(find pr2_description)/urdf/sensors/hokuyo_lx30_laser.urdf.xacro" />
+
+  <xacro:macro name="pr2_tilting_laser_v0" params="name parent laser_calib_ref *origin">
+
+    <joint name="${name}_mount_joint" type="revolute">
+      <axis xyz="0 1 0" />
+      <limit lower="-0.7854" upper="1.48353" effort="0.65" velocity="10.0" /> <!-- alpha tested velocity and effort limits -->
+      <safety_controller k_position="100" k_velocity="0.05" soft_lower_limit="${-0.7854+0.05}" soft_upper_limit="${1.48353-0.05}" />
+      <calibration falling="${laser_calib_ref}" />
+      <dynamics damping="0.008" />
+      <insert_block name="origin" />
+      <parent link="${parent}"/>
+      <child link="${name}_mount_link"/>
+    </joint>
+    <link name="${name}_mount_link">
+
+      <inertial>
+        <mass value="0.591" />
+        <origin xyz="-0.001136 0.00167 -0.00713" rpy="0 0 0" />
+        <inertia ixx="0.001195273" ixy="0.000023087" ixz="0.000037467" 
+                 iyy="0.001083956" iyz="0.000034906" 
+                 izz="0.000795014" />
+      </inertial>
+
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://pr2_description/meshes/tilting_laser_v0/tilting_hokuyo.dae" />
+        </geometry>
+        
+        <material name="Red" />
+      </visual>
+
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://pr2_description/meshes/tilting_laser_v0/tilting_hokuyo_L.stl" />
+        </geometry>
+      </collision>
+    </link>
+
+    <xacro:hokuyo_lx30_laser_v0 name="${name}" parent="${name}_mount" ros_topic="tilt_scan" update_rate="40" min_angle="-1.3962634" max_angle="1.3962634" >
+      <origin xyz="0 0 0.03" rpy="0 0 0" />
+    </xacro:hokuyo_lx30_laser_v0>
+
+    <!-- extensions -->
+    <xacro:pr2_tilting_laser_gazebo_v0 name="${name}"/>
+    <xacro:pr2_tilting_laser_transmission_v0 name="${name}"/>
+  </xacro:macro>
+
+</robot>

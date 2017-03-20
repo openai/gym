@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+  <NXUSTREAM2>
+    <NxuPhysicsCollection id="beshon" sdkVersion="244" nxuVersion="100">
+      <NxPhysicsSDKDesc id="SDK">
+        <hwPageSize>65536</hwPageSize>
+        <hwPageMax>256</hwPageMax>
+        <hwConvexMax>2048</hwConvexMax>
+      </NxPhysicsSDKDesc>
+  <NxConvexMeshDesc id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_0">
+    <points>
+      0.176961005 0.079392001 -0.101310998  0.226503 0.079393998 0.014043  0.138097495 0.079398997 0.120943181  0.137276307 0.079408832 -0.121165872  
+      0.137276307 0.125525564 -0.100109875  0.138097495 0.126995325 0.049438935  0.205594003 0.124402002 -0.037847001  0.196339995 0.121258996 0.066335  
+      0.138097495 0.118697956 0.112938248  0.224163994 0.079392001 -0.029159  0.180401996 0.121262997 -0.086613998  0.220669001 0.079395004 0.040890999  
+    </points>
+    <triangles>
+      0 1 2  2 3 0  4 5 6  4 3 2  
+      7 1 6  7 6 5  8 2 7  8 7 5  
+      8 5 4  8 4 2  9 1 0  9 6 1  
+      10 6 9  10 9 0  10 4 6  10 0 3  
+      10 3 4  11 2 1  11 1 7  11 7 2  
+    </triangles>
+  </NxConvexMeshDesc>
+  <NxConvexMeshDesc id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_1">
+    <points>
+      0.137784004 -0.079398416 -0.120416284  0.137771234 -0.079410896 0.121398062  0.225876004 -0.079392001 -0.017441999  0.203509003 -0.079407997 0.074386001  
+      0.137771234 -0.125275433 0.098850355  0.137784004 -0.126947656 -0.083600208  0.171564996 -0.127006993 0.061691001  0.213358 -0.123866998 -0.006075  
+      0.180401996 -0.121262997 -0.086613998  0.197762996 -0.079396002 -0.081758998  0.137784004 -0.118537888 -0.113687873  0.207987994 -0.120166004 0.048401002  
+    </points>
+    <triangles>
+      0 1 2  3 2 1  4 3 1  4 1 0  
+      4 0 5  4 5 6  7 6 5  7 5 8  
+      7 8 2  9 0 2  9 2 8  9 8 0  
+      10 0 8  10 8 5  10 5 0  11 6 7  
+      11 2 3  11 7 2  11 3 4  11 4 6  
+    </triangles>
+  </NxConvexMeshDesc>
+  <NxConvexMeshDesc id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_2">
+    <points>
+      0.049692001 -0.118896931 0.141943514  0.049692001 -0.000046931 0.141944006  0.049692001 -0.102962345 -0.174529001  0.058870718 -0.000046931 0.141944006  
+      0.049692001 -0.000033961 -0.126922995  0.137771234 -0.112687111 0.116255946  0.137784004 -0.126947656 -0.083600208  0.137784004 -0.079398416 -0.120416284  
+      0.049692001 -0.127020672 -0.110849455  0.137771234 -0.079410896 0.121398062  0.137784004 -0.118537888 -0.113687873  0.0512219 -0.073278882 -0.174529001  
+    </points>
+    <triangles>
+      0 1 2  1 0 3  4 2 1  4 1 3  
+      5 0 6  7 4 3  7 5 6  8 0 2  
+      8 6 0  9 5 7  9 7 3  9 3 0  
+      9 0 5  10 6 8  10 8 2  10 2 7  
+      10 7 6  11 2 4  11 4 7  11 7 2  
+    </triangles>
+  </NxConvexMeshDesc>
+  <NxConvexMeshDesc id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_3">
+    <points>
+      0.049692001 -0.000046931 0.141944006  0.058870718 -0.000046931 0.141944006  0.050127 0.121437997 0.141944006  0.0622955 -0.000033961 -0.126922995  
+      0.049692001 0.072250403 -0.174529001  0.049692001 0.125356629 -0.125210613  0.137276307 0.079408832 -0.121165872  0.049692001 0.103727475 -0.174529001  
+      0.137276307 0.125525564 -0.100109875  0.138097495 0.12671949 0.093457304  0.138097495 0.104211204 0.118071057  0.138097495 0.079398997 0.120943181  
+    </points>
+    <triangles>
+      0 1 2  3 0 4  3 1 0  5 4 0  
+      5 0 2  6 3 4  7 8 6  7 6 4  
+      7 4 5  7 5 8  9 6 8  9 8 5  
+      9 5 2  9 2 10  11 6 9  11 9 10  
+      11 1 3  11 3 6  11 2 1  11 10 2  
+    </triangles>
+  </NxConvexMeshDesc>
+  <NxConvexMeshDesc id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_4">
+    <points>
+      -0.127119005 0.003812 0.141944006  0.023114 -0.126986995 0.141944006  0.049692001 0.121531747 0.141944006  0.060451001 -0.107006997 -0.483204991  
+      -0.057018999 -0.106445998 -0.490925014  -0.126324996 -0.014508 -0.483058006  -0.065084003 0.109269999 -0.484548986  -0.072979003 0.104066998 0.141944006  
+      -0.084997997 -0.094729997 0.141944006  0.031249 0.123545997 -0.486728013  0.068173997 0.080649003 -0.479582012  0.049692001 -0.118896931 0.141943514  
+    </points>
+    <triangles>
+      0 1 2  3 1 4  5 0 6  5 6 4  
+      7 0 2  7 6 0  8 0 5  8 5 4  
+      8 4 1  8 1 0  9 6 7  9 7 2  
+      9 10 3  9 3 4  9 2 10  9 4 6  
+      11 10 2  11 3 10  11 2 1  11 1 3  
+    </triangles>
+  </NxConvexMeshDesc>
+  <NxSceneDesc id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw">
+        <filterBool>false</filterBool>
+        <filterOp0>NX_FILTEROP_AND</filterOp0>
+        <filterOp1>NX_FILTEROP_AND</filterOp1>
+        <filterOp2>NX_FILTEROP_AND</filterOp2>
+        <NxGroupsMask id="groupMask0" bits0="0" bits1="0" bits2="0" bits3="0"/>
+        <NxGroupsMask id="groupMask1" bits0="0" bits1="0" bits2="0" bits3="0"/>
+        <gravity>0 -9.800000191 0</gravity>
+        <maxTimestep>0.016666668</maxTimestep>
+        <maxIter>8</maxIter>
+        <timeStepMethod>NX_TIMESTEP_FIXED</timeStepMethod>
+        <maxBounds>FLT_MIN FLT_MIN FLT_MIN  FLT_MAX FLT_MAX FLT_MAX</maxBounds>
+        <NxSceneLimits id="limits">
+          <maxNbActors>0</maxNbActors>
+          <maxNbBodies>0</maxNbBodies>
+          <maxNbStaticShapes>0</maxNbStaticShapes>
+          <maxNbDynamicShapes>0</maxNbDynamicShapes>
+          <maxNbJoints>0</maxNbJoints>
+        </NxSceneLimits>
+        <simType>NX_SIMULATION_SW</simType>
+        <groundPlane>true</groundPlane>
+        <boundsPlanes>false</boundsPlanes>
+        <NxSceneFlags id="flags">
+          <NX_SF_DISABLE_SSE>false</NX_SF_DISABLE_SSE>
+          <NX_SF_DISABLE_COLLISIONS>false</NX_SF_DISABLE_COLLISIONS>
+          <NX_SF_SIMULATE_SEPARATE_THREAD>true</NX_SF_SIMULATE_SEPARATE_THREAD>
+          <NX_SF_ENABLE_MULTITHREAD>false</NX_SF_ENABLE_MULTITHREAD>
+        </NxSceneFlags>
+        <internalThreadCount>0</internalThreadCount>
+        <backgroundThreadCount>0</backgroundThreadCount>
+        <threadMask>1431655764</threadMask>
+        <backgroundThreadMask>1431655764</backgroundThreadMask>
+        <NxMaterialDesc id="Material_0" userProperties="" hasSpring="false" materialIndex="0">
+          <dynamicFriction>0.5</dynamicFriction>
+          <staticFriction>0.5</staticFriction>
+          <restitution>0</restitution>
+          <dynamicFrictionV>0</dynamicFrictionV>
+          <staticFrictionV>0</staticFrictionV>
+          <frictionCombineMode>NX_CM_AVERAGE</frictionCombineMode>
+          <restitutionCombineMode>NX_CM_AVERAGE</restitutionCombineMode>
+          <dirOfAnisotropy>1 0 0</dirOfAnisotropy>
+          <NxMaterialFlag id="flags">
+            <NX_MF_ANISOTROPIC>false</NX_MF_ANISOTROPIC>
+            <NX_MF_DISABLE_FRICTION>false</NX_MF_DISABLE_FRICTION>
+            <NX_MF_DISABLE_STRONG_FRICTION>false</NX_MF_DISABLE_STRONG_FRICTION>
+          </NxMaterialFlag>
+        </NxMaterialDesc>
+    <NxActorDesc id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw" userProperties="" hasBody="true" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw">
+      <globalPose>1 0 0    0 1 0    0 0 1    0 0 0 </globalPose>
+			<NxBodyDesc>
+        <mass>1</mass>
+        <linearDamping>0</linearDamping>
+        <angularDamping>0</angularDamping>
+        <solverIterationCount>32</solverIterationCount>
+        <NxBodyFlag id="flags">
+          <NX_BF_POSE_SLEEP_TEST>true</NX_BF_POSE_SLEEP_TEST>
+          <NX_AF_DISABLE_COLLISION>false</NX_AF_DISABLE_COLLISION>
+        </NxBodyFlag>
+      </NxBodyDesc>
+      <name>Bip01 Pelvis</name>
+      <NxConvexShapeDesc id="Shape_0" meshData="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_0">
+      <NxShapeDesc>
+        <localPose>1 0 0    0 1 0    0 0 1    0 0 0 </localPose>
+        <skinWidth>0</skinWidth>
+      </NxShapeDesc>
+      </NxConvexShapeDesc>
+      <NxConvexShapeDesc id="Shape_1" meshData="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_1">
+      <NxShapeDesc>
+        <localPose>1 0 0    0 1 0    0 0 1    0 0 0 </localPose>
+        <skinWidth>0</skinWidth>
+      </NxShapeDesc>
+      </NxConvexShapeDesc>
+      <NxConvexShapeDesc id="Shape_2" meshData="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_2">
+      <NxShapeDesc>
+        <localPose>1 0 0    0 1 0    0 0 1    0 0 0 </localPose>
+        <skinWidth>0</skinWidth>
+      </NxShapeDesc>
+      </NxConvexShapeDesc>
+      <NxConvexShapeDesc id="Shape_3" meshData="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_3">
+      <NxShapeDesc>
+        <localPose>1 0 0    0 1 0    0 0 1    0 0 0 </localPose>
+        <skinWidth>0</skinWidth>
+      </NxShapeDesc>
+      </NxConvexShapeDesc>
+      <NxConvexShapeDesc id="Shape_4" meshData="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw_4">
+      <NxShapeDesc>
+        <localPose>1 0 0    0 1 0    0 0 1    0 0 0 </localPose>
+        <skinWidth>0</skinWidth>
+      </NxShapeDesc>
+      </NxConvexShapeDesc>
+    </NxActorDesc>
+  </NxSceneDesc>
+	 <NxSceneInstance id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/shoulder_v0/convex/shoulder_yaw">
+	 	 <sceneName>beshon</sceneName>
+	 	 <NxuUserProperties></NxuUserProperties>
+	 	 <rootNode>1	0	0	0	1	0	0	0	1	0	0 0</rootNode>
+	 	 <newScene>false</newScene>
+	 	 <ignorePlane>true</ignorePlane>
+	 	 <numSceneInstances>0</numSceneInstances>
+	 </NxSceneInstance>
+  </NxuPhysicsCollection>
+</NXUSTREAM2>

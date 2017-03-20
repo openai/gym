@@ -1,0 +1,167 @@
+<?xml version="1.0"?>
+
+<!-- XML namespaces -->
+<robot xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"
+       xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
+       xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
+       xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- Things that are needed only for Gazebo (not the physical robot).  These include
+       sensor and controller plugin specifications -->
+  <xacro:include filename="$(find pr2_description)/urdf/shoulder_v0/shoulder.gazebo.xacro" />
+  <xacro:include filename="$(find pr2_description)/urdf/shoulder_v0/shoulder.transmission.xacro" />
+  <xacro:include filename="$(find pr2_description)/urdf/common.xacro" />
+
+  <property name="shoulder_lift_length" value="0.10" />  <!--TODO Define and give source-->
+  <property name="shoulder_lift_radius" value="0.12" />  <!--TODO Define and give source-->
+
+ <!-- ============================   Shoulder   ============================ -->
+
+  <xacro:macro name="pr2_shoulder_v0" params="side parent reflect *origin">
+
+    <!-- Shoulder pan -->
+    <joint name="${side}_shoulder_pan_joint" type="revolute">
+      <axis xyz="0 0 1" />
+      <insert_block name="origin" /> <!-- transform from parent link to this joint frame -->
+      <parent link="${parent}"/>
+      <child link="${side}_shoulder_pan_link"/>
+      <limit lower="${reflect*M_PI/4-1.5}"  upper="${reflect*M_PI/4+1.5}"
+             effort="30" velocity="${VELOCITY_LIMIT_SCALE*3.48}" /> <!-- alpha tested velocity and effort limits -->
+
+      <dynamics damping="10.0" />
+
+      <safety_controller k_position="100" k_velocity="10"
+                         soft_lower_limit="${reflect*M_PI/4-1.5+0.15}"
+                         soft_upper_limit="${reflect*M_PI/4+1.5-0.15}" />
+
+      <!-- joint angle when the rising or the falling flag is activated on PR2 -->
+      <calibration  rising="${(reflect*M_PI/4)*cal_r_shoulder_pan_gearing+cal_r_shoulder_pan_flag}" />
+
+    </joint>
+    <link name="${side}_shoulder_pan_link">
+
+
+      <inertial>
+        <mass value="25.799322" />
+        <origin xyz="-0.001201 0.024513 -0.098231" rpy="0 0 0"/>
+        <inertia ixx="0.866179142480"  ixy="-0.06086507933"  ixz="-0.12118061183"
+                 iyy="0.87421714893"  iyz="-0.05886609911"
+                 izz="0.27353821674" />
+      </inertial>
+
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://pr2_description/meshes/shoulder_v0/shoulder_pan.dae"  />
+        </geometry>
+        <material name="Blue" />
+      </visual>
+
+      <collision>
+        <origin xyz="0.0 0 0.0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://pr2_description/meshes/shoulder_v0/shoulder_pan.stl"  />
+        </geometry>
+      </collision>
+    </link>
+
+    <!-- Shoulder lift -->
+    <joint name="${side}_shoulder_lift_joint" type="revolute">
+      <axis xyz="0 1 0"/>
+
+      <!-- Limits updated from Function's CAD values as of 2009_02_24 (link_data.xls) -->
+      <limit lower="-0.5236" upper="1.3963"
+             effort="30" velocity="${VELOCITY_LIMIT_SCALE*3.47}" /> <!-- alpha tested velocity and effort limits -->
+
+      <safety_controller k_position="100" k_velocity="10"
+                         soft_lower_limit="${-0.5236+0.17}" soft_upper_limit="${1.3963-0.10}" />
+      <calibration falling="${cal_r_shoulder_lift_flag}" />
+      <dynamics damping="10.0" />
+      <origin xyz="0.1 0 0" rpy="0 0 0" />
+      <parent link="${side}_shoulder_pan_link"/>
+      <child link="${side}_shoulder_lift_link"/>
+    </joint>
+    <link name="${side}_shoulder_lift_link">
+
+      <inertial>
+        <mass value="2.74988" />
+        <origin xyz="0.02195 -0.02664 -0.03127" rpy="0 0 0"/>
+        <inertia ixx="0.02105584615" ixy="0.00496704022"  ixz="-0.00194808955"
+                 iyy="0.02127223737" iyz="0.00110425490"
+                 izz="0.01975753814" />
+      </inertial>
+
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://pr2_description/meshes/shoulder_v0/shoulder_lift.dae"  />
+        </geometry>
+        <material name="Grey" />
+      </visual>
+
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://pr2_description/meshes/shoulder_v0/shoulder_lift.stl"  />
+        </geometry>
+      </collision>
+    </link>
+
+    <!-- Upper arm roll is separate macro -->
+    <xacro:pr2_upper_arm_roll_v0 side="${side}" parent="${side}_shoulder_lift_link" reflect="${reflect}" >
+      <origin xyz="0 0 0" rpy="0 0 0" />
+    </xacro:pr2_upper_arm_roll_v0>
+
+    <!-- extensions -->
+    <xacro:pr2_shoulder_gazebo_v0 side="${side}" />
+    <xacro:pr2_shoulder_transmission_v0 side="${side}" />
+
+  </xacro:macro>
+
+  <!-- Upperarm roll: internal fixed attchment point for upper arm -->
+  <xacro:macro name="pr2_upper_arm_roll_v0" params="side parent reflect *origin">
+    <joint name="${side}_upper_arm_roll_joint" type="revolute">
+      <axis xyz="1 0 0" />
+      <insert_block name="origin" />
+      <parent link="${parent}" />
+      <child link="${side}_upper_arm_roll_link"/>
+      <limit lower="${reflect*1.55-2.35}" upper="${reflect*1.55+2.35}" effort="30" velocity="${VELOCITY_LIMIT_SCALE*5.45}" /> <!-- alpha tested velocity and effort limits -->
+      <safety_controller k_position="100" k_velocity="2" soft_lower_limit="${reflect*1.55-2.35+0.15}" soft_upper_limit="${reflect*1.55+2.35-0.15}" />
+      <calibration rising="${(reflect*M_PI/2)*cal_r_upper_arm_roll_gearing + cal_r_upper_arm_roll_flag}" />
+      <dynamics damping="0.1" />
+    </joint>
+    <link name="${side}_upper_arm_roll_link">
+
+
+      <inertial>
+        <!-- dummy mass, to be removed -->
+        <mass value="0.1" />
+        <origin xyz="0.0 0 0" rpy="0 0 0" />
+        <inertia  ixx="0.01" ixy="0.00"  ixz="0.00"
+                  iyy="0.01" iyz="0.00"
+                  izz="0.01" />
+      </inertial>
+      <visual>
+        <!-- TODO: This component doesn't actually have a mesh -->
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://pr2_description/meshes/shoulder_v0/upper_arm_roll.stl"  />
+        </geometry>
+
+        <material name="RollLinks" />
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://pr2_description/meshes/shoulder_v0/upper_arm_roll_L.stl"  />
+        </geometry>
+      </collision>
+    </link>
+
+    <!-- extensions -->
+    <xacro:pr2_upper_arm_roll_gazebo_v0 side="${side}" />
+    <xacro:pr2_upper_arm_roll_transmission_v0 side="${side}" />
+    
+  </xacro:macro>
+
+</robot>

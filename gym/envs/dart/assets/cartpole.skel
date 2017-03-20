@@ -1,0 +1,113 @@
+<?xml version="1.0" ?>
+<skel version="1.0">
+    <world name="world 1">
+        <physics>
+            <time_step>0.002</time_step>
+            <gravity>0 -9.81 0</gravity>
+            <collision_detector>bullet</collision_detector>
+        </physics>
+        
+        <skeleton name="rail">
+            <mobile>false</mobile>
+            <body name="ground">
+                <transformation>0 0 0 0 0 0</transformation>
+                <visualization_shape>
+                    <transformation>0 0 0 0 0 0</transformation>
+                    <geometry>
+                        <box>
+                            <size>2 0.04 0.04</size>
+                        </box>
+                    </geometry>
+                    <color>0.3 0.3 0.7 1</color>
+                </visualization_shape>                               
+            </body>
+            <joint type="free" name="joint 1">
+                <parent>world</parent>
+                <child>ground</child>
+            </joint>
+        </skeleton>	
+
+        <skeleton name="cartpole">
+            <transformation>0 0.0 0 0 0 0</transformation>
+            <body name="cart">
+                <transformation> 0.0 0 0 0 0 0</transformation>
+                <inertia>
+                    <mass>3.53429174</mass>
+                    <offset>0.0 0 0.0</offset>
+                </inertia>
+                <visualization_shape>
+                    <transformation>0.0 0 0.0 0 0 0</transformation>
+                    <geometry>
+                        <box>
+                            <size>0.2 0.2 0.2</size>
+                        </box>
+                    </geometry>
+                </visualization_shape>
+                <collision_shape>
+                    <transformation>0.0 0 0.0 0 0 0</transformation>
+                    <geometry>
+                        <box>
+                            <size>0.2 0.2 0.2</size>
+                        </box>
+                    </geometry>
+                </collision_shape>                                
+            </body>
+
+            <body name="pole">
+                <transformation>0.0 0.0 0.0 0.0 0.0 0.0</transformation>
+                <inertia>
+                    <mass>3.92699082</mass>
+                    <offset>0.0 0.3 0.0</offset>
+                </inertia>
+                <visualization_shape>
+                    <transformation>0.0 0.3 0.0 0.0 0.0 0.0</transformation>
+                    <geometry>
+                        <box>
+                            <size>0.098 0.5 0.098</size>
+                        </box>
+                    </geometry>
+                </visualization_shape>
+                <collision_shape>
+                    <transformation>0.0 0.3 0.0 0.0 0.0 0.0</transformation>
+                    <geometry>
+                        <box>
+                            <size>0.098 0.5 0.098</size>
+                        </box>
+                    </geometry>
+                </collision_shape>                                
+            </body>
+            
+            <!-- JOINT: Pelvis -->
+            <joint type="prismatic" name="j_cart">
+                <parent>world</parent>
+                <child>cart</child>
+                <axis>
+                      <xyz>1.0 0.0 0.0</xyz>
+                      <limit>
+                          <lower>-1</lower>
+                          <upper>1</upper>
+                      </limit>
+                </axis>
+                <init_pos>0</init_pos>
+                <init_vel>0</init_vel>
+            </joint>
+
+            <joint type="revolute" name="j_pole">
+                <parent>cart</parent>
+                <child>pole</child>
+                <axis>
+                      <xyz>0.0 0.0 1.0</xyz>
+                      <limit>
+                          <lower>-1.57</lower>
+                          <upper>1.57</upper>
+                      </limit>
+                </axis>
+                <init_pos>0</init_pos>
+                <init_vel>0</init_vel>
+            </joint>
+
+        </skeleton>	
+
+    </world>
+</skel>
+

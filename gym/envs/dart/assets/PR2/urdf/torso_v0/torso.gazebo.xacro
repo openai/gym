@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:macro name="pr2_torso_gazebo_v0" params="name">
+
+    <gazebo reference="${name}_link">
+      <sensor type="contact" name="${name}_contact_sensor">
+        <contact>
+          <collision>${name}_link_collision</collision>
+        </contact>
+        <update_rate>100.0</update_rate>
+        <plugin name="${name}_gazebo_ros_bumper_controller" filename="libgazebo_ros_bumper.so">
+          <alwaysOn>true</alwaysOn>
+          <updateRate>100.0</updateRate>
+          <bumperTopicName>${name}_bumper</bumperTopicName>
+          <frameName>world</frameName>
+        </plugin>
+      </sensor>
+    </gazebo>
+
+    <gazebo>
+      <joint type="screw" name="${name}_screw_torso_lift_joint">
+          <parent>${name}_link</parent>
+          <child>${name}_motor_screw_link</child>
+          <axis>
+            <xyz>0 0 1</xyz>
+          </axis>
+          <thread_pitch>3141.6</thread_pitch>
+      </joint>
+    </gazebo>
+
+  </xacro:macro>
+
+
+
+</robot>

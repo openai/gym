@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:macro name="microstrain_3dmgx2_imu_gazebo_v0" params="name imu_topic update_rate stdev">
+    <gazebo>
+      <plugin name="imu_controller" filename="libgazebo_ros_imu.so">
+        <alwaysOn>true</alwaysOn>
+        <updateRate>${update_rate}</updateRate>
+        <bodyName>${name}_link</bodyName>
+        <topicName>${imu_topic}</topicName>
+        <gaussianNoise>${stdev*stdev}</gaussianNoise>
+        <xyzOffset>0 0 0</xyzOffset> 
+        <rpyOffset>0 -180.0 0</rpyOffset>
+        <serviceName>/default_imu</serviceName>
+      </plugin>
+    </gazebo>
+  </xacro:macro>
+
+</robot>

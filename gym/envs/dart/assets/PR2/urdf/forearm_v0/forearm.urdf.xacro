@@ -1,0 +1,130 @@
+<?xml version="1.0"?>
+
+<!-- XML namespaces -->
+<robot xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"
+       xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
+       xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
+       xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- Things that are needed only for Gazebo (not the physical robot).  These include
+       sensor and controller plugin specifications -->
+  <xacro:include filename="$(find pr2_description)/urdf/forearm_v0/forearm.gazebo.xacro" />
+  <xacro:include filename="$(find pr2_description)/urdf/forearm_v0/forearm.transmission.xacro" />
+  <xacro:include filename="$(find pr2_description)/urdf/common.xacro" />
+
+  <!-- ============================   Forearm   ============================ -->
+
+  <xacro:macro name="pr2_forearm_v0" params="side parent reflect *origin">
+
+    <joint name="${side}_forearm_joint" type="fixed">
+      <insert_block name="origin" /> <!-- transform from parent link to this joint frame -->
+      <parent link="${parent}"/>
+      <child link="${side}_forearm_link"/>
+    </joint>
+    <link name="${side}_forearm_link">
+
+      <inertial>
+        <mass value="2.57968" />
+        <origin xyz="0.18791 -0.00017 -0.00912" />
+        <inertia ixx="0.00364857222" ixy="0.00005215877" ixz="0.00071534842"
+                 iyy="0.01507736897" iyz="-0.00001310770"
+                 izz="0.01659310749" />
+      </inertial>
+
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://pr2_description/meshes/forearm_v0/forearm.dae" />
+       </geometry>
+
+        <material name="Grey" />
+      </visual>
+
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://pr2_description/meshes/forearm_v0/forearm.stl" />
+        </geometry>
+      </collision>
+    </link>
+
+    <!-- Wrist flex -->
+    <joint name="${side}_wrist_flex_joint" type="revolute">
+      <axis xyz="0 1 0" />
+      <limit upper="0.0" lower="-2.18" effort="10" velocity="${VELOCITY_LIMIT_SCALE*5.13}" /> <!-- alpha tested velocity and effort limits -->
+      <safety_controller k_position="20" k_velocity="4" soft_upper_limit="${0.0 - 0.10}" soft_lower_limit="${-2.18 + 0.18}" />
+      <dynamics damping="0.1" />
+      <calibration falling="${-0.5410521 + cal_r_wrist_flex_flag}" />
+      <origin xyz="0.321 0 0" rpy="0 0 0" />
+      <parent link="${side}_forearm_link"/>
+      <child link="${side}_wrist_flex_link"/>
+    </joint>
+    <link name="${side}_wrist_flex_link">
+
+      <inertial>
+        <mass value="0.61402" />
+        <origin xyz="-0.00157 0.0 -0.00075" />
+        <inertia ixx="0.00065165722" ixy="0.00000028864" ixz="0.00000303477"
+                 iyy="0.00019824443" iyz="-0.00000022645"
+                 izz="0.00064450498" />
+      </inertial>
+
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://pr2_description/meshes/forearm_v0/wrist_flex.dae" />
+        </geometry>
+
+        <material name="Grey" />
+      </visual>
+
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://pr2_description/meshes/forearm_v0/wrist_flex.stl" />
+        </geometry>
+      </collision>
+    </link>
+
+    <!-- Wrist roll -->
+    <joint name="${side}_wrist_roll_joint" type="continuous">
+      <axis xyz="1 0 0" />
+      <limit effort="10" velocity="${VELOCITY_LIMIT_SCALE*6}" /> <!-- alpha tested velocity and effort limits -->
+      <safety_controller k_velocity="2" />
+      <dynamics damping="0.1" />
+      <calibration rising="${-M_PI / 2 + cal_r_wrist_roll_flag}" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <parent link="${side}_wrist_flex_link"/>
+      <child link="${side}_wrist_roll_link"/>
+    </joint>
+    <link name="${side}_wrist_roll_link">
+      <inertial>
+        <!-- dummy masses, to be removed.  wrist roll masses are on "gripper_palm" -->
+        <mass value="0.1" />
+        <origin xyz="0 0 0" />
+        <inertia ixx="0.01" ixy="0" ixz="0"
+                 iyy="0.01" iyz="0"
+                 izz="0.01" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://pr2_description/meshes/forearm_v0/wrist_roll.stl" />
+        </geometry>
+
+        <material name="RollLinks" />
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://pr2_description/meshes/forearm_v0/wrist_roll_L.stl" />
+        </geometry>
+      </collision>
+    </link>
+    <!-- extensions-->
+    <xacro:pr2_forearm_gazebo_v0 side="${side}" />
+    <xacro:pr2_forearm_transmission_v0 side="${side}" />
+
+  </xacro:macro>
+
+</robot>

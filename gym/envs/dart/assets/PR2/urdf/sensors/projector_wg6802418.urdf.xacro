@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<root xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"
+      xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
+      xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
+      xmlns:xacro="http://ros.org/wiki/xacro">
+  
+  <xacro:include filename="$(find pr2_description)/urdf/sensors/projector_wg6802418.gazebo.xacro" />
+
+  <xacro:macro name="projector_wg6802418_v0" params="name parent *origin">
+    <joint name="${name}_frame_joint" type="fixed">
+      <insert_block name="origin" />
+      <parent link="${parent}"/>
+      <child link="${name}_frame"/>
+    </joint>
+    <link name="${name}_frame">
+      <inertial>
+        <mass value="0.01" />
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <inertia ixx="0.001"  ixy="0.0"  ixz="0.0"
+                 iyy="0.001"  iyz="0.0"
+                 izz="0.001" />
+      </inertial>
+    </link>
+    <joint name="${name}_child_frame_joint" type="fixed">
+      <origin xyz="0 0 0" rpy="0 ${-M_PI/2} 0" />
+      <parent link="${name}_frame"/>
+      <child link="${name}_child_frame"/>
+    </joint>
+    <link name="${name}_child_frame">
+      <inertial>
+        <mass value="0.01" />
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <inertia ixx="0.001"  ixy="0.0"  ixz="0.0"
+                 iyy="0.001"  iyz="0.0"
+                 izz="0.001" />
+      </inertial>
+    </link>
+    <!-- extensions -->
+    <xacro:projector_wg6802418_gazebo_v0 name="${name}"/>
+  </xacro:macro>
+
+</root>

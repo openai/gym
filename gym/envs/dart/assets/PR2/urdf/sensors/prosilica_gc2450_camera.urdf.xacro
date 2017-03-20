@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<root xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"
+      xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
+      xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
+      xmlns:xacro="http://ros.org/wiki/xacro">
+  
+  <xacro:include filename="$(find pr2_description)/urdf/sensors/prosilica_gc2450_camera.gazebo.xacro" />
+
+  <xacro:macro name="prosilica_cam_v0" params="frame_name parent *origin camera_name">
+    <joint name="${frame_name}_frame_joint" type="fixed">
+      <insert_block name="origin" />
+      <parent link="${parent}"/>
+      <child link="${frame_name}_frame"/>
+    </joint>
+    <link name="${frame_name}_frame">
+
+      <inertial>
+        <mass value="0.01" />
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <inertia ixx="0.001"  ixy="0.0"  ixz="0.0"
+                 iyy="0.001"  iyz="0.0"
+                 izz="0.001" />
+      </inertial>
+
+    </link>
+
+    <joint name="${frame_name}_optical_frame_joint" type="fixed">
+      <origin xyz="${cal_high_def_x}            ${cal_high_def_y}         ${cal_high_def_z}"
+                rpy="${-M_PI/2+cal_high_def_roll} ${0.0+cal_high_def_pitch} ${-M_PI/2+cal_high_def_yaw}" />
+      <parent link="${frame_name}_frame"/>
+      <child link="${frame_name}_optical_frame"/>
+    </joint>
+    <link name="${frame_name}_optical_frame">
+
+      <inertial>
+        <mass value="0.01" />
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <inertia ixx="0.001"  ixy="0.0"  ixz="0.0"
+                 iyy="0.001"  iyz="0.0"
+                 izz="0.001" />
+      </inertial>
+
+    </link>
+
+    <!-- extensions -->
+    <xacro:prosilica_cam_gazebo_v0 camera_name="${camera_name}" frame_name="${frame_name}" />
+  </xacro:macro>
+
+</root>

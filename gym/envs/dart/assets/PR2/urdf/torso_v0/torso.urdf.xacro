@@ -1,0 +1,122 @@
+<?xml version="1.0"?>
+<robot xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"
+       xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
+       xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
+       xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find pr2_description)/urdf/torso_v0/torso.gazebo.xacro" />
+  <xacro:include filename="$(find pr2_description)/urdf/torso_v0/torso.transmission.xacro" />
+  <xacro:include filename="$(find pr2_description)/urdf/sensors/microstrain_3dmgx2_imu.urdf.xacro" />
+
+  <xacro:macro name="pr2_torso_v0" params="name parent *origin">
+    <joint name="${name}_joint" type="prismatic">
+      <axis xyz="0 0 1" />
+      <limit lower="0.0" upper="0.33" effort="10000" velocity="0.013"/> <!-- alpha tested velocity and effort limits -->
+      <safety_controller  k_velocity="2000000" soft_lower_limit="${0.0+0.0115}" soft_upper_limit="${0.33-0.005}" k_position="100" />
+      <calibration falling="0.00475" />
+      <dynamics damping="20000.0" />
+      <insert_block name="origin" />
+      <parent link="${parent}"/>
+      <child link="${name}_link"/>
+    </joint>
+    <link name="${name}_link">
+
+      <inertial>
+        <mass value="36.248046" />
+        <origin xyz="-0.1 0 -0.0885" />
+        <inertia ixx="2.771653750257" ixy="0.004284522609" ixz="-0.160418504506"
+                 iyy="2.510019507959" iyz="0.029664468704" izz="0.526432355569" />
+      </inertial>
+
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://pr2_description/meshes/torso_v0/torso_lift.dae"  />
+        </geometry>
+        
+        <material name="Grey2" />
+      </visual>
+
+      <collision name="${name}_collision">
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://pr2_description/meshes/torso_v0/torso_lift_L.stl"  />
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="l_${name}_side_plate_joint" type="fixed">
+      <origin xyz="0.0535 0.209285 0.176625" /> <!-- location of bottom front bolt hole location -->
+      <parent link="${name}_link"/>
+      <child link="l_${name}_side_plate_link"/>
+    </joint>
+    <link name="l_${name}_side_plate_link">
+      <inertial>
+        <mass value="0.1" />
+        <origin xyz="-0.0625 0.0 0.05" />  <!-- center of the 12.5cm by 10cm bolt hole pattern -->
+        <inertia ixx="0.001" ixy="0.0" ixz="0.0"
+                 iyy="0.001" iyz="0.0"
+                 izz="0.001" />
+      </inertial>
+    </link>
+
+    <joint name="r_${name}_side_plate_joint" type="fixed">
+      <origin xyz="0.0535  -0.209285 0.176625" /> <!-- location of bottom front bolt hole location -->
+      <parent link="${name}_link"/>
+      <child link="r_${name}_side_plate_link"/>
+    </joint>
+    <link name="r_${name}_side_plate_link">
+      <inertial>
+        <mass value="0.1" />
+        <origin xyz="-0.0625 0.0 0.05" />  <!-- center of the 12.5cm by 10cm bolt hole pattern -->
+        <inertia ixx="0.001" ixy="0.0" ixz="0.0"
+                 iyy="0.001" iyz="0.0"
+                 izz="0.001" />
+      </inertial>
+    </link>
+
+    <!-- actuated motor screw joint -->
+    <link name="${name}_motor_screw_link">
+      <inertial>
+        <mass value="1.0" />
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <inertia  ixx="0.001" ixy="0.0" ixz="0.0"
+                  iyy="0.001" iyz="0.0"
+                  izz="0.001" />
+      </inertial>
+      <!-- for debugging only
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <box size="0.5 0.7 0.01" />
+        </geometry>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <box size="0.5 0.7 0.01" />
+        </geometry>
+      </collision>
+      -->
+    </link>
+    <joint name="${name}_motor_screw_joint" type="continuous">
+      <origin xyz="-0.15 0.0 0.7"/>
+      <axis xyz="0 0 1"/>
+      <parent link="${parent}"/>
+      <child link="${name}_motor_screw_link"/>
+      <dynamics damping="0.0001" />
+    </joint>
+
+    <!-- extensions -->
+    <xacro:pr2_torso_gazebo_v0 name="${name}" />
+    <xacro:pr2_torso_transmission_v0 name="${name}" />
+
+    <!-- imu -->
+    <xacro:microstrain_3dmgx2_imu_v0 name="imu" parent="${name}" imu_topic="torso_lift_imu/data" update_rate="100.0" stdev="0.00017" >
+        <origin xyz="-0.02977 -0.1497 0.164" rpy="0 ${M_PI} 0" />
+    </xacro:microstrain_3dmgx2_imu_v0>
+
+  </xacro:macro>
+
+
+</robot>

@@ -1,0 +1,494 @@
+<?xml version="1.0" encoding="utf-8"?>
+<COLLADA version="1.4.0" xmlns="http://www.collada.org/2005/11/COLLADASchema">
+	<asset>
+		<contributor>
+			<author>NxuStream2 converter - http://www.ageia.com</author>
+			<authoring_tool>PhysX Rocket, PhysX Viewer, or CreateDynamics</authoring_tool>
+			<comments>questions to: jratcliff@ageia.com</comments>
+			<copyright></copyright>
+			<source_data>chair_gothic_tilted</source_data>
+		</contributor>
+		<unit meter="1" name="meter"/>
+		<up_axis>Y_UP</up_axis>
+	</asset>
+   <library_materials>
+      <material id="Material" name="Material">
+         <instance_effect url="#Material-fx"></instance_effect>
+      </material>
+   </library_materials>
+   <library_effects>
+      <effect id="Material-fx" name="Material">
+         <profile_COMMON>
+            <technique id="Material-fx-COMMON" sid="COMMON">
+               <phong>
+                  <ambient>
+                     <color>0.803922 0.588235 0.92549 1</color>
+                  </ambient>
+                  <diffuse>
+                     <color>0.803922 0.588235 0.92549 1</color>
+                  </diffuse>
+                  <specular>
+                     <color>0.631373 0.631373 0.631373 1</color>
+                  </specular>
+                  <shininess>
+                     <float>1</float>
+                  </shininess>
+                  <reflective>
+                     <color>0 0 0 1</color>
+                  </reflective>
+                  <transparent>
+                     <color>1 1 1 1</color>
+                  </transparent>
+                  <transparency>
+                     <float>0</float>
+                  </transparency>
+               </phong>
+           </technique>
+         </profile_COMMON>
+      </effect>
+   </library_effects>
+  <library_geometries>
+    <geometry id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_0-Mesh" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_0-Mesh">
+      <convex_mesh>
+        <source id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_0-Position">
+          <float_array count="36" id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_0-Position-array">
+            0.133698225 -0.080303997 0.006789846  0.075484566 0 -0.063149422  0.075484566 -0.080303997 -0.06310831  0.134244397 0 0.006789846  
+            0.110932223 0 -0.063149393  0.11595808 -0.080303997 -0.041054491  0.132269621 0 -0.018096372  0.099459 -0.049761001 -0.063152999  
+            0.134008721 -0.080303997 -0.009168807  0.131532997 -0.075084001 -0.020559  0.095341563 -0.080303997 -0.055846285  0.117356002 -0.046413999 -0.050251  
+          </float_array>
+          <technique_common>
+            <accessor count="12" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_0-Position-array" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+    		   </technique_common>
+				 </source>
+   		 <vertices id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_0-Vertex">
+					<input semantic="POSITION" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_0-Position"/>
+				</vertices>
+				<triangles material="Material" count="20">
+					<input offset="0" semantic="VERTEX" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_0-Vertex"/>
+           <p>
+             0 1 2  1 0 3  4 1 3  5 0 2  
+             6 4 3  7 2 1  7 1 4  8 9 6  
+             8 3 0  8 6 3  8 0 5  8 5 9  
+             10 5 2  10 2 7  10 7 5  11 5 7  
+             11 7 4  11 4 6  11 6 9  11 9 5  
+           </p>
+				</triangles>
+      </convex_mesh>
+		</geometry>
+    <geometry id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_1-Mesh" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_1-Mesh">
+      <convex_mesh>
+        <source id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_1-Position">
+          <float_array count="36" id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_1-Position-array">
+            0.075333312 0.080303997 0.066185288  0.133698225 -0.080303997 0.006789846  0.075301789 -0.080303997 0.066191189  0.133799106 0.080303997 0.006846  
+            0.127673507 0.080303997 0.029706001  0.097380064 -0.080303997 0.059848558  0.117669001 -0.080301002 0.044442002  0.105632 0.079223998 0.055052999  
+            0.131072164 -0.080303997 0.021732103  0.094141468 0.080303997 0.061501127  0.11329484 0.080303997 0.048908841  0.132700995 0.079861 0.016546  
+          </float_array>
+          <technique_common>
+            <accessor count="12" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_1-Position-array" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+    		   </technique_common>
+				 </source>
+   		 <vertices id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_1-Vertex">
+					<input semantic="POSITION" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_1-Position"/>
+				</vertices>
+				<triangles material="Material" count="20">
+					<input offset="0" semantic="VERTEX" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_1-Vertex"/>
+           <p>
+             0 1 2  3 1 0  3 0 4  5 6 7  
+             5 2 1  8 6 5  8 5 1  8 4 6  
+             9 5 7  9 0 2  9 2 5  9 4 0  
+             10 4 9  10 9 7  10 6 4  10 7 6  
+             11 3 4  11 4 8  11 1 3  11 8 1  
+           </p>
+				</triangles>
+      </convex_mesh>
+		</geometry>
+    <geometry id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_2-Mesh" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_2-Mesh">
+      <convex_mesh>
+        <source id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_2-Position">
+          <float_array count="21" id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_2-Position-array">
+            0.075484566 0 -0.063149422  0.075484566 -0.080303997 -0.06310831  0.0163185 -0.078903116 -0.063150004  0.070536003 -0.079813004 0.006789846  
+            0.0163185 0 -0.063146733  0.0163185 -0.078903288 0.006789846  0.070536003 -0.080303997 0.006789846  
+          </float_array>
+          <technique_common>
+            <accessor count="7" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_2-Position-array" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+    		   </technique_common>
+				 </source>
+   		 <vertices id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_2-Vertex">
+					<input semantic="POSITION" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_2-Position"/>
+				</vertices>
+				<triangles material="Material" count="10">
+					<input offset="0" semantic="VERTEX" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_2-Vertex"/>
+           <p>
+             0 1 2  1 0 3  4 0 2  5 4 2  
+             5 3 0  5 0 4  6 1 3  6 3 5  
+             6 2 1  6 5 2  
+           </p>
+				</triangles>
+      </convex_mesh>
+		</geometry>
+    <geometry id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_3-Mesh" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_3-Mesh">
+      <convex_mesh>
+        <source id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_3-Position">
+          <float_array count="36" id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_3-Position-array">
+            0.016430492 0.000053133 0.060396858  0.016430492 0.078905165 0.057803314  0.016430492 0.078905299 0.006846  0.075333312 0.080303997 0.066185288  
+            0.070536003 0.079813004 0.006846  0.075333312 0 0.066230543  0.067667998 0.028355001 0.076843999  0.067668438 0 0.076732695  
+            0.049835 0.079466 0.072700001  0.067676 0.079764999 0.074674003  0.039461765 0 0.071401834  0.036334999 0.036908999 0.069752999  
+          </float_array>
+          <technique_common>
+            <accessor count="12" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_3-Position-array" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+    		   </technique_common>
+				 </source>
+   		 <vertices id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_3-Vertex">
+					<input semantic="POSITION" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_3-Position"/>
+				</vertices>
+				<triangles material="Material" count="20">
+					<input offset="0" semantic="VERTEX" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_3-Vertex"/>
+           <p>
+             0 1 2  3 2 1  4 2 3  4 0 2  
+             5 0 4  5 3 6  5 4 3  7 5 6  
+             8 3 1  9 6 3  9 3 8  9 8 6  
+             10 7 6  10 6 8  10 0 5  10 5 7  
+             11 8 1  11 10 8  11 1 0  11 0 10  
+           </p>
+				</triangles>
+      </convex_mesh>
+		</geometry>
+    <geometry id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_4-Mesh" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_4-Mesh">
+      <convex_mesh>
+        <source id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_4-Position">
+          <float_array count="36" id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_4-Position-array">
+            0.0163185 -0 0.060342018  0.070536003 -0.079813004 0.006789846  0.0163185 -0.078903288 0.006789846  0.0163185 -0.049440607 0.059538051  
+            0.0163185 -0.078903429 0.058069911  0.075301789 0 0.066234469  0.067668438 0 0.076732695  0.075301789 -0.080303997 0.066191189  
+            0.067680001 -0.079764999 0.074642003  0.051050998 -0.032504 0.074839003  0.042222999 -0.079337999 0.070460998  0.038104296 -0 0.070921034  
+          </float_array>
+          <technique_common>
+            <accessor count="12" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_4-Position-array" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+    		   </technique_common>
+				 </source>
+   		 <vertices id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_4-Vertex">
+					<input semantic="POSITION" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_4-Position"/>
+				</vertices>
+				<triangles material="Material" count="20">
+					<input offset="0" semantic="VERTEX" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_4-Vertex"/>
+           <p>
+             0 1 2  0 2 3  4 3 2  5 1 0  
+             5 0 6  7 1 5  7 6 8  7 5 6  
+             7 4 2  7 2 1  9 8 6  10 8 9  
+             10 3 4  10 4 7  10 7 8  11 10 9  
+             11 0 3  11 3 10  11 6 0  11 9 6  
+           </p>
+				</triangles>
+      </convex_mesh>
+		</geometry>
+    <geometry id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_5-Mesh" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_5-Mesh">
+      <convex_mesh>
+        <source id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_5-Position">
+          <float_array count="36" id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_5-Position-array">
+            0.016430492 0.078905299 0.006846  0.016430492 0 -0.063146733  0.134236127 0 0.006846  0.133799106 0.080303997 0.006846  
+            0.016430492 0.078905098 -0.063150004  0.110946 0.003311 -0.063148998  0.123737812 0.080303997 -0.031389959  0.0955614 0.080303997 -0.055816263  
+            0.128955007 0.071491003 -0.027443999  0.132269621 0 -0.018096372  0.077802971 0.080303997 -0.06313128  0.133914456 0.080303997 -0.009100469  
+          </float_array>
+          <technique_common>
+            <accessor count="12" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_5-Position-array" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+    		   </technique_common>
+				 </source>
+   		 <vertices id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_5-Vertex">
+					<input semantic="POSITION" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_5-Position"/>
+				</vertices>
+				<triangles material="Material" count="20">
+					<input offset="0" semantic="VERTEX" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_5-Vertex"/>
+           <p>
+             0 1 2  0 2 3  4 5 1  4 1 0  
+             6 7 3  6 5 7  6 8 5  9 5 8  
+             9 2 1  9 1 5  10 5 4  10 7 5  
+             10 4 0  10 0 3  10 3 7  11 9 8  
+             11 3 2  11 2 9  11 8 6  11 6 3  
+           </p>
+				</triangles>
+      </convex_mesh>
+		</geometry>
+    <geometry id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_6-Mesh" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_6-Mesh">
+      <convex_mesh>
+        <source id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_6-Position">
+          <float_array count="36" id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_6-Position-array">
+            0.016430492 0.156797096 0.056778021  0.016430492 0.137108505 -0.065192312  0.016430492 0.097328365 0.055168327  0.065714002 0.118908003 0.075484999  
+            0.122732997 0.157530993 0.047187001  0.122547954 0.080303997 0.038255248  0.141562 0.127221003 -0.018580001  0.113948002 0.157574996 -0.056224  
+            0.070551462 0.080303997 -0.063114204  0.016430492 0.097362302 -0.06266848  0.129441723 0.080303997 -0.020988394  0.070541583 0.080303997 0.066596925  
+          </float_array>
+          <technique_common>
+            <accessor count="12" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_6-Position-array" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+    		   </technique_common>
+				 </source>
+   		 <vertices id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_6-Vertex">
+					<input semantic="POSITION" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_6-Position"/>
+				</vertices>
+				<triangles material="Material" count="20">
+					<input offset="0" semantic="VERTEX" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_6-Vertex"/>
+           <p>
+             0 1 2  0 2 3  4 0 3  4 3 5  
+             4 5 6  7 1 0  7 0 4  7 4 6  
+             7 8 1  9 1 8  9 8 2  9 2 1  
+             10 8 7  10 7 6  10 6 5  10 5 8  
+             11 5 3  11 3 2  11 8 5  11 2 8  
+           </p>
+				</triangles>
+      </convex_mesh>
+		</geometry>
+    <geometry id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_7-Mesh" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_7-Mesh">
+      <convex_mesh>
+        <source id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_7-Position">
+          <float_array count="36" id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_7-Position-array">
+            0.0163185 -0.097328268 0.055111505  0.065714002 -0.118908003 0.075484999  0.12553668 -0.080303997 0.033574659  0.070556462 -0.080303997 -0.063121587  
+            0.0163185 -0.156797424 0.056724355  0.072021998 -0.157666996 0.072067  0.0163185 -0.137122944 -0.065192133  0.111736998 -0.154793993 -0.06024  
+            0.131068006 -0.155092001 0.039189  0.141562 -0.127221003 -0.018580001  0.0163185 -0.097361393 -0.062666073  0.126802057 -0.080303997 -0.026552875  
+          </float_array>
+          <technique_common>
+            <accessor count="12" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_7-Position-array" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+    		   </technique_common>
+				 </source>
+   		 <vertices id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_7-Vertex">
+					<input semantic="POSITION" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_7-Position"/>
+				</vertices>
+				<triangles material="Material" count="20">
+					<input offset="0" semantic="VERTEX" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_7-Vertex"/>
+           <p>
+             0 1 2  0 2 3  4 5 1  4 1 0  
+             4 0 6  7 5 4  7 4 6  7 6 3  
+             8 5 7  8 7 9  8 9 2  8 1 5  
+             8 2 1  10 3 6  10 6 0  10 0 3  
+             11 9 7  11 7 3  11 3 2  11 2 9  
+           </p>
+				</triangles>
+      </convex_mesh>
+		</geometry>
+    <geometry id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_8-Mesh" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_8-Mesh">
+      <convex_mesh>
+        <source id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_8-Position">
+          <float_array count="36" id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_8-Position-array">
+            -0.100396998 -0.005969 -0.017506  0.0163185 -0.156797424 0.056724355  0.016430492 0.139237925 0.058598738  -0.077703997 0.157157004 -0.011335  
+            -0.077703997 -0.157157004 -0.011335  0.0163185 -0.155181572 -0.063914739  -0.036610998 -0.146001995 -0.065347999  0.016430492 0.155187517 -0.063913502  
+            -0.109980002 0.015696 -0.063148998  -0.066853002 0.155230001 -0.063683003  -0.079005003 -0.156279996 -0.053472999  0.016430492 0.156797096 0.056778021  
+          </float_array>
+          <technique_common>
+            <accessor count="12" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_8-Position-array" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+    		   </technique_common>
+				 </source>
+   		 <vertices id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_8-Vertex">
+					<input semantic="POSITION" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_8-Position"/>
+				</vertices>
+				<triangles material="Material" count="20">
+					<input offset="0" semantic="VERTEX" source="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_8-Vertex"/>
+           <p>
+             0 1 2  3 0 2  4 1 0  5 1 4  
+             5 6 7  5 2 1  5 7 2  8 4 0  
+             8 0 3  9 7 6  9 6 8  9 3 7  
+             9 8 3  10 4 8  10 8 6  10 6 5  
+             10 5 4  11 2 7  11 7 3  11 3 2  
+           </p>
+				</triangles>
+      </convex_mesh>
+		</geometry>
+  </library_geometries>
+  <library_visual_scenes>
+	  <visual_scene id="Scene0-Visual" name="Scene0-Visual">
+      <node id="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan-Node" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan" type="NODE">
+        <translate>0 0 0</translate>
+        <rotate>1 0 0  0</rotate>
+      </node>
+  	  </visual_scene>
+  </library_visual_scenes>
+  <library_physics_materials>
+    <physics_material id="pmat0_0-PhysicsMaterial" name="pmat0_0-PhysicsMaterial">
+      <technique_common>
+        <dynamic_friction>0.5</dynamic_friction>
+        <restitution>0</restitution>
+        <static_friction>0.5</static_friction>
+      </technique_common>
+    </physics_material>
+  </library_physics_materials>
+  <library_physics_models>
+    <physics_model id="Scene0-PhysicsModel">
+      <rigid_body sid="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan-RigidBody" name="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan">
+        <technique_common>
+          <instance_physics_material url="#pmat0_0-PhysicsMaterial"/>
+         <shape>
+            <translate>0 0 0</translate>
+            <rotate>1 0 0  0</rotate>
+            <instance_physics_material url="#pmat0_0-PhysicsMaterial"/>
+            <density>1</density>
+            <extra>
+              <technique profile="PhysX">
+               <skinWidth>0</skinWidth>
+              </technique>
+            </extra>
+            <instance_geometry url="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_0-Mesh"/>
+         </shape>
+         <shape>
+            <translate>0 0 0</translate>
+            <rotate>1 0 0  0</rotate>
+            <instance_physics_material url="#pmat0_0-PhysicsMaterial"/>
+            <density>1</density>
+            <extra>
+              <technique profile="PhysX">
+               <skinWidth>0</skinWidth>
+              </technique>
+            </extra>
+            <instance_geometry url="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_1-Mesh"/>
+         </shape>
+         <shape>
+            <translate>0 0 0</translate>
+            <rotate>1 0 0  0</rotate>
+            <instance_physics_material url="#pmat0_0-PhysicsMaterial"/>
+            <density>1</density>
+            <extra>
+              <technique profile="PhysX">
+               <skinWidth>0</skinWidth>
+              </technique>
+            </extra>
+            <instance_geometry url="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_2-Mesh"/>
+         </shape>
+         <shape>
+            <translate>0 0 0</translate>
+            <rotate>1 0 0  0</rotate>
+            <instance_physics_material url="#pmat0_0-PhysicsMaterial"/>
+            <density>1</density>
+            <extra>
+              <technique profile="PhysX">
+               <skinWidth>0</skinWidth>
+              </technique>
+            </extra>
+            <instance_geometry url="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_3-Mesh"/>
+         </shape>
+         <shape>
+            <translate>0 0 0</translate>
+            <rotate>1 0 0  0</rotate>
+            <instance_physics_material url="#pmat0_0-PhysicsMaterial"/>
+            <density>1</density>
+            <extra>
+              <technique profile="PhysX">
+               <skinWidth>0</skinWidth>
+              </technique>
+            </extra>
+            <instance_geometry url="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_4-Mesh"/>
+         </shape>
+         <shape>
+            <translate>0 0 0</translate>
+            <rotate>1 0 0  0</rotate>
+            <instance_physics_material url="#pmat0_0-PhysicsMaterial"/>
+            <density>1</density>
+            <extra>
+              <technique profile="PhysX">
+               <skinWidth>0</skinWidth>
+              </technique>
+            </extra>
+            <instance_geometry url="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_5-Mesh"/>
+         </shape>
+         <shape>
+            <translate>0 0 0</translate>
+            <rotate>1 0 0  0</rotate>
+            <instance_physics_material url="#pmat0_0-PhysicsMaterial"/>
+            <density>1</density>
+            <extra>
+              <technique profile="PhysX">
+               <skinWidth>0</skinWidth>
+              </technique>
+            </extra>
+            <instance_geometry url="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_6-Mesh"/>
+         </shape>
+         <shape>
+            <translate>0 0 0</translate>
+            <rotate>1 0 0  0</rotate>
+            <instance_physics_material url="#pmat0_0-PhysicsMaterial"/>
+            <density>1</density>
+            <extra>
+              <technique profile="PhysX">
+               <skinWidth>0</skinWidth>
+              </technique>
+            </extra>
+            <instance_geometry url="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_7-Mesh"/>
+         </shape>
+         <shape>
+            <translate>0 0 0</translate>
+            <rotate>1 0 0  0</rotate>
+            <instance_physics_material url="#pmat0_0-PhysicsMaterial"/>
+            <density>1</density>
+            <extra>
+              <technique profile="PhysX">
+               <skinWidth>0</skinWidth>
+              </technique>
+            </extra>
+            <instance_geometry url="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan_8-Mesh"/>
+         </shape>
+        <dynamic>true</dynamic>
+        <mass>1</mass>
+		   	</technique_common>
+        <extra>
+          <technique profile="PhysX">
+            <extra>
+              <technique profile="PhysX">
+                <linearDamping>0</linearDamping>
+                <angularDamping>0</angularDamping>
+                <solverIterationCount>32</solverIterationCount>
+              </technique>
+            </extra>
+            <disable_collision>false</disable_collision>
+          </technique>
+        </extra>
+  	  </rigid_body>
+    </physics_model>
+  </library_physics_models>
+  <library_physics_scenes>
+    <physics_scene id="Scene0-Physics">
+      <instance_physics_model url="#Scene0-PhysicsModel">
+        <instance_rigid_body target="#/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan-Node" body="/tmp/binarydeb/ros-indigo-pr2-description-1.11.14/meshes/head_v0/convex/head_pan-RigidBody"/>
+      <extra>
+        <technique profile="PhysX">
+        </technique>
+      </extra>
+      </instance_physics_model>
+      <technique_common>
+        <gravity>0 -9.800000191 0</gravity>
+      </technique_common>
+    </physics_scene>
+  </library_physics_scenes>
+  <scene>
+    <instance_visual_scene url="#Scene0-Visual"/>
+    <instance_physics_scene url="#Scene0-Physics"/>
+  </scene>
+</COLLADA>

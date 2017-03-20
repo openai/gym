@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<robot xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"
+       xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
+       xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
+       xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!--  Caster wheel transmission   -->
+  <xacro:macro name="pr2_wheel_transmission_v0" params="suffix parent reflect">
+    <transmission type="pr2_mechanism_model/SimpleTransmission" name="${parent}_${suffix}_wheel_trans">
+      <actuator name="${parent}_${suffix}_wheel_motor" />
+      <joint name="${parent}_${suffix}_wheel_joint" />
+      <mechanicalReduction>${reflect * 624/35 * 80/18}</mechanicalReduction>
+    </transmission>
+  </xacro:macro>
+
+  <!-- Hub transmission only -->
+  <xacro:macro name="pr2_caster_transmission_v0" params="suffix">
+    <transmission type="pr2_mechanism_model/SimpleTransmission" name="${suffix}_rotation_trans">
+      <actuator name="${suffix}_rotation_motor" />
+      <joint name="${suffix}_rotation_joint" />
+      <mechanicalReduction>${-1 * 624/35 * 80/18}</mechanicalReduction>
+    </transmission>
+  </xacro:macro>
+</robot>

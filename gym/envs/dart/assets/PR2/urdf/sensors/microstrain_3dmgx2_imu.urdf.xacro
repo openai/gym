@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find pr2_description)/urdf/sensors/microstrain_3dmgx2_imu.gazebo.xacro" />
+
+  <xacro:macro name="microstrain_3dmgx2_imu_v0" params="name parent *origin imu_topic update_rate stdev">
+    <joint name="${name}_joint" type="fixed">
+      <axis xyz="0 1 0" />
+      <insert_block name="origin" />
+      <parent link="${parent}_link"/>
+      <child link="${name}_link"/>
+    </joint>
+    <link name="${name}_link">
+      <inertial>
+        <mass value="0.001" />
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.000001" iyz="0" izz="0.0001" />
+      </inertial>
+    </link>
+    <!-- gazebo extensions -->
+    <xacro:microstrain_3dmgx2_imu_gazebo_v0 name="${name}" imu_topic="${imu_topic}" update_rate="${update_rate}" stdev="${stdev}" />
+  </xacro:macro>
+</robot>
+

@@ -1,0 +1,264 @@
+<?xml version="1.0"?>
+<robot xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"
+       xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
+       xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
+       xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find pr2_description)/urdf/sensors/hokuyo_lx30_laser.urdf.xacro" />
+  <xacro:include filename="$(find pr2_description)/urdf/base_v0/base.gazebo.xacro" />
+  <xacro:include filename="$(find pr2_description)/urdf/base_v0/base.transmission.xacro" />
+
+  <!-- DATA SOURCES -->
+  <!-- all link offsets, CG, limits are obtained from Function Engineering spreadsheet 090224_link_data.xls unless stated otherwise -->
+  <!-- all link geometry sizes are obtained from Function provided CAD model unless stated otherwise -->
+  <!-- all simplified collision geometry are hand approximated from CAD model, sometimes from respective bounding boxes -->
+
+  <property name="M_PI" value="3.1415926535897931" />
+
+  <property name="caster_offset_x" value="0.2246" />
+  <property name="caster_offset_y" value="0.2246" />
+  <property name="caster_offset_z" value="0.0282" />
+
+  <property name="caster_wheel_offset_y" value="0.049" />
+  <property name="wheel_length" value="0.034" />
+  <property name="wheel_radius" value="0.074792" />   <!-- This is the 'effective' wheel radius. Wheel radius for uncompressed wheel is 0.079.  mp 20080801 -->
+
+  <property name="base_cg_x" value="-0.061" />
+  <property name="base_cg_y" value="0.0" />
+  <property name="base_cg_z" value="${0.5*0.293}" />
+  <property name="base_mass" value="116.0" />
+
+  <!-- simplified box collision geometry for base -->
+  <property name="base_size_x" value="0.65" />
+  <property name="base_size_y" value="0.65" />
+  <property name="base_size_z" value="0.23" />
+  <property name="base_collision_size_z" value="0.04" />
+
+  <!-- simplified box collision geometry for hokuyo laser -->
+  <property name="base_laser_x" value="0.275" />
+  <property name="base_laser_y" value="0.0" />
+  <property name="base_laser_z" value="0.252" />
+  <property name="base_laser_size_x" value="0.06" />
+  <property name="base_laser_size_y" value="0.06" />
+  <property name="base_laser_size_z" value="0.03" />
+  <property name="base_laser_collision_offset_z" value="0.023" />
+
+  <!--                                                      -->
+  <!--           wheel                                      -->
+  <!--                                                      -->
+  <xacro:macro name="pr2_wheel_v0" params="suffix parent reflect">
+
+    <joint name="${parent}_${suffix}_wheel_joint" type="continuous">
+      <axis xyz="0 1 0" />
+      <limit effort="7" velocity="15"/> <!-- alpha tested effort and velocity limits -->
+      <safety_controller  k_velocity="10" />
+      <dynamics damping="1.0" friction="0.0" />
+      <origin xyz="0 ${reflect*caster_wheel_offset_y} 0" rpy="0 0 0" />
+      <parent link="${parent}_rotation_link"/>
+      <child link="${parent}_${suffix}_wheel_link"/>
+    </joint>
+    <link name="${parent}_${suffix}_wheel_link">
+      <inertial>
+        <mass value="0.44036" />
+        <origin xyz="0 0 0" />
+        <inertia  ixx="0.012411765597" ixy="-0.000711733678" ixz="0.00050272983"
+                  iyy="0.015218160428" iyz="-0.000004273467" izz="0.011763977943" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://pr2_description/meshes/base_v0/wheel.dae" />
+        </geometry>
+        
+        <material name="Wheel_${suffix}" />
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="${M_PI/2} 0 0" /> <!-- rotation because cyl. geom primitive has symmetry axis in +x direction -->
+        <geometry>
+          <cylinder radius="${wheel_radius}" length="${wheel_length}" />
+        </geometry>
+      </collision>
+    </link>
+
+    <!-- extensions -->
+    <xacro:pr2_wheel_gazebo_v0 parent="${parent}" suffix="${suffix}" />
+    <xacro:pr2_wheel_transmission_v0 parent="${parent}" suffix="${suffix}" reflect="${reflect}" />
+
+  </xacro:macro>
+
+  <!-- Macro for PR2 Caster hub only -->
+  <xacro:macro name="pr2_caster_hub_v0" params="suffix parent *origin ref_position" >
+    <joint name="${suffix}_rotation_joint" type="continuous">
+      <axis xyz="0 0 1" />
+      <limit effort="6.5" velocity="10"/> <!-- alpha tested velocity and effort limits -->
+      <safety_controller  k_velocity="10" />
+      <calibration rising="${ref_position}" />
+      <dynamics damping="1.0" friction="0.0" />
+      <insert_block name="origin" />
+      <parent link="${parent}"/>
+      <child link="${suffix}_rotation_link" />
+    </joint>
+    <link name="${suffix}_rotation_link">
+
+      <inertial>
+        <mass value="3.473082"/>
+        <origin xyz="0 0 0.07" />
+        <inertia  ixx="0.012411765597" ixy="-0.000711733678" ixz="0.00050272983"
+                  iyy="0.015218160428" iyz="-0.000004273467" izz="0.011763977943" />
+      </inertial>
+
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://pr2_description/meshes/base_v0/caster.stl" />
+        </geometry>
+        
+        <material name="Caster" />
+      </visual>
+
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://pr2_description/meshes/base_v0/caster_L.stl" />
+        </geometry>
+      </collision>
+    </link>
+
+    <!-- extensions -->
+    <xacro:pr2_caster_transmission_v0 suffix="${suffix}" />
+  </xacro:macro>
+
+  <xacro:macro name="pr2_caster_v0" params="suffix parent *origin ref_position">
+
+    <xacro:pr2_caster_hub_v0 parent="${parent}" suffix="${suffix}_caster"
+                             ref_position="${ref_position}" >
+      <insert_block name="origin" />
+    </xacro:pr2_caster_hub_v0>
+
+    <!-- wheel macros -->
+    <xacro:pr2_wheel_v0 parent="${suffix}_caster" suffix="l" reflect="1" />
+    <xacro:pr2_wheel_v0 parent="${suffix}_caster" suffix="r" reflect="-1" />
+
+    <!-- extensions -->
+    <xacro:pr2_caster_gazebo_v0 suffix="${suffix}" />
+  </xacro:macro>
+
+
+  <!-- The xacro macro xacro:pr2_base contains: base, casters and wheels -->
+  <xacro:macro name="pr2_base_v0" params="name">
+    <link name="${name}_link">
+
+      <inertial>
+        <mass value="${base_mass}" />
+        <origin xyz="${base_cg_x} ${base_cg_y} ${base_cg_z}" />
+        <inertia ixx="5.652232699207" ixy="-0.009719934438" ixz="1.293988226423"
+                 iyy="5.669473158652" iyz="-0.007379583694" izz="3.683196351726" />
+      </inertial>
+
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://pr2_description/meshes/base_v0/base.dae" />
+        </geometry>
+        
+        <material name="White" />
+      </visual>
+
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://pr2_description/meshes/base_v0/base_L.stl" />
+        </geometry>
+      </collision>
+    </link>
+
+    <!-- base_footprint is a fictitious link(frame) that is on the ground right below base_link origin,
+         navigation stack dedpends on this frame -->
+    <link name="${name}_footprint">
+      <inertial>
+        <mass value="1.0" />
+        <origin xyz="0 0 0" />
+        <inertia ixx="0.01" ixy="0.0" ixz="0.0"
+                 iyy="0.01" iyz="0.0" izz="0.01" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <box size="0.01 0.01 0.01" />
+        </geometry>
+        
+        <material name="White" />
+      </visual>
+      <collision>
+        <!-- represent base collision with a simple rectangular model, positioned by base_size_z s.t. top
+             surface of the collision box matches the top surface of the PR2 base -->
+        <origin xyz="0 0 ${0.051+base_collision_size_z/2}" rpy="0 0 0" />
+        <geometry>
+          <box size="0.001 0.001 0.001" />
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="${name}_footprint_joint" type="fixed">
+      <origin xyz="0 0 0.051" rpy="0 0 0" />
+      <child link="${name}_link" />
+      <parent link="${name}_footprint"/>
+    </joint>
+
+    <!-- visualize bellow -->
+    <link name="${name}_bellow_link">
+      <inertial>
+        <mass value="1.0" />
+        <origin xyz="0 0 0" />
+        <inertia ixx="0.01" ixy="0.0" ixz="0.0"
+                 iyy="0.01" iyz="0.0" izz="0.01" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <box size="0.05 0.37 0.3" />
+        </geometry>
+        <material name="Black" />
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <box size="0.05 0.37 0.3" />
+        </geometry>
+      </collision>
+    </link>
+    <joint name="${name}_bellow_joint" type="fixed">
+      <origin xyz="-0.29 0 0.8" rpy="0 0 0" />
+      <parent link="${name}_link" />
+      <child link="${name}_bellow_link"/>
+    </joint>
+
+    <!-- base laser -->
+    <xacro:hokuyo_lx30_laser_v0 name="${name}_laser" parent="${name}" ros_topic="base_scan" update_rate="20" min_angle="-2.2689" max_angle="2.2689" >
+      <origin xyz="${base_laser_x} ${base_laser_y} ${base_laser_z}" rpy="0 0 0" />
+    </xacro:hokuyo_lx30_laser_v0>
+
+    <!-- all four caster macros -->
+    <xacro:pr2_caster_v0 suffix="fl" parent="${name}_link" ref_position="${cal_caster_fl - M_PI/4}" >
+      <origin xyz="${caster_offset_x} ${caster_offset_y} ${caster_offset_z}" rpy="0 0 0" />
+    </xacro:pr2_caster_v0>
+    <xacro:pr2_caster_v0 suffix="fr" parent="${name}_link" ref_position="${cal_caster_fr - M_PI/4}" >
+      <origin xyz="${caster_offset_x} ${-caster_offset_y} ${caster_offset_z}" rpy="0 0 0" />
+    </xacro:pr2_caster_v0>
+    <xacro:pr2_caster_v0 suffix="bl" parent="${name}_link" ref_position="${cal_caster_bl - M_PI / 4 + M_PI}" >
+      <origin xyz="${-caster_offset_x} ${caster_offset_y} ${caster_offset_z}" rpy="0 0 0" />
+    </xacro:pr2_caster_v0>
+    <xacro:pr2_caster_v0 suffix="br" parent="${name}_link" ref_position="${cal_caster_br - M_PI / 4 + M_PI}"  >
+      <origin xyz="${-caster_offset_x} ${-caster_offset_y} ${caster_offset_z}" rpy="0 0 0" />
+    </xacro:pr2_caster_v0>
+
+    <!-- gazebo extensions -->
+    <xacro:pr2_base_gazebo_v0 name="${name}" />
+
+  </xacro:macro>
+
+
+
+
+
+</robot>
