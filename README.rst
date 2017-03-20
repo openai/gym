@@ -224,6 +224,21 @@ to set it up. You'll have to also run ``pip install -e '.[mujoco]'`` if you didn
 	  env = gym.make('Humanoid-v0')
 	  env.reset()
 	  env.render()
+	  
+RLE
+-----
+
+The `Retro Learning Environment <https://github.com/nadavbh12/Retro-Learning-Environment>`_ supports SNES (Super Nintendo Entertainment System) video games.
+If you didn't do the full install, you can install dependencies via ``pip install -e '.[rle_python_interface]'`` (you'll need ``cmake`` installed) and then get started as follow:
+
+.. code:: python
+
+	  import gym
+	  env = gym.make('ClassicKong-v0')
+	  env.reset()
+	  env.render()
+
+Roms for the available games need to put in the gym/envs/rle/roms dir with lowercase separated names (e.g. mortal_kombat.sfc).
 
 Toy text
 --------
@@ -236,6 +251,7 @@ Toy environments which are text-based. There's no extra dependency to install, s
 	  env = gym.make('FrozenLake-v0')
 	  env.reset()
 	  env.render()
+
 
 Examples
 ========
@@ -287,3 +303,4 @@ What's new
 - 2016-05-28: For controlled reproducibility, envs now support seeding
   (cf #91 and #135). The monitor records which seeds are used. We will
   soon add seed information to the display on the scoreboard.
+
