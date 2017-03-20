@@ -31,6 +31,8 @@ class DartEnv(gym.Env):
         assert action_type in ("continuous", "discrete")
         print('pydart initialization OK')
 
+        self.viewer = None
+
         if len(model_paths) < 1:
             raise StandardError("At least one model file is needed.")
 
@@ -63,7 +65,6 @@ class DartEnv(gym.Env):
                 self.robot_skeleton.joints[jt].set_position_limit_enforced(True)
         self._obs_type = obs_type
         self.frame_skip= frame_skip
-        self.viewer = None
         self.visualize = visualize  #Show the window or not
 
         # random perturbation
