@@ -33,7 +33,7 @@ setup(name='gym',
                 if package.startswith('gym')],
       zip_safe=False,
       install_requires=[
-          'numpy>=1.10.4', 'requests>=2.0', 'six', 'pyglet>=1.2.0',
+          'numpy>=1.10.4', 'requests>=2.0', 'six', 'pyglet>=1.2.0', 'joblib>=0.11',
       ],
       extras_require=extras,
       package_data={'gym': ['envs/mujoco/assets/*.xml', 'envs/classic_control/assets/*.png']},
