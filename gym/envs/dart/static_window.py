@@ -27,19 +27,12 @@ class StaticGLUTWindow(GLUTWindow):
         # for end to end learning
         # Do not call it in other case
         # there will be some potential problems
-        print('getGrayScale2')
         from PIL import Image
-        print('getGrayScale')
         data = GL.glReadPixels(0, 0,
                                _width, _height,
                                GL.GL_RGBA,
                                GL.GL_UNSIGNED_BYTE)
-        print('data')
         img = Image.frombytes("RGBA", (_width, _height), data).convert('L')
-        print('img')
-        #img = img.resize((160,90))
-        #filename = "capture001.png"
-        #img.save(filename, 'png')
         img = np.array(img.getdata(), dtype=np.uint8)
         return img.reshape(_width, _height)
 

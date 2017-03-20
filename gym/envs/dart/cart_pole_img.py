@@ -20,7 +20,7 @@ class DartCartPoleImgEnv(dart_env.DartEnv, utils.EzPickle):
         self.screen_height = 45
         control_bounds = np.array([[1.0],[-1.0]])
         self.action_space = spaces.Discrete(2)
-        dart_env.DartEnv.__init__(self, 'cartpole2.skel', 2, 4, control_bounds, \
+        dart_env.DartEnv.__init__(self, 'cartpole.skel', 2, 4, control_bounds, \
                                   obs_type="image", action_type="discrete", visualize=False, \
                                   screen_width=self.screen_width, screen_height=self.screen_height)
         utils.EzPickle.__init__(self)
@@ -55,8 +55,6 @@ class DartCartPoleImgEnv(dart_env.DartEnv, utils.EzPickle):
         return ob, reward, done, {}
 
     def _render(self, mode='human', close=False):
-        #self._get_viewer().scene.tb.trans[0] = -self.dart_world.skeletons[self.track_skeleton_id].com()[0]*1
-        #self._get_viewer().getGrayscale(160,90)
         if close:
             if self.viewer is not None:
                 self._get_viewer().close()
@@ -70,10 +68,7 @@ class DartCartPoleImgEnv(dart_env.DartEnv, utils.EzPickle):
             self._get_viewer().runSingleStep()
 
     def _get_obs(self):
-        #print(self._get_viewer().getGrayscale(self.screen_width, self.screen_height).shape)
         return self._get_viewer().getGrayscale(self.screen_width, self.screen_height)
-        #print(np.array([self.cart_pos_x, self.cart_spd, self.pole_rotate, self.pole_spd]))
-        #return np.concatenate([self.robot_skeleton.q, self.robot_skeleton.dq]).ravel()
 
     def reset_model(self):
         self.dart_world.reset()
@@ -84,6 +79,7 @@ class DartCartPoleImgEnv(dart_env.DartEnv, utils.EzPickle):
 
 
     def viewer_setup(self):
-        self._get_viewer().scene.tb.trans[2] = -2.0
+        self._get_viewer().scene.tb.trans[1] = -0.2
+        self._get_viewer().scene.tb.trans[2] = -1.4
         self._get_viewer().scene.tb._set_theta(0)
         self.track_skeleton_id = 0

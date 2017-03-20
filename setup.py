@@ -11,6 +11,7 @@ extras = {
   'board_game' : ['pachi-py>=0.0.19'],
   'box2d': ['box2d-py'],
   'classic_control': ['PyOpenGL'],
+  'dart': ['joblib>=0.11', 'pillow'],
   'mujoco': ['mujoco_py>=0.4.3', 'imageio'],
   'parameter_tuning': ['keras', 'theano'],
 }
