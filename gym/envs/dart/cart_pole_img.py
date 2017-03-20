@@ -1,3 +1,5 @@
+# This environment is created by Dong Xu (donghsu@gatech.edu)
+
 import numpy as np
 from gym import utils
 from gym import spaces

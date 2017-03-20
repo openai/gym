@@ -1,3 +1,5 @@
+# This environment is created by Karen Liu (karen.liu@gmail.com)
+
 import numpy as np
 from gym import utils
 from gym.envs.dart import dart_env

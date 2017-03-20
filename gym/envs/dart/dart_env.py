@@ -1,3 +1,5 @@
+# Contributors: Wenhao Yu (wyu68@gatech.edu) and Dong Xu (donghsu@gatech.edu)
+
 import os
 
 from gym import error, spaces
