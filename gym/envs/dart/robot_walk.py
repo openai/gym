@@ -55,12 +55,18 @@ class DartRobotWalk(dart_env.DartEnv, utils.EzPickle):
             if self.in_contact(contact, self.dart_world.skeletons[0].bodynodes[1], self.robot_skeleton.bodynode('r_foot')):
                 r_incontact = True
         if l_incontact and r_incontact:
-            reward -= 0.3
+            reward -= 0.2
+
+        foot_in_range = True
+        if self.robot_skeleton.bodynode('l_foot').com()[1] > self.robot_skeleton.bodynode('r_shin').com()[1]:
+            foot_in_range = False
+        if self.robot_skeleton.bodynode('r_foot').com()[1] > self.robot_skeleton.bodynode('l_shin').com()[1]:
+            foot_in_range = False
 
 
         s = self.state_vector()
         done = not (np.isfinite(s).all() and (np.abs(s[2:]) < 100).all() and
-                    (height > .2))
+                    (height > .2) and foot_in_range)
         #done = False
         return ob, reward, done, {}
 

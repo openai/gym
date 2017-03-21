@@ -5,7 +5,6 @@ from gym.envs.dart import dart_env
 from gym.envs.dart.parameter_managers import *
 
 
-
 class DartHopperEnv(dart_env.DartEnv, utils.EzPickle):
     def __init__(self):
         self.control_bounds = np.array([[1.0, 1.0, 1.0],[-1.0, -1.0, -1.0]])

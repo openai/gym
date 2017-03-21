@@ -58,6 +58,7 @@ class StaticGLUTWindow(GLUTWindow):
 
     def run(self, _width=None, _height=None, _show_window=True):
         # Init glut
+        self._show_window = _show_window
         GLUT.glutInit(())
         GLUT.glutInitDisplayMode(GLUT.GLUT_RGBA |
                                  GLUT.GLUT_DOUBLE |
