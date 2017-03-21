@@ -85,7 +85,10 @@ class KellyCoinflipGeneralizedEnv(gym.Env):
         self.action_space = spaces.Discrete(maxWealth*100)
         self.observation_space = spaces.Tuple((
             spaces.Discrete(maxWealth*100+1),
-            spaces.Discrete(maxRounds+1)))
+            spaces.Discrete(maxRounds+1), # rounds elapsed
+            spaces.Discrete(maxRounds+1), # wins
+            spaces.Discrete(maxRounds+1), # losses
+            spaces.Discrete(maxWealth*100+1))) # maximum observed wealth
         self.reward_range = (0, maxWealth)
         self.edge = edge
         self.wealth = initialWealth
