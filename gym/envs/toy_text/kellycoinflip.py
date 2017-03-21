@@ -66,7 +66,7 @@ class KellyCoinflipEnv(gym.Env):
 class KellyCoinflipGeneralizedEnv(gym.Env):
     """The Generalized Kelly coinflip game is an extension by ArthurB & Gwern Branwen which expands the Kelly coinflip game MDP into a POMDP, where the 3 key parameters (edge, maximum wealth, and number of rounds) are unknown random variables drawn from 3 distributions: a Beta(7,3) for the coinflip edge 0-1, a N(300,25) the total number of rounds, and a Pareto(5,200) for the wealth cap. These distributions are chosen to be conjugate & easily updatable, to allow for inference (other choices like the geometric for number of rounds wouldn't make observations informative), and to loosely reflect what a human might expect in the original Kelly coinflip game given that the number of rounds wasn't strictly fixed and they weren't told the wealth cap until they neared it. The observations are augmented with the sufficient statistics. The simple Kelly coinflip game can easily be solved by calculating decision trees, but the Generalized Kelly coinflip game may be intractable (although the analysis for the edge case alone suggests that the Bayes-optimal value may be very close to what one would calculate using a decision tree for any specific case), and represents a good challenge for deep RL."""
     metadata = {'render.modes': ['human']}
-    def __init__(self, initialWealth=25, edgePriorAlpha=7, edgePriorBeta=3, maxWealthAlpha=5, maxWealthM=200, maxRoundsMean=300, maxRoundsSD=25):
+    def __init__(self, initialWealth=25, edgePriorAlpha=7, edgePriorBeta=3, maxWealthAlpha=5, maxWealthM=200, maxRoundsMean=300, maxRoundsSD=25, reseed=True):
         # draw this game's set of parameters:
         edge = numpy.random.beta(edgePriorAlpha, edgePriorBeta)
         maxWealth = round(genpareto.rvs(maxWealthAlpha, maxWealthM))
@@ -93,7 +93,7 @@ class KellyCoinflipGeneralizedEnv(gym.Env):
         self.maxRounds = maxRounds
         self.rounds = self.maxRounds
         self.maxWealth = maxWealth
-        self._seed()
+        if reseed: self._seed()
 
     def _seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
@@ -128,8 +128,8 @@ class KellyCoinflipGeneralizedEnv(gym.Env):
     def _get_obs(self):
         return (self.wealth, self.roundsElapsed, self.wins, self.losses, self.maxEverWealth)
     def _reset(self):
-        # re-init everything to draw new parameters etc
-        self.__init__()
+        # re-init everything to draw new parameters etc, but preserve the RNG for reproducibility
+        self.__init__(reseed=False)
         return self._get_obs()
     def _render(self, mode='human', close=True):
         print("Current wealth: ", self.wealth, "; Rounds left: ", self.rounds, "; True edge: ", self.edge,
