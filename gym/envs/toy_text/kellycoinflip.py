@@ -64,9 +64,18 @@ class KellyCoinflipEnv(gym.Env):
         print("Current wealth: ", self.wealth, "; Rounds left: ", self.rounds)
 
 class KellyCoinflipGeneralizedEnv(gym.Env):
-    """The Generalized Kelly coinflip game is an extension by ArthurB & Gwern Branwen which expands the Kelly coinflip game MDP into a POMDP, where the 3 key parameters (edge, maximum wealth, and number of rounds) are unknown random variables drawn from 3 distributions: a Beta(7,3) for the coinflip edge 0-1, a N(300,25) the total number of rounds, and a Pareto(5,200) for the wealth cap. These distributions are chosen to be conjugate & easily updatable, to allow for inference (other choices like the geometric for number of rounds wouldn't make observations informative), and to loosely reflect what a human might expect in the original Kelly coinflip game given that the number of rounds wasn't strictly fixed and they weren't told the wealth cap until they neared it. The observations are augmented with the sufficient statistics. The simple Kelly coinflip game can easily be solved by calculating decision trees, but the Generalized Kelly coinflip game may be intractable (although the analysis for the edge case alone suggests that the Bayes-optimal value may be very close to what one would calculate using a decision tree for any specific case), and represents a good challenge for deep RL."""
+    """The Generalized Kelly coinflip game is an extension by ArthurB & Gwern Branwen which expands the Kelly coinflip game MDP into a POMDP, where the 3 key parameters (edge, maximum wealth, and number of rounds) are unknown random variables drawn from 3 distributions: a Beta(7,3) for the coinflip edge 0-1, a N(300,25) the total number of rounds, and a Pareto(5,200) for the wealth cap. These distributions are chosen to be conjugate & easily updatable, to allow for inference (other choices like the geometric for number of rounds wouldn't make observations informative), and to loosely reflect what a human might expect in the original Kelly coinflip game given that the number of rounds wasn't strictly fixed and they weren't told the wealth cap until they neared it. With these particular distributions, the entire history of the game can be summarized into a few sufficient statistics of rounds-elapsed/wins/losses/max-wealth-ever-reached, from which the Bayes-optimal decision can (in theory) be made; to avoid all agents having to tediously track those sufficient statistics manually in the same way, the observation space is augmented from wealth/rounds-left (rounds-left is deleted because it is a hidden variable) to current-wealth/rounds-elapsed/wins/losses/maximum-observed-wealth. The simple Kelly coinflip game can easily be solved by calculating decision trees, but the Generalized Kelly coinflip game may be intractable (although the analysis for the edge case alone suggests that the Bayes-optimal value may be very close to what one would calculate using a decision tree for any specific case), and represents a good challenge for RL agents."""
     metadata = {'render.modes': ['human']}
     def __init__(self, initialWealth=25, edgePriorAlpha=7, edgePriorBeta=3, maxWealthAlpha=5, maxWealthM=200, maxRoundsMean=300, maxRoundsSD=25, reseed=True):
+        # store the hyperparameters for passing back into __init__() during resets so the same hyperparameters govern the next game's parameters, as the user expects: TODO: this is boilerplate, is there any more elegant way to do this?
+        self.initialWealth=initialWealth
+        self.edgePriorAlpha=edgePriorAlpha
+        self.edgePriorBeta=edgePriorBeta
+        self.maxWealthAlpha=maxWealthAlpha
+        self.maxWealthM=maxWealthM
+        self.maxRoundsMean=maxRoundsMean
+        self.maxRoundsSD=maxRoundsSD
+
         # draw this game's set of parameters:
         edge = numpy.random.beta(edgePriorAlpha, edgePriorBeta)
         maxWealth = round(genpareto.rvs(maxWealthAlpha, maxWealthM))
@@ -84,7 +93,7 @@ class KellyCoinflipGeneralizedEnv(gym.Env):
         # the rest proceeds as before:
         self.action_space = spaces.Discrete(maxWealth*100)
         self.observation_space = spaces.Tuple((
-            spaces.Discrete(maxWealth*100+1),
+            spaces.Discrete(maxWealth*100+1), # current wealth
             spaces.Discrete(maxRounds+1), # rounds elapsed
             spaces.Discrete(maxRounds+1), # wins
             spaces.Discrete(maxRounds+1), # losses
@@ -131,8 +140,8 @@ class KellyCoinflipGeneralizedEnv(gym.Env):
     def _get_obs(self):
         return (self.wealth, self.roundsElapsed, self.wins, self.losses, self.maxEverWealth)
     def _reset(self):
-        # re-init everything to draw new parameters etc, but preserve the RNG for reproducibility
-        self.__init__(reseed=False)
+        # re-init everything to draw new parameters etc, but preserve the RNG for reproducibility and pass in the same hyperparameters as originally specified:
+        self.__init__(initialWealth=self.initialWealth, edgePriorAlpha=self.edgePriorAlpha, edgePriorBeta=self.edgePriorBeta, maxWealthAlpha=self.maxWealthAlpha, maxWealthM=self.maxWealthM, maxRoundsMean=self.maxRoundsMean, maxRoundsSD=self.maxRoundsSD, reseed=False)
         return self._get_obs()
     def _render(self, mode='human', close=True):
         print("Current wealth: ", self.wealth, "; Rounds left: ", self.rounds, "; True edge: ", self.edge,
