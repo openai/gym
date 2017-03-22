@@ -96,7 +96,7 @@ class KellyCoinflipGeneralizedEnv(gym.Env):
         self.maxRounds = maxRounds
         self.rounds = self.maxRounds
         self.maxWealth = maxWealth
-        if reseed: self._seed()
+        if reseed or not hasattr(self, 'np_random') : self._seed()
 
     def _seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
