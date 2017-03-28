@@ -4,6 +4,7 @@ from gym.utils import seeding
 from gym.spaces import prng
 # for Generalized Kelly coinflip game distributions:
 from scipy.stats import genpareto
+import numpy as np
 import numpy.random
 
 def flip(edge, np_random):
@@ -94,11 +95,11 @@ class KellyCoinflipGeneralizedEnv(gym.Env):
         # the rest proceeds as before:
         self.action_space = spaces.Discrete(maxWealth*100)
         self.observation_space = spaces.Tuple((
-            spaces.Discrete(maxWealth*100+1), # current wealth
+            spaces.Box(0, maxWealth, shape=[1]), # current wealth
             spaces.Discrete(maxRounds+1), # rounds elapsed
             spaces.Discrete(maxRounds+1), # wins
             spaces.Discrete(maxRounds+1), # losses
-            spaces.Discrete(maxWealth*100+1))) # maximum observed wealth
+            spaces.Box(0, maxWealth, [1]))) # maximum observed wealth
         self.reward_range = (0, maxWealth)
         self.edge = edge
         self.wealth = initialWealth
@@ -139,12 +140,13 @@ class KellyCoinflipGeneralizedEnv(gym.Env):
         return self._get_obs(), reward, done, {}
 
     def _get_obs(self):
-        return (self.wealth, self.roundsElapsed, self.wins, self.losses, self.maxEverWealth)
+        return (np.array([self.wealth]), self.roundsElapsed, self.wins, self.losses, np.array([self.maxEverWealth]))
     def _reset(self):
         # re-init everything to draw new parameters etc, but preserve the RNG for reproducibility and pass in the same hyperparameters as originally specified:
         self.__init__(initialWealth=self.initialWealth, edgePriorAlpha=self.edgePriorAlpha, edgePriorBeta=self.edgePriorBeta, maxWealthAlpha=self.maxWealthAlpha, maxWealthM=self.maxWealthM, maxRoundsMean=self.maxRoundsMean, maxRoundsSD=self.maxRoundsSD, reseed=False)
         return self._get_obs()
     def _render(self, mode='human', close=True):
+        if close: return
         print("Current wealth: ", self.wealth, "; Rounds left: ", self.rounds, "; True edge: ", self.edge,
               "; True max wealth: ", self.maxWealth, "; True stopping time: ", self.maxRounds, "; Rounds left: ",
               self.maxRounds - self.roundsElapsed)
