@@ -45,7 +45,7 @@ class AtariEnv(gym.Env, utils.EzPickle):
         self._seed()
 
         (screen_width, screen_height) = self.ale.getScreenDims()
-        self._buffer = np.empty((screen_height, screen_width, 3), dtype=np.uint8)
+        self._buffer = np.empty((screen_height, screen_width, 4), dtype=np.uint8)
 
         self._action_set = self.ale.getMinimalActionSet()
         self.action_space = spaces.Discrete(len(self._action_set))
@@ -84,8 +84,8 @@ class AtariEnv(gym.Env, utils.EzPickle):
         return ob, reward, self.ale.game_over(), {"ale.lives": self.ale.lives()}
 
     def _get_image(self):
-        self.ale.getScreenRGB2(self._buffer) # New in atari-py 2017-3-28
-        return self._buffer
+        self.ale.getScreenRGB(self._buffer)  # says rgb but actually bgr on little-endian systems like x86
+        return self._buffer[:, :, [2, 1, 0]]
 
     def _get_ram(self):
         return to_ram(self.ale)
