@@ -17,7 +17,7 @@ class KellyCoinflipEnv(gym.Env):
 
         self.action_space = spaces.Discrete(maxWealth*100) # betting in penny increments
         self.observation_space = spaces.Tuple((
-            spaces.Discrete(maxWealth*100+1), # (w,b)
+            spaces.Box(0, maxWealth, [1]), # (w,b)
             spaces.Discrete(maxRounds+1)))
         self.reward_range = (0, maxWealth)
         self.edge = edge
@@ -55,7 +55,7 @@ class KellyCoinflipEnv(gym.Env):
         return self._get_obs(), reward, done, {}
 
     def _get_obs(self):
-        return (self.wealth, self.rounds)
+        return (np.array([self.wealth]), self.rounds)
 
     def _reset(self):
         self.rounds = self.maxRounds
@@ -63,6 +63,7 @@ class KellyCoinflipEnv(gym.Env):
         return self._get_obs()
 
     def _render(self, mode='human', close=True):
+        if close: return
         print("Current wealth: ", self.wealth, "; Rounds left: ", self.rounds)
 
 class KellyCoinflipGeneralizedEnv(gym.Env):
