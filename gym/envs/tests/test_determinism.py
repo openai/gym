@@ -32,7 +32,15 @@ def test_env(spec):
     env2.close()
 
     for i, (action_sample1, action_sample2) in enumerate(zip(action_samples1, action_samples2)):
-        assert_equals(action_sample1, action_sample2), '[{}] action_sample1: {}, action_sample2: {}'.format(i, action_sample1, action_sample2)
+        try:
+            assert_equals(action_sample1, action_sample2)
+        except AssertionError:
+            print('env1.action_space=', env1.action_space)
+            print('env2.action_space=', env2.action_space)
+            print('action_samples1=', action_samples1)
+            print('action_samples2=', action_samples2)
+            print('[{}] action_sample1: {}, action_sample2: {}'.format(i, action_sample1, action_sample2))
+            raise
 
     # Don't check rollout equality if it's a a nondeterministic
     # environment.
