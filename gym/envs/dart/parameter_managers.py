@@ -31,28 +31,43 @@ class hopperContactMassManager:
     def __init__(self, simulator):
         self.simulator = simulator
         self.range = [0.3, 1.0] # friction range
+        self.restitution_range = [0.0, 0.6]
         self.torso_mass_range = [3.0, 6.0]
-        self.param_dim = 2
+        self.foot_mass_range = [3.0, 7.0]
+        self.param_dim = 4
 
     def get_simulator_parameters(self):
         cur_friction = self.simulator.dart_world.skeletons[0].bodynodes[0].friction_coeff()
         friction_param = (cur_friction - self.range[0]) / (self.range[1] - self.range[0])
 
+        cur_rest = self.simulator.dart_world.skeletons[0].bodynodes[0].restitution_coeff()
+        restitution_param = (cur_rest - self.restitution_range[0]) / (self.restitution_range[1] - self.restitution_range[0])
+
         cur_mass = self.simulator.robot_skeleton.bodynodes[2].m
         mass_param = (cur_mass - self.torso_mass_range[0]) / (self.torso_mass_range[1] - self.torso_mass_range[0])
 
-        return np.array([friction_param, mass_param])
+        cur_ft_mass = self.simulator.robot_skeleton.bodynodes[-1].m
+        ft_mass_param = (cur_ft_mass - self.foot_mass_range[0]) / (self.foot_mass_range[1] - self.foot_mass_range[0])
+
+        return np.array([friction_param, restitution_param, mass_param, ft_mass_param])
 
     def set_simulator_parameters(self, x):
         friction = x[0] * (self.range[1] - self.range[0]) + self.range[0]
         self.simulator.dart_world.skeletons[0].bodynodes[0].set_friction_coeff(friction)
 
-        mass = x[1] * (self.torso_mass_range[1] - self.torso_mass_range[0]) + self.torso_mass_range[0]
+        restitution = x[1] * (self.restitution_range[1] - self.restitution_range[0]) + self.restitution_range[0]
+        self.simulator.dart_world.skeletons[0].bodynodes[0].set_restitution_coeff(restitution)
+        self.simulator.dart_world.skeletons[1].bodynodes[-1].set_restitution_coeff(1.0)
+
+        mass = x[2] * (self.torso_mass_range[1] - self.torso_mass_range[0]) + self.torso_mass_range[0]
         self.simulator.robot_skeleton.bodynodes[2].set_mass(mass)
+
+        ft_mass = x[3] * (self.foot_mass_range[1] - self.foot_mass_range[0]) + self.foot_mass_range[0]
+        self.simulator.robot_skeleton.bodynodes[-1].set_mass(ft_mass)
 
     def resample_parameters(self):
         #x = np.random.uniform(0, 1, len(self.get_simulator_parameters()))
-        x = np.random.normal(0, 0.2, 2) % 1
+        x = np.random.normal(0, 0.2, self.param_dim) % 1
         self.set_simulator_parameters(x)
 
 class hopperContactMassRoughnessManager:

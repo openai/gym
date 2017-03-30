@@ -65,7 +65,7 @@ class DartHopperEnv(dart_env.DartEnv, utils.EzPickle):
             if (self.robot_skeleton.q_upper[j] - self.robot_skeleton.q[j]) < 0.05:
                 joint_limit_penalty += abs(1.5)
 
-        alive_bonus = 1.5
+        alive_bonus = 1.0
         reward = (posafter - posbefore) / self.dt
         reward += alive_bonus
         reward -= 1e-3 * np.square(a).sum()

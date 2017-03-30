@@ -10,3 +10,4 @@ from gym.envs.dart.hopper import DartHopperEnv
 from gym.envs.dart.reacher import DartReacherEnv
 from gym.envs.dart.robot_walk import DartRobotWalk
 from gym.envs.dart.cart_pole_img import DartCartPoleImgEnv
+from gym.envs.dart.walker2d import DartWalker2dEnv

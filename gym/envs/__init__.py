@@ -246,12 +246,19 @@ register(
     max_episode_steps=2000,
 )
 
+register(
+    id='DartWalker2d-v1',
+    entry_point='gym.envs.dart:DartWalker2dEnv',
+    max_episode_steps=1000,
+)
+
 '''register(
     id='DartSwing-v0',
     entry_point='gym.envs.dart:DartSwingEnv',
     reward_threshold=950.0,
     max_episode_steps=2000,
 )'''
+
 
 
 # Mujoco
