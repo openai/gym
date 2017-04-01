@@ -63,6 +63,10 @@
                 </collision_shape>
             </body>
 
+
+
+
+
             <!-- Right Leg -->
             <body name="h_thigh">
                 <transformation>0.0 1.05 0.1 0.0 0.0 0.0</transformation>
@@ -223,15 +227,15 @@
 
 
             <!-- JOINT: Leg -->
-            <joint type="universal" name="j_thigh">
+            <joint type="euler" name="j_thigh">
                 <transformation>0.0 0.0 0.0 0.0 0.0 0.0</transformation>
                 <parent>h_pelvis</parent>
                 <child>h_thigh</child>
+                <axis_order>zyx</axis_order>
                 <axis>
-                    <xyz>0.0 0.0 1.0</xyz>
-		     <limit>
-                    	<lower>-2.61799</lower>
-                    	<upper>0.0</upper>
+		            <limit>
+                    	<lower>0.0</lower>
+                    	<upper>2.61799</upper>
                     </limit>
                     <dynamics>
                         <damping>1.0</damping>
@@ -239,7 +243,16 @@
                     </dynamics>
                 </axis>
                 <axis2>
-                    <xyz>1.0 0.0 0.0</xyz>
+		            <limit>
+                    	<lower>-0.8</lower>
+                    	<upper>0.0</upper>
+                    </limit>
+                    <dynamics>
+                        <damping>1.0</damping>
+                        <friction>0.0</friction>
+                    </dynamics>
+                </axis2>
+                <axis3>
  		            <limit>
                     	<lower>-0.55</lower>
                     	<upper>0.55</upper>
@@ -248,7 +261,7 @@
                         <damping>1.0</damping>
                         <friction>0.0</friction>
                     </dynamics>
-                </axis2>
+                </axis3>
             </joint>
 
             <joint type="revolute" name="j_shin">
@@ -299,15 +312,15 @@
             </joint>
 
             <!-- JOINT: Left Leg -->
-            <joint type="universal" name="j_thigh_left">
+            <joint type="euler" name="j_thigh_left">
                 <transformation>0.0 0.0 0.0 0.0 0.0 0.0</transformation>
                 <parent>h_pelvis</parent>
                 <child>h_thigh_left</child>
+                <axis_order>zyx</axis_order>
                 <axis>
-                    <xyz>0.0 0.0 1.0</xyz>
-		     <limit>
-                    	<lower>-2.61799</lower>
-                    	<upper>0.0</upper>
+		            <limit>
+                    	<lower>0.0</lower>
+                    	<upper>2.61799</upper>
                     </limit>
                     <dynamics>
                         <damping>1.0</damping>
@@ -315,7 +328,16 @@
                     </dynamics>
                 </axis>
                 <axis2>
-                    <xyz>1.0 0.0 0.0</xyz>
+		            <limit>
+                    	<lower>-0.8</lower>
+                    	<upper>0.0</upper>
+                    </limit>
+                    <dynamics>
+                        <damping>1.0</damping>
+                        <friction>0.0</friction>
+                    </dynamics>
+                </axis2>
+                <axis3>
  		            <limit>
                     	<lower>-0.55</lower>
                     	<upper>0.55</upper>
@@ -324,7 +346,7 @@
                         <damping>1.0</damping>
                         <friction>0.0</friction>
                     </dynamics>
-                </axis2>
+                </axis3>
             </joint>
 
             <joint type="revolute" name="j_shin_left">

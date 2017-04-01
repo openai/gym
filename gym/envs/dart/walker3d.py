@@ -7,9 +7,9 @@ from gym.envs.dart import dart_env
 
 class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
     def __init__(self):
-        self.control_bounds = np.array([[1.0]*10,[-1.0]*10])
+        self.control_bounds = np.array([[1.0]*12,[-1.0]*12])
         self.action_scale = 100
-        obs_dim = 31
+        obs_dim = 35
 
         dart_env.DartEnv.__init__(self, 'walker3d.skel', 4, obs_dim, self.control_bounds)
 
@@ -68,7 +68,8 @@ class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
 
     def _get_obs(self):
         state =  np.concatenate([
-            self.robot_skeleton.q[1:],
+            self.robot_skeleton.q[0:3],
+            self.robot_skeleton.q[4:],
             np.clip(self.robot_skeleton.dq,-10,10)
         ])
         state[3] = self.robot_skeleton.bodynodes[0].com()[1]
