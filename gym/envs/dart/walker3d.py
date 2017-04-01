@@ -44,7 +44,7 @@ class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
             total_force_mag += np.square(contact.force).sum()
 
         joint_limit_penalty = 0
-        for j in [-3, -8]:
+        for j in [-3, -9]:
             if (self.robot_skeleton.q_lower[j] - self.robot_skeleton.q[j]) > -0.05:
                 joint_limit_penalty += abs(1.5)
             if (self.robot_skeleton.q_upper[j] - self.robot_skeleton.q[j]) < 0.05:
@@ -53,9 +53,9 @@ class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
         alive_bonus = 1.0
         reward = (posafter - posbefore) / self.dt
         reward += alive_bonus
-        reward -= 1e-3 * np.square(a).sum()
+        reward -= 1e-4 * np.square(a).sum()
         reward -= 5e-1 * joint_limit_penalty
-        reward -= 1e-3 * abs(side_deviation)
+        reward -= 1e-2 * abs(side_deviation)
         #reward -= 1e-7 * total_force_mag
 
         s = self.state_vector()
