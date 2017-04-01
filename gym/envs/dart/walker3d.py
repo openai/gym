@@ -31,7 +31,7 @@ class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
         self.do_simulation(tau, self.frame_skip)
         posafter = self.robot_skeleton.bodynodes[0].com()[0]
         height = self.robot_skeleton.bodynodes[0].com()[1]
-        side_deviation = self.robot_skeleton.bodynodes[0].com()[0]
+        side_deviation = self.robot_skeleton.bodynodes[0].com()[2]
 
         upward = np.array([0, 1, 0])
         upward_world = self.robot_skeleton.bodynodes[0].to_world(np.array([0, 1, 0])) - self.robot_skeleton.bodynodes[0].to_world(np.array([0, 0, 0]))
