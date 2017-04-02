@@ -36,7 +36,12 @@ class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
         upward = np.array([0, 1, 0])
         upward_world = self.robot_skeleton.bodynodes[0].to_world(np.array([0, 1, 0])) - self.robot_skeleton.bodynodes[0].to_world(np.array([0, 0, 0]))
         upward_world /= np.linalg.norm(upward_world)
-        ang_cos = np.dot(upward, upward_world)
+        ang_cos_uwd = np.dot(upward, upward_world)
+
+        forward = np.array([1, 0, 0])
+        forward_world = self.robot_skeleton.bodynodes[0].to_world(np.array([1, 0, 0])) - self.robot_skeleton.bodynodes[0].to_world(np.array([0, 0, 0]))
+        forward_world /= np.linalg.norm(forward_world)
+        ang_cos_fwd = np.dot(forward, forward_world)
 
         contacts = self.dart_world.collision_result.contacts
         total_force_mag = 0
@@ -60,7 +65,7 @@ class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
 
         s = self.state_vector()
         done = not (np.isfinite(s).all() and (np.abs(s[2:]) < 100).all() and
-                    (height > .8) and (height < 2.0) and (ang_cos > 0.54))
+                    (height > .8) and (height < 2.0) and (ang_cos_uwd > 0.54) and (ang_cos_fwd > 0.54))
 
         ob = self._get_obs()
 
