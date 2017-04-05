@@ -30,8 +30,8 @@ class hopperContactManager:
 class hopperContactMassManager:
     def __init__(self, simulator):
         self.simulator = simulator
-        self.range = [0.3, 1.0] # friction range
-        self.restitution_range = [0.0, 0.6]
+        self.range = [0.6, 1.0] # friction range
+        self.restitution_range = [0.0, 0.1]
         self.torso_mass_range = [3.0, 6.0]
         self.foot_mass_range = [3.0, 7.0]
         self.param_dim = 4

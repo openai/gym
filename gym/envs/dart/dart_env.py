@@ -25,7 +25,7 @@ class DartEnv(gym.Env):
     """
 
     def __init__(self, model_paths, frame_skip, observation_size, action_bounds, \
-                 dt=0.002, obs_type="parameter", action_type="continuous", visualize=True, \
+                 dt=0.002, obs_type="parameter", action_type="continuous", visualize=True, disableViewer=False,\
                  screen_width=80, screen_height=45):
         assert obs_type in ('parameter', 'image')
         assert action_type in ("continuous", "discrete")
@@ -66,6 +66,7 @@ class DartEnv(gym.Env):
         self._obs_type = obs_type
         self.frame_skip= frame_skip
         self.visualize = visualize  #Show the window or not
+        self.disableViewer = disableViewer
 
         # random perturbation
         self.add_perturbation = False
@@ -168,7 +169,8 @@ class DartEnv(gym.Env):
             self.dart_world.step()
 
     def _render(self, mode='human', close=False):
-        self._get_viewer().scene.tb.trans[0] = -self.dart_world.skeletons[self.track_skeleton_id].com()[0]*1
+        if not self.disableViewer:
+            self._get_viewer().scene.tb.trans[0] = -self.dart_world.skeletons[self.track_skeleton_id].com()[0]*1
         if close:
             if self.viewer is not None:
                 self._get_viewer().close()
@@ -195,7 +197,7 @@ class DartEnv(gym.Env):
         return win
 
     def _get_viewer(self):
-        if self.viewer is None:
+        if self.viewer is None and not self.disableViewer:
             self.viewer = self.getViewer(self.dart_world)
             self.viewer_setup()
         return self.viewer

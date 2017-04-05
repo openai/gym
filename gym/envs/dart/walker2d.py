@@ -6,10 +6,10 @@ from gym.envs.dart import dart_env
 class DartWalker2dEnv(dart_env.DartEnv, utils.EzPickle):
     def __init__(self):
         self.control_bounds = np.array([[1.0]*6,[-1.0]*6])
-        self.action_scale = 100
+        self.action_scale = np.array([100, 100, 20, 100, 100, 20])
         obs_dim = 17
 
-        dart_env.DartEnv.__init__(self, 'walker2d.skel', 4, obs_dim, self.control_bounds)
+        dart_env.DartEnv.__init__(self, 'walker2d.skel', 4, obs_dim, self.control_bounds, disableViewer=True)
 
         utils.EzPickle.__init__(self)
 
@@ -44,7 +44,8 @@ class DartWalker2dEnv(dart_env.DartEnv, utils.EzPickle):
                 joint_limit_penalty += abs(1.5)
 
         alive_bonus = 1.0
-        reward = (posafter - posbefore) / self.dt
+        vel = (posafter - posbefore) / self.dt
+        reward = vel#-(vel-1.0)**2
         reward += alive_bonus
         reward -= 1e-3 * np.square(a).sum()
         reward -= 5e-1 * joint_limit_penalty
@@ -53,6 +54,12 @@ class DartWalker2dEnv(dart_env.DartEnv, utils.EzPickle):
         s = self.state_vector()
         done = not (np.isfinite(s).all() and (np.abs(s[2:]) < 100).all() and
                     (height > .8) and (height < 2.0) and (abs(ang) < 1.0))
+        '''qpos = self.robot_skeleton.q
+        qvel = self.robot_skeleton.dq
+        qpos[0:3] = np.array([0, 0, 0.8])
+        qvel[0:3] = np.array([0, 0, 0])
+        self.set_state(qpos, qvel)'''
+
         ob = self._get_obs()
 
         return ob, reward, done, {'pre_state':pre_state, 'vel_rew':(posafter - posbefore) / self.dt, 'action_rew':1e-3 * np.square(a).sum(), 'forcemag':1e-7*total_force_mag, 'done_return':done}

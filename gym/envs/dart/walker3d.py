@@ -91,4 +91,5 @@ class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
         return self._get_obs()
 
     def viewer_setup(self):
-        self._get_viewer().scene.tb.trans[2] = -5.5
+        if not self.disableViewer:
+            self._get_viewer().scene.tb.trans[2] = -5.5
