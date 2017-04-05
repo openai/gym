@@ -330,6 +330,13 @@ class RewardWrapper(Wrapper):
     def _reward(self, reward):
         raise NotImplementedError
 
+class RenderWrapper(Wrapper):
+    def render(self, mode='human', close=False):
+        return self._render(mode, close)
+
+    def _render(self, mode='human', close=False):
+        raise NotImplementedError
+
 class ActionWrapper(Wrapper):
     def _step(self, action):
         action = self.action(action)
