@@ -10,10 +10,12 @@ class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
         self.control_bounds = np.array([[1.0]*15,[-1.0]*15])
         self.action_scale = np.array([100.0]*15)
         self.action_scale[[-1,-2,-7,-8]] = 10
-        self.action_scale[[0, 1, 2]] = 200
-        obs_dim = 41
+        self.action_scale[[0, 1, 2]] = 100
+        obs_dim = 42
 
-        dart_env.DartEnv.__init__(self, 'walker3d_waist.skel', 4, obs_dim, self.control_bounds)
+        self.t = 0
+
+        dart_env.DartEnv.__init__(self, 'walker3d_waist.skel', 4, obs_dim, self.control_bounds)#, disableViewer=True)
 
         utils.EzPickle.__init__(self)
 
@@ -65,6 +67,8 @@ class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
         reward -= 1e-2 * abs(side_deviation)
         #reward -= 1e-7 * total_force_mag
 
+        self.t += self.dt
+
         s = self.state_vector()
         done = not (np.isfinite(s).all() and (np.abs(s[2:]) < 100).all() and
                     (height > .8) and (height < 2.0) and (ang_cos_uwd > 0.54) and (ang_cos_fwd > 0.54))
@@ -77,7 +81,8 @@ class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
         state =  np.concatenate([
             self.robot_skeleton.q[0:3],
             self.robot_skeleton.q[4:],
-            np.clip(self.robot_skeleton.dq,-10,10)
+            np.clip(self.robot_skeleton.dq,-10,10),
+            [self.t]
         ])
         state[3] = self.robot_skeleton.bodynodes[0].com()[1]
 
@@ -89,6 +94,7 @@ class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
         qpos = self.robot_skeleton.q + self.np_random.uniform(low=-.005, high=.005, size=self.robot_skeleton.ndofs)
         qvel = self.robot_skeleton.dq + self.np_random.uniform(low=-.005, high=.005, size=self.robot_skeleton.ndofs)
         self.set_state(qpos, qvel)
+        self.t = 0
 
         return self._get_obs()
 
