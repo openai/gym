@@ -25,7 +25,7 @@ This is a very basic DQN (with experience replay) implementation, which uses Ope
 Simple, fast and easy to extend DQN implementation using [Neon](https://github.com/NervanaSystems/neon) deep learning library. Comes with out-of-box tools to train, test and visualize models. For details see [this blog post](http://www.nervanasys.com/deep-reinforcement-learning-with-neon/) or check out the [repo](https://github.com/tambetm/simple_dqn).
 
 ## AgentNet
-A library that allows you to develop custom deep/convolutional/recurrent reinforcement learning agent with full integration with Theano/Lasagne. Also contains a toolkit for various reinforcement reinforcement learning algorithms, policies, memory augmentations, etc.
+A library that allows you to develop custom deep/convolutional/recurrent reinforcement learning agent with full integration with Theano/Lasagne. Also contains a toolkit for various reinforcement learning algorithms, policies, memory augmentations, etc.
 
  - The repo's here: [AgentNet](https://github.com/yandexdataschool/AgentNet)
  - [A step-by-step demo for Atari SpaceInvaders ](https://github.com/yandexdataschool/AgentNet/blob/master/examples/Playing%20Atari%20with%20Deep%20Reinforcement%20Learning%20%28OpenAI%20Gym%29.ipynb)
