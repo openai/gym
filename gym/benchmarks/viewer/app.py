@@ -56,25 +56,33 @@ class Task(object):
 
 
 class Trial(object):
-    def __init__(self, stats):
-        self.episode_rewards = stats['episode_rewards']
-        self.episode_lengths = stats['episode_lengths']
+    def __init__(self, results):
+        self.env_id = results['env_info']['env_id']
 
-        # TODO: don't duplicate this
-        self.stats = stats
+        self.episode_rewards = results['episode_rewards']
+        self.episode_lengths = results['episode_lengths']
+        self.episode_types = results['episode_types']
+        self.timestamps = results['timestamps']
+        self.initial_reset_timestamps = results['initial_reset_timestamps']
 
     @classmethod
-    def from_stats_file(cls, stats_file):
-        with open(stats_file) as f:
-            stats = json.load(f)
-            return Trial(stats)
+    def from_training_dir(cls, training_dir):
+        results = monitoring.load_results(training_dir)
+        return Trial(results)
 
     def score(self):
-
-        ['episode_rewards', 'episode_lengths', 'timestamps', 'episode_types', 'initial_reset_timestamp']
         benchmark = registry.benchmark_spec(BENCHMARK_ID)
-        import ipdb; ipdb.set_trace()
-        return benchmark.score_evaluation(**self.stats)
+
+        fake_data_sources = [0] * len(self.episode_lengths)
+
+        return benchmark.score_evaluation(
+            self.env_id,
+            data_sources=fake_data_sources,
+            initial_reset_timestamps=self.initial_reset_timestamps,
+            episode_lengths= self.episode_lengths,
+            episode_rewards=self.episode_rewards,
+            episode_types=self.episode_types,
+            timestamps=self.timestamps)
 
 class Run(object):
     def __init__(self, trials):
@@ -97,8 +105,6 @@ def index():
     # Compute rank for each of them
 
     # Show them in a list
-
-
 
     pass
 
@@ -127,18 +133,18 @@ def tasks_from_run_path(path):
         for fname in fnames:
             if not fname.endswith('manifest.json'):
                 continue
-            with open(os.path.join(root, fname)) as f:
-                manifest = json.load(f)
-                env_id = manifest['env_info']['env_id']
-                if env_id not in env_id_to_task:
-                    env_id_to_task[env_id] = Task(env_id, [])
-                task = env_id_to_task[env_id]
-                stats_file = os.path.join(root, manifest['stats'])
 
-                trial = Trial.from_stats_file(stats_file)
-                print(trial.score())
+            training_dir = os.path.dirname(fname)
+            trial = Trial.from_training_dir(training_dir)
 
-                task.trials.append(trial)
+            env_id = trial.env_id
+
+            if env_id not in env_id_to_task:
+                env_id_to_task[env_id] = Task(env_id, [])
+            task = env_id_to_task[env_id]
+
+            print(trial.score())
+            task.trials.append(trial)
 
     return env_id_to_task
 
