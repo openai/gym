@@ -18,6 +18,7 @@ from gym import monitoring
 from gym.benchmarks import registry
 from gym.benchmarks.viewer.error import Error
 from gym.benchmarks.viewer.template_helpers import register_template_helpers
+from gym.benchmarks.viewer.utils import time_elapsed
 from scipy import signal
 
 logger = logging.getLogger(__name__)
@@ -391,25 +392,14 @@ def _benchmark_runs_from_dir(benchmark_dir):
     return [load_bmrun_from_path(path) for path in run_paths]
 
 
-_last_time = time.time()
-
-
-def _time_elapsed():
-    global _last_time
-    now = time.time()
-    elapsed = now - _last_time
-    _last_time = now
-
-    return "%.3f" % elapsed
-
 
 def populate_benchmark_cache():
     benchmark_dir = BENCHMARK_VIEWER_DATA_PATH
 
     logger.info("Loading in all benchmark_runs from %s..." % benchmark_dir)
-    _time_elapsed()
+    time_elapsed()
     bmruns = _benchmark_runs_from_dir(benchmark_dir)
-    logger.info("Loaded %s benchmark_runs in %s seconds." % (len(bmruns), _time_elapsed()))
+    logger.info("Loaded %s benchmark_runs in %s seconds." % (len(bmruns), time_elapsed()))
 
     logger.info("Computing scores for each task...")
     for run in bmruns:
@@ -419,8 +409,8 @@ def populate_benchmark_cache():
 
         logger.info("Computed scores for %s" % run.name)
 
-    logger.info(
-        "Computed scores for %s benchmark_runs in %s seconds." % (len(bmruns), _time_elapsed()))
+    logger.info("Computed scores for %s benchmark_runs in %s seconds." %
+                (len(bmruns), time_elapsed()))
 
 
 if __name__ == '__main__':
