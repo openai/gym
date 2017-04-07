@@ -4,9 +4,11 @@ import logging
 import os
 import sys
 from glob import glob
+from subprocess import check_call
 
 import matplotlib.pyplot as plt
 import numpy as np
+import subprocess
 from flask import Flask
 from flask import render_template
 from scipy import signal
@@ -19,8 +21,11 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument('data_path', help="The path to our benchmark data. e.g. /tmp/Atari40M/ ")
-parser.add_argument('--flush-cache', action="store_true", help="NOT YET IMPLEMENTED: Flush the cache and recompute ranks from scratch")
-parser.add_argument('--watch', action="store_true", help="NOT YET IMPLEMENTED: Watch for changes and refresh")
+parser.add_argument('--flush-cache', action="store_true",
+    help="NOT YET IMPLEMENTED: Flush the cache and recompute ranks from scratch")
+parser.add_argument('--watch', action="store_true",
+    help="NOT YET IMPLEMENTED: Watch for changes and refresh")
+parser.add_argument('--open', action="store_true", help="Open the browser")
 ARGS = parser.parse_args()
 
 app = Flask(__name__)
@@ -265,7 +270,12 @@ def populate_benchmark_cache():
         pass
 
 
-
 if __name__ == '__main__':
     populate_benchmark_cache()
-    app.run(debug=True, port=5000)
+
+    debug = True
+    if ARGS.open:
+        subprocess.check_call('open http://localhost:5000', shell=True)
+        debug = False
+
+    app.run(debug=debug, port=5000)
