@@ -20,12 +20,16 @@ from gym.benchmarks.viewer.error import Error
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument('data_path', help="The path to our benchmark data. e.g. /tmp/Atari40M/ ")
+parser.add_argument('data_path',
+    help="The path to our benchmark data. e.g. /tmp/Atari40M/ ")
+parser.add_argument('--debug', action="store_true",
+    help="Run with debugger and auto-reload")
 parser.add_argument('--flush-cache', action="store_true",
     help="NOT YET IMPLEMENTED: Flush the cache and recompute ranks from scratch")
 parser.add_argument('--watch', action="store_true",
     help="NOT YET IMPLEMENTED: Watch for changes and refresh")
-parser.add_argument('--open', action="store_true", help="Open the browser")
+parser.add_argument('--open', action="store_true",
+    help="Open the browser")
 ARGS = parser.parse_args()
 
 app = Flask(__name__)
@@ -273,9 +277,7 @@ def populate_benchmark_cache():
 if __name__ == '__main__':
     populate_benchmark_cache()
 
-    debug = True
     if ARGS.open:
         subprocess.check_call('open http://localhost:5000', shell=True)
-        debug = False
 
-    app.run(debug=debug, port=5000)
+    app.run(debug=ARGS.debug, port=5000)

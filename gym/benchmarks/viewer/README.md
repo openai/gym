@@ -1,8 +1,9 @@
 # Benchmark Viewer
 
+View a benchmark
 ```
 cd gym/benchmarks/viewer
-BENCHMARK_VIEWER_DATA_PATH=/tmp/AtariExploration40M ./app.py
+python view_benchmark /tmp/AtariExploration40M --open
 ```
 
 Run tests with
@@ -10,6 +11,10 @@ Run tests with
 pytest
 ```
 
+In development, run with --debug to get a debugger
+```
+python view_benchmark /tmp/AtariExploration40M --debug
+```
 
 # Integration tests
 
