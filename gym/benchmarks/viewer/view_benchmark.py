@@ -47,7 +47,7 @@ app = Flask(__name__)
 # Cache
 #############################
 
-class BenchmarkScoreCache(object):
+class ScoreCache(object):
     """
     Stores data about the benchmark in memory
     """
@@ -102,8 +102,7 @@ class BenchmarkScoreCache(object):
         return gym.benchmark_spec(self.id)
 
 
-# singleton benchmark_cache
-score_cache = BenchmarkScoreCache(BENCHMARK_ID)
+score_cache = ScoreCache(BENCHMARK_ID)
 
 
 #############################
@@ -317,7 +316,7 @@ def populate_benchmark_cache():
     bmruns = _benchmark_runs_from_dir(BENCHMARK_VIEWER_DATA_PATH)
 
     logger.info("Found %s benchmark_runs in %s. Computing scores for each task..." % (
-    len(bmruns), BENCHMARK_VIEWER_DATA_PATH))
+        len(bmruns), BENCHMARK_VIEWER_DATA_PATH))
     for run in bmruns:
         for task in run.tasks:
             score = task.score

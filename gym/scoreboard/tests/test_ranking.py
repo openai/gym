@@ -12,7 +12,7 @@ class MockEvaluation(object):
         self.mean_auc = mean_auc
 
 
-class MockBenchmarkScoreCache(object):
+class MockScoreCache(object):
     def __init__(self, benchmark_id, min_reward_by_env, max_reward_by_env):
         self._min_reward_by_env = min_reward_by_env
         self._max_reward_by_env = max_reward_by_env
@@ -50,7 +50,7 @@ benchmark = registration.Benchmark(
         }]
 )
 
-score_cache = MockBenchmarkScoreCache('TestSingleTask-v0',
+score_cache = MockScoreCache('TestSingleTask-v0',
     min_reward_by_env={
         'TestEnv-v0': 0.0,
     },
@@ -126,7 +126,7 @@ multiple_task_benchmark = registration.Benchmark(
         }]
 )
 
-multiple_task_score_cache = MockBenchmarkScoreCache('TestMultipleTasks-v0',
+multiple_task_score_cache = MockScoreCache('TestMultipleTasks-v0',
     min_reward_by_env={
         'TestEnv-v0': 0.0,
         'AnotherTestEnv-v0': 0.0,
