@@ -322,10 +322,12 @@ def load_evaluations_from_bmrun_path(path):
             evaluations.append(evaluation)
 
     if dirs_missing_manifests:
-        logger.warning("Could not load %s evaluations in %s due to missing manifests" % (len(dirs_missing_manifests), path))
+        logger.warning("Could not load %s evaluations in %s due to missing manifests" % (
+        len(dirs_missing_manifests), path))
 
     if dirs_unloadable:
-        logger.warning("monitoring.load_results failed on %s evaluations in %s" % (len(dirs_unloadable), path))
+        logger.warning(
+            "monitoring.load_results failed on %s evaluations in %s" % (len(dirs_unloadable), path))
 
     return evaluations
 
