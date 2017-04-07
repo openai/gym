@@ -106,6 +106,42 @@ class BenchmarkRunResource(object):
         tasks = load_tasks_from_bmrun_path(bmrun_path)
         return cls(bmrun_path, tasks)
 
+class TaskResource(object):
+    def __init__(self, env_id, benchmark_id, evaluations):
+        self.env_id = env_id
+        self.benchmark_id = benchmark_id
+        self.evaluations = evaluations
+
+    @property
+    def score(self):
+        return np.mean([eval.score for eval in self.evaluations])
+
+    @property
+    def spec(self):
+        benchmark_spec = registry.benchmark_spec(self.benchmark_id)
+        task_specs = benchmark_spec.task_specs(self.env_id)
+        if len(task_specs) != 1:
+            raise Error("Multiple task specs for single environment. Falling over")
+
+        return task_specs[0]
+
+    def render_learning_curve_svg(self):
+        return render_evaluation_learning_curves_svg(self.evaluations, self.spec.max_timesteps)
+
+
+def area_under_curve(episode_lengths, episode_rewards):
+    """Compute the total area of rewards under the curve"""
+    # TODO: Replace with slightly more accurate trapezoid method
+    return np.sum(l * r for l, r in zip(episode_lengths, episode_rewards))
+
+
+def mean_area_under_curve(episode_lengths, episode_rewards):
+    """Compute the average area of rewards under the curve per unit of time"""
+    return area_under_curve(episode_lengths, episode_rewards) / max(1e-4, np.sum(episode_lengths))
+
+#############################
+# Graph rendering
+#############################
 
 def smooth_reward_curve(rewards, lengths, max_timestep, resolution=1e3, polyorder=3):
     # Don't use a higher resolution than the original data, use a window about
@@ -127,33 +163,13 @@ def smooth_reward_curve(rewards, lengths, max_timestep, resolution=1e3, polyorde
 
     return x_spaced.tolist(), y_smoothed.tolist()
 
-
-class Task(object):
-    def __init__(self, env_id, benchmark_id, evaluations):
-        self.env_id = env_id
-        self.benchmark_id = benchmark_id
-        self.evaluations = evaluations
-
-    @property
-    def score(self):
-        return np.mean([eval.score for eval in self.evaluations])
-
-    @property
-    def spec(self):
-        benchmark_spec = registry.benchmark_spec(self.benchmark_id)
-        task_specs = benchmark_spec.task_specs(self.env_id)
-        if len(task_specs) != 1:
-            raise Error("Multiple task specs for single environment. Falling over")
-
-        return task_specs[0]
-
-    def render_learning_curve_svg(self):
+def render_evaluation_learning_curves_svg(evaluations, max_timesteps):
         plt.figure()
         plt.rcParams['figure.figsize'] = (8, 2)
 
-        for trial in self.evaluations:
+        for evaluation in evaluations:
             xs, ys = smooth_reward_curve(
-                trial.episode_rewards, trial.episode_lengths, self.spec.max_timesteps)
+                evaluation.episode_rewards, evaluation.episode_lengths, max_timesteps)
             plt.plot(xs, ys)
 
         plt.xlabel('Time')
@@ -162,18 +178,6 @@ class Task(object):
         img_bytes = io.StringIO()
         plt.savefig(img_bytes, format='svg')
         return img_bytes.getvalue()
-
-
-def area_under_curve(episode_lengths, episode_rewards):
-    """Compute the total area of rewards under the curve"""
-    # TODO: Replace with slightly more accurate trapezoid method
-    return np.sum(l * r for l, r in zip(episode_lengths, episode_rewards))
-
-
-def mean_area_under_curve(episode_lengths, episode_rewards):
-    """Compute the average area of rewards under the curve per unit of time"""
-    return area_under_curve(episode_lengths, episode_rewards) / max(1e-4, np.sum(episode_lengths))
-
 
 #############################
 # Controllers
@@ -193,6 +197,12 @@ def compare(run_name, other_run_name):
 def benchmark_run(bmrun_name):
     bmrun_dir = os.path.join(BENCHMARK_VIEWER_DATA_PATH, bmrun_name)
     bmrun = BenchmarkRunResource.from_path(bmrun_dir)
+
+    # Hack that warms up pyplot. Renders and drops result on floor
+    # TODO: Fix pyplot
+    if bmrun.tasks[0]:
+        bmrun.tasks[0].render_learning_curve_svg()
+
     return render_template('benchmark_run.html', bmrun=bmrun)
 
 
@@ -221,7 +231,7 @@ def load_tasks_from_bmrun_path(path):
         env_id = evaluation.env_id
 
         if env_id not in env_id_to_task:
-            env_id_to_task[env_id] = Task(env_id, benchmark_id=BENCHMARK_ID, evaluations=[])
+            env_id_to_task[env_id] = TaskResource(env_id, benchmark_id=BENCHMARK_ID, evaluations=[])
         task = env_id_to_task[env_id]
 
         task.evaluations.append(evaluation)
