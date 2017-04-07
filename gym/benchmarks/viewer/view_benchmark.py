@@ -10,6 +10,8 @@ import gym
 import matplotlib.pyplot as plt
 import numpy as np
 import time
+
+import yaml
 from flask import Flask
 from flask import render_template
 from gym import monitoring
@@ -148,10 +150,21 @@ class EvaluationResource(object):
 
 
 class BenchmarkRunResource(object):
-    def __init__(self, path, tasks):
+    def __init__(self, path, tasks, metadata=None):
         self.tasks = sorted(tasks, key=lambda t: t.env_id)
         self.name = os.path.basename(path)
         self.path = path
+
+        if metadata:
+            self.author_username = metadata['author']['username']
+            self.author_github = metadata['author']['github_user']
+            self.repository = metadata['code_source']['repository']
+            self.github_commit = metadata['code_source']['commit']
+        else:
+            self.author_username = None
+            self.author_github = None
+            self.repository = None
+            self.github_commit = None
 
     @property
     def short_name(self):
@@ -160,7 +173,19 @@ class BenchmarkRunResource(object):
     @classmethod
     def from_path(cls, bmrun_path):
         tasks = load_tasks_from_bmrun_path(bmrun_path)
-        return cls(bmrun_path, tasks)
+
+        # Load in metadata from yaml
+        metadata = None
+        yaml_file = os.path.join(bmrun_path, 'benchmark_run_data.yaml')
+        if os.path.isfile(yaml_file):
+            with open(yaml_file, 'r') as stream:
+                try:
+                    metadata = yaml.load(stream)
+
+                except yaml.YAMLError as exc:
+                    print(exc)
+
+        return cls(bmrun_path, tasks, metadata)
 
 
 class TaskResource(object):
