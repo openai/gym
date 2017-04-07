@@ -1,26 +1,28 @@
 #!/usr/bin/env python3
+import argparse
 import io
 import logging
 import os
-import sys
+import subprocess
 from glob import glob
-from subprocess import check_call
 
 import matplotlib.pyplot as plt
 import numpy as np
-import subprocess
 from flask import Flask
 from flask import render_template
-from scipy import signal
-
 from gym import monitoring
 from gym.benchmarks import registry
 from gym.benchmarks.viewer.error import Error
+from scipy import signal
 
-import argparse
+logger = logging.getLogger(__name__)
+
+#############################
+# Args
+#############################
 
 parser = argparse.ArgumentParser()
-parser.add_argument('data_path',
+parser.add_argument('--data_path',
     help="The path to our benchmark data. e.g. /tmp/Atari40M/ ")
 parser.add_argument('--debug', action="store_true",
     help="Run with debugger and auto-reload")
@@ -32,14 +34,16 @@ parser.add_argument('--open', action="store_true",
     help="Open the browser")
 ARGS = parser.parse_args()
 
-app = Flask(__name__)
-
 BENCHMARK_VIEWER_DATA_PATH = ARGS.data_path.rstrip('/')
 
 BENCHMARK_ID = os.path.basename(BENCHMARK_VIEWER_DATA_PATH)
 
-logger = logging.getLogger(__name__)
+app = Flask(__name__)
 
+
+#############################
+# Cache
+#############################
 
 class BenchmarkCache(object):
     """
