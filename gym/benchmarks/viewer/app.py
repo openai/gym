@@ -1,9 +1,10 @@
+#!/usr/bin/env python3
 import io
-import os
-from glob import glob
-from itertools import chain
-
 import logging
+import os
+import sys
+from glob import glob
+
 import matplotlib.pyplot as plt
 import numpy as np
 from flask import Flask
@@ -15,8 +16,14 @@ from gym.benchmarks import registry
 
 app = Flask(__name__)
 
-BENCHMARK_DATA_PATH = '/tmp/AtariExploration40M/'
-BENCHMARK_ID = os.path.basename(os.path.dirname(BENCHMARK_DATA_PATH))
+try:
+    BENCHMARK_VIEWER_DATA_PATH = os.environ['BENCHMARK_VIEWER_DATA_PATH'].rstrip('/')
+except KeyError:
+    print(
+        "Missing BENCHMARK_VIEWER_DATA_PATH environment variable. Run the viewer with `BENCHMARK_VIEWER_DATA_PATH=/tmp/AtariExploration40M ./app.py` ")
+    sys.exit()
+
+BENCHMARK_ID = os.path.basename(BENCHMARK_VIEWER_DATA_PATH)
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +65,7 @@ class Evaluation(object):
             score_results['lengths'][0],
             score_results['rewards'][0],
         )
+
 
 def load_evaluations_from_bmrun_path(path):
     evaluations = []
@@ -192,7 +200,7 @@ def compare(run_name, other_run_name):
 
 @app.route('/benchmark_run/<bmrun_name>')
 def benchmark_run(bmrun_name):
-    bmrun_dir = os.path.join(BENCHMARK_DATA_PATH, bmrun_name)
+    bmrun_dir = os.path.join(BENCHMARK_VIEWER_DATA_PATH, bmrun_name)
     bmrun = BenchmarkRun.from_path(bmrun_dir)
     #
     # rows = ''.join(
