@@ -29,13 +29,6 @@ BENCHMARK_ID = os.path.basename(BENCHMARK_VIEWER_DATA_PATH)
 logger = logging.getLogger(__name__)
 
 
-class BenchmarkResource(object):
-    def __init__(self, id, data_path, bmruns):
-        self.id = id
-        self.data_path = data_path
-        self.bmruns = bmruns
-
-
 class BenchmarkCache(object):
     """
     Stores data about the benchmark in memory
@@ -48,16 +41,20 @@ class BenchmarkCache(object):
 
         self.id = benchmark_id
 
-    def benchmark_resource(self):
-        return BenchmarkResource(
-            id=self.id,
-            data_path=BENCHMARK_VIEWER_DATA_PATH,
-            bmruns=self.bmruns
-        )
-
 
 # singleton benchmark_cache
 benchmark_cache = BenchmarkCache(BENCHMARK_ID)
+
+
+#############################
+# Resources
+#############################
+
+class BenchmarkResource(object):
+    def __init__(self, id, data_path, bmruns):
+        self.id = id
+        self.data_path = data_path
+        self.bmruns = bmruns
 
 
 class EvaluationResource(object):
@@ -106,6 +103,7 @@ class BenchmarkRunResource(object):
         tasks = load_tasks_from_bmrun_path(bmrun_path)
         return cls(bmrun_path, tasks)
 
+
 class TaskResource(object):
     def __init__(self, env_id, benchmark_id, evaluations):
         self.env_id = env_id
@@ -129,6 +127,10 @@ class TaskResource(object):
         return render_evaluation_learning_curves_svg(self.evaluations, self.spec.max_timesteps)
 
 
+#############################
+# Graph rendering
+#############################
+
 def area_under_curve(episode_lengths, episode_rewards):
     """Compute the total area of rewards under the curve"""
     # TODO: Replace with slightly more accurate trapezoid method
@@ -139,9 +141,6 @@ def mean_area_under_curve(episode_lengths, episode_rewards):
     """Compute the average area of rewards under the curve per unit of time"""
     return area_under_curve(episode_lengths, episode_rewards) / max(1e-4, np.sum(episode_lengths))
 
-#############################
-# Graph rendering
-#############################
 
 def smooth_reward_curve(rewards, lengths, max_timestep, resolution=1e3, polyorder=3):
     # Don't use a higher resolution than the original data, use a window about
@@ -163,21 +162,23 @@ def smooth_reward_curve(rewards, lengths, max_timestep, resolution=1e3, polyorde
 
     return x_spaced.tolist(), y_smoothed.tolist()
 
+
 def render_evaluation_learning_curves_svg(evaluations, max_timesteps):
-        plt.figure()
-        plt.rcParams['figure.figsize'] = (8, 2)
+    plt.figure()
+    plt.rcParams['figure.figsize'] = (8, 2)
 
-        for evaluation in evaluations:
-            xs, ys = smooth_reward_curve(
-                evaluation.episode_rewards, evaluation.episode_lengths, max_timesteps)
-            plt.plot(xs, ys)
+    for evaluation in evaluations:
+        xs, ys = smooth_reward_curve(
+            evaluation.episode_rewards, evaluation.episode_lengths, max_timesteps)
+        plt.plot(xs, ys)
 
-        plt.xlabel('Time')
-        plt.ylabel('Rewards')
-        plt.tight_layout()
-        img_bytes = io.StringIO()
-        plt.savefig(img_bytes, format='svg')
-        return img_bytes.getvalue()
+    plt.xlabel('Time')
+    plt.ylabel('Rewards')
+    plt.tight_layout()
+    img_bytes = io.StringIO()
+    plt.savefig(img_bytes, format='svg')
+    return img_bytes.getvalue()
+
 
 #############################
 # Controllers
@@ -185,7 +186,13 @@ def render_evaluation_learning_curves_svg(evaluations, max_timesteps):
 
 @app.route('/')
 def index():
-    return render_template('benchmark.html', benchmark=benchmark_cache.benchmark_resource())
+    benchmark = BenchmarkResource(
+        id=benchmark_cache.id,
+        data_path=BENCHMARK_VIEWER_DATA_PATH,
+        bmruns=benchmark_cache.bmruns
+    )
+
+    return render_template('benchmark.html', benchmark=benchmark)
 
 
 @app.route('/compare/<run_name>/<other_run_name>/')
@@ -209,6 +216,7 @@ def benchmark_run(bmrun_name):
 #############################
 # Data loading
 #############################
+
 def load_evaluations_from_bmrun_path(path):
     evaluations = []
     for training_dir in glob('{}/*/gym'.format(path)):
