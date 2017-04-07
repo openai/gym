@@ -1,54 +1,92 @@
 {% extends "layout.html" %}
 {% block body %}
 
-<style>
-    body {
-        padding-top: 5rem;
-    }
+    <style>
+        body {
+            padding-top: 5rem;
+        }
 
-    .benchmark-title {
-        padding: 3rem 1.5rem;
-        text-align: center;
-    }
-</style>
+        .benchmark-title {
+            padding: 3rem 1.5rem;
+            text-align: center;
+        }
+    </style>
 
 
-<div class="benchmark-title">
-    <h1>{{benchmark.id}} Benchmark</h1>
-    <p class="lead">See the shape of the data directly by running: </p>
-    <code>tree {{benchmark.data_path}}</code>
-</div>
-
-<div class="scores row">
-    <div class="col-2"></div>
-
-    <div class="col-8">
-        <table class="table">
-            <thead>
-            <tr>
-                <th> name </th>
-                <th> author </th>
-                <th> rank </th>
-            </tr>
-            </thead>
-            {% for bmrun in benchmark.bmruns %}
-            <tr>
-                <td>
-                    <a href={{ "/benchmark_run/{}".format(bmrun.name) }}>
-                    {{ bmrun.short_name }}
-                    </a>
-                </td>
-                <td>
-                    {{ bmrun.author_username }}
-                </td>
-                <td>
-                    0.8
-                </td>
-            </tr>
-            {% endfor %}
-        </table>
+    <div class="benchmark-title">
+        <h1>{{ benchmark.id }} Benchmark</h1>
+        <p class="lead">See the shape of the data directly by running: </p>
+        <code>tree {{ benchmark.data_path }}</code>
     </div>
 
-</div>
+    <div class="ranks row">
+        <div class="col-2"></div>
+
+        <div class="col-8">
+            <h2 style="text-align: center; margin: 20px">Ranks</h2>
+
+            <table class="table">
+                <thead>
+                <tr>
+                    <th> name</th>
+                    <th> author</th>
+                    <th> rank</th>
+                </tr>
+                </thead>
+                {% for bmrun in benchmark.bmruns %}
+                    <tr>
+                        <td>
+                            <a href={{ "/benchmark_run/{}".format(bmrun.name) }}>
+                                {{ bmrun.short_name }}
+                            </a>
+                        </td>
+                        <td>
+                            {{ bmrun.author_username }}
+                        </td>
+                        <td>
+                            0.8
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+    </div>
+
+    <div class="raw_scores row">
+        <div class="col-12">
+            <h2 style="text-align: center; margin: 20px">Raw Scores</h2>
+
+            <small>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th> name</th>
+                        <th> author</th>
+                        {% for task in benchmark.spec.tasks %}
+                            <th> {{ task.env_id.replace('NoFrameskip-v3', '') }} </th>
+                        {% endfor %}
+                    </tr>
+                    </thead>
+                    {% for bmrun in benchmark.bmruns %}
+                        <tr>
+                            <td>
+                                <a href={{ "/benchmark_run/{}".format(bmrun.name) }}>
+                                    {{ bmrun.short_name }}
+                                </a>
+                            </td>
+                            <td>
+                                {{ bmrun.author_username }}
+                            </td>
+                            {% for task in benchmark.spec.tasks %}
+                                <td> {{ bmrun.display_task_score(task, score_cache) }} </td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </table>
+            </small>
+        </div>
+
+    </div>
 
 {% endblock %}

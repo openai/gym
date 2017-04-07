@@ -85,6 +85,11 @@ class ScoreCache(object):
             'score_cached_at': time.time()
         }
 
+    def get_task_score(self, bmrun, task_spec):
+        env_id = task_spec.env_id
+        cache_hit = self._task_score_cache.get((env_id, bmrun.name), None)
+        return cache_hit['score'] if cache_hit else None
+
     def min_score(self, task_spec):
         """The worst performance we've seen on this task in this benchmark"""
         try:
@@ -116,6 +121,10 @@ class BenchmarkResource(object):
         self.id = id
         self.data_path = data_path
         self.bmruns = bmruns
+
+    @property
+    def spec(self):
+        return gym.benchmark_spec(self.id)
 
 
 class EvaluationResource(object):
@@ -165,6 +174,13 @@ class BenchmarkRunResource(object):
             self.author_github = None
             self.repository = None
             self.github_commit = None
+
+    def display_task_score(self, task, score_cache):
+        score = score_cache.get_task_score(self, task)
+        if score is not None:
+            return "%.2f" % score
+        else:
+            return "N/A"
 
     @property
     def short_name(self):
@@ -259,7 +275,10 @@ def index():
         bmruns=_benchmark_runs_from_dir(BENCHMARK_VIEWER_DATA_PATH)
     )
 
-    return render_template('benchmark.html', benchmark=benchmark)
+    return render_template('benchmark.html',
+        benchmark=benchmark,
+        score_cache=score_cache
+    )
 
 
 @app.route('/compare/<run_name>/<other_run_name>/')
@@ -270,7 +289,7 @@ def compare(run_name, other_run_name):
 @app.route('/benchmark_run/<bmrun_name>')
 def benchmark_run(bmrun_name):
     bmrun_dir = os.path.join(BENCHMARK_VIEWER_DATA_PATH, bmrun_name)
-    bmrun = BenchmarkRunResource.from_path(bmrun_dir)
+    bmrun = load_bmrun_from_path(bmrun_dir)
 
     # Hack that warms up pyplot. Renders and drops result on floor
     # TODO: Fix pyplot
