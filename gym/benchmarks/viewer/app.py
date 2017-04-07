@@ -1,18 +1,18 @@
 import io
 import os
 from glob import glob
+from itertools import chain
 
 import matplotlib.pyplot as plt
 import numpy as np
 from flask import Flask
+from flask import render_template
 from scipy import signal
 
 from gym import monitoring
 from gym.benchmarks import registry
 
 app = Flask(__name__)
-
-
 
 BENCHMARK_DATA_PATH = '/tmp/AtariExploration40M/'
 BENCHMARK_ID = os.path.dirname(BENCHMARK_DATA_PATH)
@@ -35,9 +35,39 @@ class Evaluation(object):
         return Evaluation(results)
 
 
+def tasks_from_bmrun_path(path):
+    """
+    Returns a map of env_ids to tasks included in the run at the path
+    """
+    env_id_to_task = {}
+    for training_dir in glob('{}/*/gym'.format(path)):
+        evaluation = Evaluation.from_training_dir(training_dir)
+
+        env_id = evaluation.env_id
+
+        if env_id not in env_id_to_task:
+            env_id_to_task[env_id] = Task(env_id, [])
+        task = env_id_to_task[env_id]
+
+        task.evaluations.append(evaluation)
+
+    return env_id_to_task.values()
+
+
 class BenchmarkRun(object):
-    def __init__(self, evaluations):
-        self.evaluations = evaluations
+    def __init__(self, path, tasks):
+        self.tasks = tasks
+        self.name = os.path.basename(path)
+        self.path = path
+
+    @property
+    def shortname(self):
+        return '_'.join(self.name.split('_')[2:])
+
+    @classmethod
+    def from_path(cls, bmrun_path):
+        tasks = tasks_from_bmrun_path(bmrun_path)
+        return cls(bmrun_path, tasks)
 
 
 def smooth_reward_curve(rewards, lengths, max_timestep, resolution=1e3, polyorder=3):
@@ -66,9 +96,9 @@ class Task(object):
         self.env_id = env_id
         self.evaluations = evaluations
 
-    def to_svg(self):
+    def learning_curve_svg(self):
         plt.figure()
-        plt.rcParams['figure.figsize'] = (15, 2)
+        plt.rcParams['figure.figsize'] = (8, 2)
         for trial in self.evaluations:
             xs, ys = smooth_reward_curve(
                 trial.episode_rewards, trial.episode_lengths, 1e6)
@@ -140,36 +170,18 @@ def compare(run_name, other_run_name):
     pass
 
 
-@app.route('/benchmark_run/<run_name>')
-def view_tasks(run_name):
-    tasks = tasks_from_bmrun_path(os.path.join(BENCHMARK_DATA_PATH, run_name))
+@app.route('/benchmark_run/<bmrun_name>')
+def benchmark_run(bmrun_name):
+    bmrun_dir = os.path.join(BENCHMARK_DATA_PATH, bmrun_name)
+    bmrun = BenchmarkRun.from_path(bmrun_dir)
+    #
+    # rows = ''.join(
+    #     '<tr><td>{}</td><td>{}</td></tr>'.format(env_id, task.to_svg())
+    #         for env_id, task in sorted(tasks.items())
+    # )
+    # return '<table>{}</tbody>'.format(rows)
 
-    rows = ''.join(
-        '<tr><td>{}</td><td>{}</td></tr>'.format(env_id, task.to_svg())
-            for env_id, task in sorted(tasks.items())
-    )
-    return '<table>{}</tbody>'.format(rows)
-
-
-def tasks_from_bmrun_path(path):
-    """
-    Returns a map of env_ids to tasks included in the run at the path
-    """
-    env_id_to_task = {}
-    for training_dir in glob('{}/*/gym'.format(path)):
-        print(training_dir)
-        evaluation = Evaluation.from_training_dir(training_dir)
-
-        env_id = evaluation.env_id
-
-        if env_id not in env_id_to_task:
-            env_id_to_task[env_id] = Task(env_id, [])
-        task = env_id_to_task[env_id]
-
-        # print(score_evaluation(evaluation))
-        task.evaluations.append(evaluation)
-
-    return env_id_to_task
+    return render_template('benchmark_run.html', bmrun=bmrun)
 
 
 if __name__ == '__main__':

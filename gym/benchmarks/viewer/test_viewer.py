@@ -6,8 +6,7 @@ bmrun_path = '/tmp/AtariExploration40M/atariexploration40m_1490254298_bst_h_dqnd
 
 def test_trial_loading():
     trial = Evaluation.from_training_dir(evaluation_path)
-
-    assert trial
+    assert trial is not None
 
 
 def test_tasks_from_bmrun_path():
