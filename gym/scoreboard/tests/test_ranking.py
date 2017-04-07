@@ -7,9 +7,9 @@ from gym.scoreboard.tests.test_scoring import _is_close
 
 
 class MockEvaluation(object):
-    def __init__(self, env_id, mean_auc):
+    def __init__(self, env_id, score):
         self.env_id = env_id
-        self.mean_auc = mean_auc
+        self.score = score
 
 
 class MockScoreCache(object):
@@ -64,8 +64,8 @@ test_task_spec = benchmark.task_specs('TestEnv-v0')[0]
 
 def test_task_rank():
     evaluations = [
-        MockEvaluation('TestEnv-v0', mean_auc=10.),
-        MockEvaluation('TestEnv-v0', mean_auc=20.),
+        MockEvaluation('TestEnv-v0', score=10.),
+        MockEvaluation('TestEnv-v0', score=20.),
     ]
 
     task_rank = ranking.compute_task_rank(test_task_spec, score_cache, evaluations)
@@ -74,7 +74,7 @@ def test_task_rank():
 
 def test_task_rank_incomplete_task():
     evaluations = [
-        MockEvaluation('TestEnv-v0', mean_auc=20.),
+        MockEvaluation('TestEnv-v0', score=20.),
     ]
     task_rank = ranking.compute_task_rank(test_task_spec, score_cache, evaluations)
     assert task_rank == 0.10, "Missing tasks should default to the lowest score we've seen"
@@ -88,9 +88,9 @@ def test_task_rank_no_tasks():
 
 def test_task_rank_too_many_evaluations():
     evaluations = [
-        MockEvaluation('TestEnv-v0', mean_auc=10.),
-        MockEvaluation('TestEnv-v0', mean_auc=20.),
-        MockEvaluation('TestEnv-v0', mean_auc=30.),
+        MockEvaluation('TestEnv-v0', score=10.),
+        MockEvaluation('TestEnv-v0', score=20.),
+        MockEvaluation('TestEnv-v0', score=30.),
     ]
     task_rank = ranking.compute_task_rank(test_task_spec, score_cache, evaluations)
     assert task_rank == 0.20, "If there are too many evaluations, use the mean of all of them"
@@ -98,8 +98,8 @@ def test_task_rank_too_many_evaluations():
 
 def test_compute_benchmark_run_rank():
     evaluations = [
-        MockEvaluation('TestEnv-v0', mean_auc=10.),
-        MockEvaluation('TestEnv-v0', mean_auc=20.),
+        MockEvaluation('TestEnv-v0', score=10.),
+        MockEvaluation('TestEnv-v0', score=20.),
     ]
 
     benchmark_run_rank = ranking.compute_benchmark_run_rank(
@@ -140,9 +140,9 @@ multiple_task_score_cache = MockScoreCache('TestMultipleTasks-v0',
 
 def test_compute_benchmark_run_rank_multiple_tasks():
     evaluations = [
-        MockEvaluation('TestEnv-v0', mean_auc=10.),
-        MockEvaluation('TestEnv-v0', mean_auc=10.),
-        MockEvaluation('AnotherTestEnv-v0', mean_auc=20.),
+        MockEvaluation('TestEnv-v0', score=10.),
+        MockEvaluation('TestEnv-v0', score=10.),
+        MockEvaluation('AnotherTestEnv-v0', score=20.),
     ]
 
     benchmark_run_rank = ranking.compute_benchmark_run_rank(

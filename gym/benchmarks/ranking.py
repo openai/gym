@@ -21,7 +21,7 @@ def compute_task_rank(task_spec, score_cache, evaluations):
     best_score_seen = score_cache.max_score(task_spec)
     worst_score_seen = score_cache.min_score(task_spec)
 
-    eval_mean_aucs = [evaluation.mean_auc
+    eval_scores = [evaluation.score
         for evaluation in evaluations
         if evaluation.env_id == env_id
     ]
@@ -29,10 +29,10 @@ def compute_task_rank(task_spec, score_cache, evaluations):
     # If the benchmark run did not give us sufficient trials, fill it out with the worst ones
     # we've seen so far
     num_required_trials = task_spec.trials
-    for missing_trial in range(len(eval_mean_aucs), num_required_trials):
-        eval_mean_aucs.append(worst_score_seen)
+    for missing_trial in range(len(eval_scores), num_required_trials):
+        eval_scores.append(worst_score_seen)
 
-    task_score = np.mean(eval_mean_aucs)
+    task_score = np.mean(eval_scores)
     return _rescale_value(task_score, worst_score_seen, best_score_seen)
 
 
