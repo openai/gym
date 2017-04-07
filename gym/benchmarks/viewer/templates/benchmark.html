@@ -14,9 +14,9 @@
 
 
 <div class="benchmark-title">
-    <h1>{{benchmark_id}} Benchmark</h1>
+    <h1>{{benchmark.id}} Benchmark</h1>
     <p class="lead">See the shape of the data directly by running: </p>
-    <code>tree {{benchmark_path}}</code>
+    <code>tree {{benchmark.data_path}}</code>
 </div>
 
 <div class="scores row">
@@ -31,7 +31,7 @@
                 <th> rank </th>
             </tr>
             </thead>
-            {% for bmrun in bmruns %}
+            {% for bmrun in benchmark.bmruns %}
             <tr>
                 <td>
                     <a href={{ "/benchmark_run/{}".format(bmrun.name) }}>

@@ -28,15 +28,38 @@ BENCHMARK_ID = os.path.basename(BENCHMARK_VIEWER_DATA_PATH)
 logger = logging.getLogger(__name__)
 
 
-class Error(Exception):
-    pass
+class BenchmarkResource(object):
+    def __init__(self, id, data_path, bmruns):
+        self.id = id
+        self.data_path = data_path
+        self.bmruns = bmruns
 
 
-class MonitorLoadError(Error):
-    pass
+class BenchmarkCache(object):
+    """
+    Stores data about the benchmark in memory
+    """
+
+    def __init__(self, benchmark_id):
+        self.min_reward_by_env = {}
+        self.max_reward_by_env = {}
+        self.bmruns = []
+
+        self.id = benchmark_id
+
+    def benchmark_resource(self):
+        return BenchmarkResource(
+            id=self.id,
+            data_path=BENCHMARK_VIEWER_DATA_PATH,
+            bmruns=self.bmruns
+        )
 
 
-class Evaluation(object):
+# singleton benchmark_cache
+benchmark_cache = BenchmarkCache(BENCHMARK_ID)
+
+
+class EvaluationResource(object):
     def __init__(self, env_id, results):
         self.env_id = env_id
 
@@ -75,7 +98,7 @@ def load_evaluations_from_bmrun_path(path):
         if not results:
             logger.info("Failed to load data for %s" % training_dir)
         else:
-            evaluation = Evaluation(results['env_info']['env_id'], results)
+            evaluation = EvaluationResource(results['env_info']['env_id'], results)
             evaluations.append(evaluation)
 
     return evaluations
@@ -97,7 +120,7 @@ def load_tasks_from_bmrun_path(path):
     return env_id_to_task.values()
 
 
-class BenchmarkRun(object):
+class BenchmarkRunResource(object):
     def __init__(self, path, tasks):
         self.tasks = sorted(tasks, key=lambda t: t.env_id)
         self.name = os.path.basename(path)
@@ -181,32 +204,15 @@ def mean_area_under_curve(episode_lengths, episode_rewards):
     return area_under_curve(episode_lengths, episode_rewards) / max(1e-4, np.sum(episode_lengths))
 
 
-class BenchmarkScoreCache(object):
-    def __init__(self, benchmark_id, min_reward_by_env, max_reward_by_env):
-        self.min_reward_by_env = min_reward_by_env
-        self.max_reward_by_env = max_reward_by_env
-
-        self.id = benchmark_id
-
-
 def _benchmark_runs_from_dir(benchmark_dir):
     run_paths = [os.path.join(benchmark_dir, path) for path in os.listdir(benchmark_dir)]
     run_paths = [path for path in run_paths if os.path.isdir(path)]
-    return [BenchmarkRun.from_path(path) for path in run_paths]
+    return [BenchmarkRunResource.from_path(path) for path in run_paths]
+
 
 @app.route('/')
 def index():
-    bmruns = _benchmark_runs_from_dir(BENCHMARK_VIEWER_DATA_PATH)
-    # Compute best and worst performance on each task
-
-    # Compute rank for each of them
-
-    # Show them in a list
-    return render_template('benchmark.html',
-        benchmark_id=BENCHMARK_ID,
-        benchmark_path=BENCHMARK_VIEWER_DATA_PATH,
-        bmruns=bmruns
-    )
+    return render_template('benchmark.html', benchmark=benchmark_cache.benchmark_resource())
 
 
 @app.route('/compare/<run_name>/<other_run_name>/')
@@ -217,7 +223,7 @@ def compare(run_name, other_run_name):
 @app.route('/benchmark_run/<bmrun_name>')
 def benchmark_run(bmrun_name):
     bmrun_dir = os.path.join(BENCHMARK_VIEWER_DATA_PATH, bmrun_name)
-    bmrun = BenchmarkRun.from_path(bmrun_dir)
+    bmrun = BenchmarkRunResource.from_path(bmrun_dir)
     #
     # rows = ''.join(
     #     '<tr><td>{}</td><td>{}</td></tr>'.format(env_id, task.to_svg())
@@ -228,5 +234,12 @@ def benchmark_run(bmrun_name):
     return render_template('benchmark_run.html', bmrun=bmrun)
 
 
+def populate_benchmark_cache():
+    bmruns = _benchmark_runs_from_dir(BENCHMARK_VIEWER_DATA_PATH)
+
+    benchmark_cache.bmruns = bmruns
+
+
 if __name__ == '__main__':
+    populate_benchmark_cache()
     app.run(debug=True, port=5000)
