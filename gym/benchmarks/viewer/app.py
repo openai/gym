@@ -1,5 +1,6 @@
 import io
 import os
+from glob import glob
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -155,24 +156,18 @@ def tasks_from_bmrun_path(path):
     Returns a map of env_ids to tasks included in the run at the path
     """
     env_id_to_task = {}
-    for root, _, fnames in os.walk(path):
-        for fname in fnames:
-            if not fname.endswith('manifest.json'):
-                continue
+    for training_dir in glob('{}/*/gym'.format(path)):
+        print(training_dir)
+        evaluation = Evaluation.from_training_dir(training_dir)
 
-            # Found a training dir
-            training_dir = os.path.dirname(fname)
-            print(training_dir)
-            evaluation = Evaluation.from_training_dir(training_dir)
+        env_id = evaluation.env_id
 
-            env_id = evaluation.env_id
+        if env_id not in env_id_to_task:
+            env_id_to_task[env_id] = Task(env_id, [])
+        task = env_id_to_task[env_id]
 
-            if env_id not in env_id_to_task:
-                env_id_to_task[env_id] = Task(env_id, [])
-            task = env_id_to_task[env_id]
-
-            print(evaluation.score())
-            task.evaluations.append(evaluation)
+        # print(score_evaluation(evaluation))
+        task.evaluations.append(evaluation)
 
     return env_id_to_task
 
