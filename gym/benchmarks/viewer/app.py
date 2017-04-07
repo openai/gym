@@ -15,14 +15,17 @@ from gym import monitoring
 from gym.benchmarks import registry
 from gym.benchmarks.viewer.error import Error
 
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('data_path', help="The path to our benchmark data. e.g. /tmp/Atari40M/ ")
+parser.add_argument('--flush-cache', action="store_true", help="NOT YET IMPLEMENTED: Flush the cache and recompute ranks from scratch")
+parser.add_argument('--watch', action="store_true", help="NOT YET IMPLEMENTED: Watch for changes and refresh")
+ARGS = parser.parse_args()
+
 app = Flask(__name__)
 
-try:
-    BENCHMARK_VIEWER_DATA_PATH = os.environ['BENCHMARK_VIEWER_DATA_PATH'].rstrip('/')
-except KeyError:
-    print(
-        "Missing BENCHMARK_VIEWER_DATA_PATH environment variable. Run the viewer with `BENCHMARK_VIEWER_DATA_PATH=/tmp/AtariExploration40M ./app.py` ")
-    sys.exit()
+BENCHMARK_VIEWER_DATA_PATH = ARGS.data_path.rstrip('/')
 
 BENCHMARK_ID = os.path.basename(BENCHMARK_VIEWER_DATA_PATH)
 
@@ -255,8 +258,12 @@ def _benchmark_runs_from_dir(benchmark_dir):
 
 def populate_benchmark_cache():
     bmruns = _benchmark_runs_from_dir(BENCHMARK_VIEWER_DATA_PATH)
-
     benchmark_cache.bmruns = bmruns
+
+    # Populate min and max tasks
+    for run in bmruns:
+        pass
+
 
 
 if __name__ == '__main__':
