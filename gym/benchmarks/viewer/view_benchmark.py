@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 #############################
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--data_path',
+parser.add_argument('data_path',
     help="The path to our benchmark data. e.g. /tmp/Atari40M/ ")
 parser.add_argument('--debug', action="store_true",
     help="Run with debugger and auto-reload")
