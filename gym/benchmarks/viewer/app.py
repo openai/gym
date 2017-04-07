@@ -99,7 +99,7 @@ def load_tasks_from_bmrun_path(path):
 
 class BenchmarkRun(object):
     def __init__(self, path, tasks):
-        self.tasks = tasks
+        self.tasks = sorted(tasks, key= lambda t: t.env_id)
         self.name = os.path.basename(path)
         self.path = path
 
