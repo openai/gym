@@ -46,7 +46,7 @@ app = Flask(__name__)
 # Cache
 #############################
 
-class BenchmarkCache(object):
+class BenchmarkScoreCache(object):
     """
     Stores data about the benchmark in memory
     """
@@ -54,7 +54,6 @@ class BenchmarkCache(object):
     def __init__(self, benchmark_id):
         self._env_id_to_min_scoring_bmrun = {}
         self._env_id_to_max_scoring_bmrun = {}
-        self.bmruns = []
 
         # Maps env_id to bmrun_name, score, and date added
         self._task_score_cache = {}
@@ -99,7 +98,7 @@ class BenchmarkCache(object):
 
 
 # singleton benchmark_cache
-benchmark_cache = BenchmarkCache(BENCHMARK_ID)
+score_cache = BenchmarkScoreCache(BENCHMARK_ID)
 
 
 #############################
@@ -243,9 +242,9 @@ def render_evaluation_learning_curves_svg(evaluations, max_timesteps):
 @app.route('/')
 def index():
     benchmark = BenchmarkResource(
-        id=benchmark_cache.id,
+        id=BENCHMARK_ID,
         data_path=BENCHMARK_VIEWER_DATA_PATH,
-        bmruns=benchmark_cache.bmruns
+        bmruns=_benchmark_runs_from_dir(BENCHMARK_VIEWER_DATA_PATH)
     )
 
     return render_template('benchmark.html', benchmark=benchmark)
@@ -311,14 +310,13 @@ def _benchmark_runs_from_dir(benchmark_dir):
 
 def populate_benchmark_cache():
     bmruns = _benchmark_runs_from_dir(BENCHMARK_VIEWER_DATA_PATH)
-    benchmark_cache.bmruns = bmruns
 
     logger.info("Found %s benchmark_runs in %s. Computing scores for each task..." % (
     len(bmruns), BENCHMARK_VIEWER_DATA_PATH))
     for run in bmruns:
         for task in run.tasks:
             score = task.score
-            benchmark_cache.cache_task_score(run, task, score)
+            score_cache.cache_task_score(run, task, score)
 
         logger.info("Computed scores for %s" % run.name)
 
