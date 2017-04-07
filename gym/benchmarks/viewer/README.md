@@ -6,9 +6,9 @@ cd gym/benchmarks/viewer
 ./view_benchmark.py /tmp/Atari40M --open
 ```
 
-Run tests with
+Tests live in scoreboard directory, run them with
 ```
-pytest
+pytest ../../scoreboard/
 ```
 
 In development, run with --debug to get a debugger
