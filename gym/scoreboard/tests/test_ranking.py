@@ -19,17 +19,15 @@ class MockScoreCache(object):
 
         self.id = benchmark_id
 
-    def min_score(self, task_spec):
-        """The worst performance we've seen on this task in this benchmark"""
+    def min_score(self, env_id):
         try:
-            return self._min_reward_by_env[task_spec.env_id]
+            return self._min_reward_by_env[env_id]
         except KeyError:
             return None
 
-    def max_score(self, task_spec):
-        """The best performance we've seen on this task in this benchmark"""
+    def max_score(self, env_id):
         try:
-            return self._max_reward_by_env[task_spec.env_id]
+            return self._max_reward_by_env[env_id]
         except KeyError:
             return None
 

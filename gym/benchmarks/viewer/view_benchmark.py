@@ -55,54 +55,48 @@ class ScoreCache(object):
     """
     Stores data about the benchmark in memory
     """
-
     def __init__(self, benchmark_id):
         self._env_id_to_min_scoring_bmrun = {}
         self._env_id_to_max_scoring_bmrun = {}
 
-        # Maps env_id to bmrun_name, score, and date added
-        self._task_score_cache = {}
+        # Maps evaluation_dir to score, and date added
+        self._evaluation_cache = {}
 
         self.id = benchmark_id
 
-    def cache_task_score(self, bmrun, task_spec, score):
-        env_id = task_spec.env_id
+    def cache_evaluation_score(self, bmrun, evaluation, score):
+        env_id = evaluation.env_id
 
         # See if we should overwrite the min or max
-        if self.min_score(task_spec) is None or score < self.min_score(task_spec):
+        if self.min_score(env_id) is None or score < self.min_score(env_id):
             self._env_id_to_min_scoring_bmrun[env_id] = {
                 'bmrun_name': bmrun.name,
                 'score': score
             }
 
-        if self.max_score(task_spec) is None or score > self.max_score(task_spec):
+        if self.max_score(env_id) is None or score > self.max_score(env_id):
             self._env_id_to_max_scoring_bmrun[env_id] = {
                 'bmrun_name': bmrun.name,
                 'score': score
             }
 
         # Cache the time also, so we know when to cachebust
-        self._task_score_cache[(env_id, bmrun.name)] = {
+        self._evaluation_cache[evaluation] = {
             'score': score,
             'score_cached_at': time.time()
         }
 
-    def get_task_score(self, bmrun, task_spec):
-        env_id = task_spec.env_id
-        cache_hit = self._task_score_cache.get((env_id, bmrun.name), None)
-        return cache_hit['score'] if cache_hit else None
-
-    def min_score(self, task_spec):
-        """The worst performance we've seen on this task in this benchmark"""
+    def min_score(self, env_id):
+        """The worst evaluation performance we've seen on this env on this benchmark"""
         try:
-            return self._env_id_to_min_scoring_bmrun[task_spec.env_id]['score']
+            return self._env_id_to_min_scoring_bmrun[env_id]['score']
         except KeyError:
             return None
 
-    def max_score(self, task_spec):
-        """The best performance we've seen on this task in this benchmark"""
+    def max_score(self, env_id):
+        """The best evaluation performance we've seen on this env on this benchmark"""
         try:
-            return self._env_id_to_max_scoring_bmrun[task_spec.env_id]['score']
+            return self._env_id_to_max_scoring_bmrun[env_id]['score']
         except KeyError:
             return None
 
@@ -130,7 +124,7 @@ class BenchmarkResource(object):
 
 
 class EvaluationResource(object):
-    def __init__(self, env_id, results):
+    def __init__(self, env_id, results, evaluation_dir):
         self.env_id = env_id
 
         self.episode_rewards = results['episode_rewards']
@@ -186,14 +180,10 @@ class BenchmarkRunResource(object):
 
 
 class TaskResource(object):
-    def __init__(self, env_id, benchmark_id, evaluations, rank=None):
+    def __init__(self, env_id, benchmark_id, evaluations):
         self.env_id = env_id
         self.benchmark_id = benchmark_id
         self.evaluations = evaluations
-
-    @property
-    def score(self):
-        return np.mean([eval.score for eval in self.evaluations])
 
     @property
     def spec(self):
@@ -303,13 +293,13 @@ def benchmark_run(bmrun_name):
 
 def load_evaluations_from_bmrun_path(path):
     evaluations = []
-    for training_dir in glob('%s/*/gym' % path):
+    for evaluation_dir in glob('%s/*/gym' % path):
 
-        results = monitoring.load_results(training_dir)
+        results = monitoring.load_results(evaluation_dir)
         if not results:
-            logger.info("Failed to load data for %s" % training_dir)
+            logger.info("Failed to load data for %s" % evaluation_dir)
         else:
-            evaluation = EvaluationResource(results['env_info']['env_id'], results)
+            evaluation = EvaluationResource(results['env_info']['env_id'], results, evaluation_dir)
             evaluations.append(evaluation)
 
     return evaluations
@@ -318,7 +308,8 @@ def load_evaluations_from_bmrun_path(path):
 def load_tasks_from_bmrun_path(path):
     env_id_to_task = {}
     for task in BENCHMARK_SPEC.tasks:
-        env_id_to_task[task.env_id] = TaskResource(task.env_id, benchmark_id=BENCHMARK_ID, evaluations=[])
+        env_id_to_task[task.env_id] = TaskResource(task.env_id, benchmark_id=BENCHMARK_ID,
+            evaluations=[])
 
     for evaluation in load_evaluations_from_bmrun_path(path):
         env_id = evaluation.env_id
@@ -357,8 +348,8 @@ def populate_benchmark_cache():
         len(bmruns), BENCHMARK_VIEWER_DATA_PATH))
     for run in bmruns:
         for task in run.tasks:
-            score = task.score
-            score_cache.cache_task_score(run, task, score)
+            for evaluation in task.evaluations:
+                score_cache.cache_evaluation_score(run, task, evaluation.score)
 
         logger.info("Computed scores for %s" % run.name)
 
