@@ -6,6 +6,7 @@ import os
 import subprocess
 from glob import glob
 
+import gym
 import matplotlib.pyplot as plt
 import numpy as np
 import time
@@ -95,6 +96,10 @@ class BenchmarkScoreCache(object):
             return self._env_id_to_max_scoring_bmrun[task_spec.env_id]['score']
         except KeyError:
             return None
+
+    @property
+    def spec(self):
+        return gym.benchmark_spec(self.id)
 
 
 # singleton benchmark_cache

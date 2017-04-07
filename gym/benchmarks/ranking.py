@@ -18,8 +18,8 @@ def compute_task_rank(task_spec, score_cache, evaluations):
     the best, and 0.0 being the worst
     """
     env_id = task_spec.env_id
-    best_score_seen = score_cache.max_reward_by_env[env_id]
-    worst_score_seen = score_cache.min_reward_by_env[env_id]
+    best_score_seen = score_cache.max_score(task_spec)
+    worst_score_seen = score_cache.min_score(task_spec)
 
     eval_mean_aucs = [evaluation.mean_auc
         for evaluation in evaluations
