@@ -300,16 +300,32 @@ def benchmark_run(bmrun_name):
 # Data loading
 #############################
 
+
+
 def load_evaluations_from_bmrun_path(path):
     evaluations = []
-    for evaluation_dir in glob('%s/*/gym' % path):
 
-        results = monitoring.load_results(evaluation_dir)
+    dirs_missing_manifests = []
+    dirs_unloadable = []
+
+    for training_dir in glob('%s/*/gym' % path):
+
+        if not monitoring.detect_training_manifests(training_dir):
+            dirs_missing_manifests.append(training_dir)
+            continue
+        results = monitoring.load_results(training_dir)
         if not results:
-            logger.info("Failed to load data for %s" % evaluation_dir)
+            dirs_unloadable.append(training_dir)
+            continue
         else:
-            evaluation = EvaluationResource(results['env_info']['env_id'], results, evaluation_dir)
+            evaluation = EvaluationResource(results['env_info']['env_id'], results, training_dir)
             evaluations.append(evaluation)
+
+    if dirs_missing_manifests:
+        logger.warning("Could not load %s evaluations in %s due to missing manifests" % (len(dirs_missing_manifests), path))
+
+    if dirs_unloadable:
+        logger.warning("monitoring.load_results failed on %s evaluations in %s" % (len(dirs_unloadable), path))
 
     return evaluations
 
@@ -351,7 +367,9 @@ def _benchmark_runs_from_dir(benchmark_dir):
 
 
 def populate_benchmark_cache():
-    bmruns = _benchmark_runs_from_dir(BENCHMARK_VIEWER_DATA_PATH)
+    benchmark_dir = BENCHMARK_VIEWER_DATA_PATH
+    logger.info("Loading in all benchmark_runs from %s..." % benchmark_dir)
+    bmruns = _benchmark_runs_from_dir(benchmark_dir)
 
     logger.info("Found %s benchmark_runs in %s. Computing scores for each task..." % (
         len(bmruns), BENCHMARK_VIEWER_DATA_PATH))
