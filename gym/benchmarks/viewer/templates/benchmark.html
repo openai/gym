@@ -44,7 +44,7 @@
                             {{ bmrun.author_username }}
                         </td>
                         <td>
-                            0.8
+                            {{ display_bmrun_rank(bmrun, benchmark.spec, score_cache) }}
                         </td>
                     </tr>
                 {% endfor %}
@@ -63,8 +63,8 @@
                     <tr>
                         <th> name</th>
                         <th> author</th>
-                        {% for task in benchmark.spec.tasks %}
-                            <th> {{ task.env_id.replace('NoFrameskip-v3', '') }} </th>
+                        {% for task_spec in benchmark.spec.tasks %}
+                            <th> {{ task_spec.env_id.replace('NoFrameskip-v3', '') }} </th>
                         {% endfor %}
                     </tr>
                     </thead>
@@ -97,8 +97,8 @@
                     <tr>
                         <th> name</th>
                         <th> author</th>
-                        {% for task in benchmark.spec.tasks %}
-                            <th> {{ task.env_id.replace('NoFrameskip-v3', '') }} </th>
+                        {% for task_spec in benchmark.spec.tasks %}
+                            <th> {{ task_spec.env_id.replace('NoFrameskip-v3', '') }} </th>
                         {% endfor %}
                     </tr>
                     </thead>

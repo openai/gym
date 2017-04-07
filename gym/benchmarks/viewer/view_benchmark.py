@@ -55,6 +55,7 @@ class ScoreCache(object):
     """
     Stores data about the benchmark in memory
     """
+
     def __init__(self, benchmark_id):
         self._env_id_to_min_scoring_bmrun = {}
         self._env_id_to_max_scoring_bmrun = {}
@@ -178,6 +179,10 @@ class BenchmarkRunResource(object):
     def task_by_env_id(self, env_id):
         return [task for task in self.tasks if task.env_id == env_id][0]
 
+    @property
+    def evaluations(self):
+        return [evaluation for task in self.tasks for evaluation in task.evaluations]
+
 
 class TaskResource(object):
     def __init__(self, env_id, benchmark_id, evaluations):
@@ -284,7 +289,11 @@ def benchmark_run(bmrun_name):
     if bmrun.tasks[0]:
         bmrun.tasks[0].render_learning_curve_svg()
 
-    return render_template('benchmark_run.html', bmrun=bmrun)
+    return render_template('benchmark_run.html',
+        bmrun=bmrun,
+        benchmark_spec=BENCHMARK_SPEC,
+        score_cache=score_cache
+    )
 
 
 #############################
