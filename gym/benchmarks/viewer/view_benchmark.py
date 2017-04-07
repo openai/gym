@@ -8,6 +8,7 @@ from glob import glob
 
 import matplotlib.pyplot as plt
 import numpy as np
+import time
 from flask import Flask
 from flask import render_template
 from gym import monitoring
@@ -51,11 +52,50 @@ class BenchmarkCache(object):
     """
 
     def __init__(self, benchmark_id):
-        self.min_reward_by_env = {}
-        self.max_reward_by_env = {}
+        self._env_id_to_min_scoring_bmrun = {}
+        self._env_id_to_max_scoring_bmrun = {}
         self.bmruns = []
 
+        # Maps env_id to bmrun_name, score, and date added
+        self._task_score_cache = {}
+
         self.id = benchmark_id
+
+    def cache_task_score(self, bmrun, task_spec, score):
+        env_id = task_spec.env_id
+
+        # See if we should overwrite the min or max
+        if self.min_score(task_spec) is None or score < self.min_score(task_spec):
+            self._env_id_to_min_scoring_bmrun[env_id] = {
+                'bmrun_name': bmrun.name,
+                'score': score
+            }
+
+        if self.max_score(task_spec) is None or score > self.max_score(task_spec):
+            self._env_id_to_min_scoring_bmrun[env_id] = {
+                'bmrun_name': bmrun.name,
+                'score': score
+            }
+
+        # Cache the time also, so we know when to cachebust
+        self._task_score_cache[(env_id, bmrun.name)] = {
+            'score': score,
+            'score_cached_at': time.time()
+        }
+
+    def min_score(self, task_spec):
+        """The worst performance we've seen on this task in this benchmark"""
+        try:
+            return self._env_id_to_min_scoring_bmrun[task_spec.env_id]['score']
+        except KeyError:
+            return None
+
+    def max_score(self, task_spec):
+        """The best performance we've seen on this task in this benchmark"""
+        try:
+            return self._env_id_to_max_scoring_bmrun[task_spec.env_id]['score']
+        except KeyError:
+            return None
 
 
 # singleton benchmark_cache
@@ -235,7 +275,7 @@ def benchmark_run(bmrun_name):
 
 def load_evaluations_from_bmrun_path(path):
     evaluations = []
-    for training_dir in glob('{}/*/gym'.format(path)):
+    for training_dir in glob('%s/*/gym' % path):
 
         results = monitoring.load_results(training_dir)
         if not results:
@@ -273,12 +313,19 @@ def populate_benchmark_cache():
     bmruns = _benchmark_runs_from_dir(BENCHMARK_VIEWER_DATA_PATH)
     benchmark_cache.bmruns = bmruns
 
-    # Populate min and max tasks
+    logger.info("Found %s benchmark_runs in %s. Computing scores for each task..." % (
+    len(bmruns), BENCHMARK_VIEWER_DATA_PATH))
     for run in bmruns:
-        pass
+        for task in run.tasks:
+            score = task.score
+            benchmark_cache.cache_task_score(run, task, score)
+
+        logger.info("Computed scores for %s" % run.name)
 
 
 if __name__ == '__main__':
+    logger.setLevel(logging.INFO)
+
     populate_benchmark_cache()
 
     if ARGS.open:
