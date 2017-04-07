@@ -13,6 +13,7 @@ from scipy import signal
 
 from gym import monitoring
 from gym.benchmarks import registry
+from gym.benchmarks.viewer.error import Error
 
 app = Flask(__name__)
 
@@ -88,36 +89,6 @@ class EvaluationResource(object):
             score_results['lengths'][0],
             score_results['rewards'][0],
         )
-
-
-def load_evaluations_from_bmrun_path(path):
-    evaluations = []
-    for training_dir in glob('{}/*/gym'.format(path)):
-
-        results = monitoring.load_results(training_dir)
-        if not results:
-            logger.info("Failed to load data for %s" % training_dir)
-        else:
-            evaluation = EvaluationResource(results['env_info']['env_id'], results)
-            evaluations.append(evaluation)
-
-    return evaluations
-
-
-def load_tasks_from_bmrun_path(path):
-    env_id_to_task = {}
-
-    for evaluation in load_evaluations_from_bmrun_path(path):
-
-        env_id = evaluation.env_id
-
-        if env_id not in env_id_to_task:
-            env_id_to_task[env_id] = Task(env_id, benchmark_id=BENCHMARK_ID, evaluations=[])
-        task = env_id_to_task[env_id]
-
-        task.evaluations.append(evaluation)
-
-    return env_id_to_task.values()
 
 
 class BenchmarkRunResource(object):
@@ -204,11 +175,9 @@ def mean_area_under_curve(episode_lengths, episode_rewards):
     return area_under_curve(episode_lengths, episode_rewards) / max(1e-4, np.sum(episode_lengths))
 
 
-def _benchmark_runs_from_dir(benchmark_dir):
-    run_paths = [os.path.join(benchmark_dir, path) for path in os.listdir(benchmark_dir)]
-    run_paths = [path for path in run_paths if os.path.isdir(path)]
-    return [BenchmarkRunResource.from_path(path) for path in run_paths]
-
+#############################
+# Controllers
+#############################
 
 @app.route('/')
 def index():
@@ -224,14 +193,46 @@ def compare(run_name, other_run_name):
 def benchmark_run(bmrun_name):
     bmrun_dir = os.path.join(BENCHMARK_VIEWER_DATA_PATH, bmrun_name)
     bmrun = BenchmarkRunResource.from_path(bmrun_dir)
-    #
-    # rows = ''.join(
-    #     '<tr><td>{}</td><td>{}</td></tr>'.format(env_id, task.to_svg())
-    #         for env_id, task in sorted(tasks.items())
-    # )
-    # return '<table>{}</tbody>'.format(rows)
-
     return render_template('benchmark_run.html', bmrun=bmrun)
+
+
+#############################
+# Data loading
+#############################
+def load_evaluations_from_bmrun_path(path):
+    evaluations = []
+    for training_dir in glob('{}/*/gym'.format(path)):
+
+        results = monitoring.load_results(training_dir)
+        if not results:
+            logger.info("Failed to load data for %s" % training_dir)
+        else:
+            evaluation = EvaluationResource(results['env_info']['env_id'], results)
+            evaluations.append(evaluation)
+
+    return evaluations
+
+
+def load_tasks_from_bmrun_path(path):
+    env_id_to_task = {}
+
+    for evaluation in load_evaluations_from_bmrun_path(path):
+
+        env_id = evaluation.env_id
+
+        if env_id not in env_id_to_task:
+            env_id_to_task[env_id] = Task(env_id, benchmark_id=BENCHMARK_ID, evaluations=[])
+        task = env_id_to_task[env_id]
+
+        task.evaluations.append(evaluation)
+
+    return env_id_to_task.values()
+
+
+def _benchmark_runs_from_dir(benchmark_dir):
+    run_paths = [os.path.join(benchmark_dir, path) for path in os.listdir(benchmark_dir)]
+    run_paths = [path for path in run_paths if os.path.isdir(path)]
+    return [BenchmarkRunResource.from_path(path) for path in run_paths]
 
 
 def populate_benchmark_cache():
