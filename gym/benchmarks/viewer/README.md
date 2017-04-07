@@ -3,7 +3,7 @@
 View a benchmark
 ```
 cd gym/benchmarks/viewer
-python view_benchmark /tmp/AtariExploration40M --open
+python view_benchmark /tmp/Atari40M --open
 ```
 
 Run tests with
@@ -13,7 +13,7 @@ pytest
 
 In development, run with --debug to get a debugger
 ```
-python view_benchmark /tmp/AtariExploration40M --debug
+python view_benchmark /tmp/Atari40M --debug
 ```
 
 # Integration tests
