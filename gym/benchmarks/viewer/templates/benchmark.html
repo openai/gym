@@ -53,9 +53,9 @@
 
     </div>
 
-    <div class="raw_scores row">
+    <div class="raw-scores row">
         <div class="col-12">
-            <h2 style="text-align: center; margin: 20px">Raw Scores</h2>
+            <h2 style="text-align: center; margin: 20px">Task Scores (Mean AUC)</h2>
 
             <small>
                 <table class="table">
@@ -86,7 +86,40 @@
                 </table>
             </small>
         </div>
+    </div>
+    <div class="task-ranks row">
+        <div class="col-12">
+            <h2 style="text-align: center; margin: 20px">Task Ranks</h2>
 
+            <small>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th> name</th>
+                        <th> author</th>
+                        {% for task in benchmark.spec.tasks %}
+                            <th> {{ task.env_id.replace('NoFrameskip-v3', '') }} </th>
+                        {% endfor %}
+                    </tr>
+                    </thead>
+                    {% for bmrun in benchmark.bmruns %}
+                        <tr>
+                            <td>
+                                <a href={{ "/benchmark_run/{}".format(bmrun.name) }}>
+                                    {{ bmrun.short_name }}
+                                </a>
+                            </td>
+                            <td>
+                                {{ bmrun.author_username }}
+                            </td>
+                            {% for task in benchmark.spec.tasks %}
+                                <td> {{ display_task_rank(bmrun, task, score_cache) }} </td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </table>
+            </small>
+        </div>
     </div>
 
 {% endblock %}

@@ -42,6 +42,7 @@ ARGS = parser.parse_args()
 BENCHMARK_VIEWER_DATA_PATH = ARGS.data_path.rstrip('/')
 
 BENCHMARK_ID = os.path.basename(BENCHMARK_VIEWER_DATA_PATH)
+BENCHMARK_SPEC = gym.benchmark_spec(BENCHMARK_ID)
 
 app = Flask(__name__)
 
@@ -75,7 +76,7 @@ class ScoreCache(object):
             }
 
         if self.max_score(task_spec) is None or score > self.max_score(task_spec):
-            self._env_id_to_min_scoring_bmrun[env_id] = {
+            self._env_id_to_max_scoring_bmrun[env_id] = {
                 'bmrun_name': bmrun.name,
                 'score': score
             }
@@ -180,9 +181,12 @@ class BenchmarkRunResource(object):
     def short_name(self):
         return '_'.join(self.name.split('_')[2:])
 
+    def task_by_env_id(self, env_id):
+        return [task for task in self.tasks if task.env_id == env_id][0]
+
 
 class TaskResource(object):
-    def __init__(self, env_id, benchmark_id, evaluations):
+    def __init__(self, env_id, benchmark_id, evaluations, rank=None):
         self.env_id = env_id
         self.benchmark_id = benchmark_id
         self.evaluations = evaluations
@@ -313,16 +317,12 @@ def load_evaluations_from_bmrun_path(path):
 
 def load_tasks_from_bmrun_path(path):
     env_id_to_task = {}
+    for task in BENCHMARK_SPEC.tasks:
+        env_id_to_task[task.env_id] = TaskResource(task.env_id, benchmark_id=BENCHMARK_ID, evaluations=[])
 
     for evaluation in load_evaluations_from_bmrun_path(path):
-
         env_id = evaluation.env_id
-
-        if env_id not in env_id_to_task:
-            env_id_to_task[env_id] = TaskResource(env_id, benchmark_id=BENCHMARK_ID, evaluations=[])
-        task = env_id_to_task[env_id]
-
-        task.evaluations.append(evaluation)
+        env_id_to_task[env_id].evaluations.append(evaluation)
 
     return env_id_to_task.values()
 
