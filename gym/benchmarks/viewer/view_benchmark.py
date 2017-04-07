@@ -288,8 +288,12 @@ def compare(bmrun_name, other_bmrun_name):
 
     _disgusting_pyplot_warmup_hack(bmrun)
 
-    return render_template('benchmark_run.html',
+    other_bmrun_dir = os.path.join(BENCHMARK_VIEWER_DATA_PATH, other_bmrun_name)
+    other_bmrun = load_bmrun_from_path(other_bmrun_dir)
+
+    return render_template('compare.html',
         bmrun=bmrun,
+        other_bmrun=other_bmrun,
         benchmark_spec=BENCHMARK_SPEC,
         score_cache=score_cache
     )

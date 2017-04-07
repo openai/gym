@@ -14,9 +14,7 @@
 
 
     <div class="benchmark-title">
-        <h1>{{ bmrun.short_name }}</h1>
-        <p class="lead">Richard Chen's DQN. See the shape of the data directly by running: </p>
-        <code>tree {{ bmrun.path }}</code>
+        <h1>{{ bmrun.short_name }} vs {{ other_bmrun.short_name }}</h1>
     </div>
 
     <div class="scores row">
@@ -27,11 +25,11 @@
                 <thead>
                 <tr>
                     <th> env_id</th>
-                    <th> mean reward under curve</th>
-                    <th> task rank </th>
+                    <th>{{ bmrun.short_name }} score</th>
+                    <th>{{ other_bmrun.short_name }} score</th>
                 </tr>
                 </thead>
-                    {% for task_spec in benchmark_spec.tasks %}
+                {% for task_spec in benchmark_spec.tasks %}
                     <tr>
                         <td>
                             {{ task_spec.env_id }}
@@ -40,7 +38,7 @@
                             {{ display_task_score(bmrun, task_spec, score_cache) }}
                         </td>
                         <td>
-                            {{ display_task_rank(bmrun, task_spec, score_cache) }}
+                            {{ display_task_score(other_bmrun, task_spec, score_cache) }}
                         </td>
                     </tr>
                 {% endfor %}
