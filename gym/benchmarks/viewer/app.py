@@ -1,16 +1,43 @@
-import json
+import io
 import os
 
-import io
-from flask import Flask
-from gym import monitoring
 import matplotlib.pyplot as plt
 import numpy as np
+from flask import Flask
 from scipy import signal
 
+from gym import monitoring
 from gym.benchmarks import registry
 
-BENCHMARK_ID = 'AtariExploration40M'
+app = Flask(__name__)
+
+
+
+BENCHMARK_DATA_PATH = '/tmp/AtariExploration40M/'
+BENCHMARK_ID = os.path.dirname(BENCHMARK_DATA_PATH)
+
+
+class Evaluation(object):
+    def __init__(self, results):
+        self.env_id = results['env_info']['env_id']
+
+        self.episode_rewards = results['episode_rewards']
+        self.episode_lengths = results['episode_lengths']
+        self.episode_types = results['episode_types']
+        self.timestamps = results['timestamps']
+        self.initial_reset_timestamps = results['initial_reset_timestamps']
+        self.data_sources = results['data_sources']
+
+    @classmethod
+    def from_training_dir(cls, training_dir):
+        results = monitoring.load_results(training_dir)
+        return Evaluation(results)
+
+
+class BenchmarkRun(object):
+    def __init__(self, evaluations):
+        self.evaluations = evaluations
+
 
 def smooth_reward_curve(rewards, lengths, max_timestep, resolution=1e3, polyorder=3):
     # Don't use a higher resolution than the original data, use a window about
@@ -34,15 +61,14 @@ def smooth_reward_curve(rewards, lengths, max_timestep, resolution=1e3, polyorde
 
 
 class Task(object):
-
-    def __init__(self, env_id, trials):
+    def __init__(self, env_id, evaluations):
         self.env_id = env_id
-        self.trials = trials
+        self.evaluations = evaluations
 
     def to_svg(self):
         plt.figure()
         plt.rcParams['figure.figsize'] = (15, 2)
-        for trial in self.trials:
+        for trial in self.evaluations:
             xs, ys = smooth_reward_curve(
                 trial.episode_rewards, trial.episode_lengths, 1e6)
             plt.plot(xs, ys)
@@ -55,43 +81,42 @@ class Task(object):
         return img_bytes.getvalue()
 
 
-class Trial(object):
-    def __init__(self, results):
-        self.env_id = results['env_info']['env_id']
-
-        self.episode_rewards = results['episode_rewards']
-        self.episode_lengths = results['episode_lengths']
-        self.episode_types = results['episode_types']
-        self.timestamps = results['timestamps']
-        self.initial_reset_timestamps = results['initial_reset_timestamps']
-
-    @classmethod
-    def from_training_dir(cls, training_dir):
-        results = monitoring.load_results(training_dir)
-        return Trial(results)
-
-    def score(self):
-        benchmark = registry.benchmark_spec(BENCHMARK_ID)
-
-        fake_data_sources = [0] * len(self.episode_lengths)
-
-        return benchmark.score_evaluation(
-            self.env_id,
-            data_sources=fake_data_sources,
-            initial_reset_timestamps=self.initial_reset_timestamps,
-            episode_lengths= self.episode_lengths,
-            episode_rewards=self.episode_rewards,
-            episode_types=self.episode_types,
-            timestamps=self.timestamps)
-
-class Run(object):
-    def __init__(self, trials):
-        self.trials = trials
-
-app = Flask(__name__)
+def area_under_curve(episode_lengths, episode_rewards):
+    """Compute the total area of rewards under the curve"""
+    # TODO: Replace with slightly more accurate trapezoid method
+    return np.sum(l * r for l, r in zip(episode_lengths, episode_rewards))
 
 
+def mean_area_under_curve(episode_lengths, episode_rewards):
+    """Compute the average area of rewards under the curve per unit of time"""
+    return area_under_curve(episode_lengths, episode_rewards) / max(1e-4, np.sum(episode_lengths))
 
+
+class BenchmarkScoreCache(object):
+    def __init__(self, benchmark_id, min_reward_by_env, max_reward_by_env):
+        self.min_reward_by_env = min_reward_by_env
+        self.max_reward_by_env = max_reward_by_env
+
+        self.id = benchmark_id
+
+
+def score_evaluation(evaluation):
+    benchmark = registry.benchmark_spec(BENCHMARK_ID)
+
+    score_results = benchmark.score_evaluation(
+        evaluation.env_id,
+        data_sources=evaluation.data_sources,
+        initial_reset_timestamps=evaluation.initial_reset_timestamps,
+        episode_lengths=evaluation.episode_lengths,
+        episode_rewards=evaluation.episode_rewards,
+        episode_types=evaluation.episode_types,
+        timestamps=evaluation.timestamps)
+
+    # TODO: Why does the scorer output vectorized here?
+    return mean_area_under_curve(
+        score_results['lengths'][0],
+        score_results['rewards'][0],
+    )
 
 
 @app.route('/')
@@ -99,32 +124,33 @@ def index():
     run_paths = os.listdir('/tmp/{}'.format(BENCHMARK_ID))
 
     for run_path in run_paths:
-        tasks_from_run_path(run_path)
+        tasks_from_bmrun_path(run_path)
     # Compute best and worst performance on each task
 
     # Compute rank for each of them
 
     # Show them in a list
 
-    pass
+    return "pending"
+
 
 @app.route('/compare/<run_name>/<other_run_name>/')
 def compare(run_name, other_run_name):
     pass
 
-@app.route('/run/<run_name>')
-def view_tasks(run_name):
-    tasks = tasks_from_run_path('/tmp/{}/{}'.format(BENCHMARK_ID, run_name))
 
+@app.route('/benchmark_run/<run_name>')
+def view_tasks(run_name):
+    tasks = tasks_from_bmrun_path(os.path.join(BENCHMARK_DATA_PATH, run_name))
 
     rows = ''.join(
         '<tr><td>{}</td><td>{}</td></tr>'.format(env_id, task.to_svg())
-        for env_id, task in sorted(tasks.items())
+            for env_id, task in sorted(tasks.items())
     )
     return '<table>{}</tbody>'.format(rows)
 
 
-def tasks_from_run_path(path):
+def tasks_from_bmrun_path(path):
     """
     Returns a map of env_ids to tasks included in the run at the path
     """
@@ -134,20 +160,22 @@ def tasks_from_run_path(path):
             if not fname.endswith('manifest.json'):
                 continue
 
+            # Found a training dir
             training_dir = os.path.dirname(fname)
-            trial = Trial.from_training_dir(training_dir)
+            print(training_dir)
+            evaluation = Evaluation.from_training_dir(training_dir)
 
-            env_id = trial.env_id
+            env_id = evaluation.env_id
 
             if env_id not in env_id_to_task:
                 env_id_to_task[env_id] = Task(env_id, [])
             task = env_id_to_task[env_id]
 
-            print(trial.score())
-            task.trials.append(trial)
+            print(evaluation.score())
+            task.evaluations.append(evaluation)
 
     return env_id_to_task
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5030)
+    app.run(debug=True, port=5000)
