@@ -89,7 +89,7 @@ def load_tasks_from_bmrun_path(path):
         env_id = evaluation.env_id
 
         if env_id not in env_id_to_task:
-            env_id_to_task[env_id] = Task(env_id, [])
+            env_id_to_task[env_id] = Task(env_id, benchmark_id=BENCHMARK_ID, evaluations=[])
         task = env_id_to_task[env_id]
 
         task.evaluations.append(evaluation)
@@ -99,7 +99,7 @@ def load_tasks_from_bmrun_path(path):
 
 class BenchmarkRun(object):
     def __init__(self, path, tasks):
-        self.tasks = sorted(tasks, key= lambda t: t.env_id)
+        self.tasks = sorted(tasks, key=lambda t: t.env_id)
         self.name = os.path.basename(path)
         self.path = path
 
@@ -135,20 +135,31 @@ def smooth_reward_curve(rewards, lengths, max_timestep, resolution=1e3, polyorde
 
 
 class Task(object):
-    def __init__(self, env_id, evaluations):
+    def __init__(self, env_id, benchmark_id, evaluations):
         self.env_id = env_id
+        self.benchmark_id = benchmark_id
         self.evaluations = evaluations
 
     @property
     def score(self):
         return np.mean([eval.score for eval in self.evaluations])
 
+    @property
+    def spec(self):
+        benchmark_spec = registry.benchmark_spec(self.benchmark_id)
+        task_specs = benchmark_spec.task_specs(self.env_id)
+        if len(task_specs) != 1:
+            raise Error("Multiple task specs for single environment. Falling over")
+
+        return task_specs[0]
+
     def render_learning_curve_svg(self):
         plt.figure()
         plt.rcParams['figure.figsize'] = (8, 2)
+
         for trial in self.evaluations:
             xs, ys = smooth_reward_curve(
-                trial.episode_rewards, trial.episode_lengths, 1e6)
+                trial.episode_rewards, trial.episode_lengths, self.spec.max_timesteps)
             plt.plot(xs, ys)
 
         plt.xlabel('Time')
