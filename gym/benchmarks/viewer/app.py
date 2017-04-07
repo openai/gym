@@ -3,6 +3,7 @@ import os
 from glob import glob
 from itertools import chain
 
+import logging
 import matplotlib.pyplot as plt
 import numpy as np
 from flask import Flask
@@ -15,12 +16,22 @@ from gym.benchmarks import registry
 app = Flask(__name__)
 
 BENCHMARK_DATA_PATH = '/tmp/AtariExploration40M/'
-BENCHMARK_ID = os.path.dirname(BENCHMARK_DATA_PATH)
+BENCHMARK_ID = os.path.basename(os.path.dirname(BENCHMARK_DATA_PATH))
+
+logger = logging.getLogger(__name__)
+
+
+class Error(Exception):
+    pass
+
+
+class MonitorLoadError(Error):
+    pass
 
 
 class Evaluation(object):
-    def __init__(self, results):
-        self.env_id = results['env_info']['env_id']
+    def __init__(self, env_id, results):
+        self.env_id = env_id
 
         self.episode_rewards = results['episode_rewards']
         self.episode_lengths = results['episode_lengths']
@@ -29,19 +40,43 @@ class Evaluation(object):
         self.initial_reset_timestamps = results['initial_reset_timestamps']
         self.data_sources = results['data_sources']
 
-    @classmethod
-    def from_training_dir(cls, training_dir):
-        results = monitoring.load_results(training_dir)
-        return Evaluation(results)
+    @property
+    def score(self):
+        benchmark = registry.benchmark_spec(BENCHMARK_ID)
 
+        score_results = benchmark.score_evaluation(
+            self.env_id,
+            data_sources=self.data_sources,
+            initial_reset_timestamps=self.initial_reset_timestamps,
+            episode_lengths=self.episode_lengths,
+            episode_rewards=self.episode_rewards,
+            episode_types=self.episode_types,
+            timestamps=self.timestamps)
 
-def tasks_from_bmrun_path(path):
-    """
-    Returns a map of env_ids to tasks included in the run at the path
-    """
-    env_id_to_task = {}
+        # TODO: Why does the scorer output vectorized here?
+        return mean_area_under_curve(
+            score_results['lengths'][0],
+            score_results['rewards'][0],
+        )
+
+def load_evaluations_from_bmrun_path(path):
+    evaluations = []
     for training_dir in glob('{}/*/gym'.format(path)):
-        evaluation = Evaluation.from_training_dir(training_dir)
+
+        results = monitoring.load_results(training_dir)
+        if not results:
+            logger.info("Failed to load data for %s" % training_dir)
+        else:
+            evaluation = Evaluation(results['env_info']['env_id'], results)
+            evaluations.append(evaluation)
+
+    return evaluations
+
+
+def load_tasks_from_bmrun_path(path):
+    env_id_to_task = {}
+
+    for evaluation in load_evaluations_from_bmrun_path(path):
 
         env_id = evaluation.env_id
 
@@ -66,7 +101,7 @@ class BenchmarkRun(object):
 
     @classmethod
     def from_path(cls, bmrun_path):
-        tasks = tasks_from_bmrun_path(bmrun_path)
+        tasks = load_tasks_from_bmrun_path(bmrun_path)
         return cls(bmrun_path, tasks)
 
 
@@ -96,7 +131,11 @@ class Task(object):
         self.env_id = env_id
         self.evaluations = evaluations
 
-    def learning_curve_svg(self):
+    @property
+    def score(self):
+        return np.mean([eval.score for eval in self.evaluations])
+
+    def render_learning_curve_svg(self):
         plt.figure()
         plt.rcParams['figure.figsize'] = (8, 2)
         for trial in self.evaluations:
@@ -131,31 +170,12 @@ class BenchmarkScoreCache(object):
         self.id = benchmark_id
 
 
-def score_evaluation(evaluation):
-    benchmark = registry.benchmark_spec(BENCHMARK_ID)
-
-    score_results = benchmark.score_evaluation(
-        evaluation.env_id,
-        data_sources=evaluation.data_sources,
-        initial_reset_timestamps=evaluation.initial_reset_timestamps,
-        episode_lengths=evaluation.episode_lengths,
-        episode_rewards=evaluation.episode_rewards,
-        episode_types=evaluation.episode_types,
-        timestamps=evaluation.timestamps)
-
-    # TODO: Why does the scorer output vectorized here?
-    return mean_area_under_curve(
-        score_results['lengths'][0],
-        score_results['rewards'][0],
-    )
-
-
 @app.route('/')
 def index():
     run_paths = os.listdir('/tmp/{}'.format(BENCHMARK_ID))
 
     for run_path in run_paths:
-        tasks_from_bmrun_path(run_path)
+        load_tasks_from_bmrun_path(run_path)
     # Compute best and worst performance on each task
 
     # Compute rank for each of them
