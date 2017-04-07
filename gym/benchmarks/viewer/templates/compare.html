@@ -55,7 +55,7 @@
                     {{ task.env_id }}
                 </td>
                 <td>
-                    {{ task.render_learning_curve_svg() | safe }}
+                    {{ task.render_learning_curve_svg_comparison(other_bmrun) | safe }}
                 </td>
             </tr>
         {% endfor %}

@@ -202,6 +202,12 @@ class TaskResource(object):
     def render_learning_curve_svg(self):
         return render_evaluation_learning_curves_svg(self.evaluations, self.spec.max_timesteps)
 
+    def render_learning_curve_svg_comparison(self, other_bmrun):
+        # TODO: Move this out of the resource
+        other_task = other_bmrun.task_by_env_id(self.env_id)
+        evaluations = self.evaluations + other_task.evaluations
+        return render_evaluation_learning_curves_svg(evaluations, self.spec.max_timesteps)
+
 
 #############################
 # Graph rendering
