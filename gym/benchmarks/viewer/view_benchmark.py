@@ -260,6 +260,13 @@ def render_evaluation_learning_curves_svg(evaluations, max_timesteps):
 # Controllers
 #############################
 
+def _disgusting_pyplot_warmup_hack(bmrun):
+    # Hack that warms up pyplot. Renders and drops result on floor
+    # TODO: Fix pyplot
+    if bmrun.tasks[0]:
+        bmrun.tasks[0].render_learning_curve_svg()
+
+
 @app.route('/')
 def index():
     benchmark = BenchmarkResource(
@@ -274,9 +281,18 @@ def index():
     )
 
 
-@app.route('/compare/<run_name>/<other_run_name>/')
-def compare(run_name, other_run_name):
-    pass
+@app.route('/compare/<bmrun_name>/<other_bmrun_name>/')
+def compare(bmrun_name, other_bmrun_name):
+    bmrun_dir = os.path.join(BENCHMARK_VIEWER_DATA_PATH, bmrun_name)
+    bmrun = load_bmrun_from_path(bmrun_dir)
+
+    _disgusting_pyplot_warmup_hack(bmrun)
+
+    return render_template('benchmark_run.html',
+        bmrun=bmrun,
+        benchmark_spec=BENCHMARK_SPEC,
+        score_cache=score_cache
+    )
 
 
 @app.route('/benchmark_run/<bmrun_name>')
@@ -284,10 +300,7 @@ def benchmark_run(bmrun_name):
     bmrun_dir = os.path.join(BENCHMARK_VIEWER_DATA_PATH, bmrun_name)
     bmrun = load_bmrun_from_path(bmrun_dir)
 
-    # Hack that warms up pyplot. Renders and drops result on floor
-    # TODO: Fix pyplot
-    if bmrun.tasks[0]:
-        bmrun.tasks[0].render_learning_curve_svg()
+    _disgusting_pyplot_warmup_hack(bmrun)
 
     return render_template('benchmark_run.html',
         bmrun=bmrun,
@@ -323,7 +336,7 @@ def load_evaluations_from_bmrun_path(path):
 
     if dirs_missing_manifests:
         logger.warning("Could not load %s evaluations in %s due to missing manifests" % (
-        len(dirs_missing_manifests), path))
+            len(dirs_missing_manifests), path))
 
     if dirs_unloadable:
         logger.warning(
@@ -387,6 +400,7 @@ if __name__ == '__main__':
     logger.setLevel(logging.INFO)
 
     populate_benchmark_cache()
+    logger.info("All data loaded, Viewer is ready to go at http://localhost:5000")
 
     if ARGS.open:
         subprocess.check_call('open http://localhost:5000', shell=True)
