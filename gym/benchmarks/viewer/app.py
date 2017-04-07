@@ -104,7 +104,7 @@ class BenchmarkRun(object):
         self.path = path
 
     @property
-    def shortname(self):
+    def short_name(self):
         return '_'.join(self.name.split('_')[2:])
 
     @classmethod
@@ -189,19 +189,24 @@ class BenchmarkScoreCache(object):
         self.id = benchmark_id
 
 
+def _benchmark_runs_from_dir(benchmark_dir):
+    run_paths = [os.path.join(benchmark_dir, path) for path in os.listdir(benchmark_dir)]
+    run_paths = [path for path in run_paths if os.path.isdir(path)]
+    return [BenchmarkRun.from_path(path) for path in run_paths]
+
 @app.route('/')
 def index():
-    run_paths = os.listdir('/tmp/{}'.format(BENCHMARK_ID))
-
-    for run_path in run_paths:
-        load_tasks_from_bmrun_path(run_path)
+    bmruns = _benchmark_runs_from_dir(BENCHMARK_VIEWER_DATA_PATH)
     # Compute best and worst performance on each task
 
     # Compute rank for each of them
 
     # Show them in a list
-
-    return "pending"
+    return render_template('benchmark.html',
+        benchmark_id=BENCHMARK_ID,
+        benchmark_path=BENCHMARK_VIEWER_DATA_PATH,
+        bmruns=bmruns
+    )
 
 
 @app.route('/compare/<run_name>/<other_run_name>/')
