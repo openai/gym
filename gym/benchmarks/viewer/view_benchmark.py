@@ -391,13 +391,27 @@ def _benchmark_runs_from_dir(benchmark_dir):
     return [load_bmrun_from_path(path) for path in run_paths]
 
 
+_last_time = time.time()
+
+
+def _time_elapsed():
+    global _last_time
+    now = time.time()
+    elapsed = now - _last_time
+    _last_time = now
+
+    return "%.3f" % elapsed
+
+
 def populate_benchmark_cache():
     benchmark_dir = BENCHMARK_VIEWER_DATA_PATH
-    logger.info("Loading in all benchmark_runs from %s..." % benchmark_dir)
-    bmruns = _benchmark_runs_from_dir(benchmark_dir)
 
-    logger.info("Found %s benchmark_runs in %s. Computing scores for each task..." % (
-        len(bmruns), BENCHMARK_VIEWER_DATA_PATH))
+    logger.info("Loading in all benchmark_runs from %s..." % benchmark_dir)
+    _time_elapsed()
+    bmruns = _benchmark_runs_from_dir(benchmark_dir)
+    logger.info("Loaded %s benchmark_runs in %s seconds." % (len(bmruns), _time_elapsed()))
+
+    logger.info("Computing scores for each task...")
     for run in bmruns:
         for task in run.tasks:
             for evaluation in task.evaluations:
@@ -405,10 +419,12 @@ def populate_benchmark_cache():
 
         logger.info("Computed scores for %s" % run.name)
 
+    logger.info(
+        "Computed scores for %s benchmark_runs in %s seconds." % (len(bmruns), _time_elapsed()))
+
 
 if __name__ == '__main__':
     logger.setLevel(logging.INFO)
-
     populate_benchmark_cache()
     logger.info("All data loaded, Viewer is ready to go at http://localhost:5000")
 
