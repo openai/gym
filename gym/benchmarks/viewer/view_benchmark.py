@@ -170,23 +170,6 @@ class BenchmarkRunResource(object):
     def short_name(self):
         return '_'.join(self.name.split('_')[2:])
 
-    @classmethod
-    def from_path(cls, bmrun_path):
-        tasks = load_tasks_from_bmrun_path(bmrun_path)
-
-        # Load in metadata from yaml
-        metadata = None
-        yaml_file = os.path.join(bmrun_path, 'benchmark_run_data.yaml')
-        if os.path.isfile(yaml_file):
-            with open(yaml_file, 'r') as stream:
-                try:
-                    metadata = yaml.load(stream)
-
-                except yaml.YAMLError as exc:
-                    print(exc)
-
-        return cls(bmrun_path, tasks, metadata)
-
 
 class TaskResource(object):
     def __init__(self, env_id, benchmark_id, evaluations):
@@ -331,10 +314,27 @@ def load_tasks_from_bmrun_path(path):
     return env_id_to_task.values()
 
 
+def load_bmrun_from_path(path):
+    tasks = load_tasks_from_bmrun_path(path)
+
+    # Load in metadata from yaml
+    metadata = None
+    yaml_file = os.path.join(path, 'benchmark_run_data.yaml')
+    if os.path.isfile(yaml_file):
+        with open(yaml_file, 'r') as stream:
+            try:
+                metadata = yaml.load(stream)
+
+            except yaml.YAMLError as exc:
+                print(exc)
+
+    return BenchmarkRunResource(path, tasks, metadata)
+
+
 def _benchmark_runs_from_dir(benchmark_dir):
     run_paths = [os.path.join(benchmark_dir, path) for path in os.listdir(benchmark_dir)]
     run_paths = [path for path in run_paths if os.path.isdir(path)]
-    return [BenchmarkRunResource.from_path(path) for path in run_paths]
+    return [load_bmrun_from_path(path) for path in run_paths]
 
 
 def populate_benchmark_cache():
