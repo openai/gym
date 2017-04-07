@@ -79,7 +79,7 @@
                                 {{ bmrun.author_username }}
                             </td>
                             {% for task in benchmark.spec.tasks %}
-                                <td> {{ bmrun.display_task_score(task, score_cache) }} </td>
+                                <td> {{ display_task_score(bmrun, task, score_cache) }} </td>
                             {% endfor %}
                         </tr>
                     {% endfor %}

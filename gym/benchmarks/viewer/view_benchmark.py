@@ -17,6 +17,7 @@ from flask import render_template
 from gym import monitoring
 from gym.benchmarks import registry
 from gym.benchmarks.viewer.error import Error
+from gym.benchmarks.viewer.template_helpers import register_template_helpers
 from scipy import signal
 
 logger = logging.getLogger(__name__)
@@ -174,13 +175,6 @@ class BenchmarkRunResource(object):
             self.author_github = None
             self.repository = None
             self.github_commit = None
-
-    def display_task_score(self, task, score_cache):
-        score = score_cache.get_task_score(self, task)
-        if score is not None:
-            return "%.2f" % score
-        else:
-            return "N/A"
 
     @property
     def short_name(self):
@@ -377,4 +371,5 @@ if __name__ == '__main__':
     if ARGS.open:
         subprocess.check_call('open http://localhost:5000', shell=True)
 
+    register_template_helpers(app)
     app.run(debug=ARGS.debug, port=5000)
