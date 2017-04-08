@@ -288,13 +288,6 @@ def render_evaluation_learning_curves_svg(evaluations, max_timesteps):
 # Controllers
 #############################
 
-def _disgusting_pyplot_warmup_hack(bmrun):
-    # Hack that warms up pyplot. Renders and drops result on floor
-    # TODO: Fix pyplot
-    if bmrun.tasks[0]:
-        bmrun.tasks[0].render_learning_curve_svg()
-
-
 @app.route('/')
 def index():
     benchmark = BenchmarkResource(
@@ -314,8 +307,6 @@ def compare(bmrun_name, other_bmrun_name):
     bmrun_dir = os.path.join(BMRUNS_DIR, bmrun_name)
     bmrun = load_bmrun_from_path(bmrun_dir)
 
-    _disgusting_pyplot_warmup_hack(bmrun)
-
     other_bmrun_dir = os.path.join(BMRUNS_DIR, other_bmrun_name)
     other_bmrun = load_bmrun_from_path(other_bmrun_dir)
 
@@ -331,8 +322,6 @@ def compare(bmrun_name, other_bmrun_name):
 def benchmark_run(bmrun_name):
     bmrun_dir = os.path.join(BMRUNS_DIR, bmrun_name)
     bmrun = load_bmrun_from_path(bmrun_dir)
-
-    _disgusting_pyplot_warmup_hack(bmrun)
 
     return render_template('benchmark_run.html',
         bmrun=bmrun,
