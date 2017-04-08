@@ -395,7 +395,7 @@ def load_bmrun_from_path(path):
 
     # Load in metadata from yaml
     metadata = None
-    metadata_file = os.path.join(path, 'benchmark_run_data.yaml')
+    metadata_file = os.path.join(path, 'benchmark_run_metadata.yaml')
 
     with open(metadata_file, 'r') as stream:
         try:
