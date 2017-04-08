@@ -21,6 +21,10 @@ from gym.benchmarks.viewer.template_helpers import register_template_helpers
 from gym.benchmarks.viewer.utils import time_elapsed
 from scipy import signal
 
+# Disable spurious warning https://github.com/scipy/scipy/issues/5998
+import warnings
+warnings.filterwarnings(action="ignore", module="scipy", message="^internal gelsd")
+
 logger = logging.getLogger(__name__)
 
 #############################
@@ -30,6 +34,7 @@ logger = logging.getLogger(__name__)
 parser = argparse.ArgumentParser()
 parser.add_argument('data_path',
     help="The path to our benchmark data. e.g. /tmp/Atari40M/ ")
+parser.add_argument('--port', default=5000, help="Open the browser")
 parser.add_argument('--debug', action="store_true",
     help="Run with debugger and auto-reload")
 parser.add_argument('--flush-cache', action="store_true",
@@ -247,9 +252,8 @@ def smooth_reward_curve(rewards, lengths, max_timestep, resolution=1e3, polyorde
 
 
 def render_evaluation_learning_curves_svg(evaluations, max_timesteps):
-    plt.figure()
     plt.rcParams['figure.figsize'] = (8, 2)
-
+    plt.figure()
     for evaluation in evaluations:
         xs, ys = smooth_reward_curve(
             evaluation.episode_rewards, evaluation.episode_lengths, max_timesteps)
@@ -260,6 +264,7 @@ def render_evaluation_learning_curves_svg(evaluations, max_timesteps):
     plt.tight_layout()
     img_bytes = io.StringIO()
     plt.savefig(img_bytes, format='svg')
+    plt.close()
     return img_bytes.getvalue()
 
 
@@ -419,7 +424,7 @@ if __name__ == '__main__':
     logger.info("All data loaded, Viewer is ready to go at http://localhost:5000")
 
     if ARGS.open:
-        subprocess.check_call('open http://localhost:5000', shell=True)
+        subprocess.check_call('open http://localhost:%s' % ARGS.port, shell=True)
 
     register_template_helpers(app)
-    app.run(debug=ARGS.debug, port=5000)
+    app.run(debug=ARGS.debug, port=ARGS.port)
