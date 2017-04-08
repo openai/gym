@@ -21,8 +21,10 @@ from gym.benchmarks.viewer.template_helpers import register_template_helpers
 from gym.benchmarks.viewer.utils import time_elapsed
 from scipy import signal
 
+import sys
 # Disable spurious warning https://github.com/scipy/scipy/issues/5998
 import warnings
+
 warnings.filterwarnings(action="ignore", module="scipy", message="^internal gelsd")
 
 logger = logging.getLogger(__name__)
@@ -46,8 +48,19 @@ parser.add_argument('--open', action="store_true",
 ARGS = parser.parse_args()
 
 BENCHMARK_VIEWER_DATA_PATH = ARGS.data_path.rstrip('/')
+BMRUNS_DIR = os.path.join(BENCHMARK_VIEWER_DATA_PATH, 'runs')
 
-BENCHMARK_ID = os.path.basename(BENCHMARK_VIEWER_DATA_PATH)
+yaml_file = os.path.join(BENCHMARK_VIEWER_DATA_PATH, 'benchmark_metadata.yaml')
+
+with open(yaml_file, 'r') as stream:
+    try:
+        metadata = yaml.load(stream)
+        BENCHMARK_ID = metadata['id']
+
+    except yaml.YAMLError as exc:
+        print(exc)
+        sys.exit()
+
 BENCHMARK_SPEC = gym.benchmark_spec(BENCHMARK_ID)
 
 app = Flask(__name__)
@@ -162,21 +175,24 @@ class EvaluationResource(object):
 
 
 class BenchmarkRunResource(object):
-    def __init__(self, path, tasks, metadata=None):
+    def __init__(self,
+            path,
+            tasks,
+            username,
+            title,
+            repository,
+            commit,
+            command,
+    ):
         self.tasks = sorted(tasks, key=lambda t: t.env_id)
         self.name = os.path.basename(path)
-        self.path = path
 
-        if metadata:
-            self.author_username = metadata['author']['username']
-            self.author_github = metadata['author']['github_user']
-            self.repository = metadata['code_source']['repository']
-            self.github_commit = metadata['code_source']['commit']
-        else:
-            self.author_username = None
-            self.author_github = None
-            self.repository = None
-            self.github_commit = None
+        self.path = path
+        self.username = username
+        self.title = title
+        self.repository = repository
+        self.commit = commit
+        self.command = command
 
     @property
     def short_name(self):
@@ -283,8 +299,8 @@ def _disgusting_pyplot_warmup_hack(bmrun):
 def index():
     benchmark = BenchmarkResource(
         id=BENCHMARK_ID,
-        data_path=BENCHMARK_VIEWER_DATA_PATH,
-        bmruns=_benchmark_runs_from_dir(BENCHMARK_VIEWER_DATA_PATH)
+        data_path=BMRUNS_DIR,
+        bmruns=_benchmark_runs_from_dir(BMRUNS_DIR)
     )
 
     return render_template('benchmark.html',
@@ -295,12 +311,12 @@ def index():
 
 @app.route('/compare/<bmrun_name>/<other_bmrun_name>/')
 def compare(bmrun_name, other_bmrun_name):
-    bmrun_dir = os.path.join(BENCHMARK_VIEWER_DATA_PATH, bmrun_name)
+    bmrun_dir = os.path.join(BMRUNS_DIR, bmrun_name)
     bmrun = load_bmrun_from_path(bmrun_dir)
 
     _disgusting_pyplot_warmup_hack(bmrun)
 
-    other_bmrun_dir = os.path.join(BENCHMARK_VIEWER_DATA_PATH, other_bmrun_name)
+    other_bmrun_dir = os.path.join(BMRUNS_DIR, other_bmrun_name)
     other_bmrun = load_bmrun_from_path(other_bmrun_dir)
 
     return render_template('compare.html',
@@ -313,7 +329,7 @@ def compare(bmrun_name, other_bmrun_name):
 
 @app.route('/benchmark_run/<bmrun_name>')
 def benchmark_run(bmrun_name):
-    bmrun_dir = os.path.join(BENCHMARK_VIEWER_DATA_PATH, bmrun_name)
+    bmrun_dir = os.path.join(BMRUNS_DIR, bmrun_name)
     bmrun = load_bmrun_from_path(bmrun_dir)
 
     _disgusting_pyplot_warmup_hack(bmrun)
@@ -379,16 +395,25 @@ def load_bmrun_from_path(path):
 
     # Load in metadata from yaml
     metadata = None
-    yaml_file = os.path.join(path, 'benchmark_run_data.yaml')
-    if os.path.isfile(yaml_file):
-        with open(yaml_file, 'r') as stream:
-            try:
-                metadata = yaml.load(stream)
+    metadata_file = os.path.join(path, 'benchmark_run_data.yaml')
 
-            except yaml.YAMLError as exc:
-                print(exc)
-
-    return BenchmarkRunResource(path, tasks, metadata)
+    with open(metadata_file, 'r') as stream:
+        try:
+            metadata = yaml.load(stream)
+        except yaml.YAMLError as exc:
+            raise exc
+    try:
+        return BenchmarkRunResource(path,
+            tasks,
+            username=metadata['username'],
+            title=metadata['title'],
+            repository=metadata['repository'],
+            commit=metadata['commit'],
+            command=metadata['command'],
+        )
+    except KeyError as e:
+        logger.error("Missing key %s in metadata file: %s" % (str(e), metadata_file))
+        raise e
 
 
 def _benchmark_runs_from_dir(benchmark_dir):
@@ -397,13 +422,10 @@ def _benchmark_runs_from_dir(benchmark_dir):
     return [load_bmrun_from_path(path) for path in run_paths]
 
 
-
 def populate_benchmark_cache():
-    benchmark_dir = BENCHMARK_VIEWER_DATA_PATH
-
-    logger.info("Loading in all benchmark_runs from %s..." % benchmark_dir)
+    logger.info("Loading in all benchmark_runs from %s..." % BMRUNS_DIR)
     time_elapsed()
-    bmruns = _benchmark_runs_from_dir(benchmark_dir)
+    bmruns = _benchmark_runs_from_dir(BMRUNS_DIR)
     logger.info("Loaded %s benchmark_runs in %s seconds." % (len(bmruns), time_elapsed()))
 
     logger.info("Computing scores for each task...")
