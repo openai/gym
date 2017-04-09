@@ -5,7 +5,8 @@ import logging
 import os
 import subprocess
 from glob import glob
-from typing import NamedTuple
+
+import collections
 
 import gym
 import matplotlib.pyplot as plt
@@ -144,38 +145,58 @@ class BenchmarkResource(object):
         return gym.benchmark_spec(self.id)
 
 
-class EvaluationResource(object):
-    def __init__(self, env_id, results, evaluation_dir):
-        self.env_id = env_id
+Evaluation = collections.namedtuple('Evaluation', [
+    'score',
+    'env_id',
+    'episode_rewards',
+    'episode_lengths',
+    'episode_types',
+    'timestamps',
+    'initial_reset_timestamps',
+    'data_sources',
+])
 
-        self.episode_rewards = results['episode_rewards']
-        self.episode_lengths = results['episode_lengths']
-        self.episode_types = results['episode_types']
-        self.timestamps = results['timestamps']
-        self.initial_reset_timestamps = results['initial_reset_timestamps']
-        self.data_sources = results['data_sources']
 
-    @property
-    def score(self):
-        benchmark = registry.benchmark_spec(BENCHMARK_ID)
+def load_evaluation(training_dir):
+    results = monitoring.load_results(training_dir)
+    env_id = results['env_info']['env_id']
 
-        score_results = benchmark.score_evaluation(
-            self.env_id,
-            data_sources=self.data_sources,
-            initial_reset_timestamps=self.initial_reset_timestamps,
-            episode_lengths=self.episode_lengths,
-            episode_rewards=self.episode_rewards,
-            episode_types=self.episode_types,
-            timestamps=self.timestamps)
+    score = compute_evaluation_score(env_id, results)
+    return Evaluation(**{
+        'score': score,
+        'env_id': env_id,
+        'episode_rewards': results['episode_rewards'],
+        'episode_lengths': results['episode_lengths'],
+        'episode_types': results['episode_types'],
+        'timestamps': results['timestamps'],
+        'initial_reset_timestamps': results['initial_reset_timestamps'],
+        'data_sources': results['data_sources']
+    })
 
-        # TODO: Why does the scorer output vectorized here?
-        return mean_area_under_curve(
-            score_results['lengths'][0],
-            score_results['rewards'][0],
-        )
+
+def compute_evaluation_score(env_id, results):
+    benchmark = registry.benchmark_spec(BENCHMARK_ID)
+
+    score_results = benchmark.score_evaluation(
+        env_id,
+        data_sources=results['data_sources'],
+        initial_reset_timestamps=results['initial_reset_timestamps'],
+        episode_lengths=results['episode_lengths'],
+        episode_rewards=results['episode_rewards'],
+        episode_types=results['episode_types'],
+        timestamps=results['timestamps']
+    )
+
+    # TODO: Why does the scorer output vectorized here?
+    return mean_area_under_curve(
+        score_results['lengths'][0],
+        score_results['rewards'][0],
+    )
+
 
 def build_benchmark_run():
     pass
+
 
 class BenchmarkRunResource(object):
     def __init__(self,
@@ -348,13 +369,9 @@ def load_evaluations_from_bmrun_path(path):
         if not monitoring.detect_training_manifests(training_dir):
             dirs_missing_manifests.append(training_dir)
             continue
-        results = monitoring.load_results(training_dir)
-        if not results:
-            dirs_unloadable.append(training_dir)
-            continue
-        else:
-            evaluation = EvaluationResource(results['env_info']['env_id'], results, training_dir)
-            evaluations.append(evaluation)
+
+        evaluation = load_evaluation(training_dir)
+        evaluations.append(evaluation)
 
     if dirs_missing_manifests:
         logger.warning("Could not load %s evaluations in %s due to missing manifests" % (
