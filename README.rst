@@ -209,6 +209,21 @@ These are a variety of classic control tasks, which would appear in a typical re
 	  env.reset()
 	  env.render()
 
+MAME
+-----
+
+The MAME environments are a variety of arcade games. You can install dependencies via ``pip install -e '.[mame]'``. You'll need to have GL include files and the SDL-ttf library and development files installed (You'll need to have GL include files and the SDL-ttf library and development files installed. ``mesa-common-dev`` and ``libsdl2-ttf-dev`` under Debian-based distributions). Some example code:
+
+.. code:: python
+
+      import gym
+      env = gym.make('MameGalaxian-v0')
+      env.reset()
+      env.render()
+
+This will install `mamele <https://github.com/alito/mamele_pippable>`_, a wrapper around a modified `MAME <http://mamedev.org/>`_. This will compile MAME, which takes a couple of hours in most machines.  ROMs must be installed separately under your ~/.le/roms directory. Some ROMs can be legally downloaded from the `MAMEDev ROMs page <http://mamedev.org/roms/>`_.
+
+
 MuJoCo
 ------
 
@@ -236,6 +251,8 @@ Toy environments which are text-based. There's no extra dependency to install, s
 	  env = gym.make('FrozenLake-v0')
 	  env.reset()
 	  env.render()
+
+
 
 Examples
 ========
