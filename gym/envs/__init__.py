@@ -220,6 +220,12 @@ register(
 )
 
 register(
+    id='DartDoubleInvertedPendulumEnv-v1',
+    entry_point='gym.envs.dart:DartDoubleInvertedPendulumEnv',
+    max_episode_steps=1000,
+)
+
+register(
     id='DartReacher-v1',
     entry_point='gym.envs.dart:DartReacherEnv',
     reward_threshold=950.0,
@@ -257,6 +263,8 @@ register(
     entry_point='gym.envs.dart:DartWalker3dEnv',
     max_episode_steps=1000,
 )
+
+
 
 '''register(
     id='DartSwing-v0',

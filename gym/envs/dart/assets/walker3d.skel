@@ -329,8 +329,8 @@
                 </axis>
                 <axis2>
 		            <limit>
-                    	<lower>-0.8</lower>
-                    	<upper>0.0</upper>
+                    	<lower>0.0</lower>
+                    	<upper>0.8</upper>
                     </limit>
                     <dynamics>
                         <damping>1.0</damping>

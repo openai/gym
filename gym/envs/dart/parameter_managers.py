@@ -10,7 +10,7 @@ from gym.envs.dart import dart_env
 class hopperContactManager:
     def __init__(self, simulator):
         self.simulator = simulator
-        self.range = [0.3, 1.0] # friction range
+        self.range = [0.6, 1.0] # friction range
         self.param_dim = 1
 
     def get_simulator_parameters(self):
