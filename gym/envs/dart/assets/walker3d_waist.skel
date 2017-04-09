@@ -40,7 +40,7 @@
             <body name="h_torso">
                 <transformation> 0.0 1.425 0 0 0 0</transformation>
                 <inertia>
-                    <mass>11</mass>
+                    <mass>11.88</mass>
                     <offset>0.0 0 0.0</offset>
                 </inertia>
                 <visualization_shape>
@@ -67,7 +67,7 @@
             <body name="h_pelvis">
                 <transformation> 0.0 1.2 0 0 0 0</transformation>
                 <inertia>
-                    <mass>4</mass>
+                    <mass>3</mass>
                     <offset>0.0 -0.075 0.0</offset>
                 </inertia>
                 <visualization_shape>
@@ -143,7 +143,7 @@
             <body name="h_foot">
                 <transformation>0.0 0.1 0.07 0.0 0.0 0.0</transformation>
                 <inertia>
-                    <mass>4.616</mass>
+                    <mass>5.616</mass>
                     <offset>0.065 0.0 0.0</offset>
                 </inertia>
                 <visualization_shape>
@@ -219,7 +219,7 @@
             <body name="h_foot_left">
                 <transformation>0.0 0.1 -0.07 0.0 0.0 0.0</transformation>
                 <inertia>
-                    <mass>4.616</mass>
+                    <mass>5.616</mass>
                     <offset>0.065 0.0 0.0</offset>
                 </inertia>
                 <visualization_shape>
@@ -304,7 +304,7 @@
                 </axis>
                 <axis2>
 		            <limit>
-                    	<lower>-0.8</lower>
+                    	<lower>-0.6</lower>
                     	<upper>0.0</upper>
                     </limit>
                     <dynamics>
@@ -314,8 +314,8 @@
                 </axis2>
                 <axis3>
  		            <limit>
-                    	<lower>-0.55</lower>
-                    	<upper>0.55</upper>
+                    	<lower>-0.25</lower>
+                    	<upper>0.25</upper>
                     </limit>
                     <dynamics>
                         <damping>1.0</damping>
@@ -389,8 +389,8 @@
                 </axis>
                 <axis2>
 		            <limit>
-                    	<lower>-0.8</lower>
-                    	<upper>0.0</upper>
+                    	<lower>0.0</lower>
+                    	<upper>0.6</upper>
                     </limit>
                     <dynamics>
                         <damping>1.0</damping>
@@ -399,8 +399,8 @@
                 </axis2>
                 <axis3>
  		            <limit>
-                    	<lower>-0.55</lower>
-                    	<upper>0.55</upper>
+                    	<lower>-0.25</lower>
+                    	<upper>0.25</upper>
                     </limit>
                     <dynamics>
                         <damping>1.0</damping>

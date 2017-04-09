@@ -13,7 +13,7 @@ class DartHopperEnv(dart_env.DartEnv, utils.EzPickle):
         self.noisy_input = False
         self.resample_MP = False  # whether to resample the model paraeters
         obs_dim = 11
-        self.param_manager = hopperContactManager(self)
+        self.param_manager = hopperContactMassManager(self)
         if self.train_UP:
             obs_dim += self.param_manager.param_dim
 
