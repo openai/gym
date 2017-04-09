@@ -31,16 +31,16 @@
                     <th> task rank </th>
                 </tr>
                 </thead>
-                    {% for task_spec in benchmark_spec.tasks %}
+                    {% for task_run in bmrun.task_runs %}
                     <tr>
                         <td>
-                            {{ task_spec.env_id }}
+                            {{ task_run.env_id }}
                         </td>
                         <td>
-                            {{ display_task_score(bmrun, task_spec, score_cache) }}
+                            {{ display_task_score(task_run, score_cache) }}
                         </td>
                         <td>
-                            {{ display_task_rank(bmrun, task_spec, score_cache) }}
+                            {{display_task_rank(task_run, score_cache)}}
                         </td>
                     </tr>
                 {% endfor %}
@@ -51,13 +51,13 @@
 
     <div class="curves">
     <table>
-        {% for task in bmrun.task_runs %}
+        {% for task_run in bmrun.task_runs %}
             <tr>
                 <td>
-                    {{ task.env_id }}
+                    {{ task_run.env_id }}
                 </td>
                 <td>
-                    {{ task.render_learning_curve_svg() | safe }}
+                    {{ task_run.render_learning_curve_svg() | safe }}
                 </td>
             </tr>
         {% endfor %}

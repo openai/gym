@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 parser = argparse.ArgumentParser()
 parser.add_argument('data_path',
     help="The path to our benchmark data. e.g. /tmp/Atari40M/ ")
-parser.add_argument('--port', default=5000, help="Open the browser")
+parser.add_argument('--port', default=5000, type=int, help="Open the browser")
 parser.add_argument('--debug', action="store_true",
     help="Run with debugger and auto-reload")
 parser.add_argument('--flush-cache', action="store_true",
@@ -218,9 +218,6 @@ class BenchmarkRunResource(object):
         self.commit = commit
         self.command = command
 
-    def task_by_env_id(self, env_id):
-        return [task for task in self.task_runs if task.env_id == env_id][0]
-
     @property
     def evaluations(self):
         return [evaluation for task in self.task_runs for evaluation in task.evaluations]
@@ -248,7 +245,7 @@ class TaskRunResource(object):
 
     def render_learning_curve_svg_comparison(self, other_bmrun):
         # TODO: Move this out of the resource
-        other_task = other_bmrun.task_by_env_id(self.env_id)
+        other_task = [task for task in other_bmrun if task.env_id == self.env_id][0]
         evaluations = self.evaluations + other_task.evaluations
         return render_evaluation_learning_curves_svg(evaluations, self.spec.max_timesteps)
 
