@@ -37,11 +37,11 @@
                     <tr>
                         <td>
                             <a href={{ "/benchmark_run/{}".format(bmrun.name) }}>
-                                {{ bmrun.short_name }}
+                                {{ bmrun.title }}
                             </a>
                         </td>
                         <td>
-                            {{ bmrun.author_username }}
+                            {{ bmrun.username }}
                         </td>
                         <td>
                             {{ display_bmrun_rank(bmrun, benchmark.spec, score_cache) }}
@@ -72,7 +72,7 @@
                         <tr>
                             <td>
                                 <a href={{ "/benchmark_run/{}".format(bmrun.name) }}>
-                                    {{ bmrun.short_name }}
+                                    {{ bmrun.title }}
                                 </a>
                             </td>
                             <td>
@@ -106,7 +106,7 @@
                         <tr>
                             <td>
                                 <a href={{ "/benchmark_run/{}".format(bmrun.name) }}>
-                                    {{ bmrun.short_name }}
+                                    {{ bmrun.title }}
                                 </a>
                             </td>
                             <td>

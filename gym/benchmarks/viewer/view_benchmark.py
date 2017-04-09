@@ -194,10 +194,6 @@ class BenchmarkRunResource(object):
         self.commit = commit
         self.command = command
 
-    @property
-    def short_name(self):
-        return '_'.join(self.name.split('_')[2:])
-
     def task_by_env_id(self, env_id):
         return [task for task in self.tasks if task.env_id == env_id][0]
 
