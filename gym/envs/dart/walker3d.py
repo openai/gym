@@ -62,11 +62,11 @@ class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
                 joint_limit_penalty += abs(1.5)
 
         alive_bonus = 1.0
-        reward = 0.25*(posafter - posbefore) / self.dt
-        reward += alive_bonus
-        reward -= 1e-2 * np.square(a).sum()
-        reward -= 5e-1 * joint_limit_penalty
-        reward -= 1.0 * (side_deviation*side_deviation)
+        vel_rew = 0.25 * (posafter - posbefore) / self.dt
+        action_pen = 1e-4 * np.square(a).sum()
+        joint_pen = 5e-1 * joint_limit_penalty
+        deviation_pen = 1e-2 * abs(side_deviation)
+        reward = vel_rew + alive_bonus - action_pen - joint_pen - deviation_pen
         #reward -= 1e-7 * total_force_mag
 
         self.t += self.dt
