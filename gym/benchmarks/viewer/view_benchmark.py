@@ -194,10 +194,6 @@ def compute_evaluation_score(env_id, results):
     )
 
 
-def build_benchmark_run():
-    pass
-
-
 class BenchmarkRunResource(object):
     def __init__(self,
             path,
@@ -208,7 +204,7 @@ class BenchmarkRunResource(object):
             commit,
             command,
     ):
-        self.task_runs = sorted(task_runs, key=lambda t: t.env_id)
+        self.task_runs = task_runs
         self.name = os.path.basename(path)
 
         self.path = path
@@ -354,7 +350,6 @@ def benchmark_run(bmrun_name):
 #############################
 
 
-
 def load_evaluations_from_bmrun_path(path):
     evaluations = []
 
@@ -381,9 +376,12 @@ def load_evaluations_from_bmrun_path(path):
     return evaluations
 
 
-def load_task_runs_from_bmrun_path(path):
+def load_task_runs_from_bmrun_path(path, benchmark_spec):
+    """
+    Returns a list of task_runs sorted alphabetically by env_id
+    """
     env_id_to_task_run = {}
-    for task in BENCHMARK_SPEC.tasks:
+    for task in benchmark_spec.tasks:
         env_id_to_task_run[task.env_id] = TaskRunResource(
             task.env_id,
             benchmark_id=BENCHMARK_ID,
@@ -393,11 +391,12 @@ def load_task_runs_from_bmrun_path(path):
         env_id = evaluation.env_id
         env_id_to_task_run[env_id].evaluations.append(evaluation)
 
-    return env_id_to_task_run.values()
+    task_runs = env_id_to_task_run.values()
+    return sorted(task_runs, key=lambda t: t.env_id)
 
 
 def load_bmrun_from_path(path):
-    task_runs = load_task_runs_from_bmrun_path(path)
+    task_runs = load_task_runs_from_bmrun_path(path, BENCHMARK_SPEC)
 
     # Load in metadata from yaml
     metadata = None
