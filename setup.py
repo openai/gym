@@ -13,6 +13,7 @@ extras = {
   'classic_control': ['PyOpenGL'],
   'mujoco': ['mujoco_py>=0.4.3', 'imageio'],
   'parameter_tuning': ['keras', 'theano'],
+  'mame' : ['mamele']
 }
 
 # Meta dependency groups.

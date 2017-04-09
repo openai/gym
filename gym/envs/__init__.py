@@ -481,3 +481,20 @@ register(
     entry_point='gym.envs.safety:OffSwitchCartpoleProbEnv',
     max_episode_steps=200,
 )
+
+# Mame games
+for game_name in 'galaxian circus sidetrac ripcord crash'.split():
+    register(
+        id='Mame%s-v0' % game_name.capitalize(),
+        entry_point='gym.envs.mame:MAMEEnv',
+        kwargs={'game': game_name, 'frameskip': 1},
+        max_episode_steps=100000,
+    )
+
+    register(
+        id='Mame%s-watch-v0' % game_name.capitalize(),
+        entry_point='gym.envs.mame:MAMEEnv',
+        kwargs={'game': game_name, 'frameskip': 1, 'watch' : True},
+        max_episode_steps=100000,
+    )
+
