@@ -30,10 +30,6 @@ class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
                 clamped_control[i] = self.control_bounds[1][i]
         tau = np.zeros(self.robot_skeleton.ndofs)
         tau[6:] = clamped_control * self.action_scale
-        cur_height = self.robot_skeleton.bodynodes[0].com()[1]
-        float_ratio = (cur_height - 0.8) / 0.6
-        #if float_ratio < 1:
-        #    tau[4] = 9.8*self.robot_skeleton.m*2/3 * (1-float_ratio) + 9.8*self.robot_skeleton.m/3
 
         posbefore = self.robot_skeleton.bodynodes[0].com()[0]
         self.do_simulation(tau, self.frame_skip)
@@ -66,18 +62,18 @@ class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
                 joint_limit_penalty += abs(1.5)
 
         alive_bonus = 1.0
-        vel_rew = 0.5*(posafter - posbefore) / self.dt
-        action_pen = 1e-4 * np.square(a).sum()
-        joint_pen = 5e-1 * joint_limit_penalty
-        deviation_pen = 1e-2 * abs(side_deviation)
-        reward = vel_rew + alive_bonus - action_pen - joint_pen - deviation_pen
+        reward = 0.25*(posafter - posbefore) / self.dt
+        reward += alive_bonus
+        reward -= 1e-2 * np.square(a).sum()
+        reward -= 5e-1 * joint_limit_penalty
+        reward -= 1.0 * (side_deviation*side_deviation)
         #reward -= 1e-7 * total_force_mag
 
         self.t += self.dt
 
         s = self.state_vector()
         done = not (np.isfinite(s).all() and (np.abs(s[2:]) < 100).all() and
-                    (height > .8) and (height < 2.0) and (abs(ang_cos_uwd) < 0.54) and (abs(ang_cos_fwd) < 0.54))
+                    (height > 1.05) and (height < 2.0) and (abs(ang_cos_uwd) < 0.54) and (abs(ang_cos_fwd) < 0.54))
 
         ob = self._get_obs()
 
