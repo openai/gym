@@ -5,6 +5,7 @@ import logging
 import os
 import subprocess
 from glob import glob
+from typing import NamedTuple
 
 import gym
 import matplotlib.pyplot as plt
@@ -173,18 +174,20 @@ class EvaluationResource(object):
             score_results['rewards'][0],
         )
 
+def build_benchmark_run():
+    pass
 
 class BenchmarkRunResource(object):
     def __init__(self,
             path,
-            tasks,
+            task_runs,
             username,
             title,
             repository,
             commit,
             command,
     ):
-        self.tasks = sorted(tasks, key=lambda t: t.env_id)
+        self.task_runs = sorted(task_runs, key=lambda t: t.env_id)
         self.name = os.path.basename(path)
 
         self.path = path
@@ -195,14 +198,16 @@ class BenchmarkRunResource(object):
         self.command = command
 
     def task_by_env_id(self, env_id):
-        return [task for task in self.tasks if task.env_id == env_id][0]
+        return [task for task in self.task_runs if task.env_id == env_id][0]
 
     @property
     def evaluations(self):
-        return [evaluation for task in self.tasks for evaluation in task.evaluations]
+        return [evaluation for task in self.task_runs for evaluation in task.evaluations]
 
 
-class TaskResource(object):
+# TaskResource = NamedTuple('TaskResource', ('benchmark_id', 'evaluations'))
+
+class TaskRunResource(object):
     def __init__(self, env_id, benchmark_id, evaluations):
         self.env_id = env_id
         self.benchmark_id = benchmark_id
@@ -362,21 +367,23 @@ def load_evaluations_from_bmrun_path(path):
     return evaluations
 
 
-def load_tasks_from_bmrun_path(path):
-    env_id_to_task = {}
+def load_task_runs_from_bmrun_path(path):
+    env_id_to_task_run = {}
     for task in BENCHMARK_SPEC.tasks:
-        env_id_to_task[task.env_id] = TaskResource(task.env_id, benchmark_id=BENCHMARK_ID,
+        env_id_to_task_run[task.env_id] = TaskRunResource(
+            task.env_id,
+            benchmark_id=BENCHMARK_ID,
             evaluations=[])
 
     for evaluation in load_evaluations_from_bmrun_path(path):
         env_id = evaluation.env_id
-        env_id_to_task[env_id].evaluations.append(evaluation)
+        env_id_to_task_run[env_id].evaluations.append(evaluation)
 
-    return env_id_to_task.values()
+    return env_id_to_task_run.values()
 
 
 def load_bmrun_from_path(path):
-    tasks = load_tasks_from_bmrun_path(path)
+    task_runs = load_task_runs_from_bmrun_path(path)
 
     # Load in metadata from yaml
     metadata = None
@@ -389,7 +396,7 @@ def load_bmrun_from_path(path):
             raise exc
     try:
         return BenchmarkRunResource(path,
-            tasks,
+            task_runs,
             username=metadata['username'],
             title=metadata['title'],
             repository=metadata['repository'],
@@ -414,12 +421,12 @@ def populate_benchmark_cache():
     logger.info("Loaded %s benchmark_runs in %s seconds." % (len(bmruns), time_elapsed()))
 
     logger.info("Computing scores for each task...")
-    for run in bmruns:
-        for task in run.tasks:
-            for evaluation in task.evaluations:
-                score_cache.cache_evaluation_score(run, task, evaluation.score)
+    for bmrun in bmruns:
+        for task_run in bmrun.task_runs:
+            for evaluation in task_run.evaluations:
+                score_cache.cache_evaluation_score(bmrun, task_run, evaluation.score)
 
-        logger.info("Computed scores for %s" % run.name)
+        logger.info("Computed scores for %s" % bmrun.name)
 
     logger.info("Computed scores for %s benchmark_runs in %s seconds." %
                 (len(bmruns), time_elapsed()))
