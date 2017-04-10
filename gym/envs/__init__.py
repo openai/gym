@@ -206,6 +206,27 @@ register(
 )
 
 register(
+    id='Pusher-v0',
+    entry_point='gym.envs.mujoco:PusherEnv',
+    max_episode_steps=100,
+    reward_threshold=0.0,
+)
+
+register(
+    id='Thrower-v0',
+    entry_point='gym.envs.mujoco:ThrowerEnv',
+    max_episode_steps=100,
+    reward_threshold=0.0,
+)
+
+register(
+    id='Striker-v0',
+    entry_point='gym.envs.mujoco:StrikerEnv',
+    max_episode_steps=100,
+    reward_threshold=0.0,
+)
+
+register(
     id='InvertedPendulum-v1',
     entry_point='gym.envs.mujoco:InvertedPendulumEnv',
     max_episode_steps=1000,
