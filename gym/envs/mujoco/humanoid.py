@@ -9,6 +9,7 @@ def mass_center(model):
 
 class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     def __init__(self):
+        self.t = 0
         mujoco_env.MujocoEnv.__init__(self, 'humanoid.xml', 5)
         utils.EzPickle.__init__(self)
 
@@ -19,9 +20,11 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
                                data.cinert.flat,
                                data.cvel.flat,
                                data.qfrc_actuator.flat,
-                               data.cfrc_ext.flat])
+                               data.cfrc_ext.flat,
+                               [self.t]])
 
     def _step(self, a):
+        self.t += self.dt
         pos_before = mass_center(self.model)
         self.do_simulation(a, self.frame_skip)
         pos_after = mass_center(self.model)
@@ -38,6 +41,7 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     def reset_model(self):
         c = 0.01
+        self.t = 0
         self.set_state(
             self.init_qpos + self.np_random.uniform(low=-c, high=c, size=self.model.nq),
             self.init_qvel + self.np_random.uniform(low=-c, high=c, size=self.model.nv,)

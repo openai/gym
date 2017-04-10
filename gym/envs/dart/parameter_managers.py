@@ -15,7 +15,8 @@ class hopperContactMassManager:
         self.restitution_range = [0.0, 0.1]
         self.torso_mass_range = [3.0, 6.0]
         self.foot_mass_range = [3.0, 7.0]
-        self.activated_param = [0, 3]
+        self.activated_param = [0]
+        self.controllable_param = [0]
         self.param_dim = len(self.activated_param)
 
     def get_simulator_parameters(self):
@@ -35,26 +36,26 @@ class hopperContactMassManager:
 
     def set_simulator_parameters(self, x):
         cur_id = 0
-        if 0 in self.activated_param:
+        if 0 in self.controllable_param:
             friction = x[cur_id] * (self.range[1] - self.range[0]) + self.range[0]
             self.simulator.dart_world.skeletons[0].bodynodes[0].set_friction_coeff(friction)
             cur_id += 1
-        if 1 in self.activated_param:
+        if 1 in self.controllable_param:
             restitution = x[cur_id] * (self.restitution_range[1] - self.restitution_range[0]) + self.restitution_range[0]
             self.simulator.dart_world.skeletons[0].bodynodes[0].set_restitution_coeff(restitution)
             self.simulator.dart_world.skeletons[1].bodynodes[-1].set_restitution_coeff(1.0)
             cur_id += 1
-        if 2 in self.activated_param:
+        if 2 in self.controllable_param:
             mass = x[cur_id] * (self.torso_mass_range[1] - self.torso_mass_range[0]) + self.torso_mass_range[0]
             self.simulator.robot_skeleton.bodynodes[2].set_mass(mass)
             cur_id += 1
-        if 3 in self.activated_param:
+        if 3 in self.controllable_param:
             ft_mass = x[cur_id] * (self.foot_mass_range[1] - self.foot_mass_range[0]) + self.foot_mass_range[0]
             self.simulator.robot_skeleton.bodynodes[-1].set_mass(ft_mass)
 
     def resample_parameters(self):
         #x = np.random.uniform(0, 1, len(self.get_simulator_parameters()))
-        x = np.random.normal(0, 0.2, self.param_dim) % 1
+        x = np.random.normal(0, 0.2, len(self.controllable_param)) % 1
         self.set_simulator_parameters(x)
 
 class hopperContactMassRoughnessManager:

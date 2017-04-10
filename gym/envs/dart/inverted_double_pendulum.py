@@ -23,6 +23,8 @@ class DartDoubleInvertedPendulumEnv(dart_env.DartEnv, utils.EzPickle):
 
         reward -= 0.01*ob[0]**2
         reward += np.cos(ob[1]) + np.cos(ob[2])
+        if (np.cos(ob[1]) + np.cos(ob[2])) > 1.8:
+            reward += 5
 
         notdone = np.isfinite(ob).all() and np.abs(ob[1]) <= np.pi * 3.5 and np.abs(ob[2]) <= np.pi * 3.5# and (np.abs(ob[1]) <= .2) and (np.abs(ob[2]) <= .2)
         done = not notdone
