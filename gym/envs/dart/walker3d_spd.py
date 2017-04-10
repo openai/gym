@@ -1,7 +1,7 @@
 __author__ = 'yuwenhao'
 
 import numpy as np
-from gym import utils
+from gym import utils, spaces
 from gym.envs.dart import dart_env
 
 
@@ -9,14 +9,27 @@ class DartWalker3dSPDEnv(dart_env.DartEnv, utils.EzPickle):
     def __init__(self):
         self.control_bounds = np.array([[np.pi]*15,[-np.pi]*15])
 
-        self.Kp = np.diagflat([0.0] * 6 + [400.0] * (15))
-        self.Kd = np.diagflat([0.0] * 6 + [40.0] * (15))
+        kp_diag = np.array([0.0] * 6 + [300.0] * (15))
+        kp_diag[0:3] = 1000
+        kp_diag[7:9] = 100
+        kp_diag[13:15] = 100
+        self.Kp = np.diagflat(kp_diag)
+        self.Kd = np.diagflat(kp_diag / 10.0)
+
+        self.torque_limit = np.array([200] * 15)
+        self.torque_limit[[-1,-2,-7,-8]] = 20
+        self.torque_limit[[0, 1, 2]] = 100
 
         obs_dim = 42
 
         self.t = 0
 
-        dart_env.DartEnv.__init__(self, 'walker3d_waist.skel', 4, obs_dim, self.control_bounds, disableViewer=True)
+        dart_env.DartEnv.__init__(self, 'walker3d_waist.skel', 4, obs_dim, self.control_bounds, disableViewer=False)
+
+        for i in range(len(self.control_bounds[0])):
+            self.control_bounds[1][i] = self.robot_skeleton.q_lower[i+6]-0.1
+            self.control_bounds[0][i] = self.robot_skeleton.q_upper[i+6]+0.1
+        self.action_space = spaces.Box(self.control_bounds[1], self.control_bounds[0])
 
         utils.EzPickle.__init__(self)
 
@@ -28,7 +41,17 @@ class DartWalker3dSPDEnv(dart_env.DartEnv, utils.EzPickle):
         tau = p + d - self.Kd.dot(qddot) * self.dt
 
         tau[0:6] = 0
+
+        for i in range(len(self.torque_limit)):
+            if abs(tau[i+6]) > self.torque_limit[i]:
+                tau[i+6] = np.sign(tau[i+6]) * self.torque_limit[i]
+
         return tau
+
+    def do_simulation_spd(self, target, n_frames):
+        for i in range(n_frames):
+            tau = self._spd(target)
+            self.do_simulation(tau, 1)
 
     def _step(self, a):
         pre_state = [self.state_vector()]
@@ -41,10 +64,9 @@ class DartWalker3dSPDEnv(dart_env.DartEnv, utils.EzPickle):
                 clamped_control[i] = self.control_bounds[1][i]
         target_q = np.zeros(self.robot_skeleton.ndofs)
         target_q[6:] = clamped_control
-        tau = self._spd(target_q)
 
         posbefore = self.robot_skeleton.bodynodes[0].com()[0]
-        self.do_simulation(tau, self.frame_skip)
+        self.do_simulation_spd(target_q, self.frame_skip)
         posafter = self.robot_skeleton.bodynodes[0].com()[0]
         height = self.robot_skeleton.bodynodes[0].com()[1]
         side_deviation = self.robot_skeleton.bodynodes[0].com()[2]
