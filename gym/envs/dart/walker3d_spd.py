@@ -7,7 +7,7 @@ from gym.envs.dart import dart_env
 
 class DartWalker3dSPDEnv(dart_env.DartEnv, utils.EzPickle):
     def __init__(self):
-        self.control_bounds = np.array([[np.pi]*15,[-np.pi]*15])
+        self.control_bounds = np.array([[1.0]*15,[-1.0]*15])
 
         kp_diag = np.array([0.0] * 6 + [300.0] * (15))
         kp_diag[0:3] = 1000
@@ -25,11 +25,6 @@ class DartWalker3dSPDEnv(dart_env.DartEnv, utils.EzPickle):
         self.t = 0
 
         dart_env.DartEnv.__init__(self, 'walker3d_waist.skel', 4, obs_dim, self.control_bounds, disableViewer=False)
-
-        for i in range(len(self.control_bounds[0])):
-            self.control_bounds[1][i] = self.robot_skeleton.q_lower[i+6]-0.1
-            self.control_bounds[0][i] = self.robot_skeleton.q_upper[i+6]+0.1
-        self.action_space = spaces.Box(self.control_bounds[1], self.control_bounds[0])
 
         utils.EzPickle.__init__(self)
 
@@ -54,6 +49,8 @@ class DartWalker3dSPDEnv(dart_env.DartEnv, utils.EzPickle):
             self.do_simulation(tau, 1)
 
     def _step(self, a):
+        a[1:3] *= -1
+        a[5] *= -1
         pre_state = [self.state_vector()]
 
         clamped_control = np.array(a)
@@ -62,8 +59,10 @@ class DartWalker3dSPDEnv(dart_env.DartEnv, utils.EzPickle):
                 clamped_control[i] = self.control_bounds[0][i]
             if clamped_control[i] < self.control_bounds[1][i]:
                 clamped_control[i] = self.control_bounds[1][i]
+
         target_q = np.zeros(self.robot_skeleton.ndofs)
-        target_q[6:] = clamped_control
+        for i in range(len(self.control_bounds[0])):
+            target_q[6 + i] = (clamped_control[i] + 1.0) / 2.0 * (self.robot_skeleton.q_upper[i+6] - self.robot_skeleton.q_lower[i+6]) + self.robot_skeleton.q_lower[i+6]
 
         posbefore = self.robot_skeleton.bodynodes[0].com()[0]
         self.do_simulation_spd(target_q, self.frame_skip)
