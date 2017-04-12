@@ -24,7 +24,9 @@ class DartWalker3dSPDEnv(dart_env.DartEnv, utils.EzPickle):
 
         self.t = 0
 
-        dart_env.DartEnv.__init__(self, 'walker3d_waist.skel', 4, obs_dim, self.control_bounds, disableViewer=False)
+        dart_env.DartEnv.__init__(self, 'walker3d_waist.skel', 4, obs_dim, self.control_bounds, disableViewer=True)
+
+        self.robot_skeleton.set_self_collision_check(True)
 
         utils.EzPickle.__init__(self)
 
@@ -51,6 +53,7 @@ class DartWalker3dSPDEnv(dart_env.DartEnv, utils.EzPickle):
     def _step(self, a):
         a[1:3] *= -1
         a[5] *= -1
+
         pre_state = [self.state_vector()]
 
         clamped_control = np.array(a)

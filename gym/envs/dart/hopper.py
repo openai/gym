@@ -27,7 +27,7 @@ class DartHopperEnv(dart_env.DartEnv, utils.EzPickle):
             obs_dim = self.OSI_obs_dim
 
 
-        dart_env.DartEnv.__init__(self, 'hopper.skel', 4, obs_dim, self.control_bounds)
+        dart_env.DartEnv.__init__(self, 'hopper.skel', 4, obs_dim, self.control_bounds, disableViewer=False)
 
         utils.EzPickle.__init__(self)
 

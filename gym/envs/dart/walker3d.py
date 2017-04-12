@@ -11,11 +11,13 @@ class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
         self.action_scale = np.array([200.0]*15)
         self.action_scale[[-1,-2,-7,-8]] = 20
         self.action_scale[[0, 1, 2]] = 100
-        obs_dim = 42
+        obs_dim = 41
 
         self.t = 0
 
         dart_env.DartEnv.__init__(self, 'walker3d_waist.skel', 4, obs_dim, self.control_bounds, disableViewer=True)
+
+        self.robot_skeleton.set_self_collision_check(True)
 
         utils.EzPickle.__init__(self)
 
@@ -62,18 +64,18 @@ class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
                 joint_limit_penalty += abs(1.5)
 
         alive_bonus = 1.0
-        vel_rew = 0.25 * (posafter - posbefore) / self.dt
-        action_pen = 1e-4 * np.square(a).sum()
+        vel_rew = 0.45 * (posafter - posbefore) / self.dt
+        action_pen = 1e-2 * np.square(a).sum()
         joint_pen = 5e-1 * joint_limit_penalty
-        deviation_pen = 1e-2 * abs(side_deviation)
-        reward = vel_rew + alive_bonus - action_pen - joint_pen - deviation_pen
+        deviation_pen = 1e-1 * abs(side_deviation)
+        reward = vel_rew + alive_bonus - action_pen - deviation_pen
         #reward -= 1e-7 * total_force_mag
 
         self.t += self.dt
 
         s = self.state_vector()
         done = not (np.isfinite(s).all() and (np.abs(s[2:]) < 100).all() and
-                    (height > 1.05) and (height < 2.0) and (abs(ang_cos_uwd) < 0.54) and (abs(ang_cos_fwd) < 0.54))
+                    (height > 1.05) and (height < 2.0) and (abs(ang_cos_uwd) < 0.64) and (abs(ang_cos_fwd) < 0.74))
 
         ob = self._get_obs()
 
@@ -84,7 +86,7 @@ class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
             self.robot_skeleton.q[0:3],
             self.robot_skeleton.q[4:],
             np.clip(self.robot_skeleton.dq,-10,10),
-            [self.t]
+            #[self.t]
         ])
         state[3] = self.robot_skeleton.bodynodes[0].com()[1]
 
@@ -95,6 +97,9 @@ class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
         self.dart_world.reset()
         qpos = self.robot_skeleton.q + self.np_random.uniform(low=-.005, high=.005, size=self.robot_skeleton.ndofs)
         qvel = self.robot_skeleton.dq + self.np_random.uniform(low=-.005, high=.005, size=self.robot_skeleton.ndofs)
+        sign = np.sign(np.random.uniform(-1, 1))
+        qpos[9] = sign * self.np_random.uniform(low=0.3, high=0.35, size=1)
+        qpos[15] = -sign * self.np_random.uniform(low=0.3, high=0.35, size=1)
         self.set_state(qpos, qvel)
         self.t = 0
 
