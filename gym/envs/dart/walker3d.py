@@ -76,7 +76,7 @@ class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
 
         s = self.state_vector()
         done = not (np.isfinite(s).all() and (np.abs(s[2:]) < 100).all() and
-                    (height > 1.05) and (height < 2.0) and (abs(ang_cos_uwd) < 0.54) and (abs(ang_cos_fwd) < 0.54))
+                    (height > 1.05) and (height < 2.0) and (abs(ang_cos_uwd) < 0.64) and (abs(ang_cos_fwd) < 0.74))
 
         ob = self._get_obs()
 
@@ -103,6 +103,9 @@ class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
         self.dart_world.reset()
         qpos = self.robot_skeleton.q + self.np_random.uniform(low=-.005, high=.005, size=self.robot_skeleton.ndofs)
         qvel = self.robot_skeleton.dq + self.np_random.uniform(low=-.005, high=.005, size=self.robot_skeleton.ndofs)
+        sign = np.sign(np.random.uniform(-1, 1))
+        qpos[9] = sign * self.np_random.uniform(low=0.3, high=0.35, size=1)
+        qpos[15] = -sign * self.np_random.uniform(low=0.3, high=0.35, size=1)
         self.set_state(qpos, qvel)
         self.t = 0
 
