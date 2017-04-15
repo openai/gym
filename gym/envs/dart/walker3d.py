@@ -10,17 +10,20 @@ class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
         self.control_bounds = np.array([[1.0]*15,[-1.0]*15])
         self.action_scale = np.array([200.0]*15)
         self.action_scale[[-1,-2,-7,-8]] = 20
-        self.action_scale[[0, 1, 2]] = 100
-        obs_dim = 42
+        self.action_scale[[0, 1, 2]] = 200
+        obs_dim = 41
 
         self.t = 0
 
         dart_env.DartEnv.__init__(self, 'walker3d_waist.skel', 4, obs_dim, self.control_bounds, disableViewer=True)
 
+        self.robot_skeleton.set_self_collision_check(True)
+
         utils.EzPickle.__init__(self)
 
     def _step(self, a):
         pre_state = [self.state_vector()]
+
 
         clamped_control = np.array(a)
         for i in range(len(clamped_control)):
@@ -62,11 +65,11 @@ class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
                 joint_limit_penalty += abs(1.5)
 
         alive_bonus = 1.0
-        vel_rew = 0.25 * (posafter - posbefore) / self.dt
-        action_pen = 1e-4 * np.square(a).sum()
+        vel_rew = 0.35 * (posafter - posbefore) / self.dt
+        action_pen = 5e-3 * np.square(a).sum()
         joint_pen = 5e-1 * joint_limit_penalty
-        deviation_pen = 1e-2 * abs(side_deviation)
-        reward = vel_rew + alive_bonus - action_pen - joint_pen - deviation_pen
+        deviation_pen = 1e-1 * abs(side_deviation)
+        reward = vel_rew + alive_bonus - action_pen - deviation_pen
         #reward -= 1e-7 * total_force_mag
 
         self.t += self.dt
@@ -77,14 +80,19 @@ class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
 
         ob = self._get_obs()
 
-        return ob, reward, done, {'pre_state':pre_state, 'vel_rew':vel_rew, 'action_pen':action_pen, 'joint_pen':joint_pen, 'deviation_pen':deviation_pen, 'done_return':done}
+        foot1_com = self.robot_skeleton.bodynode('h_foot').com()
+        foot2_com = self.robot_skeleton.bodynode('h_foot_left').com()
+        robot_com = self.robot_skeleton.com()
+        com_foot_offset = robot_com - 0.5 * (foot1_com + foot2_com)
+
+        return ob, reward, done, {'pre_state':pre_state, 'vel_rew':vel_rew, 'action_pen':action_pen, 'joint_pen':joint_pen, 'deviation_pen':deviation_pen, 'com_foot_offset':com_foot_offset, 'done_return':done}
 
     def _get_obs(self):
         state =  np.concatenate([
             self.robot_skeleton.q[0:3],
             self.robot_skeleton.q[4:],
             np.clip(self.robot_skeleton.dq,-10,10),
-            [self.t]
+            #[self.t]
         ])
         state[3] = self.robot_skeleton.bodynodes[0].com()[1]
 

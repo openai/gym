@@ -27,7 +27,9 @@ class DartHopperEnv(dart_env.DartEnv, utils.EzPickle):
             obs_dim = self.OSI_obs_dim
 
 
-        dart_env.DartEnv.__init__(self, 'hopper.skel', 4, obs_dim, self.control_bounds)
+        dart_env.DartEnv.__init__(self, 'hopper_capsule.skel', 4, obs_dim, self.control_bounds)
+
+        self.dart_world.set_collision_detector(3) # 3 is ode collision detector
 
         utils.EzPickle.__init__(self)
 
@@ -67,7 +69,7 @@ class DartHopperEnv(dart_env.DartEnv, utils.EzPickle):
                 joint_limit_penalty += abs(1.5)
 
         alive_bonus = 1.0
-        reward = (posafter - posbefore) / self.dt
+        reward = 0.6*(posafter - posbefore) / self.dt
         reward += alive_bonus
         reward -= 1e-3 * np.square(a).sum()
         reward -= 5e-1 * joint_limit_penalty

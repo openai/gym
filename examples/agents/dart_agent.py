@@ -4,7 +4,7 @@ import gym
 import numpy as np
 
 if __name__ == '__main__':
-    env = gym.make('DartWalker3d-v1')
+    env = gym.make('DartWalker3dSPD-v1')
 
     env.reset()
 

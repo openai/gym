@@ -9,10 +9,10 @@ class DartWalker3dSPDEnv(dart_env.DartEnv, utils.EzPickle):
     def __init__(self):
         self.control_bounds = np.array([[1.0]*15,[-1.0]*15])
 
-        kp_diag = np.array([0.0] * 6 + [300.0] * (15))
-        kp_diag[0:3] = 1000
-        kp_diag[7:9] = 100
-        kp_diag[13:15] = 100
+        kp_diag = np.array([0.0] * 6 + [100.0] * (15))
+        kp_diag[0:3] = 300
+        kp_diag[7:9] = 30
+        kp_diag[13:15] = 30
         self.Kp = np.diagflat(kp_diag)
         self.Kd = np.diagflat(kp_diag / 10.0)
 
@@ -25,6 +25,8 @@ class DartWalker3dSPDEnv(dart_env.DartEnv, utils.EzPickle):
         self.t = 0
 
         dart_env.DartEnv.__init__(self, 'walker3d_waist.skel', 4, obs_dim, self.control_bounds, disableViewer=False)
+
+        self.robot_skeleton.set_self_collision_check(True)
 
         utils.EzPickle.__init__(self)
 
@@ -95,11 +97,11 @@ class DartWalker3dSPDEnv(dart_env.DartEnv, utils.EzPickle):
                 joint_limit_penalty += abs(1.5)
 
         alive_bonus = 1.0
-        vel_rew = 0.25 * (posafter - posbefore) / self.dt
-        action_pen = 1e-4 * np.square(a).sum()
-        joint_pen = 5e-1 * joint_limit_penalty
-        deviation_pen = 1e-2 * abs(side_deviation)
-        reward = vel_rew + alive_bonus - action_pen - joint_pen - deviation_pen
+        vel_rew = 0.45 * (posafter - posbefore) / self.dt
+        action_pen = 1e-2 * np.square(a).sum()
+        #joint_pen = 5e-1 * joint_limit_penalty
+        deviation_pen = 1e-1 * abs(side_deviation)
+        reward = vel_rew + alive_bonus - action_pen - deviation_pen
         #reward -= 1e-7 * total_force_mag
 
         self.t += self.dt
@@ -110,7 +112,7 @@ class DartWalker3dSPDEnv(dart_env.DartEnv, utils.EzPickle):
 
         ob = self._get_obs()
 
-        return ob, reward, done, {'pre_state':pre_state, 'vel_rew':vel_rew, 'action_pen':action_pen, 'joint_pen':joint_pen, 'deviation_pen':deviation_pen, 'done_return':done}
+        return ob, reward, done, {'pre_state':pre_state, 'vel_rew':vel_rew, 'action_pen':action_pen, 'deviation_pen':deviation_pen, 'done_return':done}
 
     def _get_obs(self):
         state =  np.concatenate([
