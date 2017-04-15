@@ -24,11 +24,11 @@ THE SOFTWARE.
 
 # Mujoco models
 This work is derived from [MuJuCo models](http://www.mujoco.org/forum/index.php?resources/) used under the following license:
-> This file is part of MuJoCo.     
-> Copyright 2009-2015 Roboti LLC.	
-> 	Mujoco		:: Advanced physics simulation engine
-> 	Source		: www.roboti.us
->		Version		: 1.31
->		Released 	: 23Apr16
->	  Author		:: Vikash Kumar
-> 	Contacts 	: kumar@roboti.us
+```This file is part of MuJoCo.     
+Copyright 2009-2015 Roboti LLC.	
+Mujoco		:: Advanced physics simulation engine
+Source		: www.roboti.us
+Version		: 1.31
+Released 	: 23Apr16
+Author		:: Vikash Kumar
+Contacts 	: kumar@roboti.us```
