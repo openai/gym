@@ -85,7 +85,7 @@ class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
         robot_com = self.robot_skeleton.com()
         com_foot_offset = robot_com - 0.5 * (foot1_com + foot2_com)
 
-        return ob, reward, done, {'pre_state':pre_state, 'vel_rew':vel_rew, 'action_pen':action_pen, 'joint_pen':joint_pen, 'deviation_pen':deviation_pen, 'aux_pred3d':com_foot_offset, 'done_return':done}
+        return ob, reward, done, {'pre_state':pre_state, 'vel_rew':vel_rew, 'action_pen':action_pen, 'joint_pen':joint_pen, 'deviation_pen':deviation_pen, 'aux_pred':np.hstack([com_foot_offset, [reward]]), 'done_return':done}
 
     def _get_obs(self):
         state =  np.concatenate([
