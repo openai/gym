@@ -37,7 +37,7 @@ class DartReacherEnv(dart_env.DartEnv, utils.EzPickle):
         done = not (np.isfinite(s).all() and (-reward_dist > 0.1))
 #        done = not (np.isfinite(s).all() and (-reward_dist > 0.01) and (velocity < 10000))
 
-        return ob, reward, done, {}
+        return ob, reward, done, {'aux_pred3d':self.robot_skeleton.bodynodes[2].to_world(fingertip), 'done_return':done}
 
     def _get_obs(self):
         theta = self.robot_skeleton.q
@@ -53,7 +53,7 @@ class DartReacherEnv(dart_env.DartEnv, utils.EzPickle):
         self.set_state(qpos, qvel)
         while True:
             self.target = self.np_random.uniform(low=-1, high=1, size=3)
-            print('target = ' + str(self.target))
+            #print('target = ' + str(self.target))
             if np.linalg.norm(self.target) < 1.5: break
 
 

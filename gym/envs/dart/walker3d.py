@@ -15,7 +15,7 @@ class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
 
         self.t = 0
 
-        dart_env.DartEnv.__init__(self, 'walker3d_waist.skel', 4, obs_dim, self.control_bounds, disableViewer=True)
+        dart_env.DartEnv.__init__(self, 'walker3d_waist.skel', 4, obs_dim, self.control_bounds, disableViewer=False)
 
         self.robot_skeleton.set_self_collision_check(True)
 
@@ -85,7 +85,7 @@ class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
         robot_com = self.robot_skeleton.com()
         com_foot_offset = robot_com - 0.5 * (foot1_com + foot2_com)
 
-        return ob, reward, done, {'pre_state':pre_state, 'vel_rew':vel_rew, 'action_pen':action_pen, 'joint_pen':joint_pen, 'deviation_pen':deviation_pen, 'com_foot_offset':com_foot_offset, 'done_return':done}
+        return ob, reward, done, {'pre_state':pre_state, 'vel_rew':vel_rew, 'action_pen':action_pen, 'joint_pen':joint_pen, 'deviation_pen':deviation_pen, 'aux_pred3d':com_foot_offset, 'done_return':done}
 
     def _get_obs(self):
         state =  np.concatenate([
@@ -104,8 +104,8 @@ class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
         qpos = self.robot_skeleton.q + self.np_random.uniform(low=-.005, high=.005, size=self.robot_skeleton.ndofs)
         qvel = self.robot_skeleton.dq + self.np_random.uniform(low=-.005, high=.005, size=self.robot_skeleton.ndofs)
         sign = np.sign(np.random.uniform(-1, 1))
-        qpos[9] = sign * self.np_random.uniform(low=0.3, high=0.35, size=1)
-        qpos[15] = -sign * self.np_random.uniform(low=0.3, high=0.35, size=1)
+        #qpos[9] = sign * self.np_random.uniform(low=0.3, high=0.35, size=1)
+        #qpos[15] = -sign * self.np_random.uniform(low=0.3, high=0.35, size=1)
         self.set_state(qpos, qvel)
         self.t = 0
 
