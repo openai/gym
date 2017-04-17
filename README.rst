@@ -225,6 +225,35 @@ to set it up. You'll have to also run ``pip install -e '.[mujoco]'`` if you didn
 	  env.reset()
 	  env.render()
 
+PyGame
+------
+
+The Pygame Learning Environment (PLE) contains a variety of different video games. If you didn't do the full install, you can install dependencies via ``pip install -e '.[ple]'`` (you'll need ``python-pygame`` installed) and then get started as follow:
+
+.. code:: python
+
+	  import gym
+	  env = gym.make('Flappybirds-v0')
+	  env.reset()
+	  env.render()
+
+PyGame can be installed using this tutorial (Ubuntu). For mac you can use these following instructions;
+
+.. code:: shell
+
+	  brew install sdl sdl_ttf sdl_image sdl_mixer portmidi  # brew or use equivalent means
+	  conda install -c https://conda.binstar.org/quasiben pygame  # using Anaconda
+
+Then to install PLE first clone the repo:
+
+.. code:: shell
+
+	  git clone https://github.com/ntasfi/PyGame-Learning-Environment
+	  cd PyGame-Learning-Environment
+	  pip install -e .
+
+This will install PLE as an editable library with pip.
+
 Toy text
 --------
 
