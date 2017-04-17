@@ -481,3 +481,16 @@ register(
     entry_point='gym.envs.safety:OffSwitchCartpoleProbEnv',
     max_episode_steps=200,
 )
+
+# Pygame
+# ----------------------------------------
+for game in ['Catcher', 'MonsterKong', 'FlappyBird', 'PixelCopter', 'PuckWorld', 'RaycastMaze', 'Snake', 'WaterWorld']:
+    for obs_type in ['image']:
+        nondeterministic = False
+        register(
+            id='{}-v0'.format(game),
+            entry_point='gym.envs.pygame:PLEEnv',
+            kwargs={'game_name': game, 'obs_type': obs_type},
+            timestep_limit=10000,
+            nondeterministic=nondeterministic,
+        )
