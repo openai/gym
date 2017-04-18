@@ -242,6 +242,12 @@ register(
     max_episode_steps=1000,
 )
 
+register(
+    id='DartDog-v1',
+    entry_point='gym.envs.dart:DartDogEnv',
+    max_episode_steps=1000,
+)
+
 '''register(
     id='DartSwimmer-v1',
     entry_point='gym.envs.dart:DartSwimmerEnv',

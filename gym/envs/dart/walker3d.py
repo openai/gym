@@ -24,7 +24,6 @@ class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
     def _step(self, a):
         pre_state = [self.state_vector()]
 
-
         clamped_control = np.array(a)
         for i in range(len(clamped_control)):
             if clamped_control[i] > self.control_bounds[0][i]:
@@ -69,7 +68,7 @@ class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
         action_pen = 5e-3 * np.square(a).sum()
         joint_pen = 5e-1 * joint_limit_penalty
         deviation_pen = 1e-1 * abs(side_deviation)
-        reward = vel_rew + alive_bonus - action_pen - deviation_pen
+        reward = vel_rew + alive_bonus - action_pen - joint_pen - deviation_pen
         #reward -= 1e-7 * total_force_mag
 
         self.t += self.dt
@@ -83,9 +82,10 @@ class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
         foot1_com = self.robot_skeleton.bodynode('h_foot').com()
         foot2_com = self.robot_skeleton.bodynode('h_foot_left').com()
         robot_com = self.robot_skeleton.com()
-        com_foot_offset = robot_com - 0.5 * (foot1_com + foot2_com)
+        com_foot_offset1 = robot_com - foot1_com
+        com_foot_offset2 = robot_com - foot2_com
 
-        return ob, reward, done, {'pre_state':pre_state, 'vel_rew':vel_rew, 'action_pen':action_pen, 'joint_pen':joint_pen, 'deviation_pen':deviation_pen, 'aux_pred':np.hstack([com_foot_offset, [reward]]), 'done_return':done}
+        return ob, reward, done, {'pre_state':pre_state, 'vel_rew':vel_rew, 'action_pen':action_pen, 'joint_pen':joint_pen, 'deviation_pen':deviation_pen, 'aux_pred':np.hstack([com_foot_offset1, com_foot_offset2, [reward]]), 'done_return':done}
 
     def _get_obs(self):
         state =  np.concatenate([
