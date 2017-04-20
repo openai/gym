@@ -29,3 +29,9 @@ class Tuple(Space):
 
     def from_jsonable(self, sample_n):
         return zip(*[space.from_jsonable(sample_n[i]) for i, space in enumerate(self.spaces)])
+
+    def to_one_jsonable(self, sample):
+        return [space.to_one_jsonable(sample[i]) for i, space in enumerate(self.spaces)]
+
+    def from_one_jsonable(self, sample):
+        return [space.from_one_jsonable(sample[i]) for i, space in enumerate(self.spaces)]

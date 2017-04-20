@@ -35,6 +35,11 @@ class Box(gym.Space):
     def from_jsonable(self, sample_n):
         return [np.asarray(sample) for sample in sample_n]
 
+    def to_one_jsonable(self, sample):
+        return sample.tolist()
+    def from_one_jsonable(self, sample):
+        return np.asarray(sample)
+
     @property
     def shape(self):
         return self.low.shape

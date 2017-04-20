@@ -1,15 +1,30 @@
 import json # note: ujson fails this test due to float equality
 import numpy as np
 import pytest
-from gym.spaces import Tuple, Box, Discrete, MultiDiscrete
-
+from gym.spaces import Tuple, Box, Discrete, MultiDiscrete, Dict
+from collections import OrderedDict
 
 @pytest.mark.parametrize("space", [
               Discrete(3),
               Tuple([Discrete(5), Discrete(10)]),
               Tuple([Discrete(5), Box(np.array([0,0]),np.array([1,5]))]),
               Tuple((Discrete(5), Discrete(2), Discrete(2))),
-              MultiDiscrete([ [0, 1], [0, 1], [0, 100] ])
+              MultiDiscrete([ [0, 1], [0, 1], [0, 100] ]),
+              Dict(('b', Discrete(5)), ('a', Discrete(3))),
+              Dict(('b', Discrete(5)), ('a', Box(np.array([0,0]),
+                                                 np.array([1,5])))),
+              Dict(('b', Discrete(5)), ('a', MultiDiscrete([[0, 1],[0, 1],[0, 100] ]))),
+              Dict(('b', Tuple([Discrete(5), Discrete(10)])), 
+                   ('a', Tuple([Discrete(5), Box(np.array([0,0]),
+                                                 np.array([1,5]))]))),
+              Dict(('b', Dict(('b1', Discrete(5)), ('b0', Discrete(5)))),
+                   ('a', Dict(('a1', Discrete(5)), ('a0', Discrete(5))))),
+              Tuple([Dict(('b', Tuple([Discrete(5), Discrete(10)])),
+                          ('a', Tuple([Discrete(5), Box(np.array([0,0]),np.array([1,5]))]))),
+                     Dict(('b', Dict(('b1', Discrete(5)),
+                                     ('b0', Discrete(5)))),
+                          ('a', Dict(('a1', Discrete(5)),
+                                     ('a0', Discrete(5)))))]),
               ])
 def test_roundtripping(space):
     sample_1 = space.sample()
@@ -18,8 +33,8 @@ def test_roundtripping(space):
     assert space.contains(sample_2)
     json_rep = space.to_jsonable([sample_1, sample_2])
 
-    json_roundtripped = json.loads(json.dumps(json_rep))
-
+    json_roundtripped = json.loads(json.dumps(json_rep), object_pairs_hook=OrderedDict)
+    
     samples_after_roundtrip = space.from_jsonable(json_roundtripped)
     sample_1_prime, sample_2_prime = samples_after_roundtrip
 

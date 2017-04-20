@@ -241,6 +241,16 @@ class Space(object):
         # By default, assume identity is JSONable
         return sample_n
 
+    def to_one_jsonable(self, sample):
+        """Convert a sample from this space to a JSONable data type."""
+        # By default, assume identity is JSONable
+        return sample
+
+    def from_one_jsonable(self, sample):
+        """Convert a JSONable data type to a sample from this space."""
+        # By default, assume identity is JSONable
+        return sample
+
 class Wrapper(Env):
     # Clear metadata so by default we don't override any keys.
     metadata = {}
