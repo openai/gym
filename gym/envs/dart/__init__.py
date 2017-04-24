@@ -15,3 +15,4 @@ from gym.envs.dart.walker3d import DartWalker3dEnv
 from gym.envs.dart.walker3d_spd import DartWalker3dSPDEnv
 from gym.envs.dart.inverted_double_pendulum import DartDoubleInvertedPendulumEnv
 from gym.envs.dart.dog import DartDogEnv
+from gym.envs.dart.reacher2d import DartReacher2dEnv

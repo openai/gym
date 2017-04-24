@@ -2,7 +2,7 @@
 <skel version="1.0">
     <world name="world 1">
         <physics>
-            <time_step>0.002</time_step>
+            <time_step>0.02</time_step>
             <gravity>0 -9.81 0</gravity>
             <collision_detector>bullet</collision_detector>
         </physics>
