@@ -10,6 +10,8 @@ class DartCartPoleEnv(dart_env.DartEnv, utils.EzPickle):
         utils.EzPickle.__init__(self)
 
     def _step(self, a):
+        if abs(a[0]) > 1:
+            a[0] = np.sign(a[0])
         reward = 1.0
 
         tau = np.zeros(self.robot_skeleton.ndofs)

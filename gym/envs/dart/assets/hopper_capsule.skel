@@ -139,7 +139,7 @@
                     <offset>0.065 0.0 0.0</offset>
                 </inertia>
                 <visualization_shape>
-                    <transformation> 0.065 0.0 0.0 0.0 1.57079632679 0.0</transformation>
+                    <transformation>0.065 0.0 0.0 0.0 1.57079632679 0.0</transformation>
                     <geometry>
                         <capsule>
                             <height>0.39</height>
@@ -185,7 +185,7 @@
                 <parent>h_pelvis_aux</parent>
                 <child>h_pelvis</child>
                 <axis>
-                      <xyz>0.0 0.0 1.0</xyz>
+                      <xyz>0.0 0.0 -1.0</xyz>
                 </axis>
                 <init_pos>0</init_pos>
                 <init_vel>0</init_vel>

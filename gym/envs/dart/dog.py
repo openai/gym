@@ -12,7 +12,7 @@ class DartDogEnv(dart_env.DartEnv, utils.EzPickle):
     def __init__(self):
         self.control_bounds = np.array([[1.0]*16,[-1.0]*16])
         self.action_scale = 200
-        obs_dim = 41
+        obs_dim = 43
 
         dart_env.DartEnv.__init__(self, 'dog.skel', 4, obs_dim, self.control_bounds, disableViewer=False)
 
@@ -65,4 +65,5 @@ class DartDogEnv(dart_env.DartEnv, utils.EzPickle):
         return self._get_obs()
 
     def viewer_setup(self):
-        self._get_viewer().scene.tb.trans[2] = -5.5
+        self._get_viewer().scene.tb.trans[2] = -15.5
+        self.track_skeleton_id = 0

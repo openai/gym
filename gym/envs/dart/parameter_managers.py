@@ -16,7 +16,7 @@ class hopperContactMassManager:
         self.torso_mass_range = [3.0, 6.0]
         self.foot_mass_range = [3.0, 7.0]
         self.activated_param = [0, 2]
-        self.controllable_param = [0]
+        self.controllable_param = [0, 2]
         self.param_dim = len(self.activated_param)
 
     def get_simulator_parameters(self):
