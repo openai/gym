@@ -39,7 +39,7 @@
         <skeleton name="target skeleton">
             <mobile>false</mobile>
             <body name="target">
-                <transformation>.1 0.01 -.1 0 0 0</transformation>
+                <transformation>.0 0.0 0 0 0 0</transformation>
                 <visualization_shape>
                     <transformation>0 0 0 0 0 0</transformation>
                     <geometry>
@@ -61,8 +61,8 @@
             <body name="link0">
                 <transformation>0.0 0.0 0 0 0 0</transformation>
                 <inertia>
-                    <mass>0.53429174</mass>
-                    <offset>-0.05 0 0.0</offset>
+                    <mass>0.03455752</mass>
+                    <offset>0.05 0 0.0</offset>
                 </inertia>
                 <visualization_shape>
                     <transformation>0.05 0 0.0 0 1.57079632679 0</transformation>
@@ -79,8 +79,8 @@
             <body name="link1">
                 <transformation>0.1 0.0 0 0 0 0</transformation>
                 <inertia>
-                    <mass>0.53429174</mass>
-                    <offset>-0.05 0 0.0</offset>
+                    <mass>0.03455752</mass>
+                    <offset>0.05 0 0.0</offset>
                 </inertia>
                 <visualization_shape>
                     <transformation>0.05 0 0.0 0 1.57079632679 0</transformation>
@@ -95,19 +95,19 @@
             </body>
 
             <body name="link2">
-                <transformation>0.11 0.0 0 0 0 0</transformation>
+                <transformation>0.21 0.0 0 0 0 0</transformation>
                 <inertia>
-                    <mass>0.53429174</mass>
+                    <mass>0.00418879</mass>
                     <offset>0 0 0.0</offset>
                 </inertia>
                 <visualization_shape>
-                    <transformation>0.05 0 0.0 0 1.57079632679 0</transformation>
+                    <transformation>0.005 0 0.0 0 0.0 0</transformation>
                     <geometry>
                         <ellipsoid>
-                            <size>0.01 0.01 0.01</size>
+                            <size>0.02 0.02 0.02</size>
                         </ellipsoid>
                     </geometry>
-                    <color>0.0 0.8 0.6 1</color>
+                    <color>1.0 0.8 0.6 1</color>
                 </visualization_shape>
             </body>
             

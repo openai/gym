@@ -20,8 +20,9 @@ class DartReacher2dEnv(dart_env.DartEnv, utils.EzPickle):
         tau = np.multiply(clamped_control, self.action_scale)
 
         vec = self.robot_skeleton.bodynodes[-1].com() - self.target
+
         reward_dist = - np.linalg.norm(vec)
-        reward_ctrl = - np.square(tau).sum()
+        reward_ctrl = - np.square(a).sum()
         alive_bonus = 0
         reward = reward_dist + reward_ctrl + alive_bonus
         
@@ -49,6 +50,7 @@ class DartReacher2dEnv(dart_env.DartEnv, utils.EzPickle):
         self.target[1] = 0.01
 
         self.dart_world.skeletons[1].q=[0, 0, 0, self.target[0], self.target[1], self.target[2]]
+
 
         return self._get_obs()
 
