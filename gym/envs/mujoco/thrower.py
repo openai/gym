@@ -11,7 +11,7 @@ class ThrowerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     def _step(self, a):
         ball_xy = self.get_body_com("ball")[:2]
-        goal_xy = self.get_body_com("goal")[:2] 
+        goal_xy = self.get_body_com("goal")[:2]
 
         if not self._ball_hit_ground and self.get_body_com("ball")[2] < -0.25:
             self._ball_hit_ground = True
@@ -41,7 +41,7 @@ class ThrowerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
         qpos = self.init_qpos
         self.goal = np.array([self.np_random.uniform(low=-0.3, high=0.3),
-                np.random.uniform(low=-0.3, high=0.3)])
+                              self.np_random.uniform(low=-0.3, high=0.3)])
 
         qpos[-9:-7] = self.goal
         qvel = self.init_qvel + self.np_random.uniform(low=-0.005,
