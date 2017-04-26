@@ -33,7 +33,7 @@
             <body name="cart">
                 <transformation>0.0 0 0 0 0 0</transformation>
                 <inertia>
-                    <mass>3.53429174</mass>
+                    <mass>9.42477796</mass>
                     <offset>0.0 0 0.0</offset>
                 </inertia>
                 <visualization_shape>
@@ -59,7 +59,7 @@
             <body name="pole">
                 <transformation>0.0 0.0 0.0 0 0.0 0.0</transformation>
                 <inertia>
-                    <mass>3.92699082</mass>
+                    <mass>4.8953899</mass>
                     <offset>0.0 0.3 0.0</offset>
                 </inertia>
                 <visualization_shape>
@@ -88,10 +88,10 @@
                 <child>cart</child>
                 <axis>
                       <xyz>1.0 0.0 0.0</xyz>
-                      <limit>
+                      <!--<limit>
                           <lower>-1</lower>
                           <upper>1</upper>
-                      </limit>
+                      </limit>-->
                       <dynamics>
                           <damping>1.0</damping>
                       </dynamics>
@@ -105,10 +105,10 @@
                 <child>pole</child>
                 <axis>
                       <xyz>0.0 0.0 -1.0</xyz>
-                      <limit>
+                      <!--<limit>
                           <lower>-1.57</lower>
                           <upper>1.57</upper>
-                      </limit>
+                      </limit>-->
                       <dynamics>
                           <damping>1.0</damping>
                       </dynamics>

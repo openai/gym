@@ -123,7 +123,7 @@
                 <child>link 3</child>
                 <axis>
                     <xyz>0.0 0.0 1.0</xyz>
- 		     <limit>
+ 		            <limit>
                     	<lower>-3.14</lower>
                     	<upper>3.14</upper>
                     </limit> 
