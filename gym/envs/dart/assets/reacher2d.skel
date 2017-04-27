@@ -76,6 +76,30 @@
                 </visualization_shape>
             </body>
 
+            <body name="armature0">
+                <transformation>0.0 0.0 0 0 0 0</transformation>
+                <inertia>
+                    <mass>0.0</mass>
+                    <moment_of_inertia>
+                        <ixx>1</ixx>
+                        <iyy>1</iyy>
+                        <izz>1</izz>
+                        <ixy>0</ixy>
+                        <ixz>0</ixz>
+                        <iyz>0</iyz>
+                    </moment_of_inertia>
+                </inertia>
+                <visualization_shape>
+                    <transformation>0.0 0 0.0 0 0.0 0</transformation>
+                    <geometry>
+                        <box>
+                            <size>0.01 0.01 0.01</size>
+                        </box>
+                    </geometry>
+                    <color>0.0 0.4 0.2 1</color>
+                </visualization_shape>
+            </body>
+
             <body name="link1">
                 <transformation>0.1 0.0 0 0 0 0</transformation>
                 <inertia>
@@ -91,6 +115,30 @@
                         </capsule>
                     </geometry>
                     <color>0.0 0.4 0.6 1</color>
+                </visualization_shape>
+            </body>
+
+            <body name="armature1">
+                <transformation>0.1 0.0 0 0 0 0</transformation>
+                <inertia>
+                    <mass>0.0</mass>
+                    <moment_of_inertia>
+                        <ixx>1</ixx>
+                        <iyy>1</iyy>
+                        <izz>1</izz>
+                        <ixy>0</ixy>
+                        <ixz>0</ixz>
+                        <iyz>0</iyz>
+                    </moment_of_inertia>
+                </inertia>
+                <visualization_shape>
+                    <transformation>0.0 0 0.0 0 0.0 0</transformation>
+                    <geometry>
+                        <box>
+                            <size>0.01 0.01 0.01</size>
+                        </box>
+                    </geometry>
+                    <color>0.0 0.4 0.2 1</color>
                 </visualization_shape>
             </body>
 
@@ -126,6 +174,12 @@
                 <init_vel>0</init_vel>
             </joint>
 
+            <joint type="weld" name="j_armature0">
+                <transformation>0.0 0.0 0.0 0.0 0.0 0.0</transformation>
+                <parent>link0</parent>
+                <child>armature0</child>
+            </joint>
+
 
             <joint type="revolute" name="j_link1">
                 <transformation>0.0 0.0 0.0 0.0 0.0 0.0</transformation>
@@ -133,10 +187,10 @@
                 <child>link1</child>
                 <axis>
                     <xyz>0.0 1.0 0.0</xyz>
-		            <!--<limit>
+		            <limit>
                     	<lower>-3</lower>
                     	<upper>3</upper>
-                    </limit>-->
+                    </limit>
                     <dynamics>
                         <damping>1.0</damping>
                     </dynamics>
@@ -145,11 +199,20 @@
                 <init_vel>0</init_vel>
             </joint>
 
+            <joint type="weld" name="j_armature1">
+                <transformation>0.0 0.0 0.0 0.0 0.0 0.0</transformation>
+                <parent>link1</parent>
+                <child>armature1</child>
+            </joint>
+
             <joint type="weld" name="j_link2">
                 <transformation>0.0 0.0 0.0 0.0 0.0 0.0</transformation>
                 <parent>link1</parent>
                 <child>link2</child>
             </joint>
+
+
+
         </skeleton>	
 
     </world>

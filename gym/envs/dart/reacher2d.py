@@ -5,7 +5,7 @@ from gym.envs.dart import dart_env
 class DartReacher2dEnv(dart_env.DartEnv, utils.EzPickle):
     def __init__(self):
         self.target = np.array([0.1, 0.01, -0.1])
-        self.action_scale = np.array([30, 30])
+        self.action_scale = np.array([100, 100])
         self.control_bounds = np.array([[1.0, 1.0],[-1.0, -1.0]])
         dart_env.DartEnv.__init__(self, 'reacher2d.skel', 4, 11, self.control_bounds)
         utils.EzPickle.__init__(self)
@@ -48,7 +48,7 @@ class DartReacher2dEnv(dart_env.DartEnv, utils.EzPickle):
         while True:
             self.target = self.np_random.uniform(low=-.2, high=.2, size=3)
             self.target[1] = 0.0
-            if np.linalg.norm(self.target) < 2: break
+            if np.linalg.norm(self.target) < .2: break
         self.target[1] = 0.01
         #options = [np.array([0.1, 0.01, 0.1]), np.array([-0.2, 0.01, 0.05]), np.array([0.2, 0.01, -0.15])]
         #self.target = options[int(np.random.random()*len(options))]
