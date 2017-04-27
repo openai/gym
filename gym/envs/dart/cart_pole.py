@@ -6,7 +6,7 @@ class DartCartPoleEnv(dart_env.DartEnv, utils.EzPickle):
     def __init__(self):
         control_bounds = np.array([[1.0],[-1.0]])
         self.action_scale = 100
-        dart_env.DartEnv.__init__(self, 'cartpole.skel', 2, 4, control_bounds)
+        dart_env.DartEnv.__init__(self, 'cartpole.skel', 2, 4, control_bounds, dt=0.02)
         utils.EzPickle.__init__(self)
 
     def _step(self, a):

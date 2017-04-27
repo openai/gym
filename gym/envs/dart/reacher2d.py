@@ -5,9 +5,13 @@ from gym.envs.dart import dart_env
 class DartReacher2dEnv(dart_env.DartEnv, utils.EzPickle):
     def __init__(self):
         self.target = np.array([0.1, 0.01, -0.1])
-        self.action_scale = np.array([100, 100])
+        self.action_scale = np.array([200, 200])
         self.control_bounds = np.array([[1.0, 1.0],[-1.0, -1.0]])
-        dart_env.DartEnv.__init__(self, 'reacher2d.skel', 4, 11, self.control_bounds)
+        dart_env.DartEnv.__init__(self, 'reacher2d.skel', 2, 11, self.control_bounds, dt=0.01)
+        for s in self.dart_world.skeletons:
+            s.set_self_collision_check(False)
+            for n in s.bodynodes:
+                n.set_collidable(False)
         utils.EzPickle.__init__(self)
 
     def _step(self, a):

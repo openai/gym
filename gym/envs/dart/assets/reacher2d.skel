@@ -76,7 +76,7 @@
                 </visualization_shape>
             </body>
 
-            <body name="armature0">
+            <!--<body name="armature0">
                 <transformation>0.0 0.0 0 0 0 0</transformation>
                 <inertia>
                     <mass>0.0</mass>
@@ -98,7 +98,7 @@
                     </geometry>
                     <color>0.0 0.4 0.2 1</color>
                 </visualization_shape>
-            </body>
+            </body>-->
 
             <body name="link1">
                 <transformation>0.1 0.0 0 0 0 0</transformation>
@@ -118,7 +118,7 @@
                 </visualization_shape>
             </body>
 
-            <body name="armature1">
+            <!--<body name="armature1">
                 <transformation>0.1 0.0 0 0 0 0</transformation>
                 <inertia>
                     <mass>0.0</mass>
@@ -140,7 +140,7 @@
                     </geometry>
                     <color>0.0 0.4 0.2 1</color>
                 </visualization_shape>
-            </body>
+            </body>-->
 
             <body name="link2">
                 <transformation>0.21 0.0 0 0 0 0</transformation>
@@ -167,18 +167,19 @@
                     <!--<lower>-3.14</lower>
                     <upper>3.14</upper>-->
                     <dynamics>
-                        <damping>1.0</damping>
+                        <damping>10.0</damping>
+                        <friction>0.05</friction>
                     </dynamics>
                 </axis>
                 <init_pos>0</init_pos>
                 <init_vel>0</init_vel>
             </joint>
 
-            <joint type="weld" name="j_armature0">
+            <!--<joint type="weld" name="j_armature0">
                 <transformation>0.0 0.0 0.0 0.0 0.0 0.0</transformation>
-                <parent>link0</parent>
-                <child>armature0</child>
-            </joint>
+                <parent>armature0</parent>
+                <child>link0</child>
+            </joint>-->
 
 
             <joint type="revolute" name="j_link1">
@@ -187,23 +188,24 @@
                 <child>link1</child>
                 <axis>
                     <xyz>0.0 1.0 0.0</xyz>
-		            <limit>
+		            <!--<limit>
                     	<lower>-3</lower>
                     	<upper>3</upper>
-                    </limit>
+                    </limit>-->
                     <dynamics>
-                        <damping>1.0</damping>
+                        <damping>3.0</damping>
+                        <friction>0.05</friction>
                     </dynamics>
                 </axis>
                 <init_pos>0</init_pos>
                 <init_vel>0</init_vel>
             </joint>
 
-            <joint type="weld" name="j_armature1">
+            <!--<joint type="weld" name="j_armature1">
                 <transformation>0.0 0.0 0.0 0.0 0.0 0.0</transformation>
                 <parent>link1</parent>
                 <child>armature1</child>
-            </joint>
+            </joint>-->
 
             <joint type="weld" name="j_link2">
                 <transformation>0.0 0.0 0.0 0.0 0.0 0.0</transformation>
