@@ -79,7 +79,7 @@ class DartHopperEnv(dart_env.DartEnv, utils.EzPickle):
                     (height > .7) and (height < 1.8) and (abs(ang) < .4))
         ob = self._get_obs()
 
-        return ob, reward, done, {'pre_state':pre_state, 'vel_rew':(posafter - posbefore) / self.dt, 'action_rew':1e-3 * np.square(a).sum(), 'forcemag':1e-7*total_force_mag, 'done_return':done}
+        return ob, reward, done, {'model_parameters':self.param_manager.get_simulator_parameters(), 'vel_rew':(posafter - posbefore) / self.dt, 'action_rew':1e-3 * np.square(a).sum(), 'forcemag':1e-7*total_force_mag, 'done_return':done}
 
     def _get_obs(self):
         state =  np.concatenate([
