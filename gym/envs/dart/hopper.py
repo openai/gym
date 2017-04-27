@@ -28,7 +28,7 @@ class DartHopperEnv(dart_env.DartEnv, utils.EzPickle):
 
         dart_env.DartEnv.__init__(self, 'hopper_capsule.skel', 4, obs_dim, self.control_bounds, disableViewer=False)
 
-        self.dart_world.set_collision_detector(3) # 3 is ode collision detector
+        #self.dart_world.set_collision_detector(3) # 3 is ode collision detector
 
         utils.EzPickle.__init__(self)
 

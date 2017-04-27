@@ -11,12 +11,13 @@ from gym.envs.dart import dart_env
 class hopperContactMassManager:
     def __init__(self, simulator):
         self.simulator = simulator
-        self.range = [0.5, 1.0] # friction range
+        self.range = [0.4, 1.0] # friction range
         self.restitution_range = [0.0, 0.1]
         self.torso_mass_range = [3.0, 6.0]
         self.foot_mass_range = [3.0, 7.0]
+        self.power_range = [100, 300]
         self.activated_param = [0, 2]
-        self.controllable_param = [3]
+        self.controllable_param = [0, 2]
         self.param_dim = len(self.activated_param)
 
     def get_simulator_parameters(self):
@@ -32,7 +33,10 @@ class hopperContactMassManager:
         cur_ft_mass = self.simulator.robot_skeleton.bodynodes[-1].m
         ft_mass_param = (cur_ft_mass - self.foot_mass_range[0]) / (self.foot_mass_range[1] - self.foot_mass_range[0])
 
-        return np.array([friction_param, restitution_param, mass_param, ft_mass_param])[self.activated_param]
+        cur_power = self.simulator.action_scale
+        power_param = (cur_power - self.power_range[0]) / (self.power_range[1] - self.power_range[0])
+
+        return np.array([friction_param, restitution_param, mass_param, ft_mass_param, power_param])[self.activated_param]
 
     def set_simulator_parameters(self, x):
         cur_id = 0
@@ -52,10 +56,15 @@ class hopperContactMassManager:
         if 3 in self.controllable_param:
             ft_mass = x[cur_id] * (self.foot_mass_range[1] - self.foot_mass_range[0]) + self.foot_mass_range[0]
             self.simulator.robot_skeleton.bodynodes[-1].set_mass(ft_mass)
+            cur_id += 1
+        if 4 in self.controllable_param:
+            power = x[cur_id] * (self.power_range[1] - self.power_range[0]) + self.power_range[0]
+            self.simulator.action_scale = power
+            cur_id += 1
 
     def resample_parameters(self):
-        #x = np.random.uniform(0, 1, len(self.get_simulator_parameters()))
-        x = np.random.normal(0, 0.2, len(self.controllable_param)) % 1
+        x = np.random.uniform(0, 1, len(self.get_simulator_parameters()))
+        #x = np.random.normal(0, 0.2, len(self.controllable_param)) % 1
         self.set_simulator_parameters(x)
 
 class hopperContactMassRoughnessManager:

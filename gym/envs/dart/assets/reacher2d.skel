@@ -116,11 +116,10 @@
                 <child>link0</child>
                 <axis>
                     <xyz>0.0 1.0 0.0</xyz>
-                    <lower>-3.14</lower>
-                    <upper>3.14</upper>
+                    <!--<lower>-3.14</lower>
+                    <upper>3.14</upper>-->
                     <dynamics>
-                        <damping>6.0</damping>
-                        <friction>0.0</friction>
+                        <damping>1.0</damping>
                     </dynamics>
                 </axis>
                 <init_pos>0</init_pos>
@@ -134,13 +133,12 @@
                 <child>link1</child>
                 <axis>
                     <xyz>0.0 1.0 0.0</xyz>
-		            <limit>
+		            <!--<limit>
                     	<lower>-3</lower>
                     	<upper>3</upper>
-                    </limit> 
+                    </limit>-->
                     <dynamics>
                         <damping>1.0</damping>
-                        <friction>0.0</friction>
                     </dynamics>
                 </axis>
                 <init_pos>0</init_pos>

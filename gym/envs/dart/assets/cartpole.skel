@@ -88,10 +88,10 @@
                 <child>cart</child>
                 <axis>
                       <xyz>1.0 0.0 0.0</xyz>
-                      <!--<limit>
+                      <limit>
                           <lower>-1</lower>
                           <upper>1</upper>
-                      </limit>-->
+                      </limit>
                       <dynamics>
                           <damping>1.0</damping>
                       </dynamics>
@@ -105,10 +105,10 @@
                 <child>pole</child>
                 <axis>
                       <xyz>0.0 0.0 -1.0</xyz>
-                      <!--<limit>
+                      <limit>
                           <lower>-1.57</lower>
                           <upper>1.57</upper>
-                      </limit>-->
+                      </limit>
                       <dynamics>
                           <damping>1.0</damping>
                       </dynamics>
