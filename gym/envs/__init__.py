@@ -230,14 +230,14 @@ register(
 )
 
 register(
-    id='DartReacher2d-v1',
+    id='DartReacher-v1',
     entry_point='gym.envs.dart:DartReacher2dEnv',
     reward_threshold=-3.75,
     max_episode_steps=50,
 )
 
 register(
-    id='DartReacher-v1',
+    id='DartReacher3d-v1',
     entry_point='gym.envs.dart:DartReacherEnv',
     reward_threshold=-200,
     max_episode_steps=500,
