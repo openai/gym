@@ -145,18 +145,34 @@ class AtariEnv(gym.Env, utils.EzPickle):
 
         return keys_to_action
 
-    # def save_state(self):
-    #     return self.ale.saveState()
+    def clone_state(self):
+        """Clone emulator state w/o system state. Restoring this state will
+        *not* give an identical environment. For complete cloning and restoring
+        of the full state, see `{clone,restore}_full_state()`."""
+        state_ref = self.ale.cloneState()
+        state = self.ale.encodeState(state_ref)
+        self.ale.deleteState(state_ref)
+        return state
 
-    # def load_state(self):
-    #     return self.ale.loadState()
+    def restore_state(self, state):
+        """Restore emulator state w/o system state."""
+        state_ref = self.ale.decodeState(state)
+        self.ale.restoreState(state)
+        self.ale.deleteState(state_ref)
 
-    # def clone_state(self):
-    #     return self.ale.cloneState()
+    def clone_full_state(self):
+        """Clone emulator state w/ system state including pseudorandomness.
+        Restoring this state will give an identical environment."""
+        state_ref = self.ale.cloneSystemState()
+        state = self.ale.encodeState(state_ref)
+        self.ale.deleteState(state_ref)
+        return state
 
-    # def restore_state(self, state):
-    #     return self.ale.restoreState(state)
-
+    def restore_full_state(self, state):
+        """Restore emulator state w/ system state including pseudorandomness."""
+        state_ref = self.ale.decodeState(state)
+        self.ale.restoreSystemState(state_ref)
+        self.ale.deleteState(state_ref)
 
 ACTION_MEANING = {
     0 : "NOOP",
