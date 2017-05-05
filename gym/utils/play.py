@@ -182,5 +182,5 @@ class PlayPlot(object):
 
 
 if __name__ == '__main__':
-    env = gym.make("MontezumaRevengeNoFrameskip-v3")
+    env = gym.make("MontezumaRevengeNoFrameskip-v4")
     play(env, zoom=4, fps=60)
