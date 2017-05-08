@@ -1,5 +1,6 @@
 import distutils.version
 import logging
+import os
 import sys
 
 from gym import error
@@ -39,7 +40,9 @@ def sanity_check_dependencies():
 # Gym's design goal generally is to be simple and intuitive, and while
 # the tradeoff is definitely not obvious in this case, we've come down
 # on the side of auto-configuring the logger.
-logger_setup()
+
+if not os.environ.get('GYM_NO_LOGGER_SETUP'):
+    logger_setup()
 del logger_setup
 
 sanity_check_dependencies()
