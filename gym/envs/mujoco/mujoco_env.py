@@ -138,3 +138,8 @@ class MujocoEnv(gym.Env):
             self.model.data.qpos.flat,
             self.model.data.qvel.flat
         ])
+
+    def set_state_vector(self, x):
+        qpos = x[:self.model.nq]
+        qvel = x[self.model.nq:self.model.nq+self.model.nv]
+        self.set_state(qpos, qvel)

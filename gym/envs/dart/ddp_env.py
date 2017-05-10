@@ -51,7 +51,7 @@ class DDPReward:
 # swing up and balance of double inverted pendulum
 class DDPEnv(DartCartPoleSwingUpEnv, utils.EzPickle):
     def __init__(self):
-        self.parentClass = DartCartPoleEnv
+        self.parentClass = DartCartPoleSwingUpEnv
         self.ddp_horizon = 15
         self.current_step = 0
         self.ddp_reward = DDPReward()
@@ -63,8 +63,8 @@ class DDPEnv(DartCartPoleSwingUpEnv, utils.EzPickle):
         self.ilqr.cost_dux = self.ddp_reward.cost_dux
 
         self.control_bounds = np.array([[2, 6, 10, 10], [-2, -6, 0, 0]])
-        self.action_scale = 100
-        dart_env.DartEnv.__init__(self, 'cartpole.skel', 2, 4, self.control_bounds, dt=0.01)
+        self.action_scale = 40
+        dart_env.DartEnv.__init__(self, 'cartpole_swingup.skel', 2, 4, self.control_bounds, dt=0.01)
 
         utils.EzPickle.__init__(self)
 

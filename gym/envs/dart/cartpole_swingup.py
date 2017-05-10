@@ -26,8 +26,8 @@ class DartCartPoleSwingUpEnv(dart_env.DartEnv, utils.EzPickle):
         ang = self.robot_skeleton.q[1]
 
         alive_bonus = 6.0
-        ang_cost = 1.0*np.abs(ang)
-        quad_ctrl_cost = 10.0 * np.square(a).sum()
+        ang_cost = 10.0*np.abs(ang)
+        quad_ctrl_cost = 0.1 * np.square(a).sum()
         com_cost = 0.1 * np.abs(self.robot_skeleton.q[0])
 
         reward = alive_bonus - ang_cost - quad_ctrl_cost - com_cost

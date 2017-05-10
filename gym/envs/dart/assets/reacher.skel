@@ -31,7 +31,6 @@
 
         <skeleton name="manipulator">
             <body name="link 1">
-                <gravity>1</gravity>
                 <transformation>0 0 0 0 0 0</transformation>
                 <inertia>
                     <mass>1</mass>
@@ -46,7 +45,6 @@
                 </visualization_shape>
             </body>
             <body name="link 2">
-                <gravity>1</gravity>
                 <transformation>0 -0.5 0 0 0 0</transformation>
                 <inertia>
                     <mass>1</mass>
@@ -61,7 +59,6 @@
                 </visualization_shape>
             </body>
             <body name="link 3">
-                <gravity>1</gravity>
                 <transformation>0 -1 0 0 0 0</transformation>
                 <inertia>
                     <mass>1</mass>

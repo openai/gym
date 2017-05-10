@@ -14,6 +14,7 @@ if __name__ == '__main__':
 
     env.reset()
 
+
     for i in range(1000):
         env.step(env.action_space.sample())
         env.render()
