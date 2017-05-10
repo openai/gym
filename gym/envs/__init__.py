@@ -199,7 +199,7 @@ register(
     id='DartHopper-v1',
     entry_point='gym.envs.dart:DartHopperEnv',
     reward_threshold=3800.0,
-    max_episode_steps=1300,
+    max_episode_steps=1000,
 )
 
 '''register(
@@ -270,6 +270,12 @@ register(
 )
 
 register(
+    id='DartCartPoleSwingUp-v1',
+    entry_point='gym.envs.dart:DartCartPoleSwingUpEnv',
+    max_episode_steps=500,
+)
+
+register(
     id='DartWalker2d-v1',
     entry_point='gym.envs.dart:DartWalker2dEnv',
     max_episode_steps=1000,
@@ -285,6 +291,12 @@ register(
     id='DartWalker3dSPD-v1',
     entry_point='gym.envs.dart:DartWalker3dSPDEnv',
     max_episode_steps=1000,
+)
+
+register(
+    id='DDPEnv-v1',
+    entry_point='gym.envs.dart:DDPEnv',
+    max_episode_steps=500,
 )
 
 '''register(

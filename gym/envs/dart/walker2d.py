@@ -26,8 +26,6 @@ class DartWalker2dEnv(dart_env.DartEnv, utils.EzPickle):
                 clamped_control[i] = self.control_bounds[1][i]
         tau = np.zeros(self.robot_skeleton.ndofs)
         tau[3:] = clamped_control * self.action_scale
-        #tau[3:6] = clamped_control[0:3] * self.action_scale
-        #tau[6:9] = clamped_control[3:6] * self.action_scale
         posbefore = self.robot_skeleton.q[0]
         self.do_simulation(tau, self.frame_skip)
         posafter,ang = self.robot_skeleton.q[0,2]
@@ -49,8 +47,10 @@ class DartWalker2dEnv(dart_env.DartEnv, utils.EzPickle):
         vel = (posafter - posbefore) / self.dt
         reward = vel#-(vel-1.0)**2
         reward += alive_bonus
-        reward -= 1e-2 * np.square(a).sum()
-        reward -= 5e-1 * joint_limit_penalty
+        reward -= 1e-3 * np.square(a).sum()
+        #reward -= 5e-1 * joint_limit_penalty
+
+        #reward -= 1e-1 * np.square(a[[2,5]]).sum()
         #reward -= 1e-7 * total_force_mag
 
         s = self.state_vector()
