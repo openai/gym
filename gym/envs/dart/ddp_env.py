@@ -10,39 +10,72 @@ from gym.envs.dart import pylqr
 
 class DDPReward:
     def __init__(self):
-        self.ilqr_reward_parameters = np.array([0]*9)
+        self.ilqr_reward_parameters = np.array([0]*4)
+        self.coefs = [1, 10, 0.1]
 
     def __call__(self, x, u, t, aux):
-        '''pos_pen = self.ilqr_reward_parameters[3] * ((x[0] - self.ilqr_reward_parameters[0])**2)
-        pos_pen += self.ilqr_reward_parameters[4] * ((x[1] - self.ilqr_reward_parameters[1])**2)
-        pos_pen += self.ilqr_reward_parameters[5] * ((x[2] - self.ilqr_reward_parameters[2])**2)
-        control_pen = self.ilqr_reward_parameters[6] * (np.square(u).sum())'''
-        pos_pen = self.ilqr_reward_parameters[4] * abs((x[0] - self.ilqr_reward_parameters[0]))
+        '''pos_pen = self.ilqr_reward_parameters[4] * abs((x[0] - self.ilqr_reward_parameters[0]))
         pos_pen += self.ilqr_reward_parameters[5] * abs((x[1] - self.ilqr_reward_parameters[1]))
         vel_pen = self.ilqr_reward_parameters[6] * abs((x[2] - self.ilqr_reward_parameters[2]))
         vel_pen += self.ilqr_reward_parameters[7] * abs((x[3] - self.ilqr_reward_parameters[3]))
-        control_pen = self.ilqr_reward_parameters[8] * (np.square(u).sum())
+        control_pen = self.ilqr_reward_parameters[8] * (np.square(u).sum())'''
 
-        return pos_pen + vel_pen + control_pen
+        pos_pen = self.coefs[0] * abs((x[0]))
+        pos_pen += self.coefs[1] * abs((x[1]))
+        control_pen = self.coefs[2] * (np.square(u).sum())
+
+        shaped_reward = self.ilqr_reward_parameters[2] * abs(x[0] - self.ilqr_reward_parameters[0])
+        shaped_reward += self.ilqr_reward_parameters[3] * abs(x[1] - self.ilqr_reward_parameters[1])
+
+        return pos_pen + control_pen + shaped_reward
+
+    def cost_dx(self, x, u, t, aux):
+        dx = np.zeros(len(x))
+        dx[0] = self.coefs[0] * np.sign(x[0]) + self.ilqr_reward_parameters[2] * np.sign(x[0] - self.ilqr_reward_parameters[0])
+        dx[1] = self.coefs[1] * np.sign(x[1]) + self.ilqr_reward_parameters[3] * np.sign(x[1] - self.ilqr_reward_parameters[1])
+        return dx
+
+    def cost_du(self, x, u, t, aux):
+        du = 2 * self.coefs[2] * u
+        return du
+
+    def cost_dxx(self, x, u, t, aux):
+        return np.zeros((len(x), len(x)))
+
+    def cost_duu(self, x, u, t, aux):
+        return np.identity(len(u)) * 2 * self.coefs[2]
+
+    def cost_dux(self, x, u, t, aux):
+        return np.zeros((len(u), len(x)))
 
 # swing up and balance of double inverted pendulum
 class DDPEnv(DartCartPoleSwingUpEnv, utils.EzPickle):
     def __init__(self):
         self.parentClass = DartCartPoleEnv
-        self.ddp_horizon = 10
+        self.ddp_horizon = 15
         self.current_step = 0
         self.ddp_reward = DDPReward()
         self.ilqr = pylqr.PyLQR_iLQRSolver(T=self.ddp_horizon, plant_dyn=self.plant_dyn, cost=self.ddp_reward)
+        self.ilqr.cost_du = self.ddp_reward.cost_du
+        self.ilqr.cost_dx = self.ddp_reward.cost_dx
+        self.ilqr.cost_duu = self.ddp_reward.cost_duu
+        self.ilqr.cost_dxx = self.ddp_reward.cost_dxx
+        self.ilqr.cost_dux = self.ddp_reward.cost_dux
 
-        control_bounds = np.array([[2, 6, 10, 10, 100, 100, 100, 100, 100], [-2, -6, -10, -10, 0, 0, 0, 0, 0]])
-        self.action_scale = 40
-        dart_env.DartEnv.__init__(self, 'cartpole.skel', 2, 4, control_bounds, dt=0.01)
+        self.control_bounds = np.array([[2, 6, 10, 10], [-2, -6, 0, 0]])
+        self.action_scale = 100
+        dart_env.DartEnv.__init__(self, 'cartpole.skel', 2, 4, self.control_bounds, dt=0.01)
 
         utils.EzPickle.__init__(self)
 
     def _step(self, a):
-        x0 = self.state_vector()
+        for i in range(len(a)):
+            if a[i] < self.control_bounds[1][i]:
+                a[i] = self.control_bounds[1][i]
+            if a[i] > self.control_bounds[0][i]:
+                a[i] = self.control_bounds[0][i]
 
+        x0 = self.state_vector()
         if self.current_step == 0:
             u_init = np.array([np.array([0]) for t in range(self.ddp_horizon)])
         else:
@@ -53,9 +86,9 @@ class DDPEnv(DartCartPoleSwingUpEnv, utils.EzPickle):
         self.ddp_reward.ilqr_reward_parameters = np.array(a)
 
         if self.current_step == 0:
-            iter = 50
+            iter = 20
         else:
-            iter = 2
+            iter = 1
 
         self.res = self.ilqr.ilqr_iterate(x0, u_init, n_itrs=iter, tol=1e-6, verbose=False)
 

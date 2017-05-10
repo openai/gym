@@ -126,7 +126,7 @@ class PyLQR_iLQRSolver:
                 break
 
             #see if all the trials are rejected
-            if not accept:
+            '''if not accept:
                 #need to increase regularization
                 #check if the regularization term is too large
                 if self.reg > self.reg_max:
@@ -136,7 +136,7 @@ class PyLQR_iLQRSolver:
 
                 self.reg = self.reg * self.reg_factor
                 if verbose:
-                    print('Reject the control perturbation. Increase the regularization term.')
+                    print('Reject the control perturbation. Increase the regularization term.')'''
 
 
         #prepare result dictionary
