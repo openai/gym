@@ -182,10 +182,5 @@ class PlayPlot(object):
 
 
 if __name__ == '__main__':
-    def callback(obs_t, obs_tp1, action, rew, done, info):
-        return [rew, obs_t.mean()]
-    env_plotter = EnvPlotter(callback, 30 * 5, ["reward", "mean intensity"])
-
     env = gym.make("MontezumaRevengeNoFrameskip-v3")
-
-    play(env, zoom=4, callback=env_plotter.callback, fps=30)
+    play(env, zoom=4, fps=30)
