@@ -7,9 +7,15 @@ class Box(gym.Space):
     """
     A box in R^n.
     I.e., each coordinate is bounded.
+    The dimension and sample density in each dimension can
+    be specified.
 
     Example usage:
-    self.action_space = spaces.Box(low=-10, high=10, shape=(1,))
+
+    1) A 1-d box with 1 sample pt in [-10, 10]:
+        self.action_space = spaces.Box(low=-10, high=10, shape=(1,))
+    2) A 4-d box with 10^4 samples of equal density in each dimension:
+        self.action_space = spaces.Box(low=-20, high=20, shape=(10,10,10,10))
     """
     def __init__(self, low, high, shape=None):
         """
@@ -20,11 +26,12 @@ class Box(gym.Space):
         if shape is None:
             assert low.shape == high.shape
             self.low = low
-            self.high = high
+            self.high = high            
         else:
             assert np.isscalar(low) and np.isscalar(high)
             self.low = low + np.zeros(shape)
             self.high = high + np.zeros(shape)
+            
     def sample(self):
         return prng.np_random.uniform(low=self.low, high=self.high, size=self.low.shape)
     def contains(self, x):
