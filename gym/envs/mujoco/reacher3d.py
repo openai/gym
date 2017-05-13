@@ -44,5 +44,5 @@ class Reacher3dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             np.sin(theta),
             self.goal,
             self.model.data.qvel.flat[:5],
-            self.get_body_com("fingertip") - self.get_body_com("target")
+            self.get_body_com("fingertip") - self.goal
         ])

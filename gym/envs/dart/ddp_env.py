@@ -11,7 +11,7 @@ from gym.envs.dart import pylqr
 class DDPReward:
     def __init__(self):
         self.ilqr_reward_parameters = np.array([0]*4)
-        self.coefs = [1, 10, 0.1]
+        self.coefs = [1, 10, 1]
 
     def __call__(self, x, u, t, aux):
         '''pos_pen = self.ilqr_reward_parameters[4] * abs((x[0] - self.ilqr_reward_parameters[0]))
@@ -52,7 +52,7 @@ class DDPReward:
 class DDPEnv(DartCartPoleSwingUpEnv, utils.EzPickle):
     def __init__(self):
         self.parentClass = DartCartPoleSwingUpEnv
-        self.ddp_horizon = 15
+        self.ddp_horizon = 10
         self.current_step = 0
         self.ddp_reward = DDPReward()
         self.ilqr = pylqr.PyLQR_iLQRSolver(T=self.ddp_horizon, plant_dyn=self.plant_dyn, cost=self.ddp_reward)
@@ -76,19 +76,20 @@ class DDPEnv(DartCartPoleSwingUpEnv, utils.EzPickle):
                 a[i] = self.control_bounds[0][i]
 
         x0 = self.state_vector()
-        if self.current_step == 0:
+        u_init = np.array([np.array([0]) for t in range(self.ddp_horizon)])
+        '''if self.current_step == 0:
             u_init = np.array([np.array([0]) for t in range(self.ddp_horizon)])
         else:
             u_init = self.res['u_array_opt'][1:]
-            u_init = np.vstack([u_init, u_init[-1]])
+            u_init = np.vstack([u_init, u_init[-1]])'''
         #u_init = np.array([np.array([np.random.uniform(-1, 1)]) for t in range(self.ddp_horizon)])
 
         self.ddp_reward.ilqr_reward_parameters = np.array(a)
 
         if self.current_step == 0:
-            iter = 20
+            iter = 15
         else:
-            iter = 1
+            iter = 15
 
         self.res = self.ilqr.ilqr_iterate(x0, u_init, n_itrs=iter, tol=1e-6, verbose=False)
 
@@ -96,12 +97,12 @@ class DDPEnv(DartCartPoleSwingUpEnv, utils.EzPickle):
 
         reward = 0
         #print(self.res['u_array_opt'])
-        '''for u in self.res['u_array_opt']:
+        for u in self.res['u_array_opt']:
             ob, rew, done, info = self.parentClass._step(self, u)
             reward += rew
             if done:
-                break'''
-        ob, reward, done, info = self.parentClass._step(self, self.res['u_array_opt'][0])
+                break
+        #ob, reward, done, info = self.parentClass._step(self, self.res['u_array_opt'][0])
         self.current_step += 1
         return ob, reward, done, {}
 

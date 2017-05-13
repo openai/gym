@@ -296,7 +296,7 @@ register(
 register(
     id='DDPEnv-v1',
     entry_point='gym.envs.dart:DDPEnv',
-    max_episode_steps=500,
+    max_episode_steps=50,
 )
 
 '''register(

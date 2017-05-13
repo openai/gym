@@ -50,7 +50,7 @@ class PyLQR_iLQRSolver:
 
         #candidate alphas for line search in the directoin of gradients
         #10 line steps
-        self.alpha_array = 1.1 ** (-np.arange(10)**2)
+        self.alpha_array = 1.1 ** (-np.arange(5)**2)
 
         #adapting the regularizer
         self.reg_max = 1000
@@ -91,6 +91,7 @@ class PyLQR_iLQRSolver:
                 x_array_new, u_array_new = self.apply_control(x_array, u_array, k_array, K_array, alpha)
                 #evaluate the cost of this trial
                 J_new = self.evaluate_trajectory_cost(x_array_new, u_array_new)
+
 
                 if J_new < J_opt:
                     #see if it is converged
@@ -193,6 +194,7 @@ class PyLQR_iLQRSolver:
         #k and K
         fdfwd = [None] * self.T
         fdbck_gain = [None] * self.T
+
 
         #initialize with the terminal cost parameters to prepare the backpropagation
         Vxx = lqr_sys['dldxx'][-1]

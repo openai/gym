@@ -26,9 +26,9 @@ class DartCartPoleSwingUpEnv(dart_env.DartEnv, utils.EzPickle):
         ang = self.robot_skeleton.q[1]
 
         alive_bonus = 6.0
-        ang_cost = 10.0*np.abs(ang)
-        quad_ctrl_cost = 0.1 * np.square(a).sum()
-        com_cost = 0.1 * np.abs(self.robot_skeleton.q[0])
+        ang_cost = 1.0*np.abs(ang)
+        quad_ctrl_cost = 0.01 * np.square(a).sum()
+        com_cost = 0.01 * np.abs(self.robot_skeleton.q[0])
 
         reward = alive_bonus - ang_cost - quad_ctrl_cost - com_cost
 
@@ -44,10 +44,10 @@ class DartCartPoleSwingUpEnv(dart_env.DartEnv, utils.EzPickle):
         self.dart_world.reset()
         qpos = self.robot_skeleton.q + self.np_random.uniform(low=-.1, high=.1, size=self.robot_skeleton.ndofs)
         qvel = self.robot_skeleton.dq + self.np_random.uniform(low=-.01, high=.01, size=self.robot_skeleton.ndofs)
-        #if self.np_random.uniform(low=0, high=1, size=1) > 0.5:
-        #    qpos[1] += np.pi
-        #else:
-        #    qpos[1] += -np.pi
+        if self.np_random.uniform(low=0, high=1, size=1) > 0.5:
+            qpos[1] += np.pi
+        else:
+            qpos[1] += -np.pi
         #qpos[1]+=self.np_random.uniform(low=-np.pi, high=np.pi, size=1)
 
         self.set_state(qpos, qvel)
