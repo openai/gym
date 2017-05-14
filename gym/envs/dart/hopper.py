@@ -26,7 +26,7 @@ class DartHopperEnv(dart_env.DartEnv, utils.EzPickle):
             self.OSI_obs_dim = (obs_dim+len(self.control_bounds[0]))*self.history_length+obs_dim
             obs_dim = self.OSI_obs_dim
 
-        dart_env.DartEnv.__init__(self, 'hopper_capsule.skel', 4, obs_dim, self.control_bounds, disableViewer=True)
+        dart_env.DartEnv.__init__(self, 'hopper_capsule.skel', 4, obs_dim, self.control_bounds, disableViewer=False)
 
         #self.dart_world.set_collision_detector(3) # 3 is ode collision detector
 
