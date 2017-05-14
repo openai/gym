@@ -1,5 +1,5 @@
 from __future__ import unicode_literals
-from gym import envs, spaces 
+from gym import envs, spaces
 import json
 import os
 import sys
@@ -9,7 +9,7 @@ import argparse
 import logging
 logger = logging.getLogger(__name__)
 
-from gym.envs.tests.test_envs import should_skip_env_spec_for_tests
+from gym.envs.tests.spec_list import should_skip_env_spec_for_tests
 from gym.envs.tests.test_envs_semantics import generate_rollout_hash, hash_object
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), os.pardir, 'gym', 'envs', 'tests')
