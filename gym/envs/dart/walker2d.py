@@ -9,7 +9,7 @@ class DartWalker2dEnv(dart_env.DartEnv, utils.EzPickle):
         self.action_scale = np.array([100, 100, 100, 100, 100, 100])
         obs_dim = 17
 
-        dart_env.DartEnv.__init__(self, 'walker2d.skel', 4, obs_dim, self.control_bounds, disableViewer=True)
+        dart_env.DartEnv.__init__(self, 'walker2d.skel', 4, obs_dim, self.control_bounds, disableViewer=False)
 
         self.dart_world.set_collision_detector(3)  # 3 is ode collision detector
 
@@ -36,21 +36,20 @@ class DartWalker2dEnv(dart_env.DartEnv, utils.EzPickle):
         for contact in contacts:
             total_force_mag += np.square(contact.force).sum()
 
-        joint_limit_penalty = 0
-        for j in [-2, -5]:
-            if (self.robot_skeleton.q_lower[j] - self.robot_skeleton.q[j]) > -0.05:
-                joint_limit_penalty += abs(1.5)
-            if (self.robot_skeleton.q_upper[j] - self.robot_skeleton.q[j]) < 0.05:
-                joint_limit_penalty += abs(1.5)
-
         alive_bonus = 1.0
         vel = (posafter - posbefore) / self.dt
         reward = vel#-(vel-1.0)**2
         reward += alive_bonus
         reward -= 1e-3 * np.square(a).sum()
-        #reward -= 5e-1 * joint_limit_penalty
-        #reward -= 1e-7 * total_force_mag
-        #reward -= 1e-1 * np.square(a[[2,5]]).sum()
+
+        # uncomment to enable knee joint limit penalty
+        '''joint_limit_penalty = 0
+        for j in [-2, -5]:
+            if (self.robot_skeleton.q_lower[j] - self.robot_skeleton.q[j]) > -0.05:
+                joint_limit_penalty += abs(1.5)
+            if (self.robot_skeleton.q_upper[j] - self.robot_skeleton.q[j]) < 0.05:
+                joint_limit_penalty += abs(1.5)
+        reward -= 5e-1 * joint_limit_penalty'''
 
         s = self.state_vector()
         done = not (np.isfinite(s).all() and (np.abs(s[2:]) < 100).all() and
