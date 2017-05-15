@@ -1247,6 +1247,12 @@
     "observations": "01bc2647e2df61bfa95036ae892f69cba51909cf6d87ab94ba8168d105358b97",
     "rewards": "04db9812be236ea437cbda6cea214bba8c79760fb57a66176704503576f6f390"
   },
+  "CliffWalking-v0": {
+    "actions": "ec9b2f7d83b6591999b67843d51ac0947dd5602d6c89b02b2f4614d36e7f6513",
+    "dones": "ecfbe8578a5aac6442d7b65f2e4bd4f6d70e5cdc76c1d6868ee031460c7477b9",
+    "observations": "d8888a9eff53952afffd7e1aef3833ff922c69f652671d1d1f64b784f3553be3",
+    "rewards": "ba42e94269052965f8870ca091aa8dd625648df7c1f174b0e445ff69d585618b"
+  },
   "Copy-v0": {
     "actions": "ee9c25f85496f4e9891c67940ddbad5c590af191e95cf813c2c27ff93a861f0a",
     "dones": "8ee6c0c36abcc368709556086f6c307a4efc09733fb85be03ac67e36731ffc1a",
