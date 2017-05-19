@@ -74,7 +74,6 @@ class DartEnv(gym.Env):
         self.perturbation_duration = 40
         self.perturb_force = np.array([0, 0, 0])
 
-        observation, _reward, done, _info = self._step(np.zeros(len(action_bounds[0])))
         #assert not done
         self.obs_dim = observation_size
         self.act_dim = len(action_bounds[0])

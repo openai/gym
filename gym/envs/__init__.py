@@ -209,12 +209,12 @@ register(
     max_episode_steps=1000,
 )'''
 
-'''register(
+register(
     id='DartHopperCont-v1',
     entry_point='gym.envs.dart:DartHopperEnvCont',
     reward_threshold=3800.0,
-    max_episode_steps=1000,
-)'''
+    max_episode_steps=1300,
+)
 
 register(
     id='DartCartPole-v1',

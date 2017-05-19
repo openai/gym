@@ -12,12 +12,12 @@ class hopperContactMassManager:
     def __init__(self, simulator):
         self.simulator = simulator
         self.range = [0.4, 1.0] # friction range
-        self.restitution_range = [0.0, 0.1]
-        self.torso_mass_range = [3.0, 6.0]
-        self.foot_mass_range = [3.0, 7.0]
-        self.power_range = [100, 300]
-        self.activated_param = [0, 2]
-        self.controllable_param = [0, 2]
+        self.restitution_range = [0.0, 0.3]
+        self.torso_mass_range = [2.0, 10.0]
+        self.foot_mass_range = [2.0, 10.0]
+        self.power_range = [150, 320]
+        self.activated_param = [2]
+        self.controllable_param = [2]
         self.param_dim = len(self.activated_param)
 
     def get_simulator_parameters(self):

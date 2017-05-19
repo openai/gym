@@ -3,6 +3,7 @@ from gym import utils
 from gym.envs.dart import dart_env
 
 from gym.envs.dart.parameter_managers import *
+import copy
 
 
 class DartHopperEnv(dart_env.DartEnv, utils.EzPickle):
@@ -17,28 +18,19 @@ class DartHopperEnv(dart_env.DartEnv, utils.EzPickle):
         if self.train_UP:
             obs_dim += self.param_manager.param_dim
 
-        # UPOSI variables
-        self.use_UPOSI = False
-        self.history_length = 5 # size of the motion history for UPOSI
-        self.state_action_buffer = []
+        dart_env.DartEnv.__init__(self, 'hopper_capsule.skel', 4, obs_dim, self.control_bounds, disableViewer=True)
 
-        if self.use_UPOSI:
-            self.OSI_obs_dim = (obs_dim+len(self.control_bounds[0]))*self.history_length+obs_dim
-            obs_dim = self.OSI_obs_dim
+        self.dart_world.set_collision_detector(3) # 3 is ode collision detector
 
-        dart_env.DartEnv.__init__(self, 'hopper_capsule.skel', 4, obs_dim, self.control_bounds, disableViewer=False)
-
-        #self.dart_world.set_collision_detector(3) # 3 is ode collision detector
+        curcontparam = copy.copy(self.param_manager.controllable_param)
+        self.param_manager.controllable_param = [0, 1, 2, 3, 4]
+        self.param_manager.set_simulator_parameters([0.5, 0.5, 0.5, 0.5, 0.5])
+        self.param_manager.controllable_param = curcontparam
 
         utils.EzPickle.__init__(self)
 
-    def setUseUPOSI(self, useUPOSI = True):
-        self.use_UPOSI = useUPOSI
-        self.OSI_obs_dim = (self.obs_dim+self.act_dim)*self.history_length+self.obs_dim
 
     def _step(self, a):
-        if self.use_UPOSI and len(self.state_action_buffer) > 0:
-            self.state_action_buffer[-1].append(np.array(a))
         pre_state = [self.state_vector()]
         if self.train_UP:
             pre_state.append(self.param_manager.get_simulator_parameters())
@@ -87,21 +79,7 @@ class DartHopperEnv(dart_env.DartEnv, utils.EzPickle):
             np.clip(self.robot_skeleton.dq,-10,10)
         ])
         state[0] = self.robot_skeleton.bodynodes[2].com()[1]
-        if self.use_UPOSI:
-            out_ob = np.zeros(self.OSI_obs_dim)
-            ind = 0
-            for s_a in self.state_action_buffer:
-                out_ob[ind:ind+len(s_a[0])] = np.array(s_a[0])
-                ind += len(s_a[0])
-                out_ob[ind:ind+len(s_a[1])] = np.array(s_a[1])
-                ind += len(s_a[1])
-            out_ob[ind:ind + len(state)] = np.array(state)
 
-            self.state_action_buffer.append([np.array(state)])
-            if len(self.state_action_buffer) > self.history_length:
-                self.state_action_buffer.pop(0)
-
-            return np.array([out_ob], dtype=np.float32)
         if self.train_UP:
             state = np.concatenate([state, self.param_manager.get_simulator_parameters()])
         if self.noisy_input:
