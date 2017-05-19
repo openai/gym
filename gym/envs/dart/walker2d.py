@@ -26,8 +26,6 @@ class DartWalker2dEnv(dart_env.DartEnv, utils.EzPickle):
                 clamped_control[i] = self.control_bounds[1][i]
         tau = np.zeros(self.robot_skeleton.ndofs)
         tau[3:] = clamped_control * self.action_scale
-        #tau[3:6] = clamped_control[0:3] * self.action_scale
-        #tau[6:9] = clamped_control[3:6] * self.action_scale
         posbefore = self.robot_skeleton.q[0]
         self.do_simulation(tau, self.frame_skip)
         posafter,ang = self.robot_skeleton.q[0,2]
@@ -38,20 +36,21 @@ class DartWalker2dEnv(dart_env.DartEnv, utils.EzPickle):
         for contact in contacts:
             total_force_mag += np.square(contact.force).sum()
 
-        joint_limit_penalty = 0
+        alive_bonus = 1.0
+        vel = (posafter - posbefore) / self.dt
+        reward = vel#-(vel-1.0)**2
+        reward += alive_bonus
+        reward -= 1e-3 * np.square(a).sum()
+
+        # uncomment to enable knee joint limit penalty
+        '''joint_limit_penalty = 0
         for j in [-2, -5]:
             if (self.robot_skeleton.q_lower[j] - self.robot_skeleton.q[j]) > -0.05:
                 joint_limit_penalty += abs(1.5)
             if (self.robot_skeleton.q_upper[j] - self.robot_skeleton.q[j]) < 0.05:
                 joint_limit_penalty += abs(1.5)
 
-        alive_bonus = 1.0
-        vel = (posafter - posbefore) / self.dt
-        reward = vel#-(vel-1.0)**2
-        reward += alive_bonus
-        reward -= 1e-3 * np.square(a).sum()
-        reward -= 5e-1 * joint_limit_penalty
-        #reward -= 1e-7 * total_force_mag
+        reward -= 5e-1 * joint_limit_penalty'''
 
         s = self.state_vector()
         done = not (np.isfinite(s).all() and (np.abs(s[2:]) < 100).all() and

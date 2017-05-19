@@ -221,7 +221,7 @@ to set it up. You'll have to also run ``pip install -e '.[mujoco]'`` if you didn
 .. code:: python
 
 	  import gym
-	  env = gym.make('Humanoid-v0')
+	  env = gym.make('Humanoid-v1')
 	  env.reset()
 	  env.render()
 
@@ -262,6 +262,16 @@ We are using `pytest <http://doc.pytest.org>`_ for tests. You can run them via:
 What's new
 ==========
 
+- 2017-05-13: BACKWARDS INCOMPATIBILITY: The Atari environments are now at
+  *v4*. To keep using the old v3 environments, keep gym <= 0.8.2 and atari-py
+  <= 0.0.21. Note that the v4 environments will not give identical results to
+  existing v3 results, although differences are minor. The v4 environments
+  incorporate the latest Arcade Learning Environment (ALE), including several
+  ROM fixes, and now handle loading and saving of the emulator state. While
+  seeds still ensure determinism, the effect of any given seed is not preserved
+  across this upgrade because the random number generator in ALE has changed.
+  The `*NoFrameSkip-v4` environments should be considered the canonical Atari
+  environments from now on.
 - 2017-03-05: BACKWARDS INCOMPATIBILITY: The `configure` method has been removed
   from `Env`. `configure` was not used by `gym`, but was used by some dependent
   libraries including `universe`. These libraries will migrate away from the

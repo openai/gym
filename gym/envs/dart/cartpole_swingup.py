@@ -4,16 +4,18 @@ import numpy as np
 from gym import utils
 from gym.envs.dart import dart_env
 
-# swing up and balance of double inverted pendulum
-class DartDoubleInvertedPendulumEnv(dart_env.DartEnv, utils.EzPickle):
+class DartCartPoleSwingUpEnv(dart_env.DartEnv, utils.EzPickle):
     def __init__(self):
-        control_bounds = np.array([[1.0],[-1.0]])
+        self.control_bounds = np.array([[1.0],[-1.0]])
         self.action_scale = 40
-        dart_env.DartEnv.__init__(self, 'inverted_double_pendulum.skel', 2, 6, control_bounds, dt=0.01)
+        dart_env.DartEnv.__init__(self, 'cartpole_swingup.skel', 2, 4, self.control_bounds, dt=0.01)
         utils.EzPickle.__init__(self)
 
     def _step(self, a):
-        reward = 2.0
+        #if a[0] > self.control_bounds[0][0] or a[0] < self.control_bounds[1][0]:
+        #    a[0] = np.sign(a[0])
+        #if np.abs(a[0]) > 1:
+        #    a[0] = np.sign(a[0])
 
         tau = np.zeros(self.robot_skeleton.ndofs)
         tau[0] = a[0] * self.action_scale
@@ -21,13 +23,17 @@ class DartDoubleInvertedPendulumEnv(dart_env.DartEnv, utils.EzPickle):
         self.do_simulation(tau, self.frame_skip)
         ob = self._get_obs()
 
-        reward -= 0.01*ob[0]**2
-        reward += np.cos(ob[1]) + np.cos(ob[2])
-        if (np.cos(ob[1]) + np.cos(ob[2])) > 1.8:
-            reward += 5
+        ang = self.robot_skeleton.q[1]
 
-        notdone = np.isfinite(ob).all() and np.abs(ob[1]) <= np.pi * 3.5 and np.abs(ob[2]) <= np.pi * 3.5# and (np.abs(ob[1]) <= .2) and (np.abs(ob[2]) <= .2)
-        done = not notdone
+        alive_bonus = 6.0
+        ang_cost = 1.0*np.abs(ang)
+        quad_ctrl_cost = 0.01 * np.square(a).sum()
+        com_cost = 0.01 * np.abs(self.robot_skeleton.q[0])
+
+        reward = alive_bonus - ang_cost - quad_ctrl_cost - com_cost
+
+        done = abs(ang) > 8 * np.pi or abs(self.robot_skeleton.dq[1]) > 25 or abs(self.robot_skeleton.q[0]) > 5
+
         return ob, reward, done, {}
 
 
@@ -36,12 +42,14 @@ class DartDoubleInvertedPendulumEnv(dart_env.DartEnv, utils.EzPickle):
 
     def reset_model(self):
         self.dart_world.reset()
-        qpos = self.robot_skeleton.q + self.np_random.uniform(low=-.01, high=.01, size=self.robot_skeleton.ndofs)
+        qpos = self.robot_skeleton.q + self.np_random.uniform(low=-.1, high=.1, size=self.robot_skeleton.ndofs)
         qvel = self.robot_skeleton.dq + self.np_random.uniform(low=-.01, high=.01, size=self.robot_skeleton.ndofs)
         if self.np_random.uniform(low=0, high=1, size=1) > 0.5:
             qpos[1] += np.pi
         else:
             qpos[1] += -np.pi
+        #qpos[1]+=self.np_random.uniform(low=-np.pi, high=np.pi, size=1)
+
         self.set_state(qpos, qvel)
         return self._get_obs()
 

@@ -167,7 +167,7 @@
                     <!--<lower>-3.14</lower>
                     <upper>3.14</upper>-->
                     <dynamics>
-                        <damping>10.0</damping>
+                        <damping>8.0</damping>
                         <friction>0.05</friction>
                     </dynamics>
                 </axis>
