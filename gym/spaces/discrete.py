@@ -22,6 +22,13 @@ class Discrete(gym.Space):
         else:
             return False
         return as_int >= 0 and as_int < self.n
+    def __len__(self):
+        return self.n
+    def __iter__(self):
+        i = 0
+        while i < self.n:
+            yield i
+            i += 1
     def __repr__(self):
         return "Discrete(%d)" % self.n
     def __eq__(self, other):
