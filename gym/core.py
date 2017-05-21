@@ -202,7 +202,7 @@ class Env(object):
         self.close()
 
     def __str__(self):
-        if self.spec is not None:
+        if getattr(self, 'spec', None) is not None:
             return '<{}<{}>>'.format(type(self).__name__, self.spec.id)
         else:
             return '<{} instance>'.format(type(self).__name__)
