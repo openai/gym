@@ -251,10 +251,9 @@ class Wrapper(Env):
 
     def __init__(self, env):
         self.env = env
-        # Merge with the base metadata
-        metadata = self.metadata
-        self.metadata = self.env.metadata.copy()
-        self.metadata.update(metadata)
+        # Copy metadata from base class to this object instance, override with env.metadata
+        self.metadata = self.metadata.copy()
+        self.metadata.update(self.env.metadata)
 
         self.action_space = self.env.action_space
         self.observation_space = self.env.observation_space
