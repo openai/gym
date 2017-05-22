@@ -31,6 +31,7 @@ class DiscreteEnv(Env):
     def __init__(self, nS, nA, P, isd):
         self.P = P
         self.isd = isd
+        self.s = categorical_sample(self.isd)
         self.lastaction=None # for rendering
         self.nS = nS
         self.nA = nA
