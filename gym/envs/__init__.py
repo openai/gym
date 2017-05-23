@@ -507,3 +507,13 @@ register(
     entry_point='gym.envs.safety:OffSwitchCartpoleProbEnv',
     max_episode_steps=200,
 )
+
+# Contrib
+# ----------------------------------------
+
+register(
+    id='Hoodle-v0',
+    entry_point='gym.envs.contrib:HoodleEnv',
+    timestep_limit=200,
+)
+
