@@ -119,6 +119,10 @@ class AtariEnv(gym.Env, utils.EzPickle):
                 self.viewer = rendering.SimpleImageViewer()
             self.viewer.imshow(img)
 
+    # return current lives
+    def get_lives(self):
+        return self.ale.lives()
+
     def get_action_meanings(self):
         return [ACTION_MEANING[i] for i in self._action_set]
 
