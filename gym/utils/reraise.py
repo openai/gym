@@ -1,11 +1,5 @@
 import sys
-
-# We keep the actual reraising in different modules, since the
-# reraising code uses syntax mutually exclusive to Python 2/3.
-if sys.version_info[0] < 3:
-    from .reraise_impl_py2 import reraise_impl
-else:
-    from .reraise_impl_py3 import reraise_impl
+from six import reraise as reraise_impl
 
 def reraise(prefix=None, suffix=None):
     old_exc_type, old_exc_value, traceback = sys.exc_info()
@@ -13,8 +7,14 @@ def reraise(prefix=None, suffix=None):
         old_exc_value = old_exc_type()
 
     e = ReraisedException(old_exc_value, prefix, suffix)
-
-    reraise_impl(e, traceback)
+    is_py3 = sys.version_info[0] == 3
+    if is_py3:
+        # Python 3 has exception chaining, which we don't want in this case.
+        # Setting `__cause__` to None is equivalent to `from None` syntax
+        # which will disable the chaining.
+        # See https://www.python.org/dev/peps/pep-0415/
+        e.__cause__ = None
+    reraise_impl(ReraisedException, e, traceback)
 
 # http://stackoverflow.com/a/13653312
 def full_class_name(o):
