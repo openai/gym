@@ -3,9 +3,10 @@ __author__ = 'yuwenhao'
 import numpy as np
 from gym import utils
 from gym.envs.dart import dart_env
+from gym.envs.dart.walker3d_restricted import DartWalker3dRestrictedEnv
+import joblib, os
 
-
-class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
+class DartWalker3dProjectionEnv(dart_env.DartEnv, utils.EzPickle):
     def __init__(self):
         self.control_bounds = np.array([[1.0]*15,[-1.0]*15])
         self.action_scale = np.array([100.0]*15)
@@ -13,7 +14,10 @@ class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
         self.action_scale[[0, 1, 2]] = 150
         obs_dim = 41
 
-        self.t = 0
+        self.projected_env = DartWalker3dRestrictedEnv()
+        modelpath = os.path.join(os.path.dirname(__file__), "models")
+        self.projected_policy = joblib.load(os.path.join(modelpath, 'walker3d_proj.pkl'))
+        self.proj_dofs = [0, 2, 4, 5, 6, 7, 10, 11, 16, 17]
 
         dart_env.DartEnv.__init__(self, 'walker3d_waist.skel', 4, obs_dim, self.control_bounds, disableViewer=False)
 
@@ -38,6 +42,14 @@ class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
 
     def _step(self, a):
         pre_state = [self.state_vector()]
+
+        # for 2d env
+        proj_q, proj_dq = self._get_proj_state(np.array(self.robot_skeleton.q), np.array(self.robot_skeleton.dq))
+        self.projected_env.set_state(proj_q, proj_dq)
+        proj_env_obs = self.projected_env._get_obs()
+        act, actinfo = self.projected_policy.get_action(proj_env_obs)
+        self.projected_env.step(actinfo['mean'])
+        proj_targetq, proj_targetdq = self._get_proj_state(np.array(self.projected_env.robot_skeleton.q), np.array(self.projected_env.robot_skeleton.dq))
 
         posbefore = self.robot_skeleton.bodynodes[0].com()[0]
         self.advance(a)
@@ -79,6 +91,10 @@ class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
 
         #reward -= 1e-7 * total_force_mag
 
+        proj_q, proj_dq = self._get_proj_state(np.array(self.robot_skeleton.q), np.array(self.robot_skeleton.dq))
+        reward -= 0.1*np.linalg.norm(proj_q-proj_targetq)
+        reward -= 0.1*np.linalg.norm(proj_dq-proj_targetdq)
+
         #div = self.get_div()
         #reward -= 1e-1 * np.min([(div**2), 10])
 
@@ -110,6 +126,11 @@ class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
 
         return state
 
+    def _get_proj_state(self, cq, cdq):
+        cq[self.proj_dofs] = 0
+        cdq[self.proj_dofs] = 0
+        return cq, cdq
+
     def reset_model(self):
         self.dart_world.reset()
         qpos = self.robot_skeleton.q + self.np_random.uniform(low=-.005, high=.005, size=self.robot_skeleton.ndofs)
@@ -118,6 +139,8 @@ class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
         #qpos[9] = sign * self.np_random.uniform(low=0.3, high=0.35, size=1)
         #qpos[15] = -sign * self.np_random.uniform(low=0.3, high=0.35, size=1)
         self.set_state(qpos, qvel)
+
+
         self.t = 0
 
         return self._get_obs()

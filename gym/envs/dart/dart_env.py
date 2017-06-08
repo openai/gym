@@ -61,8 +61,10 @@ class DartEnv(gym.Env):
         self.robot_skeleton = self.dart_world.skeletons[-1] # assume that the skeleton of interest is always the last one
 
         for jt in range(0, len(self.robot_skeleton.joints)):
-            if self.robot_skeleton.joints[jt].has_position_limit(0):
-                self.robot_skeleton.joints[jt].set_position_limit_enforced(True)
+            for dof in range(len(self.robot_skeleton.joints[jt].dofs)):
+                if self.robot_skeleton.joints[jt].has_position_limit(dof):
+                    self.robot_skeleton.joints[jt].set_position_limit_enforced(True)
+
         self._obs_type = obs_type
         self.frame_skip= frame_skip
         self.visualize = visualize  #Show the window or not
@@ -74,7 +76,6 @@ class DartEnv(gym.Env):
         self.perturbation_duration = 40
         self.perturb_force = np.array([0, 0, 0])
 
-        observation, _reward, done, _info = self._step(np.zeros(len(action_bounds[0])))
         #assert not done
         self.obs_dim = observation_size
         self.act_dim = len(action_bounds[0])

@@ -30,14 +30,14 @@
                 </collision_shape>
             </body>
 
-            <!--<body name="board1">
+            <body name="board1">
                 <transformation>0 1.425 0.15 0 0 0</transformation>
 
                 <collision_shape>
                     <transformation>0 0 0 0 0 0</transformation>
                     <geometry>
                         <box>
-                            <size>500.0 0.6 0.078</size>
+                            <size>500.0 0.5 0.078</size>
                         </box>
                     </geometry>
                 </collision_shape>
@@ -45,22 +45,31 @@
 
             <body name="board2">
                 <transformation>0 1.425 -0.15 0 0 0</transformation>
+                <visualization_shape>
+                    <transformation>0 0 0 0 0 0</transformation>
+                    <geometry>
+                        <box>
+                            <size>500.0 0.5 0.078</size>
+                        </box>
+                    </geometry>
+                </visualization_shape>
                 <collision_shape>
                     <transformation>0 0 0 0 0 0</transformation>
                     <geometry>
                         <box>
-                            <size>500.0 0.6 0.078</size>
+                            <size>500.0 0.5 0.078</size>
                         </box>
                     </geometry>
                 </collision_shape>
-            </body>-->
+                <color>0.6 0.6 0.6</color>
+            </body>
 
             <joint type="free" name="joint 1">
                 <parent>world</parent>
                 <child>ground</child>
             </joint>
 
-            <!--<joint type="free" name="joint 1">
+            <joint type="free" name="joint 1">
                 <parent>world</parent>
                 <child>board1</child>
             </joint>
@@ -68,7 +77,7 @@
             <joint type="free" name="joint 1">
                 <parent>world</parent>
                 <child>board2</child>
-            </joint>-->
+            </joint>
         </skeleton>
 
         <skeleton name="walker">
@@ -344,7 +353,7 @@
                 <axis>
 		            <limit>
                     	<lower>0.0</lower>
-                    	<upper>2.61799</upper>
+                    	<upper>0.8</upper>
                     </limit>
                     <dynamics>
                         <damping>5.0</damping>
@@ -353,7 +362,7 @@
                 </axis>
                 <axis2>
 		            <limit>
-                    	<lower>-0.6</lower>
+                    	<lower>-0.006</lower>
                     	<upper>0.0</upper>
                     </limit>
                     <dynamics>
@@ -363,8 +372,8 @@
                 </axis2>
                 <axis3>
  		            <limit>
-                    	<lower>-0.25</lower>
-                    	<upper>0.25</upper>
+                    	<lower>-0.0025</lower>
+                    	<upper>0.0025</upper>
                     </limit>
                     <dynamics>
                         <damping>5.0</damping>
@@ -429,7 +438,7 @@
                 <axis>
 		            <limit>
                     	<lower>0.0</lower>
-                    	<upper>2.61799</upper>
+                    	<upper>0.8</upper>
                     </limit>
                     <dynamics>
                         <damping>5.0</damping>
@@ -439,7 +448,7 @@
                 <axis2>
 		            <limit>
                     	<lower>0.0</lower>
-                    	<upper>0.6</upper>
+                    	<upper>0.006</upper>
                     </limit>
                     <dynamics>
                         <damping>5.0</damping>
@@ -448,8 +457,8 @@
                 </axis2>
                 <axis3>
  		            <limit>
-                    	<lower>-0.25</lower>
-                    	<upper>0.25</upper>
+                    	<lower>-0.0025</lower>
+                    	<upper>0.0025</upper>
                     </limit>
                     <dynamics>
                         <damping>5.0</damping>
