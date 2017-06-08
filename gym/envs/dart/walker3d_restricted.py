@@ -47,7 +47,6 @@ class DartWalker3dRestrictedEnv(dart_env.DartEnv, utils.EzPickle):
         side_deviation = self.robot_skeleton.bodynodes[0].com()[2]
 
         upward = np.array([0, 1, 0])
-
         upward_world = self.robot_skeleton.bodynodes[1].to_world(np.array([0, 1, 0])) - self.robot_skeleton.bodynodes[1].to_world(np.array([0, 0, 0]))
         upward_world /= np.linalg.norm(upward_world)
         ang_cos_uwd = np.dot(upward, upward_world)
@@ -72,7 +71,6 @@ class DartWalker3dRestrictedEnv(dart_env.DartEnv, utils.EzPickle):
                 joint_limit_penalty += abs(1.5)
 
         alive_bonus = 1.0
-
         vel_rew = 2.0 * (posafter - posbefore) / self.dt
         action_pen = 1e-2 * np.square(a).sum()
         joint_pen = 0 * joint_limit_penalty

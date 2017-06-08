@@ -311,11 +311,11 @@ register(
     max_episode_steps=1000,
 )
 
-register(
+'''register(
     id='DDPEnv-v1',
     entry_point='gym.envs.dart:DDPEnv',
     max_episode_steps=50,
-)
+)'''
 
 '''register(
     id='DartSwing-v0',
