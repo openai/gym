@@ -12,13 +12,15 @@ class hopperContactMassManager:
     def __init__(self, simulator):
         self.simulator = simulator
         self.range = [0.4, 1.0] # friction range
-        self.restitution_range = [0.0, 0.1]
-        self.torso_mass_range = [3.0, 6.0]
-        self.foot_mass_range = [3.0, 7.0]
-        self.power_range = [100, 300]
-        self.activated_param = [0, 2]
-        self.controllable_param = [0, 2]
+        self.restitution_range = [0.0, 0.3]
+        self.torso_mass_range = [2.0, 10.0]
+        self.foot_mass_range = [2.0, 10.0]
+        self.power_range = [150, 320]
+        self.activated_param = [2, 4]
+        self.controllable_param = [2, 4]
         self.param_dim = len(self.activated_param)
+        self.sampling_selector = None
+        self.selector_target = -1
 
     def get_simulator_parameters(self):
         cur_friction = self.simulator.dart_world.skeletons[0].bodynodes[0].friction_coeff()
@@ -64,7 +66,9 @@ class hopperContactMassManager:
 
     def resample_parameters(self):
         x = np.random.uniform(0, 1, len(self.get_simulator_parameters()))
-        #x = np.random.normal(0, 0.2, len(self.controllable_param)) % 1
+        if self.sampling_selector is not None:
+            while not self.sampling_selector.classify(np.array([x])) == self.selector_target:
+                x = np.random.uniform(0, 1, len(self.get_simulator_parameters()))
         self.set_simulator_parameters(x)
 
 class hopperContactMassRoughnessManager:
