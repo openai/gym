@@ -61,8 +61,10 @@ class DartEnv(gym.Env):
         self.robot_skeleton = self.dart_world.skeletons[-1] # assume that the skeleton of interest is always the last one
 
         for jt in range(0, len(self.robot_skeleton.joints)):
-            if self.robot_skeleton.joints[jt].has_position_limit(0):
-                self.robot_skeleton.joints[jt].set_position_limit_enforced(True)
+            for dof in range(len(self.robot_skeleton.joints[jt].dofs)):
+                if self.robot_skeleton.joints[jt].has_position_limit(dof):
+                    self.robot_skeleton.joints[jt].set_position_limit_enforced(True)
+
         self._obs_type = obs_type
         self.frame_skip= frame_skip
         self.visualize = visualize  #Show the window or not

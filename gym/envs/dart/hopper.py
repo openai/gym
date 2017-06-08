@@ -38,10 +38,7 @@ class DartHopperEnv(dart_env.DartEnv, utils.EzPickle):
         utils.EzPickle.__init__(self)
 
 
-    def _step(self, a):
-        pre_state = [self.state_vector()]
-        if self.train_UP:
-            pre_state.append(self.param_manager.get_simulator_parameters())
+    def advance(self, a):
         clamped_control = np.array(a)
         for i in range(len(clamped_control)):
             if clamped_control[i] > self.control_bounds[0][i]:
@@ -50,8 +47,15 @@ class DartHopperEnv(dart_env.DartEnv, utils.EzPickle):
                 clamped_control[i] = self.control_bounds[1][i]
         tau = np.zeros(self.robot_skeleton.ndofs)
         tau[3:] = clamped_control * self.action_scale
-        posbefore = self.robot_skeleton.q[0]
+
         self.do_simulation(tau, self.frame_skip)
+
+    def _step(self, a):
+        pre_state = [self.state_vector()]
+        if self.train_UP:
+            pre_state.append(self.param_manager.get_simulator_parameters())
+        posbefore = self.robot_skeleton.q[0]
+        self.advance(a)
         posafter,ang = self.robot_skeleton.q[0,2]
         height = self.robot_skeleton.bodynodes[2].com()[1]
 
@@ -74,6 +78,8 @@ class DartHopperEnv(dart_env.DartEnv, utils.EzPickle):
         reward -= 5e-1 * joint_limit_penalty
         #reward -= 1e-7 * total_force_mag
         #print(abs(ang))
+        div = self.get_div()
+        reward -= 1e-1 * np.min([(div**2), 10])
         s = self.state_vector()
         done = not (np.isfinite(s).all() and (np.abs(s[2:]) < 100).all() and
                     (height > .7) and (height < 1.8) and (abs(ang) < .4))
@@ -109,3 +115,24 @@ class DartHopperEnv(dart_env.DartEnv, utils.EzPickle):
 
     def viewer_setup(self):
         self._get_viewer().scene.tb.trans[2] = -5.5
+
+    def get_div(self):
+        div = 0
+        cur_state = self.state_vector()
+        d_state0 = self.get_d_state(cur_state)
+        dv = 0.001
+        for j in [3,4,5,9,10,11]:
+            pert_state = np.array(cur_state)
+            pert_state[j] += dv
+            d_state1 = self.get_d_state(pert_state)
+
+            div += (d_state1[j] - d_state0[j]) / dv
+        self.set_state_vector(cur_state)
+        return div
+
+    def get_d_state(self, state):
+        self.set_state_vector(state)
+        self.advance(np.array([0, 0, 0]))
+        next_state = self.state_vector()
+        d_state = next_state - state
+        return d_state

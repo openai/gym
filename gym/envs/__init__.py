@@ -294,6 +294,18 @@ register(
 )
 
 register(
+    id='DartWalker3dRestricted-v1',
+    entry_point='gym.envs.dart:DartWalker3dRestrictedEnv',
+    max_episode_steps=1000,
+)
+
+register(
+    id='DartWalker3dProject-v1',
+    entry_point='gym.envs.dart:DartWalker3dProjectionEnv',
+    max_episode_steps=1000,
+)
+
+register(
     id='DartWalker3dSPD-v1',
     entry_point='gym.envs.dart:DartWalker3dSPDEnv',
     max_episode_steps=1000,

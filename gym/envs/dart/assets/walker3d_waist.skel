@@ -4,7 +4,7 @@
         <physics>
             <time_step>0.002</time_step>
             <gravity>0 -9.81 0</gravity>
-            <collision_detector>bullet</collision_detector>
+            <collision_detector>ode</collision_detector>
         </physics>
 
         <skeleton name="ground skeleton">
@@ -29,14 +29,58 @@
                     </geometry>
                 </collision_shape>
             </body>
+
+            <!--<body name="board1">
+                <transformation>0 1.425 0.15 0 0 0</transformation>
+
+                <collision_shape>
+                    <transformation>0 0 0 0 0 0</transformation>
+                    <geometry>
+                        <box>
+                            <size>500.0 0.6 0.078</size>
+                        </box>
+                    </geometry>
+                </collision_shape>
+            </body>
+
+            <body name="board2">
+                <transformation>0 1.425 -0.15 0 0 0</transformation>
+                <collision_shape>
+                    <transformation>0 0 0 0 0 0</transformation>
+                    <geometry>
+                        <box>
+                            <size>500.0 0.6 0.078</size>
+                        </box>
+                    </geometry>
+                </collision_shape>
+            </body>-->
+
             <joint type="free" name="joint 1">
                 <parent>world</parent>
                 <child>ground</child>
             </joint>
+
+            <!--<joint type="free" name="joint 1">
+                <parent>world</parent>
+                <child>board1</child>
+            </joint>
+
+            <joint type="free" name="joint 1">
+                <parent>world</parent>
+                <child>board2</child>
+            </joint>-->
         </skeleton>
 
         <skeleton name="walker">
             <transformation>0 0.0 0 0 0 0</transformation>
+            <body name="h_torso_aux">
+                <transformation> 0.0 1.425 0 0 0 0</transformation>
+                <inertia>
+                    <mass>0.0</mass>
+                    <offset>0.0 0 0.0</offset>
+                </inertia>
+            </body>
+
             <body name="h_torso">
                 <transformation> 0.0 1.425 0 0 0 0</transformation>
                 <inertia>
@@ -47,7 +91,6 @@
                     <transformation>0.0 0 0.0 0 0 0</transformation>
                     <geometry>
                         <box>
-                            <!--size>1.0*0.1088 1.0*0.1088 2.2*0.1088</size-->
                             <size>0.12 0.45 0.22</size>
                         </box>
                     </geometry>
@@ -150,7 +193,7 @@
                     <transformation> 0.065 0.0 0.0 0.0 0.0 0.0</transformation>
                     <geometry>
                         <box>
-                            <size> 0.39 0.12 0.12</size>
+                            <size> 0.2 0.12 0.12</size>
                         </box>
                     </geometry>
                     <color>1.0 0.5 0.0</color>
@@ -159,7 +202,7 @@
                     <transformation> 0.065 0.0 0.0 0.0 0.0 0.0</transformation>
                     <geometry>
                         <box>
-                            <size> 0.39 0.12 0.12</size>
+                            <size> 0.2 0.12 0.12</size>
                         </box>
                     </geometry>
                 </collision_shape>
@@ -226,7 +269,7 @@
                     <transformation> 0.065 0.0 0.0 0.0 0.0 0.0</transformation>
                     <geometry>
                         <box>
-                            <size> 0.39 0.12 0.12</size>
+                            <size> 0.2 0.12 0.12</size>
                         </box>
                     </geometry>
                     <color>0.7 0.3 0.6</color>
@@ -235,7 +278,7 @@
                     <transformation> 0.065 0.0 0.0 0.0 0.0 0.0</transformation>
                     <geometry>
                         <box>
-                            <size> 0.39 0.12 0.12</size>
+                            <size> 0.2 0.12 0.12</size>
                         </box>
                     </geometry>
                 </collision_shape>
@@ -244,9 +287,15 @@
 
 
             <!-- JOINT: Pelvis -->
-            <joint type="free" name="j_torso">
+            <joint type="translational" name="j_torso">
                 <parent>world</parent>
+                <child>h_torso_aux</child>
+            </joint>
+
+            <joint type="euler" name="j_torso">
+                <parent>h_torso_aux</parent>
                 <child>h_torso</child>
+                <axis_order>zyx</axis_order>
             </joint>
 
             <joint type="euler" name="j_pelvis_x">
@@ -265,8 +314,8 @@
                 </axis>
                 <axis2>
 		            <limit>
-                    	<lower>-0.8</lower>
-                    	<upper>0.8</upper>
+                    	<lower>-0.08</lower>
+                    	<upper>0.08</upper>
                     </limit>
                     <dynamics>
                         <damping>5.0</damping>

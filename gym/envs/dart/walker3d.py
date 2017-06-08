@@ -8,9 +8,9 @@ from gym.envs.dart import dart_env
 class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
     def __init__(self):
         self.control_bounds = np.array([[1.0]*15,[-1.0]*15])
-        self.action_scale = np.array([200.0]*15)
+        self.action_scale = np.array([100.0]*15)
         self.action_scale[[-1,-2,-7,-8]] = 20
-        self.action_scale[[0, 1, 2]] = 200
+        self.action_scale[[0, 1, 2]] = 150
         obs_dim = 41
 
         self.t = 0
@@ -19,11 +19,12 @@ class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
 
         self.robot_skeleton.set_self_collision_check(True)
 
+        for i in range(1, len(self.dart_world.skeletons[0].bodynodes)):
+            self.dart_world.skeletons[0].bodynodes[i].set_friction_coeff(0)
+
         utils.EzPickle.__init__(self)
 
-    def _step(self, a):
-        pre_state = [self.state_vector()]
-
+    def advance(self, a):
         clamped_control = np.array(a)
         for i in range(len(clamped_control)):
             if clamped_control[i] > self.control_bounds[0][i]:
@@ -33,8 +34,14 @@ class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
         tau = np.zeros(self.robot_skeleton.ndofs)
         tau[6:] = clamped_control * self.action_scale
 
-        posbefore = self.robot_skeleton.bodynodes[0].com()[0]
         self.do_simulation(tau, self.frame_skip)
+
+    def _step(self, a):
+        pre_state = [self.state_vector()]
+
+        posbefore = self.robot_skeleton.bodynodes[0].com()[0]
+        self.advance(a)
+
         posafter = self.robot_skeleton.bodynodes[0].com()[0]
         height = self.robot_skeleton.bodynodes[0].com()[1]
         side_deviation = self.robot_skeleton.bodynodes[0].com()[2]
@@ -64,18 +71,25 @@ class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
                 joint_limit_penalty += abs(1.5)
 
         alive_bonus = 1.0
-        vel_rew = 0.35 * (posafter - posbefore) / self.dt
-        action_pen = 5e-3 * np.square(a).sum()
-        joint_pen = 5e-1 * joint_limit_penalty
-        deviation_pen = 1e-1 * abs(side_deviation)
+        vel_rew = 1.0 * (posafter - posbefore) / self.dt
+        action_pen = 1e-3 * np.square(a).sum()
+        joint_pen = 2e-1 * joint_limit_penalty
+        deviation_pen = 1e-3 * abs(side_deviation)
         reward = vel_rew + alive_bonus - action_pen - joint_pen - deviation_pen
+
         #reward -= 1e-7 * total_force_mag
+
+        #div = self.get_div()
+        #reward -= 1e-1 * np.min([(div**2), 10])
 
         self.t += self.dt
 
         s = self.state_vector()
         done = not (np.isfinite(s).all() and (np.abs(s[2:]) < 100).all() and
-                    (height > 1.05) and (height < 2.0) and (abs(ang_cos_uwd) < 0.64) and (abs(ang_cos_fwd) < 0.74))
+                    (height > 1.05) and (height < 2.0) and (abs(ang_cos_uwd) < 0.84) and (abs(ang_cos_fwd) < 0.84))
+
+        if done:
+            reward = 0
 
         ob = self._get_obs()
 
@@ -89,13 +103,10 @@ class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
 
     def _get_obs(self):
         state =  np.concatenate([
-            self.robot_skeleton.q[0:3],
-            self.robot_skeleton.q[4:],
+            self.robot_skeleton.q[1:],
             np.clip(self.robot_skeleton.dq,-10,10),
             #[self.t]
         ])
-        state[3] = self.robot_skeleton.bodynodes[0].com()[1]
-
 
         return state
 
@@ -114,3 +125,24 @@ class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
     def viewer_setup(self):
         if not self.disableViewer:
             self._get_viewer().scene.tb.trans[2] = -5.5
+
+    def get_div(self):
+        div = 0
+        cur_state = self.state_vector()
+        d_state0 = self.get_d_state(cur_state)
+        dv = 0.0001
+        for j in [6,7,8,12, 18, 27, 28, 29, 33, 39]:
+            pert_state = np.array(cur_state)
+            pert_state[j] += dv
+            d_state1 = self.get_d_state(pert_state)
+
+            div += (d_state1[j] - d_state0[j]) / dv
+        self.set_state_vector(cur_state)
+        return div
+
+    def get_d_state(self, state):
+        self.set_state_vector(state)
+        self.advance(np.array([0]*15))
+        next_state = self.state_vector()
+        d_state = next_state - state
+        return d_state
