@@ -35,7 +35,6 @@ class DartWalker3dRestrictedEnv(dart_env.DartEnv, utils.EzPickle):
         tau[6:] = clamped_control * self.action_scale
 
         self.do_simulation(tau, self.frame_skip)
-        #self.do_simulation(tau*0, self.frame_skip)
 
     def _step(self, a):
         pre_state = [self.state_vector()]
@@ -73,6 +72,7 @@ class DartWalker3dRestrictedEnv(dart_env.DartEnv, utils.EzPickle):
 
         alive_bonus = 1.0
         vel_rew = 2.0 * (posafter - posbefore) / self.dt
+        vel_rew = 2.5 * (posafter - posbefore) / self.dt
         action_pen = 1e-2 * np.square(a).sum()
         joint_pen = 0 * joint_limit_penalty
         deviation_pen = 1e-3 * abs(side_deviation)
@@ -92,12 +92,6 @@ class DartWalker3dRestrictedEnv(dart_env.DartEnv, utils.EzPickle):
         s = self.state_vector()
         done = not (np.isfinite(s).all() and (np.abs(s[2:]) < 100).all() and
                     (height > 1.05) and (height < 2.0) and (abs(ang_cos_uwd) < 0.84) and (abs(ang_cos_fwd) < 0.84))
-
-        '''if (np.max([(a-self.control_bounds[0]), [0]*15], axis=0) > 0.1).any():
-            done = True
-        if (np.max([(self.control_bounds[1] - a), [0]*15], axis=0) > 0.1).any():
-            done = True'''
-
 
         if done:
             reward = 0

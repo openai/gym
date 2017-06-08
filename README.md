@@ -1,11 +1,11 @@
 # DartEnv
 Openai Gym with Dart support
 
-###About
+### About
 
 **DartEnv** provides 3D multi-body simulation environments based on the <a href="https://github.com/openai/gym">**openai gym**</a> environment. The physics simulation is carried out by <a href="http://dartsim.github.io/">Dart</a> and <a href="http://pydart2.readthedocs.io/en/latest/">PyDart2</a>, which is a python binding for Dart.
 
-###Requirements
+### Requirements
 
 You need to install these packages first:
 
@@ -36,7 +36,7 @@ For python3:
     sudo pip3 install pydart2
 
 
-###Install
+### Install
 
 The installation is the same as for <a href="https://github.com/openai/gym">**openai gym**</a>. To install, simply do 
 
@@ -55,7 +55,7 @@ For python3:
 Please find the detailed installation instruction of using <a href="https://github.com/openai/rllab">Rllab</a> to learn DartEnv in the <a href="https://github.com/VincentYu68/dart-env/wiki">wiki</a> page.
 
 
-###Example
+### Example
 
 After installation, you can run DartEnv using the same API as openai gym. One example of running the dart version of the Hopper model is shown below:
 

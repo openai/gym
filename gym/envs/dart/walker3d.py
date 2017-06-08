@@ -15,7 +15,7 @@ class DartWalker3dEnv(dart_env.DartEnv, utils.EzPickle):
 
         self.t = 0
 
-        dart_env.DartEnv.__init__(self, 'walker3d_waist.skel', 4, obs_dim, self.control_bounds, disableViewer=False)
+        dart_env.DartEnv.__init__(self, 'walker3d_waist.skel', 4, obs_dim, self.control_bounds, disableViewer=True)
 
         self.robot_skeleton.set_self_collision_check(True)
 
