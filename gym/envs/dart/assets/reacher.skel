@@ -31,7 +31,6 @@
 
         <skeleton name="manipulator">
             <body name="link 1">
-                <gravity>1</gravity>
                 <transformation>0 0 0 0 0 0</transformation>
                 <inertia>
                     <mass>1</mass>
@@ -46,7 +45,6 @@
                 </visualization_shape>
             </body>
             <body name="link 2">
-                <gravity>1</gravity>
                 <transformation>0 -0.5 0 0 0 0</transformation>
                 <inertia>
                     <mass>1</mass>
@@ -61,7 +59,6 @@
                 </visualization_shape>
             </body>
             <body name="link 3">
-                <gravity>1</gravity>
                 <transformation>0 -1 0 0 0 0</transformation>
                 <inertia>
                     <mass>1</mass>
@@ -85,7 +82,7 @@
                     	<upper>3.14</upper>
                     </limit> 
                     <dynamics>
-                        <damping>1.0</damping>
+                        <damping>2.0</damping>
                         <friction>0.0</friction>
                     </dynamics>
                 </axis>
@@ -96,7 +93,7 @@
                     	<upper>3.14</upper>
                     </limit> 
                     <dynamics>
-                        <damping>1.0</damping>
+                        <damping>2.0</damping>
                         <friction>0.0</friction>
                     </dynamics>
                 </axis2>
@@ -112,7 +109,7 @@
                     	<upper>3.14</upper>
                     </limit> 
                     <dynamics>
-                        <damping>1.0</damping>
+                        <damping>2.0</damping>
                         <friction>0.0</friction>
                     </dynamics>
                  </axis>
@@ -128,7 +125,7 @@
                     	<upper>3.14</upper>
                     </limit> 
                     <dynamics>
-                        <damping>1.0</damping>
+                        <damping>2.0</damping>
                         <friction>0.0</friction>
                     </dynamics>
                 </axis>
@@ -139,7 +136,7 @@
                     	<upper>3.14</upper>
                     </limit> 
                     <dynamics>
-                        <damping>1.0</damping>
+                        <damping>2.0</damping>
                         <friction>0.0</friction>
                     </dynamics>
                 </axis2>

@@ -276,6 +276,12 @@ register(
 )
 
 register(
+    id='DartCartPoleSwingUp-v1',
+    entry_point='gym.envs.dart:DartCartPoleSwingUpEnv',
+    max_episode_steps=500,
+)
+
+register(
     id='DartWalker2d-v1',
     entry_point='gym.envs.dart:DartWalker2dEnv',
     max_episode_steps=1000,
@@ -294,6 +300,12 @@ register(
 )
 
 '''register(
+    id='DDPEnv-v1',
+    entry_point='gym.envs.dart:DDPEnv',
+    max_episode_steps=50,
+)'''
+
+'''register(
     id='DartSwing-v0',
     entry_point='gym.envs.dart:DartSwingEnv',
     reward_threshold=950.0,
@@ -306,12 +318,18 @@ register(
 # ----------------------------------------
 
 # 2D
-
 register(
     id='Reacher-v1',
     entry_point='gym.envs.mujoco:ReacherEnv',
     max_episode_steps=50,
     reward_threshold=-3.75,
+)
+
+register(
+    id='Reacher3d-v1',
+    entry_point='gym.envs.mujoco:Reacher3dEnv',
+    max_episode_steps=500,
+    reward_threshold=-200,
 )
 
 register(
@@ -431,7 +449,7 @@ for game in ['air_raid', 'alien', 'amidar', 'assault', 'asterix', 'asteroids', '
         )
 
         register(
-            id='{}-v3'.format(name),
+            id='{}-v4'.format(name),
             entry_point='gym.envs.atari:AtariEnv',
             kwargs={'game': game, 'obs_type': obs_type},
             max_episode_steps=100000,
@@ -454,7 +472,7 @@ for game in ['air_raid', 'alien', 'amidar', 'assault', 'asterix', 'asteroids', '
         )
 
         register(
-            id='{}Deterministic-v3'.format(name),
+            id='{}Deterministic-v4'.format(name),
             entry_point='gym.envs.atari:AtariEnv',
             kwargs={'game': game, 'obs_type': obs_type, 'frameskip': frameskip},
             max_episode_steps=100000,
@@ -472,7 +490,7 @@ for game in ['air_raid', 'alien', 'amidar', 'assault', 'asterix', 'asteroids', '
         # No frameskip. (Atari has no entropy source, so these are
         # deterministic environments.)
         register(
-            id='{}NoFrameskip-v3'.format(name),
+            id='{}NoFrameskip-v4'.format(name),
             entry_point='gym.envs.atari:AtariEnv',
             kwargs={'game': game, 'obs_type': obs_type, 'frameskip': 1}, # A frameskip of 1 means we get every frame
             max_episode_steps=frameskip * 100000,

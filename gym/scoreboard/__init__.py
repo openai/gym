@@ -166,13 +166,13 @@ positioned between two "mountains".
 The goal is to drive up the mountain on the right; however, the car's engine is not
 strong enough to scale the mountain in a single pass.
 Therefore, the only way to succeed is to drive back and forth to build up momentum.
-Here, the reward is greater if you spend less energy to reach the goal
+Here, agents can vary the magnitude of force applied in either direction. The reward 
+is greater if less energy is spent to reach the goal.
 """,
     background="""\
 This problem was first described by Andrew Moore in his PhD thesis [Moore90]_.
 
 .. [Moore90] A Moore, Efficient Memory-Based Learning for Robot Control, PhD thesis, University of Cambridge, 1990.
-Here, this is the continuous version.
 """,
 )
 
@@ -206,7 +206,7 @@ add_task(
     group='algorithmic',
     summary='Copy symbols from the input tape multiple times.',
     description=r"""
-A generic input is :math:`[mx_1 x_2 \ldots x_k]` and the desired output is :math:`[x_1 x_2 \ldots x_k x_k \ldots x_2 x_1 x_1 x_2 \ldots x_k x_1 x_2 \ldots x_k]`. Thus the goal is to copy the input, revert it and copy it again.
+A generic input is :math:`[x_1 x_2 \ldots x_k]` and the desired output is :math:`[x_1 x_2 \ldots x_k x_k \ldots x_2 x_1 x_1 x_2 \ldots x_k]`. Thus the goal is to copy the input, reverse it and copy it again.
 """
 )
 
@@ -215,10 +215,10 @@ add_task(
     group='algorithmic',
     summary='Copy and deduplicate data from the input tape.',
     description=r"""
-The input tape has the form :math:`[x_1 x_1 x_1 x_2 x_2 x_2 \ldots
-x_k x_k x_k]`, while the desired output is :math:`[x_1 x_2 \ldots x_k]`.
-Thus each input symbol is replicated three times, so the model must emit
-every third input symbol.
+The input tape has the form :math:`[x_1 x_1 x_2 x_2 \ldots
+x_k x_k]`, while the desired output is :math:`[x_1 x_2 \ldots x_k]`.
+Thus each input symbol is replicated two times, so the model must emit
+every second input symbol.
 """,
 )
 
@@ -254,9 +254,8 @@ add_task(
     group='algorithmic',
     summary='Reverse the symbols on the input tape.',
     description="""
-The goal is to reverse a sequence of symbols on the input tape. We provide
-a special character :math:`r` to indicate the end of the sequence. The model
-must learn to move right multiple times until it hits the :math:`r` symbol, then
+The goal is to reverse a sequence of symbols on the input tape. The model
+must learn to move right multiple times until it hits a blank symbol, then
 move to the left, copying the symbols to the output tape.
 """,
 )

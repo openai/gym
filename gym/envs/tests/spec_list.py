@@ -11,12 +11,13 @@ def should_skip_env_spec_for_tests(spec):
     skip_mujoco = not (os.environ.get('MUJOCO_KEY_BUNDLE') or os.path.exists(os.path.expanduser('~/.mujoco')))
     if skip_mujoco and ep.startswith('gym.envs.mujoco:'):
         return True
-    if (    spec.id.startswith("Go") or 
-            spec.id.startswith("Hex") or 
-            ep.startswith('gym.envs.box2d:') or 
-            ep.startswith('gym.envs.parameter_tuning:') or 
+    if (    'GoEnv' in ep or
+            'HexEnv' in ep or
+            ep.startswith('gym.envs.box2d:') or
+            ep.startswith('gym.envs.box2d:') or
+            ep.startswith('gym.envs.parameter_tuning:') or
             ep.startswith('gym.envs.safety:Semisuper') or
-            (ep.startswith("gym.envs.atari") and not spec.id.startswith("Pong"))
+            (ep.startswith("gym.envs.atari") and not spec.id.startswith("Pong") and not spec.id.startswith("Seaquest"))
     ):
         logger.warning("Skipping tests for env {}".format(ep))
         return True
