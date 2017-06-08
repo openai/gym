@@ -1,9 +1,12 @@
 import numpy as np
 from gym import utils
 from gym.envs.dart import dart_env
+import copy
 
 from gym.envs.dart.parameter_managers import *
 import copy
+
+import joblib, os
 
 
 class DartHopperEnv(dart_env.DartEnv, utils.EzPickle):
@@ -15,17 +18,22 @@ class DartHopperEnv(dart_env.DartEnv, utils.EzPickle):
         self.resample_MP = False  # whether to resample the model paraeters
         obs_dim = 11
         self.param_manager = hopperContactMassManager(self)
+        modelpath = os.path.join(os.path.dirname(__file__), "models")
+        upselector = joblib.load(os.path.join(modelpath, 'UPSelector_torsostrength_sd5_cont.pkl'))
+        self.param_manager.sampling_selector = upselector
+        self.param_manager.selector_target = 2
+        
         if self.train_UP:
             obs_dim += self.param_manager.param_dim
 
         dart_env.DartEnv.__init__(self, 'hopper_capsule.skel', 4, obs_dim, self.control_bounds, disableViewer=True)
 
         self.dart_world.set_collision_detector(3) # 3 is ode collision detector
-
-        curcontparam = copy.copy(self.param_manager.controllable_param)
+        
+        '''curcontparam = copy.copy(self.param_manager.controllable_param)
         self.param_manager.controllable_param = [0, 1, 2, 3, 4]
         self.param_manager.set_simulator_parameters([0.5, 0.5, 0.5, 0.5, 0.5])
-        self.param_manager.controllable_param = curcontparam
+        self.param_manager.controllable_param = curcontparam'''
 
         utils.EzPickle.__init__(self)
 
