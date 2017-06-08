@@ -24,7 +24,7 @@ class ReacherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         qpos = self.np_random.uniform(low=-0.1, high=0.1, size=self.model.nq) + self.init_qpos
         while True:
             self.goal = self.np_random.uniform(low=-.2, high=.2, size=2)
-            if np.linalg.norm(self.goal) < 2:
+            if np.linalg.norm(self.goal) < 0.2:
                 break
         qpos[-2:] = self.goal
         qvel = self.init_qvel + self.np_random.uniform(low=-.005, high=.005, size=self.model.nv)
