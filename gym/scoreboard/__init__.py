@@ -105,9 +105,9 @@ add_task(
     group='classic_control',
     summary="Balance a pole on a cart.",
     description="""\
-A pole is attached by an un-actuated joint to a cart, which moves along a frictionless track.
-The system is controlled by applying a force of +1 or -1 to the cart.
-The pendulum starts upright, and the goal is to prevent it from falling over.
+    A dynamical system with two degrees of freedom consisting of a cart that moves horizontally on a frictionless surface, and a pole of uniform density attached by an un-actuated joint to the cart.
+The system is controlled by applying a horizontal force of +1 or -1 to the cart.
+The pole starts upright, and the goal is to prevent it from falling over.
 A reward of +1 is provided for every timestep that the pole remains upright.
 The episode ends when the pole is more than 15 degrees from vertical, or the
 cart moves more than 2.4 units from the center.
