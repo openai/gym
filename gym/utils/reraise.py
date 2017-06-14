@@ -1,5 +1,5 @@
 import sys
-from six import reraise as reraise_impl
+from six import reraise as reraise_impl, PY3
 
 def reraise(prefix=None, suffix=None):
     old_exc_type, old_exc_value, traceback = sys.exc_info()
@@ -7,8 +7,7 @@ def reraise(prefix=None, suffix=None):
         old_exc_value = old_exc_type()
 
     e = ReraisedException(old_exc_value, prefix, suffix)
-    is_py3 = sys.version_info[0] == 3
-    if is_py3:
+    if PY3:
         # Python 3 has exception chaining, which we don't want in this case.
         # Setting `__cause__` to None is equivalent to `from None` syntax
         # which will disable the chaining.
