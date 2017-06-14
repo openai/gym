@@ -59,7 +59,9 @@ def discretize(space, steps):
             assert steps.shape == space.shape, "supplied steps have invalid shape"
             starts = np.zeros_like(steps)
             # MultiDiscrete is inclusive, thus we need steps-1 as last value
-            discrete_space = spaces.MultiDiscrete(zip(starts.flatten(), (steps-1).flatten()))
+            # currently, MultiDiscrete iterates twice over its input, which is not possible for a zip
+            # result in python 3
+            discrete_space = spaces.MultiDiscrete(list(zip(starts.flatten(), (steps-1).flatten())))
             lo = space.low.flatten()
             hi = space.high.flatten()
             def convert(x):

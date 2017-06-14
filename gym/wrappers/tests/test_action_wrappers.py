@@ -55,8 +55,8 @@ def test_flatten_discrete():
         actions += [(i, j)]
     for i in range(0, 12):
         a = f(i)
-        assert a in actions
-        actions = filter(lambda x: x != a, actions)
+        assert a in actions, (a, actions)
+        actions = list(filter(lambda x: x != a, list(actions)))
     assert len(actions) == 0
 
     # same test for binary
@@ -70,8 +70,8 @@ def test_flatten_discrete():
         actions += [(i, j, k)]
     for i in range(0, 8):
         a = f(i)
-        assert a in actions
-        actions = filter(lambda x: x != a, actions)
+        assert a in actions, (a, actions)
+        actions = list(filter(lambda x: x != a, actions))
     assert len(actions) == 0
 
 def test_flatten_continuous():
