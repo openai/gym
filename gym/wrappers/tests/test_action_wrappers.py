@@ -109,7 +109,7 @@ class ExpectEnv(gym.Env):
 
 def test_discretized_wrapper():
     gym.envs.register(id='ExpectTest-v0',
-        entry_point='test_action_wrappers:ExpectEnv'
+        entry_point='gym.wrappers.tests.test_action_wrappers:ExpectEnv'
     )
     expect = gym.make("ExpectTest-v0")
     cont = spaces.Box(np.array([0.0]), np.array([1.0]))
@@ -120,7 +120,7 @@ def test_discretized_wrapper():
 
 def test_flattened_wrapper():
     gym.envs.register(id='ExpectTest-v1',
-        entry_point='test_action_wrappers:ExpectEnv'
+        entry_point='gym.wrappers.tests.test_action_wrappers:ExpectEnv'
     )
     expect = gym.make("ExpectTest-v1")
     md = spaces.MultiDiscrete([(0, 1), (0, 1)])
@@ -131,7 +131,7 @@ def test_flattened_wrapper():
 
 def test_rescaled_wrapper():
     gym.envs.register(id='ExpectTest-v2',
-        entry_point='test_action_wrappers:ExpectEnv'
+        entry_point='gym.wrappers.tests.test_action_wrappers:ExpectEnv'
     )
     expect = gym.make("ExpectTest-v2")
     bx = spaces.Box(np.array([0.0]), np.array([1.0]))
