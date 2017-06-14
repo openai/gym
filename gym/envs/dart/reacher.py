@@ -32,21 +32,17 @@ class DartReacherEnv(dart_env.DartEnv, utils.EzPickle):
         ob = self._get_obs()
 
         s = self.state_vector()
-        velocity = np.square(s[5:]).sum()
 
         done = not (np.isfinite(s).all() and (-reward_dist > 0.1))
-#        done = not (np.isfinite(s).all() and (-reward_dist > 0.01) and (velocity < 10000))
 
-        aux_pred_signal = np.hstack([self.robot_skeleton.bodynodes[2].to_world(fingertip), [reward]])
 
-        return ob, reward, done, {'aux_pred':aux_pred_signal, 'done_return':done}
+        return ob, reward, done, {}
 
     def _get_obs(self):
         theta = self.robot_skeleton.q
         fingertip = np.array([0.0, -0.25, 0.0])
         vec = self.robot_skeleton.bodynodes[2].to_world(fingertip) - self.target
         return np.concatenate([np.cos(theta), np.sin(theta), self.target, self.robot_skeleton.dq, vec]).ravel()
-        #return np.concatenate([theta, self.robot_skeleton.dq, vec]).ravel()
 
     def reset_model(self):
         self.dart_world.reset()
@@ -55,7 +51,6 @@ class DartReacherEnv(dart_env.DartEnv, utils.EzPickle):
         self.set_state(qpos, qvel)
         while True:
             self.target = self.np_random.uniform(low=-1, high=1, size=3)
-            #print('target = ' + str(self.target))
             if np.linalg.norm(self.target) < 1.5: break
 
 

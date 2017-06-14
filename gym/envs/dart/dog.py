@@ -5,8 +5,6 @@ import numpy as np
 from gym import utils
 from gym.envs.dart import dart_env
 
-from gym.envs.dart.parameter_managers import *
-
 
 class DartDogEnv(dart_env.DartEnv, utils.EzPickle):
     def __init__(self):
@@ -46,7 +44,7 @@ class DartDogEnv(dart_env.DartEnv, utils.EzPickle):
                     (height > .7) and (height < 1.8) and (side_deviation < .4))
         ob = self._get_obs()
 
-        return ob, reward, done, {'vel_rew':(posafter - posbefore) / self.dt, 'action_rew':1e-3 * np.square(a).sum(), 'done_return':done}
+        return ob, reward, done, {}
 
     def _get_obs(self):
         state =  np.concatenate([

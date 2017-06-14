@@ -1,13 +1,6 @@
 import numpy as np
 from gym import utils
 from gym.envs.dart import dart_env
-import copy
-
-import copy
-
-import joblib, os
-
-import joblib, os
 
 
 class DartHopperEnv(dart_env.DartEnv, utils.EzPickle):
@@ -16,7 +9,7 @@ class DartHopperEnv(dart_env.DartEnv, utils.EzPickle):
         self.action_scale = 200
         obs_dim = 11
 
-        dart_env.DartEnv.__init__(self, 'hopper_capsule.skel', 4, obs_dim, self.control_bounds, disableViewer=True)
+        dart_env.DartEnv.__init__(self, 'hopper_capsule.skel', 4, obs_dim, self.control_bounds, disableViewer=False)
 
         self.dart_world.set_collision_detector(3)
 
@@ -43,10 +36,6 @@ class DartHopperEnv(dart_env.DartEnv, utils.EzPickle):
         posafter,ang = self.robot_skeleton.q[0,2]
         height = self.robot_skeleton.bodynodes[2].com()[1]
 
-        contacts = self.dart_world.collision_result.contacts
-        total_force_mag = 0
-        for contact in contacts:
-            total_force_mag += np.square(contact.force).sum()
 
         joint_limit_penalty = 0
         for j in [-2]:
@@ -60,14 +49,12 @@ class DartHopperEnv(dart_env.DartEnv, utils.EzPickle):
         reward += alive_bonus
         reward -= 1e-3 * np.square(a).sum()
         reward -= 5e-1 * joint_limit_penalty
-        #reward -= 1e-7 * total_force_mag
-        #print(abs(ang))
         s = self.state_vector()
         done = not (np.isfinite(s).all() and (np.abs(s[2:]) < 100).all() and
                     (height > .7) and (height < 1.8) and (abs(ang) < .4))
         ob = self._get_obs()
 
-        return ob, reward, done, {'model_parameters':self.param_manager.get_simulator_parameters(), 'vel_rew':(posafter - posbefore) / self.dt, 'action_rew':1e-3 * np.square(a).sum(), 'forcemag':1e-7*total_force_mag, 'done_return':done}
+        return ob, reward, done, {}
 
     def _get_obs(self):
         state =  np.concatenate([

@@ -1,6 +1,0 @@
-<launch>
-  <!-- send pr2 urdf to param server -->
-  <group>
-    <param name="robot_description" command="$(find xacro)/xacro.py '$(find pr2_description)/robots/pr2.urdf.xacro'" />
-  </group>
-</launch>

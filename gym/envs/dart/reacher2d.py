@@ -36,12 +36,11 @@ class DartReacher2dEnv(dart_env.DartEnv, utils.EzPickle):
         #done = not (np.isfinite(s).all() and (-reward_dist > 0.02))
         done = False
 
-        return ob, reward, done, {'done_return':done}
+        return ob, reward, done, {}
 
     def _get_obs(self):
         theta = self.robot_skeleton.q
         vec = self.robot_skeleton.bodynodes[-1].com() - self.target
-        #return np.concatenate([theta, self.robot_skeleton.dq, vec])
         return np.concatenate([np.cos(theta), np.sin(theta), [self.target[0], self.target[2]], self.robot_skeleton.dq, vec]).ravel()
 
     def reset_model(self):
@@ -54,8 +53,6 @@ class DartReacher2dEnv(dart_env.DartEnv, utils.EzPickle):
             self.target[1] = 0.0
             if np.linalg.norm(self.target) < .2: break
         self.target[1] = 0.01
-        #options = [np.array([0.1, 0.01, 0.1]), np.array([-0.2, 0.01, 0.05]), np.array([0.2, 0.01, -0.15])]
-        #self.target = options[int(np.random.random()*len(options))]
 
         self.dart_world.skeletons[1].q=[0, 0, 0, self.target[0], self.target[1], self.target[2]]
 

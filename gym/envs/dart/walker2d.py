@@ -38,7 +38,7 @@ class DartWalker2dEnv(dart_env.DartEnv, utils.EzPickle):
 
         alive_bonus = 1.0
         vel = (posafter - posbefore) / self.dt
-        reward = vel#-(vel-1.0)**2
+        reward = vel
         reward += alive_bonus
         reward -= 1e-3 * np.square(a).sum()
 
@@ -55,15 +55,10 @@ class DartWalker2dEnv(dart_env.DartEnv, utils.EzPickle):
         s = self.state_vector()
         done = not (np.isfinite(s).all() and (np.abs(s[2:]) < 100).all() and
                     (height > .8) and (height < 2.0) and (abs(ang) < 1.0))
-        '''qpos = self.robot_skeleton.q
-        qvel = self.robot_skeleton.dq
-        qpos[0:3] = np.array([0, 0, 0.8])
-        qvel[0:3] = np.array([0, 0, 0])
-        self.set_state(qpos, qvel)'''
 
         ob = self._get_obs()
 
-        return ob, reward, done, {'pre_state':pre_state, 'vel_rew':(posafter - posbefore) / self.dt, 'action_rew':1e-3 * np.square(a).sum(), 'forcemag':1e-7*total_force_mag, 'done_return':done}
+        return ob, reward, done, {}
 
     def _get_obs(self):
         state =  np.concatenate([

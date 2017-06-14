@@ -26,14 +26,11 @@ class DartCartPoleImgEnv(dart_env.DartEnv, utils.EzPickle):
         utils.EzPickle.__init__(self)
 
     def _step(self, a):
-        #assert self.action_space.contains(a), "%r (%s) invalid"%(a, type(a))
-
         tau = np.zeros(self.robot_skeleton.ndofs)
         if a == 0:
             tau[0] = -10
         else:
             tau[0] = 10
-        #print(tau)
 
         self.cart_pos_x  = self.robot_skeleton.body('cart').transform()[0][3]
         self.pole_rotate = self.robot_skeleton.body('pole').transform()[0][1]

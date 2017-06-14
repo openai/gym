@@ -12,11 +12,6 @@ class DartCartPoleSwingUpEnv(dart_env.DartEnv, utils.EzPickle):
         utils.EzPickle.__init__(self)
 
     def _step(self, a):
-        #if a[0] > self.control_bounds[0][0] or a[0] < self.control_bounds[1][0]:
-        #    a[0] = np.sign(a[0])
-        #if np.abs(a[0]) > 1:
-        #    a[0] = np.sign(a[0])
-
         tau = np.zeros(self.robot_skeleton.ndofs)
         tau[0] = a[0] * self.action_scale
 
@@ -48,7 +43,6 @@ class DartCartPoleSwingUpEnv(dart_env.DartEnv, utils.EzPickle):
             qpos[1] += np.pi
         else:
             qpos[1] += -np.pi
-        #qpos[1]+=self.np_random.uniform(low=-np.pi, high=np.pi, size=1)
 
         self.set_state(qpos, qvel)
         return self._get_obs()
