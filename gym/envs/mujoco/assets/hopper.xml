@@ -1,7 +1,7 @@
 <mujoco model="hopper">
   <compiler angle="degree" coordinate="global" inertiafromgeom="true"/>
   <default>
-    <joint armature="0" damping="1" limited="true"/>
+    <joint armature="1" damping="1" limited="true"/>
     <geom conaffinity="1" condim="1" contype="1" margin="0.001" material="geom" rgba="0.8 0.6 .4 1" solimp=".8 .8 .01" solref=".02 1"/>
     <motor ctrllimited="true" ctrlrange="-.4 .4"/>
   </default>
