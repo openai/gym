@@ -236,7 +236,7 @@ register(
 )
 
 register(
-    id='DartCartPole-v0',
+    id='DartCartPoleImg-v1',
     entry_point='gym.envs.dart:DartCartPoleImgEnv',
     reward_threshold=950.0,
     max_episode_steps=2000,
