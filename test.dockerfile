@@ -25,6 +25,16 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* \
     && easy_install pip
 
+RUN sudo apt-add-repository ppa:libccd-debs -y
+RUN sudo apt-add-repository ppa:fcl-debs -y
+RUN sudo apt-add-repository ppa:dartsim -y
+RUN sudo apt-get update -q
+RUN sudo apt-get install libdart6-all-dev -y
+RUN sudo apt-get install swig -y
+RUN if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then sudo apt-get install swig python-pip python-qt4 python-qt4-dev python-qt4-gl -y; fi
+RUN if [[ $TRAVIS_PYTHON_VERSION == 3.4 ]]; then sudo apt-get install python3-pip python3-pyqt4 python3-pyqt4.qtopengl -y; fi
+
+
 WORKDIR /usr/local/gym/
 RUN mkdir -p gym && touch gym/__init__.py
 COPY ./gym/version.py ./gym/
