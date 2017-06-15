@@ -29,7 +29,7 @@ class DartCartPoleSwingUpEnv(dart_env.DartEnv, utils.EzPickle):
 
         done = abs(ang) > 8 * np.pi or abs(self.robot_skeleton.dq[1]) > 25 or abs(self.robot_skeleton.q[0]) > 5
 
-        return ob, reward, done, {}
+        return ob, reward, bool(done), {}
 
 
     def _get_obs(self):
