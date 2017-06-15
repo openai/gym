@@ -21,19 +21,19 @@ RUN apt-get update \
     xpra \
     libav-tools  \
     python3-dev \
+    software-properties-common \
+    && apt-add-repository ppa:libccd-debs -y
+    && apt-add-repository ppa:fcl-debs -y
+    && apt-add-repository ppa:dartsim -y
+    && apt-get update -q
+    && apt-get install libdart6-all-dev -y
+    && apt-get install swig -y
+    && apt-get install swig python-pip python-qt4 python-qt4-dev python-qt4-gl -y
+    && apt-get install python3-pip python3-pyqt4 python3-pyqt4.qtopengl -y
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     && easy_install pip
 
-RUN apt-get install software-properties-common
-RUN apt-add-repository ppa:libccd-debs -y
-RUN apt-add-repository ppa:fcl-debs -y
-RUN apt-add-repository ppa:dartsim -y
-RUN apt-get update -q
-RUN apt-get install libdart6-all-dev -y
-RUN apt-get install swig -y
-RUN apt-get install swig python-pip python-qt4 python-qt4-dev python-qt4-gl -y
-RUN apt-get install python3-pip python3-pyqt4 python3-pyqt4.qtopengl -y
 
 
 WORKDIR /usr/local/gym/
