@@ -163,6 +163,11 @@ register(
 )
 
 register(
+    id='CliffWalking-v0',
+    entry_point='gym.envs.toy_text:CliffWalkingEnv',
+)
+
+register(
     id='NChain-v0',
     entry_point='gym.envs.toy_text:NChainEnv',
     max_episode_steps=1000,

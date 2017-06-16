@@ -1247,6 +1247,12 @@
     "observations": "01bc2647e2df61bfa95036ae892f69cba51909cf6d87ab94ba8168d105358b97",
     "rewards": "04db9812be236ea437cbda6cea214bba8c79760fb57a66176704503576f6f390"
   },
+  "CliffWalking-v0": {
+    "actions": "ec9b2f7d83b6591999b67843d51ac0947dd5602d6c89b02b2f4614d36e7f6513",
+    "dones": "ecfbe8578a5aac6442d7b65f2e4bd4f6d70e5cdc76c1d6868ee031460c7477b9",
+    "observations": "d8888a9eff53952afffd7e1aef3833ff922c69f652671d1d1f64b784f3553be3",
+    "rewards": "ba42e94269052965f8870ca091aa8dd625648df7c1f174b0e445ff69d585618b"
+  },
   "Copy-v0": {
     "actions": "ee9c25f85496f4e9891c67940ddbad5c590af191e95cf813c2c27ff93a861f0a",
     "dones": "8ee6c0c36abcc368709556086f6c307a4efc09733fb85be03ac67e36731ffc1a",
@@ -2342,14 +2348,14 @@
   "KellyCoinflip-v0": {
     "actions": "f7edf6e190c82b0db82c85f76b04e026b665746a7c069c5a93cdd8e8c031917b",
     "dones": "42124517a7cf44c180291fb5e70ac73e00029be8baf6917b888311bdc37e5df0",
-    "observations": "5521cda075bc2f299ca95303ca1fe20f49adfef02d6de1f495d230bba4600d0b",
-    "rewards": "7f68008d156691e29e1918797f35681f3971ccfae4ea77ad7b8c817265a65ecd"
+    "observations": "8c8b7b6f80d557bdc94c2fe762dbb6407c140f5c5d33bfa4a0c2b90b03bfebe9",
+    "rewards": "04db9812be236ea437cbda6cea214bba8c79760fb57a66176704503576f6f390"
   },
   "KellyCoinflipGeneralized-v0": {
     "actions": "eb377d237c8252ccb63d02812dbe3b05fe71c191a66c7259f84dbe56d057aef8",
     "dones": "cff6a083648c782fc0f89d797661c4d462d6d56e43fb441e70697c11866ff8be",
-    "observations": "f20e65144a8bf85cd4518ac76927d9f1f7429a7804d7a0f1ecb7e2fa17e8c07f",
-    "rewards": "7f68008d156691e29e1918797f35681f3971ccfae4ea77ad7b8c817265a65ecd"
+    "observations": "486f946dcdf81445e8e3bfe5b114788008a18468931f16ba716cabaf18f0793d",
+    "rewards": "04db9812be236ea437cbda6cea214bba8c79760fb57a66176704503576f6f390"
   },
   "Krull-ram-v0": {
     "actions": "a642086826823e658c283b56dd79f14af59846af2c3d93fad08c3bc84bf3b748",
