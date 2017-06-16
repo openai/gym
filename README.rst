@@ -262,6 +262,8 @@ We are using `pytest <http://doc.pytest.org>`_ for tests. You can run them via:
 What's new
 ==========
 
+- 2017-06-16: Make env.spec into a property to fix a bug that occurs
+  when you try to print out an unregistered Env.
 - 2017-05-13: BACKWARDS INCOMPATIBILITY: The Atari environments are now at
   *v4*. To keep using the old v3 environments, keep gym <= 0.8.2 and atari-py
   <= 0.0.21. Note that the v4 environments will not give identical results to
