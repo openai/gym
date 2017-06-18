@@ -34,10 +34,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* \
     && easy_install pip
 
-RUN git clone  https://github.com/sehoonha/pydart2.git \
-    && cd pydart2 \
-    && python setup.py build build_ext \
-    && python setup.py develop
+
 
 WORKDIR /usr/local/gym/
 RUN mkdir -p gym && touch gym/__init__.py
