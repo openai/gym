@@ -21,9 +21,20 @@ RUN apt-get update \
     xpra \
     libav-tools  \
     python3-dev \
+    software-properties-common \
+    && apt-add-repository ppa:libccd-debs -y \
+    && apt-add-repository ppa:fcl-debs -y \
+    && apt-add-repository ppa:dartsim -y \
+    && apt-get update -q \
+    && apt-get install libdart6-all-dev -y \
+    && apt-get install swig -y \
+    && apt-get install swig python-pip python-qt4 python-qt4-dev python-qt4-gl -y \
+    && apt-get install python3-pip python3-pyqt4 python3-pyqt4.qtopengl -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     && easy_install pip
+
+
 
 WORKDIR /usr/local/gym/
 RUN mkdir -p gym && touch gym/__init__.py

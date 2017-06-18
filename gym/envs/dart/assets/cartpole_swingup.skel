@@ -1,0 +1,142 @@
+<?xml version="1.0" ?>
+<skel version="1.0">
+    <world name="world 1">
+        <physics>
+            <time_step>0.01</time_step>
+            <gravity>0 -9.81 0</gravity>
+            <collision_detector>bullet</collision_detector>
+        </physics>
+
+        <skeleton name="rail">
+            <mobile>false</mobile>
+            <body name="ground">
+                <transformation>0 0 0 0 1.57 0.0</transformation>
+                <visualization_shape>
+                    <transformation>0 0 0 0 0 0</transformation>
+                    <geometry>
+                        <capsule>
+                            <height>2.0</height>
+                            <radius>0.02</radius>
+                        </capsule>
+                    </geometry>
+                    <color>0.3 0.3 0.7 1</color>
+                </visualization_shape>
+            </body>
+            <joint type="free" name="joint 1">
+                <parent>world</parent>
+                <child>ground</child>
+            </joint>
+        </skeleton>
+
+        <skeleton name="pendulum">
+            <transformation>0 -0.35 0 0 0 0</transformation>
+            <body name="cart">
+                <transformation>0 0 0 0 0 0</transformation>
+                <inertia>
+                    <mass>0.75</mass>
+                    <offset>0.0 0 0.0</offset>
+                </inertia>
+                <visualization_shape>
+                    <transformation>0.0 0 0.0 0 0 0</transformation>
+                    <geometry>
+                        <box>
+                            <size>0.2 0.05 0.05</size>
+                        </box>
+                    </geometry>
+                </visualization_shape>
+                <collision_shape>
+                    <transformation>0.0 0 0.0 0 0 0</transformation>
+                    <geometry>
+                        <box>
+                            <size>0.2 0.05 0.05</size>
+                        </box>
+                    </geometry>
+                </collision_shape>
+            </body>
+
+            <body name="pole">
+                <transformation>0.0 0.0 0.0 0.0 0.0 0.0</transformation>
+                <inertia>
+                    <mass>0.025</mass>
+                    <offset>0.0 0.15 0.0</offset>
+                </inertia>
+                <visualization_shape>
+                    <transformation>0.0 0.15 0.0 0.0 0.0 0.0</transformation>
+                    <geometry>
+                        <box>
+                            <size>0.02 0.3 0.02</size>
+                        </box>
+                    </geometry>
+                </visualization_shape>
+                <collision_shape>
+                    <transformation>0.0 0.15 0.0 0.0 0.0 0.0</transformation>
+                    <geometry>
+                        <box>
+                            <size>0.02 0.3 0.02</size>
+                        </box>
+                    </geometry>
+                </collision_shape>
+            </body>
+
+            <body name="weight">
+                <transformation>0.0 0.32 0.0 0.0 0.0 0.0</transformation>
+                <inertia>
+                    <mass>0.3</mass>
+                    <offset>0.0 0.0 0.0</offset>
+                </inertia>
+                <visualization_shape>
+                    <transformation>0.0 0.0 0.0 0.0 0.0 0.0</transformation>
+                    <geometry>
+                        <box>
+                            <size>0.08 0.04 0.08</size>
+                        </box>
+                    </geometry>
+                    <color>0.2 0.7 0.7</color>
+                </visualization_shape>
+                <collision_shape>
+                    <transformation>0.0 0.0 0.0 0.0 0.0 0.0</transformation>
+                    <geometry>
+                        <box>
+                            <size> 0.08 0.04 0.08 </size>
+                        </box>
+                    </geometry>
+                </collision_shape>
+            </body>
+
+
+            <!-- JOINT: Root -->
+            <joint type="prismatic" name="j_cart">
+                <parent>world</parent>
+                <child>cart</child>
+		 <axis>
+			<xyz>1.0 0.0 0.0</xyz>
+			<limit>
+                          <lower>-2</lower>
+                          <upper>2</upper>
+                      </limit>
+		 </axis>
+                <init_pos>0</init_pos>
+                <init_vel>0</init_vel>
+            </joint>
+
+            <joint type="revolute" name="j_pole">
+                <transformation>0.0 0.0 0.0 0.0 0.0 0.0</transformation>
+                <parent>cart</parent>
+                <child>pole</child>
+                <axis>
+                    <xyz>0.0 0.0 1.0</xyz>
+                </axis>
+                <init_pos>0</init_pos>
+                <init_vel>0</init_vel>
+            </joint>
+
+            <joint type="weld" name="j_con">
+                <transformation>0.0 0.0 0.0 0.0 0.0 0.0</transformation>
+                <parent>pole</parent>
+                <child>weight</child>
+            </joint>
+
+        </skeleton>
+
+    </world>
+</skel>

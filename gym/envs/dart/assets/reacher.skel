@@ -1,0 +1,147 @@
+<?xml version="1.0" ?>
+<skel version="1.0">
+    <world name="world 1">
+        <physics>
+            <time_step>0.002</time_step>
+            <gravity>0 0 0</gravity>
+            <collision_detector>bullet</collision_detector>
+        </physics>
+        <skeleton name="target">
+           <mobile>false</mobile>
+           <body name="link 1">
+                <transformation>0.0 0.0 0.0 0 0 0</transformation>
+                <inertia>
+                    <mass>1</mass>
+                    <offset>0 0 0</offset>
+                </inertia>
+                <visualization_shape>
+                    <geometry>
+                        <box>
+                            <size>0.1 0.1 0.1</size>
+                        </box>
+                    </geometry>
+                </visualization_shape>
+            </body>
+             <joint type="free" name="joint 1">
+                <parent>world</parent>
+                <child>link 1</child>
+                <transformation>0 0 0 0 0 0</transformation>
+            </joint>
+        </skeleton>	
+
+        <skeleton name="manipulator">
+            <body name="link 1">
+                <transformation>0 0 0 0 0 0</transformation>
+                <inertia>
+                    <mass>1</mass>
+                    <offset>0 0 0</offset>
+                </inertia>
+                <visualization_shape>
+                    <geometry>
+                        <box>
+                            <size>0.1 0.5 0.1</size>
+                        </box>
+                    </geometry>
+                </visualization_shape>
+            </body>
+            <body name="link 2">
+                <transformation>0 -0.5 0 0 0 0</transformation>
+                <inertia>
+                    <mass>1</mass>
+                    <offset>0 0 0</offset>
+                </inertia>
+                <visualization_shape>
+                    <geometry>
+                        <box>
+                            <size>0.1 0.5 0.1</size>
+                        </box>
+                    </geometry>
+                </visualization_shape>
+            </body>
+            <body name="link 3">
+                <transformation>0 -1 0 0 0 0</transformation>
+                <inertia>
+                    <mass>1</mass>
+                    <offset>0 0 0</offset>
+                </inertia>
+                <visualization_shape>
+                    <geometry>
+                        <box>
+                            <size>0.1 0.5 0.1</size>
+                        </box>
+                    </geometry>
+                </visualization_shape>
+            </body>
+            <joint type="universal" name="joint 1">
+                <parent>world</parent>
+                <child>link 1</child>
+                <axis>
+                    <xyz>0.0 0.0 1.0</xyz>
+		     <limit>
+                    	<lower>-3.14</lower>
+                    	<upper>3.14</upper>
+                    </limit> 
+                    <dynamics>
+                        <damping>2.0</damping>
+                        <friction>0.0</friction>
+                    </dynamics>
+                </axis>
+                <axis2>
+                    <xyz>1.0 0.0 0.0</xyz>
+ 		     <limit>
+                    	<lower>-3.14</lower>
+                    	<upper>3.14</upper>
+                    </limit> 
+                    <dynamics>
+                        <damping>2.0</damping>
+                        <friction>0.0</friction>
+                    </dynamics>
+                </axis2>
+                <transformation>0 0.25 0 0 0 0</transformation>
+            </joint>
+            <joint type="revolute" name="joint 2">
+                <parent>link 1</parent>
+                <child>link 2</child>
+                <axis>
+                    <xyz>0.0 0.0 1.0</xyz>
+		     <limit>
+                    	<lower>-3.14</lower>
+                    	<upper>3.14</upper>
+                    </limit> 
+                    <dynamics>
+                        <damping>2.0</damping>
+                        <friction>0.0</friction>
+                    </dynamics>
+                 </axis>
+                <transformation>0 0.25 0 0 0 0</transformation>
+            </joint>
+            <joint type="universal" name="joint 3">
+                <parent>link 2</parent>
+                <child>link 3</child>
+                <axis>
+                    <xyz>0.0 0.0 1.0</xyz>
+ 		            <limit>
+                    	<lower>-3.14</lower>
+                    	<upper>3.14</upper>
+                    </limit> 
+                    <dynamics>
+                        <damping>2.0</damping>
+                        <friction>0.0</friction>
+                    </dynamics>
+                </axis>
+                <axis2>
+                    <xyz>1.0 0.0 0.0</xyz>
+ 		     <limit>
+                    	<lower>-3.14</lower>
+                    	<upper>3.14</upper>
+                    </limit> 
+                    <dynamics>
+                        <damping>2.0</damping>
+                        <friction>0.0</friction>
+                    </dynamics>
+                </axis2>
+                <transformation>0 0.25 0 0 0 0</transformation>
+            </joint>
+        </skeleton>	
+    </world>
+</skel>

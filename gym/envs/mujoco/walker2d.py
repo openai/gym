@@ -16,6 +16,16 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         reward = ((posafter - posbefore) / self.dt)
         reward += alive_bonus
         reward -= 1e-3 * np.square(a).sum()
+
+        # uncomment to enable knee joint limit penalty
+        '''joint_limit_penalty = 0
+        for j in [-2, -5]:
+            if (self.model.jnt_range[j][0] - self.model.data.qpos[j]) > -0.05:
+                joint_limit_penalty += abs(1.5)
+            if (self.model.jnt_range[j][1] - self.model.data.qpos[j]) < 0.05:
+                joint_limit_penalty += abs(1.5)
+        reward -= 5e-1*joint_limit_penalty'''
+
         done = not (height > 0.8 and height < 2.0 and
                     ang > -1.0 and ang < 1.0)
         ob = self._get_obs()

@@ -93,6 +93,8 @@ the
 `instructions <https://github.com/openai/mujoco-py#obtaining-the-binaries-and-license-key>`_
 in the ``mujoco-py`` package for help.
 
+To install Dart and PyDart2, follow the instructions in `DartEnv <https://github.com/DartEnv/dart-env/wiki>`_.
+
 Once you're ready to install everything, run ``pip install -e '.[all]'`` (or ``pip install 'gym[all]'``).
 
 Supported systems
@@ -222,6 +224,22 @@ to set it up. You'll have to also run ``pip install -e '.[mujoco]'`` if you didn
 
 	  import gym
 	  env = gym.make('Humanoid-v1')
+	  env.reset()
+	  env.render()
+
+Dart
+------
+
+`Dart <http://dartsim.github.io/>`_ is an open source physics engine for simulating
+articulated rigid bodies with high accuracy and efficiency and
+`PyDart2 <http://pydart2.readthedocs.io/en/latest/>`_ is a python binding of Dart.
+To install Dart and PyDart2, follow the instructions in `DartEnv <https://github.com/DartEnv/dart-env/wiki>`_.
+You'll have to also run ``pip install -e '.[dart]'`` if you didn't do the full install.
+
+.. code:: python
+
+	  import gym
+	  env = gym.make('DartHopper-v1')
 	  env.reset()
 	  env.render()
 
