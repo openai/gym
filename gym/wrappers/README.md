@@ -1,26 +1,22 @@
-# Wrappers (experimental)
+# Wrappers
 
-This is a placeholder for now: we will likely soon start adding
-standardized wrappers for environments. (Only stable and
-general-purpose wrappers will be accepted into gym core.)
+Wrappers are used to transform an environment in a modular way:
 
-Note that we may later restructure any of the files, but will keep the
-wrappers available at the wrappers' top-level folder. So for
-example, you should access `MyWrapper` as follows:
+```
+env = gym.make('Pong-v0')
+env = MyWrapper(env)
+```
+
+Note that we may later restructure any of the files in this directory,
+but will keep the wrappers available at the wrappers' top-level
+folder. So for example, you should access `MyWrapper` as follows:
 
 ```
 # Will be supported in future releases
 from gym.wrappers import MyWrapper
 ```
 
-## How to add new wrappers to Gym
-
-1. Write your wrapper in the wrappers' top-level folder.
-2. Import your wrapper into the `__init__.py` file. This file is located at `/gym/wrappers/__init__.py`. Add `from gym.wrappers.my_awesome_wrapper import MyWrapper` to this file.
-3. Write a good description of the utility of your wrapper using python docstring format (""" """ under the class definition)
-
-
-## Quick Tips
+## Quick tips for writing your own wrapper
 
 - Don't forget to call super(class_name, self).__init__(env) if you override the wrapper's __init__ function
 - You can access the inner environment with `self.unwrapped`
