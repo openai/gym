@@ -101,7 +101,6 @@ class ClipTo01ThenAverage(object):
 
 
         # How long each episode actually took
-        # How long each episode actually took
         durations = np.zeros(len(timestamps))
 
         data_sources = np.array(data_sources)
