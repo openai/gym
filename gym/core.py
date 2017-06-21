@@ -51,6 +51,7 @@ class Env(object):
         env = super(Env, cls).__new__(cls)
         env._env_closer_id = env_closer.register(env)
         env._closed = False
+        env._spec = None
 
         # Will be automatically set when creating an environment via 'make'
         return env
@@ -75,10 +76,6 @@ class Env(object):
 
     # Do not override
     _owns_render = True
-
-    @property
-    def monitor(self):
-        raise error.Error("env.monitor has been deprecated as of 12/23/2016. Remove your call to `env.monitor.start(directory)` and instead wrap your env with `env = gym.wrappers.Monitor(env, directory)` to record data.")
 
     def step(self, action):
         """Run one timestep of the environment's dynamics. When end of
@@ -190,6 +187,10 @@ class Env(object):
         return self._seed(seed)
 
     @property
+    def spec(self):
+        return self._spec
+
+    @property
     def unwrapped(self):
         """Completely unwrap this env.
 
@@ -202,10 +203,10 @@ class Env(object):
         self.close()
 
     def __str__(self):
-        if self.spec is not None:
-            return '<{}<{}>>'.format(type(self).__name__, self.spec.id)
-        else:
+        if self.spec is None:
             return '<{} instance>'.format(type(self).__name__)
+        else:
+            return '<{}<{}>>'.format(type(self).__name__, self.spec.id)
 
     def configure(self, *args, **kwargs):
         raise error.Error("Env.configure has been removed in gym v0.8.0, released on 2017/03/05. If you need Env.configure, please use gym version 0.7.x from pip, or checkout the `gym:v0.7.4` tag from git.")
