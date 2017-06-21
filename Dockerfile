@@ -1,8 +1,5 @@
 # A Dockerfile that sets up a full Gym install
 
-# -- a pointless commend only added to test if docker auto-build works --
-FROM ubuntu:14.04
-
 RUN apt-get update \
     && apt-get install -y libav-tools \
     python-numpy \
