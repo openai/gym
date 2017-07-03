@@ -25,4 +25,4 @@ class Discrete(gym.Space):
     def __repr__(self):
         return "Discrete(%d)" % self.n
     def __eq__(self, other):
-        return self.n == other.n
+        return self.n == other.n and isinstance(other, Discrete)

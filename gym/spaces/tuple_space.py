@@ -8,7 +8,7 @@ class Tuple(Space):
     self.observation_space = spaces.Tuple((spaces.Discrete(2), spaces.Discrete(3)))
     """
     def __init__(self, spaces):
-        self.spaces = spaces
+        self.spaces = tuple(spaces)
 
     def sample(self):
         return tuple([space.sample() for space in self.spaces])
@@ -21,6 +21,8 @@ class Tuple(Space):
 
     def __repr__(self):
         return "Tuple(" + ", ". join([str(s) for s in self.spaces]) + ")"
+    def __eq__(self, other):
+        return self.spaces == other.spaces
 
     def to_jsonable(self, sample_n):
         # serialize as list-repr of tuple of vectors

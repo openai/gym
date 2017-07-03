@@ -41,4 +41,5 @@ class Box(gym.Space):
     def __repr__(self):
         return "Box" + str(self.shape)
     def __eq__(self, other):
-        return np.allclose(self.low, other.low) and np.allclose(self.high, other.high)
+        return np.allclose(self.low, other.low) and np.allclose(self.high, other.high) and\
+               isinstance(other, Box)
