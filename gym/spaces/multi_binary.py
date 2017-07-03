@@ -13,3 +13,5 @@ class MultiBinary(gym.Space):
         return sample_n.tolist()
     def from_jsonable(self, sample_n):
         return np.array(sample_n)
+    def __eq__(self, other):
+        return self.n == other.n and isinstance(other, MultiBinary)
