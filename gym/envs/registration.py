@@ -77,13 +77,15 @@ class EnvSpec(object):
         self._local_only = local_only
         self._kwargs = {} if kwargs is None else kwargs
 
-    def make(self):
+    def make(self, **kwargs):
         """Instantiates an instance of the environment with appropriate kwargs"""
         if self._entry_point is None:
             raise error.Error('Attempting to make deprecated env {}. (HINT: is there a newer registered version of this env?)'.format(self.id))
 
         cls = load(self._entry_point)
-        env = cls(**self._kwargs)
+        _kwargs = dict(self._kwargs)
+        _kwargs.update(kwargs)
+        env = cls(**_kwargs)
 
         # Make the enviroment aware of which spec it came from.
         env.unwrapped._spec = self
@@ -113,10 +115,10 @@ class EnvRegistry(object):
     def __init__(self):
         self.env_specs = {}
 
-    def make(self, id):
+    def make(self, id, **kwargs):
         logger.info('Making new env: %s', id)
         spec = self.spec(id)
-        env = spec.make()
+        env = spec.make(**kwargs)
         if (env.spec.timestep_limit is not None) and not spec.tags.get('vnc'):
             from gym.wrappers.time_limit import TimeLimit
             env = TimeLimit(env,
@@ -157,8 +159,8 @@ registry = EnvRegistry()
 def register(id, **kwargs):
     return registry.register(id, **kwargs)
 
-def make(id):
-    return registry.make(id)
+def make(id, **kwargs):
+    return registry.make(id, **kwargs)
 
 def spec(id):
     return registry.spec(id)

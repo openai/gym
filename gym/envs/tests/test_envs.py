@@ -61,3 +61,7 @@ def test_double_close():
     assert env.close_count == 1
     env.close()
     assert env.close_count == 1
+
+def test_override():
+    env = envs.make('Pong-v0', frameskip=0)
+    assert env.env.frameskip == 0
