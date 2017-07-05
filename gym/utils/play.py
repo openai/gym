@@ -3,6 +3,7 @@ import pygame
 import sys
 import time
 import matplotlib
+import argparse
 try:
     matplotlib.use('GTK3Agg')
     import matplotlib.pyplot as plt
@@ -16,6 +17,10 @@ from collections import deque
 from pygame.locals import HWSURFACE, DOUBLEBUF, RESIZABLE, VIDEORESIZE
 from threading import Thread
 
+parser = argparse.ArgumentParser()
+parser.add_argument('--env', type=str, default='MontezumaRevengeNoFrameskip-v4', help='Define Environment')
+args = parser.parse_args()
+	
 def display_arr(screen, arr, video_size, transpose):
     arr_min, arr_max = arr.min(), arr.max()
     arr = 255.0 * (arr - arr_min) / (arr_max - arr_min)
@@ -182,5 +187,5 @@ class PlayPlot(object):
 
 
 if __name__ == '__main__':
-    env = gym.make("MontezumaRevengeNoFrameskip-v4")
+    env = gym.make(args.env)
     play(env, zoom=4, fps=60)
