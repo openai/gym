@@ -61,3 +61,11 @@ def test_double_close():
     assert env.close_count == 1
     env.close()
     assert env.close_count == 1
+
+def test_grayscale():
+    env = envs.make('Pong-v0')
+    env.env._obs_type = 'grayscale_image'
+    ob = env.reset()
+    assert ob.shape == (210, 160, 1)
+    ob = env.render('grayscale_array')
+    assert ob.shape == (210, 160, 1)

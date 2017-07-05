@@ -115,6 +115,8 @@ class Env(object):
         - rgb_array: Return an numpy.ndarray with shape (x, y, 3),
           representing RGB values for an x-by-y pixel image, suitable
           for turning into a video.
+        - grayscale_array: Return an numpy.ndarray with shape (x, y, 1),
+          representing luminance values for an x-by-y pixel image. (AtariEnv only)
         - ansi: Return a string (str) or StringIO.StringIO containing a
           terminal-style text representation. The text can include newlines
           and ANSI escape sequences (e.g. for colors).

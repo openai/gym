@@ -20,14 +20,14 @@ def to_ram(ale):
     return ram
 
 class AtariEnv(gym.Env, utils.EzPickle):
-    metadata = {'render.modes': ['human', 'rgb_array']}
+    metadata = {'render.modes': ['human', 'rgb_array', 'grayscale_array']}
 
     def __init__(self, game='pong', obs_type='ram', frameskip=(2, 5), repeat_action_probability=0.):
         """Frameskip should be either a tuple (indicating a random range to
         choose from, with the top value exclude), or an int."""
 
         utils.EzPickle.__init__(self, game, obs_type)
-        assert obs_type in ('ram', 'image')
+        assert obs_type in ('ram', 'image', 'grayscale_image')
 
         self.game_path = atari_py.get_game_path(game)
         if not os.path.exists(self.game_path):
@@ -54,6 +54,8 @@ class AtariEnv(gym.Env, utils.EzPickle):
             self.observation_space = spaces.Box(low=np.zeros(128), high=np.zeros(128)+255)
         elif self._obs_type == 'image':
             self.observation_space = spaces.Box(low=0, high=255, shape=(screen_height, screen_width, 3))
+        elif self._obs_type == 'grayscale_image':
+            self.observation_space = spaces.Box(low=0, high=255, shape=(screen_height, screen_width, 1))
         else:
             raise error.Error('Unrecognized observation type: {}'.format(self._obs_type))
 
@@ -82,8 +84,11 @@ class AtariEnv(gym.Env, utils.EzPickle):
 
         return ob, reward, self.ale.game_over(), {"ale.lives": self.ale.lives()}
 
-    def _get_image(self):
+    def _get_rgb_image(self):
         return self.ale.getScreenRGB2()
+
+    def _get_grayscale_image(self):
+        return self.ale.getScreenGrayscale()
 
     def _get_ram(self):
         return to_ram(self.ale)
@@ -96,8 +101,9 @@ class AtariEnv(gym.Env, utils.EzPickle):
         if self._obs_type == 'ram':
             return self._get_ram()
         elif self._obs_type == 'image':
-            img = self._get_image()
-        return img
+            return self._get_rgb_image()
+        elif self._obs_type == 'grayscale_image':
+            return self._get_grayscale_image()
 
     # return: (states, observations)
     def _reset(self):
@@ -110,14 +116,17 @@ class AtariEnv(gym.Env, utils.EzPickle):
                 self.viewer.close()
                 self.viewer = None
             return
-        img = self._get_image()
-        if mode == 'rgb_array':
-            return img
-        elif mode == 'human':
-            from gym.envs.classic_control import rendering
-            if self.viewer is None:
-                self.viewer = rendering.SimpleImageViewer()
-            self.viewer.imshow(img)
+        if mode == 'grayscale_array':
+            return self._get_grayscale_image()
+        else:
+            img = self._get_rgb_image()
+            if mode == 'rgb_array':
+                return img
+            elif mode == 'human':
+                from gym.envs.classic_control import rendering
+                if self.viewer is None:
+                    self.viewer = rendering.SimpleImageViewer()
+                self.viewer.imshow(img)
 
     def get_action_meanings(self):
         return [ACTION_MEANING[i] for i in self._action_set]

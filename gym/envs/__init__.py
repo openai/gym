@@ -304,11 +304,15 @@ for game in ['air_raid', 'alien', 'amidar', 'assault', 'asterix', 'asteroids', '
     'private_eye', 'qbert', 'riverraid', 'road_runner', 'robotank', 'seaquest', 'skiing',
     'solaris', 'space_invaders', 'star_gunner', 'tennis', 'time_pilot', 'tutankham', 'up_n_down',
     'venture', 'video_pinball', 'wizard_of_wor', 'yars_revenge', 'zaxxon']:
-    for obs_type in ['image', 'ram']:
+    for obs_type in ['image', 'ram', 'grayscale_image']:
         # space_invaders should yield SpaceInvaders-v0 and SpaceInvaders-ram-v0
         name = ''.join([g.capitalize() for g in game.split('_')])
         if obs_type == 'ram':
             name = '{}-ram'.format(name)
+        elif obs_type == 'grayscale_image':
+            # register grayscale ?
+            continue
+            # name = '{}-grayscale'.format(name)
 
         nondeterministic = False
         if game == 'elevator_action' and obs_type == 'ram':
