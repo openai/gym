@@ -4,7 +4,9 @@ from __future__ import print_function
 import sys, gym
 
 #
-# Test yourself as a learning agent! Pass environment name as a command-line argument.
+# Test yourself as a learning agent! Pass environment name as a command-line argument, for example:
+#
+# python keyboard_agent.py SpaceInvadersNoFrameskip-v4
 #
 
 env = gym.make('LunarLander-v2' if len(sys.argv)<2 else sys.argv[1])
@@ -53,7 +55,8 @@ def rollout(env):
             skip -= 1
 
         obser, r, done, info = env.step(a)
-        env.render()
+        window_still_open = env.render()
+        if window_still_open==False: return False
         if done: break
         if human_wants_restart: break
         while human_sets_pause:
@@ -66,4 +69,6 @@ print("Press keys 1 2 3 ... to take actions 1 2 3 ...")
 print("No keys pressed is taking action 0")
 
 while 1:
-    rollout(env)
+    window_still_open = rollout(env)
+    if window_still_open==False: break
+

@@ -115,6 +115,7 @@ class AtariEnv(gym.Env, utils.EzPickle):
             if self.viewer is None:
                 self.viewer = rendering.SimpleImageViewer()
             self.viewer.imshow(img)
+            return self.viewer.isopen
 
     def get_action_meanings(self):
         return [ACTION_MEANING[i] for i in self._action_set]
