@@ -279,7 +279,13 @@ add_task(
     group='board_game',
     summary='Hex played on a 9x9 board.',
 )
-
+add_task(
+   	id='TicTacToeEnv-v0',
+   	summary="Super cool environment",
+   	group='board_game',
+   	summary='TicTacToe is an ancient game played on 3x3 board'
+    description="Tic-Tac-Toe was a two player game played on 3x3 board.Reward of +1 is given for a win in an episode and -1 if lost and 0 for draw and intermediate time steps"
+)
 
 # box2d
 
