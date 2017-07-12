@@ -14,23 +14,24 @@ from gym.utils import seeding
 
 # Inspired by the existing OpenAI Gym LunarLander-v0 environment, as well as by Elon Musk's SpaceX crazy projects !
 __author__ = "Victor Barbaros"
-__credits__ = ["OpenAi Gym", "Oleg Klimov"]
+__credits__ = ["OpenAi Gym", "McGill University", "Oleg Klimov"]
 __version__ = "0.0.1"
 __maintainer__ = "Victor Barbaros"
 __github_username__ = "vBarbaros"
 
 FPS    = 60
-SCALE  = 30.0   # affects how fast-paced the game is, forces should be adjusted as well
+SCALE  = 30.0   #default:30 affects how fast-paced the game is, forces should be adjusted as well
 
 MAIN_ENGINE_POWER  = 100.0 # 13.0
 SIDE_ENGINE_POWER  =  3.0 # 0.6
 
-INITIAL_RANDOM = 500 #300.0   # Set 1500 to make game harder
+INITIAL_RANDOM = 500 # Set 1500 to make game harder
 
 FALCON_POLY =[
-    (-14,+37), (-17,0), (-17,-30),
-    (+17,-30), (+17,0), (+14,+37)
+    (-5,+50), (-17,35),(-17,0), (-17,-30),
+    (+17,-30),(+17,0),(+17,+35), (+5,+50)
     ]
+    
 
 LEG_AWAY = 12 #20
 LEG_DOWN = 30 # 18
@@ -89,7 +90,7 @@ class FalconLander(gym.Env):
 
         high = np.array([np.inf]*8)  # useful range is -1 .. +1, but spikes can be higher
         self.observation_space = spaces.Box(-high, high)
-        # Check the action space and define appropriately in the new heuristic funciton
+
         if self.continuous:
             # Action is two floats [main engine, left-right engines].
             # Main engine: -1..0 off, 0..+1 throttle from 50% to 100% power. Engine can't work with less than 50% power.
@@ -223,7 +224,7 @@ class FalconLander(gym.Env):
 
 
     def _create_particle(self, mass, x, y, ttl):
-    	# create those butifull particles that bubble off when the force is applied 
+        # create those butifull particles that bubble off when the force is applied 
         p = self.world.CreateDynamicBody(
             position = (x,y),
             angle=0.0,
@@ -246,6 +247,9 @@ class FalconLander(gym.Env):
 
     
     def control_floating_platform(self):
+        '''It's controlled autonomously so the learner has no direct access
+        '''
+
         global GOING_LEFT
         fx = 1
         fy = 0
@@ -326,7 +330,6 @@ class FalconLander(gym.Env):
             20.0*self.falcon_rocket.angularVelocity,
             1.0 if (self.legs[0].ground_contact and self.legs[1].ground_contact) else 0.0,
             1.0 if (self.legs[0].ground_contact and self.legs[1].ground_contact) else 0.0,
-            # add the (x and dx of the floating drone ship)
             (pos_floating_drone_ship.x - VIEWPORT_W/SCALE/2) / (VIEWPORT_W/SCALE/2),
             pos_floating_drone_ship.y / (VIEWPORT_H/SCALE/2),
             vel_floating_drone_ship.x*(VIEWPORT_W/SCALE/2)/FPS,
@@ -343,14 +346,14 @@ class FalconLander(gym.Env):
             - 100*np.sqrt(state[2]*state[2] + state[3]*state[3]) \
             - 100*abs(state[4]) + 10*state[6] + 10*state[7] \
             - 100*abs(state[8]) - 100*abs(state[10]) - 100*abs(state[8]) 
-        # in the last line above: higher values of x, dx and angle of drone ship => higher reward
+        # in the last line above: lower values of x, dx and angle of drone ship => higher reward
 
         if self.prev_shaping is not None:
             reward = shaping - self.prev_shaping
         self.prev_shaping = shaping
-
-        reward -= m_power*0.10  # In the floating ship version, the penalty should be smaller
-        reward -= s_power*0.01
+        
+        reward -= m_power*0.25  # In the floating ship version, the penalty should be smaller
+        reward -= s_power*0.05
 
         done = False
 
@@ -358,10 +361,14 @@ class FalconLander(gym.Env):
         if self.game_over or state[1] < DRONE_LEVEL:
             done   = True
             reward = -150
-        if not self.falcon_rocket.awake:
+
+        if not self.falcon_rocket.awake and (state[6] == 1 and state[7] == 1):
             done   = True
             reward = +150
-        
+        elif not self.falcon_rocket.awake and (state[6] != 1 and state[7] != 1):#if not landed on both legs, penalize
+            done   = True
+            reward = -150
+
         return np.array(state), reward, done, {}
 
 
@@ -466,6 +473,7 @@ def key_control(env, s):
             action_done = True
                         
     return np.array(action)
+
 
 if __name__=="__main__":
     #env = FalconLander()
