@@ -408,6 +408,7 @@ register(
     nondeterministic=True,
 )
 
+
 register(
     id='Hex9x9-v0',
     entry_point='gym.envs.board_game:HexEnv',
@@ -418,6 +419,11 @@ register(
         'illegal_move_mode': 'lose',
         'board_size': 9,
     },
+)
+
+register(
+   	id='TicTacToeEnv-v0',
+   	entry_point='gym.envs.board_game:TicTacToeEnv',
 )
 
 # Debugging
