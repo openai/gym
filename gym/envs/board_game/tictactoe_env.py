@@ -14,18 +14,22 @@ class TicTacToeEnv(gym.Env):
 
     def __init__(self):
         self.numb = 0
+        # Board is a class consisting of functions like if game is over or not
         self.board = Board()
 
     def _step(self, action):
+        # if it is a foul move end the game give a reward of -2
         if action not in self.board.getvalidmoves():
             return self.board, -2, True, None
         else:
+            # do the action 
             self.board.move(action, 1)
             if self.board.rowcolumn():
                 return self.board.state, 1, True,None
             elif self.board.full_posit():
                 return self.board.state, 0, True,None
             else:
+                # opponent's move was placed on the boaed
                 self.opponentmove()
                 if self.board.rowcolumn():
                     return self.board.state, -1, True,None
@@ -35,6 +39,11 @@ class TicTacToeEnv(gym.Env):
                     return self.board.state, 0, False,None
 
     def opponentmove(self):
+        # opponent was ensemble of random and safe players
+        '''
+        Random Player: plays randomly
+        Safe Player : Will block or keep a win move.
+        '''
         random.seed(datetime.datetime.now())
         r = random.uniform(0, 2)
         if r < 1:
@@ -66,6 +75,7 @@ class TicTacToeEnv(gym.Env):
                 self.board.move(random.choice(final_moves), 2)
 
     def _reset(self):
+        # when environment is reset it can be opponent's turn or players turn
         self.numb = 0
         self.board.reset()
         random.seed(datetime.datetime.now())
@@ -75,6 +85,7 @@ class TicTacToeEnv(gym.Env):
         return self.board.state
 
     def _render(self, mode='human', close=False):
+        # To render pygame module was used
         if self.numb == 0:
             pygame.init()
             self.displayboard = DisplayBoard(grid_size=3, box_size=100, border=50, line_width=10)
@@ -100,4 +111,4 @@ class TicTacToeEnv(gym.Env):
                 elif position == 8:
                     self.displayboard.process_click(316, 317, self.board.state[position])
         pygame.display.update()
-        time.sleep(0.75)
+        time.sleep(0.59)
