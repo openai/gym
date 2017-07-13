@@ -281,7 +281,6 @@ add_task(
 )
 add_task(
    	id='TicTacToeEnv-v0',
-   	summary="Super cool environment",
    	group='board_game',
    	summary='TicTacToe is an ancient game played on 3x3 board.',
 )
