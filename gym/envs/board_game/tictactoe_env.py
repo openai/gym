@@ -206,26 +206,26 @@ class TicTacToeEnv(gym.Env):
     def __init__(self):
         self.numb = 0
         self.board = Board()
-        self.observation_space = spaces.Box(np.full((9),0), np.full((9),2))
+        self.observation_space = spaces.Box(np.full(9,0), np.full(9,2))
         self.action_space = spaces.Discrete(9)
 
-    def _step(self, action):
+        def _step(self, action):
         if action not in self.board.getvalidmoves():
-            return self.board, -2, True, None
+            return np.array(self.board.state), -2, True, None
         else:
             self.board.move(action, 1)
             if self.board.rowcolumn():
-                return self.board.state, 1, True, None
+                return np.array(self.board.state), 1, True, None
             elif self.board.full_posit():
-                return self.board.state, 0, True, None
+                return np.array(self.board.state), 0, True, None
             else:
                 self.opponentmove()
                 if self.board.rowcolumn():
-                    return self.board.state, -1, True, None
+                    return np.array(self.board.state), -1, True, None
                 elif self.board.full_posit():
-                    return self.board.state, 0, True, None
+                    return np.array(self.board.state), 0, True, None
                 else:
-                    return self.board.state, 0, False, None
+                    return np.array(self.board.state), 0, False, None
 
     def opponentmove(self):
         random.seed(datetime.datetime.now())
