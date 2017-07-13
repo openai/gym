@@ -2,10 +2,8 @@ import gym
 import datetime
 import time
 from board import Board
-from gym import error, spaces, utils
-from gym.utils import seeding
 import random
-import pygame, sys
+import pygame
 from lib import DisplayBoard
 
 
