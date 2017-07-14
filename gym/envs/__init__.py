@@ -424,7 +424,7 @@ register(
 register(
    	id='TicTacToeEnv-v0',
    	entry_point='gym.envs.board_game:TicTacToeEnv',
-    reward_threshold=1,
+    nondeterministic=True,
 )
 
 # Debugging
