@@ -210,8 +210,8 @@ class TicTacToeEnv(gym.Env):
         self.action_space = spaces.Discrete(9)
 
         def _step(self, action):
-        if action not in self.board.getvalidmoves():
-            return np.array(self.board.state), -2, True, None
+            if action not in self.board.getvalidmoves():
+                return np.array(self.board.state), -2, True, None
         else:
             self.board.move(action, 1)
             if self.board.rowcolumn():
