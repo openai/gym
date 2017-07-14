@@ -265,7 +265,7 @@ class TicTacToeEnv(gym.Env):
         turn = random.choice([1, 2])
         if turn == 2:
             self.opponentmove()
-        return self.board.state
+        return np.array(self.board.state)
 
     def _render(self, mode='human', close=False):
         if self.numb == 0:
