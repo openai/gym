@@ -208,10 +208,10 @@ class TicTacToeEnv(gym.Env):
         self.board = Board()
         self.observation_space = spaces.Box(np.full(9,0), np.full(9,2))
         self.action_space = spaces.Discrete(9)
-
-        def _step(self, action):
-            if action not in self.board.getvalidmoves():
-                return np.array(self.board.state), -2, True, None
+    
+    def _step(self, action):
+        if action not in self.board.getvalidmoves():
+            return np.array(self.board.state), -2, True, None
         else:
             self.board.move(action, 1)
             if self.board.rowcolumn():
@@ -293,4 +293,4 @@ class TicTacToeEnv(gym.Env):
                 elif position == 8:
                     self.displayboard.process_click(316, 317, self.board.state[position])
         pygame.display.update()
-        time.sleep(0.75)
+        time.sleep(0.65)
