@@ -157,7 +157,7 @@ class AtariEnv(gym.Env, utils.EzPickle):
     def restore_state(self, state):
         """Restore emulator state w/o system state."""
         state_ref = self.ale.decodeState(state)
-        self.ale.restoreState(state)
+        self.ale.restoreState(state_ref)
         self.ale.deleteState(state_ref)
 
     def clone_full_state(self):
