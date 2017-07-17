@@ -99,19 +99,19 @@ class DisplayBoard(object):
 
     def calculate_winners(self):
         self.winning_combinations = []
-        indices = [x for x in xrange(0, self.grid_size * self.grid_size)]
+        indices = [x for x in range(0, self.grid_size * self.grid_size)]
 
         # Vertical combinations
         self.winning_combinations += (
-            [tuple(indices[i:i + self.grid_size]) for i in xrange(0, len(indices), self.grid_size)])
+            [tuple(indices[i:i + self.grid_size]) for i in range(0, len(indices), self.grid_size)])
 
         # Horizontal combinations
-        self.winning_combinations += [tuple([indices[x] for x in xrange(y, len(indices), self.grid_size)]) for y in
-                                      xrange(0, self.grid_size)]
+        self.winning_combinations += [tuple([indices[x] for x in range(y, len(indices), self.grid_size)]) for y in
+                                      range(0, self.grid_size)]
 
         # Diagonal combinations
-        self.winning_combinations.append(tuple(x for x in xrange(0, len(indices), self.grid_size + 1)))
-        self.winning_combinations.append(tuple(x for x in xrange(self.grid_size - 1, len(indices), self.grid_size - 1)))
+        self.winning_combinations.append(tuple(x for x in range(0, len(indices), self.grid_size + 1)))
+        self.winning_combinations.append(tuple(x for x in range(self.grid_size - 1, len(indices), self.grid_size - 1)))
 
     def check_for_winner(self):
         winner = 0
