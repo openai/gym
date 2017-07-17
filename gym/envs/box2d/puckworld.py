@@ -136,7 +136,7 @@ class PuckWorldEnv(gym.Env):
             return
 
         scale = self.width/self.l_unit      # 计算两者映射关系
-        rad = self.rad * scale              # 随后都是用世界尺寸来描述
+        rad = self.rad * scale              # agent radius, also positive reward area.
         t_rad = self.target_rad * scale     # target radius
 
         # 如果还没有设定屏幕对象，则初始化整个屏幕具备的元素。
@@ -179,7 +179,7 @@ class PuckWorldEnv(gym.Env):
             agent_circle.set_color(0, 0, 0)
             agent_circle.add_attr(self.agent_trans)
             self.viewer.add_geom(agent_circle)
-
+            # uncomment following to show a complete arrow rather than just an arrow head.
             # start_p = (0, 0)
             # end_p = (0.7 * rad, 0)
             # self.line = rendering.Line(start_p, end_p)
@@ -196,13 +196,10 @@ class PuckWorldEnv(gym.Env):
             self.arrow.add_attr(self.line_trans)
             self.viewer.add_geom(self.arrow)
             
-
-        # 如果已经为屏幕准备好了要绘制的对象
-        # 本例中唯一要做的就是改变小车的位置和旋转
         ppx,ppy,_,_,tx,ty = self.state
         self.target_trans.set_translation(tx*scale, ty*scale)
         self.agent_trans.set_translation(ppx*scale, ppy*scale)
-        # 按距离给Agent着色
+        # 按距离给Agent着色, color agent accoring to its distance from target
         vv, ms = self.reward + 0.3, 1
         r, g, b, = 0, 1, 0
         if vv >= 0:
