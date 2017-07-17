@@ -128,6 +128,11 @@ register(
     reward_threshold=900,
 )
 
+register(
+    id = 'PuckWorld-v0',
+    entry_point='gym.envs.box2d:PuckWorldEnv',
+)
+
 # Toy Text
 # ----------------------------------------
 
