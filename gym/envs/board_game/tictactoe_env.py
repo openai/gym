@@ -19,8 +19,8 @@ class Box(object):
 
     def __init__(self, x, y, size, board):
         self.size = size
-        self.line_width = int(self.size / 40) if self.size > 40 else 1
-        self.radius = (self.size / 2) - (self.size / 8)
+        self.line_width = 50 if self.size > 40 else 1
+        self.radius = 75 # (self.size / 2) - (self.size / 8)
         self.rect = pygame.Rect(x, y, size, size)
         self.board = board
 
