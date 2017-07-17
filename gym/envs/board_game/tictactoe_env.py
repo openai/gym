@@ -56,7 +56,7 @@ class DisplayBoard(object):
         self.calculate_winners()
 
     def draw_lines(self):
-        for i in xrange(1, self.grid_size):
+        for i in range(1, self.grid_size):
             start_position = ((self.box_size * i) + (self.line_width * (i - 1))) + self.border
             width = self.surface.get_width() - (2 * self.border)
             pygame.draw.rect(self.surface, BLACK, (start_position, self.border, self.line_width, width))
