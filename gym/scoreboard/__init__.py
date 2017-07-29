@@ -67,6 +67,12 @@ add_group(
 )
 
 add_group(
+    id='text_games',
+    name='Text games',
+    description='Various text-based games (interactive fiction) provided by the pyfiction library.'
+)
+
+add_group(
     id='toy_text',
     name='Toy text',
     description='Simple text environments to get you started.'
@@ -568,6 +574,24 @@ normalized by the number of labels in a dataset.
 This environment requires Keras with Theano or TensorFlow to run. When run on laptop
 gpu (GTX960M) one step takes on average 2 min.
 """,
+)
+
+# text games
+
+add_task(
+    id='SavingJohn-v0',
+    group='text_games',
+    experimental=True,
+    contributor='MikulasZelinka',
+    summary="The 'Saving John' text game by Josephine Tsay.",
+)
+
+add_task(
+    id='MachineOfDeath-v0',
+    group='text_games',
+    experimental=True,
+    contributor='MikulasZelinka',
+    summary="The 'Machine of Death' text game by Hulk Handsome.",
 )
 
 # toy text

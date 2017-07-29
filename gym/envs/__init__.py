@@ -128,6 +128,19 @@ register(
     reward_threshold=900,
 )
 
+# Text games
+# ----------------------------------------
+
+register(
+    id='SavingJohn-v0',
+    entry_point='gym.envs.text_games:SavingJohnEnv',
+)
+
+register(
+    id='MachineOfDeath-v0',
+    entry_point='gym.envs.text_games:MachineOfDeathEnv',
+)
+
 # Toy Text
 # ----------------------------------------
 
