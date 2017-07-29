@@ -51,6 +51,11 @@ if __name__ == '__main__':
     for i in range(episode_count):
         ob = env.reset()
         while True:
+
+            # handle dynamic action spaces (has no effect if the action space is static):
+            if agent.action_space != env.env.action_space:
+                agent.action_space = env.env.action_space
+
             action = agent.act(ob, reward, done)
             ob, reward, done, _ = env.step(action)
             if done:
