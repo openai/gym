@@ -17,6 +17,7 @@ def should_skip_env_spec_for_tests(spec):
             ep.startswith('gym.envs.box2d:') or
             ep.startswith('gym.envs.parameter_tuning:') or
             ep.startswith('gym.envs.safety:Semisuper') or
+            ep.startswith('gym.envs.text_games') or
             (ep.startswith("gym.envs.atari") and not spec.id.startswith("Pong") and not spec.id.startswith("Seaquest"))
     ):
         logger.warning("Skipping tests for env {}".format(ep))
