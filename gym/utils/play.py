@@ -115,11 +115,15 @@ def play(env, transpose=True, fps=30, zoom=None, callback=None, keys_to_action=N
             env_done = False
             obs = env.reset()
         else:
-            action = keys_to_action[tuple(sorted(pressed_keys))]
-            prev_obs = obs
-            obs, rew, env_done, info = env.step(action)
-            if callback is not None:
-                callback(prev_obs, obs, action, rew, env_done, info)
+            try:
+                action = keys_to_action[tuple(sorted(pressed_keys))]
+                prev_obs = obs
+                obs, rew, env_done, info = env.step(action)
+                if callback is not None:
+                    callback(prev_obs, obs, action, rew, env_done, info)
+            except KeyError as e:
+                print("WARNING: ignoring illegal action '{}'.".format(e))
+
         if obs is not None:
             if len(obs.shape) == 2:
                 obs = obs[:, :, None]
