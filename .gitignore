@@ -2,6 +2,7 @@
 *.pyc
 *.py~
 .DS_Store
+.cache
 
 # Setuptools distribution and build folders.
 /dist/
