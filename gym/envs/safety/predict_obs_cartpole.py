@@ -17,6 +17,8 @@ from gym import Env, spaces
 import numpy as np
 import math
 
+from six.moves import range
+
 NUM_PREDICTED_OBSERVATIONS = 5
 TIME_BEFORE_BONUS_ALLOWED = 100
 
@@ -54,7 +56,7 @@ class PredictObsCartpoleEnv(Env):
             self.predicted_observations.append(action[1:])
 
             if self.iteration > TIME_BEFORE_BONUS_ALLOWED:
-                for i in xrange(min(NUM_PREDICTED_OBSERVATIONS, len(self.predicted_observations))):
+                for i in range(min(NUM_PREDICTED_OBSERVATIONS, len(self.predicted_observations))):
                     l2dist = np.sqrt(np.sum(np.square(np.subtract(
                         self.predicted_observations[-(i + 1)][i],
                         observation
