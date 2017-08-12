@@ -13,6 +13,7 @@ being interpretable. We don't want bad agents just focusing on predicting their 
 
 from gym.envs.classic_control.cartpole import CartPoleEnv
 from gym import Env, spaces
+from six.moves import range
 
 NUM_PREDICTED_ACTIONS = 5
 TIME_BEFORE_BONUS_ALLOWED = 100
@@ -43,7 +44,7 @@ class PredictActionsCartpoleEnv(Env):
 
         if not done:
             if self.iteration > TIME_BEFORE_BONUS_ALLOWED:
-                for i in xrange(min(NUM_PREDICTED_ACTIONS, len(self.predicted_actions))):
+                for i in range(min(NUM_PREDICTED_ACTIONS, len(self.predicted_actions))):
                     if self.predicted_actions[-(i + 1)][i] == current_action:
                         reward += CORRECT_PREDICTION_BONUS
 
