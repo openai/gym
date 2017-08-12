@@ -1,5 +1,3 @@
-import sys
-
 class Error(Exception):
     pass
 
@@ -90,12 +88,11 @@ class APIError(Error):
         else:
             return self._message
 
-    if sys.version_info > (3, 0):
-        def __str__(self):
-            return self.__unicode__()
-    else:
-        def __str__(self):
+    def __str__(self):
+        try:
             return unicode(self).encode('utf-8')
+        except NameError:
+            return self.__unicode__()            
 
 
 class APIConnectionError(APIError):
