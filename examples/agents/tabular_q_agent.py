@@ -1,3 +1,6 @@
+import numpy as np
+from gym.spaces import discrete
+
 class TabularQAgent(object):
     """
     Agent implementing tabular Q-learning.
