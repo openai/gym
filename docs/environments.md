@@ -30,6 +30,6 @@ Learn more here: https://github.com/tuzzer/gym-maze/
 
 ## osim-rl: Musculoskeletal Models in OpenSim
 
-A human musculoskeletal model and a physics-based simulation environment where you can synthesize physically and physiologically accurate motion. One of the enivironments built in this framework is a competition environment for a NIPS 2017 challenge.
+A human musculoskeletal model and a physics-based simulation environment where you can synthesize physically and physiologically accurate motion. One of the environments built in this framework is a competition environment for a NIPS 2017 challenge.
 
 Learn more here: https://github.com/stanfordnmbl/osim-rl
