@@ -5,7 +5,7 @@ services:
 before_install:
   # Prime the cache. We currently manually keep this synced.
   - docker pull quay.io/openai/gym:test
-  - docker build -f test.dockerfile -t quay.io/openai/gym:test .
+  # - docker build -f test.dockerfile -t quay.io/openai/gym:test .
 script:
   # In a pull request, there are no secrets, and hence no MuJoCo:
   # https://docs.travis-ci.com/user/pull-requests#Security-Restrictions-when-testing-Pull-Requests.
