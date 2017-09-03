@@ -286,7 +286,8 @@ class Wrapper(Env):
         return self.env.render(mode, close)
 
     def _close(self):
-        return self.env.close()
+        if self.env:
+            return self.env.close()
 
     def _seed(self, seed=None):
         return self.env.seed(seed)
