@@ -279,8 +279,8 @@ class Wrapper(Env):
     def _step(self, action):
         return self.env.step(action)
 
-    def _reset(self):
-        return self.env.reset()
+    def _reset(self, **kwargs):
+        return self.env.reset(**kwargs)
 
     def _render(self, mode='human', close=False):
         return self.env.render(mode, close)
@@ -306,8 +306,8 @@ class Wrapper(Env):
         return self.env.spec
 
 class ObservationWrapper(Wrapper):
-    def _reset(self):
-        observation = self.env.reset()
+    def _reset(self, **kwargs):
+        observation = self.env.reset(**kwargs)
         return self._observation(observation)
 
     def _step(self, action):
