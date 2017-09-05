@@ -15,7 +15,14 @@ except ImportError as e:
 
 def _get_image_hack(self):
     # modified version of _read_pixels_as_in_window
+    # waiting on issues mujoco-py#101 and mujoco-py#102
     # Reads pixels with markers and overlay from the same camera as screen.
+
+    import glfw
+    import numpy as np
+    import copy
+    from mujoco_py.utils import rec_copy, rec_assign
+
     resolution = glfw.get_framebuffer_size(
         self.sim._render_context_window.window)
  
@@ -80,10 +87,13 @@ class MujocoEnv(gym.Env):
         assert not done
         self.obs_dim = observation.size
 
-        bounds = self.sim.actuator_ctrlrange.copy()
-        low = bounds[:, 0]
-        high = bounds[:, 1]
-        self.action_space = spaces.Box(low, high)
+        bounds = self.model.actuator_ctrlrange
+        # I'm not sure why bounds is at least sometimes None ... bug?
+        if bounds is not None:
+            bounds = bounds.copy()
+            low = bounds[:, 0]
+            high = bounds[:, 1]
+            self.action_space = spaces.Box(low, high)
 
         high = np.inf*np.ones(self.obs_dim)
         low = -high
@@ -119,14 +129,15 @@ class MujocoEnv(gym.Env):
         self.sim.reset()
         ob = self.reset_model()
         if self.viewer is not None:
-            self.viewer.autoscale()
+            # self.viewer.autoscale()
             self.viewer_setup()
         return ob
 
     def set_state(self, qpos, qvel):
         assert qpos.shape == (self.model.nq,) and qvel.shape == (self.model.nv,)
-        self.data.qpos = qpos
-        self.data.qvel = qvel
+        sim_state = self.sim.get_state()
+        sim_state.qpos[:] = qpos
+        sim_state.qvel[:] = qvel
         self.sim.forward()
         # self.model._compute_subtree()  # pylint: disable=W0212
 
@@ -148,8 +159,8 @@ class MujocoEnv(gym.Env):
 
         if mode == 'rgb_array':
             self._get_viewer().render()
-            data, width, height = _get_image_hack(self._get_viewer())
-            return np.fromstring(data, dtype='uint8').reshape(height, width, 3)[::-1, :, :]
+            data = _get_image_hack(self._get_viewer())
+            return data
         elif mode == 'human':
             self._get_viewer().loop_once()
 
