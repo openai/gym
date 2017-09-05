@@ -9,9 +9,48 @@ import six
 
 try:
     import mujoco_py
-    from mujoco_py.mjlib import mjlib
+    from mujoco_py import load_model_from_path, MjSim, MjViewer
 except ImportError as e:
     raise error.DependencyNotInstalled("{}. (HINT: you need to install mujoco_py, and also perform the setup instructions here: https://github.com/openai/mujoco-py/.)".format(e))
+
+def _get_image_hack(self):
+    # modified version of _read_pixels_as_in_window
+    # Reads pixels with markers and overlay from the same camera as screen.
+    resolution = glfw.get_framebuffer_size(
+        self.sim._render_context_window.window)
+ 
+    resolution = np.array(resolution)
+    resolution = resolution * min(1000 / np.max(resolution), 1)
+    resolution = resolution.astype(np.int32)
+    resolution -= resolution % 16
+ 
+    if self.sim._render_context_offscreen is None:
+        self.sim.render(resolution[0], resolution[1])
+    offscreen_ctx = self.sim._render_context_offscreen
+    window_ctx = self.sim._render_context_window
+    # Save markers and overlay from offscreen.
+    saved = [copy.deepcopy(offscreen_ctx._markers),
+             copy.deepcopy(offscreen_ctx._overlay),
+             rec_copy(offscreen_ctx.cam)]
+    # Copy markers and overlay from window.
+    offscreen_ctx._markers[:] = window_ctx._markers[:]
+    offscreen_ctx._overlay.clear()
+    offscreen_ctx._overlay.update(window_ctx._overlay)
+ 
+    # FIXME
+    # rec_assign(offscreen_ctx.cam, rec_copy(window_ctx.cam))
+ 
+    img = self.sim.render(*resolution)
+    img = img[::-1, :, :] # Rendered images are upside-down.
+    # Restore markers and overlay to offscreen.
+    offscreen_ctx._markers[:] = saved[0][:]
+    offscreen_ctx._overlay.clear()
+    offscreen_ctx._overlay.update(saved[1])
+ 
+    # FIXME
+    ## rec_assign(offscreen_ctx.cam, saved[2])
+ 
+    return img
 
 class MujocoEnv(gym.Env):
     """Superclass for all MuJoCo environments.
@@ -25,8 +64,9 @@ class MujocoEnv(gym.Env):
         if not path.exists(fullpath):
             raise IOError("File %s does not exist" % fullpath)
         self.frame_skip = frame_skip
-        self.model = mujoco_py.MjModel(fullpath)
-        self.data = self.model.data
+        self.model = load_model_from_path(fullpath)
+        self.sim = MjSim(self.model)
+        self.data = self.sim.data
         self.viewer = None
 
         self.metadata = {
@@ -34,13 +74,13 @@ class MujocoEnv(gym.Env):
             'video.frames_per_second': int(np.round(1.0 / self.dt))
         }
 
-        self.init_qpos = self.model.data.qpos.ravel().copy()
-        self.init_qvel = self.model.data.qvel.ravel().copy()
+        self.init_qpos = self.data.qpos.ravel().copy()
+        self.init_qvel = self.data.qvel.ravel().copy()
         observation, _reward, done, _info = self._step(np.zeros(self.model.nu))
         assert not done
         self.obs_dim = observation.size
 
-        bounds = self.model.actuator_ctrlrange.copy()
+        bounds = self.sim.actuator_ctrlrange.copy()
         low = bounds[:, 0]
         high = bounds[:, 1]
         self.action_space = spaces.Box(low, high)
@@ -76,7 +116,7 @@ class MujocoEnv(gym.Env):
     # -----------------------------
 
     def _reset(self):
-        mjlib.mj_resetData(self.model.ptr, self.data.ptr)
+        self.sim.reset()
         ob = self.reset_model()
         if self.viewer is not None:
             self.viewer.autoscale()
@@ -85,56 +125,56 @@ class MujocoEnv(gym.Env):
 
     def set_state(self, qpos, qvel):
         assert qpos.shape == (self.model.nq,) and qvel.shape == (self.model.nv,)
-        self.model.data.qpos = qpos
-        self.model.data.qvel = qvel
-        self.model._compute_subtree()  # pylint: disable=W0212
-        self.model.forward()
+        self.data.qpos = qpos
+        self.data.qvel = qvel
+        self.sim.forward()
+        # self.model._compute_subtree()  # pylint: disable=W0212
 
     @property
     def dt(self):
         return self.model.opt.timestep * self.frame_skip
 
     def do_simulation(self, ctrl, n_frames):
-        self.model.data.ctrl = ctrl
+        self.data.ctrl = ctrl
         for _ in range(n_frames):
-            self.model.step()
+            self.sim.step()
 
     def _render(self, mode='human', close=False):
         if close:
             if self.viewer is not None:
-                self._get_viewer().finish()
+                # self._get_viewer().finish()
                 self.viewer = None
             return
 
         if mode == 'rgb_array':
             self._get_viewer().render()
-            data, width, height = self._get_viewer().get_image()
+            data, width, height = _get_image_hack(self._get_viewer())
             return np.fromstring(data, dtype='uint8').reshape(height, width, 3)[::-1, :, :]
         elif mode == 'human':
             self._get_viewer().loop_once()
 
     def _get_viewer(self):
         if self.viewer is None:
-            self.viewer = mujoco_py.MjViewer()
-            self.viewer.start()
-            self.viewer.set_model(self.model)
-            self.viewer_setup()
+            self.viewer = MjViewer(self.sim)
+            # self.viewer.start()
+            # self.viewer.set_model(self.model)
+            # self.viewer_setup()
         return self.viewer
 
     def get_body_com(self, body_name):
-        idx = self.model.body_names.index(six.b(body_name))
-        return self.model.data.com_subtree[idx]
+        idx = self.data.body_names.index(six.b(body_name))
+        return self.com_subtree[idx]
 
     def get_body_comvel(self, body_name):
-        idx = self.model.body_names.index(six.b(body_name))
-        return self.model.body_comvels[idx]
+        idx = self.data.body_names.index(six.b(body_name))
+        return self.data.body_comvels[idx]
 
     def get_body_xmat(self, body_name):
-        idx = self.model.body_names.index(six.b(body_name))
-        return self.model.data.xmat[idx].reshape((3, 3))
+        idx = self.data.body_names.index(six.b(body_name))
+        return self.data.data.xmat[idx].reshape((3, 3))
 
     def state_vector(self):
         return np.concatenate([
-            self.model.data.qpos.flat,
-            self.model.data.qvel.flat
+            self.data.qpos.flat,
+            self.data.qvel.flat
         ])
