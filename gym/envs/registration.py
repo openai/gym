@@ -3,6 +3,8 @@ import pkg_resources
 import re
 from gym import error
 import warnings
+import importlib
+import pkgutil
 
 logger = logging.getLogger(__name__)
 # This format is true today, but it's *not* an official spec.
@@ -162,3 +164,9 @@ def make(id):
 
 def spec(id):
     return registry.spec(id)
+
+
+# Import plugins modules
+for _, module, _ in pkgutil.iter_modules():
+    if module.startswith("gym_"):
+        importlib.import_module(module)
