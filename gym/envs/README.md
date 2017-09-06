@@ -37,6 +37,8 @@ ant.AntEnv
         foo_env.py
         foo_extrahard_env.py
   ```
+  Note: Ensure that your top level package name is of the format `gym_<yourname>`, otherwise **it won't automatically be imported by gym**.
+
 
 * `gym-foo/setup.py` should have:
 
