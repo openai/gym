@@ -12,7 +12,7 @@ class Dict(Space):
         if isinstance(spaces, dict):
             spaces = OrderedDict(sorted(list(spaces.items())))
         if isinstance(spaces, list):
-            self.spaces = OrderedDict(spaces)
+            spaces = OrderedDict(spaces)
         self.spaces = spaces
 
     def sample(self):
