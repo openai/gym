@@ -17,13 +17,14 @@ class MujocoEnv(gym.Env):
     """Superclass for all MuJoCo environments.
     """
 
-    def __init__(self, model_path, frame_skip):
+    def __init__(self, model_path, frame_skip, resolution=(240, 240)):
         if model_path.startswith("/"):
             fullpath = model_path
         else:
             fullpath = os.path.join(os.path.dirname(__file__), "assets", model_path)
         if not path.exists(fullpath):
             raise IOError("File %s does not exist" % fullpath)
+        self.resolution = resolution
         self.frame_skip = frame_skip
         self.model = load_model_from_path(fullpath)
         self.sim = MjSim(self.model)
@@ -109,10 +110,9 @@ class MujocoEnv(gym.Env):
         if close:
             return  # deprecated
         if mode == 'rgb_array':
-            W, H = 640, 480  # FIXME
-            return self.sim.render(W, H)
+            return self.sim.render(self.resolution[0], self.resolution[1])
         elif mode == 'human':
-            assert False, "Not sure what to do here"
+            self.sim.render(mode='window')
 
     def get_body_com(self, body_name):
         idx = self.data.body_names.index(six.b(body_name))
