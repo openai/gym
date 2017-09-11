@@ -13,52 +13,6 @@ try:
 except ImportError as e:
     raise error.DependencyNotInstalled("{}. (HINT: you need to install mujoco_py, and also perform the setup instructions here: https://github.com/openai/mujoco-py/.)".format(e))
 
-def _get_image_hack(self):
-    # modified version of _read_pixels_as_in_window
-    # waiting on issues mujoco-py#101 and mujoco-py#102
-    # Reads pixels with markers and overlay from the same camera as screen.
-
-    import glfw
-    import numpy as np
-    import copy
-    from mujoco_py.utils import rec_copy, rec_assign
-
-    resolution = glfw.get_framebuffer_size(
-        self.sim._render_context_window.window)
- 
-    resolution = np.array(resolution)
-    resolution = resolution * min(1000 / np.max(resolution), 1)
-    resolution = resolution.astype(np.int32)
-    resolution -= resolution % 16
- 
-    if self.sim._render_context_offscreen is None:
-        self.sim.render(resolution[0], resolution[1])
-    offscreen_ctx = self.sim._render_context_offscreen
-    window_ctx = self.sim._render_context_window
-    # Save markers and overlay from offscreen.
-    saved = [copy.deepcopy(offscreen_ctx._markers),
-             copy.deepcopy(offscreen_ctx._overlay),
-             rec_copy(offscreen_ctx.cam)]
-    # Copy markers and overlay from window.
-    offscreen_ctx._markers[:] = window_ctx._markers[:]
-    offscreen_ctx._overlay.clear()
-    offscreen_ctx._overlay.update(window_ctx._overlay)
- 
-    # FIXME
-    # rec_assign(offscreen_ctx.cam, rec_copy(window_ctx.cam))
- 
-    img = self.sim.render(*resolution)
-    img = img[::-1, :, :] # Rendered images are upside-down.
-    # Restore markers and overlay to offscreen.
-    offscreen_ctx._markers[:] = saved[0][:]
-    offscreen_ctx._overlay.clear()
-    offscreen_ctx._overlay.update(saved[1])
- 
-    # FIXME
-    ## rec_assign(offscreen_ctx.cam, saved[2])
- 
-    return img
-
 class MujocoEnv(gym.Env):
     """Superclass for all MuJoCo environments.
     """
@@ -151,26 +105,14 @@ class MujocoEnv(gym.Env):
             self.sim.step()
 
     def _render(self, mode='human', close=False):
+
         if close:
-            if self.viewer is not None:
-                # self._get_viewer().finish()
-                self.viewer = None
-            return
-
+            return  # deprecated
         if mode == 'rgb_array':
-            self._get_viewer().render()
-            data = _get_image_hack(self._get_viewer())
-            return data
+            W, H = 640, 480  # FIXME
+            return self.sim.render(W, H)
         elif mode == 'human':
-            self._get_viewer().loop_once()
-
-    def _get_viewer(self):
-        if self.viewer is None:
-            self.viewer = MjViewer(self.sim)
-            # self.viewer.start()
-            # self.viewer.set_model(self.model)
-            # self.viewer_setup()
-        return self.viewer
+            assert False, "Not sure what to do here"
 
     def get_body_com(self, body_name):
         idx = self.data.body_names.index(six.b(body_name))
