@@ -17,7 +17,7 @@ class MujocoEnv(gym.Env):
     """Superclass for all MuJoCo environments.
     """
 
-    def __init__(self, model_path, frame_skip, resolution=(240, 240)):
+    def __init__(self, model_path, frame_skip, resolution=(240, 240), render=False):
         if model_path.startswith("/"):
             fullpath = model_path
         else:
@@ -29,7 +29,10 @@ class MujocoEnv(gym.Env):
         self.model = load_model_from_path(fullpath)
         self.sim = MjSim(self.model)
         self.data = self.sim.data
-        self.viewer = MjViewer(self.sim)  # None
+        if render:
+            self.viewer = MjViewer(self.sim)
+        else:
+            self.viewer = None
 
         self.metadata = {
             'render.modes': ['human', 'rgb_array'],
