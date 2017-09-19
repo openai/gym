@@ -29,7 +29,7 @@ class MujocoEnv(gym.Env):
         self.model = load_model_from_path(fullpath)
         self.sim = MjSim(self.model)
         self.data = self.sim.data
-        self.viewer = None
+        self.viewer = MjViewer(self.sim)  # None
 
         self.metadata = {
             'render.modes': ['human', 'rgb_array'],
