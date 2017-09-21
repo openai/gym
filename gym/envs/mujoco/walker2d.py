@@ -9,9 +9,9 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         utils.EzPickle.__init__(self)
 
     def _step(self, a):
-        posbefore = self.model.data.qpos[0, 0]
+        posbefore = self.sim.data.qpos[0, 0]
         self.do_simulation(a, self.frame_skip)
-        posafter, height, ang = self.model.data.qpos[0:3, 0]
+        posafter, height, ang = self.sim.data.qpos[0:3, 0]
         alive_bonus = 1.0
         reward = ((posafter - posbefore) / self.dt)
         reward += alive_bonus
@@ -22,8 +22,8 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         return ob, reward, done, {}
 
     def _get_obs(self):
-        qpos = self.model.data.qpos
-        qvel = self.model.data.qvel
+        qpos = self.sim.data.qpos
+        qvel = self.sim.data.qvel
         return np.concatenate([qpos[1:], np.clip(qvel, -10, 10)]).ravel()
 
     def reset_model(self):
