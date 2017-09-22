@@ -4,10 +4,9 @@ from gym import utils
 
 def mass_center(sim):
     #mass = model.body_mass
-    # New mujoco_py API has no body_mass available. so just returning xipos[0] (non weighted). Potentially wrong.
+    mass = sim.model.body_mass
     xpos = sim.data.xipos
-    return np.mean(xpos, 0)[0]
-    #return (np.sum(mass * xpos, 0) / np.sum(mass))[0]
+    return (np.sum(mass*xpos, 0) / np.sum(mass))[0]
 
 class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     def __init__(self):
