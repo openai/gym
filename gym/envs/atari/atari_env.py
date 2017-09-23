@@ -51,9 +51,9 @@ class AtariEnv(gym.Env, utils.EzPickle):
 
         (screen_width,screen_height) = self.ale.getScreenDims()
         if self._obs_type == 'ram':
-            self.observation_space = spaces.Box(low=np.zeros(128), high=np.zeros(128)+255)
+            self.observation_space = spaces.Box(low=np.zeros(128), high=np.zeros(128)+255, dtype=np.uint8)
         elif self._obs_type == 'image':
-            self.observation_space = spaces.Box(low=0, high=255, shape=(screen_height, screen_width, 3))
+            self.observation_space = spaces.Box(low=0, high=255, shape=(screen_height, screen_width, 3), dtype=np.uint8)
         else:
             raise error.Error('Unrecognized observation type: {}'.format(self._obs_type))
 

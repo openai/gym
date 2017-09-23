@@ -11,7 +11,7 @@ class Box(gym.Space):
     Example usage:
     self.action_space = spaces.Box(low=-10, high=10, shape=(1,))
     """
-    def __init__(self, low, high, shape=None):
+    def __init__(self, low, high, shape=None, dtype=np.float32):
         """
         Two kinds of valid input:
             Box(-1.0, 1.0, (3,4)) # low and high are scalars, and shape is provided
@@ -19,13 +19,16 @@ class Box(gym.Space):
         """
         if shape is None:
             assert low.shape == high.shape
-            self.low = low
-            self.high = high
         else:
             assert np.isscalar(low) and np.isscalar(high)
-            self.low = low + np.zeros(shape)
-            self.high = high + np.zeros(shape)
+            low = low + np.zeros(shape)
+            high = high + np.zeros(shape)
+        self.low = low.astype(dtype)
+        self.high = high.astype(dtype)
+        self.dtype = dtype
+
     def sample(self):
+        # XXX wrong for uint8
         return prng.np_random.uniform(low=self.low, high=self.high, size=self.low.shape)
     def contains(self, x):
         return x.shape == self.shape and (x >= self.low).all() and (x <= self.high).all()
@@ -41,4 +44,4 @@ class Box(gym.Space):
     def __repr__(self):
         return "Box" + str(self.shape)
     def __eq__(self, other):
-        return np.allclose(self.low, other.low) and np.allclose(self.high, other.high)
+        return np.allclose(self.low, other.low) and np.allclose(self.high, other.high) and self.dtype == other.dtype
