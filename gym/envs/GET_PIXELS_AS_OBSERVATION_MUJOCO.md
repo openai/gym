@@ -3,10 +3,10 @@
 Get observations as pixels (84 by 84, current frame plus the previous three frames stacked together, gray scale) from the Mujoco environments.
 
 The changes made from standard gym are:
-1. ```/gym/env/mujoco/mujoco_env_pixel.py``` (new file). Basically save as from ```/gym/env/mujoco/mujoco_env.py```. This is the base class for the new environments we will create that return pixels as observations.
+1. ```/gym/env/mujoco/mujoco_env_pixel.py``` (new file). Basically save as from ```/gym/env/mujoco/mujoco_env.py```. This is the base class for the new environments that return pixels as observations.
    * Change the class name to ```MujocoEnvPixel```
    * Change ```self.observation_space``` line in ```__init__``` to ```self.observation_space = spaces.Box(low=0, high=255, shape=(84, 84, 4))```
-2. Make a new file for a new env in ```/gym/env/mujoco``` (new file). In the code in this repo I made two envs that return raw pixels: ```half_cheetah_pixel.py``` and ```pusher_pixel.py```. Save as from the existing env and make the following changes
+2. Make a new file for a new env in ```/gym/env/mujoco``` (new file). I made two envs that return raw pixels: ```half_cheetah_pixel.py``` and ```pusher_pixel.py```. Save as from the existing env and make the following changes
    * change ```from gym.envs.mujoco import mujoco_env``` to ```from gym.envs.mujoco import mujoco_env_pixel```
    * import the modules used for image processing (I use scikit-image)
    ```
@@ -17,7 +17,6 @@ The changes made from standard gym are:
    * everywhere in the file, change ```mujoco_env.MujocoEnv``` to ```mujoco_env_pixel.MujocoEnvPixel```
    * in ```__init__``` add the line ```self.memory = np.empty([84,84,4],dtype=np.uint8)```
    * change ```_get_obs``` method to be like in this repo (for example, in ```half_cheetah_pixel.py```)
-   * don't touch anything else !!!
 3. Add imports for the new class and envs in ```/gym/envs/mujoco/__init__.py```
 ```
 from gym.envs.mujoco.mujoco_env_pixel import MujocoEnvPixel
