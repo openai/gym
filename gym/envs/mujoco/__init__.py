@@ -14,3 +14,7 @@ from gym.envs.mujoco.humanoidstandup import HumanoidStandupEnv
 from gym.envs.mujoco.pusher import PusherEnv
 from gym.envs.mujoco.thrower import ThrowerEnv
 from gym.envs.mujoco.striker import StrikerEnv
+
+from gym.envs.mujoco.mujoco_env_pixel import MujocoEnvPixel
+from gym.envs.mujoco.half_cheetah_pixel import HalfCheetahEnvPixel
+from gym.envs.mujoco.pusher_pixel import PusherEnvPixel

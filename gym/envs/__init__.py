@@ -217,6 +217,15 @@ register(
     reward_threshold=0.0,
 )
 
+# --------------------------------------------------
+register(
+    id='PusherPixel-v0',
+    entry_point='gym.envs.mujoco:PusherEnvPixel',
+    max_episode_steps=100,
+    reward_threshold=0.0,
+)
+# --------------------------------------------------
+
 register(
     id='Thrower-v0',
     entry_point='gym.envs.mujoco:ThrowerEnv',
@@ -251,6 +260,15 @@ register(
     max_episode_steps=1000,
     reward_threshold=4800.0,
 )
+
+# -----------------------------------------------------
+register(
+    id='HalfCheetahPixel-v1',
+    entry_point='gym.envs.mujoco:HalfCheetahEnvPixel',
+    max_episode_steps=1000,
+    reward_threshold=4800.0,
+)
+# -----------------------------------------------------
 
 register(
     id='Hopper-v1',

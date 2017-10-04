@@ -13,7 +13,7 @@ try:
 except ImportError as e:
     raise error.DependencyNotInstalled("{}. (HINT: you need to install mujoco_py, and also perform the setup instructions here: https://github.com/openai/mujoco-py/.)".format(e))
 
-class MujocoEnv(gym.Env):
+class MujocoEnvPixel(gym.Env):
     """Superclass for all MuJoCo environments.
     """
 
@@ -47,8 +47,8 @@ class MujocoEnv(gym.Env):
 
         high = np.inf*np.ones(self.obs_dim)
         low = -high
-        self.observation_space = spaces.Box(low, high)
-        # self.observation_space = spaces.Box(low=0, high=255, shape=(84, 84, 4))
+        # self.observation_space = spaces.Box(low, high)
+        self.observation_space = spaces.Box(low=0, high=255, shape=(84, 84, 4))
 
         self._seed()
 
