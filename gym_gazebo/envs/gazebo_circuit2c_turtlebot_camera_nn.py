@@ -58,7 +58,7 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
         rospy.wait_for_service('/gazebo/unpause_physics')
         try:
             self.unpause()
-        except rospy.ServiceException, e:
+        except (rospy.ServiceException) as e:
             print ("/gazebo/unpause_physics service call failed")
 
         '''# 21 actions
@@ -118,7 +118,7 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
         try:
             #resp_pause = pause.call()
             self.pause()
-        except rospy.ServiceException, e:
+        except (rospy.ServiceException) as e:
             print ("/gazebo/pause_physics service call failed")
 
 
@@ -136,7 +136,7 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
             # Straight reward = 5, Max angle reward = 0.5
             reward = round(15*(max_ang_speed - abs(ang_vel) +0.0335), 2)
             # print ("Action : "+str(action)+" Ang_vel : "+str(ang_vel)+" reward="+str(reward))
-        
+
             if action_sum > 45: #L or R looping
                 #print("90 percent of the last 50 actions were turns. LOOPING")
                 reward = -5
@@ -168,7 +168,7 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
         '''x_t = skimage.color.rgb2gray(cv_image)
         x_t = skimage.transform.resize(x_t,(32,32))
         x_t = skimage.exposure.rescale_intensity(x_t,out_range=(0,255))'''
-        
+
         cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
         cv_image = cv2.resize(cv_image, (self.img_rows, self.img_cols))
         #cv_image = cv_image[(self.img_rows/20):self.img_rows-(self.img_rows/20),(self.img_cols/10):self.img_cols] #crop image
@@ -192,7 +192,7 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
         try:
             #reset_proxy.call()
             self.reset_proxy()
-        except rospy.ServiceException, e:
+        except (rospy.ServiceException) as e:
             print ("/gazebo/reset_simulation service call failed")
 
         # Unpause simulation to make observation
@@ -200,7 +200,7 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
         try:
             #resp_pause = pause.call()
             self.unpause()
-        except rospy.ServiceException, e:
+        except (rospy.ServiceException) as e:
             print ("/gazebo/unpause_physics service call failed")
 
         image_data = None
@@ -225,7 +225,7 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
         try:
             #resp_pause = pause.call()
             self.pause()
-        except rospy.ServiceException, e:
+        except (rospy.ServiceException) as e:
             print ("/gazebo/pause_physics service call failed")
 
         '''x_t = skimage.color.rgb2gray(cv_image)

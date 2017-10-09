@@ -30,7 +30,7 @@ class GazeboErleCopterHoverEnv(gazebo_env.GazeboEnv):
                 data = rospy.wait_for_message('/mavros/global_position/rel_alt', Float64, timeout=5)
             except:
                 pass
-        
+
         takeoff_successful = False
         while not takeoff_successful:
             print "Taking off..."
@@ -54,7 +54,7 @@ class GazeboErleCopterHoverEnv(gazebo_env.GazeboEnv):
             rospy.wait_for_service('mavros/set_mode')
             try:
                 self.mode_proxy(0,'GUIDED')
-            except rospy.ServiceException, e:
+            except (rospy.ServiceException) as e:
                 print ("mavros/set_mode service call failed: %s"%e)
 
             # Wait 2 seconds
@@ -64,14 +64,14 @@ class GazeboErleCopterHoverEnv(gazebo_env.GazeboEnv):
             rospy.wait_for_service('mavros/cmd/arming')
             try:
                 self.arm_proxy(True)
-            except rospy.ServiceException, e:
+            except (rospy.ServiceException) as e:
                 print ("mavros/set_mode service call failed: %s"%e)
 
             # Takeoff
             rospy.wait_for_service('mavros/cmd/takeoff')
             try:
                 self.takeoff_proxy(0, 0, 0, 0, alt) # 1m altitude
-            except rospy.ServiceException, e:
+            except (rospy.ServiceException) as e:
                 print ("mavros/cmd/takeoff service call failed: %s"%e)
 
             # Wait 3 seconds
@@ -102,7 +102,7 @@ class GazeboErleCopterHoverEnv(gazebo_env.GazeboEnv):
         rospy.wait_for_service('mavros/set_mode')
         try:
             self.mode_proxy(0,'ALT_HOLD')
-        except rospy.ServiceException, e:
+        except (rospy.ServiceException) as e:
             print ("mavros/set_mode service call failed: %s"%e)
 
     def _launch_apm(self):
@@ -118,7 +118,7 @@ class GazeboErleCopterHoverEnv(gazebo_env.GazeboEnv):
 
         RED = '\033[91m'
         BOLD = '\033[1m'
-        ENDC = '\033[0m'        
+        ENDC = '\033[0m'
         LINE = "%s%s##############################################################################%s" % (RED, BOLD, ENDC)
         msg = "\n%s\n" % (LINE)
         msg += "%sLoad Erle-Copter parameters in MavProxy console (sim_vehicle.sh):%s\n\n" % (BOLD, ENDC)
@@ -127,7 +127,7 @@ class GazeboErleCopterHoverEnv(gazebo_env.GazeboEnv):
         self._pause(msg)
 
         # Launch the simulation with the given launchfile name
-        gazebo_env.GazeboEnv.__init__(self, "GazeboErleCopterHover-v0.launch")    
+        gazebo_env.GazeboEnv.__init__(self, "GazeboErleCopterHover-v0.launch")
 
         self.action_space = spaces.Discrete(4) # F, L, R, B
         #self.observation_space = spaces.Box(low=0, high=20) #laser values
@@ -155,7 +155,7 @@ class GazeboErleCopterHoverEnv(gazebo_env.GazeboEnv):
         self.mode_proxy = rospy.ServiceProxy('mavros/set_mode', SetMode)
 
         self.arm_proxy = rospy.ServiceProxy('mavros/cmd/arming', CommandBool)
-        
+
         self.takeoff_proxy = rospy.ServiceProxy('mavros/cmd/takeoff', CommandTOL)
 
         countdown = 10
@@ -199,7 +199,7 @@ class GazeboErleCopterHoverEnv(gazebo_env.GazeboEnv):
         msg.channels[7] = 0
 
         self.pub.publish(msg)
-    
+
         observation = self._get_position()
 
         dist = self.center_distance()
@@ -223,7 +223,7 @@ class GazeboErleCopterHoverEnv(gazebo_env.GazeboEnv):
         pids = subprocess.check_output(["pidof","ArduCopter.elf"]).split()
         for pid in pids:
             os.system("kill -9 "+str(pid))
-        
+
         grep_cmd = "ps -ef | grep ardupilot"
         result = subprocess.check_output([grep_cmd], shell=True).split()
         pid = result[1]
@@ -232,7 +232,7 @@ class GazeboErleCopterHoverEnv(gazebo_env.GazeboEnv):
         grep_cmd = "ps -af | grep sim_vehicle.sh"
         result = subprocess.check_output([grep_cmd], shell=True).split()
         pid = result[1]
-        os.system("kill -9 "+str(pid))  
+        os.system("kill -9 "+str(pid))
 
         self._launch_apm()
 
@@ -274,7 +274,7 @@ class GazeboErleCopterHoverEnv(gazebo_env.GazeboEnv):
         try:
             #reset_proxy.call()
             self.reset_proxy()
-        except rospy.ServiceException, e:
+        except (rospy.ServiceException) as e:
             print ("/gazebo/reset_world service call failed")
 
         # Relaunch autopilot
@@ -284,5 +284,5 @@ class GazeboErleCopterHoverEnv(gazebo_env.GazeboEnv):
 
         self.initial_latitude = None
         self.initial_longitude = None
-        
+
         return self._get_position()
