@@ -153,8 +153,7 @@ sudo pip3 install keras
 Agent dependencies:
 ```bash
 cd gym_gazebo/envs/installation
-bash turtlebot_setup.bash
-```
+bash setup_kineticirc		```
 
 Run the environment with a sample agent:
 ```
@@ -432,5 +431,5 @@ Sometimes, after ending or killing the simulation `gzserver` and `rosmaster` sta
 We recommend creating an alias to kill those processes.
 
 ```bash
-echo "alias k='killall -9 gzserver gzclient roslaunch rosmaster'" >> ~/.bashrc
+echo "alias killgazebogym='killall -9 rosout roslaunch rosmaster gzserver nodelet robot_state_publisher gzclient'" >> ~/.bashrc
 ```
