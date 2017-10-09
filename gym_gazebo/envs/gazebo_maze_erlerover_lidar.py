@@ -19,13 +19,13 @@ from std_srvs.srv import Empty
 
 
 class GazeboMazeErleRoverLidarEnv(gazebo_env.GazeboEnv):
-  
+
     def __init__(self):
 
         self._launch_apm()
         RED = '\033[91m'
         BOLD = '\033[1m'
-        ENDC = '\033[0m'        
+        ENDC = '\033[0m'
         LINE = "%s%s##############################################################################%s" % (RED, BOLD, ENDC)
         msg = "\n%s\n" % (LINE)
         msg += "%sLoad Erle-Rover parameters in MavProxy console (sim_vehicle.sh):%s\n\n" % (BOLD, ENDC)
@@ -34,7 +34,7 @@ class GazeboMazeErleRoverLidarEnv(gazebo_env.GazeboEnv):
         self._pause(msg)
 
         # Launch the simulation with the given launchfile name
-        gazebo_env.GazeboEnv.__init__(self, "GazeboMazeErleRoverLidar_v0.launch")    
+        gazebo_env.GazeboEnv.__init__(self, "GazeboMazeErleRoverLidar_v0.launch")
 
         self.pub = rospy.Publisher('/mavros/rc/override', OverrideRCIn, queue_size=10)
 
@@ -59,7 +59,7 @@ class GazeboMazeErleRoverLidarEnv(gazebo_env.GazeboEnv):
         rospy.wait_for_service('mavros/set_mode')
         try:
             self.mode_proxy(0,'GUIDED')
-        except rospy.ServiceException, e:
+        except (rospy.ServiceException) as e:
             print ("mavros/set_mode service call failed: %s"%e)
 
         print "Waiting for mavros..."
@@ -85,7 +85,7 @@ class GazeboMazeErleRoverLidarEnv(gazebo_env.GazeboEnv):
         return [seed]
 
     def _laser_state(self, action):
-        
+
 
         return discretized_ranges, done
 
@@ -111,7 +111,7 @@ class GazeboMazeErleRoverLidarEnv(gazebo_env.GazeboEnv):
         msg.channels[7] = 0
 
         self.pub.publish(msg)
-    
+
         #read laser data
         data = None
         while data is None:
@@ -147,7 +147,7 @@ class GazeboMazeErleRoverLidarEnv(gazebo_env.GazeboEnv):
             else:
                 reward = 1
         else:
-            reward = -200 
+            reward = -200
 
         state = discretized_ranges
 
@@ -160,14 +160,14 @@ class GazeboMazeErleRoverLidarEnv(gazebo_env.GazeboEnv):
         try:
             #reset_proxy.call()
             self.reset_proxy()
-        except rospy.ServiceException, e:
+        except (rospy.ServiceException) as e:
             print ("/gazebo/reset_world service call failed")
 
         # Set MANUAL mode
         rospy.wait_for_service('mavros/set_mode')
         try:
             self.mode_proxy(0,'MANUAL')
-        except rospy.ServiceException, e:
+        except (rospy.ServiceException) as e:
             print ("mavros/set_mode service call failed: %s"%e)
 
         #read laser data

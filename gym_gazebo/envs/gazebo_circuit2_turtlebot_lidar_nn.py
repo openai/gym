@@ -43,7 +43,7 @@ class GazeboCircuit2TurtlebotLidarNnEnv(gazebo_env.GazeboEnv):
         rospy.wait_for_service('/gazebo/unpause_physics')
         try:
             self.unpause()
-        except rospy.ServiceException, e:
+        except (rospy.ServiceException) as e:
             print ("/gazebo/unpause_physics service call failed")
 
         max_ang_speed = 0.3
@@ -65,7 +65,7 @@ class GazeboCircuit2TurtlebotLidarNnEnv(gazebo_env.GazeboEnv):
         try:
             #resp_pause = pause.call()
             self.pause()
-        except rospy.ServiceException, e:
+        except (rospy.ServiceException) as e:
             print ("/gazebo/pause_physics service call failed")
 
         state,done = self.calculate_observation(data)
@@ -85,7 +85,7 @@ class GazeboCircuit2TurtlebotLidarNnEnv(gazebo_env.GazeboEnv):
         try:
             #reset_proxy.call()
             self.reset_proxy()
-        except rospy.ServiceException, e:
+        except (rospy.ServiceException) as e:
             print ("/gazebo/reset_simulation service call failed")
 
         # Unpause simulation to make observation
@@ -93,7 +93,7 @@ class GazeboCircuit2TurtlebotLidarNnEnv(gazebo_env.GazeboEnv):
         try:
             #resp_pause = pause.call()
             self.unpause()
-        except rospy.ServiceException, e:
+        except (rospy.ServiceException) as e:
             print ("/gazebo/unpause_physics service call failed")
         #read laser data
         data = None
@@ -107,7 +107,7 @@ class GazeboCircuit2TurtlebotLidarNnEnv(gazebo_env.GazeboEnv):
         try:
             #resp_pause = pause.call()
             self.pause()
-        except rospy.ServiceException, e:
+        except (rospy.ServiceException) as e:
             print ("/gazebo/pause_physics service call failed")
 
         state,done = self.calculate_observation(data)
