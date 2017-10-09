@@ -17,7 +17,8 @@ Visit [erlerobotics/gym](http://erlerobotics.com/docs/Simulation/Gym/) for more 
 - [Environments](#environments)
 - [Installation](#installation)
 	- [Docker](#docker)
-	- [Ubuntu](#ubuntu)
+	- [Ubuntu](#ubuntu-16.04)
+	- [Ubuntu](#ubuntu-14.04)
 	    - [Requirements](#requirements)
 	    - [ROS Indigo](#ros-indigo)
 	    - [Gazebo](#gazebo)
@@ -31,16 +32,13 @@ Visit [erlerobotics/gym](http://erlerobotics.com/docs/Simulation/Gym/) for more 
 
 
 ## Environments
-The following are some of the available gazebo environments for the [Turtlebot]([Soccer environment]), one of the currently supported robots:
+The following are some of the available gazebo environments:
 
-#### GazeboCircuit2TurtlebotLidar-v0
-A simple circuit with straight tracks and 90 degree turns. Highly discretized LIDAR readings are used to train the Turtlebot. Scripts implementing **Q-learning** and **Sarsa** can be found in the _examples_ folder.
-
-#### GazeboCircuit2TurtlebotLidarNn-v0
-A simple circuit with straight tracks and 90 degree turns. A LIDAR is used to train the Turtlebot. Scripts implementing **DQN** can be found in the _examples_ folder.
-
-#### GazeboCircuit2cTurtlebotCameraNnEnv-v0
-A simple circuit with straight tracks and 90 degree turns with high contrast colors between the floor and the walls. A camera is used to train the Turtlebot. Scripts implementing **DQN** using **CNN** can be found in the _examples_ folder.
+| Name | Status | Description |
+| ---- | ------ | ----------- |
+| `GazeboCircuit2TurtlebotLidar-v0` | Maintained | A simple circuit with straight tracks and 90 degree turns. Highly discretized LIDAR readings are used to train the Turtlebot. Scripts implementing **Q-learning** and **Sarsa** can be found in the _examples_ folder. |
+| `GazeboCircuit2TurtlebotLidarNn-v0` | | A simple circuit with straight tracks and 90 degree turns. A LIDAR is used to train the Turtlebot. Scripts implementing **DQN** can be found in the _examples_ folder.|
+| `GazeboCircuit2cTurtlebotCameraNnEnv-v0` | | A simple circuit with straight tracks and 90 degree turns with high contrast colors between the floor and the walls. A camera is used to train the Turtlebot. Scripts implementing **DQN** using **CNN** can be found in the _examples_ folder. |
 
 ## Installation
 
@@ -69,8 +67,63 @@ export GAZEBO_MASTER_URI=$GAZEBO_MASTER_IP:11345
 gzclient
 ```
 
-### Ubuntu Linux
+### Ubuntu 16.04
+Basic requirements:
+- ROS Kinetic (`/rosversion: 1.12.7`)
+- Gazebo 8.1.1
+- Python 3.5.2
 
+#### ROS Kinetic dependencies
+
+```
+sudo pip3 install rospkg catkin_pkg
+
+sudo apt-get install \
+python3-defusedxml
+ros-kinetic-octomap-msgs        \
+ros-kinetic-joy                 \
+ros-kinetic-geodesy             \
+ros-kinetic-octomap-ros         \
+ros-kinetic-control-toolbox     \
+ros-kinetic-pluginlib	       \
+ros-kinetic-trajectory-msgs     \
+ros-kinetic-control-msgs	       \
+ros-kinetic-std-srvs 	       \
+ros-kinetic-nodelet	       \
+ros-kinetic-urdf		       \
+ros-kinetic-rviz		       \
+ros-kinetic-kdl-conversions     \
+ros-kinetic-eigen-conversions   \
+ros-kinetic-tf2-sensor-msgs     \
+ros-kinetic-pcl-ros
+```
+
+#### Gazebo gym
+
+```bash
+git clone https://github.com/erlerobot/gym-gazebo
+cd gym-gazebo
+sudo pip3 install -e .
+```
+
+If successful, expect something like [this](https://gist.github.com/vmayoral/4a1e5999811ac8bfbf7875670c430d27).
+
+#### Dependencies and libraries
+```
+sudo pip3 install h5py
+sudo apt-get install python3-skimage
+
+# install Theano
+cd ~/
+git clone git://github.com/Theano/Theano.git
+cd Theano/
+sudo python3 setup.py develop
+
+#install Keras
+sudo pip3 install keras
+```
+
+### Ubuntu 14.04
 #### ROS Indigo
 
 Install the Robot Operating System via:
@@ -253,7 +306,7 @@ This part of the installation is required only for the environments using DQN.
 
 ```bash
 # install dependencies
-sudo pip install h5py
+
 sudo apt-get install gfortran
 
 # install sript specific dependencies (temporal)
