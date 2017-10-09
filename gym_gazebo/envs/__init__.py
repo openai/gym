@@ -8,8 +8,10 @@ from gym_gazebo.envs.gazebo_circuit2_turtlebot_lidar_nn import GazeboCircuit2Tur
 from gym_gazebo.envs.gazebo_circuit2c_turtlebot_camera_nn import GazeboCircuit2cTurtlebotCameraNnEnv
 from gym_gazebo.envs.gazebo_round_turtlebot_lidar import GazeboRoundTurtlebotLidarEnv
 
-# Erle-Copter
-from gym_gazebo.envs.gazebo_erlecopter_hover import GazeboErleCopterHoverEnv
+# # Deprecated
 
-#Erle-Rover
-from gym_gazebo.envs.gazebo_maze_erlerover_lidar import GazeboMazeErleRoverLidarEnv
+# # Erle-Copter
+# from gym_gazebo.envs.gazebo_erlecopter_hover import GazeboErleCopterHoverEnv
+#
+# #Erle-Rover
+# from gym_gazebo.envs.gazebo_maze_erlerover_lidar import GazeboMazeErleRoverLidarEnv

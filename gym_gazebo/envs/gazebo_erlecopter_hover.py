@@ -23,7 +23,7 @@ from std_srvs.srv import Empty
 class GazeboErleCopterHoverEnv(gazebo_env.GazeboEnv):
 
     def _takeoff(self, altitude):
-        print "Waiting for mavros..."
+        print("Waiting for mavros...")
         data = None
         while data is None:
             try:
@@ -33,7 +33,7 @@ class GazeboErleCopterHoverEnv(gazebo_env.GazeboEnv):
 
         takeoff_successful = False
         while not takeoff_successful:
-            print "Taking off..."
+            print("Taking off...")
             alt = altitude
             err = alt * 0.1 # 10% error
 
@@ -85,7 +85,7 @@ class GazeboErleCopterHoverEnv(gazebo_env.GazeboEnv):
                     pass
 
             erlecopter_index = 0
-            print "Finding erle-copter index"
+            print("Finding erle-copter index")
             for name in alt_msg.name:
                 if name == "erlecopter":
                     break
@@ -94,9 +94,9 @@ class GazeboErleCopterHoverEnv(gazebo_env.GazeboEnv):
             erlecopter_alt = alt_msg.pose[erlecopter_index].position.z * 2
             if erlecopter_alt > (alt - err):
                 takeoff_successful = True
-                print "Takeoff successful"
+                print("Takeoff successful")
             else:
-                print "Takeoff failed, retrying..."
+                print("Takeoff failed, retrying...")
 
         # Set ALT_HOLD mode
         rospy.wait_for_service('mavros/set_mode')
@@ -254,14 +254,14 @@ class GazeboErleCopterHoverEnv(gazebo_env.GazeboEnv):
         if self.initial_latitude == None and self.initial_longitude == None:
             self.initial_latitude = self.current_latitude
             self.initial_longitude = self.current_longitude
-            print "Initial latitude : %f, Initial Longitude : %f" % (self.initial_latitude,self.initial_longitude,)
+            print("Initial latitude : %f, Initial Longitude : %f" % (self.initial_latitude,self.initial_longitude,))
 
-        print "Current latitude : %f, Current Longitude : %f" % (self.current_latitude,self.current_longitude,)
+        print("Current latitude : %f, Current Longitude : %f" % (self.current_latitude,self.current_longitude,))
 
         self.diff_latitude = self.current_latitude - self.initial_latitude
         self.diff_longitude = self.current_longitude - self.initial_longitude
 
-        print "Diff latitude: %f, Diff Longitude: %f" % (self.diff_latitude,self.diff_longitude,)
+        print("Diff latitude: %f, Diff Longitude: %f" % (self.diff_latitude,self.diff_longitude,))
 
         return self.diff_latitude, self.diff_longitude
 
