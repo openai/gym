@@ -1,17 +1,16 @@
 repositories:
-#  ardupilot_sitl_gazebo_plugin:
-#    type: git
-#    url: https://github.com/erlerobot/ardupilot_sitl_gazebo_plugin
-#
-#    version: master
-#  ar_track_alvar:
-#    type: git
-#    url: https://github.com/sniekum/ar_track_alvar
-#    version: indigo-devel
-#  ar_track_alvar_msgs:
-#    type: git
-#    url: https://github.com/sniekum/ar_track_alvar_msgs
-#    version: indigo-devel
+  ardupilot_sitl_gazebo_plugin:
+    type: git
+    url: https://github.com/erlerobot/ardupilot_sitl_gazebo_plugin
+    version: master
+  ar_track_alvar:
+    type: git
+    url: https://github.com/sniekum/ar_track_alvar
+    version: indigo-devel
+  ar_track_alvar_msgs:
+    type: git
+    url: https://github.com/sniekum/ar_track_alvar_msgs
+    version: indigo-devel
   catkin_simple:
     type: git
     url: https://github.com/catkin/catkin_simple.git
@@ -20,38 +19,38 @@ repositories:
     type: git
     url: https://github.com/ros-controls/control_toolbox.git
     version: indigo-devel
-#  drcsim:
-#    type: hg
-#    url: https://bitbucket.org/osrf/drcsim
-#    version: default
-  ecl_core:
-    type: git
-    url: https://github.com/stonier/ecl_core
-    version: devel
-  ecl_lite:
-    type: git
-    url: https://github.com/stonier/ecl_lite
-    version: devel
-  ecl_navigation:
-    type: git
-    url: https://github.com/stonier/ecl_navigation
-    version: devel
-  ecl_tools:
-    type: git
-    url: https://github.com/stonier/ecl_tools
-    version: devel
+  drcsim:
+    type: hg
+    url: https://bitbucket.org/osrf/drcsim
+    version: default
   driver_base:
     type: git
     url: https://github.com/ros-drivers/driver_common.git
     version: indigo-devel
+  ecl_core:
+    type: git
+    url: https://github.com/stonier/ecl_core
+    version: indigo-devel
+  ecl_lite:
+    type: git
+    url: https://github.com/stonier/ecl_lite
+    version: indigo-stable
+  ecl_navigation:
+    type: git
+    url: https://github.com/stonier/ecl_navigation
+    version: indigo-stable
+  ecl_tools:
+    type: git
+    url: https://github.com/stonier/ecl_tools
+    version: indigo-stable
   gazebo_ros_pkgs:
     type: git
     url: https://github.com/ros-simulation/gazebo_ros_pkgs
     version: indigo-devel
-#  glog_catkin:
-#    type: git
-#    url: https://github.com/ethz-asl/glog_catkin.git
-#    version: master
+  glog_catkin:
+    type: git
+    url: https://github.com/ethz-asl/glog_catkin.git
+    version: master
   hector_gazebo:
     type: git
     url: https://github.com/tu-darmstadt-ros-pkg/hector_gazebo/
@@ -80,34 +79,34 @@ repositories:
     type: git
     url: https://github.com/yujinrobot/kobuki_msgs
     version: indigo
-#  mavros:
-#    type: git
-#    url: https://github.com/erlerobot/mavros.git
-#    version: gazebo_udp
-#  mav_comm:
-#    type: git
-#    url: https://github.com/PX4/mav_comm.git
-#    version: master
+  mavros:
+    type: git
+    url: https://github.com/erlerobot/mavros.git
+    version: gazebo_udp
+  mav_comm:
+    type: git
+    url: https://github.com/PX4/mav_comm.git
+    version: master
   navigation:
     type: git
     url: https://github.com/ros-planning/navigation
     version: indigo-devel
-#  osrf-common:
-#    type: hg
-#    url: https://bitbucket.org/osrf/osrf-common
-#    version: default
+  osrf-common:
+    type: hg
+    url: https://bitbucket.org/osrf/osrf-common
+    version: default
   pcl_ros:
     type: git
     url: https://github.com/ros-perception/perception_pcl.git
     version: indigo-devel
-#  python_qt_binding:
-#    type: git
-#    url: https://github.com/ros-visualization/python_qt_binding
-#    version: kinetic-devel
-#  qt_gui_core:
-#    type: git
-#    url: https://github.com/ros-visualization/qt_gui_core
-#    version: groovy-devel
+  python_qt_binding:
+    type: git
+    url: https://github.com/ros-visualization/python_qt_binding
+    version: groovy-devel
+  qt_gui_core:
+    type: git
+    url: https://github.com/ros-visualization/qt_gui_core
+    version: groovy-devel
   realtime_tools:
     type: git
     url: https://github.com/ros-controls/realtime_tools
@@ -120,18 +119,26 @@ repositories:
     type: git
     url: https://github.com/ros/roslint
     version: master
-#  rqt:
-#    type: git
-#    url: https://github.com/ros-visualization/rqt
-#    version: groovy-devel
-#  rqt_common_plugins:
-#    type: git
-#    url: https://github.com/ros-visualization/rqt_common_plugins
-#    version: master
-#  rqt_robot_plugins:
-#    type: git
-#    url: https://github.com/ros-visualization/rqt_robot_plugins
-#    version: master
+  rotors_simulator:
+    type: git
+    url: https://github.com/erlerobot/rotors_simulator
+    version: sonar_plugin
+  rqt:
+    type: git
+    url: https://github.com/ros-visualization/rqt
+    version: groovy-devel
+  rqt_common_plugins:
+    type: git
+    url: https://github.com/ros-visualization/rqt_common_plugins
+    version: master
+  rqt_robot_plugins:
+    type: git
+    url: https://github.com/ros-visualization/rqt_robot_plugins
+    version: master
+  sandia-hand:
+    type: hg
+    url: https://bitbucket.org/osrf/sandia-hand
+    version: default
   turtlebot:
     type: git
     url: https://github.com/turtlebot/turtlebot
@@ -155,4 +162,4 @@ repositories:
   yujin_ocs:
     type: git
     url: https://github.com/yujinrobot/yujin_ocs
-    version: devel
+    version: indigo
