@@ -1,4 +1,4 @@
-#gym-gazebo
+# An OpenAI gym extension for using Gazebo known as `gym-gazebo`
 
 <!--[![alt tag](https://travis-ci.org/erlerobot/gym.svg?branch=master)](https://travis-ci.org/erlerobot/gym)-->
 
@@ -13,24 +13,22 @@ This work presents an extension of the initial OpenAI gym for robotics using ROS
 
 Visit [erlerobotics/gym](http://erlerobotics.com/docs/Simulation/Gym/) for more information and videos.
 
+## Environments
 The following are some of the available gazebo environments for the [Turtlebot]([Soccer environment]), one of the currently supported robots:
 
 ### GazeboCircuit2TurtlebotLidar-v0
-
 A simple circuit with straight tracks and 90 degree turns. Highly discretized LIDAR readings are used to train the Turtlebot. Scripts implementing **Q-learning** and **Sarsa** can be found in the _examples_ folder.
 
 ### GazeboCircuit2TurtlebotLidarNn-v0
-
 A simple circuit with straight tracks and 90 degree turns. A LIDAR is used to train the Turtlebot. Scripts implementing **DQN** can be found in the _examples_ folder.
 
 ### GazeboCircuit2cTurtlebotCameraNnEnv-v0
-
 A simple circuit with straight tracks and 90 degree turns with high contrast colors between the floor and the walls. A camera is used to train the Turtlebot. Scripts implementing **DQN** using **CNN** can be found in the _examples_ folder.
 
 
-# Installation
+## Installation
 
-## Table of Contents
+### Table of Contents
 
 - [Docker](#docker)
 - [Ubuntu](#ubuntu)
@@ -46,7 +44,7 @@ A simple circuit with straight tracks and 90 degree turns with high contrast col
     - [Usage](#usage)
 
 
-## Docker
+### Docker
 
 Build/fetch the container:
 ```bash
@@ -71,23 +69,18 @@ export GAZEBO_MASTER_URI=$GAZEBO_MASTER_IP:11345
 gzclient
 ```
 
-## Ubuntu
+### Ubuntu Linux
 
-## Requirements
-
-- Ubuntu 14.04
-- 2GB free space
-
-## ROS Indigo
+#### ROS Indigo
 
 Install the Robot Operating System via:
 
 **ros-indigo-desktop-full** is the only recommended installation.
 
 - Ubuntu: http://wiki.ros.org/indigo/Installation/Ubuntu
-- Others: http://wiki.ros.org/indigo/Installation 
+- Others: http://wiki.ros.org/indigo/Installation
 
-## Gazebo
+#### Gazebo
 
 - Setup your computer to accept software from packages.osrfoundation.org:
 
@@ -106,7 +99,7 @@ sudo apt-get update
 sudo apt-get remove .*gazebo.* && sudo apt-get update && sudo apt-get install gazebo7 libgazebo7-dev
 ```
 
-## Gym Gazebo Pip
+#### Gym Gazebo Pip
 
 ```bash
 git clone https://github.com/erlerobot/gym-gazebo
@@ -114,11 +107,11 @@ cd gym-gazebo
 sudo pip install -e .
 ```
 
-## Dependencies
+#### Additional dependencies
 
 There are two options to install dependencies: automatic installation or step-by-step installation
 
-### Automatic installation
+##### Automatic installation
 
 Install dependencies running [setup.bash](gym_gazebo/envs/installation/setup.bash). If you are going to use DQN with Keras, also install [Keras and Theano](#keras-and-theano-installation).
 
@@ -135,7 +128,7 @@ cd gym_gazebo/envs/installation
 bash turtlebot_setup.bash
 ```
 
-### Step-by-step installation
+##### Step-by-step installation
 
 Needs to be updated, use automatic installation.
 
@@ -206,7 +199,7 @@ Install JSBSim
 ```bash
 git clone git://github.com/tridge/jsbsim.git
 # Additional dependencies required
-sudo apt-get install libtool automake autoconf libexpat1-dev 
+sudo apt-get install libtool automake autoconf libexpat1-dev
 cd jsbsim
 ./autogen.sh --enable-libraries
 make -j2
@@ -255,7 +248,7 @@ bash turtlebot_setup.bash
 ```
 -->
 
-### Keras and Theano installation
+##### Keras and Theano installation
 This part of the installation is required only for the environments using DQN.
 
 ```bash
@@ -280,7 +273,7 @@ sudo pip install --upgrade pydot
 sudo pip install --upgrade pyparsing
 ```
 
-#### Enablig GPU for Theano
+##### Enablig GPU for Theano
 
 Follow the instructions [here](http://deeplearning.net/software/theano/install.html#gpu-linux) and change $PATH instead of $CUDA_ROOT.
 
@@ -293,9 +286,9 @@ THEANO_FLAGS=mode=FAST_RUN,device=gpu,floatX=float32
 
 ---
 
-## Usage
+### Usage
 
-### Build and install gym-gazebo
+#### Build and install gym-gazebo
 
 In the root directory of the repository:
 
@@ -303,7 +296,7 @@ In the root directory of the repository:
 sudo pip install -e .
 ```
 
-### Running an environment
+#### Running an environment
 
 - Load the environment variables corresponding to the robot you want to launch. E.g. to load the Turtlebot:
 
@@ -321,7 +314,7 @@ cd examples/scripts_turtlebot
 python circuit2_turtlebot_lidar_qlearn.py
 ```
 
-### Display the simulation
+#### Display the simulation
 
 To see what's going on in Gazebo during a simulation, simply run gazebo client:
 
@@ -329,7 +322,7 @@ To see what's going on in Gazebo during a simulation, simply run gazebo client:
 gzclient
 ```
 
-### Display reward plot
+#### Display reward plot
 
 Display a graph showing the current reward history by running the following script:
 
@@ -340,7 +333,7 @@ python display_plot.py
 
 HINT: use `--help` flag for more options.
 
-### Killing background processes
+#### Killing background processes
 
 Sometimes, after ending or killing the simulation `gzserver` and `rosmaster` stay on the background, make sure you end them before starting new tests.
 
