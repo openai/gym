@@ -13,36 +13,36 @@ This work presents an extension of the initial OpenAI gym for robotics using ROS
 
 Visit [erlerobotics/gym](http://erlerobotics.com/docs/Simulation/Gym/) for more information and videos.
 
+## Table of Contents
+- [Environments](#environments)
+- [Installation](#installation)
+	- [Docker](#docker)
+	- [Ubuntu](#ubuntu)
+	    - [Requirements](#requirements)
+	    - [ROS Indigo](#ros-indigo)
+	    - [Gazebo](#gazebo)
+	    - [Gym Gazebo Pip](#gym-gazebo-pip)
+	    - [Dependencies](#dependencies)
+	      - [Automatic installation](#automatic-installation)
+	      - [Step-by-step installation](#step-by-step-installation)
+	      - [Keras and Theano installation](#keras-and-theano-installation)
+	        - [Enablig GPU for Theano](#enablig-gpu-for-theano)
+- [Usage](#usage)
+
+
 ## Environments
 The following are some of the available gazebo environments for the [Turtlebot]([Soccer environment]), one of the currently supported robots:
 
-### GazeboCircuit2TurtlebotLidar-v0
+#### GazeboCircuit2TurtlebotLidar-v0
 A simple circuit with straight tracks and 90 degree turns. Highly discretized LIDAR readings are used to train the Turtlebot. Scripts implementing **Q-learning** and **Sarsa** can be found in the _examples_ folder.
 
-### GazeboCircuit2TurtlebotLidarNn-v0
+#### GazeboCircuit2TurtlebotLidarNn-v0
 A simple circuit with straight tracks and 90 degree turns. A LIDAR is used to train the Turtlebot. Scripts implementing **DQN** can be found in the _examples_ folder.
 
-### GazeboCircuit2cTurtlebotCameraNnEnv-v0
+#### GazeboCircuit2cTurtlebotCameraNnEnv-v0
 A simple circuit with straight tracks and 90 degree turns with high contrast colors between the floor and the walls. A camera is used to train the Turtlebot. Scripts implementing **DQN** using **CNN** can be found in the _examples_ folder.
 
-
 ## Installation
-
-### Table of Contents
-
-- [Docker](#docker)
-- [Ubuntu](#ubuntu)
-    - [Requirements](#requirements)
-    - [ROS Indigo](#ros-indigo)
-    - [Gazebo](#gazebo)
-    - [Gym Gazebo Pip](#gym-gazebo-pip)
-    - [Dependencies](#dependencies)
-      - [Automatic installation](#automatic-installation)
-      - [Step-by-step installation](#step-by-step-installation)
-      - [Keras and Theano installation](#keras-and-theano-installation)
-        - [Enablig GPU for Theano](#enablig-gpu-for-theano)
-    - [Usage](#usage)
-
 
 ### Docker
 
@@ -286,9 +286,9 @@ THEANO_FLAGS=mode=FAST_RUN,device=gpu,floatX=float32
 
 ---
 
-### Usage
+## Usage
 
-#### Build and install gym-gazebo
+### Build and install gym-gazebo
 
 In the root directory of the repository:
 
@@ -296,7 +296,7 @@ In the root directory of the repository:
 sudo pip install -e .
 ```
 
-#### Running an environment
+### Running an environment
 
 - Load the environment variables corresponding to the robot you want to launch. E.g. to load the Turtlebot:
 
@@ -314,7 +314,7 @@ cd examples/scripts_turtlebot
 python circuit2_turtlebot_lidar_qlearn.py
 ```
 
-#### Display the simulation
+### Display the simulation
 
 To see what's going on in Gazebo during a simulation, simply run gazebo client:
 
@@ -322,7 +322,7 @@ To see what's going on in Gazebo during a simulation, simply run gazebo client:
 gzclient
 ```
 
-#### Display reward plot
+### Display reward plot
 
 Display a graph showing the current reward history by running the following script:
 
@@ -333,7 +333,7 @@ python display_plot.py
 
 HINT: use `--help` flag for more options.
 
-#### Killing background processes
+### Killing background processes
 
 Sometimes, after ending or killing the simulation `gzserver` and `rosmaster` stay on the background, make sure you end them before starting new tests.
 
