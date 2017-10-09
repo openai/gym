@@ -18,16 +18,7 @@ Visit [erlerobotics/gym](http://erlerobotics.com/docs/Simulation/Gym/) for more 
 - [Installation](#installation)
 	- [Docker](#docker)
 	- [Ubuntu 16.04](#ubuntu-1604)
-	- [Ubuntu 14.04](#ubuntu-1404)
-	    - [Requirements](#requirements)
-	    - [ROS Indigo](#ros-indigo)
-	    - [Gazebo](#gazebo)
-	    - [Gym Gazebo Pip](#gym-gazebo-pip)
-	    - [Dependencies](#dependencies)
-	      - [Automatic installation](#automatic-installation)
-	      - [Step-by-step installation](#step-by-step-installation)
-	      - [Keras and Theano installation](#keras-and-theano-installation)
-	        - [Enablig GPU for Theano](#enablig-gpu-for-theano)
+	- [Ubuntu 14.04 (**deprecated**)](#ubuntu-1404)
 - [Usage](#usage)
 
 
