@@ -17,8 +17,8 @@ Visit [erlerobotics/gym](http://erlerobotics.com/docs/Simulation/Gym/) for more 
 - [Environments](#environments)
 - [Installation](#installation)
 	- [Docker](#docker)
-	- [Ubuntu](#ubuntu-16.04)
-	- [Ubuntu](#ubuntu-14.04)
+	- [Ubuntu 16.04](#ubuntu-1604)
+	- [Ubuntu 14.04](#ubuntu-1404)
 	    - [Requirements](#requirements)
 	    - [ROS Indigo](#ros-indigo)
 	    - [Gazebo](#gazebo)
@@ -72,14 +72,18 @@ Basic requirements:
 - ROS Kinetic (`/rosversion: 1.12.7`)
 - Gazebo 8.1.1
 - Python 3.5.2
+- OpenCV3, installed from sources for Python 3 (`git clone https://github.com/Itseez/opencv.git`)
 
 #### ROS Kinetic dependencies
-
 ```
 sudo pip3 install rospkg catkin_pkg
 
+sudo apt-get install python3-pyqt4
+
 sudo apt-get install \
-python3-defusedxml
+cmake gcc g++ qt4-qmake libqt4-dev \
+libusb-dev libftdi-dev \
+python3-defusedxml python3-vcstool \
 ros-kinetic-octomap-msgs        \
 ros-kinetic-joy                 \
 ros-kinetic-geodesy             \
@@ -95,7 +99,21 @@ ros-kinetic-rviz		       \
 ros-kinetic-kdl-conversions     \
 ros-kinetic-eigen-conversions   \
 ros-kinetic-tf2-sensor-msgs     \
-ros-kinetic-pcl-ros
+ros-kinetic-pcl-ros \
+ros-kinetic-navigation
+```
+
+```
+#Install Sophus
+cd
+git clone https://github.com/stonier/sophus -b indigo
+cd sophus
+mkdir build
+cd build
+cmake ..
+make
+sudo make install
+echo "## Sophus installed ##\n"
 ```
 
 #### Gazebo gym
@@ -121,6 +139,27 @@ sudo python3 setup.py develop
 
 #install Keras
 sudo pip3 install keras
+```
+
+
+#### Try it out (turtlebot simple env)
+
+**Issues**:
+- `spacenav_node` not compiling. `CATKIN_IGNORE`d.
+- `wiimote` not compiling. `CATKIN_IGNORE`d.
+- `kobuki_qtestsuite` not compiling. `CATKIN_IGNORE`d.
+
+
+Agent dependencies:
+```bash
+cd gym_gazebo/envs/installation
+bash turtlebot_setup.bash
+```
+
+Run the environment with a sample agent:
+```
+cd gym_gazebo/examples/scripts_turtlebot
+python circuit2_turtlebot_lidar_qlearn.py
 ```
 
 ### Ubuntu 14.04
@@ -166,11 +205,11 @@ There are two options to install dependencies: automatic installation or step-by
 
 ##### Automatic installation
 
-Install dependencies running [setup.bash](gym_gazebo/envs/installation/setup.bash). If you are going to use DQN with Keras, also install [Keras and Theano](#keras-and-theano-installation).
+Install dependencies running [setup_indigo.bash](gym_gazebo/envs/installation/setup_indigo.bash). If you are going to use DQN with Keras, also install [Keras and Theano](#keras-and-theano-installation).
 
 ```bash
 cd gym_gazebo/envs/installation
-bash setup.bash
+bash setup_indigo.bash
 ```
 Before running a environment, load the corresponding setup script. For example, to load the Turtlebot execute:
 
