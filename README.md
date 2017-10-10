@@ -144,10 +144,11 @@ sudo pip3 install keras
 Agent dependencies:
 ```bash
 cd gym_gazebo/envs/installation
-bash setup_kineticirc		```
+bash setup_kinetic.bash		
+```
 
 Run the environment with a sample agent:
-```
+```bash
 cd gym_gazebo/examples/scripts_turtlebot
 python circuit2_turtlebot_lidar_qlearn.py
 ```
