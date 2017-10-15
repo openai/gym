@@ -2,7 +2,6 @@ import gym
 from gym import Wrapper
 from gym import error, version
 import os, json, logging, numpy as np, six
-from gym.monitoring import stats_recorder, video_recorder
 from gym.utils import atomic_write, closer
 from gym.utils.json_utils import json_encode_np
 
@@ -239,7 +238,7 @@ class Monitor(Wrapper):
         self.close()
 
     def get_total_steps(self):
-        return self.stats_recorder.total_steps        
+        return self.stats_recorder.total_steps
 
     def get_episode_rewards(self):
         return self.stats_recorder.episode_rewards
@@ -384,3 +383,6 @@ def collapse_env_infos(env_infos, training_dir):
         if key not in first:
             raise error.Error("env_info {} from training directory {} is missing expected key {}. This is unexpected and likely indicates a bug in gym.".format(first, training_dir, key))
     return first
+
+# Put circular import at the bottom. Even better: break circular import
+from gym.monitoring import stats_recorder, video_recorder

@@ -96,6 +96,3 @@ if __name__ == '__main__':
     writefile('info.json', json.dumps(info))
 
     env.close()
-
-    logger.info("Successfully ran cross-entropy method. Now trying to upload results to the scoreboard. If it breaks, you can always just try re-uploading the same results.")
-    gym.upload(outdir)
