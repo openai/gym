@@ -1,7 +1,7 @@
 OpenAI Gym
 **********
 
-**OpenAI Gym is a toolkit for developing and comparing reinforcement learning algorithms.** This is the ``gym`` open-source library, which gives you access to a standardized set of environments. (A static export of the old accompanying gym website can be found at `https://gym.openai.com/read-only.html <https://gym.openai.com/read-only.html>`.)
+**OpenAI Gym is a toolkit for developing and comparing reinforcement learning algorithms.** This is the ``gym`` open-source library, which gives you access to a standardized set of environments. (A static export of the old accompanying gym website can be found at https://gym.openai.com/read-only.html.)
 
 .. image:: https://travis-ci.org/openai/gym.svg?branch=master
     :target: https://travis-ci.org/openai/gym
