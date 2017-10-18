@@ -17,6 +17,10 @@ from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint # Used for
 from control_msgs.msg import JointTrajectoryControllerState
 from std_msgs.msg import String
 
+# from custom baselines repository
+from baselines.agent.utility.general_utils import forward_kinematics, get_ee_points, rotation_from_matrix, \
+    get_rotation_matrix,quaternion_from_matrix # For getting points and velocities.
+
 
 class GazeboModularScaraEnv(gazebo_env.GazeboEnv):
     """
@@ -245,6 +249,91 @@ class GazeboModularScaraEnv(gazebo_env.GazeboEnv):
         action_msg.points = [target]
         return action_msg
 
+    def process_observations(self, message, agent, robot_id=0):
+        """
+        Helper fuinction to convert a ROS message to joint angles and velocities.
+        Check for and handle the case where a message is either malformed
+        or contains joint values in an order different from that expected
+        in hyperparams['joint_order']
+        """
+        # TODO: review robot_id
+        if not message:
+            print("Message is empty");
+        else:
+            # # Check if joint values are in the expected order and size.
+            if message.joint_names != agent['joint_order']:
+                # Check that the message is of same size as the expected message.
+                if len(message.joint_names) != len(agent['joint_order']):
+                    raise MSG_INVALID_JOINT_NAMES_DIFFER
+
+                # Check that all the expected joint values are present in a message.
+                if not all(map(lambda x,y: x in y, message.joint_names,
+                    [self._valid_joint_set[robot_id] for _ in range(len(message.joint_names))])):
+                    raise MSG_INVALID_JOINT_NAMES_DIFFER
+                    print("Joints differ")
+
+            return np.array(message.actual.positions) # + message.actual.velocities
+
+    def get_jacobians(self, state, robot_id=0):
+        """
+        Produce a Jacobian from the urdf that maps from joint angles to x, y, z.
+        This makes a 6x6 matrix from 6 joint angles to x, y, z and 3 angles.
+        The angles are roll, pitch, and yaw (not Euler angles) and are not needed.
+        Returns a repackaged Jacobian that is 3x6.
+        """
+        # TODO: review robot_id
+        # Initialize a Jacobian for 6 joint angles by 3 cartesian coords and 3 orientation angles
+        jacobian = Jacobian(3)
+        # Initialize a joint array for the present 6 joint angles.
+        angles = JntArray(3)
+        # Construct the joint array from the most recent joint angles.
+        for i in range(3):
+            angles[i] = state[i]
+        # Update the jacobian by solving for the given angles.
+        self.jac_solver.JntToJac(angles, jacobian)
+        # Initialize a numpy array to store the Jacobian.
+        J = np.array([[jacobian[i, j] for j in range(jacobian.columns())] for i in range(jacobian.rows())])
+        # Only want the cartesian position, not Roll, Pitch, Yaw (RPY) Angles
+        ee_jacobians = J
+        return ee_jacobians
+
+    def get_ee_points_jacobians(self, ref_jacobian, ee_points, ref_rot):
+        """
+        Get the jacobians of the points on a link given the jacobian for that link's origin
+        :param ref_jacobian: 6 x 6 numpy array, jacobian for the link's origin
+        :param ee_points: N x 3 numpy array, points' coordinates on the link's coordinate system
+        :param ref_rot: 3 x 3 numpy array, rotational matrix for the link's coordinate system
+        :return: 3N x 6 Jac_trans, each 3 x 6 numpy array is the Jacobian[:3, :] for that point
+                 3N x 6 Jac_rot, each 3 x 6 numpy array is the Jacobian[3:, :] for that point
+        """
+        ee_points = np.asarray(ee_points)
+        ref_jacobians_trans = ref_jacobian[:3, :]
+        ref_jacobians_rot = ref_jacobian[3:, :]
+        end_effector_points_rot = np.expand_dims(ref_rot.dot(ee_points.T).T, axis=1)
+        ee_points_jac_trans = np.tile(ref_jacobians_trans, (ee_points.shape[0], 1)) + \
+                                        np.cross(ref_jacobians_rot.T, end_effector_points_rot).transpose(
+                                            (0, 2, 1)).reshape(-1, 3)
+        ee_points_jac_rot = np.tile(ref_jacobians_rot, (ee_points.shape[0], 1))
+        return ee_points_jac_trans, ee_points_jac_rot
+
+    def get_ee_points_velocities(self, ref_jacobian, ee_points, ref_rot, joint_velocities):
+        """
+        Get the velocities of the points on a link
+        :param ref_jacobian: 6 x 6 numpy array, jacobian for the link's origin
+        :param ee_points: N x 3 numpy array, points' coordinates on the link's coordinate system
+        :param ref_rot: 3 x 3 numpy array, rotational matrix for the link's coordinate system
+        :param joint_velocities: 1 x 6 numpy array, joint velocities
+        :return: 3N numpy array, velocities of each point
+        """
+        ref_jacobians_trans = ref_jacobian[:3, :]
+        ref_jacobians_rot = ref_jacobian[3:, :]
+        ee_velocities_trans = np.dot(ref_jacobians_trans, joint_velocities)
+        ee_velocities_rot = np.dot(ref_jacobians_rot, joint_velocities)
+        ee_velocities = ee_velocities_trans + np.cross(ee_velocities_rot.reshape(1, 3),
+                                                       ref_rot.dot(ee_points.T).T)
+        return ee_velocities.reshape(-1)
+
+
     def _seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
@@ -268,7 +357,6 @@ class GazeboModularScaraEnv(gazebo_env.GazeboEnv):
         if rclpy.ok():
             self._pub.publish(self.get_trajectory_message(action[:3]))
 
-
         # Pause simulation
         rospy.wait_for_service('/gazebo/pause_physics')
         try:
@@ -278,8 +366,93 @@ class GazeboModularScaraEnv(gazebo_env.GazeboEnv):
             print ("/gazebo/pause_physics service call failed")
 
         # Obtain observation
+        if rclpy.ok():
+            # Only read and process ROS messages if they are fresh.
+            # TODO: review, robot_id seems specific to Risto's implementation
+            if self._observations_stale[robot_id] is False:
+                # # Acquire the lock to prevent the subscriber thread from
+                # # updating times or observation messages.
+                self._time_lock.acquire(True)
+                obs_message = self._observation_msg
+
+                # Make it so that subscriber's thread observation callback
+                # must be called before publishing again.
+                self._observations_stale[robot_id] = False
+
+                # Collect the end effector points and velocities in
+                # cartesian coordinates for the state.
+                # Collect the present joint angles and velocities from ROS for the state.
+                last_observations = self.process_observations(obs_message, self.agent)
+                if last_observations is None:
+                    print("last_observations is empty")
+                else:
+                # # # Get Jacobians from present joint angles and KDL trees
+                # # # The Jacobians consist of a 6x6 matrix getting its from from
+                # # # (# joint angles) x (len[x, y, z] + len[roll, pitch, yaw])
+                    ee_link_jacobians = self.get_jacobians(last_observations)
+                    if self.agent['link_names'][-1] is None:
+                        print("End link is empty!!")
+                    else:
+                        # print(self.agent['link_names'][-1])
+                        trans, rot = forward_kinematics(self.ur_chain,
+                                                    self.agent['link_names'],
+                                                    last_observations[:3],
+                                                    base_link=self.agent['link_names'][0],
+                                                    end_link=self.agent['link_names'][-1])
+                        # #
+                        rotation_matrix = np.eye(4)
+                        rotation_matrix[:3, :3] = rot
+                        rotation_matrix[:3, 3] = trans
+                        # angle, dir, _ = rotation_from_matrix(rotation_matrix)
+                        # #
+                        # current_quaternion = np.array([angle]+dir.tolist())#
+
+                        # I need this calculations for the new reward function, need to send them back to the run scara or calculate them here
+                        current_quaternion = quaternion_from_matrix(rotation_matrix)
+
+                        current_ee_tgt = np.ndarray.flatten(get_ee_points(self.agent['end_effector_points'],
+                                                                          trans,
+                                                                          rot).T)
+                        ee_points = current_ee_tgt - self.agent['ee_points_tgt']
+
+                        ee_points_jac_trans, _ = self.get_ee_points_jacobians(ee_link_jacobians,
+                                                                               self.agent['end_effector_points'],
+                                                                               rot)
+                        ee_velocities = self.get_ee_points_velocities(ee_link_jacobians,
+                                                                       self.agent['end_effector_points'],
+                                                                       rot,
+                                                                       last_observations)
+
+                        #
+                        # Concatenate the information that defines the robot state
+                        # vector, typically denoted asrobot_id 'x'.
+                        state = np.r_[np.reshape(last_observations, -1),
+                                      np.reshape(ee_points, -1),
+                                      np.reshape(ee_velocities, -1),]
+
+                        self.ob = np.r_[np.reshape(last_observations, -1),
+                                      np.reshape(ee_points, -1),
+                                      np.reshape(ee_velocities, -1),]
 
         # Calculate reward based on observation
+        if np.linalg.norm(ee_points) < 0.005:
+            self.reward_dist = 1000.0 * np.linalg.norm(ee_points)#- 10.0 * np.linalg.norm(ee_points)
+            self.reward_ctrl = np.linalg.norm(action)#np.square(action).sum()
+            done = True
+            print("self.reward_dist: ", self.reward_dist, "self.reward_ctrl: ", self.reward_ctrl)
+        else:
+            self.reward_dist = - np.linalg.norm(ee_points)
+            self.reward_ctrl = - np.linalg.norm(action)# np.square(action).sum()
+        # self.reward = 2.0 * self.reward_dist + 0.01 * self.reward_ctrl
+        #removed the control reward, maybe we should add it later.
+        self.reward = self.reward_dist
+
+        # Calculate if the env has been solved
+        # TODO: review
+        done = False
+
+        # TODO: review
+        self._time_lock.release()
 
         # Return the corresponding observations, rewards, etc.
         return state, reward, done, {}
