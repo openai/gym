@@ -333,39 +333,12 @@ class GazeboModularScaraEnv(gazebo_env.GazeboEnv):
                                                        ref_rot.dot(ee_points.T).T)
         return ee_velocities.reshape(-1)
 
-
-    def _seed(self, seed=None):
-        self.np_random, seed = seeding.np_random(seed)
-        return [seed]
-
-    def _step(self, action):
+    def take_observation(self):
         """
-        Implement the environment step abstraction. Execute action and returns:
-            - observation
-            - reward
-            - done (status)
-            - dictionary (#TODO clarify)
+        Take observation from the environment and return it.
+        TODO: define return type
         """
-        # Unpause simulation
-        rospy.wait_for_service('/gazebo/unpause_physics')
-        try:
-            self.unpause()
-        except (rospy.ServiceException) as e:
-            print ("/gazebo/unpause_physics service call failed")
-
-        # Execute "action"
-        if rclpy.ok():
-            self._pub.publish(self.get_trajectory_message(action[:3]))
-
-        # Pause simulation
-        rospy.wait_for_service('/gazebo/pause_physics')
-        try:
-            #resp_pause = pause.call()
-            self.pause()
-        except (rospy.ServiceException) as e:
-            print ("/gazebo/pause_physics service call failed")
-
-        # Obtain observation
+        # Take an observation
         if rclpy.ok():
             # Only read and process ROS messages if they are fresh.
             # TODO: review, robot_id seems specific to Risto's implementation
@@ -430,9 +403,46 @@ class GazeboModularScaraEnv(gazebo_env.GazeboEnv):
                                       np.reshape(ee_points, -1),
                                       np.reshape(ee_velocities, -1),]
 
-                        self.ob = np.r_[np.reshape(last_observations, -1),
+                        return np.r_[np.reshape(last_observations, -1),
                                       np.reshape(ee_points, -1),
                                       np.reshape(ee_velocities, -1),]
+        else:
+            print("Observation is None")
+            return None
+
+    def _seed(self, seed=None):
+        self.np_random, seed = seeding.np_random(seed)
+        return [seed]
+
+    def _step(self, action):
+        """
+        Implement the environment step abstraction. Execute action and returns:
+            - observation
+            - reward
+            - done (status)
+            - dictionary (#TODO clarify)
+        """
+        # Unpause simulation
+        rospy.wait_for_service('/gazebo/unpause_physics')
+        try:
+            self.unpause()
+        except (rospy.ServiceException) as e:
+            print ("/gazebo/unpause_physics service call failed")
+
+        # Execute "action"
+        if rclpy.ok():
+            self._pub.publish(self.get_trajectory_message(action[:3]))
+
+        # Pause simulation
+        rospy.wait_for_service('/gazebo/pause_physics')
+        try:
+            #resp_pause = pause.call()
+            self.pause()
+        except (rospy.ServiceException) as e:
+            print ("/gazebo/pause_physics service call failed")
+
+        # Take an observation
+        self.ob = take_observation()
 
         # Calculate reward based on observation
         if np.linalg.norm(ee_points) < 0.005:
@@ -458,7 +468,9 @@ class GazeboModularScaraEnv(gazebo_env.GazeboEnv):
         return state, reward, done, {}
 
     def _reset(self):
-
+        """
+        Reset the agent for a particular experiment condition.
+        """
         # Resets the state of the environment and returns an initial observation.
         rospy.wait_for_service('/gazebo/reset_simulation')
         try:
@@ -467,7 +479,7 @@ class GazeboModularScaraEnv(gazebo_env.GazeboEnv):
         except (rospy.ServiceException) as e:
             print ("/gazebo/reset_simulation service call failed")
 
-        # Unpause simulation to make observation
+        # Unpause simulation
         rospy.wait_for_service('/gazebo/unpause_physics')
         try:
             #resp_pause = pause.call()
@@ -475,14 +487,10 @@ class GazeboModularScaraEnv(gazebo_env.GazeboEnv):
         except (rospy.ServiceException) as e:
             print ("/gazebo/unpause_physics service call failed")
 
-        #read laser data
-        data = None
-        while data is None:
-            try:
-                data = rospy.wait_for_message('/scan', LaserScan, timeout=5)
-            except:
-                pass
+        # Take an observation
+        self.ob = take_observation()
 
+        # Pause the simulation
         rospy.wait_for_service('/gazebo/pause_physics')
         try:
             #resp_pause = pause.call()
@@ -490,6 +498,4 @@ class GazeboModularScaraEnv(gazebo_env.GazeboEnv):
         except (rospy.ServiceException) as e:
             print ("/gazebo/pause_physics service call failed")
 
-        state = self.discretize_observation(data,5)
-
-        return state
+        return self.ob
