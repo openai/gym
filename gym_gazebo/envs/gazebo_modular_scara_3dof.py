@@ -21,6 +21,13 @@ from std_msgs.msg import String
 from baselines.agent.utility.general_utils import forward_kinematics, get_ee_points, rotation_from_matrix, \
     get_rotation_matrix,quaternion_from_matrix # For getting points and velocities.
 
+class MSG_INVALID_JOINT_NAMES_DIFFER(Exception):
+    """Error object exclusively raised by _process_observations."""
+    pass
+
+class ROBOT_MADE_CONTACT_WITH_GAZEBO_GROUND_SO_RESTART_ROSLAUNCH(Exception):
+    """Error object exclusively raised by reset."""
+    pass
 
 class GazeboModularScaraEnv(gazebo_env.GazeboEnv):
     """
@@ -50,14 +57,33 @@ class GazeboModularScaraEnv(gazebo_env.GazeboEnv):
         self.reward_ctrl = None
         self.action_space = None
 
-        # Topics for the robot publisher and subscriber.
-        JOINT_PUBLISHER = '/scara_controller/command'
-        JOINT_SUBSCRIBER = '/scara_controller/state'
+        #############################
+        #   Environment hyperparams
+        #############################
         # where should the agent reach
         EE_POS_TGT = np.asmatrix([0.3325683, 0.0657366, 0.3746])
         EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         EE_POINTS = np.asmatrix([[0, 0, 0]])
         EE_VELOCITIES = np.asmatrix([[0, 0, 0]])
+        # Set end effector constants
+        INITIAL_JOINTS = np.array([0, 0, 0])
+        # TODO provide a description
+        STEP_COUNT = 2  # Typically 100.
+        # Set the number of seconds per step of a sample.
+        TIMESTEP = 0.01  # Typically 0.01.
+        # Set the number of timesteps per sample.
+        STEP_COUNT = 100  # Typically 100.
+        # Set the number of samples per condition.
+        SAMPLE_COUNT = 5  # Typically 5.
+        # set the number of conditions per iteration.
+        # Set the number of trajectory iterations to collect.
+        ITERATIONS = 20  # Typically 10.
+        # TODO provide a description
+        slowness = 2
+
+        # Topics for the robot publisher and subscriber.
+        JOINT_PUBLISHER = '/scara_controller/command'
+        JOINT_SUBSCRIBER = '/scara_controller/state'
         # joint names:
         MOTOR1_JOINT = 'motor1'
         MOTOR2_JOINT = 'motor2'
@@ -93,28 +119,16 @@ class GazeboModularScaraEnv(gazebo_env.GazeboEnv):
                       SCARA_MOTOR2, SCARA_INSIDE_MOTOR2, SCARA_SUPPORT_MOTOR2, SCARA_BAR_MOTOR2, SCARA_FIXBAR_MOTOR2,
                       SCARA_MOTOR3, SCARA_INSIDE_MOTOR3, SCARA_SUPPORT_MOTOR3,
                       EE_LINK]
-        # Set end effector constants
-        INITIAL_JOINTS = np.array([0, 0, 0])
-
-        # TODO: modify the path
-        # # where is your urdf? We load here the 3 joints.... In the agent_scara we need to generalize it for joints depending on the input urdf
-        # TREE_PATH = '/home/rkojcev/catkin_ws/src/scara_e1/scara_e1_description/urdf/scara_e1_3joints.urdf'
 
         reset_condition = {
             'initial_positions': INITIAL_JOINTS,
              'initial_velocities': []
         }
-        STEP_COUNT = 2  # Typically 100.
-        # Set the number of seconds per step of a sample.
-        TIMESTEP = 0.01  # Typically 0.01.
-        # Set the number of timesteps per sample.
-        STEP_COUNT = 100  # Typically 100.
-        # Set the number of samples per condition.
-        SAMPLE_COUNT = 5  # Typically 5.
-        # set the number of conditions per iteration.
-        # Set the number of trajectory iterations to collect.
-        ITERATIONS = 20  # Typically 10.
-        slowness = 2
+        #############################
+
+        # TODO: modify the path
+        # # where is your urdf? We load here the 3 joints.... In the agent_scara we need to generalize it for joints depending on the input urdf
+        # TREE_PATH = '/home/rkojcev/catkin_ws/src/scara_e1/scara_e1_description/urdf/scara_e1_3joints.urdf'
 
         m_joint_order = copy.deepcopy(JOINT_ORDER)
         m_link_names = copy.deepcopy(LINK_NAMES)
@@ -482,7 +496,6 @@ class GazeboModularScaraEnv(gazebo_env.GazeboEnv):
         # Unpause simulation
         rospy.wait_for_service('/gazebo/unpause_physics')
         try:
-            #resp_pause = pause.call()
             self.unpause()
         except (rospy.ServiceException) as e:
             print ("/gazebo/unpause_physics service call failed")
@@ -493,9 +506,9 @@ class GazeboModularScaraEnv(gazebo_env.GazeboEnv):
         # Pause the simulation
         rospy.wait_for_service('/gazebo/pause_physics')
         try:
-            #resp_pause = pause.call()
             self.pause()
         except (rospy.ServiceException) as e:
             print ("/gazebo/pause_physics service call failed")
 
+        # Return the corresponding observation
         return self.ob
