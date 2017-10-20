@@ -11,11 +11,11 @@ from sensor_msgs.msg import LaserScan
 from gym.utils import seeding
 
 # ROS 2
-import rclpy
-from rclpy.qos import QoSProfile, qos_profile_sensor_data
-from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint # Used for publishing scara joint angles.
-from control_msgs.msg import JointTrajectoryControllerState
-from std_msgs.msg import String
+# import rclpy
+# from rclpy.qos import QoSProfile, qos_profile_sensor_data
+# from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint # Used for publishing scara joint angles.
+# from control_msgs.msg import JointTrajectoryControllerState
+# from std_msgs.msg import String
 
 # from custom baselines repository
 from baselines.agent.utility.general_utils import forward_kinematics, get_ee_points, rotation_from_matrix, \
@@ -29,7 +29,7 @@ class ROBOT_MADE_CONTACT_WITH_GAZEBO_GROUND_SO_RESTART_ROSLAUNCH(Exception):
     """Error object exclusively raised by reset."""
     pass
 
-class GazeboModularScaraEnv(gazebo_env.GazeboEnv):
+class GazeboModularScara3DOFEnv(gazebo_env.GazeboEnv):
     """
     This environment present a modular SCARA robot with a range finder at its
     end pointing towards the workspace of the robot.
@@ -45,6 +45,7 @@ class GazeboModularScaraEnv(gazebo_env.GazeboEnv):
         # Launch the simulation with the given launchfile name
         gazebo_env.GazeboEnv.__init__(self, "ModularScara3_v0.launch")
 
+        # TODO: cleanup this variables, remove the ones that aren't used
         # class variables
         self._observation_msg = None
         self.scale = None  # must be set from elsewhere based on observations
@@ -60,25 +61,24 @@ class GazeboModularScaraEnv(gazebo_env.GazeboEnv):
         #############################
         #   Environment hyperparams
         #############################
-        # where should the agent reach
+        # target, where should the agent reach
         EE_POS_TGT = np.asmatrix([0.3325683, 0.0657366, 0.3746])
         EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         EE_POINTS = np.asmatrix([[0, 0, 0]])
         EE_VELOCITIES = np.asmatrix([[0, 0, 0]])
-        # Set end effector constants
+        # Initial joint position
         INITIAL_JOINTS = np.array([0, 0, 0])
-        # TODO provide a description
+        # Used to initialize the robot, #TODO, clarify this more
         STEP_COUNT = 2  # Typically 100.
-        # Set the number of seconds per step of a sample.
-        TIMESTEP = 0.01  # Typically 0.01.
-        # Set the number of timesteps per sample.
-        STEP_COUNT = 100  # Typically 100.
-        # Set the number of samples per condition.
-        SAMPLE_COUNT = 5  # Typically 5.
-        # set the number of conditions per iteration.
-        # Set the number of trajectory iterations to collect.
-        ITERATIONS = 20  # Typically 10.
-        # TODO provide a description
+        # # Set the number of seconds per step of a sample.
+        # TIMESTEP = 0.01  # Typically 0.01.
+        # # Set the number of timesteps per sample.
+        # STEP_COUNT = 100  # Typically 100.
+        # # Set the number of samples per condition.
+        # SAMPLE_COUNT = 5  # Typically 5.
+        # # Set the number of trajectory iterations to collect.
+        # ITERATIONS = 20  # Typically 10.
+        # How much time does it take to execute the trajectory (in seconds)
         slowness = 2
 
         # Topics for the robot publisher and subscriber.
@@ -126,9 +126,8 @@ class GazeboModularScaraEnv(gazebo_env.GazeboEnv):
         }
         #############################
 
-        # TODO: modify the path
-        # # where is your urdf? We load here the 3 joints.... In the agent_scara we need to generalize it for joints depending on the input urdf
-        # TREE_PATH = '/home/rkojcev/catkin_ws/src/scara_e1/scara_e1_description/urdf/scara_e1_3joints.urdf'
+        # Set the path of the corresponding URDF file from "assets"
+        URDF_PATH = "../assets/urdf/modular_scara/scara_e1_3joints.urdf"
 
         m_joint_order = copy.deepcopy(JOINT_ORDER)
         m_link_names = copy.deepcopy(LINK_NAMES)
@@ -140,7 +139,6 @@ class GazeboModularScaraEnv(gazebo_env.GazeboEnv):
         ee_tgt = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt, ee_rot_tgt).T)
 
         self.environment = {
-            # 'type': AgentSCARAROS,
             'dt': TIMESTEP,
             'T': STEP_COUNT,
             'ee_points_tgt': ee_tgt,
@@ -148,7 +146,7 @@ class GazeboModularScaraEnv(gazebo_env.GazeboEnv):
             'link_names': m_link_names,
             'slowness': slowness,
             'reset_conditions': reset_condition,
-            'tree_path': TREE_PATH,
+            'tree_path': URDF_PATH,
             'joint_publisher': m_joint_publishers,
             'joint_subscriber': m_joint_subscribers,
             'end_effector_points': EE_POINTS,
@@ -156,60 +154,56 @@ class GazeboModularScaraEnv(gazebo_env.GazeboEnv):
             'num_samples': SAMPLE_COUNT,
         }
 
-        # TODO: review
         # self.spec = {'timestep_limit': 5, 'reward_threshold':  950.0,}
 
         # Subscribe to the appropriate topics, taking into account the particular robot
-        ## ROS 1 implementation
-        #self._pub = rospy.Publisher('/scara_controller/command', JointTrajectory)
-        #self._sub = rospy.Subscriber('/scara_controller/state', JointTrajectoryControllerState, self._observation_callback)
+        # ROS 1 implementation
+        self._pub = rospy.Publisher('/scara_controller/command', JointTrajectory)
+        self._sub = rospy.Subscriber('/scara_controller/state', JointTrajectoryControllerState, self._observation_callback)
 
-        # ROS 2 implementation, includes initialization of the appropriate ROS 2 abstractions
-        rclpy.init(args=None)
-        self.ros2_node = rclpy.create_node('robot_ai_node')
-        self._pub = ros2_node.create_publisher(JointTrajectory,'/scara_controller/command')
-        # self._callbacks = partial(self._observation_callback, robot_id=0)
-        self._sub = ros2_node.create_subscription(JointTrajectoryControllerState, '/scara_controller/state', self.observation_callback, qos_profile=qos_profile_sensor_data)
-        self._time_lock = threading.RLock()
-
-        #TODO set up the path appropriately
+        # # ROS 2 implementation, includes initialization of the appropriate ROS 2 abstractions
+        # rclpy.init(args=None)
+        # self.ros2_node = rclpy.create_node('robot_ai_node')
+        # self._pub = ros2_node.create_publisher(JointTrajectory, JOINT_PUBLISHER)
+        # # self._callbacks = partial(self._observation_callback, robot_id=0)
+        # self._sub = ros2_node.create_subscription(JointTrajectoryControllerState, JOINT_SUBSCRIBER, self.observation_callback, qos_profile=qos_profile_sensor_data)
+        # # self._time_lock = threading.RLock()
 
         # Initialize a tree structure from the robot urdf.
         #   note that the xacro of the urdf is updated by hand.
         # The urdf must be compiled.
-
-        # TODO review with Risto
-        _, self.ur_tree = treeFromFile(self.agent['tree_path'])
+        _, self.ur_tree = treeFromFile(self.environment['tree_path'])
         # Retrieve a chain structure between the base and the start of the end effector.
-        self.ur_chain = self.ur_tree.getChain(self.agent['link_names'][0], self.agent['link_names'][-1])
-        print("nr of jnts: ", self.ur_chain.getNrOfJoints())
+        self.scara_chain = self.ur_tree.getChain(self.environment['link_names'][0], self.environment['link_names'][-1])
+        # print("nr of jnts: ", self.scara_chain.getNrOfJoints())
         # Initialize a KDL Jacobian solver from the chain.
-        self.jac_solver = ChainJntToJacSolver(self.ur_chain)
+        self.jac_solver = ChainJntToJacSolver(self.scara_chain)
         #print(self.jac_solver)
         self._observations_stale = [False for _ in range(1)]
         #print("after observations stale")
         self._currently_resetting = [False for _ in range(1)]
         self.reset_joint_angles = [None for _ in range(1)]
 
-        # TODO review with Risto
+        # TODO review with Risto, we might need the first observation for calling _step()
         # # taken from mujoco in OpenAi how to initialize observation space and action space.
-        # observation, _reward, done, _info = self._step(np.zeros(self.ur_chain.getNrOfJoints()))
+        # observation, _reward, done, _info = self._step(np.zeros(self.scara_chain.getNrOfJoints()))
         # assert not done
         # self.obs_dim = observation.size
         # # print(observation, _reward)
+
         # # Here idially we should find the control range of the robot. Unfortunatelly in ROS/KDL there is nothing like this.
         # # I have tested this with the mujoco enviroment and the output is always same low[-1.,-1.], high[1.,1.]
         # #bounds = self.model.actuator_ctrlrange.copy()
-        # low = -np.pi/2.0 * np.ones(self.ur_chain.getNrOfJoints())#bounds[:, 0]
-        # high = np.pi/2.0 * np.ones(self.ur_chain.getNrOfJoints()) #bounds[:, 1]
+        low = -np.pi/2.0 * np.ones(self.scara_chain.getNrOfJoints())
+        high = np.pi/2.0 * np.ones(self.scara_chain.getNrOfJoints())
         # print("Action spaces: ", low, high)
-        # self.action_space = spaces.Box(low, high)
-        # high = np.inf*np.ones(self.obs_dim)
-        # low = -high
-        # self.observation_space = spaces.Box(low, high)
+        self.action_space = spaces.Box(low, high)
+        high = np.inf*np.ones(self.obs_dim)
+        low = -high
+        self.observation_space = spaces.Box(low, high)
 
-        self.action_space = spaces.Discrete(3) #F,L,R
-        self.reward_range = (-np.inf, np.inf)
+        # self.action_space = spaces.Discrete(3) #F,L,R
+        # self.reward_range = (-np.inf, np.inf)
 
         # Gazebo specific services to start/stop its behavior and
         # facilitate the overall RL environment
@@ -267,7 +261,7 @@ class GazeboModularScaraEnv(gazebo_env.GazeboEnv):
         """
         Helper fuinction to convert a ROS message to joint angles and velocities.
         Check for and handle the case where a message is either malformed
-        or contains joint values in an order different from that expected
+        or contains joint values in an order different from that expected_observation_callback
         in hyperparams['joint_order']
         """
         # TODO: review robot_id
@@ -303,7 +297,7 @@ class GazeboModularScaraEnv(gazebo_env.GazeboEnv):
         # Construct the joint array from the most recent joint angles.
         for i in range(3):
             angles[i] = state[i]
-        # Update the jacobian by solving for the given angles.
+        # Update the jacobian by solving for the given angles._observation_callback
         self.jac_solver.JntToJac(angles, jacobian)
         # Initialize a numpy array to store the Jacobian.
         J = np.array([[jacobian[i, j] for j in range(jacobian.columns())] for i in range(jacobian.rows())])
@@ -347,82 +341,147 @@ class GazeboModularScaraEnv(gazebo_env.GazeboEnv):
                                                        ref_rot.dot(ee_points.T).T)
         return ee_velocities.reshape(-1)
 
+    # def take_observation_ros2(self):
+    #     """
+    #     Take observation from the environment and return it.
+    #     TODO: define return type
+    #     """
+    #     # Take an observation
+    #     if rclpy.ok():
+    #         # Only read and process ROS messages if they are fresh.
+    #         # TODO: review, robot_id seems specific to Risto's implementation
+    #
+    #         # # Acquire the lock to prevent the subscriber thread from
+    #         # # updating times or observation messages.
+    #         # self._time_lock.acquire(True)
+    #         obs_message = self._observation_msg
+    #
+    #         # Collect the end effector points and velocities in
+    #         # cartesian coordinates for the state.
+    #         # Collect the present joint angles and velocities from ROS for the state.
+    #         last_observations = self.process_observations(obs_message, self.environment)
+    #         if last_observations is None:
+    #             print("last_observations is empty")
+    #         else:
+    #         # # # Get Jacobians from present joint angles and KDL trees
+    #         # # # The Jacobians consist of a 6x6 matrix getting its from from
+    #         # # # (# joint angles) x (len[x, y, z] + len[roll, pitch, yaw])
+    #             ee_link_jacobians = self.get_jacobians(last_observations)
+    #             if self.environment['link_names'][-1] is None:
+    #                 print("End link is empty!!")
+    #             else:
+    #                 # print(self.environment['link_names'][-1])
+    #                 trans, rot = forward_kinematics(self.scara_chain,
+    #                                             self.environment['link_names'],
+    #                                             last_observations[:3],
+    #                                             base_link=self.environment['link_names'][0],
+    #                                             end_link=self.environment['link_names'][-1])
+    #                 # #
+    #                 rotation_matrix = np.eye(4)
+    #                 rotation_matrix[:3, :3] = rot
+    #                 rotation_matrix[:3, 3] = trans
+    #                 # angle, dir, _ = rotation_from_matrix(rotation_matrix)
+    #                 # #
+    #                 # current_quaternion = np.array([angle]+dir.tolist())#
+    #
+    #                 # I need this calculations for the new reward function, need to send them back to the run scara or calculate them here
+    #                 current_quaternion = quaternion_from_matrix(rotation_matrix)
+    #
+    #                 current_ee_tgt = np.ndarray.flatten(get_ee_points(self.environment['end_effector_points'],
+    #                                                                   trans,
+    #                                                                   rot).T)
+    #                 ee_points = current_ee_tgt - self.environment['ee_points_tgt']
+    #
+    #                 ee_points_jac_trans, _ = self.get_ee_points_jacobians(ee_link_jacobians,
+    #                                                                        self.environment['end_effector_points'],
+    #                                                                        rot)
+    #                 ee_velocities = self.get_ee_points_velocities(ee_link_jacobians,
+    #                                                                self.environment['end_effector_points'],
+    #                                                                rot,
+    #                                                                last_observations)
+    #
+    #                 #
+    #                 # Concatenate the information that defines the robot state
+    #                 # vector, typically denoted asrobot_id 'x'.
+    #                 state = np.r_[np.reshape(last_observations, -1),
+    #                               np.reshape(ee_points, -1),
+    #                               np.reshape(ee_velocities, -1),]
+    #
+    #                 return np.r_[np.reshape(last_observations, -1),
+    #                               np.reshape(ee_points, -1),
+    #                               np.reshape(ee_velocities, -1),]
+    #     else:
+    #         print("Observation is None")
+    #         return None
+
     def take_observation(self):
         """
         Take observation from the environment and return it.
         TODO: define return type
         """
         # Take an observation
-        if rclpy.ok():
-            # Only read and process ROS messages if they are fresh.
-            # TODO: review, robot_id seems specific to Risto's implementation
-            if self._observations_stale[robot_id] is False:
-                # # Acquire the lock to prevent the subscriber thread from
-                # # updating times or observation messages.
-                self._time_lock.acquire(True)
-                obs_message = self._observation_msg
+        # Only read and process ROS messages if they are fresh.
+        # TODO: review, robot_id seems specific to Risto's implementation
 
-                # Make it so that subscriber's thread observation callback
-                # must be called before publishing again.
-                self._observations_stale[robot_id] = False
+        # # Acquire the lock to prevent the subscriber thread from
+        # # updating times or observation messages.
+        # self._time_lock.acquire(True)
+        obs_message = self._observation_msg
 
-                # Collect the end effector points and velocities in
-                # cartesian coordinates for the state.
-                # Collect the present joint angles and velocities from ROS for the state.
-                last_observations = self.process_observations(obs_message, self.agent)
-                if last_observations is None:
-                    print("last_observations is empty")
-                else:
-                # # # Get Jacobians from present joint angles and KDL trees
-                # # # The Jacobians consist of a 6x6 matrix getting its from from
-                # # # (# joint angles) x (len[x, y, z] + len[roll, pitch, yaw])
-                    ee_link_jacobians = self.get_jacobians(last_observations)
-                    if self.agent['link_names'][-1] is None:
-                        print("End link is empty!!")
-                    else:
-                        # print(self.agent['link_names'][-1])
-                        trans, rot = forward_kinematics(self.ur_chain,
-                                                    self.agent['link_names'],
-                                                    last_observations[:3],
-                                                    base_link=self.agent['link_names'][0],
-                                                    end_link=self.agent['link_names'][-1])
-                        # #
-                        rotation_matrix = np.eye(4)
-                        rotation_matrix[:3, :3] = rot
-                        rotation_matrix[:3, 3] = trans
-                        # angle, dir, _ = rotation_from_matrix(rotation_matrix)
-                        # #
-                        # current_quaternion = np.array([angle]+dir.tolist())#
-
-                        # I need this calculations for the new reward function, need to send them back to the run scara or calculate them here
-                        current_quaternion = quaternion_from_matrix(rotation_matrix)
-
-                        current_ee_tgt = np.ndarray.flatten(get_ee_points(self.agent['end_effector_points'],
-                                                                          trans,
-                                                                          rot).T)
-                        ee_points = current_ee_tgt - self.agent['ee_points_tgt']
-
-                        ee_points_jac_trans, _ = self.get_ee_points_jacobians(ee_link_jacobians,
-                                                                               self.agent['end_effector_points'],
-                                                                               rot)
-                        ee_velocities = self.get_ee_points_velocities(ee_link_jacobians,
-                                                                       self.agent['end_effector_points'],
-                                                                       rot,
-                                                                       last_observations)
-
-                        #
-                        # Concatenate the information that defines the robot state
-                        # vector, typically denoted asrobot_id 'x'.
-                        state = np.r_[np.reshape(last_observations, -1),
-                                      np.reshape(ee_points, -1),
-                                      np.reshape(ee_velocities, -1),]
-
-                        return np.r_[np.reshape(last_observations, -1),
-                                      np.reshape(ee_points, -1),
-                                      np.reshape(ee_velocities, -1),]
+        # Collect the end effector points and velocities in
+        # cartesian coordinates for the state.
+        # Collect the present joint angles and velocities from ROS for the state.
+        last_observations = self.process_observations(obs_message, self.environment)
+        if last_observations is None:
+            print("last_observations is empty")
         else:
-            print("Observation is None")
-            return None
+        # # # Get Jacobians from present joint angles and KDL trees
+        # # # The Jacobians consist of a 6x6 matrix getting its from from
+        # # # (# joint angles) x (len[x, y, z] + len[roll, pitch, yaw])
+            ee_link_jacobians = self.get_jacobians(last_observations)
+            if self.environment['link_names'][-1] is None:
+                print("End link is empty!!")
+            else:
+                # print(self.environment['link_names'][-1])
+                trans, rot = forward_kinematics(self.scara_chain,
+                                            self.environment['link_names'],
+                                            last_observations[:3],
+                                            base_link=self.environment['link_names'][0],
+                                            end_link=self.environment['link_names'][-1])
+                # #
+                rotation_matrix = np.eye(4)
+                rotation_matrix[:3, :3] = rot
+                rotation_matrix[:3, 3] = trans
+                # angle, dir, _ = rotation_from_matrix(rotation_matrix)
+                # #
+                # current_quaternion = np.array([angle]+dir.tolist())#
+
+                # I need this calculations for the new reward function, need to send them back to the run scara or calculate them here
+                current_quaternion = quaternion_from_matrix(rotation_matrix)
+
+                current_ee_tgt = np.ndarray.flatten(get_ee_points(self.environment['end_effector_points'],
+                                                                  trans,
+                                                                  rot).T)
+                ee_points = current_ee_tgt - self.environment['ee_points_tgt']
+
+                ee_points_jac_trans, _ = self.get_ee_points_jacobians(ee_link_jacobians,
+                                                                       self.environment['end_effector_points'],
+                                                                       rot)
+                ee_velocities = self.get_ee_points_velocities(ee_link_jacobians,
+                                                               self.environment['end_effector_points'],
+                                                               rot,
+                                                               last_observations)
+
+                #
+                # Concatenate the information that defines the robot state
+                # vector, typically denoted asrobot_id 'x'.
+                state = np.r_[np.reshape(last_observations, -1),
+                              np.reshape(ee_points, -1),
+                              np.reshape(ee_velocities, -1),]
+
+                return np.r_[np.reshape(last_observations, -1),
+                              np.reshape(ee_points, -1),
+                              np.reshape(ee_velocities, -1),]
 
     def _seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
@@ -447,6 +506,10 @@ class GazeboModularScaraEnv(gazebo_env.GazeboEnv):
         if rclpy.ok():
             self._pub.publish(self.get_trajectory_message(action[:3]))
 
+        # # Take an observation
+        # TODO: program this better, check that ob is not None, etc.
+        self.ob = take_observation()
+
         # Pause simulation
         rospy.wait_for_service('/gazebo/pause_physics')
         try:
@@ -456,30 +519,31 @@ class GazeboModularScaraEnv(gazebo_env.GazeboEnv):
             print ("/gazebo/pause_physics service call failed")
 
         # Take an observation
-        self.ob = take_observation()
+        # TODO: program this better, check that ob is not None, etc.
+        # self.ob = take_observation()
 
         # Calculate reward based on observation
-        if np.linalg.norm(ee_points) < 0.005:
-            self.reward_dist = 1000.0 * np.linalg.norm(ee_points)#- 10.0 * np.linalg.norm(ee_points)
-            self.reward_ctrl = np.linalg.norm(action)#np.square(action).sum()
+        if np.linalg.norm(self.ob[1]) < 0.005:
+            self.reward_dist = 1000.0 * np.linalg.norm(self.ob[1])#- 10.0 * np.linalg.norm(ee_points)
+            # self.reward_ctrl = np.linalg.norm(action)#np.square(action).sum()
             done = True
             print("self.reward_dist: ", self.reward_dist, "self.reward_ctrl: ", self.reward_ctrl)
         else:
-            self.reward_dist = - np.linalg.norm(ee_points)
-            self.reward_ctrl = - np.linalg.norm(action)# np.square(action).sum()
+            self.reward_dist = - np.linalg.norm(self.ob[1])
+            # self.reward_ctrl = - np.linalg.norm(action)# np.square(action).sum()
         # self.reward = 2.0 * self.reward_dist + 0.01 * self.reward_ctrl
         #removed the control reward, maybe we should add it later.
         self.reward = self.reward_dist
 
         # Calculate if the env has been solved
-        # TODO: review
-        done = False
+        # done = False
+        done = bool(abs(self.reward_dist) < 0.005)
 
-        # TODO: review
-        self._time_lock.release()
+        # self._time_lock.release()
 
         # Return the corresponding observations, rewards, etc.
-        return state, reward, done, {}
+        # TODO, understand better what's the last object to return
+        return self.ob, self.reward, done, {}
 
     def _reset(self):
         """
