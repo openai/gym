@@ -41,11 +41,17 @@ register(
 # Erle-Copter envs
 register(
     id='GazeboErleCopterHover-v0',
-    entry_point='gym_gazebo.envs:GazeboErleCopterHoverEnv',
+    entry_point='gym_gazebo.envs.erlecopter:GazeboErleCopterHoverEnv',
 )
 
 #Erle-Rover envs
 register(
     id='GazeboMazeErleRoverLidar-v0',
-    entry_point='gym_gazebo.envs:GazeboMazeErleRoverLidarEnv',
+    entry_point='gym_gazebo.envs.erlerover:GazeboMazeErleRoverLidarEnv',
+)
+
+# Modular SCARA
+register(
+    id='GazeboModularScara3DOF-v0',
+    entry_point='gym_gazebo.envs.modular_scara:GazeboModularScara3DOFEnv',
 )
