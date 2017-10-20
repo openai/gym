@@ -1,0 +1,1 @@
+from gym_gazebo.envs.modular_scara.gazebo_modular_scara_3dof import GazeboModularScara3DOFEnv

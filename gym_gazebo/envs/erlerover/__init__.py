@@ -1,0 +1,1 @@
+from gym_gazebo.envs.erlerover.gazebo_maze_erlerover_lidar import GazeboMazeErleRoverLidarEnv
