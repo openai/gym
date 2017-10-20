@@ -23,7 +23,7 @@ class QLearn:
     def learnQ(self, state, action, reward, value):
         '''
         Q-learning:
-            Q(s, a) += alpha * (reward(s,a) + max(Q(s') - Q(s,a))            
+            Q(s, a) += alpha * (reward(s,a) + max(Q(s') - Q(s,a))
         '''
         oldv = self.q.get((state, action), None)
         if oldv is None:
@@ -38,11 +38,11 @@ class QLearn:
         if random.random() < self.epsilon:
             minQ = min(q); mag = max(abs(minQ), abs(maxQ))
             # add random values to all the actions, recalculate maxQ
-            q = [q[i] + random.random() * mag - .5 * mag for i in range(len(self.actions))] 
+            q = [q[i] + random.random() * mag - .5 * mag for i in range(len(self.actions))]
             maxQ = max(q)
 
         count = q.count(maxQ)
-        # In case there're several state-action max values 
+        # In case there're several state-action max values
         # we select a random one among them
         if count > 1:
             best = [i for i in range(len(self.actions)) if q[i] == maxQ]
@@ -50,7 +50,7 @@ class QLearn:
         else:
             i = q.index(maxQ)
 
-        action = self.actions[i]        
+        action = self.actions[i]
         if return_q: # if they want it, give it!
             return action, q
         return action
@@ -109,7 +109,7 @@ if __name__ == '__main__':
 
 
     outdir = '/tmp/gazebo_gym_experiments'
-    env.monitor.start(outdir, force=True, seed=None)
+    # env.monitor.start(outdir, force=True, seed=None)
 
     #plotter = LivePlot(outdir)
 
@@ -156,13 +156,13 @@ if __name__ == '__main__':
 
             qlearn.learn(state, action, reward, nextState)
 
-            env.monitor.flush(force=True)
+            # env.monitor.flush(force=True)
 
             if not(done):
                 state = nextState
             else:
                 last_time_steps = numpy.append(last_time_steps, [int(i + 1)])
-                break 
+                break
 
         m, s = divmod(int(time.time() - start_time), 60)
         h, m = divmod(m, 60)
