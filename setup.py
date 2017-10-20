@@ -5,7 +5,7 @@ import sys, os.path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'gym-gazebo'))
 
 setup(name='gym-gazebo',
-      version='0.0.1',
+      version='0.0.2',
       install_requires=['gym>=0.2.3'],
       description='The OpenAI Gym for robotics: A toolkit for developing and comparing your reinforcement learning agents using Gazebo and ROS.',
       url='https://github.com/erlerobot/gym',
