@@ -64,6 +64,7 @@ Basic requirements:
 - Gazebo 8.1.1
 - Python 3.5.2
 - OpenCV3, installed from sources for Python 3 (`git clone https://github.com/Itseez/opencv.git`)
+- OpenAI gym
 
 #### ROS Kinetic dependencies
 ```
