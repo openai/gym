@@ -9,6 +9,7 @@ from geometry_msgs.msg import Twist
 from std_srvs.srv import Empty
 from sensor_msgs.msg import LaserScan
 from gym.utils import seeding
+import copy
 
 # ROS 2
 # import rclpy
@@ -16,6 +17,11 @@ from gym.utils import seeding
 # from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint # Used for publishing scara joint angles.
 # from control_msgs.msg import JointTrajectoryControllerState
 # from std_msgs.msg import String
+
+from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
+from control_msgs.msg import JointTrajectoryControllerState
+from baselines.agent.scara_arm.tree_urdf import treeFromFile # For KDL Jacobians
+
 
 # from custom baselines repository
 from baselines.agent.utility.general_utils import forward_kinematics, get_ee_points, rotation_from_matrix, \
@@ -127,7 +133,8 @@ class GazeboModularScara3DOFEnv(gazebo_env.GazeboEnv):
         #############################
 
         # Set the path of the corresponding URDF file from "assets"
-        URDF_PATH = "../assets/urdf/modular_scara/scara_e1_3joints.urdf"
+        # URDF_PATH = "../assets/urdf/modular_scara/scara_e1_3joints.urdf"
+        URDF_PATH = "/home/erle/ros_rl/environments/gym-gazebo/gym_gazebo/envs/assets/urdf/modular_scara/scara_e1_3joints.urdf"
 
         m_joint_order = copy.deepcopy(JOINT_ORDER)
         m_link_names = copy.deepcopy(LINK_NAMES)
@@ -139,7 +146,7 @@ class GazeboModularScara3DOFEnv(gazebo_env.GazeboEnv):
         ee_tgt = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt, ee_rot_tgt).T)
 
         self.environment = {
-            'dt': TIMESTEP,
+            # 'dt': TIMESTEP,
             'T': STEP_COUNT,
             'ee_points_tgt': ee_tgt,
             'joint_order': m_joint_order,
@@ -151,7 +158,7 @@ class GazeboModularScara3DOFEnv(gazebo_env.GazeboEnv):
             'joint_subscriber': m_joint_subscribers,
             'end_effector_points': EE_POINTS,
             'end_effector_velocities': EE_VELOCITIES,
-            'num_samples': SAMPLE_COUNT,
+            # 'num_samples': SAMPLE_COUNT,
         }
 
         # self.spec = {'timestep_limit': 5, 'reward_threshold':  950.0,}
@@ -159,13 +166,13 @@ class GazeboModularScara3DOFEnv(gazebo_env.GazeboEnv):
         # Subscribe to the appropriate topics, taking into account the particular robot
         # ROS 1 implementation
         self._pub = rospy.Publisher('/scara_controller/command', JointTrajectory)
-        self._sub = rospy.Subscriber('/scara_controller/state', JointTrajectoryControllerState, self._observation_callback)
+        self._sub = rospy.Subscriber('/scara_controller/state', JointTrajectoryControllerState, self.observation_callback)
 
         # # ROS 2 implementation, includes initialization of the appropriate ROS 2 abstractions
         # rclpy.init(args=None)
         # self.ros2_node = rclpy.create_node('robot_ai_node')
         # self._pub = ros2_node.create_publisher(JointTrajectory, JOINT_PUBLISHER)
-        # # self._callbacks = partial(self._observation_callback, robot_id=0)
+        # # self._callbacks = partial(self.observation_callback, robot_id=0)
         # self._sub = ros2_node.create_subscription(JointTrajectoryControllerState, JOINT_SUBSCRIBER, self.observation_callback, qos_profile=qos_profile_sensor_data)
         # # self._time_lock = threading.RLock()
 
@@ -261,7 +268,7 @@ class GazeboModularScara3DOFEnv(gazebo_env.GazeboEnv):
         """
         Helper fuinction to convert a ROS message to joint angles and velocities.
         Check for and handle the case where a message is either malformed
-        or contains joint values in an order different from that expected_observation_callback
+        or contains joint values in an order different from that expected observation_callback
         in hyperparams['joint_order']
         """
         # TODO: review robot_id
@@ -297,7 +304,7 @@ class GazeboModularScara3DOFEnv(gazebo_env.GazeboEnv):
         # Construct the joint array from the most recent joint angles.
         for i in range(3):
             angles[i] = state[i]
-        # Update the jacobian by solving for the given angles._observation_callback
+        # Update the jacobian by solving for the given angles.observation_callback
         self.jac_solver.JntToJac(angles, jacobian)
         # Initialize a numpy array to store the Jacobian.
         J = np.array([[jacobian[i, j] for j in range(jacobian.columns())] for i in range(jacobian.rows())])
