@@ -16,7 +16,7 @@ Visit [erlerobotics/gym](http://erlerobotics.com/docs/Simulation/Gym/) for more 
 ## Table of Contents
 - [Environments](#environments)
 - [Installation](#installation)
-	- [Docker](#docker)
+	- [Docker (**deprecated**)](#docker)
 	- [Ubuntu 16.04](#ubuntu-1604)
 	- [Ubuntu 14.04 (**deprecated**)](#ubuntu-1404)
 - [Usage](#usage)
