@@ -21,6 +21,7 @@ import copy
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from control_msgs.msg import JointTrajectoryControllerState
 from baselines.agent.scara_arm.tree_urdf import treeFromFile # For KDL Jacobians
+from PyKDL import Jacobian, Chain, ChainJntToJacSolver, JntArray # For KDL Jacobians
 
 
 # from custom baselines repository
@@ -132,6 +133,7 @@ class GazeboModularScara3DOFEnv(gazebo_env.GazeboEnv):
         }
         #############################
 
+        # TODO: fix this and make it relative
         # Set the path of the corresponding URDF file from "assets"
         # URDF_PATH = "../assets/urdf/modular_scara/scara_e1_3joints.urdf"
         URDF_PATH = "/home/erle/ros_rl/environments/gym-gazebo/gym_gazebo/envs/assets/urdf/modular_scara/scara_e1_3joints.urdf"
@@ -196,6 +198,7 @@ class GazeboModularScara3DOFEnv(gazebo_env.GazeboEnv):
         # observation, _reward, done, _info = self._step(np.zeros(self.scara_chain.getNrOfJoints()))
         # assert not done
         # self.obs_dim = observation.size
+        self.obs_dim = 9 # hardcode it for now
         # # print(observation, _reward)
 
         # # Here idially we should find the control range of the robot. Unfortunatelly in ROS/KDL there is nothing like this.
@@ -214,7 +217,7 @@ class GazeboModularScara3DOFEnv(gazebo_env.GazeboEnv):
 
         # Gazebo specific services to start/stop its behavior and
         # facilitate the overall RL environment
-        self.unpause = roJointTrajectoryControllerStatespy.ServiceProxy('/gazebo/unpause_physics', Empty)
+        self.unpause = rospy.ServiceProxy('/gazebo/unpause_physics', Empty)
         self.pause = rospy.ServiceProxy('/gazebo/pause_physics', Empty)
         self.reset_proxy = rospy.ServiceProxy('/gazebo/reset_simulation', Empty)
 
