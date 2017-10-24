@@ -496,6 +496,13 @@ class GazeboModularScara3DOFEnv(gazebo_env.GazeboEnv):
                           np.reshape(ee_points, -1),
                           np.reshape(ee_velocities, -1),]
 
+    def rmse_func(self, ee_points):
+        """
+        Computes the Residual Mean Square Error of the difference between current and desired end-effector position
+        """
+        rmse = np.sqrt(np.mean(np.square(ee_points), dtype=np.float32))
+        return rmse
+
     def _seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
@@ -537,18 +544,36 @@ class GazeboModularScara3DOFEnv(gazebo_env.GazeboEnv):
         # TODO: program this better, check that ob is not None, etc.
         # self.ob = take_observation()
 
-        # Calculate reward based on observation
-        if np.linalg.norm(self.ob[1]) < 0.005:
-            self.reward_dist = 1000.0 * np.linalg.norm(self.ob[1])#- 10.0 * np.linalg.norm(ee_points)
-            # self.reward_ctrl = np.linalg.norm(action)#np.square(action).sum()
-            done = True
-            print("self.reward_dist: ", self.reward_dist, "self.reward_ctrl: ", self.reward_ctrl)
+        # # Old implementation for reward calculation
+        # # Calculate reward based on observation
+        # if np.linalg.norm(self.ob[1]) < 0.005:
+        #     self.reward_dist = 1000.0 * np.linalg.norm(self.ob[1])#- 10.0 * np.linalg.norm(ee_points)
+        #     # self.reward_ctrl = np.linalg.norm(action)#np.square(action).sum()
+        #     done = True
+        #     print("self.reward_dist: ", self.reward_dist, "self.reward_ctrl: ", self.reward_ctrl)
+        # else:
+        #     self.reward_dist = - np.linalg.norm(self.ob[1])
+        #     # self.reward_ctrl = - np.linalg.norm(action)# np.square(action).sum()
+        # # self.reward = 2.0 * self.reward_dist + 0.01 * self.reward_ctrl
+        # #removed the control reward, maybe we should add it later.
+        # self.reward = self.reward_dist
+
+
+        # Calculate the reward
+        #  Heuristic used for the calculation of the reward:
+        #   - calculate the residual mean square error (rmse) between the current
+        #       end effector point and the target point
+        #   - in the case it's bigger than 5 mm, reward is the negative value of the rmse
+        #   - in case where it's smaller than 5 mm, reward is calculated by substracting 100 - rmse
+
+        # print(self.ob[2])
+        self.reward_dist = - self.rmse_func(self.ob[2])
+        if abs(self.reward_dist) < 0.005:
+            # print("reward (Eucledian dist (mm)): ", -1000 * self.reward_dist)
+            self.reward = 100 + self.reward_dist
         else:
-            self.reward_dist = - np.linalg.norm(self.ob[1])
-            # self.reward_ctrl = - np.linalg.norm(action)# np.square(action).sum()
-        # self.reward = 2.0 * self.reward_dist + 0.01 * self.reward_ctrl
-        #removed the control reward, maybe we should add it later.
-        self.reward = self.reward_dist
+            # print("reward (Eucledian dist (mm)): ", -1000 * self.reward_dist)
+            self.reward = self.reward_dist
 
         # Calculate if the env has been solved
         # done = False
