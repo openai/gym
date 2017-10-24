@@ -565,7 +565,6 @@ class GazeboModularScara3DOFEnv(gazebo_env.GazeboEnv):
         #       end effector point and the target point
         #   - in the case it's bigger than 5 mm, reward is the negative value of the rmse
         #   - in case where it's smaller than 5 mm, reward is calculated by substracting 100 - rmse
-
         # print(self.ob[2])
         self.reward_dist = - self.rmse_func(self.ob[2])
         if abs(self.reward_dist) < 0.005:
@@ -606,6 +605,8 @@ class GazeboModularScara3DOFEnv(gazebo_env.GazeboEnv):
 
         # Take an observation
         self.ob = self.take_observation()
+        while(self.ob is None):
+            self.ob = self.take_observation()
 
         # Pause the simulation
         rospy.wait_for_service('/gazebo/pause_physics')
