@@ -8,6 +8,6 @@ env.reset()
 # print(env.observation_space) # Box(9,)
 
 for _ in range(1000):
-    # env.render()
+    env.render()
     observation, reward, done, info = env.step(env.action_space.sample()) # take a random action
     print("reward: ", reward)
