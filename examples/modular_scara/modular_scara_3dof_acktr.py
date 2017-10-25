@@ -11,7 +11,7 @@ from baselines.acktr.policies import GaussianMlpPolicy
 from baselines.acktr.value_functions import NeuralNetValueFunction
 from baselines.common import set_global_seeds
 
-env = gym.make('GazeboModularScara3DOF-v0')
+env = gym.make('GazeboModularScara3DOF-v1')
 initial_observation = env.reset()
 print("Initial observation: ", initial_observation)
 env.render()

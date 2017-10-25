@@ -55,3 +55,8 @@ register(
     id='GazeboModularScara3DOF-v0',
     entry_point='gym_gazebo.envs.modular_scara:GazeboModularScara3DOFEnv',
 )
+
+register(
+    id='GazeboModularScara3DOF-v1',
+    entry_point='gym_gazebo.envs.modular_scara:GazeboModularScara3DOFv1Env',
+)

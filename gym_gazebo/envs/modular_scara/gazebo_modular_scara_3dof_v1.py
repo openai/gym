@@ -36,11 +36,11 @@ class ROBOT_MADE_CONTACT_WITH_GAZEBO_GROUND_SO_RESTART_ROSLAUNCH(Exception):
     """Error object exclusively raised by reset."""
     pass
 
-class GazeboModularScara3DOFEnv(gazebo_env.GazeboEnv):
+class GazeboModularScara3DOFv1Env(gazebo_env.GazeboEnv):
     """
     This environment present a modular SCARA robot with a range finder at its
     end pointing towards the workspace of the robot. The goal of this environment is
-    defined to reach the center of the "O" from the "H-ROS" logo within the worspace.
+    defined to reach the center of the "H" from the "H-ROS" logo within the worspace.
 
     Reward is determined ... (TODO: describe the heuristic or reward calculation method)
     """
