@@ -36,11 +36,12 @@ class ROBOT_MADE_CONTACT_WITH_GAZEBO_GROUND_SO_RESTART_ROSLAUNCH(Exception):
     """Error object exclusively raised by reset."""
     pass
 
-class GazeboModularScara3DOFEnv(gazebo_env.GazeboEnv):
+class GazeboModularScara3DOFv2Env(gazebo_env.GazeboEnv):
     """
     This environment present a modular SCARA robot with a range finder at its
     end pointing towards the workspace of the robot. The goal of this environment is
-    defined to reach the center of the "O" from the "H-ROS" logo within the worspace.
+    defined to reach the center of the "H" from the "H-ROS" logo within the worspace.
+    This environment uses `slowness=1`. Actions are taken at XX rate.
 
     Reward is determined ... (TODO: describe the heuristic or reward calculation method)
     """
@@ -89,7 +90,8 @@ class GazeboModularScara3DOFEnv(gazebo_env.GazeboEnv):
         # # Set the number of trajectory iterations to collect.
         # ITERATIONS = 20  # Typically 10.
         # How much time does it take to execute the trajectory (in seconds)
-        slowness = 2
+        # slowness = 1000000000 # 1 is real life simulation
+        slowness = 1
 
         # Topics for the robot publisher and subscriber.
         JOINT_PUBLISHER = '/scara_controller/command'
@@ -267,6 +269,7 @@ class GazeboModularScara3DOFEnv(gazebo_env.GazeboEnv):
         # These times determine the speed at which the robot moves:
         # it tries to reach the specified target position in 'slowness' time.
         target.time_from_start.secs = self.environment['slowness']
+        # target.time_from_start.nsecs = self.environment['slowness']
         # Package the single point into a trajectory of points with length 1.
         action_msg.points = [target]
         return action_msg
@@ -521,6 +524,8 @@ class GazeboModularScara3DOFEnv(gazebo_env.GazeboEnv):
         # Execute "action"
         # if rclpy.ok(): # ROS 2 code
         self._pub.publish(self.get_trajectory_message(action[:3]))
+        #TODO: wait until action gets executed
+        time.sleep(int(self.environment['slowness']))
 
         # # Take an observation
         # TODO: program this better, check that ob is not None, etc.
@@ -569,7 +574,6 @@ class GazeboModularScara3DOFEnv(gazebo_env.GazeboEnv):
         else:
             # print("reward (Eucledian dist (mm)): ", -1000 * self.reward_dist)
             self.reward = self.reward_dist
-
         # print("reward: ", self.reward)
 
         # Calculate if the env has been solved
@@ -599,6 +603,10 @@ class GazeboModularScara3DOFEnv(gazebo_env.GazeboEnv):
             self.unpause()
         except (rospy.ServiceException) as e:
             print ("/gazebo/unpause_physics service call failed")
+
+        # Go to initial position and wait until it arrives there
+        self._pub.publish(self.get_trajectory_message(self.environment['reset_conditions']['initial_positions']))
+        time.sleep(int(self.environment['slowness']))
 
         # Take an observation
         self.ob = self.take_observation()

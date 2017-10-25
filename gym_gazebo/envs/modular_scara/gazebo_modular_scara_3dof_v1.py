@@ -570,7 +570,7 @@ class GazeboModularScara3DOFv1Env(gazebo_env.GazeboEnv):
             # print("reward (Eucledian dist (mm)): ", -1000 * self.reward_dist)
             self.reward = self.reward_dist
 
-        print("reward: ", self.reward)
+        # print("reward: ", self.reward)
 
         # Calculate if the env has been solved
         done = bool(abs(self.reward_dist) < 0.005)
