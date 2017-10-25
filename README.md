@@ -30,7 +30,7 @@ The following are some of the available gazebo environments:
 
 
 ## Installation
-Refer to [INSTALL.md](#INSTALL.md)
+Refer to [INSTALL.md](INSTALL.md)
 
 ## Usage
 
