@@ -15,6 +15,7 @@ Visit [erlerobotics/gym](http://erlerobotics.com/docs/Simulation/Gym/) for more 
 
 ## Table of Contents
 - [Environments](#environments)
+- [Installation](#installation)
 - [Usage](#usage)
 
 
@@ -28,6 +29,8 @@ The following are some of the available gazebo environments:
 | `GazeboCircuit2cTurtlebotCameraNnEnv-v0` | | A simple circuit with straight tracks and 90 degree turns with high contrast colors between the floor and the walls. A camera is used to train the Turtlebot. Scripts implementing **DQN** using **CNN** can be found in the _examples_ folder. |
 
 
+## Installation
+Refer to [INSTALL.md](#INSTALL.md)
 
 ## Usage
 
