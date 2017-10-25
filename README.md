@@ -28,11 +28,14 @@ This work presents an extension of the initial OpenAI gym for robotics using ROS
 ## Environments
 The following are some of the available gazebo environments:
 
-| Name | Status | Description |
-| ---- | ------ | ----------- |
-| `GazeboCircuit2TurtlebotLidar-v0` | Maintained | A simple circuit with straight tracks and 90 degree turns. Highly discretized LIDAR readings are used to train the Turtlebot. Scripts implementing **Q-learning** and **Sarsa** can be found in the _examples_ folder. |
-| `GazeboCircuit2TurtlebotLidarNn-v0` | | A simple circuit with straight tracks and 90 degree turns. A LIDAR is used to train the Turtlebot. Scripts implementing **DQN** can be found in the _examples_ folder.|
-| `GazeboCircuit2cTurtlebotCameraNnEnv-v0` | | A simple circuit with straight tracks and 90 degree turns with high contrast colors between the floor and the walls. A camera is used to train the Turtlebot. Scripts implementing **DQN** using **CNN** can be found in the _examples_ folder. |
+| Name | Middleware | Description | Reward | 
+| ---- | ------ | ----------- | ----- |
+| `GazeboModularScara3DOF-v0` | ROS | ... | |
+| `GazeboMazeErleRoverLidar-v0` | ROS, [APM](https://github.com/erlerobot/ardupilot) | ... | |
+| `GazeboErleCopterHover-v0` | ROS, [APM](https://github.com/erlerobot/ardupilot) | ... |
+| `GazeboCircuit2TurtlebotLidar-v0` | ROS | A simple circuit with straight tracks and 90 degree turns. Highly discretized LIDAR readings are used to train the Turtlebot. Scripts implementing **Q-learning** and **Sarsa** can be found in the _examples_ folder. | |
+| `GazeboCircuit2TurtlebotLidarNn-v0` | ROS | A simple circuit with straight tracks and 90 degree turns. A LIDAR is used to train the Turtlebot. Scripts implementing **DQN** can be found in the _examples_ folder.| |
+| `GazeboCircuit2cTurtlebotCameraNnEnv-v0` | ROS | A simple circuit with straight tracks and 90 degree turns with high contrast colors between the floor and the walls. A camera is used to train the Turtlebot. Scripts implementing **DQN** using **CNN** can be found in the _examples_ folder. | |
 
 
 ## Installation
