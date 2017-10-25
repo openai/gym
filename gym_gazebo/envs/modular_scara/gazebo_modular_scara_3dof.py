@@ -275,7 +275,6 @@ class GazeboModularScara3DOFEnv(gazebo_env.GazeboEnv):
         or contains joint values in an order different from that expected observation_callback
         in hyperparams['joint_order']
         """
-        # TODO: review robot_id
         if not message:
             print("Message is empty");
             # return None
@@ -291,7 +290,6 @@ class GazeboModularScara3DOFEnv(gazebo_env.GazeboEnv):
                     [self._valid_joint_set[robot_id] for _ in range(len(message.joint_names))])):
                     raise MSG_INVALID_JOINT_NAMES_DIFFER
                     print("Joints differ")
-
             return np.array(message.actual.positions) # + message.actual.velocities
 
     def get_jacobians(self, state, robot_id=0):
@@ -301,7 +299,6 @@ class GazeboModularScara3DOFEnv(gazebo_env.GazeboEnv):
         The angles are roll, pitch, and yaw (not Euler angles) and are not needed.
         Returns a repackaged Jacobian that is 3x6.
         """
-        # TODO: review robot_id
         # Initialize a Jacobian for 6 joint angles by 3 cartesian coords and 3 orientation angles
         jacobian = Jacobian(3)
         # Initialize a joint array for the present 6 joint angles.
@@ -432,10 +429,9 @@ class GazeboModularScara3DOFEnv(gazebo_env.GazeboEnv):
         TODO: define return type
         """
         # Take an observation
-        # Only read and process ROS messages if they are fresh.
-        # TODO: review, robot_id seems specific to Risto's implementation
+        # done = False
 
-        # # Acquire the lock to prevent the subscriber thread from
+        # # ROS 2, Acquire the lock to prevent the subscriber thread from
         # # updating times or observation messages.
         # self._time_lock.acquire(True)
         obs_message = self._observation_msg
@@ -471,12 +467,10 @@ class GazeboModularScara3DOFEnv(gazebo_env.GazeboEnv):
 
             # I need this calculations for the new reward function, need to send them back to the run scara or calculate them here
             current_quaternion = quaternion_from_matrix(rotation_matrix)
-
             current_ee_tgt = np.ndarray.flatten(get_ee_points(self.environment['end_effector_points'],
                                                               trans,
                                                               rot).T)
             ee_points = current_ee_tgt - self.environment['ee_points_tgt']
-
             ee_points_jac_trans, _ = self.get_ee_points_jacobians(ee_link_jacobians,
                                                                    self.environment['end_effector_points'],
                                                                    rot)
@@ -485,7 +479,6 @@ class GazeboModularScara3DOFEnv(gazebo_env.GazeboEnv):
                                                            rot,
                                                            last_observations)
 
-            #
             # Concatenate the information that defines the robot state
             # vector, typically denoted asrobot_id 'x'.
             state = np.r_[np.reshape(last_observations, -1),
@@ -574,11 +567,12 @@ class GazeboModularScara3DOFEnv(gazebo_env.GazeboEnv):
             # print("reward (Eucledian dist (mm)): ", -1000 * self.reward_dist)
             self.reward = self.reward_dist
 
+        print("reward: ", self.reward)
+
         # Calculate if the env has been solved
-        # done = False
         done = bool(abs(self.reward_dist) < 0.005)
 
-        # self._time_lock.release()
+        # self._time_lock.release() # ROS 2 code
 
         # Return the corresponding observations, rewards, etc.
         # TODO, understand better what's the last object to return
