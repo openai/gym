@@ -41,7 +41,8 @@ class GazeboModularScara3DOFv2Env(gazebo_env.GazeboEnv):
     This environment present a modular SCARA robot with a range finder at its
     end pointing towards the workspace of the robot. The goal of this environment is
     defined to reach the center of the "H" from the "H-ROS" logo within the worspace.
-    This environment uses `slowness=1`. Actions are taken at XX rate.
+    This environment uses `slowness=1` and matches the delay between actions/observations
+    to this value (slowness). In other words, actions are taken at "1/slowness" rate.
 
     Reward is determined ... (TODO: describe the heuristic or reward calculation method)
     """
@@ -117,7 +118,7 @@ class GazeboModularScara3DOFv2Env(gazebo_env.GazeboEnv):
         SCARA_BAR_MOTOR2 = 'scara_e1_bar2'
         SCARA_FIXBAR_MOTOR2 = 'scara_e1_fixbar2'
         #
-        SCARA_MOTOR3 = 'scara_e1_motor3'
+        SCARA_MOTOR3 = 'scara_e1_motor3'Instead of doing this, I'll create another environment which doesn't pause the simulation.
         SCARA_INSIDE_MOTOR3 = 'scara_e1_motor3_inside'
         SCARA_SUPPORT_MOTOR3 = 'scara_e1_motor3_support'
         SCARA_BAR_MOTOR3 = 'scara_e1_bar3'
