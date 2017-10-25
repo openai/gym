@@ -30,8 +30,8 @@ The following are some of the available gazebo environments:
 
 | Name | Middleware | Description | Reward |
 | ---- | ------ | ----------- | ----- |
-| `GazeboModularScara3DOF-v1` | ROS | This environment present a modular SCARA robot with a range finder at its end pointing towards the workspace of the robot. The goal of this environment is defined to reach the center of the "H" from the "H-ROS" logo within the worspace. | TBD |
-| `GazeboModularScara3DOF-v0` | ROS | This environment present a modular SCARA robot with a range finder at its end pointing towards the workspace of the robot. The goal of this environment is defined to reach the center of the "O" from the "H-ROS" logo within the worspace. |TBD |
+| ![GazeboModularScara3DOF-v1.png](imgs/GazeboModularScara3DOF-v1.png)`GazeboModularScara3DOF-v1` | ROS | This environment present a modular SCARA robot with a range finder at its end pointing towards the workspace of the robot. The goal of this environment is defined to reach the center of the "H" from the "H-ROS" logo within the worspace. | TBD |
+| ![GazeboModularScara3DOF-v0.png](imgs/GazeboModularScara3DOF-v0.png)`GazeboModularScara3DOF-v0` | ROS | This environment present a modular SCARA robot with a range finder at its end pointing towards the workspace of the robot. The goal of this environment is defined to reach the center of the "O" from the "H-ROS" logo within the worspace. |TBD |
 | `GazeboMazeErleRoverLidar-v0` | ROS, [APM](https://github.com/erlerobot/ardupilot) | ... | |
 | `GazeboErleCopterHover-v0` | ROS, [APM](https://github.com/erlerobot/ardupilot) | ... |
 | `GazeboCircuit2TurtlebotLidar-v0` | ROS | A simple circuit with straight tracks and 90 degree turns. Highly discretized LIDAR readings are used to train the Turtlebot. Scripts implementing **Q-learning** and **Sarsa** can be found in the _examples_ folder. | |
