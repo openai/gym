@@ -74,7 +74,7 @@ class GazeboModularScara3DOFv2Env(gazebo_env.GazeboEnv):
         #   Environment hyperparams
         #############################
         # target, where should the agent reach
-        EE_POS_TGT = np.asmatrix([0.3325683, 0.0657366, 0.3746])
+        EE_POS_TGT = np.asmatrix([0.3325683, 0.0657366, 0.3746]) # center of O
         EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         EE_POINTS = np.asmatrix([[0, 0, 0]])
         EE_VELOCITIES = np.asmatrix([[0, 0, 0]])
@@ -565,17 +565,13 @@ class GazeboModularScara3DOFv2Env(gazebo_env.GazeboEnv):
         #  Heuristic used for the calculation of the reward:
         #   - calculate the residual mean square error (rmse) between the current
         #       end effector point and the target point
-        #   - in the case it's bigger than 5 mm, reward is the rmse value
-        #   - in case where it's smaller than 5 mm, reward is calculated by adding 1 to the rmse value
-        # typically, reward should stay in the (1, -2) boundary
-        # print(self.ob[2])
-        self.reward_dist = - self.rmse_func(self.ob[2])
-        # print("reward (Eucledian dist (mm)): ", self.reward_dist)
-        if abs(self.reward_dist) < 0.005:
-            self.reward = 1 + self.reward_dist*10
-        else:
-            # print("reward (Eucledian dist (mm)): ", -1000 * self.reward_dist)
-            self.reward = self.reward_dist
+        #   - the reward is the result of the difference between 2 and the rmse absolute value
+        #       this means that the reward increase as the distance decreases.
+        # print("ob :", self.ob)
+        # print("obs[3:6] :", self.ob[3:6])
+        self.reward_dist = self.rmse_func(self.ob[3:6])
+        # print("reward_dist :", self.reward_dist)
+        self.reward = 1 - self.reward_dist # Make the reward increase as the distance decreases
         # print("reward: ", self.reward)
 
         # Calculate if the env has been solved
