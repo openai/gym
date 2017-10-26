@@ -11,6 +11,6 @@ for i in range(10):
     env.reset()
     print("Reset!")
     for _ in range(200):
-        # env.render()
+        env.render()
         observation, reward, done, info = env.step(env.action_space.sample()) # take a random action
-        # print("reward: ", reward)
+        print("reward: ", reward)
