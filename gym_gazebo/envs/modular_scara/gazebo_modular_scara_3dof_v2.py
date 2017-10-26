@@ -118,7 +118,7 @@ class GazeboModularScara3DOFv2Env(gazebo_env.GazeboEnv):
         SCARA_BAR_MOTOR2 = 'scara_e1_bar2'
         SCARA_FIXBAR_MOTOR2 = 'scara_e1_fixbar2'
         #
-        SCARA_MOTOR3 = 'scara_e1_motor3'Instead of doing this, I'll create another environment which doesn't pause the simulation.
+        SCARA_MOTOR3 = 'scara_e1_motor3'
         SCARA_INSIDE_MOTOR3 = 'scara_e1_motor3_inside'
         SCARA_SUPPORT_MOTOR3 = 'scara_e1_motor3_support'
         SCARA_BAR_MOTOR3 = 'scara_e1_bar3'
