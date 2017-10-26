@@ -565,13 +565,14 @@ class GazeboModularScara3DOFv2Env(gazebo_env.GazeboEnv):
         #  Heuristic used for the calculation of the reward:
         #   - calculate the residual mean square error (rmse) between the current
         #       end effector point and the target point
-        #   - in the case it's bigger than 5 mm, reward is the negative value of the rmse
-        #   - in case where it's smaller than 5 mm, reward is calculated by substracting 100 - rmse
+        #   - in the case it's bigger than 5 mm, reward is the rmse value
+        #   - in case where it's smaller than 5 mm, reward is calculated by adding 1 to the rmse value
+        # typically, reward should stay in the (1, -2) boundary
         # print(self.ob[2])
         self.reward_dist = - self.rmse_func(self.ob[2])
+        # print("reward (Eucledian dist (mm)): ", self.reward_dist)
         if abs(self.reward_dist) < 0.005:
-            # print("reward (Eucledian dist (mm)): ", -1000 * self.reward_dist)
-            self.reward = 100 + self.reward_dist
+            self.reward = 1 + self.reward_dist*10
         else:
             # print("reward (Eucledian dist (mm)): ", -1000 * self.reward_dist)
             self.reward = self.reward_dist
