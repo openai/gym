@@ -37,9 +37,13 @@ joint1_bins = pandas.cut([-numpy.pi/2, numpy.pi/2], bins=n_bins, retbins=True)[1
 joint2_bins = pandas.cut([-numpy.pi/2, numpy.pi/2], bins=n_bins, retbins=True)[1][1:-1]
 joint3_bins = pandas.cut([-numpy.pi/2, numpy.pi/2], bins=n_bins, retbins=True)[1][1:-1]
 
+# print("joint1_bins: ", joint1_bins)
+
+
 # Generate posible actions
 # TODO program this
-actions = [item for innerlist in outerlist ]
+# actions = [item for innerlist in outerlist ]
+actions = [(0.0, 0.0, 0.0), (numpy.pi/2, numpy.pi/2, numpy.pi/2)]
 
 # The Q-learn algorithm
 qlearn = QLearn(actions=actions,
@@ -58,8 +62,12 @@ for i_episode in range(30): # episodes
 
         # Pick an action based on the current state
         action = qlearn.chooseAction(state)
+        print("action: ",action)
         # Execute the action and get feedback
         observation, reward, done, info = env.step(action)
+        print("reward: ",reward)
+        # print("observation: ",observation)
+        print("q: ",qlearn.q)
 
         # Digitize the observation to get a state
         joint1_position, joint2_position, joint3_position  = observation[:3]
