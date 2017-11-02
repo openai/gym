@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 '''
-Based on: 
+Based on:
 https://github.com/vmayoral/basic_reinforcement_learning
 https://gist.github.com/wingedsheep/4199594b02138dd427c22a540d6d6b8d
 '''
@@ -61,7 +61,7 @@ class DeepQ:
         dropout = 0
         regularizationFactor = 0.01
         model = Sequential()
-        if len(hiddenLayers) == 0: 
+        if len(hiddenLayers) == 0:
             model.add(Dense(self.output_size, input_shape=(self.input_size,), init='lecun_uniform', bias=bias))
             model.add(Activation("linear"))
         else :
@@ -74,7 +74,7 @@ class DeepQ:
                 model.add(LeakyReLU(alpha=0.01))
             else :
                 model.add(Activation(activationType))
-            
+
             for index in range(1, len(hiddenLayers)):
                 layerSize = hiddenLayers[index]
                 if regularizationFactor > 0:
@@ -96,7 +96,7 @@ class DeepQ:
 
     def createModel(self, inputs, outputs, hiddenLayers, activationType, learningRate):
         model = Sequential()
-        if len(hiddenLayers) == 0: 
+        if len(hiddenLayers) == 0:
             model.add(Dense(self.output_size, input_shape=(self.input_size,), init='lecun_uniform'))
             model.add(Activation("linear"))
         else :
@@ -105,7 +105,7 @@ class DeepQ:
                 model.add(LeakyReLU(alpha=0.01))
             else :
                 model.add(Activation(activationType))
-            
+
             for index in range(1, len(hiddenLayers)):
                 # print("adding layer "+str(index))
                 layerSize = hiddenLayers[index]
@@ -125,7 +125,7 @@ class DeepQ:
         i = 0
         for layer in self.model.layers:
             weights = layer.get_weights()
-            print "layer ",i,": ",weights
+            print("layer ",i,": ",weights)
             i += 1
 
 
@@ -167,7 +167,7 @@ class DeepQ:
         """
         if isFinal:
             return reward
-        else : 
+        else :
             return reward + self.discountFactor * self.getMaxQ(qValuesNewState)
 
     # select the action with the highest Q value
@@ -213,7 +213,7 @@ class DeepQ:
             return self.memory.getMemory(self.memory.getCurrentSize() - 1)
 
     def learnOnMiniBatch(self, miniBatchSize, useTargetNetwork=True):
-        # Do not learn until we've got self.learnStart samples        
+        # Do not learn until we've got self.learnStart samples
         if self.memory.getCurrentSize() > self.learnStart:
             # learn in batches of 128
             miniBatch = self.memory.getMiniBatch(miniBatchSize)
@@ -256,7 +256,7 @@ def clear_monitor_files(training_dir):
     if len(files) == 0:
         return
     for file in files:
-        print file
+        print(file)
         os.unlink(file)
 
 if __name__ == '__main__':
@@ -268,12 +268,12 @@ if __name__ == '__main__':
     continue_execution = False
     #fill this if continue_execution=True
 
-    weights_path = '/tmp/turtle_c2_dqn_ep200.h5' 
+    weights_path = '/tmp/turtle_c2_dqn_ep200.h5'
     monitor_path = '/tmp/turtle_c2_dqn_ep200'
     params_json  = '/tmp/turtle_c2_dqn_ep200.json'
 
     if not continue_execution:
-        #Each time we take a sample and update our weights it is called a mini-batch. 
+        #Each time we take a sample and update our weights it is called a mini-batch.
         #Each time we run through the entire dataset, it's called an epoch.
         #PARAMETER LIST
         epochs = 1000
@@ -375,7 +375,7 @@ if __name__ == '__main__':
                     h, m = divmod(m, 60)
                     print ("EP "+str(epoch)+" - {} timesteps".format(t+1)+" - last100 Steps : "+str((sum(last100Scores)/len(last100Scores)))+" - Cumulated R: "+str(cumulated_reward)+"   Eps="+str(round(explorationRate, 2))+"     Time: %d:%02d:%02d" % (h, m, s))
                     if (epoch)%100==0:
-                        #save model weights and monitoring data every 100 epochs. 
+                        #save model weights and monitoring data every 100 epochs.
                         deepQ.saveModel('/tmp/turtle_c2_dqn_ep'+str(epoch)+'.h5')
                         env.monitor.flush()
                         copy_tree(outdir,'/tmp/turtle_c2_dqn_ep'+str(epoch))
