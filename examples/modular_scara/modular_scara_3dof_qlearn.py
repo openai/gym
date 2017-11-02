@@ -43,7 +43,7 @@ joint3_bins = pandas.cut([-numpy.pi/2, numpy.pi/2], bins=n_bins, retbins=True)[1
 # Generate posible actions
 # TODO program this
 # actions = [item for innerlist in outerlist ]
-actions = [(0.0, 0.0, 0.0), (numpy.pi/2, numpy.pi/2, numpy.pi/2)]
+actions = [(0.0, 0.0, 0.0), (numpy.pi/2, numpy.pi/2, numpy.pi/2), (0, 0, numpy.pi/2)]
 
 # The Q-learn algorithm
 qlearn = QLearn(actions=actions,
