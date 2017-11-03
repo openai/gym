@@ -25,7 +25,7 @@ class Discrete(gym.Space):
 
     @property
     def shape(self):
-        return ()
+        return (self.n,)
     def __repr__(self):
         return "Discrete(%d)" % self.n
     def __eq__(self, other):
