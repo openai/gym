@@ -9,6 +9,7 @@ class Tuple(Space):
     """
     def __init__(self, spaces):
         self.spaces = spaces
+        self.shape = self._get_shape()
 
     def sample(self):
         return tuple([space.sample() for space in self.spaces])
@@ -19,6 +20,9 @@ class Tuple(Space):
         return isinstance(x, tuple) and len(x) == len(self.spaces) and all(
             space.contains(part) for (space,part) in zip(self.spaces,x))
 
+    def _get_shape(self):
+        return tuple([space.shape for space in self.spaces])
+
     def __repr__(self):
         return "Tuple(" + ", ". join([str(s) for s in self.spaces]) + ")"
 
@@ -28,4 +32,4 @@ class Tuple(Space):
                 for i, space in enumerate(self.spaces)]
 
     def from_jsonable(self, sample_n):
-        return zip(*[space.from_jsonable(sample_n[i]) for i, space in enumerate(self.spaces)])
+        return [sample for sample in zip(*[space.from_jsonable(sample_n[i]) for i, space in enumerate(self.spaces)])]
