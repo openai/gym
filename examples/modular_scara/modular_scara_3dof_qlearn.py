@@ -4,6 +4,8 @@ from qlearn import QLearn
 import time
 import numpy
 import pandas
+from itertools import product
+from functools import reduce
 
 # Inspired by Basic Reinforcement Learning Tutorial 4: Q-learning in OpenAI gym
 #  https://github.com/vmayoral/basic_reinforcement_learning/blob/master/tutorial4/q-learning-gym-1.py
@@ -37,13 +39,24 @@ joint1_bins = pandas.cut([-numpy.pi/2, numpy.pi/2], bins=n_bins, retbins=True)[1
 joint2_bins = pandas.cut([-numpy.pi/2, numpy.pi/2], bins=n_bins, retbins=True)[1][1:-1]
 joint3_bins = pandas.cut([-numpy.pi/2, numpy.pi/2], bins=n_bins, retbins=True)[1][1:-1]
 
+action_bins = pandas.cut([-numpy.pi/2, numpy.pi/2], bins=n_bins, retbins=True)[1][1:-1]
+
 # print("joint1_bins: ", joint1_bins)
 
-
+############
 # Generate posible actions
-# TODO program this
-# actions = [item for innerlist in outerlist ]
-actions = [(0.0, 0.0, 0.0), (numpy.pi/2, numpy.pi/2, numpy.pi/2), (0, 0, numpy.pi/2)]
+
+# test actions
+# actions = [(0.0, 0.0, 0.0), (numpy.pi/2, numpy.pi/2, numpy.pi/2), (0 , 0, numpy.pi/2)]
+
+# generate actions so that it can reach any "measurable" point in the space from anywhere
+# with 10 bins and combinations of 3 elements: 729 possible actions.
+actions = []
+for x in product(action_bins, repeat=3):
+    actions.append(x)
+
+# sys.exit("Testing")
+############
 
 # The Q-learn algorithm
 qlearn = QLearn(actions=actions,
@@ -60,6 +73,7 @@ for i_episode in range(30): # episodes
     for t in range(max_number_of_steps):
         env.render()
 
+        print("state: ",state)
         # Pick an action based on the current state
         action = qlearn.chooseAction(state)
         print("action: ",action)
@@ -74,6 +88,8 @@ for i_episode in range(30): # episodes
         nextState = build_state([to_bin(joint1_position, joint1_bins),
                         to_bin(joint2_position, joint2_bins),
                         to_bin(joint3_position, joint3_bins)])
+
+        print("nextState: ", nextState)
 
         if done:
             last_time_steps = numpy.append(last_time_steps, [int(t + 1)])
