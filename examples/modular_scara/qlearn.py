@@ -29,17 +29,11 @@ class QLearn:
     def chooseAction(self, state, return_q=False):
         q = [self.getQ(state, a) for a in self.actions]
         maxQ = max(q)
-
-
-
         self.epsilon *= self.epsilon_decay_rate ######
-        print ("epsilon", self.epsilon) #########
-
-
+        # print ("epsilon", self.epsilon) #########
 
         if random.random() < self.epsilon:
-            print("RANDOM") ######
-
+            # print("RANDOM") ######
             action = random.choice(self.actions)######
             i = self.actions.index(action)
             maxQ = q[i]
@@ -72,7 +66,7 @@ class QLearn:
 
     def learn(self, state1, action1, reward, state2, save_model_with_prefix, it):
         maxqnew = max([self.getQ(state2, a) for a in self.actions])
-        print("maxqnew", maxqnew)
-        for a in self.actions:
-            print("q_value", self.getQ(state2, a))
+        # print("maxqnew", maxqnew)
+        # for a in self.actions:
+        #     print("q_value", self.getQ(state2, a))
         self.learnQ(state1, action1, reward, reward + self.gamma*maxqnew)

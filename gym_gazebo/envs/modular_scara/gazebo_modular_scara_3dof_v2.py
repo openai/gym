@@ -91,8 +91,8 @@ class GazeboModularScara3DOFv2Env(gazebo_env.GazeboEnv):
         # # Set the number of trajectory iterations to collect.
         # ITERATIONS = 20  # Typically 10.
         # How much time does it take to execute the trajectory (in seconds)
-        # slowness = 1000000000 # 1 is real life simulation
-        slowness = 1
+        slowness = 100000000 # 1 is real life simulation
+        # slowness = 1
 
         # Topics for the robot publisher and subscriber.
         JOINT_PUBLISHER = '/scara_controller/command'
@@ -142,7 +142,7 @@ class GazeboModularScara3DOFv2Env(gazebo_env.GazeboEnv):
         # TODO: fix this and make it relative
         # Set the path of the corresponding URDF file from "assets"
         #URDF_PATH = "../assets/urdf/modular_scara/scara_e1_3joints.urdf"
-        URDF_PATH = "/home/erle/Desktop/Nora/ros_rl/environments/gym-gazebo/gym_gazebo/envs/assets/urdf/modular_scara/scara_e1_3joints.urdf"
+        URDF_PATH = "/home/erle/ros_rl/environments/gym-gazebo/gym_gazebo/envs/assets/urdf/modular_scara/scara_e1_3joints.urdf"
 
         m_joint_order = copy.deepcopy(JOINT_ORDER)
         m_link_names = copy.deepcopy(LINK_NAMES)
@@ -272,8 +272,8 @@ class GazeboModularScara3DOFv2Env(gazebo_env.GazeboEnv):
         target.positions = action_float
         # These times determine the speed at which the robot moves:
         # it tries to reach the specified target position in 'slowness' time.
-        target.time_from_start.secs = self.environment['slowness']
-        # target.time_from_start.nsecs = self.environment['slowness']
+        # target.time_from_start.secs = self.environment['slowness']
+        target.time_from_start.nsecs = self.environment['slowness']
         # Package the single point into a trajectory of points with length 1.
         action_msg.points = [target]
         return action_msg
@@ -510,7 +510,7 @@ class GazeboModularScara3DOFv2Env(gazebo_env.GazeboEnv):
         Computes the Residual Mean Square Error of the difference between current and desired end-effector position
         """
         rmse = np.sqrt(np.mean(np.square(ee_points), dtype=np.float32))
-        print("RMSE", rmse) #####
+        # print("RMSE", rmse) #####
         return rmse
 
     def _seed(self, seed=None):
@@ -539,7 +539,8 @@ class GazeboModularScara3DOFv2Env(gazebo_env.GazeboEnv):
 
         self._pub.publish(self.get_trajectory_message(action[:3]))
         #TODO: wait until action gets executed
-        time.sleep(int(self.environment['slowness']))
+        # time.sleep(int(self.environment['slowness'])) # using seconds
+        time.sleep(int(self.environment['slowness'])/1000000000) # using nanoseconds
 
         #print("Before action observation", self.ob[:3])#######
 
@@ -623,7 +624,8 @@ class GazeboModularScara3DOFv2Env(gazebo_env.GazeboEnv):
 
         # Go to initial position and wait until it arrives there
         self._pub.publish(self.get_trajectory_message(self.environment['reset_conditions']['initial_positions']))
-        time.sleep(int(self.environment['slowness']))
+        # time.sleep(int(self.environment['slowness'])) # using seconds
+        time.sleep(int(self.environment['slowness'])/1000000000) # using nanoseconds
 
         # Take an observation
         self.ob = self.take_observation()
