@@ -40,7 +40,7 @@ class GazeboModularScara3DOFv2Env(gazebo_env.GazeboEnv):
     """
     This environment present a modular SCARA robot with a range finder at its
     end pointing towards the workspace of the robot. The goal of this environment is
-    defined to reach the center of the "H" from the "H-ROS" logo within the worspace.
+    defined to reach the center of the "O" from the "H-ROS" logo within the worspace.
     This environment uses `slowness=1` and matches the delay between actions/observations
     to this value (slowness). In other words, actions are taken at "1/slowness" rate.
 
@@ -141,8 +141,8 @@ class GazeboModularScara3DOFv2Env(gazebo_env.GazeboEnv):
 
         # TODO: fix this and make it relative
         # Set the path of the corresponding URDF file from "assets"
-        # URDF_PATH = "../assets/urdf/modular_scara/scara_e1_3joints.urdf"
-        URDF_PATH = "/home/erle/ros_rl/environments/gym-gazebo/gym_gazebo/envs/assets/urdf/modular_scara/scara_e1_3joints.urdf"
+        #URDF_PATH = "../assets/urdf/modular_scara/scara_e1_3joints.urdf"
+        URDF_PATH = "/home/erle/Desktop/Nora/ros_rl/environments/gym-gazebo/gym_gazebo/envs/assets/urdf/modular_scara/scara_e1_3joints.urdf"
 
         m_joint_order = copy.deepcopy(JOINT_ORDER)
         m_link_names = copy.deepcopy(LINK_NAMES)
@@ -265,7 +265,10 @@ class GazeboModularScara3DOFv2Env(gazebo_env.GazeboEnv):
         action_msg.joint_names = self.environment['joint_order']
         # Create a point to tell the robot to move to.
         target = JointTrajectoryPoint()
+
+
         action_float = [float(i) for i in action]
+
         target.positions = action_float
         # These times determine the speed at which the robot moves:
         # it tries to reach the specified target position in 'slowness' time.
@@ -450,6 +453,9 @@ class GazeboModularScara3DOFv2Env(gazebo_env.GazeboEnv):
         # cartesian coordinates for the process_observationsstate.
         # Collect the present joint angles and velocities from ROS for the state.
         last_observations = self.process_observations(obs_message, self.environment)
+        #print("last_observations", last_observations)######
+
+
         # # # Get Jacobians from present joint angles and KDL trees
         # # # The Jacobians consist of a 6x6 matrix getting its from from
         # # # (# joint angles) x (len[x, y, z] + len[roll, pitch, yaw])
@@ -464,6 +470,9 @@ class GazeboModularScara3DOFv2Env(gazebo_env.GazeboEnv):
                                         last_observations[:3],
                                         base_link=self.environment['link_names'][0],
                                         end_link=self.environment['link_names'][-1])
+
+            #print("trans", trans)######
+
             # #
             rotation_matrix = np.eye(4)
             rotation_matrix[:3, :3] = rot
@@ -501,6 +510,7 @@ class GazeboModularScara3DOFv2Env(gazebo_env.GazeboEnv):
         Computes the Residual Mean Square Error of the difference between current and desired end-effector position
         """
         rmse = np.sqrt(np.mean(np.square(ee_points), dtype=np.float32))
+        print("RMSE", rmse) #####
         return rmse
 
     def _seed(self, seed=None):
@@ -524,15 +534,24 @@ class GazeboModularScara3DOFv2Env(gazebo_env.GazeboEnv):
 
         # Execute "action"
         # if rclpy.ok(): # ROS 2 code
+
+        #print("self.get_trajectory_message(action[:3])", self.get_trajectory_message(action[:3]))#########
+
         self._pub.publish(self.get_trajectory_message(action[:3]))
         #TODO: wait until action gets executed
         time.sleep(int(self.environment['slowness']))
+
+        #print("Before action observation", self.ob[:3])#######
 
         # # Take an observation
         # TODO: program this better, check that ob is not None, etc.
         self.ob = self.take_observation()
         while(self.ob is None):
             self.ob = self.take_observation()
+
+        #print("action", action[:3])#######
+        #print("After action observation", self.ob[:3])#######
+
 
         # Pause simulation
         rospy.wait_for_service('/gazebo/pause_physics')
