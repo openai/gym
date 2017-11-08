@@ -102,7 +102,7 @@ class MujocoEnv(gym.Env):
     def _render(self, mode='human', close=False):
         if close:
             if self.viewer is not None:
-                self._get_viewer().finish()
+                self._get_viewer()
                 self.viewer = None
             return
 
@@ -111,13 +111,11 @@ class MujocoEnv(gym.Env):
             data, width, height = self._get_viewer().get_image()
             return np.fromstring(data, dtype='uint8').reshape(height, width, 3)[::-1, :, :]
         elif mode == 'human':
-            self._get_viewer().loop_once()
+            self._get_viewer().render()
 
     def _get_viewer(self):
         if self.viewer is None:
-            self.viewer = mujoco_py.MjViewer()
-            self.viewer.start()
-            self.viewer.set_model(self.model)
+            self.viewer = mujoco_py.MjViewer(self.sim)
             self.viewer_setup()
         return self.viewer
 
