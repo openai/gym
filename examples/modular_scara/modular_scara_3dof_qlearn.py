@@ -16,6 +16,23 @@ def build_state(features):
 def to_bin(value, bins):
     return numpy.digitize(x=[value], bins=bins)[0]
 
+def step(action, state):
+    """
+    Implementation of "step" which uses the given action
+    as an offset of the existing state. This function overloads
+    the environment step method and should be used when actions-as-offsets
+    are required for this particular environment.
+    """
+    # if action == (0.0, 0.0, 0.0):
+        # print("robot decided to stay still!")
+    offset_action = [a + s for a,s in zip(list(action), state)]
+    # print("step: action: ", action)
+    # print("step: state: ", state)
+    # print("step: offset_action: ", offset_action)
+    observation, reward, done, info = env.step(offset_action)
+    return observation, reward, done, info
+
+
 # Create the environment
 env = gym.make('GazeboModularScara3DOF-v2')
 
@@ -26,7 +43,7 @@ env = gym.make('GazeboModularScara3DOF-v2')
 # print(env.action_space) # 9
 
 goal_average_steps = 2
-max_number_of_steps = 10
+max_number_of_steps = 20
 last_time_steps = numpy.ndarray(0)
 n_bins = 10
 epsilon_decay_rate = 0.99 ########
@@ -41,24 +58,31 @@ last_time_steps = numpy.ndarray(0)
 joint1_bins = pandas.cut([-numpy.pi/2, numpy.pi/2], bins=n_bins, retbins=True)[1][1:-1]
 joint2_bins = pandas.cut([-numpy.pi/2, numpy.pi/2], bins=n_bins, retbins=True)[1][1:-1]
 joint3_bins = pandas.cut([-numpy.pi/2, numpy.pi/2], bins=n_bins, retbins=True)[1][1:-1]
-
 action_bins = pandas.cut([-numpy.pi/2, numpy.pi/2], bins=n_bins, retbins=True)[1][1:-1]
-
 # print("joint1_bins: ", joint1_bins)
 
+difference_bins = abs(joint1_bins[0] - joint1_bins[1])
+# print("difference_bins: ", difference_bins)
+
+# Generate actions
 ############
-# Generate posible actions
 # test actions
 # actions = [(0.0, 0.0, 0.0), (numpy.pi/2, numpy.pi/2, numpy.pi/2), (0 , 0, numpy.pi/2)]
-actions = [(0.0, 0.0, 0.0), (numpy.pi/2, numpy.pi/2, numpy.pi/2), (0, 0, numpy.pi/5)]
+# actions = [(0.0, 0.0, 0.0), (numpy.pi/2, numpy.pi/2, numpy.pi/2), (0, 0, numpy.pi/5)]
 
-# generate actions so that it can reach any "measurable" point in the space from anywhere
+# generate actions so that it can re #####ach any "measurable" point in the space from anywhere
 # with 10 bins and combinations of 3 elements: 729 possible actions.
 # actions = []
 # for x in product(action_bins, repeat=3):
 #     actions.append(x)
 
-# sys.exit("Testing")
+# the following actions represent an offset over the existing state,
+#  modifications over the traditional "step" method of the environment
+#  are implemented in the "step" function
+actions = [(difference_bins, 0.0, 0.0), (-difference_bins, 0.0, 0.0),
+            (0.0, difference_bins, 0.0), (0.0, -difference_bins, 0.0),
+            (0.0, 0.0, difference_bins), (0.0, 0.0, -difference_bins),
+            (0.0, 0.0, 0.0)]
 ############
 
 # The Q-learn algorithm
@@ -66,14 +90,12 @@ actions = [(0.0, 0.0, 0.0), (numpy.pi/2, numpy.pi/2, numpy.pi/2), (0, 0, numpy.p
 #    alpha=0.2, gamma=0.90, epsilon=0.5, epsilon_decay_rate=0.99)
 
 qlearn = QLearn(actions=actions,
-    alpha=0.2, gamma=0.90, epsilon=0.5, epsilon_decay_rate=0.95)
+    alpha=0.2, gamma=0.90, epsilon=0.1, epsilon_decay_rate=0.98)
 
 
 for i_episode in range(30): # episodes
 
     print("I_EPISODE", i_episode)#####
-
-
     observation = env.reset()
 
     joint1_position, joint2_position, joint3_position  = observation[:3]
@@ -83,22 +105,23 @@ for i_episode in range(30): # episodes
 
     for t in range(max_number_of_steps):
         env.render()
-        print("join1_bins", joint1_bins) #####
-        print("Number of steps", t)#####
-        print("q: ",qlearn.q)
+        # print("join1_bins", joint1_bins)
+        # print("Number of steps", t)
+        # print("q: ",qlearn.q)
         # Pick an action based on the current f
         # print("state: ",state)
         # Pick an action based on the current state
         action = qlearn.chooseAction(state)
-        print("state:", state)##
-        print("action: ",action)
-        print("state observation: ",observation[:3])###
+        # print("state:", state)##
+        # print("action: ",action)
+        # print("state observation: ",observation[:3])###
 
         # Execute the action and get feedback
-        observation, reward, done, info = env.step(action)
+        # observation, reward, done, info = env.step(action) # environment step method
+        observation, reward, done, info = step(action, observation[:3])   # local step method, applies the action as an offset
+                                                                # to the state
         print("reward: ",reward)
-        print("next state observation: ",observation[:3])###
-
+        # print("next state observation: ",observation[:3])###
 
         # Digitize the observation to get a state
         joint1_position, joint2_position, joint3_position  = observation[:3]
@@ -106,7 +129,7 @@ for i_episode in range(30): # episodes
                         to_bin(joint2_position, joint2_bins),
                         to_bin(joint3_position, joint3_bins)])
 
-        print("nextState", nextState)###
+        # print("nextState", nextState)
         if done:
             last_time_steps = numpy.append(last_time_steps, [int(t + 1)])
             break
@@ -117,7 +140,8 @@ for i_episode in range(30): # episodes
             state = nextState
 
             it += 1 #####
-l = last_time_steps.tolist()
-l.sort()
-print("Overall score: {:0.2f}".format(last_time_steps.mean()))
-print("Best 100 score: {:0.2f}".format(reduce(lambda x, y: x + y, l[-100:]) / len(l[-100:])))
+
+# l = last_time_steps.tolist()
+# l.sort()
+# print("Overall score: {:0.2f}".format(last_time_steps.mean()))
+# print("Best 100 score: {:0.2f}".format(reduce(lambda x, y: x + y, l[-100:]) / len(l[-100:])))
