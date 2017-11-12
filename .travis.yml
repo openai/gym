@@ -2,6 +2,9 @@ sudo: required
 language: python
 services:
   - docker
+python:
+  - 2.7
+  - 3.6
 before_install:
   # Prime the cache. We currently manually keep this synced.
   - docker pull quay.io/openai/gym:test
@@ -9,6 +12,9 @@ before_install:
   # ^^^ commented out by joschu 2017/9/3
   # build command fails due to apt issue "The following packages have unmet dependencies:"
 install: "" # so travis doesn't do pip install requirements.txt
+before_script:
+  - pip install flake8
+  - flake8 . --count --select=E901,E999,F821,F822,F823 --show-source --statistics
 script:
   # In a pull request, there are no secrets, and hence no MuJoCo:
   # https://docs.travis-ci.com/user/pull-requests#Security-Restrictions-when-testing-Pull-Requests.
