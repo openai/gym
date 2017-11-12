@@ -1,3 +1,5 @@
+import numpy as np
+
 class TabularQAgent(object):
     """
     Agent implementing tabular Q-learning.

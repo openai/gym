@@ -3,6 +3,7 @@ This script does a few rollouts with an environment and writes the data to an np
 Its purpose is to help with verifying that you haven't functionally changed an environment.
 (If you have, you should bump the version number.)
 """
+from __future__ import print_function
 import argparse, numpy as np, collections, sys
 from os import path
 
@@ -40,7 +41,7 @@ def main():
         sys.path.insert(0, args.gymdir)
     import gym
     from gym import utils
-    print utils.colorize("gym directory: %s"%path.dirname(gym.__file__), "yellow")
+    print(utils.colorize("gym directory: %s"%path.dirname(gym.__file__), "yellow"))
     env = gym.make(args.envid)
     agent = RandomAgent(env.action_space)
     alldata = {}
