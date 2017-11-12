@@ -36,6 +36,7 @@ RUN mkdir -p gym && touch gym/__init__.py
 COPY ./gym/version.py ./gym
 COPY ./requirements.txt .
 COPY ./setup.py .
+COPY ./tox.ini .
 RUN pip install -e .[all]
 
 # Finally, upload our actual code!
