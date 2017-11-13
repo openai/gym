@@ -6,6 +6,8 @@ import numpy
 import pandas
 from itertools import product
 from functools import reduce
+import tensorflow as tf
+from tensorboard_logging import Logger
 
 # Inspired by Basic Reinforcement Learning Tutorial 4: Q-learning in OpenAI gym
 #  https://github.com/vmayoral/basic_reinforcement_learning/blob/master/tutorial4/q-learning-gym-1.py
@@ -24,7 +26,7 @@ def step(action, state):
     are required for this particular environment.
     """
     # if action == (0.0, 0.0, 0.0):
-        # print("robot decided to stay still!")
+        # print("\t\trobot decided to stay still!")
     offset_action = [a + s for a,s in zip(list(action), state)]
     # print("step: action: ", action)
     # print("step: state: ", state)
@@ -90,56 +92,69 @@ actions = [(difference_bins, 0.0, 0.0), (-difference_bins, 0.0, 0.0),
 #    alpha=0.2, gamma=0.90, epsilon=0.5, epsilon_decay_rate=0.99)
 
 qlearn = QLearn(actions=actions,
-    alpha=0.2, gamma=0.90, epsilon=0.1, epsilon_decay_rate=0.98)
+    alpha=0.5, gamma=0.30, epsilon=0.8, epsilon_decay_rate=0.999)
 
+# logs_path = "/tmp/modular_scara_3dof_qlearn/"
+logger = Logger("/tmp/modular_scara_3dof_qlearn/")
 
-for i_episode in range(30): # episodes
+with tf.Session() as sess:
+    # op to write logs to Tensorboard
+    # summary_writer = tf.summary.FileWriter(logs_path, graph=tf.get_default_graph())
 
-    print("I_EPISODE", i_episode)#####
-    observation = env.reset()
+    for i_episode in range(1000): # episodes
+        print("I_EPISODE", i_episode)#####
+        observation = env.reset()
 
-    joint1_position, joint2_position, joint3_position  = observation[:3]
-    state = build_state([to_bin(joint1_position, joint1_bins),
-                     to_bin(joint2_position, joint2_bins),
-                     to_bin(joint3_position, joint3_bins)])
-
-    for t in range(max_number_of_steps):
-        env.render()
-        # print("join1_bins", joint1_bins)
-        # print("Number of steps", t)
-        # print("q: ",qlearn.q)
-        # Pick an action based on the current f
-        # print("state: ",state)
-        # Pick an action based on the current state
-        action = qlearn.chooseAction(state)
-        # print("state:", state)##
-        # print("action: ",action)
-        # print("state observation: ",observation[:3])###
-
-        # Execute the action and get feedback
-        # observation, reward, done, info = env.step(action) # environment step method
-        observation, reward, done, info = step(action, observation[:3])   # local step method, applies the action as an offset
-                                                                # to the state
-        print("reward: ",reward)
-        # print("next state observation: ",observation[:3])###
-
-        # Digitize the observation to get a state
         joint1_position, joint2_position, joint3_position  = observation[:3]
-        nextState = build_state([to_bin(joint1_position, joint1_bins),
-                        to_bin(joint2_position, joint2_bins),
-                        to_bin(joint3_position, joint3_bins)])
+        state = build_state([to_bin(joint1_position, joint1_bins),
+                         to_bin(joint2_position, joint2_bins),
+                         to_bin(joint3_position, joint3_bins)])
+        episode_reward = 0
 
-        # print("nextState", nextState)
-        if done:
-            last_time_steps = numpy.append(last_time_steps, [int(t + 1)])
-            break
-        else:
-            # Q-learn stuff
-            #qlearn.learn(state, action, reward, nextState)
-            qlearn.learn(state, action, reward, nextState, save_model_with_prefix, it)
-            state = nextState
+        for t in range(max_number_of_steps):
+            # env.render()
+            # print("join1_bins", joint1_bins)
+            # print("Number of steps", t)
+            # print("\t\tq: ",qlearn.q)
+            # Pick an action based on the current f
+            # print("state: ",state)
+            # Pick an action based on the current state
+            action = qlearn.chooseAction(state)
+            # print("state:", state)##
+            # print("action: ",action)
+            # print("state observation: ",observation[:3])###
 
-            it += 1 #####
+            # Execute the action and get feedback
+            # observation, reward, done, info = env.step(action) # environment step method
+            observation, reward, done, info = step(action, observation[:3])   # local step method, applies the action as an offset
+                                                                                # to the state
+            # print("reward: ",reward)
+            episode_reward += reward
+            # print("next state observation: ",observation[:3])###
+
+            # Digitize the observation to get a state
+            joint1_position, joint2_position, joint3_position  = observation[:3]
+            nextState = build_state([to_bin(joint1_position, joint1_bins),
+                            to_bin(joint2_position, joint2_bins),
+                            to_bin(joint3_position, joint3_bins)])
+
+            # print("nextState", nextState)
+            # summary = tf.Summary(value=[tf.Summary.Value(tag="episode_reward",simple_value=episode_reward)])
+            # summary_writer.add_summary(summary, i_episode * max_number_of_steps + t)
+
+            if done:
+                last_time_steps = numpy.append(last_time_steps, [int(t + 1)])
+                break
+            else:
+                # Q-learn stuff
+                #qlearn.learn(state, action, reward, nextState)
+                qlearn.learn(state, action, reward, nextState, save_model_with_prefix, it)
+                state = nextState
+
+                it += 1 #####
+
+        logger.log_scalar("episode_reward", episode_reward, i_episode)
+        print("episode reward: ",episode_reward)
 
 # l = last_time_steps.tolist()
 # l.sort()
