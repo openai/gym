@@ -11,7 +11,7 @@ from baselines.acktr.policies import GaussianMlpPolicy
 from baselines.acktr.value_functions import NeuralNetValueFunction
 from baselines.common import set_global_seeds
 
-env = gym.make('GazeboModularScara3DOF-v1')
+env = gym.make('GazeboModularScara3DOF-v3')
 initial_observation = env.reset()
 print("Initial observation: ", initial_observation)
 env.render()
@@ -36,5 +36,5 @@ with tf.Session(config=tf.ConfigProto()) as session:
         desired_kl=0.02,
         num_timesteps=1e6,
         animate=False,
-        save_model_with_prefix='',
+        save_model_with_prefix='ros1_acktr_H',
         restore_model_from_file='')
