@@ -95,7 +95,7 @@ qlearn = QLearn(actions=actions,
     alpha=0.5, gamma=0.30, epsilon=0.8, epsilon_decay_rate=0.999)
 
 # logs_path = "/tmp/modular_scara_3dof_qlearn/"
-logger = Logger("/tmp/modular_scara_3dof_qlearn/")
+logger = Logger("/tmp/rosrl/GazeboModularScara3DOF-v2/q-learn/")
 
 with tf.Session() as sess:
     # op to write logs to Tensorboard
@@ -112,7 +112,7 @@ with tf.Session() as sess:
         episode_reward = 0
 
         for t in range(max_number_of_steps):
-            # env.render()
+            env.render()
             # print("join1_bins", joint1_bins)
             # print("Number of steps", t)
             # print("\t\tq: ",qlearn.q)
