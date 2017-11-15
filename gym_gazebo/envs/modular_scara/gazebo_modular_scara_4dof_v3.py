@@ -33,7 +33,7 @@ class MSG_INVALID_JOINT_NAMES_DIFFER(Exception):
     pass
 
 
-class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
+class GazeboModularScara4DOFv3Env(gazebo_env.GazeboEnv):
     """
     This environment present a modular SCARA robot with a range finder at its
     end pointing towards the workspace of the robot. The goal of this environment is
@@ -51,7 +51,7 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
             TODO: port everything to ROS 2 natively
         """
         # Launch the simulation with the given launchfile name
-        gazebo_env.GazeboEnv.__init__(self, "ModularScara3_v0.launch")
+        gazebo_env.GazeboEnv.__init__(self, "ModularScara4_v0.launch")
 
         # TODO: cleanup this variables, remove the ones that aren't used
         # class variables
@@ -65,21 +65,21 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
         self.reward_dist = None
         self.reward_ctrl = None
         self.action_space = None
-        self.max_episode_steps = 50 # this is specific parameter for the acktr algorithm. Not used in ppo1, trpo...
+        self.max_episode_steps = 150 # this is specific parameter for the acktr algorithm. Not used in ppo1, trpo...
 
         #############################
         #   Environment hyperparams
         #############################
         # target, where should the agent reach
-        EE_POS_TGT = np.asmatrix([0.3325683, 0.0657366, 0.3746]) # center of O
-        # EE_POS_TGT = np.asmatrix([0.3305805, -0.1326121, 0.3746]) # center of the H
+        EE_POS_TGT = np.asmatrix([0.3325683, 0.0657366, 0.4868]) # center of O
+        # EE_POS_TGT = np.asmatrix([0.3305805, -0.1326121, 0.4868]) # center of the H
         EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         EE_POINTS = np.asmatrix([[0, 0, 0]])
         EE_VELOCITIES = np.asmatrix([[0, 0, 0]])
         # Initial joint position
-        INITIAL_JOINTS = np.array([0, 0, 0])
+        INITIAL_JOINTS = np.array([0., 0., 0., 0.])
         # Used to initialize the robot, #TODO, clarify this more
-        STEP_COUNT = 2  # Typically 100.
+        # STEP_COUNT = 2  # Typically 100.
         # slowness = 100000000 # 1 is real life simulation
         slowness = 1 # use >10 for running trained network in the simulation
 
@@ -90,37 +90,46 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
         MOTOR1_JOINT = 'motor1'
         MOTOR2_JOINT = 'motor2'
         MOTOR3_JOINT = 'motor3'
+        MOTOR4_JOINT = 'motor4'
+
         # Set constants for links
-        WORLD = "world"
         BASE = 'scara_e1_base_link'
         BASE_MOTOR = 'scara_e1_base_motor'
-        #
+
         SCARA_MOTOR1 = 'scara_e1_motor1'
         SCARA_INSIDE_MOTOR1 = 'scara_e1_motor1_inside'
         SCARA_SUPPORT_MOTOR1 = 'scara_e1_motor1_support'
         SCARA_BAR_MOTOR1 = 'scara_e1_bar1'
         SCARA_FIXBAR_MOTOR1 = 'scara_e1_fixbar1'
-        #
+
         SCARA_MOTOR2 = 'scara_e1_motor2'
         SCARA_INSIDE_MOTOR2 = 'scara_e1_motor2_inside'
         SCARA_SUPPORT_MOTOR2 = 'scara_e1_motor2_support'
         SCARA_BAR_MOTOR2 = 'scara_e1_bar2'
         SCARA_FIXBAR_MOTOR2 = 'scara_e1_fixbar2'
-        #
+
         SCARA_MOTOR3 = 'scara_e1_motor3'
         SCARA_INSIDE_MOTOR3 = 'scara_e1_motor3_inside'
         SCARA_SUPPORT_MOTOR3 = 'scara_e1_motor3_support'
         SCARA_BAR_MOTOR3 = 'scara_e1_bar3'
         SCARA_FIXBAR_MOTOR3 = 'scara_e1_fixbar3'
-        #
+
+        SCARA_MOTOR4 = 'scara_e1_motor4'
+        SCARA_INSIDE_MOTOR4 = 'scara_e1_motor4_inside'
+        SCARA_SUPPORT_MOTOR4 = 'scara_e1_motor4_support'
+        SCARA_BAR_MOTOR4 = 'scara_e1_bar4'
+        SCARA_FIXBAR_MOTOR4= 'scara_e1_fixbar4'
+
         SCARA_RANGEFINDER = 'scara_e1_rangefinder'
+
         EE_LINK = 'ee_link'
-        JOINT_ORDER = [MOTOR1_JOINT, MOTOR2_JOINT, MOTOR3_JOINT]
+        JOINT_ORDER = [MOTOR1_JOINT, MOTOR2_JOINT, MOTOR3_JOINT, MOTOR4_JOINT]
         LINK_NAMES = [BASE, BASE_MOTOR,
-                      SCARA_MOTOR1, SCARA_INSIDE_MOTOR1, SCARA_SUPPORT_MOTOR1, SCARA_BAR_MOTOR1, SCARA_FIXBAR_MOTOR1,
-                      SCARA_MOTOR2, SCARA_INSIDE_MOTOR2, SCARA_SUPPORT_MOTOR2, SCARA_BAR_MOTOR2, SCARA_FIXBAR_MOTOR2,
-                      SCARA_MOTOR3, SCARA_INSIDE_MOTOR3, SCARA_SUPPORT_MOTOR3,
-                      EE_LINK]
+              SCARA_MOTOR1, SCARA_INSIDE_MOTOR1, SCARA_SUPPORT_MOTOR1, SCARA_BAR_MOTOR1, SCARA_FIXBAR_MOTOR1,
+              SCARA_MOTOR2, SCARA_INSIDE_MOTOR2, SCARA_SUPPORT_MOTOR2, SCARA_BAR_MOTOR2, SCARA_FIXBAR_MOTOR2,
+              SCARA_MOTOR3, SCARA_INSIDE_MOTOR3, SCARA_SUPPORT_MOTOR3, SCARA_BAR_MOTOR3, SCARA_FIXBAR_MOTOR3,
+              SCARA_MOTOR4, SCARA_INSIDE_MOTOR4, SCARA_SUPPORT_MOTOR4,
+              EE_LINK]
 
         reset_condition = {
             'initial_positions': INITIAL_JOINTS,
@@ -130,7 +139,7 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
 
         # TODO: fix this and make it relative
         # Set the path of the corresponding URDF file from "assets"
-        URDF_PATH = "/home/rkojcev/devel/ros_rl/environments/gym-gazebo/gym_gazebo/envs/assets/urdf/modular_scara/scara_e1_3joints.urdf"
+        URDF_PATH = "/home/rkojcev/devel/ros_rl/environments/gym-gazebo/gym_gazebo/envs/assets/urdf/modular_scara/scara_e1_4joints.urdf"
 
         m_joint_order = copy.deepcopy(JOINT_ORDER)
         m_link_names = copy.deepcopy(LINK_NAMES)
@@ -138,11 +147,11 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
         m_joint_subscribers = copy.deepcopy(JOINT_SUBSCRIBER)
         ee_pos_tgt = EE_POS_TGT
         ee_rot_tgt = EE_ROT_TGT
+
         # Initialize target end effector position
         ee_tgt = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt, ee_rot_tgt).T)
 
         self.environment = {
-            'T': STEP_COUNT,
             'ee_points_tgt': ee_tgt,
             'joint_order': m_joint_order,
             'link_names': m_link_names,
@@ -153,7 +162,6 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
             'joint_subscriber': m_joint_subscribers,
             'end_effector_points': EE_POINTS,
             'end_effector_velocities': EE_VELOCITIES,
-            # 'num_samples': SAMPLE_COUNT,
         }
 
         # self.spec = {'timestep_limit': 5, 'reward_threshold':  950.0,}
@@ -179,11 +187,16 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
         self.reset_joint_angles = [None for _ in range(1)]
 
         # TODO review with Risto, we might need the first observation for calling _step()
-        # # taken from mujoco in OpenAi how to initialize observation space and action space.
-        # observation, _reward, done, _info = self._step(np.zeros(self.scara_chain.getNrOfJoints()))
+        # observation = self.take_observation()
         # assert not done
         # self.obs_dim = observation.size
-        self.obs_dim = 9 # hardcode it for now
+        """
+        obs_dim is defined as:
+        num_dof + end_effector_points=3 + end_effector_velocities=3
+        end_effector_points and end_effector_velocities is constant and equals 3
+        """
+        #
+        self.obs_dim = 10 # hardcode it for now
         # # print(observation, _reward)
 
         # # Here idially we should find the control range of the robot. Unfortunatelly in ROS/KDL there is nothing like this.
@@ -197,14 +210,11 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
         low = -high
         self.observation_space = spaces.Box(low, high)
 
-        # self.action_space = spaces.Discrete(3) #F,L,R
-        # self.reward_range = (-np.inf, np.inf)
-
-        # Gazebo specific services to start/stop its behavior and
-        # facilitate the overall RL environment
-        self.unpause = rospy.ServiceProxy('/gazebo/unpause_physics', Empty)
-        self.pause = rospy.ServiceProxy('/gazebo/pause_physics', Empty)
-        self.reset_proxy = rospy.ServiceProxy('/gazebo/reset_simulation', Empty)
+        # # Gazebo specific services to start/stop its behavior and
+        # # facilitate the overall RL environment
+        # self.unpause = rospy.ServiceProxy('/gazebo/unpause_physics', Empty)
+        # self.pause = rospy.ServiceProxy('/gazebo/pause_physics', Empty)
+        # self.reset_proxy = rospy.ServiceProxy('/gazebo/reset_simulation', Empty)
 
         # Seed the environment
         self._seed()
@@ -346,7 +356,7 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
             # print(self.environment['link_names'][-1])
             trans, rot = forward_kinematics(self.scara_chain,
                                         self.environment['link_names'],
-                                        last_observations[:3],
+                                        last_observations[:self.scara_chain.getNrOfJoints()],
                                         base_link=self.environment['link_names'][0],
                                         end_link=self.environment['link_names'][-1])
             # #
@@ -420,10 +430,11 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
         # # Calculate if the env has been solved
         # done = bool(abs(self.reward_dist) < 0.005)
 
-        self.reward_dist = -self.rmse_func(self.ob[3:6])
-        # print("reward_dist :", self.reward_dist)
-        if(self.rmse_func(self.ob[3:6])<0.005):
-            self.reward = 1 - self.rmse_func(self.ob[3:6]) # Make the reward increase as the distance decreases
+        self.reward_dist = -self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])
+
+        # here we want to fetch the positions of the end-effector which are nr_dof:nr_dof+3
+        if(self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])<0.005):
+            self.reward = 1 - self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)]) # Make the reward increase as the distance decreases
             print("Reward is: ", self.reward)
         else:
             self.reward = self.reward_dist
@@ -442,8 +453,7 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
         #     print ("/gazebo/unpause_physics service call failed")
 
         # Execute "action"
-        # if rclpy.ok(): # ROS 2 code
-        self._pub.publish(self.get_trajectory_message(action[:3]))
+        self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
         #TODO: wait until action gets executed
         # When adding this the algorithm does not converge
         # time.sleep(int(self.environment['slowness']))
