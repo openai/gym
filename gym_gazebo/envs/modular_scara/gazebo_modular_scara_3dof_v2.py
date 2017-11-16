@@ -79,7 +79,7 @@ class GazeboModularScara3DOFv2Env(gazebo_env.GazeboEnv):
         EE_POINTS = np.asmatrix([[0, 0, 0]])
         EE_VELOCITIES = np.asmatrix([[0, 0, 0]])
         # Initial joint position
-        INITIAL_JOINTS = np.array([0, 0, 0])
+        INITIAL_JOINTS = np.array([0.0, 0.0, 0.0])
         # Used to initialize the robot, #TODO, clarify this more
         STEP_COUNT = 2  # Typically 100.
         # # Set the number of seconds per step of a sample.
@@ -91,7 +91,7 @@ class GazeboModularScara3DOFv2Env(gazebo_env.GazeboEnv):
         # # Set the number of trajectory iterations to collect.
         # ITERATIONS = 20  # Typically 10.
         # How much time does it take to execute the trajectory (in seconds)
-        slowness = 100000000 # 1 is real life simulation
+        slowness = 1000000 # 1 is real life simulation
         # slowness = 1
 
         # Topics for the robot publisher and subscriber.
@@ -624,8 +624,29 @@ class GazeboModularScara3DOFv2Env(gazebo_env.GazeboEnv):
 
         # Go to initial position and wait until it arrives there
         self._pub.publish(self.get_trajectory_message(self.environment['reset_conditions']['initial_positions']))
-        # time.sleep(int(self.environment['slowness'])) # using seconds
-        time.sleep(int(self.environment['slowness'])/1000000000) # using nanoseconds
+        ## time.sleep(int(self.environment['slowness'])) # using seconds
+        # time.sleep(int(self.environment['slowness'])/1000000000) # using nanoseconds
+        time.sleep(1)
+
+        # # Use moveit to return to the original position
+        # import moveit_commander
+        # import moveit_msgs.msg
+        # import geometry_msgs.msg
+        # # print "============ Starting tutorial setup"
+        # moveit_commander.roscpp_initialize(sys.argv)
+        # # rospy.init_node('move_group_python_interface_tutorial',
+        # #                 anonymous=True)
+        # robot = moveit_commander.RobotCommander()
+        # scene = moveit_commander.PlanningSceneInterface()
+        # group = moveit_commander.MoveGroupCommander("scara_arm")
+        # group.clear_pose_targets()
+        # roup_variable_values = group.get_current_joint_values()
+        # # print "============ Joint values: ", group_variable_values
+        # group_variable_values[0] = 0.0
+        # group_variable_values[1] = 0.0
+        # group_variable_values[2] = 0.0
+        # group.set_joint_value_target(group_variable_values)
+        # plan2 = group.plan()
 
         # Take an observation
         self.ob = self.take_observation()
