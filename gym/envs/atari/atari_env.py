@@ -49,7 +49,6 @@ class AtariEnv(gym.Env, utils.EzPickle):
         self._action_set = self.ale.getMinimalActionSet()
         self.action_space = spaces.Discrete(len(self._action_set))
 
-        (screen_width,screen_height) = self.ale.getScreenDims()
         if self._obs_type == 'ram':
             self.observation_space = spaces.Box(low=np.zeros(128), high=np.zeros(128)+255)
         elif self._obs_type == 'image':
