@@ -71,8 +71,8 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
         #   Environment hyperparams
         #############################
         # target, where should the agent reach
-        EE_POS_TGT = np.asmatrix([0.3325683, 0.0657366, 0.3746]) # center of O
-        # EE_POS_TGT = np.asmatrix([0.3305805, -0.1326121, 0.3746]) # center of the H
+        # EE_POS_TGT = np.asmatrix([0.3325683, 0.0657366, 0.3746]) # center of O
+        EE_POS_TGT = np.asmatrix([0.3305805, -0.1326121, 0.3746]) # center of the H
         EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         EE_POINTS = np.asmatrix([[0, 0, 0]])
         EE_VELOCITIES = np.asmatrix([[0, 0, 0]])
@@ -80,8 +80,8 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
         INITIAL_JOINTS = np.array([0, 0, 0])
         # Used to initialize the robot, #TODO, clarify this more
         STEP_COUNT = 2  # Typically 100.
-        # slowness = 100000000 # 1 is real life simulation
-        slowness = 1 # use >10 for running trained network in the simulation
+        slowness = 100000000 # 1 is real life simulation
+        # slowness = 10 # use >10 for running trained network in the simulation
 
         # Topics for the robot publisher and subscriber.
         JOINT_PUBLISHER = '/scara_controller/command'
@@ -230,8 +230,8 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
         target.positions = action_float
         # These times determine the speed at which the robot moves:
         # it tries to reach the specified target position in 'slowness' time.
-        target.time_from_start.secs = self.environment['slowness']
-        # target.time_from_start.nsecs = self.environment['slowness']
+        # target.time_from_start.secs = self.environment['slowness']
+        target.time_from_start.nsecs = self.environment['slowness']
         # Package the single point into a trajectory of points with length 1.
         action_msg.points = [target]
         return action_msg
@@ -487,7 +487,7 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
         #     print ("/gazebo/unpause_physics service call failed")
 
         # Go to initial position and wait until it arrives there
-        self._pub.publish(self.get_trajectory_message(self.environment['reset_conditions']['initial_positions']))
+        # self._pub.publish(self.get_trajectory_message(self.environment['reset_conditions']['initial_positions']))
         # time.sleep(int(self.environment['slowness']))
         # time.sleep(int(self.environment['slowness'])/1000000000) # using nanoseconds
 
