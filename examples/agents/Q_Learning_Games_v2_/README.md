@@ -1,6 +1,6 @@
 ### Q_Agent_Implementation
 
-An implementation of a Q-Agent using OpenAI Gym toolkit as support.
+An implementation of a Q-Agent and Sarsa Agent using OpenAI Gym toolkit as support.
 
 ### Prerequisites
 
