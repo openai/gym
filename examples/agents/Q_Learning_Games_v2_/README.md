@@ -42,11 +42,11 @@ From now on, you have to follow the same syntax instructions of the first game.
 
 N.B. I've used the softmax eps code because the random action is not useful for this game.
 
-### SARSA VERSION FOR THE GAMES
+### SARSA VERSION FOR THE GAMES:
 
 I've added Sarsa Algorithm for both games. The code is almost the same. The only difference is the change to the learn() function because at the beginning is chosen the first action. Then the action is updated at every step until the game reaches the terminal state.
 
-###Q-LEARNING VERSION AND SARSA VERSION WITH COMPARISON: CONSIDERATIONS
+### Q-LEARNING VERSION AND SARSA VERSION WITH COMPARISON: CONSIDERATIONS
 
 I've added Sarsa implementation of Q-learning for both games. In this version, the learn function updates action at every step.
 We have the opportunity to compare Sarsa and tabular Q-learning rewards plots.
