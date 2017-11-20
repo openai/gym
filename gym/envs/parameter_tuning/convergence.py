@@ -92,20 +92,13 @@ class ConvergenceControl(gym.Env):
 
         # set parameters of training step
 
-        # self.sgd.lr.set_value(lr)
-        # self.sgd.decay.set_value(decay)
-        # self.sgd.momentum.set_value(momentum)
-        #
-        # self.reg.l1.set_value(l1)
-        # self.reg.l2.set_value(l2)
         # UPDATED
         K.set_value(self.sgd.lr, lr)
         K.set_value(self.sgd.decay, decay)
         K.set_value(self.sgd.momentum, momentum)
         self.reg.l1 = l1
         self.reg.l2 = l2
-        # K.set_value(self.reg.l1, l1)
-        # K.set_value(self.reg.l2, l2)
+
 
         # train model for one epoch_idx
         H = self.model.fit(X, Y,
@@ -207,8 +200,6 @@ class ConvergenceControl(gym.Env):
         reg = l1_l2(0.0)
 
         # a hack to make regularization variable
-        #reg.l1 = K.variable(0.0)
-        #reg.l2 = K.variable(0.0)
 
         data, nb_classes = self.data_mix()
         X, Y, Xv, Yv = data
@@ -226,20 +217,12 @@ class ConvergenceControl(gym.Env):
 
         # here definition of the model happens
         model = Sequential()
-        # print(K.image_dim_ordering())
-        # if K.image_dim_ordering() == 'th':
-        #     input = (img_channels, img_rows, img_cols)
-        # else:
-        #     input = (img_rows, img_cols, img_channels)
+
         if K.image_data_format() == 'channels_first':
             input_shape = (img_channels, img_rows, img_cols)
         else:
             input_shape = (img_rows, img_cols, img_channels)
 
-        print(input_shape)
-        print(img_channels, img_rows, img_cols)
-        print(X.shape)
-        #print(K.image_dim_ordering())
         # double true for icnreased probability of conv layers
         if random.choice([True, True, False]):
 

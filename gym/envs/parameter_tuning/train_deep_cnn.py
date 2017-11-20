@@ -206,7 +206,9 @@ class CNNClassifierTraining(gym.Env):
                 continue
             has_convs = True
             model.add(Convolution2D(cnvSz, 3, 3, border_mode='same',
-                                    input_shape=input_shape))
+                                    input_shape=input_shape,
+                                    W_regularizer=reg,
+                                    b_regularizer=reg))
             model.add(Activation('relu'))
 
             model.add(MaxPooling2D(pool_size=(2, 2)))
@@ -226,11 +228,15 @@ class CNNClassifierTraining(gym.Env):
             # choose fully connected layer size
             densesz = int(1023 * val) + 1
 
-            model.add(Dense(densesz))
+            model.add(Dense(densesz,
+                            W_regularizer=reg,
+                            b_regularizer=reg))
             model.add(Activation('relu'))
             # model.add(Dropout(0.5))
 
-        model.add(Dense(nb_classes))
+        model.add(Dense(nb_classes,
+                        W_regularizer=reg,
+                        b_regularizer=reg))
         model.add(Activation('softmax'))
 
         # let's train the model using SGD + momentum (how original).
