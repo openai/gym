@@ -6,10 +6,10 @@ import numpy as np
 from keras.datasets import cifar10, mnist, cifar100
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation, Flatten
-from keras.layers import Convolution2D, MaxPooling2D
+from keras.layers import Conv2D, MaxPooling2D
 from keras.optimizers import SGD
 from keras.utils import np_utils
-from keras.regularizers import WeightRegularizer
+from keras.regularizers import l1_l2
 from keras import backend as K
 
 from itertools import cycle
@@ -92,17 +92,25 @@ class ConvergenceControl(gym.Env):
 
         # set parameters of training step
 
-        self.sgd.lr.set_value(lr)
-        self.sgd.decay.set_value(decay)
-        self.sgd.momentum.set_value(momentum)
-
-        self.reg.l1.set_value(l1)
-        self.reg.l2.set_value(l2)
+        # self.sgd.lr.set_value(lr)
+        # self.sgd.decay.set_value(decay)
+        # self.sgd.momentum.set_value(momentum)
+        #
+        # self.reg.l1.set_value(l1)
+        # self.reg.l2.set_value(l2)
+        # UPDATED
+        K.set_value(self.sgd.lr, lr)
+        K.set_value(self.sgd.decay, decay)
+        K.set_value(self.sgd.momentum, momentum)
+        self.reg.l1 = l1
+        self.reg.l2 = l2
+        # K.set_value(self.reg.l1, l1)
+        # K.set_value(self.reg.l2, l2)
 
         # train model for one epoch_idx
         H = self.model.fit(X, Y,
                       batch_size=int(batch_size),
-                      nb_epoch=1,
+                      epochs=1,
                       shuffle=True)
 
         _, acc = self.model.evaluate(Xv,Yv)
@@ -196,19 +204,18 @@ class ConvergenceControl(gym.Env):
 
     def _reset(self):
 
-        reg = WeightRegularizer()
+        reg = l1_l2(0.0)
 
         # a hack to make regularization variable
-        reg.l1 = K.variable(0.0)
-        reg.l2 = K.variable(0.0)
-
+        #reg.l1 = K.variable(0.0)
+        #reg.l2 = K.variable(0.0)
 
         data, nb_classes = self.data_mix()
         X, Y, Xv, Yv = data
 
         # input square image dimensions
-        img_rows, img_cols = X.shape[-1], X.shape[-1]
-        img_channels = X.shape[1]
+        img_rows, img_cols = X.shape[2], X.shape[1]
+        img_channels = X.shape[-1]
         # save number of classes and instances
         self.nb_classes = nb_classes
         self.nb_inst = len(X)
@@ -219,22 +226,31 @@ class ConvergenceControl(gym.Env):
 
         # here definition of the model happens
         model = Sequential()
+        # print(K.image_dim_ordering())
+        # if K.image_dim_ordering() == 'th':
+        #     input = (img_channels, img_rows, img_cols)
+        # else:
+        #     input = (img_rows, img_cols, img_channels)
+        if K.image_data_format() == 'channels_first':
+            input_shape = (img_channels, img_rows, img_cols)
+        else:
+            input_shape = (img_rows, img_cols, img_channels)
 
+        print(input_shape)
+        print(img_channels, img_rows, img_cols)
+        print(X.shape)
+        #print(K.image_dim_ordering())
         # double true for icnreased probability of conv layers
         if random.choice([True, True, False]):
 
             # Choose convolution #1
             self.convAsz = random.choice([32,64,128])
 
-            model.add(Convolution2D(self.convAsz, 3, 3, border_mode='same',
-                                    input_shape=(img_channels, img_rows, img_cols),
-                                    W_regularizer = reg,
-                                    b_regularizer = reg))
+            model.add(Conv2D(self.convAsz, (3, 3), padding='same',
+                                    input_shape=input_shape))
             model.add(Activation('relu'))
 
-            model.add(Convolution2D(self.convAsz, 3, 3,
-                                    W_regularizer = reg,
-                                    b_regularizer = reg))
+            model.add(Conv2D(self.convAsz, (3, 3),))
             model.add(Activation('relu'))
 
             model.add(MaxPooling2D(pool_size=(2, 2)))
@@ -244,14 +260,10 @@ class ConvergenceControl(gym.Env):
             self.convBsz = random.choice([0,32,64])
 
             if self.convBsz > 0:
-                model.add(Convolution2D(self.convBsz, 3, 3, border_mode='same',
-                                        W_regularizer = reg,
-                                        b_regularizer = reg))
+                model.add(Conv2D(self.convBsz, (3, 3), padding='same'))
                 model.add(Activation('relu'))
 
-                model.add(Convolution2D(self.convBsz, 3, 3,
-                                        W_regularizer = reg,
-                                        b_regularizer = reg))
+                model.add(Conv2D(self.convBsz, (3, 3)))
                 model.add(Activation('relu'))
 
                 model.add(MaxPooling2D(pool_size=(2, 2)))
@@ -260,22 +272,18 @@ class ConvergenceControl(gym.Env):
             model.add(Flatten())
 
         else:
-            model.add(Flatten(input_shape=(img_channels, img_rows, img_cols)))
+            model.add(Flatten(input_shape=input_shape))
             self.convAsz = 0
             self.convBsz = 0
 
         # choose fully connected layer size
         self.densesz = random.choice([256,512,762])
 
-        model.add(Dense(self.densesz,
-                                W_regularizer = reg,
-                                b_regularizer = reg))
+        model.add(Dense(self.densesz))
         model.add(Activation('relu'))
         model.add(Dropout(0.5))
 
-        model.add(Dense(nb_classes,
-                                W_regularizer = reg,
-                                b_regularizer = reg))
+        model.add(Dense(nb_classes))
         model.add(Activation('softmax'))
 
         # let's train the model using SGD + momentum (how original).
