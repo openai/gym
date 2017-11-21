@@ -313,7 +313,7 @@ class ObservationWrapper(Wrapper):
 
     def _step(self, action):
         observation, reward, done, info = self.env.step(action)
-        return self.observation(observation), reward, done, info
+        return self._observation(observation), reward, done, info
 
     def observation(self, observation):
         return self._observation(observation)
