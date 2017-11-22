@@ -101,7 +101,7 @@ register(
 )
 ```
 
-4. Add your environment to the scoreboard in `/gym/scoreboard/__init__.py`:
+4. Add your environment and collection to the scoreboard in `/gym/scoreboard/__init__.py`:
 
  ```
 add_task(
@@ -109,5 +109,11 @@ add_task(
 		summary="Super cool environment",
 		group='my_collection',
 		contributor='mygithubhandle',
+)
+
+add_group(
+		id='my_collection',
+		name='My Collection',
+		description='This is my new collection'
 )
 ```
