@@ -10,6 +10,7 @@ from keras.layers import Convolution2D, MaxPooling2D
 from keras.optimizers import SGD
 from keras.utils import np_utils
 from keras.regularizers import l1_l2
+from keras import regularizers
 from keras import backend as K
 
 from itertools import cycle
@@ -181,6 +182,8 @@ class CNNClassifierTraining(gym.Env):
         nb_classes = self.nb_classes
 
         reg = l1_l2(0.0)
+        reg.l1 = l1
+        reg.l2 = l2
         # input square image dimensions
 
         img_rows, img_cols = X.shape[2], X.shape[1]
@@ -208,10 +211,11 @@ class CNNClassifierTraining(gym.Env):
             if use < 0.5:
                 continue
             has_convs = True
-            model.add(Convolution2D(cnvSz, 3, 3, border_mode='same',
+            model.add(Convolution2D(cnvSz, (3, 3), padding='same',
                                     input_shape=input_shape,
-                                    W_regularizer=reg,
-                                    b_regularizer=reg))
+                                    kernel_regularizer=regularizers.l2(reg.l2),
+                                    activity_regularizer=regularizers.l1(reg.l1),
+                                    ))
             model.add(Activation('relu'))
 
             model.add(MaxPooling2D(pool_size=(2, 2)))
@@ -232,14 +236,15 @@ class CNNClassifierTraining(gym.Env):
             densesz = int(1023 * val) + 1
 
             model.add(Dense(densesz,
-                            W_regularizer=reg,
-                            b_regularizer=reg))
+                            kernel_regularizer=regularizers.l2(reg.l2),
+                            activity_regularizer=regularizers.l1(reg.l1)))
             model.add(Activation('relu'))
             # model.add(Dropout(0.5))
 
         model.add(Dense(nb_classes,
-                        W_regularizer=reg,
-                        b_regularizer=reg))
+                        kernel_regularizer=regularizers.l2(reg.l2),
+                        activity_regularizer=regularizers.l1(reg.l1)
+                        ))
         model.add(Activation('softmax'))
 
         # let's train the model using SGD + momentum (how original).
