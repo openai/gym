@@ -128,6 +128,8 @@ class CNNClassifierTraining(gym.Env):
 
         n_labels = 10
 
+        print(dataset)
+
         if dataset == "mnist":
             data = mnist.load_data()
 
@@ -151,6 +153,7 @@ class CNNClassifierTraining(gym.Env):
 
         if dataset == "mnist":
             CX = np.expand_dims(CX, axis=1)
+            CX = CX.reshape(-1, 28, 28, 1)
 
         data = CX[:data_size], CY[:data_size], CX[-10000:], CY[-10000:]
 
@@ -178,8 +181,8 @@ class CNNClassifierTraining(gym.Env):
         nb_classes = self.nb_classes
 
         reg = l1_l2(0.0)
-
         # input square image dimensions
+
         img_rows, img_cols = X.shape[2], X.shape[1]
         img_channels = X.shape[-1]
 
