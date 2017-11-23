@@ -9,7 +9,8 @@ from keras.layers import Dense, Dropout, Activation, Flatten
 from keras.layers import Convolution2D, MaxPooling2D
 from keras.optimizers import SGD
 from keras.utils import np_utils
-from keras.regularizers import WeightRegularizer
+from keras.regularizers import l1_l2
+from keras import regularizers
 from keras import backend as K
 
 from itertools import cycle
@@ -128,6 +129,8 @@ class CNNClassifierTraining(gym.Env):
 
         n_labels = 10
 
+        print(dataset)
+
         if dataset == "mnist":
             data = mnist.load_data()
 
@@ -151,6 +154,7 @@ class CNNClassifierTraining(gym.Env):
 
         if dataset == "mnist":
             CX = np.expand_dims(CX, axis=1)
+            CX = CX.reshape(-1, 28, 28, 1)
 
         data = CX[:data_size], CY[:data_size], CX[-10000:], CY[-10000:]
 
@@ -177,15 +181,18 @@ class CNNClassifierTraining(gym.Env):
         X, Y, Xv, Yv = self.data
         nb_classes = self.nb_classes
 
-        reg = WeightRegularizer()
-
-        # a hack to make regularization variable
-        reg.l1 = K.variable(0.0)
-        reg.l2 = K.variable(0.0)
-
+        reg = l1_l2(0.0)
+        reg.l1 = l1
+        reg.l2 = l2
         # input square image dimensions
-        img_rows, img_cols = X.shape[-1], X.shape[-1]
-        img_channels = X.shape[1]
+
+        img_rows, img_cols = X.shape[2], X.shape[1]
+        img_channels = X.shape[-1]
+
+        if K.image_data_format() == 'channels_first':
+            input_shape = (img_channels, img_rows, img_cols)
+        else:
+            input_shape = (img_rows, img_cols, img_channels)
 
         # convert class vectors to binary class matrices
         Y = np_utils.to_categorical(Y, nb_classes)
@@ -204,10 +211,11 @@ class CNNClassifierTraining(gym.Env):
             if use < 0.5:
                 continue
             has_convs = True
-            model.add(Convolution2D(cnvSz, 3, 3, border_mode='same',
-                                    input_shape=(img_channels, img_rows, img_cols),
-                                    W_regularizer=reg,
-                                    b_regularizer=reg))
+            model.add(Convolution2D(cnvSz, (3, 3), padding='same',
+                                    input_shape=input_shape,
+                                    kernel_regularizer=regularizers.l2(reg.l2),
+                                    activity_regularizer=regularizers.l1(reg.l1),
+                                    ))
             model.add(Activation('relu'))
 
             model.add(MaxPooling2D(pool_size=(2, 2)))
@@ -216,7 +224,7 @@ class CNNClassifierTraining(gym.Env):
         if has_convs:
             model.add(Flatten())
         else:
-            model.add(Flatten(input_shape=(img_channels, img_rows, img_cols)))  # avoid excetpions on no convs
+            model.add(Flatten(input_shape=input_shape))  # avoid excetpions on no convs
 
         # create all fully connected layers
         for val, use in fcs:
@@ -228,14 +236,15 @@ class CNNClassifierTraining(gym.Env):
             densesz = int(1023 * val) + 1
 
             model.add(Dense(densesz,
-                            W_regularizer=reg,
-                            b_regularizer=reg))
+                            kernel_regularizer=regularizers.l2(reg.l2),
+                            activity_regularizer=regularizers.l1(reg.l1)))
             model.add(Activation('relu'))
             # model.add(Dropout(0.5))
 
         model.add(Dense(nb_classes,
-                        W_regularizer=reg,
-                        b_regularizer=reg))
+                        kernel_regularizer=regularizers.l2(reg.l2),
+                        activity_regularizer=regularizers.l1(reg.l1)
+                        ))
         model.add(Activation('softmax'))
 
         # let's train the model using SGD + momentum (how original).
@@ -255,17 +264,16 @@ class CNNClassifierTraining(gym.Env):
 
         # set parameters of training step
 
-        sgd.lr.set_value(lr)
-        sgd.decay.set_value(decay)
-        sgd.momentum.set_value(momentum)
-
-        reg.l1.set_value(l1)
-        reg.l2.set_value(l2)
+        K.set_value(sgd.lr, lr)
+        K.set_value(sgd.decay, decay)
+        K.set_value(sgd.momentum, momentum)
+        reg.l1 = l1
+        reg.l2 = l2
 
         # train model for one epoch_idx
         H = model.fit(X, Y,
                       batch_size=int(batch_size),
-                      nb_epoch=10,
+                      epochs=10,
                       shuffle=True)
 
         diverged = math.isnan(H.history['loss'][-1])
