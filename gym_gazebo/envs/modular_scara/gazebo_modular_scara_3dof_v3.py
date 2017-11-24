@@ -5,7 +5,7 @@ import time
 import numpy as np
 from gym import utils, spaces
 from gym_gazebo.envs import gazebo_env
-from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Twists
 from std_srvs.srv import Empty
 from sensor_msgs.msg import LaserScan
 from gym.utils import seeding
@@ -81,7 +81,7 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
         # Used to initialize the robot, #TODO, clarify this more
         STEP_COUNT = 2  # Typically 100.
         slowness = 100000000 # 1 is real life simulation
-        # slowness = 10 # use >10 for running trained network in the simulation
+        # slowness = 1 # use >10 for running trained network in the simulation
 
         # Topics for the robot publisher and subscriber.
         JOINT_PUBLISHER = '/scara_controller/command'
@@ -130,7 +130,7 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
 
         # TODO: fix this and make it relative
         # Set the path of the corresponding URDF file from "assets"
-        URDF_PATH = "/home/rkojcev/devel/ros_rl/environments/gym-gazebo/gym_gazebo/envs/assets/urdf/modular_scara/scara_e1_3joints.urdf"
+        URDF_PATH = "/home/erle/ros_rl/environments/gym-gazebo/gym_gazebo/envs/assets/urdf/modular_scara/scara_e1_3joints.urdf"
 
         m_joint_order = copy.deepcopy(JOINT_ORDER)
         m_link_names = copy.deepcopy(LINK_NAMES)
