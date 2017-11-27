@@ -11,6 +11,8 @@ from sensor_msgs.msg import LaserScan
 from gym.utils import seeding
 import copy
 
+import threading # Used for time locks to synchronize position data.
+
 # ROS 2
 # import rclpy
 # from rclpy.qos import QoSProfile, qos_profile_sensor_data
@@ -67,6 +69,8 @@ class GazeboModularScara4DOFv3Env(gazebo_env.GazeboEnv):
         self.action_space = None
         self.max_episode_steps = 100 # this is specific parameter for the acktr algorithm. Not used in ppo1, trpo...
 
+        self._time_lock = threading.RLock()
+
         #############################
         #   Environment hyperparams
         #############################
@@ -77,7 +81,7 @@ class GazeboModularScara4DOFv3Env(gazebo_env.GazeboEnv):
         EE_POINTS = np.asmatrix([[0, 0, 0]])
         EE_VELOCITIES = np.asmatrix([[0, 0, 0]])
         # Initial joint position
-        INITIAL_JOINTS = np.array([0., 0., 0., 0.])
+        INITIAL_JOINTS = np.array([2.0, -2.0, -2.0, 0.])
         # Used to initialize the robot, #TODO, clarify this more
         # STEP_COUNT = 2  # Typically 100.
         slowness = 10000000 # 1 is real life simulation
@@ -197,7 +201,7 @@ class GazeboModularScara4DOFv3Env(gazebo_env.GazeboEnv):
         end_effector_points and end_effector_velocities is constant and equals 3
         """
         #
-        self.obs_dim = 10 # hardcode it for now
+        self.obs_dim = self.scara_chain.getNrOfJoints() + 6 # hardcode it for now
         # # print(observation, _reward)
 
         # # Here idially we should find the control range of the robot. Unfortunatelly in ROS/KDL there is nothing like this.
@@ -477,6 +481,27 @@ class GazeboModularScara4DOFv3Env(gazebo_env.GazeboEnv):
         # Return the corresponding observations, rewards, etc.
         # TODO, understand better what's the last object to return
         return self.ob, self.reward, done, {}
+    def goToInit(self):
+        self.ob = self.take_observation()
+        while(self.ob is None):
+            self.ob = self.take_observation()
+        # # Go to initial position and wait until it arrives there
+        # Wait until the arm is within epsilon of reset configuration.
+        self._time_lock.acquire(True, -1)
+        with self._time_lock:
+            self._currently_resetting = True
+        self._time_lock.release()
+
+        if self._currently_resetting:
+            epsilon = 1e-3
+            reset_action = self.environment['reset_conditions']['initial_positions']
+            now_action = self._observation_msg.actual.positions
+            du = np.linalg.norm(reset_action-now_action, float(np.inf))
+            self._pub.publish(self.get_trajectory_message(self.environment['reset_conditions']['initial_positions']))
+            if du > epsilon:
+                self._currently_resetting = True
+                self._pub.publish(self.get_trajectory_message(self.environment['reset_conditions']['initial_positions']))
+                time.sleep(3)
 
     def _reset(self):
         # """
@@ -497,8 +522,6 @@ class GazeboModularScara4DOFv3Env(gazebo_env.GazeboEnv):
         # except (rospy.ServiceException) as e:
         #     print ("/gazebo/unpause_physics service call failed")
 
-        # Go to initial position and wait until it arrives there
-        # self._pub.publish(self.get_trajectory_message(self.environment['reset_conditions']['initial_positions']))
         # time.sleep(int(self.environment['slowness']))
         # time.sleep(int(self.environment['slowness'])/1000000000) # using nanoseconds
 
@@ -508,6 +531,8 @@ class GazeboModularScara4DOFv3Env(gazebo_env.GazeboEnv):
         #     self.pause()
         # except (rospy.ServiceException) as e:
         #     print ("/gazebo/pause_physics service call failed")
+
+        # self.goToInit()
 
         # Take an observation
         self.ob = self.take_observation()
