@@ -15,8 +15,9 @@ class GazeboEnv(gym.Env):
 
     def __init__(self, launchfile):
 
+        port = os.environ["ROS_PORT_SIM"]
         #start roscore
-        subprocess.Popen("roscore")
+        subprocess.Popen(["roscore", "-p", port])
         print ("Roscore launched!")
 
         # Launch the simulation with the given launchfile name
@@ -29,7 +30,7 @@ class GazeboEnv(gym.Env):
         if not path.exists(fullpath):
             raise IOError("File "+fullpath+" does not exist")
 
-        subprocess.Popen(["roslaunch",fullpath])
+        subprocess.Popen(["roslaunch","-p", port, fullpath])
         print ("Gazebo launched!")
 
         self.gzclient_pid = 0
