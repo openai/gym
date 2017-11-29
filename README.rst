@@ -62,9 +62,9 @@ If you prefer, you can do a minimal install of the packaged version directly fro
 
 You'll be able to run a few environments right away:
 
-- `algorithmic <https://gym.openai.com/envs#algorithmic>`_
-- `toy_text <https://gym.openai.com/envs#toy_text>`_
-- `classic_control <https://gym.openai.com/envs#classic_control>`_ (you'll need ``pyglet`` to render though)
+- algorithmic
+- toy_text
+- classic_control (you'll need ``pyglet`` to render though)
 
 We recommend playing with those environments at first, and then later
 installing the dependencies for the remaining environments.
@@ -244,7 +244,7 @@ See the ``examples`` directory.
 
 - Run `examples/agents/random_agent.py <https://github.com/openai/gym/blob/master/examples/agents/random_agent.py>`_ to run an simple random agent.
 - Run `examples/agents/cem.py <https://github.com/openai/gym/blob/master/examples/agents/cem.py>`_ to run an actual learning agent (using the cross-entropy method).
-- Run `examples/scripts/list_envs <https://github.com/openai/gym/blob/master/examples/scripts/list_envs>`_ to generate a list of all environments. (You see also just `browse <https://gym.openai.com/docs>`_ the list on our site.
+- Run `examples/scripts/list_envs <https://github.com/openai/gym/blob/master/examples/scripts/list_envs>`_ to generate a list of all environments.
 
 Testing
 =======
