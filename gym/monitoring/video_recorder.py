@@ -104,6 +104,10 @@ class VideoRecorder(object):
 
         render_mode = 'ansi' if self.ansi_mode else 'rgb_array'
         frame = self.env.render(mode=render_mode)
+        
+        # enable env to request to skip recording this frame
+        if getattr(self.env.unwrapped, '_recorder_skip_frame', False):
+            return        
 
         if frame is None:
             if self._async:
