@@ -1,4 +1,3 @@
-from __future__ import print_function
 import gym
 import random
 from gym import spaces
@@ -7,7 +6,7 @@ from keras.datasets import cifar10, mnist, cifar100
 from keras.utils import np_utils
 from itertools import cycle
 import math
-from lightgbm import LGBMClassifier
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 
 
@@ -15,26 +14,22 @@ def multi_error(y_true, y_pred):
     return np.mean(y_true != y_pred)
 
 
-def multi_logloss(y_true, y_pred):
-    return np.mean([-math.log(y_pred[i][y]) for i, y in enumerate(y_true)])
-
-
-class LightGBM(gym.Env):
+class RandomForestEnv(gym.Env):
 
     metadata = {"render.modes": ["human"]}
 
     def __init__(self, natural=False):
         self.action_space = spaces.Tuple((
             spaces.Box(10, 500, 1),  # n_est
-            spaces.Box(-5.0, 0.0, 1),  # lr
-            spaces.Box(10, 50, 1)  # num_leaves
+            spaces.Box(4, 50, 1),  # max_depth
+            spaces.Box(10, 50, 1)  # min_sample_leaves
         ))
 
         # observation features, in order: num of instances, num of labels,
         # number of filter in part A / B of neural net, num of neurons in
         # output layer, validation accuracy after training with given
         # parameters
-        self.observation_space = spaces.Box(-1e5, 1e5, 5)
+        self.observation_space = spaces.Box(-1e5, 1e5, 4)
 
         # Start the first game
         self._reset()
@@ -45,44 +40,34 @@ class LightGBM(gym.Env):
         """
         # assert self.action_space.contains(action)
 
-        n_est, lr, num_leaves = action
+        n_est, max_depth, num_leaves = action
 
         # map ranges of inputs
-        lr = (10.0 ** lr[0]).astype('float32')
+        max_depth = int(max_depth[0])
         n_est = int(n_est[0])
         num_leaves = int(num_leaves[0])
 
-        """
-        names = ["lr", "n_est", "num_leaves"]
-        values = [lr, n_est, num_leaves]
+        names = ["max_depth", "n_est", "num_leaves"]
+        values = [max_depth, n_est, num_leaves]
 
-        for n,v in zip(names, values):
-            print(n,v)
-        """
+        # for n, v in zip(names, values):
+        #     print(n, v)
 
         X_train, y_train, X_valid, y_valid = self.data
 
-        gbm = LGBMClassifier(n_estimators=n_est,
-                             num_leaves=num_leaves, learning_rate=lr, silent=True)
+        clf = RandomForestClassifier(n_estimators=n_est, n_jobs=-1,
+                                     min_samples_leaf=num_leaves, max_depth=max_depth, random_state=42)
 
         # train model for one epoch_idx
-        print(X_train.shape, X_valid.shape)
-        gbm.fit(X_train, y_train, eval_set=[
-                (X_valid, y_valid)], early_stopping_rounds=5, verbose=True)
+        clf.fit(X_train, y_train)
 
-        fpred = gbm.predict_proba(X_valid)
-        pred = gbm.predict(X_valid)
+        pred = clf.predict(X_valid)
 
         self.merror = multi_error(y_valid, pred)
 
-        self.mloss = multi_logloss(y_valid, fpred)
-
         acc = accuracy_score(y_valid, pred)
 
-        self.tacc = accuracy_score(y_train, gbm.predict(X_train))
-        # self.assertAlmostEqual(ret, gbm.evals_result_[
-        #                        'valid_0']['multi_logloss'][gbm.best_iteration_ - 1], places=5)
-        # _, acc = self.model.evaluate(Xv, Yv)
+        self.tacc = accuracy_score(y_train, clf.predict(X_train))
 
         # save best validation
         if acc > self.best_val:
@@ -129,7 +114,6 @@ class LightGBM(gym.Env):
         return np.array([self.nb_classes,
                          self.nb_inst,
                          self.merror,
-                         self.mloss,
                          self.tacc])
 
     def data_mix(self):
@@ -195,13 +179,12 @@ class LightGBM(gym.Env):
         Xv /= 255
 
         self.data = (X, Y, Xv, Yv)
-        self.model = LGBMClassifier()
+        self.model = RandomForestClassifier(random_state=42)
 
         # initial accuracy values
         self.best_val = 0.0
         self.previous_acc = 0.0
         self.merror = 0.0
-        self.mloss = 0.0
         self.tacc = 0.0
         self.epoch_idx = 0
 

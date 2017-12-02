@@ -470,6 +470,11 @@ register(
     entry_point='gym.envs.parameter_tuning:LightGBM',
 )
 
+register(
+    id='RandomForestEnv-v0',
+    entry_point='gym.envs.parameter_tuning:RandomForestEnv',
+)
+
 # Safety
 # ----------------------------------------
 
