@@ -38,6 +38,9 @@ class RandomForestEnv(gym.Env):
         # Start the first game
         self._reset()
 
+    def get_action_meanings(self):
+        return ['n_est', 'max_depth', 'min_sample_leaves']
+
     def _step(self, action):
         """
         Perform some action in the environment
