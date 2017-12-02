@@ -12,10 +12,12 @@ logger = logging.getLogger(__name__)
 # to include an optional username.
 env_id_re = re.compile(r'^(?:[\w:-]+\/)?([\w:.-]+)-v(\d+)$')
 
+
 def load(name):
     entry_point = pkg_resources.EntryPoint.parse('x={}'.format(name))
     result = entry_point.load(False)
     return result
+
 
 class EnvSpec(object):
     """A specification for a particular instance of the environment. Used
@@ -50,7 +52,8 @@ class EnvSpec(object):
 
         # BACKWARDS COMPAT 2017/1/18
         if tags.get('wrapper_config.TimeLimit.max_episode_steps'):
-            max_episode_steps = tags.get('wrapper_config.TimeLimit.max_episode_steps')
+            max_episode_steps = tags.get(
+                'wrapper_config.TimeLimit.max_episode_steps')
             # TODO: Add the following deprecation warning after 2017/02/18
             # warnings.warn("DEPRECATION WARNING wrapper_config.TimeLimit has been deprecated. Replace any calls to `register(tags={'wrapper_config.TimeLimit.max_episode_steps': 200)}` with `register(max_episode_steps=200)`. This change was made 2017/1/31 and is included in gym version 0.8.0. If you are getting many of these warnings, you may need to update universe past version 0.21.3")
 
@@ -71,7 +74,8 @@ class EnvSpec(object):
         # useful.
         match = env_id_re.search(id)
         if not match:
-            raise error.Error('Attempted to register malformed environment ID: {}. (Currently all IDs must be of the form {}.)'.format(id, env_id_re.pattern))
+            raise error.Error('Attempted to register malformed environment ID: {}. (Currently all IDs must be of the form {}.)'.format(
+                id, env_id_re.pattern))
         self._env_name = match.group(1)
         self._entry_point = entry_point
         self._local_only = local_only
@@ -80,7 +84,8 @@ class EnvSpec(object):
     def make(self):
         """Instantiates an instance of the environment with appropriate kwargs"""
         if self._entry_point is None:
-            raise error.Error('Attempting to make deprecated env {}. (HINT: is there a newer registered version of this env?)'.format(self.id))
+            raise error.Error(
+                'Attempting to make deprecated env {}. (HINT: is there a newer registered version of this env?)'.format(self.id))
 
         elif callable(self._entry_point):
             env = self._entry_point()
@@ -127,14 +132,14 @@ class EnvRegistry(object):
                             max_episode_seconds=env.spec.max_episode_seconds)
         return env
 
-
     def all(self):
         return self.env_specs.values()
 
     def spec(self, id):
         match = env_id_re.search(id)
         if not match:
-            raise error.Error('Attempted to look up malformed environment ID: {}. (Currently all IDs must be of the form {}.)'.format(id.encode('utf-8'), env_id_re.pattern))
+            raise error.Error('Attempted to look up malformed environment ID: {}. (Currently all IDs must be of the form {}.)'.format(
+                id.encode('utf-8'), env_id_re.pattern))
 
         try:
             return self.env_specs[id]
@@ -145,23 +150,29 @@ class EnvRegistry(object):
             matching_envs = [valid_env_name for valid_env_name, valid_env_spec in self.env_specs.items()
                              if env_name == valid_env_spec._env_name]
             if matching_envs:
-                raise error.DeprecatedEnv('Env {} not found (valid versions include {})'.format(id, matching_envs))
+                raise error.DeprecatedEnv(
+                    'Env {} not found (valid versions include {})'.format(id, matching_envs))
             else:
-                raise error.UnregisteredEnv('No registered env with id: {}'.format(id))
+                raise error.UnregisteredEnv(
+                    'No registered env with id: {}'.format(id))
 
     def register(self, id, **kwargs):
         if id in self.env_specs:
             raise error.Error('Cannot re-register id: {}'.format(id))
         self.env_specs[id] = EnvSpec(id, **kwargs)
 
+
 # Have a global registry
 registry = EnvRegistry()
+
 
 def register(id, **kwargs):
     return registry.register(id, **kwargs)
 
+
 def make(id):
     return registry.make(id)
+
 
 def spec(id):
     return registry.spec(id)
