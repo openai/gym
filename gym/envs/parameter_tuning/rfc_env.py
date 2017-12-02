@@ -19,12 +19,16 @@ class RandomForestEnv(gym.Env):
     metadata = {"render.modes": ["human"]}
 
     def __init__(self, natural=False):
-        self.action_space = spaces.Tuple((
-            spaces.Box(10, 500, 1),  # n_est
-            spaces.Box(4, 50, 1),  # max_depth
-            spaces.Box(10, 50, 1)  # min_sample_leaves
-        ))
-
+        # self.action_space = spaces.Tuple((
+        #     spaces.Box(10, 500, 1),  # n_est
+        #     spaces.Box(4, 50, 1),  # max_depth
+        #     spaces.Box(10, 50, 1)  # min_sample_leaves
+        # ))
+        self.action_space = spaces.MultiDiscrete([
+            [10, 500],
+            [4, 50],
+            [10, 50]
+        ])
         # observation features, in order: num of instances, num of labels,
         # number of filter in part A / B of neural net, num of neurons in
         # output layer, validation accuracy after training with given
@@ -39,13 +43,15 @@ class RandomForestEnv(gym.Env):
         Perform some action in the environment
         """
         # assert self.action_space.contains(action)
-
-        n_est, max_depth, num_leaves = action
+        # print(action)
+        # n_est, max_depth, num_leaves = action
+        print("Action: ", action)
+        n_est, max_depth, num_leaves = action[0], action[1], action[2]
 
         # map ranges of inputs
-        max_depth = int(max_depth[0])
-        n_est = int(n_est[0])
-        num_leaves = int(num_leaves[0])
+        max_depth = abs(int(max_depth))
+        n_est = abs(int(n_est))
+        num_leaves = abs(int(num_leaves))
 
         names = ["max_depth", "n_est", "num_leaves"]
         values = [max_depth, n_est, num_leaves]
