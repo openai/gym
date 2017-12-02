@@ -69,9 +69,9 @@ class RandomForestEnv(gym.Env):
 
         self.tacc = accuracy_score(y_train, clf.predict(X_train))
 
-        # save best validation
-        if acc > self.best_val:
-            self.best_val = acc
+        # # save best validation
+        # if acc > self.best_val:
+        self.best_val = acc
 
         self.previous_acc = acc
 
@@ -85,7 +85,7 @@ class RandomForestEnv(gym.Env):
             """
             reward = -1.0
         else:
-            reward = self.best_val
+            reward = acc
 
             # as number of labels increases, learning problem becomes
             # more difficult for fixed dataset size. In order to avoid
