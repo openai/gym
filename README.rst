@@ -173,18 +173,6 @@ The Atari environments are a variety of Atari video games. If you didn't do the 
 
 This will install ``atari-py``, which automatically compiles the `Arcade Learning Environment <http://www.arcadelearningenvironment.org/>`_. This can take quite a while (a few minutes on a decent laptop), so just be prepared.
 
-Board games
------------
-
-The board game environments are a variety of board games. If you didn't do the full install, you can install dependencies via ``pip install -e '.[board_game]'`` (you'll need ``cmake`` installed) and then get started as follow:
-
-.. code:: python
-
-	  import gym
-	  env = gym.make('Go9x9-v0')
-	  env.reset()
-	  env.render()
-
 Box2d
 -----------
 

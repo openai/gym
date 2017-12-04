@@ -2735,18 +2735,6 @@
     "observations": "5111d143c76defaf223e1bc948a4c339c7b5719f49f98ae257a667006c853d3d",
     "rewards": "04db9812be236ea437cbda6cea214bba8c79760fb57a66176704503576f6f390"
   },
-  "OffSwitchCartpole-v0": {
-    "actions": "b46fec206818dc19dccdcbe5160180f174500e5c035483c463b7ea680319cd99",
-    "dones": "8f706dc507474dc873deaceae35d28450c67ac430f30773ebe9c1c751afc6130",
-    "observations": "fa22d81efcd50a8ef0e6996e7fdeca2aa09472962a8b0faeba9416d8ff58c5f0",
-    "rewards": "ec9ed1056f4910faf5586950b4923cfc32f7c8402db2ac8cf0be94567e27009a"
-  },
-  "OffSwitchCartpoleProb-v0": {
-    "actions": "b46fec206818dc19dccdcbe5160180f174500e5c035483c463b7ea680319cd99",
-    "dones": "8f706dc507474dc873deaceae35d28450c67ac430f30773ebe9c1c751afc6130",
-    "observations": "fa22d81efcd50a8ef0e6996e7fdeca2aa09472962a8b0faeba9416d8ff58c5f0",
-    "rewards": "ec9ed1056f4910faf5586950b4923cfc32f7c8402db2ac8cf0be94567e27009a"
-  },
   "OneRoundDeterministicReward-v0": {
     "actions": "b46fec206818dc19dccdcbe5160180f174500e5c035483c463b7ea680319cd99",
     "dones": "fc5ea99786027c5f4212eaf9c17596b5d18e451b8942b957a971ad60d04525d2",
@@ -3526,24 +3514,6 @@
     "dones": "ecfbe8578a5aac6442d7b65f2e4bd4f6d70e5cdc76c1d6868ee031460c7477b9",
     "observations": "01bc2647e2df61bfa95036ae892f69cba51909cf6d87ab94ba8168d105358b97",
     "rewards": "04db9812be236ea437cbda6cea214bba8c79760fb57a66176704503576f6f390"
-  },
-  "SemisuperPendulumDecay-v0": {
-    "actions": "c24fdfa0a9e514876d23bc60f067a5fbd401a50b5d54867bde3ce98d8d2b0ee1",
-    "dones": "ecfbe8578a5aac6442d7b65f2e4bd4f6d70e5cdc76c1d6868ee031460c7477b9",
-    "observations": "40f9b5c321e4dbd00f5d0a45ac312512aad9d6a661d593b114f6d14f07503848",
-    "rewards": "2e7db250db53b6f602e0e2139168eb8da8f073579fe598bf365b236a60c0c7a7"
-  },
-  "SemisuperPendulumNoise-v0": {
-    "actions": "c24fdfa0a9e514876d23bc60f067a5fbd401a50b5d54867bde3ce98d8d2b0ee1",
-    "dones": "ecfbe8578a5aac6442d7b65f2e4bd4f6d70e5cdc76c1d6868ee031460c7477b9",
-    "observations": "40f9b5c321e4dbd00f5d0a45ac312512aad9d6a661d593b114f6d14f07503848",
-    "rewards": "75428fc7d07a89818066b6380737f518072ed466358f5e50a7f2d04cca237277"
-  },
-  "SemisuperPendulumRandom-v0": {
-    "actions": "c24fdfa0a9e514876d23bc60f067a5fbd401a50b5d54867bde3ce98d8d2b0ee1",
-    "dones": "ecfbe8578a5aac6442d7b65f2e4bd4f6d70e5cdc76c1d6868ee031460c7477b9",
-    "observations": "40f9b5c321e4dbd00f5d0a45ac312512aad9d6a661d593b114f6d14f07503848",
-    "rewards": "9358814935302c8b25d6af45e2dd6c4ab72557cd60901c127e5586ad7c4489f7"
   },
   "Skiing-ram-v0": {
     "actions": "5138748c3c039a57ee365473ef13e5b99329e75a4f71459cd1a0d7919fd6e97b",

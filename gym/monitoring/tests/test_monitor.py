@@ -73,15 +73,6 @@ def test_video_callable_records_videos():
         results = monitoring.load_results(temp)
         assert len(results['videos']) == 1, "Videos: {}".format(results['videos'])
 
-def test_semisuper_succeeds():
-    """Regression test. Ensure that this can write"""
-    with helpers.tempdir() as temp:
-        env = gym.make('SemisuperPendulumDecay-v0')
-        env = Monitor(env, temp)
-        env.reset()
-        env.step(env.action_space.sample())
-        env.close()
-
 class AutoresetEnv(gym.Env):
     metadata = {'semantics.autoreset': True}
 
