@@ -90,17 +90,17 @@ class AcrobotEnv(core.Env):
         self.observation_space = spaces.Box(low, high)
         self.action_space = spaces.Discrete(3)
         self.state = None
-        self._seed()
+        self.seed()
 
-    def _seed(self, seed=None):
+    def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
-    def _reset(self):
+    def reset(self):
         self.state = self.np_random.uniform(low=-0.1, high=0.1, size=(4,))
         return self._get_ob()
 
-    def _step(self, a):
+    def step(self, a):
         s = self.state
         torque = self.AVAIL_TORQUE[a]
 
@@ -173,7 +173,7 @@ class AcrobotEnv(core.Env):
         ddtheta1 = -(d2 * ddtheta2 + phi1) / d1
         return (dtheta1, dtheta2, ddtheta1, ddtheta2, 0.)
 
-    def _render(self, mode='human', close=False):
+    def render(self, mode='human', close=False):
         if close:
             if self.viewer is not None:
                 self.viewer.close()

@@ -1,7 +1,5 @@
-from gym import envs
+from gym import envs, logger
 import os
-import logging
-logger = logging.getLogger(__name__)
 
 def should_skip_env_spec_for_tests(spec):
     # We skip tests for envs that require dependencies or are otherwise
@@ -17,7 +15,7 @@ def should_skip_env_spec_for_tests(spec):
             ep.startswith('gym.envs.box2d:') or
             (ep.startswith("gym.envs.atari") and not spec.id.startswith("Pong") and not spec.id.startswith("Seaquest"))
     ):
-        logger.warning("Skipping tests for env {}".format(ep))
+        logger.warn("Skipping tests for env {}".format(ep))
         return True
     return False
 

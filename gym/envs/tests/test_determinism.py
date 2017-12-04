@@ -1,10 +1,8 @@
 import numpy as np
 import pytest
 import os
-import logging
-logger = logging.getLogger(__name__)
 import gym
-from gym import envs, spaces
+from gym import envs, spaces, logger
 from gym.envs.tests.spec_list import spec_list
 
 @pytest.mark.parametrize("spec", spec_list)

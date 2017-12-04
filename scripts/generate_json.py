@@ -1,13 +1,10 @@
 from __future__ import unicode_literals
-from gym import envs, spaces
+from gym import envs, spaces, logger
 import json
 import os
 import sys
 import hashlib
 import argparse
-
-import logging
-logger = logging.getLogger(__name__)
 
 from gym.envs.tests.spec_list import should_skip_env_spec_for_tests
 from gym.envs.tests.test_envs_semantics import generate_rollout_hash, hash_object
@@ -98,5 +95,5 @@ if __name__ == '__main__':
   parser.add_argument('specs', nargs='*', help='ids of env specs to check (default: all)')
   args = parser.parse_args()
   if args.verbose:
-    logger.setLevel(logging.DEBUG)
+    logger.set_level(logger.INFO)
   add_new_rollouts(args.specs, args.force)

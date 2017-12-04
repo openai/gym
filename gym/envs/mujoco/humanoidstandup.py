@@ -21,7 +21,7 @@ class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
                                data.qfrc_actuator.flat,
                                data.cfrc_ext.flat])
 
-    def _step(self, a):
+    def step(self, a):
         self.do_simulation(a, self.frame_skip)
         pos_after = self.model.data.qpos[2][0]
         data = self.model.data

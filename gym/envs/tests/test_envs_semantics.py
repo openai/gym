@@ -3,10 +3,8 @@ import json
 import hashlib
 import os
 import sys
-import logging
 import pytest
-logger = logging.getLogger(__name__)
-from gym import envs, spaces
+from gym import envs, spaces, logger
 from gym.envs.tests.spec_list import spec_list
 
 DATA_DIR = os.path.dirname(__file__)

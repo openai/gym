@@ -1,10 +1,8 @@
 import numpy as np
 import pytest
 import os
-import logging
-logger = logging.getLogger(__name__)
 import gym
-from gym import envs
+from gym import envs, logger
 from gym.envs.tests.spec_list import spec_list
 
 
@@ -26,12 +24,10 @@ def test_env(spec):
 
     for mode in env.metadata.get('render.modes', []):
         env.render(mode=mode)
-    env.render(close=True)
 
     # Make sure we can render the environment after close.
     for mode in env.metadata.get('render.modes', []):
         env.render(mode=mode)
-    env.render(close=True)
 
     env.close()
 
@@ -47,17 +43,3 @@ def test_random_rollout():
             (ob, _reward, done, _info) = env.step(a)
             if done: break
 
-def test_double_close():
-    class TestEnv(gym.Env):
-        def __init__(self):
-            self.close_count = 0
-
-        def _close(self):
-            self.close_count += 1
-
-    env = TestEnv()
-    assert env.close_count == 0
-    env.close()
-    assert env.close_count == 1
-    env.close()
-    assert env.close_count == 1

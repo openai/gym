@@ -1,10 +1,8 @@
-import logging
 import pkg_resources
 import re
-from gym import error
+from gym import error, logger
 import warnings
 
-logger = logging.getLogger(__name__)
 # This format is true today, but it's *not* an official spec.
 # [username/](env-name)-v(version)    env-name is group 1, version is group 2
 #
@@ -89,7 +87,7 @@ class EnvSpec(object):
             env = cls(**self._kwargs)
 
         # Make the enviroment aware of which spec it came from.
-        env.unwrapped._spec = self
+        env.unwrapped.spec = self
 
         return env
 

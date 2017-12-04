@@ -1,4 +1,3 @@
-import logging
 import json
 import os
 import subprocess
@@ -9,10 +8,7 @@ import numpy as np
 from six import StringIO
 import six
 import six.moves.urllib as urlparse
-
-from gym import error
-
-logger = logging.getLogger(__name__)
+from gym import error, logger
 
 def touch(path):
     open(path, 'a').close()

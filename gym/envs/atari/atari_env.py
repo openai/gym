@@ -2,16 +2,13 @@ import numpy as np
 import os
 import gym
 from gym import error, spaces
-from gym import utils
+from gym import utils, logger
 from gym.utils import seeding
 
 try:
     import atari_py
 except ImportError as e:
     raise error.DependencyNotInstalled("{}. (HINT: you can install Atari dependencies by running 'pip install gym[atari]'.)".format(e))
-
-import logging
-logger = logging.getLogger(__name__)
 
 def to_ram(ale):
     ram_size = ale.getRAMSize()
@@ -42,7 +39,7 @@ class AtariEnv(gym.Env, utils.EzPickle):
         assert isinstance(repeat_action_probability, (float, int)), "Invalid repeat_action_probability: {!r}".format(repeat_action_probability)
         self.ale.setFloat('repeat_action_probability'.encode('utf-8'), repeat_action_probability)
 
-        self._seed()
+        self.seed()
 
         (screen_width, screen_height) = self.ale.getScreenDims()
 
@@ -57,7 +54,7 @@ class AtariEnv(gym.Env, utils.EzPickle):
         else:
             raise error.Error('Unrecognized observation type: {}'.format(self._obs_type))
 
-    def _seed(self, seed=None):
+    def seed(self, seed=None):
         self.np_random, seed1 = seeding.np_random(seed)
         # Derive a random seed. This gets passed as a uint, but gets
         # checked as an int elsewhere, so we need to keep it below
@@ -68,7 +65,7 @@ class AtariEnv(gym.Env, utils.EzPickle):
         self.ale.loadROM(self.game_path)
         return [seed1, seed2]
 
-    def _step(self, a):
+    def step(self, a):
         reward = 0.0
         action = self._action_set[a]
 
@@ -100,11 +97,11 @@ class AtariEnv(gym.Env, utils.EzPickle):
         return img
 
     # return: (states, observations)
-    def _reset(self):
+    def reset(self):
         self.ale.reset_game()
         return self._get_obs()
 
-    def _render(self, mode='human', close=False):
+    def render(self, mode='human', close=False):
         if close:
             if self.viewer is not None:
                 self.viewer.close()

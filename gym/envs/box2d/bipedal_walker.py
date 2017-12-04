@@ -87,7 +87,7 @@ class BipedalWalker(gym.Env):
     hardcore = False
 
     def __init__(self):
-        self._seed()
+        self.seed()
         self.viewer = None
 
         self.world = Box2D.b2World()
@@ -95,13 +95,13 @@ class BipedalWalker(gym.Env):
         self.hull = None
 
         self.prev_shaping = None
-        self._reset()
+        self.reset()
 
         high = np.array([np.inf]*24)
         self.action_space = spaces.Box(np.array([-1,-1,-1,-1]), np.array([+1,+1,+1,+1]))
         self.observation_space = spaces.Box(-high, high)
 
-    def _seed(self, seed=None):
+    def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
@@ -256,7 +256,7 @@ class BipedalWalker(gym.Env):
             x2 = max( [p[0] for p in poly] )
             self.cloud_poly.append( (poly,x1,x2) )
 
-    def _reset(self):
+    def reset(self):
         self._destroy()
         self.world.contactListener_bug_workaround = ContactDetector(self)
         self.world.contactListener = self.world.contactListener_bug_workaround
@@ -356,9 +356,9 @@ class BipedalWalker(gym.Env):
                 return 0
         self.lidar = [LidarCallback() for _ in range(10)]
 
-        return self._step(np.array([0,0,0,0]))[0]
+        return self.step(np.array([0,0,0,0]))[0]
 
-    def _step(self, action):
+    def step(self, action):
         #self.hull.ApplyForceToCenter((0, 20), True) -- Uncomment this to receive a bit of stability help
         control_speed = False  # Should be easier as well
         if control_speed:
@@ -430,7 +430,7 @@ class BipedalWalker(gym.Env):
             done   = True
         return np.array(state), reward, done, {}
 
-    def _render(self, mode='human', close=False):
+    def render(self, mode='human', close=False):
         if close:
             if self.viewer is not None:
                 self.viewer.close()

@@ -36,7 +36,7 @@ class MujocoEnv(gym.Env):
 
         self.init_qpos = self.model.data.qpos.ravel().copy()
         self.init_qvel = self.model.data.qvel.ravel().copy()
-        observation, _reward, done, _info = self._step(np.zeros(self.model.nu))
+        observation, _reward, done, _info = self.step(np.zeros(self.model.nu))
         assert not done
         self.obs_dim = observation.size
 
@@ -49,9 +49,9 @@ class MujocoEnv(gym.Env):
         low = -high
         self.observation_space = spaces.Box(low, high)
 
-        self._seed()
+        self.seed()
 
-    def _seed(self, seed=None):
+    def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
@@ -75,7 +75,7 @@ class MujocoEnv(gym.Env):
 
     # -----------------------------
 
-    def _reset(self):
+    def reset(self):
         mjlib.mj_resetData(self.model.ptr, self.data.ptr)
         ob = self.reset_model()
         if self.viewer is not None:
@@ -99,7 +99,7 @@ class MujocoEnv(gym.Env):
         for _ in range(n_frames):
             self.model.step()
 
-    def _render(self, mode='human', close=False):
+    def render(self, mode='human', close=False):
         if close:
             if self.viewer is not None:
                 self._get_viewer().finish()

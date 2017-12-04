@@ -7,7 +7,7 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         mujoco_env.MujocoEnv.__init__(self, 'swimmer.xml', 4)
         utils.EzPickle.__init__(self)
 
-    def _step(self, a):
+    def step(self, a):
         ctrl_cost_coeff = 0.0001
         xposbefore = self.model.data.qpos[0, 0]
         self.do_simulation(a, self.frame_skip)

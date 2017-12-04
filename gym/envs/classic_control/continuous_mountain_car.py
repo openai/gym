@@ -43,14 +43,14 @@ class Continuous_MountainCarEnv(gym.Env):
         self.action_space = spaces.Box(self.min_action, self.max_action, shape = (1,))
         self.observation_space = spaces.Box(self.low_state, self.high_state)
 
-        self._seed()
+        self.seed()
         self.reset()
 
-    def _seed(self, seed=None):
+    def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
-    def _step(self, action):
+    def step(self, action):
 
         position = self.state[0]
         velocity = self.state[1]
@@ -74,7 +74,7 @@ class Continuous_MountainCarEnv(gym.Env):
         self.state = np.array([position, velocity])
         return self.state, reward, done, {}
 
-    def _reset(self):
+    def reset(self):
         self.state = np.array([self.np_random.uniform(low=-0.6, high=-0.4), 0])
         return np.array(self.state)
 
@@ -84,7 +84,7 @@ class Continuous_MountainCarEnv(gym.Env):
     def _height(self, xs):
         return np.sin(3 * xs)*.45+.55
 
-    def _render(self, mode='human', close=False):
+    def render(self, mode='human', close=False):
         if close:
             if self.viewer is not None:
                 self.viewer.close()

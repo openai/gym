@@ -105,7 +105,7 @@ class CarRacing(gym.Env):
     }
 
     def __init__(self):
-        self._seed()
+        self.seed()
         self.contactListener_keepref = FrictionDetector(self)
         self.world = Box2D.b2World((0,0), contactListener=self.contactListener_keepref)
         self.viewer = None
@@ -119,7 +119,7 @@ class CarRacing(gym.Env):
         self.action_space = spaces.Box( np.array([-1,0,0]), np.array([+1,+1,+1]))  # steer, gas, brake
         self.observation_space = spaces.Box(low=0, high=255, shape=(STATE_H, STATE_W, 3))
 
-    def _seed(self, seed=None):
+    def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
@@ -274,7 +274,7 @@ class CarRacing(gym.Env):
         self.track = track
         return True
 
-    def _reset(self):
+    def reset(self):
         self._destroy()
         self.reward = 0.0
         self.prev_reward = 0.0
@@ -289,9 +289,9 @@ class CarRacing(gym.Env):
             print("retry to generate track (normal if there are not many of this messages)")
         self.car = Car(self.world, *self.track[0][1:4])
 
-        return self._step(None)[0]
+        return self.step(None)[0]
 
-    def _step(self, action):
+    def step(self, action):
         if action is not None:
             self.car.steer(-action[0])
             self.car.gas(action[1])
@@ -321,7 +321,7 @@ class CarRacing(gym.Env):
 
         return self.state, step_reward, done, {}
 
-    def _render(self, mode='human', close=False):
+    def render(self, mode='human', close=False):
         if close:
             if self.viewer is not None:
                 self.viewer.close()
@@ -400,7 +400,7 @@ class CarRacing(gym.Env):
         self.viewer.onetime_geoms = []
         return arr
 
-    def _render_road(self):
+    def render_road(self):
         gl.glBegin(gl.GL_QUADS)
         gl.glColor4f(0.4, 0.8, 0.4, 1.0)
         gl.glVertex3f(-PLAYFIELD, +PLAYFIELD, 0)
@@ -421,7 +421,7 @@ class CarRacing(gym.Env):
                 gl.glVertex3f(p[0], p[1], 0)
         gl.glEnd()
 
-    def _render_indicators(self, W, H):
+    def render_indicators(self, W, H):
         gl.glBegin(gl.GL_QUADS)
         s = W/40.0
         h = H/40.0
