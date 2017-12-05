@@ -28,20 +28,27 @@ from gym.utils import seeding
 #
 # To see how it works, run:
 #
-# python3 examples/agents/keyboard_agent.py CubeCrashScreen-v0
+# python examples/agents/keyboard_agent.py CubeCrashScreen-v0
 
-FIELD_W = 40
-FIELD_H = 60
+FIELD_W = 32
+FIELD_H = 40
 HOLE_WIDTH = 8
+
+color_black = np.array((0,0,0)).astype('float32')
+color_white = np.array((255,255,255)).astype('float32')
+color_green = np.array((0,255,0)).astype('float32')
 
 class CubeCrash(gym.Env):
     metadata = {
         'render.modes': ['human', 'rgb_array'],
-        'video.frames_per_second' : 60
+        'video.frames_per_second' : 60,
+        'video.res_w' : FIELD_W,
+        'video.res_h' : FIELD_H,
     }
 
     use_shaped_reward = True
     use_black_screen  = False
+    use_random_colors = False   # Makes env too hard
 
     def __init__(self):
         self.seed()
@@ -67,13 +74,13 @@ class CubeCrash(gym.Env):
         self.cube_x = self.np_random.randint(low=3, high=FIELD_W-3)
         self.cube_y = self.np_random.randint(low=3, high=FIELD_H//6)
         self.hole_x = self.np_random.randint(low=HOLE_WIDTH, high=FIELD_W-HOLE_WIDTH) 
-        self.bg_color   = self.random_color()
+        self.bg_color = self.random_color() if self.use_random_colors else color_black
         self.potential  = None
         self.step_n = 0
         while 1:
-            self.wall_color = self.random_color()
-            self.cube_color = self.random_color()
-            if np.linalg.norm(self.wall_color - self.bg_color) < 0.1 or np.linalg.norm(self.cube_color - self.bg_color) < 0.1: continue
+            self.wall_color = self.random_color() if self.use_random_colors else color_white
+            self.cube_color = self.random_color() if self.use_random_colors else color_green
+            if np.linalg.norm(self.wall_color - self.bg_color) < 50 or np.linalg.norm(self.cube_color - self.bg_color) < 50: continue
             break
         return self.step(0)[0]
     
@@ -90,7 +97,7 @@ class CubeCrash(gym.Env):
         obs[FIELD_H-5:FIELD_H,:,:] = self.wall_color
         obs[FIELD_H-5:FIELD_H, self.hole_x-HOLE_WIDTH//2:self.hole_x+HOLE_WIDTH//2+1, :] = self.bg_color
         obs[self.cube_y-1:self.cube_y+2, self.cube_x-1:self.cube_x+2, :] = self.cube_color
-        if self.use_black_screen and self.step_n > 5:
+        if self.use_black_screen and self.step_n > 4:
             obs[:] = np.zeros((3,), dtype=np.uint8)
 
         done = False

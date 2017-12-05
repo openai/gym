@@ -27,10 +27,10 @@ from gym.utils import seeding
 #
 # To see how it works, run:
 #
-# python3 examples/agents/keyboard_agent.py MemorizeDigits-v0
+# python examples/agents/keyboard_agent.py MemorizeDigits-v0
 
-FIELD_W = 40
-FIELD_H = 60
+FIELD_W = 32
+FIELD_H = 24
 
 bogus_mnist = \
 [[
@@ -105,11 +105,18 @@ bogus_mnist = \
 " **** "
 ]]
 
+color_black = np.array((0,0,0)).astype('float32')
+color_white = np.array((255,255,255)).astype('float32')
+
 class MemorizeDigits(gym.Env):
     metadata = {
         'render.modes': ['human', 'rgb_array'],
-        'video.frames_per_second' : 60
+        'video.frames_per_second' : 60,
+        'video.res_w' : FIELD_W,
+        'video.res_h' : FIELD_H,
     }
+
+    use_random_colors = False
 
     def __init__(self):
         self.seed()
@@ -136,11 +143,11 @@ class MemorizeDigits(gym.Env):
     def reset(self):
         self.digit_x = self.np_random.randint(low=FIELD_W//5, high=FIELD_W//5*4)
         self.digit_y = self.np_random.randint(low=FIELD_H//5, high=FIELD_H//5*4)
-        self.color_bg = self.random_color()
+        self.color_bg = self.random_color() if self.use_random_colors else color_black
         self.step_n = 0
         while 1:
-            self.color_digit = self.random_color()
-            if np.linalg.norm(self.color_digit - self.color_bg) < 0.1: continue
+            self.color_digit = self.random_color() if self.use_random_colors else color_white
+            if np.linalg.norm(self.color_digit - self.color_bg) < 50: continue
             break
         self.digit = -1
         return self.step(0)[0]
@@ -185,5 +192,4 @@ class MemorizeDigits(gym.Env):
 
         else:
             assert 0, "Render mode '%s' is not supported" % mode
-
 
