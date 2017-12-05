@@ -209,10 +209,10 @@ class Wrapper(Env):
                 break
 
     def step(self, action):
-        return self.env.step(action)
+        raise RuntimeError("%s doesn't implement step method"%type(self))
 
     def reset(self, **kwargs):
-        return self.env.reset(**kwargs)
+        raise RuntimeError("%s doesn't implement reset method"%type(self))
 
     def render(self, mode='human'):
         return self.env.render(mode)
@@ -239,41 +239,39 @@ class Wrapper(Env):
         return self.env.spec
 
 class ObservationWrapper(Wrapper):
-    def reset(self, **kwargs):
-        observation = self.env.reset(**kwargs)
-        return self._observation(observation)
-
     def step(self, action):
         observation, reward, done, info = self.env.step(action)
         return self.observation(observation), reward, done, info
+
+    def reset(self, **kwargs):
+        observation = self.env.reset(**kwargs)
+        return self._observation(observation)
 
     def observation(self, observation):
         return self._observation(observation)
 
 class RewardWrapper(Wrapper):
+    def reset(self):
+        return self.env.reset()
+
     def step(self, action):
         observation, reward, done, info = self.env.step(action)
         return observation, self.reward(reward), done, info
 
     def reward(self, reward):
-        return self._reward(reward)
-
-    def _reward(self, reward):
         raise NotImplementedError
+
 
 class ActionWrapper(Wrapper):
     def step(self, action):
         action = self.action(action)
         return self.env.step(action)
 
+    def reset(self):
+        return self.env.reset()
+        
     def action(self, action):
-        return self._action(action)
-
-    def _action(self, action):
         raise NotImplementedError
 
     def reverse_action(self, action):
-        return self._reverse_action(action)
-
-    def _reverse_action(self, action):
         raise NotImplementedError
