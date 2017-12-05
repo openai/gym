@@ -28,7 +28,7 @@ from gym.utils import seeding
 #
 # To see how it works, run:
 #
-# python3 examples/agents/keyboard_agent.py CubeCrashScreenBecomesBlack-v0
+# python3 examples/agents/keyboard_agent.py CubeCrashScreen-v0
 
 FIELD_W = 40
 FIELD_H = 60

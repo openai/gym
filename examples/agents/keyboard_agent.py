@@ -57,6 +57,8 @@ def rollout(env):
             skip -= 1
 
         obser, r, done, info = env.step(a)
+        if r != 0:
+            print("reward %0.3f" % r)
         total_reward += r
         window_still_open = env.render()
         if window_still_open==False: return False
@@ -65,6 +67,7 @@ def rollout(env):
         while human_sets_pause:
             env.render()
             time.sleep(0.1)
+        time.sleep(0.1)
     print("timesteps %i reward %0.2f" % (total_timesteps, total_reward))
 
 print("ACTIONS={}".format(ACTIONS))
