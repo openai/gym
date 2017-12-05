@@ -40,8 +40,8 @@ class Continuous_MountainCarEnv(gym.Env):
 
         self.viewer = None
 
-        self.action_space = spaces.Box(self.min_action, self.max_action, shape = (1,))
-        self.observation_space = spaces.Box(self.low_state, self.high_state)
+        self.action_space = spaces.Box(low=self.min_action, high=self.max_action, shape=(1,))
+        self.observation_space = spaces.Box(low=self.low_state, high=self.high_state)
 
         self.seed()
         self.reset()
@@ -84,13 +84,7 @@ class Continuous_MountainCarEnv(gym.Env):
     def _height(self, xs):
         return np.sin(3 * xs)*.45+.55
 
-    def render(self, mode='human', close=False):
-        if close:
-            if self.viewer is not None:
-                self.viewer.close()
-                self.viewer = None
-            return
-
+    def render(self, mode='human'):
         screen_width = 600
         screen_height = 400
 
@@ -143,3 +137,6 @@ class Continuous_MountainCarEnv(gym.Env):
         self.cartrans.set_rotation(math.cos(3 * pos))
 
         return self.viewer.render(return_rgb_array = mode=='rgb_array')
+
+    def close(self):
+        if self.viewer: self.viewer.close()

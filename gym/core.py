@@ -157,8 +157,8 @@ class Space(object):
     action.
     """
     def __init__(self, shape, dtype):
-        self.shape = shape
-        self.dtype = dtype
+        self.shape = None if shape is None else tuple(shape)
+        self.dtype = None if dtype is None else np.dtype(dtype)
 
     def sample(self):
         """
@@ -245,10 +245,10 @@ class ObservationWrapper(Wrapper):
 
     def reset(self, **kwargs):
         observation = self.env.reset(**kwargs)
-        return self._observation(observation)
+        return self.observation(observation)
 
     def observation(self, observation):
-        return self._observation(observation)
+        return self.observation(observation)
 
 class RewardWrapper(Wrapper):
     def reset(self):

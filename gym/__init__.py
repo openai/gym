@@ -10,4 +10,4 @@ from gym.core import Env, Space, Wrapper, ObservationWrapper, ActionWrapper, Rew
 from gym.envs import make, spec
 from gym import wrappers
 
-__all__ = ["Env", "Space", "Wrapper", "make", "spec", "upload", "wrappers"]
+__all__ = ["Env", "Space", "Wrapper", "make", "spec", "wrappers"]

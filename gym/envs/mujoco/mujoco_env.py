@@ -43,7 +43,7 @@ class MujocoEnv(gym.Env):
         bounds = self.model.actuator_ctrlrange.copy()
         low = bounds[:, 0]
         high = bounds[:, 1]
-        self.action_space = spaces.Box(low, high)
+        self.action_space = spaces.Box(low=low, high=high)
 
         high = np.inf*np.ones(self.obs_dim)
         low = -high
@@ -99,19 +99,18 @@ class MujocoEnv(gym.Env):
         for _ in range(n_frames):
             self.model.step()
 
-    def render(self, mode='human', close=False):
-        if close:
-            if self.viewer is not None:
-                self._get_viewer().finish()
-                self.viewer = None
-            return
-
+    def render(self, mode='human'):
         if mode == 'rgb_array':
             self._get_viewer().render()
             data, width, height = self._get_viewer().get_image()
             return np.fromstring(data, dtype='uint8').reshape(height, width, 3)[::-1, :, :]
         elif mode == 'human':
             self._get_viewer().loop_once()
+
+    def close(self):
+        if self.viewer is not None:
+            self.viewer.finish()
+            self.viewer = None
 
     def _get_viewer(self):
         if self.viewer is None:

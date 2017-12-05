@@ -1,9 +1,7 @@
 import numpy as np
+from gym import Space, spaces, logger
 
-import gym
-from gym.spaces import prng
-
-class Box(gym.Space):
+class Box(Space):
     """
     A box in R^n.
     I.e., each coordinate is bounded.
@@ -11,25 +9,27 @@ class Box(gym.Space):
     Example usage:
     self.action_space = spaces.Box(low=-10, high=10, shape=(1,))
     """
-    def __init__(self, low, high, shape=None, dtype=np.float32):
+    def __init__(self, low=None, high=None, shape=None, dtype=np.float32):
         """
         Two kinds of valid input:
-            Box(-1.0, 1.0, (3,4)) # low and high are scalars, and shape is provided
-            Box(np.array([-1.0,-2.0]), np.array([2.0,4.0])) # low and high are arrays of the same shape
+            Box(low=-1.0, high=1.0, shape=(3,4)) # low and high are scalars, and shape is provided
+            Box(np.array(low=[-1.0,-2.0]), high=np.array([2.0,4.0])) # low and high are arrays of the same shape
         """
         if shape is None:
             assert low.shape == high.shape
+            shape = low.shape
         else:
             assert np.isscalar(low) and np.isscalar(high)
             low = low + np.zeros(shape)
             high = high + np.zeros(shape)
         self.low = low.astype(dtype)
         self.high = high.astype(dtype)
-        self.dtype = dtype
+        if (self.high == 255).all() and dtype != np.uint8:
+            logger.warn('Box constructor got high=255 but dtype!=uint8')
+        Space.__init__(self, shape, dtype)
 
     def sample(self):
-        # XXX wrong for uint8
-        return prng.np_random.uniform(low=self.low, high=self.high, size=self.low.shape)
+        return spaces.np_random.uniform(low=self.low, high=self.high + (0 if self.dtype.kind == 'f' else 1), size=self.low.shape).astype(self.dtype)
     def contains(self, x):
         return x.shape == self.shape and (x >= self.low).all() and (x <= self.high).all()
 
@@ -38,10 +38,7 @@ class Box(gym.Space):
     def from_jsonable(self, sample_n):
         return [np.asarray(sample) for sample in sample_n]
 
-    @property
-    def shape(self):
-        return self.low.shape
     def __repr__(self):
         return "Box" + str(self.shape)
     def __eq__(self, other):
-        return np.allclose(self.low, other.low) and np.allclose(self.high, other.high) and self.dtype == other.dtype
+        return np.allclose(self.low, other.low) and np.allclose(self.high, other.high)

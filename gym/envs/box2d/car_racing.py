@@ -117,7 +117,7 @@ class CarRacing(gym.Env):
         self.prev_reward = 0.0
 
         self.action_space = spaces.Box( np.array([-1,0,0]), np.array([+1,+1,+1]))  # steer, gas, brake
-        self.observation_space = spaces.Box(low=0, high=255, shape=(STATE_H, STATE_W, 3))
+        self.observation_space = spaces.Box(low=0, high=255, shape=(STATE_H, STATE_W, 3), dtype=np.uint8)
 
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
@@ -321,13 +321,7 @@ class CarRacing(gym.Env):
 
         return self.state, step_reward, done, {}
 
-    def render(self, mode='human', close=False):
-        if close:
-            if self.viewer is not None:
-                self.viewer.close()
-                self.viewer = None
-            return
-
+    def render(self, mode='human'):
         if self.viewer is None:
             from gym.envs.classic_control import rendering
             self.viewer = rendering.Viewer(WINDOW_W, WINDOW_H)
@@ -399,6 +393,11 @@ class CarRacing(gym.Env):
 
         self.viewer.onetime_geoms = []
         return arr
+
+    def close(self):
+        if self.viewer is not None:
+            self.viewer.close()
+            self.viewer = None
 
     def render_road(self):
         gl.glBegin(gl.GL_QUADS)

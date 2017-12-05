@@ -1,10 +1,7 @@
 import numpy as np
 import pytest
-import os
-import gym
-from gym import envs, logger
+from gym import envs
 from gym.envs.tests.spec_list import spec_list
-
 
 # This runs a smoketest on each official registered env. We may want
 # to try also running environments which are not officially registered
@@ -42,4 +39,5 @@ def test_random_rollout():
             assert env.action_space.contains(a)
             (ob, _reward, done, _info) = env.step(a)
             if done: break
+        env.close()
 

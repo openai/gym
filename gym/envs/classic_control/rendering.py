@@ -139,6 +139,9 @@ class Viewer(object):
         arr = arr.reshape(self.height, self.width, 4)
         return arr[::-1,:,0:3]
 
+    def __del__(self):
+        self.close()
+
 def _add_attrs(geom, attrs):
     if "color" in attrs:
         geom.set_color(*attrs["color"])
@@ -313,7 +316,7 @@ class SimpleImageViewer(object):
         self.display = display
     def imshow(self, arr):
         if self.window is None:
-            height, width, channels = arr.shape
+            height, width, _channels = arr.shape
             self.window = pyglet.window.Window(width=4*width, height=4*height, display=self.display, vsync=False, resizable=True)
             self.width = width
             self.height = height
@@ -339,5 +342,6 @@ class SimpleImageViewer(object):
         if self.isopen:
             self.window.close()
             self.isopen = False
+
     def __del__(self):
         self.close()

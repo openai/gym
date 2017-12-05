@@ -7,10 +7,10 @@ from gym.spaces import Tuple, Box, Discrete, MultiDiscrete, Dict
 @pytest.mark.parametrize("space", [
               Discrete(3),
               Tuple([Discrete(5), Discrete(10)]),
-              Tuple([Discrete(5), Box(np.array([0,0]),np.array([1,5]))]),
+              Tuple([Discrete(5), Box(low=np.array([0,0]),high=np.array([1,5]))]),
               Tuple((Discrete(5), Discrete(2), Discrete(2))),
-              MultiDiscrete([ [0, 1], [0, 1], [0, 100] ]),
-              Dict({"position": Discrete(5), "velocity": Box(np.array([0,0]),np.array([1,5]))}),
+              MultiDiscrete([ 2, 2, 100]),
+              Dict({"position": Discrete(5), "velocity": Box(low=np.array([0,0]),high=np.array([1,5]))}),
               ])
 def test_roundtripping(space):
     sample_1 = space.sample()

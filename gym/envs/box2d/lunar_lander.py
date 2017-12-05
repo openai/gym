@@ -312,13 +312,7 @@ class LunarLander(gym.Env):
             reward = +100
         return np.array(state), reward, done, {}
 
-    def render(self, mode='human', close=False):
-        if close:
-            if self.viewer is not None:
-                self.viewer.close()
-                self.viewer = None
-            return
-
+    def render(self, mode='human'):
         from gym.envs.classic_control import rendering
         if self.viewer is None:
             self.viewer = rendering.Viewer(VIEWPORT_W, VIEWPORT_H)
@@ -354,6 +348,11 @@ class LunarLander(gym.Env):
             self.viewer.draw_polygon( [(x, flagy2), (x, flagy2-10/SCALE), (x+25/SCALE, flagy2-5/SCALE)], color=(0.8,0.8,0) )
 
         return self.viewer.render(return_rgb_array = mode=='rgb_array')
+
+    def close(self):
+        if self.viewer is not None:
+            self.viewer.close()
+            self.viewer = None
 
 class LunarLanderContinuous(LunarLander):
     continuous = True

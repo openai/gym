@@ -3,7 +3,7 @@ import sys
 # We keep the actual reraising in different modules, since the
 # reraising code uses syntax mutually exclusive to Python 2/3.
 if sys.version_info[0] < 3:
-    from .reraise_impl_py2 import reraise_impl
+    from .reraise_impl_py2 import reraise_impl #pylint: disable=E0401
 else:
     from .reraise_impl_py3 import reraise_impl
 

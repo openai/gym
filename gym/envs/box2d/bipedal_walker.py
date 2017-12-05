@@ -430,13 +430,7 @@ class BipedalWalker(gym.Env):
             done   = True
         return np.array(state), reward, done, {}
 
-    def render(self, mode='human', close=False):
-        if close:
-            if self.viewer is not None:
-                self.viewer.close()
-                self.viewer = None
-            return
-
+    def render(self, mode='human'):
         from gym.envs.classic_control import rendering
         if self.viewer is None:
             self.viewer = rendering.Viewer(VIEWPORT_W, VIEWPORT_H)
@@ -485,6 +479,11 @@ class BipedalWalker(gym.Env):
         self.viewer.draw_polyline(f + [f[0]], color=(0,0,0), linewidth=2 )
 
         return self.viewer.render(return_rgb_array = mode=='rgb_array')
+
+    def close(self):
+        if self.viewer is not None:
+            self.viewer.close()
+            self.viewer = None
 
 class BipedalWalkerHardcore(BipedalWalker):
     hardcore = True

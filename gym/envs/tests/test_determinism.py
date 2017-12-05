@@ -1,8 +1,6 @@
 import numpy as np
 import pytest
-import os
-import gym
-from gym import envs, spaces, logger
+from gym import spaces
 from gym.envs.tests.spec_list import spec_list
 
 @pytest.mark.parametrize("spec", spec_list)

@@ -55,12 +55,7 @@ class PendulumEnv(gym.Env):
         theta, thetadot = self.state
         return np.array([np.cos(theta), np.sin(theta), thetadot])
 
-    def render(self, mode='human', close=False):
-        if close:
-            if self.viewer is not None:
-                self.viewer.close()
-                self.viewer = None
-            return
+    def render(self, mode='human'):
 
         if self.viewer is None:
             from gym.envs.classic_control import rendering
@@ -85,6 +80,9 @@ class PendulumEnv(gym.Env):
             self.imgtrans.scale = (-self.last_u/2, np.abs(self.last_u)/2)
 
         return self.viewer.render(return_rgb_array = mode=='rgb_array')
+
+    def close(self):
+        if self.viewer: self.viewer.close()
 
 def angle_normalize(x):
     return (((x+np.pi) % (2*np.pi)) - np.pi)

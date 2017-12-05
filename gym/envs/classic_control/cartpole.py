@@ -90,13 +90,7 @@ class CartPoleEnv(gym.Env):
         self.steps_beyond_done = None
         return np.array(self.state)
 
-    def render(self, mode='human', close=False):
-        if close:
-            if self.viewer is not None:
-                self.viewer.close()
-                self.viewer = None
-            return
-
+    def render(self, mode='human'):
         screen_width = 600
         screen_height = 400
 
@@ -141,3 +135,6 @@ class CartPoleEnv(gym.Env):
         self.poletrans.set_rotation(-x[2])
 
         return self.viewer.render(return_rgb_array = mode=='rgb_array')
+
+    def close(self):
+        if self.viewer: self.viewer.close()

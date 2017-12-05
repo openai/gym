@@ -113,9 +113,7 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
 
         super(FrozenLakeEnv, self).__init__(nS, nA, P, isd)
 
-    def render(self, mode='human', close=False):
-        if close:
-            return
+    def render(self, mode='human'):
         outfile = StringIO() if mode == 'ansi' else sys.stdout
 
         row, col = self.s // self.ncol, self.s % self.ncol

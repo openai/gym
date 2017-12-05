@@ -48,7 +48,7 @@ class AtariEnv(gym.Env, utils.EzPickle):
 
         (screen_width,screen_height) = self.ale.getScreenDims()
         if self._obs_type == 'ram':
-            self.observation_space = spaces.Box(low=np.zeros(128), high=np.zeros(128)+255, dtype=np.uint8)
+            self.observation_space = spaces.Box(low=0, high=255, dtype=np.uint8, shape=(128,))
         elif self._obs_type == 'image':
             self.observation_space = spaces.Box(low=0, high=255, shape=(screen_height, screen_width, 3), dtype=np.uint8)
         else:
@@ -101,12 +101,7 @@ class AtariEnv(gym.Env, utils.EzPickle):
         self.ale.reset_game()
         return self._get_obs()
 
-    def render(self, mode='human', close=False):
-        if close:
-            if self.viewer is not None:
-                self.viewer.close()
-                self.viewer = None
-            return
+    def render(self, mode='human'):
         img = self._get_image()
         if mode == 'rgb_array':
             return img
@@ -116,6 +111,11 @@ class AtariEnv(gym.Env, utils.EzPickle):
                 self.viewer = rendering.SimpleImageViewer()
             self.viewer.imshow(img)
             return self.viewer.isopen
+
+    def close(self):
+        if self.viewer is not None:
+            self.viewer.close()
+            self.viewer = None
 
     def get_action_meanings(self):
         return [ACTION_MEANING[i] for i in self._action_set]

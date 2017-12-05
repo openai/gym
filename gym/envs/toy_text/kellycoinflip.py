@@ -62,8 +62,7 @@ class KellyCoinflipEnv(gym.Env):
         self.wealth = self.initialWealth
         return self._get_obs()
 
-    def render(self, mode='human', close=True):
-        if close: return
+    def render(self, mode='human'):
         print("Current wealth: ", self.wealth, "; Rounds left: ", self.rounds)
 
 class KellyCoinflipGeneralizedEnv(gym.Env):
@@ -145,8 +144,7 @@ class KellyCoinflipGeneralizedEnv(gym.Env):
         # re-init everything to draw new parameters etc, but preserve the RNG for reproducibility and pass in the same hyperparameters as originally specified:
         self.__init__(initialWealth=self.initialWealth, edgePriorAlpha=self.edgePriorAlpha, edgePriorBeta=self.edgePriorBeta, maxWealthAlpha=self.maxWealthAlpha, maxWealthM=self.maxWealthM, maxRoundsMean=self.maxRoundsMean, maxRoundsSD=self.maxRoundsSD, reseed=False)
         return self._get_obs()
-    def render(self, mode='human', close=True):
-        if close: return
+    def render(self, mode='human'):
         print("Current wealth: ", self.wealth, "; Rounds left: ", self.rounds, "; True edge: ", self.edge,
               "; True max wealth: ", self.maxWealth, "; True stopping time: ", self.maxRounds, "; Rounds left: ",
               self.maxRounds - self.roundsElapsed)

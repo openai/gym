@@ -23,7 +23,7 @@ def usable_ace(hand):  # Does this hand have a usable ace?
 
 def sum_hand(hand):  # Return current hand total
     if usable_ace(hand):
-            return sum(hand) + 10
+        return sum(hand) + 10
     return sum(hand)
 
 

@@ -1,6 +1,6 @@
-import numpy as np
 from gym.envs.mujoco import mujoco_env
 from gym import utils
+import numpy as np
 
 def mass_center(model):
     mass = model.body_mass

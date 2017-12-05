@@ -1,5 +1,3 @@
-import sys
-
 DEBUG = 10
 INFO = 20
 WARN = 30
@@ -17,16 +15,16 @@ def set_level(level):
 
 def debug(msg, *args):
     if MIN_LEVEL <= INFO:
-        sys.stderr.write('%s: %s'%('DEBUG', msg % args))
+        print('%s: %s'%('DEBUG', msg % args))
 
 def info(msg, *args):
     if MIN_LEVEL <= INFO:
-        sys.stderr.write('%s: %s'%('INFO', msg % args))
+        print('%s: %s'%('INFO', msg % args))
 
 def warn(msg, *args):
     if MIN_LEVEL <= WARN:
-        sys.stderr.write('%s: %s'%('WARN', msg % args))
+        print('%s: %s'%('WARN', msg % args))
 
 def error(msg, *args):
     if MIN_LEVEL <= ERROR:
-        sys.stderr.write('%s: %s'%('ERROR', msg % args))
+        print('%s: %s'%('ERROR', msg % args))

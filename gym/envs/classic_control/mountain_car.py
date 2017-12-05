@@ -59,13 +59,7 @@ class MountainCarEnv(gym.Env):
     def _height(self, xs):
         return np.sin(3 * xs)*.45+.55
 
-    def render(self, mode='human', close=False):
-        if close:
-            if self.viewer is not None:
-                self.viewer.close()
-                self.viewer = None
-            return
-
+    def render(self, mode='human'):
         screen_width = 600
         screen_height = 400
 
@@ -118,3 +112,6 @@ class MountainCarEnv(gym.Env):
         self.cartrans.set_rotation(math.cos(3 * pos))
 
         return self.viewer.render(return_rgb_array = mode=='rgb_array')
+
+    def close(self):
+        if self.viewer: self.viewer.close()
