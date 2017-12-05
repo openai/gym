@@ -84,8 +84,8 @@ class GazeboModularScara4DOFv3Env(gazebo_env.GazeboEnv):
         INITIAL_JOINTS = np.array([2.0, -2.0, -2.0, 0.])
         # Used to initialize the robot, #TODO, clarify this more
         # STEP_COUNT = 2  # Typically 100.
-        slowness = 10000000 # 1 is real life simulation
-        # slowness = 1 # use >10 for running trained network in the simulation
+        # slowness = 10000000 # 1 is real life simulation
+        slowness = 1 # use >10 for running trained network in the simulation
         # slowness = 10 # use >10 for running trained network in the simulation
 
         # Topics for the robot publisher and subscriber.
@@ -155,6 +155,7 @@ class GazeboModularScara4DOFv3Env(gazebo_env.GazeboEnv):
 
         # Initialize target end effector position
         ee_tgt = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt, ee_rot_tgt).T)
+        self.realgoal = ee_tgt
 
         self.environment = {
             'ee_points_tgt': ee_tgt,
@@ -230,6 +231,12 @@ class GazeboModularScara4DOFv3Env(gazebo_env.GazeboEnv):
         """
         self._observation_msg =  message
 
+    def randomizeCorrect(self):
+        print("calling randomize Correct")
+        #self.realgoal = #ee_tgt = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt, ee_rot_tgt).T)#np.array([self.np_random.choice([0, 1, 2, 3])])
+        # 0 = obstacle. 1 = no obstacle.
+        # self.realgoal = 0
+
     def get_trajectory_message(self, action, robot_id=0):
         """
         Helper function.
@@ -245,8 +252,8 @@ class GazeboModularScara4DOFv3Env(gazebo_env.GazeboEnv):
         target.positions = action_float
         # These times determine the speed at which the robot moves:
         # it tries to reach the specified target position in 'slowness' time.
-        # target.time_from_start.secs = self.environment['slowness']
-        target.time_from_start.nsecs = self.environment['slowness']
+        target.time_from_start.secs = self.environment['slowness']
+        # target.time_from_start.nsecs = self.environment['slowness']
         # Package the single point into a trajectory of points with length 1.
         action_msg.points = [target]
         return action_msg
