@@ -374,3 +374,30 @@ for game in ['air_raid', 'alien', 'amidar', 'assault', 'asterix', 'asteroids', '
             max_episode_steps=frameskip * 100000,
             nondeterministic=nondeterministic,
         )
+
+
+# Unit test
+# ---------
+
+register(
+    id='CubeCrash-v0',
+    entry_point='gym.envs.unittest:CubeCrash',
+    reward_threshold=0.9,
+    )
+register(
+    id='CubeCrashSparse-v0',
+    entry_point='gym.envs.unittest:CubeCrashSparse',
+    reward_threshold=0.9,
+    )
+register(
+    id='CubeCrashScreenBecomesBlack-v0',
+    entry_point='gym.envs.unittest:CubeCrashScreenBecomesBlack',
+    reward_threshold=0.9,
+    )
+
+register(
+    id='MemorizeDigits-v0',
+    entry_point='gym.envs.unittest:MemorizeDigits',
+    reward_threshold=20,
+    )
+
