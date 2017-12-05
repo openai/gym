@@ -395,3 +395,9 @@ register(
     reward_threshold=0.9,
     )
 
+register(
+    id='MemorizeDigits-v0',
+    entry_point='gym.envs.unittest:MemorizeDigits',
+    reward_threshold=20,
+    )
+
