@@ -48,7 +48,7 @@ class CubeCrash(gym.Env):
         self.viewer = None
 
         self.observation_space = spaces.Box(0, 255, (FIELD_H,FIELD_W,3), dtype=np.uint8)
-        self.action_space = spaces.Discrete(4)
+        self.action_space = spaces.Discrete(3)
 
         self.reset()
 
