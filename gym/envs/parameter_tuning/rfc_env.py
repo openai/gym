@@ -8,6 +8,7 @@ from itertools import cycle
 import math
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
+from multi_discrete import BoxToMultiDiscrete
 
 
 def multi_error(y_true, y_pred):
@@ -34,6 +35,7 @@ class RandomForestEnv(gym.Env):
         # output layer, validation accuracy after training with given
         # parameters
         self.observation_space = spaces.Box(-1e5, 1e5, 4)
+        self.action_space = BoxToMultiDiscrete(self.action_space)
 
         # Start the first game
         self._reset()
@@ -48,6 +50,7 @@ class RandomForestEnv(gym.Env):
         # assert self.action_space.contains(action)
         # print(action)
         # n_est, max_depth, num_leaves = action
+        action = self.action_space(action)
         print("Action: ", action)
         n_est, max_depth, num_leaves = action[0], action[1], action[2]
 
