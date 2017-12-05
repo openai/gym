@@ -132,7 +132,8 @@ class Env(object):
               'seed'. Often, the main seed equals the provided 'seed', but
               this won't be true if seed=None, for example.
         """
-        return self.seed(seed)
+        logger.warn("Could not seed environment %s", self)
+        return
 
     @property
     def unwrapped(self):
@@ -248,7 +249,7 @@ class ObservationWrapper(Wrapper):
         return self.observation(observation)
 
     def observation(self, observation):
-        return self.observation(observation)
+        raise NotImplementedError
 
 class RewardWrapper(Wrapper):
     def reset(self):
