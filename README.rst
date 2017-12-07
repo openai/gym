@@ -1,6 +1,6 @@
 OpenAI Gym
 **********
-
+**This version of Gym includes multiple new parameter tuning environments for my own research, please share if you come up with your own agents for them!** 
 **OpenAI Gym is a toolkit for developing and comparing reinforcement learning algorithms.** This is the ``gym`` open-source library, which gives you access to a standardized set of environments.
 
 .. image:: https://travis-ci.org/openai/gym.svg?branch=master
