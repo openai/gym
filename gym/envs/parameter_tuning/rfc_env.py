@@ -37,6 +37,8 @@ class RandomForestEnv(gym.Env):
         self.observation_space = spaces.Box(-1e5, 1e5, 4)
         self.action_space = BoxToMultiDiscrete(self.action_space)
 
+        self.best_acc = 0.8
+
         # Start the first game
         self._reset()
 
@@ -90,6 +92,11 @@ class RandomForestEnv(gym.Env):
         self.epoch_idx = self.epoch_idx + 1
 
         done = self.epoch_idx == 20
+        if acc > self.best_acc:
+            self.best_acc = acc
+            # done = True
+        else:
+            done = False
 
         if acc < .6:
             """ maybe not set to a very large value; if you get something nice,
