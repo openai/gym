@@ -158,7 +158,9 @@ class GazeboModularScara4DOFv3Env(gazebo_env.GazeboEnv):
         self.realgoal = ee_tgt
 
         self.environment = {
-            'ee_points_tgt': ee_tgt,
+            # rk changed this to for the mlsh
+            # 'ee_points_tgt': ee_tgt,
+            'ee_points_tgt': self.realgoal,
             'joint_order': m_joint_order,
             'link_names': m_link_names,
             'slowness': slowness,
@@ -232,10 +234,37 @@ class GazeboModularScara4DOFv3Env(gazebo_env.GazeboEnv):
         self._observation_msg =  message
 
     def randomizeCorrect(self):
-        print("calling randomize Correct")
+        print("calling randomize correct")
+
+        EE_POS_TGT_1 = np.asmatrix([0.3325683, 0.0657366, 0.4868]) # center of O
+        EE_POS_TGT_2 = np.asmatrix([0.3305805, -0.1326121, 0.4868]) # center of the H
+        EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+        EE_POINTS = np.asmatrix([[0, 0, 0]])
+
+        ee_pos_tgt_1 = EE_POS_TGT_1
+        ee_pos_tgt_2 = EE_POS_TGT_2
+
+        # leave rotation target same since in scara we do not have rotation of the end-effector
+        ee_rot_tgt = EE_ROT_TGT
+
+        # Initialize target end effector position
+        # ee_tgt = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt, ee_rot_tgt).T)
+
+        target1 = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt_1, ee_rot_tgt).T)
+        target2 = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt_2, ee_rot_tgt).T)
+
+
+        """
+        This is for initial test only, we need to change this in the future to be more realistic.
+        E.g. covered target -> go to other target. This could be implemented for example with vision.
+        """
+        self.realgoal = target1 if np.random.uniform() < 0.5 else target2
+        print("randomizeCorrect realgoal: ", self.realgoal)
         #self.realgoal = #ee_tgt = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt, ee_rot_tgt).T)#np.array([self.np_random.choice([0, 1, 2, 3])])
         # 0 = obstacle. 1 = no obstacle.
         # self.realgoal = 0
+        # EE_POS_TGT = np.asmatrix([0.3325683, 0.0657366, 0.4868]) # center of O
+        # EE_POS_TGT = np.asmatrix([0.3305805, -0.1326121, 0.4868]) # center of the H
 
     def get_trajectory_message(self, action, robot_id=0):
         """
@@ -384,7 +413,7 @@ class GazeboModularScara4DOFv3Env(gazebo_env.GazeboEnv):
             current_ee_tgt = np.ndarray.flatten(get_ee_points(self.environment['end_effector_points'],
                                                               trans,
                                                               rot).T)
-            ee_points = current_ee_tgt - self.environment['ee_points_tgt']
+            ee_points = current_ee_tgt - self.realgoal#self.environment['ee_points_tgt']
             ee_points_jac_trans, _ = self.get_ee_points_jacobians(ee_link_jacobians,
                                                                    self.environment['end_effector_points'],
                                                                    rot)

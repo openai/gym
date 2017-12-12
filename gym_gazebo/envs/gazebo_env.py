@@ -4,7 +4,7 @@ import rospy
 import os
 import signal
 import subprocess
-
+import time
 from os import path
 
 from std_srvs.srv import Empty
@@ -20,6 +20,7 @@ class GazeboEnv(gym.Env):
         port = os.environ["ROS_PORT_SIM"]
         #start roscore
         subprocess.Popen(["roscore", "-p", port])
+        time.sleep(1)
         print ("Roscore launched!")
 
         # Launch the simulation with the given launchfile name
