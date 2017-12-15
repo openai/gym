@@ -27,3 +27,9 @@ Learn more here: https://github.com/erlerobot/gym-gazebo/
 A simple 2D maze environment where an agent finds its way from the start position to the goal. 
 
 Learn more here: https://github.com/tuzzer/gym-maze/
+
+## gym-minigrid: Minimalistic Gridworld Environment
+
+A minimalistic gridworld environment. Seeks to minimize software dependencies, be easy to extend and deliver good performance for faster training.
+
+Learn more here: https://github.com/maximecb/gym-minigrid
