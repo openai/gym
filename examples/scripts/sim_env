@@ -9,9 +9,9 @@ import time
 parser = argparse.ArgumentParser()
 parser.add_argument("env")
 parser.add_argument("--mode", choices=["noop", "random", "static", "human"],
-    default="random")
+                    default="random")
 parser.add_argument("--max_steps", type=int, default=0)
-parser.add_argument("--fps",type=float)
+parser.add_argument("--fps", type=float)
 parser.add_argument("--once", action="store_true")
 parser.add_argument("--ignore_done", action="store_true")
 args = parser.parse_args()
@@ -20,7 +20,8 @@ env = envs.make(args.env)
 ac_space = env.action_space
 
 fps = args.fps or env.metadata.get('video.frames_per_second') or 100
-if args.max_steps == 0: args.max_steps = env.spec.tags['wrapper_config.TimeLimit.max_episode_steps']
+if args.max_steps == 0:
+    args.max_steps = env.spec.tags['wrapper_config.TimeLimit.max_episode_steps']
 
 while True:
     env.reset()
@@ -56,7 +57,8 @@ while True:
             _, _, done, _ = env.step(a)
 
         env.render()
-        if done and not args.ignore_done: break
+        if done and not args.ignore_done:
+            break
     print("Done after {} steps".format(t+1))
     if args.once:
         break
