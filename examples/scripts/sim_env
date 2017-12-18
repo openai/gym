@@ -53,7 +53,7 @@ while True:
             if a >= ac_space.n:
                 print("WARNING: ignoring illegal action {}.".format(a))
                 a = 0
-        _, _, done, _ = env.step(a)
+            _, _, done, _ = env.step(a)
 
         env.render()
         if done and not args.ignore_done: break
