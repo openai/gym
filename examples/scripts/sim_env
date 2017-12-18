@@ -5,6 +5,7 @@ import argparse
 import numpy as np
 import itertools
 import time
+from six.moves import input as raw_input
 
 parser = argparse.ArgumentParser()
 parser.add_argument("env")
