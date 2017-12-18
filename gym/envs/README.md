@@ -21,7 +21,9 @@ ant.AntEnv
 
 ## How to create new environments for Gym
 
-* Create a new repo called gym-foo, which should also be a PIP package.
+* Create a new repo called `gym-foo`, which should also be a PIP package.
+
+* Install the package within the folder `gym-foo`: `pip install -e .`
 
 * A good example is https://github.com/openai/gym-soccer.
 
