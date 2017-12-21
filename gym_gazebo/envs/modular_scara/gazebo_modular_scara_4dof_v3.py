@@ -318,9 +318,9 @@ class GazeboModularScara4DOFv3Env(gazebo_env.GazeboEnv):
         The angles are roll, pitch, and yaw (not Euler angles) and are not needed.
         Returns a repackaged Jacobian that is 3x6.
         """
-        # Initialize a Jacobian for 6 joint angles by 3 cartesian coords and 3 orientation angles
+        # Initialize a Jacobian for self.scara_chain.getNrOfJoints() joint angles by 3 cartesian coords and 3 orientation angles
         jacobian = Jacobian(self.scara_chain.getNrOfJoints())
-        # Initialize a joint array for the present 6 joint angles.
+        # Initialize a joint array for the present self.scara_chain.getNrOfJoints() joint angles.
         angles = JntArray(self.scara_chain.getNrOfJoints())
         # Construct the joint array from the most recent joint angles.
         for i in range(self.scara_chain.getNrOfJoints()):

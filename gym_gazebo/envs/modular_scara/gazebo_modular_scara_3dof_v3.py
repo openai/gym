@@ -77,7 +77,7 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
         EE_POINTS = np.asmatrix([[0, 0, 0]])
         EE_VELOCITIES = np.asmatrix([[0, 0, 0]])
         # Initial joint position
-        INITIAL_JOINTS = np.array([0, 0, 0])
+        INITIAL_JOINTS = np.array([0., 0., 0.])
         # Used to initialize the robot, #TODO, clarify this more
         STEP_COUNT = 2  # Typically 100.
         # slowness = 100000000 # 1 is real life simulation
@@ -185,7 +185,7 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
         # observation, _reward, done, _info = self._step(np.zeros(self.scara_chain.getNrOfJoints()))
         # assert not done
         # self.obs_dim = observation.size
-        self.obs_dim = 9 # hardcode it for now
+        self.obs_dim = self.scara_chain.getNrOfJoints() + 6 # hardcode it for now
         # # print(observation, _reward)
 
         # # Here idially we should find the control range of the robot. Unfortunatelly in ROS/KDL there is nothing like this.
@@ -265,8 +265,8 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
         target.positions = action_float
         # These times determine the speed at which the robot moves:
         # it tries to reach the specified target position in 'slowness' time.
-        # target.time_from_start.secs = self.environment['slowness']
-        target.time_from_start.nsecs = self.environment['slowness']
+        target.time_from_start.secs = self.environment['slowness']
+        # target.time_from_start.nsecs = self.environment['slowness']
         # Package the single point into a trajectory of points with length 1.
         action_msg.points = [target]
         return action_msg
@@ -302,9 +302,9 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
         The angles are roll, pitch, and yaw (not Euler angles) and are not needed.
         Returns a repackaged Jacobian that is 3x6.
         """
-        # Initialize a Jacobian for 6 joint angles by 3 cartesian coords and 3 orientation angles
+        # Initialize a Jacobian for self.scara_chain.getNrOfJoints() joint angles by 3 cartesian coords and 3 orientation angles
         jacobian = Jacobian(self.scara_chain.getNrOfJoints())
-        # Initialize a joint array for the present 6 joint angles.
+        # Initialize a joint array for the present self.scara_chain.getNrOfJoints() joint angles.
         angles = JntArray(self.scara_chain.getNrOfJoints())
         # Construct the joint array from the most recent joint angles.
         for i in range(self.scara_chain.getNrOfJoints()):
@@ -381,7 +381,7 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
             # print(self.environment['link_names'][-1])
             trans, rot = forward_kinematics(self.scara_chain,
                                         self.environment['link_names'],
-                                        last_observations[:3],
+                                        last_observations[:self.scara_chain.getNrOfJoints()],
                                         base_link=self.environment['link_names'][0],
                                         end_link=self.environment['link_names'][-1])
             # #
@@ -397,7 +397,7 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
             current_ee_tgt = np.ndarray.flatten(get_ee_points(self.environment['end_effector_points'],
                                                               trans,
                                                               rot).T)
-            ee_points = current_ee_tgt - self.realgoal
+            ee_points = current_ee_tgt - self.realgoal#self.environment['ee_points_tgt']
             ee_points_jac_trans, _ = self.get_ee_points_jacobians(ee_link_jacobians,
                                                                    self.environment['end_effector_points'],
                                                                    rot)
@@ -455,16 +455,23 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
         # # Calculate if the env has been solved
         # done = bool(abs(self.reward_dist) < 0.005)
 
-        self.reward_dist = -self.rmse_func(self.ob[3:6])
-        # print("reward_dist :", self.reward_dist)
-        if(self.rmse_func(self.ob[3:6])<0.005):
-            self.reward = 1 - self.rmse_func(self.ob[3:6]) # Make the reward increase as the distance decreases
+        # reward as in the enviroment for 4DOF commented out
+        self.reward_dist = -self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])
+
+        # here we want to fetch the positions of the end-effector which are nr_dof:nr_dof+3
+        if(self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])<0.005):
+            self.reward = 1 - self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)]) # Make the reward increase as the distance decreases
             print("Reward is: ", self.reward)
         else:
             self.reward = self.reward_dist
 
         # print("reward: ", self.reward)
         # print("rmse_func: ", self.rmse_func(ee_points))
+
+        # # enviroment V2 reward
+        # self.reward_dist = self.rmse_func(self.ob[3:6])
+        # # print("reward_dist :", self.reward_dist)
+        # self.reward = 1 - self.reward_dist # Make the reward increase as the distance decreases
 
         # Calculate if the env has been solved
         done = bool(abs(self.reward_dist) < 0.005)
@@ -478,7 +485,8 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
 
         # Execute "action"
         # if rclpy.ok(): # ROS 2 code
-        self._pub.publish(self.get_trajectory_message(action[:3]))
+        self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
+
         #TODO: wait until action gets executed
         # When adding this the algorithm does not converge
         # time.sleep(int(self.environment['slowness']))
@@ -497,6 +505,8 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
         self.ob = self.take_observation()
         while(self.ob is None):
             self.ob = self.take_observation()
+        # print("in step, action: ", action[:3])
+        # print("in step, observation: ", self.ob[:3])
 
         # Return the corresponding observations, rewards, etc.
         # TODO, understand better what's the last object to return
