@@ -73,3 +73,8 @@ register(
     id='GazeboModularScara4DOF-v3',
     entry_point='gym_gazebo.envs.modular_scara:GazeboModularScara4DOFv3Env',
 )
+
+register(
+    id='GazeboModularArticulatedArm4DOF-v1',
+    entry_point='gym_gazebo.envs.articulated_arm:GazeboModularArticulatedArm4DOFv1Env',
+)
