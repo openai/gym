@@ -1,0 +1,1 @@
+from gym_gazebo.envs.articulated_arm.gazebo_modular_articulated_arm_4dof_v1 import GazeboModularArticulatedArm4DOFv1Env
