@@ -2,7 +2,7 @@
 
 The MIT License
 
-Copyright (c) 2016 OpenAI (http://openai.com)
+Copyright (c) 2016 OpenAI (https://openai.com)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

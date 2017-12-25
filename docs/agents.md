@@ -22,7 +22,7 @@ This is a very basic DQN (with experience replay) implementation, which uses Ope
 
 ## Simple DQN
 
-Simple, fast and easy to extend DQN implementation using [Neon](https://github.com/NervanaSystems/neon) deep learning library. Comes with out-of-box tools to train, test and visualize models. For details see [this blog post](http://www.nervanasys.com/deep-reinforcement-learning-with-neon/) or check out the [repo](https://github.com/tambetm/simple_dqn).
+Simple, fast and easy to extend DQN implementation using [Neon](https://github.com/NervanaSystems/neon) deep learning library. Comes with out-of-box tools to train, test and visualize models. For details see [this blog post](https://www.nervanasys.com/deep-reinforcement-learning-with-neon/) or check out the [repo](https://github.com/tambetm/simple_dqn).
 
 ## AgentNet
 A library that allows you to develop custom deep/convolutional/recurrent reinforcement learning agent with full integration with Theano/Lasagne. Also contains a toolkit for various reinforcement learning algorithms, policies, memory augmentations, etc.
@@ -36,4 +36,4 @@ a framework for developing and evaluating reinforcement learning algorithms, ful
 
 ## [keras-rl](https://github.com/matthiasplappert/keras-rl)
 
-[keras-rl](https://github.com/matthiasplappert/keras-rl) implements some state-of-the art deep reinforcement learning algorithms. It was built with OpenAI Gym in mind, and also built on top of the deep learning library [Keras](http://keras.io/) and utilises similar design patterns like callbacks and user-definable metrics.
+[keras-rl](https://github.com/matthiasplappert/keras-rl) implements some state-of-the art deep reinforcement learning algorithms. It was built with OpenAI Gym in mind, and also built on top of the deep learning library [Keras](https://keras.io/) and utilises similar design patterns like callbacks and user-definable metrics.
