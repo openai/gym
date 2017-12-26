@@ -3,7 +3,7 @@ from gym import utils
 from gym.envs.mujoco import mujoco_env
 
 import mujoco_py
-from mujoco_py.mjlib import mjlib
+#from mujoco_py.import mjlib
 
 class PusherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     def __init__(self):
@@ -50,8 +50,8 @@ class PusherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     def _get_obs(self):
         return np.concatenate([
-            self.model.data.qpos.flat[:7],
-            self.model.data.qvel.flat[:7],
+            self.sim.data.qpos.flat[:7],
+            self.sim.data.qvel.flat[:7],
             self.get_body_com("tips_arm"),
             self.get_body_com("object"),
             self.get_body_com("goal"),

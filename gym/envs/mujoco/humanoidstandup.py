@@ -2,10 +2,11 @@ import numpy as np
 from gym.envs.mujoco import mujoco_env
 from gym import utils
 
-def mass_center(model):
-    mass = model.body_mass
-    xpos = model.data.xipos
-    return (np.sum(mass * xpos, 0) / np.sum(mass))[0]
+def mass_center(sim):
+    #mass = model.body_mass
+    mass = sim.model.body_mass
+    xpos = sim.data.xipos
+    return (np.sum(mass*xpos, 0) / np.sum(mass))[0]
 
 class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     def __init__(self):
@@ -13,7 +14,7 @@ class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         utils.EzPickle.__init__(self)
 
     def _get_obs(self):
-        data = self.model.data
+        data = self.sim.data
         return np.concatenate([data.qpos.flat[2:],
                                data.qvel.flat,
                                data.cinert.flat,
@@ -23,8 +24,8 @@ class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     def _step(self, a):
         self.do_simulation(a, self.frame_skip)
-        pos_after = self.model.data.qpos[2][0]
-        data = self.model.data
+        pos_after = self.sim.data.qpos[2][0]
+        data = self.sim.data
         uph_cost = (pos_after - 0) / self.model.opt.timestep
 
         quad_ctrl_cost = 0.1 * np.square(data.ctrl).sum()
