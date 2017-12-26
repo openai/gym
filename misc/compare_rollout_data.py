@@ -1,3 +1,4 @@
+from __future__ import print_function
 import argparse, numpy as np
 
 def main():
@@ -13,13 +14,13 @@ def main():
         arr2 = file2[k]
         if arr1.shape == arr2.shape:
             if np.allclose(file1[k], file2[k]):
-                print "%s: matches!"%k
+                print("%s: matches!"%k)
                 continue
             else:
-                print "%s: arrays are not equal. Difference = %g"%(k, np.abs(arr1 - arr2).max())
+                print("%s: arrays are not equal. Difference = %g"%(k, np.abs(arr1 - arr2).max()))
         else:
-            print "%s: arrays have different shape! %s vs %s"%(k, arr1.shape, arr2.shape)
-        print "first 30 els:\n1. %s\n2. %s"%(arr1.flat[:30], arr2.flat[:30])
+            print("%s: arrays have different shape! %s vs %s"%(k, arr1.shape, arr2.shape))
+        print("first 30 els:\n1. %s\n2. %s"%(arr1.flat[:30], arr2.flat[:30]))
 
 
 if __name__ == "__main__":
