@@ -65,7 +65,9 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
         self.reward_dist = None
         self.reward_ctrl = None
         self.action_space = None
-        self.max_episode_steps = 1000 # this is specific parameter for the acktr algorithm. Not used in ppo1, trpo...
+        self.max_episode_steps = 1000 # limit the max episode step
+        # class variable that iterates to accounts for number of steps per episode
+        self.iterator = 0
 
         #############################
         #   Environment hyperparams
@@ -210,9 +212,8 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
 
         # Seed the environment
         self._seed()
-        # class variable that iterates to accounts for number of steps per episode
-        self.iterator = 0
-        self.max_steps_episode = 1000
+
+        # self.max_steps_episode = 1000
 
     def randomizeCorrect(self):
         print("calling randomize correct")
@@ -478,7 +479,7 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
         # self.reward = 1 - self.reward_dist # Make the reward increase as the distance decreases
 
         # Calculate if the env has been solved
-        done = bool(abs(self.reward_dist) < 0.005) or (self.iterator > self.max_steps_episode)
+        done = (bool(abs(self.reward_dist) < 0.005)) or (self.iterator > self.max_episode_steps)
 
         # # Unpause simulation
         # rospy.wait_for_service('/gazebo/unpause_physics')

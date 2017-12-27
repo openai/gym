@@ -67,7 +67,8 @@ class GazeboModularScara4DOFv3Env(gazebo_env.GazeboEnv):
         self.reward_dist = None
         self.reward_ctrl = None
         self.action_space = None
-        self.max_episode_steps = 100 # this is specific parameter for the acktr algorithm. Not used in ppo1, trpo...
+        self.max_episode_steps = 1000 # this is specific parameter for the acktr algorithm. Not used in ppo1, trpo...
+        self.iterator = 0
 
         self._time_lock = threading.RLock()
 
@@ -452,6 +453,7 @@ class GazeboModularScara4DOFv3Env(gazebo_env.GazeboEnv):
             - observation
             - dictionary (#TODO clarify)
         """
+        self.iterator+=1
         # # Pause simulation
         # rospy.wait_for_service('/gazebo/pause_physics')
         # try:
@@ -484,7 +486,7 @@ class GazeboModularScara4DOFv3Env(gazebo_env.GazeboEnv):
         # print("rmse_func: ", self.rmse_func(ee_points))
 
         # Calculate if the env has been solved
-        done = bool(abs(self.reward_dist) < 0.005)
+        done = bool(abs(self.reward_dist) < 0.005) or (self.iterator>self.max_timesteps)
 
         # # Unpause simulation
         # rospy.wait_for_service('/gazebo/unpause_physics')
@@ -569,6 +571,8 @@ class GazeboModularScara4DOFv3Env(gazebo_env.GazeboEnv):
         #     print ("/gazebo/pause_physics service call failed")
 
         # self.goToInit()
+
+        self.iterator = 0
 
         # Take an observation
         self.ob = self.take_observation()
