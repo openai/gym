@@ -210,6 +210,9 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
 
         # Seed the environment
         self._seed()
+        # class variable that iterates to accounts for number of steps per episode
+        self.iterator = 0
+        self.max_steps_episode = 1000
 
     def randomizeCorrect(self):
         print("calling randomize correct")
@@ -436,6 +439,7 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
             - observation
             - dictionary (#TODO clarify)
         """
+        self.iterator+=1
         # # Pause simulation
         # rospy.wait_for_service('/gazebo/pause_physics')
         # try:
@@ -474,7 +478,7 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
         # self.reward = 1 - self.reward_dist # Make the reward increase as the distance decreases
 
         # Calculate if the env has been solved
-        done = bool(abs(self.reward_dist) < 0.005)
+        done = bool(abs(self.reward_dist) < 0.005) or (self.iterator > self.max_steps_episode)
 
         # # Unpause simulation
         # rospy.wait_for_service('/gazebo/unpause_physics')
@@ -542,7 +546,7 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
         #     self.pause()
         # except (rospy.ServiceException) as e:
         #     print ("/gazebo/pause_physics service call failed")
-
+        self.iterator = 0
         self._pub.publish(self.get_trajectory_message(self.environment['reset_conditions']['initial_positions']))
         # ## time.sleep(int(self.environment['slowness'])) # using seconds
         # # time.sleep(int(self.environment['slowness'])/1000000000) # using nanoseconds
