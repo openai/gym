@@ -59,7 +59,9 @@ class GazeboModularArticulatedArm4DOFv1Env(gazebo_env.GazeboEnv):
         self.reward_dist = None
         self.reward_ctrl = None
         self.action_space = None
-        self.max_episode_steps = 100 # this is specific parameter for the acktr algorithm. Not used in ppo1, trpo...
+        self.max_episode_steps = 1000 # limit the max episode step
+        # class variable that iterates to accounts for number of steps per episode
+        self.iterator = 0
 
         self._time_lock = threading.RLock()
 
@@ -68,7 +70,7 @@ class GazeboModularArticulatedArm4DOFv1Env(gazebo_env.GazeboEnv):
         #############################
         # target, where should the agent reach
         # EE_POS_TGT = np.asmatrix([0.3325683, 0.0657366, 0.4868]) # center of O
-        EE_POS_TGT = np.asmatrix([0.3305805, -0.1326121, 0.4868]) # center of the H
+        EE_POS_TGT = np.asmatrix([0.3305805, -0.1326121, 0.4868]) # center of the H in the SCARA robot
         EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         EE_POINTS = np.asmatrix([[0, 0, 0]])
         EE_VELOCITIES = np.asmatrix([[0, 0, 0]])
@@ -439,6 +441,7 @@ class GazeboModularArticulatedArm4DOFv1Env(gazebo_env.GazeboEnv):
             - observation
             - dictionary (#TODO clarify)
         """
+        self.iterator+=1
         # # Pause simulation
         # rospy.wait_for_service('/gazebo/pause_physics')
         # try:
@@ -471,7 +474,7 @@ class GazeboModularArticulatedArm4DOFv1Env(gazebo_env.GazeboEnv):
         # print("rmse_func: ", self.rmse_func(ee_points))
 
         # Calculate if the env has been solved
-        done = bool(abs(self.reward_dist) < 0.005)
+        done = (bool(abs(self.reward_dist) < 0.005)) or (self.iterator > self.max_episode_steps)
 
         # # Unpause simulation
         # rospy.wait_for_service('/gazebo/unpause_physics')
@@ -556,6 +559,11 @@ class GazeboModularArticulatedArm4DOFv1Env(gazebo_env.GazeboEnv):
         #     print ("/gazebo/pause_physics service call failed")
 
         # self.goToInit()
+        self.iterator = 0
+        self._pub.publish(self.get_trajectory_message(self.environment['reset_conditions']['initial_positions']))
+        # time.sleep(int(self.environment['slowness'])) # using seconds
+        # time.sleep(int(self.environment['slowness'])/1000000000) # using nanoseconds
+        time.sleep(int(self.environment['slowness']))
 
         # Take an observation
         self.ob = self.take_observation()
