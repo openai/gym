@@ -549,8 +549,8 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
         #     print ("/gazebo/pause_physics service call failed")
         self.iterator = 0
         self._pub.publish(self.get_trajectory_message(self.environment['reset_conditions']['initial_positions']))
-        # ## time.sleep(int(self.environment['slowness'])) # using seconds
-        # # time.sleep(int(self.environment['slowness'])/1000000000) # using nanoseconds
+        # time.sleep(int(self.environment['slowness'])) # using seconds
+        # time.sleep(int(self.environment['slowness'])/1000000000) # using nanoseconds
         time.sleep(int(self.environment['slowness']))
 
         # Take an observation
