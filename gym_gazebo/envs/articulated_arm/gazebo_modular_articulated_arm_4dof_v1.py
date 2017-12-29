@@ -131,7 +131,7 @@ class GazeboModularArticulatedArm4DOFv1Env(gazebo_env.GazeboEnv):
 #        URDF_PATH = rospack.get_path("articulated_arm_description")
 #        URDF_PATH = URDF_PATH + '/urdf/articulated_arm_model.urdf'
 
-        URDF_PATH = '/home/erle/ros_scara/install_isolated/share/articulated_arm_description/urdf/articulated_arm_model.urdf'
+        URDF_PATH = '/home/rkojcev/devel/ros_rl/environments/gym-gazebo/gym_gazebo/envs/assets/urdf/articulated_arm/articulated_arm_model.urdf'
 
         m_joint_order = copy.deepcopy(JOINT_ORDER)
         m_link_names = copy.deepcopy(LINK_NAMES)

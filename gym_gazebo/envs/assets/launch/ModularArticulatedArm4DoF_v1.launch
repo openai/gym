@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <launch>
-  <arg name="world_file"  default="$(env GYM_GAZEBO_ENV_SCARA3)"/>
+  <arg name="world_file"  default="$(env GYM_GAZEBO_ENV_ARTICULATED)"/>
   <arg name="paused" default="false"/>
   <arg name="gui" default="true"/>
   <arg name="verbose" default="true"/>
