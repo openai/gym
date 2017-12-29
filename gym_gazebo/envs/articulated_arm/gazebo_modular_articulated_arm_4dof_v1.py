@@ -78,8 +78,8 @@ class GazeboModularArticulatedArm4DOFv1Env(gazebo_env.GazeboEnv):
         INITIAL_JOINTS = np.array([2.0, -2.0, -2.0, 0.])
         # Used to initialize the robot, #TODO, clarify this more
         # STEP_COUNT = 2  # Typically 100.
-        # slowness = 10000000 # 1 is real life simulation
-        slowness = 1 # use >10 for running trained network in the simulation
+        slowness = 10000000 # 1 is real life simulation
+        # slowness = 1 # use >10 for running trained network in the simulation
         # slowness = 10 # use >10 for running trained network in the simulation
 
         # Topics for the robot publisher and subscriber.
