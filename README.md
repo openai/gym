@@ -20,7 +20,7 @@ This work presents an extension of the initial OpenAI gym for robotics using ROS
 -----
 
 ## Table of Contents
-- [Environments](#environments)
+- [Environments](#community-maintained-environments)
 - [Installation](#installation)
 - [Usage](#usage)
 
