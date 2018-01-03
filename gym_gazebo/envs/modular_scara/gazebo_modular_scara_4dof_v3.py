@@ -82,11 +82,12 @@ class GazeboModularScara4DOFv3Env(gazebo_env.GazeboEnv):
         EE_POINTS = np.asmatrix([[0, 0, 0]])
         EE_VELOCITIES = np.asmatrix([[0, 0, 0]])
         # Initial joint position
-        INITIAL_JOINTS = np.array([2.0, -2.0, -2.0, 0.])
+        INITIAL_JOINTS = np.array([0., 0., -0., 0.])
         # Used to initialize the robot, #TODO, clarify this more
         # STEP_COUNT = 2  # Typically 100.
-        # slowness = 10000000 # 1 is real life simulation
-        slowness = 1 # use >10 for running trained network in the simulation
+        # slowness = 10000000 # 10 ms, where 1 second is real life simulation
+        slowness = 1000000 # 1 ms, where 1 second is real life simulation
+        # slowness = 1 # use >10 for running trained network in the simulation
         # slowness = 10 # use >10 for running trained network in the simulation
 
         # Topics for the robot publisher and subscriber.
@@ -237,7 +238,7 @@ class GazeboModularScara4DOFv3Env(gazebo_env.GazeboEnv):
     def randomizeCorrect(self):
         print("calling randomize correct")
 
-        EE_POS_TGT_1 = np.asmatrix([0.3325683, 0.0657366, 0.4868]) # center of O
+        # EE_POS_TGT_1 = np.asmatrix([0.3325683, 0.0657366, 0.4868]) # center of O
         EE_POS_TGT_2 = np.asmatrix([0.3305805, -0.1326121, 0.4868]) # center of the H
         EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         EE_POINTS = np.asmatrix([[0, 0, 0]])
@@ -282,8 +283,8 @@ class GazeboModularScara4DOFv3Env(gazebo_env.GazeboEnv):
         target.positions = action_float
         # These times determine the speed at which the robot moves:
         # it tries to reach the specified target position in 'slowness' time.
-        target.time_from_start.secs = self.environment['slowness']
-        # target.time_from_start.nsecs = self.environment['slowness']
+        # target.time_from_start.secs = self.environment['slowness']
+        target.time_from_start.nsecs = self.environment['slowness']
         # Package the single point into a trajectory of points with length 1.
         action_msg.points = [target]
         return action_msg
@@ -486,7 +487,7 @@ class GazeboModularScara4DOFv3Env(gazebo_env.GazeboEnv):
         # print("rmse_func: ", self.rmse_func(ee_points))
 
         # Calculate if the env has been solved
-        done = bool(abs(self.reward_dist) < 0.005) or (self.iterator>self.max_timesteps)
+        done = bool(abs(self.reward_dist) < 0.005) or (self.iterator>self.max_episode_steps)
 
         # # Unpause simulation
         # rospy.wait_for_service('/gazebo/unpause_physics')
@@ -542,37 +543,16 @@ class GazeboModularScara4DOFv3Env(gazebo_env.GazeboEnv):
                 time.sleep(3)
 
     def _reset(self):
-        # """
-        # Reset the agent for a particular experiment condition.
-        # """
-        # # Resets the state of the environment and returns an initial observation.
-        # rospy.wait_for_service('/gazebo/reset_simulation')
-        # try:
-        #     #reset_proxy.call()
-        #     self.reset_proxy()
-        # except (rospy.ServiceException) as e:
-        #     print ("/gazebo/reset_simulation service call failed")
-        #
-        # # Unpause simulation
-        # rospy.wait_for_service('/gazebo/unpause_physics')
-        # try:
-        #     self.unpause()
-        # except (rospy.ServiceException) as e:
-        #     print ("/gazebo/unpause_physics service call failed")
-
-        # time.sleep(int(self.environment['slowness']))
-        # time.sleep(int(self.environment['slowness'])/1000000000) # using nanoseconds
-
-        # # Pause the simulation
-        # rospy.wait_for_service('/gazebo/pause_physics')
-        # try:
-        #     self.pause()
-        # except (rospy.ServiceException) as e:
-        #     print ("/gazebo/pause_physics service call failed")
-
-        # self.goToInit()
+        """
+        Reset the agent for a particular experiment condition.
+        """
 
         self.iterator = 0
+
+        self._pub.publish(self.get_trajectory_message(self.environment['reset_conditions']['initial_positions']))
+        # time.sleep(int(self.environment['slowness'])) # using seconds
+        time.sleep(int(self.environment['slowness'])/1000000000) # using nanoseconds
+        # time.sleep(int(self.environment['slowness']))
 
         # Take an observation
         self.ob = self.take_observation()
