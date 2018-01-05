@@ -4,12 +4,14 @@
 
 This work presents an extension of the initial OpenAI gym for robotics using ROS and Gazebo. A whitepaper about this work is available at https://arxiv.org/abs/1608.05742. Please use the following BibTex entry to cite our work:
 
-	@misc{1608.05742,
-		Author = {Iker Zamora and Nestor Gonzalez Lopez and Victor Mayoral Vilches and Alejandro Hernandez Cordero},
-		Title = {Extending the OpenAI Gym for robotics: a toolkit for reinforcement learning using ROS and Gazebo},
-		Year = {2016},
-		Eprint = {arXiv:1608.05742},
-	}
+```
+@article{zamora2016extending,
+  title={Extending the OpenAI Gym for robotics: a toolkit for reinforcement learning using ROS and Gazebo},
+  author={Zamora, Iker and Lopez, Nestor Gonzalez and Vilches, Victor Mayoral and Cordero, Alejandro Hernandez},
+  journal={arXiv preprint arXiv:1608.05742},
+  year={2016}
+}
+```
 
 -----
 
