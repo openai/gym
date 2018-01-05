@@ -35,7 +35,11 @@ The following are some of the gazebo environments maintained by the community us
 | `GazeboMazeErleRoverLidar-v0` | ROS, [APM](https://github.com/erlerobot/ardupilot) | **Deprecated** | | | |
 | `GazeboErleCopterHover-v0` | ROS, [APM](https://github.com/erlerobot/ardupilot) | **Deprecated** | | | |
 
-## Other environments
+## Other environments (no support provided for this environments)
+
+The following table compiles a number of other environments that **do not have
+community support**. 
+
 | Name | Middleware | Description | Observation Space | Action Space | Reward range |
 | ---- | ------ | ----------- | ----- | --------- | -------- |
 | ![GazeboModularArticulatedArm4DOF-v1.png](imgs/GazeboModularArticulatedArm4DOF-v1.jpg)`GazeboModularArticulatedArm4DOF-v1` | ROS | This environment present a modular articulated arm robot with a two finger gripper at its end pointing towards the workspace of the robot.| Box(10,) | Box(3,) | (-1, 1) [`if rmse<5 mm 1 - rmse else reward=-rmse`]|
