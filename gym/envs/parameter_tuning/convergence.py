@@ -3,6 +3,7 @@ import gym
 import random
 from gym import spaces
 import numpy as np
+import keras
 from keras.datasets import cifar10, mnist, cifar100
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation, Flatten
@@ -92,12 +93,12 @@ class ConvergenceControl(gym.Env):
 
         # set parameters of training step
 
-        self.sgd.lr.set_value(lr)
-        self.sgd.decay.set_value(decay)
-        self.sgd.momentum.set_value(momentum)
+        K.set_value(self.sgd.lr, lr)
+        K.set_value(self.sgd.decay, decay)
+        K.set_value(self.sgd.momentum, momentum)
 
-        self.reg.l1.set_value(l1)
-        self.reg.l2.set_value(l2)
+        K.set_value(self.reg.l1, l1)
+        K.set_value(self.reg.l2, l2)
 
         # train model for one epoch_idx
         H = self.model.fit(X, Y,
@@ -164,6 +165,8 @@ class ConvergenceControl(gym.Env):
         # randomly choose dataset
         dataset = random.choice(['mnist', 'cifar10', 'cifar100'])#
 
+        print("Using dataset: %s" % dataset)
+
         n_labels = 10
 
         if dataset == "mnist":
@@ -188,7 +191,8 @@ class ConvergenceControl(gym.Env):
         (CX, CY), (CXt, CYt) = data
 
         if dataset == "mnist":
-            CX = np.expand_dims(CX, axis=1)
+            expand_dim = 1 if keras.backend.image_dim_ordering() == "th" else 3
+            CX = np.expand_dims(CX, axis=expand_dim)
 
         data = CX[:data_size], CY[:data_size], CX[-10000:], CY[-10000:];
 
@@ -207,8 +211,7 @@ class ConvergenceControl(gym.Env):
         X, Y, Xv, Yv = data
 
         # input square image dimensions
-        img_rows, img_cols = X.shape[-1], X.shape[-1]
-        img_channels = X.shape[1]
+        input_shape = X.shape[1:]
         # save number of classes and instances
         self.nb_classes = nb_classes
         self.nb_inst = len(X)
@@ -227,7 +230,7 @@ class ConvergenceControl(gym.Env):
             self.convAsz = random.choice([32,64,128])
 
             model.add(Convolution2D(self.convAsz, 3, 3, border_mode='same',
-                                    input_shape=(img_channels, img_rows, img_cols),
+                                    input_shape=input_shape,
                                     W_regularizer = reg,
                                     b_regularizer = reg))
             model.add(Activation('relu'))
@@ -260,7 +263,7 @@ class ConvergenceControl(gym.Env):
             model.add(Flatten())
 
         else:
-            model.add(Flatten(input_shape=(img_channels, img_rows, img_cols)))
+            model.add(Flatten(input_shape=input_shape))
             self.convAsz = 0
             self.convBsz = 0
 
