@@ -69,6 +69,9 @@ class GazeboModularScara4DOFv3Env(gazebo_env.GazeboEnv):
         self.action_space = None
         self.max_episode_steps = 1000 # this is specific parameter for the acktr algorithm. Not used in ppo1, trpo...
         self.iterator = 0
+        # default to seconds
+        self.slowness = 1
+        self.slowness_unit = 'sec'
 
         self._time_lock = threading.RLock()
 
@@ -86,7 +89,7 @@ class GazeboModularScara4DOFv3Env(gazebo_env.GazeboEnv):
         # Used to initialize the robot, #TODO, clarify this more
         # STEP_COUNT = 2  # Typically 100.
         # slowness = 10000000 # 10 ms, where 1 second is real life simulation
-        slowness = 1000000 # 1 ms, where 1 second is real life simulation
+        # slowness = 1000000 # 1 ms, where 1 second is real life simulation
         # slowness = 1 # use >10 for running trained network in the simulation
         # slowness = 10 # use >10 for running trained network in the simulation
 
@@ -165,7 +168,7 @@ class GazeboModularScara4DOFv3Env(gazebo_env.GazeboEnv):
             'ee_points_tgt': self.realgoal,
             'joint_order': m_joint_order,
             'link_names': m_link_names,
-            'slowness': slowness,
+            # 'slowness': slowness,
             'reset_conditions': reset_condition,
             'tree_path': URDF_PATH,
             'joint_publisher': m_joint_publishers,
@@ -234,7 +237,12 @@ class GazeboModularScara4DOFv3Env(gazebo_env.GazeboEnv):
         Callback method for the subscriber of JointTrajectoryControllerState
         """
         self._observation_msg =  message
-
+    def init_time(self, slowness =1, slowness_unit='sec'):
+            self.slowness = slowness
+            self.slowness_unit = slowness_unit
+            print("slowness: ", self.slowness)
+            print("slowness_unit: ", self.slowness_unit, "type of variable: ", type(slowness_unit))
+            
     def randomizeCorrect(self):
         print("calling randomize correct")
 
@@ -283,8 +291,13 @@ class GazeboModularScara4DOFv3Env(gazebo_env.GazeboEnv):
         target.positions = action_float
         # These times determine the speed at which the robot moves:
         # it tries to reach the specified target position in 'slowness' time.
-        # target.time_from_start.secs = self.environment['slowness']
-        target.time_from_start.nsecs = self.environment['slowness']
+        if (self.slowness_unit == 'sec') or (self.slowness_unit is None):
+            target.time_from_start.secs = self.slowness
+        elif (self.slowness_unit == 'nsec'):
+            target.time_from_start.nsecs = self.slowness
+        else:
+            print("Unrecognized unit. Please use sec or nsec.")
+
         # Package the single point into a trajectory of points with length 1.
         action_msg.points = [target]
         return action_msg
@@ -551,8 +564,15 @@ class GazeboModularScara4DOFv3Env(gazebo_env.GazeboEnv):
 
         self._pub.publish(self.get_trajectory_message(self.environment['reset_conditions']['initial_positions']))
         # time.sleep(int(self.environment['slowness'])) # using seconds
-        time.sleep(int(self.environment['slowness'])/1000000000) # using nanoseconds
-        # time.sleep(int(self.environment['slowness']))
+        # time.sleep(int(self.environment['slowness'])/1000000000) # using nanoseconds
+        # # time.sleep(int(self.environment['slowness']))
+
+        if (self.slowness_unit == 'sec') or (self.slowness_unit is None):
+            time.sleep(int(self.slowness))
+        elif(self.slowness_unit == 'nsec'):
+            time.sleep(int(self.slowness/1000000000)) # using nanoseconds
+        else:
+            print("Unrecognized unit. Please use sec or nsec.")
 
         # Take an observation
         self.ob = self.take_observation()
