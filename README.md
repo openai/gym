@@ -37,7 +37,7 @@ The following are some of the gazebo environments maintained by the community us
 | `GazeboMazeErleRoverLidar-v0` | ROS, [APM](https://github.com/erlerobot/ardupilot) | **Deprecated** | | | |
 | `GazeboErleCopterHover-v0` | ROS, [APM](https://github.com/erlerobot/ardupilot) | **Deprecated** | | | |
 
-## Other environments (no support provided for this environments)
+## Other environments (no support provided for these environments)
 
 The following table compiles a number of other environments that **do not have
 community support**. 
