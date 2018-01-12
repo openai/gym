@@ -9,7 +9,7 @@ class Box(Space):
     Example usage:
     self.action_space = spaces.Box(low=-10, high=10, shape=(1,))
     """
-    def __init__(self, low=None, high=None, shape=None, dtype=np.float32):
+    def __init__(self, low=None, high=None, shape=None, dtype=None):
         """
         Two kinds of valid input:
             Box(low=-1.0, high=1.0, shape=(3,4)) # low and high are scalars, and shape is provided
@@ -22,10 +22,14 @@ class Box(Space):
             assert np.isscalar(low) and np.isscalar(high)
             low = low + np.zeros(shape)
             high = high + np.zeros(shape)
+        if dtype is None:  # Autodetect type
+            if (high == 255).all():
+                dtype = np.uint8
+            else:
+                dtype = np.float32
+            logger.warn("gym.spaces.Box autodetected dtype as %s. Please provide explicit dtype." % dtype)
         self.low = low.astype(dtype)
         self.high = high.astype(dtype)
-        if (self.high == 255).all() and dtype != np.uint8:
-            logger.warn('Box constructor got high=255 but dtype!=uint8')
         Space.__init__(self, shape, dtype)
 
     def sample(self):

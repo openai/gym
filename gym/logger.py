@@ -30,3 +30,6 @@ def warn(msg, *args):
 def error(msg, *args):
     if MIN_LEVEL <= ERROR:
         print(colorize('%s: %s'%('ERROR', msg % args), 'red'))
+
+# DEPRECATED:
+setLevel = set_level

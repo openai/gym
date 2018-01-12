@@ -117,6 +117,8 @@ class EnvRegistry(object):
         logger.info('Making new env: %s', id)
         spec = self.spec(id)
         env = spec.make()
+        if hasattr(env, "_reset") and hasattr(env, "_step"):
+            patch_deprecated_methods(env)
         if (env.spec.timestep_limit is not None) and not spec.tags.get('vnc'):
             from gym.wrappers.time_limit import TimeLimit
             env = TimeLimit(env,
@@ -162,3 +164,24 @@ def make(id):
 
 def spec(id):
     return registry.spec(id)
+
+warn_once = True
+
+def patch_deprecated_methods(env):
+    """
+    Methods renamed from '_method' to 'method', render() no longer has 'close' parameter, close is a separate method.
+    For backward compatibility, this makes it possible to work with unmodified environments.
+    """
+    global warn_once
+    if warn_once:
+        logger.warn("Environment '%s' has deprecated methods. Compatibility code invoked." % str(type(env)))
+        warn_once = False
+    env.reset = env._reset
+    env.step  = env._step
+    env.seed  = env._seed
+    def render(mode):
+        env._render(mode, close=False)
+    def close():
+        env._render("human", close=True)
+    env.render = render
+    env.close = close

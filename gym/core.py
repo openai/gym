@@ -184,6 +184,16 @@ class Space(object):
         # By default, assume identity is JSONable
         return sample_n
 
+
+warn_once = True
+
+def deprecated_warn_once(text):
+    global warn_once
+    if not warn_once: return
+    warn_once = False
+    logger.warn(text)
+
+
 class Wrapper(Env):
     env = None
 
@@ -210,10 +220,24 @@ class Wrapper(Env):
                 break
 
     def step(self, action):
-        raise RuntimeError("%s doesn't implement step method"%type(self))
+        if hasattr(self, "_step"):
+            deprecated_warn_once("%s doesn't implement 'step' method, but it implements deprecated '_step' method." % type(self))
+            self.step = self._step
+            return self.step(action)
+        else:
+            deprecated_warn_once("%s doesn't implement 'step' method, " % type(self) +
+                "which is required when for wrappers derived directly from Wrapper. Deprecated default implementation is used.")
+            return self.env.step(action)
 
     def reset(self, **kwargs):
-        raise RuntimeError("%s doesn't implement reset method"%type(self))
+        if hasattr(self, "_reset"):
+            deprecated_warn_once("%s doesn't implement 'reset' method, but it implements deprecated '_reset' method." % type(self))
+            self.reset = self._reset
+            return self._reset(**kwargs)
+        else:
+            deprecated_warn_once("%s doesn't implement 'reset' method, " % type(self) +
+                "which is required when for wrappers derived directly from Wrapper. Deprecated default implementation is used.")
+            return self.env.reset(**kwargs)
 
     def render(self, mode='human'):
         return self.env.render(mode)
@@ -239,6 +263,7 @@ class Wrapper(Env):
     def spec(self):
         return self.env.spec
 
+
 class ObservationWrapper(Wrapper):
     def step(self, action):
         observation, reward, done, info = self.env.step(action)
@@ -249,7 +274,9 @@ class ObservationWrapper(Wrapper):
         return self.observation(observation)
 
     def observation(self, observation):
-        raise NotImplementedError
+        deprecated_warn_once("%s doesn't implement 'observation' method. Maybe it implements deprecated '_observation' method." % type(self))
+        return self._observation(observation)
+
 
 class RewardWrapper(Wrapper):
     def reset(self):
@@ -260,7 +287,8 @@ class RewardWrapper(Wrapper):
         return observation, self.reward(reward), done, info
 
     def reward(self, reward):
-        raise NotImplementedError
+        deprecated_warn_once("%s doesn't implement 'reward' method. Maybe it implements deprecated '_reward' method." % type(self))
+        return self._reward(reward)
 
 
 class ActionWrapper(Wrapper):
@@ -272,7 +300,9 @@ class ActionWrapper(Wrapper):
         return self.env.reset()
         
     def action(self, action):
-        raise NotImplementedError
+        deprecated_warn_once("%s doesn't implement 'action' method. Maybe it implements deprecated '_action' method." % type(self))
+        return self._action(action)
 
     def reverse_action(self, action):
-        raise NotImplementedError
+        deprecated_warn_once("%s doesn't implement 'reverse_action' method. Maybe it implements deprecated '_reverse_action' method." % type(self))
+        return self._reverse_action(action)
