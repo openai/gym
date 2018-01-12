@@ -226,7 +226,7 @@ class Wrapper(Env):
             return self.step(action)
         else:
             deprecated_warn_once("%s doesn't implement 'step' method, " % type(self) +
-                "which is required when for wrappers derived directly from Wrapper. Deprecated default implementation is used.")
+                "which is required for wrappers derived directly from Wrapper. Deprecated default implementation is used.")
             return self.env.step(action)
 
     def reset(self, **kwargs):
@@ -236,7 +236,7 @@ class Wrapper(Env):
             return self._reset(**kwargs)
         else:
             deprecated_warn_once("%s doesn't implement 'reset' method, " % type(self) +
-                "which is required when for wrappers derived directly from Wrapper. Deprecated default implementation is used.")
+                "which is required for wrappers derived directly from Wrapper. Deprecated default implementation is used.")
             return self.env.reset(**kwargs)
 
     def render(self, mode='human'):

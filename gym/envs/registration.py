@@ -180,7 +180,7 @@ def patch_deprecated_methods(env):
     env.step  = env._step
     env.seed  = env._seed
     def render(mode):
-        env._render(mode, close=False)
+        return env._render(mode, close=False)
     def close():
         env._render("human", close=True)
     env.render = render
