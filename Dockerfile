@@ -167,7 +167,8 @@ RUN cd ~/ros_catkin_ws/src && git clone https://github.com/ros-simulation/gazebo
 RUN cd ~/ros_catkin_ws/src && git clone https://github.com/ros/common_msgs
 RUN cd ~/ros_catkin_ws/src && git clone https://github.com/ros-controls/control_msgs
 RUN cd ~/ros_catkin_ws/src && git clone https://github.com/vmayoral/dynamic_reconfigure
-
+RUN cd ~/ros_catkin_ws/src && git clone https://github.com/ros/geometry
+RUN cd ~/ros_catkin_ws/src && git clone https://github.com/erlerobot/orocos_kinematics_dynamics
 
 # # #--------------------
 # # # Install Gazebo
