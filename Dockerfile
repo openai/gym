@@ -152,8 +152,8 @@ RUN apt-get install libconsole-bridge-dev -y
 RUN apt-get install -y libtinyxml-dev liblz4-dev libbz2-dev liburdfdom-dev libpoco-dev \
               libtinyxml2-dev
 
-# Compile the basic ROS packages, optimize docker production
-RUN cd ~/ros_catkin_ws && ./src/catkin/bin/catkin_make_isolated -DPYTHON_VERSION=3.5 --install -DCMAKE_BUILD_TYPE=Release
+# # Compile the basic ROS packages, optimize docker production
+# RUN cd ~/ros_catkin_ws && ./src/catkin/bin/catkin_make_isolated -DPYTHON_VERSION=3.5 --install -DCMAKE_BUILD_TYPE=Release
 
 # Add a few packages and dependencies by hand
 # RUN cd ~/ros_catkin_ws/src && git clone https://github.com/ros/console_bridge
@@ -169,29 +169,52 @@ RUN cd ~/ros_catkin_ws/src && git clone https://github.com/ros-controls/control_
 RUN cd ~/ros_catkin_ws/src && git clone https://github.com/vmayoral/dynamic_reconfigure
 RUN cd ~/ros_catkin_ws/src && git clone https://github.com/ros/geometry
 RUN cd ~/ros_catkin_ws/src && git clone https://github.com/erlerobot/orocos_kinematics_dynamics
-
-# # #--------------------
-# # # Install Gazebo
-# # #--------------------
-# RUN sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable xenial main" > /etc/apt/sources.list.d/gazebo-stable.list'
-#
-# RUN wget http://packages.osrfoundation.org/gazebo.key -O - | apt-key add -
-#
-# RUN apt-get update
-# RUN apt-get install gazebo8 -y
-# # RUN apt-get install -y libglib2.0-dev libgts-dev libgts-dev
-# RUN apt-get install -y libgazebo8-dev
-#
-# # setup environment
-# EXPOSE 11345
+RUN cd ~/ros_catkin_ws/src && git clone https://github.com/ros/angles
+RUN cd ~/ros_catkin_ws/src && git clone https://github.com/ros/geometry2
+RUN cd ~/ros_catkin_ws/src && git clone https://github.com/ros/rosconsole_bridge
+RUN cd ~/ros_catkin_ws/src && git clone https://github.com/ros/nodelet_core
+RUN cd ~/ros_catkin_ws/src && git clone https://github.com/ros/bond_core
+RUN cd ~/ros_catkin_ws/src && git clone https://github.com/ros-perception/image_common
+RUN cd ~/ros_catkin_ws/src && git clone https://github.com/ros-perception/vision_opencv
 
 # #--------------------
 # # Follow up with the ROS intallation, splited in this funny way to optimize docker's performance
 # #--------------------
+RUN apt-get install -y libeigen3-dev python3-sip python3-sip-dev libyaml-cpp-dev \
+                        libboost-python-dev unzip
+# this installs an old version, not valid: libopencv-dev
+
+# # Ignore some repositories due to some issues with libboost_python3
+# #       https://github.com/ros/ros-overlay/issues/93
+# RUN touch /root/ros_catkin_ws/src/image_common/camera_calibration_parsers/CATKIN_IGNORE
+# RUN touch /root/ros_catkin_ws/src/image_common/camera_info_manager/CATKIN_IGNORE
+RUN cd /usr/lib/x86_64-linux-gnu/ && ln -s libboost_python-py35.so libboost_python3.so
+
+# #--------------------
+# # Install OpenCV
+# #--------------------
+# # From sources
+# RUN git clone https://github.com/opencv/opencv
+# RUN cd opencv && mkdir build && cd build && cmake .. && make
+# RUN cd opencv/build && make install
+
+# Compile OpenCV from sources
+WORKDIR /root
+RUN wget https://github.com/opencv/opencv/archive/3.2.0.zip
+RUN ls /root
+RUN unzip 3.2.0.zip
+RUN mv opencv-3.2.0 OpenCV
+RUN cd OpenCV && mkdir build && cd build && cmake -DWITH_QT=ON -DWITH_OPENGL=ON -DFORCE_VTK=ON -DWITH_TBB=ON -DWITH_GDAL=ON -DWITH_XINE=ON -DBUILD_EXAMPLES=ON -DENABLE_PRECOMPILED_HEADERS=OFF ..
+RUN cd OpenCV/build && make -j4
+RUN cd OpenCV/build && make install
+RUN cd OpenCV/build && ldconfig
+
+RUN cd ~/ros_catkin_ws/src && git clone https://github.com/ros/diagnostics
+RUN cd ~/ros_catkin_ws/src && git clone https://github.com/ros-controls/ros_control
 
 # Compile the again the workspace
 RUN cd ~/ros_catkin_ws && ./src/catkin/bin/catkin_make_isolated -DPYTHON_VERSION=3.5 \
-        --install -DCMAKE_BUILD_TYPE=Release -DCATKIN_ENABLE_TESTING=0
+        --install -DCMAKE_BUILD_TYPE=Release -DCATKIN_ENABLE_TESTING=OFF
 
 
 # Debug
@@ -199,6 +222,75 @@ RUN cd ~/ros_catkin_ws && ./src/catkin/bin/catkin_make_isolated -DPYTHON_VERSION
 
 # upgrade pip
 #RUN apt-get install python3-pyqt4
+
+# #--------------------
+# # Install ROS 2
+# #--------------------
+# Inspired on https://github.com/osrf/docker_images/blob/master/ros2/source/source/Dockerfile
+RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu xenial main" > /etc/apt/sources.list.d/ros-latest.list'
+RUN apt-key adv --keyserver ha.pool.sks-keyservers.net --recv-keys 421C365BD9FF1F717815A3895523BAEEB01FA116
+
+# setup environment
+ENV LANG C.UTF-8
+ENV LC_ALL C.UTF-8
+
+# install packages
+RUN apt-get update && apt-get install -q -y \
+    bash-completion \
+    build-essential \
+    clang-format \
+    cmake \
+    cppcheck \
+    git \
+    libasio-dev \
+    libeigen3-dev \
+    libopencv-dev \
+    libpoco-dev \
+    libpocofoundation9v5 \
+    libpocofoundation9v5-dbg \
+    libssl-dev \
+    libtinyxml-dev \
+    libtinyxml2-dev \
+    openssl \
+    pydocstyle \
+    pyflakes \
+    python-empy \
+    python3-coverage \
+    python3-dev \
+    python3-empy \
+    python3-mock \
+    python3-nose \
+    python3-pep8 \
+    python3-pip \
+    python3-setuptools \
+    python3-vcstool \
+    python3-yaml \
+    uncrustify \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
+
+# # install python packages
+# RUN pip3 install -U \
+#     argcomplete \
+#     flake8 \
+#     flake8-import-order
+#
+# # clone source
+# ENV ROS2_WS /root/ros2_ws
+# RUN mkdir -p $ROS2_WS/src
+# WORKDIR $ROS2_WS
+# RUN wget https://raw.githubusercontent.com/ros2/ros2/release-latest/ros2.repos \
+# && vcs import src < ros2.repos
+#
+# # build source
+# WORKDIR $ROS2_WS
+# RUN src/ament/ament_tools/scripts/ament.py \
+#     build \
+#     --build-tests \
+#     --cmake-args -DSECURITY=OFF -- \
+#     --isolated \
+#     --parallel \
+#     --symlink-install
 
 
 # #--------------------
@@ -209,14 +301,6 @@ RUN cd ~/ros_catkin_ws && ./src/catkin/bin/catkin_make_isolated -DPYTHON_VERSION
 # # RUN ls -l
 # RUN cd sophus/build && make install
 # #RUN echo "## Sophus installed ##\n"
-#
-# #--------------------
-# # Install OpenCV
-# #--------------------
-# # From sources
-# RUN git clone https://github.com/opencv/opencv
-# RUN cd opencv && mkdir build && cd build && cmake .. && make
-# RUN cd opencv/build && make install
 #
 # # # FROM pip
 # # RUN pip3 install opencv-python
