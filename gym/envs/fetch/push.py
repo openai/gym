@@ -6,7 +6,7 @@ from gym import spaces
 
 class FetchPushEnv(fetch_env.FetchEnv, utils.EzPickle):
     def __init__(self):
-        fetch_env.FetchEnv.__init__(self, 'push.xml', 4)
+        fetch_env.FetchEnv.__init__(self, 'push.xml')
         utils.EzPickle.__init__(self)
 
     def _step(self, action):

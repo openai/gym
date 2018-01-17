@@ -7,7 +7,7 @@ from gym import spaces
 class FetchPickAndPlaceEnv(fetch_env.FetchEnv, utils.EzPickle):
     def __init__(self):
         fetch_env.FetchEnv.__init__(
-            self, 'pick.xml', 4, gripper_extra_height=0.2, block_gripper=False)
+            self, 'pick.xml', gripper_extra_height=0.2, block_gripper=False)
         utils.EzPickle.__init__(self)
 
     def _step(self, action):

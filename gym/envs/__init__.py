@@ -297,26 +297,26 @@ register(
 register(
     id='FetchKick-v0',
     entry_point='gym.envs.fetch:FetchKickEnv',
-    max_episode_steps=100, # TODO
+    max_episode_steps=50,
 )
 
 register(
     id='FetchPickAndPlace-v0',
     entry_point='gym.envs.fetch:FetchPickAndPlaceEnv',
-    max_episode_steps=100, # TODO
+    max_episode_steps=50,
 )
 
 register(
     id='FetchReach-v0',
     entry_point='gym.envs.fetch:FetchReachEnv',
-    max_episode_steps=100, # TODO
+    max_episode_steps=50,
 )
 
 # TODO: rename kick and push?
 register(
     id='FetchPush-v0',
     entry_point='gym.envs.fetch:FetchPushEnv',
-    max_episode_steps=100, # TODO
+    max_episode_steps=50,
 )
 
 # Atari

@@ -91,7 +91,7 @@ class FetchEnv(gym.Env):
     """Superclass for all Fetch environments.
     """
 
-    def __init__(self, model_path, frame_skip, gripper_extra_height=0.0, block_gripper=True):
+    def __init__(self, model_path, n_substeps=20, gripper_extra_height=0.0, block_gripper=True):
         # TODO: n_substeps
         if model_path.startswith("/"):
             fullpath = model_path
@@ -99,11 +99,11 @@ class FetchEnv(gym.Env):
             fullpath = os.path.join(os.path.dirname(__file__), "assets", model_path)
         if not path.exists(fullpath):
             raise IOError("File %s does not exist" % fullpath)
-        self.frame_skip = frame_skip
+        self.n_substeps = n_substeps
         self.gripper_extra_height = gripper_extra_height
         self.block_gripper = block_gripper
         self.model = mujoco_py.load_model_from_path(fullpath)
-        self.sim = mujoco_py.MjSim(self.model)
+        self.sim = mujoco_py.MjSim(self.model, nsubsteps=n_substeps)
         self.data = self.sim.data
         self.viewer = None
 
@@ -116,11 +116,7 @@ class FetchEnv(gym.Env):
         self.init_qpos = self.sim.data.qpos.ravel().copy()
         self.init_qvel = self.sim.data.qvel.ravel().copy()
 
-        #bounds = self.model.actuator_ctrlrange.copy()
-        bounds = np.zeros((2, 2))
-        low = bounds[:, 0]
-        high = bounds[:, 1]
-        self.action_space = spaces.Box(low, high)
+        self.action_space = spaces.Box(-np.inf, np.inf, 4)
 
         self._seed()
 
@@ -203,7 +199,7 @@ class FetchEnv(gym.Env):
 
     @property
     def dt(self):
-        return self.model.opt.timestep * self.frame_skip
+        return self.model.opt.timestep * self.n_substeps
 
     def _render(self, mode='human', close=False):
         if close:
