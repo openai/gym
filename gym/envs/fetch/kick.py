@@ -20,7 +20,7 @@ class FetchKickEnv(fetch_env.FetchEnv, utils.EzPickle):
     observation_space = spaces.Box(-np.ones(2), np.ones(2))
 
     def __init__(self):
-        fetch_env.FetchEnv.__init__(self, 'kick.xml')
+        fetch_env.FetchEnv.__init__(self, 'kick.xml', n_boxes=1)
         utils.EzPickle.__init__(self)
 
     def _reset(self):

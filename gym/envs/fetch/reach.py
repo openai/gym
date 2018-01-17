@@ -17,7 +17,7 @@ class FetchReachEnv(fetch_env.FetchEnv, utils.EzPickle):
     observation_space = spaces.Box(-np.ones(2), np.ones(2))
 
     def __init__(self):
-        fetch_env.FetchEnv.__init__(self, 'reach.xml', gripper_extra_height=0.2)
+        fetch_env.FetchEnv.__init__(self, 'reach.xml', gripper_extra_height=0.2, n_boxes=0)
         utils.EzPickle.__init__(self)
 
     def _step(self, action):

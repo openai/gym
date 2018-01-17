@@ -20,7 +20,7 @@ class FetchPushEnv(fetch_env.FetchEnv, utils.EzPickle):
     observation_space = spaces.Box(-np.ones(2), np.ones(2))
 
     def __init__(self):
-        fetch_env.FetchEnv.__init__(self, 'push.xml')
+        fetch_env.FetchEnv.__init__(self, 'push.xml', n_boxes=1)
         utils.EzPickle.__init__(self)
 
     def _step(self, action):
