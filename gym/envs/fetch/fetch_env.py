@@ -1,4 +1,5 @@
 import os
+import copy
 
 from gym import error, spaces
 from gym.utils import seeding
@@ -146,8 +147,7 @@ class FetchEnv(gym.Env):
         }
 
         self.initial_setup()
-        self.init_qpos = self.sim.data.qpos.ravel().copy()
-        self.init_qvel = self.sim.data.qvel.ravel().copy()
+        self.init_state = copy.deepcopy(self.sim.get_state())
 
         self.action_space = spaces.Box(-np.inf, np.inf, 4)
 
@@ -271,10 +271,12 @@ class FetchEnv(gym.Env):
 
     def _reset(self):
         self.sim.reset()
-        ob = self.reset_model()
+        self.sim.set_state(self.init_state)
+        self.sim.step()
+        obs = self._get_obs()
         if self.viewer is not None:
             self.viewer_setup()
-        return ob
+        return obs
 
     @property
     def dt(self):

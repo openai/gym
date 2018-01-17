@@ -24,11 +24,5 @@ class FetchPickAndPlaceEnv(fetch_env.FetchEnv, utils.EzPickle):
             self, 'pick.xml', gripper_extra_height=0.2, block_gripper=False, n_boxes=1)
         utils.EzPickle.__init__(self)
 
-    def _step(self, action):
-        return 0, 0, 0, {}
-
-    def _reset(self):
-        pass
-
     def initial_setup(self):
         fetch_env.FetchEnv.initial_setup(self)

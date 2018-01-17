@@ -23,9 +23,6 @@ class FetchKickEnv(fetch_env.FetchEnv, utils.EzPickle):
         fetch_env.FetchEnv.__init__(self, 'kick.xml', n_boxes=1)
         utils.EzPickle.__init__(self)
 
-    def _reset(self):
-        pass
-
     def initial_setup(self):
         fetch_env.FetchEnv.initial_setup(self)
 

@@ -20,11 +20,5 @@ class FetchReachEnv(fetch_env.FetchEnv, utils.EzPickle):
         fetch_env.FetchEnv.__init__(self, 'reach.xml', gripper_extra_height=0.2, n_boxes=0)
         utils.EzPickle.__init__(self)
 
-    def _step(self, action):
-        return 0, 0, 0, {}
-
-    def _reset(self):
-        pass
-
     def initial_setup(self):
         fetch_env.FetchEnv.initial_setup(self)
