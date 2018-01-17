@@ -82,6 +82,14 @@ def reset_mocap2body_xpos(sim):
         sim.data.mocap_quat[mocap_id][:] = sim.data.body_xquat[body_idx]
 
 
+def robot_get_obs(sim):
+    if sim.data.qpos is not None and sim.model.joint_names:
+        names = [n for n in sim.model.joint_names if n.startswith('robot')]
+        return (np.array([sim.data.get_joint_qpos(name) for name in names]),
+                np.array([sim.data.get_joint_qvel(name) for name in names]))
+    return np.zeros(0), np.zeros(0)
+
+
 def set_action(sim, action):
     ctrl_set_action(sim, action)
     mocap_set_action(sim, action)
@@ -91,7 +99,9 @@ class FetchEnv(gym.Env):
     """Superclass for all Fetch environments.
     """
 
-    def __init__(self, model_path, n_substeps=20, gripper_extra_height=0.0, block_gripper=True):
+    def __init__(
+        self, model_path, n_substeps=20, gripper_extra_height=0.0, block_gripper=True,
+        n_boxes=0):
         # TODO: n_substeps
         if model_path.startswith("/"):
             fullpath = model_path
@@ -102,6 +112,7 @@ class FetchEnv(gym.Env):
         self.n_substeps = n_substeps
         self.gripper_extra_height = gripper_extra_height
         self.block_gripper = block_gripper
+        self.n_boxes = n_boxes
         self.model = mujoco_py.load_model_from_path(fullpath)
         self.sim = mujoco_py.MjSim(self.model, nsubsteps=n_substeps)
         self.data = self.sim.data
@@ -118,6 +129,11 @@ class FetchEnv(gym.Env):
 
         self.action_space = spaces.Box(-np.inf, np.inf, 4)
 
+        obs = self._get_obs()
+        self.observation_space = spaces.Dict(
+            dict([(k, spaces.Box(-np.inf, np.inf, v.size)) for k, v in obs.items()]))
+        print(self.observation_space)
+        
         self._seed()
 
     def _seed(self, seed=None):
@@ -154,7 +170,7 @@ class FetchEnv(gym.Env):
 
     @property
     def initial_qpos(self):
-        return {}
+        raise NotImplementedError()
 
     @property
     def observation_space(self):
@@ -175,7 +191,17 @@ class FetchEnv(gym.Env):
         """
         pass
 
-    def simulate(self, action):
+    def _step(self, action):
+        self._set_action(action)
+        obs = self._get_obs()
+        self.sim.step()
+
+        # TODO: fix this
+        reward = 0.
+        done = False
+        return obs, reward, done, {}
+
+    def _set_action(self, action):
         assert action.shape == (4,)
         gripper_ctrl = action[3]
         gripper_ctrl = np.array([gripper_ctrl, gripper_ctrl])
@@ -185,8 +211,43 @@ class FetchEnv(gym.Env):
             gripper_ctrl = np.zeros_like(gripper_ctrl)
         action = np.concatenate([action, gripper_ctrl])
         set_action(self.sim, action)
-        # TODO: n_substeps etc?
-        self.sim.step()
+
+    def _get_obs(self):
+        # positions
+        grip_pos = self.sim.data.get_site_xpos('robot0:grip')
+        dt = self.sim.nsubsteps * self.sim.model.opt.timestep
+        grip_velp = self.sim.data.get_site_xvelp('robot0:grip') * dt
+        robot_qpos, robot_qvel = robot_get_obs(self.sim)
+        if self.n_boxes > 0:
+            box_pos = np.stack([self.sim.data.get_site_xpos('geom%d' % i) for i in range(self.n_boxes)])
+            # rotations
+            box_rot = np.stack([mat2euler(self.sim.data.get_site_xmat('geom%d' % i)) for i in range(self.n_boxes)])
+            # velocities
+            box_velp = np.stack([self.sim.data.get_site_xvelp('geom%d' % i) * dt for i in range(self.n_boxes)])
+            box_velr = np.stack([self.sim.data.get_site_xvelr('geom%d' % i) * dt for i in range(self.n_boxes)])
+            # gripper state
+            box_rel_pos = box_pos - grip_pos.reshape(1, -1)
+            box_velp -= grip_velp.reshape(1, -1)
+        else:
+            box_pos = box_rot = box_velp = box_velr = box_rel_pos = np.zeros(0)
+        gripper_state = robot_qpos[-2:]
+        gripper_vel = robot_qvel[-2:] * dt  # change to a scalar if the gripper is made symmetric
+        obs = np.concatenate([grip_pos, box_rel_pos.flatten(), gripper_state,
+                                 box_rot.flatten(), box_velp.flatten(), box_velr.flatten(),
+                                 grip_velp, gripper_vel])
+
+        if self.n_boxes == 0:
+            achieved_goal = grip_pos.copy()
+        else:
+            achieved_goal = np.squeeze(box_pos.copy())
+        # TODO: use correct goal
+        goal = achieved_goal
+
+        return {
+            'obs': obs.copy(),
+            'goal': goal.copy(),
+            'achieved_goal': achieved_goal.copy(),
+        }
 
     # -----------------------------
 

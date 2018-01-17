@@ -5,35 +5,26 @@ from gym import spaces
 
 
 class FetchKickEnv(fetch_env.FetchEnv, utils.EzPickle):
+    initial_qpos = {
+        'robot0:slide0': 0.05,
+        'robot0:slide1': 0.48,
+        'robot0:slide2': 0.0,
+        'geom0:slide0': 0.7,
+        'geom0:slide1': 0.3,
+        'geom0:slide2': 0.0,
+        'geom1:slide0': 1.703020558521492,
+        'geom1:slide1': 1.0816411287521643,
+        'geom1:slide2': 0.4,
+    }
+
+    observation_space = spaces.Box(-np.ones(2), np.ones(2))
+
     def __init__(self):
         fetch_env.FetchEnv.__init__(self, 'kick.xml')
         utils.EzPickle.__init__(self)
 
-    def _step(self, action):
-        self.simulate(action)
-        return 0, 0, 0, {}
-
     def _reset(self):
         pass
-
-    @property
-    def observation_space(self):
-        return spaces.Box(-np.ones(2), np.ones(2))
-
-    @property
-    def initial_qpos(self):
-        init_qpos = {
-            'robot0:slide0': 0.05,
-            'robot0:slide1': 0.48,
-            'robot0:slide2': 0.0,
-            'geom0:slide0': 0.7,
-            'geom0:slide1': 0.3,
-            'geom0:slide2': 0.0,
-            'geom1:slide0': 1.703020558521492,
-            'geom1:slide1': 1.0816411287521643,
-            'geom1:slide2': 0.4,
-        }
-        return init_qpos
 
     def initial_setup(self):
         fetch_env.FetchEnv.initial_setup(self)
