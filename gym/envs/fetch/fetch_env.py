@@ -123,8 +123,8 @@ class FetchEnv(gym.Env):
     """
 
     def __init__(
-        self, model_path, n_substeps=20, gripper_extra_height=0.0, block_gripper=True,
-        n_boxes=0):
+        self, model_path, n_substeps, gripper_extra_height, block_gripper,
+        n_boxes, target_in_the_air, target_x_shift, obj_range, target_range):
         # TODO: n_substeps
         if model_path.startswith("/"):
             fullpath = model_path
@@ -132,10 +132,16 @@ class FetchEnv(gym.Env):
             fullpath = os.path.join(os.path.dirname(__file__), "assets", model_path)
         if not path.exists(fullpath):
             raise IOError("File %s does not exist" % fullpath)
+        
         self.n_substeps = n_substeps
         self.gripper_extra_height = gripper_extra_height
         self.block_gripper = block_gripper
         self.n_boxes = n_boxes
+        self.target_in_the_air = target_in_the_air
+        self.target_x_shift = target_x_shift
+        self.obj_range = obj_range
+        self.target_range = target_range
+
         self.model = mujoco_py.load_model_from_path(fullpath)
         self.sim = mujoco_py.MjSim(self.model, nsubsteps=n_substeps)
         self.data = self.sim.data
@@ -151,6 +157,7 @@ class FetchEnv(gym.Env):
 
         self.action_space = spaces.Box(-np.inf, np.inf, 4)
 
+        self.reset()
         obs = self._get_obs()
         self.observation_space = spaces.Dict(
             dict([(k, spaces.Box(-np.inf, np.inf, v.size)) for k, v in obs.items()]))
@@ -189,6 +196,11 @@ class FetchEnv(gym.Env):
         self.sim.data.set_mocap_quat('robot0:mocap', gripper_rotation)
         for _ in range(100):
             self.sim.step()
+
+        # Extract information for sampling goals.
+        self.gripper = self.sim.data.get_site_xpos('robot0:grip').copy()
+        if self.n_boxes > 0:
+            self.height_offset = self.sim.data.get_site_xpos('geom0')[2]
 
     @property
     def initial_qpos(self):
@@ -258,21 +270,44 @@ class FetchEnv(gym.Env):
             achieved_goal = grip_pos.copy()
         else:
             achieved_goal = np.squeeze(box_pos.copy())
-        # TODO: use correct goal
-        goal = achieved_goal
 
         return {
             'obs': obs.copy(),
-            'goal': goal.copy(),
+            'goal': self.goal.copy(),
             'achieved_goal': achieved_goal.copy(),
         }
+
+    # function for sampling (initial state, goal) pairs
+    def reset_goal(self):
+        if self.n_boxes == 0:
+            goal = self.gripper[:3] + np.random.uniform(-0.15, 0.15, size=3)
+        else:
+            box_xpos = self.gripper[:2]
+            while np.linalg.norm(box_xpos - self.gripper[:2]) < 0.1:
+                box_xpos = self.gripper[:2] + np.random.uniform(-self.obj_range, self.obj_range, size=2)
+            goal = self.gripper[:3] + np.random.uniform(-self.target_range, self.target_range, size=3)
+            goal[0] += self.target_x_shift
+            goal[2] = self.height_offset
+            if self.target_in_the_air and np.random.uniform() < 0.5:
+                goal[2] += np.random.uniform(0, 0.45)
+            qpos = self.init_state.qpos
+            qpos[-6:-4] = box_xpos
+            qpos[-3:] = 0.  # no rotation
+        self.goal = goal
+
+        # Set site position for visualization.
+        sites_offset = (self.sim.data.site_xpos - self.sim.model.site_pos).copy()
+        for i in range(max(1, self.n_boxes)):
+            site_id = self.sim.model.site_name2id('target%d' % i)
+            self.sim.model.site_pos[site_id] = self.goal.reshape(-1, 3)[i] - sites_offset[i]
 
     # -----------------------------
 
     def _reset(self):
         self.sim.reset()
         self.sim.set_state(self.init_state)
-        self.sim.step()
+        self.sim.forward()
+        self.reset_goal()
         obs = self._get_obs()
         if self.viewer is not None:
             self.viewer_setup()

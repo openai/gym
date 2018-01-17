@@ -17,5 +17,8 @@ class FetchKickEnv(fetch_env.FetchEnv, utils.EzPickle):
     }
 
     def __init__(self):
-        fetch_env.FetchEnv.__init__(self, 'kick.xml', n_boxes=1)
+        fetch_env.FetchEnv.__init__(
+            self, 'kick.xml', n_boxes=1, block_gripper=True, n_substeps=20,
+            gripper_extra_height=-0.02, target_in_the_air=False, target_x_shift=0.4,
+            obj_range=0.1, target_range=0.3)
         utils.EzPickle.__init__(self)
