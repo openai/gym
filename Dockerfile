@@ -234,27 +234,30 @@ RUN apt-key adv --keyserver ha.pool.sks-keyservers.net --recv-keys 421C365BD9FF1
 ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
 
+RUN pip3 install configparser
+# RUN apt-get install python-pkg-resources
+
 # install packages
 RUN apt-get update && apt-get install -q -y \
-    bash-completion \
-    build-essential \
+    # bash-completion \
+    # build-essential \
     clang-format \
-    cmake \
-    cppcheck \
-    git \
+    # # cmake \
+    # cppcheck \
+    # git \
     libasio-dev \
-    libeigen3-dev \
-    libopencv-dev \
-    libpoco-dev \
+    # libeigen3-dev \
+    # libopencv-dev \
+    # libpoco-dev \
     libpocofoundation9v5 \
     libpocofoundation9v5-dbg \
     libssl-dev \
-    libtinyxml-dev \
-    libtinyxml2-dev \
+    # libtinyxml-dev \
+    # libtinyxml2-dev \
     openssl \
-    pydocstyle \
-    pyflakes \
-    python-empy \
+    # pydocstyle \
+    # pyflakes \
+    # python-empy \
     python3-coverage \
     python3-dev \
     python3-empy \
@@ -269,28 +272,30 @@ RUN apt-get update && apt-get install -q -y \
     wget \
     && rm -rf /var/lib/apt/lists/*
 
-# # install python packages
-# RUN pip3 install -U \
-#     argcomplete \
-#     flake8 \
-#     flake8-import-order
-#
-# # clone source
-# ENV ROS2_WS /root/ros2_ws
-# RUN mkdir -p $ROS2_WS/src
-# WORKDIR $ROS2_WS
-# RUN wget https://raw.githubusercontent.com/ros2/ros2/release-latest/ros2.repos \
-# && vcs import src < ros2.repos
-#
-# # build source
-# WORKDIR $ROS2_WS
-# RUN src/ament/ament_tools/scripts/ament.py \
-#     build \
-#     --build-tests \
-#     --cmake-args -DSECURITY=OFF -- \
-#     --isolated \
-#     --parallel \
-#     --symlink-install
+# install python packages
+RUN pip3 install -U \
+    argcomplete \
+    flake8 \
+    flake8-import-order
+
+# clone source
+ENV ROS2_WS /root/ros2_ws
+RUN mkdir -p $ROS2_WS/src
+WORKDIR $ROS2_WS
+RUN wget https://raw.githubusercontent.com/ros2/ros2/release-latest/ros2.repos \
+&& vcs import src < ros2.repos
+
+RUN pip3 install pyparsing
+
+# build source
+WORKDIR $ROS2_WS
+RUN src/ament/ament_tools/scripts/ament.py \
+    build \
+    --build-tests \
+    --cmake-args -DSECURITY=OFF -- \
+    --isolated \
+    --parallel \
+    --symlink-install
 
 
 # #--------------------
