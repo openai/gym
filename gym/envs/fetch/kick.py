@@ -10,6 +10,7 @@ class FetchKickEnv(fetch_env.FetchEnv, utils.EzPickle):
         utils.EzPickle.__init__(self)
 
     def _step(self, action):
+        self.simulate(action)
         return 0, 0, 0, {}
 
     def _reset(self):

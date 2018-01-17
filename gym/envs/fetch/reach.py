@@ -6,7 +6,7 @@ from gym import spaces
 
 class FetchReachEnv(fetch_env.FetchEnv, utils.EzPickle):
     def __init__(self):
-        fetch_env.FetchEnv.__init__(self, 'reach.xml', 4)
+        fetch_env.FetchEnv.__init__(self, 'reach.xml', 4, gripper_extra_height=0.2)
         utils.EzPickle.__init__(self)
 
     def _step(self, action):
