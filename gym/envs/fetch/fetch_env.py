@@ -172,10 +172,6 @@ class FetchEnv(gym.Env):
     def initial_qpos(self):
         raise NotImplementedError()
 
-    @property
-    def observation_space(self):
-        raise NotImplementedError()
-
     def reset_model(self):
         """
         Reset the robot degrees of freedom (qpos and qvel).
