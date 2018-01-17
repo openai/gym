@@ -1,7 +1,6 @@
 import numpy as np
 from gym import utils
 from gym.envs.fetch import fetch_env
-from gym import spaces
 
 
 class FetchPickAndPlaceEnv(fetch_env.FetchEnv, utils.EzPickle):
@@ -16,8 +15,6 @@ class FetchPickAndPlaceEnv(fetch_env.FetchEnv, utils.EzPickle):
         'geom0:slide1': 0.5311251479548121,
         'geom0:slide2': 0.4,
     }
-
-    observation_space = spaces.Box(-np.ones(2), np.ones(2))
 
     def __init__(self):
         fetch_env.FetchEnv.__init__(

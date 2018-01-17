@@ -1,7 +1,6 @@
 import numpy as np
 from gym import utils
 from gym.envs.fetch import fetch_env
-from gym import spaces
 
 
 class FetchKickEnv(fetch_env.FetchEnv, utils.EzPickle):
@@ -16,8 +15,6 @@ class FetchKickEnv(fetch_env.FetchEnv, utils.EzPickle):
         'geom1:slide1': 1.0816411287521643,
         'geom1:slide2': 0.4,
     }
-
-    observation_space = spaces.Box(-np.ones(2), np.ones(2))
 
     def __init__(self):
         fetch_env.FetchEnv.__init__(self, 'kick.xml', n_boxes=1)
