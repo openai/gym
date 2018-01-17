@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mujoco>
+	<compiler angle="radian" coordinate="local" meshdir="stls" texturedir="textures"></compiler>
+	<option timestep="0.002">
+		<flag warmstart="enable"></flag>
+	</option>
+
+	<include file="shared.xml"></include>
+	
+	<worldbody>
+		<geom name="floor0" pos="1 0.75 0" size="0.95 0.7 1" type="plane" condim="3" material="material1"></geom>
+		<body name="floor0" pos="1 0.75 0">
+			<site name="target0" pos="0 0 0.5" size="0.02 0.02 0.02" rgba="1 0 0 1" type="sphere"></site>
+		</body>
+
+		<include file="robot.xml"></include>
+		
+		<body name="geom0" pos="0.625 0.45 0.2">
+			<joint name="geom0:slide0" axis="1 0 0" type="slide" damping="0.5" pos="0 0 0"></joint>
+			<joint name="geom0:slide1" axis="0 1 0" type="slide" damping="0.5" pos="0 0 0"></joint>
+			<joint name="geom0:slide2" axis="0 0 1" type="slide" damping="0.5" pos="0 0 0"></joint>
+			<joint name="geom0:hinge0" axis="1 0 0" type="hinge" damping="0.5" pos="0 0 0"></joint>
+			<joint name="geom0:hinge1" axis="0 1 0" type="hinge" damping="0.5" pos="0 0 0"></joint>
+			<joint name="geom0:hinge2" axis="0 0 1" type="hinge" damping="0.5" pos="0 0 0"></joint>
+			<geom size="0.625 0.45 0.2" type="box" condim="3" name="geom0" rgba="1.9 1.9 1.9 1" mass="2000" friction="0.1 0.005 0.0001"></geom>
+		</body>
+		<body name="geom1" pos="0.025 0.025 0.02">
+			<joint name="geom1:slide0" axis="1 0 0" type="slide" damping="0.5" pos="0 0 0"></joint>
+			<joint name="geom1:slide1" axis="0 1 0" type="slide" damping="0.5" pos="0 0 0"></joint>
+			<joint name="geom1:slide2" axis="0 0 1" type="slide" damping="0.5" pos="0 0 0"></joint>
+			<joint name="geom1:hinge0" axis="1 0 0" type="hinge" damping="0.5" pos="0 0 0"></joint>
+			<joint name="geom1:hinge1" axis="0 1 0" type="hinge" damping="0.5" pos="0 0 0"></joint>
+			<joint name="geom1:hinge2" axis="0 0 1" type="hinge" damping="0.5" pos="0 0 0"></joint>
+			<geom size="0.025 0.02" type="cylinder" condim="3" name="geom1" material="material0" friction="0.1 0.005 0.0001" mass="2"></geom>
+			<site name="geom0" pos="0 0 0" size="0.02 0.02 0.02" rgba="1 0 0 1" type="sphere"></site>
+		</body>
+	</worldbody>
+
+	<actuator></actuator>
+</mujoco>
