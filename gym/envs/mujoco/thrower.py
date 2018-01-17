@@ -52,8 +52,8 @@ class ThrowerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     def _get_obs(self):
         return np.concatenate([
-            self.model.data.qpos.flat[:7],
-            self.model.data.qvel.flat[:7],
+            self.sim.data.qpos.flat[:7],
+            self.sim.data.qvel.flat[:7],
             self.get_body_com("r_wrist_roll_link"),
             self.get_body_com("ball"),
             self.get_body_com("goal"),

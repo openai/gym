@@ -9,7 +9,6 @@ import six
 
 try:
     import mujoco_py
-    from mujoco_py.mjlib import mjlib
 except ImportError as e:
     raise error.DependencyNotInstalled("{}. (HINT: you need to install mujoco_py, and also perform the setup instructions here: https://github.com/openai/mujoco-py/.)".format(e))
 
@@ -25,8 +24,9 @@ class MujocoEnv(gym.Env):
         if not path.exists(fullpath):
             raise IOError("File %s does not exist" % fullpath)
         self.frame_skip = frame_skip
-        self.model = mujoco_py.MjModel(fullpath)
-        self.data = self.model.data
+        self.model = mujoco_py.load_model_from_path(fullpath)
+        self.sim = mujoco_py.MjSim(self.model)
+        self.data = self.sim.data
         self.viewer = None
 
         self.metadata = {
@@ -34,8 +34,8 @@ class MujocoEnv(gym.Env):
             'video.frames_per_second': int(np.round(1.0 / self.dt))
         }
 
-        self.init_qpos = self.model.data.qpos.ravel().copy()
-        self.init_qvel = self.model.data.qvel.ravel().copy()
+        self.init_qpos = self.sim.data.qpos.ravel().copy()
+        self.init_qvel = self.sim.data.qvel.ravel().copy()
         observation, _reward, done, _info = self._step(np.zeros(self.model.nu))
         assert not done
         self.obs_dim = observation.size
@@ -76,33 +76,33 @@ class MujocoEnv(gym.Env):
     # -----------------------------
 
     def _reset(self):
-        mjlib.mj_resetData(self.model.ptr, self.data.ptr)
+        self.sim.reset()
         ob = self.reset_model()
         if self.viewer is not None:
-            self.viewer.autoscale()
             self.viewer_setup()
         return ob
 
     def set_state(self, qpos, qvel):
         assert qpos.shape == (self.model.nq,) and qvel.shape == (self.model.nv,)
-        self.model.data.qpos = qpos
-        self.model.data.qvel = qvel
-        self.model._compute_subtree()  # pylint: disable=W0212
-        self.model.forward()
+        old_state = self.sim.get_state()
+        new_state = mujoco_py.MjSimState(old_state.time, qpos, qvel,
+                                         old_state.act, old_state.udd_state)
+        self.sim.set_state(new_state)
+        self.sim.forward()
 
     @property
     def dt(self):
         return self.model.opt.timestep * self.frame_skip
 
     def do_simulation(self, ctrl, n_frames):
-        self.model.data.ctrl = ctrl
+        self.sim.data.ctrl[:] = ctrl
         for _ in range(n_frames):
-            self.model.step()
+            self.sim.step()
 
     def _render(self, mode='human', close=False):
         if close:
             if self.viewer is not None:
-                self._get_viewer().finish()
+                self._get_viewer()
                 self.viewer = None
             return
 
@@ -111,30 +111,19 @@ class MujocoEnv(gym.Env):
             data, width, height = self._get_viewer().get_image()
             return np.fromstring(data, dtype='uint8').reshape(height, width, 3)[::-1, :, :]
         elif mode == 'human':
-            self._get_viewer().loop_once()
+            self._get_viewer().render()
 
     def _get_viewer(self):
         if self.viewer is None:
-            self.viewer = mujoco_py.MjViewer()
-            self.viewer.start()
-            self.viewer.set_model(self.model)
+            self.viewer = mujoco_py.MjViewer(self.sim)
             self.viewer_setup()
         return self.viewer
 
     def get_body_com(self, body_name):
-        idx = self.model.body_names.index(six.b(body_name))
-        return self.model.data.com_subtree[idx]
-
-    def get_body_comvel(self, body_name):
-        idx = self.model.body_names.index(six.b(body_name))
-        return self.model.body_comvels[idx]
-
-    def get_body_xmat(self, body_name):
-        idx = self.model.body_names.index(six.b(body_name))
-        return self.model.data.xmat[idx].reshape((3, 3))
+        return self.data.get_body_xpos(body_name)
 
     def state_vector(self):
         return np.concatenate([
-            self.model.data.qpos.flat,
-            self.model.data.qvel.flat
+            self.sim.data.qpos.flat,
+            self.sim.data.qvel.flat
         ])
