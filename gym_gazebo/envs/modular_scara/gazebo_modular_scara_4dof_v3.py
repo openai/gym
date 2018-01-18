@@ -67,11 +67,12 @@ class GazeboModularScara4DOFv3Env(gazebo_env.GazeboEnv):
         self.reward_dist = None
         self.reward_ctrl = None
         self.action_space = None
-        self.max_episode_steps = 1000 # this is specific parameter for the acktr algorithm. Not used in ppo1, trpo...
+        self.max_episode_steps = 1000 # now used in all algorithms
         self.iterator = 0
         # default to seconds
         self.slowness = 1
         self.slowness_unit = 'sec'
+        self.reset_jnts = True
 
         self._time_lock = threading.RLock()
 
@@ -85,7 +86,7 @@ class GazeboModularScara4DOFv3Env(gazebo_env.GazeboEnv):
         EE_POINTS = np.asmatrix([[0, 0, 0]])
         EE_VELOCITIES = np.asmatrix([[0, 0, 0]])
         # Initial joint position
-        INITIAL_JOINTS = np.array([0., 0., -0., 0.])
+        INITIAL_JOINTS = np.array([0., 0., 0., 0.])
         # Used to initialize the robot, #TODO, clarify this more
         # STEP_COUNT = 2  # Typically 100.
         # slowness = 10000000 # 10 ms, where 1 second is real life simulation
@@ -237,12 +238,15 @@ class GazeboModularScara4DOFv3Env(gazebo_env.GazeboEnv):
         Callback method for the subscriber of JointTrajectoryControllerState
         """
         self._observation_msg =  message
-    def init_time(self, slowness =1, slowness_unit='sec'):
+    def init_time(self, slowness =1, slowness_unit='sec', reset_jnts=True):
             self.slowness = slowness
             self.slowness_unit = slowness_unit
+            self.reset_jnts = reset_jnts
             print("slowness: ", self.slowness)
             print("slowness_unit: ", self.slowness_unit, "type of variable: ", type(slowness_unit))
-            
+            print("reset joints: ", self.reset_jnts, "type of variable: ", type(self.reset_jnts))
+
+
     def randomizeCorrect(self):
         print("calling randomize correct")
 
@@ -562,17 +566,19 @@ class GazeboModularScara4DOFv3Env(gazebo_env.GazeboEnv):
 
         self.iterator = 0
 
-        self._pub.publish(self.get_trajectory_message(self.environment['reset_conditions']['initial_positions']))
+        # self._pub.publish(self.get_trajectory_message(self.environment['reset_conditions']['initial_positions']))
         # time.sleep(int(self.environment['slowness'])) # using seconds
         # time.sleep(int(self.environment['slowness'])/1000000000) # using nanoseconds
         # # time.sleep(int(self.environment['slowness']))
 
-        if (self.slowness_unit == 'sec') or (self.slowness_unit is None):
-            time.sleep(int(self.slowness))
-        elif(self.slowness_unit == 'nsec'):
-            time.sleep(int(self.slowness/1000000000)) # using nanoseconds
-        else:
-            print("Unrecognized unit. Please use sec or nsec.")
+        if self.reset_jnts is True:
+            self._pub.publish(self.get_trajectory_message(self.environment['reset_conditions']['initial_positions']))
+            if (self.slowness_unit == 'sec') or (self.slowness_unit is None):
+                time.sleep(int(self.slowness))
+            elif(self.slowness_unit == 'nsec'):
+                time.sleep(int(self.slowness/1000000000)) # using nanoseconds
+            else:
+                print("Unrecognized unit. Please use sec or nsec.")
 
         # Take an observation
         self.ob = self.take_observation()
