@@ -58,16 +58,6 @@ class GazeboModularScara4And3DOFv3Env(gazebo_env.GazeboEnv):
         # TODO: cleanup this variables, remove the ones that aren't used
         # class variables
 
-        # # # Topics for the robot publisher and subscriber.
-        # # # self.enviroment = None
-        # JOINT_PUBLISHER_4DOF = '/scara_controller_4dof/command'
-        # JOINT_SUBSCRIBER_4DOF = '/scara_controller_4dof/state'
-        #
-        # # Subscribe to the appropriate topics, taking into account the particular robot
-        # # ROS 1 implementation
-        # self._pub_4dof = rospy.Publisher(JOINT_PUBLISHER_4DOF, JointTrajectory)
-        # self._sub_4dof = rospy.Subscriber(JOINT_SUBSCRIBER_4DOF, JointTrajectoryControllerState, self.observation_callback)
-
         self.urdf_path = "/home/rkojcev/devel/ros_rl/environments/gym-gazebo/gym_gazebo/envs/assets/urdf/modular_scara/scara_e1_model_4_and_3joints.urdf"
         # self.init_3dof_robot()
         # self.init_4dof_robot()
@@ -170,8 +160,6 @@ class GazeboModularScara4And3DOFv3Env(gazebo_env.GazeboEnv):
 
         # TODO: fix this and make it relative
         # Set the path of the corresponding URDF file from "assets"
-        # URDF_PATH = "/home/rkojcev/devel/ros_rl/environments/gym-gazebo/gym_gazebo/envs/assets/urdf/modular_scara/scara_e1_3joints.urdf"
-
         m_joint_order = copy.deepcopy(JOINT_ORDER)
         m_link_names = copy.deepcopy(LINK_NAMES)
         # m_joint_publishers = copy.deepcopy(JOINT_PUBLISHER)
@@ -197,10 +185,7 @@ class GazeboModularScara4And3DOFv3Env(gazebo_env.GazeboEnv):
             'end_effector_velocities': EE_VELOCITIES,
             # 'num_samples': SAMPLE_COUNT,
         }
-
         # self.spec = {'timestep_limit': 5, 'reward_threshold':  950.0,}
-
-
 
         # Initialize a tree structure from the robot urdf.
         #   note that the xacro of the urdf is updated by hand.
@@ -275,7 +260,7 @@ class GazeboModularScara4And3DOFv3Env(gazebo_env.GazeboEnv):
         #   Environment hyperparams
         #############################
 
-##############################################################################################
+        ########################################################################################
         '''
         Add here the stuff needed for the 4DOF robot
         '''
@@ -487,7 +472,7 @@ class GazeboModularScara4And3DOFv3Env(gazebo_env.GazeboEnv):
             print("Message is empty");
             # return None
         else:
-            print('joint messages: ', message.joint_names)
+            # print('joint messages: ', message.joint_names)
             # # Check if joint values are in the expected order and size.
             if message.joint_names != agent['joint_order']:
                 # Check that the message is of same size as the expected message.
@@ -616,10 +601,13 @@ class GazeboModularScara4And3DOFv3Env(gazebo_env.GazeboEnv):
 
             # Concatenate the information that defines the robot state
             # vector, typically denoted asrobot_id 'x'.
-            state = np.r_[np.reshape(last_observations, -1),
-                          np.reshape(ee_points, -1),
-                          np.reshape(ee_velocities, -1),]
-
+            # state = np.r_[np.reshape(last_observations, -1),
+            #               np.reshape(ee_points, -1),
+            #               np.reshape(ee_velocities, -1),]
+            if self.choose_robot is 0:
+                last_observations = np.insert(last_observations, 3, 0.)
+                # print('last_observations_extension: ', last_observations)
+                # last_observations.append(0.0)
             return np.r_[np.reshape(last_observations, -1),
                           np.reshape(ee_points, -1),
                           np.reshape(ee_velocities, -1),]
