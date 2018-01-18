@@ -124,7 +124,7 @@ class FetchEnv(gym.Env):
 
     def __init__(
         self, model_path, n_substeps, gripper_extra_height, block_gripper,
-        has_box, target_in_the_air, target_x_shift, obj_range, target_range):
+        has_box, target_in_the_air, target_x_shift, obj_range, target_range, dist_threshold):
         # TODO: n_substeps
         if model_path.startswith("/"):
             fullpath = model_path
@@ -141,6 +141,7 @@ class FetchEnv(gym.Env):
         self.target_x_shift = target_x_shift
         self.obj_range = obj_range
         self.target_range = target_range
+        self.dist_threshold = dist_threshold
 
         self.model = mujoco_py.load_model_from_path(fullpath)
         self.sim = mujoco_py.MjSim(self.model, nsubsteps=n_substeps)
@@ -226,8 +227,7 @@ class FetchEnv(gym.Env):
         obs = self._get_obs()
         self.sim.step()
 
-        # TODO: fix this
-        reward = 0.
+        reward = self.compute_reward(obs)
         done = False
         return obs, reward, done, {}
 
@@ -298,6 +298,18 @@ class FetchEnv(gym.Env):
         sites_offset = (self.sim.data.site_xpos - self.sim.model.site_pos).copy()
         site_id = self.sim.model.site_name2id('target0')
         self.sim.model.site_pos[site_id] = self.goal - sites_offset[0]
+
+    def subtract_goals(self, a, b):
+        return a - b
+
+    def goal_distance(self, obs, goal):
+        current_goal = obs['achieved_goal']
+        assert current_goal.shape == goal.shape
+        return np.linalg.norm(self.subtract_goals(current_goal, goal), axis=-1)
+
+    def compute_reward(self, obs):
+        d = self.goal_distance(obs, self.goal)
+        return -(d > self.dist_threshold).astype(np.float32)
 
     # -----------------------------
 
