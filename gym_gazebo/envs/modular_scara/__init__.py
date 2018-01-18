@@ -3,3 +3,4 @@ from gym_gazebo.envs.modular_scara.gazebo_modular_scara_3dof_v1 import GazeboMod
 from gym_gazebo.envs.modular_scara.gazebo_modular_scara_3dof_v2 import GazeboModularScara3DOFv2Env
 from gym_gazebo.envs.modular_scara.gazebo_modular_scara_3dof_v3 import GazeboModularScara3DOFv3Env
 from gym_gazebo.envs.modular_scara.gazebo_modular_scara_4dof_v3 import GazeboModularScara4DOFv3Env
+from gym_gazebo.envs.modular_scara.gazebo_modular_scara_4_and_3_v3 import GazeboModularScara4And3DOFv3Env
