@@ -124,7 +124,7 @@ class FetchEnv(gym.Env):
 
     def __init__(
         self, model_path, n_substeps, gripper_extra_height, block_gripper,
-        n_boxes, target_in_the_air, target_x_shift, obj_range, target_range):
+        has_box, target_in_the_air, target_x_shift, obj_range, target_range):
         # TODO: n_substeps
         if model_path.startswith("/"):
             fullpath = model_path
@@ -136,7 +136,7 @@ class FetchEnv(gym.Env):
         self.n_substeps = n_substeps
         self.gripper_extra_height = gripper_extra_height
         self.block_gripper = block_gripper
-        self.n_boxes = n_boxes
+        self.has_box = has_box
         self.target_in_the_air = target_in_the_air
         self.target_x_shift = target_x_shift
         self.obj_range = obj_range
@@ -199,7 +199,7 @@ class FetchEnv(gym.Env):
 
         # Extract information for sampling goals.
         self.gripper = self.sim.data.get_site_xpos('robot0:grip').copy()
-        if self.n_boxes > 0:
+        if self.has_box:
             self.height_offset = self.sim.data.get_site_xpos('geom0')[2]
 
     @property
@@ -248,16 +248,16 @@ class FetchEnv(gym.Env):
         dt = self.sim.nsubsteps * self.sim.model.opt.timestep
         grip_velp = self.sim.data.get_site_xvelp('robot0:grip') * dt
         robot_qpos, robot_qvel = robot_get_obs(self.sim)
-        if self.n_boxes > 0:
-            box_pos = np.stack([self.sim.data.get_site_xpos('geom%d' % i) for i in range(self.n_boxes)])
+        if self.has_box:
+            box_pos = self.sim.data.get_site_xpos('geom0')
             # rotations
-            box_rot = np.stack([mat2euler(self.sim.data.get_site_xmat('geom%d' % i)) for i in range(self.n_boxes)])
+            box_rot = mat2euler(self.sim.data.get_site_xmat('geom0'))
             # velocities
-            box_velp = np.stack([self.sim.data.get_site_xvelp('geom%d' % i) * dt for i in range(self.n_boxes)])
-            box_velr = np.stack([self.sim.data.get_site_xvelr('geom%d' % i) * dt for i in range(self.n_boxes)])
+            box_velp = self.sim.data.get_site_xvelp('geom0') * dt
+            box_velr = self.sim.data.get_site_xvelr('geom0') * dt
             # gripper state
-            box_rel_pos = box_pos - grip_pos.reshape(1, -1)
-            box_velp -= grip_velp.reshape(1, -1)
+            box_rel_pos = box_pos - grip_pos
+            box_velp -= grip_velp
         else:
             box_pos = box_rot = box_velp = box_velr = box_rel_pos = np.zeros(0)
         gripper_state = robot_qpos[-2:]
@@ -266,7 +266,7 @@ class FetchEnv(gym.Env):
                                  box_rot.flatten(), box_velp.flatten(), box_velr.flatten(),
                                  grip_velp, gripper_vel])
 
-        if self.n_boxes == 0:
+        if not self.has_box:
             achieved_goal = grip_pos.copy()
         else:
             achieved_goal = np.squeeze(box_pos.copy())
@@ -277,9 +277,8 @@ class FetchEnv(gym.Env):
             'achieved_goal': achieved_goal.copy(),
         }
 
-    # function for sampling (initial state, goal) pairs
     def reset_goal(self):
-        if self.n_boxes == 0:
+        if not self.has_box:
             goal = self.gripper[:3] + np.random.uniform(-0.15, 0.15, size=3)
         else:
             box_xpos = self.gripper[:2]
@@ -297,9 +296,8 @@ class FetchEnv(gym.Env):
 
         # Set site position for visualization.
         sites_offset = (self.sim.data.site_xpos - self.sim.model.site_pos).copy()
-        for i in range(max(1, self.n_boxes)):
-            site_id = self.sim.model.site_name2id('target%d' % i)
-            self.sim.model.site_pos[site_id] = self.goal.reshape(-1, 3)[i] - sites_offset[i]
+        site_id = self.sim.model.site_name2id('target0')
+        self.sim.model.site_pos[site_id] = self.goal - sites_offset[0]
 
     # -----------------------------
 
