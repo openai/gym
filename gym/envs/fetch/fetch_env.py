@@ -216,6 +216,10 @@ class FetchEnv(gym.Env):
     def _step(self, action):
         self._set_action(action)
         self.sim.step()
+        if self.block_gripper:
+            self.sim.data.set_joint_qpos('robot0:l_gripper_finger_joint', 0.)
+            self.sim.data.set_joint_qpos('robot0:r_gripper_finger_joint', 0.)
+            self.sim.forward()
         obs = self._get_obs()
 
         reward = self.compute_reward(obs)
@@ -286,6 +290,7 @@ class FetchEnv(gym.Env):
 
         return self.goal
 
+    # TODO: re-consider this
     def subtract_goals(self, a, b):
         return a - b
 

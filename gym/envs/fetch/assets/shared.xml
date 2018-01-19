@@ -49,11 +49,6 @@
         <exclude body1="robot0:torso_lift_link" body2="robot0:torso_fixed_link"></exclude>
         <exclude body1="robot0:torso_lift_link" body2="robot0:shoulder_pan_link"></exclude>
     </contact>
-
-    <actuator>
-        <position ctrllimited="true" ctrlrange="0 0.2" joint="robot0:l_gripper_finger_joint" kp="30000" name="robot0:l_gripper_finger_joint" user="1"></position>
-        <position ctrllimited="true" ctrlrange="0 0.2" joint="robot0:r_gripper_finger_joint" kp="30000" name="robot0:r_gripper_finger_joint" user="1"></position>
-    </actuator>
     
     <default>
         <default class="robot0:fetch">
