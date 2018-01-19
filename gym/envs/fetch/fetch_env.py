@@ -199,7 +199,7 @@ class FetchEnv(gym.Env):
             self.sim.step()
 
         # Extract information for sampling goals.
-        self.gripper = self.sim.data.get_site_xpos('robot0:grip').copy()
+        self.init_gripper = self.sim.data.get_site_xpos('robot0:grip').copy()
         if self.has_box:
             self.height_offset = self.sim.data.get_site_xpos('geom0')[2]
 
@@ -273,18 +273,17 @@ class FetchEnv(gym.Env):
 
         return {
             'obs': obs.copy(),
-            'goal': self.goal.copy(),
             'achieved_goal': achieved_goal.copy(),
         }
 
     def reset_goal(self):
         if not self.has_box:
-            goal = self.gripper[:3] + np.random.uniform(-0.15, 0.15, size=3)
+            goal = self.init_gripper[:3] + np.random.uniform(-0.15, 0.15, size=3)
         else:
-            box_xpos = self.gripper[:2]
-            while np.linalg.norm(box_xpos - self.gripper[:2]) < 0.1:
-                box_xpos = self.gripper[:2] + np.random.uniform(-self.obj_range, self.obj_range, size=2)
-            goal = self.gripper[:3] + np.random.uniform(-self.target_range, self.target_range, size=3)
+            box_xpos = self.init_gripper[:2]
+            while np.linalg.norm(box_xpos - self.init_gripper[:2]) < 0.1:
+                box_xpos = self.init_gripper[:2] + np.random.uniform(-self.obj_range, self.obj_range, size=2)
+            goal = self.init_gripper[:3] + np.random.uniform(-self.target_range, self.target_range, size=3)
             goal[0] += self.target_x_shift
             goal[2] = self.height_offset
             if self.target_in_the_air and np.random.uniform() < 0.5:
@@ -292,12 +291,9 @@ class FetchEnv(gym.Env):
             qpos = self.init_state.qpos
             qpos[-6:-4] = box_xpos
             qpos[-3:] = 0.  # no rotation
-        self.goal = goal
+        self.goal = goal.copy()
 
-        # Set site position for visualization.
-        sites_offset = (self.sim.data.site_xpos - self.sim.model.site_pos).copy()
-        site_id = self.sim.model.site_name2id('target0')
-        self.sim.model.site_pos[site_id] = self.goal - sites_offset[0]
+        return self.goal
 
     def subtract_goals(self, a, b):
         return a - b
@@ -333,6 +329,11 @@ class FetchEnv(gym.Env):
                 self._get_viewer()
                 self.viewer = None
             return
+
+        # Visualize target.
+        sites_offset = (self.sim.data.site_xpos - self.sim.model.site_pos).copy()
+        site_id = self.sim.model.site_name2id('target0')
+        self.sim.model.site_pos[site_id] = self.goal - sites_offset[0]
 
         if mode == 'rgb_array':
             self._get_viewer().render()
