@@ -14,6 +14,8 @@ import math
 from sensor_msgs.msg import JointState
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from std_msgs.msg import Float64
+from gazebo_msgs.srv import SetLinkState
+from gazebo_msgs.msg import LinkState
 
 class GazeboCartPolev0Env(gazebo_env.GazeboEnv):
     def __init__(self):
@@ -22,17 +24,18 @@ class GazeboCartPolev0Env(gazebo_env.GazeboEnv):
 
         # Angle at which to fail the episode
         self.theta_threshold_radians = 12 * 2 * math.pi / 360
-        self.x_threshold = 2.4
+        self.x_threshold = 15
 
         self._pub = rospy.Publisher('/cart_pole_controller/command', Float64)
         # self._sub = rospy.Subscriber('/joint_states', JointState, self.observation_callback)
-        self._sub = rospy.Subscriber('/cart_pole/joint_states', JointState, self.observation_callback)
+        # self._sub = rospy.Subscriber('/cart_pole/joint_states', JointState, self.observation_callback)
 
         # Gazebo specific services to start/stop its behavior and
         # facilitate the overall RL environment
         self.unpause = rospy.ServiceProxy('/gazebo/unpause_physics', Empty)
         self.pause = rospy.ServiceProxy('/gazebo/pause_physics', Empty)
         self.reset_proxy = rospy.ServiceProxy('/gazebo/reset_simulation', Empty)
+        self.set_link = rospy.ServiceProxy('/gazebo/set_link_state', SetLinkState)
 
         # Seed the environment
         self._seed()
@@ -44,7 +47,8 @@ class GazeboCartPolev0Env(gazebo_env.GazeboEnv):
         """
         Callback method for the subscriber of JointTrajectoryControllerState
         """
-        self.data =  message
+        # self.data =  message
+        pass
 
     def _seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
@@ -62,12 +66,12 @@ class GazeboCartPolev0Env(gazebo_env.GazeboEnv):
         action_msg.data = self.current_vel
         self._pub.publish(action_msg)
 
-        # data = None
-        # while data is None:
-        #     try:
-        #         data = rospy.wait_for_message('/cart_pole/joint_states', JointState, timeout=5)
-        #     except:
-        #         pass
+        data = None
+        while data is None:
+            try:
+                data = rospy.wait_for_message('/cart_pole/joint_states', JointState, timeout=5)
+            except:
+                pass
 
         # rospy.wait_for_service('/gazebo/pause_physics')
         # try:
@@ -76,7 +80,7 @@ class GazeboCartPolev0Env(gazebo_env.GazeboEnv):
         # except (rospy.ServiceException) as e:
         #     print ("/gazebo/pause_physics service call failed")
 
-        state = [self.data.position[1], 0, self.data.position[0], 0]
+        state = [data.position[1], 0, data.position[0], 0]
 
         x, x_dot, theta, theta_dot = state
 
@@ -86,7 +90,15 @@ class GazeboCartPolev0Env(gazebo_env.GazeboEnv):
                 or theta > self.theta_threshold_radians
         done = bool(done)
 
-        self.current_vel = self.current_vel + action/0.1
+        if done:
+            print("x: ", x,  " theta: ", theta )
+
+        if action == 1:
+            self.current_vel = self.current_vel + 0.1
+        else:
+            self.current_vel = self.current_vel - 0.1
+
+        print("action", action)
 
         if not done:
             reward = 1.0
@@ -103,12 +115,15 @@ class GazeboCartPolev0Env(gazebo_env.GazeboEnv):
         return state, reward, done, {}
 
     def _reset(self):
-        # Resets the state of the environment and returns an initial observation.
-        rospy.wait_for_service('/gazebo/reset_simulation')
-        try:
-            self.reset_proxy()
-        except (rospy.ServiceException) as e:
-            print ("/gazebo/reset_simulation service call failed")
+        # # Resets the state of the environment and returns an initial observation.
+        # rospy.wait_for_service('/gazebo/reset_simulation')
+        # try:
+        #     self.reset_proxy()
+        # except (rospy.ServiceException) as e:
+        #     print ("/gazebo/reset_simulation service call failed")
+        rospy.wait_for_service('/gazebo/set_link_state')
+        self.set_link(LinkState(link_name='pole'))
+        self.set_link(LinkState(link_name='cart'))
 
         # # Unpause simulation to make observation
         # rospy.wait_for_service('/gazebo/unpause_physics')
@@ -133,8 +148,9 @@ class GazeboCartPolev0Env(gazebo_env.GazeboEnv):
         # except (rospy.ServiceException) as e:
         #     print ("/gazebo/pause_physics service call failed")
 
-        state = [self.data.position[1], 0, self.data.position[0], 0]
+        state = [data.position[1], 0, data.position[0], 0]
 
         self.steps_beyond_done = None
+        self.current_vel = 0
 
         return state
