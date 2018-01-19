@@ -9,7 +9,6 @@
         <texture builtin="flat" name="robot0:head_tex" height="32" width="32" rgb1="1 1 1" type="cube" rgb2="1 1 1"></texture>
         <texture builtin="flat" name="robot0:torso_tex" height="32" width="32" rgb1="1 1 1" type="cube" rgb2="1 1 1"></texture>
         <texture builtin="flat" name="robot0:base_tex" height="32" width="32" rgb1="1 1 1" type="cube" rgb2="1 1 1"></texture>
-        <texture name="texture_material0" type="cube" builtin="none" file="chars/A.png" gridlayout=".U..LFRB.D.." gridsize="3 4"></texture>
 
         <material name="material1" texture="texture_material1"></material>
         <material name="robot0:geomMat" shininess="0.03" specular="0.75" texture="robot0:texgeom" reflectance="0"></material>
