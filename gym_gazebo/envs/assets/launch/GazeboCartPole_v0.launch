@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <launch>
   <arg name="world_file"  default="/usr/share/gazebo-8/worlds/empty_bullet.world"/>
-  <arg name="paused" default="false"/>
   <arg name="gui" default="true"/>
   <arg name="verbose" default="true"/>
   <arg name="headless" value="true"/>
+  <arg name="paused" value="true"/>
 
   <!-- startup simulated world -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
@@ -23,7 +23,5 @@
   <node name="spawn_gazebo_model" pkg="gazebo_ros" type="spawn_model" args="-urdf -param robot_description -model robot -z 0.1" respawn="false" output="screen" />
 
   <include file="$(find cartpole_gazebo)/launch/controller_utils.launch"/>
-  <rosparam file="$(find cartpole_gazebo)/config/cart_pole_controller.yaml" command="load"/>
-  <node name="arm_controller_spawner" pkg="controller_manager" type="controller_manager" args="spawn cart_pole_controller" respawn="false" output="screen"/>
 
 </launch>

@@ -13,6 +13,7 @@ import math
 
 from sensor_msgs.msg import JointState
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
+from std_msgs.msg import Float64
 
 class GazeboCartPolev0Env(gazebo_env.GazeboEnv):
     def __init__(self):
@@ -23,8 +24,9 @@ class GazeboCartPolev0Env(gazebo_env.GazeboEnv):
         self.theta_threshold_radians = 12 * 2 * math.pi / 360
         self.x_threshold = 2.4
 
-        self._pub = rospy.Publisher('/cart_pole_controller/command', JointTrajectory)
+        self._pub = rospy.Publisher('/cart_pole_controller/command', Float64)
         # self._sub = rospy.Subscriber('/joint_states', JointState, self.observation_callback)
+        self._sub = rospy.Subscriber('/cart_pole/joint_states', JointState, self.observation_callback)
 
         # Gazebo specific services to start/stop its behavior and
         # facilitate the overall RL environment
@@ -36,13 +38,13 @@ class GazeboCartPolev0Env(gazebo_env.GazeboEnv):
         self._seed()
         self.steps_beyond_done = None
 
-        self.last_pose = 0
+        self.current_vel = 0
 
     def observation_callback(self, message):
         """
         Callback method for the subscriber of JointTrajectoryControllerState
         """
-        self._observation_msg =  message
+        self.data =  message
 
     def _seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
@@ -56,34 +58,16 @@ class GazeboCartPolev0Env(gazebo_env.GazeboEnv):
         # except (rospy.ServiceException) as e:
         #     print ("/gazebo/unpause_physics service call failed")
 
-        action_msg = JointTrajectory()
-        action_msg.header.stamp = rospy.Time.now() # Note you need to call rospy.init_node() before this will work
-        action_msg.joint_names = ["slider_to_cart"]
-
-        self.last_pose = action;
-
-        # Create a point to tell the robot to move to.
-        target = JointTrajectoryPoint()
-        # target.positions  = [self.last_pose]
-
-        target.time_from_start.secs = 0
-        target.time_from_start.nsecs = 1000000000
-
-        target.velocities = [1]
-        # target.effort = [float('nan')]
-
-        # Package the single point into a trajectory of points with length 1.
-        action_msg.points = [target]
-
+        action_msg = Float64()
+        action_msg.data = self.current_vel
         self._pub.publish(action_msg)
 
-
-        data = None
-        while data is None:
-            try:
-                data = rospy.wait_for_message('/joint_states', JointState, timeout=5)
-            except:
-                pass
+        # data = None
+        # while data is None:
+        #     try:
+        #         data = rospy.wait_for_message('/cart_pole/joint_states', JointState, timeout=5)
+        #     except:
+        #         pass
 
         # rospy.wait_for_service('/gazebo/pause_physics')
         # try:
@@ -92,7 +76,7 @@ class GazeboCartPolev0Env(gazebo_env.GazeboEnv):
         # except (rospy.ServiceException) as e:
         #     print ("/gazebo/pause_physics service call failed")
 
-        state = [data.position[1], 0, data.position[0], 0]
+        state = [self.data.position[1], 0, self.data.position[0], 0]
 
         x, x_dot, theta, theta_dot = state
 
@@ -101,6 +85,8 @@ class GazeboCartPolev0Env(gazebo_env.GazeboEnv):
                 or theta < -self.theta_threshold_radians \
                 or theta > self.theta_threshold_radians
         done = bool(done)
+
+        self.current_vel = self.current_vel + action/0.1
 
         if not done:
             reward = 1.0
@@ -136,7 +122,7 @@ class GazeboCartPolev0Env(gazebo_env.GazeboEnv):
         data = None
         while data is None:
             try:
-                data = rospy.wait_for_message('/joint_states', JointState, timeout=5)
+                data = rospy.wait_for_message('/cart_pole/joint_states', JointState, timeout=5)
             except:
                 pass
 
@@ -147,7 +133,7 @@ class GazeboCartPolev0Env(gazebo_env.GazeboEnv):
         # except (rospy.ServiceException) as e:
         #     print ("/gazebo/pause_physics service call failed")
 
-        state = [data.position[1], 0, data.position[0], 0]
+        state = [self.data.position[1], 0, self.data.position[0], 0]
 
         self.steps_beyond_done = None
 
