@@ -125,7 +125,6 @@ class FetchEnv(gym.Env):
     def __init__(
         self, model_path, n_substeps, gripper_extra_height, block_gripper,
         has_box, target_in_the_air, target_x_shift, obj_range, target_range, dist_threshold):
-        # TODO: n_substeps
         if model_path.startswith("/"):
             fullpath = model_path
         else:
@@ -145,7 +144,6 @@ class FetchEnv(gym.Env):
 
         self.model = mujoco_py.load_model_from_path(fullpath)
         self.sim = mujoco_py.MjSim(self.model, nsubsteps=n_substeps)
-        self.data = self.sim.data
         self.viewer = None
 
         self.metadata = {
@@ -162,7 +160,6 @@ class FetchEnv(gym.Env):
         obs = self._get_obs()
         self.observation_space = spaces.Dict(
             dict([(k, spaces.Box(-np.inf, np.inf, v.size)) for k, v in obs.items()]))
-        print(self.observation_space)
         
         self._seed()
 
@@ -181,6 +178,7 @@ class FetchEnv(gym.Env):
         init_qpos = self.initial_qpos
         for name, value in init_qpos.items():
             self.sim.data.set_joint_qpos(name, value)
+        self.sim.forward()
 
         # Places mocap where related bodies are.
         if self.sim.model.nmocap > 0 and self.sim.model.eq_data is not None:
@@ -188,9 +186,9 @@ class FetchEnv(gym.Env):
                 if self.sim.model.eq_type[i] == const.EQ_WELD:
                     self.sim.model.eq_data[i, :] = np.array(
                         [0., 0., 0., 1., 0., 0., 0.])
+        self.sim.forward()
         
         # Move end effector into position.
-        self.sim.forward()
         gripper_target = np.array([-0.498, 0.005, -0.431 + self.gripper_extra_height]) + self.sim.data.get_site_xpos('robot0:grip')
         gripper_rotation = np.array([1., 0., 1., 0.])
         self.sim.data.set_mocap_pos('robot0:mocap', gripper_target)
@@ -207,13 +205,6 @@ class FetchEnv(gym.Env):
     def initial_qpos(self):
         raise NotImplementedError()
 
-    def reset_model(self):
-        """
-        Reset the robot degrees of freedom (qpos and qvel).
-        Implement this in each subclass.
-        """
-        raise NotImplementedError
-
     def viewer_setup(self):
         """
         This method is called when the viewer is initialized and after every reset
@@ -224,8 +215,8 @@ class FetchEnv(gym.Env):
 
     def _step(self, action):
         self._set_action(action)
-        obs = self._get_obs()
         self.sim.step()
+        obs = self._get_obs()
 
         reward = self.compute_reward(obs)
         done = False
@@ -310,7 +301,6 @@ class FetchEnv(gym.Env):
     # -----------------------------
 
     def _reset(self):
-        self.sim.reset()
         self.sim.set_state(self.init_state)
         self.sim.forward()
         self.reset_goal()
