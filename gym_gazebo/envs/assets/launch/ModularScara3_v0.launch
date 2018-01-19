@@ -2,7 +2,7 @@
 <launch>
   <arg name="world_file"  default="$(env GYM_GAZEBO_ENV_SCARA3)"/>
   <arg name="paused" default="false"/>
-  <arg name="gui" default="false"/>
+  <arg name="gui" default="true"/>
   <arg name="verbose" default="true"/>
   <arg name="headless" value="true"/>
 
@@ -12,10 +12,12 @@
     <arg name="gui" value="$(arg gui)"/>
     <arg name="use_sim_time" value="true"/>
     <arg name="debug" value="false"/>
+    <arg name="physics" value="ode"/>
+    <arg name="verbose" default="true"/>
   </include>
 
   <!-- send robot urdf to param server -->
-  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find scara_e1_description)/urdf/scara_e1_model_3joints.urdf.xacro'" />
+  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find scara_e1_description)/urdf/scara_e1_model_4joints.urdf.xacro'" />
 
   <!-- push robot_description to factory and spawn robot in gazebo -->
   <node name="spawn_gazebo_model" pkg="gazebo_ros" type="spawn_model" args="-urdf -param robot_description -model robot -z 0.01" respawn="false" output="screen" />
