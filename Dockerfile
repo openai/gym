@@ -73,7 +73,6 @@ RUN apt-get install -y libgazebo8-dev
 # setup environment
 EXPOSE 11345
 
-
 #--------------------
 # Install ROS
 #--------------------
@@ -329,6 +328,7 @@ RUN pip3 install netifaces
 # Install individual environments
 #--------------------
 WORKDIR /root
+
 # Turtlebot
 RUN cd ros_catkin_ws/src && git clone https://github.com/turtlebot/turtlebot
 RUN cd ros_catkin_ws/src && git clone https://github.com/turtlebot/turtlebot_create
@@ -348,15 +348,30 @@ RUN cd ros_catkin_ws/src && git clone https://github.com/stonier/ecl_lite
 RUN cd ros_catkin_ws/src && git clone https://github.com/stonier/ecl_navigation
 RUN cd ros_catkin_ws/src && git clone https://github.com/stonier/ecl_tools
 RUN cd ros_catkin_ws/src && git clone https://github.com/ros-drivers/driver_common.git
-
 RUN apt-get install -y libftdi-dev
 RUN cd ros_catkin_ws/src && git clone https://github.com/ros-visualization/rqt_robot_dashboard
 RUN apt-get install -y libsdl-dev libsdl-image1.2-dev libspnav-dev
 # installing pcl-dev causes some conflicts
 RUN apt-get install -y libpcl-dev; exit 0
-
 RUN cd ros_catkin_ws/src && git clone https://github.com/ros-perception/pcl_msgs
 RUN cd ros_catkin_ws/src && git clone https://github.com/ros-perception/pcl_conversions
+RUN cd ros_catkin_ws/src && git clone https://github.com/ros-gbp/bfl-release -b release/kinetic/bfl
+# CATKIN_IGNORE kobuki_gazebo_plugins
+RUN cd ros_catkin_ws/src/kobuki_desktop/kobuki_gazebo_plugins && touch CATKIN_IGNORE
+RUN cd ros_catkin_ws/src && git clone https://github.com/ros-perception/laser_geometry
+RUN cd ros_catkin_ws/src && git clone https://github.com/ros-planning/navigation_msgs
+RUN cd ros_catkin_ws/src && git clone https://github.com/ros/roslint
+# CATKIN_IGNORE wiimote
+RUN cd ros_catkin_ws/src/joystick_drivers/wiimote && touch CATKIN_IGNORE
+# # CATKIN_IGNORE yocs_ar_marker_tracking
+# RUN cd ros_catkin_ws/src/yujin_ocs/yocs_ar_marker_tracking && touch CATKIN_IGNORE
+RUN cd ros_catkin_ws/src && git clone https://github.com/ros-perception/ar_track_alvar
+RUN cd ros_catkin_ws/src && git clone https://github.com/ros/resource_retriever
+# CATKIN_IGNORE kobuki test suites
+RUN cd ros_catkin_ws/src/kobuki/kobuki_testsuite && touch CATKIN_IGNORE
+RUN cd ros_catkin_ws/src/kobuki_desktop/kobuki_qtestsuite && touch CATKIN_IGNORE
+RUN cd ros_catkin_ws/src && git clone https://github.com/ros/robot_state_publisher
+RUN cd ros_catkin_ws/src && git clone https://github.com/ros/kdl_parser
 
 # Compile the again the workspace
 RUN cd ~/ros_catkin_ws && ./src/catkin/bin/catkin_make_isolated -DPYTHON_VERSION=3.5 \
