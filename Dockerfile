@@ -285,7 +285,7 @@ WORKDIR $ROS2_WS
 RUN wget https://raw.githubusercontent.com/ros2/ros2/release-latest/ros2.repos \
 && vcs import src < ros2.repos
 
-RUN pip3 install pyparsing
+RUN pip3 install pyparsing pytest
 
 # build source
 WORKDIR $ROS2_WS
@@ -298,34 +298,79 @@ RUN src/ament/ament_tools/scripts/ament.py \
     --symlink-install
 
 
-# #--------------------
-# # Install Sophus
-# #--------------------
-# RUN git clone https://github.com/stonier/sophus -b indigo && \
-#     cd sophus && mkdir build && cd build && cmake .. && make
-# # RUN ls -l
-# RUN cd sophus/build && make install
-# #RUN echo "## Sophus installed ##\n"
-#
-# # # FROM pip
-# # RUN pip3 install opencv-python
-# #RUN cd /usr/local/gym
-#
-# # More dependencies
-# RUN pip3 install h5py
-# RUN apt-get install -y python3-skimage \
-#     bash-completion \
-#     python3-defusedxml
-#
-# RUN pip3 install baselines
-#
-# #--------------------
-# # Copy the code
-# #--------------------
-# # this invalidates the cache
-# RUN mkdir gym-gazebo
+WORKDIR /root
+#--------------------
+# Install Sophus
+#--------------------
+RUN git clone https://github.com/stonier/sophus -b indigo && \
+    cd sophus && mkdir build && cd build && cmake .. && make
+# RUN ls -l
+RUN cd sophus/build && make install
+#RUN echo "## Sophus installed ##\n"
+
+# # FROM pip
+# RUN pip3 install opencv-python
+#RUN cd /usr/local/gym
+
+# More dependencies
+RUN pip3 install h5py
+RUN apt-get update && apt-get install -y bash-completion \
+        python3-defusedxml python3-skimage
+
+#--------------------
+# Install baselines
+#--------------------
+RUN pip3 install baselines
+
+RUN pip3 install netifaces
+
+
+#--------------------
+# Install individual environments
+#--------------------
+WORKDIR /root
+# Turtlebot
+RUN cd ros_catkin_ws/src && git clone https://github.com/turtlebot/turtlebot
+RUN cd ros_catkin_ws/src && git clone https://github.com/turtlebot/turtlebot_create
+RUN cd ros_catkin_ws/src && git clone https://github.com/turtlebot/turtlebot_simulator
+RUN cd ros_catkin_ws/src && git clone https://github.com/ros-drivers/joystick_drivers.git
+RUN cd ros_catkin_ws/src && git clone https://github.com/yujinrobot/kobuki
+RUN cd ros_catkin_ws/src && git clone https://github.com/yujinrobot/kobuki_core
+RUN cd ros_catkin_ws/src && git clone https://github.com/erlerobot/kobuki_desktop
+RUN cd ros_catkin_ws/src && git clone https://github.com/yujinrobot/kobuki_msgs
+RUN cd ros_catkin_ws/src && git clone https://github.com/ros-planning/navigation
+RUN cd ros_catkin_ws/src && git clone https://github.com/ros-perception/perception_pcl.git
+RUN cd ros_catkin_ws/src && git clone https://github.com/ros/xacro
+RUN cd ros_catkin_ws/src && git clone https://github.com/yujinrobot/yocs_msgs
+RUN cd ros_catkin_ws/src && git clone https://github.com/yujinrobot/yujin_ocs
+RUN cd ros_catkin_ws/src && git clone https://github.com/stonier/ecl_core
+RUN cd ros_catkin_ws/src && git clone https://github.com/stonier/ecl_lite
+RUN cd ros_catkin_ws/src && git clone https://github.com/stonier/ecl_navigation
+RUN cd ros_catkin_ws/src && git clone https://github.com/stonier/ecl_tools
+RUN cd ros_catkin_ws/src && git clone https://github.com/ros-drivers/driver_common.git
+
+RUN apt-get install -y libftdi-dev
+RUN cd ros_catkin_ws/src && git clone https://github.com/ros-visualization/rqt_robot_dashboard
+RUN apt-get install -y libsdl-dev libsdl-image1.2-dev libspnav-dev
+# installing pcl-dev causes some conflicts
+RUN apt-get install -y libpcl-dev; exit 0
+
+RUN cd ros_catkin_ws/src && git clone https://github.com/ros-perception/pcl_msgs
+RUN cd ros_catkin_ws/src && git clone https://github.com/ros-perception/pcl_conversions
+
+# Compile the again the workspace
+RUN cd ~/ros_catkin_ws && ./src/catkin/bin/catkin_make_isolated -DPYTHON_VERSION=3.5 \
+        --install -DCMAKE_BUILD_TYPE=Release -DCATKIN_ENABLE_TESTING=OFF ; exit 0
+
+
+#--------------------
+# Copy the code
+#--------------------
+# this invalidates the cache
+RUN mkdir gym-gazebo
 # COPY . /usr/local/gym/gym-gazebo
-#
+COPY . /root/gym-gazebo
+
 # # #--------------------
 # # # Install deep learning toolkits
 # # #--------------------
@@ -344,29 +389,29 @@ RUN src/ament/ament_tools/scripts/ament.py \
 # # # install Keras
 # # RUN pip install keras
 #
-# #--------------------
-# # Install gym-gazebo
-# #--------------------
+#--------------------
+# Install gym-gazebo
+#--------------------
+
+RUN cd gym-gazebo && pip3 install -e .
+
+# # old method
+# # install dependencies
+# RUN cd /usr/local/gym/gym-gazebo/gym_gazebo/envs/installation && bash setup.bash
+
+#WORKDIR /root
+#ENTRYPOINT ["/usr/local/gym/bin/docker_entrypoint"]
+
+# setup entrypoint
+#RUN ls /usr/local/gym/gym-gazebo/
+#RUN ls ./gym-gazebo
+#COPY /usr/local/gym/gym-gazebo/entrypoint.sh /
 #
-# RUN cd gym-gazebo && pip install -e .
-#
-# # # old method
-# # # install dependencies
-# # RUN cd /usr/local/gym/gym-gazebo/gym_gazebo/envs/installation && bash setup.bash
-#
-# #WORKDIR /root
-# #ENTRYPOINT ["/usr/local/gym/bin/docker_entrypoint"]
-#
-# # setup entrypoint
-# #RUN ls /usr/local/gym/gym-gazebo/
-# #RUN ls ./gym-gazebo
-# #COPY /usr/local/gym/gym-gazebo/entrypoint.sh /
-#
-# #--------------------
-# # Entry point
-# #--------------------
-#
-# COPY entrypoint.sh /
-#
-# ENTRYPOINT ["/entrypoint.sh"]
-# CMD ["bash"]
+#--------------------
+# Entry point
+#--------------------
+
+COPY entrypoint.sh /
+
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["bash"]
