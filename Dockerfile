@@ -336,7 +336,7 @@ RUN cd ros_catkin_ws/src && git clone https://github.com/turtlebot/turtlebot_sim
 RUN cd ros_catkin_ws/src && git clone https://github.com/ros-drivers/joystick_drivers.git
 RUN cd ros_catkin_ws/src && git clone https://github.com/yujinrobot/kobuki
 RUN cd ros_catkin_ws/src && git clone https://github.com/yujinrobot/kobuki_core
-RUN cd ros_catkin_ws/src && git clone https://github.com/erlerobot/kobuki_desktop
+# RUN cd ros_catkin_ws/src && git clone https://github.com/erlerobot/kobuki_desktop
 RUN cd ros_catkin_ws/src && git clone https://github.com/yujinrobot/kobuki_msgs
 RUN cd ros_catkin_ws/src && git clone https://github.com/ros-planning/navigation
 RUN cd ros_catkin_ws/src && git clone https://github.com/ros-perception/perception_pcl.git
@@ -356,8 +356,12 @@ RUN apt-get install -y libpcl-dev; exit 0
 RUN cd ros_catkin_ws/src && git clone https://github.com/ros-perception/pcl_msgs
 RUN cd ros_catkin_ws/src && git clone https://github.com/ros-perception/pcl_conversions
 RUN cd ros_catkin_ws/src && git clone https://github.com/ros-gbp/bfl-release -b release/kinetic/bfl
-# CATKIN_IGNORE kobuki_gazebo_plugins
-RUN cd ros_catkin_ws/src/kobuki_desktop/kobuki_gazebo_plugins && touch CATKIN_IGNORE
+# # CATKIN_IGNORE kobuki_gazebo_plugins
+# RUN cd ros_catkin_ws/src/kobuki_desktop/kobuki_gazebo_plugins && touch CATKIN_IGNORE
+RUN cd ros_catkin_ws/src && git clone git clone https://github.com/yujinrobot/kobuki_desktop -b devel
+# Fix obtained from https://aur.archlinux.org/packages/ros-indigo-kobuki-gazebo-plugins/
+# checkout version 0.5.1, which compiles
+RUN cd ros_catkin_ws/src/kobuki_desktop && git checkout 3d837662928748cf1e229d2e0b0d98f1031ed4a4
 RUN cd ros_catkin_ws/src && git clone https://github.com/ros-perception/laser_geometry
 RUN cd ros_catkin_ws/src && git clone https://github.com/ros-planning/navigation_msgs
 RUN cd ros_catkin_ws/src && git clone https://github.com/ros/roslint
@@ -375,7 +379,7 @@ RUN cd ros_catkin_ws/src && git clone https://github.com/ros/kdl_parser
 
 # Compile the again the workspace
 RUN cd ~/ros_catkin_ws && ./src/catkin/bin/catkin_make_isolated -DPYTHON_VERSION=3.5 \
-        --install -DCMAKE_BUILD_TYPE=Release -DCATKIN_ENABLE_TESTING=OFF ; exit 0
+        --install -DCMAKE_BUILD_TYPE=Release -DCATKIN_ENABLE_TESTING=OFF
 
 
 #--------------------
