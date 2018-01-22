@@ -92,3 +92,8 @@ register(
     entry_point='gym_gazebo.envs.gazebo_cartpole:GazeboCartPolev0Env',
 )
 
+# ARIACPickv0Env
+register(
+    id='ARIACPick-v0',
+    entry_point='gym_gazebo.envs.ARIAC:ARIACPickv0Env',
+)
