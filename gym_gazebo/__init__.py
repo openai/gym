@@ -83,7 +83,7 @@ register(
 
 register(
     id='GazeboModularScaraArm4And3DOF-v1',
-    entry_point='gym_gazebo.envs.modular_scara:GazeboModularScara4And3DOFv3Env',
+    entry_point='gym_gazebo.envs.modular_scara:GazeboModularScara4And3DOFv1Env',
 )
 
 # cart pole
