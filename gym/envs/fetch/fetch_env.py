@@ -214,17 +214,18 @@ class FetchEnv(gym.GoalEnv):
         pass
 
     def _step(self, action):
+        obs = self._get_obs()
         self._set_action(action)
         self.sim.step()
         if self.block_gripper:
             self.sim.data.set_joint_qpos('robot0:l_gripper_finger_joint', 0.)
             self.sim.data.set_joint_qpos('robot0:r_gripper_finger_joint', 0.)
             self.sim.forward()
-        obs = self._get_obs()
+        next_obs = self._get_obs()
 
-        reward = self.compute_reward(obs, self.goal)
+        reward = self.compute_reward(obs, action, next_obs, self.goal)
         done = False
-        return obs, reward, done, {}
+        return next_obs, reward, done, {}
 
     def _set_action(self, action):
         assert action.shape == (4,)
@@ -302,9 +303,13 @@ class FetchEnv(gym.GoalEnv):
         assert goal_a.shape == goal_b.shape
         return np.linalg.norm(self.subtract_goals(goal_a, goal_b), axis=-1)
 
-    def compute_reward(self, obs, goal):
-        # Compute distance between goal and the achieved goal.
+    def compute_success(self, obs, goal):
         d = self.compute_goal_distance(obs['achieved_goal'], goal)
+        return (d < self.dist_threshold).astype(np.float32)
+
+    def compute_reward(self, obs, action, next_obs, goal):
+        # Compute distance between goal and the achieved goal.
+        d = self.compute_goal_distance(next_obs['achieved_goal'], goal)
         return -(d > self.dist_threshold).astype(np.float32)
 
     # -----------------------------

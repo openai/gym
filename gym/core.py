@@ -223,7 +223,10 @@ class GoalEnv(Env):
     def compute_goal_distance(self, goal_a, goal_b):
         raise NotImplementedError()
 
-    def compute_reward(self, obs, goal):
+    def compute_success(self, obs, goal):
+        raise NotImplementedError()
+
+    def compute_reward(self, obs, action, next_obs, goal):
         raise NotImplementedError()
 
 # Space-related abstractions
