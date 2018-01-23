@@ -2,7 +2,7 @@
 <launch>
   <arg name="world_file"  default="$(env GYM_GAZEBO_ENV_SCARA3)"/>
   <arg name="paused" default="false"/>
-  <arg name="gui" default="false"/>
+  <arg name="gui" default="true"/>
   <arg name="verbose" default="true"/>
   <arg name="headless" value="true"/>
 
@@ -12,6 +12,8 @@
     <arg name="gui" value="$(arg gui)"/>
     <arg name="use_sim_time" value="true"/>
     <arg name="debug" value="false"/>
+    <arg name="physics" value="ode"/>
+    <arg name="verbose" default="true"/>
   </include>
 
   <!-- send robot urdf to param server -->

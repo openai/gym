@@ -55,12 +55,10 @@ register(
     id='GazeboModularScara3DOF-v0',
     entry_point='gym_gazebo.envs.modular_scara:GazeboModularScara3DOFEnv',
 )
-
 register(
     id='GazeboModularScara3DOF-v1',
     entry_point='gym_gazebo.envs.modular_scara:GazeboModularScara3DOFv1Env',
 )
-
 register(
     id='GazeboModularScara3DOF-v2',
     entry_point='gym_gazebo.envs.modular_scara:GazeboModularScara3DOFv2Env',
@@ -73,13 +71,29 @@ register(
     id='GazeboModularScara4DOF-v3',
     entry_point='gym_gazebo.envs.modular_scara:GazeboModularScara4DOFv3Env',
 )
-
 register(
     id='GazeboModularArticulatedArm4DOF-v1',
     entry_point='gym_gazebo.envs.articulated_arm:GazeboModularArticulatedArm4DOFv1Env',
 )
 
 register(
+    id='GazeboModularScaraObstacles3DOF-v0',
+    entry_point='gym_gazebo.envs.modular_scara:GazeboModularScara3DOFObstaclesv0Env',
+)
+
+register(
     id='GazeboModularScaraArm4And3DOF-v1',
-    entry_point='gym_gazebo.envs.modular_scara:GazeboModularScara4And3DOFv3Env',
+    entry_point='gym_gazebo.envs.modular_scara:GazeboModularScara4And3DOFv1Env',
+)
+
+# cart pole
+register(
+    id='GazeboCartPole-v0',
+    entry_point='gym_gazebo.envs.gazebo_cartpole:GazeboCartPolev0Env',
+)
+
+# ARIACPickv0Env
+register(
+    id='ARIACPick-v0',
+    entry_point='gym_gazebo.envs.ARIAC:ARIACPickv0Env',
 )

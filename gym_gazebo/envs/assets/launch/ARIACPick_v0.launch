@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<launch>
+
+  <node name="ariac_world" pkg="osrf_gear" type="gear.py" args="--development-mode -f $(find osrf_gear)/config/qual1b.yaml /home/erle/ros_scara/install_isolated/share/ariac_example/config/sample_gear_conf.yaml" respawn="false" output="screen" />
+
+</launch>
