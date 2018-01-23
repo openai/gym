@@ -158,8 +158,10 @@ class FetchEnv(gym.GoalEnv):
 
         self.reset()
         obs = self._get_obs()
-        self.observation_space = spaces.Dict(
-            dict([(k, spaces.Box(-np.inf, np.inf, v.size)) for k, v in obs.items()]))
+        self.observation_space = spaces.Goal(
+            goal_space=spaces.Box(-np.inf, np.inf, obs['achieved_goal'].size),
+            observation_space=spaces.Box(-np.inf, np.inf, obs['observation'].size),
+        )
         
         self._seed()
 
@@ -268,13 +270,14 @@ class FetchEnv(gym.GoalEnv):
             achieved_goal = np.squeeze(box_pos.copy())
 
         return {
-            'obs': obs.copy(),
+            'observation': obs.copy(),
             'achieved_goal': achieved_goal.copy(),
+            'goal': self.goal.copy(),
         }
 
     # Goal-based API
 
-    def reset_goal(self):
+    def _reset_goal(self):
         if not self.has_box:
             goal = self.init_gripper[:3] + np.random.uniform(-0.15, 0.15, size=3)
         else:
@@ -303,8 +306,8 @@ class FetchEnv(gym.GoalEnv):
         assert goal_a.shape == goal_b.shape
         return np.linalg.norm(self.subtract_goals(goal_a, goal_b), axis=-1)
 
-    def compute_success(self, obs, goal):
-        d = self.compute_goal_distance(obs['achieved_goal'], goal)
+    def is_success(self, achieved_goal, goal):
+        d = self.compute_goal_distance(achieved_goal, goal)
         return (d < self.dist_threshold).astype(np.float32)
 
     def compute_reward(self, obs, action, next_obs, goal):
@@ -317,7 +320,7 @@ class FetchEnv(gym.GoalEnv):
     def _reset(self):
         self.sim.set_state(self.init_state)
         self.sim.forward()
-        self.reset_goal()
+        self._reset_goal()
         obs = self._get_obs()
         if self.viewer is not None:
             self.viewer_setup()

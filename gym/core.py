@@ -214,16 +214,13 @@ class Env(object):
 
 class GoalEnv(Env):
     
-    def reset_goal(self):
-        raise NotImplementedError()
-
     def subtract_goals(self, goal_a, goal_b):
         raise NotImplementedError()
 
     def compute_goal_distance(self, goal_a, goal_b):
         raise NotImplementedError()
 
-    def compute_success(self, obs, goal):
+    def is_success(self, achieved_goal, goal):
         raise NotImplementedError()
 
     def compute_reward(self, obs, action, next_obs, goal):
