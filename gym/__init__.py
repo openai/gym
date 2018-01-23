@@ -47,7 +47,7 @@ del logger_setup
 
 sanity_check_dependencies()
 
-from gym.core import Env, Space, Wrapper, ObservationWrapper, ActionWrapper, RewardWrapper
+from gym.core import Env, GoalEnv, Space, Wrapper, ObservationWrapper, ActionWrapper, RewardWrapper
 from gym.benchmarks import benchmark_spec
 from gym.envs import make, spec
 from gym.scoreboard.api import upload

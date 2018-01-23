@@ -211,6 +211,21 @@ class Env(object):
     def configure(self, *args, **kwargs):
         raise error.Error("Env.configure has been removed in gym v0.8.0, released on 2017/03/05. If you need Env.configure, please use gym version 0.7.x from pip, or checkout the `gym:v0.7.4` tag from git.")
 
+
+class GoalEnv(Env):
+    
+    def reset_goal(self):
+        raise NotImplementedError()
+
+    def subtract_goals(self, goal_a, goal_b):
+        raise NotImplementedError()
+
+    def compute_goal_distance(self, goal_a, goal_b):
+        raise NotImplementedError()
+
+    def compute_reward(self, obs, goal):
+        raise NotImplementedError()
+
 # Space-related abstractions
 
 class Space(object):

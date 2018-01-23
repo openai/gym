@@ -118,7 +118,7 @@ def set_action(sim, action):
     mocap_set_action(sim, action)
 
 
-class FetchEnv(gym.Env):
+class FetchEnv(gym.GoalEnv):
     """Superclass for all Fetch environments.
     """
 
@@ -222,7 +222,7 @@ class FetchEnv(gym.Env):
             self.sim.forward()
         obs = self._get_obs()
 
-        reward = self.compute_reward(obs)
+        reward = self.compute_reward(obs, self.goal)
         done = False
         return obs, reward, done, {}
 
@@ -271,6 +271,8 @@ class FetchEnv(gym.Env):
             'achieved_goal': achieved_goal.copy(),
         }
 
+    # Goal-based API
+
     def reset_goal(self):
         if not self.has_box:
             goal = self.init_gripper[:3] + np.random.uniform(-0.15, 0.15, size=3)
@@ -290,17 +292,19 @@ class FetchEnv(gym.Env):
 
         return self.goal
 
-    # TODO: re-consider this
-    def subtract_goals(self, a, b):
-        return a - b
+    def subtract_goals(self, goal_a, goal_b):
+        # In this case, our goal subtraction is quite simple since it does not
+        # contain any rotations but only positions.
+        assert goal_a.shape == goal_b.shape
+        return goal_a - goal_b
 
-    def goal_distance(self, obs, goal):
-        current_goal = obs['achieved_goal']
-        assert current_goal.shape == goal.shape
-        return np.linalg.norm(self.subtract_goals(current_goal, goal), axis=-1)
+    def compute_goal_distance(self, goal_a, goal_b):
+        assert goal_a.shape == goal_b.shape
+        return np.linalg.norm(self.subtract_goals(goal_a, goal_b), axis=-1)
 
-    def compute_reward(self, obs):
-        d = self.goal_distance(obs, self.goal)
+    def compute_reward(self, obs, goal):
+        # Compute distance between goal and the achieved goal.
+        d = self.compute_goal_distance(obs['achieved_goal'], goal)
         return -(d > self.dist_threshold).astype(np.float32)
 
     # -----------------------------
