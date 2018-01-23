@@ -35,7 +35,7 @@ class MSG_INVALID_JOINT_NAMES_DIFFER(Exception):
     pass
 
 
-class GazeboModularScara4And3DOFv3Env(gazebo_env.GazeboEnv):
+class GazeboModularScara4And3DOFv1Env(gazebo_env.GazeboEnv):
     """
     This environment present a modular SCARA robot with a range finder at its
     end pointing towards the workspace of the robot. The goal of this environment is
@@ -57,7 +57,6 @@ class GazeboModularScara4And3DOFv3Env(gazebo_env.GazeboEnv):
 
         # TODO: cleanup this variables, remove the ones that aren't used
         # class variables
-
         self.urdf_path = "/home/rkojcev/devel/ros_rl/environments/gym-gazebo/gym_gazebo/envs/assets/urdf/modular_scara/scara_e1_model_4_and_3joints.urdf"
 
         self.slowness = 1
@@ -69,11 +68,11 @@ class GazeboModularScara4And3DOFv3Env(gazebo_env.GazeboEnv):
         self.randomizeRobot()
         # Seed the environment
         self._seed()
-
-    def init_3dof_robot(self):
+    #def init_3dof_robot(self)
+    def init_3dof_robot(self, current_subp = None):
         print("I am in enviroment 3DOF")
         self._observation_msg = None
-        print(self._observation_msg)
+        #print(self._observation_msg)
         self.scale = None  # must be set from elsewhere based on observations
         self.bias = None
         self.x_idx = None
@@ -91,9 +90,11 @@ class GazeboModularScara4And3DOFv3Env(gazebo_env.GazeboEnv):
         self.reset_jnts = True
 
         self._time_lock = threading.RLock()
-        self.choose_robot = 0
+        #self.choose_robot = 0
         self.environment = None
 
+
+        self.current_subpolicy  = current_subp  ####
         # self.choose_robot=1
         # self.enviroment = None
         # Topics for the robot publisher and subscriber.
@@ -171,7 +172,7 @@ class GazeboModularScara4And3DOFv3Env(gazebo_env.GazeboEnv):
         ee_tgt = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt, ee_rot_tgt).T)
 
         self.realgoal = ee_tgt
-
+        self.current_subpolicy = 0 ####
         self.environment = {
             'T': STEP_COUNT,
             'ee_points_tgt': ee_tgt,
@@ -233,10 +234,11 @@ class GazeboModularScara4And3DOFv3Env(gazebo_env.GazeboEnv):
         self._sub_3dof = rospy.Subscriber(JOINT_SUBSCRIBER, JointTrajectoryControllerState, self.observation_callback)
 
 
-    def init_4dof_robot(self):
+    #def init_4dof_robot(self):
+    def init_4dof_robot(self, current_subp = None):
         print("I am in enviroment 4DOF")
         self._observation_msg_4dof = None
-        print(self._observation_msg_4dof)
+        #print(self._observation_msg_4dof)
         self.scale = None  # must be set from elsewhere based on observations
         self.bias = None
         self.x_idx = None
@@ -254,8 +256,11 @@ class GazeboModularScara4And3DOFv3Env(gazebo_env.GazeboEnv):
         self.reset_jnts = True
 
         self._time_lock = threading.RLock()
-        self.choose_robot = 1
+        #self.choose_robot = 1
         self.environment = None
+
+        self.current_subpolicy  = current_subp  ####
+
 
         #############################
         #   Environment hyperparams
@@ -477,10 +482,12 @@ class GazeboModularScara4And3DOFv3Env(gazebo_env.GazeboEnv):
         if np.random.uniform() < 0.5:
             self.choose_robot=0
             print("which robot is? ", self.choose_robot)
+            print("3DOF robot")
             enviroment_test = self.init_3dof_robot()
         else:
             self.choose_robot=1
             print("which robot is?", self.choose_robot)
+            print("4DOF robot")
             enviroment_test = self.init_4dof_robot()
 
 
@@ -602,10 +609,17 @@ class GazeboModularScara4And3DOFv3Env(gazebo_env.GazeboEnv):
         """
         # Take an observation
         # done = False
-        if self.choose_robot is 0:
+
+        # if self.choose_robot is 0:
+        #     obs_message = self._observation_msg
+        # else:
+        #     obs_message = self._observation_msg_4dof
+
+        if self.current_subpolicy is 0:
             obs_message = self._observation_msg
         else:
             obs_message = self._observation_msg_4dof
+
         if obs_message is None:
             # print("last_observations is empty")
             return None
@@ -655,7 +669,8 @@ class GazeboModularScara4And3DOFv3Env(gazebo_env.GazeboEnv):
             # state = np.r_[np.reshape(last_observations, -1),
             #               np.reshape(ee_points, -1),
             #               np.reshape(ee_velocities, -1),]
-            if self.choose_robot is 0:
+            #if self.choose_robot is 0:
+            if self.current_subpolicy is 0:
                 last_observations = np.insert(last_observations, 3, 0.)
                 # print('last_observations_extension: ', last_observations)
                 # last_observations.append(0.0)
@@ -686,12 +701,19 @@ class GazeboModularScara4And3DOFv3Env(gazebo_env.GazeboEnv):
         self.iterator+=1
         self.reward_dist = -self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])
 
-        # here we want to fetch the positions of the end-effector which are nr_dof:nr_dof+3
-        if(self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])<0.005):
-            self.reward = 1 - self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)]) # Make the reward increase as the distance decreases
-            print("Reward is: ", self.reward)
+        #Compute reward if chosen subpolicy and chosen environment are equal
+        #Otherwise give very bad reward as selected environment is wrong
+        if self.current_subpolicy == self.choose_robot:
+
+            # here we want to fetch the positions of the end-effector which are nr_dof:nr_dof+3
+            if(self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])<0.005):
+                self.reward = 1 - self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)]) # Make the reward increase as the distance decreases
+                print("Reward is: ", self.reward)
+            else:
+                self.reward = self.reward_dist
         else:
-            self.reward = self.reward_dist
+            self.reward = -100
+
 
         # print("reward: ", self.reward)
         # print("rmse_func: ", self.rmse_func(ee_points))
@@ -700,10 +722,15 @@ class GazeboModularScara4And3DOFv3Env(gazebo_env.GazeboEnv):
         done = bool(abs(self.reward_dist) < 0.005) or (self.iterator>self.max_episode_steps)
 
         # Execute "action"
-        if self.choose_robot is 0:
+        # if self.choose_robot is 0:
+        #     self._pub_3dof.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
+        # else:
+        #     self._pub_4dof.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
+        if self.current_subpolicy is 0:
             self._pub_3dof.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
         else:
             self._pub_4dof.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
+
 
         # # Take an observation
         # TODO: program this better, check that ob is not None, etc.
@@ -720,13 +747,20 @@ class GazeboModularScara4And3DOFv3Env(gazebo_env.GazeboEnv):
         Reset the agent for a particular experiment condition.
         """
 
+        #print("\nRESET")
+
         self.iterator = 0
 
         if self.reset_jnts is True:
+            # if self.choose_robot is 0:
+            #     self._pub_3dof.publish(self.get_trajectory_message(self.environment['reset_conditions']['initial_positions']))
+            # elif self.choose_robot is 1:
+            #     self._pub_4dof.publish(self.get_trajectory_message(self.environment['reset_conditions']['initial_positions']))
             if self.choose_robot is 0:
                 self._pub_3dof.publish(self.get_trajectory_message(self.environment['reset_conditions']['initial_positions']))
             elif self.choose_robot is 1:
                 self._pub_4dof.publish(self.get_trajectory_message(self.environment['reset_conditions']['initial_positions']))
+
 
             if (self.slowness_unit == 'sec') or (self.slowness_unit is None):
                 time.sleep(int(self.slowness))
@@ -739,6 +773,10 @@ class GazeboModularScara4And3DOFv3Env(gazebo_env.GazeboEnv):
         self.ob = self.take_observation()
         while(self.ob is None):
             self.ob = self.take_observation()
+
+        ##debug
+        #print("\n\nself.ob", self.ob)
+        ##debug
 
         # Return the corresponding observation
         return self.ob
