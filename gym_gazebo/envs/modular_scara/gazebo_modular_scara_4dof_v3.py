@@ -247,7 +247,7 @@ class GazeboModularScara4DOFv3Env(gazebo_env.GazeboEnv):
             print("reset joints: ", self.reset_jnts, "type of variable: ", type(self.reset_jnts))
 
 
-    def randomizeCorrect(self):
+    def randomizeTarget(self):
         print("calling randomize correct")
 
         # EE_POS_TGT_1 = np.asmatrix([0.3325683, 0.0657366, 0.4868]) # center of O
@@ -273,7 +273,7 @@ class GazeboModularScara4DOFv3Env(gazebo_env.GazeboEnv):
         E.g. covered target -> go to other target. This could be implemented for example with vision.
         """
         self.realgoal = target1 if np.random.uniform() < 0.5 else target2
-        print("randomizeCorrect realgoal: ", self.realgoal)
+        print("randomizeTarget realgoal: ", self.realgoal)
         #self.realgoal = #ee_tgt = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt, ee_rot_tgt).T)#np.array([self.np_random.choice([0, 1, 2, 3])])
         # 0 = obstacle. 1 = no obstacle.
         # self.realgoal = 0

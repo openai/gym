@@ -236,7 +236,7 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
             print("slowness_unit: ", self.slowness_unit, "type of variable: ", type(slowness_unit))
             print("reset joints: ", self.reset_jnts, "type of variable: ", type(self.reset_jnts))
 
-    def randomizeCorrect(self):
+    def randomizeTarget(self):
         print("calling randomize correct")
 
         # EE_POS_TGT_1 = np.asmatrix([0.3325683, 0.0657366, 0.3746]) # center of O

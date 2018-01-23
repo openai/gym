@@ -58,15 +58,15 @@ class GazeboModularScara4And3DOFv1Env(gazebo_env.GazeboEnv):
         # TODO: cleanup this variables, remove the ones that aren't used
         # class variables
 
-        self.urdf_path = "/home/erle/ros_rl/environments/gym-gazebo/gym_gazebo/envs/assets/urdf/modular_scara/scara_e1_model_4_and_3joints.urdf"
+        self.urdf_path = "/home/rkojcev/devel/ros_rl/environments/gym-gazebo/gym_gazebo/envs/assets/urdf/modular_scara/scara_e1_model_4_and_3joints.urdf"
+
+        self.slowness = 1
+        self.slowness_unit = 'sec'
         # self.init_3dof_robot()
         # self.init_4dof_robot()
 
         #choose random enviroment at the startup
-        self.randomizeCorrect()
-        #print("\nROBOT initialized")
-
-
+        self.randomizeRobot()
         # Seed the environment
         self._seed()
     #def init_3dof_robot(self)
@@ -86,8 +86,8 @@ class GazeboModularScara4And3DOFv1Env(gazebo_env.GazeboEnv):
         self.max_episode_steps = 1000 # now used in all algorithms
         self.iterator = 0
         # default to seconds
-        self.slowness = 1
-        self.slowness_unit = 'sec'
+        # self.slowness = 1
+        # self.slowness_unit = 'sec'
         self.reset_jnts = True
 
         self._time_lock = threading.RLock()
@@ -252,8 +252,8 @@ class GazeboModularScara4And3DOFv1Env(gazebo_env.GazeboEnv):
         self.max_episode_steps = 1000 # now used in all algorithms
         self.iterator = 0
         # default to seconds
-        self.slowness = 1
-        self.slowness_unit = 'sec'
+        # self.slowness = 1
+        # self.slowness_unit = 'sec'
         self.reset_jnts = True
 
         self._time_lock = threading.RLock()
@@ -426,8 +426,58 @@ class GazeboModularScara4And3DOFv1Env(gazebo_env.GazeboEnv):
             print("slowness_unit: ", self.slowness_unit, "type of variable: ", type(slowness_unit))
             print("reset joints: ", self.reset_jnts, "type of variable: ", type(self.reset_jnts))
 
+    def randomizeTarget(self):
+        print("calling randomize target")
+        if self.choose_robot is 0:
+            print("Randomize target for the 3 DoF")
+            EE_POS_TGT_1 = np.asmatrix([0.3325683, 0.0657366, 0.3746]) # center of O
+            EE_POS_TGT_2 = np.asmatrix([0.3305805, -0.1326121, 0.3746]) # center of the H
+            EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+            EE_POINTS = np.asmatrix([[0, 0, 0]])
 
-    def randomizeCorrect(self):
+            ee_pos_tgt_1 = EE_POS_TGT_1
+            ee_pos_tgt_2 = EE_POS_TGT_2
+
+            # leave rotation target same since in scara we do not have rotation of the end-effector
+            ee_rot_tgt = EE_ROT_TGT
+
+            # Initialize target end effector position
+            # ee_tgt = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt, ee_rot_tgt).T)
+
+            target1 = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt_1, ee_rot_tgt).T)
+            target2 = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt_2, ee_rot_tgt).T)
+
+            """
+            This is for initial test only, we need to change this in the future to be more realistic.
+            E.g. covered target -> go to other target. This could be implemented for example with vision.
+            """
+            self.realgoal = target1 if np.random.uniform() < 0.5 else target2
+            print("randomizeTarget realgoal: ", self.realgoal)
+        else:
+            print("Randomize target for the 4 DoF")
+            EE_POS_TGT_1 = np.asmatrix([0.3325683, 0.0657366, 0.4868]) # center of O
+            EE_POS_TGT_2 = np.asmatrix([0.3305805, -0.1326121, 0.4868]) # center of the H
+            EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+            EE_POINTS = np.asmatrix([[0, 0, 0]])
+
+            ee_pos_tgt_1 = EE_POS_TGT_1
+            ee_pos_tgt_2 = EE_POS_TGT_2
+
+            # leave rotation target same since in scara we do not have rotation of the end-effector
+            ee_rot_tgt = EE_ROT_TGT
+
+            target1 = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt_1, ee_rot_tgt).T)
+            target2 = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt_2, ee_rot_tgt).T)
+
+            """
+            This is for initial test only, we need to change this in the future to be more realistic.
+            E.g. covered target -> go to other target. This could be implemented for example with vision.
+            """
+            self.realgoal = target1 if np.random.uniform() < 0.5 else target2
+            print("randomizeTarget realgoal: ", self.realgoal)
+
+
+    def randomizeRobot(self):
         print("calling randomize correct")
         #try to choose environment
         if np.random.uniform() < 0.5:
