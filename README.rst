@@ -4,7 +4,7 @@ OpenAI Gym
 **OpenAI Gym is a toolkit for developing and comparing reinforcement learning algorithms.** This is the ``gym`` open-source library, which gives you access to an ever-growing variety of environments.
 
 .. image:: https://travis-ci.org/openai/gym.svg?branch=master
-	:target: https://travis-ci.org/openai/gym
+    :target: https://travis-ci.org/openai/gym
 
 `See What's New section below <#what-s-new>`_
 
@@ -15,12 +15,12 @@ If you're not sure where to start, we recommend beginning with the
 
 A whitepaper for OpenAI Gym is available at http://arxiv.org/abs/1606.01540, and here's a BibTeX entry that you can use to cite it in a publication::
 
-	@misc{1606.01540,
-		Author = {Greg Brockman and Vicki Cheung and Ludwig Pettersson and Jonas Schneider and John Schulman and Jie Tang and Wojciech Zaremba},
-		Title = {OpenAI Gym},
-		Year = {2016},
-		Eprint = {arXiv:1606.01540},
-	}
+    @misc{1606.01540,
+        Author = {Greg Brockman and Vicki Cheung and Ludwig Pettersson and Jonas Schneider and John Schulman and Jie Tang and Wojciech Zaremba},
+        Title = {OpenAI Gym},
+        Year = {2016},
+        Eprint = {arXiv:1606.01540},
+    }
 
 .. contents:: **Contents of this document**
    :depth: 2
@@ -50,15 +50,15 @@ You can perform a minimal install of ``gym`` with:
 
 .. code:: shell
 
-	  git clone https://github.com/openai/gym.git
-	  cd gym
-	  pip install -e .
+      git clone https://github.com/openai/gym.git
+      cd gym
+      pip install -e .
 
 If you prefer, you can do a minimal install of the packaged version directly from PyPI:
 
 .. code:: shell
 
-	  pip install gym
+      pip install gym
 
 You'll be able to run a few environments right away:
 
@@ -80,13 +80,13 @@ On OSX:
 
 .. code:: shell
 
-	  brew install cmake boost boost-python sdl2 swig wget
+      brew install cmake boost boost-python sdl2 swig wget
 
 On Ubuntu 14.04:
 
 .. code:: shell
 
-	  apt-get install -y python-numpy python-dev cmake zlib1g-dev libjpeg-dev xvfb libav-tools xorg-dev python-opengl libboost-all-dev libsdl2-dev swig
+      apt-get install -y python-numpy python-dev cmake zlib1g-dev libjpeg-dev xvfb libav-tools xorg-dev python-opengl libboost-all-dev libsdl2-dev swig
 
 MuJoCo has a proprietary dependency we can't set up for you. Follow
 the
@@ -102,7 +102,7 @@ We currently support Linux and OS X running Python 2.7 or 3.5. Some users on OSX
 
 .. code:: shell
 
-	  brew install boost-python --with-python3
+      brew install boost-python --with-python3
 
 If you want to access Gym from languages other than python, we have limited support for non-python
 frameworks, such as lua/Torch, using the OpenAI Gym `HTTP API <https://github.com/openai/gym-http-api>`_.
@@ -126,7 +126,7 @@ fake display. The easiest way to do this is by running under
 
 .. code:: shell
 
-	 xvfb-run -s "-screen 0 1400x900x24" bash
+    xvfb-run -s "-screen 0 1400x900x24" bash
 
 Installing dependencies for specific environments
 -------------------------------------------------
@@ -154,10 +154,10 @@ sequence.
 
 .. code:: python
 
-	  import gym
-	  env = gym.make('Copy-v0')
-	  env.reset()
-	  env.render()
+      import gym
+      env = gym.make('Copy-v0')
+      env.reset()
+      env.render()
 
 Atari
 -----
@@ -166,10 +166,10 @@ The Atari environments are a variety of Atari video games. If you didn't do the 
 
 .. code:: python
 
-	  import gym
-	  env = gym.make('SpaceInvaders-v0')
-	  env.reset()
-	  env.render()
+      import gym
+      env = gym.make('SpaceInvaders-v0')
+      env.reset()
+      env.render()
 
 This will install ``atari-py``, which automatically compiles the `Arcade Learning Environment <http://www.arcadelearningenvironment.org/>`_. This can take quite a while (a few minutes on a decent laptop), so just be prepared.
 
@@ -180,10 +180,10 @@ The board game environments are a variety of board games. If you didn't do the f
 
 .. code:: python
 
-	  import gym
-	  env = gym.make('Go9x9-v0')
-	  env.reset()
-	  env.render()
+      import gym
+      env = gym.make('Go9x9-v0')
+      env.reset()
+      env.render()
 
 Box2d
 -----------
@@ -192,10 +192,10 @@ Box2d is a 2D physics engine. You can install it via  ``pip install -e '.[box2d]
 
 .. code:: python
 
-	  import gym
-	  env = gym.make('LunarLander-v2')
-	  env.reset()
-	  env.render()
+      import gym
+      env = gym.make('LunarLander-v2')
+      env.reset()
+      env.render()
 
 Classic control
 ---------------
@@ -204,10 +204,10 @@ These are a variety of classic control tasks, which would appear in a typical re
 
 .. code:: python
 
-	  import gym
-	  env = gym.make('CartPole-v0')
-	  env.reset()
-	  env.render()
+      import gym
+      env = gym.make('CartPole-v0')
+      env.reset()
+      env.render()
 
 MuJoCo
 ------
@@ -220,10 +220,10 @@ to set it up. You'll have to also run ``pip install -e '.[mujoco]'`` if you didn
 
 .. code:: python
 
-	  import gym
-	  env = gym.make('Humanoid-v1')
-	  env.reset()
-	  env.render()
+      import gym
+      env = gym.make('Humanoid-v1')
+      env.reset()
+      env.render()
 
 Toy text
 --------
@@ -232,10 +232,10 @@ Toy environments which are text-based. There's no extra dependency to install, s
 
 .. code:: python
 
-	  import gym
-	  env = gym.make('FrozenLake-v0')
-	  env.reset()
-	  env.render()
+      import gym
+      env = gym.make('FrozenLake-v0')
+      env.reset()
+      env.render()
 
 Examples
 ========
@@ -254,7 +254,7 @@ We are using `pytest <http://doc.pytest.org>`_ for tests. You can run them via:
 
 .. code:: shell
 
-	  pytest
+      pytest
 
 
 .. _See What's New section below:
