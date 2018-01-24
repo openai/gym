@@ -16,74 +16,6 @@ except ImportError as e:
     raise error.DependencyNotInstalled("{}. (HINT: you need to install mujoco_py, and also perform the setup instructions here: https://github.com/openai/mujoco-py/.)".format(e))
 
 
-def ctrl_set_action(sim, action):
-    """
-    For torque actuators it copies the action into mujoco ctrl field.
-    For position actuators it sets the target relative to the current qpos.
-    """
-    if sim.model.nmocap > 0:
-        _, action = np.split(action, (sim.model.nmocap * 7, ))
-    if sim.data.ctrl is not None:
-        for i in range(action.shape[0]):
-            if sim.model.actuator_biastype[i] == 0:
-                sim.data.ctrl[i] = action[i]
-            else:
-                idx = sim.model.jnt_qposadr[sim.model.actuator_trnid[i, 0]]
-                sim.data.ctrl[i] = sim.data.qpos[idx] + action[i]
-
-
-def mocap_set_action(sim, action):
-    """
-    The action controls the robot using mocaps. Specifically, bodies
-    on the robot (for example the gripper wrist) is controlled with
-    mocap bodies. In this case the action is the desired difference
-    in position and orientation (quaternion), in world coordinates,
-    of the of the target body. The mocap is positioned relative to
-    the target body according to the delta, and the MuJoCo equality
-    contraint optimizer tries to center the welded body on the mocap.
-    """
-    if sim.model.nmocap > 0:
-        # TODO: this split should probably happen in simple_set_action
-        action, _ = np.split(action, (sim.model.nmocap * 7, ))
-        action = action.reshape(sim.model.nmocap, 7)
-
-        pos_delta = action[:, :3]
-        quat_delta = action[:, 3:]
-
-        reset_mocap2body_xpos(sim)
-        sim.data.mocap_pos[:] = sim.data.mocap_pos + pos_delta
-        sim.data.mocap_quat[:] = sim.data.mocap_quat + quat_delta
-
-
-def reset_mocap2body_xpos(sim):
-    """
-    Resets the position and orientation of the mocap bodies to the same
-    values as the bodies they're welded to.
-    """
-    if sim.model.eq_type is None or \
-       sim.model.eq_obj1id is None or \
-       sim.model.eq_obj2id is None:
-        return
-    for eq_type, obj1_id, obj2_id in zip(sim.model.eq_type,
-                                         sim.model.eq_obj1id,
-                                         sim.model.eq_obj2id):
-        if eq_type != const.EQ_WELD:
-            continue
-
-        mocap_id = sim.model.body_mocapid[obj1_id]
-        if mocap_id != -1:
-            # obj1 is the mocap, obj2 is the welded body
-            body_idx = obj2_id
-        else:
-            # obj2 is the mocap, obj1 is the welded body
-            mocap_id = sim.model.body_mocapid[obj2_id]
-            body_idx = obj1_id
-
-        assert (mocap_id != -1)
-        sim.data.mocap_pos[mocap_id][:] = sim.data.body_xpos[body_idx]
-        sim.data.mocap_quat[mocap_id][:] = sim.data.body_xquat[body_idx]
-
-
 def robot_get_obs(sim):
     if sim.data.qpos is not None and sim.model.joint_names:
         names = [n for n in sim.model.joint_names if n.startswith('robot')]
@@ -92,31 +24,21 @@ def robot_get_obs(sim):
     return np.zeros(0), np.zeros(0)
 
 
-def mat2euler(mat):
-    """
-    Converts a rotation matrix (or a batch thereof) to euler angles.
-    """
-    mat = np.asarray(mat, dtype=np.float64)
-    assert mat.shape[-2:] == (3, 3), "Invalid shape matrix {}".format(mat)
+def set_action(sim, action, relative=False):
+    ctrlrange = sim.model.actuator_ctrlrange
+    actuation_range = (ctrlrange[:, 1] - ctrlrange[:, 0]) / 2.
+    if relative:
+        actuation_center = np.zeros_like(action)
+        for i in range(sim.data.ctrl.shape[0]):
+            actuation_center[i] = sim.data.get_joint_qpos(sim.model.actuator_names[i].replace(':A_', ':'))
+        for joint_name in ['FF', 'MF', 'RF', 'LF']:
+            act_idx = sim.model.actuator_name2id('robot0:A_{}J1'.format(joint_name))
+            actuation_center[act_idx] += sim.data.get_joint_qpos("robot0:{}J0".format(joint_name))
+    else:
+        actuation_center = (ctrlrange[:, 1] + ctrlrange[:, 0]) / 2.
 
-    cy = np.sqrt(mat[..., 2, 2] * mat[..., 2, 2] + mat[..., 1, 2] * mat[..., 1, 2])
-    condition = cy > np.finfo(np.float64).eps * 4.
-    euler = np.empty(mat.shape[:-1], dtype=np.float64)
-    euler[..., 2] = np.where(condition,
-                             -np.arctan2(mat[..., 0, 1], mat[..., 0, 0]),
-                             -np.arctan2(-mat[..., 1, 0], mat[..., 1, 1]))
-    euler[..., 1] = np.where(condition,
-                             -np.arctan2(-mat[..., 0, 2], cy),
-                             -np.arctan2(-mat[..., 0, 2], cy))
-    euler[..., 0] = np.where(condition,
-                             -np.arctan2(mat[..., 1, 2], mat[..., 2, 2]),
-                             0.0)
-    return euler
-
-
-def set_action(sim, action):
-    ctrl_set_action(sim, action)
-    mocap_set_action(sim, action)
+    sim.data.ctrl[:] = actuation_center + action * actuation_range
+    sim.data.ctrl[:] = np.clip(sim.data.ctrl, ctrlrange[:, 0], ctrlrange[:, 1])
 
 
 FINGERTIP_SITE_NAMES = [
@@ -132,7 +54,7 @@ class HandEnv(gym.GoalEnv):
     """Superclass for all Fetch environments.
     """
 
-    def __init__(self, model_path, n_substeps, initial_qpos):
+    def __init__(self, model_path, n_substeps, initial_qpos, relative_control, dist_threshold):
         if model_path.startswith("/"):
             fullpath = model_path
         else:
@@ -142,6 +64,8 @@ class HandEnv(gym.GoalEnv):
         
         self.n_substeps = n_substeps
         self.initial_qpos = initial_qpos
+        self.relative_control = relative_control
+        self.dist_threshold = dist_threshold
 
         self.model = mujoco_py.load_model_from_path(fullpath)
         self.sim = mujoco_py.MjSim(self.model, nsubsteps=n_substeps)
@@ -154,7 +78,7 @@ class HandEnv(gym.GoalEnv):
 
         self.initial_setup()
         
-        self.action_space = spaces.Box(-np.inf, np.inf, 4)
+        self.action_space = spaces.Box(-np.inf, np.inf, 20)
 
         self._reset_goal()
         obs = self._get_obs()
@@ -177,8 +101,7 @@ class HandEnv(gym.GoalEnv):
         Custom setup (e.g. setting initial qpos, moving into desired start position, etc.)
         can be done here
         """
-        init_qpos = self.initial_qpos
-        for name, value in init_qpos.items():
+        for name, value in self.initial_qpos.items():
             self.sim.data.set_joint_qpos(name, value)
         self.sim.forward()
 
@@ -196,64 +119,24 @@ class HandEnv(gym.GoalEnv):
 
     def _step(self, action):
         obs = self._get_obs()
-        #self._set_action(action)
+        self._set_action(action)
         self.sim.step()
         next_obs = self._get_obs()
 
-        reward = self.compute_reward(obs, action, next_obs, self.goal)
+        reward = self.compute_reward(obs, action, next_obs, self.goal.flatten())
         done = False
         return next_obs, reward, done, {}
 
     def _set_action(self, action):
-        assert action.shape == (4,)
-        gripper_ctrl = action[3]
-        gripper_ctrl = np.array([gripper_ctrl, gripper_ctrl])
-        assert gripper_ctrl.shape == (2,)
-        action = np.concatenate([action[:3], [1., 0., 1., 0.]])
-        if self.block_gripper:
-            gripper_ctrl = np.zeros_like(gripper_ctrl)
-        action = np.concatenate([action, gripper_ctrl])
-        set_action(self.sim, action)
+        assert action.shape == (20,)
+        set_action(self.sim, action, relative=self.relative_control)
 
     def _get_obs(self):
+        observation = np.concatenate([self.sim.data.qpos, self.sim.data.qvel])
         return {
-            'observation': np.zeros(3),
-            'achieved_goal': np.zeros(3),
-            'goal': np.zeros(3),
-        }
-        
-        # positions
-        grip_pos = self.sim.data.get_site_xpos('robot0:grip')
-        dt = self.sim.nsubsteps * self.sim.model.opt.timestep
-        grip_velp = self.sim.data.get_site_xvelp('robot0:grip') * dt
-        robot_qpos, robot_qvel = robot_get_obs(self.sim)
-        if self.has_box:
-            box_pos = self.sim.data.get_site_xpos('geom0')
-            # rotations
-            box_rot = mat2euler(self.sim.data.get_site_xmat('geom0'))
-            # velocities
-            box_velp = self.sim.data.get_site_xvelp('geom0') * dt
-            box_velr = self.sim.data.get_site_xvelr('geom0') * dt
-            # gripper state
-            box_rel_pos = box_pos - grip_pos
-            box_velp -= grip_velp
-        else:
-            box_pos = box_rot = box_velp = box_velr = box_rel_pos = np.zeros(0)
-        gripper_state = robot_qpos[-2:]
-        gripper_vel = robot_qvel[-2:] * dt  # change to a scalar if the gripper is made symmetric
-        obs = np.concatenate([grip_pos, box_rel_pos.flatten(), gripper_state,
-                                 box_rot.flatten(), box_velp.flatten(), box_velr.flatten(),
-                                 grip_velp, gripper_vel])
-
-        if not self.has_box:
-            achieved_goal = grip_pos.copy()
-        else:
-            achieved_goal = np.squeeze(box_pos.copy())
-
-        return {
-            'observation': obs.copy(),
-            'achieved_goal': achieved_goal.copy(),
-            'goal': self.goal.copy(),
+            'observation': observation.copy(),
+            'achieved_goal': self._get_achieved_goal().flatten().copy(),
+            'goal': self.goal.flatten().copy(),
         }
 
     # Goal-based API
@@ -291,16 +174,23 @@ class HandEnv(gym.GoalEnv):
         self.goal = goal
 
     def _compute_goal_distance(self, goal_a, goal_b):
-        pass
+        assert goal_a.shape == goal_b.shape
+        return np.linalg.norm(self.subtract_goals(goal_a, goal_b), axis=-1)
 
     def subtract_goals(self, goal_a, goal_b):
-        pass
+        # In this case, our goal subtraction is quite simple since it does not
+        # contain any rotations but only positions.
+        assert goal_a.shape == goal_b.shape
+        return goal_a - goal_b
 
     def is_success(self, achieved_goal, goal):
-        return 0.
+        d = self._compute_goal_distance(achieved_goal, goal)
+        return (d < self.dist_threshold).astype(np.float32)
 
     def compute_reward(self, obs, action, next_obs, goal):
-        return 0.
+        # Compute distance between goal and the achieved goal.
+        d = self._compute_goal_distance(next_obs['achieved_goal'], goal)
+        return -(d > self.dist_threshold).astype(np.float32)
 
     # -----------------------------
 
@@ -342,8 +232,6 @@ class HandEnv(gym.GoalEnv):
             site_name = 'finger{}'.format(finger_idx)
             site_id = self.sim.model.site_name2id(site_name)
             self.sim.model.site_pos[site_id] = achieved_goal[finger_idx] - sites_offset[site_id]
-
-        self.sim.forward()  # TODO: remove eventually
 
         if mode == 'rgb_array':
             self._get_viewer().render()
@@ -388,5 +276,6 @@ class ReachEnv(HandEnv, utils.EzPickle):
             'robot0:THJ0': -0.7894883021600622,
         }
         HandEnv.__init__(
-            self, 'reach.xml', n_substeps=20, initial_qpos=initial_qpos)
+            self, 'reach.xml', n_substeps=20, initial_qpos=initial_qpos, relative_control=True,
+            dist_threshold=0.05)
         utils.EzPickle.__init__(self)
