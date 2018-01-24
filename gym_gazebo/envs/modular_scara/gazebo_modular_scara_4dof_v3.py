@@ -80,8 +80,8 @@ class GazeboModularScara4DOFv3Env(gazebo_env.GazeboEnv):
         #   Environment hyperparams
         #############################
         # target, where should the agent reach
-        # EE_POS_TGT = np.asmatrix([0.3325683, 0.0657366, 0.4868]) # center of O
-        EE_POS_TGT = np.asmatrix([0.3305805, -0.1326121, 0.4868]) # center of the H
+        EE_POS_TGT = np.asmatrix([0.3325683, 0.0657366, 0.4868]) # center of O
+        # EE_POS_TGT = np.asmatrix([0.3305805, -0.1326121, 0.4868]) # center of the H
         EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         EE_POINTS = np.asmatrix([[0, 0, 0]])
         EE_VELOCITIES = np.asmatrix([[0, 0, 0]])
