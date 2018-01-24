@@ -132,7 +132,8 @@ class HandEnv(gym.GoalEnv):
         set_action(self.sim, action, relative=self.relative_control)
 
     def _get_obs(self):
-        observation = np.concatenate([self.sim.data.qpos, self.sim.data.qvel])
+        robot_qpos, robot_qvel = robot_get_obs(self.sim)
+        observation = np.concatenate([robot_qpos, robot_qvel])
         return {
             'observation': observation.copy(),
             'achieved_goal': self._get_achieved_goal().flatten().copy(),
