@@ -1589,4 +1589,37 @@
       </plugin>
     </sensor>
 </gazebo>
+
+  <gazebo reference="4_dof_ee_link">
+    <sensor type ="ray" name="scara_e1_rangefinder_sensor_4_dof">
+      <visualize>true</visualize>
+      <update_rate>20</update_rate>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>1</samples>
+            <resolution>1</resolution>
+            <min_angle>-0.17</min_angle>
+            <max_angle>0.17</max_angle>
+          </horizontal>
+          <vertical>
+            <samples>40</samples>
+            <resolution>1</resolution>
+            <min_angle>-1.574</min_angle>
+            <max_angle>-1.572</max_angle>
+          </vertical>
+        </scan>
+        <range>
+          <min>0</min>
+          <max>2</max>
+          <resolution>0.01</resolution>
+        </range>
+      </ray>
+      <plugin name="laser" filename="libgazebo_ros_laser.so">
+        <topicName>/scan_4dof</topicName>
+        <frameName>4_dof_ee_link</frameName>
+      </plugin>
+    </sensor>
+  </gazebo>
+
 </robot>
