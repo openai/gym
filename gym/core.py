@@ -3,6 +3,7 @@ logger = logging.getLogger(__name__)
 
 import numpy as np
 
+import gym
 from gym import error
 from gym.utils import closer
 
@@ -211,13 +212,16 @@ class Env(object):
     def configure(self, *args, **kwargs):
         raise error.Error("Env.configure has been removed in gym v0.8.0, released on 2017/03/05. If you need Env.configure, please use gym version 0.7.x from pip, or checkout the `gym:v0.7.4` tag from git.")
 
-
 class GoalEnv(Env):
     
+    def reset(self):
+        # Enforce that each GoalEnv uses a Goal observation space.
+        result = super(GoalEnv, self).reset()
+        if not isinstance(self.observation_space, gym.spaces.Goal):
+            raise error.Error("GoalEnv requires an observation space of type gym.spaces.Goal")
+        return result
+    
     def subtract_goals(self, goal_a, goal_b):
-        raise NotImplementedError()
-
-    def compute_goal_distance(self, goal_a, goal_b):
         raise NotImplementedError()
 
     def is_success(self, achieved_goal, goal):

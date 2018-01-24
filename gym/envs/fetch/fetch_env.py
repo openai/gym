@@ -156,12 +156,13 @@ class FetchEnv(gym.GoalEnv):
 
         self.action_space = spaces.Box(-np.inf, np.inf, 4)
 
-        self.reset()
+        self._reset_goal()
         obs = self._get_obs()
         self.observation_space = spaces.Goal(
             goal_space=spaces.Box(-np.inf, np.inf, obs['achieved_goal'].size),
             observation_space=spaces.Box(-np.inf, np.inf, obs['observation'].size),
         )
+        print(self.observation_space)
         
         self._seed()
 
@@ -296,23 +297,23 @@ class FetchEnv(gym.GoalEnv):
 
         return self.goal
 
+    def _compute_goal_distance(self, goal_a, goal_b):
+        assert goal_a.shape == goal_b.shape
+        return np.linalg.norm(self.subtract_goals(goal_a, goal_b), axis=-1)
+
     def subtract_goals(self, goal_a, goal_b):
         # In this case, our goal subtraction is quite simple since it does not
         # contain any rotations but only positions.
         assert goal_a.shape == goal_b.shape
         return goal_a - goal_b
 
-    def compute_goal_distance(self, goal_a, goal_b):
-        assert goal_a.shape == goal_b.shape
-        return np.linalg.norm(self.subtract_goals(goal_a, goal_b), axis=-1)
-
     def is_success(self, achieved_goal, goal):
-        d = self.compute_goal_distance(achieved_goal, goal)
+        d = self._compute_goal_distance(achieved_goal, goal)
         return (d < self.dist_threshold).astype(np.float32)
 
     def compute_reward(self, obs, action, next_obs, goal):
         # Compute distance between goal and the achieved goal.
-        d = self.compute_goal_distance(next_obs['achieved_goal'], goal)
+        d = self._compute_goal_distance(next_obs['achieved_goal'], goal)
         return -(d > self.dist_threshold).astype(np.float32)
 
     # -----------------------------
