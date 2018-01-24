@@ -4,7 +4,7 @@ OpenAI Gym
 **OpenAI Gym is a toolkit for developing and comparing reinforcement learning algorithms.** This is the ``gym`` open-source library, which gives you access to an ever-growing variety of environments.
 
 .. image:: https://travis-ci.org/openai/gym.svg?branch=master
-    :target: https://travis-ci.org/openai/gym
+	:target: https://travis-ci.org/openai/gym
 
 `See What's New section below <#what-s-new>`_
 
@@ -126,7 +126,7 @@ fake display. The easiest way to do this is by running under
 
 .. code:: shell
 
-     xvfb-run -s "-screen 0 1400x900x24" bash
+	 xvfb-run -s "-screen 0 1400x900x24" bash
 
 Installing dependencies for specific environments
 -------------------------------------------------
@@ -262,6 +262,10 @@ We are using `pytest <http://doc.pytest.org>`_ for tests. You can run them via:
 What's new
 ==========
 
+- 2018-01-24: All continuous control environments now use mujoco_py >= 1.50.
+  Versions have been updated accordingly to -v2, e.g. HalfCheetah-v2. Performance
+  should be similar (see https://github.com/openai/gym/pull/834) but there likely
+  some differences due to changes in MuJoCo.
 - 2017-06-16: Make env.spec into a property to fix a bug that occurs
   when you try to print out an unregistered Env.
 - 2017-05-13: BACKWARDS INCOMPATIBILITY: The Atari environments are now at
