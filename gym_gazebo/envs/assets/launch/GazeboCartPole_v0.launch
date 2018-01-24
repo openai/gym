@@ -12,7 +12,7 @@
     <arg name="gui" value="$(arg gui)"/>
     <arg name="use_sim_time" value="true"/>
     <arg name="debug" value="false"/>
-    <arg name="physics" value="bullet"/>
+    <arg name="physics" value="ode"/>
     <arg name="verbose" default="true"/>
   </include>
 
