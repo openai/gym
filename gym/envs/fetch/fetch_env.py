@@ -124,7 +124,8 @@ class FetchEnv(gym.GoalEnv):
 
     def __init__(
         self, model_path, n_substeps, gripper_extra_height, block_gripper,
-        has_box, target_in_the_air, target_x_shift, obj_range, target_range, dist_threshold):
+        has_box, target_in_the_air, target_x_shift, obj_range, target_range, dist_threshold,
+        initial_qpos):
         if model_path.startswith("/"):
             fullpath = model_path
         else:
@@ -141,6 +142,7 @@ class FetchEnv(gym.GoalEnv):
         self.obj_range = obj_range
         self.target_range = target_range
         self.dist_threshold = dist_threshold
+        self.initial_qpos = initial_qpos
 
         self.model = mujoco_py.load_model_from_path(fullpath)
         self.sim = mujoco_py.MjSim(self.model, nsubsteps=n_substeps)
@@ -162,7 +164,6 @@ class FetchEnv(gym.GoalEnv):
             goal_space=spaces.Box(-np.inf, np.inf, obs['achieved_goal'].size),
             observation_space=spaces.Box(-np.inf, np.inf, obs['observation'].size),
         )
-        print(self.observation_space)
         
         self._seed()
 
@@ -203,10 +204,6 @@ class FetchEnv(gym.GoalEnv):
         self.init_gripper = self.sim.data.get_site_xpos('robot0:grip').copy()
         if self.has_box:
             self.height_offset = self.sim.data.get_site_xpos('geom0')[2]
-
-    @property
-    def initial_qpos(self):
-        raise NotImplementedError()
 
     def viewer_setup(self):
         """
