@@ -264,7 +264,7 @@ What's new
 
 - 2018-01-24: All continuous control environments now use mujoco_py >= 1.50.
   Versions have been updated accordingly to -v2, e.g. HalfCheetah-v2. Performance
-  should be similar (see https://github.com/openai/gym/pull/834) but there likely
+  should be similar (see https://github.com/openai/gym/pull/834) but there are likely
   some differences due to changes in MuJoCo.
 - 2017-06-16: Make env.spec into a property to fix a bug that occurs
   when you try to print out an unregistered Env.
