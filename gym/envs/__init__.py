@@ -314,6 +314,11 @@ register(
     entry_point='gym.envs.fetch:FetchPushEnv',
 )
 
+register(
+    id='HandReach-v0',
+    entry_point='gym.envs.hand:ReachEnv',
+)
+
 # Atari
 # ----------------------------------------
 
