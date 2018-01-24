@@ -211,21 +211,21 @@ register(
 )
 
 register(
-    id='Pusher-v1',
+    id='Pusher-v2',
     entry_point='gym.envs.mujoco:PusherEnv',
     max_episode_steps=100,
     reward_threshold=0.0,
 )
 
 register(
-    id='Thrower-v1',
+    id='Thrower-v2',
     entry_point='gym.envs.mujoco:ThrowerEnv',
     max_episode_steps=100,
     reward_threshold=0.0,
 )
 
 register(
-    id='Striker-v1',
+    id='Striker-v2',
     entry_point='gym.envs.mujoco:StrikerEnv',
     max_episode_steps=100,
     reward_threshold=0.0,
