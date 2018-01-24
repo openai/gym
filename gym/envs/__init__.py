@@ -204,89 +204,89 @@ register(
 # 2D
 
 register(
-    id='Reacher-v1',
+    id='Reacher-v2',
     entry_point='gym.envs.mujoco:ReacherEnv',
     max_episode_steps=50,
     reward_threshold=-3.75,
 )
 
 register(
-    id='Pusher-v0',
+    id='Pusher-v1',
     entry_point='gym.envs.mujoco:PusherEnv',
     max_episode_steps=100,
     reward_threshold=0.0,
 )
 
 register(
-    id='Thrower-v0',
+    id='Thrower-v1',
     entry_point='gym.envs.mujoco:ThrowerEnv',
     max_episode_steps=100,
     reward_threshold=0.0,
 )
 
 register(
-    id='Striker-v0',
+    id='Striker-v1',
     entry_point='gym.envs.mujoco:StrikerEnv',
     max_episode_steps=100,
     reward_threshold=0.0,
 )
 
 register(
-    id='InvertedPendulum-v1',
+    id='InvertedPendulum-v2',
     entry_point='gym.envs.mujoco:InvertedPendulumEnv',
     max_episode_steps=1000,
     reward_threshold=950.0,
 )
 
 register(
-    id='InvertedDoublePendulum-v1',
+    id='InvertedDoublePendulum-v2',
     entry_point='gym.envs.mujoco:InvertedDoublePendulumEnv',
     max_episode_steps=1000,
     reward_threshold=9100.0,
 )
 
 register(
-    id='HalfCheetah-v1',
+    id='HalfCheetah-v2',
     entry_point='gym.envs.mujoco:HalfCheetahEnv',
     max_episode_steps=1000,
     reward_threshold=4800.0,
 )
 
 register(
-    id='Hopper-v1',
+    id='Hopper-v2',
     entry_point='gym.envs.mujoco:HopperEnv',
     max_episode_steps=1000,
     reward_threshold=3800.0,
 )
 
 register(
-    id='Swimmer-v1',
+    id='Swimmer-v2',
     entry_point='gym.envs.mujoco:SwimmerEnv',
     max_episode_steps=1000,
     reward_threshold=360.0,
 )
 
 register(
-    id='Walker2d-v1',
+    id='Walker2d-v2',
     max_episode_steps=1000,
     entry_point='gym.envs.mujoco:Walker2dEnv',
 )
 
 register(
-    id='Ant-v1',
+    id='Ant-v2',
     entry_point='gym.envs.mujoco:AntEnv',
     max_episode_steps=1000,
     reward_threshold=6000.0,
 )
 
 register(
-    id='Humanoid-v1',
+    id='Humanoid-v2',
     entry_point='gym.envs.mujoco:HumanoidEnv',
     max_episode_steps=1000,
 )
 
 register(
-    id='HumanoidStandup-v1',
+    id='HumanoidStandup-v2',
     entry_point='gym.envs.mujoco:HumanoidStandupEnv',
     max_episode_steps=1000,
 )
