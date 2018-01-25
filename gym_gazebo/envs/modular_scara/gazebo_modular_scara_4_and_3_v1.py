@@ -58,7 +58,7 @@ class GazeboModularScara4And3DOFv1Env(gazebo_env.GazeboEnv):
         # TODO: cleanup this variables, remove the ones that aren't used
         # class variables
 
-        self.urdf_path = "/home/erle/ros_rl/environments/gym-gazebo/gym_gazebo/envs/assets/urdf/modular_scara/scara_e1_model_4_and_3joints.urdf"
+        self.urdf_path = "/home/rkojcev/devel/ros_rl/environments/gym-gazebo/gym_gazebo/envs/assets/urdf/modular_scara/scara_e1_model_4_and_3joints.urdf"
 
         self.slowness = 1
         self.slowness_unit = 'sec'
