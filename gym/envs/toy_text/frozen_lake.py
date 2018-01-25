@@ -29,6 +29,51 @@ MAPS = {
     ],
 }
 
+# Generates a random valid map (one that has a path from start to goal)
+# @params size, size of each side of the grid
+# @prams p, probability that a tile is frozen
+def generate_random_map(size=8, p=0.8):
+    valid = False
+    
+    #BFS to check that it's a valid path
+    def is_valid(arr, r=0, c=0):
+        if arr[r][c] == 'G':
+            return True
+        
+        tmp = arr[r][c]
+        arr[r][c] = "#"
+        
+        if r+1 < size and arr[r+1][c] not in '#H':
+            if is_valid(arr, r+1, c) == True:
+                arr[r][c] = tmp
+                return True
+        
+        if c+1 < size and arr[r][c+1] not in '#H':
+            if is_valid(arr, r, c+1) == True:
+                arr[r][c] = tmp
+                return True
+        
+        if r-1 >= 0 and arr[r-1][c] not in '#H':
+            if is_valid(arr, r-1, c) == True:
+                arr[r][c] = tmp
+                return True
+        
+        if c-1 >= 0 and arr[r][c-1] not in '#H':
+            if is_valid(arr,r, c-1) == True:
+                arr[r][c] = tmp
+                return True
+        arr[r][c] = tmp
+        return False
+
+    while not valid:
+        p = min(1, p)
+        res = np.random.choice(['F','H'], (size, size), p=[p, 1-p])
+        res[0][0] = 'S'
+        res[-1][-1] = 'G'
+        valid = is_valid(res)
+    return ["".join(x) for x in res]
+
+
 class FrozenLakeEnv(discrete.DiscreteEnv):
     """
     Winter is here. You and your friends were tossing around a frisbee at the park
@@ -59,7 +104,7 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
 
     def __init__(self, desc=None, map_name="4x4",is_slippery=True):
         if desc is None and map_name is None:
-            raise ValueError('Must provide either desc or map_name')
+            desc = generate_random_map()
         elif desc is None:
             desc = MAPS[map_name]
         self.desc = desc = np.asarray(desc,dtype='c')
