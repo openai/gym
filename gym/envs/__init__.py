@@ -330,6 +330,11 @@ register(
 )
 
 register(
+    id='HandBlockRotateParallel-v0',
+    entry_point='gym.envs.hand:BlockRotateParallelEnv',
+)
+
+register(
     id='HandBlockPosition-v0',
     entry_point='gym.envs.hand:BlockPositionEnv',
 )

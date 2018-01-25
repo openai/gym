@@ -25,6 +25,7 @@ class BlockEnv(hand_env.HandEnv, utils.EzPickle):
         self.target_rot = target_rot
         self.pos_mul = pos_mul
         self.pos_range = pos_range
+        self.parallel_rotations = rotations.get_parallel_rotations()
 
         initial_qpos = {
             'robot0:WRJ1': -0.16514339750464327,
@@ -137,11 +138,10 @@ class BlockEnv(hand_env.HandEnv, utils.EzPickle):
         if self.target_rot == 'z':
             target_rot[-1] = np.random.uniform(-np.pi, np.pi)
         elif self.target_rot == 'parallel':
-            raise NotImplementedError()
-            # target_rot = np.random.uniform(-math.pi, math.pi, size=3)
-            # target_rot[:2] = 0
-            # parallel_rot = self.parallel_rotations[self.random_state.randint(len(self.parallel_rotations))]
-            # target_rot = mat2euler(np.matmul(euler2mat(target_rot), euler2mat(parallel_rot)))
+            target_rot[-1] = np.random.uniform(-np.pi, np.pi)
+            target_rot[:2] = 0.
+            parallel_rot = self.parallel_rotations[np.random.randint(len(self.parallel_rotations))]
+            target_rot = rotations.mat2euler(np.matmul(rotations.euler2mat(target_rot), rotations.euler2mat(parallel_rot)))
         elif self.target_rot == 'xyz':
             target_rot = np.random.uniform(-np.pi, np.pi, size=3)
         elif self.target_rot == 'ignore':
@@ -216,6 +216,12 @@ class BlockRotateZEnv(BlockEnv):
             target_pos='ignore', target_rot='z', pos_mul=0., pos_range=None)
 
 
+class BlockRotateParallelEnv(BlockEnv):
+    def __init__(self):
+        super(BlockRotateParallelEnv, self).__init__(
+            target_pos='ignore', target_rot='parallel', pos_mul=0., pos_range=None)
+
+
 class BlockPositionEnv(BlockEnv):
     def __init__(self):
         super(BlockPositionEnv, self).__init__(
@@ -235,6 +241,3 @@ class BlockPositionAndRotateXYZEnv(BlockEnv):
         super(BlockPositionAndRotateXYZEnv, self).__init__(
             target_pos='random', target_rot='xyz', pos_mul=25.,
             pos_range=np.array([(-0.04, 0.04), (-0.06, 0.02), (0.0, 0.06)]))
-
-
-# TODO: add parallel rotation here

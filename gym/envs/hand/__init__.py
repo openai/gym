@@ -1,6 +1,7 @@
 from gym.envs.hand.block import (
     BlockRotateXYZEnv,
     BlockRotateZEnv,
+    BlockRotateParallelEnv,
     BlockPositionAndRotateXYZEnv,
     BlockPositionAndRotateZEnv,
     BlockPositionEnv,
