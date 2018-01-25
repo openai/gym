@@ -36,7 +36,8 @@ class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
         utils.EzPickle.__init__(self)
 
     def _reset_simulation(self):
-        super(ManipulateEnv, self)._reset_simulation()
+        if not super(ManipulateEnv, self)._reset_simulation():
+            return False
 
         initial_qpos = self._get_block_qpos(self.initial_state.qpos).copy()
         
@@ -69,8 +70,11 @@ class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
         # Run the simulation for a bunch of timesteps to let everything settle in.
         for _ in range(10):
             hand_env.set_action(self.sim, np.zeros(20))
-            self.sim.step()
-        assert is_on_palm()
+            try:
+                self.sim.step()
+            except mujoco_py.MujocoException:
+                return False
+        return is_on_palm()
 
     def _get_block_qpos(self, qpos):
         joint_names = ['tx', 'ty', 'tz', 'rx', 'ry', 'rz']

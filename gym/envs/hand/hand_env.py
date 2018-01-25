@@ -157,7 +157,15 @@ class HandEnv(gym.GoalEnv):
     # -----------------------------
 
     def _reset(self):
-        self._reset_simulation()
+        # Attempt to reset the simulator. Since we randomize initial conditions, it
+        # is possible to get into a state with numerical issues (e.g. due to penetration or
+        # Gimbel lock) or we may not achieve an initial condition (e.g. an object is within the hand).
+        # In this case, we just keep randomizing until we eventually achieve a valid initial
+        # configuration.
+        did_reset_sim = False
+        while not did_reset_sim:
+            did_reset_sim = self._reset_simulation()
+        
         self._reset_goal()
         obs = self._get_obs()
         if self.viewer is not None:
@@ -167,6 +175,7 @@ class HandEnv(gym.GoalEnv):
     def _reset_simulation(self):
         self.sim.set_state(self.initial_state)
         self.sim.forward()
+        return True
 
     @property
     def dt(self):
