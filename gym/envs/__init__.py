@@ -319,6 +319,16 @@ register(
     entry_point='gym.envs.hand:ReachEnv',
 )
 
+register(
+    id='HandBlockRotateXYZ-v0',
+    entry_point='gym.envs.hand:BlockRotateXYZEnv',
+)
+
+register(
+    id='HandBlockRotateZ-v0',
+    entry_point='gym.envs.hand:BlockRotateZEnv',
+)
+
 # Atari
 # ----------------------------------------
 

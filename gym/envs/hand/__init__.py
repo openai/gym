@@ -1,1 +1,1 @@
-from gym.envs.hand.reach import ReachEnv
+from gym.envs.hand.reach import ReachEnv, BlockRotateXYZEnv, BlockRotateZEnv
