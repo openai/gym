@@ -349,6 +349,11 @@ register(
     entry_point='gym.envs.hand:BlockPositionAndRotateZEnv',
 )
 
+register(
+    id='HandPenRotation-v0',
+    entry_point='gym.envs.hand:PenRotationEnv',
+)
+
 # Atari
 # ----------------------------------------
 
