@@ -86,7 +86,7 @@ class HandEnv(gym.GoalEnv):
             goal_space=spaces.Box(-np.inf, np.inf, obs['achieved_goal'].size),
             observation_space=spaces.Box(-np.inf, np.inf, obs['observation'].size),
         )
-        
+
         self._seed()
 
     def _seed(self, seed=None):
@@ -133,10 +133,11 @@ class HandEnv(gym.GoalEnv):
 
     def _get_obs(self):
         robot_qpos, robot_qvel = robot_get_obs(self.sim)
-        observation = np.concatenate([robot_qpos, robot_qvel])
+        achieved_goal = self._get_achieved_goal().flatten()
+        observation = np.concatenate([robot_qpos, robot_qvel, achieved_goal])
         return {
             'observation': observation.copy(),
-            'achieved_goal': self._get_achieved_goal().flatten().copy(),
+            'achieved_goal': achieved_goal.copy(),
             'goal': self.goal.flatten().copy(),
         }
 
@@ -151,18 +152,15 @@ class HandEnv(gym.GoalEnv):
         finger_idx = FINGERTIP_SITE_NAMES.index(finger_name)
         assert thumb_idx != finger_idx
 
-        # Pick a meeting point atop the hand.
-        meeting_pos = self.palm_xpos + np.array([-0.01, -0.03, 0.08])
+        # Pick a meeting point above the hand.
+        meeting_pos = self.palm_xpos + np.array([0.0, -0.09, 0.05])
         meeting_pos += np.random.normal(scale=0.005, size=meeting_pos.shape)
 
-        # Move the meeting point towards the target finger.
-        goal = self.initial_goal.copy()
-        offset_direction = (goal[finger_idx] - meeting_pos)
-        offset_direction /= np.linalg.norm(offset_direction)
-        meeting_pos = meeting_pos + 0.05 * offset_direction
-
+        # Move the meeting point 30% towards the target finger.
+        
         # Slightly move meeting goal towards the respective finger to avoid that they
         # overlap.
+        goal = self.initial_goal.copy()
         for idx in [thumb_idx, finger_idx]:
             offset_direction = (meeting_pos - goal[idx])
             offset_direction /= np.linalg.norm(offset_direction)
@@ -277,6 +275,6 @@ class ReachEnv(HandEnv, utils.EzPickle):
             'robot0:THJ0': -0.7894883021600622,
         }
         HandEnv.__init__(
-            self, 'reach.xml', n_substeps=20, initial_qpos=initial_qpos, relative_control=True,
-            dist_threshold=0.05)
+            self, 'reach.xml', n_substeps=20, initial_qpos=initial_qpos, relative_control=False,
+            dist_threshold=0.02)
         utils.EzPickle.__init__(self)
