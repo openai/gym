@@ -236,3 +236,10 @@ class PenRotationEnv(ManipulationEnv):
         super(PenRotationEnv, self).__init__(
             model_path='manipulation_pen.xml', target_pos='ignore', target_rot='xyz',
             pos_mul=0., pos_range=None, initial_qpos=initial_qpos, randomize_initial_rot=False)
+
+
+class EggEnv(ManipulationEnv):
+    def __init__(self):
+        super(EggEnv, self).__init__(
+            model_path='manipulation_ellipsoid.xml', target_pos='ignore', target_rot='xyz',
+            pos_mul=0., pos_range=None, initial_qpos={})

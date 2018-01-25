@@ -354,6 +354,11 @@ register(
     entry_point='gym.envs.hand:PenRotationEnv',
 )
 
+register(
+    id='Egg-v0',
+    entry_point='gym.envs.hand:EggEnv',
+)
+
 # Atari
 # ----------------------------------------
 

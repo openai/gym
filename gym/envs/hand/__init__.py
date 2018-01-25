@@ -6,5 +6,6 @@ from gym.envs.hand.block import (
     BlockPositionAndRotateZEnv,
     BlockPositionEnv,
     PenRotationEnv,
+    EggEnv,
 )
 from gym.envs.hand.reach import ReachEnv
