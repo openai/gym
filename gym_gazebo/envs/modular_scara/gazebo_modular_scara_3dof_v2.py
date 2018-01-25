@@ -142,7 +142,12 @@ class GazeboModularScara3DOFv2Env(gazebo_env.GazeboEnv):
         # TODO: fix this and make it relative
         # Set the path of the corresponding URDF file from "assets"
         #URDF_PATH = "../assets/urdf/modular_scara/scara_e1_3joints.urdf"
-        URDF_PATH = "/home/erle/ros_rl/environments/gym-gazebo/gym_gazebo/envs/assets/urdf/modular_scara/scara_e1_3joints.urdf"
+
+        import rospkg
+
+        r = rospkg.RosPack()
+        path = r.get_path('scara_e1_description')
+        URDF_PATH = path + "/urdf/scara_e1_3joints.urdf"
 
         m_joint_order = copy.deepcopy(JOINT_ORDER)
         m_link_names = copy.deepcopy(LINK_NAMES)
