@@ -1,4 +1,4 @@
-from gym.envs.hand.block import (
+from gym.envs.hand.manipulate import (
     BlockRotateXYZEnv,
     BlockRotateZEnv,
     BlockRotateParallelEnv,
