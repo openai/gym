@@ -23,7 +23,7 @@ class GazeboCartPolev0Env(gazebo_env.GazeboEnv):
         gazebo_env.GazeboEnv.__init__(self, "GazeboCartPole_v0.launch")
 
         # Angle at which to fail the episode
-        self.theta_threshold_radians = 12 * 2 * math.pi / 360
+        self.theta_threshold_radians = 12 * 2 * math.pi / 180
         self.x_threshold = 15
 
         self._pub = rospy.Publisher('/cart_pole_controller/command', Float64)
@@ -42,6 +42,8 @@ class GazeboCartPolev0Env(gazebo_env.GazeboEnv):
         self.steps_beyond_done = None
 
         self.current_vel = 0
+        self.action_space = spaces.Discrete(2)
+
 
     def observation_callback(self, message):
         """
@@ -111,6 +113,7 @@ class GazeboCartPolev0Env(gazebo_env.GazeboEnv):
                 logger.warning("You are calling 'step()' even though this environment has already returned done = True. You should always call 'reset()' once you receive 'done = True' -- any further steps are undefined behavior.")
             self.steps_beyond_done += 1
             reward = 0.0
+
 
         return state, reward, done, {}
 

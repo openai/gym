@@ -58,12 +58,13 @@ class GazeboModularScara4And3DOFv1Env(gazebo_env.GazeboEnv):
         # TODO: cleanup this variables, remove the ones that aren't used
         # class variables
 
-        self.urdf_path = "/home/rkojcev/devel/ros_rl/environments/gym-gazebo/gym_gazebo/envs/assets/urdf/modular_scara/scara_e1_model_4_and_3joints.urdf"
+        self.urdf_path = "/home/erle/ros_rl/environments/gym-gazebo/gym_gazebo/envs/assets/urdf/modular_scara/scara_e1_model_4_and_3joints.urdf"
 
         self.slowness = 1
         self.slowness_unit = 'sec'
-        # self.init_3dof_robot()
-        # self.init_4dof_robot()
+
+        #self.slowness = 10000000
+        #self.slowness_unit = 'nsec'
 
         #choose random enviroment at the startup
         self.randomizeRobot()
@@ -81,24 +82,13 @@ class GazeboModularScara4And3DOFv1Env(gazebo_env.GazeboEnv):
         self.reward = None
         self.done = None
         self.reward_dist = None
-        self.reward_ctrl = None
         self.action_space = None
         self.max_episode_steps = 1000 # now used in all algorithms
         self.iterator = 0
-        # default to seconds
-        # self.slowness = 1
-        # self.slowness_unit = 'sec'
-        self.reset_jnts = True
 
         self._time_lock = threading.RLock()
         self.choose_robot = 0
         self.environment = None
-
-        # self.choose_robot=1
-        # self.enviroment = None
-        # Topics for the robot publisher and subscriber.
-        # JOINT_PUBLISHER = '/scara_controller_3dof/command'
-        # JOINT_SUBSCRIBER = '/scara_controller_3dof/state'
 
         #############################
         #   Environment hyperparams
@@ -114,9 +104,6 @@ class GazeboModularScara4And3DOFv1Env(gazebo_env.GazeboEnv):
         # Used to initialize the robot, #TODO, clarify this more
         STEP_COUNT = 2  # Typically 100.
 
-        # # Topics for the robot publisher and subscriber.
-        # JOINT_PUBLISHER = '/scara_controller/command'
-        # JOINT_SUBSCRIBER = '/scara_controller/state'
         # joint names:
         MOTOR1_JOINT = 'motor1'
         MOTOR2_JOINT = 'motor2'
@@ -163,8 +150,6 @@ class GazeboModularScara4And3DOFv1Env(gazebo_env.GazeboEnv):
         # Set the path of the corresponding URDF file from "assets"
         m_joint_order = copy.deepcopy(JOINT_ORDER)
         m_link_names = copy.deepcopy(LINK_NAMES)
-        # m_joint_publishers = copy.deepcopy(JOINT_PUBLISHER)
-        # m_joint_subscribers = copy.deepcopy(JOINT_SUBSCRIBER)
         ee_pos_tgt = EE_POS_TGT
         ee_rot_tgt = EE_ROT_TGT
         # Initialize target end effector position
@@ -177,14 +162,10 @@ class GazeboModularScara4And3DOFv1Env(gazebo_env.GazeboEnv):
             'ee_points_tgt': ee_tgt,
             'joint_order': m_joint_order,
             'link_names': m_link_names,
-            # 'slowness': slowness,
             'reset_conditions': reset_condition,
             'tree_path': self.urdf_path,
-            # 'joint_publisher': m_joint_publishers,
-            # 'joint_subscriber': m_joint_subscribers,
             'end_effector_points': EE_POINTS,
             'end_effector_velocities': EE_VELOCITIES,
-            # 'num_samples': SAMPLE_COUNT,
         }
         # self.spec = {'timestep_limit': 5, 'reward_threshold':  950.0,}
 
@@ -248,11 +229,7 @@ class GazeboModularScara4And3DOFv1Env(gazebo_env.GazeboEnv):
         self.action_space = None
         self.max_episode_steps = 1000 # now used in all algorithms
         self.iterator = 0
-        # default to seconds
-        # self.slowness = 1
-        # self.slowness_unit = 'sec'
-        self.reset_jnts = True
-
+        self.reset_jnts = False
         self._time_lock = threading.RLock()
         self.choose_robot = 1
         self.environment = None
@@ -332,8 +309,6 @@ class GazeboModularScara4And3DOFv1Env(gazebo_env.GazeboEnv):
 
         m_joint_order = copy.deepcopy(JOINT_ORDER_4DOF)
         m_link_names = copy.deepcopy(LINK_NAMES_4DOF)
-        # m_joint_publishers = copy.deepcopy(JOINT_PUBLISHER_4DOF)
-        # m_joint_subscribers = copy.deepcopy(JOINT_SUBSCRIBER_4DOF)
         ee_pos_tgt = EE_POS_TGT_4DOF
         ee_rot_tgt = EE_ROT_TGT_4DOF
 
@@ -412,7 +387,8 @@ class GazeboModularScara4And3DOFv1Env(gazebo_env.GazeboEnv):
         Callback method for the subscriber of JointTrajectoryControllerState
         """
         self._observation_msg_4dof =  message
-    def init_time(self, slowness =1, slowness_unit='sec', reset_jnts=True):
+    #def init_time(self, slowness =1, slowness_unit='sec', reset_jnts=True):
+    def init_time(self, slowness = 1, slowness_unit='sec', reset_jnts=False):
             self.slowness = slowness
             self.slowness_unit = slowness_unit
             self.reset_jnts = reset_jnts
@@ -436,8 +412,6 @@ class GazeboModularScara4And3DOFv1Env(gazebo_env.GazeboEnv):
             ee_rot_tgt = EE_ROT_TGT
 
             # Initialize target end effector position
-            # ee_tgt = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt, ee_rot_tgt).T)
-
             target1 = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt_1, ee_rot_tgt).T)
             target2 = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt_2, ee_rot_tgt).T)
 
@@ -482,9 +456,6 @@ class GazeboModularScara4And3DOFv1Env(gazebo_env.GazeboEnv):
             self.choose_robot=1
             print("which robot is?", self.choose_robot)
             enviroment_test = self.init_4dof_robot()
-
-
-        # enviroment_test = (self.init_3dof_robot() && self.choose_robot==0) if np.random.uniform() < 0.5 else self.init_4dof_robot()
 
     def get_trajectory_message(self, action, robot_id=0):
         """
@@ -651,10 +622,6 @@ class GazeboModularScara4And3DOFv1Env(gazebo_env.GazeboEnv):
                                                            last_observations)
 
             # Concatenate the information that defines the robot state
-            # vector, typically denoted asrobot_id 'x'.
-            # state = np.r_[np.reshape(last_observations, -1),
-            #               np.reshape(ee_points, -1),
-            #               np.reshape(ee_velocities, -1),]
             if self.choose_robot is 0:
                 last_observations = np.insert(last_observations, 3, 0.)
                 # print('last_observations_extension: ', last_observations)
@@ -693,9 +660,6 @@ class GazeboModularScara4And3DOFv1Env(gazebo_env.GazeboEnv):
         else:
             self.reward = self.reward_dist
 
-        # print("reward: ", self.reward)
-        # print("rmse_func: ", self.rmse_func(ee_points))
-
         # Calculate if the env has been solved
         done = bool(abs(self.reward_dist) < 0.005) or (self.iterator>self.max_episode_steps)
 
@@ -719,7 +683,6 @@ class GazeboModularScara4And3DOFv1Env(gazebo_env.GazeboEnv):
         """
         Reset the agent for a particular experiment condition.
         """
-
         self.iterator = 0
 
         if self.reset_jnts is True:
