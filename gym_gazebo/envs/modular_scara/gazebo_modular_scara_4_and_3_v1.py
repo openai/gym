@@ -58,10 +58,14 @@ class GazeboModularScara4And3DOFv1Env(gazebo_env.GazeboEnv):
         # TODO: cleanup this variables, remove the ones that aren't used
         # class variables
 
-        self.urdf_path = "/home/rkojcev/devel/ros_rl/environments/gym-gazebo/gym_gazebo/envs/assets/urdf/modular_scara/scara_e1_model_4_and_3joints.urdf"
+        self.urdf_path = "/home/erle/ros_rl/environments/gym-gazebo/gym_gazebo/envs/assets/urdf/modular_scara/scara_e1_model_4_and_3joints.urdf"
 
         self.slowness = 1
         self.slowness_unit = 'sec'
+
+        #self.slowness = 10000000
+        #self.slowness_unit = 'nsec'
+
         # self.init_3dof_robot()
         # self.init_4dof_robot()
 
@@ -88,7 +92,7 @@ class GazeboModularScara4And3DOFv1Env(gazebo_env.GazeboEnv):
         # default to seconds
         # self.slowness = 1
         # self.slowness_unit = 'sec'
-        self.reset_jnts = True
+        #self.reset_jnts = True
 
         self._time_lock = threading.RLock()
         self.choose_robot = 0
@@ -251,8 +255,8 @@ class GazeboModularScara4And3DOFv1Env(gazebo_env.GazeboEnv):
         # default to seconds
         # self.slowness = 1
         # self.slowness_unit = 'sec'
-        self.reset_jnts = True
-
+        #self.reset_jnts = True
+        self.reset_jnts = False
         self._time_lock = threading.RLock()
         self.choose_robot = 1
         self.environment = None
@@ -412,7 +416,8 @@ class GazeboModularScara4And3DOFv1Env(gazebo_env.GazeboEnv):
         Callback method for the subscriber of JointTrajectoryControllerState
         """
         self._observation_msg_4dof =  message
-    def init_time(self, slowness =1, slowness_unit='sec', reset_jnts=True):
+    #def init_time(self, slowness =1, slowness_unit='sec', reset_jnts=True):
+    def init_time(self, slowness =10, slowness_unit='sec', reset_jnts=False):
             self.slowness = slowness
             self.slowness_unit = slowness_unit
             self.reset_jnts = reset_jnts
