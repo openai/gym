@@ -79,6 +79,7 @@ class HandEnv(gym.GoalEnv):
         }
 
         self.initial_setup()
+        self._get_initial_state()
         
         self.action_space = spaces.Box(-np.inf, np.inf, 20)
 
@@ -107,8 +108,8 @@ class HandEnv(gym.GoalEnv):
             self.sim.data.set_joint_qpos(name, value)
         self.sim.forward()
 
+    def _get_initial_state(self):
         self.initial_state = copy.deepcopy(self.sim.get_state())
-        self.initial_goal = self._get_achieved_goal().copy()
 
     def viewer_setup(self):
         """
@@ -133,14 +134,7 @@ class HandEnv(gym.GoalEnv):
         set_action(self.sim, action, relative=self.relative_control)
 
     def _get_obs(self):
-        robot_qpos, robot_qvel = robot_get_obs(self.sim)
-        achieved_goal = self._get_achieved_goal().flatten()
-        observation = np.concatenate([robot_qpos, robot_qvel, achieved_goal])
-        return {
-            'observation': observation.copy(),
-            'achieved_goal': achieved_goal.copy(),
-            'goal': self.goal.flatten().copy(),
-        }
+        raise NotImplementedError()
 
     # Goal-based API
 
@@ -163,13 +157,16 @@ class HandEnv(gym.GoalEnv):
     # -----------------------------
 
     def _reset(self):
-        self.sim.set_state(self.initial_state)
-        self.sim.forward()
+        self._reset_simulation()
         self._reset_goal()
         obs = self._get_obs()
         if self.viewer is not None:
             self.viewer_setup()
         return obs
+
+    def _reset_simulation(self):
+        self.sim.set_state(self.initial_state)
+        self.sim.forward()
 
     @property
     def dt(self):
@@ -237,13 +234,24 @@ class ReachEnv(HandEnv, utils.EzPickle):
             dist_threshold=0.02)
         utils.EzPickle.__init__(self)
 
-    def initial_setup(self):
-        super(ReachEnv, self).initial_setup()
+    def _get_initial_state(self):
+        super(ReachEnv, self)._get_initial_state()
+        self.initial_goal = self._get_achieved_goal().copy()
         self.palm_xpos = self.sim.data.body_xpos[self.sim.model.body_name2id('robot0:palm')].copy()
 
     def _get_achieved_goal(self):
         goal = [self.sim.data.get_site_xpos(name) for name in FINGERTIP_SITE_NAMES]
         return np.array(goal)
+
+    def _get_obs(self):
+        robot_qpos, robot_qvel = robot_get_obs(self.sim)
+        achieved_goal = self._get_achieved_goal().flatten()
+        observation = np.concatenate([robot_qpos, robot_qvel, achieved_goal])
+        return {
+            'observation': observation.copy(),
+            'achieved_goal': achieved_goal.copy(),
+            'goal': self.goal.flatten().copy(),
+        }
 
     def _reset_goal(self):
         thumb_name = 'robot0:S_thtip'
@@ -330,33 +338,42 @@ class BlockEnv(HandEnv, utils.EzPickle):
         }
         HandEnv.__init__(
             self, 'block.xml', n_substeps=20, initial_qpos=initial_qpos, relative_control=False,
-            dist_threshold=0.02)
+            dist_threshold=0.4)
         utils.EzPickle.__init__(self)
 
-    # def _randomize_initial_position(self):
-    #     # randomize rot
-    #     initial_rot = self.sim.data.qpos[self._cube_angle_idxs]
-    #     uniform_rot = np.random.uniform(0.0, 2 * np.pi, size=(3,))
-    #     if self.target_rot == 'z':
-    #         rot = subtract_euler(np.concatenate([np.zeros(2), [uniform_rot[2]]]), initial_rot)
-    #     elif self.target_rot in ['xyz', 'parallel', 'ignore']:
-    #         rot = uniform_rot
-    #     else:  # fixed
-    #         rot = initial_rot
-    #     self.sim.data.qpos[self._cube_angle_idxs] = rot
+    def _reset_simulation(self):
+        super(BlockEnv, self)._reset_simulation()
 
-    #     # randomize pos
-    #     if self.target_pos != 'fixed':
-    #         self.sim.data.qpos[self._cube_pos_idxs] += np.random.randn(3) * self.cube_position_wiggle_std
+        # randomize rot
+        initial_qpos = self._get_block_qpos(self.initial_state.qpos).copy()
+        uniform_rot = np.random.uniform(0.0, 2 * np.pi, size=(3,))
+        if self.target_rot == 'z':
+            initial_qpos[3:] = rotations.subtract_euler(np.concatenate([np.zeros(2), [uniform_rot[2]]]), initial_qpos[3:])
+        elif self.target_rot in ['xyz', 'parallel', 'ignore']:
+            initial_qpos[3:] = uniform_rot
+        elif self.target_rot == 'fixed':
+            pass
+        else:
+            raise error.Error('Unknown target_rot option "{}".'.format(self.target_rot))
 
-    #     # do not randomize face rotation for now
-    #     if self.cube_type in ['face', 'full']:
-    #         self.sim.data.qpos[self._cube_face_idxs] = 0
+        # randomize pos
+        if self.target_pos != 'fixed':
+            initial_qpos[:3] += np.random.normal(size=3, scale=0.005)
 
-    #     action = self.random_state.uniform(-1.0, 1.0, 20)
-    #     for _ in range(self.n_random_initial_steps):
-    #         dactyl_simple_set_action(self.sim, action)
-    #         self.sim.step()
+        self._set_block_qpos(initial_qpos)
+
+        def is_on_palm():
+            self.sim.forward()
+            cube_middle_idx = self.sim.model.site_name2id('block:center')
+            cube_middle_pos = self.sim.data.site_xpos[cube_middle_idx]
+            is_on_palm = (cube_middle_pos[2] > 0.04)
+            return is_on_palm
+
+        # Run the simulation for a bunch of timesteps to let everything settle in.
+        for _ in range(100):
+            set_action(self.sim, np.zeros(20))
+            self.sim.step()
+        assert is_on_palm()
 
     def _get_block_qpos(self, qpos):
         joint_names = ['block_tx', 'block_ty', 'block_tz', 'block_rx', 'block_ry', 'block_rz']
@@ -367,6 +384,23 @@ class BlockEnv(HandEnv, utils.EzPickle):
         block_qpos = np.array(block_qpos)
         assert block_qpos.shape == (6,)
         return block_qpos
+
+    def _set_block_qpos(self, qpos):
+        assert qpos.shape == (6,)
+        joint_names = ['block_tx', 'block_ty', 'block_tz', 'block_rx', 'block_ry', 'block_rz']
+        for name, value in zip(joint_names, qpos):
+            addr = self.sim.model.get_joint_qpos_addr('block:{}'.format(name))
+            self.sim.data.qpos[addr] = value
+
+    def _get_block_qvel(self, qvel):
+        joint_names = ['block_tx', 'block_ty', 'block_tz', 'block_rx', 'block_ry', 'block_rz']
+        block_qvel = []
+        for name in joint_names:
+            addr = self.sim.model.get_joint_qvel_addr('block:{}'.format(name))
+            block_qvel.append(qvel[addr])
+        block_qvel = np.array(block_qvel)
+        assert block_qvel.shape == (6,)
+        return block_qvel
 
     def _reset_goal(self):
         # Start with the initial state of the block.
@@ -441,6 +475,17 @@ class BlockEnv(HandEnv, utils.EzPickle):
             # Only do this if we have to since this operation can be expensive
             diff[..., 3:] = rotations.subtract_euler(goal_a[..., 3:], goal_b[..., 3:])  # orientation
         return diff
+
+    def _get_obs(self):
+        robot_qpos, robot_qvel = robot_get_obs(self.sim)
+        block_qvel = self._get_block_qvel(self.sim.data.qvel)
+        achieved_goal = self._get_achieved_goal().flatten()  # this contains the block position + rotation
+        observation = np.concatenate([robot_qpos, robot_qvel, block_qvel, achieved_goal])
+        return {
+            'observation': observation.copy(),
+            'achieved_goal': achieved_goal.copy(),
+            'goal': self.goal.flatten().copy(),
+        }
 
 
 class BlockRotateXYZEnv(BlockEnv):
