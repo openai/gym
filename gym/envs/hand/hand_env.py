@@ -83,7 +83,7 @@ class HandEnv(gym.GoalEnv):
         
         self.action_space = spaces.Box(-np.inf, np.inf, 20)
 
-        self._reset_goal()
+        self.goal = self._sample_goal().copy()
         obs = self._get_obs()
         self.observation_space = spaces.Goal(
             goal_space=spaces.Box(-np.inf, np.inf, obs['achieved_goal'].size),
@@ -138,7 +138,7 @@ class HandEnv(gym.GoalEnv):
 
     # Goal-based API
 
-    def _reset_goal(self):
+    def _sample_goal(self):
         raise NotImplementedError()
 
     def _compute_goal_distance(self, goal_a, goal_b):
@@ -166,7 +166,7 @@ class HandEnv(gym.GoalEnv):
         while not did_reset_sim:
             did_reset_sim = self._reset_simulation()
         
-        self._reset_goal()
+        self.goal = self._sample_goal().copy()
         obs = self._get_obs()
         if self.viewer is not None:
             self.viewer_setup()

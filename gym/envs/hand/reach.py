@@ -70,7 +70,7 @@ class ReachEnv(hand_env.HandEnv, utils.EzPickle):
             'goal': self.goal.flatten().copy(),
         }
 
-    def _reset_goal(self):
+    def _sample_goal(self):
         thumb_name = 'robot0:S_thtip'
         finger_names = [name for name in hand_env.FINGERTIP_SITE_NAMES if name != thumb_name]
         finger_name = np.random.choice(finger_names)
@@ -83,8 +83,6 @@ class ReachEnv(hand_env.HandEnv, utils.EzPickle):
         meeting_pos = self.palm_xpos + np.array([0.0, -0.09, 0.05])
         meeting_pos += np.random.normal(scale=0.005, size=meeting_pos.shape)
 
-        # Move the meeting point 30% towards the target finger.
-        
         # Slightly move meeting goal towards the respective finger to avoid that they
         # overlap.
         goal = self.initial_goal.copy()
@@ -97,7 +95,7 @@ class ReachEnv(hand_env.HandEnv, utils.EzPickle):
             # With some probability, ask all fingers to move back to the origin.
             # This avoids that the thumb constantly stays near the goal position already.
             goal = self.initial_goal.copy()
-        self.goal = goal
+        return goal
 
     def subtract_goals(self, goal_a, goal_b):
         # In this case, our goal subtraction is quite simple since it does not

@@ -103,7 +103,7 @@ class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
         assert block_qvel.shape == (6,)
         return block_qvel
 
-    def _reset_goal(self):
+    def _sample_goal(self):
         # Select a goal for the block position.
         target_pos = np.zeros(3)
         if self.target_pos == 'random':
@@ -140,7 +140,7 @@ class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
         # if self.round_target_rot:
         #     target_rot = round_to_straight_angles(target_rot)
         goal = np.concatenate([target_pos, rotations.normalize_angles(target_rot)])
-        self.goal = goal.copy()
+        return goal
 
     def _get_achieved_goal(self):
         # Block position and rotation.
