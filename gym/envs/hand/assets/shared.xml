@@ -9,7 +9,7 @@
         <material name="robot0:MatViz" specular="0.75" shininess="0.1" reflectance="0.5" rgba="0.9 0.7 0.5 1"></material>
         <material name="robot0:object" texture="robot0:texgeom" texuniform="false"></material>
         <material name="block:MatBlock" texture="block:block" specular="1" shininess="0.3" reflectance="0"></material>
-        <material name="target:MatBlock" texture="target:block" specular="1" shininess="0.3" reflectance="0"></material>
+        <material name="target:MatBlock" texture="target:block" specular="1" shininess="0.3" reflectance="0" rgba="1 1 1 0.5"></material>
         <mesh name="robot0:forearm" file="forearm_electric.stl"></mesh>
         <mesh name="robot0:forearm_cvx" file="forearm_electric_cvx.stl"></mesh>
         <mesh name="robot0:wrist" scale="0.001 0.001 0.001" file="wrist.stl"></mesh>

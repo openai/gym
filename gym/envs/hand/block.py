@@ -20,10 +20,11 @@ except ImportError as e:
 
 
 class BlockEnv(hand_env.HandEnv, utils.EzPickle):
-    def __init__(self, target_pos, target_rot, pos_mul):
+    def __init__(self, target_pos, target_rot, pos_mul, pos_range):
         self.target_pos = target_pos
         self.target_rot = target_rot
         self.pos_mul = pos_mul
+        self.pos_range = pos_range
 
         initial_qpos = {
             'robot0:WRJ1': -0.16514339750464327,
@@ -118,13 +119,11 @@ class BlockEnv(hand_env.HandEnv, utils.EzPickle):
         return block_qvel
 
     def _reset_goal(self):
-        # Start with the initial state of the block.
-        goal = self._get_block_qpos(self.initial_state.qpos).copy()
-
         # Select a goal for the block position.
         target_pos = np.zeros(3)
         if self.target_pos == 'random':
-            target_pos += np.random.uniform(self.target_range[:, 0], self.target_range[:, 1])
+            assert self.pos_range.shape == (3, 2)
+            target_pos = self._get_block_qpos(self.sim.data.qpos)[:3] + np.random.uniform(self.pos_range[:, 0], self.pos_range[:, 1])
         elif self.target_pos == 'ignore' or self.pos_mul == 0.:
             target_pos[:] = 0.
         elif self.target_pos == 'fixed':
@@ -173,7 +172,9 @@ class BlockEnv(hand_env.HandEnv, utils.EzPickle):
         # Assign current state to target block but offset a bit so that the actual block
         # is not obscured.
         goal = self.goal.copy()
-        goal[0] += 0.15
+        if self.target_pos == 'ignore':
+            # Move the block to the side since we do not care about it's position.
+            goal[0] += 0.15
         for name, value in zip(joint_names_pos[:] + joint_names_rot[:], goal):
             self.sim.data.set_joint_qpos(name, value)
             self.sim.data.set_joint_qvel(name, 0.)
@@ -206,10 +207,34 @@ class BlockEnv(hand_env.HandEnv, utils.EzPickle):
 class BlockRotateXYZEnv(BlockEnv):
     def __init__(self):
         super(BlockRotateXYZEnv, self).__init__(
-            target_pos='ignore', target_rot='xyz', pos_mul=0.)
+            target_pos='ignore', target_rot='xyz', pos_mul=0., pos_range=None)
 
 
 class BlockRotateZEnv(BlockEnv):
     def __init__(self):
         super(BlockRotateZEnv, self).__init__(
-            target_pos='ignore', target_rot='z', pos_mul=0.)
+            target_pos='ignore', target_rot='z', pos_mul=0., pos_range=None)
+
+
+class BlockPositionEnv(BlockEnv):
+    def __init__(self):
+        super(BlockPositionEnv, self).__init__(
+            target_pos='random', target_rot='fixed', pos_mul=25.,
+            pos_range=np.array([(-0.04, 0.04), (-0.06, 0.02), (0.0, 0.06)]))
+
+
+class BlockPositionAndRotateZEnv(BlockEnv):
+    def __init__(self):
+        super(BlockPositionAndRotateZEnv, self).__init__(
+            target_pos='random', target_rot='z', pos_mul=25.,
+            pos_range=np.array([(-0.04, 0.04), (-0.06, 0.02), (0.0, 0.06)]))
+
+
+class BlockPositionAndRotateXYZEnv(BlockEnv):
+    def __init__(self):
+        super(BlockPositionAndRotateXYZEnv, self).__init__(
+            target_pos='random', target_rot='xyz', pos_mul=25.,
+            pos_range=np.array([(-0.04, 0.04), (-0.06, 0.02), (0.0, 0.06)]))
+
+
+# TODO: add parallel rotation here
