@@ -7,6 +7,10 @@
 
     <include file="shared.xml"></include>
 
+    <asset>
+        <include file="shared_asset.xml"></include>
+    </asset>
+
     <worldbody>
         <geom name="floor0" pos="1 1 0" size="1 1 1" type="plane" condim="3"></geom>
         <body name="floor0" pos="1 1 0">

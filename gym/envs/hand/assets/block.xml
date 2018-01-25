@@ -7,6 +7,15 @@
 
     <include file="shared.xml"></include>
 
+    <asset>
+        <include file="shared_asset.xml"></include>
+
+        <texture name="block:block" file="block.png" gridsize="3 4" gridlayout=".U..LFRB.D.."></texture>
+        <texture name="target:block" file="block.png" gridsize="3 4" gridlayout=".U..LFRB.D.."></texture>
+        <material name="block:MatBlock" texture="block:block" specular="1" shininess="0.3" reflectance="0"></material>
+        <material name="target:MatBlock" texture="target:block" specular="1" shininess="0.3" reflectance="0" rgba="1 1 1 0.5"></material>
+    </asset>
+
     <worldbody>
         <geom name="floor0" pos="1 1 0" size="1 1 1" type="plane" condim="3"></geom>
         <body name="floor0" pos="1 1 0"></body>
