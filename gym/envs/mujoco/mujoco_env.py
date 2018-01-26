@@ -36,22 +36,22 @@ class MujocoEnv(gym.Env):
 
         self.init_qpos = self.sim.data.qpos.ravel().copy()
         self.init_qvel = self.sim.data.qvel.ravel().copy()
-        observation, _reward, done, _info = self._step(np.zeros(self.model.nu))
+        observation, _reward, done, _info = self.step(np.zeros(self.model.nu))
         assert not done
         self.obs_dim = observation.size
 
         bounds = self.model.actuator_ctrlrange.copy()
         low = bounds[:, 0]
         high = bounds[:, 1]
-        self.action_space = spaces.Box(low, high)
+        self.action_space = spaces.Box(low=low, high=high)
 
         high = np.inf*np.ones(self.obs_dim)
         low = -high
         self.observation_space = spaces.Box(low, high)
 
-        self._seed()
+        self.seed()
 
-    def _seed(self, seed=None):
+    def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
@@ -75,7 +75,7 @@ class MujocoEnv(gym.Env):
 
     # -----------------------------
 
-    def _reset(self):
+    def reset(self):
         self.sim.reset()
         ob = self.reset_model()
         if self.viewer is not None:
@@ -99,19 +99,18 @@ class MujocoEnv(gym.Env):
         for _ in range(n_frames):
             self.sim.step()
 
-    def _render(self, mode='human', close=False):
-        if close:
-            if self.viewer is not None:
-                self._get_viewer()
-                self.viewer = None
-            return
-
+    def render(self, mode='human'):
         if mode == 'rgb_array':
             self._get_viewer().render()
             data, width, height = self._get_viewer().get_image()
             return np.fromstring(data, dtype='uint8').reshape(height, width, 3)[::-1, :, :]
         elif mode == 'human':
             self._get_viewer().render()
+
+    def close(self):
+        if self.viewer is not None:
+            self.viewer.finish()
+            self.viewer = None
 
     def _get_viewer(self):
         if self.viewer is None:

@@ -3,7 +3,6 @@ Task is to reverse content over the input tape.
 http://arxiv.org/abs/1511.07275
 """
 
-import numpy as np
 from gym.envs.algorithmic import algorithmic_env
 
 class ReverseEnv(algorithmic_env.TapeAlgorithmicEnv):

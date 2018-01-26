@@ -1,6 +1,6 @@
-import numpy as np
 from gym.envs.mujoco import mujoco_env
 from gym import utils
+import numpy as np
 
 class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     def __init__(self):
@@ -16,7 +16,7 @@ class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
                                data.qfrc_actuator.flat,
                                data.cfrc_ext.flat])
 
-    def _step(self, a):
+    def step(self, a):
         self.do_simulation(a, self.frame_skip)
         pos_after = self.sim.data.qpos[2]
         data = self.sim.data

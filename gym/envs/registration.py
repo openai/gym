@@ -1,10 +1,7 @@
-import logging
 import pkg_resources
 import re
-from gym import error
-import warnings
+from gym import error, logger
 
-logger = logging.getLogger(__name__)
 # This format is true today, but it's *not* an official spec.
 # [username/](env-name)-v(version)    env-name is group 1, version is group 2
 #
@@ -89,7 +86,7 @@ class EnvSpec(object):
             env = cls(**self._kwargs)
 
         # Make the enviroment aware of which spec it came from.
-        env.unwrapped._spec = self
+        env.unwrapped.spec = self
 
         return env
 
@@ -120,6 +117,8 @@ class EnvRegistry(object):
         logger.info('Making new env: %s', id)
         spec = self.spec(id)
         env = spec.make()
+        if hasattr(env, "_reset") and hasattr(env, "_step"):
+            patch_deprecated_methods(env)
         if (env.spec.timestep_limit is not None) and not spec.tags.get('vnc'):
             from gym.wrappers.time_limit import TimeLimit
             env = TimeLimit(env,
@@ -165,3 +164,24 @@ def make(id):
 
 def spec(id):
     return registry.spec(id)
+
+warn_once = True
+
+def patch_deprecated_methods(env):
+    """
+    Methods renamed from '_method' to 'method', render() no longer has 'close' parameter, close is a separate method.
+    For backward compatibility, this makes it possible to work with unmodified environments.
+    """
+    global warn_once
+    if warn_once:
+        logger.warn("Environment '%s' has deprecated methods. Compatibility code invoked." % str(type(env)))
+        warn_once = False
+    env.reset = env._reset
+    env.step  = env._step
+    env.seed  = env._seed
+    def render(mode):
+        return env._render(mode, close=False)
+    def close():
+        env._render("human", close=True)
+    env.render = render
+    env.close = close

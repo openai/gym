@@ -30,16 +30,13 @@ been consistently solved over some window of episodes, the environment will
 increase the average length of generated strings. Typical env specs require
 leveling up many times to reach their reward threshold.
 """
-from gym import Env
+from gym import Env, logger
 from gym.spaces import Discrete, Tuple
 from gym.utils import colorize, seeding
 import numpy as np
 from six import StringIO
 import sys
 import math
-import logging
-
-logger = logging.getLogger(__name__)
 
 class AlgorithmicEnv(Env):
 
@@ -82,14 +79,14 @@ class AlgorithmicEnv(Env):
         )
         # Can see just what is on the input tape (one of n characters, or nothing)
         self.observation_space = Discrete(self.base + 1)
-        self._seed()
+        self.seed()
         self.reset()
 
     @classmethod
     def _movement_idx(kls, movement_name):
         return kls.MOVEMENTS.index(movement_name)
 
-    def _seed(self, seed=None):
+    def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
@@ -110,14 +107,11 @@ class AlgorithmicEnv(Env):
         else:
             return self.charmap[self.target[pos]]
 
-    def _render_observation(self):
+    def render_observation(self):
         """Return a string representation of the input tape/grid."""
-        raise NotImplemented
+        raise NotImplementedError
 
-    def _render(self, mode='human', close=False):
-        if close:
-            # Nothing interesting to close
-            return
+    def render(self, mode='human'):
 
         outfile = StringIO() if mode == 'ansi' else sys.stdout
         inp = "Total length of input instance: %d, step: %d\n" % (self.input_width, self.time)
@@ -130,7 +124,7 @@ class AlgorithmicEnv(Env):
         target_str = "Targets             : "
         if action is not None:
             pred_str = self.charmap[pred]
-        x_str = self._render_observation()
+        x_str = self.render_observation()
         for i in range(-2, len(self.target) + 2):
             target_str += self._get_str_target(i)
             if i < y - 1:
@@ -161,7 +155,7 @@ class AlgorithmicEnv(Env):
     def input_width(self):
         return len(self.input_data)
 
-    def _step(self, action):
+    def step(self, action):
         assert self.action_space.contains(action)
         self.last_action = action
         inp_act, out_act, pred = action
@@ -218,7 +212,7 @@ class AlgorithmicEnv(Env):
             AlgorithmicEnv.reward_shortfalls = []
         
 
-    def _reset(self):
+    def reset(self):
         self._check_levelup()
         self.last_action = None
         self.last_reward = 0
@@ -264,7 +258,7 @@ class TapeAlgorithmicEnv(AlgorithmicEnv):
     def generate_input_data(self, size):
         return [self.np_random.randint(self.base) for _ in range(size)]
 
-    def _render_observation(self):
+    def render_observation(self):
         x = self.read_head_position
         x_str =      "Observation Tape    : "
         for i in range(-2, self.input_width + 2):
@@ -315,7 +309,7 @@ class GridAlgorithmicEnv(AlgorithmicEnv):
         except IndexError:
             return self.base
 
-    def _render_observation(self):
+    def render_observation(self):
         x = self.read_head_position
         label =      "Observation Grid    : "
         x_str = ""

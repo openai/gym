@@ -36,10 +36,7 @@ class Dict(Space):
         if isinstance(spaces, list):
             spaces = OrderedDict(spaces)
         self.spaces = spaces
-        self.shape = self._get_shape()
-
-    def _get_shape(self):
-        return OrderedDict([(k, space.shape) for k, space in self.spaces.items()])
+        Space.__init__(self, None, None) # None for shape and dtype, since it'll require special handling
 
     def sample(self):
         return OrderedDict([(k, space.sample()) for k, space in self.spaces.items()])

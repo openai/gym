@@ -375,135 +375,29 @@ for game in ['air_raid', 'alien', 'amidar', 'assault', 'asterix', 'asteroids', '
             nondeterministic=nondeterministic,
         )
 
-# Board games
-# ----------------------------------------
+
+# Unit test
+# ---------
 
 register(
-    id='Go9x9-v0',
-    entry_point='gym.envs.board_game:GoEnv',
-    kwargs={
-        'player_color': 'black',
-        'opponent': 'pachi:uct:_2400',
-        'observation_type': 'image3c',
-        'illegal_move_mode': 'lose',
-        'board_size': 9,
-    },
-    # The pachi player seems not to be determistic given a fixed seed.
-    # (Reproduce by running 'import gym; h = gym.make('Go9x9-v0'); h.seed(1); h.reset(); h.step(15); h.step(16); h.step(17)' a few times.)
-    #
-    # This is probably due to a computation time limit.
-    nondeterministic=True,
-)
+    id='CubeCrash-v0',
+    entry_point='gym.envs.unittest:CubeCrash',
+    reward_threshold=0.9,
+    )
+register(
+    id='CubeCrashSparse-v0',
+    entry_point='gym.envs.unittest:CubeCrashSparse',
+    reward_threshold=0.9,
+    )
+register(
+    id='CubeCrashScreenBecomesBlack-v0',
+    entry_point='gym.envs.unittest:CubeCrashScreenBecomesBlack',
+    reward_threshold=0.9,
+    )
 
 register(
-    id='Go19x19-v0',
-    entry_point='gym.envs.board_game:GoEnv',
-    kwargs={
-        'player_color': 'black',
-        'opponent': 'pachi:uct:_2400',
-        'observation_type': 'image3c',
-        'illegal_move_mode': 'lose',
-        'board_size': 19,
-    },
-    nondeterministic=True,
-)
+    id='MemorizeDigits-v0',
+    entry_point='gym.envs.unittest:MemorizeDigits',
+    reward_threshold=20,
+    )
 
-register(
-    id='Hex9x9-v0',
-    entry_point='gym.envs.board_game:HexEnv',
-    kwargs={
-        'player_color': 'black',
-        'opponent': 'random',
-        'observation_type': 'numpy3c',
-        'illegal_move_mode': 'lose',
-        'board_size': 9,
-    },
-)
-
-# Debugging
-# ----------------------------------------
-
-register(
-    id='OneRoundDeterministicReward-v0',
-    entry_point='gym.envs.debugging:OneRoundDeterministicRewardEnv',
-    local_only=True
-)
-
-register(
-    id='TwoRoundDeterministicReward-v0',
-    entry_point='gym.envs.debugging:TwoRoundDeterministicRewardEnv',
-    local_only=True
-)
-
-register(
-    id='OneRoundNondeterministicReward-v0',
-    entry_point='gym.envs.debugging:OneRoundNondeterministicRewardEnv',
-    local_only=True
-)
-
-register(
-    id='TwoRoundNondeterministicReward-v0',
-    entry_point='gym.envs.debugging:TwoRoundNondeterministicRewardEnv',
-    local_only=True,
-)
-
-# Parameter tuning
-# ----------------------------------------
-register(
-    id='ConvergenceControl-v0',
-    entry_point='gym.envs.parameter_tuning:ConvergenceControl',
-)
-
-register(
-    id='CNNClassifierTraining-v0',
-    entry_point='gym.envs.parameter_tuning:CNNClassifierTraining',
-)
-
-# Safety
-# ----------------------------------------
-
-# interpretability envs
-register(
-    id='PredictActionsCartpole-v0',
-    entry_point='gym.envs.safety:PredictActionsCartpoleEnv',
-    max_episode_steps=200,
-)
-
-register(
-    id='PredictObsCartpole-v0',
-    entry_point='gym.envs.safety:PredictObsCartpoleEnv',
-    max_episode_steps=200,
-)
-
-# semi_supervised envs
-    # probably the easiest:
-register(
-    id='SemisuperPendulumNoise-v0',
-    entry_point='gym.envs.safety:SemisuperPendulumNoiseEnv',
-    max_episode_steps=200,
-)
-    # somewhat harder because of higher variance:
-register(
-    id='SemisuperPendulumRandom-v0',
-    entry_point='gym.envs.safety:SemisuperPendulumRandomEnv',
-    max_episode_steps=200,
-)
-    # probably the hardest because you only get a constant number of rewards in total:
-register(
-    id='SemisuperPendulumDecay-v0',
-    entry_point='gym.envs.safety:SemisuperPendulumDecayEnv',
-    max_episode_steps=200,
-)
-
-# off_switch envs
-register(
-    id='OffSwitchCartpole-v0',
-    entry_point='gym.envs.safety:OffSwitchCartpoleEnv',
-    max_episode_steps=200,
-)
-
-register(
-    id='OffSwitchCartpoleProb-v0',
-    entry_point='gym.envs.safety:OffSwitchCartpoleProbEnv',
-    max_episode_steps=200,
-)
