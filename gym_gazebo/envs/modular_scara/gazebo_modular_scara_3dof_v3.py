@@ -238,6 +238,23 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
             print("slowness_unit: ", self.slowness_unit, "type of variable: ", type(slowness_unit))
             print("reset joints: ", self.reset_jnts, "type of variable: ", type(self.reset_jnts))
 
+    def randomizeTargetPositions(self):
+        """
+        The goal is to test with randomized positions which range between the boundries of the H-ROS logo
+        """
+        print("In randomize target positions.")
+        EE_POS_TGT_RANDOM = np.asmatrix([np.random.uniform(0.2852485,0.3883636), np.random.uniform(-0.1746508,0.1701576), 0.3746]) # boundry box of the H-ROS letters with +-0.01 offset
+        EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+        EE_POINTS = np.asmatrix([[0, 0, 0]])
+        ee_pos_tgt_random = EE_POS_TGT_RANDOM
+
+        # leave rotation target same since in scara we do not have rotation of the end-effector
+        ee_rot_tgt = EE_ROT_TGT
+
+        self.realgoal = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt_1, ee_rot_tgt).T)
+
+        print("randomize randomizeTargetPositions realgoal: ", self.realgoal)
+
     def randomizeTarget(self):
         print("calling randomize target")
 
@@ -263,7 +280,7 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
         E.g. covered target -> go to other target. This could be implemented for example with vision.
         """
         self.realgoal = target1 if np.random.uniform() < 0.5 else target2
-        print("randomizeCorrect realgoal: ", self.realgoal)
+        print("randomizeTarget realgoal: ", self.realgoal)
 
     def randomizeMultipleTargets(self):
         print("calling randomize multiple targets")
