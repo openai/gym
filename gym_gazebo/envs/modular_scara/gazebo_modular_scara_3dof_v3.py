@@ -251,7 +251,7 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
         # leave rotation target same since in scara we do not have rotation of the end-effector
         ee_rot_tgt = EE_ROT_TGT
 
-        self.realgoal = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt_1, ee_rot_tgt).T)
+        self.realgoal = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt_random, ee_rot_tgt).T)
 
         print("randomize randomizeTargetPositions realgoal: ", self.realgoal)
 
