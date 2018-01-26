@@ -10,7 +10,7 @@ extras = {
   'atari': ['atari_py>=0.1.1', 'Pillow', 'PyOpenGL'],
   'box2d': ['Box2D-kengz'],
   'classic_control': ['PyOpenGL'],
-  'mujoco': ['mujoco_py<1.0.0,>=0.4.3', 'imageio'],
+  'mujoco': ['mujoco_py>=1.50', 'imageio'],
 }
 
 # Meta dependency groups.

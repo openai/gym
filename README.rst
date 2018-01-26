@@ -1,7 +1,7 @@
 OpenAI Gym
 **********
 
-**OpenAI Gym is a toolkit for developing and comparing reinforcement learning algorithms.** This is the ``gym`` open-source library, which gives you access to an ever-growing variety of environments.
+**OpenAI Gym is a toolkit for developing and comparing reinforcement learning algorithms.** This is the ``gym`` open-source library, which gives you access to a standardized set of environments.
 
 .. image:: https://travis-ci.org/openai/gym.svg?branch=master
     :target: https://travis-ci.org/openai/gym
@@ -62,9 +62,9 @@ If you prefer, you can do a minimal install of the packaged version directly fro
 
 You'll be able to run a few environments right away:
 
-- `algorithmic <https://gym.openai.com/envs#algorithmic>`_
-- `toy_text <https://gym.openai.com/envs#toy_text>`_
-- `classic_control <https://gym.openai.com/envs#classic_control>`_ (you'll need ``pyglet`` to render though)
+- algorithmic
+- toy_text
+- classic_control (you'll need ``pyglet`` to render though)
 
 We recommend playing with those environments at first, and then later
 installing the dependencies for the remaining environments.
@@ -230,10 +230,9 @@ Examples
 
 See the ``examples`` directory.
 
-- Run `examples/agents/random_agent.py <https://github.com/openai/gym/blob/master/examples/agents/random_agent.py>`_ to run an simple random agent and upload the results to the scoreboard.
-- Run `examples/agents/cem.py <https://github.com/openai/gym/blob/master/examples/agents/cem.py>`_ to run an actual learning agent (using the cross-entropy method) and upload the results to the scoreboard.
-- Run `examples/scripts/list_envs <https://github.com/openai/gym/blob/master/examples/scripts/list_envs>`_ to generate a list of all environments. (You see also just `browse <https://gym.openai.com/docs>`_ the list on our site.
-- Run `examples/scripts/upload <https://github.com/openai/gym/blob/master/examples/scripts/upload>`_ to upload the recorded output from ``random_agent.py`` or ``cem.py``. Make sure to obtain an `API key <https://gym.openai.com/settings/profile>`_.
+- Run `examples/agents/random_agent.py <https://github.com/openai/gym/blob/master/examples/agents/random_agent.py>`_ to run an simple random agent.
+- Run `examples/agents/cem.py <https://github.com/openai/gym/blob/master/examples/agents/cem.py>`_ to run an actual learning agent (using the cross-entropy method).
+- Run `examples/scripts/list_envs <https://github.com/openai/gym/blob/master/examples/scripts/list_envs>`_ to generate a list of all environments.
 
 Testing
 =======
@@ -261,6 +260,10 @@ What's new
     + Add `dtype` to `Space`.
     + Not using python's built-in module anymore, using `gym.logger`
 
+- 2018-01-24: All continuous control environments now use mujoco_py >= 1.50.
+  Versions have been updated accordingly to -v2, e.g. HalfCheetah-v2. Performance
+  should be similar (see https://github.com/openai/gym/pull/834) but there are likely
+  some differences due to changes in MuJoCo.
 - 2017-06-16: Make env.spec into a property to fix a bug that occurs
   when you try to print out an unregistered Env.
 - 2017-05-13: BACKWARDS INCOMPATIBILITY: The Atari environments are now at

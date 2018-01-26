@@ -1,7 +1,7 @@
 import json # note: ujson fails this test due to float equality
 import numpy as np
 import pytest
-from gym.spaces import Tuple, Box, Discrete, MultiDiscrete, Dict
+from gym.spaces import Tuple, Box, Discrete, MultiDiscrete, MultiBinary, Dict
 
 
 @pytest.mark.parametrize("space", [

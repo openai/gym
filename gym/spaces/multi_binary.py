@@ -10,6 +10,6 @@ class MultiBinary(Space):
     def contains(self, x):
         return ((x==0) | (x==1)).all()
     def to_jsonable(self, sample_n):
-        return sample_n.tolist()
+        return np.array(sample_n).tolist()
     def from_jsonable(self, sample_n):
-        return np.array(sample_n)
+        return [np.asarray(sample) for sample in sample_n]
