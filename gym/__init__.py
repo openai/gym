@@ -8,6 +8,6 @@ from gym.version import VERSION as __version__
 
 from gym.core import Env, Space, Wrapper, ObservationWrapper, ActionWrapper, RewardWrapper
 from gym.envs import make, spec
-from gym import wrappers
+from gym import wrappers, spaces
 
 __all__ = ["Env", "Space", "Wrapper", "make", "spec", "wrappers"]

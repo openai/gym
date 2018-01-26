@@ -250,6 +250,17 @@ We are using `pytest <http://doc.pytest.org>`_ for tests. You can run them via:
 What's new
 ==========
 
+- 2018-01-25: Made some aesthetic improvements and removed unmaintained parts of gym. This may seem like a downgrade in functionality, but it is actually a long-needed cleanup in preparation for some great new things that will be released in the next month.
+
+    + Now your `Env` and `Wrapper` subclasses should define `step`, `reset`, `render`, `close`, `seed` rather than underscored method names.
+    + Removed the `board_game`, `debugging`, `safety`, `parameter_tuning` environments since they're not being maintained by us at OpenAI. We encourage authors and users to create new repositories for these environments.
+    + Changed `MultiDiscrete` action space to range from `[0, ..., n-1]` rather than `[a, ..., b-1]`.
+    + No more `render(close=True)`, use env-specific methods to close the rendering.
+    + Removed `scoreboard` directory, since site doesn't exist anymore.
+    + Moved `gym/monitoring` to `gym/wrappers/monitoring`
+    + Add `dtype` to `Space`.
+    + Not using python's built-in module anymore, using `gym.logger`
+
 - 2017-06-16: Make env.spec into a property to fix a bug that occurs
   when you try to print out an unregistered Env.
 - 2017-05-13: BACKWARDS INCOMPATIBILITY: The Atari environments are now at
