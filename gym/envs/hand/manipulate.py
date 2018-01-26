@@ -20,12 +20,12 @@ except ImportError as e:
 
 
 class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
-    def __init__(self, model_path, target_pos, target_rot, pos_mul, pos_range, initial_qpos={},
+    def __init__(self, model_path, target_pos, target_rot, pos_mul, target_pos_range, initial_qpos={},
         randomize_initial_pos=True, randomize_initial_rot=True):
         self.target_pos = target_pos
         self.target_rot = target_rot
         self.pos_mul = pos_mul
-        self.pos_range = pos_range
+        self.target_pos_range = target_pos_range
         self.parallel_rotations = rotations.get_parallel_rotations()
         self.randomize_initial_rot = randomize_initial_rot
         self.randomize_initial_pos = randomize_initial_pos
@@ -107,8 +107,10 @@ class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
         # Select a goal for the block position.
         target_pos = np.zeros(3)
         if self.target_pos == 'random':
-            assert self.pos_range.shape == (3, 2)
-            target_pos = self._get_block_qpos(self.sim.data.qpos)[:3] + np.random.uniform(self.pos_range[:, 0], self.pos_range[:, 1])
+            assert self.target_pos_range.shape == (3, 2)
+            offset = np.random.uniform(self.target_pos_range[:, 0], self.target_pos_range[:, 1])
+            assert offset.shape == (3,)
+            target_pos = self._get_block_qpos(self.sim.data.qpos)[:3] + offset
         elif self.target_pos == 'ignore' or self.pos_mul == 0.:
             target_pos[:] = 0.
         elif self.target_pos == 'fixed':
@@ -188,62 +190,28 @@ class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
         }
 
 
-class BlockRotateXYZEnv(ManipulateEnv):
-    def __init__(self):
-        super(BlockRotateXYZEnv, self).__init__(
-            model_path='manipulate_block.xml', target_pos='ignore', target_rot='xyz',
-            pos_mul=0., pos_range=None)
+class BlockEnv(ManipulateEnv):
+    def __init__(self, target_pos='random', target_rot='xyz'):
+        super(BlockEnv, self).__init__(
+            model_path='manipulate_block.xml', target_pos=target_pos, target_rot=target_rot,
+            pos_mul=25., target_pos_range=np.array([(-0.04, 0.04), (-0.06, 0.02), (0.0, 0.06)]))
 
 
-class BlockRotateZEnv(ManipulateEnv):
-    def __init__(self):
-        super(BlockRotateZEnv, self).__init__(
-            model_path='manipulate_block.xml', target_pos='ignore', target_rot='z',
-            pos_mul=0., pos_range=None)
+class EggEnv(ManipulateEnv):
+    def __init__(self, target_pos='random', target_rot='xyz'):
+        super(EggEnv, self).__init__(
+            model_path='manipulate_egg.xml', target_pos=target_pos, target_rot=target_rot,
+            pos_mul=25., target_pos_range=np.array([(-0.04, 0.04), (-0.06, 0.02), (0.0, 0.06)]))
 
 
-class BlockRotateParallelEnv(ManipulateEnv):
-    def __init__(self):
-        super(BlockRotateParallelEnv, self).__init__(
-            model_path='manipulate_block.xml', target_pos='ignore', target_rot='parallel',
-            pos_mul=0., pos_range=None)
-
-
-class BlockPositionEnv(ManipulateEnv):
-    def __init__(self):
-        super(BlockPositionEnv, self).__init__(
-            model_path='manipulate_block.xml', target_pos='random', target_rot='fixed',
-            pos_mul=25., pos_range=np.array([(-0.04, 0.04), (-0.06, 0.02), (0.0, 0.06)]))
-
-
-class BlockPositionAndRotateZEnv(ManipulateEnv):
-    def __init__(self):
-        super(BlockPositionAndRotateZEnv, self).__init__(
-            model_path='manipulate_block.xml', target_pos='random', target_rot='z',
-            pos_mul=25., pos_range=np.array([(-0.04, 0.04), (-0.06, 0.02), (0.0, 0.06)]))
-
-
-class BlockPositionAndRotateXYZEnv(ManipulateEnv):
-    def __init__(self):
-        super(BlockPositionAndRotateXYZEnv, self).__init__(
-            model_path='manipulate_block.xml', target_pos='random', target_rot='xyz',
-            pos_mul=25., pos_range=np.array([(-0.04, 0.04), (-0.06, 0.02), (0.0, 0.06)]))
-
-
-class PenRotationEnv(ManipulateEnv):
-    def __init__(self):
+class PenEnv(ManipulateEnv):
+    def __init__(self, target_pos='random', target_rot='xyz'):
         initial_qpos = {
             'object:rx': 1.9500000000000015,
             'object:ry': 1.9500000000000015,
             'object:rz': 0.7983724628009656,
         }
-        super(PenRotationEnv, self).__init__(
-            model_path='manipulate_pen.xml', target_pos='ignore', target_rot='xyz',
-            pos_mul=0., pos_range=None, initial_qpos=initial_qpos, randomize_initial_rot=False)
-
-
-class EggEnv(ManipulateEnv):
-    def __init__(self):
-        super(EggEnv, self).__init__(
-            model_path='manipulate_ellipsoid.xml', target_pos='ignore', target_rot='xyz',
-            pos_mul=0., pos_range=None, initial_qpos={})
+        super(PenEnv, self).__init__(
+            model_path='manipulate_pen.xml', target_pos=target_pos, target_rot=target_rot,
+            pos_mul=25., target_pos_range=np.array([(-0.04, 0.04), (-0.06, 0.02), (0.0, 0.06)]),
+            initial_qpos=initial_qpos, randomize_initial_rot=False)
