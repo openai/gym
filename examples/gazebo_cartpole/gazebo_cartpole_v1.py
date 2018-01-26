@@ -146,7 +146,7 @@ env = gym.make('GazeboCartPole-v0')
 
 outdir = '/tmp/gazebo_gym_experiments'
 plotter = LivePlot(outdir)
-
+import time
 #env.monitor.start('cartpole-hill/', force=True)
 policy_grad = policy_gradient()
 value_grad = value_gradient()
@@ -163,6 +163,7 @@ for i in range(2000):
 #        print "reward 200"
 #        print i
 #        break
+    time.sleep(0.05)
 t = 0
 for _ in range(1000):
     reward = run_episode(env, policy_grad, value_grad, sess)
