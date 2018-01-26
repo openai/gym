@@ -248,7 +248,7 @@ class GazeboModularScara4DOFv3Env(gazebo_env.GazeboEnv):
 
 
     def randomizeTarget(self):
-        print("calling randomize correct")
+        print("calling randomize target")
 
         # EE_POS_TGT_1 = np.asmatrix([0.3325683, 0.0657366, 0.4868]) # center of O
         EE_POS_TGT_2 = np.asmatrix([0.3305805, -0.1326121, 0.4868]) # center of the H
@@ -274,11 +274,34 @@ class GazeboModularScara4DOFv3Env(gazebo_env.GazeboEnv):
         """
         self.realgoal = target1 if np.random.uniform() < 0.5 else target2
         print("randomizeTarget realgoal: ", self.realgoal)
-        #self.realgoal = #ee_tgt = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt, ee_rot_tgt).T)#np.array([self.np_random.choice([0, 1, 2, 3])])
-        # 0 = obstacle. 1 = no obstacle.
-        # self.realgoal = 0
-        # EE_POS_TGT = np.asmatrix([0.3325683, 0.0657366, 0.4868]) # center of O
-        # EE_POS_TGT = np.asmatrix([0.3305805, -0.1326121, 0.4868]) # center of the H
+
+    def randomizeMultipleTargets(self):
+        print("calling randomize multiple target")
+
+        # EE_POS_TGT_1 = np.asmatrix([0.3325683, 0.0657366, 0.4868]) # center of O
+        EE_POS_TGT_2 = np.asmatrix([0.3305805, -0.1326121, 0.4868]) # center of the H
+        EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+        EE_POINTS = np.asmatrix([[0, 0, 0]])
+
+        ee_pos_tgt_1 = EE_POS_TGT_1
+        ee_pos_tgt_2 = EE_POS_TGT_2
+
+        # leave rotation target same since in scara we do not have rotation of the end-effector
+        ee_rot_tgt = EE_ROT_TGT
+
+        # Initialize target end effector position
+        # ee_tgt = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt, ee_rot_tgt).T)
+
+        target1 = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt_1, ee_rot_tgt).T)
+        target2 = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt_2, ee_rot_tgt).T)
+
+
+        """
+        This is for initial test only, we need to change this in the future to be more realistic.
+        E.g. covered target -> go to other target. This could be implemented for example with vision.
+        """
+        self.realgoal = target1 if np.random.uniform() < 0.5 else target2
+        print("randomizeTarget realgoal: ", self.realgoal)
 
     def get_trajectory_message(self, action, robot_id=0):
         """
