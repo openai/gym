@@ -10,6 +10,7 @@ from std_srvs.srv import Empty
 from sensor_msgs.msg import LaserScan
 from gym.utils import seeding
 import copy
+import random
 
 # ROS 2
 # import rclpy
@@ -72,6 +73,7 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
         self.slowness = 1
         self.slowness_unit = 'sec'
         self.reset_jnts = True
+        self.choose_robot = 0
 
         #############################
         #   Environment hyperparams
@@ -237,9 +239,9 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
             print("reset joints: ", self.reset_jnts, "type of variable: ", type(self.reset_jnts))
 
     def randomizeTarget(self):
-        print("calling randomize correct")
+        print("calling randomize target")
 
-        # EE_POS_TGT_1 = np.asmatrix([0.3325683, 0.0657366, 0.3746]) # center of O
+        EE_POS_TGT_1 = np.asmatrix([0.3325683, 0.0657366, 0.3746]) # center of O
         EE_POS_TGT_2 = np.asmatrix([0.3305805, -0.1326121, 0.3746]) # center of the H
         EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         EE_POINTS = np.asmatrix([[0, 0, 0]])
@@ -262,11 +264,48 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
         """
         self.realgoal = target1 if np.random.uniform() < 0.5 else target2
         print("randomizeCorrect realgoal: ", self.realgoal)
-        #self.realgoal = #ee_tgt = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt, ee_rot_tgt).T)#np.array([self.np_random.choice([0, 1, 2, 3])])
-        # 0 = obstacle. 1 = no obstacle.
-        # self.realgoal = 0
-        # EE_POS_TGT = np.asmatrix([0.3325683, 0.0657366, 0.4868]) # center of O
-        # EE_POS_TGT = np.asmatrix([0.3305805, -0.1326121, 0.4868]) # center of the H
+
+    def randomizeMultipleTargets(self):
+        print("calling randomize multiple targets")
+
+        EE_POS_TGT_1 = np.asmatrix([0.3305805, -0.1326121, 0.3746]) # center of the H
+        EE_POS_TGT_2 = np.asmatrix([0.3477431, -0.3305805, 0.3746]) # center of H left
+        EE_POS_TGT_3 = np.asmatrix([0.3325683, 0.0657366, 0.3746]) # center of O
+        EE_POS_TGT_4 = np.asmatrix([0.3355224, 0.0344309, 0.3746]) # center of O left
+        EE_POS_TGT_5 = np.asmatrix([0.3013209, 0.1647450, 0.3746]) # S top right
+        EE_POS_TGT_6 = np.asmatrix([0.3349774, 0.1570571, 0.3746]) # S midlle
+
+        EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+        EE_POINTS = np.asmatrix([[0, 0, 0]])
+
+        ee_pos_tgt_1 = EE_POS_TGT_1
+        ee_pos_tgt_2 = EE_POS_TGT_2
+        ee_pos_tgt_3 = EE_POS_TGT_3
+        ee_pos_tgt_4 = EE_POS_TGT_4
+        ee_pos_tgt_5 = EE_POS_TGT_5
+        ee_pos_tgt_6 = EE_POS_TGT_6
+
+        # leave rotation target same since in scara we do not have rotation of the end-effector
+        ee_rot_tgt = EE_ROT_TGT
+
+        # Initialize target end effector position
+        # ee_tgt = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt, ee_rot_tgt).T)
+
+        target1 = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt_1, ee_rot_tgt).T)
+        target2 = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt_2, ee_rot_tgt).T)
+        target3 = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt_3, ee_rot_tgt).T)
+        target4 = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt_4, ee_rot_tgt).T)
+        target5 = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt_5, ee_rot_tgt).T)
+        target6 = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt_6, ee_rot_tgt).T)
+
+        """
+        This is for initial test only, we need to change this in the future to be more realistic.
+        E.g. covered target -> go to other target. This could be implemented for example with vision.
+        """
+        all_targets = [target1,target2,target3,target4,target5,target6]
+        self.realgoal = random.choice(all_targets)
+        # self.realgoal = target1 if np.random.uniform() < 0.5 else target2
+        print("randomizeCorrect realgoal: ", self.realgoal)
 
 
     def observation_callback(self, message):
