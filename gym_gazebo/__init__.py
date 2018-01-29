@@ -80,6 +80,10 @@ register(
     id='GazeboModularScaraObstacles3DOF-v0',
     entry_point='gym_gazebo.envs.modular_scara:GazeboModularScara3DOFObstaclesv0Env',
 )
+register(
+    id='GazeboModularScaraStaticObstacle3DOF-v0',
+    entry_point='gym_gazebo.envs.modular_scara:GazeboModularScara3DOFStaticObstaclev0Env',
+)
 
 register(
     id='GazeboModularScaraArm4And3DOF-v1',
