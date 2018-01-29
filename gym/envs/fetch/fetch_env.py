@@ -154,7 +154,7 @@ class FetchEnv(gym.GoalEnv):
         }
 
         self.seed()
-        self.initial_setup()
+        self.env_setup()
         self.init_state = copy.deepcopy(self.sim.get_state())
 
         self.action_space = spaces.Box(-np.inf, np.inf, shape=(4,), dtype='float32')
@@ -166,51 +166,12 @@ class FetchEnv(gym.GoalEnv):
             observation_space=spaces.Box(-np.inf, np.inf, shape=obs['observation'].shape, dtype='float32'),
         )
 
+    # Env methods
+    # ----------------------------
+
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
-
-    # methods to override:
-    # ----------------------------
-
-    def initial_setup(self):
-        """
-        Custom setup (e.g. setting initial qpos, moving into desired start position, etc.)
-        can be done here
-        """
-        init_qpos = self.initial_qpos
-        for name, value in init_qpos.items():
-            self.sim.data.set_joint_qpos(name, value)
-        self.sim.forward()
-
-        # Places mocap where related bodies are.
-        if self.sim.model.nmocap > 0 and self.sim.model.eq_data is not None:
-            for i in range(self.sim.model.eq_data.shape[0]):
-                if self.sim.model.eq_type[i] == const.EQ_WELD:
-                    self.sim.model.eq_data[i, :] = np.array(
-                        [0., 0., 0., 1., 0., 0., 0.])
-        self.sim.forward()
-        
-        # Move end effector into position.
-        gripper_target = np.array([-0.498, 0.005, -0.431 + self.gripper_extra_height]) + self.sim.data.get_site_xpos('robot0:grip')
-        gripper_rotation = np.array([1., 0., 1., 0.])
-        self.sim.data.set_mocap_pos('robot0:mocap', gripper_target)
-        self.sim.data.set_mocap_quat('robot0:mocap', gripper_rotation)
-        for _ in range(100):
-            self.sim.step()
-
-        # Extract information for sampling goals.
-        self.init_gripper = self.sim.data.get_site_xpos('robot0:grip').copy()
-        if self.has_box:
-            self.height_offset = self.sim.data.get_site_xpos('geom0')[2]
-
-    def viewer_setup(self):
-        """
-        This method is called when the viewer is initialized and after every reset
-        Optionally implement this method, if you need to tinker with camera position
-        and so forth.
-        """
-        pass
 
     def step(self, action):
         obs = self._get_obs()
@@ -275,46 +236,6 @@ class FetchEnv(gym.GoalEnv):
             'goal': self.goal.copy(),
         }
 
-    # Goal-handling
-
-    def _sample_goal(self):
-        if not self.has_box:
-            goal = self.init_gripper[:3] + self.np_random.uniform(-0.15, 0.15, size=3)
-        else:
-            box_xpos = self.init_gripper[:2]
-            while np.linalg.norm(box_xpos - self.init_gripper[:2]) < 0.1:
-                box_xpos = self.init_gripper[:2] + self.np_random.uniform(-self.obj_range, self.obj_range, size=2)
-            goal = self.init_gripper[:3] + self.np_random.uniform(-self.target_range, self.target_range, size=3)
-            goal[0] += self.target_x_shift
-            goal[2] = self.height_offset
-            if self.target_in_the_air and self.np_random.uniform() < 0.5:
-                goal[2] += self.np_random.uniform(0, 0.45)
-            qpos = self.init_state.qpos
-            qpos[-6:-4] = box_xpos
-            qpos[-3:] = 0.  # no rotation
-        return goal.copy()
-
-    def _compute_goal_distance(self, goal_a, goal_b):
-        assert goal_a.shape == goal_b.shape
-        return np.linalg.norm(self._subtract_goals(goal_a, goal_b), axis=-1)
-
-    def _subtract_goals(self, goal_a, goal_b):
-        # In this case, our goal subtraction is quite simple since it does not
-        # contain any rotations but only positions.
-        assert goal_a.shape == goal_b.shape
-        return goal_a - goal_b
-
-    def _is_success(self, achieved_goal, goal):
-        d = self._compute_goal_distance(achieved_goal, goal)
-        return (d < self.dist_threshold).astype(np.float32)
-
-    def compute_reward(self, obs, action, next_obs, goal):
-        # Compute distance between goal and the achieved goal.
-        d = self._compute_goal_distance(next_obs['achieved_goal'], goal)
-        return -(d > self.dist_threshold).astype(np.float32)
-
-    # -----------------------------
-
     def reset(self):
         self.sim.set_state(self.init_state)
         self.sim.forward()
@@ -352,3 +273,84 @@ class FetchEnv(gym.GoalEnv):
             self.viewer = mujoco_py.MjViewer(self.sim)
             self.viewer_setup()
         return self.viewer
+
+    # GoalEnv methods
+    # ----------------------------
+
+    def _sample_goal(self):
+        if not self.has_box:
+            goal = self.init_gripper[:3] + self.np_random.uniform(-0.15, 0.15, size=3)
+        else:
+            box_xpos = self.init_gripper[:2]
+            while np.linalg.norm(box_xpos - self.init_gripper[:2]) < 0.1:
+                box_xpos = self.init_gripper[:2] + self.np_random.uniform(-self.obj_range, self.obj_range, size=2)
+            goal = self.init_gripper[:3] + self.np_random.uniform(-self.target_range, self.target_range, size=3)
+            goal[0] += self.target_x_shift
+            goal[2] = self.height_offset
+            if self.target_in_the_air and self.np_random.uniform() < 0.5:
+                goal[2] += self.np_random.uniform(0, 0.45)
+            qpos = self.init_state.qpos
+            qpos[-6:-4] = box_xpos
+            qpos[-3:] = 0.  # no rotation
+        return goal.copy()
+
+    def _compute_goal_distance(self, goal_a, goal_b):
+        assert goal_a.shape == goal_b.shape
+        return np.linalg.norm(self._subtract_goals(goal_a, goal_b), axis=-1)
+
+    def _subtract_goals(self, goal_a, goal_b):
+        # In this case, our goal subtraction is quite simple since it does not
+        # contain any rotations but only positions.
+        assert goal_a.shape == goal_b.shape
+        return goal_a - goal_b
+
+    def _is_success(self, achieved_goal, goal):
+        d = self._compute_goal_distance(achieved_goal, goal)
+        return (d < self.dist_threshold).astype(np.float32)
+
+    def compute_reward(self, obs, action, next_obs, goal):
+        # Compute distance between goal and the achieved goal.
+        d = self._compute_goal_distance(next_obs['achieved_goal'], goal)
+        return -(d > self.dist_threshold).astype(np.float32)
+
+    # Methods to extend functionality
+    # ----------------------------
+
+    def viewer_setup(self):
+        """
+        This method is called when the viewer is initialized and after every reset
+        Optionally implement this method, if you need to tinker with camera position
+        and so forth.
+        """
+        pass
+
+    def env_setup(self):
+        """
+        Custom setup (e.g. setting initial qpos, moving into desired start position, etc.)
+        can be done here
+        """
+        init_qpos = self.initial_qpos
+        for name, value in init_qpos.items():
+            self.sim.data.set_joint_qpos(name, value)
+        self.sim.forward()
+
+        # Places mocap where related bodies are.
+        if self.sim.model.nmocap > 0 and self.sim.model.eq_data is not None:
+            for i in range(self.sim.model.eq_data.shape[0]):
+                if self.sim.model.eq_type[i] == const.EQ_WELD:
+                    self.sim.model.eq_data[i, :] = np.array(
+                        [0., 0., 0., 1., 0., 0., 0.])
+        self.sim.forward()
+        
+        # Move end effector into position.
+        gripper_target = np.array([-0.498, 0.005, -0.431 + self.gripper_extra_height]) + self.sim.data.get_site_xpos('robot0:grip')
+        gripper_rotation = np.array([1., 0., 1., 0.])
+        self.sim.data.set_mocap_pos('robot0:mocap', gripper_target)
+        self.sim.data.set_mocap_quat('robot0:mocap', gripper_rotation)
+        for _ in range(100):
+            self.sim.step()
+
+        # Extract information for sampling goals.
+        self.init_gripper = self.sim.data.get_site_xpos('robot0:grip').copy()
+        if self.has_box:
+            self.height_offset = self.sim.data.get_site_xpos('geom0')[2]
