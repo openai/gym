@@ -93,9 +93,9 @@ class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
     # RobotEnv methods
     # ----------------------------
 
-    def _is_success(self, achieved_goal, goal):
+    def _is_success(self, achieved_goal, desired_goal):
         d = goal_distance(
-            achieved_goal, goal, position_weight=self.position_weight,
+            achieved_goal, desired_goal, position_weight=self.position_weight,
             compute_rotation=self.target_rotation != 'ignore')
         return (d < self.distance_threshold).astype(np.float32)
 

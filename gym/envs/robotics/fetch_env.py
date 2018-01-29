@@ -120,8 +120,8 @@ class FetchEnv(robot_env.RobotEnv):
             qpos[-3:] = 0.  # no rotation
         return goal.copy()
 
-    def _is_success(self, achieved_goal, goal):
-        d = goal_distance(achieved_goal, goal)
+    def _is_success(self, achieved_goal, desired_goal):
+        d = goal_distance(achieved_goal, desired_goal)
         return (d < self.distance_threshold).astype(np.float32)
 
     def _env_setup(self, initial_qpos):

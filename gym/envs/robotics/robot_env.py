@@ -103,30 +103,55 @@ class RobotEnv(gym.GoalEnv):
     # ----------------------------
 
     def _reset_sim(self):
+        """Resets a simulation and indicates whether or not it was successful.
+        If a reset was unsuccessful (e.g. if a randomized state caused an error in the
+        simulation), this method should indicate such a failure by returning False.
+        In such a case, this method will be called again to attempt a the reset again.
+        """
         self.sim.set_state(self.initial_state)
         self.sim.forward()
         return True
 
     def _get_obs(self):
+        """Returns the observation.
+        """
         raise NotImplementedError()
 
     def _set_action(self, action):
+        """Applies the given action to the simulation.
+        """
         raise NotImplementedError()
 
-    def _is_success(self, achieved_goal, goal):
+    def _is_success(self, achieved_goal, desired_goal):
+        """Indicates whether or not the achieved goal successfully achieved the desired goal.
+        """
         raise NotImplementedError()
 
     def _sample_goal(self):
+        """Samples a new goal and returns it.
+        """
         raise NotImplementedError()
 
-    def _render_callback(self):
-        pass
-
     def _env_setup(self, initial_qpos):
+        """Initial configuration of the environment. Can be used to configure initial state
+        and extract information from the simulation.
+        """
         pass
 
     def _viewer_setup(self):
+        """Initial configuration of the viewer. Can be used to set the camera position,
+        for example.
+        """
+        pass
+
+    def _render_callback(self):
+        """A custom callback that is called before rendering. Can be used
+        to implement custom visualizations.
+        """
         pass
 
     def _step_callback(self):
+        """A custom callback that is called after stepping the simulation. Can be used
+        to enforce additional constraints on the simulation state.
+        """
         pass

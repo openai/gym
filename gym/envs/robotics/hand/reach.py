@@ -118,8 +118,8 @@ class HandReachEnv(hand_env.HandEnv, utils.EzPickle):
             goal = self.initial_goal.copy()
         return goal.flatten()
 
-    def _is_success(self, achieved_goal, goal):
-        d = goal_distance(achieved_goal, goal)
+    def _is_success(self, achieved_goal, desired_goal):
+        d = goal_distance(achieved_goal, desired_goal)
         return (d < self.distance_threshold).astype(np.float32)
 
     def _render_callback(self):
