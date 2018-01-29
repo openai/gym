@@ -81,9 +81,10 @@ class FetchEnv(robot_env.RobotEnv):
             box_pos = box_rot = box_velp = box_velr = box_rel_pos = np.zeros(0)
         gripper_state = robot_qpos[-2:]
         gripper_vel = robot_qvel[-2:] * dt  # change to a scalar if the gripper is made symmetric
-        obs = np.concatenate([grip_pos, box_rel_pos.flatten(), gripper_state,
-                                 box_rot.flatten(), box_velp.flatten(), box_velr.flatten(),
-                                 grip_velp, gripper_vel])
+        obs = np.concatenate([
+            grip_pos, box_rel_pos.flatten(), gripper_state, box_rot.flatten(),
+            box_velp.flatten(), box_velr.flatten(), grip_velp, gripper_vel,
+        ])
 
         if not self.has_box:
             achieved_goal = grip_pos.copy()
@@ -128,7 +129,7 @@ class FetchEnv(robot_env.RobotEnv):
             self.sim.data.set_joint_qpos(name, value)
         utils.reset_mocap_welds(self.sim)
         self.sim.forward()
-        
+
         # Move end effector into position.
         gripper_target = np.array([-0.498, 0.005, -0.431 + self.gripper_extra_height]) + self.sim.data.get_site_xpos('robot0:grip')
         gripper_rotation = np.array([1., 0., 1., 0.])

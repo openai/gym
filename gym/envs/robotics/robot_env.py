@@ -67,9 +67,15 @@ class RobotEnv(gym.GoalEnv):
         return obs, reward, done, {}
 
     def reset(self):
-        self.sim.set_state(self.initial_state)
-        self.sim.forward()
-        self.goal = self._sample_goal()
+        # Attempt to reset the simulator. Since we randomize initial conditions, it
+        # is possible to get into a state with numerical issues (e.g. due to penetration or
+        # Gimbel lock) or we may not achieve an initial condition (e.g. an object is within the hand).
+        # In this case, we just keep randomizing until we eventually achieve a valid initial
+        # configuration.
+        did_reset_sim = False
+        while not did_reset_sim:
+            did_reset_sim = self._reset_sim()
+        self.goal = self._sample_goal().copy()
         obs = self._get_obs()
         return obs
 
@@ -96,6 +102,11 @@ class RobotEnv(gym.GoalEnv):
     # Extension methods
     # ----------------------------
 
+    def _reset_sim(self):
+        self.sim.set_state(self.initial_state)
+        self.sim.forward()
+        return True
+
     def _get_obs(self):
         raise NotImplementedError()
 
@@ -111,7 +122,7 @@ class RobotEnv(gym.GoalEnv):
     def _render_callback(self):
         pass
 
-    def _env_setup(initial_qpos):
+    def _env_setup(self, initial_qpos):
         pass
 
     def _viewer_setup(self):

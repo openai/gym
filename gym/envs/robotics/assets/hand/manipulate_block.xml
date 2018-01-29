@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mujoco>
-    <compiler angle="radian" coordinate="local" meshdir="stls" texturedir="textures"></compiler>
+    <compiler angle="radian" coordinate="local" meshdir="../stls/hand" texturedir="../textures"></compiler>
     <option timestep="0.002" iterations="20" apirate="200">
         <flag warmstart="enable"></flag>
     </option>

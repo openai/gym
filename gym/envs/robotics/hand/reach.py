@@ -1,25 +1,28 @@
-import os
-import copy
-
-from gym import error, spaces
-from gym.utils import seeding
-from mujoco_py import const
 import numpy as np
-from os import path
-import gym
-import six
-from gym import utils, error
 
-from gym.envs.hand import rotations, hand_env
-
-try:
-    import mujoco_py
-except ImportError as e:
-    raise error.DependencyNotInstalled("{}. (HINT: you need to install mujoco_py, and also perform the setup instructions here: https://github.com/openai/mujoco-py/.)".format(e))
+from gym import utils
+from gym.envs.robotics import hand_env
+from gym.envs.robotics.utils import robot_get_obs
 
 
-class ReachEnv(hand_env.HandEnv, utils.EzPickle):
-    def __init__(self):
+FINGERTIP_SITE_NAMES = [
+    'robot0:S_fftip',
+    'robot0:S_mftip',
+    'robot0:S_rftip',
+    'robot0:S_lftip',
+    'robot0:S_thtip',
+]
+
+
+def goal_distance(goal_a, goal_b):
+    assert goal_a.shape == goal_b.shape
+    return np.linalg.norm(goal_a - goal_b, axis=-1)
+
+
+class HandReachEnv(hand_env.HandEnv, utils.EzPickle):
+    def __init__(self, dist_threshold=0.02, n_substeps=20, relative_control=False):
+        self.dist_threshold = dist_threshold
+
         initial_qpos = {
             'robot0:WRJ1': -0.16514339750464327,
             'robot0:WRJ0': -0.31973286565062153,
@@ -47,36 +50,49 @@ class ReachEnv(hand_env.HandEnv, utils.EzPickle):
             'robot0:THJ0': -0.7894883021600622,
         }
         hand_env.HandEnv.__init__(
-            self, 'reach.xml', n_substeps=20, initial_qpos=initial_qpos, relative_control=False,
-            dist_threshold=0.02)
+            self, 'hand/reach.xml', n_substeps=n_substeps, initial_qpos=initial_qpos,
+            relative_control=relative_control)
         utils.EzPickle.__init__(self)
 
-    def _get_initial_state(self):
-        super(ReachEnv, self)._get_initial_state()
+    def _get_achieved_goal(self):
+        goal = [self.sim.data.get_site_xpos(name) for name in FINGERTIP_SITE_NAMES]
+        return np.array(goal).flatten()
+
+    # GoalEnv methods
+    # ----------------------------
+
+    def compute_reward(self, achieved_goal, goal, info):
+        d = goal_distance(achieved_goal, goal)
+        return -(d > self.dist_threshold).astype(np.float32)
+
+    # RobotEnv methods
+    # ----------------------------
+
+    def _env_setup(self, initial_qpos):
+        for name, value in initial_qpos.items():
+            self.sim.data.set_joint_qpos(name, value)
+        self.sim.forward()
+
         self.initial_goal = self._get_achieved_goal().copy()
         self.palm_xpos = self.sim.data.body_xpos[self.sim.model.body_name2id('robot0:palm')].copy()
 
-    def _get_achieved_goal(self):
-        goal = [self.sim.data.get_site_xpos(name) for name in hand_env.FINGERTIP_SITE_NAMES]
-        return np.array(goal)
-
     def _get_obs(self):
-        robot_qpos, robot_qvel = hand_env.robot_get_obs(self.sim)
+        robot_qpos, robot_qvel = robot_get_obs(self.sim)
         achieved_goal = self._get_achieved_goal().flatten()
         observation = np.concatenate([robot_qpos, robot_qvel, achieved_goal])
         return {
             'observation': observation.copy(),
             'achieved_goal': achieved_goal.copy(),
-            'goal': self.goal.flatten().copy(),
+            'goal': self.goal.copy(),
         }
 
     def _sample_goal(self):
         thumb_name = 'robot0:S_thtip'
-        finger_names = [name for name in hand_env.FINGERTIP_SITE_NAMES if name != thumb_name]
+        finger_names = [name for name in FINGERTIP_SITE_NAMES if name != thumb_name]
         finger_name = np.random.choice(finger_names)
 
-        thumb_idx = hand_env.FINGERTIP_SITE_NAMES.index(thumb_name)
-        finger_idx = hand_env.FINGERTIP_SITE_NAMES.index(finger_name)
+        thumb_idx = FINGERTIP_SITE_NAMES.index(thumb_name)
+        finger_idx = FINGERTIP_SITE_NAMES.index(finger_name)
         assert thumb_idx != finger_idx
 
         # Pick a meeting point above the hand.
@@ -85,7 +101,7 @@ class ReachEnv(hand_env.HandEnv, utils.EzPickle):
 
         # Slightly move meeting goal towards the respective finger to avoid that they
         # overlap.
-        goal = self.initial_goal.copy()
+        goal = self.initial_goal.copy().reshape(-1, 3)
         for idx in [thumb_idx, finger_idx]:
             offset_direction = (meeting_pos - goal[idx])
             offset_direction /= np.linalg.norm(offset_direction)
@@ -95,27 +111,24 @@ class ReachEnv(hand_env.HandEnv, utils.EzPickle):
             # With some probability, ask all fingers to move back to the origin.
             # This avoids that the thumb constantly stays near the goal position already.
             goal = self.initial_goal.copy()
-        return goal
+        return goal.flatten()
 
-    def subtract_goals(self, goal_a, goal_b):
-        # In this case, our goal subtraction is quite simple since it does not
-        # contain any rotations but only positions.
-        assert goal_a.shape == goal_b.shape
-        return goal_a - goal_b
+    def _is_success(self, achieved_goal, goal):
+        d = goal_distance(achieved_goal, goal)
+        return (d < self.dist_threshold).astype(np.float32)
 
     def _render_callback(self):
         # Visualize targets.
         sites_offset = (self.sim.data.site_xpos - self.sim.model.site_pos).copy()
+        goal = self.goal.reshape(5, 3)
         for finger_idx in range(5):
             site_name = 'target{}'.format(finger_idx)
             site_id = self.sim.model.site_name2id(site_name)
-            self.sim.model.site_pos[site_id] = self.goal[finger_idx] - sites_offset[site_id]
+            self.sim.model.site_pos[site_id] = goal[finger_idx] - sites_offset[site_id]
 
         # Visualize finger positions.
-        achieved_goal = self._get_achieved_goal()
+        achieved_goal = self._get_achieved_goal().reshape(5, 3)
         for finger_idx in range(5):
             site_name = 'finger{}'.format(finger_idx)
             site_id = self.sim.model.site_name2id(site_name)
             self.sim.model.site_pos[site_id] = achieved_goal[finger_idx] - sites_offset[site_id]
-
-
