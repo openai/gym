@@ -8,7 +8,7 @@ class InvertedDoublePendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         mujoco_env.MujocoEnv.__init__(self, 'inverted_double_pendulum.xml', 5)
         utils.EzPickle.__init__(self)
 
-    def _step(self, action):
+    def step(self, action):
         self.do_simulation(action, self.frame_skip)
         ob = self._get_obs()
         x, _, y = self.sim.data.site_xpos[0]

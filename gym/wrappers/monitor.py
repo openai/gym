@@ -1,11 +1,10 @@
 import gym
 from gym import Wrapper
-from gym import error, version
-import os, json, logging, numpy as np, six
+from gym import error, version, logger
+import os, json, numpy as np, six
+from gym.wrappers.monitoring import stats_recorder, video_recorder
 from gym.utils import atomic_write, closer
 from gym.utils.json_utils import json_encode_np
-
-logger = logging.getLogger(__name__)
 
 FILE_PREFIX = 'openaigym'
 MANIFEST_PREFIX = FILE_PREFIX + '.manifest'
@@ -27,21 +26,21 @@ class Monitor(Wrapper):
         self._start(directory, video_callable, force, resume,
                             write_upon_reset, uid, mode)
 
-    def _step(self, action):
+    def step(self, action):
         self._before_step(action)
         observation, reward, done, info = self.env.step(action)
         done = self._after_step(observation, reward, done, info)
 
         return observation, reward, done, info
 
-    def _reset(self, **kwargs):
+    def reset(self, **kwargs):
         self._before_reset()
         observation = self.env.reset(**kwargs)
         self._after_reset(observation)
 
         return observation
 
-    def _close(self):
+    def close(self):
         super(Monitor, self)._close()
 
         # _monitor will not be set if super(Monitor, self).__init__ raises, this check prevents a confusing error message
@@ -67,7 +66,7 @@ class Monitor(Wrapper):
             mode (['evaluation', 'training']): Whether this is an evaluation or training episode.
         """
         if self.env.spec is None:
-            logger.warning("Trying to monitor an environment which has no 'spec' set. This usually means you did not create it via 'gym.make', and is recommended only for advanced users.")
+            logger.warn("Trying to monitor an environment which has no 'spec' set. This usually means you did not create it via 'gym.make', and is recommended only for advanced users.")
             env_id = '(unknown)'
         else:
             env_id = self.env.spec.id
@@ -170,12 +169,9 @@ class Monitor(Wrapper):
 
         if done and self.env_semantics_autoreset:
             # For envs with BlockingReset wrapping VNCEnv, this observation will be the first one of the new episode
-            self._reset_video_recorder()
+            self.reset_video_recorder()
             self.episode_id += 1
             self._flush()
-
-        if info.get('true_reward', None):  # Semisupervised envs modify the rewards, but we want the original when scoring
-            reward = info['true_reward']
 
         # Record stats
         self.stats_recorder.after_step(observation, reward, done, info)
@@ -194,14 +190,14 @@ class Monitor(Wrapper):
         # Reset the stat count
         self.stats_recorder.after_reset(observation)
 
-        self._reset_video_recorder()
+        self.reset_video_recorder()
 
         # Bump *after* all reset activity has finished
         self.episode_id += 1
 
         self._flush()
 
-    def _reset_video_recorder(self):
+    def reset_video_recorder(self):
         # Close any existing video recorder
         if self.video_recorder:
             self._close_video_recorder()
@@ -238,7 +234,7 @@ class Monitor(Wrapper):
         self.close()
 
     def get_total_steps(self):
-        return self.stats_recorder.total_steps
+        return self.stats_recorder.total_steps        
 
     def get_episode_rewards(self):
         return self.stats_recorder.episode_rewards
@@ -383,6 +379,3 @@ def collapse_env_infos(env_infos, training_dir):
         if key not in first:
             raise error.Error("env_info {} from training directory {} is missing expected key {}. This is unexpected and likely indicates a bug in gym.".format(first, training_dir, key))
     return first
-
-# Put circular import at the bottom. Even better: break circular import
-from gym.monitoring import stats_recorder, video_recorder
