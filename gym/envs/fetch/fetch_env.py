@@ -153,21 +153,20 @@ class FetchEnv(gym.GoalEnv):
             'video.frames_per_second': int(np.round(1.0 / self.dt))
         }
 
+        self.seed()
         self.initial_setup()
         self.init_state = copy.deepcopy(self.sim.get_state())
 
-        self.action_space = spaces.Box(-np.inf, np.inf, 4)
+        self.action_space = spaces.Box(-np.inf, np.inf, shape=(4,), dtype='float32')
 
         self.goal = self._sample_goal()
         obs = self._get_obs()
         self.observation_space = spaces.GoalDict(
-            goal_space=spaces.Box(-np.inf, np.inf, obs['achieved_goal'].size),
-            observation_space=spaces.Box(-np.inf, np.inf, obs['observation'].size),
+            goal_space=spaces.Box(-np.inf, np.inf, shape=obs['achieved_goal'].shape, dtype='float32'),
+            observation_space=spaces.Box(-np.inf, np.inf, shape=obs['observation'].shape, dtype='float32'),
         )
-        
-        self._seed()
 
-    def _seed(self, seed=None):
+    def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
@@ -213,7 +212,7 @@ class FetchEnv(gym.GoalEnv):
         """
         pass
 
-    def _step(self, action):
+    def step(self, action):
         obs = self._get_obs()
         self._set_action(action)
         self.sim.step()
@@ -280,16 +279,16 @@ class FetchEnv(gym.GoalEnv):
 
     def _sample_goal(self):
         if not self.has_box:
-            goal = self.init_gripper[:3] + np.random.uniform(-0.15, 0.15, size=3)
+            goal = self.init_gripper[:3] + self.np_random.uniform(-0.15, 0.15, size=3)
         else:
             box_xpos = self.init_gripper[:2]
             while np.linalg.norm(box_xpos - self.init_gripper[:2]) < 0.1:
-                box_xpos = self.init_gripper[:2] + np.random.uniform(-self.obj_range, self.obj_range, size=2)
-            goal = self.init_gripper[:3] + np.random.uniform(-self.target_range, self.target_range, size=3)
+                box_xpos = self.init_gripper[:2] + self.np_random.uniform(-self.obj_range, self.obj_range, size=2)
+            goal = self.init_gripper[:3] + self.np_random.uniform(-self.target_range, self.target_range, size=3)
             goal[0] += self.target_x_shift
             goal[2] = self.height_offset
-            if self.target_in_the_air and np.random.uniform() < 0.5:
-                goal[2] += np.random.uniform(0, 0.45)
+            if self.target_in_the_air and self.np_random.uniform() < 0.5:
+                goal[2] += self.np_random.uniform(0, 0.45)
             qpos = self.init_state.qpos
             qpos[-6:-4] = box_xpos
             qpos[-3:] = 0.  # no rotation
@@ -316,7 +315,7 @@ class FetchEnv(gym.GoalEnv):
 
     # -----------------------------
 
-    def _reset(self):
+    def reset(self):
         self.sim.set_state(self.init_state)
         self.sim.forward()
         self.goal = self._sample_goal()
@@ -329,7 +328,7 @@ class FetchEnv(gym.GoalEnv):
     def dt(self):
         return self.model.opt.timestep * self.n_substeps
 
-    def _render(self, mode='human', close=False):
+    def render(self, mode='human', close=False):
         if close:
             if self.viewer is not None:
                 self._get_viewer()
