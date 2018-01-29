@@ -1,12 +1,14 @@
 import gym
+import numpy as np
+
 
 __all__ = ['DictWrapper']
 
+
 def DictWrapper(dict_keys):
     class DictWrapper(gym.ObservationWrapper):
-        """
-            Generic common frame skipping wrapper
-            Will perform action for `x` additional steps
+        """Flattens selected keys of a Dict observation space into
+        an array.
         """
         def __init__(self, env):
             super(DictWrapper, self).__init__(env)
