@@ -112,7 +112,7 @@ class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
 
         # Randomization initial rotation.
         if self.randomize_initial_rotation:
-            uniform_rot = np.random.uniform(0.0, 2 * np.pi, size=(3,))
+            uniform_rot = self.np_random.uniform(0.0, 2 * np.pi, size=(3,))
             if self.target_rotation == 'z':
                 initial_qpos[3:] = rotations.subtract_euler(np.concatenate([np.zeros(2), [uniform_rot[2]]]), initial_qpos[3:])
             elif self.target_rotation in ['xyz', 'parallel', 'ignore']:
@@ -125,7 +125,7 @@ class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
         # Randomize initial position.
         if self.randomize_initial_position:
             if self.target_position != 'fixed':
-                initial_qpos[:3] += np.random.normal(size=3, scale=0.005)
+                initial_qpos[:3] += self.np_random.normal(size=3, scale=0.005)
 
         set_block_qpos(self.sim, initial_qpos)
 
@@ -150,7 +150,7 @@ class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
         target_position = np.zeros(3)
         if self.target_position == 'random':
             assert self.target_position_range.shape == (3, 2)
-            offset = np.random.uniform(self.target_position_range[:, 0], self.target_position_range[:, 1])
+            offset = self.np_random.uniform(self.target_position_range[:, 0], self.target_position_range[:, 1])
             assert offset.shape == (3,)
             target_position = get_block_qpos(self.sim, self.sim.data.qpos)[:3] + offset
         elif self.target_position == 'ignore' or self.position_weight == 0.:
@@ -164,14 +164,14 @@ class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
         # Select a goal for the block rotation.
         target_rotation = np.zeros(3)
         if self.target_rotation == 'z':
-            target_rotation[-1] = np.random.uniform(-np.pi, np.pi)
+            target_rotation[-1] = self.np_random.uniform(-np.pi, np.pi)
         elif self.target_rotation == 'parallel':
-            target_rotation[-1] = np.random.uniform(-np.pi, np.pi)
+            target_rotation[-1] = self.np_random.uniform(-np.pi, np.pi)
             target_rotation[:2] = 0.
-            parallel_rot = self.parallel_rotations[np.random.randint(len(self.parallel_rotations))]
+            parallel_rot = self.parallel_rotations[self.np_random.randint(len(self.parallel_rotations))]
             target_rotation = rotations.mat2euler(np.matmul(rotations.euler2mat(target_rotation), rotations.euler2mat(parallel_rot)))
         elif self.target_rotation == 'xyz':
-            target_rotation = np.random.uniform(-np.pi, np.pi, size=3)
+            target_rotation = self.np_random.uniform(-np.pi, np.pi, size=3)
         elif self.target_rotation == 'ignore':
             target_rotation[:] = 0.
         elif self.target_rotation == 'fixed':
