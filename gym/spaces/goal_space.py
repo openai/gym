@@ -2,7 +2,7 @@ from copy import deepcopy
 from gym.spaces import Dict
 
 
-class Goal(Dict):
+class GoalDict(Dict):
     """
     A goal-based space, in which every state has a goal, an achieved goal, and the current observation.
     You can use any other space type for the goal and observation spaces, respectively.
@@ -19,10 +19,10 @@ class Goal(Dict):
             'goal': self.goal_space,
             'achieved_goal': self.achieved_goal_space,
         }
-        super(Goal, self).__init__(spaces=spaces)
+        super(GoalDict, self).__init__(spaces=spaces)
 
     def __repr__(self):
-        return "Goal(" + ", ". join([k + ":" + str(s) for k, s in self.spaces.items()]) + ")"
+        return "GoalDict(" + ", ". join([k + ":" + str(s) for k, s in self.spaces.items()]) + ")"
 
     def from_jsonable(self, sample_n):
         super(Goal, self).from_jsonable(sample_n)

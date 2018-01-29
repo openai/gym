@@ -212,22 +212,35 @@ class Env(object):
     def configure(self, *args, **kwargs):
         raise error.Error("Env.configure has been removed in gym v0.8.0, released on 2017/03/05. If you need Env.configure, please use gym version 0.7.x from pip, or checkout the `gym:v0.7.4` tag from git.")
 
+
 class GoalEnv(Env):
+    """A goal-based environment. It functions just as any regular OpenAI Gym environment but it
+    imposes a required structure on the observation_space. More concretely, the observation
+    space is required to contain at least three elements, namely `observation`, `goal`, and
+    `achieved_goal`. Here, `goal` specifies the goal that should be achieved, `achieved_goal` is
+    the currently achieved goal, and `observation` contains the actual observations as per usual.
+    """
     
     def reset(self):
         # Enforce that each GoalEnv uses a Goal observation space.
         result = super(GoalEnv, self).reset()
-        if not isinstance(self.observation_space, gym.spaces.Goal):
-            raise error.Error("GoalEnv requires an observation space of type gym.spaces.Goal")
+        if not isinstance(self.observation_space, gym.spaces.GoalDict):
+            raise error.Error("GoalEnv requires an observation space of type gym.spaces.GoalDict")
         return result
     
-    def subtract_goals(self, goal_a, goal_b):
-        raise NotImplementedError()
+    def compute_reward(self, achieved_goal, goal, info):
+        """Compute the step reward.
 
-    def is_success(self, achieved_goal, goal):
-        raise NotImplementedError()
+        The following should always hold true:
 
-    def compute_reward(self, obs, action, next_obs, goal):
+            ob, reward, done, info = env.step()
+            assert reward == env.compute_reward(ob['achieved_goal'], ob['goal'], info)
+
+        In other words, this externalizes the reward function and makes it dependent on
+        an a goal and the one that was achieved. If you wish to include additional rewards
+        that are independent of the goal, you can include the necessary values to derive it
+        in info and compute it accordingly.
+        """
         raise NotImplementedError()
 
 # Space-related abstractions
