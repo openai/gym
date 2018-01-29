@@ -15,7 +15,7 @@ class FetchEnv(robot_env.RobotEnv):
     def __init__(
         self, model_path, n_substeps, gripper_extra_height, block_gripper,
         has_box, target_in_the_air, target_x_shift, obj_range, target_range,
-        dist_threshold, initial_qpos
+        distance_threshold, initial_qpos
     ):
         self.gripper_extra_height = gripper_extra_height
         self.block_gripper = block_gripper
@@ -24,7 +24,7 @@ class FetchEnv(robot_env.RobotEnv):
         self.target_x_shift = target_x_shift
         self.obj_range = obj_range
         self.target_range = target_range
-        self.dist_threshold = dist_threshold
+        self.distance_threshold = distance_threshold
 
         super(FetchEnv, self).__init__(
             model_path=model_path, n_substeps=n_substeps, n_actions=4,
@@ -36,7 +36,7 @@ class FetchEnv(robot_env.RobotEnv):
     def compute_reward(self, achieved_goal, goal, info):
         # Compute distance between goal and the achieved goal.
         d = goal_distance(achieved_goal, goal)
-        return -(d > self.dist_threshold).astype(np.float32)
+        return -(d > self.distance_threshold).astype(np.float32)
 
     # RobotEnv methods
     # ----------------------------
@@ -122,7 +122,7 @@ class FetchEnv(robot_env.RobotEnv):
 
     def _is_success(self, achieved_goal, goal):
         d = goal_distance(achieved_goal, goal)
-        return (d < self.dist_threshold).astype(np.float32)
+        return (d < self.distance_threshold).astype(np.float32)
 
     def _env_setup(self, initial_qpos):
         for name, value in initial_qpos.items():

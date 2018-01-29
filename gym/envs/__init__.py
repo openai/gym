@@ -325,49 +325,49 @@ register(
 register(
     id='HandManipulateBlockRotateZ-v0',
     entry_point='gym.envs.robotics:HandBlockEnv',
-    kwargs={'target_pos': 'ignore', 'target_rot': 'z'},
+    kwargs={'target_position': 'ignore', 'target_rotation': 'z'},
 )
 
 register(
     id='HandManipulateBlockRotateParallel-v0',
     entry_point='gym.envs.robotics:HandBlockEnv',
-    kwargs={'target_pos': 'ignore', 'target_rot': 'parallel'},
+    kwargs={'target_position': 'ignore', 'target_rotation': 'parallel'},
 )
 
 register(
     id='HandManipulateBlockRotateXYZ-v0',
     entry_point='gym.envs.robotics:HandBlockEnv',
-    kwargs={'target_pos': 'ignore', 'target_rot': 'xyz'},
+    kwargs={'target_position': 'ignore', 'target_rotation': 'xyz'},
 )
 
 register(
     id='HandManipulateBlockFull-v0',
     entry_point='gym.envs.robotics:HandBlockEnv',
-    kwargs={'target_pos': 'random', 'target_rot': 'xyz'},
+    kwargs={'target_position': 'random', 'target_rotation': 'xyz'},
 )
 
 register(
     id='HandManipulateEggRotateXYZ-v0',
     entry_point='gym.envs.robotics:HandEggEnv',
-    kwargs={'target_pos': 'ignore', 'target_rot': 'xyz'},
+    kwargs={'target_position': 'ignore', 'target_rotation': 'xyz'},
 )
 
 register(
     id='HandManipulateEggFull-v0',
     entry_point='gym.envs.robotics:HandEggEnv',
-    kwargs={'target_pos': 'random', 'target_rot': 'xyz'},
+    kwargs={'target_position': 'random', 'target_rotation': 'xyz'},
 )
 
 register(
     id='HandManipulatePenRotateXYZ-v0',
     entry_point='gym.envs.robotics:HandPenEnv',
-    kwargs={'target_pos': 'ignore', 'target_rot': 'xyz'},
+    kwargs={'target_position': 'ignore', 'target_rotation': 'xyz'},
 )
 
 register(
     id='HandManipulatePenFull-v0',
     entry_point='gym.envs.robotics:HandPenEnv',
-    kwargs={'target_pos': 'random', 'target_rot': 'xyz'},
+    kwargs={'target_position': 'random', 'target_rotation': 'xyz'},
 )
 
 # Atari

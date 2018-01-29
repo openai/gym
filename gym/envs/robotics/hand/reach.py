@@ -14,41 +14,46 @@ FINGERTIP_SITE_NAMES = [
 ]
 
 
+DEFAULT_INITIAL_QPOS = {
+    'robot0:WRJ1': -0.16514339750464327,
+    'robot0:WRJ0': -0.31973286565062153,
+    'robot0:FFJ3': 0.14340512546557435,
+    'robot0:FFJ2': 0.32028208333591573,
+    'robot0:FFJ1': 0.7126053607727917,
+    'robot0:FFJ0': 0.6705281001412586,
+    'robot0:MFJ3': 0.000246444303701037,
+    'robot0:MFJ2': 0.3152655251085491,
+    'robot0:MFJ1': 0.7659800313729842,
+    'robot0:MFJ0': 0.7323156897425923,
+    'robot0:RFJ3': 0.00038520700007378114,
+    'robot0:RFJ2': 0.36743546201985233,
+    'robot0:RFJ1': 0.7119514095008576,
+    'robot0:RFJ0': 0.6699446327514138,
+    'robot0:LFJ4': 0.0525442258033891,
+    'robot0:LFJ3': -0.13615534724474673,
+    'robot0:LFJ2': 0.39872030433433003,
+    'robot0:LFJ1': 0.7415570009679252,
+    'robot0:LFJ0': 0.704096378652974,
+    'robot0:THJ4': 0.003673823825070126,
+    'robot0:THJ3': 0.5506291436028695,
+    'robot0:THJ2': -0.014515151997119306,
+    'robot0:THJ1': -0.0015229223564485414,
+    'robot0:THJ0': -0.7894883021600622,
+}
+
+
 def goal_distance(goal_a, goal_b):
     assert goal_a.shape == goal_b.shape
     return np.linalg.norm(goal_a - goal_b, axis=-1)
 
 
 class HandReachEnv(hand_env.HandEnv, utils.EzPickle):
-    def __init__(self, dist_threshold=0.02, n_substeps=20, relative_control=False):
-        self.dist_threshold = dist_threshold
+    def __init__(
+        self, distance_threshold=0.02, n_substeps=20, relative_control=False,
+        initial_qpos=DEFAULT_INITIAL_QPOS
+    ):
+        self.distance_threshold = distance_threshold
 
-        initial_qpos = {
-            'robot0:WRJ1': -0.16514339750464327,
-            'robot0:WRJ0': -0.31973286565062153,
-            'robot0:FFJ3': 0.14340512546557435,
-            'robot0:FFJ2': 0.32028208333591573,
-            'robot0:FFJ1': 0.7126053607727917,
-            'robot0:FFJ0': 0.6705281001412586,
-            'robot0:MFJ3': 0.000246444303701037,
-            'robot0:MFJ2': 0.3152655251085491,
-            'robot0:MFJ1': 0.7659800313729842,
-            'robot0:MFJ0': 0.7323156897425923,
-            'robot0:RFJ3': 0.00038520700007378114,
-            'robot0:RFJ2': 0.36743546201985233,
-            'robot0:RFJ1': 0.7119514095008576,
-            'robot0:RFJ0': 0.6699446327514138,
-            'robot0:LFJ4': 0.0525442258033891,
-            'robot0:LFJ3': -0.13615534724474673,
-            'robot0:LFJ2': 0.39872030433433003,
-            'robot0:LFJ1': 0.7415570009679252,
-            'robot0:LFJ0': 0.704096378652974,
-            'robot0:THJ4': 0.003673823825070126,
-            'robot0:THJ3': 0.5506291436028695,
-            'robot0:THJ2': -0.014515151997119306,
-            'robot0:THJ1': -0.0015229223564485414,
-            'robot0:THJ0': -0.7894883021600622,
-        }
         hand_env.HandEnv.__init__(
             self, 'hand/reach.xml', n_substeps=n_substeps, initial_qpos=initial_qpos,
             relative_control=relative_control)
@@ -63,7 +68,7 @@ class HandReachEnv(hand_env.HandEnv, utils.EzPickle):
 
     def compute_reward(self, achieved_goal, goal, info):
         d = goal_distance(achieved_goal, goal)
-        return -(d > self.dist_threshold).astype(np.float32)
+        return -(d > self.distance_threshold).astype(np.float32)
 
     # RobotEnv methods
     # ----------------------------
@@ -115,7 +120,7 @@ class HandReachEnv(hand_env.HandEnv, utils.EzPickle):
 
     def _is_success(self, achieved_goal, goal):
         d = goal_distance(achieved_goal, goal)
-        return (d < self.dist_threshold).astype(np.float32)
+        return (d < self.distance_threshold).astype(np.float32)
 
     def _render_callback(self):
         # Visualize targets.

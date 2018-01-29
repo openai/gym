@@ -18,5 +18,5 @@ class FetchPushEnv(fetch_env.FetchEnv, utils.EzPickle):
         fetch_env.FetchEnv.__init__(
             self, 'fetch/push.xml', has_box=True, block_gripper=True, n_substeps=20,
             gripper_extra_height=0.0, target_in_the_air=False, target_x_shift=0.0,
-            obj_range=0.15, target_range=0.15, dist_threshold=0.05, initial_qpos=initial_qpos)
+            obj_range=0.15, target_range=0.15, distance_threshold=0.05, initial_qpos=initial_qpos)
         utils.EzPickle.__init__(self)
