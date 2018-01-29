@@ -1,16 +1,10 @@
 import os
 import copy
+import numpy as np
 
+import gym
 from gym import error, spaces
 from gym.utils import seeding
-from mujoco_py import const
-import numpy as np
-from os import path
-import gym
-import six
-from gym import utils, error
-
-from gym.envs.hand import rotations
 
 try:
     import mujoco_py
@@ -32,10 +26,13 @@ def set_action(sim, action, relative=False):
     if relative:
         actuation_center = np.zeros_like(action)
         for i in range(sim.data.ctrl.shape[0]):
-            actuation_center[i] = sim.data.get_joint_qpos(sim.model.actuator_names[i].replace(':A_', ':'))
+            actuation_center[i] = sim.data.get_joint_qpos(
+                sim.model.actuator_names[i].replace(':A_', ':'))
         for joint_name in ['FF', 'MF', 'RF', 'LF']:
-            act_idx = sim.model.actuator_name2id('robot0:A_{}J1'.format(joint_name))
-            actuation_center[act_idx] += sim.data.get_joint_qpos("robot0:{}J0".format(joint_name))
+            act_idx = sim.model.actuator_name2id(
+                'robot0:A_{}J1'.format(joint_name))
+            actuation_center[act_idx] += sim.data.get_joint_qpos(
+                'robot0:{}J0'.format(joint_name))
     else:
         actuation_center = (ctrlrange[:, 1] + ctrlrange[:, 0]) / 2.
 
@@ -165,7 +162,7 @@ class HandEnv(gym.GoalEnv):
         did_reset_sim = False
         while not did_reset_sim:
             did_reset_sim = self._reset_simulation()
-        
+
         self.goal = self._sample_goal().copy()
         obs = self._get_obs()
         if self.viewer is not None:

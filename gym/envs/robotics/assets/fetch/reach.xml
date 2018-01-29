@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mujoco>
-	<compiler angle="radian" coordinate="local" meshdir="stls" texturedir="textures"></compiler>
+	<compiler angle="radian" coordinate="local" meshdir="../stls/fetch" texturedir="../textures"></compiler>
 	<option timestep="0.002">
 		<flag warmstart="enable"></flag>
 	</option>
@@ -14,22 +14,12 @@
 		</body>
 
 		<include file="robot.xml"></include>
-
+		
 		<body pos="0.25 0.35 0.2" name="table_table20:table_table20">
 			<geom size="0.25 0.35 0.2" type="box" mass="2000" rgba="1.5 1.5 1.5 1"></geom>
 			<joint name="table_table20:slide0" type="slide" axis="1 0 0" damping="10000" pos="0 0 0"></joint>
 			<joint name="table_table20:slide1" type="slide" axis="0 1 0" damping="10000" pos="0 0 0"></joint>
 			<joint name="table_table20:slide2" type="slide" axis="0 0 1" damping="10000" pos="0 0 0"></joint>
-		</body>
-		<body name="geom0" pos="0.025 0.025 0.025">
-			<joint name="geom0:slide0" axis="1 0 0" type="slide" damping="0.01" pos="0 0 0"></joint>
-			<joint name="geom0:slide1" axis="0 1 0" type="slide" damping="0.01" pos="0 0 0"></joint>
-			<joint name="geom0:slide2" axis="0 0 1" type="slide" damping="0.01" pos="0 0 0"></joint>
-			<joint name="geom0:hinge0" axis="1 0 0" type="hinge" damping="0.01" pos="0 0 0"></joint>
-			<joint name="geom0:hinge1" axis="0 1 0" type="hinge" damping="0.01" pos="0 0 0"></joint>
-			<joint name="geom0:hinge2" axis="0 0 1" type="hinge" damping="0.01" pos="0 0 0"></joint>
-			<geom size="0.025 0.025 0.025" type="box" condim="3" name="geom0" material="material0" mass="2"></geom>
-			<site name="geom0" pos="0 0 0" size="0.02 0.02 0.02" rgba="1 0 0 1" type="sphere"></site>
 		</body>
 	</worldbody>
 	

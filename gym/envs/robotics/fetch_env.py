@@ -1,13 +1,11 @@
 import os
 import copy
+import numpy as np
 
+import gym
 from gym import error, spaces
 from gym.utils import seeding
-from mujoco_py import const
-import numpy as np
-from os import path
-import gym
-import six
+from gym.envs.robotics import rotations
 
 try:
     import mujoco_py
@@ -66,7 +64,7 @@ def reset_mocap2body_xpos(sim):
     for eq_type, obj1_id, obj2_id in zip(sim.model.eq_type,
                                          sim.model.eq_obj1id,
                                          sim.model.eq_obj2id):
-        if eq_type != const.EQ_WELD:
+        if eq_type != mujoco_py.const.EQ_WELD:
             continue
 
         mocap_id = sim.model.body_mocapid[obj1_id]
@@ -91,28 +89,6 @@ def robot_get_obs(sim):
     return np.zeros(0), np.zeros(0)
 
 
-def mat2euler(mat):
-    """
-    Converts a rotation matrix (or a batch thereof) to euler angles.
-    """
-    mat = np.asarray(mat, dtype=np.float64)
-    assert mat.shape[-2:] == (3, 3), "Invalid shape matrix {}".format(mat)
-
-    cy = np.sqrt(mat[..., 2, 2] * mat[..., 2, 2] + mat[..., 1, 2] * mat[..., 1, 2])
-    condition = cy > np.finfo(np.float64).eps * 4.
-    euler = np.empty(mat.shape[:-1], dtype=np.float64)
-    euler[..., 2] = np.where(condition,
-                             -np.arctan2(mat[..., 0, 1], mat[..., 0, 0]),
-                             -np.arctan2(-mat[..., 1, 0], mat[..., 1, 1]))
-    euler[..., 1] = np.where(condition,
-                             -np.arctan2(-mat[..., 0, 2], cy),
-                             -np.arctan2(-mat[..., 0, 2], cy))
-    euler[..., 0] = np.where(condition,
-                             -np.arctan2(mat[..., 1, 2], mat[..., 2, 2]),
-                             0.0)
-    return euler
-
-
 def set_action(sim, action):
     ctrl_set_action(sim, action)
     mocap_set_action(sim, action)
@@ -130,7 +106,7 @@ class FetchEnv(gym.GoalEnv):
             fullpath = model_path
         else:
             fullpath = os.path.join(os.path.dirname(__file__), "assets", model_path)
-        if not path.exists(fullpath):
+        if not os.path.exists(fullpath):
             raise IOError("File %s does not exist" % fullpath)
         
         self.n_substeps = n_substeps
@@ -210,7 +186,7 @@ class FetchEnv(gym.GoalEnv):
         if self.has_box:
             box_pos = self.sim.data.get_site_xpos('geom0')
             # rotations
-            box_rot = mat2euler(self.sim.data.get_site_xmat('geom0'))
+            box_rot = rotations.mat2euler(self.sim.data.get_site_xmat('geom0'))
             # velocities
             box_velp = self.sim.data.get_site_xvelp('geom0') * dt
             box_velr = self.sim.data.get_site_xvelr('geom0') * dt
@@ -337,7 +313,7 @@ class FetchEnv(gym.GoalEnv):
         # Places mocap where related bodies are.
         if self.sim.model.nmocap > 0 and self.sim.model.eq_data is not None:
             for i in range(self.sim.model.eq_data.shape[0]):
-                if self.sim.model.eq_type[i] == const.EQ_WELD:
+                if self.sim.model.eq_type[i] == mujoco_py.const.EQ_WELD:
                     self.sim.model.eq_data[i, :] = np.array(
                         [0., 0., 0., 1., 0., 0., 0.])
         self.sim.forward()

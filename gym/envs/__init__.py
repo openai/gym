@@ -296,79 +296,79 @@ register(
 
 register(
     id='FetchSlide-v0',
-    entry_point='gym.envs.fetch:FetchSlideEnv',
+    entry_point='gym.envs.robotics:FetchSlideEnv',
 )
 
 register(
     id='FetchPickAndPlace-v0',
-    entry_point='gym.envs.fetch:FetchPickAndPlaceEnv',
+    entry_point='gym.envs.robotics:FetchPickAndPlaceEnv',
 )
 
 register(
     id='FetchReach-v0',
-    entry_point='gym.envs.fetch:FetchReachEnv',
+    entry_point='gym.envs.robotics:FetchReachEnv',
 )
 
 register(
     id='FetchPush-v0',
-    entry_point='gym.envs.fetch:FetchPushEnv',
+    entry_point='gym.envs.robotics:FetchPushEnv',
 )
 
 # Hand
 # ----------------------------------------
 
-register(
-    id='HandReach-v0',
-    entry_point='gym.envs.hand:ReachEnv',
-)
+# register(
+#     id='HandReach-v0',
+#     entry_point='gym.envs.hand:ReachEnv',
+# )
 
-register(
-    id='HandManipulateBlockRotateZ-v0',
-    entry_point='gym.envs.hand:BlockEnv',
-    kwargs={'target_pos': 'ignore', 'target_rot': 'z'},
-)
+# register(
+#     id='HandManipulateBlockRotateZ-v0',
+#     entry_point='gym.envs.hand:BlockEnv',
+#     kwargs={'target_pos': 'ignore', 'target_rot': 'z'},
+# )
 
-register(
-    id='HandManipulateBlockRotateParallel-v0',
-    entry_point='gym.envs.hand:BlockEnv',
-    kwargs={'target_pos': 'ignore', 'target_rot': 'parallel'},
-)
+# register(
+#     id='HandManipulateBlockRotateParallel-v0',
+#     entry_point='gym.envs.hand:BlockEnv',
+#     kwargs={'target_pos': 'ignore', 'target_rot': 'parallel'},
+# )
 
-register(
-    id='HandManipulateBlockRotateXYZ-v0',
-    entry_point='gym.envs.hand:BlockEnv',
-    kwargs={'target_pos': 'ignore', 'target_rot': 'xyz'},
-)
+# register(
+#     id='HandManipulateBlockRotateXYZ-v0',
+#     entry_point='gym.envs.hand:BlockEnv',
+#     kwargs={'target_pos': 'ignore', 'target_rot': 'xyz'},
+# )
 
-register(
-    id='HandManipulateBlockFull-v0',
-    entry_point='gym.envs.hand:BlockEnv',
-    kwargs={'target_pos': 'random', 'target_rot': 'xyz'},
-)
+# register(
+#     id='HandManipulateBlockFull-v0',
+#     entry_point='gym.envs.hand:BlockEnv',
+#     kwargs={'target_pos': 'random', 'target_rot': 'xyz'},
+# )
 
-register(
-    id='HandManipulateEggRotateXYZ-v0',
-    entry_point='gym.envs.hand:EggEnv',
-    kwargs={'target_pos': 'ignore', 'target_rot': 'xyz'},
-)
+# register(
+#     id='HandManipulateEggRotateXYZ-v0',
+#     entry_point='gym.envs.hand:EggEnv',
+#     kwargs={'target_pos': 'ignore', 'target_rot': 'xyz'},
+# )
 
-register(
-    id='HandManipulateEggFull-v0',
-    entry_point='gym.envs.hand:EggEnv',
-    kwargs={'target_pos': 'random', 'target_rot': 'xyz'},
-)
+# register(
+#     id='HandManipulateEggFull-v0',
+#     entry_point='gym.envs.hand:EggEnv',
+#     kwargs={'target_pos': 'random', 'target_rot': 'xyz'},
+# )
 
-register(
-    id='HandManipulatePenRotateXYZ-v0',
-    entry_point='gym.envs.hand:PenEnv',
-    kwargs={'target_pos': 'ignore', 'target_rot': 'xyz'},
-)
+# register(
+#     id='HandManipulatePenRotateXYZ-v0',
+#     entry_point='gym.envs.hand:PenEnv',
+#     kwargs={'target_pos': 'ignore', 'target_rot': 'xyz'},
+# )
 
-register(
-    id='HandManipulatePenFull-v0',
-    entry_point='gym.envs.hand:PenEnv',
-    kwargs={'target_pos': 'random', 'target_rot': 'xyz'},
-)
+# register(
+#     id='HandManipulatePenFull-v0',
+#     entry_point='gym.envs.hand:PenEnv',
+#     kwargs={'target_pos': 'random', 'target_rot': 'xyz'},
+# )
 
 # Atari
 # ----------------------------------------
