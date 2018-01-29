@@ -243,17 +243,20 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
         The goal is to test with randomized positions which range between the boundries of the H-ROS logo
         """
         print("In randomize target positions.")
-        EE_POS_TGT_RANDOM = np.asmatrix([np.random.uniform(0.2852485,0.3883636), np.random.uniform(-0.1746508,0.1701576), 0.3746]) # boundry box of the H-ROS letters with +-0.01 offset
+        EE_POS_TGT_RANDOM1 = np.asmatrix([np.random.uniform(0.2852485,0.33680605), np.random.uniform(-0.1746508,0.0), 0.3746]) # boundry box of the first half H-ROS letters with +-0.01 offset
+        EE_POS_TGT_RANDOM2 = np.asmatrix([np.random.uniform(0.33680605,0.3883636), np.random.uniform(0.0,0.1701576), 0.3746]) # boundry box of the H-ROS letters with +-0.01 offset
         EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         EE_POINTS = np.asmatrix([[0, 0, 0]])
-        ee_pos_tgt_random = EE_POS_TGT_RANDOM
+        ee_pos_tgt_random1 = EE_POS_TGT_RANDOM1
+        ee_pos_tgt_random2 = EE_POS_TGT_RANDOM2
 
         # leave rotation target same since in scara we do not have rotation of the end-effector
         ee_rot_tgt = EE_ROT_TGT
+        target1 = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt_random1, ee_rot_tgt).T)
+        target2 = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt_random2, ee_rot_tgt).T)
 
-        self.realgoal = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt_random, ee_rot_tgt).T)
-
-        print("randomize randomizeTargetPositions realgoal: ", self.realgoal)
+        self.realgoal = target1 if np.random.uniform() < 0.5 else target2
+        print("randomizeTarget realgoal: ", self.realgoal)
 
     def randomizeTarget(self):
         print("calling randomize target")
@@ -286,7 +289,7 @@ class GazeboModularScara3DOFv3Env(gazebo_env.GazeboEnv):
         print("calling randomize multiple targets")
 
         EE_POS_TGT_1 = np.asmatrix([0.3305805, -0.1326121, 0.3746]) # center of the H
-        EE_POS_TGT_2 = np.asmatrix([0.3477431, -0.3305805, 0.3746]) # center of H left
+        EE_POS_TGT_2 = np.asmatrix([0.3305805, -0.0985179, 0.3746]) # center of H right
         EE_POS_TGT_3 = np.asmatrix([0.3325683, 0.0657366, 0.3746]) # center of O
         EE_POS_TGT_4 = np.asmatrix([0.3355224, 0.0344309, 0.3746]) # center of O left
         EE_POS_TGT_5 = np.asmatrix([0.3013209, 0.1647450, 0.3746]) # S top right
