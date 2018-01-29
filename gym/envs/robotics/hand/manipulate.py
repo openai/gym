@@ -4,6 +4,11 @@ from gym import utils, error
 from gym.envs.robotics import rotations, hand_env
 from gym.envs.robotics.utils import robot_get_obs
 
+try:
+    import mujoco_py
+except ImportError as e:
+    raise error.DependencyNotInstalled("{}. (HINT: you need to install mujoco_py, and also perform the setup instructions here: https://github.com/openai/mujoco-py/.)".format(e))
+
 
 def goal_distance(goal_a, goal_b, pos_mul, compute_rotation):
     assert goal_a.shape == goal_b.shape
@@ -64,6 +69,13 @@ class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
             self, model_path, n_substeps=20, initial_qpos=initial_qpos, relative_control=False)
         utils.EzPickle.__init__(self)
 
+    def _get_achieved_goal(self):
+        # Block position and rotation.
+        block_qpos = get_block_qpos(self.sim, self.sim.data.qpos)
+        assert block_qpos.shape == (6,)
+        block_qpos[3:] = rotations.normalize_angles(block_qpos[3:])
+        return block_qpos.copy()
+
     # GoalEnv methods
     # ----------------------------
 
@@ -90,9 +102,9 @@ class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
     def _reset_sim(self):
         self.sim.set_state(self.initial_state)
         self.sim.forward()
-        
+
         initial_qpos = get_block_qpos(self.sim, self.initial_state.qpos).copy()
-        
+
         # Randomization initial rotation.
         if self.randomize_initial_rot:
             uniform_rot = np.random.uniform(0.0, 2 * np.pi, size=(3,))
@@ -121,8 +133,7 @@ class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
 
         # Run the simulation for a bunch of timesteps to let everything settle in.
         for _ in range(10):
-            # TODO: add ability to run action!
-            #hand_env.set_action(self.sim, np.zeros(20))
+            self._set_action(np.zeros(20))
             try:
                 self.sim.step()
             except mujoco_py.MujocoException:
@@ -166,13 +177,6 @@ class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
 
         goal = np.concatenate([target_pos, rotations.normalize_angles(target_rot)])
         return goal
-
-    def _get_achieved_goal(self):
-        # Block position and rotation.
-        block_qpos = get_block_qpos(self.sim, self.sim.data.qpos)
-        assert block_qpos.shape == (6,)
-        block_qpos[3:] = rotations.normalize_angles(block_qpos[3:])
-        return block_qpos.copy()
 
     def _render_callback(self):
         joint_names_pos = ['target:tx', 'target:ty', 'target:tz']
