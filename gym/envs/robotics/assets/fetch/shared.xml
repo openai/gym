@@ -2,22 +2,15 @@
     <asset>
         <texture type="skybox" builtin="gradient" rgb1="1 1 1" rgb2="1 1 1" width="32" height="32"></texture>
         <texture name="texture_material1" type="2d" builtin="none" file="wood.png"></texture>
-        <texture builtin="flat" name="robot0:texgeom" height="32" width="32" rgb1="1 1 1" type="cube" rgb2="1 1 1"></texture>
-        <texture builtin="flat" name="robot0:gripper_finger_tex" height="32" width="32" rgb1="1 1 1" type="cube" rgb2="1 1 1"></texture>
-        <texture builtin="flat" name="robot0:gripper_tex" height="32" width="32" rgb1="1 1 1" type="cube" rgb2="1 1 1"></texture>
-        <texture builtin="flat" name="robot0:arm_tex" height="32" width="32" rgb1="1 1 1" type="cube" rgb2="1 1 1"></texture>
-        <texture builtin="flat" name="robot0:head_tex" height="32" width="32" rgb1="1 1 1" type="cube" rgb2="1 1 1"></texture>
-        <texture builtin="flat" name="robot0:torso_tex" height="32" width="32" rgb1="1 1 1" type="cube" rgb2="1 1 1"></texture>
-        <texture builtin="flat" name="robot0:base_tex" height="32" width="32" rgb1="1 1 1" type="cube" rgb2="1 1 1"></texture>
 
         <material name="material1" texture="texture_material1"></material>
-        <material name="robot0:geomMat" shininess="0.03" specular="0.75" texture="robot0:texgeom" reflectance="0"></material>
-        <material name="robot0:gripper_finger_mat" shininess="0.03" specular="0.75" texture="robot0:gripper_finger_tex" reflectance="0"></material>
-        <material name="robot0:gripper_mat" shininess="0.03" specular="0.75" texture="robot0:gripper_tex" reflectance="0"></material>
-        <material name="robot0:arm_mat" shininess="0.03" specular="0.75" texture="robot0:arm_tex" reflectance="0"></material>
-        <material name="robot0:head_mat" shininess="0.03" specular="0.75" texture="robot0:head_tex" reflectance="0"></material>
-        <material name="robot0:torso_mat" shininess="0.03" specular="0.75" texture="robot0:torso_tex" reflectance="0"></material>
-        <material name="robot0:base_mat" shininess="0.03" specular="0.75" texture="robot0:base_tex" reflectance="0"></material>
+        <material name="robot0:geomMat" shininess="0.03" specular="0.4"></material>
+        <material name="robot0:gripper_finger_mat" shininess="0.03" specular="0.4" reflectance="0"></material>
+        <material name="robot0:gripper_mat" shininess="0.03" specular="0.4" reflectance="0"></material>
+        <material name="robot0:arm_mat" shininess="0.03" specular="0.4" reflectance="0"></material>
+        <material name="robot0:head_mat" shininess="0.03" specular="0.4" reflectance="0"></material>
+        <material name="robot0:torso_mat" shininess="0.03" specular="0.4" reflectance="0"></material>
+        <material name="robot0:base_mat" shininess="0.03" specular="0.4" reflectance="0"></material>
         <material name="material0" specular="0.247985" shininess="0.21864" reflectance="0" rgba="0 1 0 1"></material>
         
         <mesh file="base_link_collision.stl" name="robot0:base_link"></mesh>
@@ -52,11 +45,19 @@
     
     <default>
         <default class="robot0:fetch">
-            <geom margin="0.001" material="robot0:geomMat" rgba="1 1 1 1" solimp="0.99 0.99 0.01" solref="0.01 1" type="mesh" user="0"></geom>
+            <geom margin="0.001" material="robot0:geomMat" rgba="2 2 2 1" solimp="0.99 0.99 0.01" solref="0.01 1" type="mesh" user="0"></geom>
             <joint armature="1" damping="50" frictionloss="0" stiffness="0"></joint>
+            
             <default class="robot0:fetchGripper">
-                <geom condim="4" margin="0.001" type="box" user="0"></geom>
+                <geom condim="4" margin="0.001" type="box" user="0" rgba="0.356 0.361 0.376 1.0"></geom>
                 <joint armature="100" damping="1000" limited="true" solimplimit="0.99 0.999 0.01" solreflimit="0.01 1" type="slide"></joint>
+            </default>
+
+            <default class="robot0:grey">
+                <geom rgba="0.356 0.361 0.376 1.0"></geom>
+            </default>
+            <default class="robot0:blue">
+                <geom rgba="0.086 0.506 0.767 1.0"></geom>
             </default>
         </default>
     </default>
