@@ -281,6 +281,9 @@ class Wrapper(Env):
     def seed(self, seed=None):
         return self.env.seed(seed)
 
+    def compute_reward(self, achieved_goal, goal, info):
+        return self.env.compute_reward(achieved_goal, goal, info)
+
     def __str__(self):
         return '<{}{}>'.format(type(self).__name__, self.env)
 
