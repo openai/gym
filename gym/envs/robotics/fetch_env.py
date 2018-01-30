@@ -98,6 +98,15 @@ class FetchEnv(robot_env.RobotEnv):
             'goal': self.goal.copy(),
         }
 
+    def _viewer_setup(self):
+        body_id = self.sim.model.body_name2id('robot0:gripper_link')
+        lookat = self.sim.data.body_xpos[body_id]
+        for idx, value in enumerate(lookat):
+            self.viewer.cam.lookat[idx] = value
+        self.viewer.cam.distance = 2.5
+        self.viewer.cam.azimuth = 132.
+        self.viewer.cam.elevation = -14.
+
     def _render_callback(self):
         # Visualize target.
         sites_offset = (self.sim.data.site_xpos - self.sim.model.site_pos).copy()

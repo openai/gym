@@ -38,3 +38,12 @@ class HandEnv(robot_env.RobotEnv):
             actuation_center = (ctrlrange[:, 1] + ctrlrange[:, 0]) / 2.
         self.sim.data.ctrl[:] = actuation_center + action * actuation_range
         self.sim.data.ctrl[:] = np.clip(self.sim.data.ctrl, ctrlrange[:, 0], ctrlrange[:, 1])
+
+    def _viewer_setup(self):
+        body_id = self.sim.model.body_name2id('robot0:palm')
+        lookat = self.sim.data.body_xpos[body_id]
+        for idx, value in enumerate(lookat):
+            self.viewer.cam.lookat[idx] = value
+        self.viewer.cam.distance = 0.5
+        self.viewer.cam.azimuth = 55.
+        self.viewer.cam.elevation = -25.
