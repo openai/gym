@@ -50,9 +50,10 @@ def goal_distance(goal_a, goal_b):
 class HandReachEnv(hand_env.HandEnv, utils.EzPickle):
     def __init__(
         self, distance_threshold=0.02, n_substeps=20, relative_control=False,
-        initial_qpos=DEFAULT_INITIAL_QPOS
+        initial_qpos=DEFAULT_INITIAL_QPOS, reward_type='sparse',
     ):
         self.distance_threshold = distance_threshold
+        self.reward_type = reward_type
 
         hand_env.HandEnv.__init__(
             self, 'hand/reach.xml', n_substeps=n_substeps, initial_qpos=initial_qpos,
@@ -68,7 +69,10 @@ class HandReachEnv(hand_env.HandEnv, utils.EzPickle):
 
     def compute_reward(self, achieved_goal, goal, info):
         d = goal_distance(achieved_goal, goal)
-        return -(d > self.distance_threshold).astype(np.float32)
+        if self.reward_type == 'sparse':
+            return -(d > self.distance_threshold).astype(np.float32)
+        else:
+            return -d
 
     # RobotEnv methods
     # ----------------------------

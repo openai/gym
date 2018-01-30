@@ -291,97 +291,111 @@ register(
     max_episode_steps=1000,
 )
 
-# Fetch
+# Robotics
 # ----------------------------------------
 
-register(
-    id='FetchSlide-v0',
-    entry_point='gym.envs.robotics:FetchSlideEnv',
-    max_episode_steps=50,
-)
+def merge(a, b):
+    a.update(b)
+    return a
 
-register(
-    id='FetchPickAndPlace-v0',
-    entry_point='gym.envs.robotics:FetchPickAndPlaceEnv',
-    max_episode_steps=50,
-)
+for reward_type in ['sparse', 'dense']:
+    suffix = 'Dense' if reward_type == 'dense' else ''
+    kwargs = {
+        'reward_type': reward_type,
+    }
 
-register(
-    id='FetchReach-v0',
-    entry_point='gym.envs.robotics:FetchReachEnv',
-    max_episode_steps=50,
-)
+    # Fetch
+    register(
+        id='FetchSlide{}-v0'.format(suffix),
+        entry_point='gym.envs.robotics:FetchSlideEnv',
+        kwargs=kwargs,
+        max_episode_steps=50,
+    )
 
-register(
-    id='FetchPush-v0',
-    entry_point='gym.envs.robotics:FetchPushEnv',
-    max_episode_steps=50,
-)
+    register(
+        id='FetchPickAndPlace{}-v0'.format(suffix),
+        entry_point='gym.envs.robotics:FetchPickAndPlaceEnv',
+        kwargs=kwargs,
+        max_episode_steps=50,
+    )
 
-# Hand
-# ----------------------------------------
+    register(
+        id='FetchReach{}-v0'.format(suffix),
+        entry_point='gym.envs.robotics:FetchReachEnv',
+        kwargs=kwargs,
+        max_episode_steps=50,
+    )
 
-register(
-    id='HandReach-v0',
-    entry_point='gym.envs.robotics:HandReachEnv',
-    max_episode_steps=100,
-)
+    register(
+        id='FetchPush{}-v0'.format(suffix),
+        entry_point='gym.envs.robotics:FetchPushEnv',
+        kwargs=kwargs,
+        max_episode_steps=50,
+    )
 
-register(
-    id='HandManipulateBlockRotateZ-v0',
-    entry_point='gym.envs.robotics:HandBlockEnv',
-    kwargs={'target_position': 'ignore', 'target_rotation': 'z'},
-    max_episode_steps=100,
-)
+    # Hand
+    register(
+        id='HandReach{}-v0'.format(suffix),
+        entry_point='gym.envs.robotics:HandReachEnv',
+        kwargs=kwargs,
+        max_episode_steps=100,
+    )
 
-register(
-    id='HandManipulateBlockRotateParallel-v0',
-    entry_point='gym.envs.robotics:HandBlockEnv',
-    kwargs={'target_position': 'ignore', 'target_rotation': 'parallel'},
-    max_episode_steps=100,
-)
+    register(
+        id='HandManipulateBlockRotateZ{}-v0'.format(suffix),
+        entry_point='gym.envs.robotics:HandBlockEnv',
+        kwargs=merge({'target_position': 'ignore', 'target_rotation': 'z'}, kwargs),
+        max_episode_steps=100,
+    )
 
-register(
-    id='HandManipulateBlockRotateXYZ-v0',
-    entry_point='gym.envs.robotics:HandBlockEnv',
-    kwargs={'target_position': 'ignore', 'target_rotation': 'xyz'},
-    max_episode_steps=100,
-)
+    register(
+        id='HandManipulateBlockRotateParallel{}-v0'.format(suffix),
+        entry_point='gym.envs.robotics:HandBlockEnv',
+        kwargs=merge({'target_position': 'ignore', 'target_rotation': 'parallel'}, kwargs),
+        max_episode_steps=100,
+    )
 
-register(
-    id='HandManipulateBlockFull-v0',
-    entry_point='gym.envs.robotics:HandBlockEnv',
-    kwargs={'target_position': 'random', 'target_rotation': 'xyz'},
-    max_episode_steps=100,
-)
+    register(
+        id='HandManipulateBlockRotateXYZ{}-v0'.format(suffix),
+        entry_point='gym.envs.robotics:HandBlockEnv',
+        kwargs=merge({'target_position': 'ignore', 'target_rotation': 'xyz'}, kwargs),
+        max_episode_steps=100,
+    )
 
-register(
-    id='HandManipulateEggRotateXYZ-v0',
-    entry_point='gym.envs.robotics:HandEggEnv',
-    kwargs={'target_position': 'ignore', 'target_rotation': 'xyz'},
-    max_episode_steps=100,
-)
+    register(
+        id='HandManipulateBlockFull{}-v0'.format(suffix),
+        entry_point='gym.envs.robotics:HandBlockEnv',
+        kwargs=merge({'target_position': 'random', 'target_rotation': 'xyz'}, kwargs),
+        max_episode_steps=100,
+    )
 
-register(
-    id='HandManipulateEggFull-v0',
-    entry_point='gym.envs.robotics:HandEggEnv',
-    kwargs={'target_position': 'random', 'target_rotation': 'xyz'},
-    max_episode_steps=100,
-)
+    register(
+        id='HandManipulateEggRotateXYZ{}-v0'.format(suffix),
+        entry_point='gym.envs.robotics:HandEggEnv',
+        kwargs=merge({'target_position': 'ignore', 'target_rotation': 'xyz'}, kwargs),
+        max_episode_steps=100,
+    )
 
-register(
-    id='HandManipulatePenRotateXYZ-v0',
-    entry_point='gym.envs.robotics:HandPenEnv',
-    kwargs={'target_position': 'ignore', 'target_rotation': 'xyz'},
-    max_episode_steps=100,
-)
+    register(
+        id='HandManipulateEggFull{}-v0'.format(suffix),
+        entry_point='gym.envs.robotics:HandEggEnv',
+        kwargs=merge({'target_position': 'random', 'target_rotation': 'xyz'}, kwargs),
+        max_episode_steps=100,
+    )
 
-register(
-    id='HandManipulatePenFull-v0',
-    entry_point='gym.envs.robotics:HandPenEnv',
-    kwargs={'target_position': 'random', 'target_rotation': 'xyz'},
-    max_episode_steps=100,
-)
+    register(
+        id='HandManipulatePenRotateXYZ{}-v0'.format(suffix),
+        entry_point='gym.envs.robotics:HandPenEnv',
+        kwargs=merge({'target_position': 'ignore', 'target_rotation': 'xyz'}, kwargs),
+        max_episode_steps=100,
+    )
+
+    register(
+        id='HandManipulatePenFull{}-v0'.format(suffix),
+        entry_point='gym.envs.robotics:HandPenEnv',
+        kwargs=merge({'target_position': 'random', 'target_rotation': 'xyz'}, kwargs),
+        max_episode_steps=100,
+    )
 
 # Atari
 # ----------------------------------------

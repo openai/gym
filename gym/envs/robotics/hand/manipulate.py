@@ -56,9 +56,9 @@ def get_block_qvel(sim, qvel):
 class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
     def __init__(
         self, model_path, target_position, target_rotation, position_weight,
-        target_position_range, initial_qpos={}, randomize_initial_position=True,
-        randomize_initial_rotation=True, distance_threshold=0.4, n_substeps=20,
-        relative_control=False
+        target_position_range, reward_type, initial_qpos={},
+        randomize_initial_position=True, randomize_initial_rotation=True,
+        distance_threshold=0.4, n_substeps=20, relative_control=False
     ):
         self.target_position = target_position
         self.target_rotation = target_rotation
@@ -68,6 +68,7 @@ class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
         self.randomize_initial_rotation = randomize_initial_rotation
         self.randomize_initial_position = randomize_initial_position
         self.distance_threshold = distance_threshold
+        self.reward_type = reward_type
 
         hand_env.HandEnv.__init__(
             self, model_path, n_substeps=n_substeps, initial_qpos=initial_qpos,
@@ -88,7 +89,10 @@ class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
         d = goal_distance(
             achieved_goal, goal, position_weight=self.position_weight,
             compute_rotation=self.target_rotation != 'ignore')
-        return -(d > self.distance_threshold).astype(np.float32)
+        if self.reward_type == 'sparse':
+            return -(d > self.distance_threshold).astype(np.float32)
+        else:
+            return -d
 
     # RobotEnv methods
     # ----------------------------
@@ -210,23 +214,25 @@ class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
 
 
 class HandBlockEnv(ManipulateEnv):
-    def __init__(self, target_position='random', target_rotation='xyz'):
+    def __init__(self, target_position='random', target_rotation='xyz', reward_type='sparse'):
         super(HandBlockEnv, self).__init__(
             model_path='hand/manipulate_block.xml', target_position=target_position,
             target_rotation=target_rotation, position_weight=25.,
-            target_position_range=np.array([(-0.04, 0.04), (-0.06, 0.02), (0.0, 0.06)]))
+            target_position_range=np.array([(-0.04, 0.04), (-0.06, 0.02), (0.0, 0.06)]),
+            reward_type=reward_type)
 
 
 class HandEggEnv(ManipulateEnv):
-    def __init__(self, target_position='random', target_rotation='xyz'):
+    def __init__(self, target_position='random', target_rotation='xyz', reward_type='sparse'):
         super(HandEggEnv, self).__init__(
             model_path='hand/manipulate_egg.xml', target_position=target_position,
             target_rotation=target_rotation, position_weight=25.,
-            target_position_range=np.array([(-0.04, 0.04), (-0.06, 0.02), (0.0, 0.06)]))
+            target_position_range=np.array([(-0.04, 0.04), (-0.06, 0.02), (0.0, 0.06)]),
+            reward_type=reward_type)
 
 
 class HandPenEnv(ManipulateEnv):
-    def __init__(self, target_position='random', target_rotation='xyz'):
+    def __init__(self, target_position='random', target_rotation='xyz', reward_type='sparse'):
         initial_qpos = {
             'object:rx': 1.9500000000000015,
             'object:ry': 1.9500000000000015,
@@ -236,4 +242,5 @@ class HandPenEnv(ManipulateEnv):
             model_path='hand/manipulate_pen.xml', target_position=target_position,
             target_rotation=target_rotation, position_weight=25.,
             target_position_range=np.array([(-0.04, 0.04), (-0.06, 0.02), (0.0, 0.06)]),
-            initial_qpos=initial_qpos, randomize_initial_rotation=False)
+            initial_qpos=initial_qpos, randomize_initial_rotation=False,
+            reward_type=reward_type)
