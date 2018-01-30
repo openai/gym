@@ -9,7 +9,7 @@
     <default>
         <default class="robot0:asset_class">
             <geom friction="1 0.005 0.001" condim="3" margin="0.0005" contype="1" conaffinity="1"></geom>
-            <joint limited="true" damping="0.05" armature="0.001" margin="0.01" frictionloss="0.001"></joint>
+            <joint limited="true" damping="0.1" armature="0.001" margin="0.01" frictionloss="0.001"></joint>
             <site size="0.005" rgba="0.4 0.9 0.4 1"></site>
             <general ctrllimited="true" forcelimited="true"></general>
         </default>
