@@ -297,21 +297,25 @@ register(
 register(
     id='FetchSlide-v0',
     entry_point='gym.envs.robotics:FetchSlideEnv',
+    max_episode_steps=50,
 )
 
 register(
     id='FetchPickAndPlace-v0',
     entry_point='gym.envs.robotics:FetchPickAndPlaceEnv',
+    max_episode_steps=50,
 )
 
 register(
     id='FetchReach-v0',
     entry_point='gym.envs.robotics:FetchReachEnv',
+    max_episode_steps=50,
 )
 
 register(
     id='FetchPush-v0',
     entry_point='gym.envs.robotics:FetchPushEnv',
+    max_episode_steps=50,
 )
 
 # Hand
@@ -320,54 +324,63 @@ register(
 register(
     id='HandReach-v0',
     entry_point='gym.envs.robotics:HandReachEnv',
+    max_episode_steps=100,
 )
 
 register(
     id='HandManipulateBlockRotateZ-v0',
     entry_point='gym.envs.robotics:HandBlockEnv',
     kwargs={'target_position': 'ignore', 'target_rotation': 'z'},
+    max_episode_steps=100,
 )
 
 register(
     id='HandManipulateBlockRotateParallel-v0',
     entry_point='gym.envs.robotics:HandBlockEnv',
     kwargs={'target_position': 'ignore', 'target_rotation': 'parallel'},
+    max_episode_steps=100,
 )
 
 register(
     id='HandManipulateBlockRotateXYZ-v0',
     entry_point='gym.envs.robotics:HandBlockEnv',
     kwargs={'target_position': 'ignore', 'target_rotation': 'xyz'},
+    max_episode_steps=100,
 )
 
 register(
     id='HandManipulateBlockFull-v0',
     entry_point='gym.envs.robotics:HandBlockEnv',
     kwargs={'target_position': 'random', 'target_rotation': 'xyz'},
+    max_episode_steps=100,
 )
 
 register(
     id='HandManipulateEggRotateXYZ-v0',
     entry_point='gym.envs.robotics:HandEggEnv',
     kwargs={'target_position': 'ignore', 'target_rotation': 'xyz'},
+    max_episode_steps=100,
 )
 
 register(
     id='HandManipulateEggFull-v0',
     entry_point='gym.envs.robotics:HandEggEnv',
     kwargs={'target_position': 'random', 'target_rotation': 'xyz'},
+    max_episode_steps=100,
 )
 
 register(
     id='HandManipulatePenRotateXYZ-v0',
     entry_point='gym.envs.robotics:HandPenEnv',
     kwargs={'target_position': 'ignore', 'target_rotation': 'xyz'},
+    max_episode_steps=100,
 )
 
 register(
     id='HandManipulatePenFull-v0',
     entry_point='gym.envs.robotics:HandPenEnv',
     kwargs={'target_position': 'random', 'target_rotation': 'xyz'},
+    max_episode_steps=100,
 )
 
 # Atari
