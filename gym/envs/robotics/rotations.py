@@ -1,4 +1,3 @@
-# rotation.py - rotation methods for GPR
 # Many methods borrow heavily or entirely from transforms3d
 # eventually some of these may be upstreamed, but credit to transforms3d
 # authors for implementing the many of the formulations we use here.

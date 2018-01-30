@@ -8,6 +8,9 @@ except ImportError as e:
 
 
 def robot_get_obs(sim):
+    """Returns all joint positions and velocities associated with
+    a robot.
+    """
     if sim.data.qpos is not None and sim.model.joint_names:
         names = [n for n in sim.model.joint_names if n.startswith('robot')]
         return (
@@ -18,8 +21,7 @@ def robot_get_obs(sim):
 
 
 def ctrl_set_action(sim, action):
-    """
-    For torque actuators it copies the action into mujoco ctrl field.
+    """For torque actuators it copies the action into mujoco ctrl field.
     For position actuators it sets the target relative to the current qpos.
     """
     if sim.model.nmocap > 0:
@@ -34,14 +36,13 @@ def ctrl_set_action(sim, action):
 
 
 def mocap_set_action(sim, action):
-    """
-    The action controls the robot using mocaps. Specifically, bodies
+    """The action controls the robot using mocaps. Specifically, bodies
     on the robot (for example the gripper wrist) is controlled with
     mocap bodies. In this case the action is the desired difference
     in position and orientation (quaternion), in world coordinates,
     of the of the target body. The mocap is positioned relative to
     the target body according to the delta, and the MuJoCo equality
-    contraint optimizer tries to center the welded body on the mocap.
+    constraint optimizer tries to center the welded body on the mocap.
     """
     if sim.model.nmocap > 0:
         # TODO: this split should probably happen in simple_set_action
@@ -57,6 +58,8 @@ def mocap_set_action(sim, action):
 
 
 def reset_mocap_welds(sim):
+    """Resets the mocap welds that we use for actuation.
+    """
     if sim.model.nmocap > 0 and sim.model.eq_data is not None:
         for i in range(sim.model.eq_data.shape[0]):
             if sim.model.eq_type[i] == mujoco_py.const.EQ_WELD:
@@ -66,8 +69,7 @@ def reset_mocap_welds(sim):
 
 
 def reset_mocap2body_xpos(sim):
-    """
-    Resets the position and orientation of the mocap bodies to the same
+    """Resets the position and orientation of the mocap bodies to the same
     values as the bodies they're welded to.
     """
     if sim.model.eq_type is None or \
