@@ -1,9 +1,11 @@
 <mujoco>
     <asset>
-        <texture type="skybox" builtin="gradient" rgb1="1 1 1" rgb2="1 1 1" width="32" height="32"></texture>
-        <texture name="texture_material1" type="2d" builtin="none" file="wood.png"></texture>
+        <texture type="skybox" builtin="gradient" rgb1="0.8 0.8 0.8" rgb2="0.8 0.8 0.8" width="32" height="32"></texture>
+        <texture name="texture_wood" type="2d" builtin="none" file="wood.png"></texture>
 
-        <material name="material1" texture="texture_material1"></material>
+        <material name="floor_mat" texture="texture_wood"></material>
+        <material name="table_mat" texture="texture_wood"></material>
+        <material name="object_mat" specular="0.247985" shininess="0.21864" reflectance="0" rgba="0 1 0 1"></material>
         <material name="robot0:geomMat" shininess="0.03" specular="0.4"></material>
         <material name="robot0:gripper_finger_mat" shininess="0.03" specular="0.4" reflectance="0"></material>
         <material name="robot0:gripper_mat" shininess="0.03" specular="0.4" reflectance="0"></material>
@@ -11,7 +13,6 @@
         <material name="robot0:head_mat" shininess="0.03" specular="0.4" reflectance="0"></material>
         <material name="robot0:torso_mat" shininess="0.03" specular="0.4" reflectance="0"></material>
         <material name="robot0:base_mat" shininess="0.03" specular="0.4" reflectance="0"></material>
-        <material name="material0" specular="0.247985" shininess="0.21864" reflectance="0" rgba="0 1 0 1"></material>
         
         <mesh file="base_link_collision.stl" name="robot0:base_link"></mesh>
         <mesh file="bellows_link_collision.stl" name="robot0:bellows_link"></mesh>
@@ -45,7 +46,7 @@
     
     <default>
         <default class="robot0:fetch">
-            <geom margin="0.001" material="robot0:geomMat" rgba="2 2 2 1" solimp="0.99 0.99 0.01" solref="0.01 1" type="mesh" user="0"></geom>
+            <geom margin="0.001" material="robot0:geomMat" rgba="1 1 1 1" solimp="0.99 0.99 0.01" solref="0.01 1" type="mesh" user="0"></geom>
             <joint armature="1" damping="50" frictionloss="0" stiffness="0"></joint>
             
             <default class="robot0:fetchGripper">
