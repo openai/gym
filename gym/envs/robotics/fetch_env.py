@@ -53,6 +53,7 @@ class FetchEnv(robot_env.RobotEnv):
 
     def _set_action(self, action):
         assert action.shape == (4,)
+        action = action.copy()
         action[:3] *= 0.05  # limit change in position
         gripper_ctrl = action[3]
         gripper_ctrl = np.array([gripper_ctrl, gripper_ctrl])
