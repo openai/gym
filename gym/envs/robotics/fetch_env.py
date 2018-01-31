@@ -86,15 +86,15 @@ class FetchEnv(robot_env.RobotEnv):
             box_pos = box_rot = box_velp = box_velr = box_rel_pos = np.zeros(0)
         gripper_state = robot_qpos[-2:]
         gripper_vel = robot_qvel[-2:] * dt  # change to a scalar if the gripper is made symmetric
-        obs = np.concatenate([
-            grip_pos, box_rel_pos.flatten(), gripper_state, box_rot.flatten(),
-            box_velp.flatten(), box_velr.flatten(), grip_velp, gripper_vel,
-        ])
 
         if not self.has_box:
             achieved_goal = grip_pos.copy()
         else:
             achieved_goal = np.squeeze(box_pos.copy())
+        obs = np.concatenate([
+            grip_pos, box_pos.flatten(), box_rel_pos.flatten(), gripper_state, box_rot.flatten(),
+            box_velp.flatten(), box_velr.flatten(), grip_velp, gripper_vel,
+        ])
 
         return {
             'observation': obs.copy(),
