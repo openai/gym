@@ -37,7 +37,7 @@ class MSG_INVALID_JOINT_NAMES_DIFFER(Exception):
     pass
 
 
-class GazeboModularScara3DOFStaticObstaclev0Env(gazebo_env.GazeboEnv):
+class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
     """
     This environment present a modular SCARA robot with a range finder at its
     end pointing towards the workspace of the robot. The goal of this environment is
