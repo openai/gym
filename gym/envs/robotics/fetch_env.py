@@ -14,14 +14,30 @@ class FetchEnv(robot_env.RobotEnv):
 
     def __init__(
         self, model_path, n_substeps, gripper_extra_height, block_gripper,
-        has_object, target_in_the_air, target_x_shift, obj_range, target_range,
+        has_object, target_in_the_air, target_offset, obj_range, target_range,
         distance_threshold, initial_qpos, reward_type,
     ):
+        """Initializes a new Fetch environment.
+
+        Args:
+            model_path (string): path to the environments XML file
+            n_substeps (int): number of substeps the simulation runs on every call to step
+            gripper_extra_height (float): additional height above the table when positioning the gripper
+            block_gripper (boolean): whether or not the gripper is blocked (i.e. not movable) or not
+            has_object (boolean): whether or not the environment has an object
+            target_in_the_air (boolean): whether or not the target should be in the air above the table or on the table surface
+            target_offset (float or array with 3 elements): offset of the target
+            obj_range (float): range of a uniform distribution for sampling initial object positions
+            target_range (float): range of a uniform distribution for sampling a target
+            distance_threshold (float): the threshold after which a goal is considered achieved
+            initial_qpos (dict): a dictionary of joint names and values that define the initial configuration
+            reward_type ('sparse' or 'dense'): the reward type, i.e. sparse or dense
+        """
         self.gripper_extra_height = gripper_extra_height
         self.block_gripper = block_gripper
         self.has_object = has_object
         self.target_in_the_air = target_in_the_air
-        self.target_x_shift = target_x_shift
+        self.target_offset = target_offset
         self.obj_range = obj_range
         self.target_range = target_range
         self.distance_threshold = distance_threshold
@@ -125,7 +141,7 @@ class FetchEnv(robot_env.RobotEnv):
             while np.linalg.norm(object_xpos - self.initial_gripper_xpos[:2]) < 0.1:
                 object_xpos = self.initial_gripper_xpos[:2] + self.np_random.uniform(-self.obj_range, self.obj_range, size=2)
             goal = self.initial_gripper_xpos[:3] + self.np_random.uniform(-self.target_range, self.target_range, size=3)
-            goal[0] += self.target_x_shift
+            goal += self.target_offset
             goal[2] = self.height_offset
             if self.target_in_the_air and self.np_random.uniform() < 0.5:
                 goal[2] += self.np_random.uniform(0, 0.45)

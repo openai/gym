@@ -167,18 +167,23 @@ class GoalEnv(Env):
             raise error.Error("GoalEnv requires an observation space of type gym.spaces.GoalDict")
         return result
     
-    def compute_reward(self, achieved_goal, goal, info):
-        """Compute the step reward.
+    def compute_reward(self, achieved_goal, desired_goal, info):
+        """Compute the step reward. This externalizes the reward function and makes
+        it dependent on an a desired goal and the one that was achieved. If you wish to include
+        additional rewards that are independent of the goal, you can include the necessary values
+        to derive it in info and compute it accordingly.
 
-        The following should always hold true:
+        Args:
+            achieved_goal (object): the goal that was achieved during execution
+            desired_goal (object): the desired goal that we asked the agent to attempt to achieve
+            info (dict): an info dictionary with additional information
 
-            ob, reward, done, info = env.step()
-            assert reward == env.compute_reward(ob['achieved_goal'], ob['goal'], info)
+        Returns:
+            float: The reward that corresponds to the provided achieved goal w.r.t. to the desired
+            goal. Note that the following should always hold true:
 
-        In other words, this externalizes the reward function and makes it dependent on
-        an a goal and the one that was achieved. If you wish to include additional rewards
-        that are independent of the goal, you can include the necessary values to derive it
-        in info and compute it accordingly.
+                ob, reward, done, info = env.step()
+                assert reward == env.compute_reward(ob['achieved_goal'], ob['goal'], info)
         """
         raise NotImplementedError()
 
@@ -281,8 +286,8 @@ class Wrapper(Env):
     def seed(self, seed=None):
         return self.env.seed(seed)
 
-    def compute_reward(self, achieved_goal, goal, info):
-        return self.env.compute_reward(achieved_goal, goal, info)
+    def compute_reward(self, achieved_goal, desired_goal, info):
+        return self.env.compute_reward(achieved_goal, desired_goal, info)
 
     def __str__(self):
         return '<{}{}>'.format(type(self).__name__, self.env)
