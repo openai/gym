@@ -294,7 +294,7 @@ register(
 # Robotics
 # ----------------------------------------
 
-def _merge_dicts(a, b):
+def _merge(a, b):
     a.update(b)
     return a
 
@@ -344,56 +344,56 @@ for reward_type in ['sparse', 'dense']:
     register(
         id='HandManipulateBlockRotateZ{}-v0'.format(suffix),
         entry_point='gym.envs.robotics:HandBlockEnv',
-        kwargs=_merge_dicts({'target_position': 'ignore', 'target_rotation': 'z'}, kwargs),
+        kwargs=_merge({'target_position': 'ignore', 'target_rotation': 'z'}, kwargs),
         max_episode_steps=100,
     )
 
     register(
         id='HandManipulateBlockRotateParallel{}-v0'.format(suffix),
         entry_point='gym.envs.robotics:HandBlockEnv',
-        kwargs=_merge_dicts({'target_position': 'ignore', 'target_rotation': 'parallel'}, kwargs),
+        kwargs=_merge({'target_position': 'ignore', 'target_rotation': 'parallel'}, kwargs),
         max_episode_steps=100,
     )
 
     register(
         id='HandManipulateBlockRotateXYZ{}-v0'.format(suffix),
         entry_point='gym.envs.robotics:HandBlockEnv',
-        kwargs=_merge_dicts({'target_position': 'ignore', 'target_rotation': 'xyz'}, kwargs),
+        kwargs=_merge({'target_position': 'ignore', 'target_rotation': 'xyz'}, kwargs),
         max_episode_steps=100,
     )
 
     register(
         id='HandManipulateBlockFull{}-v0'.format(suffix),
         entry_point='gym.envs.robotics:HandBlockEnv',
-        kwargs=_merge_dicts({'target_position': 'random', 'target_rotation': 'xyz'}, kwargs),
+        kwargs=_merge({'target_position': 'random', 'target_rotation': 'xyz'}, kwargs),
         max_episode_steps=100,
     )
 
     register(
         id='HandManipulateEggRotateXYZ{}-v0'.format(suffix),
         entry_point='gym.envs.robotics:HandEggEnv',
-        kwargs=_merge_dicts({'target_position': 'ignore', 'target_rotation': 'xyz'}, kwargs),
+        kwargs=_merge({'target_position': 'ignore', 'target_rotation': 'xyz'}, kwargs),
         max_episode_steps=100,
     )
 
     register(
         id='HandManipulateEggFull{}-v0'.format(suffix),
         entry_point='gym.envs.robotics:HandEggEnv',
-        kwargs=_merge_dicts({'target_position': 'random', 'target_rotation': 'xyz'}, kwargs),
+        kwargs=_merge({'target_position': 'random', 'target_rotation': 'xyz'}, kwargs),
         max_episode_steps=100,
     )
 
     register(
         id='HandManipulatePenRotateXYZ{}-v0'.format(suffix),
         entry_point='gym.envs.robotics:HandPenEnv',
-        kwargs=_merge_dicts({'target_position': 'ignore', 'target_rotation': 'xyz'}, kwargs),
+        kwargs=_merge({'target_position': 'ignore', 'target_rotation': 'xyz'}, kwargs),
         max_episode_steps=100,
     )
 
     register(
         id='HandManipulatePenFull{}-v0'.format(suffix),
         entry_point='gym.envs.robotics:HandPenEnv',
-        kwargs=_merge_dicts({'target_position': 'random', 'target_rotation': 'xyz'}, kwargs),
+        kwargs=_merge({'target_position': 'random', 'target_rotation': 'xyz'}, kwargs),
         max_episode_steps=100,
     )
 
