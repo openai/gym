@@ -370,7 +370,7 @@ for reward_type in ['sparse', 'dense']:
     )
 
     register(
-        id='HandManipulateEggRotateXYZ{}-v0'.format(suffix),
+        id='HandManipulateEggRotate{}-v0'.format(suffix),
         entry_point='gym.envs.robotics:HandEggEnv',
         kwargs=_merge({'target_position': 'ignore', 'target_rotation': 'xyz'}, kwargs),
         max_episode_steps=100,
@@ -384,16 +384,16 @@ for reward_type in ['sparse', 'dense']:
     )
 
     register(
-        id='HandManipulatePenRotateXYZ{}-v0'.format(suffix),
+        id='HandManipulatePenRotate{}-v0'.format(suffix),
         entry_point='gym.envs.robotics:HandPenEnv',
-        kwargs=_merge({'target_position': 'ignore', 'target_rotation': 'xyz'}, kwargs),
+        kwargs=_merge({'target_position': 'ignore', 'target_rotation': 'xy'}, kwargs),
         max_episode_steps=100,
     )
 
     register(
         id='HandManipulatePenFull{}-v0'.format(suffix),
         entry_point='gym.envs.robotics:HandPenEnv',
-        kwargs=_merge({'target_position': 'random', 'target_rotation': 'xyz'}, kwargs),
+        kwargs=_merge({'target_position': 'random', 'target_rotation': 'xy'}, kwargs),
         max_episode_steps=100,
     )
 

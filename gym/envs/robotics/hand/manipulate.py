@@ -119,7 +119,7 @@ class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
             uniform_rot = self.np_random.uniform(0.0, 2 * np.pi, size=(3,))
             if self.target_rotation == 'z':
                 initial_qpos[3:] = rotations.subtract_euler(np.concatenate([np.zeros(2), [uniform_rot[2]]]), initial_qpos[3:])
-            elif self.target_rotation in ['xyz', 'parallel', 'ignore']:
+            elif self.target_rotation in ['xyz', 'xy', 'parallel', 'ignore']:
                 initial_qpos[3:] = uniform_rot
             elif self.target_rotation == 'fixed':
                 pass
@@ -176,6 +176,8 @@ class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
             target_rotation = rotations.mat2euler(np.matmul(rotations.euler2mat(target_rotation), rotations.euler2mat(parallel_rot)))
         elif self.target_rotation == 'xyz':
             target_rotation = self.np_random.uniform(-np.pi, np.pi, size=3)
+        elif self.target_rotation == 'xy':
+            target_rotation[:2] = self.np_random.uniform(-np.pi, np.pi, size=2)
         elif self.target_rotation == 'ignore':
             target_rotation[:] = 0.
         elif self.target_rotation == 'fixed':
@@ -232,15 +234,9 @@ class HandEggEnv(ManipulateEnv):
 
 
 class HandPenEnv(ManipulateEnv):
-    def __init__(self, target_position='random', target_rotation='xyz', reward_type='sparse'):
-        initial_qpos = {
-            'object:rx': 1.9500000000000015,
-            'object:ry': 1.9500000000000015,
-            'object:rz': 0.7983724628009656,
-        }
+    def __init__(self, target_position='random', target_rotation='xy', reward_type='sparse'):
         super(HandPenEnv, self).__init__(
             model_path='hand/manipulate_pen.xml', target_position=target_position,
             target_rotation=target_rotation, position_weight=25.,
             target_position_range=np.array([(-0.04, 0.04), (-0.06, 0.02), (0.0, 0.06)]),
-            initial_qpos=initial_qpos, randomize_initial_rotation=False,
-            reward_type=reward_type)
+            randomize_initial_rotation=False, reward_type=reward_type)
