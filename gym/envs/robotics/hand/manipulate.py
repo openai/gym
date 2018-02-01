@@ -204,12 +204,12 @@ class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
     def _get_obs(self):
         robot_qpos, robot_qvel = robot_get_obs(self.sim)
         block_qvel = get_block_qvel(self.sim, self.sim.data.qvel)
-        achieved_goal = self._get_achieved_goal().flatten()  # this contains the block position + rotation
+        achieved_goal = self._get_achieved_goal().ravel()  # this contains the block position + rotation
         observation = np.concatenate([robot_qpos, robot_qvel, block_qvel, achieved_goal])
         return {
             'observation': observation.copy(),
             'achieved_goal': achieved_goal.copy(),
-            'goal': self.goal.flatten().copy(),
+            'goal': self.goal.ravel().copy(),
         }
 
 

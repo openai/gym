@@ -87,7 +87,7 @@ class HandReachEnv(hand_env.HandEnv, utils.EzPickle):
 
     def _get_obs(self):
         robot_qpos, robot_qvel = robot_get_obs(self.sim)
-        achieved_goal = self._get_achieved_goal().flatten()
+        achieved_goal = self._get_achieved_goal().ravel()
         observation = np.concatenate([robot_qpos, robot_qvel, achieved_goal])
         return {
             'observation': observation.copy(),

@@ -15,24 +15,22 @@
 
 		<include file="robot.xml"></include>
 		
-		<body name="geom0" pos="0.625 0.45 0.2">
-			<joint name="geom0:slide0" axis="1 0 0" type="slide" damping="0.5" pos="0 0 0"></joint>
-			<joint name="geom0:slide1" axis="0 1 0" type="slide" damping="0.5" pos="0 0 0"></joint>
-			<joint name="geom0:slide2" axis="0 0 1" type="slide" damping="0.5" pos="0 0 0"></joint>
-			<joint name="geom0:hinge0" axis="1 0 0" type="hinge" damping="0.5" pos="0 0 0"></joint>
-			<joint name="geom0:hinge1" axis="0 1 0" type="hinge" damping="0.5" pos="0 0 0"></joint>
-			<joint name="geom0:hinge2" axis="0 0 1" type="hinge" damping="0.5" pos="0 0 0"></joint>
-			<geom size="0.625 0.45 0.2" type="box" condim="3" name="geom0" material="table_mat" mass="2000" friction="0.1 0.005 0.0001"></geom>
+		<body name="table0" pos="0.625 0.45 0.2">
+			<joint name="table0:slide0" axis="1 0 0" type="slide" damping="0.5" pos="0 0 0"></joint>
+			<joint name="table0:slide1" axis="0 1 0" type="slide" damping="0.5" pos="0 0 0"></joint>
+			<joint name="table0:slide2" axis="0 0 1" type="slide" damping="0.5" pos="0 0 0"></joint>
+			<geom size="0.625 0.45 0.2" type="box" condim="3" name="table0" material="table_mat" mass="2000" friction="0.1 0.005 0.0001"></geom>
 		</body>
-		<body name="geom1" pos="0.025 0.025 0.02">
-			<joint name="geom1:slide0" axis="1 0 0" type="slide" damping="0.5" pos="0 0 0"></joint>
-			<joint name="geom1:slide1" axis="0 1 0" type="slide" damping="0.5" pos="0 0 0"></joint>
-			<joint name="geom1:slide2" axis="0 0 1" type="slide" damping="0.5" pos="0 0 0"></joint>
-			<joint name="geom1:hinge0" axis="1 0 0" type="hinge" damping="0.5" pos="0 0 0"></joint>
-			<joint name="geom1:hinge1" axis="0 1 0" type="hinge" damping="0.5" pos="0 0 0"></joint>
-			<joint name="geom1:hinge2" axis="0 0 1" type="hinge" damping="0.5" pos="0 0 0"></joint>
-			<geom size="0.025 0.02" type="cylinder" condim="3" name="geom1" material="object_mat" friction="0.1 0.005 0.0001" mass="2"></geom>
-			<site name="geom0" pos="0 0 0" size="0.02 0.02 0.02" rgba="1 0 0 1" type="sphere"></site>
+
+		<body name="object0" pos="0.025 0.025 0.02">
+			<joint name="object0:slide0" axis="1 0 0" type="slide" damping="0.5" pos="0 0 0"></joint>
+			<joint name="object0:slide1" axis="0 1 0" type="slide" damping="0.5" pos="0 0 0"></joint>
+			<joint name="object0:slide2" axis="0 0 1" type="slide" damping="0.5" pos="0 0 0"></joint>
+			<joint name="object0:hinge0" axis="1 0 0" type="hinge" damping="0.5" pos="0 0 0"></joint>
+			<joint name="object0:hinge1" axis="0 1 0" type="hinge" damping="0.5" pos="0 0 0"></joint>
+			<joint name="object0:hinge2" axis="0 0 1" type="hinge" damping="0.5" pos="0 0 0"></joint>
+			<geom size="0.025 0.02" type="cylinder" condim="3" name="object0" material="object_mat" friction="0.1 0.005 0.0001" mass="2"></geom>
+			<site name="object0" pos="0 0 0" size="0.02 0.02 0.02" rgba="1 0 0 1" type="sphere"></site>
 		</body>
 
 		<light directional="true" ambient="0.2 0.2 0.2" diffuse="0.8 0.8 0.8" specular="0.3 0.3 0.3" castshadow="false" pos="0 0 4" dir="0 0 -1" name="light0"></light>

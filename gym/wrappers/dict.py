@@ -21,8 +21,8 @@ class DictWrapper(gym.ObservationWrapper):
         self.observation_space = gym.spaces.Box(-np.inf, np.inf, shape=(size,), dtype='float32')
 
     def observation(self, observation):
-        assert type(observation) == dict
+        assert isinstance(observation, dict)
         obs = []
         for key in self.dict_keys:
-            obs.append(observation[key].flatten())
+            obs.append(observation[key].ravel())
         return np.concatenate(obs)
