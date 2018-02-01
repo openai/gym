@@ -92,7 +92,7 @@ class HandReachEnv(hand_env.HandEnv, utils.EzPickle):
         return {
             'observation': observation.copy(),
             'achieved_goal': achieved_goal.copy(),
-            'goal': self.goal.copy(),
+            'desired_goal': self.goal.copy(),
         }
 
     def _sample_goal(self):

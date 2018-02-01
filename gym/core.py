@@ -155,9 +155,10 @@ class Env(object):
 class GoalEnv(Env):
     """A goal-based environment. It functions just as any regular OpenAI Gym environment but it
     imposes a required structure on the observation_space. More concretely, the observation
-    space is required to contain at least three elements, namely `observation`, `goal`, and
-    `achieved_goal`. Here, `goal` specifies the goal that should be achieved, `achieved_goal` is
-    the currently achieved goal, and `observation` contains the actual observations as per usual.
+    space is required to contain at least three elements, namely `observation`, `desired_goal`, and
+    `achieved_goal`. Here, `desired_goal` specifies the goal that the agent should attempt to achieve.
+    `achieved_goal` is the goal that it currently achieved instead. `observation` contains the
+    actual observations of the environment as per usual.
     """
     
     def reset(self):
@@ -166,7 +167,7 @@ class GoalEnv(Env):
         if not isinstance(self.observation_space, gym.spaces.GoalDict):
             raise error.Error("GoalEnv requires an observation space of type gym.spaces.GoalDict")
         return result
-    
+
     def compute_reward(self, achieved_goal, desired_goal, info):
         """Compute the step reward. This externalizes the reward function and makes
         it dependent on an a desired goal and the one that was achieved. If you wish to include

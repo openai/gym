@@ -209,7 +209,7 @@ class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
         return {
             'observation': observation.copy(),
             'achieved_goal': achieved_goal.copy(),
-            'goal': self.goal.ravel().copy(),
+            'desired_goal': self.goal.ravel().copy(),
         }
 
 
