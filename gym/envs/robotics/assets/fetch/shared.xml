@@ -2,10 +2,12 @@
     <asset>
         <texture type="skybox" builtin="gradient" rgb1="0.8 0.8 0.8" rgb2="0.8 0.8 0.8" width="32" height="32"></texture>
         <texture name="texture_wood" type="2d" builtin="none" file="wood.png"></texture>
+        <texture name="texture_block" file="block.png" gridsize="3 4" gridlayout=".U..LFRB.D.."></texture>
 
         <material name="floor_mat" texture="texture_wood"></material>
         <material name="table_mat" texture="texture_wood"></material>
-        <material name="object_mat" specular="0.247985" shininess="0.21864" reflectance="0" rgba="0 1 0 1"></material>
+        <material name="puck_mat" specular="0.5" shininess="0.5" reflectance="0.3" rgba="0.1 0.1 0.1 1"></material>
+        <material name="block_mat" texture="texture_block" specular="1" shininess="0.3" reflectance="0"></material>
         <material name="robot0:geomMat" shininess="0.03" specular="0.4"></material>
         <material name="robot0:gripper_finger_mat" shininess="0.03" specular="0.4" reflectance="0"></material>
         <material name="robot0:gripper_mat" shininess="0.03" specular="0.4" reflectance="0"></material>

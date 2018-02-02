@@ -29,7 +29,7 @@
 			<joint name="object0:hinge0" axis="1 0 0" type="hinge" damping="0.5" pos="0 0 0"></joint>
 			<joint name="object0:hinge1" axis="0 1 0" type="hinge" damping="0.5" pos="0 0 0"></joint>
 			<joint name="object0:hinge2" axis="0 0 1" type="hinge" damping="0.5" pos="0 0 0"></joint>
-			<geom size="0.025 0.02" type="cylinder" condim="3" name="object0" material="object_mat" friction="0.1 0.005 0.0001" mass="2"></geom>
+			<geom size="0.025 0.02" type="cylinder" condim="3" name="object0" material="puck_mat" friction="0.1 0.005 0.0001" mass="2"></geom>
 			<site name="object0" pos="0 0 0" size="0.02 0.02 0.02" rgba="1 0 0 1" type="sphere"></site>
 		</body>
 
