@@ -46,7 +46,7 @@ class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
         target_position_range, reward_type, initial_qpos={},
         randomize_initial_position=True, randomize_initial_rotation=True,
         distance_threshold=0.4, n_substeps=20, relative_control=False,
-        rotation_mask=np.ones(3),
+        rotation_ignore_mask=np.zeros(3, dtype='bool'),
     ):
         """Initializes a new Hand manipulation environment.
 
@@ -72,7 +72,7 @@ class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
             distance_threshold (float): the threshold after which a goal is considered achieved
             n_substeps (int): number of substeps the simulation runs on every call to step
             relative_control (boolean): whether or not the hand is actuated in absolute joint positions or relative to the current state
-            rotation_mask (np.array of shape (3,)): applied to rotations after taking the difference in goals, i.e. allows to mask out certain axis
+            rotation_ignore_mask (np.array of shape (3,)): ignores the rotation axis in distance computations if corresponding index evaluates to True
         """
         self.target_position = target_position
         self.target_rotation = target_rotation
@@ -83,7 +83,7 @@ class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
         self.randomize_initial_position = randomize_initial_position
         self.distance_threshold = distance_threshold
         self.reward_type = reward_type
-        self.rotation_mask = rotation_mask
+        self.rotation_ignore_mask = rotation_ignore_mask
 
         assert self.target_position in ['ignore', 'fixed', 'random']
         assert self.target_rotation in ['ignore', 'fixed', 'xyz', 'xy', 'z', 'parallel']
@@ -104,22 +104,21 @@ class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
         assert goal_a.shape == goal_b.shape
         assert goal_a.shape[-1] == 6
 
-        diff = goal_a - goal_b
-
-        # Handle position.
-        if self.target_position == 'ignore':
-            diff[..., :3] = 0.
-        else:
-            diff[..., :3] *= self.position_weight  # position
-
-        # Handle rotation.
-        if self.target_rotation == 'ignore':
-            diff[..., 3:] = 0.
-        else:
-            diff[..., 3:] = rotations.subtract_euler(goal_a[..., 3:], goal_b[..., 3:])  # orientation
-        diff[..., 3:] *= self.rotation_mask
-        
-        return np.linalg.norm(diff, axis=-1)
+        d_pos = 0.
+        d_rot = 0.
+        if self.target_position != 'ignore':
+            delta_pos = (goal_a[..., :3] - goal_b[..., :3]) * self.position_weight
+            d_pos = np.linalg.norm(delta_pos, axis=-1)
+        if self.target_rotation != 'ignore':
+            assert self.rotation_ignore_mask.shape == (3,)
+            euler_a, euler_b = goal_a[..., 3:].copy(), goal_b[..., 3:].copy()
+            for idx, value in enumerate(self.rotation_ignore_mask):
+                if value:
+                    euler_a[..., idx] = euler_b[..., idx]
+            delta_rot = rotations.subtract_euler(goal_a[..., 3:], goal_b[..., 3:])
+            d_rot = np.linalg.norm(delta_rot, axis=-1)
+        d = d_pos + d_rot
+        return d
 
     # GoalEnv methods
     # ----------------------------
@@ -277,4 +276,4 @@ class HandPenEnv(ManipulateEnv):
             target_rotation=target_rotation, position_weight=25.,
             target_position_range=np.array([(-0.04, 0.04), (-0.06, 0.02), (0.0, 0.06)]),
             randomize_initial_rotation=False, reward_type=reward_type,
-            rotation_mask=np.array([1., 1., 0.]))
+            rotation_ignore_mask=np.array([False, False, True]))
