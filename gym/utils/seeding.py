@@ -42,7 +42,7 @@ def hash_seed(seed=None, max_bytes=8):
         max_bytes: Maximum number of bytes to use in the hashed seed.
     """
     if seed is None:
-        seed = _seed(max_bytes=max_bytes)
+        seed = create_seed(max_bytes=max_bytes)
     hash = hashlib.sha512(str(seed).encode('utf8')).digest()
     return _bigint_from_bytes(hash[:max_bytes])
 
