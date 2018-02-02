@@ -10,19 +10,6 @@ except ImportError as e:
     raise error.DependencyNotInstalled("{}. (HINT: you need to install mujoco_py, and also perform the setup instructions here: https://github.com/openai/mujoco-py/.)".format(e))
 
 
-def goal_distance(goal_a, goal_b, position_weight, compute_rotation):
-    assert goal_a.shape == goal_b.shape
-    assert goal_a.shape[-1] == 6
-
-    diff = goal_a - goal_b
-    diff[..., :3] *= position_weight  # position
-    if compute_rotation:
-        diff[..., 3:] = rotations.subtract_euler(goal_a[..., 3:], goal_b[..., 3:])  # orientation
-    else:
-        diff[..., 3:] = 0.
-    return np.linalg.norm(diff, axis=-1)
-
-
 def get_block_qpos(sim, qpos):
     joint_names = ['tx', 'ty', 'tz', 'rx', 'ry', 'rz']
     block_qpos = []
@@ -58,8 +45,35 @@ class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
         self, model_path, target_position, target_rotation, position_weight,
         target_position_range, reward_type, initial_qpos={},
         randomize_initial_position=True, randomize_initial_rotation=True,
-        distance_threshold=0.4, n_substeps=20, relative_control=False
+        distance_threshold=0.4, n_substeps=20, relative_control=False,
+        rotation_mask=np.ones(3),
     ):
+        """Initializes a new Hand manipulation environment.
+
+        Args:
+            model_path (string): path to the environments XML file
+            target_position (string): the type of target position:
+                - ignore: target position is fully ignored, i.e. the object can be positioned arbitrarily
+                - fixed: target position is set to the initial position of the object
+                - random: target position is fully randomized according to target_position_range
+            target_rotation (string): the type of target rotation:
+                - ignore: target rotation is fully ignored, i.e. the object can be rotated arbitrarily
+                - fixed: target rotation is set to the initial rotation of the object
+                - xyz: fully randomized target rotation around the X, Y and Z axis
+                - xy: fully randomized target rotation around the X and Y axis
+                - z: fully randomized target rotation around the Z axis
+                - parallel: fully randomized target rotation around Z and axis-aligned rotation around X, Y
+            position_weight (float): the weight of the position offset when computing goal differences
+            target_position_range (np.array of shape (3, 2)): range of the target_position randomization
+            reward_type ('sparse' or 'dense'): the reward type, i.e. sparse or dense
+            initial_qpos (dict): a dictionary of joint names and values that define the initial configuration
+            randomize_initial_position (boolean): whether or not to randomize the initial position of the object
+            randomize_initial_rotation (boolean): whether or not to randomize the initial rotation of the object
+            distance_threshold (float): the threshold after which a goal is considered achieved
+            n_substeps (int): number of substeps the simulation runs on every call to step
+            relative_control (boolean): whether or not the hand is actuated in absolute joint positions or relative to the current state
+            rotation_mask (np.array of shape (3,)): applied to rotations after taking the difference in goals, i.e. allows to mask out certain axis
+        """
         self.target_position = target_position
         self.target_rotation = target_rotation
         self.position_weight = position_weight
@@ -69,6 +83,10 @@ class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
         self.randomize_initial_position = randomize_initial_position
         self.distance_threshold = distance_threshold
         self.reward_type = reward_type
+        self.rotation_mask = rotation_mask
+
+        assert self.target_position in ['ignore', 'fixed', 'random']
+        assert self.target_rotation in ['ignore', 'fixed', 'xyz', 'xy', 'z', 'parallel']
 
         hand_env.HandEnv.__init__(
             self, model_path, n_substeps=n_substeps, initial_qpos=initial_qpos,
@@ -82,13 +100,32 @@ class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
         block_qpos[3:] = rotations.normalize_angles(block_qpos[3:])
         return block_qpos.copy()
 
+    def _goal_distance(self, goal_a, goal_b):
+        assert goal_a.shape == goal_b.shape
+        assert goal_a.shape[-1] == 6
+
+        diff = goal_a - goal_b
+
+        # Handle position.
+        if self.target_position == 'ignore':
+            diff[..., :3] = 0.
+        else:
+            diff[..., :3] *= self.position_weight  # position
+
+        # Handle rotation.
+        if self.target_rotation == 'ignore':
+            diff[..., 3:] = 0.
+        else:
+            diff[..., 3:] = rotations.subtract_euler(goal_a[..., 3:], goal_b[..., 3:])  # orientation
+        diff[..., 3:] *= self.rotation_mask
+        
+        return np.linalg.norm(diff, axis=-1)
+
     # GoalEnv methods
     # ----------------------------
 
     def compute_reward(self, achieved_goal, goal, info):
-        d = goal_distance(
-            achieved_goal, goal, position_weight=self.position_weight,
-            compute_rotation=self.target_rotation != 'ignore')
+        d = self._goal_distance(achieved_goal, goal)
         if self.reward_type == 'sparse':
             return -(d > self.distance_threshold).astype(np.float32)
         else:
@@ -98,9 +135,7 @@ class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
     # ----------------------------
 
     def _is_success(self, achieved_goal, desired_goal):
-        d = goal_distance(
-            achieved_goal, desired_goal, position_weight=self.position_weight,
-            compute_rotation=self.target_rotation != 'ignore')
+        d = self._goal_distance(achieved_goal, desired_goal)
         return (d < self.distance_threshold).astype(np.float32)
 
     def _env_setup(self, initial_qpos):
@@ -119,7 +154,9 @@ class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
             uniform_rot = self.np_random.uniform(0.0, 2 * np.pi, size=(3,))
             if self.target_rotation == 'z':
                 initial_qpos[3:] = rotations.subtract_euler(np.concatenate([np.zeros(2), [uniform_rot[2]]]), initial_qpos[3:])
-            elif self.target_rotation in ['xyz', 'xy', 'parallel', 'ignore']:
+            elif self.target_rotation == 'xy':
+                initial_qpos[3:] = rotations.subtract_euler(np.concatenate([uniform_rot[2], [0.]]), initial_qpos[3:])
+            elif self.target_rotation in ['xyz', 'parallel', 'ignore']:
                 initial_qpos[3:] = uniform_rot
             elif self.target_rotation == 'fixed':
                 pass
@@ -239,4 +276,5 @@ class HandPenEnv(ManipulateEnv):
             model_path='hand/manipulate_pen.xml', target_position=target_position,
             target_rotation=target_rotation, position_weight=25.,
             target_position_range=np.array([(-0.04, 0.04), (-0.06, 0.02), (0.0, 0.06)]),
-            randomize_initial_rotation=False, reward_type=reward_type)
+            randomize_initial_rotation=False, reward_type=reward_type,
+            rotation_mask=np.array([1., 1., 0.]))
