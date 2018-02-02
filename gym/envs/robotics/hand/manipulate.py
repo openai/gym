@@ -114,8 +114,9 @@ class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
             euler_a, euler_b = goal_a[..., 3:].copy(), goal_b[..., 3:].copy()
             for idx, value in enumerate(self.rotation_ignore_mask):
                 if value:
-                    euler_a[..., idx] = euler_b[..., idx]
-            delta_rot = rotations.subtract_euler(goal_a[..., 3:], goal_b[..., 3:])
+                    euler_a[..., idx] = 0.
+                    euler_b[..., idx] = 0.
+            delta_rot = rotations.subtract_euler(euler_a, euler_b)
             d_rot = np.linalg.norm(delta_rot, axis=-1)
         d = d_pos + d_rot
         return d
