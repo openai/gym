@@ -3,7 +3,6 @@ from gym import core, spaces
 from gym.utils import seeding
 import numpy as np
 from numpy import sin, cos, pi
-import time
 
 __copyright__ = "Copyright 2013, RLPy http://acl.mit.edu/RLPy"
 __credits__ = ["Alborz Geramifard", "Robert H. Klein", "Christoph Dann",
@@ -87,20 +86,20 @@ class AcrobotEnv(core.Env):
         self.viewer = None
         high = np.array([1.0, 1.0, 1.0, 1.0, self.MAX_VEL_1, self.MAX_VEL_2])
         low = -high
-        self.observation_space = spaces.Box(low, high)
+        self.observation_space = spaces.Box(low=low, high=high)
         self.action_space = spaces.Discrete(3)
         self.state = None
-        self._seed()
+        self.seed()
 
-    def _seed(self, seed=None):
+    def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
-    def _reset(self):
+    def reset(self):
         self.state = self.np_random.uniform(low=-0.1, high=0.1, size=(4,))
         return self._get_ob()
 
-    def _step(self, a):
+    def step(self, a):
         s = self.state
         torque = self.AVAIL_TORQUE[a]
 
@@ -173,12 +172,7 @@ class AcrobotEnv(core.Env):
         ddtheta1 = -(d2 * ddtheta2 + phi1) / d1
         return (dtheta1, dtheta2, ddtheta1, ddtheta2, 0.)
 
-    def _render(self, mode='human', close=False):
-        if close:
-            if self.viewer is not None:
-                self.viewer.close()
-                self.viewer = None
-            return
+    def render(self, mode='human'):
         from gym.envs.classic_control import rendering
 
         s = self.state
@@ -210,6 +204,9 @@ class AcrobotEnv(core.Env):
             circ.add_attr(jtransform)
 
         return self.viewer.render(return_rgb_array = mode=='rgb_array')
+
+    def close(self):
+        if self.viewer: self.viewer.close()
 
 def wrap(x, m, M):
     """

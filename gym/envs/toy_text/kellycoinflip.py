@@ -25,14 +25,14 @@ class KellyCoinflipEnv(gym.Env):
         self.initialWealth = initialWealth
         self.maxRounds = maxRounds
         self.maxWealth = maxWealth
-        self._seed()
-        self._reset()
+        self.seed()
+        self.reset()
 
-    def _seed(self, seed=None):
+    def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
-    def _step(self, action):
+    def step(self, action):
         action = action/100.0 # convert from pennies to dollars
         if action > self.wealth: # treat attempts to bet more than possess as == betting everything
           action = self.wealth
@@ -57,13 +57,12 @@ class KellyCoinflipEnv(gym.Env):
     def _get_obs(self):
         return (np.array([self.wealth]), self.rounds)
 
-    def _reset(self):
+    def reset(self):
         self.rounds = self.maxRounds
         self.wealth = self.initialWealth
         return self._get_obs()
 
-    def _render(self, mode='human', close=True):
-        if close: return
+    def render(self, mode='human'):
         print("Current wealth: ", self.wealth, "; Rounds left: ", self.rounds)
 
 class KellyCoinflipGeneralizedEnv(gym.Env):
@@ -107,13 +106,13 @@ class KellyCoinflipGeneralizedEnv(gym.Env):
         self.maxRounds = maxRounds
         self.rounds = self.maxRounds
         self.maxWealth = maxWealth
-        if reseed or not hasattr(self, 'np_random') : self._seed()
+        if reseed or not hasattr(self, 'np_random') : self.seed()
 
-    def _seed(self, seed=None):
+    def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
-    def _step(self, action):
+    def step(self, action):
         action = action/100.0
         if action > self.wealth:
           action = self.wealth
@@ -141,12 +140,11 @@ class KellyCoinflipGeneralizedEnv(gym.Env):
 
     def _get_obs(self):
         return (np.array([float(self.wealth)]), self.roundsElapsed, self.wins, self.losses, np.array([float(self.maxEverWealth)]))
-    def _reset(self):
+    def reset(self):
         # re-init everything to draw new parameters etc, but preserve the RNG for reproducibility and pass in the same hyperparameters as originally specified:
         self.__init__(initialWealth=self.initialWealth, edgePriorAlpha=self.edgePriorAlpha, edgePriorBeta=self.edgePriorBeta, maxWealthAlpha=self.maxWealthAlpha, maxWealthM=self.maxWealthM, maxRoundsMean=self.maxRoundsMean, maxRoundsSD=self.maxRoundsSD, reseed=False)
         return self._get_obs()
-    def _render(self, mode='human', close=True):
-        if close: return
+    def render(self, mode='human'):
         print("Current wealth: ", self.wealth, "; Rounds left: ", self.rounds, "; True edge: ", self.edge,
               "; True max wealth: ", self.maxWealth, "; True stopping time: ", self.maxRounds, "; Rounds left: ",
               self.maxRounds - self.roundsElapsed)

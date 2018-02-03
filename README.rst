@@ -1,7 +1,7 @@
 OpenAI Gym
 **********
 
-**OpenAI Gym is a toolkit for developing and comparing reinforcement learning algorithms.** This is the ``gym`` open-source library, which gives you access to an ever-growing variety of environments.
+**OpenAI Gym is a toolkit for developing and comparing reinforcement learning algorithms.** This is the ``gym`` open-source library, which gives you access to a standardized set of environments.
 
 .. image:: https://travis-ci.org/openai/gym.svg?branch=master
     :target: https://travis-ci.org/openai/gym
@@ -62,9 +62,9 @@ If you prefer, you can do a minimal install of the packaged version directly fro
 
 You'll be able to run a few environments right away:
 
-- `algorithmic <https://gym.openai.com/envs#algorithmic>`_
-- `toy_text <https://gym.openai.com/envs#toy_text>`_
-- `classic_control <https://gym.openai.com/envs#classic_control>`_ (you'll need ``pyglet`` to render though)
+- algorithmic
+- toy_text
+- classic_control (you'll need ``pyglet`` to render though)
 
 We recommend playing with those environments at first, and then later
 installing the dependencies for the remaining environments.
@@ -173,18 +173,6 @@ The Atari environments are a variety of Atari video games. If you didn't do the 
 
 This will install ``atari-py``, which automatically compiles the `Arcade Learning Environment <http://www.arcadelearningenvironment.org/>`_. This can take quite a while (a few minutes on a decent laptop), so just be prepared.
 
-Board games
------------
-
-The board game environments are a variety of board games. If you didn't do the full install, you can install dependencies via ``pip install -e '.[board_game]'`` (you'll need ``cmake`` installed) and then get started as follow:
-
-.. code:: python
-
-	  import gym
-	  env = gym.make('Go9x9-v0')
-	  env.reset()
-	  env.render()
-
 Box2d
 -----------
 
@@ -242,10 +230,9 @@ Examples
 
 See the ``examples`` directory.
 
-- Run `examples/agents/random_agent.py <https://github.com/openai/gym/blob/master/examples/agents/random_agent.py>`_ to run an simple random agent and upload the results to the scoreboard.
-- Run `examples/agents/cem.py <https://github.com/openai/gym/blob/master/examples/agents/cem.py>`_ to run an actual learning agent (using the cross-entropy method) and upload the results to the scoreboard.
-- Run `examples/scripts/list_envs <https://github.com/openai/gym/blob/master/examples/scripts/list_envs>`_ to generate a list of all environments. (You see also just `browse <https://gym.openai.com/docs>`_ the list on our site.
-- Run `examples/scripts/upload <https://github.com/openai/gym/blob/master/examples/scripts/upload>`_ to upload the recorded output from ``random_agent.py`` or ``cem.py``. Make sure to obtain an `API key <https://gym.openai.com/settings/profile>`_.
+- Run `examples/agents/random_agent.py <https://github.com/openai/gym/blob/master/examples/agents/random_agent.py>`_ to run an simple random agent.
+- Run `examples/agents/cem.py <https://github.com/openai/gym/blob/master/examples/agents/cem.py>`_ to run an actual learning agent (using the cross-entropy method).
+- Run `examples/scripts/list_envs <https://github.com/openai/gym/blob/master/examples/scripts/list_envs>`_ to generate a list of all environments.
 
 Testing
 =======
@@ -262,6 +249,21 @@ We are using `pytest <http://doc.pytest.org>`_ for tests. You can run them via:
 What's new
 ==========
 
+- 2018-01-25: Made some aesthetic improvements and removed unmaintained parts of gym. This may seem like a downgrade in functionality, but it is actually a long-needed cleanup in preparation for some great new things that will be released in the next month.
+
+    + Now your `Env` and `Wrapper` subclasses should define `step`, `reset`, `render`, `close`, `seed` rather than underscored method names.
+    + Removed the `board_game`, `debugging`, `safety`, `parameter_tuning` environments since they're not being maintained by us at OpenAI. We encourage authors and users to create new repositories for these environments.
+    + Changed `MultiDiscrete` action space to range from `[0, ..., n-1]` rather than `[a, ..., b-1]`.
+    + No more `render(close=True)`, use env-specific methods to close the rendering.
+    + Removed `scoreboard` directory, since site doesn't exist anymore.
+    + Moved `gym/monitoring` to `gym/wrappers/monitoring`
+    + Add `dtype` to `Space`.
+    + Not using python's built-in module anymore, using `gym.logger`
+
+- 2018-01-24: All continuous control environments now use mujoco_py >= 1.50.
+  Versions have been updated accordingly to -v2, e.g. HalfCheetah-v2. Performance
+  should be similar (see https://github.com/openai/gym/pull/834) but there are likely
+  some differences due to changes in MuJoCo.
 - 2017-06-16: Make env.spec into a property to fix a bug that occurs
   when you try to print out an unregistered Env.
 - 2017-05-13: BACKWARDS INCOMPATIBILITY: The Atari environments are now at

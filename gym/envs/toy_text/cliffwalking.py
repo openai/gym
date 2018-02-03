@@ -87,10 +87,7 @@ class CliffWalkingEnv(discrete.DiscreteEnv):
         is_done = tuple(new_position) == terminal_state
         return [(1.0, new_state, -1, is_done)]
 
-    def _render(self, mode='human', close=False):
-        if close:
-            return
-
+    def render(self, mode='human'):
         outfile = sys.stdout
 
         for s in range(self.nS):

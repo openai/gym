@@ -23,7 +23,7 @@ def usable_ace(hand):  # Does this hand have a usable ace?
 
 def sum_hand(hand):  # Return current hand total
     if usable_ace(hand):
-            return sum(hand) + 10
+        return sum(hand) + 10
     return sum(hand)
 
 
@@ -76,19 +76,19 @@ class BlackjackEnv(gym.Env):
             spaces.Discrete(32),
             spaces.Discrete(11),
             spaces.Discrete(2)))
-        self._seed()
+        self.seed()
 
         # Flag to payout 1.5 on a "natural" blackjack win, like casino rules
         # Ref: http://www.bicyclecards.com/how-to-play/blackjack/
         self.natural = natural
         # Start the first game
-        self._reset()
+        self.reset()
 
-    def _seed(self, seed=None):
+    def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
-    def _step(self, action):
+    def step(self, action):
         assert self.action_space.contains(action)
         if action:  # hit: add a card to players hand and return
             self.player.append(draw_card(self.np_random))
@@ -110,7 +110,7 @@ class BlackjackEnv(gym.Env):
     def _get_obs(self):
         return (sum_hand(self.player), self.dealer[0], usable_ace(self.player))
 
-    def _reset(self):
+    def reset(self):
         self.dealer = draw_hand(self.np_random)
         self.player = draw_hand(self.np_random)
         return self._get_obs()

@@ -48,14 +48,14 @@ class GuessingGame(gym.Env):
         self.guess_max = 200
         self.observation = 0
 
-        self._seed()
-        self._reset()
+        self.seed()
+        self.reset()
 
-    def _seed(self, seed=None):
+    def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
-    def _step(self, action):
+    def step(self, action):
         assert self.action_space.contains(action)
 
         if action < self.number:
@@ -80,7 +80,7 @@ class GuessingGame(gym.Env):
 
         return self.observation, reward, done, {"number": self.number, "guesses": self.guess_count}
 
-    def _reset(self):
+    def reset(self):
         self.number = self.np_random.uniform(-self.range, self.range)
         self.guess_count = 0
         self.observation = 0

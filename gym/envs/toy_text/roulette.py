@@ -1,5 +1,3 @@
-import numpy as np
-
 import gym
 from gym import spaces
 from gym.utils import seeding
@@ -20,13 +18,13 @@ class RouletteEnv(gym.Env):
         self.n = spots + 1
         self.action_space = spaces.Discrete(self.n)
         self.observation_space = spaces.Discrete(1)
-        self._seed()
+        self.seed()
 
-    def _seed(self, seed=None):
+    def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
-    def _step(self, action):
+    def step(self, action):
         assert self.action_space.contains(action)
         if action == self.n - 1:
             # observation, reward, done, info
@@ -42,5 +40,5 @@ class RouletteEnv(gym.Env):
             reward = -1.0
         return 0, reward, False, {}
 
-    def _reset(self):
+    def reset(self):
         return 0
