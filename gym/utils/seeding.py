@@ -2,15 +2,11 @@ import hashlib
 import numpy as np
 import os
 import random as _random
+from six import integer_types
 import struct
 import sys
 
 from gym import error
-
-if sys.version_info < (3,):
-    integer_types = (int, long)
-else:
-    integer_types = (int,)
 
 def np_random(seed=None):
     if seed is not None and not (isinstance(seed, integer_types) and 0 <= seed):
