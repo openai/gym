@@ -136,7 +136,8 @@ class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
 
     def _is_success(self, achieved_goal, desired_goal):
         d = self._goal_distance(achieved_goal, desired_goal)
-        return (d < self.distance_threshold).astype(np.float32)
+        is_success = (d < self.distance_threshold).astype(np.float32)
+        return is_success
 
     def _env_setup(self, initial_qpos):
         for name, value in initial_qpos.items():
@@ -239,6 +240,10 @@ class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
         for name, value in zip(joint_names_pos[:] + joint_names_rot[:], goal):
             self.sim.data.set_joint_qpos(name, value)
             self.sim.data.set_joint_qvel(name, 0.)
+
+        if 'object_hidden' in self.sim.model.geom_names:
+            hidden_id = self.sim.model.geom_name2id('object_hidden')
+            self.sim.model.geom_rgba[hidden_id, 3] = 1.
 
     def _get_obs(self):
         robot_qpos, robot_qvel = robot_get_obs(self.sim)
