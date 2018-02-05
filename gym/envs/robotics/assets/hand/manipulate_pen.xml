@@ -16,7 +16,7 @@
     </asset>
 
     <worldbody>
-        <geom name="floor0" pos="1 1 0" size="1 1 1" type="plane" condim="3"></geom>
+        <geom name="floor0" pos="1 1 -0.2" size="1 1 1" type="plane" condim="3"></geom>
         <body name="floor0" pos="1 1 0"></body>
 
         <include file="robot.xml"></include>
