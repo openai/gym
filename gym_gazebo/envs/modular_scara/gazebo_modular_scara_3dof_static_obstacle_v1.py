@@ -27,7 +27,7 @@ from control_msgs.msg import JointTrajectoryControllerState
 from baselines.agent.scara_arm.tree_urdf import treeFromFile # For KDL Jacobians
 from PyKDL import Jacobian, Chain, ChainJntToJacSolver, JntArray # For KDL Jacobians
 
-
+from std_msgs.msg import Bool
 # from custom baselines repository
 from baselines.agent.utility.general_utils import forward_kinematics, get_ee_points, rotation_from_matrix, \
     get_rotation_matrix,quaternion_from_matrix # For getting points and velocities.
@@ -60,6 +60,7 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         # TODO: cleanup this variables, remove the ones that aren't used
         # class variables
         self._observation_msg = None
+        self._collision_msg = None ###
         self.scale = None  # must be set from elsewhere based on observations
         self.bias = None
         self.x_idx = None
@@ -149,8 +150,8 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
 
         # TODO: fix this and make it relative
         # Set the path of the corresponding URDF file from "assets"
-        #URDF_PATH = "/home/erle/scara_e1_description/urdf/scara_e1_3joints.urdf"
-        URDF_PATH = "/media/raid/RL/catkin_ws/src/scara_e1/scara_e1_description/urdf/scara_e1_3joints.urdf"
+        URDF_PATH = "/home/erle/ros_ws/src/scara_e1/scara_e1_description/urdf/scara_e1_3joints.urdf"
+        #URDF_PATH = "/media/raid/RL/catkin_ws/src/scara_e1/scara_e1_description/urdf/scara_e1_3joints.urdf"
 
         m_joint_order = copy.deepcopy(JOINT_ORDER)
         m_link_names = copy.deepcopy(LINK_NAMES)
@@ -184,6 +185,10 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         # ROS 1 implementation
         self._pub = rospy.Publisher('/scara_controller/command', JointTrajectory)
         self._sub = rospy.Subscriber('/scara_controller/state', JointTrajectoryControllerState, self.observation_callback)
+
+        self._sub_coll = rospy.Subscriber('/gazebo_contacts',Bool, self.collision_callback, queue_size=1, buff_size=2**24) ##
+
+        #self._sub_coll = rospy.Subscriber('/gazebo_contacts',Bool, collision_callback) ##
 
         # Initialize a tree structure from the robot urdf.
         #   note that the xacro of the urdf is updated by hand.
@@ -299,7 +304,11 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
 
     def randomizeObstacle(self):
         print("calling randomize obstacle")
-        EE_POS_TGT_1 = np.asmatrix([0.3239543, 0.0083323, 0.3746]) #center of R
+        #EE_POS_TGT_1 = np.asmatrix([0.3239543, 0.0083323, 0.3746]) #center of R
+        #EE_POS_TGT_1 = np.asmatrix([0.29557, -0.0422738, 0.3746]) # R top left
+        EE_POS_TGT_1 = np.asmatrix([0.3349774, 0.1570571, 0.3746]) #center of S
+        #EE_POS_TGT_1 = np.asmatrix([0.3349774, 0.1570571, 0.3746]) # S center
+
         #EE_POS_TGT_1 = np.asmatrix([0.3325683, 0.0657366, 0.3746]) # center of O
         EE_POS_TGT_2 = np.asmatrix([0.3305805, -0.1326121, 0.3746]) # center of the H
         EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
@@ -373,6 +382,16 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         # self.realgoal = 0
         # EE_POS_TGT = np.asmatrix([0.3325683, 0.0657366, 0.4868]) # center of O
         # EE_POS_TGT = np.asmatrix([0.3305805, -0.1326121, 0.4868]) # center of the H
+
+    def collision_callback(self, message):
+        """
+        Callback method for the subscriber of Collision data
+        """
+        print("\nCOLLISION CALL_BACK")
+        self._collision_msg =  message
+        print("self._collision_msg.data", self._collision_msg.data)
+        #time.sleep(100)
+
 
 
     def observation_callback(self, message):
@@ -601,6 +620,15 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
             print("Reward is: ", self.reward)
         else:
             self.reward = self.reward_dist
+
+        print("\n STEP -> collision_msg", self._collision_msg)
+        print("\n STEP -> collision_msg.data", self._collision_msg.data)
+        # If there is a collision, penalize reward considerably
+        if self._collision_msg.data == True:
+            self.reward = self.reward - 1000
+            print("\n\n\n Penalized reward after COLLISION", self._collision_msg)
+
+
 
         # print("reward: ", self.reward)
         # print("rmse_func: ", self.rmse_func(ee_points))
