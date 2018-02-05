@@ -56,8 +56,7 @@ class RobotEnv(gym.GoalEnv):
     def step(self, action):
         action = np.clip(action, self.action_space.low, self.action_space.high)
         self._set_action(action)
-        with mujoco_py.ignore_mujoco_warnings():
-            self.sim.step()
+        self.sim.step()
         self._step_callback()
         obs = self._get_obs()
 
