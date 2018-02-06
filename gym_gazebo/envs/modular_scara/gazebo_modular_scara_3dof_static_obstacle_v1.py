@@ -14,6 +14,7 @@ import random
 
 from gazebo_msgs.srv import SpawnModel, DeleteModel
 from geometry_msgs.msg import Pose
+from geometry_msgs.msg import Vector3
 
 import rospkg
 
@@ -197,7 +198,7 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         self._sub = rospy.Subscriber('/scara_controller/state', JointTrajectoryControllerState, self.observation_callback)
 
         self._sub_coll = rospy.Subscriber('/gazebo_contacts',Bool, self.collision_callback, queue_size=1, buff_size=2**24) ##
-
+        self._sub_normals = rospy.Subscriber('/gazebo_normals', Vector3, self.normals_callback, queue_size=1, buff_size=2**24) ##
         #self._sub_coll = rospy.Subscriber('/gazebo_contacts',Bool, collision_callback) ##
 
         # Initialize a tree structure from the robot urdf.
@@ -399,9 +400,14 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         """
         # print("\nCOLLISION CALL_BACK")
         self._collision_msg =  message
-        # print("self._collision_msg.data", self._collision_msg.data)
-        #time.sleep(100)
 
+
+    def normals_callback(self, message):
+        """
+        Callback method for the subscriber of Collision data
+        """
+
+        self._normals_msg =  message
 
 
     def observation_callback(self, message):
