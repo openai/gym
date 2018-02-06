@@ -397,9 +397,9 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         """
         Callback method for the subscriber of Collision data
         """
-        print("\nCOLLISION CALL_BACK")
+        # print("\nCOLLISION CALL_BACK")
         self._collision_msg =  message
-        print("self._collision_msg.data", self._collision_msg.data)
+        # print("self._collision_msg.data", self._collision_msg.data)
         #time.sleep(100)
 
 
@@ -631,12 +631,12 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         else:
             self.reward = self.reward_dist
 
-        print("\n STEP -> collision_msg", self._collision_msg)
-        print("\n STEP -> collision_msg.data", self._collision_msg.data)
+        # print("\n STEP -> collision_msg", self._collision_msg)
+        # print("\n STEP -> collision_msg.data", self._collision_msg.data)
         # If there is a collision, penalize reward considerably
         if self._collision_msg.data == True:
             self.reward = self.reward - 1000
-            print("\n\n\n Penalized reward after COLLISION", self._collision_msg)
+            # print("\n\n\n Penalized reward after COLLISION", self._collision_msg)
 
 
 
