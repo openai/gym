@@ -386,14 +386,14 @@ for reward_type in ['sparse', 'dense']:
     register(
         id='HandManipulatePenRotate{}-v0'.format(suffix),
         entry_point='gym.envs.robotics:HandPenEnv',
-        kwargs=_merge({'target_position': 'ignore', 'target_rotation': 'xy'}, kwargs),
+        kwargs=_merge({'target_position': 'ignore', 'target_rotation': 'xyz'}, kwargs),
         max_episode_steps=100,
     )
 
     register(
         id='HandManipulatePenFull{}-v0'.format(suffix),
         entry_point='gym.envs.robotics:HandPenEnv',
-        kwargs=_merge({'target_position': 'random', 'target_rotation': 'xy'}, kwargs),
+        kwargs=_merge({'target_position': 'random', 'target_rotation': 'xyz'}, kwargs),
         max_episode_steps=100,
     )
 

@@ -24,22 +24,12 @@
         <body name="object" pos="1 0.87 0.2" euler="-1 1 0">
             <geom name="object" type="capsule" size="0.008 0.1" material="material:object" condim="4"></geom>
             <site name="object:center" pos="0 0 0" rgba="1 0 0 0" size="0.01 0.01 0.01"></site>
-            <joint name="object:tx" type="slide" axis="1 0 0" limited="false"></joint>
-            <joint name="object:ty" type="slide" axis="0 1 0" limited="false"></joint>
-            <joint name="object:tz" type="slide" axis="0 0 1" limited="false"></joint>
-            <joint name="object:rx" type="hinge" axis="1 0 0" limited="false"></joint>
-            <joint name="object:ry" type="hinge" axis="0 1 0" limited="false"></joint>
-            <joint name="object:rz" type="hinge" axis="0 0 1" limited="false"></joint>
+            <joint name="object:joint" type="free" damping="0.01"></joint>
         </body>
         <body name="target" pos="1 0.87 0.2" euler="-1 1 0">
             <geom name="target" type="capsule" size="0.008 0.1" material="material:target" condim="4" group="2" contype="0" conaffinity="0"></geom>
             <site name="target:center" pos="0 0 0" rgba="1 0 0 0" size="0.01 0.01 0.01"></site>
-            <joint name="target:tx" type="slide" axis="1 0 0" limited="false"></joint>
-            <joint name="target:ty" type="slide" axis="0 1 0" limited="false"></joint>
-            <joint name="target:tz" type="slide" axis="0 0 1" limited="false"></joint>
-            <joint name="target:rx" type="hinge" axis="1 0 0" limited="false"></joint>
-            <joint name="target:ry" type="hinge" axis="0 1 0" limited="false"></joint>
-            <joint name="target:rz" type="hinge" axis="0 0 1" limited="false"></joint>
+            <joint name="target:joint" type="free" damping="0.01"></joint>
         </body>
         
         <light directional="true" ambient="0.2 0.2 0.2" diffuse="0.8 0.8 0.8" specular="0.3 0.3 0.3" castshadow="false" pos="0 1 4" dir="0 0 -1" name="light0"></light>
