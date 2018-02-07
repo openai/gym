@@ -13,9 +13,7 @@ class FetchSlideEnv(fetch_env.FetchEnv, utils.EzPickle):
             'table0:slide0': 0.7,
             'table0:slide1': 0.3,
             'table0:slide2': 0.0,
-            'object0:slide0': 1.703020558521492,
-            'object0:slide1': 1.0816411287521643,
-            'object0:slide2': 0.4,
+            'object0:joint': [1.7, 1.1, 0.4, 1., 0., 0., 0.],
         }
         fetch_env.FetchEnv.__init__(
             self, 'fetch/slide.xml', has_object=True, block_gripper=True, n_substeps=20,

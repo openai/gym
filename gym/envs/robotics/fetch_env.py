@@ -71,7 +71,7 @@ class FetchEnv(robot_env.RobotEnv):
         assert action.shape == (4,)
         action = action.copy()  # ensure that we don't change the action outside of this scope
         pos_ctrl, gripper_ctrl = action[:3], action[3]
-        
+
         pos_ctrl *= 0.05  # limit maximum change in position
         rot_ctrl = [1., 0., 1., 0.]  # fixed rotation of the end effector, expressed as a quaternion
         gripper_ctrl = np.array([gripper_ctrl, gripper_ctrl])
@@ -135,19 +135,29 @@ class FetchEnv(robot_env.RobotEnv):
         site_id = self.sim.model.site_name2id('target0')
         self.sim.model.site_pos[site_id] = self.goal - sites_offset[0]
 
-    def _sample_goal(self):
+    def _reset_sim(self):
+        self.sim.set_state(self.initial_state)
+
+        # Randomize start position of object.
         if self.has_object:
             object_xpos = self.initial_gripper_xpos[:2]
             while np.linalg.norm(object_xpos - self.initial_gripper_xpos[:2]) < 0.1:
                 object_xpos = self.initial_gripper_xpos[:2] + self.np_random.uniform(-self.obj_range, self.obj_range, size=2)
+            object_qpos = self.sim.data.get_joint_qpos('object0:joint')
+            assert object_qpos.shape == (7,)
+            object_qpos[:2] = object_xpos
+            self.sim.data.set_joint_qpos('object0:joint', object_qpos)
+
+        self.sim.forward()
+        return True
+
+    def _sample_goal(self):
+        if self.has_object:
             goal = self.initial_gripper_xpos[:3] + self.np_random.uniform(-self.target_range, self.target_range, size=3)
             goal += self.target_offset
             goal[2] = self.height_offset
             if self.target_in_the_air and self.np_random.uniform() < 0.5:
                 goal[2] += self.np_random.uniform(0, 0.45)
-            qpos = self.initial_state.qpos
-            qpos[-6:-4] = object_xpos
-            qpos[-3:] = 0.  # no rotation
         else:
             goal = self.initial_gripper_xpos[:3] + self.np_random.uniform(-0.15, 0.15, size=3)
         return goal.copy()

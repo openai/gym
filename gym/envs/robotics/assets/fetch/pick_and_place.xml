@@ -22,12 +22,7 @@
 			<joint name="table0:slide2" type="slide" axis="0 0 1" damping="10000" pos="0 0 0"></joint>
 		</body>
 		<body name="object0" pos="0.025 0.025 0.025">
-			<joint name="object0:slide0" axis="1 0 0" type="slide" damping="0.01" pos="0 0 0"></joint>
-			<joint name="object0:slide1" axis="0 1 0" type="slide" damping="0.01" pos="0 0 0"></joint>
-			<joint name="object0:slide2" axis="0 0 1" type="slide" damping="0.01" pos="0 0 0"></joint>
-			<joint name="object0:hinge0" axis="1 0 0" type="hinge" damping="0.01" pos="0 0 0"></joint>
-			<joint name="object0:hinge1" axis="0 1 0" type="hinge" damping="0.01" pos="0 0 0"></joint>
-			<joint name="object0:hinge2" axis="0 0 1" type="hinge" damping="0.01" pos="0 0 0"></joint>
+			<joint name="object0:joint" type="free" damping="0.01"></joint>
 			<geom size="0.025 0.025 0.025" type="box" condim="3" name="object0" material="block_mat" mass="2"></geom>
 			<site name="object0" pos="0 0 0" size="0.02 0.02 0.02" rgba="1 0 0 1" type="sphere"></site>
 		</body>
