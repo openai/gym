@@ -184,6 +184,24 @@ class Space(object):
         # By default, assume identity is JSONable
         return sample_n
 
+    def compatible(self, space):
+        """
+        Return boolean specifying if space is compatible with this Space
+        (equal shape structure, ignoring bounds).  None matches any Space.
+        """
+        # allow None to match with any space
+        if space is None:
+            return True
+
+        # compare classes
+        if type(self) != type(space):
+            return False
+
+        # TODO - compare dtypes?
+
+        # compare shapes
+        return self.shape == space.shape
+
 
 warn_once = True
 
