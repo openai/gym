@@ -144,6 +144,26 @@ class Env(object):
         """
         return self
 
+    def command(self, name, args=None):
+        """
+        Allows sending of a generic command to an environment subclass.
+        Will also propagate through any Wrappers surrounding env.
+
+        Returns:
+            object: Returns the result of on_command implementation.
+        """
+        return self.on_command(name, args)
+
+    def on_command(self, name, args=None):
+        """
+        Override this in an Env or Wrapper subclass to handle
+        any specific commands propagated through the stack.
+
+        Returns:
+            object: Subclasses can return any desired result or None.
+        """
+        return None
+
     def __str__(self):
         if self.spec is None:
             return '<{} instance>'.format(type(self).__name__)
@@ -280,6 +300,20 @@ class Wrapper(Env):
     @property
     def spec(self):
         return self.env.spec
+
+    def command(self, name, args=None):
+        """
+        Allows sending of a generic command to a Wrapper or Env subclass.
+        Will propagate command through all Wrappers down to and including Env.
+        If any layer's on_command implementation returns a non-None result,
+        that result will be returned from the outer-most command call.
+
+        Returns:
+            object: Outer-most non-None result from on_command implementations.
+        """
+        result = self.on_command(name, args)
+        inner_result = self.env.command(name, args)
+        return inner_result if result is None else result
 
 
 class ObservationWrapper(Wrapper):
