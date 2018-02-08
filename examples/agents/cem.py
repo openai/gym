@@ -3,7 +3,7 @@ from __future__ import print_function
 import gym
 from gym import wrappers, logger
 import numpy as np
-from six.moves import cPickle
+from six.moves import cPickle as pickle
 import json, sys, os
 from os import path
 from _policies import BinaryActionLinearPolicy # Different file so it can be unpickled

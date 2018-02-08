@@ -1,7 +1,7 @@
 import numpy as np
-from gym import Space, spaces
+import gym
 
-class Discrete(Space):
+class Discrete(gym.Space):
     """
     {0,1,...,n-1}
 
@@ -10,9 +10,9 @@ class Discrete(Space):
     """
     def __init__(self, n):
         self.n = n
-        Space.__init__(self, (), np.int64)
+        gym.Space.__init__(self, (), np.int64)
     def sample(self):
-        return spaces.np_random.randint(self.n)
+        return gym.spaces.np_random.randint(self.n)
     def contains(self, x):
         if isinstance(x, int):
             as_int = x
