@@ -189,10 +189,6 @@ class Space(object):
         Return boolean specifying if space is compatible with this Space
         (equal shape structure, ignoring bounds).  None matches any Space.
         """
-        # allow None to match with any space
-        if space is None:
-            return True
-
         # compare classes
         if type(self) != type(space):
             return False
