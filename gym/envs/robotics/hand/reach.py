@@ -49,7 +49,7 @@ def goal_distance(goal_a, goal_b):
 
 class HandReachEnv(hand_env.HandEnv, utils.EzPickle):
     def __init__(
-        self, distance_threshold=0.02, n_substeps=20, relative_control=False,
+        self, distance_threshold=0.01, n_substeps=20, relative_control=False,
         initial_qpos=DEFAULT_INITIAL_QPOS, reward_type='sparse',
     ):
         self.distance_threshold = distance_threshold
@@ -99,6 +99,7 @@ class HandReachEnv(hand_env.HandEnv, utils.EzPickle):
         thumb_name = 'robot0:S_thtip'
         finger_names = [name for name in FINGERTIP_SITE_NAMES if name != thumb_name]
         finger_name = self.np_random.choice(finger_names)
+        finger_name = 'robot0:S_rftip'
 
         thumb_idx = FINGERTIP_SITE_NAMES.index(thumb_name)
         finger_idx = FINGERTIP_SITE_NAMES.index(finger_name)
