@@ -10,7 +10,6 @@ except ImportError as e:
     raise error.DependencyNotInstalled("{}. (HINT: you need to install mujoco_py, and also perform the setup instructions here: https://github.com/openai/mujoco-py/.)".format(e))
 
 
-
 def quat_from_angle_and_axis(angle, axis):
     assert axis.shape == (3,)
     axis /= np.linalg.norm(axis)
