@@ -150,11 +150,11 @@ class Env(object):
         Will also propagate through any Wrappers surrounding env.
 
         Returns:
-            object: Returns the result of on_command implementation.
+            object: Returns the result of _command implementation.
         """
-        return self.on_command(name, args)
+        return self._command(name, args)
 
-    def on_command(self, name, args=None):
+    def _command(self, name, args=None):
         """
         Override this in an Env or Wrapper subclass to handle
         any specific commands propagated through the stack.
@@ -309,9 +309,9 @@ class Wrapper(Env):
         that result will be returned from the outer-most command call.
 
         Returns:
-            object: Outer-most non-None result from on_command implementations.
+            object: Outer-most non-None result from _command implementations.
         """
-        result = self.on_command(name, args)
+        result = self._command(name, args)
         inner_result = self.env.command(name, args)
         return inner_result if result is None else result
 
@@ -358,3 +358,11 @@ class ActionWrapper(Wrapper):
     def reverse_action(self, action):
         deprecated_warn_once("%s doesn't implement 'reverse_action' method. Maybe it implements deprecated '_reverse_action' method." % type(self))
         return self._reverse_action(action)
+
+
+class CommandWrapper(Wrapper):
+    def step(self, action):
+        return self.env.step(action)
+
+    def reset(self):
+        return self.env.reset()
