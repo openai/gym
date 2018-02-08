@@ -24,7 +24,7 @@ class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
         self, model_path, target_position, target_rotation,
         target_position_range, reward_type, initial_qpos={},
         randomize_initial_position=True, randomize_initial_rotation=True,
-        distance_threshold=0.05, rotation_threshold=0.1, n_substeps=20, relative_control=False,
+        distance_threshold=0.01, rotation_threshold=0.1, n_substeps=20, relative_control=False,
         ignore_z_target_rotation=False,
     ):
         """Initializes a new Hand manipulation environment.
