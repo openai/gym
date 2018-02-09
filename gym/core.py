@@ -144,6 +144,26 @@ class Env(object):
         """
         return self
 
+    def broadcast(self, name, args=None):
+        """
+        Allows sending of a generic event to an environment subclass.
+        Will also propagate through any Wrappers surrounding env.
+
+        Returns:
+            object: Returns the result of event implementation.
+        """
+        return self.event(name, args)
+
+    def event(self, name, args=None):
+        """
+        Override this in an Env or Wrapper subclass to handle
+        any specific event propagated through the stack.
+
+        Returns:
+            object: Subclasses can return any desired result or None.
+        """
+        return None
+
     def __str__(self):
         if self.spec is None:
             return '<{} instance>'.format(type(self).__name__)
@@ -277,6 +297,20 @@ class Wrapper(Env):
     def spec(self):
         return self.env.spec
 
+    def broadcast(self, name, args=None):
+        """
+        Allows sending of a generic event to a Wrapper or Env subclass.
+        Will propagate event through all Wrappers down to and including Env.
+        If any layer's 'event' method implementation returns a non-None result,
+        that result will be returned from the outer-most event call.
+
+        Returns:
+            object: Outer-most non-None result from event method implementations.
+        """
+        result = self.event(name, args)
+        inner_result = self.env.broadcast(name, args)
+        return inner_result if result is None else result
+
 
 class ObservationWrapper(Wrapper):
     def step(self, action):
@@ -320,3 +354,15 @@ class ActionWrapper(Wrapper):
     def reverse_action(self, action):
         deprecated_warn_once("%s doesn't implement 'reverse_action' method. Maybe it implements deprecated '_reverse_action' method." % type(self))
         return self._reverse_action(action)
+
+
+class EventWrapper(Wrapper):
+    def step(self, action):
+        return self.env.step(action)
+
+    def reset(self):
+        return self.env.reset()
+
+    def event(self, name, args=None):
+        deprecated_warn_once("%s doesn't implement 'event' method." % type(self))
+        return None
