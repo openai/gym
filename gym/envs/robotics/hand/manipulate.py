@@ -115,7 +115,9 @@ class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
             return (success - 1.)
         else:
             d_pos, d_rot = self._goal_distance(achieved_goal, goal)
-            return -(d_pos + d_rot)
+            # We weigh the difference in position to avoid that `d_pos` (in meters) is completely
+            # dominated by `d_rot` (in radians).
+            return -(10. * d_pos + d_rot)
 
     # RobotEnv methods
     # ----------------------------
