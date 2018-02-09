@@ -286,4 +286,4 @@ class HandPenEnv(ManipulateEnv):
             target_rotation=target_rotation,
             target_position_range=np.array([(-0.04, 0.04), (-0.06, 0.02), (0.0, 0.06)]),
             randomize_initial_rotation=False, reward_type=reward_type,
-            ignore_z_target_rotation=True)
+            ignore_z_target_rotation=True, distance_threshold=0.05)
