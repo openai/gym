@@ -144,20 +144,20 @@ class Env(object):
         """
         return self
 
-    def command(self, name, args=None):
+    def broadcast(self, name, args=None):
         """
-        Allows sending of a generic command to an environment subclass.
+        Allows sending of a generic event to an environment subclass.
         Will also propagate through any Wrappers surrounding env.
 
         Returns:
-            object: Returns the result of _command implementation.
+            object: Returns the result of event implementation.
         """
-        return self._command(name, args)
+        return self.event(name, args)
 
-    def _command(self, name, args=None):
+    def event(self, name, args=None):
         """
         Override this in an Env or Wrapper subclass to handle
-        any specific commands propagated through the stack.
+        any specific event propagated through the stack.
 
         Returns:
             object: Subclasses can return any desired result or None.
@@ -297,18 +297,18 @@ class Wrapper(Env):
     def spec(self):
         return self.env.spec
 
-    def command(self, name, args=None):
+    def broadcast(self, name, args=None):
         """
-        Allows sending of a generic command to a Wrapper or Env subclass.
-        Will propagate command through all Wrappers down to and including Env.
-        If any layer's on_command implementation returns a non-None result,
-        that result will be returned from the outer-most command call.
+        Allows sending of a generic event to a Wrapper or Env subclass.
+        Will propagate event through all Wrappers down to and including Env.
+        If any layer's 'event' method implementation returns a non-None result,
+        that result will be returned from the outer-most event call.
 
         Returns:
-            object: Outer-most non-None result from _command implementations.
+            object: Outer-most non-None result from event method implementations.
         """
-        result = self._command(name, args)
-        inner_result = self.env.command(name, args)
+        result = self.event(name, args)
+        inner_result = self.env.broadcast(name, args)
         return inner_result if result is None else result
 
 
@@ -356,9 +356,13 @@ class ActionWrapper(Wrapper):
         return self._reverse_action(action)
 
 
-class CommandWrapper(Wrapper):
+class EventWrapper(Wrapper):
     def step(self, action):
         return self.env.step(action)
 
     def reset(self):
         return self.env.reset()
+
+    def event(self, name, args=None):
+        deprecated_warn_once("%s doesn't implement 'event' method." % type(self))
+        return None
