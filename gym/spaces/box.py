@@ -14,7 +14,7 @@ class Box(gym.Space):
         """
         Two kinds of valid input:
             Box(low=-1.0, high=1.0, shape=(3,4)) # low and high are scalars, and shape is provided
-            Box(np.array(low=[-1.0,-2.0]), high=np.array([2.0,4.0])) # low and high are arrays of the same shape
+            Box(low=np.array([-1.0,-2.0]), high=np.array([2.0,4.0])) # low and high are arrays of the same shape
         """
         if shape is None:
             assert low.shape == high.shape
