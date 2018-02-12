@@ -5,6 +5,5 @@ from gym.spaces.multi_binary import MultiBinary
 from gym.spaces.prng import seed, np_random
 from gym.spaces.tuple_space import Tuple
 from gym.spaces.dict_space import Dict
-from gym.spaces.goal_space import GoalDict
 
-__all__ = ["Box", "Discrete", "MultiDiscrete", "MultiBinary", "Tuple", "Dict", "GoalDict"]
+__all__ = ["Box", "Discrete", "MultiDiscrete", "MultiBinary", "Tuple", "Dict"]

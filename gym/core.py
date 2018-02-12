@@ -160,12 +160,15 @@ class GoalEnv(Env):
     `achieved_goal` is the goal that it currently achieved instead. `observation` contains the
     actual observations of the environment as per usual.
     """
-    
+
     def reset(self):
-        # Enforce that each GoalEnv uses a Goal observation space.
+        # Enforce that each GoalEnv uses a Goal-compatible observation space.
+        if not isinstance(self.observation_space, gym.spaces.Dict):
+            raise error.Error('GoalEnv requires an observation space of type gym.spaces.Dict')
         result = super(GoalEnv, self).reset()
-        if not isinstance(self.observation_space, gym.spaces.GoalDict):
-            raise error.Error("GoalEnv requires an observation space of type gym.spaces.GoalDict")
+        for key in ['observation', 'achieved_goal', 'desired_goal']:
+            if key not in result:
+                raise error.Error('GoalEnv requires the "{}" key to be part of the observation dictionary.'.format(key))
         return result
 
     def compute_reward(self, achieved_goal, desired_goal, info):

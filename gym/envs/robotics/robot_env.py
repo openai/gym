@@ -37,10 +37,11 @@ class RobotEnv(gym.GoalEnv):
         self.goal = self._sample_goal()
         obs = self._get_obs()
         self.action_space = spaces.Box(-1., 1., shape=(n_actions,), dtype='float32')
-        self.observation_space = spaces.GoalDict(
-            goal_space=spaces.Box(-np.inf, np.inf, shape=obs['achieved_goal'].shape, dtype='float32'),
-            observation_space=spaces.Box(-np.inf, np.inf, shape=obs['observation'].shape, dtype='float32'),
-        )
+        self.observation_space = spaces.Dict(dict(
+            desired_goal=spaces.Box(-np.inf, np.inf, shape=obs['achieved_goal'].shape, dtype='float32'),
+            achieved_goal=spaces.Box(-np.inf, np.inf, shape=obs['achieved_goal'].shape, dtype='float32'),
+            observation=spaces.Box(-np.inf, np.inf, shape=obs['observation'].shape, dtype='float32'),
+        ))
 
     @property
     def dt(self):
