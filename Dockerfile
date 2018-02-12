@@ -358,7 +358,7 @@ RUN cd ros_catkin_ws/src && git clone https://github.com/ros-perception/pcl_conv
 RUN cd ros_catkin_ws/src && git clone https://github.com/ros-gbp/bfl-release -b release/kinetic/bfl
 # # CATKIN_IGNORE kobuki_gazebo_plugins
 # RUN cd ros_catkin_ws/src/kobuki_desktop/kobuki_gazebo_plugins && touch CATKIN_IGNORE
-RUN cd ros_catkin_ws/src && git clone git clone https://github.com/yujinrobot/kobuki_desktop -b devel
+RUN cd ros_catkin_ws/src && git clone https://github.com/yujinrobot/kobuki_desktop -b devel
 # Fix obtained from https://aur.archlinux.org/packages/ros-indigo-kobuki-gazebo-plugins/
 # checkout version 0.5.1, which compiles
 RUN cd ros_catkin_ws/src/kobuki_desktop && git checkout 3d837662928748cf1e229d2e0b0d98f1031ed4a4
