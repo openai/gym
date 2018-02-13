@@ -99,7 +99,7 @@ class HandReachEnv(hand_env.HandEnv, utils.EzPickle):
         thumb_name = 'robot0:S_thtip'
         finger_names = [name for name in FINGERTIP_SITE_NAMES if name != thumb_name]
         finger_name = self.np_random.choice(finger_names)
-        
+
         thumb_idx = FINGERTIP_SITE_NAMES.index(thumb_name)
         finger_idx = FINGERTIP_SITE_NAMES.index(finger_name)
         assert thumb_idx != finger_idx
@@ -146,3 +146,4 @@ class HandReachEnv(hand_env.HandEnv, utils.EzPickle):
             site_name = 'finger{}'.format(finger_idx)
             site_id = self.sim.model.site_name2id(site_name)
             self.sim.model.site_pos[site_id] = achieved_goal[finger_idx] - sites_offset[site_id]
+        self.sim.forward()

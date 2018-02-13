@@ -250,6 +250,7 @@ class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
         if 'object_hidden' in self.sim.model.geom_names:
             hidden_id = self.sim.model.geom_name2id('object_hidden')
             self.sim.model.geom_rgba[hidden_id, 3] = 1.
+        self.sim.forward()
 
     def _get_obs(self):
         robot_qpos, robot_qvel = robot_get_obs(self.sim)

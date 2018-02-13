@@ -338,7 +338,7 @@ for reward_type in ['sparse', 'dense']:
         id='HandReach{}-v0'.format(suffix),
         entry_point='gym.envs.robotics:HandReachEnv',
         kwargs=kwargs,
-        max_episode_steps=100,
+        max_episode_steps=50,
     )
 
     register(
