@@ -99,6 +99,7 @@ class HandReachEnv(hand_env.HandEnv, utils.EzPickle):
         thumb_name = 'robot0:S_thtip'
         finger_names = [name for name in FINGERTIP_SITE_NAMES if name != thumb_name]
         finger_name = self.np_random.choice(finger_names)
+        finger_name = 'robot0:S_rftip'
 
         thumb_idx = FINGERTIP_SITE_NAMES.index(thumb_name)
         finger_idx = FINGERTIP_SITE_NAMES.index(finger_name)
@@ -108,8 +109,9 @@ class HandReachEnv(hand_env.HandEnv, utils.EzPickle):
         meeting_pos = self.palm_xpos + np.array([0.0, -0.09, 0.05])
         if finger_name == 'robot0:S_rftip':
             # The meeting point for the ring finger is positioned such that it becomes
-            # unreachable. Fix it by moving it slightly to the side.
+            # unreachable. Fix it by moving it slightly to the side and towards the finger.
             meeting_pos[0] += 0.03
+            meeting_pos[1] -= 0.03
         meeting_pos += self.np_random.normal(scale=0.005, size=meeting_pos.shape)
 
         # Slightly move meeting goal towards the respective finger to avoid that they
