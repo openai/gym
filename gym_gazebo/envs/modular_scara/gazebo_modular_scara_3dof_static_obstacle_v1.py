@@ -15,6 +15,7 @@ import random
 from gazebo_msgs.srv import SpawnModel, DeleteModel
 from geometry_msgs.msg import Pose
 from geometry_msgs.msg import Vector3
+from gazebo_msgs.msg import ContactState
 
 import rospkg
 
@@ -84,8 +85,9 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         #   Environment hyperparams
         #############################
         # target, where should the agent reach
+        EE_POS_TGT = np.asmatrix([0.3349774, 0.1570571, 0.3746]) #center of S
         # EE_POS_TGT = np.asmatrix([0.3325683, 0.0657366, 0.3746]) # center of O
-        EE_POS_TGT = np.asmatrix([0.3305805, -0.1326121, 0.3746]) # center of the H
+        # EE_POS_TGT = np.asmatrix([0.3305805, -0.1326121, 0.3746]) # center of the H
         EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         EE_POINTS = np.asmatrix([[0, 0, 0]])
         EE_VELOCITIES = np.asmatrix([[0, 0, 0]])
@@ -197,8 +199,8 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         self._pub = rospy.Publisher('/scara_controller/command', JointTrajectory)
         self._sub = rospy.Subscriber('/scara_controller/state', JointTrajectoryControllerState, self.observation_callback)
 
-        self._sub_coll = rospy.Subscriber('/gazebo_contacts',Bool, self.collision_callback, queue_size=1, buff_size=2**24) ##
-        self._sub_normals = rospy.Subscriber('/gazebo_normals', Vector3, self.normals_callback, queue_size=1, buff_size=2**24) ##
+        self._sub_coll = rospy.Subscriber('/gazebo_contacts',ContactState, self.collision_callback) ##
+        # self._sub_normals = rospy.Subscriber('/gazebo_normals', Vector3, self.normals_callback, queue_size=1, buff_size=2**24) ##
         #self._sub_coll = rospy.Subscriber('/gazebo_contacts',Bool, collision_callback) ##
 
         # Initialize a tree structure from the robot urdf.
@@ -350,7 +352,8 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
              self.realgoal = target1
              print("\n\nOBSTACLE\n\n")
         else:
-             self.removeObstacle()
+             # self.removeObstacle()
+             self.addObstacle()
              self.realgoal = target1
              print("\n\nNO OBSTACLE\n\n")
 
@@ -398,7 +401,7 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         """
         Callback method for the subscriber of Collision data
         """
-        # print("\nCOLLISION CALL_BACK")
+        # print("\ncollision: ", self._collision_msg)
         self._collision_msg =  message
 
 
@@ -640,9 +643,13 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         # print("\n STEP -> collision_msg", self._collision_msg)
         # print("\n STEP -> collision_msg.data", self._collision_msg.data)
         # If there is a collision, penalize reward considerably
-        if self._collision_msg.data == True:
-            self.reward = self.reward - 1000
-            # print("\n\n\n Penalized reward after COLLISION", self._collision_msg)
+        # if self._collision_msg.data == True:
+        #     self.reward = self.reward - 1000
+        #     # print("\n\n\n Penalized reward after COLLISION", self._collision_msg)
+
+
+            # print("string is empty")
+
 
 
 
@@ -657,6 +664,8 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         # Calculate if the env has been solved
         done = (bool(abs(self.reward_dist) < 0.005)) or (self.iterator > self.max_episode_steps)
 
+        # self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
+
         # # Unpause simulation
         # rospy.wait_for_service('/gazebo/unpause_physics')
         # try:
@@ -664,9 +673,16 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         # except (rospy.ServiceException) as e:
         #     print ("/gazebo/unpause_physics service call failed")
 
-        # Execute "action"
-        # if rclpy.ok(): # ROS 2 code
-        self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
+        # # Execute "action"
+        if self._collision_msg.collision2_name == '' or self._collision_msg.collision1_name == '':
+            self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
+        else:
+            self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
+            # self._pub.publish(self.get_trajectory_message(self.environment['reset_conditions']['initial_positions']))
+            self.reward = self.reward - 5
+            print("\n\n\n Penalized reward after COLLISION", self._collision_msg)
+            time.sleep(1)
+
 
         #TODO: wait until action gets executed
         # When adding this the algorithm does not converge
@@ -716,21 +732,22 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
                                   </material>\
                                 </visual>\
                                 <inertial>\
-                                  <mass value=\"5.0\"/>\
+                                  <mass value=\"100.0\"/>\
                                   <inertia ixx=\"1.0\" ixy=\"0.0\" ixz=\"0.0\" iyy=\"1.0\" iyz=\"0.0\" izz=\"1.0\"/>\
                                 </inertial>\
                                 <collision>\
                                   <geometry>\
-                                    <box size=\".02 .02 1\"/>\
+                                    <box size=\".03 .03 1\"/>\
                                   </geometry>\
                                   <contact>\
                                     <ode>\
                                         <soft_cfm>0.000000</soft_cfm>\
                                         <soft_erp>0.200000</soft_erp>\
                                         <kp>1000000000000.000000</kp>\
-                                        <kd>1.000000</kd>\
-                                        <max_vel>100.000000</max_vel>\
+                                        <kd>100.000000</kd>\
+                                        <max_vel>0.100000</max_vel>\
                                         <min_depth>0.000001000</min_depth>\
+                                        <max_depth>0.010001000</max_depth>\
                                     </ode>\
                                 </contact>\
                                </collision>\
