@@ -70,3 +70,4 @@ class Dict(gym.Space):
                 entry[key] = value[i]
             ret.append(entry)
         return ret
+

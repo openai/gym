@@ -198,7 +198,7 @@ class Space(object):
     code that applies to any Env. For example, you can choose a random
     action.
     """
-    def __init__(self, shape, dtype):
+    def __init__(self, shape=None, dtype=None):
         self.shape = None if shape is None else tuple(shape)
         self.dtype = None if dtype is None else np.dtype(dtype)
 
@@ -342,7 +342,7 @@ class ActionWrapper(Wrapper):
 
     def reset(self):
         return self.env.reset()
-        
+
     def action(self, action):
         deprecated_warn_once("%s doesn't implement 'action' method. Maybe it implements deprecated '_action' method." % type(self))
         return self._action(action)
