@@ -10,9 +10,8 @@
     <asset>
         <include file="shared_asset.xml"></include>
 
-        <texture builtin="flat" height="127" mark="cross" markrgb="0 0 0" name="texgeom" random="0.01" rgb1="0 0.9 0" rgb2="0 0.9 0" type="cube" width="127"></texture>
-        <material name="material:object" texture="texgeom" texuniform="true"></material>
-        <material name="material:target" texture="texgeom" texuniform="true" rgba="1 1 1 0.5"></material>
+        <material name="material:object" specular="0" shininess="0.5" reflectance="0.0" rgba="0.46 0.81 0.88 1"></material>
+        <material name="material:target" specular="0" shininess="0.5" reflectance="0.0" rgba="0.46 0.81 0.88 0.5"></material>
     </asset>
 
     <worldbody>
