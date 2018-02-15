@@ -12,7 +12,7 @@
     </asset>
 
     <worldbody>
-        <geom name="floor0" pos="1 1 0" size="1 1 1" type="plane" condim="3"></geom>
+        <geom name="floor0" pos="1 1 0" size="1 1 1" type="plane" condim="3" material="floor_mat"></geom>
         <body name="floor0" pos="1 1 0">
             <site name="target0" pos="0 0 0" size="0.005" rgba="1 0 0 1" type="sphere"></site>
             <site name="target1" pos="0 0 0" size="0.005" rgba="0 1 0 1" type="sphere"></site>
