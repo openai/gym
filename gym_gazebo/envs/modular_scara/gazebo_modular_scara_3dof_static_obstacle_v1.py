@@ -59,7 +59,8 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
             TODO: port everything to ROS 2 natively
         """
         # Launch the simulation with the given launchfile name
-        gazebo_env.GazeboEnv.__init__(self, "ModularScara3_Obstacles_v0.launch")
+        #gazebo_env.GazeboEnv.__init__(self, "ModularScara3_Obstacles_v0.launch")
+        gazebo_env.GazeboEnv.__init__(self, "ModularScara3_Obstacles_urdf_simplified_v0.launch")
 
         # TODO: cleanup this variables, remove the ones that aren't used
         # class variables
@@ -151,7 +152,7 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
 
         # TODO: fix this and make it relative
         # Set the path of the corresponding URDF file from "assets"
-        # URDF_PATH = "/home/erle/ros_ws/src/scara_e1/scara_e1_description/urdf/scara_e1_3joints.urdf"
+        #URDF_PATH = "/home/erle/ros_ws/src/scara_e1/scara_e1_description/urdf/scara_e1_3joints.urdf"
         #URDF_PATH = "/media/raid/RL/catkin_ws/src/scara_e1/scara_e1_description/urdf/scara_e1_3joints.urdf"
         rospack = rospkg.RosPack()
         prefix_path = rospack.get_path('scara_e1_description')
@@ -161,6 +162,7 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
             sys.exit(0)
 
         URDF_PATH = prefix_path + "/urdf/scara_e1_3joints_simplified.urdf"
+        # URDF_PATH = prefix_path + "/urdf/scara_e1_3joints.urdf"
 
         m_joint_order = copy.deepcopy(JOINT_ORDER)
         m_link_names = copy.deepcopy(LINK_NAMES)
