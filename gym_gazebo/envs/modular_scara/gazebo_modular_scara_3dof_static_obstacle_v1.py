@@ -59,8 +59,8 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
             TODO: port everything to ROS 2 natively
         """
         # Launch the simulation with the given launchfile name
-        #gazebo_env.GazeboEnv.__init__(self, "ModularScara3_Obstacles_v0.launch")
-        gazebo_env.GazeboEnv.__init__(self, "ModularScara3_Obstacles_urdf_simplified_v0.launch")
+        gazebo_env.GazeboEnv.__init__(self, "ModularScara3_Obstacles_v0.launch")
+        #gazebo_env.GazeboEnv.__init__(self, "ModularScara3_Obstacles_urdf_simplified_v0.launch")
 
         # TODO: cleanup this variables, remove the ones that aren't used
         # class variables
@@ -82,6 +82,7 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         self.slowness = 1
         self.slowness_unit = 'sec'
 
+        self.mod = 100
         #############################
         #   Environment hyperparams
         #############################
@@ -161,8 +162,8 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
             print("I can't find scara_e1_description")
             sys.exit(0)
 
-        URDF_PATH = prefix_path + "/urdf/scara_e1_3joints_simplified.urdf"
-        # URDF_PATH = prefix_path + "/urdf/scara_e1_3joints.urdf"
+        #URDF_PATH = prefix_path + "/urdf/scara_e1_3joints_simplified.urdf"
+        URDF_PATH = prefix_path + "/urdf/scara_e1_3joints.urdf"
 
         m_joint_order = copy.deepcopy(JOINT_ORDER)
         m_link_names = copy.deepcopy(LINK_NAMES)
@@ -365,6 +366,24 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         # self.realgoal = 0
         # EE_POS_TGT = np.asmatrix([0.3325683, 0.0657366, 0.4868]) # center of O
         # EE_POS_TGT = np.asmatrix([0.3305805, -0.1326121, 0.4868]) # center of the H
+
+    def setPenalizationMod(self, pen_mod):
+        if pen_mod == 1:
+            self.mod = 100
+        elif pen_mod == 2:
+            self.mod = 200
+        elif pen_mod == 3:
+            self.mod = 300
+        elif pen_mod == 4:
+            self.mod = 400
+        elif pen_mod == 5:
+            self.mod = 500
+        elif pen_mod == 6:
+            self.mod = 600
+        elif pen_mod == 7:
+            self.mod = 700
+        elif pen_mod == 8:
+            self.mod = 800
 
 
     #def randomizeCorrect(self):
@@ -689,25 +708,26 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
 
         #REWARD SHAPING sophisticated penalization based on https://arxiv.org/pdf/1609.07845.pdf
-        if self._collision_msg.collision2_name == '' or self._collision_msg.collision1_name == '':
-            self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
-        else:
-            #check if depth is existing
-            if self._collision_msg.depths is None:
-                print("self._collision_msg.depths[0] is empty")
-            # print("Contact detected.", self._collision_msg.collision1_name, ", ", self._collision_msg.collision2_name)
-            else:
-                contact_depths = 1000 * self._collision_msg.depths[0] #make them in mm otherwise we have too many decimals
-                print("\ncontact_depths", contact_depths)
+        if self._collision_msg is not None:
+            if self._collision_msg.collision2_name == '' or self._collision_msg.collision1_name == '':
                 self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
-                #we always assume that depths is positive here. Sometimes depths is negative (actually most of the time).
-                # changing to abs value of depths
-                if contact_depths > 0 and  abs(contact_depths) < 0.0001:
-                    self.reward = self.reward - (abs(contact_depths))/2
-                elif contact_depths > 0 and  abs(contact_depths) > 0.0001:
-                    self.reward = self.reward - abs(contact_depths)
+            else:
+                #check if depth is existing
+                if self._collision_msg.depths is None:
+                    print("self._collision_msg.depths[0] is empty")
+                # print("Contact detected.", self._collision_msg.collision1_name, ", ", self._collision_msg.collision2_name)
                 else:
-                    print("self._collision_msg.depths[0]:", contact_depths)
+                    contact_depths = self.mod * self._collision_msg.depths[0] #make them in mm otherwise we have too many decimals
+                    print("\ncontact_depths", contact_depths)
+                    self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
+                    #we always assume that depths is positive here. Sometimes depths is negative (actually most of the time).
+                    # changing to abs value of depths
+                    if contact_depths > 0 and  abs(contact_depths) < 0.0001:
+                        self.reward = self.reward - (abs(contact_depths))/2
+                    elif contact_depths > 0 and  abs(contact_depths) > 0.0001:
+                        self.reward = self.reward - abs(contact_depths)
+                    else:
+                        print("self._collision_msg.depths[0]:", contact_depths)
 
 
         #TODO: wait until action gets executed
@@ -733,8 +753,12 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
 
         # Return the corresponding observations, rewards, etc.
         # TODO, understand better what's the last object to return
-        return self.ob, self.reward, done, {}
 
+        # Return the corresponding observations, rewards, etc.
+        ee_point = self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)] + self.realgoal
+        ee_point_eucledian = np.linalg.norm(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])
+        #return self.ob, self.reward, done, ee_point,{}
+        return self.ob, self.reward, done, {}
     def addObstacle(self):
             rospy.wait_for_service('/gazebo/spawn_urdf_model')
                                 #   <material name=\"green\">\
