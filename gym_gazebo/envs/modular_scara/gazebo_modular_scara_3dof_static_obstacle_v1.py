@@ -85,7 +85,7 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         #   Environment hyperparams
         #############################
         # target, where should the agent reach
-        EE_POS_TGT = np.asmatrix([0.3349774, 0.1570571, 0.3746]) #center of S
+        EE_POS_TGT = np.asmatrix([0.3349774, 0.1570571, 0.26342]) #center of S
         # EE_POS_TGT = np.asmatrix([0.3325683, 0.0657366, 0.3746]) # center of O
         # EE_POS_TGT = np.asmatrix([0.3305805, -0.1326121, 0.3746]) # center of the H
         EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
@@ -117,35 +117,31 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         MOTOR3_JOINT = 'motor3'
         # Set constants for links
         WORLD = "world"
-        BASE = 'scara_e1_base_link'
-        BASE_MOTOR = 'scara_e1_base_motor'
+        BASE = 'scara_e1_base'
+        # BASE_MOTOR = 'scara_e1_base_motor'
         #
         SCARA_MOTOR1 = 'scara_e1_motor1'
-        SCARA_INSIDE_MOTOR1 = 'scara_e1_motor1_inside'
-        SCARA_SUPPORT_MOTOR1 = 'scara_e1_motor1_support'
-        SCARA_BAR_MOTOR1 = 'scara_e1_bar1'
-        SCARA_FIXBAR_MOTOR1 = 'scara_e1_fixbar1'
+        # SCARA_INSIDE_MOTOR1 = 'scara_e1_motor1_inside'
+        # SCARA_SUPPORT_MOTOR1 = 'scara_e1_motor1_support'
+        # SCARA_BAR_MOTOR1 = 'scara_e1_bar1'
+        # SCARA_FIXBAR_MOTOR1 = 'scara_e1_fixbar1'
         #
         SCARA_MOTOR2 = 'scara_e1_motor2'
-        SCARA_INSIDE_MOTOR2 = 'scara_e1_motor2_inside'
-        SCARA_SUPPORT_MOTOR2 = 'scara_e1_motor2_support'
-        SCARA_BAR_MOTOR2 = 'scara_e1_bar2'
-        SCARA_FIXBAR_MOTOR2 = 'scara_e1_fixbar2'
+        # SCARA_INSIDE_MOTOR2 = 'scara_e1_motor2_inside'
+        # SCARA_SUPPORT_MOTOR2 = 'scara_e1_motor2_support'
+        # SCARA_BAR_MOTOR2 = 'scara_e1_bar2'
+        # SCARA_FIXBAR_MOTOR2 = 'scara_e1_fixbar2'
         #
         SCARA_MOTOR3 = 'scara_e1_motor3'
-        SCARA_INSIDE_MOTOR3 = 'scara_e1_motor3_inside'
-        SCARA_SUPPORT_MOTOR3 = 'scara_e1_motor3_support'
-        SCARA_BAR_MOTOR3 = 'scara_e1_bar3'
-        SCARA_FIXBAR_MOTOR3 = 'scara_e1_fixbar3'
+        # SCARA_INSIDE_MOTOR3 = 'scara_e1_motor3_inside'
+        # SCARA_SUPPORT_MOTOR3 = 'scara_e1_motor3_support'
+        # SCARA_BAR_MOTOR3 = 'scara_e1_bar3'
+        # SCARA_FIXBAR_MOTOR3 = 'scara_e1_fixbar3'
         #
-        SCARA_RANGEFINDER = 'scara_e1_rangefinder'
+        SCARA_RANGEFINDER = 'rangefinder'
         EE_LINK = 'ee_link'
         JOINT_ORDER = [MOTOR1_JOINT, MOTOR2_JOINT, MOTOR3_JOINT]
-        LINK_NAMES = [BASE, BASE_MOTOR,
-                      SCARA_MOTOR1, SCARA_INSIDE_MOTOR1, SCARA_SUPPORT_MOTOR1, SCARA_BAR_MOTOR1, SCARA_FIXBAR_MOTOR1,
-                      SCARA_MOTOR2, SCARA_INSIDE_MOTOR2, SCARA_SUPPORT_MOTOR2, SCARA_BAR_MOTOR2, SCARA_FIXBAR_MOTOR2,
-                      SCARA_MOTOR3, SCARA_INSIDE_MOTOR3, SCARA_SUPPORT_MOTOR3,
-                      EE_LINK]
+        LINK_NAMES = [SCARA_MOTOR1,SCARA_MOTOR2, SCARA_MOTOR3, SCARA_RANGEFINDER, EE_LINK]
 
         reset_condition = {
             'initial_positions': INITIAL_JOINTS,
@@ -164,7 +160,7 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
             print("I can't find scara_e1_description")
             sys.exit(0)
 
-        URDF_PATH = prefix_path + "/urdf/scara_e1_3joints.urdf"
+        URDF_PATH = prefix_path + "/urdf/scara_e1_3joints_simplified.urdf"
 
         m_joint_order = copy.deepcopy(JOINT_ORDER)
         m_link_names = copy.deepcopy(LINK_NAMES)
@@ -208,8 +204,10 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         # The urdf must be compiled.
         _, self.ur_tree = treeFromFile(self.environment['tree_path'])
         # Retrieve a chain structure between the base and the start of the end effector.
+        # print("self.environment['link_names'][0]:", self.environment['link_names'][0])
+        # print("self.environment['link_names'][-1]:", self.environment['link_names'][-1])
         self.scara_chain = self.ur_tree.getChain(self.environment['link_names'][0], self.environment['link_names'][-1])
-        # print("nr of jnts: ", self.scara_chain.getNrOfJoints())
+        print("nr of jnts: ", self.scara_chain.getNrOfJoints())
         # Initialize a KDL Jacobian solver from the chain.
         self.jac_solver = ChainJntToJacSolver(self.scara_chain)
         #print(self.jac_solver)
@@ -217,6 +215,8 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         #print("after observations stale")
         self._currently_resetting = [False for _ in range(1)]
         self.reset_joint_angles = [None for _ in range(1)]
+
+        print("nr of joints: ", self.scara_chain.getNrOfJoints())
 
         # TODO review with Risto, we might need the first observation for calling _step()
         # # taken from mujoco in OpenAi how to initialize observation space and action space.
@@ -319,11 +319,11 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         print("calling randomize obstacle")
         #EE_POS_TGT_1 = np.asmatrix([0.3239543, 0.0083323, 0.3746]) #center of R
         #EE_POS_TGT_1 = np.asmatrix([0.29557, -0.0422738, 0.3746]) # R top left
-        EE_POS_TGT_1 = np.asmatrix([0.3349774, 0.1570571, 0.3746]) #center of S
+        EE_POS_TGT_1 = np.asmatrix([0.3349774, 0.1570571, 0.26342]) #center of S 0.26342
         #EE_POS_TGT_1 = np.asmatrix([0.3349774, 0.1570571, 0.3746]) # S center
 
         #EE_POS_TGT_1 = np.asmatrix([0.3325683, 0.0657366, 0.3746]) # center of O
-        EE_POS_TGT_2 = np.asmatrix([0.3305805, -0.1326121, 0.3746]) # center of the H
+        EE_POS_TGT_2 = np.asmatrix([0.3305805, -0.1326121, 0.26342]) # center of the H
         EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         EE_POINTS = np.asmatrix([[0, 0, 0]])
 
@@ -572,6 +572,8 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
                                                               trans,
                                                               rot).T)
             ee_points = current_ee_tgt - self.realgoal#self.environment['ee_points_tgt']
+            # print("current_ee_tgt: ", current_ee_tgt)
+            # print("ee_points:", ee_points)
             ee_points_jac_trans, _ = self.get_ee_points_jacobians(ee_link_jacobians,
                                                                    self.environment['end_effector_points'],
                                                                    rot)
@@ -674,14 +676,34 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         #     print ("/gazebo/unpause_physics service call failed")
 
         # # Execute "action"
+        # if self._collision_msg.collision2_name == '' or self._collision_msg.collision1_name == '':
+        #     self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
+        # else:
+        #     # self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
+        #     # self._pub.publish(self.get_trajectory_message(self.environment['reset_conditions']['initial_positions']))
+        #     self.reward = self.reward - 5
+        #     print("\n\n\n Penalized reward after COLLISION", self._collision_msg)
+        #     time.sleep(1)
+        self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
+
+        #REWARD SHAPING sophisticated penalization based on https://arxiv.org/pdf/1609.07845.pdf
         if self._collision_msg.collision2_name == '' or self._collision_msg.collision1_name == '':
             self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
         else:
+            #check if depth is existing
+            if self._collision_msg.depths is None:
+                print("self._collision_msg.depths[0] is empty")
+            # print("Contact detected.", self._collision_msg.collision1_name, ", ", self._collision_msg.collision2_name)
+            contact_depths = 1000 * self._collision_msg.depths[0] #make them in mm otherwise we have too many decimals
             self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
-            # self._pub.publish(self.get_trajectory_message(self.environment['reset_conditions']['initial_positions']))
-            self.reward = self.reward - 5
-            print("\n\n\n Penalized reward after COLLISION", self._collision_msg)
-            time.sleep(1)
+            #we always assume that depths is positive here. Sometimes depths is negative (actually most of the time).
+            # changing to abs value of depths
+            if contact_depths > 0 and  abs(contact_depths) < 0.0001:
+                self.reward = self.reward - (abs(contact_depths))/2
+            elif contact_depths > 0 and  abs(contact_depths) > 0.0001:
+                self.reward = self.reward - abs(contact_depths)
+            else:
+                print("self._collision_msg.depths[0]:", contact_depths)
 
 
         #TODO: wait until action gets executed
@@ -732,22 +754,26 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
                                   </material>\
                                 </visual>\
                                 <inertial>\
-                                  <mass value=\"100.0\"/>\
-                                  <inertia ixx=\"1.0\" ixy=\"0.0\" ixz=\"0.0\" iyy=\"1.0\" iyz=\"0.0\" izz=\"1.0\"/>\
+                                  <mass value=\"1.0\"/>\
+                                  <inertia ixx=\"0.01\" ixy=\"0.0\" ixz=\"0.0\" iyy=\"0.01\" iyz=\"0.0\" izz=\"0.01\"/>\
                                 </inertial>\
                                 <collision>\
                                   <geometry>\
-                                    <box size=\".03 .03 1\"/>\
+                                    <box size=\".05 .05 1\"/>\
                                   </geometry>\
                                   <contact>\
                                     <ode>\
                                         <soft_cfm>0.000000</soft_cfm>\
                                         <soft_erp>0.200000</soft_erp>\
-                                        <kp>1000000000000.000000</kp>\
-                                        <kd>100.000000</kd>\
+                                        <kp>2147483647.000000</kp>\
+                                        <kd>1.000000</kd>\
                                         <max_vel>0.100000</max_vel>\
-                                        <min_depth>0.000001000</min_depth>\
-                                        <max_depth>0.010001000</max_depth>\
+                                        <min_depth>0.</min_depth>\
+                                        <max_depth>0.</max_depth>\
+                                        <friction>\
+                                            <mu>100.0</mu>\
+                                            <mu2>50.0</mu2>\
+                                        </friction>\
                                     </ode>\
                                 </contact>\
                                </collision>\
@@ -884,51 +910,6 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         # """
         # Reset the agent for a particular experiment condition.
         # """
-        # # Resets the state of the environment and returns an initial observation.
-        # rospy.wait_for_service('/gazebo/reset_simulation')
-        # try:
-        #     #reset_proxy.call()
-        #     self.reset_proxy()
-        # except (rospy.ServiceException) as e:
-        #     print ("/gazebo/reset_simulation service call failed")
-        #.,
-        # # Unpause simulation
-        # rospy.wait_for_service('/gazebo/unpause_physics')
-        # try:
-        #     self.unpause()
-        # except (rospy.ServiceException) as e:
-        #     print ("/gazebo/unpause_physics service call failed")
-
-        # Go to initial position and wait until it arrives there
-        # self._pub.publish(self.get_trajectory_message(self.environment['reset_conditions']['initial_positions']))
-        # time.sleep(int(self.environment['slowness']))
-        # time.sleep(int(self.environment['slowness'])/1000000000) # using nanoseconds
-
-        # # Pause the simulation
-        # rospy.wait_for_service('/gazebo/pause_physics')
-        # try:
-        #     self.pause()
-        # except (rospy.ServiceException) as e:
-        #     print ("/gazebo/pause_physics service call failed")
-
-        # try:
-        #     self.remove_model(model_name="obstacle")
-        # except (rospy.ServiceException) as e:
-        #     print ("/gazebo/spawn_urdf_model service call failed")
-
-
-
-
-        #remove previous spawned model in order to avoid respawning model with same name
-        # rospy.wait_for_service('/gazebo/delete_model')
-        # try:
-        #     self.remove_model(model_name="obstacle")
-        # except (rospy.ServiceException) as e:
-        #     print ("/gazebo/spawn_urdf_model service call failed")
-        #remove previous spawned model in order to avoid respawning model with same name
-
-
-
         self.iterator = 0
         msg = self.get_trajectory_message(self.environment['reset_conditions']['initial_positions'])
         msg.points[0].time_from_start.secs = 0
