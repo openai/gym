@@ -676,8 +676,9 @@ class GazeboModularScara4And3DOFv1Env(gazebo_env.GazeboEnv):
             self.ob = self.take_observation()
 
         # Return the corresponding observations, rewards, etc.
-        # TODO, understand better what's the last object to return
-        return self.ob, self.reward, done, {}
+        ee_point = self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)] + self.realgoal
+        ee_point_eucledian = np.linalg.norm(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])
+        return self.ob, self.reward, done, {}, ee_point, ee_point_eucledian
 
     def _reset(self):
         """
