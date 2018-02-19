@@ -694,16 +694,18 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
             if self._collision_msg.depths is None:
                 print("self._collision_msg.depths[0] is empty")
             # print("Contact detected.", self._collision_msg.collision1_name, ", ", self._collision_msg.collision2_name)
-            contact_depths = 1000 * self._collision_msg.depths[0] #make them in mm otherwise we have too many decimals
-            self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
-            #we always assume that depths is positive here. Sometimes depths is negative (actually most of the time).
-            # changing to abs value of depths
-            if contact_depths > 0 and  abs(contact_depths) < 0.0001:
-                self.reward = self.reward - (abs(contact_depths))/2
-            elif contact_depths > 0 and  abs(contact_depths) > 0.0001:
-                self.reward = self.reward - abs(contact_depths)
             else:
-                print("self._collision_msg.depths[0]:", contact_depths)
+                contact_depths = 1000 * self._collision_msg.depths[0] #make them in mm otherwise we have too many decimals
+                print("\ncontact_depths", contact_depths)
+                self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
+                #we always assume that depths is positive here. Sometimes depths is negative (actually most of the time).
+                # changing to abs value of depths
+                if contact_depths > 0 and  abs(contact_depths) < 0.0001:
+                    self.reward = self.reward - (abs(contact_depths))/2
+                elif contact_depths > 0 and  abs(contact_depths) > 0.0001:
+                    self.reward = self.reward - abs(contact_depths)
+                else:
+                    print("self._collision_msg.depths[0]:", contact_depths)
 
 
         #TODO: wait until action gets executed
@@ -738,55 +740,61 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
                                 #   </material>\
 
             try:
+                # #NORMAL CYLINDER
                 model_xml = "<?xml version=\"1.0\"?> \
-                            <robot name=\"myfirst\"> \
-                              <link name=\"world\"> \
-                              </link>\
-                              <link name=\"cylinder0\">\
-                                <visual>\
-                                  <geometry>\
-                                    <box size=\".02 .02 1\"/>\
-                                  </geometry>\
-                                  <origin xyz=\"0 0 0\"/>\
-                                  <material name=\"blue\">\
-                                      <ambient>0.5 0.5 1.0 0.1</ambient>\
-                                      <diffuse>0.5 0.5 1.0 0.1</diffuse>\
-                                  </material>\
-                                </visual>\
-                                <inertial>\
-                                  <mass value=\"1.0\"/>\
-                                  <inertia ixx=\"0.01\" ixy=\"0.0\" ixz=\"0.0\" iyy=\"0.01\" iyz=\"0.0\" izz=\"0.01\"/>\
-                                </inertial>\
-                                <collision>\
-                                  <geometry>\
-                                    <box size=\".05 .05 1\"/>\
-                                  </geometry>\
-                                  <contact>\
-                                    <ode>\
-                                        <soft_cfm>0.000000</soft_cfm>\
-                                        <soft_erp>0.200000</soft_erp>\
-                                        <kp>2147483647.000000</kp>\
-                                        <kd>1.000000</kd>\
-                                        <max_vel>0.100000</max_vel>\
-                                        <min_depth>0.</min_depth>\
-                                        <max_depth>0.</max_depth>\
-                                        <friction>\
-                                            <mu>100.0</mu>\
-                                            <mu2>50.0</mu2>\
-                                        </friction>\
-                                    </ode>\
-                                </contact>\
-                               </collision>\
-                              </link>\
-                              <joint name=\"world_to_base\" type=\"fixed\"> \
-                                <origin xyz=\"0 0 0.5\" rpy=\"0 0 0\"/>\
-                                <parent link=\"world\"/>\
-                                <child link=\"cylinder0\"/>\
-                              </joint>\
-                              <gazebo reference=\"cylinder0\">\
-                                <material>Gazebo/Blue</material>\
-                              </gazebo>\
-                            </robot>"
+                                    <robot name=\"myfirst\"> \
+                                      <link name=\"world\"> \
+                                      </link>\
+                                      <link name=\"cylinder0\">\
+                                        <visual>\
+                                          <geometry>\
+                                            <box size=\".1 .05 1\"/>\
+                                          </geometry>\
+                                          <origin xyz=\"0 0 0\"/>\
+                                          <material name=\"blue\">\
+                                              <ambient>0.5 0.5 1.0 0.1</ambient>\
+                                              <diffuse>0.5 0.5 1.0 0.1</diffuse>\
+                                          </material>\
+                                        </visual>\
+                                        <inertial>\
+                                          <mass value=\"5.0\"/>\
+                                          <inertia ixx=\"1\" ixy=\"0.0\" ixz=\"0.0\" iyy=\"1\" iyz=\"0.0\" izz=\"1\"/>\
+                                        </inertial>\
+                                        <collision>\
+                                          <geometry>\
+                                            <box size=\".2 .05 1\"/>\
+                                          </geometry>\
+                                          <surface>\
+                                            <contact>\
+                                              <ode>\
+                                                <min_depth>\"0.001\"</min_depth>\
+                                                <kp>\"1e6\"</kp>\
+                                                <kd>\"1.000000\"</kd>\
+                                              </ode>\
+                                             </contact>\
+                                          </surface>\
+                                       </collision>\
+                                      </link>\
+                                      <joint name=\"world_to_base\" type=\"fixed\"> \
+                                        <origin xyz=\"0 0 0.5\" rpy=\"0 0 0\"/>\
+                                        <parent link=\"world\"/>\
+                                        <child link=\"cylinder0\"/>\
+                                      </joint>\
+                                      <gazebo reference=\"cylinder0\">\
+                                        <material>Gazebo/Blue</material>\
+                                      </gazebo>\
+                                    </robot>"
+                robot_namespace = ""
+                pose = Pose()
+                number = random.randint(0, 4)
+                #pose.position.x = 0.15;#
+                pose.position.x = 0.3;#
+                pose.position.y = 0.07;#
+                pose.position.z = 0.05;
+                pose.orientation.x = 0;
+                pose.orientation.y= 0;
+                pose.orientation.z = 0;
+                pose.orientation.w = 0;
 
                     #BOX
                 # model_xml = "<?xml version=\"1.0\"?> \
@@ -865,30 +873,30 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
                 #               </gazebo>\
                 #             </robot>"
 
-                robot_namespace = ""
-                pose = Pose()
-                number = random.randint(0, 4)
-                # if number == 1:
-                #     pose.position.x = 0.25;
-                #     pose.position.y = 0.07;
-                # if number == 2:
-                #     pose.position.x = 0.25;
-                #     pose.position.y = -0.07;
-                # if number == 3:
-                #     pose.position.x = 0.23;
-                #     pose.position.y = -0.087;
-                # if number == 4:
-                #     pose.position.x = 0.23;
-                #     pose.position.y = 0.087;
-
-                pose.position.x = 0.25;#
-                pose.position.y = 0.07;#
-
-                pose.position.z = 0.0;
-                pose.orientation.x = 0;
-                pose.orientation.y= 0;
-                pose.orientation.z = 0;
-                pose.orientation.w = 0;
+                # robot_namespace = ""
+                # pose = Pose()
+                # number = random.randint(0, 4)
+                # # if number == 1:
+                # #     pose.position.x = 0.25;
+                # #     pose.position.y = 0.07;
+                # # if number == 2:
+                # #     pose.position.x = 0.25;
+                # #     pose.position.y = -0.07;
+                # # if number == 3:
+                # #     pose.position.x = 0.23;
+                # #     pose.position.y = -0.087;
+                # # if number == 4:
+                # #     pose.position.x = 0.23;
+                # #     pose.position.y = 0.087;
+                #
+                # pose.position.x = 0.25;#
+                # pose.position.y = 0.07;#
+                #
+                # pose.position.z = 0.0;
+                # pose.orientation.x = 0;
+                # pose.orientation.y= 0;
+                # pose.orientation.z = 0;
+                # pose.orientation.w = 0;
                 reference_frame = ""
                 if number > -1:
                   self.add_model(model_name="obstacle",
