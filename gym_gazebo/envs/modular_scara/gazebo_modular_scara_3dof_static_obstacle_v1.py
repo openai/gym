@@ -60,13 +60,14 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
             TODO: port everything to ROS 2 natively
         """
         # Launch the simulation with the given launchfile name
-        # gazebo_env.GazeboEnv.__init__(self, "ModularScara3_Obstacles_v0.launch")
+        #gazebo_env.GazeboEnv.__init__(self, "ModularScara3_Obstacles_v0.launch")
         gazebo_env.GazeboEnv.__init__(self, "ModularScara3_Obstacles_urdf_simplified_v0.launch")
 
         # TODO: cleanup this variables, remove the ones that aren't used
         # class variables
         self._observation_msg = None
         self._collision_msg = None ###
+        self._torque_msg = None ###
         self.scale = None  # must be set from elsewhere based on observations
         self.bias = None
         self.x_idx = None
@@ -160,7 +161,7 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
             sys.exit(0)
 
         URDF_PATH = prefix_path + "/urdf/scara_e1_3joints_simplified.urdf"
-        # URDF_PATH = prefix_path + "/urdf/scara_e1_3joints.urdf"
+        #URDF_PATH = prefix_path + "/urdf/scara_e1_3joints.urdf"
 
         m_joint_order = copy.deepcopy(JOINT_ORDER)
         m_link_names = copy.deepcopy(LINK_NAMES)
@@ -424,7 +425,7 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         Callback method for the subscriber of Collision data
         """
         self._torque_msg =  message
-        print("\nTorque: ", self._torque_msg)
+        #print("\nTorque: ", self._torque_msg)
 
 
     def normals_callback(self, message):
@@ -641,31 +642,46 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         self.reward_dist = -self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])
 
         # here we want to fetch the positions of the end-effector which are nr_dof:nr_dof+3
-        if(self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])<0.008):
+        if(self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])<0.005):
             self.reward = 1 - self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)]) # Make the reward increase as the distance decreases
             print("Reward is: ", self.reward)
         else:
             self.reward = self.reward_dist
 
         # Calculate if the env has been solved
-        done = (bool(abs(self.reward_dist) < 0.008)) or (self.iterator > self.max_episode_steps)
+        done = (bool(abs(self.reward_dist) < 0.005)) or (self.iterator > self.max_episode_steps)
 
-         #REWARD SHAPING sophisticated penalization based on https://arxiv.org/pdf/1609.07845.pdf
-        if self._collision_msg.collision2_name or self._collision_msg.collision1_name: #else
-                contact_depths = 100 * self._collision_msg.depths[0] #make them in mm otherwise we have too many decimals
-                print("\ncontact_depths", contact_depths, "reward: ", self.reward)
-                # self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
-                #we always assume that depths is positive here. Sometimes depths is negative (actually most of the time).
-                # changing to abs value of depths
-                if contact_depths > 0 and  abs(contact_depths) < 0.0001:
-                    self.reward = self.reward - (abs(contact_depths))/2
-                    print("\n cond1, contact_depths", contact_depths, "reward: ", self.reward)
-                elif abs(contact_depths) > 0.0001: #contact_depths > 0 and
-                    self.reward = self.reward - abs(contact_depths)
-                    print("\n cond2, contact_depths", contact_depths, "reward: ", self.reward)
-                else:
-                    # self.reward = -100
-                    print("cond3, self._collision_msg.depths[0]:", contact_depths)
+        #  COLLISION DEPTH BASED REWARD SHAPING
+        #  #REWARD SHAPING sophisticated penalization based on https://arxiv.org/pdf/1609.07845.pdf
+        # if self._collision_msg.collision2_name or self._collision_msg.collision1_name: #else
+        #         contact_depths = 100 * self._collision_msg.depths[0] #make them in mm otherwise we have too many decimals
+        #         print("\ncontact_depths", contact_depths, "reward: ", self.reward)
+        #         # self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
+        #         #we always assume that depths is positive here. Sometimes depths is negative (actually most of the time).
+        #         # changing to abs value of depths
+        #         if contact_depths > 0 and  abs(contact_depths) < 0.0001:
+        #             self.reward = self.reward - (abs(contact_depths))/2
+        #             print("\n cond1, contact_depths", contact_depths, "reward: ", self.reward)
+        #         elif abs(contact_depths) > 0.0001: #contact_depths > 0 and
+        #             self.reward = self.reward - abs(contact_depths)
+        #             print("\n cond2, contact_depths", contact_depths, "reward: ", self.reward)
+        #         else:
+        #             # self.reward = -100
+        #             print("cond3, self._collision_msg.depths[0]:", contact_depths)
+
+        #  TORQUE BASED REWARD SHAPING
+        if self._torque_msg is not None:
+            torque_x = self._torque_msg.wrench.torque.x
+            torque_y = self._torque_msg.wrench.torque.y
+            torque_z = self._torque_msg.wrench.torque.z
+            torque_value = np.sqrt(torque_x * torque_x + torque_y * torque_y + torque_z * torque_z) / 1000
+            print("\n Torque value:", torque_value)
+            if torque_value > 0.01 and torque_value < 0.1:
+                    self.reward = self.reward - (abs(torque_value)) / 2
+                    print("\n Reward, torque penalization", self.reward)
+            elif torque_value > 0.01 and torque_value > 0.1:
+                    self.reward = self.reward - (abs(torque_value)) 
+                    print("\n Reward, torque penalization", self.reward)
 
 
         # # Take an observation
