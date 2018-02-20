@@ -15,6 +15,7 @@ import random
 from gazebo_msgs.srv import SpawnModel, DeleteModel
 from geometry_msgs.msg import Pose
 from geometry_msgs.msg import Vector3
+from geometry_msgs.msg import WrenchStamped
 from gazebo_msgs.msg import ContactState
 
 import rospkg
@@ -59,8 +60,8 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
             TODO: port everything to ROS 2 natively
         """
         # Launch the simulation with the given launchfile name
-        gazebo_env.GazeboEnv.__init__(self, "ModularScara3_Obstacles_v0.launch")
-        #gazebo_env.GazeboEnv.__init__(self, "ModularScara3_Obstacles_urdf_simplified_v0.launch")
+        # gazebo_env.GazeboEnv.__init__(self, "ModularScara3_Obstacles_v0.launch")
+        gazebo_env.GazeboEnv.__init__(self, "ModularScara3_Obstacles_urdf_simplified_v0.launch")
 
         # TODO: cleanup this variables, remove the ones that aren't used
         # class variables
@@ -87,7 +88,7 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         #   Environment hyperparams
         #############################
         # target, where should the agent reach
-        EE_POS_TGT = np.asmatrix([0.3349774, 0.1570571, 0.26342]) #center of S
+        EE_POS_TGT = np.asmatrix([0.3349774, 0.1570571, 0.26342]) # 26342 center of S
         # EE_POS_TGT = np.asmatrix([0.3325683, 0.0657366, 0.3746]) # center of O
         # EE_POS_TGT = np.asmatrix([0.3305805, -0.1326121, 0.3746]) # center of the H
         EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
@@ -113,6 +114,7 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         # Topics for the robot publisher and subscriber.
         JOINT_PUBLISHER = '/scara_controller/command'
         JOINT_SUBSCRIBER = '/scara_controller/state'
+        MOTOR3_TORQUE_SUBSCRIBER = '/motor3_torque'
         # joint names:
         MOTOR1_JOINT = 'motor1'
         MOTOR2_JOINT = 'motor2'
@@ -150,11 +152,6 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
              'initial_velocities': []
         }
         #############################
-
-        # TODO: fix this and make it relative
-        # Set the path of the corresponding URDF file from "assets"
-        #URDF_PATH = "/home/erle/ros_ws/src/scara_e1/scara_e1_description/urdf/scara_e1_3joints.urdf"
-        #URDF_PATH = "/media/raid/RL/catkin_ws/src/scara_e1/scara_e1_description/urdf/scara_e1_3joints.urdf"
         rospack = rospkg.RosPack()
         prefix_path = rospack.get_path('scara_e1_description')
 
@@ -162,8 +159,8 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
             print("I can't find scara_e1_description")
             sys.exit(0)
 
-        #URDF_PATH = prefix_path + "/urdf/scara_e1_3joints_simplified.urdf"
-        URDF_PATH = prefix_path + "/urdf/scara_e1_3joints.urdf"
+        URDF_PATH = prefix_path + "/urdf/scara_e1_3joints_simplified.urdf"
+        # URDF_PATH = prefix_path + "/urdf/scara_e1_3joints.urdf"
 
         m_joint_order = copy.deepcopy(JOINT_ORDER)
         m_link_names = copy.deepcopy(LINK_NAMES)
@@ -181,14 +178,12 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
             'ee_points_tgt': ee_tgt,
             'joint_order': m_joint_order,
             'link_names': m_link_names,
-            # 'slowness': slowness,
             'reset_conditions': reset_condition,
             'tree_path': URDF_PATH,
             'joint_publisher': m_joint_publishers,
             'joint_subscriber': m_joint_subscribers,
             'end_effector_points': EE_POINTS,
             'end_effector_velocities': EE_VELOCITIES,
-            # 'num_samples': SAMPLE_COUNT,
         }
 
         # self.spec = {'timestep_limit': 5, 'reward_threshold':  950.0,}
@@ -199,8 +194,8 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         self._sub = rospy.Subscriber('/scara_controller/state', JointTrajectoryControllerState, self.observation_callback)
 
         self._sub_coll = rospy.Subscriber('/gazebo_contacts',ContactState, self.collision_callback) ##
-        # self._sub_normals = rospy.Subscriber('/gazebo_normals', Vector3, self.normals_callback, queue_size=1, buff_size=2**24) ##
-        #self._sub_coll = rospy.Subscriber('/gazebo_contacts',Bool, collision_callback) ##
+
+        self._sub_torque = rospy.Subscriber('/motor3_torque',WrenchStamped, self.torque_callback) ##
 
         # Initialize a tree structure from the robot urdf.
         #   note that the xacro of the urdf is updated by hand.
@@ -424,6 +419,12 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         """
         # print("\ncollision: ", self._collision_msg)
         self._collision_msg =  message
+    def torque_callback(self, message):
+        """
+        Callback method for the subscriber of Collision data
+        """
+        self._torque_msg =  message
+        print("\nTorque: ", self._torque_msg)
 
 
     def normals_callback(self, message):
@@ -634,125 +635,43 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
             - dictionary (#TODO clarify)
         """
         self.iterator+=1
-        # # Pause simulation
-        # rospy.wait_for_service('/gazebo/pause_physics')
-        # try:
-        #     #resp_pause = pause.call()
-        #     self.pause()
-        # except (rospy.ServiceException) as e:
-        #     print ("/gazebo/pause_physics service call failed")
 
-        # Take an observation
-        # TODO: program this better, check that ob is not None, etc.
-        # self.ob = take_observation()
+        self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
 
-        # self.reward_dist = self.rmse_func(self.ob[3:6])
-        # # print("reward_dist :", self.reward_dist)
-        # self.reward = 1 - self.reward_dist # Make the reward increase as the distance decreases
-        #
-        # # Calculate if the env has been solved
-        # done = bool(abs(self.reward_dist) < 0.005)
-
-        # reward as in the enviroment for 4DOF commented out
         self.reward_dist = -self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])
 
         # here we want to fetch the positions of the end-effector which are nr_dof:nr_dof+3
-        if(self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])<0.005):
+        if(self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])<0.008):
             self.reward = 1 - self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)]) # Make the reward increase as the distance decreases
             print("Reward is: ", self.reward)
         else:
             self.reward = self.reward_dist
 
-        # print("\n STEP -> collision_msg", self._collision_msg)
-        # print("\n STEP -> collision_msg.data", self._collision_msg.data)
-        # If there is a collision, penalize reward considerably
-        # if self._collision_msg.data == True:
-        #     self.reward = self.reward - 1000
-        #     # print("\n\n\n Penalized reward after COLLISION", self._collision_msg)
-
-
-            # print("string is empty")
-
-
-
-
-        # print("reward: ", self.reward)
-        # print("rmse_func: ", self.rmse_func(ee_points))
-
-        # # enviroment V2 reward
-        # self.reward_dist = self.rmse_func(self.ob[3:6])
-        # # print("reward_dist :", self.reward_dist)
-        # self.reward = 1 - self.reward_dist # Make the reward increase as the distance decreases
-
         # Calculate if the env has been solved
-        done = (bool(abs(self.reward_dist) < 0.005)) or (self.iterator > self.max_episode_steps)
+        done = (bool(abs(self.reward_dist) < 0.008)) or (self.iterator > self.max_episode_steps)
 
-        # self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
-
-        # # Unpause simulation
-        # rospy.wait_for_service('/gazebo/unpause_physics')
-        # try:
-        #     self.unpause()
-        # except (rospy.ServiceException) as e:
-        #     print ("/gazebo/unpause_physics service call failed")
-
-        # # Execute "action"
-        # if self._collision_msg.collision2_name == '' or self._collision_msg.collision1_name == '':
-        #     self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
-        # else:
-        #     # self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
-        #     # self._pub.publish(self.get_trajectory_message(self.environment['reset_conditions']['initial_positions']))
-        #     self.reward = self.reward - 5
-        #     print("\n\n\n Penalized reward after COLLISION", self._collision_msg)
-        #     time.sleep(1)
-        self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
-
-        #REWARD SHAPING sophisticated penalization based on https://arxiv.org/pdf/1609.07845.pdf
-        if self._collision_msg is not None:
-            if self._collision_msg.collision2_name == '' or self._collision_msg.collision1_name == '':
-                self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
-            else:
-                #check if depth is existing
-                if self._collision_msg.depths is None:
-                    print("self._collision_msg.depths[0] is empty")
-                # print("Contact detected.", self._collision_msg.collision1_name, ", ", self._collision_msg.collision2_name)
+         #REWARD SHAPING sophisticated penalization based on https://arxiv.org/pdf/1609.07845.pdf
+        if self._collision_msg.collision2_name or self._collision_msg.collision1_name: #else
+                contact_depths = 100 * self._collision_msg.depths[0] #make them in mm otherwise we have too many decimals
+                print("\ncontact_depths", contact_depths, "reward: ", self.reward)
+                # self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
+                #we always assume that depths is positive here. Sometimes depths is negative (actually most of the time).
+                # changing to abs value of depths
+                if contact_depths > 0 and  abs(contact_depths) < 0.0001:
+                    self.reward = self.reward - (abs(contact_depths))/2
+                    print("\n cond1, contact_depths", contact_depths, "reward: ", self.reward)
+                elif abs(contact_depths) > 0.0001: #contact_depths > 0 and
+                    self.reward = self.reward - abs(contact_depths)
+                    print("\n cond2, contact_depths", contact_depths, "reward: ", self.reward)
                 else:
-                    contact_depths = self.mod * self._collision_msg.depths[0] #make them in mm otherwise we have too many decimals
-                    print("\ncontact_depths", contact_depths)
-                    self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
-                    #we always assume that depths is positive here. Sometimes depths is negative (actually most of the time).
-                    # changing to abs value of depths
-                    if contact_depths > 0 and  abs(contact_depths) < 0.0001:
-                        self.reward = self.reward - (abs(contact_depths))/2
-                    elif contact_depths > 0 and  abs(contact_depths) > 0.0001:
-                        self.reward = self.reward - abs(contact_depths)
-                    else:
-                        print("self._collision_msg.depths[0]:", contact_depths)
+                    # self.reward = -100
+                    print("cond3, self._collision_msg.depths[0]:", contact_depths)
 
-
-        #TODO: wait until action gets executed
-        # When adding this the algorithm does not converge
-        # time.sleep(int(self.environment['slowness']))
-        # time.sleep(int(self.environment['slowness'])/1000000000) # using nanoseconds
-
-        # # Pause simulation
-        # rospy.wait_for_service('/gazebo/pause_physics')
-        # try:
-        #     #resp_pause = pause.call()
-        #     self.pause()
-        # except (rospy.ServiceException) as e:
-        #     print ("/gazebo/pause_physics service call failed")
 
         # # Take an observation
-        # TODO: program this better, check that ob is not None, etc.
         self.ob = self.take_observation()
         while(self.ob is None):
             self.ob = self.take_observation()
-        # print("in step, action: ", action[:3])
-        # print("in step, observation: ", self.ob[:3])
-
-        # Return the corresponding observations, rewards, etc.
-        # TODO, understand better what's the last object to return
 
         # Return the corresponding observations, rewards, etc.
         ee_point = self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)] + self.realgoal
@@ -761,12 +680,8 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         return self.ob, self.reward, done, {}
     def addObstacle(self):
             rospy.wait_for_service('/gazebo/spawn_urdf_model')
-                                #   <material name=\"green\">\
-                                #     <color rgba=\"0 0.8 .8 1\"/>\
-                                #   </material>\
-
             try:
-                # #NORMAL CYLINDER
+                # #NORMAL BOX
                 model_xml = "<?xml version=\"1.0\"?> \
                                     <robot name=\"myfirst\"> \
                                       <link name=\"world\"> \
