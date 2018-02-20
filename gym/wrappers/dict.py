@@ -2,15 +2,15 @@ import gym
 import numpy as np
 
 
-__all__ = ['DictWrapper']
+__all__ = ['FlattenDictWrapper']
 
 
-class DictWrapper(gym.ObservationWrapper):
+class FlattenDictWrapper(gym.ObservationWrapper):
     """Flattens selected keys of a Dict observation space into
     an array.
     """
     def __init__(self, env, dict_keys):
-        super(DictWrapper, self).__init__(env)
+        super(FlattenDictWrapper, self).__init__(env)
         self.dict_keys = dict_keys
 
         # Figure out observation_space dimension.
