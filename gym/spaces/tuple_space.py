@@ -1,6 +1,6 @@
-from gym import Space
+import gym
 
-class Tuple(Space):
+class Tuple(gym.Space):
     """
     A tuple (i.e., product) of simpler spaces
 
@@ -9,6 +9,7 @@ class Tuple(Space):
     """
     def __init__(self, spaces):
         self.spaces = spaces
+        gym.Space.__init__(self, None, None)
 
     def sample(self):
         return tuple([space.sample() for space in self.spaces])
@@ -28,4 +29,4 @@ class Tuple(Space):
                 for i, space in enumerate(self.spaces)]
 
     def from_jsonable(self, sample_n):
-        return zip(*[space.from_jsonable(sample_n[i]) for i, space in enumerate(self.spaces)])
+        return [sample for sample in zip(*[space.from_jsonable(sample_n[i]) for i, space in enumerate(self.spaces)])]

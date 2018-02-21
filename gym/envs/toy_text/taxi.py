@@ -1,9 +1,8 @@
-import numpy as np
 import sys
 from six import StringIO
-
-from gym import spaces, utils
+from gym import utils
 from gym.envs.toy_text import discrete
+import numpy as np
 
 MAP = [
     "+---------+",
@@ -107,10 +106,7 @@ class TaxiEnv(discrete.DiscreteEnv):
         assert 0 <= i < 5
         return reversed(out)
 
-    def _render(self, mode='human', close=False):
-        if close:
-            return
-
+    def render(self, mode='human'):
         outfile = StringIO() if mode == 'ansi' else sys.stdout
 
         out = self.desc.copy().tolist()

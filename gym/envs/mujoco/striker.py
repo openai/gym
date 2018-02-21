@@ -10,7 +10,7 @@ class StrikerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         self.strike_threshold = 0.1
         mujoco_env.MujocoEnv.__init__(self, 'striker.xml', 5)
 
-    def _step(self, a):
+    def step(self, a):
         vec_1 = self.get_body_com("object") - self.get_body_com("tips_arm")
         vec_2 = self.get_body_com("object") - self.get_body_com("goal")
         self._min_strike_dist = min(self._min_strike_dist, np.linalg.norm(vec_2))
@@ -67,8 +67,8 @@ class StrikerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     def _get_obs(self):
         return np.concatenate([
-            self.model.data.qpos.flat[:7],
-            self.model.data.qvel.flat[:7],
+            self.sim.data.qpos.flat[:7],
+            self.sim.data.qvel.flat[:7],
             self.get_body_com("tips_arm"),
             self.get_body_com("object"),
             self.get_body_com("goal"),

@@ -79,7 +79,7 @@ class LunarLander(gym.Env):
     continuous = False
 
     def __init__(self):
-        self._seed()
+        self.seed()
         self.viewer = None
 
         self.world = Box2D.b2World()
@@ -101,9 +101,9 @@ class LunarLander(gym.Env):
             # Nop, fire left engine, main engine, right engine
             self.action_space = spaces.Discrete(4)
 
-        self._reset()
+        self.reset()
 
-    def _seed(self, seed=None):
+    def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
@@ -118,7 +118,7 @@ class LunarLander(gym.Env):
         self.world.DestroyBody(self.legs[0])
         self.world.DestroyBody(self.legs[1])
 
-    def _reset(self):
+    def reset(self):
         self._destroy()
         self.world.contactListener_keepref = ContactDetector(self)
         self.world.contactListener = self.world.contactListener_keepref
@@ -211,7 +211,7 @@ class LunarLander(gym.Env):
 
         self.drawlist = [self.lander] + self.legs
 
-        return self._step(np.array([0,0]) if self.continuous else 0)[0]
+        return self.step(np.array([0,0]) if self.continuous else 0)[0]
 
     def _create_particle(self, mass, x, y, ttl):
         p = self.world.CreateDynamicBody(
@@ -234,7 +234,7 @@ class LunarLander(gym.Env):
         while self.particles and (all or self.particles[0].ttl<0):
             self.world.DestroyBody(self.particles.pop(0))
 
-    def _step(self, action):
+    def step(self, action):
         assert self.action_space.contains(action), "%r (%s) invalid " % (action,type(action))
 
         # Engines
@@ -312,13 +312,7 @@ class LunarLander(gym.Env):
             reward = +100
         return np.array(state), reward, done, {}
 
-    def _render(self, mode='human', close=False):
-        if close:
-            if self.viewer is not None:
-                self.viewer.close()
-                self.viewer = None
-            return
-
+    def render(self, mode='human'):
         from gym.envs.classic_control import rendering
         if self.viewer is None:
             self.viewer = rendering.Viewer(VIEWPORT_W, VIEWPORT_H)
@@ -354,6 +348,11 @@ class LunarLander(gym.Env):
             self.viewer.draw_polygon( [(x, flagy2), (x, flagy2-10/SCALE), (x+25/SCALE, flagy2-5/SCALE)], color=(0.8,0.8,0) )
 
         return self.viewer.render(return_rgb_array = mode=='rgb_array')
+
+    def close(self):
+        if self.viewer is not None:
+            self.viewer.close()
+            self.viewer = None
 
 class LunarLanderContinuous(LunarLander):
     continuous = True

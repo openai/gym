@@ -5,7 +5,7 @@ import tempfile
 import numpy as np
 
 import gym
-from gym.monitoring import VideoRecorder
+from gym.wrappers.monitoring.video_recorder import VideoRecorder
 
 class BrokenRecordableEnv(object):
     metadata = {'render.modes': [None, 'rgb_array']}
