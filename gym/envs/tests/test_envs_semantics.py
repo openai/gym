@@ -8,9 +8,9 @@ from __future__ import unicode_literals
 import json
 import hashlib
 import os
-import sys
+
 import pytest
-from gym import envs, spaces, logger
+from gym import spaces, logger
 from gym.envs.tests.spec_list import spec_list
 
 DATA_DIR = os.path.dirname(__file__)
