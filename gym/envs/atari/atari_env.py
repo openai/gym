@@ -2,7 +2,7 @@ import numpy as np
 import os
 import gym
 from gym import error, spaces
-from gym import utils, logger
+from gym import utils
 from gym.utils import seeding
 
 try:
@@ -40,8 +40,6 @@ class AtariEnv(gym.Env, utils.EzPickle):
         self.ale.setFloat('repeat_action_probability'.encode('utf-8'), repeat_action_probability)
 
         self.seed()
-
-        (screen_width, screen_height) = self.ale.getScreenDims()
 
         self._action_set = self.ale.getMinimalActionSet()
         self.action_space = spaces.Discrete(len(self._action_set))
