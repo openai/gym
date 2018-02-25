@@ -71,7 +71,7 @@ ros-kinetic-navigation
 ```
 #Install Sophus
 cd
-git clone https://github.com/stonier/sophus -b indigo
+git clone https://github.com/stonier/sophus -b release/0.9.1-kinetic
 cd sophus
 mkdir build
 cd build
