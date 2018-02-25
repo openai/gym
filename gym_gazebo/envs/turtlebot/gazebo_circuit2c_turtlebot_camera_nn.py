@@ -106,7 +106,7 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
                 w = image_data.width
                 cv_image = CvBridge().imgmsg_to_cv2(image_data, "bgr8")
                 #temporal fix, check image is not corrupted
-                if not (cv_image[h/2,w/2,0]==178 and cv_image[h/2,w/2,1]==178 and cv_image[h/2,w/2,2]==178):
+                if not (cv_image[h//2,w//2,0]==178 and cv_image[h//2,w//2,1]==178 and cv_image[h//2,w//2,2]==178):
                     success = True
                 else:
                     pass
@@ -213,7 +213,7 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
                 w = image_data.width
                 cv_image = CvBridge().imgmsg_to_cv2(image_data, "bgr8")
                 #temporal fix, check image is not corrupted
-                if not (cv_image[h/2,w/2,0]==178 and cv_image[h/2,w/2,1]==178 and cv_image[h/2,w/2,2]==178):
+                if not (cv_image[h//2,w//2,0]==178 and cv_image[h//2,w//2,1]==178 and cv_image[h//2,w//2,2]==178):
                     success = True
                 else:
                     pass
