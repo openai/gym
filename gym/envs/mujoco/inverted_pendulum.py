@@ -27,4 +27,4 @@ class InvertedPendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     def viewer_setup(self):
         v = self.viewer
         v.cam.trackbodyid = 0
-        v.cam.distance = v.model.stat.extent
+        v.cam.distance = self.model.stat.extent

@@ -291,6 +291,136 @@ register(
     max_episode_steps=1000,
 )
 
+# Robotics
+# ----------------------------------------
+
+def _merge(a, b):
+    a.update(b)
+    return a
+
+for reward_type in ['sparse', 'dense']:
+    suffix = 'Dense' if reward_type == 'dense' else ''
+    kwargs = {
+        'reward_type': reward_type,
+    }
+
+    # Fetch
+    register(
+        id='FetchSlide{}-v0'.format(suffix),
+        entry_point='gym.envs.robotics:FetchSlideEnv',
+        kwargs=kwargs,
+        max_episode_steps=50,
+    )
+
+    register(
+        id='FetchPickAndPlace{}-v0'.format(suffix),
+        entry_point='gym.envs.robotics:FetchPickAndPlaceEnv',
+        kwargs=kwargs,
+        max_episode_steps=50,
+    )
+
+    register(
+        id='FetchReach{}-v0'.format(suffix),
+        entry_point='gym.envs.robotics:FetchReachEnv',
+        kwargs=kwargs,
+        max_episode_steps=50,
+    )
+
+    register(
+        id='FetchPush{}-v0'.format(suffix),
+        entry_point='gym.envs.robotics:FetchPushEnv',
+        kwargs=kwargs,
+        max_episode_steps=50,
+    )
+
+    # Hand
+    register(
+        id='HandReach{}-v0'.format(suffix),
+        entry_point='gym.envs.robotics:HandReachEnv',
+        kwargs=kwargs,
+        max_episode_steps=50,
+    )
+
+    register(
+        id='HandManipulateBlockRotateZ{}-v0'.format(suffix),
+        entry_point='gym.envs.robotics:HandBlockEnv',
+        kwargs=_merge({'target_position': 'ignore', 'target_rotation': 'z'}, kwargs),
+        max_episode_steps=100,
+    )
+
+    register(
+        id='HandManipulateBlockRotateParallel{}-v0'.format(suffix),
+        entry_point='gym.envs.robotics:HandBlockEnv',
+        kwargs=_merge({'target_position': 'ignore', 'target_rotation': 'parallel'}, kwargs),
+        max_episode_steps=100,
+    )
+
+    register(
+        id='HandManipulateBlockRotateXYZ{}-v0'.format(suffix),
+        entry_point='gym.envs.robotics:HandBlockEnv',
+        kwargs=_merge({'target_position': 'ignore', 'target_rotation': 'xyz'}, kwargs),
+        max_episode_steps=100,
+    )
+
+    register(
+        id='HandManipulateBlockFull{}-v0'.format(suffix),
+        entry_point='gym.envs.robotics:HandBlockEnv',
+        kwargs=_merge({'target_position': 'random', 'target_rotation': 'xyz'}, kwargs),
+        max_episode_steps=100,
+    )
+
+    # Alias for "Full"
+    register(
+        id='HandManipulateBlock{}-v0'.format(suffix),
+        entry_point='gym.envs.robotics:HandBlockEnv',
+        kwargs=_merge({'target_position': 'random', 'target_rotation': 'xyz'}, kwargs),
+        max_episode_steps=100,
+    )
+
+    register(
+        id='HandManipulateEggRotate{}-v0'.format(suffix),
+        entry_point='gym.envs.robotics:HandEggEnv',
+        kwargs=_merge({'target_position': 'ignore', 'target_rotation': 'xyz'}, kwargs),
+        max_episode_steps=100,
+    )
+
+    register(
+        id='HandManipulateEggFull{}-v0'.format(suffix),
+        entry_point='gym.envs.robotics:HandEggEnv',
+        kwargs=_merge({'target_position': 'random', 'target_rotation': 'xyz'}, kwargs),
+        max_episode_steps=100,
+    )
+
+    # Alias for "Full"
+    register(
+        id='HandManipulateEgg{}-v0'.format(suffix),
+        entry_point='gym.envs.robotics:HandEggEnv',
+        kwargs=_merge({'target_position': 'random', 'target_rotation': 'xyz'}, kwargs),
+        max_episode_steps=100,
+    )
+
+    register(
+        id='HandManipulatePenRotate{}-v0'.format(suffix),
+        entry_point='gym.envs.robotics:HandPenEnv',
+        kwargs=_merge({'target_position': 'ignore', 'target_rotation': 'xyz'}, kwargs),
+        max_episode_steps=100,
+    )
+
+    register(
+        id='HandManipulatePenFull{}-v0'.format(suffix),
+        entry_point='gym.envs.robotics:HandPenEnv',
+        kwargs=_merge({'target_position': 'random', 'target_rotation': 'xyz'}, kwargs),
+        max_episode_steps=100,
+    )
+
+    # Alias for "Full"
+    register(
+        id='HandManipulatePen{}-v0'.format(suffix),
+        entry_point='gym.envs.robotics:HandPenEnv',
+        kwargs=_merge({'target_position': 'random', 'target_rotation': 'xyz'}, kwargs),
+        max_episode_steps=100,
+    )
+
 # Atari
 # ----------------------------------------
 
