@@ -39,5 +39,5 @@ class InvertedDoublePendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     def viewer_setup(self):
         v = self.viewer
         v.cam.trackbodyid = 0
-        v.cam.distance = v.model.stat.extent * 0.5
-        v.cam.lookat[2] += 3  # v.model.stat.center[2]
+        v.cam.distance = self.model.stat.extent * 0.5
+        v.cam.lookat[2] = 0.12250000000000005  # v.model.stat.center[2]
