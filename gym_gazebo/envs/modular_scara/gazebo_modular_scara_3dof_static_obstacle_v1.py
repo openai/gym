@@ -19,6 +19,8 @@ from geometry_msgs.msg import WrenchStamped
 from gazebo_msgs.msg import ContactState
 
 import rospkg
+import scipy
+from scipy.spatial.distance import pdist, squareform
 
 # ROS 2
 # import rclpy
@@ -85,6 +87,9 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         self.slowness_unit = 'sec'
 
         self.mod = 100
+        self.init_torque = 0.0
+        self.init_torque_array = np.zeros(3)
+        self.ee_point_matrix = []
         #############################
         #   Environment hyperparams
         #############################
@@ -194,7 +199,7 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         self._pub = rospy.Publisher('/scara_controller/command', JointTrajectory)
         self._sub = rospy.Subscriber('/scara_controller/state', JointTrajectoryControllerState, self.observation_callback)
 
-        self._sub_coll = rospy.Subscriber('/gazebo_contacts',ContactState, self.collision_callback) ##
+        # self._sub_coll = rospy.Subscriber('/gazebo_contacts',ContactState, self.collision_callback) ##
 
         self._sub_torque = rospy.Subscriber('/motor3_torque',WrenchStamped, self.torque_callback) ##
 
@@ -363,6 +368,7 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         # EE_POS_TGT = np.asmatrix([0.3325683, 0.0657366, 0.4868]) # center of O
         # EE_POS_TGT = np.asmatrix([0.3305805, -0.1326121, 0.4868]) # center of the H
 
+    # RK: do we need this function?
     def setPenalizationMod(self, pen_mod):
         if pen_mod == 1:
             self.mod = 100
@@ -425,7 +431,11 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         Callback method for the subscriber of Collision data
         """
         self._torque_msg =  message
-        #print("\nTorque: ", self._torque_msg)
+        if self.init_torque == 0.0:
+            self.init_torque_array = [message.wrench.torque.x, message.wrench.torque.y, message.wrench.torque.z]
+            self.init_torque = np.linalg.norm(self.init_torque_array)
+            print("Init force at motor 3 is: ", self.init_torque)
+        # print("\nTorque: ", self._torque_msg)
 
 
     def normals_callback(self, message):
@@ -442,7 +452,7 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         """
         self._observation_msg =  message
 
-    def get_trajectory_message(self, action, robot_id=0):
+    def get_trajectory_message(self, action,set_const_vel=False, robot_id=0):
         """
         Helper function.
         Wraps an action vector of joint angles into a JointTrajectory message.
@@ -455,14 +465,19 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         target = JointTrajectoryPoint()
         action_float = [float(i) for i in action]
         target.positions = action_float
-        # These times determine the speed at which the robot moves:
-        # it tries to reach the specified target position in 'slowness' time.
-        if (self.slowness_unit == 'sec') or (self.slowness_unit is None):
-            target.time_from_start.secs = self.slowness
-        elif (self.slowness_unit == 'nsec'):
-            target.time_from_start.nsecs = self.slowness
+        if set_const_vel:
+            target.velocities = 0.0005*np.ones(self.scara_chain.getNrOfJoints())
+            target.effort = 0.005*np.ones(self.scara_chain.getNrOfJoints())
+            target.time_from_start.secs = 4
         else:
-            print("Unrecognized unit. Please use sec or nsec.")
+            # These times determine the speed at which the robot moves:
+            # it tries to reach the specified target position in 'slowness' time.
+            if (self.slowness_unit == 'sec') or (self.slowness_unit is None):
+                target.time_from_start.secs = self.slowness
+            elif (self.slowness_unit == 'nsec'):
+                target.time_from_start.nsecs = self.slowness
+            else:
+                print("Unrecognized unit. Please use sec or nsec.")
         # target.time_from_start.nsecs = self.environment['slowness']
         # Package the single point into a trajectory of points with length 1.
         action_msg.points = [target]
@@ -591,10 +606,22 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
 
             # I need this calculations for the new reward function, need to send them back to the run scara or calculate them here
             current_quaternion = quaternion_from_matrix(rotation_matrix)
-            current_ee_tgt = np.ndarray.flatten(get_ee_points(self.environment['end_effector_points'],
+            self.current_ee_tgt = np.ndarray.flatten(get_ee_points(self.environment['end_effector_points'],
                                                               trans,
                                                               rot).T)
-            ee_points = current_ee_tgt - self.realgoal#self.environment['ee_points_tgt']
+            ee_points = self.current_ee_tgt - self.realgoal#self.environment['ee_points_tgt']
+
+            # #calculate more sophisticated distance measurement
+            # self.ee_point_matrix.append(np.array(ee_points))
+            # # print("\nself.ee_point_matrix: ", self.ee_point_matrix)
+            # if len(self.ee_point_matrix)>3:
+            #     # d = pdist(self.ee_point_matrix,'mahalanobis', VI=None)
+            #     print("len(self.ee_point_matrix): ",len(self.ee_point_matrix), "self.ee_point_matrix: ", self.ee_point_matrix)
+            # if len(self.ee_point_matrix)>10:
+            #     self.ee_point_matrix = []
+
+
+
             # print("current_ee_tgt: ", current_ee_tgt)
             # print("ee_points:", ee_points)
             ee_points_jac_trans, _ = self.get_ee_points_jacobians(ee_link_jacobians,
@@ -621,6 +648,15 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         """
         rmse = np.sqrt(np.mean(np.square(ee_points), dtype=np.float32))
         return rmse
+    def log_torque_func(self, torque_diff):
+        """
+        Computes the Log of the Eucledian Distance Error between current and desired end-effector position
+        """
+        log_dist = np.log(torque_diff, dtype=np.float32)
+        log_dist[log_dist == -np.inf] = 0.0
+        log_dist = np.nan_to_num(log_dist)
+
+        return log_dist
 
     def _seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
@@ -637,51 +673,74 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         """
         self.iterator+=1
 
-        self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
-
         self.reward_dist = -self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])
 
         # here we want to fetch the positions of the end-effector which are nr_dof:nr_dof+3
         if(self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])<0.005):
             self.reward = 1 - self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)]) # Make the reward increase as the distance decreases
             print("Reward is: ", self.reward)
+        # elif(self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])<0.08):
+        #     self.reward = 0.5 - self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)]) # Make the reward increase as the distance decreases
+        #     print("Reward is: ", self.reward)
         else:
             self.reward = self.reward_dist
 
+        # d = pdist(self.ee_point_matrix,'mahalanobis', VI=None)
+        # print("d_hamming: ", d)
+
         # Calculate if the env has been solved
-        done = (bool(abs(self.reward_dist) < 0.005)) or (self.iterator > self.max_episode_steps)
+        done = (bool(abs(self.reward_dist) < 0.008)) or (self.iterator > self.max_episode_steps)
 
-        #  COLLISION DEPTH BASED REWARD SHAPING
+
+
+
+        #calculate the linnorm of the force at the motor3
+        #1. put current torques in an array
+        curr_torque_array = [self._torque_msg.wrench.torque.x, self._torque_msg.wrench.torque.y, self._torque_msg.wrench.torque.z]
+        torque_motor3  = np.linalg.norm(curr_torque_array)
+
+        diff_torques = np.subtract(curr_torque_array, self.init_torque_array)
+
+        log_torques = self.log_torque_func(diff_torques)
+        # print("log_torques: ", log_torques)
+        self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
+
+        if self.init_torque > 0 and torque_motor3 > self.init_torque:
+            # print("collision detected with torque at motor3: ", torque_motor3, "init_torque: ", self.init_torque)
+            proportion_torque = np.divide(torque_motor3,self.init_torque)
+            # print("diff between init force and collision: ", proportion_force)
+            if proportion_torque > 2.0: #and proportion_force <= 100.0:
+                self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()], set_const_vel=True))
+                self.reward = self.reward - np.divide((proportion_torque + 0.5*np.linalg.norm(log_torques)),1000)
+                # print("c1 self.reward:", self.reward)
+                if(proportion_torque <5 and (self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])<0.08)):
+                    self.reward = 0.5 - self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)]) - np.divide((proportion_torque + 0.5*np.linalg.norm(log_torques)),1000)
+                    print("c2 self.reward:", self.reward)
+
+
+
+        print("at end reward: ", self.reward)
+
+        # print("force_motor3: ", force_motor3)
+
         #  #REWARD SHAPING sophisticated penalization based on https://arxiv.org/pdf/1609.07845.pdf
-        # if self._collision_msg.collision2_name or self._collision_msg.collision1_name: #else
-        #         contact_depths = 100 * self._collision_msg.depths[0] #make them in mm otherwise we have too many decimals
-        #         print("\ncontact_depths", contact_depths, "reward: ", self.reward)
-        #         # self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
-        #         #we always assume that depths is positive here. Sometimes depths is negative (actually most of the time).
-        #         # changing to abs value of depths
-        #         if contact_depths > 0 and  abs(contact_depths) < 0.0001:
-        #             self.reward = self.reward - (abs(contact_depths))/2
-        #             print("\n cond1, contact_depths", contact_depths, "reward: ", self.reward)
-        #         elif abs(contact_depths) > 0.0001: #contact_depths > 0 and
-        #             self.reward = self.reward - abs(contact_depths)
-        #             print("\n cond2, contact_depths", contact_depths, "reward: ", self.reward)
-        #         else:
-        #             # self.reward = -100
-        #             print("cond3, self._collision_msg.depths[0]:", contact_depths)
+        # if abs(self._torque_msg.wrench.force.x) > 100:
+        #     print("self.self._torque_msg.force.x>100: ", self._torque_msg.wrench.force.x)
 
-        #  TORQUE BASED REWARD SHAPING
-        if self._torque_msg is not None:
-            torque_x = self._torque_msg.wrench.torque.x
-            torque_y = self._torque_msg.wrench.torque.y
-            torque_z = self._torque_msg.wrench.torque.z
-            torque_value = np.sqrt(torque_x * torque_x + torque_y * torque_y + torque_z * torque_z) / 1000
-            print("\n Torque value:", torque_value)
-            if torque_value > 0.01 and torque_value < 0.1:
-                    self.reward = self.reward - (abs(torque_value)) / 2
-                    print("\n Reward, torque penalization", self.reward)
-            elif torque_value > 0.01 and torque_value > 0.1:
-                    self.reward = self.reward - (abs(torque_value)) 
-                    print("\n Reward, torque penalization", self.reward)
+                # # contact_depths = 100 * self._collision_msg.depths[0] #make them in mm otherwise we have too many decimals
+                # print("\self.self._torque_msg", self.self._torque_msg, "reward: ", self.reward)
+                # # self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
+                # #we always assume that depths is positive here. Sometimes depths is negative (actually most of the time).
+                # # changing to abs value of depths
+                # if contact_depths > 0 and  abs(contact_depths) < 0.0001:
+                #     self.reward = self.reward - (abs(contact_depths))/2
+                #     print("\n cond1, contact_depths", contact_depths, "reward: ", self.reward)
+                # elif abs(contact_depths) > 0.0001: #contact_depths > 0 and
+                #     self.reward = self.reward - abs(contact_depths)
+                #     print("\n cond2, contact_depths", contact_depths, "reward: ", self.reward)
+                # else:
+                #     # self.reward = -100
+                #     print("cond3, self._collision_msg.depths[0]:", contact_depths)
 
 
         # # Take an observation
@@ -693,6 +752,15 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         ee_point = self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)] + self.realgoal
         ee_point_eucledian = np.linalg.norm(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])
         #return self.ob, self.reward, done, ee_point,{}
+
+        # #calculate more sophisticated distance measurement
+        # self.ee_point_matrix.append(np.array(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)]))
+        # # print("\nself.ee_point_matrix: ", self.ee_point_matrix)
+        # if len(self.ee_point_matrix)>3:
+        #     # d = pdist(self.ee_point_matrix,'mahalanobis', VI=None)
+        #     print("len(self.ee_point_matrix): ",len(self.ee_point_matrix), "self.ee_point_matrix: ", self.ee_point_matrix)
+        # if len(self.ee_point_matrix)>10:
+        #     self.ee_point_matrix = []
         return self.ob, self.reward, done, {}
     def addObstacle(self):
             rospy.wait_for_service('/gazebo/spawn_urdf_model')
@@ -705,7 +773,7 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
                                       <link name=\"cylinder0\">\
                                         <visual>\
                                           <geometry>\
-                                            <box size=\".1 .05 1\"/>\
+                                            <box size=\".1 .1 1\"/>\
                                           </geometry>\
                                           <origin xyz=\"0 0 0\"/>\
                                           <material name=\"blue\">\
@@ -714,19 +782,21 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
                                           </material>\
                                         </visual>\
                                         <inertial>\
-                                          <mass value=\"5.0\"/>\
-                                          <inertia ixx=\"1\" ixy=\"0.0\" ixz=\"0.0\" iyy=\"1\" iyz=\"0.0\" izz=\"1\"/>\
+                                          <mass value=\"10.\"/>\
+                                          <inertia ixx=\"1\" ixy=\".0\" ixz=\"0.0\" iyy=\"1\" iyz=\"0.0\" izz=\"1\"/>\
                                         </inertial>\
                                         <collision>\
                                           <geometry>\
-                                            <box size=\".2 .05 1\"/>\
+                                            <box size=\".1 .1 1\"/>\
                                           </geometry>\
                                           <surface>\
                                             <contact>\
                                               <ode>\
                                                 <min_depth>\"0.001\"</min_depth>\
+                                                <max_depth>\"0.01\"</max_depth>\
                                                 <kp>\"1e6\"</kp>\
                                                 <kd>\"1.000000\"</kd>\
+                                                <max_velocity>\"1.000000\"</max_velocity>\
                                               </ode>\
                                              </contact>\
                                           </surface>\
@@ -753,7 +823,7 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
                 pose.orientation.z = 0;
                 pose.orientation.w = 0;
 
-                    #BOX
+                #BOX
                 # model_xml = "<?xml version=\"1.0\"?> \
                 #              <robot name=\"myfirst\"> \
                 #                   <link name=\"world\"> \
