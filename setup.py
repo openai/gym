@@ -37,9 +37,12 @@ setup(name='gym',
       package_data={'gym': [
         'envs/mujoco/assets/*.xml',
         'envs/classic_control/assets/*.png',
-        'envs/robotics/assets/*',
-        'envs/robotics/assets/**/*',
-        'envs/robotics/assets/**/**/*']
+        'envs/robotics/assets/LICENSE.md',
+        'envs/robotics/assets/fetch/*.xml',
+        'envs/robotics/assets/hand/*.xml',
+        'envs/robotics/assets/stls/fetch/*.stl',
+        'envs/robotics/assets/stls/hand/*.stl',
+        'envs/robotics/assets/textures/*.png']
       },
       tests_require=['pytest', 'mock'],
 )
