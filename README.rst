@@ -221,7 +221,17 @@ Robotics
 very detailed efficient simulations with contacts and we use it for all robotics environments. It's not
 open-source, so you'll have to follow the instructions in `mujoco-py
 <https://github.com/openai/mujoco-py#obtaining-the-binaries-and-license-key>`_
-to set it up. You'll have to also run ``pip install -e '.[mujoco]'`` if you didn't do the full install.
+to set it up. You'll have to also run ``pip install -e '.[robotics]'`` if you didn't do the full install.
+
+You can also find additional details in the accompanying `technical report<https://arxiv.org/abs/1802.09464>`_ and `blog post<https://blog.openai.com/ingredients-for-robotics-research/>`_.
+If you use these environments, you can cite them as follows::
+
+  @misc{1802.09464,
+    Author = {Matthias Plappert and Marcin Andrychowicz and Alex Ray and Bob McGrew and Bowen Baker and Glenn Powell and Jonas Schneider and Josh Tobin and Maciek Chociej and Peter Welinder and Vikash Kumar and Wojciech Zaremba},
+    Title = {Multi-Goal Reinforcement Learning: Challenging Robotics Environments and Request for Research},
+    Year = {2018},
+    Eprint = {arXiv:1802.09464},
+  }
 
 .. code:: python
 
