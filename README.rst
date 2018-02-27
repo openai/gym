@@ -223,7 +223,14 @@ open-source, so you'll have to follow the instructions in `mujoco-py
 <https://github.com/openai/mujoco-py#obtaining-the-binaries-and-license-key>`_
 to set it up. You'll have to also run ``pip install -e '.[robotics]'`` if you didn't do the full install.
 
-You can also find additional details in the accompanying `technical report<https://arxiv.org/abs/1802.09464>`_ and `blog post<https://blog.openai.com/ingredients-for-robotics-research/>`_.
+.. code:: python
+
+    import gym
+    env = gym.make('HandManipulateBlock-v0')
+    env.reset()
+    env.render()
+
+You can also find additional details in the accompanying `technical report <https://arxiv.org/abs/1802.09464>`_ and `blog post <https://blog.openai.com/ingredients-for-robotics-research/>`_.
 If you use these environments, you can cite them as follows::
 
   @misc{1802.09464,
@@ -232,13 +239,6 @@ If you use these environments, you can cite them as follows::
     Year = {2018},
     Eprint = {arXiv:1802.09464},
   }
-
-.. code:: python
-
-    import gym
-    env = gym.make('HandManipulateBlock-v0')
-    env.reset()
-    env.render()
 
 Toy text
 --------
