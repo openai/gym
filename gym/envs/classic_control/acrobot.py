@@ -283,7 +283,7 @@ def rk4(derivs, y0, t, *args, **kwargs):
         yout = np.zeros((len(t), Ny), np.float_)
 
     yout[0] = y0
-    i = 0
+
 
     for i in np.arange(len(t) - 1):
 
