@@ -12,13 +12,6 @@ from gym.utils import seeding
 import copy
 import random
 
-# ROS 2
-# import rclpy
-# from rclpy.qos import QoSProfile, qos_profile_sensor_data
-# from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint # Used for publishing scara joint angles.
-# from control_msgs.msg import JointTrajectoryControllerState
-# from std_msgs.msg import String
-
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from control_msgs.msg import JointTrajectoryControllerState
 from baselines.agent.scara_arm.tree_urdf import treeFromFile # For KDL Jacobians
@@ -70,7 +63,7 @@ class GazeboModularScara3DOFv4Env(gazebo_env.GazeboEnv):
         self._max_episode_steps = self.max_episode_steps
         # class variable that iterates to accounts for number of steps per episode
         self.iterator = 0
-        # default to seconds
+        # default to 1ms, since ddpg is slow
         self.slowness = 1000000
         self.slowness_unit = 'nsec'
         self.reset_jnts = True
@@ -94,18 +87,6 @@ class GazeboModularScara3DOFv4Env(gazebo_env.GazeboEnv):
         INITIAL_JOINTS = np.array([0., 0., 0.])
         # Used to initialize the robot, #TODO, clarify this more
         STEP_COUNT = 2  # Typically 100.
-
-        # make sure that the slowness is set properly!! In case we forget them defaults to seconds.
-        # if self.slowness is None:
-        #     slowness = 1
-        #
-        # else:
-        #     slowness = self.slowness
-
-
-
-        # slowness = 100000000 # 1 is real life simulation
-        # slowness = 1 # use >10 for running trained network in the simulation
 
         # Topics for the robot publisher and subscriber.
         JOINT_PUBLISHER = '/scara_controller/command'
@@ -204,33 +185,19 @@ class GazeboModularScara3DOFv4Env(gazebo_env.GazeboEnv):
         self._currently_resetting = [False for _ in range(1)]
         self.reset_joint_angles = [None for _ in range(1)]
 
-        # TODO review with Risto, we might need the first observation for calling _step()
-        # # taken from mujoco in OpenAi how to initialize observation space and action space.
-        # observation, _reward, done, _info = self._step(np.zeros(self.scara_chain.getNrOfJoints()))
-        # assert not done
-        # self.obs_dim = observation.size
+
+
         self.obs_dim = self.scara_chain.getNrOfJoints() + 6 # hardcode it for now
-        # # print(observation, _reward)
 
         # # Here idially we should find the control range of the robot. Unfortunatelly in ROS/KDL there is nothing like this.
         # # I have tested this with the mujoco enviroment and the output is always same low[-1.,-1.], high[1.,1.]
-        # #bounds = self.model.actuator_ctrlrange.copy()
         low = -np.pi/2.0 * np.ones(self.scara_chain.getNrOfJoints())
         high = np.pi/2.0 * np.ones(self.scara_chain.getNrOfJoints())
         # print("Action spaces: ", low, high)
-        self.action_space = spaces.Box(low, high)
+        self.action_space = spaces.Box(low, high, dtype=np.float32)
         high = np.inf*np.ones(self.obs_dim)
         low = -high
-        self.observation_space = spaces.Box(low, high)
-
-        # self.action_space = spaces.Discrete(3) #F,L,R
-        # self.reward_range = (-np.inf, np.inf)
-
-        # Gazebo specific services to start/stop its behavior and
-        # facilitate the overall RL environment
-        # self.unpause = rospy.ServiceProxy('/gazebo/unpause_physics', Empty)
-        # self.pause = rospy.ServiceProxy('/gazebo/pause_physics', Empty)
-        # self.reset_proxy = rospy.ServiceProxy('/gazebo/reset_simulation', Empty)
+        self.observation_space = spaces.Box(low, high, dtype=np.float32)
 
         # Seed the environment
         self._seed()
@@ -534,11 +501,13 @@ class GazeboModularScara3DOFv4Env(gazebo_env.GazeboEnv):
 
     def goal_distance(self, goal_a, goal_b):
         assert goal_a.shape == goal_b.shape
+        # print("goal_distance", np.linalg.norm(goal_a - goal_b, axis=-1))
         return np.linalg.norm(goal_a - goal_b, axis=-1)
 
     def compute_reward(self, achieved_goal, desired_goal, info):
         # Compute distance between goal and the achieved goal.
         d = self.goal_distance(achieved_goal, desired_goal)
+        print("compute_reward:", d)
         if self.reward_type == 'sparse':
             return -(d > self.distance_threshold).astype(np.float32)
         else:

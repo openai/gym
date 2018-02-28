@@ -431,11 +431,15 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         Callback method for the subscriber of Collision data
         """
         self._torque_msg =  message
-        if self.init_torque == 0.0:
-            self.init_torque_array = [message.wrench.torque.x, message.wrench.torque.y, message.wrench.torque.z]
-            self.init_torque = np.linalg.norm(self.init_torque_array)
-            print("Init force at motor 3 is: ", self.init_torque)
-        # print("\nTorque: ", self._torque_msg)
+# <<<<<<< HEAD
+#         if self.init_torque == 0.0:
+#             self.init_torque_array = [message.wrench.torque.x, message.wrench.torque.y, message.wrench.torque.z]
+#             self.init_torque = np.linalg.norm(self.init_torque_array)
+#             print("Init force at motor 3 is: ", self.init_torque)
+#         # print("\nTorque: ", self._torque_msg)
+# =======
+#         #print("\nTorque: ", self._torque_msg)
+# >>>>>>> 5534657d7384ea47ae3ebbf2ddc1ff9b68d9a0be
 
 
     def normals_callback(self, message):
@@ -724,23 +728,36 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         # print("force_motor3: ", force_motor3)
 
         #  #REWARD SHAPING sophisticated penalization based on https://arxiv.org/pdf/1609.07845.pdf
-        # if abs(self._torque_msg.wrench.force.x) > 100:
-        #     print("self.self._torque_msg.force.x>100: ", self._torque_msg.wrench.force.x)
+        # if self._collision_msg.collision2_name or self._collision_msg.collision1_name: #else
+        #         contact_depths = 100 * self._collision_msg.depths[0] #make them in mm otherwise we have too many decimals
+        #         print("\ncontact_depths", contact_depths, "reward: ", self.reward)
+        #         # self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
+        #         #we always assume that depths is positive here. Sometimes depths is negative (actually most of the time).
+        #         # changing to abs value of depths
+        #         if contact_depths > 0 and  abs(contact_depths) < 0.0001:
+        #             self.reward = self.reward - (abs(contact_depths))/2
+        #             print("\n cond1, contact_depths", contact_depths, "reward: ", self.reward)
+        #         elif abs(contact_depths) > 0.0001: #contact_depths > 0 and
+        #             self.reward = self.reward - abs(contact_depths)
+        #             print("\n cond2, contact_depths", contact_depths, "reward: ", self.reward)
+        #         else:
+        #             # self.reward = -100
+        #             print("cond3, self._collision_msg.depths[0]:", contact_depths)
 
-                # # contact_depths = 100 * self._collision_msg.depths[0] #make them in mm otherwise we have too many decimals
-                # print("\self.self._torque_msg", self.self._torque_msg, "reward: ", self.reward)
-                # # self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
-                # #we always assume that depths is positive here. Sometimes depths is negative (actually most of the time).
-                # # changing to abs value of depths
-                # if contact_depths > 0 and  abs(contact_depths) < 0.0001:
-                #     self.reward = self.reward - (abs(contact_depths))/2
-                #     print("\n cond1, contact_depths", contact_depths, "reward: ", self.reward)
-                # elif abs(contact_depths) > 0.0001: #contact_depths > 0 and
-                #     self.reward = self.reward - abs(contact_depths)
-                #     print("\n cond2, contact_depths", contact_depths, "reward: ", self.reward)
-                # else:
-                #     # self.reward = -100
-                #     print("cond3, self._collision_msg.depths[0]:", contact_depths)
+        #  TORQUE BASED REWARD SHAPING
+        if self._torque_msg is not None:
+            torque_x = self._torque_msg.wrench.torque.x
+            torque_y = self._torque_msg.wrench.torque.y
+            torque_z = self._torque_msg.wrench.torque.z
+            torque_value = np.sqrt(torque_x * torque_x + torque_y * torque_y + torque_z * torque_z) / 1000
+            print("\n Torque value:", torque_value)
+            if torque_value > 0.01 and torque_value < 0.1:
+                    self.reward = self.reward - (abs(torque_value)) / 2
+                    print("\n Reward, torque penalization", self.reward)
+            elif torque_value > 0.01 and torque_value > 0.1:
+                    self.reward = self.reward - (abs(torque_value))
+                    print("\n Reward, torque penalization", self.reward)
+# >>>>>>> 5534657d7384ea47ae3ebbf2ddc1ff9b68d9a0be
 
 
         # # Take an observation
