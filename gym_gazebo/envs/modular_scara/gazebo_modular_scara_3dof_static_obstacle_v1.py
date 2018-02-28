@@ -431,15 +431,15 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         Callback method for the subscriber of Collision data
         """
         self._torque_msg =  message
-<<<<<<< HEAD
-        if self.init_torque == 0.0:
-            self.init_torque_array = [message.wrench.torque.x, message.wrench.torque.y, message.wrench.torque.z]
-            self.init_torque = np.linalg.norm(self.init_torque_array)
-            print("Init force at motor 3 is: ", self.init_torque)
-        # print("\nTorque: ", self._torque_msg)
-=======
-        #print("\nTorque: ", self._torque_msg)
->>>>>>> 5534657d7384ea47ae3ebbf2ddc1ff9b68d9a0be
+# <<<<<<< HEAD
+#         if self.init_torque == 0.0:
+#             self.init_torque_array = [message.wrench.torque.x, message.wrench.torque.y, message.wrench.torque.z]
+#             self.init_torque = np.linalg.norm(self.init_torque_array)
+#             print("Init force at motor 3 is: ", self.init_torque)
+#         # print("\nTorque: ", self._torque_msg)
+# =======
+#         #print("\nTorque: ", self._torque_msg)
+# >>>>>>> 5534657d7384ea47ae3ebbf2ddc1ff9b68d9a0be
 
 
     def normals_callback(self, message):
@@ -780,7 +780,7 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
             elif torque_value > 0.01 and torque_value > 0.1:
                     self.reward = self.reward - (abs(torque_value))
                     print("\n Reward, torque penalization", self.reward)
->>>>>>> 5534657d7384ea47ae3ebbf2ddc1ff9b68d9a0be
+# >>>>>>> 5534657d7384ea47ae3ebbf2ddc1ff9b68d9a0be
 
 
         # # Take an observation
