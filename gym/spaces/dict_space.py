@@ -71,3 +71,12 @@ class Dict(gym.Space):
             ret.append(entry)
         return ret
 
+    def compatible(self, space):
+        if not super(Dict, self).compatible(space):
+            return False
+        # compare each subspace
+        for k, subspace_x in self.spaces.items():
+            subspace_y = space.spaces[k]
+            if not subspace_x.compatible(subspace_y):
+                return False
+        return True

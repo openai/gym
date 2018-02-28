@@ -30,3 +30,14 @@ class Tuple(gym.Space):
 
     def from_jsonable(self, sample_n):
         return [sample for sample in zip(*[space.from_jsonable(sample_n[i]) for i, space in enumerate(self.spaces)])]
+
+    def compatible(self, space):
+        if not super(Tuple, self).compatible(space):
+            return False
+        # compare each subspace
+        for i in range(len(self.spaces)):
+            subspace_x = self.spaces[i]
+            subspace_y = space.spaces[i]
+            if not subspace_x.compatible(subspace_y):
+                return False
+        return True
