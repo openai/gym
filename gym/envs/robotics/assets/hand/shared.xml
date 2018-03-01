@@ -1,6 +1,7 @@
+<!-- See LICENSE.md for legal notices. LICENSE.md must be kept together with this file. -->
 <mujoco>
     <size njmax="500" nconmax="100" nuser_jnt="1" nuser_site="1" nuser_tendon="1" nuser_sensor="1" nuser_actuator="16" nstack="600000"></size>
-    
+
     <visual>
         <map fogstart="3" fogend="5" force="0.1"></map>
         <quality shadowsize="4096"></quality>
@@ -195,7 +196,7 @@
             <joint joint="robot0:THJ0" coef="-0.009"></joint>
         </fixed>
     </tendon>
-    
+
     <sensor>
         <jointpos name="robot0:Sjp_WRJ1" joint="robot0:WRJ1"></jointpos>
         <jointpos name="robot0:Sjp_WRJ0" joint="robot0:WRJ0"></jointpos>
