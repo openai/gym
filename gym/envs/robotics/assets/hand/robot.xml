@@ -1,3 +1,4 @@
+<!-- See LICENSE.md for legal notices. LICENSE.md must be kept together with this file. -->
 <mujoco>
     <body name="robot0:hand mount" pos="1 1.25 0.15" euler="1.5708 0 3.14159">
         <inertial mass="0.1" pos="0 0 0" diaginertia="0.001 0.001 0.001"></inertial>
