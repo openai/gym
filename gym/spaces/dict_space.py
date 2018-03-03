@@ -19,7 +19,7 @@ class Dict(gym.Space):
             )),
             'rear_cam': spaces.Box(low=0, high=1, shape=(10, 10, 3)),
         }),
-        'ext_controller': spaces.MultiDiscrete([ [0,4], [0,1], [0,1] ]),
+        'ext_controller': spaces.MultiDiscrete([ 4, 1, 1 ]),
         'inner_state':spaces.Dict({
             'charge': spaces.Discrete(100),
             'system_checks': spaces.MultiBinary(10),
