@@ -41,10 +41,10 @@ from pyglet import gl
 
 STATE_W = 96   # less than Atari 160x192
 STATE_H = 96
-VIDEO_W = 600
-VIDEO_H = 400
-WINDOW_W = 1200
-WINDOW_H = 1000
+VIDEO_W = 1000
+VIDEO_H = 800
+WINDOW_W = 1000
+WINDOW_H = 800
 
 SCALE       = 6.0        # Track scale
 TRACK_RAD   = 900/SCALE  # Track is heavily morphed circle with this radius
@@ -301,7 +301,7 @@ class CarRacing(gym.Env):
         self.world.Step(1.0/FPS, 6*30, 2*30)
         self.t += 1.0/FPS
 
-        self.state = self._render("state_pixels")
+        self.state = self.render("state_pixels")
 
         step_reward = 0
         done = False
@@ -365,11 +365,11 @@ class CarRacing(gym.Env):
                 VP_H = STATE_H
             gl.glViewport(0, 0, VP_W, VP_H)
             t.enable()
-            self._render_road()
+            self.render_road()
             for geom in self.viewer.onetime_geoms:
                 geom.render()
             t.disable()
-            self._render_indicators(WINDOW_W, WINDOW_H)  # TODO: find why 2x needed, wtf
+            self.render_indicators(WINDOW_W, WINDOW_H)  # TODO: find why 2x needed, wtf
             image_data = pyglet.image.get_buffer_manager().get_color_buffer().get_image_data()
             arr = np.fromstring(image_data.data, dtype=np.uint8, sep='')
             arr = arr.reshape(VP_H, VP_W, 4)
@@ -378,17 +378,17 @@ class CarRacing(gym.Env):
         if mode=="rgb_array" and not self.human_render: # agent can call or not call env.render() itself when recording video.
             win.flip()
 
-        if mode=='human':
+        if mode=="human":
             self.human_render = True
             win.clear()
             t = self.transform
-            gl.glViewport(0, 0, WINDOW_W, WINDOW_H)
+            gl.glViewport(int(WINDOW_W/2), int(WINDOW_H/2), WINDOW_W, WINDOW_H)
             t.enable()
-            self._render_road()
+            self.render_road()
             for geom in self.viewer.onetime_geoms:
                 geom.render()
             t.disable()
-            self._render_indicators(WINDOW_W, WINDOW_H)
+            self.render_indicators(WINDOW_W, WINDOW_H)
             win.flip()
 
         self.viewer.onetime_geoms = []
