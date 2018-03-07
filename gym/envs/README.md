@@ -80,11 +80,11 @@ ant.AntEnv
 
     def __init__(self):
       ...
-    def _step(self, action):
+    def step(self, action):
       ...
-    def _reset(self):
+    def reset(self):
       ...
-    def _render(self, mode='human', close=False):
+    def render(self, mode='human', close=False):
       ...
   ```
 
