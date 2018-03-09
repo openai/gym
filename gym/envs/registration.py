@@ -11,7 +11,7 @@ env_id_re = re.compile(r'^(?:[\w:-]+\/)?([\w:.-]+)-v(\d+)$')
 
 def load(name):
     entry_point = pkg_resources.EntryPoint.parse('x={}'.format(name))
-    result = entry_point.load(False)
+    result = entry_point.resolve()
     return result
 
 class EnvSpec(object):
