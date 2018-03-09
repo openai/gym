@@ -301,7 +301,7 @@ class CarRacing(gym.Env):
         self.world.Step(1.0/FPS, 6*30, 2*30)
         self.t += 1.0/FPS
 
-        self.state = self._render("state_pixels")
+        self.state = self.render("state_pixels")
 
         step_reward = 0
         done = False
@@ -365,11 +365,11 @@ class CarRacing(gym.Env):
                 VP_H = STATE_H
             gl.glViewport(0, 0, VP_W, VP_H)
             t.enable()
-            self._render_road()
+            self.render_road()
             for geom in self.viewer.onetime_geoms:
                 geom.render()
             t.disable()
-            self._render_indicators(WINDOW_W, WINDOW_H)  # TODO: find why 2x needed, wtf
+            self.render_indicators(WINDOW_W, WINDOW_H)  # TODO: find why 2x needed, wtf
             image_data = pyglet.image.get_buffer_manager().get_color_buffer().get_image_data()
             arr = np.fromstring(image_data.data, dtype=np.uint8, sep='')
             arr = arr.reshape(VP_H, VP_W, 4)
@@ -384,11 +384,11 @@ class CarRacing(gym.Env):
             t = self.transform
             gl.glViewport(0, 0, WINDOW_W, WINDOW_H)
             t.enable()
-            self._render_road()
+            self.render_road()
             for geom in self.viewer.onetime_geoms:
                 geom.render()
             t.disable()
-            self._render_indicators(WINDOW_W, WINDOW_H)
+            self.render_indicators(WINDOW_W, WINDOW_H)
             win.flip()
 
         self.viewer.onetime_geoms = []
