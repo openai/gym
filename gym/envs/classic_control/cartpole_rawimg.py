@@ -1,7 +1,8 @@
 '''
-This environment uses gives the raw image
+This environment gives the raw image
 as output instead of the low level state
-values.
+values. The implementation is based on
+CartPoleEnv.
 '''
 
 from gym.envs.classic_control import cartpole

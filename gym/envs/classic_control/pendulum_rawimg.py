@@ -1,3 +1,10 @@
+'''
+This environment gives the raw image
+as output instead of the low level state
+values. The implementation is based on
+PendulumEnv.
+'''
+
 from gym.envs.classic_control import pendulum
 import numpy as np
 
@@ -80,8 +87,8 @@ class DrawImage:
         x1 = int(x0 + rod_length / 3 * sin_theta)
         y1 = int(y0 - rod_length / 3 * cos_theta)
 
-        x2 = int(x0 + 2* rod_length / 3 * sin_theta)
-        y2 = int(y0 - 2* rod_length / 3 * cos_theta)
+        x2 = int(x0 + 2 * rod_length / 3 * sin_theta)
+        y2 = int(y0 - 2 * rod_length / 3 * cos_theta)
 
         x3 = int(x0 + rod_length * sin_theta)
         y3 = int(y0 - rod_length * cos_theta)

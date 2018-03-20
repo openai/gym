@@ -1,3 +1,10 @@
+'''
+This environment gives the raw image
+as output instead of the low level state
+values. The implementation is based on
+AcrobotEnv.
+'''
+
 from gym.envs.classic_control import acrobot
 import numpy as np
 
