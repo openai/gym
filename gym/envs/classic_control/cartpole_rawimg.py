@@ -83,7 +83,7 @@ class DrawImage:
         start_x = 5
         end_x = self.width - 5
 
-        start_end_y = self.height // 2 # the line is horizontal
+        start_end_y = self.height // 2  # the line is horizontal
 
         self.canvas[start_end_y, start_x:end_x] = colors['black']
 

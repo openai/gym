@@ -1,6 +1,5 @@
 from gym.envs.classic_control import pendulum
 import numpy as np
-import math
 
 
 class PendulumRawImgEnv(pendulum.PendulumEnv):

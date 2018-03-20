@@ -103,6 +103,12 @@ register(
     max_episode_steps=500,
 )
 
+register(
+    id='AcrobotRawImg-v1',
+    entry_point='gym.envs.classic_control:AcrobotRawImgEnv',
+    max_episode_steps=500,
+)
+
 # Box2d
 # ----------------------------------------
 
