@@ -1,15 +1,9 @@
-'''
-This environment uses gives the raw image
-as output instead of the low level state
-values.
-'''
-
-from gym.envs.classic_control import cartpole
+from gym.envs.classic_control import pendulum
 import numpy as np
 import math
 
 
-class CartPoleRawImgEnv(cartpole.CartPoleEnv):
+class PendulumRawImgEnv(pendulum.PendulumEnv):
 
     def __init__(self):
         super().__init__()
@@ -18,10 +12,10 @@ class CartPoleRawImgEnv(cartpole.CartPoleEnv):
 
     def step(self, action):
         obs, rw, done, inf = super().step(action)
-        cart_position = obs[0]
-        pole_angle = obs[2]
+        cos_theta = obs[0]
+        sin_theta = obs[1]
 
-        self.raw_img = self.drawer.draw(cart_position, pole_angle)
+        self.raw_img = self.drawer.draw(cos_theta, sin_theta)
         return self.raw_img, rw, done, inf
 
     def render(self, mode='human'):
@@ -37,10 +31,10 @@ class CartPoleRawImgEnv(cartpole.CartPoleEnv):
 
     def reset(self):
         obs = super().reset()
-        cart_position = obs[0]
-        pole_angle = obs[2]
+        cos_theta = obs[0]
+        sin_theta = obs[1]
 
-        self.raw_img = self.drawer.draw(cart_position, pole_angle)
+        self.raw_img = self.drawer.draw(cos_theta, sin_theta)
         return self.raw_img
 
     def close(self):
@@ -52,7 +46,6 @@ class CartPoleRawImgEnv(cartpole.CartPoleEnv):
 
 colors = {
         'black': np.array([0, 0, 0]),
-        'blue': np.array([33, 100, 209]),
         'red': np.array([214, 25, 28])
     }
 
@@ -64,11 +57,9 @@ class DrawImage:
         self.width = 160
         self.canvas = np.zeros((self.height, self.width, 3), dtype=np.uint8) + 255
 
-    def draw(self, cart_pos, pol_angl):
+    def draw(self, cos_theta, sin_theta):
         self.__clear()
-        self.__draw_base_line()
-        self.__draw_box(int((1.0 + cart_pos/2.4) * (self.width // 2)))
-        self.__draw_rod(int((1.0 + cart_pos/2.4) * (self.width // 2)), pol_angl * 2.0)
+        self.__draw_rod(cos_theta, sin_theta)
 
         return self.canvas
 
@@ -78,39 +69,25 @@ class DrawImage:
 
         self.canvas[:, :, :] = 255
 
-    def __draw_base_line(self):
-
-        start_x = 5
-        end_x = self.width - 5
-
-        start_end_y = self.height // 2 # the line is horizontal
-
-        self.canvas[start_end_y, start_x:end_x] = colors['black']
-
-    def __draw_box(self, x):
-        y = self.height // 2
-        left = x - 20
-        right = x + 20
-        top = y - 10
-        bottom = y + 10
-
-        self.canvas[top:bottom, left:right] = colors['blue']
-
-    def __draw_rod(self, pos, angle):
+    def __draw_rod(self, cos_theta, sin_theta):
 
         def draw_square(x, y):
             self.canvas[y-2:y+2, x-2:x+2] = colors['red']
 
-        rod_length = 40
-        x0 = pos
-        y0 = self.height // 2 - 10
+        rod_length = 60
+        x0 = self.width // 2
+        y0 = self.height // 2
 
-        x1 = int(x0 + rod_length / 2 * math.sin(angle))
-        y1 = int(y0 - rod_length / 2 * math.cos(angle))
+        x1 = int(x0 + rod_length / 3 * sin_theta)
+        y1 = int(y0 - rod_length / 3 * cos_theta)
 
-        x2 = int(x0 + rod_length * math.sin(angle))
-        y2 = int(y0 - rod_length * math.cos(angle))
+        x2 = int(x0 + 2* rod_length / 3 * sin_theta)
+        y2 = int(y0 - 2* rod_length / 3 * cos_theta)
+
+        x3 = int(x0 + rod_length * sin_theta)
+        y3 = int(y0 - rod_length * cos_theta)
 
         draw_square(x0, y0)
         draw_square(x1, y1)
         draw_square(x2, y2)
+        draw_square(x3, y3)
