@@ -117,7 +117,11 @@ class EnvRegistry(object):
         logger.info('Making new env: %s', id)
         spec = self.spec(id)
         env = spec.make()
-        if hasattr(env, "_reset") and hasattr(env, "_step"):
+        # We used to have people override _reset/_step rather than
+        # reset/step. Set _gym_disable_underscore_compat = True on
+        # your environment if you use these methods and don't want
+        # compatibility code to be invoked.
+        if hasattr(env, "_reset") and hasattr(env, "_step") and not getattr(env, "_gym_disable_underscore_compat", False):
             patch_deprecated_methods(env)
         if (env.spec.timestep_limit is not None) and not spec.tags.get('vnc'):
             from gym.wrappers.time_limit import TimeLimit
@@ -174,7 +178,7 @@ def patch_deprecated_methods(env):
     """
     global warn_once
     if warn_once:
-        logger.warn("Environment '%s' has deprecated methods. Compatibility code invoked." % str(type(env)))
+        logger.warn("Environment '%s' has deprecated methods '_step' and '_reset' rather than 'step' and 'reset'. Compatibility code invoked. Set _gym_disable_underscore_compat = True to disable this behavior." % str(type(env)))
         warn_once = False
     env.reset = env._reset
     env.step  = env._step
