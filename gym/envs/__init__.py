@@ -128,6 +128,13 @@ register(
     reward_threshold=900,
 )
 
+register(
+    id='BinaryCarRacing-v0',
+    entry_point='gym.envs.box2d:BinaryCarRacing',
+    max_episode_steps=1000,
+    reward_threshold=900,
+)
+
 # Toy Text
 # ----------------------------------------
 
@@ -530,4 +537,3 @@ register(
     entry_point='gym.envs.unittest:MemorizeDigits',
     reward_threshold=20,
     )
-
