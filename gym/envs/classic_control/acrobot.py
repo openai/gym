@@ -86,7 +86,7 @@ class AcrobotEnv(core.Env):
         self.viewer = None
         high = np.array([1.0, 1.0, 1.0, 1.0, self.MAX_VEL_1, self.MAX_VEL_2])
         low = -high
-        self.observation_space = spaces.Box(low=low, high=high)
+        self.observation_space = spaces.Box(low=low, high=high, dtype=np.float32)
         self.action_space = spaces.Discrete(3)
         self.state = None
         self.seed()

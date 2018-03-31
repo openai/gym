@@ -40,8 +40,8 @@ class Continuous_MountainCarEnv(gym.Env):
 
         self.viewer = None
 
-        self.action_space = spaces.Box(low=self.min_action, high=self.max_action, shape=(1,))
-        self.observation_space = spaces.Box(low=self.low_state, high=self.high_state)
+        self.action_space = spaces.Box(low=self.min_action, high=self.max_action, shape=(1,), dtype=np.float32)
+        self.observation_space = spaces.Box(low=self.low_state, high=self.high_state, dtype=np.float32)
 
         self.seed()
         self.reset()

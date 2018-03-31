@@ -27,7 +27,7 @@ class MountainCarEnv(gym.Env):
         self.viewer = None
 
         self.action_space = spaces.Discrete(3)
-        self.observation_space = spaces.Box(self.low, self.high)
+        self.observation_space = spaces.Box(self.low, self.high, dtype=np.float32)
 
         self.seed()
         self.reset()
