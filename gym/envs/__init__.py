@@ -90,6 +90,13 @@ register(
     max_episode_steps=500,
 )
 
+register(
+    id='CartTable-v0',
+    entry_point='gym.envs.classic_control:CartTableEnv',
+    max_episode_steps=500,
+    reward_threshold=195.0,
+)
+
 # Box2d
 # ----------------------------------------
 

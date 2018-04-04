@@ -36,3 +36,5 @@ tutorial/*.html
 # PyCharm project files
 .idea
 vizdoom.ini
+*.out
+*.geany
