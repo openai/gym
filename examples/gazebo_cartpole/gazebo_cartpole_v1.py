@@ -147,7 +147,7 @@ env = gym.make('GazeboCartPole-v0')
 outdir = '/tmp/gazebo_gym_experiments'
 plotter = LivePlot(outdir)
 import time
-#env.monitor.start('cartpole-hill/', force=True)
+env = gym.wrappers.Monitor(env, outdir, force=True)
 policy_grad = policy_gradient()
 value_grad = value_gradient()
 sess = tf.InteractiveSession()
@@ -169,5 +169,4 @@ for _ in range(1000):
     reward = run_episode(env, policy_grad, value_grad, sess)
     t += reward
 print (t / 1000)
-#env.monitor.close()
 print ("END!")
