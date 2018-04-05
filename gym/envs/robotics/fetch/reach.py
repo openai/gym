@@ -8,9 +8,6 @@ class FetchReachEnv(fetch_env.FetchEnv, utils.EzPickle):
             'robot0:slide0': 0.4049,
             'robot0:slide1': 0.48,
             'robot0:slide2': 0.0,
-            'table0:slide0': 1.05,
-            'table0:slide1': 0.4,
-            'table0:slide2': 0.0,
         }
         fetch_env.FetchEnv.__init__(
             self, 'fetch/reach.xml', has_object=False, block_gripper=True, n_substeps=20,
