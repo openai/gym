@@ -34,6 +34,10 @@ A minimalistic gridworld environment. Seeks to minimize software dependencies, b
 
 Learn more here: https://github.com/maximecb/gym-minigrid
 
+## gym-maze: A customizable gym environment for maze/gridworld
+
+A customizable gym environment for different kinds of mazes or gridworlds. The modular design consists of maze generators, maze solvers and maze environment. This allows one to define their own type of mazes in an simple way. 
+
 ## gym-sokoban: 2D Transportation Puzzles
 
 The environment consists of transportation puzzles in which the player's goal is to push all boxes on the warehouse's storage locations.
