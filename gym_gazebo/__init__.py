@@ -105,8 +105,18 @@ register(
     entry_point='gym_gazebo.envs.gazebo_cartpole:GazeboCartPolev0Env',
 )
 
+register(
+    id='Box3DOF-v1',
+    entry_point='gym_gazebo.envs.modular_scara:Box3DOFv1Env',
+)
 # ARIACPickv0Env
 register(
     id='ARIACPick-v0',
     entry_point='gym_gazebo.envs.ARIAC:ARIACPickv0Env',
+)
+
+# ARIACPickv0Env
+register(
+    id='HansArticulated-v1',
+    entry_point='gym_gazebo.envs.hans_articulated:GazeboHansArticulatedv1Env',
 )

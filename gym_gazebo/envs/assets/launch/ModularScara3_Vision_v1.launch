@@ -17,8 +17,7 @@
   </include>
 
   <!-- send robot urdf to param server -->
-  <param name="robot_description" command="$(find xacro)/xacro --inorder /home/rkojcev/devel/ros_rl/environments/gym-gazebo/gym_gazebo/envs/assets/urdf/modular_scara/box_vision_camera_side.urdf.xacro" />
-
+  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find scara_e1_description)/urdf/scara_e1_model_3joints_simplified_camera_side.urdf.xacro'" />
 
   <!-- push robot_description to factory and spawn robot in gazebo -->
   <node name="spawn_gazebo_model" pkg="gazebo_ros" type="spawn_model" args="-urdf -param robot_description -model robot -z 0.01" respawn="false" output="screen" />
