@@ -11,12 +11,6 @@ from sensor_msgs.msg import LaserScan
 from gym.utils import seeding
 import copy
 import rospkg
-# ROS 2
-# import rclpy
-# from rclpy.qos import QoSProfile, qos_profile_sensor_data
-# from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint # Used for publishing scara joint angles.
-# from control_msgs.msg import JointTrajectoryControllerState
-# from std_msgs.msg import String
 
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from control_msgs.msg import JointTrajectoryControllerState
@@ -183,16 +177,6 @@ class GazeboModularScaraVision3DOFv1Env(gazebo_env.GazeboEnv):
 
         self._image_sub = rospy.Subscriber('/scara/camera/image_raw', Image, self.camera_callback)
 
-        #self._sub = rospy.Subscriber('/scara/camera', JointTrajectoryControllerState, self.observation_callback)
-
-        # # ROS 2 implementation, includes initialization of the appropriate ROS 2 abstractions
-        # rclpy.init(args=None)
-        # self.ros2_node = rclpy.create_node('robot_ai_node')
-        # self._pub = ros2_node.create_publisher(JointTrajectory, JOINT_PUBLISHER)
-        # # self._callbacks = partial(self.observation_callback, robot_id=0)
-        # self._sub = ros2_node.create_subscription(JointTrajectoryControllerState, JOINT_SUBSCRIBER, self.observation_callback, qos_profile=qos_profile_sensor_data)
-        # # self._time_lock = threading.RLock()
-
         # Initialize a tree structure from the robot urdf.
         #   note that the xacro of the urdf is updated by hand.
         # The urdf must be compiled.
@@ -230,11 +214,11 @@ class GazeboModularScaraVision3DOFv1Env(gazebo_env.GazeboEnv):
         # self.action_space = spaces.Discrete(3) #F,L,R
         # self.reward_range = (-np.inf, np.inf)
 
-        # Gazebo specific services to start/stop its behavior and
-        # facilitate the overall RL environment
-        self.unpause = rospy.ServiceProxy('/gazebo/unpause_physics', Empty)
-        self.pause = rospy.ServiceProxy('/gazebo/pause_physics', Empty)
-        self.reset_proxy = rospy.ServiceProxy('/gazebo/reset_simulation', Empty)
+        # # Gazebo specific services to start/stop its behavior and
+        # # facilitate the overall RL environment
+        # self.unpause = rospy.ServiceProxy('/gazebo/unpause_physics', Empty)
+        # self.pause = rospy.ServiceProxy('/gazebo/pause_physics', Empty)
+        # self.reset_proxy = rospy.ServiceProxy('/gazebo/reset_simulation', Empty)
 
         # Seed the environment
         self._seed()
@@ -244,24 +228,7 @@ class GazeboModularScaraVision3DOFv1Env(gazebo_env.GazeboEnv):
         Callback method for the subscriber of JointTrajectoryControllerState
         """
         self._observation_msg =  message
-        # print("!!!!!!!!!Received an observation")
 
-    # def discretize_observation(self,data,new_ranges):
-    #     discretized_ranges = []
-    #     min_range = 0.2
-    #     done = False
-    #     mod = len(data.ranges)/new_ranges
-    #     for i, item in enumerate(data.ranges):
-    #         if (i%mod==0):
-    #             if data.ranges[i] == float ('Inf') or np.isinf(data.ranges[i]):
-    #                 discretized_ranges.append(6)
-    #             elif np.isnan(data.ranges[i]):
-    #                 discretized_ranges.append(0)
-    #             else:
-    #                 discretized_ranges.append(int(data.ranges[i]))
-    #         if (min_range > data.ranges[i] > 0):
-    #             done = True
-    #     return discretized_ranges,done
     def camera_callback(self, message):
         """
         Callback method for the subscriber of Image
@@ -372,79 +339,6 @@ class GazeboModularScaraVision3DOFv1Env(gazebo_env.GazeboEnv):
                                                        ref_rot.dot(ee_points.T).T)
         return ee_velocities.reshape(-1)
 
-    # def take_observation_ros2(self):
-    #     """
-    #     Take observation from the environment and return it.
-    #     TODO: define return type
-    #     """
-    #     # Take an observation
-    #     if rclpy.ok():
-    #         # Only read and process ROS messages if they are fresh.
-    #         # TODO: review, robot_id seems specific to Risto's implementation
-    #
-    #         # # Acquire the lock to prevent the subscriber thread from
-    #         # # updating times or observation messages.
-    #         # self._time_lock.acquire(True)
-    #         obs_message = self._observation_msg
-    #
-    #         # Collect the end effector points and velocities in
-    #         # cartesian coordinates for the state.
-    #         # Collect the present joint angles and velocities from ROS for the state.
-    #         last_observations = self.process_observations(obs_message, self.environment)
-    #         if last_observations is None:
-    #             print("last_observations is empty")
-    #         else:
-    #         # # # Get Jacobians from present joint angles and KDL trees
-    #         # # # The Jacobians consist of a 6x6 matrix getting its from from
-    #         # # # (# joint angles) x (len[x, y, z] + len[roll, pitch, yaw])
-    #             ee_link_jacobians = self.get_jacobians(last_observations)
-    #             if self.environment['link_names'][-1] is None:
-    #                 print("End link is empty!!")
-    #             else:
-    #                 # print(self.environment['link_names'][-1])
-    #                 trans, rot = forward_kinematics(self.scara_chain,
-    #                                             self.environment['link_names'],
-    #                                             last_observations[:3],
-    #                                             base_link=self.environment['link_names'][0],
-    #                                             end_link=self.environment['link_names'][-1])
-    #                 # #
-    #                 rotation_matrix = np.eye(4)
-    #                 rotation_matrix[:3, :3] = rot
-    #                 rotation_matrix[:3, 3] = trans
-    #                 # angle, dir, _ = rotation_from_matrix(rotation_matrix)
-    #                 # #
-    #                 # current_quaternion = np.array([angle]+dir.tolist())#
-    #
-    #                 # I need this calculations for the new reward function, need to send them back to the run scara or calculate them here
-    #                 current_quaternion = quaternion_from_matrix(rotation_matrix)
-    #
-    #                 current_ee_tgt = np.ndarray.flatten(get_ee_points(self.environment['end_effector_points'],
-    #                                                                   trans,
-    #                                                                   rot).T)
-    #                 ee_points = current_ee_tgt - self.environment['ee_points_tgt']
-    #
-    #                 ee_points_jac_trans, _ = self.get_ee_points_jacobians(ee_link_jacobians,
-    #                                                                        self.environment['end_effector_points'],
-    #                                                                        rot)
-    #                 ee_velocities = self.get_ee_points_velocities(ee_link_jacobians,
-    #                                                                self.environment['end_effector_points'],
-    #                                                                rot,
-    #                                                                last_observations)
-    #
-    #                 #
-    #                 # Concatenate the information that defines the robot state
-    #                 # vector, typically denoted asrobot_id 'x'.
-    #                 state = np.r_[np.reshape(last_observations, -1),
-    #                               np.reshape(ee_points, -1),
-    #                               np.reshape(ee_velocities, -1),]
-    #
-    #                 return np.r_[np.reshape(last_observations, -1),
-    #                               np.reshape(ee_points, -1),
-    #                               np.reshape(ee_velocities, -1),]
-    #     else:
-    #         print("Observation is None")
-    #         return None
-
     def take_observation(self):
         """
         Take observation from the environment and return it.
@@ -538,7 +432,6 @@ class GazeboModularScaraVision3DOFv1Env(gazebo_env.GazeboEnv):
             print ("/gazebo/unpause_physics service call failed")
 
         # Execute "action"
-        # if rclpy.ok(): # ROS 2 code
         self._pub.publish(self.get_trajectory_message(action[:3]))
 
         # # Take an observation
@@ -559,28 +452,6 @@ class GazeboModularScaraVision3DOFv1Env(gazebo_env.GazeboEnv):
         # TODO: program this better, check that ob is not None, etc.
         # self.ob = take_observation()
 
-        # # Old implementation for reward calculation
-        # # Calculate reward based on observation
-        # if np.linalg.norm(self.ob[1]) < 0.005:
-        #     self.reward_dist = 1000.0 * np.linalg.norm(self.ob[1])#- 10.0 * np.linalg.norm(ee_points)
-        #     # self.reward_ctrl = np.linalg.norm(action)#np.square(action).sum()
-        #     done = True
-        #     print("self.reward_dist: ", self.reward_dist, "self.reward_ctrl: ", self.reward_ctrl)
-        # else:
-        #     self.reward_dist = - np.linalg.norm(self.ob[1])
-        #     # self.reward_ctrl = - np.linalg.norm(action)# np.square(action).sum()
-        # # self.reward = 2.0 * self.reward_dist + 0.01 * self.reward_ctrl
-        # #removed the control reward, maybe we should add it later.
-        # self.reward = self.reward_dist
-
-
-        # Calculate the reward
-        #  Heuristic used for the calculation of the reward:
-        #   - calculate the residual mean square error (rmse) between the current
-        #       end effector point and the target point
-        #   - in the case it's bigger than 5 mm, reward is the negative value of the rmse
-        #   - in case where it's smaller than 5 mm, reward is calculated by substracting 100 - rmse
-        # print(self.ob[2])
         self.reward_dist = - self.rmse_func(self.ob[2])
         if abs(self.reward_dist) < 0.005:
             # print("reward (Eucledian dist (mm)): ", -1000 * self.reward_dist)
@@ -593,8 +464,6 @@ class GazeboModularScaraVision3DOFv1Env(gazebo_env.GazeboEnv):
 
         # Calculate if the env has been solved
         done = bool(abs(self.reward_dist) < 0.005)
-
-        # self._time_lock.release() # ROS 2 code
 
         # Return the corresponding observations, rewards, etc.
         # TODO, understand better what's the last object to return
