@@ -117,6 +117,6 @@ register(
 
 # ARIACPickv0Env
 register(
-    id='HansArticulated-v1',
-    entry_point='gym_gazebo.envs.hans_articulated:GazeboHansArticulatedv1Env',
+    id='NewArticulated-v1',
+    entry_point='gym_gazebo.envs.new_articulated:GazeboNewArticulatedv1Env',
 )
