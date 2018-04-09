@@ -53,7 +53,7 @@ class GazeboNewArticulatedv1Env(gazebo_env.GazeboEnv):
             TODO: port everything to ROS 2 natively
         """
         # Launch the simulation with the given launchfile name
-        gazebo_env.GazeboEnv.__init__(self, "HansArticulatedArm_v1.launch")
+        gazebo_env.GazeboEnv.__init__(self, "NewArticulatedArm_v1.launch")
 
         # TODO: cleanup this variables, remove the ones that aren't used
         # class variables
@@ -105,18 +105,18 @@ class GazeboNewArticulatedv1Env(gazebo_env.GazeboEnv):
         MOTOR5_JOINT = 'motor5'
 
         # Set constants for links
-        BASE = 'hans_arm_base_link'
+        BASE = 'new_arm_base_link'
 
-        HANS_MOTOR1 = 'motor1_link'
-        HANS_MOTOR2  = 'link1'
-        HANS_MOTOR3 = 'motor3_link'
-        HANS_MOTOR4 = 'motor4_link'
-        HANS_MOTOR5 = 'motor5_link'
-        # HANS_MOTOR5 = 'scara_e1_motor4'
+        NEW_ART_MOTOR1 = 'motor1_link'
+        NEW_ART_MOTOR2  = 'link1'
+        NEW_ART_MOTOR3 = 'motor3_link'
+        NEW_ART_MOTOR4 = 'motor4_link'
+        NEW_ART_MOTOR5 = 'motor5_link'
+
 
         # EE_LINK = 'ee_link'
         JOINT_ORDER = [MOTOR1_JOINT, MOTOR2_JOINT, MOTOR3_JOINT, MOTOR4_JOINT, MOTOR5_JOINT]
-        LINK_NAMES = [BASE, HANS_MOTOR1,HANS_MOTOR2, HANS_MOTOR3, HANS_MOTOR4, HANS_MOTOR5]
+        LINK_NAMES = [BASE, NEW_ART_MOTOR1,NEW_ART_MOTOR2, NEW_ART_MOTOR3, NEW_ART_MOTOR4, NEW_ART_MOTOR5]
 
         reset_condition = {
             'initial_positions': INITIAL_JOINTS,
@@ -126,7 +126,7 @@ class GazeboNewArticulatedv1Env(gazebo_env.GazeboEnv):
 
         # TODO: fix this and make it relative
         # Set the path of the corresponding URDF file from "assets"
-        URDF_PATH = "/home/rkojcev/devel/ros_rl/environments/gym-gazebo/gym_gazebo/envs/assets/urdf/hans_articulated/hans_arm.urdf"
+        URDF_PATH = "/home/rkojcev/devel/ros_rl/environments/gym-gazebo/gym_gazebo/envs/assets/urdf/new_articulated/new_arm.urdf"
 
         m_joint_order = copy.deepcopy(JOINT_ORDER)
         m_link_names = copy.deepcopy(LINK_NAMES)
@@ -158,8 +158,8 @@ class GazeboNewArticulatedv1Env(gazebo_env.GazeboEnv):
 
         # Subscribe to the appropriate topics, taking into account the particular robot
         # ROS 1 implementation
-        self._pub = rospy.Publisher('/hans_arm_controller/command', JointTrajectory)
-        self._sub = rospy.Subscriber('/hans_arm_controller/state', JointTrajectoryControllerState, self.observation_callback)
+        self._pub = rospy.Publisher('/new_arm_controller/command', JointTrajectory)
+        self._sub = rospy.Subscriber('/new_arm_controller/state', JointTrajectoryControllerState, self.observation_callback)
 
         # Initialize a tree structure from the robot urdf.
         #   note that the xacro of the urdf is updated by hand.

@@ -1,1 +1,1 @@
-from gym_gazebo.envs.hans_articulated.gazebo_new_articulated import GazeboNewArticulatedv1Env
+from gym_gazebo.envs.gazebo_new_articulated import GazeboNewArticulatedv1Env
