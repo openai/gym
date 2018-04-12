@@ -119,3 +119,13 @@ register(
     id='NewArticulated-v1',
     entry_point='gym_gazebo.envs.new_articulated:GazeboNewArticulatedv1Env',
 )
+
+# MAIRA
+register(
+    id='MAIRASide3DOF-v0',
+    entry_point='gym_gazebo.envs.MAIRA:GazeboMAIRASide3DOFv0Env',
+)
+register(
+    id='MAIRATop3DOF-v0',
+    entry_point='gym_gazebo.envs.MAIRA:GazeboMAIRATop3DOFv0Env',
+)

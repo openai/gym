@@ -7,6 +7,7 @@ import subprocess
 import time
 from os import path
 from std_srvs.srv import Empty
+import random
 
 class GazeboEnv(gym.Env):
     """Superclass for all Gazebo environments.
@@ -15,9 +16,20 @@ class GazeboEnv(gym.Env):
 
     def __init__(self, launchfile):
 
-        port = os.environ["ROS_PORT_SIM"]
+        random_number = random.randint(10000, 15000)
+        self.port = "11311"#str(random_number) #os.environ["ROS_PORT_SIM"]
+        self.port_gazebo = str(random_number+1) #os.environ["ROS_PORT_SIM"]
+        # os.environ["ROS_MASTER_URI"] = "http://localhost:"+self.port
+        # os.environ["GAZEBO_MASTER_URI"] = "http://localhost:"+self.port_gazebo
+        #
+        # self.ros_master_uri = os.environ["ROS_MASTER_URI"];
+
+        with open("log.txt", "a") as myfile:
+            myfile.write("export ROS_MASTER_URI=http://localhost:"+self.port + "\n")
+            myfile.write("export GAZEBO_MASTER_URI=http://localhost:"+self.port_gazebo + "\n")
+
         #start roscore
-        subprocess.Popen(["roscore", "-p", port])
+        subprocess.Popen(["roscore", "-p", self.port])
         time.sleep(1)
         print ("Roscore launched!")
 
@@ -31,10 +43,13 @@ class GazeboEnv(gym.Env):
         if not path.exists(fullpath):
             raise IOError("File "+fullpath+" does not exist")
 
-        subprocess.Popen(["roslaunch","-p", port, fullpath])
+        subprocess.Popen(["roslaunch","-p", self.port, fullpath])
         print ("Gazebo launched!")
 
         self.gzclient_pid = 0
+
+    def set_ros_master_uri(self):
+        os.environ["ROS_MASTER_URI"] = self.ros_master_uri
 
     def _step(self, action):
 
