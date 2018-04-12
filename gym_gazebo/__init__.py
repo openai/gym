@@ -115,12 +115,6 @@ register(
     entry_point='gym_gazebo.envs.ARIAC:ARIACPickv0Env',
 )
 
-# ARIACPickv0Env
-register(
-    id='NewArticulated-v1',
-    entry_point='gym_gazebo.envs.new_articulated:GazeboNewArticulatedv1Env',
-)
-
 # MAIRA
 register(
     id='MAIRASide3DOF-v0',
