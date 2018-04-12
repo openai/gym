@@ -1,1 +1,0 @@
-from gym_gazebo.envs.gazebo_new_articulated import GazeboNewArticulatedv1Env
