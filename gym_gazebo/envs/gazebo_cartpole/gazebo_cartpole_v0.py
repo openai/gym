@@ -10,6 +10,7 @@ from std_srvs.srv import Empty
 from gym.utils import seeding
 import copy
 import math
+import os
 
 from sensor_msgs.msg import JointState
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
@@ -43,8 +44,15 @@ class GazeboCartPolev0Env(gazebo_env.GazeboEnv):
         self._seed()
         self.steps_beyond_done = None
 
+        high = np.array([
+            self.x_threshold * 2,
+            np.finfo(np.float32).max,
+            self.theta_threshold_radians * 2,
+            np.finfo(np.float32).max])
+
         self.current_vel = 0
         self.action_space = spaces.Discrete(2)
+        self.observation_space = spaces.Box(-high, high)
         rospy.Subscriber("/cart_pole/joint_states", JointState, self.callback)
 
     def callback(self, data):
@@ -69,21 +77,25 @@ class GazeboCartPolev0Env(gazebo_env.GazeboEnv):
                     self.data = rospy.wait_for_message('/cart_pole/joint_states', JointState, timeout=5)
                 except:
                     pass
+        angle = math.atan(math.tan(self.data.position[0]))
+
         # rospy.wait_for_service('/gazebo/unpause_physics')
         # try:
         #     self.unpause()
         # except (rospy.ServiceException) as e:
         #     print ("/gazebo/unpause_physics service call failed")
 
-        if action == 1:
+        if action > 0.5:
             self.current_vel = self.current_vel + 1
         else:
             self.current_vel = self.current_vel - 1
 
-        print("action", action)
+        # print(os.environ["ROS_MASTER_URI"] )
+        # print("action", action)
 
         action_msg = Float64()
         action_msg.data = self.current_vel
+        # self.set_ros_master_uri();
         self._pub.publish(action_msg)
 
         # data = None
@@ -100,7 +112,7 @@ class GazeboCartPolev0Env(gazebo_env.GazeboEnv):
         # except (rospy.ServiceException) as e:
         #     print ("/gazebo/pause_physics service call failed")
 
-        state = [self.data.position[1], self.data.velocity[1], self.data.position[0], self.data.velocity[0]]
+        state = [self.data.position[1], self.data.velocity[1], angle, self.data.velocity[0]]
         # state = [self.data.position[1], 0, self.data.position[0], 0]
 
         x, x_dot, theta, theta_dot = state
@@ -111,8 +123,8 @@ class GazeboCartPolev0Env(gazebo_env.GazeboEnv):
                 or theta > self.theta_threshold_radians
         done = bool(done)
 
-        if done:
-            print("x: ", x,  " theta: ", theta*180/3.1416 )
+        # if done:
+        #     print("x: ", x,  " theta: ", theta*180/3.1416 )
 
         if not done:
             reward = 1.0
@@ -171,7 +183,8 @@ class GazeboCartPolev0Env(gazebo_env.GazeboEnv):
                 self.data = rospy.wait_for_message('/cart_pole/joint_states', JointState, timeout=5)
             except:
                 pass
-        state = [self.data.position[1], self.data.velocity[1], self.data.position[0], self.data.velocity[0]]
+        angle = math.atan(math.tan(self.data.position[0]))
+        state = [self.data.position[1], self.data.velocity[1], angle, self.data.velocity[0]]
         # state = [self.data.position[1], 0, self.data.position[0], 0]
 
         self.steps_beyond_done = None
