@@ -20,6 +20,7 @@ from keras.layers.normalization import BatchNormalization
 from keras.layers.advanced_activations import LeakyReLU
 from keras.regularizers import l2
 import memory
+import liveplot
 
 class DeepQ:
     """
@@ -264,6 +265,7 @@ if __name__ == '__main__':
     #REMEMBER!: turtlebot_nn_setup.bash must be executed.
     env = gym.make('GazeboCircuit2TurtlebotLidarNn-v0')
     outdir = '/tmp/gazebo_gym_experiments/'
+    plotter = liveplot.LivePlot(outdir)
 
     continue_execution = False
     #fill this if continue_execution=True
@@ -396,5 +398,8 @@ if __name__ == '__main__':
         explorationRate *= 0.995 #epsilon decay
         # explorationRate -= (2.0/epochs)
         explorationRate = max (0.05, explorationRate)
+
+        if epoch % 100 == 0:
+            plotter.plot(env)
 
     env.close()
