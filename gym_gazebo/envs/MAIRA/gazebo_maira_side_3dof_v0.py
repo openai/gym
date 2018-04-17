@@ -6,12 +6,15 @@ import numpy as np
 from gym import utils, spaces
 from gym_gazebo.envs import gazebo_env
 from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Pose
 from std_srvs.srv import Empty
 from sensor_msgs.msg import LaserScan
 from gym.utils import seeding
 import copy
 import rospkg
 import threading # Used for time locks to synchronize position data.
+
+from gazebo_msgs.srv import SpawnModel, DeleteModel
 
 # ROS 2
 # import rclpy
@@ -80,7 +83,7 @@ class GazeboMAIRASide3DOFv0Env(gazebo_env.GazeboEnv):
         #   Environment hyperparams
         #############################
         # target, where should the agent reach
-        EE_POS_TGT = np.asmatrix([0.2, 0.2, 0.2868]) # 200 cm from the z axis
+        EE_POS_TGT = np.asmatrix([-0.483034, 0.00960683, 0.77619]) # 200 cm from the z axis
         # EE_POS_TGT = np.asmatrix([0.3305805, -0.1326121, 0.4868]) # center of the H
         EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         EE_POINTS = np.asmatrix([[0, 0, 0]])
@@ -207,6 +210,45 @@ class GazeboMAIRASide3DOFv0Env(gazebo_env.GazeboEnv):
         high = np.inf*np.ones(self.obs_dim)
         low = -high
         self.observation_space = spaces.Box(low, high)
+
+
+        self.add_model = rospy.ServiceProxy('/gazebo/spawn_urdf_model', SpawnModel)
+        self.remove_model = rospy.ServiceProxy('/gazebo/delete_model', DeleteModel)
+
+        model_xml = "<?xml version=\"1.0\"?> \
+                    <robot name=\"myfirst\"> \
+                      <link name=\"world\"> \
+                      </link>\
+                      <link name=\"cylinder0\">\
+                        <visual>\
+                          <geometry>\
+                            <sphere radius=\"0.01\"/>\
+                          </geometry>\
+                          <origin xyz=\"0 0 0\"/>\
+                          <material name=\"rojotransparente\">\
+                              <ambient>0.5 0.5 1.0 0.1</ambient>\
+                              <diffuse>0.5 0.5 1.0 0.1</diffuse>\
+                          </material>\
+                        </visual>\
+                        <inertial>\
+                          <mass value=\"5.0\"/>\
+                          <inertia ixx=\"1.0\" ixy=\"0.0\" ixz=\"0.0\" iyy=\"1.0\" iyz=\"0.0\" izz=\"1.0\"/>\
+                        </inertial>\
+                      </link>\
+                      <joint name=\"world_to_base\" type=\"fixed\"> \
+                        <origin xyz=\"0 0 0\" rpy=\"0 0 0\"/>\
+                        <parent link=\"world\"/>\
+                        <child link=\"cylinder0\"/>\
+                      </joint>\
+                      <gazebo reference=\"cylinder0\">\
+                        <material>Gazebo/GreenTransparent</material>\
+                      </gazebo>\
+                    </robot>"
+        robot_namespace = ""
+        pose = Pose()
+        pose.position.x = EE_POS_TGT[0,0];
+        pose.position.y = EE_POS_TGT[0,1];
+        pose.position.z = EE_POS_TGT[0,2];
 
 
         # Seed the environment
