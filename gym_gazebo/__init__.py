@@ -124,3 +124,8 @@ register(
     id='MAIRATop3DOF-v0',
     entry_point='gym_gazebo.envs.MAIRA:GazeboMAIRATop3DOFv0Env',
 )
+
+register(
+    id='MAIRANoGripper-v0',
+    entry_point='gym_gazebo.envs.MAIRA:GazeboMAIRANoGripperv0Env',
+)
