@@ -1,2 +1,3 @@
 from gym_gazebo.envs.MAIRA.gazebo_maira_side_3dof_v0 import GazeboMAIRASide3DOFv0Env
 from gym_gazebo.envs.MAIRA.gazebo_maira_top_3dof_v0 import GazeboMAIRATop3DOFv0Env
+from gym_gazebo.envs.MAIRA.gazebo_maira_no_gripper_v0 import GazeboMAIRANoGripperv0Env
