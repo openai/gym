@@ -551,13 +551,13 @@ class GazeboMAIRATop3DOFv0Env(gazebo_env.GazeboEnv):
             # vector, typically denoted asrobot_id 'x'.
             state = np.r_[np.reshape(last_observations, -1),
                           np.reshape(ee_points, -1),
-                          # np.reshape(quat_error, -1),
+                          np.reshape(quat_error, -1),
                           np.reshape(ee_velocities, -1),]
             # print("quat_error: ", quat_error)
             # print("ee_points:", ee_points)
             return np.r_[np.reshape(last_observations, -1),
                           np.reshape(ee_points, -1),
-                          # np.reshape(quat_error, -1),
+                          np.reshape(quat_error, -1),
                           np.reshape(ee_velocities, -1),]
 
     def rmse_func(self, ee_points):
@@ -604,7 +604,7 @@ class GazeboMAIRATop3DOFv0Env(gazebo_env.GazeboEnv):
         self.reward_dist = -self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])
 
         # here we want to fetch the positions of the end-effector which are nr_dof:nr_dof+3
-        if(self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])<0.05):
+        if(self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])<0.005):
             self.reward = 1 - self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)]) # Make the reward increase as the distance decreases
             print("Reward is: ", self.reward)
         else:
@@ -615,7 +615,7 @@ class GazeboMAIRATop3DOFv0Env(gazebo_env.GazeboEnv):
         # print("rmse_func: ", self.rmse_func(ee_points))
 
         # Calculate if the env has been solved
-        done = bool(abs(self.reward_dist) < 0.05) or (self.iterator>self.max_episode_steps)
+        done = bool(abs(self.reward_dist) < 0.005) or (self.iterator>self.max_episode_steps)
 
         # if(self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)])<0.005):
         #     self.reward += orientation_scale * (1 - self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)]))
