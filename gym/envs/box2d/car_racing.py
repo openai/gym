@@ -43,8 +43,8 @@ STATE_W = 96   # less than Atari 160x192
 STATE_H = 96
 VIDEO_W = 600
 VIDEO_H = 400
-WINDOW_W = 1200
-WINDOW_H = 1000
+WINDOW_W = 1000
+WINDOW_H = 800
 
 SCALE       = 6.0        # Track scale
 TRACK_RAD   = 900/SCALE  # Track is heavily morphed circle with this radius
@@ -61,6 +61,10 @@ BORDER = 8/SCALE
 BORDER_MIN_COUNT = 4
 
 ROAD_COLOR = [0.4, 0.4, 0.4]
+
+
+def create_actions(state=[], index=0):
+    return [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, 0, 0]]
 
 class FrictionDetector(contactListener):
     def __init__(self, env):
@@ -84,7 +88,6 @@ class FrictionDetector(contactListener):
         if not tile: return
 
         tile.color[0] = ROAD_COLOR[0]
-        tile.color[1] = ROAD_COLOR[1]
         tile.color[2] = ROAD_COLOR[2]
         if not obj or "tiles" not in obj.__dict__: return
         if begin:
@@ -105,6 +108,7 @@ class CarRacing(gym.Env):
     }
 
     def __init__(self):
+        self.hasnt_moved_in=0
         self.seed()
         self.contactListener_keepref = FrictionDetector(self)
         self.world = Box2D.b2World((0,0), contactListener=self.contactListener_keepref)
@@ -116,7 +120,7 @@ class CarRacing(gym.Env):
         self.reward = 0.0
         self.prev_reward = 0.0
 
-        self.action_space = spaces.Box( np.array([-1,0,0]), np.array([+1,+1,+1]))  # steer, gas, brake
+        self.action_space = create_actions()
         self.observation_space = spaces.Box(low=0, high=255, shape=(STATE_H, STATE_W, 3), dtype=np.uint8)
 
     def seed(self, seed=None):
@@ -213,7 +217,6 @@ class CarRacing(gym.Env):
             elif pass_through_start and i1==-1:
                 i1 = i
                 break
-        print("Track generation: %i..%i -> %i-tiles track" % (i1, i2, i2-i1))
         assert i1!=-1
         assert i2!=-1
 
@@ -275,6 +278,7 @@ class CarRacing(gym.Env):
         return True
 
     def reset(self):
+        self.hasnt_moved_in = 0
         self._destroy()
         self.reward = 0.0
         self.prev_reward = 0.0
@@ -286,7 +290,6 @@ class CarRacing(gym.Env):
         while True:
             success = self._create_track()
             if success: break
-            print("retry to generate track (normal if there are not many of this messages)")
         self.car = Car(self.world, *self.track[0][1:4])
 
         return self.step(None)[0]
@@ -296,7 +299,8 @@ class CarRacing(gym.Env):
             self.car.steer(-action[0])
             self.car.gas(action[1])
             self.car.brake(action[2])
-
+        else:
+            self.hasnt_moved_in = 0
         self.car.step(1.0/FPS)
         self.world.Step(1.0/FPS, 6*30, 2*30)
         self.t += 1.0/FPS

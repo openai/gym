@@ -54,7 +54,6 @@ FPS         = 50
 ZOOM        = 2.7        # Camera zoom
 ZOOM_FOLLOW = True       # Set to False for fixed view (don't use zoom)
 
-
 TRACK_DETAIL_STEP = 21/SCALE
 TRACK_TURN_RATE = 0.31
 TRACK_WIDTH = 40/SCALE
@@ -99,6 +98,15 @@ class FrictionDetector(contactListener):
             obj.tiles.remove(tile)
             #print tile.road_friction, "DEL", len(obj.tiles) -- should delete to zero when on grass (this works)
 
+def create_actions(state=[], index=0):
+    if len(state) == 3:
+        return [state]
+    result = []
+    action_ranges = [[-1, 0, 1], [0, 1], [0,1]]
+    for action in action_ranges[index]:
+        result += create_actions(state+[action], index+1)
+    return result
+
 class BinaryCarRacing(gym.Env):
     metadata = {
         'render.modes': ['human', 'rgb_array', 'state_pixels'],
@@ -106,6 +114,7 @@ class BinaryCarRacing(gym.Env):
     }
 
     def __init__(self):
+        self.negative_consecutive = 0
         self.seed()
         self.contactListener_keepref = FrictionDetector(self)
         self.world = Box2D.b2World((0,0), contactListener=self.contactListener_keepref)
@@ -117,7 +126,7 @@ class BinaryCarRacing(gym.Env):
         self.reward = 0.0
         self.prev_reward = 0.0
 
-        self.action_space = spaces.Box( np.array([-1,0,0]), np.array([+1,+1,+1]))  # steer, gas, brake
+        self.action_space = create_actions()
         self.observation_space = spaces.Box(low=0, high=255, shape=(STATE_H, STATE_W, 3), dtype=np.uint8)
 
     def seed(self, seed=None):
@@ -214,7 +223,6 @@ class BinaryCarRacing(gym.Env):
             elif pass_through_start and i1==-1:
                 i1 = i
                 break
-        print("Track generation: %i..%i -> %i-tiles track" % (i1, i2, i2-i1))
         assert i1!=-1
         assert i2!=-1
 
@@ -276,6 +284,7 @@ class BinaryCarRacing(gym.Env):
         return True
 
     def reset(self):
+        self.negative_consecutive = 0
         self._destroy()
         self.reward = 0.0
         self.prev_reward = 0.0
@@ -287,7 +296,7 @@ class BinaryCarRacing(gym.Env):
         while True:
             success = self._create_track()
             if success: break
-            print("retry to generate track (normal if there are not many of this messages)")
+            #print("retry to generate track (normal if there are not many of this messages)")
         self.car = Car(self.world, *self.track[0][1:4])
 
         self.road_edges = []
@@ -307,7 +316,7 @@ class BinaryCarRacing(gym.Env):
         from math import pi, cos, sin
         x, y = self.car.hull.position
         angle = -self.car.hull.angle
-        trajectories = [angle - 3*pi/4,angle - pi/4]
+        trajectories = [angle - 3*pi/4,angle - pi/2, angle - pi/4, angle + pi, angle]
         closest = [-1] * len(trajectories)
         index = 0
         self.beams = []
@@ -320,7 +329,7 @@ class BinaryCarRacing(gym.Env):
             self.beams.append((start_point,p2, end_point, p4))
             start = b2RayCastInput(p1=start_point,
                 p2=end_point,
-                maxFraction=3)
+                maxFraction=50)
             output = b2RayCastOutput()
             transform = b2Transform()
             transform.SetIdentity()
@@ -348,7 +357,7 @@ class BinaryCarRacing(gym.Env):
         step_reward = 0
         done = False
         if action is not None: # First step without action, called from reset()
-            self.reward -= 0.1
+            self.reward -= .1
             # We actually don't want to count fuel spent, we want car to be faster.
             #self.reward -=  10 * self.car.fuel_spent / ENGINE_POWER
             self.car.fuel_spent = 0.0
@@ -360,7 +369,12 @@ class BinaryCarRacing(gym.Env):
             if abs(x) > PLAYFIELD or abs(y) > PLAYFIELD:
                 done = True
                 step_reward = -100
-
+            if self.reward < -5:
+                step_reward = -10
+                done = True
+            if -1 in self.state:
+                step_reward = -10
+                done = True
         return self.state, step_reward, done, {}
 
     def render(self, mode='human'):
@@ -523,7 +537,7 @@ if __name__=="__main__":
         if k==key.RIGHT and a[0]==+1.0: a[0] = 0
         if k==key.UP:    a[1] = 0
         if k==key.DOWN:  a[2] = 0
-    env = CarRacing()
+    env = BinaryCarRacing()
     env.render()
     record_video = False
     if record_video:
