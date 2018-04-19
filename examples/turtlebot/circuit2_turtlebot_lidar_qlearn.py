@@ -5,10 +5,9 @@ import time
 import numpy
 import random
 import time
-import matplotlib
-import matplotlib.pyplot as plt
+
 import qlearn
-#import liveplot
+import liveplot
 
 def render():
     render_skip = 0 #Skip first X episodes.
@@ -25,8 +24,8 @@ if __name__ == '__main__':
     env = gym.make('GazeboCircuit2TurtlebotLidar-v0')
 
     outdir = '/tmp/gazebo_gym_experiments'
-    # env.monitor.start(outdir, force=True, seed=None)
-    #plotter = LivePlot(outdir)
+    env = gym.wrappers.Monitor(env, outdir, force=True)
+    plotter = liveplot.LivePlot(outdir)
 
     last_time_steps = numpy.ndarray(0)
 
@@ -71,13 +70,16 @@ if __name__ == '__main__':
 
             qlearn.learn(state, action, reward, nextState)
 
-            # env.monitor.flush(force=True)
+            env._flush(force=True)
 
             if not(done):
                 state = nextState
             else:
                 last_time_steps = numpy.append(last_time_steps, [int(i + 1)])
                 break
+
+        if x%100==0:
+            plotter.plot(env)
 
         m, s = divmod(int(time.time() - start_time), 60)
         h, m = divmod(m, 60)
@@ -93,5 +95,4 @@ if __name__ == '__main__':
     print("Overall score: {:0.2f}".format(last_time_steps.mean()))
     print("Best 100 score: {:0.2f}".format(reduce(lambda x, y: x + y, l[-100:]) / len(l[-100:])))
 
-    # env.monitor.close()
     env.close()
