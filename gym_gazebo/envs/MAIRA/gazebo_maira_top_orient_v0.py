@@ -205,7 +205,7 @@ class GazeboMAIRATop3DOFv0Env(gazebo_env.GazeboEnv):
         recently also added quaternion to the obs, which has dimension=4
         """
         #
-        self.obs_dim = self.scara_chain.getNrOfJoints() + 6#10 # hardcode it for now
+        self.obs_dim = self.scara_chain.getNrOfJoints() + 10 #6 hardcode it for now
         # # print(observation, _reward)
 
         # # Here idially we should find the control range of the robot. Unfortunatelly in ROS/KDL there is nothing like this.
@@ -551,13 +551,13 @@ class GazeboMAIRATop3DOFv0Env(gazebo_env.GazeboEnv):
             # vector, typically denoted asrobot_id 'x'.
             state = np.r_[np.reshape(last_observations, -1),
                           np.reshape(ee_points, -1),
-                          # np.reshape(quat_error, -1),
+                          np.reshape(quat_error, -1),
                           np.reshape(ee_velocities, -1),]
             # print("quat_error: ", quat_error)
             # print("ee_points:", ee_points)
             return np.r_[np.reshape(last_observations, -1),
                           np.reshape(ee_points, -1),
-                          # np.reshape(quat_error, -1),
+                          np.reshape(quat_error, -1),
                           np.reshape(ee_velocities, -1),]
 
     def rmse_func(self, ee_points):
@@ -601,34 +601,25 @@ class GazeboMAIRATop3DOFv0Env(gazebo_env.GazeboEnv):
         #scale here the orientation because it should not be the main bias of the reward, position should be
         orientation_scale = 0.1
 
-        self.reward_dist = -self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])
-
         # here we want to fetch the positions of the end-effector which are nr_dof:nr_dof+3
         if(self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])<0.005):
             self.reward = 1 - self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)]) # Make the reward increase as the distance decreases
             print("Reward is: ", self.reward)
         else:
             self.reward = self.reward_dist
-        # print("rew: ", self.reward)
 
-        # print("reward: ", self.reward)
-        # print("rmse_func: ", self.rmse_func(ee_points))
-
-        # Calculate if the env has been solved
-        done = bool(abs(self.reward_dist) < 0.005) or (self.iterator>self.max_episode_steps)
-
-        # if(self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)])<0.005):
-        #     self.reward += orientation_scale * (1 - self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)]))
-        #     print("Reward orientation is: ", self.reward)
-        # else:
-        #     self.reward += orientation_scale * self.reward_orient
+        if(self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)])<0.05):
+            self.reward += orientation_scale * (1 - self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)]))
+            print("Reward orientation is: ", self.reward)
+        else:
+            self.reward = self.reward + orientation_scale * self.reward_orient
 
 
         #self.reward = self.reward_final_dist + orientation_scale*self.final_rew_orient
 
         # self.reward =self.reward - abs(self.ob[(self.scara_chain.getNrOfJoints()+4)])
         # Calculate if the env has been solved
-        # done = bool(((abs(self.reward_dist) < 0.05) and (abs(self.reward_orient)) < 0.05) or (self.iterator>self.max_episode_steps))
+        done = bool(((abs(self.reward_dist) < 0.005) and (abs(self.reward_orient)) < 0.05) or (self.iterator>self.max_episode_steps))
 
         # Execute "action"
         self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
