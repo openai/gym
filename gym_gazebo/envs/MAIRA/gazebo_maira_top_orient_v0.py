@@ -38,7 +38,7 @@ class MSG_INVALID_JOINT_NAMES_DIFFER(Exception):
     pass
 
 
-class GazeboMAIRATop3DOFv0Env(gazebo_env.GazeboEnv):
+class GazeboMAIRATopOrientv0Env(gazebo_env.GazeboEnv):
     """
     This environment present a modular SCARA robot with a range finder at its
     end pointing towards the workspace of the robot. The goal of this environment is
@@ -609,7 +609,7 @@ class GazeboMAIRATop3DOFv0Env(gazebo_env.GazeboEnv):
             self.reward = self.reward_dist
 
         if(self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)])<0.05):
-            self.reward += orientation_scale * (1 - self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)]))
+            self.reward = self.reward + orientation_scale * (1 - self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)]))
             print("Reward orientation is: ", self.reward)
         else:
             self.reward = self.reward + orientation_scale * self.reward_orient
