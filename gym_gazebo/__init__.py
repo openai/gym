@@ -128,3 +128,8 @@ register(
     id='MAIRANoGripper-v0',
     entry_point='gym_gazebo.envs.MAIRA:GazeboMAIRANoGripperv0Env',
 )
+
+register(
+    id='MAIRAOrient-v0',
+    entry_point='gym_gazebo.envs.MAIRA:GazeboMAIRATopOrientv0Env',
+)
