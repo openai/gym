@@ -3,6 +3,7 @@ import numpy as np
 
 import Box2D
 from Box2D.b2 import (edgeShape, circleShape, fixtureDef, polygonShape, revoluteJointDef, contactListener)
+from Box2D import b2EdgeShape
 
 import gym
 from gym import spaces
@@ -53,7 +54,6 @@ FPS         = 50
 ZOOM        = 2.7        # Camera zoom
 ZOOM_FOLLOW = True       # Set to False for fixed view (don't use zoom)
 
-
 TRACK_DETAIL_STEP = 21/SCALE
 TRACK_TURN_RATE = 0.31
 TRACK_WIDTH = 40/SCALE
@@ -61,10 +61,6 @@ BORDER = 8/SCALE
 BORDER_MIN_COUNT = 4
 
 ROAD_COLOR = [0.4, 0.4, 0.4]
-
-
-def create_actions(state=[], index=0):
-    return [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, 0, 0]]
 
 class FrictionDetector(contactListener):
     def __init__(self, env):
@@ -88,6 +84,7 @@ class FrictionDetector(contactListener):
         if not tile: return
 
         tile.color[0] = ROAD_COLOR[0]
+        tile.color[1] = ROAD_COLOR[1]
         tile.color[2] = ROAD_COLOR[2]
         if not obj or "tiles" not in obj.__dict__: return
         if begin:
@@ -101,14 +98,23 @@ class FrictionDetector(contactListener):
             obj.tiles.remove(tile)
             #print tile.road_friction, "DEL", len(obj.tiles) -- should delete to zero when on grass (this works)
 
-class CarRacing(gym.Env):
+def create_actions(state=[], index=0):
+    if len(state) == 3:
+        return [state]
+    result = []
+    action_ranges = [[-1, 0, 1], [0, 1], [0,1]]
+    for action in action_ranges[index]:
+        result += create_actions(state+[action], index+1)
+    return result
+
+class BinaryCarRacing(gym.Env):
     metadata = {
         'render.modes': ['human', 'rgb_array', 'state_pixels'],
         'video.frames_per_second' : FPS
     }
 
     def __init__(self):
-        self.hasnt_moved_in=0
+        self.negative_consecutive = 0
         self.seed()
         self.contactListener_keepref = FrictionDetector(self)
         self.world = Box2D.b2World((0,0), contactListener=self.contactListener_keepref)
@@ -278,7 +284,7 @@ class CarRacing(gym.Env):
         return True
 
     def reset(self):
-        self.hasnt_moved_in = 0
+        self.negative_consecutive = 0
         self._destroy()
         self.reward = 0.0
         self.prev_reward = 0.0
@@ -286,31 +292,72 @@ class CarRacing(gym.Env):
         self.t = 0.0
         self.road_poly = []
         self.human_render = False
-
+        self.beams = []
         while True:
             success = self._create_track()
             if success: break
+            #print("retry to generate track (normal if there are not many of this messages)")
         self.car = Car(self.world, *self.track[0][1:4])
 
+        self.road_edges = []
+        for poly, color in self.road_poly:
+            p1, p2, p3, p4 = poly
+            shape = b2EdgeShape()
+            shape.vertices = (p1, p4)
+            self.road_edges.append(shape)
+            shape = b2EdgeShape()
+            shape.vertices = (p2, p3)
+            self.road_edges.append(shape)
+
         return self.step(None)[0]
+
+    def find_car_beams(self):
+        from Box2D import b2RayCastInput, b2RayCastOutput, b2Transform
+        from math import pi, cos, sin
+        x, y = self.car.hull.position
+        angle = -self.car.hull.angle
+        trajectories = [angle - 3*pi/4,angle - pi/2, angle - pi/4, angle + pi, angle]
+        closest = [-1] * len(trajectories)
+        index = 0
+        self.beams = []
+        for trajectory in trajectories:
+            start_point = (x, y)
+            p2 = (x+cos(trajectory), y)
+            p4 = (x, y - sin(trajectory))
+            end_point =(x+10*cos(trajectory), y-10*sin(trajectory))
+
+            self.beams.append((start_point,p2, end_point, p4))
+            start = b2RayCastInput(p1=start_point,
+                p2=end_point,
+                maxFraction=50)
+            output = b2RayCastOutput()
+            transform = b2Transform()
+            transform.SetIdentity()
+
+            for shape in self.road_edges:
+                hit = shape.RayCast(output, start, transform, 0)
+                if hit:
+                    if closest[index] == -1 or output.fraction < closest[index]:
+                        closest[index] = output.fraction
+            index = index + 1
+        return closest
 
     def step(self, action):
         if action is not None:
             self.car.steer(-action[0])
             self.car.gas(action[1])
             self.car.brake(action[2])
-        else:
-            self.hasnt_moved_in = 0
+
         self.car.step(1.0/FPS)
         self.world.Step(1.0/FPS, 6*30, 2*30)
         self.t += 1.0/FPS
 
-        self.state = self.render("state_pixels")
+        self.state = self.find_car_beams()
 
         step_reward = 0
         done = False
         if action is not None: # First step without action, called from reset()
-            self.reward -= 0.1
+            self.reward -= .1
             # We actually don't want to count fuel spent, we want car to be faster.
             #self.reward -=  10 * self.car.fuel_spent / ENGINE_POWER
             self.car.fuel_spent = 0.0
@@ -322,7 +369,12 @@ class CarRacing(gym.Env):
             if abs(x) > PLAYFIELD or abs(y) > PLAYFIELD:
                 done = True
                 step_reward = -100
-
+            if self.reward < -5:
+                step_reward = -10
+                done = True
+            if -1 in self.state:
+                step_reward = -10
+                done = True
         return self.state, step_reward, done, {}
 
     def render(self, mode='human'):
@@ -382,13 +434,14 @@ class CarRacing(gym.Env):
         if mode=="rgb_array" and not self.human_render: # agent can call or not call env.render() itself when recording video.
             win.flip()
 
-        if mode=='human':
+        if mode=="human":
             self.human_render = True
             win.clear()
             t = self.transform
-            gl.glViewport(0, 0, WINDOW_W, WINDOW_H)
+            gl.glViewport(int(WINDOW_W/2), int(WINDOW_H/2), WINDOW_W, WINDOW_H)
             t.enable()
             self.render_road()
+            self.render_beams()
             for geom in self.viewer.onetime_geoms:
                 geom.render()
             t.disable()
@@ -402,6 +455,17 @@ class CarRacing(gym.Env):
         if self.viewer is not None:
             self.viewer.close()
             self.viewer = None
+
+    def render_beams(self):
+        beams = self.beams
+        for p1, p2, p3, p4 in beams:
+            gl.glBegin(gl.GL_QUADS)
+            gl.glColor4f(0.0, 0.0, 1.0, 1)
+            gl.glVertex3f(p1[0],    p1[1],        0)
+            gl.glVertex3f(p2[0],    p2[1],        0)
+            gl.glVertex3f(p3[0],    p3[1],        0)
+            gl.glVertex3f(p4[0],    p4[1],        0)
+            gl.glEnd()
 
     def render_road(self):
         gl.glBegin(gl.GL_QUADS)
@@ -473,7 +537,7 @@ if __name__=="__main__":
         if k==key.RIGHT and a[0]==+1.0: a[0] = 0
         if k==key.UP:    a[1] = 0
         if k==key.DOWN:  a[2] = 0
-    env = CarRacing()
+    env = BinaryCarRacing()
     env.render()
     record_video = False
     if record_video:
