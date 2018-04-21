@@ -1,5 +1,4 @@
 from gym import logger
-import numpy as np
 
 import gym
 from gym import error
@@ -37,7 +36,7 @@ class Env(object):
 
     # Set this in SOME subclasses
     metadata = {'render.modes': []}
-    reward_range = (-np.inf, np.inf)
+    reward_range = (-float('inf'), float('inf'))
     spec = None
 
     # Set these in ALL subclasses
@@ -199,6 +198,7 @@ class Space(object):
     action.
     """
     def __init__(self, shape=None, dtype=None):
+        import numpy as np # takes about 300-400ms to import, so we load lazily
         self.shape = None if shape is None else tuple(shape)
         self.dtype = None if dtype is None else np.dtype(dtype)
 

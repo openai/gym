@@ -1,4 +1,3 @@
-import pkg_resources
 import re
 from gym import error, logger
 
@@ -10,6 +9,7 @@ from gym import error, logger
 env_id_re = re.compile(r'^(?:[\w:-]+\/)?([\w:.-]+)-v(\d+)$')
 
 def load(name):
+    import pkg_resources # takes ~400ms to load, so we import it lazily
     entry_point = pkg_resources.EntryPoint.parse('x={}'.format(name))
     result = entry_point.load(False)
     return result
