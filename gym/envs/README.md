@@ -46,7 +46,7 @@ ant.AntEnv
   setup(name='gym_foo',
         version='0.0.1',
         install_requires=['gym']  # And any other dependencies foo needs
-  )  
+  )
   ```
 
 * `gym-foo/gym_foo/__init__.py` should have:
@@ -84,7 +84,9 @@ ant.AntEnv
       ...
     def reset(self):
       ...
-    def render(self, mode='human', close=False):
+    def render(self, mode='human'):
+      ...
+    def close(self):
       ...
   ```
 
