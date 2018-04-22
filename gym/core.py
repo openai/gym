@@ -151,6 +151,14 @@ class Env(object):
         else:
             return '<{}<{}>>'.format(type(self).__name__, self.spec.id)
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        self.close()
+        # propagate exception
+        return False
+
 
 class GoalEnv(Env):
     """A goal-based environment. It functions just as any regular OpenAI Gym environment but it
