@@ -308,11 +308,11 @@ if __name__ == '__main__':
             memorySize = d.get('memorySize')
             network_inputs = d.get('network_inputs')
             network_outputs = d.get('network_outputs')
-            network_layers = d.get('network_structure')
+            network_structure = d.get('network_structure')
             current_epoch = d.get('current_epoch')
 
         deepQ = DeepQ(network_inputs, network_outputs, memorySize, discountFactor, learningRate, learnStart)
-        deepQ.initNetworks(network_layers)
+        deepQ.initNetworks(network_structure)
         deepQ.loadWeights(weights_path)
 
         clear_monitor_files(outdir)
