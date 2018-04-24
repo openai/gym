@@ -80,7 +80,7 @@ Note: all the setup scripts are available in `gym_gazebo/envs/installation`
 - Run any of the examples available in `examples/`. E.g.:
 
 ```bash
-cd examples/scripts_turtlebot
+cd examples/turtlebot
 python circuit2_turtlebot_lidar_qlearn.py
 ```
 
