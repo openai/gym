@@ -60,10 +60,10 @@ class CartPoleEnv(gym.Env):
         temp = (force + self.polemass_length * theta_dot * theta_dot * sintheta) / self.total_mass
         thetaacc = (self.gravity * sintheta - costheta* temp) / (self.length * (4.0/3.0 - self.masspole * costheta * costheta / self.total_mass))
         xacc  = temp - self.polemass_length * thetaacc * costheta / self.total_mass
-        x  = x + self.tau * x_dot
         x_dot = x_dot + self.tau * xacc
-        theta = theta + self.tau * theta_dot
+        x  = x + self.tau * x_dot
         theta_dot = theta_dot + self.tau * thetaacc
+        theta = theta + self.tau * theta_dot
         self.state = (x,x_dot,theta,theta_dot)
         done =  x < -self.x_threshold \
                 or x > self.x_threshold \
