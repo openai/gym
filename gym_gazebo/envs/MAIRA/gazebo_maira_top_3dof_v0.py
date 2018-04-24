@@ -83,7 +83,10 @@ class GazeboMAIRATop3DOFv0Env(gazebo_env.GazeboEnv):
         #   Environment hyperparams
         #############################
         # target, where should the agent reach
-        EE_POS_TGT = np.asmatrix([-0.4, 0.0, 1.1013]) # 200 cm from the z axis
+        # EE_POS_TGT = np.asmatrix([-0.4, 0.0, 1.1013]) # 200 cm from the z axis
+        EE_POS_TGT = np.asmatrix([-0.359236, 0.0297278, 0.760402])
+        # EE_POS_TGT = np.asmatrix([-0.31237, 0.0292455, 0.763472])
+        # EE_POS_TGT = np.asmatrix([-0.223663, 0.0295788 ,0.763471 ])
         # EE_POS_TGT = np.asmatrix([0.0, 0.001009, 1.64981])
 
         # EE_POS_TGT = np.asmatrix([0.3305805, -0.1326121, 0.4868]) # center of the H

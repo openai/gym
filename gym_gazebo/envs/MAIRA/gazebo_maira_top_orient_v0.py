@@ -83,16 +83,19 @@ class GazeboMAIRATopOrientv0Env(gazebo_env.GazeboEnv):
         #   Environment hyperparams
         #############################
         # target, where should the agent reach
-        EE_POS_TGT = np.asmatrix([-0.4, 0.0, 1.1013]) # 200 cm from the z axis
+        # EE_POS_TGT = np.asmatrix([-0.390768, 0.0101776, 0.725335]) # 200 cm from the z axis
         # EE_POS_TGT = np.asmatrix([0.0, 0.001009, 1.64981])
+        # EE_POS_TGT = np.asmatrix([-0.390768, 0.0101776, 0.755335]) # 200 cm from the z axis
+        EE_POS_TGT = np.asmatrix([-0.189383, -0.123176, 0.894476])
 
         # EE_POS_TGT = np.asmatrix([0.3305805, -0.1326121, 0.4868]) # center of the H
-        # EE_ROT_TGT = np.asmatrix([[0, 0, 1], [0, 1, 0], [-1, 0, 0]])
-        EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+        EE_ROT_TGT = np.asmatrix([[0, 0, 1], [0.2146, 0.9767, 0], [-0.9767, 0.2146, 0]])
+        # EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         EE_POINTS = np.asmatrix([[0, 0, 0]])
         EE_VELOCITIES = np.asmatrix([[0, 0, 0]])
         # Initial joint position
-        INITIAL_JOINTS = np.array([0., 0., 0., 0., 0, 0])
+        INITIAL_JOINTS = np.array([0., 0., -1., 0., -1.57, 0.])
+        # INITIAL_JOINTS = np.array([0., 0., 0., 0., 0., 0.])
         # Used to initialize the robot, #TODO, clarify this more
         # STEP_COUNT = 2  # Typically 100.
         # slowness = 10000000 # 10 ms, where 1 second is real life simulation
@@ -323,8 +326,8 @@ class GazeboMAIRATopOrientv0Env(gazebo_env.GazeboEnv):
     def randomizeTarget(self):
         print("calling randomize target")
 
-        EE_POS_TGT_1 = np.asmatrix([0.3325683, 0.0657366, 0.2868]) # center of O
-        EE_POS_TGT_2 = np.asmatrix([0.3305805, -0.1326121, 0.2868]) # center of the H
+        EE_POS_TGT_1 = np.asmatrix([-0.189383, -0.123176, 0.894476]) # point 1
+        EE_POS_TGT_2 = np.asmatrix([-0.359236, 0.0297278, 0.760402]) # point 2
         EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         EE_POINTS = np.asmatrix([[0, 0, 0]])
 
@@ -597,9 +600,10 @@ class GazeboMAIRATopOrientv0Env(gazebo_env.GazeboEnv):
 
         self.reward_dist = -self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])
         self.reward_orient = - self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)])
+        # print("self.reward_orient: ", self.reward_orient)
 
         #scale here the orientation because it should not be the main bias of the reward, position should be
-        orientation_scale = 0.1
+        orientation_scale = 0.01
 
         # here we want to fetch the positions of the end-effector which are nr_dof:nr_dof+3
         if(self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])<0.005):
@@ -609,10 +613,10 @@ class GazeboMAIRATopOrientv0Env(gazebo_env.GazeboEnv):
             self.reward = self.reward_dist
 
         if(self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)])<0.05):
-            self.reward = self.reward + orientation_scale * (1 - self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)]))
+            self.reward = self.reward +  orientation_scale * (1 -self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)]))
             print("Reward orientation is: ", self.reward)
         else:
-            self.reward = self.reward + orientation_scale * self.reward_orient
+            self.reward = self.reward + orientation_scale * self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)])
 
 
         #self.reward = self.reward_final_dist + orientation_scale*self.final_rew_orient
