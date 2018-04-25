@@ -240,7 +240,7 @@ class DeepQ:
                 if isFinal:
                     X_batch = np.append(X_batch, np.array([newState.copy()]), axis=0)
                     Y_batch = np.append(Y_batch, np.array([[reward]*self.output_size]), axis=0)
-            self.model.fit(X_batch, Y_batch, batch_size = len(miniBatch), nb_epoch=1, verbose = 0)
+            self.model.fit(X_batch, Y_batch, batch_size = len(miniBatch), epochs=1, verbose = 0)
 
     def saveModel(self, path):
         self.model.save(path)
