@@ -10,6 +10,7 @@ class Discrete(gym.Space):
     """
     def __init__(self, n):
         self.n = n
+        self._index = -1
         gym.Space.__init__(self, (), np.int64)
     def sample(self):
         return gym.spaces.np_random.randint(self.n)
@@ -21,7 +22,18 @@ class Discrete(gym.Space):
         else:
             return False
         return as_int >= 0 and as_int < self.n
+    
     def __repr__(self):
         return "Discrete(%d)" % self.n
     def __eq__(self, other):
         return self.n == other.n
+    
+    def __iter__(self):
+        self._index = -1
+        return self
+    def next(self):
+        self._index += 1
+        if self._index >= self.n:
+            raise StopIteration()
+        return self._index
+    __next__ = next
