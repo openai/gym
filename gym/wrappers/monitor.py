@@ -45,7 +45,7 @@ class Monitor(Wrapper):
 
         # _monitor will not be set if super(Monitor, self).__init__ raises, this check prevents a confusing error message
         if getattr(self, '_monitor_id', None):
-            self.close()
+            self._close()
 
     def set_monitor_mode(self, mode):
         logger.info("Setting the monitor mode is deprecated and will be removed soon")
@@ -136,7 +136,7 @@ class Monitor(Wrapper):
                 'env_info': self._env_info(),
             }, f, default=json_encode_np)
 
-    def close(self):
+    def _close(self):
         """Flush all monitor data to disk and close any open rending windows."""
         if not self.enabled:
             return
