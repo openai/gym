@@ -41,7 +41,7 @@ class Monitor(Wrapper):
         return observation
 
     def close(self):
-        super(Monitor, self)._close()
+        super(Monitor, self).close()
 
         # _monitor will not be set if super(Monitor, self).__init__ raises, this check prevents a confusing error message
         if getattr(self, '_monitor_id', None):
