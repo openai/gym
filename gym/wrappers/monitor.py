@@ -44,7 +44,7 @@ class Monitor(Wrapper):
         super(Monitor, self)._close()
 
         # _monitor will not be set if super(Monitor, self).__init__ raises, this check prevents a confusing error message
-        if getattr(self, '_monitor', None):
+        if getattr(self, '_monitor_id', None):
             self.close()
 
     def set_monitor_mode(self, mode):
