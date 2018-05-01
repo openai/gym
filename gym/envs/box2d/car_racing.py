@@ -274,7 +274,7 @@ class CarRacing(gym.Env):
         self.track = track
         return True
 
-    def reset(self):
+    def reset(self, rand_position=False):
         self._destroy()
         self.reward = 0.0
         self.prev_reward = 0.0
@@ -287,7 +287,11 @@ class CarRacing(gym.Env):
             success = self._create_track()
             if success: break
             print("retry to generate track (normal if there are not many of this messages)")
-        self.car = Car(self.world, *self.track[0][1:4])
+
+        position = 0
+        if rand_position:
+            position = np.random.randint(len(self.track))
+        self.car = Car(self.world, *self.track[position][1:4])
 
         return self.step(None)[0]
 
@@ -477,7 +481,7 @@ if __name__=="__main__":
     env.viewer.window.on_key_press = key_press
     env.viewer.window.on_key_release = key_release
     while True:
-        env.reset()
+        env.reset(True)
         total_reward = 0.0
         steps = 0
         restart = False
