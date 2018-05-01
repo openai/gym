@@ -25,7 +25,7 @@ class CartPoleEnv(gym.Env):
         self.polemass_length = (self.masspole * self.length)
         self.force_mag = 10.0
         self.tau = 0.02  # seconds between state updates
-        self.kinematics_integrator = 'semi-implicit-euler'
+        self.kinematics_integrator = 'euler'
 
         # Angle at which to fail the episode
         self.theta_threshold_radians = 12 * 2 * math.pi / 360
