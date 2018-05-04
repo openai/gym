@@ -1,11 +1,8 @@
 # A Dockerfile that sets up a full Gym install
-FROM ubuntu:14.04
+FROM ubuntu:16.04
 
 RUN apt-get update \
     && apt-get install -y libav-tools \
-    python-numpy \
-    python-scipy \
-    python-pyglet \
     python-setuptools \
     libpq-dev \
     libjpeg-dev \
