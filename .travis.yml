@@ -3,7 +3,6 @@ language: python
 services:
   - docker
 before_install:
-  - docker run ubuntu:16.04 bash -c "apt-get -y update && apt-get -y install keyboard-configuration"
   - docker build -f test.dockerfile -t gym-test .
 install: "" # so travis doesn't do pip install requirements.txt
 script:

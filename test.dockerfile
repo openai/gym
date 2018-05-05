@@ -1,9 +1,10 @@
-# A Dockerfile that sets up a full Gym install
+# A Dockerfile that sets up a full Gym install with test dependencies
 FROM ubuntu:16.04
 
-RUN apt-get update \
-    && apt-get install -y libav-tools \
+RUN apt-get update -y && apt-get install -y keyboard-configuration
+RUN apt-get install -y libav-tools \
     python-setuptools \
+    python-pip \
     libpq-dev \
     libjpeg-dev \
     curl \
@@ -20,7 +21,6 @@ RUN apt-get update \
     python3-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
-    && easy_install pip
 
 WORKDIR /usr/local/gym/
 RUN mkdir -p gym && touch gym/__init__.py
