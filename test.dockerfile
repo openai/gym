@@ -11,8 +11,12 @@ RUN apt-get install -y libav-tools \
     cmake \
     swig \
     python-opengl \
+    python-pyglet \
+    python3-opengl \
     libboost-all-dev \
     libsdl2-dev \
+    libosmesa6 \
+    patchelf \
     wget \
     unzip \
     git \
@@ -21,21 +25,16 @@ RUN apt-get install -y libav-tools \
     python3-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
+    && pip install tox
 
-WORKDIR /usr/local/gym/
-RUN mkdir -p gym && touch gym/__init__.py
-COPY ./gym/version.py ./gym/
-COPY ./requirements.txt ./
-COPY ./setup.py ./
-COPY ./tox.ini ./
-
-RUN pip install tox
-# Install the relevant dependencies. Keep printing so Travis knows we're alive.
-RUN ["bash", "-c", "( while true; do echo '.'; sleep 60; done ) & tox --notest"]
+COPY . /usr/local/gym/
+RUN cd /usr/local/gym && \
+    tox --notest
 
 # Finally, clean cached code (including dot files) and upload our actual code!
-RUN mv .tox /tmp/.tox && rm -rf .??* * && mv /tmp/.tox .tox
-COPY . /usr/local/gym/
+# RUN mv .tox /tmp/.tox && rm -rf .??* * && mv /tmp/.tox .tox
+# COPY . /usr/local/gym/
 
+WORKDIR /usr/local/gym/
 ENTRYPOINT ["/usr/local/gym/bin/docker_entrypoint"]
 CMD ["tox"]
