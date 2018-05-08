@@ -39,7 +39,7 @@ RUN apt-get -y update && apt-get install -y keyboard-configuration \\
             python3-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
-    && pip install tox
+    && pip install tox \
 
 # Download mujoco and inject the license key (if planning to publish image, this step has to be runtime)
     && mkdir /root/.mujoco \
