@@ -40,7 +40,7 @@ RUN \
         ffmpeg \
         python3-dev && \
 
-    apt-get clean \
+    apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
     pip install tox && \
 
