@@ -32,7 +32,7 @@ RUN apt-get install -y \
     unzip \
     git \
     vim \
-    xpra \
+    xvfb \
     python3-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
@@ -45,15 +45,14 @@ RUN mkdir /root/.mujoco && \
     unzip mjpro150_linux.zip 
 
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/root/.mujoco/mjpro150/bin
-    
+
 COPY . /usr/local/gym/
 RUN cd /usr/local/gym && \
-    tox --notest
+    tox --notest 
 
 RUN echo "set expandtab number shiftwidth=4 tabstop=4" > /root/.vimrc
 
-RUN cp /usr/local/gym/xorg.conf /etc/X11/
-
+COPY . /usr/local/gym/
 WORKDIR /usr/local/gym/
 ENTRYPOINT ["/usr/local/gym/bin/docker_entrypoint"]
 CMD ["tox"]
