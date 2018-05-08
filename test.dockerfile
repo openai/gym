@@ -5,7 +5,7 @@ ARG MUJOCO_KEY
 RUN echo $MUJOCO_KEY
 
 #Install python3.6 on ubuntu 16.04
-RUN apt-get -y update 
+RUN apt-get -y update && apt-get install -y keyboard-configuration
 #    apt-get install -y software-properties-common && \
 #    add-apt-repository -y ppa:jonathonf/python-3.6 && \
 #    apt-get -y update && \
