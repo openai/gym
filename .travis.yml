@@ -3,7 +3,7 @@ language: python
 services:
   - docker
 before_install:
-  - docker build -f test.dockerfile -t gym-test .
+  - docker build -f test.dockerfile -t gym-test --build-arg=MUJOCO_KEY=$MUJOCO_KEY .
 install: "" # so travis doesn't do pip install requirements.txt
 script:
   # In a pull request, there are no secrets, and hence no MuJoCo:
