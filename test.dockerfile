@@ -10,10 +10,10 @@ RUN \
     apt-get install -y keyboard-configuration && \
 
 # Maybe Install python3.6 on ubuntu 16.04 ?
-#    apt-get install -y software-properties-common && \
-#    add-apt-repository -y ppa:jonathonf/python-3.6 && \
-#    apt-get -y update && \
-#    apt-get -y install python3.6 python3.6-distutils python3.6-dev
+    apt-get install -y software-properties-common && \
+    add-apt-repository -y ppa:jonathonf/python-3.6 && \
+    apt-get -y update && \
+    apt-get -y install python3.6 python3.6-distutils python3.6-dev && \
 
     apt-get install -y \ 
         python-setuptools \
