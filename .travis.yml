@@ -5,7 +5,7 @@ services:
 before_install:
   # Prime the cache. We currently manually keep this synced.
   # - docker pull quay.io/openai/gym:test
-  - docker build -f test.dockerfile -t quay.io/openai/gym:test .
+  - docker build -f test.dockerfile -t quay.io/openai/gym:test --build-arg MUJOCO_KEY=$MUJOCO_KEY .
   # ^^^ commented out by joschu 2017/9/3
   # build command fails due to apt issue "The following packages have unmet dependencies:"
 install: "" # so travis doesn't do pip install requirements.txt
