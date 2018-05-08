@@ -4,12 +4,14 @@ FROM ubuntu:16.04
 ARG MUJOCO_KEY
 RUN echo $MUJOCO_KEY
 
-#Install python3.6 on ubuntu 16.04
+# Install keyboard-configuration separately to avoid travis hanging waiting for keyboard selection
 RUN apt-get -y update && apt-get install -y keyboard-configuration
+
+# Maybe Install python3.6 on ubuntu 16.04 ?
 #    apt-get install -y software-properties-common && \
 #    add-apt-repository -y ppa:jonathonf/python-3.6 && \
 #    apt-get -y update && \
-#    apt-get -y install python3.6 python3.6-distutils
+#    apt-get -y install python3.6 python3.6-distutils python3.6-dev
 
 RUN apt-get install -y \ 
     python-setuptools \
@@ -33,11 +35,13 @@ RUN apt-get install -y \
     git \
     vim \
     xvfb \
+    ffmpeg \
     python3-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     && pip install tox
 
+# Download mujoco and inject the license key
 RUN mkdir /root/.mujoco && \
     cd /root/.mujoco && \
     echo $MUJOCO_KEY | base64 --decode > mjkey.txt && \
@@ -46,6 +50,7 @@ RUN mkdir /root/.mujoco && \
 
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/root/.mujoco/mjpro150/bin
 
+# install dependencies
 COPY . /usr/local/gym/
 RUN cd /usr/local/gym && \
     tox --notest 

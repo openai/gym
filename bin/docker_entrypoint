@@ -1,14 +1,8 @@
 #!/bin/sh
-
 # This script is the entrypoint for our Docker image.
 
 set -e
-
-# path=$(cd $(dirname "$0") && pwd)
-
 # Set up display; otherwise rendering will fail
-# rm -f /tmp/.X12-lock
-# "$path/../vendor/Xdummy" :12 &
 Xvfb -screen 0 1024x768x24 &
 export DISPLAY=:0
 
