@@ -31,6 +31,7 @@ RUN apt-get install -y \
     wget \
     unzip \
     git \
+    vim \
     xpra \
     python3-dev \
     && apt-get clean \
@@ -49,14 +50,9 @@ COPY . /usr/local/gym/
 RUN cd /usr/local/gym && \
     tox --notest
 
-RUN apt-get -y update && apt-get -y install vim && apt-get clean && \
-    echo "set expandtab number shiftwidth=4 tabstop=4" > /root/.vimrc
+RUN echo "set expandtab number shiftwidth=4 tabstop=4" > /root/.vimrc
 
 RUN cp /usr/local/gym/xorg.conf /etc/X11/
-
-# Finally, clean cached code (including dot files) and upload our actual code!
-# RUN mv .tox /tmp/.tox && rm -rf .??* * && mv /tmp/.tox .tox
-# COPY . /usr/local/gym/
 
 WORKDIR /usr/local/gym/
 ENTRYPOINT ["/usr/local/gym/bin/docker_entrypoint"]
