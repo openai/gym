@@ -5,6 +5,7 @@
 set -e
 
 path=$(cd $(dirname "$0") && pwd)
+echo $path
 
 [ -z "${MUJOCO_KEY_BUNDLE}" ] || ( mkdir -p ~/.mujoco && curl https://openai-public.s3-us-west-2.amazonaws.com/mujoco/$MUJOCO_KEY_BUNDLE.tar.gz | tar xz -C ~/.mujoco )
 
