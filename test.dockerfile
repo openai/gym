@@ -1,9 +1,6 @@
 # A Dockerfile that sets up a full Gym install with test dependencies
 FROM ubuntu:16.04
 
-ARG MUJOCO_KEY
-RUN echo $MUJOCO_KEY
-
 # Install keyboard-configuration separately to avoid travis hanging waiting for keyboard selection
 RUN \
     apt-get -y update && \
@@ -49,9 +46,6 @@ RUN \
     cd /root/.mujoco  && \
     wget https://www.roboti.us/download/mjpro150_linux.zip  && \
     unzip mjpro150_linux.zip && \
-
-# Inject the mujoco license key (if planning to publish image, this step has to be runtime)
-    echo $MUJOCO_KEY | base64 --decode > mjkey.txt && \
 
 # setup vim to be humane and compatible with codebase standards
     echo "set expandtab number shiftwidth=4 tabstop=4" > /root/.vimrc

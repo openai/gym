@@ -3,10 +3,10 @@ language: python
 services:
   - docker
 before_install:
-  - docker build -f test.dockerfile -t gym-test --build-arg=MUJOCO_KEY=$MUJOCO_KEY .
+  - docker build -f test.dockerfile -t gym-test .
 install: "" # so travis doesn't do pip install requirements.txt
 script:
-  - docker run gym-test tox
+  - docker run -e MUJOCO_KEY=$MUJOCO_KEY gym-test tox
 
 notifications:
   slack:
