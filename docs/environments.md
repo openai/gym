@@ -40,3 +40,9 @@ The environment consists of transportation puzzles in which the player's goal is
 The advantage of the environment is that it generates a new random level every time it is initialized or reset, which prevents over fitting to predefined levels.
 
 Learn more here: https://github.com/mpSchrader/gym-sokoban
+
+## gym-duckietown: Lane-Following Simulator for Duckietown
+
+A lane-following simulator built for the [Duckietown](http://duckietown.org/) project (small-scale self-driving car course).
+
+Learn more here: https://github.com/duckietown/gym-duckietown
