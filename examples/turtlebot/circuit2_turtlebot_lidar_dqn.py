@@ -20,6 +20,7 @@ from keras.layers.normalization import BatchNormalization
 from keras.layers.advanced_activations import LeakyReLU
 from keras.regularizers import l2
 import memory
+import liveplot
 
 class DeepQ:
     """
@@ -240,7 +241,7 @@ class DeepQ:
                 if isFinal:
                     X_batch = np.append(X_batch, np.array([newState.copy()]), axis=0)
                     Y_batch = np.append(Y_batch, np.array([[reward]*self.output_size]), axis=0)
-            self.model.fit(X_batch, Y_batch, batch_size = len(miniBatch), nb_epoch=1, verbose = 0)
+            self.model.fit(X_batch, Y_batch, batch_size = len(miniBatch), epochs=1, verbose = 0)
 
     def saveModel(self, path):
         self.model.save(path)
@@ -264,13 +265,16 @@ if __name__ == '__main__':
     #REMEMBER!: turtlebot_nn_setup.bash must be executed.
     env = gym.make('GazeboCircuit2TurtlebotLidarNn-v0')
     outdir = '/tmp/gazebo_gym_experiments/'
+    path = '/tmp/turtle_c2_dqn_ep'
+    plotter = liveplot.LivePlot(outdir)
 
     continue_execution = False
     #fill this if continue_execution=True
-
-    weights_path = '/tmp/turtle_c2_dqn_ep200.h5'
-    monitor_path = '/tmp/turtle_c2_dqn_ep200'
-    params_json  = '/tmp/turtle_c2_dqn_ep200.json'
+    resume_epoch = '200' # change to epoch to continue from
+    resume_path = path + resume_epoch
+    weights_path = resume_path + '.h5'
+    monitor_path = resume_path
+    params_json  = resume_path + '.json'
 
     if not continue_execution:
         #Each time we take a sample and update our weights it is called a mini-batch.
@@ -373,14 +377,14 @@ if __name__ == '__main__':
                     print ("EP " + str(epoch) + " - " + format(episode_step + 1) + "/" + str(steps) + " Episode steps - last100 Steps : " + str((sum(last100Scores) / len(last100Scores))) + " - Cumulated R: " + str(cumulated_reward) + "   Eps=" + str(round(explorationRate, 2)) + "     Time: %d:%02d:%02d" % (h, m, s))
                     if (epoch)%100==0:
                         #save model weights and monitoring data every 100 epochs.
-                        deepQ.saveModel('/tmp/turtle_c2_dqn_ep'+str(epoch)+'.h5')
+                        deepQ.saveModel(path+str(epoch)+'.h5')
                         env._flush()
-                        copy_tree(outdir,'/tmp/turtle_c2_dqn_ep'+str(epoch))
+                        copy_tree(outdir,path+str(epoch))
                         #save simulation parameters.
                         parameter_keys = ['epochs','steps','updateTargetNetwork','explorationRate','minibatch_size','learnStart','learningRate','discountFactor','memorySize','network_inputs','network_outputs','network_structure','current_epoch']
                         parameter_values = [epochs, steps, updateTargetNetwork, explorationRate, minibatch_size, learnStart, learningRate, discountFactor, memorySize, network_inputs, network_outputs, network_structure, epoch]
                         parameter_dictionary = dict(zip(parameter_keys, parameter_values))
-                        with open('/tmp/turtle_c2_dqn_ep'+str(epoch)+'.json', 'w') as outfile:
+                        with open(path+str(epoch)+'.json', 'w') as outfile:
                             json.dump(parameter_dictionary, outfile)
 
             stepCounter += 1
@@ -393,5 +397,8 @@ if __name__ == '__main__':
         explorationRate *= 0.995 #epsilon decay
         # explorationRate -= (2.0/epochs)
         explorationRate = max (0.05, explorationRate)
+
+        if epoch % 100 == 0:
+            plotter.plot(env)
 
     env.close()
