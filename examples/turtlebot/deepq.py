@@ -50,13 +50,13 @@ class DeepQ:
         regularizationFactor = 0.01
         model = Sequential()
         if len(hiddenLayers) == 0:
-            model.add(Dense(self.output_size, input_shape=(self.input_size,), init='lecun_uniform', bias=bias))
+            model.add(Dense(self.output_size, input_shape=(self.input_size,), kernel_initializer='lecun_uniform', bias=bias))
             model.add(Activation("linear"))
         else :
             if regularizationFactor > 0:
-                model.add(Dense(hiddenLayers[0], input_shape=(self.input_size,), init='lecun_uniform', W_regularizer=l2(regularizationFactor),  bias=bias))
+                model.add(Dense(hiddenLayers[0], input_shape=(self.input_size,), kernel_initializer='lecun_uniform', W_regularizer=l2(regularizationFactor),  bias=bias))
             else:
-                model.add(Dense(hiddenLayers[0], input_shape=(self.input_size,), init='lecun_uniform', bias=bias))
+                model.add(Dense(hiddenLayers[0], input_shape=(self.input_size,), kernel_initializer='lecun_uniform', bias=bias))
 
             if (activationType == "LeakyReLU") :
                 model.add(LeakyReLU(alpha=0.01))
@@ -66,16 +66,16 @@ class DeepQ:
             for index in range(1, len(hiddenLayers)):
                 layerSize = hiddenLayers[index]
                 if regularizationFactor > 0:
-                    model.add(Dense(layerSize, init='lecun_uniform', W_regularizer=l2(regularizationFactor), bias=bias))
+                    model.add(Dense(layerSize, kernel_initializer='lecun_uniform', W_regularizer=l2(regularizationFactor), bias=bias))
                 else:
-                    model.add(Dense(layerSize, init='lecun_uniform', bias=bias))
+                    model.add(Dense(layerSize, kernel_initializer='lecun_uniform', bias=bias))
                 if (activationType == "LeakyReLU") :
                     model.add(LeakyReLU(alpha=0.01))
                 else :
                     model.add(Activation(activationType))
                 if dropout > 0:
                     model.add(Dropout(dropout))
-            model.add(Dense(self.output_size, init='lecun_uniform', bias=bias))
+            model.add(Dense(self.output_size, kernel_initializer='lecun_uniform', bias=bias))
             model.add(Activation("linear"))
         optimizer = optimizers.RMSprop(lr=learningRate, rho=0.9, epsilon=1e-06)
         model.compile(loss="mse", optimizer=optimizer)
@@ -85,10 +85,10 @@ class DeepQ:
     def createModel(self, inputs, outputs, hiddenLayers, activationType, learningRate):
         model = Sequential()
         if len(hiddenLayers) == 0:
-            model.add(Dense(self.output_size, input_shape=(self.input_size,), init='lecun_uniform'))
+            model.add(Dense(self.output_size, input_shape=(self.input_size,), kernel_initializer='lecun_uniform'))
             model.add(Activation("linear"))
         else :
-            model.add(Dense(hiddenLayers[0], input_shape=(self.input_size,), init='lecun_uniform'))
+            model.add(Dense(hiddenLayers[0], input_shape=(self.input_size,), kernel_initializer='lecun_uniform'))
             if (activationType == "LeakyReLU") :
                 model.add(LeakyReLU(alpha=0.01))
             else :
@@ -97,12 +97,12 @@ class DeepQ:
             for index in range(1, len(hiddenLayers)):
                 # print("adding layer "+str(index))
                 layerSize = hiddenLayers[index]
-                model.add(Dense(layerSize, init='lecun_uniform'))
+                model.add(Dense(layerSize, kernel_initializer='lecun_uniform'))
                 if (activationType == "LeakyReLU") :
                     model.add(LeakyReLU(alpha=0.01))
                 else :
                     model.add(Activation(activationType))
-            model.add(Dense(self.output_size, init='lecun_uniform'))
+            model.add(Dense(self.output_size, kernel_initializer='lecun_uniform'))
             model.add(Activation("linear"))
         optimizer = optimizers.RMSprop(lr=learningRate, rho=0.9, epsilon=1e-06)
         model.compile(loss="mse", optimizer=optimizer)
