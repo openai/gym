@@ -161,7 +161,7 @@ class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
                 initial_quat = rotations.quat_mul(initial_quat, offset_quat)
             elif self.target_rotation in ['xyz', 'ignore']:
                 angle = self.np_random.uniform(-np.pi, np.pi)
-                axis = np.random.uniform(-1., 1., size=3)
+                axis = self.np_random.uniform(-1., 1., size=3)
                 offset_quat = quat_from_angle_and_axis(angle, axis)
                 initial_quat = rotations.quat_mul(initial_quat, offset_quat)
             elif self.target_rotation == 'fixed':
@@ -223,7 +223,7 @@ class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
             target_quat = rotations.quat_mul(target_quat, parallel_quat)
         elif self.target_rotation == 'xyz':
             angle = self.np_random.uniform(-np.pi, np.pi)
-            axis = np.random.uniform(-1., 1., size=3)
+            axis = self.np_random.uniform(-1., 1., size=3)
             target_quat = quat_from_angle_and_axis(angle, axis)
         elif self.target_rotation in ['ignore', 'fixed']:
             target_quat = self.sim.data.get_joint_qpos('object:joint')

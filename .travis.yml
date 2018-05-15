@@ -3,24 +3,12 @@ language: python
 services:
   - docker
 before_install:
-  # Prime the cache. We currently manually keep this synced.
-  - docker pull quay.io/openai/gym:test
-  # - docker build -f test.dockerfile -t quay.io/openai/gym:test .
-  # ^^^ commented out by joschu 2017/9/3
-  # build command fails due to apt issue "The following packages have unmet dependencies:"
+  - docker build -f test.dockerfile -t gym-test .
 install: "" # so travis doesn't do pip install requirements.txt
 script:
-  # In a pull request, there are no secrets, and hence no MuJoCo:
-  # https://docs.travis-ci.com/user/pull-requests#Security-Restrictions-when-testing-Pull-Requests.
-  - docker run -e MUJOCO_KEY_BUNDLE="${MUJOCO_KEY_BUNDLE:-}" quay.io/openai/gym:test tox
+  - docker run -e MUJOCO_KEY=$MUJOCO_KEY gym-test tox
 
 notifications:
   slack:
     secure: h/Mxm8K+avH/2W0818zCHmLloRPMFN4NJL01+VShvAkH80/acfjeq/+mMdWXXPL/oOB6kSHDk+GDhwR6+s03ZcPMn5INTFvFYqUc6UWmT+NXtOPxGTN0xda6MdYUkWQUKaMyjFrweZQOMOASFBIzPOq4XeVbM5aB8s4EJhnfAcYZhp/idwKbToVihN4KZgxlvZIFc8iEp1o9uSl5qrsaeYYYXRkb6mauacAwOo4/Chu+cOnoLUOnvhBFE3rV3doDNrbnoalO8XiExtgx5CIAYWrlMni7r2Q+LlzgwdyTH19ZtybPxJTZIIWSBQ2UtcoYdIEDcc36GcUwz1VUGg32mLJJnY2xw80CWR4ixFPpLwwP5Y99WTn8v094B4nmFTWOwNWXp3EkqtTN9XcJoRBqXB5ArucIPqrx57dOCljSKx22gL6WaF2p3stSAxIGFektGyGnisaELrFZG1C63aHoUPicj3gUlijmAoUmYaDRf6P1wnpXqBpKDAWWhAMSatvx1ekmEJgR7OQklQnnfjx9kENDUygNUWS4IQwN2qYieuzHFL3of7/30mTM43+Vt/vWN8GI7j01BXu6FNGGloHxjH1pt3bLP/+uj5BJsT2HWF+Z8XR4VE6cyVuKsQAFgCXwOkoDHALbcwsspONDIt/9ixkesgh1oFt4CzU3UuU5wYs=
     on_success: change
-  webhooks:
-    urls:
-      - https://hooks.zapier.com/hooks/catch/1711022/6ztmzh/
-      - https://hooks.zapier.com/hooks/catch/1711022/6zhc8p/
-    on_success: always
-    on_failure: always
