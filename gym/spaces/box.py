@@ -34,7 +34,7 @@ class Box(gym.Space):
         gym.Space.__init__(self, shape, dtype)
 
     def sample(self):
-        return gym.spaces.np_random.uniform(low=self.low - (0 if self.dtype.kind == 'f' else 1), high=self.high + (0 if self.dtype.kind == 'f' else 1), size=self.low.shape).astype(self.dtype)
+        return gym.spaces.np_random.uniform(low=self.low - (0 if self.dtype.kind == 'f' or self.low == 0 else 1), high=self.high + (0 if self.dtype.kind == 'f' or self.high == 0 else 1), size=self.low.shape).astype(self.dtype)
     def contains(self, x):
         return x.shape == self.shape and (x >= self.low).all() and (x <= self.high).all()
 
