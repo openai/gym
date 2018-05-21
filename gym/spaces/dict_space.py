@@ -11,8 +11,8 @@ class Dict(gym.Space):
     Example usage [nested]:
     self.nested_observation_space = spaces.Dict({
         'sensors':  spaces.Dict({
-            'position': spaces.Box(low=-100, high=100, shape=(3)),
-            'velocity': spaces.Box(low=-1, high=1, shape=(3)),
+            'position': spaces.Box(low=-100, high=100, shape=(3,)),
+            'velocity': spaces.Box(low=-1, high=1, shape=(3,)),
             'front_cam': spaces.Tuple((
                 spaces.Box(low=0, high=1, shape=(10, 10, 3)),
                 spaces.Box(low=0, high=1, shape=(10, 10, 3))
@@ -25,7 +25,7 @@ class Dict(gym.Space):
             'system_checks': spaces.MultiBinary(10),
             'job_status': spaces.Dict({
                 'task': spaces.Discrete(5),
-                'progress': spaces.Box(low=0, high=100, shape=()),
+                'progress': spaces.Box(low=0, high=100, shape=(1,)),
             })
         })
     })
