@@ -73,8 +73,8 @@ class GazeboMAIRATop3DOFv0Env(gazebo_env.GazeboEnv):
         self.max_episode_steps = 1000 # now used in all algorithms
         self.iterator = 0
         # default to seconds
-        self.slowness = 1
-        self.slowness_unit = 'sec'
+        self.slowness = 1000000
+        self.slowness_unit = 'nsec'
         self.reset_jnts = True
 
         self._time_lock = threading.RLock()

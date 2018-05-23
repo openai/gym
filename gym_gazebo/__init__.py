@@ -25,6 +25,7 @@ register(
 register(
     id='GazeboCircuit2TurtlebotLidarNn-v0',
     entry_point='gym_gazebo.envs.turtlebot:GazeboCircuit2TurtlebotLidarNnEnv',
+    max_episode_steps=1000,
     # More arguments here
 )
 register(
