@@ -85,7 +85,6 @@ class RobotEnv(gym.GoalEnv):
         if self.viewer is not None:
             if hasattr(self.viewer, 'finish'):
                 self.viewer.finish()
-
             self.viewer = None
 
     def render(self, mode='human'):
