@@ -6,9 +6,6 @@ import numpy as np
 from gym import utils, spaces
 from gym_gazebo.envs import gazebo_env
 from geometry_msgs.msg import Pose
-from geometry_msgs.msg import Twist
-from std_srvs.srv import Empty
-from sensor_msgs.msg import LaserScan
 from gym.utils import seeding
 import copy
 import rospkg
