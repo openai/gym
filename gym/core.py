@@ -280,8 +280,8 @@ class Wrapper(Env):
                 "which is required for wrappers derived directly from Wrapper. Deprecated default implementation is used.")
             return self.env.reset(**kwargs)
 
-    def render(self, mode='human'):
-        return self.env.render(mode)
+    def render(self, mode='human', **kwargs):
+        return self.env.render(mode, **kwargs)
 
     def close(self):
         if self.env:
