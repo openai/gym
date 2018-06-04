@@ -244,21 +244,10 @@ class Wrapper(Env):
         self.observation_space = self.env.observation_space
         self.reward_range = self.env.reward_range
         self.metadata = self.env.metadata
-        self._warn_double_wrap()
 
     @classmethod
     def class_name(cls):
         return cls.__name__
-
-    def _warn_double_wrap(self):
-        env = self.env
-        while True:
-            if isinstance(env, Wrapper):
-                if env.class_name() == self.class_name():
-                    raise error.DoubleWrapperError("Attempted to double wrap with Wrapper: {}".format(self.__class__.__name__))
-                env = env.env
-            else:
-                break
 
     def step(self, action):
         if hasattr(self, "_step"):
