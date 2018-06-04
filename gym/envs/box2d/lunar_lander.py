@@ -89,14 +89,14 @@ class LunarLander(gym.Env):
 
         self.prev_reward = None
 
-        high = np.array([np.inf]*8)  # useful range is -1 .. +1, but spikes can be higher
-        self.observation_space = spaces.Box(-high, high)
+        # useful range is -1 .. +1, but spikes can be higher
+        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(8,), dtype=np.float32)
 
         if self.continuous:
             # Action is two floats [main engine, left-right engines].
             # Main engine: -1..0 off, 0..+1 throttle from 50% to 100% power. Engine can't work with less than 50% power.
             # Left-right:  -1.0..-0.5 fire left engine, +0.5..+1.0 fire right engine, -0.5..0.5 off
-            self.action_space = spaces.Box(-1, +1, (2,))
+            self.action_space = spaces.Box(-1, +1, (2,), dtype=np.float32)
         else:
             # Nop, fire left engine, main engine, right engine
             self.action_space = spaces.Discrete(4)
@@ -235,7 +235,7 @@ class LunarLander(gym.Env):
             self.world.DestroyBody(self.particles.pop(0))
 
     def step(self, action):
-        assert self.action_space.contains(action), "%r (%s) invalid " % (action,type(action))
+        action = np.clip(action, -1, +1).astype(np.float32)
 
         # Engines
         tip  = (math.sin(self.lander.angle), math.cos(self.lander.angle))
@@ -310,7 +310,7 @@ class LunarLander(gym.Env):
         if not self.lander.awake:
             done   = True
             reward = +100
-        return np.array(state), reward, done, {}
+        return np.array(state, dtype=np.float32), reward, done, {}
 
     def render(self, mode='human'):
         from gym.envs.classic_control import rendering
