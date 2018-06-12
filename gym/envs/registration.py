@@ -1,4 +1,5 @@
 import re
+from functools import partial
 from gym import error, logger
 
 # This format is true today, but it's *not* an official spec.
@@ -183,9 +184,5 @@ def patch_deprecated_methods(env):
     env.reset = env._reset
     env.step  = env._step
     env.seed  = env._seed
-    def render(mode):
-        return env._render(mode, close=False)
-    def close():
-        env._render("human", close=True)
-    env.render = render
-    env.close = close
+    env.render = partial(env._render, close=False)
+    env.close = partial(env._render, "human", close=True)
