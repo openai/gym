@@ -1,6 +1,6 @@
 import gym
 import gym_gazebo
-env = gym.make('MAIRATop3DOF-v0')
+env = gym.make('MARASide3DOF-v0')
 env.reset()
 import time
 # Check the env limits:

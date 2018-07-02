@@ -5,8 +5,8 @@ import time
 import numpy as np
 from gym import utils, spaces
 from gym_gazebo.envs import gazebo_env
-from geometry_msgs.msg import Pose
 from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Pose
 from std_srvs.srv import Empty
 from sensor_msgs.msg import LaserScan
 from gym.utils import seeding
@@ -38,7 +38,7 @@ class MSG_INVALID_JOINT_NAMES_DIFFER(Exception):
     pass
 
 
-class GazeboMAIRANoGripperv0Env(gazebo_env.GazeboEnv):
+class GazeboMARASide3DOFv0Env(gazebo_env.GazeboEnv):
     """
     This environment present a modular SCARA robot with a range finder at its
     end pointing towards the workspace of the robot. The goal of this environment is
@@ -56,7 +56,7 @@ class GazeboMAIRANoGripperv0Env(gazebo_env.GazeboEnv):
             TODO: port everything to ROS 2 natively
         """
         # Launch the simulation with the given launchfile name
-        gazebo_env.GazeboEnv.__init__(self, "MAIRANoGripper_v0.launch")
+        gazebo_env.GazeboEnv.__init__(self, "MARASide3DOF_v0.launch")
 
         # TODO: cleanup this variables, remove the ones that aren't used
         # class variables
@@ -83,7 +83,7 @@ class GazeboMAIRANoGripperv0Env(gazebo_env.GazeboEnv):
         #   Environment hyperparams
         #############################
         # target, where should the agent reach
-        EE_POS_TGT = np.asmatrix([-0.4, 0.0, 1.1013]) # 200 cm from the z axis
+        EE_POS_TGT = np.asmatrix([-0.483034, 0.00960683, 0.77619]) # 200 cm from the z axis
         # EE_POS_TGT = np.asmatrix([0.3305805, -0.1326121, 0.4868]) # center of the H
         EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         EE_POINTS = np.asmatrix([[0, 0, 0]])
@@ -98,8 +98,8 @@ class GazeboMAIRANoGripperv0Env(gazebo_env.GazeboEnv):
         # slowness = 10 # use >10 for running trained network in the simulation
 
         # Topics for the robot publisher and subscriber.
-        JOINT_PUBLISHER = '/maira_controller/command'
-        JOINT_SUBSCRIBER = '/maira_controller/state'
+        JOINT_PUBLISHER = '/mara_controller/command'
+        JOINT_SUBSCRIBER = '/mara_controller/state'
 
         # joint names:
         MOTOR1_JOINT = 'motor1'
@@ -110,23 +110,23 @@ class GazeboMAIRANoGripperv0Env(gazebo_env.GazeboEnv):
         MOTOR6_JOINT = 'motor6'
 
         # Set constants for links
-        BASE = 'base_link'
+        BASE = 'mara_base_link'
 
-        MAIRA_MOTOR1_LINK = 'motor1_link'
-        MAIRA_MOTOR2_LINK = 'motor2_link'
-        MAIRA_MOTOR3_LINK = 'motor3_link'
-        MAIRA_MOTOR4_LINK = 'motor4_link'
-        MAIRA_MOTOR5_LINK = 'motor5_link'
-        MAIRA_MOTOR6_LINK = 'motor6_link'
+        MARA_MOTOR1_LINK = 'motor1_link'
+        MARA_MOTOR2_LINK = 'motor2_link'
+        MARA_MOTOR3_LINK = 'motor3_link'
+        MARA_MOTOR4_LINK = 'motor4_link'
+        MARA_MOTOR5_LINK = 'motor5_link'
+        MARA_MOTOR6_LINK = 'motor6_link'
         EE_LINK = 'ee_link'
 
 
         # EE_LINK = 'ee_link'
         JOINT_ORDER = [MOTOR1_JOINT, MOTOR2_JOINT, MOTOR3_JOINT,
                        MOTOR4_JOINT, MOTOR5_JOINT, MOTOR6_JOINT]
-        LINK_NAMES = [BASE, MAIRA_MOTOR1_LINK, MAIRA_MOTOR2_LINK,
-                            MAIRA_MOTOR3_LINK, MAIRA_MOTOR4_LINK,
-                            MAIRA_MOTOR5_LINK, MAIRA_MOTOR6_LINK,
+        LINK_NAMES = [BASE, MARA_MOTOR1_LINK, MARA_MOTOR2_LINK,
+                            MARA_MOTOR3_LINK, MARA_MOTOR4_LINK,
+                            MARA_MOTOR5_LINK, MARA_MOTOR6_LINK,
                       EE_LINK]
 
         reset_condition = {
@@ -137,7 +137,7 @@ class GazeboMAIRANoGripperv0Env(gazebo_env.GazeboEnv):
 
         # TODO: fix this and make it relative
         # Set the path of the corresponding URDF file from "assets"
-        URDF_PATH = rospkg.RosPack().get_path("maira_description") + "/urdf/maira_robot_nogripper.urdf"
+        URDF_PATH = rospkg.RosPack().get_path("mara_description") + "/urdf/mara_demo_camera_side.urdf"
 
         m_joint_order = copy.deepcopy(JOINT_ORDER)
         m_link_names = copy.deepcopy(LINK_NAMES)
@@ -178,7 +178,7 @@ class GazeboMAIRANoGripperv0Env(gazebo_env.GazeboEnv):
         _, self.ur_tree = treeFromFile(self.environment['tree_path'])
         # Retrieve a chain structure between the base and the start of the end effector.
         self.scara_chain = self.ur_tree.getChain(self.environment['link_names'][0], self.environment['link_names'][-1])
-        print("nr of jnts: ", self.scara_chain.getNrOfJoints())
+        # print("nr of jnts: ", self.scara_chain.getNrOfJoints())
         # Initialize a KDL Jacobian solver from the chain.
         self.jac_solver = ChainJntToJacSolver(self.scara_chain)
         #print(self.jac_solver)
@@ -249,23 +249,6 @@ class GazeboMAIRANoGripperv0Env(gazebo_env.GazeboEnv):
         pose.position.x = EE_POS_TGT[0,0];
         pose.position.y = EE_POS_TGT[0,1];
         pose.position.z = EE_POS_TGT[0,2];
-
-        #Static obstacle (not in original code)
-        # pose.position.x = 0.25;#
-        # pose.position.y = 0.07;#
-        # pose.position.z = 0.0;#
-
-        pose.orientation.x = 0;
-        pose.orientation.y= 0;
-        pose.orientation.z = 0;
-        pose.orientation.w = 0;
-        reference_frame = ""
-        rospy.wait_for_service('/gazebo/spawn_urdf_model')
-        self.add_model(model_name="target",
-                        model_xml=model_xml,
-                        robot_namespace="",
-                        initial_pose=pose,
-                        reference_frame="")
 
 
         # Seed the environment
@@ -579,7 +562,7 @@ class GazeboMAIRANoGripperv0Env(gazebo_env.GazeboEnv):
         self.reward_dist = -self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])
 
         # here we want to fetch the positions of the end-effector which are nr_dof:nr_dof+3
-        if(self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])<0.05):
+        if(self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])<0.005):
             self.reward = 1 - self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)]) # Make the reward increase as the distance decreases
             print("Reward is: ", self.reward)
         else:
@@ -589,7 +572,7 @@ class GazeboMAIRANoGripperv0Env(gazebo_env.GazeboEnv):
         # print("rmse_func: ", self.rmse_func(ee_points))
 
         # Calculate if the env has been solved
-        done = bool(abs(self.reward_dist) < 0.05) or (self.iterator>self.max_episode_steps)
+        done = bool(abs(self.reward_dist) < 0.005) or (self.iterator>self.max_episode_steps)
 
         # # Unpause simulation
         # rospy.wait_for_service('/gazebo/unpause_physics')
