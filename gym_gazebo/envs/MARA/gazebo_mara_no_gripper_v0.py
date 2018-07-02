@@ -38,7 +38,7 @@ class MSG_INVALID_JOINT_NAMES_DIFFER(Exception):
     pass
 
 
-class GazeboMAIRANoGripperv0Env(gazebo_env.GazeboEnv):
+class GazeboMARANoGripperv0Env(gazebo_env.GazeboEnv):
     """
     This environment present a modular SCARA robot with a range finder at its
     end pointing towards the workspace of the robot. The goal of this environment is
@@ -56,7 +56,7 @@ class GazeboMAIRANoGripperv0Env(gazebo_env.GazeboEnv):
             TODO: port everything to ROS 2 natively
         """
         # Launch the simulation with the given launchfile name
-        gazebo_env.GazeboEnv.__init__(self, "MAIRANoGripper_v0.launch")
+        gazebo_env.GazeboEnv.__init__(self, "MARANoGripper_v0.launch")
 
         # TODO: cleanup this variables, remove the ones that aren't used
         # class variables
@@ -98,8 +98,8 @@ class GazeboMAIRANoGripperv0Env(gazebo_env.GazeboEnv):
         # slowness = 10 # use >10 for running trained network in the simulation
 
         # Topics for the robot publisher and subscriber.
-        JOINT_PUBLISHER = '/maira_controller/command'
-        JOINT_SUBSCRIBER = '/maira_controller/state'
+        JOINT_PUBLISHER = '/mara_controller/command'
+        JOINT_SUBSCRIBER = '/mara_controller/state'
 
         # joint names:
         MOTOR1_JOINT = 'motor1'
@@ -112,21 +112,21 @@ class GazeboMAIRANoGripperv0Env(gazebo_env.GazeboEnv):
         # Set constants for links
         BASE = 'base_link'
 
-        MAIRA_MOTOR1_LINK = 'motor1_link'
-        MAIRA_MOTOR2_LINK = 'motor2_link'
-        MAIRA_MOTOR3_LINK = 'motor3_link'
-        MAIRA_MOTOR4_LINK = 'motor4_link'
-        MAIRA_MOTOR5_LINK = 'motor5_link'
-        MAIRA_MOTOR6_LINK = 'motor6_link'
+        MARA_MOTOR1_LINK = 'motor1_link'
+        MARA_MOTOR2_LINK = 'motor2_link'
+        MARA_MOTOR3_LINK = 'motor3_link'
+        MARA_MOTOR4_LINK = 'motor4_link'
+        MARA_MOTOR5_LINK = 'motor5_link'
+        MARA_MOTOR6_LINK = 'motor6_link'
         EE_LINK = 'ee_link'
 
 
         # EE_LINK = 'ee_link'
         JOINT_ORDER = [MOTOR1_JOINT, MOTOR2_JOINT, MOTOR3_JOINT,
                        MOTOR4_JOINT, MOTOR5_JOINT, MOTOR6_JOINT]
-        LINK_NAMES = [BASE, MAIRA_MOTOR1_LINK, MAIRA_MOTOR2_LINK,
-                            MAIRA_MOTOR3_LINK, MAIRA_MOTOR4_LINK,
-                            MAIRA_MOTOR5_LINK, MAIRA_MOTOR6_LINK,
+        LINK_NAMES = [BASE, MARA_MOTOR1_LINK, MARA_MOTOR2_LINK,
+                            MARA_MOTOR3_LINK, MARA_MOTOR4_LINK,
+                            MARA_MOTOR5_LINK, MARA_MOTOR6_LINK,
                       EE_LINK]
 
         reset_condition = {
@@ -137,7 +137,7 @@ class GazeboMAIRANoGripperv0Env(gazebo_env.GazeboEnv):
 
         # TODO: fix this and make it relative
         # Set the path of the corresponding URDF file from "assets"
-        URDF_PATH = rospkg.RosPack().get_path("maira_description") + "/urdf/maira_robot_nogripper.urdf"
+        URDF_PATH = rospkg.RosPack().get_path("mara_description") + "/urdf/mara_robot_nogripper.urdf"
 
         m_joint_order = copy.deepcopy(JOINT_ORDER)
         m_link_names = copy.deepcopy(LINK_NAMES)

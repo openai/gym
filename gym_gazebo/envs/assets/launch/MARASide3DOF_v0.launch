@@ -6,21 +6,21 @@
 
   <!-- startup simulated world -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
-    <arg name="world_name" default="$(find maira_gazebo)/worlds/maira_basic.world"/>
+    <arg name="world_name" default="$(find mara_gazebo)/worlds/mara_basic.world"/>
     <arg name="paused" value="$(arg paused)"/>
     <arg name="gui" value="$(arg gui)"/>
     <arg name="verbose" value="$(arg verbose)"/>
   </include>
 
   <!-- send robot urdf to param server -->
-  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find maira_description)/urdf/maira_robot_camera_side.urdf.xacro'" />
+  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find mara_description)/urdf/mara_robot_camera_side.urdf.xacro'" />
 
   <!-- push robot_description to factory and spawn robot in gazebo -->
   <node name="spawn_gazebo_model" pkg="gazebo_ros" type="spawn_model" args="-urdf -param robot_description -model robot -z 0.01" respawn="false" output="screen" />
 
-  <include file="$(find maira_gazebo)/launch/controller_utils.launch"/>
+  <include file="$(find mara_gazebo)/launch/controller_utils.launch"/>
 
-  <rosparam file="$(find maira_gazebo)/controller/maira_controller.yaml" command="load"/>
-  <node name="arm_controller_spawner" pkg="controller_manager" type="controller_manager" args="spawn maira_controller" respawn="false" output="screen"/>
+  <rosparam file="$(find mara_gazebo)/controller/mara_controller.yaml" command="load"/>
+  <node name="arm_controller_spawner" pkg="controller_manager" type="controller_manager" args="spawn mara_controller" respawn="false" output="screen"/>
 
 </launch>

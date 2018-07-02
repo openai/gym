@@ -5,7 +5,10 @@ import time
 import numpy as np
 from gym import utils, spaces
 from gym_gazebo.envs import gazebo_env
+from geometry_msgs.msg import Twist
 from geometry_msgs.msg import Pose
+from std_srvs.srv import Empty
+from sensor_msgs.msg import LaserScan
 from gym.utils import seeding
 import copy
 import rospkg
@@ -35,7 +38,7 @@ class MSG_INVALID_JOINT_NAMES_DIFFER(Exception):
     pass
 
 
-class GazeboMAIRATop3DOFv0Env(gazebo_env.GazeboEnv):
+class GazeboMARASide3DOFv0Env(gazebo_env.GazeboEnv):
     """
     This environment present a modular SCARA robot with a range finder at its
     end pointing towards the workspace of the robot. The goal of this environment is
@@ -53,7 +56,7 @@ class GazeboMAIRATop3DOFv0Env(gazebo_env.GazeboEnv):
             TODO: port everything to ROS 2 natively
         """
         # Launch the simulation with the given launchfile name
-        gazebo_env.GazeboEnv.__init__(self, "MAIRATop3DOF_v0.launch")
+        gazebo_env.GazeboEnv.__init__(self, "MARASide3DOF_v0.launch")
 
         # TODO: cleanup this variables, remove the ones that aren't used
         # class variables
@@ -70,8 +73,8 @@ class GazeboMAIRATop3DOFv0Env(gazebo_env.GazeboEnv):
         self.max_episode_steps = 1000 # now used in all algorithms
         self.iterator = 0
         # default to seconds
-        self.slowness = 1000000
-        self.slowness_unit = 'nsec'
+        self.slowness = 1
+        self.slowness_unit = 'sec'
         self.reset_jnts = True
 
         self._time_lock = threading.RLock()
@@ -80,14 +83,8 @@ class GazeboMAIRATop3DOFv0Env(gazebo_env.GazeboEnv):
         #   Environment hyperparams
         #############################
         # target, where should the agent reach
-        # EE_POS_TGT = np.asmatrix([-0.4, 0.0, 1.1013]) # 200 cm from the z axis
-        EE_POS_TGT = np.asmatrix([-0.359236, 0.0297278, 0.760402])
-        # EE_POS_TGT = np.asmatrix([-0.31237, 0.0292455, 0.763472])
-        # EE_POS_TGT = np.asmatrix([-0.223663, 0.0295788 ,0.763471 ])
-        # EE_POS_TGT = np.asmatrix([0.0, 0.001009, 1.64981])
-
+        EE_POS_TGT = np.asmatrix([-0.483034, 0.00960683, 0.77619]) # 200 cm from the z axis
         # EE_POS_TGT = np.asmatrix([0.3305805, -0.1326121, 0.4868]) # center of the H
-        # EE_ROT_TGT = np.asmatrix([[0, 0, 1], [0, 1, 0], [-1, 0, 0]])
         EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         EE_POINTS = np.asmatrix([[0, 0, 0]])
         EE_VELOCITIES = np.asmatrix([[0, 0, 0]])
@@ -101,8 +98,8 @@ class GazeboMAIRATop3DOFv0Env(gazebo_env.GazeboEnv):
         # slowness = 10 # use >10 for running trained network in the simulation
 
         # Topics for the robot publisher and subscriber.
-        JOINT_PUBLISHER = '/maira_controller/command'
-        JOINT_SUBSCRIBER = '/maira_controller/state'
+        JOINT_PUBLISHER = '/mara_controller/command'
+        JOINT_SUBSCRIBER = '/mara_controller/state'
 
         # joint names:
         MOTOR1_JOINT = 'motor1'
@@ -113,25 +110,23 @@ class GazeboMAIRATop3DOFv0Env(gazebo_env.GazeboEnv):
         MOTOR6_JOINT = 'motor6'
 
         # Set constants for links
-        TABLE = 'table'
+        BASE = 'mara_base_link'
 
-        BASE = 'base_link'
-
-        MAIRA_MOTOR1_LINK = 'motor1_link'
-        MAIRA_MOTOR2_LINK = 'motor2_link'
-        MAIRA_MOTOR3_LINK = 'motor3_link'
-        MAIRA_MOTOR4_LINK = 'motor4_link'
-        MAIRA_MOTOR5_LINK = 'motor5_link'
-        MAIRA_MOTOR6_LINK = 'motor6_link'
+        MARA_MOTOR1_LINK = 'motor1_link'
+        MARA_MOTOR2_LINK = 'motor2_link'
+        MARA_MOTOR3_LINK = 'motor3_link'
+        MARA_MOTOR4_LINK = 'motor4_link'
+        MARA_MOTOR5_LINK = 'motor5_link'
+        MARA_MOTOR6_LINK = 'motor6_link'
         EE_LINK = 'ee_link'
 
 
         # EE_LINK = 'ee_link'
         JOINT_ORDER = [MOTOR1_JOINT, MOTOR2_JOINT, MOTOR3_JOINT,
                        MOTOR4_JOINT, MOTOR5_JOINT, MOTOR6_JOINT]
-        LINK_NAMES = [TABLE, BASE, MAIRA_MOTOR1_LINK, MAIRA_MOTOR2_LINK,
-                            MAIRA_MOTOR3_LINK, MAIRA_MOTOR4_LINK,
-                            MAIRA_MOTOR5_LINK, MAIRA_MOTOR6_LINK,
+        LINK_NAMES = [BASE, MARA_MOTOR1_LINK, MARA_MOTOR2_LINK,
+                            MARA_MOTOR3_LINK, MARA_MOTOR4_LINK,
+                            MARA_MOTOR5_LINK, MARA_MOTOR6_LINK,
                       EE_LINK]
 
         reset_condition = {
@@ -142,7 +137,7 @@ class GazeboMAIRATop3DOFv0Env(gazebo_env.GazeboEnv):
 
         # TODO: fix this and make it relative
         # Set the path of the corresponding URDF file from "assets"
-        URDF_PATH = rospkg.RosPack().get_path("maira_description") + "/urdf/maira_demo_camera_top.urdf"
+        URDF_PATH = rospkg.RosPack().get_path("mara_description") + "/urdf/mara_demo_camera_side.urdf"
 
         m_joint_order = copy.deepcopy(JOINT_ORDER)
         m_link_names = copy.deepcopy(LINK_NAMES)
@@ -154,13 +149,11 @@ class GazeboMAIRATop3DOFv0Env(gazebo_env.GazeboEnv):
         # Initialize target end effector position
         ee_tgt = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt, ee_rot_tgt).T)
         self.realgoal = ee_tgt
-        self.target_orientation = ee_rot_tgt
 
         self.environment = {
             # rk changed this to for the mlsh
             # 'ee_points_tgt': ee_tgt,
             'ee_points_tgt': self.realgoal,
-            'ee_point_tgt_orient': self.target_orientation,
             'joint_order': m_joint_order,
             'link_names': m_link_names,
             # 'slowness': slowness,
@@ -202,10 +195,9 @@ class GazeboMAIRATop3DOFv0Env(gazebo_env.GazeboEnv):
         obs_dim is defined as:
         num_dof + end_effector_points=3 + end_effector_velocities=3
         end_effector_points and end_effector_velocities is constant and equals 3
-        recently also added quaternion to the obs, which has dimension=4
         """
         #
-        self.obs_dim = self.scara_chain.getNrOfJoints() + 6#10 # hardcode it for now
+        self.obs_dim = self.scara_chain.getNrOfJoints() + 6 # hardcode it for now
         # # print(observation, _reward)
 
         # # Here idially we should find the control range of the robot. Unfortunatelly in ROS/KDL there is nothing like this.
@@ -213,15 +205,12 @@ class GazeboMAIRATop3DOFv0Env(gazebo_env.GazeboEnv):
         # #bounds = self.model.actuator_ctrlrange.copy()
         low = -np.pi/2.0 * np.ones(self.scara_chain.getNrOfJoints())
         high = np.pi/2.0 * np.ones(self.scara_chain.getNrOfJoints())
-        # low = -np.pi * np.ones(self.scara_chain.getNrOfJoints())
-        # high = np.pi * np.ones(self.scara_chain.getNrOfJoints())
-        # low = -np.inf * np.ones(self.scara_chain.getNrOfJoints())
-        # high = np.inf * np.ones(self.scara_chain.getNrOfJoints())
         # print("Action spaces: ", low, high)
         self.action_space = spaces.Box(low, high)
         high = np.inf*np.ones(self.obs_dim)
         low = -high
         self.observation_space = spaces.Box(low, high)
+
 
         self.add_model = rospy.ServiceProxy('/gazebo/spawn_urdf_model', SpawnModel)
         self.remove_model = rospy.ServiceProxy('/gazebo/delete_model', DeleteModel)
@@ -260,23 +249,6 @@ class GazeboMAIRATop3DOFv0Env(gazebo_env.GazeboEnv):
         pose.position.x = EE_POS_TGT[0,0];
         pose.position.y = EE_POS_TGT[0,1];
         pose.position.z = EE_POS_TGT[0,2];
-
-        #Static obstacle (not in original code)
-        # pose.position.x = 0.25;#
-        # pose.position.y = 0.07;#
-        # pose.position.z = 0.0;#
-
-        pose.orientation.x = 0;
-        pose.orientation.y= 0;
-        pose.orientation.z = 0;
-        pose.orientation.w = 0;
-        reference_frame = ""
-        rospy.wait_for_service('/gazebo/spawn_urdf_model')
-        self.add_model(model_name="target",
-                        model_xml=model_xml,
-                        robot_namespace="",
-                        initial_pose=pose,
-                        reference_frame="")
 
 
         # Seed the environment
@@ -523,18 +495,8 @@ class GazeboMAIRATop3DOFv0Env(gazebo_env.GazeboEnv):
             # #
             # current_quaternion = np.array([angle]+dir.tolist())#
 
-            # I need this calculations for the new reward function, need to send them back to the run maira or calculate them here
+            # I need this calculations for the new reward function, need to send them back to the run scara or calculate them here
             current_quaternion = quaternion_from_matrix(rotation_matrix)
-            tgt_quartenion = quaternion_from_matrix(self.target_orientation)
-
-            A  = np.vstack([current_quaternion, np.ones(len(current_quaternion))]).T
-
-            #quat_error = np.linalg.lstsq(A, tgt_quartenion)[0]
-
-            quat_error = current_quaternion - tgt_quartenion
-            # print("quat_error: ",quat_error)
-            # print("self.realgoal: ", self.realgoal)
-            # print("curr quat: ", current_quaternion)
             current_ee_tgt = np.ndarray.flatten(get_ee_points(self.environment['end_effector_points'],
                                                               trans,
                                                               rot).T)
@@ -551,13 +513,10 @@ class GazeboMAIRATop3DOFv0Env(gazebo_env.GazeboEnv):
             # vector, typically denoted asrobot_id 'x'.
             state = np.r_[np.reshape(last_observations, -1),
                           np.reshape(ee_points, -1),
-                          # np.reshape(quat_error, -1),
                           np.reshape(ee_velocities, -1),]
-            # print("quat_error: ", quat_error)
-            # print("ee_points:", ee_points)
+
             return np.r_[np.reshape(last_observations, -1),
                           np.reshape(ee_points, -1),
-                          # np.reshape(quat_error, -1),
                           np.reshape(ee_velocities, -1),]
 
     def rmse_func(self, ee_points):
@@ -581,25 +540,24 @@ class GazeboMAIRATop3DOFv0Env(gazebo_env.GazeboEnv):
             - dictionary (#TODO clarify)
         """
         self.iterator+=1
-        # rmse_trans = self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])
-        # rmse_orient = self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)])
-        # # print("rmse_orient: ", self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)])
-        # self.reward_dist = -rmse_trans
-        # self.reward_orient = -rmse_orient
-        #                     # + self.ob[(self.scara_chain.getNrOfJoints()+4)] )
+        # # Pause simulation
+        # rospy.wait_for_service('/gazebo/pause_physics')
+        # try:
+        #     #resp_pause = pause.call()
+        #     self.pause()
+        # except (rospy.ServiceException) as e:
+        #     print ("/gazebo/pause_physics service call failed")
+
+        # Take an observation
+        # TODO: program this better, check that ob is not None, etc.
+        # self.ob = take_observation()
+
+        # self.reward_dist = self.rmse_func(self.ob[3:6])
+        # # print("reward_dist :", self.reward_dist)
+        # self.reward = 1 - self.reward_dist # Make the reward increase as the distance decreases
         #
-        # # here we want to fetch the positions of the end-effector which are nr_dof:nr_dof+3
-        # if(self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])<0.005):
-        #     self.reward_final_dist = 1 + self.reward_dist # Make the reward increase as the distance decreases
-        #     print("Reward Pose is: ", self.reward_final_dist)
-        # else:
-        #     self.reward_final_dist = self.reward_dist
-
-        self.reward_dist = -self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])
-        self.reward_orient = - self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)])
-
-        #scale here the orientation because it should not be the main bias of the reward, position should be
-        orientation_scale = 0.1
+        # # Calculate if the env has been solved
+        # done = bool(abs(self.reward_dist) < 0.005)
 
         self.reward_dist = -self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])
 
@@ -609,7 +567,6 @@ class GazeboMAIRATop3DOFv0Env(gazebo_env.GazeboEnv):
             print("Reward is: ", self.reward)
         else:
             self.reward = self.reward_dist
-        # print("rew: ", self.reward)
 
         # print("reward: ", self.reward)
         # print("rmse_func: ", self.rmse_func(ee_points))
@@ -617,21 +574,27 @@ class GazeboMAIRATop3DOFv0Env(gazebo_env.GazeboEnv):
         # Calculate if the env has been solved
         done = bool(abs(self.reward_dist) < 0.005) or (self.iterator>self.max_episode_steps)
 
-        # if(self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)])<0.005):
-        #     self.reward += orientation_scale * (1 - self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)]))
-        #     print("Reward orientation is: ", self.reward)
-        # else:
-        #     self.reward += orientation_scale * self.reward_orient
-
-
-        #self.reward = self.reward_final_dist + orientation_scale*self.final_rew_orient
-
-        # self.reward =self.reward - abs(self.ob[(self.scara_chain.getNrOfJoints()+4)])
-        # Calculate if the env has been solved
-        # done = bool(((abs(self.reward_dist) < 0.05) and (abs(self.reward_orient)) < 0.05) or (self.iterator>self.max_episode_steps))
+        # # Unpause simulation
+        # rospy.wait_for_service('/gazebo/unpause_physics')
+        # try:
+        #     self.unpause()
+        # except (rospy.ServiceException) as e:
+        #     print ("/gazebo/unpause_physics service call failed")
 
         # Execute "action"
         self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
+        #TODO: wait until action gets executed
+        # When adding this the algorithm does not converge
+        # time.sleep(int(self.environment['slowness']))
+        # time.sleep(int(self.environment['slowness'])/1000000000) # using nanoseconds
+
+        # # Pause simulation
+        # rospy.wait_for_service('/gazebo/pause_physics')
+        # try:
+        #     #resp_pause = pause.call()
+        #     self.pause()
+        # except (rospy.ServiceException) as e:
+        #     print ("/gazebo/pause_physics service call failed")
 
         # # Take an observation
         # TODO: program this better, check that ob is not None, etc.
@@ -670,6 +633,11 @@ class GazeboMAIRATop3DOFv0Env(gazebo_env.GazeboEnv):
         """
 
         self.iterator = 0
+
+        # self._pub.publish(self.get_trajectory_message(self.environment['reset_conditions']['initial_positions']))
+        # time.sleep(int(self.environment['slowness'])) # using seconds
+        # time.sleep(int(self.environment['slowness'])/1000000000) # using nanoseconds
+        # # time.sleep(int(self.environment['slowness']))
 
         if self.reset_jnts is True:
             self._pub.publish(self.get_trajectory_message(self.environment['reset_conditions']['initial_positions']))

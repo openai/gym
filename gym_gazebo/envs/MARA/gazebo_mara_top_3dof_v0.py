@@ -6,9 +6,6 @@ import numpy as np
 from gym import utils, spaces
 from gym_gazebo.envs import gazebo_env
 from geometry_msgs.msg import Pose
-from geometry_msgs.msg import Twist
-from std_srvs.srv import Empty
-from sensor_msgs.msg import LaserScan
 from gym.utils import seeding
 import copy
 import rospkg
@@ -38,7 +35,7 @@ class MSG_INVALID_JOINT_NAMES_DIFFER(Exception):
     pass
 
 
-class GazeboMAIRATopOrientv0Env(gazebo_env.GazeboEnv):
+class GazeboMARATop3DOFv0Env(gazebo_env.GazeboEnv):
     """
     This environment present a modular SCARA robot with a range finder at its
     end pointing towards the workspace of the robot. The goal of this environment is
@@ -56,7 +53,7 @@ class GazeboMAIRATopOrientv0Env(gazebo_env.GazeboEnv):
             TODO: port everything to ROS 2 natively
         """
         # Launch the simulation with the given launchfile name
-        gazebo_env.GazeboEnv.__init__(self, "MAIRATop3DOF_v0.launch")
+        gazebo_env.GazeboEnv.__init__(self, "MARATop3DOF_v0.launch")
 
         # TODO: cleanup this variables, remove the ones that aren't used
         # class variables
@@ -73,8 +70,8 @@ class GazeboMAIRATopOrientv0Env(gazebo_env.GazeboEnv):
         self.max_episode_steps = 1000 # now used in all algorithms
         self.iterator = 0
         # default to seconds
-        self.slowness = 1
-        self.slowness_unit = 'sec'
+        self.slowness = 1000000
+        self.slowness_unit = 'nsec'
         self.reset_jnts = True
 
         self._time_lock = threading.RLock()
@@ -83,19 +80,19 @@ class GazeboMAIRATopOrientv0Env(gazebo_env.GazeboEnv):
         #   Environment hyperparams
         #############################
         # target, where should the agent reach
-        # EE_POS_TGT = np.asmatrix([-0.390768, 0.0101776, 0.725335]) # 200 cm from the z axis
+        # EE_POS_TGT = np.asmatrix([-0.4, 0.0, 1.1013]) # 200 cm from the z axis
+        EE_POS_TGT = np.asmatrix([-0.359236, 0.0297278, 0.760402])
+        # EE_POS_TGT = np.asmatrix([-0.31237, 0.0292455, 0.763472])
+        # EE_POS_TGT = np.asmatrix([-0.223663, 0.0295788 ,0.763471 ])
         # EE_POS_TGT = np.asmatrix([0.0, 0.001009, 1.64981])
-        # EE_POS_TGT = np.asmatrix([-0.390768, 0.0101776, 0.755335]) # 200 cm from the z axis
-        EE_POS_TGT = np.asmatrix([-0.189383, -0.123176, 0.894476])
 
         # EE_POS_TGT = np.asmatrix([0.3305805, -0.1326121, 0.4868]) # center of the H
-        EE_ROT_TGT = np.asmatrix([[0, 0, 1], [0.2146, 0.9767, 0], [-0.9767, 0.2146, 0]])
-        # EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+        # EE_ROT_TGT = np.asmatrix([[0, 0, 1], [0, 1, 0], [-1, 0, 0]])
+        EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         EE_POINTS = np.asmatrix([[0, 0, 0]])
         EE_VELOCITIES = np.asmatrix([[0, 0, 0]])
         # Initial joint position
-        INITIAL_JOINTS = np.array([0., 0., -1., 0., -1.57, 0.])
-        # INITIAL_JOINTS = np.array([0., 0., 0., 0., 0., 0.])
+        INITIAL_JOINTS = np.array([0., 0., 0., 0., 0, 0])
         # Used to initialize the robot, #TODO, clarify this more
         # STEP_COUNT = 2  # Typically 100.
         # slowness = 10000000 # 10 ms, where 1 second is real life simulation
@@ -104,8 +101,8 @@ class GazeboMAIRATopOrientv0Env(gazebo_env.GazeboEnv):
         # slowness = 10 # use >10 for running trained network in the simulation
 
         # Topics for the robot publisher and subscriber.
-        JOINT_PUBLISHER = '/maira_controller/command'
-        JOINT_SUBSCRIBER = '/maira_controller/state'
+        JOINT_PUBLISHER = '/mara_controller/command'
+        JOINT_SUBSCRIBER = '/mara_controller/state'
 
         # joint names:
         MOTOR1_JOINT = 'motor1'
@@ -120,21 +117,21 @@ class GazeboMAIRATopOrientv0Env(gazebo_env.GazeboEnv):
 
         BASE = 'base_link'
 
-        MAIRA_MOTOR1_LINK = 'motor1_link'
-        MAIRA_MOTOR2_LINK = 'motor2_link'
-        MAIRA_MOTOR3_LINK = 'motor3_link'
-        MAIRA_MOTOR4_LINK = 'motor4_link'
-        MAIRA_MOTOR5_LINK = 'motor5_link'
-        MAIRA_MOTOR6_LINK = 'motor6_link'
+        MARA_MOTOR1_LINK = 'motor1_link'
+        MARA_MOTOR2_LINK = 'motor2_link'
+        MARA_MOTOR3_LINK = 'motor3_link'
+        MARA_MOTOR4_LINK = 'motor4_link'
+        MARA_MOTOR5_LINK = 'motor5_link'
+        MARA_MOTOR6_LINK = 'motor6_link'
         EE_LINK = 'ee_link'
 
 
         # EE_LINK = 'ee_link'
         JOINT_ORDER = [MOTOR1_JOINT, MOTOR2_JOINT, MOTOR3_JOINT,
                        MOTOR4_JOINT, MOTOR5_JOINT, MOTOR6_JOINT]
-        LINK_NAMES = [TABLE, BASE, MAIRA_MOTOR1_LINK, MAIRA_MOTOR2_LINK,
-                            MAIRA_MOTOR3_LINK, MAIRA_MOTOR4_LINK,
-                            MAIRA_MOTOR5_LINK, MAIRA_MOTOR6_LINK,
+        LINK_NAMES = [TABLE, BASE, MARA_MOTOR1_LINK, MARA_MOTOR2_LINK,
+                            MARA_MOTOR3_LINK, MARA_MOTOR4_LINK,
+                            MARA_MOTOR5_LINK, MARA_MOTOR6_LINK,
                       EE_LINK]
 
         reset_condition = {
@@ -145,7 +142,7 @@ class GazeboMAIRATopOrientv0Env(gazebo_env.GazeboEnv):
 
         # TODO: fix this and make it relative
         # Set the path of the corresponding URDF file from "assets"
-        URDF_PATH = rospkg.RosPack().get_path("maira_description") + "/urdf/maira_demo_camera_top.urdf"
+        URDF_PATH = rospkg.RosPack().get_path("mara_description") + "/urdf/mara_demo_camera_top.urdf"
 
         m_joint_order = copy.deepcopy(JOINT_ORDER)
         m_link_names = copy.deepcopy(LINK_NAMES)
@@ -208,7 +205,7 @@ class GazeboMAIRATopOrientv0Env(gazebo_env.GazeboEnv):
         recently also added quaternion to the obs, which has dimension=4
         """
         #
-        self.obs_dim = self.scara_chain.getNrOfJoints() + 10 #6 hardcode it for now
+        self.obs_dim = self.scara_chain.getNrOfJoints() + 6#10 # hardcode it for now
         # # print(observation, _reward)
 
         # # Here idially we should find the control range of the robot. Unfortunatelly in ROS/KDL there is nothing like this.
@@ -326,8 +323,8 @@ class GazeboMAIRATopOrientv0Env(gazebo_env.GazeboEnv):
     def randomizeTarget(self):
         print("calling randomize target")
 
-        EE_POS_TGT_1 = np.asmatrix([-0.189383, -0.123176, 0.894476]) # point 1
-        EE_POS_TGT_2 = np.asmatrix([-0.359236, 0.0297278, 0.760402]) # point 2
+        EE_POS_TGT_1 = np.asmatrix([0.3325683, 0.0657366, 0.2868]) # center of O
+        EE_POS_TGT_2 = np.asmatrix([0.3305805, -0.1326121, 0.2868]) # center of the H
         EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         EE_POINTS = np.asmatrix([[0, 0, 0]])
 
@@ -526,7 +523,7 @@ class GazeboMAIRATopOrientv0Env(gazebo_env.GazeboEnv):
             # #
             # current_quaternion = np.array([angle]+dir.tolist())#
 
-            # I need this calculations for the new reward function, need to send them back to the run maira or calculate them here
+            # I need this calculations for the new reward function, need to send them back to the run mara or calculate them here
             current_quaternion = quaternion_from_matrix(rotation_matrix)
             tgt_quartenion = quaternion_from_matrix(self.target_orientation)
 
@@ -554,13 +551,13 @@ class GazeboMAIRATopOrientv0Env(gazebo_env.GazeboEnv):
             # vector, typically denoted asrobot_id 'x'.
             state = np.r_[np.reshape(last_observations, -1),
                           np.reshape(ee_points, -1),
-                          np.reshape(quat_error, -1),
+                          # np.reshape(quat_error, -1),
                           np.reshape(ee_velocities, -1),]
             # print("quat_error: ", quat_error)
             # print("ee_points:", ee_points)
             return np.r_[np.reshape(last_observations, -1),
                           np.reshape(ee_points, -1),
-                          np.reshape(quat_error, -1),
+                          # np.reshape(quat_error, -1),
                           np.reshape(ee_velocities, -1),]
 
     def rmse_func(self, ee_points):
@@ -600,10 +597,11 @@ class GazeboMAIRATopOrientv0Env(gazebo_env.GazeboEnv):
 
         self.reward_dist = -self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])
         self.reward_orient = - self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)])
-        # print("self.reward_orient: ", self.reward_orient)
 
         #scale here the orientation because it should not be the main bias of the reward, position should be
-        orientation_scale = 0.01
+        orientation_scale = 0.1
+
+        self.reward_dist = -self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])
 
         # here we want to fetch the positions of the end-effector which are nr_dof:nr_dof+3
         if(self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])<0.005):
@@ -611,19 +609,26 @@ class GazeboMAIRATopOrientv0Env(gazebo_env.GazeboEnv):
             print("Reward is: ", self.reward)
         else:
             self.reward = self.reward_dist
+        # print("rew: ", self.reward)
 
-        if(self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)])<0.05):
-            self.reward = self.reward +  orientation_scale * (1 -self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)]))
-            print("Reward orientation is: ", self.reward)
-        else:
-            self.reward = self.reward + orientation_scale * self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)])
+        # print("reward: ", self.reward)
+        # print("rmse_func: ", self.rmse_func(ee_points))
+
+        # Calculate if the env has been solved
+        done = bool(abs(self.reward_dist) < 0.005) or (self.iterator>self.max_episode_steps)
+
+        # if(self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)])<0.005):
+        #     self.reward += orientation_scale * (1 - self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)]))
+        #     print("Reward orientation is: ", self.reward)
+        # else:
+        #     self.reward += orientation_scale * self.reward_orient
 
 
         #self.reward = self.reward_final_dist + orientation_scale*self.final_rew_orient
 
         # self.reward =self.reward - abs(self.ob[(self.scara_chain.getNrOfJoints()+4)])
         # Calculate if the env has been solved
-        done = bool(((abs(self.reward_dist) < 0.005) and (abs(self.reward_orient)) < 0.05) or (self.iterator>self.max_episode_steps))
+        # done = bool(((abs(self.reward_dist) < 0.05) and (abs(self.reward_orient)) < 0.05) or (self.iterator>self.max_episode_steps))
 
         # Execute "action"
         self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
