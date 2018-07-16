@@ -15,7 +15,6 @@ import rospkg
 import threading # Used for time locks to synchronize position data.
 
 from gazebo_msgs.srv import SpawnModel, DeleteModel
-
 # ROS 2
 # import rclpy
 # from rclpy.qos import QoSProfile, qos_profile_sensor_data
@@ -79,6 +78,39 @@ class GazeboMARATopOrientv0Env(gazebo_env.GazeboEnv):
 
         self._time_lock = threading.RLock()
 
+        # now include manually some points from the vision system
+        cam2mc_x = 0.15116645#0.15116645
+        cam2mc_y = 0.2117057
+        cam2mc_z = 2.0684299#2.0684299
+
+
+        cam_pose_x = -0.5087683179567231 # random.uniform(-0.25, -0.6)#-0.5087683179567231#0.0 #random.uniform(-0.25, -0.6)#-0.5087683179567231#random.uniform(-0.3, -0.6)#random.uniform(-0.25, -0.6) # -0.5087683179567231#
+        cam_pose_y = 0.0#random.uniform(0.0, -0.2)
+        cam_pose_z = 1.4808068867058566
+
+
+        # T_pred = np.matrix([[ 0.79660969, -0.51571238,  0.31536287,  0.15116645],
+        #                     [ 0.51531424,  0.85207952,  0.09171542,  0.2117057 ],
+        #                     [-0.31601302,  0.08944959,  0.94452874,  2.0684299 ]])
+        #
+        # T_gt_homogenious = np.asarray(np.concatenate((T_pred, last_row_pred), axis=0))
+
+        # q_rubik_pred = quaternion_from_matrix(T_gt_homogenious)
+
+
+
+
+        pose_rubik_pred = Pose()
+
+        pose_rubik_pred.position.x = -cam2mc_x/3.0 + cam_pose_x
+        pose_rubik_pred.position.y =  cam2mc_y/3.0 - cam_pose_y
+        pose_rubik_pred.position.z = -cam2mc_z/3.0 + cam_pose_z
+
+        pose_rubik_pred.orientation.x  = 0.0
+        pose_rubik_pred.orientation.y  = 0.0
+        pose_rubik_pred.orientation.z  = 0.0
+        pose_rubik_pred.orientation.w  = 0.0
+
         #############################
         #   Environment hyperparams
         #############################
@@ -86,10 +118,10 @@ class GazeboMARATopOrientv0Env(gazebo_env.GazeboEnv):
         # EE_POS_TGT = np.asmatrix([-0.390768, 0.0101776, 0.725335]) # 200 cm from the z axis
         # EE_POS_TGT = np.asmatrix([0.0, 0.001009, 1.64981])
         # EE_POS_TGT = np.asmatrix([-0.390768, 0.0101776, 0.755335]) # 200 cm from the z axis
-        EE_POS_TGT = np.asmatrix([-0.189383, -0.123176, 0.894476])
+        EE_POS_TGT = np.asmatrix([pose_rubik_pred.position.x, pose_rubik_pred.position.y, pose_rubik_pred.position.z])
 
         # EE_POS_TGT = np.asmatrix([0.3305805, -0.1326121, 0.4868]) # center of the H
-        EE_ROT_TGT = np.asmatrix([[0, 0, 1], [0.2146, 0.9767, 0], [-0.9767, 0.2146, 0]])
+        EE_ROT_TGT = np.asmatrix([[0.79660969, -0.51571238,  0.31536287], [0.51531424,  0.85207952,  0.09171542], [-0.31601302,  0.08944959,  0.94452874]])
         # EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         EE_POINTS = np.asmatrix([[0, 0, 0]])
         EE_VELOCITIES = np.asmatrix([[0, 0, 0]])
@@ -612,7 +644,7 @@ class GazeboMARATopOrientv0Env(gazebo_env.GazeboEnv):
         else:
             self.reward = self.reward_dist
 
-        if(self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)])<0.05):
+        if(self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)])<0.005):
             self.reward = self.reward +  orientation_scale * (1 -self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)]))
             print("Reward orientation is: ", self.reward)
         else:
