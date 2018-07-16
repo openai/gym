@@ -81,7 +81,8 @@ class GazeboMARATop3DOFv0Env(gazebo_env.GazeboEnv):
         #############################
         # target, where should the agent reach
         # EE_POS_TGT = np.asmatrix([-0.4, 0.0, 1.1013]) # 200 cm from the z axis
-        EE_POS_TGT = np.asmatrix([-0.359236, 0.0297278, 0.760402])
+        # EE_POS_TGT = np.asmatrix([-0.359236, 0.0297278, 0.760402])
+        EE_POS_TGT = np.asmatrix([-0.5087683179567231 - 0.14134294, 0.18728049, (2.03314576-1.4808068867058566)*1.3333])
         # EE_POS_TGT = np.asmatrix([-0.31237, 0.0292455, 0.763472])
         # EE_POS_TGT = np.asmatrix([-0.223663, 0.0295788 ,0.763471 ])
         # EE_POS_TGT = np.asmatrix([0.0, 0.001009, 1.64981])
