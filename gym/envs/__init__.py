@@ -505,6 +505,19 @@ for game in ['air_raid', 'alien', 'amidar', 'assault', 'asterix', 'asteroids', '
             nondeterministic=nondeterministic,
         )
 
+# Combinatoric
+# ------------
+
+register(
+    id='Rubik-v0',
+    entry_point='gym.envs.combinatoric:RubikEnv'
+)
+
+register(
+    id='RubikLarge-v0',
+    entry_point='gym.envs.combinatoric:RubikEnv',
+    kwargs={'size' : 5}
+)
 
 # Unit test
 # ---------
@@ -529,5 +542,4 @@ register(
     id='MemorizeDigits-v0',
     entry_point='gym.envs.unittest:MemorizeDigits',
     reward_threshold=20,
-    )
-
+)
