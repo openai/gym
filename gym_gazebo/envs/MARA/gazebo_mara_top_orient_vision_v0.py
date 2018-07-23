@@ -2,23 +2,35 @@ import gym
 import rospy
 import roslaunch
 import time
+import random
 import numpy as np
 from gym import utils, spaces
 from gym_gazebo.envs import gazebo_env
+from gazebo_msgs.srv import SpawnModel, DeleteModel, SetLinkState, SetModelState
+from gazebo_msgs.msg import LinkState, ModelState
 from geometry_msgs.msg import Pose
 from geometry_msgs.msg import Twist
 from std_srvs.srv import Empty
-from sensor_msgs.msg import LaserScan
 from gym.utils import seeding
 import copy
 import rospkg
 import threading # Used for time locks to synchronize position data.
 
-from gazebo_msgs.srv import SpawnModel, DeleteModel
+# from gazebo_msgs.srv import SpawnModel, DeleteModel
 
-from sensor_msgs.msg import CompressedImage
+from sensor_msgs.msg import Image as ImageMsg
 # ROS Image message -> OpenCV2 image converter
 from cv_bridge import CvBridge, CvBridgeError
+
+import threading # Used for time locks to synchronize position data.
+# since tf is really pain in the asss to work with python3 I use something different:
+import quaternion as quat
+
+
+import cv2
+import time
+
+
 # ROS 2
 # import rclpy
 # from rclpy.qos import QoSProfile, qos_profile_sensor_data
@@ -31,7 +43,6 @@ from control_msgs.msg import JointTrajectoryControllerState
 from baselines.agent.scara_arm.tree_urdf import treeFromFile # For KDL Jacobians
 from PyKDL import Jacobian, Chain, ChainJntToJacSolver, JntArray # For KDL Jacobians
 
-import cv2
 
 
 # from custom baselines repository
@@ -43,7 +54,7 @@ class MSG_INVALID_JOINT_NAMES_DIFFER(Exception):
     pass
 
 
-class GazeboMARATopOrientv0Env(gazebo_env.GazeboEnv):
+class GazeboMARATopOrientVisionv0Env(gazebo_env.GazeboEnv):
     """
     This environment present a modular SCARA robot with a range finder at its
     end pointing towards the workspace of the robot. The goal of this environment is
@@ -81,6 +92,7 @@ class GazeboMARATopOrientv0Env(gazebo_env.GazeboEnv):
         self.slowness = 1
         self.slowness_unit = 'sec'
         self.reset_jnts = True
+        self.detect_target_once = 1
 
         self._time_lock = threading.RLock()
 
@@ -91,15 +103,17 @@ class GazeboMARATopOrientv0Env(gazebo_env.GazeboEnv):
         # EE_POS_TGT = np.asmatrix([-0.390768, 0.0101776, 0.725335]) # 200 cm from the z axis
         # EE_POS_TGT = np.asmatrix([0.0, 0.001009, 1.64981])
         EE_POS_TGT = np.asmatrix([-0.390768, 0.0101776, 0.755335]) # 200 cm from the z axis
+        # EE_POS_TGT = np.asmatrix([pose_rubik_pred.position.x, pose_rubik_pred.position.y, pose_rubik_pred.position.z])
+        # print("EE_POS_TGT: ", EE_POS_TGT)
 
         # EE_POS_TGT = np.asmatrix([0.3305805, -0.1326121, 0.4868]) # center of the H
-        EE_ROT_TGT = np.asmatrix([[0.79660969, -0.51571238,  0.31536287], [0.51531424,  0.85207952,  0.09171542], [-0.31601302,  0.08944959,  0.94452874]])
-        # EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+        # EE_ROT_TGT = np.asmatrix([[0.79660969, -0.51571238,  0.31536287], [0.51531424,  0.85207952,  0.09171542], [-0.31601302,  0.08944959,  0.94452874]])
+        EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         EE_POINTS = np.asmatrix([[0, 0, 0]])
         EE_VELOCITIES = np.asmatrix([[0, 0, 0]])
         # Initial joint position
-        INITIAL_JOINTS = np.array([0., 0., -1., 0., -1.57, 0.])
-        # INITIAL_JOINTS = np.array([0., 0., 0., 0., 0., 0.])
+        # INITIAL_JOINTS = np.array([0., 0., -1., 0., -1.57, 0.])
+        INITIAL_JOINTS = np.array([0., 0., 0., 0., 0., 0.])
         # Used to initialize the robot, #TODO, clarify this more
         # STEP_COUNT = 2  # Typically 100.
         # slowness = 10000000 # 10 ms, where 1 second is real life simulation
@@ -179,12 +193,16 @@ class GazeboMARATopOrientv0Env(gazebo_env.GazeboEnv):
             'end_effector_velocities': EE_VELOCITIES,
         }
 
-        # self.spec = {'timestep_limit': 5, 'reward_threshold':  950.0,}
-
         # Subscribe to the appropriate topics, taking into account the particular robot
         # ROS 1 implementation
         self._pub = rospy.Publisher(JOINT_PUBLISHER, JointTrajectory)
         self._sub = rospy.Subscriber(JOINT_SUBSCRIBER, JointTrajectoryControllerState, self.observation_callback)
+
+        TARGET_SUBSCRIBER = '/mara/target'
+        self._sub_tgt = rospy.Subscriber(TARGET_SUBSCRIBER, Pose, self.tgt_callback)
+        # Instantiate CvBridge
+        # self.bridge = CvBridge()
+        # self._sub_image = rospy.Subscriber("/mara/rgb/image_raw", ImageMsg, self._observation_image_callback)
 
         # Initialize a tree structure from the robot urdf.
         #   note that the xacro of the urdf is updated by hand.
@@ -231,64 +249,86 @@ class GazeboMARATopOrientv0Env(gazebo_env.GazeboEnv):
         self.observation_space = spaces.Box(low, high)
 
         self.add_model = rospy.ServiceProxy('/gazebo/spawn_urdf_model', SpawnModel)
+        self.add_model_sdf = rospy.ServiceProxy('/gazebo/spawn_sdf_model', SpawnModel)
         self.remove_model = rospy.ServiceProxy('/gazebo/delete_model', DeleteModel)
+        self.pub_set_model = rospy.Publisher('/gazebo/set_model_state', ModelState, queue_size=1)
 
-        model_xml = "<?xml version=\"1.0\"?> \
-                    <robot name=\"myfirst\"> \
-                      <link name=\"world\"> \
-                      </link>\
-                      <link name=\"cylinder0\">\
-                        <visual>\
-                          <geometry>\
-                            <sphere radius=\"0.01\"/>\
-                          </geometry>\
-                          <origin xyz=\"0 0 0\"/>\
-                          <material name=\"rojotransparente\">\
-                              <ambient>0.5 0.5 1.0 0.1</ambient>\
-                              <diffuse>0.5 0.5 1.0 0.1</diffuse>\
-                          </material>\
-                        </visual>\
-                        <inertial>\
-                          <mass value=\"5.0\"/>\
-                          <inertia ixx=\"1.0\" ixy=\"0.0\" ixz=\"0.0\" iyy=\"1.0\" iyz=\"0.0\" izz=\"1.0\"/>\
-                        </inertial>\
-                      </link>\
-                      <joint name=\"world_to_base\" type=\"fixed\"> \
-                        <origin xyz=\"0 0 0\" rpy=\"0 0 0\"/>\
-                        <parent link=\"world\"/>\
-                        <child link=\"cylinder0\"/>\
-                      </joint>\
-                      <gazebo reference=\"cylinder0\">\
-                        <material>Gazebo/GreenTransparent</material>\
-                      </gazebo>\
-                    </robot>"
-        robot_namespace = ""
-        pose = Pose()
-        pose.position.x = EE_POS_TGT[0,0];
-        pose.position.y = EE_POS_TGT[0,1];
-        pose.position.z = EE_POS_TGT[0,2];
-
-        #Static obstacle (not in original code)
-        # pose.position.x = 0.25;#
-        # pose.position.y = 0.07;#
-        # pose.position.z = 0.0;#
-
-        pose.orientation.x = 0;
-        pose.orientation.y= 0;
-        pose.orientation.z = 0;
-        pose.orientation.w = 0;
-        reference_frame = ""
-        rospy.wait_for_service('/gazebo/spawn_urdf_model')
-        self.add_model(model_name="target",
-                        model_xml=model_xml,
-                        robot_namespace="",
-                        initial_pose=pose,
-                        reference_frame="")
-
+        self.addTarget()
 
         # Seed the environment
         # Seed the environment
         self._seed()
+    def tgt_callback(self,msg):
+        # print("Whats the target?: ", msg)
+        if self.detect_target_once is 1:
+            print("Get the target from vision, for now just use position.")
+            EE_POS_TGT = np.asmatrix([msg.position.x, msg.position.y, msg.position.z])
+            EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+            EE_POINTS = np.asmatrix([[0, 0, 0]])
+            ee_pos_tgt = EE_POS_TGT
+
+            # leave rotation target same since in scara we do not have rotation of the end-effector
+            ee_rot_tgt = EE_ROT_TGT
+            target1 = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt, ee_rot_tgt).T)
+
+            # self.realgoal = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt_random1, ee_rot_tgt).T)
+
+            self.realgoal = target1
+            print("Predicted target is: ", self.realgoal)
+            self.detect_target_once = 0
+
+    def addTarget(self):
+            # The idea is to add random target in our case rubik cube and the vision system to detect and find the 3D pose of the cube.
+            # Open a file: file
+            file = open('../assets/urdf/rubik_cube/rubik_cube.sdf' ,mode='r')
+            # read all lines at once
+            model_xml = file.read()
+            # close the file
+            file.close()
+
+            rospy.wait_for_service('/gazebo/spawn_urdf_model')
+
+            pose = Pose()
+
+            pose.position.x = random.uniform(-0.3, -0.6);
+            pose.position.y = random.uniform(-0.02, 0.01)
+            # stay put in Z!!!
+            pose.position.z = 0.72#0.80 #0.72;
+
+            roll = 0.0 #random.uniform(-0.2, 0.6)
+            pitch = 0.0#random.uniform(-0.2, 0.2)
+            yaw =  random.uniform(-0.3, 0.3)
+            new_camera_pose = False
+            q_rubik = quat.from_euler_angles(roll, pitch, yaw)
+            # print("q_rubik: ", q_rubik.x, q_rubik.y, q_rubik.z, q_rubik.w)
+
+            pose.orientation.x = q_rubik.x#0.0#q_rubik[0]
+            pose.orientation.y = q_rubik.y#0.0#q_rubik[1]
+            pose.orientation.z = q_rubik.z#0.0#q_rubik[2]
+            pose.orientation.w = q_rubik.w#0.0#q_rubik[3]
+
+            print("Real pose is: ", pose)
+            try:
+
+                self.add_model_sdf(model_name="puzzle_ball_joints",
+                                model_xml=model_xml,
+                                robot_namespace="",
+                                initial_pose=pose,
+                                reference_frame="")
+                print ("service call ok")
+            except:
+                print('error adding model')
+
+            self.pub_set_model.publish(ModelState( model_name='puzzle_ball_joints',
+                                pose=pose,
+                                reference_frame="world"))
+
+    def removeTarget(self):
+            rospy.wait_for_service('/gazebo/delete_model')
+            try:
+                self.remove_model(model_name="puzzle_ball_joints")
+            except (rospy.ServiceException) as e:
+                print ("/gazebo/spawn_urdf_model service call failed")
 
     def observation_callback(self, message):
         """
@@ -303,6 +343,26 @@ class GazeboMARATopOrientv0Env(gazebo_env.GazeboEnv):
             print("slowness: ", self.slowness)
             print("slowness_unit: ", self.slowness_unit, "type of variable: ", type(slowness_unit))
             print("reset joints: ", self.reset_jnts, "type of variable: ", type(self.reset_jnts))
+
+    def setTargetPositions(self, msg):
+        """
+        The goal is to test with randomized positions which range between the boundries of the H-ROS logo
+        """
+        print("In randomize target positions.")
+        EE_POS_TGT_RANDOM1 = np.asmatrix([np.random.uniform(0.2852485,0.3883636), np.random.uniform(-0.1746508,0.1701576), 0.2868]) # boundry box of the first half H-ROS letters with +-0.01 offset
+        # EE_POS_TGT_RANDOM1 = np.asmatrix([np.random.uniform(0.2852485, 0.3883636), np.random.uniform(-0.1746508, 0.1701576), 0.3746]) # boundry box of whole box H-ROS letters with +-0.01 offset
+        EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+        EE_POINTS = np.asmatrix([[0, 0, 0]])
+        ee_pos_tgt_random1 = EE_POS_TGT_RANDOM1
+
+        # leave rotation target same since in scara we do not have rotation of the end-effector
+        ee_rot_tgt = EE_ROT_TGT
+        target1 = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt_random1, ee_rot_tgt).T)
+
+        # self.realgoal = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt_random1, ee_rot_tgt).T)
+
+        self.realgoal = target1
+        print("randomizeTarget realgoal: ", self.realgoal)
 
     def randomizeTargetPositions(self):
         """
@@ -374,7 +434,6 @@ class GazeboMARATopOrientv0Env(gazebo_env.GazeboEnv):
 
         target1 = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt_1, ee_rot_tgt).T)
         target2 = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt_2, ee_rot_tgt).T)
-
 
         """
         This is for initial test only, we need to change this in the future to be more realistic.
