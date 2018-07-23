@@ -1,0 +1,1949 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sdf version="1.5">
+  <model name="puzzle_ball_joints">
+    <!-- <static>True</static> -->
+    <pose>0 0 0.27949999999999997 0 0 0</pose>
+    <link name="cubie_1_1_1">
+      <pose>0.0186 0.0186 0.0186 0 0 0</pose>
+      <self_collide>1</self_collide>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia>
+          <ixx>0.04243705701822916</ixx>
+          <iyy>0.04243705701822916</iyy>
+          <izz>0.04243705701822916</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.2 0.2 0.2 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+        <meta>
+          <layer>3</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_blue'>
+        <pose>0.0 0.0 0.009275 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0148 0.0148 0.0005</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0 0 1 1</ambient>
+          <diffuse>0 0 1 1</diffuse>
+        </material>
+        <meta>
+          <layer>3</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_red'>
+        <pose>0.009275 0.0 0.0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0005 0.0148 0.0148</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>1 0 0 1</diffuse>
+        </material>
+        <meta>
+          <layer>3</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_green'>
+        <pose>0.0 0.009275 0.0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0148 0.0005 0.0148</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0 1 0 1</ambient>
+          <diffuse>0 1 0 1</diffuse>
+        </material>
+        <meta>
+          <layer>3</layer>
+        </meta>
+      </visual>
+    </link>
+    <joint name="fake_joint_1_1_1" type="ball">
+      <parent>cubie_1_1_1</parent>
+      <child>cubie_0_0_0</child>
+    </joint>
+    <link name="cubie_1_1_-1">
+      <pose>0.0186 0.0186 -0.0186 0 0 0</pose>
+      <self_collide>1</self_collide>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia>
+          <ixx>0.04243705701822916</ixx>
+          <iyy>0.04243705701822916</iyy>
+          <izz>0.04243705701822916</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.2 0.2 0.2 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+        <meta>
+          <layer>3</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_white'>
+        <pose>0.0 0.0 -0.009275 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0148 0.0148 0.0005</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>1 1 1 1</ambient>
+          <diffuse>1 1 1 1</diffuse>
+        </material>
+        <meta>
+          <layer>3</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_red'>
+        <pose>0.009275 0.0 0.0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0005 0.0148 0.0148</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>1 0 0 1</diffuse>
+        </material>
+        <meta>
+          <layer>3</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_green'>
+        <pose>0.0 0.009275 0.0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0148 0.0005 0.0148</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0 1 0 1</ambient>
+          <diffuse>0 1 0 1</diffuse>
+        </material>
+        <meta>
+          <layer>3</layer>
+        </meta>
+      </visual>
+    </link>
+    <joint name="fake_joint_1_1_-1" type="ball">
+      <parent>cubie_1_1_-1</parent>
+      <child>cubie_0_0_0</child>
+    </joint>
+    <link name="cubie_1_1_0">
+      <pose>0.0186 0.0186 0.0 0 0 0</pose>
+      <self_collide>1</self_collide>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia>
+          <ixx>0.04243705701822916</ixx>
+          <iyy>0.04243705701822916</iyy>
+          <izz>0.04243705701822916</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.2 0.2 0.2 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+        <meta>
+          <layer>2</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_red'>
+        <pose>0.009275 0.0 0.0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0005 0.0148 0.0148</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>1 0 0 1</diffuse>
+        </material>
+        <meta>
+          <layer>2</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_green'>
+        <pose>0.0 0.009275 0.0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0148 0.0005 0.0148</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0 1 0 1</ambient>
+          <diffuse>0 1 0 1</diffuse>
+        </material>
+        <meta>
+          <layer>2</layer>
+        </meta>
+      </visual>
+    </link>
+    <joint name="fake_joint_1_1_0" type="ball">
+      <parent>cubie_1_1_0</parent>
+      <child>cubie_0_0_0</child>
+    </joint>
+    <link name="cubie_1_-1_1">
+      <pose>0.0186 -0.0186 0.0186 0 0 0</pose>
+      <self_collide>1</self_collide>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia>
+          <ixx>0.04243705701822916</ixx>
+          <iyy>0.04243705701822916</iyy>
+          <izz>0.04243705701822916</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.2 0.2 0.2 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+        <meta>
+          <layer>3</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_blue'>
+        <pose>0.0 0.0 0.009275 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0148 0.0148 0.0005</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0 0 1 1</ambient>
+          <diffuse>0 0 1 1</diffuse>
+        </material>
+        <meta>
+          <layer>3</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_red'>
+        <pose>0.009275 0.0 0.0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0005 0.0148 0.0148</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>1 0 0 1</diffuse>
+        </material>
+        <meta>
+          <layer>3</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_yellow'>
+        <pose>0.0 -0.009275 0.0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0148 0.0005 0.0148</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>1 1 0 1</ambient>
+          <diffuse>1 1 0 1</diffuse>
+        </material>
+        <meta>
+          <layer>3</layer>
+        </meta>
+      </visual>
+    </link>
+    <joint name="fake_joint_1_-1_1" type="ball">
+      <parent>cubie_1_-1_1</parent>
+      <child>cubie_0_0_0</child>
+    </joint>
+    <link name="cubie_1_-1_-1">
+      <pose>0.0186 -0.0186 -0.0186 0 0 0</pose>
+      <self_collide>1</self_collide>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia>
+          <ixx>0.04243705701822916</ixx>
+          <iyy>0.04243705701822916</iyy>
+          <izz>0.04243705701822916</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.2 0.2 0.2 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+        <meta>
+          <layer>3</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_white'>
+        <pose>0.0 0.0 -0.009275 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0148 0.0148 0.0005</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>1 1 1 1</ambient>
+          <diffuse>1 1 1 1</diffuse>
+        </material>
+        <meta>
+          <layer>3</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_red'>
+        <pose>0.009275 0.0 0.0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0005 0.0148 0.0148</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>1 0 0 1</diffuse>
+        </material>
+        <meta>
+          <layer>3</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_yellow'>
+        <pose>0.0 -0.009275 0.0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0148 0.0005 0.0148</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>1 1 0 1</ambient>
+          <diffuse>1 1 0 1</diffuse>
+        </material>
+        <meta>
+          <layer>3</layer>
+        </meta>
+      </visual>
+    </link>
+    <joint name="fake_joint_1_-1_-1" type="ball">
+      <parent>cubie_1_-1_-1</parent>
+      <child>cubie_0_0_0</child>
+    </joint>
+    <link name="cubie_1_-1_0">
+      <pose>0.0186 -0.0186 0.0 0 0 0</pose>
+      <self_collide>1</self_collide>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia>
+          <ixx>0.04243705701822916</ixx>
+          <iyy>0.04243705701822916</iyy>
+          <izz>0.04243705701822916</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.2 0.2 0.2 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+        <meta>
+          <layer>2</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_red'>
+        <pose>0.009275 0.0 0.0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0005 0.0148 0.0148</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>1 0 0 1</diffuse>
+        </material>
+        <meta>
+          <layer>2</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_yellow'>
+        <pose>0.0 -0.009275 0.0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0148 0.0005 0.0148</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>1 1 0 1</ambient>
+          <diffuse>1 1 0 1</diffuse>
+        </material>
+        <meta>
+          <layer>2</layer>
+        </meta>
+      </visual>
+    </link>
+    <joint name="fake_joint_1_-1_0" type="ball">
+      <parent>cubie_1_-1_0</parent>
+      <child>cubie_0_0_0</child>
+    </joint>
+    <link name="cubie_1_0_1">
+      <pose>0.0186 0.0 0.0186 0 0 0</pose>
+      <self_collide>1</self_collide>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia>
+          <ixx>0.04243705701822916</ixx>
+          <iyy>0.04243705701822916</iyy>
+          <izz>0.04243705701822916</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.2 0.2 0.2 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+        <meta>
+          <layer>2</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_blue'>
+        <pose>0.0 0.0 0.009275 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0148 0.0148 0.0005</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0 0 1 1</ambient>
+          <diffuse>0 0 1 1</diffuse>
+        </material>
+        <meta>
+          <layer>2</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_red'>
+        <pose>0.009275 0.0 0.0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0005 0.0148 0.0148</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>1 0 0 1</diffuse>
+        </material>
+        <meta>
+          <layer>2</layer>
+        </meta>
+      </visual>
+    </link>
+    <joint name="fake_joint_1_0_1" type="ball">
+      <parent>cubie_1_0_1</parent>
+      <child>cubie_0_0_0</child>
+    </joint>
+    <link name="cubie_1_0_-1">
+      <pose>0.0186 0.0 -0.0186 0 0 0</pose>
+      <self_collide>1</self_collide>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia>
+          <ixx>0.04243705701822916</ixx>
+          <iyy>0.04243705701822916</iyy>
+          <izz>0.04243705701822916</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.2 0.2 0.2 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+        <meta>
+          <layer>2</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_white'>
+        <pose>0.0 0.0 -0.009275 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0148 0.0148 0.0005</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>1 1 1 1</ambient>
+          <diffuse>1 1 1 1</diffuse>
+        </material>
+        <meta>
+          <layer>2</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_red'>
+        <pose>0.009275 0.0 0.0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0005 0.0148 0.0148</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>1 0 0 1</diffuse>
+        </material>
+        <meta>
+          <layer>2</layer>
+        </meta>
+      </visual>
+    </link>
+    <joint name="fake_joint_1_0_-1" type="ball">
+      <parent>cubie_1_0_-1</parent>
+      <child>cubie_0_0_0</child>
+    </joint>
+    <link name="cubie_1_0_0">
+      <pose>0.0186 0.0 0.0 0 0 0</pose>
+      <self_collide>1</self_collide>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia>
+          <ixx>0.04243705701822916</ixx>
+          <iyy>0.04243705701822916</iyy>
+          <izz>0.04243705701822916</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.2 0.2 0.2 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+        <meta>
+          <layer>1</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_red'>
+        <pose>0.009275 0.0 0.0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0005 0.0148 0.0148</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>1 0 0 1</diffuse>
+        </material>
+        <meta>
+          <layer>1</layer>
+        </meta>
+      </visual>
+    </link>
+    <joint name="center_joint_1_0_0" type="fixed">
+      <parent>cubie_0_0_0</parent>
+      <child>cubie_1_0_0</child>
+    </joint>
+    <link name="cubie_-1_1_1">
+      <pose>-0.0186 0.0186 0.0186 0 0 0</pose>
+      <self_collide>1</self_collide>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia>
+          <ixx>0.04243705701822916</ixx>
+          <iyy>0.04243705701822916</iyy>
+          <izz>0.04243705701822916</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.2 0.2 0.2 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+        <meta>
+          <layer>3</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_blue'>
+        <pose>0.0 0.0 0.009275 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0148 0.0148 0.0005</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0 0 1 1</ambient>
+          <diffuse>0 0 1 1</diffuse>
+        </material>
+        <meta>
+          <layer>3</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_orange'>
+        <pose>-0.009275 0.0 0.0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0005 0.0148 0.0148</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.7 0.5 0.03 1</ambient>
+          <diffuse>0.7 0.5 0.03 1</diffuse>
+        </material>
+        <meta>
+          <layer>3</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_green'>
+        <pose>0.0 0.009275 0.0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0148 0.0005 0.0148</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0 1 0 1</ambient>
+          <diffuse>0 1 0 1</diffuse>
+        </material>
+        <meta>
+          <layer>3</layer>
+        </meta>
+      </visual>
+    </link>
+    <joint name="fake_joint_-1_1_1" type="ball">
+      <parent>cubie_-1_1_1</parent>
+      <child>cubie_0_0_0</child>
+    </joint>
+    <link name="cubie_-1_1_-1">
+      <pose>-0.0186 0.0186 -0.0186 0 0 0</pose>
+      <self_collide>1</self_collide>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia>
+          <ixx>0.04243705701822916</ixx>
+          <iyy>0.04243705701822916</iyy>
+          <izz>0.04243705701822916</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.2 0.2 0.2 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+        <meta>
+          <layer>3</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_white'>
+        <pose>0.0 0.0 -0.009275 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0148 0.0148 0.0005</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>1 1 1 1</ambient>
+          <diffuse>1 1 1 1</diffuse>
+        </material>
+        <meta>
+          <layer>3</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_orange'>
+        <pose>-0.009275 0.0 0.0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0005 0.0148 0.0148</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.7 0.5 0.03 1</ambient>
+          <diffuse>0.7 0.5 0.03 1</diffuse>
+        </material>
+        <meta>
+          <layer>3</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_green'>
+        <pose>0.0 0.009275 0.0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0148 0.0005 0.0148</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0 1 0 1</ambient>
+          <diffuse>0 1 0 1</diffuse>
+        </material>
+        <meta>
+          <layer>3</layer>
+        </meta>
+      </visual>
+    </link>
+    <joint name="fake_joint_-1_1_-1" type="ball">
+      <parent>cubie_-1_1_-1</parent>
+      <child>cubie_0_0_0</child>
+    </joint>
+    <link name="cubie_-1_1_0">
+      <pose>-0.0186 0.0186 0.0 0 0 0</pose>
+      <self_collide>1</self_collide>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia>
+          <ixx>0.04243705701822916</ixx>
+          <iyy>0.04243705701822916</iyy>
+          <izz>0.04243705701822916</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.2 0.2 0.2 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+        <meta>
+          <layer>2</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_orange'>
+        <pose>-0.009275 0.0 0.0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0005 0.0148 0.0148</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.7 0.5 0.03 1</ambient>
+          <diffuse>0.7 0.5 0.03 1</diffuse>
+        </material>
+        <meta>
+          <layer>2</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_green'>
+        <pose>0.0 0.009275 0.0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0148 0.0005 0.0148</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0 1 0 1</ambient>
+          <diffuse>0 1 0 1</diffuse>
+        </material>
+        <meta>
+          <layer>2</layer>
+        </meta>
+      </visual>
+    </link>
+    <joint name="fake_joint_-1_1_0" type="ball">
+      <parent>cubie_-1_1_0</parent>
+      <child>cubie_0_0_0</child>
+    </joint>
+    <link name="cubie_-1_-1_1">
+      <pose>-0.0186 -0.0186 0.0186 0 0 0</pose>
+      <self_collide>1</self_collide>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia>
+          <ixx>0.04243705701822916</ixx>
+          <iyy>0.04243705701822916</iyy>
+          <izz>0.04243705701822916</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.2 0.2 0.2 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+        <meta>
+          <layer>3</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_blue'>
+        <pose>0.0 0.0 0.009275 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0148 0.0148 0.0005</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0 0 1 1</ambient>
+          <diffuse>0 0 1 1</diffuse>
+        </material>
+        <meta>
+          <layer>3</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_orange'>
+        <pose>-0.009275 0.0 0.0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0005 0.0148 0.0148</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.7 0.5 0.03 1</ambient>
+          <diffuse>0.7 0.5 0.03 1</diffuse>
+        </material>
+        <meta>
+          <layer>3</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_yellow'>
+        <pose>0.0 -0.009275 0.0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0148 0.0005 0.0148</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>1 1 0 1</ambient>
+          <diffuse>1 1 0 1</diffuse>
+        </material>
+        <meta>
+          <layer>3</layer>
+        </meta>
+      </visual>
+    </link>
+    <joint name="fake_joint_-1_-1_1" type="ball">
+      <parent>cubie_-1_-1_1</parent>
+      <child>cubie_0_0_0</child>
+    </joint>
+    <link name="cubie_-1_-1_-1">
+      <pose>-0.0186 -0.0186 -0.0186 0 0 0</pose>
+      <self_collide>1</self_collide>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia>
+          <ixx>0.04243705701822916</ixx>
+          <iyy>0.04243705701822916</iyy>
+          <izz>0.04243705701822916</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.2 0.2 0.2 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+        <meta>
+          <layer>3</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_white'>
+        <pose>0.0 0.0 -0.009275 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0148 0.0148 0.0005</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>1 1 1 1</ambient>
+          <diffuse>1 1 1 1</diffuse>
+        </material>
+        <meta>
+          <layer>3</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_orange'>
+        <pose>-0.009275 0.0 0.0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0005 0.0148 0.0148</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.7 0.5 0.03 1</ambient>
+          <diffuse>0.7 0.5 0.03 1</diffuse>
+        </material>
+        <meta>
+          <layer>3</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_yellow'>
+        <pose>0.0 -0.009275 0.0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0148 0.0005 0.0148</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>1 1 0 1</ambient>
+          <diffuse>1 1 0 1</diffuse>
+        </material>
+        <meta>
+          <layer>3</layer>
+        </meta>
+      </visual>
+    </link>
+    <joint name="fake_joint_-1_-1_-1" type="ball">
+      <parent>cubie_-1_-1_-1</parent>
+      <child>cubie_0_0_0</child>
+    </joint>
+    <link name="cubie_-1_-1_0">
+      <pose>-0.0186 -0.0186 0.0 0 0 0</pose>
+      <self_collide>1</self_collide>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia>
+          <ixx>0.04243705701822916</ixx>
+          <iyy>0.04243705701822916</iyy>
+          <izz>0.04243705701822916</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.2 0.2 0.2 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+        <meta>
+          <layer>2</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_orange'>
+        <pose>-0.009275 0.0 0.0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0005 0.0148 0.0148</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.7 0.5 0.03 1</ambient>
+          <diffuse>0.7 0.5 0.03 1</diffuse>
+        </material>
+        <meta>
+          <layer>2</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_yellow'>
+        <pose>0.0 -0.009275 0.0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0148 0.0005 0.0148</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>1 1 0 1</ambient>
+          <diffuse>1 1 0 1</diffuse>
+        </material>
+        <meta>
+          <layer>2</layer>
+        </meta>
+      </visual>
+    </link>
+    <joint name="fake_joint_-1_-1_0" type="ball">
+      <parent>cubie_-1_-1_0</parent>
+      <child>cubie_0_0_0</child>
+    </joint>
+    <link name="cubie_-1_0_1">
+      <pose>-0.0186 0.0 0.0186 0 0 0</pose>
+      <self_collide>1</self_collide>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia>
+          <ixx>0.04243705701822916</ixx>
+          <iyy>0.04243705701822916</iyy>
+          <izz>0.04243705701822916</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.2 0.2 0.2 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+        <meta>
+          <layer>2</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_blue'>
+        <pose>0.0 0.0 0.009275 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0148 0.0148 0.0005</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0 0 1 1</ambient>
+          <diffuse>0 0 1 1</diffuse>
+        </material>
+        <meta>
+          <layer>2</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_orange'>
+        <pose>-0.009275 0.0 0.0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0005 0.0148 0.0148</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.7 0.5 0.03 1</ambient>
+          <diffuse>0.7 0.5 0.03 1</diffuse>
+        </material>
+        <meta>
+          <layer>2</layer>
+        </meta>
+      </visual>
+    </link>
+    <joint name="fake_joint_-1_0_1" type="ball">
+      <parent>cubie_-1_0_1</parent>
+      <child>cubie_0_0_0</child>
+    </joint>
+    <link name="cubie_-1_0_-1">
+      <pose>-0.0186 0.0 -0.0186 0 0 0</pose>
+      <self_collide>1</self_collide>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia>
+          <ixx>0.04243705701822916</ixx>
+          <iyy>0.04243705701822916</iyy>
+          <izz>0.04243705701822916</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.2 0.2 0.2 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+        <meta>
+          <layer>2</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_white'>
+        <pose>0.0 0.0 -0.009275 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0148 0.0148 0.0005</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>1 1 1 1</ambient>
+          <diffuse>1 1 1 1</diffuse>
+        </material>
+        <meta>
+          <layer>2</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_orange'>
+        <pose>-0.009275 0.0 0.0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0005 0.0148 0.0148</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.7 0.5 0.03 1</ambient>
+          <diffuse>0.7 0.5 0.03 1</diffuse>
+        </material>
+        <meta>
+          <layer>2</layer>
+        </meta>
+      </visual>
+    </link>
+    <joint name="fake_joint_-1_0_-1" type="ball">
+      <parent>cubie_-1_0_-1</parent>
+      <child>cubie_0_0_0</child>
+    </joint>
+    <link name="cubie_-1_0_0">
+      <pose>-0.0186 0.0 0.0 0 0 0</pose>
+      <self_collide>1</self_collide>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia>
+          <ixx>0.04243705701822916</ixx>
+          <iyy>0.04243705701822916</iyy>
+          <izz>0.04243705701822916</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.2 0.2 0.2 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+        <meta>
+          <layer>1</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_orange'>
+        <pose>-0.009275 0.0 0.0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0005 0.0148 0.0148</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.7 0.5 0.03 1</ambient>
+          <diffuse>0.7 0.5 0.03 1</diffuse>
+        </material>
+        <meta>
+          <layer>1</layer>
+        </meta>
+      </visual>
+    </link>
+    <joint name="center_joint_-1_0_0" type="fixed">
+      <parent>cubie_0_0_0</parent>
+      <child>cubie_-1_0_0</child>
+    </joint>
+    <link name="cubie_0_1_1">
+      <pose>0.0 0.0186 0.0186 0 0 0</pose>
+      <self_collide>1</self_collide>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia>
+          <ixx>0.04243705701822916</ixx>
+          <iyy>0.04243705701822916</iyy>
+          <izz>0.04243705701822916</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.2 0.2 0.2 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+        <meta>
+          <layer>2</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_blue'>
+        <pose>0.0 0.0 0.009275 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0148 0.0148 0.0005</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0 0 1 1</ambient>
+          <diffuse>0 0 1 1</diffuse>
+        </material>
+        <meta>
+          <layer>2</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_green'>
+        <pose>0.0 0.009275 0.0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0148 0.0005 0.0148</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0 1 0 1</ambient>
+          <diffuse>0 1 0 1</diffuse>
+        </material>
+        <meta>
+          <layer>2</layer>
+        </meta>
+      </visual>
+    </link>
+    <joint name="fake_joint_0_1_1" type="ball">
+      <parent>cubie_0_1_1</parent>
+      <child>cubie_0_0_0</child>
+    </joint>
+    <link name="cubie_0_1_-1">
+      <pose>0.0 0.0186 -0.0186 0 0 0</pose>
+      <self_collide>1</self_collide>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia>
+          <ixx>0.04243705701822916</ixx>
+          <iyy>0.04243705701822916</iyy>
+          <izz>0.04243705701822916</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.2 0.2 0.2 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+        <meta>
+          <layer>2</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_white'>
+        <pose>0.0 0.0 -0.009275 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0148 0.0148 0.0005</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>1 1 1 1</ambient>
+          <diffuse>1 1 1 1</diffuse>
+        </material>
+        <meta>
+          <layer>2</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_green'>
+        <pose>0.0 0.009275 0.0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0148 0.0005 0.0148</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0 1 0 1</ambient>
+          <diffuse>0 1 0 1</diffuse>
+        </material>
+        <meta>
+          <layer>2</layer>
+        </meta>
+      </visual>
+    </link>
+    <joint name="fake_joint_0_1_-1" type="ball">
+      <parent>cubie_0_1_-1</parent>
+      <child>cubie_0_0_0</child>
+    </joint>
+    <link name="cubie_0_1_0">
+      <pose>0.0 0.0186 0.0 0 0 0</pose>
+      <self_collide>1</self_collide>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia>
+          <ixx>0.04243705701822916</ixx>
+          <iyy>0.04243705701822916</iyy>
+          <izz>0.04243705701822916</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.2 0.2 0.2 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+        <meta>
+          <layer>1</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_green'>
+        <pose>0.0 0.009275 0.0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0148 0.0005 0.0148</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0 1 0 1</ambient>
+          <diffuse>0 1 0 1</diffuse>
+        </material>
+        <meta>
+          <layer>1</layer>
+        </meta>
+      </visual>
+    </link>
+    <joint name="center_joint_0_1_0" type="fixed">
+      <parent>cubie_0_0_0</parent>
+      <child>cubie_0_1_0</child>
+    </joint>
+    <link name="cubie_0_-1_1">
+      <pose>0.0 -0.0186 0.0186 0 0 0</pose>
+      <self_collide>1</self_collide>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia>
+          <ixx>0.04243705701822916</ixx>
+          <iyy>0.04243705701822916</iyy>
+          <izz>0.04243705701822916</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.2 0.2 0.2 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+        <meta>
+          <layer>2</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_blue'>
+        <pose>0.0 0.0 0.009275 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0148 0.0148 0.0005</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0 0 1 1</ambient>
+          <diffuse>0 0 1 1</diffuse>
+        </material>
+        <meta>
+          <layer>2</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_yellow'>
+        <pose>0.0 -0.009275 0.0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0148 0.0005 0.0148</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>1 1 0 1</ambient>
+          <diffuse>1 1 0 1</diffuse>
+        </material>
+        <meta>
+          <layer>2</layer>
+        </meta>
+      </visual>
+    </link>
+    <joint name="fake_joint_0_-1_1" type="ball">
+      <parent>cubie_0_-1_1</parent>
+      <child>cubie_0_0_0</child>
+    </joint>
+    <link name="cubie_0_-1_-1">
+      <pose>0.0 -0.0186 -0.0186 0 0 0</pose>
+      <self_collide>1</self_collide>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia>
+          <ixx>0.04243705701822916</ixx>
+          <iyy>0.04243705701822916</iyy>
+          <izz>0.04243705701822916</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.2 0.2 0.2 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+        <meta>
+          <layer>2</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_white'>
+        <pose>0.0 0.0 -0.009275 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0148 0.0148 0.0005</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>1 1 1 1</ambient>
+          <diffuse>1 1 1 1</diffuse>
+        </material>
+        <meta>
+          <layer>2</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_yellow'>
+        <pose>0.0 -0.009275 0.0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0148 0.0005 0.0148</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>1 1 0 1</ambient>
+          <diffuse>1 1 0 1</diffuse>
+        </material>
+        <meta>
+          <layer>2</layer>
+        </meta>
+      </visual>
+    </link>
+    <joint name="fake_joint_0_-1_-1" type="ball">
+      <parent>cubie_0_-1_-1</parent>
+      <child>cubie_0_0_0</child>
+    </joint>
+    <link name="cubie_0_-1_0">
+      <pose>0.0 -0.0186 0.0 0 0 0</pose>
+      <self_collide>1</self_collide>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia>
+          <ixx>0.04243705701822916</ixx>
+          <iyy>0.04243705701822916</iyy>
+          <izz>0.04243705701822916</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.2 0.2 0.2 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+        <meta>
+          <layer>1</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_yellow'>
+        <pose>0.0 -0.009275 0.0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0148 0.0005 0.0148</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>1 1 0 1</ambient>
+          <diffuse>1 1 0 1</diffuse>
+        </material>
+        <meta>
+          <layer>1</layer>
+        </meta>
+      </visual>
+    </link>
+    <joint name="center_joint_0_-1_0" type="fixed">
+      <parent>cubie_0_0_0</parent>
+      <child>cubie_0_-1_0</child>
+    </joint>
+    <link name="cubie_0_0_1">
+      <pose>0.0 0.0 0.0186 0 0 0</pose>
+      <self_collide>1</self_collide>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia>
+          <ixx>0.04243705701822916</ixx>
+          <iyy>0.04243705701822916</iyy>
+          <izz>0.04243705701822916</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.2 0.2 0.2 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+        <meta>
+          <layer>1</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_blue'>
+        <pose>0.0 0.0 0.009275 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0148 0.0148 0.0005</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0 0 1 1</ambient>
+          <diffuse>0 0 1 1</diffuse>
+        </material>
+        <meta>
+          <layer>1</layer>
+        </meta>
+      </visual>
+    </link>
+    <joint name="center_joint_0_0_1" type="fixed">
+      <parent>cubie_0_0_0</parent>
+      <child>cubie_0_0_1</child>
+    </joint>
+    <link name="cubie_0_0_-1">
+      <pose>0.0 0.0 -0.0186 0 0 0</pose>
+      <self_collide>1</self_collide>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia>
+          <ixx>0.04243705701822916</ixx>
+          <iyy>0.04243705701822916</iyy>
+          <izz>0.04243705701822916</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.2 0.2 0.2 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+        <meta>
+          <layer>1</layer>
+        </meta>
+      </visual>
+      <visual name='sticker_white'>
+        <pose>0.0 0.0 -0.009275 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0148 0.0148 0.0005 </size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>1 1 1 1</ambient>
+          <diffuse>1 1 1 1</diffuse>
+        </material>
+        <meta>
+          <layer>1</layer>
+        </meta>
+      </visual>
+    </link>
+    <joint name="center_joint_0_0_-1" type="fixed">
+      <parent>cubie_0_0_0</parent>
+      <child>cubie_0_0_-1</child>
+    </joint>
+    <link name="cubie_0_0_0">
+      <pose>0.0 0.0 0.0 0 0 0</pose>
+      <self_collide>1</self_collide>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia>
+          <ixx>0.04243705701822916</ixx>
+          <iyy>0.04243705701822916</iyy>
+          <izz>0.04243705701822916</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>0.0185 0.0185 0.0185</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.2 0.2 0.2 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+        <meta>
+          <layer>0</layer>
+        </meta>
+      </visual>
+    </link>
+    <plugin name="rubik_cube_random_color_plugin" filename="librubik_cube_random_color_plugin.so">
+    </plugin>
+  </model>
+</sdf>
