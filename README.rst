@@ -86,7 +86,7 @@ On Ubuntu 14.04:
 
 .. code:: shell
 
-    apt-get install -y python-numpy python-dev cmake zlib1g-dev libjpeg-dev xvfb libav-tools xorg-dev python-opengl libboost-all-dev libsdl2-dev swig
+    apt-get install -y python-numpy python-dev cmake zlib1g-dev libjpeg-dev xvfb libav-tools xorg-dev python-opengl libboost-all-dev libsdl2-dev libglew-dev swig
 
 MuJoCo has a proprietary dependency we can't set up for you. Follow
 the
