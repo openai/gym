@@ -51,6 +51,8 @@ class Dict(gym.Space):
                 return False
         return True
 
+    __contains__ = contains
+
     def __repr__(self):
         return "Dict(" + ", ". join([k + ":" + str(s) for k, s in self.spaces.items()]) + ")"
 
