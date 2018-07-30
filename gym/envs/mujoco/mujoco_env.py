@@ -112,6 +112,13 @@ class MujocoEnv(gym.Env):
             data = self._get_viewer(mode).read_pixels(width, height, depth=False)
             # original image is upside-down, so flip it
             return data[::-1, :, :]
+        elif mode == 'depth_array':
+            self._get_viewer(mode).render(width, height)
+            # window size used for old mujoco-py:
+            # Extract depth part of the read_pixels() tuple
+            data = self._get_viewer(mode).read_pixels(width, height, depth=True)[1]
+            # original image is upside-down, so flip it
+            return data[::-1, :, :]
         elif mode == 'human':
             self._get_viewer(mode).render()
 
@@ -126,7 +133,7 @@ class MujocoEnv(gym.Env):
         if self.viewer is None:
             if mode == 'human':
                 self.viewer = mujoco_py.MjViewer(self.sim)
-            elif mode == 'rgb_array':
+            elif mode == 'rgb_array' or mode == 'depth_array':
                 self.viewer = mujoco_py.MjRenderContextOffscreen(self.sim, 0)
             self.viewer_setup()
             self._viewers[mode] = self.viewer
