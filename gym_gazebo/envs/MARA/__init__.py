@@ -3,3 +3,4 @@ from gym_gazebo.envs.MARA.gazebo_mara_top_3dof_v0 import GazeboMARATop3DOFv0Env
 from gym_gazebo.envs.MARA.gazebo_mara_no_gripper_v0 import GazeboMARANoGripperv0Env
 from gym_gazebo.envs.MARA.gazebo_mara_top_orient_v0 import GazeboMARATopOrientv0Env
 from gym_gazebo.envs.MARA.gazebo_mara_top_orient_vision_v0 import GazeboMARATopOrientVisionv0Env
+from gym_gazebo.envs.MARA.real_mara_top_3dof_v0 import RealModularMara3DOFv0Env

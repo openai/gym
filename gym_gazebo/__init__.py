@@ -144,3 +144,7 @@ register(
     id='MARAVisionOrient-v0',
     entry_point='gym_gazebo.envs.MARA:GazeboMARATopOrientVisionv0Env',
 )
+register(
+    id='RealMARA3DoF-v0',
+    entry_point='gym_gazebo.envs.MARA:RealModularMara3DOFv0Env',
+)
