@@ -104,6 +104,18 @@ We currently support Linux and OS X running Python 2.7 or 3.5. Some users on OSX
 
     brew install boost-python --with-python3
 
+When running Box2D environments (LunarLander, CarRacing, BipedalWalker) on OSX, ``box2d-kengz`` package
+may be needed instead of standard ``box2d-py``. If you see error message along the lines of
+
+``AttributeError: module '_Box2D' has no attribute 'RAND_LIMIT_swigconstant'```
+
+run:
+ 
+.. code:: shell
+    
+    pip install box2d-kengz
+
+
 If you want to access Gym from languages other than python, we have limited support for non-python
 frameworks, such as lua/Torch, using the OpenAI Gym `HTTP API <https://github.com/openai/gym-http-api>`_.
 
