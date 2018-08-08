@@ -45,7 +45,9 @@ RUN \
     mkdir /root/.mujoco && \
     cd /root/.mujoco  && \
     wget https://www.roboti.us/download/mjpro150_linux.zip  && \
+    wget https://www.roboti.us/download/mjpro131_linux.zip  && \
     unzip mjpro150_linux.zip && \
+    unzip mjpro131_linux.zip && \
 
 # setup vim to be humane and compatible with codebase standards
     echo "set expandtab number shiftwidth=4 tabstop=4" > /root/.vimrc
