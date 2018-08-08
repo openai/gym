@@ -28,8 +28,8 @@ class TaxiEnv(discrete.DiscreteEnv):
     
     Actions: 
     There are 6 discrete deterministic actions:
-    - 0: move north
-    - 1: move south
+    - 0: move south
+    - 1: move north
     - 2: move east 
     - 3: move west 
     - 4: pickup passenger
