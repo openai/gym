@@ -23,7 +23,7 @@ class CartPoleEnv(gym.Env):
         Num	Observation	             Min	Max
         0	Cart Position	        -2.4	2.4
         1	Cart Velocity	        -Inf	Inf
-        2	Pole Angle	~          -41.8°	~ 41.8°
+        2	Pole Angle	          ~-41.8°	~41.8°
         3	Pole Velocity At Tip	-Inf	Inf
         
     Actions:
