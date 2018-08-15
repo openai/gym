@@ -235,7 +235,10 @@ class LunarLander(gym.Env):
             self.world.DestroyBody(self.particles.pop(0))
 
     def step(self, action):
-        action = np.clip(action, -1, +1).astype(np.float32)
+        if self.continuous:
+            action = np.clip(action, -1, +1).astype(np.float32)
+        else:
+            assert self.action_space.contains(action), "%r (%s) invalid " % (action, type(action))
 
         # Engines
         tip  = (math.sin(self.lander.angle), math.cos(self.lander.angle))
@@ -389,18 +392,22 @@ def heuristic(env, s):
     return a
 
 if __name__=="__main__":
-    #env = LunarLander()
-    env = LunarLanderContinuous()
+    # Both work:
+    if 1:
+        env = LunarLander()
+    else:
+        env = LunarLanderContinuous()
     s = env.reset()
     total_reward = 0
     steps = 0
     while True:
         a = heuristic(env, s)
         s, r, done, info = env.step(a)
-        env.render()
+        still_open = env.render()
+        if still_open==False: break
         total_reward += r
         if steps % 20 == 0 or done:
-            print(["{:+0.2f}".format(x) for x in s])
+            print("observations:", " ".join(["{:+0.2f}".format(x) for x in s]))
             print("step {} total_reward {:+0.2f}".format(steps, total_reward))
         steps += 1
         if done: break
