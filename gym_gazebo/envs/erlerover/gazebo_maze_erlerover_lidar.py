@@ -62,7 +62,7 @@ class GazeboMazeErleRoverLidarEnv(gazebo_env.GazeboEnv):
         except (rospy.ServiceException) as e:
             print ("mavros/set_mode service call failed: %s"%e)
 
-        print "Waiting for mavros..."
+        print ("Waiting for mavros...")
         data = None
         while data is None:
             try:
