@@ -90,7 +90,7 @@ class GazeboMARATopOrientv0Env(gazebo_env.GazeboEnv):
         # target, where should the agent reach
         # EE_POS_TGT = np.asmatrix([-0.390768, 0.0101776, 0.725335]) # 200 cm from the z axis
         # EE_POS_TGT = np.asmatrix([0.0, 0.001009, 1.64981])
-        EE_POS_TGT = np.asmatrix([-0.390768, 0.0101776, 0.755335]) # 200 cm from the z axis
+        EE_POS_TGT = np.asmatrix([-0.48731417, -0.0358965,  0.82467501]) # 200 cm from the z axis
 
         # EE_POS_TGT = np.asmatrix([0.3305805, -0.1326121, 0.4868]) # center of the H
         EE_ROT_TGT = np.asmatrix([[0.79660969, -0.51571238,  0.31536287], [0.51531424,  0.85207952,  0.09171542], [-0.31601302,  0.08944959,  0.94452874]])
@@ -98,8 +98,8 @@ class GazeboMARATopOrientv0Env(gazebo_env.GazeboEnv):
         EE_POINTS = np.asmatrix([[0, 0, 0]])
         EE_VELOCITIES = np.asmatrix([[0, 0, 0]])
         # Initial joint position
-        INITIAL_JOINTS = np.array([0., 0., -1., 0., -1.57, 0.])
-        # INITIAL_JOINTS = np.array([0., 0., 0., 0., 0., 0.])
+        # INITIAL_JOINTS = np.array([0., 0., 1., 0., 1.57, 0.])
+        INITIAL_JOINTS = np.array([0., 0., 0., 0., 0., 0.])
         # Used to initialize the robot, #TODO, clarify this more
         # STEP_COUNT = 2  # Typically 100.
         # slowness = 10000000 # 10 ms, where 1 second is real life simulation
@@ -607,7 +607,7 @@ class GazeboMARATopOrientv0Env(gazebo_env.GazeboEnv):
         # print("self.reward_orient: ", self.reward_orient)
 
         #scale here the orientation because it should not be the main bias of the reward, position should be
-        orientation_scale = 0.01
+        orientation_scale = 0.1
 
         # here we want to fetch the positions of the end-effector which are nr_dof:nr_dof+3
         if(self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])<0.005):
@@ -616,7 +616,7 @@ class GazeboMARATopOrientv0Env(gazebo_env.GazeboEnv):
         else:
             self.reward = self.reward_dist
 
-        if(self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)])<0.05):
+        if(self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)])<0.1):
             self.reward = self.reward +  orientation_scale * (1 -self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)]))
             print("Reward orientation is: ", self.reward)
         else:
@@ -627,7 +627,7 @@ class GazeboMARATopOrientv0Env(gazebo_env.GazeboEnv):
 
         # self.reward =self.reward - abs(self.ob[(self.scara_chain.getNrOfJoints()+4)])
         # Calculate if the env has been solved
-        done = bool(((abs(self.reward_dist) < 0.005) and (abs(self.reward_orient)) < 0.05) or (self.iterator>self.max_episode_steps))
+        done = bool(((abs(self.reward_dist) < 0.005) and (abs(self.reward_orient)) < 0.1) or (self.iterator>self.max_episode_steps))
 
         # Execute "action"
         self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
