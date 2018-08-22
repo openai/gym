@@ -16,6 +16,8 @@ import copy
 import rospkg
 import threading # Used for time locks to synchronize position data.
 
+import os
+
 # from gazebo_msgs.srv import SpawnModel, DeleteModel
 
 from sensor_msgs.msg import Image as ImageMsg
@@ -102,18 +104,21 @@ class GazeboMARATopOrientVisionv0Env(gazebo_env.GazeboEnv):
         # target, where should the agent reach
         # EE_POS_TGT = np.asmatrix([-0.390768, 0.0101776, 0.725335]) # 200 cm from the z axis
         # EE_POS_TGT = np.asmatrix([0.0, 0.001009, 1.64981])
-        EE_POS_TGT = np.asmatrix([-0.390768, 0.0101776, 0.755335]) # 200 cm from the z axis
+        EE_POS_TGT = np.asmatrix([-0.48748138, -0.00298352,  0.83502198]) # 200 cm from the z axis some random target at the begining
         # EE_POS_TGT = np.asmatrix([pose_rubik_pred.position.x, pose_rubik_pred.position.y, pose_rubik_pred.position.z])
         # print("EE_POS_TGT: ", EE_POS_TGT)
 
         # EE_POS_TGT = np.asmatrix([0.3305805, -0.1326121, 0.4868]) # center of the H
-        # EE_ROT_TGT = np.asmatrix([[0.79660969, -0.51571238,  0.31536287], [0.51531424,  0.85207952,  0.09171542], [-0.31601302,  0.08944959,  0.94452874]])
-        EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+        EE_ROT_TGT = np.asmatrix([[0.79660969, -0.51571238,  0.31536287], [0.51531424,  0.85207952,  0.09171542], [-0.31601302,  0.08944959,  0.94452874]])
+        # EE_POS_TGT = np.asmatrix([0.0, 0.0, 1.4])
+        # EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         EE_POINTS = np.asmatrix([[0, 0, 0]])
         EE_VELOCITIES = np.asmatrix([[0, 0, 0]])
         # Initial joint position
-        # INITIAL_JOINTS = np.array([0., 0., -1., 0., -1.57, 0.])
+        # INITIAL_JOINTS = np.array([0., 0., 1.57, 0., 1.57, 0.])
+        # INITIAL_JOINTS = np.array([0., 0., 1.37, 0., 1.37, 0.])
         INITIAL_JOINTS = np.array([0., 0., 0., 0., 0., 0.])
+        # INITIAL_JOINTS = np.array([2.832116288509212e-05, -7.644633833070458e-05, -0.9999138952294953, -2.4499067147409903e-05, -1.5700625461089226, 1.4725492722966749e-05])
         # Used to initialize the robot, #TODO, clarify this more
         # STEP_COUNT = 2  # Typically 100.
         # slowness = 10000000 # 10 ms, where 1 second is real life simulation
@@ -164,6 +169,8 @@ class GazeboMARATopOrientVisionv0Env(gazebo_env.GazeboEnv):
         # TODO: fix this and make it relative
         # Set the path of the corresponding URDF file from "assets"
         URDF_PATH = rospkg.RosPack().get_path("mara_description") + "/urdf/mara_demo_camera_top.urdf"
+        # URDF_PATH = "/home/rkojcev/catkin_ws/src/mara/mara_description/urdf/mara_demo_camera_top.urdf"
+
 
         m_joint_order = copy.deepcopy(JOINT_ORDER)
         m_link_names = copy.deepcopy(LINK_NAMES)
@@ -174,6 +181,7 @@ class GazeboMARATopOrientVisionv0Env(gazebo_env.GazeboEnv):
 
         # Initialize target end effector position
         ee_tgt = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt, ee_rot_tgt).T)
+        print("ee_tgt: ", ee_tgt)
         self.realgoal = ee_tgt
         self.target_orientation = ee_rot_tgt
 
@@ -260,10 +268,17 @@ class GazeboMARATopOrientVisionv0Env(gazebo_env.GazeboEnv):
         self._seed()
     def tgt_callback(self,msg):
         # print("Whats the target?: ", msg)
+        # self.realgoal is None and self.target_orientation is None:
+
         if self.detect_target_once is 1:
             print("Get the target from vision, for now just use position.")
             EE_POS_TGT = np.asmatrix([msg.position.x, msg.position.y, msg.position.z])
-            EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+            rot_quat = np.quaternion(msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w)
+            print("rot_quat: ",rot_quat)
+            rot_matrix = quat.as_rotation_matrix(rot_quat)
+            print("rot_matrix: ", rot_matrix)
+            # EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+            EE_ROT_TGT = rot_matrix#np.asmatrix([[0.79660969, -0.51571238,  0.31536287], [0.51531424,  0.85207952,  0.09171542], [-0.31601302,  0.08944959,  0.94452874]])
             EE_POINTS = np.asmatrix([[0, 0, 0]])
             ee_pos_tgt = EE_POS_TGT
 
@@ -274,13 +289,71 @@ class GazeboMARATopOrientVisionv0Env(gazebo_env.GazeboEnv):
             # self.realgoal = np.ndarray.flatten(get_ee_points(EE_POINTS, ee_pos_tgt_random1, ee_rot_tgt).T)
 
             self.realgoal = target1
+            self.target_orientation = ee_rot_tgt
             print("Predicted target is: ", self.realgoal)
             self.detect_target_once = 0
+
+            self.add_model = rospy.ServiceProxy('/gazebo/spawn_urdf_model', SpawnModel)
+            self.remove_model = rospy.ServiceProxy('/gazebo/delete_model', DeleteModel)
+
+            model_xml = "<?xml version=\"1.0\"?> \
+                        <robot name=\"myfirst\"> \
+                          <link name=\"world\"> \
+                          </link>\
+                          <link name=\"sphere0\">\
+                            <visual>\
+                              <geometry>\
+                                <sphere radius=\"0.01\"/>\
+                              </geometry>\
+                              <origin xyz=\"0 0 0\"/>\
+                              <material name=\"rojotransparente\">\
+                                  <ambient>0.5 0.5 1.0 0.1</ambient>\
+                                  <diffuse>0.5 0.5 1.0 0.1</diffuse>\
+                              </material>\
+                            </visual>\
+                            <inertial>\
+                              <mass value=\"5.0\"/>\
+                              <inertia ixx=\"1.0\" ixy=\"0.0\" ixz=\"0.0\" iyy=\"1.0\" iyz=\"0.0\" izz=\"1.0\"/>\
+                            </inertial>\
+                          </link>\
+                          <joint name=\"world_to_base\" type=\"fixed\"> \
+                            <origin xyz=\"0 0 0\" rpy=\"0 0 0\"/>\
+                            <parent link=\"world\"/>\
+                            <child link=\"sphere0\"/>\
+                          </joint>\
+                          <gazebo reference=\"sphere0\">\
+                            <material>Gazebo/GreenTransparent</material>\
+                          </gazebo>\
+                        </robot>"
+            robot_namespace = ""
+            pose = Pose()
+            pose.position.x = EE_POS_TGT[0,0];
+            pose.position.y = EE_POS_TGT[0,1];
+            pose.position.z = EE_POS_TGT[0,2];
+
+            #Static obstacle (not in original code)
+            # pose.position.x = 0.25;#
+            # pose.position.y = 0.07;#
+            # pose.position.z = 0.0;#
+
+            pose.orientation.x = 0;
+            pose.orientation.y= 0;
+            pose.orientation.z = 0;
+            pose.orientation.w = 0;
+            reference_frame = ""
+            rospy.wait_for_service('/gazebo/spawn_urdf_model')
+            self.add_model(model_name="target",
+                            model_xml=model_xml,
+                            robot_namespace="",
+                            initial_pose=pose,
+                            reference_frame="")
 
     def addTarget(self):
             # The idea is to add random target in our case rubik cube and the vision system to detect and find the 3D pose of the cube.
             # Open a file: file
-            file = open('../assets/urdf/rubik_cube/rubik_cube.sdf' ,mode='r')
+            # os.chdir('../assets/urdf/rubik_cube')
+            # print("os: ", os)
+            file = open('/home/rkojcev/devel/ros_rl/environments/gym-gazebo/gym_gazebo/envs/assets/urdf/rubik_cube/rubik_cube.sdf' ,mode='r')
             # read all lines at once
             model_xml = file.read()
             # close the file
@@ -290,14 +363,14 @@ class GazeboMARATopOrientVisionv0Env(gazebo_env.GazeboEnv):
 
             pose = Pose()
 
-            pose.position.x = random.uniform(-0.3, -0.6);
-            pose.position.y = random.uniform(-0.02, 0.01)
+            pose.position.x = -0.5074649153217804#random.uniform(-0.3, -0.6);
+            pose.position.y = 0.03617460539210797#random.uniform(-0.02, 0.01)
             # stay put in Z!!!
-            pose.position.z = 0.72#0.80 #0.72;
+            pose.position.z = 0.72#0.72#0.80 #0.72;
 
             roll = 0.0 #random.uniform(-0.2, 0.6)
             pitch = 0.0#random.uniform(-0.2, 0.2)
-            yaw =  random.uniform(-0.3, 0.3)
+            yaw = -0.3#random.uniform(-0.3, 0.3)
             new_camera_pose = False
             q_rubik = quat.from_euler_angles(roll, pitch, yaw)
             # print("q_rubik: ", q_rubik.x, q_rubik.y, q_rubik.z, q_rubik.w)
@@ -351,7 +424,8 @@ class GazeboMARATopOrientVisionv0Env(gazebo_env.GazeboEnv):
         print("In randomize target positions.")
         EE_POS_TGT_RANDOM1 = np.asmatrix([np.random.uniform(0.2852485,0.3883636), np.random.uniform(-0.1746508,0.1701576), 0.2868]) # boundry box of the first half H-ROS letters with +-0.01 offset
         # EE_POS_TGT_RANDOM1 = np.asmatrix([np.random.uniform(0.2852485, 0.3883636), np.random.uniform(-0.1746508, 0.1701576), 0.3746]) # boundry box of whole box H-ROS letters with +-0.01 offset
-        EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+        # EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+        EE_ROT_TGT = np.asmatrix([[0.79660969, -0.51571238,  0.31536287], [0.51531424,  0.85207952,  0.09171542], [-0.31601302,  0.08944959,  0.94452874]])
         EE_POINTS = np.asmatrix([[0, 0, 0]])
         ee_pos_tgt_random1 = EE_POS_TGT_RANDOM1
 
@@ -619,8 +693,8 @@ class GazeboMARATopOrientVisionv0Env(gazebo_env.GazeboEnv):
                           np.reshape(ee_points, -1),
                           np.reshape(quat_error, -1),
                           np.reshape(ee_velocities, -1),]
-            # print("quat_error: ", quat_error)
-            # print("ee_points:", ee_points)
+            #print("quat_error: ", quat_error)
+            #print("ee_points:", ee_points)
             return np.r_[np.reshape(last_observations, -1),
                           np.reshape(ee_points, -1),
                           np.reshape(quat_error, -1),
@@ -666,27 +740,32 @@ class GazeboMARATopOrientVisionv0Env(gazebo_env.GazeboEnv):
         # print("self.reward_orient: ", self.reward_orient)
 
         #scale here the orientation because it should not be the main bias of the reward, position should be
-        orientation_scale = 0.01
+        orientation_scale = 0.1
 
-        # here we want to fetch the positions of the end-effector which are nr_dof:nr_dof+3
+        # # here we want to fetch the positions of the end-effector which are nr_dof:nr_dof+3
         if(self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])<0.005):
             self.reward = 1 - self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)]) # Make the reward increase as the distance decreases
-            print("Reward is: ", self.reward)
+            print("Reward position is: ", self.reward)
         else:
             self.reward = self.reward_dist
-
-        if(self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)])<0.05):
+        #
+        if(self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)])<0.1):
             self.reward = self.reward +  orientation_scale * (1 -self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)]))
             print("Reward orientation is: ", self.reward)
         else:
             self.reward = self.reward + orientation_scale * self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)])
 
-
-        #self.reward = self.reward_final_dist + orientation_scale*self.final_rew_orient
+        #this is very hard to converge
+        # self.reward = self.reward_dist + orientation_scale*self.reward_orient
+        #
+        # if (self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)])<0.2 and self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])<0.005):
+        #     self.reward = 10.*((1 - self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])) + orientation_scale * (1 -self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)])))
+        #     print("Reward hit the target, and is: ", self.reward)
+        # # self.reward = self.reward_final_dist + orientation_scale*self.final_rew_orient
 
         # self.reward =self.reward - abs(self.ob[(self.scara_chain.getNrOfJoints()+4)])
         # Calculate if the env has been solved
-        done = bool(((abs(self.reward_dist) < 0.005) and (abs(self.reward_orient)) < 0.05) or (self.iterator>self.max_episode_steps))
+        done = bool(((abs(self.reward_dist) < 0.005) and (abs(self.reward_orient)) < 0.2) or (self.iterator>self.max_episode_steps))
 
         # Execute "action"
         self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
