@@ -4,7 +4,7 @@
     <!-- <static>True</static> -->
     <pose>0 0 0.27949999999999997 0 0 0</pose>
     <link name="cubie_1_1_1">
-      <pose>0.0186 0.0186 0.0186 0 0 0</pose>
+      <pose>0.02144 0.02144 0.02144 0 0 0</pose>
       <self_collide>1</self_collide>
       <inertial>
         <mass>0.05</mass>
@@ -20,14 +20,14 @@
       <collision name="collision">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
       </collision>
       <visual name="visual">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
         <material>
@@ -41,10 +41,10 @@
         </meta>
       </visual>
       <visual name='sticker_blue'>
-        <pose>0.0 0.0 0.009275 0 0 0</pose>
+        <pose>0.0 0.0 0.010665 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0148 0.0148 0.0005</size>
+            <size>0.0175 0.0175 0.0005</size>
           </box>
         </geometry>
         <material>
@@ -56,10 +56,10 @@
         </meta>
       </visual>
       <visual name='sticker_red'>
-        <pose>0.009275 0.0 0.0 0 0 0</pose>
+        <pose>0.010665 0.0 0.0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0005 0.0148 0.0148</size>
+            <size>0.0005 0.0175 0.0175</size>
           </box>
         </geometry>
         <material>
@@ -71,10 +71,10 @@
         </meta>
       </visual>
       <visual name='sticker_green'>
-        <pose>0.0 0.009275 0.0 0 0 0</pose>
+        <pose>0.0 0.010665 0.0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0148 0.0005 0.0148</size>
+            <size>0.0175 0.0005 0.0175</size>
           </box>
         </geometry>
         <material>
@@ -91,7 +91,7 @@
       <child>cubie_0_0_0</child>
     </joint>
     <link name="cubie_1_1_-1">
-      <pose>0.0186 0.0186 -0.0186 0 0 0</pose>
+      <pose>0.02144 0.02144 -0.02144 0 0 0</pose>
       <self_collide>1</self_collide>
       <inertial>
         <mass>0.05</mass>
@@ -107,14 +107,14 @@
       <collision name="collision">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
       </collision>
       <visual name="visual">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
         <material>
@@ -128,10 +128,10 @@
         </meta>
       </visual>
       <visual name='sticker_white'>
-        <pose>0.0 0.0 -0.009275 0 0 0</pose>
+        <pose>0.0 0.0 -0.010665 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0148 0.0148 0.0005</size>
+            <size>0.0175 0.0175 0.0005</size>
           </box>
         </geometry>
         <material>
@@ -143,10 +143,10 @@
         </meta>
       </visual>
       <visual name='sticker_red'>
-        <pose>0.009275 0.0 0.0 0 0 0</pose>
+        <pose>0.010665 0.0 0.0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0005 0.0148 0.0148</size>
+            <size>0.0005 0.0175 0.0175</size>
           </box>
         </geometry>
         <material>
@@ -158,10 +158,10 @@
         </meta>
       </visual>
       <visual name='sticker_green'>
-        <pose>0.0 0.009275 0.0 0 0 0</pose>
+        <pose>0.0 0.010665 0.0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0148 0.0005 0.0148</size>
+            <size>0.0175 0.0005 0.0175</size>
           </box>
         </geometry>
         <material>
@@ -178,7 +178,7 @@
       <child>cubie_0_0_0</child>
     </joint>
     <link name="cubie_1_1_0">
-      <pose>0.0186 0.0186 0.0 0 0 0</pose>
+      <pose>0.02144 0.02144 0.0 0 0 0</pose>
       <self_collide>1</self_collide>
       <inertial>
         <mass>0.05</mass>
@@ -194,14 +194,14 @@
       <collision name="collision">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
       </collision>
       <visual name="visual">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
         <material>
@@ -215,10 +215,10 @@
         </meta>
       </visual>
       <visual name='sticker_red'>
-        <pose>0.009275 0.0 0.0 0 0 0</pose>
+        <pose>0.010665 0.0 0.0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0005 0.0148 0.0148</size>
+            <size>0.0005 0.0175 0.0175</size>
           </box>
         </geometry>
         <material>
@@ -230,10 +230,10 @@
         </meta>
       </visual>
       <visual name='sticker_green'>
-        <pose>0.0 0.009275 0.0 0 0 0</pose>
+        <pose>0.0 0.010665 0.0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0148 0.0005 0.0148</size>
+            <size>0.0175 0.0005 0.0175</size>
           </box>
         </geometry>
         <material>
@@ -250,7 +250,7 @@
       <child>cubie_0_0_0</child>
     </joint>
     <link name="cubie_1_-1_1">
-      <pose>0.0186 -0.0186 0.0186 0 0 0</pose>
+      <pose>0.02144 -0.02144 0.02144 0 0 0</pose>
       <self_collide>1</self_collide>
       <inertial>
         <mass>0.05</mass>
@@ -266,14 +266,14 @@
       <collision name="collision">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
       </collision>
       <visual name="visual">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
         <material>
@@ -287,10 +287,10 @@
         </meta>
       </visual>
       <visual name='sticker_blue'>
-        <pose>0.0 0.0 0.009275 0 0 0</pose>
+        <pose>0.0 0.0 0.010665 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0148 0.0148 0.0005</size>
+            <size>0.0175 0.0175 0.0005</size>
           </box>
         </geometry>
         <material>
@@ -302,10 +302,10 @@
         </meta>
       </visual>
       <visual name='sticker_red'>
-        <pose>0.009275 0.0 0.0 0 0 0</pose>
+        <pose>0.010665 0.0 0.0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0005 0.0148 0.0148</size>
+            <size>0.0005 0.0175 0.0175</size>
           </box>
         </geometry>
         <material>
@@ -317,10 +317,10 @@
         </meta>
       </visual>
       <visual name='sticker_yellow'>
-        <pose>0.0 -0.009275 0.0 0 0 0</pose>
+        <pose>0.0 -0.010665 0.0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0148 0.0005 0.0148</size>
+            <size>0.0175 0.0005 0.0175</size>
           </box>
         </geometry>
         <material>
@@ -337,7 +337,7 @@
       <child>cubie_0_0_0</child>
     </joint>
     <link name="cubie_1_-1_-1">
-      <pose>0.0186 -0.0186 -0.0186 0 0 0</pose>
+      <pose>0.02144 -0.02144 -0.02144 0 0 0</pose>
       <self_collide>1</self_collide>
       <inertial>
         <mass>0.05</mass>
@@ -353,14 +353,14 @@
       <collision name="collision">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
       </collision>
       <visual name="visual">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
         <material>
@@ -374,10 +374,10 @@
         </meta>
       </visual>
       <visual name='sticker_white'>
-        <pose>0.0 0.0 -0.009275 0 0 0</pose>
+        <pose>0.0 0.0 -0.010665 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0148 0.0148 0.0005</size>
+            <size>0.0175 0.0175 0.0005</size>
           </box>
         </geometry>
         <material>
@@ -389,10 +389,10 @@
         </meta>
       </visual>
       <visual name='sticker_red'>
-        <pose>0.009275 0.0 0.0 0 0 0</pose>
+        <pose>0.010665 0.0 0.0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0005 0.0148 0.0148</size>
+            <size>0.0005 0.0175 0.0175</size>
           </box>
         </geometry>
         <material>
@@ -404,10 +404,10 @@
         </meta>
       </visual>
       <visual name='sticker_yellow'>
-        <pose>0.0 -0.009275 0.0 0 0 0</pose>
+        <pose>0.0 -0.010665 0.0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0148 0.0005 0.0148</size>
+            <size>0.0175 0.0005 0.0175</size>
           </box>
         </geometry>
         <material>
@@ -424,7 +424,7 @@
       <child>cubie_0_0_0</child>
     </joint>
     <link name="cubie_1_-1_0">
-      <pose>0.0186 -0.0186 0.0 0 0 0</pose>
+      <pose>0.02144 -0.02144 0.0 0 0 0</pose>
       <self_collide>1</self_collide>
       <inertial>
         <mass>0.05</mass>
@@ -440,14 +440,14 @@
       <collision name="collision">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
       </collision>
       <visual name="visual">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
         <material>
@@ -461,10 +461,10 @@
         </meta>
       </visual>
       <visual name='sticker_red'>
-        <pose>0.009275 0.0 0.0 0 0 0</pose>
+        <pose>0.010665 0.0 0.0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0005 0.0148 0.0148</size>
+            <size>0.0005 0.0175 0.0175</size>
           </box>
         </geometry>
         <material>
@@ -476,10 +476,10 @@
         </meta>
       </visual>
       <visual name='sticker_yellow'>
-        <pose>0.0 -0.009275 0.0 0 0 0</pose>
+        <pose>0.0 -0.010665 0.0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0148 0.0005 0.0148</size>
+            <size>0.0175 0.0005 0.0175</size>
           </box>
         </geometry>
         <material>
@@ -496,7 +496,7 @@
       <child>cubie_0_0_0</child>
     </joint>
     <link name="cubie_1_0_1">
-      <pose>0.0186 0.0 0.0186 0 0 0</pose>
+      <pose>0.02144 0.0 0.02144 0 0 0</pose>
       <self_collide>1</self_collide>
       <inertial>
         <mass>0.05</mass>
@@ -512,14 +512,14 @@
       <collision name="collision">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
       </collision>
       <visual name="visual">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
         <material>
@@ -533,10 +533,10 @@
         </meta>
       </visual>
       <visual name='sticker_blue'>
-        <pose>0.0 0.0 0.009275 0 0 0</pose>
+        <pose>0.0 0.0 0.010665 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0148 0.0148 0.0005</size>
+            <size>0.0175 0.0175 0.0005</size>
           </box>
         </geometry>
         <material>
@@ -548,10 +548,10 @@
         </meta>
       </visual>
       <visual name='sticker_red'>
-        <pose>0.009275 0.0 0.0 0 0 0</pose>
+        <pose>0.010665 0.0 0.0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0005 0.0148 0.0148</size>
+            <size>0.0005 0.0175 0.0175</size>
           </box>
         </geometry>
         <material>
@@ -568,7 +568,7 @@
       <child>cubie_0_0_0</child>
     </joint>
     <link name="cubie_1_0_-1">
-      <pose>0.0186 0.0 -0.0186 0 0 0</pose>
+      <pose>0.02144 0.0 -0.02144 0 0 0</pose>
       <self_collide>1</self_collide>
       <inertial>
         <mass>0.05</mass>
@@ -584,14 +584,14 @@
       <collision name="collision">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
       </collision>
       <visual name="visual">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
         <material>
@@ -605,10 +605,10 @@
         </meta>
       </visual>
       <visual name='sticker_white'>
-        <pose>0.0 0.0 -0.009275 0 0 0</pose>
+        <pose>0.0 0.0 -0.010665 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0148 0.0148 0.0005</size>
+            <size>0.0175 0.0175 0.0005</size>
           </box>
         </geometry>
         <material>
@@ -620,10 +620,10 @@
         </meta>
       </visual>
       <visual name='sticker_red'>
-        <pose>0.009275 0.0 0.0 0 0 0</pose>
+        <pose>0.010665 0.0 0.0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0005 0.0148 0.0148</size>
+            <size>0.0005 0.0175 0.0175</size>
           </box>
         </geometry>
         <material>
@@ -640,7 +640,7 @@
       <child>cubie_0_0_0</child>
     </joint>
     <link name="cubie_1_0_0">
-      <pose>0.0186 0.0 0.0 0 0 0</pose>
+      <pose>0.02144 0.0 0.0 0 0 0</pose>
       <self_collide>1</self_collide>
       <inertial>
         <mass>0.05</mass>
@@ -656,14 +656,14 @@
       <collision name="collision">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
       </collision>
       <visual name="visual">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
         <material>
@@ -677,10 +677,10 @@
         </meta>
       </visual>
       <visual name='sticker_red'>
-        <pose>0.009275 0.0 0.0 0 0 0</pose>
+        <pose>0.010665 0.0 0.0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0005 0.0148 0.0148</size>
+            <size>0.0005 0.0175 0.0175</size>
           </box>
         </geometry>
         <material>
@@ -697,7 +697,7 @@
       <child>cubie_1_0_0</child>
     </joint>
     <link name="cubie_-1_1_1">
-      <pose>-0.0186 0.0186 0.0186 0 0 0</pose>
+      <pose>-0.02144 0.02144 0.02144 0 0 0</pose>
       <self_collide>1</self_collide>
       <inertial>
         <mass>0.05</mass>
@@ -713,14 +713,14 @@
       <collision name="collision">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
       </collision>
       <visual name="visual">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
         <material>
@@ -734,10 +734,10 @@
         </meta>
       </visual>
       <visual name='sticker_blue'>
-        <pose>0.0 0.0 0.009275 0 0 0</pose>
+        <pose>0.0 0.0 0.010665 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0148 0.0148 0.0005</size>
+            <size>0.0175 0.0175 0.0005</size>
           </box>
         </geometry>
         <material>
@@ -749,10 +749,10 @@
         </meta>
       </visual>
       <visual name='sticker_orange'>
-        <pose>-0.009275 0.0 0.0 0 0 0</pose>
+        <pose>-0.010665 0.0 0.0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0005 0.0148 0.0148</size>
+            <size>0.0005 0.0175 0.0175</size>
           </box>
         </geometry>
         <material>
@@ -764,10 +764,10 @@
         </meta>
       </visual>
       <visual name='sticker_green'>
-        <pose>0.0 0.009275 0.0 0 0 0</pose>
+        <pose>0.0 0.010665 0.0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0148 0.0005 0.0148</size>
+            <size>0.0175 0.0005 0.0175</size>
           </box>
         </geometry>
         <material>
@@ -784,7 +784,7 @@
       <child>cubie_0_0_0</child>
     </joint>
     <link name="cubie_-1_1_-1">
-      <pose>-0.0186 0.0186 -0.0186 0 0 0</pose>
+      <pose>-0.02144 0.02144 -0.02144 0 0 0</pose>
       <self_collide>1</self_collide>
       <inertial>
         <mass>0.05</mass>
@@ -800,14 +800,14 @@
       <collision name="collision">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
       </collision>
       <visual name="visual">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
         <material>
@@ -821,10 +821,10 @@
         </meta>
       </visual>
       <visual name='sticker_white'>
-        <pose>0.0 0.0 -0.009275 0 0 0</pose>
+        <pose>0.0 0.0 -0.010665 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0148 0.0148 0.0005</size>
+            <size>0.0175 0.0175 0.0005</size>
           </box>
         </geometry>
         <material>
@@ -836,10 +836,10 @@
         </meta>
       </visual>
       <visual name='sticker_orange'>
-        <pose>-0.009275 0.0 0.0 0 0 0</pose>
+        <pose>-0.010665 0.0 0.0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0005 0.0148 0.0148</size>
+            <size>0.0005 0.0175 0.0175</size>
           </box>
         </geometry>
         <material>
@@ -851,10 +851,10 @@
         </meta>
       </visual>
       <visual name='sticker_green'>
-        <pose>0.0 0.009275 0.0 0 0 0</pose>
+        <pose>0.0 0.010665 0.0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0148 0.0005 0.0148</size>
+            <size>0.0175 0.0005 0.0175</size>
           </box>
         </geometry>
         <material>
@@ -871,7 +871,7 @@
       <child>cubie_0_0_0</child>
     </joint>
     <link name="cubie_-1_1_0">
-      <pose>-0.0186 0.0186 0.0 0 0 0</pose>
+      <pose>-0.02144 0.02144 0.0 0 0 0</pose>
       <self_collide>1</self_collide>
       <inertial>
         <mass>0.05</mass>
@@ -887,14 +887,14 @@
       <collision name="collision">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
       </collision>
       <visual name="visual">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
         <material>
@@ -908,10 +908,10 @@
         </meta>
       </visual>
       <visual name='sticker_orange'>
-        <pose>-0.009275 0.0 0.0 0 0 0</pose>
+        <pose>-0.010665 0.0 0.0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0005 0.0148 0.0148</size>
+            <size>0.0005 0.0175 0.0175</size>
           </box>
         </geometry>
         <material>
@@ -923,10 +923,10 @@
         </meta>
       </visual>
       <visual name='sticker_green'>
-        <pose>0.0 0.009275 0.0 0 0 0</pose>
+        <pose>0.0 0.010665 0.0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0148 0.0005 0.0148</size>
+            <size>0.0175 0.0005 0.0175</size>
           </box>
         </geometry>
         <material>
@@ -943,7 +943,7 @@
       <child>cubie_0_0_0</child>
     </joint>
     <link name="cubie_-1_-1_1">
-      <pose>-0.0186 -0.0186 0.0186 0 0 0</pose>
+      <pose>-0.02144 -0.02144 0.02144 0 0 0</pose>
       <self_collide>1</self_collide>
       <inertial>
         <mass>0.05</mass>
@@ -959,14 +959,14 @@
       <collision name="collision">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
       </collision>
       <visual name="visual">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
         <material>
@@ -980,10 +980,10 @@
         </meta>
       </visual>
       <visual name='sticker_blue'>
-        <pose>0.0 0.0 0.009275 0 0 0</pose>
+        <pose>0.0 0.0 0.010665 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0148 0.0148 0.0005</size>
+            <size>0.0175 0.0175 0.0005</size>
           </box>
         </geometry>
         <material>
@@ -995,10 +995,10 @@
         </meta>
       </visual>
       <visual name='sticker_orange'>
-        <pose>-0.009275 0.0 0.0 0 0 0</pose>
+        <pose>-0.010665 0.0 0.0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0005 0.0148 0.0148</size>
+            <size>0.0005 0.0175 0.0175</size>
           </box>
         </geometry>
         <material>
@@ -1010,10 +1010,10 @@
         </meta>
       </visual>
       <visual name='sticker_yellow'>
-        <pose>0.0 -0.009275 0.0 0 0 0</pose>
+        <pose>0.0 -0.010665 0.0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0148 0.0005 0.0148</size>
+            <size>0.0175 0.0005 0.0175</size>
           </box>
         </geometry>
         <material>
@@ -1030,7 +1030,7 @@
       <child>cubie_0_0_0</child>
     </joint>
     <link name="cubie_-1_-1_-1">
-      <pose>-0.0186 -0.0186 -0.0186 0 0 0</pose>
+      <pose>-0.02144 -0.02144 -0.02144 0 0 0</pose>
       <self_collide>1</self_collide>
       <inertial>
         <mass>0.05</mass>
@@ -1046,14 +1046,14 @@
       <collision name="collision">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
       </collision>
       <visual name="visual">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
         <material>
@@ -1067,10 +1067,10 @@
         </meta>
       </visual>
       <visual name='sticker_white'>
-        <pose>0.0 0.0 -0.009275 0 0 0</pose>
+        <pose>0.0 0.0 -0.010665 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0148 0.0148 0.0005</size>
+            <size>0.0175 0.0175 0.0005</size>
           </box>
         </geometry>
         <material>
@@ -1082,10 +1082,10 @@
         </meta>
       </visual>
       <visual name='sticker_orange'>
-        <pose>-0.009275 0.0 0.0 0 0 0</pose>
+        <pose>-0.010665 0.0 0.0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0005 0.0148 0.0148</size>
+            <size>0.0005 0.0175 0.0175</size>
           </box>
         </geometry>
         <material>
@@ -1097,10 +1097,10 @@
         </meta>
       </visual>
       <visual name='sticker_yellow'>
-        <pose>0.0 -0.009275 0.0 0 0 0</pose>
+        <pose>0.0 -0.010665 0.0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0148 0.0005 0.0148</size>
+            <size>0.0175 0.0005 0.0175</size>
           </box>
         </geometry>
         <material>
@@ -1117,7 +1117,7 @@
       <child>cubie_0_0_0</child>
     </joint>
     <link name="cubie_-1_-1_0">
-      <pose>-0.0186 -0.0186 0.0 0 0 0</pose>
+      <pose>-0.02144 -0.02144 0.0 0 0 0</pose>
       <self_collide>1</self_collide>
       <inertial>
         <mass>0.05</mass>
@@ -1133,14 +1133,14 @@
       <collision name="collision">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
       </collision>
       <visual name="visual">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
         <material>
@@ -1154,10 +1154,10 @@
         </meta>
       </visual>
       <visual name='sticker_orange'>
-        <pose>-0.009275 0.0 0.0 0 0 0</pose>
+        <pose>-0.010665 0.0 0.0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0005 0.0148 0.0148</size>
+            <size>0.0005 0.0175 0.0175</size>
           </box>
         </geometry>
         <material>
@@ -1169,10 +1169,10 @@
         </meta>
       </visual>
       <visual name='sticker_yellow'>
-        <pose>0.0 -0.009275 0.0 0 0 0</pose>
+        <pose>0.0 -0.010665 0.0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0148 0.0005 0.0148</size>
+            <size>0.0175 0.0005 0.0175</size>
           </box>
         </geometry>
         <material>
@@ -1189,7 +1189,7 @@
       <child>cubie_0_0_0</child>
     </joint>
     <link name="cubie_-1_0_1">
-      <pose>-0.0186 0.0 0.0186 0 0 0</pose>
+      <pose>-0.02144 0.0 0.02144 0 0 0</pose>
       <self_collide>1</self_collide>
       <inertial>
         <mass>0.05</mass>
@@ -1205,14 +1205,14 @@
       <collision name="collision">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
       </collision>
       <visual name="visual">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
         <material>
@@ -1226,10 +1226,10 @@
         </meta>
       </visual>
       <visual name='sticker_blue'>
-        <pose>0.0 0.0 0.009275 0 0 0</pose>
+        <pose>0.0 0.0 0.010665 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0148 0.0148 0.0005</size>
+            <size>0.0175 0.0175 0.0005</size>
           </box>
         </geometry>
         <material>
@@ -1241,10 +1241,10 @@
         </meta>
       </visual>
       <visual name='sticker_orange'>
-        <pose>-0.009275 0.0 0.0 0 0 0</pose>
+        <pose>-0.010665 0.0 0.0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0005 0.0148 0.0148</size>
+            <size>0.0005 0.0175 0.0175</size>
           </box>
         </geometry>
         <material>
@@ -1261,7 +1261,7 @@
       <child>cubie_0_0_0</child>
     </joint>
     <link name="cubie_-1_0_-1">
-      <pose>-0.0186 0.0 -0.0186 0 0 0</pose>
+      <pose>-0.02144 0.0 -0.02144 0 0 0</pose>
       <self_collide>1</self_collide>
       <inertial>
         <mass>0.05</mass>
@@ -1277,14 +1277,14 @@
       <collision name="collision">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
       </collision>
       <visual name="visual">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
         <material>
@@ -1298,10 +1298,10 @@
         </meta>
       </visual>
       <visual name='sticker_white'>
-        <pose>0.0 0.0 -0.009275 0 0 0</pose>
+        <pose>0.0 0.0 -0.010665 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0148 0.0148 0.0005</size>
+            <size>0.0175 0.0175 0.0005</size>
           </box>
         </geometry>
         <material>
@@ -1313,10 +1313,10 @@
         </meta>
       </visual>
       <visual name='sticker_orange'>
-        <pose>-0.009275 0.0 0.0 0 0 0</pose>
+        <pose>-0.010665 0.0 0.0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0005 0.0148 0.0148</size>
+            <size>0.0005 0.0175 0.0175</size>
           </box>
         </geometry>
         <material>
@@ -1333,7 +1333,7 @@
       <child>cubie_0_0_0</child>
     </joint>
     <link name="cubie_-1_0_0">
-      <pose>-0.0186 0.0 0.0 0 0 0</pose>
+      <pose>-0.02144 0.0 0.0 0 0 0</pose>
       <self_collide>1</self_collide>
       <inertial>
         <mass>0.05</mass>
@@ -1349,14 +1349,14 @@
       <collision name="collision">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
       </collision>
       <visual name="visual">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
         <material>
@@ -1370,10 +1370,10 @@
         </meta>
       </visual>
       <visual name='sticker_orange'>
-        <pose>-0.009275 0.0 0.0 0 0 0</pose>
+        <pose>-0.010665 0.0 0.0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0005 0.0148 0.0148</size>
+            <size>0.0005 0.0175 0.0175</size>
           </box>
         </geometry>
         <material>
@@ -1390,7 +1390,7 @@
       <child>cubie_-1_0_0</child>
     </joint>
     <link name="cubie_0_1_1">
-      <pose>0.0 0.0186 0.0186 0 0 0</pose>
+      <pose>0.0 0.02144 0.02144 0 0 0</pose>
       <self_collide>1</self_collide>
       <inertial>
         <mass>0.05</mass>
@@ -1406,14 +1406,14 @@
       <collision name="collision">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
       </collision>
       <visual name="visual">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
         <material>
@@ -1427,10 +1427,10 @@
         </meta>
       </visual>
       <visual name='sticker_blue'>
-        <pose>0.0 0.0 0.009275 0 0 0</pose>
+        <pose>0.0 0.0 0.010665 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0148 0.0148 0.0005</size>
+            <size>0.0175 0.0175 0.0005</size>
           </box>
         </geometry>
         <material>
@@ -1442,10 +1442,10 @@
         </meta>
       </visual>
       <visual name='sticker_green'>
-        <pose>0.0 0.009275 0.0 0 0 0</pose>
+        <pose>0.0 0.010665 0.0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0148 0.0005 0.0148</size>
+            <size>0.0175 0.0005 0.0175</size>
           </box>
         </geometry>
         <material>
@@ -1462,7 +1462,7 @@
       <child>cubie_0_0_0</child>
     </joint>
     <link name="cubie_0_1_-1">
-      <pose>0.0 0.0186 -0.0186 0 0 0</pose>
+      <pose>0.0 0.02144 -0.02144 0 0 0</pose>
       <self_collide>1</self_collide>
       <inertial>
         <mass>0.05</mass>
@@ -1478,14 +1478,14 @@
       <collision name="collision">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
       </collision>
       <visual name="visual">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
         <material>
@@ -1499,10 +1499,10 @@
         </meta>
       </visual>
       <visual name='sticker_white'>
-        <pose>0.0 0.0 -0.009275 0 0 0</pose>
+        <pose>0.0 0.0 -0.010665 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0148 0.0148 0.0005</size>
+            <size>0.0175 0.0175 0.0005</size>
           </box>
         </geometry>
         <material>
@@ -1514,10 +1514,10 @@
         </meta>
       </visual>
       <visual name='sticker_green'>
-        <pose>0.0 0.009275 0.0 0 0 0</pose>
+        <pose>0.0 0.010665 0.0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0148 0.0005 0.0148</size>
+            <size>0.0175 0.0005 0.0175</size>
           </box>
         </geometry>
         <material>
@@ -1534,7 +1534,7 @@
       <child>cubie_0_0_0</child>
     </joint>
     <link name="cubie_0_1_0">
-      <pose>0.0 0.0186 0.0 0 0 0</pose>
+      <pose>0.0 0.02144 0.0 0 0 0</pose>
       <self_collide>1</self_collide>
       <inertial>
         <mass>0.05</mass>
@@ -1550,14 +1550,14 @@
       <collision name="collision">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
       </collision>
       <visual name="visual">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
         <material>
@@ -1571,10 +1571,10 @@
         </meta>
       </visual>
       <visual name='sticker_green'>
-        <pose>0.0 0.009275 0.0 0 0 0</pose>
+        <pose>0.0 0.010665 0.0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0148 0.0005 0.0148</size>
+            <size>0.0175 0.0005 0.0175</size>
           </box>
         </geometry>
         <material>
@@ -1591,7 +1591,7 @@
       <child>cubie_0_1_0</child>
     </joint>
     <link name="cubie_0_-1_1">
-      <pose>0.0 -0.0186 0.0186 0 0 0</pose>
+      <pose>0.0 -0.02144 0.02144 0 0 0</pose>
       <self_collide>1</self_collide>
       <inertial>
         <mass>0.05</mass>
@@ -1607,14 +1607,14 @@
       <collision name="collision">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
       </collision>
       <visual name="visual">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
         <material>
@@ -1628,10 +1628,10 @@
         </meta>
       </visual>
       <visual name='sticker_blue'>
-        <pose>0.0 0.0 0.009275 0 0 0</pose>
+        <pose>0.0 0.0 0.010665 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0148 0.0148 0.0005</size>
+            <size>0.0175 0.0175 0.0005</size>
           </box>
         </geometry>
         <material>
@@ -1643,10 +1643,10 @@
         </meta>
       </visual>
       <visual name='sticker_yellow'>
-        <pose>0.0 -0.009275 0.0 0 0 0</pose>
+        <pose>0.0 -0.010665 0.0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0148 0.0005 0.0148</size>
+            <size>0.0175 0.0005 0.0175</size>
           </box>
         </geometry>
         <material>
@@ -1663,7 +1663,7 @@
       <child>cubie_0_0_0</child>
     </joint>
     <link name="cubie_0_-1_-1">
-      <pose>0.0 -0.0186 -0.0186 0 0 0</pose>
+      <pose>0.0 -0.02144 -0.02144 0 0 0</pose>
       <self_collide>1</self_collide>
       <inertial>
         <mass>0.05</mass>
@@ -1679,14 +1679,14 @@
       <collision name="collision">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
       </collision>
       <visual name="visual">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
         <material>
@@ -1700,10 +1700,10 @@
         </meta>
       </visual>
       <visual name='sticker_white'>
-        <pose>0.0 0.0 -0.009275 0 0 0</pose>
+        <pose>0.0 0.0 -0.010665 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0148 0.0148 0.0005</size>
+            <size>0.0175 0.0175 0.0005</size>
           </box>
         </geometry>
         <material>
@@ -1715,10 +1715,10 @@
         </meta>
       </visual>
       <visual name='sticker_yellow'>
-        <pose>0.0 -0.009275 0.0 0 0 0</pose>
+        <pose>0.0 -0.010665 0.0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0148 0.0005 0.0148</size>
+            <size>0.0175 0.0005 0.0175</size>
           </box>
         </geometry>
         <material>
@@ -1735,7 +1735,7 @@
       <child>cubie_0_0_0</child>
     </joint>
     <link name="cubie_0_-1_0">
-      <pose>0.0 -0.0186 0.0 0 0 0</pose>
+      <pose>0.0 -0.02144 0.0 0 0 0</pose>
       <self_collide>1</self_collide>
       <inertial>
         <mass>0.05</mass>
@@ -1751,14 +1751,14 @@
       <collision name="collision">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
       </collision>
       <visual name="visual">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
         <material>
@@ -1772,10 +1772,10 @@
         </meta>
       </visual>
       <visual name='sticker_yellow'>
-        <pose>0.0 -0.009275 0.0 0 0 0</pose>
+        <pose>0.0 -0.010665 0.0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0148 0.0005 0.0148</size>
+            <size>0.0175 0.0005 0.0175</size>
           </box>
         </geometry>
         <material>
@@ -1792,7 +1792,7 @@
       <child>cubie_0_-1_0</child>
     </joint>
     <link name="cubie_0_0_1">
-      <pose>0.0 0.0 0.0186 0 0 0</pose>
+      <pose>0.0 0.0 0.02144 0 0 0</pose>
       <self_collide>1</self_collide>
       <inertial>
         <mass>0.05</mass>
@@ -1808,14 +1808,14 @@
       <collision name="collision">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
       </collision>
       <visual name="visual">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
         <material>
@@ -1829,10 +1829,10 @@
         </meta>
       </visual>
       <visual name='sticker_blue'>
-        <pose>0.0 0.0 0.009275 0 0 0</pose>
+        <pose>0.0 0.0 0.010665 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0148 0.0148 0.0005</size>
+            <size>0.0175 0.0175 0.0005</size>
           </box>
         </geometry>
         <material>
@@ -1849,7 +1849,7 @@
       <child>cubie_0_0_1</child>
     </joint>
     <link name="cubie_0_0_-1">
-      <pose>0.0 0.0 -0.0186 0 0 0</pose>
+      <pose>0.0 0.0 -0.02144 0 0 0</pose>
       <self_collide>1</self_collide>
       <inertial>
         <mass>0.05</mass>
@@ -1865,14 +1865,14 @@
       <collision name="collision">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
       </collision>
       <visual name="visual">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
         <material>
@@ -1886,10 +1886,10 @@
         </meta>
       </visual>
       <visual name='sticker_white'>
-        <pose>0.0 0.0 -0.009275 0 0 0</pose>
+        <pose>0.0 0.0 -0.010665 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.0148 0.0148 0.0005 </size>
+            <size>0.0175 0.0175 0.0005 </size>
           </box>
         </geometry>
         <material>
@@ -1922,14 +1922,14 @@
       <collision name="collision">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
       </collision>
       <visual name="visual">
         <geometry>
           <box>
-            <size>0.0185 0.0185 0.0185</size>
+            <size>0.02133 0.02133 0.02133</size>
           </box>
         </geometry>
         <material>
