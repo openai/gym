@@ -388,9 +388,16 @@ def heuristic(env, s):
         elif angle_todo > +0.05: a = 1
     return a
 
-if __name__=="__main__":
-    #env = LunarLander()
-    env = LunarLanderContinuous()
+
+
+def test_lunar_lander():
+    _test_lander(LunarLander())
+
+def test_lunar_lander_continuous():
+    _test_lander(LunarLanderContinuous())
+
+
+def _test_lander(env):
     s = env.reset()
     total_reward = 0
     steps = 0
@@ -404,3 +411,11 @@ if __name__=="__main__":
             print("step {} total_reward {:+0.2f}".format(steps, total_reward))
         steps += 1
         if done: break
+
+    assert total_reward > 100
+
+
+if __name__=="__main__":
+    env = LunarLander()
+    _test_lander(env)
+
