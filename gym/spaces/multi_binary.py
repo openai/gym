@@ -9,6 +9,9 @@ class MultiBinary(gym.Space):
         return gym.spaces.np_random.randint(low=0, high=2, size=self.n).astype(self.dtype)
     def contains(self, x):
         return ((x==0) | (x==1)).all()
+
+    __contains__ = contains
+
     def to_jsonable(self, sample_n):
         return np.array(sample_n).tolist()
     def from_jsonable(self, sample_n):

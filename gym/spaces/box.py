@@ -38,6 +38,8 @@ class Box(gym.Space):
     def contains(self, x):
         return x.shape == self.shape and (x >= self.low).all() and (x <= self.high).all()
 
+    __contains__ = contains
+
     def to_jsonable(self, sample_n):
         return np.array(sample_n).tolist()
     def from_jsonable(self, sample_n):
