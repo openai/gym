@@ -89,14 +89,14 @@ class LunarLander(gym.Env):
 
         self.prev_reward = None
 
-        high = np.array([np.inf]*8)  # useful range is -1 .. +1, but spikes can be higher
-        self.observation_space = spaces.Box(-high, high)
+        # useful range is -1 .. +1, but spikes can be higher
+        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(8,), dtype=np.float32)
 
         if self.continuous:
             # Action is two floats [main engine, left-right engines].
             # Main engine: -1..0 off, 0..+1 throttle from 50% to 100% power. Engine can't work with less than 50% power.
             # Left-right:  -1.0..-0.5 fire left engine, +0.5..+1.0 fire right engine, -0.5..0.5 off
-            self.action_space = spaces.Box(-1, +1, (2,))
+            self.action_space = spaces.Box(-1, +1, (2,), dtype=np.float32)
         else:
             # Nop, fire left engine, main engine, right engine
             self.action_space = spaces.Discrete(4)
@@ -235,7 +235,10 @@ class LunarLander(gym.Env):
             self.world.DestroyBody(self.particles.pop(0))
 
     def step(self, action):
-        assert self.action_space.contains(action), "%r (%s) invalid " % (action,type(action))
+        if self.continuous:
+            action = np.clip(action, -1, +1).astype(np.float32)
+        else:
+            assert self.action_space.contains(action), "%r (%s) invalid " % (action, type(action))
 
         # Engines
         tip  = (math.sin(self.lander.angle), math.cos(self.lander.angle))
@@ -310,7 +313,7 @@ class LunarLander(gym.Env):
         if not self.lander.awake:
             done   = True
             reward = +100
-        return np.array(state), reward, done, {}
+        return np.array(state, dtype=np.float32), reward, done, {}
 
     def render(self, mode='human'):
         from gym.envs.classic_control import rendering
@@ -389,18 +392,22 @@ def heuristic(env, s):
     return a
 
 if __name__=="__main__":
-    #env = LunarLander()
-    env = LunarLanderContinuous()
+    # Both work:
+    if 1:
+        env = LunarLander()
+    else:
+        env = LunarLanderContinuous()
     s = env.reset()
     total_reward = 0
     steps = 0
     while True:
         a = heuristic(env, s)
         s, r, done, info = env.step(a)
-        env.render()
+        still_open = env.render()
+        if still_open==False: break
         total_reward += r
         if steps % 20 == 0 or done:
-            print(["{:+0.2f}".format(x) for x in s])
+            print("observations:", " ".join(["{:+0.2f}".format(x) for x in s]))
             print("step {} total_reward {:+0.2f}".format(steps, total_reward))
         steps += 1
         if done: break

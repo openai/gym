@@ -88,6 +88,12 @@ On Ubuntu 14.04:
 
     apt-get install -y python-numpy python-dev cmake zlib1g-dev libjpeg-dev xvfb libav-tools xorg-dev python-opengl libboost-all-dev libsdl2-dev swig
 
+On Ubuntu 18.04:
+
+.. code:: shell
+
+    apt-get install -y python-numpy python-dev cmake zlib1g-dev libjpeg-dev xvfb ffmpeg xorg-dev python-opengl libboost-all-dev libsdl2-dev swig
+
 MuJoCo has a proprietary dependency we can't set up for you. Follow
 the
 `instructions <https://github.com/openai/mujoco-py#obtaining-the-binaries-and-license-key>`_
