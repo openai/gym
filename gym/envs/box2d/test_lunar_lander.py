@@ -1,20 +1,19 @@
 from .lunar_lander import LunarLander, LunarLanderContinuous, heuristic
 
 def test_lunar_lander():
-    _test_lander(LunarLander())
+    _test_lander(LunarLander(), seed=0)
 
 def test_lunar_lander_continuous():
-    _test_lander(LunarLanderContinuous())
+    _test_lander(LunarLanderContinuous(), seed=0)
 
-def _test_lander(env):
+def _test_lander(env, seed=None):
+    env.seed(seed)
     total_reward = 0
     steps = 0
     s = env.reset()
     while True:
         a = heuristic(env, s)
         s, r, done, info = env.step(a)
-        still_open = env.render()
-        if still_open==False: break
         total_reward += r
         if steps % 20 == 0 or done:
             print("observations:", " ".join(["{:+0.2f}".format(x) for x in s]))
