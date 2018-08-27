@@ -13,8 +13,10 @@ class MultiDiscrete(gym.Space):
         return (gym.spaces.np_random.rand(self.nvec.size) * self.nvec).astype(self.dtype)
     def contains(self, x):
         return (0 <= x).all() and (x < self.nvec).all() and x.dtype.kind in 'ui'
+    
+    __contains__ = contains
+    
     def to_jsonable(self, sample_n):
         return [sample.tolist() for sample in sample_n]
     def from_jsonable(self, sample_n):
         return np.array(sample_n)
-
