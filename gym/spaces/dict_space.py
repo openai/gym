@@ -31,7 +31,7 @@ class Dict(gym.Space):
     })
     """
     def __init__(self, spaces):
-        if isinstance(spaces, dict):
+        if isinstance(spaces, dict) and not isinstance(spaces, OrderedDict):
             spaces = OrderedDict(sorted(list(spaces.items())))
         if isinstance(spaces, list):
             spaces = OrderedDict(spaces)
