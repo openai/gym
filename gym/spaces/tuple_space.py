@@ -20,8 +20,6 @@ class Tuple(gym.Space):
         return isinstance(x, tuple) and len(x) == len(self.spaces) and all(
             space.contains(part) for (space,part) in zip(self.spaces,x))
 
-    __contains__ = contains
-
     def __repr__(self):
         return "Tuple(" + ", ". join([str(s) for s in self.spaces]) + ")"
 
