@@ -28,7 +28,7 @@ from gym.utils import seeding
 #
 # To play yourself, run:
 #
-# python examples/agents/keyboard_agent.py LunarLander-v0
+# python examples/agents/keyboard_agent.py LunarLander-v2
 #
 # Created by Oleg Klimov. Licensed on the same terms as the rest of OpenAI Gym.
 
@@ -390,3 +390,30 @@ def heuristic(env, s):
         elif angle_todo < -0.05: a = 3
         elif angle_todo > +0.05: a = 1
     return a
+
+def demo_heuristic_lander(env, seed=None, render=False):
+    env.seed(seed)
+    total_reward = 0
+    steps = 0
+    s = env.reset()
+    while True:
+        a = heuristic(env, s)
+        s, r, done, info = env.step(a)
+        total_reward += r
+
+        if render:
+            still_open = env.render()
+            if still_open == False: break
+
+        if steps % 20 == 0 or done:
+            print("observations:", " ".join(["{:+0.2f}".format(x) for x in s]))
+            print("step {} total_reward {:+0.2f}".format(steps, total_reward))
+        steps += 1
+        if done: break
+    return total_reward
+
+
+if __name__ == '__main__':
+    demo_heuristic_lander(LunarLander(), render=True)
+    
+    
