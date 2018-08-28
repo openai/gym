@@ -3,7 +3,7 @@
 
 set -ex
 
-if [[ ! -e $MUJOCO_KEY ]]; then 
+if [[ ! -z $MUJOCO_KEY ]]; then 
     echo $MUJOCO_KEY | base64 --decode > /root/.mujoco/mjkey.txt
 fi
 
