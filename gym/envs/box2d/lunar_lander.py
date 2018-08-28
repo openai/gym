@@ -391,7 +391,7 @@ def heuristic(env, s):
         elif angle_todo > +0.05: a = 1
     return a
 
-def enjoy_lander(env, seed=None, render=False):
+def demo_heuristic_lander(env, seed=None, render=False):
     env.seed(seed)
     total_reward = 0
     steps = 0
@@ -414,6 +414,6 @@ def enjoy_lander(env, seed=None, render=False):
 
 
 if __name__ == '__main__':
-    enjoy_lander(LunarLander(), render=True)
+    demo_heuristic_lander(LunarLander(), render=True)
     
     
