@@ -118,7 +118,7 @@ class MujocoEnv(gym.Env):
             # Extract depth part of the read_pixels() tuple
             data = self._get_viewer(mode).read_pixels(width, height, depth=True)[1]
             # original image is upside-down, so flip it
-            return data[::-1, :, :]
+            return data[::-1, :]
         elif mode == 'human':
             self._get_viewer(mode).render()
 
