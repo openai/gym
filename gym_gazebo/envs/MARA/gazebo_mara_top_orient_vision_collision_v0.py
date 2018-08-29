@@ -799,7 +799,8 @@ class GazeboMARATopOrientVisionCollisionv0Env(gazebo_env.GazeboEnv):
                     rospy.wait_for_service('/gazebo/reset_simulation')
                     try:
                         #reset_proxy.call()
-                        self.reset_world()
+                        self.reset_proxy()
+                        self._collision_msg = None
                     except (rospy.ServiceException) as e:
                         print ("/gazebo/reset_simulation service call failed")
                     # self.goToInit()
