@@ -144,6 +144,10 @@ register(
     entry_point='gym_gazebo.envs.MARA:GazeboMARATopOrientVisionv0Env',
 )
 register(
+    id='MARAOrientCollision-v0',
+    entry_point='gym_gazebo.envs.MARA:GazeboMARATopOrientCollisionv0Env',
+)
+register(
     id='MARAVisionOrientCollision-v0',
     entry_point='gym_gazebo.envs.MARA:GazeboMARATopOrientVisionCollisionv0Env',
 )
