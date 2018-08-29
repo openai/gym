@@ -10,6 +10,10 @@ from gazebo_msgs.srv import SpawnModel, DeleteModel, SetLinkState, SetModelState
 from gazebo_msgs.msg import LinkState, ModelState
 from geometry_msgs.msg import Pose
 from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Vector3
+from geometry_msgs.msg import WrenchStamped
+from gazebo_msgs.msg import ContactState
+
 from std_srvs.srv import Empty
 from gym.utils import seeding
 import copy
@@ -17,6 +21,7 @@ import rospkg
 import threading # Used for time locks to synchronize position data.
 
 import os
+import re
 
 # from gazebo_msgs.srv import SpawnModel, DeleteModel
 
@@ -58,7 +63,7 @@ class MSG_INVALID_JOINT_NAMES_DIFFER(Exception):
     pass
 
 
-class GazeboMARATopOrientVisionv0Env(gazebo_env.GazeboEnv):
+class GazeboMARATopOrientVisionCollisionv0Env(gazebo_env.GazeboEnv):
     """
     This environment present a modular SCARA robot with a range finder at its
     end pointing towards the workspace of the robot. The goal of this environment is
@@ -76,7 +81,7 @@ class GazeboMARATopOrientVisionv0Env(gazebo_env.GazeboEnv):
             TODO: port everything to ROS 2 natively
         """
         # Launch the simulation with the given launchfile name
-        gazebo_env.GazeboEnv.__init__(self, "MARATop3DOF_v0.launch")
+        gazebo_env.GazeboEnv.__init__(self, "MARATop6DOF_Obstacle_v0.launch")
 
         # TODO: cleanup this variables, remove the ones that aren't used
         # class variables
@@ -97,6 +102,8 @@ class GazeboMARATopOrientVisionv0Env(gazebo_env.GazeboEnv):
         self.slowness_unit = 'sec'
         self.reset_jnts = True
         self.detect_target_once = 1
+        self._collision_msg = None
+        self._filter_collision = None
 
         self._time_lock = threading.RLock()
 
@@ -212,6 +219,8 @@ class GazeboMARATopOrientVisionv0Env(gazebo_env.GazeboEnv):
         self._pub = rospy.Publisher(JOINT_PUBLISHER, JointTrajectory)
         self._sub = rospy.Subscriber(JOINT_SUBSCRIBER, JointTrajectoryControllerState, self.observation_callback)
 
+        self._sub_coll = rospy.Subscriber('/gazebo_contacts',ContactState, self.collision_callback)
+
         TARGET_SUBSCRIBER = '/mara/target'
         self._sub_tgt = rospy.Subscriber(TARGET_SUBSCRIBER, Pose, self.tgt_callback)
         # Instantiate CvBridge
@@ -265,6 +274,8 @@ class GazeboMARATopOrientVisionv0Env(gazebo_env.GazeboEnv):
         self.add_model = rospy.ServiceProxy('/gazebo/spawn_urdf_model', SpawnModel)
         self.add_model_sdf = rospy.ServiceProxy('/gazebo/spawn_sdf_model', SpawnModel)
         self.remove_model = rospy.ServiceProxy('/gazebo/delete_model', DeleteModel)
+        self.reset_proxy = rospy.ServiceProxy('/gazebo/reset_simulation', Empty)
+        self.reset_world = rospy.ServiceProxy('/gazebo/reset_world', Empty)
         self.pub_set_model = rospy.Publisher('/gazebo/set_model_state', ModelState, queue_size=1)
 
         self.addTarget()
@@ -272,6 +283,24 @@ class GazeboMARATopOrientVisionv0Env(gazebo_env.GazeboEnv):
         # Seed the environment
         # Seed the environment
         self._seed()
+
+    def collision_callback(self, message):
+        """
+        Callback method for the subscriber of Collision data
+        """
+
+
+        if "puzzle_ball_joints::cubie" not in message.collision1_name and "puzzle_ball_joints::cubie" not in message.collision2_name:
+
+            if "robot::motor6_link::motor6_link_fixed_joint_lump__robotiq_arg2f_base_link_collision_1" not in message.collision1_name and  "robot::left_outer_finger::left_outer_finger_collision" not in message.collision2_name:
+                if "puzzle_ball_joints::cubie" not in message.collision1_name or  "robot::table::table_fixed_joint_lump__mara_work_area_link_collision_4" not in message.collision2_name:
+                    self._collision_msg =  message
+                    # print("\ncollision: ", self._collision_msg)
+
+        # if "puzzle_ball_joints::cubie" not in self._filter_collision.collision1_name or  "robot::table::table_fixed_joint_lump__mara_work_area_link_collision_4" not in self._filter_collision.collision2_name:
+        #     self._collision_msg = self._filter_collision
+        #     # print(self._collision_msg)
+
     def tgt_callback(self,msg):
         # print("Whats the target?: ", msg)
         # self.realgoal is None and self.target_orientation is None:
@@ -371,13 +400,13 @@ class GazeboMARATopOrientVisionv0Env(gazebo_env.GazeboEnv):
             pose = Pose()
 
             pose.position.x = -0.5074649153217804#-0.5074649153217804#random.uniform(-0.3, -0.6);
-            pose.position.y =  random.uniform(-0.02, 0.01)#0.03617460539210797#random.uniform(-0.02, 0.01)
+            pose.position.y = 0.03617460539210797#random.uniform(-0.02, 0.01)
             # stay put in Z!!!
             pose.position.z = 0.72#0.72#0.80 #0.72;
 
-            roll = 0.0 #random.uniform(-0.2, 0.6)
+            roll = 0.0#random.uniform(-0.2, 0.6)
             pitch = 0.0#random.uniform(-0.2, 0.2)
-            yaw = 0.0#-0.3#random.uniform(-0.3, 0.3)
+            yaw = -0.3#-0.3#random.uniform(-0.3, 0.3)
             new_camera_pose = False
             q_rubik = quat.from_euler_angles(roll, pitch, yaw)
             # print("q_rubik: ", q_rubik.x, q_rubik.y, q_rubik.z, q_rubik.w)
@@ -402,21 +431,11 @@ class GazeboMARATopOrientVisionv0Env(gazebo_env.GazeboEnv):
             self.pub_set_model.publish(ModelState( model_name='puzzle_ball_joints',
                                 pose=pose,
                                 reference_frame="world"))
-            # try:
-            #     self.removeTargetSphere()
-            # except:
-            #     print('error removing sphere')
 
     def removeTarget(self):
             rospy.wait_for_service('/gazebo/delete_model')
             try:
                 self.remove_model(model_name="puzzle_ball_joints")
-            except (rospy.ServiceException) as e:
-                print ("/gazebo/spawn_urdf_model service call failed")
-    def removeTargetSphere(self):
-            rospy.wait_for_service('/gazebo/delete_model')
-            try:
-                self.remove_model(model_name="target")
             except (rospy.ServiceException) as e:
                 print ("/gazebo/spawn_urdf_model service call failed")
 
@@ -772,6 +791,23 @@ class GazeboMARATopOrientVisionv0Env(gazebo_env.GazeboEnv):
         else:
             self.reward = self.reward + orientation_scale * self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)])
 
+        if self._collision_msg is not None:
+            if self._collision_msg.collision1_name:
+                if self._collision_msg.collision2_name:
+                    print("\ncollision detected: ", self._collision_msg)
+                    # Resets the state of the environment and returns an initial observation.
+                    rospy.wait_for_service('/gazebo/reset_simulation')
+                    try:
+                        #reset_proxy.call()
+                        self.reset_world()
+                    except (rospy.ServiceException) as e:
+                        print ("/gazebo/reset_simulation service call failed")
+                    # self.goToInit()
+                    # self.reset_proxy = rospy.ServiceProxy('/gazebo/reset_world', Empty)
+                    self.reward = self.reward - 5
+                    # self.goToInit()
+                    self._collision_msg = None
+
         #this is very hard to converge
         # self.reward = self.reward_dist + orientation_scale*self.reward_orient
         #
@@ -820,6 +856,8 @@ class GazeboMARATopOrientVisionv0Env(gazebo_env.GazeboEnv):
                 self._currently_resetting = True
                 self._pub.publish(self.get_trajectory_message(self.environment['reset_conditions']['initial_positions']))
                 time.sleep(3)
+            else:
+                self._currently_resetting = False
 
     def _reset(self):
         """
