@@ -1,7 +1,7 @@
 #!/bin/sh
 # This script is the entrypoint for our Docker image.
 
-set -e
+set -ex
 
 if [[ ! -e "$MUJOCO_KEY" ]]; then 
     echo $MUJOCO_KEY | base64 --decode > /root/.mujoco/mjkey.txt
