@@ -106,8 +106,8 @@ class GazeboMARATopOrientv0Env(gazebo_env.GazeboEnv):
         EE_POINTS = np.asmatrix([[0, 0, 0]])
         EE_VELOCITIES = np.asmatrix([[0, 0, 0]])
         # Initial joint position
-        INITIAL_JOINTS = np.array([0., 0., -1., 0., 1.57, 0.])
-        # INITIAL_JOINTS = np.array([0., 0., 0., 0., 0., 0.])
+        # INITIAL_JOINTS = np.array([0., 0., -1., 0., 1.57, 0.])
+        INITIAL_JOINTS = np.array([0., 0., 0., 0., 0., 0.])
         # Used to initialize the robot, #TODO, clarify this more
         # STEP_COUNT = 2  # Typically 100.
         # slowness = 10000000 # 10 ms, where 1 second is real life simulation
