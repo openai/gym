@@ -650,8 +650,8 @@ class GazeboMARATopOrientCollisionv0Env(gazebo_env.GazeboEnv):
             self.reward = self.reward +  orientation_scale * (1 -self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)]))
             print("Reward orientation is: ", self.reward)
         else:
-            self.reward = self.reward + orientation_scale * self.reward_orient# * self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)])
-            print("Reward orientation is (minus): ")
+            self.reward = self.reward + orientation_scale * self.reward_orient#self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)])
+
         #self.reward = self.reward_final_dist + orientation_scale*self.final_rew_orient
 
         # self.reward =self.reward - abs(self.ob[(self.scara_chain.getNrOfJoints()+4)])
@@ -661,6 +661,26 @@ class GazeboMARATopOrientCollisionv0Env(gazebo_env.GazeboEnv):
         # Execute "action"
         self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
 
+        if self._collision_msg is not None:
+            if self._collision_msg.collision1_name:
+                if self._collision_msg.collision2_name:
+                    # print("\ncollision detected: ", self._collision_msg)
+                    # Resets the state of the environment and returns an initial observation.
+                    rospy.wait_for_service('/gazebo/reset_simulation')
+                    try:
+                        #reset_proxy.call()
+                        self.reset_proxy()
+                        self._collision_msg = None
+                        self.reward = self.reward - 5
+                    except (rospy.ServiceException) as e:
+                        print ("/gazebo/reset_simulation service call failed")
+                        # self.goToInit()
+                        # self.reset_proxy = rospy.ServiceProxy('/gazebo/reset_world', Empty)
+                        # self.reward = self.reward - 5
+                        # self.goToInit()
+                        self._collision_msg = None
+                        self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
+
 
         # # Take an observation
         # TODO: program this better, check that ob is not None, etc.
@@ -669,27 +689,6 @@ class GazeboMARATopOrientCollisionv0Env(gazebo_env.GazeboEnv):
             self.ob = self.take_observation()
 
 
-        if self._collision_msg is not None:
-            if self._collision_msg.collision1_name:
-                if self._collision_msg.collision2_name:
-                    print("\ncollision detected: ", self._collision_msg)
-                    # Resets the state of the environment and returns an initial observation.
-                    rospy.wait_for_service('/gazebo/reset_simulation')
-                    try:
-                        #reset_proxy.call()
-                        self.reset_proxy()
-                        self._collision_msg = None
-                        # self.reward = self.reward - 5
-                        self.reward = self.reward - (self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)]) * 5)
-                        print("Reward collision is: ", self.reward)
-                    except (rospy.ServiceException) as e:
-                        print ("/gazebo/reset_simulation service call failed")
-                        # self.goToInit()
-                        # self.reset_proxy = rospy.ServiceProxy('/gazebo/reset_world', Empty)
-                        # self.reward = self.reward - 5
-                        self.reward = self.reward - (self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)]) * 5)
-                        # self.goToInit()
-                        self._collision_msg = None
         # Return the corresponding observations, rewards, etc.
         # TODO, understand better what's the last object to return
         return self.ob, self.reward, done, {}
