@@ -64,14 +64,15 @@ class CartPoleEnv(gym.Env):
         self.tau = 0.02  # seconds between state updates
 
         # Angle at which to fail the episode
-        self.theta_threshold_radians = 24 * 2 * math.pi / 360
+        self.theta_threshold_radians = 12 * 2 * math.pi / 360
         self.x_threshold = 2.4
 
         # Angle limit set to 2 * theta_threshold_radians so failing observation is still within bounds
         high = np.array([
             self.x_threshold * 2,
             np.finfo(np.float32).max,
-            self.theta_threshold_radians * 2,
+            # self.theta_threshold_radians * 2,
+            math.pi,
             np.finfo(np.float32).max])
 
         self.action_space = spaces.Discrete(2)
@@ -100,12 +101,14 @@ class CartPoleEnv(gym.Env):
         x  = x + self.tau * x_dot
         x_dot = x_dot + self.tau * xacc
         theta = theta + self.tau * theta_dot
+        if theta >= math.pi:
+            theta -= 2*math.pi
+        elif theta < -math.pi:
+            theta += 2*math.pi
         theta_dot = theta_dot + self.tau * thetaacc
         self.state = (x,x_dot,theta,theta_dot)
         done =  x < -self.x_threshold \
-                or x > self.x_threshold \
-                or theta < -self.theta_threshold_radians \
-                or theta > self.theta_threshold_radians
+                or x > self.x_threshold
         done = bool(done)
         good = theta > -self.theta_threshold_radians/10 \
                 and theta < self.theta_threshold_radians/10
