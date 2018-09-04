@@ -71,7 +71,8 @@ class CartPoleEnv(gym.Env):
         high = np.array([
             self.x_threshold * 2,
             np.finfo(np.float32).max,
-            self.theta_threshold_radians * 2,
+            # self.theta_threshold_radians * 2,
+            math.pi,
             np.finfo(np.float32).max])
 
         self.action_space = spaces.Discrete(2)
@@ -100,30 +101,32 @@ class CartPoleEnv(gym.Env):
         x  = x + self.tau * x_dot
         x_dot = x_dot + self.tau * xacc
         theta = theta + self.tau * theta_dot
+        if theta >= math.pi:
+            theta -= 2*math.pi
+        elif theta < -math.pi:
+            theta += 2*math.pi
         theta_dot = theta_dot + self.tau * thetaacc
         self.state = (x,x_dot,theta,theta_dot)
         done =  x < -self.x_threshold \
-                or x > self.x_threshold \
-                or theta < -self.theta_threshold_radians \
-                or theta > self.theta_threshold_radians
+                or x > self.x_threshold
         done = bool(done)
-
+        good = theta > -self.theta_threshold_radians/10 \
+                and theta < self.theta_threshold_radians/10
+        reward = float(good) 
         if not done:
-            reward = 1.0
+            pass
         elif self.steps_beyond_done is None:
             # Pole just fell!
             self.steps_beyond_done = 0
-            reward = 1.0
         else:
             if self.steps_beyond_done == 0:
                 logger.warn("You are calling 'step()' even though this environment has already returned done = True. You should always call 'reset()' once you receive 'done = True' -- any further steps are undefined behavior.")
             self.steps_beyond_done += 1
-            reward = 0.0
 
         return np.array(self.state), reward, done, {}
 
     def reset(self):
-        self.state = self.np_random.uniform(low=-0.05, high=0.05, size=(4,))
+        self.state = self.np_random.uniform(low=-0.5, high=0.5, size=(4,))
         self.steps_beyond_done = None
         return np.array(self.state)
 
