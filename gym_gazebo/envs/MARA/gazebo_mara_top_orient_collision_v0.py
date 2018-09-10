@@ -96,10 +96,10 @@ class GazeboMARATopOrientCollisionv0Env(gazebo_env.GazeboEnv):
         #############################
         # target, where should the agent reach
 
-        EE_POS_TGT = np.asmatrix([-0.40028, 0.095615, 0.72466]) # alex2
-        EE_ROT_TGT = np.asmatrix([[-0.00128296,  0.9999805 ,  0.00611158],
-                                   [ 0.00231397, -0.0061086 ,  0.99997867],
-                                   [ 0.9999965 ,  0.00129708, -0.00230609]])
+        EE_POS_TGT = np.asmatrix([-0.40028, 0.095615, 0.72466 + 0.01]) # alex2
+        # EE_ROT_TGT = np.asmatrix([[-0.00128296,  0.9999805 ,  0.00611158],
+        #                            [ 0.00231397, -0.0061086 ,  0.99997867],
+        #                            [ 0.9999965 ,  0.00129708, -0.00230609]])
         # EE_POS_TGT = np.asmatrix([-0.390768, 0.0101776, 0.725335]) # 200 cm from the z axis
         # EE_POS_TGT = np.asmatrix([0.0, 0.001009, 1.64981])
         # EE_POS_TGT = np.asmatrix([-0.4023037912211465, 0.15501116706606247, 0.7238499613771884]) # 200 cm from the z axis
@@ -114,7 +114,7 @@ class GazeboMARATopOrientCollisionv0Env(gazebo_env.GazeboEnv):
         #                           [-0.09768035, -0.99077857,  0.09389558],
         #                           [-0.00367013,  0.09470474,  0.99549864]])
         # EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
-        # EE_ROT_TGT = np.asmatrix([[0.79660969, -0.51571238,  0.31536287], [0.51531424,  0.85207952,  0.09171542], [-0.31601302,  0.08944959,  0.94452874]]) # original orientation
+        EE_ROT_TGT = np.asmatrix([[0.79660969, -0.51571238,  0.31536287], [0.51531424,  0.85207952,  0.09171542], [-0.31601302,  0.08944959,  0.94452874]]) # original orientation
         EE_POINTS = np.asmatrix([[0, 0, 0]])
         EE_VELOCITIES = np.asmatrix([[0, 0, 0]])
         # Initial joint position
@@ -240,8 +240,8 @@ class GazeboMARATopOrientCollisionv0Env(gazebo_env.GazeboEnv):
         # # Here idially we should find the control range of the robot. Unfortunatelly in ROS/KDL there is nothing like this.
         # # I have tested this with the mujoco enviroment and the output is always same low[-1.,-1.], high[1.,1.]
         # #bounds = self.model.actuator_ctrlrange.copy()
-        low = -np.pi/2.0 * np.ones(self.scara_chain.getNrOfJoints())
-        high = np.pi/2.0 * np.ones(self.scara_chain.getNrOfJoints())
+        low = -np.pi/2 * np.ones(self.scara_chain.getNrOfJoints())
+        high = np.pi/2 * np.ones(self.scara_chain.getNrOfJoints())
         # low = -np.pi * np.ones(self.scara_chain.getNrOfJoints())
         # high = np.pi * np.ones(self.scara_chain.getNrOfJoints())
         # low = -np.inf * np.ones(self.scara_chain.getNrOfJoints())
@@ -582,18 +582,24 @@ class GazeboMARATopOrientCollisionv0Env(gazebo_env.GazeboEnv):
             # tgt_quartenion = quaternion_from_matrix(self.target_orientation)
 
             current_quaternion = quat.from_rotation_matrix(rotation_matrix)
+            # print("current_quaternion: ", current_quaternion)
             tgt_quartenion = quat.from_rotation_matrix(self.target_orientation)
 
             # A  = np.vstack([current_quaternion, np.ones(len(current_quaternion))]).T
 
             #quat_error = np.linalg.lstsq(A, tgt_quartenion)[0]
 
-            # this is wrong!!!!
+            # this is wrong!!!! Substraction should be replaced by: quat_error = current_quaternion * tgt_quartenion.conjugate()
             # quat_error = current_quaternion - tgt_quartenion
+
             quat_error = current_quaternion * tgt_quartenion.conjugate()
             # convert quat to np arrays
             quat_error = quat.as_float_array(quat_error)
+
+            # RK:  revisit this later, we only take one angle difference here!
             angle_diff = 2 * np.arccos(np.clip(quat_error[..., 0], -1., 1.))
+            # print("quat error: ", quat_error)
+            # print("quat_error[..., 0]: ", quat_error[..., 0])
             # print("quat_error: ",quat_error)
             # print("angle_diff: ", angle_diff)
             # print("self.realgoal: ", self.realgoal)
@@ -710,7 +716,7 @@ class GazeboMARATopOrientCollisionv0Env(gazebo_env.GazeboEnv):
                 # print("Reward orientation is (minus): ", self.reward)
 
             if  self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])<0.01 and abs(self.reward_orient)<0.001:
-                self.reward = 10 * (1 + self.reward_dist + self.reward_orient)
+                self.reward = 10 * (2 + self.reward_dist + self.reward_orient)
                 print("Reward hit the target, and is: ", self.reward)
 
         # self.reward =self.reward - abs(self.ob[(self.scara_chain.getNrOfJoints()+4)])
