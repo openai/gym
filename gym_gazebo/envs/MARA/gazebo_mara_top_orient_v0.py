@@ -90,18 +90,18 @@ class GazeboMARATopOrientv0Env(gazebo_env.GazeboEnv):
         # target, where should the agent reach
         # EE_POS_TGT = np.asmatrix([-0.390768, 0.0101776, 0.725335]) # 200 cm from the z axis
         # EE_POS_TGT = np.asmatrix([0.0, 0.001009, 1.64981])
-        EE_POS_TGT = np.asmatrix([-0.53162104, 0.00597782,   0.74121028]) # 200 cm from the z axis
+        EE_POS_TGT = np.asmatrix([-0.4023037912211465, 0.15501116706606247, 0.7238499613771884])# 200 cm from the z axis
 
         # # EE_POS_TGT = np.asmatrix([0.3305805, -0.1326121, 0.4868]) # center of the H
-        EE_ROT_TGT = np.asmatrix([[-0.99521107,  0.09689605, -0.01288708],
-                                  [-0.09768035, -0.99077857,  0.09389558],
-                                  [-0.00367013,  0.09470474,  0.99549864]])
+        # EE_ROT_TGT = np.asmatrix([[-0.99521107,  0.09689605, -0.01288708],
+        #                           [-0.09768035, -0.99077857,  0.09389558],
+        #                           [-0.00367013,  0.09470474,  0.99549864]])
 
 
         # EE_ROT_TGT = np.asmatrix([[-0.99521107,  0.09689605, -0.01288708],
         #                           [-0.09768035, -0.99077857,  0.09389558],
         #                           [-0.00367013,  0.09470474,  0.99549864]])
-        # EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+        EE_ROT_TGT = np.asmatrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         # EE_ROT_TGT = np.asmatrix([[0.79660969, -0.51571238,  0.31536287], [0.51531424,  0.85207952,  0.09171542], [-0.31601302,  0.08944959,  0.94452874]])
         EE_POINTS = np.asmatrix([[0, 0, 0]])
         EE_VELOCITIES = np.asmatrix([[0, 0, 0]])
