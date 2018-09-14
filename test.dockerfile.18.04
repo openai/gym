@@ -1,0 +1,53 @@
+# A Dockerfile that sets up a full Gym install with test dependencies
+FROM ubuntu:18.04
+
+# Install keyboard-configuration separately to avoid travis hanging waiting for keyboard selection
+RUN \
+    apt-get -y update && \
+    apt-get install -y keyboard-configuration && \
+
+    apt-get install -y \ 
+        python-setuptools \
+        python-pip \
+        python-dev \
+        libpq-dev \
+        zlib1g-dev \
+        libjpeg-dev \
+        cmake \
+        swig \
+        python-opengl \
+        python-numpy \
+        python-pyglet \
+        python3-opengl \
+        libboost-all-dev \
+        libsdl2-dev \
+        libosmesa6-dev \
+        patchelf \
+        wget \
+        unzip \
+        xvfb \
+        ffmpeg \
+        python3-dev && \
+
+    apt-get install -y python-numpy python-dev cmake zlib1g-dev libjpeg-dev xvfb ffmpeg xorg-dev python-opengl libboost-all-dev libsdl2-dev swig
+
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    pip install tox && \
+
+# Download mujoco
+    mkdir /root/.mujoco && \
+    cd /root/.mujoco  && \
+    wget https://www.roboti.us/download/mjpro150_linux.zip  && \
+    unzip mjpro150_linux.zip && \
+
+ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/root/.mujoco/mjpro150/bin
+
+# install dependencies
+COPY . /usr/local/gym/
+RUN cd /usr/local/gym && \
+    tox --notest 
+
+WORKDIR /usr/local/gym/
+ENTRYPOINT ["/usr/local/gym/bin/docker_entrypoint"]
+CMD ["tox"]
