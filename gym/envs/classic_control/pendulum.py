@@ -82,7 +82,9 @@ class PendulumEnv(gym.Env):
         return self.viewer.render(return_rgb_array = mode=='rgb_array')
 
     def close(self):
-        if self.viewer: self.viewer.close()
+        if self.viewer:
+            self.viewer.close()
+            self.viewer = None
 
 def angle_normalize(x):
     return (((x+np.pi) % (2*np.pi)) - np.pi)
