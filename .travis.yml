@@ -2,9 +2,10 @@ sudo: required
 language: python
 services:
   - docker
-before_install:
-  - docker build -f test.dockerfile.16.04 -t gym-test.16.04 .
-  - docker build -f test.dockerfile.18.04 -t gym-test.18.04 .
+env:
+  - UBUNTU_VER=16.04
+  - UBUNTU_VER=18.04
+
 install: "" # so travis doesn't do pip install requirements.txt
 script:
-  - docker run -e MUJOCO_KEY=$MUJOCO_KEY gym-test tox
+  - docker build -f test.dockerfile.$UBUNTU_VER -t gym-test && docker run -e MUJOCO_KEY=$MUJOCO_KEY gym-test tox
