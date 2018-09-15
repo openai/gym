@@ -37,7 +37,7 @@ RUN \
     mkdir /root/.mujoco && \
     cd /root/.mujoco  && \
     wget https://www.roboti.us/download/mjpro150_linux.zip  && \
-    unzip mjpro150_linux.zip && \
+    unzip mjpro150_linux.zip
 
     # apt-get install -y python-numpy python-dev cmake zlib1g-dev libjpeg-dev xvfb ffmpeg xorg-dev python-opengl libboost-all-dev libsdl2-dev swig
 
