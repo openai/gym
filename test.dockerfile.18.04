@@ -29,8 +29,6 @@ RUN \
         ffmpeg \
         python3-dev && \
 
-    apt-get install -y python-numpy python-dev cmake zlib1g-dev libjpeg-dev xvfb ffmpeg xorg-dev python-opengl libboost-all-dev libsdl2-dev swig
-
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
     pip install tox && \
@@ -40,6 +38,8 @@ RUN \
     cd /root/.mujoco  && \
     wget https://www.roboti.us/download/mjpro150_linux.zip  && \
     unzip mjpro150_linux.zip && \
+
+    # apt-get install -y python-numpy python-dev cmake zlib1g-dev libjpeg-dev xvfb ffmpeg xorg-dev python-opengl libboost-all-dev libsdl2-dev swig
 
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/root/.mujoco/mjpro150/bin
 
