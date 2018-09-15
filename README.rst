@@ -74,7 +74,8 @@ Installing everything
 
 To install the full set of environments, you'll need to have some system
 packages installed. We'll build out the list here over time; please let us know
-what you end up installing on your platform.
+what you end up installing on your platform. Also, take a look at the docker files (test.dockerfile.xx.xx) to 
+see the composition of CI-tested images. 
 
 On OSX:
 
