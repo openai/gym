@@ -15,7 +15,6 @@ RUN \
     apt-get install -y \ 
         python-setuptools \
         python-pip \
-        python-numpy \
         python3-dev \
         python-pyglet \
         python3-opengl \
