@@ -24,6 +24,7 @@ RUN \
         libsdl2-dev \
         libglu1-mesa \
         libglu1-mesa-dev \
+        libgles2-mesa-dev \
         freeglut3 \
         wget \
         unzip \
