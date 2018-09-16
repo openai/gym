@@ -87,7 +87,16 @@ On Ubuntu 14.04:
 
 .. code:: shell
 
-    apt-get install -y python-numpy python-dev cmake zlib1g-dev libjpeg-dev xvfb libav-tools xorg-dev python-opengl libboost-all-dev libsdl2-dev swig
+    apt-get install libjpeg-dev cmake swig python-pyglet python3-opengl libboost-all-dev \
+            libsdl2-2.0.0 libsdl2-dev libglu1-mesa libglu1-mesa-dev libgles2-mesa-dev \
+            freeglut3 xfvb libav-tools
+
+
+On Ubuntu 16.04:
+
+.. code:: shell
+    apt-get install python-pyglet python3-opengl zlib1g-dev libjpeg-dev  \
+            cmake swig libboost-all-dev libsdl2-dev libosmesa6-dev xvfb ffmpeg
 
 On Ubuntu 18.04:
 
