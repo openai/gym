@@ -83,7 +83,7 @@ On OSX:
 
     brew install cmake boost boost-python sdl2 swig wget
 
-On Ubuntu 14.04:
+On Ubuntu 14.04 (non-mujoco only):
 
 .. code:: shell
 
@@ -95,7 +95,7 @@ On Ubuntu 14.04:
 On Ubuntu 16.04:
 
 .. code:: shell
-    apt-get install python-pyglet python3-opengl zlib1g-dev libjpeg-dev  \
+    apt-get install python-pyglet python3-opengl zlib1g-dev libjpeg-dev patchelf \
             cmake swig libboost-all-dev libsdl2-dev libosmesa6-dev xvfb ffmpeg
 
 On Ubuntu 18.04:
