@@ -20,9 +20,11 @@ RUN \
         python-pyglet \
         python3-opengl \
         libboost-all-dev \
+        libsdl2 \
         libsdl2-dev \
         libglu1-mesa \
         libglu1-mesa-dev \
+        freeglut3 \
         wget \
         unzip \
         xvfb \
