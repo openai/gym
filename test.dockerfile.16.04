@@ -16,7 +16,6 @@ RUN \
         python-setuptools \
         python-pip \
         python3-dev \
-        python-numpy \
         python-pyglet \
         python3-opengl \
         zlib1g-dev \
@@ -26,7 +25,6 @@ RUN \
         libboost-all-dev \
         libsdl2-dev \
         libosmesa6-dev \
-        patchelf \
         xvfb \
         ffmpeg \
         wget \
