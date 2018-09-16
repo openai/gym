@@ -26,6 +26,7 @@ RUN \
         libboost-all-dev \
         libsdl2-dev \
         libosmesa6-dev \
+        patchelf \
         xvfb \
         ffmpeg \
         wget \
