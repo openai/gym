@@ -21,7 +21,7 @@ RUN \
         python3-opengl \
         libboost-all-dev \
         libsdl2-dev \
-        libosmesa6-dev \
+        libglu1-mesa-dev \
         wget \
         unzip \
         xvfb \
