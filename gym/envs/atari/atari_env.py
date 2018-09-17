@@ -23,7 +23,7 @@ class AtariEnv(gym.Env, utils.EzPickle):
         """Frameskip should be either a tuple (indicating a random range to
         choose from, with the top value exclude), or an int."""
 
-        utils.EzPickle.__init__(self, game, obs_type)
+        utils.EzPickle.__init__(self, game, obs_type, frameskip, repeat_action_probability)
         assert obs_type in ('ram', 'image')
 
         self.game_path = atari_py.get_game_path(game)

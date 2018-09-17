@@ -115,7 +115,7 @@ def play(env, transpose=True, fps=30, zoom=None, callback=None, keys_to_action=N
             env_done = False
             obs = env.reset()
         else:
-            action = keys_to_action[tuple(sorted(pressed_keys))]
+            action = keys_to_action.get(tuple(sorted(pressed_keys)), 0)
             prev_obs = obs
             obs, rew, env_done, info = env.step(action)
             if callback is not None:

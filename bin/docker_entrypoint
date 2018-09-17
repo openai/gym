@@ -1,10 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 # This script is the entrypoint for our Docker image.
 
-set -e
+set -ex
 
-# Inject the mujoco license key (if planning to publish image, this step has to be runtime)
-echo $MUJOCO_KEY | base64 --decode > /root/.mujoco/mjkey.txt
+if [[ ! -z "$MUJOCO_KEY" ]]; then 
+    echo $MUJOCO_KEY | base64 --decode > /root/.mujoco/mjkey.txt
+fi
 
 # Set up display; otherwise rendering will fail
 Xvfb -screen 0 1024x768x24 &
