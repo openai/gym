@@ -3,10 +3,10 @@ FROM ubuntu:18.04
 
 # Install keyboard-configuration separately to avoid travis hanging waiting for keyboard selection
 RUN \
-    apt-get -y update && \
-    apt-get install -y keyboard-configuration && \
+    apt -y update && \
+    apt install -y keyboard-configuration && \
 
-    apt-get install -y \ 
+    apt install -y \ 
         python-setuptools \
         python-pip \
         python3-dev \
@@ -25,7 +25,7 @@ RUN \
         wget \
         unzip && \
 
-    apt-get clean && \
+    apt clean && \
     rm -rf /var/lib/apt/lists/* && \
     pip install tox && \
 
@@ -34,8 +34,6 @@ RUN \
     cd /root/.mujoco  && \
     wget https://www.roboti.us/download/mjpro150_linux.zip  && \
     unzip mjpro150_linux.zip
-
-    # apt-get install -y python-numpy python-dev cmake zlib1g-dev libjpeg-dev xvfb ffmpeg xorg-dev python-opengl libboost-all-dev libsdl2-dev swig
 
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/root/.mujoco/mjpro150/bin
 
