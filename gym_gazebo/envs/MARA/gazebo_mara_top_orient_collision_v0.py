@@ -96,7 +96,8 @@ class GazeboMARATopOrientCollisionv0Env(gazebo_env.GazeboEnv):
         #############################
         # target, where should the agent reach
 
-        EE_POS_TGT = np.asmatrix([-0.40028, 0.095615, 0.72466 + 0.01]) # alex2
+        # EE_POS_TGT = np.asmatrix([-0.40028, 0.095615, 0.72466]) # alex2
+        EE_POS_TGT = np.asmatrix([-0.580238, -0.179591, 0.72466]) # rubik touching the bar
         # EE_ROT_TGT = np.asmatrix([[-0.00128296,  0.9999805 ,  0.00611158],
         #                            [ 0.00231397, -0.0061086 ,  0.99997867],
         #                            [ 0.9999965 ,  0.00129708, -0.00230609]])
@@ -240,8 +241,8 @@ class GazeboMARATopOrientCollisionv0Env(gazebo_env.GazeboEnv):
         # # Here idially we should find the control range of the robot. Unfortunatelly in ROS/KDL there is nothing like this.
         # # I have tested this with the mujoco enviroment and the output is always same low[-1.,-1.], high[1.,1.]
         # #bounds = self.model.actuator_ctrlrange.copy()
-        low = -np.pi/2 * np.ones(self.scara_chain.getNrOfJoints())
-        high = np.pi/2 * np.ones(self.scara_chain.getNrOfJoints())
+        low = -np.pi * np.ones(self.scara_chain.getNrOfJoints())
+        high = np.pi * np.ones(self.scara_chain.getNrOfJoints())
         # low = -np.pi * np.ones(self.scara_chain.getNrOfJoints())
         # high = np.pi * np.ones(self.scara_chain.getNrOfJoints())
         # low = -np.inf * np.ones(self.scara_chain.getNrOfJoints())
@@ -670,7 +671,7 @@ class GazeboMARATopOrientCollisionv0Env(gazebo_env.GazeboEnv):
         orientation_scale = 0.01
 
         # print("orientation reward: ", self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+4)])
-        self.reward_orient = - orientation_scale * self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+4)]#self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+4)])*0.1
+        self.reward_orient = - orientation_scale * abs(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+4)])#self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+4)])*0.1
         # print("self.reward_orient: ", self.reward_orient)
         # print(self.reward_orient)
         # print("self.reward_orient: ", self.reward_orient)
@@ -708,20 +709,20 @@ class GazeboMARATopOrientCollisionv0Env(gazebo_env.GazeboEnv):
                 # print("Reward is (minus): ", self.reward)
 
             # take into account the orientation
-            if(abs(self.reward_orient) < 0.001):
+            if(abs(self.reward_orient) < 0.005):
                 self.reward = self.reward + (1 + self.reward_orient)
                 print("Reward orientation is: ", self.reward)
             else:
                 self.reward = self.reward + self.reward_orient# * self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)])
                 # print("Reward orientation is (minus): ", self.reward)
 
-            if  self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])<0.01 and abs(self.reward_orient)<0.001:
+            if  self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])<0.01 and abs(self.reward_orient)<0.005:
                 self.reward = 10 * (2 + self.reward_dist + self.reward_orient)
                 print("Reward hit the target, and is: ", self.reward)
 
         # self.reward =self.reward - abs(self.ob[(self.scara_chain.getNrOfJoints()+4)])
         # Calculate if the env has been solved
-        done = bool(((abs(self.reward_dist) < 0.01) and (abs(self.reward_orient)) < 0.001) or (self.iterator>self.max_episode_steps))
+        done = bool(((abs(self.reward_dist) < 0.01) and (abs(self.reward_orient)) < 0.005) or (self.iterator>self.max_episode_steps))
 
         if not collided:
             # Execute "action"
@@ -737,79 +738,6 @@ class GazeboMARATopOrientCollisionv0Env(gazebo_env.GazeboEnv):
         # TODO, understand better what's the last object to return
         return self.ob, self.reward, done, collided, {}
 
-        # collided = False
-        # if self._collision_msg is not None:
-        #     if self._collision_msg.collision1_name and self._collision_msg.collision2_name:
-        #         # print("\ncollision detected: ", self._collision_msg)
-        #         print("Collision detected")
-        #         self.reward = (self.reward_dist + (orientation_scale * self.reward_orient)) * 4.0
-        #         collided = True
-        #         self._collision_msg = None
-        #         # Resets the state of the environment and returns an initial observation.
-        #         # we should avoid this --> huge bottleneck
-        #         rospy.wait_for_service('/gazebo/reset_simulation')
-        #         try:
-        #             #reset_proxy.call()
-        #             self.reset_proxy()
-        #             # go to the previous state before colliding
-        #             self._pub.publish(self.get_trajectory_message(prevac[:self.scara_chain.getNrOfJoints()]))
-        #
-        #             # self.reward = -10
-        #             # self.reward = self.reward - (self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)]) * 5)
-        #             # print("Reward collision is: ", self.reward)
-        #         except (rospy.ServiceException) as e:
-        #             print ("/gazebo/reset_simulation service call failed")
-        #             # self.goToInit()
-        #             # self.reset_proxy = rospy.ServiceProxy('/gazebo/reset_world', Empty)
-        #             # self.reward = -10
-        #             # self.reward = self.reward - (self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)]) * 5)
-        #             # self.goToInit()
-        #             # self._collision_msg = None
-        #     else:
-        #         # here we want to fetch the positions of the end-effector which are nr_dof:nr_dof+3
-        #         # here is the distance block
-        #         if(self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])<0.01):
-        #             self.reward = 1 + self.reward_dist # Make the reward increase as the distance decreases
-        #             # print("Reward is: ", self.reward)
-        #         else:
-        #             self.reward = self.reward_dist
-        #             # print("Reward is (minus) in msgs none: ", self.reward)
-        # else:
-        #     # here we want to fetch the positions of the end-effector which are nr_dof:nr_dof+3
-        #     # here is the distance block
-        #     if(self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])<0.01):
-        #         self.reward = 1 + self.reward_dist # Make the reward increase as the distance decreases
-        #         print("Reward is: ", self.reward)
-        #     else:
-        #         self.reward = self.reward_dist
-        #         # print("Reward is (minus): ", self.reward)
-        #
-        #         # # take into account the orientation
-        #         # if(self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)])<0.01):
-        #         #     self.reward = self.reward +  orientation_scale * (1 + self.reward_orient)
-        #         #     print("Reward orientation is: ", self.reward)
-        #         # else:
-        #         #     self.reward = self.reward + orientation_scale * self.reward_orient# * self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+7)])
-        #         #     # print("Reward orientation is (minus): ", self.reward)
-        #         # #self.reward = self.reward_final_dist + orientation_scale*self.final_rew_orient
-        #
-        # # Calculate if the env has been solved
-        # # done = bool(((abs(self.reward_dist) < 0.01) and (abs(self.reward_orient)) < 0.01) or (self.iterator>self.max_episode_steps))
-        # done = bool((abs(self.reward_dist) < 0.01) or (self.iterator>self.max_episode_steps))
-        #
-        # if not collided:
-        #     # Execute "action"
-        #     self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
-        #
-        # # # Take an observation
-        # # TODO: program this better, check that ob is not None, etc.
-        # self.ob = self.take_observation()
-        # while(self.ob is None):
-        #     self.ob = self.take_observation()
-        #
-        # # Return the corresponding observations, rewards, etc.
-        # # TODO, understand better what's the last object to return
-        # return self.ob, self.reward, done, collided, {}
 
     def goToInit(self):
         self.ob = self.take_observation()
