@@ -82,11 +82,11 @@ On OSX:
 
     brew install cmake boost boost-python sdl2 swig wget
 
-On Ubuntu 14.04:
+On Ubuntu 18.04:
 
 .. code:: shell
 
-    apt-get install -y python-numpy python-dev cmake zlib1g-dev libjpeg-dev xvfb libav-tools xorg-dev python-opengl libboost-all-dev libsdl2-dev swig
+    apt install -y python-numpy python-dev cmake zlib1g-dev libjpeg-dev xvfb libav-tools xorg-dev python-opengl libboost-all-dev libsdl2-dev swig
 
 On Ubuntu 18.04:
 
