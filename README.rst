@@ -75,7 +75,7 @@ Installing everything
 To install the full set of environments, you'll need to have some system
 packages installed. We'll build out the list here over time; please let us know
 what you end up installing on your platform. Also, take a look at the docker files (test.dockerfile.xx.xx) to 
-see the composition of CI-tested images. 
+see the composition of our CI-tested images. 
 
 On OSX:
 
@@ -95,14 +95,16 @@ On Ubuntu 14.04 (non-mujoco only):
 On Ubuntu 16.04:
 
 .. code:: shell
-    apt-get install python-pyglet python3-opengl zlib1g-dev libjpeg-dev patchelf \
+    apt-get install -y python-pyglet python3-opengl zlib1g-dev libjpeg-dev patchelf \
             cmake swig libboost-all-dev libsdl2-dev libosmesa6-dev xvfb ffmpeg
 
 On Ubuntu 18.04:
 
 .. code:: shell
 
-    apt-get install -y python-numpy python-dev cmake zlib1g-dev libjpeg-dev xvfb ffmpeg xorg-dev python-opengl libboost-all-dev libsdl2-dev swig
+    apt-get install -y python3-dev zlib1g-dev libjpeg-dev cmake swig python-pyglet python3-opengl libboost-all-dev libsdl2-dev \
+            libosmesa6-dev patchelf ffmpeg xvf
+
 
 MuJoCo has a proprietary dependency we can't set up for you. Follow
 the

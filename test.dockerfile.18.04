@@ -9,25 +9,21 @@ RUN \
     apt-get install -y \ 
         python-setuptools \
         python-pip \
-        python-dev \
-        libpq-dev \
+        python3-dev \
+        python-pyglet \
+        python3-opengl \
         zlib1g-dev \
         libjpeg-dev \
         cmake \
         swig \
-        python-opengl \
-        python-numpy \
-        python-pyglet \
-        python3-opengl \
         libboost-all-dev \
         libsdl2-dev \
         libosmesa6-dev \
         patchelf \
-        wget \
-        unzip \
-        xvfb \
         ffmpeg \
-        python3-dev && \
+        xvfb \
+        wget \
+        unzip && \
 
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \

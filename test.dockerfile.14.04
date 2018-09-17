@@ -21,11 +21,11 @@ RUN \
         libglu1-mesa \
         libglu1-mesa-dev \
         libgles2-mesa-dev \
+        xvfb \
+        libav-tools && \
         freeglut3 \
         wget \
         unzip \
-        xvfb \
-        libav-tools && \
 
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
