@@ -1,5 +1,7 @@
 # A Dockerfile that sets up a full Gym install with test dependencies
 FROM ubuntu:14.04
+# Note that latest version of mujoco-py, 1.5, does not play nicely with ubuntu 14.04 - 
+# requires patchelf system package not available on 14.04
 
 # Install keyboard-configuration separately to avoid travis hanging waiting for keyboard selection
 RUN \
