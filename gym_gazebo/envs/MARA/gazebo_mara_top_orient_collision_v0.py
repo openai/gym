@@ -94,8 +94,8 @@ class GazeboMARATopOrientCollisionv0Env(gazebo_env.GazeboEnv):
         #############################
         # target, where should the agent reach
 
-        # EE_POS_TGT = np.asmatrix([-0.40028, 0.095615, 0.72466]) # alex2
-        EE_POS_TGT = np.asmatrix([-0.580238, -0.179591, 0.72466]) # rubik touching the bar
+        EE_POS_TGT = np.asmatrix([-0.40028, 0.095615, 0.72466]) # alex2
+        # EE_POS_TGT = np.asmatrix([-0.580238, -0.179591, 0.72466]) # rubik touching the bar
         # EE_ROT_TGT = np.asmatrix([[-0.00128296,  0.9999805 ,  0.00611158],
         #                            [ 0.00231397, -0.0061086 ,  0.99997867],
         #                            [ 0.9999965 ,  0.00129708, -0.00230609]])
