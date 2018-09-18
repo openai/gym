@@ -235,7 +235,7 @@ class GazeboMARATopOrientCollisionv0Env(gazebo_env.GazeboEnv):
         recently also added quaternion to the obs, which has dimension=4
         """
         #
-        self.obs_dim = self.scara_chain.getNrOfJoints() + 7 #6 hardcode it for now
+        self.obs_dim = self.scara_chain.getNrOfJoints() + 9#7 #6 hardcode it for now
         # # print(observation, _reward)
 
         # # Here idially we should find the control range of the robot. Unfortunatelly in ROS/KDL there is nothing like this.
@@ -594,8 +594,12 @@ class GazeboMARATopOrientCollisionv0Env(gazebo_env.GazeboEnv):
             # quat_error = current_quaternion - tgt_quartenion
 
             quat_error = current_quaternion * tgt_quartenion.conjugate()
+            rot_vec_err = quat.as_rotation_vector(quat_error)
+
             # convert quat to np arrays
             quat_error = quat.as_float_array(quat_error)
+
+
 
             # RK:  revisit this later, we only take one angle difference here!
             angle_diff = 2 * np.arccos(np.clip(quat_error[..., 0], -1., 1.))
@@ -621,14 +625,14 @@ class GazeboMARATopOrientCollisionv0Env(gazebo_env.GazeboEnv):
             # vector, typically denoted asrobot_id 'x'.
             state = np.r_[np.reshape(last_observations, -1),
                           np.reshape(ee_points, -1),
-                          np.reshape(angle_diff, -1),
+                          np.reshape(rot_vec_err, -1),
                           np.reshape(ee_velocities, -1),]
             # print("quat_error: ", quat_error)
             # print("ee_points:", ee_points)
             # print("angle_diff: ", angle_diff)
             return np.r_[np.reshape(last_observations, -1),
                           np.reshape(ee_points, -1),
-                          np.reshape(angle_diff, -1),
+                          np.reshape(rot_vec_err, -1),
                           np.reshape(ee_velocities, -1),]
 
     def rmse_func(self, ee_points):
@@ -642,7 +646,7 @@ class GazeboMARATopOrientCollisionv0Env(gazebo_env.GazeboEnv):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
-    def _step(self, action, prevac):
+    def _step(self, action): # , prevac
         """
         Implement the environment step abstraction. Execute action and returns:
             - reward
@@ -671,7 +675,7 @@ class GazeboMARATopOrientCollisionv0Env(gazebo_env.GazeboEnv):
         orientation_scale = 0.01
 
         # print("orientation reward: ", self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+4)])
-        self.reward_orient = - orientation_scale * abs(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+4)])#self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+4)])*0.1
+        self.reward_orient = - orientation_scale * self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+6)])#self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+4)])*0.1
         # print("self.reward_orient: ", self.reward_orient)
         # print(self.reward_orient)
         # print("self.reward_orient: ", self.reward_orient)
@@ -692,7 +696,7 @@ class GazeboMARATopOrientCollisionv0Env(gazebo_env.GazeboEnv):
             try:
                 self.reset_proxy()
                 # go to the previous state before colliding
-                self._pub.publish(self.get_trajectory_message(prevac[:self.scara_chain.getNrOfJoints()]))
+                #self._pub.publish(self.get_trajectory_message(prevac[:self.scara_chain.getNrOfJoints()]))
             except (rospy.ServiceException) as e:
                 print ("/gazebo/reset_simulation service call failed")
                 # self.goToInit()
@@ -722,11 +726,10 @@ class GazeboMARATopOrientCollisionv0Env(gazebo_env.GazeboEnv):
 
         # self.reward =self.reward - abs(self.ob[(self.scara_chain.getNrOfJoints()+4)])
         # Calculate if the env has been solved
-        done = bool(((abs(self.reward_dist) < 0.01) and (abs(self.reward_orient)) < 0.005) or (self.iterator>self.max_episode_steps))
+        done = bool(((abs(self.reward_dist) < 0.005) and (abs(self.reward_orient)) < 0.005) or (self.iterator>self.max_episode_steps))
 
-        if not collided:
-            # Execute "action"
-            self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
+        # Execute "action"
+        self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
 
         # # Take an observation
         # TODO: program this better, check that ob is not None, etc.
@@ -736,7 +739,7 @@ class GazeboMARATopOrientCollisionv0Env(gazebo_env.GazeboEnv):
 
         # Return the corresponding observations, rewards, etc.
         # TODO, understand better what's the last object to return
-        return self.ob, self.reward, done, collided, {}
+        return self.ob, self.reward, done, {}
 
 
     def goToInit(self):
