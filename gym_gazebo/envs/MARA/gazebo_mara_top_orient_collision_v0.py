@@ -672,13 +672,15 @@ class GazeboMARATopOrientCollisionv0Env(gazebo_env.GazeboEnv):
 
         self.reward_dist = -self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])
         # careful we have degrees now so we scale with
-        orientation_scale = 0.01
+        orientation_scale = 0.1
 
         # print("orientation reward: ", self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+4)])
         self.reward_orient = - orientation_scale * self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+6)])#self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+4)])*0.1
         # print("self.reward_orient: ", self.reward_orient)
         # print(self.reward_orient)
         # print("self.reward_orient: ", self.reward_orient)
+
+        # print("orientation without scale: ", self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+6)]))
 
         #scale here the orientation because it should not be the main bias of the reward, position should be
         collided = False
