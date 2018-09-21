@@ -50,7 +50,7 @@ class MujocoEnv(gym.Env):
 
         high = np.inf*np.ones(self.obs_dim)
         low = -high
-        self.observation_space = spaces.Box(low, high)
+        self.observation_space = spaces.Box(low, high, dtype=np.float32)
 
         self.seed()
 
@@ -133,10 +133,9 @@ class MujocoEnv(gym.Env):
         if self.viewer is None:
             if mode == 'human':
                 self.viewer = mujoco_py.MjViewer(self.sim)
-
             elif mode == 'rgb_array' or mode == 'depth_array':
                 self.viewer = mujoco_py.MjRenderContextOffscreen(self.sim, -1)
-
+                
             self.viewer_setup()
             self._viewers[mode] = self.viewer
         return self.viewer
