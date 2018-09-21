@@ -36,5 +36,5 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     def viewer_setup(self):
         self.viewer.cam.trackbodyid = 2
         self.viewer.cam.distance = self.model.stat.extent * 0.5
-        self.viewer.cam.lookat[2] += .8
+        self.viewer.cam.lookat[2] = 1.15
         self.viewer.cam.elevation = -20
