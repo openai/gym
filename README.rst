@@ -95,6 +95,7 @@ On Ubuntu 14.04 (non-mujoco only):
 On Ubuntu 16.04:
 
 .. code:: shell
+
     apt-get install -y python-pyglet python3-opengl zlib1g-dev libjpeg-dev patchelf \
             cmake swig libboost-all-dev libsdl2-dev libosmesa6-dev xvfb ffmpeg
 
