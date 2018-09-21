@@ -21,9 +21,9 @@ class CartPoleEnv(gym.Env):
     Observation: 
         Type: Box(4)
         Num	Observation                 Min         Max
-        0	Cart Position             -2.4            2.4
+        0	Cart Position             -4.8            4.8
         1	Cart Velocity             -Inf            Inf
-        2	Pole Angle                ~-41.8°         ~41.8°
+        2	Pole Angle                 -24°           24°
         3	Pole Velocity At Tip      -Inf            Inf
         
     Actions:
@@ -75,7 +75,7 @@ class CartPoleEnv(gym.Env):
             np.finfo(np.float32).max])
 
         self.action_space = spaces.Discrete(2)
-        self.observation_space = spaces.Box(-high, high)
+        self.observation_space = spaces.Box(-high, high, dtype=np.float32)
 
         self.seed()
         self.viewer = None
@@ -174,4 +174,6 @@ class CartPoleEnv(gym.Env):
         return self.viewer.render(return_rgb_array = mode=='rgb_array')
 
     def close(self):
-        if self.viewer: self.viewer.close()
+        if self.viewer:
+            self.viewer.close()
+            self.viewer = None
