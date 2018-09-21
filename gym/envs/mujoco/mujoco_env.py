@@ -50,7 +50,7 @@ class MujocoEnv(gym.Env):
 
         high = np.inf*np.ones(self.obs_dim)
         low = -high
-        self.observation_space = spaces.Box(low, high)
+        self.observation_space = spaces.Box(low, high, dtype=np.float32)
 
         self.seed()
 
