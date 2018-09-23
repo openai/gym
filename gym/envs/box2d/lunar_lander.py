@@ -6,7 +6,7 @@ from Box2D.b2 import (edgeShape, circleShape, fixtureDef, polygonShape, revolute
 
 import gym
 from gym import spaces
-from gym.utils import seeding
+from gym.utils import seeding, EzPickle
 
 # Rocket trajectory optimization is a classic topic in Optimal Control.
 #
@@ -70,7 +70,7 @@ class ContactDetector(contactListener):
             if self.env.legs[i] in [contact.fixtureA.body, contact.fixtureB.body]:
                 self.env.legs[i].ground_contact = False
 
-class LunarLander(gym.Env):
+class LunarLander(gym.Env, EzPickle):
     metadata = {
         'render.modes': ['human', 'rgb_array'],
         'video.frames_per_second' : FPS
@@ -79,6 +79,7 @@ class LunarLander(gym.Env):
     continuous = False
 
     def __init__(self):
+        EzPickle.__init__(self)
         self.seed()
         self.viewer = None
 
