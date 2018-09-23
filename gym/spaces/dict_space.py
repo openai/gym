@@ -71,3 +71,5 @@ class Dict(gym.Space):
             ret.append(entry)
         return ret
 
+    def __eq__(self, other):
+        return self.spaces == other.spaces
