@@ -70,7 +70,7 @@ class MujocoEnv(gym.Env):
 
     def viewer_setup(self):
         """
-        This method is called when the viewer is initialized and after every reset
+        This method is called when the viewer is initialized.
         Optionally implement this method, if you need to tinker with camera position
         and so forth.
         """
@@ -81,11 +81,6 @@ class MujocoEnv(gym.Env):
     def reset(self):
         self.sim.reset()
         ob = self.reset_model()
-        old_viewer = self.viewer
-        for v in self._viewers.values():
-            self.viewer = v
-            self.viewer_setup()
-        self.viewer = old_viewer
         return ob
 
     def set_state(self, qpos, qvel):
