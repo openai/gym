@@ -11,8 +11,10 @@ class Discrete(gym.Space):
     def __init__(self, n):
         self.n = n
         gym.Space.__init__(self, (), np.int64)
+
     def sample(self):
         return gym.spaces.np_random.randint(self.n)
+
     def contains(self, x):
         if isinstance(x, int):
             as_int = x
@@ -24,5 +26,6 @@ class Discrete(gym.Space):
 
     def __repr__(self):
         return "Discrete(%d)" % self.n
+
     def __eq__(self, other):
         return self.n == other.n
