@@ -8,13 +8,19 @@ env:
   - UBUNTU_VER=18.04
 
 install: "" # so travis doesn't do pip install requirements.txt
-script:
-  - docker build -f test.dockerfile.${UBUNTU_VER} -t gym-test .
-  - docker run -e MUJOCO_KEY=$MUJOCO_KEY gym-test tox
+        
+jobs:
+    include:
+        - stage: test
+          script:
+            - docker build -f test.dockerfile.${UBUNTU_VER} -t gym-test .
+            - docker run -e MUJOCO_KEY=$MUJOCO_KEY gym-test tox
 
-deploy:
-    provider: pypi
-    username: $TWINE_USERNAME
-    password: $TWINE_PASSWORD
-    on:
-        tags: true
+        - stage: deploy
+        
+          deploy:
+            provider: pypi
+            username: $TWINE_USERNAME
+            password: $TWINE_PASSWORD
+            all_branches: true
+                
