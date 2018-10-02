@@ -18,7 +18,7 @@ before_install:
 install: "" # so travis doesn't do pip install requirements.txt
 script:
   - docker build -f test.dockerfile.${UBUNTU_VER} -t gym-test .
-  # - docker run -e MUJOCO_KEY=$MUJOCO_KEY gym-test tox
+  - docker run -e MUJOCO_KEY=$MUJOCO_KEY gym-test tox
 
 deploy:
     provider: pypi
@@ -26,13 +26,3 @@ deploy:
     password: $TWINE_PASSWORD
     on:
         tags: true
-        condition: $UBUNTU_VER = 16.04
-
-#  - docker run -it erlerobotics/gym-gazebo
-
-  # - docker run erlerobotics/gym-gazebo /bin/sh -c "cd gym-gazebo/gym_gazebo/envs/installation; . turtlebot_setup.bash; cd /usr/local/gym/gym-gazebo/examples/scripts_turtlebot/; python maze_turtlebot_lidar_qlearn.py"
-
-  # - cd gym-gazebo/gym_gazebo/envs/installation
-  # - . turtlebot_setup.bash
-  # - cd /usr/local/gym/gym-gazebo/examples/scripts_turtlebot/
-  # - python maze_turtlebot_lidar_qlearn.py
