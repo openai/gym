@@ -12,10 +12,7 @@ RUN \
         python3-dev \
         python-pyglet \
         python3-opengl \
-        zlib1g-dev \
         libjpeg-dev \
-        cmake \
-        swig \
         libboost-all-dev \
         libsdl2-dev \
         libosmesa6-dev \
