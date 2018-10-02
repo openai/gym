@@ -3,7 +3,7 @@ language: python
 services:
   - docker
 env:
-  - UBUNTU_VER=14.04
+  # - UBUNTU_VER=14.04 - problems with atari-py
   - UBUNTU_VER=16.04
   - UBUNTU_VER=18.04
 
