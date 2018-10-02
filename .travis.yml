@@ -2,16 +2,16 @@ sudo: required
 language: python
 services:
   - docker
-env:
-  # - UBUNTU_VER=14.04 - problems with atari-py
-  - UBUNTU_VER=16.04
-  - UBUNTU_VER=18.04
-
 install: "" # so travis doesn't do pip install requirements.txt
         
 jobs:
     include:
         - stage: test
+          env:
+            # - UBUNTU_VER=14.04 - problems with atari-py
+            - UBUNTU_VER=16.04
+            - UBUNTU_VER=18.04
+
           script:
             - docker build -f test.dockerfile.${UBUNTU_VER} -t gym-test .
             - docker run -e MUJOCO_KEY=$MUJOCO_KEY gym-test tox
