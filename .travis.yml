@@ -26,3 +26,4 @@ deploy:
     password: $TWINE_PASSWORD
     on:
         tags: true
+        condition: $UBUNTU_VER = 16.04
