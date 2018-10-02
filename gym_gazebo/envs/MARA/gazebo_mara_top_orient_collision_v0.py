@@ -37,6 +37,8 @@ from PyKDL import Jacobian, Chain, ChainJntToJacSolver, JntArray # For KDL Jacob
 
 import cv2
 
+import quaternion as quat
+
 
 # from custom baselines repository
 from baselines.agent.utility.general_utils import forward_kinematics, get_ee_points, rotation_from_matrix, \
@@ -101,7 +103,7 @@ class GazeboMARATopOrientCollisionv0Env(gazebo_env.GazeboEnv):
         #                            [ 0.9999965 ,  0.00129708, -0.00230609]])
         # EE_POS_TGT = np.asmatrix([-0.390768, 0.0101776, 0.725335]) # 200 cm from the z axis
         # EE_POS_TGT = np.asmatrix([0.0, 0.001009, 1.64981])
-        EE_POS_TGT = np.asmatrix([-0.53162104, 0.00597782,   0.74121028]) # 200 cm from the z axis
+        # EE_POS_TGT = np.asmatrix([-0.4023037912211465, 0.15501116706606247, 0.7238499613771884]) # 200 cm from the z axis
 
         # # EE_POS_TGT = np.asmatrix([0.3305805, -0.1326121, 0.4868]) # center of the H
         # EE_ROT_TGT = np.asmatrix([[-0.99521107,  0.09689605, -0.01288708],
@@ -312,17 +314,30 @@ class GazeboMARATopOrientCollisionv0Env(gazebo_env.GazeboEnv):
         # Seed the environment
         # Seed the environment
         self._seed()
+    # def collision_callback(self, message):
+    #     """
+    #     Callback method for the subscriber of Collision data
+    #     """
+    #
+    #
+    #     if "puzzle_ball_joints::cubie" not in message.collision1_name and "puzzle_ball_joints::cubie" not in message.collision2_name:
+    #         if "robot::motor6_link::motor6_link_fixed_joint_lump__robotiq_arg2f_base_link_collision_1" not in message.collision1_name and  "robot::left_outer_finger::left_outer_finger_collision" not in message.collision2_name:
+    #             if "puzzle_ball_joints::cubie" not in message.collision1_name or  "robot::table::table_fixed_joint_lump__mara_work_area_link_collision_4" not in message.collision2_name:
+    #                 if message.collision1_name and message.collision2_name:
+    #                     self._collision_msg =  message
+    #                     # print("self._collision_msg: ", self._collision_msg)
+
     def collision_callback(self, message):
         """
         Callback method for the subscriber of Collision data
         """
-
-
-        if "puzzle_ball_joints::cubie" not in message.collision1_name and "puzzle_ball_joints::cubie" not in message.collision2_name:
-
-            if "robot::motor6_link::motor6_link_fixed_joint_lump__robotiq_arg2f_base_link_collision_1" not in message.collision1_name and  "robot::left_outer_finger::left_outer_finger_collision" not in message.collision2_name:
+        self._collision_msg = None
+        if message.collision1_name is not message.collision2_name:
+            if "puzzle_ball_joints::cubie" not in message.collision1_name and "puzzle_ball_joints::cubie" not in message.collision2_name:
                 if "puzzle_ball_joints::cubie" not in message.collision1_name or  "robot::table::table_fixed_joint_lump__mara_work_area_link_collision_4" not in message.collision2_name:
-                    self._collision_msg =  message
+                    if "robot::motor6_link::motor6_link_fixed_joint_lump__robotiq_arg2f_base_link_collision_1" not in message.collision1_name and  "robot::left_outer_finger::left_outer_finger_collision" not in message.collision2_name:
+                        self._collision_msg =  message
+
     def observation_callback(self, message):
         """
         Callback method for the subscriber of JointTrajectoryControllerState
@@ -571,7 +586,7 @@ class GazeboMARATopOrientCollisionv0Env(gazebo_env.GazeboEnv):
             # print("current_quaternion: ", current_quaternion)
             tgt_quartenion = quat.from_rotation_matrix(self.target_orientation)
 
-            A  = np.vstack([current_quaternion, np.ones(len(current_quaternion))]).T
+            # A  = np.vstack([current_quaternion, np.ones(len(current_quaternion))]).T
 
             #quat_error = np.linalg.lstsq(A, tgt_quartenion)[0]
 
@@ -591,6 +606,7 @@ class GazeboMARATopOrientCollisionv0Env(gazebo_env.GazeboEnv):
             # print("quat error: ", quat_error)
             # print("quat_error[..., 0]: ", quat_error[..., 0])
             # print("quat_error: ",quat_error)
+            # print("angle_diff: ", angle_diff)
             # print("self.realgoal: ", self.realgoal)
             # print("curr quat: ", current_quaternion)
             current_ee_tgt = np.ndarray.flatten(get_ee_points(self.environment['end_effector_points'],
@@ -613,6 +629,7 @@ class GazeboMARATopOrientCollisionv0Env(gazebo_env.GazeboEnv):
                           np.reshape(ee_velocities, -1),]
             # print("quat_error: ", quat_error)
             # print("ee_points:", ee_points)
+            # print("angle_diff: ", angle_diff)
             return np.r_[np.reshape(last_observations, -1),
                           np.reshape(ee_points, -1),
                           np.reshape(rot_vec_err, -1),
@@ -666,7 +683,6 @@ class GazeboMARATopOrientCollisionv0Env(gazebo_env.GazeboEnv):
         # print("orientation without scale: ", self.rmse_func(self.ob[self.scara_chain.getNrOfJoints()+3:(self.scara_chain.getNrOfJoints()+6)]))
 
         #scale here the orientation because it should not be the main bias of the reward, position should be
-        orientation_scale = 0.2
         collided = False
 
         if self._collision_msg is not None and self._collision_msg.collision1_name and self._collision_msg.collision2_name:

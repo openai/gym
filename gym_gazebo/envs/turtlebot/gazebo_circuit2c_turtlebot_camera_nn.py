@@ -12,11 +12,17 @@ from gym import utils, spaces
 from gym_gazebo.envs import gazebo_env
 from geometry_msgs.msg import Twist
 from std_srvs.srv import Empty
+<<<<<<< HEAD
 
 from sensor_msgs.msg import Image
 from sensor_msgs.msg import LaserScan
 from gym.utils import seeding
 import cv2
+=======
+from sensor_msgs.msg import Image
+from sensor_msgs.msg import LaserScan
+from gym.utils import seeding
+>>>>>>> 1b572d866593b89e9248f539e0f6f80e8de17bd1
 from cv_bridge import CvBridge, CvBridgeError
 
 import skimage as skimage

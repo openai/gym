@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 
 '''
+<<<<<<< HEAD
 Based on:
+=======
+Based on: 
+>>>>>>> 1b572d866593b89e9248f539e0f6f80e8de17bd1
 https://github.com/vmayoral/basic_reinforcement_learning
 https://gist.github.com/wingedsheep/4199594b02138dd427c22a540d6d6b8d
 '''
@@ -119,7 +123,11 @@ class DeepQ:
         """
         if isFinal:
             return reward
+<<<<<<< HEAD
         else :
+=======
+        else : 
+>>>>>>> 1b572d866593b89e9248f539e0f6f80e8de17bd1
             return reward + self.discountFactor * self.getMaxQ(qValuesNewState)
 
     # select the action with the highest Q value
@@ -165,7 +173,11 @@ class DeepQ:
             return self.memory.getMemory(self.memory.getCurrentSize() - 1)
 
     def learnOnMiniBatch(self, miniBatchSize, useTargetNetwork=True):
+<<<<<<< HEAD
         # Do not learn until we've got self.learnStart samples
+=======
+        # Do not learn until we've got self.learnStart samples        
+>>>>>>> 1b572d866593b89e9248f539e0f6f80e8de17bd1
         if self.memory.getCurrentSize() > self.learnStart:
             # learn in batches of 128
             miniBatch = self.memory.getMiniBatch(miniBatchSize)
@@ -217,7 +229,11 @@ if __name__ == '__main__':
 
     continue_execution = False
     #fill this if continue_execution=True
+<<<<<<< HEAD
     weights_path = '/tmp/turtle_c2c_dqn_ep200.h5'
+=======
+    weights_path = '/tmp/turtle_c2c_dqn_ep200.h5' 
+>>>>>>> 1b572d866593b89e9248f539e0f6f80e8de17bd1
     monitor_path = '/tmp/turtle_c2c_dqn_ep200'
     params_json  = '/tmp/turtle_c2c_dqn_ep200.json'
 
@@ -320,8 +336,13 @@ if __name__ == '__main__':
                 else :
                     print ("EP "+str(epoch)+" - {} steps".format(t+1)+" - last100 C_Rewards : "+str(int((sum(last100Rewards)/len(last100Rewards))))+" - CReward: "+str(round(cumulated_reward, 2))+"  Eps="+str(round(explorationRate, 2))+"  Time: %d:%02d:%02d" % (h, m, s))
                     #SAVE SIMULATION DATA
+<<<<<<< HEAD
                     if (epoch)%100==0:
                         #save model weights and monitoring data every 100 epochs.
+=======
+                    if (epoch)%100==0: 
+                        #save model weights and monitoring data every 100 epochs. 
+>>>>>>> 1b572d866593b89e9248f539e0f6f80e8de17bd1
                         deepQ.saveModel('/tmp/turtle_c2c_dqn_ep'+str(epoch)+'.h5')
                         env._flush()
                         copy_tree(outdir,'/tmp/turtle_c2c_dqn_ep'+str(epoch))
