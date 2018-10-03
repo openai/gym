@@ -431,15 +431,6 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         Callback method for the subscriber of Collision data
         """
         self._torque_msg =  message
-# <<<<<<< HEAD
-#         if self.init_torque == 0.0:
-#             self.init_torque_array = [message.wrench.torque.x, message.wrench.torque.y, message.wrench.torque.z]
-#             self.init_torque = np.linalg.norm(self.init_torque_array)
-#             print("Init force at motor 3 is: ", self.init_torque)
-#         # print("\nTorque: ", self._torque_msg)
-# =======
-#         #print("\nTorque: ", self._torque_msg)
-# >>>>>>> 5534657d7384ea47ae3ebbf2ddc1ff9b68d9a0be
 
 
     def normals_callback(self, message):
@@ -693,60 +684,6 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         # print("d_hamming: ", d)
 
         # Calculate if the env has been solved
-# <<<<<<< HEAD
-#         done = (bool(abs(self.reward_dist) < 0.008)) or (self.iterator > self.max_episode_steps)
-#
-#
-#
-#
-#         #calculate the linnorm of the force at the motor3
-#         #1. put current torques in an array
-#         curr_torque_array = [self._torque_msg.wrench.torque.x, self._torque_msg.wrench.torque.y, self._torque_msg.wrench.torque.z]
-#         torque_motor3  = np.linalg.norm(curr_torque_array)
-#
-#         diff_torques = np.subtract(curr_torque_array, self.init_torque_array)
-#
-#         log_torques = self.log_torque_func(diff_torques)
-#         # print("log_torques: ", log_torques)
-#         self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
-#
-#         if self.init_torque > 0 and torque_motor3 > self.init_torque:
-#             # print("collision detected with torque at motor3: ", torque_motor3, "init_torque: ", self.init_torque)
-#             proportion_torque = np.divide(torque_motor3,self.init_torque)
-#             # print("diff between init force and collision: ", proportion_force)
-#             if proportion_torque > 2.0: #and proportion_force <= 100.0:
-#                 self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()], set_const_vel=True))
-#                 self.reward = self.reward - np.divide((proportion_torque + 0.5*np.linalg.norm(log_torques)),1000)
-#                 # print("c1 self.reward:", self.reward)
-#                 if(proportion_torque <5 and (self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])<0.08)):
-#                     self.reward = 0.5 - self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)]) - np.divide((proportion_torque + 0.5*np.linalg.norm(log_torques)),1000)
-#                     print("c2 self.reward:", self.reward)
-#
-#
-#
-#         print("at end reward: ", self.reward)
-#
-#         # print("force_motor3: ", force_motor3)
-#
-#         #  #REWARD SHAPING sophisticated penalization based on https://arxiv.org/pdf/1609.07845.pdf
-#         # if abs(self._torque_msg.wrench.force.x) > 100:
-#         #     print("self.self._torque_msg.force.x>100: ", self._torque_msg.wrench.force.x)
-#
-#                 # # contact_depths = 100 * self._collision_msg.depths[0] #make them in mm otherwise we have too many decimals
-#                 # print("\self.self._torque_msg", self.self._torque_msg, "reward: ", self.reward)
-#                 # # self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
-#                 # #we always assume that depths is positive here. Sometimes depths is negative (actually most of the time).
-#                 # # changing to abs value of depths
-#                 # if contact_depths > 0 and  abs(contact_depths) < 0.0001:
-#                 #     self.reward = self.reward - (abs(contact_depths))/2
-#                 #     print("\n cond1, contact_depths", contact_depths, "reward: ", self.reward)
-#                 # elif abs(contact_depths) > 0.0001: #contact_depths > 0 and
-#                 #     self.reward = self.reward - abs(contact_depths)
-#                 #     print("\n cond2, contact_depths", contact_depths, "reward: ", self.reward)
-#                 # else:
-#                 #     # self.reward = -100
-#                 #     print("cond3, self._collision_msg.depths[0]:", contact_depths)
-# =======
         done = (bool(abs(self.reward_dist) < 0.005)) or (self.iterator > self.max_episode_steps)
 
         #  COLLISION DEPTH BASED REWARD SHAPING
