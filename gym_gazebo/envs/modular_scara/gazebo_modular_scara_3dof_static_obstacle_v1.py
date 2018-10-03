@@ -683,35 +683,6 @@ class GazeboModularScara3DOFStaticObstaclev1Env(gazebo_env.GazeboEnv):
         # print("d_hamming: ", d)
 
         # Calculate if the env has been solved
-        #calculate the linnorm of the force at the motor3
-        #1. put current torques in an array
-        curr_torque_array = [self._torque_msg.wrench.torque.x, self._torque_msg.wrench.torque.y, self._torque_msg.wrench.torque.z]
-        torque_motor3  = np.linalg.norm(curr_torque_array)
-
-        diff_torques = np.subtract(curr_torque_array, self.init_torque_array)
-
-        log_torques = self.log_torque_func(diff_torques)
-        # print("log_torques: ", log_torques)
-        self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()]))
-
-        if self.init_torque > 0 and torque_motor3 > self.init_torque:
-            # print("collision detected with torque at motor3: ", torque_motor3, "init_torque: ", self.init_torque)
-            proportion_torque = np.divide(torque_motor3,self.init_torque)
-            # print("diff between init force and collision: ", proportion_force)
-            if proportion_torque > 2.0: #and proportion_force <= 100.0:
-                self._pub.publish(self.get_trajectory_message(action[:self.scara_chain.getNrOfJoints()], set_const_vel=True))
-                self.reward = self.reward - np.divide((proportion_torque + 0.5*np.linalg.norm(log_torques)),1000)
-                # print("c1 self.reward:", self.reward)
-                if(proportion_torque <5 and (self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)])<0.08)):
-                    self.reward = 0.5 - self.rmse_func(self.ob[self.scara_chain.getNrOfJoints():(self.scara_chain.getNrOfJoints()+3)]) - np.divide((proportion_torque + 0.5*np.linalg.norm(log_torques)),1000)
-                    print("c2 self.reward:", self.reward)
-
-
-
-        print("at end reward: ", self.reward)
-
-        # print("force_motor3: ", force_motor3)
-
         done = (bool(abs(self.reward_dist) < 0.005)) or (self.iterator > self.max_episode_steps)
 
         #  COLLISION DEPTH BASED REWARD SHAPING
