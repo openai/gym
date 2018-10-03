@@ -13,7 +13,7 @@ folder. So for example, you should access `MyWrapper` as follows:
 
 ```
 # Will be supported in future releases
-from gym.wrappers import MyWrapper
+from gym_gazebo.wrappers import MyWrapper
 ```
 
 ## Quick tips for writing your own wrapper
