@@ -301,11 +301,11 @@ WORKDIR /root
 #--------------------
 # Install Sophus
 #--------------------
-RUN git clone https://github.com/stonier/sophus -b indigo && \
-    cd sophus && mkdir build && cd build && cmake .. && make
+# RUN git clone https://github.com/stonier/sophus -b indigo && \
+#    cd sophus && mkdir build && cd build && cmake .. && make
 # RUN ls -l
-RUN cd sophus/build && make install
-#RUN echo "## Sophus installed ##\n"
+# RUN cd sophus/build && make install
+# RUN echo "## Sophus installed ##\n"
 
 # # FROM pip
 # RUN pip3 install opencv-python
