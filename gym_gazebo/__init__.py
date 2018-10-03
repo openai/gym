@@ -82,10 +82,7 @@ register(
     id='GazeboModularArticulatedArm4DOF-v1',
     entry_point='gym_gazebo.envs.articulated_arm:GazeboModularArticulatedArm4DOFv1Env',
 )
-<<<<<<< HEAD
-=======
 
->>>>>>> 1b572d866593b89e9248f539e0f6f80e8de17bd1
 register(
     id='GazeboModularScaraObstacles3DOF-v0',
     entry_point='gym_gazebo.envs.modular_scara:GazeboModularScara3DOFObstaclesv0Env',

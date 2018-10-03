@@ -5,17 +5,34 @@ language: python
 services:
   - docker
 
+env:
+  # - UBUNTU_VER=14.04 - problems with atari-py
+  - UBUNTU_VER=16.04
+  - UBUNTU_VER=18.04
+
 before_install:
 #  - docker build -t gym-gazebo .
   - docker pull erlerobotics/gym-gazebo # to fetch the container
   - docker images
 
+install: "" # so travis doesn't do pip install requirements.txt
+script:
+  - docker build -f test.dockerfile.${UBUNTU_VER} -t gym-test .
+  # - docker run -e MUJOCO_KEY=$MUJOCO_KEY gym-test tox
+
+deploy:
+    provider: pypi
+    username: $TWINE_USERNAME
+    password: $TWINE_PASSWORD
+    on:
+        tags: true
+        condition: $UBUNTU_VER = 16.04
+
 #  - docker run -it erlerobotics/gym-gazebo
 
-  - docker run erlerobotics/gym-gazebo /bin/sh -c "cd gym-gazebo/gym_gazebo/envs/installation; . turtlebot_setup.bash; cd /usr/local/gym/gym-gazebo/examples/scripts_turtlebot/; python maze_turtlebot_lidar_qlearn.py"
+  # - docker run erlerobotics/gym-gazebo /bin/sh -c "cd gym-gazebo/gym_gazebo/envs/installation; . turtlebot_setup.bash; cd /usr/local/gym/gym-gazebo/examples/scripts_turtlebot/; python maze_turtlebot_lidar_qlearn.py"
 
   # - cd gym-gazebo/gym_gazebo/envs/installation
   # - . turtlebot_setup.bash
   # - cd /usr/local/gym/gym-gazebo/examples/scripts_turtlebot/
   # - python maze_turtlebot_lidar_qlearn.py
-
