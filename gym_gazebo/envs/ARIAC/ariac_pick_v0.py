@@ -136,9 +136,9 @@ class ARIACPickv0Env(gazebo_env.GazeboEnv):
         self._currently_resetting = [False for _ in range(1)]
         self.reset_joint_angles = [None for _ in range(1)]
 
-        # TODO review with Risto, we might need the first observation for calling _step()
+        # TODO review with Risto, we might need the first observation for calling step()
         # # taken from mujoco in OpenAi how to initialize observation space and action space.
-        # observation, _reward, done, _info = self._step(np.zeros(self.scara_chain.getNrOfJoints()))
+        # observation, _reward, done, _info = self.step(np.zeros(self.scara_chain.getNrOfJoints()))
         # assert not done
         # self.obs_dim = observation.size
         self.obs_dim = self.scara_chain.getNrOfJoints() + 6 # hardcode it for now
@@ -171,7 +171,7 @@ class ARIACPickv0Env(gazebo_env.GazeboEnv):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
-    def _step(self, action):
+    def step(self, action):
 
         state = []
         reward = []
@@ -273,7 +273,7 @@ class ARIACPickv0Env(gazebo_env.GazeboEnv):
 
         return state, reward, done, {}
 
-    def _reset(self):
+    def reset(self):
 
         data_arm_state = None
         while data_arm_state is None:

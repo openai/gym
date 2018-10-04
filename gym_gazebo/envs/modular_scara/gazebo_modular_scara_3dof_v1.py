@@ -196,9 +196,9 @@ class GazeboModularScara3DOFv1Env(gazebo_env.GazeboEnv):
         self._currently_resetting = [False for _ in range(1)]
         self.reset_joint_angles = [None for _ in range(1)]
 
-        # TODO review with Risto, we might need the first observation for calling _step()
+        # TODO review with Risto, we might need the first observation for calling step()
         # # taken from mujoco in OpenAi how to initialize observation space and action space.
-        # observation, _reward, done, _info = self._step(np.zeros(self.scara_chain.getNrOfJoints()))
+        # observation, _reward, done, _info = self.step(np.zeros(self.scara_chain.getNrOfJoints()))
         # assert not done
         # self.obs_dim = observation.size
         self.obs_dim = 9 # hardcode it for now
@@ -503,7 +503,7 @@ class GazeboModularScara3DOFv1Env(gazebo_env.GazeboEnv):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
-    def _step(self, action):
+    def step(self, action):
         """
         Implement the environment step abstraction. Execute action and returns:
             - observation
@@ -581,7 +581,7 @@ class GazeboModularScara3DOFv1Env(gazebo_env.GazeboEnv):
         # TODO, understand better what's the last object to return
         return self.ob, self.reward, done, {}
 
-    def _reset(self):
+    def reset(self):
         """
         Reset the agent for a particular experiment condition.
         """

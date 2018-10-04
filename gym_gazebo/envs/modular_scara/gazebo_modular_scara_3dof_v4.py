@@ -513,7 +513,7 @@ class GazeboModularScara3DOFv4Env(gazebo_env.GazeboEnv):
         else:
             return -d
 
-    def _step(self, action):
+    def step(self, action):
         """
         Implement the environment step abstraction. Execute action and returns:
             - reward
@@ -546,7 +546,7 @@ class GazeboModularScara3DOFv4Env(gazebo_env.GazeboEnv):
         # TODO, understand better what's the last object to return
         return self.ob, self.reward, done, {}
 
-    def _reset(self):
+    def reset(self):
 
         self.iterator = 0
         if self.reset_jnts is True:

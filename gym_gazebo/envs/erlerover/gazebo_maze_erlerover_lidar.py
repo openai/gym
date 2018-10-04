@@ -89,7 +89,7 @@ class GazeboMazeErleRoverLidarEnv(gazebo_env.GazeboEnv):
 
         return discretized_ranges, done
 
-    def _step(self, action):
+    def step(self, action):
 
         msg = OverrideRCIn()
 
@@ -153,7 +153,7 @@ class GazeboMazeErleRoverLidarEnv(gazebo_env.GazeboEnv):
 
         return state, reward, done, {}
 
-    def _reset(self):
+    def reset(self):
 
         # Resets the state of the environment and returns an initial observation.
         rospy.wait_for_service('/gazebo/reset_world')

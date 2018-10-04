@@ -55,7 +55,7 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
-    def _step(self, action):
+    def step(self, action):
         rospy.wait_for_service('/gazebo/unpause_physics')
         try:
             self.unpause()
@@ -184,7 +184,7 @@ class GazeboCircuit2cTurtlebotCameraNnEnv(gazebo_env.GazeboEnv):
         #self.s_t = np.append(cv_image, self.s_t[:, :3, :, :], axis=1)
         #return self.s_t, reward, done, {} # observation, reward, done, info
 
-    def _reset(self):
+    def reset(self):
 
         self.last50actions = [0] * 50 #used for looping avoidance
 

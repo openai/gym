@@ -28,13 +28,13 @@ class RealEnv(gym.Env):
     def set_ros_master_uri(self):
         os.environ["ROS_MASTER_URI"] = self.ros_master_uri
 
-    def _step(self, action):
+    def step(self, action):
 
         # Implement this method in every subclass
         # Perform a step in gazebo. E.g. move the robot
         raise NotImplementedError
 
-    def _reset(self):
+    def reset(self):
 
         # Implemented in subclass
         raise NotImplementedError

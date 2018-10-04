@@ -175,7 +175,7 @@ class GazeboErleCopterHoverEnv(gazebo_env.GazeboEnv):
     def _state(self, action):
         return discretized_ranges, done
 
-    def _step(self, action):
+    def step(self, action):
         msg = OverrideRCIn()
 
         if action == 0: #FORWARD
@@ -268,7 +268,7 @@ class GazeboErleCopterHoverEnv(gazebo_env.GazeboEnv):
     def center_distance(self):
         return math.sqrt(self.diff_latitude**2 + self.diff_longitude**2)
 
-    def _reset(self):
+    def reset(self):
         # Resets the state of the environment and returns an initial observation.
         rospy.wait_for_service('/gazebo/reset_world')
         try:

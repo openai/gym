@@ -224,7 +224,7 @@ class GazeboMARATopOrientCollisionv0Env(gazebo_env.GazeboEnv):
         self._currently_resetting = [False for _ in range(1)]
         self.reset_joint_angles = [None for _ in range(1)]
 
-        # TODO review with Risto, we might need the first observation for calling _step()
+        # TODO review with Risto, we might need the first observation for calling step()
         # observation = self.take_observation()
         # assert not done
         # self.obs_dim = observation.size
@@ -646,7 +646,7 @@ class GazeboMARATopOrientCollisionv0Env(gazebo_env.GazeboEnv):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
-    def _step(self, action): # , prevac
+    def step(self, action): # , prevac
         """
         Implement the environment step abstraction. Execute action and returns:
             - reward
@@ -766,7 +766,7 @@ class GazeboMARATopOrientCollisionv0Env(gazebo_env.GazeboEnv):
                 self._pub.publish(self.get_trajectory_message(self.environment['reset_conditions']['initial_positions']))
                 time.sleep(3)
 
-    def _reset(self):
+    def reset(self):
         """
         Reset the agent for a particular experiment condition.
         """
