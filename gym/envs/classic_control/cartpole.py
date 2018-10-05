@@ -142,7 +142,7 @@ class CartPoleEnv(gym.Env):
         scale = screen_width/world_width
         carty = 100 # TOP OF CART
         polewidth = 10.0
-        polelen = scale * self.length
+        polelen = scale * (2 * self.length)
         cartwidth = 50.0
         cartheight = 30.0
 
