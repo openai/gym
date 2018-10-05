@@ -192,10 +192,11 @@ class AcrobotEnv(core.Env):
 
         xys = np.array([[0,0], p1, p2])[:,::-1]
         thetas = [s[0]-np.pi/2, s[0]+s[1]-np.pi/2]
+        link_lengths = [self.LINK_LENGTH_1, self.LINK_LENGTH_2]
 
         self.viewer.draw_line((-2.2, 1), (2.2, 1))
-        for ((x,y),th) in zip(xys, thetas):
-            l,r,t,b = 0, self.LINK_LENGTH_1, .1, -.1
+        for ((x,y),th,llen) in zip(xys, thetas, link_lengths):
+            l,r,t,b = 0, llen, .1, -.1
             jtransform = rendering.Transform(rotation=th, translation=(x,y))
             link = self.viewer.draw_polygon([(l,b), (l,t), (r,t), (r,b)])
             link.add_attr(jtransform)
