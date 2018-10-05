@@ -106,6 +106,12 @@ On Ubuntu 18.04:
     apt install -y python3-dev zlib1g-dev libjpeg-dev cmake swig python-pyglet python3-opengl libboost-all-dev libsdl2-dev \
         libosmesa6-dev patchelf ffmpeg xvfb
 
+On Fedora 28:
+
+.. code:: shell
+
+    dnf install python3-devel zlib-devel libjpeg-devel cmake swig python-pyglet python3-pyopengl boost-devel SDL2-devel mesa-libOSMesa-devel patchelf \
+        ffmpeg xorg-x11-server-Xvfb
 
 MuJoCo has a proprietary dependency we can't set up for you. Follow
 the
