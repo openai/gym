@@ -194,7 +194,7 @@ class AcrobotEnv(core.Env):
 
         self.viewer.draw_line((-2.2, 1), (2.2, 1))
         for ((x,y),th) in zip(xys, thetas):
-            l,r,t,b = 0, 1, .1, -.1
+            l,r,t,b = 0, self.LINK_LENGTH_1, .1, -.1
             jtransform = rendering.Transform(rotation=th, translation=(x,y))
             link = self.viewer.draw_polygon([(l,b), (l,t), (r,t), (r,b)])
             link.add_attr(jtransform)

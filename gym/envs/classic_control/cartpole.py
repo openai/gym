@@ -142,7 +142,7 @@ class CartPoleEnv(gym.Env):
         scale = screen_width/world_width
         carty = 100 # TOP OF CART
         polewidth = 10.0
-        polelen = scale * 1.0
+        polelen = scale * self.length
         cartwidth = 50.0
         cartheight = 30.0
 
@@ -171,7 +171,14 @@ class CartPoleEnv(gym.Env):
             self.track.set_color(0,0,0)
             self.viewer.add_geom(self.track)
 
+            self._pole_geom = pole
+
         if self.state is None: return None
+
+        # Edit the pole polygon vertex
+        pole = self._pole_geom
+        l,r,t,b = -polewidth/2,polewidth/2,polelen-polewidth/2,-polewidth/2
+        pole.v = [(l,b), (l,t), (r,t), (r,b)]
 
         x = self.state
         cartx = x[0]*scale+screen_width/2.0 # MIDDLE OF CART
