@@ -198,6 +198,11 @@ register(
     max_episode_steps=200,
 )
 
+register(
+    id='Tetris-v0',
+    entry_point='gym.envs.toy_text.tetris:TetrisEnv',
+)
+
 # Mujoco
 # ----------------------------------------
 
@@ -530,4 +535,3 @@ register(
     entry_point='gym.envs.unittest:MemorizeDigits',
     reward_threshold=20,
     )
-

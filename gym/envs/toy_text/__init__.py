@@ -7,3 +7,4 @@ from gym.envs.toy_text.guessing_game import GuessingGame
 from gym.envs.toy_text.kellycoinflip import KellyCoinflipEnv
 from gym.envs.toy_text.kellycoinflip import KellyCoinflipGeneralizedEnv
 from gym.envs.toy_text.cliffwalking import CliffWalkingEnv
+from gym.envs.toy_text.tetris import TetrisEnv
