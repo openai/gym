@@ -1,7 +1,6 @@
 import gym
 from gym import spaces
 from gym.utils import seeding
-from gym.spaces import prng
 # for Generalized Kelly coinflip game distributions:
 from scipy.stats import genpareto
 import numpy as np
@@ -79,9 +78,9 @@ class KellyCoinflipGeneralizedEnv(gym.Env):
         self.maxRoundsSD=maxRoundsSD
 
         # draw this game's set of parameters:
-        edge = prng.np_random.beta(edgePriorAlpha, edgePriorBeta)
-        maxWealth = round(genpareto.rvs(maxWealthAlpha, maxWealthM, random_state=prng.np_random))
-        maxRounds = int(round(prng.np_random.normal(maxRoundsMean, maxRoundsSD)))
+        edge = self.np_random.beta(edgePriorAlpha, edgePriorBeta)
+        maxWealth = round(genpareto.rvs(maxWealthAlpha, maxWealthM, random_state=self.np_random))
+        maxRounds = int(round(self.np_random.normal(maxRoundsMean, maxRoundsSD)))
 
         # add an additional global variable which is the sufficient statistic for the Pareto distribution on wealth cap;
         # alpha doesn't update, but x_m does, and simply is the highest wealth count we've seen to date:
