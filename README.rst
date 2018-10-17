@@ -89,7 +89,7 @@ On Ubuntu 14.04 (non-mujoco only):
 
     apt-get install libjpeg-dev cmake swig python-pyglet python3-opengl libboost-all-dev \
             libsdl2-2.0.0 libsdl2-dev libglu1-mesa libglu1-mesa-dev libgles2-mesa-dev \
-            freeglut3 xfvb libav-tools
+            freeglut3 xvfb libav-tools
 
 
 On Ubuntu 16.04:
