@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """
 Classic cart-pole system implemented by Rich Sutton et al.
 Copied from http://incompleteideas.net/sutton/book/code/pole.c
