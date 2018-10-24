@@ -29,12 +29,12 @@ class TaxiEnv(discrete.DiscreteEnv):
     - other letters (R, G, B and Y): locations for passengers and destinations
 
     actions:
-    - south
-    - north
-    - east
-    - west
-    - pickup
-    - dropoff
+    - 0: south
+    - 1: north
+    - 2: east
+    - 3: west
+    - 4: pickup
+    - 5: dropoff
 
     state space is represented by:
         (taxi_row, taxi_col, passenger_location, destination)
