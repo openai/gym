@@ -1,12 +1,6 @@
 #!/bin/bash
 # This script is the entrypoint for our Docker image.
 
-set -x
-
-if [[ ! -z "$MUJOCO_KEY" ]]; then 
-    echo $MUJOCO_KEY | base64 --decode > /root/.mujoco/mjkey.txt
-fi
-
 set -ex
 
 # Set up display; otherwise rendering will fail
