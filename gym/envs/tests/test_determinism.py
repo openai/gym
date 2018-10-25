@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from gym import spaces
+
 from gym.envs.tests.spec_list import spec_list
 
 @pytest.mark.parametrize("spec", spec_list)
@@ -9,7 +9,6 @@ def test_env(spec):
     # Note that this precludes running this test in multiple
     # threads. However, we probably already can't do multithreading
     # due to some environments.
-    spaces.seed(0)
 
     env1 = spec.make()
     env1.seed(0)
@@ -17,8 +16,6 @@ def test_env(spec):
     initial_observation1 = env1.reset()
     step_responses1 = [env1.step(action) for action in action_samples1]
     env1.close()
-
-    spaces.seed(0)
 
     env2 = spec.make()
     env2.seed(0)
