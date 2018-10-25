@@ -1,5 +1,4 @@
 from gym import logger
-import numpy as np
 
 import gym
 from gym import error
@@ -37,7 +36,7 @@ class Env(object):
 
     # Set this in SOME subclasses
     metadata = {'render.modes': []}
-    reward_range = (-np.inf, np.inf)
+    reward_range = (-float('inf'), float('inf'))
     spec = None
 
     # Set these in ALL subclasses
@@ -199,6 +198,7 @@ class Space(object):
     action.
     """
     def __init__(self, shape=None, dtype=None):
+        import numpy as np # takes about 300-400ms to import, so we load lazily
         self.shape = None if shape is None else tuple(shape)
         self.dtype = None if dtype is None else np.dtype(dtype)
 
@@ -214,6 +214,8 @@ class Space(object):
         member of this space
         """
         raise NotImplementedError
+
+    __contains__ = contains
 
     def to_jsonable(self, sample_n):
         """Convert a batch of samples from this space to a JSONable data type."""
@@ -244,21 +246,10 @@ class Wrapper(Env):
         self.observation_space = self.env.observation_space
         self.reward_range = self.env.reward_range
         self.metadata = self.env.metadata
-        self._warn_double_wrap()
 
     @classmethod
     def class_name(cls):
         return cls.__name__
-
-    def _warn_double_wrap(self):
-        env = self.env
-        while True:
-            if isinstance(env, Wrapper):
-                if env.class_name() == self.class_name():
-                    raise error.DoubleWrapperError("Attempted to double wrap with Wrapper: {}".format(self.__class__.__name__))
-                env = env.env
-            else:
-                break
 
     def step(self, action):
         if hasattr(self, "_step"):
@@ -280,8 +271,8 @@ class Wrapper(Env):
                 "which is required for wrappers derived directly from Wrapper. Deprecated default implementation is used.")
             return self.env.reset(**kwargs)
 
-    def render(self, mode='human'):
-        return self.env.render(mode)
+    def render(self, mode='human', **kwargs):
+        return self.env.render(mode, **kwargs)
 
     def close(self):
         if self.env:

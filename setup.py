@@ -7,8 +7,8 @@ from version import VERSION
 
 # Environment-specific dependencies.
 extras = {
-  'atari': ['atari_py>=0.1.1', 'Pillow', 'PyOpenGL'],
-  'box2d': ['Box2D-kengz'],
+  'atari': ['atari_py>=0.1.4', 'Pillow', 'PyOpenGL'],
+  'box2d': ['box2d-py>=2.3.5'],
   'classic_control': ['PyOpenGL'],
   'mujoco': ['mujoco_py>=1.50', 'imageio'],
   'robotics': ['mujoco_py>=1.50', 'imageio'],
@@ -31,7 +31,7 @@ setup(name='gym',
                 if package.startswith('gym')],
       zip_safe=False,
       install_requires=[
-          'numpy>=1.10.4', 'requests>=2.0', 'six', 'pyglet>=1.2.0',
+          'scipy', 'numpy>=1.10.4', 'requests>=2.0', 'six', 'pyglet>=1.2.0',
       ],
       extras_require=extras,
       package_data={'gym': [

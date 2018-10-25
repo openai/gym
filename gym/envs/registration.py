@@ -1,4 +1,3 @@
-import pkg_resources
 import re
 from gym import error, logger
 
@@ -10,6 +9,7 @@ from gym import error, logger
 env_id_re = re.compile(r'^(?:[\w:-]+\/)?([\w:.-]+)-v(\d+)$')
 
 def load(name):
+    import pkg_resources # takes ~400ms to load, so we import it lazily
     entry_point = pkg_resources.EntryPoint.parse('x={}'.format(name))
     result = entry_point.load(False)
     return result
@@ -80,7 +80,7 @@ class EnvSpec(object):
             raise error.Error('Attempting to make deprecated env {}. (HINT: is there a newer registered version of this env?)'.format(self.id))
 
         elif callable(self._entry_point):
-            env = self._entry_point()
+            env = self._entry_point(**self._kwargs)
         else:
             cls = load(self._entry_point)
             env = cls(**self._kwargs)

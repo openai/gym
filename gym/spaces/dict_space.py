@@ -11,8 +11,8 @@ class Dict(gym.Space):
     Example usage [nested]:
     self.nested_observation_space = spaces.Dict({
         'sensors':  spaces.Dict({
-            'position': spaces.Box(low=-100, high=100, shape=(3)),
-            'velocity': spaces.Box(low=-1, high=1, shape=(3)),
+            'position': spaces.Box(low=-100, high=100, shape=(3,)),
+            'velocity': spaces.Box(low=-1, high=1, shape=(3,)),
             'front_cam': spaces.Tuple((
                 spaces.Box(low=0, high=1, shape=(10, 10, 3)),
                 spaces.Box(low=0, high=1, shape=(10, 10, 3))
@@ -31,7 +31,7 @@ class Dict(gym.Space):
     })
     """
     def __init__(self, spaces):
-        if isinstance(spaces, dict):
+        if isinstance(spaces, dict) and not isinstance(spaces, OrderedDict):
             spaces = OrderedDict(sorted(list(spaces.items())))
         if isinstance(spaces, list):
             spaces = OrderedDict(spaces)
@@ -71,3 +71,5 @@ class Dict(gym.Space):
             ret.append(entry)
         return ret
 
+    def __eq__(self, other):
+        return self.spaces == other.spaces

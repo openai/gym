@@ -6,13 +6,11 @@ def should_skip_env_spec_for_tests(spec):
     # troublesome to run frequently
     ep = spec._entry_point
     # Skip mujoco tests for pull request CI
-    skip_mujoco = not (os.environ.get('MUJOCO_KEY_BUNDLE') or os.path.exists(os.path.expanduser('~/.mujoco')))
-    if skip_mujoco and ep.startswith('gym.envs.mujoco:'):
+    skip_mujoco = not (os.environ.get('MUJOCO_KEY'))
+    if skip_mujoco and (ep.startswith('gym.envs.mujoco:') or ep.startswith('gym.envs.robotics:')):
         return True
     if (    'GoEnv' in ep or
             'HexEnv' in ep or
-            ep.startswith('gym.envs.box2d:') or
-            ep.startswith('gym.envs.box2d:') or
             (ep.startswith("gym.envs.atari") and not spec.id.startswith("Pong") and not spec.id.startswith("Seaquest"))
     ):
         logger.warn("Skipping tests for env {}".format(ep))
