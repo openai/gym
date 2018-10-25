@@ -1,3 +1,5 @@
+import numpy as np
+
 from gym import logger
 
 import gym
@@ -201,6 +203,8 @@ class Space(object):
         import numpy as np # takes about 300-400ms to import, so we load lazily
         self.shape = None if shape is None else tuple(shape)
         self.dtype = None if dtype is None else np.dtype(dtype)
+        
+        self.np_random = np.random.RandomState()
 
     def sample(self):
         """

@@ -10,7 +10,7 @@ class MultiDiscrete(gym.Space):
         gym.Space.__init__(self, (self.nvec.shape,), np.int8)
 
     def sample(self):
-        return (gym.spaces.np_random.random_sample(self.nvec.shape) * self.nvec).astype(self.dtype)
+        return (self.np_random.random_sample(self.nvec.shape) * self.nvec).astype(self.dtype)
 
     def contains(self, x):
         return (0 <= x).all() and (x < self.nvec).all() and x.dtype.kind in 'ui'
