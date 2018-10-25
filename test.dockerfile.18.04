@@ -33,6 +33,7 @@ RUN \
     unzip mjpro150_linux.zip
 
 ARG MUJOCO_KEY
+ENV MUJOCO_KEY=$MUJOCO_KEY
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/root/.mujoco/mjpro150/bin
 RUN echo $MUJOCO_KEY | base64 --decode > /root/.mujoco/mjkey.txt
 
