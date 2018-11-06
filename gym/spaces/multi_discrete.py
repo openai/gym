@@ -7,7 +7,7 @@ class MultiDiscrete(gym.Space):
         nvec: vector of counts of each categorical variable
         """
         self.nvec = np.asarray(nvec, dtype=np.int32)
-        gym.Space.__init__(self, (self.nvec.shape,), np.int8)
+        gym.Space.__init__(self, self.nvec.shape, np.int8)
 
     def sample(self):
         return (gym.spaces.np_random.random_sample(self.nvec.shape) * self.nvec).astype(self.dtype)
