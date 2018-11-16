@@ -1,3 +1,4 @@
+import os
 import numpy as np
 
 from gym import utils
@@ -42,6 +43,10 @@ DEFAULT_INITIAL_QPOS = {
 }
 
 
+# Ensure we get the path separator correct on windows
+MODEL_XML_PATH = os.path.join('hand', 'reach.xml')
+
+
 def goal_distance(goal_a, goal_b):
     assert goal_a.shape == goal_b.shape
     return np.linalg.norm(goal_a - goal_b, axis=-1)
@@ -56,7 +61,7 @@ class HandReachEnv(hand_env.HandEnv, utils.EzPickle):
         self.reward_type = reward_type
 
         hand_env.HandEnv.__init__(
-            self, 'hand/reach.xml', n_substeps=n_substeps, initial_qpos=initial_qpos,
+            self, MODEL_XML_PATH, n_substeps=n_substeps, initial_qpos=initial_qpos,
             relative_control=relative_control)
         utils.EzPickle.__init__(self)
 
