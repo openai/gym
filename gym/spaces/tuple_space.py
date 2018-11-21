@@ -11,6 +11,9 @@ class Tuple(gym.Space):
         self.spaces = spaces
         gym.Space.__init__(self, None, None)
 
+    def seed(self, seed):
+        [space.seed(seed) for space in self.spaces]
+
     def sample(self):
         return tuple([space.sample() for space in self.spaces])
 
