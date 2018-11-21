@@ -6,7 +6,7 @@ from .space import Space
 class MultiBinary(Space):
     def __init__(self, n):
         self.n = n
-        gym.Space.__init__(self, (self.n,), np.int8)
+        super().__init__(self, (self.n,), np.int8)
         self.np_random = np.random.RandomState()
 
     def seed(self, seed):
