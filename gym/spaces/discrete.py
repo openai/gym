@@ -1,7 +1,9 @@
 import numpy as np
 import gym
+from .space import Space
 
-class Discrete(gym.Space):
+
+class Discrete(Space):
     """
     {0,1,...,n-1}
 
