@@ -1,7 +1,9 @@
 import gym
 import numpy as np
+from .space import Space
 
-class MultiDiscrete(gym.Space):
+
+class MultiDiscrete(Space):
     def __init__(self, nvec):
         """
         nvec: vector of counts of each categorical variable
