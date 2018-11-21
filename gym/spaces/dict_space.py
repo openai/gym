@@ -1,7 +1,8 @@
 import gym
 from collections import OrderedDict
+from .space import Space
 
-class Dict(gym.Space):
+class Dict(Space):
     """
     A dictionary of simpler spaces.
 
