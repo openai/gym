@@ -10,7 +10,7 @@ class MultiDiscrete(Space):
         """
         self.nvec = np.asarray(nvec, dtype=np.int32)
 
-        super().__init__(self, self.nvec.shape, np.int8)
+        super().__init__(self.nvec.shape, np.int8)
         self.np_random = np.random.RandomState()
 
     def seed(self, seed):
