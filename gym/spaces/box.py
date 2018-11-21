@@ -33,6 +33,10 @@ class Box(gym.Space):
         self.low = low.astype(dtype)
         self.high = high.astype(dtype)
         gym.Space.__init__(self, shape, dtype)
+        self.np_random = np.random.RandomState()
+
+    def seed(self, seed):
+        self.np_random.seed(seed)
 
     def sample(self):
         return self.np_random.uniform(low=self.low, high=self.high + (0 if self.dtype.kind == 'f' else 1), size=self.low.shape).astype(self.dtype)
