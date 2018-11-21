@@ -11,6 +11,10 @@ class Discrete(gym.Space):
     def __init__(self, n):
         self.n = n
         gym.Space.__init__(self, (), np.int64)
+        self.np_random = np.random.RandomState()
+
+    def seed(self, seed):
+        self.np_random.seed(seed)
 
     def sample(self):
         return self.np_random.randint(self.n)
