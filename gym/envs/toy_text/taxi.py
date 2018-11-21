@@ -91,6 +91,7 @@ class TaxiEnv(discrete.DiscreteEnv):
                                     reward = -10
                             elif a==5: # dropoff
                                 if (taxiloc == locs[destidx]) and passidx==4:
+                                    newpassidx = destidx
                                     done = True
                                     reward = 20
                                 elif (taxiloc in locs) and passidx==4:
