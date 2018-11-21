@@ -38,7 +38,7 @@ class Dict(Space):
         if isinstance(spaces, list):
             spaces = OrderedDict(spaces)
         self.spaces = spaces
-        super().__init__(self, None, None) # None for shape and dtype, since it'll require special handling
+        super().__init__(None, None) # None for shape and dtype, since it'll require special handling
 
     def seed(self, seed):
         [space.seed(seed) for space in self.spaces.values()]
