@@ -1,6 +1,8 @@
 import gym
+from .space import Space
 
-class Tuple(gym.Space):
+
+class Tuple(Space):
     """
     A tuple (i.e., product) of simpler spaces
 
