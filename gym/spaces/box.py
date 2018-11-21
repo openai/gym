@@ -1,9 +1,10 @@
 import numpy as np
 import gym
 from gym import logger
+from .space import Space
 
 
-class Box(gym.Space):
+class Box(Space):
     """
     A box in R^n.
     I.e., each coordinate is bounded.
