@@ -2,6 +2,7 @@ import numpy as np
 import gym
 from gym import logger
 
+
 class Box(gym.Space):
     """
     A box in R^n.
