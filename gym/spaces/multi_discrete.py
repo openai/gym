@@ -8,6 +8,10 @@ class MultiDiscrete(gym.Space):
         """
         self.nvec = np.asarray(nvec, dtype=np.int32)
         gym.Space.__init__(self, (self.nvec.shape,), np.int8)
+        self.np_random = np.random.RandomState()
+
+    def seed(self, seed):
+        self.np_random.seed(seed)
 
     def sample(self):
         return (self.np_random.random_sample(self.nvec.shape) * self.nvec).astype(self.dtype)
