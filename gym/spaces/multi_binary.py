@@ -1,7 +1,9 @@
 import gym
 import numpy as np
+from .space import Space
 
-class MultiBinary(gym.Space):
+
+class MultiBinary(Space):
     def __init__(self, n):
         self.n = n
         gym.Space.__init__(self, (self.n,), np.int8)
