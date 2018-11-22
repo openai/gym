@@ -77,6 +77,8 @@ class KellyCoinflipGeneralizedEnv(gym.Env):
         self.maxRoundsMean=maxRoundsMean
         self.maxRoundsSD=maxRoundsSD
 
+        if reseed or not hasattr(self, 'np_random') : self.seed()
+
         # draw this game's set of parameters:
         edge = self.np_random.beta(edgePriorAlpha, edgePriorBeta)
         maxWealth = round(genpareto.rvs(maxWealthAlpha, maxWealthM, random_state=self.np_random))
@@ -105,7 +107,6 @@ class KellyCoinflipGeneralizedEnv(gym.Env):
         self.maxRounds = maxRounds
         self.rounds = self.maxRounds
         self.maxWealth = maxWealth
-        if reseed or not hasattr(self, 'np_random') : self.seed()
 
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
