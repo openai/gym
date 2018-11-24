@@ -1,6 +1,7 @@
-import sys, math
-import numpy as np
+import sys
+import math
 
+import numpy as np
 import Box2D
 from Box2D.b2 import (edgeShape, circleShape, fixtureDef, polygonShape, revoluteJointDef, contactListener)
 
@@ -137,9 +138,9 @@ class BipedalWalker(gym.Env, EzPickle):
 
         self.reset()
 
-        high = np.array([np.inf]*24)
-        self.action_space = spaces.Box(np.array([-1,-1,-1,-1]), np.array([+1,+1,+1,+1]))
-        self.observation_space = spaces.Box(-high, high)
+        high = np.array([np.inf] * 24)
+        self.action_space = spaces.Box(np.array([-1, -1, -1, -1]), np.array([1, 1, 1, 1]), dtype=np.float32)
+        self.observation_space = spaces.Box(-high, high, dtype=np.float32)
 
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
