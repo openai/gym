@@ -1,5 +1,3 @@
-import warnings
-
 import numpy as np
 
 import gym
@@ -31,7 +29,7 @@ class Box(gym.Space):
                 dtype = np.uint8
             else:
                 dtype = np.float32
-            warnings.warn("gym.spaces.Box autodetected dtype as {}. Please provide explicit dtype.".format(dtype))
+            logger.warn("gym.spaces.Box autodetected dtype as {}. Please provide explicit dtype.".format(dtype))
         self.low = low.astype(dtype)
         self.high = high.astype(dtype)
         gym.Space.__init__(self, shape, dtype)
