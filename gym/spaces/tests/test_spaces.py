@@ -10,10 +10,11 @@ from gym.spaces import Tuple, Box, Discrete, MultiDiscrete, MultiBinary, Dict
 @pytest.mark.parametrize("space", [
               Discrete(3),
               Tuple([Discrete(5), Discrete(10)]),
-              Tuple([Discrete(5), Box(low=np.array([0, 0]),high=np.array([1, 5]))]),
+              Tuple([Discrete(5), Box(low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32)]),
               Tuple((Discrete(5), Discrete(2), Discrete(2))),
               MultiDiscrete([2, 2, 100]),
-              Dict({"position": Discrete(5), "velocity": Box(low=np.array([0, 0]), high=np.array([1, 5]))}),
+              Dict({"position": Discrete(5),
+                    "velocity": Box(low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32)}),
               ])
 def test_roundtripping(space):
     sample_1 = space.sample()
@@ -39,11 +40,12 @@ def test_roundtripping(space):
               Discrete(3),
               Box(low=np.array([-10, 0]),high=np.array([10, 10])),
               Tuple([Discrete(5), Discrete(10)]),
-              Tuple([Discrete(5), Box(low=np.array([0, 0]),high=np.array([1, 5]))]),
+              Tuple([Discrete(5), Box(low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32)]),
               Tuple((Discrete(5), Discrete(2), Discrete(2))),
               MultiDiscrete([2, 2, 100]),
               MultiBinary(6),
-              Dict({"position": Discrete(5), "velocity": Box(low=np.array([0, 0]), high=np.array([1, 5]))}),
+              Dict({"position": Discrete(5),
+                    "velocity": Box(low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32)}),
               ])
 def test_equality(space):
     space1 = space
@@ -55,8 +57,8 @@ def test_equality(space):
               (Discrete(3), Discrete(4)),
               (MultiDiscrete([2, 2, 100]), MultiDiscrete([2, 2, 8])),
               (MultiBinary(8), MultiBinary(7)),
-              (Box(low=np.array([-10, 0]),high=np.array([10, 10])),
-                Box(low=np.array([-10, 0]),high=np.array([10, 9]))),
+              (Box(low=np.array([-10, 0]), high=np.array([10, 10]), dtype=np.float32),
+                Box(low=np.array([-10, 0]), high=np.array([10, 9]), dtype=np.float32)),
               (Tuple([Discrete(5), Discrete(10)]), Tuple([Discrete(1), Discrete(10)])),
               (Dict({"position": Discrete(5)}), Dict({"position": Discrete(4)})),
               (Dict({"position": Discrete(5)}), Dict({"speed": Discrete(5)})),
