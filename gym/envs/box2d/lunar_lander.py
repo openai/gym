@@ -22,7 +22,7 @@ from gym.utils import seeding, EzPickle
 # Landing outside landing pad is possible. Fuel is infinite, so an agent can learn to fly and then land
 # on its first attempt. Please see source code for details.
 #
-# Too see heuristic landing, run:
+# To see heuristic landing, run:
 #
 # python gym/envs/box2d/lunar_lander.py
 #
