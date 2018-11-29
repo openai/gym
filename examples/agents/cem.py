@@ -90,4 +90,4 @@ if __name__ == '__main__':
     # environment.
     writefile('info.json', json.dumps(info))
 
-    env.close()
+    env.env.close()

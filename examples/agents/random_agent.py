@@ -48,4 +48,4 @@ if __name__ == '__main__':
             # Video is not recorded every episode, see capped_cubic_video_schedule for details.
 
     # Close the env and write monitor result info to disk
-    env.close()
+    env.env.close()
