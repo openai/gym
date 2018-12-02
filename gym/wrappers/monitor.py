@@ -41,11 +41,7 @@ class Monitor(Wrapper):
         return observation
 
     def close(self):
-        super(Monitor, self)._close()
-
-        # _monitor will not be set if super(Monitor, self).__init__ raises, this check prevents a confusing error message
-        if getattr(self, '_monitor', None):
-            self.close()
+        self.env.close()
 
     def set_monitor_mode(self, mode):
         logger.info("Setting the monitor mode is deprecated and will be removed soon")
