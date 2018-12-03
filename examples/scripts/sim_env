@@ -5,6 +5,7 @@ import argparse
 import numpy as np
 import itertools
 import time
+from six.moves import input
 
 parser = argparse.ArgumentParser()
 parser.add_argument("env")
@@ -44,7 +45,7 @@ while True:
         elif args.mode == "static":
             time.sleep(1.0/fps)
         elif args.mode == "human":
-            a = raw_input("type action from {0,...,%i} and press enter: "%(ac_space.n-1))
+            a = input("type action from {0,...,%i} and press enter: "%(ac_space.n-1))
             try:
                 a = int(a)
             except ValueError:
@@ -61,4 +62,4 @@ while True:
     if args.once:
         break
     else:
-        raw_input("Press enter to continue")
+        input("Press enter to continue")
