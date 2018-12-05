@@ -30,7 +30,10 @@ class Dict(gym.Space):
         })
     })
     """
-    def __init__(self, spaces):
+    def __init__(self, spaces=None, **spaces_kwargs):
+        assert (spaces is None) or (not spaces_kwargs), 'Use either Dict(spaces=dict(...)) or Dict(foo=x, bar=z)'
+        if spaces is None:
+            spaces = spaces_kwargs
         if isinstance(spaces, dict) and not isinstance(spaces, OrderedDict):
             spaces = OrderedDict(sorted(list(spaces.items())))
         if isinstance(spaces, list):
