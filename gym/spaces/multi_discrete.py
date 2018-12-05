@@ -6,7 +6,7 @@ class MultiDiscrete(gym.Space):
         """
         nvec: vector of counts of each categorical variable
         """
-        assert (nvec > 0).all(), 'nvec (counts) have to be positive'
+        assert (np.array(nvec) > 0).all(), 'nvec (counts) have to be positive'
         self.nvec = np.asarray(nvec, dtype=np.uint32)
         gym.Space.__init__(self, self.nvec.shape, np.uint32)
 
