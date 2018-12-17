@@ -215,7 +215,8 @@ class Space(object):
         """
         raise NotImplementedError
 
-    __contains__ = contains
+    def __contains__(self, x):
+        return self.contains(x)
 
     def to_jsonable(self, sample_n):
         """Convert a batch of samples from this space to a JSONable data type."""
