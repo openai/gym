@@ -62,18 +62,14 @@ class KellyCoinflipEnv(gym.Env):
         return [seed]
 
     def step(self, action: int):
-        action = action/100.0  # convert from pennies to dollars
-        if action > self.wealth:    # treat attempts to bet more than possess as ==
-                                    # betting everything
-            action = self.wealth
-
+        bet_in_dollars = min(action/100.0, self.wealth)  # action = desired bet in pennies
         self.rounds -= 1
 
         coinflip = flip(self.edge, self.np_random)
         if coinflip:
-            self.wealth = min(self.max_wealth, self.wealth + action)
+            self.wealth = min(self.max_wealth, self.wealth + bet_in_dollars)
         else:
-            self.wealth -= action
+            self.wealth -= bet_in_dollars
 
         if (self.wealth < 0.01) or (self.wealth == self.max_wealth) or (not self.rounds):
             done = True
@@ -173,9 +169,7 @@ class KellyCoinflipGeneralizedEnv(gym.Env):
         return [seed]
 
     def step(self, action: int):
-        action = action/100.0
-        if action > self.wealth:
-            action = self.wealth
+        bet_in_dollars = min(action/100.0, self.wealth)
         if self.wealth < 0.000001:
             done = True
             reward = 0.0
@@ -190,11 +184,11 @@ class KellyCoinflipGeneralizedEnv(gym.Env):
                 coinflip = flip(self.edge, self.np_random)
                 self.rounds_elapsed += 1
                 if coinflip:
-                    self.wealth = min(self.max_wealth, self.wealth + action)
+                    self.wealth = min(self.max_wealth, self.wealth + bet_in_dollars)
                     self.max_ever_wealth = max(self.wealth, self.max_ever_wealth)
                     self.wins += 1
                 else:
-                    self.wealth -= action
+                    self.wealth -= bet_in_dollars
                     self.losses += 1
         return self._get_obs(), reward, done, {}
 
