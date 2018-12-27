@@ -68,12 +68,8 @@ class KellyCoinflipEnv(gym.Env):
         coinflip = flip(self.edge, self.np_random)
         self.wealth = min(self.max_wealth, self.wealth + coinflip * bet_in_dollars)
 
-        if (self.wealth < 0.01) or (self.wealth == self.max_wealth) or (not self.rounds):
-            done = True
-            reward = self.wealth
-        else:
-            done = False
-            reward = 0.0
+        done = self.wealth < 0.01 or self.wealth == self.max_wealth or not self.rounds
+        reward = self.wealth if done else 0.0
 
         return self._get_obs(), reward, done, {}
 
