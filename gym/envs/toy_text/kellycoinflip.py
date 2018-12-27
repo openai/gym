@@ -8,7 +8,7 @@ from gym.spaces import prng
 
 
 def flip(edge, np_random):
-    return np_random.uniform() < edge
+    return 1 if np_random.uniform() < edge else -1
 
 
 class KellyCoinflipEnv(gym.Env):
@@ -66,10 +66,7 @@ class KellyCoinflipEnv(gym.Env):
         self.rounds -= 1
 
         coinflip = flip(self.edge, self.np_random)
-        if coinflip:
-            self.wealth = min(self.max_wealth, self.wealth + bet_in_dollars)
-        else:
-            self.wealth -= bet_in_dollars
+        self.wealth = min(self.max_wealth, self.wealth + coinflip * bet_in_dollars)
 
         if (self.wealth < 0.01) or (self.wealth == self.max_wealth) or (not self.rounds):
             done = True
@@ -182,13 +179,13 @@ class KellyCoinflipGeneralizedEnv(gym.Env):
                 done = False
                 reward = 0.0
                 coinflip = flip(self.edge, self.np_random)
+                self.wealth = min(self.max_wealth,
+                                  self.wealth + coinflip * bet_in_dollars)
                 self.rounds_elapsed += 1
                 if coinflip:
-                    self.wealth = min(self.max_wealth, self.wealth + bet_in_dollars)
                     self.max_ever_wealth = max(self.wealth, self.max_ever_wealth)
                     self.wins += 1
                 else:
-                    self.wealth -= bet_in_dollars
                     self.losses += 1
         return self._get_obs(), reward, done, {}
 
