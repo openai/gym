@@ -66,22 +66,22 @@ class KellyCoinflipEnv(gym.Env):
         if action > self.wealth:    # treat attempts to bet more than possess as ==
                                     # betting everything
             action = self.wealth
-        if self.wealth < 0.000001:
-            done = True
-            reward = 0.0
+
+        self.rounds -= 1
+
+        coinflip = flip(self.edge, self.np_random)
+        if coinflip:
+            self.wealth = min(self.max_wealth, self.wealth + action)
         else:
-            if self.rounds == 0:
-                done = True
-                reward = self.wealth
-            else:
-                self.rounds -= 1
-                done = False
-                reward = 0.0
-                coinflip = flip(self.edge, self.np_random)
-                if coinflip:
-                    self.wealth = min(self.max_wealth, self.wealth + action)
-                else:
-                    self.wealth -= action
+            self.wealth -= action
+
+        if (self.wealth < 0.01) or (self.wealth == self.max_wealth) or (not self.rounds):
+            done = True
+            reward = self.wealth
+        else:
+            done = False
+            reward = 0.0
+
         return self._get_obs(), reward, done, {}
 
     def _get_obs(self):
