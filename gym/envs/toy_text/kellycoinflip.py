@@ -74,14 +74,14 @@ class KellyCoinflipEnv(gym.Env):
                 done = True
                 reward = self.wealth
             else:
-                self.rounds = self.rounds - 1
+                self.rounds -= 1
                 done = False
                 reward = 0.0
                 coinflip = flip(self.edge, self.np_random)
                 if coinflip:
                     self.wealth = min(self.max_wealth, self.wealth + action)
                 else:
-                    self.wealth = self.wealth - action
+                    self.wealth -= action
         return self._get_obs(), reward, done, {}
 
     def _get_obs(self):
@@ -184,18 +184,18 @@ class KellyCoinflipGeneralizedEnv(gym.Env):
                 done = True
                 reward = self.wealth
             else:
-                self.rounds = self.rounds - 1
+                self.rounds -= 1
                 done = False
                 reward = 0.0
                 coinflip = flip(self.edge, self.np_random)
-                self.rounds_elapsed = self.rounds_elapsed + 1
+                self.rounds_elapsed += 1
                 if coinflip:
                     self.wealth = min(self.max_wealth, self.wealth + action)
                     self.max_ever_wealth = max(self.wealth, self.max_ever_wealth)
-                    self.wins = self.wins+1
+                    self.wins += 1
                 else:
-                    self.wealth = self.wealth - action
-                    self.losses = self.losses+1
+                    self.wealth -= action
+                    self.losses += 1
         return self._get_obs(), reward, done, {}
 
     def _get_obs(self):
