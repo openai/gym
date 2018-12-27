@@ -163,26 +163,22 @@ class KellyCoinflipGeneralizedEnv(gym.Env):
 
     def step(self, action: int):
         bet_in_dollars = min(action/100.0, self.wealth)
-        if self.wealth < 0.000001:
-            done = True
-            reward = 0.0
+
+        self.rounds -= 1
+
+        coinflip = flip(self.edge, self.np_random)
+        self.wealth = min(self.max_wealth, self.wealth + coinflip * bet_in_dollars)
+        self.rounds_elapsed += 1
+
+        if coinflip:
+            self.max_ever_wealth = max(self.wealth, self.max_ever_wealth)
+            self.wins += 1
         else:
-            if self.rounds == 0:
-                done = True
-                reward = self.wealth
-            else:
-                self.rounds -= 1
-                done = False
-                reward = 0.0
-                coinflip = flip(self.edge, self.np_random)
-                self.wealth = min(self.max_wealth,
-                                  self.wealth + coinflip * bet_in_dollars)
-                self.rounds_elapsed += 1
-                if coinflip:
-                    self.max_ever_wealth = max(self.wealth, self.max_ever_wealth)
-                    self.wins += 1
-                else:
-                    self.losses += 1
+            self.losses += 1
+
+        done = self.wealth < 0.01 or self.wealth == self.max_wealth or not self.rounds
+        reward = self.max_wealth if done else 0.0
+
         return self._get_obs(), reward, done, {}
 
     def _get_obs(self):
