@@ -31,7 +31,7 @@ class ManipulateTouchSensorsEnv(manipulate.ManipulateEnv, utils.EzPickle):
         target_position_range, reward_type, initial_qpos={},
         randomize_initial_position=True, randomize_initial_rotation=True,
         distance_threshold=0.01, rotation_threshold=0.1, n_substeps=20, relative_control=False,
-        ignore_z_target_rotation=False, touch_visualisation="on_touch", touch_get_obs="boolean",
+        ignore_z_target_rotation=False, touch_visualisation="on_touch", touch_get_obs="off",
     ):
         """Initializes a new Hand manipulation environment with touch sensors.
 
@@ -41,15 +41,16 @@ class ManipulateTouchSensorsEnv(manipulate.ManipulateEnv, utils.EzPickle):
                 - "on_touch": shows touch sensor sites only when touch values > 0
                 - else: does not show touch sensor sites
             touch_get_obs (string): touch sensor readings
-                - "boolean": returns 1 if touch sensor value != 0.0 else 0
-                - else: returns touch sensor readings from self.sim.data.sensordata[]
+                - "boolean": returns 1 if touch sensor reading != 0.0 else 0
+                - "orig": returns original touch sensor readings from self.sim.data.sensordata[]
+                - "off" or else: does not add touch sensor readings to the observation
 
         """
         self.touch_visualisation = touch_visualisation
         self.touch_get_obs = touch_get_obs
         self._tsensor_prefix = 'robot0:TS_'
-        self._tsensor_group_names = []  # list of dictionaries of sensors per joint
-        self._tsensor_name2id = {}
+        # self._tsensor_group_names = []  # list of dictionaries of sensors per joint
+        # self._tsensor_name2id = {}
         self._tsensor_id2name = {}
         self._tsensor_id2siteid = {}
         self._site_id2intial_rgba = {}  # dict for initial rgba values for debugging
@@ -66,7 +67,7 @@ class ManipulateTouchSensorsEnv(manipulate.ManipulateEnv, utils.EzPickle):
 
         for k, v in self.sim.model._sensor_id2name.items():  # get touch sensor ids and their site names
             if 'TS' in v:
-                self._tsensor_name2id[v] = k
+                # self._tsensor_name2id[v] = k
                 self._tsensor_id2name[k] = v
                 self._tsensor_id2siteid[k] = self.sim.model._site_name2id[v.replace('TS', 'T')]
                 self._site_id2intial_rgba[self._tsensor_id2siteid[k]] = self.sim.model.site_rgba[self._tsensor_id2siteid[k]].copy()  # get initial rgba values
@@ -81,7 +82,7 @@ class ManipulateTouchSensorsEnv(manipulate.ManipulateEnv, utils.EzPickle):
             for k, v in self._tsensor_id2name.items():
                 value = 1.0 if self.sim.data.sensordata[k] != 0.0 else 0.0
                 touch_values.append(value)
-        else:
+        elif self.touch_get_obs == 'orig':
             for k, v in self._tsensor_id2name.items():
                 value = self.sim.data.sensordata[k]
                 touch_values.append(value)
@@ -90,8 +91,7 @@ class ManipulateTouchSensorsEnv(manipulate.ManipulateEnv, utils.EzPickle):
         # set rgba values
         if self.touch_visualisation == 'always':
             for k, v in self._tsensor_id2name.items():
-                self.sim.model.site_rgba[self._tsensor_id2siteid[k]] = self._site_id2intial_rgba[
-                        self._tsensor_id2siteid[k]].copy()
+                self.sim.model.site_rgba[self._tsensor_id2siteid[k]] = self._site_id2intial_rgba[self._tsensor_id2siteid[k]].copy()
         elif self.touch_visualisation == 'on_touch':
             for k, v in self._tsensor_id2name.items():
                 if self.sim.data.sensordata[k] != 0.0:
