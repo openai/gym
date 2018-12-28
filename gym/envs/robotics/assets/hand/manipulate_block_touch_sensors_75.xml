@@ -113,16 +113,16 @@
         <touch name="robot0:TS_mfproximal_right" site="robot0:T_mfproximal_right"></touch>
 
          <!--FIFTH FINGER-->
-        <!--<touch name="robot0:TS_fftip_tip" site="robot0:T_fftip_tip"></touch>-->
-        <!--<touch name="robot0:TS_fftip_front" site="robot0:T_fftip_front"></touch>-->
-        <!--<touch name="robot0:TS_fftip_back" site="robot0:T_fftip_back"></touch>-->
-        <!--<touch name="robot0:TS_fftip_left" site="robot0:T_fftip_left"></touch>-->
-        <!--<touch name="robot0:TS_fftip_right" site="robot0:T_fftip_right"></touch>-->
+        <touch name="robot0:TS_fftip_tip" site="robot0:T_fftip_tip"></touch>
+        <touch name="robot0:TS_fftip_front" site="robot0:T_fftip_front"></touch>
+        <touch name="robot0:TS_fftip_back" site="robot0:T_fftip_back"></touch>
+        <touch name="robot0:TS_fftip_left" site="robot0:T_fftip_left"></touch>
+        <touch name="robot0:TS_fftip_right" site="robot0:T_fftip_right"></touch>
 
-        <!--<touch name="robot0:TS_ffmiddle_front" site="robot0:T_ffmiddle_front"></touch>-->
-        <!--<touch name="robot0:TS_ffmiddle_back" site="robot0:T_ffmiddle_back"></touch>-->
-        <!--<touch name="robot0:TS_ffmiddle_left" site="robot0:T_ffmiddle_left"></touch>-->
-        <!--<touch name="robot0:TS_ffmiddle_right" site="robot0:T_ffmiddle_right"></touch>-->
+        <touch name="robot0:TS_ffmiddle_front" site="robot0:T_ffmiddle_front"></touch>
+        <touch name="robot0:TS_ffmiddle_back" site="robot0:T_ffmiddle_back"></touch>
+        <touch name="robot0:TS_ffmiddle_left" site="robot0:T_ffmiddle_left"></touch>
+        <touch name="robot0:TS_ffmiddle_right" site="robot0:T_ffmiddle_right"></touch>
 
         <touch name="robot0:TS_ffproximal_front_d" site="robot0:T_ffproximal_front_d"></touch>
         <touch name="robot0:TS_ffproximal_front_u" site="robot0:T_ffproximal_front_u"></touch>

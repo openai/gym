@@ -31,7 +31,7 @@ class ManipulateTouchSensorsEnv(manipulate.ManipulateEnv, utils.EzPickle):
         target_position_range, reward_type, initial_qpos={},
         randomize_initial_position=True, randomize_initial_rotation=True,
         distance_threshold=0.01, rotation_threshold=0.1, n_substeps=20, relative_control=False,
-        ignore_z_target_rotation=False, touch_visualisation="on_touch", touch_get_obs="off",
+        ignore_z_target_rotation=False, touch_visualisation="on_touch", touch_get_obs="boolean",
     ):
         """Initializes a new Hand manipulation environment with touch sensors.
 
@@ -42,7 +42,7 @@ class ManipulateTouchSensorsEnv(manipulate.ManipulateEnv, utils.EzPickle):
                 - else: does not show touch sensor sites
             touch_get_obs (string): touch sensor readings
                 - "boolean": returns 1 if touch sensor reading != 0.0 else 0
-                - "orig": returns original touch sensor readings from self.sim.data.sensordata[]
+                - "log": returns log(x+1) touch sensor readings from self.sim.data.sensordata[]
                 - "off" or else: does not add touch sensor readings to the observation
 
         """
@@ -82,10 +82,12 @@ class ManipulateTouchSensorsEnv(manipulate.ManipulateEnv, utils.EzPickle):
             for k, v in self._tsensor_id2name.items():
                 value = 1.0 if self.sim.data.sensordata[k] != 0.0 else 0.0
                 touch_values.append(value)
-        elif self.touch_get_obs == 'orig':
+        elif self.touch_get_obs == 'log':
             for k, v in self._tsensor_id2name.items():
                 value = self.sim.data.sensordata[k]
                 touch_values.append(value)
+            if len(touch_values) > 0:
+                touch_values = np.log(np.array(touch_values) + 1.0)
         observation = np.concatenate([robot_qpos, robot_qvel, object_qvel, touch_values, achieved_goal])
 
         # set rgba values
