@@ -39,7 +39,7 @@ class ManipulateTouchSensorsEnv(manipulate.ManipulateEnv, utils.EzPickle):
             touch_visualisation (string): how touch sensor sites are visualised
                 - "always": always shows touch sensor sites
                 - "on_touch": shows touch sensor sites only when touch values > 0
-                - else: does not show touch sensor sites
+                - "off" or else: does not show touch sensor sites
             touch_get_obs (string): touch sensor readings
                 - "boolean": returns 1 if touch sensor reading != 0.0 else 0
                 - "log": returns log(x+1) touch sensor readings from self.sim.data.sensordata[]
