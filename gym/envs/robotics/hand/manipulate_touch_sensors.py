@@ -20,7 +20,7 @@ def quat_from_angle_and_axis(angle, axis):
 
 
 # Ensure we get the path separator correct on windows
-MANIPULATE_BLOCK_XML = os.path.join('hand', 'manipulate_block_touch_sensors_75.xml')
+MANIPULATE_BLOCK_XML = os.path.join('hand', 'manipulate_block_touch_sensors_76.xml')
 MANIPULATE_EGG_XML = os.path.join('hand', 'manipulate_egg.xml')
 MANIPULATE_PEN_XML = os.path.join('hand', 'manipulate_pen.xml')
 
@@ -54,7 +54,8 @@ class ManipulateTouchSensorsEnv(manipulate.ManipulateEnv, utils.EzPickle):
         self._tsensor_id2name = {}
         self._tsensor_id2siteid = {}
         self._site_id2intial_rgba = {}  # dict for initial rgba values for debugging
-        self.touch_color = [1, 0, 0, 0.33]
+        self.touch_color = [1, 0, 0, 0.4]  # [1, 0, 0, 0.4]
+        self.notouch_color = [0, 0.5, 0, 0.3]  # [0, 0.5, 0, 0.1]
 
         manipulate.ManipulateEnv.__init__(
             self, model_path, target_position, target_rotation,
@@ -100,7 +101,7 @@ class ManipulateTouchSensorsEnv(manipulate.ManipulateEnv, utils.EzPickle):
                     # self.sim.model.site_rgba[self._tsensor_id2siteid[k]] = self._site_id2intial_rgba[self._tsensor_id2siteid[k]].copy()
                     self.sim.model.site_rgba[self._tsensor_id2siteid[k]] = self.touch_color
                 else:
-                    self.sim.model.site_rgba[self._tsensor_id2siteid[k]] = [0, 0, 0, 0]
+                    self.sim.model.site_rgba[self._tsensor_id2siteid[k]] = self.notouch_color
         else:
             for k, v in self._tsensor_id2name.items():
                 self.sim.model.site_rgba[self._tsensor_id2siteid[k]] = [0, 0, 0, 0]
