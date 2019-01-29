@@ -1,4 +1,5 @@
 import numpy as np
+
 import gym
 from gym import logger
 from .space import Space
@@ -30,7 +31,7 @@ class Box(Space):
                 dtype = np.uint8
             else:
                 dtype = np.float32
-            logger.warn("gym.spaces.Box autodetected dtype as %s. Please provide explicit dtype." % dtype)
+            logger.warn("gym.spaces.Box autodetected dtype as {}. Please provide explicit dtype.".format(dtype))
         self.low = low.astype(dtype)
         self.high = high.astype(dtype)
         super().__init__(shape, dtype)
@@ -53,6 +54,6 @@ class Box(Space):
 
     def __repr__(self):
         return "Box" + str(self.shape)
-        
+
     def __eq__(self, other):
         return np.allclose(self.low, other.low) and np.allclose(self.high, other.high)

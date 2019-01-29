@@ -8,9 +8,10 @@ class MultiDiscrete(Space):
         """
         nvec: vector of counts of each categorical variable
         """
-        self.nvec = np.asarray(nvec, dtype=np.int32)
+        assert (np.array(nvec) > 0).all(), 'nvec (counts) have to be positive'
+        self.nvec = np.asarray(nvec, dtype=np.uint32)
 
-        super().__init__(self.nvec.shape, np.int8)
+        super().__init__(self.nvec.shape, np.uint32)
         self.np_random = np.random.RandomState()
 
     def seed(self, seed):
@@ -20,7 +21,9 @@ class MultiDiscrete(Space):
         return (self.np_random.random_sample(self.nvec.shape) * self.nvec).astype(self.dtype)
 
     def contains(self, x):
-        return (0 <= x).all() and (x < self.nvec).all() and x.dtype.kind in 'ui'
+        # if nvec is uint32 and space dtype is uint32, then 0 <= x < self.nvec guarantees that x
+        # is within correct bounds for space dtype (even though x does not have to be unsigned)
+        return (0 <= x).all() and (x < self.nvec).all()
 
     def to_jsonable(self, sample_n):
         return [sample.tolist() for sample in sample_n]

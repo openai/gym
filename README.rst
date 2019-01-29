@@ -1,3 +1,5 @@
+**Status:** Maintenance (expect bug fixes and minor updates)
+
 OpenAI Gym
 **********
 
