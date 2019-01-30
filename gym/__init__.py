@@ -7,7 +7,8 @@ from gym import error
 from gym.utils import reraise
 from gym.version import VERSION as __version__
 
-from gym.core import Env, GoalEnv, Space, Wrapper, ObservationWrapper, ActionWrapper, RewardWrapper
+from gym.core import Env, GoalEnv, Wrapper, ObservationWrapper, ActionWrapper, RewardWrapper
+from gym.spaces import Space
 from gym.envs import make, spec, register
 from gym import logger
 

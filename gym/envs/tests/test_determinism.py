@@ -11,17 +11,17 @@ def test_env(spec):
     # due to some environments.
     env1 = spec.make()
     env1.seed(0)
+    initial_observation1 = env1.reset()
     env1.action_space.seed(0)
     action_samples1 = [env1.action_space.sample() for i in range(4)]
-    initial_observation1 = env1.reset()
     step_responses1 = [env1.step(action) for action in action_samples1]
     env1.close()
 
     env2 = spec.make()
     env2.seed(0)
+    initial_observation2 = env2.reset()
     env2.action_space.seed(0)
     action_samples2 = [env2.action_space.sample() for i in range(4)]
-    initial_observation2 = env2.reset()
     step_responses2 = [env2.step(action) for action in action_samples2]
     env2.close()
 
