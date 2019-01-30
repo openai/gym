@@ -1,6 +1,8 @@
 import gym
+from .space import Space
 
-class Tuple(gym.Space):
+
+class Tuple(Space):
     """
     A tuple (i.e., product) of simpler spaces
 
@@ -9,7 +11,10 @@ class Tuple(gym.Space):
     """
     def __init__(self, spaces):
         self.spaces = spaces
-        gym.Space.__init__(self, None, None)
+        super().__init__(None, None)
+
+    def seed(self, seed):
+        [space.seed(seed) for space in self.spaces]
 
     def sample(self):
         return tuple([space.sample() for space in self.spaces])

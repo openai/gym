@@ -1,13 +1,19 @@
 import gym
 import numpy as np
+from .space import Space
 
-class MultiBinary(gym.Space):
+
+class MultiBinary(Space):
     def __init__(self, n):
         self.n = n
-        gym.Space.__init__(self, (self.n,), np.int8)
+        super().__init__((self.n,), np.int8)
+        self.np_random = np.random.RandomState()
+
+    def seed(self, seed):
+        self.np_random.seed(seed)
 
     def sample(self):
-        return gym.spaces.np_random.randint(low=0, high=2, size=self.n).astype(self.dtype)
+        return self.np_random.randint(low=0, high=2, size=self.n).astype(self.dtype)
 
     def contains(self, x):
         return ((x==0) | (x==1)).all()
