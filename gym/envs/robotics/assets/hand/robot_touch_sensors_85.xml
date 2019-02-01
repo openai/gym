@@ -37,7 +37,7 @@
                             <site name="robot0:T_ffproximal_back"    type="box"     pos="0 0.0075 0.0225"  size="0.0075 0.003 0.026"  rgba="1 0 0 0.33"/>
                             <site name="robot0:T_ffproximal_left"    type="box"     pos="-0.0075 0 0.0225" size="0.003 0.0075 0.026"  rgba="0 0 0 0.33"/>
                             <site name="robot0:T_ffproximal_right"   type="box"     pos="0.0075 0 0.0225"  size="0.003 0.0075 0.026"  rgba="0 0 0 0.33"/>
-                            <site name="robot0:T_ffproximal_tip"     type="sphere"  pos="0 0 0.045"        size="0.011"               rgba="1 0 0 0.33"/>
+                            <site name="robot0:T_ffproximal_tip"     type="sphere"  pos="0 0 0.045"        size="0.011"               rgba="1 1 0 0.33"/>
                             <body name="robot0:ffmiddle" pos="0 0 0.045">
                                 <inertial pos="0 0 0.011" quat="0.707 0 0 0.707" mass="0.012" diaginertia="1e-05 1e-05 1e-05"></inertial>
                                 <joint name="robot0:FFJ1" type="hinge" pos="0 0 0" axis="1 0 0" range="0 1.571" user="1101"></joint>
@@ -47,7 +47,7 @@
                                 <site name="robot0:T_ffmiddle_back"  type="box"     pos="0 0.007 0.0125"   size="0.007 0.002 0.0152"   rgba="0 0 0 0.33"/>
                                 <site name="robot0:T_ffmiddle_left"  type="box"     pos="-0.007 0 0.0125"  size="0.002 0.007 0.0152"   rgba="1 0 0 0.33"/>
                                 <site name="robot0:T_ffmiddle_right" type="box"     pos="0.007 0 0.0125"   size="0.002 0.007 0.0152"   rgba="1 0 0 0.33"/>
-                                <site name="robot0:T_ffmiddle_tip"   type="sphere"  pos="0 0 0.025"        size="0.009"                rgba="1 0 0 0.33"/>
+                                <site name="robot0:T_ffmiddle_tip"   type="sphere"  pos="0 0 0.025"        size="0.009"                rgba="1 1 0 0.33"/>
                                 <body name="robot0:ffdistal" pos="0 0 0.025">
                                     <inertial pos="0 0 0.015" quat="0.707 -0.003 0.003 0.707" mass="0.01" diaginertia="1e-05 1e-05 1e-05"></inertial>
                                     <joint name="robot0:FFJ0" type="hinge" pos="0 0 0" axis="1 0 0" range="0 1.571" user="1100"></joint>
@@ -59,7 +59,7 @@
                                     <site name="robot0:T_fftip_back"    type="box"      pos="0 0.007 0.012"  size="0.006 0.002 0.01435"  rgba="1 0 0 0.33"/>
                                     <site name="robot0:T_fftip_left"    type="box"      pos="-0.007 0 0.012" size="0.002 0.006 0.01435"  rgba="0 0 0 0.33"/>
                                     <site name="robot0:T_fftip_right"   type="box"      pos="0.007 0 0.012"  size="0.002 0.006 0.01435"  rgba="0 0 0 0.33"/>
-                                    <site name="robot0:T_fftip_tip"     type="sphere"   pos="0 0 0.024"      size="0.008"                rgba="1 0 0 0.33"/>
+                                    <site name="robot0:T_fftip_tip"     type="sphere"   pos="0 0 0.024"      size="0.008"                rgba="1 1 0 0.33"/>
                                 </body>
                             </body>
                         </body>
@@ -78,7 +78,7 @@
                             <site name="robot0:T_mfproximal_back"    type="box"     pos="0 0.0075 0.0225"  size="0.0075 0.003 0.026"  rgba="0 0 0 0.33"/>
                             <site name="robot0:T_mfproximal_left"    type="box"     pos="-0.0075 0 0.0225" size="0.003 0.0075 0.026"  rgba="1 0 0 0.33"/>
                             <site name="robot0:T_mfproximal_right"   type="box"     pos="0.0075 0 0.0225"  size="0.003 0.0075 0.026"  rgba="1 0 0 0.33"/>
-                            <site name="robot0:T_mfproximal_tip"     type="sphere"  pos="0 0 0.045"        size="0.011"               rgba="1 0 0 0.33"/>
+                            <site name="robot0:T_mfproximal_tip"     type="sphere"  pos="0 0 0.045"        size="0.011"               rgba="1 1 0 0.33"/>
                             <body name="robot0:mfmiddle" pos="0 0 0.045">
                                 <inertial pos="0 0 0.012" quat="0.707 0 0 0.707" mass="0.012" diaginertia="1e-05 1e-05 1e-05"></inertial>
                                 <joint name="robot0:MFJ1" type="hinge" pos="0 0 0" axis="1 0 0" range="0 1.571" user="1105"></joint>
@@ -88,7 +88,7 @@
                                 <site name="robot0:T_mfmiddle_back"  type="box"     pos="0 0.007 0.0125"   size="0.007 0.002 0.0152"   rgba="1 0 0 0.33"/>
                                 <site name="robot0:T_mfmiddle_left"  type="box"     pos="-0.007 0 0.0125"  size="0.002 0.007 0.0152"   rgba="0 0 0 0.33"/>
                                 <site name="robot0:T_mfmiddle_right" type="box"     pos="0.007 0 0.0125"   size="0.002 0.007 0.0152"   rgba="0 0 0 0.33"/>
-                                <site name="robot0:T_mfmiddle_tip"   type="sphere"  pos="0 0 0.025"        size="0.009"                rgba="1 0 0 0.33"/>
+                                <site name="robot0:T_mfmiddle_tip"   type="sphere"  pos="0 0 0.025"        size="0.009"                rgba="1 1 0 0.33"/>
                                 <body name="robot0:mfdistal" pos="0 0 0.025">
                                     <inertial pos="0 0 0.015" quat="0.707 -0.003 0.003 0.707" mass="0.01" diaginertia="1e-05 1e-05 1e-05"></inertial>
                                     <joint name="robot0:MFJ0" type="hinge" pos="0 0 0" axis="1 0 0" range="0 1.571" user="1104"></joint>
@@ -100,7 +100,7 @@
                                     <site name="robot0:T_mftip_back"  type="box"    pos="0 0.007 0.012"  size="0.006 0.002 0.01435"   rgba="0 0 0 0.33"/>
                                     <site name="robot0:T_mftip_left"  type="box"    pos="-0.007 0 0.012" size="0.002 0.006 0.01435"   rgba="1 0 0 0.33"/>
                                     <site name="robot0:T_mftip_right" type="box"    pos="0.007 0 0.012"  size="0.002 0.006 0.01435"   rgba="1 0 0 0.33"/>
-                                    <site name="robot0:T_mftip_tip"   type="sphere" pos="0 0 0.024"      size="0.008"                 rgba="1 0 0 0.33"/>
+                                    <site name="robot0:T_mftip_tip"   type="sphere" pos="0 0 0.024"      size="0.008"                 rgba="1 1 0 0.33"/>
                                 </body>
                             </body>
                         </body>
@@ -119,7 +119,7 @@
                             <site name="robot0:T_rfproximal_back"    type="box"     pos="0 0.0075 0.0225"  size="0.0075 0.003 0.026"  rgba="1 0 0 0.33"/>
                             <site name="robot0:T_rfproximal_left"    type="box"     pos="-0.0075 0 0.0225" size="0.003 0.0075 0.026"  rgba="0 0 0 0.33"/>
                             <site name="robot0:T_rfproximal_right"   type="box"     pos="0.0075 0 0.0225"  size="0.003 0.0075 0.026"  rgba="0 0 0 0.33"/>
-                            <site name="robot0:T_rfproximal_tip"     type="sphere"  pos="0 0 0.045"        size="0.011"               rgba="1 0 0 0.33"/>
+                            <site name="robot0:T_rfproximal_tip"     type="sphere"  pos="0 0 0.045"        size="0.011"               rgba="1 1 0 0.33"/>
                             <body name="robot0:rfmiddle" pos="0 0 0.045">
                                 <inertial pos="0 0 0.012" quat="0.707 0 0 0.707" mass="0.012" diaginertia="1e-05 1e-05 1e-05"></inertial>
                                 <joint name="robot0:RFJ1" type="hinge" pos="0 0 0" axis="1 0 0" range="0 1.571" user="1109"></joint>
@@ -129,7 +129,7 @@
                                 <site name="robot0:T_rfmiddle_back"     type="box"      pos="0 0.007 0.0125"   size="0.007 0.002 0.0152"   rgba="0 0 0 0.33"/>
                                 <site name="robot0:T_rfmiddle_left"     type="box"      pos="-0.007 0 0.0125"  size="0.002 0.007 0.0152"   rgba="1 0 0 0.33"/>
                                 <site name="robot0:T_rfmiddle_right"    type="box"      pos="0.007 0 0.0125"   size="0.002 0.007 0.0152"   rgba="1 0 0 0.33"/>
-                                <site name="robot0:T_rfmiddle_tip"      type="sphere"   pos="0 0 0.025"        size="0.009"                rgba="1 0 0 0.33"/>
+                                <site name="robot0:T_rfmiddle_tip"      type="sphere"   pos="0 0 0.025"        size="0.009"                rgba="1 1 0 0.33"/>
                                 <body name="robot0:rfdistal" pos="0 0 0.025">
                                     <inertial pos="0 0 0.015" quat="0.707 -0.003 0.003 0.707" mass="0.01" diaginertia="1e-05 1e-05 1e-05"></inertial>
                                     <joint name="robot0:RFJ0" type="hinge" pos="0 0 0" axis="1 0 0" range="0 1.571" user="1108"></joint>
@@ -141,7 +141,7 @@
                                     <site name="robot0:T_rftip_back"  type="box"    pos="0 0.007 0.012"  size="0.006 0.002 0.01435"  rgba="1 0 0 0.33"/>
                                     <site name="robot0:T_rftip_left"  type="box"    pos="-0.007 0 0.012" size="0.002 0.006 0.01435"  rgba="0 0 0 0.33"/>
                                     <site name="robot0:T_rftip_right" type="box"    pos="0.007 0 0.012"  size="0.002 0.006 0.01435"  rgba="0 0 0 0.33"/>
-                                    <site name="robot0:T_rftip_tip"   type="sphere" pos="0 0 0.024"      size="0.008"                rgba="1 0 0 0.33"/>
+                                    <site name="robot0:T_rftip_tip"   type="sphere" pos="0 0 0.024"      size="0.008"                rgba="1 1 0 0.33"/>
                                 </body>
                             </body>
                         </body>
@@ -166,7 +166,7 @@
                                 <site name="robot0:T_lfproximal_back"    type="box"     pos="0 0.0075 0.0225"  size="0.0075 0.003 0.026"  rgba="0 0 0 0.33"/>
                                 <site name="robot0:T_lfproximal_left"    type="box"     pos="-0.0075 0 0.0225" size="0.003 0.0075 0.026"  rgba="1 0 0 0.33"/>
                                 <site name="robot0:T_lfproximal_right"   type="box"     pos="0.0075 0 0.0225"  size="0.003 0.0075 0.026"  rgba="1 0 0 0.33"/>
-                                <site name="robot0:T_lfproximal_tip"     type="sphere"  pos="0 0 0.045"        size="0.011"               rgba="1 0 0 0.33"/>
+                                <site name="robot0:T_lfproximal_tip"     type="sphere"  pos="0 0 0.045"        size="0.011"               rgba="1 1 0 0.33"/>
                                 <body name="robot0:lfmiddle" pos="0 0 0.045">
                                     <inertial pos="0 0 0.012" quat="0.707 0 0 0.707" mass="0.012" diaginertia="1e-05 1e-05 1e-05"></inertial>
                                     <joint name="robot0:LFJ1" type="hinge" pos="0 0 0" axis="1 0 0" range="0 1.571" user="1113"></joint>
@@ -176,7 +176,7 @@
                                     <site name="robot0:T_lfmiddle_back"  type="box"     pos="0 0.007 0.0125"   size="0.007 0.002 0.0152"   rgba="1 0 0 0.33"/>
                                     <site name="robot0:T_lfmiddle_left"  type="box"     pos="-0.007 0 0.0125"  size="0.002 0.007 0.0152"   rgba="0 0 0 0.33"/>
                                     <site name="robot0:T_lfmiddle_right" type="box"     pos="0.007 0 0.0125"   size="0.002 0.007 0.0152"   rgba="0 0 0 0.33"/>
-                                    <site name="robot0:T_lfmiddle_tip"   type="sphere"  pos="0 0 0.025"        size="0.009"                rgba="1 0 0 0.33"/>
+                                    <site name="robot0:T_lfmiddle_tip"   type="sphere"  pos="0 0 0.025"        size="0.009"                rgba="1 1 0 0.33"/>
                                     <body name="robot0:lfdistal" pos="0 0 0.025">
                                         <inertial pos="0 0 0.015" quat="0.707 -0.003 0.003 0.707" mass="0.01" diaginertia="1e-05 1e-05 1e-05"></inertial>
                                         <joint name="robot0:LFJ0" type="hinge" pos="0 0 0" axis="1 0 0" range="0 1.571" user="1112"></joint>
@@ -188,7 +188,7 @@
                                         <site name="robot0:T_lftip_back"  type="box"    pos="0 0.007 0.012"  size="0.006 0.002 0.01435"  rgba="0 0 0 0.33"/>
                                         <site name="robot0:T_lftip_left"  type="box"    pos="-0.007 0 0.012" size="0.002 0.006 0.01435"  rgba="1 0 0 0.33"/>
                                         <site name="robot0:T_lftip_right" type="box"    pos="0.007 0 0.012"  size="0.002 0.006 0.01435"  rgba="1 0 0 0.33"/>
-                                        <site name="robot0:T_lftip_tip"   type="sphere" pos="0 0 0.024"      size="0.008"                rgba="1 0 0 0.33"/>
+                                        <site name="robot0:T_lftip_tip"   type="sphere" pos="0 0 0.024"      size="0.008"                rgba="1 1 0 0.33"/>
                                     </body>
                                 </body>
                             </body>
@@ -220,7 +220,7 @@
                                     <site name="robot0:T_thmiddle_back"  type="box"     pos="0 0.0085 0.016"  size="0.0085 0.003 0.02"  rgba="0 0 0 0.33"/>
                                     <site name="robot0:T_thmiddle_left"  type="box"     pos="-0.0085 0 0.016" size="0.003 0.0085 0.02"  rgba="1 0 0 0.33"/>
                                     <site name="robot0:T_thmiddle_right" type="box"     pos="0.0085 0 0.016"  size="0.003 0.0085 0.02"  rgba="1 0 0 0.33"/>
-                                    <site name="robot0:T_thmiddle_tip"   type="sphere"  pos="0 0 0.032"       size="0.012"              rgba="1 0 0 0.33"/>
+                                    <site name="robot0:T_thmiddle_tip"   type="sphere"  pos="0 0 0.032"       size="0.012"              rgba="1 1 0 0.33"/>
                                     <body name="robot0:thdistal" pos="0 0 0.032">
                                         <inertial pos="0 0 0.016" quat="0.999 -0.005 -0.047 0.005" mass="0.016" diaginertia="1e-05 1e-05 1e-05"></inertial>
                                         <joint name="robot0:THJ0" type="hinge" pos="0 0 0" axis="0 1 0" range="-1.571 0" user="1117"></joint>
@@ -232,7 +232,7 @@
                                         <site name="robot0:T_thtip_back"  type="box"    pos="0 0.0075 0.013"   size="0.008 0.003 0.0161"     rgba="1 0 0 0.33"/>
                                         <site name="robot0:T_thtip_left"  type="box"    pos="-0.0075 0 0.013"  size="0.003 0.008 0.0161"     rgba="0 0 0 0.33"/>
                                         <site name="robot0:T_thtip_right" type="box"    pos="0.0075 0 0.013"   size="0.003 0.008 0.0161"     rgba="0 0 0 0.33"/>
-                                        <site name="robot0:T_thtip_tip"   type="sphere" pos="0 0 0.026"        size="0.01"                   rgba="1 0 0 0.33"/>
+                                        <site name="robot0:T_thtip_tip"   type="sphere" pos="0 0 0.026"        size="0.01"                   rgba="1 1 0 0.33"/>
                                     </body>
                                 </body>
                             </body>

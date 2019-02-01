@@ -53,6 +53,20 @@ class ManipulateTouchSensorsEnv(manipulate.ManipulateEnv, utils.EzPickle):
                 self._tsensor_id2siteid[k] = self.sim.model._site_name2id[v.replace('TS', 'T')]
                 self._site_id2intial_rgba[self._tsensor_id2siteid[k]] = self.sim.model.site_rgba[self._tsensor_id2siteid[k]].copy()  # get initial rgba values
 
+        if self.touch_visualisation == 'off':  # set touch sensors rgba values
+            for k, v in self._tsensor_id2name.items():
+                self.sim.model.site_rgba[self._tsensor_id2siteid[k]] = [0, 0, 0, 0]
+        elif self.touch_visualisation == 'always':
+            pass
+
+    def _render_callback(self):
+        super(ManipulateTouchSensorsEnv, self)._render_callback()
+        if self.touch_visualisation == 'on_touch':
+            for k, v in self._tsensor_id2name.items():
+                if self.sim.data.sensordata[k] != 0.0:
+                    self.sim.model.site_rgba[self._tsensor_id2siteid[k]] = self.touch_color
+                else:
+                    self.sim.model.site_rgba[self._tsensor_id2siteid[k]] = self.notouch_color
 
     def _get_obs(self):
         robot_qpos, robot_qvel = manipulate.robot_get_obs(self.sim)
@@ -71,31 +85,11 @@ class ManipulateTouchSensorsEnv(manipulate.ManipulateEnv, utils.EzPickle):
                 touch_values = np.log(np.array(touch_values) + 1.0)
         observation = np.concatenate([robot_qpos, robot_qvel, object_qvel, touch_values, achieved_goal])
 
-        # set rgba values
-        if self.touch_visualisation == 'always':
-            for k, v in self._tsensor_id2name.items():
-                self.sim.model.site_rgba[self._tsensor_id2siteid[k]] = self._site_id2intial_rgba[self._tsensor_id2siteid[k]].copy()
-        elif self.touch_visualisation == 'on_touch':
-            for k, v in self._tsensor_id2name.items():
-                if self.sim.data.sensordata[k] != 0.0:
-                    # self.sim.model.site_rgba[self._tsensor_id2siteid[k]] = self._site_id2intial_rgba[self._tsensor_id2siteid[k]].copy()
-                    self.sim.model.site_rgba[self._tsensor_id2siteid[k]] = self.touch_color
-                else:
-                    self.sim.model.site_rgba[self._tsensor_id2siteid[k]] = self.notouch_color
-        else:
-            for k, v in self._tsensor_id2name.items():
-                self.sim.model.site_rgba[self._tsensor_id2siteid[k]] = [0, 0, 0, 0]
-
         return {
             'observation': observation.copy(),
             'achieved_goal': achieved_goal.copy(),
             'desired_goal': self.goal.ravel().copy(),
         }
-
-    def set_object_size(self, factor):  # changes size of the manipulated object
-        for name in ['object', 'object_hidden', 'target']:
-            id = self.sim.model._geom_name2id[name]
-        self.sim.model.geom_size[id] *= factor
 
 
 class HandBlockTouchSensorsEnv(ManipulateTouchSensorsEnv):
