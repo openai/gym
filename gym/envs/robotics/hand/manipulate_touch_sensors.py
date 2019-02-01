@@ -1,28 +1,12 @@
 import os
 import numpy as np
-
-from gym import utils, error
-from gym.envs.robotics import rotations, hand_env
+from gym import utils
 from gym.envs.robotics.hand import manipulate
 
-try:
-    import mujoco_py
-except ImportError as e:
-    raise error.DependencyNotInstalled("{}. (HINT: you need to install mujoco_py, and also perform the setup instructions here: https://github.com/openai/mujoco-py/.)".format(e))
-
-
-def quat_from_angle_and_axis(angle, axis):
-    assert axis.shape == (3,)
-    axis /= np.linalg.norm(axis)
-    quat = np.concatenate([[np.cos(angle / 2.)], np.sin(angle / 2.) * axis])
-    quat /= np.linalg.norm(quat)
-    return quat
-
-
 # Ensure we get the path separator correct on windows
-MANIPULATE_BLOCK_XML = os.path.join('hand', 'manipulate_block_touch_sensors_76.xml')
-MANIPULATE_EGG_XML = os.path.join('hand', 'manipulate_egg.xml')
-MANIPULATE_PEN_XML = os.path.join('hand', 'manipulate_pen.xml')
+MANIPULATE_BLOCK_XML = os.path.join('hand', 'manipulate_block_touch_sensors_85.xml')
+MANIPULATE_EGG_XML = os.path.join('hand', 'manipulate_egg_touch_sensors_85.xml')
+MANIPULATE_PEN_XML = os.path.join('hand', 'manipulate_pen_touch_sensors_85.xml')
 
 
 class ManipulateTouchSensorsEnv(manipulate.ManipulateEnv, utils.EzPickle):
@@ -48,14 +32,11 @@ class ManipulateTouchSensorsEnv(manipulate.ManipulateEnv, utils.EzPickle):
         """
         self.touch_visualisation = touch_visualisation
         self.touch_get_obs = touch_get_obs
-        self._tsensor_prefix = 'robot0:TS_'
-        # self._tsensor_group_names = []  # list of dictionaries of sensors per joint
-        # self._tsensor_name2id = {}
         self._tsensor_id2name = {}
         self._tsensor_id2siteid = {}
         self._site_id2intial_rgba = {}  # dict for initial rgba values for debugging
-        self.touch_color = [1, 0, 0, 0.4]  # [1, 0, 0, 0.4]
-        self.notouch_color = [0, 0.5, 0, 0.3]  # [0, 0.5, 0, 0.1]
+        self.touch_color = [1, 0, 0, 0.4]
+        self.notouch_color = [0, 0.5, 0, 0.3]
 
         manipulate.ManipulateEnv.__init__(
             self, model_path, target_position, target_rotation,
@@ -68,7 +49,6 @@ class ManipulateTouchSensorsEnv(manipulate.ManipulateEnv, utils.EzPickle):
 
         for k, v in self.sim.model._sensor_id2name.items():  # get touch sensor ids and their site names
             if 'TS' in v:
-                # self._tsensor_name2id[v] = k
                 self._tsensor_id2name[k] = v
                 self._tsensor_id2siteid[k] = self.sim.model._site_name2id[v.replace('TS', 'T')]
                 self._site_id2intial_rgba[self._tsensor_id2siteid[k]] = self.sim.model.site_rgba[self._tsensor_id2siteid[k]].copy()  # get initial rgba values

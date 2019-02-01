@@ -19,13 +19,9 @@
         </default>
         <default class="robot0:DC_Hand">
             <geom material="robot0:MatColl" contype="1" conaffinity="0" group="4"></geom>
-            <!--visualize physical bodies, hide ghost mesh-->
-            <!--<geom material="robot0:MatColl" contype="1" conaffinity="0" group="1" rgba="0.0 0.0 0.0 1.0"></geom>-->
         </default>
         <default class="robot0:D_Vizual">
             <geom material="robot0:MatViz" contype="0" conaffinity="0" group="1" type="mesh"></geom>
-            <!--visualize physical bodies, hide ghost mesh-->
-            <!--<geom material="robot0:MatViz" contype="0" conaffinity="0" group="1" type="mesh" rgba="0.0 0.0 0.0 0.0"></geom>-->
         </default>
         <default class="robot0:free">
             <joint type="free" damping="0" armature="0" limited="false"></joint>
