@@ -3,6 +3,9 @@ from gym.envs.mujoco import mujoco_env
 from gym import utils
 
 
+DEFAULT_CAMERA_CONFIG = {}
+
+
 class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     def __init__(self,
                  forward_reward_weight=1.0,
@@ -75,3 +78,10 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
         observation = self._get_obs()
         return observation
+
+    def viewer_setup(self):
+        for key, value in DEFAULT_CAMERA_CONFIG.items():
+            if isinstance(value, np.ndarray):
+                getattr(self.viewer.cam, key)[:] = value
+            else:
+                setattr(self.viewer.cam, key, value)
