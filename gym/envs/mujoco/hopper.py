@@ -13,6 +13,7 @@ DEFAULT_CAMERA_CONFIG = {
 
 class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     def __init__(self,
+                 xml_file='hopper.xml',
                  forward_reward_weight=1.0,
                  ctrl_cost_weight=1e-3,
                  healthy_reward=1.0,
@@ -40,7 +41,7 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         self._exclude_current_positions_from_observation = (
             exclude_current_positions_from_observation)
 
-        mujoco_env.MujocoEnv.__init__(self, 'hopper.xml', 4)
+        mujoco_env.MujocoEnv.__init__(self, xml_file, 4)
 
     @property
     def healthy_reward(self):
