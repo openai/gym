@@ -20,6 +20,8 @@ class UnrecordableEnv(object):
         pass
 
 def test_record_simple():
+    import gc
+    gc.collect()
     env = gym.make("CartPole-v1")
     rec = VideoRecorder(env)
     env.reset()
