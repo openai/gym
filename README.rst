@@ -297,6 +297,11 @@ We are using `pytest <http://doc.pytest.org>`_ for tests. You can run them via:
 What's new
 ==========
 
+- 2019-02-06 (v0.11.0)
+    + remove gym.spaces.np_random common PRNG; use per-instance PRNG instead.
+    + support for kwargs in gym.make
+    + lots of bugfixes
+
 - 2018-02-28: Release of a set of new robotics environments.
 - 2018-01-25: Made some aesthetic improvements and removed unmaintained parts of gym. This may seem like a downgrade in functionality, but it is actually a long-needed cleanup in preparation for some great new things that will be released in the next month.
 
