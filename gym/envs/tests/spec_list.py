@@ -9,8 +9,6 @@ def should_skip_env_spec_for_tests(spec):
     skip_mujoco = not (os.environ.get('MUJOCO_KEY')) 
     if skip_mujoco and (ep.startswith('gym.envs.mujoco:') or ep.startswith('gym.envs.robotics:')):
         return True
-    if ep.endswith('TouchSensorsEnv'):
-        return True
     if (    'GoEnv' in ep or
             'HexEnv' in ep or
             (ep.startswith("gym.envs.atari") and not spec.id.startswith("Pong") and not spec.id.startswith("Seaquest"))
@@ -20,4 +18,3 @@ def should_skip_env_spec_for_tests(spec):
     return False
 
 spec_list = [spec for spec in sorted(envs.registry.all(), key=lambda x: x.id) if spec._entry_point is not None and not should_skip_env_spec_for_tests(spec)]
-pass
