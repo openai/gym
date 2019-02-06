@@ -30,8 +30,8 @@ def test_record_simple():
     assert not rec.empty
     assert not rec.broken
     assert os.path.exists(rec.path)
-    f = open(rec.path)
-    assert os.fstat(f.fileno()).st_size > 100
+    with open(rec.path) as f:
+        assert os.fstat(f.fileno()).st_size > 100
 
 def test_no_frames():
     env = BrokenRecordableEnv()
