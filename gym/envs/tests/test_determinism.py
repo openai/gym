@@ -3,7 +3,6 @@ import pytest
 
 from gym.envs.tests.spec_list import spec_list
 
-
 @pytest.mark.parametrize("spec", spec_list)
 def test_env(spec):
     # Note that this precludes running this test in multiple
