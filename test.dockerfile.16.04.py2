@@ -9,9 +9,9 @@ RUN \
     apt install -y \
         python-setuptools \
         python-pip \
-        python3-dev \
+        python-dev \
         python-pyglet \
-        python3-opengl \
+        python-opengl \
         libjpeg-dev \
         libboost-all-dev \
         libsdl2-dev \
@@ -24,7 +24,7 @@ RUN \
 
     apt clean && \
     rm -rf /var/lib/apt/lists/* && \
-    pip install tox && \
+    pip2 install tox && \
 
 # Download mujoco
     mkdir /root/.mujoco && \
