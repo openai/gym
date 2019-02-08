@@ -38,7 +38,7 @@ class CartPoleEnv(gym.Env):
         Reward is 1 for every step taken, including the termination step
 
     Starting State:
-        All observations are assigned a uniform random value between ±0.05
+        All observations are assigned a uniform random value in [-0.05..0.05]
 
     Episode Termination:
         Pole Angle is more than 12 degrees
