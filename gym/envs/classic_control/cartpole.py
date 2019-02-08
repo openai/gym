@@ -23,7 +23,7 @@ class CartPoleEnv(gym.Env):
         Num	Observation                 Min         Max
         0	Cart Position             -4.8            4.8
         1	Cart Velocity             -Inf            Inf
-        2	Pole Angle                 -24°           24°
+        2	Pole Angle                 -24 deg        24 deg
         3	Pole Velocity At Tip      -Inf            Inf
         
     Actions:
@@ -38,11 +38,11 @@ class CartPoleEnv(gym.Env):
         Reward is 1 for every step taken, including the termination step
 
     Starting State:
-        All observations are assigned a uniform random value between ±0.05
+        All observations are assigned a uniform random value in [-0.05..0.05]
 
     Episode Termination:
-        Pole Angle is more than ±12°
-        Cart Position is more than ±2.4 (center of the cart reaches the edge of the display)
+        Pole Angle is more than 12 degrees
+        Cart Position is more than 2.4 (center of the cart reaches the edge of the display)
         Episode length is greater than 200
         Solved Requirements
         Considered solved when the average reward is greater than or equal to 195.0 over 100 consecutive trials.
