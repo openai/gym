@@ -122,7 +122,4 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     def viewer_setup(self):
         for key, value in DEFAULT_CAMERA_CONFIG.items():
-            if isinstance(value, np.ndarray):
-                getattr(self.viewer.cam, key)[:] = value
-            else:
-                setattr(self.viewer.cam, key, value)
+            setattr(self.viewer.cam, key, value)
