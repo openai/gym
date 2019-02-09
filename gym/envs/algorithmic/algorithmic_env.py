@@ -33,10 +33,11 @@ leveling up many times to reach their reward threshold.
 from gym import Env, logger
 from gym.spaces import Discrete, Tuple
 from gym.utils import colorize, seeding
+import sys
+from contextlib import closing
 import numpy as np
 from six import StringIO
-import sys
-import math
+
 
 class AlgorithmicEnv(Env):
 
@@ -112,7 +113,6 @@ class AlgorithmicEnv(Env):
         raise NotImplementedError
 
     def render(self, mode='human'):
-
         outfile = StringIO() if mode == 'ansi' else sys.stdout
         inp = "Total length of input instance: %d, step: %d\n" % (self.input_width, self.time)
         outfile.write(inp)
@@ -149,7 +149,10 @@ class AlgorithmicEnv(Env):
             outfile.write("                              prediction: %s)\n" % pred_str)
         else:
             outfile.write("\n" * 5)
-        return outfile
+
+        if mode != 'human':
+            with closing(outfile):
+                return outfile.getvalue()
 
     @property
     def input_width(self):
@@ -234,6 +237,7 @@ class AlgorithmicEnv(Env):
     def _move(self, movement):
         raise NotImplemented
 
+
 class TapeAlgorithmicEnv(AlgorithmicEnv):
     """An algorithmic env with a 1-d input tape."""
     MOVEMENTS = ['left', 'right']
@@ -268,6 +272,7 @@ class TapeAlgorithmicEnv(AlgorithmicEnv):
                 x_str += self._get_str_obs(np.array([i]))
         x_str += "\n"
         return x_str
+
 
 class GridAlgorithmicEnv(AlgorithmicEnv):
     """An algorithmic env with a 2-d input grid."""

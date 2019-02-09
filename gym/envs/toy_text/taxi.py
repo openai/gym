@@ -1,4 +1,5 @@
 import sys
+from contextlib import closing
 from six import StringIO
 from gym import utils
 from gym.envs.toy_text import discrete
@@ -149,4 +150,5 @@ class TaxiEnv(discrete.DiscreteEnv):
 
         # No need to return anything for human
         if mode != 'human':
-            return outfile
+            with closing(outfile):
+                return outfile.getvalue()

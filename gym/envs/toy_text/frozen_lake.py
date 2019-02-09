@@ -1,5 +1,7 @@
-import numpy as np
 import sys
+from contextlib import closing
+
+import numpy as np
 from six import StringIO, b
 
 from gym import utils
@@ -129,4 +131,5 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
         outfile.write("\n".join(''.join(line) for line in desc)+"\n")
 
         if mode != 'human':
-            return outfile
+            with closing(outfile):
+                return outfile.getvalue()
