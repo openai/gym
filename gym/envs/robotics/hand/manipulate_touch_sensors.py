@@ -27,7 +27,8 @@ class ManipulateTouchSensorsEnv(manipulate.ManipulateEnv, utils.EzPickle):
                 - "off" or else: does not show touch sensor sites
             touch_get_obs (string): touch sensor readings
                 - "boolean": returns 1 if touch sensor reading != 0.0 else 0
-                - "log": returns log(x+1) touch sensor readings from self.sim.data.sensordata[]
+                - "sensordata": returns original touch sensor readings from self.sim.data.sensordata[id]
+                - "log": returns log(x+1) touch sensor readings from self.sim.data.sensordata[id]
                 - "off" or else: does not add touch sensor readings to the observation
 
         """
@@ -81,11 +82,11 @@ class ManipulateTouchSensorsEnv(manipulate.ManipulateEnv, utils.EzPickle):
             for touch_sensor_id, site_id in self._touch_sensor_id_site_id:
                 value = 1.0 if self.sim.data.sensordata[touch_sensor_id] != 0.0 else 0.0
                 touch_values.append(value)
-        elif self.touch_get_obs == 'log':
+        elif self.touch_get_obs in ['sensordata', 'log']:
             for touch_sensor_id, site_id in self._touch_sensor_id_site_id:
                 value = self.sim.data.sensordata[touch_sensor_id]
                 touch_values.append(value)
-            if len(touch_values) > 0:
+            if self.touch_get_obs == 'log':
                 touch_values = np.log(np.array(touch_values) + 1.0)
         observation = np.concatenate([robot_qpos, robot_qvel, object_qvel, touch_values, achieved_goal])
 
