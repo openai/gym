@@ -71,7 +71,7 @@ class AlgorithmicEnv(Env):
         # with multiple algorithmic envs at once. Also makes testing tricky.
         AlgorithmicEnv.min_length = starting_min_length
         # Three sub-actions:
-        #       1. Move read head left or write (or up/down)
+        #       1. Move read head left or right (or up/down)
         #       2. Write or not
         #       3. Which character to write. (Ignored if should_write=0)
         self.action_space = Tuple(
