@@ -51,6 +51,7 @@ def test_random_rollout():
 
 
 def test_env_render_result_is_immutable():
+    from six import string_types
     environs = [
         envs.make('Taxi-v2'),
         envs.make('FrozenLake-v0'),
@@ -60,5 +61,5 @@ def test_env_render_result_is_immutable():
     for env in environs:
         env.reset()
         output = env.render(mode='ansi')
-        assert isinstance(output, str)
+        assert isinstance(output, string_types)
         env.close()

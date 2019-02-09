@@ -181,8 +181,9 @@ class TextEncoder(object):
         self.frames = []
 
     def capture_frame(self, frame):
+        from six import string_types
         string = None
-        if isinstance(frame, str):
+        if isinstance(frame, string_types):
             string = frame
         elif isinstance(frame, StringIO):
             string = frame.getvalue()
