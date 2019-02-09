@@ -1,12 +1,13 @@
-import sys, math
-import numpy as np
+import sys
+import math
 
+import numpy as np
 import Box2D
 from Box2D.b2 import (edgeShape, circleShape, fixtureDef, polygonShape, revoluteJointDef, contactListener)
 
 import gym
 from gym import spaces
-from gym.utils import colorize, seeding
+from gym.utils import colorize, seeding, EzPickle
 
 # This is simple 4-joints walker robot environment.
 #
@@ -100,7 +101,7 @@ class ContactDetector(contactListener):
             if leg in [contact.fixtureA.body, contact.fixtureB.body]:
                 leg.ground_contact = False
 
-class BipedalWalker(gym.Env):
+class BipedalWalker(gym.Env, EzPickle):
     metadata = {
         'render.modes': ['human', 'rgb_array'],
         'video.frames_per_second' : FPS
@@ -109,6 +110,7 @@ class BipedalWalker(gym.Env):
     hardcore = False
 
     def __init__(self):
+        EzPickle.__init__(self)
         self.seed()
         self.viewer = None
 
@@ -136,9 +138,9 @@ class BipedalWalker(gym.Env):
 
         self.reset()
 
-        high = np.array([np.inf]*24)
-        self.action_space = spaces.Box(np.array([-1,-1,-1,-1]), np.array([+1,+1,+1,+1]))
-        self.observation_space = spaces.Box(-high, high)
+        high = np.array([np.inf] * 24)
+        self.action_space = spaces.Box(np.array([-1, -1, -1, -1]), np.array([1, 1, 1, 1]), dtype=np.float32)
+        self.observation_space = spaces.Box(-high, high, dtype=np.float32)
 
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)

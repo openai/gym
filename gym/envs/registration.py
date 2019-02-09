@@ -11,7 +11,7 @@ env_id_re = re.compile(r'^(?:[\w:-]+\/)?([\w:.-]+)-v(\d+)$')
 def load(name):
     import pkg_resources # takes ~400ms to load, so we import it lazily
     entry_point = pkg_resources.EntryPoint.parse('x={}'.format(name))
-    result = entry_point.load(False)
+    result = entry_point.resolve()
     return result
 
 class EnvSpec(object):
@@ -74,16 +74,17 @@ class EnvSpec(object):
         self._local_only = local_only
         self._kwargs = {} if kwargs is None else kwargs
 
-    def make(self):
+    def make(self, **kwargs):
         """Instantiates an instance of the environment with appropriate kwargs"""
         if self._entry_point is None:
             raise error.Error('Attempting to make deprecated env {}. (HINT: is there a newer registered version of this env?)'.format(self.id))
-
-        elif callable(self._entry_point):
-            env = self._entry_point()
+        _kwargs = self._kwargs.copy()
+        _kwargs.update(kwargs)
+        if callable(self._entry_point):
+            env = self._entry_point(**_kwargs)
         else:
             cls = load(self._entry_point)
-            env = cls(**self._kwargs)
+            env = cls(**_kwargs)
 
         # Make the enviroment aware of which spec it came from.
         env.unwrapped.spec = self
@@ -113,10 +114,13 @@ class EnvRegistry(object):
     def __init__(self):
         self.env_specs = {}
 
-    def make(self, id):
-        logger.info('Making new env: %s', id)
+    def make(self, id, **kwargs):
+        if len(kwargs) > 0:
+            logger.info('Making new env: %s (%s)', id, kwargs)
+        else:
+            logger.info('Making new env: %s', id)
         spec = self.spec(id)
-        env = spec.make()
+        env = spec.make(**kwargs)
         # We used to have people override _reset/_step rather than
         # reset/step. Set _gym_disable_underscore_compat = True on
         # your environment if you use these methods and don't want
@@ -163,8 +167,8 @@ registry = EnvRegistry()
 def register(id, **kwargs):
     return registry.register(id, **kwargs)
 
-def make(id):
-    return registry.make(id)
+def make(id, **kwargs):
+    return registry.make(id, **kwargs)
 
 def spec(id):
     return registry.spec(id)

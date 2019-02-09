@@ -15,27 +15,18 @@ RUN \
     apt-get install -y \ 
         python-setuptools \
         python-pip \
-        libpq-dev \
-        zlib1g-dev \
-        libjpeg-dev \
-        curl \
-        cmake \
-        swig \
-        python-opengl \
-        python-numpy \
+        python3-dev \
         python-pyglet \
         python3-opengl \
+        libjpeg-dev \
         libboost-all-dev \
         libsdl2-dev \
         libosmesa6-dev \
         patchelf \
-        wget \
-        unzip \
-        git \
-        vim \
         xvfb \
         ffmpeg \
-        python3-dev && \
+        wget \
+        unzip && \
 
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
@@ -45,12 +36,13 @@ RUN \
     mkdir /root/.mujoco && \
     cd /root/.mujoco  && \
     wget https://www.roboti.us/download/mjpro150_linux.zip  && \
-    unzip mjpro150_linux.zip && \
+    unzip mjpro150_linux.zip
 
-# setup vim to be humane and compatible with codebase standards
-    echo "set expandtab number shiftwidth=4 tabstop=4" > /root/.vimrc
-
+ARG MUJOCO_KEY
+ENV MUJOCO_KEY=$MUJOCO_KEY
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/root/.mujoco/mjpro150/bin
+
+RUN echo $MUJOCO_KEY | base64 --decode > /root/.mujoco/mjkey.txt
 
 # install dependencies
 COPY . /usr/local/gym/

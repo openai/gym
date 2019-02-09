@@ -1,7 +1,8 @@
+import numpy as np
+
 import gym
 from gym import spaces
 from gym.utils import seeding
-import numpy as np
 
 
 class HotterColder(gym.Env):
@@ -25,7 +26,8 @@ class HotterColder(gym.Env):
         self.range = 1000  # +/- value the randomly select number can be between
         self.bounds = 2000  # Action space bounds
 
-        self.action_space = spaces.Box(low=np.array([-self.bounds]), high=np.array([self.bounds]))
+        self.action_space = spaces.Box(low=np.array([-self.bounds]), high=np.array([self.bounds]),
+                                       dtype=np.float32)
         self.observation_space = spaces.Discrete(4)
 
         self.number = 0

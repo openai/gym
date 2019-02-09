@@ -1,7 +1,9 @@
 import gym
 from collections import OrderedDict
+from .space import Space
 
-class Dict(gym.Space):
+
+class Dict(Space):
     """
     A dictionary of simpler spaces.
 
@@ -11,8 +13,8 @@ class Dict(gym.Space):
     Example usage [nested]:
     self.nested_observation_space = spaces.Dict({
         'sensors':  spaces.Dict({
-            'position': spaces.Box(low=-100, high=100, shape=(3)),
-            'velocity': spaces.Box(low=-1, high=1, shape=(3)),
+            'position': spaces.Box(low=-100, high=100, shape=(3,)),
+            'velocity': spaces.Box(low=-1, high=1, shape=(3,)),
             'front_cam': spaces.Tuple((
                 spaces.Box(low=0, high=1, shape=(10, 10, 3)),
                 spaces.Box(low=0, high=1, shape=(10, 10, 3))
@@ -30,13 +32,19 @@ class Dict(gym.Space):
         })
     })
     """
-    def __init__(self, spaces):
-        if isinstance(spaces, dict):
+    def __init__(self, spaces=None, **spaces_kwargs):
+        assert (spaces is None) or (not spaces_kwargs), 'Use either Dict(spaces=dict(...)) or Dict(foo=x, bar=z)'
+        if spaces is None:
+            spaces = spaces_kwargs
+        if isinstance(spaces, dict) and not isinstance(spaces, OrderedDict):
             spaces = OrderedDict(sorted(list(spaces.items())))
         if isinstance(spaces, list):
             spaces = OrderedDict(spaces)
         self.spaces = spaces
-        gym.Space.__init__(self, None, None) # None for shape and dtype, since it'll require special handling
+        super(Dict, self).__init__(None, None) # None for shape and dtype, since it'll require special handling
+
+    def seed(self, seed):
+        [space.seed(seed) for space in self.spaces.values()]
 
     def sample(self):
         return OrderedDict([(k, space.sample()) for k, space in self.spaces.items()])
@@ -71,3 +79,5 @@ class Dict(gym.Space):
             ret.append(entry)
         return ret
 
+    def __eq__(self, other):
+        return self.spaces == other.spaces

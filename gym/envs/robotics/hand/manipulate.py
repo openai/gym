@@ -1,3 +1,4 @@
+import os
 import numpy as np
 
 from gym import utils, error
@@ -16,6 +17,12 @@ def quat_from_angle_and_axis(angle, axis):
     quat = np.concatenate([[np.cos(angle / 2.)], np.sin(angle / 2.) * axis])
     quat /= np.linalg.norm(quat)
     return quat
+
+
+# Ensure we get the path separator correct on windows
+MANIPULATE_BLOCK_XML = os.path.join('hand', 'manipulate_block.xml')
+MANIPULATE_EGG_XML = os.path.join('hand', 'manipulate_egg.xml')
+MANIPULATE_PEN_XML = os.path.join('hand', 'manipulate_pen.xml')
 
 
 class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
@@ -267,7 +274,7 @@ class ManipulateEnv(hand_env.HandEnv, utils.EzPickle):
 class HandBlockEnv(ManipulateEnv):
     def __init__(self, target_position='random', target_rotation='xyz', reward_type='sparse'):
         super(HandBlockEnv, self).__init__(
-            model_path='hand/manipulate_block.xml', target_position=target_position,
+            model_path=MANIPULATE_BLOCK_XML, target_position=target_position,
             target_rotation=target_rotation,
             target_position_range=np.array([(-0.04, 0.04), (-0.06, 0.02), (0.0, 0.06)]),
             reward_type=reward_type)
@@ -276,7 +283,7 @@ class HandBlockEnv(ManipulateEnv):
 class HandEggEnv(ManipulateEnv):
     def __init__(self, target_position='random', target_rotation='xyz', reward_type='sparse'):
         super(HandEggEnv, self).__init__(
-            model_path='hand/manipulate_egg.xml', target_position=target_position,
+            model_path=MANIPULATE_EGG_XML, target_position=target_position,
             target_rotation=target_rotation,
             target_position_range=np.array([(-0.04, 0.04), (-0.06, 0.02), (0.0, 0.06)]),
             reward_type=reward_type)
@@ -285,7 +292,7 @@ class HandEggEnv(ManipulateEnv):
 class HandPenEnv(ManipulateEnv):
     def __init__(self, target_position='random', target_rotation='xyz', reward_type='sparse'):
         super(HandPenEnv, self).__init__(
-            model_path='hand/manipulate_pen.xml', target_position=target_position,
+            model_path=MANIPULATE_PEN_XML, target_position=target_position,
             target_rotation=target_rotation,
             target_position_range=np.array([(-0.04, 0.04), (-0.06, 0.02), (0.0, 0.06)]),
             randomize_initial_rotation=False, reward_type=reward_type,
