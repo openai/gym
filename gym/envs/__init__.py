@@ -181,20 +181,20 @@ register(
 
 register(
     id='Taxi-v2',
-    entry_point='gym.envs.toy_text.taxi:TaxiEnv',
+    entry_point='gym.envs.toy_text:TaxiEnv',
     reward_threshold=8, # optimum = 8.46
     max_episode_steps=200,
 )
 
 register(
     id='GuessingGame-v0',
-    entry_point='gym.envs.toy_text.guessing_game:GuessingGame',
+    entry_point='gym.envs.toy_text:GuessingGame',
     max_episode_steps=200,
 )
 
 register(
     id='HotterColder-v0',
-    entry_point='gym.envs.toy_text.hotter_colder:HotterColder',
+    entry_point='gym.envs.toy_text:HotterColder',
     max_episode_steps=200,
 )
 
