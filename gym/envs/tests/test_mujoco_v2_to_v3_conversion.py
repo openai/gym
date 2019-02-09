@@ -67,6 +67,18 @@ class Mujocov2Tov2ConverstionTest(unittest.TestCase):
         for test_case in test_cases:
             verify_environments_match(test_case['old_id'], test_case['new_id'])
 
+        # Raises KeyError because the new envs have extra info
+        with self.assertRaises(KeyError):
+            verify_environments_match('Swimmer-v3', 'Swimmer-v2')
+
+        # Raises KeyError because the new envs have extra info
+        with self.assertRaises(KeyError):
+            verify_environments_match('Humanoid-v3', 'Humanoid-v2')
+
+        # Raises KeyError because the new envs have extra info
+        with self.assertRaises(KeyError):
+            verify_environments_match('Swimmer-v3', 'Swimmer-v2')
+
 
 if __name__ == '__main__':
     unittest.main()
