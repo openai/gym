@@ -46,6 +46,9 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         reward = forward_reward - ctrl_cost
         done = False
         info = {
+            'reward_fwd': forward_reward,
+            'reward_ctrl': -ctrl_cost,
+
             'x_position': xy_positions[0],
             'y_position': xy_positions[1],
             'xy_position': np.linalg.norm(xy_positions, ord=2),
