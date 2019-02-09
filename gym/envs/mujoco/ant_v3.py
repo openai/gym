@@ -76,10 +76,12 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         return done
 
     def step(self, action):
-        x_position_before = self.get_body_com("torso")[0]
+        xy_position_before = self.get_body_com("torso")[:2].copy()
         self.do_simulation(action, self.frame_skip)
-        x_position_after = self.get_body_com("torso")[0]
-        x_velocity = (x_position_after - x_position_before) / self.dt
+        xy_position_after = self.get_body_com("torso")[:2].copy()
+
+        xy_velocity = (xy_position_after - xy_position_before) / self.dt
+        x_velocity, y_velocity = xy_velocity
 
         ctrl_cost = self.control_cost(action)
         contact_cost = self.contact_cost
@@ -98,6 +100,14 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             'reward_ctrl': -ctrl_cost,
             'reward_contact': -contact_cost,
             'reward_survive': healthy_reward,
+
+            'x_position': xy_position_after[0],
+            'y_position': xy_position_after[1],
+            'distance_from_origin': np.linalg.norm(xy_position_after, ord=2),
+
+            'x_velocity': x_velocity,
+            'y_velocity': y_velocity,
+            'forward_reward': forward_reward,
         }
 
         return observation, reward, done, info

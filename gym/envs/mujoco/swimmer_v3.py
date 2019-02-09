@@ -30,17 +30,16 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         return control_cost
 
     def step(self, action):
-        x_position_before = self.sim.data.qpos[0]
+        xy_position_before = self.sim.data.qpos[0:2].copy()
         self.do_simulation(action, self.frame_skip)
-        x_position_after = self.sim.data.qpos[0]
+        xy_position_after = self.sim.data.qpos[0:2].copy()
 
-        x_velocity = ((x_position_after - x_position_before)
-                      / self.dt)
+        xy_velocity = (xy_position_after - xy_position_before) / self.dt
+        x_velocity, y_velocity = xy_velocity
+
         forward_reward = self._forward_reward_weight * x_velocity
 
         ctrl_cost = self.control_cost(action)
-
-        xy_positions = self.sim.data.qpos[0:2]
 
         observation = self._get_obs()
         reward = forward_reward - ctrl_cost
@@ -49,11 +48,12 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             'reward_fwd': forward_reward,
             'reward_ctrl': -ctrl_cost,
 
-            'x_position': xy_positions[0],
-            'y_position': xy_positions[1],
-            'xy_position': np.linalg.norm(xy_positions, ord=2),
+            'x_position': xy_position_after[0],
+            'y_position': xy_position_after[1],
+            'distance_from_origin': np.linalg.norm(xy_position_after, ord=2),
 
             'x_velocity': x_velocity,
+            'y_velocity': y_velocity,
             'forward_reward': forward_reward,
         }
 

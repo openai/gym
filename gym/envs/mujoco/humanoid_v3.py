@@ -14,7 +14,7 @@ DEFAULT_CAMERA_CONFIG = {
 def mass_center(model, sim):
     mass = np.expand_dims(model.body_mass, axis=1)
     xpos = sim.data.xipos
-    return (np.sum(mass * xpos, axis=0) / np.sum(mass))[0]
+    return (np.sum(mass * xpos, axis=0) / np.sum(mass))[0:2].copy()
 
 
 class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
@@ -104,11 +104,14 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         ))
 
     def step(self, action):
-        x_position_before = mass_center(self.model, self.sim)
+        xy_position_before = mass_center(self.model, self.sim)
         self.do_simulation(action, self.frame_skip)
-        x_position_after = mass_center(self.model, self.sim)
+        xy_position_after = mass_center(self.model, self.sim)
 
-        x_velocity = ((x_position_after - x_position_before)
+        xy_velocity = (xy_position_after - xy_position_before) / self.dt
+        x_velocity, y_velocity = xy_velocity
+
+        x_velocity = ((xy_position_after[0] - xy_position_before[0])
                       / self.model.opt.timestep)
 
         ctrl_cost = self.control_cost(action)
@@ -128,6 +131,14 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             'reward_quadctrl': -ctrl_cost,
             'reward_alive': healthy_reward,
             'reward_impact': -contact_cost,
+
+            'x_position': xy_position_after[0],
+            'y_position': xy_position_after[1],
+            'distance_from_origin': np.linalg.norm(xy_position_after, ord=2),
+
+            'x_velocity': x_velocity,
+            'y_velocity': y_velocity,
+            'forward_reward': forward_reward,
         }
 
         return observation, reward, done, info
