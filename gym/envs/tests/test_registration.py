@@ -1,12 +1,36 @@
 # -*- coding: utf-8 -*-
+import gym
 from gym import error, envs
 from gym.envs import registration
 from gym.envs.classic_control import cartpole
+
+class ArgumentEnv(gym.Env):
+    def __init__(self, arg1, arg2, arg3):
+        self.arg1 = arg1
+        self.arg2 = arg2
+        self.arg3 = arg3
+
+gym.register(
+    id='test.ArgumentEnv-v0',
+    entry_point='gym.envs.tests.test_registration:ArgumentEnv',
+    kwargs={
+        'arg1': 'arg1',
+        'arg2': 'arg2',
+    }
+)
 
 def test_make():
     env = envs.make('CartPole-v0')
     assert env.spec.id == 'CartPole-v0'
     assert isinstance(env.unwrapped, cartpole.CartPoleEnv)
+
+def test_make_with_kwargs():
+    env = envs.make('test.ArgumentEnv-v0', arg2='override_arg2', arg3='override_arg3')
+    assert env.spec.id == 'test.ArgumentEnv-v0'
+    assert isinstance(env.unwrapped, ArgumentEnv)
+    assert env.arg1 == 'arg1'
+    assert env.arg2 == 'override_arg2'
+    assert env.arg3 == 'override_arg3'
 
 def test_make_deprecated():
     try:

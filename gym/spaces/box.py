@@ -2,8 +2,10 @@ import numpy as np
 
 import gym
 from gym import logger
+from .space import Space
 
-class Box(gym.Space):
+
+class Box(Space):
     """
     A box in R^n.
     I.e., each coordinate is bounded.
@@ -32,10 +34,15 @@ class Box(gym.Space):
             logger.warn("gym.spaces.Box autodetected dtype as {}. Please provide explicit dtype.".format(dtype))
         self.low = low.astype(dtype)
         self.high = high.astype(dtype)
-        gym.Space.__init__(self, shape, dtype)
+        super(Box, self).__init__(shape, dtype)
+        self.np_random = np.random.RandomState()
+
+    def seed(self, seed):
+        self.np_random.seed(seed)
 
     def sample(self):
-        return gym.spaces.np_random.uniform(low=self.low, high=self.high + (0 if self.dtype.kind == 'f' else 1), size=self.low.shape).astype(self.dtype)
+        high = self.high if self.dtype.kind == 'f' else self.high.astype('int64') + 1
+        return self.np_random.uniform(low=self.low, high=high, size=self.low.shape).astype(self.dtype)
 
     def contains(self, x):
         return x.shape == self.shape and (x >= self.low).all() and (x <= self.high).all()

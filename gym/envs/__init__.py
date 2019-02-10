@@ -181,20 +181,20 @@ register(
 
 register(
     id='Taxi-v2',
-    entry_point='gym.envs.toy_text.taxi:TaxiEnv',
+    entry_point='gym.envs.toy_text:TaxiEnv',
     reward_threshold=8, # optimum = 8.46
     max_episode_steps=200,
 )
 
 register(
     id='GuessingGame-v0',
-    entry_point='gym.envs.toy_text.guessing_game:GuessingGame',
+    entry_point='gym.envs.toy_text:GuessingGame',
     max_episode_steps=200,
 )
 
 register(
     id='HotterColder-v0',
-    entry_point='gym.envs.toy_text.hotter_colder:HotterColder',
+    entry_point='gym.envs.toy_text:HotterColder',
     max_episode_steps=200,
 )
 
@@ -378,6 +378,13 @@ for reward_type in ['sparse', 'dense']:
     )
 
     register(
+        id='HandManipulateBlockTouchSensors{}-v0'.format(suffix),
+        entry_point='gym.envs.robotics:HandBlockTouchSensorsEnv',
+        kwargs=_merge({'target_position': 'random', 'target_rotation': 'xyz'}, kwargs),
+        max_episode_steps=100,
+    )
+
+    register(
         id='HandManipulateEggRotate{}-v0'.format(suffix),
         entry_point='gym.envs.robotics:HandEggEnv',
         kwargs=_merge({'target_position': 'ignore', 'target_rotation': 'xyz'}, kwargs),
@@ -400,6 +407,13 @@ for reward_type in ['sparse', 'dense']:
     )
 
     register(
+        id='HandManipulateEggTouchSensors{}-v0'.format(suffix),
+        entry_point='gym.envs.robotics:HandEggTouchSensorsEnv',
+        kwargs=_merge({'target_position': 'random', 'target_rotation': 'xyz'}, kwargs),
+        max_episode_steps=100,
+    )
+
+    register(
         id='HandManipulatePenRotate{}-v0'.format(suffix),
         entry_point='gym.envs.robotics:HandPenEnv',
         kwargs=_merge({'target_position': 'ignore', 'target_rotation': 'xyz'}, kwargs),
@@ -417,6 +431,13 @@ for reward_type in ['sparse', 'dense']:
     register(
         id='HandManipulatePen{}-v0'.format(suffix),
         entry_point='gym.envs.robotics:HandPenEnv',
+        kwargs=_merge({'target_position': 'random', 'target_rotation': 'xyz'}, kwargs),
+        max_episode_steps=100,
+    )
+
+    register(
+        id='HandManipulatePenTouchSensors{}-v0'.format(suffix),
+        entry_point='gym.envs.robotics:HandPenTouchSensorsEnv',
         kwargs=_merge({'target_position': 'random', 'target_rotation': 'xyz'}, kwargs),
         max_episode_steps=100,
     )
