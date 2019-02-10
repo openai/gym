@@ -60,7 +60,7 @@ class KellyCoinflipEnv(gym.Env):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
-    def step(self, action: int):
+    def step(self, action):
         bet_in_dollars = min(action/100.0, self.wealth)  # action = desired bet in pennies
         self.rounds -= 1
 
@@ -123,7 +123,7 @@ class KellyCoinflipGeneralizedEnv(gym.Env):
         self.max_rounds_mean = max_rounds_mean
         self.max_rounds_sd = max_rounds_sd
 
-        if reseed or not hasattr(self, 'np_random') : 
+        if reseed or not hasattr(self, 'np_random'):
             self.seed()
 
         # draw this game's set of parameters:
@@ -161,7 +161,7 @@ class KellyCoinflipGeneralizedEnv(gym.Env):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
-    def step(self, action: int):
+    def step(self, action):
         bet_in_dollars = min(action/100.0, self.wealth)
 
         self.rounds -= 1
