@@ -17,6 +17,19 @@ class Space(object):
         """
         raise NotImplementedError
 
+    @property
+    def flat_dim(self):
+        r"""Return a flattened dimension. """
+        raise NotImplementedError
+
+    def flatten(self, x):
+        r"""Returns the flattened x. """
+        raise NotImplementedError
+
+    def unflatten(self, x):
+        r"""Returns the unflattened x according to defined shape. """
+        raise NotImplementedError
+
     def seed(self, seed):
         """Set the seed for this space's pseudo-random number generator. """
         raise NotImplementedError
