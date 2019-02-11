@@ -1,5 +1,3 @@
-from gym import logger
-
 import gym
 from gym import error
 from gym.utils import closer
@@ -8,7 +6,7 @@ env_closer = closer.Closer()
 
 
 class Env(object):
-    """The main OpenAI Gym class. It encapsulates an environment with
+    r"""The main OpenAI Gym class. It encapsulates an environment with
     arbitrary behind-the-scenes dynamics. An environment can be
     partially or fully observed.
 
@@ -32,7 +30,6 @@ class Env(object):
     non-underscored versions are wrapper methods to which we may add
     functionality over time.
     """
-
     # Set this in SOME subclasses
     metadata = {'render.modes': []}
     reward_range = (-float('inf'), float('inf'))
@@ -55,7 +52,7 @@ class Env(object):
         Returns:
             observation (object): agent's observation of the current environment
             reward (float) : amount of reward returned after previous action
-            done (boolean): whether the episode has ended, in which case further step() calls will return undefined results
+            done (bool): whether the episode has ended, in which case further step() calls will return undefined results
             info (dict): contains auxiliary diagnostic information (helpful for debugging, and sometimes learning)
         """
         raise NotImplementedError
@@ -63,8 +60,8 @@ class Env(object):
     def reset(self):
         """Resets the state of the environment and returns an initial observation.
 
-        Returns: observation (object): the initial observation of the
-            space.
+        Returns: 
+            observation (object): the initial observation.
         """
         raise NotImplementedError
 
@@ -101,7 +98,7 @@ class Env(object):
             def render(self, mode='human'):
                 if mode == 'rgb_array':
                     return np.array(...) # return RGB frame suitable for video
-                elif mode is 'human':
+                elif mode == 'human':
                     ... # pop up a window and render
                 else:
                     super(MyEnv, self).render(mode=mode) # just raise an exception
@@ -114,7 +111,7 @@ class Env(object):
         Environments will automatically close() themselves when
         garbage collected or when the program exits.
         """
-        raise NotImplementedError
+        pass
 
     def seed(self, seed=None):
         """Sets the seed for this env's random number generator(s).
@@ -190,6 +187,17 @@ class GoalEnv(Env):
 
 
 class Wrapper(Env):
+    r"""Wraps the environment to allow a modular transformation. 
+    
+    This class is the base class for all wrappers. The subclass could override
+    some methods to change the behavior of the original environment without touching the
+    original code. 
+    
+    .. note::
+    
+        Don't forget to call ``super().__init__(env)`` if the subclass overrides :meth:`__init__`.
+    
+    """
     def __init__(self, env):
         self.env = env
         self.action_space = self.env.action_space
@@ -211,8 +219,7 @@ class Wrapper(Env):
         return self.env.render(mode, **kwargs)
 
     def close(self):
-        if self.env:
-            return self.env.close()
+        return self.env.close()
 
     def seed(self, seed=None):
         return self.env.seed(seed)
@@ -236,6 +243,10 @@ class Wrapper(Env):
 
 
 class ObservationWrapper(Wrapper):
+    def __init__(self, env):
+        super().__init__(env)
+        self.observation_space = self.update_observation_space(self.observation_space)
+
     def step(self, action):
         observation, reward, done, info = self.env.step(action)
         return self.process_observation(observation), reward, done, info
@@ -247,6 +258,25 @@ class ObservationWrapper(Wrapper):
     def process_observation(self, observation):
         raise NotImplementedError
 
+    def update_observation_space(self, observation_space):
+        raise NotImplementedError
+
+
+class ActionWrapper(Wrapper):
+    def __init__(self, env):
+        super().__init__(env)
+        self.action_space = self.update_action_space(self.action_space)
+
+    def step(self, action):
+        action = self.process_action(action)
+        return self.env.step(action)
+
+    def process_action(self, action):
+        raise NotImplementedError
+
+    def update_action_space(self, action_space):
+        raise NotImplementedError
+
 
 class RewardWrapper(Wrapper):
     def step(self, action):
@@ -254,13 +284,4 @@ class RewardWrapper(Wrapper):
         return observation, self.process_reward(reward), done, info
 
     def process_reward(self, reward):
-        raise NotImplementedError
-
-
-class ActionWrapper(Wrapper):
-    def step(self, action):
-        action = self.process_action(action)
-        return self.env.step(action)
-
-    def process_action(self, action):
         raise NotImplementedError
