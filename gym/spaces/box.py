@@ -13,7 +13,7 @@ class Box(Space):
     Example usage:
     self.action_space = spaces.Box(low=-10, high=10, shape=(1,))
     """
-    def __init__(self, low, high, dtype, shape=None):
+    def __init__(self, low, high, shape=None, dtype=np.float32):
         r"""Define the lower and upper bound for this space. 
         
         There are two common use cases:
@@ -58,7 +58,7 @@ class Box(Space):
 
     @property
     def flat_dim(self):
-        return int(np.prod(self.shape))  # raw int for PyTorch compatibility
+        return int(np.prod(self.shape))
     
     def flatten(self, x):
         return np.asarray(x).flatten()
