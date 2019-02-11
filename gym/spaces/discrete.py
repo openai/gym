@@ -1,5 +1,5 @@
 import numpy as np
-import gym
+
 from .space import Space
 
 
@@ -12,17 +12,15 @@ class Discrete(Space):
         
     """
     def __init__(self, n):
-        self.dtype = np.int32
-
         assert isinstance(n, int) and n >= 0
         self.n = n
-
+        self.dtype = np.int32
         self.shape = ()
 
         self.np_random = np.random.RandomState()
 
     def sample(self):
-        return self.np_random.randint(self.n)
+        return self.np_random.randint(self.n).astype(self.dtype)
 
     def seed(self, seed):
         self.np_random.seed(seed)
