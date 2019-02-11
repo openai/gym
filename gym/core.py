@@ -6,7 +6,6 @@ from gym.utils import closer
 
 env_closer = closer.Closer()
 
-# Env-related abstractions
 
 class Env(object):
     """The main OpenAI Gym class. It encapsulates an environment with
@@ -110,12 +109,12 @@ class Env(object):
         raise NotImplementedError
 
     def close(self):
-        """Override _close in your subclass to perform any necessary cleanup.
+        """Override close in your subclass to perform any necessary cleanup.
 
         Environments will automatically close() themselves when
         garbage collected or when the program exits.
         """
-        return
+        raise NotImplementedError
 
     def seed(self, seed=None):
         """Sets the seed for this env's random number generator(s).
@@ -132,8 +131,7 @@ class Env(object):
               'seed'. Often, the main seed equals the provided 'seed', but
               this won't be true if seed=None, for example.
         """
-        logger.warn("Could not seed environment %s", self)
-        return
+        raise NotImplementedError
 
     @property
     def unwrapped(self):
@@ -188,20 +186,10 @@ class GoalEnv(Env):
                 ob, reward, done, info = env.step()
                 assert reward == env.compute_reward(ob['achieved_goal'], ob['goal'], info)
         """
-        raise NotImplementedError()
-
-warn_once = True
-
-def deprecated_warn_once(text):
-    global warn_once
-    if not warn_once: return
-    warn_once = False
-    logger.warn(text)
+        raise NotImplementedError
 
 
 class Wrapper(Env):
-    env = None
-
     def __init__(self, env):
         self.env = env
         self.action_space = self.env.action_space
@@ -214,24 +202,10 @@ class Wrapper(Env):
         return cls.__name__
 
     def step(self, action):
-        if hasattr(self, "_step"):
-            deprecated_warn_once("%s doesn't implement 'step' method, but it implements deprecated '_step' method." % type(self))
-            self.step = self._step
-            return self.step(action)
-        else:
-            deprecated_warn_once("%s doesn't implement 'step' method, " % type(self) +
-                "which is required for wrappers derived directly from Wrapper. Deprecated default implementation is used.")
-            return self.env.step(action)
+        return self.env.step(action)
 
     def reset(self, **kwargs):
-        if hasattr(self, "_reset"):
-            deprecated_warn_once("%s doesn't implement 'reset' method, but it implements deprecated '_reset' method." % type(self))
-            self.reset = self._reset
-            return self._reset(**kwargs)
-        else:
-            deprecated_warn_once("%s doesn't implement 'reset' method, " % type(self) +
-                "which is required for wrappers derived directly from Wrapper. Deprecated default implementation is used.")
-            return self.env.reset(**kwargs)
+        return self.env.reset(**kwargs)
 
     def render(self, mode='human', **kwargs):
         return self.env.render(mode, **kwargs)
@@ -264,42 +238,29 @@ class Wrapper(Env):
 class ObservationWrapper(Wrapper):
     def step(self, action):
         observation, reward, done, info = self.env.step(action)
-        return self.observation(observation), reward, done, info
+        return self.process_observation(observation), reward, done, info
 
     def reset(self, **kwargs):
         observation = self.env.reset(**kwargs)
-        return self.observation(observation)
+        return self.process_observation(observation)
 
-    def observation(self, observation):
-        deprecated_warn_once("%s doesn't implement 'observation' method. Maybe it implements deprecated '_observation' method." % type(self))
-        return self._observation(observation)
+    def process_observation(self, observation):
+        raise NotImplementedError
 
 
 class RewardWrapper(Wrapper):
-    def reset(self):
-        return self.env.reset()
-
     def step(self, action):
         observation, reward, done, info = self.env.step(action)
-        return observation, self.reward(reward), done, info
+        return observation, self.process_reward(reward), done, info
 
-    def reward(self, reward):
-        deprecated_warn_once("%s doesn't implement 'reward' method. Maybe it implements deprecated '_reward' method." % type(self))
-        return self._reward(reward)
+    def process_reward(self, reward):
+        raise NotImplementedError
 
 
 class ActionWrapper(Wrapper):
     def step(self, action):
-        action = self.action(action)
+        action = self.process_action(action)
         return self.env.step(action)
 
-    def reset(self):
-        return self.env.reset()
-
-    def action(self, action):
-        deprecated_warn_once("%s doesn't implement 'action' method. Maybe it implements deprecated '_action' method." % type(self))
-        return self._action(action)
-
-    def reverse_action(self, action):
-        deprecated_warn_once("%s doesn't implement 'reverse_action' method. Maybe it implements deprecated '_reverse_action' method." % type(self))
-        return self._reverse_action(action)
+    def process_action(self, action):
+        raise NotImplementedError
