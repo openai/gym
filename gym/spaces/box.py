@@ -38,7 +38,7 @@ class Box(Space):
 
     def sample(self):
         high = self.high if self.dtype.kind == 'f' else self.high.astype('int64') + 1
-        return self.np_random.uniform(low=self.low, high=high, size=self.shape, dtype=self.dtype)
+        return self.np_random.uniform(low=self.low, high=high, size=self.shape).astype(self.dtype)
 
     @property
     def flat_dim(self):
