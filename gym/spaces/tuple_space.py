@@ -1,22 +1,23 @@
 import numpy as np
 
-import gym
 from .space import Space
 
 
 class Tuple(Space):
-    """
-    A tuple (i.e., product) of simpler spaces
+    """A tuple (i.e., product) of simpler spaces
 
     Example usage:
     self.observation_space = spaces.Tuple((spaces.Discrete(2), spaces.Discrete(3)))
     """
     def __init__(self, spaces):
         self.spaces = spaces
-        super(Tuple, self).__init__(None, None)
+        super().__init__(None, None)
 
     def sample(self):
         return tuple([space.sample() for space in self.spaces])
+
+    def seed(self, seed):
+        [space.seed(seed) for space in self.spaces]
 
     @property
     def flat_dim(self):
@@ -32,11 +33,6 @@ class Tuple(Space):
                             for flattened, space in zip(list_flattened, self.spaces)]
         
         return tuple(list_unflattened)
-    
-    def seed(self, seed):
-        [space.seed(seed) for space in self.spaces]
-
-    
 
     def contains(self, x):
         if isinstance(x, list):
