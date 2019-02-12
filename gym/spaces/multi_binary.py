@@ -1,16 +1,12 @@
-import gym
 import numpy as np
+
 from .space import Space
 
 
 class MultiBinary(Space):
     def __init__(self, n):
         self.n = n
-        super(MultiBinary, self).__init__((self.n,), np.int8)
-        self.np_random = np.random.RandomState()
-
-    def seed(self, seed):
-        self.np_random.seed(seed)
+        super().__init__((self.n,), np.int8)
 
     def sample(self):
         return self.np_random.randint(low=0, high=2, size=self.n).astype(self.dtype)
