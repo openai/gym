@@ -47,3 +47,6 @@ class HandEnv(robot_env.RobotEnv):
         self.viewer.cam.distance = 0.5
         self.viewer.cam.azimuth = 55.
         self.viewer.cam.elevation = -25.
+
+    def render(self, mode='human', width=500, height=500):
+        return super(HandEnv, self).render(mode, width, height)
