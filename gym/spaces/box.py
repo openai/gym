@@ -34,7 +34,7 @@ class Box(Space):
         self.low = self.low.astype(self.dtype)
         self.high = self.high.astype(self.dtype)
 
-        super().__init__(self.shape, self.dtype)
+        super(Box, self).__init__(self.shape, self.dtype)
 
     def sample(self):
         high = self.high if self.dtype.kind == 'f' else self.high.astype('int64') + 1
