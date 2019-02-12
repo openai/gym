@@ -17,7 +17,7 @@ class Discrete(Space):
         super(Discrete, self).__init__((), np.int64)
 
     def sample(self):
-        return self.np_random.randint(self.n, dtype=self.dtype)
+        return self.np_random.randint(self.n)
 
     @property
     def flat_dim(self):
