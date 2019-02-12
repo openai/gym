@@ -9,7 +9,7 @@ class MultiBinary(Space):
         super().__init__((self.n,), np.int8)
 
     def sample(self):
-        return self.np_random.randint(low=0, high=2, size=self.n).astype(self.dtype)
+        return self.np_random.randint(low=0, high=2, size=self.n, dtype=self.dtype)
 
     @property
     def flat_dim(self):
