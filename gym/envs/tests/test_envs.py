@@ -48,3 +48,18 @@ def test_random_rollout():
             (ob, _reward, done, _info) = env.step(a)
             if done: break
         env.close()
+
+
+def test_env_render_result_is_immutable():
+    from six import string_types
+    environs = [
+        envs.make('Taxi-v2'),
+        envs.make('FrozenLake-v0'),
+        envs.make('Reverse-v0'),
+    ]
+
+    for env in environs:
+        env.reset()
+        output = env.render(mode='ansi')
+        assert isinstance(output, string_types)
+        env.close()

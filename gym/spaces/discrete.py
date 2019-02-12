@@ -12,7 +12,7 @@ class Discrete(Space):
     """
     def __init__(self, n):
         self.n = n
-        super().__init__((), np.int64)
+        super(Discrete, self).__init__((), np.int64)
         self.np_random = np.random.RandomState()
 
     def seed(self, seed):

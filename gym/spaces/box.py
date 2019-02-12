@@ -34,7 +34,7 @@ class Box(Space):
             logger.warn("gym.spaces.Box autodetected dtype as {}. Please provide explicit dtype.".format(dtype))
         self.low = low.astype(dtype)
         self.high = high.astype(dtype)
-        super().__init__(shape, dtype)
+        super(Box, self).__init__(shape, dtype)
         self.np_random = np.random.RandomState()
 
     def seed(self, seed):
