@@ -17,13 +17,10 @@ class Discrete(Space):
         self.dtype = np.int32
         self.shape = ()
 
-        self.np_random = np.random.RandomState()
+        super().__init__(self.shape, self.dtype)
 
     def sample(self):
         return self.np_random.randint(self.n).astype(self.dtype)
-
-    def seed(self, seed):
-        self.np_random.seed(seed)
 
     @property
     def flat_dim(self):
