@@ -11,7 +11,7 @@ class Tuple(Space):
     """
     def __init__(self, spaces):
         self.spaces = spaces
-        super().__init__(None, None)
+        super(Tuple, self).__init__(None, None)
 
     def sample(self):
         return tuple([space.sample() for space in self.spaces])
