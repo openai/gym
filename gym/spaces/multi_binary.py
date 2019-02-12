@@ -6,7 +6,7 @@ from .space import Space
 class MultiBinary(Space):
     def __init__(self, n):
         self.n = n
-        super().__init__((self.n,), np.int8)
+        super(MultiBinary, self).__init__((self.n,), np.int8)
 
     def sample(self):
         return self.np_random.randint(low=0, high=2, size=self.n, dtype=self.dtype)
