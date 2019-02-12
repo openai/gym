@@ -20,7 +20,7 @@ class Discrete(Space):
         super().__init__(self.shape, self.dtype)
 
     def sample(self):
-        return self.np_random.randint(self.n).astype(self.dtype)
+        return self.np_random.randint(self.n, dtype=self.dtype)
 
     @property
     def flat_dim(self):
