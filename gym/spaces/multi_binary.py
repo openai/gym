@@ -11,6 +11,16 @@ class MultiBinary(Space):
     def sample(self):
         return self.np_random.randint(low=0, high=2, size=self.n).astype(self.dtype)
 
+    @property
+    def flat_dim(self):
+        return int(self.n)
+
+    def flatten(self, x):
+        return np.asarray(x).flatten()
+
+    def unflatten(self, x):
+        return np.asarray(x).reshape(self.shape)
+
     def contains(self, x):
         return ((x==0) | (x==1)).all()
 
