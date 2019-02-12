@@ -3,7 +3,7 @@ import os
 import sys
 import warnings
 
-from .error import error
+from gym import error
 from gym.utils import reraise
 from .version import VERSION as __version__
 
