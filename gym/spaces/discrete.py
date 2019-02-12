@@ -12,7 +12,7 @@ class Discrete(Space):
         
     """
     def __init__(self, n):
-        assert isinstance(n, int) and n >= 0
+        assert n >= 0
         self.n = n
         self.dtype = np.int32
         self.shape = ()
