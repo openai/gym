@@ -14,10 +14,7 @@ class Discrete(Space):
     def __init__(self, n):
         assert n >= 0
         self.n = n
-        self.dtype = np.int32
-        self.shape = ()
-
-        super().__init__(self.shape, self.dtype)
+        super(Discrete, self).__init__((), np.int64)
 
     def sample(self):
         return self.np_random.randint(self.n, dtype=self.dtype)
