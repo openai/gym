@@ -12,7 +12,7 @@ class MultiDiscrete(Space):
         super().__init__(self.nvec.shape, np.uint32)
 
     def sample(self):
-        return (self.np_random.random_sample(self.nvec.shape) * self.nvec, dtype=self.dtype)
+        return self.np_random.random_sample(self.nvec.shape, dtype=self.dtype)*self.nvec
 
     @property
     def flat_dim(self):
