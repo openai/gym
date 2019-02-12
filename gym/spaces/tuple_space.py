@@ -21,7 +21,7 @@ class Tuple(Space):
 
     @property
     def flat_dim(self):
-        return int(np.sum([space.flat_dim for space in self.spaces]))  # raw int for PyTorch compatibility
+        return int(np.sum([space.flat_dim for space in self.spaces]))
     
     def flatten(self, x):
         return np.concatenate([space.flatten(x_part) for x_part, space in zip(x, self.spaces)])
