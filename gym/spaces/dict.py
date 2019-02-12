@@ -41,7 +41,7 @@ class Dict(Space):
         if isinstance(spaces, list):
             spaces = OrderedDict(spaces)
         self.spaces = spaces
-        susuper(Dict, self).__init__(None, None)  # None for shape and dtype, since it'll require special handling
+        super(Dict, self).__init__(None, None)  # None for shape and dtype, since it'll require special handling
 
     def sample(self):
         return OrderedDict([(k, space.sample()) for k, space in self.spaces.items()])
