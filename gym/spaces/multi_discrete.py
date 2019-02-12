@@ -14,6 +14,16 @@ class MultiDiscrete(Space):
     def sample(self):
         return (self.np_random.random_sample(self.nvec.shape) * self.nvec).astype(self.dtype)
 
+    @property
+    def flat_dim(self):
+        return int(np.prod(self.shape))
+
+    def flatten(self, x):
+        return np.asarray(x).flatten()
+
+    def unflatten(self, x):
+        return np.asarray(x).reshape(self.shape)
+
     def contains(self, x):
         # if nvec is uint32 and space dtype is uint32, then 0 <= x < self.nvec guarantees that x
         # is within correct bounds for space dtype (even though x does not have to be unsigned)
