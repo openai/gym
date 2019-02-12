@@ -5,11 +5,11 @@ import warnings
 
 from gym import error
 from gym.utils import reraise
-from .version import VERSION as __version__
+from gym.version import VERSION as __version__
 
-from .core import Env, GoalEnv, Wrapper, ObservationWrapper, ActionWrapper, RewardWrapper
+from gym.core import Env, GoalEnv, Wrapper, ObservationWrapper, ActionWrapper, RewardWrapper
 from gym.spaces import Space
 from gym.envs import make, spec, register
-from .logger import logger
+from gym import logger
 
 __all__ = ["Env", "Space", "Wrapper", "make", "spec", "register"]
