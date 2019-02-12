@@ -102,7 +102,9 @@ class MujocoEnv(gym.Env):
 
     def render(self, mode='human', width=DEFAULT_SIZE, height=DEFAULT_SIZE):
         if mode == 'rgb_array':
-            self._get_viewer(mode).render(width, height, camera_id=0)
+            camera_name = 'track'
+            camera_id = None if camera_name not in self.model.camera_names else self.model.camera_name2id(camera_name)
+            self._get_viewer(mode).render(width, height, camera_id=camera_id)
             # window size used for old mujoco-py:
             data = self._get_viewer(mode).read_pixels(width, height, depth=False)
             # original image is upside-down, so flip it
