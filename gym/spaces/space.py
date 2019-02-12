@@ -31,10 +31,6 @@ class Space(object):
         r"""Returns the unflattened x according to defined shape. """
         raise NotImplementedError
 
-    def seed(self, seed):
-        """Set the seed for this space's pseudo-random number generator. """
-        raise NotImplementedError
-
     def contains(self, x):
         """
         Return boolean specifying if x is a valid
