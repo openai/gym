@@ -1,18 +1,19 @@
 from gym import envs, logger
 import os
 
+skip_mujoco = not (os.environ.get('MUJOCO_KEY'))
+if not skip_mujoco:
+    try:
+        import mujoco_py
+    except ImportError:
+        skip_mujoco = True
+
 def should_skip_env_spec_for_tests(spec):
     # We skip tests for envs that require dependencies or are otherwise
     # troublesome to run frequently
     ep = spec._entry_point
     # Skip mujoco tests for pull request CI
-    skip_mujoco = not (os.environ.get('MUJOCO_KEY'))
-    if not skip_mujoco:
-        try:
-            import mujoco_py
-        except ImportError:
-            skip_mujoco = True
-    if skip_mujoco and (ep.startswith('gym.envs.mujoco:') or ep.startswith('gym.envs.robotics:')):
+    if skip_mujoco and (ep.startswith('gym.envs.mujoco') or ep.startswith('gym.envs.robotics:')):
         return True
     try:
         import atari_py
