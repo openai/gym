@@ -92,7 +92,6 @@ class Env(object):
 
         Args:
             mode (str): the mode to render with
-            close (bool): close all open renderings
 
         Example:
 
