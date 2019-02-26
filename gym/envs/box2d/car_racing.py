@@ -383,7 +383,7 @@ class CarRacing(gym.Env, EzPickle):
             self.human_render = True
             win.clear()
             t = self.transform
-            gl.glViewport(0, 0, WINDOW_W, WINDOW_H)
+            gl.glViewport(0, 0, 2 * WINDOW_W, 2 * WINDOW_H)
             t.enable()
             self.render_road()
             for geom in self.viewer.onetime_geoms:
@@ -391,6 +391,7 @@ class CarRacing(gym.Env, EzPickle):
             t.disable()
             self.render_indicators(WINDOW_W, WINDOW_H)
             win.flip()
+            return self.viewer.isopen
 
         self.viewer.onetime_geoms = []
         return arr
@@ -472,12 +473,14 @@ if __name__=="__main__":
         if k==key.DOWN:  a[2] = 0
     env = CarRacing()
     env.render()
-    record_video = False
-    if record_video:
-        env.monitor.start('/tmp/video-test', force=True)
     env.viewer.window.on_key_press = key_press
     env.viewer.window.on_key_release = key_release
-    while True:
+    record_video = False
+    if record_video:
+        from gym.wrappers.monitor import Monitor
+        env = Monitor(env, '/tmp/video-test', force=True)
+    isopen = True
+    while isopen:
         env.reset()
         total_reward = 0.0
         steps = 0
@@ -492,7 +495,7 @@ if __name__=="__main__":
                 #plt.imshow(s)
                 #plt.savefig("test.jpeg")
             steps += 1
-            if not record_video: # Faster, but you can as well call env.render() every time to play full window.
-                env.render()
-            if done or restart: break
+            isopen = env.render()
+            print(isopen)
+            if done or restart or not isopen: break
     env.close()
