@@ -496,5 +496,5 @@ if __name__=="__main__":
                 #plt.savefig("test.jpeg")
             steps += 1
             isopen = env.render()
-            if done or restart or not isopen: break
+            if done or restart or isopen == False: break
     env.close()
