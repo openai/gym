@@ -296,6 +296,9 @@ We are using `pytest <http://doc.pytest.org>`_ for tests. You can run them via:
 What's new
 ==========
 
+- 2019-02-26 (v0.12.0)
+    + release mujoco environments v3 with support for gym.make kwargs such as `xml_file`, `ctrl_cost_weight`, `reset_noise_scale` etc
+
 - 2019-02-06 (v0.11.0)
     + remove gym.spaces.np_random common PRNG; use per-instance PRNG instead.
     + support for kwargs in gym.make
