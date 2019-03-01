@@ -1,4 +1,6 @@
-from gym import Space
+import gym
+from .space import Space
+
 
 class Tuple(Space):
     """
@@ -9,7 +11,10 @@ class Tuple(Space):
     """
     def __init__(self, spaces):
         self.spaces = spaces
-        Space.__init__(self, None, None)
+        super(Tuple, self).__init__(None, None)
+
+    def seed(self, seed):
+        [space.seed(seed) for space in self.spaces]
 
     def sample(self):
         return tuple([space.sample() for space in self.spaces])
@@ -36,3 +41,6 @@ class Tuple(Space):
 
     def __len__(self):
         return len(self.spaces)
+      
+    def __eq__(self, other):
+        return self.spaces == other.spaces

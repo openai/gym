@@ -65,7 +65,7 @@ def play(env, transpose=True, fps=30, zoom=None, callback=None, keys_to_action=N
             obs_tp1: observation after performing action
             action: action that was executed
             rew: reward that was received
-            done: whether the environemnt is done or not
+            done: whether the environment is done or not
             info: debug info
     keys_to_action: dict: tuple(int) -> int or None
         Mapping from keys pressed to action performed.
@@ -115,7 +115,7 @@ def play(env, transpose=True, fps=30, zoom=None, callback=None, keys_to_action=N
             env_done = False
             obs = env.reset()
         else:
-            action = keys_to_action[tuple(sorted(pressed_keys))]
+            action = keys_to_action.get(tuple(sorted(pressed_keys)), 0)
             prev_obs = obs
             obs, rew, env_done, info = env.step(action)
             if callback is not None:

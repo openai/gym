@@ -10,6 +10,10 @@ def json_encode_np(obj):
         return float(obj)
     elif isinstance(obj, np.float64):
         return float(obj)
+    elif isinstance(obj, np.int8):
+        return int(obj)
+    elif isinstance(obj, np.int16):
+        return int(obj)
     elif isinstance(obj, np.int32):
         return int(obj)
     elif isinstance(obj, np.int64):

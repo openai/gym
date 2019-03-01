@@ -3,7 +3,7 @@ from __future__ import print_function
 import gym
 from gym import wrappers, logger
 import numpy as np
-from six.moves import cPickle
+from six.moves import cPickle as pickle
 import json, sys, os
 from os import path
 from _policies import BinaryActionLinearPolicy # Different file so it can be unpickled
@@ -54,7 +54,7 @@ if __name__ == '__main__':
     env = gym.make(args.target)
     env.seed(0)
     np.random.seed(0)
-    params = dict(n_iter=10, batch_size=25, elite_frac = 0.2)
+    params = dict(n_iter=10, batch_size=25, elite_frac=0.2)
     num_steps = 200
 
     # You provide the directory to write to (can be an existing

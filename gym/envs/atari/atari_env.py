@@ -2,7 +2,7 @@ import numpy as np
 import os
 import gym
 from gym import error, spaces
-from gym import utils, logger
+from gym import utils
 from gym.utils import seeding
 
 try:
@@ -19,11 +19,12 @@ def to_ram(ale):
 class AtariEnv(gym.Env, utils.EzPickle):
     metadata = {'render.modes': ['human', 'rgb_array']}
 
-    def __init__(self, game='pong', obs_type='ram', frameskip=(2, 5), repeat_action_probability=0.):
+    def __init__(self, game='pong', obs_type='ram', frameskip=(2, 5), 
+            repeat_action_probability=0., full_action_space=False):
         """Frameskip should be either a tuple (indicating a random range to
         choose from, with the top value exclude), or an int."""
 
-        utils.EzPickle.__init__(self, game, obs_type)
+        utils.EzPickle.__init__(self, game, obs_type, frameskip, repeat_action_probability)
         assert obs_type in ('ram', 'image')
 
         self.game_path = atari_py.get_game_path(game)
@@ -41,9 +42,8 @@ class AtariEnv(gym.Env, utils.EzPickle):
 
         self.seed()
 
-        (screen_width, screen_height) = self.ale.getScreenDims()
-
-        self._action_set = self.ale.getMinimalActionSet()
+        self._action_set = (self.ale.getLegalActionSet() if full_action_space 
+                            else self.ale.getMinimalActionSet())
         self.action_space = spaces.Discrete(len(self._action_set))
 
         (screen_width,screen_height) = self.ale.getScreenDims()

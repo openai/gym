@@ -1,5 +1,7 @@
-import numpy as np
 import sys
+from contextlib import closing
+
+import numpy as np
 from six import StringIO, b
 
 from gym import utils
@@ -64,6 +66,7 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
             desc = MAPS[map_name]
         self.desc = desc = np.asarray(desc,dtype='c')
         self.nrow, self.ncol = nrow, ncol = desc.shape
+        self.reward_range = (0, 1)
 
         nA = 4
         nS = nrow * ncol
@@ -75,6 +78,7 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
 
         def to_s(row, col):
             return row*ncol + col
+        
         def inc(row, col, a):
             if a==0: # left
                 col = max(col-1,0)
@@ -127,4 +131,5 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
         outfile.write("\n".join(''.join(line) for line in desc)+"\n")
 
         if mode != 'human':
-            return outfile
+            with closing(outfile):
+                return outfile.getvalue()
