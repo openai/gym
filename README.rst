@@ -295,7 +295,10 @@ We are using `pytest <http://doc.pytest.org>`_ for tests. You can run them via:
 
 What's new
 ==========
-
+(v0.12.1)
+    + FrozenLake will generate a random map (instead of an error) if None is provided as map name and map description
+    + Tuple space supports indexing
+    + lots of bugfixes  
 - 2019-02-26 (v0.12.0)
     + release mujoco environments v3 with support for gym.make kwargs such as `xml_file`, `ctrl_cost_weight`, `reset_noise_scale` etc
 
