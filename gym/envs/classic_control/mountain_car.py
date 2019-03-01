@@ -32,7 +32,6 @@ class MountainCarEnv(gym.Env):
         self.observation_space = spaces.Box(self.low, self.high, dtype=np.float32)
 
         self.seed()
-        self.reset()
 
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
