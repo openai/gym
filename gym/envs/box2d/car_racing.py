@@ -282,7 +282,6 @@ class CarRacing(gym.Env, EzPickle):
         self.tile_visited_count = 0
         self.t = 0.0
         self.road_poly = []
-        self.human_render = False
 
         while True:
             success = self._create_track()
@@ -323,6 +322,7 @@ class CarRacing(gym.Env, EzPickle):
         return self.state, step_reward, done, {}
 
     def render(self, mode='human'):
+        assert mode in ['human', 'state_pixels', 'rgb_array']
         if self.viewer is None:
             from gym.envs.classic_control import rendering
             self.viewer = rendering.Viewer(WINDOW_W, WINDOW_H)
@@ -352,48 +352,38 @@ class CarRacing(gym.Env, EzPickle):
 
         arr = None
         win = self.viewer.window
-        if mode != 'state_pixels':
-            win.switch_to()
-            win.dispatch_events()
-        if mode=="rgb_array" or mode=="state_pixels":
-            win.clear()
-            t = self.transform
-            if mode=='rgb_array':
-                VP_W = VIDEO_W
-                VP_H = VIDEO_H
-            else:
-                VP_W = STATE_W
-                VP_H = STATE_H
-            gl.glViewport(0, 0, VP_W, VP_H)
-            t.enable()
-            self.render_road()
-            for geom in self.viewer.onetime_geoms:
-                geom.render()
-            t.disable()
-            self.render_indicators(WINDOW_W, WINDOW_H)  # TODO: find why 2x needed, wtf
-            image_data = pyglet.image.get_buffer_manager().get_color_buffer().get_image_data()
-            arr = np.fromstring(image_data.data, dtype=np.uint8, sep='')
-            arr = arr.reshape(VP_H, VP_W, 4)
-            arr = arr[::-1, :, 0:3]
+        win.switch_to()
+        win.dispatch_events()
 
-        if mode=="rgb_array" and not self.human_render: # agent can call or not call env.render() itself when recording video.
-            win.flip()
+        win.clear()
+        t = self.transform
+        if mode=='rgb_array':
+            VP_W = VIDEO_W
+            VP_H = VIDEO_H
+        elif mode == 'state_pixels':
+            VP_W = STATE_W
+            VP_H = STATE_H
+        else:
+            VP_W = 2 * WINDOW_W
+            VP_H = 2 * WINDOW_H
+        gl.glViewport(0, 0, VP_W, VP_H)
+        t.enable()
+        self.render_road()
+        for geom in self.viewer.onetime_geoms:
+            geom.render()
+        self.viewer.onetime_geoms = []
+        t.disable()
+        self.render_indicators(WINDOW_W, WINDOW_H)
 
-        if mode=='human':
-            self.human_render = True
-            win.clear()
-            t = self.transform
-            gl.glViewport(0, 0, 2 * WINDOW_W, 2 * WINDOW_H)
-            t.enable()
-            self.render_road()
-            for geom in self.viewer.onetime_geoms:
-                geom.render()
-            t.disable()
-            self.render_indicators(WINDOW_W, WINDOW_H)
+        if mode == 'human':
             win.flip()
             return self.viewer.isopen
 
-        self.viewer.onetime_geoms = []
+        image_data = pyglet.image.get_buffer_manager().get_color_buffer().get_image_data()
+        arr = np.fromstring(image_data.data, dtype=np.uint8, sep='')
+        arr = arr.reshape(VP_H, VP_W, 4)
+        arr = arr[::-1, :, 0:3]
+
         return arr
 
     def close(self):
