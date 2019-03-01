@@ -7,7 +7,7 @@ from Box2D.b2 import (edgeShape, circleShape, fixtureDef, polygonShape, revolute
 import gym
 from gym import spaces
 from gym.envs.box2d.car_dynamics import Car
-from gym.utils import colorize, seeding
+from gym.utils import colorize, seeding, EzPickle
 
 import pyglet
 from pyglet import gl
@@ -43,8 +43,8 @@ STATE_W = 96   # less than Atari 160x192
 STATE_H = 96
 VIDEO_W = 600
 VIDEO_H = 400
-WINDOW_W = 1200
-WINDOW_H = 1000
+WINDOW_W = 1000
+WINDOW_H = 800
 
 SCALE       = 6.0        # Track scale
 TRACK_RAD   = 900/SCALE  # Track is heavily morphed circle with this radius
@@ -98,13 +98,14 @@ class FrictionDetector(contactListener):
             obj.tiles.remove(tile)
             #print tile.road_friction, "DEL", len(obj.tiles) -- should delete to zero when on grass (this works)
 
-class CarRacing(gym.Env):
+class CarRacing(gym.Env, EzPickle):
     metadata = {
         'render.modes': ['human', 'rgb_array', 'state_pixels'],
         'video.frames_per_second' : FPS
     }
 
     def __init__(self):
+        EzPickle.__init__(self)
         self.seed()
         self.contactListener_keepref = FrictionDetector(self)
         self.world = Box2D.b2World((0,0), contactListener=self.contactListener_keepref)
@@ -116,7 +117,7 @@ class CarRacing(gym.Env):
         self.reward = 0.0
         self.prev_reward = 0.0
 
-        self.action_space = spaces.Box( np.array([-1,0,0]), np.array([+1,+1,+1]))  # steer, gas, brake
+        self.action_space = spaces.Box( np.array([-1,0,0]), np.array([+1,+1,+1]), dtype=np.float32)  # steer, gas, brake
         self.observation_space = spaces.Box(low=0, high=255, shape=(STATE_H, STATE_W, 3), dtype=np.uint8)
 
     def seed(self, seed=None):
@@ -301,7 +302,7 @@ class CarRacing(gym.Env):
         self.world.Step(1.0/FPS, 6*30, 2*30)
         self.t += 1.0/FPS
 
-        self.state = self._render("state_pixels")
+        self.state = self.render("state_pixels")
 
         step_reward = 0
         done = False
@@ -365,11 +366,11 @@ class CarRacing(gym.Env):
                 VP_H = STATE_H
             gl.glViewport(0, 0, VP_W, VP_H)
             t.enable()
-            self._render_road()
+            self.render_road()
             for geom in self.viewer.onetime_geoms:
                 geom.render()
             t.disable()
-            self._render_indicators(WINDOW_W, WINDOW_H)  # TODO: find why 2x needed, wtf
+            self.render_indicators(WINDOW_W, WINDOW_H)  # TODO: find why 2x needed, wtf
             image_data = pyglet.image.get_buffer_manager().get_color_buffer().get_image_data()
             arr = np.fromstring(image_data.data, dtype=np.uint8, sep='')
             arr = arr.reshape(VP_H, VP_W, 4)
@@ -382,14 +383,15 @@ class CarRacing(gym.Env):
             self.human_render = True
             win.clear()
             t = self.transform
-            gl.glViewport(0, 0, WINDOW_W, WINDOW_H)
+            gl.glViewport(0, 0, 2 * WINDOW_W, 2 * WINDOW_H)
             t.enable()
-            self._render_road()
+            self.render_road()
             for geom in self.viewer.onetime_geoms:
                 geom.render()
             t.disable()
-            self._render_indicators(WINDOW_W, WINDOW_H)
+            self.render_indicators(WINDOW_W, WINDOW_H)
             win.flip()
+            return self.viewer.isopen
 
         self.viewer.onetime_geoms = []
         return arr
@@ -471,12 +473,14 @@ if __name__=="__main__":
         if k==key.DOWN:  a[2] = 0
     env = CarRacing()
     env.render()
-    record_video = False
-    if record_video:
-        env.monitor.start('/tmp/video-test', force=True)
     env.viewer.window.on_key_press = key_press
     env.viewer.window.on_key_release = key_release
-    while True:
+    record_video = False
+    if record_video:
+        from gym.wrappers.monitor import Monitor
+        env = Monitor(env, '/tmp/video-test', force=True)
+    isopen = True
+    while isopen:
         env.reset()
         total_reward = 0.0
         steps = 0
@@ -491,7 +495,6 @@ if __name__=="__main__":
                 #plt.imshow(s)
                 #plt.savefig("test.jpeg")
             steps += 1
-            if not record_video: # Faster, but you can as well call env.render() every time to play full window.
-                env.render()
-            if done or restart: break
+            isopen = env.render()
+            if done or restart or isopen == False: break
     env.close()

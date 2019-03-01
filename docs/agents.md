@@ -1,8 +1,6 @@
 # Agents
 
-An "agent" describes the method of running an RL algorithm against an environment in the gym. The agent may contain the algorithm itself or simply provide an integration between an algorithm and the gym environments. Submit another to this list via a pull-request. 
-
-_**NOTICE**: Evaluations submitted to the scoreboard are encouraged to link a writeup (gist) about duplicating the results. These writeups will likely direct you to specific algorithms. This agent listing is not attempting to replace writeups and will likely in time be filled with general purpose agents that will serve as a great starting place for those looking for tooling integrations or general algorithm ideas and attempts._
+An "agent" describes the method of running an RL algorithm against an environment in the gym. The agent may contain the algorithm itself or simply provide an integration between an algorithm and the gym environments.
 
 ## RandomAgent
 
@@ -11,10 +9,6 @@ A sample agent located in this repo at `gym/examples/agents/random_agent.py`. Th
 ## cem.py
 
 A generic Cross-Entropy agent located in this repo at `gym/examples/agents/cem.py`. This agent defaults to 10 iterations of 25 episodes considering the top 20% "elite".
-
-## TabularQAgent
-
-Agent implementing tabular Q-learning located in this repo at `gym/examples/agents/tabular_q_agent.py`. 
 
 ## dqn
 

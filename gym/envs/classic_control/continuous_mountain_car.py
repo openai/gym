@@ -9,16 +9,18 @@ of Jose Antonio Martin H. (version 1.0), adapted by  'Tom Schaul, tom@idsia.ch'
 and then modified by Arnaud de Broissia
 
 * the OpenAI/gym MountainCar environment
-itself from 
+itself from
 http://incompleteideas.net/sutton/MountainCar/MountainCar1.cp
 permalink: https://perma.cc/6Z2N-PFWC
 """
 
 import math
+
+import numpy as np
+
 import gym
 from gym import spaces
 from gym.utils import seeding
-import numpy as np
 
 class Continuous_MountainCarEnv(gym.Env):
     metadata = {
@@ -40,8 +42,10 @@ class Continuous_MountainCarEnv(gym.Env):
 
         self.viewer = None
 
-        self.action_space = spaces.Box(low=self.min_action, high=self.max_action, shape=(1,))
-        self.observation_space = spaces.Box(low=self.low_state, high=self.high_state)
+        self.action_space = spaces.Box(low=self.min_action, high=self.max_action,
+                                       shape=(1,), dtype=np.float32)
+        self.observation_space = spaces.Box(low=self.low_state, high=self.high_state,
+                                            dtype=np.float32)
 
         self.seed()
         self.reset()
@@ -139,4 +143,6 @@ class Continuous_MountainCarEnv(gym.Env):
         return self.viewer.render(return_rgb_array = mode=='rgb_array')
 
     def close(self):
-        if self.viewer: self.viewer.close()
+        if self.viewer:
+            self.viewer.close()
+            self.viewer = None
