@@ -1,5 +1,5 @@
-import gym
 from collections import OrderedDict
+
 from .space import Space
 
 
@@ -21,7 +21,7 @@ class Dict(Space):
             )),
             'rear_cam': spaces.Box(low=0, high=1, shape=(10, 10, 3)),
         }),
-        'ext_controller': spaces.MultiDiscrete((5, 2, 2)),
+        'ext_controller': spaces.MultiDiscrete([ [0,4], [0,1], [0,1] ]),
         'inner_state':spaces.Dict({
             'charge': spaces.Discrete(100),
             'system_checks': spaces.MultiBinary(10),
@@ -41,13 +41,13 @@ class Dict(Space):
         if isinstance(spaces, list):
             spaces = OrderedDict(spaces)
         self.spaces = spaces
-        super(Dict, self).__init__(None, None) # None for shape and dtype, since it'll require special handling
-
-    def seed(self, seed):
-        [space.seed(seed) for space in self.spaces.values()]
+        super(Dict, self).__init__(None, None)  # None for shape and dtype, since it'll require special handling
 
     def sample(self):
         return OrderedDict([(k, space.sample()) for k, space in self.spaces.items()])
+
+    def seed(self, seed):
+        [space.seed(seed) for space in self.spaces.values()]
 
     def contains(self, x):
         if not isinstance(x, dict) or len(x) != len(self.spaces):
