@@ -243,10 +243,6 @@ class Wrapper(Env):
 
 
 class ObservationWrapper(Wrapper):
-    def __init__(self, env):
-        super().__init__(env)
-        self.observation_space = self.update_observation_space(self.observation_space)
-
     def step(self, action):
         observation, reward, done, info = self.env.step(action)
         return self.process_observation(observation), reward, done, info
@@ -258,23 +254,13 @@ class ObservationWrapper(Wrapper):
     def process_observation(self, observation):
         raise NotImplementedError
 
-    def update_observation_space(self, observation_space):
-        raise NotImplementedError
-
 
 class ActionWrapper(Wrapper):
-    def __init__(self, env):
-        super().__init__(env)
-        self.action_space = self.update_action_space(self.action_space)
-
     def step(self, action):
         action = self.process_action(action)
         return self.env.step(action)
 
     def process_action(self, action):
-        raise NotImplementedError
-
-    def update_action_space(self, action_space):
         raise NotImplementedError
 
 
