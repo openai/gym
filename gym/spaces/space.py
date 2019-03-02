@@ -18,19 +18,6 @@ class Space(object):
         """Seed the PRNG of this space. """
         self.np_random.seed(seed)
 
-    @property
-    def flat_dim(self):
-        r"""Return a flattened dimension. """
-        raise NotImplementedError
-
-    def flatten(self, x):
-        r"""Returns the flattened x. """
-        raise NotImplementedError
-
-    def unflatten(self, x):
-        r"""Returns the unflattened x according to defined shape. """
-        raise NotImplementedError
-
     def contains(self, x):
         """
         Return boolean specifying if x is a valid
