@@ -1,24 +1,34 @@
-import numpy as np
-
-
 class Space(object):
     """Defines the observation and action spaces, so you can write generic
     code that applies to any Env. For example, you can choose a random
     action.
     """
     def __init__(self, shape=None, dtype=None):
-        import numpy as np # takes about 300-400ms to import, so we load lazily
+        import numpy as np  # takes about 300-400ms to import, so we load lazily
         self.shape = None if shape is None else tuple(shape)
         self.dtype = None if dtype is None else np.dtype(dtype)
+        
+        self.np_random = np.random.RandomState()
 
     def sample(self):
-        """
-        Uniformly randomly sample a random element of this space
-        """
+        """Uniformly randomly sample a random element of this space. """
         raise NotImplementedError
 
     def seed(self, seed):
-        """Set the seed for this space's pseudo-random number generator. """
+        """Seed the PRNG of this space. """
+        self.np_random.seed(seed)
+
+    @property
+    def flat_dim(self):
+        r"""Return a flattened dimension. """
+        raise NotImplementedError
+
+    def flatten(self, x):
+        r"""Returns the flattened x. """
+        raise NotImplementedError
+
+    def unflatten(self, x):
+        r"""Returns the unflattened x according to defined shape. """
         raise NotImplementedError
 
     def contains(self, x):
