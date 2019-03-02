@@ -216,6 +216,19 @@ class Wrapper(Env):
         self.reward_range = self.env.reward_range
         self.metadata = self.env.metadata
 
+        if not hasattr(env, '_registered'):
+            self._registered = {}
+        else:
+            self._registered = env._registered
+        for key, value in self._registered.items():
+            if callable(value) or isinstance(value, property):
+                setattr(Wrapper, key, value)
+            else:
+                setattr(self, key, value)
+
+    def _register(self, key, value):
+        self._registered[key] = value
+
     @classmethod
     def class_name(cls):
         return cls.__name__
