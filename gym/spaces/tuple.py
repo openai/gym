@@ -36,5 +36,11 @@ class Tuple(Space):
     def from_jsonable(self, sample_n):
         return [sample for sample in zip(*[space.from_jsonable(sample_n[i]) for i, space in enumerate(self.spaces)])]
 
+    def __getitem__(self, index):
+        return self.spaces[index]
+
+    def __len__(self):
+        return len(self.spaces)
+
     def __eq__(self, x):
         return isinstance(x, Tuple) and tuple(x.spaces) == tuple(self.spaces)
