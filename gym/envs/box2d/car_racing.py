@@ -386,7 +386,7 @@ class CarRacing(gym.Env, EzPickle):
             self.human_render = True
             win.clear()
             t = self.transform
-            gl.glViewport(0, 0, 2 * WINDOW_W, 2 * WINDOW_H)
+            gl.glViewport(0, 0, WINDOW_W, WINDOW_H)
             t.enable()
             self.render_road()
             for geom in self.viewer.onetime_geoms:
