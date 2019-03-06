@@ -126,7 +126,7 @@ add_task(
     group='classic_control',
     summary="Balance a pole on a cart.",
     description="""\
-A pole is attached by an un-actuated joint to a cart, which moves along a frictionless curved track.
+A pole is attached by an un-actuated joint to a cart, which moves along a curved frictionless track.
 The system is controlled by applying a force of +1 or -1 to the cart.
 The pendulum starts upright, and the goal is to prevent it from falling over.
 A reward of +1 is provided for every timestep that the pole remains upright.
