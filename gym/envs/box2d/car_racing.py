@@ -122,7 +122,6 @@ class CarRacing(gym.Env, EzPickle):
         self.action_space = spaces.Box( np.array([-1,0,0]), np.array([+1,+1,+1]), dtype=np.float32)  # steer, gas, brake
         self.observation_space = spaces.Box(low=0, high=255, shape=(STATE_H, STATE_W, 3), dtype=np.uint8)
         self.framebuffer_ratio = 2 if platform.system() == 'Darwin' else 1
-        
 
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
