@@ -9,6 +9,12 @@ register(
     max_episode_steps=200,
     reward_threshold=25.0,
 )
+register(
+    id='cartpole-v2',
+    entry_point='gym.envs.classic_control:CartpoleEnv',
+    max_episode_steps=200,
+    reward_threshold=25.0,
+)
 
 register(
     id='RepeatCopy-v0',
