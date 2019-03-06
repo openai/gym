@@ -11,6 +11,7 @@ from gym.utils import colorize, seeding, EzPickle
 
 import pyglet
 from pyglet import gl
+import platform
 
 # Easiest continuous control task to learn from pixels, a top-down racing environment.
 # Discreet control is reasonable in this environment as well, on/off discretisation is
@@ -120,6 +121,8 @@ class CarRacing(gym.Env, EzPickle):
 
         self.action_space = spaces.Box( np.array([-1,0,0]), np.array([+1,+1,+1]), dtype=np.float32)  # steer, gas, brake
         self.observation_space = spaces.Box(low=0, high=255, shape=(STATE_H, STATE_W, 3), dtype=np.uint8)
+        self.framebuffer_ratio = 2 if platform.system() == 'Darwin' else 1
+        
 
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
@@ -386,7 +389,7 @@ class CarRacing(gym.Env, EzPickle):
             self.human_render = True
             win.clear()
             t = self.transform
-            gl.glViewport(0, 0, WINDOW_W, WINDOW_H)
+            gl.glViewport(0, 0, self.framebuffer_ratio * WINDOW_W, self.framebuffer_ratio * WINDOW_H)
             t.enable()
             self.render_road()
             for geom in self.viewer.onetime_geoms:
