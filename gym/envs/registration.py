@@ -23,7 +23,7 @@ class EnvSpec(object):
         entry_point (Optional[str]): The Python entrypoint of the environment class (e.g. module.name:Class)
         trials (int): The number of trials to average reward over
         reward_threshold (Optional[int]): The reward threshold before the task is considered solved
-        local_only: True iff the environment is to be used only on the local machine (e.g. debugging envs)
+        local_only: True if the environment is to be used only on the local machine (e.g. debugging envs)
         kwargs (dict): The kwargs to pass to the environment class
         nondeterministic (bool): Whether this environment is non-deterministic even after seeding
         tags (dict[str:any]): A set of arbitrary key-value tags on this environment, including simple property=True tags
