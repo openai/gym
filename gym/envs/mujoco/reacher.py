@@ -7,7 +7,7 @@ class ReacherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         utils.EzPickle.__init__(self)
         mujoco_env.MujocoEnv.__init__(self, 'reacher.xml', 2)
 
-    def _step(self, a):
+    def step(self, a):
         vec = self.get_body_com("fingertip")-self.get_body_com("target")
         reward_dist = - np.linalg.norm(vec)
         reward_ctrl = - np.square(a).sum()
@@ -33,11 +33,11 @@ class ReacherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         return self._get_obs()
 
     def _get_obs(self):
-        theta = self.model.data.qpos.flat[:2]
+        theta = self.sim.data.qpos.flat[:2]
         return np.concatenate([
             np.cos(theta),
             np.sin(theta),
-            self.model.data.qpos.flat[2:],
-            self.model.data.qvel.flat[:2],
+            self.sim.data.qpos.flat[2:],
+            self.sim.data.qvel.flat[:2],
             self.get_body_com("fingertip") - self.get_body_com("target")
         ])

@@ -1,4 +1,4 @@
-#Table of Contents
+# Table of Contents
 
  - [Agents](agents.md) contains a listing of agents compatible with gym environments. Agents facilitate the running of an algorithm against an environment.
 
