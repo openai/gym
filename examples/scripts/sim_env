@@ -5,10 +5,11 @@ import argparse
 import numpy as np
 import itertools
 import time
+from builtins import input
 
 parser = argparse.ArgumentParser()
 parser.add_argument("env")
-parser.add_argument("--mode", choices=["noop", "random", "static", "human"],
+parser.add_argument("--mode", choices=["noop", "random", "human"],
     default="random")
 parser.add_argument("--max_steps", type=int, default=0)
 parser.add_argument("--fps",type=float)
@@ -35,16 +36,12 @@ while True:
                 a = 0
             else:
                 raise NotImplementedError("noop not implemented for class {}".format(type(ac_space)))
-            _, _, done, _ = env.step(a)
             time.sleep(1.0/fps)
         elif args.mode == "random":
             a = ac_space.sample()
-            _, _, done, _ = env.step(a)
-            time.sleep(1.0/fps)
-        elif args.mode == "static":
             time.sleep(1.0/fps)
         elif args.mode == "human":
-            a = raw_input("type action from {0,...,%i} and press enter: "%(ac_space.n-1))
+            a = input("type action from {0,...,%i} and press enter: "%(ac_space.n-1))
             try:
                 a = int(a)
             except ValueError:
@@ -56,9 +53,10 @@ while True:
         _, _, done, _ = env.step(a)
 
         env.render()
-        if done and not args.ignore_done: break
+        if done and not args.ignore_done:
+            break
     print("Done after {} steps".format(t+1))
     if args.once:
         break
     else:
-        raw_input("Press enter to continue")
+        input("Press enter to continue")

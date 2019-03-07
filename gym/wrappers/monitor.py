@@ -133,10 +133,6 @@ class Monitor(Wrapper):
         """Flush all monitor data to disk and close any open rending windows."""
         super(Monitor, self).close()
 
-        # _monitor will not be set if super(Monitor, self).__init__ raises, this check prevents a confusing error message
-        if not hasattr(self, '_monitor'):
-            return
-
         if not self.enabled:
             return
         self.stats_recorder.close()

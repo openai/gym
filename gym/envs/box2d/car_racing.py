@@ -104,7 +104,7 @@ class CarRacing(gym.Env, EzPickle):
         'video.frames_per_second' : FPS
     }
 
-    def __init__(self):
+    def __init__(self, verbose=1):
         EzPickle.__init__(self)
         self.seed()
         self.contactListener_keepref = FrictionDetector(self)
@@ -116,6 +116,7 @@ class CarRacing(gym.Env, EzPickle):
         self.car = None
         self.reward = 0.0
         self.prev_reward = 0.0
+        self.verbose = verbose
 
         self.action_space = spaces.Box( np.array([-1,0,0]), np.array([+1,+1,+1]), dtype=np.float32)  # steer, gas, brake
         self.observation_space = spaces.Box(low=0, high=255, shape=(STATE_H, STATE_W, 3), dtype=np.uint8)
@@ -214,7 +215,8 @@ class CarRacing(gym.Env, EzPickle):
             elif pass_through_start and i1==-1:
                 i1 = i
                 break
-        print("Track generation: %i..%i -> %i-tiles track" % (i1, i2, i2-i1))
+        if self.verbose == 1:
+            print("Track generation: %i..%i -> %i-tiles track" % (i1, i2, i2-i1))
         assert i1!=-1
         assert i2!=-1
 
@@ -286,7 +288,8 @@ class CarRacing(gym.Env, EzPickle):
         while True:
             success = self._create_track()
             if success: break
-            print("retry to generate track (normal if there are not many of this messages)")
+            if self.verbose == 1:
+                print("retry to generate track (normal if there are not many of this messages)")
         self.car = Car(self.world, *self.track[0][1:4])
 
         return self.step(None)[0]
