@@ -34,4 +34,4 @@ class Discrete(Space):
         return "Discrete(%d)" % self.n
 
     def __eq__(self, other):
-        return self.n == other.n
+        return isinstance(other, Discrete) and self.n == other.n

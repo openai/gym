@@ -84,3 +84,13 @@ def test_sample(space):
     else:
         raise NotImplementedError
     np.testing.assert_allclose(expected_mean, samples.mean(), atol=3.0 * samples.std())
+
+@pytest.mark.parametrize("spaces", [
+    (Discrete(5), MultiBinary(5)),
+    (Box(low=np.array([-10, 0]), high=np.array([10,10]), dtype=np.float32), MultiDiscrete([2, 2, 8]))
+])
+def test_class_inequality(spaces):
+    assert spaces[0] == spaces[0]
+    assert spaces[1] == spaces[1]
+    assert spaces[0] != spaces[1]
+    assert spaces[1] != spaces[0]

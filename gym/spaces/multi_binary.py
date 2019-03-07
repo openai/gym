@@ -28,4 +28,4 @@ class MultiBinary(Space):
         return "MultiBinary({})".format(self.n)
 
     def __eq__(self, other):
-        return self.n == other.n
+        return isinstance(other, MultiBinary) and self.n == other.n
