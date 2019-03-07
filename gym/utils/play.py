@@ -3,6 +3,7 @@ import pygame
 import sys
 import time
 import matplotlib
+import argparse
 try:
     matplotlib.use('GTK3Agg')
     import matplotlib.pyplot as plt
@@ -16,6 +17,10 @@ from collections import deque
 from pygame.locals import HWSURFACE, DOUBLEBUF, RESIZABLE, VIDEORESIZE
 from threading import Thread
 
+parser = argparse.ArgumentParser()
+parser.add_argument('--env', type=str, default='MontezumaRevengeNoFrameskip-v4', help='Define Environment')
+args = parser.parse_args()
+	
 def display_arr(screen, arr, video_size, transpose):
     arr_min, arr_max = arr.min(), arr.max()
     arr = 255.0 * (arr - arr_min) / (arr_max - arr_min)
@@ -65,7 +70,7 @@ def play(env, transpose=True, fps=30, zoom=None, callback=None, keys_to_action=N
             obs_tp1: observation after performing action
             action: action that was executed
             rew: reward that was received
-            done: whether the environemnt is done or not
+            done: whether the environment is done or not
             info: debug info
     keys_to_action: dict: tuple(int) -> int or None
         Mapping from keys pressed to action performed.
@@ -115,7 +120,7 @@ def play(env, transpose=True, fps=30, zoom=None, callback=None, keys_to_action=N
             env_done = False
             obs = env.reset()
         else:
-            action = keys_to_action[tuple(sorted(pressed_keys))]
+            action = keys_to_action.get(tuple(sorted(pressed_keys)), 0)
             prev_obs = obs
             obs, rew, env_done, info = env.step(action)
             if callback is not None:
@@ -182,5 +187,5 @@ class PlayPlot(object):
 
 
 if __name__ == '__main__':
-    env = gym.make("MontezumaRevengeNoFrameskip-v4")
+    env = gym.make(args.env)
     play(env, zoom=4, fps=60)

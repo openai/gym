@@ -1,5 +1,7 @@
-import numpy as np
 import sys
+from contextlib import closing
+
+import numpy as np
 from six import StringIO, b
 
 from gym import utils
@@ -28,6 +30,51 @@ MAPS = {
         "FFFHFFFG"
     ],
 }
+
+# Generates a random valid map (one that has a path from start to goal)
+# @params size, size of each side of the grid
+# @prams p, probability that a tile is frozen
+def generate_random_map(size=8, p=0.8):
+    valid = False
+    
+    #BFS to check that it's a valid path
+    def is_valid(arr, r=0, c=0):
+        if arr[r][c] == 'G':
+            return True
+        
+        tmp = arr[r][c]
+        arr[r][c] = "#"
+        
+        if r+1 < size and arr[r+1][c] not in '#H':
+            if is_valid(arr, r+1, c) == True:
+                arr[r][c] = tmp
+                return True
+        
+        if c+1 < size and arr[r][c+1] not in '#H':
+            if is_valid(arr, r, c+1) == True:
+                arr[r][c] = tmp
+                return True
+        
+        if r-1 >= 0 and arr[r-1][c] not in '#H':
+            if is_valid(arr, r-1, c) == True:
+                arr[r][c] = tmp
+                return True
+        
+        if c-1 >= 0 and arr[r][c-1] not in '#H':
+            if is_valid(arr,r, c-1) == True:
+                arr[r][c] = tmp
+                return True
+        arr[r][c] = tmp
+        return False
+
+    while not valid:
+        p = min(1, p)
+        res = np.random.choice(['F','H'], (size, size), p=[p, 1-p])
+        res[0][0] = 'S'
+        res[-1][-1] = 'G'
+        valid = is_valid(res)
+    return ["".join(x) for x in res]
+
 
 class FrozenLakeEnv(discrete.DiscreteEnv):
     """
@@ -59,11 +106,12 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
 
     def __init__(self, desc=None, map_name="4x4",is_slippery=True):
         if desc is None and map_name is None:
-            raise ValueError('Must provide either desc or map_name')
+            desc = generate_random_map()
         elif desc is None:
             desc = MAPS[map_name]
         self.desc = desc = np.asarray(desc,dtype='c')
         self.nrow, self.ncol = nrow, ncol = desc.shape
+        self.reward_range = (0, 1)
 
         nA = 4
         nS = nrow * ncol
@@ -75,6 +123,7 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
 
         def to_s(row, col):
             return row*ncol + col
+        
         def inc(row, col, a):
             if a==0: # left
                 col = max(col-1,0)
@@ -113,9 +162,7 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
 
         super(FrozenLakeEnv, self).__init__(nS, nA, P, isd)
 
-    def _render(self, mode='human', close=False):
-        if close:
-            return
+    def render(self, mode='human'):
         outfile = StringIO() if mode == 'ansi' else sys.stdout
 
         row, col = self.s // self.ncol, self.s % self.ncol
@@ -129,4 +176,5 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
         outfile.write("\n".join(''.join(line) for line in desc)+"\n")
 
         if mode != 'human':
-            return outfile
+            with closing(outfile):
+                return outfile.getvalue()

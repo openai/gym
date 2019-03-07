@@ -7,7 +7,7 @@ class InvertedPendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         utils.EzPickle.__init__(self)
         mujoco_env.MujocoEnv.__init__(self, 'inverted_pendulum.xml', 2)
 
-    def _step(self, a):
+    def step(self, a):
         reward = 1.0
         self.do_simulation(a, self.frame_skip)
         ob = self._get_obs()
@@ -22,9 +22,9 @@ class InvertedPendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         return self._get_obs()
 
     def _get_obs(self):
-        return np.concatenate([self.model.data.qpos, self.model.data.qvel]).ravel()
+        return np.concatenate([self.sim.data.qpos, self.sim.data.qvel]).ravel()
 
     def viewer_setup(self):
         v = self.viewer
         v.cam.trackbodyid = 0
-        v.cam.distance = v.model.stat.extent
+        v.cam.distance = self.model.stat.extent

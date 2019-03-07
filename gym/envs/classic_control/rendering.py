@@ -50,6 +50,7 @@ class Viewer(object):
         self.height = height
         self.window = pyglet.window.Window(width=width, height=height, display=display)
         self.window.on_close = self.window_closed_by_user
+        self.isopen = True
         self.geoms = []
         self.onetime_geoms = []
         self.transform = Transform()
@@ -61,7 +62,7 @@ class Viewer(object):
         self.window.close()
 
     def window_closed_by_user(self):
-        self.close()
+        self.isopen = False
 
     def set_bounds(self, left, right, bottom, top):
         assert right > left and top > bottom
@@ -92,7 +93,7 @@ class Viewer(object):
         if return_rgb_array:
             buffer = pyglet.image.get_buffer_manager().get_color_buffer()
             image_data = buffer.get_image_data()
-            arr = np.fromstring(image_data.data, dtype=np.uint8, sep='')
+            arr = np.frombuffer(image_data.data, dtype=np.uint8)
             # In https://github.com/openai/gym-http-api/issues/2, we
             # discovered that someone using Xmonad on Arch was having
             # a window of size 598 x 398, though a 600 x 400 window
@@ -103,7 +104,7 @@ class Viewer(object):
             arr = arr[::-1,:,0:3]
         self.window.flip()
         self.onetime_geoms = []
-        return arr
+        return arr if return_rgb_array else self.isopen
 
     # Convenience
     def draw_circle(self, radius=10, res=30, filled=True, **attrs):
@@ -137,6 +138,9 @@ class Viewer(object):
         arr = np.fromstring(image_data.data, dtype=np.uint8, sep='')
         arr = arr.reshape(self.height, self.width, 4)
         return arr[::-1,:,0:3]
+
+    def __del__(self):
+        self.close()
 
 def _add_attrs(geom, attrs):
     if "color" in attrs:
@@ -306,27 +310,51 @@ class Image(Geom):
 # ================================================================
 
 class SimpleImageViewer(object):
-    def __init__(self, display=None):
+    def __init__(self, display=None, maxwidth=500):
         self.window = None
         self.isopen = False
         self.display = display
+        self.maxwidth = maxwidth
     def imshow(self, arr):
         if self.window is None:
-            height, width, channels = arr.shape
-            self.window = pyglet.window.Window(width=width, height=height, display=self.display)
+            height, width, _channels = arr.shape
+            if width > self.maxwidth:
+                scale = self.maxwidth / width
+                width = int(scale * width)
+                height = int(scale * height)
+            self.window = pyglet.window.Window(width=width, height=height, 
+                display=self.display, vsync=False, resizable=True)            
             self.width = width
             self.height = height
             self.isopen = True
-        assert arr.shape == (self.height, self.width, 3), "You passed in an image with the wrong number shape"
-        image = pyglet.image.ImageData(self.width, self.height, 'RGB', arr.tobytes(), pitch=self.width * -3)
+
+            @self.window.event
+            def on_resize(width, height):
+                self.width = width
+                self.height = height
+
+            @self.window.event
+            def on_close():
+                self.isopen = False
+
+        assert len(arr.shape) == 3, "You passed in an image with the wrong number shape"
+        image = pyglet.image.ImageData(arr.shape[1], arr.shape[0], 
+            'RGB', arr.tobytes(), pitch=arr.shape[1]*-3)
+        gl.glTexParameteri(gl.GL_TEXTURE_2D, 
+            gl.GL_TEXTURE_MAG_FILTER, gl.GL_NEAREST)
+        texture = image.get_texture()
+        texture.width = self.width
+        texture.height = self.height
         self.window.clear()
         self.window.switch_to()
         self.window.dispatch_events()
-        image.blit(0,0)
+        texture.blit(0, 0) # draw
         self.window.flip()
     def close(self):
-        if self.isopen:
+        if self.isopen and sys.meta_path:
+            # ^^^ check sys.meta_path to avoid 'ImportError: sys.meta_path is None, Python is likely shutting down'
             self.window.close()
             self.isopen = False
+
     def __del__(self):
         self.close()

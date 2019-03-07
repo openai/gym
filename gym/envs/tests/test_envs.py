@@ -1,19 +1,22 @@
-import numpy as np
 import pytest
-import os
-import logging
-logger = logging.getLogger(__name__)
-import gym
+import numpy as np
+
 from gym import envs
 from gym.envs.tests.spec_list import spec_list
-
 
 # This runs a smoketest on each official registered env. We may want
 # to try also running environments which are not officially registered
 # envs.
 @pytest.mark.parametrize("spec", spec_list)
 def test_env(spec):
-    env = spec.make()
+    # Capture warnings
+    with pytest.warns(None) as warnings:
+        env = spec.make()
+
+    # Check that dtype is explicitly declared for gym.Box spaces
+    for warning_msg in warnings:
+        assert not 'autodetected dtype' in str(warning_msg.message)
+
     ob_space = env.observation_space
     act_space = env.action_space
     ob = env.reset()
@@ -26,12 +29,10 @@ def test_env(spec):
 
     for mode in env.metadata.get('render.modes', []):
         env.render(mode=mode)
-    env.render(close=True)
 
     # Make sure we can render the environment after close.
     for mode in env.metadata.get('render.modes', []):
         env.render(mode=mode)
-    env.render(close=True)
 
     env.close()
 
@@ -46,18 +47,19 @@ def test_random_rollout():
             assert env.action_space.contains(a)
             (ob, _reward, done, _info) = env.step(a)
             if done: break
+        env.close()
 
-def test_double_close():
-    class TestEnv(gym.Env):
-        def __init__(self):
-            self.close_count = 0
 
-        def _close(self):
-            self.close_count += 1
+def test_env_render_result_is_immutable():
+    from six import string_types
+    environs = [
+        envs.make('Taxi-v2'),
+        envs.make('FrozenLake-v0'),
+        envs.make('Reverse-v0'),
+    ]
 
-    env = TestEnv()
-    assert env.close_count == 0
-    env.close()
-    assert env.close_count == 1
-    env.close()
-    assert env.close_count == 1
+    for env in environs:
+        env.reset()
+        output = env.render(mode='ansi')
+        assert isinstance(output, string_types)
+        env.close()

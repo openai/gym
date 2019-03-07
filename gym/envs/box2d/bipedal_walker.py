@@ -1,12 +1,13 @@
-import sys, math
-import numpy as np
+import sys
+import math
 
+import numpy as np
 import Box2D
 from Box2D.b2 import (edgeShape, circleShape, fixtureDef, polygonShape, revoluteJointDef, contactListener)
 
 import gym
 from gym import spaces
-from gym.utils import colorize, seeding
+from gym.utils import colorize, seeding, EzPickle
 
 # This is simple 4-joints walker robot environment.
 #
@@ -63,6 +64,28 @@ TERRAIN_GRASS    = 10    # low long are grass spots, in steps
 TERRAIN_STARTPAD = 20    # in steps
 FRICTION = 2.5
 
+HULL_FD = fixtureDef(
+                shape=polygonShape(vertices=[ (x/SCALE,y/SCALE) for x,y in HULL_POLY ]),
+                density=5.0,
+                friction=0.1,
+                categoryBits=0x0020,
+                maskBits=0x001,  # collide only with ground
+                restitution=0.0) # 0.99 bouncy
+
+LEG_FD = fixtureDef(
+                    shape=polygonShape(box=(LEG_W/2, LEG_H/2)),
+                    density=1.0,
+                    restitution=0.0,
+                    categoryBits=0x0020,
+                    maskBits=0x001)
+
+LOWER_FD = fixtureDef(
+                    shape=polygonShape(box=(0.8*LEG_W/2, LEG_H/2)),
+                    density=1.0,
+                    restitution=0.0,
+                    categoryBits=0x0020,
+                    maskBits=0x001)
+
 class ContactDetector(contactListener):
     def __init__(self, env):
         contactListener.__init__(self)
@@ -78,7 +101,7 @@ class ContactDetector(contactListener):
             if leg in [contact.fixtureA.body, contact.fixtureB.body]:
                 leg.ground_contact = False
 
-class BipedalWalker(gym.Env):
+class BipedalWalker(gym.Env, EzPickle):
     metadata = {
         'render.modes': ['human', 'rgb_array'],
         'video.frames_per_second' : FPS
@@ -87,7 +110,8 @@ class BipedalWalker(gym.Env):
     hardcore = False
 
     def __init__(self):
-        self._seed()
+        EzPickle.__init__(self)
+        self.seed()
         self.viewer = None
 
         self.world = Box2D.b2World()
@@ -95,13 +119,30 @@ class BipedalWalker(gym.Env):
         self.hull = None
 
         self.prev_shaping = None
-        self._reset()
 
-        high = np.array([np.inf]*24)
-        self.action_space = spaces.Box(np.array([-1,-1,-1,-1]), np.array([+1,+1,+1,+1]))
-        self.observation_space = spaces.Box(-high, high)
+        self.fd_polygon = fixtureDef(
+                        shape = polygonShape(vertices=
+                        [(0, 0),
+                         (1, 0),
+                         (1, -1),
+                         (0, -1)]),
+                        friction = FRICTION)
 
-    def _seed(self, seed=None):
+        self.fd_edge = fixtureDef(
+                    shape = edgeShape(vertices=
+                    [(0, 0),
+                     (1, 1)]),
+                    friction = FRICTION,
+                    categoryBits=0x0001,
+                )
+
+        self.reset()
+
+        high = np.array([np.inf] * 24)
+        self.action_space = spaces.Box(np.array([-1, -1, -1, -1]), np.array([1, 1, 1, 1]), dtype=np.float32)
+        self.observation_space = spaces.Box(-high, high, dtype=np.float32)
+
+    def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
@@ -145,18 +186,15 @@ class BipedalWalker(gym.Env):
                     (x+TERRAIN_STEP, y-4*TERRAIN_STEP),
                     (x,              y-4*TERRAIN_STEP),
                     ]
+                self.fd_polygon.shape.vertices=poly
                 t = self.world.CreateStaticBody(
-                    fixtures = fixtureDef(
-                        shape=polygonShape(vertices=poly),
-                        friction = FRICTION
-                    ))
+                    fixtures = self.fd_polygon)
                 t.color1, t.color2 = (1,1,1), (0.6,0.6,0.6)
                 self.terrain.append(t)
+
+                self.fd_polygon.shape.vertices=[(p[0]+TERRAIN_STEP*counter,p[1]) for p in poly]
                 t = self.world.CreateStaticBody(
-                    fixtures = fixtureDef(
-                        shape=polygonShape(vertices=[(p[0]+TERRAIN_STEP*counter,p[1]) for p in poly]),
-                        friction = FRICTION
-                    ))
+                    fixtures = self.fd_polygon)
                 t.color1, t.color2 = (1,1,1), (0.6,0.6,0.6)
                 self.terrain.append(t)
                 counter += 2
@@ -175,11 +213,9 @@ class BipedalWalker(gym.Env):
                     (x+counter*TERRAIN_STEP, y+counter*TERRAIN_STEP),
                     (x,                      y+counter*TERRAIN_STEP),
                     ]
+                self.fd_polygon.shape.vertices=poly
                 t = self.world.CreateStaticBody(
-                    fixtures = fixtureDef(
-                        shape=polygonShape(vertices=poly),
-                        friction = FRICTION
-                    ))
+                    fixtures = self.fd_polygon)
                 t.color1, t.color2 = (1,1,1), (0.6,0.6,0.6)
                 self.terrain.append(t)
 
@@ -195,11 +231,9 @@ class BipedalWalker(gym.Env):
                         (x+((1+s)*stair_width)*TERRAIN_STEP, y+(-1+s*stair_height)*TERRAIN_STEP),
                         (x+(    s*stair_width)*TERRAIN_STEP, y+(-1+s*stair_height)*TERRAIN_STEP),
                         ]
+                    self.fd_polygon.shape.vertices=poly
                     t = self.world.CreateStaticBody(
-                        fixtures = fixtureDef(
-                            shape=polygonShape(vertices=poly),
-                            friction = FRICTION
-                        ))
+                        fixtures = self.fd_polygon)
                     t.color1, t.color2 = (1,1,1), (0.6,0.6,0.6)
                     self.terrain.append(t)
                 counter = stair_steps*stair_width
@@ -227,12 +261,9 @@ class BipedalWalker(gym.Env):
                 (self.terrain_x[i],   self.terrain_y[i]),
                 (self.terrain_x[i+1], self.terrain_y[i+1])
                 ]
+            self.fd_edge.shape.vertices=poly
             t = self.world.CreateStaticBody(
-                fixtures = fixtureDef(
-                    shape=edgeShape(vertices=poly),
-                    friction = FRICTION,
-                    categoryBits=0x0001,
-                ))
+                fixtures = self.fd_edge)
             color = (0.3, 1.0 if i%2==0 else 0.8, 0.3)
             t.color1 = color
             t.color2 = color
@@ -256,7 +287,7 @@ class BipedalWalker(gym.Env):
             x2 = max( [p[0] for p in poly] )
             self.cloud_poly.append( (poly,x1,x2) )
 
-    def _reset(self):
+    def reset(self):
         self._destroy()
         self.world.contactListener_bug_workaround = ContactDetector(self)
         self.world.contactListener = self.world.contactListener_bug_workaround
@@ -275,13 +306,7 @@ class BipedalWalker(gym.Env):
         init_y = TERRAIN_HEIGHT+2*LEG_H
         self.hull = self.world.CreateDynamicBody(
             position = (init_x, init_y),
-            fixtures = fixtureDef(
-                shape=polygonShape(vertices=[ (x/SCALE,y/SCALE) for x,y in HULL_POLY ]),
-                density=5.0,
-                friction=0.1,
-                categoryBits=0x0020,
-                maskBits=0x001,  # collide only with ground
-                restitution=0.0) # 0.99 bouncy
+            fixtures = HULL_FD
                 )
         self.hull.color1 = (0.5,0.4,0.9)
         self.hull.color2 = (0.3,0.3,0.5)
@@ -293,12 +318,7 @@ class BipedalWalker(gym.Env):
             leg = self.world.CreateDynamicBody(
                 position = (init_x, init_y - LEG_H/2 - LEG_DOWN),
                 angle = (i*0.05),
-                fixtures = fixtureDef(
-                    shape=polygonShape(box=(LEG_W/2, LEG_H/2)),
-                    density=1.0,
-                    restitution=0.0,
-                    categoryBits=0x0020,
-                    maskBits=0x001)
+                fixtures = LEG_FD
                 )
             leg.color1 = (0.6-i/10., 0.3-i/10., 0.5-i/10.)
             leg.color2 = (0.4-i/10., 0.2-i/10., 0.3-i/10.)
@@ -320,12 +340,7 @@ class BipedalWalker(gym.Env):
             lower = self.world.CreateDynamicBody(
                 position = (init_x, init_y - LEG_H*3/2 - LEG_DOWN),
                 angle = (i*0.05),
-                fixtures = fixtureDef(
-                    shape=polygonShape(box=(0.8*LEG_W/2, LEG_H/2)),
-                    density=1.0,
-                    restitution=0.0,
-                    categoryBits=0x0020,
-                    maskBits=0x001)
+                fixtures = LOWER_FD
                 )
             lower.color1 = (0.6-i/10., 0.3-i/10., 0.5-i/10.)
             lower.color2 = (0.4-i/10., 0.2-i/10., 0.3-i/10.)
@@ -356,9 +371,9 @@ class BipedalWalker(gym.Env):
                 return 0
         self.lidar = [LidarCallback() for _ in range(10)]
 
-        return self._step(np.array([0,0,0,0]))[0]
+        return self.step(np.array([0,0,0,0]))[0]
 
-    def _step(self, action):
+    def step(self, action):
         #self.hull.ApplyForceToCenter((0, 20), True) -- Uncomment this to receive a bit of stability help
         control_speed = False  # Should be easier as well
         if control_speed:
@@ -430,13 +445,7 @@ class BipedalWalker(gym.Env):
             done   = True
         return np.array(state), reward, done, {}
 
-    def _render(self, mode='human', close=False):
-        if close:
-            if self.viewer is not None:
-                self.viewer.close()
-                self.viewer = None
-            return
-
+    def render(self, mode='human'):
         from gym.envs.classic_control import rendering
         if self.viewer is None:
             self.viewer = rendering.Viewer(VIEWPORT_W, VIEWPORT_H)
@@ -485,6 +494,11 @@ class BipedalWalker(gym.Env):
         self.viewer.draw_polyline(f + [f[0]], color=(0,0,0), linewidth=2 )
 
         return self.viewer.render(return_rgb_array = mode=='rgb_array')
+
+    def close(self):
+        if self.viewer is not None:
+            self.viewer.close()
+            self.viewer = None
 
 class BipedalWalkerHardcore(BipedalWalker):
     hardcore = True
