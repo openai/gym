@@ -1,12 +1,9 @@
 from __future__ import print_function
 
 import gym
-import logging
+from gym import wrappers, logger
 import numpy as np
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
+from six.moves import cPickle as pickle
 import json, sys, os
 from os import path
 from _policies import BinaryActionLinearPolicy # Different file so it can be unpickled
@@ -47,8 +44,7 @@ def do_rollout(agent, env, num_steps, render=False):
     return total_rew, t+1
 
 if __name__ == '__main__':
-    logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
+    logger.set_level(logger.INFO)
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--display', action='store_true')
@@ -58,14 +54,14 @@ if __name__ == '__main__':
     env = gym.make(args.target)
     env.seed(0)
     np.random.seed(0)
-    params = dict(n_iter=10, batch_size=25, elite_frac = 0.2)
+    params = dict(n_iter=10, batch_size=25, elite_frac=0.2)
     num_steps = 200
 
     # You provide the directory to write to (can be an existing
     # directory, but can't contain previous monitor results. You can
     # also dump to a tempdir if you'd like: tempfile.mkdtemp().
     outdir = '/tmp/cem-agent-results'
-    env.monitor.start(outdir, force=True)
+    env = wrappers.Monitor(env, outdir, force=True)
 
     # Prepare snapshotting
     # ----------------------------------------
@@ -94,7 +90,4 @@ if __name__ == '__main__':
     # environment.
     writefile('info.json', json.dumps(info))
 
-    env.monitor.close()
-
-    logger.info("Successfully ran cross-entropy method. Now trying to upload results to the scoreboard. If it breaks, you can always just try re-uploading the same results.")
-    gym.upload(outdir)
+    env.close()

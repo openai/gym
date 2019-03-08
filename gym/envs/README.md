@@ -46,7 +46,7 @@ ant.AntEnv
   setup(name='gym_foo',
         version='0.0.1',
         install_requires=['gym']  # And any other dependencies foo needs
-  )  
+  )
   ```
 
 * `gym-foo/gym_foo/__init__.py` should have:
@@ -56,12 +56,10 @@ ant.AntEnv
   register(
       id='foo-v0',
       entry_point='gym_foo.envs:FooEnv',
-      timestep_limit=1000,
   )
   register(
       id='foo-extrahard-v0',
       entry_point='gym_foo.envs:FooExtraHardEnv',
-      timestep_limit=1000,
   )
   ```
 
@@ -82,17 +80,19 @@ ant.AntEnv
 
     def __init__(self):
       ...
-    def _step(self, action):
+    def step(self, action):
       ...
-    def _reset(self):
+    def reset(self):
       ...
-    def _render(self, mode='human', close=False):
+    def render(self, mode='human'):
+      ...
+    def close(self):
       ...
   ```
 
 ## How to add new environments to Gym, within this repo (not recommended for new environments)
 
-1. Write your environment in an existing collection or a new collection. All collections are subfolders of `/gym/envs'.
+1. Write your environment in an existing collection or a new collection. All collections are subfolders of `/gym/envs`.
 2. Import your environment into the `__init__.py` file of the collection. This file will be located at `/gym/envs/my_collection/__init__.py`. Add `from gym.envs.my_collection.my_awesome_env import MyEnv` to this file.
 3. Register your env in `/gym/envs/__init__.py`:
 

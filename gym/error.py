@@ -90,12 +90,11 @@ class APIError(Error):
         else:
             return self._message
 
-    if sys.version_info > (3, 0):
-        def __str__(self):
-            return self.__unicode__()
-    else:
-        def __str__(self):
+    def __str__(self):
+        try:               # Python 2
             return unicode(self).encode('utf-8')
+        except NameError:  # Python 3
+            return self.__unicode__()
 
 
 class APIConnectionError(APIError):
@@ -129,4 +128,12 @@ class InvalidFrame(Error):
 # Wrapper errors
 
 class DoubleWrapperError(Error):
+    pass
+
+
+class WrapAfterConfigureError(Error):
+    pass
+
+
+class RetriesExceededError(Error):
     pass
