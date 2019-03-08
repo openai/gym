@@ -125,13 +125,13 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
             return row*ncol + col
         
         def inc(row, col, a):
-            if a==0: # left
+            if a == LEFT:
                 col = max(col-1,0)
-            elif a==1: # down
+            elif a == DOWN:
                 row = min(row+1,nrow-1)
-            elif a==2: # right
+            elif a == RIGHT:
                 col = min(col+1,ncol-1)
-            elif a==3: # up
+            elif a == UP:
                 row = max(row-1,0)
             return (row, col)
 
