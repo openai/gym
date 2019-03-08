@@ -367,8 +367,12 @@ class CarRacing(gym.Env, EzPickle):
             VP_W = STATE_W
             VP_H = STATE_H
         else:
-            VP_W = 2 * WINDOW_W
-            VP_H = 2 * WINDOW_H
+            pixel_scale = 1
+            if hasattr(win.context, '_nscontext'):
+                pixel_scale = win.context._nscontext.view().backingScaleFactor()  # pylint: disable=protected-access
+            VP_W = pixel_scale * WINDOW_W
+            VP_H = pixel_scale * WINDOW_H
+
         gl.glViewport(0, 0, VP_W, VP_H)
         t.enable()
         self.render_road()
