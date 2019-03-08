@@ -90,6 +90,8 @@ ant.AntEnv
       ...
   ```
 
+* After you have installed your package with `pip install -e gym-foo`, you can create an instance of the environment with `gym.make('gym_foo:foo-v0')`
+
 ## How to add new environments to Gym, within this repo (not recommended for new environments)
 
 1. Write your environment in an existing collection or a new collection. All collections are subfolders of `/gym/envs`.
