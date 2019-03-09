@@ -1,25 +1,18 @@
 import gym
 import pygame
-import sys
-import time
 import matplotlib
 import argparse
+from gym import logger
 try:
-    matplotlib.use('GTK3Agg')
+    matplotlib.use('TkAgg')
     import matplotlib.pyplot as plt
-except Exception:
-    pass
-
-
-import pyglet.window as pw
+except ImportError as e:
+    logger.warn('failed to set matplotlib backend, plotting will not work: %s' % str(e))
+    plt = None
 
 from collections import deque
-from pygame.locals import HWSURFACE, DOUBLEBUF, RESIZABLE, VIDEORESIZE
-from threading import Thread
+from pygame.locals import VIDEORESIZE
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--env', type=str, default='MontezumaRevengeNoFrameskip-v4', help='Define Environment')
-args = parser.parse_args()
 	
 def display_arr(screen, arr, video_size, transpose):
     arr_min, arr_max = arr.min(), arr.max()
@@ -33,7 +26,7 @@ def play(env, transpose=True, fps=30, zoom=None, callback=None, keys_to_action=N
 
     To simply play the game use:
 
-        play(gym.make("Pong-v3"))
+        play(gym.make("Pong-v4"))
 
     Above code works also if env is wrapped, so it's particularly useful in
     verifying that the frame-level preprocessing does not render the game
@@ -43,12 +36,12 @@ def play(env, transpose=True, fps=30, zoom=None, callback=None, keys_to_action=N
     gym.utils.play.PlayPlot. Here's a sample code for plotting the reward
     for last 5 second of gameplay.
 
-        def callback(obs_t, obs_tp1, rew, done, info):
+        def callback(obs_t, obs_tp1, action, rew, done, info):
             return [rew,]
-        env_plotter = EnvPlotter(callback, 30 * 5, ["reward"])
+        plotter = PlayPlot(callback, 30 * 5, ["reward"])
 
-        env = gym.make("Pong-v3")
-        play(env, callback=env_plotter.callback)
+        env = gym.make("Pong-v4")
+        play(env, callback=plotter.callback)
 
 
     Arguments
@@ -160,6 +153,8 @@ class PlayPlot(object):
         self.horizon_timesteps = horizon_timesteps
         self.plot_names = plot_names
 
+        assert plt is not None, "matplotlib backend failed, plotting will not work"
+
         num_plots = len(self.plot_names)
         self.fig, self.ax = plt.subplots(num_plots)
         if num_plots == 1:
@@ -181,11 +176,18 @@ class PlayPlot(object):
         for i, plot in enumerate(self.cur_plot):
             if plot is not None:
                 plot.remove()
-            self.cur_plot[i] = self.ax[i].scatter(range(xmin, xmax), list(self.data[i]))
+            self.cur_plot[i] = self.ax[i].scatter(range(xmin, xmax), list(self.data[i]), c='blue')
             self.ax[i].set_xlim(xmin, xmax)
         plt.pause(0.000001)
 
 
-if __name__ == '__main__':
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--env', type=str, default='MontezumaRevengeNoFrameskip-v4', help='Define Environment')
+    args = parser.parse_args()
     env = gym.make(args.env)
     play(env, zoom=4, fps=60)
+
+
+if __name__ == '__main__':
+    main()
