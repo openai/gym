@@ -1,4 +1,5 @@
 import re
+import importlib
 from gym import error, logger
 
 # This format is true today, but it's *not* an official spec.
@@ -8,11 +9,13 @@ from gym import error, logger
 # to include an optional username.
 env_id_re = re.compile(r'^(?:[\w:-]+\/)?([\w:.-]+)-v(\d+)$')
 
+
 def load(name):
-    import pkg_resources # takes ~400ms to load, so we import it lazily
-    entry_point = pkg_resources.EntryPoint.parse('x={}'.format(name))
-    result = entry_point.resolve()
-    return result
+    mod_name, attr_name = name.split(":")
+    mod = importlib.import_module(mod_name)
+    fn = getattr(mod, attr_name)
+    return fn
+
 
 class EnvSpec(object):
     """A specification for a particular instance of the environment. Used
@@ -23,7 +26,7 @@ class EnvSpec(object):
         entry_point (Optional[str]): The Python entrypoint of the environment class (e.g. module.name:Class)
         trials (int): The number of trials to average reward over
         reward_threshold (Optional[int]): The reward threshold before the task is considered solved
-        local_only: True iff the environment is to be used only on the local machine (e.g. debugging envs)
+        local_only: True if the environment is to be used only on the local machine (e.g. debugging envs)
         kwargs (dict): The kwargs to pass to the environment class
         nondeterministic (bool): Whether this environment is non-deterministic even after seeding
         tags (dict[str:any]): A set of arbitrary key-value tags on this environment, including simple property=True tags
@@ -114,12 +117,12 @@ class EnvRegistry(object):
     def __init__(self):
         self.env_specs = {}
 
-    def make(self, id, **kwargs):
+    def make(self, path, **kwargs):
         if len(kwargs) > 0:
-            logger.info('Making new env: %s (%s)', id, kwargs)
+            logger.info('Making new env: %s (%s)', path, kwargs)
         else:
-            logger.info('Making new env: %s', id)
-        spec = self.spec(id)
+            logger.info('Making new env: %s', path)
+        spec = self.spec(path)
         env = spec.make(**kwargs)
         # We used to have people override _reset/_step rather than
         # reset/step. Set _gym_disable_underscore_compat = True on
@@ -138,7 +141,16 @@ class EnvRegistry(object):
     def all(self):
         return self.env_specs.values()
 
-    def spec(self, id):
+    def spec(self, path):
+        if ':' in path:
+            mod_name, _sep, id = path.partition(':')
+            try:
+                importlib.import_module(mod_name)
+            except ModuleNotFoundError:
+                raise error.Error('A module ({}) was specified for the environment but was not found, make sure the package is installed with `pip install` before calling `gym.make()`'.format(mod_name))
+        else:
+            id = path
+
         match = env_id_re.search(id)
         if not match:
             raise error.Error('Attempted to look up malformed environment ID: {}. (Currently all IDs must be of the form {}.)'.format(id.encode('utf-8'), env_id_re.pattern))

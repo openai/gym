@@ -28,6 +28,12 @@ A simple 2D maze environment where an agent finds its way from the start positio
 
 Learn more here: https://github.com/tuzzer/gym-maze/
 
+## osim-rl: Musculoskeletal Models in OpenSim
+
+A human musculoskeletal model and a physics-based simulation environment where you can synthesize physically and physiologically accurate motion. One of the environments built in this framework is a competition environment for a NIPS 2017 challenge.
+
+Learn more here: https://github.com/stanfordnmbl/osim-rl
+
 ## gym-minigrid: Minimalistic Gridworld Environment
 
 A minimalistic gridworld environment. Seeks to minimize software dependencies, be easy to extend and deliver good performance for faster training.

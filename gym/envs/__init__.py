@@ -87,6 +87,7 @@ register(
 register(
     id='Acrobot-v1',
     entry_point='gym.envs.classic_control:AcrobotEnv',
+    reward_threshold=-100.0,
     max_episode_steps=500,
 )
 
@@ -486,7 +487,7 @@ for reward_type in ['sparse', 'dense']:
 # ----------------------------------------
 
 # # print ', '.join(["'{}'".format(name.split('.')[0]) for name in atari_py.list_games()])
-for game in ['air_raid', 'alien', 'amidar', 'assault', 'asterix', 'asteroids', 'atlantis',
+for game in ['adventure', 'air_raid', 'alien', 'amidar', 'assault', 'asterix', 'asteroids', 'atlantis',
     'bank_heist', 'battle_zone', 'beam_rider', 'berzerk', 'bowling', 'boxing', 'breakout', 'carnival',
     'centipede', 'chopper_command', 'crazy_climber', 'defender', 'demon_attack', 'double_dunk',
     'elevator_action', 'enduro', 'fishing_derby', 'freeway', 'frostbite', 'gopher', 'gravitar',

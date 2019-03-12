@@ -182,7 +182,7 @@ sequence.
 Atari
 -----
 
-The Atari environments are a variety of Atari video games. If you didn't do the full install, you can install dependencies via ``pip install -e '.[atari]'`` (you'll need ``cmake`` installed) and then get started as follow:
+The Atari environments are a variety of Atari video games. If you didn't do the full install, you can install dependencies via ``pip install -e '.[atari]'`` (you'll need ``cmake`` installed) and then get started as follows:
 
 .. code:: python
 
@@ -196,7 +196,7 @@ This will install ``atari-py``, which automatically compiles the `Arcade Learnin
 Box2d
 -----------
 
-Box2d is a 2D physics engine. You can install it via  ``pip install -e '.[box2d]'`` and then get started as follow:
+Box2d is a 2D physics engine. You can install it via  ``pip install -e '.[box2d]'`` and then get started as follows:
 
 .. code:: python
 
