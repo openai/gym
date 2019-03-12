@@ -7,12 +7,11 @@ from version import VERSION
 
 # Environment-specific dependencies.
 extras = {
-  'atari': ['atari_py>=0.0.17', 'Pillow', 'PyOpenGL'],
-  'board_game' : ['pachi-py>=0.0.19'],
-  'box2d': ['box2d-py'],
+  'atari': ['atari_py>=0.1.4', 'Pillow', 'PyOpenGL'],
+  'box2d': ['box2d-py>=2.3.5'],
   'classic_control': ['PyOpenGL'],
-  'mujoco': ['mujoco_py>=0.4.3', 'imageio'],
-  'parameter_tuning': ['keras', 'theano'],
+  'mujoco': ['mujoco_py>=1.50', 'imageio'],
+  'robotics': ['mujoco_py>=1.50', 'imageio'],
 }
 
 # Meta dependency groups.
@@ -32,9 +31,18 @@ setup(name='gym',
                 if package.startswith('gym')],
       zip_safe=False,
       install_requires=[
-          'numpy>=1.10.4', 'requests>=2.0', 'six', 'pyglet>=1.2.0',
+          'scipy', 'numpy>=1.10.4', 'requests>=2.0', 'six', 'pyglet>=1.2.0',
       ],
       extras_require=extras,
-      package_data={'gym': ['envs/mujoco/assets/*.xml', 'envs/classic_control/assets/*.png']},
-      tests_require=['nose2', 'mock'],
+      package_data={'gym': [
+        'envs/mujoco/assets/*.xml',
+        'envs/classic_control/assets/*.png',
+        'envs/robotics/assets/LICENSE.md',
+        'envs/robotics/assets/fetch/*.xml',
+        'envs/robotics/assets/hand/*.xml',
+        'envs/robotics/assets/stls/fetch/*.stl',
+        'envs/robotics/assets/stls/hand/*.stl',
+        'envs/robotics/assets/textures/*.png']
+      },
+      tests_require=['pytest', 'mock'],
 )

@@ -10,9 +10,6 @@ try:
 except ImportError as e:
     raise error.DependencyNotInstalled("{}. (HINT: you can install Atari dependencies by running 'pip install gym[atari]'.)".format(e))
 
-import logging
-logger = logging.getLogger(__name__)
-
 def to_ram(ale):
     ram_size = ale.getRAMSize()
     ram = np.zeros((ram_size),dtype=np.uint8)
@@ -22,11 +19,12 @@ def to_ram(ale):
 class AtariEnv(gym.Env, utils.EzPickle):
     metadata = {'render.modes': ['human', 'rgb_array']}
 
-    def __init__(self, game='pong', obs_type='ram', frameskip=(2, 5), repeat_action_probability=0.):
+    def __init__(self, game='pong', obs_type='ram', frameskip=(2, 5), 
+            repeat_action_probability=0., full_action_space=False):
         """Frameskip should be either a tuple (indicating a random range to
         choose from, with the top value exclude), or an int."""
 
-        utils.EzPickle.__init__(self, game, obs_type)
+        utils.EzPickle.__init__(self, game, obs_type, frameskip, repeat_action_probability)
         assert obs_type in ('ram', 'image')
 
         self.game_path = atari_py.get_game_path(game)
@@ -42,23 +40,21 @@ class AtariEnv(gym.Env, utils.EzPickle):
         assert isinstance(repeat_action_probability, (float, int)), "Invalid repeat_action_probability: {!r}".format(repeat_action_probability)
         self.ale.setFloat('repeat_action_probability'.encode('utf-8'), repeat_action_probability)
 
-        self._seed()
+        self.seed()
 
-        (screen_width, screen_height) = self.ale.getScreenDims()
-        self._buffer = np.empty((screen_height, screen_width, 4), dtype=np.uint8)
-
-        self._action_set = self.ale.getMinimalActionSet()
+        self._action_set = (self.ale.getLegalActionSet() if full_action_space 
+                            else self.ale.getMinimalActionSet())
         self.action_space = spaces.Discrete(len(self._action_set))
 
         (screen_width,screen_height) = self.ale.getScreenDims()
         if self._obs_type == 'ram':
-            self.observation_space = spaces.Box(low=np.zeros(128), high=np.zeros(128)+255)
+            self.observation_space = spaces.Box(low=0, high=255, dtype=np.uint8, shape=(128,))
         elif self._obs_type == 'image':
-            self.observation_space = spaces.Box(low=0, high=255, shape=(screen_height, screen_width, 3))
+            self.observation_space = spaces.Box(low=0, high=255, shape=(screen_height, screen_width, 3), dtype=np.uint8)
         else:
             raise error.Error('Unrecognized observation type: {}'.format(self._obs_type))
 
-    def _seed(self, seed=None):
+    def seed(self, seed=None):
         self.np_random, seed1 = seeding.np_random(seed)
         # Derive a random seed. This gets passed as a uint, but gets
         # checked as an int elsewhere, so we need to keep it below
@@ -69,7 +65,7 @@ class AtariEnv(gym.Env, utils.EzPickle):
         self.ale.loadROM(self.game_path)
         return [seed1, seed2]
 
-    def _step(self, a):
+    def step(self, a):
         reward = 0.0
         action = self._action_set[a]
 
@@ -84,8 +80,7 @@ class AtariEnv(gym.Env, utils.EzPickle):
         return ob, reward, self.ale.game_over(), {"ale.lives": self.ale.lives()}
 
     def _get_image(self):
-        self.ale.getScreenRGB(self._buffer)  # says rgb but actually bgr
-        return self._buffer[:, :, [2, 1, 0]]
+        return self.ale.getScreenRGB2()
 
     def _get_ram(self):
         return to_ram(self.ale)
@@ -102,16 +97,11 @@ class AtariEnv(gym.Env, utils.EzPickle):
         return img
 
     # return: (states, observations)
-    def _reset(self):
+    def reset(self):
         self.ale.reset_game()
         return self._get_obs()
 
-    def _render(self, mode='human', close=False):
-        if close:
-            if self.viewer is not None:
-                self.viewer.close()
-                self.viewer = None
-            return
+    def render(self, mode='human'):
         img = self._get_image()
         if mode == 'rgb_array':
             return img
@@ -120,22 +110,67 @@ class AtariEnv(gym.Env, utils.EzPickle):
             if self.viewer is None:
                 self.viewer = rendering.SimpleImageViewer()
             self.viewer.imshow(img)
+            return self.viewer.isopen
+
+    def close(self):
+        if self.viewer is not None:
+            self.viewer.close()
+            self.viewer = None
 
     def get_action_meanings(self):
         return [ACTION_MEANING[i] for i in self._action_set]
 
-    # def save_state(self):
-    #     return self.ale.saveState()
+    def get_keys_to_action(self):
+        KEYWORD_TO_KEY = {
+            'UP':      ord('w'),
+            'DOWN':    ord('s'),
+            'LEFT':    ord('a'),
+            'RIGHT':   ord('d'),
+            'FIRE':    ord(' '),
+        }
 
-    # def load_state(self):
-    #     return self.ale.loadState()
+        keys_to_action = {}
 
-    # def clone_state(self):
-    #     return self.ale.cloneState()
+        for action_id, action_meaning in enumerate(self.get_action_meanings()):
+            keys = []
+            for keyword, key in KEYWORD_TO_KEY.items():
+                if keyword in action_meaning:
+                    keys.append(key)
+            keys = tuple(sorted(keys))
 
-    # def restore_state(self, state):
-    #     return self.ale.restoreState(state)
+            assert keys not in keys_to_action
+            keys_to_action[keys] = action_id
 
+        return keys_to_action
+
+    def clone_state(self):
+        """Clone emulator state w/o system state. Restoring this state will
+        *not* give an identical environment. For complete cloning and restoring
+        of the full state, see `{clone,restore}_full_state()`."""
+        state_ref = self.ale.cloneState()
+        state = self.ale.encodeState(state_ref)
+        self.ale.deleteState(state_ref)
+        return state
+
+    def restore_state(self, state):
+        """Restore emulator state w/o system state."""
+        state_ref = self.ale.decodeState(state)
+        self.ale.restoreState(state_ref)
+        self.ale.deleteState(state_ref)
+
+    def clone_full_state(self):
+        """Clone emulator state w/ system state including pseudorandomness.
+        Restoring this state will give an identical environment."""
+        state_ref = self.ale.cloneSystemState()
+        state = self.ale.encodeState(state_ref)
+        self.ale.deleteState(state_ref)
+        return state
+
+    def restore_full_state(self, state):
+        """Restore emulator state w/ system state including pseudorandomness."""
+        state_ref = self.ale.decodeState(state)
+        self.ale.restoreSystemState(state_ref)
+        self.ale.deleteState(state_ref)
 
 ACTION_MEANING = {
     0 : "NOOP",

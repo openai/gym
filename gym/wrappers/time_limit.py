@@ -1,10 +1,5 @@
 import time
-
-from gym import Wrapper
-
-import logging
-
-logger = logging.getLogger(__name__)
+from gym import Wrapper, logger
 
 class TimeLimit(Wrapper):
     def __init__(self, env, max_episode_seconds=None, max_episode_steps=None):
@@ -31,22 +26,19 @@ class TimeLimit(Wrapper):
 
         return False
 
-    def _step(self, action):
+    def step(self, action):
         assert self._episode_started_at is not None, "Cannot call env.step() before calling reset()"
         observation, reward, done, info = self.env.step(action)
         self._elapsed_steps += 1
 
         if self._past_limit():
-            # TODO(jie) we are resetting and discarding the observation here.
-            # This _should_ be fine since you can always call reset() again to
-            # get a new, freshly initialized observation, but it would be better
-            # to clean this up.
-            _ = self.reset()  # Force a reset, discard the observation
-            done = True  # Force a done = True
+            if self.metadata.get('semantics.autoreset'):
+                _ = self.reset() # automatically reset the env
+            done = True 
 
         return observation, reward, done, info
 
-    def _reset(self):
+    def reset(self, **kwargs):
         self._episode_started_at = time.time()
         self._elapsed_steps = 0
-        return self.env.reset()
+        return self.env.reset(**kwargs)

@@ -1,7 +1,8 @@
+import numpy as np
+
 import gym
 from gym import spaces
 from gym.utils import seeding
-import numpy as np
 
 
 class HotterColder(gym.Env):
@@ -25,7 +26,8 @@ class HotterColder(gym.Env):
         self.range = 1000  # +/- value the randomly select number can be between
         self.bounds = 2000  # Action space bounds
 
-        self.action_space = spaces.Box(low=np.array([-self.bounds]), high=np.array([self.bounds]))
+        self.action_space = spaces.Box(low=np.array([-self.bounds]), high=np.array([self.bounds]),
+                                       dtype=np.float32)
         self.observation_space = spaces.Discrete(4)
 
         self.number = 0
@@ -33,14 +35,14 @@ class HotterColder(gym.Env):
         self.guess_max = 200
         self.observation = 0
 
-        self._seed()
-        self._reset()
+        self.seed()
+        self.reset()
 
-    def _seed(self, seed=None):
+    def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
-    def _step(self, action):
+    def step(self, action):
         assert self.action_space.contains(action)
 
         if action < self.number:
@@ -59,7 +61,7 @@ class HotterColder(gym.Env):
 
         return self.observation, reward[0], done, {"number": self.number, "guesses": self.guess_count}
 
-    def _reset(self):
+    def reset(self):
         self.number = self.np_random.uniform(-self.range, self.range)
         self.guess_count = 0
         self.observation = 0

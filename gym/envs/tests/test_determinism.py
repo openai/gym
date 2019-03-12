@@ -1,49 +1,39 @@
 import numpy as np
-from nose2 import tools
-import os
+import pytest
 
-import logging
-logger = logging.getLogger(__name__)
+from gym.envs.tests.spec_list import spec_list
 
-import gym
-from gym import envs, spaces
-
-from gym.envs.tests.test_envs import should_skip_env_spec_for_tests
-
-specs = [spec for spec in sorted(envs.registry.all(), key=lambda x: x.id) if spec._entry_point is not None]
-@tools.params(*specs)
+@pytest.mark.parametrize("spec", spec_list)
 def test_env(spec):
-    if should_skip_env_spec_for_tests(spec):
-        return
-
     # Note that this precludes running this test in multiple
     # threads. However, we probably already can't do multithreading
     # due to some environments.
-    spaces.seed(0)
-
     env1 = spec.make()
     env1.seed(0)
-    action_samples1 = [env1.action_space.sample() for i in range(4)]
-    observation_samples1 = [env1.observation_space.sample() for i in range(4)]
     initial_observation1 = env1.reset()
+    env1.action_space.seed(0)
+    action_samples1 = [env1.action_space.sample() for i in range(4)]
     step_responses1 = [env1.step(action) for action in action_samples1]
     env1.close()
 
-    spaces.seed(0)
-
     env2 = spec.make()
     env2.seed(0)
-    action_samples2 = [env2.action_space.sample() for i in range(4)]
-    observation_samples2 = [env2.observation_space.sample() for i in range(4)]
     initial_observation2 = env2.reset()
+    env2.action_space.seed(0)
+    action_samples2 = [env2.action_space.sample() for i in range(4)]
     step_responses2 = [env2.step(action) for action in action_samples2]
     env2.close()
 
     for i, (action_sample1, action_sample2) in enumerate(zip(action_samples1, action_samples2)):
-        assert_equals(action_sample1, action_sample2), '[{}] action_sample1: {}, action_sample2: {}'.format(i, action_sample1, action_sample2)
-
-    for (observation_sample1, observation_sample2) in zip(observation_samples1, observation_samples2):
-        assert_equals(observation_sample1, observation_sample2)
+        try:
+            assert_equals(action_sample1, action_sample2)
+        except AssertionError:
+            print('env1.action_space=', env1.action_space)
+            print('env2.action_space=', env2.action_space)
+            print('action_samples1=', action_samples1)
+            print('action_samples2=', action_samples2)
+            print('[{}] action_sample1: {}, action_sample2: {}'.format(i, action_sample1, action_sample2))
+            raise
 
     # Don't check rollout equality if it's a a nondeterministic
     # environment.

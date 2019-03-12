@@ -1,50 +1,22 @@
+import pytest
 import numpy as np
-from nose2 import tools
-import os
 
-import logging
-logger = logging.getLogger(__name__)
-
-import gym
 from gym import envs
-
-def should_skip_env_spec_for_tests(spec):
-    # We skip tests for envs that require dependencies or are otherwise
-    # troublesome to run frequently
-
-    # Skip mujoco tests for pull request CI
-    skip_mujoco = not (os.environ.get('MUJOCO_KEY_BUNDLE') or os.path.exists(os.path.expanduser('~/.mujoco')))
-    if skip_mujoco and spec._entry_point.startswith('gym.envs.mujoco:'):
-        return True
-
-    # TODO(jonas 2016-05-11): Re-enable these tests after fixing box2d-py
-    if spec._entry_point.startswith('gym.envs.box2d:'):
-        logger.warn("Skipping tests for box2d env {}".format(spec._entry_point))
-        return True
-
-    # Skip ConvergenceControl tests (the only env in parameter_tuning) according to pull #104
-    if spec._entry_point.startswith('gym.envs.parameter_tuning:'):
-        logger.warn("Skipping tests for parameter_tuning env {}".format(spec._entry_point))
-        return True
-
-    # Skip Semisuper tests for now (broken due to monitor refactor)
-    if spec._entry_point.startswith('gym.envs.safety:Semisuper'):
-        logger.warn("Skipping tests for semisuper env {}".format(spec._entry_point))
-        return True
-
-    return False
-
+from gym.envs.tests.spec_list import spec_list
 
 # This runs a smoketest on each official registered env. We may want
 # to try also running environments which are not officially registered
 # envs.
-specs = [spec for spec in sorted(envs.registry.all(), key=lambda x: x.id) if spec._entry_point is not None]
-@tools.params(*specs)
+@pytest.mark.parametrize("spec", spec_list)
 def test_env(spec):
-    if should_skip_env_spec_for_tests(spec):
-        return
+    # Capture warnings
+    with pytest.warns(None) as warnings:
+        env = spec.make()
 
-    env = spec.make()
+    # Check that dtype is explicitly declared for gym.Box spaces
+    for warning_msg in warnings:
+        assert not 'autodetected dtype' in str(warning_msg.message)
+
     ob_space = env.observation_space
     act_space = env.action_space
     ob = env.reset()
@@ -57,12 +29,10 @@ def test_env(spec):
 
     for mode in env.metadata.get('render.modes', []):
         env.render(mode=mode)
-    env.render(close=True)
 
     # Make sure we can render the environment after close.
     for mode in env.metadata.get('render.modes', []):
         env.render(mode=mode)
-    env.render(close=True)
 
     env.close()
 
@@ -77,18 +47,19 @@ def test_random_rollout():
             assert env.action_space.contains(a)
             (ob, _reward, done, _info) = env.step(a)
             if done: break
+        env.close()
 
-def test_double_close():
-    class TestEnv(gym.Env):
-        def __init__(self):
-            self.close_count = 0
 
-        def _close(self):
-            self.close_count += 1
+def test_env_render_result_is_immutable():
+    from six import string_types
+    environs = [
+        envs.make('Taxi-v2'),
+        envs.make('FrozenLake-v0'),
+        envs.make('Reverse-v0'),
+    ]
 
-    env = TestEnv()
-    assert env.close_count == 0
-    env.close()
-    assert env.close_count == 1
-    env.close()
-    assert env.close_count == 1
+    for env in environs:
+        env.reset()
+        output = env.render(mode='ansi')
+        assert isinstance(output, string_types)
+        env.close()
