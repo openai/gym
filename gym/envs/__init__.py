@@ -592,3 +592,7 @@ register(
     entry_point='gym.envs.unittest:MemorizeDigits',
     reward_threshold=20,
     )
+register(
+   	id='Blender-v0',
+   	entry_point='gym.envs.my_collection:Blender',
+)
