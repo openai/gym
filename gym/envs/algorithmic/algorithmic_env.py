@@ -95,7 +95,7 @@ class AlgorithmicEnv(Env):
     def _get_obs(self, pos=None):
         """Return an observation corresponding to the given read head position
         (or the current read head position, if none is given)."""
-        raise NotImplemented
+        raise NotImplementedError
 
     def _get_str_obs(self, pos=None):
         ret = self._get_obs(pos)
@@ -230,13 +230,13 @@ class AlgorithmicEnv(Env):
         return self._get_obs()
 
     def generate_input_data(self, size):
-        raise NotImplemented
+        raise NotImplementedError
 
     def target_from_input_data(self, input_data):
-        raise NotImplemented("Subclasses must implement")
+        raise NotImplementedError("Subclasses must implement")
 
     def _move(self, movement):
-        raise NotImplemented
+        raise NotImplementedError
 
 
 class TapeAlgorithmicEnv(AlgorithmicEnv):
