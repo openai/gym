@@ -9,7 +9,10 @@ register(
     max_episode_steps=200,
     reward_threshold=25.0,
 )
-
+register(
+   	id='Blender-v0',
+   	entry_point='gym.envs.Blender:BlenderEnv',
+)
 register(
     id='RepeatCopy-v0',
     entry_point='gym.envs.algorithmic:RepeatCopyEnv',
@@ -592,7 +595,4 @@ register(
     entry_point='gym.envs.unittest:MemorizeDigits',
     reward_threshold=20,
     )
-register(
-   	id='Blender-v0',
-   	entry_point='gym.envs.my_collection:Blender',
-)
+
