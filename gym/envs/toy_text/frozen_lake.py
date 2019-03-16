@@ -31,10 +31,12 @@ MAPS = {
     ],
 }
 
-# Generates a random valid map (one that has a path from start to goal)
-# @params size, size of each side of the grid
-# @prams p, probability that a tile is frozen
+
 def generate_random_map(size=8, p=0.8):
+    """Generates a random valid map (one that has a path from start to goal)
+    :param size: size of each side of the grid
+    :param p: probability that a tile is frozen
+    """
     valid = False
     
     #BFS to check that it's a valid path
