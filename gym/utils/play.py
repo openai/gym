@@ -176,5 +176,5 @@ class PlayPlot(object):
         plt.pause(0.000001)
 
 if __name__ == '__main__':
-    env = gym.make(args.env)	   
+    env = gym.make(args.env)
     play(env, zoom=4, fps=60)
