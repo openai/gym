@@ -116,7 +116,10 @@ class MountainCarEnv(gym.Env):
         self.cartrans.set_rotation(math.cos(3 * pos))
 
         return self.viewer.render(return_rgb_array = mode=='rgb_array')
-
+    
+    def get_keys_to_action(self):
+        return {():1,(276,):0,(275,):2,(275,276):1} #control with left and right arrow keys 
+    
     def close(self):
         if self.viewer:
             self.viewer.close()
