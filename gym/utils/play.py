@@ -3,7 +3,6 @@ import pygame
 import sys
 import time
 import matplotlib
-import argparse
 try:
     matplotlib.use('GTK3Agg')
     import matplotlib.pyplot as plt
@@ -17,10 +16,6 @@ from collections import deque
 from pygame.locals import HWSURFACE, DOUBLEBUF, RESIZABLE, VIDEORESIZE
 from threading import Thread
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--env', type=str, default='MontezumaRevengeNoFrameskip-v4', help='Define Environment')
-args = parser.parse_args()
-	
 def display_arr(screen, arr, video_size, transpose):
     arr_min, arr_max = arr.min(), arr.max()
     arr = 255.0 * (arr - arr_min) / (arr_max - arr_min)
@@ -70,7 +65,7 @@ def play(env, transpose=True, fps=30, zoom=None, callback=None, keys_to_action=N
             obs_tp1: observation after performing action
             action: action that was executed
             rew: reward that was received
-            done: whether the environment is done or not
+            done: whether the environemnt is done or not
             info: debug info
     keys_to_action: dict: tuple(int) -> int or None
         Mapping from keys pressed to action performed.
@@ -84,10 +79,9 @@ def play(env, transpose=True, fps=30, zoom=None, callback=None, keys_to_action=N
             }
         If None, default key_to_action mapping for that env is used, if provided.
     """
-
+    env.reset()
+    rendered=env.render( mode='rgb_array')
     obs_s = env.observation_space
-    assert type(obs_s) == gym.spaces.box.Box
-    assert len(obs_s.shape) == 2 or (len(obs_s.shape) == 3 and obs_s.shape[2] in [1,3])
 
     if keys_to_action is None:
         if hasattr(env, 'get_keys_to_action'):
@@ -99,38 +93,29 @@ def play(env, transpose=True, fps=30, zoom=None, callback=None, keys_to_action=N
                           "please specify one manually"
     relevant_keys = set(sum(map(list, keys_to_action.keys()),[]))
 
-    if transpose:
-        video_size = env.observation_space.shape[1], env.observation_space.shape[0]
-    else:
-        video_size = env.observation_space.shape[0], env.observation_space.shape[1]
-
     if zoom is not None:
         video_size = int(video_size[0] * zoom), int(video_size[1] * zoom)
-
+    video_size=[rendered.shape[1],rendered.shape[0]]
     pressed_keys = []
     running = True
     env_done = True
-
+ 
     screen = pygame.display.set_mode(video_size)
     clock = pygame.time.Clock()
-
 
     while running:
         if env_done:
             env_done = False
             obs = env.reset()
         else:
-            action = keys_to_action.get(tuple(sorted(pressed_keys)), 0)
+            action = keys_to_action[tuple(sorted(pressed_keys))]
             prev_obs = obs
             obs, rew, env_done, info = env.step(action)
             if callback is not None:
                 callback(prev_obs, obs, action, rew, env_done, info)
         if obs is not None:
-            if len(obs.shape) == 2:
-                obs = obs[:, :, None]
-            if obs.shape[2] == 1:
-                obs = obs.repeat(3, axis=2)
-            display_arr(screen, obs, transpose=transpose, video_size=video_size)
+            rendered=env.render( mode='rgb_array')
+            display_arr(screen, rendered, transpose=transpose, video_size=video_size)
 
         # process pygame events
         for event in pygame.event.get():
@@ -185,7 +170,5 @@ class PlayPlot(object):
             self.ax[i].set_xlim(xmin, xmax)
         plt.pause(0.000001)
 
-
 if __name__ == '__main__':
-    env = gym.make(args.env)
-    play(env, zoom=4, fps=60)
+    play(gym.make('MountainCar-v0'))
