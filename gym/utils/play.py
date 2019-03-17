@@ -3,6 +3,7 @@ import pygame
 import sys
 import time
 import matplotlib
+import argparse
 try:
     matplotlib.use('GTK3Agg')
     import matplotlib.pyplot as plt
@@ -15,6 +16,10 @@ import pyglet.window as pw
 from collections import deque
 from pygame.locals import HWSURFACE, DOUBLEBUF, RESIZABLE, VIDEORESIZE
 from threading import Thread
+
+parser = argparse.ArgumentParser()	
+parser.add_argument('--env', type=str, default='MontezumaRevengeNoFrameskip-v4', help='Define Environment')	
+args = parser.parse_args()
 
 def display_arr(screen, arr, video_size, transpose):
     arr_min, arr_max = arr.min(), arr.max()
@@ -65,7 +70,7 @@ def play(env, transpose=True, fps=30, zoom=None, callback=None, keys_to_action=N
             obs_tp1: observation after performing action
             action: action that was executed
             rew: reward that was received
-            done: whether the environemnt is done or not
+            done: whether the environment is done or not
             info: debug info
     keys_to_action: dict: tuple(int) -> int or None
         Mapping from keys pressed to action performed.
@@ -81,7 +86,6 @@ def play(env, transpose=True, fps=30, zoom=None, callback=None, keys_to_action=N
     """
     env.reset()
     rendered=env.render( mode='rgb_array')
-    obs_s = env.observation_space
 
     if keys_to_action is None:
         if hasattr(env, 'get_keys_to_action'):
@@ -92,23 +96,25 @@ def play(env, transpose=True, fps=30, zoom=None, callback=None, keys_to_action=N
             assert False, env.spec.id + " does not have explicit key to action mapping, " + \
                           "please specify one manually"
     relevant_keys = set(sum(map(list, keys_to_action.keys()),[]))
-
+    
+    video_size=[rendered.shape[1],rendered.shape[0]]
     if zoom is not None:
         video_size = int(video_size[0] * zoom), int(video_size[1] * zoom)
-    video_size=[rendered.shape[1],rendered.shape[0]]
+
     pressed_keys = []
     running = True
     env_done = True
- 
+
     screen = pygame.display.set_mode(video_size)
     clock = pygame.time.Clock()
+
 
     while running:
         if env_done:
             env_done = False
             obs = env.reset()
         else:
-            action = keys_to_action[tuple(sorted(pressed_keys))]
+            action = keys_to_action.get(tuple(sorted(pressed_keys)), 0)
             prev_obs = obs
             obs, rew, env_done, info = env.step(action)
             if callback is not None:
@@ -171,4 +177,5 @@ class PlayPlot(object):
         plt.pause(0.000001)
 
 if __name__ == '__main__':
-    play(gym.make('MountainCar-v0'))
+    env = gym.make(args.env)	   
+    play(env, zoom=4, fps=60)
