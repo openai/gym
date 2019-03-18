@@ -1,10 +1,10 @@
-import numpy as np
-
+import gym
 from .space import Space
 
 
 class Tuple(Space):
-    """A tuple (i.e., product) of simpler spaces
+    """
+    A tuple (i.e., product) of simpler spaces
 
     Example usage:
     self.observation_space = spaces.Tuple((spaces.Discrete(2), spaces.Discrete(3)))
@@ -13,26 +13,11 @@ class Tuple(Space):
         self.spaces = spaces
         super(Tuple, self).__init__(None, None)
 
-    def sample(self):
-        return tuple([space.sample() for space in self.spaces])
-
     def seed(self, seed):
         [space.seed(seed) for space in self.spaces]
 
-    @property
-    def flat_dim(self):
-        return int(np.sum([space.flat_dim for space in self.spaces]))
-    
-    def flatten(self, x):
-        return np.concatenate([space.flatten(x_part) for x_part, space in zip(x, self.spaces)])
-        
-    def unflatten(self, x):
-        dims = [space.flat_dim for space in self.spaces]
-        list_flattened = np.split(x, np.cumsum(dims)[:-1])
-        list_unflattened = [space.unflatten(flattened) 
-                            for flattened, space in zip(list_flattened, self.spaces)]
-        
-        return tuple(list_unflattened)
+    def sample(self):
+        return tuple([space.sample() for space in self.spaces])
 
     def contains(self, x):
         if isinstance(x, list):
@@ -51,5 +36,11 @@ class Tuple(Space):
     def from_jsonable(self, sample_n):
         return [sample for sample in zip(*[space.from_jsonable(sample_n[i]) for i, space in enumerate(self.spaces)])]
 
-    def __eq__(self, x):
-        return isinstance(x, Tuple) and tuple(x.spaces) == tuple(self.spaces)
+    def __getitem__(self, index):
+        return self.spaces[index]
+
+    def __len__(self):
+        return len(self.spaces)
+      
+    def __eq__(self, other):
+        return self.spaces == other.spaces
