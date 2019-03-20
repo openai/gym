@@ -101,6 +101,8 @@ class AcrobotEnv(core.Env):
         return self._get_ob()
 
     def step(self, a):
+        if not np.isscalar(a):
+            a = np.asarray(a).item()
         s = self.state
         torque = self.AVAIL_TORQUE[a]
 
