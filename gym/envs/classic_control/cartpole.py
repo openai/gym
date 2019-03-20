@@ -89,6 +89,8 @@ class CartPoleEnv(gym.Env):
         return [seed]
 
     def step(self, action):
+        if not np.isscalar(action):
+            action = np.asarray(action).item()
         assert self.action_space.contains(action), "%r (%s) invalid"%(action, type(action))
         state = self.state
         x, x_dot, theta, theta_dot = state
