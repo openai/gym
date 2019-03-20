@@ -41,6 +41,8 @@ class MountainCarEnv(gym.Env):
         return [seed]
 
     def step(self, action):
+        if not np.isscalar(action):
+            action = np.asarray(action).item()
         assert self.action_space.contains(action), "%r (%s) invalid" % (action, type(action))
 
         position, velocity = self.state
