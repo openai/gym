@@ -84,6 +84,8 @@ class AtariEnv(gym.Env, utils.EzPickle):
         return [seed1, seed2]
 
     def step(self, a):
+        if not np.isscalar(a):
+            a = np.asarray(a).item()
         reward = 0.0
         action = self._action_set[a]
 
