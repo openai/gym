@@ -239,6 +239,8 @@ class LunarLander(gym.Env, EzPickle):
         if self.continuous:
             action = np.clip(action, -1, +1).astype(np.float32)
         else:
+            if not np.isscalar(action):
+                action = np.asarray(action).item()
             assert self.action_space.contains(action), "%r (%s) invalid " % (action, type(action))
 
         # Engines
