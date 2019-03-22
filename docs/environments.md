@@ -40,6 +40,12 @@ A minimalistic gridworld environment. Seeks to minimize software dependencies, b
 
 Learn more here: https://github.com/maximecb/gym-minigrid
 
+## gym-miniworld: Minimalistic 3D Interior Environment Simulator 
+
+MiniWorld is a minimalistic 3D interior environment simulator for reinforcement learning & robotics research. It can be used to simulate environments with rooms, doors, hallways and various objects (eg: office and home environments, mazes). MiniWorld can be seen as an alternative to VizDoom or DMLab. It is written 100% in Python and designed to be easily modified or extended.
+
+Learn more here: https://github.com/maximecb/gym-miniworld
+
 ## gym-sokoban: 2D Transportation Puzzles
 
 The environment consists of transportation puzzles in which the player's goal is to push all boxes on the warehouse's storage locations.
