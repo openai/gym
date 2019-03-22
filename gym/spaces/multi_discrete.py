@@ -1,4 +1,3 @@
-import gym
 import numpy as np
 from .space import Space
 
@@ -29,9 +28,9 @@ class MultiDiscrete(Space):
         nvec: vector of counts of each categorical variable
         """
         assert (np.array(nvec) > 0).all(), 'nvec (counts) have to be positive'
-        self.nvec = np.asarray(nvec, dtype=np.uint32)
+        self.nvec = np.asarray(nvec, dtype=np.int64)
 
-        super(MultiDiscrete, self).__init__(self.nvec.shape, np.uint32)
+        super(MultiDiscrete, self).__init__(self.nvec.shape, np.int64)
         self.np_random = np.random.RandomState()
 
     def seed(self, seed):
