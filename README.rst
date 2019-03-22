@@ -159,9 +159,9 @@ maintain the lists of dependencies on a per-environment group basis.
 Environments
 ============
 
-See [List of Environments](docs/environments.md)
+See `List of Environments <docs/environments.md>`_.
 
-For information on creating your own environments, see [Creating your own Environments](docs/creating-environments.md)
+For information on creating your own environments, see `Creating your own Environments <docs/creating-environments.md>`_.
 
 Examples
 ========
