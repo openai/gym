@@ -12,7 +12,7 @@ specification of each task is in
 [gym/envs/\_\_init\_\_.py](https://github.com/openai/gym/blob/master/gym/envs/__init__.py).
 It's worth browsing through both.
 
-# Algorithmic
+### Algorithmic
 
 These are a variety of algorithmic tasks, such as learning to copy a
 sequence.
@@ -24,7 +24,7 @@ env.reset()
 env.render()
 ```
 
-# Atari
+### Atari
 
 The Atari environments are a variety of Atari video games. If you didn't
 do the full install, you can install dependencies via `pip install -e
@@ -43,7 +43,7 @@ Learning Environment](http://www.arcadelearningenvironment.org/). This
 can take quite a while (a few minutes on a decent laptop), so just be
 prepared.
 
-# Box2d
+### Box2d
 
 Box2d is a 2D physics engine. You can install it via `pip install -e
 '.[box2d]'` and then get started as follows:
@@ -55,7 +55,7 @@ env.reset()
 env.render()
 ```
 
-# Classic control
+### Classic control
 
 These are a variety of classic control tasks, which would appear in a
 typical reinforcement learning textbook. If you didn't do the full
@@ -69,7 +69,7 @@ env.reset()
 env.render()
 ```
 
-# MuJoCo
+### MuJoCo
 
 [MuJoCo](http://www.mujoco.org/) is a physics engine which can do very
 detailed efficient simulations with contacts. It's not open-source, so
@@ -85,7 +85,7 @@ env.reset()
 env.render()
 ```
 
-# Robotics
+### Robotics
 
 [MuJoCo](http://www.mujoco.org/) is a physics engine which can do very
 detailed efficient simulations with contacts and we use it for all
@@ -114,7 +114,7 @@ you use these environments, you can cite them as follows:
       Eprint = {arXiv:1802.09464},
     }
 
-# Toy text
+### Toy text
 
 Toy environments which are text-based. There's no extra dependency to
 install, so to get started, you can just do:
