@@ -12,6 +12,12 @@ from gym import error, logger
 env_id_re = re.compile(r'^(?:[\w:-]+\/)?([\w:.-]+)-v(\d+)$')
 
 
+try:
+    ModuleNotFoundError
+except NameError:
+    ModuleNotFoundError = ImportError
+
+
 def load(name):
     mod_name, attr_name = name.split(":")
     mod = importlib.import_module(mod_name)
