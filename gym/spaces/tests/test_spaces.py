@@ -13,6 +13,7 @@ from gym.spaces import Tuple, Box, Discrete, MultiDiscrete, MultiBinary, Dict
     Tuple([Discrete(5), Box(low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32)]),
     Tuple((Discrete(5), Discrete(2), Discrete(2))),
     MultiDiscrete([2, 2, 100]),
+    MultiBinary(10),
     Dict({"position": Discrete(5),
           "velocity": Box(low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32)}),
 ])

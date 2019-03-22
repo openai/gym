@@ -92,7 +92,6 @@ class Env(object):
 
         Args:
             mode (str): the mode to render with
-            close (bool): close all open renderings
 
         Example:
 
@@ -149,6 +148,14 @@ class Env(object):
             return '<{} instance>'.format(type(self).__name__)
         else:
             return '<{}<{}>>'.format(type(self).__name__, self.spec.id)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        self.close()
+        # propagate exception
+        return False
 
 
 class GoalEnv(Env):
@@ -276,8 +283,8 @@ class ObservationWrapper(Wrapper):
 
 
 class RewardWrapper(Wrapper):
-    def reset(self):
-        return self.env.reset()
+    def reset(self, **kwargs):
+        return self.env.reset(**kwargs)
 
     def step(self, action):
         observation, reward, done, info = self.env.step(action)
@@ -293,8 +300,8 @@ class ActionWrapper(Wrapper):
         action = self.action(action)
         return self.env.step(action)
 
-    def reset(self):
-        return self.env.reset()
+    def reset(self, **kwargs):
+        return self.env.reset(**kwargs)
 
     def action(self, action):
         deprecated_warn_once("%s doesn't implement 'action' method. Maybe it implements deprecated '_action' method." % type(self))
