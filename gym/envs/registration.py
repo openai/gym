@@ -1,5 +1,7 @@
 import re
 import importlib
+import warnings
+
 from gym import error, logger
 
 # This format is true today, but it's *not* an official spec.
