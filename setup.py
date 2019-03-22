@@ -10,7 +10,7 @@ extras = {
   'atari': ['atari_py>=0.1.4', 'Pillow', 'PyOpenGL'],
   'box2d': ['box2d-py>=2.3.5'],
   'classic_control': ['PyOpenGL'],
-  'mujoco': ['mujoco_py>=1.50', 'imageio'],
+  'mujoco': ['mujoco_py>=1.50, <2.0', 'imageio'],
   'robotics': ['mujoco_py>=1.50', 'imageio'],
 }
 
