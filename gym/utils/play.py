@@ -13,7 +13,6 @@ except ImportError as e:
 from collections import deque
 from pygame.locals import VIDEORESIZE
 
-	
 def display_arr(screen, arr, video_size, transpose):
     arr_min, arr_max = arr.min(), arr.max()
     arr = 255.0 * (arr - arr_min) / (arr_max - arr_min)
@@ -77,10 +76,8 @@ def play(env, transpose=True, fps=30, zoom=None, callback=None, keys_to_action=N
             }
         If None, default key_to_action mapping for that env is used, if provided.
     """
-
-    obs_s = env.observation_space
-    assert type(obs_s) == gym.spaces.box.Box
-    assert len(obs_s.shape) == 2 or (len(obs_s.shape) == 3 and obs_s.shape[2] in [1,3])
+    env.reset()
+    rendered=env.render( mode='rgb_array')
 
     if keys_to_action is None:
         if hasattr(env, 'get_keys_to_action'):
@@ -91,12 +88,8 @@ def play(env, transpose=True, fps=30, zoom=None, callback=None, keys_to_action=N
             assert False, env.spec.id + " does not have explicit key to action mapping, " + \
                           "please specify one manually"
     relevant_keys = set(sum(map(list, keys_to_action.keys()),[]))
-
-    if transpose:
-        video_size = env.observation_space.shape[1], env.observation_space.shape[0]
-    else:
-        video_size = env.observation_space.shape[0], env.observation_space.shape[1]
-
+    
+    video_size=[rendered.shape[1],rendered.shape[0]]
     if zoom is not None:
         video_size = int(video_size[0] * zoom), int(video_size[1] * zoom)
 
@@ -119,11 +112,8 @@ def play(env, transpose=True, fps=30, zoom=None, callback=None, keys_to_action=N
             if callback is not None:
                 callback(prev_obs, obs, action, rew, env_done, info)
         if obs is not None:
-            if len(obs.shape) == 2:
-                obs = obs[:, :, None]
-            if obs.shape[2] == 1:
-                obs = obs.repeat(3, axis=2)
-            display_arr(screen, obs, transpose=transpose, video_size=video_size)
+            rendered=env.render( mode='rgb_array')
+            display_arr(screen, rendered, transpose=transpose, video_size=video_size)
 
         # process pygame events
         for event in pygame.event.get():
@@ -179,8 +169,6 @@ class PlayPlot(object):
             self.cur_plot[i] = self.ax[i].scatter(range(xmin, xmax), list(self.data[i]), c='blue')
             self.ax[i].set_xlim(xmin, xmax)
         plt.pause(0.000001)
-
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--env', type=str, default='MontezumaRevengeNoFrameskip-v4', help='Define Environment')
