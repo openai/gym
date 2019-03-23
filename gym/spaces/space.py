@@ -7,7 +7,6 @@ class Space(object):
     action.
     """
     def __init__(self, shape=None, dtype=None):
-        import numpy as np # takes about 300-400ms to import, so we load lazily
         self.shape = None if shape is None else tuple(shape)
         self.dtype = None if dtype is None else np.dtype(dtype)
 
