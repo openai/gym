@@ -87,10 +87,23 @@ def test_sample(space):
 
 @pytest.mark.parametrize("spaces", [
     (Discrete(5), MultiBinary(5)),
-    (Box(low=np.array([-10, 0]), high=np.array([10,10]), dtype=np.float32), MultiDiscrete([2, 2, 8]))
+    (Box(low=np.array([-10, 0]), high=np.array([10,10]), dtype=np.float32), MultiDiscrete([2, 2, 8])),
+    (Dict({"position": Discrete(5)}), Tuple([Discrete(5)])),
+    (Dict({"position": Discrete(5)}), Discrete(5)),
+    (Tuple((Discrete(5),)), Discrete(5)),
 ])
 def test_class_inequality(spaces):
     assert spaces[0] == spaces[0]
     assert spaces[1] == spaces[1]
     assert spaces[0] != spaces[1]
     assert spaces[1] != spaces[0]
+
+
+@pytest.mark.parametrize("space_fn", [
+    lambda: Dict(space1='abc'),
+    lambda: Dict({'space1': 'abc'}),
+    lambda: Tuple(['abc'])
+])
+def test_bad_space_calls(space_fn):
+    with pytest.raises(AssertionError):
+        space_fn()
