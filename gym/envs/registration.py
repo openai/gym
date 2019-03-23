@@ -1,5 +1,7 @@
 import re
 import importlib
+import warnings
+
 from gym import error, logger
 
 # This format is true today, but it's *not* an official spec.
@@ -143,7 +145,8 @@ class EnvRegistry(object):
             mod_name, _sep, id = path.partition(':')
             try:
                 importlib.import_module(mod_name)
-            except ModuleNotFoundError:
+            # catch ImportError for python2.7 compatibility
+            except ImportError:
                 raise error.Error('A module ({}) was specified for the environment but was not found, make sure the package is installed with `pip install` before calling `gym.make()`'.format(mod_name))
         else:
             id = path
