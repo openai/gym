@@ -112,7 +112,6 @@ class EnvRegistry(object):
             env = TimeLimit(env, max_episode_steps=env.spec.max_episode_steps)
         return env
 
-
     def all(self):
         return self.env_specs.values()
 
