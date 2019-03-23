@@ -12,12 +12,6 @@ from gym import error, logger
 env_id_re = re.compile(r'^(?:[\w:-]+\/)?([\w:.-]+)-v(\d+)$')
 
 
-try:
-    ModuleNotFoundError
-except NameError:
-    ModuleNotFoundError = ImportError
-
-
 def load(name):
     mod_name, attr_name = name.split(":")
     mod = importlib.import_module(mod_name)
@@ -151,7 +145,8 @@ class EnvRegistry(object):
             mod_name, _sep, id = path.partition(':')
             try:
                 importlib.import_module(mod_name)
-            except ModuleNotFoundError:
+            # catch ImportError for python2.7 compatibility
+            except ImportError:
                 raise error.Error('A module ({}) was specified for the environment but was not found, make sure the package is installed with `pip install` before calling `gym.make()`'.format(mod_name))
         else:
             id = path
