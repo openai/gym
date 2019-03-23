@@ -1,6 +1,3 @@
-import numpy as np
-
-
 class Space(object):
     """Defines the observation and action spaces, so you can write generic
     code that applies to any Env. For example, you can choose a random
