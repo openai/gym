@@ -5,7 +5,11 @@ class TimeLimit(Wrapper):
     def __init__(self, env, max_episode_seconds=None, max_episode_steps=None):
         super(TimeLimit, self).__init__(env)
         self._max_episode_seconds = max_episode_seconds
+        if max_episode_seconds is not None:
+            self.env.spec.max_episode_seconds = max_episode_seconds
         self._max_episode_steps = max_episode_steps
+        if max_episode_steps is not None:
+            self.env.spec.max_episode_steps = max_episode_steps
 
         self._elapsed_steps = 0
         self._episode_started_at = None
