@@ -1,5 +1,7 @@
 import re
 import importlib
+import warnings
+
 from gym import error, logger
 
 # This format is true today, but it's *not* an official spec.
@@ -51,8 +53,7 @@ class EnvSpec(object):
         # BACKWARDS COMPAT 2017/1/18
         if tags.get('wrapper_config.TimeLimit.max_episode_steps'):
             max_episode_steps = tags.get('wrapper_config.TimeLimit.max_episode_steps')
-            # TODO: Add the following deprecation warning after 2017/02/18
-            # warnings.warn("DEPRECATION WARNING wrapper_config.TimeLimit has been deprecated. Replace any calls to `register(tags={'wrapper_config.TimeLimit.max_episode_steps': 200)}` with `register(max_episode_steps=200)`. This change was made 2017/1/31 and is included in gym version 0.8.0. If you are getting many of these warnings, you may need to update universe past version 0.21.3")
+            warnings.warn("DEPRECATION WARNING wrapper_config.TimeLimit has been deprecated. Replace any calls to `register(tags={'wrapper_config.TimeLimit.max_episode_steps': 200)}` with `register(max_episode_steps=200)`. This change was made 2017/1/31 and is included in gym version 0.8.0. If you are getting many of these warnings, you may need to update switch from universe 0.21.3 to retro (https://github.com/openai/retro)")
 
         tags['wrapper_config.TimeLimit.max_episode_steps'] = max_episode_steps
         ######
@@ -60,9 +61,7 @@ class EnvSpec(object):
         # BACKWARDS COMPAT 2017/1/31
         if timestep_limit is not None:
             max_episode_steps = timestep_limit
-            # TODO: Add the following deprecation warning after 2017/03/01
-            # warnings.warn("register(timestep_limit={}) is deprecated. Use register(max_episode_steps={}) instead.".format(timestep_limit, timestep_limit))
-        ######
+            warnings.warn("register(timestep_limit={}) is deprecated. Use register(max_episode_steps={}) instead.".format(timestep_limit, timestep_limit))
 
         self.max_episode_steps = max_episode_steps
         self.max_episode_seconds = max_episode_seconds
@@ -146,7 +145,8 @@ class EnvRegistry(object):
             mod_name, _sep, id = path.partition(':')
             try:
                 importlib.import_module(mod_name)
-            except ModuleNotFoundError:
+            # catch ImportError for python2.7 compatibility
+            except ImportError:
                 raise error.Error('A module ({}) was specified for the environment but was not found, make sure the package is installed with `pip install` before calling `gym.make()`'.format(mod_name))
         else:
             id = path
