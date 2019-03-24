@@ -6,4 +6,8 @@ from gym.spaces.multi_binary import MultiBinary
 from gym.spaces.tuple_space import Tuple
 from gym.spaces.dict_space import Dict
 
-__all__ = ["Space", "Box", "Discrete", "MultiDiscrete", "MultiBinary", "Tuple", "Dict"]
+from gym.spaces.utils import flatdim
+from gym.spaces.utils import flatten
+from gym.spaces.utils import unflatten
+
+__all__ = ["Space", "Box", "Discrete", "MultiDiscrete", "MultiBinary", "Tuple", "Dict", "flatdim", "flatten", "unflatten"]
