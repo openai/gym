@@ -6,7 +6,6 @@ from gym.utils import closer
 
 env_closer = closer.Closer()
 
-# Env-related abstractions
 
 class Env(object):
     """The main OpenAI Gym class. It encapsulates an environment with
@@ -215,6 +214,7 @@ class Wrapper(Env):
         self.observation_space = self.env.observation_space
         self.reward_range = self.env.reward_range
         self.metadata = self.env.metadata
+        self.spec = self.env.spec
 
     @classmethod
     def class_name(cls):
@@ -244,8 +244,7 @@ class Wrapper(Env):
         return self.env.render(mode, **kwargs)
 
     def close(self):
-        if self.env:
-            return self.env.close()
+        return self.env.close()
 
     def seed(self, seed=None):
         return self.env.seed(seed)
@@ -262,10 +261,6 @@ class Wrapper(Env):
     @property
     def unwrapped(self):
         return self.env.unwrapped
-
-    @property
-    def spec(self):
-        return self.env.spec
 
 
 class ObservationWrapper(Wrapper):
@@ -299,9 +294,6 @@ class ActionWrapper(Wrapper):
     def step(self, action):
         action = self.action(action)
         return self.env.step(action)
-
-    def reset(self, **kwargs):
-        return self.env.reset(**kwargs)
 
     def action(self, action):
         deprecated_warn_once("%s doesn't implement 'action' method. Maybe it implements deprecated '_action' method." % type(self))
