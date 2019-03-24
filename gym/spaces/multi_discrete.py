@@ -54,4 +54,4 @@ class MultiDiscrete(Space):
         return "MultiDiscrete({})".format(self.nvec)
 
     def __eq__(self, other):
-        return np.all(self.nvec == other.nvec)
+        return isinstance(other, MultiDiscrete) and np.all(self.nvec == other.nvec)

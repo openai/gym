@@ -36,6 +36,8 @@ class Dict(Space):
         assert (spaces is None) or (not spaces_kwargs), 'Use either Dict(spaces=dict(...)) or Dict(foo=x, bar=z)'
         if spaces is None:
             spaces = spaces_kwargs
+        for space in spaces.values():
+            assert isinstance(space, gym.Space), 'Values of the dict should be instances of gym.Space'
         if isinstance(spaces, dict) and not isinstance(spaces, OrderedDict):
             spaces = OrderedDict(sorted(list(spaces.items())))
         if isinstance(spaces, list):
@@ -80,4 +82,4 @@ class Dict(Space):
         return ret
 
     def __eq__(self, other):
-        return self.spaces == other.spaces
+        return isinstance(other, Dict) and self.spaces == other.spaces
