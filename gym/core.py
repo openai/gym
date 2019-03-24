@@ -291,6 +291,9 @@ class RewardWrapper(Wrapper):
 
 
 class ActionWrapper(Wrapper):
+    def reset(self, **kwargs):
+        return self.env.reset(**kwargs)
+
     def step(self, action):
         action = self.action(action)
         return self.env.step(action)
