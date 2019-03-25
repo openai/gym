@@ -34,8 +34,6 @@ RUN \
     pip install tox 
 
 
-ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/root/.mujoco/mjpro150/bin
-
 # install dependencies
 COPY . /usr/local/gym/
 RUN cd /usr/local/gym && \

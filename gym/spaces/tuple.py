@@ -1,4 +1,4 @@
-import gym
+import numpy as np
 from .space import Space
 
 
@@ -11,6 +11,8 @@ class Tuple(Space):
     """
     def __init__(self, spaces):
         self.spaces = spaces
+        for space in spaces:
+            assert isinstance(space, Space), "Elements of the tuple must be instances of gym.Space"
         super(Tuple, self).__init__(None, None)
 
     def seed(self, seed):
@@ -43,4 +45,4 @@ class Tuple(Space):
         return len(self.spaces)
       
     def __eq__(self, other):
-        return self.spaces == other.spaces
+        return isinstance(other, Tuple) and self.spaces == other.spaces
