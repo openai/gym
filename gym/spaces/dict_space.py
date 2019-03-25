@@ -36,13 +36,13 @@ class Dict(Space):
         assert (spaces is None) or (not spaces_kwargs), 'Use either Dict(spaces=dict(...)) or Dict(foo=x, bar=z)'
         if spaces is None:
             spaces = spaces_kwargs
-        for space in spaces.values():
-            assert isinstance(space, gym.Space), 'Values of the dict should be instances of gym.Space'
         if isinstance(spaces, dict) and not isinstance(spaces, OrderedDict):
             spaces = OrderedDict(sorted(list(spaces.items())))
         if isinstance(spaces, list):
             spaces = OrderedDict(spaces)
         self.spaces = spaces
+        for space in spaces.values():
+            assert isinstance(space, gym.Space), 'Values of the dict should be instances of gym.Space'
         super(Dict, self).__init__(None, None) # None for shape and dtype, since it'll require special handling
 
     def seed(self, seed):
