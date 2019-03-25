@@ -186,6 +186,8 @@ We are using `pytest <http://doc.pytest.org>`_ for tests. You can run them via:
 
 What's new
 ==========
+- 2019-03-25 (v0.12.1)
+    + rgb rendering in mujoco locomotion environments comes from tracking camera (so that agent does not run away from the field of view). The old behaviour can be restored by passing rgb_rendering_tracking=False kwarg.
 
 - 2019-02-26 (v0.12.0)
     + release mujoco environments v3 with support for gym.make kwargs such as `xml_file`, `ctrl_cost_weight`, `reset_noise_scale` etc

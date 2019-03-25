@@ -13,7 +13,7 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
                  ctrl_cost_weight=1e-4,
                  reset_noise_scale=0.1,
                  exclude_current_positions_from_observation=True,
-                 rgb_rendering_tracking=False):
+                 rgb_rendering_tracking=True):
         utils.EzPickle.__init__(**locals())
 
         self._forward_reward_weight = forward_reward_weight

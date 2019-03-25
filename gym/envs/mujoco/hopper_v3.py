@@ -23,7 +23,7 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
                  healthy_angle_range=(-0.2, 0.2),
                  reset_noise_scale=5e-3,
                  exclude_current_positions_from_observation=True,
-                 rgb_rendering_tracking=False):
+                 rgb_rendering_tracking=True):
         utils.EzPickle.__init__(**locals())
 
         self._forward_reward_weight = forward_reward_weight

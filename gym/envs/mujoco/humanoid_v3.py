@@ -29,7 +29,7 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
                  healthy_z_range=(1.0, 2.0),
                  reset_noise_scale=1e-2,
                  exclude_current_positions_from_observation=True,
-                 rgb_rendering_tracking=False):
+                 rgb_rendering_tracking=True):
         utils.EzPickle.__init__(**locals())
 
         self._forward_reward_weight = forward_reward_weight
