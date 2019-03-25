@@ -216,18 +216,10 @@ class Wrapper(Env):
         self.metadata = self.env.metadata
         self.spec = self.env.spec
 
-        if not hasattr(env, '_registered'):
-            self._registered = {}
-        else:
-            self._registered = env._registered
-        for key, value in self._registered.items():
-            if callable(value) or isinstance(value, property):
-                setattr(Wrapper, key, value)
-            else:
-                setattr(self, key, value)
-
-    def _register(self, key, value):
-        self._registered[key] = value
+    def __getattr__(self, name):
+        if name.startswith('_'):
+            raise AttributeError("attempted to get missing private attribute '{}'".format(name))
+        return getattr(self.env, name)
 
     @classmethod
     def class_name(cls):
