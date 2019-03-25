@@ -36,7 +36,7 @@ class Dict(Space):
         if spaces is None:
             spaces = spaces_kwargs
         for space in spaces.values():
-            assert isinstance(space, gym.Space), 'Values of the dict should be instances of gym.Space'
+            assert isinstance(space, Space), 'Values of the dict should be instances of gym.Space'
         if isinstance(spaces, dict) and not isinstance(spaces, OrderedDict):
             spaces = OrderedDict(sorted(list(spaces.items())))
         if isinstance(spaces, list):
