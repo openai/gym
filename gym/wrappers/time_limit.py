@@ -2,10 +2,9 @@ import gym
 
 
 class TimeLimit(gym.Wrapper):
-    def __init__(self, env, max_episode_steps=None):
+    def __init__(self, env, max_episode_steps):
         super(TimeLimit, self).__init__(env)
-        if max_episode_steps is not None:
-            self.env.spec.max_episode_steps = max_episode_steps
+        self.env.spec.max_episode_steps = max_episode_steps
         self._max_episode_steps = max_episode_steps
         self._elapsed_steps = None
 
