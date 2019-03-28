@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 """
 @author: Olivier Sigaud
+
 A merge between two sources:
+
 * Adaptation of the MountainCar Environment from the "FAReinforcement" library
 of Jose Antonio Martin H. (version 1.0), adapted by  'Tom Schaul, tom@idsia.ch'
 and then modified by Arnaud de Broissia
+
 * the OpenAI/gym MountainCar environment
 itself from
 http://incompleteideas.net/sutton/MountainCar/MountainCar1.cp
@@ -19,7 +22,7 @@ import gym
 from gym import spaces
 from gym.utils import seeding
 
-class Continuous_MountainCarEnv(gym.Env):
+class Continuous_MountainCarEnvV2(gym.Env):
     metadata = {
         'render.modes': ['human', 'rgb_array'],
         'video.frames_per_second': 30
@@ -32,6 +35,7 @@ class Continuous_MountainCarEnv(gym.Env):
         self.max_position = 0.6
         self.max_speed = 0.07
         self.goal_position = 0.45 # was 0.5 in gym, 0.45 in Arnaud de Broissia's version
+        self.goal_velocity = 0.06
         self.power = 0.0015
 
         self.low_state = np.array([self.min_position, -self.max_speed])
@@ -65,7 +69,7 @@ class Continuous_MountainCarEnv(gym.Env):
         if (position < self.min_position): position = self.min_position
         if (position==self.min_position and velocity<0): velocity = 0
 
-        done = bool(position >= self.goal_position)
+        done = bool(position >= self.goal_position and velocity >= self.goal_velocity)
 
         reward = 0
         if done:
@@ -125,11 +129,17 @@ class Continuous_MountainCarEnv(gym.Env):
             backwheel.set_color(.5, .5, .5)
             self.viewer.add_geom(backwheel)
             flagx = (self.goal_position-self.min_position)*scale
+            flagy = (self.goal_velocity-self.min_velocity)*scale
             flagy1 = self._height(self.goal_position)*scale
             flagy2 = flagy1 + 50
+            flagy3 = self._height(self.goal_velocity)*scale
+            flagy4 = flagy3 + 50
             flagpole = rendering.Line((flagx, flagy1), (flagx, flagy2))
             self.viewer.add_geom(flagpole)
             flag = rendering.FilledPolygon([(flagx, flagy2), (flagx, flagy2-10), (flagx+25, flagy2-5)])
+            flagpole = rendering.Line((flagy, flagy1), (flagy, flagy2))
+            self.viewer.add_geom(flagpole)
+            flag = rendering.FilledPolygon([(flagy, flagy2), (flagy, flagy2-10), (flagy+25, flagy2-5)])
             flag.set_color(.8,.8,0)
             self.viewer.add_geom(flag)
 
