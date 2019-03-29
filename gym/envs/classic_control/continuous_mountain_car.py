@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 """
 @author: Olivier Sigaud
+
 A merge between two sources:
+
 * Adaptation of the MountainCar Environment from the "FAReinforcement" library
 of Jose Antonio Martin H. (version 1.0), adapted by  'Tom Schaul, tom@idsia.ch'
 and then modified by Arnaud de Broissia
+
 * the OpenAI/gym MountainCar environment
 itself from
 http://incompleteideas.net/sutton/MountainCar/MountainCar1.cp
