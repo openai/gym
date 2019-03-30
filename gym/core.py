@@ -6,7 +6,6 @@ from gym.utils import closer
 
 env_closer = closer.Closer()
 
-# Env-related abstractions
 
 class Env(object):
     """The main OpenAI Gym class. It encapsulates an environment with
@@ -92,7 +91,6 @@ class Env(object):
 
         Args:
             mode (str): the mode to render with
-            close (bool): close all open renderings
 
         Example:
 
@@ -149,6 +147,14 @@ class Env(object):
             return '<{} instance>'.format(type(self).__name__)
         else:
             return '<{}<{}>>'.format(type(self).__name__, self.spec.id)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        self.close()
+        # propagate exception
+        return False
 
 
 class GoalEnv(Env):
@@ -208,6 +214,12 @@ class Wrapper(Env):
         self.observation_space = self.env.observation_space
         self.reward_range = self.env.reward_range
         self.metadata = self.env.metadata
+        self.spec = self.env.spec
+
+    def __getattr__(self, name):
+        if name.startswith('_'):
+            raise AttributeError("attempted to get missing private attribute '{}'".format(name))
+        return getattr(self.env, name)
 
     @classmethod
     def class_name(cls):
@@ -237,8 +249,7 @@ class Wrapper(Env):
         return self.env.render(mode, **kwargs)
 
     def close(self):
-        if self.env:
-            return self.env.close()
+        return self.env.close()
 
     def seed(self, seed=None):
         return self.env.seed(seed)
@@ -256,10 +267,6 @@ class Wrapper(Env):
     def unwrapped(self):
         return self.env.unwrapped
 
-    @property
-    def spec(self):
-        return self.env.spec
-
 
 class ObservationWrapper(Wrapper):
     def step(self, action):
@@ -276,8 +283,8 @@ class ObservationWrapper(Wrapper):
 
 
 class RewardWrapper(Wrapper):
-    def reset(self):
-        return self.env.reset()
+    def reset(self, **kwargs):
+        return self.env.reset(**kwargs)
 
     def step(self, action):
         observation, reward, done, info = self.env.step(action)
@@ -289,12 +296,12 @@ class RewardWrapper(Wrapper):
 
 
 class ActionWrapper(Wrapper):
+    def reset(self, **kwargs):
+        return self.env.reset(**kwargs)
+
     def step(self, action):
         action = self.action(action)
         return self.env.step(action)
-
-    def reset(self):
-        return self.env.reset()
 
     def action(self, action):
         deprecated_warn_once("%s doesn't implement 'action' method. Maybe it implements deprecated '_action' method." % type(self))

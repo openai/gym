@@ -7,4 +7,3 @@ not intended as API functions, and will not remain stable over time.
 # that verify that our dependencies are actually present.
 from .colorize import colorize
 from .ezpickle import EzPickle
-from .reraise import reraise

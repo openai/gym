@@ -1,6 +1,6 @@
 from __future__ import division
-import numpy as np
 from gym.envs.algorithmic import algorithmic_env
+
 
 class ReversedAdditionEnv(algorithmic_env.GridAlgorithmicEnv):
     def __init__(self, rows=2, base=3):
