@@ -392,7 +392,14 @@ for reward_type in ['sparse', 'dense']:
     register(
         id='HandManipulateBlockRotateZTouchSensors{}-v0'.format(suffix),
         entry_point='gym.envs.robotics:HandBlockTouchSensorsEnv',
-        kwargs=_merge({'target_position': 'ignore', 'target_rotation': 'z'}, kwargs),
+        kwargs=_merge({'target_position': 'ignore', 'target_rotation': 'z', 'touch_get_obs': 'boolean'}, kwargs),
+        max_episode_steps=100,
+    )
+
+    register(
+        id='HandManipulateBlockRotateZTouchSensors{}-v1'.format(suffix),
+        entry_point='gym.envs.robotics:HandBlockTouchSensorsEnv',
+        kwargs=_merge({'target_position': 'ignore', 'target_rotation': 'z', 'touch_get_obs': 'sensordata'}, kwargs),
         max_episode_steps=100,
     )
 
@@ -406,7 +413,14 @@ for reward_type in ['sparse', 'dense']:
     register(
         id='HandManipulateBlockRotateParallelTouchSensors{}-v0'.format(suffix),
         entry_point='gym.envs.robotics:HandBlockTouchSensorsEnv',
-        kwargs=_merge({'target_position': 'ignore', 'target_rotation': 'parallel'}, kwargs),
+        kwargs=_merge({'target_position': 'ignore', 'target_rotation': 'parallel', 'touch_get_obs': 'boolean'}, kwargs),
+        max_episode_steps=100,
+    )
+
+    register(
+        id='HandManipulateBlockRotateParallelTouchSensors{}-v1'.format(suffix),
+        entry_point='gym.envs.robotics:HandBlockTouchSensorsEnv',
+        kwargs=_merge({'target_position': 'ignore', 'target_rotation': 'parallel', 'touch_get_obs': 'sensordata'}, kwargs),
         max_episode_steps=100,
     )
 
@@ -420,7 +434,14 @@ for reward_type in ['sparse', 'dense']:
     register(
         id='HandManipulateBlockRotateXYZTouchSensors{}-v0'.format(suffix),
         entry_point='gym.envs.robotics:HandBlockTouchSensorsEnv',
-        kwargs=_merge({'target_position': 'ignore', 'target_rotation': 'xyz'}, kwargs),
+        kwargs=_merge({'target_position': 'ignore', 'target_rotation': 'xyz', 'touch_get_obs': 'boolean'}, kwargs),
+        max_episode_steps=100,
+    )
+
+    register(
+        id='HandManipulateBlockRotateXYZTouchSensors{}-v1'.format(suffix),
+        entry_point='gym.envs.robotics:HandBlockTouchSensorsEnv',
+        kwargs=_merge({'target_position': 'ignore', 'target_rotation': 'xyz', 'touch_get_obs': 'sensordata'}, kwargs),
         max_episode_steps=100,
     )
 
@@ -442,7 +463,14 @@ for reward_type in ['sparse', 'dense']:
     register(
         id='HandManipulateBlockTouchSensors{}-v0'.format(suffix),
         entry_point='gym.envs.robotics:HandBlockTouchSensorsEnv',
-        kwargs=_merge({'target_position': 'random', 'target_rotation': 'xyz'}, kwargs),
+        kwargs=_merge({'target_position': 'random', 'target_rotation': 'xyz', 'touch_get_obs': 'boolean'}, kwargs),
+        max_episode_steps=100,
+    )
+
+    register(
+        id='HandManipulateBlockTouchSensors{}-v1'.format(suffix),
+        entry_point='gym.envs.robotics:HandBlockTouchSensorsEnv',
+        kwargs=_merge({'target_position': 'random', 'target_rotation': 'xyz', 'touch_get_obs': 'sensordata'}, kwargs),
         max_episode_steps=100,
     )
 
@@ -456,7 +484,14 @@ for reward_type in ['sparse', 'dense']:
     register(
         id='HandManipulateEggRotateTouchSensors{}-v0'.format(suffix),
         entry_point='gym.envs.robotics:HandEggTouchSensorsEnv',
-        kwargs=_merge({'target_position': 'ignore', 'target_rotation': 'xyz'}, kwargs),
+        kwargs=_merge({'target_position': 'ignore', 'target_rotation': 'xyz', 'touch_get_obs': 'boolean'}, kwargs),
+        max_episode_steps=100,
+    )
+
+    register(
+        id='HandManipulateEggRotateTouchSensors{}-v1'.format(suffix),
+        entry_point='gym.envs.robotics:HandEggTouchSensorsEnv',
+        kwargs=_merge({'target_position': 'ignore', 'target_rotation': 'xyz', 'touch_get_obs': 'sensordata'}, kwargs),
         max_episode_steps=100,
     )
 
@@ -478,7 +513,14 @@ for reward_type in ['sparse', 'dense']:
     register(
         id='HandManipulateEggTouchSensors{}-v0'.format(suffix),
         entry_point='gym.envs.robotics:HandEggTouchSensorsEnv',
-        kwargs=_merge({'target_position': 'random', 'target_rotation': 'xyz'}, kwargs),
+        kwargs=_merge({'target_position': 'random', 'target_rotation': 'xyz', 'touch_get_obs': 'boolean'}, kwargs),
+        max_episode_steps=100,
+    )
+
+    register(
+        id='HandManipulateEggTouchSensors{}-v1'.format(suffix),
+        entry_point='gym.envs.robotics:HandEggTouchSensorsEnv',
+        kwargs=_merge({'target_position': 'random', 'target_rotation': 'xyz', 'touch_get_obs': 'sensordata'}, kwargs),
         max_episode_steps=100,
     )
 
@@ -492,7 +534,14 @@ for reward_type in ['sparse', 'dense']:
     register(
         id='HandManipulatePenRotateTouchSensors{}-v0'.format(suffix),
         entry_point='gym.envs.robotics:HandPenTouchSensorsEnv',
-        kwargs=_merge({'target_position': 'ignore', 'target_rotation': 'xyz'}, kwargs),
+        kwargs=_merge({'target_position': 'ignore', 'target_rotation': 'xyz', 'touch_get_obs': 'boolean'}, kwargs),
+        max_episode_steps=100,
+    )
+
+    register(
+        id='HandManipulatePenRotateTouchSensors{}-v1'.format(suffix),
+        entry_point='gym.envs.robotics:HandPenTouchSensorsEnv',
+        kwargs=_merge({'target_position': 'ignore', 'target_rotation': 'xyz', 'touch_get_obs': 'sensordata'}, kwargs),
         max_episode_steps=100,
     )
 
@@ -514,7 +563,14 @@ for reward_type in ['sparse', 'dense']:
     register(
         id='HandManipulatePenTouchSensors{}-v0'.format(suffix),
         entry_point='gym.envs.robotics:HandPenTouchSensorsEnv',
-        kwargs=_merge({'target_position': 'random', 'target_rotation': 'xyz'}, kwargs),
+        kwargs=_merge({'target_position': 'random', 'target_rotation': 'xyz', 'touch_get_obs': 'boolean'}, kwargs),
+        max_episode_steps=100,
+    )
+
+    register(
+        id='HandManipulatePenTouchSensors{}-v1'.format(suffix),
+        entry_point='gym.envs.robotics:HandPenTouchSensorsEnv',
+        kwargs=_merge({'target_position': 'random', 'target_rotation': 'xyz', 'touch_get_obs': 'sensordata'}, kwargs),
         max_episode_steps=100,
     )
 

@@ -16,7 +16,7 @@ class ManipulateTouchSensorsEnv(manipulate.ManipulateEnv, utils.EzPickle):
         target_position_range, reward_type, initial_qpos={},
         randomize_initial_position=True, randomize_initial_rotation=True,
         distance_threshold=0.01, rotation_threshold=0.1, n_substeps=20, relative_control=False,
-        ignore_z_target_rotation=False, touch_visualisation="on_touch", touch_get_obs="boolean",
+        ignore_z_target_rotation=False, touch_visualisation="on_touch", touch_get_obs="sensordata",
     ):
         """Initializes a new Hand manipulation environment with touch sensors.
 
@@ -35,8 +35,9 @@ class ManipulateTouchSensorsEnv(manipulate.ManipulateEnv, utils.EzPickle):
         self.touch_visualisation = touch_visualisation
         self.touch_get_obs = touch_get_obs
         self._touch_sensor_id_site_id = []
-        self.touch_color = [1, 0, 0, 0.4]
-        self.notouch_color = [0, 0.5, 0, 0.3]
+        self._touch_sensor_id = []
+        self.touch_color = [1, 0, 0, 0.5]
+        self.notouch_color = [0, 0.5, 0, 0.2]
 
         manipulate.ManipulateEnv.__init__(
             self, model_path, target_position, target_rotation,
@@ -47,12 +48,13 @@ class ManipulateTouchSensorsEnv(manipulate.ManipulateEnv, utils.EzPickle):
         )
         utils.EzPickle.__init__(self)
 
-        for k, v in self.sim.model._sensor_name2id.items():  # get touch sensor ids and their site names
+        for k, v in self.sim.model._sensor_name2id.items():  # get touch sensor site names and their ids
             if 'robot0:TS_' in k:
                 self._touch_sensor_id_site_id.append((v, self.sim.model._site_name2id[k.replace('robot0:TS_', 'robot0:T_')]))
+                self._touch_sensor_id.append(v)
 
         if self.touch_visualisation == 'off':  # set touch sensors rgba values
-            for touch_sensor_id, site_id in self._touch_sensor_id_site_id:
+            for _, site_id in self._touch_sensor_id_site_id:
                 self.sim.model.site_rgba[site_id][3] = 0.0
         elif self.touch_visualisation == 'always':
             pass
@@ -78,16 +80,12 @@ class ManipulateTouchSensorsEnv(manipulate.ManipulateEnv, utils.EzPickle):
         object_qvel = self.sim.data.get_joint_qvel('object:joint')
         achieved_goal = self._get_achieved_goal().ravel()  # this contains the object position + rotation
         touch_values = []  # get touch sensor readings. if there is one, set value to 1
-        if self.touch_get_obs == 'boolean':
-            for touch_sensor_id, site_id in self._touch_sensor_id_site_id:
-                value = 1.0 if self.sim.data.sensordata[touch_sensor_id] != 0.0 else 0.0
-                touch_values.append(value)
-        elif self.touch_get_obs in ['sensordata', 'log']:
-            for touch_sensor_id, site_id in self._touch_sensor_id_site_id:
-                value = self.sim.data.sensordata[touch_sensor_id]
-                touch_values.append(value)
-            if self.touch_get_obs == 'log':
-                touch_values = np.log(np.array(touch_values) + 1.0)
+        if self.touch_get_obs == 'sensordata':
+            touch_values = self.sim.data.sensordata[self._touch_sensor_id]
+        elif self.touch_get_obs == 'boolean':
+            touch_values = self.sim.data.sensordata[self._touch_sensor_id] > 0.0
+        elif self.touch_get_obs == 'log':
+            touch_values = np.log(self.sim.data.sensordata[self._touch_sensor_id] + 1.0)
         observation = np.concatenate([robot_qpos, robot_qvel, object_qvel, touch_values, achieved_goal])
 
         return {
@@ -98,28 +96,34 @@ class ManipulateTouchSensorsEnv(manipulate.ManipulateEnv, utils.EzPickle):
 
 
 class HandBlockTouchSensorsEnv(ManipulateTouchSensorsEnv):
-    def __init__(self, target_position='random', target_rotation='xyz', reward_type='sparse'):
+    def __init__(self, target_position='random', target_rotation='xyz', touch_get_obs='sensordata', reward_type='sparse'):
         super(HandBlockTouchSensorsEnv, self).__init__(
-            model_path=MANIPULATE_BLOCK_XML, target_position=target_position,
+            model_path=MANIPULATE_BLOCK_XML,
+            touch_get_obs=touch_get_obs,
             target_rotation=target_rotation,
+            target_position=target_position,
             target_position_range=np.array([(-0.04, 0.04), (-0.06, 0.02), (0.0, 0.06)]),
             reward_type=reward_type)
 
 
 class HandEggTouchSensorsEnv(ManipulateTouchSensorsEnv):
-    def __init__(self, target_position='random', target_rotation='xyz', reward_type='sparse'):
+    def __init__(self, target_position='random', target_rotation='xyz', touch_get_obs='sensordata', reward_type='sparse'):
         super(HandEggTouchSensorsEnv, self).__init__(
-            model_path=MANIPULATE_EGG_XML, target_position=target_position,
+            model_path=MANIPULATE_EGG_XML,
+            touch_get_obs=touch_get_obs,
             target_rotation=target_rotation,
+            target_position=target_position,
             target_position_range=np.array([(-0.04, 0.04), (-0.06, 0.02), (0.0, 0.06)]),
             reward_type=reward_type)
 
 
 class HandPenTouchSensorsEnv(ManipulateTouchSensorsEnv):
-    def __init__(self, target_position='random', target_rotation='xyz', reward_type='sparse'):
+    def __init__(self, target_position='random', target_rotation='xyz', touch_get_obs='sensordata', reward_type='sparse'):
         super(HandPenTouchSensorsEnv, self).__init__(
-            model_path=MANIPULATE_PEN_XML, target_position=target_position,
+            model_path=MANIPULATE_PEN_XML,
+            touch_get_obs=touch_get_obs,
             target_rotation=target_rotation,
+            target_position=target_position,
             target_position_range=np.array([(-0.04, 0.04), (-0.06, 0.02), (0.0, 0.06)]),
             randomize_initial_rotation=False, reward_type=reward_type,
             ignore_z_target_rotation=True, distance_threshold=0.05)
