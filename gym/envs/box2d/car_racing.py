@@ -369,7 +369,7 @@ class CarRacing(gym.Env, EzPickle):
         else:
             pixel_scale = 1
             if hasattr(win.context, '_nscontext'):
-                pixel_scale = win.context._nscontext.view().backingScaleFactor()  # pylint: disable=protected-access
+                pixel_scale = int(win.context._nscontext.view().backingScaleFactor())  # pylint: disable=protected-access
             VP_W = pixel_scale * WINDOW_W
             VP_H = pixel_scale * WINDOW_H
 
