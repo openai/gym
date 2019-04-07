@@ -36,6 +36,8 @@ class Box(gym.Space):
     def sample(self):
         return gym.spaces.np_random.uniform(low=self.low, high=self.high + (0 if self.dtype.kind == 'f' else 1), size=self.low.shape).astype(self.dtype)
     def contains(self, x):
+        if isinstance(x, list):
+            x = np.array(x)  # Promote list to array for contains check
         return x.shape == self.shape and (x >= self.low).all() and (x <= self.high).all()
 
     def to_jsonable(self, sample_n):
