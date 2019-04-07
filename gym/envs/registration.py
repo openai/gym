@@ -125,9 +125,7 @@ class EnvRegistry(object):
             patch_deprecated_methods(env)
         if (env.spec.timestep_limit is not None) and not spec.tags.get('vnc'):
             from gym.wrappers.time_limit import TimeLimit
-            env = TimeLimit(env,
-                            max_episode_steps=env.spec.max_episode_steps,
-                            max_episode_seconds=env.spec.max_episode_seconds)
+            env = TimeLimit(env,max_episode_steps=env.spec.max_episode_steps)
         return env
 
 
