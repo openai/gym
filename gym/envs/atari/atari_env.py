@@ -8,27 +8,43 @@ from gym.utils import seeding
 try:
     import atari_py
 except ImportError as e:
-    raise error.DependencyNotInstalled("{}. (HINT: you can install Atari dependencies by running 'pip install gym[atari]'.)".format(e))
+    raise error.DependencyNotInstalled(
+            "{}. (HINT: you can install Atari dependencies by running "
+            "'pip install gym[atari]'.)".format(e))
+
 
 def to_ram(ale):
     ram_size = ale.getRAMSize()
-    ram = np.zeros((ram_size),dtype=np.uint8)
+    ram = np.zeros((ram_size), dtype=np.uint8)
     ale.getRAM(ram)
     return ram
+
 
 class AtariEnv(gym.Env, utils.EzPickle):
     metadata = {'render.modes': ['human', 'rgb_array']}
 
-    def __init__(self, game='pong', obs_type='ram', frameskip=(2, 5), repeat_action_probability=0.):
+    def __init__(
+            self,
+            game='pong',
+            obs_type='ram',
+            frameskip=(2, 5),
+            repeat_action_probability=0.,
+            full_action_space=False):
         """Frameskip should be either a tuple (indicating a random range to
         choose from, with the top value exclude), or an int."""
 
-        utils.EzPickle.__init__(self, game, obs_type)
+        utils.EzPickle.__init__(
+                self,
+                game,
+                obs_type,
+                frameskip,
+                repeat_action_probability)
         assert obs_type in ('ram', 'image')
 
         self.game_path = atari_py.get_game_path(game)
         if not os.path.exists(self.game_path):
-            raise IOError('You asked for game %s but path %s does not exist'%(game, self.game_path))
+            msg = 'You asked for game %s but path %s does not exist'
+            raise IOError(msg % (game, self.game_path))
         self._obs_type = obs_type
         self.frameskip = frameskip
         self.ale = atari_py.ALEInterface()
@@ -36,15 +52,19 @@ class AtariEnv(gym.Env, utils.EzPickle):
 
         # Tune (or disable) ALE's action repeat:
         # https://github.com/openai/gym/issues/349
-        assert isinstance(repeat_action_probability, (float, int)), "Invalid repeat_action_probability: {!r}".format(repeat_action_probability)
-        self.ale.setFloat('repeat_action_probability'.encode('utf-8'), repeat_action_probability)
+        assert isinstance(repeat_action_probability, (float, int)), \
+                "Invalid repeat_action_probability: {!r}".format(repeat_action_probability)
+        self.ale.setFloat(
+                'repeat_action_probability'.encode('utf-8'),
+                repeat_action_probability)
 
         self.seed()
 
-        self._action_set = self.ale.getMinimalActionSet()
+        self._action_set = (self.ale.getLegalActionSet() if full_action_space
+                            else self.ale.getMinimalActionSet())
         self.action_space = spaces.Discrete(len(self._action_set))
 
-        (screen_width,screen_height) = self.ale.getScreenDims()
+        (screen_width, screen_height) = self.ale.getScreenDims()
         if self._obs_type == 'ram':
             self.observation_space = spaces.Box(low=0, high=255, dtype=np.uint8, shape=(128,))
         elif self._obs_type == 'image':
@@ -170,23 +190,24 @@ class AtariEnv(gym.Env, utils.EzPickle):
         self.ale.restoreSystemState(state_ref)
         self.ale.deleteState(state_ref)
 
+
 ACTION_MEANING = {
-    0 : "NOOP",
-    1 : "FIRE",
-    2 : "UP",
-    3 : "RIGHT",
-    4 : "LEFT",
-    5 : "DOWN",
-    6 : "UPRIGHT",
-    7 : "UPLEFT",
-    8 : "DOWNRIGHT",
-    9 : "DOWNLEFT",
-    10 : "UPFIRE",
-    11 : "RIGHTFIRE",
-    12 : "LEFTFIRE",
-    13 : "DOWNFIRE",
-    14 : "UPRIGHTFIRE",
-    15 : "UPLEFTFIRE",
-    16 : "DOWNRIGHTFIRE",
-    17 : "DOWNLEFTFIRE",
+    0: "NOOP",
+    1: "FIRE",
+    2: "UP",
+    3: "RIGHT",
+    4: "LEFT",
+    5: "DOWN",
+    6: "UPRIGHT",
+    7: "UPLEFT",
+    8: "DOWNRIGHT",
+    9: "DOWNLEFT",
+    10: "UPFIRE",
+    11: "RIGHTFIRE",
+    12: "LEFTFIRE",
+    13: "DOWNFIRE",
+    14: "UPRIGHTFIRE",
+    15: "UPLEFTFIRE",
+    16: "DOWNRIGHTFIRE",
+    17: "DOWNLEFTFIRE",
 }

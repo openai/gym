@@ -1,20 +1,17 @@
 import gym
 import pygame
-import sys
-import time
 import matplotlib
+import argparse
+from gym import logger
 try:
-    matplotlib.use('GTK3Agg')
+    matplotlib.use('TkAgg')
     import matplotlib.pyplot as plt
-except Exception:
-    pass
-
-
-import pyglet.window as pw
+except ImportError as e:
+    logger.warn('failed to set matplotlib backend, plotting will not work: %s' % str(e))
+    plt = None
 
 from collections import deque
-from pygame.locals import HWSURFACE, DOUBLEBUF, RESIZABLE, VIDEORESIZE
-from threading import Thread
+from pygame.locals import VIDEORESIZE
 
 def display_arr(screen, arr, video_size, transpose):
     arr_min, arr_max = arr.min(), arr.max()
@@ -28,7 +25,7 @@ def play(env, transpose=True, fps=30, zoom=None, callback=None, keys_to_action=N
 
     To simply play the game use:
 
-        play(gym.make("Pong-v3"))
+        play(gym.make("Pong-v4"))
 
     Above code works also if env is wrapped, so it's particularly useful in
     verifying that the frame-level preprocessing does not render the game
@@ -38,12 +35,12 @@ def play(env, transpose=True, fps=30, zoom=None, callback=None, keys_to_action=N
     gym.utils.play.PlayPlot. Here's a sample code for plotting the reward
     for last 5 second of gameplay.
 
-        def callback(obs_t, obs_tp1, rew, done, info):
+        def callback(obs_t, obs_tp1, action, rew, done, info):
             return [rew,]
-        env_plotter = EnvPlotter(callback, 30 * 5, ["reward"])
+        plotter = PlayPlot(callback, 30 * 5, ["reward"])
 
-        env = gym.make("Pong-v3")
-        play(env, callback=env_plotter.callback)
+        env = gym.make("Pong-v4")
+        play(env, callback=plotter.callback)
 
 
     Arguments
@@ -65,7 +62,7 @@ def play(env, transpose=True, fps=30, zoom=None, callback=None, keys_to_action=N
             obs_tp1: observation after performing action
             action: action that was executed
             rew: reward that was received
-            done: whether the environemnt is done or not
+            done: whether the environment is done or not
             info: debug info
     keys_to_action: dict: tuple(int) -> int or None
         Mapping from keys pressed to action performed.
@@ -79,10 +76,8 @@ def play(env, transpose=True, fps=30, zoom=None, callback=None, keys_to_action=N
             }
         If None, default key_to_action mapping for that env is used, if provided.
     """
-
-    obs_s = env.observation_space
-    assert type(obs_s) == gym.spaces.box.Box
-    assert len(obs_s.shape) == 2 or (len(obs_s.shape) == 3 and obs_s.shape[2] in [1,3])
+    env.reset()
+    rendered=env.render( mode='rgb_array')
 
     if keys_to_action is None:
         if hasattr(env, 'get_keys_to_action'):
@@ -93,12 +88,8 @@ def play(env, transpose=True, fps=30, zoom=None, callback=None, keys_to_action=N
             assert False, env.spec.id + " does not have explicit key to action mapping, " + \
                           "please specify one manually"
     relevant_keys = set(sum(map(list, keys_to_action.keys()),[]))
-
-    if transpose:
-        video_size = env.observation_space.shape[1], env.observation_space.shape[0]
-    else:
-        video_size = env.observation_space.shape[0], env.observation_space.shape[1]
-
+    
+    video_size=[rendered.shape[1],rendered.shape[0]]
     if zoom is not None:
         video_size = int(video_size[0] * zoom), int(video_size[1] * zoom)
 
@@ -115,17 +106,14 @@ def play(env, transpose=True, fps=30, zoom=None, callback=None, keys_to_action=N
             env_done = False
             obs = env.reset()
         else:
-            action = keys_to_action[tuple(sorted(pressed_keys))]
+            action = keys_to_action.get(tuple(sorted(pressed_keys)), 0)
             prev_obs = obs
             obs, rew, env_done, info = env.step(action)
             if callback is not None:
                 callback(prev_obs, obs, action, rew, env_done, info)
         if obs is not None:
-            if len(obs.shape) == 2:
-                obs = obs[:, :, None]
-            if obs.shape[2] == 1:
-                obs = obs.repeat(3, axis=2)
-            display_arr(screen, obs, transpose=transpose, video_size=video_size)
+            rendered=env.render( mode='rgb_array')
+            display_arr(screen, rendered, transpose=transpose, video_size=video_size)
 
         # process pygame events
         for event in pygame.event.get():
@@ -155,6 +143,8 @@ class PlayPlot(object):
         self.horizon_timesteps = horizon_timesteps
         self.plot_names = plot_names
 
+        assert plt is not None, "matplotlib backend failed, plotting will not work"
+
         num_plots = len(self.plot_names)
         self.fig, self.ax = plt.subplots(num_plots)
         if num_plots == 1:
@@ -176,11 +166,16 @@ class PlayPlot(object):
         for i, plot in enumerate(self.cur_plot):
             if plot is not None:
                 plot.remove()
-            self.cur_plot[i] = self.ax[i].scatter(range(xmin, xmax), list(self.data[i]))
+            self.cur_plot[i] = self.ax[i].scatter(range(xmin, xmax), list(self.data[i]), c='blue')
             self.ax[i].set_xlim(xmin, xmax)
         plt.pause(0.000001)
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--env', type=str, default='MontezumaRevengeNoFrameskip-v4', help='Define Environment')
+    args = parser.parse_args()
+    env = gym.make(args.env)
+    play(env, zoom=4, fps=60)
 
 
 if __name__ == '__main__':
-    env = gym.make("MontezumaRevengeNoFrameskip-v4")
-    play(env, zoom=4, fps=60)
+    main()

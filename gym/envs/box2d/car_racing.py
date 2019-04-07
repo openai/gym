@@ -7,7 +7,7 @@ from Box2D.b2 import (edgeShape, circleShape, fixtureDef, polygonShape, revolute
 import gym
 from gym import spaces
 from gym.envs.box2d.car_dynamics import Car
-from gym.utils import colorize, seeding
+from gym.utils import colorize, seeding, EzPickle
 
 import pyglet
 from pyglet import gl
@@ -43,8 +43,8 @@ STATE_W = 96   # less than Atari 160x192
 STATE_H = 96
 VIDEO_W = 600
 VIDEO_H = 400
-WINDOW_W = 1200
-WINDOW_H = 1000
+WINDOW_W = 1000
+WINDOW_H = 800
 
 SCALE       = 6.0        # Track scale
 TRACK_RAD   = 900/SCALE  # Track is heavily morphed circle with this radius
@@ -98,13 +98,14 @@ class FrictionDetector(contactListener):
             obj.tiles.remove(tile)
             #print tile.road_friction, "DEL", len(obj.tiles) -- should delete to zero when on grass (this works)
 
-class CarRacing(gym.Env):
+class CarRacing(gym.Env, EzPickle):
     metadata = {
         'render.modes': ['human', 'rgb_array', 'state_pixels'],
         'video.frames_per_second' : FPS
     }
 
-    def __init__(self):
+    def __init__(self, verbose=1):
+        EzPickle.__init__(self)
         self.seed()
         self.contactListener_keepref = FrictionDetector(self)
         self.world = Box2D.b2World((0,0), contactListener=self.contactListener_keepref)
@@ -115,8 +116,9 @@ class CarRacing(gym.Env):
         self.car = None
         self.reward = 0.0
         self.prev_reward = 0.0
+        self.verbose = verbose
 
-        self.action_space = spaces.Box( np.array([-1,0,0]), np.array([+1,+1,+1]))  # steer, gas, brake
+        self.action_space = spaces.Box( np.array([-1,0,0]), np.array([+1,+1,+1]), dtype=np.float32)  # steer, gas, brake
         self.observation_space = spaces.Box(low=0, high=255, shape=(STATE_H, STATE_W, 3), dtype=np.uint8)
 
     def seed(self, seed=None):
@@ -213,7 +215,8 @@ class CarRacing(gym.Env):
             elif pass_through_start and i1==-1:
                 i1 = i
                 break
-        print("Track generation: %i..%i -> %i-tiles track" % (i1, i2, i2-i1))
+        if self.verbose == 1:
+            print("Track generation: %i..%i -> %i-tiles track" % (i1, i2, i2-i1))
         assert i1!=-1
         assert i2!=-1
 
@@ -281,12 +284,12 @@ class CarRacing(gym.Env):
         self.tile_visited_count = 0
         self.t = 0.0
         self.road_poly = []
-        self.human_render = False
 
         while True:
             success = self._create_track()
             if success: break
-            print("retry to generate track (normal if there are not many of this messages)")
+            if self.verbose == 1:
+                print("retry to generate track (normal if there are not many of this messages)")
         self.car = Car(self.world, *self.track[0][1:4])
 
         return self.step(None)[0]
@@ -301,7 +304,7 @@ class CarRacing(gym.Env):
         self.world.Step(1.0/FPS, 6*30, 2*30)
         self.t += 1.0/FPS
 
-        self.state = self._render("state_pixels")
+        self.state = self.render("state_pixels")
 
         step_reward = 0
         done = False
@@ -322,6 +325,7 @@ class CarRacing(gym.Env):
         return self.state, step_reward, done, {}
 
     def render(self, mode='human'):
+        assert mode in ['human', 'state_pixels', 'rgb_array']
         if self.viewer is None:
             from gym.envs.classic_control import rendering
             self.viewer = rendering.Viewer(WINDOW_W, WINDOW_H)
@@ -351,47 +355,42 @@ class CarRacing(gym.Env):
 
         arr = None
         win = self.viewer.window
-        if mode != 'state_pixels':
-            win.switch_to()
-            win.dispatch_events()
-        if mode=="rgb_array" or mode=="state_pixels":
-            win.clear()
-            t = self.transform
-            if mode=='rgb_array':
-                VP_W = VIDEO_W
-                VP_H = VIDEO_H
-            else:
-                VP_W = STATE_W
-                VP_H = STATE_H
-            gl.glViewport(0, 0, VP_W, VP_H)
-            t.enable()
-            self._render_road()
-            for geom in self.viewer.onetime_geoms:
-                geom.render()
-            t.disable()
-            self._render_indicators(WINDOW_W, WINDOW_H)  # TODO: find why 2x needed, wtf
-            image_data = pyglet.image.get_buffer_manager().get_color_buffer().get_image_data()
-            arr = np.fromstring(image_data.data, dtype=np.uint8, sep='')
-            arr = arr.reshape(VP_H, VP_W, 4)
-            arr = arr[::-1, :, 0:3]
+        win.switch_to()
+        win.dispatch_events()
 
-        if mode=="rgb_array" and not self.human_render: # agent can call or not call env.render() itself when recording video.
-            win.flip()
+        win.clear()
+        t = self.transform
+        if mode=='rgb_array':
+            VP_W = VIDEO_W
+            VP_H = VIDEO_H
+        elif mode == 'state_pixels':
+            VP_W = STATE_W
+            VP_H = STATE_H
+        else:
+            pixel_scale = 1
+            if hasattr(win.context, '_nscontext'):
+                pixel_scale = win.context._nscontext.view().backingScaleFactor()  # pylint: disable=protected-access
+            VP_W = int(pixel_scale * WINDOW_W)
+            VP_H = int(pixel_scale * WINDOW_H)
 
-        if mode=='human':
-            self.human_render = True
-            win.clear()
-            t = self.transform
-            gl.glViewport(0, 0, WINDOW_W, WINDOW_H)
-            t.enable()
-            self._render_road()
-            for geom in self.viewer.onetime_geoms:
-                geom.render()
-            t.disable()
-            self._render_indicators(WINDOW_W, WINDOW_H)
-            win.flip()
-
+        gl.glViewport(0, 0, VP_W, VP_H)
+        t.enable()
+        self.render_road()
+        for geom in self.viewer.onetime_geoms:
+            geom.render()
         self.viewer.onetime_geoms = []
+        t.disable()
+        self.render_indicators(WINDOW_W, WINDOW_H)
+
+        if mode == 'human':
+            win.flip()
+            return self.viewer.isopen
+
+        image_data = pyglet.image.get_buffer_manager().get_color_buffer().get_image_data()
+        arr = np.fromstring(image_data.data, dtype=np.uint8, sep='')
+        arr = arr.reshape(VP_H, VP_W, 4)
+        arr = arr[::-1, :, 0:3]
+
         return arr
 
     def close(self):
@@ -471,12 +470,14 @@ if __name__=="__main__":
         if k==key.DOWN:  a[2] = 0
     env = CarRacing()
     env.render()
-    record_video = False
-    if record_video:
-        env.monitor.start('/tmp/video-test', force=True)
     env.viewer.window.on_key_press = key_press
     env.viewer.window.on_key_release = key_release
-    while True:
+    record_video = False
+    if record_video:
+        from gym.wrappers.monitor import Monitor
+        env = Monitor(env, '/tmp/video-test', force=True)
+    isopen = True
+    while isopen:
         env.reset()
         total_reward = 0.0
         steps = 0
@@ -491,7 +492,6 @@ if __name__=="__main__":
                 #plt.imshow(s)
                 #plt.savefig("test.jpeg")
             steps += 1
-            if not record_video: # Faster, but you can as well call env.render() every time to play full window.
-                env.render()
-            if done or restart: break
+            isopen = env.render()
+            if done or restart or isopen == False: break
     env.close()

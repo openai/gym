@@ -15,10 +15,7 @@
 
 		<include file="robot.xml"></include>
 		
-		<body name="table0" pos="0.625 0.45 0.2">
-			<joint name="table0:slide0" axis="1 0 0" type="slide" damping="0.5" pos="0 0 0"></joint>
-			<joint name="table0:slide1" axis="0 1 0" type="slide" damping="0.5" pos="0 0 0"></joint>
-			<joint name="table0:slide2" axis="0 0 1" type="slide" damping="0.5" pos="0 0 0"></joint>
+		<body name="table0" pos="1.32441906 0.75018422 0.2">
 			<geom size="0.625 0.45 0.2" type="box" condim="3" name="table0" material="table_mat" mass="2000" friction="0.1 0.005 0.0001"></geom>
 		</body>
 

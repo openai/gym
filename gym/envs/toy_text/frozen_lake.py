@@ -1,5 +1,7 @@
-import numpy as np
 import sys
+from contextlib import closing
+
+import numpy as np
 from six import StringIO, b
 
 from gym import utils
@@ -28,6 +30,47 @@ MAPS = {
         "FFFHFFFG"
     ],
 }
+
+
+def generate_random_map(size=8, p=0.8):
+    """Generates a random valid map (one that has a path from start to goal)
+    :param size: size of each side of the grid
+    :param p: probability that a tile is frozen
+    """
+    valid = False
+
+    # BFS to check that it's a valid path.
+    def is_valid(arr, r=0, c=0):
+        if arr[r][c] == 'G':
+            return True
+
+        tmp = arr[r][c]
+        arr[r][c] = "#"
+
+        # Recursively check in all four directions.
+        directions = [(1, 0), (0, 1), (-1, 0), (0, -1)]
+        for x, y in directions:
+            r_new = r + x
+            c_new = c + y
+            if r_new < 0 or r_new >= size or c_new < 0 or c_new >= size:
+                continue
+
+            if arr[r_new][c_new] not in '#H':
+                if is_valid(arr, r_new, c_new):
+                    arr[r][c] = tmp
+                    return True
+
+        arr[r][c] = tmp
+        return False
+
+    while not valid:
+        p = min(1, p)
+        res = np.random.choice(['F', 'H'], (size, size), p=[p, 1-p])
+        res[0][0] = 'S'
+        res[-1][-1] = 'G'
+        valid = is_valid(res)
+    return ["".join(x) for x in res]
+
 
 class FrozenLakeEnv(discrete.DiscreteEnv):
     """
@@ -59,7 +102,7 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
 
     def __init__(self, desc=None, map_name="4x4",is_slippery=True):
         if desc is None and map_name is None:
-            raise ValueError('Must provide either desc or map_name')
+            desc = generate_random_map()
         elif desc is None:
             desc = MAPS[map_name]
         self.desc = desc = np.asarray(desc,dtype='c')
@@ -78,13 +121,13 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
             return row*ncol + col
         
         def inc(row, col, a):
-            if a==0: # left
+            if a == LEFT:
                 col = max(col-1,0)
-            elif a==1: # down
+            elif a == DOWN:
                 row = min(row+1,nrow-1)
-            elif a==2: # right
+            elif a == RIGHT:
                 col = min(col+1,ncol-1)
-            elif a==3: # up
+            elif a == UP:
                 row = max(row-1,0)
             return (row, col)
 
@@ -129,4 +172,5 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
         outfile.write("\n".join(''.join(line) for line in desc)+"\n")
 
         if mode != 'human':
-            return outfile
+            with closing(outfile):
+                return outfile.getvalue()

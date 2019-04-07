@@ -54,7 +54,7 @@ if __name__ == '__main__':
     env = gym.make(args.target)
     env.seed(0)
     np.random.seed(0)
-    params = dict(n_iter=10, batch_size=25, elite_frac = 0.2)
+    params = dict(n_iter=10, batch_size=25, elite_frac=0.2)
     num_steps = 200
 
     # You provide the directory to write to (can be an existing

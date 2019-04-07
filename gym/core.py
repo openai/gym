@@ -1,5 +1,4 @@
 from gym import logger
-import numpy as np
 
 import gym
 from gym import error
@@ -7,7 +6,6 @@ from gym.utils import closer
 
 env_closer = closer.Closer()
 
-# Env-related abstractions
 
 class Env(object):
     """The main OpenAI Gym class. It encapsulates an environment with
@@ -37,7 +35,7 @@ class Env(object):
 
     # Set this in SOME subclasses
     metadata = {'render.modes': []}
-    reward_range = (-np.inf, np.inf)
+    reward_range = (-float('inf'), float('inf'))
     spec = None
 
     # Set these in ALL subclasses
@@ -93,7 +91,6 @@ class Env(object):
 
         Args:
             mode (str): the mode to render with
-            close (bool): close all open renderings
 
         Example:
 
@@ -151,6 +148,14 @@ class Env(object):
         else:
             return '<{}<{}>>'.format(type(self).__name__, self.spec.id)
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        self.close()
+        # propagate exception
+        return False
+
 
 class GoalEnv(Env):
     """A goal-based environment. It functions just as any regular OpenAI Gym environment but it
@@ -191,41 +196,6 @@ class GoalEnv(Env):
         """
         raise NotImplementedError()
 
-# Space-related abstractions
-
-class Space(object):
-    """Defines the observation and action spaces, so you can write generic
-    code that applies to any Env. For example, you can choose a random
-    action.
-    """
-    def __init__(self, shape=None, dtype=None):
-        self.shape = None if shape is None else tuple(shape)
-        self.dtype = None if dtype is None else np.dtype(dtype)
-
-    def sample(self):
-        """
-        Uniformly randomly sample a random element of this space
-        """
-        raise NotImplementedError
-
-    def contains(self, x):
-        """
-        Return boolean specifying if x is a valid
-        member of this space
-        """
-        raise NotImplementedError
-
-    def to_jsonable(self, sample_n):
-        """Convert a batch of samples from this space to a JSONable data type."""
-        # By default, assume identity is JSONable
-        return sample_n
-
-    def from_jsonable(self, sample_n):
-        """Convert a JSONable data type to a batch of samples from this space."""
-        # By default, assume identity is JSONable
-        return sample_n
-
-
 warn_once = True
 
 def deprecated_warn_once(text):
@@ -244,21 +214,16 @@ class Wrapper(Env):
         self.observation_space = self.env.observation_space
         self.reward_range = self.env.reward_range
         self.metadata = self.env.metadata
-        self._warn_double_wrap()
+        self.spec = self.env.spec
+
+    def __getattr__(self, name):
+        if name.startswith('_'):
+            raise AttributeError("attempted to get missing private attribute '{}'".format(name))
+        return getattr(self.env, name)
 
     @classmethod
     def class_name(cls):
         return cls.__name__
-
-    def _warn_double_wrap(self):
-        env = self.env
-        while True:
-            if isinstance(env, Wrapper):
-                if env.class_name() == self.class_name():
-                    raise error.DoubleWrapperError("Attempted to double wrap with Wrapper: {}".format(self.__class__.__name__))
-                env = env.env
-            else:
-                break
 
     def step(self, action):
         if hasattr(self, "_step"):
@@ -280,12 +245,11 @@ class Wrapper(Env):
                 "which is required for wrappers derived directly from Wrapper. Deprecated default implementation is used.")
             return self.env.reset(**kwargs)
 
-    def render(self, mode='human'):
-        return self.env.render(mode)
+    def render(self, mode='human', **kwargs):
+        return self.env.render(mode, **kwargs)
 
     def close(self):
-        if self.env:
-            return self.env.close()
+        return self.env.close()
 
     def seed(self, seed=None):
         return self.env.seed(seed)
@@ -303,10 +267,6 @@ class Wrapper(Env):
     def unwrapped(self):
         return self.env.unwrapped
 
-    @property
-    def spec(self):
-        return self.env.spec
-
 
 class ObservationWrapper(Wrapper):
     def step(self, action):
@@ -323,8 +283,8 @@ class ObservationWrapper(Wrapper):
 
 
 class RewardWrapper(Wrapper):
-    def reset(self):
-        return self.env.reset()
+    def reset(self, **kwargs):
+        return self.env.reset(**kwargs)
 
     def step(self, action):
         observation, reward, done, info = self.env.step(action)
@@ -336,12 +296,12 @@ class RewardWrapper(Wrapper):
 
 
 class ActionWrapper(Wrapper):
+    def reset(self, **kwargs):
+        return self.env.reset(**kwargs)
+
     def step(self, action):
         action = self.action(action)
         return self.env.step(action)
-
-    def reset(self):
-        return self.env.reset()
 
     def action(self, action):
         deprecated_warn_once("%s doesn't implement 'action' method. Maybe it implements deprecated '_action' method." % type(self))

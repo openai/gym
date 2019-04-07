@@ -181,8 +181,9 @@ class TextEncoder(object):
         self.frames = []
 
     def capture_frame(self, frame):
+        from six import string_types
         string = None
-        if isinstance(frame, str):
+        if isinstance(frame, string_types):
             string = frame
         elif isinstance(frame, StringIO):
             string = frame.getvalue()
@@ -240,7 +241,7 @@ class ImageEncoder(object):
         # Frame shape should be lines-first, so w and h are swapped
         h, w, pixfmt = frame_shape
         if pixfmt != 3 and pixfmt != 4:
-            raise error.InvalidFrame("Your frame has shape {}, but we require (w,h,3) or (w,h,4), i.e. RGB values for a w-by-h image, with an optional alpha channl.".format(frame_shape))
+            raise error.InvalidFrame("Your frame has shape {}, but we require (w,h,3) or (w,h,4), i.e., RGB values for a w-by-h image, with an optional alpha channel.".format(frame_shape))
         self.wh = (w,h)
         self.includes_alpha = (pixfmt == 4)
         self.frame_shape = frame_shape
@@ -278,6 +279,7 @@ class ImageEncoder(object):
                      '-i', '-', # this used to be /dev/stdin, which is not Windows-friendly
 
                      # output
+                     '-vf', 'scale=trunc(iw/2)*2:trunc(ih/2)*2',
                      '-vcodec', 'libx264',
                      '-pix_fmt', 'yuv420p',
                      self.output_path

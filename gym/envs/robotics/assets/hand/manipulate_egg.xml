@@ -12,6 +12,7 @@
 
         <texture name="texture:object" file="block.png" gridsize="3 4" gridlayout=".U..LFRB.D.."></texture>
         <texture name="texture:hidden" file="block_hidden.png" gridsize="3 4" gridlayout=".U..LFRB.D.."></texture>
+
         <material name="material:object" texture="texture:object" specular="1" shininess="0.3" reflectance="0"></material>
         <material name="material:hidden" texture="texture:hidden" specular="1" shininess="0.3" reflectance="0"></material>
         <material name="material:target" texture="texture:object" specular="1" shininess="0.3" reflectance="0" rgba="1 1 1 0.5"></material>

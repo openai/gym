@@ -11,18 +11,27 @@ if "Apple" in sys.version:
         os.environ['DYLD_FALLBACK_LIBRARY_PATH'] += ':/usr/lib'
         # (JDS 2016/04/15): avoid bug on Anaconda 2.3.0 / Yosemite
 
-from gym.utils import reraise
 from gym import error
 
 try:
     import pyglet
 except ImportError as e:
-    reraise(suffix="HINT: you can install pyglet directly via 'pip install pyglet'. But if you really just want to install all Gym dependencies and not have to think about it, 'pip install -e .[all]' or 'pip install gym[all]' will do it.")
+    raise ImportError('''
+    Cannot import pyglet.
+    HINT: you can install pyglet directly via 'pip install pyglet'.
+    But if you really just want to install all Gym dependencies and not have to think about it,
+    'pip install -e .[all]' or 'pip install gym[all]' will do it.
+    ''')
 
 try:
     from pyglet.gl import *
 except ImportError as e:
-    reraise(prefix="Error occured while running `from pyglet.gl import *`",suffix="HINT: make sure you have OpenGL install. On Ubuntu, you can run 'apt-get install python-opengl'. If you're running on a server, you may need a virtual frame buffer; something like this should work: 'xvfb-run -s \"-screen 0 1400x900x24\" python <your_script.py>'")
+    raise ImportError('''
+    Error occured while running `from pyglet.gl import *`
+    HINT: make sure you have OpenGL install. On Ubuntu, you can run 'apt-get install python-opengl'.
+    If you're running on a server, you may need a virtual frame buffer; something like this should work:
+    'xvfb-run -s \"-screen 0 1400x900x24\" python <your_script.py>'
+    ''')
 
 import math
 import numpy as np
@@ -93,7 +102,7 @@ class Viewer(object):
         if return_rgb_array:
             buffer = pyglet.image.get_buffer_manager().get_color_buffer()
             image_data = buffer.get_image_data()
-            arr = np.fromstring(image_data.data, dtype=np.uint8, sep='')
+            arr = np.frombuffer(image_data.data, dtype=np.uint8)
             # In https://github.com/openai/gym-http-api/issues/2, we
             # discovered that someone using Xmonad on Arch was having
             # a window of size 598 x 398, though a 600 x 400 window
@@ -310,14 +319,20 @@ class Image(Geom):
 # ================================================================
 
 class SimpleImageViewer(object):
-    def __init__(self, display=None):
+    def __init__(self, display=None, maxwidth=500):
         self.window = None
         self.isopen = False
         self.display = display
+        self.maxwidth = maxwidth
     def imshow(self, arr):
         if self.window is None:
             height, width, _channels = arr.shape
-            self.window = pyglet.window.Window(width=4*width, height=4*height, display=self.display, vsync=False, resizable=True)
+            if width > self.maxwidth:
+                scale = self.maxwidth / width
+                width = int(scale * width)
+                height = int(scale * height)
+            self.window = pyglet.window.Window(width=width, height=height, 
+                display=self.display, vsync=False, resizable=True)            
             self.width = width
             self.height = height
             self.isopen = True
@@ -332,14 +347,21 @@ class SimpleImageViewer(object):
                 self.isopen = False
 
         assert len(arr.shape) == 3, "You passed in an image with the wrong number shape"
-        image = pyglet.image.ImageData(arr.shape[1], arr.shape[0], 'RGB', arr.tobytes(), pitch=arr.shape[1]*-3)
+        image = pyglet.image.ImageData(arr.shape[1], arr.shape[0], 
+            'RGB', arr.tobytes(), pitch=arr.shape[1]*-3)
+        gl.glTexParameteri(gl.GL_TEXTURE_2D, 
+            gl.GL_TEXTURE_MAG_FILTER, gl.GL_NEAREST)
+        texture = image.get_texture()
+        texture.width = self.width
+        texture.height = self.height
         self.window.clear()
         self.window.switch_to()
         self.window.dispatch_events()
-        image.blit(0, 0, width=self.window.width, height=self.window.height)
+        texture.blit(0, 0) # draw
         self.window.flip()
     def close(self):
-        if self.isopen:
+        if self.isopen and sys.meta_path:
+            # ^^^ check sys.meta_path to avoid 'ImportError: sys.meta_path is None, Python is likely shutting down'
             self.window.close()
             self.isopen = False
 

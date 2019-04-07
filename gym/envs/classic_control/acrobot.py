@@ -1,8 +1,9 @@
 """classic Acrobot task"""
-from gym import core, spaces
-from gym.utils import seeding
 import numpy as np
 from numpy import sin, cos, pi
+
+from gym import core, spaces
+from gym.utils import seeding
 
 __copyright__ = "Copyright 2013, RLPy http://acl.mit.edu/RLPy"
 __credits__ = ["Alborz Geramifard", "Robert H. Klein", "Christoph Dann",
@@ -16,8 +17,8 @@ __author__ = "Christoph Dann <cdann@cdann.de>"
 class AcrobotEnv(core.Env):
 
     """
-    Acrobot is a 2-link pendulum with only the second joint actuated
-    Intitially, both links point downwards. The goal is to swing the
+    Acrobot is a 2-link pendulum with only the second joint actuated.
+    Initially, both links point downwards. The goal is to swing the
     end-effector at a height at least the length of one link above the base.
     Both links can swing freely and can pass by each other, i.e., they don't
     collide when they have the same angle.
@@ -86,7 +87,7 @@ class AcrobotEnv(core.Env):
         self.viewer = None
         high = np.array([1.0, 1.0, 1.0, 1.0, self.MAX_VEL_1, self.MAX_VEL_2])
         low = -high
-        self.observation_space = spaces.Box(low=low, high=high)
+        self.observation_space = spaces.Box(low=low, high=high, dtype=np.float32)
         self.action_space = spaces.Discrete(3)
         self.state = None
         self.seed()
@@ -179,7 +180,8 @@ class AcrobotEnv(core.Env):
 
         if self.viewer is None:
             self.viewer = rendering.Viewer(500,500)
-            self.viewer.set_bounds(-2.2,2.2,-2.2,2.2)
+            bound = self.LINK_LENGTH_1 + self.LINK_LENGTH_2 + 0.2  # 2.2 for default
+            self.viewer.set_bounds(-bound,bound,-bound,bound)
 
         if s is None: return None
 
@@ -191,10 +193,11 @@ class AcrobotEnv(core.Env):
 
         xys = np.array([[0,0], p1, p2])[:,::-1]
         thetas = [s[0]-np.pi/2, s[0]+s[1]-np.pi/2]
+        link_lengths = [self.LINK_LENGTH_1, self.LINK_LENGTH_2]
 
         self.viewer.draw_line((-2.2, 1), (2.2, 1))
-        for ((x,y),th) in zip(xys, thetas):
-            l,r,t,b = 0, 1, .1, -.1
+        for ((x,y),th,llen) in zip(xys, thetas, link_lengths):
+            l,r,t,b = 0, llen, .1, -.1
             jtransform = rendering.Transform(rotation=th, translation=(x,y))
             link = self.viewer.draw_polygon([(l,b), (l,t), (r,t), (r,b)])
             link.add_attr(jtransform)
@@ -206,7 +209,9 @@ class AcrobotEnv(core.Env):
         return self.viewer.render(return_rgb_array = mode=='rgb_array')
 
     def close(self):
-        if self.viewer: self.viewer.close()
+        if self.viewer:
+            self.viewer.close()
+            self.viewer = None
 
 def wrap(x, m, M):
     """
