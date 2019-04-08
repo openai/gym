@@ -109,8 +109,8 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         self.do_simulation(action, self.frame_skip)
         xy_position_after = mass_center(self.model, self.sim)
 
-        x_velocity = ((xy_position_after[0] - xy_position_before[0])
-                      / self.dt)
+        xy_velocity = (xy_position_after - xy_position_before) / self.dt
+        x_velocity, y_velocity = xy_velocity
 
         ctrl_cost = self.control_cost(action)
         contact_cost = self.contact_cost
