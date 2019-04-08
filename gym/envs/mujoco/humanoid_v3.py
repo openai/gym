@@ -20,7 +20,7 @@ def mass_center(model, sim):
 class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     def __init__(self,
                  xml_file='humanoid.xml',
-                 forward_reward_weight=0.25,
+                 forward_reward_weight=1.25,
                  ctrl_cost_weight=0.1,
                  contact_cost_weight=5e-7,
                  contact_cost_range=(-np.inf, 10.0),
@@ -109,11 +109,8 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         self.do_simulation(action, self.frame_skip)
         xy_position_after = mass_center(self.model, self.sim)
 
-        xy_velocity = (xy_position_after - xy_position_before) / self.dt
-        x_velocity, y_velocity = xy_velocity
-
         x_velocity = ((xy_position_after[0] - xy_position_before[0])
-                      / self.model.opt.timestep)
+                      / self.dt)
 
         ctrl_cost = self.control_cost(action)
         contact_cost = self.contact_cost
