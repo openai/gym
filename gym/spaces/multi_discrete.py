@@ -36,6 +36,8 @@ class MultiDiscrete(Space):
         return (self.np_random.random_sample(self.nvec.shape)*self.nvec).astype(self.dtype)
 
     def contains(self, x):
+        if isinstance(x, list):
+            x = np.array(x)  # Promote list to array for contains check
         # if nvec is uint32 and space dtype is uint32, then 0 <= x < self.nvec guarantees that x
         # is within correct bounds for space dtype (even though x does not have to be unsigned)
         return (0 <= x).all() and (x < self.nvec).all()
