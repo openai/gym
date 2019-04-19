@@ -26,9 +26,9 @@ def verify_environments_match(old_environment_id,
         new_observation, new_reward, new_done, new_info = new_environment.step(
             action)
 
-        np.testing.assert_allclose(old_observation, new_observation)
-        np.testing.assert_allclose(old_reward, new_reward)
-        np.testing.assert_allclose(old_done, new_done)
+        np.testing.assert_allclose(old_observation, new_observation, atol=1e-6)
+        np.testing.assert_allclose(old_reward, new_reward, atol=1e-6)
+        np.testing.assert_allclose(old_done, new_done, atol=1e-6)
 
         for key in old_info:
             np.testing.assert_array_equal(old_info[key], new_info[key])
