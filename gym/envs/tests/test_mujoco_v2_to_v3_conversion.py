@@ -32,7 +32,7 @@ def verify_environments_match(old_environment_id,
         np.testing.assert_allclose(old_done, new_done, atol=eps)
 
         for key in old_info:
-            np.testing.assert_array_equal(old_info[key], new_info[key], atol=eps)
+            np.testing.assert_allclose(old_info[key], new_info[key], atol=eps)
 
 
 @unittest.skipIf(skip_mujoco, 'Cannot run mujoco key ' +
