@@ -11,4 +11,4 @@ Learn more here: https://github.com/ngc92/space-wrappers
 ## Utility wrappers for Atari Games
 The baseline repository contains wrappers that are used when doing Atari 
 experiments. 
-These can be found here: https://github.com/openai/baselines/blob/master/baselines/common/atari_wrappers_deprecated.py
+These can be found here: https://github.com/openai/baselines/blob/master/baselines/common/atari_wrappers.py
