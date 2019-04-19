@@ -38,7 +38,7 @@ class EnvSpec(object):
         trials (int): The number of trials run in official evaluation
     """
 
-    def __init__(self, id, entry_point=None, trials=100, reward_threshold=None, local_only=False, kwargs=None, nondeterministic=False, tags=None, max_episode_steps=None, max_episode_seconds=None, timestep_limit=None):
+    def __init__(self, id, entry_point=None, trials=100, reward_threshold=None, local_only=False, kwargs=None, nondeterministic=False, tags=None, max_episode_steps=None):
         self.id = id
         # Evaluation parameters
         self.trials = trials
@@ -50,21 +50,9 @@ class EnvSpec(object):
             tags = {}
         self.tags = tags
 
-        # BACKWARDS COMPAT 2017/1/18
-        if tags.get('wrapper_config.TimeLimit.max_episode_steps'):
-            max_episode_steps = tags.get('wrapper_config.TimeLimit.max_episode_steps')
-            warnings.warn("DEPRECATION WARNING wrapper_config.TimeLimit has been deprecated. Replace any calls to `register(tags={'wrapper_config.TimeLimit.max_episode_steps': 200)}` with `register(max_episode_steps=200)`. This change was made 2017/1/31 and is included in gym version 0.8.0. If you are getting many of these warnings, you may need to update switch from universe 0.21.3 to retro (https://github.com/openai/retro)")
-
         tags['wrapper_config.TimeLimit.max_episode_steps'] = max_episode_steps
-        ######
-
-        # BACKWARDS COMPAT 2017/1/31
-        if timestep_limit is not None:
-            max_episode_steps = timestep_limit
-            warnings.warn("register(timestep_limit={}) is deprecated. Use register(max_episode_steps={}) instead.".format(timestep_limit, timestep_limit))
-
+        
         self.max_episode_steps = max_episode_steps
-        self.max_episode_seconds = max_episode_seconds
 
         # We may make some of these other parameters public if they're
         # useful.
@@ -96,14 +84,6 @@ class EnvSpec(object):
     def __repr__(self):
         return "EnvSpec({})".format(self.id)
 
-    @property
-    def timestep_limit(self):
-        return self.max_episode_steps
-
-    @timestep_limit.setter
-    def timestep_limit(self, value):
-        self.max_episode_steps = value
-
 
 class EnvRegistry(object):
     """Register an env by ID. IDs remain stable over time and are
@@ -129,13 +109,10 @@ class EnvRegistry(object):
         # compatibility code to be invoked.
         if hasattr(env, "_reset") and hasattr(env, "_step") and not getattr(env, "_gym_disable_underscore_compat", False):
             patch_deprecated_methods(env)
-        if (env.spec.timestep_limit is not None) and not spec.tags.get('vnc'):
+        if (env.spec.max_episode_steps is not None) and not spec.tags.get('vnc'):
             from gym.wrappers.time_limit import TimeLimit
-            env = TimeLimit(env,
-                            max_episode_steps=env.spec.max_episode_steps,
-                            max_episode_seconds=env.spec.max_episode_seconds)
+            env = TimeLimit(env, max_episode_steps=env.spec.max_episode_steps)
         return env
-
 
     def all(self):
         return self.env_specs.values()
