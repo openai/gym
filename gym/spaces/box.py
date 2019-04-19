@@ -42,6 +42,8 @@ class Box(Space):
         return self.np_random.uniform(low=self.low, high=high, size=self.shape).astype(self.dtype)
 
     def contains(self, x):
+        if isinstance(x, list):
+            x = np.array(x)  # Promote list to array for contains check
         return x.shape == self.shape and np.all(x >= self.low) and np.all(x <= self.high)
 
     def to_jsonable(self, sample_n):

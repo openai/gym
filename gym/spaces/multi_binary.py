@@ -11,6 +11,8 @@ class MultiBinary(Space):
         return self.np_random.randint(low=0, high=2, size=self.n, dtype=self.dtype)
 
     def contains(self, x):
+        if isinstance(x, list):
+            x = np.array(x)  # Promote list to array for contains check
         return ((x==0) | (x==1)).all()
 
     def to_jsonable(self, sample_n):
