@@ -45,4 +45,5 @@ setup(name='gym',
         'envs/robotics/assets/textures/*.png']
       },
       tests_require=['pytest', 'mock'],
+      python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*',
 )
