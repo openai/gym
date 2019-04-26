@@ -144,6 +144,12 @@ Learn more here: https://github.com/openai/retro
 
 The gym comes prepackaged with many many environments. It's this common API around many environments that makes Gym so great. Here we will list additional environments that do not come prepacked with the gym. Submit another to this list via a pull-request. 
 
+### Pybullet Robotics Environments
+
+3D physics environments like the Mujoco environments but uses the Bullet physics engine and does not require a commercial license.  Works on Mac/Linux/Windows.
+
+Learn more here: https://docs.google.com/document/d/10sXEhzFRSnvFcl3XxNGhnD4N2SedqwdAvK3dsihxVUA/edit#heading=h.wz5to0x8kqmr
+
 ### Obstacle Tower
 
 3D procedurally generated tower where you have to climb to the highest level possible
