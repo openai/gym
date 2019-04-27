@@ -127,7 +127,7 @@ class Env(object):
               'seed'. Often, the main seed equals the provided 'seed', but
               this won't be true if seed=None, for example.
         """
-        raise NotImplementedError
+        return
 
     @property
     def unwrapped(self):
