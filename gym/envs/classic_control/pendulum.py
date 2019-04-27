@@ -29,7 +29,7 @@ class PendulumEnv(gym.Env):
     def step(self,u):
         th, thdot = self.state # th := theta
 
-        g = 10.
+        g = 9.81.
         m = 1.
         l = 1.
         dt = self.dt
