@@ -18,7 +18,7 @@ class MujocoEnv(gym.Env):
     """Superclass for all MuJoCo environments.
     """
 
-    def __init__(self, model_path, frame_skip):
+    def __init__(self, model_path, frame_skip, rgb_rendering_tracking=True):
         if model_path.startswith("/"):
             fullpath = model_path
         else:
@@ -30,6 +30,7 @@ class MujocoEnv(gym.Env):
         self.sim = mujoco_py.MjSim(self.model)
         self.data = self.sim.data
         self.viewer = None
+        self.rgb_rendering_tracking = rgb_rendering_tracking
         self._viewers = {}
 
         self.metadata = {
@@ -102,7 +103,11 @@ class MujocoEnv(gym.Env):
 
     def render(self, mode='human', width=DEFAULT_SIZE, height=DEFAULT_SIZE):
         if mode == 'rgb_array':
-            self._get_viewer(mode).render(width, height)
+            camera_id = None 
+            camera_name = 'track'
+            if self.rgb_rendering_tracking and camera_name in self.model.camera_names:
+                camera_id = self.model.camera_name2id(camera_name)
+            self._get_viewer(mode).render(width, height, camera_id=camera_id)
             # window size used for old mujoco-py:
             data = self._get_viewer(mode).read_pixels(width, height, depth=False)
             # original image is upside-down, so flip it

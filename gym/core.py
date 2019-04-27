@@ -88,7 +88,6 @@ class Env(object):
 
         Args:
             mode (str): the mode to render with
-            close (bool): close all open renderings
 
         Example:
 
@@ -144,6 +143,14 @@ class Env(object):
             return '<{} instance>'.format(type(self).__name__)
         else:
             return '<{}<{}>>'.format(type(self).__name__, self.spec.id)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        self.close()
+        # propagate exception
+        return False
 
 
 class GoalEnv(Env):
@@ -204,6 +211,12 @@ class Wrapper(Env):
         self.observation_space = self.env.observation_space
         self.reward_range = self.env.reward_range
         self.metadata = self.env.metadata
+        self.spec = getattr(self.env, 'spec', None)
+
+    def __getattr__(self, name):
+        if name.startswith('_'):
+            raise AttributeError("attempted to get missing private attribute '{}'".format(name))
+        return getattr(self.env, name)
 
     @classmethod
     def class_name(cls):
@@ -237,10 +250,6 @@ class Wrapper(Env):
     def unwrapped(self):
         return self.env.unwrapped
 
-    @property
-    def spec(self):
-        return self.env.spec
-
 
 class ObservationWrapper(Wrapper):
     def step(self, action):
@@ -251,23 +260,32 @@ class ObservationWrapper(Wrapper):
         observation = self.env.reset(**kwargs)
         return self.process_observation(observation)
 
-    def process_observation(self, observation):
-        raise NotImplementedError
+    def observation(self, observation):
+        deprecated_warn_once("%s doesn't implement 'observation' method. Maybe it implements deprecated '_observation' method." % type(self))
+        return self._observation(observation)
+
+
+class RewardWrapper(Wrapper):
+    def reset(self, **kwargs):
+        return self.env.reset(**kwargs)
+
+    def step(self, action):
+        observation, reward, done, info = self.env.step(action)
+        return observation, self.reward(reward), done, info
+
+    def reward(self, reward):
+        deprecated_warn_once("%s doesn't implement 'reward' method. Maybe it implements deprecated '_reward' method." % type(self))
+        return self._reward(reward)
 
 
 class ActionWrapper(Wrapper):
+    def reset(self, **kwargs):
+        return self.env.reset(**kwargs)
+
     def step(self, action):
         action = self.process_action(action)
         return self.env.step(action)
 
-    def process_action(self, action):
-        raise NotImplementedError
-
-
-class RewardWrapper(Wrapper):
-    def step(self, action):
-        observation, reward, done, info = self.env.step(action)
-        return observation, self.process_reward(reward), done, info
-
-    def process_reward(self, reward):
-        raise NotImplementedError
+    def action(self, action):
+        deprecated_warn_once("%s doesn't implement 'action' method. Maybe it implements deprecated '_action' method." % type(self))
+        return self._action(action)
