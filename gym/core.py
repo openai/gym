@@ -252,17 +252,16 @@ class Wrapper(Env):
 
 
 class ObservationWrapper(Wrapper):
-    def step(self, action):
-        observation, reward, done, info = self.env.step(action)
-        return self.process_observation(observation), reward, done, info
-
     def reset(self, **kwargs):
         observation = self.env.reset(**kwargs)
-        return self.process_observation(observation)
+        return self.observation(observation)
+
+    def step(self, action):
+        observation, reward, done, info = self.env.step(action)
+        return self.observation(observation), reward, done, info
 
     def observation(self, observation):
-        deprecated_warn_once("%s doesn't implement 'observation' method. Maybe it implements deprecated '_observation' method." % type(self))
-        return self._observation(observation)
+        raise NotImplementedError
 
 
 class RewardWrapper(Wrapper):
@@ -274,8 +273,7 @@ class RewardWrapper(Wrapper):
         return observation, self.reward(reward), done, info
 
     def reward(self, reward):
-        deprecated_warn_once("%s doesn't implement 'reward' method. Maybe it implements deprecated '_reward' method." % type(self))
-        return self._reward(reward)
+        raise NotImplementedError
 
 
 class ActionWrapper(Wrapper):
@@ -283,9 +281,7 @@ class ActionWrapper(Wrapper):
         return self.env.reset(**kwargs)
 
     def step(self, action):
-        action = self.process_action(action)
-        return self.env.step(action)
+        return self.env.step(self.action(action))
 
     def action(self, action):
-        deprecated_warn_once("%s doesn't implement 'action' method. Maybe it implements deprecated '_action' method." % type(self))
-        return self._action(action)
+        raise NotImplementedError
