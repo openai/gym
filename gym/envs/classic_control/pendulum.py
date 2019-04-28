@@ -29,9 +29,9 @@ class PendulumEnv(gym.Env):
     def step(self,u):
         th, thdot = self.state # th := theta
 
-        self.gravity = 10
-        self.m = 1
-        self.l=1
+        g = 10.
+        m = 1.
+        l = 1.
         dt = self.dt
 
         u = np.clip(u, -self.max_torque, self.max_torque)[0]
