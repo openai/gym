@@ -13,22 +13,22 @@ import pyglet
 from pyglet import gl
 
 # Easiest continuous control task to learn from pixels, a top-down racing environment.
-# Discreet control is reasonable in this environment as well, on/off discretisation is
+# Discrete control is reasonable in this environment as well, on/off discretization is
 # fine.
 #
 # State consists of STATE_W x STATE_H pixels.
 #
-# Reward is -0.1 every frame and +1000/N for every track tile visited, where N is
-# the total number of tiles in track. For example, if you have finished in 732 frames,
+# Reward is for -0.1 every frame and +1000/N for every track tile visited, where N is
+# the total number of tiles visited in the track. For example, if you have finished in 732 frames,
 # your reward is 1000 - 0.1*732 = 926.8 points.
 #
-# Game is solved when agent consistently gets 900+ points. Track is random every episode.
+# Game is solved when agent consistently gets 900+ points. Track generated is random every episode.
 #
 # Episode finishes when all tiles are visited. Car also can go outside of PLAYFIELD, that
 # is far off the track, then it will get -100 and die.
 #
 # Some indicators shown at the bottom of the window and the state RGB buffer. From
-# left to right: true speed, four ABS sensors, steering wheel position, gyroscope.
+# left to right: true speed, four ABS sensors, steering wheel position and gyroscope.
 #
 # To play yourself (it's rather fast for humans), type:
 #
@@ -49,7 +49,7 @@ WINDOW_H = 800
 SCALE       = 6.0        # Track scale
 TRACK_RAD   = 900/SCALE  # Track is heavily morphed circle with this radius
 PLAYFIELD   = 2000/SCALE # Game over boundary
-FPS         = 50
+FPS         = 50         # Frames per second
 ZOOM        = 2.7        # Camera zoom
 ZOOM_FOLLOW = True       # Set to False for fixed view (don't use zoom)
 
@@ -81,22 +81,24 @@ class FrictionDetector(contactListener):
         if u2 and "road_friction" in u2.__dict__:
             tile = u2
             obj  = u1
-        if not tile: return
+        if not tile:
+            return
 
         tile.color[0] = ROAD_COLOR[0]
         tile.color[1] = ROAD_COLOR[1]
         tile.color[2] = ROAD_COLOR[2]
-        if not obj or "tiles" not in obj.__dict__: return
+        if not obj or "tiles" not in obj.__dict__:
+            return
         if begin:
             obj.tiles.add(tile)
-            #print tile.road_friction, "ADD", len(obj.tiles)
+            # print tile.road_friction, "ADD", len(obj.tiles)
             if not tile.road_visited:
                 tile.road_visited = True
                 self.env.reward += 1000.0/len(self.env.track)
                 self.env.tile_visited_count += 1
         else:
             obj.tiles.remove(tile)
-            #print tile.road_friction, "DEL", len(obj.tiles) -- should delete to zero when on grass (this works)
+            # print tile.road_friction, "DEL", len(obj.tiles) -- should delete to zero when on grass (this works)
 
 class CarRacing(gym.Env, EzPickle):
     metadata = {
@@ -126,7 +128,8 @@ class CarRacing(gym.Env, EzPickle):
         return [seed]
 
     def _destroy(self):
-        if not self.road: return
+        if not self.road:
+            return
         for t in self.road:
             self.world.DestroyBody(t)
         self.road = []
@@ -149,8 +152,8 @@ class CarRacing(gym.Env, EzPickle):
                 rad = 1.5*TRACK_RAD
             checkpoints.append( (alpha, rad*math.cos(alpha), rad*math.sin(alpha)) )
 
-        #print "\n".join(str(h) for h in checkpoints)
-        #self.road_poly = [ (    # uncomment this to see checkpoints
+        # print "\n".join(str(h) for h in checkpoints)
+        # self.road_poly = [ (    # uncomment this to see checkpoints
         #    [ (tx,ty) for a,tx,ty in checkpoints ],
         #    (0.7,0.7,0.9) ) ]
         self.road = []
@@ -162,7 +165,7 @@ class CarRacing(gym.Env, EzPickle):
         track = []
         no_freeze = 2500
         visited_other_side = False
-        while 1:
+        while True:
             alpha = math.atan2(y, x)
             if visited_other_side and alpha > 0:
                 laps += 1
@@ -178,8 +181,10 @@ class CarRacing(gym.Env, EzPickle):
                         failed = False
                         break
                     dest_i += 1
-                    if dest_i % len(checkpoints) == 0: break
-                if not failed: break
+                    if dest_i % len(checkpoints) == 0:
+                        break
+                if not failed:
+                    break
                 alpha -= 2*math.pi
                 continue
             r1x = math.cos(beta)
@@ -189,26 +194,33 @@ class CarRacing(gym.Env, EzPickle):
             dest_dx = dest_x - x  # vector towards destination
             dest_dy = dest_y - y
             proj = r1x*dest_dx + r1y*dest_dy  # destination vector projected on rad
-            while beta - alpha >  1.5*math.pi: beta -= 2*math.pi
-            while beta - alpha < -1.5*math.pi: beta += 2*math.pi
+            while beta - alpha >  1.5*math.pi:
+                 beta -= 2*math.pi
+            while beta - alpha < -1.5*math.pi:
+                 beta += 2*math.pi
             prev_beta = beta
             proj *= SCALE
-            if proj >  0.3: beta -= min(TRACK_TURN_RATE, abs(0.001*proj))
-            if proj < -0.3: beta += min(TRACK_TURN_RATE, abs(0.001*proj))
+            if proj >  0.3:
+                 beta -= min(TRACK_TURN_RATE, abs(0.001*proj))
+            if proj < -0.3:
+                 beta += min(TRACK_TURN_RATE, abs(0.001*proj))
             x += p1x*TRACK_DETAIL_STEP
             y += p1y*TRACK_DETAIL_STEP
             track.append( (alpha,prev_beta*0.5 + beta*0.5,x,y) )
-            if laps > 4: break
+            if laps > 4:
+                 break
             no_freeze -= 1
-            if no_freeze==0: break
-        #print "\n".join([str(t) for t in enumerate(track)])
+            if no_freeze==0:
+                 break
+        # print "\n".join([str(t) for t in enumerate(track)])
 
         # Find closed loop range i1..i2, first loop should be ignored, second is OK
         i1, i2 = -1, -1
         i = len(track)
         while True:
             i -= 1
-            if i==0: return False  # Failed
+            if i==0:
+                return False  # Failed
             pass_through_start = track[i][0] > self.start_alpha and track[i-1][0] <= self.start_alpha
             if pass_through_start and i2==-1:
                 i2 = i
@@ -287,7 +299,8 @@ class CarRacing(gym.Env, EzPickle):
 
         while True:
             success = self._create_track()
-            if success: break
+            if success:
+                break
             if self.verbose == 1:
                 print("retry to generate track (normal if there are not many of this messages)")
         self.car = Car(self.world, *self.track[0][1:4])
@@ -311,7 +324,7 @@ class CarRacing(gym.Env, EzPickle):
         if action is not None: # First step without action, called from reset()
             self.reward -= 0.1
             # We actually don't want to count fuel spent, we want car to be faster.
-            #self.reward -=  10 * self.car.fuel_spent / ENGINE_POWER
+            # self.reward -=  10 * self.car.fuel_spent / ENGINE_POWER
             self.car.fuel_spent = 0.0
             step_reward = self.reward - self.prev_reward
             self.prev_reward = self.reward
@@ -493,5 +506,6 @@ if __name__=="__main__":
                 #plt.savefig("test.jpeg")
             steps += 1
             isopen = env.render()
-            if done or restart or isopen == False: break
+            if done or restart or isopen == False:
+                break
     env.close()
