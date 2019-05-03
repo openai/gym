@@ -177,7 +177,7 @@ class KellyCoinflipGeneralizedEnv(gym.Env):
             self.losses += 1
 
         done = self.wealth < 0.01 or self.wealth == self.max_wealth or not self.rounds
-        reward = self.max_wealth if done else 0.0
+        reward = self.wealth if done else 0.0
 
         return self._get_obs(), reward, done, {}
 

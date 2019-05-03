@@ -39,28 +39,24 @@ def generate_random_map(size=8, p=0.8):
     """
     valid = False
 
-    # BFS to check that it's a valid path.
-    def is_valid(arr, r=0, c=0):
-        if arr[r][c] == 'G':
-            return True
-
-        tmp = arr[r][c]
-        arr[r][c] = "#"
-
-        # Recursively check in all four directions.
-        directions = [(1, 0), (0, 1), (-1, 0), (0, -1)]
-        for x, y in directions:
-            r_new = r + x
-            c_new = c + y
-            if r_new < 0 or r_new >= size or c_new < 0 or c_new >= size:
-                continue
-
-            if arr[r_new][c_new] not in '#H':
-                if is_valid(arr, r_new, c_new):
-                    arr[r][c] = tmp
-                    return True
-
-        arr[r][c] = tmp
+    # DFS to check that it's a valid path.
+    def is_valid(res):
+        frontier, discovered = [], set()
+        frontier.append((0,0))
+        while frontier:
+            r, c = frontier.pop()
+            if not (r,c) in discovered:
+                discovered.add((r,c))
+                directions = [(1, 0), (0, 1), (-1, 0), (0, -1)]
+                for x, y in directions:
+                    r_new = r + x
+                    c_new = c + y
+                    if r_new < 0 or r_new >= size or c_new < 0 or c_new >= size:
+                        continue
+                    if res[r_new][c_new] == 'G':
+                        return True
+                    if (res[r_new][c_new] not in '#H'):
+                        frontier.append((r_new, c_new))
         return False
 
     while not valid:
@@ -119,7 +115,7 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
 
         def to_s(row, col):
             return row*ncol + col
-        
+
         def inc(row, col, a):
             if a == LEFT:
                 col = max(col-1,0)
