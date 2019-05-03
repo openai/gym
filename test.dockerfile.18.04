@@ -24,6 +24,7 @@ RUN \
 
     apt clean && \
     rm -rf /var/lib/apt/lists/* && \
+    pip install --upgrade pip && \
     pip install tox && \
 
 # Download mujoco
