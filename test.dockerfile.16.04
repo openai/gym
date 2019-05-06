@@ -25,7 +25,7 @@ RUN \
         patchelf \
         xvfb \
         ffmpeg \
-        wget \
+        curl \
         unzip && \
 
     apt-get clean && \
@@ -36,9 +36,9 @@ RUN pip install tox && \
 # Download mujoco
     mkdir /root/.mujoco && \
     cd /root/.mujoco  && \
-    wget https://www.roboti.us/download/mjpro150_linux.zip  && \
+    curl -O https://www.roboti.us/download/mjpro150_linux.zip  && \
     unzip mjpro150_linux.zip && \
-    wget https://www.roboti.us/download/mujoco200_linux.zip && \
+    curl -O https://www.roboti.us/download/mujoco200_linux.zip && \
     unzip mujoco200_linux.zip && \
     mv mujoco200_linux mujoco200
 
