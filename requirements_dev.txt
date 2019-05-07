@@ -1,5 +1,0 @@
-# Testing
-pytest
-mock
-
--e .[all]
