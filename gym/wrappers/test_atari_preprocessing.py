@@ -1,3 +1,6 @@
+import cv2
+import numpy as np
+
 import gym
 from gym.wrappers import AtariPreprocessing
 
@@ -12,3 +15,5 @@ def test_atari_preprocessing():
     assert obs2.shape == (84, 84)
     obs3 = env3.reset()
     assert obs3.shape == (84, 84, 3)
+    assert np.allclose(obs3, cv2.resize(obs1, (84, 84), interpolation=cv2.INTER_AREA))
+    assert np.allclose(obs2, cv2.cvtColor(obs3, cv2.COLOR_RGB2GRAY))
