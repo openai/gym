@@ -22,7 +22,7 @@ class AtariPreprocessing(gym.Wrapper):
     * Max-pooling: most recent two observations
     * Termination signal when a life is lost: turned off by default. Not recommended by Machado et al. (2018).
     * Resize to a square image: 84x84 by default
-    * Grayscale
+    * Grayscale observation: optional
 
     Args:
         env (Env): environment
@@ -31,9 +31,11 @@ class AtariPreprocessing(gym.Wrapper):
         screen_size (int): resize Atari frame
         terminal_on_life_loss (bool): if True, then step() returns done=True whenever a
             life is lost. 
+        grayscale_obs (bool): if True, then gray scale observation is returned, otherwise, RGB observation
+            is returned.
 
     """
-    def __init__(self, env, noop_max=30, frame_skip=4, screen_size=84, terminal_on_life_loss=False):
+    def __init__(self, env, noop_max=30, frame_skip=4, screen_size=84, terminal_on_life_loss=False, grayscale_obs=True):
         super().__init__(env)
         assert frame_skip > 0
         assert screen_size > 0
@@ -44,16 +46,24 @@ class AtariPreprocessing(gym.Wrapper):
         self.frame_skip = frame_skip
         self.screen_size = screen_size
         self.terminal_on_life_loss = terminal_on_life_loss
+        self.grayscale_obs = grayscale_obs
 
         # buffer of most recent two observations for max pooling
-        self.obs_buffer = [np.empty(env.observation_space.shape[:2], dtype=np.uint8),
-                           np.empty(env.observation_space.shape[:2], dtype=np.uint8)]
+        if grayscale_obs:
+            self.obs_buffer = [np.empty(env.observation_space.shape[:2], dtype=np.uint8),
+                               np.empty(env.observation_space.shape[:2], dtype=np.uint8)]
+        else:
+            self.obs_buffer = [np.empty(env.observation_space.shape, dtype=np.uint8),
+                               np.empty(env.observation_space.shape, dtype=np.uint8)]
 
         self.ale = env.unwrapped.ale
         self.lives = 0
         self.game_over = False
 
-        self.observation_space = Box(low=0, high=255, shape=(screen_size, screen_size), dtype=np.uint8)
+        if grayscale_obs:
+            self.observation_space = Box(low=0, high=255, shape=(screen_size, screen_size), dtype=np.uint8)
+        else:
+            self.observation_space = Box(low=0, high=255, shape=(screen_size, screen_size, 3), dtype=np.uint8)
 
     def step(self, action):
         R = 0.0
@@ -71,9 +81,15 @@ class AtariPreprocessing(gym.Wrapper):
             if done:
                 break    
             if t == self.frame_skip - 2:
-                self.ale.getScreenGrayscale(self.obs_buffer[0])
+                if self.grayscale_obs:
+                    self.ale.getScreenGrayscale(self.obs_buffer[0])
+                else:
+                    self.ale.getScreenRGB2(self.obs_buffer[0])
             elif t == self.frame_skip - 1:
-                self.ale.getScreenGrayscale(self.obs_buffer[1])    
+                if self.grayscale_obs:
+                    self.ale.getScreenGrayscale(self.obs_buffer[1])    
+                else:
+                    self.ale.getScreenRGB2(self.obs_buffer[1])    
         return self._get_obs(), R, done, info
 
     def reset(self, **kwargs):
@@ -93,7 +109,10 @@ class AtariPreprocessing(gym.Wrapper):
             self.env.step(2)
 
         self.lives = self.ale.lives()
-        self.ale.getScreenGrayscale(self.obs_buffer[0])
+        if self.grayscale_obs:
+            self.ale.getScreenGrayscale(self.obs_buffer[0])
+        else:
+            self.ale.getScreenRGB2(self.obs_buffer[0])
         self.obs_buffer[1].fill(0)
         return self._get_obs()
 
