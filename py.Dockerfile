@@ -3,7 +3,7 @@ ARG MUJOCO_KEY
 ARG PYTHON_VER
 FROM python:$PYTHON_VER
 
-RUN apt-get -y update && apt-get install -y unzip libglu1-mesa-dev libgl1-mesa-dev libosmesa6-dev xvfb patchelf
+RUN apt-get -y update && apt-get install -y unzip libglu1-mesa-dev libgl1-mesa-dev libosmesa6-dev xvfb patchelf ffmpeg
 RUN \ 
 # Download mujoco
     mkdir /root/.mujoco && \
@@ -21,8 +21,8 @@ RUN echo $MUJOCO_KEY | base64 --decode > /root/.mujoco/mjkey.txt
 
 COPY . /usr/local/gym/
 RUN cd /usr/local/gym && \
-    pip install /usr/local/gym[all] pytest
+    pip install /usr/local/gym[all] pytest pytest-forked
 
 WORKDIR /usr/local/gym/
 ENTRYPOINT ["/usr/local/gym/bin/docker_entrypoint"]
-CMD ["pytest"]
+CMD ["pytest","--forked"]
