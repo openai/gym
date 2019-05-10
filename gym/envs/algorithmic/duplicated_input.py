@@ -3,8 +3,8 @@ Task is to return every nth character from the input tape.
 http://arxiv.org/abs/1511.07275
 """
 from __future__ import division
-import numpy as np
 from gym.envs.algorithmic import algorithmic_env
+
 
 class DuplicatedInputEnv(algorithmic_env.TapeAlgorithmicEnv):
     def __init__(self, duplication=2, base=5):

@@ -2,30 +2,17 @@ import hashlib
 import numpy as np
 import os
 import random as _random
+from six import integer_types
 import struct
 import sys
 
 from gym import error
 
-if sys.version_info < (3,):
-    integer_types = (int, long)
-else:
-    integer_types = (int,)
-
-# Fortunately not needed right now!
-#
-# def random(seed=None):
-#     seed = _seed(seed)
-#
-#     rng = _random.Random()
-#     rng.seed(hash_seed(seed))
-#     return rng, seed
-
 def np_random(seed=None):
     if seed is not None and not (isinstance(seed, integer_types) and 0 <= seed):
         raise error.Error('Seed must be a non-negative integer or omitted, not {}'.format(seed))
 
-    seed = _seed(seed)
+    seed = create_seed(seed)
 
     rng = np.random.RandomState()
     rng.seed(_int_list_from_bigint(hash_seed(seed)))
@@ -51,11 +38,11 @@ def hash_seed(seed=None, max_bytes=8):
         max_bytes: Maximum number of bytes to use in the hashed seed.
     """
     if seed is None:
-        seed = _seed(max_bytes=max_bytes)
+        seed = create_seed(max_bytes=max_bytes)
     hash = hashlib.sha512(str(seed).encode('utf8')).digest()
     return _bigint_from_bytes(hash[:max_bytes])
 
-def _seed(a=None, max_bytes=8):
+def create_seed(a=None, max_bytes=8):
     """Create a strong random seed. Otherwise, Python 2 would seed using
     the system time, which might be non-robust especially in the
     presence of concurrency.

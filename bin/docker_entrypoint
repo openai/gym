@@ -1,20 +1,14 @@
-#!/bin/sh
-
+#!/bin/bash
 # This script is the entrypoint for our Docker image.
 
-set -e
-
-path=$(cd $(dirname "$0") && pwd)
-
-[ -z "${MUJOCO_KEY_BUNDLE}" ] || ( mkdir -p ~/.mujoco && curl https://openai-public.s3-us-west-2.amazonaws.com/mujoco/$MUJOCO_KEY_BUNDLE.tar.gz | tar xz -C ~/.mujoco )
+set -ex
 
 # Set up display; otherwise rendering will fail
-rm -f /tmp/.X12-lock
-"$path/../vendor/Xdummy" :12 &
-export DISPLAY=:12
+Xvfb -screen 0 1024x768x24 &
+export DISPLAY=:0
 
 # Wait for the file to come up
-display=12
+display=0
 file="/tmp/.X11-unix/X$display"
 for i in $(seq 1 10); do
     if [ -e "$file" ]; then

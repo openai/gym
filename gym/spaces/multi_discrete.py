@@ -1,15 +1,12 @@
 import numpy as np
+from .space import Space
 
-import gym
-from gym.spaces import prng
 
-class MultiDiscrete(gym.Space):
+class MultiDiscrete(Space):
     """
-    - The multi-discrete action space consists of a series of discrete action spaces with different parameters
-    - It can be adapted to both a Discrete action space or a continuous (Box) action space
+    - The multi-discrete action space consists of a series of discrete action spaces with different number of actions in eachs
     - It is useful to represent game controllers or keyboards where each key can be represented as a discrete action space
-    - It is parametrized by passing an array of arrays containing [min, max] for each discrete action space
-       where the discrete action space can take any integers from `min` to `max` (both inclusive)
+    - It is parametrized by passing an array of positive integers specifying number of actions for each discrete action space
 
     Note: A value of 0 always need to represent the NOOP action.
 
@@ -22,26 +19,37 @@ class MultiDiscrete(gym.Space):
 
     - Can be initialized as
 
-        MultiDiscrete([ [0,4], [0,1], [0,1] ])
+        MultiDiscrete([ 5, 2, 2 ])
 
     """
-    def __init__(self, array_of_param_array):
-        self.low = np.array([x[0] for x in array_of_param_array])
-        self.high = np.array([x[1] for x in array_of_param_array])
-        self.num_discrete_space = self.low.shape[0]
+    def __init__(self, nvec):
+    
+        """
+        nvec: vector of counts of each categorical variable
+        """
+        assert (np.array(nvec) > 0).all(), 'nvec (counts) have to be positive'
+        self.nvec = np.asarray(nvec, dtype=np.int64)
+
+        super(MultiDiscrete, self).__init__(self.nvec.shape, np.int64)
 
     def sample(self):
-        """ Returns a array with one sample from each discrete action space """
-        # For each row: round(random .* (max - min) + min, 0)
-        random_array = prng.np_random.rand(self.num_discrete_space)
-        return [int(x) for x in np.floor(np.multiply((self.high - self.low + 1.), random_array) + self.low)]
-    def contains(self, x):
-        return len(x) == self.num_discrete_space and (np.array(x) >= self.low).all() and (np.array(x) <= self.high).all()
+        return (self.np_random.random_sample(self.nvec.shape)*self.nvec).astype(self.dtype)
 
-    @property
-    def shape(self):
-        return self.num_discrete_space
+    def contains(self, x):
+        if isinstance(x, list):
+            x = np.array(x)  # Promote list to array for contains check
+        # if nvec is uint32 and space dtype is uint32, then 0 <= x < self.nvec guarantees that x
+        # is within correct bounds for space dtype (even though x does not have to be unsigned)
+        return (0 <= x).all() and (x < self.nvec).all()
+
+    def to_jsonable(self, sample_n):
+        return [sample.tolist() for sample in sample_n]
+
+    def from_jsonable(self, sample_n):
+        return np.array(sample_n)
+
     def __repr__(self):
-        return "MultiDiscrete" + str(self.num_discrete_space)
+        return "MultiDiscrete({})".format(self.nvec)
+
     def __eq__(self, other):
-        return np.array_equal(self.low, other.low) and np.array_equal(self.high, other.high)
+        return isinstance(other, MultiDiscrete) and np.all(self.nvec == other.nvec)

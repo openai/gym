@@ -1,7 +1,9 @@
+**Status:** Maintenance (expect bug fixes and minor updates)
+
 OpenAI Gym
 **********
 
-**OpenAI Gym is a toolkit for developing and comparing reinforcement learning algorithms.** This is the ``gym`` open-source library, which gives you access to a standardized set of environments. (A static export of the old accompanying gym website can be found at https://gym.openai.com/read-only.html.)
+**OpenAI Gym is a toolkit for developing and comparing reinforcement learning algorithms.** This is the ``gym`` open-source library, which gives you access to a standardized set of environments.
 
 .. image:: https://travis-ci.org/openai/gym.svg?branch=master
     :target: https://travis-ci.org/openai/gym
@@ -15,12 +17,12 @@ If you're not sure where to start, we recommend beginning with the
 
 A whitepaper for OpenAI Gym is available at http://arxiv.org/abs/1606.01540, and here's a BibTeX entry that you can use to cite it in a publication::
 
-	@misc{1606.01540,
-		Author = {Greg Brockman and Vicki Cheung and Ludwig Pettersson and Jonas Schneider and John Schulman and Jie Tang and Wojciech Zaremba},
-		Title = {OpenAI Gym},
-		Year = {2016},
-		Eprint = {arXiv:1606.01540},
-	}
+  @misc{1606.01540,
+    Author = {Greg Brockman and Vicki Cheung and Ludwig Pettersson and Jonas Schneider and John Schulman and Jie Tang and Wojciech Zaremba},
+    Title = {OpenAI Gym},
+    Year = {2016},
+    Eprint = {arXiv:1606.01540},
+  }
 
 .. contents:: **Contents of this document**
    :depth: 2
@@ -41,8 +43,7 @@ should know:
 
 - `reset(self)`: Reset the environment's state. Returns `observation`.
 - `step(self, action)`: Step the environment by one timestep. Returns `observation`, `reward`, `done`, `info`.
-- `render(self, mode='human', close=False)`: Render one frame of the environment. The default mode will do something human friendly, such as pop up a window. Passing the `close` flag signals the renderer to close any such windows.
-
+- `render(self, mode='human')`: Render one frame of the environment. The default mode will do something human friendly, such as pop up a window. 
 Installation
 ============
 
@@ -50,21 +51,21 @@ You can perform a minimal install of ``gym`` with:
 
 .. code:: shell
 
-	  git clone https://github.com/openai/gym.git
-	  cd gym
-	  pip install -e .
+    git clone https://github.com/openai/gym.git
+    cd gym
+    pip install -e .
 
 If you prefer, you can do a minimal install of the packaged version directly from PyPI:
 
 .. code:: shell
 
-	  pip install gym
+    pip install gym
 
 You'll be able to run a few environments right away:
 
-- `algorithmic <https://gym.openai.com/envs#algorithmic>`_
-- `toy_text <https://gym.openai.com/envs#toy_text>`_
-- `classic_control <https://gym.openai.com/envs#classic_control>`_ (you'll need ``pyglet`` to render though)
+- algorithmic
+- toy_text
+- classic_control (you'll need ``pyglet`` to render though)
 
 We recommend playing with those environments at first, and then later
 installing the dependencies for the remaining environments.
@@ -74,19 +75,38 @@ Installing everything
 
 To install the full set of environments, you'll need to have some system
 packages installed. We'll build out the list here over time; please let us know
-what you end up installing on your platform.
+what you end up installing on your platform. Also, take a look at the docker files (test.dockerfile.xx.xx) to 
+see the composition of our CI-tested images. 
 
 On OSX:
 
 .. code:: shell
 
-	  brew install cmake boost boost-python sdl2 swig wget
+    brew install cmake boost boost-python sdl2 swig wget
 
-On Ubuntu 14.04:
+On Ubuntu 14.04 (non-mujoco only):
 
 .. code:: shell
 
-	  apt-get install -y python-numpy python-dev cmake zlib1g-dev libjpeg-dev xvfb libav-tools xorg-dev python-opengl libboost-all-dev libsdl2-dev swig
+    apt-get install libjpeg-dev cmake swig python-pyglet python3-opengl libboost-all-dev \
+            libsdl2-2.0.0 libsdl2-dev libglu1-mesa libglu1-mesa-dev libgles2-mesa-dev \
+            freeglut3 xvfb libav-tools
+
+
+On Ubuntu 16.04:
+
+.. code:: shell
+
+    apt-get install -y python-pyglet python3-opengl zlib1g-dev libjpeg-dev patchelf \
+            cmake swig libboost-all-dev libsdl2-dev libosmesa6-dev xvfb ffmpeg
+
+On Ubuntu 18.04:
+
+.. code:: shell
+
+    apt install -y python3-dev zlib1g-dev libjpeg-dev cmake swig python-pyglet python3-opengl libboost-all-dev libsdl2-dev \
+        libosmesa6-dev patchelf ffmpeg xvfb
+
 
 MuJoCo has a proprietary dependency we can't set up for you. Follow
 the
@@ -102,7 +122,7 @@ We currently support Linux and OS X running Python 2.7 or 3.5. Some users on OSX
 
 .. code:: shell
 
-	  brew install boost-python --with-python3
+    brew install boost-python --with-python3
 
 If you want to access Gym from languages other than python, we have limited support for non-python
 frameworks, such as lua/Torch, using the OpenAI Gym `HTTP API <https://github.com/openai/gym-http-api>`_.
@@ -139,112 +159,18 @@ maintain the lists of dependencies on a per-environment group basis.
 Environments
 ============
 
-The code for each environment group is housed in its own subdirectory
-`gym/envs
-<https://github.com/openai/gym/blob/master/gym/envs>`_. The
-specification of each task is in `gym/envs/__init__.py
-<https://github.com/openai/gym/blob/master/gym/envs/__init__.py>`_. It's
-worth browsing through both.
+See `List of Environments <docs/environments.md>`_.
 
-Algorithmic
------------
-
-These are a variety of algorithmic tasks, such as learning to copy a
-sequence.
-
-.. code:: python
-
-	  import gym
-	  env = gym.make('Copy-v0')
-	  env.reset()
-	  env.render()
-
-Atari
------
-
-The Atari environments are a variety of Atari video games. If you didn't do the full install, you can install dependencies via ``pip install -e '.[atari]'`` (you'll need ``cmake`` installed) and then get started as follow:
-
-.. code:: python
-
-	  import gym
-	  env = gym.make('SpaceInvaders-v0')
-	  env.reset()
-	  env.render()
-
-This will install ``atari-py``, which automatically compiles the `Arcade Learning Environment <http://www.arcadelearningenvironment.org/>`_. This can take quite a while (a few minutes on a decent laptop), so just be prepared.
-
-Board games
------------
-
-The board game environments are a variety of board games. If you didn't do the full install, you can install dependencies via ``pip install -e '.[board_game]'`` (you'll need ``cmake`` installed) and then get started as follow:
-
-.. code:: python
-
-	  import gym
-	  env = gym.make('Go9x9-v0')
-	  env.reset()
-	  env.render()
-
-Box2d
------------
-
-Box2d is a 2D physics engine. You can install it via  ``pip install -e '.[box2d]'`` and then get started as follow:
-
-.. code:: python
-
-	  import gym
-	  env = gym.make('LunarLander-v2')
-	  env.reset()
-	  env.render()
-
-Classic control
----------------
-
-These are a variety of classic control tasks, which would appear in a typical reinforcement learning textbook. If you didn't do the full install, you will need to run ``pip install -e '.[classic_control]'`` to enable rendering. You can get started with them via:
-
-.. code:: python
-
-	  import gym
-	  env = gym.make('CartPole-v0')
-	  env.reset()
-	  env.render()
-
-MuJoCo
-------
-
-`MuJoCo <http://www.mujoco.org/>`_ is a physics engine which can do
-very detailed efficient simulations with contacts. It's not
-open-source, so you'll have to follow the instructions in `mujoco-py
-<https://github.com/openai/mujoco-py#obtaining-the-binaries-and-license-key>`_
-to set it up. You'll have to also run ``pip install -e '.[mujoco]'`` if you didn't do the full install.
-
-.. code:: python
-
-	  import gym
-	  env = gym.make('Humanoid-v1')
-	  env.reset()
-	  env.render()
-
-Toy text
---------
-
-Toy environments which are text-based. There's no extra dependency to install, so to get started, you can just do:
-
-.. code:: python
-
-	  import gym
-	  env = gym.make('FrozenLake-v0')
-	  env.reset()
-	  env.render()
+For information on creating your own environments, see `Creating your own Environments <docs/creating-environments.md>`_.
 
 Examples
 ========
 
 See the ``examples`` directory.
 
-- Run `examples/agents/random_agent.py <https://github.com/openai/gym/blob/master/examples/agents/random_agent.py>`_ to run an simple random agent.
+- Run `examples/agents/random_agent.py <https://github.com/openai/gym/blob/master/examples/agents/random_agent.py>`_ to run a simple random agent.
 - Run `examples/agents/cem.py <https://github.com/openai/gym/blob/master/examples/agents/cem.py>`_ to run an actual learning agent (using the cross-entropy method).
-- Run `examples/scripts/list_envs <https://github.com/openai/gym/blob/master/examples/scripts/list_envs>`_ to generate a list of all environments. (You see also just `browse <https://gym.openai.com/docs>`_ the list on our site.
+- Run `examples/scripts/list_envs <https://github.com/openai/gym/blob/master/examples/scripts/list_envs>`_ to generate a list of all environments.
 
 Testing
 =======
@@ -253,14 +179,40 @@ We are using `pytest <http://doc.pytest.org>`_ for tests. You can run them via:
 
 .. code:: shell
 
-	  pytest
+    pytest
 
 
 .. _See What's New section below:
 
 What's new
 ==========
+- 2019-03-25 (v0.12.1)
+    + rgb rendering in MuJoCo locomotion `-v3` environments now comes from tracking camera (so that agent does not run away from the field of view). The old behaviour can be restored by passing rgb_rendering_tracking=False kwarg.
 
+- 2019-02-26 (v0.12.0)
+    + release mujoco environments v3 with support for gym.make kwargs such as `xml_file`, `ctrl_cost_weight`, `reset_noise_scale` etc
+
+- 2019-02-06 (v0.11.0)
+    + remove gym.spaces.np_random common PRNG; use per-instance PRNG instead.
+    + support for kwargs in gym.make
+    + lots of bugfixes
+
+- 2018-02-28: Release of a set of new robotics environments.
+- 2018-01-25: Made some aesthetic improvements and removed unmaintained parts of gym. This may seem like a downgrade in functionality, but it is actually a long-needed cleanup in preparation for some great new things that will be released in the next month.
+
+    + Now your `Env` and `Wrapper` subclasses should define `step`, `reset`, `render`, `close`, `seed` rather than underscored method names.
+    + Removed the `board_game`, `debugging`, `safety`, `parameter_tuning` environments since they're not being maintained by us at OpenAI. We encourage authors and users to create new repositories for these environments.
+    + Changed `MultiDiscrete` action space to range from `[0, ..., n-1]` rather than `[a, ..., b-1]`.
+    + No more `render(close=True)`, use env-specific methods to close the rendering.
+    + Removed `scoreboard` directory, since site doesn't exist anymore.
+    + Moved `gym/monitoring` to `gym/wrappers/monitoring`
+    + Add `dtype` to `Space`.
+    + Not using python's built-in module anymore, using `gym.logger`
+
+- 2018-01-24: All continuous control environments now use mujoco_py >= 1.50.
+  Versions have been updated accordingly to -v2, e.g. HalfCheetah-v2. Performance
+  should be similar (see https://github.com/openai/gym/pull/834) but there are likely
+  some differences due to changes in MuJoCo.
 - 2017-06-16: Make env.spec into a property to fix a bug that occurs
   when you try to print out an unregistered Env.
 - 2017-05-13: BACKWARDS INCOMPATIBILITY: The Atari environments are now at
