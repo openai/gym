@@ -1,4 +1,3 @@
-import cv2
 import numpy as np
 
 import gym
@@ -6,8 +5,10 @@ from gym.wrappers import AtariPreprocessing
 import pytest
 try:
     import atari_py
+    import cv2
 except ImportError:
     atari_py = None
+    cv2 = None
 
 @pytest.mark.skipif(atari_py is None, reason='Only run this test when atari_py is installed')
 def test_atari_preprocessing():
