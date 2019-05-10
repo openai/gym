@@ -169,7 +169,6 @@ class GoalEnv(Env):
         for key in ['observation', 'achieved_goal', 'desired_goal']:
             if key not in self.observation_space.spaces:
                 raise error.Error('GoalEnv requires the "{}" key to be part of the observation dictionary.'.format(key))
-        return result
 
     def compute_reward(self, achieved_goal, desired_goal, info):
         """Compute the step reward. This externalizes the reward function and makes
