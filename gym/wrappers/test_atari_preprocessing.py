@@ -1,7 +1,5 @@
 import numpy as np
-
 import gym
-from gym.wrappers import AtariPreprocessing
 import pytest
 try:
     import atari_py
@@ -12,6 +10,7 @@ except ImportError:
 
 @pytest.mark.skipif(atari_py is None, reason='Only run this test when atari_py is installed')
 def test_atari_preprocessing():
+    from gym.wrappers import AtariPreprocessing
     env1 = gym.make('PongNoFrameskip-v0')
     env2 = AtariPreprocessing(env1, screen_size=84, grayscale_obs=True)
     env3 = AtariPreprocessing(env1, screen_size=84, grayscale_obs=False)
