@@ -4,7 +4,6 @@ import gym
 from gym.spaces import Box
 from gym.wrappers import TimeLimit
 
-import cv2
 
 
 class AtariPreprocessing(gym.Wrapper):
@@ -117,6 +116,7 @@ class AtariPreprocessing(gym.Wrapper):
         return self._get_obs()
 
     def _get_obs(self):
+        import cv2
         if self.frame_skip > 1:  # more efficient in-place pooling
             np.maximum(self.obs_buffer[0], self.obs_buffer[1], out=self.obs_buffer[0])
         obs = cv2.resize(self.obs_buffer[0], (self.screen_size, self.screen_size), interpolation=cv2.INTER_AREA)
