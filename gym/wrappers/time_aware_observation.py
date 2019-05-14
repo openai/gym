@@ -23,8 +23,8 @@ class TimeAwareObservation(ObservationWrapper):
 
     def step(self, action):
         self.t += 1
-        return super().step(action)
+        return super(TimeAwareObservation, self).step(action)
 
     def reset(self, **kwargs):
         self.t = 0
-        return super().reset(**kwargs)
+        return super(TimeAwareObservation, self).reset(**kwargs)
