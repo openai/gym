@@ -4,7 +4,7 @@ import gym
 from gym.wrappers import SignReward
 
 
-@pytest.mark.parametrize('env_id', ['CartPole-v1', 'Pendulum-v0', 'Pong-v0'])
+@pytest.mark.parametrize('env_id', ['CartPole-v1', 'Pendulum-v0'])
 def test_sign_reward(env_id):
     env = gym.make(env_id)
     wrapped_env = SignReward(env)
