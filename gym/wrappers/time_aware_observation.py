@@ -13,7 +13,7 @@ class TimeAwareObservation(ObservationWrapper):
 
     """
     def __init__(self, env):
-        super().__init__(env)
+        super(TimeAwareObservation, self).__init__(env)
         low = np.append(self.observation_space.low, 0.0)
         high = np.append(self.observation_space.high, np.inf)
         self.observation_space = Box(low, high, dtype=np.float32)
