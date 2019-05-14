@@ -74,7 +74,7 @@ class FrameStack(ObservationWrapper):
 
     """
     def __init__(self, env, num_stack, lz4_compress=False):
-        super().__init__(env)
+        super(FrameStack, self).__init__(env)
         self.num_stack = num_stack
         self.lz4_compress = lz4_compress
 
