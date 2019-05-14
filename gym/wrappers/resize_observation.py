@@ -8,7 +8,7 @@ from gym import ObservationWrapper
 class ResizeObservation(ObservationWrapper):
     r"""Downsample the image observation to a square image. """
     def __init__(self, env, size):
-        super().__init__(env)
+        super(ResizeObservation, self).__init__(env)
         assert size > 0
         self.size = size
 
