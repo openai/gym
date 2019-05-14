@@ -8,7 +8,7 @@ class NormalizeAction(gym.ActionWrapper):
     r"""Rescale the continuous action space of the environment from [-1, 1]. """
     def __init__(self, env):
         assert isinstance(env.action_space, spaces.Box), 'expected Box action space.'
-        super().__init__(env)
+        super(NormalizeAction, self).__init__(env)
 
     def action(self, action):
         assert np.all(action >= -1.0) and np.all(action <= 1.0), 'expected range within [-1, 1], e.g. use tanh'
