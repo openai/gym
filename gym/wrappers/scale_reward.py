@@ -20,7 +20,7 @@ class ScaleReward(RewardWrapper):
 
     """
     def __init__(self, env, scale=0.01):
-        super().__init__(env)
+        super(ScaleReward, self).__init__(env)
         self.scale = scale
 
     def reward(self, reward):
