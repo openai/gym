@@ -1,18 +1,22 @@
+import numpy as np
+
 import gym
 from gym.wrappers import ClipAction
 
 
-def test_clip_action():
-    # mountaincar: action-based rewards
-    env = gym.make('MountainCarContinuous-v0')
-    clipped_env = ClipAction(env)
+# mountaincar: action-based rewards
+env = gym.make('MountainCarContinuous-v0')
+wrapped_env = ClipAction(env)
 
-    env.reset()
-    clipped_env.reset()
+seed = 0
+env.seed(seed)
+wrapped_env.seed(seed)
 
-    action = [10000.]
+env.reset()
+wrapped_env.reset()
 
-    _, reward, _, _ = env.step(action)
-    _, clipped_reward, _, _ = clipped_env.step(action)
-
-    assert abs(clipped_reward) < abs(reward)
+actions = [[.4], [1.2], [-0.3], [0.0], [-2.5]]
+for action in actions:
+    _, r1, _, _ = env.step(np.clip(action, env.action_space.low, env.action_space.high))
+    _, r2, _, _ = wrapped_env.step(action)
+    assert np.allclose(r1, r2)
