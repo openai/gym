@@ -1,5 +1,4 @@
 import numpy as np
-import cv2
 
 from gym.spaces import Box
 from gym import ObservationWrapper
@@ -16,6 +15,7 @@ class ResizeObservation(ObservationWrapper):
         self.observation_space = Box(low=0, high=255, shape=shape, dtype=np.uint8)
 
     def observation(self, observation):
+        import cv2
         observation = cv2.resize(observation, (self.size, self.size), interpolation=cv2.INTER_AREA)
         if observation.ndim == 2:
             observation = np.expand_dims(observation, -1)
