@@ -1,5 +1,4 @@
 import numpy as np
-import cv2
 
 from gym.spaces import Box
 from gym import ObservationWrapper
@@ -19,6 +18,7 @@ class GrayScaleObservation(ObservationWrapper):
             self.observation_space = Box(low=0, high=255, shape=obs_shape, dtype=np.uint8)
 
     def observation(self, observation):
+        import cv2
         observation = cv2.cvtColor(observation, cv2.COLOR_RGB2GRAY)
         if self.keep_dim:
             observation = np.expand_dims(observation, -1)
