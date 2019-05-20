@@ -18,7 +18,7 @@ class ResizeObservation(ObservationWrapper):
 
     def observation(self, observation):
         import cv2
-        observation = cv2.resize(observation, self.shape, interpolation=cv2.INTER_AREA)
+        observation = cv2.resize(observation, self.shape[::-1], interpolation=cv2.INTER_AREA)
         if observation.ndim == 2:
             observation = np.expand_dims(observation, -1)
         return observation
