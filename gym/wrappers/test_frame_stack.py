@@ -4,14 +4,22 @@ import numpy as np
 
 import gym
 from gym.wrappers import FrameStack
+try:
+    import atari_py
+except ImportError:
+    atari_py = None
 
 
 @pytest.mark.parametrize('env_id', ['CartPole-v1', 'Pendulum-v0', 'Pong-v0'])
 @pytest.mark.parametrize('num_stack', [2, 3, 4])
-def test_frame_stack(env_id, num_stack):
+@pytest.mark.parametrize('lz4_compress', [True, False])
+def test_frame_stack(env_id, num_stack, lz4_compress):
+    if env_id == 'Pong-v0' and atari_py is None:
+        return
+
     env = gym.make(env_id)
     shape = env.observation_space.shape
-    env = FrameStack(env, num_stack)
+    env = FrameStack(env, num_stack, lz4_compress)
     assert env.observation_space.shape == (num_stack,) + shape
 
     obs = env.reset()
