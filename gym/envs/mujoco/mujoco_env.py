@@ -101,12 +101,22 @@ class MujocoEnv(gym.Env):
         for _ in range(n_frames):
             self.sim.step()
 
-    def render(self, mode='human', width=DEFAULT_SIZE, height=DEFAULT_SIZE):
+    def render(self,
+               mode='human',
+               width=DEFAULT_SIZE,
+               height=DEFAULT_SIZE,
+               camera_id=None,
+               camera_name=None):
         if mode == 'rgb_array':
-            camera_id = None 
-            camera_name = 'track'
-            if self.rgb_rendering_tracking and camera_name in self.model.camera_names:
-                camera_id = self.model.camera_name2id(camera_name)
+            if camera_id is None or camera_name is None:
+                raise ValueError("Both `camera_id` and `camera_name` cannot be"
+                                 " specified at the same time.")
+
+            no_camera_specified = camera_name is None and camera_id is None
+            if no_camera_specified and self.rgb_rendering_tracking:
+                camera_name = 'track'
+
+            camera_id = self.model.camera_name2id(camera_name)
             self._get_viewer(mode).render(width, height, camera_id=camera_id)
             # window size used for old mujoco-py:
             data = self._get_viewer(mode).read_pixels(width, height, depth=False)
@@ -135,7 +145,7 @@ class MujocoEnv(gym.Env):
                 self.viewer = mujoco_py.MjViewer(self.sim)
             elif mode == 'rgb_array' or mode == 'depth_array':
                 self.viewer = mujoco_py.MjRenderContextOffscreen(self.sim, -1)
-                
+
             self.viewer_setup()
             self._viewers[mode] = self.viewer
         return self.viewer
