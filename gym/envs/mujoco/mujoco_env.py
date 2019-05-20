@@ -108,7 +108,7 @@ class MujocoEnv(gym.Env):
                camera_id=None,
                camera_name=None):
         if mode == 'rgb_array':
-            if camera_id is None or camera_name is None:
+            if camera_id is not None and camera_name is not None:
                 raise ValueError("Both `camera_id` and `camera_name` cannot be"
                                  " specified at the same time.")
 
