@@ -14,6 +14,8 @@ class TimeAwareObservation(ObservationWrapper):
     """
     def __init__(self, env):
         super(TimeAwareObservation, self).__init__(env)
+        assert isinstance(env.observation_space, Box)
+        assert env.observation_space.dtype == np.float32
         low = np.append(self.observation_space.low, 0.0)
         high = np.append(self.observation_space.high, np.inf)
         self.observation_space = Box(low, high, dtype=np.float32)
