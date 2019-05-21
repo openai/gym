@@ -116,7 +116,9 @@ class MujocoEnv(gym.Env):
             if no_camera_specified and self.rgb_rendering_tracking:
                 camera_name = 'track'
 
-            camera_id = self.model.camera_name2id(camera_name)
+            if camera_id is None:
+                camera_id = self.model.camera_name2id(camera_name)
+
             self._get_viewer(mode).render(width, height, camera_id=camera_id)
             # window size used for old mujoco-py:
             data = self._get_viewer(mode).read_pixels(width, height, depth=False)
