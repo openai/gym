@@ -229,6 +229,9 @@ class Wrapper(Env):
     def reset(self, **kwargs):
         return self.env.reset(**kwargs)
 
+    def get_pixels(self, *args, **kwargs):
+        return self.env.get_pixels(*args, **kwargs)
+
     def render(self, mode='human', **kwargs):
         return self.env.render(mode, **kwargs)
 
