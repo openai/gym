@@ -186,7 +186,7 @@ We are using `pytest <http://doc.pytest.org>`_ for tests. You can run them via:
 
 What's new
 ==========
-- 2019-05-24 (v0.12.2)
+- 2019-05-24 (v0.12.3)
     + remove pyopengl dependency and use more narrow atari-py and box2d-py versions
 
 - 2019-03-25 (v0.12.1)
