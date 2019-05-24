@@ -186,6 +186,9 @@ We are using `pytest <http://doc.pytest.org>`_ for tests. You can run them via:
 
 What's new
 ==========
+- 2019-05-24 (v0.12.2)
+    + remove pyopengl dependency and use more narrow atari-py and box2d-py versions
+
 - 2019-03-25 (v0.12.1)
     + rgb rendering in MuJoCo locomotion `-v3` environments now comes from tracking camera (so that agent does not run away from the field of view). The old behaviour can be restored by passing rgb_rendering_tracking=False kwarg.
 
