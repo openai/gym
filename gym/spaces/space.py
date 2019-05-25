@@ -11,16 +11,13 @@ class Space(object):
         self.shape = None if shape is None else tuple(shape)
         self.dtype = None if dtype is None else np.dtype(dtype)
         self.np_random = None
-        self._seed()
+        self.seed()
 
     def sample(self):
         """Uniformly randomly sample a random element of this space. """
         raise NotImplementedError
 
     def seed(self, seed=None):
-        return self._seed(seed)
-
-    def _seed(self, seed=None):
         """Seed the PRNG of this space. """
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
