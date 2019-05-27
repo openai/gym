@@ -6,8 +6,9 @@ from gym.wrappers import ClipAction
 
 def test_clip_action():
     # mountaincar: action-based rewards
-    env = gym.make('MountainCarContinuous-v0')
-    wrapped_env = ClipAction(env)
+    make_env = lambda: gym.make('MountainCarContinuous-v0')
+    env = make_env()
+    wrapped_env = ClipAction(make_env())
 
     seed = 0
     env.seed(seed)
