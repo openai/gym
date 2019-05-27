@@ -4,7 +4,7 @@ from gym import ObservationWrapper
 
 class FlattenObservation(ObservationWrapper):
     r"""Observation wrapper that flattens the observation."""
-    def __init__(self, env, shape):
+    def __init__(self, env):
         super(FlattenObservation, self).__init__(env)
 
         shape = spaces.flatdim(env.observation_space)
