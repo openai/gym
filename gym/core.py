@@ -47,7 +47,7 @@ class Env(object):
         Accepts an action and returns a tuple (observation, reward, done, info).
 
         Args:
-            action (object): an action provided by the environment
+            action (object): an action provided by the agent
 
         Returns:
             observation (object): agent's observation of the current environment
