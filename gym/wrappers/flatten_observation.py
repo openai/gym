@@ -1,3 +1,4 @@
+import numpy as np
 import gym.spaces as spaces
 from gym import ObservationWrapper
 
