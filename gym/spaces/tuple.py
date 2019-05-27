@@ -15,7 +15,7 @@ class Tuple(Space):
             assert isinstance(space, Space), "Elements of the tuple must be instances of gym.Space"
         super(Tuple, self).__init__(None, None)
 
-    def seed(self, seed):
+    def seed(self, seed=None):
         [space.seed(seed) for space in self.spaces]
 
     def sample(self):
