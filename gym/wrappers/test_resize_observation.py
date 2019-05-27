@@ -22,4 +22,4 @@ def test_resize_observation(env_id, shape):
         assert obs.shape == (shape, shape, 3)
     else:
         assert env.observation_space.shape[:2] == shape
-        assert obs.shape == (*shape, 3)
+        assert obs.shape == shape + (3,)
