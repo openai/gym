@@ -5,3 +5,5 @@ from gym.wrappers.dict import FlattenDictWrapper
 from gym.wrappers.atari_preprocessing import AtariPreprocessing
 from gym.wrappers import LazyFrames
 from gym.wrappers import FrameStack
+from gym.wrappers.clip_reward import ClipReward
+from gym.wrappers.sign_reward import SignReward
