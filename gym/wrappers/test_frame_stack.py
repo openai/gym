@@ -8,6 +8,10 @@ try:
     import atari_py
 except ImportError:
     atari_py = None
+try:
+    import lz4
+except ImportError:
+    lz4 = None
 
 
 @pytest.mark.parametrize('env_id', ['CartPole-v1', 'Pendulum-v0', 'Pong-v0'])
@@ -15,6 +19,8 @@ except ImportError:
 @pytest.mark.parametrize('lz4_compress', [True, False])
 def test_frame_stack(env_id, num_stack, lz4_compress):
     if env_id == 'Pong-v0' and atari_py is None:
+        return
+    if lz4_compress and lz4 is None:
         return
 
     env = gym.make(env_id)
