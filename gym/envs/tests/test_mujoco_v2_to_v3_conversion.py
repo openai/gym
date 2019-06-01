@@ -38,7 +38,7 @@ def verify_environments_match(old_environment_id,
 @unittest.skipIf(skip_mujoco, 'Cannot run mujoco key ' +
                               '(either license key not found or ' +
                               'mujoco not installed properly')
-class Mujocov2Tov2ConverstionTest(unittest.TestCase):
+class Mujocov2Tov3ConverstionTest(unittest.TestCase):
     def test_environments_match(self):
         test_cases = (
             {
