@@ -67,6 +67,7 @@ class AsyncVectorEnv(VectorEnv):
                 n=self.num_envs, fn=np.empty)
 
         self.parent_pipes, self.processes = [], []
+        self.error_queue = ctx.Queue()
         target = _worker_shared_memory if self.shared_memory else _worker
         with clear_mpi_env_vars():
             for idx, env_fn in enumerate(self.env_fns):
@@ -74,7 +75,7 @@ class AsyncVectorEnv(VectorEnv):
                 process = ctx.Process(target=target,
                     name='Worker<{0}>-{1}'.format(type(self).__name__, idx),
                     args=(idx, CloudpickleWrapper(env_fn), child_pipe,
-                    parent_pipe, _obs_buffer))
+                    parent_pipe, _obs_buffer, self.error_queue))
 
                 self.parent_pipes.append(parent_pipe)
                 self.processes.append(process)
@@ -149,6 +150,7 @@ class AsyncVectorEnv(VectorEnv):
 
         observations_list = [pipe.recv() for pipe in self.parent_pipes]
         self.waiting_reset = False
+        self._raise_if_errors()
 
         if not self.shared_memory:
             concatenate(observations_list, self.observations,
@@ -222,6 +224,7 @@ class AsyncVectorEnv(VectorEnv):
 
         results = [pipe.recv() for pipe in self.parent_pipes]
         self.waiting_step = False
+        self._raise_if_errors()
         observations_list, rewards, dones, infos = zip(*results)
 
         if not self.shared_memory:
@@ -280,11 +283,23 @@ class AsyncVectorEnv(VectorEnv):
             raise ClosedEnvironmentError('Trying to operate on `{0}`, after a '
                 'call to `close()`.'.format(type(self).__name__))
 
+    def _raise_if_errors(self):
+        if not self.error_queue.empty():
+            while not self.error_queue.empty():
+                index, exctype, value = self.error_queue.get()
+                logger.error('Received the following error from Worker-{0}: '
+                    '{1}: {2}'.format(index, exctype.__name__, value))
+                logger.error('Shutting down Worker-{0}.'.format(index))
+                self.parent_pipes[index].close()
+                self.parent_pipes[index] = None
+            logger.error('Raising the last exception back to the main process.')
+            raise exctype(value)
+
     def __del__(self):
         self.close(terminate=True)
 
 
-def _worker(index, env_fn, pipe, parent_pipe, shared_memory):
+def _worker(index, env_fn, pipe, parent_pipe, shared_memory, error_queue):
     assert shared_memory is None
     env = env_fn()
     parent_pipe.close()
@@ -308,13 +323,15 @@ def _worker(index, env_fn, pipe, parent_pipe, shared_memory):
             else:
                 raise RuntimeError('Received unknown command `{0}`. Must '
                     'be one of {`reset`, `step`, `seed`, `close`}.'.format(command))
-    except KeyboardInterrupt:
-        pass
+    except Exception:
+        import sys
+        error_queue.put((index,) + sys.exc_info()[:2])
+        pipe.send(None)
     finally:
         env.close()
 
 
-def _worker_shared_memory(index, env_fn, pipe, parent_pipe, shared_memory):
+def _worker_shared_memory(index, env_fn, pipe, parent_pipe, shared_memory, error_queue):
     assert shared_memory is not None
     env = env_fn()
     observation_space = env.observation_space
@@ -329,6 +346,8 @@ def _worker_shared_memory(index, env_fn, pipe, parent_pipe, shared_memory):
                 pipe.send(None)
             elif command == 'step':
                 observation, reward, done, info = env.step(data)
+                if done:
+                    observation = env.reset()
                 write_to_shared_memory(index, observation, shared_memory,
                                        observation_space)
                 pipe.send((None, reward, done, info))
@@ -341,7 +360,9 @@ def _worker_shared_memory(index, env_fn, pipe, parent_pipe, shared_memory):
             else:
                 raise RuntimeError('Received unknown command `{0}`. Must '
                     'be one of {`reset`, `step`, `seed`, `close`}.'.format(command))
-    except KeyboardInterrupt:
-        pass
+    except Exception:
+        import sys
+        error_queue.put((index,) + sys.exc_info()[:2])
+        pipe.send(None)
     finally:
         env.close()
