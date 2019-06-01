@@ -137,3 +137,37 @@ class WrapAfterConfigureError(Error):
 
 class RetriesExceededError(Error):
     pass
+
+# Vectorized environments errors
+
+class AlreadySteppingError(Exception):
+    """
+    Raised when `step` is called asynchronously (e.g. with `step_async`), and
+    `step_async` is called again (without a complete call to `step_wait`).
+    """
+    pass
+
+class AlreadyResettingError(Exception):
+    """
+    Raised when `reset` is called asynchronously (e.g. with `reset_async`), and
+    `reset_async` is called again (without a complete call to `reset_wait`).
+    """
+    pass
+
+class NotSteppingError(Exception):
+    """
+    Raised when an asynchronous `step` is not running, but `step_wait` is called.
+    """
+    pass
+
+class NotResettingError(Exception):
+    """
+    Raised when an asynchronous `reset` is not running, but `reset_wait` is called.
+    """
+    pass
+
+class ClosedEnvironmentError(Exception):
+    """
+    Trying to call `step` or `reset`, while the environment is closed.
+    """
+    pass

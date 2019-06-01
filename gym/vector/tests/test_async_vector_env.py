@@ -1,0 +1,87 @@
+import pytest
+import numpy as np
+
+from multiprocessing import TimeoutError
+from gym.spaces import Box
+from gym.vector.tests.utils import make_env, make_slow_env
+
+from gym.vector.async_vector_env import AsyncVectorEnv
+
+@pytest.mark.parametrize('shared_memory', [True, False])
+def test_create_async_vector_env(shared_memory):
+    env_fns = [make_env('CubeCrash-v0', i) for i in range(8)]
+    try:
+        env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
+    finally:
+        env.close()
+
+    assert env.num_envs == 8
+
+
+@pytest.mark.parametrize('shared_memory', [True, False])
+def test_reset_async_vector_env(shared_memory):
+    env_fns = [make_env('CubeCrash-v0', i) for i in range(8)]
+    try:
+        env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
+        observations = env.reset()
+    finally:
+        env.close()
+
+    assert isinstance(env.observation_space, Box)
+    assert isinstance(observations, np.ndarray)
+    assert observations.dtype == env.observation_space.dtype
+    assert observations.shape == (8,) + env.single_observation_space.shape
+    assert observations.shape == env.observation_space.shape
+
+
+@pytest.mark.parametrize('shared_memory', [True, False])
+def test_step_async_vector_env(shared_memory):
+    env_fns = [make_env('CubeCrash-v0', i) for i in range(8)]
+    try:
+        env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
+        observations = env.reset()
+        actions = [env.single_action_space.sample() for _ in range(8)]
+        observations, rewards, dones, _ = env.step(actions)
+    finally:
+        env.close()
+
+    assert isinstance(env.observation_space, Box)
+    assert isinstance(observations, np.ndarray)
+    assert observations.dtype == env.observation_space.dtype
+    assert observations.shape == (8,) + env.single_observation_space.shape
+    assert observations.shape == env.observation_space.shape
+
+    assert isinstance(rewards, np.ndarray)
+    assert isinstance(rewards[0], (float, np.floating))
+    assert rewards.ndim == 1
+    assert rewards.size == 8
+
+    assert isinstance(dones, np.ndarray)
+    assert dones.dtype == np.bool_
+    assert dones.ndim == 1
+    assert dones.size == 8
+
+
+@pytest.mark.parametrize('shared_memory', [True, False])
+def test_reset_timeout_async_vector_env(shared_memory):
+    env_fns = [make_slow_env(0.3, i) for i in range(4)]
+    with pytest.raises(TimeoutError):
+        try:
+            env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
+            env.reset_async()
+            observations = env.reset_wait(timeout=0.1)
+        finally:
+            env.close(terminate=True)
+
+
+@pytest.mark.parametrize('shared_memory', [True, False])
+def test_step_timeout_async_vector_env(shared_memory):
+    env_fns = [make_slow_env(0., i) for i in range(4)]
+    with pytest.raises(TimeoutError):
+        try:
+            env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
+            observations = env.reset()
+            env.step_async([0.1, 0.1, 0.3, 0.1])
+            observations, rewards, dones, _ = env.step_wait(timeout=0.1)
+        finally:
+            env.close(terminate=True)
