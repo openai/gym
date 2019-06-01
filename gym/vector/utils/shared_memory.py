@@ -75,6 +75,12 @@ def read_from_shared_memory(shared_memory, space, n=1):
     -------
     observations : dict, tuple or `np.ndarray` instance
         Batch of observations as a (possibly nested) numpy array.
+
+    Notes
+    -----
+    The numpy array objects returned by `read_from_shared_memory` shares the
+    memory of `shared_memory`. Any changes to `shared_memory` are forwarded
+    to `observations`, and vice-versa. To avoid any side-effect, use `np.copy`.
     """
     if isinstance(space, _BaseGymSpaces):
         return read_base_from_shared_memory(shared_memory, space, n=n)
