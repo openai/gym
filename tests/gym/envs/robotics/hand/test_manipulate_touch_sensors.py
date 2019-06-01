@@ -1,7 +1,10 @@
 import pickle
+import unittest
+
+import pytest
 
 from gym import envs
-import pytest
+from gym.envs.tests.spec_list import skip_mujoco, SKIP_MUJOCO_WARNING_MESSAGE
 
 
 ENVIRONMENT_IDS = (
@@ -11,6 +14,7 @@ ENVIRONMENT_IDS = (
 )
 
 
+@unittest.skipIf(skip_mujoco, SKIP_MUJOCO_WARNING_MESSAGE)
 @pytest.mark.parametrize("environment_id", ENVIRONMENT_IDS)
 def test_serialize_deserialize(environment_id):
     env1 = envs.make(environment_id, target_position='fixed')
