@@ -4,6 +4,8 @@ from gym import logger
 from gym.vector.vector_env import VectorEnv
 from gym.vector.utils import concatenate, create_empty_array
 
+__all__ = ['SyncVectorEnv']
+
 
 class SyncVectorEnv(VectorEnv):
     """Vectorized environment that serially runs multiple environments.

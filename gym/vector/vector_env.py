@@ -2,6 +2,9 @@ import gym
 from gym.spaces import Tuple
 from gym.vector.utils.spaces import batch_space
 
+__all__ = ['VectorEnv']
+
+
 class VectorEnv(gym.Env):
     """Base class for vectorized environments.
 
