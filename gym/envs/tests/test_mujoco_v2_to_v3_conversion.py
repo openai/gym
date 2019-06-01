@@ -36,7 +36,7 @@ def verify_environments_match(old_environment_id,
 
 
 @unittest.skipIf(skip_mujoco, SKIP_MUJOCO_WARNING_MESSAGE)
-class Mujocov2Tov3ConverstionTest(unittest.TestCase):
+class Mujocov2Tov3ConversionTest(unittest.TestCase):
     def test_environments_match(self):
         test_cases = (
             {
