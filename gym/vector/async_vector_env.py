@@ -1,6 +1,7 @@
 import numpy as np
 import multiprocessing as mp
 import time
+from copy import deepcopy
 
 from gym import logger
 from gym.vector.vector_env import VectorEnv
@@ -158,7 +159,7 @@ class AsyncVectorEnv(VectorEnv):
             concatenate(observations_list, self.observations,
                 self.single_observation_space)
 
-        return np.copy(self.observations) if self.copy else self.observations
+        return deepcopy(self.observations) if self.copy else self.observations
 
     def step_async(self, actions):
         """
@@ -233,7 +234,7 @@ class AsyncVectorEnv(VectorEnv):
             concatenate(observations_list, self.observations,
                 self.single_observation_space)
 
-        return (np.copy(self.observations) if self.copy else self.observations,
+        return (deepcopy(self.observations) if self.copy else self.observations,
                 np.array(rewards), np.array(dones, dtype=np.bool_), infos)
 
     def poll(self, timeout=None):
