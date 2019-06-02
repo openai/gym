@@ -26,7 +26,7 @@ class PendulumEnv(gym.Env):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
-    def step(self,u):
+    def step(self,u,**kwargs):
         th, thdot = self.state # th := theta
 
         g = 10.
@@ -44,6 +44,8 @@ class PendulumEnv(gym.Env):
 
         self.state = np.array([newth, newthdot])
         return self._get_obs(), -costs, False, {}
+
+    step(g=9.8)   
 
     def reset(self):
         high = np.array([np.pi, 1])
