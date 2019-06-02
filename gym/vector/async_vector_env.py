@@ -42,10 +42,16 @@ class AsyncVectorEnv(VectorEnv):
 
     context : str, optional
         Context for multiprocessing. If `None`, then the default context is used.
+        Only available in Python 3.
     """
     def __init__(self, env_fns, observation_space=None, action_space=None,
                  shared_memory=True, copy=True, context=None):
-        ctx = mp.get_context(context)
+        try:
+            ctx = mp.get_context(context)
+        except AttributeError:
+            logger.warn('Context switching for `multiprocessing` is not '
+                'available in Python 2. Using the default context.')
+            ctx = mp
         self.env_fns = env_fns
         self.shared_memory = shared_memory
         self.copy = copy
@@ -299,7 +305,9 @@ class AsyncVectorEnv(VectorEnv):
             raise exctype(value)
 
     def __del__(self):
-        self.close(terminate=True)
+        if hasattr(self, 'closed'):
+            if not self.closed:
+                self.close(terminate=True)
 
 
 def _worker(index, env_fn, pipe, parent_pipe, shared_memory, error_queue):
