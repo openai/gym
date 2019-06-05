@@ -56,3 +56,13 @@ def test_step_sync_vector_env():
     assert dones.dtype == np.bool_
     assert dones.ndim == 1
     assert dones.size == 8
+
+
+def test_check_observations_sync_vector_env():
+    # CubeCrash-v0 - observation_space: Box(40, 32, 3)
+    env_fns = [make_env('CubeCrash-v0', i) for i in range(8)]
+    # MemorizeDigits-v0 - observation_space: Box(24, 32, 3)
+    env_fns[1] = make_env('MemorizeDigits-v0', 1)
+    with pytest.raises(RuntimeError):
+        env = SyncVectorEnv(env_fns)
+        env.close()

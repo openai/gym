@@ -39,6 +39,7 @@ class SyncVectorEnv(VectorEnv):
         super(SyncVectorEnv, self).__init__(num_envs=len(env_fns),
             observation_space=observation_space, action_space=action_space)
 
+        self._check_observation_spaces()
         self.observations = create_empty_array(self.single_observation_space,
             n=self.num_envs, fn=np.empty)
         self._rewards = np.zeros((self.num_envs,), dtype=np.float64)
@@ -69,3 +70,22 @@ class SyncVectorEnv(VectorEnv):
     def close_extras(self):
         for env in self.envs:
             env.close()
+
+    def _check_observation_spaces(self):
+        from gym.spaces import Box
+        for env in self.envs:
+            observation_space = env.observation_space
+            # Equality between Box spaces does not check for shape equality
+            if isinstance(observation_space, Box) \
+                    and isinstance(self.single_observation_space, Box) \
+                    and observation_space.shape != self.single_observation_space.shape:
+                break
+            if observation_space != self.single_observation_space:
+                break
+        else:
+            return True
+        self.close()
+        raise RuntimeError('Some environments have an observation space '
+            'different from `{0}`. In order to batch observations, the '
+            'observation spaces from all environments must be '
+            'equal.'.format(self.single_observation_space))

@@ -112,6 +112,7 @@ def test_step_timeout_async_vector_env(shared_memory):
         finally:
             env.close(terminate=True)
 
+
 @pytest.mark.parametrize('shared_memory', [True, False])
 def test_check_observations_async_vector_env(shared_memory):
     # CubeCrash-v0 - observation_space: Box(40, 32, 3)
