@@ -95,6 +95,7 @@ class AsyncVectorEnv(VectorEnv):
 
         self.waiting_reset = False
         self.waiting_step = False
+        self._check_observation_spaces()
 
     def seed(self, seeds=None):
         self._assert_is_running()
@@ -287,6 +288,17 @@ class AsyncVectorEnv(VectorEnv):
         for process in self.processes:
             process.join()
 
+    def _check_observation_spaces(self):
+        self._assert_is_running()
+        for pipe in self.parent_pipes:
+            pipe.send(('_check_observation_space', self.single_observation_space))
+        if not all([pipe.recv() for pipe in self.parent_pipes]):
+            self.close(terminate=True)
+            raise RuntimeError('Some environments have an observation space '
+                'different from `{0}`. In order to batch observations, the '
+                'observation spaces from all environments must be '
+                'equal.'.format(self.single_observation_space))
+
     def _assert_is_running(self):
         if self.closed:
             raise ClosedEnvironmentError('Trying to operate on `{0}`, after a '
@@ -331,9 +343,12 @@ def _worker(index, env_fn, pipe, parent_pipe, shared_memory, error_queue):
             elif command == 'close':
                 pipe.send(None)
                 break
+            elif command == '_check_observation_space':
+                pipe.send(data == env.observation_space)
             else:
                 raise RuntimeError('Received unknown command `{0}`. Must '
-                    'be one of {`reset`, `step`, `seed`, `close`}.'.format(command))
+                    'be one of {`reset`, `step`, `seed`, `close`, '
+                    '`_check_observation_space`}.'.format(command))
     except Exception:
         import sys
         error_queue.put((index,) + sys.exc_info()[:2])
@@ -368,9 +383,12 @@ def _worker_shared_memory(index, env_fn, pipe, parent_pipe, shared_memory, error
             elif command == 'close':
                 pipe.send(None)
                 break
+            elif command == '_check_observation_space':
+                pipe.send(data == observation_space)
             else:
                 raise RuntimeError('Received unknown command `{0}`. Must '
-                    'be one of {`reset`, `step`, `seed`, `close`}.'.format(command))
+                    'be one of {`reset`, `step`, `seed`, `close`, '
+                    '`_check_observation_space`}.'.format(command))
     except Exception:
         import sys
         error_queue.put((index,) + sys.exc_info()[:2])
