@@ -80,7 +80,7 @@ class SyncVectorEnv(VectorEnv):
                     and isinstance(self.single_observation_space, Box) \
                     and observation_space.shape != self.single_observation_space.shape:
                 break
-            if observation_space != self.single_observation_space:
+            if not (observation_space == self.single_observation_space):
                 break
         else:
             return True
