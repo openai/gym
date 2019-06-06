@@ -109,3 +109,33 @@ def test_create_empty_array_zeros(space, n):
 
     array = create_empty_array(space, n=n, fn=np.zeros)
     assert_nested_type(array, space, n=n)
+
+
+@pytest.mark.parametrize('space', spaces,
+    ids=[space.__class__.__name__ for space in spaces])
+def test_create_empty_array_none_shape_ones(space):
+
+    def assert_nested_type(arr, space):
+        if isinstance(space, _BaseGymSpaces):
+            assert isinstance(arr, np.ndarray)
+            assert arr.dtype == space.dtype
+            assert arr.shape == space.shape
+            assert np.all(arr == 1)
+
+        elif isinstance(space, Tuple):
+            assert isinstance(arr, tuple)
+            assert len(arr) == len(space.spaces)
+            for i in range(len(arr)):
+                assert_nested_type(arr[i], space.spaces[i])
+
+        elif isinstance(space, Dict):
+            assert isinstance(arr, OrderedDict)
+            assert set(arr.keys()) ^ set(space.spaces.keys()) == set()
+            for key in arr.keys():
+                assert_nested_type(arr[key], space.spaces[key])
+
+        else:
+            raise TypeError('Got unknown type `{0}`.'.format(type(arr)))
+
+    array = create_empty_array(space, n=None, fn=np.ones)
+    assert_nested_type(array, space)

@@ -66,7 +66,8 @@ def create_empty_array(space, n=1, fn=np.empty):
         Observation space of a single environment in the vectorized environment.
 
     n : int
-        Number of environments in the vectorized environment.
+        Number of environments in the vectorized environment. If `None`, creates
+        an empty sample from `space`.
 
     fn : callable
         Function to apply when creating the empty numpy array. Examples of such
@@ -99,7 +100,8 @@ def create_empty_array(space, n=1, fn=np.empty):
         raise NotImplementedError()
 
 def create_empty_array_base(space, n=1, fn=np.empty):
-    return fn((n,) + space.shape, dtype=space.dtype)
+    shape = space.shape if (n is None) else (n,) + space.shape
+    return fn(shape, dtype=space.dtype)
 
 def create_empty_array_tuple(space, n=1, fn=np.empty):
     return tuple(create_empty_array(subspace, n=n, fn=fn)
