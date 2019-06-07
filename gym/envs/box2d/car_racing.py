@@ -119,6 +119,9 @@ class CarRacing(gym.Env, EzPickle):
         self.reward = 0.0
         self.prev_reward = 0.0
         self.verbose = verbose
+        self.fd_tile = fixtureDef(
+                shape = polygonShape(vertices=
+                    [(0, 0),(1, 0),(1, -1),(0, -1)]))
 
         self.action_space = spaces.Box( np.array([-1,0,0]), np.array([+1,+1,+1]), dtype=np.float32)  # steer, gas, brake
         self.observation_space = spaces.Box(low=0, high=255, shape=(STATE_H, STATE_W, 3), dtype=np.uint8)
@@ -268,9 +271,9 @@ class CarRacing(gym.Env, EzPickle):
             road1_r = (x1 + TRACK_WIDTH*math.cos(beta1), y1 + TRACK_WIDTH*math.sin(beta1))
             road2_l = (x2 - TRACK_WIDTH*math.cos(beta2), y2 - TRACK_WIDTH*math.sin(beta2))
             road2_r = (x2 + TRACK_WIDTH*math.cos(beta2), y2 + TRACK_WIDTH*math.sin(beta2))
-            t = self.world.CreateStaticBody( fixtures = fixtureDef(
-                shape=polygonShape(vertices=[road1_l, road1_r, road2_r, road2_l])
-                ))
+            vertices = [road1_l, road1_r, road2_r, road2_l]
+            self.fd_tile.shape.vertices = vertices
+            t = self.world.CreateStaticBody(fixtures=self.fd_tile)
             t.userData = t
             c = 0.01*(i%3)
             t.color = [ROAD_COLOR[0] + c, ROAD_COLOR[1] + c, ROAD_COLOR[2] + c]
