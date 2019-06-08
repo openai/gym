@@ -149,7 +149,7 @@ class AsyncVectorEnv(VectorEnv):
             raise NotResettingError('Calling `reset_wait` without any prior '
                 'call to `reset_async`.')
 
-        if not self.poll(timeout):
+        if not self._poll(timeout):
             self._state = AsyncState.DEFAULT
             raise mp.TimeoutError('The call to `reset_wait` has timed out after '
                 '{0} second{1}.'.format(timeout, 's' if timeout > 1 else ''))
@@ -211,7 +211,7 @@ class AsyncVectorEnv(VectorEnv):
             raise NotSteppingError('Calling `step_wait` without any prior call '
                 'to `step_async`.')
 
-        if not self.poll(timeout):
+        if not self._poll(timeout):
             self._state = AsyncState.DEFAULT
             raise mp.TimeoutError('The call to `step_wait` has timed out after '
                 '{0} second{1}.'.format(timeout, 's' if timeout > 1 else ''))
@@ -227,20 +227,6 @@ class AsyncVectorEnv(VectorEnv):
 
         return (deepcopy(self.observations) if self.copy else self.observations,
                 np.array(rewards), np.array(dones, dtype=np.bool_), infos)
-
-    def poll(self, timeout=None):
-        self._assert_is_running()
-        if timeout is not None:
-            end_time = time.time() + timeout
-        delta = None
-        for pipe in self.parent_pipes:
-            if timeout is not None:
-                delta = max(end_time - time.time(), 0)
-            if not pipe.poll(delta):
-                break
-        else:
-            return True
-        return False
 
     def close_extras(self, timeout=None, terminate=False):
         timeout = 0 if terminate else timeout
@@ -271,6 +257,20 @@ class AsyncVectorEnv(VectorEnv):
             pipe.close()
         for process in self.processes:
             process.join()
+
+    def _poll(self, timeout=None):
+        self._assert_is_running()
+        if timeout is not None:
+            end_time = time.time() + timeout
+        delta = None
+        for pipe in self.parent_pipes:
+            if timeout is not None:
+                delta = max(end_time - time.time(), 0)
+            if not pipe.poll(delta):
+                break
+        else:
+            return True
+        return False
 
     def _check_observation_spaces(self):
         self._assert_is_running()
