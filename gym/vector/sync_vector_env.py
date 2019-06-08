@@ -45,6 +45,16 @@ class SyncVectorEnv(VectorEnv):
         self._rewards = np.zeros((self.num_envs,), dtype=np.float64)
         self._dones = np.zeros((self.num_envs,), dtype=np.bool_)
 
+    def seed(self, seeds=None):
+        if seeds is None:
+            seeds = [None for _ in range(self.num_envs)]
+        if isinstance(seeds, int):
+            seeds = [seeds + i for i in range(self.num_envs)]
+        assert len(seeds) == self.num_envs
+
+        for env, seed in zip(self.envs, seeds):
+            env.seed(seed)
+
     def reset(self):
         observations = []
         for i in range(self.num_envs):
@@ -59,7 +69,7 @@ class SyncVectorEnv(VectorEnv):
         for i, action in enumerate(actions):
             observation, self._rewards[i], self._dones[i], info = self.envs[i].step(action)
             if self._dones[i]:
-                observation = self.env[i].reset()
+                observation = self.envs[i].reset()
             observations.append(observation)
             infos.append(info)
         concatenate(observations, self.observations, self.single_observation_space)
