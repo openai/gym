@@ -4,9 +4,10 @@ import gym
 class TimeLimit(gym.Wrapper):
     def __init__(self, env, max_episode_steps=None):
         super(TimeLimit, self).__init__(env)
-        if max_episode_steps is None:
+        if max_episode_steps is None and self.env.spec is not None:
             max_episode_steps = env.spec.max_episode_steps
-        self.env.spec.max_episode_steps = max_episode_steps
+        if self.env.spec is not None:
+            self.env.spec.max_episode_steps = max_episode_steps
         self._max_episode_steps = max_episode_steps
         self._elapsed_steps = None
 
