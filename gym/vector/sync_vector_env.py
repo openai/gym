@@ -94,7 +94,6 @@ class SyncVectorEnv(VectorEnv):
                 break
         else:
             return True
-        self.close()
         raise RuntimeError('Some environments have an observation space '
             'different from `{0}`. In order to batch observations, the '
             'observation spaces from all environments must be '

@@ -285,7 +285,6 @@ class AsyncVectorEnv(VectorEnv):
         for pipe in self.parent_pipes:
             pipe.send(('_check_observation_space', self.single_observation_space))
         if not all([pipe.recv() for pipe in self.parent_pipes]):
-            self.close(terminate=True)
             raise RuntimeError('Some environments have an observation space '
                 'different from `{0}`. In order to batch observations, the '
                 'observation spaces from all environments must be '
