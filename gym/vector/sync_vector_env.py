@@ -72,15 +72,8 @@ class SyncVectorEnv(VectorEnv):
             env.close()
 
     def _check_observation_spaces(self):
-        from gym.spaces import Box
         for env in self.envs:
-            observation_space = env.observation_space
-            # Equality between Box spaces does not check for shape equality
-            if isinstance(observation_space, Box) \
-                    and isinstance(self.single_observation_space, Box) \
-                    and observation_space.shape != self.single_observation_space.shape:
-                break
-            if not (observation_space == self.single_observation_space):
+            if not (env.observation_space == self.single_observation_space):
                 break
         else:
             return True

@@ -84,7 +84,7 @@ class AsyncVectorEnv(VectorEnv):
                 process = ctx.Process(target=target,
                     name='Worker<{0}>-{1}'.format(type(self).__name__, idx),
                     args=(idx, CloudpickleWrapper(env_fn), child_pipe,
-                    parent_pipe, _obs_buffer, self.error_queue))
+                    parent_pipe, _obs_buffer, self.error_queue, self.episodic))
 
                 self.parent_pipes.append(parent_pipe)
                 self.processes.append(process)
@@ -344,13 +344,7 @@ def _worker(index, env_fn, pipe, parent_pipe, shared_memory, error_queue):
                 pipe.send(None)
                 break
             elif command == '_check_observation_space':
-                try:
-                    is_observation_space_equal = (data == env.observation_space)
-                except ValueError:
-                    # Equality between Box spaces does not check for shape equality
-                    is_observation_space_equal = False
-                    raise
-                pipe.send(is_observation_space_equal)
+                pipe.send(data == env.observation_space)
             else:
                 raise RuntimeError('Received unknown command `{0}`. Must '
                     'be one of {`reset`, `step`, `seed`, `close`, '
@@ -390,12 +384,7 @@ def _worker_shared_memory(index, env_fn, pipe, parent_pipe, shared_memory, error
                 pipe.send(None)
                 break
             elif command == '_check_observation_space':
-                try:
-                    is_observation_space_equal = (data == observation_space)
-                except ValueError:
-                    # Equality between Box spaces does not check for shape equality
-                    is_observation_space_equal = False
-                pipe.send(is_observation_space_equal)
+                pipe.send(data == observation_space)
             else:
                 raise RuntimeError('Received unknown command `{0}`. Must '
                     'be one of {`reset`, `step`, `seed`, `close`, '

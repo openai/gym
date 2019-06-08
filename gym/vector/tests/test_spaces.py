@@ -21,7 +21,7 @@ expected_batch_spaces_4 = [
         high=np.array([[1., 1.], [1., 1.], [1., 1.], [1., 1.]]), dtype=np.float32))),
     Box(low=np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]),
         high=np.array([[10, 12, 16], [10, 12, 16], [10, 12, 16], [10, 12, 16]]), dtype=np.int64),
-    Box(low=0, high=1, shape=(19,), dtype=np.int8),
+    Box(low=0, high=1, shape=(4, 19), dtype=np.int8),
     Dict({
         'position': MultiDiscrete([23, 23, 23, 23]),
         'velocity': Box(low=0., high=1., shape=(4, 1), dtype=np.float32)

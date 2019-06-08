@@ -29,7 +29,7 @@ class VectorEnv(gym.Env):
         self.viewer = None
 
         # The observation and action spaces of a single environment are
-        # kepts in separate properties
+        # kept in separate properties
         self.single_observation_space = observation_space
         self.single_action_space = action_space
 
