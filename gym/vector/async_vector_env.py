@@ -1,6 +1,7 @@
 import numpy as np
 import multiprocessing as mp
 import time
+import sys
 from copy import deepcopy
 
 from gym import logger
@@ -113,18 +114,10 @@ class AsyncVectorEnv(VectorEnv):
     def reset_async(self):
         self._assert_is_running()
         if self.waiting_step:
-            logger.warn('Calling `reset_async` while waiting for a pending '
-                'call to `step` to complete. Cancelling the previous call to '
-                '`step`...')
-            try:
-                self.step_wait(timeout=0)
-            except mp.TimeoutError:
-                pass
+            raise AlreadySteppingError('Calling `reset_async` while waiting '
+                'for a pending call to `step` to complete.')
 
         if self.waiting_reset:
-            logger.error('Calling `reset_async` while waiting for a pending '
-                'call to `reset` to complete. Closing `{0}`...'.format(self))
-            self.close(terminate=True)
             raise AlreadyResettingError('Calling `reset_async` while waiting '
                 'for a pending call to `reset` to complete.')
 
@@ -147,9 +140,6 @@ class AsyncVectorEnv(VectorEnv):
         """
         self._assert_is_running()
         if self.waiting_step or (not self.waiting_reset):
-            logger.error('Calling `reset_wait` without any prior call to '
-                '`reset_async`. Closing `{0}`...'.format(type(self).__name__))
-            self.close(terminate=True)
             raise NotResettingError('Calling `reset_wait` without any prior '
                 'call to `reset_async`.')
 
@@ -177,19 +167,10 @@ class AsyncVectorEnv(VectorEnv):
         """
         self._assert_is_running()
         if self.waiting_reset:
-            logger.warn('Calling `step_async` while waiting for a pending '
-                'call to `reset` to complete. Waiting for the previous call '
-                'to `reset`...')
-            try:
-                self.reset_wait()
-            except mp.TimeoutError:
-                pass
+            raise AlreadyResettingError('Calling `step_async` while waiting '
+                'for a pending call to `reset` to complete.')
 
         if self.waiting_step:
-            logger.error('Calling `step_async` while waiting for a pending '
-                'call to `step` to complete. Closing `{0}`...'.format(
-                type(self).__name__))
-            self.close(terminate=True)
             raise AlreadySteppingError('Calling `step_async` while waiting for '
                 'a pending call to `step` to complete.')
 
@@ -221,9 +202,6 @@ class AsyncVectorEnv(VectorEnv):
         """
         self._assert_is_running()
         if self.waiting_reset or not self.waiting_step:
-            logger.error('Calling `step_wait` without any prior call to '
-                '`step_async`. Closing `{0}`...'.format(type(self).__name__))
-            self.close(terminate=True)
             raise NotSteppingError('Calling `step_wait` without any prior call '
                 'to `step_async`.')
 
@@ -350,7 +328,6 @@ def _worker(index, env_fn, pipe, parent_pipe, shared_memory, error_queue):
                     'be one of {`reset`, `step`, `seed`, `close`, '
                     '`_check_observation_space`}.'.format(command))
     except Exception:
-        import sys
         error_queue.put((index,) + sys.exc_info()[:2])
         pipe.send(None)
     finally:
@@ -390,7 +367,6 @@ def _worker_shared_memory(index, env_fn, pipe, parent_pipe, shared_memory, error
                     'be one of {`reset`, `step`, `seed`, `close`, '
                     '`_check_observation_space`}.'.format(command))
     except Exception:
-        import sys
         error_queue.put((index,) + sys.exc_info()[:2])
         pipe.send(None)
     finally:
