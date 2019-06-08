@@ -53,17 +53,6 @@ class VectorEnv(gym.Env):
         self.step_async(actions)
         return self.step_wait()
 
-    def close_extras(self):
-        pass
-
-    def close(self, **kwargs):
-        if self.closed:
-            return
-        if self.viewer is not None:
-            self.viewer.close()
-        self.close_extras(**kwargs)
-        self.closed = True
-
     def __del__(self):
         if hasattr(self, 'closed'):
             if not self.closed:
