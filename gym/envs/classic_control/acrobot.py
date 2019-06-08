@@ -17,8 +17,8 @@ __author__ = "Christoph Dann <cdann@cdann.de>"
 class AcrobotEnv(core.Env):
 
     """
-    Acrobot is a 2-link pendulum with only the second joint actuated
-    Intitially, both links point downwards. The goal is to swing the
+    Acrobot is a 2-link pendulum with only the second joint actuated.
+    Initially, both links point downwards. The goal is to swing the
     end-effector at a height at least the length of one link above the base.
     Both links can swing freely and can pass by each other, i.e., they don't
     collide when they have the same angle.

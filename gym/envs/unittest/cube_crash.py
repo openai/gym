@@ -73,7 +73,7 @@ class CubeCrash(gym.Env):
     def reset(self):
         self.cube_x = self.np_random.randint(low=3, high=FIELD_W-3)
         self.cube_y = self.np_random.randint(low=3, high=FIELD_H//6)
-        self.hole_x = self.np_random.randint(low=HOLE_WIDTH, high=FIELD_W-HOLE_WIDTH) 
+        self.hole_x = self.np_random.randint(low=HOLE_WIDTH, high=FIELD_W-HOLE_WIDTH)
         self.bg_color = self.random_color() if self.use_random_colors else color_black
         self.potential  = None
         self.step_n = 0
@@ -83,7 +83,7 @@ class CubeCrash(gym.Env):
             if np.linalg.norm(self.wall_color - self.bg_color) < 50 or np.linalg.norm(self.cube_color - self.bg_color) < 50: continue
             break
         return self.step(0)[0]
-    
+
     def step(self, action):
         if action==0: pass
         elif action==1: self.cube_x -= 1
@@ -107,7 +107,7 @@ class CubeCrash(gym.Env):
             reward = (self.potential - dist) * 0.01
         self.potential = dist
 
-        if self.cube_x-1 < 0 or self.cube_x+1 >= FIELD_W:       
+        if self.cube_x-1 < 0 or self.cube_x+1 >= FIELD_W:
             done = True
             reward = -1
         elif self.cube_y+1 >= FIELD_H-5:
@@ -120,13 +120,7 @@ class CubeCrash(gym.Env):
         self.last_obs = obs
         return obs, reward, done, {}
 
-    def render(self, mode='human', close=False):
-        if close:
-            if self.viewer is not None:
-                self.viewer.close()
-                self.viewer = None
-            return
-
+    def render(self, mode='human'):
         if mode == 'rgb_array':
             return self.last_obs
 
@@ -139,6 +133,11 @@ class CubeCrash(gym.Env):
 
         else:
             assert 0, "Render mode '%s' is not supported" % mode
+
+    def close(self):
+        if self.viewer is not None:
+            self.viewer.close()
+            self.viewer = None
 
 class CubeCrashSparse(CubeCrash):
     use_shaped_reward = False

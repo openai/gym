@@ -1,4 +1,4 @@
-import numpy as np
+from gym.utils import seeding
 
 
 class Space(object):
@@ -7,19 +7,20 @@ class Space(object):
     action.
     """
     def __init__(self, shape=None, dtype=None):
-        import numpy as np # takes about 300-400ms to import, so we load lazily
+        import numpy as np  # takes about 300-400ms to import, so we load lazily
         self.shape = None if shape is None else tuple(shape)
         self.dtype = None if dtype is None else np.dtype(dtype)
+        self.np_random = None
+        self.seed()
 
     def sample(self):
-        """
-        Uniformly randomly sample a random element of this space
-        """
+        """Uniformly randomly sample a random element of this space. """
         raise NotImplementedError
 
-    def seed(self, seed):
-        """Set the seed for this space's pseudo-random number generator. """
-        raise NotImplementedError
+    def seed(self, seed=None):
+        """Seed the PRNG of this space. """
+        self.np_random, seed = seeding.np_random(seed)
+        return [seed]
 
     def contains(self, x):
         """

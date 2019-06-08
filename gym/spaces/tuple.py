@@ -1,4 +1,4 @@
-import gym
+import numpy as np
 from .space import Space
 
 
@@ -11,9 +11,11 @@ class Tuple(Space):
     """
     def __init__(self, spaces):
         self.spaces = spaces
+        for space in spaces:
+            assert isinstance(space, Space), "Elements of the tuple must be instances of gym.Space"
         super(Tuple, self).__init__(None, None)
 
-    def seed(self, seed):
+    def seed(self, seed=None):
         [space.seed(seed) for space in self.spaces]
 
     def sample(self):
@@ -36,5 +38,11 @@ class Tuple(Space):
     def from_jsonable(self, sample_n):
         return [sample for sample in zip(*[space.from_jsonable(sample_n[i]) for i, space in enumerate(self.spaces)])]
 
+    def __getitem__(self, index):
+        return self.spaces[index]
+
+    def __len__(self):
+        return len(self.spaces)
+      
     def __eq__(self, other):
-        return self.spaces == other.spaces
+        return isinstance(other, Tuple) and self.spaces == other.spaces

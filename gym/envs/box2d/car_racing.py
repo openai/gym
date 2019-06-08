@@ -13,22 +13,22 @@ import pyglet
 from pyglet import gl
 
 # Easiest continuous control task to learn from pixels, a top-down racing environment.
-# Discreet control is reasonable in this environment as well, on/off discretisation is
+# Discrete control is reasonable in this environment as well, on/off discretization is
 # fine.
 #
 # State consists of STATE_W x STATE_H pixels.
 #
 # Reward is -0.1 every frame and +1000/N for every track tile visited, where N is
-# the total number of tiles in track. For example, if you have finished in 732 frames,
+# the total number of tiles visited in the track. For example, if you have finished in 732 frames,
 # your reward is 1000 - 0.1*732 = 926.8 points.
 #
-# Game is solved when agent consistently gets 900+ points. Track is random every episode.
+# Game is solved when agent consistently gets 900+ points. Track generated is random every episode.
 #
 # Episode finishes when all tiles are visited. Car also can go outside of PLAYFIELD, that
 # is far off the track, then it will get -100 and die.
 #
 # Some indicators shown at the bottom of the window and the state RGB buffer. From
-# left to right: true speed, four ABS sensors, steering wheel position, gyroscope.
+# left to right: true speed, four ABS sensors, steering wheel position and gyroscope.
 #
 # To play yourself (it's rather fast for humans), type:
 #
@@ -43,13 +43,13 @@ STATE_W = 96   # less than Atari 160x192
 STATE_H = 96
 VIDEO_W = 600
 VIDEO_H = 400
-WINDOW_W = 1200
-WINDOW_H = 1000
+WINDOW_W = 1000
+WINDOW_H = 800
 
 SCALE       = 6.0        # Track scale
 TRACK_RAD   = 900/SCALE  # Track is heavily morphed circle with this radius
 PLAYFIELD   = 2000/SCALE # Game over boundary
-FPS         = 50
+FPS         = 50         # Frames per second
 ZOOM        = 2.7        # Camera zoom
 ZOOM_FOLLOW = True       # Set to False for fixed view (don't use zoom)
 
@@ -81,22 +81,24 @@ class FrictionDetector(contactListener):
         if u2 and "road_friction" in u2.__dict__:
             tile = u2
             obj  = u1
-        if not tile: return
+        if not tile:
+            return
 
         tile.color[0] = ROAD_COLOR[0]
         tile.color[1] = ROAD_COLOR[1]
         tile.color[2] = ROAD_COLOR[2]
-        if not obj or "tiles" not in obj.__dict__: return
+        if not obj or "tiles" not in obj.__dict__:
+            return
         if begin:
             obj.tiles.add(tile)
-            #print tile.road_friction, "ADD", len(obj.tiles)
+            # print tile.road_friction, "ADD", len(obj.tiles)
             if not tile.road_visited:
                 tile.road_visited = True
                 self.env.reward += 1000.0/len(self.env.track)
                 self.env.tile_visited_count += 1
         else:
             obj.tiles.remove(tile)
-            #print tile.road_friction, "DEL", len(obj.tiles) -- should delete to zero when on grass (this works)
+            # print tile.road_friction, "DEL", len(obj.tiles) -- should delete to zero when on grass (this works)
 
 class CarRacing(gym.Env, EzPickle):
     metadata = {
@@ -104,7 +106,7 @@ class CarRacing(gym.Env, EzPickle):
         'video.frames_per_second' : FPS
     }
 
-    def __init__(self):
+    def __init__(self, verbose=1):
         EzPickle.__init__(self)
         self.seed()
         self.contactListener_keepref = FrictionDetector(self)
@@ -116,6 +118,10 @@ class CarRacing(gym.Env, EzPickle):
         self.car = None
         self.reward = 0.0
         self.prev_reward = 0.0
+        self.verbose = verbose
+        self.fd_tile = fixtureDef(
+                shape = polygonShape(vertices=
+                    [(0, 0),(1, 0),(1, -1),(0, -1)]))
 
         self.action_space = spaces.Box( np.array([-1,0,0]), np.array([+1,+1,+1]), dtype=np.float32)  # steer, gas, brake
         self.observation_space = spaces.Box(low=0, high=255, shape=(STATE_H, STATE_W, 3), dtype=np.uint8)
@@ -125,7 +131,8 @@ class CarRacing(gym.Env, EzPickle):
         return [seed]
 
     def _destroy(self):
-        if not self.road: return
+        if not self.road:
+            return
         for t in self.road:
             self.world.DestroyBody(t)
         self.road = []
@@ -148,8 +155,8 @@ class CarRacing(gym.Env, EzPickle):
                 rad = 1.5*TRACK_RAD
             checkpoints.append( (alpha, rad*math.cos(alpha), rad*math.sin(alpha)) )
 
-        #print "\n".join(str(h) for h in checkpoints)
-        #self.road_poly = [ (    # uncomment this to see checkpoints
+        # print "\n".join(str(h) for h in checkpoints)
+        # self.road_poly = [ (    # uncomment this to see checkpoints
         #    [ (tx,ty) for a,tx,ty in checkpoints ],
         #    (0.7,0.7,0.9) ) ]
         self.road = []
@@ -161,7 +168,7 @@ class CarRacing(gym.Env, EzPickle):
         track = []
         no_freeze = 2500
         visited_other_side = False
-        while 1:
+        while True:
             alpha = math.atan2(y, x)
             if visited_other_side and alpha > 0:
                 laps += 1
@@ -177,8 +184,10 @@ class CarRacing(gym.Env, EzPickle):
                         failed = False
                         break
                     dest_i += 1
-                    if dest_i % len(checkpoints) == 0: break
-                if not failed: break
+                    if dest_i % len(checkpoints) == 0:
+                        break
+                if not failed:
+                    break
                 alpha -= 2*math.pi
                 continue
             r1x = math.cos(beta)
@@ -188,33 +197,41 @@ class CarRacing(gym.Env, EzPickle):
             dest_dx = dest_x - x  # vector towards destination
             dest_dy = dest_y - y
             proj = r1x*dest_dx + r1y*dest_dy  # destination vector projected on rad
-            while beta - alpha >  1.5*math.pi: beta -= 2*math.pi
-            while beta - alpha < -1.5*math.pi: beta += 2*math.pi
+            while beta - alpha >  1.5*math.pi:
+                 beta -= 2*math.pi
+            while beta - alpha < -1.5*math.pi:
+                 beta += 2*math.pi
             prev_beta = beta
             proj *= SCALE
-            if proj >  0.3: beta -= min(TRACK_TURN_RATE, abs(0.001*proj))
-            if proj < -0.3: beta += min(TRACK_TURN_RATE, abs(0.001*proj))
+            if proj >  0.3:
+                 beta -= min(TRACK_TURN_RATE, abs(0.001*proj))
+            if proj < -0.3:
+                 beta += min(TRACK_TURN_RATE, abs(0.001*proj))
             x += p1x*TRACK_DETAIL_STEP
             y += p1y*TRACK_DETAIL_STEP
             track.append( (alpha,prev_beta*0.5 + beta*0.5,x,y) )
-            if laps > 4: break
+            if laps > 4:
+                 break
             no_freeze -= 1
-            if no_freeze==0: break
-        #print "\n".join([str(t) for t in enumerate(track)])
+            if no_freeze==0:
+                 break
+        # print "\n".join([str(t) for t in enumerate(track)])
 
         # Find closed loop range i1..i2, first loop should be ignored, second is OK
         i1, i2 = -1, -1
         i = len(track)
         while True:
             i -= 1
-            if i==0: return False  # Failed
+            if i==0:
+                return False  # Failed
             pass_through_start = track[i][0] > self.start_alpha and track[i-1][0] <= self.start_alpha
             if pass_through_start and i2==-1:
                 i2 = i
             elif pass_through_start and i1==-1:
                 i1 = i
                 break
-        print("Track generation: %i..%i -> %i-tiles track" % (i1, i2, i2-i1))
+        if self.verbose == 1:
+            print("Track generation: %i..%i -> %i-tiles track" % (i1, i2, i2-i1))
         assert i1!=-1
         assert i2!=-1
 
@@ -254,9 +271,9 @@ class CarRacing(gym.Env, EzPickle):
             road1_r = (x1 + TRACK_WIDTH*math.cos(beta1), y1 + TRACK_WIDTH*math.sin(beta1))
             road2_l = (x2 - TRACK_WIDTH*math.cos(beta2), y2 - TRACK_WIDTH*math.sin(beta2))
             road2_r = (x2 + TRACK_WIDTH*math.cos(beta2), y2 + TRACK_WIDTH*math.sin(beta2))
-            t = self.world.CreateStaticBody( fixtures = fixtureDef(
-                shape=polygonShape(vertices=[road1_l, road1_r, road2_r, road2_l])
-                ))
+            vertices = [road1_l, road1_r, road2_r, road2_l]
+            self.fd_tile.shape.vertices = vertices
+            t = self.world.CreateStaticBody(fixtures=self.fd_tile)
             t.userData = t
             c = 0.01*(i%3)
             t.color = [ROAD_COLOR[0] + c, ROAD_COLOR[1] + c, ROAD_COLOR[2] + c]
@@ -282,12 +299,13 @@ class CarRacing(gym.Env, EzPickle):
         self.tile_visited_count = 0
         self.t = 0.0
         self.road_poly = []
-        self.human_render = False
 
         while True:
             success = self._create_track()
-            if success: break
-            print("retry to generate track (normal if there are not many of this messages)")
+            if success:
+                break
+            if self.verbose == 1:
+                print("retry to generate track (normal if there are not many of this messages)")
         self.car = Car(self.world, *self.track[0][1:4])
 
         return self.step(None)[0]
@@ -309,7 +327,7 @@ class CarRacing(gym.Env, EzPickle):
         if action is not None: # First step without action, called from reset()
             self.reward -= 0.1
             # We actually don't want to count fuel spent, we want car to be faster.
-            #self.reward -=  10 * self.car.fuel_spent / ENGINE_POWER
+            # self.reward -=  10 * self.car.fuel_spent / ENGINE_POWER
             self.car.fuel_spent = 0.0
             step_reward = self.reward - self.prev_reward
             self.prev_reward = self.reward
@@ -323,6 +341,7 @@ class CarRacing(gym.Env, EzPickle):
         return self.state, step_reward, done, {}
 
     def render(self, mode='human'):
+        assert mode in ['human', 'state_pixels', 'rgb_array']
         if self.viewer is None:
             from gym.envs.classic_control import rendering
             self.viewer = rendering.Viewer(WINDOW_W, WINDOW_H)
@@ -352,47 +371,42 @@ class CarRacing(gym.Env, EzPickle):
 
         arr = None
         win = self.viewer.window
-        if mode != 'state_pixels':
-            win.switch_to()
-            win.dispatch_events()
-        if mode=="rgb_array" or mode=="state_pixels":
-            win.clear()
-            t = self.transform
-            if mode=='rgb_array':
-                VP_W = VIDEO_W
-                VP_H = VIDEO_H
-            else:
-                VP_W = STATE_W
-                VP_H = STATE_H
-            gl.glViewport(0, 0, VP_W, VP_H)
-            t.enable()
-            self.render_road()
-            for geom in self.viewer.onetime_geoms:
-                geom.render()
-            t.disable()
-            self.render_indicators(WINDOW_W, WINDOW_H)  # TODO: find why 2x needed, wtf
-            image_data = pyglet.image.get_buffer_manager().get_color_buffer().get_image_data()
-            arr = np.fromstring(image_data.data, dtype=np.uint8, sep='')
-            arr = arr.reshape(VP_H, VP_W, 4)
-            arr = arr[::-1, :, 0:3]
+        win.switch_to()
+        win.dispatch_events()
 
-        if mode=="rgb_array" and not self.human_render: # agent can call or not call env.render() itself when recording video.
-            win.flip()
+        win.clear()
+        t = self.transform
+        if mode=='rgb_array':
+            VP_W = VIDEO_W
+            VP_H = VIDEO_H
+        elif mode == 'state_pixels':
+            VP_W = STATE_W
+            VP_H = STATE_H
+        else:
+            pixel_scale = 1
+            if hasattr(win.context, '_nscontext'):
+                pixel_scale = win.context._nscontext.view().backingScaleFactor()  # pylint: disable=protected-access
+            VP_W = int(pixel_scale * WINDOW_W)
+            VP_H = int(pixel_scale * WINDOW_H)
 
-        if mode=='human':
-            self.human_render = True
-            win.clear()
-            t = self.transform
-            gl.glViewport(0, 0, WINDOW_W, WINDOW_H)
-            t.enable()
-            self.render_road()
-            for geom in self.viewer.onetime_geoms:
-                geom.render()
-            t.disable()
-            self.render_indicators(WINDOW_W, WINDOW_H)
-            win.flip()
-
+        gl.glViewport(0, 0, VP_W, VP_H)
+        t.enable()
+        self.render_road()
+        for geom in self.viewer.onetime_geoms:
+            geom.render()
         self.viewer.onetime_geoms = []
+        t.disable()
+        self.render_indicators(WINDOW_W, WINDOW_H)
+
+        if mode == 'human':
+            win.flip()
+            return self.viewer.isopen
+
+        image_data = pyglet.image.get_buffer_manager().get_color_buffer().get_image_data()
+        arr = np.fromstring(image_data.data, dtype=np.uint8, sep='')
+        arr = arr.reshape(VP_H, VP_W, 4)
+        arr = arr[::-1, :, 0:3]
+
         return arr
 
     def close(self):
@@ -472,12 +486,14 @@ if __name__=="__main__":
         if k==key.DOWN:  a[2] = 0
     env = CarRacing()
     env.render()
-    record_video = False
-    if record_video:
-        env.monitor.start('/tmp/video-test', force=True)
     env.viewer.window.on_key_press = key_press
     env.viewer.window.on_key_release = key_release
-    while True:
+    record_video = False
+    if record_video:
+        from gym.wrappers.monitor import Monitor
+        env = Monitor(env, '/tmp/video-test', force=True)
+    isopen = True
+    while isopen:
         env.reset()
         total_reward = 0.0
         steps = 0
@@ -492,7 +508,7 @@ if __name__=="__main__":
                 #plt.imshow(s)
                 #plt.savefig("test.jpeg")
             steps += 1
-            if not record_video: # Faster, but you can as well call env.render() every time to play full window.
-                env.render()
-            if done or restart: break
+            isopen = env.render()
+            if done or restart or isopen == False:
+                break
     env.close()

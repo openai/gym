@@ -151,7 +151,7 @@ class MemorizeDigits(gym.Env):
             break
         self.digit = -1
         return self.step(0)[0]
-    
+
     def step(self, action):
         reward = -1
         done = False
@@ -173,13 +173,7 @@ class MemorizeDigits(gym.Env):
         self.last_obs = obs
         return obs, reward, done, {}
 
-    def render(self, mode='human', close=False):
-        if close:
-            if self.viewer is not None:
-                self.viewer.close()
-                self.viewer = None
-            return
-
+    def render(self, mode='human'):
         if mode == 'rgb_array':
             return self.last_obs
 
@@ -192,4 +186,9 @@ class MemorizeDigits(gym.Env):
 
         else:
             assert 0, "Render mode '%s' is not supported" % mode
+
+    def close(self):
+        if self.viewer is not None:
+            self.viewer.close()
+            self.viewer = None
 
