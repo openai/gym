@@ -80,8 +80,8 @@ class AsyncVectorEnv(VectorEnv):
                 self.single_observation_space, n=self.num_envs)
         else:
             _obs_buffer = None
-            self.observations = create_empty_array(self.single_observation_space,
-                n=self.num_envs, fn=np.empty)
+            self.observations = create_empty_array(
+            	self.single_observation_space, n=self.num_envs, fn=np.zeros)
 
         self.parent_pipes, self.processes = [], []
         self.error_queue = ctx.Queue()

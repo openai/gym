@@ -41,7 +41,7 @@ class SyncVectorEnv(VectorEnv):
 
         self._check_observation_spaces()
         self.observations = create_empty_array(self.single_observation_space,
-            n=self.num_envs, fn=np.empty)
+            n=self.num_envs, fn=np.zeros)
         self._rewards = np.zeros((self.num_envs,), dtype=np.float64)
         self._dones = np.zeros((self.num_envs,), dtype=np.bool_)
 
