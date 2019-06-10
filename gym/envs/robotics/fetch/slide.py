@@ -15,7 +15,7 @@ class FetchSlideEnv(fetch_env.FetchEnv, utils.EzPickle):
             'robot0:slide0': 0.05,
             'robot0:slide1': 0.48,
             'robot0:slide2': 0.0,
-            'object0:joint': [1.7, 1.1, 0.4, 1., 0., 0., 0.],
+            'object0:joint': [1.7, 1.1, 0.41, 1., 0., 0., 0.],
         }
         fetch_env.FetchEnv.__init__(
             self, MODEL_XML_PATH, has_object=True, block_gripper=True, n_substeps=20,
