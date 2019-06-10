@@ -1,11 +1,12 @@
+from collections import OrderedDict
 import os
+
 
 from gym import error, spaces
 from gym.utils import seeding
 import numpy as np
 from os import path
 import gym
-import six
 
 try:
     import mujoco_py
@@ -13,6 +14,23 @@ except ImportError as e:
     raise error.DependencyNotInstalled("{}. (HINT: you need to install mujoco_py, and also perform the setup instructions here: https://github.com/openai/mujoco-py/.)".format(e))
 
 DEFAULT_SIZE = 500
+
+
+def convert_observation_to_space(observation):
+    if isinstance(observation, dict):
+        space = spaces.Dict(OrderedDict([
+            (key, convert_observation_to_space(value))
+            for key, value in observation.items()
+        ]))
+    elif isinstance(observation, np.ndarray):
+        low = np.full(observation.shape, -float('inf'))
+        high = np.full(observation.shape, float('inf'))
+        space = spaces.Box(low, high, dtype=observation.dtype)
+    else:
+        raise NotImplementedError(type(observation), observation)
+
+    return space
+
 
 class MujocoEnv(gym.Env):
     """Superclass for all MuJoCo environments.
@@ -40,20 +58,26 @@ class MujocoEnv(gym.Env):
 
         self.init_qpos = self.sim.data.qpos.ravel().copy()
         self.init_qvel = self.sim.data.qvel.ravel().copy()
-        observation, _reward, done, _info = self.step(np.zeros(self.model.nu))
+
+        self._set_action_space()
+
+        action = self.action_space.sample()
+        observation, _reward, done, _info = self.step(action)
         assert not done
-        self.obs_dim = observation.size
 
-        bounds = self.model.actuator_ctrlrange.copy()
-        low = bounds[:, 0]
-        high = bounds[:, 1]
-        self.action_space = spaces.Box(low=low, high=high, dtype=np.float32)
-
-        high = np.inf*np.ones(self.obs_dim)
-        low = -high
-        self.observation_space = spaces.Box(low, high, dtype=np.float32)
+        self._set_observation_space(observation)
 
         self.seed()
+
+    def _set_action_space(self):
+        bounds = self.model.actuator_ctrlrange.copy()
+        low, high = bounds.T
+        self.action_space = spaces.Box(low=low, high=high, dtype=np.float32)
+        return self.action_space
+
+    def _set_observation_space(self, observation):
+        self.observation_space = convert_observation_to_space(observation)
+        return self.observation_space
 
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
@@ -103,7 +127,7 @@ class MujocoEnv(gym.Env):
 
     def render(self, mode='human', width=DEFAULT_SIZE, height=DEFAULT_SIZE):
         if mode == 'rgb_array':
-            camera_id = None 
+            camera_id = None
             camera_name = 'track'
             if self.rgb_rendering_tracking and camera_name in self.model.camera_names:
                 camera_id = self.model.camera_name2id(camera_name)
@@ -135,7 +159,7 @@ class MujocoEnv(gym.Env):
                 self.viewer = mujoco_py.MjViewer(self.sim)
             elif mode == 'rgb_array' or mode == 'depth_array':
                 self.viewer = mujoco_py.MjRenderContextOffscreen(self.sim, -1)
-                
+
             self.viewer_setup()
             self._viewers[mode] = self.viewer
         return self.viewer
