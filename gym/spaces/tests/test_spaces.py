@@ -88,6 +88,7 @@ def test_sample(space):
 @pytest.mark.parametrize("spaces", [
     (Discrete(5), MultiBinary(5)),
     (Box(low=np.array([-10, 0]), high=np.array([10,10]), dtype=np.float32), MultiDiscrete([2, 2, 8])),
+    (Box(low=0, high=255, shape=(64, 64, 3), dtype=np.uint8), Box(low=0, high=255, shape=(32, 32, 3), dtype=np.uint8)),
     (Dict({"position": Discrete(5)}), Tuple([Discrete(5)])),
     (Dict({"position": Discrete(5)}), Discrete(5)),
     (Tuple((Discrete(5),)), Discrete(5)),

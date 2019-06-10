@@ -30,6 +30,7 @@ class EnvSpec(object):
         kwargs (dict): The kwargs to pass to the environment class
         nondeterministic (bool): Whether this environment is non-deterministic even after seeding
         tags (dict[str:any]): A set of arbitrary key-value tags on this environment, including simple property=True tags
+        max_episode_steps (Optional[int]): The maximum number of steps that an episode can consist of
 
     Attributes:
         id (str): The official environment ID
