@@ -27,10 +27,10 @@ class PendulumEnv(gym.Env):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
-    def step(self, u):
+    def step(self,u):
         th, thdot = self.state # th := theta
 
-        g=self.g
+        g = self.g
         m = 1.
         l = 1.
         dt = self.dt
