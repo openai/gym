@@ -70,8 +70,11 @@ class BlackjackEnv(gym.Env):
     by Sutton and Barto.
     http://incompleteideas.net/book/the-book-2nd.html
     """
-    def __init__(self, natural=False):
-        self.action_space = spaces.Discrete(2)
+    def __init__(self, natural=False, double_down=False):
+        if double_down:
+            self.action_space = spaces.Discrete(3)
+        else:
+            self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Tuple((
             spaces.Discrete(32),
             spaces.Discrete(11),
@@ -81,6 +84,8 @@ class BlackjackEnv(gym.Env):
         # Flag to payout 1.5 on a "natural" blackjack win, like casino rules
         # Ref: http://www.bicyclecards.com/how-to-play/blackjack/
         self.natural = natural
+        #Flag for allowing doubling down
+        self.double_down = double_down
         # Start the first game
         self.reset()
 
@@ -90,7 +95,17 @@ class BlackjackEnv(gym.Env):
 
     def step(self, action):
         assert self.action_space.contains(action)
-        if action:  # hit: add a card to players hand and return
+        if self.double_down:
+            if action == 2: # double down: bet double and get only 1 card
+                self.player.append(draw_card(self.np_random))
+                done = True
+                if is_bust(self.player):
+                    reward = -2
+                else: 
+                    while sum_hand(self.dealer) < 17:
+                        self.dealer.append(draw_card(self.np_random))
+                    reward = 2 * cmp(score(self.player), score(self.dealer))
+        if action == 1:  # hit: add a card to players hand and return
             self.player.append(draw_card(self.np_random))
             if is_bust(self.player):
                 done = True
@@ -98,7 +113,7 @@ class BlackjackEnv(gym.Env):
             else:
                 done = False
                 reward = 0
-        else:  # stick: play out the dealers hand, and score
+        elif action == 0:  # stick: play out the dealers hand, and score
             done = True
             while sum_hand(self.dealer) < 17:
                 self.dealer.append(draw_card(self.np_random))
