@@ -3,6 +3,8 @@ import numpy as np
 
 from multiprocessing import TimeoutError
 from gym.spaces import Box
+from gym.error import (AlreadyPendingCallError, NoAsyncCallError,
+                       ClosedEnvironmentError)
 from gym.vector.tests.utils import make_env, make_slow_env
 
 from gym.vector.async_vector_env import AsyncVectorEnv
@@ -111,6 +113,72 @@ def test_step_timeout_async_vector_env(shared_memory):
             observations, rewards, dones, _ = env.step_wait(timeout=0.1)
         finally:
             env.close(terminate=True)
+
+
+@pytest.mark.filterwarnings('ignore::UserWarning')
+@pytest.mark.parametrize('shared_memory', [True, False])
+def test_reset_out_of_order_async_vector_env(shared_memory):
+    env_fns = [make_env('CubeCrash-v0', i) for i in range(4)]
+    with pytest.raises(NoAsyncCallError):
+        try:
+            env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
+            observations = env.reset_wait()
+        except NoAsyncCallError as exception:
+            assert exception.name == 'reset'
+            raise
+        finally:
+            env.close(terminate=True)
+
+    with pytest.raises(AlreadyPendingCallError):
+        try:
+            env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
+            actions = env.action_space.sample()
+            observations = env.reset()
+            env.step_async(actions)
+            env.reset_async()
+        except NoAsyncCallError as exception:
+            assert exception.name == 'step'
+            raise
+        finally:
+            env.close(terminate=True)
+
+
+@pytest.mark.filterwarnings('ignore::UserWarning')
+@pytest.mark.parametrize('shared_memory', [True, False])
+def test_step_out_of_order_async_vector_env(shared_memory):
+    env_fns = [make_env('CubeCrash-v0', i) for i in range(4)]
+    with pytest.raises(NoAsyncCallError):
+        try:
+            env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
+            actions = env.action_space.sample()
+            observations = env.reset()
+            observations, rewards, dones, infos = env.step_wait()
+        except AlreadyPendingCallError as exception:
+            assert exception.name == 'step'
+            raise
+        finally:
+            env.close(terminate=True)
+
+    with pytest.raises(AlreadyPendingCallError):
+        try:
+            env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
+            actions = env.action_space.sample()
+            env.reset_async()
+            env.step_async(actions)
+        except AlreadyPendingCallError as exception:
+            assert exception.name == 'reset'
+            raise
+        finally:
+            env.close(terminate=True)
+
+
+@pytest.mark.parametrize('shared_memory', [True, False])
+def test_already_closed_async_vector_env(shared_memory):
+    env_fns = [make_env('CubeCrash-v0', i) for i in range(4)]
+    with pytest.raises(ClosedEnvironmentError):
+        env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
+        env.close()
+        observations = env.reset()
 
 
 @pytest.mark.parametrize('shared_memory', [True, False])
