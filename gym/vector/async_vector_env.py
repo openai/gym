@@ -122,6 +122,11 @@ class AsyncVectorEnv(VectorEnv):
             seeds = [seeds + i for i in range(self.num_envs)]
         assert len(seeds) == self.num_envs
 
+        if self._state != AsyncState.DEFAULT:
+            raise AlreadyPendingCallError('Calling `seed` while waiting '
+                'for a pending call to `{0}` to complete.'.format(
+                self._state.value), self._state.value)
+
         for pipe, seed in zip(self.parent_pipes, seeds):
             pipe.send(('seed', seed))
         for pipe in self.parent_pipes:
