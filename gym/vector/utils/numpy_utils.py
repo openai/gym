@@ -57,7 +57,7 @@ def concatenate_dict(items, out, space):
         out[key], subspace)) for (key, subspace) in space.spaces.items()])
 
 
-def create_empty_array(space, n=1, fn=np.empty):
+def create_empty_array(space, n=1, fn=np.zeros):
     """Create an empty (possibly nested) numpy array.
 
     Parameters
@@ -99,14 +99,14 @@ def create_empty_array(space, n=1, fn=np.empty):
     else:
         raise NotImplementedError()
 
-def create_empty_array_base(space, n=1, fn=np.empty):
+def create_empty_array_base(space, n=1, fn=np.zeros):
     shape = space.shape if (n is None) else (n,) + space.shape
     return fn(shape, dtype=space.dtype)
 
-def create_empty_array_tuple(space, n=1, fn=np.empty):
+def create_empty_array_tuple(space, n=1, fn=np.zeros):
     return tuple(create_empty_array(subspace, n=n, fn=fn)
         for subspace in space.spaces)
 
-def create_empty_array_dict(space, n=1, fn=np.empty):
+def create_empty_array_dict(space, n=1, fn=np.zeros):
     return OrderedDict([(key, create_empty_array(subspace, n=n, fn=fn))
         for (key, subspace) in space.spaces.items()])
