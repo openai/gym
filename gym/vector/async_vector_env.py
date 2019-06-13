@@ -267,9 +267,11 @@ class AsyncVectorEnv(VectorEnv):
                     process.terminate()
         else:
             for pipe in self.parent_pipes:
-                pipe.send(('close', None))
+                if not pipe.closed:
+                    pipe.send(('close', None))
             for pipe in self.parent_pipes:
-                pipe.recv()
+                if not pipe.closed:
+                    pipe.recv()
 
         for pipe in self.parent_pipes:
             pipe.close()
@@ -286,7 +288,7 @@ class AsyncVectorEnv(VectorEnv):
         for pipe in self.parent_pipes:
             if timeout is not None:
                 delta = max(end_time - time.time(), 0)
-            if not pipe.poll(delta):
+            if pipe.closed or (not pipe.poll(delta)):
                 break
         else:
             return True
