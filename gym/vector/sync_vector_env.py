@@ -74,8 +74,8 @@ class SyncVectorEnv(VectorEnv):
         """
         self._dones[:] = False
         observations = []
-        for i in range(self.num_envs):
-            observation = self.envs[i].reset()
+        for env in self.envs:
+            observation = env.reset()
             observations.append(observation)
         concatenate(observations, self.observations, self.single_observation_space)
 
@@ -103,10 +103,10 @@ class SyncVectorEnv(VectorEnv):
             A list of auxiliary diagnostic informations.
         """
         observations, infos = [], []
-        for i, action in enumerate(actions):
-            observation, self._rewards[i], self._dones[i], info = self.envs[i].step(action)
+        for i, (env, action) in enumerate(zip(self.envs, actions)):
+            observation, self._rewards[i], self._dones[i], info = env.step(action)
             if self._dones[i]:
-                observation = self.envs[i].reset()
+                observation = env.reset()
             observations.append(observation)
             infos.append(info)
         concatenate(observations, self.observations, self.single_observation_space)
