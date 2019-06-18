@@ -140,34 +140,28 @@ class RetriesExceededError(Error):
 
 # Vectorized environments errors
 
-class AlreadySteppingError(Exception):
+class AlreadyPendingCallError(Exception):
     """
-    Raised when `step` is called asynchronously (e.g. with `step_async`), and
-    `step_async` is called again (without a complete call to `step_wait`).
+    Raised when `reset`, or `step` is called asynchronously (e.g. with
+    `reset_async`, or `step_async` respectively), and `reset_async`, or
+    `step_async` (respectively) is called again (without a complete call to
+    `reset_wait`, or `step_wait` respectively).
     """
-    pass
+    def __init__(self, message, name):
+        super(AlreadyPendingCallError, self).__init__(message)
+        self.name = name
 
-class AlreadyResettingError(Exception):
+class NoAsyncCallError(Exception):
     """
-    Raised when `reset` is called asynchronously (e.g. with `reset_async`), and
-    `reset_async` is called again (without a complete call to `reset_wait`).
+    Raised when an asynchronous `reset`, or `step` is not running, but
+    `reset_wait`, or `step_wait` (respectively) is called.
     """
-    pass
-
-class NotSteppingError(Exception):
-    """
-    Raised when an asynchronous `step` is not running, but `step_wait` is called.
-    """
-    pass
-
-class NotResettingError(Exception):
-    """
-    Raised when an asynchronous `reset` is not running, but `reset_wait` is called.
-    """
-    pass
+    def __init__(self, message, name):
+        super(NoAsyncCallError, self).__init__(message)
+        self.name = name
 
 class ClosedEnvironmentError(Exception):
     """
-    Trying to call `step` or `reset`, while the environment is closed.
+    Trying to call `reset`, or `step`, while the environment is closed.
     """
     pass

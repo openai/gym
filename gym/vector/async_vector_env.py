@@ -7,8 +7,8 @@ from copy import deepcopy
 
 from gym import logger
 from gym.vector.vector_env import VectorEnv
-from gym.error import (AlreadySteppingError, AlreadyResettingError,
-                       NotSteppingError, NotResettingError, ClosedEnvironmentError)
+from gym.error import (AlreadyPendingCallError, NoAsyncCallError,
+                       ClosedEnvironmentError)
 from gym.vector.utils import (create_shared_memory, create_empty_array,
                               write_to_shared_memory, read_from_shared_memory,
                               concatenate, CloudpickleWrapper, clear_mpi_env_vars)
@@ -17,9 +17,9 @@ __all__ = ['AsyncVectorEnv']
 
 
 class AsyncState(Enum):
-    DEFAULT = 0
-    WAITING_RESET = 1
-    WAITING_STEP = 2
+    DEFAULT = 'default'
+    WAITING_RESET = 'reset'
+    WAITING_STEP = 'step'
 
 
 class AsyncVectorEnv(VectorEnv):
@@ -129,13 +129,10 @@ class AsyncVectorEnv(VectorEnv):
 
     def reset_async(self):
         self._assert_is_running()
-        if self._state == AsyncState.WAITING_STEP:
-            raise AlreadySteppingError('Calling `reset_async` while waiting '
-                'for a pending call to `step` to complete.')
-
-        if self._state == AsyncState.WAITING_RESET:
-            raise AlreadyResettingError('Calling `reset_async` while waiting '
-                'for a pending call to `reset` to complete.')
+        if self._state != AsyncState.DEFAULT:
+            raise AlreadyPendingCallError('Calling `reset_async` while waiting '
+                'for a pending call to `{0}` to complete'.format(
+                self._state.value), self._state.value)
 
         for pipe in self.parent_pipes:
             pipe.send(('reset', None))
@@ -156,8 +153,8 @@ class AsyncVectorEnv(VectorEnv):
         """
         self._assert_is_running()
         if self._state != AsyncState.WAITING_RESET:
-            raise NotResettingError('Calling `reset_wait` without any prior '
-                'call to `reset_async`.')
+            raise NoAsyncCallError('Calling `reset_wait` without any prior '
+                'call to `reset_async`.', AsyncState.WAITING_RESET.value)
 
         if not self._poll(timeout):
             self._state = AsyncState.DEFAULT
@@ -182,13 +179,10 @@ class AsyncVectorEnv(VectorEnv):
             List of actions.
         """
         self._assert_is_running()
-        if self._state == AsyncState.WAITING_RESET:
-            raise AlreadyResettingError('Calling `step_async` while waiting '
-                'for a pending call to `reset` to complete.')
-
-        if self._state == AsyncState.WAITING_STEP:
-            raise AlreadySteppingError('Calling `step_async` while waiting for '
-                'a pending call to `step` to complete.')
+        if self._state != AsyncState.DEFAULT:
+            raise AlreadyPendingCallError('Calling `step_async` while waiting '
+                'for a pending call to `{0}` to complete.'.format(
+                self._state.value), self._state.value)
 
         for pipe, action in zip(self.parent_pipes, actions):
             pipe.send(('step', action))
@@ -218,8 +212,8 @@ class AsyncVectorEnv(VectorEnv):
         """
         self._assert_is_running()
         if self._state != AsyncState.WAITING_STEP:
-            raise NotSteppingError('Calling `step_wait` without any prior call '
-                'to `step_async`.')
+            raise NoAsyncCallError('Calling `step_wait` without any prior call '
+                'to `step_async`.', AsyncState.WAITING_STEP.value)
 
         if not self._poll(timeout):
             self._state = AsyncState.DEFAULT
@@ -259,15 +253,11 @@ class AsyncVectorEnv(VectorEnv):
 
         timeout = 0 if terminate else timeout
         try:
-            if self._state == AsyncState.WAITING_RESET:
+            if self._state != AsyncState.DEFAULT:
                 logger.warn('Calling `close` while waiting for a pending '
-                    'call to `reset` to complete.')
-                self.reset_wait(timeout)
-
-            if self._state == AsyncState.WAITING_STEP:
-                logger.warn('Calling `close` while waiting for a pending '
-                    'call to `step` to complete.')
-                self.step_wait(timeout)
+                    'call to `{0}` to complete.'.format(self._state.value))
+                function = getattr(self, '{0}_wait'.format(self._state.value))
+                function(timeout)
         except mp.TimeoutError:
             terminate = True
 
