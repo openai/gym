@@ -186,6 +186,9 @@ We are using `pytest <http://doc.pytest.org>`_ for tests. You can run them via:
 
 What's new
 ==========
+- 2019-06-21 (v0.13.0)
+    + Upgrade to ALE 0.6 (atari-py 0.2.0) (thanks @JesseFarebro!)
+
 - 2019-06-21 (v0.12.6)
     + Added vectorized environments (thanks @tristandeleu!). Vectorized environment runs multiple copies of an environment in parallel. To create a vectorized version of an environment, use `gym.vector.make(env_id, num_envs, **kwargs)`, for instance, `gym.vector.make('Pong-v4',16)`.
 
