@@ -1,6 +1,6 @@
 # Robotics environments
 
-Details and documentation on these robotics environments are available in our [blog post](https://openai.com/ingredients-for-robotics-research/), the accompanying [technical report](https://arxiv.org/abs/1802.09464), and the [Gym website](https://gym.openai.com/envs/#robotics).
+Details and documentation on these robotics environments are available in our [blog post](https://blog.openai.com/ingredients-for-robotics-research/), the accompanying [technical report](https://arxiv.org/abs/1802.09464), and the [Gym website](https://gym.openai.com/envs/#robotics).
 
 If you use these environments, please cite the following paper:
 
