@@ -359,7 +359,7 @@ def _worker(index, env_fn, pipe, parent_pipe, shared_memory, error_queue):
                 raise RuntimeError('Received unknown command `{0}`. Must '
                     'be one of {`reset`, `step`, `seed`, `close`, '
                     '`_check_observation_space`}.'.format(command))
-    except Exception:
+    except (KeyboardInterrupt, Exception):
         error_queue.put((index,) + sys.exc_info()[:2])
         pipe.send(None)
     finally:
@@ -398,7 +398,7 @@ def _worker_shared_memory(index, env_fn, pipe, parent_pipe, shared_memory, error
                 raise RuntimeError('Received unknown command `{0}`. Must '
                     'be one of {`reset`, `step`, `seed`, `close`, '
                     '`_check_observation_space`}.'.format(command))
-    except Exception:
+    except (KeyboardInterrupt, Exception):
         error_queue.put((index,) + sys.exc_info()[:2])
         pipe.send(None)
     finally:
