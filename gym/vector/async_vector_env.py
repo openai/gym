@@ -97,7 +97,7 @@ class AsyncVectorEnv(VectorEnv):
                 self.parent_pipes.append(parent_pipe)
                 self.processes.append(process)
 
-                process.deamon = True
+                process.daemon = True
                 process.start()
                 child_pipe.close()
 
