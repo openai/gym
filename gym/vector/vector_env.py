@@ -108,6 +108,22 @@ class VectorEnv(gym.Env):
         self.step_async(actions)
         return self.step_wait()
 
+    def call_async(self, name, *args, **kwargs):
+        pass
+
+    def call_wait(self, **kwargs):
+        raise NotImplementedError()
+
+    def call(self, name, *args, **kwargs):
+        self.call_async(name, *args, **kwargs)
+        return self.call_wait()
+
+    def get_attr(self, name):
+        return self.call(name)
+
+    def set_attr(self, name, values):
+        raise NotImplementedError()
+
     def close_extras(self, **kwargs):
         r"""Clean up the extra resources e.g. beyond what's in this base class."""
         pass

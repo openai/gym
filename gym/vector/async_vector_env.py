@@ -34,6 +34,7 @@ class AsyncState(Enum):
     DEFAULT = "default"
     WAITING_RESET = "reset"
     WAITING_STEP = "step"
+    WAITING_CALL = "call"
 
 
 class AsyncVectorEnv(VectorEnv):
@@ -404,6 +405,88 @@ class AsyncVectorEnv(VectorEnv):
             infos,
         )
 
+    def call_async(self, name, *args, **kwargs):
+        """
+        Parameters
+        ----------
+        name : string
+            Name of the method or property to call.
+        """
+        self._assert_is_running()
+        if self._state != AsyncState.DEFAULT:
+            raise AlreadyPendingCallError(
+                "Calling `call_async` while waiting "
+                "for a pending call to `{0}` to complete.".format(self._state.value),
+                self._state.value,
+            )
+
+        for pipe in self.parent_pipes:
+            pipe.send(("_call", (name, args, kwargs)))
+        self._state = AsyncState.WAITING_CALL
+
+    def call_wait(self, timeout=None):
+        """
+        Parameters
+        ----------
+        timeout : int or float, optional
+            Number of seconds before the call to `step_wait` times out. If
+            `None`, the call to `step_wait` never times out.
+
+        Returns
+        -------
+        results : list
+            List of the results of the individual calls to the method or
+            property for each environment.
+        """
+        self._assert_is_running()
+        if self._state != AsyncState.WAITING_CALL:
+            raise NoAsyncCallError(
+                "Calling `call_wait` without any prior call " "to `call_async`.",
+                AsyncState.WAITING_CALL.value,
+            )
+
+        if not self._poll(timeout):
+            self._state = AsyncState.DEFAULT
+            raise mp.TimeoutError(
+                "The call to `call_wait` has timed out after "
+                "{0} second{1}.".format(timeout, "s" if timeout > 1 else "")
+            )
+
+        results, successes = zip(*[pipe.recv() for pipe in self.parent_pipes])
+        self._raise_if_errors(successes)
+        self._state = AsyncState.DEFAULT
+
+        return results
+
+    def set_attr(self, name, values):
+        """
+        Parameters
+        ----------
+        name : string
+            Name of the property to be set in each individual environment.
+
+        values : list or object
+            Values of the property to bet set to. If `values` is a list, then
+            it corresponds to the values for each individual environment,
+            otherwise a single value is set for all environments.
+        """
+        self._assert_is_running()
+        if not isinstance(values, list):
+            values = [values for _ in range(self.num_envs)]
+        assert len(values) == self.num_envs
+
+        if self._state != AsyncState.DEFAULT:
+            raise AlreadyPendingCallError(
+                "Calling `set_attr` while waiting "
+                "for a pending call to `{0}` to complete.".format(self._state.value),
+                self._state.value,
+            )
+
+        for pipe, value in zip(self.parent_pipes, values):
+            pipe.send(("_setattr", (name, value)))
+        _, successes = zip(*[pipe.recv() for pipe in self.parent_pipes])
+        self._raise_if_errors(successes)
+
     def close_extras(self, timeout=None, terminate=False):
         """Close the environments & clean up the extra resources
         (processes and pipes).
@@ -539,6 +622,22 @@ def _worker(index, env_fn, pipe, parent_pipe, shared_memory, error_queue):
             elif command == "close":
                 pipe.send((None, True))
                 break
+            elif command == "_call":
+                name, args, kwargs = data
+                if name in ["reset", "step", "seed", "close"]:
+                    raise ValueError(
+                        "Trying to call function `{0}` with "
+                        "`_call`. Use `{0}` directly instead.".format(name)
+                    )
+                function = getattr(env, name)
+                if callable(function):
+                    pipe.send((function(*args, **kwargs), True))
+                else:
+                    pipe.send((function, True))
+            elif command == "_setattr":
+                name, value = data
+                setattr(env, name, value)
+                pipe.send((None, True))
             elif command == "_check_spaces":
                 pipe.send(
                     (
@@ -549,8 +648,8 @@ def _worker(index, env_fn, pipe, parent_pipe, shared_memory, error_queue):
             else:
                 raise RuntimeError(
                     "Received unknown command `{0}`. Must "
-                    "be one of {`reset`, `step`, `seed`, `close`, "
-                    "`_check_spaces`}.".format(command)
+                    "be one of {`reset`, `step`, `seed`, `close`, `_call`, "
+                    "`_setattr`, `_check_spaces`}.".format(command)
                 )
     except (KeyboardInterrupt, Exception):
         error_queue.put((index,) + sys.exc_info()[:2])
@@ -588,6 +687,22 @@ def _worker_shared_memory(index, env_fn, pipe, parent_pipe, shared_memory, error
             elif command == "close":
                 pipe.send((None, True))
                 break
+            elif command == "_call":
+                name, args, kwargs = data
+                if name in ["reset", "step", "seed", "close"]:
+                    raise ValueError(
+                        "Trying to call function `{0}` with "
+                        "`_call`. Use `{0}` directly instead.".format(name)
+                    )
+                function = getattr(env, name)
+                if callable(function):
+                    pipe.send((function(*args, **kwargs), True))
+                else:
+                    pipe.send((function, True))
+            elif command == "_setattr":
+                name, value = data
+                setattr(env, name, value)
+                pipe.send((None, True))
             elif command == "_check_spaces":
                 pipe.send(
                     ((data[0] == observation_space, data[1] == env.action_space), True)
@@ -595,8 +710,8 @@ def _worker_shared_memory(index, env_fn, pipe, parent_pipe, shared_memory, error
             else:
                 raise RuntimeError(
                     "Received unknown command `{0}`. Must "
-                    "be one of {`reset`, `step`, `seed`, `close`, "
-                    "`_check_spaces`}.".format(command)
+                    "be one of {`reset`, `step`, `seed`, `close`, `_call`, "
+                    "`_setattr`, `_check_spaces`}.".format(command)
                 )
     except (KeyboardInterrupt, Exception):
         error_queue.put((index,) + sys.exc_info()[:2])

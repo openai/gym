@@ -136,6 +136,48 @@ class SyncVectorEnv(VectorEnv):
             infos,
         )
 
+    def call(self, name, *args, **kwargs):
+        """
+        Parameters
+        ----------
+        name : string
+            Name of the method or property to call.
+
+        Returns
+        -------
+        results : list
+            List of the results of the individual calls to the method or
+            property for each environment.
+        """
+        results = []
+        for env in self.envs:
+            function = getattr(env, name)
+            if callable(function):
+                results.append(function(*args, **kwargs))
+            else:
+                results.append(function)
+
+        return tuple(results)
+
+    def set_attr(self, name, values):
+        """
+        Parameters
+        ----------
+        name : string
+            Name of the property to be set in each individual environment.
+
+        values : list or object
+            Values of the property to bet set to. If `values` is a list, then
+            it corresponds to the values for each individual environment,
+            otherwise a single value is set for all environments.
+        """
+        if not isinstance(values, list):
+            values = [values for _ in range(self.num_envs)]
+        assert len(values) == self.num_envs
+
+        for env, value in zip(self.envs, values):
+            setattr(env, name, value)
+
     def close_extras(self, **kwargs):
         """Close the environments."""
         [env.close() for env in self.envs]

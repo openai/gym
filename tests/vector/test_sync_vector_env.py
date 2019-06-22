@@ -67,6 +67,40 @@ def test_step_sync_vector_env(use_single_action_space):
     assert dones.size == 8
 
 
+def test_call_sync_vector_env():
+    env_fns = [make_env("CubeCrash-v0", i) for i in range(4)]
+    try:
+        env = SyncVectorEnv(env_fns)
+        observations = env.reset()
+        images = env.call("render", mode="rgb_array")
+        use_shaped_reward = env.call("use_shaped_reward")
+    finally:
+        env.close()
+
+    assert isinstance(images, tuple)
+    assert len(images) == 4
+    for i in range(4):
+        assert isinstance(images[i], np.ndarray)
+        assert np.all(images[i] == observations[i])
+
+    assert isinstance(use_shaped_reward, tuple)
+    assert len(use_shaped_reward) == 4
+    for i in range(4):
+        assert isinstance(use_shaped_reward[i], bool)
+        assert use_shaped_reward[i]
+
+
+def test_set_attr_sync_vector_env():
+    env_fns = [make_env("CubeCrash-v0", i) for i in range(4)]
+    try:
+        env = SyncVectorEnv(env_fns)
+        env.set_attr("use_shaped_reward", [True, False, False, True])
+        use_shaped_reward = env.get_attr("use_shaped_reward")
+        assert use_shaped_reward == (True, False, False, True)
+    finally:
+        env.close()
+
+
 def test_check_spaces_sync_vector_env():
     # CartPole-v1 - observation_space: Box(4,), action_space: Discrete(2)
     env_fns = [make_env("CartPole-v1", i) for i in range(8)]
