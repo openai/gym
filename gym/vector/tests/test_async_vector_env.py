@@ -194,3 +194,40 @@ def test_check_observations_async_vector_env(shared_memory):
     with pytest.raises(RuntimeError):
         env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
         env.close(terminate=True)
+
+
+@pytest.mark.filterwarnings('ignore::UserWarning')
+@pytest.mark.parametrize('shared_memory', [True, False])
+def test_max_retries_async_vector_env(shared_memory):
+    env_fns = [make_slow_env(0., i) for i in range(4)]
+    with pytest.raises(ValueError):
+        try:
+            env = AsyncVectorEnv(env_fns, shared_memory=shared_memory,
+                max_retries=2)
+            env.reset()
+            env.step([0.1, -1, 0.1, -1])
+            env.step([-1, 0.1, 0.1, 0.1])
+        finally:
+            env.close(terminate=True)
+
+
+@pytest.mark.filterwarnings('ignore::UserWarning')
+@pytest.mark.parametrize('shared_memory', [True, False])
+def test_max_retries_observations_async_vector_env(shared_memory):
+    env_fns = [make_slow_env(0., i) for i in range(4)]
+    try:
+        env = AsyncVectorEnv(env_fns, shared_memory=shared_memory,
+            max_retries=2)
+        env.reset()
+        observations, rewards, dones, infos = env.step([0.1, -1, 0.1, -1])
+
+        assert len(infos) == 4
+        for j in [1, 3]:
+            assert rewards[j] == 0.
+            assert dones[j]
+            assert 'AsyncVectorEnv.restart' in infos[j]
+            assert infos[j]['AsyncVectorEnv.restart']
+
+        observations, rewards, dones, infos = env.step([0.3, 0.1, 0.1, 0.1])
+    finally:
+        env.close(terminate=True)
