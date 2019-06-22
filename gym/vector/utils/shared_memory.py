@@ -138,8 +138,9 @@ def write_to_shared_memory(index, value, shared_memory, space):
 
 def write_base_to_shared_memory(index, value, shared_memory, space):
     size = int(np.prod(space.shape))
-    shared_memory[index * size:(index + 1) * size] = np.asarray(value,
-        dtype=space.dtype).flatten()
+    destination = np.frombuffer(shared_memory.get_obj(), dtype=space.dtype)
+    np.copyto(destination[index * size:(index + 1) * size], np.asarray(
+        value, dtype=space.dtype).flatten())
 
 def write_tuple_to_shared_memory(index, values, shared_memory, space):
     for value, memory, subspace in zip(values, shared_memory, space.spaces):
