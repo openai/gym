@@ -194,3 +194,63 @@ def test_check_observations_async_vector_env(shared_memory):
     with pytest.raises(RuntimeError):
         env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
         env.close(terminate=True)
+
+
+@pytest.mark.parametrize('shared_memory', [True, False])
+def test_episodic_async_vector_env(shared_memory):
+    episode_lengths = [2, 5, 3, 1, 3]
+    env_fns = [make_slow_env(0., i, length) for i, length
+               in enumerate(episode_lengths)]
+    try:
+        env = AsyncVectorEnv(env_fns, shared_memory=shared_memory,
+                            episodic=True)
+        observations = env.reset()
+        # Step 1
+        actions = env.action_space.sample()
+        observations, rewards, dones, infos = env.step(actions)
+        assert dones[3]
+        assert np.all(observations[3] == 0)
+        assert 'AsyncVectorEnv.end_episode' in infos[3]
+        assert infos[3]['AsyncVectorEnv.end_episode']
+        assert not np.all(dones)
+        assert np.any(observations[0] != 0)
+
+        # Step 2
+        actions = env.action_space.sample()
+        observations, rewards, dones, infos = env.step(actions)
+        for j in [0, 3]:
+            assert dones[j]
+            assert np.all(observations[j] == 0)
+        assert 'AsyncVectorEnv.end_episode' in infos[0]
+        assert infos[0]['AsyncVectorEnv.end_episode']
+        assert not np.all(dones)
+        assert np.any(observations[2] != 0)
+
+        # Step 3
+        actions = env.action_space.sample()
+        observations, rewards, dones, infos = env.step(actions)
+        for j in [0, 2, 3, 4]:
+            assert dones[j]
+            assert np.all(observations[j] == 0)
+        assert 'AsyncVectorEnv.end_episode' in infos[2]
+        assert infos[2]['AsyncVectorEnv.end_episode']
+        assert not np.all(dones)
+        assert np.any(observations[1] != 0)
+
+        # Step 4
+        actions = env.action_space.sample()
+        observations, rewards, dones, infos = env.step(actions)
+        for j in [0, 2, 3, 4]:
+            assert dones[j]
+            assert np.all(observations[j] == 0)
+        assert 'AsyncVectorEnv.end_episode' not in infos[2]
+        assert not np.all(dones)
+        assert np.any(observations[1] != 0)
+
+        # Step 5
+        actions = env.action_space.sample()
+        observations, rewards, dones, infos = env.step(actions)
+        assert np.all(dones)
+        assert np.all(observations == 0)
+    finally:
+        env.close()

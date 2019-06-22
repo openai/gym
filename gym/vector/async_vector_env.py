@@ -48,12 +48,18 @@ class AsyncVectorEnv(VectorEnv):
         If `True`, then the `reset` and `step` methods return a copy of the
         observations.
 
+    episodic : bool (default: `False`)
+        If `True`, then the environments run for a single episode (until
+        `done=True`), and subsequent calls to `step` have an unexpected
+        behaviour. If `False`, then the environments call `reset` at the end of
+        each episode.
+
     context : str, optional
         Context for multiprocessing. If `None`, then the default context is used.
         Only available in Python 3.
     """
     def __init__(self, env_fns, observation_space=None, action_space=None,
-                 shared_memory=True, copy=True, context=None):
+                 shared_memory=True, copy=True, episodic=False, context=None):
         try:
             ctx = mp.get_context(context)
         except AttributeError:
@@ -63,6 +69,7 @@ class AsyncVectorEnv(VectorEnv):
         self.env_fns = env_fns
         self.shared_memory = shared_memory
         self.copy = copy
+        self.episodic = episodic
 
         if (observation_space is None) or (action_space is None):
             dummy_env = env_fns[0]()
@@ -92,7 +99,7 @@ class AsyncVectorEnv(VectorEnv):
                 process = ctx.Process(target=target,
                     name='Worker<{0}>-{1}'.format(type(self).__name__, idx),
                     args=(idx, CloudpickleWrapper(env_fn), child_pipe,
-                    parent_pipe, _obs_buffer, self.error_queue))
+                    parent_pipe, _obs_buffer, self.error_queue, self.episodic))
 
                 self.parent_pipes.append(parent_pipe)
                 self.processes.append(process)
@@ -339,20 +346,34 @@ class AsyncVectorEnv(VectorEnv):
                 self.close(terminate=True)
 
 
-def _worker(index, env_fn, pipe, parent_pipe, shared_memory, error_queue):
+def _worker(index, env_fn, pipe, parent_pipe, shared_memory, error_queue,
+            episodic):
     assert shared_memory is None
     env = env_fn()
+    _zero_observation = create_empty_array(env.observation_space, n=None,
+                                           fn=np.zeros)
+    episode_done = False
     parent_pipe.close()
     try:
         while True:
             command, data = pipe.recv()
             if command == 'reset':
                 observation = env.reset()
+                episode_done = False
                 pipe.send((observation, True))
             elif command == 'step':
-                observation, reward, done, info = env.step(data)
-                if done:
-                    observation = env.reset()
+                if episodic and episode_done:
+                    observation = _zero_observation
+                    reward, done, info = 0., True, {}
+                else:
+                    observation, reward, done, info = env.step(data)
+                    if done:
+                        if episodic:
+                            observation = _zero_observation
+                            episode_done = True
+                            info.update({'AsyncVectorEnv.end_episode': True})
+                        else:
+                            observation = env.reset()
                 pipe.send(((observation, reward, done, info), True))
             elif command == 'seed':
                 env.seed(data)
@@ -373,10 +394,13 @@ def _worker(index, env_fn, pipe, parent_pipe, shared_memory, error_queue):
         env.close()
 
 
-def _worker_shared_memory(index, env_fn, pipe, parent_pipe, shared_memory, error_queue):
+def _worker_shared_memory(index, env_fn, pipe, parent_pipe, shared_memory,
+                          error_queue, episodic):
     assert shared_memory is not None
     env = env_fn()
     observation_space = env.observation_space
+    _zero_observation = create_empty_array(observation_space, n=None, fn=np.zeros)
+    episode_done = False
     parent_pipe.close()
     try:
         while True:
@@ -385,11 +409,21 @@ def _worker_shared_memory(index, env_fn, pipe, parent_pipe, shared_memory, error
                 observation = env.reset()
                 write_to_shared_memory(index, observation, shared_memory,
                                        observation_space)
+                episode_done = False
                 pipe.send((None, True))
             elif command == 'step':
-                observation, reward, done, info = env.step(data)
-                if done:
-                    observation = env.reset()
+                if episodic and episode_done:
+                    observation = _zero_observation
+                    reward, done, info = 0., True, {}
+                else:
+                    observation, reward, done, info = env.step(data)
+                    if done:
+                        if episodic:
+                            observation = _zero_observation
+                            episode_done = True
+                            info.update({'AsyncVectorEnv.end_episode': True})
+                        else:
+                            observation = env.reset()
                 write_to_shared_memory(index, observation, shared_memory,
                                        observation_space)
                 pipe.send(((None, reward, done, info), True))

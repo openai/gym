@@ -27,13 +27,20 @@ class SyncVectorEnv(VectorEnv):
     copy : bool (default: `True`)
         If `True`, then the `reset` and `step` methods return a copy of the
         observations.
+
+    episodic : bool (default: `False`)
+        If `True`, then the environments run for a single episode (until
+        `done=True`), and subsequent calls to `step` have an unexpected
+        behaviour. If `False`, then the environments call `reset` at the end of
+        each episode.
     """
     def __init__(self, env_fns, observation_space=None, action_space=None,
-                 copy=True):
+                 copy=True, episodic=False):
         self.env_fns = env_fns
         self.envs = [env_fn() for env_fn in env_fns]
         self.copy = copy
-        
+        self.episodic = episodic
+
         if (observation_space is None) or (action_space is None):
             observation_space = observation_space or self.envs[0].observation_space
             action_space = action_space or self.envs[0].action_space
@@ -45,6 +52,8 @@ class SyncVectorEnv(VectorEnv):
             n=self.num_envs, fn=np.zeros)
         self._rewards = np.zeros((self.num_envs,), dtype=np.float64)
         self._dones = np.zeros((self.num_envs,), dtype=np.bool_)
+        self._zero_observation = create_empty_array(self.single_observation_space,
+            n=None, fn=np.zeros)
 
     def seed(self, seeds=None):
         """
@@ -105,9 +114,21 @@ class SyncVectorEnv(VectorEnv):
         """
         observations, infos = [], []
         for i, (env, action) in enumerate(zip(self.envs, actions)):
+
+            if self.episodic and self._dones[i]:
+                observations.append(self._zero_observation)
+                self._rewards[i] = 0.
+                infos.append({})
+                continue
+
             observation, self._rewards[i], self._dones[i], info = env.step(action)
             if self._dones[i]:
-                observation = env.reset()
+                if self.episodic:
+                    observation = self._zero_observation
+                    info.update({'SyncVectorEnv.end_episode': True})
+                else:
+                    observation = env.reset()
+
             observations.append(observation)
             infos.append(info)
         concatenate(observations, self.observations, self.single_observation_space)
