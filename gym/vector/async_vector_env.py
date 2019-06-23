@@ -292,6 +292,8 @@ class AsyncVectorEnv(VectorEnv):
         delta = None
         for pipe in self.parent_pipes:
             delta = max(end_time - time.time(), 0)
+            if pipe is None:
+                return False
             if pipe.closed or (not pipe.poll(delta)):
                 return False
         return True
