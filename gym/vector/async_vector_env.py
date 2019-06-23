@@ -166,8 +166,8 @@ class AsyncVectorEnv(VectorEnv):
             raise mp.TimeoutError('The call to `reset_wait` has timed out after '
                 '{0} second{1}.'.format(timeout, 's' if timeout > 1 else ''))
 
-        self._raise_if_errors()
         observations_list = [pipe.recv() for pipe in self.parent_pipes]
+        self._raise_if_errors()
         self._state = AsyncState.DEFAULT
 
         if not self.shared_memory:
@@ -225,8 +225,8 @@ class AsyncVectorEnv(VectorEnv):
             raise mp.TimeoutError('The call to `step_wait` has timed out after '
                 '{0} second{1}.'.format(timeout, 's' if timeout > 1 else ''))
 
-        self._raise_if_errors()
         results = [pipe.recv() for pipe in self.parent_pipes]
+        self._raise_if_errors()
         self._state = AsyncState.DEFAULT
         observations_list, rewards, dones, infos = zip(*results)
 
@@ -287,17 +287,15 @@ class AsyncVectorEnv(VectorEnv):
 
     def _poll(self, timeout=None):
         self._assert_is_running()
-        if timeout is not None:
-            end_time = time.time() + timeout
+        if timeout is None:
+            return True
+        end_time = time.time() + timeout
         delta = None
         for pipe in self.parent_pipes:
-            if timeout is not None:
-                delta = max(end_time - time.time(), 0)
+            delta = max(end_time - time.time(), 0)
             if pipe.closed or (not pipe.poll(delta)):
-                break
-        else:
-            return True
-        return False
+                return False
+        return True
 
     def _check_observation_spaces(self):
         self._assert_is_running()
