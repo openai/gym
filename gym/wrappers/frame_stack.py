@@ -1,7 +1,4 @@
 from collections import deque
-from lz4.block import compress
-from lz4.block import decompress
-
 import numpy as np
 
 from gym.spaces import Box
@@ -20,6 +17,8 @@ class LazyFrames(object):
 
     """
     def __init__(self, frames, lz4_compress=False):
+        from lz4.block import compress
+        from lz4.block import decompress
         if lz4_compress:
             self.shape = frames[0].shape
             frames = [compress(frame) for frame in frames]
