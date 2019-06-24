@@ -13,7 +13,7 @@ class GrayScaleObservation(ObservationWrapper):
         assert len(env.observation_space.shape) == 3 and env.observation_space.shape[-1] == 3
         obs_shape = self.observation_space.shape[:2]
         if self.keep_dim:
-            self.observation_space = Box(low=0, high=255, shape=tuple(obs_shape+[1]), dtype=np.uint8)
+            self.observation_space = Box(low=0, high=255, shape=(obs_shape[0], obs_shape[1], 1), dtype=np.uint8)
         else:
             self.observation_space = Box(low=0, high=255, shape=obs_shape, dtype=np.uint8)
 
