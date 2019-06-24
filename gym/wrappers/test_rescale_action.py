@@ -1,5 +1,7 @@
 import pytest
 
+import numpy as np
+
 import gym
 from gym.wrappers import RescaleAction
 
