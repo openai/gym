@@ -4,7 +4,7 @@ from .space import Space
 
 
 class Box(Space):
-    """A box in R^n, i.e.each coordinate is bounded.
+    """A (possibly unbounded) box in R^n.
     
     There are two common use cases:
     
@@ -22,25 +22,46 @@ class Box(Space):
         self.dtype = np.dtype(dtype)
 
         if shape is None:
-            assert low.shape == high.shape
+            assert low.shape == high.shape, 'box dimension mismatch. '
             self.shape = low.shape
             self.low = low
             self.high = high
         else:
-            assert np.isscalar(low) and np.isscalar(high)
+            assert np.isscalar(low) and np.isscalar(high), 'box requires scalar bounds. '
             self.shape = tuple(shape)
             self.low = np.full(self.shape, low)
             self.high = np.full(self.shape, high)
-            low = low + np.zeros(shape)
-            high = high + np.zeros(shape)
+
         self.low = self.low.astype(self.dtype)
         self.high = self.high.astype(self.dtype)
+
+        self.bounded_below = -np.inf < self.low
+        self.bounded_above = np.inf > self.high
+
         super(Box, self).__init__(self.shape, self.dtype)
 
     def sample(self):
         high = self.high if self.dtype.kind == 'f' else self.high.astype('int64') + 1
-        return self.np_random.uniform(low=self.low, high=high, size=self.shape).astype(self.dtype)
+        sample = np.zeros(self.shape)
 
+        unbounded = ~self.bounded_below & ~self.bounded_above
+        low_bounded = ~self.bounded_below & self.bounded_above
+        upp_bounded = self.bounded_below & ~self.bounded_above
+        bounded = self.bounded_below & self.bounded_above
+        
+        sample[unbounded] = np.random.normal(size=unbounded[unbounded].shape)
+
+        sample[low_bounded] = -np.random.exponential(
+            size=low_bounded[low_bounded].shape) + self.high[low_bounded]
+        
+        sample[upp_bounded] = np.random.exponential(
+            size=upp_bounded[upp_bounded].shape) - self.low[upp_bounded]
+        
+        sample[bounded] = np.random.uniform(low=self.low[bounded], 
+                                            high=high[bounded],
+                                            size=bounded[bounded].shape)
+        return sample
+        
     def contains(self, x):
         if isinstance(x, list):
             x = np.array(x)  # Promote list to array for contains check
