@@ -31,7 +31,7 @@ def is_bust(hand):  # Is this hand a bust?
     return sum_hand(hand) > 21
 
 
-def score(hand):  # What is the score of this hand (0 if bust)
+def score(hand):  # What is the score of this hand (0 if bust)?
     return 0 if is_bust(hand) else sum_hand(hand)
 
 
@@ -43,27 +43,36 @@ class BlackjackEnv(gym.Env):
     """Simple blackjack environment
 
     Blackjack is a card game where the goal is to obtain cards that sum to as
-    near as possible to 21 without going over.  They're playing against a fixed
-    dealer.
+    near as possible to 21 without going over.  
+    The player is playing against a dealer with a fixed strategy. 
     Face cards (Jack, Queen, King) have point value 10.
     Aces can either count as 11 or 1, and it's called 'usable' at 11.
-    This game is placed with an infinite deck (or with replacement).
-    The game starts with each (player and dealer) having one face up and one
-    face down card.
+    This game is played with an infinite deck (or with replacement).
+    The game starts with the player and dealer each receiving two cards. 
+    One of the dealer's cards is facedown and the other is visible. 
 
-    The player can request additional cards (hit=1) until they decide to stop
-    (stick=0) or exceed 21 (bust).
+    The player can request additional cards (action=1, hit) until they decide to stop
+    (action=0, stick) or exceed 21 (bust). If double down is flagged (double_down=True), 
+    the player can double their bet (action=2, double) and then will receive exactly one 
+    additional card.
 
-    After the player sticks, the dealer reveals their facedown card, and draws
-    until their sum is 17 or greater.  If the dealer goes bust the player wins.
+    If the player is dealt a 10 or face card and an Ace, this is called a 
+    natural blackjack and if natural is flagged (natural=True), the player immediately
+    wins a payout of 1.5 (reward=1.5) unless the dealer also has a natural Blackjack. 
+
+    If the player busts, they immediately lose (reward=-1). After a stick or 
+    double down that does not result in a bust, the dealer draws until their sum 
+    is 17 or greater. If the dealer busts, the player wins (reward=1). Rewards 
+    are doubled in the double down case. 
 
     If neither player nor dealer busts, the outcome (win, lose, draw) is
     decided by whose sum is closer to 21.  The reward for winning is +1,
-    drawing is 0, and losing is -1.
+    drawing is 0, and losing is -1. These are again doubled in the double down
+    case. 
 
-    The observation of a 3-tuple of: the players current sum,
-    the dealer's one showing card (1-10 where 1 is ace),
-    and whether or not the player holds a usable ace (0 or 1).
+    The observation is a 3-tuple of: the player's current sum,
+    the dealer's one showing card (1-10 where 1 is Ace),
+    and whether or not the player holds a usable Ace (0 or 1).
 
     This environment corresponds to the version of the blackjack problem
     described in Example 5.1 in Reinforcement Learning: An Introduction
@@ -80,11 +89,7 @@ class BlackjackEnv(gym.Env):
             spaces.Discrete(11),
             spaces.Discrete(2)))
         self.seed()
-
-        # Flag to payout 1.5 on a "natural" blackjack win, like casino rules
-        # Ref: http://www.bicyclecards.com/how-to-play/blackjack/
         self.natural = natural
-        #Flag for allowing doubling down
         self.double_down = double_down
         # Start the first game
         self.reset()
@@ -94,32 +99,37 @@ class BlackjackEnv(gym.Env):
         return [seed]
 
     def step(self, action):
+        if self.natural and is_natural(self.player):
+            if is_natural(self.dealer):
+                reward = 0.0 #player and dealer natural Blackjack
+            else:
+                reward = 1.5 #player natural Blackjack
+            done = True
+            return self._get_obs(), reward, done, {}
+
         assert self.action_space.contains(action)
-        if self.double_down:
-            if action == 2: # double down: bet double and get only 1 card
-                self.player.append(draw_card(self.np_random))
-                done = True
-                if is_bust(self.player):
-                    reward = -2
-                else: 
-                    while sum_hand(self.dealer) < 17:
-                        self.dealer.append(draw_card(self.np_random))
-                    reward = 2 * cmp(score(self.player), score(self.dealer))
-        if action == 1:  # hit: add a card to players hand and return
+        if action == 2: # double down: bet double and get only 1 card, then compare
+            self.player.append(draw_card(self.np_random))
+            done = True
+            if is_bust(self.player):
+                reward = -2.0
+            else: 
+                while sum_hand(self.dealer) < 17:
+                    self.dealer.append(draw_card(self.np_random))
+                reward = 2 * cmp(score(self.player), score(self.dealer))
+        elif action == 1:  # hit: add a card to players hand and return
             self.player.append(draw_card(self.np_random))
             if is_bust(self.player):
                 done = True
-                reward = -1
+                reward = -1.0
             else:
                 done = False
-                reward = 0
-        elif action == 0:  # stick: play out the dealers hand, and score
+                reward = 0.0
+        elif action == 0:  # stick: play out the dealer's hand, then compare
             done = True
             while sum_hand(self.dealer) < 17:
                 self.dealer.append(draw_card(self.np_random))
             reward = cmp(score(self.player), score(self.dealer))
-            if self.natural and is_natural(self.player) and reward == 1:
-                reward = 1.5
         return self._get_obs(), reward, done, {}
 
     def _get_obs(self):
