@@ -4,7 +4,10 @@ from .space import Space
 
 
 class Box(Space):
-    """A (possibly unbounded) box in R^n.
+    """
+    A (possibly unbounded) box in R^n. Specifically, a Box represents the
+    Cartesian product of n closed intervals. Each interval has the form of one
+    of [a, b], (-oo, b], [a, oo), or (-oo, oo).
     
     There are two common use cases:
     
@@ -35,32 +38,51 @@ class Box(Space):
         self.low = self.low.astype(self.dtype)
         self.high = self.high.astype(self.dtype)
 
+        # Boolean arrays which indicate the interval type for each coordinate
         self.bounded_below = -np.inf < self.low
         self.bounded_above = np.inf > self.high
 
         super(Box, self).__init__(self.shape, self.dtype)
 
     def sample(self):
-        high = self.high if self.dtype.kind == 'f' else self.high.astype('int64') + 1
-        sample = np.zeros(self.shape)
+        """
+        Generates a single random sample inside of the Box. 
 
-        unbounded = ~self.bounded_below & ~self.bounded_above
-        low_bounded = ~self.bounded_below & self.bounded_above
-        upp_bounded = self.bounded_below & ~self.bounded_above
-        bounded = self.bounded_below & self.bounded_above
+        In creating a sample of the box, each coordinate is sampled according to
+        the form of the interval:
         
-        sample[unbounded] = np.random.normal(size=unbounded[unbounded].shape)
+        * [a, b] : uniform distribution 
+        * [a, oo) : shifted exponential distribution
+        * (-oo, b] : shifted negative exponential distribution
+        * (-oo, oo) : normal distribution
+        """
+        high = self.high if self.dtype.kind == 'f' \
+                else self.high.astype('int64') + 1
+        sample = np.empty(self.shape)
 
-        sample[low_bounded] = -np.random.exponential(
+        # Masking arrays which classify the coordinates according to interval
+        # type
+        unbounded   = ~self.bounded_below & ~self.bounded_above
+        low_bounded = ~self.bounded_below &  self.bounded_above
+        upp_bounded =  self.bounded_below & ~self.bounded_above
+        bounded     =  self.bounded_below &  self.bounded_above
+        
+
+        # Vectorized sampling by interval type
+        sample[unbounded] = self.np_random.normal(
+                size=unbounded[unbounded].shape)
+
+        sample[low_bounded] = -self.np_random.exponential(
             size=low_bounded[low_bounded].shape) + self.high[low_bounded]
         
-        sample[upp_bounded] = np.random.exponential(
+        sample[upp_bounded] = self.np_random.exponential(
             size=upp_bounded[upp_bounded].shape) - self.low[upp_bounded]
         
-        sample[bounded] = np.random.uniform(low=self.low[bounded], 
+        sample[bounded] = self.np_random.uniform(low=self.low[bounded], 
                                             high=high[bounded],
                                             size=bounded[bounded].shape)
-        return sample
+
+        return sample.astype(self.dtype)
         
     def contains(self, x):
         if isinstance(x, list):
