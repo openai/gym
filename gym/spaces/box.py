@@ -41,8 +41,21 @@ class Box(Space):
         # Boolean arrays which indicate the interval type for each coordinate
         self.bounded_below = -np.inf < self.low
         self.bounded_above = np.inf > self.high
+        self.bounded = np.all(self.bounded_below) and np.all(self.bounded_above)
 
         super(Box, self).__init__(self.shape, self.dtype)
+
+    def is_bounded(self, manner="both"):
+        below = np.all(self.bounded_below)
+        above = np.all(self.bounded_above)
+        if manner == "both":
+            return below and above
+        elif manner == "below":
+            return below
+        elif manner == "above":
+            return above
+        else:
+            raise ValueError("manner is not in {'below', 'above', 'both'}")
 
     def sample(self):
         """
@@ -63,8 +76,8 @@ class Box(Space):
         # Masking arrays which classify the coordinates according to interval
         # type
         unbounded   = ~self.bounded_below & ~self.bounded_above
-        low_bounded = ~self.bounded_below &  self.bounded_above
-        upp_bounded =  self.bounded_below & ~self.bounded_above
+        upp_bounded = ~self.bounded_below &  self.bounded_above
+        low_bounded =  self.bounded_below & ~self.bounded_above
         bounded     =  self.bounded_below &  self.bounded_above
         
 
@@ -72,11 +85,11 @@ class Box(Space):
         sample[unbounded] = self.np_random.normal(
                 size=unbounded[unbounded].shape)
 
-        sample[low_bounded] = -self.np_random.exponential(
-            size=low_bounded[low_bounded].shape) + self.high[low_bounded]
+        sample[low_bounded] = self.np_random.exponential(
+            size=low_bounded[low_bounded].shape) + self.low[low_bounded]
         
-        sample[upp_bounded] = self.np_random.exponential(
-            size=upp_bounded[upp_bounded].shape) - self.low[upp_bounded]
+        sample[upp_bounded] = -self.np_random.exponential(
+            size=upp_bounded[upp_bounded].shape) - self.high[upp_bounded]
         
         sample[bounded] = self.np_random.uniform(low=self.low[bounded], 
                                             high=high[bounded],
