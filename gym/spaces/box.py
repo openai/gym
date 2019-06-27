@@ -41,7 +41,6 @@ class Box(Space):
         # Boolean arrays which indicate the interval type for each coordinate
         self.bounded_below = -np.inf < self.low
         self.bounded_above = np.inf > self.high
-        self.bounded = np.all(self.bounded_below) and np.all(self.bounded_above)
 
         super(Box, self).__init__(self.shape, self.dtype)
 
