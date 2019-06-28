@@ -53,6 +53,9 @@ class VectorEnv(gym.Env):
         self.step_async(actions)
         return self.step_wait()
 
+    def __len__(self):
+        return self.num_envs
+
     def __del__(self):
         if hasattr(self, 'closed'):
             if not self.closed:
