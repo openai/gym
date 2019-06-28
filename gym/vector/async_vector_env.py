@@ -75,7 +75,7 @@ class AsyncVectorEnv(VectorEnv):
 
         if self.shared_memory:
             _obs_buffer = create_shared_memory(self.single_observation_space,
-                n=self.num_envs)
+                n=self.num_envs, ctx=ctx)
             self.observations = read_from_shared_memory(_obs_buffer,
                 self.single_observation_space, n=self.num_envs)
         else:
