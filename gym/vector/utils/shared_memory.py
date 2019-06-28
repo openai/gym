@@ -1,5 +1,5 @@
 import numpy as np
-from multiprocessing import Array
+import multiprocessing as mp
 from ctypes import c_bool
 from collections import OrderedDict
 
@@ -13,7 +13,7 @@ __all__ = [
     'write_to_shared_memory'
 ]
 
-def create_shared_memory(space, n=1):
+def create_shared_memory(space, n=1, ctx=mp):
     """Create a shared memory object, to be shared across processes. This
     eventually contains the observations from the vectorized environment.
 
@@ -26,32 +26,35 @@ def create_shared_memory(space, n=1):
         Number of environments in the vectorized environment (i.e. the number
         of processes).
 
+    ctx : `multiprocessing` context
+        Context for multiprocessing.
+
     Returns
     -------
     shared_memory : dict, tuple, or `multiprocessing.Array` instance
         Shared object across processes.
     """
     if isinstance(space, _BaseGymSpaces):
-        return create_base_shared_memory(space, n=n)
+        return create_base_shared_memory(space, n=n, ctx=ctx)
     elif isinstance(space, Tuple):
-        return create_tuple_shared_memory(space, n=n)
+        return create_tuple_shared_memory(space, n=n, ctx=ctx)
     elif isinstance(space, Dict):
-        return create_dict_shared_memory(space, n=n)
+        return create_dict_shared_memory(space, n=n, ctx=ctx)
     else:
         raise NotImplementedError()
 
-def create_base_shared_memory(space, n=1):
+def create_base_shared_memory(space, n=1, ctx=mp):
     dtype = space.dtype.char
     if dtype in '?':
         dtype = c_bool
-    return Array(dtype, n * int(np.prod(space.shape)))
+    return ctx.Array(dtype, n * int(np.prod(space.shape)))
 
-def create_tuple_shared_memory(space, n=1):
-    return tuple(create_shared_memory(subspace, n=n)
+def create_tuple_shared_memory(space, n=1, ctx=mp):
+    return tuple(create_shared_memory(subspace, n=n, ctx=ctx)
         for subspace in space.spaces)
 
-def create_dict_shared_memory(space, n=1):
-    return OrderedDict([(key, create_shared_memory(subspace, n=n))
+def create_dict_shared_memory(space, n=1, ctx=mp):
+    return OrderedDict([(key, create_shared_memory(subspace, n=n, ctx=ctx))
         for (key, subspace) in space.spaces.items()])
 
 
