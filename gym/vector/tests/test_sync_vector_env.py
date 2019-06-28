@@ -31,12 +31,16 @@ def test_reset_sync_vector_env():
     assert observations.shape == env.observation_space.shape
 
 
-def test_step_sync_vector_env():
+@pytest.mark.parametrize('use_single_action_space', [True, False])
+def test_step_sync_vector_env(use_single_action_space):
     env_fns = [make_env('CubeCrash-v0', i) for i in range(8)]
     try:
         env = SyncVectorEnv(env_fns)
         observations = env.reset()
-        actions = [env.single_action_space.sample() for _ in range(8)]
+        if use_single_action_space:
+            actions = [env.single_action_space.sample() for _ in range(8)]
+        else:
+            actions = env.action_space.sample()
         observations, rewards, dones, _ = env.step(actions)
     finally:
         env.close()
