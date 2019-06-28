@@ -4,7 +4,7 @@ from gym.vector.vector_env import VectorEnv
 
 __all__ = ['AsyncVectorEnv', 'SyncVectorEnv', 'VectorEnv', 'make']
 
-def make(id, num_envs=1, asynchronous=True, **kwargs):
+def make(id, num_envs=1, asynchronous=True, atomic_transformation=None, **kwargs):
     """Create a vectorized environment from multiple copies of an environment,
     from its id
 
@@ -21,6 +21,10 @@ def make(id, num_envs=1, asynchronous=True, **kwargs):
         If `True`, wraps the environments in an `AsyncVectorEnv` (which uses 
         `multiprocessing` to run the environments in parallel). If `False`,
         wraps the environments in a `SyncVectorEnv`.
+        
+    atomic_transformation : function (default: `None`)
+        If not `None`, then apply the transformation to each internal, atomic 
+        environment when creating it. 
 
     Returns
     -------
@@ -39,7 +43,10 @@ def make(id, num_envs=1, asynchronous=True, **kwargs):
     """
     from gym.envs import make as make_
     def _make_env():
-        return make_(id, **kwargs)
+        env = make_(id, **kwargs)
+        if atomic_transformation is not None and callable(atomic_transformation):
+            env = atomic_transformation(env)
+        return env
     if num_envs == 1:
         return _make_env()
     env_fns = [_make_env for _ in range(num_envs)]
