@@ -125,6 +125,12 @@ class SyncVectorEnv(VectorEnv):
 
         self.closed = True
 
+    def __getitem__(self, index):
+        return self.envs[index]
+
+    def __setitem__(self, index, x):
+        self.envs[index] = x
+
     def _check_observation_spaces(self):
         for env in self.envs:
             if not (env.observation_space == self.single_observation_space):
