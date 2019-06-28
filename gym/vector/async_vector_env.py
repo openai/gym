@@ -271,14 +271,15 @@ class AsyncVectorEnv(VectorEnv):
                     process.terminate()
         else:
             for pipe in self.parent_pipes:
-                if not pipe.closed:
+                if (pipe is not None) and (not pipe.closed):
                     pipe.send(('close', None))
             for pipe in self.parent_pipes:
-                if not pipe.closed:
+                if (pipe is not None) and (not pipe.closed):
                     pipe.recv()
 
         for pipe in self.parent_pipes:
-            pipe.close()
+            if pipe is not None:
+                pipe.close()
         for process in self.processes:
             process.join()
 
