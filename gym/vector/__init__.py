@@ -1,10 +1,12 @@
+from collections.abc import Iterable
+
 from gym.vector.async_vector_env import AsyncVectorEnv
 from gym.vector.sync_vector_env import SyncVectorEnv
 from gym.vector.vector_env import VectorEnv
 
 __all__ = ['AsyncVectorEnv', 'SyncVectorEnv', 'VectorEnv', 'make']
 
-def make(id, num_envs=1, asynchronous=True, atomic_transformation=None, **kwargs):
+def make(id, num_envs=1, asynchronous=True, wrappers=None, **kwargs):
     """Create a vectorized environment from multiple copies of an environment,
     from its id
 
@@ -22,9 +24,9 @@ def make(id, num_envs=1, asynchronous=True, atomic_transformation=None, **kwargs
         `multiprocessing` to run the environments in parallel). If `False`,
         wraps the environments in a `SyncVectorEnv`.
         
-    atomic_transformation : function (default: `None`)
-        If not `None`, then apply the transformation to each internal, atomic 
-        environment when creating it. 
+    wrappers : Callable or Iterable of Callables (default: `None`)
+        If not `None`, then apply the wrappers to each internal 
+        environment during creation. 
 
     Returns
     -------
@@ -44,8 +46,12 @@ def make(id, num_envs=1, asynchronous=True, atomic_transformation=None, **kwargs
     from gym.envs import make as make_
     def _make_env():
         env = make_(id, **kwargs)
-        if atomic_transformation is not None and callable(atomic_transformation):
-            env = atomic_transformation(env)
+        if wrappers is not None:
+            if callable(wrappers):
+                env = wrappers(env)
+            elif isinstance(wrappers, Iterable) and all([callable(w) for w in wrappers]):
+                for wrapper in wrappers:
+                    env = wrapper(env)
         return env
     if num_envs == 1:
         return _make_env()
