@@ -70,6 +70,9 @@ You'll be able to run a few environments right away:
 We recommend playing with those environments at first, and then later
 installing the dependencies for the remaining environments.
 
+We currently support Linux and OS X. We don't have an official Windows support but some of the environments might still work
+by running `pip install gym`.
+
 Installing everything
 ---------------------
 
