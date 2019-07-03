@@ -21,24 +21,13 @@ class FlattenDictWrapper(gym.ObservationWrapper):
     def get_dict_size(self, spaces, dict_keys):
         size = 0
         for key in dict_keys:
-            space = spaces[key]
-            if isinstance(space, gym.spaces.Dict):
-                size += self.get_dict_size(space.spaces, space.spaces.keys())
-            elif isinstance(space, gym.spaces.Tuple):
-                size += self.get_tuple_size(space.spaces)
-            else:
-                size += self.get_box_size(space)
+            size += self._size(spaces[key])
         return size
 
     def get_tuple_size(self, spaces):
         size = 0
         for space in spaces:
-            if isinstance(space, gym.spaces.Dict):
-                size += self.get_dict_size(space.spaces, space.spaces.keys())
-            elif isinstance(space, gym.spaces.Tuple):
-                size += self.get_tuple_size(space.spaces)
-            else:
-                size += self.get_box_size(space)
+            size += self._size(space)
         return size
 
     def get_box_size(self, space):
@@ -50,9 +39,37 @@ class FlattenDictWrapper(gym.ObservationWrapper):
         shape = space.shape
         return np.prod(shape, dtype=np.int64)
 
+    def _size(self, space):
+        if isinstance(space, gym.spaces.Dict):
+            return self.get_dict_size(space.spaces, space.spaces.keys())
+        elif isinstance(space, gym.spaces.Tuple):
+            return self.get_tuple_size(space.spaces)
+        else:
+            return self.get_box_size(space)
+
     def observation(self, observation):
+        print(observation)
+        assert isinstance(observation, dict)
+        return self.ravel_dict_observation(observation, self.dict_keys)
+
+    def ravel_dict_observation(self, observation, dict_keys):
         assert isinstance(observation, dict)
         obs = []
-        for key in self.dict_keys:
-            obs.append(observation[key].ravel())
+        for key in dict_keys:
+            obs.append(self._ravel(observation[key]))
         return np.concatenate(obs)
+
+    def ravel_tuple_observation(self, observation):
+        obs = []
+        for item in observation:
+            obs.append(self._ravel(item))
+        return np.concatenate(obs)
+
+    def _ravel(self, space):
+        if isinstance(space, dict):
+            return self.ravel_dict_observation(space, space.keys())
+        elif isinstance(space, tuple):
+            return self.ravel_tuple_observation(space)
+        else:
+            return np.array(space).ravel()
+
