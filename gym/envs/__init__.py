@@ -91,6 +91,12 @@ register(
     max_episode_steps=500,
 )
 
+register(
+    id='CartPoleSwingUp-v0',
+    entry_point='gym.envs.classic_control:CartPoleSwingUpEnv',
+    max_episode_steps=500,
+)
+
 # Box2d
 # ----------------------------------------
 
