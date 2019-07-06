@@ -148,7 +148,11 @@ class Viewer(object):
         self.window.flip()
         image_data = pyglet.image.get_buffer_manager().get_color_buffer().get_image_data()
         self.window.flip()
-        arr = np.fromstring(image_data.data, dtype=np.uint8, sep='')
+        if hasattr(image_data, 'data'):
+            # Support for pyglet versions before 1.4.0
+            arr = np.fromstring(image_data.data, dtype=np.uint8, sep='')
+        else:
+            arr = np.fromstring(image_data.get_data(), dtype=np.uint8, sep='')
         arr = arr.reshape(self.height, self.width, 4)
         return arr[::-1,:,0:3]
 
