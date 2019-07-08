@@ -188,7 +188,7 @@ What's new
 ==========
 - 2019-06-21 (v0.13.2)
     + Bug fix for ALE 0.6 difficulty modes
-    + Lock pyglet dependency
+    + Use narrow range for pyglet versions
 
 - 2019-06-21 (v0.13.0)
     + Upgrade to ALE 0.6 (atari-py 0.2.0) (thanks @JesseFarebro!)
