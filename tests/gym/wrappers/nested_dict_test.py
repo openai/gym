@@ -102,6 +102,7 @@ ERROR_TEST_CASES = (
     (Dict({
         "key1": Tuple(
             (Dict({
+
                 "subkey1": Box(shape=(), low=-1, high=1, dtype=np.float32),
                 "subkey2": Box(shape=(), low=-1, high=1, dtype=np.float32),
                 "subkey3": Box(shape=(), low=-1, high=1, dtype=np.int64),
@@ -131,6 +132,7 @@ class TestNestedDictWrapper(object):
 
         wrapped_env = FlattenDictWrapper(env, env.obs_keys)
         assert wrapped_env.observation_space.shape == flat_shape
+
         assert wrapped_env.observation_space.dtype == wrapped_env.dtype
 
     @pytest.mark.parametrize("observation_space, flat_shape", NESTED_DICT_TEST_CASES)
@@ -150,4 +152,3 @@ class TestNestedDictWrapper(object):
 
         with pytest.raises(error_type, match=error_match):
             FlattenDictWrapper(env, env.obs_keys)
-

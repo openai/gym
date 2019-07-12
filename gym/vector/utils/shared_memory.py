@@ -100,9 +100,8 @@ def read_tuple_from_shared_memory(shared_memory, space, n=1):
         for (memory, subspace) in zip(shared_memory, space.spaces))
 
 def read_dict_from_shared_memory(shared_memory, space, n=1):
-    return OrderedDict([(key, read_from_shared_memory(memory, subspace, n=n))
-        for ((key, memory), subspace) in zip(shared_memory.items(), 
-        space.spaces.values())])
+    return OrderedDict([(key, read_from_shared_memory(shared_memory[key],
+        subspace, n=n)) for (key, subspace) in space.spaces.items()])
 
 
 def write_to_shared_memory(index, value, shared_memory, space):
@@ -138,13 +137,14 @@ def write_to_shared_memory(index, value, shared_memory, space):
 
 def write_base_to_shared_memory(index, value, shared_memory, space):
     size = int(np.prod(space.shape))
-    shared_memory[index * size:(index + 1) * size] = np.asarray(value,
-        dtype=space.dtype).flatten()
+    destination = np.frombuffer(shared_memory.get_obj(), dtype=space.dtype)
+    np.copyto(destination[index * size:(index + 1) * size], np.asarray(
+        value, dtype=space.dtype).flatten())
 
 def write_tuple_to_shared_memory(index, values, shared_memory, space):
     for value, memory, subspace in zip(values, shared_memory, space.spaces):
         write_to_shared_memory(index, value, memory, subspace)
 
 def write_dict_to_shared_memory(index, values, shared_memory, space):
-    for key, value in values.items():
-        write_to_shared_memory(index, value, shared_memory[key], space.spaces[key])
+    for key, subspace in space.spaces.items():
+        write_to_shared_memory(index, values[key], shared_memory[key], subspace)

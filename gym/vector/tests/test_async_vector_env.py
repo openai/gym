@@ -37,12 +37,16 @@ def test_reset_async_vector_env(shared_memory):
 
 
 @pytest.mark.parametrize('shared_memory', [True, False])
-def test_step_async_vector_env(shared_memory):
+@pytest.mark.parametrize('use_single_action_space', [True, False])
+def test_step_async_vector_env(shared_memory, use_single_action_space):
     env_fns = [make_env('CubeCrash-v0', i) for i in range(8)]
     try:
         env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
         observations = env.reset()
-        actions = [env.single_action_space.sample() for _ in range(8)]
+        if use_single_action_space:
+            actions = [env.single_action_space.sample() for _ in range(8)]
+        else:
+            actions = env.action_space.sample()
         observations, rewards, dones, _ = env.step(actions)
     finally:
         env.close()

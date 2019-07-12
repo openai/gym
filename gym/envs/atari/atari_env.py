@@ -26,8 +26,8 @@ class AtariEnv(gym.Env, utils.EzPickle):
     def __init__(
             self,
             game='pong',
-            mode=0,
-            difficulty=0,
+            mode=None,
+            difficulty=None,
             obs_type='ram',
             frameskip=(2, 5),
             repeat_action_probability=0.,
@@ -90,18 +90,21 @@ class AtariEnv(gym.Env, utils.EzPickle):
         self.ale.setInt(b'random_seed', seed2)
         self.ale.loadROM(self.game_path)
 
-        modes = self.ale.getAvailableModes()
-        difficulties = self.ale.getAvailableDifficulties()
+        if self.game_mode is not None:
+            modes = self.ale.getAvailableModes()
 
-        assert self.game_mode in modes, (
-            "Invalid game mode \"{}\" for game {}.\nAvailable modes are: {}"
-        ).format(self.game_mode, self.game, modes)
-        assert self.game_difficulty in difficulties, (
-            "Invalid game difficulty \"{}\" for game {}.\nAvailable difficulties are: {}"
-        ).format(self.game_difficulty, self.game, difficulties)
+            assert self.game_mode in modes, (
+                "Invalid game mode \"{}\" for game {}.\nAvailable modes are: {}"
+            ).format(self.game_mode, self.game, modes)
+            self.ale.setMode(self.game_mode)
 
-        self.ale.setMode(self.game_mode)
-        self.ale.setDifficulty(self.game_difficulty)
+        if self.game_difficulty is not None:
+            difficulties = self.ale.getAvailableDifficulties()
+
+            assert self.game_difficulty in difficulties, (
+                "Invalid game difficulty \"{}\" for game {}.\nAvailable difficulties are: {}"
+            ).format(self.game_difficulty, self.game, difficulties)
+            self.ale.setDifficulty(self.game_difficulty)
 
         return [seed1, seed2]
 
