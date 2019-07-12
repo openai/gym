@@ -14,8 +14,7 @@ def make(id, num_envs=1, asynchronous=True, **kwargs):
         The environment ID. This must be a valid ID from the registry.
 
     num_envs : int
-        Number of copies of the environment. If `1`, then it returns an
-        unwrapped (i.e. non-vectorized) environment.
+        Number of copies of the environment.
 
     asynchronous : bool (default: `True`)
         If `True`, wraps the environments in an `AsyncVectorEnv` (which uses 
@@ -40,8 +39,6 @@ def make(id, num_envs=1, asynchronous=True, **kwargs):
     from gym.envs import make as make_
     def _make_env():
         return make_(id, **kwargs)
-    if num_envs == 1:
-        return _make_env()
     env_fns = [_make_env for _ in range(num_envs)]
 
     return AsyncVectorEnv(env_fns) if asynchronous else SyncVectorEnv(env_fns)
