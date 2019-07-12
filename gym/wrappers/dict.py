@@ -48,7 +48,6 @@ class FlattenDictWrapper(gym.ObservationWrapper):
             return self.get_box_size(space)
 
     def observation(self, observation):
-        print(observation)
         assert isinstance(observation, dict)
         return self.ravel_dict_observation(observation, self.dict_keys)
 
