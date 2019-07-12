@@ -3,12 +3,12 @@ from .space import Space
 
 
 class Discrete(Space):
-    """A discrete space in :math:`\{ 0, 1, \dots, n-1 \}`. 
-    
+    r"""A discrete space in :math:`\{ 0, 1, \\dots, n-1 \}`. 
+
     Example::
-    
+
         >>> Discrete(2)
-        
+
     """
     def __init__(self, n):
         assert n >= 0
