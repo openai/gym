@@ -66,7 +66,7 @@ def update_rollout_dict(spec, rollout_dict):
     return True
 
 def add_new_rollouts(spec_ids, overwrite):
-    environments = [spec for spec in envs.registry.all() if spec._entry_point is not None]
+    environments = [spec for spec in envs.registry.all() if spec.entry_point is not None]
     if spec_ids:
         environments = [spec for spec in environments if spec.id in spec_ids]
         assert len(environments) == len(spec_ids), "Some specs not found"
