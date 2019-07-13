@@ -22,7 +22,7 @@ class MountainCarEnv(gym.Env):
         self.max_position = 0.6
         self.max_speed = 0.07
         self.goal_position = 0.5
-        self.goal_velocity = 0.06
+        self.goal_velocity = goal_velocity
         
         self.force=0.001
         self.gravity=0.0025
