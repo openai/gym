@@ -44,6 +44,12 @@ should know:
 - `reset(self)`: Reset the environment's state. Returns `observation`.
 - `step(self, action)`: Step the environment by one timestep. Returns `observation`, `reward`, `done`, `info`.
 - `render(self, mode='human')`: Render one frame of the environment. The default mode will do something human friendly, such as pop up a window. 
+
+Supported systems
+-----------------
+
+We currently support Linux and OS X running Python 2.7 or 3.5 -- 3.7.
+
 Installation
 ============
 
@@ -75,37 +81,13 @@ Installing everything
 
 To install the full set of environments, you'll need to have some system
 packages installed. We'll build out the list here over time; please let us know
-what you end up installing on your platform. Also, take a look at the docker files (test.dockerfile.xx.xx) to 
-see the composition of our CI-tested images. 
+what you end up installing on your platform. Also, take a look at the docker files (py.Dockerfile) to
+see the composition of our CI-tested images.
 
-On OSX:
-
-.. code:: shell
-
-    brew install cmake boost boost-python sdl2 swig wget
-
-On Ubuntu 14.04 (non-mujoco only):
+On Ubuntu 16.04 and 18.04:
 
 .. code:: shell
-
-    apt-get install libjpeg-dev cmake swig python-pyglet python3-opengl libboost-all-dev \
-            libsdl2-2.0.0 libsdl2-dev libglu1-mesa libglu1-mesa-dev libgles2-mesa-dev \
-            freeglut3 xvfb libav-tools
-
-
-On Ubuntu 16.04:
-
-.. code:: shell
-
-    apt-get install -y python-pyglet python3-opengl zlib1g-dev libjpeg-dev patchelf \
-            cmake swig libboost-all-dev libsdl2-dev libosmesa6-dev xvfb ffmpeg
-
-On Ubuntu 18.04:
-
-.. code:: shell
-
-    apt install -y python3-dev zlib1g-dev libjpeg-dev cmake swig python-pyglet python3-opengl libboost-all-dev libsdl2-dev \
-        libosmesa6-dev patchelf ffmpeg xvfb
+    apt-get install -y libglu1-mesa-dev libgl1-mesa-dev libosmesa6-dev xvfb ffmpeg curl patchelf
 
 
 MuJoCo has a proprietary dependency we can't set up for you. Follow
@@ -114,18 +96,6 @@ the
 in the ``mujoco-py`` package for help.
 
 Once you're ready to install everything, run ``pip install -e '.[all]'`` (or ``pip install 'gym[all]'``).
-
-Supported systems
------------------
-
-We currently support Linux and OS X running Python 2.7 or 3.5. Some users on OSX + Python3 may need to run
-
-.. code:: shell
-
-    brew install boost-python --with-python3
-
-If you want to access Gym from languages other than python, we have limited support for non-python
-frameworks, such as lua/Torch, using the OpenAI Gym `HTTP API <https://github.com/openai/gym-http-api>`_.
 
 Pip version
 -----------
