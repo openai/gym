@@ -48,7 +48,8 @@ should know:
 Supported systems
 -----------------
 
-We currently support Linux and OS X running Python 2.7 or 3.5 -- 3.7.
+We currently support Linux and OS X running Python 2.7 or 3.5 -- 3.7. 
+Windows support is experimental - algorithmic, toy_text, classic_control and atari *should* work on Windows (see next section for installation instructions); nevertheless, proceed at your own risk.
 
 Installation
 ============
