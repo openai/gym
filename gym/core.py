@@ -209,12 +209,15 @@ class Wrapper(Env):
         self.observation_space = self.env.observation_space
         self.reward_range = self.env.reward_range
         self.metadata = self.env.metadata
-        self.spec = getattr(self.env, 'spec', None)
 
     def __getattr__(self, name):
         if name.startswith('_'):
             raise AttributeError("attempted to get missing private attribute '{}'".format(name))
         return getattr(self.env, name)
+
+    @property
+    def spec(self):
+        return self.env.spec
 
     @classmethod
     def class_name(cls):
