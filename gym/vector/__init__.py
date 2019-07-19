@@ -1,4 +1,7 @@
-from collections.abc import Iterable
+try:
+    from collections.abc import Iterable
+except ImportError:
+    Iterable = (tuple, list)
 
 from gym.vector.async_vector_env import AsyncVectorEnv
 from gym.vector.sync_vector_env import SyncVectorEnv
