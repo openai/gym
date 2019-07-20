@@ -64,7 +64,7 @@ NESTED_DICT_TEST_CASES = (
      (Dict({
          "key1": Tuple(
              (Dict({
-                 "key1": Box(shape=(2, ), low=-1, high=1, dtype=np.float32)
+                 "key9": Box(shape=(2, ), low=-1, high=1, dtype=np.float32)
              }), )
          ),
          "key2": Box(shape=(), low=-1, high=1, dtype=np.float32),
@@ -81,11 +81,9 @@ ERROR_TEST_CASES = (
         })
     }), AssertionError, "Only spaces of type Box are supported."),
     (Dict({
-        "key1": Box(shape=(2, ), low=-1, high=1, dtype=np.float32),
-        "key2": Dict({
-            "subkey1": Box(shape=(2, ), low=-1, high=1, dtype=np.float64)
-        })
-    }), AssertionError, "All spaces must have the same dtype."),
+        "key2": Discrete(n=2),
+        "key3": Box(shape=(2, ), low=-1, high=1, dtype=np.float32)
+    }), AssertionError, "Only spaces of type Box are supported."),
     (Dict({
         "key1": Tuple(
             (Dict({
@@ -94,7 +92,30 @@ ERROR_TEST_CASES = (
         ),
         "key2": Box(shape=(), low=-1, high=1, dtype=np.float32),
         "key3": Box(shape=(2, ), low=-1, high=1, dtype=np.float32)
-    }), AssertionError, "Only spaces of type Box are supported.")
+    }), AssertionError, "Only spaces of type Box are supported."),
+    (Dict({
+        "key1": Box(shape=(2, ), low=-1, high=1, dtype=np.float32),
+        "key2": Dict({
+            "subkey1": Box(shape=(2, ), low=-1, high=1, dtype=np.float64)
+        })
+    }), AssertionError, "All spaces must have the same dtype."),
+    (Dict({
+        "key1": Tuple(
+            (Dict({
+
+                "subkey1": Box(shape=(), low=-1, high=1, dtype=np.float32),
+                "subkey2": Box(shape=(), low=-1, high=1, dtype=np.float32),
+                "subkey3": Box(shape=(), low=-1, high=1, dtype=np.int64),
+                "subkey4": Box(shape=(), low=-1, high=1, dtype=np.float32),
+            }), )
+        ),
+        "key2": Box(shape=(), low=-1, high=1, dtype=np.float32),
+        "key3": Box(shape=(2, ), low=-1, high=1, dtype=np.float32)
+    }), AssertionError, "All spaces must have the same dtype."),
+    (Dict({
+        "key2": Box(shape=(), low=-1, high=1, dtype=np.int32),
+        "key3": Box(shape=(2, ), low=-1, high=1, dtype=np.float32)
+    }), AssertionError, "All spaces must have the same dtype."),
 )
 
 
@@ -102,7 +123,7 @@ class TestNestedDictWrapper(object):
     @pytest.mark.parametrize("observation_space, flat_shape",
 
                              NESTED_DICT_TEST_CASES)
-    def test_nested_dicts(self, observation_space, flat_shape):
+    def test_nested_dicts_size(self, observation_space, flat_shape):
         env = FakeEnvironment(observation_space=observation_space)
 
         # Make sure we are testing the right environment for the test.
@@ -111,6 +132,15 @@ class TestNestedDictWrapper(object):
 
         wrapped_env = FlattenDictWrapper(env, env.obs_keys)
         assert wrapped_env.observation_space.shape == flat_shape
+
+        assert wrapped_env.observation_space.dtype == wrapped_env.dtype
+
+    @pytest.mark.parametrize("observation_space, flat_shape", NESTED_DICT_TEST_CASES)
+    def test_nested_dicts_ravel(self, observation_space, flat_shape):
+        env = FakeEnvironment(observation_space=observation_space)
+        wrapped_env = FlattenDictWrapper(env, env.obs_keys)
+        obs = wrapped_env.reset()
+        assert obs.shape == wrapped_env.observation_space.shape
 
     @pytest.mark.parametrize("observation_space,error_type,error_match",
                              ERROR_TEST_CASES)
