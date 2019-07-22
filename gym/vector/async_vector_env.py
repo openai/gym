@@ -75,7 +75,7 @@ class AsyncVectorEnv(VectorEnv):
 
         if self.shared_memory:
             _obs_buffer = create_shared_memory(self.single_observation_space,
-                n=self.num_envs)
+                n=self.num_envs, ctx=ctx)
             self.observations = read_from_shared_memory(_obs_buffer,
                 self.single_observation_space, n=self.num_envs)
         else:
@@ -97,7 +97,7 @@ class AsyncVectorEnv(VectorEnv):
                 self.parent_pipes.append(parent_pipe)
                 self.processes.append(process)
 
-                process.deamon = True
+                process.daemon = True
                 process.start()
                 child_pipe.close()
 
@@ -129,8 +129,8 @@ class AsyncVectorEnv(VectorEnv):
 
         for pipe, seed in zip(self.parent_pipes, seeds):
             pipe.send(('seed', seed))
-        for pipe in self.parent_pipes:
-            pipe.recv()
+        _, successes = zip(*[pipe.recv() for pipe in self.parent_pipes])
+        self._raise_if_errors(successes)
 
     def reset_async(self):
         self._assert_is_running()
@@ -166,13 +166,12 @@ class AsyncVectorEnv(VectorEnv):
             raise mp.TimeoutError('The call to `reset_wait` has timed out after '
                 '{0} second{1}.'.format(timeout, 's' if timeout > 1 else ''))
 
-        self._raise_if_errors()
-        observations_list = [pipe.recv() for pipe in self.parent_pipes]
+        results, successes = zip(*[pipe.recv() for pipe in self.parent_pipes])
+        self._raise_if_errors(successes)
         self._state = AsyncState.DEFAULT
 
         if not self.shared_memory:
-            concatenate(observations_list, self.observations,
-                self.single_observation_space)
+            concatenate(results, self.observations, self.single_observation_space)
 
         return deepcopy(self.observations) if self.copy else self.observations
 
@@ -225,8 +224,8 @@ class AsyncVectorEnv(VectorEnv):
             raise mp.TimeoutError('The call to `step_wait` has timed out after '
                 '{0} second{1}.'.format(timeout, 's' if timeout > 1 else ''))
 
-        self._raise_if_errors()
-        results = [pipe.recv() for pipe in self.parent_pipes]
+        results, successes = zip(*[pipe.recv() for pipe in self.parent_pipes])
+        self._raise_if_errors(successes)
         self._state = AsyncState.DEFAULT
         observations_list, rewards, dones, infos = zip(*results)
 
@@ -272,14 +271,15 @@ class AsyncVectorEnv(VectorEnv):
                     process.terminate()
         else:
             for pipe in self.parent_pipes:
-                if not pipe.closed:
+                if (pipe is not None) and (not pipe.closed):
                     pipe.send(('close', None))
             for pipe in self.parent_pipes:
-                if not pipe.closed:
+                if (pipe is not None) and (not pipe.closed):
                     pipe.recv()
 
         for pipe in self.parent_pipes:
-            pipe.close()
+            if pipe is not None:
+                pipe.close()
         for process in self.processes:
             process.join()
 
@@ -287,23 +287,25 @@ class AsyncVectorEnv(VectorEnv):
 
     def _poll(self, timeout=None):
         self._assert_is_running()
-        if timeout is not None:
-            end_time = time.time() + timeout
+        if timeout is None:
+            return True
+        end_time = time.time() + timeout
         delta = None
         for pipe in self.parent_pipes:
-            if timeout is not None:
-                delta = max(end_time - time.time(), 0)
+            delta = max(end_time - time.time(), 0)
+            if pipe is None:
+                return False
             if pipe.closed or (not pipe.poll(delta)):
-                break
-        else:
-            return True
-        return False
+                return False
+        return True
 
     def _check_observation_spaces(self):
         self._assert_is_running()
         for pipe in self.parent_pipes:
             pipe.send(('_check_observation_space', self.single_observation_space))
-        if not all([pipe.recv() for pipe in self.parent_pipes]):
+        same_spaces, successes = zip(*[pipe.recv() for pipe in self.parent_pipes])
+        self._raise_if_errors(successes)
+        if not all(same_spaces):
             raise RuntimeError('Some environments have an observation space '
                 'different from `{0}`. In order to batch observations, the '
                 'observation spaces from all environments must be '
@@ -314,17 +316,22 @@ class AsyncVectorEnv(VectorEnv):
             raise ClosedEnvironmentError('Trying to operate on `{0}`, after a '
                 'call to `close()`.'.format(type(self).__name__))
 
-    def _raise_if_errors(self):
-        if not self.error_queue.empty():
-            while not self.error_queue.empty():
-                index, exctype, value = self.error_queue.get()
-                logger.error('Received the following error from Worker-{0}: '
-                    '{1}: {2}'.format(index, exctype.__name__, value))
-                logger.error('Shutting down Worker-{0}.'.format(index))
-                self.parent_pipes[index].close()
-                self.parent_pipes[index] = None
-            logger.error('Raising the last exception back to the main process.')
-            raise exctype(value)
+    def _raise_if_errors(self, successes):
+        if all(successes):
+            return
+
+        num_errors = self.num_envs - sum(successes)
+        assert num_errors > 0
+        for _ in range(num_errors):
+            index, exctype, value = self.error_queue.get()
+            logger.error('Received the following error from Worker-{0}: '
+                '{1}: {2}'.format(index, exctype.__name__, value))
+            logger.error('Shutting down Worker-{0}.'.format(index))
+            self.parent_pipes[index].close()
+            self.parent_pipes[index] = None
+
+        logger.error('Raising the last exception back to the main process.')
+        raise exctype(value)
 
     def __del__(self):
         if hasattr(self, 'closed'):
@@ -341,27 +348,27 @@ def _worker(index, env_fn, pipe, parent_pipe, shared_memory, error_queue):
             command, data = pipe.recv()
             if command == 'reset':
                 observation = env.reset()
-                pipe.send(observation)
+                pipe.send((observation, True))
             elif command == 'step':
                 observation, reward, done, info = env.step(data)
                 if done:
                     observation = env.reset()
-                pipe.send((observation, reward, done, info))
+                pipe.send(((observation, reward, done, info), True))
             elif command == 'seed':
                 env.seed(data)
-                pipe.send(None)
+                pipe.send((None, True))
             elif command == 'close':
-                pipe.send(None)
+                pipe.send((None, True))
                 break
             elif command == '_check_observation_space':
-                pipe.send(data == env.observation_space)
+                pipe.send((data == env.observation_space, True))
             else:
                 raise RuntimeError('Received unknown command `{0}`. Must '
                     'be one of {`reset`, `step`, `seed`, `close`, '
                     '`_check_observation_space`}.'.format(command))
-    except Exception:
+    except (KeyboardInterrupt, Exception):
         error_queue.put((index,) + sys.exc_info()[:2])
-        pipe.send(None)
+        pipe.send((None, False))
     finally:
         env.close()
 
@@ -378,28 +385,28 @@ def _worker_shared_memory(index, env_fn, pipe, parent_pipe, shared_memory, error
                 observation = env.reset()
                 write_to_shared_memory(index, observation, shared_memory,
                                        observation_space)
-                pipe.send(None)
+                pipe.send((None, True))
             elif command == 'step':
                 observation, reward, done, info = env.step(data)
                 if done:
                     observation = env.reset()
                 write_to_shared_memory(index, observation, shared_memory,
                                        observation_space)
-                pipe.send((None, reward, done, info))
+                pipe.send(((None, reward, done, info), True))
             elif command == 'seed':
                 env.seed(data)
-                pipe.send(None)
+                pipe.send((None, True))
             elif command == 'close':
-                pipe.send(None)
+                pipe.send((None, True))
                 break
             elif command == '_check_observation_space':
-                pipe.send(data == observation_space)
+                pipe.send((data == observation_space, True))
             else:
                 raise RuntimeError('Received unknown command `{0}`. Must '
                     'be one of {`reset`, `step`, `seed`, `close`, '
                     '`_check_observation_space`}.'.format(command))
-    except Exception:
+    except (KeyboardInterrupt, Exception):
         error_queue.put((index,) + sys.exc_info()[:2])
-        pipe.send(None)
+        pipe.send((None, False))
     finally:
         env.close()
