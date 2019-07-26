@@ -157,6 +157,11 @@ We are using `pytest <http://doc.pytest.org>`_ for tests. You can run them via:
 
 What's new
 ==========
+- 2019-07-26 (v0.14.0)
+    + Wrapper cleanup
+    + Spec-related bug fixes
+    + VectorEnv fixes
+
 - 2019-06-21 (v0.13.1)
     + Bug fix for ALE 0.6 difficulty modes
     + Use narrow range for pyglet versions
