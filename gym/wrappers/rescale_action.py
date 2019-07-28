@@ -12,13 +12,7 @@ class RescaleAction(gym.ActionWrapper):
         assert np.less_equal(a, b).all(), (a, b)
         super(RescaleAction, self).__init__(env)
         self.a = np.zeros(env.action_space.shape, dtype=env.action_space.dtype) + a
-            self.a = np.full(env.action_space.shape, a, dtype=env.action_space.dtype)
-        else:
-            self.a = a
         self.b = np.zeros(env.action_space.shape, dtype=env.action_space.dtype) + b
-            self.b = np.full(env.action_space.shape, b, dtype=env.action_space.dtype)
-        else:
-            self.b = b
 
     def action(self, action):
         assert np.greater_equal(action, self.a).all() and np.less_equal(action, self.b).all()
