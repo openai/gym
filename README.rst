@@ -44,6 +44,13 @@ should know:
 - `reset(self)`: Reset the environment's state. Returns `observation`.
 - `step(self, action)`: Step the environment by one timestep. Returns `observation`, `reward`, `done`, `info`.
 - `render(self, mode='human')`: Render one frame of the environment. The default mode will do something human friendly, such as pop up a window. 
+
+Supported systems
+-----------------
+
+We currently support Linux and OS X running Python 2.7 or 3.5 -- 3.7. 
+Windows support is experimental - algorithmic, toy_text, classic_control and atari *should* work on Windows (see next section for installation instructions); nevertheless, proceed at your own risk.
+
 Installation
 ============
 
@@ -75,37 +82,13 @@ Installing everything
 
 To install the full set of environments, you'll need to have some system
 packages installed. We'll build out the list here over time; please let us know
-what you end up installing on your platform. Also, take a look at the docker files (test.dockerfile.xx.xx) to 
-see the composition of our CI-tested images. 
+what you end up installing on your platform. Also, take a look at the docker files (py.Dockerfile) to
+see the composition of our CI-tested images.
 
-On OSX:
-
-.. code:: shell
-
-    brew install cmake boost boost-python sdl2 swig wget
-
-On Ubuntu 14.04 (non-mujoco only):
+On Ubuntu 16.04 and 18.04:
 
 .. code:: shell
-
-    apt-get install libjpeg-dev cmake swig python-pyglet python3-opengl libboost-all-dev \
-            libsdl2-2.0.0 libsdl2-dev libglu1-mesa libglu1-mesa-dev libgles2-mesa-dev \
-            freeglut3 xvfb libav-tools
-
-
-On Ubuntu 16.04:
-
-.. code:: shell
-
-    apt-get install -y python-pyglet python3-opengl zlib1g-dev libjpeg-dev patchelf \
-            cmake swig libboost-all-dev libsdl2-dev libosmesa6-dev xvfb ffmpeg
-
-On Ubuntu 18.04:
-
-.. code:: shell
-
-    apt install -y python3-dev zlib1g-dev libjpeg-dev cmake swig python-pyglet python3-opengl libboost-all-dev libsdl2-dev \
-        libosmesa6-dev patchelf ffmpeg xvfb
+    apt-get install -y libglu1-mesa-dev libgl1-mesa-dev libosmesa6-dev xvfb ffmpeg curl patchelf libglfw3 libglfw3-dev
 
 
 MuJoCo has a proprietary dependency we can't set up for you. Follow
@@ -114,18 +97,6 @@ the
 in the ``mujoco-py`` package for help.
 
 Once you're ready to install everything, run ``pip install -e '.[all]'`` (or ``pip install 'gym[all]'``).
-
-Supported systems
------------------
-
-We currently support Linux and OS X running Python 2.7 or 3.5. Some users on OSX + Python3 may need to run
-
-.. code:: shell
-
-    brew install boost-python --with-python3
-
-If you want to access Gym from languages other than python, we have limited support for non-python
-frameworks, such as lua/Torch, using the OpenAI Gym `HTTP API <https://github.com/openai/gym-http-api>`_.
 
 Pip version
 -----------
@@ -186,8 +157,29 @@ We are using `pytest <http://doc.pytest.org>`_ for tests. You can run them via:
 
 What's new
 ==========
+- 2019-07-26 (v0.14.0)
+    + Wrapper cleanup
+    + Spec-related bug fixes
+    + VectorEnv fixes
+
+- 2019-06-21 (v0.13.1)
+    + Bug fix for ALE 0.6 difficulty modes
+    + Use narrow range for pyglet versions
+
+- 2019-06-21 (v0.13.0)
+    + Upgrade to ALE 0.6 (atari-py 0.2.0) (thanks @JesseFarebro!)
+
+- 2019-06-21 (v0.12.6)
+    + Added vectorized environments (thanks @tristandeleu!). Vectorized environment runs multiple copies of an environment in parallel. To create a vectorized version of an environment, use `gym.vector.make(env_id, num_envs, **kwargs)`, for instance, `gym.vector.make('Pong-v4',16)`.
+
+- 2019-05-28 (v0.12.5)
+    + fixed Fetch-slide environment to be solvable.
+
+- 2019-05-24 (v0.12.4)
+    + remove pyopengl dependency and use more narrow atari-py and box2d-py versions
+
 - 2019-03-25 (v0.12.1)
-    + rgb rendering in MuJoCo locomotion `-v3` environments now comes from tracking camera (so that agent does not run away from the field of view). The old behaviour can be restored by passing rgb_rendering_tracking=False kwarg.
+    + rgb rendering in MuJoCo locomotion `-v3` environments now comes from tracking camera (so that agent does not run away from the field of view). The old behaviour can be restored by passing rgb_rendering_tracking=False kwarg. Also, a potentially breaking change!!! Wrapper class now forwards methods and attributes to wrapped env.
 
 - 2019-02-26 (v0.12.0)
     + release mujoco environments v3 with support for gym.make kwargs such as `xml_file`, `ctrl_cost_weight`, `reset_noise_scale` etc

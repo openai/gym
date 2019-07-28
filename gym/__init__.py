@@ -10,5 +10,6 @@ from gym.core import Env, GoalEnv, Wrapper, ObservationWrapper, ActionWrapper, R
 from gym.spaces import Space
 from gym.envs import make, spec, register
 from gym import logger
+from gym import vector
 
 __all__ = ["Env", "Space", "Wrapper", "make", "spec", "register"]
