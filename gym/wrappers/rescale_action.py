@@ -7,7 +7,8 @@ from gym import spaces
 class RescaleAction(gym.ActionWrapper):
     r"""Rescale the continuous action space of the environment from a range of [a, b]. """
     def __init__(self, env, a, b):
-        assert isinstance(env.action_space, spaces.Box), 'expected Box action space.'
+        assert isinstance(env.action_space, spaces.Box), (
+            "expected Box action space, got {}".format(type(env.action_space)))
         assert np.less_equal(a, b).all()
         super(RescaleAction, self).__init__(env)
         if np.isscalar(a):
