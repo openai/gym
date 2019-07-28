@@ -15,7 +15,7 @@ class RescaleAction(gym.ActionWrapper):
             self.a = np.full(env.action_space.shape, a, dtype=env.action_space.dtype)
         else:
             self.a = a
-        if np.isscalar(b):
+        self.b = np.zeros(env.action_space.shape, dtype=env.action_space.dtype) + b
             self.b = np.full(env.action_space.shape, b, dtype=env.action_space.dtype)
         else:
             self.b = b
