@@ -15,7 +15,8 @@ class RescaleAction(gym.ActionWrapper):
         self.b = np.zeros(env.action_space.shape, dtype=env.action_space.dtype) + b
 
     def action(self, action):
-        assert np.greater_equal(action, self.a).all() and np.less_equal(action, self.b).all()
+        assert np.all(np.greater_equal(action, self.a)), (action, self.a)
+        assert np.all(np.less_equal(action, self.b)), (action, self.b)
         low = self.env.action_space.low
         high = self.env.action_space.high
         action = low + (high - low)*((action - self.a)/(self.b - self.a))
