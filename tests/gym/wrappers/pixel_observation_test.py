@@ -62,9 +62,9 @@ class TestPixelObservationWrapper(object):
         # The wrapper should only add one observation.
         wrapped_env = PixelObservationWrapper(
             env,
-            observation_key=pixel_key,
+            pixel_keys=(pixel_key, ),
             pixels_only=pixels_only,
-            render_kwargs={'width': width, 'height': height})
+            render_kwargs={pixel_key: {'width': width, 'height': height}})
 
         assert isinstance(wrapped_env.observation_space, spaces.Dict)
 
@@ -96,7 +96,7 @@ class TestPixelObservationWrapper(object):
 
         wrapped_env = PixelObservationWrapper(
             env,
-            observation_key=pixel_key,
+            pixel_keys=(pixel_key, ),
             pixels_only=pixels_only)
         wrapped_env.observation_space = wrapped_env.observation_space
         assert isinstance(wrapped_env.observation_space, spaces.Dict)
