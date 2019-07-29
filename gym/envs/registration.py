@@ -30,6 +30,7 @@ class EnvSpec(object):
         kwargs (dict): The kwargs to pass to the environment class
         nondeterministic (bool): Whether this environment is non-deterministic even after seeding
         tags (dict[str:any]): A set of arbitrary key-value tags on this environment, including simple property=True tags
+        max_episode_steps (Optional[int]): The maximum number of steps that an episode can consist of
 
     Attributes:
         id (str): The official environment ID
@@ -41,6 +42,7 @@ class EnvSpec(object):
         self.reward_threshold = reward_threshold
         # Environment properties
         self.nondeterministic = nondeterministic
+        self.entry_point = entry_point
 
         if tags is None:
             tags = {}
@@ -56,19 +58,18 @@ class EnvSpec(object):
         if not match:
             raise error.Error('Attempted to register malformed environment ID: {}. (Currently all IDs must be of the form {}.)'.format(id, env_id_re.pattern))
         self._env_name = match.group(1)
-        self._entry_point = entry_point
         self._kwargs = {} if kwargs is None else kwargs
 
     def make(self, **kwargs):
         """Instantiates an instance of the environment with appropriate kwargs"""
-        if self._entry_point is None:
+        if self.entry_point is None:
             raise error.Error('Attempting to make deprecated env {}. (HINT: is there a newer registered version of this env?)'.format(self.id))
         _kwargs = self._kwargs.copy()
         _kwargs.update(kwargs)
-        if callable(self._entry_point):
-            env = self._entry_point(**_kwargs)
+        if callable(self.entry_point):
+            env = self.entry_point(**_kwargs)
         else:
-            cls = load(self._entry_point)
+            cls = load(self.entry_point)
             env = cls(**_kwargs)
 
         # Make the enviroment aware of which spec it came from.

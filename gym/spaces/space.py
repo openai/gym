@@ -1,3 +1,6 @@
+from gym.utils import seeding
+
+
 class Space(object):
     """Defines the observation and action spaces, so you can write generic
     code that applies to any Env. For example, you can choose a random
@@ -7,15 +10,18 @@ class Space(object):
         import numpy as np  # takes about 300-400ms to import, so we load lazily
         self.shape = None if shape is None else tuple(shape)
         self.dtype = None if dtype is None else np.dtype(dtype)
-        self.np_random = np.random.RandomState()
+        self.np_random = None
+        self.seed()
 
     def sample(self):
-        """Uniformly randomly sample a random element of this space. """
+        """Randomly sample an element of this space. Can be 
+        uniform or non-uniform sampling based on boundedness of space."""
         raise NotImplementedError
 
-    def seed(self, seed):
+    def seed(self, seed=None):
         """Seed the PRNG of this space. """
-        self.np_random.seed(seed)
+        self.np_random, seed = seeding.np_random(seed)
+        return [seed]
 
     def contains(self, x):
         """

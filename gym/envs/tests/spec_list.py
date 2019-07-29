@@ -17,7 +17,7 @@ if not skip_mujoco:
 def should_skip_env_spec_for_tests(spec):
     # We skip tests for envs that require dependencies or are otherwise
     # troublesome to run frequently
-    ep = spec._entry_point
+    ep = spec.entry_point
     # Skip mujoco tests for pull request CI
     if skip_mujoco and (ep.startswith('gym.envs.mujoco') or ep.startswith('gym.envs.robotics:')):
         return True
@@ -40,4 +40,4 @@ def should_skip_env_spec_for_tests(spec):
         return True
     return False
 
-spec_list = [spec for spec in sorted(envs.registry.all(), key=lambda x: x.id) if spec._entry_point is not None and not should_skip_env_spec_for_tests(spec)]
+spec_list = [spec for spec in sorted(envs.registry.all(), key=lambda x: x.id) if spec.entry_point is not None and not should_skip_env_spec_for_tests(spec)]

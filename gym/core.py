@@ -47,7 +47,7 @@ class Env(object):
         Accepts an action and returns a tuple (observation, reward, done, info).
 
         Args:
-            action (object): an action provided by the environment
+            action (object): an action provided by the agent
 
         Returns:
             observation (object): agent's observation of the current environment
@@ -209,12 +209,15 @@ class Wrapper(Env):
         self.observation_space = self.env.observation_space
         self.reward_range = self.env.reward_range
         self.metadata = self.env.metadata
-        self.spec = getattr(self.env, 'spec', None)
 
     def __getattr__(self, name):
         if name.startswith('_'):
             raise AttributeError("attempted to get missing private attribute '{}'".format(name))
         return getattr(self.env, name)
+
+    @property
+    def spec(self):
+        return self.env.spec
 
     @classmethod
     def class_name(cls):
