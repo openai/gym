@@ -14,7 +14,7 @@ ENVIRONMENT_IDS = (
 )
 
 
-@unittest.skipIf(skip_mujoco, SKIP_MUJOCO_WARNING_MESSAGE)
+@pytest.mark.skipif(skip_mujoco, SKIP_MUJOCO_WARNING_MESSAGE)
 @pytest.mark.parametrize("environment_id", ENVIRONMENT_IDS)
 def test_serialize_deserialize(environment_id):
     env1 = envs.make(environment_id, target_position='fixed')
