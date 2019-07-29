@@ -74,7 +74,7 @@ class PixelObservationWrapper(ObservationWrapper):
             self.observation_space.spaces[STATE_KEY] = wrapped_observation_space
 
         # Extend observation space with pixels.
-        pixels = self.env.get_pixels(**render_kwargs)
+        pixels = self.env.render(**render_kwargs)
 
         if np.issubdtype(pixels.dtype, np.integer):
             low, high = (0, 255)
@@ -105,7 +105,7 @@ class PixelObservationWrapper(ObservationWrapper):
             observation = collections.OrderedDict()
             observation[STATE_KEY] = observation
 
-        pixels = self.env.get_pixels(**self._render_kwargs)
+        pixels = self.env.render(**self._render_kwargs)
         observation[self._observation_key] = pixels
 
         return observation
