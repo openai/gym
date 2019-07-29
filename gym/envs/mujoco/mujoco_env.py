@@ -36,7 +36,14 @@ class MujocoEnv(gym.Env):
     """Superclass for all MuJoCo environments.
     """
 
-    def __init__(self, model_path, frame_skip, rgb_rendering_tracking=True):
+    def __init__(self, model_path, frame_skip, rgb_rendering_tracking=None):
+
+        if rgb_rendering_tracking is not None:
+            print("`rgb_rendering_tracking` is deprecated and will be removed"
+                  " in a future version of Gym. To maintain the old behavior,"
+                  " you can omit the `camera_id` and `camera_name` in the"
+                  " `env.render()` method.")
+
         if model_path.startswith("/"):
             fullpath = model_path
         else:
@@ -48,7 +55,6 @@ class MujocoEnv(gym.Env):
         self.sim = mujoco_py.MjSim(self.model)
         self.data = self.sim.data
         self.viewer = None
-        self.rgb_rendering_tracking = rgb_rendering_tracking
         self._viewers = {}
 
         self.metadata = {
@@ -137,7 +143,7 @@ class MujocoEnv(gym.Env):
                                  " specified at the same time.")
 
             no_camera_specified = camera_name is None and camera_id is None
-            if no_camera_specified and self.rgb_rendering_tracking:
+            if no_camera_specified:
                 camera_name = 'track'
 
             if camera_id is None:

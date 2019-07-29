@@ -21,8 +21,7 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
                  healthy_z_range=(0.8, 2.0),
                  healthy_angle_range=(-1.0, 1.0),
                  reset_noise_scale=5e-3,
-                 exclude_current_positions_from_observation=True,
-                 rgb_rendering_tracking=True):
+                 exclude_current_positions_from_observation=True):
         utils.EzPickle.__init__(**locals())
 
         self._forward_reward_weight = forward_reward_weight

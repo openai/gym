@@ -18,8 +18,7 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
                  healthy_z_range=(0.2, 1.0),
                  contact_force_range=(-1.0, 1.0),
                  reset_noise_scale=0.1,
-                 exclude_current_positions_from_observation=True,
-                 rgb_rendering_tracking=True):
+                 exclude_current_positions_from_observation=True):
         utils.EzPickle.__init__(**locals())
 
         self._ctrl_cost_weight = ctrl_cost_weight
