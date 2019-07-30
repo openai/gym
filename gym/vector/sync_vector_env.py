@@ -115,6 +115,9 @@ class SyncVectorEnv(VectorEnv):
         return (deepcopy(self.observations) if self.copy else self.observations,
             np.copy(self._rewards), np.copy(self._dones), infos)
 
+    def get_images(self):
+        return [env.render('rgb_array') for env in self.envs]
+
     def close(self):
         if self.closed:
             return

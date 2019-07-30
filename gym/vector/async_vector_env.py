@@ -236,6 +236,13 @@ class AsyncVectorEnv(VectorEnv):
         return (deepcopy(self.observations) if self.copy else self.observations,
                 np.array(rewards), np.array(dones, dtype=np.bool_), infos)
 
+    def get_images(self):
+        self._assert_is_running()
+        for pipe in self.parent_pipes:
+            pipe.send(('render', None))
+        imgs = [pipe.recv() for pipe in self.parent_pipes]
+        return imgs
+
     def close(self, timeout=None, terminate=False):
         """
         Parameters
@@ -354,6 +361,8 @@ def _worker(index, env_fn, pipe, parent_pipe, shared_memory, error_queue):
                 if done:
                     observation = env.reset()
                 pipe.send(((observation, reward, done, info), True))
+            elif command == 'render':
+                pipe.send(env.render(mode='rgb_array'))
             elif command == 'seed':
                 env.seed(data)
                 pipe.send((None, True))
@@ -364,7 +373,7 @@ def _worker(index, env_fn, pipe, parent_pipe, shared_memory, error_queue):
                 pipe.send((data == env.observation_space, True))
             else:
                 raise RuntimeError('Received unknown command `{0}`. Must '
-                    'be one of {`reset`, `step`, `seed`, `close`, '
+                    'be one of {`reset`, `step`, `render`, `seed`, `close`, '
                     '`_check_observation_space`}.'.format(command))
     except (KeyboardInterrupt, Exception):
         error_queue.put((index,) + sys.exc_info()[:2])
@@ -393,6 +402,8 @@ def _worker_shared_memory(index, env_fn, pipe, parent_pipe, shared_memory, error
                 write_to_shared_memory(index, observation, shared_memory,
                                        observation_space)
                 pipe.send(((None, reward, done, info), True))
+            elif command == 'render':
+                pipe.send(env.render(mode='rgb_array'))
             elif command == 'seed':
                 env.seed(data)
                 pipe.send((None, True))

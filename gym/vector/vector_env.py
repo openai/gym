@@ -1,6 +1,7 @@
 import gym
 from gym.spaces import Tuple
 from gym.vector.utils.spaces import batch_space
+from gym.vector.utils.tile_images import tile_images
 
 __all__ = ['VectorEnv']
 
@@ -52,6 +53,26 @@ class VectorEnv(gym.Env):
     def step(self, actions):
         self.step_async(actions)
         return self.step_wait()
+
+    def render(self, mode='human'):
+        imgs = self.get_images()
+        bigimg = tile_images(imgs)
+        if mode == 'human':
+            self.get_viewer().imshow(bigimg)
+            return self.get_viewer().isopen
+        elif mode == 'rgb_array':
+            return bigimg
+        else:
+            raise NotImplementedError
+
+    def get_images(self):
+        raise NotImplementedError
+
+    def get_viewer(self):
+        if self.viewer is None:
+            from gym.envs.classic_control import rendering
+            self.viewer = rendering.SimpleImageViewer()
+        return self.viewer
 
     def __del__(self):
         if hasattr(self, 'closed'):
