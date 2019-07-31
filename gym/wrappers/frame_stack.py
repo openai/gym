@@ -84,7 +84,7 @@ class FrameStack(ObservationWrapper):
         self.observation_space = Box(low=low, high=high, dtype=self.observation_space.dtype)
 
     def _get_observation(self):
-        assert len(self.frames) == self.num_stack
+        assert len(self.frames) == self.num_stack, (len(self.frames), self.num_stack)
         return LazyFrames(list(self.frames), self.lz4_compress)
 
     def step(self, action):
