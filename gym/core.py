@@ -145,9 +145,11 @@ class Env(object):
             return '<{}<{}>>'.format(type(self).__name__, self.spec.id)
 
     def __enter__(self):
+        """Support with-statement for the environment. """
         return self
 
     def __exit__(self, *args):
+        """Support with-statement for the environment. """
         self.close()
         # propagate exception
         return False
