@@ -352,6 +352,7 @@ def _worker(index, env_fn, pipe, parent_pipe, shared_memory, error_queue):
             elif command == 'step':
                 observation, reward, done, info = env.step(data)
                 if done:
+                    info['last_observation'] = observation
                     observation = env.reset()
                 pipe.send(((observation, reward, done, info), True))
             elif command == 'seed':
