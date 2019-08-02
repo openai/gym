@@ -64,12 +64,14 @@ class AsyncVectorEnv(VectorEnv):
         self.shared_memory = shared_memory
         self.copy = copy
 
+        dummy_env = env_fns[0]()
+        self.reward_range = dummy_env.reward_range
+        self.spec = dummy_env.spec
         if (observation_space is None) or (action_space is None):
-            dummy_env = env_fns[0]()
             observation_space = observation_space or dummy_env.observation_space
             action_space = action_space or dummy_env.action_space
             dummy_env.close()
-            del dummy_env
+        del dummy_env
         super(AsyncVectorEnv, self).__init__(num_envs=len(env_fns),
             observation_space=observation_space, action_space=action_space)
 
