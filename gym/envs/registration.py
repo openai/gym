@@ -41,8 +41,10 @@ class EnvSpec(object):
         self.max_episode_steps = max_episode_steps
         self._kwargs = {} if kwargs is None else kwargs
 
-        if not env_id_re.search(id):
+        match = env_id_re.search(id)
+        if not match:
             raise error.Error('Attempted to register malformed environment ID: {}. (Currently all IDs must be of the form {}.)'.format(id, env_id_re.pattern))
+        self._env_name = match.group(1)            
 
     def make(self, **kwargs):
         """Instantiates an instance of the environment with appropriate kwargs"""
