@@ -325,11 +325,6 @@ class AsyncVectorEnv(VectorEnv):
         logger.error('Raising the last exception back to the main process.')
         raise exctype(value)
 
-    def __del__(self):
-        if hasattr(self, 'closed'):
-            if not self.closed:
-                self.close(terminate=True)
-
 
 def _worker(index, env_fn, pipe, parent_pipe, shared_memory, error_queue):
     assert shared_memory is None
