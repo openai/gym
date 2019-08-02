@@ -46,7 +46,7 @@ class RunningMeanVar(object):
             x (object): additional batched data.
         """
         x = np.asarray(x, dtype=np.float64)
-        assert x.ndim == len(self.shape) + 1, f'expected {len(self.shape) + 1}, got {x.ndim}'
+        assert x.ndim == len(self.shape) + 1, 'expected {}, got {}'.format(len(self.shape) + 1, x.ndim)
 
         batch_mean = x.mean(axis=0)
         batch_var = x.var(axis=0)
@@ -72,7 +72,7 @@ class RunningMeanVar(object):
 
 class NormalizeObservation(gym.ObservationWrapper):
     def __init__(self, env, clip=5., constant_moments=None):
-        super().__init__(env)
+        super(NormalizeObservation, self).__init__(env)
         self.clip = clip
         self.constant_moments = constant_moments
         self.eps = 1e-8
@@ -95,7 +95,7 @@ class NormalizeObservation(gym.ObservationWrapper):
 
 class NormalizeReward(gym.RewardWrapper):
     def __init__(self, env, clip=10., gamma=0.99, constant_var=None):
-        super().__init__(env)
+        super(NormalizeReward, self).__init__(env)
         self.clip = clip
         assert gamma > 0.0 and gamma < 1.0, 'we do not allow discounted factor as 1.0. See docstring for details. '
         self.gamma = gamma
@@ -110,10 +110,10 @@ class NormalizeReward(gym.RewardWrapper):
     def reset(self):
         # Reset returns buffer
         self.all_returns = 0.0
-        return super().reset()
+        return super(NormalizeReward, self).reset()
     
     def step(self, action):
-        observation, reward, done, info = super().step(action)
+        observation, reward, done, info = super(NormalizeReward, self).step(action)
         # Set discounted return buffer as zero if episode terminates
         if done:
             self.all_returns = 0.0
