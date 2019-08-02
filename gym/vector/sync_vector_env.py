@@ -103,8 +103,8 @@ class SyncVectorEnv(VectorEnv):
         infos : list of dict
             A list of auxiliary diagnostic informations.
         """
-        assert len(actions) == self.num_envs, 'expected {} actions, got {}'.format(self.num_envs, 
-                                                                                   len(actions))
+        sanity = len(actions) == self.num_envs
+        assert sanity, 'expected {} actions, got {}'.format(self.num_envs, len(actions))
         observations, infos = [], []
         for i, (env, action) in enumerate(zip(self.envs, actions)):
             observation, self._rewards[i], self._dones[i], info = env.step(action)
