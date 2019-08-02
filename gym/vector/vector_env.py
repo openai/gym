@@ -84,4 +84,4 @@ class VectorEnv(gym.Env):
     def __del__(self):
         if hasattr(self, 'closed'):
             if not self.closed:
-                self.close()
+                self.close(terminate=True)
