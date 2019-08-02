@@ -8,3 +8,4 @@ from gym.wrappers.resize_observation import ResizeObservation
 from gym.wrappers.clip_action import ClipAction
 from gym.wrappers.clip_reward import ClipReward
 from gym.wrappers.sign_reward import SignReward
+from gym.wrappers.record_episode_statistics import RecordEpisodeStatistics
