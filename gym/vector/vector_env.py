@@ -57,3 +57,9 @@ class VectorEnv(gym.Env):
         if hasattr(self, 'closed'):
             if not self.closed:
                 self.close()
+
+    def __repr__(self):
+        if self.spec is None:
+            return '{}({})'.format(self.__class__.__name__, self.num_envs)
+        else:
+            return '{}({}, {})'.format(self.__class__.__name__, self.spec.id, self.num_envs)
