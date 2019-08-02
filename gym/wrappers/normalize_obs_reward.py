@@ -34,8 +34,7 @@ class RunningMeanVar(object):
     """
     def __init__(self, shape):
         self.shape = shape
-      import gym
-  self.mean = np.zeros(shape, dtype=np.float64)
+        self.mean = np.zeros(shape, dtype=np.float64)
         self.var = np.ones(shape, dtype=np.float64)
         self.N = 1e-8  # numerical stability for variance term, and 1e-4 is for std
 
