@@ -39,6 +39,8 @@ class SyncVectorEnv(VectorEnv):
             action_space = action_space or self.envs[0].action_space
         super(SyncVectorEnv, self).__init__(num_envs=len(env_fns),
             observation_space=observation_space, action_space=action_space)
+        self.reward_range = self.envs[0].reward_range
+        self.spec = self.envs[0].spec
 
         self._check_observation_spaces()
         self.observations = create_empty_array(self.single_observation_space,
