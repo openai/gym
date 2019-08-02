@@ -6,7 +6,16 @@ __all__ = ['VectorEnv']
 
 
 class VectorEnv(gym.Env):
-    """Base class for vectorized environments.
+    r"""Base class for vectorized environments.
+
+    Each observation returned from vectorized environment is a batch of observations 
+    for each sub-environment. And :meth:`step` is also expected to receive a batch of 
+    actions for each sub-environment.
+    
+    .. note::
+    
+        All sub-environments should share the identical observation and action spaces.
+        In other words, a vector of multiple different environments is not supported. 
 
     Parameters
     ----------
@@ -40,6 +49,13 @@ class VectorEnv(gym.Env):
         raise NotImplementedError()
 
     def reset(self):
+        r"""Reset all sub-environments and return a batch of initial observations.
+        
+        Returns
+        -------
+        observations : sample from `observation_space`
+            A batch of observations from the vectorized environment.
+        """
         self.reset_async()
         return self.reset_wait()
 
@@ -50,6 +66,25 @@ class VectorEnv(gym.Env):
         raise NotImplementedError()
 
     def step(self, actions):
+        r"""Take an action for each sub-environments. 
+
+        Parameters
+        ----------
+        actions : iterable of samples from `action_space`
+            List of actions.
+
+        Returns
+        -------
+        observations : sample from `observation_space`
+            A batch of observations from the vectorized environment.
+        rewards : `np.ndarray` instance (dtype `np.float_`)
+            A vector of rewards from the vectorized environment.
+        dones : `np.ndarray` instance (dtype `np.bool_`)
+            A vector whose entries indicate whether the episode has ended.
+        infos : list of dict
+            A list of auxiliary diagnostic informations.
+        """
+        
         self.step_async(actions)
         return self.step_wait()
 
