@@ -390,6 +390,7 @@ def _worker_shared_memory(index, env_fn, pipe, parent_pipe, shared_memory, error
             elif command == 'step':
                 observation, reward, done, info = env.step(data)
                 if done:
+                    info['last_observation'] = observation
                     observation = env.reset()
                 write_to_shared_memory(index, observation, shared_memory,
                                        observation_space)
