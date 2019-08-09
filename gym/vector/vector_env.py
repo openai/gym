@@ -82,7 +82,7 @@ class VectorEnv(gym.Env):
         dones : `np.ndarray` instance (dtype `np.bool_`)
             A vector whose entries indicate whether the episode has ended.
         infos : list of dict
-            A list of auxiliary diagnostic informations.
+            A list of auxiliary diagnostic information dicts from sub-environments.
         """
         
         self.step_async(actions)
