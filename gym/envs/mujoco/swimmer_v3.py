@@ -23,7 +23,7 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         self._exclude_current_positions_from_observation = (
             exclude_current_positions_from_observation)
 
-        mujoco_env.MujocoEnv.__init__(self, xml_file, 4, rgb_rendering_tracking=rgb_rendering_tracking)
+        mujoco_env.MujocoEnv.__init__(self, xml_file, 4)
 
     def control_cost(self, action):
         control_cost = self._ctrl_cost_weight * np.sum(np.square(action))
