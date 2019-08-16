@@ -14,7 +14,8 @@ class Space(object):
         self.seed()
 
     def sample(self):
-        """Uniformly randomly sample a random element of this space. """
+        """Randomly sample an element of this space. Can be 
+        uniform or non-uniform sampling based on boundedness of space."""
         raise NotImplementedError
 
     def seed(self, seed=None):

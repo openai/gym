@@ -137,3 +137,31 @@ class WrapAfterConfigureError(Error):
 
 class RetriesExceededError(Error):
     pass
+
+# Vectorized environments errors
+
+class AlreadyPendingCallError(Exception):
+    """
+    Raised when `reset`, or `step` is called asynchronously (e.g. with
+    `reset_async`, or `step_async` respectively), and `reset_async`, or
+    `step_async` (respectively) is called again (without a complete call to
+    `reset_wait`, or `step_wait` respectively).
+    """
+    def __init__(self, message, name):
+        super(AlreadyPendingCallError, self).__init__(message)
+        self.name = name
+
+class NoAsyncCallError(Exception):
+    """
+    Raised when an asynchronous `reset`, or `step` is not running, but
+    `reset_wait`, or `step_wait` (respectively) is called.
+    """
+    def __init__(self, message, name):
+        super(NoAsyncCallError, self).__init__(message)
+        self.name = name
+
+class ClosedEnvironmentError(Exception):
+    """
+    Trying to call `reset`, or `step`, while the environment is closed.
+    """
+    pass
