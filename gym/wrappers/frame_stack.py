@@ -17,17 +17,18 @@ class LazyFrames(object):
 
     """
     def __init__(self, frames, lz4_compress=False):
-        from lz4.block import compress
-        from lz4.block import decompress
         if lz4_compress:
+            from lz4.block import compress
             self.shape = frames[0].shape
+            self.dtype = frames[0].dtype
             frames = [compress(frame) for frame in frames]
         self._frames = frames
         self.lz4_compress = lz4_compress
 
     def __array__(self, dtype=None):
         if self.lz4_compress:
-            frames = [np.frombuffer(decompress(frame), dtype=np.uint8).reshape(self.shape) for frame in self._frames]
+            from lz4.block import decompress
+            frames = [np.frombuffer(decompress(frame), dtype=self.dtype).reshape(self.shape) for frame in self._frames]
         else:
             frames = self._frames
         out = np.stack(frames, axis=0)
