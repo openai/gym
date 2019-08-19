@@ -212,3 +212,13 @@ Learn more here: https://github.com/mpSchrader/gym-sokoban
 A lane-following simulator built for the [Duckietown](http://duckietown.org/) project (small-scale self-driving car course).
 
 Learn more here: https://github.com/duckietown/gym-duckietown
+
+### GymFC: A flight control tuning and training framework 
+
+GymFC is a modular framework for synthesizing neuro-flight controllers. The
+architecture integrates digital twinning concepts to provide seamless transfer
+of trained policies to hardware. The OpenAI environment has been used to
+generate policies for the worlds first open source neural network flight
+control firmware [Neuroflight](https://github.com/wil3/neuroflight).
+
+Learn more here: https://github.com/wil3/gymfc/
