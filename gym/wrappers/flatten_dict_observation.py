@@ -5,7 +5,7 @@ import numpy as np
 class FlattenDictObservation(gym.ObservationWrapper):
     """Flattens selected keys of a Dict observation space into an array. """
     def __init__(self, env, dict_keys):
-        super().__init__(env)
+        super(FlattenDictObservation, self).__init__(env)
         self.dict_keys = dict_keys
 
         # Figure out observation_space dimension.
