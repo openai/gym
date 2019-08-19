@@ -35,7 +35,7 @@ class AcrobotEnv(core.Env):
     the two pendulum links.
     .. note::
         The dynamics equations were missing some terms in the NIPS paper which
-        are present in the book. R. Sutton confirmed in personal correspondance
+        are present in the book. R. Sutton confirmed in personal correspondence
         that the experimental results shown in the paper and the book were
         generated with the equations shown in the book.
         However, there is the option to run the domain with the paper equations

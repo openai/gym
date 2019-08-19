@@ -17,11 +17,12 @@ class MountainCarEnv(gym.Env):
         'video.frames_per_second': 30
     }
 
-    def __init__(self):
+    def __init__(self, goal_velocity = 0):
         self.min_position = -1.2
         self.max_position = 0.6
         self.max_speed = 0.07
         self.goal_position = 0.5
+        self.goal_velocity = goal_velocity
         
         self.force=0.001
         self.gravity=0.0025
@@ -50,7 +51,7 @@ class MountainCarEnv(gym.Env):
         position = np.clip(position, self.min_position, self.max_position)
         if (position==self.min_position and velocity<0): velocity = 0
 
-        done = bool(position >= self.goal_position)
+        done = bool(position >= self.goal_position and velocity >= self.goal_velocity)
         reward = -1.0
 
         self.state = (position, velocity)
