@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 from gym import envs
-from gym.envs.tests.spec_list import skip_mujoco
+from gym.envs.tests.spec_list import skip_mujoco, SKIP_MUJOCO_WARNING_MESSAGE
 
 
 def verify_environments_match(old_environment_id,
@@ -35,10 +35,8 @@ def verify_environments_match(old_environment_id,
             np.testing.assert_allclose(old_info[key], new_info[key], atol=eps)
 
 
-@unittest.skipIf(skip_mujoco, 'Cannot run mujoco key ' +
-                              '(either license key not found or ' +
-                              'mujoco not installed properly')
-class Mujocov2Tov2ConverstionTest(unittest.TestCase):
+@unittest.skipIf(skip_mujoco, SKIP_MUJOCO_WARNING_MESSAGE)
+class Mujocov2Tov3ConversionTest(unittest.TestCase):
     def test_environments_match(self):
         test_cases = (
             {
