@@ -4,6 +4,7 @@ from gym.wrappers.time_limit import TimeLimit
 from gym.wrappers.dict import FlattenDictWrapper
 from gym.wrappers.filter_observation import FilterObservation
 from gym.wrappers.atari_preprocessing import AtariPreprocessing
+from gym.wrappers.gray_scale_observation import GrayScaleObservation
 from gym.wrappers.frame_stack import LazyFrames
 from gym.wrappers.frame_stack import FrameStack
 from gym.wrappers.transform_reward import TransformReward
