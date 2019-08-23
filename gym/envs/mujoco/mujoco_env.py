@@ -139,7 +139,7 @@ class MujocoEnv(gym.Env):
             if no_camera_specified:
                 camera_name = 'track'
 
-            if camera_id is None:
+            if camera_id is None and camera_name in self.model._camera_name2id:
                 camera_id = self.model.camera_name2id(camera_name)
 
             self._get_viewer(mode).render(width, height, camera_id=camera_id)
