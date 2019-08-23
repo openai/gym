@@ -5,13 +5,9 @@ import numpy as np
 import gym
 from gym.wrappers import GrayScaleObservation
 from gym.wrappers import AtariPreprocessing
-try:
-    import atari_py
-except ImportError:
-    atari_py = None
+pytest.importorskip('atari_py')
+pytest.importorskip('cv2')
 
-
-@pytest.mark.skipif(atari_py is None, reason='Only run this test when atari_py is installed')
 @pytest.mark.parametrize('env_id', ['Pong-v0', 'SpaceInvaders-v0'])
 @pytest.mark.parametrize('keep_dim', [True, False])
 def test_gray_scale_observation(env_id, keep_dim):
@@ -35,5 +31,5 @@ def test_gray_scale_observation(env_id, keep_dim):
         assert len(wrapped_env.observation_space.shape) == 2
         assert len(wrapped_obs.shape) == 2
 
-    # TODO: ALE gray scale has different result than CV2 conversion
-    #assert np.allclose(gray_obs, wrapped_obs)
+    # ALE gray scale is slightly different, but no more than by one shade
+    assert np.allclose(gray_obs.astype('int32'), wrapped_obs.astype('int32'), atol=1)
