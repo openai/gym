@@ -1,4 +1,5 @@
 import numpy as np
+from copy import deepcopy
 
 from gym import logger
 from gym.vector.vector_env import VectorEnv
@@ -111,7 +112,7 @@ class SyncVectorEnv(VectorEnv):
             infos.append(info)
         concatenate(observations, self.observations, self.single_observation_space)
 
-        return (np.copy(self.observations) if self.copy else self.observations,
+        return (deepcopy(self.observations) if self.copy else self.observations,
             np.copy(self._rewards), np.copy(self._dones), infos)
 
     def close(self):
