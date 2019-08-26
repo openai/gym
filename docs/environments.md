@@ -142,7 +142,13 @@ Learn more here: https://github.com/openai/retro
 
 ## Third Party Environments
 
-The gym comes prepackaged with many many environments. It's this common API around many environments that makes Gym so great. Here we will list additional environments that do not come prepacked with the gym. Submit another to this list via a pull-request. 
+The gym comes prepackaged with many many environments. It's this common API around many environments that makes Gym so great. Here we will list additional environments that do not come prepacked with the gym. Submit another to this list via a pull-request.
+
+### GymGo: The Board Game Go
+
+An implementation of the board game Go
+
+Learn more here: https://github.com/aigagror/GymGo 
 
 ### Pybullet Robotics Environments
 
