@@ -5,7 +5,14 @@ from gym import spaces
 
 
 class RescaleAction(gym.ActionWrapper):
-    r"""Rescale the continuous action space of the environment from a range of [a, b]. """
+    r"""Rescales the continuous action space of the environment to a range [a,b].
+
+    Example::
+
+        >>> RescaleAction(env, a, b).action_space == Box(a,b)
+        True
+
+    """
     def __init__(self, env, a, b):
         assert isinstance(env.action_space, spaces.Box), (
             "expected Box action space, got {}".format(type(env.action_space)))
