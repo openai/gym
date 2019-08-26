@@ -12,8 +12,7 @@ def test_atari_preprocessing():
     env3 = AtariPreprocessing(env_fn(), screen_size=84, grayscale_obs=False, frame_skip=1, noop_max=0)
     env1.reset()
     # take these steps to imitate actions of FireReset logic
-    env1.step(1)
-    obs1 = env1.step(2)[0]
+    obs1 = env1.reset()
     obs2 = env2.reset()
     obs3 = env3.reset()
     assert obs1.shape == (210, 160, 3)
