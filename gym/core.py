@@ -60,7 +60,7 @@ class Env(object):
     def reset(self):
         """Resets the state of the environment and returns an initial observation.
 
-        Returns: 
+        Returns:
             observation (object): the initial observation.
         """
         raise NotImplementedError
@@ -192,16 +192,16 @@ class GoalEnv(Env):
 
 
 class Wrapper(Env):
-    r"""Wraps the environment to allow a modular transformation. 
-    
+    r"""Wraps the environment to allow a modular transformation.
+
     This class is the base class for all wrappers. The subclass could override
     some methods to change the behavior of the original environment without touching the
-    original code. 
-    
+    original code.
+
     .. note::
-    
+
         Don't forget to call ``super().__init__(env)`` if the subclass overrides :meth:`__init__`.
-    
+
     """
     def __init__(self, env):
         self.env = env

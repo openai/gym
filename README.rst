@@ -157,6 +157,12 @@ We are using `pytest <http://doc.pytest.org>`_ for tests. You can run them via:
 
 What's new
 ==========
+- 2019-08-23 (v0.15.2)
+    + More Wrappers - AtariPreprocessing, FrameStack, GrayScaleObservation, FilterObservation,  FlattenDictObservationsWrapper, PixelObservationWrapper, TransformReward (thanks @zuoxingdong, @hartikainen)
+    + Remove rgb_rendering_tracking logic from mujoco environments (default behavior stays the same for the -v3 environments, rgb rendering returns a view from tracking camera)
+    + Velocity goal constraint for MountainCar (thanks @abhinavsagar)
+    + Taxi-v2 -> Taxi-v3 (add missing wall in the map to replicate env as describe in the original paper, thanks @kobotics)
+    
 - 2019-07-26 (v0.14.0)
     + Wrapper cleanup
     + Spec-related bug fixes
