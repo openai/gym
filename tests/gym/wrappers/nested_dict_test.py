@@ -6,7 +6,7 @@ import numpy as np
 
 import gym
 from gym.spaces import Dict, Box, Discrete, Tuple
-from gym.wrappers.dict import FlattenDictWrapper
+from gym.wrappers.flatten_dict_observation import FlattenDictObservation
 
 
 class FakeEnvironment(gym.Env):
