@@ -139,6 +139,12 @@ class Viewer(object):
         _add_attrs(geom, attrs)
         self.add_onetime(geom)
         return geom
+    
+    def draw_text(self, text, position=(0, 0), **attrs):
+        geom = Text(text, position)
+        _add_attrs(geom, attrs)
+        self.add_onetime(geom)
+        return geom
 
     def get_array(self):
         self.window.flip()
@@ -304,6 +310,24 @@ class Line(Geom):
         glVertex2f(*self.start)
         glVertex2f(*self.end)
         glEnd()
+
+class Text(rendering.Geom):
+    def __init__(self, text, position=(0, 0), font_size=12, anchor_x="center", anchor_y="center", color=(0, 0, 0, 255)):
+        rendering.Geom.__init__(self)
+        self.text = text
+        self.position = position
+        self.font_size = font_size
+        self.anchor_x = anchor_x
+        self.anchor_y = anchor_y
+        self.color = color
+        self.label = pyglet.text.Label(self.text, font_size=self.font_size, x=self.position[0], y=self.position[-1], anchor_x=self.anchor_x, anchor_y=self.anchor_y, color=self.color, bold=True)
+        
+    def render1(self):
+        glMatrixMode(GL_MODELVIEW)
+        glPushMatrix()
+        glScalef(0.03, 0.03, 1)
+        self.label.draw()
+        glPopMatrix()
 
 class Image(Geom):
     def __init__(self, fname, width, height):
