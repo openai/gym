@@ -162,6 +162,12 @@ def _add_attrs(geom, attrs):
         geom.set_color(*attrs["color"])
     if "linewidth" in attrs:
         geom.set_linewidth(attrs["linewidth"])
+    if "font_size" in attrs:
+        geom.set_font_size(attrs["font_size"])
+    if "anchor_x" in attrs:
+        geom.set_anchor_x(attrs["anchor_x"])
+    if "anchor_y" in attrs:
+        geom.set_anchor_y(attrs["anchor_y"])
 
 class Geom(object):
     def __init__(self):
@@ -311,9 +317,9 @@ class Line(Geom):
         glVertex2f(*self.end)
         glEnd()
 
-class Text(rendering.Geom):
+class Text(Geom):
     def __init__(self, text, position=(0, 0), font_size=12, anchor_x="center", anchor_y="center", color=(0, 0, 0, 255)):
-        rendering.Geom.__init__(self)
+        Geom.__init__(self)
         self.text = text
         self.position = position
         self.font_size = font_size
@@ -328,6 +334,18 @@ class Text(rendering.Geom):
         glScalef(0.03, 0.03, 1)
         self.label.draw()
         glPopMatrix()
+
+    def set_font_size(self, fs):
+        self.font_size = fs
+        self.label.font_size = fs
+        
+    def set_anchor_x(self, ax):
+        self.anchor_x = ax
+        self.label.anchor_x = ax
+
+    def set_anchor_y(self, ay):
+        self.anchor_y = ay
+        self.label.anchor_y = ay
 
 class Image(Geom):
     def __init__(self, fname, width, height):
