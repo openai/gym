@@ -1,0 +1,402 @@
+CRITICAL - meta_parameters for pendulum mppi solver: {'N_Samples': 1000, 'TIMESTEPS': 20, 'lambda': 1, 'noise_mean': 0, 'noise_sigma': 10, 'N_ITERATION': 200, 'initial_U': array([0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 2, 1, 1, 0, 1, 0, 0, 1, 0, 2])}
+INFO - updated_U: [0 0 0 0 0 1 1 1 0 0 2 1 1 0 1 0 0 2 0 2]
+CRITICAL - action taken at iteration 0: 0.00 cost received: -1.00
+INFO - updated_U: [0 0 0 0 1 1 2 0 0 2 1 1 0 1 0 0 2 1 2 2]
+CRITICAL - action taken at iteration 1: 0.00 cost received: -1.00
+INFO - updated_U: [0 0 0 1 1 2 1 0 2 1 1 0 1 0 0 2 1 2 2 2]
+CRITICAL - action taken at iteration 2: 0.00 cost received: -1.00
+INFO - updated_U: [0 0 1 1 2 1 1 2 1 1 0 1 0 0 2 1 2 2 2 2]
+CRITICAL - action taken at iteration 3: 0.00 cost received: -1.00
+INFO - updated_U: [0 1 1 2 1 1 2 1 1 0 1 0 0 2 1 2 2 2 2 2]
+CRITICAL - action taken at iteration 4: 0.00 cost received: -1.00
+INFO - updated_U: [1 1 2 1 1 2 2 1 0 1 0 0 2 1 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 5: 1.00 cost received: -1.00
+INFO - updated_U: [1 2 1 1 2 2 2 0 1 0 0 2 1 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 6: 1.00 cost received: -1.00
+INFO - updated_U: [2 1 1 2 2 2 1 1 0 0 2 1 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 7: 2.00 cost received: -1.00
+INFO - updated_U: [1 1 2 2 2 1 2 0 0 2 1 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 8: 1.00 cost received: -1.00
+INFO - updated_U: [1 2 2 2 1 2 1 0 2 1 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 9: 1.00 cost received: -1.00
+INFO - updated_U: [2 2 2 1 2 1 1 2 1 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 10: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 1 2 1 1 2 1 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 11: 2.00 cost received: -1.00
+INFO - updated_U: [2 1 2 1 1 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 12: 2.00 cost received: -1.00
+INFO - updated_U: [1 2 1 1 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 13: 1.00 cost received: -1.00
+INFO - updated_U: [2 1 1 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 14: 2.00 cost received: -1.00
+INFO - updated_U: [1 1 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 15: 1.00 cost received: -1.00
+INFO - updated_U: [1 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 16: 1.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 17: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 18: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 19: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 20: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 21: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 22: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 23: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 24: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 25: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 26: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 27: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 28: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 29: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 30: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 31: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 32: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 33: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 34: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 35: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 36: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 37: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 38: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 39: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 40: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 41: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 42: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 43: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 44: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 45: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 46: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 47: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 48: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 49: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 50: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 51: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 52: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 53: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 54: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 55: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 56: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 57: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 58: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 59: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 60: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 61: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 62: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 63: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 64: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 65: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 66: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 67: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 68: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 69: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 70: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 71: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 72: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 73: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 74: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 75: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 76: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 77: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 78: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 79: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 80: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 81: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 82: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 83: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 84: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 85: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 86: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 87: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 88: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 89: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 90: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 91: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 92: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 93: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 94: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 95: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 96: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 97: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 98: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 99: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 100: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 101: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 102: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 103: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 104: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 105: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 106: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 107: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 108: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 109: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 110: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 111: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 112: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 113: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 114: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 115: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 116: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 117: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 118: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 119: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 120: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 121: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 122: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 123: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 124: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 125: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 126: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 127: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 128: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 129: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 130: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 131: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 132: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 133: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 134: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 135: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 136: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 137: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 138: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 139: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 140: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 141: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 142: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 143: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 144: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 145: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 146: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 147: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 148: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 149: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 150: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 151: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 152: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 153: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 154: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 155: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 156: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 157: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 158: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 159: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 160: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 161: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 162: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 163: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 164: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 165: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 166: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 167: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 168: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 169: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 170: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 171: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 172: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 173: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 174: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 175: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 176: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 177: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 178: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 179: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 180: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 181: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 182: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 183: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 184: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 185: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 186: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 187: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 188: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 189: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 190: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 191: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 192: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 193: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 194: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 195: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 196: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 197: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 198: 2.00 cost received: -1.00
+INFO - updated_U: [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2]
+CRITICAL - action taken at iteration 199: 2.00 cost received: -1.00
+CRITICAL - total reward is -200.0 over 200 iterations
