@@ -15,7 +15,7 @@ env_id_re = re.compile(r'^(?:[\w:-]+\/)?([\w:.-]+)-v(\d+)$')
 def load(name):
     mod_name, attr_name = name.split(":")
     mod = importlib.import_module(mod_name)
-    fn = getattr(mod, attr_name)
+    fn = reduce(getattr, attr_name.split("."), mod)
     return fn
 
 
