@@ -1,5 +1,6 @@
 import os
 import copy
+import glfw
 import numpy as np
 
 import gym
@@ -87,6 +88,7 @@ class RobotEnv(gym.GoalEnv):
     def close(self):
         if self.viewer is not None:
             # self.viewer.finish()
+            glfw.destroy_window(self.viewer.window)
             self.viewer = None
             self._viewers = {}
 
