@@ -5,7 +5,6 @@ from gym.spaces import Box
 from gym.wrappers import TimeLimit
 
 
-
 class AtariPreprocessing(gym.Wrapper):
     r"""Atari 2600 preprocessings. 
 
@@ -34,7 +33,9 @@ class AtariPreprocessing(gym.Wrapper):
             is returned.
 
     """
-    def __init__(self, env, noop_max=30, frame_skip=4, screen_size=84, terminal_on_life_loss=False, grayscale_obs=True):
+
+    def __init__(self, env, noop_max=30, frame_skip=4, screen_size=84, terminal_on_life_loss=False, grayscale_obs=True,
+                 scale_frame=False):
         super().__init__(env)
         assert frame_skip > 0
         assert screen_size > 0
@@ -46,23 +47,25 @@ class AtariPreprocessing(gym.Wrapper):
         self.screen_size = screen_size
         self.terminal_on_life_loss = terminal_on_life_loss
         self.grayscale_obs = grayscale_obs
+        self.scale_frame = scale_frame
 
         # buffer of most recent two observations for max pooling
+        _low, _high, _obs_dtype = (0, 255, np.uint8) if scale_frame else (0, 1, np.float32)
         if grayscale_obs:
-            self.obs_buffer = [np.empty(env.observation_space.shape[:2], dtype=np.uint8),
-                               np.empty(env.observation_space.shape[:2], dtype=np.uint8)]
+            self.obs_buffer = [np.empty(env.observation_space.shape[:2], dtype=_obs_dtype),
+                               np.empty(env.observation_space.shape[:2], dtype=_obs_dtype)]
         else:
-            self.obs_buffer = [np.empty(env.observation_space.shape, dtype=np.uint8),
-                               np.empty(env.observation_space.shape, dtype=np.uint8)]
+            self.obs_buffer = [np.empty(env.observation_space.shape, dtype=_obs_dtype),
+                               np.empty(env.observation_space.shape, dtype=_obs_dtype)]
 
         self.ale = env.unwrapped.ale
         self.lives = 0
         self.game_over = False
 
         if grayscale_obs:
-            self.observation_space = Box(low=0, high=255, shape=(screen_size, screen_size), dtype=np.uint8)
+            self.observation_space = Box(low=_low, high=_high, shape=(screen_size, screen_size), dtype=_obs_dtype)
         else:
-            self.observation_space = Box(low=0, high=255, shape=(screen_size, screen_size, 3), dtype=np.uint8)
+            self.observation_space = Box(low=_low, high=_high, shape=(screen_size, screen_size, 3), dtype=_obs_dtype)
 
     def step(self, action):
         R = 0.0
@@ -78,7 +81,7 @@ class AtariPreprocessing(gym.Wrapper):
                 self.lives = new_lives
 
             if done:
-                break    
+                break
             if t == self.frame_skip - 2:
                 if self.grayscale_obs:
                     self.ale.getScreenGrayscale(self.obs_buffer[0])
@@ -86,9 +89,9 @@ class AtariPreprocessing(gym.Wrapper):
                     self.ale.getScreenRGB2(self.obs_buffer[0])
             elif t == self.frame_skip - 1:
                 if self.grayscale_obs:
-                    self.ale.getScreenGrayscale(self.obs_buffer[1])    
+                    self.ale.getScreenGrayscale(self.obs_buffer[1])
                 else:
-                    self.ale.getScreenRGB2(self.obs_buffer[1])    
+                    self.ale.getScreenRGB2(self.obs_buffer[1])
         return self._get_obs(), R, done, info
 
     def reset(self, **kwargs):
@@ -119,5 +122,8 @@ class AtariPreprocessing(gym.Wrapper):
         if self.frame_skip > 1:  # more efficient in-place pooling
             np.maximum(self.obs_buffer[0], self.obs_buffer[1], out=self.obs_buffer[0])
         obs = cv2.resize(self.obs_buffer[0], (self.screen_size, self.screen_size), interpolation=cv2.INTER_AREA)
-        obs = np.asarray(obs, dtype=np.uint8)
+        if self.scale_frame:
+            obs = np.array(obs).astype(np.float32) / 255.0
+        else:
+            obs = np.asarray(obs, dtype=np.uint8)
         return obs
