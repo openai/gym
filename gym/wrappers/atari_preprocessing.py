@@ -5,6 +5,7 @@ from gym.spaces import Box
 from gym.wrappers import TimeLimit
 
 
+
 class AtariPreprocessing(gym.Wrapper):
     r"""Atari 2600 preprocessings. 
 
@@ -21,6 +22,7 @@ class AtariPreprocessing(gym.Wrapper):
     * Termination signal when a life is lost: turned off by default. Not recommended by Machado et al. (2018).
     * Resize to a square image: 84x84 by default
     * Grayscale observation: optional
+    * Scale observation: optional
 
     Args:
         env (Env): environment
@@ -31,11 +33,11 @@ class AtariPreprocessing(gym.Wrapper):
             life is lost. 
         grayscale_obs (bool): if True, then gray scale observation is returned, otherwise, RGB observation
             is returned.
+        scale_obs (bool): if True, then observation normalized in range [0,1] is returned
 
     """
-
     def __init__(self, env, noop_max=30, frame_skip=4, screen_size=84, terminal_on_life_loss=False, grayscale_obs=True,
-                 scale_frame=False):
+                 scale_obs=False):
         super().__init__(env)
         assert frame_skip > 0
         assert screen_size > 0
@@ -47,10 +49,10 @@ class AtariPreprocessing(gym.Wrapper):
         self.screen_size = screen_size
         self.terminal_on_life_loss = terminal_on_life_loss
         self.grayscale_obs = grayscale_obs
-        self.scale_frame = scale_frame
+        self.scale_obs = scale_obs
 
         # buffer of most recent two observations for max pooling
-        _low, _high, _obs_dtype = (0, 255, np.uint8) if scale_frame else (0, 1, np.float32)
+        _low, _high, _obs_dtype = (0, 255, np.uint8) if scale_obs else (0, 1, np.float32)
         if grayscale_obs:
             self.obs_buffer = [np.empty(env.observation_space.shape[:2], dtype=_obs_dtype),
                                np.empty(env.observation_space.shape[:2], dtype=_obs_dtype)]
@@ -122,7 +124,7 @@ class AtariPreprocessing(gym.Wrapper):
         if self.frame_skip > 1:  # more efficient in-place pooling
             np.maximum(self.obs_buffer[0], self.obs_buffer[1], out=self.obs_buffer[0])
         obs = cv2.resize(self.obs_buffer[0], (self.screen_size, self.screen_size), interpolation=cv2.INTER_AREA)
-        if self.scale_frame:
+        if self.scale_obs:
             obs = np.array(obs).astype(np.float32) / 255.0
         else:
             obs = np.asarray(obs, dtype=np.uint8)
