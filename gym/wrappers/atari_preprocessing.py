@@ -52,7 +52,7 @@ class AtariPreprocessing(gym.Wrapper):
         self.scale_obs = scale_obs
 
         # buffer of most recent two observations for max pooling
-        _low, _high, _obs_dtype = (0, 255, np.uint8) if scale_obs else (0, 1, np.float32)
+        _low, _high, _obs_dtype = (0, 255, np.uint8) if not scale_obs else (0, 1, np.float32)
         if grayscale_obs:
             self.obs_buffer = [np.empty(env.observation_space.shape[:2], dtype=_obs_dtype),
                                np.empty(env.observation_space.shape[:2], dtype=_obs_dtype)]
@@ -124,8 +124,9 @@ class AtariPreprocessing(gym.Wrapper):
         if self.frame_skip > 1:  # more efficient in-place pooling
             np.maximum(self.obs_buffer[0], self.obs_buffer[1], out=self.obs_buffer[0])
         obs = cv2.resize(self.obs_buffer[0], (self.screen_size, self.screen_size), interpolation=cv2.INTER_AREA)
+
         if self.scale_obs:
-            obs = np.array(obs).astype(np.float32) / 255.0
+            obs = np.asarray(obs, dtype=np.float32) / 255.0
         else:
             obs = np.asarray(obs, dtype=np.uint8)
         return obs
