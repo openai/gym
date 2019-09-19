@@ -15,11 +15,11 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         alive_bonus = 1.0
         reward = ((posafter - posbefore) / self.dt)
         reward += alive_bonus
-        reward -= 1e-3 * np.square(a).sum()
+        cost_ctrl = 0.1 * np.square(a).sum()
         done = not (height > 0.8 and height < 2.0 and
                     ang > -1.0 and ang < 1.0)
         ob = self._get_obs()
-        return ob, reward, done, {}
+        return ob, reward, done, dict(reward=reward, cost=cost_ctrl)
 
     def _get_obs(self):
         qpos = self.sim.data.qpos

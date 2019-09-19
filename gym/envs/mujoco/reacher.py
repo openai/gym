@@ -10,12 +10,12 @@ class ReacherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     def step(self, a):
         vec = self.get_body_com("fingertip")-self.get_body_com("target")
         reward_dist = - np.linalg.norm(vec)
-        reward_ctrl = - np.square(a).sum()
-        reward = reward_dist + reward_ctrl
+        cost_ctrl = 0.1 * np.square(a).sum()
+        reward = reward_dist - cost_ctrl
         self.do_simulation(a, self.frame_skip)
         ob = self._get_obs()
         done = False
-        return ob, reward, done, dict(reward_dist=reward_dist, reward_ctrl=reward_ctrl)
+        return ob, reward, done, dict(reward=reward_dist, cost=cost_ctrl)
 
     def viewer_setup(self):
         self.viewer.cam.trackbodyid = 0

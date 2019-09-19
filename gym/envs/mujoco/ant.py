@@ -12,7 +12,7 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         self.do_simulation(a, self.frame_skip)
         xposafter = self.get_body_com("torso")[0]
         forward_reward = (xposafter - xposbefore)/self.dt
-        ctrl_cost = .5 * np.square(a).sum()
+        ctrl_cost = .1 * np.square(a).sum()
         contact_cost = 0.5 * 1e-3 * np.sum(
             np.square(np.clip(self.sim.data.cfrc_ext, -1, 1)))
         survive_reward = 1.0
@@ -26,7 +26,9 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             reward_forward=forward_reward,
             reward_ctrl=-ctrl_cost,
             reward_contact=-contact_cost,
-            reward_survive=survive_reward)
+            reward_survive=survive_reward,
+            reward=forward_reward+survive_reward,
+            cost=ctrl_cost+contact_cost)
 
     def _get_obs(self):
         return np.concatenate([
