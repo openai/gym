@@ -222,3 +222,9 @@ generate policies for the worlds first open source neural network flight
 control firmware [Neuroflight](https://github.com/wil3/neuroflight).
 
 Learn more here: https://github.com/wil3/gymfc/
+
+### gym-anytrading: Environments for trading markets
+
+AnyTrading is a collection of OpenAI Gym environments for reinforcement learning-based trading algorithms with a great focus on simplicity, flexibility, and comprehensiveness.
+
+Learn more here: https://github.com/AminHP/gym-anytrading
