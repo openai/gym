@@ -131,7 +131,7 @@ Learn more here: https://github.com/openai/retro
 
 ### Roboschool (DEPRECATED)
 
-*We recommend using the [PyBullet Robotics Environments](#pybullet-robotics-environments) instead*
+**We recommend using the [PyBullet Robotics Environments](#pybullet-robotics-environments) instead**
 
 3D physics environments like Mujoco environments but uses the Bullet physics engine and does not require a commercial license.
 
