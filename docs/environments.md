@@ -141,7 +141,7 @@ Learn more here: https://github.com/openai/roboschool
 
 The gym comes prepackaged with many many environments. It's this common API around many environments that makes Gym so great. Here we will list additional environments that do not come prepacked with the gym. Submit another to this list via a pull-request. 
 
-### Pybullet Robotics Environments
+### PyBullet Robotics Environments
 
 3D physics environments like the Mujoco environments but uses the Bullet physics engine and does not require a commercial license.  Works on Mac/Linux/Windows.
 
