@@ -87,12 +87,7 @@ env.render()
 
 ### Robotics
 
-[MuJoCo](http://www.mujoco.org/) is a physics engine which can do very
-detailed efficient simulations with contacts and we use it for all
-robotics environments. It's not open-source, so you'll have to follow
-the instructions in
-[mujoco-py](https://github.com/openai/mujoco-py#obtaining-the-binaries-and-license-key)
-to set it up. You'll have to also run `pip install -e '.[robotics]'` if
+These environments also use [MuJoCo](http://www.mujoco.org/). You'll have to also run `pip install -e '.[robotics]'` if
 you didn't do the full install.
 
 ``` python
@@ -128,7 +123,9 @@ env.render()
 
 ## OpenAI Environments
 
-### Roboschool
+### Roboschool (DEPRECATED)
+
+*We recommend using the [PyBullet Robotics Environments](#pybullet-robotics-environments) instead*
 
 3D physics environments like Mujoco environments but uses the Bullet physics engine and does not require a commercial license.
 
