@@ -123,6 +123,12 @@ env.render()
 
 ## OpenAI Environments
 
+### Gym-Retro
+
+Gym Retro lets you turn classic video games into Gym environments for reinforcement learning and comes with integrations for ~1000 games. It uses various emulators that support the Libretro API, making it fairly easy to add new emulators.
+
+Learn more here: https://github.com/openai/retro
+
 ### Roboschool (DEPRECATED)
 
 *We recommend using the [PyBullet Robotics Environments](#pybullet-robotics-environments) instead*
@@ -130,12 +136,6 @@ env.render()
 3D physics environments like Mujoco environments but uses the Bullet physics engine and does not require a commercial license.
 
 Learn more here: https://github.com/openai/roboschool
-
-### Gym-Retro
-
-Gym Retro lets you turn classic video games into Gym environments for reinforcement learning and comes with integrations for ~1000 games. It uses various emulators that support the Libretro API, making it fairly easy to add new emulators.
-
-Learn more here: https://github.com/openai/retro
 
 ## Third Party Environments
 
