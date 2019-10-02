@@ -5,7 +5,6 @@ from gym.spaces import Box
 from gym.wrappers import TimeLimit
 
 
-
 class AtariPreprocessing(gym.Wrapper):
     r"""Atari 2600 preprocessings. 
 
@@ -36,6 +35,7 @@ class AtariPreprocessing(gym.Wrapper):
         scale_obs (bool): if True, then observation normalized in range [0,1] is returned
 
     """
+
     def __init__(self, env, noop_max=30, frame_skip=4, screen_size=84, terminal_on_life_loss=False, grayscale_obs=True,
                  scale_obs=False):
         super().__init__(env)
@@ -52,18 +52,14 @@ class AtariPreprocessing(gym.Wrapper):
         self.scale_obs = scale_obs
 
         # buffer of most recent two observations for max pooling
-        _low, _high, _obs_dtype = (0, 255, np.uint8) if not scale_obs else (0, 1, np.float32)
-        if grayscale_obs:
-            self.obs_buffer = [np.empty(env.observation_space.shape[:2], dtype=_obs_dtype),
-                               np.empty(env.observation_space.shape[:2], dtype=_obs_dtype)]
-        else:
-            self.obs_buffer = [np.empty(env.observation_space.shape, dtype=_obs_dtype),
-                               np.empty(env.observation_space.shape, dtype=_obs_dtype)]
+        self.obs_buffer = [np.empty(env.observation_space.shape[:2], dtype=np.uint8),
+                           np.empty(env.observation_space.shape[:2], dtype=np.uint8)]
 
         self.ale = env.unwrapped.ale
         self.lives = 0
         self.game_over = False
 
+        _low, _high, _obs_dtype = (0, 255, np.uint8) if not scale_obs else (0, 1, np.float32)
         if grayscale_obs:
             self.observation_space = Box(low=_low, high=_high, shape=(screen_size, screen_size), dtype=_obs_dtype)
         else:

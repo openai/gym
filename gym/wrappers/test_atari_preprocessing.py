@@ -4,9 +4,14 @@ from gym.wrappers import AtariPreprocessing
 import pytest
 pytest.importorskip('atari_py')
 
-def test_atari_preprocessing():
+
+@pytest.fixture(scope='module')
+def env_fn():
+    return lambda: gym.make('PongNoFrameskip-v4')
+
+
+def test_atari_preprocessing_grayscale(env_fn):
     import cv2
-    env_fn = lambda: gym.make('PongNoFrameskip-v4')
     env1 = env_fn()
     env2 = AtariPreprocessing(env_fn(), screen_size=84, grayscale_obs=True, frame_skip=1, noop_max=0)
     env3 = AtariPreprocessing(env_fn(), screen_size=84, grayscale_obs=False, frame_skip=1, noop_max=0)
@@ -23,3 +28,26 @@ def test_atari_preprocessing():
     obs3_gray = cv2.cvtColor(obs3, cv2.COLOR_RGB2GRAY)
     # the edges of the numbers do not render quite the same in the grayscale, so we ignore them
     np.testing.assert_allclose(obs2[10:], obs3_gray[10:])
+
+    env1.close()
+    env2.close()
+    env3.close()
+
+
+def test_atari_preprocessing_scale(env_fn):
+    for grayscale in [False, True]:
+        env_scale = AtariPreprocessing(env_fn(), screen_size=84, grayscale_obs=grayscale, scale_obs=True,
+                                       frame_skip=1, noop_max=0)
+        env_no_scale = AtariPreprocessing(env_fn(), screen_size=84, grayscale_obs=grayscale, scale_obs=False,
+                                          frame_skip=1, noop_max=0)
+
+        obs_scale = env_scale.reset().flatten()
+        obs_no_scale = env_no_scale.reset().flatten()
+
+        assert (0 <= obs_scale).all() and (obs_scale <= 1).all(), 'All values must be in range [0,1]'
+        assert (0 <= obs_no_scale).all() and (obs_no_scale <= 255).all(), 'All values must be in range [0,255]'
+
+        env_scale.close()
+        env_no_scale.close()
+
+# test_atari_preprocessing_grayscale( lambda : gym.make('PongNoFrameskip-v4'))
