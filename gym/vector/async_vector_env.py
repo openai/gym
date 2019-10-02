@@ -53,7 +53,7 @@ class AsyncVectorEnv(VectorEnv):
         Only available in Python 3.
     """
     def __init__(self, env_fns, observation_space=None, action_space=None,
-                 shared_memory=True, copy=True, context=None):
+                 shared_memory=True, copy=True, context=None, daemon=True):
         try:
             ctx = mp.get_context(context)
         except AttributeError:
@@ -97,7 +97,7 @@ class AsyncVectorEnv(VectorEnv):
                 self.parent_pipes.append(parent_pipe)
                 self.processes.append(process)
 
-                process.daemon = True
+                process.daemon = daemon
                 process.start()
                 child_pipe.close()
 
