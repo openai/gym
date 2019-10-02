@@ -32,8 +32,8 @@ class AtariPreprocessing(gym.Wrapper):
             life is lost. 
         grayscale_obs (bool): if True, then gray scale observation is returned, otherwise, RGB observation
             is returned.
-        scale_obs (bool): if True, then observation normalized in range [0,1] is returned
-
+        scale_obs (bool): if True, then observation normalized in range [0,1] is returned. It also limits memory
+            optimization benefits of FrameStack Wrapper.
     """
 
     def __init__(self, env, noop_max=30, frame_skip=4, screen_size=84, terminal_on_life_loss=False, grayscale_obs=True,
