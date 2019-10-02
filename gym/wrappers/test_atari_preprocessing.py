@@ -2,6 +2,7 @@ import numpy as np
 import gym
 from gym.wrappers import AtariPreprocessing
 import pytest
+
 pytest.importorskip('atari_py')
 
 
@@ -41,13 +42,22 @@ def test_atari_preprocessing_scale(env_fn):
         env_no_scale = AtariPreprocessing(env_fn(), screen_size=84, grayscale_obs=grayscale, scale_obs=False,
                                           frame_skip=1, noop_max=0)
 
-        obs_scale = env_scale.reset().flatten()
-        obs_no_scale = env_no_scale.reset().flatten()
+        # arbitrary chosen number for stepping into environment and ensuring all observations are in the required range
+        test_steps = 10
 
-        assert (0 <= obs_scale).all() and (obs_scale <= 1).all(), 'All values must be in range [0,1]'
-        assert (0 <= obs_no_scale).all() and (obs_no_scale <= 255).all(), 'All values must be in range [0,255]'
+        obs_scale = env_scale.reset().flatten()
+        for steps in range(test_steps):
+            obs, _, done, _ = env_scale.step(env_scale.action_space.sample())
+            assert (0 <= obs_scale).all() and (obs_scale <= 1).all(), 'All values must be in range [0,1]'
+            if done:
+                break
+
+        obs_no_scale = env_no_scale.reset().flatten()
+        for steps in range(test_steps):
+            obs, _, done, _ = env_scale.step(env_scale.action_space.sample())
+            assert (0 <= obs_no_scale).all() and (obs_no_scale <= 255).all(), 'All values must be in range [0,255]'
+            if done:
+                break
 
         env_scale.close()
         env_no_scale.close()
-
-# test_atari_preprocessing_grayscale( lambda : gym.make('PongNoFrameskip-v4'))

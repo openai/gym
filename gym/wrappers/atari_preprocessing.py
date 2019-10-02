@@ -52,8 +52,12 @@ class AtariPreprocessing(gym.Wrapper):
         self.scale_obs = scale_obs
 
         # buffer of most recent two observations for max pooling
-        self.obs_buffer = [np.empty(env.observation_space.shape[:2], dtype=np.uint8),
-                           np.empty(env.observation_space.shape[:2], dtype=np.uint8)]
+        if grayscale_obs:
+            self.obs_buffer = [np.empty(env.observation_space.shape[:2], dtype=np.uint8),
+                               np.empty(env.observation_space.shape[:2], dtype=np.uint8)]
+        else:
+            self.obs_buffer = [np.empty(env.observation_space.shape, dtype=np.uint8),
+                               np.empty(env.observation_space.shape, dtype=np.uint8)]
 
         self.ale = env.unwrapped.ale
         self.lives = 0
