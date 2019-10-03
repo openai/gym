@@ -36,28 +36,21 @@ def test_atari_preprocessing_grayscale(env_fn):
 
 
 def test_atari_preprocessing_scale(env_fn):
-    for grayscale in [False, True]:
-        env_scale = AtariPreprocessing(env_fn(), screen_size=84, grayscale_obs=grayscale, scale_obs=True,
-                                       frame_skip=1, noop_max=0)
-        env_no_scale = AtariPreprocessing(env_fn(), screen_size=84, grayscale_obs=grayscale, scale_obs=False,
-                                          frame_skip=1, noop_max=0)
+    # arbitrarily chosen number for stepping into env. and ensuring all observations are in the required range
+    max_test_steps = 10
 
-        # arbitrary chosen number for stepping into environment and ensuring all observations are in the required range
-        test_steps = 10
+    for grayscale in [True, False]:
+        for scaled in [True, False]:
+            env = AtariPreprocessing(env_fn(), screen_size=84, grayscale_obs=grayscale, scale_obs=scaled,
+                                     frame_skip=1, noop_max=0)
+            obs = env.reset().flatten()
+            done, step_i = False, 0
+            max_obs = 1 if scaled else 255
+            assert (0 <= obs).all() and (obs <= max_obs).all(), 'Obs. must be in range [0,{}]'.format(max_obs)
+            while not done or step_i <= max_test_steps:
+                obs, _, done, _ = env.step(env.action_space.sample())
+                obs = obs.flatten()
+                assert (0 <= obs).all() and (obs <= max_obs).all(), 'Obs. must be in range [0,{}]'.format(max_obs)
+                step_i += 1
 
-        obs_scale = env_scale.reset().flatten()
-        for steps in range(test_steps):
-            obs, _, done, _ = env_scale.step(env_scale.action_space.sample())
-            assert (0 <= obs_scale).all() and (obs_scale <= 1).all(), 'All values must be in range [0,1]'
-            if done:
-                break
-
-        obs_no_scale = env_no_scale.reset().flatten()
-        for steps in range(test_steps):
-            obs, _, done, _ = env_scale.step(env_scale.action_space.sample())
-            assert (0 <= obs_no_scale).all() and (obs_no_scale <= 255).all(), 'All values must be in range [0,255]'
-            if done:
-                break
-
-        env_scale.close()
-        env_no_scale.close()
+            env.close()
