@@ -45,6 +45,7 @@ class SyncVectorEnv(VectorEnv):
             n=self.num_envs, fn=np.zeros)
         self._rewards = np.zeros((self.num_envs,), dtype=np.float64)
         self._dones = np.zeros((self.num_envs,), dtype=np.bool_)
+        self._actions = None
 
     def seed(self, seeds=None):
         """
@@ -103,6 +104,13 @@ class SyncVectorEnv(VectorEnv):
         infos : list of dict
             A list of auxiliary diagnostic informations.
         """
+        self._actions = actions
+        return self.step_wait()
+
+    def step_async(self, actions):
+        self._actions = actions
+
+    def step_wait(self):
         observations, infos = [], []
         for i, (env, action) in enumerate(zip(self.envs, actions)):
             observation, self._rewards[i], self._dones[i], info = env.step(action)
