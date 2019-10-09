@@ -51,6 +51,20 @@ class AsyncVectorEnv(VectorEnv):
     context : str, optional
         Context for multiprocessing. If `None`, then the default context is used.
         Only available in Python 3.
+
+    daemon : bool (default: `True`)
+        If `True`, then subprocesses have `daemon` flag turned on; that is, they
+        will quit if the head process quits. However, `daemon=True` prevents
+        subprocesses to spawn children, so for some environments you may want
+        to have it set to `False`
+
+    worker : function, optional
+        WARNING - advanced mode option! If set, then use that worker in a subprocess
+        instead of a default one. Can be useful to override some inner vector env
+        logic, for instance, how resets on done are handled. Provides high
+        degree of flexibility and a high chance to shoot yourself in the foot; thus,
+        if you are writing your own worker, it is recommended to start from the code
+        for `_worker` (or `_worker_shared_memory`) method below, and add changes
     """
     def __init__(self, env_fns, observation_space=None, action_space=None,
                  shared_memory=True, copy=True, context=None, daemon=True, worker=None):
