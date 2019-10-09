@@ -106,16 +106,6 @@ class AsyncVectorEnv(VectorEnv):
         self._check_observation_spaces()
 
     def seed(self, seeds=None):
-        """
-        Parameters
-        ----------
-        seeds : list of int, or int, optional
-            Random seed for each individual environment. If `seeds` is a list of
-            length `num_envs`, then the items of the list are chosen as random
-            seeds. If `seeds` is an int, then each environment uses the random
-            seed `seeds + n`, where `n` is the index of the environment (between
-            `0` and `num_envs - 1`).
-        """
         self._assert_is_running()
         if seeds is None:
             seeds = [None for _ in range(self.num_envs)]
