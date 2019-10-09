@@ -112,7 +112,7 @@ class SyncVectorEnv(VectorEnv):
 
     def step_wait(self):
         observations, infos = [], []
-        for i, (env, action) in enumerate(zip(self.envs, actions)):
+        for i, (env, action) in enumerate(zip(self.envs, self._actions)):
             observation, self._rewards[i], self._dones[i], info = env.step(action)
             if self._dones[i]:
                 observation = env.reset()
