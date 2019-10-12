@@ -6,7 +6,7 @@ import numpy as np
 
 import gym
 from gym.spaces import Dict, Box, Discrete, Tuple
-from gym.wrappers.dict import FlattenDictWrapper
+from gym.wrappers import FilterObservation, FlattenObservation
 
 
 class FakeEnvironment(gym.Env):
@@ -130,7 +130,7 @@ class TestNestedDictWrapper(object):
         observation_space = env.observation_space
         assert isinstance(observation_space, Dict)
 
-        wrapped_env = FlattenDictWrapper(env, env.obs_keys)
+        wrapped_env = FlattenObservation(FilterObservation(env, env.obs_keys))
         assert wrapped_env.observation_space.shape == flat_shape
 
         assert wrapped_env.observation_space.dtype == wrapped_env.dtype
@@ -138,7 +138,7 @@ class TestNestedDictWrapper(object):
     @pytest.mark.parametrize("observation_space, flat_shape", NESTED_DICT_TEST_CASES)
     def test_nested_dicts_ravel(self, observation_space, flat_shape):
         env = FakeEnvironment(observation_space=observation_space)
-        wrapped_env = FlattenDictWrapper(env, env.obs_keys)
+        wrapped_env = FlattenObservation(FilterObservation(env, env.obs_keys))
         obs = wrapped_env.reset()
         assert obs.shape == wrapped_env.observation_space.shape
 
@@ -151,4 +151,4 @@ class TestNestedDictWrapper(object):
         env = FakeEnvironment(observation_space=observation_space)
 
         with pytest.raises(error_type, match=error_match):
-            FlattenDictWrapper(env, env.obs_keys)
+            FlattenObservation(FilterObservation(env, env.obs_keys))
