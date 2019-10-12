@@ -144,12 +144,6 @@ Learn more here: https://github.com/openai/retro
 
 The gym comes prepackaged with many many environments. It's this common API around many environments that makes Gym so great. Here we will list additional environments that do not come prepacked with the gym. Submit another to this list via a pull-request.
 
-### GymGo: The Board Game Go
-
-An implementation of the board game Go
-
-Learn more here: https://github.com/aigagror/GymGo 
-
 ### Pybullet Robotics Environments
 
 3D physics environments like the Mujoco environments but uses the Bullet physics engine and does not require a commercial license.  Works on Mac/Linux/Windows.
@@ -228,3 +222,9 @@ generate policies for the worlds first open source neural network flight
 control firmware [Neuroflight](https://github.com/wil3/neuroflight).
 
 Learn more here: https://github.com/wil3/gymfc/
+
+### GymGo: The Board Game Go
+
+An implementation of the board game Go
+
+Learn more here: https://github.com/aigagror/GymGo 
