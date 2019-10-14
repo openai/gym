@@ -51,7 +51,7 @@ class TaxiEnv(discrete.DiscreteEnv):
     - 5: dropoff passenger
     
     Rewards: 
-    There is a reward of -1 for each action and an additional reward of +20 for delievering the passenger. There is a reward of -10 for executing actions "pickup" and "dropoff" illegally.
+    There is a reward of -1 for each action and an additional reward of +20 for delivering the passenger. There is a reward of -10 for executing actions "pickup" and "dropoff" illegally.
     
 
     Rendering:
