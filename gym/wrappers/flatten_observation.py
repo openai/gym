@@ -12,4 +12,4 @@ class FlattenObservation(ObservationWrapper):
         self.observation_space = spaces.Box(low=-float('inf'), high=float('inf'), shape=(flatdim,), dtype=np.float32)
 
     def observation(self, observation):
-        return spaces.flatten(self.observation_space, observation)
+        return spaces.flatten(self.env.observation_space, observation)
