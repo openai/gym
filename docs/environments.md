@@ -139,7 +139,7 @@ Learn more here: https://github.com/openai/roboschool
 
 ## Third Party Environments
 
-The gym comes prepackaged with many many environments. It's this common API around many environments that makes Gym so great. Here we will list additional environments that do not come prepacked with the gym. Submit another to this list via a pull-request. 
+The gym comes prepackaged with many many environments. It's this common API around many environments that makes Gym so great. Here we will list additional environments that do not come prepacked with the gym. Submit another to this list via a pull-request.
 
 ### PyBullet Robotics Environments
 
@@ -225,3 +225,9 @@ Learn more here: https://github.com/wil3/gymfc/
 AnyTrading is a collection of OpenAI Gym environments for reinforcement learning-based trading algorithms with a great focus on simplicity, flexibility, and comprehensiveness.
 
 Learn more here: https://github.com/AminHP/gym-anytrading
+
+### GymGo: The Board Game Go
+
+An implementation of the board game Go
+
+Learn more here: https://github.com/aigagror/GymGo 
