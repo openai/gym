@@ -86,7 +86,7 @@ class PixelObservationWrapper(ObservationWrapper):
 
         pixels_spaces = {}
         for pixel_key in pixel_keys:
-            pixels = self.env.render(**render_kwargs)
+            pixels = self.env.render(**render_kwargs[pixel_key])
 
             if np.issubdtype(pixels.dtype, np.integer):
                 low, high = (0, 255)
