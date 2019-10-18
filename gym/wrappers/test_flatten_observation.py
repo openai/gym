@@ -1,15 +1,13 @@
 import pytest
 
+import numpy as np
+
 import gym
 from gym.wrappers import FlattenObservation
-try:
-    import atari_py
-except ImportError:
-    atari_py = None
+from gym import spaces
 
 
-@pytest.mark.skipif(atari_py is None, reason='Only run this test when atari_py is installed')
-@pytest.mark.parametrize('env_id', ['Pong-v0', 'SpaceInvaders-v0'])
+@pytest.mark.parametrize('env_id', ['Blackjack-v0', 'KellyCoinflip-v0'])
 def test_flatten_observation(env_id):
     env = gym.make(env_id)
     wrapped_env = FlattenObservation(env)
@@ -17,6 +15,19 @@ def test_flatten_observation(env_id):
     obs = env.reset()
     wrapped_obs = wrapped_env.reset()
 
-    assert len(obs.shape) == 3
-    assert len(wrapped_obs.shape) == 1
-    assert wrapped_obs.shape[0] == obs.shape[0]*obs.shape[1]*obs.shape[2]
+    if env_id == 'Blackjack-v0':
+        space = spaces.Tuple((
+            spaces.Discrete(32),
+            spaces.Discrete(11),
+            spaces.Discrete(2)))
+        wrapped_space = spaces.Box(-np.inf, np.inf,
+                                   [32 + 11 + 2], dtype=np.float32)
+    elif env_id == 'KellyCoinflip-v0':
+        space = spaces.Tuple((
+            spaces.Box(0, 250.0, [1], dtype=np.float32),
+            spaces.Discrete(300 + 1)))
+        wrapped_space = spaces.Box(-np.inf, np.inf,
+                                   [1 + (300 + 1)], dtype=np.float32)
+
+    assert space.contains(obs)
+    assert wrapped_space.contains(wrapped_obs)
