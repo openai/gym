@@ -15,10 +15,7 @@ extras = {
 }
 
 # Meta dependency groups.
-all_deps = []
-for group_name in extras:
-    all_deps += extras[group_name]
-extras['all'] = all_deps
+extras['all'] = [item for group in extras.values() for item in group]
 
 setup(name='gym',
       version=VERSION,
