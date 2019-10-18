@@ -150,5 +150,5 @@ class TestNestedDictWrapper(object):
                                              error_match):
         env = FakeEnvironment(observation_space=observation_space)
 
-        # with pytest.raises(error_type, match=error_match):
-        FlattenObservation(FilterObservation(env, env.obs_keys))
+        with pytest.raises(error_type, match=error_match):
+            FlattenObservation(FilterObservation(env, env.obs_keys))
