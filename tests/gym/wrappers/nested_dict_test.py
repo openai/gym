@@ -72,53 +72,6 @@ NESTED_DICT_TEST_CASES = (
      }), (5, )),
 )
 
-ERROR_TEST_CASES = (
-    (Dict({
-        "key1": Box(shape=(2, ), low=-1, high=1, dtype=np.float32),
-        "key2": Dict({
-            "subkey1": Discrete(n=2),
-            "subkey2": Box(shape=(2, ), low=-1, high=1, dtype=np.float32)
-        })
-    }), AssertionError, "Only spaces of type Box are supported."),
-    (Dict({
-        "key2": Discrete(n=2),
-        "key3": Box(shape=(2, ), low=-1, high=1, dtype=np.float32)
-    }), AssertionError, "Only spaces of type Box are supported."),
-    (Dict({
-        "key1": Tuple(
-            (Dict({
-                "key1": Discrete(n=2)
-            }), )
-        ),
-        "key2": Box(shape=(), low=-1, high=1, dtype=np.float32),
-        "key3": Box(shape=(2, ), low=-1, high=1, dtype=np.float32)
-    }), AssertionError, "Only spaces of type Box are supported."),
-    (Dict({
-        "key1": Box(shape=(2, ), low=-1, high=1, dtype=np.float32),
-        "key2": Dict({
-            "subkey1": Box(shape=(2, ), low=-1, high=1, dtype=np.float64)
-        })
-    }), AssertionError, "All spaces must have the same dtype."),
-    (Dict({
-        "key1": Tuple(
-            (Dict({
-
-                "subkey1": Box(shape=(), low=-1, high=1, dtype=np.float32),
-                "subkey2": Box(shape=(), low=-1, high=1, dtype=np.float32),
-                "subkey3": Box(shape=(), low=-1, high=1, dtype=np.int64),
-                "subkey4": Box(shape=(), low=-1, high=1, dtype=np.float32),
-            }), )
-        ),
-        "key2": Box(shape=(), low=-1, high=1, dtype=np.float32),
-        "key3": Box(shape=(2, ), low=-1, high=1, dtype=np.float32)
-    }), AssertionError, "All spaces must have the same dtype."),
-    (Dict({
-        "key2": Box(shape=(), low=-1, high=1, dtype=np.int32),
-        "key3": Box(shape=(2, ), low=-1, high=1, dtype=np.float32)
-    }), AssertionError, "All spaces must have the same dtype."),
-)
-
-
 class TestNestedDictWrapper(object):
     @pytest.mark.parametrize("observation_space, flat_shape",
 
@@ -141,14 +94,3 @@ class TestNestedDictWrapper(object):
         wrapped_env = FlattenObservation(FilterObservation(env, env.obs_keys))
         obs = wrapped_env.reset()
         assert obs.shape == wrapped_env.observation_space.shape
-
-    @pytest.mark.parametrize("observation_space,error_type,error_match",
-                             ERROR_TEST_CASES)
-    def test_raises_with_incorrect_arguments(self,
-                                             observation_space,
-                                             error_type,
-                                             error_match):
-        env = FakeEnvironment(observation_space=observation_space)
-
-        with pytest.raises(error_type, match=error_match):
-            FlattenObservation(FilterObservation(env, env.obs_keys))
