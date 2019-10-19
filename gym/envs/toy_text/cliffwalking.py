@@ -41,6 +41,9 @@ class CliffWalkingEnv(discrete.DiscreteEnv):
         self._cliff = np.zeros(self.shape, dtype=np.bool)
         self._cliff[3, 1:-1] = True
 
+        _cliff_coords = np.argwhere(self._cliff)
+        self.terminal_states = np.vstack((_cliff_coords, np.asarray([self.shape[0] - 1, self.shape[1] - 1])))
+
         # Calculate transition probabilities and rewards
         P = {}
         for s in range(nS):
@@ -81,10 +84,9 @@ class CliffWalkingEnv(discrete.DiscreteEnv):
         new_position = self._limit_coordinates(new_position).astype(int)
         new_state = np.ravel_multi_index(tuple(new_position), self.shape)
         if self._cliff[tuple(new_position)]:
-            return [(1.0, self.start_state_index, -100, False)]
+            return [(1.0, self.start_state_index, -100, True)]
 
-        terminal_state = (self.shape[0] - 1, self.shape[1] - 1)
-        is_done = tuple(new_position) == terminal_state
+        is_done = new_position in self.terminal_states
         return [(1.0, new_state, -1, is_done)]
 
     def render(self, mode='human'):
