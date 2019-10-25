@@ -57,13 +57,13 @@ class HandReachEnv(hand_env.HandEnv, utils.EzPickle):
         self, distance_threshold=0.01, n_substeps=20, relative_control=False,
         initial_qpos=DEFAULT_INITIAL_QPOS, reward_type='sparse',
     ):
+        utils.EzPickle.__init__(**locals())
         self.distance_threshold = distance_threshold
         self.reward_type = reward_type
 
         hand_env.HandEnv.__init__(
             self, MODEL_XML_PATH, n_substeps=n_substeps, initial_qpos=initial_qpos,
             relative_control=relative_control)
-        utils.EzPickle.__init__(self)
 
     def _get_achieved_goal(self):
         goal = [self.sim.data.get_site_xpos(name) for name in FINGERTIP_SITE_NAMES]
