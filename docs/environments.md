@@ -231,3 +231,9 @@ Learn more here: https://github.com/AminHP/gym-anytrading
 An implementation of the board game Go
 
 Learn more here: https://github.com/aigagror/GymGo 
+
+### gym-electric-motor: Intelligent control of electric drives
+
+An environment for simulating a wide variety of electric drives taking into account different types of electric motors and converters. Control schemes can be continuous, yielding a voltage duty cycle, or discrete, determining converter switching states directly.
+
+Learn more here: https://github.com/upb-lea/gym-electric-motor
