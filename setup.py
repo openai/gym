@@ -15,10 +15,7 @@ extras = {
 }
 
 # Meta dependency groups.
-all_deps = []
-for group_name in extras:
-    all_deps += extras[group_name]
-extras['all'] = all_deps
+extras['all'] = [item for group in extras.values() for item in group]
 
 setup(name='gym',
       version=VERSION,
@@ -32,7 +29,7 @@ setup(name='gym',
       zip_safe=False,
       install_requires=[
           'scipy', 'numpy>=1.10.4', 'six', 'pyglet>=1.2.0,<=1.3.2', 'cloudpickle~=1.2.0',
-          'enum34~=1.1.6;python_version<"3.4"'
+          'enum34~=1.1.6;python_version<"3.4"', 'opencv-python'
       ],
       extras_require=extras,
       package_data={'gym': [

@@ -94,7 +94,7 @@ On Ubuntu 16.04 and 18.04:
 MuJoCo has a proprietary dependency we can't set up for you. Follow
 the
 `instructions <https://github.com/openai/mujoco-py#obtaining-the-binaries-and-license-key>`_
-in the ``mujoco-py`` package for help.
+in the ``mujoco-py`` package for help.  As an alternative to ``mujoco-py``, consider `PyBullet <https://github.com/openai/gym/blob/master/docs/environments.md#pybullet-robotics-environments>`_ which uses the open source Bullet physics engine and has no license requirement.
 
 Once you're ready to install everything, run ``pip install -e '.[all]'`` (or ``pip install 'gym[all]'``).
 
@@ -130,7 +130,7 @@ maintain the lists of dependencies on a per-environment group basis.
 Environments
 ============
 
-See `List of Environments <docs/environments.md>`_.
+See `List of Environments <docs/environments.md>`_ and the `gym site <http://gym.openai.com/envs/>`_.
 
 For information on creating your own environments, see `Creating your own Environments <docs/creating-environments.md>`_.
 
@@ -157,6 +157,15 @@ We are using `pytest <http://doc.pytest.org>`_ for tests. You can run them via:
 
 What's new
 ==========
+- 2019-10-09 (v0.15.3)
+    + VectorEnv modifications - unified the VectorEnv api (added reset_async, reset_wait, step_async, step_wait methods to SyncVectorEnv); more flexibility in AsyncVectorEnv workers
+
+- 2019-08-23 (v0.15.2)
+    + More Wrappers - AtariPreprocessing, FrameStack, GrayScaleObservation, FilterObservation,  FlattenDictObservationsWrapper, PixelObservationWrapper, TransformReward (thanks @zuoxingdong, @hartikainen)
+    + Remove rgb_rendering_tracking logic from mujoco environments (default behavior stays the same for the -v3 environments, rgb rendering returns a view from tracking camera)
+    + Velocity goal constraint for MountainCar (thanks @abhinavsagar)
+    + Taxi-v2 -> Taxi-v3 (add missing wall in the map to replicate env as describe in the original paper, thanks @kobotics)
+    
 - 2019-07-26 (v0.14.0)
     + Wrapper cleanup
     + Spec-related bug fixes

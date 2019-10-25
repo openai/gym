@@ -87,12 +87,7 @@ env.render()
 
 ### Robotics
 
-[MuJoCo](http://www.mujoco.org/) is a physics engine which can do very
-detailed efficient simulations with contacts and we use it for all
-robotics environments. It's not open-source, so you'll have to follow
-the instructions in
-[mujoco-py](https://github.com/openai/mujoco-py#obtaining-the-binaries-and-license-key)
-to set it up. You'll have to also run `pip install -e '.[robotics]'` if
+These environments also use [MuJoCo](http://www.mujoco.org/). You'll have to also run `pip install -e '.[robotics]'` if
 you didn't do the full install.
 
 ``` python
@@ -128,23 +123,25 @@ env.render()
 
 ## OpenAI Environments
 
-### Roboschool
-
-3D physics environments like Mujoco environments but uses the Bullet physics engine and does not require a commercial license.
-
-Learn more here: https://github.com/openai/roboschool
-
 ### Gym-Retro
 
 Gym Retro lets you turn classic video games into Gym environments for reinforcement learning and comes with integrations for ~1000 games. It uses various emulators that support the Libretro API, making it fairly easy to add new emulators.
 
 Learn more here: https://github.com/openai/retro
 
+### Roboschool (DEPRECATED)
+
+**We recommend using the [PyBullet Robotics Environments](#pybullet-robotics-environments) instead**
+
+3D physics environments like Mujoco environments but uses the Bullet physics engine and does not require a commercial license.
+
+Learn more here: https://github.com/openai/roboschool
+
 ## Third Party Environments
 
-The gym comes prepackaged with many many environments. It's this common API around many environments that makes Gym so great. Here we will list additional environments that do not come prepacked with the gym. Submit another to this list via a pull-request. 
+The gym comes prepackaged with many many environments. It's this common API around many environments that makes Gym so great. Here we will list additional environments that do not come prepacked with the gym. Submit another to this list via a pull-request.
 
-### Pybullet Robotics Environments
+### PyBullet Robotics Environments
 
 3D physics environments like the Mujoco environments but uses the Bullet physics engine and does not require a commercial license.  Works on Mac/Linux/Windows.
 
@@ -222,3 +219,21 @@ generate policies for the worlds first open source neural network flight
 control firmware [Neuroflight](https://github.com/wil3/neuroflight).
 
 Learn more here: https://github.com/wil3/gymfc/
+
+### gym-anytrading: Environments for trading markets
+
+AnyTrading is a collection of OpenAI Gym environments for reinforcement learning-based trading algorithms with a great focus on simplicity, flexibility, and comprehensiveness.
+
+Learn more here: https://github.com/AminHP/gym-anytrading
+
+### GymGo: The Board Game Go
+
+An implementation of the board game Go
+
+Learn more here: https://github.com/aigagror/GymGo 
+
+### gym-electric-motor: Intelligent control of electric drives
+
+An environment for simulating a wide variety of electric drives taking into account different types of electric motors and converters. Control schemes can be continuous, yielding a voltage duty cycle, or discrete, determining converter switching states directly.
+
+Learn more here: https://github.com/upb-lea/gym-electric-motor

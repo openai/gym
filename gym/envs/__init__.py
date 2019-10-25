@@ -181,7 +181,7 @@ register(
 )
 
 register(
-    id='Taxi-v2',
+    id='Taxi-v3',
     entry_point='gym.envs.toy_text:TaxiEnv',
     reward_threshold=8, # optimum = 8.46
     max_episode_steps=200,

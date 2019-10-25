@@ -53,7 +53,7 @@ def test_random_rollout():
 def test_env_render_result_is_immutable():
     from six import string_types
     environs = [
-        envs.make('Taxi-v2'),
+        envs.make('Taxi-v3'),
         envs.make('FrozenLake-v0'),
         envs.make('Reverse-v0'),
     ]
