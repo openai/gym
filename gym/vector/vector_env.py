@@ -91,6 +91,34 @@ class VectorEnv(gym.Env):
         self.step_async(actions)
         return self.step_wait()
 
+    def close_extras(self, **kwargs):
+        r"""Clean up the extra resources e.g. beyond what's in this base class. """
+        raise NotImplementedError()
+
+    def close(self, **kwargs):
+        r"""Close all sub-environments and release resources.
+        
+        It also closes all the existing image viewers, then calls :meth:`close_extras` and set
+        :attr:`closed` as ``True``. 
+        
+        .. warning::
+        
+            This function itself does not close the environments, it should be handled
+            in :meth:`close_extras`. This is generic for both synchronous and asynchronous 
+            vectorized environments. 
+        
+        .. note::
+        
+            This will be automatically called when garbage collected or program exited. 
+            
+        """
+        if self.closed:
+            return
+        if self.viewer is not None:
+            self.viewer.close()
+        self.close_extras(**kwargs)
+        self.closed = True
+
     def seed(self, seeds=None):
         """
         Parameters
@@ -104,8 +132,7 @@ class VectorEnv(gym.Env):
         """
         pass
 
-
     def __del__(self):
         if hasattr(self, 'closed'):
             if not self.closed:
-                self.close()
+                self.close(terminate=True)

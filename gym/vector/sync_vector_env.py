@@ -83,16 +83,8 @@ class SyncVectorEnv(VectorEnv):
         return (deepcopy(self.observations) if self.copy else self.observations,
             np.copy(self._rewards), np.copy(self._dones), infos)
 
-    def close(self):
-        if self.closed:
-            return
-        if self.viewer is not None:
-            self.viewer.close()
-
-        for env in self.envs:
-            env.close()
-
-        self.closed = True
+    def close_extras(self, **kwargs):
+        [env.close() for env in self.envs]
 
     def _check_observation_spaces(self):
         for env in self.envs:

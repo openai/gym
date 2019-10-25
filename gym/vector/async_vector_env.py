@@ -241,7 +241,7 @@ class AsyncVectorEnv(VectorEnv):
         return (deepcopy(self.observations) if self.copy else self.observations,
                 np.array(rewards), np.array(dones, dtype=np.bool_), infos)
 
-    def close(self, timeout=None, terminate=False):
+    def close_extras(self, timeout=None, terminate=False):
         """
         Parameters
         ----------
@@ -254,12 +254,6 @@ class AsyncVectorEnv(VectorEnv):
             If `True`, then the `close` operation is forced and all processes
             are terminated.
         """
-        if self.closed:
-            return
-
-        if self.viewer is not None:
-            self.viewer.close()
-
         timeout = 0 if terminate else timeout
         try:
             if self._state != AsyncState.DEFAULT:
@@ -287,8 +281,6 @@ class AsyncVectorEnv(VectorEnv):
                 pipe.close()
         for process in self.processes:
             process.join()
-
-        self.closed = True
 
     def _poll(self, timeout=None):
         self._assert_is_running()
@@ -337,11 +329,6 @@ class AsyncVectorEnv(VectorEnv):
 
         logger.error('Raising the last exception back to the main process.')
         raise exctype(value)
-
-    def __del__(self):
-        if hasattr(self, 'closed'):
-            if not self.closed:
-                self.close(terminate=True)
 
 
 def _worker(index, env_fn, pipe, parent_pipe, shared_memory, error_queue):
