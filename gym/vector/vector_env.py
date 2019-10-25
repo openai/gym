@@ -133,6 +133,11 @@ class VectorEnv(gym.Env):
         pass
 
     def __del__(self):
-        if hasattr(self, 'closed'):
-            if not self.closed:
-                self.close(terminate=True)
+        if not getattr(self, 'closed', True):
+            self.close(terminate=True)
+
+    def __repr__(self):
+        if self.spec is None:
+            return '{}({})'.format(self.__class__.__name__, self.num_envs)
+        else:
+            return '{}({}, {})'.format(self.__class__.__name__, self.spec.id, self.num_envs)
