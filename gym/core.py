@@ -57,7 +57,7 @@ class Env(object):
         """
         raise NotImplementedError
 
-    def reset(self):
+    def reset(self, **kwargs):
         """Resets the state of the environment and returns an initial observation.
 
         Returns:
@@ -65,7 +65,7 @@ class Env(object):
         """
         raise NotImplementedError
 
-    def render(self, mode='human'):
+    def render(self, mode='human', **kwargs):
         """Renders the environment.
 
         The set of supported modes varies per environment. (And some
@@ -207,10 +207,6 @@ class Wrapper(Env):
     """
     def __init__(self, env):
         self.env = env
-        self.action_space = self.env.action_space
-        self.observation_space = self.env.observation_space
-        self.reward_range = self.env.reward_range
-        self.metadata = self.env.metadata
 
     def __getattr__(self, name):
         if name.startswith('_'):
@@ -218,40 +214,11 @@ class Wrapper(Env):
         return getattr(self.env, name)
 
     @property
-    def spec(self):
-        return self.env.spec
-
-    @classmethod
-    def class_name(cls):
-        return cls.__name__
-
-    def step(self, action):
-        return self.env.step(action)
-
-    def reset(self, **kwargs):
-        return self.env.reset(**kwargs)
-
-    def render(self, mode='human', **kwargs):
-        return self.env.render(mode, **kwargs)
-
-    def close(self):
-        return self.env.close()
-
-    def seed(self, seed=None):
-        return self.env.seed(seed)
-
-    def compute_reward(self, achieved_goal, desired_goal, info):
-        return self.env.compute_reward(achieved_goal, desired_goal, info)
+    def unwrapped(self):
+        return self.env.unwrapped
 
     def __str__(self):
         return '<{}{}>'.format(type(self).__name__, self.env)
-
-    def __repr__(self):
-        return str(self)
-
-    @property
-    def unwrapped(self):
-        return self.env.unwrapped
 
 
 class ObservationWrapper(Wrapper):
