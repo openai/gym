@@ -51,9 +51,23 @@ class AsyncVectorEnv(VectorEnv):
     context : str, optional
         Context for multiprocessing. If `None`, then the default context is used.
         Only available in Python 3.
+
+    daemon : bool (default: `True`)
+        If `True`, then subprocesses have `daemon` flag turned on; that is, they
+        will quit if the head process quits. However, `daemon=True` prevents
+        subprocesses to spawn children, so for some environments you may want
+        to have it set to `False`
+
+    worker : function, optional
+        WARNING - advanced mode option! If set, then use that worker in a subprocess
+        instead of a default one. Can be useful to override some inner vector env
+        logic, for instance, how resets on done are handled. Provides high
+        degree of flexibility and a high chance to shoot yourself in the foot; thus,
+        if you are writing your own worker, it is recommended to start from the code
+        for `_worker` (or `_worker_shared_memory`) method below, and add changes
     """
     def __init__(self, env_fns, observation_space=None, action_space=None,
-                 shared_memory=True, copy=True, context=None):
+                 shared_memory=True, copy=True, context=None, daemon=True, worker=None):
         try:
             ctx = mp.get_context(context)
         except AttributeError:
@@ -86,6 +100,7 @@ class AsyncVectorEnv(VectorEnv):
         self.parent_pipes, self.processes = [], []
         self.error_queue = ctx.Queue()
         target = _worker_shared_memory if self.shared_memory else _worker
+        target = worker or target
         with clear_mpi_env_vars():
             for idx, env_fn in enumerate(self.env_fns):
                 parent_pipe, child_pipe = ctx.Pipe()
@@ -97,7 +112,7 @@ class AsyncVectorEnv(VectorEnv):
                 self.parent_pipes.append(parent_pipe)
                 self.processes.append(process)
 
-                process.daemon = True
+                process.daemon = daemon
                 process.start()
                 child_pipe.close()
 
@@ -105,16 +120,6 @@ class AsyncVectorEnv(VectorEnv):
         self._check_observation_spaces()
 
     def seed(self, seeds=None):
-        """
-        Parameters
-        ----------
-        seeds : list of int, or int, optional
-            Random seed for each individual environment. If `seeds` is a list of
-            length `num_envs`, then the items of the list are chosen as random
-            seeds. If `seeds` is an int, then each environment uses the random
-            seed `seeds + n`, where `n` is the index of the environment (between
-            `0` and `num_envs - 1`).
-        """
         self._assert_is_running()
         if seeds is None:
             seeds = [None for _ in range(self.num_envs)]
@@ -236,7 +241,7 @@ class AsyncVectorEnv(VectorEnv):
         return (deepcopy(self.observations) if self.copy else self.observations,
                 np.array(rewards), np.array(dones, dtype=np.bool_), infos)
 
-    def close(self, timeout=None, terminate=False):
+    def close_extras(self, timeout=None, terminate=False):
         """
         Parameters
         ----------
@@ -249,12 +254,6 @@ class AsyncVectorEnv(VectorEnv):
             If `True`, then the `close` operation is forced and all processes
             are terminated.
         """
-        if self.closed:
-            return
-
-        if self.viewer is not None:
-            self.viewer.close()
-
         timeout = 0 if terminate else timeout
         try:
             if self._state != AsyncState.DEFAULT:
@@ -282,8 +281,6 @@ class AsyncVectorEnv(VectorEnv):
                 pipe.close()
         for process in self.processes:
             process.join()
-
-        self.closed = True
 
     def _poll(self, timeout=None):
         self._assert_is_running()
@@ -332,11 +329,6 @@ class AsyncVectorEnv(VectorEnv):
 
         logger.error('Raising the last exception back to the main process.')
         raise exctype(value)
-
-    def __del__(self):
-        if hasattr(self, 'closed'):
-            if not self.closed:
-                self.close(terminate=True)
 
 
 def _worker(index, env_fn, pipe, parent_pipe, shared_memory, error_queue):

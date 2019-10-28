@@ -45,18 +45,9 @@ class SyncVectorEnv(VectorEnv):
             n=self.num_envs, fn=np.zeros)
         self._rewards = np.zeros((self.num_envs,), dtype=np.float64)
         self._dones = np.zeros((self.num_envs,), dtype=np.bool_)
+        self._actions = None
 
     def seed(self, seeds=None):
-        """
-        Parameters
-        ----------
-        seeds : list of int, or int, optional
-            Random seed for each individual environment. If `seeds` is a list of
-            length `num_envs`, then the items of the list are chosen as random
-            seeds. If `seeds` is an int, then each environment uses the random
-            seed `seeds + n`, where `n` is the index of the environment (between
-            `0` and `num_envs - 1`).
-        """
         if seeds is None:
             seeds = [None for _ in range(self.num_envs)]
         if isinstance(seeds, int):
@@ -66,13 +57,7 @@ class SyncVectorEnv(VectorEnv):
         for env, seed in zip(self.envs, seeds):
             env.seed(seed)
 
-    def reset(self):
-        """
-        Returns
-        -------
-        observations : sample from `observation_space`
-            A batch of observations from the vectorized environment.
-        """
+    def reset_wait(self):
         self._dones[:] = False
         observations = []
         for env in self.envs:
@@ -82,29 +67,12 @@ class SyncVectorEnv(VectorEnv):
 
         return np.copy(self.observations) if self.copy else self.observations
 
-    def step(self, actions):
-        """
-        Parameters
-        ----------
-        actions : iterable of samples from `action_space`
-            List of actions.
+    def step_async(self, actions):
+        self._actions = actions
 
-        Returns
-        -------
-        observations : sample from `observation_space`
-            A batch of observations from the vectorized environment.
-
-        rewards : `np.ndarray` instance (dtype `np.float_`)
-            A vector of rewards from the vectorized environment.
-
-        dones : `np.ndarray` instance (dtype `np.bool_`)
-            A vector whose entries indicate whether the episode has ended.
-
-        infos : list of dict
-            A list of auxiliary diagnostic informations.
-        """
+    def step_wait(self):
         observations, infos = [], []
-        for i, (env, action) in enumerate(zip(self.envs, actions)):
+        for i, (env, action) in enumerate(zip(self.envs, self._actions)):
             observation, self._rewards[i], self._dones[i], info = env.step(action)
             if self._dones[i]:
                 observation = env.reset()
@@ -115,16 +83,8 @@ class SyncVectorEnv(VectorEnv):
         return (deepcopy(self.observations) if self.copy else self.observations,
             np.copy(self._rewards), np.copy(self._dones), infos)
 
-    def close(self):
-        if self.closed:
-            return
-        if self.viewer is not None:
-            self.viewer.close()
-
-        for env in self.envs:
-            env.close()
-
-        self.closed = True
+    def close_extras(self, **kwargs):
+        [env.close() for env in self.envs]
 
     def _check_observation_spaces(self):
         for env in self.envs:
