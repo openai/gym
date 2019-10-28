@@ -40,6 +40,8 @@ class AtariPreprocessing(gym.Wrapper):
         super().__init__(env)
         assert frame_skip > 0
         assert screen_size > 0
+        assert 'NoFrameskip' in env.spec.id, 'frame-skipping is performed by the wrapper so it be should be disabled' \
+                                             ' in the original env.'
 
         self.noop_max = noop_max
         assert env.unwrapped.get_action_meanings()[0] == 'NOOP'
