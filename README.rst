@@ -85,6 +85,11 @@ packages installed. We'll build out the list here over time; please let us know
 what you end up installing on your platform. Also, take a look at the docker files (py.Dockerfile) to
 see the composition of our CI-tested images.
 
+On Windows:
+
+First download Anaconda 2019.10 for Windows Installer with Python 3.7 version whichever comaptible with your Windows 32/64-bit graphic installer.
+.. Open Anaconda Command prompt and run the specific commands for installation of OpenAI gym toolkit.
+
 On Ubuntu 16.04 and 18.04:
 
 .. code:: shell
