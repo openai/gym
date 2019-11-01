@@ -141,3 +141,32 @@ class VectorEnv(gym.Env):
             return '{}({})'.format(self.__class__.__name__, self.num_envs)
         else:
             return '{}({}, {})'.format(self.__class__.__name__, self.spec.id, self.num_envs)
+
+
+class VectorEnvWrapper(VectorEnv):
+    r"""Wraps the vectorized environment to allow a modular transformation. 
+    
+    This class is the base class for all wrappers for vectorized environments. The subclass
+    could override some methods to change the behavior of the original vectorized environment
+    without touching the original code. 
+    
+    .. note::
+    
+        Don't forget to call ``super().__init__(env)`` if the subclass overrides :meth:`__init__`.
+    
+    """
+    def __init__(self, env):
+        assert isinstance(env, VectorEnv)
+        self.env = env
+
+    def __getattr__(self, name):
+        if name.startswith('_'):
+            raise AttributeError("attempted to get missing private attribute '{}'".format(name))
+        return getattr(self.env, name)
+
+    @property
+    def unwrapped(self):
+        return self.env.unwrapped
+
+    def __repr__(self):
+        return '<{}, {}>'.format(self.__class__.__name__, self.env)
