@@ -70,6 +70,8 @@ class Box(Space):
         """
         high = self.high if self.dtype.kind == 'f' \
                 else self.high.astype('int64') + 1
+        low = self.low if self.dtype.kind == 'f' \
+                else self.low.astype('int64') - 1
         sample = np.empty(self.shape)
 
         # Masking arrays which classify the coordinates according to interval
@@ -90,9 +92,10 @@ class Box(Space):
         sample[upp_bounded] = -self.np_random.exponential(
             size=upp_bounded[upp_bounded].shape) - self.high[upp_bounded]
         
-        sample[bounded] = self.np_random.uniform(low=self.low[bounded], 
+        sample[bounded] = self.np_random.uniform(low=low[bounded], 
                                             high=high[bounded],
                                             size=bounded[bounded].shape)
+        sample = np.clip(sample, self.low, self.high)
 
         return sample.astype(self.dtype)
         
