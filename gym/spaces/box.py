@@ -93,6 +93,8 @@ class Box(Space):
         sample[bounded] = self.np_random.uniform(low=self.low[bounded], 
                                             high=high[bounded],
                                             size=bounded[bounded].shape)
+        if self.dtype.kind == 'i':
+            sample = np.floor(sample)
 
         return sample.astype(self.dtype)
         
