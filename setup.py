@@ -10,8 +10,8 @@ extras = {
   'atari': ['atari_py~=0.2.0', 'Pillow', 'opencv-python'],
   'box2d': ['box2d-py~=2.3.5'],
   'classic_control': [],
-  'mujoco': ['mujoco_py>=1.50, <2.1', 'imageio'],
-  'robotics': ['mujoco_py>=1.50, <2.1', 'imageio'],
+  'mujoco': ['mujoco_py>=1.50, <2.0', 'imageio'],
+  'robotics': ['mujoco_py>=1.50, <2.0', 'imageio'],
 }
 
 # Meta dependency groups.
