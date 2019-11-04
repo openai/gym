@@ -30,14 +30,15 @@ class Env(object):
     non-underscored versions are wrapper methods to which we may add
     functionality over time.
     """
-    # Set this in SOME subclasses
-    metadata = {'render.modes': []}
-    reward_range = (-float('inf'), float('inf'))
-    spec = None
+    def __init__(self):
+        # Set this in SOME subclasses
+        self.metadata = {'render.modes': []}
+        self.reward_range = (-float('inf'), float('inf'))
+        self.spec = None
 
-    # Set these in ALL subclasses
-    action_space = None
-    observation_space = None
+        # Set these in ALL subclasses
+        self.action_space = None
+        self.observation_space = None
 
     def step(self, action):
         """Run one timestep of the environment's dynamics. When end of
