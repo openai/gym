@@ -40,7 +40,6 @@ class DiscreteEnv(Env):
 
         self.seed()
         self.s = categorical_sample(self.isd, self.np_random)
-        self.lastaction=None
 
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
