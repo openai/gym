@@ -157,6 +157,10 @@ We are using `pytest <http://doc.pytest.org>`_ for tests. You can run them via:
 
 What's new
 ==========
+- 2019-11-08 (v0.15.4)
+    + Added multiple env wrappers (thanks @zuoxingdong and @hartikainen!)
+    - Removed mujoco >= 2.0 support due to lack of tests
+
 - 2019-10-09 (v0.15.3)
     + VectorEnv modifications - unified the VectorEnv api (added reset_async, reset_wait, step_async, step_wait methods to SyncVectorEnv); more flexibility in AsyncVectorEnv workers
 
