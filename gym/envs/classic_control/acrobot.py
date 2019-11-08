@@ -70,8 +70,8 @@ class AcrobotEnv(core.Env):
     LINK_COM_POS_2 = 0.5  #: [m] position of the center of mass of link 2
     LINK_MOI = 1.  #: moments of inertia for both links
 
-    MAX_VEL_1 = 4 * np.pi
-    MAX_VEL_2 = 9 * np.pi
+    MAX_VEL_1 = 4 * pi
+    MAX_VEL_2 = 9 * pi
 
     AVAIL_TORQUE = [-1., 0., +1]
 
@@ -132,11 +132,11 @@ class AcrobotEnv(core.Env):
 
     def _get_ob(self):
         s = self.state
-        return np.array([cos(s[0]), np.sin(s[0]), cos(s[1]), sin(s[1]), s[2], s[3]])
+        return np.array([cos(s[0]), sin(s[0]), cos(s[1]), sin(s[1]), s[2], s[3]])
 
     def _terminal(self):
         s = self.state
-        return bool(-np.cos(s[0]) - np.cos(s[1] + s[0]) > 1.)
+        return bool(-cos(s[0]) - cos(s[1] + s[0]) > 1.)
 
     def _dsdt(self, s_augmented, t):
         m1 = self.LINK_MASS_1
@@ -154,12 +154,12 @@ class AcrobotEnv(core.Env):
         dtheta1 = s[2]
         dtheta2 = s[3]
         d1 = m1 * lc1 ** 2 + m2 * \
-            (l1 ** 2 + lc2 ** 2 + 2 * l1 * lc2 * np.cos(theta2)) + I1 + I2
-        d2 = m2 * (lc2 ** 2 + l1 * lc2 * np.cos(theta2)) + I2
-        phi2 = m2 * lc2 * g * np.cos(theta1 + theta2 - np.pi / 2.)
-        phi1 = - m2 * l1 * lc2 * dtheta2 ** 2 * np.sin(theta2) \
-               - 2 * m2 * l1 * lc2 * dtheta2 * dtheta1 * np.sin(theta2)  \
-            + (m1 * lc1 + m2 * l1) * g * np.cos(theta1 - np.pi / 2) + phi2
+            (l1 ** 2 + lc2 ** 2 + 2 * l1 * lc2 * cos(theta2)) + I1 + I2
+        d2 = m2 * (lc2 ** 2 + l1 * lc2 * cos(theta2)) + I2
+        phi2 = m2 * lc2 * g * cos(theta1 + theta2 - pi / 2.)
+        phi1 = - m2 * l1 * lc2 * dtheta2 ** 2 * sin(theta2) \
+               - 2 * m2 * l1 * lc2 * dtheta2 * dtheta1 * sin(theta2)  \
+            + (m1 * lc1 + m2 * l1) * g * cos(theta1 - pi / 2) + phi2
         if self.book_or_nips == "nips":
             # the following line is consistent with the description in the
             # paper
@@ -168,7 +168,7 @@ class AcrobotEnv(core.Env):
         else:
             # the following line is consistent with the java implementation and the
             # book
-            ddtheta2 = (a + d2 / d1 * phi1 - m2 * l1 * lc2 * dtheta1 ** 2 * np.sin(theta2) - phi2) \
+            ddtheta2 = (a + d2 / d1 * phi1 - m2 * l1 * lc2 * dtheta1 ** 2 * sin(theta2) - phi2) \
                 / (m2 * lc2 ** 2 + I2 - d2 ** 2 / d1)
         ddtheta1 = -(d2 * ddtheta2 + phi1) / d1
         return (dtheta1, dtheta2, ddtheta1, ddtheta2, 0.)
@@ -186,13 +186,13 @@ class AcrobotEnv(core.Env):
         if s is None: return None
 
         p1 = [-self.LINK_LENGTH_1 *
-              np.cos(s[0]), self.LINK_LENGTH_1 * np.sin(s[0])]
+              cos(s[0]), self.LINK_LENGTH_1 * sin(s[0])]
 
-        p2 = [p1[0] - self.LINK_LENGTH_2 * np.cos(s[0] + s[1]),
-              p1[1] + self.LINK_LENGTH_2 * np.sin(s[0] + s[1])]
+        p2 = [p1[0] - self.LINK_LENGTH_2 * cos(s[0] + s[1]),
+              p1[1] + self.LINK_LENGTH_2 * sin(s[0] + s[1])]
 
         xys = np.array([[0,0], p1, p2])[:,::-1]
-        thetas = [s[0]-np.pi/2, s[0]+s[1]-np.pi/2]
+        thetas = [s[0]- pi/2, s[0]+s[1]-pi/2]
         link_lengths = [self.LINK_LENGTH_1, self.LINK_LENGTH_2]
 
         self.viewer.draw_line((-2.2, 1), (2.2, 1))
