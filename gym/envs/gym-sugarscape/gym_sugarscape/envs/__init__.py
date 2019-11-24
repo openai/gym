@@ -1,0 +1,1 @@
+from gym_sugarscape.envs.sugarscape_env import SugarscapeEnv

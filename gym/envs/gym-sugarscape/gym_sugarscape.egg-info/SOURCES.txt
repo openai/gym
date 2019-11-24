@@ -1,0 +1,7 @@
+README.md
+setup.py
+gym_sugarscape.egg-info/PKG-INFO
+gym_sugarscape.egg-info/SOURCES.txt
+gym_sugarscape.egg-info/dependency_links.txt
+gym_sugarscape.egg-info/requires.txt
+gym_sugarscape.egg-info/top_level.txt
