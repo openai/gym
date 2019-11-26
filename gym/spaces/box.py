@@ -1,6 +1,7 @@
 import numpy as np
 
 from .space import Space
+from gym import logger
 
 
 class Box(Space):
@@ -20,7 +21,7 @@ class Box(Space):
         Box(2,)
 
     """
-    def __init__(self, low, high, shape=None, dtype=None):
+    def __init__(self, low, high, shape=None, dtype=np.float32):
         assert dtype is not None, 'dtype must be explicitly provided. '
         self.dtype = np.dtype(dtype)
 
@@ -35,6 +36,16 @@ class Box(Space):
             self.low = np.full(self.shape, low)
             self.high = np.full(self.shape, high)
 
+        def _get_precision(dtype):
+            if np.issubdtype(dtype, np.floating):
+                return np.finfo(dtype).precision
+            else:
+                return np.inf
+        low_precision = _get_precision(self.low.dtype)
+        high_precision = _get_precision(self.high.dtype)
+        dtype_precision = _get_precision(self.dtype)
+        if min(low_precision, high_precision) > dtype_precision:
+            logger.warn("Box bound precision lowered by casting to {}".format(self.dtype))
         self.low = self.low.astype(self.dtype)
         self.high = self.high.astype(self.dtype)
 
