@@ -1,0 +1,13 @@
+image:
+  file: .gitpod.Dockerfile
+ports:
+  - port: 3000
+    onOpen: open-preview
+  - port: 6080
+    onOpen: ignore
+tasks:
+  - init: pip install -e .
+    command: >
+      python examples/agents/cem.py &&
+      cd /tmp/cem-agent-results/ &&
+      python3 -m http.server 3000
