@@ -8,6 +8,5 @@ ports:
 tasks:
   - init: pip install -e .
     command: >
-      python examples/agents/cem.py &&
-      cd /tmp/cem-agent-results/ &&
-      python3 -m http.server 3000
+      python /workspace/gym/examples/agents/cem.py &&
+      python3 -m http.server 3000 -d /tmp/cem-agent-results
