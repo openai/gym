@@ -99,7 +99,7 @@ class Box(Space):
             size=low_bounded[low_bounded].shape) + self.low[low_bounded]
         
         sample[upp_bounded] = -self.np_random.exponential(
-            size=upp_bounded[upp_bounded].shape) - self.high[upp_bounded]
+            size=upp_bounded[upp_bounded].shape) + self.high[upp_bounded]
         
         sample[bounded] = self.np_random.uniform(low=self.low[bounded], 
                                             high=high[bounded],
