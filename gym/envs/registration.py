@@ -27,38 +27,24 @@ class EnvSpec(object):
         id (str): The official environment ID
         entry_point (Optional[str]): The Python entrypoint of the environment class (e.g. module.name:Class)
         reward_threshold (Optional[int]): The reward threshold before the task is considered solved
-        kwargs (dict): The kwargs to pass to the environment class
         nondeterministic (bool): Whether this environment is non-deterministic even after seeding
-        tags (dict[str:any]): A set of arbitrary key-value tags on this environment, including simple property=True tags
         max_episode_steps (Optional[int]): The maximum number of steps that an episode can consist of
+        kwargs (dict): The kwargs to pass to the environment class
 
-    Attributes:
-        id (str): The official environment ID
     """
 
-    def __init__(self, id, entry_point=None, reward_threshold=None, kwargs=None, nondeterministic=False, tags=None, max_episode_steps=None):
+    def __init__(self, id, entry_point=None, reward_threshold=None, nondeterministic=False, max_episode_steps=None, kwargs=None):
         self.id = id
-        # Evaluation parameters
-        self.reward_threshold = reward_threshold
-        # Environment properties
-        self.nondeterministic = nondeterministic
         self.entry_point = entry_point
-
-        if tags is None:
-            tags = {}
-        self.tags = tags
-
-        tags['wrapper_config.TimeLimit.max_episode_steps'] = max_episode_steps
-        
+        self.reward_threshold = reward_threshold
+        self.nondeterministic = nondeterministic
         self.max_episode_steps = max_episode_steps
+        self._kwargs = {} if kwargs is None else kwargs
 
-        # We may make some of these other parameters public if they're
-        # useful.
         match = env_id_re.search(id)
         if not match:
             raise error.Error('Attempted to register malformed environment ID: {}. (Currently all IDs must be of the form {}.)'.format(id, env_id_re.pattern))
-        self._env_name = match.group(1)
-        self._kwargs = {} if kwargs is None else kwargs
+        self._env_name = match.group(1)            
 
     def make(self, **kwargs):
         """Instantiates an instance of the environment with appropriate kwargs"""
@@ -105,7 +91,7 @@ class EnvRegistry(object):
         # compatibility code to be invoked.
         if hasattr(env, "_reset") and hasattr(env, "_step") and not getattr(env, "_gym_disable_underscore_compat", False):
             patch_deprecated_methods(env)
-        if (env.spec.max_episode_steps is not None) and not spec.tags.get('vnc'):
+        if env.spec.max_episode_steps is not None:
             from gym.wrappers.time_limit import TimeLimit
             env = TimeLimit(env, max_episode_steps=env.spec.max_episode_steps)
         return env

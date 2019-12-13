@@ -28,8 +28,7 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
                  terminate_when_unhealthy=True,
                  healthy_z_range=(1.0, 2.0),
                  reset_noise_scale=1e-2,
-                 exclude_current_positions_from_observation=True,
-                 rgb_rendering_tracking=True):
+                 exclude_current_positions_from_observation=True):
         utils.EzPickle.__init__(**locals())
 
         self._forward_reward_weight = forward_reward_weight
@@ -45,7 +44,7 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         self._exclude_current_positions_from_observation = (
             exclude_current_positions_from_observation)
 
-        mujoco_env.MujocoEnv.__init__(self, xml_file, 5, rgb_rendering_tracking=rgb_rendering_tracking)
+        mujoco_env.MujocoEnv.__init__(self, xml_file, 5)
 
     @property
     def healthy_reward(self):

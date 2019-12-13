@@ -1,6 +1,7 @@
 import numpy as np
 
 from .space import Space
+from gym import logger
 
 
 class Box(Space):
@@ -35,6 +36,16 @@ class Box(Space):
             self.low = np.full(self.shape, low)
             self.high = np.full(self.shape, high)
 
+        def _get_precision(dtype):
+            if np.issubdtype(dtype, np.floating):
+                return np.finfo(dtype).precision
+            else:
+                return np.inf
+        low_precision = _get_precision(self.low.dtype)
+        high_precision = _get_precision(self.high.dtype)
+        dtype_precision = _get_precision(self.dtype)
+        if min(low_precision, high_precision) > dtype_precision:
+            logger.warn("Box bound precision lowered by casting to {}".format(self.dtype))
         self.low = self.low.astype(self.dtype)
         self.high = self.high.astype(self.dtype)
 
@@ -88,11 +99,13 @@ class Box(Space):
             size=low_bounded[low_bounded].shape) + self.low[low_bounded]
         
         sample[upp_bounded] = -self.np_random.exponential(
-            size=upp_bounded[upp_bounded].shape) - self.high[upp_bounded]
+            size=upp_bounded[upp_bounded].shape) + self.high[upp_bounded]
         
         sample[bounded] = self.np_random.uniform(low=self.low[bounded], 
                                             high=high[bounded],
                                             size=bounded[bounded].shape)
+        if self.dtype.kind == 'i':
+            sample = np.floor(sample)
 
         return sample.astype(self.dtype)
         

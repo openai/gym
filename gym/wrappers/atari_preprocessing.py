@@ -5,7 +5,6 @@ from gym.spaces import Box
 from gym.wrappers import TimeLimit
 
 
-
 class AtariPreprocessing(gym.Wrapper):
     r"""Atari 2600 preprocessings. 
 
@@ -16,12 +15,12 @@ class AtariPreprocessing(gym.Wrapper):
     Specifically:
 
     * NoopReset: obtain initial state by taking random number of no-ops on reset. 
-    * FireReset: take action on reset for environments that are fixed until firing. 
     * Frame skipping: 4 by default
     * Max-pooling: most recent two observations
     * Termination signal when a life is lost: turned off by default. Not recommended by Machado et al. (2018).
     * Resize to a square image: 84x84 by default
     * Grayscale observation: optional
+    * Scale observation: optional
 
     Args:
         env (Env): environment
@@ -32,13 +31,19 @@ class AtariPreprocessing(gym.Wrapper):
             life is lost. 
         grayscale_obs (bool): if True, then gray scale observation is returned, otherwise, RGB observation
             is returned.
-
+        scale_obs (bool): if True, then observation normalized in range [0,1] is returned. It also limits memory
+            optimization benefits of FrameStack Wrapper.
     """
-    def __init__(self, env, noop_max=30, frame_skip=4, screen_size=84, terminal_on_life_loss=False, grayscale_obs=True):
+
+    def __init__(self, env, noop_max=30, frame_skip=4, screen_size=84, terminal_on_life_loss=False, grayscale_obs=True,
+                 scale_obs=False):
         super().__init__(env)
         assert frame_skip > 0
         assert screen_size > 0
-
+        assert noop_max >= 0
+        if frame_skip > 1:
+            assert 'NoFrameskip' in env.spec.id, 'disable frame-skipping in the original env. for more than one' \
+                                                 ' frame-skip as it will be done by the wrapper'
         self.noop_max = noop_max
         assert env.unwrapped.get_action_meanings()[0] == 'NOOP'
 
@@ -46,6 +51,7 @@ class AtariPreprocessing(gym.Wrapper):
         self.screen_size = screen_size
         self.terminal_on_life_loss = terminal_on_life_loss
         self.grayscale_obs = grayscale_obs
+        self.scale_obs = scale_obs
 
         # buffer of most recent two observations for max pooling
         if grayscale_obs:
@@ -59,10 +65,11 @@ class AtariPreprocessing(gym.Wrapper):
         self.lives = 0
         self.game_over = False
 
+        _low, _high, _obs_dtype = (0, 255, np.uint8) if not scale_obs else (0, 1, np.float32)
         if grayscale_obs:
-            self.observation_space = Box(low=0, high=255, shape=(screen_size, screen_size), dtype=np.uint8)
+            self.observation_space = Box(low=_low, high=_high, shape=(screen_size, screen_size), dtype=_obs_dtype)
         else:
-            self.observation_space = Box(low=0, high=255, shape=(screen_size, screen_size, 3), dtype=np.uint8)
+            self.observation_space = Box(low=_low, high=_high, shape=(screen_size, screen_size, 3), dtype=_obs_dtype)
 
     def step(self, action):
         R = 0.0
@@ -78,7 +85,7 @@ class AtariPreprocessing(gym.Wrapper):
                 self.lives = new_lives
 
             if done:
-                break    
+                break
             if t == self.frame_skip - 2:
                 if self.grayscale_obs:
                     self.ale.getScreenGrayscale(self.obs_buffer[0])
@@ -86,26 +93,19 @@ class AtariPreprocessing(gym.Wrapper):
                     self.ale.getScreenRGB2(self.obs_buffer[0])
             elif t == self.frame_skip - 1:
                 if self.grayscale_obs:
-                    self.ale.getScreenGrayscale(self.obs_buffer[1])    
+                    self.ale.getScreenGrayscale(self.obs_buffer[1])
                 else:
-                    self.ale.getScreenRGB2(self.obs_buffer[1])    
+                    self.ale.getScreenRGB2(self.obs_buffer[1])
         return self._get_obs(), R, done, info
 
     def reset(self, **kwargs):
         # NoopReset
         self.env.reset(**kwargs)
-        noops = self.env.unwrapped.np_random.randint(1, self.noop_max + 1)
-        assert noops > 0
+        noops = self.env.unwrapped.np_random.randint(1, self.noop_max + 1) if self.noop_max > 0 else 0
         for _ in range(noops):
             _, _, done, _ = self.env.step(0)
             if done:
                 self.env.reset(**kwargs)
-
-        # FireReset
-        action_meanings = self.env.unwrapped.get_action_meanings()
-        if action_meanings[1] == 'FIRE' and len(action_meanings) >= 3:
-            self.env.step(1)
-            self.env.step(2)
 
         self.lives = self.ale.lives()
         if self.grayscale_obs:
@@ -120,5 +120,9 @@ class AtariPreprocessing(gym.Wrapper):
         if self.frame_skip > 1:  # more efficient in-place pooling
             np.maximum(self.obs_buffer[0], self.obs_buffer[1], out=self.obs_buffer[0])
         obs = cv2.resize(self.obs_buffer[0], (self.screen_size, self.screen_size), interpolation=cv2.INTER_AREA)
-        obs = np.asarray(obs, dtype=np.uint8)
+
+        if self.scale_obs:
+            obs = np.asarray(obs, dtype=np.float32) / 255.0
+        else:
+            obs = np.asarray(obs, dtype=np.uint8)
         return obs

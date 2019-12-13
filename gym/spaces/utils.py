@@ -35,7 +35,7 @@ def flatten(space, x):
     elif isinstance(space, Tuple):
         return np.concatenate([flatten(s, x_part) for x_part, s in zip(x, space.spaces)])
     elif isinstance(space, Dict):
-        return np.concatenate([flatten(space.spaces[key], item) for key, item in x.items()])
+        return np.concatenate([flatten(s, x[key]) for key, s in space.spaces.items()])
     elif isinstance(space, MultiBinary):
         return np.asarray(x).flatten()
     elif isinstance(space, MultiDiscrete):

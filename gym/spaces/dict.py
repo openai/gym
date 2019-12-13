@@ -64,7 +64,7 @@ class Dict(Space):
         return self.spaces[key]
 
     def __repr__(self):
-        return "Dict(" + ", ". join([k + ":" + str(s) for k, s in self.spaces.items()]) + ")"
+        return "Dict(" + ", ". join([str(k) + ":" + str(s) for k, s in self.spaces.items()]) + ")"
 
     def to_jsonable(self, sample_n):
         # serialize as dict-repr of vectors

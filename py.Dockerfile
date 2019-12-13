@@ -7,19 +7,15 @@ RUN \
     mkdir /root/.mujoco && \
     cd /root/.mujoco  && \
     curl -O https://www.roboti.us/download/mjpro150_linux.zip  && \
-    unzip mjpro150_linux.zip && \
-    curl -O https://www.roboti.us/download/mujoco200_linux.zip && \
-    unzip mujoco200_linux.zip && \
-    mv mujoco200_linux mujoco200
+    unzip mjpro150_linux.zip
 
 ARG MUJOCO_KEY
 ARG PYTHON_VER
 ENV MUJOCO_KEY=$MUJOCO_KEY
 
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/root/.mujoco/mjpro150/bin
-ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/root/.mujoco/mujoco200/bin
 RUN echo $MUJOCO_KEY | base64 --decode > /root/.mujoco/mjkey.txt
-RUN pip install pytest pytest-forked
+RUN pip install pytest pytest-forked lz4
 
 COPY . /usr/local/gym/
 WORKDIR /usr/local/gym/
