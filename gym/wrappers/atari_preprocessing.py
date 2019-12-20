@@ -3,6 +3,10 @@ import numpy as np
 import gym
 from gym.spaces import Box
 from gym.wrappers import TimeLimit
+try:
+    import cv2
+except ImportError:
+    cv2 = None
 
 
 class AtariPreprocessing(gym.Wrapper):
@@ -38,6 +42,8 @@ class AtariPreprocessing(gym.Wrapper):
     def __init__(self, env, noop_max=30, frame_skip=4, screen_size=84, terminal_on_life_loss=False, grayscale_obs=True,
                  scale_obs=False):
         super().__init__(env)
+        assert cv2 is not None, \
+            "opencv-python package not installed! Try running pip install gym[atari] to get dependencies  for atari"
         assert frame_skip > 0
         assert screen_size > 0
         assert noop_max >= 0
@@ -116,7 +122,6 @@ class AtariPreprocessing(gym.Wrapper):
         return self._get_obs()
 
     def _get_obs(self):
-        import cv2
         if self.frame_skip > 1:  # more efficient in-place pooling
             np.maximum(self.obs_buffer[0], self.obs_buffer[1], out=self.obs_buffer[0])
         obs = cv2.resize(self.obs_buffer[0], (self.screen_size, self.screen_size), interpolation=cv2.INTER_AREA)
