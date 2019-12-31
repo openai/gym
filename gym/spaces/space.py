@@ -6,12 +6,12 @@ class Space(object):
     code that applies to any Env. For example, you can choose a random
     action.
     """
-    def __init__(self, shape=None, dtype=None):
+    def __init__(self, shape=None, dtype=None, seed=None):
         import numpy as np  # takes about 300-400ms to import, so we load lazily
         self.shape = None if shape is None else tuple(shape)
         self.dtype = None if dtype is None else np.dtype(dtype)
         self.np_random = None
-        self.seed()
+        self.seed(seed)
 
     def sample(self):
         """Randomly sample an element of this space. Can be 
