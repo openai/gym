@@ -3,17 +3,17 @@ from .space import Space
 
 
 class Discrete(Space):
-    r"""A discrete space in :math:`\{ 0, 1, \\dots, n-1 \}`. 
+    r"""A discrete space in :math:`\{ 0, 1, \\dots, n-1 \}`.
 
     Example::
 
         >>> Discrete(2)
 
     """
-    def __init__(self, n):
+    def __init__(self, n, seed=None):
         assert n >= 0
         self.n = n
-        super(Discrete, self).__init__((), np.int64)
+        super(Discrete, self).__init__((), np.int64, seed)
 
     def sample(self):
         return self.np_random.randint(self.n)
