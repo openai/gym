@@ -9,11 +9,11 @@ class Tuple(Space):
     Example usage:
     self.observation_space = spaces.Tuple((spaces.Discrete(2), spaces.Discrete(3)))
     """
-    def __init__(self, spaces):
+    def __init__(self, spaces, seed=None):
         self.spaces = spaces
         for space in spaces:
             assert isinstance(space, Space), "Elements of the tuple must be instances of gym.Space"
-        super(Tuple, self).__init__(None, None)
+        super(Tuple, self).__init__(None, None, seed)
 
     def seed(self, seed=None):
         [space.seed(seed) for space in self.spaces]
@@ -43,6 +43,6 @@ class Tuple(Space):
 
     def __len__(self):
         return len(self.spaces)
-      
+
     def __eq__(self, other):
         return isinstance(other, Tuple) and self.spaces == other.spaces
