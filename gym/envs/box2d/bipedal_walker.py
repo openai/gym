@@ -368,7 +368,7 @@ class BipedalWalker(gym.Env, EzPickle):
                     return 1
                 self.p2 = point
                 self.fraction = fraction
-                return 0
+                return fraction
         self.lidar = [LidarCallback() for _ in range(10)]
 
         return self.step(np.array([0,0,0,0]))[0]
