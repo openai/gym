@@ -10,10 +10,14 @@ class MultiBinary(Space):
     
     Example Usage:
     
-    self.observation_space = spaces.MultiBinary(5)
-    
+    >> self.observation_space = spaces.MultiBinary(5)
+
+    >> self.observation_space.sample()
+
+        array([0,1,0,1,0], dtype =int8)
 
     '''
+    
     def __init__(self, n):
         self.n = n
         super(MultiBinary, self).__init__((self.n,), np.int8)
