@@ -160,6 +160,10 @@ We are using `pytest <http://doc.pytest.org>`_ for tests. You can run them via:
 
 What's new
 ==========
+- 2020-01-24 (v0.15.5)
+    + pyglet 1.4 compatibility
+    - remove python-opencv from the requirements
+   
 - 2019-11-08 (v0.15.4)
     + Added multiple env wrappers (thanks @zuoxingdong and @hartikainen!)
     - Removed mujoco >= 2.0 support due to lack of tests
