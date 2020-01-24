@@ -62,6 +62,10 @@ class Dict(Space):
 
     def __getitem__(self, key):
         return self.spaces[key]
+        
+    def __iter__(self):
+        for key in self.spaces:
+            yield key
 
     def __repr__(self):
         return "Dict(" + ", ". join([str(k) + ":" + str(s) for k, s in self.spaces.items()]) + ")"
