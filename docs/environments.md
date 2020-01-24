@@ -123,6 +123,12 @@ env.render()
 
 ## OpenAI Environments
 
+### Procgen
+
+16 simple-to-use procedurally-generated gym environments which provide a direct measure of how quickly a reinforcement learning agent learns generalizable skills. The environments run at high speed (thousands of steps per second) on a single core.
+
+Learn more here: https://github.com/openai/procgen
+
 ### Gym-Retro
 
 Gym Retro lets you turn classic video games into Gym environments for reinforcement learning and comes with integrations for ~1000 games. It uses various emulators that support the Libretro API, making it fairly easy to add new emulators.
@@ -151,7 +157,7 @@ Learn more here: https://docs.google.com/document/d/10sXEhzFRSnvFcl3XxNGhnD4N2Se
 
 3D procedurally generated tower where you have to climb to the highest level possible
 
-Learn more here: https://github.com/Unity-Technologies/obstacle-tower-challenge
+Learn more here: https://github.com/Unity-Technologies/obstacle-tower-env
 
 Platforms: Windows, Mac, Linux
 
