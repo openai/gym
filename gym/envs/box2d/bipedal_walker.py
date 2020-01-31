@@ -365,10 +365,10 @@ class BipedalWalker(gym.Env, EzPickle):
         class LidarCallback(Box2D.b2.rayCastCallback):
             def ReportFixture(self, fixture, point, normal, fraction):
                 if (fixture.filterData.categoryBits & 1) == 0:
-                    return 1
+                    return -1
                 self.p2 = point
                 self.fraction = fraction
-                return 0
+                return fraction
         self.lidar = [LidarCallback() for _ in range(10)]
 
         return self.step(np.array([0,0,0,0]))[0]
