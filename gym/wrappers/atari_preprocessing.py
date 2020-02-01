@@ -72,10 +72,8 @@ class AtariPreprocessing(gym.Wrapper):
         self.game_over = False
 
         _low, _high, _obs_dtype = (0, 255, np.uint8) if not scale_obs else (0, 1, np.float32)
-        if grayscale_obs:
-            self.observation_space = Box(low=_low, high=_high, shape=(screen_size, screen_size), dtype=_obs_dtype)
-        else:
-            self.observation_space = Box(low=_low, high=_high, shape=(screen_size, screen_size, 3), dtype=_obs_dtype)
+        _channels = 1 if grayscale_obs else 3
+        self.observation_space = Box(low=_low, high=_high, shape=(screen_size, screen_size, _channels), dtype=_obs_dtype)
 
     def step(self, action):
         R = 0.0
@@ -130,4 +128,7 @@ class AtariPreprocessing(gym.Wrapper):
             obs = np.asarray(obs, dtype=np.float32) / 255.0
         else:
             obs = np.asarray(obs, dtype=np.uint8)
+
+        if self.grayscale_obs:
+            obs = np.expand_dims(obs, axis=-1)  # Add a channel axis
         return obs
