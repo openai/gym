@@ -23,10 +23,10 @@ def test_atari_preprocessing_grayscale(env_fn):
     obs2 = env2.reset()
     obs3 = env3.reset()
     assert obs1.shape == (210, 160, 3)
-    assert obs2.shape == (84, 84)
+    assert obs2.shape == (84, 84, 1)
     assert obs3.shape == (84, 84, 3)
     assert np.allclose(obs3, cv2.resize(obs1, (84, 84), interpolation=cv2.INTER_AREA))
-    obs3_gray = cv2.cvtColor(obs3, cv2.COLOR_RGB2GRAY)
+    obs3_gray = cv2.cvtColor(obs3, cv2.COLOR_RGB2GRAY).reshape(84, 84, 1)
     # the edges of the numbers do not render quite the same in the grayscale, so we ignore them
     assert np.allclose(obs2[10:38], obs3_gray[10:38])
     # the paddle also do not render quite the same
