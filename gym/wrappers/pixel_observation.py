@@ -2,6 +2,10 @@
 
 import collections
 import copy
+try:
+    from collections.abc import MutableMapping
+except ImportError:
+    from collections import MutableMapping
 
 import numpy as np
 
@@ -60,7 +64,7 @@ class PixelObservationWrapper(ObservationWrapper):
             self._observation_is_dict = False
             invalid_keys = set([STATE_KEY])
         elif isinstance(wrapped_observation_space,
-                        (spaces.Dict, collections.MutableMapping)):
+                        (spaces.Dict, MutableMapping)):
             self._observation_is_dict = True
             invalid_keys = set(wrapped_observation_space.spaces.keys())
         else:
