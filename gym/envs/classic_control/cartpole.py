@@ -69,11 +69,11 @@ class CartPoleEnv(gym.Env):
         self.x_threshold = 2.4
 
         # Angle limit set to 2 * theta_threshold_radians so failing observation is still within bounds
-        high = np.array([
-            self.x_threshold * 2,
-            np.finfo(np.float32).max,
-            self.theta_threshold_radians * 2,
-            np.finfo(np.float32).max])
+        high = np.array([self.x_threshold * 2,
+                         np.finfo(np.float32).max,
+                         self.theta_threshold_radians * 2,
+                         np.finfo(np.float32).max],
+                        dtype=np.float32)
 
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Box(-high, high, dtype=np.float32)
