@@ -160,6 +160,10 @@ We are using `pytest <http://doc.pytest.org>`_ for tests. You can run them via:
 
 What's new
 ==========
+- 2020-02-03 (v0.15.6)
+   + pyglet 1.4 compatibility (this time for real :))
+   + Fixed the bug in BipedalWalker and BipedalWalkerHardcore, bumped version to 3 (thanks @chozabu!)
+
 - 2020-01-24 (v0.15.5)
     + pyglet 1.4 compatibility
     - remove python-opencv from the requirements
