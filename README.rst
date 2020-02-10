@@ -160,6 +160,9 @@ We are using `pytest <http://doc.pytest.org>`_ for tests. You can run them via:
 
 What's new
 ==========
+- 2020-02-09 (v 0.16.0)
+   + EnvSpec API change - remove tags field (retro-active version bump, the changes are actually already in the codebase since 0.15.5 - thanks @wookayin for keeping us in check!)
+
 - 2020-02-03 (v0.15.6)
    + pyglet 1.4 compatibility (this time for real :))
    + Fixed the bug in BipedalWalker and BipedalWalkerHardcore, bumped version to 3 (thanks @chozabu!)
