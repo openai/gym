@@ -270,18 +270,19 @@ class ImageEncoder(object):
                      '-nostats',
                      '-loglevel', 'error', # suppress warnings
                      '-y',
-                     '-r', '%d' % self.frames_per_sec,
 
                      # input
                      '-f', 'rawvideo',
                      '-s:v', '{}x{}'.format(*self.wh),
                      '-pix_fmt',('rgb32' if self.includes_alpha else 'rgb24'),
+                     '-framerate', '%d' % self.frames_per_sec,
                      '-i', '-', # this used to be /dev/stdin, which is not Windows-friendly
 
                      # output
                      '-vf', 'scale=trunc(iw/2)*2:trunc(ih/2)*2',
                      '-vcodec', 'libx264',
                      '-pix_fmt', 'yuv420p',
+                     '-r', '%d' % max(30, self.frames_per_sec),
                      self.output_path
                      )
 
