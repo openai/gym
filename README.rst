@@ -160,6 +160,10 @@ We are using `pytest <http://doc.pytest.org>`_ for tests. You can run them via:
 
 What's new
 ==========
+- 2020-02-21 (v 0.17.0)
+   - Drop python 2 support
+   + Add python 3.8 build
+
 - 2020-02-09 (v 0.16.0)
    + EnvSpec API change - remove tags field (retro-active version bump, the changes are actually already in the codebase since 0.15.5 - thanks @wookayin for keeping us in check!)
 
