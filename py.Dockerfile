@@ -1,7 +1,7 @@
 # A Dockerfile that sets up a full Gym install with test dependencies
 ARG PYTHON_VER
 FROM python:$PYTHON_VER
-RUN apt-get -y update && apt-get install -y unzip libglu1-mesa-dev libgl1-mesa-dev libosmesa6-dev xvfb patchelf ffmpeg cmake
+RUN apt-get -y update && apt-get install -y unzip libglu1-mesa-dev libgl1-mesa-dev libosmesa6-dev xvfb patchelf ffmpeg cmake swig
 RUN \ 
 # Download mujoco
     mkdir /root/.mujoco && \
