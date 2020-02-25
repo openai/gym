@@ -19,7 +19,7 @@ RUN pip install pytest pytest-forked lz4
 
 COPY . /usr/local/gym/
 WORKDIR /usr/local/gym/
-RUN pip install .[all]
+RUN [ "$PYTHON_VER" != "3.8.1" && "$PYTHON_VER" != "3.9.1"  ] && pip install .[all] || pip install .
 
 ENTRYPOINT ["/usr/local/gym/bin/docker_entrypoint"]
 CMD ["pytest","--forked"]
