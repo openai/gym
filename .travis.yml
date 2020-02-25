@@ -9,7 +9,7 @@ env:
   - PY_VER=3.6.8
   - PY_VER=3.7.3
   - PY_VER=3.8.1
-  - PY_VER=3.9.1
+  - PY_VER=3.9.0
 
 
 install: "" # so travis doesn't do pip install requirements.txt
