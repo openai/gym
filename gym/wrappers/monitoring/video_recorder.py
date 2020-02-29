@@ -76,6 +76,7 @@ class VideoRecorder(object):
         touch(path)
 
         self.frames_per_sec = env.metadata.get('video.frames_per_second', 30)
+        self.output_frames_per_sec = env.metadata.get('video.output_frames_per_second', self.frames_per_sec)
         self.encoder = None # lazily start the process
         self.broken = False
 
@@ -159,7 +160,7 @@ class VideoRecorder(object):
 
     def _encode_image_frame(self, frame):
         if not self.encoder:
-            self.encoder = ImageEncoder(self.path, frame.shape, self.frames_per_sec)
+            self.encoder = ImageEncoder(self.path, frame.shape, self.frames_per_sec, self.output_frames_per_sec)
             self.metadata['encoder_version'] = self.encoder.version_info
 
         try:
@@ -235,7 +236,7 @@ class TextEncoder(object):
         return {'backend':'TextEncoder','version':1}
 
 class ImageEncoder(object):
-    def __init__(self, output_path, frame_shape, frames_per_sec):
+    def __init__(self, output_path, frame_shape, frames_per_sec, output_frames_per_sec):
         self.proc = None
         self.output_path = output_path
         # Frame shape should be lines-first, so w and h are swapped
@@ -246,6 +247,7 @@ class ImageEncoder(object):
         self.includes_alpha = (pixfmt == 4)
         self.frame_shape = frame_shape
         self.frames_per_sec = frames_per_sec
+        self.output_frames_per_sec = output_frames_per_sec
 
         if distutils.spawn.find_executable('avconv') is not None:
             self.backend = 'avconv'
@@ -270,18 +272,19 @@ class ImageEncoder(object):
                      '-nostats',
                      '-loglevel', 'error', # suppress warnings
                      '-y',
-                     '-r', '%d' % self.frames_per_sec,
 
                      # input
                      '-f', 'rawvideo',
                      '-s:v', '{}x{}'.format(*self.wh),
                      '-pix_fmt',('rgb32' if self.includes_alpha else 'rgb24'),
+                     '-framerate', '%d' % self.frames_per_sec,
                      '-i', '-', # this used to be /dev/stdin, which is not Windows-friendly
 
                      # output
                      '-vf', 'scale=trunc(iw/2)*2:trunc(ih/2)*2',
                      '-vcodec', 'libx264',
                      '-pix_fmt', 'yuv420p',
+                     '-r', '%d' % self.output_frames_per_sec,
                      self.output_path
                      )
 
