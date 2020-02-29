@@ -2,12 +2,9 @@
 
 import collections
 import copy
-try:
-    from collections.abc import MutableMapping
-except ImportError:
-    from collections import MutableMapping
 
 import numpy as np
+from six.moves.collections_abc import MutableMapping
 
 from gym import spaces
 from gym import ObservationWrapper
