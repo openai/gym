@@ -23,8 +23,8 @@ def convert_observation_to_space(observation):
             for key, value in observation.items()
         ]))
     elif isinstance(observation, np.ndarray):
-        low = np.full(observation.shape, -float('inf'))
-        high = np.full(observation.shape, float('inf'))
+        low = np.full(observation.shape, -float('inf'), dtype=np.float32)
+        high = np.full(observation.shape, float('inf'), dtype=np.float32)
         space = spaces.Box(low, high, dtype=observation.dtype)
     else:
         raise NotImplementedError(type(observation), observation)
@@ -69,7 +69,7 @@ class MujocoEnv(gym.Env):
         self.seed()
 
     def _set_action_space(self):
-        bounds = self.model.actuator_ctrlrange.copy()
+        bounds = self.model.actuator_ctrlrange.copy().astype(np.float32)
         low, high = bounds.T
         self.action_space = spaces.Box(low=low, high=high, dtype=np.float32)
         return self.action_space
