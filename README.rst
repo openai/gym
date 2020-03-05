@@ -160,6 +160,9 @@ We are using `pytest <http://doc.pytest.org>`_ for tests. You can run them via:
 
 What's new
 ==========
+- 2020-03-05 (v 0.17.1)
+   + update cloudpickle dependency to be >=1.2.0,<1.4.0
+
 - 2020-02-21 (v 0.17.0)
    - Drop python 2 support
    + Add python 3.8 build
