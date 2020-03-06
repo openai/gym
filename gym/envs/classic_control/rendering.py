@@ -1,7 +1,6 @@
 """
 2D rendering framework
 """
-from __future__ import division
 import os
 import sys
 
