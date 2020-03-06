@@ -217,7 +217,7 @@ class AsyncVectorEnv(VectorEnv):
             A vector whose entries indicate whether the episode has ended.
 
         infos : list of dict
-            A list of auxiliary diagnostic informations.
+            A list of auxiliary diagnostic information.
         """
         self._assert_is_running()
         if self._state != AsyncState.WAITING_STEP:

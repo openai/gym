@@ -58,7 +58,7 @@ class EnvSpec(object):
             cls = load(self.entry_point)
             env = cls(**_kwargs)
 
-        # Make the enviroment aware of which spec it came from.
+        # Make the environment aware of which spec it came from.
         env.unwrapped.spec = self
 
         return env
