@@ -243,3 +243,9 @@ Learn more here: https://github.com/aigagror/GymGo
 An environment for simulating a wide variety of electric drives taking into account different types of electric motors and converters. Control schemes can be continuous, yielding a voltage duty cycle, or discrete, determining converter switching states directly.
 
 Learn more here: https://github.com/upb-lea/gym-electric-motor
+
+### gym-jiminy: training Robots in Jiminy
+
+gym-jiminy presents an extension of the initial OpenAI gym for robotics using Jiminy, an extremely fast and light weight simulator for poly-articulated systems using Pinocchio for physics evaluation and Meshcat for web-based 3D rendering.
+
+Learn more here: https://github.com/Wandercraft/jiminy
