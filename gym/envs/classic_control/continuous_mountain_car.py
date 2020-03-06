@@ -83,9 +83,6 @@ class Continuous_MountainCarEnv(gym.Env):
         self.state = np.array([self.np_random.uniform(low=-0.6, high=-0.4), 0])
         return np.array(self.state)
 
-#    def get_state(self):
-#        return self.state
-
     def _height(self, xs):
         return np.sin(3 * xs)*.45+.55
 
