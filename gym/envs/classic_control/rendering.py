@@ -349,9 +349,9 @@ class SimpleImageViewer(object):
         assert len(arr.shape) == 3, "You passed in an image with the wrong number shape"
         image = pyglet.image.ImageData(arr.shape[1], arr.shape[0], 
             'RGB', arr.tobytes(), pitch=arr.shape[1]*-3)
+        texture = image.get_texture()
         gl.glTexParameteri(gl.GL_TEXTURE_2D, 
             gl.GL_TEXTURE_MAG_FILTER, gl.GL_NEAREST)
-        texture = image.get_texture()
         texture.width = self.width
         texture.height = self.height
         self.window.clear()
