@@ -107,7 +107,11 @@ class Car:
         self.particles = []
 
     def gas(self, gas):
-        'control: rear wheel drive'
+        """control: rear wheel drive
+
+        Args:
+            gas (float): How much gas gets applied. Gets clipped between 0 and 1.
+        """
         gas = np.clip(gas, 0, 1)
         for w in self.wheels[2:4]:
             diff = gas - w.gas
@@ -115,12 +119,18 @@ class Car:
             w.gas += diff
 
     def brake(self, b):
-        'control: brake b=0..1, more than 0.9 blocks wheels to zero rotation'
+        """control: brake
+
+        Args:
+            b (0..1): Degree to which the brakes are applied. More than 0.9 blocks wheels to zero rotation"""
         for w in self.wheels:
             w.brake = b
 
     def steer(self, s):
-        'control: steer s=-1..1, it takes time to rotate steering wheel from side to side, s is target position'
+        """control: steer
+
+        Args:
+            s (-1..1): target position, it takes time to rotate steering wheel from side to side"""
         self.wheels[0].steer = s
         self.wheels[1].steer = s
 
