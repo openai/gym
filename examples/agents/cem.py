@@ -14,7 +14,6 @@ def cem(f, th_mean, batch_size, n_iter, elite_frac, initial_std=1.0):
     Generic implementation of the cross-entropy method for maximizing a black-box function
 
     Args:
-
         f: a function mapping from vector -> scalar
         th_mean (np.array): initial mean over input distribution
         batch_size (int): number of samples of theta to evaluate per batch
