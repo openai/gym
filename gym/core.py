@@ -199,7 +199,7 @@ class Wrapper(Env):
     some methods to change the behavior of the original environment without touching the
     original code.
 
-    Note:
+    .. note::
 
         Don't forget to call ``super().__init__(env)`` if the subclass overrides :meth:`__init__`.
 
