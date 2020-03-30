@@ -2,7 +2,7 @@ from collections import deque
 import numpy as np
 
 from gym.spaces import Box
-from gym import ObservationWrapper
+from gym import Wrapper
 
 
 class LazyFrames(object):
@@ -42,8 +42,15 @@ class LazyFrames(object):
     def __getitem__(self, i):
         return self.__array__()[i]
 
+    def __eq__(self, other):
+        return self.__array__() == other
 
-class FrameStack(ObservationWrapper):
+    @property
+    def shape(self):
+        return self.__array__().shape
+
+
+class FrameStack(Wrapper):
     r"""Observation wrapper that stacks the observations in a rolling manner. 
 
     For example, if the number of stacks is 4, then the returned observation contains
