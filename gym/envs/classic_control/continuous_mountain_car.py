@@ -81,7 +81,10 @@ class Continuous_MountainCarEnv(gym.Env):
         if (position < self.min_position): position = self.min_position
         if (position == self.min_position and velocity < 0): velocity = 0
 
-        done = position >= self.goal_position and velocity >= self.goal_velocity
+        # Convert a possible numpy bool to a Python bool.
+        done = bool(
+            position >= self.goal_position and velocity >= self.goal_velocity
+        )
 
         reward = 0
         if done:
