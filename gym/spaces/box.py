@@ -26,12 +26,12 @@ class Box(Space):
         self.dtype = np.dtype(dtype)
 
         if shape is None:
-            assert low.shape == high.shape, 'box dimension mismatch. '
+            assert low.shape == high.shape, 'box dimension mismatch.'
             self.shape = low.shape
             self.low = low
             self.high = high
         else:
-            assert np.isscalar(low) and np.isscalar(high), 'box requires scalar bounds. '
+            assert np.isscalar(low) and np.isscalar(high), 'box requires scalar bounds if shape is provided.'
             self.shape = tuple(shape)
             self.low = np.full(self.shape, low)
             self.high = np.full(self.shape, high)
