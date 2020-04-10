@@ -2,7 +2,7 @@ import sys
 from contextlib import closing
 
 import numpy as np
-from six import StringIO, b
+from io import StringIO
 
 from gym import utils
 from gym.envs.toy_text import discrete
