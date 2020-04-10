@@ -37,7 +37,7 @@ environment, and the environment replies with `observations` and
 `rewards` (that is, a score).
 
 The core `gym` interface is `Env <https://github.com/openai/gym/blob/master/gym/core.py>`_, which is
-the unified environment interface. There is no interface for agents;
+the *unified environment interface*. There is no interface for agents;
 that part is left to you. The following are the ``Env`` methods you
 should know:
 
@@ -48,7 +48,7 @@ should know:
 Supported systems
 -----------------
 
-We currently support Linux and OS X running Python 2.7 or 3.5 -- 3.7. 
+We currently support Linux and OS X running Python 3.5 -- 3.8
 Windows support is experimental - algorithmic, toy_text, classic_control and atari *should* work on Windows (see next section for installation instructions); nevertheless, proceed at your own risk.
 
 Installation
@@ -78,7 +78,7 @@ We recommend playing with those environments at first, and then later
 installing the dependencies for the remaining environments.
 
 You can also `run gym on gitpod.io <https://gitpod.io/#https://github.com/openai/gym/blob/master/examples/agents/cem.py>`_ to play with the examples online.  
-In the preview window you can click on the mp4 file you want to view. If you want to view another mp4 file just press the back button and click on another mp4 file. 
+In the preview window you can click on the mp4 file you want to view. If you want to view another mp4 file, just press the back button and click on another mp4 file. 
 
 Installing everything
 ---------------------
@@ -160,6 +160,20 @@ We are using `pytest <http://doc.pytest.org>`_ for tests. You can run them via:
 
 What's new
 ==========
+- 2020-03-05 (v 0.17.1)
+   + update cloudpickle dependency to be >=1.2.0,<1.4.0
+
+- 2020-02-21 (v 0.17.0)
+   - Drop python 2 support
+   + Add python 3.8 build
+
+- 2020-02-09 (v 0.16.0)
+   + EnvSpec API change - remove tags field (retro-active version bump, the changes are actually already in the codebase since 0.15.5 - thanks @wookayin for keeping us in check!)
+
+- 2020-02-03 (v0.15.6)
+   + pyglet 1.4 compatibility (this time for real :))
+   + Fixed the bug in BipedalWalker and BipedalWalkerHardcore, bumped version to 3 (thanks @chozabu!)
+
 - 2020-01-24 (v0.15.5)
     + pyglet 1.4 compatibility
     - remove python-opencv from the requirements

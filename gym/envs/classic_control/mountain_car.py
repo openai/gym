@@ -27,8 +27,8 @@ class MountainCarEnv(gym.Env):
         self.force=0.001
         self.gravity=0.0025
 
-        self.low = np.array([self.min_position, -self.max_speed])
-        self.high = np.array([self.max_position, self.max_speed])
+        self.low = np.array([self.min_position, -self.max_speed], dtype=np.float32)
+        self.high = np.array([self.max_position, self.max_speed], dtype=np.float32)
 
         self.viewer = None
 

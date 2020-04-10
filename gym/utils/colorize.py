@@ -21,15 +21,10 @@ def colorize(string, color, bold=False, highlight = False):
     blue, magenta, cyan, white, crimson
     """
 
-    # Import six here so that `utils` has no import-time dependencies.
-    # We want this since we use `utils` during our import-time sanity checks
-    # that verify that our dependencies (including six) are actually present.
-    import six
-
     attr = []
     num = color2num[color]
     if highlight: num += 10
-    attr.append(six.u(str(num)))
-    if bold: attr.append(six.u('1'))
-    attrs = six.u(';').join(attr)
-    return six.u('\x1b[%sm%s\x1b[0m') % (attrs, string)
+    attr.append(str(num))
+    if bold: attr.append('1')
+    attrs = ';'.join(attr)
+    return '\x1b[%sm%s\x1b[0m' % (attrs, string)

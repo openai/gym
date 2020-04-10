@@ -38,8 +38,8 @@ class Continuous_MountainCarEnv(gym.Env):
         self.goal_velocity = goal_velocity
         self.power = 0.0015
 
-        self.low_state = np.array([self.min_position, -self.max_speed])
-        self.high_state = np.array([self.max_position, self.max_speed])
+        self.low_state = np.array([self.min_position, -self.max_speed], dtype=np.float32)
+        self.high_state = np.array([self.max_position, self.max_speed], dtype=np.float32)
 
         self.viewer = None
 
@@ -82,9 +82,6 @@ class Continuous_MountainCarEnv(gym.Env):
     def reset(self):
         self.state = np.array([self.np_random.uniform(low=-0.6, high=-0.4), 0])
         return np.array(self.state)
-
-#    def get_state(self):
-#        return self.state
 
     def _height(self, xs):
         return np.sin(3 * xs)*.45+.55
