@@ -20,6 +20,13 @@ def cem(f, th_mean, batch_size, n_iter, elite_frac, initial_std=1.0):
         n_iter (int): number of batches
         elite_frac (float): each batch, select this fraction of the top-performing samples
         initial_std (float): initial standard deviation over parameter vectors
+
+    returns:
+        A generator of dicts. Subsequent dicts correspond to iterations of CEM algorithm.
+        The dicts contain the following values:
+        'ys' :  numpy array with values of function evaluated at current population
+        'ys_mean': mean value of function over current population
+        'theta_mean': mean value of the parameter vector over current population
     """
     n_elite = int(np.round(batch_size*elite_frac))
     th_std = np.ones_like(th_mean) * initial_std
