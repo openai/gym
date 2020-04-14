@@ -27,7 +27,6 @@ class Env(object):
     Note: a default reward range set to [-inf,+inf] already exists. Set it if you want a narrower range.
 
     The methods are accessed publicly as "step", "reset", etc...
-    The non-underscored versions are wrapper methods to which we may add functionality over time.
     """
     # Set this in SOME subclasses
     metadata = {'render.modes': []}
