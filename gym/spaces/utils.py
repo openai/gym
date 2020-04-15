@@ -9,6 +9,12 @@ from gym.spaces import Dict
 
 
 def flatdim(space):
+    """Return the number of dimensions a flattened equivalent of this space
+    would have.
+
+    Accepts a space and returns an integer. Raises ``NotImplementedError`` if
+    the space is not defined in ``gym.spaces``.
+    """
     if isinstance(space, Box):
         return int(np.prod(space.shape))
     elif isinstance(space, Discrete):
@@ -26,6 +32,15 @@ def flatdim(space):
 
 
 def flatten(space, x):
+    """Flatten a data point from a space.
+
+    This is useful when e.g. points from spaces must be passed to a neural
+    network, which only understands flat arrays of floats.
+
+    Accepts a space and a point from that space. Always returns a 1D array.
+    Raises ``NotImplementedError`` if the space is not defined in
+    ``gym.spaces``.
+    """
     if isinstance(space, Box):
         return np.asarray(x, dtype=np.float32).flatten()
     elif isinstance(space, Discrete):
@@ -45,6 +60,15 @@ def flatten(space, x):
 
 
 def unflatten(space, x):
+    """Unflatten a data point from a space.
+
+    This reverses the transformation applied by ``flatten()``. You must ensure
+    that the ``space`` argument is the same as for the ``flatten()`` call.
+
+    Accepts a space and a flattened point. Returns a point with a structure
+    that matches the space. Raises ``NotImplementedError`` if the space is not
+    defined in ``gym.spaces``.
+    """
     if isinstance(space, Box):
         return np.asarray(x, dtype=np.float32).reshape(space.shape)
     elif isinstance(space, Discrete):
