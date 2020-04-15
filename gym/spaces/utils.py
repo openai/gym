@@ -76,13 +76,13 @@ def unflatten(space, x):
     elif isinstance(space, Tuple):
         dims = [flatdim(s) for s in space.spaces]
         list_flattened = np.split(x, np.cumsum(dims)[:-1])
-        list_unflattened = [unflatten(s, flattened) 
+        list_unflattened = [unflatten(s, flattened)
                             for flattened, s in zip(list_flattened, space.spaces)]
         return tuple(list_unflattened)
     elif isinstance(space, Dict):
         dims = [flatdim(s) for s in space.spaces.values()]
         list_flattened = np.split(x, np.cumsum(dims)[:-1])
-        list_unflattened = [(key, unflatten(s, flattened)) 
+        list_unflattened = [(key, unflatten(s, flattened))
                             for flattened, (key, s) in zip(list_flattened, space.spaces.items())]
         return dict(list_unflattened)
     elif isinstance(space, MultiBinary):
