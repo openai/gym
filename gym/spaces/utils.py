@@ -91,3 +91,41 @@ def unflatten(space, x):
         return np.asarray(x).reshape(space.shape)
     else:
         raise NotImplementedError
+
+
+def flatten_space(space):
+    """Flatten a space into a single ``Box``.
+
+    This is equivalent to ``flatten()``, but operates on the space itself. The
+    result always is a `Box` with flat boundaries. The box has exactly
+    ``flatdim(space)`` dimensions.
+
+    Raises ``NotImplementedError`` if the space is not defined in
+    ``gym.spaces``.
+    """
+    if isinstance(space, Box):
+        return Box(space.low.flatten(), space.high.flatten())
+    if isinstance(space, Discrete):
+        return Box(low=0, high=1, shape=(space.n, ))
+    if isinstance(space, Tuple):
+        space = [flatten_space(s) for s in space.spaces]
+        return Box(
+            low=np.concatenate([s.low for s in space]),
+            high=np.concatenate([s.high for s in space]),
+        )
+    if isinstance(space, Dict):
+        space = [flatten_space(s) for s in space.spaces.values()]
+        return Box(
+            low=np.concatenate([s.low for s in space]),
+            high=np.concatenate([s.high for s in space]),
+        )
+    if isinstance(space, MultiBinary):
+        return Box(low=0, high=1, shape=(space.n, ))
+    if isinstance(space, MultiDiscrete):
+        return Box(
+            low=np.zeros_like(space.nvec),
+            high=space.nvec,
+        )
+    raise NotImplementedError
+
+

@@ -33,6 +33,45 @@ def test_flatdim(space, flatdim):
     Dict({"position": Discrete(5),
           "velocity": Box(low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32)}),
     ])
+def test_flatten_space_boxes(space):
+    flat_space = utils.flatten_space(space)
+    assert isinstance(flat_space, Box), "Expected {} to equal {}".format(type(flat_space), Box)
+    flatdim = utils.flatdim(space)
+    (single_dim, ) = flat_space.shape
+    assert single_dim == flatdim, "Expected {} to equal {}".format(single_dim, flatdim)
+
+
+@pytest.mark.parametrize("space", [
+    Discrete(3),
+    Box(low=0., high=np.inf, shape=(2, 2)),
+    Tuple([Discrete(5), Discrete(10)]),
+    Tuple([Discrete(5), Box(low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32)]),
+    Tuple((Discrete(5), Discrete(2), Discrete(2))),
+    MultiDiscrete([2, 2, 100]),
+    MultiBinary(10),
+    Dict({"position": Discrete(5),
+          "velocity": Box(low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32)}),
+    ])
+def test_flat_space_contains_flat_points(space):
+    some_samples = [space.sample() for _ in range(10)]
+    flattened_samples = [utils.flatten(space, sample) for sample in some_samples]
+    flat_space = utils.flatten_space(space)
+    for i, flat_sample in enumerate(flattened_samples):
+        assert flat_sample in flat_space,\
+            'Expected sample #{} {} to be in {}'.format(i, flat_sample, flat_space)
+
+
+@pytest.mark.parametrize("space", [
+    Discrete(3),
+    Box(low=0., high=np.inf, shape=(2, 2)),
+    Tuple([Discrete(5), Discrete(10)]),
+    Tuple([Discrete(5), Box(low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32)]),
+    Tuple((Discrete(5), Discrete(2), Discrete(2))),
+    MultiDiscrete([2, 2, 100]),
+    MultiBinary(10),
+    Dict({"position": Discrete(5),
+          "velocity": Box(low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32)}),
+    ])
 def test_flatten_dim(space):
     sample = utils.flatten(space, space.sample())
     (single_dim, ) = sample.shape
