@@ -103,11 +103,11 @@ def compare_nested(left, right):
     if isinstance(left, np.ndarray) and isinstance(right, np.ndarray):
         return np.allclose(left, right)
     elif isinstance(left, OrderedDict) and isinstance(right, OrderedDict):
-        res = left.keys() == right.keys()
-        for key in left:
+        res = len(left) == len(right)
+        for ((left_key, left_value), (right_key, right_value)) in zip(left.items(), right.items()):
             if not res:
                 return False
-            res = compare_nested(left[key], right[key])
+            res = left_key == right_key and compare_nested(left_value, right_value)
         return res
     elif isinstance(left, (tuple, list)) and isinstance(right, (tuple, list)):
         res = len(left) == len(right)
