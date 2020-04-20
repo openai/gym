@@ -1,3 +1,31 @@
+"""
+Rocket trajectory optimization is a classic topic in Optimal Control.
+
+According to Pontryagin's maximum principle it's optimal to fire engine full throttle or
+turn it off. That's the reason this environment is OK to have discreet actions (engine on or off).
+
+The landing pad is always at coordinates (0,0). The coordinates are the first two numbers in the state vector.
+Reward for moving from the top of the screen to the landing pad and zero speed is about 100..140 points.
+If the lander moves away from the landing pad it loses reward. The episode finishes if the lander crashes or
+comes to rest, receiving an additional -100 or +100 points. Each leg with ground contact is +10 points.
+Firing the main engine is -0.3 points each frame. Firing the side engine is -0.03 points each frame.
+Solved is 200 points.
+
+Landing outside the landing pad is possible. Fuel is infinite, so an agent can learn to fly and then land
+on its first attempt. Please see the source code for details.
+
+To see a heuristic landing, run:
+
+python gym/envs/box2d/lunar_lander.py
+
+To play yourself, run:
+
+python examples/agents/keyboard_agent.py LunarLander-v2
+
+Created by Oleg Klimov. Licensed on the same terms as the rest of OpenAI Gym.
+"""
+
+
 import sys, math
 import numpy as np
 
@@ -7,30 +35,6 @@ from Box2D.b2 import (edgeShape, circleShape, fixtureDef, polygonShape, revolute
 import gym
 from gym import spaces
 from gym.utils import seeding, EzPickle
-
-# Rocket trajectory optimization is a classic topic in Optimal Control.
-#
-# According to Pontryagin's maximum principle it's optimal to fire engine full throttle or
-# turn it off. That's the reason this environment is OK to have discreet actions (engine on or off).
-#
-# Landing pad is always at coordinates (0,0). Coordinates are the first two numbers in state vector.
-# Reward for moving from the top of the screen to landing pad and zero speed is about 100..140 points.
-# If lander moves away from landing pad it loses reward. Episode finishes if the lander crashes or
-# comes to rest, receiving additional -100 or +100 points. Each leg with ground contact is +10 points. Firing main
-# engine is -0.3 points each frame. Firing side engine is -0.03 points each frame. Solved is 200 points.
-#
-# Landing outside the landing pad is possible. Fuel is infinite, so an agent can learn to fly and then land
-# on its first attempt. Please see source code for details.
-#
-# To see heuristic landing, run:
-#
-# python gym/envs/box2d/lunar_lander.py
-#
-# To play yourself, run:
-#
-# python examples/agents/keyboard_agent.py LunarLander-v2
-#
-# Created by Oleg Klimov. Licensed on the same terms as the rest of OpenAI Gym.
 
 FPS = 50
 SCALE = 30.0   # affects how fast-paced the game is, forces should be adjusted as well
@@ -54,6 +58,7 @@ SIDE_ENGINE_AWAY = 12.0
 
 VIEWPORT_W = 600
 VIEWPORT_H = 400
+
 
 class ContactDetector(contactListener):
     def __init__(self, env):
@@ -138,7 +143,7 @@ class LunarLander(gym.Env, EzPickle):
         chunk_x = [W/(CHUNKS-1)*i for i in range(CHUNKS)]
         self.helipad_x1 = chunk_x[CHUNKS//2-1]
         self.helipad_x2 = chunk_x[CHUNKS//2+1]
-        self.helipad_y  = H/4
+        self.helipad_y = H/4
         height[CHUNKS//2-2] = self.helipad_y
         height[CHUNKS//2-1] = self.helipad_y
         height[CHUNKS//2+0] = self.helipad_y
@@ -374,6 +379,7 @@ class LunarLander(gym.Env, EzPickle):
         if self.viewer is not None:
             self.viewer.close()
             self.viewer = None
+
 
 class LunarLanderContinuous(LunarLander):
     continuous = True
