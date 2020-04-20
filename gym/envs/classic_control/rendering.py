@@ -1,9 +1,7 @@
 """
 2D rendering framework
 """
-from __future__ import division
 import os
-import six
 import sys
 
 if "Apple" in sys.version:
@@ -46,7 +44,7 @@ def get_display(spec):
     """
     if spec is None:
         return None
-    elif isinstance(spec, six.string_types):
+    elif isinstance(spec, str):
         return pyglet.canvas.Display(spec)
     else:
         raise error.Error('Invalid display specification: {}. (Must be a string like :0 or None.)'.format(spec))

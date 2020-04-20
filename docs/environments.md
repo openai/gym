@@ -244,6 +244,12 @@ An environment for simulating a wide variety of electric drives taking into acco
 
 Learn more here: https://github.com/upb-lea/gym-electric-motor
 
+### NASGym: gym environment for Neural Architecture Search (NAS)
+
+The environment is fully-compatible with the OpenAI baselines and exposes a NAS environment following the Neural Structure Code of [BlockQNN: Efficient Block-wise Neural Network Architecture Generation](https://arxiv.org/abs/1808.05584). Under this setting, a Neural Network (i.e. the state for the reinforcement learning agent) is modeled as a list of NSCs, an action is the addition of a layer to the network, and the reward is the accuracy after the early-stop training. The datasets considered so far are the CIFAR-10 dataset (available by default) and the meta-dataset (has to be manually downloaded as specified in [this repository](https://github.com/gomerudo/meta-dataset)).
+
+Learn more here: https://github.com/gomerudo/nas-env
+
 ### gym-jiminy: training Robots in Jiminy
 
 gym-jiminy presents an extension of the initial OpenAI gym for robotics using Jiminy, an extremely fast and light weight simulator for poly-articulated systems using Pinocchio for physics evaluation and Meshcat for web-based 3D rendering.
