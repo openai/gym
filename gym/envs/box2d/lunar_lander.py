@@ -135,7 +135,7 @@ class LunarLander(gym.Env, EzPickle):
         # terrain
         CHUNKS = 11
         height = self.np_random.uniform(0, H/2, size=(CHUNKS+1,))
-        chunk_x  = [W/(CHUNKS-1)*i for i in range(CHUNKS)]
+        chunk_x = [W/(CHUNKS-1)*i for i in range(CHUNKS)]
         self.helipad_x1 = chunk_x[CHUNKS//2-1]
         self.helipad_x2 = chunk_x[CHUNKS//2+1]
         self.helipad_y  = H/4
@@ -169,8 +169,8 @@ class LunarLander(gym.Env, EzPickle):
                 density=5.0,
                 friction=0.1,
                 categoryBits=0x0010,
-                maskBits=0x001,  # collide only with ground
-                restitution=0.0) # 0.99 bouncy
+                maskBits=0x001,   # collide only with ground
+                restitution=0.0)  # 0.99 bouncy
                 )
         self.lander.color1 = (0.5, 0.4, 0.9)
         self.lander.color2 = (0.3, 0.3, 0.5)
@@ -258,13 +258,13 @@ class LunarLander(gym.Env, EzPickle):
             else:
                 m_power = 1.0
             ox = (tip[0] * (4/SCALE + 2 * dispersion[0]) +
-                  side[0] * dispersion[1]) # 4 is move a bit downwards, +-2 for randomness
+                  side[0] * dispersion[1])  # 4 is move a bit downwards, +-2 for randomness
             oy = -tip[1] * (4/SCALE + 2 * dispersion[0]) - side[1] * dispersion[1]
             impulse_pos = (self.lander.position[0] + ox, self.lander.position[1] + oy)
-            p = self._create_particle(3.5, # 3.5 is here to make particle speed adequate
+            p = self._create_particle(3.5,  # 3.5 is here to make particle speed adequate
                                       impulse_pos[0],
                                       impulse_pos[1],
-                                      m_power) # particles are just a decoration
+                                      m_power)  # particles are just a decoration
             p.ApplyLinearImpulse((ox * MAIN_ENGINE_POWER * m_power, oy * MAIN_ENGINE_POWER * m_power),
                                  impulse_pos,
                                  True)
@@ -314,13 +314,13 @@ class LunarLander(gym.Env, EzPickle):
         shaping = \
             - 100*np.sqrt(state[0]*state[0] + state[1]*state[1]) \
             - 100*np.sqrt(state[2]*state[2] + state[3]*state[3]) \
-            - 100*abs(state[4]) + 10*state[6] + 10*state[7] # And ten points for legs contact, the idea is if you
-                                                            # lose contact again after landing, you get negative reward
+            - 100*abs(state[4]) + 10*state[6] + 10*state[7]  # And ten points for legs contact, the idea is if you
+                                                             # lose contact again after landing, you get negative reward
         if self.prev_shaping is not None:
             reward = shaping - self.prev_shaping
         self.prev_shaping = shaping
 
-        reward -= m_power*0.30  # less fuel spent is better, about -30 for heurisic landing
+        reward -= m_power*0.30  # less fuel spent is better, about -30 for heuristic landing
         reward -= s_power*0.03
 
         done = False
