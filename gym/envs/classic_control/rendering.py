@@ -49,13 +49,25 @@ def get_display(spec):
     else:
         raise error.Error('Invalid display specification: {}. (Must be a string like :0 or None.)'.format(spec))
 
+def get_window(width, height, display):
+    """
+    Will create a pyglet window from the display specification provided.
+    """
+    if display != None:
+        screen = display.get_screens() #available screens
+        config = screen[0].get_best_config() #selecting the first screen
+        context = config.create_context(None) #create GL context
+        return pyglet.window.Window(width=width, height=height, display=display, config=config, context=context)
+    else:
+        return pyglet.window.Window(width=width, height=height, display=display)
+
 class Viewer(object):
     def __init__(self, width, height, display=None):
         display = get_display(display)
 
         self.width = width
         self.height = height
-        self.window = pyglet.window.Window(width=width, height=height, display=display)
+        self.window = get_window(width=width, height=height, display=display)
         self.window.on_close = self.window_closed_by_user
         self.isopen = True
         self.geoms = []
@@ -329,8 +341,8 @@ class SimpleImageViewer(object):
                 scale = self.maxwidth / width
                 width = int(scale * width)
                 height = int(scale * height)
-            self.window = pyglet.window.Window(width=width, height=height, 
-                display=self.display, vsync=False, resizable=True)            
+            self.window = pyglet.window.Window(width=width, height=height,
+                display=self.display, vsync=False, resizable=True)
             self.width = width
             self.height = height
             self.isopen = True
@@ -345,9 +357,9 @@ class SimpleImageViewer(object):
                 self.isopen = False
 
         assert len(arr.shape) == 3, "You passed in an image with the wrong number shape"
-        image = pyglet.image.ImageData(arr.shape[1], arr.shape[0], 
+        image = pyglet.image.ImageData(arr.shape[1], arr.shape[0],
             'RGB', arr.tobytes(), pitch=arr.shape[1]*-3)
-        gl.glTexParameteri(gl.GL_TEXTURE_2D, 
+        gl.glTexParameteri(gl.GL_TEXTURE_2D,
             gl.GL_TEXTURE_MAG_FILTER, gl.GL_NEAREST)
         texture = image.get_texture()
         texture.width = self.width
