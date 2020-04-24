@@ -11,12 +11,20 @@ def cem(f, th_mean, batch_size, n_iter, elite_frac, initial_std=1.0):
     """
     Generic implementation of the cross-entropy method for maximizing a black-box function
 
-    f: a function mapping from vector -> scalar
-    th_mean: initial mean over input distribution
-    batch_size: number of samples of theta to evaluate per batch
-    n_iter: number of batches
-    elite_frac: each batch, select this fraction of the top-performing samples
-    initial_std: initial standard deviation over parameter vectors
+    Args:
+        f: a function mapping from vector -> scalar
+        th_mean (np.array): initial mean over input distribution
+        batch_size (int): number of samples of theta to evaluate per batch
+        n_iter (int): number of batches
+        elite_frac (float): each batch, select this fraction of the top-performing samples
+        initial_std (float): initial standard deviation over parameter vectors
+
+    returns:
+        A generator of dicts. Subsequent dicts correspond to iterations of CEM algorithm.
+        The dicts contain the following values:
+        'ys' :  numpy array with values of function evaluated at current population
+        'ys_mean': mean value of function over current population
+        'theta_mean': mean value of the parameter vector over current population
     """
     n_elite = int(np.round(batch_size*elite_frac))
     th_std = np.ones_like(th_mean) * initial_std

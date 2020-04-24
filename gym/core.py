@@ -6,7 +6,7 @@ env_closer = closer.Closer()
 
 
 class Env(object):
-    r"""The main OpenAI Gym class. It encapsulates an environment with
+    """The main OpenAI Gym class. It encapsulates an environment with
     arbitrary behind-the-scenes dynamics. An environment can be
     partially or fully observed.
 
@@ -26,9 +26,7 @@ class Env(object):
 
     Note: a default reward range set to [-inf,+inf] already exists. Set it if you want a narrower range.
 
-    The methods are accessed publicly as "step", "reset", etc.. The
-    non-underscored versions are wrapper methods to which we may add
-    functionality over time.
+    The methods are accessed publicly as "step", "reset", etc...
     """
     # Set this in SOME subclasses
     metadata = {'render.modes': []}
@@ -174,9 +172,9 @@ class GoalEnv(Env):
 
     def compute_reward(self, achieved_goal, desired_goal, info):
         """Compute the step reward. This externalizes the reward function and makes
-        it dependent on an a desired goal and the one that was achieved. If you wish to include
+        it dependent on a desired goal and the one that was achieved. If you wish to include
         additional rewards that are independent of the goal, you can include the necessary values
-        to derive it in info and compute it accordingly.
+        to derive it in 'info' and compute it accordingly.
 
         Args:
             achieved_goal (object): the goal that was achieved during execution
@@ -194,7 +192,7 @@ class GoalEnv(Env):
 
 
 class Wrapper(Env):
-    r"""Wraps the environment to allow a modular transformation.
+    """Wraps the environment to allow a modular transformation.
 
     This class is the base class for all wrappers. The subclass could override
     some methods to change the behavior of the original environment without touching the
