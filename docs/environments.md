@@ -244,6 +244,12 @@ An environment for simulating a wide variety of electric drives taking into acco
 
 Learn more here: https://github.com/upb-lea/gym-electric-motor
 
+### openmodelica-microgrid-gym: Intelligent control of microgrids 
+
+The OpenModelica Microgrid Gym (OMG) package is a software toolbox for the simulation and control optimization of microgrids based on energy conversion by power electronic converters.
+
+Learn more here: https://github.com/upb-lea/openmodelica-microgrid-gym
+
 ### NASGym: gym environment for Neural Architecture Search (NAS)
 
 The environment is fully-compatible with the OpenAI baselines and exposes a NAS environment following the Neural Structure Code of [BlockQNN: Efficient Block-wise Neural Network Architecture Generation](https://arxiv.org/abs/1808.05584). Under this setting, a Neural Network (i.e. the state for the reinforcement learning agent) is modeled as a list of NSCs, an action is the addition of a layer to the network, and the reward is the accuracy after the early-stop training. The datasets considered so far are the CIFAR-10 dataset (available by default) and the meta-dataset (has to be manually downloaded as specified in [this repository](https://github.com/gomerudo/meta-dataset)).
