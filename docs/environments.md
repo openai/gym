@@ -267,3 +267,9 @@ Learn more here: https://github.com/eleurent/highway-env
 gym-carla provides a gym wrapper for the [CARLA simulator](http://carla.org/), which is a realistic 3D simulator for autonomous driving research. The environment includes a virtual city with several surrounding vehicles running around. Multiple source of observations are provided for the ego vehicle, such as front-view camera image, lidar point cloud image, and birdeye view semantic mask. Several applications have been developed based on this wrapper, such as deep reinforcement learning for end-to-end autonomous driving.
 
 Learn more here: https://github.com/cjy1992/gym-carla
+
+### openmodelica-microgrid-gym: Intelligent control of microgrids 
+
+The OpenModelica Microgrid Gym (OMG) package is a software toolbox for the simulation and control optimization of microgrids based on energy conversion by power electronic converters.
+
+Learn more here: https://github.com/upb-lea/openmodelica-microgrid-gym
