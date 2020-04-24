@@ -329,7 +329,7 @@ class ImageEncoder(object):
                 self.proc.stdin.write(frame.tostring())
         except Exception as e:
             stdout, stderr = self.proc.communicate()
-            logger.error("VideoRecorder encoder failed: %s" % stderr)
+            logger.error("VideoRecorder encoder failed: %s", stderr)
 
     def close(self):
         self.proc.stdin.close()
