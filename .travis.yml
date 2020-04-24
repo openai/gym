@@ -13,8 +13,7 @@ env:
 
 install: "" # so travis doesn't do pip install requirements.txt
 script:
-  # - docker build -f py.Dockerfile --build-arg MUJOCO_KEY=$MUJOCO_KEY --build-arg PYTHON_VER=$PY_VER -t gym-test .
-  - docker build -f py.Dockerfile --build-arg PYTHON_VER=$PY_VER -t gym-test .
+  - docker build -f py.Dockerfile --build-arg MUJOCO_KEY=$MUJOCO_KEY --build-arg PYTHON_VER=$PY_VER -t gym-test .
   - docker run gym-test 
 
 deploy:
