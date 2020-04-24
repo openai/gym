@@ -44,6 +44,11 @@ def test_spec():
     spec = envs.spec('CartPole-v0')
     assert spec.id == 'CartPole-v0'
 
+def test_spec_with_kwargs():
+    map_name_value = '8x8'
+    env = gym.make('FrozenLake-v0', map_name=map_name_value)
+    assert env.spec._kwargs['map_name'] == map_name_value
+
 def test_missing_lookup():
     registry = registration.EnvRegistry()
     registry.register(id='Test-v0', entry_point=None)
