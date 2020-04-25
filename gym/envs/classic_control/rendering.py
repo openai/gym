@@ -43,7 +43,9 @@ def get_display(spec):
     Pyglet only supports multiple Displays on Linux.
     """
     if spec is None:
-        return None
+        return pyglet.canvas.get_display()
+        # returns already available pyglet_display,
+        # if there is no pyglet display available then it creates one
     elif isinstance(spec, str):
         return pyglet.canvas.Display(spec)
     else:
@@ -53,13 +55,11 @@ def get_window(width, height, display):
     """
     Will create a pyglet window from the display specification provided.
     """
-    if display != None:
-        screen = display.get_screens() #available screens
-        config = screen[0].get_best_config() #selecting the first screen
-        context = config.create_context(None) #create GL context
-        return pyglet.window.Window(width=width, height=height, display=display, config=config, context=context)
-    else:
-        return pyglet.window.Window(width=width, height=height, display=display)
+    screen = display.get_screens() #available screens
+    config = screen[0].get_best_config() #selecting the first screen
+    context = config.create_context(None) #create GL context
+
+    return pyglet.window.Window(width=width, height=height, display=display, config=config, context=context)
 
 class Viewer(object):
     def __init__(self, width, height, display=None):
