@@ -1,20 +1,13 @@
 import argparse
-import sys
 
 import gym
 from gym import wrappers, logger
-
-class RandomAgent(object):
-    """The world's simplest agent!"""
-    def __init__(self, action_space):
-        self.action_space = action_space
-
-    def act(self, observation, reward, done):
-        return self.action_space.sample()
+from gym.agents import RandomAgent
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=None)
-    parser.add_argument('env_id', nargs='?', default='CartPole-v0', help='Select the environment to run')
+    parser.add_argument('env_id', nargs='?', default='CartPole-v0',
+                        help='Select the environment to run')
     args = parser.parse_args()
 
     # You can set the level to logger.DEBUG or logger.WARN if you

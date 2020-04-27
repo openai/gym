@@ -199,6 +199,12 @@ register(
     max_episode_steps=200,
 )
 
+register(
+    id='TicTacToe-v0',
+    entry_point='gym.envs.toy_text:TicTacToe',
+    max_episode_steps=200,
+)
+
 # Mujoco
 # ----------------------------------------
 
