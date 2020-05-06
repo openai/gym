@@ -110,6 +110,27 @@ def flatten_space(space):
 
     Raises ``NotImplementedError`` if the space is not defined in
     ``gym.spaces``.
+
+    Example::
+
+        >>> box = Box(0.0, 1.0, shape=(3, 4, 5))
+        >>> box
+        Box(3, 4, 5)
+        >>> flatten_space(box)
+        Box(60,)
+
+    Example that flattens a discrete space::
+
+        >>> discrete = Discrete(5)
+        >>> flatten_space(discrete)
+        Box(5,)
+
+    Example that recursively flattens a dict::
+
+        >>> space = Dict({"position": Discrete(2),
+        ...               "velocity": Box(0, 1, shape=(2, 2))})
+        >>> flatten_space(space)
+        Box(6,)
     """
     if isinstance(space, Box):
         return Box(space.low.flatten(), space.high.flatten())
