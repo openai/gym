@@ -106,7 +106,8 @@ def flatten_space(space):
 
     This is equivalent to ``flatten()``, but operates on the space itself. The
     result always is a `Box` with flat boundaries. The box has exactly
-    ``flatdim(space)`` dimensions.
+    ``flatdim(space)`` dimensions. Flattening a sample of the original space
+    has the same effect as taking a sample of the flattenend space.
 
     Raises ``NotImplementedError`` if the space is not defined in
     ``gym.spaces``.
@@ -118,12 +119,16 @@ def flatten_space(space):
         Box(3, 4, 5)
         >>> flatten_space(box)
         Box(60,)
+        >>> flatten(box, box.sample()) in flatten_space(box)
+        True
 
     Example that flattens a discrete space::
 
         >>> discrete = Discrete(5)
         >>> flatten_space(discrete)
         Box(5,)
+        >>> flatten(box, box.sample()) in flatten_space(box)
+        True
 
     Example that recursively flattens a dict::
 
@@ -131,6 +136,8 @@ def flatten_space(space):
         ...               "velocity": Box(0, 1, shape=(2, 2))})
         >>> flatten_space(space)
         Box(6,)
+        >>> flatten(space, space.sample()) in flatten_space(space)
+        True
     """
     if isinstance(space, Box):
         return Box(space.low.flatten(), space.high.flatten())
