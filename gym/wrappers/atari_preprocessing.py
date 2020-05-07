@@ -94,14 +94,14 @@ class AtariPreprocessing(gym.Wrapper):
                 break
             if t == self.frame_skip - 2:
                 if self.grayscale_obs:
-                    self.ale.getScreenGrayscale(self.obs_buffer[0])
-                else:
-                    self.ale.getScreenRGB2(self.obs_buffer[0])
-            elif t == self.frame_skip - 1:
-                if self.grayscale_obs:
                     self.ale.getScreenGrayscale(self.obs_buffer[1])
                 else:
                     self.ale.getScreenRGB2(self.obs_buffer[1])
+            elif t == self.frame_skip - 1:
+                if self.grayscale_obs:
+                    self.ale.getScreenGrayscale(self.obs_buffer[0])
+                else:
+                    self.ale.getScreenRGB2(self.obs_buffer[0])
         return self._get_obs(), R, done, info
 
     def reset(self, **kwargs):
