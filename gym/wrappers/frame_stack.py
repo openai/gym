@@ -6,14 +6,17 @@ from gym import Wrapper
 
 
 class LazyFrames(object):
-    r"""Ensures common frames are only stored once to optimize memory use. 
+    r"""Ensures common frames are only stored once to optimize memory use.
 
-    To further reduce the memory use, it is optionally to turn on lz4 to 
+    To further reduce the memory use, it is optionally to turn on lz4 to
     compress the observations.
 
     .. note::
 
-        This object should only be converted to numpy array just before forward pass. 
+        This object should only be converted to numpy array just before forward pass.
+
+    Args:
+        lz4_compress (bool): use lz4 to compress the frames internally
 
     """
     def __init__(self, frames, lz4_compress=False):
@@ -49,14 +52,22 @@ class LazyFrames(object):
     def shape(self):
         return self.__array__().shape
 
+    @property
+    def last_frame(self):
+        frame = self._frames[-1]
+        if self.lz4_compress:
+            from lz4.block import decompress
+            frame = np.frombuffer(decompress(frame), dtype=self.dtype).reshape(self.frame_shape)
+        return frame
+
 
 class FrameStack(Wrapper):
-    r"""Observation wrapper that stacks the observations in a rolling manner. 
+    r"""Observation wrapper that stacks the observations in a rolling manner.
 
     For example, if the number of stacks is 4, then the returned observation contains
     the most recent 4 observations. For environment 'Pendulum-v0', the original observation
     is an array with shape [3], so if we stack 4 observations, the processed observation
-    has shape [3, 4]. 
+    has shape [4, 3].
 
     .. note::
 
@@ -65,7 +76,7 @@ class FrameStack(Wrapper):
     .. note::
 
         The observation space must be `Box` type. If one uses `Dict`
-        as observation space, it should apply `FlattenDictWrapper` at first. 
+        as observation space, it should apply `FlattenDictWrapper` at first.
 
     Example::
 
@@ -78,6 +89,7 @@ class FrameStack(Wrapper):
     Args:
         env (Env): environment object
         num_stack (int): number of stacks
+        lz4_compress (bool): use lz4 to compress the frames internally
 
     """
     def __init__(self, env, num_stack, lz4_compress=False):
