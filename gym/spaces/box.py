@@ -40,10 +40,10 @@ class Box(Space):
             raise ValueError("shape must be provided or inferred from the shapes of low or high")
 
         if np.isscalar(low):
-            low = np.full(shape, low)
+            low = np.full(shape, low, dtype=dtype)
 
         if np.isscalar(high):
-            high = np.full(shape, high)
+            high = np.full(shape, high, dtype=dtype)
 
         self.shape = shape
         self.low = low

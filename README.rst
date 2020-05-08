@@ -160,6 +160,11 @@ We are using `pytest <http://doc.pytest.org>`_ for tests. You can run them via:
 
 What's new
 ==========
+- 2020-05-08 (v 0.17.2)
+   - remove unnecessary precision warning when creating Box with scalar bounds - thanks @johannespitz!
+   - remove six from the dependencies
+   + FetchEnv sample goal range can be specified through kwargs - thanks @YangRui2015!
+
 - 2020-03-05 (v 0.17.1)
    + update cloudpickle dependency to be >=1.2.0,<1.4.0
 
