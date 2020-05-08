@@ -4,7 +4,6 @@ Hashed str representation of objects
 """
 
 
-from __future__ import unicode_literals
 import json
 import hashlib
 import os

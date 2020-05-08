@@ -1,4 +1,3 @@
-from __future__ import division
 from gym.envs.algorithmic import algorithmic_env
 
 

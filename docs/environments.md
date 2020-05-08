@@ -244,6 +244,12 @@ An environment for simulating a wide variety of electric drives taking into acco
 
 Learn more here: https://github.com/upb-lea/gym-electric-motor
 
+### NASGym: gym environment for Neural Architecture Search (NAS)
+
+The environment is fully-compatible with the OpenAI baselines and exposes a NAS environment following the Neural Structure Code of [BlockQNN: Efficient Block-wise Neural Network Architecture Generation](https://arxiv.org/abs/1808.05584). Under this setting, a Neural Network (i.e. the state for the reinforcement learning agent) is modeled as a list of NSCs, an action is the addition of a layer to the network, and the reward is the accuracy after the early-stop training. The datasets considered so far are the CIFAR-10 dataset (available by default) and the meta-dataset (has to be manually downloaded as specified in [this repository](https://github.com/gomerudo/meta-dataset)).
+
+Learn more here: https://github.com/gomerudo/nas-env
+
 ### gym-jiminy: training Robots in Jiminy
 
 gym-jiminy presents an extension of the initial OpenAI gym for robotics using Jiminy, an extremely fast and light weight simulator for poly-articulated systems using Pinocchio for physics evaluation and Meshcat for web-based 3D rendering.
@@ -255,3 +261,15 @@ Learn more here: https://github.com/Wandercraft/jiminy
 An environment for behavioural planning in autonomous driving, with an emphasis on high-level perception and decision rather than low-level sensing and control. The difficulty of the task lies in understanding the social interactions with other drivers, whose behaviours are uncertain. Several scenes are proposed, such as highway, merge, intersection and roundabout.
 
 Learn more here: https://github.com/eleurent/highway-env
+
+### gym-carla: Gym Wrapper for CARLA Driving Simulator
+
+gym-carla provides a gym wrapper for the [CARLA simulator](http://carla.org/), which is a realistic 3D simulator for autonomous driving research. The environment includes a virtual city with several surrounding vehicles running around. Multiple source of observations are provided for the ego vehicle, such as front-view camera image, lidar point cloud image, and birdeye view semantic mask. Several applications have been developed based on this wrapper, such as deep reinforcement learning for end-to-end autonomous driving.
+
+Learn more here: https://github.com/cjy1992/gym-carla
+
+### openmodelica-microgrid-gym: Intelligent control of microgrids 
+
+The OpenModelica Microgrid Gym (OMG) package is a software toolbox for the simulation and control optimization of microgrids based on energy conversion by power electronic converters.
+
+Learn more here: https://github.com/upb-lea/openmodelica-microgrid-gym
