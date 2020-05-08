@@ -1,3 +1,33 @@
+"""
+
+Easiest continuous control task to learn from pixels, a top-down racing environment.
+Discrete control is reasonable in this environment as well, on/off discretization is
+fine.
+
+State consists of STATE_W x STATE_H pixels.
+
+The reward is -0.1 every frame and +1000/N for every track tile visited, where N is
+the total number of tiles visited in the track. For example, if you have finished in 732 frames,
+your reward is 1000 - 0.1*732 = 926.8 points.
+
+The game is solved when the agent consistently gets 900+ points. The generated track is random every episode.
+
+The episode finishes when all the tiles are visited. The car also can go outside of the PLAYFIELD -  that
+is far off the track, then it will get -100 and die.
+
+Some indicators are shown at the bottom of the window along with the state RGB buffer. From
+left to right: the true speed, four ABS sensors, the steering wheel position and gyroscope.
+
+To play yourself (it's rather fast for humans), type:
+
+python gym/envs/box2d/car_racing.py
+
+Remember it's a powerful rear-wheel drive car -  don't press the accelerator and turn at the
+same time.
+
+Created by Oleg Klimov. Licensed on the same terms as the rest of OpenAI Gym.
+"""
+
 import sys, math
 import numpy as np
 
@@ -12,33 +42,6 @@ from gym.utils import colorize, seeding, EzPickle
 import pyglet
 from pyglet import gl
 
-# Easiest continuous control task to learn from pixels, a top-down racing environment.
-# Discrete control is reasonable in this environment as well, on/off discretization is
-# fine.
-#
-# State consists of STATE_W x STATE_H pixels.
-#
-# Reward is -0.1 every frame and +1000/N for every track tile visited, where N is
-# the total number of tiles visited in the track. For example, if you have finished in 732 frames,
-# your reward is 1000 - 0.1*732 = 926.8 points.
-#
-# Game is solved when agent consistently gets 900+ points. Track generated is random every episode.
-#
-# Episode finishes when all tiles are visited. Car also can go outside of PLAYFIELD, that
-# is far off the track, then it will get -100 and die.
-#
-# Some indicators shown at the bottom of the window and the state RGB buffer. From
-# left to right: true speed, four ABS sensors, steering wheel position and gyroscope.
-#
-# To play yourself (it's rather fast for humans), type:
-#
-# python gym/envs/box2d/car_racing.py
-#
-# Remember it's powerful rear-wheel drive car, don't press accelerator and turn at the
-# same time.
-#
-# Created by Oleg Klimov. Licensed on the same terms as the rest of OpenAI Gym.
-
 STATE_W = 96   # less than Atari 160x192
 STATE_H = 96
 VIDEO_W = 600
@@ -46,12 +49,12 @@ VIDEO_H = 400
 WINDOW_W = 1000
 WINDOW_H = 800
 
-SCALE       = 6.0        # Track scale
-TRACK_RAD   = 900/SCALE  # Track is heavily morphed circle with this radius
-PLAYFIELD   = 2000/SCALE # Game over boundary
-FPS         = 50         # Frames per second
-ZOOM        = 2.7        # Camera zoom
-ZOOM_FOLLOW = True       # Set to False for fixed view (don't use zoom)
+SCALE = 6.0             # Track scale
+TRACK_RAD = 900/SCALE   # Track is heavily morphed circle with this radius
+PLAYFIELD = 2000/SCALE  # Game over boundary
+FPS = 50                # Frames per second
+ZOOM = 2.7              # Camera zoom
+ZOOM_FOLLOW = True      # Set to False for fixed view (don't use zoom)
 
 
 TRACK_DETAIL_STEP = 21/SCALE
@@ -62,14 +65,18 @@ BORDER_MIN_COUNT = 4
 
 ROAD_COLOR = [0.4, 0.4, 0.4]
 
+
 class FrictionDetector(contactListener):
     def __init__(self, env):
         contactListener.__init__(self)
         self.env = env
+
     def BeginContact(self, contact):
         self._contact(contact, True)
+
     def EndContact(self, contact):
         self._contact(contact, False)
+
     def _contact(self, contact, begin):
         tile = None
         obj = None
@@ -77,10 +84,10 @@ class FrictionDetector(contactListener):
         u2 = contact.fixtureB.body.userData
         if u1 and "road_friction" in u1.__dict__:
             tile = u1
-            obj  = u2
+            obj = u2
         if u2 and "road_friction" in u2.__dict__:
             tile = u2
-            obj  = u1
+            obj = u1
         if not tile:
             return
 
@@ -91,14 +98,12 @@ class FrictionDetector(contactListener):
             return
         if begin:
             obj.tiles.add(tile)
-            # print tile.road_friction, "ADD", len(obj.tiles)
             if not tile.road_visited:
                 tile.road_visited = True
                 self.env.reward += 1000.0/len(self.env.track)
                 self.env.tile_visited_count += 1
         else:
             obj.tiles.remove(tile)
-            # print tile.road_friction, "DEL", len(obj.tiles) -- should delete to zero when on grass (this works)
 
 class CarRacing(gym.Env, EzPickle):
     metadata = {
@@ -120,10 +125,12 @@ class CarRacing(gym.Env, EzPickle):
         self.prev_reward = 0.0
         self.verbose = verbose
         self.fd_tile = fixtureDef(
-                shape = polygonShape(vertices=
-                    [(0, 0),(1, 0),(1, -1),(0, -1)]))
+                shape=polygonShape(vertices=[(0, 0), (1, 0), (1, -1), (0, -1)]))
 
-        self.action_space = spaces.Box( np.array([-1,0,0]), np.array([+1,+1,+1]), dtype=np.float32)  # steer, gas, brake
+        self.action_space = spaces.Box(np.array([-1, 0, 0]),
+                                       np.array([+1, +1, +1]),
+                                       dtype=np.float32)  # steer, gas, brake
+
         self.observation_space = spaces.Box(low=0, high=255, shape=(STATE_H, STATE_W, 3), dtype=np.uint8)
 
     def seed(self, seed=None):
@@ -146,19 +153,14 @@ class CarRacing(gym.Env, EzPickle):
         for c in range(CHECKPOINTS):
             alpha = 2*math.pi*c/CHECKPOINTS + self.np_random.uniform(0, 2*math.pi*1/CHECKPOINTS)
             rad = self.np_random.uniform(TRACK_RAD/3, TRACK_RAD)
-            if c==0:
+            if c == 0:
                 alpha = 0
                 rad = 1.5*TRACK_RAD
-            if c==CHECKPOINTS-1:
+            if c == CHECKPOINTS-1:
                 alpha = 2*math.pi*c/CHECKPOINTS
                 self.start_alpha = 2*math.pi*(-0.5)/CHECKPOINTS
                 rad = 1.5*TRACK_RAD
-            checkpoints.append( (alpha, rad*math.cos(alpha), rad*math.sin(alpha)) )
-
-        # print "\n".join(str(h) for h in checkpoints)
-        # self.road_poly = [ (    # uncomment this to see checkpoints
-        #    [ (tx,ty) for a,tx,ty in checkpoints ],
-        #    (0.7,0.7,0.9) ) ]
+            checkpoints.append((alpha, rad*math.cos(alpha), rad*math.sin(alpha)))
         self.road = []
 
         # Go from one checkpoint to another to create track
@@ -197,43 +199,42 @@ class CarRacing(gym.Env, EzPickle):
             dest_dx = dest_x - x  # vector towards destination
             dest_dy = dest_y - y
             proj = r1x*dest_dx + r1y*dest_dy  # destination vector projected on rad
-            while beta - alpha >  1.5*math.pi:
+            while beta - alpha > 1.5*math.pi:
                  beta -= 2*math.pi
             while beta - alpha < -1.5*math.pi:
                  beta += 2*math.pi
             prev_beta = beta
             proj *= SCALE
-            if proj >  0.3:
+            if proj > 0.3:
                  beta -= min(TRACK_TURN_RATE, abs(0.001*proj))
             if proj < -0.3:
                  beta += min(TRACK_TURN_RATE, abs(0.001*proj))
             x += p1x*TRACK_DETAIL_STEP
             y += p1y*TRACK_DETAIL_STEP
-            track.append( (alpha,prev_beta*0.5 + beta*0.5,x,y) )
+            track.append((alpha,prev_beta*0.5 + beta*0.5,x,y))
             if laps > 4:
                  break
             no_freeze -= 1
-            if no_freeze==0:
+            if no_freeze == 0:
                  break
-        # print "\n".join([str(t) for t in enumerate(track)])
 
         # Find closed loop range i1..i2, first loop should be ignored, second is OK
         i1, i2 = -1, -1
         i = len(track)
         while True:
             i -= 1
-            if i==0:
+            if i == 0:
                 return False  # Failed
             pass_through_start = track[i][0] > self.start_alpha and track[i-1][0] <= self.start_alpha
-            if pass_through_start and i2==-1:
+            if pass_through_start and i2 == -1:
                 i2 = i
-            elif pass_through_start and i1==-1:
+            elif pass_through_start and i1 == -1:
                 i1 = i
                 break
         if self.verbose == 1:
             print("Track generation: %i..%i -> %i-tiles track" % (i1, i2, i2-i1))
-        assert i1!=-1
-        assert i2!=-1
+        assert i1 != -1
+        assert i2 != -1
 
         track = track[i1:i2-1]
 
@@ -242,8 +243,8 @@ class CarRacing(gym.Env, EzPickle):
         first_perp_y = math.sin(first_beta)
         # Length of perpendicular jump to put together head and tail
         well_glued_together = np.sqrt(
-            np.square( first_perp_x*(track[0][2] - track[-1][2]) ) +
-            np.square( first_perp_y*(track[0][3] - track[-1][3]) ))
+            np.square(first_perp_x*(track[0][2] - track[-1][2])) +
+            np.square(first_perp_y*(track[0][3] - track[-1][3])))
         if well_glued_together > TRACK_DETAIL_STEP:
             return False
 
@@ -284,11 +285,13 @@ class CarRacing(gym.Env, EzPickle):
             self.road.append(t)
             if border[i]:
                 side = np.sign(beta2 - beta1)
-                b1_l = (x1 + side* TRACK_WIDTH        *math.cos(beta1), y1 + side* TRACK_WIDTH        *math.sin(beta1))
-                b1_r = (x1 + side*(TRACK_WIDTH+BORDER)*math.cos(beta1), y1 + side*(TRACK_WIDTH+BORDER)*math.sin(beta1))
-                b2_l = (x2 + side* TRACK_WIDTH        *math.cos(beta2), y2 + side* TRACK_WIDTH        *math.sin(beta2))
-                b2_r = (x2 + side*(TRACK_WIDTH+BORDER)*math.cos(beta2), y2 + side*(TRACK_WIDTH+BORDER)*math.sin(beta2))
-                self.road_poly.append(( [b1_l, b1_r, b2_r, b2_l], (1,1,1) if i%2==0 else (1,0,0) ))
+                b1_l = (x1 + side * TRACK_WIDTH * math.cos(beta1), y1 + side * TRACK_WIDTH * math.sin(beta1))
+                b1_r = (x1 + side * (TRACK_WIDTH+BORDER) * math.cos(beta1),
+                        y1 + side * (TRACK_WIDTH+BORDER)*math.sin(beta1))
+                b2_l = (x2 + side * TRACK_WIDTH * math.cos(beta2), y2 + side * TRACK_WIDTH * math.sin(beta2))
+                b2_r = (x2 + side * (TRACK_WIDTH+BORDER) * math.cos(beta2),
+                        y2 + side * (TRACK_WIDTH+BORDER) * math.sin(beta2))
+                self.road_poly.append(([b1_l, b1_r, b2_r, b2_l], (1, 1, 1) if i % 2 == 0 else (1, 0, 0)))
         self.track = track
         return True
 
@@ -305,7 +308,7 @@ class CarRacing(gym.Env, EzPickle):
             if success:
                 break
             if self.verbose == 1:
-                print("retry to generate track (normal if there are not many of this messages)")
+                print("retry to generate track (normal if there are not many instances of this message)")
         self.car = Car(self.world, *self.track[0][1:4])
 
         return self.step(None)[0]
@@ -331,7 +334,7 @@ class CarRacing(gym.Env, EzPickle):
             self.car.fuel_spent = 0.0
             step_reward = self.reward - self.prev_reward
             self.prev_reward = self.reward
-            if self.tile_visited_count==len(self.track):
+            if self.tile_visited_count == len(self.track):
                 done = True
             x, y = self.car.hull.position
             if abs(x) > PLAYFIELD or abs(y) > PLAYFIELD:
@@ -353,8 +356,6 @@ class CarRacing(gym.Env, EzPickle):
         if "t" not in self.__dict__: return  # reset() not called yet
 
         zoom = 0.1*SCALE*max(1-self.t, 0) + ZOOM*SCALE*min(self.t, 1)   # Animate zoom first second
-        zoom_state  = ZOOM*SCALE*STATE_W/WINDOW_W
-        zoom_video  = ZOOM*SCALE*VIDEO_W/WINDOW_W
         scroll_x = self.car.hull.position[0]
         scroll_y = self.car.hull.position[1]
         angle = -self.car.hull.angle
@@ -364,10 +365,10 @@ class CarRacing(gym.Env, EzPickle):
         self.transform.set_scale(zoom, zoom)
         self.transform.set_translation(
             WINDOW_W/2 - (scroll_x*zoom*math.cos(angle) - scroll_y*zoom*math.sin(angle)),
-            WINDOW_H/4 - (scroll_x*zoom*math.sin(angle) + scroll_y*zoom*math.cos(angle)) )
+            WINDOW_H/4 - (scroll_x*zoom*math.sin(angle) + scroll_y*zoom*math.cos(angle)))
         self.transform.set_rotation(angle)
 
-        self.car.draw(self.viewer, mode!="state_pixels")
+        self.car.draw(self.viewer, mode != "state_pixels")
 
         arr = None
         win = self.viewer.window
@@ -376,7 +377,7 @@ class CarRacing(gym.Env, EzPickle):
 
         win.clear()
         t = self.transform
-        if mode=='rgb_array':
+        if mode == 'rgb_array':
             VP_W = VIDEO_W
             VP_H = VIDEO_H
         elif mode == 'state_pixels':
@@ -439,17 +440,19 @@ class CarRacing(gym.Env, EzPickle):
         gl.glBegin(gl.GL_QUADS)
         s = W/40.0
         h = H/40.0
-        gl.glColor4f(0,0,0,1)
+        gl.glColor4f(0, 0, 0, 1)
         gl.glVertex3f(W, 0, 0)
         gl.glVertex3f(W, 5*h, 0)
         gl.glVertex3f(0, 5*h, 0)
         gl.glVertex3f(0, 0, 0)
+
         def vertical_ind(place, val, color):
             gl.glColor4f(color[0], color[1], color[2], 1)
             gl.glVertex3f((place+0)*s, h + h*val, 0)
             gl.glVertex3f((place+1)*s, h + h*val, 0)
             gl.glVertex3f((place+1)*s, h, 0)
             gl.glVertex3f((place+0)*s, h, 0)
+
         def horiz_ind(place, val, color):
             gl.glColor4f(color[0], color[1], color[2], 1)
             gl.glVertex3f((place+0)*s, 4*h , 0)
@@ -457,13 +460,13 @@ class CarRacing(gym.Env, EzPickle):
             gl.glVertex3f((place+val)*s, 2*h, 0)
             gl.glVertex3f((place+0)*s, 2*h, 0)
         true_speed = np.sqrt(np.square(self.car.hull.linearVelocity[0]) + np.square(self.car.hull.linearVelocity[1]))
-        vertical_ind(5, 0.02*true_speed, (1,1,1))
-        vertical_ind(7, 0.01*self.car.wheels[0].omega, (0.0,0,1)) # ABS sensors
-        vertical_ind(8, 0.01*self.car.wheels[1].omega, (0.0,0,1))
-        vertical_ind(9, 0.01*self.car.wheels[2].omega, (0.2,0,1))
-        vertical_ind(10,0.01*self.car.wheels[3].omega, (0.2,0,1))
-        horiz_ind(20, -10.0*self.car.wheels[0].joint.angle, (0,1,0))
-        horiz_ind(30, -0.8*self.car.hull.angularVelocity, (1,0,0))
+        vertical_ind(5, 0.02*true_speed, (1, 1, 1))
+        vertical_ind(7, 0.01*self.car.wheels[0].omega, (0.0, 0, 1)) # ABS sensors
+        vertical_ind(8, 0.01*self.car.wheels[1].omega, (0.0, 0, 1))
+        vertical_ind(9, 0.01*self.car.wheels[2].omega, (0.2, 0, 1))
+        vertical_ind(10,0.01*self.car.wheels[3].omega, (0.2, 0, 1))
+        horiz_ind(20, -10.0*self.car.wheels[0].joint.angle, (0, 1, 0))
+        horiz_ind(30, -0.8*self.car.hull.angularVelocity, (1, 0, 0))
         gl.glEnd()
         self.score_label.text = "%04i" % self.reward
         self.score_label.draw()
@@ -471,19 +474,21 @@ class CarRacing(gym.Env, EzPickle):
 
 if __name__=="__main__":
     from pyglet.window import key
-    a = np.array( [0.0, 0.0, 0.0] )
+    a = np.array([0.0, 0.0, 0.0])
+
     def key_press(k, mod):
         global restart
-        if k==0xff0d: restart = True
-        if k==key.LEFT:  a[0] = -1.0
-        if k==key.RIGHT: a[0] = +1.0
-        if k==key.UP:    a[1] = +1.0
-        if k==key.DOWN:  a[2] = +0.8   # set 1.0 for wheels to block to zero rotation
+        if k == 0xff0d: restart = True
+        if k == key.LEFT:  a[0] = -1.0
+        if k == key.RIGHT: a[0] = +1.0
+        if k == key.UP:    a[1] = +1.0
+        if k == key.DOWN:  a[2] = +0.8   # set 1.0 for wheels to block to zero rotation
+
     def key_release(k, mod):
-        if k==key.LEFT  and a[0]==-1.0: a[0] = 0
-        if k==key.RIGHT and a[0]==+1.0: a[0] = 0
-        if k==key.UP:    a[1] = 0
-        if k==key.DOWN:  a[2] = 0
+        if k == key.LEFT  and a[0] == -1.0: a[0] = 0
+        if k == key.RIGHT and a[0] == +1.0: a[0] = 0
+        if k == key.UP:    a[1] = 0
+        if k == key.DOWN:  a[2] = 0
     env = CarRacing()
     env.render()
     env.viewer.window.on_key_press = key_press
@@ -504,9 +509,6 @@ if __name__=="__main__":
             if steps % 200 == 0 or done:
                 print("\naction " + str(["{:+0.2f}".format(x) for x in a]))
                 print("step {} total_reward {:+0.2f}".format(steps, total_reward))
-                #import matplotlib.pyplot as plt
-                #plt.imshow(s)
-                #plt.savefig("test.jpeg")
             steps += 1
             isopen = env.render()
             if done or restart or isopen == False:
