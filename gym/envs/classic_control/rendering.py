@@ -59,7 +59,10 @@ def get_window(width, height, display):
     config = screen[0].get_best_config() #selecting the first screen
     context = config.create_context(None) #create GL context
 
-    return pyglet.window.Window(width=width, height=height, display=display, config=config, context=context)
+    if viewer_type == 'Viewer':
+        return pyglet.window.Window(width=width, height=height, display=display, config=config, context=context)
+    elif viewer_type == 'SimpleImageViewer':
+        return pyglet.window.Window(width=width, height=height, display=display, config=config, context=context, vsync=False, resizable=True)
 
 class Viewer(object):
     def __init__(self, width, height, display=None):
@@ -67,7 +70,7 @@ class Viewer(object):
 
         self.width = width
         self.height = height
-        self.window = get_window(width=width, height=height, display=display)
+        self.window = get_window(width=width, height=height, display=display, viewer_type='Viewer')
         self.window.on_close = self.window_closed_by_user
         self.isopen = True
         self.geoms = []
@@ -335,7 +338,7 @@ class SimpleImageViewer(object):
     def __init__(self, display=None, maxwidth=500):
         self.window = None
         self.isopen = False
-        self.display = display
+        self.display = get_display(display)
         self.maxwidth = maxwidth
     def imshow(self, arr):
         if self.window is None:
@@ -344,8 +347,7 @@ class SimpleImageViewer(object):
                 scale = self.maxwidth / width
                 width = int(scale * width)
                 height = int(scale * height)
-            self.window = pyglet.window.Window(width=width, height=height,
-                display=self.display, vsync=False, resizable=True)
+            self.window = get_window(width=width, height=height, display=self.display, viewer_type='SimpleImageViewer')
             self.width = width
             self.height = height
             self.isopen = True
