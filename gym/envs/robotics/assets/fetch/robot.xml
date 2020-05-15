@@ -72,7 +72,7 @@
 										<body euler="0 0 0" name="robot0:gripper_link" pos="0.1664 0 0">
 											<inertial diaginertia="0.0024 0.0019 0.0013" mass="1.5175" pos="-0.09 -0.0001 -0.0017" quat="0 0.7071 0 0.7071"></inertial>
 											<geom mesh="robot0:gripper_link" name="robot0:gripper_link" material="robot0:gripper_mat"></geom>
-											<body name="robot0:gipper_camera_link" pos="0.055 0 0.0225">
+											<body name="robot0:gripper_camera_link" pos="0.055 0 0.0225">
 												<body name="robot0:gripper_camera_rgb_frame" pos="0 0.02 0">
 													<body name="robot0:gripper_camera_rgb_optical_frame" pos="0 0 0" quat="0.5 -0.5 0.5 -0.5">
 														<camera euler="3.1415 0 0" fovy="50" name="gripper_camera_rgb" pos="0 0 0"></camera>

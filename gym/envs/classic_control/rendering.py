@@ -78,7 +78,10 @@ class Viewer(object):
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
     def close(self):
-        self.window.close()
+        if self.isopen and sys.meta_path:
+            # ^^^ check sys.meta_path to avoid 'ImportError: sys.meta_path is None, Python is likely shutting down'
+            self.window.close()
+            self.isopen = False
 
     def window_closed_by_user(self):
         self.isopen = False
