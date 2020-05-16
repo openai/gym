@@ -158,6 +158,17 @@ We are using `pytest <http://doc.pytest.org>`_ for tests. You can run them via:
 
 .. _See What's New section below:
 
+Resources
+=========
+
+- [OpenAI.com](https://openai.com/)
+- [Gym.OpenAI.com](http://gym.openai.com/)
+- [Gym Docs](http://gym.openai.com/docs/)
+- [Gym Environments](http://gym.openai.com/envs/)
+- [Gym Algorithms](http://gym.openai.com/envs/#algorithmic)
+- [OpenAI Twitter](https://twitter.com/openai)
+- [OpenAI YouTube](https://www.youtube.com/channel/UCXZCJLdBC09xxGZ6gcdrc6A)
+
 What's new
 ==========
 - 2020-05-08 (v 0.17.2)
