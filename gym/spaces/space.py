@@ -20,6 +20,8 @@ class Space(object):
         if self._np_random is None:
             self.seed()
 
+        return self._np_random
+
     def sample(self):
         """Randomly sample an element of this space. Can be 
         uniform or non-uniform sampling based on boundedness of space."""
