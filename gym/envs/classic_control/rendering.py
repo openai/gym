@@ -51,7 +51,7 @@ def get_display(spec):
     else:
         raise error.Error('Invalid display specification: {}. (Must be a string like :0 or None.)'.format(spec))
 
-def get_window(width, height, display):
+def get_window(width, height, display, viewer_type='Viewer'):
     """
     Will create a pyglet window from the display specification provided.
     """
