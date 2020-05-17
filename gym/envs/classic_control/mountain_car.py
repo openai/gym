@@ -113,8 +113,8 @@ class MountainCarEnv(gym.Env):
 
     def reset(self):
         # for reward, changing slightly so max_pos starts at this random value
-        self.max_pos = self.np_random.uniform(low=-0.6, high=-0.4)
-        self.state = np.array([self.max_pos, 0])
+        self.max_position = self.np_random.uniform(low=-0.6, high=-0.4)
+        self.state = np.array([self.max_position, 0])
         return np.array(self.state)
 
     def _height(self, xs):
