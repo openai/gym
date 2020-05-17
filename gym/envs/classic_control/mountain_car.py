@@ -60,6 +60,10 @@ class MountainCarEnv(gym.Env):
         self.goal_position = 0.5
         self.goal_velocity = goal_velocity
         
+        # for reward structure
+        self.max_position = 0.0
+        self.reward_buildup = 0.0
+        
         self.force=0.001
         self.gravity=0.0025
 
@@ -89,12 +93,28 @@ class MountainCarEnv(gym.Env):
 
         done = bool(position >= self.goal_position and velocity >= self.goal_velocity)
         reward = -1.0
+        
+        # === Reward structure that rewards agent for making progress up the mountain ===
+        # self.reward_buildup causes reward to increase when more of the mountain is scaled in one go
+        #    This causes a higher reward for a single-run as opposed to multiple attempts to reach the flag
+        if position > self.max_position:
+            reward = position - self.max_position  # base reward (amount of new track that is covered)
+            self.reward_buildup += reward  
+            reward = self.reward_buildup
+            self.max_position = position  # moving the goalpost for next reward (only new track covered gives reward)
+        else:
+            self.reward_buildup = 0  # reset the reward buildup if no reward provided for this step
+            
+        if done:  # rewarding agent for reaching the flag is not part of the above reward structure, but was missing
+            reward = 10
 
         self.state = (position, velocity)
         return np.array(self.state), reward, done, {}
 
     def reset(self):
-        self.state = np.array([self.np_random.uniform(low=-0.6, high=-0.4), 0])
+        # for reward, changing slightly so max_pos starts at this random value
+        self.max_pos = self.np_random.uniform(low=-0.6, high=-0.4)
+        self.state = np.array([self.max_pos, 0])
         return np.array(self.state)
 
     def _height(self, xs):
