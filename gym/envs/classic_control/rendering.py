@@ -51,7 +51,7 @@ def get_display(spec):
     else:
         raise error.Error('Invalid display specification: {}. (Must be a string like :0 or None.)'.format(spec))
 
-def get_window(width, height, display, viewer_type='Viewer'):
+def get_window(width, height, display, **kwargs):
     """
     Will create a pyglet window from the display specification provided.
     """
@@ -59,10 +59,7 @@ def get_window(width, height, display, viewer_type='Viewer'):
     config = screen[0].get_best_config() #selecting the first screen
     context = config.create_context(None) #create GL context
 
-    if viewer_type == 'Viewer':
-        return pyglet.window.Window(width=width, height=height, display=display, config=config, context=context)
-    elif viewer_type == 'SimpleImageViewer':
-        return pyglet.window.Window(width=width, height=height, display=display, config=config, context=context, vsync=False, resizable=True)
+    return pyglet.window.Window(width=width, height=height, display=display, config=config, context=context, **kwargs)
 
 class Viewer(object):
     def __init__(self, width, height, display=None):
@@ -347,7 +344,7 @@ class SimpleImageViewer(object):
                 scale = self.maxwidth / width
                 width = int(scale * width)
                 height = int(scale * height)
-            self.window = get_window(width=width, height=height, display=self.display, viewer_type='SimpleImageViewer')
+            self.window = get_window(width=width, height=height, display=self.display, vsync=False, resizable=True)
             self.width = width
             self.height = height
             self.isopen = True
