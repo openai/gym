@@ -16,7 +16,10 @@ class Tuple(Space):
         super(Tuple, self).__init__(None, None, seed)
 
     def seed(self, seed=None):
-        [space.seed(seed) for space in self.spaces]
+        if type(seed) == list:
+            [space.seed(seed[i]) for i, space in enumerate(self.spaces)]
+        else:
+            [space.seed(seed) for space in self.spaces]
 
     def sample(self):
         return tuple([space.sample() for space in self.spaces])
