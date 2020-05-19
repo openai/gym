@@ -67,7 +67,7 @@ class Viewer(object):
 
         self.width = width
         self.height = height
-        self.window = get_window(width=width, height=height, display=display, viewer_type='Viewer')
+        self.window = get_window(width=width, height=height, display=display)
         self.window.on_close = self.window_closed_by_user
         self.isopen = True
         self.geoms = []
