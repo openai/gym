@@ -273,3 +273,9 @@ Learn more here: https://github.com/cjy1992/gym-carla
 The OpenModelica Microgrid Gym (OMG) package is a software toolbox for the simulation and control optimization of microgrids based on energy conversion by power electronic converters.
 
 Learn more here: https://github.com/upb-lea/openmodelica-microgrid-gym
+
+### RubiksCubeGym: OpenAI Gym environments for various twisty puzzles
+
+The RubiksCubeGym package provides enviromnents for twisty puzzles with  multiple reward functions to help simluate the methods used by humans.
+
+Learn more here:https://github.com/DoubleGremlin181/RubiksCubeGym
