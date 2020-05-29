@@ -58,7 +58,7 @@ class TestAlgorithmicEnvInteractions(unittest.TestCase):
     def test_levelup(self):
         obs = self.env.reset()
         # Kind of a hack
-        alg.algorithmic_env.AlgorithmicEnv.reward_shortfalls = []
+        self.env.reward_shortfalls = []
         min_length = self.env.min_length
         for i in range(self.env.last):
             obs, reward, done, _ = self.env.step([self.RIGHT, 1, 0])
@@ -67,17 +67,11 @@ class TestAlgorithmicEnvInteractions(unittest.TestCase):
             self.assertTrue(done)
             self.env.reset()
             if i < self.env.last-1:
-                self.assertEqual(
-                    len(alg.algorithmic_env.AlgorithmicEnv.reward_shortfalls),
-                    i+1
-                )
+                self.assertEqual(len(self.env.reward_shortfalls), i+1)
             else:
                 # Should have leveled up on the last iteration
                 self.assertEqual(self.env.min_length, min_length+1)
-                self.assertEqual(
-                    len(alg.algorithmic_env.AlgorithmicEnv.reward_shortfalls),
-                    0
-                )
+                self.assertEqual(len(self.env.reward_shortfalls), 0)
 
     def test_walk_off_the_end(self):
         obs = self.env.reset()

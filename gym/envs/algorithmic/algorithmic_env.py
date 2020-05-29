@@ -62,16 +62,13 @@ class AlgorithmicEnv(Env):
         self.episode_total_reward = None
         # Running tally of reward shortfalls. e.g. if there were 10 points to
         # earn and we got 8, we'd append -2
-        AlgorithmicEnv.reward_shortfalls = []
+        self.reward_shortfalls = []
         if chars:
             self.charmap = [chr(ord('A')+i) for i in range(base)]
         else:
             self.charmap = [str(i) for i in range(base)]
         self.charmap.append(' ')
-        # TODO: Not clear why this is a class variable rather than instance.
-        # Could lead to some spooky action at a distance if someone is working
-        # with multiple algorithmic envs at once. Also makes testing tricky.
-        AlgorithmicEnv.min_length = starting_min_length
+        self.min_length = starting_min_length
         # Three sub-actions:
         #       1. Move read head left or right (or up/down)
         #       2. Write or not
@@ -211,15 +208,13 @@ class AlgorithmicEnv(Env):
         if self.episode_total_reward is None:
             # This is before the first episode/call to reset(). Nothing to do.
             return
-        AlgorithmicEnv.reward_shortfalls.append(
-            self.episode_total_reward - len(self.target)
-        )
-        AlgorithmicEnv.reward_shortfalls = AlgorithmicEnv.reward_shortfalls[-self.last:]
-        if len(AlgorithmicEnv.reward_shortfalls) == self.last and \
-                min(AlgorithmicEnv.reward_shortfalls) >= self.MIN_REWARD_SHORTFALL_FOR_PROMOTION and \
-                AlgorithmicEnv.min_length < 30:
-            AlgorithmicEnv.min_length += 1
-            AlgorithmicEnv.reward_shortfalls = []
+        self.reward_shortfalls.append(self.episode_total_reward - len(self.target))
+        self.reward_shortfalls = self.reward_shortfalls[-self.last:]
+        if len(self.reward_shortfalls) == self.last and \
+                min(self.reward_shortfalls) >= self.MIN_REWARD_SHORTFALL_FOR_PROMOTION and \
+                self.min_length < 30:
+            self.min_length += 1
+            self.reward_shortfalls = []
 
     def reset(self):
         self._check_levelup()
@@ -229,7 +224,7 @@ class AlgorithmicEnv(Env):
         self.write_head_position = 0
         self.episode_total_reward = 0.0
         self.time = 0
-        length = self.np_random.randint(3) + AlgorithmicEnv.min_length
+        length = self.np_random.randint(3) + self.min_length
         self.input_data = self.generate_input_data(length)
         self.target = self.target_from_input_data(self.input_data)
         return self._get_obs()
