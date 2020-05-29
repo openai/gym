@@ -167,17 +167,11 @@ class VectorEnvWrapper(VectorEnv):
     def reset_wait(self):
         return self.env.reset_wait()
 
-    def reset(self):
-        return self.env.reset()
-
     def step_async(self, actions):
         return self.env.step_async(actions)
 
     def step_wait(self):
         return self.env.step_wait()
-
-    def step(self, actions):
-        return self.env.step(actions)
 
     def close(self, **kwargs):
         return self.env.close(**kwargs)
