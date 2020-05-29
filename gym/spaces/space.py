@@ -10,8 +10,17 @@ class Space(object):
         import numpy as np  # takes about 300-400ms to import, so we load lazily
         self.shape = None if shape is None else tuple(shape)
         self.dtype = None if dtype is None else np.dtype(dtype)
-        self.np_random = None
-        self.seed()
+        self._np_random = None
+
+    @property
+    def np_random(self):
+        """Lazily seed the rng since this is expensive and only needed if
+        sampling from this space.
+        """
+        if self._np_random is None:
+            self.seed()
+
+        return self._np_random
 
     def sample(self):
         """Randomly sample an element of this space. Can be 
@@ -20,7 +29,7 @@ class Space(object):
 
     def seed(self, seed=None):
         """Seed the PRNG of this space. """
-        self.np_random, seed = seeding.np_random(seed)
+        self._np_random, seed = seeding.np_random(seed)
         return [seed]
 
     def contains(self, x):
