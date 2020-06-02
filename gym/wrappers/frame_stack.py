@@ -19,45 +19,39 @@ class LazyFrames(object):
         lz4_compress (bool): use lz4 to compress the frames internally
 
     """
+    __slots__ = ('frame_shape', 'dtype', 'shape', 'lz4_compress', '_frames')
+
     def __init__(self, frames, lz4_compress=False):
         if lz4_compress:
             from lz4.block import compress
-            self.frame_shape = frames[0].shape
+            self.frame_shape = tuple(frames[0].shape)
             self.dtype = frames[0].dtype
+            self.shape = (len(frames),) + self.frame_shape
             frames = [compress(frame) for frame in frames]
         self._frames = frames
         self.lz4_compress = lz4_compress
 
     def __array__(self, dtype=None):
-        if self.lz4_compress:
-            from lz4.block import decompress
-            frames = [np.frombuffer(decompress(frame), dtype=self.dtype).reshape(self.frame_shape) for frame in self._frames]
-        else:
-            frames = self._frames
-        out = np.stack(frames, axis=0)
+        arr = self[:]
         if dtype is not None:
-            out = out.astype(dtype)
-        return out
+            return arr.astype(dtype)
+        return arr
 
     def __len__(self):
-        return len(self.__array__())
+        return self.shape[0]
 
-    def __getitem__(self, i):
-        return self.__array__()[i]
+    def __getitem__(self, int_or_slice):
+        if isinstance(int_or_slice, int):
+            return self._check_decompress(self._frames[int_or_slice])  # single frame
+        return np.stack([self._check_decompress(f) for f in self._frames[int_or_slice]], axis=0)
 
     def __eq__(self, other):
         return self.__array__() == other
 
-    @property
-    def shape(self):
-        return self.__array__().shape
-
-    @property
-    def last_frame(self):
-        frame = self._frames[-1]
+    def _check_decompress(self, frame):
         if self.lz4_compress:
             from lz4.block import decompress
-            frame = np.frombuffer(decompress(frame), dtype=self.dtype).reshape(self.frame_shape)
+            return np.frombuffer(decompress(frame), dtype=self.dtype).reshape(self.frame_shape)
         return frame
 
 

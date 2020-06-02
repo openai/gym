@@ -34,6 +34,3 @@ def test_frame_stack(env_id, num_stack, lz4_compress):
     for i in range(1, num_stack - 1):
         assert np.allclose(obs[i - 1], obs[i])
     assert not np.allclose(obs[-1], obs[-2])
-
-    obs, _, _, _ = env.step(env.action_space.sample())
-    assert np.allclose(obs.last_frame, obs[-1])
