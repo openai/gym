@@ -91,8 +91,8 @@ see the composition of our CI-tested images.
 On Ubuntu 16.04 and 18.04:
 
 .. code:: shell
+    
     apt-get install -y libglu1-mesa-dev libgl1-mesa-dev libosmesa6-dev xvfb ffmpeg curl patchelf libglfw3 libglfw3-dev
-
 
 MuJoCo has a proprietary dependency we can't set up for you. Follow
 the
