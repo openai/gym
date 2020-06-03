@@ -92,7 +92,7 @@ On Ubuntu 16.04 and 18.04:
 
 .. code:: shell
     
-    apt-get install -y libglu1-mesa-dev libgl1-mesa-dev libosmesa6-dev xvfb ffmpeg curl patchelf libglfw3 libglfw3-dev
+    apt-get install -y libglu1-mesa-dev libgl1-mesa-dev libosmesa6-dev xvfb ffmpeg curl patchelf libglfw3 libglfw3-dev cmake zlib1g zlib1g-dev swig
 
 MuJoCo has a proprietary dependency we can't set up for you. Follow
 the
