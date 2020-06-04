@@ -51,7 +51,7 @@ def get_display(spec):
     else:
         raise error.Error('Invalid display specification: {}. (Must be a string like :0 or None.)'.format(spec))
 
-def get_window(width, height, display):
+def get_window(width, height, display, **kwargs):
     """
     Will create a pyglet window from the display specification provided.
     """
@@ -59,7 +59,7 @@ def get_window(width, height, display):
     config = screen[0].get_best_config() #selecting the first screen
     context = config.create_context(None) #create GL context
 
-    return pyglet.window.Window(width=width, height=height, display=display, config=config, context=context)
+    return pyglet.window.Window(width=width, height=height, display=display, config=config, context=context, **kwargs)
 
 class Viewer(object):
     def __init__(self, width, height, display=None):
@@ -78,7 +78,10 @@ class Viewer(object):
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
     def close(self):
-        self.window.close()
+        if self.isopen and sys.meta_path:
+            # ^^^ check sys.meta_path to avoid 'ImportError: sys.meta_path is None, Python is likely shutting down'
+            self.window.close()
+            self.isopen = False
 
     def window_closed_by_user(self):
         self.isopen = False
@@ -332,7 +335,7 @@ class SimpleImageViewer(object):
     def __init__(self, display=None, maxwidth=500):
         self.window = None
         self.isopen = False
-        self.display = display
+        self.display = get_display(display)
         self.maxwidth = maxwidth
     def imshow(self, arr):
         if self.window is None:
@@ -341,8 +344,7 @@ class SimpleImageViewer(object):
                 scale = self.maxwidth / width
                 width = int(scale * width)
                 height = int(scale * height)
-            self.window = pyglet.window.Window(width=width, height=height,
-                display=self.display, vsync=False, resizable=True)
+            self.window = get_window(width=width, height=height, display=self.display, vsync=False, resizable=True)
             self.width = width
             self.height = height
             self.isopen = True

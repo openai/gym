@@ -12,6 +12,42 @@ from gym import spaces
 from gym.utils import seeding
 
 class MountainCarEnv(gym.Env):
+    """
+    Description:
+         A car which is the agent is started at the bottom of a valley for any given state te agent can choose to
+         move left or right or donnt move at all
+        
+    Source:
+         The environment appeared first in Andrew Moore's PhD Thesis (1990).
+    
+    Observation: 
+         Type: Box(2)
+         Num    Observation               Min            Max
+         0      Car Position              -1.2           0.6
+         1      Car Velocity              -0.07          0.07
+
+    Actions:
+         Type: Discrete(3)
+         Num    Action
+         0      Accelerate to the Left
+         1      Don't accelerate
+         2      Accelerate to the Right
+        
+         Note: This does not affect the amount of velocity affected by the gravitational pull acting on the car
+        
+    Reward:
+         Reward of 0 is awarded if the agent reached the flag(position = 0.5) on top of the mountain
+         Reward of -1 is awarded if the position of the agent is less than 0.5
+        
+     Starting State:
+         The position of the car is assigned a uniform random value in [-0.6 , -0.4]
+         The velocity of the car is always assigned to 0
+        
+     Episode Termination:
+         The car position is more than 0.5
+         Episode length is greater than 200
+     """
+    
     metadata = {
         'render.modes': ['human', 'rgb_array'],
         'video.frames_per_second': 30
