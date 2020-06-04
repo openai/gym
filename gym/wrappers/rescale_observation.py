@@ -24,6 +24,8 @@ class RescaleObservation(gym.ObservationWrapper):
             ValueError: If either `low` or `high` is not finite.
             ValueError: If any of `observation_space.{low,high}` is not finite.
             ValueError: If `high <= low`.
+
+        TODO(hartikainen): This should be extended to work with Dict and Tuple spaces.
         """
         if np.any(~np.isfinite((low, high))):
             raise ValueError(
