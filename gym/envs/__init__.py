@@ -199,6 +199,12 @@ register(
     max_episode_steps=200,
 )
 
+register(
+    id='BitFlip-v0',
+    entry_point='gym.envs.toy_text:BitFlip',
+    max_episode_steps=50,
+)
+
 # Mujoco
 # ----------------------------------------
 
