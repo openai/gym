@@ -51,7 +51,7 @@ class TaxiEnv(discrete.DiscreteEnv):
     - 5: dropoff passenger
     
     Rewards: 
-    The is a default per-step reward of -1,
+    There is a default per-step reward of -1,
     except for delivering the passenger, which is +20,
     or executing "pickup" and "drop-off" actions illegally, which is -10.
     
