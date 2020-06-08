@@ -54,7 +54,7 @@ class CartPoleEnv(gym.Env):
         the display).
         Episode length is greater than 200.
         Solved Requirements:
-        Considered solved when the average reward is greater than or equal to
+        Considered solved when the average return is greater than or equal to
         195.0 over 100 consecutive trials.
     """
 
