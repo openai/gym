@@ -278,4 +278,10 @@ Learn more here: https://github.com/upb-lea/openmodelica-microgrid-gym
 
 The RubiksCubeGym package provides enviromnents for twisty puzzles with  multiple reward functions to help simluate the methods used by humans.
 
-Learn more here:https://github.com/DoubleGremlin181/RubiksCubeGym
+Learn more here: https://github.com/DoubleGremlin181/RubiksCubeGym
+
+### SlimeVolleyGym: A simple environment for single and multi-agent reinforcement learning
+
+A simple environment for benchmarking single and multi-agent reinforcement learning algorithms on a clone of Slime Volleyball game. Only dependencies are gym and numpy. Both state and pixel observation environments are available. The motivation of this environment is to easily enable trained agents to play against each other, and also facilitate the training of agents directly in a multi-agent setting, thus adding an extra dimension for evaluating an agent's performance.
+
+Learn more here: https://github.com/hardmaru/slimevolleygym
