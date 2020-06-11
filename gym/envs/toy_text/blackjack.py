@@ -102,7 +102,10 @@ class BlackjackEnv(gym.Env):
             done = True
             while sum_hand(self.dealer) < 17:
                 self.dealer.append(draw_card(self.np_random))
-            reward = cmp(score(self.player), score(self.dealer))
+            if is_bust(self.dealer):
+                reward = 1.
+            else:
+                reward = cmp(score(self.player), score(self.dealer))
             if self.natural and is_natural(self.player) and reward == 1.:
                 reward = 1.5
         return self._get_obs(), reward, done, {}
