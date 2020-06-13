@@ -42,6 +42,11 @@ def rescale_box_space(observation_space, low, high):
 class RescaleObservation(gym.ObservationWrapper):
     def __init__(self, env, low, high):
         r"""Rescale observation space to a range [`low`, `high`].
+
+        For `Box` spaces, `low` and `high` can be either scalar or vector, and
+        will be broadcasted according to numpy broadcasting rules. For `Tuple`
+        and `Dict` spaces, both `low` and `high` are expected to be scalar.
+
         Example:
             >>> RescaleObservation(env, low, high).observation_space == Box(low, high)
             True
@@ -50,8 +55,10 @@ class RescaleObservation(gym.ObservationWrapper):
             ValueError: If either `low` or `high` is not finite.
             ValueError: If any of `observation_space.{low,high}` is not finite.
             ValueError: If `high <= low`.
+            ValueError: If observation space is `Tuple` or `Dict` and either
+                `low` or `high` is not scalar.
         """
-        if np.any(~np.isfinite((low, high))):
+        if np.any([~np.isfinite(low), ~np.isfinite(high)]):
             raise ValueError(
                 "Arguments 'low' and 'high' need to be finite."
                 " Got: low={}, high={}".format(low, high))
@@ -59,6 +66,13 @@ class RescaleObservation(gym.ObservationWrapper):
         if np.any(high <= low):
             raise ValueError("Argument `low` must be smaller than `high`"
                              " Got: low={}, high=".format(low, high))
+
+        if (isinstance(env.observation_space, (spaces.Tuple, spaces.Dict))
+            and not (np.isscalar(low) and np.isscalar(high))):
+            raise ValueError(
+                "Arguments 'low' and 'high' need to be scalars for {} spaces."
+                " Got: low={}, high={}".format(
+                    type(env.observation_space), low, high))
 
         super(RescaleObservation, self).__init__(env)
 

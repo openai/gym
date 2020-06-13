@@ -25,7 +25,7 @@ class FakeEnvironment(gym.Env):
         return observation
 
     def step(self, action):
-        observation = action  # * np.ones(self.observation_space.shape)
+        observation = action
         reward, terminal, info = 0.0, False, {}
         return observation, reward, terminal, info
 
@@ -146,6 +146,22 @@ def test_rescale_observation(observation_space):
 
     else:
         raise ValueError
+
+
+@pytest.mark.parametrize("observation_space", [
+    spaces.Tuple((UNSCALED_BOX_SPACE, UNSCALED_BOX_SPACE)),
+    spaces.Dict({'box-1': UNSCALED_BOX_SPACE, 'box-2': UNSCALED_BOX_SPACE}),
+])
+def test_raises_non_scalar_low_high(observation_space):
+    env = FakeEnvironment(observation_space)
+    assert isinstance(
+        env.observation_space, (spaces.Box, spaces.Tuple, spaces.Dict))
+
+    with pytest.raises(ValueError):
+        RescaleObservation(env, -1.0, np.array([1.0, 1.0]))
+
+    with pytest.raises(ValueError):
+        RescaleObservation(env, np.array([-1.0, -1.0]), 1.0)
 
 
 @pytest.mark.parametrize("observation_space", [
