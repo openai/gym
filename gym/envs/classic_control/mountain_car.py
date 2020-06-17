@@ -118,7 +118,7 @@ class MountainCarEnv(gym.Env):
         screen_height = 400
 
         world_width = self.max_position - self.min_position
-        scale = screen_width/world_width
+        scale = screen_width / world_width
         carwidth = 40
         carheight = 20
 
