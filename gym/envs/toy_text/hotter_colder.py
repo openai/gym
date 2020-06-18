@@ -50,6 +50,7 @@ class HotterColder(gym.Env):
 
         elif action == self.number:
             self.observation = 2
+            done = True
 
         elif action > self.number:
             self.observation = 3
