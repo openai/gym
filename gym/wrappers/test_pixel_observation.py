@@ -116,3 +116,6 @@ class TestPixelObservationWrapper(object):
 
         assert depth_observation.shape == (32, 32, 3)
         assert depth_observation.dtype == np.uint8
+
+        if not pixels_only:
+            assert isinstance(observation[STATE_KEY], np.ndarray)

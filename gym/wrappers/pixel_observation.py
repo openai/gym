@@ -110,14 +110,14 @@ class PixelObservationWrapper(ObservationWrapper):
         pixel_observation = self._add_pixel_observation(observation)
         return pixel_observation
 
-    def _add_pixel_observation(self, observation):
+    def _add_pixel_observation(self, wrapped_observation):
         if self._pixels_only:
             observation = collections.OrderedDict()
         elif self._observation_is_dict:
-            observation = type(observation)(observation)
+            observation = type(wrapped_observation)(wrapped_observation)
         else:
             observation = collections.OrderedDict()
-            observation[STATE_KEY] = observation
+            observation[STATE_KEY] = wrapped_observation
 
         pixel_observations = {
             pixel_key: self.env.render(**self._render_kwargs[pixel_key])
