@@ -25,11 +25,11 @@ class CartPoleEnv(gym.Env):
 
     Observation:
         Type: Box(4)
-        Num   Observation               Min             Max
-        0     Cart Position             -4.8            4.8
-        1     Cart Velocity             -Inf            Inf
-        2     Pole Angle                -24 deg         24 deg
-        3     Pole Velocity At Tip      -Inf            Inf
+        Num     Observation               Min                     Max
+        0       Cart Position             -4.8                    4.8
+        1       Cart Velocity             -Inf                    Inf
+        2       Pole Angle                -0.418 rad (-24 deg)    0.418 rad (24 deg)
+        3       Pole Angular Velocity     -Inf                    Inf
 
     Actions:
         Type: Discrete(2)
