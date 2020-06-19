@@ -321,6 +321,7 @@ class Line(Geom):
 class Image(Geom):
     def __init__(self, fname, width, height):
         Geom.__init__(self)
+        self.set_color(1.0, 1.0, 1.0)
         self.width = width
         self.height = height
         img = pyglet.image.load(fname)
