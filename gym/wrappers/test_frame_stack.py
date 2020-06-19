@@ -21,6 +21,7 @@ def test_frame_stack(env_id, num_stack, lz4_compress):
     shape = env.observation_space.shape
     env = FrameStack(env, num_stack, lz4_compress)
     assert env.observation_space.shape == (num_stack,) + shape
+    assert env.observation_space.dtype == env.env.observation_space.dtype
 
     obs = env.reset()
     obs = np.asarray(obs)
@@ -34,3 +35,6 @@ def test_frame_stack(env_id, num_stack, lz4_compress):
     for i in range(1, num_stack - 1):
         assert np.allclose(obs[i - 1], obs[i])
     assert not np.allclose(obs[-1], obs[-2])
+
+    obs, _, _, _ = env.step(env.action_space.sample())
+    assert len(obs) == num_stack

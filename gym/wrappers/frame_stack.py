@@ -22,11 +22,11 @@ class LazyFrames(object):
     __slots__ = ('frame_shape', 'dtype', 'shape', 'lz4_compress', '_frames')
 
     def __init__(self, frames, lz4_compress=False):
+        self.frame_shape = tuple(frames[0].shape)
+        self.shape = (len(frames),) + self.frame_shape
+        self.dtype = frames[0].dtype
         if lz4_compress:
             from lz4.block import compress
-            self.frame_shape = tuple(frames[0].shape)
-            self.dtype = frames[0].dtype
-            self.shape = (len(frames),) + self.frame_shape
             frames = [compress(frame) for frame in frames]
         self._frames = frames
         self.lz4_compress = lz4_compress
