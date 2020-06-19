@@ -1,5 +1,7 @@
 import numpy as np
 import sys
+from contextlib import closing
+from io import StringIO
 from gym.envs.toy_text import discrete
 
 UP = 0
@@ -88,7 +90,7 @@ class CliffWalkingEnv(discrete.DiscreteEnv):
         return [(1.0, new_state, -1, is_done)]
 
     def render(self, mode='human'):
-        outfile = sys.stdout
+        outfile = StringIO() if mode == 'ansi' else sys.stdout
 
         for s in range(self.nS):
             position = np.unravel_index(s, self.shape)
@@ -111,3 +113,7 @@ class CliffWalkingEnv(discrete.DiscreteEnv):
             outfile.write(output)
         outfile.write('\n')
 
+        # No need to return anything for human
+        if mode != 'human':
+            with closing(outfile):
+                return outfile.getvalue()
