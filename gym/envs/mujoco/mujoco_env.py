@@ -130,7 +130,7 @@ class MujocoEnv(gym.Env):
                height=DEFAULT_SIZE,
                camera_id=None,
                camera_name=None):
-        if mode == 'rgb_array':
+        if mode == 'rgb_array' or mode == 'depth_array':
             if camera_id is not None and camera_name is not None:
                 raise ValueError("Both `camera_id` and `camera_name` cannot be"
                                  " specified at the same time.")
@@ -143,6 +143,8 @@ class MujocoEnv(gym.Env):
                 camera_id = self.model.camera_name2id(camera_name)
 
             self._get_viewer(mode).render(width, height, camera_id=camera_id)
+
+        if mode == 'rgb_array':
             # window size used for old mujoco-py:
             data = self._get_viewer(mode).read_pixels(width, height, depth=False)
             # original image is upside-down, so flip it
