@@ -285,3 +285,9 @@ Learn more here: https://github.com/DoubleGremlin181/RubiksCubeGym
 A simple environment for benchmarking single and multi-agent reinforcement learning algorithms on a clone of Slime Volleyball game. Only dependencies are gym and numpy. Both state and pixel observation environments are available. The motivation of this environment is to easily enable trained agents to play against each other, and also facilitate the training of agents directly in a multi-agent setting, thus adding an extra dimension for evaluating an agent's performance.
 
 Learn more here: https://github.com/hardmaru/slimevolleygym
+
+### Gridworld: A simple 2D grid environment
+
+The Gridworld package provides grid-based environments to help simulate the results for model-based reinforcement learning algorithms. Initial release supports single agent system only.
+
+Learn more here: https://github.com/addy1997/Gridworld
