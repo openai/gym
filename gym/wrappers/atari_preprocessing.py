@@ -35,12 +35,14 @@ class AtariPreprocessing(gym.Wrapper):
             life is lost. 
         grayscale_obs (bool): if True, then gray scale observation is returned, otherwise, RGB observation
             is returned.
+        grayscale_newaxis (bool): if True and grayscale_obs=True, then a channel axis is added to
+            grayscale observations to make them 3-dimensional.
         scale_obs (bool): if True, then observation normalized in range [0,1] is returned. It also limits memory
             optimization benefits of FrameStack Wrapper.
     """
 
     def __init__(self, env, noop_max=30, frame_skip=4, screen_size=84, terminal_on_life_loss=False, grayscale_obs=True,
-                 scale_obs=False):
+                 grayscale_newaxis=False, scale_obs=False):
         super().__init__(env)
         assert cv2 is not None, \
             "opencv-python package not installed! Try running pip install gym[atari] to get dependencies  for atari"
@@ -57,6 +59,7 @@ class AtariPreprocessing(gym.Wrapper):
         self.screen_size = screen_size
         self.terminal_on_life_loss = terminal_on_life_loss
         self.grayscale_obs = grayscale_obs
+        self.grayscale_newaxis = grayscale_newaxis
         self.scale_obs = scale_obs
 
         # buffer of most recent two observations for max pooling
@@ -129,6 +132,6 @@ class AtariPreprocessing(gym.Wrapper):
         else:
             obs = np.asarray(obs, dtype=np.uint8)
 
-        if self.grayscale_obs:
+        if self.grayscale_obs and self.grayscale_newaxis:
             obs = np.expand_dims(obs, axis=-1)  # Add a channel axis
         return obs
