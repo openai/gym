@@ -97,7 +97,9 @@ On Ubuntu 16.04 and 18.04:
 MuJoCo has a proprietary dependency we can't set up for you. Follow
 the
 `instructions <https://github.com/openai/mujoco-py#obtaining-the-binaries-and-license-key>`_
-in the ``mujoco-py`` package for help.  As an alternative to ``mujoco-py``, consider `PyBullet <https://github.com/openai/gym/blob/master/docs/environments.md#pybullet-robotics-environments>`_ which uses the open source Bullet physics engine and has no license requirement.
+in the ``mujoco-py`` package for help. Note that we currently do not support MuJoCo 2.0, so you will need to install the version of mujoco-py which is built
+for MuJoCo 1.5 (like ``mujoco-py-1.50.1.0``).
+As an alternative to ``mujoco-py``, consider `PyBullet <https://github.com/openai/gym/blob/master/docs/environments.md#pybullet-robotics-environments>`_ which uses the open source Bullet physics engine and has no license requirement.
 
 Once you're ready to install everything, run ``pip install -e '.[all]'`` (or ``pip install 'gym[all]'``).
 
