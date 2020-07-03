@@ -43,7 +43,7 @@ class HotterColder(gym.Env):
         return [seed]
 
     def step(self, action):
-        assert self.action_space.contains(action)
+        assert self.action_space.contains([action])
 
         if action < self.number:
             self.observation = 1
@@ -59,7 +59,7 @@ class HotterColder(gym.Env):
         self.guess_count += 1
         done = self.guess_count >= self.guess_max
 
-        return self.observation, reward[0], done, {"number": self.number, "guesses": self.guess_count}
+        return self.observation, reward, done, {"number": self.number, "guesses": self.guess_count}
 
     def reset(self):
         self.number = self.np_random.uniform(-self.range, self.range)

@@ -58,7 +58,7 @@ class GuessingGame(gym.Env):
         return [seed]
 
     def step(self, action):
-        assert self.action_space.contains(action)
+        assert self.action_space.contains([action])
 
         if action < self.number:
             self.observation = 1
@@ -87,3 +87,4 @@ class GuessingGame(gym.Env):
         self.guess_count = 0
         self.observation = 0
         return self.observation
+
