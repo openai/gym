@@ -1,6 +1,12 @@
 from gym import envs, logger
 import os
 
+
+SKIP_MUJOCO_WARNING_MESSAGE = (
+    "Cannot run mujoco test (either license key not found or mujoco not"
+    "installed properly).")
+
+
 skip_mujoco = not (os.environ.get('MUJOCO_KEY'))
 if not skip_mujoco:
     try:

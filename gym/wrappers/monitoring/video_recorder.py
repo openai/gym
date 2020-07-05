@@ -5,8 +5,7 @@ import tempfile
 import os.path
 import distutils.spawn, distutils.version
 import numpy as np
-from six import StringIO
-import six
+from io import StringIO
 from gym import error, logger
 
 def touch(path):
@@ -76,6 +75,7 @@ class VideoRecorder(object):
         touch(path)
 
         self.frames_per_sec = env.metadata.get('video.frames_per_second', 30)
+        self.output_frames_per_sec = env.metadata.get('video.output_frames_per_second', self.frames_per_sec)
         self.encoder = None # lazily start the process
         self.broken = False
 
@@ -159,7 +159,7 @@ class VideoRecorder(object):
 
     def _encode_image_frame(self, frame):
         if not self.encoder:
-            self.encoder = ImageEncoder(self.path, frame.shape, self.frames_per_sec)
+            self.encoder = ImageEncoder(self.path, frame.shape, self.frames_per_sec, self.output_frames_per_sec)
             self.metadata['encoder_version'] = self.encoder.version_info
 
         try:
@@ -181,9 +181,8 @@ class TextEncoder(object):
         self.frames = []
 
     def capture_frame(self, frame):
-        from six import string_types
         string = None
-        if isinstance(frame, string_types):
+        if isinstance(frame, str):
             string = frame
         elif isinstance(frame, StringIO):
             string = frame.getvalue()
@@ -192,10 +191,10 @@ class TextEncoder(object):
 
         frame_bytes = string.encode('utf-8')
 
-        if frame_bytes[-1:] != six.b('\n'):
+        if frame_bytes[-1:] != b'\n':
             raise error.InvalidFrame('Frame must end with a newline: """{}"""'.format(string))
 
-        if six.b('\r') in frame_bytes:
+        if b'\r' in frame_bytes:
             raise error.InvalidFrame('Frame contains carriage returns (only newlines are allowed: """{}"""'.format(string))
 
         self.frames.append(frame_bytes)
@@ -207,14 +206,14 @@ class TextEncoder(object):
         # Turn frames into events: clear screen beforehand
         # https://rosettacode.org/wiki/Terminal_control/Clear_the_screen#Python
         # https://rosettacode.org/wiki/Terminal_control/Cursor_positioning#Python
-        clear_code = six.b("%c[2J\033[1;1H" % (27))
+        clear_code = b"%c[2J\033[1;1H" % (27)
         # Decode the bytes as UTF-8 since JSON may only contain UTF-8
-        events = [ (frame_duration, (clear_code+frame.replace(six.b('\n'),six.b('\r\n'))).decode('utf-8'))  for frame in self.frames ]
+        events = [ (frame_duration, (clear_code+frame.replace(b'\n', b'\r\n')).decode('utf-8'))  for frame in self.frames ]
 
         # Calculate frame size from the largest frames.
         # Add some padding since we'll get cut off otherwise.
-        height = max([frame.count(six.b('\n')) for frame in self.frames]) + 1
-        width = max([max([len(line) for line in frame.split(six.b('\n'))]) for frame in self.frames]) + 2
+        height = max([frame.count(b'\n') for frame in self.frames]) + 1
+        width = max([max([len(line) for line in frame.split(b'\n')]) for frame in self.frames]) + 2
 
         data = {
             "version": 1,
@@ -235,7 +234,7 @@ class TextEncoder(object):
         return {'backend':'TextEncoder','version':1}
 
 class ImageEncoder(object):
-    def __init__(self, output_path, frame_shape, frames_per_sec):
+    def __init__(self, output_path, frame_shape, frames_per_sec, output_frames_per_sec):
         self.proc = None
         self.output_path = output_path
         # Frame shape should be lines-first, so w and h are swapped
@@ -246,6 +245,7 @@ class ImageEncoder(object):
         self.includes_alpha = (pixfmt == 4)
         self.frame_shape = frame_shape
         self.frames_per_sec = frames_per_sec
+        self.output_frames_per_sec = output_frames_per_sec
 
         if distutils.spawn.find_executable('avconv') is not None:
             self.backend = 'avconv'
@@ -270,18 +270,19 @@ class ImageEncoder(object):
                      '-nostats',
                      '-loglevel', 'error', # suppress warnings
                      '-y',
-                     '-r', '%d' % self.frames_per_sec,
 
                      # input
                      '-f', 'rawvideo',
                      '-s:v', '{}x{}'.format(*self.wh),
                      '-pix_fmt',('rgb32' if self.includes_alpha else 'rgb24'),
+                     '-framerate', '%d' % self.frames_per_sec,
                      '-i', '-', # this used to be /dev/stdin, which is not Windows-friendly
 
                      # output
                      '-vf', 'scale=trunc(iw/2)*2:trunc(ih/2)*2',
                      '-vcodec', 'libx264',
                      '-pix_fmt', 'yuv420p',
+                     '-r', '%d' % self.output_frames_per_sec,
                      self.output_path
                      )
 

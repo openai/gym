@@ -48,8 +48,8 @@ class BlackjackEnv(gym.Env):
     Face cards (Jack, Queen, King) have point value 10.
     Aces can either count as 11 or 1, and it's called 'usable' at 11.
     This game is placed with an infinite deck (or with replacement).
-    The game starts with each (player and dealer) having one face up and one
-    face down card.
+    The game starts with dealer having one face up and one face down card, while
+    player having two face up cards. (Virtually for all Blackjack games today).
 
     The player can request additional cards (hit=1) until they decide to stop
     (stick=0) or exceed 21 (bust).
@@ -94,16 +94,16 @@ class BlackjackEnv(gym.Env):
             self.player.append(draw_card(self.np_random))
             if is_bust(self.player):
                 done = True
-                reward = -1
+                reward = -1.
             else:
                 done = False
-                reward = 0
+                reward = 0.
         else:  # stick: play out the dealers hand, and score
             done = True
             while sum_hand(self.dealer) < 17:
                 self.dealer.append(draw_card(self.np_random))
             reward = cmp(score(self.player), score(self.dealer))
-            if self.natural and is_natural(self.player) and reward == 1:
+            if self.natural and is_natural(self.player) and reward == 1.:
                 reward = 1.5
         return self._get_obs(), reward, done, {}
 

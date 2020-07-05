@@ -9,7 +9,7 @@ except ImportError:
 
 
 @pytest.mark.skipif(atari_py is None, reason='Only run this test when atari_py is installed')
-@pytest.mark.parametrize('env_id', ['Pong-v0', 'SpaceInvaders-v0'])
+@pytest.mark.parametrize('env_id', ['PongNoFrameskip-v0', 'SpaceInvadersNoFrameskip-v0'])
 @pytest.mark.parametrize('shape', [16, 32, (8, 5), [10, 7]])
 def test_resize_observation(env_id, shape):
     env = gym.make(env_id)

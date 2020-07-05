@@ -5,11 +5,11 @@ python:
 services:
   - docker
 env:
-  # - UBUNTU_VER=14.04 - problems with atari-py
-  - PY_VER=2.7
   - PY_VER=3.5.6
   - PY_VER=3.6.8
   - PY_VER=3.7.3
+  - PY_VER=3.8.1
+
 
 install: "" # so travis doesn't do pip install requirements.txt
 script:

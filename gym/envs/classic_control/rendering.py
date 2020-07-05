@@ -1,9 +1,7 @@
 """
 2D rendering framework
 """
-from __future__ import division
 import os
-import six
 import sys
 
 if "Apple" in sys.version:
@@ -45,11 +43,23 @@ def get_display(spec):
     Pyglet only supports multiple Displays on Linux.
     """
     if spec is None:
-        return None
-    elif isinstance(spec, six.string_types):
+        return pyglet.canvas.get_display()
+        # returns already available pyglet_display,
+        # if there is no pyglet display available then it creates one
+    elif isinstance(spec, str):
         return pyglet.canvas.Display(spec)
     else:
         raise error.Error('Invalid display specification: {}. (Must be a string like :0 or None.)'.format(spec))
+
+def get_window(width, height, display, **kwargs):
+    """
+    Will create a pyglet window from the display specification provided.
+    """
+    screen = display.get_screens() #available screens
+    config = screen[0].get_best_config() #selecting the first screen
+    context = config.create_context(None) #create GL context
+
+    return pyglet.window.Window(width=width, height=height, display=display, config=config, context=context, **kwargs)
 
 class Viewer(object):
     def __init__(self, width, height, display=None):
@@ -57,7 +67,7 @@ class Viewer(object):
 
         self.width = width
         self.height = height
-        self.window = pyglet.window.Window(width=width, height=height, display=display)
+        self.window = get_window(width=width, height=height, display=display)
         self.window.on_close = self.window_closed_by_user
         self.isopen = True
         self.geoms = []
@@ -68,7 +78,10 @@ class Viewer(object):
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
     def close(self):
-        self.window.close()
+        if self.isopen and sys.meta_path:
+            # ^^^ check sys.meta_path to avoid 'ImportError: sys.meta_path is None, Python is likely shutting down'
+            self.window.close()
+            self.isopen = False
 
     def window_closed_by_user(self):
         self.isopen = False
@@ -102,7 +115,7 @@ class Viewer(object):
         if return_rgb_array:
             buffer = pyglet.image.get_buffer_manager().get_color_buffer()
             image_data = buffer.get_image_data()
-            arr = np.frombuffer(image_data.data, dtype=np.uint8)
+            arr = np.frombuffer(image_data.get_data(), dtype=np.uint8)
             # In https://github.com/openai/gym-http-api/issues/2, we
             # discovered that someone using Xmonad on Arch was having
             # a window of size 598 x 398, though a 600 x 400 window
@@ -144,7 +157,7 @@ class Viewer(object):
         self.window.flip()
         image_data = pyglet.image.get_buffer_manager().get_color_buffer().get_image_data()
         self.window.flip()
-        arr = np.fromstring(image_data.data, dtype=np.uint8, sep='')
+        arr = np.fromstring(image_data.get_data(), dtype=np.uint8, sep='')
         arr = arr.reshape(self.height, self.width, 4)
         return arr[::-1,:,0:3]
 
@@ -308,6 +321,7 @@ class Line(Geom):
 class Image(Geom):
     def __init__(self, fname, width, height):
         Geom.__init__(self)
+        self.set_color(1.0, 1.0, 1.0)
         self.width = width
         self.height = height
         img = pyglet.image.load(fname)
@@ -322,7 +336,7 @@ class SimpleImageViewer(object):
     def __init__(self, display=None, maxwidth=500):
         self.window = None
         self.isopen = False
-        self.display = display
+        self.display = get_display(display)
         self.maxwidth = maxwidth
     def imshow(self, arr):
         if self.window is None:
@@ -331,8 +345,7 @@ class SimpleImageViewer(object):
                 scale = self.maxwidth / width
                 width = int(scale * width)
                 height = int(scale * height)
-            self.window = pyglet.window.Window(width=width, height=height, 
-                display=self.display, vsync=False, resizable=True)            
+            self.window = get_window(width=width, height=height, display=self.display, vsync=False, resizable=True)
             self.width = width
             self.height = height
             self.isopen = True
@@ -347,9 +360,9 @@ class SimpleImageViewer(object):
                 self.isopen = False
 
         assert len(arr.shape) == 3, "You passed in an image with the wrong number shape"
-        image = pyglet.image.ImageData(arr.shape[1], arr.shape[0], 
+        image = pyglet.image.ImageData(arr.shape[1], arr.shape[0],
             'RGB', arr.tobytes(), pitch=arr.shape[1]*-3)
-        gl.glTexParameteri(gl.GL_TEXTURE_2D, 
+        gl.glTexParameteri(gl.GL_TEXTURE_2D,
             gl.GL_TEXTURE_MAG_FILTER, gl.GL_NEAREST)
         texture = image.get_texture()
         texture.width = self.width

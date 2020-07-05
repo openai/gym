@@ -10,7 +10,8 @@ off the end of the tape in any direction. When this happens, agents will observe
 a special blank character (with index=env.base) until they get back in bounds.
 
 Actions consist of 3 sub-actions:
-    - Direction to move the read head (left or right, plus up and down for 2-d envs)
+    - Direction to move the read head (left or right, plus up and down for 2-d
+      envs)
     - Whether to write to the output tape
     - Which character to write (ignored if the above sub-action is 0)
 
@@ -36,7 +37,7 @@ from gym.utils import colorize, seeding
 import sys
 from contextlib import closing
 import numpy as np
-from six import StringIO
+from io import StringIO
 
 
 class AlgorithmicEnv(Env):
@@ -61,16 +62,13 @@ class AlgorithmicEnv(Env):
         self.episode_total_reward = None
         # Running tally of reward shortfalls. e.g. if there were 10 points to
         # earn and we got 8, we'd append -2
-        AlgorithmicEnv.reward_shortfalls = []
+        self.reward_shortfalls = []
         if chars:
             self.charmap = [chr(ord('A')+i) for i in range(base)]
         else:
             self.charmap = [str(i) for i in range(base)]
         self.charmap.append(' ')
-        # TODO: Not clear why this is a class variable rather than instance.
-        # Could lead to some spooky action at a distance if someone is working
-        # with multiple algorithmic envs at once. Also makes testing tricky.
-        AlgorithmicEnv.min_length = starting_min_length
+        self.min_length = starting_min_length
         # Three sub-actions:
         #       1. Move read head left or right (or up/down)
         #       2. Write or not
@@ -115,9 +113,11 @@ class AlgorithmicEnv(Env):
 
     def render(self, mode='human'):
         outfile = StringIO() if mode == 'ansi' else sys.stdout
-        inp = "Total length of input instance: %d, step: %d\n" % (self.input_width, self.time)
+        inp = "Total length of input instance: %d, step: %d\n" % (
+            self.input_width, self.time
+        )
         outfile.write(inp)
-        x, y, action = self.read_head_position, self.write_head_position, self.last_action
+        y, action = self.write_head_position, self.last_action
         if action is not None:
             inp_act, out_act, pred = action
         outfile.write("=" * (len(inp) - 1) + "\n")
@@ -206,15 +206,15 @@ class AlgorithmicEnv(Env):
         """Called between episodes. Update our running record of episode rewards
         and, if appropriate, 'level up' minimum input length."""
         if self.episode_total_reward is None:
-            # This is before the first episode/call to reset(). Nothing to do
+            # This is before the first episode/call to reset(). Nothing to do.
             return
-        AlgorithmicEnv.reward_shortfalls.append(self.episode_total_reward - len(self.target))
-        AlgorithmicEnv.reward_shortfalls = AlgorithmicEnv.reward_shortfalls[-self.last:]
-        if len(AlgorithmicEnv.reward_shortfalls) == self.last and \
-                min(AlgorithmicEnv.reward_shortfalls) >= self.MIN_REWARD_SHORTFALL_FOR_PROMOTION and \
-                AlgorithmicEnv.min_length < 30:
-            AlgorithmicEnv.min_length += 1
-            AlgorithmicEnv.reward_shortfalls = []
+        self.reward_shortfalls.append(self.episode_total_reward - len(self.target))
+        self.reward_shortfalls = self.reward_shortfalls[-self.last:]
+        if len(self.reward_shortfalls) == self.last and \
+                min(self.reward_shortfalls) >= self.MIN_REWARD_SHORTFALL_FOR_PROMOTION and \
+                self.min_length < 30:
+            self.min_length += 1
+            self.reward_shortfalls = []
 
     def reset(self):
         self._check_levelup()
@@ -224,7 +224,7 @@ class AlgorithmicEnv(Env):
         self.write_head_position = 0
         self.episode_total_reward = 0.0
         self.time = 0
-        length = self.np_random.randint(3) + AlgorithmicEnv.min_length
+        length = self.np_random.randint(3) + self.min_length
         self.input_data = self.generate_input_data(length)
         self.target = self.target_from_input_data(self.input_data)
         return self._get_obs()
@@ -268,7 +268,9 @@ class TapeAlgorithmicEnv(AlgorithmicEnv):
         x_str = "Observation Tape    : "
         for i in range(-2, self.input_width + 2):
             if i == x:
-                x_str += colorize(self._get_str_obs(np.array([i])), 'green', highlight=True)
+                x_str += colorize(
+                    self._get_str_obs(np.array([i])), 'green', highlight=True
+                )
             else:
                 x_str += self._get_str_obs(np.array([i]))
         x_str += "\n"
@@ -325,7 +327,9 @@ class GridAlgorithmicEnv(AlgorithmicEnv):
                 x_str += " " * len(label)
             for i in range(-2, self.input_width + 2):
                 if i == x[0] and j == x[1]:
-                    x_str += colorize(self._get_str_obs((i, j)), 'green', highlight=True)
+                    x_str += colorize(
+                        self._get_str_obs((i, j)), 'green', highlight=True
+                    )
                 else:
                     x_str += self._get_str_obs((i, j))
             x_str += "\n"

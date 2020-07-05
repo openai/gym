@@ -37,7 +37,7 @@ environment, and the environment replies with `observations` and
 `rewards` (that is, a score).
 
 The core `gym` interface is `Env <https://github.com/openai/gym/blob/master/gym/core.py>`_, which is
-the unified environment interface. There is no interface for agents;
+the *unified environment interface*. There is no interface for agents;
 that part is left to you. The following are the ``Env`` methods you
 should know:
 
@@ -48,7 +48,7 @@ should know:
 Supported systems
 -----------------
 
-We currently support Linux and OS X running Python 2.7 or 3.5 -- 3.7. 
+We currently support Linux and OS X running Python 3.5 -- 3.8
 Windows support is experimental - algorithmic, toy_text, classic_control and atari *should* work on Windows (see next section for installation instructions); nevertheless, proceed at your own risk.
 
 Installation
@@ -77,6 +77,9 @@ You'll be able to run a few environments right away:
 We recommend playing with those environments at first, and then later
 installing the dependencies for the remaining environments.
 
+You can also `run gym on gitpod.io <https://gitpod.io/#https://github.com/openai/gym/blob/master/examples/agents/cem.py>`_ to play with the examples online.  
+In the preview window you can click on the mp4 file you want to view. If you want to view another mp4 file, just press the back button and click on another mp4 file. 
+
 Installing everything
 ---------------------
 
@@ -88,13 +91,13 @@ see the composition of our CI-tested images.
 On Ubuntu 16.04 and 18.04:
 
 .. code:: shell
-    apt-get install -y libglu1-mesa-dev libgl1-mesa-dev libosmesa6-dev xvfb ffmpeg curl patchelf libglfw3 libglfw3-dev
-
+    
+    apt-get install -y libglu1-mesa-dev libgl1-mesa-dev libosmesa6-dev xvfb ffmpeg curl patchelf libglfw3 libglfw3-dev cmake zlib1g zlib1g-dev swig
 
 MuJoCo has a proprietary dependency we can't set up for you. Follow
 the
 `instructions <https://github.com/openai/mujoco-py#obtaining-the-binaries-and-license-key>`_
-in the ``mujoco-py`` package for help.
+in the ``mujoco-py`` package for help.  As an alternative to ``mujoco-py``, consider `PyBullet <https://github.com/openai/gym/blob/master/docs/environments.md#pybullet-robotics-environments>`_ which uses the open source Bullet physics engine and has no license requirement.
 
 Once you're ready to install everything, run ``pip install -e '.[all]'`` (or ``pip install 'gym[all]'``).
 
@@ -130,7 +133,7 @@ maintain the lists of dependencies on a per-environment group basis.
 Environments
 ============
 
-See `List of Environments <docs/environments.md>`_.
+See `List of Environments <docs/environments.md>`_ and the `gym site <http://gym.openai.com/envs/>`_.
 
 For information on creating your own environments, see `Creating your own Environments <docs/creating-environments.md>`_.
 
@@ -157,6 +160,42 @@ We are using `pytest <http://doc.pytest.org>`_ for tests. You can run them via:
 
 What's new
 ==========
+- 2020-05-08 (v 0.17.2)
+   - remove unnecessary precision warning when creating Box with scalar bounds - thanks @johannespitz!
+   - remove six from the dependencies
+   + FetchEnv sample goal range can be specified through kwargs - thanks @YangRui2015!
+
+- 2020-03-05 (v 0.17.1)
+   + update cloudpickle dependency to be >=1.2.0,<1.4.0
+
+- 2020-02-21 (v 0.17.0)
+   - Drop python 2 support
+   + Add python 3.8 build
+
+- 2020-02-09 (v 0.16.0)
+   + EnvSpec API change - remove tags field (retro-active version bump, the changes are actually already in the codebase since 0.15.5 - thanks @wookayin for keeping us in check!)
+
+- 2020-02-03 (v0.15.6)
+   + pyglet 1.4 compatibility (this time for real :))
+   + Fixed the bug in BipedalWalker and BipedalWalkerHardcore, bumped version to 3 (thanks @chozabu!)
+
+- 2020-01-24 (v0.15.5)
+    + pyglet 1.4 compatibility
+    - remove python-opencv from the requirements
+   
+- 2019-11-08 (v0.15.4)
+    + Added multiple env wrappers (thanks @zuoxingdong and @hartikainen!)
+    - Removed mujoco >= 2.0 support due to lack of tests
+
+- 2019-10-09 (v0.15.3)
+    + VectorEnv modifications - unified the VectorEnv api (added reset_async, reset_wait, step_async, step_wait methods to SyncVectorEnv); more flexibility in AsyncVectorEnv workers
+
+- 2019-08-23 (v0.15.2)
+    + More Wrappers - AtariPreprocessing, FrameStack, GrayScaleObservation, FilterObservation,  FlattenDictObservationsWrapper, PixelObservationWrapper, TransformReward (thanks @zuoxingdong, @hartikainen)
+    + Remove rgb_rendering_tracking logic from mujoco environments (default behavior stays the same for the -v3 environments, rgb rendering returns a view from tracking camera)
+    + Velocity goal constraint for MountainCar (thanks @abhinavsagar)
+    + Taxi-v2 -> Taxi-v3 (add missing wall in the map to replicate env as describe in the original paper, thanks @kobotics)
+    
 - 2019-07-26 (v0.14.0)
     + Wrapper cleanup
     + Spec-related bug fixes

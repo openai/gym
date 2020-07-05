@@ -91,7 +91,7 @@ def test_sample(space):
         elif space.is_bounded("below"):
             expected_mean = 1 + space.low
         elif space.is_bounded("above"):
-            expected_mean = -1 - space.high
+            expected_mean = -1 + space.high
         else:
             expected_mean = 0.
     elif isinstance(space, Discrete):

@@ -40,7 +40,7 @@ class MultiDiscrete(Space):
             x = np.array(x)  # Promote list to array for contains check
         # if nvec is uint32 and space dtype is uint32, then 0 <= x < self.nvec guarantees that x
         # is within correct bounds for space dtype (even though x does not have to be unsigned)
-        return (0 <= x).all() and (x < self.nvec).all()
+        return x.shape == self.shape and (0 <= x).all() and (x < self.nvec).all()
 
     def to_jsonable(self, sample_n):
         return [sample.tolist() for sample in sample_n]

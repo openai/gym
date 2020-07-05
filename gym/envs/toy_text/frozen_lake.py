@@ -2,7 +2,7 @@ import sys
 from contextlib import closing
 
 import numpy as np
-from six import StringIO, b
+from io import StringIO
 
 from gym import utils
 from gym.envs.toy_text import discrete
@@ -55,7 +55,7 @@ def generate_random_map(size=8, p=0.8):
                         continue
                     if res[r_new][c_new] == 'G':
                         return True
-                    if (res[r_new][c_new] not in '#H'):
+                    if (res[r_new][c_new] !='H'):
                         frontier.append((r_new, c_new))
         return False
 
