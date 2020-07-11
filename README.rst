@@ -165,7 +165,6 @@ Resources
 -  `Gym.OpenAI.com`_
 -  `Gym Docs`_
 -  `Gym Environments`_
--  `Gym Algorithms`_
 -  `OpenAI Twitter`_
 -  `OpenAI YouTube`_
 
@@ -173,7 +172,6 @@ Resources
 .. _Gym.OpenAI.com: http://gym.openai.com/
 .. _Gym Docs: http://gym.openai.com/docs/
 .. _Gym Environments: http://gym.openai.com/envs/
-.. _Gym Algorithms: http://gym.openai.com/envs/#algorithmic
 .. _OpenAI Twitter: https://twitter.com/openai
 .. _OpenAI YouTube: https://www.youtube.com/channel/UCXZCJLdBC09xxGZ6gcdrc6A
 
