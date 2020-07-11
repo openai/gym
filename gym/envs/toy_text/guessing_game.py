@@ -58,7 +58,16 @@ class GuessingGame(gym.Env):
         return [seed]
 
     def step(self, action):
+<<<<<<< HEAD
+        if isinstance(action, (int, float)):
+            action = np.array([action])
+        elif isinstance(action, list):
+            action = np.array(action)
+
         assert self.action_space.contains(action)
+=======
+        assert self.action_space.contains([action])
+>>>>>>> 4efe4b02bc94e2b1b06783108bd4a6c1d4f4feae
 
         if action < self.number:
             self.observation = 1
@@ -87,3 +96,4 @@ class GuessingGame(gym.Env):
         self.guess_count = 0
         self.observation = 0
         return self.observation
+
