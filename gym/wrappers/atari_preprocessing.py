@@ -75,8 +75,10 @@ class AtariPreprocessing(gym.Wrapper):
         self.game_over = False
 
         _low, _high, _obs_dtype = (0, 255, np.uint8) if not scale_obs else (0, 1, np.float32)
-        _channels = 1 if grayscale_obs else 3
-        self.observation_space = Box(low=_low, high=_high, shape=(screen_size, screen_size, _channels), dtype=_obs_dtype)
+        _shape = (screen_size, screen_size, 1 if grayscale_obs else 3)
+        if grayscale_obs and not grayscale_newaxis:
+            _shape = _shape[:-1]  # Remove channel axis
+        self.observation_space = Box(low=_low, high=_high, shape=_shape, dtype=_obs_dtype)
 
     def step(self, action):
         R = 0.0
