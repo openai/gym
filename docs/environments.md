@@ -291,3 +291,9 @@ Learn more here: https://github.com/hardmaru/slimevolleygym
 The Gridworld package provides grid-based environments to help simulate the results for model-based reinforcement learning algorithms. Initial release supports single agent system only.
 
 Learn more here: https://github.com/addy1997/Gridworld
+
+### gym-goddard: Goddard's Rocket Problem
+
+An environment for simulating the classical optimal control problem where the thrust of a vertically ascending rocket shall be determined such that it reaches the maximum possible altitude, while being subject to varying aerodynamic drag, gravity and mass. 
+
+Learn more here: https://github.com/osannolik/gym-goddard
