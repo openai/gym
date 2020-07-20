@@ -2,9 +2,9 @@
 
 import collections
 import copy
+from collections.abc import MutableMapping
 
 import numpy as np
-from six.moves.collections_abc import MutableMapping
 
 from gym import spaces
 from gym import ObservationWrapper
