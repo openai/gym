@@ -27,7 +27,6 @@ same time.
 
 Created by Oleg Klimov. Licensed on the same terms as the rest of OpenAI Gym.
 """
-import ctypes
 import sys, math
 import numpy as np
 
