@@ -19,8 +19,11 @@ class MultiBinary(Space):
     '''
     
     def __init__(self, n):
-        self.n = n
-        super(MultiBinary, self).__init__((self.n,), np.int8)
+        if type(n) in [tuple, list] and len(n) != 1:
+            self.n = tuple(n)
+        else:
+            self.n = (n, )
+        super(MultiBinary, self).__init__(self.n, np.int8)
 
     def sample(self):
         return self.np_random.randint(low=0, high=2, size=self.n, dtype=self.dtype)
