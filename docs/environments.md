@@ -216,12 +216,6 @@ A lane-following simulator built for the [Duckietown](http://duckietown.org/) pr
 
 Learn more here: https://github.com/duckietown/gym-duckietown
 
-### gym-pybullet-drones: Learning Quadcopter Control
-
-A simple environment using [PyBullet](http://github.com/bulletphysics/bullet3) to simulate the dynamics of a [Bitcraze Crazyflie 2.x](https://www.bitcraze.io/documentation/hardware/crazyflie_2_1/crazyflie_2_1-datasheet.pdf) nanoquadrotor
-
-Learn more here: https://github.com/JacopoPan/gym-pybullet-drones
-
 ### GymFC: A flight control tuning and training framework 
 
 GymFC is a modular framework for synthesizing neuro-flight controllers. The
@@ -297,3 +291,9 @@ Learn more here: https://github.com/hardmaru/slimevolleygym
 The Gridworld package provides grid-based environments to help simulate the results for model-based reinforcement learning algorithms. Initial release supports single agent system only.
 
 Learn more here: https://github.com/addy1997/Gridworld
+
+### gym-pybullet-drones: Learning Quadcopter Control
+
+A simple environment using [PyBullet](http://github.com/bulletphysics/bullet3) to simulate the dynamics of a [Bitcraze Crazyflie 2.x](https://www.bitcraze.io/documentation/hardware/crazyflie_2_1/crazyflie_2_1-datasheet.pdf) nanoquadrotor
+
+Learn more here: https://github.com/JacopoPan/gym-pybullet-drones
