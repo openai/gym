@@ -292,6 +292,12 @@ The Gridworld package provides grid-based environments to help simulate the resu
 
 Learn more here: https://github.com/addy1997/Gridworld
 
+### gym-goddard: Goddard's Rocket Problem
+
+An environment for simulating the classical optimal control problem where the thrust of a vertically ascending rocket shall be determined such that it reaches the maximum possible altitude, while being subject to varying aerodynamic drag, gravity and mass. 
+
+Learn more here: https://github.com/osannolik/gym-goddard
+
 ### gym-pybullet-drones: Learning Quadcopter Control
 
 A simple environment using [PyBullet](http://github.com/bulletphysics/bullet3) to simulate the dynamics of a [Bitcraze Crazyflie 2.x](https://www.bitcraze.io/documentation/hardware/crazyflie_2_1/crazyflie_2_1-datasheet.pdf) nanoquadrotor
