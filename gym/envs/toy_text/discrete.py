@@ -48,7 +48,7 @@ class DiscreteEnv(Env):
     def reset(self):
         self.s = categorical_sample(self.isd, self.np_random)
         self.lastaction = None
-        return self.s
+        return int(self.s)
 
     def step(self, a):
         transitions = self.P[self.s][a]
@@ -56,4 +56,4 @@ class DiscreteEnv(Env):
         p, s, r, d= transitions[i]
         self.s = s
         self.lastaction = a
-        return (s, r, d, {"prob" : p})
+        return (int(s), r, d, {"prob" : p})
