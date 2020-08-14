@@ -134,7 +134,7 @@ class Box(Space):
         return [np.asarray(sample) for sample in sample_n]
 
     def __repr__(self):
-        return "Box" + str(self.shape)
+        return "Box({}, {}, {}, {})".format(self.low.min(), self.high.max(), self.shape, self.dtype)
 
     def __eq__(self, other):
         return isinstance(other, Box) and (self.shape == other.shape) and np.allclose(self.low, other.low) and np.allclose(self.high, other.high)
