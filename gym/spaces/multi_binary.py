@@ -19,11 +19,13 @@ class MultiBinary(Space):
     '''
     
     def __init__(self, n):
-        if type(n) in [tuple, list] and len(n) != 1:
-            self.n = tuple(n)
+        self.n = n
+        if (type(n) in [tuple, list] and len(n) != 1) \
+            or (type(n) is np.ndarray and len(n.shape) != 1):
+            input_n = n
         else:
-            self.n = (n, )
-        super(MultiBinary, self).__init__(self.n, np.int8)
+            input_n = (n, )
+        super(MultiBinary, self).__init__(input_n, np.int8)
 
     def sample(self):
         return self.np_random.randint(low=0, high=2, size=self.n, dtype=self.dtype)
@@ -35,7 +37,7 @@ class MultiBinary(Space):
 
     def to_jsonable(self, sample_n):
         return np.array(sample_n).tolist()
-
+    
     def from_jsonable(self, sample_n):
         return [np.asarray(sample) for sample in sample_n]
 
