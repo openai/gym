@@ -84,6 +84,7 @@ class FiniteSet(Discrete):
                 self.onehot_encode()
             if isinstance(k, int):
                 return self.onehot[k]
+            elif isinstance(k, (list, tuple, np.ndarray)):
+                return self.onehot_encoder.transform([[_] for _ in k]).toarray()
             else:
                 return self.onehot_encoder.transform([[k]]).toarray()[0]
-
