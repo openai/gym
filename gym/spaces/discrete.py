@@ -67,7 +67,7 @@ class FiniteSet(Discrete):
         return "FiniteSet(%d)" % self.n
 
     def __eq__(self, other):
-        return isinstance(other, FiniteSet) and self.n == other.n
+        return isinstance(other, FiniteSet) and set(self.actions) == set(other.actions)
 
     def __getitem__(self, k):
         return self.actions[k]
