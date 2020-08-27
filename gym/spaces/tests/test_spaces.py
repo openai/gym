@@ -62,7 +62,7 @@ def test_equality(space):
     (MultiBinary(8), MultiBinary(7)),
     (Box(low=np.array([-10, 0]), high=np.array([10, 10]), dtype=np.float32),
      Box(low=np.array([-10, 0]), high=np.array([10, 9]), dtype=np.float32)),
-    (Box(low=-np.inf,high=0., shape=(2,1)), 
+    (Box(low=-np.inf,high=0., shape=(2,1)),
         Box(low=0., high=np.inf, shape=(2,1))),
     (Tuple([Discrete(5), Discrete(10)]), Tuple([Discrete(1), Discrete(10)])),
     (Dict({"position": Discrete(5)}), Dict({"position": Discrete(4)})),
@@ -125,3 +125,45 @@ def test_class_inequality(spaces):
 def test_bad_space_calls(space_fn):
     with pytest.raises(AssertionError):
         space_fn()
+
+
+
+def test_seed_Dict():
+    test_space = Dict({
+          'a': spaces.Box(low=0, high=1, shape=(3, 3)),
+          'b': Dict({
+              'b_1': spaces.Box(low=-100, high=100, shape=(2,)),
+              'b_2': spaces.Box(low=-1, high=1, shape=(2,)),
+              }),
+          'c': spaces.Discrete(5),
+    })
+
+    seed_dict = {
+          'a': 0,
+          'b': {
+              'b_1': 1,
+              'b_2': 2,
+              },
+          'c': 3,
+    }
+
+    test_space.seed(seed_dict)
+    a = spaces.Box(low=0, high=1, shape=(3, 3))
+    a.seed(0)
+    b_1 = spaces.Box(low=-100, high=100, shape=(2,))
+    b_1.seed(1)
+    b_2 = spaces.Box(low=-1, high=1, shape=(2,))
+    b_2.seed(2)
+    c = spaces.Discrete(5)
+    c.seed(3)
+
+    for i in range(10):
+        test_s = test_space.sample()
+        a_s = a.sample()
+        assert (test_s['a'] == a_s).all()
+        b_1_s = b_1.sample()
+        assert (test_s['b']['b_1'] == b_1_s).all()
+        b_2_s = b_2.sample()
+        assert (test_s['b']['b_2'] == b_2_s).all()
+        c_s = c.sample()
+        assert test_s['c'] == c_s
