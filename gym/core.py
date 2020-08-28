@@ -56,7 +56,14 @@ class Env(object):
         raise NotImplementedError
 
     def reset(self):
-        """Resets the state of the environment and returns an initial observation.
+        """Resets the environment to an initial state and returns an initial
+        observation.
+
+        Note that this function should not reset the environment's random
+        number generator(s); random variables in the environment's state should
+        be sampled independently between multiple calls to `reset()`. In other
+        words, each call of `reset()` should yield an environment suitable for
+        a new episode, independent of previous episodes.
 
         Returns:
             observation (object): the initial observation.
