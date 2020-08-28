@@ -159,6 +159,30 @@ class VectorEnvWrapper(VectorEnv):
         assert isinstance(env, VectorEnv)
         self.env = env
 
+    # explicitly forward the methods defined in VectorEnv
+    # to self.env (instead of the base class)
+    def reset_async(self):
+        return self.env.reset_async()
+
+    def reset_wait(self):
+        return self.env.reset_wait()
+
+    def step_async(self, actions):
+        return self.env.step_async(actions)
+
+    def step_wait(self):
+        return self.env.step_wait()
+
+    def close(self, **kwargs):
+        return self.env.close(**kwargs)
+
+    def close_extras(self, **kwargs):
+        return self.env.close_extras(**kwargs)
+
+    def seed(self, seeds=None):
+        return self.env.seed(seeds)
+
+    # implicitly forward all other methods and attributes to self.env
     def __getattr__(self, name):
         if name.startswith('_'):
             raise AttributeError("attempted to get missing private attribute '{}'".format(name))
