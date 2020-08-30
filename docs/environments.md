@@ -303,3 +303,9 @@ Learn more here: https://github.com/osannolik/gym-goddard
 A simple environment using [PyBullet](http://github.com/bulletphysics/bullet3) to simulate the dynamics of a [Bitcraze Crazyflie 2.x](https://www.bitcraze.io/documentation/hardware/crazyflie_2_1/crazyflie_2_1-datasheet.pdf) nanoquadrotor
 
 Learn more here: https://github.com/JacopoPan/gym-pybullet-drones
+
+### gym-abalone: A two-player abstract strategy board game
+
+An implementation of the board game Abalone.
+
+Learn more here: https://github.com/towzeur/gym-abalone
