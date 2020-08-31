@@ -165,3 +165,10 @@ class ClosedEnvironmentError(Exception):
     Trying to call `reset`, or `step`, while the environment is closed.
     """
     pass
+
+class CustomSpaceError(Exception):
+    """
+    The space is a custom gym.Space instance, and is not supported by
+    `AsyncVectorEnv` with `shared_memory=True`.
+    """
+    pass
