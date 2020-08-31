@@ -52,6 +52,11 @@ class CustomSpace(gym.Space):
     def __eq__(self, other):
         return isinstance(other, CustomSpace)
 
+custom_spaces = [
+    CustomSpace(),
+    Tuple((CustomSpace(), Box(low=0, high=255, shape=(), dtype=np.uint8)))
+]
+
 class CustomSpaceEnv(gym.Env):
     def __init__(self):
         super(CustomSpaceEnv, self).__init__()
