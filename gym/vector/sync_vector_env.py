@@ -66,7 +66,7 @@ class SyncVectorEnv(VectorEnv):
         self.observations = concatenate(observations, self.observations,
             self.single_observation_space)
 
-        return np.copy(self.observations) if self.copy else self.observations
+        return deepcopy(self.observations) if self.copy else self.observations
 
     def step_async(self, actions):
         self._actions = actions
