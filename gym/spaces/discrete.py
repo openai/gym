@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.stats import rv_discrete
 from .space import Space
 
 
@@ -17,6 +18,11 @@ class Discrete(Space):
 
     def sample(self):
         return self.np_random.randint(self.n)
+
+    def sample_with_proba(self, p):
+        # p is the distribution of 0, 1, ..., n-1
+        d = rv_discrete(values=(np.arange(self.n), p))
+        return d.rvs()
 
     def contains(self, x):
         if isinstance(x, int):
@@ -52,7 +58,13 @@ class FiniteSet(Discrete):
         return self.__actions
 
     def sample(self):
-        return self.np_random.choice(self.actions)
+        k = super(FiniteSet, self).sample()
+        return self[k]
+    
+    def sample_with_proba(self, proba=None):
+        k = super(FiniteSet, self).sample_with_proba(proba)
+        return self[k]
+
 
     def contains(self, x):
         if isinstance(x, int):
