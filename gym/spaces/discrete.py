@@ -49,6 +49,7 @@ class FiniteSet(Discrete):
         >>> space.sample()
     """
     def __init__(self, actions):
+        # the members have been ordered in actions, indexed by integers from 0
         assert isinstance(actions, Iterable)
         self.__actions = tuple(actions)
         super(FiniteSet, self).__init__(len(actions))
