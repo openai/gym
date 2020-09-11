@@ -68,12 +68,7 @@ class AsyncVectorEnv(VectorEnv):
     """
     def __init__(self, env_fns, observation_space=None, action_space=None,
                  shared_memory=True, copy=True, context=None, daemon=True, worker=None):
-        try:
-            ctx = mp.get_context(context)
-        except AttributeError:
-            logger.warn('Context switching for `multiprocessing` is not '
-                'available in Python 2. Using the default context.')
-            ctx = mp
+        ctx = mp.get_context(context)
         self.env_fns = env_fns
         self.shared_memory = shared_memory
         self.copy = copy
