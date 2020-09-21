@@ -6,9 +6,10 @@ from multiprocessing.sharedctypes import SynchronizedArray
 from multiprocessing import Array, Process
 from collections import OrderedDict
 
-from gym.spaces import Tuple, Dict
+from gym.spaces import Box, Tuple, Dict
+from gym.error import CustomSpaceError
 from gym.vector.utils.spaces import _BaseGymSpaces
-from gym.vector.tests.utils import spaces
+from gym.vector.tests.utils import spaces, custom_spaces
 
 from gym.vector.utils.shared_memory import (create_shared_memory,
     read_from_shared_memory, write_to_shared_memory)
@@ -58,6 +59,15 @@ def test_create_shared_memory(space, expected_type, n, ctx):
     ctx = mp if (ctx is None) else mp.get_context(ctx)
     shared_memory = create_shared_memory(space, n=n, ctx=ctx)
     assert_nested_type(shared_memory, expected_type, n=n)
+
+
+@pytest.mark.parametrize('n', [1, 8])
+@pytest.mark.parametrize('ctx', [None, 'fork', 'spawn'], ids=['default', 'fork', 'spawn'])
+@pytest.mark.parametrize('space', custom_spaces)
+def test_create_shared_memory_custom_space(n, ctx, space):
+    ctx = mp if (ctx is None) else mp.get_context(ctx)
+    with pytest.raises(CustomSpaceError):
+        shared_memory = create_shared_memory(space, n=n, ctx=ctx)
 
 
 @pytest.mark.parametrize('space', spaces,

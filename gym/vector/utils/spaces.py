@@ -1,7 +1,7 @@
 import numpy as np
 from collections import OrderedDict
 
-from gym.spaces import Box, Discrete, MultiDiscrete, MultiBinary, Tuple, Dict
+from gym.spaces import Space, Box, Discrete, MultiDiscrete, MultiBinary, Tuple, Dict
 
 _BaseGymSpaces = (Box, Discrete, MultiDiscrete, MultiBinary)
 __all__ = ['_BaseGymSpaces', 'batch_space']
@@ -39,8 +39,11 @@ def batch_space(space, n=1):
         return batch_space_tuple(space, n=n)
     elif isinstance(space, Dict):
         return batch_space_dict(space, n=n)
+    elif isinstance(space, Space):
+        return batch_space_custom(space, n=n)
     else:
-        raise NotImplementedError()
+        raise ValueError('Cannot batch space with type `{0}`. The space must '
+                         'be a valid `gym.Space` instance.'.format(type(space)))
 
 def batch_space_base(space, n=1):
     if isinstance(space, Box):
@@ -60,7 +63,7 @@ def batch_space_base(space, n=1):
         return Box(low=0, high=1, shape=(n,) + space.shape, dtype=space.dtype)
 
     else:
-        raise NotImplementedError()
+        raise ValueError('Space type `{0}` is not supported.'.format(type(space)))
 
 def batch_space_tuple(space, n=1):
     return Tuple(tuple(batch_space(subspace, n=n) for subspace in space.spaces))
@@ -68,3 +71,6 @@ def batch_space_tuple(space, n=1):
 def batch_space_dict(space, n=1):
     return Dict(OrderedDict([(key, batch_space(subspace, n=n))
         for (key, subspace) in space.spaces.items()]))
+
+def batch_space_custom(space, n=1):
+    return Tuple(tuple(space for _ in range(n)))

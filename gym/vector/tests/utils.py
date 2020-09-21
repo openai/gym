@@ -47,6 +47,30 @@ class UnittestSlowEnv(gym.Env):
         reward, done = 0., False
         return observation, reward, done, {}
 
+class CustomSpace(gym.Space):
+    """Minimal custom observation space."""
+    def __eq__(self, other):
+        return isinstance(other, CustomSpace)
+
+custom_spaces = [
+    CustomSpace(),
+    Tuple((CustomSpace(), Box(low=0, high=255, shape=(), dtype=np.uint8)))
+]
+
+class CustomSpaceEnv(gym.Env):
+    def __init__(self):
+        super(CustomSpaceEnv, self).__init__()
+        self.observation_space = CustomSpace()
+        self.action_space = CustomSpace()
+
+    def reset(self):
+        return 'reset'
+
+    def step(self, action):
+        observation = 'step({0:s})'.format(action)
+        reward, done = 0., False
+        return observation, reward, done, {}
+
 def make_env(env_name, seed):
     def _make():
         env = gym.make(env_name)
@@ -57,6 +81,13 @@ def make_env(env_name, seed):
 def make_slow_env(slow_reset, seed):
     def _make():
         env = UnittestSlowEnv(slow_reset=slow_reset)
+        env.seed(seed)
+        return env
+    return _make
+
+def make_custom_space_env(seed):
+    def _make():
+        env = CustomSpaceEnv()
         env.seed(seed)
         return env
     return _make
