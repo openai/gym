@@ -30,6 +30,7 @@ and turn at the same time.
 
 Created by Oleg Klimov. Licensed on the same terms as the rest of OpenAI Gym.
 """
+import sys
 import math
 import numpy as np
 
@@ -44,27 +45,29 @@ from gym.envs.box2d.car_dynamics import Car
 from gym.utils import seeding, EzPickle
 
 import pyglet
+
+pyglet.options["debug_gl"] = False
 from pyglet import gl
 
-STATE_W = 96   # less than Atari 160x192
+STATE_W = 96  # less than Atari 160x192
 STATE_H = 96
 VIDEO_W = 600
 VIDEO_H = 400
 WINDOW_W = 1000
 WINDOW_H = 800
 
-SCALE = 6.0             # Track scale
-TRACK_RAD = 900/SCALE   # Track is heavily morphed circle with this radius
-PLAYFIELD = 2000/SCALE  # Game over boundary
-FPS = 50                # Frames per second
-ZOOM = 2.7              # Camera zoom
-ZOOM_FOLLOW = True      # Set to False for fixed view (don't use zoom)
+SCALE = 6.0  # Track scale
+TRACK_RAD = 900 / SCALE  # Track is heavily morphed circle with this radius
+PLAYFIELD = 2000 / SCALE  # Game over boundary
+FPS = 50  # Frames per second
+ZOOM = 2.7  # Camera zoom
+ZOOM_FOLLOW = True  # Set to False for fixed view (don't use zoom)
 
 
-TRACK_DETAIL_STEP = 21/SCALE
+TRACK_DETAIL_STEP = 21 / SCALE
 TRACK_TURN_RATE = 0.31
-TRACK_WIDTH = 40/SCALE
-BORDER = 8/SCALE
+TRACK_WIDTH = 40 / SCALE
+BORDER = 8 / SCALE
 BORDER_MIN_COUNT = 4
 
 ROAD_COLOR = [0.4, 0.4, 0.4]
@@ -104,7 +107,7 @@ class FrictionDetector(contactListener):
             obj.tiles.add(tile)
             if not tile.road_visited:
                 tile.road_visited = True
-                self.env.reward += 1000.0/len(self.env.track)
+                self.env.reward += 1000.0 / len(self.env.track)
                 self.env.tile_visited_count += 1
         else:
             obj.tiles.remove(tile)
@@ -112,18 +115,15 @@ class FrictionDetector(contactListener):
 
 class CarRacing(gym.Env, EzPickle):
     metadata = {
-        'render.modes': ['human', 'rgb_array', 'state_pixels'],
-        'video.frames_per_second': FPS
+        "render.modes": ["human", "rgb_array", "state_pixels"],
+        "video.frames_per_second": FPS,
     }
 
     def __init__(self, verbose=1):
         EzPickle.__init__(self)
         self.seed()
         self.contactListener_keepref = FrictionDetector(self)
-        self.world = Box2D.b2World(
-            (0, 0),
-            contactListener=self.contactListener_keepref
-        )
+        self.world = Box2D.b2World((0, 0), contactListener=self.contactListener_keepref)
         self.viewer = None
         self.invisible_state_window = None
         self.invisible_video_window = None
@@ -136,15 +136,12 @@ class CarRacing(gym.Env, EzPickle):
             shape=polygonShape(vertices=[(0, 0), (1, 0), (1, -1), (0, -1)])
         )
 
-        self.action_space = spaces.Box(np.array([-1, 0, 0]),
-                                       np.array([+1, +1, +1]),
-                                       dtype=np.float32)  # steer, gas, brake
+        self.action_space = spaces.Box(
+            np.array([-1, 0, 0]), np.array([+1, +1, +1]), dtype=np.float32
+        )  # steer, gas, brake
 
         self.observation_space = spaces.Box(
-            low=0,
-            high=255,
-            shape=(STATE_H, STATE_W, 3),
-            dtype=np.uint8
+            low=0, high=255, shape=(STATE_H, STATE_W, 3), dtype=np.uint8
         )
 
     def seed(self, seed=None):
@@ -177,9 +174,7 @@ class CarRacing(gym.Env, EzPickle):
                 self.start_alpha = 2 * math.pi * (-0.5) / CHECKPOINTS
                 rad = 1.5 * TRACK_RAD
 
-            checkpoints.append(
-                (alpha, rad * math.cos(alpha), rad * math.sin(alpha))
-            )
+            checkpoints.append((alpha, rad * math.cos(alpha), rad * math.sin(alpha)))
         self.road = []
 
         # Go from one checkpoint to another to create track
@@ -213,7 +208,7 @@ class CarRacing(gym.Env, EzPickle):
                 if not failed:
                     break
 
-                alpha -= 2*math.pi
+                alpha -= 2 * math.pi
                 continue
 
             r1x = math.cos(beta)
@@ -250,26 +245,29 @@ class CarRacing(gym.Env, EzPickle):
             i -= 1
             if i == 0:
                 return False  # Failed
-            pass_through_start = track[i][0] > self.start_alpha and track[i-1][0] <= self.start_alpha
+            pass_through_start = (
+                track[i][0] > self.start_alpha and track[i - 1][0] <= self.start_alpha
+            )
             if pass_through_start and i2 == -1:
                 i2 = i
             elif pass_through_start and i1 == -1:
                 i1 = i
                 break
         if self.verbose == 1:
-            print("Track generation: %i..%i -> %i-tiles track" % (i1, i2, i2-i1))
+            print("Track generation: %i..%i -> %i-tiles track" % (i1, i2, i2 - i1))
         assert i1 != -1
         assert i2 != -1
 
-        track = track[i1:i2-1]
+        track = track[i1 : i2 - 1]
 
         first_beta = track[0][1]
         first_perp_x = math.cos(first_beta)
         first_perp_y = math.sin(first_beta)
         # Length of perpendicular jump to put together head and tail
         well_glued_together = np.sqrt(
-            np.square(first_perp_x * (track[0][2] - track[-1][2])) +
-            np.square(first_perp_y * (track[0][3] - track[-1][3])))
+            np.square(first_perp_x * (track[0][2] - track[-1][2]))
+            + np.square(first_perp_y * (track[0][3] - track[-1][3]))
+        )
         if well_glued_together > TRACK_DETAIL_STEP:
             return False
 
@@ -279,52 +277,67 @@ class CarRacing(gym.Env, EzPickle):
             good = True
             oneside = 0
             for neg in range(BORDER_MIN_COUNT):
-                beta1 = track[i-neg-0][1]
-                beta2 = track[i-neg-1][1]
+                beta1 = track[i - neg - 0][1]
+                beta2 = track[i - neg - 1][1]
                 good &= abs(beta1 - beta2) > TRACK_TURN_RATE * 0.2
                 oneside += np.sign(beta1 - beta2)
             good &= abs(oneside) == BORDER_MIN_COUNT
             border[i] = good
         for i in range(len(track)):
             for neg in range(BORDER_MIN_COUNT):
-                border[i-neg] |= border[i]
+                border[i - neg] |= border[i]
 
         # Create tiles
         for i in range(len(track)):
             alpha1, beta1, x1, y1 = track[i]
-            alpha2, beta2, x2, y2 = track[i-1]
-            road1_l = (x1 - TRACK_WIDTH*math.cos(beta1), y1 - TRACK_WIDTH*math.sin(beta1))
-            road1_r = (x1 + TRACK_WIDTH*math.cos(beta1), y1 + TRACK_WIDTH*math.sin(beta1))
-            road2_l = (x2 - TRACK_WIDTH*math.cos(beta2), y2 - TRACK_WIDTH*math.sin(beta2))
-            road2_r = (x2 + TRACK_WIDTH*math.cos(beta2), y2 + TRACK_WIDTH*math.sin(beta2))
+            alpha2, beta2, x2, y2 = track[i - 1]
+            road1_l = (
+                x1 - TRACK_WIDTH * math.cos(beta1),
+                y1 - TRACK_WIDTH * math.sin(beta1),
+            )
+            road1_r = (
+                x1 + TRACK_WIDTH * math.cos(beta1),
+                y1 + TRACK_WIDTH * math.sin(beta1),
+            )
+            road2_l = (
+                x2 - TRACK_WIDTH * math.cos(beta2),
+                y2 - TRACK_WIDTH * math.sin(beta2),
+            )
+            road2_r = (
+                x2 + TRACK_WIDTH * math.cos(beta2),
+                y2 + TRACK_WIDTH * math.sin(beta2),
+            )
             vertices = [road1_l, road1_r, road2_r, road2_l]
             self.fd_tile.shape.vertices = vertices
             t = self.world.CreateStaticBody(fixtures=self.fd_tile)
             t.userData = t
-            c = 0.01*(i%3)
+            c = 0.01 * (i % 3)
             t.color = [ROAD_COLOR[0] + c, ROAD_COLOR[1] + c, ROAD_COLOR[2] + c]
             t.road_visited = False
             t.road_friction = 1.0
             t.fixtures[0].sensor = True
-            self.road_poly.append(
-                ([road1_l, road1_r, road2_r, road2_l], t.color)
-            )
+            self.road_poly.append(([road1_l, road1_r, road2_r, road2_l], t.color))
             self.road.append(t)
             if border[i]:
                 side = np.sign(beta2 - beta1)
-                b1_l = (x1 + side * TRACK_WIDTH * math.cos(beta1),
-                        y1 + side * TRACK_WIDTH * math.sin(beta1))
-                b1_r = (x1 + side * (TRACK_WIDTH+BORDER) * math.cos(beta1),
-                        y1 + side * (TRACK_WIDTH+BORDER)*math.sin(beta1))
-                b2_l = (x2 + side * TRACK_WIDTH * math.cos(beta2),
-                        y2 + side * TRACK_WIDTH * math.sin(beta2))
-                b2_r = (x2 + side * (TRACK_WIDTH+BORDER) * math.cos(beta2),
-                        y2 + side * (TRACK_WIDTH+BORDER) * math.sin(beta2))
+                b1_l = (
+                    x1 + side * TRACK_WIDTH * math.cos(beta1),
+                    y1 + side * TRACK_WIDTH * math.sin(beta1),
+                )
+                b1_r = (
+                    x1 + side * (TRACK_WIDTH + BORDER) * math.cos(beta1),
+                    y1 + side * (TRACK_WIDTH + BORDER) * math.sin(beta1),
+                )
+                b2_l = (
+                    x2 + side * TRACK_WIDTH * math.cos(beta2),
+                    y2 + side * TRACK_WIDTH * math.sin(beta2),
+                )
+                b2_r = (
+                    x2 + side * (TRACK_WIDTH + BORDER) * math.cos(beta2),
+                    y2 + side * (TRACK_WIDTH + BORDER) * math.sin(beta2),
+                )
                 self.road_poly.append(
-                    (
-                        [b1_l, b1_r, b2_r, b2_l],
-                        (1, 1, 1) if i % 2 == 0 else (1, 0, 0)
-                    )
+                    ([b1_l, b1_r, b2_r, b2_l], (1, 1, 1) if i % 2 == 0 else (1, 0, 0))
                 )
         self.track = track
         return True
@@ -356,9 +369,9 @@ class CarRacing(gym.Env, EzPickle):
             self.car.gas(action[1])
             self.car.brake(action[2])
 
-        self.car.step(1.0/FPS)
-        self.world.Step(1.0/FPS, 6*30, 2*30)
-        self.t += 1.0/FPS
+        self.car.step(1.0 / FPS)
+        self.world.Step(1.0 / FPS, 6 * 30, 2 * 30)
+        self.t += 1.0 / FPS
 
         self.state = self.render("state_pixels")
 
@@ -380,19 +393,20 @@ class CarRacing(gym.Env, EzPickle):
 
         return self.state, step_reward, done, {}
 
-    def render(self, mode='human'):
-        assert mode in ['human', 'state_pixels', 'rgb_array']
+    def render(self, mode="human"):
+        assert mode in ["human", "state_pixels", "rgb_array"]
         if self.viewer is None:
             from gym.envs.classic_control import rendering
+
             self.viewer = rendering.Viewer(WINDOW_W, WINDOW_H)
             self.score_label = pyglet.text.Label(
-                '0000',
+                "0000",
                 font_size=36,
                 x=20,
                 y=WINDOW_H * 2.5 / 40.00,
-                anchor_x='left',
-                anchor_y='center',
-                color=(255, 255, 255, 255)
+                anchor_x="left",
+                anchor_y="center",
+                color=(255, 255, 255, 255),
             )
             self.transform = rendering.Transform()
 
@@ -409,8 +423,10 @@ class CarRacing(gym.Env, EzPickle):
             angle = math.atan2(vel[0], vel[1])
         self.transform.set_scale(zoom, zoom)
         self.transform.set_translation(
-            WINDOW_W/2 - (scroll_x * zoom * math.cos(angle) - scroll_y * zoom * math.sin(angle)),
-            WINDOW_H/4 - (scroll_x * zoom * math.sin(angle) + scroll_y * zoom * math.cos(angle))
+            WINDOW_W / 2
+            - (scroll_x * zoom * math.cos(angle) - scroll_y * zoom * math.sin(angle)),
+            WINDOW_H / 4
+            - (scroll_x * zoom * math.sin(angle) + scroll_y * zoom * math.cos(angle)),
         )
         self.transform.set_rotation(angle)
 
@@ -423,16 +439,18 @@ class CarRacing(gym.Env, EzPickle):
 
         win.clear()
         t = self.transform
-        if mode == 'rgb_array':
+        if mode == "rgb_array":
             VP_W = VIDEO_W
             VP_H = VIDEO_H
-        elif mode == 'state_pixels':
+        elif mode == "state_pixels":
             VP_W = STATE_W
             VP_H = STATE_H
         else:
             pixel_scale = 1
-            if hasattr(win.context, '_nscontext'):
-                pixel_scale = win.context._nscontext.view().backingScaleFactor()  # pylint: disable=protected-access
+            if hasattr(win.context, "_nscontext"):
+                pixel_scale = (
+                    win.context._nscontext.view().backingScaleFactor()
+                )  # pylint: disable=protected-access
             VP_W = int(pixel_scale * WINDOW_W)
             VP_H = int(pixel_scale * WINDOW_H)
 
@@ -445,12 +463,14 @@ class CarRacing(gym.Env, EzPickle):
         t.disable()
         self.render_indicators(WINDOW_W, WINDOW_H)
 
-        if mode == 'human':
+        if mode == "human":
             win.flip()
             return self.viewer.isopen
 
-        image_data = pyglet.image.get_buffer_manager().get_color_buffer().get_image_data()
-        arr = np.fromstring(image_data.get_data(), dtype=np.uint8, sep='')
+        image_data = (
+            pyglet.image.get_buffer_manager().get_color_buffer().get_image_data()
+        )
+        arr = np.fromstring(image_data.get_data(), dtype=np.uint8, sep="")
         arr = arr.reshape(VP_H, VP_W, 4)
         arr = arr[::-1, :, 0:3]
 
@@ -462,82 +482,145 @@ class CarRacing(gym.Env, EzPickle):
             self.viewer = None
 
     def render_road(self):
-        gl.glBegin(gl.GL_QUADS)
-        gl.glColor4f(0.4, 0.8, 0.4, 1.0)
-        gl.glVertex3f(-PLAYFIELD, +PLAYFIELD, 0)
-        gl.glVertex3f(+PLAYFIELD, +PLAYFIELD, 0)
-        gl.glVertex3f(+PLAYFIELD, -PLAYFIELD, 0)
-        gl.glVertex3f(-PLAYFIELD, -PLAYFIELD, 0)
-        gl.glColor4f(0.4, 0.9, 0.4, 1.0)
-        k = PLAYFIELD/20.0
+        colors = [0.4, 0.8, 0.4, 1.0] * 4
+        polygons_ = [
+            +PLAYFIELD,
+            +PLAYFIELD,
+            0,
+            +PLAYFIELD,
+            -PLAYFIELD,
+            0,
+            -PLAYFIELD,
+            -PLAYFIELD,
+            0,
+            -PLAYFIELD,
+            +PLAYFIELD,
+            0,
+        ]
+
+        k = PLAYFIELD / 20.0
+        colors.extend([0.4, 0.9, 0.4, 1.0] * 4 * 20 * 20)
         for x in range(-20, 20, 2):
             for y in range(-20, 20, 2):
-                gl.glVertex3f(k * x + k, k * y + 0, 0)
-                gl.glVertex3f(k * x + 0, k * y + 0, 0)
-                gl.glVertex3f(k * x + 0, k * y + k, 0)
-                gl.glVertex3f(k * x + k, k * y + k, 0)
+                polygons_.extend(
+                    [
+                        k * x + k,
+                        k * y + 0,
+                        0,
+                        k * x + 0,
+                        k * y + 0,
+                        0,
+                        k * x + 0,
+                        k * y + k,
+                        0,
+                        k * x + k,
+                        k * y + k,
+                        0,
+                    ]
+                )
+
         for poly, color in self.road_poly:
-            gl.glColor4f(color[0], color[1], color[2], 1)
+            colors.extend([color[0], color[1], color[2], 1] * len(poly))
             for p in poly:
-                gl.glVertex3f(p[0], p[1], 0)
-        gl.glEnd()
+                polygons_.extend([p[0], p[1], 0])
+
+        vl = pyglet.graphics.vertex_list(
+            len(polygons_) // 3, ("v3f", polygons_), ("c4f", colors)  # gl.GL_QUADS,
+        )
+        vl.draw(gl.GL_QUADS)
 
     def render_indicators(self, W, H):
-        gl.glBegin(gl.GL_QUADS)
         s = W / 40.0
         h = H / 40.0
-        gl.glColor4f(0, 0, 0, 1)
-        gl.glVertex3f(W, 0, 0)
-        gl.glVertex3f(W, 5 * h, 0)
-        gl.glVertex3f(0, 5 * h, 0)
-        gl.glVertex3f(0, 0, 0)
+        colors = [0, 0, 0, 1] * 4
+        polygons = [W, 0, 0, W, 5 * h, 0, 0, 5 * h, 0, 0, 0, 0]
 
         def vertical_ind(place, val, color):
-            gl.glColor4f(color[0], color[1], color[2], 1)
-            gl.glVertex3f((place+0) * s, h + h * val, 0)
-            gl.glVertex3f((place+1) * s, h + h * val, 0)
-            gl.glVertex3f((place+1) * s, h, 0)
-            gl.glVertex3f((place+0) * s, h, 0)
+            colors.extend([color[0], color[1], color[2], 1] * 4)
+            polygons.extend(
+                [
+                    place * s,
+                    h + h * val,
+                    0,
+                    (place + 1) * s,
+                    h + h * val,
+                    0,
+                    (place + 1) * s,
+                    h,
+                    0,
+                    (place + 0) * s,
+                    h,
+                    0,
+                ]
+            )
 
         def horiz_ind(place, val, color):
-            gl.glColor4f(color[0], color[1], color[2], 1)
-            gl.glVertex3f((place + 0) * s, 4 * h, 0)
-            gl.glVertex3f((place + val) * s, 4 * h, 0)
-            gl.glVertex3f((place + val) * s, 2 * h, 0)
-            gl.glVertex3f((place + 0) * s, 2 * h, 0)
+            colors.extend([color[0], color[1], color[2], 1] * 4)
+            polygons.extend(
+                [
+                    (place + 0) * s,
+                    4 * h,
+                    0,
+                    (place + val) * s,
+                    4 * h,
+                    0,
+                    (place + val) * s,
+                    2 * h,
+                    0,
+                    (place + 0) * s,
+                    2 * h,
+                    0,
+                ]
+            )
+
         true_speed = np.sqrt(
             np.square(self.car.hull.linearVelocity[0])
             + np.square(self.car.hull.linearVelocity[1])
         )
-        vertical_ind(5, 0.02*true_speed, (1, 1, 1))
-        vertical_ind(7, 0.01*self.car.wheels[0].omega, (0.0, 0, 1))  # ABS sensors
-        vertical_ind(8, 0.01*self.car.wheels[1].omega, (0.0, 0, 1))
-        vertical_ind(9, 0.01*self.car.wheels[2].omega, (0.2, 0, 1))
-        vertical_ind(10, 0.01*self.car.wheels[3].omega, (0.2, 0, 1))
+
+        vertical_ind(5, 0.02 * true_speed, (1, 1, 1))
+        vertical_ind(7, 0.01 * self.car.wheels[0].omega, (0.0, 0, 1))  # ABS sensors
+        vertical_ind(8, 0.01 * self.car.wheels[1].omega, (0.0, 0, 1))
+        vertical_ind(9, 0.01 * self.car.wheels[2].omega, (0.2, 0, 1))
+        vertical_ind(10, 0.01 * self.car.wheels[3].omega, (0.2, 0, 1))
         horiz_ind(20, -10.0 * self.car.wheels[0].joint.angle, (0, 1, 0))
         horiz_ind(30, -0.8 * self.car.hull.angularVelocity, (1, 0, 0))
-        gl.glEnd()
+        vl = pyglet.graphics.vertex_list(
+            len(polygons) // 3, ("v3f", polygons), ("c4f", colors)  # gl.GL_QUADS,
+        )
+        vl.draw(gl.GL_QUADS)
         self.score_label.text = "%04i" % self.reward
         self.score_label.draw()
 
 
 if __name__ == "__main__":
     from pyglet.window import key
+
     a = np.array([0.0, 0.0, 0.0])
 
     def key_press(k, mod):
         global restart
-        if k == 0xff0d: restart = True
-        if k == key.LEFT:  a[0] = -1.0
-        if k == key.RIGHT: a[0] = +1.0
-        if k == key.UP:    a[1] = +1.0
-        if k == key.DOWN:  a[2] = +0.8   # set 1.0 for wheels to block to zero rotation
+        if k == 0xFF0D:
+            restart = True
+        if k == key.LEFT:
+            a[0] = -1.0
+        if k == key.RIGHT:
+            a[0] = +1.0
+        if k == key.UP:
+            a[1] = +1.0
+        if k == key.DOWN:
+            a[2] = +0.8  # set 1.0 for wheels to block to zero rotation
 
     def key_release(k, mod):
-        if k == key.LEFT  and a[0] == -1.0: a[0] = 0
-        if k == key.RIGHT and a[0] == +1.0: a[0] = 0
-        if k == key.UP:    a[1] = 0
-        if k == key.DOWN:  a[2] = 0
+        if k == key.LEFT and a[0] == -1.0:
+            a[0] = 0
+        if k == key.RIGHT and a[0] == +1.0:
+            a[0] = 0
+        if k == key.UP:
+            a[1] = 0
+        if k == key.DOWN:
+            a[2] = 0
+
     env = CarRacing()
     env.render()
     env.viewer.window.on_key_press = key_press
@@ -545,7 +628,8 @@ if __name__ == "__main__":
     record_video = False
     if record_video:
         from gym.wrappers.monitor import Monitor
-        env = Monitor(env, '/tmp/video-test', force=True)
+
+        env = Monitor(env, "/tmp/video-test", force=True)
     isopen = True
     while isopen:
         env.reset()
