@@ -309,3 +309,9 @@ Learn more here: https://github.com/JacopoPan/gym-pybullet-drones
 An implementation of the board game Abalone.
 
 Learn more here: https://github.com/towzeur/gym-abalone
+
+### gym-adserver: Environment for online advertising
+
+An environment that implements a typical [multi-armed bandit scenario](https://en.wikipedia.org/wiki/Multi-armed_bandit) where an [ad server](https://en.wikipedia.org/wiki/Ad_serving) must select the best advertisement to be displayed in a web page. Some example agents are included: Random, epsilon-Greedy, Softmax, and UCB1.
+
+Learn more here: https://github.com/falox/gym-adserver
