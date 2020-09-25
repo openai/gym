@@ -304,6 +304,12 @@ A simple environment using [PyBullet](http://github.com/bulletphysics/bullet3) t
 
 Learn more here: https://github.com/JacopoPan/gym-pybullet-drones
 
+### gym-derk: GPU accelerated MOBA environment
+
+This is a 3v3 MOBA environment where you train creatures to figth each other. It runs entirely on the GPU so you can easily have hundreds of instances running in parallel. There are around 15 items for the creatures, 60 "senses", 5 actions, and ~23 tweakable rewards. It's also possible to benchmark an agent against other agents online. It's available for free for training for personal use, and otherwise costs money; see licensing details on the website.
+
+More here: https://gym.derkgame.com
+
 ### gym-abalone: A two-player abstract strategy board game
 
 An implementation of the board game Abalone.
