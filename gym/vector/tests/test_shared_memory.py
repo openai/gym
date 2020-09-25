@@ -1,5 +1,4 @@
 import pytest
-import sys
 import numpy as np
 
 import multiprocessing as mp
@@ -7,14 +6,14 @@ from multiprocessing.sharedctypes import SynchronizedArray
 from multiprocessing import Array, Process
 from collections import OrderedDict
 
-from gym.spaces import Tuple, Dict
+from gym.spaces import Box, Tuple, Dict
+from gym.error import CustomSpaceError
 from gym.vector.utils.spaces import _BaseGymSpaces
-from gym.vector.tests.utils import spaces
+from gym.vector.tests.utils import spaces, custom_spaces
 
 from gym.vector.utils.shared_memory import (create_shared_memory,
     read_from_shared_memory, write_to_shared_memory)
 
-is_python_2 = (sys.version_info < (3, 0))
 
 expected_types = [
     Array('d', 1), Array('f', 1), Array('f', 3), Array('f', 4), Array('B', 1), Array('B', 32 * 32 * 3),
@@ -33,9 +32,7 @@ expected_types = [
 @pytest.mark.parametrize('n', [1, 8])
 @pytest.mark.parametrize('space,expected_type', list(zip(spaces, expected_types)),
     ids=[space.__class__.__name__ for space in spaces])
-@pytest.mark.parametrize('ctx', [None,
-    pytest.param('fork', marks=pytest.mark.skipif(is_python_2, reason='Requires Python 3')),
-    pytest.param('spawn', marks=pytest.mark.skipif(is_python_2, reason='Requires Python 3'))],
+@pytest.mark.parametrize('ctx', [None, 'fork', 'spawn'],
     ids=['default', 'fork', 'spawn'])
 def test_create_shared_memory(space, expected_type, n, ctx):
     def assert_nested_type(lhs, rhs, n):
@@ -62,6 +59,15 @@ def test_create_shared_memory(space, expected_type, n, ctx):
     ctx = mp if (ctx is None) else mp.get_context(ctx)
     shared_memory = create_shared_memory(space, n=n, ctx=ctx)
     assert_nested_type(shared_memory, expected_type, n=n)
+
+
+@pytest.mark.parametrize('n', [1, 8])
+@pytest.mark.parametrize('ctx', [None, 'fork', 'spawn'], ids=['default', 'fork', 'spawn'])
+@pytest.mark.parametrize('space', custom_spaces)
+def test_create_shared_memory_custom_space(n, ctx, space):
+    ctx = mp if (ctx is None) else mp.get_context(ctx)
+    with pytest.raises(CustomSpaceError):
+        shared_memory = create_shared_memory(space, n=n, ctx=ctx)
 
 
 @pytest.mark.parametrize('space', spaces,

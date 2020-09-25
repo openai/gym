@@ -2,10 +2,11 @@ import pytest
 import numpy as np
 
 from multiprocessing import TimeoutError
-from gym.spaces import Box
+from gym.spaces import Box, Tuple
 from gym.error import (AlreadyPendingCallError, NoAsyncCallError,
                        ClosedEnvironmentError)
-from gym.vector.tests.utils import make_env, make_slow_env
+from gym.vector.tests.utils import (CustomSpace, make_env,
+    make_slow_env, make_custom_space_env)
 
 from gym.vector.async_vector_env import AsyncVectorEnv
 
@@ -193,4 +194,32 @@ def test_check_observations_async_vector_env(shared_memory):
     env_fns[1] = make_env('MemorizeDigits-v0', 1)
     with pytest.raises(RuntimeError):
         env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
+        env.close(terminate=True)
+
+
+def test_custom_space_async_vector_env():
+    env_fns = [make_custom_space_env(i) for i in range(4)]
+    try:
+        env = AsyncVectorEnv(env_fns, shared_memory=False)
+        reset_observations = env.reset()
+        actions = ('action-2', 'action-3', 'action-5', 'action-7')
+        step_observations, rewards, dones, _ = env.step(actions)
+    finally:
+        env.close()
+
+    assert isinstance(env.single_observation_space, CustomSpace)
+    assert isinstance(env.observation_space, Tuple)
+
+    assert isinstance(reset_observations, tuple)
+    assert reset_observations == ('reset', 'reset', 'reset', 'reset')
+
+    assert isinstance(step_observations, tuple)
+    assert step_observations == ('step(action-2)', 'step(action-3)',
+                                 'step(action-5)', 'step(action-7)')
+
+
+def test_custom_space_async_vector_env_shared_memory():
+    env_fns = [make_custom_space_env(i) for i in range(4)]
+    with pytest.raises(ValueError):
+        env = AsyncVectorEnv(env_fns, shared_memory=True)
         env.close(terminate=True)
