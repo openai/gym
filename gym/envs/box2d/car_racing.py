@@ -488,7 +488,6 @@ class CarRacing(gym.Env, EzPickle):
         vl.draw(gl.GL_QUADS)
 
     def render_indicators(self, W, H):
-        # gl.glBegin(gl.GL_QUADS)
         s = W / 40.0
         h = H / 40.0
         colors = [0, 0, 0, 1] * 4
