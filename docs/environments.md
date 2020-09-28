@@ -321,3 +321,9 @@ Learn more here: https://github.com/towzeur/gym-abalone
 An environment that implements a typical [multi-armed bandit scenario](https://en.wikipedia.org/wiki/Multi-armed_bandit) where an [ad server](https://en.wikipedia.org/wiki/Ad_serving) must select the best advertisement to be displayed in a web page. Some example agents are included: Random, epsilon-Greedy, Softmax, and UCB1.
 
 Learn more here: https://github.com/falox/gym-adserver
+
+### gym-autokey: Automated rule-based deductive program verification
+
+An environment for automated rule-based deductive program verification in the KeY verification system.
+
+Learn more here: https://github.com/Flunzmas/gym-autokey
