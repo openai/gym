@@ -179,6 +179,11 @@ Resources
 
 What's new
 ==========
+- 2020-09-29 (v 0.17.3)
+   + Allow custom spaces in VectorEnv (thanks @tristandeleu!)
+   + CarRacing performance improvements (thanks @leocus!)
+   + Dict spaces are now iterable (thanks @NotNANtoN!)
+
 - 2020-05-08 (v 0.17.2)
    - remove unnecessary precision warning when creating Box with scalar bounds - thanks @johannespitz!
    - remove six from the dependencies
