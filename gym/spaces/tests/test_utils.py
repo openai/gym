@@ -118,3 +118,26 @@ def compare_nested(left, right):
         return res
     else:
         return left == right
+
+@pytest.mark.parametrize("original_space", [
+    Discrete(3),
+    Box(low=0., high=np.inf, shape=(2, 2)),
+    Tuple([Discrete(5), Discrete(10)]),
+    Tuple([Discrete(5), Box(low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32)]),
+    Tuple((Discrete(5), Discrete(2), Discrete(2))),
+    MultiDiscrete([2, 2, 100]),
+    MultiBinary(10),
+    Dict({"position": Discrete(5),
+          "velocity": Box(low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32)}),
+    ])
+def test_flatened_space_contains_flattened_value(original_space):
+    """
+    This test is meant to emulate what happens in a FlattenObservationWrapper
+    """
+    flattened_space = utils.flatten_space(original_space)
+
+    original_sample = original_space.sample()
+    flattened_sample = utils.flatten(original_space, original_sample)
+
+    assert flattened_space.contains(flattened_sample)
+    assert flattened_space.dtype == flattened_sample.dtype
