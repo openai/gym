@@ -129,9 +129,6 @@ def compare_nested(left, right):
            "velocity": Box(low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32)}), np.float64),
 ])
 def test_flattened_space_dtype_matches_flattened_value(original_space, expected_flattened_dtype):
-    """
-    This test is meant to emulate what happens in a FlattenObservationWrapper
-    """
     flattened_space = utils.flatten_space(original_space)
 
     original_sample = original_space.sample()
