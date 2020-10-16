@@ -130,7 +130,7 @@ def compare_nested(left, right):
     Dict({"position": Discrete(5),
           "velocity": Box(low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32)}),
     ])
-def test_flatened_space_contains_flattened_value(original_space):
+def test_flattened_space_contains_flattened_value(original_space):
     """
     This test is meant to emulate what happens in a FlattenObservationWrapper
     """
