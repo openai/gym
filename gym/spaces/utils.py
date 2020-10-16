@@ -156,10 +156,15 @@ def flatten_space(space):
             high=np.concatenate([s.high for s in space]),
         )
     if isinstance(space, MultiBinary):
-        return Box(low=0, high=1, shape=(space.n, ))
+        return Box(low=0,
+                   high=1,
+                   shape=(space.n, ),
+                   dtype=np.int8
+                   )
     if isinstance(space, MultiDiscrete):
         return Box(
             low=np.zeros_like(space.nvec),
             high=space.nvec,
+            dtype=np.int64
         )
     raise NotImplementedError
