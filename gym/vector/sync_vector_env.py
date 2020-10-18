@@ -2,7 +2,7 @@ import numpy as np
 from copy import deepcopy
 
 from gym import logger
-from gym.vector.vector_env import VectorEnv
+from gym.vector.vector_env import VectorEnv, FINAL_STATE_KEY
 from gym.vector.utils import concatenate, create_empty_array
 
 __all__ = ["SyncVectorEnv"]
@@ -75,18 +75,27 @@ class SyncVectorEnv(VectorEnv):
 
     def step_async(self, actions):
         self._actions = actions
-
+ 
     def step_wait(self):
         observations, infos = [], []
         for i, (env, action) in enumerate(zip(self.envs, self._actions)):
             observation, self._rewards[i], self._dones[i], info = env.step(action)
-            if self._dones[i]:
+            # Don't manually reset VectorEnvs, since they reset the right env
+            # themselves in `step`.
+            if not isinstance(env, VectorEnv) and self._dones[i]:
+                # Save the final state in the info dict at key FINAL_STATE_KEY.
+                if FINAL_STATE_KEY not in info:
+                    info[FINAL_STATE_KEY] = observation
                 observation = env.reset()
             observations.append(observation)
             infos.append(info)
+<<<<<<< HEAD
         self.observations = concatenate(
             observations, self.observations, self.single_observation_space
         )
+=======
+        concatenate(observations, self.observations, self.single_observation_space)
+>>>>>>> Add BatchedVectorEnv, (chunking + flexible n_envs)
 
         return (
             deepcopy(self.observations) if self.copy else self.observations,
@@ -94,6 +103,7 @@ class SyncVectorEnv(VectorEnv):
             np.copy(self._dones),
             infos,
         )
+
 
     def close_extras(self, **kwargs):
         [env.close() for env in self.envs]

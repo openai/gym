@@ -3,11 +3,19 @@ try:
 except ImportError:
     Iterable = (tuple, list)
 
+from gym.vector.batched_vector_env import BatchedVectorEnv
 from gym.vector.async_vector_env import AsyncVectorEnv
 from gym.vector.sync_vector_env import SyncVectorEnv
 from gym.vector.vector_env import VectorEnv, VectorEnvWrapper
 
-__all__ = ["AsyncVectorEnv", "SyncVectorEnv", "VectorEnv", "VectorEnvWrapper", "make"]
+__all__ = [
+    "BatchedVectorEnv",
+    "AsyncVectorEnv",
+    "SyncVectorEnv",
+    "VectorEnv",
+    "VectorEnvWrapper",
+    "make",
+]
 
 
 def make(id, num_envs=1, asynchronous=True, wrappers=None, **kwargs):
