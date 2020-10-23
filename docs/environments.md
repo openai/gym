@@ -288,7 +288,7 @@ Learn more here: https://github.com/hardmaru/slimevolleygym
 
 ### Gridworld: A simple 2D grid environment
 
-The Gridworld package provides grid-based environments to help simulate the results for model-based reinforcement learning algorithms. Initial release supports single agent system only.
+The Gridworld package provides grid-based environments to help simulate the results for model-based reinforcement learning algorithms. Initial release supports single agent system only. Some features in this version of software have become obsolete. New features are being added in the software like windygrid environment.
 
 Learn more here: https://github.com/addy1997/Gridworld
 
