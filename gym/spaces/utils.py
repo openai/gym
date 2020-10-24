@@ -55,9 +55,9 @@ def flatten(space, x):
         return np.concatenate(
             [flatten(s, x[key]) for key, s in space.spaces.items()])
     elif isinstance(space, MultiBinary):
-        return np.asarray(x, dtype=np.int8).flatten()
+        return np.asarray(x, dtype=space.dtype).flatten()
     elif isinstance(space, MultiDiscrete):
-        return np.asarray(x, dtype=np.int64).flatten()
+        return np.asarray(x, dtype=space.dtype).flatten()
     else:
         raise NotImplementedError
 
