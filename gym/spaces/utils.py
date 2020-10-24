@@ -46,7 +46,7 @@ def flatten(space, x):
         return np.asarray(x, dtype=space.dtype).flatten()
     elif isinstance(space, Discrete):
         onehot = np.zeros(space.n, dtype=space.dtype)
-        onehot[x] = 1.0
+        onehot[x] = 1
         return onehot
     elif isinstance(space, Tuple):
         return np.concatenate(
@@ -73,7 +73,7 @@ def unflatten(space, x):
     defined in ``gym.spaces``.
     """
     if isinstance(space, Box):
-        return np.asarray(x, dtype=np.float32).reshape(space.shape)
+        return np.asarray(x, dtype=space.dtype).reshape(space.shape)
     elif isinstance(space, Discrete):
         return int(np.nonzero(x)[0][0])
     elif isinstance(space, Tuple):
@@ -94,9 +94,9 @@ def unflatten(space, x):
         ]
         return OrderedDict(list_unflattened)
     elif isinstance(space, MultiBinary):
-        return np.asarray(x).reshape(space.shape)
+        return np.asarray(x, dtype=space.dtype).reshape(space.shape)
     elif isinstance(space, MultiDiscrete):
-        return np.asarray(x).reshape(space.shape)
+        return np.asarray(x, dtype=space.dtype).reshape(space.shape)
     else:
         raise NotImplementedError
 
