@@ -161,12 +161,12 @@ def flatten_space(space):
         return Box(low=0,
                    high=1,
                    shape=(space.n, ),
-                   dtype=np.int8
+                   dtype=space.dtype
                    )
     if isinstance(space, MultiDiscrete):
         return Box(
             low=np.zeros_like(space.nvec),
             high=space.nvec,
-            dtype=np.int64
+            dtype=space.dtype
         )
     raise NotImplementedError
