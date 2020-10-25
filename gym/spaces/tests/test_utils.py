@@ -1,6 +1,8 @@
 from collections import OrderedDict
+
 import numpy as np
 import pytest
+
 from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Tuple, utils
 
 
@@ -145,10 +147,10 @@ def test_dtypes(original_space, expected_flattened_dtype):
 
     assert flattened_space.contains(flattened_sample), "Expected flattened_space to contain flattened_sample"
     assert flattened_space.dtype == expected_flattened_dtype, "Expected flattened_space's dtype to equal " \
-                                                              f"{expected_flattened_dtype}"
+                                                              "{}".format(expected_flattened_dtype)
 
     assert flattened_sample.dtype == flattened_space.dtype, "Expected flattened_space's dtype to equal " \
-                                                             "flattened_sample's dtype "
+                                                            "flattened_sample's dtype "
 
     compare_sample_types(original_space, original_sample, unflattened_sample)
 
@@ -156,7 +158,7 @@ def test_dtypes(original_space, expected_flattened_dtype):
 def compare_sample_types(original_space, original_sample, unflattened_sample):
     if isinstance(original_space, Discrete):
         assert isinstance(unflattened_sample, int), "Expected unflattened_sample to be an int. unflattened_sample: " \
-                                                    f"{unflattened_sample} original_sample: {original_sample}"
+                                                    "{} original_sample: {}".format(unflattened_sample, original_sample)
     elif isinstance(original_space, Tuple):
         for index in range(len(original_space)):
             compare_sample_types(original_space.spaces[index], original_sample[index], unflattened_sample[index])
@@ -166,5 +168,5 @@ def compare_sample_types(original_space, original_sample, unflattened_sample):
     else:
         assert unflattened_sample.dtype == original_sample.dtype, "Expected unflattened_sample's dtype to equal " \
                                                                   "original_sample's dtype. unflattened_sample: " \
-                                                                  f"{unflattened_sample} original_sample: "       \
-                                                                  f"{original_sample}"
+                                                                  "{} original_sample: {}".format(unflattened_sample,
+                                                                                                  original_sample)
