@@ -1,6 +1,6 @@
 # Agents
 
-An "agent" describes the method of running an RL algorithm against an environment in the gym. The agent may contain the algorithm itself or simply provide an integration between an algorithm and the gym environments.
+An "agent" describes the method of running an RL algorithm against an environment in the gym. The agent may contain the algorithm itself or simply provide an integration between an algorithm and the gym environments. Environment is the universe of agent which changes state of agent with given action performed on it. Agent is the system that perceives environment via sensors and perform actions with actuators.
 
 ## RandomAgent
 
