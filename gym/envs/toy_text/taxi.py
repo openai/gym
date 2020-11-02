@@ -70,7 +70,7 @@ class TaxiEnv(discrete.DiscreteEnv):
     def __init__(self):
         self.desc = np.asarray(MAP, dtype='c')
 
-        self.locs = locs = [(0,0), (0,4), (4,0), (4,3)]
+        self.locs = locs = [(0, 0), (0, 4), (4, 0), (4, 3)]
 
         num_states = 500
         num_rows = 5
