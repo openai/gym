@@ -269,56 +269,42 @@ def unroll(chunks: Sequence[Sequence[T]], item_space: Space = None) -> List[T]:
         # tuple of lists of samples. 
         chunked_items = list(zip(chunks))
         return tuple([
-            unroll(chunk, item_space=chunk_item_space)
-            for chunk, chunk_item_space in zip(chunked_items, item_space.spaces)  
+            unroll(chunk_items_i, item_space=item_space.spaces[i])
+            for i, chunk_items_i in enumerate(chunked_items)  
         ])
+
     if isinstance(chunks, np.ndarray):
+        # Remove the 'chunk' dimension.
         return list(chunks.reshape([-1, *chunks.shape[2:]]))
     
-    return list(itertools.chain.from_iterable(chunks))
+    values: List[T] = []
+    for chunk in chunks:
+        values.extend(chunk)
+    return values
 
 from functools import singledispatch
+from gym.vector.utils.spaces import _BaseGymSpaces
 
 
 @singledispatch
 def fuse_and_batch(item_space: spaces.Space, *sequences: Sequence[Sequence[T]], n_items: int) -> Sequence[T]:
-    # fuse the lists
-    # sequence_a, sequence_b = sequences
+    """Concatenate two sequences of items, and then fuse them into a single
+    batch.
+    """
     assert all(isinstance(sequence, list) for sequence in sequences)
-    
-    if len(sequences) == 1:
-        joined_sequence = sequences[0]
-    else:
-        joined_sequence = sum(sequences, [])
-    
-    # out = create_empty_array(item_space, n=n_items)
-    return np.concatenate([
+    out = create_empty_array(item_space, n=n_items)
+    # # Concatenate the (two) batches into a single batch of samples.
+    items_batch = np.concatenate([
         np.asarray(v).reshape([-1, *item_space.shape])
-        for v in joined_sequence
+        for v in itertools.chain(*sequences)
     ])
-    
-    # return concatenate(joined_sequence, out, item_space)
+    # # Split this batch of samples into a list of items from each space.
+    items = [
+        v.reshape(item_space.shape) for v in np.split(items_batch, n_items)
+    ]
+    # TODO: Need to add more tests to make sure this works with custom spaces and Dict spaces.
+    return concatenate(items, out, item_space)
 
-    # TODO: This works temporarily. Would need to check that this would also work with sparse spaces.
-    return np.concatenate([
-        np.concatenate(sequence) if sequence.shape else np.stack(sequence)
-        for sequence in joined_sequence if len(sequence)
-    ])
-    
-    all_items = list(itertools.chain(*sequences))
-
-    if len(all_items) != n_items:
-        raise RuntimeError(
-            f"Expected to have {n_items} items in the batch, but we "
-            f"instead have {len(all_items)}! (items={sequences}, "
-            f"item_space={item_space})."
-        )
-    if item_space is None:
-        return all_items
-
-    empty_array = create_empty_array(item_space, n=n_items)
-    item_batch = concatenate(all_items, empty_array, item_space)
-    return item_batch
 
 
 @fuse_and_batch.register
