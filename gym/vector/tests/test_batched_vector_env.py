@@ -7,6 +7,7 @@ import numpy as np
 import pytest
 from gym import spaces
 from gym.vector.batched_vector_env import BatchedVectorEnv
+from gym.vector.vector_env import FINAL_STATE_KEY
 
 N_CPUS = cpu_count()
 
@@ -112,13 +113,11 @@ def test_ordering_of_env_fns_preserved(batch_size):
 
     env.close()
 
-
-# @pytest.mark.xfail(
-#     reason="TODO: Need to think a bit about the 'reset' behaviour of the "
-#     " 'worker', currently it resets for us and gives us the new initial "
-#     "observation when 'done'=True. "
-# )
 def test_done_reset_behaviour():
+    """ Test that when one of the envs in the batch is reset, the final
+    observation is stored in the "info" dict, at key FINAL_STATE_KEY
+    ("final_state" atm.).
+    """
     batch_size = 10
     n_workers = 4
     target = batch_size
@@ -146,11 +145,7 @@ def test_done_reset_behaviour():
     assert obs[~done].tolist() == (np.arange(batch_size) + 1)[~done].tolist()
     assert obs[done].tolist() == starting_values[done].tolist()
 
-    # TODO: This here wouldn't work with the `SyncVectorEnv` from gym.vector,
-    # because it doesn't keep the final observation at all, it just overwrites
-    # it. Would have been Nice for it to be kept in the 'info' dict at least..
-
     # The 'info' dict should have the final state as an observation.
-    assert info[last_index]["final_state"] == target
-    assert all("final_state" not in info_i for info_i in info[:last_index])
+    assert info[last_index][FINAL_STATE_KEY] == target
+    assert all(FINAL_STATE_KEY not in info_i for info_i in info[:last_index])
     env.close()
