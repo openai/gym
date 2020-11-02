@@ -22,7 +22,7 @@ class DiscreteEnv(Env):
     - P: transitions (*)
     - isd: initial state distribution (**)
 
-    (*) dictionary dict of dicts of lists, where
+    (*) dictionary of lists, where
       P[s][a] == [(probability, nextstate, reward, done), ...]
     (**) list or array of length nS
 
