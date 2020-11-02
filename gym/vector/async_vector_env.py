@@ -410,6 +410,7 @@ def _worker(index, env_fn, pipe, parent_pipe, shared_memory, error_queue):
         # reset the envs that are done if needed in the 'step' method and return
         # the initial observation instead of the final observation.
         if not isinstance(env, VectorEnv) and done:
+            # Add the final observation in the 'info' dict.
             if FINAL_STATE_KEY not in info:
                 info[FINAL_STATE_KEY] = observation
             observation = env.reset()
@@ -463,8 +464,9 @@ def _worker_shared_memory(index, env_fn, pipe, parent_pipe, shared_memory, error
         # Do nothing if the env is a VectorEnv, since it will automatically
         # reset the envs that are done if needed in the 'step' method and return
         # the initial observation instead of the final observation.
-        # NOTE: This 'final observation' isn't in the shared memory.
         if not isinstance(env, VectorEnv) and done:
+            # Add the final observation in the 'info' dict. 
+            # NOTE: This 'final observation' isn't in the shared memory.
             if FINAL_STATE_KEY not in info:
                 info[FINAL_STATE_KEY] = observation
             observation = env.reset()

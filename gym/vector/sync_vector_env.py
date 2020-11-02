@@ -67,10 +67,8 @@ class SyncVectorEnv(VectorEnv):
         for env in self.envs:
             observation = env.reset()
             observations.append(observation)
-        self.observations = concatenate(
-            observations, self.observations, self.single_observation_space
-        )
-
+        self.observations = concatenate(observations, self.observations,
+            self.single_observation_space)
         return deepcopy(self.observations) if self.copy else self.observations
 
     def step_async(self, actions):
@@ -90,12 +88,16 @@ class SyncVectorEnv(VectorEnv):
             observations.append(observation)
             infos.append(info)
 <<<<<<< HEAD
+<<<<<<< HEAD
         self.observations = concatenate(
             observations, self.observations, self.single_observation_space
         )
 =======
         concatenate(observations, self.observations, self.single_observation_space)
 >>>>>>> Add BatchedVectorEnv, (chunking + flexible n_envs)
+=======
+        self.observations = concatenate(observations, self.observations, self.single_observation_space)
+>>>>>>> Add support for Tuple observation spaces, fix test
 
         return (
             deepcopy(self.observations) if self.copy else self.observations,
