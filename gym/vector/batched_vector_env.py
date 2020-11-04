@@ -292,10 +292,11 @@ def fuse_and_batch(item_space: spaces.Space, *sequences: Sequence[Sequence[T]], 
     batch.
     """
     out = create_empty_array(item_space, n=n_items)
+    assert not isinstance(item_space, spaces.Tuple), item_space
     # # Concatenate the (two) batches into a single batch of samples.
     items_batch = np.concatenate([
         np.asarray(v).reshape([-1, *item_space.shape])
-        for v in itertools.chain(*sequences)
+        for v in itertools.chain(*filter(len, sequences))
     ])
     # # Split this batch of samples into a list of items from each space.
     items = [
@@ -306,7 +307,7 @@ def fuse_and_batch(item_space: spaces.Space, *sequences: Sequence[Sequence[T]], 
 
 
 
-@fuse_and_batch.register
+@fuse_and_batch.register(spaces.Dict)
 def fuse_and_batch_dicts(item_space: spaces.Dict, *sequences: Sequence[Dict[K, V]], n_items: int) -> Dict[K, Sequence[T]]:
     values: Dict[K, List[V]] = {
         k: [] for k in item_space.spaces.keys()
@@ -321,7 +322,7 @@ def fuse_and_batch_dicts(item_space: spaces.Dict, *sequences: Sequence[Dict[K, V
     }
 
 
-@fuse_and_batch.register
+@fuse_and_batch.register(spaces.Tuple)
 def fuse_and_batch_tuples(item_space: spaces.Tuple, *sequences: Sequence[Tuple[T, ...]], n_items: int) -> Tuple[Sequence[T], ...]:
     # Join the list of items for each subspace of the item_space Tuple.
     joined_sequences: Sequence[List[T]] = [
