@@ -291,7 +291,6 @@ def fuse_and_batch(item_space: spaces.Space, *sequences: Sequence[Sequence[T]], 
     """Concatenate two sequences of items, and then fuse them into a single
     batch.
     """
-    assert all(isinstance(sequence, list) for sequence in sequences)
     out = create_empty_array(item_space, n=n_items)
     # # Concatenate the (two) batches into a single batch of samples.
     items_batch = np.concatenate([
