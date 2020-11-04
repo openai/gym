@@ -327,3 +327,9 @@ Learn more here: https://github.com/falox/gym-adserver
 An environment for automated rule-based deductive program verification in the KeY verification system.
 
 Learn more here: https://github.com/Flunzmas/gym-autokey
+
+### gym-riverswim: A hard-exploration environment
+
+A simple environment for benchmarking reinforcement learning exploration techniques in a simplified setting.
+
+Learn more here: https://github.com/erfanMhi/gym-riverswim
