@@ -13,7 +13,7 @@ class ResizeObservation(ObservationWrapper):
         assert all(x > 0 for x in shape), shape
         self.shape = tuple(shape)
 
-        obs_shape = shape + self.observation_space.shape[2:]
+        obs_shape = self.shape + self.observation_space.shape[2:]
         self.observation_space = Box(low=0, high=255, shape=obs_shape, dtype=np.uint8)
 
     def observation(self, observation):

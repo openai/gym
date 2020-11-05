@@ -23,8 +23,8 @@ def convert_observation_to_space(observation):
             for key, value in observation.items()
         ]))
     elif isinstance(observation, np.ndarray):
-        low = np.full(observation.shape, -float('inf'))
-        high = np.full(observation.shape, float('inf'))
+        low = np.full(observation.shape, -float('inf'), dtype=np.float32)
+        high = np.full(observation.shape, float('inf'), dtype=np.float32)
         space = spaces.Box(low, high, dtype=observation.dtype)
     else:
         raise NotImplementedError(type(observation), observation)
@@ -36,7 +36,7 @@ class MujocoEnv(gym.Env):
     """Superclass for all MuJoCo environments.
     """
 
-    def __init__(self, model_path, frame_skip, rgb_rendering_tracking=True):
+    def __init__(self, model_path, frame_skip):
         if model_path.startswith("/"):
             fullpath = model_path
         else:
@@ -48,7 +48,6 @@ class MujocoEnv(gym.Env):
         self.sim = mujoco_py.MjSim(self.model)
         self.data = self.sim.data
         self.viewer = None
-        self.rgb_rendering_tracking = rgb_rendering_tracking
         self._viewers = {}
 
         self.metadata = {
@@ -70,7 +69,7 @@ class MujocoEnv(gym.Env):
         self.seed()
 
     def _set_action_space(self):
-        bounds = self.model.actuator_ctrlrange.copy()
+        bounds = self.model.actuator_ctrlrange.copy().astype(np.float32)
         low, high = bounds.T
         self.action_space = spaces.Box(low=low, high=high, dtype=np.float32)
         return self.action_space
@@ -125,13 +124,27 @@ class MujocoEnv(gym.Env):
         for _ in range(n_frames):
             self.sim.step()
 
-    def render(self, mode='human', width=DEFAULT_SIZE, height=DEFAULT_SIZE):
-        if mode == 'rgb_array':
-            camera_id = None
-            camera_name = 'track'
-            if self.rgb_rendering_tracking and camera_name in self.model.camera_names:
+    def render(self,
+               mode='human',
+               width=DEFAULT_SIZE,
+               height=DEFAULT_SIZE,
+               camera_id=None,
+               camera_name=None):
+        if mode == 'rgb_array' or mode == 'depth_array':
+            if camera_id is not None and camera_name is not None:
+                raise ValueError("Both `camera_id` and `camera_name` cannot be"
+                                 " specified at the same time.")
+
+            no_camera_specified = camera_name is None and camera_id is None
+            if no_camera_specified:
+                camera_name = 'track'
+
+            if camera_id is None and camera_name in self.model._camera_name2id:
                 camera_id = self.model.camera_name2id(camera_name)
+
             self._get_viewer(mode).render(width, height, camera_id=camera_id)
+
+        if mode == 'rgb_array':
             # window size used for old mujoco-py:
             data = self._get_viewer(mode).read_pixels(width, height, depth=False)
             # original image is upside-down, so flip it

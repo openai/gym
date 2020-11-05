@@ -109,14 +109,14 @@ register(
 )
 
 register(
-    id='BipedalWalker-v2',
+    id='BipedalWalker-v3',
     entry_point='gym.envs.box2d:BipedalWalker',
     max_episode_steps=1600,
     reward_threshold=300,
 )
 
 register(
-    id='BipedalWalkerHardcore-v2',
+    id='BipedalWalkerHardcore-v3',
     entry_point='gym.envs.box2d:BipedalWalkerHardcore',
     max_episode_steps=2000,
     reward_threshold=300,
@@ -181,7 +181,7 @@ register(
 )
 
 register(
-    id='Taxi-v2',
+    id='Taxi-v3',
     entry_point='gym.envs.toy_text:TaxiEnv',
     reward_threshold=8, # optimum = 8.46
     max_episode_steps=200,

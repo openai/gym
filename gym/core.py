@@ -6,7 +6,7 @@ env_closer = closer.Closer()
 
 
 class Env(object):
-    r"""The main OpenAI Gym class. It encapsulates an environment with
+    """The main OpenAI Gym class. It encapsulates an environment with
     arbitrary behind-the-scenes dynamics. An environment can be
     partially or fully observed.
 
@@ -26,9 +26,7 @@ class Env(object):
 
     Note: a default reward range set to [-inf,+inf] already exists. Set it if you want a narrower range.
 
-    The methods are accessed publicly as "step", "reset", etc.. The
-    non-underscored versions are wrapper methods to which we may add
-    functionality over time.
+    The methods are accessed publicly as "step", "reset", etc...
     """
     # Set this in SOME subclasses
     metadata = {'render.modes': []}
@@ -58,9 +56,16 @@ class Env(object):
         raise NotImplementedError
 
     def reset(self):
-        """Resets the state of the environment and returns an initial observation.
+        """Resets the environment to an initial state and returns an initial
+        observation.
 
-        Returns: 
+        Note that this function should not reset the environment's random
+        number generator(s); random variables in the environment's state should
+        be sampled independently between multiple calls to `reset()`. In other
+        words, each call of `reset()` should yield an environment suitable for
+        a new episode, independent of previous episodes.
+
+        Returns:
             observation (object): the initial observation.
         """
         raise NotImplementedError
@@ -145,9 +150,11 @@ class Env(object):
             return '<{}<{}>>'.format(type(self).__name__, self.spec.id)
 
     def __enter__(self):
+        """Support with-statement for the environment. """
         return self
 
     def __exit__(self, *args):
+        """Support with-statement for the environment. """
         self.close()
         # propagate exception
         return False
@@ -172,9 +179,9 @@ class GoalEnv(Env):
 
     def compute_reward(self, achieved_goal, desired_goal, info):
         """Compute the step reward. This externalizes the reward function and makes
-        it dependent on an a desired goal and the one that was achieved. If you wish to include
+        it dependent on a desired goal and the one that was achieved. If you wish to include
         additional rewards that are independent of the goal, you can include the necessary values
-        to derive it in info and compute it accordingly.
+        to derive it in 'info' and compute it accordingly.
 
         Args:
             achieved_goal (object): the goal that was achieved during execution
@@ -192,16 +199,16 @@ class GoalEnv(Env):
 
 
 class Wrapper(Env):
-    r"""Wraps the environment to allow a modular transformation. 
-    
+    """Wraps the environment to allow a modular transformation.
+
     This class is the base class for all wrappers. The subclass could override
     some methods to change the behavior of the original environment without touching the
-    original code. 
-    
+    original code.
+
     .. note::
-    
+
         Don't forget to call ``super().__init__(env)`` if the subclass overrides :meth:`__init__`.
-    
+
     """
     def __init__(self, env):
         self.env = env
@@ -209,12 +216,15 @@ class Wrapper(Env):
         self.observation_space = self.env.observation_space
         self.reward_range = self.env.reward_range
         self.metadata = self.env.metadata
-        self.spec = getattr(self.env, 'spec', None)
 
     def __getattr__(self, name):
         if name.startswith('_'):
             raise AttributeError("attempted to get missing private attribute '{}'".format(name))
         return getattr(self.env, name)
+
+    @property
+    def spec(self):
+        return self.env.spec
 
     @classmethod
     def class_name(cls):

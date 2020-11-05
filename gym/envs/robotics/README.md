@@ -14,41 +14,41 @@ If you use these environments, please cite the following paper:
 ```
 
 ## Fetch environments
-<img src="https://blog.openai.com/content/images/2018/02/fetch-reach.png" width="500">
+<img src="https://openai.com/content/images/2018/02/fetch-reach.png" width="500">
 
 [FetchReach-v0](https://gym.openai.com/envs/FetchReach-v0/): Fetch has to move its end-effector to the desired goal position.
 
 
-<img src="https://blog.openai.com/content/images/2018/02/fetch-slide.png" width="500">
+<img src="https://openai.com/content/images/2018/02/fetch-slide.png" width="500">
 
 [FetchSlide-v0](https://gym.openai.com/envs/FetchSlide-v0/): Fetch has to hit a puck across a long table such that it slides and comes to rest on the desired goal.
 
 
-<img src="https://blog.openai.com/content/images/2018/02/fetch-push.png" width="500">
+<img src="https://openai.com/content/images/2018/02/fetch-push.png" width="500">
 
 [FetchPush-v0](https://gym.openai.com/envs/FetchPush-v0/): Fetch has to move a box by pushing it until it reaches a desired goal position.
 
 
-<img src="https://blog.openai.com/content/images/2018/02/fetch-pickandplace.png" width="500">
+<img src="https://openai.com/content/images/2018/02/fetch-pickandplace.png" width="500">
 
 [FetchPickAndPlace-v0](https://gym.openai.com/envs/FetchPickAndPlace-v0/): Fetch has to pick up a box from a table using its gripper and move it to a desired goal above the table.
 
 ## Shadow Dexterous Hand environments
-<img src="https://blog.openai.com/content/images/2018/02/hand-reach.png" width="500">
+<img src="https://openai.com/content/images/2018/02/hand-reach.png" width="500">
 
 [HandReach-v0](https://gym.openai.com/envs/HandReach-v0/): ShadowHand has to reach with its thumb and a selected finger until they meet at a desired goal position above the palm.
 
 
-<img src="https://blog.openai.com/content/images/2018/02/hand-block.png" width="500">
+<img src="https://openai.com/content/images/2018/02/hand-block.png" width="500">
 
 [HandManipulateBlock-v0](https://gym.openai.com/envs/HandManipulateBlock-v0/): ShadowHand has to manipulate a block until it achieves a desired goal position and rotation.
 
 
-<img src="https://blog.openai.com/content/images/2018/02/hand-egg.png" width="500">
+<img src="https://openai.com/content/images/2018/02/hand-egg.png" width="500">
 
 [HandManipulateEgg-v0](https://gym.openai.com/envs/HandManipulateEgg-v0/): ShadowHand has to manipulate an egg until it achieves a desired goal position and rotation.
 
 
-<img src="https://blog.openai.com/content/images/2018/02/hand-pen.png" width="500">
+<img src="https://openai.com/content/images/2018/02/hand-pen.png" width="500">
 
 [HandManipulatePen-v0](https://gym.openai.com/envs/HandManipulatePen-v0/): ShadowHand has to manipulate a pen until it achieves a desired goal position and rotation.

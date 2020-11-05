@@ -2,7 +2,7 @@ import sys
 from contextlib import closing
 
 import numpy as np
-from six import StringIO, b
+from io import StringIO
 
 from gym import utils
 from gym.envs.toy_text import discrete
@@ -42,11 +42,11 @@ def generate_random_map(size=8, p=0.8):
     # DFS to check that it's a valid path.
     def is_valid(res):
         frontier, discovered = [], set()
-        frontier.append((0,0))
+        frontier.append((0, 0))
         while frontier:
             r, c = frontier.pop()
-            if not (r,c) in discovered:
-                discovered.add((r,c))
+            if not (r, c) in discovered:
+                discovered.add((r, c))
                 directions = [(1, 0), (0, 1), (-1, 0), (0, -1)]
                 for x, y in directions:
                     r_new = r + x
@@ -55,7 +55,7 @@ def generate_random_map(size=8, p=0.8):
                         continue
                     if res[r_new][c_new] == 'G':
                         return True
-                    if (res[r_new][c_new] not in '#H'):
+                    if (res[r_new][c_new] != 'H'):
                         frontier.append((r_new, c_new))
         return False
 
@@ -70,13 +70,14 @@ def generate_random_map(size=8, p=0.8):
 
 class FrozenLakeEnv(discrete.DiscreteEnv):
     """
-    Winter is here. You and your friends were tossing around a frisbee at the park
-    when you made a wild throw that left the frisbee out in the middle of the lake.
-    The water is mostly frozen, but there are a few holes where the ice has melted.
-    If you step into one of those holes, you'll fall into the freezing water.
-    At this time, there's an international frisbee shortage, so it's absolutely imperative that
-    you navigate across the lake and retrieve the disc.
-    However, the ice is slippery, so you won't always move in the direction you intend.
+    Winter is here. You and your friends were tossing around a frisbee at the
+    park when you made a wild throw that left the frisbee out in the middle of
+    the lake. The water is mostly frozen, but there are a few holes where the
+    ice has melted. If you step into one of those holes, you'll fall into the
+    freezing water. At this time, there's an international frisbee shortage, so
+    it's absolutely imperative that you navigate across the lake and retrieve
+    the disc. However, the ice is slippery, so you won't always move in the
+    direction you intend.
     The surface is described using a grid like the following
 
         SFFF
@@ -91,17 +92,16 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
 
     The episode ends when you reach the goal or fall in a hole.
     You receive a reward of 1 if you reach the goal, and zero otherwise.
-
     """
 
     metadata = {'render.modes': ['human', 'ansi']}
 
-    def __init__(self, desc=None, map_name="4x4",is_slippery=True):
+    def __init__(self, desc=None, map_name="4x4", is_slippery=True):
         if desc is None and map_name is None:
             desc = generate_random_map()
         elif desc is None:
             desc = MAPS[map_name]
-        self.desc = desc = np.asarray(desc,dtype='c')
+        self.desc = desc = np.asarray(desc, dtype='c')
         self.nrow, self.ncol = nrow, ncol = desc.shape
         self.reward_range = (0, 1)
 
@@ -111,21 +111,29 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
         isd = np.array(desc == b'S').astype('float64').ravel()
         isd /= isd.sum()
 
-        P = {s : {a : [] for a in range(nA)} for s in range(nS)}
+        P = {s: {a: [] for a in range(nA)} for s in range(nS)}
 
         def to_s(row, col):
             return row*ncol + col
 
         def inc(row, col, a):
             if a == LEFT:
-                col = max(col-1,0)
+                col = max(col - 1, 0)
             elif a == DOWN:
-                row = min(row+1,nrow-1)
+                row = min(row + 1, nrow - 1)
             elif a == RIGHT:
-                col = min(col+1,ncol-1)
+                col = min(col + 1, ncol - 1)
             elif a == UP:
-                row = max(row-1,0)
+                row = max(row - 1, 0)
             return (row, col)
+
+        def update_probability_matrix(row, col, action):
+            newrow, newcol = inc(row, col, action)
+            newstate = to_s(newrow, newcol)
+            newletter = desc[newrow, newcol]
+            done = bytes(newletter) in b'GH'
+            reward = float(newletter == b'G')
+            return newstate, reward, done
 
         for row in range(nrow):
             for col in range(ncol):
@@ -137,20 +145,15 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
                         li.append((1.0, s, 0, True))
                     else:
                         if is_slippery:
-                            for b in [(a-1)%4, a, (a+1)%4]:
-                                newrow, newcol = inc(row, col, b)
-                                newstate = to_s(newrow, newcol)
-                                newletter = desc[newrow, newcol]
-                                done = bytes(newletter) in b'GH'
-                                rew = float(newletter == b'G')
-                                li.append((1.0/3.0, newstate, rew, done))
+                            for b in [(a - 1) % 4, a, (a + 1) % 4]:
+                                li.append((
+                                    1. / 3.,
+                                    *update_probability_matrix(row, col, b)
+                                ))
                         else:
-                            newrow, newcol = inc(row, col, a)
-                            newstate = to_s(newrow, newcol)
-                            newletter = desc[newrow, newcol]
-                            done = bytes(newletter) in b'GH'
-                            rew = float(newletter == b'G')
-                            li.append((1.0, newstate, rew, done))
+                            li.append((
+                                1., *update_probability_matrix(row, col, a)
+                            ))
 
         super(FrozenLakeEnv, self).__init__(nS, nA, P, isd)
 
@@ -162,7 +165,8 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
         desc = [[c.decode('utf-8') for c in line] for line in desc]
         desc[row][col] = utils.colorize(desc[row][col], "red", highlight=True)
         if self.lastaction is not None:
-            outfile.write("  ({})\n".format(["Left","Down","Right","Up"][self.lastaction]))
+            outfile.write("  ({})\n".format(
+                ["Left", "Down", "Right", "Up"][self.lastaction]))
         else:
             outfile.write("\n")
         outfile.write("\n".join(''.join(line) for line in desc)+"\n")

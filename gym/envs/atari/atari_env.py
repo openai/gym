@@ -26,6 +26,8 @@ class AtariEnv(gym.Env, utils.EzPickle):
     def __init__(
             self,
             game='pong',
+            mode=None,
+            difficulty=None,
             obs_type='ram',
             frameskip=(2, 5),
             repeat_action_probability=0.,
@@ -36,12 +38,18 @@ class AtariEnv(gym.Env, utils.EzPickle):
         utils.EzPickle.__init__(
                 self,
                 game,
+                mode,
+                difficulty,
                 obs_type,
                 frameskip,
                 repeat_action_probability)
         assert obs_type in ('ram', 'image')
 
+        self.game = game
         self.game_path = atari_py.get_game_path(game)
+        self.game_mode = mode
+        self.game_difficulty = difficulty
+
         if not os.path.exists(self.game_path):
             msg = 'You asked for game %s but path %s does not exist'
             raise IOError(msg % (game, self.game_path))
@@ -81,6 +89,23 @@ class AtariEnv(gym.Env, utils.EzPickle):
         # Empirically, we need to seed before loading the ROM.
         self.ale.setInt(b'random_seed', seed2)
         self.ale.loadROM(self.game_path)
+
+        if self.game_mode is not None:
+            modes = self.ale.getAvailableModes()
+
+            assert self.game_mode in modes, (
+                "Invalid game mode \"{}\" for game {}.\nAvailable modes are: {}"
+            ).format(self.game_mode, self.game, modes)
+            self.ale.setMode(self.game_mode)
+
+        if self.game_difficulty is not None:
+            difficulties = self.ale.getAvailableDifficulties()
+
+            assert self.game_difficulty in difficulties, (
+                "Invalid game difficulty \"{}\" for game {}.\nAvailable difficulties are: {}"
+            ).format(self.game_difficulty, self.game, difficulties)
+            self.ale.setDifficulty(self.game_difficulty)
+
         return [seed1, seed2]
 
     def step(self, a):

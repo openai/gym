@@ -37,13 +37,20 @@ environment, and the environment replies with `observations` and
 `rewards` (that is, a score).
 
 The core `gym` interface is `Env <https://github.com/openai/gym/blob/master/gym/core.py>`_, which is
-the unified environment interface. There is no interface for agents;
+the *unified environment interface*. There is no interface for agents;
 that part is left to you. The following are the ``Env`` methods you
 should know:
 
 - `reset(self)`: Reset the environment's state. Returns `observation`.
 - `step(self, action)`: Step the environment by one timestep. Returns `observation`, `reward`, `done`, `info`.
 - `render(self, mode='human')`: Render one frame of the environment. The default mode will do something human friendly, such as pop up a window. 
+
+Supported systems
+-----------------
+
+We currently support Linux and OS X running Python 3.5 -- 3.8
+Windows support is experimental - algorithmic, toy_text, classic_control and atari *should* work on Windows (see next section for installation instructions); nevertheless, proceed at your own risk.
+
 Installation
 ============
 
@@ -70,62 +77,31 @@ You'll be able to run a few environments right away:
 We recommend playing with those environments at first, and then later
 installing the dependencies for the remaining environments.
 
+You can also `run gym on gitpod.io <https://gitpod.io/#https://github.com/openai/gym/blob/master/examples/agents/cem.py>`_ to play with the examples online.  
+In the preview window you can click on the mp4 file you want to view. If you want to view another mp4 file, just press the back button and click on another mp4 file. 
+
 Installing everything
 ---------------------
 
 To install the full set of environments, you'll need to have some system
 packages installed. We'll build out the list here over time; please let us know
-what you end up installing on your platform. Also, take a look at the docker files (test.dockerfile.xx.xx) to 
-see the composition of our CI-tested images. 
+what you end up installing on your platform. Also, take a look at the docker files (py.Dockerfile) to
+see the composition of our CI-tested images.
 
-On OSX:
-
-.. code:: shell
-
-    brew install cmake boost boost-python sdl2 swig wget
-
-On Ubuntu 14.04 (non-mujoco only):
+On Ubuntu 16.04 and 18.04:
 
 .. code:: shell
-
-    apt-get install libjpeg-dev cmake swig python-pyglet python3-opengl libboost-all-dev \
-            libsdl2-2.0.0 libsdl2-dev libglu1-mesa libglu1-mesa-dev libgles2-mesa-dev \
-            freeglut3 xvfb libav-tools
-
-
-On Ubuntu 16.04:
-
-.. code:: shell
-
-    apt-get install -y python-pyglet python3-opengl zlib1g-dev libjpeg-dev patchelf \
-            cmake swig libboost-all-dev libsdl2-dev libosmesa6-dev xvfb ffmpeg
-
-On Ubuntu 18.04:
-
-.. code:: shell
-
-    apt install -y python3-dev zlib1g-dev libjpeg-dev cmake swig python-pyglet python3-opengl libboost-all-dev libsdl2-dev \
-        libosmesa6-dev patchelf ffmpeg xvfb
-
+    
+    apt-get install -y libglu1-mesa-dev libgl1-mesa-dev libosmesa6-dev xvfb ffmpeg curl patchelf libglfw3 libglfw3-dev cmake zlib1g zlib1g-dev swig
 
 MuJoCo has a proprietary dependency we can't set up for you. Follow
 the
 `instructions <https://github.com/openai/mujoco-py#obtaining-the-binaries-and-license-key>`_
-in the ``mujoco-py`` package for help.
+in the ``mujoco-py`` package for help. Note that we currently do not support MuJoCo 2.0 and above, so you will need to install a version of mujoco-py which is built
+for a lower version of MuJoCo like MuJoCo 1.5 (example - ``mujoco-py-1.50.1.0``).
+As an alternative to ``mujoco-py``, consider `PyBullet <https://github.com/openai/gym/blob/master/docs/environments.md#pybullet-robotics-environments>`_ which uses the open source Bullet physics engine and has no license requirement.
 
 Once you're ready to install everything, run ``pip install -e '.[all]'`` (or ``pip install 'gym[all]'``).
-
-Supported systems
------------------
-
-We currently support Linux and OS X running Python 2.7 or 3.5. Some users on OSX + Python3 may need to run
-
-.. code:: shell
-
-    brew install boost-python --with-python3
-
-If you want to access Gym from languages other than python, we have limited support for non-python
-frameworks, such as lua/Torch, using the OpenAI Gym `HTTP API <https://github.com/openai/gym-http-api>`_.
 
 Pip version
 -----------
@@ -159,7 +135,7 @@ maintain the lists of dependencies on a per-environment group basis.
 Environments
 ============
 
-See `List of Environments <docs/environments.md>`_.
+See `List of Environments <docs/environments.md>`_ and the `gym site <http://gym.openai.com/envs/>`_.
 
 For information on creating your own environments, see `Creating your own Environments <docs/creating-environments.md>`_.
 
@@ -184,8 +160,81 @@ We are using `pytest <http://doc.pytest.org>`_ for tests. You can run them via:
 
 .. _See What's New section below:
 
+Resources
+=========
+
+-  `OpenAI.com`_
+-  `Gym.OpenAI.com`_
+-  `Gym Docs`_
+-  `Gym Environments`_
+-  `OpenAI Twitter`_
+-  `OpenAI YouTube`_
+
+.. _OpenAI.com: https://openai.com/
+.. _Gym.OpenAI.com: http://gym.openai.com/
+.. _Gym Docs: http://gym.openai.com/docs/
+.. _Gym Environments: http://gym.openai.com/envs/
+.. _OpenAI Twitter: https://twitter.com/openai
+.. _OpenAI YouTube: https://www.youtube.com/channel/UCXZCJLdBC09xxGZ6gcdrc6A
+
 What's new
 ==========
+- 2020-09-29 (v 0.17.3)
+   + Allow custom spaces in VectorEnv (thanks @tristandeleu!)
+   + CarRacing performance improvements (thanks @leocus!)
+   + Dict spaces are now iterable (thanks @NotNANtoN!)
+
+- 2020-05-08 (v 0.17.2)
+   - remove unnecessary precision warning when creating Box with scalar bounds - thanks @johannespitz!
+   - remove six from the dependencies
+   + FetchEnv sample goal range can be specified through kwargs - thanks @YangRui2015!
+
+- 2020-03-05 (v 0.17.1)
+   + update cloudpickle dependency to be >=1.2.0,<1.4.0
+
+- 2020-02-21 (v 0.17.0)
+   - Drop python 2 support
+   + Add python 3.8 build
+
+- 2020-02-09 (v 0.16.0)
+   + EnvSpec API change - remove tags field (retro-active version bump, the changes are actually already in the codebase since 0.15.5 - thanks @wookayin for keeping us in check!)
+
+- 2020-02-03 (v0.15.6)
+   + pyglet 1.4 compatibility (this time for real :))
+   + Fixed the bug in BipedalWalker and BipedalWalkerHardcore, bumped version to 3 (thanks @chozabu!)
+
+- 2020-01-24 (v0.15.5)
+    + pyglet 1.4 compatibility
+    - remove python-opencv from the requirements
+   
+- 2019-11-08 (v0.15.4)
+    + Added multiple env wrappers (thanks @zuoxingdong and @hartikainen!)
+    - Removed mujoco >= 2.0 support due to lack of tests
+
+- 2019-10-09 (v0.15.3)
+    + VectorEnv modifications - unified the VectorEnv api (added reset_async, reset_wait, step_async, step_wait methods to SyncVectorEnv); more flexibility in AsyncVectorEnv workers
+
+- 2019-08-23 (v0.15.2)
+    + More Wrappers - AtariPreprocessing, FrameStack, GrayScaleObservation, FilterObservation,  FlattenDictObservationsWrapper, PixelObservationWrapper, TransformReward (thanks @zuoxingdong, @hartikainen)
+    + Remove rgb_rendering_tracking logic from mujoco environments (default behavior stays the same for the -v3 environments, rgb rendering returns a view from tracking camera)
+    + Velocity goal constraint for MountainCar (thanks @abhinavsagar)
+    + Taxi-v2 -> Taxi-v3 (add missing wall in the map to replicate env as describe in the original paper, thanks @kobotics)
+    
+- 2019-07-26 (v0.14.0)
+    + Wrapper cleanup
+    + Spec-related bug fixes
+    + VectorEnv fixes
+
+- 2019-06-21 (v0.13.1)
+    + Bug fix for ALE 0.6 difficulty modes
+    + Use narrow range for pyglet versions
+
+- 2019-06-21 (v0.13.0)
+    + Upgrade to ALE 0.6 (atari-py 0.2.0) (thanks @JesseFarebro!)
+
+- 2019-06-21 (v0.12.6)
+    + Added vectorized environments (thanks @tristandeleu!). Vectorized environment runs multiple copies of an environment in parallel. To create a vectorized version of an environment, use `gym.vector.make(env_id, num_envs, **kwargs)`, for instance, `gym.vector.make('Pong-v4',16)`.
+
 - 2019-05-28 (v0.12.5)
     + fixed Fetch-slide environment to be solvable.
 

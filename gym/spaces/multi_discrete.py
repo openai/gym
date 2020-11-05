@@ -8,7 +8,7 @@ class MultiDiscrete(Space):
     - It is useful to represent game controllers or keyboards where each key can be represented as a discrete action space
     - It is parametrized by passing an array of positive integers specifying number of actions for each discrete action space
 
-    Note: A value of 0 always need to represent the NOOP action.
+    Note: Some environment wrappers assume a value of 0 always represents the NOOP action.
 
     e.g. Nintendo Game Controller
     - Can be conceptualized as 3 discrete action spaces:
@@ -23,7 +23,7 @@ class MultiDiscrete(Space):
 
     """
     def __init__(self, nvec):
-    
+
         """
         nvec: vector of counts of each categorical variable
         """
@@ -40,7 +40,7 @@ class MultiDiscrete(Space):
             x = np.array(x)  # Promote list to array for contains check
         # if nvec is uint32 and space dtype is uint32, then 0 <= x < self.nvec guarantees that x
         # is within correct bounds for space dtype (even though x does not have to be unsigned)
-        return (0 <= x).all() and (x < self.nvec).all()
+        return x.shape == self.shape and (0 <= x).all() and (x < self.nvec).all()
 
     def to_jsonable(self, sample_n):
         return [sample.tolist() for sample in sample_n]

@@ -2,14 +2,13 @@ import hashlib
 import numpy as np
 import os
 import random as _random
-from six import integer_types
 import struct
 import sys
 
 from gym import error
 
 def np_random(seed=None):
-    if seed is not None and not (isinstance(seed, integer_types) and 0 <= seed):
+    if seed is not None and not (isinstance(seed, int) and 0 <= seed):
         raise error.Error('Seed must be a non-negative integer or omitted, not {}'.format(seed))
 
     seed = create_seed(seed)
@@ -58,7 +57,7 @@ def create_seed(a=None, max_bytes=8):
         a = a.encode('utf8')
         a += hashlib.sha512(a).digest()
         a = _bigint_from_bytes(a[:max_bytes])
-    elif isinstance(a, integer_types):
+    elif isinstance(a, int):
         a = a % 2**(8 * max_bytes)
     else:
         raise error.Error('Invalid type for seed: {} ({})'.format(type(a), a))
