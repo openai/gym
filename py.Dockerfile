@@ -19,7 +19,7 @@ RUN pip install pytest pytest-forked lz4
 
 COPY . /usr/local/gym/
 WORKDIR /usr/local/gym/
-RUN pip install .[all] || pip install .
+RUN pip install .[all]
 
 ENTRYPOINT ["/usr/local/gym/bin/docker_entrypoint"]
 CMD ["pytest","--forked"]
