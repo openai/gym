@@ -202,14 +202,14 @@ class BatchedVectorEnv(VectorEnv):
         raise NotImplementedError(f"Render mode {mode} isn't implemented yet.")
 
         # NOTE: This is only here for illustration purposes.
-        if mode == "human":
-            # See PR #1624 for the tile_images function.
-            tiled_version = tile_images(image_batch)
-            if self.viewer is None:
-                from gym.envs.classic_control import rendering
-                self.viewer = rendering.SimpleImageViewer()
-            self.viewer.imshow(tiled_version)
-            return self.viewer.isopen
+        # if mode == "human":
+        #     See PR #1624 for the tile_images function.
+        #     tiled_version = tile_images(image_batch)
+        #     if self.viewer is None:
+        #         from gym.envs.classic_control import rendering
+        #         self.viewer = rendering.SimpleImageViewer()
+        #     self.viewer.imshow(tiled_version)
+        #     return self.viewer.isopen
 
 
 def distribute(values: Sequence[T], n_groups: int) -> List[Sequence[T]]:
