@@ -1,15 +1,13 @@
-dist: xenial
+dist: focal
 language: python
 python:
   - "3.7"
 services:
   - docker
 env:
-  - PY_VER=3.5.6
-  - PY_VER=3.6.8
-  - PY_VER=3.7.3
-  - PY_VER=3.8.1
-
+  - PY_VER=3.6.12
+  - PY_VER=3.7.9
+  - PY_VER=3.8.6
 
 install: "" # so travis doesn't do pip install requirements.txt
 script:
@@ -22,4 +20,4 @@ deploy:
     password: $TWINE_PASSWORD
     on:
         tags: true
-        condition: $PY_VER = 3.5.6
+        condition: $PY_VER = 3.6.12

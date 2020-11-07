@@ -7,7 +7,7 @@ from version import VERSION
 
 # Environment-specific dependencies.
 extras = {
-  'atari': ['atari_py~=0.2.0', 'Pillow', 'opencv-python'],
+  'atari': ['atari_py~=0.2.0', 'opencv-python>=3.'],
   'box2d': ['box2d-py~=2.3.5'],
   'classic_control': [],
   'mujoco': ['mujoco_py>=1.50, <2.0', 'imageio'],
@@ -28,7 +28,7 @@ setup(name='gym',
                 if package.startswith('gym')],
       zip_safe=False,
       install_requires=[
-          'scipy', 'numpy>=1.10.4', 'pyglet>=1.4.0,<=1.5.0', 'cloudpickle>=1.2.0,<1.7.0',
+          'scipy', 'numpy>=1.10.4', 'pyglet>=1.4.0,<=1.5.0', 'Pillow<=7.2.0', 'cloudpickle>=1.2.0,<1.7.0',
       ],
       extras_require=extras,
       package_data={'gym': [
@@ -42,10 +42,9 @@ setup(name='gym',
         'envs/robotics/assets/textures/*.png']
       },
       tests_require=['pytest', 'mock'],
-      python_requires='>=3.5',
+      python_requires='>=3.6',
       classifiers=[
           'Programming Language :: Python :: 3',
-          'Programming Language :: Python :: 3.5',
           'Programming Language :: Python :: 3.6',
           'Programming Language :: Python :: 3.7',
           'Programming Language :: Python :: 3.8',

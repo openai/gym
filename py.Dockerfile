@@ -1,7 +1,7 @@
 # A Dockerfile that sets up a full Gym install with test dependencies
 ARG PYTHON_VER
 FROM python:$PYTHON_VER
-RUN apt-get -y update && apt-get install -y unzip libglu1-mesa-dev libgl1-mesa-dev libosmesa6-dev xvfb patchelf ffmpeg
+RUN apt-get -y update && apt-get install -y unzip libglu1-mesa-dev libgl1-mesa-dev libosmesa6-dev xvfb patchelf ffmpeg cmake swig
 RUN \ 
 # Download mujoco
     mkdir /root/.mujoco && \
@@ -19,7 +19,7 @@ RUN pip install pytest pytest-forked lz4
 
 COPY . /usr/local/gym/
 WORKDIR /usr/local/gym/
-RUN [ "$PYTHON_VER" != "3.8.1" ] && pip install .[all] || pip install .
+RUN pip install .[all]
 
 ENTRYPOINT ["/usr/local/gym/bin/docker_entrypoint"]
 CMD ["pytest","--forked"]
