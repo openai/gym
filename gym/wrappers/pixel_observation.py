@@ -1,12 +1,14 @@
 """An observation wrapper that augments observations by pixel values."""
 
 import collections
+from collections.abc import MutableMapping
 import copy
 
 import numpy as np
 
 from gym import spaces
 from gym import ObservationWrapper
+
 
 STATE_KEY = 'state'
 
@@ -60,7 +62,7 @@ class PixelObservationWrapper(ObservationWrapper):
             self._observation_is_dict = False
             invalid_keys = set([STATE_KEY])
         elif isinstance(wrapped_observation_space,
-                        (spaces.Dict, collections.MutableMapping)):
+                        (spaces.Dict, MutableMapping)):
             self._observation_is_dict = True
             invalid_keys = set(wrapped_observation_space.spaces.keys())
         else:
