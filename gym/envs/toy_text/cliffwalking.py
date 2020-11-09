@@ -22,7 +22,7 @@ class CliffWalkingEnv(discrete.DiscreteEnv):
     With inspiration from:
     https://github.com/dennybritz/reinforcement-learning/blob/master/lib/envs/cliff_walking.py
 
-    The board is a 4x12 matrix, with (using Numpy matrix indexing):
+    The board is a 4x12 matrix, with (using NumPy matrix indexing):
         [3, 0] as the start at bottom-left
         [3, 11] as the goal at bottom-right
         [3, 1..10] as the cliff at bottom-center
