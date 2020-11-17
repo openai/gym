@@ -528,6 +528,7 @@ class CarRacing(gym.Env, EzPickle):
             len(polygons_) // 3, ("v3f", polygons_), ("c4f", colors)  # gl.GL_QUADS,
         )
         vl.draw(gl.GL_QUADS)
+        vl.delete()
 
     def render_indicators(self, W, H):
         s = W / 40.0
