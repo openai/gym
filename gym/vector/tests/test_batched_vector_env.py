@@ -132,7 +132,6 @@ def test_right_shapes(batch_size: int, n_workers: Optional[int]):
     env.close()
 
 
-
 @pytest.mark.parametrize("batch_size", [1, 2, 5, N_CPUS, 10, 24])
 def test_ordering_of_env_fns_preserved(batch_size):
     """ Test that the order of the env_fns is also reproduced in the order of
@@ -162,3 +161,47 @@ def test_ordering_of_env_fns_preserved(batch_size):
     assert reward.tolist() == (np.ones(batch_size) * target - obs).tolist()
 
     env.close()
+
+
+import gym
+import numpy as np
+
+from collections import OrderedDict
+from gym.spaces import Dict, Box, Discrete
+from gym.vector import BatchedVectorEnv
+
+class DictEnv(gym.Env):
+    def __init__(self):
+        super(DictEnv, self).__init__()
+        self.observation_space = Dict(OrderedDict([
+            ('position', Box(-2., 2., shape=(2,), dtype=np.float32)),
+            ('velocity', Box(0., 1., shape=(2,), dtype=np.float32))
+        ]))
+        self.action_space = Discrete(2)
+
+    def reset(self):
+        return self.observation_space.sample()
+
+    def step(self, action):
+        observation = self.observation_space.sample()
+        reward, done = 0., False
+        return (observation, reward, done, {})
+
+@pytest.mark.parametrize("batch_size", [1, 5])
+@pytest.mark.parametrize("n_workers", [1, 4])
+def test_dict_observations(batch_size: int, n_workers: int):
+    def make_env(seed):
+        def _make_env():
+            return DictEnv()
+        return _make_env
+    from gym.vector.utils import batch_space
+    
+    single_env = make_env(0)()
+    
+    env = BatchedVectorEnv([make_env(i) for i in range(batch_size)], n_workers=4)
+    
+    assert env.observation_space == batch_space(single_env.observation_space, batch_size)
+    observations = env.reset()
+
+    assert observations["position"].shape == (batch_size, 2)
+    assert observations["velocity"].shape == (batch_size, 2)

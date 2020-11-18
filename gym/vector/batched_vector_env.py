@@ -4,11 +4,11 @@ where we have a series of environments on each worker.
 import itertools
 import math
 import multiprocessing as mp
+from collections import OrderedDict
 from functools import partial
 from typing import (Any, Callable, Dict, Iterable, List, Optional, Sequence,
                     Tuple, TypeVar, Union)
 import numpy as np
-
 
 from gym import spaces, Env, Space
 from gym.spaces.utils import flatten, unflatten
@@ -123,12 +123,17 @@ class BatchedVectorEnv(VectorEnv):
 
     def reset_wait(self, timeout=None, **kwargs):
         obs_a = self.env_a.reset_wait(timeout=timeout)
-        obs_a = unroll(obs_a, item_space=self.single_observation_space)
-        obs_b = []
+        obs_a = unroll(self.single_observation_space, chunks=obs_a)
+        obs = (obs_a,)
         if self.env_b:
             obs_b = self.env_b.reset_wait(timeout=timeout)
-            obs_b = unroll(obs_b, item_space=self.single_observation_space)
-        observations = fuse_and_batch(self.single_observation_space, obs_a, obs_b, n_items = self.n_a + self.n_b)
+            obs_b = unroll(self.single_observation_space, chunks=obs_b)
+            obs = (obs_a, obs_b)
+        observations = fuse_and_batch(
+            self.single_observation_space,
+            *obs,
+            n_items=self.n_a + self.n_b,
+        )
         return observations
 
     def step_async(self, action: Sequence) -> None:
@@ -138,32 +143,39 @@ class BatchedVectorEnv(VectorEnv):
             actions_b = chunk(flat_actions_b, self.chunk_length_b)
             self.env_a.step_async(actions_a)
             self.env_b.step_async(actions_b)
-
         else:
             action = chunk(action, self.chunk_length_a)
             self.env_a.step_async(action)
 
     def step_wait(self, timeout: Union[int, float] = None, **kwargs):
         obs_a, rew_a, done_a, info_a = self.env_a.step_wait(timeout)
-        obs_a = unroll(obs_a, item_space=self.single_observation_space)
-        rew_a = unroll(rew_a)
-        done_a = unroll(done_a)
-        info_a = unroll(info_a)
-        obs_b = []
+        obs_a = unroll(self.single_observation_space, chunks=obs_a)
+        rew_a = unroll(None, chunks=rew_a)
+        done_a = unroll(None, chunks=done_a)
+        info_a = unroll(None, chunks=info_a)
+        obs = [obs_a]
+        
         rew_b = []
         done_b = []
         info_b = []
         if self.env_b:
             obs_b, rew_b, done_b, info_b = self.env_b.step_wait(timeout)
-            obs_b = unroll(obs_b, item_space=self.single_observation_space)
-            rew_b = unroll(rew_b)
-            done_b = unroll(done_b)
-            info_b = unroll(info_b)
-        observations = fuse_and_batch(self.single_observation_space, obs_a, obs_b, n_items = self.n_a + self.n_b)
+            obs_b = unroll(self.single_observation_space, chunks=obs_b)
+            rew_b = unroll(None, chunks=rew_b)
+            done_b = unroll(None, chunks=done_b)
+            info_b = unroll(None, chunks=info_b)
+            obs = [obs_a, obs_b]
+
+        observations = fuse_and_batch(
+            self.single_observation_space,
+            *obs,
+            n_items=self.n_a + self.n_b,
+        )
+        
         rewards = np.array(rew_a + rew_b)
         done = np.array(done_a + done_b)
-        # TODO: Should we batch the info dict? or just give back the list of
-        # 'info' dicts for each env, like so?
+        # NOTE: The 'info' dict isn't batched, it is a list of dicts for each
+        # environment.
         info = info_a + info_b
         return observations, rewards, done, info
 
@@ -187,14 +199,15 @@ class BatchedVectorEnv(VectorEnv):
 
     def render(self, mode: str = "rgb_array"):
         chunked_images_a = self.env_a.render(mode="rgb_array")
-        images_a: List[np.ndarray] = unroll(chunked_images_a)
-        images_b: List[np.ndarray] = []
+        images_a: List[np.ndarray] = unroll(None, chunks=chunked_images_a)
+        images = images_a
         
         if self.env_b:
             chunked_images_b = self.env_b.render(mode="rgb_array")
-            images_b = unroll(chunked_images_b)
-        
-        image_batch = np.stack(images_a + images_b)
+            images_b = unroll(None, chunks=chunked_images_b)
+            images.extend(images_b)
+
+        image_batch = np.stack(images)
         
         if mode == "rgb_array":
             return image_batch
@@ -246,7 +259,6 @@ def distribute(values: Sequence[T], n_groups: int) -> List[Sequence[T]]:
     return groups
 
 
-
 def chunk(values: Sequence[T], chunk_length: int) -> Sequence[Sequence[T]]:
     """ Add the 'chunk'/second batch dimension to the list of items.
     
@@ -259,20 +271,16 @@ def chunk(values: Sequence[T], chunk_length: int) -> Sequence[Sequence[T]]:
     return groups
 
 
-def unroll(chunks: Sequence[Sequence[T]], item_space: Space = None) -> List[T]:
-    """ Unroll the given chunks, to get a list of individual items.
+from functools import singledispatch
+from gym.vector.utils.spaces import _BaseGymSpaces
 
-    This is the inverse operation of 'chunk' above.
+
+@singledispatch
+def unroll(item_space: Optional[Space], chunks: Sequence[Sequence[T]]) -> Sequence[T]:
+    """ Unroll the given chunks, returning a list of individual items.
+
+    This is the inverse operation of the `chunk` function.
     """
-    if isinstance(item_space, spaces.Tuple):
-        # 'flatten out' the chunks for each index. The returned value will be a
-        # tuple of lists of samples. 
-        chunked_items = list(zip(chunks))
-        return tuple([
-            unroll(chunk_items_i, item_space=item_space.spaces[i])
-            for i, chunk_items_i in enumerate(chunked_items)  
-        ])
-
     if isinstance(chunks, np.ndarray):
         # Remove the 'chunk' dimension.
         return list(chunks.reshape([-1, *chunks.shape[2:]]))
@@ -282,18 +290,33 @@ def unroll(chunks: Sequence[Sequence[T]], item_space: Space = None) -> List[T]:
         values.extend(chunk)
     return values
 
-from functools import singledispatch
-from gym.vector.utils.spaces import _BaseGymSpaces
+
+@unroll.register(spaces.Dict)  # type: ignore
+def unroll_dict(item_space: spaces.Dict, chunks: Sequence[Dict[K, V]]) -> Dict[K, Sequence[V]]:
+    assert isinstance(chunks, dict), chunks
+    return OrderedDict(
+        (key, unroll(item_space[key], chunks=values))
+        for key, values in chunks.items()            
+    )
+
+
+@unroll.register(spaces.Tuple)  # type: ignore
+def unroll_tuple(item_space: spaces.Tuple, chunks: Sequence[Tuple]) -> Tuple[Sequence]:
+    # 'flatten out' the chunks for each index. The returned value will be a
+    # tuple of lists of samples. 
+    chunked_items = list(zip(chunks))
+    return tuple([
+        unroll(item_space.spaces[i], chunks=chunk_items_i)
+        for i, chunk_items_i in enumerate(chunked_items)  
+    ])
 
 
 @singledispatch
-def fuse_and_batch(item_space: spaces.Space, *sequences: Sequence[Sequence[T]], n_items: int) -> Sequence[T]:
-    """Concatenate two sequences of items, and then fuse them into a single
-    batch.
+def fuse_and_batch(item_space: spaces.Space, *sequences, n_items: int):
+    """Concatenate sequences of items, and then fuse them into a single batch.
     """
     out = create_empty_array(item_space, n=n_items)
-    assert not isinstance(item_space, spaces.Tuple), item_space
-    # # Concatenate the (two) batches into a single batch of samples.
+    # Concatenate the batches into a single batch of samples.
     items_batch = np.concatenate([
         np.asarray(v).reshape([-1, *item_space.shape])
         for v in itertools.chain(*filter(len, sequences))
@@ -306,20 +329,13 @@ def fuse_and_batch(item_space: spaces.Space, *sequences: Sequence[Sequence[T]], 
     return concatenate(items, out, item_space)
 
 
-
 @fuse_and_batch.register(spaces.Dict)
-def fuse_and_batch_dicts(item_space: spaces.Dict, *sequences: Sequence[Dict[K, V]], n_items: int) -> Dict[K, Sequence[T]]:
-    values: Dict[K, List[V]] = {
-        k: [] for k in item_space.spaces.keys()
-    }
-    for sequence in sequences:
-        for item in sequence:
-            for k, v in item.items():
-                values[k].append(v)
-    return {
-        k: fuse_and_batch(item_space.spaces[k], values[k], n_items=n_items)
-        for k in values
-    }
+def fuse_and_batch_dicts(item_space: spaces.Dict, *sequences: Dict[K, List[V]], n_items: int) -> Dict[K, Sequence[V]]:
+    fused_values: Dict[K, Sequence[V]] = OrderedDict()
+    assert all(isinstance(sequence, dict) for sequence in sequences)
+    for key, zipped_values in zip_dicts(*sequences, missing=None):
+        fused_values[key] = fuse_and_batch(item_space[key], *zipped_values, n_items=n_items)
+    return fused_values
 
 
 @fuse_and_batch.register(spaces.Tuple)
@@ -354,8 +370,7 @@ def n_consecutive(items: Iterable[T], n: int=2, yield_last_batch=True) -> Iterab
         yield tuple(values)
 
 
-def zip_dicts(*dicts: Dict[K, V],
-               missing: M = None) -> Iterable[Tuple[K, Tuple[Union[M, V], ...]]]:
+def zip_dicts(*dicts: Dict[K, V], missing: M) -> Iterable[Tuple[K, Tuple[Union[M, V], ...]]]:
     """Iterator over the union of all keys, giving the value from each dict if
     present, else `missing`.
     """
