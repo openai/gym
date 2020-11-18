@@ -7,7 +7,6 @@ import numpy as np
 import pytest
 from gym import spaces
 from gym.vector.batched_vector_env import BatchedVectorEnv
-from gym.vector.vector_env import FINAL_STATE_KEY
 
 N_CPUS = cpu_count()
 
@@ -162,41 +161,4 @@ def test_ordering_of_env_fns_preserved(batch_size):
     assert obs[odd].tolist() == np.arange(batch_size)[odd].tolist(), (obs, obs[odd], actions)
     assert reward.tolist() == (np.ones(batch_size) * target - obs).tolist()
 
-    env.close()
-
-def test_done_reset_behaviour():
-    """ Test that when one of the envs in the batch is reset, the final
-    observation is stored in the "info" dict, at key FINAL_STATE_KEY
-    ("final_state" atm.).
-    """
-    batch_size = 10
-    n_workers = 4
-    target = batch_size
-    starting_values = np.arange(batch_size)
-    env_fns = [
-        partial(DummyEnvironment, start=start_i, target=target, max_value=target * 2)
-        for start_i in starting_values
-    ]
-    env = BatchedVectorEnv(env_fns, n_workers=n_workers)
-    env.seed(123)
-    obs = env.reset()
-    assert obs.tolist() == list(range(batch_size))
-
-    # Increment all the counters.
-    obs, reward, done, info = env.step(np.ones(batch_size))
-    # Only the last env (at position batch_size-1) should have 'done=True',
-    # since it reached the 'target' value of batch_size + 1 
-    last_index = batch_size - 1
-    is_last = np.arange(batch_size) == batch_size - 1
-    
-    assert done[last_index]
-    assert all(done == is_last)
-    # The observation at the last index should be the new 'starting'
-    # observation.
-    assert obs[~done].tolist() == (np.arange(batch_size) + 1)[~done].tolist()
-    assert obs[done].tolist() == starting_values[done].tolist()
-
-    # The 'info' dict should have the final state as an observation.
-    assert info[last_index][FINAL_STATE_KEY] == target
-    assert all(FINAL_STATE_KEY not in info_i for info_i in info[:last_index])
     env.close()

@@ -410,9 +410,6 @@ def _worker(index, env_fn, pipe, parent_pipe, shared_memory, error_queue):
         # reset the envs that are done if needed in the 'step' method and return
         # the initial observation instead of the final observation.
         if not isinstance(env, VectorEnv) and done:
-            # Add the final observation in the 'info' dict.
-            if FINAL_STATE_KEY not in info:
-                info[FINAL_STATE_KEY] = observation
             observation = env.reset()
         return observation, reward, done, info
 
@@ -422,15 +419,10 @@ def _worker(index, env_fn, pipe, parent_pipe, shared_memory, error_queue):
             if command == "reset":
                 observation = env.reset()
                 pipe.send((observation, True))
-<<<<<<< HEAD
             elif command == "step":
                 observation, reward, done, info = env.step(data)
                 if done:
                     observation = env.reset()
-=======
-            elif command == 'step':
-                observation, reward, done, info = step_fn(data)
->>>>>>> Add BatchedVectorEnv, (chunking + flexible n_envs)
                 pipe.send(((observation, reward, done, info), True))
             elif command == "seed":
                 env.seed(data)
@@ -465,10 +457,6 @@ def _worker_shared_memory(index, env_fn, pipe, parent_pipe, shared_memory, error
         # reset the envs that are done if needed in the 'step' method and return
         # the initial observation instead of the final observation.
         if not isinstance(env, VectorEnv) and done:
-            # Add the final observation in the 'info' dict. 
-            # NOTE: This 'final observation' isn't in the shared memory.
-            if FINAL_STATE_KEY not in info:
-                info[FINAL_STATE_KEY] = observation
             observation = env.reset()
         return observation, reward, done, info
 
@@ -481,7 +469,6 @@ def _worker_shared_memory(index, env_fn, pipe, parent_pipe, shared_memory, error
                     index, observation, shared_memory, observation_space
                 )
                 pipe.send((None, True))
-<<<<<<< HEAD
             elif command == "step":
                 observation, reward, done, info = env.step(data)
                 if done:
@@ -489,12 +476,6 @@ def _worker_shared_memory(index, env_fn, pipe, parent_pipe, shared_memory, error
                 write_to_shared_memory(
                     index, observation, shared_memory, observation_space
                 )
-=======
-            elif command == 'step':
-                observation, reward, done, info = step_fn(data)
-                write_to_shared_memory(index, observation, shared_memory,
-                                       observation_space)
->>>>>>> Add BatchedVectorEnv, (chunking + flexible n_envs)
                 pipe.send(((None, reward, done, info), True))
             elif command == "seed":
                 env.seed(data)

@@ -2,14 +2,7 @@ import gym
 from gym.spaces import Tuple
 from gym.vector.utils.spaces import batch_space
 
-<<<<<<< HEAD
 __all__ = ["VectorEnv"]
-=======
-FINAL_STATE_KEY = "final_state"
-
-__all__ = ['VectorEnv', 'FINAL_STATE_KEY']
-
->>>>>>> Add BatchedVectorEnv, (chunking + flexible n_envs)
 
 
 class VectorEnv(gym.Env):
