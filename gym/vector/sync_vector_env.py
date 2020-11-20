@@ -136,7 +136,7 @@ class SyncVectorEnv(VectorEnv):
         self._actions = iterate(self.action_space, actions)
 
     def step_wait(self):
-        observations, infos = [], []
+        observations, rewards, dones, infos = [], [], [], []
         for i, (env, action) in enumerate(zip(self.envs, self._actions)):
             observation, self._rewards[i], self._dones[i], info = env.step(action)
             if self._dones[i]:
@@ -147,7 +147,11 @@ class SyncVectorEnv(VectorEnv):
                 if not isinstance(env, VectorEnv):
                     observation = env.reset()
             observations.append(observation)
+            rewards.append(reward)
+            dones.append(done)
             infos.append(info)
+        self._rewards = np.stack(rewards)
+        self._dones = np.stack(dones)
         self.observations = concatenate(
             self.single_observation_space, observations, self.observations
         )

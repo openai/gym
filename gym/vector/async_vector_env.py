@@ -641,7 +641,7 @@ def _worker(index, env_fn, pipe, parent_pipe, shared_memory, error_queue):
         # Do nothing if the env is a VectorEnv, since it will automatically
         # reset the envs that are done if needed in the 'step' method and return
         # the initial observation instead of the final observation.
-        if not isinstance(env, VectorEnv) and done:
+        if not isinstance(env.unwrapped, VectorEnv) and done:
             observation = env.reset()
         return observation, reward, done, info
 
@@ -715,7 +715,7 @@ def _worker_shared_memory(index, env_fn, pipe, parent_pipe, shared_memory, error
         # Do nothing if the env is a VectorEnv, since it will automatically
         # reset the envs that are done if needed in the 'step' method and return
         # the initial observation instead of the final observation.
-        if not isinstance(env, VectorEnv) and done:
+        if not isinstance(env.unwrapped, VectorEnv) and done:
             observation = env.reset()
         return observation, reward, done, info
 
