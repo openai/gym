@@ -635,6 +635,16 @@ def _worker(index, env_fn, pipe, parent_pipe, shared_memory, error_queue):
     assert shared_memory is None
     env = env_fn()
     parent_pipe.close()
+
+    def step_fn(actions):
+        observation, reward, done, info = env.step(actions)
+        # Do nothing if the env is a VectorEnv, since it will automatically
+        # reset the envs that are done if needed in the 'step' method and return
+        # the initial observation instead of the final observation.
+        if not isinstance(env, VectorEnv) and done:
+            observation = env.reset()
+        return observation, reward, done, info
+
     try:
         while True:
             command, data = pipe.recv()
@@ -699,6 +709,16 @@ def _worker_shared_memory(index, env_fn, pipe, parent_pipe, shared_memory, error
     env = env_fn()
     observation_space = env.observation_space
     parent_pipe.close()
+
+    def step_fn(actions):
+        observation, reward, done, info = env.step(actions)
+        # Do nothing if the env is a VectorEnv, since it will automatically
+        # reset the envs that are done if needed in the 'step' method and return
+        # the initial observation instead of the final observation.
+        if not isinstance(env, VectorEnv) and done:
+            observation = env.reset()
+        return observation, reward, done, info
+
     try:
         while True:
             command, data = pipe.recv()
