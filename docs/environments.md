@@ -327,3 +327,10 @@ Learn more here: https://github.com/falox/gym-adserver
 An environment for automated rule-based deductive program verification in the KeY verification system.
 
 Learn more here: https://github.com/Flunzmas/gym-autokey
+
+### NLPGym: A toolkit to develop RL agents to solve NLP tasks
+
+[NLPGym](https://arxiv.org/pdf/2011.08272v1.pdf) provides interactive environments for standard NLP tasks such as sequence tagging, question answering, and sequence classification. Users can easily customize the tasks with their own datasets, observations, featurizers and reward functions.
+
+Learn more here: https://github.com/rajcscw/nlp-gym
+
