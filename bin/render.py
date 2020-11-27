@@ -4,7 +4,7 @@ import gym
 
 
 parser = argparse.ArgumentParser(description='Renders a Gym environment for quick inspection.')
-parser.add_argument('env_id', type=str, help='the ID of the environment to be rendered (e.g. HalfCheetah-v1')
+parser.add_argument('env_id', type=str, help='the ID of the environment to be rendered (e.g. HalfCheetah-v2')
 parser.add_argument('--step', type=int, default=1)
 args = parser.parse_args()
 
