@@ -6,8 +6,7 @@ from typing import Union
 
 import numpy as np
 from gym.error import CustomSpaceError
-from gym.spaces import (Box, Dict, Discrete, MultiBinary, MultiDiscrete, Space,
-                        Tuple)
+from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Space, Tuple
 
 
 @singledispatch

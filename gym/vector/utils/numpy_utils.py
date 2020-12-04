@@ -59,14 +59,14 @@ def concatenate(
 @concatenate.register(spaces.Discrete)
 @concatenate.register(spaces.MultiDiscrete)
 @concatenate.register(spaces.MultiBinary)
-def concatenate_base(
+def _concatenate_base(
     space: Space, items: Union[list, tuple], out: Union[tuple, dict, np.ndarray]
 ) -> np.ndarray:
     return np.stack(items, axis=0, out=out)
 
 
 @concatenate.register(spaces.Tuple)
-def concatenate_tuple(
+def _concatenate_tuples(
     space: spaces.Tuple, items: Union[list, tuple], out: Union[tuple, dict, np.ndarray]
 ) -> tuple:
     return tuple(
@@ -76,7 +76,7 @@ def concatenate_tuple(
 
 
 @concatenate.register(spaces.Dict)
-def concatenate_dict(
+def _concatenate_dicts(
     space: spaces.Dict, items: Union[list, tuple], out: Union[tuple, dict, np.ndarray]
 ) -> OrderedDict:
     return OrderedDict(
@@ -88,7 +88,7 @@ def concatenate_dict(
 
 
 @concatenate.register(spaces.Space)
-def concatenate_custom(
+def _concatenate_custom(
     space: Space, items: Union[list, tuple], out: Union[tuple, dict, np.ndarray]
 ) -> Union[tuple, dict, np.ndarray]:
     return tuple(items)
@@ -140,7 +140,7 @@ def create_empty_array(
 @create_empty_array.register(spaces.Discrete)
 @create_empty_array.register(spaces.MultiDiscrete)
 @create_empty_array.register(spaces.MultiBinary)
-def create_empty_array_base(
+def _create_empty_array_base(
     space: Space, n: int = 1, fn: Callable = np.zeros
 ) -> Union[tuple, dict, np.ndarray]:
     shape = space.shape if (n is None) else (n,) + space.shape
@@ -148,14 +148,14 @@ def create_empty_array_base(
 
 
 @create_empty_array.register(spaces.Tuple)
-def create_empty_array_tuple(
+def _create_empty_array_tuple(
     space: spaces.Tuple, n: int = 1, fn: Callable = np.zeros
 ) -> tuple:
     return tuple(create_empty_array(subspace, n=n, fn=fn) for subspace in space.spaces)
 
 
 @create_empty_array.register(spaces.Dict)
-def create_empty_array_dict(
+def _create_empty_array_dict(
     space: spaces.Dict, n: int = 1, fn: Callable = np.zeros
 ) -> OrderedDict:
     return OrderedDict(
@@ -167,7 +167,7 @@ def create_empty_array_dict(
 
 
 @create_empty_array.register(Space)
-def create_empty_array_custom(
+def _create_empty_array_custom(
     space: Space, n: int = 1, fn: Callable = np.zeros
 ) -> tuple:
     return ()

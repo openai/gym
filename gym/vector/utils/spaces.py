@@ -43,40 +43,40 @@ def batch_space(space: Space, n: int = 1) -> Space:
 
 
 @batch_space.register(Box)
-def batch_space_Box(space: Box, n: int = 1) -> Box:
+def _batch_box_space(space: Box, n: int = 1) -> Box:
     repeats = tuple([n] + [1] * space.low.ndim)
     low, high = np.tile(space.low, repeats), np.tile(space.high, repeats)
     return Box(low=low, high=high, dtype=space.dtype)
 
 
 @batch_space.register(Discrete)
-def batch_space_Discrete(space: Discrete, n: int = 1) -> MultiDiscrete:
+def _batch_discrete_space(space: Discrete, n: int = 1) -> MultiDiscrete:
     return MultiDiscrete(np.full((n,), space.n, dtype=space.dtype))
 
 
 @batch_space.register(MultiDiscrete)
-def batch_space_multi_discrete(space: MultiDiscrete, n: int = 1) -> Box:
+def _batch_multi_discrete_space(space: MultiDiscrete, n: int = 1) -> Box:
     repeats = tuple([n] + [1] * space.nvec.ndim)
     high = np.tile(space.nvec, repeats) - 1
     return Box(low=np.zeros_like(high), high=high, dtype=space.dtype)
 
 
 @batch_space.register(MultiBinary)
-def batch_space_multi_binary(space: MultiBinary, n: int = 1) -> Box:
+def _batch_multi_binary_space(space: MultiBinary, n: int = 1) -> Box:
     return Box(low=0, high=1, shape=(n,) + space.shape, dtype=space.dtype)
 
 
 @batch_space.register(spaces.Tuple)
-def batch_space_tuple(space: spaces.Tuple, n: int = 1) -> spaces.Tuple:
+def _batch_tuple_space(space: spaces.Tuple, n: int = 1) -> spaces.Tuple:
     return Tuple(tuple(batch_space(subspace, n=n) for subspace in space.spaces))
 
 
 @batch_space.register(spaces.Dict)
-def batch_space_dict(space: spaces.Dict, n: int = 1) -> spaces.Dict:
+def _batch_dict_space(space: spaces.Dict, n: int = 1) -> spaces.Dict:
     return Dict(OrderedDict([(key, batch_space(subspace, n=n))
         for (key, subspace) in space.spaces.items()]))
 
 
 @batch_space.register(Space)
-def batch_space_custom(space: Space, n: int = 1) -> Space:
+def _batch_custom_space(space: Space, n: int = 1) -> Space:
     return spaces.Tuple(tuple(space for _ in range(n)))

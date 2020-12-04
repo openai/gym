@@ -49,7 +49,7 @@ def create_shared_memory(space: Space, n: int = 1, ctx=mp):
 @create_shared_memory.register(spaces.Discrete)
 @create_shared_memory.register(spaces.MultiDiscrete)
 @create_shared_memory.register(spaces.MultiBinary)
-def create_base_shared_memory(space: Space, n: int = 1, ctx=mp) -> mp.Array:
+def _create_base_shared_memory(space: Space, n: int = 1, ctx=mp) -> mp.Array:
     dtype = space.dtype.char
     if dtype in "?":
         dtype = c_bool
@@ -57,13 +57,13 @@ def create_base_shared_memory(space: Space, n: int = 1, ctx=mp) -> mp.Array:
 
 
 @create_shared_memory.register(spaces.Tuple)
-def create_tuple_shared_memory(space: spaces.Tuple, n: int = 1, ctx=mp) -> tuple:
+def _create_tuple_shared_memory(space: spaces.Tuple, n: int = 1, ctx=mp) -> tuple:
     return tuple(create_shared_memory(subspace, n=n, ctx=ctx)
         for subspace in space.spaces)
 
 
 @create_shared_memory.register(spaces.Dict)
-def create_dict_shared_memory(space: spaces.Dict, n: int = 1, ctx=mp) -> OrderedDict:
+def _create_dict_shared_memory(space: spaces.Dict, n: int = 1, ctx=mp) -> OrderedDict:
     return OrderedDict([(key, create_shared_memory(subspace, n=n, ctx=ctx))
         for (key, subspace) in space.spaces.items()])
 
@@ -117,7 +117,7 @@ def read_from_shared_memory(space: Space,
 @read_from_shared_memory.register(spaces.Discrete)
 @read_from_shared_memory.register(spaces.MultiDiscrete)
 @read_from_shared_memory.register(spaces.MultiBinary)
-def read_base_from_shared_memory(space: Space,
+def _read_base_from_shared_memory(space: Space,
                                  shared_memory: mp.Array,
                                  n: int = 1) -> np.ndarray:
     return np.frombuffer(shared_memory.get_obj(),
@@ -125,7 +125,7 @@ def read_base_from_shared_memory(space: Space,
 
 
 @read_from_shared_memory.register(spaces.Tuple)
-def read_tuple_from_shared_memory(space: spaces.Tuple,
+def _read_tuple_from_shared_memory(space: spaces.Tuple,
                                   shared_memory: tuple,
                                   n: int = 1) -> tuple:
     return tuple(read_from_shared_memory(memory, subspace, n=n)
@@ -133,7 +133,7 @@ def read_tuple_from_shared_memory(space: spaces.Tuple,
 
 
 @read_from_shared_memory.register(spaces.Dict)
-def read_dict_from_shared_memory(space: spaces.Dict,
+def _read_dict_from_shared_memory(space: spaces.Dict,
                                  shared_memory: dict,
                                  n: int = 1) -> OrderedDict:
     return OrderedDict([(key, read_from_shared_memory(shared_memory[key],
@@ -184,7 +184,7 @@ def write_to_shared_memory(space: Space,
 @write_to_shared_memory.register(spaces.Box)
 @write_to_shared_memory.register(spaces.MultiDiscrete)
 @write_to_shared_memory.register(spaces.MultiBinary)
-def write_base_to_shared_memory(space: Space,
+def _write_base_to_shared_memory(space: Space,
                                 index: int,
                                 value,
                                 shared_memory: mp.Array) -> None:
@@ -198,7 +198,7 @@ def write_base_to_shared_memory(space: Space,
 
 
 @write_to_shared_memory.register(spaces.Tuple)
-def write_tuple_to_shared_memory(space: spaces.Tuple,
+def _write_tuple_to_shared_memory(space: spaces.Tuple,
                                  index: int,
                                  values: Iterable,
                                  shared_memory: tuple) -> None:
@@ -207,7 +207,7 @@ def write_tuple_to_shared_memory(space: spaces.Tuple,
 
 
 @write_to_shared_memory.register(spaces.Dict)
-def write_dict_to_shared_memory(space: spaces.Dict,
+def _write_dict_to_shared_memory(space: spaces.Dict,
                                 index: int,
                                 values: dict,
                                 shared_memory: dict) -> None:
