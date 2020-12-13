@@ -327,3 +327,10 @@ Learn more here: https://github.com/falox/gym-adserver
 An environment for automated rule-based deductive program verification in the KeY verification system.
 
 Learn more here: https://github.com/Flunzmas/gym-autokey
+
+
+### VirtualTaobao: Environment of online recommendation
+
+An environment for online recommendation, where customers are learned from Taobao.com, one of the world's largest e-commerce platform.
+
+Learn more here: https://github.com/eyounx/VirtualTaobao/
