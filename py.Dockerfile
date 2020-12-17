@@ -19,7 +19,7 @@ RUN pip install pytest pytest-forked lz4
 
 COPY . /usr/local/gym/
 WORKDIR /usr/local/gym/
-RUN pip install .[all]
+RUN [ "$PYTHON_VER" =~ "3\.[5-6]\.[0-9]" ] && pip install -e .[all] || pip install -e .[nomujoco]
 
 ENTRYPOINT ["/usr/local/gym/bin/docker_entrypoint"]
 CMD ["pytest","--forked"]

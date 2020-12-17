@@ -7,7 +7,7 @@ services:
 env:
   - PY_VER=3.6.8
   - PY_VER=3.7.3
-  - PY_VER=3.8.1
+  - PY_VER=3.8.6
 
 install: "" # so travis doesn't do pip install requirements.txt
 script:
