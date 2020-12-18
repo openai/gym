@@ -15,7 +15,8 @@ extras = {
 }
 
 # Meta dependency groups.
-extras['all'] = [item for group in extras.values() for item in group]
+extras['nomujoco'] = list(set([item for name, group in extras.items() if name != 'mujoco' and name != "robotics" for item in group]))
+extras['all'] = list(set([item for group in extras.values() for item in group]))
 
 setup(name='gym',
       version=VERSION,

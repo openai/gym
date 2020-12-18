@@ -9,8 +9,8 @@ RUN \
     curl -O https://www.roboti.us/download/mjpro150_linux.zip  && \
     unzip mjpro150_linux.zip
 
-ARG MUJOCO_KEY
 ARG PYTHON_VER
+ARG MUJOCO_KEY
 ENV MUJOCO_KEY=$MUJOCO_KEY
 
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/root/.mujoco/mjpro150/bin
@@ -19,7 +19,7 @@ RUN pip install pytest pytest-forked lz4
 
 COPY . /usr/local/gym/
 WORKDIR /usr/local/gym/
-RUN pip install .[all]
+RUN bash -c "[[ $PYTHON_VER =~ 3\.[6-7]\.[0-9] ]] && pip install -e .[all] || pip install -e .[nomujoco]"
 
 ENTRYPOINT ["/usr/local/gym/bin/docker_entrypoint"]
 CMD ["pytest","--forked"]
