@@ -299,8 +299,7 @@ class ImageEncoder(object):
             raise error.InvalidFrame("Your frame has shape {}, but the VideoRecorder is configured for shape {}.".format(frame.shape, self.frame_shape))
         if frame.dtype != np.uint8:
             raise error.InvalidFrame("Your frame has data type {}, but we require uint8 (i.e. RGB values from 0-255).".format(frame.dtype))
-
-            self.proc.stdin.write(frame.tobytes())
+        self.proc.stdin.write(frame.tobytes())
 
     def close(self):
         self.proc.stdin.close()
