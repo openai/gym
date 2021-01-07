@@ -38,7 +38,8 @@ class CloudpickleWrapper(object):
 
     def __setstate__(self, ob):
         import pickle
-        self.fn = pickle.loads(restricted_loads(ob))
+        restricted_loads(ob)
+        self.fn = pickle.loads(ob)
 
     def __call__(self):
         return self.fn()
