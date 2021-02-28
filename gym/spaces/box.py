@@ -151,9 +151,7 @@ class Box(Space):
         return [np.asarray(sample) for sample in sample_n]
 
     def __repr__(self):
-        return "Box({}, {}, {}, {})".format(
-            self.low.min(), self.high.max(), self.shape, self.dtype
-        )
+        return f"Box({self.low}, {self.high}, {self.shape}, {self.dtype})"
 
     def __eq__(self, other):
         return (
