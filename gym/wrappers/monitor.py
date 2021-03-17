@@ -64,9 +64,11 @@ class Monitor(Wrapper):
         else:
             env_id = self.env.spec.id
 
-        if not os.path.exists(directory):
-            logger.info('Creating monitor directory %s', directory)
-            os.makedirs(directory, exist_ok=True)
+        self.directory = os.path.abspath(directory)
+
+        if not os.path.exists(self.directory):
+            logger.info('Creating monitor directory %s', self.directory)
+            os.makedirs(self.directory, exist_ok=True)
 
         if video_callable is None:
             video_callable = capped_cubic_video_schedule
@@ -78,26 +80,24 @@ class Monitor(Wrapper):
 
         # Check on whether we need to clear anything
         if force:
-            clear_monitor_files(directory)
+            clear_monitor_files(self.directory)
         elif not resume:
-            training_manifests = detect_training_manifests(directory)
+            training_manifests = detect_training_manifests(self.directory)
             if len(training_manifests) > 0:
                 raise error.Error('''Trying to write to monitor directory {} with existing monitor files: {}.
 
- You should use a unique directory for each training run, or use 'force=True' to automatically clear previous monitor files.'''.format(directory, ', '.join(training_manifests[:5])))
+ You should use a unique directory for each training run, or use 'force=True' to automatically clear previous monitor files.'''.format(self.directory, ', '.join(training_manifests[:5])))
 
         self._monitor_id = monitor_closer.register(self)
 
         self.enabled = True
-        self.directory = os.path.abspath(directory)
         # We use the 'openai-gym' prefix to determine if a file is
         # ours
         self.file_prefix = FILE_PREFIX
         self.file_infix = '{}.{}'.format(self._monitor_id, uid if uid else os.getpid())
 
-        self.stats_recorder = stats_recorder.StatsRecorder(directory, '{}.episode_batch.{}'.format(self.file_prefix, self.file_infix), autoreset=self.env_semantics_autoreset, env_id=env_id)
+        self.stats_recorder = stats_recorder.StatsRecorder(self.directory, '{}.episode_batch.{}'.format(self.file_prefix, self.file_infix), autoreset=self.env_semantics_autoreset, env_id=env_id)
 
-        if not os.path.exists(directory): os.mkdir(directory)
         self.write_upon_reset = write_upon_reset
 
         if mode is not None:
