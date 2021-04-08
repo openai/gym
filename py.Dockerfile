@@ -24,4 +24,4 @@ WORKDIR /usr/local/gym/
 RUN bash -c "[[ $PYTHON_VER =~ 3\.[6-7]\.[0-9] ]] && pip install -e .[all] || pip install -e .[nomujoco]"
 
 ENTRYPOINT ["/usr/local/gym/bin/docker_entrypoint"]
-CMD ["pytest --doctest-modules gym/envs/toy_text/ && pytest","--forked"]
+CMD ["pytest", "--forked"]
