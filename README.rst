@@ -151,11 +151,11 @@ See the ``examples`` directory.
 Testing
 =======
 
-We are using `pytest <http://doc.pytest.org>`_ for tests. You can run them via:
+We are using `pytest <http://doc.pytest.org>`_ and doctest for tests. You can run them via:
 
 .. code:: shell
 
-    pytest
+    pytest --doctest-modules gym/envs/toy_text/ && pytest
 
 
 .. _See What's New section below:
