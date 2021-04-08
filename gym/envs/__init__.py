@@ -169,7 +169,7 @@ register(
 )
 
 register(
-    id='NChain-v0',
+    id='NChain-v1',
     entry_point='gym.envs.toy_text:NChainEnv',
     max_episode_steps=1000,
 )
