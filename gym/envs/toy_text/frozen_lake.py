@@ -78,7 +78,7 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
     it's absolutely imperative that you navigate across the lake and retrieve
     the disc. However, the ice is slippery, so you won't always move in the
     direction you intend.
-    The surface is described using a grid like the following:
+    The surface is described using a grid like the following
 
     >>> env = FrozenLakeEnv(is_slippery=False)
     >>> env.render()
