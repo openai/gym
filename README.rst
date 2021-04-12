@@ -179,6 +179,9 @@ Resources
 
 What's new
 ==========
+- 2021-04-12 (v 0.18.1)
+   + Loosen version of Pillow for better python 3.9 support
+
 - 2020-12-18 (v 0.18.0)
    + Add python 3.9 support
    - Remove python 3.5 support (thanks @justinkterry on both!)
