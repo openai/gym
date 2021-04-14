@@ -5,7 +5,7 @@ python:
 services:
   - docker
 env:
-  - PY_VER=3.6.8
+  - PY_VER=3.6.13
   # - PY_VER=3.7.3
   # - PY_VER=3.8.6
   # - PY_VER=3.9.0
