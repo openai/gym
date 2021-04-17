@@ -39,7 +39,7 @@ env.render()
 ```
 
 This will install `atari-py`, which automatically compiles the [Arcade
-Learning Environment](http://www.arcadelearningenvironment.org/). This
+Learning Environment](https://github.com/mgbellemare/Arcade-Learning-Environment#:~:text=The%20Arcade%20Learning%20Environment%20(ALE)%20is%20a%20simple%20object%2D,of%20emulation%20from%20agent%20design.). This
 can take quite a while (a few minutes on a decent laptop), so just be
 prepared.
 
