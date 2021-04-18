@@ -46,8 +46,8 @@ class Box(Space):
             high = np.full(shape, high, dtype=dtype)
 
         self.shape = shape
-        self.low = low
-        self.high = high
+        self.low = np.float32(low)
+        self.high = np.float32(high)
 
         def _get_precision(dtype):
             if np.issubdtype(dtype, np.floating):
