@@ -327,3 +327,9 @@ Learn more here: https://github.com/falox/gym-adserver
 An environment for automated rule-based deductive program verification in the KeY verification system.
 
 Learn more here: https://github.com/Flunzmas/gym-autokey
+
+### gym-xiangqi: Xiangqi - The Chinese Chess Game
+
+A reinforcement learning environment of Xiangqi, Chinese Chess.
+
+Learn more here: https://github.com/tanliyon/gym-xiangqi
