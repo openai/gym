@@ -330,6 +330,6 @@ Learn more here: https://github.com/Flunzmas/gym-autokey
 
 ### gym-xiangqi: Xiangqi - The Chinese Chess Game
 
-A reinforcement learning environment of Xiangqi, Chinese Chess.
+A reinforcement learning environment of Xiangqi, the Chinese Chess game.
 
 Learn more here: https://github.com/tanliyon/gym-xiangqi
