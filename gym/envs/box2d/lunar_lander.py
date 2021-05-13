@@ -450,4 +450,6 @@ def demo_heuristic_lander(env, seed=None, render=False):
 
 
 if __name__ == '__main__':
-    demo_heuristic_lander(LunarLander(), render=True)
+    env = LunarLander()
+    demo_heuristic_lander(env, render=True)
+    env.close()
