@@ -21,7 +21,8 @@ COPY . /usr/local/gym/
 WORKDIR /usr/local/gym/
 # install all extras for python 3.6 and 3.7, and skip mujoco add-ons for 3.8 and 3.9
 # as mujoco 1.50 does not seem to work with 3.8 and 3.9
-RUN bash -c "[[ $PYTHON_VER =~ 3\.[6-7]\.[0-9] ]] && pip install -e .[all] || pip install -e .[nomujoco]"
+# RUN bash -c "[[ $PYTHON_VER =~ 3\.[6-7]\.[0-9] ]] && pip install -e .[all] || pip install -e .[nomujoco]"
+RUN pip install -e .[nomujoco]
 
 ENTRYPOINT ["/usr/local/gym/bin/docker_entrypoint"]
 CMD ["pytest","--forked"]
