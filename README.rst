@@ -181,6 +181,7 @@ What's new
 ==========
 - 2021-04-12 (v 0.18.1)
    + Loosen version of Pillow for better python 3.9 support
+   - Drop mujoco from the build for the same reason
 
 - 2020-12-18 (v 0.18.0)
    + Add python 3.9 support
