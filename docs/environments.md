@@ -327,3 +327,9 @@ Learn more here: https://github.com/falox/gym-adserver
 An environment for automated rule-based deductive program verification in the KeY verification system.
 
 Learn more here: https://github.com/Flunzmas/gym-autokey
+
+### robo-gym: Environments for Real and Simulated Robots
+
+robo-gym provides a collection of reinforcement learning environments involving robotic tasks applicable in both simulation and real world robotics. 
+
+Learn more here: https://github.com/jr-robotics/robo-gym
