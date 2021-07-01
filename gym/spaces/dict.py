@@ -67,6 +67,12 @@ class Dict(Space):
         for key in self.spaces:
             yield key
 
+    def __len__(self):
+        return len(self.spaces)
+
+    def __contains__(self, item):
+        return self.contains(item)
+
     def __repr__(self):
         return "Dict(" + ", ". join([str(k) + ":" + str(s) for k, s in self.spaces.items()]) + ")"
 
