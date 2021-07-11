@@ -327,3 +327,9 @@ Learn more here: https://github.com/falox/gym-adserver
 An environment for automated rule-based deductive program verification in the KeY verification system.
 
 Learn more here: https://github.com/Flunzmas/gym-autokey
+
+### anomalous_rl_envs: Gym environments with anomaly injection
+
+A set of environments from control tasks: Acrobot, CartPole, and LunarLander with various types of anomalies injected into them. It could be very useful to study the behavior and robustness of a policy.
+
+Learn more here: https://github.com/modanesh/anomalous_rl_envs
