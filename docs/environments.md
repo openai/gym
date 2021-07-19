@@ -327,3 +327,9 @@ Learn more here: https://github.com/falox/gym-adserver
 An environment for automated rule-based deductive program verification in the KeY verification system.
 
 Learn more here: https://github.com/Flunzmas/gym-autokey
+
+### math-prog-synth-env
+
+In our paper "A Reinforcement Learning Environment for Mathematical Reasoning via Program Synthesis" we convert the DeepMind Mathematics Dataset into an RL environment based around program synthesis.
+
+Learn more here: https://github.com/JohnnyYeeee/math_prog_synth_env , https://arxiv.org/abs/2107.07373
