@@ -20,7 +20,7 @@ class TransformReward(RewardWrapper):
 
     """
     def __init__(self, env, f):
-        super(TransformReward, self).__init__(env)
+        super().__init__(env)
         assert callable(f)
         self.f = f
 

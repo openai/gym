@@ -4,7 +4,7 @@ import sys
 import gym
 from gym import wrappers, logger
 
-class RandomAgent(object):
+class RandomAgent:
     """The world's simplest agent!"""
     def __init__(self, action_space):
         self.action_space = action_space

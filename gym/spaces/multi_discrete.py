@@ -30,7 +30,7 @@ class MultiDiscrete(Space):
         assert (np.array(nvec) > 0).all(), 'nvec (counts) have to be positive'
         self.nvec = np.asarray(nvec, dtype=dtype)
 
-        super(MultiDiscrete, self).__init__(self.nvec.shape, dtype)
+        super().__init__(self.nvec.shape, dtype)
 
     def sample(self):
         return (self.np_random.random_sample(self.nvec.shape)*self.nvec).astype(self.dtype)
@@ -49,7 +49,7 @@ class MultiDiscrete(Space):
         return np.array(sample_n)
 
     def __repr__(self):
-        return "MultiDiscrete({})".format(self.nvec)
+        return f"MultiDiscrete({self.nvec})"
 
     def __eq__(self, other):
         return isinstance(other, MultiDiscrete) and np.all(self.nvec == other.nvec)

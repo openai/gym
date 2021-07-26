@@ -54,7 +54,7 @@ def test_create_shared_memory(space, expected_type, n, ctx):
             assert type(lhs[0]) == type(rhs[0])
 
         else:
-            raise TypeError('Got unknown type `{0}`.'.format(type(lhs)))
+            raise TypeError(f'Got unknown type `{type(lhs)}`.')
 
     ctx = mp if (ctx is None) else mp.get_context(ctx)
     shared_memory = create_shared_memory(space, n=n, ctx=ctx)
@@ -88,7 +88,7 @@ def test_write_to_shared_memory(space):
             assert np.all(np.array(lhs[:]) == np.stack(rhs, axis=0).flatten())
 
         else:
-            raise TypeError('Got unknown type `{0}`.'.format(type(lhs)))
+            raise TypeError(f'Got unknown type `{type(lhs)}`.')
 
     def write(i, shared_memory, sample):
         write_to_shared_memory(i, sample, shared_memory, space)
@@ -132,7 +132,7 @@ def test_read_from_shared_memory(space):
             assert np.all(lhs == np.stack(rhs, axis=0))
 
         else:
-            raise TypeError('Got unknown type `{0}`'.format(type(space)))
+            raise TypeError(f'Got unknown type `{type(space)}`')
 
     def write(i, shared_memory, sample):
         write_to_shared_memory(i, sample, shared_memory, space)

@@ -5,7 +5,7 @@ from gym.utils import closer
 env_closer = closer.Closer()
 
 
-class Env(object):
+class Env:
     """The main OpenAI Gym class. It encapsulates an environment with
     arbitrary behind-the-scenes dynamics. An environment can be
     partially or fully observed.
@@ -145,9 +145,9 @@ class Env(object):
 
     def __str__(self):
         if self.spec is None:
-            return '<{} instance>'.format(type(self).__name__)
+            return f'<{type(self).__name__} instance>'
         else:
-            return '<{}<{}>>'.format(type(self).__name__, self.spec.id)
+            return f'<{type(self).__name__}<{self.spec.id}>>'
 
     def __enter__(self):
         """Support with-statement for the environment. """
@@ -175,7 +175,7 @@ class GoalEnv(Env):
             raise error.Error('GoalEnv requires an observation space of type gym.spaces.Dict')
         for key in ['observation', 'achieved_goal', 'desired_goal']:
             if key not in self.observation_space.spaces:
-                raise error.Error('GoalEnv requires the "{}" key to be part of the observation dictionary.'.format(key))
+                raise error.Error(f'GoalEnv requires the "{key}" key to be part of the observation dictionary.')
 
     def compute_reward(self, achieved_goal, desired_goal, info):
         """Compute the step reward. This externalizes the reward function and makes
@@ -219,7 +219,7 @@ class Wrapper(Env):
 
     def __getattr__(self, name):
         if name.startswith('_'):
-            raise AttributeError("attempted to get missing private attribute '{}'".format(name))
+            raise AttributeError(f"attempted to get missing private attribute '{name}'")
         return getattr(self.env, name)
 
     @property
@@ -249,7 +249,7 @@ class Wrapper(Env):
         return self.env.compute_reward(achieved_goal, desired_goal, info)
 
     def __str__(self):
-        return '<{}{}>'.format(type(self).__name__, self.env)
+        return f'<{type(self).__name__}{self.env}>'
 
     def __repr__(self):
         return str(self)

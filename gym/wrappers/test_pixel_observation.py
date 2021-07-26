@@ -35,7 +35,7 @@ class FakeArrayObservationEnvironment(FakeEnvironment):
     def __init__(self, *args, **kwargs):
         self.observation_space = spaces.Box(
             shape=(2, ), low=-1, high=1, dtype=np.float32)
-        super(FakeArrayObservationEnvironment, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class FakeDictObservationEnvironment(FakeEnvironment):
@@ -43,10 +43,10 @@ class FakeDictObservationEnvironment(FakeEnvironment):
         self.observation_space = spaces.Dict({
             'state': spaces.Box(shape=(2, ), low=-1, high=1, dtype=np.float32),
         })
-        super(FakeDictObservationEnvironment, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
-class TestPixelObservationWrapper(object):
+class TestPixelObservationWrapper:
     @pytest.mark.parametrize("pixels_only", (True, False))
     def test_dict_observation(self, pixels_only):
         pixel_key = 'rgb'

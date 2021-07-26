@@ -8,7 +8,7 @@ from gym.envs.algorithmic import algorithmic_env
 class DuplicatedInputEnv(algorithmic_env.TapeAlgorithmicEnv):
     def __init__(self, duplication=2, base=5):
         self.duplication = duplication
-        super(DuplicatedInputEnv, self).__init__(base=base, chars=True)
+        super().__init__(base=base, chars=True)
 
     def generate_input_data(self, size):
         res = []

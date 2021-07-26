@@ -13,7 +13,7 @@ class Discrete(Space):
     def __init__(self, n):
         assert n >= 0
         self.n = n
-        super(Discrete, self).__init__((), np.int64)
+        super().__init__((), np.int64)
 
     def sample(self):
         return self.np_random.randint(self.n)

@@ -49,7 +49,7 @@ def get_display(spec):
     elif isinstance(spec, str):
         return pyglet.canvas.Display(spec)
     else:
-        raise error.Error('Invalid display specification: {}. (Must be a string like :0 or None.)'.format(spec))
+        raise error.Error(f'Invalid display specification: {spec}. (Must be a string like :0 or None.)')
 
 def get_window(width, height, display, **kwargs):
     """
@@ -61,7 +61,7 @@ def get_window(width, height, display, **kwargs):
 
     return pyglet.window.Window(width=width, height=height, display=display, config=config, context=context, **kwargs)
 
-class Viewer(object):
+class Viewer:
     def __init__(self, width, height, display=None):
         display = get_display(display)
 
@@ -170,7 +170,7 @@ def _add_attrs(geom, attrs):
     if "linewidth" in attrs:
         geom.set_linewidth(attrs["linewidth"])
 
-class Geom(object):
+class Geom:
     def __init__(self):
         self._color=Color((0, 0, 0, 1.0))
         self.attrs = [self._color]
@@ -187,7 +187,7 @@ class Geom(object):
     def set_color(self, r, g, b):
         self._color.vec4 = (r, g, b, 1)
 
-class Attr(object):
+class Attr:
     def enable(self):
         raise NotImplementedError
     def disable(self):
@@ -332,7 +332,7 @@ class Image(Geom):
 
 # ================================================================
 
-class SimpleImageViewer(object):
+class SimpleImageViewer:
     def __init__(self, display=None, maxwidth=500):
         self.window = None
         self.isopen = False

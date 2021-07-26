@@ -1,4 +1,4 @@
-class EzPickle(object):
+class EzPickle:
     """Objects that are pickled and unpickled via their constructor
     arguments.
 

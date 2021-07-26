@@ -9,7 +9,7 @@ class RepeatCopyEnv(algorithmic_env.TapeAlgorithmicEnv):
     MIN_REWARD_SHORTFALL_FOR_PROMOTION = -.1
 
     def __init__(self, base=5):
-        super(RepeatCopyEnv, self).__init__(base=base, chars=True)
+        super().__init__(base=base, chars=True)
         self.last = 50
 
     def target_from_input_data(self, input_data):

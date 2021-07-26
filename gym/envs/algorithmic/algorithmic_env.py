@@ -298,7 +298,7 @@ class GridAlgorithmicEnv(AlgorithmicEnv):
         elif named == 'down':
             y += 1
         else:
-            raise ValueError("Unrecognized direction: {}".format(named))
+            raise ValueError(f"Unrecognized direction: {named}")
         self.read_head_position = x, y
 
     def generate_input_data(self, size):

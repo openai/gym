@@ -68,7 +68,7 @@ def rollout(env):
         time.sleep(0.1)
     print("timesteps %i reward %0.2f" % (total_timesteps, total_reward))
 
-print("ACTIONS={}".format(ACTIONS))
+print(f"ACTIONS={ACTIONS}")
 print("Press keys 1 2 3 ... to take actions 1 2 3 ...")
 print("No keys pressed is taking action 0")
 

@@ -57,7 +57,7 @@ OBSERVATION_SPACES = (
 )
 
 
-class TestFlattenEnvironment(object):
+class TestFlattenEnvironment:
     @pytest.mark.parametrize("observation_space, ordered_values", OBSERVATION_SPACES)
     def test_flattened_environment(self, observation_space, ordered_values):
         """

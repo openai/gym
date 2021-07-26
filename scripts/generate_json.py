@@ -15,7 +15,7 @@ steps = ROLLOUT_STEPS
 ROLLOUT_FILE = os.path.join(DATA_DIR, 'rollout.json')
 
 if not os.path.isfile(ROLLOUT_FILE):
-    logger.info("No rollout file found. Writing empty json file to {}".format(ROLLOUT_FILE))
+    logger.info(f"No rollout file found. Writing empty json file to {ROLLOUT_FILE}")
     with open(ROLLOUT_FILE, "w") as outfile:
         json.dump({}, outfile, indent=2)
 
@@ -27,21 +27,21 @@ def update_rollout_dict(spec, rollout_dict):
     """
     # Skip platform-dependent
     if should_skip_env_spec_for_tests(spec):
-        logger.info("Skipping tests for {}".format(spec.id))
+        logger.info(f"Skipping tests for {spec.id}")
         return False
 
     # Skip environments that are nondeterministic
     if spec.nondeterministic:
-        logger.info("Skipping tests for nondeterministic env {}".format(spec.id))
+        logger.info(f"Skipping tests for nondeterministic env {spec.id}")
         return False
 
-    logger.info("Generating rollout for {}".format(spec.id))
+    logger.info(f"Generating rollout for {spec.id}")
 
     try:
         observations_hash, actions_hash, rewards_hash, dones_hash = generate_rollout_hash(spec)
     except:
         # If running the env generates an exception, don't write to the rollout file
-        logger.warn("Exception {} thrown while generating rollout for {}. Rollout not added.".format(sys.exc_info()[0], spec.id))
+        logger.warn(f"Exception {sys.exc_info()[0]} thrown while generating rollout for {spec.id}. Rollout not added.")
         return False
 
     rollout = {}
@@ -56,10 +56,10 @@ def update_rollout_dict(spec, rollout_dict):
         for key, new_hash in rollout.items():
             differs = differs or existing[key] != new_hash
         if not differs:
-            logger.debug("Hashes match with existing for {}".format(spec.id))
+            logger.debug(f"Hashes match with existing for {spec.id}")
             return False
         else:
-            logger.warn("Got new hash for {}. Overwriting.".format(spec.id))
+            logger.warn(f"Got new hash for {spec.id}. Overwriting.")
 
     rollout_dict[spec.id] = rollout
     return True
@@ -74,12 +74,12 @@ def add_new_rollouts(spec_ids, overwrite):
     modified = False
     for spec in environments:
         if not overwrite and spec.id in rollout_dict:
-            logger.debug("Rollout already exists for {}. Skipping.".format(spec.id))
+            logger.debug(f"Rollout already exists for {spec.id}. Skipping.")
         else:
             modified = update_rollout_dict(spec, rollout_dict) or modified
 
     if modified:
-        logger.info("Writing new rollout file to {}".format(ROLLOUT_FILE))
+        logger.info(f"Writing new rollout file to {ROLLOUT_FILE}")
         with open(ROLLOUT_FILE, "w") as outfile:
             json.dump(rollout_dict, outfile, indent=2, sort_keys=True)
     else:

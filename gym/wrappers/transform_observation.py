@@ -18,7 +18,7 @@ class TransformObservation(ObservationWrapper):
 
     """
     def __init__(self, env, f):
-        super(TransformObservation, self).__init__(env)
+        super().__init__(env)
         assert callable(f)
         self.f = f
 

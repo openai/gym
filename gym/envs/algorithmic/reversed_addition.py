@@ -3,7 +3,7 @@ from gym.envs.algorithmic import algorithmic_env
 
 class ReversedAdditionEnv(algorithmic_env.GridAlgorithmicEnv):
     def __init__(self, rows=2, base=3):
-        super(ReversedAdditionEnv, self).__init__(
+        super().__init__(
             rows=rows, base=base, chars=False
         )
 

@@ -72,7 +72,7 @@ NESTED_DICT_TEST_CASES = (
      }), (5, )),
 )
 
-class TestNestedDictWrapper(object):
+class TestNestedDictWrapper:
     @pytest.mark.parametrize("observation_space, flat_shape",
 
                              NESTED_DICT_TEST_CASES)

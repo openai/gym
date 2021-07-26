@@ -32,7 +32,7 @@ def test_env(spec):
             print('env2.action_space=', env2.action_space)
             print('action_samples1=', action_samples1)
             print('action_samples2=', action_samples2)
-            print('[{}] action_sample1: {}, action_sample2: {}'.format(i, action_sample1, action_sample2))
+            print(f'[{i}] action_sample1: {action_sample1}, action_sample2: {action_sample2}')
             raise
 
     # Don't check rollout equality if it's a a nondeterministic
@@ -43,20 +43,20 @@ def test_env(spec):
     assert_equals(initial_observation1, initial_observation2)
 
     for i, ((o1, r1, d1, i1), (o2, r2, d2, i2)) in enumerate(zip(step_responses1, step_responses2)):
-        assert_equals(o1, o2, '[{}] '.format(i))
-        assert r1 == r2, '[{}] r1: {}, r2: {}'.format(i, r1, r2)
-        assert d1 == d2, '[{}] d1: {}, d2: {}'.format(i, d1, d2)
+        assert_equals(o1, o2, f'[{i}] ')
+        assert r1 == r2, f'[{i}] r1: {r1}, r2: {r2}'
+        assert d1 == d2, f'[{i}] d1: {d1}, d2: {d2}'
 
         # Go returns a Pachi game board in info, which doesn't
         # properly check equality. For now, we hack around this by
         # just skipping Go.
         if spec.id not in ['Go9x9-v0', 'Go19x19-v0']:
-            assert_equals(i1, i2, '[{}] '.format(i))
+            assert_equals(i1, i2, f'[{i}] ')
 
 def assert_equals(a, b, prefix=None):
-    assert type(a) == type(b), "{}Differing types: {} and {}".format(prefix, a, b)
+    assert type(a) == type(b), f"{prefix}Differing types: {a} and {b}"
     if isinstance(a, dict):
-        assert list(a.keys()) == list(b.keys()), "{}Key sets differ: {} and {}".format(prefix, a, b)
+        assert list(a.keys()) == list(b.keys()), f"{prefix}Key sets differ: {a} and {b}"
 
         for k in a.keys():
             v_a = a[k]

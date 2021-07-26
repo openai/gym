@@ -72,10 +72,10 @@ def test_env_semantics(spec):
 
     if spec.id not in rollout_dict:
         if not spec.nondeterministic:
-            logger.warn("Rollout does not exist for {}, run generate_json.py to generate rollouts for new envs".format(spec.id))
+            logger.warn(f"Rollout does not exist for {spec.id}, run generate_json.py to generate rollouts for new envs")
         return
 
-    logger.info("Testing rollout for {} environment...".format(spec.id))
+    logger.info(f"Testing rollout for {spec.id} environment...")
 
     observations_now, actions_now, rewards_now, dones_now = generate_rollout_hash(spec)
 

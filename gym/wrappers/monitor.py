@@ -12,7 +12,7 @@ MANIFEST_PREFIX = FILE_PREFIX + '.manifest'
 class Monitor(Wrapper):
     def __init__(self, env, directory, video_callable=None, force=False, resume=False,
                  write_upon_reset=False, uid=None, mode=None):
-        super(Monitor, self).__init__(env)
+        super().__init__(env)
 
         self.videos = []
 
@@ -73,7 +73,7 @@ class Monitor(Wrapper):
         elif video_callable == False:
             video_callable = disable_videos
         elif not callable(video_callable):
-            raise error.Error('You must provide a function, None, or False for video_callable, not {}: {}'.format(type(video_callable), video_callable))
+            raise error.Error(f'You must provide a function, None, or False for video_callable, not {type(video_callable)}: {video_callable}')
         self.video_callable = video_callable
 
         # Check on whether we need to clear anything
@@ -93,9 +93,9 @@ class Monitor(Wrapper):
         # We use the 'openai-gym' prefix to determine if a file is
         # ours
         self.file_prefix = FILE_PREFIX
-        self.file_infix = '{}.{}'.format(self._monitor_id, uid if uid else os.getpid())
+        self.file_infix = f'{self._monitor_id}.{uid if uid else os.getpid()}'
 
-        self.stats_recorder = stats_recorder.StatsRecorder(directory, '{}.episode_batch.{}'.format(self.file_prefix, self.file_infix), autoreset=self.env_semantics_autoreset, env_id=env_id)
+        self.stats_recorder = stats_recorder.StatsRecorder(directory, f'{self.file_prefix}.episode_batch.{self.file_infix}', autoreset=self.env_semantics_autoreset, env_id=env_id)
 
         if not os.path.exists(directory): os.mkdir(directory)
         self.write_upon_reset = write_upon_reset
@@ -112,7 +112,7 @@ class Monitor(Wrapper):
 
         # Give it a very distinguished name, since we need to pick it
         # up from the filesystem later.
-        path = os.path.join(self.directory, '{}.manifest.{}.manifest.json'.format(self.file_prefix, self.file_infix))
+        path = os.path.join(self.directory, f'{self.file_prefix}.manifest.{self.file_infix}.manifest.json')
         logger.debug('Writing training manifest file to %s', path)
         with atomic_write.atomic_write(path) as f:
             # We need to write relative paths here since people may
@@ -128,7 +128,7 @@ class Monitor(Wrapper):
 
     def close(self):
         """Flush all monitor data to disk and close any open rending windows."""
-        super(Monitor, self).close()
+        super().close()
 
         if not self.enabled:
             return
@@ -199,7 +199,7 @@ class Monitor(Wrapper):
         # TODO: calculate a more correct 'episode_id' upon merge
         self.video_recorder = video_recorder.VideoRecorder(
             env=self.env,
-            base_path=os.path.join(self.directory, '{}.video.{}.video{:06}'.format(self.file_prefix, self.file_infix, self.episode_id)),
+            base_path=os.path.join(self.directory, f'{self.file_prefix}.video.{self.file_infix}.video{self.episode_id:06}'),
             metadata={'episode_id': self.episode_id},
             enabled=self._video_enabled(),
         )
@@ -365,9 +365,9 @@ def collapse_env_infos(env_infos, training_dir):
     first = env_infos[0]
     for other in env_infos[1:]:
         if first != other:
-            raise error.Error('Found two unequal env_infos: {} and {}. This usually indicates that your training directory {} has commingled results from multiple runs.'.format(first, other, training_dir))
+            raise error.Error(f'Found two unequal env_infos: {first} and {other}. This usually indicates that your training directory {training_dir} has commingled results from multiple runs.')
 
     for key in ['env_id', 'gym_version']:
         if key not in first:
-            raise error.Error("env_info {} from training directory {} is missing expected key {}. This is unexpected and likely indicates a bug in gym.".format(first, training_dir, key))
+            raise error.Error(f"env_info {first} from training directory {training_dir} is missing expected key {key}. This is unexpected and likely indicates a bug in gym.")
     return first

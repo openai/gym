@@ -155,7 +155,7 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
                                 1., *update_probability_matrix(row, col, a)
                             ))
 
-        super(FrozenLakeEnv, self).__init__(nS, nA, P, isd)
+        super().__init__(nS, nA, P, isd)
 
     def render(self, mode='human'):
         outfile = StringIO() if mode == 'ansi' else sys.stdout

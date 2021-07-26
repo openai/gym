@@ -21,9 +21,9 @@ def flatdim(space):
     elif isinstance(space, Discrete):
         return int(space.n)
     elif isinstance(space, Tuple):
-        return int(sum([flatdim(s) for s in space.spaces]))
+        return int(sum(flatdim(s) for s in space.spaces))
     elif isinstance(space, Dict):
-        return int(sum([flatdim(s) for s in space.spaces.values()]))
+        return int(sum(flatdim(s) for s in space.spaces.values()))
     elif isinstance(space, MultiBinary):
         return int(space.n)
     elif isinstance(space, MultiDiscrete):
@@ -148,14 +148,14 @@ def flatten_space(space):
         return Box(
             low=np.concatenate([s.low for s in space]),
             high=np.concatenate([s.high for s in space]),
-            dtype=np.result_type(*[s.dtype for s in space])
+            dtype=np.result_type(*(s.dtype for s in space))
         )
     if isinstance(space, Dict):
         space = [flatten_space(s) for s in space.spaces.values()]
         return Box(
             low=np.concatenate([s.low for s in space]),
             high=np.concatenate([s.high for s in space]),
-            dtype=np.result_type(*[s.dtype for s in space])
+            dtype=np.result_type(*(s.dtype for s in space))
         )
     if isinstance(space, MultiBinary):
         return Box(low=0,

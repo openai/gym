@@ -53,7 +53,7 @@ class AtariEnv(gym.Env, utils.EzPickle):
 
         if not os.path.exists(self.game_path):
             msg = 'You asked for game %s but path %s does not exist'
-            raise IOError(msg % (game, self.game_path))
+            raise OSError(msg % (game, self.game_path))
         self._obs_type = obs_type
         self.frameskip = frameskip
         self.ale = atari_py.ALEInterface()
@@ -62,9 +62,9 @@ class AtariEnv(gym.Env, utils.EzPickle):
         # Tune (or disable) ALE's action repeat:
         # https://github.com/openai/gym/issues/349
         assert isinstance(repeat_action_probability, (float, int)), \
-                "Invalid repeat_action_probability: {!r}".format(repeat_action_probability)
+                f"Invalid repeat_action_probability: {repeat_action_probability!r}"
         self.ale.setFloat(
-                'repeat_action_probability'.encode('utf-8'),
+                b'repeat_action_probability',
                 repeat_action_probability)
 
         self.seed()
@@ -79,7 +79,7 @@ class AtariEnv(gym.Env, utils.EzPickle):
         elif self._obs_type == 'image':
             self.observation_space = spaces.Box(low=0, high=255, shape=(screen_height, screen_width, 3), dtype=np.uint8)
         else:
-            raise error.Error('Unrecognized observation type: {}'.format(self._obs_type))
+            raise error.Error(f'Unrecognized observation type: {self._obs_type}')
 
     def seed(self, seed=None):
         self.np_random, seed1 = seeding.np_random(seed)

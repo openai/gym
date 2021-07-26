@@ -2,7 +2,7 @@ import atexit
 import threading
 import weakref
 
-class Closer(object):
+class Closer:
     """A registry that ensures your objects get closed, whether manually,
     upon garbage collection, or upon exit. To work properly, your
     objects need to cooperate and do something like the following:
@@ -48,7 +48,7 @@ class Closer(object):
         Returns:
             int: The registration ID of this object. It is the caller's responsibility to save this ID if early closing is desired.
         """
-        assert hasattr(closeable, 'close'), 'No close method for {}'.format(closeable)
+        assert hasattr(closeable, 'close'), f'No close method for {closeable}'
 
         next_id = self.generate_next_id()
         self.closeables[next_id] = closeable

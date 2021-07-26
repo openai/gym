@@ -1,6 +1,6 @@
 # Support code for cem.py
 
-class BinaryActionLinearPolicy(object):
+class BinaryActionLinearPolicy:
     def __init__(self, theta):
         self.w = theta[:-1]
         self.b = theta[-1]
@@ -9,7 +9,7 @@ class BinaryActionLinearPolicy(object):
         a = int(y < 0)
         return a
 
-class ContinuousActionLinearPolicy(object):
+class ContinuousActionLinearPolicy:
     def __init__(self, theta, n_in, n_out):
         assert len(theta) == (n_in + 1) * n_out
         self.W = theta[0 : n_in * n_out].reshape(n_in, n_out)

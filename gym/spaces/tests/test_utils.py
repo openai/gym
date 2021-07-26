@@ -19,7 +19,7 @@ from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Tuple, u
 ])
 def test_flatdim(space, flatdim):
     dim = utils.flatdim(space)
-    assert dim == flatdim, "Expected {} to equal {}".format(dim, flatdim)
+    assert dim == flatdim, f"Expected {dim} to equal {flatdim}"
 
 
 @pytest.mark.parametrize("space", [
@@ -35,10 +35,10 @@ def test_flatdim(space, flatdim):
     ])
 def test_flatten_space_boxes(space):
     flat_space = utils.flatten_space(space)
-    assert isinstance(flat_space, Box), "Expected {} to equal {}".format(type(flat_space), Box)
+    assert isinstance(flat_space, Box), f"Expected {type(flat_space)} to equal {Box}"
     flatdim = utils.flatdim(space)
     (single_dim, ) = flat_space.shape
-    assert single_dim == flatdim, "Expected {} to equal {}".format(single_dim, flatdim)
+    assert single_dim == flatdim, f"Expected {single_dim} to equal {flatdim}"
 
 
 @pytest.mark.parametrize("space", [
@@ -58,7 +58,7 @@ def test_flat_space_contains_flat_points(space):
     flat_space = utils.flatten_space(space)
     for i, flat_sample in enumerate(flattened_samples):
         assert flat_sample in flat_space,\
-            'Expected sample #{} {} to be in {}'.format(i, flat_sample, flat_space)
+            f'Expected sample #{i} {flat_sample} to be in {flat_space}'
 
 
 @pytest.mark.parametrize("space", [
@@ -76,7 +76,7 @@ def test_flatten_dim(space):
     sample = utils.flatten(space, space.sample())
     (single_dim, ) = sample.shape
     flatdim = utils.flatdim(space)
-    assert single_dim == flatdim, "Expected {} to equal {}".format(single_dim, flatdim)
+    assert single_dim == flatdim, f"Expected {single_dim} to equal {flatdim}"
 
 
 @pytest.mark.parametrize("space", [
@@ -96,7 +96,7 @@ def test_flatten_roundtripping(space):
     roundtripped_samples = [utils.unflatten(space, sample) for sample in flattened_samples]
     for i, (original, roundtripped) in enumerate(zip(some_samples, roundtripped_samples)):
         assert compare_nested(original, roundtripped), \
-            'Expected sample #{} {} to equal {}'.format(i, original, roundtripped)
+            f'Expected sample #{i} {original} to equal {roundtripped}'
 
 
 def compare_nested(left, right):

@@ -44,7 +44,7 @@ class PixelObservationWrapper(ObservationWrapper):
                 specified `pixel_keys`.
         """
 
-        super(PixelObservationWrapper, self).__init__(env)
+        super().__init__(env)
 
         if render_kwargs is None:
             render_kwargs = {}
@@ -60,7 +60,7 @@ class PixelObservationWrapper(ObservationWrapper):
 
         if isinstance(wrapped_observation_space, spaces.Box):
             self._observation_is_dict = False
-            invalid_keys = set([STATE_KEY])
+            invalid_keys = {STATE_KEY}
         elif isinstance(wrapped_observation_space,
                         (spaces.Dict, MutableMapping)):
             self._observation_is_dict = True

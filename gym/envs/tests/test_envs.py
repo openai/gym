@@ -20,12 +20,12 @@ def test_env(spec):
     ob_space = env.observation_space
     act_space = env.action_space
     ob = env.reset()
-    assert ob_space.contains(ob), 'Reset observation: {!r} not in space'.format(ob)
+    assert ob_space.contains(ob), f'Reset observation: {ob!r} not in space'
     a = act_space.sample()
     observation, reward, done, _info = env.step(a)
-    assert ob_space.contains(observation), 'Step observation: {!r} not in space'.format(observation)
-    assert np.isscalar(reward), "{} is not a scalar for {}".format(reward, env)
-    assert isinstance(done, bool), "Expected {} to be a boolean".format(done)
+    assert ob_space.contains(observation), f'Step observation: {observation!r} not in space'
+    assert np.isscalar(reward), f"{reward} is not a scalar for {env}"
+    assert isinstance(done, bool), f"Expected {done} to be a boolean"
 
     for mode in env.metadata.get('render.modes', []):
         env.render(mode=mode)

@@ -8,7 +8,7 @@ from gym.envs.robotics.utils import robot_get_obs
 try:
     import mujoco_py
 except ImportError as e:
-    raise error.DependencyNotInstalled("{}. (HINT: you need to install mujoco_py, and also perform the setup instructions here: https://github.com/openai/mujoco-py/.)".format(e))
+    raise error.DependencyNotInstalled(f"{e}. (HINT: you need to install mujoco_py, and also perform the setup instructions here: https://github.com/openai/mujoco-py/.)")
 
 
 def quat_from_angle_and_axis(angle, axis):
@@ -175,7 +175,7 @@ class ManipulateEnv(hand_env.HandEnv):
             elif self.target_rotation == 'fixed':
                 pass
             else:
-                raise error.Error('Unknown target_rotation option "{}".'.format(self.target_rotation))
+                raise error.Error(f'Unknown target_rotation option "{self.target_rotation}".')
 
         # Randomize initial position.
         if self.randomize_initial_position:
@@ -213,7 +213,7 @@ class ManipulateEnv(hand_env.HandEnv):
         elif self.target_position in ['ignore', 'fixed']:
             target_pos = self.sim.data.get_joint_qpos('object:joint')[:3]
         else:
-            raise error.Error('Unknown target_position option "{}".'.format(self.target_position))
+            raise error.Error(f'Unknown target_position option "{self.target_position}".')
         assert target_pos is not None
         assert target_pos.shape == (3,)
 
@@ -236,7 +236,7 @@ class ManipulateEnv(hand_env.HandEnv):
         elif self.target_rotation in ['ignore', 'fixed']:
             target_quat = self.sim.data.get_joint_qpos('object:joint')
         else:
-            raise error.Error('Unknown target_rotation option "{}".'.format(self.target_rotation))
+            raise error.Error(f'Unknown target_rotation option "{self.target_rotation}".')
         assert target_quat is not None
         assert target_quat.shape == (4,)
 

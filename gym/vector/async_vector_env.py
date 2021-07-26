@@ -79,7 +79,7 @@ class AsyncVectorEnv(VectorEnv):
             action_space = action_space or dummy_env.action_space
             dummy_env.close()
             del dummy_env
-        super(AsyncVectorEnv, self).__init__(num_envs=len(env_fns),
+        super().__init__(num_envs=len(env_fns),
             observation_space=observation_space, action_space=action_space)
 
         if self.shared_memory:
@@ -108,7 +108,7 @@ class AsyncVectorEnv(VectorEnv):
             for idx, env_fn in enumerate(self.env_fns):
                 parent_pipe, child_pipe = ctx.Pipe()
                 process = ctx.Process(target=target,
-                    name='Worker<{0}>-{1}'.format(type(self).__name__, idx),
+                    name=f'Worker<{type(self).__name__}>-{idx}',
                     args=(idx, CloudpickleWrapper(env_fn), child_pipe,
                     parent_pipe, _obs_buffer, self.error_queue))
 
@@ -132,19 +132,19 @@ class AsyncVectorEnv(VectorEnv):
 
         if self._state != AsyncState.DEFAULT:
             raise AlreadyPendingCallError('Calling `seed` while waiting '
-                'for a pending call to `{0}` to complete.'.format(
+                'for a pending call to `{}` to complete.'.format(
                 self._state.value), self._state.value)
 
         for pipe, seed in zip(self.parent_pipes, seeds):
             pipe.send(('seed', seed))
-        _, successes = zip(*[pipe.recv() for pipe in self.parent_pipes])
+        _, successes = zip(*(pipe.recv() for pipe in self.parent_pipes))
         self._raise_if_errors(successes)
 
     def reset_async(self):
         self._assert_is_running()
         if self._state != AsyncState.DEFAULT:
             raise AlreadyPendingCallError('Calling `reset_async` while waiting '
-                'for a pending call to `{0}` to complete'.format(
+                'for a pending call to `{}` to complete'.format(
                 self._state.value), self._state.value)
 
         for pipe in self.parent_pipes:
@@ -172,9 +172,9 @@ class AsyncVectorEnv(VectorEnv):
         if not self._poll(timeout):
             self._state = AsyncState.DEFAULT
             raise mp.TimeoutError('The call to `reset_wait` has timed out after '
-                '{0} second{1}.'.format(timeout, 's' if timeout > 1 else ''))
+                '{} second{}.'.format(timeout, 's' if timeout > 1 else ''))
 
-        results, successes = zip(*[pipe.recv() for pipe in self.parent_pipes])
+        results, successes = zip(*(pipe.recv() for pipe in self.parent_pipes))
         self._raise_if_errors(successes)
         self._state = AsyncState.DEFAULT
 
@@ -194,7 +194,7 @@ class AsyncVectorEnv(VectorEnv):
         self._assert_is_running()
         if self._state != AsyncState.DEFAULT:
             raise AlreadyPendingCallError('Calling `step_async` while waiting '
-                'for a pending call to `{0}` to complete.'.format(
+                'for a pending call to `{}` to complete.'.format(
                 self._state.value), self._state.value)
 
         for pipe, action in zip(self.parent_pipes, actions):
@@ -231,9 +231,9 @@ class AsyncVectorEnv(VectorEnv):
         if not self._poll(timeout):
             self._state = AsyncState.DEFAULT
             raise mp.TimeoutError('The call to `step_wait` has timed out after '
-                '{0} second{1}.'.format(timeout, 's' if timeout > 1 else ''))
+                '{} second{}.'.format(timeout, 's' if timeout > 1 else ''))
 
-        results, successes = zip(*[pipe.recv() for pipe in self.parent_pipes])
+        results, successes = zip(*(pipe.recv() for pipe in self.parent_pipes))
         self._raise_if_errors(successes)
         self._state = AsyncState.DEFAULT
         observations_list, rewards, dones, infos = zip(*results)
@@ -262,8 +262,8 @@ class AsyncVectorEnv(VectorEnv):
         try:
             if self._state != AsyncState.DEFAULT:
                 logger.warn('Calling `close` while waiting for a pending '
-                    'call to `{0}` to complete.'.format(self._state.value))
-                function = getattr(self, '{0}_wait'.format(self._state.value))
+                    'call to `{}` to complete.'.format(self._state.value))
+                function = getattr(self, f'{self._state.value}_wait')
                 function(timeout)
         except mp.TimeoutError:
             terminate = True
@@ -304,17 +304,17 @@ class AsyncVectorEnv(VectorEnv):
         self._assert_is_running()
         for pipe in self.parent_pipes:
             pipe.send(('_check_observation_space', self.single_observation_space))
-        same_spaces, successes = zip(*[pipe.recv() for pipe in self.parent_pipes])
+        same_spaces, successes = zip(*(pipe.recv() for pipe in self.parent_pipes))
         self._raise_if_errors(successes)
         if not all(same_spaces):
             raise RuntimeError('Some environments have an observation space '
-                'different from `{0}`. In order to batch observations, the '
+                'different from `{}`. In order to batch observations, the '
                 'observation spaces from all environments must be '
                 'equal.'.format(self.single_observation_space))
 
     def _assert_is_running(self):
         if self.closed:
-            raise ClosedEnvironmentError('Trying to operate on `{0}`, after a '
+            raise ClosedEnvironmentError('Trying to operate on `{}`, after a '
                 'call to `close()`.'.format(type(self).__name__))
 
     def _raise_if_errors(self, successes):
@@ -325,9 +325,9 @@ class AsyncVectorEnv(VectorEnv):
         assert num_errors > 0
         for _ in range(num_errors):
             index, exctype, value = self.error_queue.get()
-            logger.error('Received the following error from Worker-{0}: '
-                '{1}: {2}'.format(index, exctype.__name__, value))
-            logger.error('Shutting down Worker-{0}.'.format(index))
+            logger.error('Received the following error from Worker-{}: '
+                '{}: {}'.format(index, exctype.__name__, value))
+            logger.error(f'Shutting down Worker-{index}.')
             self.parent_pipes[index].close()
             self.parent_pipes[index] = None
 

@@ -9,7 +9,7 @@ class ReverseEnv(algorithmic_env.TapeAlgorithmicEnv):
     MIN_REWARD_SHORTFALL_FOR_PROMOTION = -.1
 
     def __init__(self, base=2):
-        super(ReverseEnv, self).__init__(
+        super().__init__(
             base=base, chars=True, starting_min_length=1
         )
         self.last = 50

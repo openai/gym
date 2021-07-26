@@ -58,7 +58,7 @@ class CliffWalkingEnv(discrete.DiscreteEnv):
         isd = np.zeros(nS)
         isd[self.start_state_index] = 1.0
 
-        super(CliffWalkingEnv, self).__init__(nS, nA, P, isd)
+        super().__init__(nS, nA, P, isd)
 
     def _limit_coordinates(self, coord):
         """

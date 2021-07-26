@@ -58,7 +58,7 @@ class Box(Space):
         high_precision = _get_precision(self.high.dtype)
         dtype_precision = _get_precision(self.dtype)
         if min(low_precision, high_precision) > dtype_precision:
-            logger.warn("Box bound precision lowered by casting to {}".format(self.dtype))
+            logger.warn(f"Box bound precision lowered by casting to {self.dtype}")
         self.low = self.low.astype(self.dtype)
         self.high = self.high.astype(self.dtype)
 
@@ -66,7 +66,7 @@ class Box(Space):
         self.bounded_below = -np.inf < self.low
         self.bounded_above = np.inf > self.high
 
-        super(Box, self).__init__(self.shape, self.dtype)
+        super().__init__(self.shape, self.dtype)
 
     def is_bounded(self, manner="both"):
         below = np.all(self.bounded_below)
@@ -134,7 +134,7 @@ class Box(Space):
         return [np.asarray(sample) for sample in sample_n]
 
     def __repr__(self):
-        return "Box({}, {}, {}, {})".format(self.low.min(), self.high.max(), self.shape, self.dtype)
+        return f"Box({self.low.min()}, {self.high.max()}, {self.shape}, {self.dtype})"
 
     def __eq__(self, other):
         return isinstance(other, Box) and (self.shape == other.shape) and np.allclose(self.low, other.low) and np.allclose(self.high, other.high)

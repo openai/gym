@@ -67,7 +67,7 @@ class InvalidAction(Exception):
 class APIError(Error):
     def __init__(self, message=None, http_body=None, http_status=None,
                  json_body=None, headers=None):
-        super(APIError, self).__init__(message)
+        super().__init__(message)
 
         if http_body and hasattr(http_body, 'decode'):
             try:
@@ -86,7 +86,7 @@ class APIError(Error):
     def __unicode__(self):
         if self.request_id is not None:
             msg = self._message or "<empty message>"
-            return u"Request {0}: {1}".format(self.request_id, msg)
+            return f"Request {self.request_id}: {msg}"
         else:
             return self._message
 
@@ -105,7 +105,7 @@ class InvalidRequestError(APIError):
 
     def __init__(self, message, param, http_body=None,
                  http_status=None, json_body=None, headers=None):
-        super(InvalidRequestError, self).__init__(
+        super().__init__(
             message, http_body, http_status, json_body,
             headers)
         self.param = param
@@ -148,7 +148,7 @@ class AlreadyPendingCallError(Exception):
     `reset_wait`, or `step_wait` respectively).
     """
     def __init__(self, message, name):
-        super(AlreadyPendingCallError, self).__init__(message)
+        super().__init__(message)
         self.name = name
 
 class NoAsyncCallError(Exception):
@@ -157,7 +157,7 @@ class NoAsyncCallError(Exception):
     `reset_wait`, or `step_wait` (respectively) is called.
     """
     def __init__(self, message, name):
-        super(NoAsyncCallError, self).__init__(message)
+        super().__init__(message)
         self.name = name
 
 class ClosedEnvironmentError(Exception):

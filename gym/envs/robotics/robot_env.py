@@ -9,7 +9,7 @@ from gym.utils import seeding
 try:
     import mujoco_py
 except ImportError as e:
-    raise error.DependencyNotInstalled("{}. (HINT: you need to install mujoco_py, and also perform the setup instructions here: https://github.com/openai/mujoco-py/.)".format(e))
+    raise error.DependencyNotInstalled(f"{e}. (HINT: you need to install mujoco_py, and also perform the setup instructions here: https://github.com/openai/mujoco-py/.)")
 
 DEFAULT_SIZE = 500
 
@@ -20,7 +20,7 @@ class RobotEnv(gym.GoalEnv):
         else:
             fullpath = os.path.join(os.path.dirname(__file__), 'assets', model_path)
         if not os.path.exists(fullpath):
-            raise IOError('File {} does not exist'.format(fullpath))
+            raise OSError(f'File {fullpath} does not exist')
 
         model = mujoco_py.load_model_from_path(fullpath)
         self.sim = mujoco_py.MjSim(model, nsubsteps=n_substeps)
@@ -76,7 +76,7 @@ class RobotEnv(gym.GoalEnv):
         # Gimbel lock) or we may not achieve an initial condition (e.g. an object is within the hand).
         # In this case, we just keep randomizing until we eventually achieve a valid initial
         # configuration.
-        super(RobotEnv, self).reset()
+        super().reset()
         did_reset_sim = False
         while not did_reset_sim:
             did_reset_sim = self._reset_sim()

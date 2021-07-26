@@ -93,10 +93,10 @@ class TestAlgorithmicEnvInteractions(unittest.TestCase):
 
     def test_grid_naviation(self):
         env = alg.reversed_addition.ReversedAdditionEnv(rows=2, base=6)
-        N, S, E, W = [
+        N, S, E, W = (
             env._movement_idx(named_dir)
             for named_dir in ['up', 'down', 'right', 'left']
-        ]
+        )
         # Corresponds to a grid that looks like...
         #       0 1 2
         #       3 4 5

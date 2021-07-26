@@ -31,7 +31,7 @@ class MultiBinary(Space):
             input_n = n
         else:
             input_n = (n, )
-        super(MultiBinary, self).__init__(input_n, np.int8)
+        super().__init__(input_n, np.int8)
 
     def sample(self):
         return self.np_random.randint(low=0, high=2, size=self.n, dtype=self.dtype)
@@ -50,7 +50,7 @@ class MultiBinary(Space):
         return [np.asarray(sample) for sample in sample_n]
 
     def __repr__(self):
-        return "MultiBinary({})".format(self.n)
+        return f"MultiBinary({self.n})"
 
     def __eq__(self, other):
         return isinstance(other, MultiBinary) and self.n == other.n

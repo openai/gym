@@ -61,11 +61,11 @@ def test_atari_preprocessing_scale(env_fn):
             obs = env.reset().flatten()
             done, step_i = False, 0
             max_obs = 1 if scaled else 255
-            assert (0 <= obs).all() and (obs <= max_obs).all(), 'Obs. must be in range [0,{}]'.format(max_obs)
+            assert (0 <= obs).all() and (obs <= max_obs).all(), f'Obs. must be in range [0,{max_obs}]'
             while not done or step_i <= max_test_steps:
                 obs, _, done, _ = env.step(env.action_space.sample())
                 obs = obs.flatten()
-                assert (0 <= obs).all() and (obs <= max_obs).all(), 'Obs. must be in range [0,{}]'.format(max_obs)
+                assert (0 <= obs).all() and (obs <= max_obs).all(), f'Obs. must be in range [0,{max_obs}]'
                 step_i += 1
 
             env.close()

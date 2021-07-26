@@ -9,7 +9,7 @@ from gym import error
 
 def np_random(seed=None):
     if seed is not None and not (isinstance(seed, int) and 0 <= seed):
-        raise error.Error('Seed must be a non-negative integer or omitted, not {}'.format(seed))
+        raise error.Error(f'Seed must be a non-negative integer or omitted, not {seed}')
 
     seed = create_seed(seed)
 
@@ -60,7 +60,7 @@ def create_seed(a=None, max_bytes=8):
     elif isinstance(a, int):
         a = a % 2**(8 * max_bytes)
     else:
-        raise error.Error('Invalid type for seed: {} ({})'.format(type(a), a))
+        raise error.Error(f'Invalid type for seed: {type(a)} ({a})')
 
     return a
 
@@ -70,7 +70,7 @@ def _bigint_from_bytes(bytes):
     padding = sizeof_int - len(bytes) % sizeof_int
     bytes += b'\0' * padding
     int_count = int(len(bytes) / sizeof_int)
-    unpacked = struct.unpack("{}I".format(int_count), bytes)
+    unpacked = struct.unpack(f"{int_count}I", bytes)
     accum = 0
     for i, val in enumerate(unpacked):
         accum += 2 ** (sizeof_int * 8 * i) * val
@@ -79,7 +79,7 @@ def _bigint_from_bytes(bytes):
 def _int_list_from_bigint(bigint):
     # Special case 0
     if bigint < 0:
-        raise error.Error('Seed must be non-negative, not {}'.format(bigint))
+        raise error.Error(f'Seed must be non-negative, not {bigint}')
     elif bigint == 0:
         return [0]
 

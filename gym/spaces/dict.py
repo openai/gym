@@ -42,7 +42,7 @@ class Dict(Space):
         self.spaces = spaces
         for space in spaces.values():
             assert isinstance(space, Space), 'Values of the dict should be instances of gym.Space'
-        super(Dict, self).__init__(None, None) # None for shape and dtype, since it'll require special handling
+        super().__init__(None, None) # None for shape and dtype, since it'll require special handling
 
     def seed(self, seed=None):
         [space.seed(seed) for space in self.spaces.values()]
@@ -64,8 +64,7 @@ class Dict(Space):
         return self.spaces[key]
         
     def __iter__(self):
-        for key in self.spaces:
-            yield key
+        yield from self.spaces
 
     def __repr__(self):
         return "Dict(" + ", ". join([str(k) + ":" + str(s) for k, s in self.spaces.items()]) + ")"

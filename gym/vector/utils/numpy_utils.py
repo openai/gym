@@ -45,7 +45,7 @@ def concatenate(items, out, space):
     elif isinstance(space, Space):
         return concatenate_custom(items, out, space)
     else:
-        raise ValueError('Space of type `{0}` is not a valid `gym.Space` '
+        raise ValueError('Space of type `{}` is not a valid `gym.Space` '
                          'instance.'.format(type(space)))
 
 def concatenate_base(items, out, space):
@@ -105,7 +105,7 @@ def create_empty_array(space, n=1, fn=np.zeros):
     elif isinstance(space, Space):
         return create_empty_array_custom(space, n=n, fn=fn)
     else:
-        raise ValueError('Space of type `{0}` is not a valid `gym.Space` '
+        raise ValueError('Space of type `{}` is not a valid `gym.Space` '
                          'instance.'.format(type(space)))
 
 def create_empty_array_base(space, n=1, fn=np.zeros):

@@ -111,7 +111,7 @@ _EPS4 = _FLOAT_EPS * 4.0
 def euler2mat(euler):
     """ Convert Euler Angles to Rotation Matrix.  See rotation.py for notes """
     euler = np.asarray(euler, dtype=np.float64)
-    assert euler.shape[-1] == 3, "Invalid shaped euler {}".format(euler)
+    assert euler.shape[-1] == 3, f"Invalid shaped euler {euler}"
 
     ai, aj, ak = -euler[..., 2], -euler[..., 1], -euler[..., 0]
     si, sj, sk = np.sin(ai), np.sin(aj), np.sin(ak)
@@ -135,7 +135,7 @@ def euler2mat(euler):
 def euler2quat(euler):
     """ Convert Euler Angles to Quaternions.  See rotation.py for notes """
     euler = np.asarray(euler, dtype=np.float64)
-    assert euler.shape[-1] == 3, "Invalid shape euler {}".format(euler)
+    assert euler.shape[-1] == 3, f"Invalid shape euler {euler}"
 
     ai, aj, ak = euler[..., 2] / 2, -euler[..., 1] / 2, euler[..., 0] / 2
     si, sj, sk = np.sin(ai), np.sin(aj), np.sin(ak)
@@ -154,7 +154,7 @@ def euler2quat(euler):
 def mat2euler(mat):
     """ Convert Rotation Matrix to Euler Angles.  See rotation.py for notes """
     mat = np.asarray(mat, dtype=np.float64)
-    assert mat.shape[-2:] == (3, 3), "Invalid shape matrix {}".format(mat)
+    assert mat.shape[-2:] == (3, 3), f"Invalid shape matrix {mat}"
 
     cy = np.sqrt(mat[..., 2, 2] * mat[..., 2, 2] + mat[..., 1, 2] * mat[..., 1, 2])
     condition = cy > _EPS4
@@ -174,7 +174,7 @@ def mat2euler(mat):
 def mat2quat(mat):
     """ Convert Rotation Matrix to Quaternion.  See rotation.py for notes """
     mat = np.asarray(mat, dtype=np.float64)
-    assert mat.shape[-2:] == (3, 3), "Invalid shape matrix {}".format(mat)
+    assert mat.shape[-2:] == (3, 3), f"Invalid shape matrix {mat}"
 
     Qxx, Qyx, Qzx = mat[..., 0, 0], mat[..., 0, 1], mat[..., 0, 2]
     Qxy, Qyy, Qzy = mat[..., 1, 0], mat[..., 1, 1], mat[..., 1, 2]
@@ -225,7 +225,7 @@ def subtract_euler(e1, e2):
 def quat2mat(quat):
     """ Convert Quaternion to Euler Angles.  See rotation.py for notes """
     quat = np.asarray(quat, dtype=np.float64)
-    assert quat.shape[-1] == 4, "Invalid shape quat {}".format(quat)
+    assert quat.shape[-1] == 4, f"Invalid shape quat {quat}"
 
     w, x, y, z = quat[..., 0], quat[..., 1], quat[..., 2], quat[..., 3]
     Nq = np.sum(quat * quat, axis=-1)

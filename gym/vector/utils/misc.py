@@ -3,7 +3,7 @@ import os
 
 __all__ = ['CloudpickleWrapper', 'clear_mpi_env_vars']
 
-class CloudpickleWrapper(object):
+class CloudpickleWrapper:
     def __init__(self, fn):
         self.fn = fn
 

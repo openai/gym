@@ -20,7 +20,7 @@ def load(name):
     return fn
 
 
-class EnvSpec(object):
+class EnvSpec:
     """A specification for a particular instance of the environment. Used
     to register the parameters for official evaluations.
 
@@ -44,13 +44,13 @@ class EnvSpec(object):
 
         match = env_id_re.search(id)
         if not match:
-            raise error.Error('Attempted to register malformed environment ID: {}. (Currently all IDs must be of the form {}.)'.format(id, env_id_re.pattern))
+            raise error.Error(f'Attempted to register malformed environment ID: {id}. (Currently all IDs must be of the form {env_id_re.pattern}.)')
         self._env_name = match.group(1)            
 
     def make(self, **kwargs):
         """Instantiates an instance of the environment with appropriate kwargs"""
         if self.entry_point is None:
-            raise error.Error('Attempting to make deprecated env {}. (HINT: is there a newer registered version of this env?)'.format(self.id))
+            raise error.Error(f'Attempting to make deprecated env {self.id}. (HINT: is there a newer registered version of this env?)')
         _kwargs = self._kwargs.copy()
         _kwargs.update(kwargs)
         if callable(self.entry_point):
@@ -67,10 +67,10 @@ class EnvSpec(object):
         return env
 
     def __repr__(self):
-        return "EnvSpec({})".format(self.id)
+        return f"EnvSpec({self.id})"
 
 
-class EnvRegistry(object):
+class EnvRegistry:
     """Register an env by ID. IDs remain stable over time and are
     guaranteed to resolve to the same environment dynamics (or be
     desupported). The goal is that results on a particular environment
@@ -109,7 +109,7 @@ class EnvRegistry(object):
                 importlib.import_module(mod_name)
             # catch ImportError for python2.7 compatibility
             except ImportError:
-                raise error.Error('A module ({}) was specified for the environment but was not found, make sure the package is installed with `pip install` before calling `gym.make()`'.format(mod_name))
+                raise error.Error(f'A module ({mod_name}) was specified for the environment but was not found, make sure the package is installed with `pip install` before calling `gym.make()`')
         else:
             id = path
 
@@ -126,13 +126,13 @@ class EnvRegistry(object):
             matching_envs = [valid_env_name for valid_env_name, valid_env_spec in self.env_specs.items()
                              if env_name == valid_env_spec._env_name]
             if matching_envs:
-                raise error.DeprecatedEnv('Env {} not found (valid versions include {})'.format(id, matching_envs))
+                raise error.DeprecatedEnv(f'Env {id} not found (valid versions include {matching_envs})')
             else:
-                raise error.UnregisteredEnv('No registered env with id: {}'.format(id))
+                raise error.UnregisteredEnv(f'No registered env with id: {id}')
 
     def register(self, id, **kwargs):
         if id in self.env_specs:
-            raise error.Error('Cannot re-register id: {}'.format(id))
+            raise error.Error(f'Cannot re-register id: {id}')
         self.env_specs[id] = EnvSpec(id, **kwargs)
 
 # Have a global registry

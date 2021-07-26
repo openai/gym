@@ -6,7 +6,7 @@ import gym
 
 class RecordEpisodeStatistics(gym.Wrapper):
     def __init__(self, env, deque_size=100):
-        super(RecordEpisodeStatistics, self).__init__(env)
+        super().__init__(env)
         self.t0 = time.time()  # TODO: use perf_counter when gym removes Python 2 support
         self.episode_return = 0.0
         self.episode_length = 0
@@ -14,13 +14,13 @@ class RecordEpisodeStatistics(gym.Wrapper):
         self.length_queue = deque(maxlen=deque_size)
 
     def reset(self, **kwargs):
-        observation = super(RecordEpisodeStatistics, self).reset(**kwargs)
+        observation = super().reset(**kwargs)
         self.episode_return = 0.0
         self.episode_length = 0
         return observation
 
     def step(self, action):
-        observation, reward, done, info = super(RecordEpisodeStatistics, self).step(action)
+        observation, reward, done, info = super().step(action)
         self.episode_return += reward
         self.episode_length += 1
         if done:
