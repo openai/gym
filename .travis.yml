@@ -5,10 +5,10 @@ python:
 services:
   - docker
 env:
-  - PY_VER=3.6.8
-  - PY_VER=3.7.3
-  - PY_VER=3.8.6
-  - PY_VER=3.9.0
+  - PY_VER=3.6.13
+  - PY_VER=3.7.10
+  - PY_VER=3.8.9
+  - PY_VER=3.9.4
 
 install: "" # so travis doesn't do pip install requirements.txt
 script:
@@ -21,4 +21,4 @@ deploy:
     password: $TWINE_PASSWORD
     on:
         tags: true
-        condition: $PY_VER = 3.6.8
+        condition: $PY_VER = 3.8.9

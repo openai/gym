@@ -26,8 +26,7 @@ class HotterColder(gym.Env):
         self.range = 1000  # +/- the value number can be between
         self.bounds = 2000  # Action space bounds
 
-        self.action_space = spaces.Box(low=np.array([-self.bounds]), high=np.array([self.bounds]),
-                                       dtype=np.float32)
+        self.action_space = spaces.Box(low=np.array([-self.bounds]).astype(np.float32), high=np.array([self.bounds]).astype(np.float32))
         self.observation_space = spaces.Discrete(4)
 
         self.number = 0
