@@ -336,6 +336,20 @@ An environment for automated rule-based deductive program verification in the Ke
 
 Learn more here: https://github.com/Flunzmas/gym-autokey
 
+### gym-ccc: Continuous classic control environments
+
+Environments that extend gym's classic control and add more problems.
+These environments have features useful for non-RL controllers.
+
+The main highlights are:
+1) non normalized observation corresponding directly to the dynamical state
+2) normalized observation with dynamical state captured in `info['state']`
+3) action spaces are continuous
+4) system parameters (mass, length, etc.) can be specificed
+5) reset function (to specify initial conditions) can be specified.
+
+Learn more here: https://github.com/acxz/gym-ccc
+
 ### NLPGym: A toolkit to develop RL agents to solve NLP tasks
 
 [NLPGym](https://arxiv.org/pdf/2011.08272v1.pdf) provides interactive environments for standard NLP tasks such as sequence tagging, question answering, and sequence classification. Users can easily customize the tasks with their own datasets, observations, featurizers and reward functions.
