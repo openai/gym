@@ -328,6 +328,12 @@ An environment for automated rule-based deductive program verification in the Ke
 
 Learn more here: https://github.com/Flunzmas/gym-autokey
 
+### QASGym: gym environment for Quantum Architecture Search (QAS)
+
+This a list of environments for quantum architecture search following the description in [Quantum Architecture Search via Deep Reinforcement Learning](https://arxiv.org/abs/2104.07715). The agent design the quantum circuit by taking actions in the environment. Each action corresponds to a gate applied on some wires. The goal is to build a circuit U such that generates the target n-qubit quantum state that belongs to the environment and hidden from the agent. The circuits are built using [Google QuantumAI Cirq](https://quantumai.google/cirq). 
+
+Learn more here: https://github.com/qdevpsi3/quantum-arch-search
+
 ### robo-gym: Environments for Real and Simulated Robots
 
 robo-gym provides a collection of reinforcement learning environments involving robotic tasks applicable in both simulation and real world robotics. 
