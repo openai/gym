@@ -29,7 +29,7 @@ class GuessingGame(gym.Env):
     The agent will need to use a memory of previously submitted actions and observations
     in order to efficiently explore the available actions
 
-    The purpose is to have agents optimise their exploration parameters (e.g. how far to
+    The purpose is to have agents optimize their exploration parameters (e.g. how far to
     explore from previous actions) based on previous experience. Because the goal changes
     each episode a state-value or action-value function isn't able to provide any additional
     benefit apart from being able to tell whether to increase or decrease the next guess.
@@ -41,8 +41,8 @@ class GuessingGame(gym.Env):
         self.range = 1000  # Randomly selected number is within +/- this value
         self.bounds = 10000
 
-        self.action_space = spaces.Box(low=np.array([-self.bounds]), high=np.array([self.bounds]),
-                                       dtype=np.float32)
+        self.action_space = spaces.Box(low=np.array([-self.bounds]).astype(np.float32)  ,
+                                       high=np.array([self.bounds]).astype(np.float32)  )
         self.observation_space = spaces.Discrete(4)
 
         self.number = 0
@@ -58,6 +58,11 @@ class GuessingGame(gym.Env):
         return [seed]
 
     def step(self, action):
+        if isinstance(action, (int, float)):
+            action = np.array([action])
+        elif isinstance(action, list):
+            action = np.array(action)
+
         assert self.action_space.contains(action)
 
         if action < self.number:

@@ -147,6 +147,14 @@ Learn more here: https://github.com/openai/roboschool
 
 The gym comes prepackaged with many many environments. It's this common API around many environments that makes Gym so great. Here we will list additional environments that do not come prepacked with the gym. Submit another to this list via a pull-request.
 
+### gym-spoof
+
+Spoof, otherwise known as "The 3-coin game", is a multi-agent (2 player), imperfect-information, zero-sum game. 
+
+Learn more here: https://github.com/MouseAndKeyboard/gym-spoof
+
+Platforms: Windows, Mac, Linux
+
 ### PyBullet Robotics Environments
 
 3D physics environments like the Mujoco environments but uses the Bullet physics engine and does not require a commercial license.  Works on Mac/Linux/Windows.
@@ -333,3 +341,59 @@ Learn more here: https://github.com/Flunzmas/gym-autokey
 A simple environment for benchmarking reinforcement learning exploration techniques in a simplified setting.
 
 Learn more here: https://github.com/erfanMhi/gym-riverswim
+
+### gym-ccc: Continuous classic control environments
+
+Environments that extend gym's classic control and add more problems.
+These environments have features useful for non-RL controllers.
+
+The main highlights are:
+1) non normalized observation corresponding directly to the dynamical state
+2) normalized observation with dynamical state captured in `info['state']`
+3) action spaces are continuous
+4) system parameters (mass, length, etc.) can be specificed
+5) reset function (to specify initial conditions) can be specified.
+
+Learn more here: https://github.com/acxz/gym-ccc
+
+### NLPGym: A toolkit to develop RL agents to solve NLP tasks
+
+[NLPGym](https://arxiv.org/pdf/2011.08272v1.pdf) provides interactive environments for standard NLP tasks such as sequence tagging, question answering, and sequence classification. Users can easily customize the tasks with their own datasets, observations, featurizers and reward functions.
+
+Learn more here: https://github.com/rajcscw/nlp-gym
+
+### math-prog-synth-env
+
+In our paper "A Reinforcement Learning Environment for Mathematical Reasoning via Program Synthesis" we convert the DeepMind Mathematics Dataset into an RL environment based around program synthesis.
+
+Learn more here: https://github.com/JohnnyYeeee/math_prog_synth_env , https://arxiv.org/abs/2107.07373
+
+### VirtualTaobao: Environment of online recommendation
+
+An environment for online recommendation, where customers are learned from Taobao.com, one of the world's largest e-commerce platform.
+
+Learn more here: https://github.com/eyounx/VirtualTaobao/
+
+### QASGym: gym environment for Quantum Architecture Search (QAS)
+
+This a list of environments for quantum architecture search following the description in [Quantum Architecture Search via Deep Reinforcement Learning](https://arxiv.org/abs/2104.07715). The agent design the quantum circuit by taking actions in the environment. Each action corresponds to a gate applied on some wires. The goal is to build a circuit U such that generates the target n-qubit quantum state that belongs to the environment and hidden from the agent. The circuits are built using [Google QuantumAI Cirq](https://quantumai.google/cirq). 
+
+Learn more here: https://github.com/qdevpsi3/quantum-arch-search
+
+### robo-gym: Environments for Real and Simulated Robots
+
+robo-gym provides a collection of reinforcement learning environments involving robotic tasks applicable in both simulation and real world robotics. 
+
+Learn more here: https://github.com/jr-robotics/robo-gym
+
+### gym-xiangqi: Xiangqi - The Chinese Chess Game
+
+A reinforcement learning environment of Xiangqi, the Chinese Chess game.
+
+Learn more here: https://github.com/tanliyon/gym-xiangqi
+
+### anomalous_rl_envs: Gym environments with anomaly injection
+
+A set of environments from control tasks: Acrobot, CartPole, and LunarLander with various types of anomalies injected into them. It could be very useful to study the behavior and robustness of a policy.
+
+Learn more here: https://github.com/modanesh/anomalous_rl_envs
