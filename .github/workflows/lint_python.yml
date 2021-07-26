@@ -7,13 +7,13 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
       - run: pip install bandit black codespell flake8 isort mypy pytest pyupgrade safety
-      - run: bandit --recursive --skip B101 . || true  # B101 is assert statements
+      - run: bandit --recursive --skip B101,B108,B301,B403,B404,B603 .
       - run: black --check . || true
-      - run: codespell || true  # --ignore-words-list="" --skip=""
+      - run: codespell --ignore-words-list=nd,reacher,thist,ths -w
       - run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
       - run: flake8 . --count --exit-zero --max-complexity=10 --max-line-length=88 --show-source --statistics
       - run: isort --check-only --profile black . || true
-      - run: pip install -r requirements.txt || true
+      - run: python3 setup.py install -e .
       - run: mypy --install-types --non-interactive . || true
       - run: pytest . || true
       - run: pytest --doctest-modules . || true

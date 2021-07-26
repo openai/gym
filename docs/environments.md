@@ -284,7 +284,7 @@ Learn more here: https://github.com/upb-lea/openmodelica-microgrid-gym
 
 ### RubiksCubeGym: OpenAI Gym environments for various twisty puzzles
 
-The RubiksCubeGym package provides enviromnents for twisty puzzles with  multiple reward functions to help simluate the methods used by humans.
+The RubiksCubeGym package provides environments for twisty puzzles with  multiple reward functions to help simluate the methods used by humans.
 
 Learn more here: https://github.com/DoubleGremlin181/RubiksCubeGym
 
@@ -351,7 +351,7 @@ The main highlights are:
 1) non normalized observation corresponding directly to the dynamical state
 2) normalized observation with dynamical state captured in `info['state']`
 3) action spaces are continuous
-4) system parameters (mass, length, etc.) can be specificed
+4) system parameters (mass, length, etc.) can be specified
 5) reset function (to specify initial conditions) can be specified.
 
 Learn more here: https://github.com/acxz/gym-ccc

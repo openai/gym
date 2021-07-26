@@ -110,7 +110,7 @@ class Monitor(Wrapper):
 
         self.stats_recorder.flush()
 
-        # Give it a very distiguished name, since we need to pick it
+        # Give it a very distinguished name, since we need to pick it
         # up from the filesystem later.
         path = os.path.join(self.directory, '{}.manifest.{}.manifest.json'.format(self.file_prefix, self.file_infix))
         logger.debug('Writing training manifest file to %s', path)
