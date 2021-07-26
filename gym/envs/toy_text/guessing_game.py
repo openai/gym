@@ -41,8 +41,8 @@ class GuessingGame(gym.Env):
         self.range = 1000  # Randomly selected number is within +/- this value
         self.bounds = 10000
 
-        self.action_space = spaces.Box(low=np.array([-self.bounds]), high=np.array([self.bounds]),
-                                       dtype=np.float32)
+        self.action_space = spaces.Box(low=np.array([-self.bounds]).astype(np.float32)  ,
+                                       high=np.array([self.bounds]).astype(np.float32)  )
         self.observation_space = spaces.Discrete(4)
 
         self.number = 0
