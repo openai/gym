@@ -328,6 +328,12 @@ An environment for automated rule-based deductive program verification in the Ke
 
 Learn more here: https://github.com/Flunzmas/gym-autokey
 
+### NLPGym: A toolkit to develop RL agents to solve NLP tasks
+
+[NLPGym](https://arxiv.org/pdf/2011.08272v1.pdf) provides interactive environments for standard NLP tasks such as sequence tagging, question answering, and sequence classification. Users can easily customize the tasks with their own datasets, observations, featurizers and reward functions.
+
+Learn more here: https://github.com/rajcscw/nlp-gym
+
 ### math-prog-synth-env
 
 In our paper "A Reinforcement Learning Environment for Mathematical Reasoning via Program Synthesis" we convert the DeepMind Mathematics Dataset into an RL environment based around program synthesis.
