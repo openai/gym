@@ -446,7 +446,8 @@ def demo_heuristic_lander(env, seed=None, render=False):
             print("step {} total_reward {:+0.2f}".format(steps, total_reward))
         steps += 1
         if done: break
-    env.close()
+    if render:
+        env.close()
     return total_reward
 
 
