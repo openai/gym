@@ -336,6 +336,12 @@ An environment for automated rule-based deductive program verification in the Ke
 
 Learn more here: https://github.com/Flunzmas/gym-autokey
 
+### gym-riverswim: A hard-exploration environment
+
+A simple environment for benchmarking reinforcement learning exploration techniques in a simplified setting.
+
+Learn more here: https://github.com/erfanMhi/gym-riverswim
+
 ### gym-ccc: Continuous classic control environments
 
 Environments that extend gym's classic control and add more problems.
