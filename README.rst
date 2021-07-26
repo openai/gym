@@ -179,6 +179,12 @@ Resources
 
 What's new
 ==========
+- 2020-12-18 (v 0.18.0)
+   + Add python 3.9 support
+   - Remove python 3.5 support (thanks @justinkterry on both!)
+   + TimeAwareObservationWrapper (thanks @zuoxingdong!)
+   + Space-related fixes and tests (thanks @wmmc88!)
+
 - 2020-09-29 (v 0.17.3)
    + Allow custom spaces in VectorEnv (thanks @tristandeleu!)
    + CarRacing performance improvements (thanks @leocus!)
