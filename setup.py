@@ -29,7 +29,11 @@ setup(name='gym',
                 if package.startswith('gym')],
       zip_safe=False,
       install_requires=[
-          'scipy', 'numpy>=1.10.4', 'pyglet>=1.4.0', 'Pillow', 'cloudpickle>=1.2.0,<1.7.0',
+        'scipy',
+        'numpy>=1.10.4',
+        'pyglet>=1.4.0,
+        'Pillow<=8.2.0',
+        'cloudpickle>=1.2.0,<1.7.0',
       ],
       extras_require=extras,
       package_data={'gym': [
