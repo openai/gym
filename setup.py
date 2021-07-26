@@ -15,7 +15,8 @@ extras = {
 }
 
 # Meta dependency groups.
-extras['all'] = [item for group in extras.values() for item in group]
+extras['nomujoco'] = list(set([item for name, group in extras.items() if name != 'mujoco' and name != "robotics" for item in group]))
+extras['all'] = list(set([item for group in extras.values() for item in group]))
 
 setup(name='gym',
       version=VERSION,
@@ -28,7 +29,11 @@ setup(name='gym',
                 if package.startswith('gym')],
       zip_safe=False,
       install_requires=[
-          'scipy', 'numpy>=1.10.4', 'pyglet>=1.4.0,<=1.5.0', 'Pillow<=7.2.0', 'cloudpickle>=1.2.0,<1.7.0',
+        'scipy',
+        'numpy>=1.10.4',
+        'pyglet>=1.4.0,
+        'Pillow<=8.2.0',
+        'cloudpickle>=1.2.0,<1.7.0',
       ],
       extras_require=extras,
       package_data={'gym': [
@@ -48,5 +53,6 @@ setup(name='gym',
           'Programming Language :: Python :: 3.6',
           'Programming Language :: Python :: 3.7',
           'Programming Language :: Python :: 3.8',
+          'Programming Language :: Python :: 3.9',
       ],
 )
