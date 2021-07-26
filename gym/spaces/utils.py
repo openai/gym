@@ -43,10 +43,10 @@ def flatten(space, x):
     ``gym.spaces``.
     """
     if isinstance(space, Box):
-        return np.asarray(x, dtype=np.float32).flatten()
+        return np.asarray(x, dtype=space.dtype).flatten()
     elif isinstance(space, Discrete):
-        onehot = np.zeros(space.n, dtype=np.float32)
-        onehot[x] = 1.0
+        onehot = np.zeros(space.n, dtype=space.dtype)
+        onehot[x] = 1
         return onehot
     elif isinstance(space, Tuple):
         return np.concatenate(
@@ -55,9 +55,9 @@ def flatten(space, x):
         return np.concatenate(
             [flatten(s, x[key]) for key, s in space.spaces.items()])
     elif isinstance(space, MultiBinary):
-        return np.asarray(x).flatten()
+        return np.asarray(x, dtype=space.dtype).flatten()
     elif isinstance(space, MultiDiscrete):
-        return np.asarray(x).flatten()
+        return np.asarray(x, dtype=space.dtype).flatten()
     else:
         raise NotImplementedError
 
@@ -73,7 +73,7 @@ def unflatten(space, x):
     defined in ``gym.spaces``.
     """
     if isinstance(space, Box):
-        return np.asarray(x, dtype=np.float32).reshape(space.shape)
+        return np.asarray(x, dtype=space.dtype).reshape(space.shape)
     elif isinstance(space, Discrete):
         return int(np.nonzero(x)[0][0])
     elif isinstance(space, Tuple):
@@ -94,9 +94,9 @@ def unflatten(space, x):
         ]
         return OrderedDict(list_unflattened)
     elif isinstance(space, MultiBinary):
-        return np.asarray(x).reshape(space.shape)
+        return np.asarray(x, dtype=space.dtype).reshape(space.shape)
     elif isinstance(space, MultiDiscrete):
-        return np.asarray(x).reshape(space.shape)
+        return np.asarray(x, dtype=space.dtype).reshape(space.shape)
     else:
         raise NotImplementedError
 
@@ -140,26 +140,33 @@ def flatten_space(space):
         True
     """
     if isinstance(space, Box):
-        return Box(space.low.flatten(), space.high.flatten())
+        return Box(space.low.flatten(), space.high.flatten(), dtype=space.dtype)
     if isinstance(space, Discrete):
-        return Box(low=0, high=1, shape=(space.n, ))
+        return Box(low=0, high=1, shape=(space.n, ), dtype=space.dtype)
     if isinstance(space, Tuple):
         space = [flatten_space(s) for s in space.spaces]
         return Box(
             low=np.concatenate([s.low for s in space]),
             high=np.concatenate([s.high for s in space]),
+            dtype=np.result_type(*[s.dtype for s in space])
         )
     if isinstance(space, Dict):
         space = [flatten_space(s) for s in space.spaces.values()]
         return Box(
             low=np.concatenate([s.low for s in space]),
             high=np.concatenate([s.high for s in space]),
+            dtype=np.result_type(*[s.dtype for s in space])
         )
     if isinstance(space, MultiBinary):
-        return Box(low=0, high=1, shape=(space.n, ))
+        return Box(low=0,
+                   high=1,
+                   shape=(space.n, ),
+                   dtype=space.dtype
+                   )
     if isinstance(space, MultiDiscrete):
         return Box(
             low=np.zeros_like(space.nvec),
             high=space.nvec,
+            dtype=space.dtype
         )
     raise NotImplementedError

@@ -2,6 +2,7 @@ import gym
 from gym import spaces
 from gym.utils import seeding
 
+
 class NChainEnv(gym.Env):
     """n-Chain environment
 
