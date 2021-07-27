@@ -7,7 +7,7 @@ from version import VERSION
 
 # Environment-specific dependencies.
 extras = {
-  'atari': ['atari_py~=0.2.0', 'opencv-python>=3.'],
+  'atari': ['atari-py==0.2.6', 'opencv-python>=3.'],
   'box2d': ['box2d-py~=2.3.5'],
   'classic_control': [],
   'mujoco': ['mujoco_py>=1.50, <2.0', 'imageio'],
@@ -30,7 +30,7 @@ setup(name='gym',
       zip_safe=False,
       install_requires=[
         'scipy',
-        'numpy>=1.10.4',
+        'numpy>=1.18.0',
         'pyglet>=1.4.0',
         'Pillow<=8.2.0',
         'cloudpickle>=1.2.0,<1.7.0',
