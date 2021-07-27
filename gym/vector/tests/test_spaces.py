@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 
 from gym.spaces import Box, MultiDiscrete, Tuple, Dict
-from gym.vector.tests.utils import spaces
+from gym.vector.tests.utils import spaces, custom_spaces, CustomSpace
 
 from gym.vector.utils.spaces import _BaseGymSpaces, batch_space
 
@@ -32,8 +32,23 @@ expected_batch_spaces_4 = [
     })
 ]
 
+expected_custom_batch_spaces_4 = [
+    Tuple((CustomSpace(), CustomSpace(), CustomSpace(), CustomSpace())),
+    Tuple((
+        Tuple((CustomSpace(), CustomSpace(), CustomSpace(), CustomSpace())),
+        Box(low=0, high=255, shape=(4,), dtype=np.uint8)
+    ))
+]
+
 @pytest.mark.parametrize('space,expected_batch_space_4', list(zip(spaces,
     expected_batch_spaces_4)), ids=[space.__class__.__name__ for space in spaces])
 def test_batch_space(space, expected_batch_space_4):
+    batch_space_4 = batch_space(space, n=4)
+    assert batch_space_4 == expected_batch_space_4
+
+
+@pytest.mark.parametrize('space,expected_batch_space_4', list(zip(custom_spaces,
+    expected_custom_batch_spaces_4)), ids=[space.__class__.__name__ for space in custom_spaces])
+def test_batch_space_custom_space(space, expected_batch_space_4):
     batch_space_4 = batch_space(space, n=4)
     assert batch_space_4 == expected_batch_space_4

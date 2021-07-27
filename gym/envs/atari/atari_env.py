@@ -42,7 +42,8 @@ class AtariEnv(gym.Env, utils.EzPickle):
                 difficulty,
                 obs_type,
                 frameskip,
-                repeat_action_probability)
+                repeat_action_probability,
+                full_action_space)
         assert obs_type in ('ram', 'image')
 
         self.game = game

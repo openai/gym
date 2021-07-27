@@ -26,7 +26,7 @@ try:
 except ImportError as e:
     raise ImportError('''
     Error occurred while running `from pyglet.gl import *`
-    HINT: make sure you have OpenGL install. On Ubuntu, you can run 'apt-get install python-opengl'.
+    HINT: make sure you have OpenGL installed. On Ubuntu, you can run 'apt-get install python-opengl'.
     If you're running on a server, you may need a virtual frame buffer; something like this should work:
     'xvfb-run -s \"-screen 0 1400x900x24\" python <your_script.py>'
     ''')
@@ -43,11 +43,23 @@ def get_display(spec):
     Pyglet only supports multiple Displays on Linux.
     """
     if spec is None:
-        return None
+        return pyglet.canvas.get_display()
+        # returns already available pyglet_display,
+        # if there is no pyglet display available then it creates one
     elif isinstance(spec, str):
         return pyglet.canvas.Display(spec)
     else:
         raise error.Error('Invalid display specification: {}. (Must be a string like :0 or None.)'.format(spec))
+
+def get_window(width, height, display, **kwargs):
+    """
+    Will create a pyglet window from the display specification provided.
+    """
+    screen = display.get_screens() #available screens
+    config = screen[0].get_best_config() #selecting the first screen
+    context = config.create_context(None) #create GL context
+
+    return pyglet.window.Window(width=width, height=height, display=display, config=config, context=context, **kwargs)
 
 class Viewer(object):
     def __init__(self, width, height, display=None):
@@ -55,7 +67,7 @@ class Viewer(object):
 
         self.width = width
         self.height = height
-        self.window = pyglet.window.Window(width=width, height=height, display=display)
+        self.window = get_window(width=width, height=height, display=display)
         self.window.on_close = self.window_closed_by_user
         self.isopen = True
         self.geoms = []
@@ -66,7 +78,10 @@ class Viewer(object):
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
     def close(self):
-        self.window.close()
+        if self.isopen and sys.meta_path:
+            # ^^^ check sys.meta_path to avoid 'ImportError: sys.meta_path is None, Python is likely shutting down'
+            self.window.close()
+            self.isopen = False
 
     def window_closed_by_user(self):
         self.isopen = False
@@ -306,6 +321,7 @@ class Line(Geom):
 class Image(Geom):
     def __init__(self, fname, width, height):
         Geom.__init__(self)
+        self.set_color(1.0, 1.0, 1.0)
         self.width = width
         self.height = height
         img = pyglet.image.load(fname)
@@ -320,7 +336,7 @@ class SimpleImageViewer(object):
     def __init__(self, display=None, maxwidth=500):
         self.window = None
         self.isopen = False
-        self.display = display
+        self.display = get_display(display)
         self.maxwidth = maxwidth
     def imshow(self, arr):
         if self.window is None:
@@ -329,8 +345,7 @@ class SimpleImageViewer(object):
                 scale = self.maxwidth / width
                 width = int(scale * width)
                 height = int(scale * height)
-            self.window = pyglet.window.Window(width=width, height=height, 
-                display=self.display, vsync=False, resizable=True)            
+            self.window = get_window(width=width, height=height, display=self.display, vsync=False, resizable=True)
             self.width = width
             self.height = height
             self.isopen = True
@@ -345,9 +360,9 @@ class SimpleImageViewer(object):
                 self.isopen = False
 
         assert len(arr.shape) == 3, "You passed in an image with the wrong number shape"
-        image = pyglet.image.ImageData(arr.shape[1], arr.shape[0], 
+        image = pyglet.image.ImageData(arr.shape[1], arr.shape[0],
             'RGB', arr.tobytes(), pitch=arr.shape[1]*-3)
-        gl.glTexParameteri(gl.GL_TEXTURE_2D, 
+        gl.glTexParameteri(gl.GL_TEXTURE_2D,
             gl.GL_TEXTURE_MAG_FILTER, gl.GL_NEAREST)
         texture = image.get_texture()
         texture.width = self.width

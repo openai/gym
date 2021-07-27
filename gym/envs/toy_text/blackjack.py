@@ -2,8 +2,10 @@ import gym
 from gym import spaces
 from gym.utils import seeding
 
+
 def cmp(a, b):
     return float(a > b) - float(a < b)
+
 
 # 1 = Ace, 2-10 = Number cards, Jack/Queen/King = 10
 deck = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10]

@@ -18,16 +18,15 @@ class HotterColder(gym.Env):
     The rewards is calculated as:
     (min(action, self.number) + self.range) / (max(action, self.number) + self.range)
 
-    Ideally an agent will be able to recognise the 'scent' of a higher reward and
+    Ideally an agent will be able to recognize the 'scent' of a higher reward and
     increase the rate in which is guesses in that direction until the reward reaches
     its maximum
     """
     def __init__(self):
-        self.range = 1000  # +/- value the randomly select number can be between
+        self.range = 1000  # +/- the value number can be between
         self.bounds = 2000  # Action space bounds
 
-        self.action_space = spaces.Box(low=np.array([-self.bounds]), high=np.array([self.bounds]),
-                                       dtype=np.float32)
+        self.action_space = spaces.Box(low=np.array([-self.bounds]).astype(np.float32), high=np.array([self.bounds]).astype(np.float32))
         self.observation_space = spaces.Discrete(4)
 
         self.number = 0
@@ -43,6 +42,11 @@ class HotterColder(gym.Env):
         return [seed]
 
     def step(self, action):
+        if isinstance(action, (int, float)):
+            action = np.array([action])
+        elif isinstance(action, list):
+            action = np.array(action)
+
         assert self.action_space.contains(action)
 
         if action < self.number:
@@ -65,4 +69,5 @@ class HotterColder(gym.Env):
         self.number = self.np_random.uniform(-self.range, self.range)
         self.guess_count = 0
         self.observation = 0
+
         return self.observation

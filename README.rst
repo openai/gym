@@ -91,13 +91,15 @@ see the composition of our CI-tested images.
 On Ubuntu 16.04 and 18.04:
 
 .. code:: shell
-    apt-get install -y libglu1-mesa-dev libgl1-mesa-dev libosmesa6-dev xvfb ffmpeg curl patchelf libglfw3 libglfw3-dev
-
+    
+    apt-get install -y libglu1-mesa-dev libgl1-mesa-dev libosmesa6-dev xvfb ffmpeg curl patchelf libglfw3 libglfw3-dev cmake zlib1g zlib1g-dev swig
 
 MuJoCo has a proprietary dependency we can't set up for you. Follow
 the
 `instructions <https://github.com/openai/mujoco-py#obtaining-the-binaries-and-license-key>`_
-in the ``mujoco-py`` package for help.  As an alternative to ``mujoco-py``, consider `PyBullet <https://github.com/openai/gym/blob/master/docs/environments.md#pybullet-robotics-environments>`_ which uses the open source Bullet physics engine and has no license requirement.
+in the ``mujoco-py`` package for help. Note that we currently do not support MuJoCo 2.0 and above, so you will need to install a version of mujoco-py which is built
+for a lower version of MuJoCo like MuJoCo 1.5 (example - ``mujoco-py-1.50.1.0``).
+As an alternative to ``mujoco-py``, consider `PyBullet <https://github.com/openai/gym/blob/master/docs/environments.md#pybullet-robotics-environments>`_ which uses the open source Bullet physics engine and has no license requirement.
 
 Once you're ready to install everything, run ``pip install -e '.[all]'`` (or ``pip install 'gym[all]'``).
 
@@ -158,8 +160,41 @@ We are using `pytest <http://doc.pytest.org>`_ for tests. You can run them via:
 
 .. _See What's New section below:
 
+Resources
+=========
+
+-  `OpenAI.com`_
+-  `Gym.OpenAI.com`_
+-  `Gym Docs`_
+-  `Gym Environments`_
+-  `OpenAI Twitter`_
+-  `OpenAI YouTube`_
+
+.. _OpenAI.com: https://openai.com/
+.. _Gym.OpenAI.com: http://gym.openai.com/
+.. _Gym Docs: http://gym.openai.com/docs/
+.. _Gym Environments: http://gym.openai.com/envs/
+.. _OpenAI Twitter: https://twitter.com/openai
+.. _OpenAI YouTube: https://www.youtube.com/channel/UCXZCJLdBC09xxGZ6gcdrc6A
+
 What's new
 ==========
+- 2020-12-18 (v 0.18.0)
+   + Add python 3.9 support
+   - Remove python 3.5 support (thanks @justinkterry on both!)
+   + TimeAwareObservationWrapper (thanks @zuoxingdong!)
+   + Space-related fixes and tests (thanks @wmmc88!)
+
+- 2020-09-29 (v 0.17.3)
+   + Allow custom spaces in VectorEnv (thanks @tristandeleu!)
+   + CarRacing performance improvements (thanks @leocus!)
+   + Dict spaces are now iterable (thanks @NotNANtoN!)
+
+- 2020-05-08 (v 0.17.2)
+   - remove unnecessary precision warning when creating Box with scalar bounds - thanks @johannespitz!
+   - remove six from the dependencies
+   + FetchEnv sample goal range can be specified through kwargs - thanks @YangRui2015!
+
 - 2020-03-05 (v 0.17.1)
    + update cloudpickle dependency to be >=1.2.0,<1.4.0
 

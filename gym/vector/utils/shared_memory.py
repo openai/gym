@@ -5,6 +5,7 @@ from collections import OrderedDict
 
 from gym import logger
 from gym.spaces import Tuple, Dict
+from gym.error import CustomSpaceError
 from gym.vector.utils.spaces import _BaseGymSpaces
 
 __all__ = [
@@ -41,7 +42,11 @@ def create_shared_memory(space, n=1, ctx=mp):
     elif isinstance(space, Dict):
         return create_dict_shared_memory(space, n=n, ctx=ctx)
     else:
-        raise NotImplementedError()
+        raise CustomSpaceError('Cannot create a shared memory for space with '
+                               'type `{0}`. Shared memory only supports '
+                               'default Gym spaces (e.g. `Box`, `Tuple`, '
+                               '`Dict`, etc...), and does not support custom '
+                               'Gym spaces.'.format(type(space)))
 
 def create_base_shared_memory(space, n=1, ctx=mp):
     dtype = space.dtype.char
@@ -92,7 +97,11 @@ def read_from_shared_memory(shared_memory, space, n=1):
     elif isinstance(space, Dict):
         return read_dict_from_shared_memory(shared_memory, space, n=n)
     else:
-        raise NotImplementedError()
+        raise CustomSpaceError('Cannot read from a shared memory for space with '
+                               'type `{0}`. Shared memory only supports '
+                               'default Gym spaces (e.g. `Box`, `Tuple`, '
+                               '`Dict`, etc...), and does not support custom '
+                               'Gym spaces.'.format(type(space)))
 
 def read_base_from_shared_memory(shared_memory, space, n=1):
     return np.frombuffer(shared_memory.get_obj(),
@@ -136,7 +145,11 @@ def write_to_shared_memory(index, value, shared_memory, space):
     elif isinstance(space, Dict):
         write_dict_to_shared_memory(index, value, shared_memory, space)
     else:
-        raise NotImplementedError()
+        raise CustomSpaceError('Cannot write to a shared memory for space with '
+                               'type `{0}`. Shared memory only supports '
+                               'default Gym spaces (e.g. `Box`, `Tuple`, '
+                               '`Dict`, etc...), and does not support custom '
+                               'Gym spaces.'.format(type(space)))
 
 def write_base_to_shared_memory(index, value, shared_memory, space):
     size = int(np.prod(space.shape))

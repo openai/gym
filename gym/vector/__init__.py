@@ -5,9 +5,9 @@ except ImportError:
 
 from gym.vector.async_vector_env import AsyncVectorEnv
 from gym.vector.sync_vector_env import SyncVectorEnv
-from gym.vector.vector_env import VectorEnv
+from gym.vector.vector_env import VectorEnv, VectorEnvWrapper
 
-__all__ = ['AsyncVectorEnv', 'SyncVectorEnv', 'VectorEnv', 'make']
+__all__ = ['AsyncVectorEnv', 'SyncVectorEnv', 'VectorEnv', 'VectorEnvWrapper', 'make']
 
 def make(id, num_envs=1, asynchronous=True, wrappers=None, **kwargs):
     """Create a vectorized environment from multiple copies of an environment,
