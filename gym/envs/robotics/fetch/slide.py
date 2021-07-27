@@ -22,4 +22,4 @@ class FetchSlideEnv(fetch_env.FetchEnv, utils.EzPickle):
             gripper_extra_height=-0.02, target_in_the_air=False, target_offset=np.array([0.4, 0.0, 0.0]),
             obj_range=0.1, target_range=0.3, distance_threshold=0.05,
             initial_qpos=initial_qpos, reward_type=reward_type)
-        utils.EzPickle.__init__(self)
+        utils.EzPickle.__init__(self, reward_type=reward_type)
