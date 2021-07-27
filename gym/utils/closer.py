@@ -2,6 +2,7 @@ import atexit
 import threading
 import weakref
 
+
 class Closer(object):
     """A registry that ensures your objects get closed, whether manually,
     upon garbage collection, or upon exit. To work properly, your

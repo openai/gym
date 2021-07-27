@@ -28,8 +28,9 @@
 # https://github.com/matthew-brett/transforms3d
 # They have mostly been modified to support batched operations.
 
-import numpy as np
 import itertools
+
+import numpy as np
 
 '''
 Rotations

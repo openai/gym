@@ -1,8 +1,9 @@
-import numpy as np
 import os
+
+import numpy as np
+
 import gym
-from gym import error, spaces
-from gym import utils
+from gym import error, spaces, utils
 from gym.utils import seeding
 
 try:

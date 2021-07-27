@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import gym
-from gym import error, envs
+from gym import envs, error
 from gym.envs import registration
 from gym.envs.classic_control import cartpole
+
 
 class ArgumentEnv(gym.Env):
     def __init__(self, arg1, arg2, arg3):

@@ -12,7 +12,7 @@ jobs:
       - run: codespell --ignore-words-list=nd,reacher,thist,ths -w
       - run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
       - run: flake8 . --count --exit-zero --max-complexity=10 --max-line-length=88 --show-source --statistics
-      - run: isort --check-only --profile black . || true
+      - run: isort --check-only --profile black .
       - run: pip install -e .[all]
       - run: mypy --install-types --non-interactive . || true
       - run: pytest . || true

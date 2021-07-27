@@ -1,6 +1,7 @@
 from gym import error
 from gym.utils import seeding
 
+
 def test_invalid_seeds():
     for seed in [-1, 'test']:
         try:

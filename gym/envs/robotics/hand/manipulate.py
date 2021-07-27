@@ -1,8 +1,9 @@
 import os
+
 import numpy as np
 
-from gym import utils, error
-from gym.envs.robotics import rotations, hand_env
+from gym import error, utils
+from gym.envs.robotics import hand_env, rotations
 from gym.envs.robotics.utils import robot_get_obs
 
 try:

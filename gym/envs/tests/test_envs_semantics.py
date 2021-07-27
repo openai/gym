@@ -4,12 +4,13 @@ Hashed str representation of objects
 """
 
 
-import json
 import hashlib
+import json
 import os
 
 import pytest
-from gym import spaces, logger
+
+from gym import logger, spaces
 from gym.envs.tests.spec_list import spec_list
 
 DATA_DIR = os.path.dirname(__file__)

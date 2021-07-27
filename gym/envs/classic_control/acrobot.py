@@ -1,6 +1,6 @@
 """classic Acrobot task"""
 import numpy as np
-from numpy import sin, cos, pi
+from numpy import cos, pi, sin
 
 from gym import core, spaces
 from gym.utils import seeding

@@ -1,12 +1,16 @@
+import distutils.spawn
+import distutils.version
 import json
 import os
+import os.path
 import subprocess
 import tempfile
-import os.path
-import distutils.spawn, distutils.version
-import numpy as np
 from io import StringIO
+
+import numpy as np
+
 from gym import error, logger
+
 
 def touch(path):
     open(path, 'a').close()

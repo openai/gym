@@ -1,5 +1,6 @@
-import os
 import copy
+import os
+
 import numpy as np
 
 import gym

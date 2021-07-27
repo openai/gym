@@ -2,6 +2,7 @@ import pytest
 
 import gym
 from gym.wrappers import ResizeObservation
+
 try:
     import atari_py
 except ImportError:

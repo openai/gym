@@ -1,7 +1,9 @@
-import numpy as np
 import sys
 from contextlib import closing
 from io import StringIO
+
+import numpy as np
+
 from gym.envs.toy_text import discrete
 
 UP = 0

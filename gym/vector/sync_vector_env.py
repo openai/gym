@@ -1,9 +1,10 @@
-import numpy as np
 from copy import deepcopy
 
+import numpy as np
+
 from gym import logger
-from gym.vector.vector_env import VectorEnv
 from gym.vector.utils import concatenate, create_empty_array
+from gym.vector.vector_env import VectorEnv
 
 __all__ = ['SyncVectorEnv']
 

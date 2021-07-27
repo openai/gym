@@ -1,11 +1,13 @@
 #!/usr/bin/env python
-import gym
-from gym import spaces, envs
 import argparse
-import numpy as np
 import itertools
 import time
 from builtins import input
+
+import numpy as np
+
+import gym
+from gym import envs, spaces
 
 parser = argparse.ArgumentParser()
 parser.add_argument("env")

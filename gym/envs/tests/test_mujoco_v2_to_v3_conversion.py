@@ -1,7 +1,9 @@
 import unittest
+
 import numpy as np
+
 from gym import envs
-from gym.envs.tests.spec_list import skip_mujoco, SKIP_MUJOCO_WARNING_MESSAGE
+from gym.envs.tests.spec_list import SKIP_MUJOCO_WARNING_MESSAGE, skip_mujoco
 
 
 def verify_environments_match(old_environment_id,

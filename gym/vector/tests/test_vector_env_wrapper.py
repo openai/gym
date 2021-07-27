@@ -1,6 +1,6 @@
 import gym
-from gym.vector import make
-from gym.vector import VectorEnvWrapper
+from gym.vector import VectorEnvWrapper, make
+
 
 class DummyWrapper(VectorEnvWrapper):
     def __init__(self, env):

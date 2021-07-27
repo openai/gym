@@ -1,10 +1,10 @@
 import os
+
 import numpy as np
 
 from gym import utils
 from gym.envs.robotics import hand_env
 from gym.envs.robotics.utils import robot_get_obs
-
 
 FINGERTIP_SITE_NAMES = [
     'robot0:S_fftip',

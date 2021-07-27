@@ -1,13 +1,20 @@
-import sys
 import math
+import sys
 
-import numpy as np
 import Box2D
-from Box2D.b2 import (edgeShape, circleShape, fixtureDef, polygonShape, revoluteJointDef, contactListener)
+import numpy as np
+from Box2D.b2 import (
+    circleShape,
+    contactListener,
+    edgeShape,
+    fixtureDef,
+    polygonShape,
+    revoluteJointDef,
+)
 
 import gym
 from gym import spaces
-from gym.utils import colorize, seeding, EzPickle
+from gym.utils import EzPickle, colorize, seeding
 
 # This is simple 4-joints walker robot environment.
 #

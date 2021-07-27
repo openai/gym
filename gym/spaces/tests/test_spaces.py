@@ -4,7 +4,7 @@ from copy import copy
 import numpy as np
 import pytest
 
-from gym.spaces import Tuple, Box, Discrete, MultiDiscrete, MultiBinary, Dict
+from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Tuple
 
 
 @pytest.mark.parametrize("space", [

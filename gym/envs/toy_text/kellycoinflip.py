@@ -1,5 +1,5 @@
-from scipy.stats import genpareto, norm
 import numpy as np
+from scipy.stats import genpareto, norm
 
 import gym
 from gym import spaces

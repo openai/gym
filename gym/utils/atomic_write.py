@@ -1,7 +1,6 @@
 # Based on http://stackoverflow.com/questions/2333872/atomic-writing-to-file-with-python
 
 import os
-from contextlib import contextmanager
 
 # We would ideally atomically replace any existing file with the new
 # version. However, on Windows there's no Python-only solution prior
@@ -12,6 +11,8 @@ from contextlib import contextmanager
 # replace method which could result in the file temporarily
 # disappearing.
 import sys
+from contextlib import contextmanager
+
 if sys.version_info >= (3, 3):
     # Python 3.3 and up have a native `replace` method
     from os import replace

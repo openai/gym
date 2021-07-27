@@ -1,11 +1,12 @@
-import numpy as np
 import multiprocessing as mp
-from ctypes import c_bool
 from collections import OrderedDict
+from ctypes import c_bool
+
+import numpy as np
 
 from gym import logger
-from gym.spaces import Tuple, Dict
 from gym.error import CustomSpaceError
+from gym.spaces import Dict, Tuple
 from gym.vector.utils.spaces import _BaseGymSpaces
 
 __all__ = [

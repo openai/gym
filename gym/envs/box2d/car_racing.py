@@ -30,21 +30,18 @@ and turn at the same time.
 
 Created by Oleg Klimov. Licensed on the same terms as the rest of OpenAI Gym.
 """
-import sys
 import math
-import numpy as np
+import sys
 
 import Box2D
-from Box2D.b2 import fixtureDef
-from Box2D.b2 import polygonShape
-from Box2D.b2 import contactListener
+import numpy as np
+import pyglet
+from Box2D.b2 import contactListener, fixtureDef, polygonShape
 
 import gym
 from gym import spaces
 from gym.envs.box2d.car_dynamics import Car
-from gym.utils import seeding, EzPickle
-
-import pyglet
+from gym.utils import EzPickle, seeding
 
 pyglet.options["debug_gl"] = False
 from pyglet import gl

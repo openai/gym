@@ -4,8 +4,7 @@ import unittest
 import pytest
 
 from gym import envs
-from gym.envs.tests.spec_list import skip_mujoco, SKIP_MUJOCO_WARNING_MESSAGE
-
+from gym.envs.tests.spec_list import SKIP_MUJOCO_WARNING_MESSAGE, skip_mujoco
 
 ENVIRONMENT_IDS = (
     'HandManipulateEgg-v0',

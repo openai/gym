@@ -1,8 +1,11 @@
-import gym
-import pygame
-import matplotlib
 import argparse
+
+import matplotlib
+import pygame
+
+import gym
 from gym import logger
+
 try:
     matplotlib.use('TkAgg')
     import matplotlib.pyplot as plt
@@ -11,7 +14,9 @@ except ImportError as e:
     plt = None
 
 from collections import deque
+
 from pygame.locals import VIDEORESIZE
+
 
 def display_arr(screen, arr, video_size, transpose):
     arr_min, arr_max = arr.min(), arr.max()

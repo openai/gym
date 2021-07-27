@@ -7,10 +7,19 @@ This simulation is a bit more detailed, with wheels rotation.
 Created by Oleg Klimov. Licensed on the same terms as the rest of OpenAI Gym.
 """
 
-import numpy as np
 import math
+
 import Box2D
-from Box2D.b2 import (edgeShape, circleShape, fixtureDef, polygonShape, revoluteJointDef, contactListener, shape)
+import numpy as np
+from Box2D.b2 import (
+    circleShape,
+    contactListener,
+    edgeShape,
+    fixtureDef,
+    polygonShape,
+    revoluteJointDef,
+    shape,
+)
 
 SIZE = 0.02
 ENGINE_POWER = 100000000*SIZE*SIZE

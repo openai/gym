@@ -1,6 +1,6 @@
-from gym.envs import algorithmic as alg
 import unittest
 
+from gym.envs import algorithmic as alg
 
 # All concrete subclasses of AlgorithmicEnv
 ALL_ENVS = [

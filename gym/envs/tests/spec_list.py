@@ -1,6 +1,6 @@
-from gym import envs, logger
 import os
 
+from gym import envs, logger
 
 SKIP_MUJOCO_WARNING_MESSAGE = (
     "Cannot run mujoco test (either license key not found or mujoco not"

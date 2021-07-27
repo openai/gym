@@ -31,13 +31,15 @@ been consistently solved over some window of episodes, the environment will
 increase the average length of generated strings. Typical env specs require
 leveling up many times to reach their reward threshold.
 """
+import sys
+from contextlib import closing
+from io import StringIO
+
+import numpy as np
+
 from gym import Env, logger
 from gym.spaces import Discrete, Tuple
 from gym.utils import colorize, seeding
-import sys
-from contextlib import closing
-import numpy as np
-from io import StringIO
 
 
 class AlgorithmicEnv(Env):

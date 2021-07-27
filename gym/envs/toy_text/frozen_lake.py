@@ -1,8 +1,8 @@
 import sys
 from contextlib import closing
+from io import StringIO
 
 import numpy as np
-from io import StringIO
 
 from gym import utils
 from gym.envs.toy_text import discrete

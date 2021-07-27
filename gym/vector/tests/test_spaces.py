@@ -1,9 +1,8 @@
-import pytest
 import numpy as np
+import pytest
 
-from gym.spaces import Box, MultiDiscrete, Tuple, Dict
-from gym.vector.tests.utils import spaces, custom_spaces, CustomSpace
-
+from gym.spaces import Box, Dict, MultiDiscrete, Tuple
+from gym.vector.tests.utils import CustomSpace, custom_spaces, spaces
 from gym.vector.utils.spaces import _BaseGymSpaces, batch_space
 
 expected_batch_spaces_4 = [

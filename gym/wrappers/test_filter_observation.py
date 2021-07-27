@@ -1,5 +1,5 @@
-import pytest
 import numpy as np
+import pytest
 
 import gym
 from gym import spaces

@@ -1,9 +1,11 @@
 import sys
 from contextlib import closing
 from io import StringIO
+
+import numpy as np
+
 from gym import utils
 from gym.envs.toy_text import discrete
-import numpy as np
 
 MAP = [
     "+---------+",

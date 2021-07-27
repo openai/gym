@@ -1,8 +1,9 @@
-import pytest
 import numpy as np
+import pytest
 
 from gym import envs
 from gym.envs.tests.spec_list import spec_list
+
 
 # This runs a smoketest on each official registered env. We may want
 # to try also running environments which are not officially registered

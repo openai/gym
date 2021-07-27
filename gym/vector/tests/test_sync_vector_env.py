@@ -1,10 +1,10 @@
-import pytest
 import numpy as np
+import pytest
 
 from gym.spaces import Box, Tuple
-from gym.vector.tests.utils import CustomSpace, make_env, make_custom_space_env
-
 from gym.vector.sync_vector_env import SyncVectorEnv
+from gym.vector.tests.utils import CustomSpace, make_custom_space_env, make_env
+
 
 def test_create_sync_vector_env():
     env_fns = [make_env('CubeCrash-v0', i) for i in range(8)]

@@ -1,6 +1,6 @@
-import re
 import copy
 import importlib
+import re
 import warnings
 
 from gym import error, logger

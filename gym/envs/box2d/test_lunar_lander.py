@@ -1,6 +1,8 @@
 import pytest
+
 try:
     import Box2D
+
     from .lunar_lander import LunarLander, LunarLanderContinuous, demo_heuristic_lander
 except ImportError:
     Box2D = None

@@ -2,7 +2,8 @@ import argparse
 import sys
 
 import gym
-from gym import wrappers, logger
+from gym import logger, wrappers
+
 
 class RandomAgent(object):
     """The world's simplest agent!"""

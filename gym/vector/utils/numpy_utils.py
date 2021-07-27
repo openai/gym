@@ -1,8 +1,9 @@
+from collections import OrderedDict
+
 import numpy as np
 
-from gym.spaces import Space, Tuple, Dict
+from gym.spaces import Dict, Space, Tuple
 from gym.vector.utils.spaces import _BaseGymSpaces
-from collections import OrderedDict
 
 __all__ = ['concatenate', 'create_empty_array']
 

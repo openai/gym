@@ -1,7 +1,8 @@
 import os
+
 import numpy as np
 
-from gym import utils, error, spaces
+from gym import error, spaces, utils
 from gym.envs.robotics.hand import manipulate
 
 # Ensure we get the path separator correct on windows

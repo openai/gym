@@ -1,7 +1,7 @@
 import os
+
 from gym import utils
 from gym.envs.robotics import fetch_env
-
 
 # Ensure we get the path separator correct on windows
 MODEL_XML_PATH = os.path.join('fetch', 'pick_and_place.xml')

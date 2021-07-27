@@ -1,11 +1,16 @@
-import gym
-from gym import wrappers, logger
-import numpy as np
-import pickle
-import json, sys, os
-from os import path
-from _policies import BinaryActionLinearPolicy # Different file so it can be unpickled
 import argparse
+import json
+import os
+import pickle
+import sys
+from os import path
+
+import numpy as np
+from _policies import BinaryActionLinearPolicy  # Different file so it can be unpickled
+
+import gym
+from gym import logger, wrappers
+
 
 def cem(f, th_mean, batch_size, n_iter, elite_frac, initial_std=1.0):
     """

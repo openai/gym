@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import argparse
-import gym
 
+import gym
 
 parser = argparse.ArgumentParser(description='Renders a Gym environment for quick inspection.')
 parser.add_argument('env_id', type=str, help='the ID of the environment to be rendered (e.g. HalfCheetah-v2')

@@ -1,5 +1,6 @@
 from gym.utils.closer import Closer
 
+
 class Closeable(object):
     close_called = False
     def close(self):

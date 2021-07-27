@@ -1,9 +1,9 @@
-from gym import envs, spaces, logger
+import argparse
 import json
 import os
 import sys
-import argparse
 
+from gym import envs, logger, spaces
 from gym.envs.tests.spec_list import should_skip_env_spec_for_tests
 from gym.envs.tests.test_envs_semantics import generate_rollout_hash, hash_object
 

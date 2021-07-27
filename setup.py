@@ -1,5 +1,7 @@
-from setuptools import setup, find_packages
-import sys, os.path
+import os.path
+import sys
+
+from setuptools import find_packages, setup
 
 # Don't import gym module here, since deps may not be installed
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'gym'))
