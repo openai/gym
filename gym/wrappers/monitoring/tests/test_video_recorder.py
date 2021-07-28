@@ -7,17 +7,20 @@ import numpy as np
 import gym
 from gym.wrappers.monitoring.video_recorder import VideoRecorder
 
+
 class BrokenRecordableEnv(object):
-    metadata = {'render.modes': [None, 'rgb_array']}
+    metadata = {"render.modes": [None, "rgb_array"]}
 
     def render(self, mode=None):
         pass
+
 
 class UnrecordableEnv(object):
-    metadata = {'render.modes': [None]}
+    metadata = {"render.modes": [None]}
 
     def render(self, mode=None):
         pass
+
 
 def test_record_simple():
     env = gym.make("CartPole-v1")
@@ -31,6 +34,7 @@ def test_record_simple():
     f = open(rec.path)
     assert os.fstat(f.fileno()).st_size > 100
 
+
 def test_no_frames():
     env = BrokenRecordableEnv()
     rec = VideoRecorder(env)
@@ -39,11 +43,13 @@ def test_no_frames():
     assert rec.functional
     assert not os.path.exists(rec.path)
 
+
 def test_record_unrecordable_method():
     env = UnrecordableEnv()
     rec = VideoRecorder(env)
     assert not rec.enabled
     rec.close()
+
 
 def test_record_breaking_render_method():
     env = BrokenRecordableEnv()
@@ -54,8 +60,9 @@ def test_record_breaking_render_method():
     assert rec.broken
     assert not os.path.exists(rec.path)
 
+
 def test_text_envs():
-    env = gym.make('FrozenLake-v0')
+    env = gym.make("FrozenLake-v0")
     video = VideoRecorder(env)
     try:
         env.reset()

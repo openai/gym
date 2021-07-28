@@ -4,7 +4,7 @@ import gym
 from gym.wrappers import TimeAwareObservation
 
 
-@pytest.mark.parametrize('env_id', ['CartPole-v1', 'Pendulum-v0'])
+@pytest.mark.parametrize("env_id", ["CartPole-v1", "Pendulum-v0"])
 def test_time_aware_observation(env_id):
     env = gym.make(env_id)
     wrapped_env = TimeAwareObservation(env)

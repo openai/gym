@@ -5,7 +5,8 @@ from gym import ObservationWrapper
 
 
 class ResizeObservation(ObservationWrapper):
-    r"""Downsample the image observation to a square image. """
+    r"""Downsample the image observation to a square image."""
+
     def __init__(self, env, shape):
         super(ResizeObservation, self).__init__(env)
         if isinstance(shape, int):
@@ -18,7 +19,10 @@ class ResizeObservation(ObservationWrapper):
 
     def observation(self, observation):
         import cv2
-        observation = cv2.resize(observation, self.shape[::-1], interpolation=cv2.INTER_AREA)
+
+        observation = cv2.resize(
+            observation, self.shape[::-1], interpolation=cv2.INTER_AREA
+        )
         if observation.ndim == 2:
             observation = np.expand_dims(observation, -1)
         return observation

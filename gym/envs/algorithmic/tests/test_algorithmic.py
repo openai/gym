@@ -11,12 +11,10 @@ ALL_ENVS = [
     alg.reversed_addition.ReversedAdditionEnv,
 ]
 ALL_TAPE_ENVS = [
-    env for env in ALL_ENVS
-    if issubclass(env, alg.algorithmic_env.TapeAlgorithmicEnv)
+    env for env in ALL_ENVS if issubclass(env, alg.algorithmic_env.TapeAlgorithmicEnv)
 ]
 ALL_GRID_ENVS = [
-    env for env in ALL_ENVS
-    if issubclass(env, alg.algorithmic_env.GridAlgorithmicEnv)
+    env for env in ALL_ENVS if issubclass(env, alg.algorithmic_env.GridAlgorithmicEnv)
 ]
 
 
@@ -30,9 +28,10 @@ def imprint(env, input_arr):
 class TestAlgorithmicEnvInteractions(unittest.TestCase):
     """Test some generic behaviour not specific to any particular algorithmic
     environment. Movement, allocation of rewards, etc."""
+
     CANNED_INPUT = [0, 1]
     ENV_KLS = alg.copy_.CopyEnv
-    LEFT, RIGHT = ENV_KLS._movement_idx('left'), ENV_KLS._movement_idx('right')
+    LEFT, RIGHT = ENV_KLS._movement_idx("left"), ENV_KLS._movement_idx("right")
 
     def setUp(self):
         self.env = self.ENV_KLS(base=2, chars=True)
@@ -66,11 +65,11 @@ class TestAlgorithmicEnvInteractions(unittest.TestCase):
             obs, reward, done, _ = self.env.step([self.RIGHT, 1, 1])
             self.assertTrue(done)
             self.env.reset()
-            if i < self.env.last-1:
-                self.assertEqual(len(self.env.reward_shortfalls), i+1)
+            if i < self.env.last - 1:
+                self.assertEqual(len(self.env.reward_shortfalls), i + 1)
             else:
                 # Should have leveled up on the last iteration
-                self.assertEqual(self.env.min_length, min_length+1)
+                self.assertEqual(self.env.min_length, min_length + 1)
                 self.assertEqual(len(self.env.reward_shortfalls), 0)
 
     def test_walk_off_the_end(self):
@@ -95,7 +94,7 @@ class TestAlgorithmicEnvInteractions(unittest.TestCase):
         env = alg.reversed_addition.ReversedAdditionEnv(rows=2, base=6)
         N, S, E, W = [
             env._movement_idx(named_dir)
-            for named_dir in ['up', 'down', 'right', 'left']
+            for named_dir in ["up", "down", "right", "left"]
         ]
         # Corresponds to a grid that looks like...
         #       0 1 2
@@ -105,7 +104,15 @@ class TestAlgorithmicEnvInteractions(unittest.TestCase):
         obs = env.reset()
         self.assertEqual(obs, 0)
         navigation = [
-            (S, 3), (N, 0), (E, 1), (S, 4), (S, 6), (E, 6), (N, 5), (N, 2), (W, 1)
+            (S, 3),
+            (N, 0),
+            (E, 1),
+            (S, 4),
+            (S, 6),
+            (E, 6),
+            (N, 5),
+            (N, 2),
+            (W, 1),
         ]
         for (movement, expected_obs) in navigation:
             obs, reward, done, _ = env.step([movement, 0, 0])
@@ -138,22 +145,23 @@ class TestAlgorithmicEnvInteractions(unittest.TestCase):
     def test_rendering(self):
         env = self.env
         env.reset()
-        self.assertEqual(env._get_str_obs(), 'A')
-        self.assertEqual(env._get_str_obs(1), 'B')
-        self.assertEqual(env._get_str_obs(-1), ' ')
-        self.assertEqual(env._get_str_obs(2), ' ')
-        self.assertEqual(env._get_str_target(0), 'A')
-        self.assertEqual(env._get_str_target(1), 'B')
+        self.assertEqual(env._get_str_obs(), "A")
+        self.assertEqual(env._get_str_obs(1), "B")
+        self.assertEqual(env._get_str_obs(-1), " ")
+        self.assertEqual(env._get_str_obs(2), " ")
+        self.assertEqual(env._get_str_target(0), "A")
+        self.assertEqual(env._get_str_target(1), "B")
         # Test numerical alphabet rendering
         env = self.ENV_KLS(base=3, chars=False)
         imprint(env, self.CANNED_INPUT)
         env.reset()
-        self.assertEqual(env._get_str_obs(), '0')
-        self.assertEqual(env._get_str_obs(1), '1')
+        self.assertEqual(env._get_str_obs(), "0")
+        self.assertEqual(env._get_str_obs(1), "1")
 
 
 class TestTargets(unittest.TestCase):
     """Test the rules mapping input strings/grids to target outputs."""
+
     def test_reverse_target(self):
         input_expected = [
             ([0], [0]),
@@ -175,9 +183,7 @@ class TestTargets(unittest.TestCase):
             ([[2, 1], [1, 1], [1, 1], [1, 0]], [0, 0, 0, 2]),
         ]
         for (input_grid, expected_target) in input_expected:
-            self.assertEqual(
-                env.target_from_input_data(input_grid), expected_target
-            )
+            self.assertEqual(env.target_from_input_data(input_grid), expected_target)
 
     def test_reversed_addition_3rows(self):
         env = alg.reversed_addition.ReversedAdditionEnv(base=3, rows=3)
@@ -186,9 +192,7 @@ class TestTargets(unittest.TestCase):
             ([[1, 1, 2], [0, 1, 1]], [1, 0, 1]),
         ]
         for (input_grid, expected_target) in input_expected:
-            self.assertEqual(
-                env.target_from_input_data(input_grid), expected_target
-            )
+            self.assertEqual(env.target_from_input_data(input_grid), expected_target)
 
     def test_copy_target(self):
         env = alg.copy_.CopyEnv()
@@ -196,9 +200,7 @@ class TestTargets(unittest.TestCase):
 
     def test_duplicated_input_target(self):
         env = alg.duplicated_input.DuplicatedInputEnv(duplication=2)
-        self.assertEqual(
-            env.target_from_input_data([0, 0, 0, 0, 1, 1]), [0, 0, 1]
-        )
+        self.assertEqual(env.target_from_input_data([0, 0, 0, 0, 1, 1]), [0, 0, 1])
 
     def test_repeat_copy_target(self):
         env = alg.repeat_copy.RepeatCopyEnv()
@@ -208,8 +210,8 @@ class TestTargets(unittest.TestCase):
 
 
 class TestInputGeneration(unittest.TestCase):
-    """Test random input generation.
-    """
+    """Test random input generation."""
+
     def test_tape_inputs(self):
         for env_kls in ALL_TAPE_ENVS:
             env = env_kls()
@@ -217,9 +219,7 @@ class TestInputGeneration(unittest.TestCase):
                 input_tape = env.generate_input_data(size)
                 self.assertTrue(
                     all(0 <= x <= env.base for x in input_tape),
-                    "Invalid input tape from env {}: {}".format(
-                        env_kls, input_tape
-                    )
+                    "Invalid input tape from env {}: {}".format(env_kls, input_tape),
                 )
                 # DuplicatedInput needs to generate inputs with even length,
                 # so it may be short one
@@ -260,5 +260,5 @@ class TestInputGeneration(unittest.TestCase):
         self.assertEqual(input_tape[1], input_tape[2])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -22,18 +22,21 @@ class MultiDiscrete(Space):
         MultiDiscrete([ 5, 2, 2 ])
 
     """
+
     def __init__(self, nvec, dtype=np.int64):
 
         """
         nvec: vector of counts of each categorical variable
         """
-        assert (np.array(nvec) > 0).all(), 'nvec (counts) have to be positive'
+        assert (np.array(nvec) > 0).all(), "nvec (counts) have to be positive"
         self.nvec = np.asarray(nvec, dtype=dtype)
 
         super(MultiDiscrete, self).__init__(self.nvec.shape, dtype)
 
     def sample(self):
-        return (self.np_random.random_sample(self.nvec.shape)*self.nvec).astype(self.dtype)
+        return (self.np_random.random_sample(self.nvec.shape) * self.nvec).astype(
+            self.dtype
+        )
 
     def contains(self, x):
         if isinstance(x, list):
