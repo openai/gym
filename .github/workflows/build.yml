@@ -12,7 +12,7 @@ jobs:
       - run: |
            docker build -f py.Dockerfile \
              --build-arg MUJOCO_KEY=$MUJOCO_KEY \
-             --build-arg PYTHON_VER=${{ matrix.python-version }} \
+             --build-arg PYTHON_VERSION=${{ matrix.python-version }} \
              --tag gym-docker .
       - name: Run tests
         run: docker run gym-docker pytest --forked
