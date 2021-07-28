@@ -397,3 +397,7 @@ Learn more here: https://github.com/tanliyon/gym-xiangqi
 A set of environments from control tasks: Acrobot, CartPole, and LunarLander with various types of anomalies injected into them. It could be very useful to study the behavior and robustness of a policy.
 
 Learn more here: https://github.com/modanesh/anomalous_rl_envs
+
+### stable-retro
+
+Fork of gym-retro with additional games, states, scenarios, etc. Open to PRs of additional games, features and plateforms since gym-retro is in maintenance mode.
