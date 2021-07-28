@@ -6,7 +6,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
-      - run: sudo apt-get install python-opengl
+      - run: sudo apt-get install -y python-opengl libglu1-mesa-dev libgl1-mesa-dev libosmesa6-dev xvfb ffmpeg curl patchelf libglfw3 libglfw3-dev cmake zlib1g zlib1g-dev swig
       - run: pip install bandit black codespell flake8 isort mypy pytest pyupgrade safety
       - run: bandit --recursive --skip B101,B108,B301,B403,B404,B603 .
       - run: black --check . || true
@@ -16,6 +16,7 @@ jobs:
       - run: isort --check-only --profile black . || true
       - run: pip install -e .[nomujoco]
       - run: mypy --install-types --non-interactive . || true
+      - run: xvfb-run -s "-screen 0 1400x900x24" bash
       - run: pytest . || true
       - run: pytest --doctest-modules . || true
       - run: shopt -s globstar && pyupgrade --py36-plus **/*.py || true
