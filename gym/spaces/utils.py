@@ -1,12 +1,8 @@
 from collections import OrderedDict
+
 import numpy as np
 
-from gym.spaces import Box
-from gym.spaces import Discrete
-from gym.spaces import MultiDiscrete
-from gym.spaces import MultiBinary
-from gym.spaces import Tuple
-from gym.spaces import Dict
+from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Tuple
 
 
 def flatdim(space):
@@ -50,10 +46,10 @@ def flatten(space, x):
         return onehot
     elif isinstance(space, Tuple):
         return np.concatenate(
-            [flatten(s, x_part) for x_part, s in zip(x, space.spaces)])
+            [flatten(s, x_part) for x_part, s in zip(x, space.spaces)]
+        )
     elif isinstance(space, Dict):
-        return np.concatenate(
-            [flatten(s, x[key]) for key, s in space.spaces.items()])
+        return np.concatenate([flatten(s, x[key]) for key, s in space.spaces.items()])
     elif isinstance(space, MultiBinary):
         return np.asarray(x, dtype=space.dtype).flatten()
     elif isinstance(space, MultiDiscrete):
@@ -89,8 +85,7 @@ def unflatten(space, x):
         list_flattened = np.split(x, np.cumsum(dims)[:-1])
         list_unflattened = [
             (key, unflatten(s, flattened))
-            for flattened, (key,
-                            s) in zip(list_flattened, space.spaces.items())
+            for flattened, (key, s) in zip(list_flattened, space.spaces.items())
         ]
         return OrderedDict(list_unflattened)
     elif isinstance(space, MultiBinary):
@@ -142,31 +137,23 @@ def flatten_space(space):
     if isinstance(space, Box):
         return Box(space.low.flatten(), space.high.flatten(), dtype=space.dtype)
     if isinstance(space, Discrete):
-        return Box(low=0, high=1, shape=(space.n, ), dtype=space.dtype)
+        return Box(low=0, high=1, shape=(space.n,), dtype=space.dtype)
     if isinstance(space, Tuple):
         space = [flatten_space(s) for s in space.spaces]
         return Box(
             low=np.concatenate([s.low for s in space]),
             high=np.concatenate([s.high for s in space]),
-            dtype=np.result_type(*[s.dtype for s in space])
+            dtype=np.result_type(*[s.dtype for s in space]),
         )
     if isinstance(space, Dict):
         space = [flatten_space(s) for s in space.spaces.values()]
         return Box(
             low=np.concatenate([s.low for s in space]),
             high=np.concatenate([s.high for s in space]),
-            dtype=np.result_type(*[s.dtype for s in space])
+            dtype=np.result_type(*[s.dtype for s in space]),
         )
     if isinstance(space, MultiBinary):
-        return Box(low=0,
-                   high=1,
-                   shape=(space.n, ),
-                   dtype=space.dtype
-                   )
+        return Box(low=0, high=1, shape=(space.n,), dtype=space.dtype)
     if isinstance(space, MultiDiscrete):
-        return Box(
-            low=np.zeros_like(space.nvec),
-            high=space.nvec,
-            dtype=space.dtype
-        )
+        return Box(low=np.zeros_like(space.nvec), high=space.nvec, dtype=space.dtype)
     raise NotImplementedError

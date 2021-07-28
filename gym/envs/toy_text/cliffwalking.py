@@ -1,7 +1,9 @@
-import numpy as np
 import sys
 from contextlib import closing
 from io import StringIO
+
+import numpy as np
+
 from gym.envs.toy_text import discrete
 
 UP = 0
@@ -30,7 +32,8 @@ class CliffWalkingEnv(discrete.DiscreteEnv):
     Each time step incurs -1 reward, and stepping into the cliff incurs -100 reward
     and a reset to the start. An episode terminates when the agent reaches the goal.
     """
-    metadata = {'render.modes': ['human', 'ansi']}
+
+    metadata = {"render.modes": ["human", "ansi"]}
 
     def __init__(self):
         self.shape = (4, 12)
@@ -89,8 +92,8 @@ class CliffWalkingEnv(discrete.DiscreteEnv):
         is_done = tuple(new_position) == terminal_state
         return [(1.0, new_state, -1, is_done)]
 
-    def render(self, mode='human'):
-        outfile = StringIO() if mode == 'ansi' else sys.stdout
+    def render(self, mode="human"):
+        outfile = StringIO() if mode == "ansi" else sys.stdout
 
         for s in range(self.nS):
             position = np.unravel_index(s, self.shape)
@@ -108,12 +111,12 @@ class CliffWalkingEnv(discrete.DiscreteEnv):
                 output = output.lstrip()
             if position[1] == self.shape[1] - 1:
                 output = output.rstrip()
-                output += '\n'
+                output += "\n"
 
             outfile.write(output)
-        outfile.write('\n')
+        outfile.write("\n")
 
         # No need to return anything for human
-        if mode != 'human':
+        if mode != "human":
             with closing(outfile):
                 return outfile.getvalue()

@@ -8,11 +8,11 @@ jobs:
       - uses: actions/setup-python@v2
       - run: pip install bandit black codespell flake8 isort mypy pytest pyupgrade safety
       - run: bandit --recursive --skip B101,B108,B301,B403,B404,B603 .
-      - run: black --check . || true
+      - run: black --check .
       - run: codespell --ignore-words-list=nd,reacher,thist,ths -w
-      - run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-      - run: flake8 . --count --exit-zero --max-complexity=10 --max-line-length=88 --show-source --statistics
-      - run: isort --check-only --profile black . || true
+      - run: flake8 --ignore=E203,E402,E712,E722,E731,E741,F401,F403,F405,F524,F841,W503
+                    --max-complexity=30 --max-line-length=456 --show-source --statistics
+      - run: isort --check-only --profile black .
       - run: pip install -e .[nomujoco]
       - run: mypy --install-types --non-interactive . || true
       - run: pytest . || true

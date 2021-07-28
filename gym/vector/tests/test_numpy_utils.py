@@ -1,16 +1,17 @@
-import pytest
-import numpy as np
-
 from collections import OrderedDict
 
-from gym.spaces import Tuple, Dict
-from gym.vector.utils.spaces import _BaseGymSpaces
+import numpy as np
+import pytest
+
+from gym.spaces import Dict, Tuple
 from gym.vector.tests.utils import spaces
-
 from gym.vector.utils.numpy_utils import concatenate, create_empty_array
+from gym.vector.utils.spaces import _BaseGymSpaces
 
-@pytest.mark.parametrize('space', spaces,
-    ids=[space.__class__.__name__ for space in spaces])
+
+@pytest.mark.parametrize(
+    "space", spaces, ids=[space.__class__.__name__ for space in spaces]
+)
 def test_concatenate(space):
     def assert_type(lhs, rhs, n):
         # Special case: if rhs is a list of scalars, lhs must be an np.ndarray
@@ -40,7 +41,7 @@ def test_concatenate(space):
                 assert_nested_equal(lhs[key], rhs_T_key, n)
 
         else:
-            raise TypeError('Got unknown type `{0}`.'.format(type(lhs)))
+            raise TypeError("Got unknown type `{0}`.".format(type(lhs)))
 
     samples = [space.sample() for _ in range(8)]
     array = create_empty_array(space, n=8)
@@ -50,11 +51,11 @@ def test_concatenate(space):
     assert_nested_equal(array, samples, n=8)
 
 
-@pytest.mark.parametrize('n', [1, 8])
-@pytest.mark.parametrize('space', spaces,
-    ids=[space.__class__.__name__ for space in spaces])
+@pytest.mark.parametrize("n", [1, 8])
+@pytest.mark.parametrize(
+    "space", spaces, ids=[space.__class__.__name__ for space in spaces]
+)
 def test_create_empty_array(space, n):
-
     def assert_nested_type(arr, space, n):
         if isinstance(space, _BaseGymSpaces):
             assert isinstance(arr, np.ndarray)
@@ -74,17 +75,17 @@ def test_create_empty_array(space, n):
                 assert_nested_type(arr[key], space.spaces[key], n)
 
         else:
-            raise TypeError('Got unknown type `{0}`.'.format(type(arr)))
+            raise TypeError("Got unknown type `{0}`.".format(type(arr)))
 
     array = create_empty_array(space, n=n, fn=np.empty)
     assert_nested_type(array, space, n=n)
 
 
-@pytest.mark.parametrize('n', [1, 8])
-@pytest.mark.parametrize('space', spaces,
-    ids=[space.__class__.__name__ for space in spaces])
+@pytest.mark.parametrize("n", [1, 8])
+@pytest.mark.parametrize(
+    "space", spaces, ids=[space.__class__.__name__ for space in spaces]
+)
 def test_create_empty_array_zeros(space, n):
-
     def assert_nested_type(arr, space, n):
         if isinstance(space, _BaseGymSpaces):
             assert isinstance(arr, np.ndarray)
@@ -105,16 +106,16 @@ def test_create_empty_array_zeros(space, n):
                 assert_nested_type(arr[key], space.spaces[key], n)
 
         else:
-            raise TypeError('Got unknown type `{0}`.'.format(type(arr)))
+            raise TypeError("Got unknown type `{0}`.".format(type(arr)))
 
     array = create_empty_array(space, n=n, fn=np.zeros)
     assert_nested_type(array, space, n=n)
 
 
-@pytest.mark.parametrize('space', spaces,
-    ids=[space.__class__.__name__ for space in spaces])
+@pytest.mark.parametrize(
+    "space", spaces, ids=[space.__class__.__name__ for space in spaces]
+)
 def test_create_empty_array_none_shape_ones(space):
-
     def assert_nested_type(arr, space):
         if isinstance(space, _BaseGymSpaces):
             assert isinstance(arr, np.ndarray)
@@ -135,7 +136,7 @@ def test_create_empty_array_none_shape_ones(space):
                 assert_nested_type(arr[key], space.spaces[key])
 
         else:
-            raise TypeError('Got unknown type `{0}`.'.format(type(arr)))
+            raise TypeError("Got unknown type `{0}`.".format(type(arr)))
 
     array = create_empty_array(space, n=None, fn=np.ones)
     assert_nested_type(array, space)
