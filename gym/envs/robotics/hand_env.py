@@ -30,22 +30,14 @@ class HandEnv(robot_env.RobotEnv):
         if self.relative_control:
             actuation_center = np.zeros_like(action)
             for i in range(self.sim.data.ctrl.shape[0]):
-                actuation_center[i] = self.sim.data.get_joint_qpos(
-                    self.sim.model.actuator_names[i].replace(":A_", ":")
-                )
+                actuation_center[i] = self.sim.data.get_joint_qpos(self.sim.model.actuator_names[i].replace(":A_", ":"))
             for joint_name in ["FF", "MF", "RF", "LF"]:
-                act_idx = self.sim.model.actuator_name2id(
-                    "robot0:A_{}J1".format(joint_name)
-                )
-                actuation_center[act_idx] += self.sim.data.get_joint_qpos(
-                    "robot0:{}J0".format(joint_name)
-                )
+                act_idx = self.sim.model.actuator_name2id("robot0:A_{}J1".format(joint_name))
+                actuation_center[act_idx] += self.sim.data.get_joint_qpos("robot0:{}J0".format(joint_name))
         else:
             actuation_center = (ctrlrange[:, 1] + ctrlrange[:, 0]) / 2.0
         self.sim.data.ctrl[:] = actuation_center + action * actuation_range
-        self.sim.data.ctrl[:] = np.clip(
-            self.sim.data.ctrl, ctrlrange[:, 0], ctrlrange[:, 1]
-        )
+        self.sim.data.ctrl[:] = np.clip(self.sim.data.ctrl, ctrlrange[:, 0], ctrlrange[:, 1])
 
     def _viewer_setup(self):
         body_id = self.sim.model.body_name2id("robot0:palm")

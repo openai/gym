@@ -102,10 +102,7 @@ class APIError(Error):
             try:
                 http_body = http_body.decode("utf-8")
             except:
-                http_body = (
-                    "<Could not decode body as utf-8. "
-                    "Please report to gym@openai.com>"
-                )
+                http_body = "<Could not decode body as utf-8. " "Please report to gym@openai.com>"
 
         self._message = message
         self.http_body = http_body
@@ -142,9 +139,7 @@ class InvalidRequestError(APIError):
         json_body=None,
         headers=None,
     ):
-        super(InvalidRequestError, self).__init__(
-            message, http_body, http_status, json_body, headers
-        )
+        super(InvalidRequestError, self).__init__(message, http_body, http_status, json_body, headers)
         self.param = param
 
 

@@ -10,12 +10,8 @@ ALL_ENVS = [
     alg.reverse.ReverseEnv,
     alg.reversed_addition.ReversedAdditionEnv,
 ]
-ALL_TAPE_ENVS = [
-    env for env in ALL_ENVS if issubclass(env, alg.algorithmic_env.TapeAlgorithmicEnv)
-]
-ALL_GRID_ENVS = [
-    env for env in ALL_ENVS if issubclass(env, alg.algorithmic_env.GridAlgorithmicEnv)
-]
+ALL_TAPE_ENVS = [env for env in ALL_ENVS if issubclass(env, alg.algorithmic_env.TapeAlgorithmicEnv)]
+ALL_GRID_ENVS = [env for env in ALL_ENVS if issubclass(env, alg.algorithmic_env.GridAlgorithmicEnv)]
 
 
 def imprint(env, input_arr):
@@ -92,10 +88,7 @@ class TestAlgorithmicEnvInteractions(unittest.TestCase):
 
     def test_grid_naviation(self):
         env = alg.reversed_addition.ReversedAdditionEnv(rows=2, base=6)
-        N, S, E, W = [
-            env._movement_idx(named_dir)
-            for named_dir in ["up", "down", "right", "left"]
-        ]
+        N, S, E, W = [env._movement_idx(named_dir) for named_dir in ["up", "down", "right", "left"]]
         # Corresponds to a grid that looks like...
         #       0 1 2
         #       3 4 5
@@ -204,9 +197,7 @@ class TestTargets(unittest.TestCase):
 
     def test_repeat_copy_target(self):
         env = alg.repeat_copy.RepeatCopyEnv()
-        self.assertEqual(
-            env.target_from_input_data([0, 1, 2]), [0, 1, 2, 2, 1, 0, 0, 1, 2]
-        )
+        self.assertEqual(env.target_from_input_data([0, 1, 2]), [0, 1, 2, 2, 1, 0, 0, 1, 2])
 
 
 class TestInputGeneration(unittest.TestCase):

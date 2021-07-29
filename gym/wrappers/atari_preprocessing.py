@@ -62,12 +62,13 @@ class AtariPreprocessing(gym.Wrapper):
         assert noop_max >= 0
         if frame_skip > 1:
             assert "NoFrameskip" in env.spec.id, (
-                "disable frame-skipping in the original env. for more than one"
-                " frame-skip as it will be done by the wrapper"
+                "disable frame-skipping in the original env. for more than one" " frame-skip as it will be done by the wrapper"
             )
         self.noop_max = noop_max
         assert env.unwrapped.get_action_meanings()[0] == "NOOP"
-        warnings.warn("Gym\'s internal preprocessing wrappers are now deprecated. While they will continue to work for the foreseeable future, we strongly recommend using SuperSuit instead: https://github.com/PettingZoo-Team/SuperSuit")
+        warnings.warn(
+            "Gym's internal preprocessing wrappers are now deprecated. While they will continue to work for the foreseeable future, we strongly recommend using SuperSuit instead: https://github.com/PettingZoo-Team/SuperSuit"
+        )
 
         self.frame_skip = frame_skip
         self.screen_size = screen_size
@@ -92,15 +93,11 @@ class AtariPreprocessing(gym.Wrapper):
         self.lives = 0
         self.game_over = False
 
-        _low, _high, _obs_dtype = (
-            (0, 255, np.uint8) if not scale_obs else (0, 1, np.float32)
-        )
+        _low, _high, _obs_dtype = (0, 255, np.uint8) if not scale_obs else (0, 1, np.float32)
         _shape = (screen_size, screen_size, 1 if grayscale_obs else 3)
         if grayscale_obs and not grayscale_newaxis:
             _shape = _shape[:-1]  # Remove channel axis
-        self.observation_space = Box(
-            low=_low, high=_high, shape=_shape, dtype=_obs_dtype
-        )
+        self.observation_space = Box(low=_low, high=_high, shape=_shape, dtype=_obs_dtype)
 
     def step(self, action):
         R = 0.0
@@ -132,11 +129,7 @@ class AtariPreprocessing(gym.Wrapper):
     def reset(self, **kwargs):
         # NoopReset
         self.env.reset(**kwargs)
-        noops = (
-            self.env.unwrapped.np_random.randint(1, self.noop_max + 1)
-            if self.noop_max > 0
-            else 0
-        )
+        noops = self.env.unwrapped.np_random.randint(1, self.noop_max + 1) if self.noop_max > 0 else 0
         for _ in range(noops):
             _, _, done, _ = self.env.step(0)
             if done:

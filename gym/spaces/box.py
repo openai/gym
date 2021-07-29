@@ -29,26 +29,16 @@ class Box(Space):
         # determine shape if it isn't provided directly
         if shape is not None:
             shape = tuple(shape)
-            assert (
-                np.isscalar(low) or low.shape == shape
-            ), "low.shape doesn't match provided shape"
-            assert (
-                np.isscalar(high) or high.shape == shape
-            ), "high.shape doesn't match provided shape"
+            assert np.isscalar(low) or low.shape == shape, "low.shape doesn't match provided shape"
+            assert np.isscalar(high) or high.shape == shape, "high.shape doesn't match provided shape"
         elif not np.isscalar(low):
             shape = low.shape
-            assert (
-                np.isscalar(high) or high.shape == shape
-            ), "high.shape doesn't match low.shape"
+            assert np.isscalar(high) or high.shape == shape, "high.shape doesn't match low.shape"
         elif not np.isscalar(high):
             shape = high.shape
-            assert (
-                np.isscalar(low) or low.shape == shape
-            ), "low.shape doesn't match high.shape"
+            assert np.isscalar(low) or low.shape == shape, "low.shape doesn't match high.shape"
         else:
-            raise ValueError(
-                "shape must be provided or inferred from the shapes of low or high"
-            )
+            raise ValueError("shape must be provided or inferred from the shapes of low or high")
 
         if np.isscalar(low):
             low = np.full(shape, low, dtype=dtype)
@@ -70,9 +60,7 @@ class Box(Space):
         high_precision = _get_precision(self.high.dtype)
         dtype_precision = _get_precision(self.dtype)
         if min(low_precision, high_precision) > dtype_precision:
-            logger.warn(
-                "Box bound precision lowered by casting to {}".format(self.dtype)
-            )
+            logger.warn("Box bound precision lowered by casting to {}".format(self.dtype))
         self.low = self.low.astype(self.dtype)
         self.high = self.high.astype(self.dtype)
 
@@ -119,19 +107,11 @@ class Box(Space):
         # Vectorized sampling by interval type
         sample[unbounded] = self.np_random.normal(size=unbounded[unbounded].shape)
 
-        sample[low_bounded] = (
-            self.np_random.exponential(size=low_bounded[low_bounded].shape)
-            + self.low[low_bounded]
-        )
+        sample[low_bounded] = self.np_random.exponential(size=low_bounded[low_bounded].shape) + self.low[low_bounded]
 
-        sample[upp_bounded] = (
-            -self.np_random.exponential(size=upp_bounded[upp_bounded].shape)
-            + self.high[upp_bounded]
-        )
+        sample[upp_bounded] = -self.np_random.exponential(size=upp_bounded[upp_bounded].shape) + self.high[upp_bounded]
 
-        sample[bounded] = self.np_random.uniform(
-            low=self.low[bounded], high=high[bounded], size=bounded[bounded].shape
-        )
+        sample[bounded] = self.np_random.uniform(low=self.low[bounded], high=high[bounded], size=bounded[bounded].shape)
         if self.dtype.kind == "i":
             sample = np.floor(sample)
 
@@ -140,9 +120,7 @@ class Box(Space):
     def contains(self, x):
         if isinstance(x, list):
             x = np.array(x)  # Promote list to array for contains check
-        return (
-            x.shape == self.shape and np.all(x >= self.low) and np.all(x <= self.high)
-        )
+        return x.shape == self.shape and np.all(x >= self.low) and np.all(x <= self.high)
 
     def to_jsonable(self, sample_n):
         return np.array(sample_n).tolist()
@@ -151,9 +129,7 @@ class Box(Space):
         return [np.asarray(sample) for sample in sample_n]
 
     def __repr__(self):
-        return "Box({}, {}, {}, {})".format(
-            self.low.min(), self.high.max(), self.shape, self.dtype
-        )
+        return "Box({}, {}, {}, {})".format(self.low.min(), self.high.max(), self.shape, self.dtype)
 
     def __eq__(self, other):
         return (

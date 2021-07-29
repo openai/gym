@@ -70,16 +70,12 @@ class ManipulateTouchSensorsEnv(manipulate.ManipulateEnv):
         for (
             k,
             v,
-        ) in (
-            self.sim.model._sensor_name2id.items()
-        ):  # get touch sensor site names and their ids
+        ) in self.sim.model._sensor_name2id.items():  # get touch sensor site names and their ids
             if "robot0:TS_" in k:
                 self._touch_sensor_id_site_id.append(
                     (
                         v,
-                        self.sim.model._site_name2id[
-                            k.replace("robot0:TS_", "robot0:T_")
-                        ],
+                        self.sim.model._site_name2id[k.replace("robot0:TS_", "robot0:T_")],
                     )
                 )
                 self._touch_sensor_id.append(v)
@@ -93,15 +89,9 @@ class ManipulateTouchSensorsEnv(manipulate.ManipulateEnv):
         obs = self._get_obs()
         self.observation_space = spaces.Dict(
             dict(
-                desired_goal=spaces.Box(
-                    -np.inf, np.inf, shape=obs["achieved_goal"].shape, dtype="float32"
-                ),
-                achieved_goal=spaces.Box(
-                    -np.inf, np.inf, shape=obs["achieved_goal"].shape, dtype="float32"
-                ),
-                observation=spaces.Box(
-                    -np.inf, np.inf, shape=obs["observation"].shape, dtype="float32"
-                ),
+                desired_goal=spaces.Box(-np.inf, np.inf, shape=obs["achieved_goal"].shape, dtype="float32"),
+                achieved_goal=spaces.Box(-np.inf, np.inf, shape=obs["achieved_goal"].shape, dtype="float32"),
+                observation=spaces.Box(-np.inf, np.inf, shape=obs["observation"].shape, dtype="float32"),
             )
         )
 
@@ -117,9 +107,7 @@ class ManipulateTouchSensorsEnv(manipulate.ManipulateEnv):
     def _get_obs(self):
         robot_qpos, robot_qvel = manipulate.robot_get_obs(self.sim)
         object_qvel = self.sim.data.get_joint_qvel("object:joint")
-        achieved_goal = (
-            self._get_achieved_goal().ravel()
-        )  # this contains the object position + rotation
+        achieved_goal = self._get_achieved_goal().ravel()  # this contains the object position + rotation
         touch_values = []  # get touch sensor readings. if there is one, set value to 1
         if self.touch_get_obs == "sensordata":
             touch_values = self.sim.data.sensordata[self._touch_sensor_id]
@@ -127,9 +115,7 @@ class ManipulateTouchSensorsEnv(manipulate.ManipulateEnv):
             touch_values = self.sim.data.sensordata[self._touch_sensor_id] > 0.0
         elif self.touch_get_obs == "log":
             touch_values = np.log(self.sim.data.sensordata[self._touch_sensor_id] + 1.0)
-        observation = np.concatenate(
-            [robot_qpos, robot_qvel, object_qvel, touch_values, achieved_goal]
-        )
+        observation = np.concatenate([robot_qpos, robot_qvel, object_qvel, touch_values, achieved_goal])
 
         return {
             "observation": observation.copy(),
@@ -146,9 +132,7 @@ class HandBlockTouchSensorsEnv(ManipulateTouchSensorsEnv, utils.EzPickle):
         touch_get_obs="sensordata",
         reward_type="sparse",
     ):
-        utils.EzPickle.__init__(
-            self, target_position, target_rotation, touch_get_obs, reward_type
-        )
+        utils.EzPickle.__init__(self, target_position, target_rotation, touch_get_obs, reward_type)
         ManipulateTouchSensorsEnv.__init__(
             self,
             model_path=MANIPULATE_BLOCK_XML,
@@ -168,9 +152,7 @@ class HandEggTouchSensorsEnv(ManipulateTouchSensorsEnv, utils.EzPickle):
         touch_get_obs="sensordata",
         reward_type="sparse",
     ):
-        utils.EzPickle.__init__(
-            self, target_position, target_rotation, touch_get_obs, reward_type
-        )
+        utils.EzPickle.__init__(self, target_position, target_rotation, touch_get_obs, reward_type)
         ManipulateTouchSensorsEnv.__init__(
             self,
             model_path=MANIPULATE_EGG_XML,
@@ -190,9 +172,7 @@ class HandPenTouchSensorsEnv(ManipulateTouchSensorsEnv, utils.EzPickle):
         touch_get_obs="sensordata",
         reward_type="sparse",
     ):
-        utils.EzPickle.__init__(
-            self, target_position, target_rotation, touch_get_obs, reward_type
-        )
+        utils.EzPickle.__init__(self, target_position, target_rotation, touch_get_obs, reward_type)
         ManipulateTouchSensorsEnv.__init__(
             self,
             model_path=MANIPULATE_PEN_XML,

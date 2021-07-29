@@ -11,20 +11,15 @@ class GrayScaleObservation(ObservationWrapper):
         super(GrayScaleObservation, self).__init__(env)
         self.keep_dim = keep_dim
 
-        assert (
-            len(env.observation_space.shape) == 3
-            and env.observation_space.shape[-1] == 3
+        assert len(env.observation_space.shape) == 3 and env.observation_space.shape[-1] == 3
+        warnings.warn(
+            "Gym's internal preprocessing wrappers are now deprecated. While they will continue to work for the foreseeable future, we strongly recommend using SuperSuit instead: https://github.com/PettingZoo-Team/SuperSuit"
         )
-        warnings.warn("Gym\'s internal preprocessing wrappers are now deprecated. While they will continue to work for the foreseeable future, we strongly recommend using SuperSuit instead: https://github.com/PettingZoo-Team/SuperSuit")
         obs_shape = self.observation_space.shape[:2]
         if self.keep_dim:
-            self.observation_space = Box(
-                low=0, high=255, shape=(obs_shape[0], obs_shape[1], 1), dtype=np.uint8
-            )
+            self.observation_space = Box(low=0, high=255, shape=(obs_shape[0], obs_shape[1], 1), dtype=np.uint8)
         else:
-            self.observation_space = Box(
-                low=0, high=255, shape=obs_shape, dtype=np.uint8
-            )
+            self.observation_space = Box(low=0, high=255, shape=obs_shape, dtype=np.uint8)
 
     def observation(self, observation):
         import cv2

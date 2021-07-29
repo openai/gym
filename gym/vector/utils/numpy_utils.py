@@ -46,10 +46,7 @@ def concatenate(items, out, space):
     elif isinstance(space, Space):
         return concatenate_custom(items, out, space)
     else:
-        raise ValueError(
-            "Space of type `{0}` is not a valid `gym.Space` "
-            "instance.".format(type(space))
-        )
+        raise ValueError("Space of type `{0}` is not a valid `gym.Space` " "instance.".format(type(space)))
 
 
 def concatenate_base(items, out, space):
@@ -57,18 +54,12 @@ def concatenate_base(items, out, space):
 
 
 def concatenate_tuple(items, out, space):
-    return tuple(
-        concatenate([item[i] for item in items], out[i], subspace)
-        for (i, subspace) in enumerate(space.spaces)
-    )
+    return tuple(concatenate([item[i] for item in items], out[i], subspace) for (i, subspace) in enumerate(space.spaces))
 
 
 def concatenate_dict(items, out, space):
     return OrderedDict(
-        [
-            (key, concatenate([item[key] for item in items], out[key], subspace))
-            for (key, subspace) in space.spaces.items()
-        ]
+        [(key, concatenate([item[key] for item in items], out[key], subspace)) for (key, subspace) in space.spaces.items()]
     )
 
 
@@ -118,10 +109,7 @@ def create_empty_array(space, n=1, fn=np.zeros):
     elif isinstance(space, Space):
         return create_empty_array_custom(space, n=n, fn=fn)
     else:
-        raise ValueError(
-            "Space of type `{0}` is not a valid `gym.Space` "
-            "instance.".format(type(space))
-        )
+        raise ValueError("Space of type `{0}` is not a valid `gym.Space` " "instance.".format(type(space)))
 
 
 def create_empty_array_base(space, n=1, fn=np.zeros):
@@ -134,12 +122,7 @@ def create_empty_array_tuple(space, n=1, fn=np.zeros):
 
 
 def create_empty_array_dict(space, n=1, fn=np.zeros):
-    return OrderedDict(
-        [
-            (key, create_empty_array(subspace, n=n, fn=fn))
-            for (key, subspace) in space.spaces.items()
-        ]
-    )
+    return OrderedDict([(key, create_empty_array(subspace, n=n, fn=fn)) for (key, subspace) in space.spaces.items()])
 
 
 def create_empty_array_custom(space, n=1, fn=np.zeros):

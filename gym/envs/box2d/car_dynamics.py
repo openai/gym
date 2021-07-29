@@ -23,9 +23,7 @@ from Box2D.b2 import (
 SIZE = 0.02
 ENGINE_POWER = 100000000 * SIZE * SIZE
 WHEEL_MOMENT_OF_INERTIA = 4000 * SIZE * SIZE
-FRICTION_LIMIT = (
-    1000000 * SIZE * SIZE
-)  # friction ~= mass ~= size^2 (calculated implicitly using density)
+FRICTION_LIMIT = 1000000 * SIZE * SIZE  # friction ~= mass ~= size^2 (calculated implicitly using density)
 WHEEL_R = 27
 WHEEL_W = 14
 WHEELPOS = [(-55, +80), (+55, +80), (-55, -82), (+55, -82)]
@@ -55,27 +53,19 @@ class Car:
             angle=init_angle,
             fixtures=[
                 fixtureDef(
-                    shape=polygonShape(
-                        vertices=[(x * SIZE, y * SIZE) for x, y in HULL_POLY1]
-                    ),
+                    shape=polygonShape(vertices=[(x * SIZE, y * SIZE) for x, y in HULL_POLY1]),
                     density=1.0,
                 ),
                 fixtureDef(
-                    shape=polygonShape(
-                        vertices=[(x * SIZE, y * SIZE) for x, y in HULL_POLY2]
-                    ),
+                    shape=polygonShape(vertices=[(x * SIZE, y * SIZE) for x, y in HULL_POLY2]),
                     density=1.0,
                 ),
                 fixtureDef(
-                    shape=polygonShape(
-                        vertices=[(x * SIZE, y * SIZE) for x, y in HULL_POLY3]
-                    ),
+                    shape=polygonShape(vertices=[(x * SIZE, y * SIZE) for x, y in HULL_POLY3]),
                     density=1.0,
                 ),
                 fixtureDef(
-                    shape=polygonShape(
-                        vertices=[(x * SIZE, y * SIZE) for x, y in HULL_POLY4]
-                    ),
+                    shape=polygonShape(vertices=[(x * SIZE, y * SIZE) for x, y in HULL_POLY4]),
                     density=1.0,
                 ),
             ],
@@ -95,12 +85,7 @@ class Car:
                 position=(init_x + wx * SIZE, init_y + wy * SIZE),
                 angle=init_angle,
                 fixtures=fixtureDef(
-                    shape=polygonShape(
-                        vertices=[
-                            (x * front_k * SIZE, y * front_k * SIZE)
-                            for x, y in WHEEL_POLY
-                        ]
-                    ),
+                    shape=polygonShape(vertices=[(x * front_k * SIZE, y * front_k * SIZE) for x, y in WHEEL_POLY]),
                     density=0.1,
                     categoryBits=0x0020,
                     maskBits=0x001,
@@ -175,9 +160,7 @@ class Car:
             grass = True
             friction_limit = FRICTION_LIMIT * 0.6  # Grass friction if no tile
             for tile in w.tiles:
-                friction_limit = max(
-                    friction_limit, FRICTION_LIMIT * tile.road_friction
-                )
+                friction_limit = max(friction_limit, FRICTION_LIMIT * tile.road_friction)
                 grass = False
 
             # Force
@@ -192,13 +175,7 @@ class Car:
             # domega = dt*W/WHEEL_MOMENT_OF_INERTIA/w.omega
 
             # add small coef not to divide by zero
-            w.omega += (
-                dt
-                * ENGINE_POWER
-                * w.gas
-                / WHEEL_MOMENT_OF_INERTIA
-                / (abs(w.omega) + 5.0)
-            )
+            w.omega += dt * ENGINE_POWER * w.gas / WHEEL_MOMENT_OF_INERTIA / (abs(w.omega) + 5.0)
             self.fuel_spent += dt * ENGINE_POWER * w.gas
 
             if w.brake >= 0.9:
@@ -226,18 +203,12 @@ class Car:
 
             # Skid trace
             if abs(force) > 2.0 * friction_limit:
-                if (
-                    w.skid_particle
-                    and w.skid_particle.grass == grass
-                    and len(w.skid_particle.poly) < 30
-                ):
+                if w.skid_particle and w.skid_particle.grass == grass and len(w.skid_particle.poly) < 30:
                     w.skid_particle.poly.append((w.position[0], w.position[1]))
                 elif w.skid_start is None:
                     w.skid_start = w.position
                 else:
-                    w.skid_particle = self._create_particle(
-                        w.skid_start, w.position, grass
-                    )
+                    w.skid_particle = self._create_particle(w.skid_start, w.position, grass)
                     w.skid_start = None
             else:
                 w.skid_start = None

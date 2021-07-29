@@ -22,7 +22,9 @@ class TransformObservation(ObservationWrapper):
     def __init__(self, env, f):
         super(TransformObservation, self).__init__(env)
         assert callable(f)
-        warnings.warn("Gym\'s internal preprocessing wrappers are now deprecated. While they will continue to work for the foreseeable future, we strongly recommend using SuperSuit instead: https://github.com/PettingZoo-Team/SuperSuit")
+        warnings.warn(
+            "Gym's internal preprocessing wrappers are now deprecated. While they will continue to work for the foreseeable future, we strongly recommend using SuperSuit instead: https://github.com/PettingZoo-Team/SuperSuit"
+        )
         self.f = f
 
     def observation(self, observation):

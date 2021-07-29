@@ -14,9 +14,7 @@ STATE_KEY = "state"
 class PixelObservationWrapper(ObservationWrapper):
     """Augment observations by pixel values."""
 
-    def __init__(
-        self, env, pixels_only=True, render_kwargs=None, pixel_keys=("pixels",)
-    ):
+    def __init__(self, env, pixels_only=True, render_kwargs=None, pixel_keys=("pixels",)):
         """Initializes a new pixel Wrapper.
 
         Args:
@@ -52,7 +50,9 @@ class PixelObservationWrapper(ObservationWrapper):
             assert render_mode == "rgb_array", render_mode
             render_kwargs[key]["mode"] = "rgb_array"
 
-        warnings.warn("Gym\'s internal preprocessing wrappers are now deprecated. While they will continue to work for the foreseeable future, we strongly recommend using SuperSuit instead: https://github.com/PettingZoo-Team/SuperSuit")
+        warnings.warn(
+            "Gym's internal preprocessing wrappers are now deprecated. While they will continue to work for the foreseeable future, we strongly recommend using SuperSuit instead: https://github.com/PettingZoo-Team/SuperSuit"
+        )
 
         wrapped_observation_space = env.observation_space
 
@@ -70,9 +70,7 @@ class PixelObservationWrapper(ObservationWrapper):
             # `observation_keys`
             overlapping_keys = set(pixel_keys) & set(invalid_keys)
             if overlapping_keys:
-                raise ValueError(
-                    "Duplicate or reserved pixel keys {!r}.".format(overlapping_keys)
-                )
+                raise ValueError("Duplicate or reserved pixel keys {!r}.".format(overlapping_keys))
 
         if pixels_only:
             self.observation_space = spaces.Dict()
@@ -95,9 +93,7 @@ class PixelObservationWrapper(ObservationWrapper):
             else:
                 raise TypeError(pixels.dtype)
 
-            pixels_space = spaces.Box(
-                shape=pixels.shape, low=low, high=high, dtype=pixels.dtype
-            )
+            pixels_space = spaces.Box(shape=pixels.shape, low=low, high=high, dtype=pixels.dtype)
             pixels_spaces[pixel_key] = pixels_space
 
         self.observation_space.spaces.update(pixels_spaces)
@@ -120,10 +116,7 @@ class PixelObservationWrapper(ObservationWrapper):
             observation = collections.OrderedDict()
             observation[STATE_KEY] = wrapped_observation
 
-        pixel_observations = {
-            pixel_key: self.env.render(**self._render_kwargs[pixel_key])
-            for pixel_key in self._pixel_keys
-        }
+        pixel_observations = {pixel_key: self.env.render(**self._render_kwargs[pixel_key]) for pixel_key in self._pixel_keys}
 
         observation.update(pixel_observations)
 

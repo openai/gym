@@ -80,11 +80,7 @@ class GuessingGame(gym.Env):
         reward = 0
         done = False
 
-        if (
-            (self.number - self.range * 0.01)
-            < action
-            < (self.number + self.range * 0.01)
-        ):
+        if (self.number - self.range * 0.01) < action < (self.number + self.range * 0.01):
             reward = 1
             done = True
 

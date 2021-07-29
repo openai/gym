@@ -53,9 +53,7 @@ def make(id, num_envs=1, asynchronous=True, wrappers=None, **kwargs):
         if wrappers is not None:
             if callable(wrappers):
                 env = wrappers(env)
-            elif isinstance(wrappers, Iterable) and all(
-                [callable(w) for w in wrappers]
-            ):
+            elif isinstance(wrappers, Iterable) and all([callable(w) for w in wrappers]):
                 for wrapper in wrappers:
                     env = wrapper(env)
             else:

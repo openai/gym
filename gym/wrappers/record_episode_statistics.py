@@ -7,14 +7,14 @@ import gym
 class RecordEpisodeStatistics(gym.Wrapper):
     def __init__(self, env, deque_size=100):
         super(RecordEpisodeStatistics, self).__init__(env)
-        self.t0 = (
-            time.time()
-        )  # TODO: use perf_counter when gym removes Python 2 support
+        self.t0 = time.time()  # TODO: use perf_counter when gym removes Python 2 support
         self.episode_return = 0.0
         self.episode_length = 0
         self.return_queue = deque(maxlen=deque_size)
         self.length_queue = deque(maxlen=deque_size)
-        warnings.warn("Gym\'s internal preprocessing wrappers are now deprecated. While they will continue to work for the foreseeable future, we strongly recommend using SuperSuit instead: https://github.com/PettingZoo-Team/SuperSuit")
+        warnings.warn(
+            "Gym's internal preprocessing wrappers are now deprecated. While they will continue to work for the foreseeable future, we strongly recommend using SuperSuit instead: https://github.com/PettingZoo-Team/SuperSuit"
+        )
 
     def reset(self, **kwargs):
         observation = super(RecordEpisodeStatistics, self).reset(**kwargs)
@@ -23,9 +23,7 @@ class RecordEpisodeStatistics(gym.Wrapper):
         return observation
 
     def step(self, action):
-        observation, reward, done, info = super(RecordEpisodeStatistics, self).step(
-            action
-        )
+        observation, reward, done, info = super(RecordEpisodeStatistics, self).step(action)
         self.episode_return += reward
         self.episode_length += 1
         if done:

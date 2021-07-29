@@ -55,9 +55,7 @@ class CubeCrash(gym.Env):
         self.seed()
         self.viewer = None
 
-        self.observation_space = spaces.Box(
-            0, 255, (FIELD_H, FIELD_W, 3), dtype=np.uint8
-        )
+        self.observation_space = spaces.Box(0, 255, (FIELD_H, FIELD_W, 3), dtype=np.uint8)
         self.action_space = spaces.Discrete(3)
 
         self.reset()
@@ -83,16 +81,9 @@ class CubeCrash(gym.Env):
         self.potential = None
         self.step_n = 0
         while 1:
-            self.wall_color = (
-                self.random_color() if self.use_random_colors else color_white
-            )
-            self.cube_color = (
-                self.random_color() if self.use_random_colors else color_green
-            )
-            if (
-                np.linalg.norm(self.wall_color - self.bg_color) < 50
-                or np.linalg.norm(self.cube_color - self.bg_color) < 50
-            ):
+            self.wall_color = self.random_color() if self.use_random_colors else color_white
+            self.cube_color = self.random_color() if self.use_random_colors else color_green
+            if np.linalg.norm(self.wall_color - self.bg_color) < 50 or np.linalg.norm(self.cube_color - self.bg_color) < 50:
                 continue
             break
         return self.step(0)[0]
@@ -117,9 +108,7 @@ class CubeCrash(gym.Env):
             self.hole_x - HOLE_WIDTH // 2 : self.hole_x + HOLE_WIDTH // 2 + 1,
             :,
         ] = self.bg_color
-        obs[
-            self.cube_y - 1 : self.cube_y + 2, self.cube_x - 1 : self.cube_x + 2, :
-        ] = self.cube_color
+        obs[self.cube_y - 1 : self.cube_y + 2, self.cube_x - 1 : self.cube_x + 2, :] = self.cube_color
         if self.use_black_screen and self.step_n > 4:
             obs[:] = np.zeros((3,), dtype=np.uint8)
 

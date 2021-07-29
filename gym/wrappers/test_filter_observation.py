@@ -9,10 +9,7 @@ from gym.wrappers.filter_observation import FilterObservation
 class FakeEnvironment(gym.Env):
     def __init__(self, observation_keys=("state")):
         self.observation_space = spaces.Dict(
-            {
-                name: spaces.Box(shape=(2,), low=-1, high=1, dtype=np.float32)
-                for name in observation_keys
-            }
+            {name: spaces.Box(shape=(2,), low=-1, high=1, dtype=np.float32) for name in observation_keys}
         )
         self.action_space = spaces.Box(shape=(1,), low=-1, high=1, dtype=np.float32)
 
@@ -48,9 +45,7 @@ ERROR_TEST_CASES = (
 
 
 class TestFilterObservation(object):
-    @pytest.mark.parametrize(
-        "observation_keys,filter_keys", FILTER_OBSERVATION_TEST_CASES
-    )
+    @pytest.mark.parametrize("observation_keys,filter_keys", FILTER_OBSERVATION_TEST_CASES)
     def test_filter_observation(self, observation_keys, filter_keys):
         env = FakeEnvironment(observation_keys=observation_keys)
 
@@ -73,9 +68,7 @@ class TestFilterObservation(object):
         assert len(observation) == len(filter_keys)
 
     @pytest.mark.parametrize("filter_keys,error_type,error_match", ERROR_TEST_CASES)
-    def test_raises_with_incorrect_arguments(
-        self, filter_keys, error_type, error_match
-    ):
+    def test_raises_with_incorrect_arguments(self, filter_keys, error_type, error_match):
         env = FakeEnvironment(observation_keys=("key1", "key2"))
 
         ValueError

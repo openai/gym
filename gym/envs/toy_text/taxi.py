@@ -80,10 +80,7 @@ class TaxiEnv(discrete.DiscreteEnv):
         max_col = num_columns - 1
         initial_state_distrib = np.zeros(num_states)
         num_actions = 6
-        P = {
-            state: {action: [] for action in range(num_actions)}
-            for state in range(num_states)
-        }
+        P = {state: {action: [] for action in range(num_actions)} for state in range(num_states)}
         for row in range(num_rows):
             for col in range(num_columns):
                 for pass_idx in range(len(locs) + 1):  # +1 for being inside taxi
@@ -94,9 +91,7 @@ class TaxiEnv(discrete.DiscreteEnv):
                         for action in range(num_actions):
                             # defaults
                             new_row, new_col, new_pass_idx = row, col, pass_idx
-                            reward = (
-                                -1
-                            )  # default reward when there is no pickup/dropoff
+                            reward = -1  # default reward when there is no pickup/dropoff
                             done = False
                             taxi_loc = (row, col)
 
@@ -122,14 +117,10 @@ class TaxiEnv(discrete.DiscreteEnv):
                                     new_pass_idx = locs.index(taxi_loc)
                                 else:  # dropoff at wrong location
                                     reward = -10
-                            new_state = self.encode(
-                                new_row, new_col, new_pass_idx, dest_idx
-                            )
+                            new_state = self.encode(new_row, new_col, new_pass_idx, dest_idx)
                             P[state][action].append((1.0, new_state, reward, done))
         initial_state_distrib /= initial_state_distrib.sum()
-        discrete.DiscreteEnv.__init__(
-            self, num_states, num_actions, P, initial_state_distrib
-        )
+        discrete.DiscreteEnv.__init__(self, num_states, num_actions, P, initial_state_distrib)
 
     def encode(self, taxi_row, taxi_col, pass_loc, dest_idx):
         # (5) 5, 5, 4
@@ -165,13 +156,9 @@ class TaxiEnv(discrete.DiscreteEnv):
             return "_" if x == " " else x
 
         if pass_idx < 4:
-            out[1 + taxi_row][2 * taxi_col + 1] = utils.colorize(
-                out[1 + taxi_row][2 * taxi_col + 1], "yellow", highlight=True
-            )
+            out[1 + taxi_row][2 * taxi_col + 1] = utils.colorize(out[1 + taxi_row][2 * taxi_col + 1], "yellow", highlight=True)
             pi, pj = self.locs[pass_idx]
-            out[1 + pi][2 * pj + 1] = utils.colorize(
-                out[1 + pi][2 * pj + 1], "blue", bold=True
-            )
+            out[1 + pi][2 * pj + 1] = utils.colorize(out[1 + pi][2 * pj + 1], "blue", bold=True)
         else:  # passenger in taxi
             out[1 + taxi_row][2 * taxi_col + 1] = utils.colorize(
                 ul(out[1 + taxi_row][2 * taxi_col + 1]), "green", highlight=True
@@ -181,13 +168,7 @@ class TaxiEnv(discrete.DiscreteEnv):
         out[1 + di][2 * dj + 1] = utils.colorize(out[1 + di][2 * dj + 1], "magenta")
         outfile.write("\n".join(["".join(row) for row in out]) + "\n")
         if self.lastaction is not None:
-            outfile.write(
-                "  ({})\n".format(
-                    ["South", "North", "East", "West", "Pickup", "Dropoff"][
-                        self.lastaction
-                    ]
-                )
-            )
+            outfile.write("  ({})\n".format(["South", "North", "East", "West", "Pickup", "Dropoff"][self.lastaction]))
         else:
             outfile.write("\n")
 

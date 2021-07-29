@@ -141,9 +141,7 @@ class VectorEnv(gym.Env):
         if self.spec is None:
             return "{}({})".format(self.__class__.__name__, self.num_envs)
         else:
-            return "{}({}, {})".format(
-                self.__class__.__name__, self.spec.id, self.num_envs
-            )
+            return "{}({}, {})".format(self.__class__.__name__, self.spec.id, self.num_envs)
 
 
 class VectorEnvWrapper(VectorEnv):
@@ -189,9 +187,7 @@ class VectorEnvWrapper(VectorEnv):
     # implicitly forward all other methods and attributes to self.env
     def __getattr__(self, name):
         if name.startswith("_"):
-            raise AttributeError(
-                "attempted to get missing private attribute '{}'".format(name)
-            )
+            raise AttributeError("attempted to get missing private attribute '{}'".format(name))
         return getattr(self.env, name)
 
     @property

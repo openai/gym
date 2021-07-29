@@ -132,18 +132,14 @@ class CarRacing(gym.Env, EzPickle):
         self.reward = 0.0
         self.prev_reward = 0.0
         self.verbose = verbose
-        self.fd_tile = fixtureDef(
-            shape=polygonShape(vertices=[(0, 0), (1, 0), (1, -1), (0, -1)])
-        )
+        self.fd_tile = fixtureDef(shape=polygonShape(vertices=[(0, 0), (1, 0), (1, -1), (0, -1)]))
 
         self.action_space = spaces.Box(
             np.array([-1, 0, 0]).astype(np.float32),
             np.array([+1, +1, +1]).astype(np.float32),
         )  # steer, gas, brake
 
-        self.observation_space = spaces.Box(
-            low=0, high=255, shape=(STATE_H, STATE_W, 3), dtype=np.uint8
-        )
+        self.observation_space = spaces.Box(low=0, high=255, shape=(STATE_H, STATE_W, 3), dtype=np.uint8)
 
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
@@ -246,9 +242,7 @@ class CarRacing(gym.Env, EzPickle):
             i -= 1
             if i == 0:
                 return False  # Failed
-            pass_through_start = (
-                track[i][0] > self.start_alpha and track[i - 1][0] <= self.start_alpha
-            )
+            pass_through_start = track[i][0] > self.start_alpha and track[i - 1][0] <= self.start_alpha
             if pass_through_start and i2 == -1:
                 i2 = i
             elif pass_through_start and i1 == -1:
@@ -266,8 +260,7 @@ class CarRacing(gym.Env, EzPickle):
         first_perp_y = math.sin(first_beta)
         # Length of perpendicular jump to put together head and tail
         well_glued_together = np.sqrt(
-            np.square(first_perp_x * (track[0][2] - track[-1][2]))
-            + np.square(first_perp_y * (track[0][3] - track[-1][3]))
+            np.square(first_perp_x * (track[0][2] - track[-1][2])) + np.square(first_perp_y * (track[0][3] - track[-1][3]))
         )
         if well_glued_together > TRACK_DETAIL_STEP:
             return False
@@ -337,9 +330,7 @@ class CarRacing(gym.Env, EzPickle):
                     x2 + side * (TRACK_WIDTH + BORDER) * math.cos(beta2),
                     y2 + side * (TRACK_WIDTH + BORDER) * math.sin(beta2),
                 )
-                self.road_poly.append(
-                    ([b1_l, b1_r, b2_r, b2_l], (1, 1, 1) if i % 2 == 0 else (1, 0, 0))
-                )
+                self.road_poly.append(([b1_l, b1_r, b2_r, b2_l], (1, 1, 1) if i % 2 == 0 else (1, 0, 0)))
         self.track = track
         return True
 
@@ -356,10 +347,7 @@ class CarRacing(gym.Env, EzPickle):
             if success:
                 break
             if self.verbose == 1:
-                print(
-                    "retry to generate track (normal if there are not many"
-                    "instances of this message)"
-                )
+                print("retry to generate track (normal if there are not many" "instances of this message)")
         self.car = Car(self.world, *self.track[0][1:4])
 
         return self.step(None)[0]
@@ -424,10 +412,8 @@ class CarRacing(gym.Env, EzPickle):
             angle = math.atan2(vel[0], vel[1])
         self.transform.set_scale(zoom, zoom)
         self.transform.set_translation(
-            WINDOW_W / 2
-            - (scroll_x * zoom * math.cos(angle) - scroll_y * zoom * math.sin(angle)),
-            WINDOW_H / 4
-            - (scroll_x * zoom * math.sin(angle) + scroll_y * zoom * math.cos(angle)),
+            WINDOW_W / 2 - (scroll_x * zoom * math.cos(angle) - scroll_y * zoom * math.sin(angle)),
+            WINDOW_H / 4 - (scroll_x * zoom * math.sin(angle) + scroll_y * zoom * math.cos(angle)),
         )
         self.transform.set_rotation(angle)
 
@@ -449,9 +435,7 @@ class CarRacing(gym.Env, EzPickle):
         else:
             pixel_scale = 1
             if hasattr(win.context, "_nscontext"):
-                pixel_scale = (
-                    win.context._nscontext.view().backingScaleFactor()
-                )  # pylint: disable=protected-access
+                pixel_scale = win.context._nscontext.view().backingScaleFactor()  # pylint: disable=protected-access
             VP_W = int(pixel_scale * WINDOW_W)
             VP_H = int(pixel_scale * WINDOW_H)
 
@@ -468,9 +452,7 @@ class CarRacing(gym.Env, EzPickle):
             win.flip()
             return self.viewer.isopen
 
-        image_data = (
-            pyglet.image.get_buffer_manager().get_color_buffer().get_image_data()
-        )
+        image_data = pyglet.image.get_buffer_manager().get_color_buffer().get_image_data()
         arr = np.fromstring(image_data.get_data(), dtype=np.uint8, sep="")
         arr = arr.reshape(VP_H, VP_W, 4)
         arr = arr[::-1, :, 0:3]
@@ -525,9 +507,7 @@ class CarRacing(gym.Env, EzPickle):
             for p in poly:
                 polygons_.extend([p[0], p[1], 0])
 
-        vl = pyglet.graphics.vertex_list(
-            len(polygons_) // 3, ("v3f", polygons_), ("c4f", colors)  # gl.GL_QUADS,
-        )
+        vl = pyglet.graphics.vertex_list(len(polygons_) // 3, ("v3f", polygons_), ("c4f", colors))  # gl.GL_QUADS,
         vl.draw(gl.GL_QUADS)
         vl.delete()
 
@@ -575,10 +555,7 @@ class CarRacing(gym.Env, EzPickle):
                 ]
             )
 
-        true_speed = np.sqrt(
-            np.square(self.car.hull.linearVelocity[0])
-            + np.square(self.car.hull.linearVelocity[1])
-        )
+        true_speed = np.sqrt(np.square(self.car.hull.linearVelocity[0]) + np.square(self.car.hull.linearVelocity[1]))
 
         vertical_ind(5, 0.02 * true_speed, (1, 1, 1))
         vertical_ind(7, 0.01 * self.car.wheels[0].omega, (0.0, 0, 1))  # ABS sensors
@@ -587,9 +564,7 @@ class CarRacing(gym.Env, EzPickle):
         vertical_ind(10, 0.01 * self.car.wheels[3].omega, (0.2, 0, 1))
         horiz_ind(20, -10.0 * self.car.wheels[0].joint.angle, (0, 1, 0))
         horiz_ind(30, -0.8 * self.car.hull.angularVelocity, (1, 0, 0))
-        vl = pyglet.graphics.vertex_list(
-            len(polygons) // 3, ("v3f", polygons), ("c4f", colors)  # gl.GL_QUADS,
-        )
+        vl = pyglet.graphics.vertex_list(len(polygons) // 3, ("v3f", polygons), ("c4f", colors))  # gl.GL_QUADS,
         vl.draw(gl.GL_QUADS)
         vl.delete()
         self.score_label.text = "%04i" % self.reward

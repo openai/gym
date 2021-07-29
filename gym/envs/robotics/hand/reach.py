@@ -96,9 +96,7 @@ class HandReachEnv(hand_env.HandEnv, utils.EzPickle):
         self.sim.forward()
 
         self.initial_goal = self._get_achieved_goal().copy()
-        self.palm_xpos = self.sim.data.body_xpos[
-            self.sim.model.body_name2id("robot0:palm")
-        ].copy()
+        self.palm_xpos = self.sim.data.body_xpos[self.sim.model.body_name2id("robot0:palm")].copy()
 
     def _get_obs(self):
         robot_qpos, robot_qvel = robot_get_obs(self.sim)
@@ -155,7 +153,5 @@ class HandReachEnv(hand_env.HandEnv, utils.EzPickle):
         for finger_idx in range(5):
             site_name = "finger{}".format(finger_idx)
             site_id = self.sim.model.site_name2id(site_name)
-            self.sim.model.site_pos[site_id] = (
-                achieved_goal[finger_idx] - sites_offset[site_id]
-            )
+            self.sim.model.site_pos[site_id] = achieved_goal[finger_idx] - sites_offset[site_id]
         self.sim.forward()

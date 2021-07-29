@@ -71,10 +71,7 @@ class ContactDetector(contactListener):
         self.env = env
 
     def BeginContact(self, contact):
-        if (
-            self.env.lander == contact.fixtureA.body
-            or self.env.lander == contact.fixtureB.body
-        ):
+        if self.env.lander == contact.fixtureA.body or self.env.lander == contact.fixtureB.body:
             self.env.game_over = True
         for i in range(2):
             if self.env.legs[i] in [contact.fixtureA.body, contact.fixtureB.body]:
@@ -104,9 +101,7 @@ class LunarLander(gym.Env, EzPickle):
         self.prev_reward = None
 
         # useful range is -1 .. +1, but spikes can be higher
-        self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(8,), dtype=np.float32
-        )
+        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(8,), dtype=np.float32)
 
         if self.continuous:
             # Action is two floats [main engine, left-right engines].
@@ -157,14 +152,9 @@ class LunarLander(gym.Env, EzPickle):
         height[CHUNKS // 2 + 0] = self.helipad_y
         height[CHUNKS // 2 + 1] = self.helipad_y
         height[CHUNKS // 2 + 2] = self.helipad_y
-        smooth_y = [
-            0.33 * (height[i - 1] + height[i + 0] + height[i + 1])
-            for i in range(CHUNKS)
-        ]
+        smooth_y = [0.33 * (height[i - 1] + height[i + 0] + height[i + 1]) for i in range(CHUNKS)]
 
-        self.moon = self.world.CreateStaticBody(
-            shapes=edgeShape(vertices=[(0, 0), (W, 0)])
-        )
+        self.moon = self.world.CreateStaticBody(shapes=edgeShape(vertices=[(0, 0), (W, 0)]))
         self.sky_polys = []
         for i in range(CHUNKS - 1):
             p1 = (chunk_x[i], smooth_y[i])
@@ -180,9 +170,7 @@ class LunarLander(gym.Env, EzPickle):
             position=(VIEWPORT_W / SCALE / 2, initial_y),
             angle=0.0,
             fixtures=fixtureDef(
-                shape=polygonShape(
-                    vertices=[(x / SCALE, y / SCALE) for x, y in LANDER_POLY]
-                ),
+                shape=polygonShape(vertices=[(x / SCALE, y / SCALE) for x, y in LANDER_POLY]),
                 density=5.0,
                 friction=0.1,
                 categoryBits=0x0010,
@@ -227,9 +215,7 @@ class LunarLander(gym.Env, EzPickle):
                 motorSpeed=+0.3 * i,  # low enough not to jump back into the sky
             )
             if i == -1:
-                rjd.lowerAngle = (
-                    +0.9 - 0.5
-                )  # The most esoteric numbers here, angled legs have freedom to travel within
+                rjd.lowerAngle = +0.9 - 0.5  # The most esoteric numbers here, angled legs have freedom to travel within
                 rjd.upperAngle = +0.9
             else:
                 rjd.lowerAngle = -0.9
@@ -278,9 +264,7 @@ class LunarLander(gym.Env, EzPickle):
         dispersion = [self.np_random.uniform(-1.0, +1.0) / SCALE for _ in range(2)]
 
         m_power = 0.0
-        if (self.continuous and action[0] > 0.0) or (
-            not self.continuous and action == 2
-        ):
+        if (self.continuous and action[0] > 0.0) or (not self.continuous and action == 2):
             # Main engine
             if self.continuous:
                 m_power = (np.clip(action[0], 0.0, 1.0) + 1.0) * 0.5  # 0.5..1.0
@@ -310,9 +294,7 @@ class LunarLander(gym.Env, EzPickle):
             )
 
         s_power = 0.0
-        if (self.continuous and np.abs(action[1]) > 0.5) or (
-            not self.continuous and action in [1, 3]
-        ):
+        if (self.continuous and np.abs(action[1]) > 0.5) or (not self.continuous and action in [1, 3]):
             # Orientation engines
             if self.continuous:
                 direction = np.sign(action[1])
@@ -321,12 +303,8 @@ class LunarLander(gym.Env, EzPickle):
             else:
                 direction = action - 2
                 s_power = 1.0
-            ox = tip[0] * dispersion[0] + side[0] * (
-                3 * dispersion[1] + direction * SIDE_ENGINE_AWAY / SCALE
-            )
-            oy = -tip[1] * dispersion[0] - side[1] * (
-                3 * dispersion[1] + direction * SIDE_ENGINE_AWAY / SCALE
-            )
+            ox = tip[0] * dispersion[0] + side[0] * (3 * dispersion[1] + direction * SIDE_ENGINE_AWAY / SCALE)
+            oy = -tip[1] * dispersion[0] - side[1] * (3 * dispersion[1] + direction * SIDE_ENGINE_AWAY / SCALE)
             impulse_pos = (
                 self.lander.position[0] + ox - tip[0] * 17 / SCALE,
                 self.lander.position[1] + oy + tip[1] * SIDE_ENGINE_HEIGHT / SCALE,
@@ -372,9 +350,7 @@ class LunarLander(gym.Env, EzPickle):
             reward = shaping - self.prev_shaping
         self.prev_shaping = shaping
 
-        reward -= (
-            m_power * 0.30
-        )  # less fuel spent is better, about -30 for heuristic landing
+        reward -= m_power * 0.30  # less fuel spent is better, about -30 for heuristic landing
         reward -= s_power * 0.03
 
         done = False
@@ -416,12 +392,8 @@ class LunarLander(gym.Env, EzPickle):
                 trans = f.body.transform
                 if type(f.shape) is circleShape:
                     t = rendering.Transform(translation=trans * f.shape.pos)
-                    self.viewer.draw_circle(
-                        f.shape.radius, 20, color=obj.color1
-                    ).add_attr(t)
-                    self.viewer.draw_circle(
-                        f.shape.radius, 20, color=obj.color2, filled=False, linewidth=2
-                    ).add_attr(t)
+                    self.viewer.draw_circle(f.shape.radius, 20, color=obj.color1).add_attr(t)
+                    self.viewer.draw_circle(f.shape.radius, 20, color=obj.color2, filled=False, linewidth=2).add_attr(t)
                 else:
                     path = [trans * v for v in f.shape.vertices]
                     self.viewer.draw_polygon(path, color=obj.color1)
@@ -479,18 +451,14 @@ def heuristic(env, s):
         angle_targ = 0.4  # more than 0.4 radians (22 degrees) is bad
     if angle_targ < -0.4:
         angle_targ = -0.4
-    hover_targ = 0.55 * np.abs(
-        s[0]
-    )  # target y should be proportional to horizontal offset
+    hover_targ = 0.55 * np.abs(s[0])  # target y should be proportional to horizontal offset
 
     angle_todo = (angle_targ - s[4]) * 0.5 - (s[5]) * 1.0
     hover_todo = (hover_targ - s[1]) * 0.5 - (s[3]) * 0.5
 
     if s[6] or s[7]:  # legs have contact
         angle_todo = 0
-        hover_todo = (
-            -(s[3]) * 0.5
-        )  # override to reduce fall speed, that's all we need after contact
+        hover_todo = -(s[3]) * 0.5  # override to reduce fall speed, that's all we need after contact
 
     if env.continuous:
         a = np.array([hover_todo * 20 - 1, -angle_todo * 20])

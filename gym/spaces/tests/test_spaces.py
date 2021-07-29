@@ -25,9 +25,7 @@ from gym.spaces import Tuple, Box, Discrete, MultiDiscrete, MultiBinary, Dict
         Dict(
             {
                 "position": Discrete(5),
-                "velocity": Box(
-                    low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32
-                ),
+                "velocity": Box(low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32),
             }
         ),
     ],
@@ -71,9 +69,7 @@ def test_roundtripping(space):
         Dict(
             {
                 "position": Discrete(5),
-                "velocity": Box(
-                    low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32
-                ),
+                "velocity": Box(low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32),
             }
         ),
     ],

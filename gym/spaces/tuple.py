@@ -13,9 +13,7 @@ class Tuple(Space):
     def __init__(self, spaces):
         self.spaces = spaces
         for space in spaces:
-            assert isinstance(
-                space, Space
-            ), "Elements of the tuple must be instances of gym.Space"
+            assert isinstance(space, Space), "Elements of the tuple must be instances of gym.Space"
         super(Tuple, self).__init__(None, None)
 
     def seed(self, seed=None):
@@ -38,21 +36,10 @@ class Tuple(Space):
 
     def to_jsonable(self, sample_n):
         # serialize as list-repr of tuple of vectors
-        return [
-            space.to_jsonable([sample[i] for sample in sample_n])
-            for i, space in enumerate(self.spaces)
-        ]
+        return [space.to_jsonable([sample[i] for sample in sample_n]) for i, space in enumerate(self.spaces)]
 
     def from_jsonable(self, sample_n):
-        return [
-            sample
-            for sample in zip(
-                *[
-                    space.from_jsonable(sample_n[i])
-                    for i, space in enumerate(self.spaces)
-                ]
-            )
-        ]
+        return [sample for sample in zip(*[space.from_jsonable(sample_n[i]) for i, space in enumerate(self.spaces)])]
 
     def __getitem__(self, index):
         return self.spaces[index]

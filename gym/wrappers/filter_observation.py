@@ -26,7 +26,9 @@ class FilterObservation(ObservationWrapper):
         assert isinstance(
             wrapped_observation_space, spaces.Dict
         ), "FilterObservationWrapper is only usable with dict observations."
-        warnings.warn("Gym\'s internal preprocessing wrappers are now deprecated. While they will continue to work for the foreseeable future, we strongly recommend using SuperSuit instead: https://github.com/PettingZoo-Team/SuperSuit")
+        warnings.warn(
+            "Gym's internal preprocessing wrappers are now deprecated. While they will continue to work for the foreseeable future, we strongly recommend using SuperSuit instead: https://github.com/PettingZoo-Team/SuperSuit"
+        )
 
         observation_keys = wrapped_observation_space.spaces.keys()
 
@@ -49,11 +51,7 @@ class FilterObservation(ObservationWrapper):
             )
 
         self.observation_space = type(wrapped_observation_space)(
-            [
-                (name, copy.deepcopy(space))
-                for name, space in wrapped_observation_space.spaces.items()
-                if name in filter_keys
-            ]
+            [(name, copy.deepcopy(space)) for name, space in wrapped_observation_space.spaces.items() if name in filter_keys]
         )
 
         self._env = env
@@ -64,11 +62,5 @@ class FilterObservation(ObservationWrapper):
         return filter_observation
 
     def _filter_observation(self, observation):
-        observation = type(observation)(
-            [
-                (name, value)
-                for name, value in observation.items()
-                if name in self._filter_keys
-            ]
-        )
+        observation = type(observation)([(name, value) for name, value in observation.items() if name in self._filter_keys])
         return observation

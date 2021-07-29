@@ -46,9 +46,7 @@ expected_types = [
     list(zip(spaces, expected_types)),
     ids=[space.__class__.__name__ for space in spaces],
 )
-@pytest.mark.parametrize(
-    "ctx", [None, "fork", "spawn"], ids=["default", "fork", "spawn"]
-)
+@pytest.mark.parametrize("ctx", [None, "fork", "spawn"], ids=["default", "fork", "spawn"])
 def test_create_shared_memory(space, expected_type, n, ctx):
     def assert_nested_type(lhs, rhs, n):
         assert type(lhs) == type(rhs)
@@ -77,9 +75,7 @@ def test_create_shared_memory(space, expected_type, n, ctx):
 
 
 @pytest.mark.parametrize("n", [1, 8])
-@pytest.mark.parametrize(
-    "ctx", [None, "fork", "spawn"], ids=["default", "fork", "spawn"]
-)
+@pytest.mark.parametrize("ctx", [None, "fork", "spawn"], ids=["default", "fork", "spawn"])
 @pytest.mark.parametrize("space", custom_spaces)
 def test_create_shared_memory_custom_space(n, ctx, space):
     ctx = mp if (ctx is None) else mp.get_context(ctx)
@@ -87,9 +83,7 @@ def test_create_shared_memory_custom_space(n, ctx, space):
         shared_memory = create_shared_memory(space, n=n, ctx=ctx)
 
 
-@pytest.mark.parametrize(
-    "space", spaces, ids=[space.__class__.__name__ for space in spaces]
-)
+@pytest.mark.parametrize("space", spaces, ids=[space.__class__.__name__ for space in spaces])
 def test_write_to_shared_memory(space):
     def assert_nested_equal(lhs, rhs):
         assert isinstance(rhs, list)
@@ -113,9 +107,7 @@ def test_write_to_shared_memory(space):
     shared_memory_n8 = create_shared_memory(space, n=8)
     samples = [space.sample() for _ in range(8)]
 
-    processes = [
-        Process(target=write, args=(i, shared_memory_n8, samples[i])) for i in range(8)
-    ]
+    processes = [Process(target=write, args=(i, shared_memory_n8, samples[i])) for i in range(8)]
 
     for process in processes:
         process.start()
@@ -125,25 +117,19 @@ def test_write_to_shared_memory(space):
     assert_nested_equal(shared_memory_n8, samples)
 
 
-@pytest.mark.parametrize(
-    "space", spaces, ids=[space.__class__.__name__ for space in spaces]
-)
+@pytest.mark.parametrize("space", spaces, ids=[space.__class__.__name__ for space in spaces])
 def test_read_from_shared_memory(space):
     def assert_nested_equal(lhs, rhs, space, n):
         assert isinstance(rhs, list)
         if isinstance(space, Tuple):
             assert isinstance(lhs, tuple)
             for i in range(len(lhs)):
-                assert_nested_equal(
-                    lhs[i], [rhs_[i] for rhs_ in rhs], space.spaces[i], n
-                )
+                assert_nested_equal(lhs[i], [rhs_[i] for rhs_ in rhs], space.spaces[i], n)
 
         elif isinstance(space, Dict):
             assert isinstance(lhs, OrderedDict)
             for key in lhs.keys():
-                assert_nested_equal(
-                    lhs[key], [rhs_[key] for rhs_ in rhs], space.spaces[key], n
-                )
+                assert_nested_equal(lhs[key], [rhs_[key] for rhs_ in rhs], space.spaces[key], n)
 
         elif isinstance(space, _BaseGymSpaces):
             assert isinstance(lhs, np.ndarray)
@@ -161,9 +147,7 @@ def test_read_from_shared_memory(space):
     memory_view_n8 = read_from_shared_memory(shared_memory_n8, space, n=8)
     samples = [space.sample() for _ in range(8)]
 
-    processes = [
-        Process(target=write, args=(i, shared_memory_n8, samples[i])) for i in range(8)
-    ]
+    processes = [Process(target=write, args=(i, shared_memory_n8, samples[i])) for i in range(8)]
 
     for process in processes:
         process.start()

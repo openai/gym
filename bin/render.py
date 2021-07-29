@@ -3,9 +3,7 @@ import argparse
 import gym
 
 
-parser = argparse.ArgumentParser(
-    description="Renders a Gym environment for quick inspection."
-)
+parser = argparse.ArgumentParser(description="Renders a Gym environment for quick inspection.")
 parser.add_argument(
     "env_id",
     type=str,

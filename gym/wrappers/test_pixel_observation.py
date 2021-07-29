@@ -32,9 +32,7 @@ class FakeEnvironment(gym.Env):
 
 class FakeArrayObservationEnvironment(FakeEnvironment):
     def __init__(self, *args, **kwargs):
-        self.observation_space = spaces.Box(
-            shape=(2,), low=-1, high=1, dtype=np.float32
-        )
+        self.observation_space = spaces.Box(shape=(2,), low=-1, high=1, dtype=np.float32)
         super(FakeArrayObservationEnvironment, self).__init__(*args, **kwargs)
 
 
@@ -75,10 +73,7 @@ class TestPixelObservationWrapper(object):
             assert len(wrapped_env.observation_space.spaces) == 1
             assert list(wrapped_env.observation_space.spaces.keys()) == [pixel_key]
         else:
-            assert (
-                len(wrapped_env.observation_space.spaces)
-                == len(observation_space.spaces) + 1
-            )
+            assert len(wrapped_env.observation_space.spaces) == len(observation_space.spaces) + 1
             expected_keys = list(observation_space.spaces.keys()) + [pixel_key]
             assert list(wrapped_env.observation_space.spaces.keys()) == expected_keys
 
@@ -97,9 +92,7 @@ class TestPixelObservationWrapper(object):
         observation_space = env.observation_space
         assert isinstance(observation_space, spaces.Box)
 
-        wrapped_env = PixelObservationWrapper(
-            env, pixel_keys=(pixel_key,), pixels_only=pixels_only
-        )
+        wrapped_env = PixelObservationWrapper(env, pixel_keys=(pixel_key,), pixels_only=pixels_only)
         wrapped_env.observation_space = wrapped_env.observation_space
         assert isinstance(wrapped_env.observation_space, spaces.Dict)
 

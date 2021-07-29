@@ -74,9 +74,7 @@ class ManipulateEnv(hand_env.HandEnv):
         self.target_position = target_position
         self.target_rotation = target_rotation
         self.target_position_range = target_position_range
-        self.parallel_quats = [
-            rotations.euler2quat(r) for r in rotations.get_parallel_rotations()
-        ]
+        self.parallel_quats = [rotations.euler2quat(r) for r in rotations.get_parallel_rotations()]
         self.randomize_initial_rotation = randomize_initial_rotation
         self.randomize_initial_position = randomize_initial_position
         self.distance_threshold = distance_threshold
@@ -182,9 +180,7 @@ class ManipulateEnv(hand_env.HandEnv):
                 angle = self.np_random.uniform(-np.pi, np.pi)
                 axis = np.array([0.0, 0.0, 1.0])
                 z_quat = quat_from_angle_and_axis(angle, axis)
-                parallel_quat = self.parallel_quats[
-                    self.np_random.randint(len(self.parallel_quats))
-                ]
+                parallel_quat = self.parallel_quats[self.np_random.randint(len(self.parallel_quats))]
                 offset_quat = rotations.quat_mul(z_quat, parallel_quat)
                 initial_quat = rotations.quat_mul(initial_quat, offset_quat)
             elif self.target_rotation in ["xyz", "ignore"]:
@@ -195,9 +191,7 @@ class ManipulateEnv(hand_env.HandEnv):
             elif self.target_rotation == "fixed":
                 pass
             else:
-                raise error.Error(
-                    'Unknown target_rotation option "{}".'.format(self.target_rotation)
-                )
+                raise error.Error('Unknown target_rotation option "{}".'.format(self.target_rotation))
 
         # Randomize initial position.
         if self.randomize_initial_position:
@@ -229,17 +223,13 @@ class ManipulateEnv(hand_env.HandEnv):
         target_pos = None
         if self.target_position == "random":
             assert self.target_position_range.shape == (3, 2)
-            offset = self.np_random.uniform(
-                self.target_position_range[:, 0], self.target_position_range[:, 1]
-            )
+            offset = self.np_random.uniform(self.target_position_range[:, 0], self.target_position_range[:, 1])
             assert offset.shape == (3,)
             target_pos = self.sim.data.get_joint_qpos("object:joint")[:3] + offset
         elif self.target_position in ["ignore", "fixed"]:
             target_pos = self.sim.data.get_joint_qpos("object:joint")[:3]
         else:
-            raise error.Error(
-                'Unknown target_position option "{}".'.format(self.target_position)
-            )
+            raise error.Error('Unknown target_position option "{}".'.format(self.target_position))
         assert target_pos is not None
         assert target_pos.shape == (3,)
 
@@ -253,9 +243,7 @@ class ManipulateEnv(hand_env.HandEnv):
             angle = self.np_random.uniform(-np.pi, np.pi)
             axis = np.array([0.0, 0.0, 1.0])
             target_quat = quat_from_angle_and_axis(angle, axis)
-            parallel_quat = self.parallel_quats[
-                self.np_random.randint(len(self.parallel_quats))
-            ]
+            parallel_quat = self.parallel_quats[self.np_random.randint(len(self.parallel_quats))]
             target_quat = rotations.quat_mul(target_quat, parallel_quat)
         elif self.target_rotation == "xyz":
             angle = self.np_random.uniform(-np.pi, np.pi)
@@ -264,9 +252,7 @@ class ManipulateEnv(hand_env.HandEnv):
         elif self.target_rotation in ["ignore", "fixed"]:
             target_quat = self.sim.data.get_joint_qpos("object:joint")
         else:
-            raise error.Error(
-                'Unknown target_rotation option "{}".'.format(self.target_rotation)
-            )
+            raise error.Error('Unknown target_rotation option "{}".'.format(self.target_rotation))
         assert target_quat is not None
         assert target_quat.shape == (4,)
 
@@ -293,12 +279,8 @@ class ManipulateEnv(hand_env.HandEnv):
     def _get_obs(self):
         robot_qpos, robot_qvel = robot_get_obs(self.sim)
         object_qvel = self.sim.data.get_joint_qvel("object:joint")
-        achieved_goal = (
-            self._get_achieved_goal().ravel()
-        )  # this contains the object position + rotation
-        observation = np.concatenate(
-            [robot_qpos, robot_qvel, object_qvel, achieved_goal]
-        )
+        achieved_goal = self._get_achieved_goal().ravel()  # this contains the object position + rotation
+        observation = np.concatenate([robot_qpos, robot_qvel, object_qvel, achieved_goal])
         return {
             "observation": observation.copy(),
             "achieved_goal": achieved_goal.copy(),
@@ -307,9 +289,7 @@ class ManipulateEnv(hand_env.HandEnv):
 
 
 class HandBlockEnv(ManipulateEnv, utils.EzPickle):
-    def __init__(
-        self, target_position="random", target_rotation="xyz", reward_type="sparse"
-    ):
+    def __init__(self, target_position="random", target_rotation="xyz", reward_type="sparse"):
         utils.EzPickle.__init__(self, target_position, target_rotation, reward_type)
         ManipulateEnv.__init__(
             self,
@@ -322,9 +302,7 @@ class HandBlockEnv(ManipulateEnv, utils.EzPickle):
 
 
 class HandEggEnv(ManipulateEnv, utils.EzPickle):
-    def __init__(
-        self, target_position="random", target_rotation="xyz", reward_type="sparse"
-    ):
+    def __init__(self, target_position="random", target_rotation="xyz", reward_type="sparse"):
         utils.EzPickle.__init__(self, target_position, target_rotation, reward_type)
         ManipulateEnv.__init__(
             self,
@@ -337,9 +315,7 @@ class HandEggEnv(ManipulateEnv, utils.EzPickle):
 
 
 class HandPenEnv(ManipulateEnv, utils.EzPickle):
-    def __init__(
-        self, target_position="random", target_rotation="xyz", reward_type="sparse"
-    ):
+    def __init__(self, target_position="random", target_rotation="xyz", reward_type="sparse"):
         utils.EzPickle.__init__(self, target_position, target_rotation, reward_type)
         ManipulateEnv.__init__(
             self,

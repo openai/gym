@@ -44,9 +44,7 @@ class PusherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
         qpos[-4:-2] = self.cylinder_pos
         qpos[-2:] = self.goal_pos
-        qvel = self.init_qvel + self.np_random.uniform(
-            low=-0.005, high=0.005, size=self.model.nv
-        )
+        qvel = self.init_qvel + self.np_random.uniform(low=-0.005, high=0.005, size=self.model.nv)
         qvel[-4:] = 0
         self.set_state(qpos, qvel)
         return self._get_obs()

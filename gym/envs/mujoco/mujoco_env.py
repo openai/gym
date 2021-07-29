@@ -22,14 +22,7 @@ DEFAULT_SIZE = 500
 
 def convert_observation_to_space(observation):
     if isinstance(observation, dict):
-        space = spaces.Dict(
-            OrderedDict(
-                [
-                    (key, convert_observation_to_space(value))
-                    for key, value in observation.items()
-                ]
-            )
-        )
+        space = spaces.Dict(OrderedDict([(key, convert_observation_to_space(value)) for key, value in observation.items()]))
     elif isinstance(observation, np.ndarray):
         low = np.full(observation.shape, -float("inf"), dtype=np.float32)
         high = np.full(observation.shape, float("inf"), dtype=np.float32)
@@ -117,9 +110,7 @@ class MujocoEnv(gym.Env):
     def set_state(self, qpos, qvel):
         assert qpos.shape == (self.model.nq,) and qvel.shape == (self.model.nv,)
         old_state = self.sim.get_state()
-        new_state = mujoco_py.MjSimState(
-            old_state.time, qpos, qvel, old_state.act, old_state.udd_state
-        )
+        new_state = mujoco_py.MjSimState(old_state.time, qpos, qvel, old_state.act, old_state.udd_state)
         self.sim.set_state(new_state)
         self.sim.forward()
 
@@ -142,10 +133,7 @@ class MujocoEnv(gym.Env):
     ):
         if mode == "rgb_array" or mode == "depth_array":
             if camera_id is not None and camera_name is not None:
-                raise ValueError(
-                    "Both `camera_id` and `camera_name` cannot be"
-                    " specified at the same time."
-                )
+                raise ValueError("Both `camera_id` and `camera_name` cannot be" " specified at the same time.")
 
             no_camera_specified = camera_name is None and camera_id is None
             if no_camera_specified:
