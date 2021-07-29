@@ -14,16 +14,14 @@ jobs:
                     --max-complexity=30 --max-line-length=456 --show-source --statistics
       - run: isort --check-only --profile black . || true
       - run: pip install -e .[nomujoco]
-      - run: mypy --install-types --non-interactive . || true
+      - run: mypy --ignore-missing-imports --install-types --non-interactive . || true
       # All tests except these three are mandatory
       - run: pytest . --ignore=gym/envs/tests/test_determinism.py
                       --ignore=gym/envs/tests/test_envs.py
                       --ignore=gym/wrappers/monitoring/tests/test_video_recorder.py
       # TODO: fix the following failing tests and make them mandatory
-      - uses: GabrielBB/xvfb-action@v1
-        with:
-          run: pytest gym/envs/tests/test_determinism.py
-                      gym/envs/tests/test_envs.py
-                      gym/wrappers/monitoring/tests/test_video_recorder.py
+      - run: pytest gym/envs/tests/test_determinism.py
+                    gym/envs/tests/test_envs.py
+                    gym/wrappers/monitoring/tests/test_video_recorder.py
       - run: shopt -s globstar && pyupgrade --py36-plus **/*.py || true
       - run: safety check
