@@ -1,5 +1,5 @@
 import numpy as np
-
+import warnings
 from gym.spaces import Box
 from gym import ObservationWrapper
 
@@ -15,6 +15,7 @@ class GrayScaleObservation(ObservationWrapper):
             len(env.observation_space.shape) == 3
             and env.observation_space.shape[-1] == 3
         )
+        warnings.warn("Gym\'s internal preprocessing wrappers are now deprecated. While they will continue to work for the foreseeable future, we strongly recommend using SuperSuit instead: https://github.com/PettingZoo-Team/SuperSuit")
         obs_shape = self.observation_space.shape[:2]
         if self.keep_dim:
             self.observation_space = Box(

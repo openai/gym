@@ -1,5 +1,5 @@
 import numpy as np
-
+import warnings
 from gym.spaces import Box
 from gym import ObservationWrapper
 
@@ -17,6 +17,7 @@ class TimeAwareObservation(ObservationWrapper):
         super(TimeAwareObservation, self).__init__(env)
         assert isinstance(env.observation_space, Box)
         assert env.observation_space.dtype == np.float32
+        warnings.warn("Gym\'s internal preprocessing wrappers are now deprecated. While they will continue to work for the foreseeable future, we strongly recommend using SuperSuit instead: https://github.com/PettingZoo-Team/SuperSuit")
         low = np.append(self.observation_space.low, 0.0)
         high = np.append(self.observation_space.high, np.inf)
         self.observation_space = Box(low, high, dtype=np.float32)

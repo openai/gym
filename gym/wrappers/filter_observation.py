@@ -1,5 +1,5 @@
 import copy
-
+import warnings
 from gym import spaces
 from gym import ObservationWrapper
 
@@ -26,6 +26,7 @@ class FilterObservation(ObservationWrapper):
         assert isinstance(
             wrapped_observation_space, spaces.Dict
         ), "FilterObservationWrapper is only usable with dict observations."
+        warnings.warn("Gym\'s internal preprocessing wrappers are now deprecated. While they will continue to work for the foreseeable future, we strongly recommend using SuperSuit instead: https://github.com/PettingZoo-Team/SuperSuit")
 
         observation_keys = wrapped_observation_space.spaces.keys()
 

@@ -1,9 +1,7 @@
-"""An observation wrapper that augments observations by pixel values."""
-
 import collections
 from collections.abc import MutableMapping
 import copy
-
+import warnings
 import numpy as np
 
 from gym import spaces
@@ -53,6 +51,8 @@ class PixelObservationWrapper(ObservationWrapper):
             render_mode = render_kwargs[key].pop("mode", "rgb_array")
             assert render_mode == "rgb_array", render_mode
             render_kwargs[key]["mode"] = "rgb_array"
+
+        warnings.warn("Gym\'s internal preprocessing wrappers are now deprecated. While they will continue to work for the foreseeable future, we strongly recommend using SuperSuit instead: https://github.com/PettingZoo-Team/SuperSuit")
 
         wrapped_observation_space = env.observation_space
 
