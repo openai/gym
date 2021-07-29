@@ -20,8 +20,10 @@ jobs:
                       --ignore=gym/envs/tests/test_envs.py
                       --ignore=gym/wrappers/monitoring/tests/test_video_recorder.py
       # TODO: fix the following failing tests and make them mandatory
-      - run: pytest gym/envs/tests/test_determinism.py
-                    gym/envs/tests/test_envs.py
-                    gym/wrappers/monitoring/tests/test_video_recorder.py || true
+      - uses: GabrielBB/xvfb-action@v1
+        with:
+          run: pytest gym/envs/tests/test_determinism.py
+                      gym/envs/tests/test_envs.py
+                      gym/wrappers/monitoring/tests/test_video_recorder.py || true
       - run: shopt -s globstar && pyupgrade --py36-plus **/*.py || true
       - run: safety check
