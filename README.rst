@@ -1,4 +1,4 @@
-**Status:** Maintained, but new major features are intended. See https://github.com/openai/gym/issues/2259 for more information.
+**Status:** Maintained, but new major features are not intended. See https://github.com/openai/gym/issues/2259 for more information.
 
 OpenAI Gym
 **********
