@@ -44,7 +44,7 @@ Gym keeps strict versioning for reproducibility reasons. All environments end in
 
 ## Citation
 
-A whitepaper from when OpenAI Gym just came out is available http://arxiv.org/abs/1606.0154, and can be cited with the following bibtex entry:
+A whitepaper from when OpenAI Gym just came out is available https://arxiv.org/pdf/1606.01540, and can be cited with the following bibtex entry:
 
 ```
 @misc{1606.01540,
