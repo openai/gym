@@ -16,7 +16,7 @@ We support Python 3.6, 3.7, 3.8 and 3.9 on Linux and macOS. We will accept PRs r
 
 ## API
 
-The Gym API's API models environments as simple Python `Env` classes. Creating environment instances and interacting with them is very simple- here's an example using the "CartPole-v1" environment:
+The Gym API's API models environments as simple Python `env` classes. Creating environment instances and interacting with them is very simple- here's an example using the "CartPole-v1" environment:
 
 ```python
 import gym 
