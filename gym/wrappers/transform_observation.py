@@ -2,7 +2,7 @@ from gym import ObservationWrapper
 
 
 class TransformObservation(ObservationWrapper):
-    r"""Transform the observation via an arbitrary function. 
+    r"""Transform the observation via an arbitrary function.
 
     Example::
 
@@ -17,6 +17,7 @@ class TransformObservation(ObservationWrapper):
         f (callable): a function that transforms the observation
 
     """
+
     def __init__(self, env, f):
         super(TransformObservation, self).__init__(env)
         assert callable(f)

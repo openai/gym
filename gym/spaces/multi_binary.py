@@ -3,13 +3,13 @@ from .space import Space
 
 
 class MultiBinary(Space):
-    '''
-    An n-shape binary space. 
+    """
+    An n-shape binary space.
 
     The argument to MultiBinary defines n, which could be a number or a `list` of numbers.
-    
+
     Example Usage:
-    
+
     >> self.observation_space = spaces.MultiBinary(5)
 
     >> self.observation_space.sample()
@@ -21,16 +21,17 @@ class MultiBinary(Space):
     >> self.observation_space.sample()
 
         array([[0, 0],
-               [0, 1],   
+               [0, 1],
                [1, 1]], dtype=int8)
 
-    '''
+    """
+
     def __init__(self, n):
         self.n = n
         if type(n) in [tuple, list, np.ndarray]:
             input_n = n
         else:
-            input_n = (n, )
+            input_n = (n,)
         super(MultiBinary, self).__init__(input_n, np.int8)
 
     def sample(self):
@@ -41,7 +42,7 @@ class MultiBinary(Space):
             x = np.array(x)  # Promote list to array for contains check
         if self.shape != x.shape:
             return False
-        return ((x==0) | (x==1)).all()
+        return ((x == 0) | (x == 1)).all()
 
     def to_jsonable(self, sample_n):
         return np.array(sample_n).tolist()

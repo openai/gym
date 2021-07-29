@@ -15,8 +15,10 @@ class Space(object):
     Moreover, some implementations of Reinforcement Learning algorithms might
     not handle custom spaces properly. Use custom spaces with care.
     """
+
     def __init__(self, shape=None, dtype=None):
         import numpy as np  # takes about 300-400ms to import, so we load lazily
+
         self.shape = None if shape is None else tuple(shape)
         self.dtype = None if dtype is None else np.dtype(dtype)
         self._np_random = None
@@ -32,12 +34,12 @@ class Space(object):
         return self._np_random
 
     def sample(self):
-        """Randomly sample an element of this space. Can be 
+        """Randomly sample an element of this space. Can be
         uniform or non-uniform sampling based on boundedness of space."""
         raise NotImplementedError
 
     def seed(self, seed=None):
-        """Seed the PRNG of this space. """
+        """Seed the PRNG of this space."""
         self._np_random, seed = seeding.np_random(seed)
         return [seed]
 
