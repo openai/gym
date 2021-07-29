@@ -24,7 +24,7 @@ repos:
       - id: flake8
         args:
           - --ignore=E203,E402,E712,E722,E731,E741,F401,F403,F405,F524,F841,W503
-            --max-complexity=30
-            --max-line-length=456
-            --show-source
-            --statistics
+          - --max-complexity=30
+          - --max-line-length=456
+          - --show-source
+          - --statistics
