@@ -1,6 +1,5 @@
 from collections import deque
 import numpy as np
-import warnings
 from gym.spaces import Box
 from gym import Wrapper
 
@@ -22,9 +21,6 @@ class LazyFrames(object):
     __slots__ = ("frame_shape", "dtype", "shape", "lz4_compress", "_frames")
 
     def __init__(self, frames, lz4_compress=False):
-        warnings.warn(
-            "Gym's internal preprocessing wrappers are now deprecated. While they will continue to work for the foreseeable future, we strongly recommend using SuperSuit instead: https://github.com/PettingZoo-Team/SuperSuit"
-        )
         self.frame_shape = tuple(frames[0].shape)
         self.shape = (len(frames),) + self.frame_shape
         self.dtype = frames[0].dtype

@@ -1,5 +1,4 @@
 import numpy as np
-import warnings
 import gym
 from gym import spaces
 
@@ -19,9 +18,7 @@ class RescaleAction(gym.ActionWrapper):
             env.action_space, spaces.Box
         ), "expected Box action space, got {}".format(type(env.action_space))
         assert np.less_equal(a, b).all(), (a, b)
-        warnings.warn(
-            "Gym's internal preprocessing wrappers are now deprecated. While they will continue to work for the foreseeable future, we strongly recommend using SuperSuit instead: https://github.com/PettingZoo-Team/SuperSuit"
-        )
+
         super(RescaleAction, self).__init__(env)
         self.a = np.zeros(env.action_space.shape, dtype=env.action_space.dtype) + a
         self.b = np.zeros(env.action_space.shape, dtype=env.action_space.dtype) + b
