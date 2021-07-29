@@ -2,9 +2,9 @@ Gym is now being maintained, but new major features are not intended. See [this 
 
 ## Gym
 
-Gym is an opensource Python library for developing and comparing reinforcement learning algorithms by providing a standard API to communicate between learning algorithms and environments and a standard set of environments compliant with that API. Since it's release, Gym's API has became the field standard for doing this.
+Gym is an open source Python library for developing and comparing reinforcement learning algorithms by providing a standard API to communicate between learning algorithms and environments, as well as a standard set of environments compliant with that API. Since its release, Gym's API has become the field standard for doing this.
 
-Gym currently has two pieces of documentation- the [documentation website](http://gym.openai.com) and the [FAQ](https://github.com/openai/gym/wiki/FAQ). A new and more comprehensive documentation website is in the works.
+Gym currently has two pieces of documentation: the [documentation website](http://gym.openai.com) and the [FAQ](https://github.com/openai/gym/wiki/FAQ). A new and more comprehensive documentation website is in the works.
 
 ## Installation
 
@@ -17,6 +17,28 @@ We support Python 3.6, 3.7, 3.8 and 3.9 on Linux and macOS. We will accept PRs r
 ## API
 
 If someone would be willing to make a PR for this section in the style of same section the PettingZoo readme.md I would greatly appreciate it. If not, I'll deal with this later.
+
+The Gym API is a minimal and flexible way to interact with environments. A Gym `Env` (environment) subclass must provide the following methods: 
+
+- `reset(self)`: Reset environment state; returns initial observation for next episode. 
+- `step(self, action)`: Step the environment by one timestep. Returns tuple `(observation, reward, done, info)`.
+- `render(self, mode='human')`: Render one frame of the environment. The default mode will do something human friendly, such as pop up a window.
+
+See [Env](https://github.com/openai/gym/blob/3133e99a64be1a9b794bf62cc3e5fb8c8abd21b9/gym/core.py#L8) implementation for a full list of environment methods. You can see the environments already registered with Gym via `gym.envs.registry.all()`. You can register your own Gym environment with `gym.register(id=env_name, entry_point='module.path:EnvClass')`. See docs for more details. 
+
+Creating environment instances and interacting with them is very simple. Here's an example using the "CartPole-v1" environment: 
+
+```python
+import gym 
+env = gym.make('CartPole-v1')
+
+# env is created, now we can use it: 
+for episode in range(10): 
+    obs = env.reset()
+    for step in range(50):
+        action = env.action_space.sample() # your agent goes here 
+        new_obs, reward, done, info = env.step(action)
+```
 
 ## Notable Related Libraries
 
