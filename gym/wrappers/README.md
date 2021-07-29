@@ -1,9 +1,3 @@
-# Deprecation
-
-While Gym's wrappers will continue to work for the foreseeable future due to the widespread dependence on them throughout the community, we are deprecating them and encourage users to use [SuperSuit](https://github.com/PettingZoo-Team/SuperSuit) instead.
-
-# Old Docs:
-
 # Wrappers
 
 Wrappers are used to transform an environment in a modular way:
