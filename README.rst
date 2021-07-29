@@ -1,19 +1,11 @@
-**Status:** Maintenance (expect bug fixes and minor updates)
+**Status:** Maintained, but new major features are intended. See https://github.com/openai/gym/issues/2259 for more information.
 
 OpenAI Gym
 **********
 
 **OpenAI Gym is a toolkit for developing and comparing reinforcement learning algorithms.** This is the ``gym`` open-source library, which gives you access to a standardized set of environments.
 
-.. image:: https://travis-ci.org/openai/gym.svg?branch=master
-    :target: https://travis-ci.org/openai/gym
-
-`See What's New section below <#what-s-new>`_
-
-``gym`` makes no assumptions about the structure of your agent, and is compatible with any numerical computation library, such as TensorFlow or Theano. You can use it from Python code, and soon from other languages.
-
-If you're not sure where to start, we recommend beginning with the
-`docs <https://gym.openai.com/docs>`_ on our site. See also the `FAQ <https://github.com/openai/gym/wiki/FAQ>`_.
+``gym`` makes no assumptions about the structure of your agent, and is compatible with any Python numerical computation library, such as TensorFlow or PyTorch. 
 
 A whitepaper for OpenAI Gym is available at http://arxiv.org/abs/1606.01540, and here's a BibTeX entry that you can use to cite it in a publication::
 
@@ -48,8 +40,7 @@ should know:
 Supported systems
 -----------------
 
-We currently support Linux and OS X running Python 3.5 -- 3.8
-Windows support is experimental - algorithmic, toy_text, classic_control and atari *should* work on Windows (see next section for installation instructions); nevertheless, proceed at your own risk.
+We support Python 3.6, 3.7, 3.8 and 3.9 on Linux and macOS. We will accept PRs related to Windows, but do not officially support it.
 
 Installation
 ============
@@ -160,24 +151,13 @@ We are using `pytest <http://doc.pytest.org>`_ for tests. You can run them via:
 
 .. _See What's New section below:
 
-Resources
+Documentation
 =========
 
--  `OpenAI.com`_
--  `Gym.OpenAI.com`_
--  `Gym Docs`_
--  `Gym Environments`_
--  `OpenAI Twitter`_
--  `OpenAI YouTube`_
+The current documentation for Gym is available at: http://gym.openai.com
+An FAQ guide is available at: https://github.com/openai/gym/wiki/FAQ
 
-.. _OpenAI.com: https://openai.com/
-.. _Gym.OpenAI.com: http://gym.openai.com/
-.. _Gym Docs: http://gym.openai.com/docs/
-.. _Gym Environments: http://gym.openai.com/envs/
-.. _OpenAI Twitter: https://twitter.com/openai
-.. _OpenAI YouTube: https://www.youtube.com/channel/UCXZCJLdBC09xxGZ6gcdrc6A
-
-What's new
+Release Notes
 ==========
 - 2020-12-18 (v 0.18.0)
    + Add python 3.9 support
