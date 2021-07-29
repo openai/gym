@@ -422,7 +422,9 @@ for reward_type in ["sparse", "dense"]:
     register(
         id="HandManipulateBlockRotateParallel{}-v0".format(suffix),
         entry_point="gym.envs.robotics:HandBlockEnv",
-        kwargs=_merge({"target_position": "ignore", "target_rotation": "parallel"}, kwargs),
+        kwargs=_merge(
+            {"target_position": "ignore", "target_rotation": "parallel"}, kwargs
+        ),
         max_episode_steps=100,
     )
 

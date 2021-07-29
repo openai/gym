@@ -15,7 +15,9 @@ steps = ROLLOUT_STEPS
 ROLLOUT_FILE = os.path.join(DATA_DIR, "rollout.json")
 
 if not os.path.isfile(ROLLOUT_FILE):
-    logger.info("No rollout file found. Writing empty json file to {}".format(ROLLOUT_FILE))
+    logger.info(
+        "No rollout file found. Writing empty json file to {}".format(ROLLOUT_FILE)
+    )
     with open(ROLLOUT_FILE, "w") as outfile:
         json.dump({}, outfile, indent=2)
 
@@ -48,7 +50,9 @@ def update_rollout_dict(spec, rollout_dict):
     except:
         # If running the env generates an exception, don't write to the rollout file
         logger.warn(
-            "Exception {} thrown while generating rollout for {}. Rollout not added.".format(sys.exc_info()[0], spec.id)
+            "Exception {} thrown while generating rollout for {}. Rollout not added.".format(
+                sys.exc_info()[0], spec.id
+            )
         )
         return False
 
@@ -74,7 +78,9 @@ def update_rollout_dict(spec, rollout_dict):
 
 
 def add_new_rollouts(spec_ids, overwrite):
-    environments = [spec for spec in envs.registry.all() if spec.entry_point is not None]
+    environments = [
+        spec for spec in envs.registry.all() if spec.entry_point is not None
+    ]
     if spec_ids:
         environments = [spec for spec in environments if spec.id in spec_ids]
         assert len(environments) == len(spec_ids), "Some specs not found"
@@ -104,7 +110,9 @@ if __name__ == "__main__":
         help="Overwrite " + "existing rollouts if hashes differ.",
     )
     parser.add_argument("-v", "--verbose", action="store_true")
-    parser.add_argument("specs", nargs="*", help="ids of env specs to check (default: all)")
+    parser.add_argument(
+        "specs", nargs="*", help="ids of env specs to check (default: all)"
+    )
     args = parser.parse_args()
     if args.verbose:
         logger.set_level(logger.INFO)

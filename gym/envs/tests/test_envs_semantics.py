@@ -81,7 +81,9 @@ def test_env_semantics(spec):
     if spec.id not in rollout_dict:
         if not spec.nondeterministic:
             logger.warn(
-                "Rollout does not exist for {}, run generate_json.py to generate rollouts for new envs".format(spec.id)
+                "Rollout does not exist for {}, run generate_json.py to generate rollouts for new envs".format(
+                    spec.id
+                )
             )
         return
 
@@ -98,15 +100,21 @@ def test_env_semantics(spec):
         )
     if rollout_dict[spec.id]["actions"] != actions_now:
         errors.append(
-            "Actions not equal for {} -- expected {} but got {}".format(spec.id, rollout_dict[spec.id]["actions"], actions_now)
+            "Actions not equal for {} -- expected {} but got {}".format(
+                spec.id, rollout_dict[spec.id]["actions"], actions_now
+            )
         )
     if rollout_dict[spec.id]["rewards"] != rewards_now:
         errors.append(
-            "Rewards not equal for {} -- expected {} but got {}".format(spec.id, rollout_dict[spec.id]["rewards"], rewards_now)
+            "Rewards not equal for {} -- expected {} but got {}".format(
+                spec.id, rollout_dict[spec.id]["rewards"], rewards_now
+            )
         )
     if rollout_dict[spec.id]["dones"] != dones_now:
         errors.append(
-            "Dones not equal for {} -- expected {} but got {}".format(spec.id, rollout_dict[spec.id]["dones"], dones_now)
+            "Dones not equal for {} -- expected {} but got {}".format(
+                spec.id, rollout_dict[spec.id]["dones"], dones_now
+            )
         )
     if len(errors):
         for error in errors:

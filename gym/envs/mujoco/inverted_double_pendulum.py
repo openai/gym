@@ -33,7 +33,8 @@ class InvertedDoublePendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     def reset_model(self):
         self.set_state(
-            self.init_qpos + self.np_random.uniform(low=-0.1, high=0.1, size=self.model.nq),
+            self.init_qpos
+            + self.np_random.uniform(low=-0.1, high=0.1, size=self.model.nq),
             self.init_qvel + self.np_random.randn(self.model.nv) * 0.1,
         )
         return self._get_obs()

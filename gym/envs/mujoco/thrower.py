@@ -48,7 +48,9 @@ class ThrowerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         )
 
         qpos[-9:-7] = self.goal
-        qvel = self.init_qvel + self.np_random.uniform(low=-0.005, high=0.005, size=self.model.nv)
+        qvel = self.init_qvel + self.np_random.uniform(
+            low=-0.005, high=0.005, size=self.model.nv
+        )
         qvel[7:] = 0
         self.set_state(qpos, qvel)
         return self._get_obs()

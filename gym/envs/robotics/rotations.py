@@ -164,8 +164,12 @@ def mat2euler(mat):
         -np.arctan2(mat[..., 0, 1], mat[..., 0, 0]),
         -np.arctan2(-mat[..., 1, 0], mat[..., 1, 1]),
     )
-    euler[..., 1] = np.where(condition, -np.arctan2(-mat[..., 0, 2], cy), -np.arctan2(-mat[..., 0, 2], cy))
-    euler[..., 0] = np.where(condition, -np.arctan2(mat[..., 1, 2], mat[..., 2, 2]), 0.0)
+    euler[..., 1] = np.where(
+        condition, -np.arctan2(-mat[..., 0, 2], cy), -np.arctan2(-mat[..., 0, 2], cy)
+    )
+    euler[..., 0] = np.where(
+        condition, -np.arctan2(mat[..., 1, 2], mat[..., 2, 2]), 0.0
+    )
     return euler
 
 

@@ -15,7 +15,9 @@ class RescaleAction(gym.ActionWrapper):
     """
 
     def __init__(self, env, a, b):
-        assert isinstance(env.action_space, spaces.Box), "expected Box action space, got {}".format(type(env.action_space))
+        assert isinstance(
+            env.action_space, spaces.Box
+        ), "expected Box action space, got {}".format(type(env.action_space))
         assert np.less_equal(a, b).all(), (a, b)
         warnings.warn(
             "Gym's internal preprocessing wrappers are now deprecated. While they will continue to work for the foreseeable future, we strongly recommend using SuperSuit instead: https://github.com/PettingZoo-Team/SuperSuit"
@@ -23,7 +25,9 @@ class RescaleAction(gym.ActionWrapper):
         super(RescaleAction, self).__init__(env)
         self.a = np.zeros(env.action_space.shape, dtype=env.action_space.dtype) + a
         self.b = np.zeros(env.action_space.shape, dtype=env.action_space.dtype) + b
-        self.action_space = spaces.Box(low=a, high=b, shape=env.action_space.shape, dtype=env.action_space.dtype)
+        self.action_space = spaces.Box(
+            low=a, high=b, shape=env.action_space.shape, dtype=env.action_space.dtype
+        )
 
     def action(self, action):
         assert np.all(np.greater_equal(action, self.a)), (action, self.a)

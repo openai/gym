@@ -100,7 +100,10 @@ class ContactDetector(contactListener):
         self.env = env
 
     def BeginContact(self, contact):
-        if self.env.hull == contact.fixtureA.body or self.env.hull == contact.fixtureB.body:
+        if (
+            self.env.hull == contact.fixtureA.body
+            or self.env.hull == contact.fixtureB.body
+        ):
             self.env.game_over = True
         for leg in [self.env.legs[1], self.env.legs[3]]:
             if leg in [contact.fixtureA.body, contact.fixtureB.body]:
@@ -199,7 +202,9 @@ class BipedalWalker(gym.Env, EzPickle):
                 t.color1, t.color2 = (1, 1, 1), (0.6, 0.6, 0.6)
                 self.terrain.append(t)
 
-                self.fd_polygon.shape.vertices = [(p[0] + TERRAIN_STEP * counter, p[1]) for p in poly]
+                self.fd_polygon.shape.vertices = [
+                    (p[0] + TERRAIN_STEP * counter, p[1]) for p in poly
+                ]
                 t = self.world.CreateStaticBody(fixtures=self.fd_polygon)
                 t.color1, t.color2 = (1, 1, 1), (0.6, 0.6, 0.6)
                 self.terrain.append(t)
@@ -296,8 +301,12 @@ class BipedalWalker(gym.Env, EzPickle):
             y = VIEWPORT_H / SCALE * 3 / 4
             poly = [
                 (
-                    x + 15 * TERRAIN_STEP * math.sin(3.14 * 2 * a / 5) + self.np_random.uniform(0, 5 * TERRAIN_STEP),
-                    y + 5 * TERRAIN_STEP * math.cos(3.14 * 2 * a / 5) + self.np_random.uniform(0, 5 * TERRAIN_STEP),
+                    x
+                    + 15 * TERRAIN_STEP * math.sin(3.14 * 2 * a / 5)
+                    + self.np_random.uniform(0, 5 * TERRAIN_STEP),
+                    y
+                    + 5 * TERRAIN_STEP * math.cos(3.14 * 2 * a / 5)
+                    + self.np_random.uniform(0, 5 * TERRAIN_STEP),
                 )
                 for a in range(5)
             ]
@@ -322,10 +331,14 @@ class BipedalWalker(gym.Env, EzPickle):
 
         init_x = TERRAIN_STEP * TERRAIN_STARTPAD / 2
         init_y = TERRAIN_HEIGHT + 2 * LEG_H
-        self.hull = self.world.CreateDynamicBody(position=(init_x, init_y), fixtures=HULL_FD)
+        self.hull = self.world.CreateDynamicBody(
+            position=(init_x, init_y), fixtures=HULL_FD
+        )
         self.hull.color1 = (0.5, 0.4, 0.9)
         self.hull.color2 = (0.3, 0.3, 0.5)
-        self.hull.ApplyForceToCenter((self.np_random.uniform(-INITIAL_RANDOM, INITIAL_RANDOM), 0), True)
+        self.hull.ApplyForceToCenter(
+            (self.np_random.uniform(-INITIAL_RANDOM, INITIAL_RANDOM), 0), True
+        )
 
         self.legs = []
         self.joints = []
@@ -399,13 +412,21 @@ class BipedalWalker(gym.Env, EzPickle):
             self.joints[3].motorSpeed = float(SPEED_KNEE * np.clip(action[3], -1, 1))
         else:
             self.joints[0].motorSpeed = float(SPEED_HIP * np.sign(action[0]))
-            self.joints[0].maxMotorTorque = float(MOTORS_TORQUE * np.clip(np.abs(action[0]), 0, 1))
+            self.joints[0].maxMotorTorque = float(
+                MOTORS_TORQUE * np.clip(np.abs(action[0]), 0, 1)
+            )
             self.joints[1].motorSpeed = float(SPEED_KNEE * np.sign(action[1]))
-            self.joints[1].maxMotorTorque = float(MOTORS_TORQUE * np.clip(np.abs(action[1]), 0, 1))
+            self.joints[1].maxMotorTorque = float(
+                MOTORS_TORQUE * np.clip(np.abs(action[1]), 0, 1)
+            )
             self.joints[2].motorSpeed = float(SPEED_HIP * np.sign(action[2]))
-            self.joints[2].maxMotorTorque = float(MOTORS_TORQUE * np.clip(np.abs(action[2]), 0, 1))
+            self.joints[2].maxMotorTorque = float(
+                MOTORS_TORQUE * np.clip(np.abs(action[2]), 0, 1)
+            )
             self.joints[3].motorSpeed = float(SPEED_KNEE * np.sign(action[3]))
-            self.joints[3].maxMotorTorque = float(MOTORS_TORQUE * np.clip(np.abs(action[3]), 0, 1))
+            self.joints[3].maxMotorTorque = float(
+                MOTORS_TORQUE * np.clip(np.abs(action[3]), 0, 1)
+            )
 
         self.world.Step(1.0 / FPS, 6 * 30, 2 * 30)
 
@@ -444,8 +465,12 @@ class BipedalWalker(gym.Env, EzPickle):
 
         self.scroll = pos.x - VIEWPORT_W / SCALE / 5
 
-        shaping = 130 * pos[0] / SCALE  # moving forward is a way to receive reward (normalized to get 300 on completion)
-        shaping -= 5.0 * abs(state[0])  # keep head straight, other than that and falling, any behavior is unpunished
+        shaping = (
+            130 * pos[0] / SCALE
+        )  # moving forward is a way to receive reward (normalized to get 300 on completion)
+        shaping -= 5.0 * abs(
+            state[0]
+        )  # keep head straight, other than that and falling, any behavior is unpunished
 
         reward = 0
         if self.prev_shaping is not None:
@@ -469,7 +494,9 @@ class BipedalWalker(gym.Env, EzPickle):
 
         if self.viewer is None:
             self.viewer = rendering.Viewer(VIEWPORT_W, VIEWPORT_H)
-        self.viewer.set_bounds(self.scroll, VIEWPORT_W / SCALE + self.scroll, 0, VIEWPORT_H / SCALE)
+        self.viewer.set_bounds(
+            self.scroll, VIEWPORT_W / SCALE + self.scroll, 0, VIEWPORT_H / SCALE
+        )
 
         self.viewer.draw_polygon(
             [
@@ -485,7 +512,9 @@ class BipedalWalker(gym.Env, EzPickle):
                 continue
             if x1 > self.scroll / 2 + VIEWPORT_W / SCALE:
                 continue
-            self.viewer.draw_polygon([(p[0] + self.scroll / 2, p[1]) for p in poly], color=(1, 1, 1))
+            self.viewer.draw_polygon(
+                [(p[0] + self.scroll / 2, p[1]) for p in poly], color=(1, 1, 1)
+            )
         for poly, color in self.terrain_poly:
             if poly[1][0] < self.scroll:
                 continue
@@ -496,7 +525,11 @@ class BipedalWalker(gym.Env, EzPickle):
         self.lidar_render = (self.lidar_render + 1) % 100
         i = self.lidar_render
         if i < 2 * len(self.lidar):
-            l = self.lidar[i] if i < len(self.lidar) else self.lidar[len(self.lidar) - i - 1]
+            l = (
+                self.lidar[i]
+                if i < len(self.lidar)
+                else self.lidar[len(self.lidar) - i - 1]
+            )
             self.viewer.draw_polyline([l.p1, l.p2], color=(1, 0, 0), linewidth=1)
 
         for obj in self.drawlist:
@@ -504,8 +537,12 @@ class BipedalWalker(gym.Env, EzPickle):
                 trans = f.body.transform
                 if type(f.shape) is circleShape:
                     t = rendering.Transform(translation=trans * f.shape.pos)
-                    self.viewer.draw_circle(f.shape.radius, 30, color=obj.color1).add_attr(t)
-                    self.viewer.draw_circle(f.shape.radius, 30, color=obj.color2, filled=False, linewidth=2).add_attr(t)
+                    self.viewer.draw_circle(
+                        f.shape.radius, 30, color=obj.color1
+                    ).add_attr(t)
+                    self.viewer.draw_circle(
+                        f.shape.radius, 30, color=obj.color2, filled=False, linewidth=2
+                    ).add_attr(t)
                 else:
                     path = [trans * v for v in f.shape.vertices]
                     self.viewer.draw_polygon(path, color=obj.color1)
@@ -515,7 +552,9 @@ class BipedalWalker(gym.Env, EzPickle):
         flagy1 = TERRAIN_HEIGHT
         flagy2 = flagy1 + 50 / SCALE
         x = TERRAIN_STEP * 3
-        self.viewer.draw_polyline([(x, flagy1), (x, flagy2)], color=(0, 0, 0), linewidth=2)
+        self.viewer.draw_polyline(
+            [(x, flagy1), (x, flagy2)], color=(0, 0, 0), linewidth=2
+        )
         f = [
             (x, flagy2),
             (x, flagy2 - 10 / SCALE),

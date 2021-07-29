@@ -141,7 +141,9 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
                     else:
                         if is_slippery:
                             for b in [(a - 1) % 4, a, (a + 1) % 4]:
-                                li.append((1.0 / 3.0, *update_probability_matrix(row, col, b)))
+                                li.append(
+                                    (1.0 / 3.0, *update_probability_matrix(row, col, b))
+                                )
                         else:
                             li.append((1.0, *update_probability_matrix(row, col, a)))
 
@@ -155,7 +157,9 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
         desc = [[c.decode("utf-8") for c in line] for line in desc]
         desc[row][col] = utils.colorize(desc[row][col], "red", highlight=True)
         if self.lastaction is not None:
-            outfile.write("  ({})\n".format(["Left", "Down", "Right", "Up"][self.lastaction]))
+            outfile.write(
+                "  ({})\n".format(["Left", "Down", "Right", "Up"][self.lastaction])
+            )
         else:
             outfile.write("\n")
         outfile.write("\n".join("".join(line) for line in desc) + "\n")

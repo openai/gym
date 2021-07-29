@@ -62,7 +62,9 @@ class StrikerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         diff = self.ball - self.goal
         angle = -np.arctan(diff[0] / (diff[1] + 1e-8))
         qpos[-1] = angle / 3.14
-        qvel = self.init_qvel + self.np_random.uniform(low=-0.1, high=0.1, size=self.model.nv)
+        qvel = self.init_qvel + self.np_random.uniform(
+            low=-0.1, high=0.1, size=self.model.nv
+        )
         qvel[7:] = 0
         self.set_state(qpos, qvel)
         return self._get_obs()

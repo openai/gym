@@ -10,7 +10,9 @@ pytest.importorskip("atari_py")
 pytest.importorskip("cv2")
 
 
-@pytest.mark.parametrize("env_id", ["PongNoFrameskip-v0", "SpaceInvadersNoFrameskip-v0"])
+@pytest.mark.parametrize(
+    "env_id", ["PongNoFrameskip-v0", "SpaceInvadersNoFrameskip-v0"]
+)
 @pytest.mark.parametrize("keep_dim", [True, False])
 def test_gray_scale_observation(env_id, keep_dim):
     gray_env = AtariPreprocessing(gym.make(env_id), screen_size=84, grayscale_obs=True)
