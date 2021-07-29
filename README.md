@@ -36,7 +36,7 @@ for episode in range(10):
 * [RL Baselines3 Zoo](https://github.com/DLR-RM/rl-baselines3-zoo) builds upon SB3, containing optimal hyperparameters for Gym environments as well as code to easily find new ones. Such tuning is almost always required.
 * The [Autonomous Learning Library](https://github.com/cpnota/autonomous-learning-library) and [Tianshou](https://github.com/thu-ml/tianshou) are two reinforcement learning libraries I like that are generally geared towards more experienced users.
 * [PettingZoo](https://github.com/PettingZoo-Team/PettingZoo) is like Gym, but for environments with multiple agents.
-* [SuperSuit](https://github.com/PettingZoo-Team/SuperSuit) contains preprocessing wrappers for Gym (and PettingZoo) environments. They're like the old ones in Gym except comprehensive, documented, versioning for reproducibility and are better in almost every way. The built in wrappers in Gym are being deprecated in favor of these. 
+* [SuperSuit](https://github.com/PettingZoo-Team/SuperSuit) contains preprocessing wrappers for Gym and PettingZoo environments.
 
 ## Environment Versioning
 
