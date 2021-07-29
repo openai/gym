@@ -1,4 +1,4 @@
-Gym is now being maintained, but new major features are not intended. See https://github.com/openai/gym/issues/2259 for more information.
+Gym is now being maintained, but new major features are not intended. See [this post](https://github.com/openai/gym/issues/2259) for more information.
 
 ## Gym
 
