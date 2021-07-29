@@ -1,5 +1,4 @@
 import numpy as np
-import warnings
 import gym
 from gym.spaces import Box
 from gym.wrappers import TimeLimit
@@ -67,9 +66,6 @@ class AtariPreprocessing(gym.Wrapper):
             )
         self.noop_max = noop_max
         assert env.unwrapped.get_action_meanings()[0] == "NOOP"
-        warnings.warn(
-            "Gym's internal preprocessing wrappers are now deprecated. While they will continue to work for the foreseeable future, we strongly recommend using SuperSuit instead: https://github.com/PettingZoo-Team/SuperSuit"
-        )
 
         self.frame_skip = frame_skip
         self.screen_size = screen_size

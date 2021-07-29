@@ -1,6 +1,5 @@
 import time
 from collections import deque
-import warnings
 import gym
 
 
@@ -14,9 +13,6 @@ class RecordEpisodeStatistics(gym.Wrapper):
         self.episode_length = 0
         self.return_queue = deque(maxlen=deque_size)
         self.length_queue = deque(maxlen=deque_size)
-        warnings.warn(
-            "Gym's internal preprocessing wrappers are now deprecated. While they will continue to work for the foreseeable future, we strongly recommend using SuperSuit instead: https://github.com/PettingZoo-Team/SuperSuit"
-        )
 
     def reset(self, **kwargs):
         observation = super(RecordEpisodeStatistics, self).reset(**kwargs)

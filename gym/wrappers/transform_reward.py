@@ -1,5 +1,4 @@
 from gym import RewardWrapper
-import warnings
 
 
 class TransformReward(RewardWrapper):
@@ -24,9 +23,6 @@ class TransformReward(RewardWrapper):
     def __init__(self, env, f):
         super(TransformReward, self).__init__(env)
         assert callable(f)
-        warnings.warn(
-            "Gym's internal preprocessing wrappers are now deprecated. While they will continue to work for the foreseeable future, we strongly recommend using SuperSuit instead: https://github.com/PettingZoo-Team/SuperSuit"
-        )
         self.f = f
 
     def reward(self, reward):

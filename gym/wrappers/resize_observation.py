@@ -1,5 +1,4 @@
 import numpy as np
-import warnings
 from gym.spaces import Box
 from gym import ObservationWrapper
 
@@ -12,9 +11,7 @@ class ResizeObservation(ObservationWrapper):
         if isinstance(shape, int):
             shape = (shape, shape)
         assert all(x > 0 for x in shape), shape
-        warnings.warn(
-            "Gym's internal preprocessing wrappers are now deprecated. While they will continue to work for the foreseeable future, we strongly recommend using SuperSuit instead: https://github.com/PettingZoo-Team/SuperSuit"
-        )
+
         self.shape = tuple(shape)
 
         obs_shape = self.shape + self.observation_space.shape[2:]
