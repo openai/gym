@@ -24,6 +24,6 @@ jobs:
         with:
           run: pytest gym/envs/tests/test_determinism.py
                       gym/envs/tests/test_envs.py
-                      gym/wrappers/monitoring/tests/test_video_recorder.py || true
+                      gym/wrappers/monitoring/tests/test_video_recorder.py
       - run: shopt -s globstar && pyupgrade --py36-plus **/*.py || true
       - run: safety check
