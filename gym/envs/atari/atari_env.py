@@ -9,7 +9,8 @@ try:
     import atari_py
 except ImportError as e:
     raise error.DependencyNotInstalled(
-        "{}. (HINT: you can install Atari dependencies by running " "'pip install gym[atari]'.)".format(e)
+        "{}. (HINT: you can install Atari dependencies by running "
+        "'pip install gym[atari]'.)".format(e)
     )
 
 
@@ -63,23 +64,35 @@ class AtariEnv(gym.Env, utils.EzPickle):
 
         # Tune (or disable) ALE's action repeat:
         # https://github.com/openai/gym/issues/349
-        assert isinstance(repeat_action_probability, (float, int)), "Invalid repeat_action_probability: {!r}".format(
-            repeat_action_probability
+        assert isinstance(
+            repeat_action_probability, (float, int)
+        ), "Invalid repeat_action_probability: {!r}".format(repeat_action_probability)
+        self.ale.setFloat(
+            "repeat_action_probability".encode("utf-8"), repeat_action_probability
         )
-        self.ale.setFloat("repeat_action_probability".encode("utf-8"), repeat_action_probability)
 
         self.seed()
 
-        self._action_set = self.ale.getLegalActionSet() if full_action_space else self.ale.getMinimalActionSet()
+        self._action_set = (
+            self.ale.getLegalActionSet()
+            if full_action_space
+            else self.ale.getMinimalActionSet()
+        )
         self.action_space = spaces.Discrete(len(self._action_set))
 
         (screen_width, screen_height) = self.ale.getScreenDims()
         if self._obs_type == "ram":
-            self.observation_space = spaces.Box(low=0, high=255, dtype=np.uint8, shape=(128,))
+            self.observation_space = spaces.Box(
+                low=0, high=255, dtype=np.uint8, shape=(128,)
+            )
         elif self._obs_type == "image":
-            self.observation_space = spaces.Box(low=0, high=255, shape=(screen_height, screen_width, 3), dtype=np.uint8)
+            self.observation_space = spaces.Box(
+                low=0, high=255, shape=(screen_height, screen_width, 3), dtype=np.uint8
+            )
         else:
-            raise error.Error("Unrecognized observation type: {}".format(self._obs_type))
+            raise error.Error(
+                "Unrecognized observation type: {}".format(self._obs_type)
+            )
 
     def seed(self, seed=None):
         self.np_random, seed1 = seeding.np_random(seed)
@@ -94,9 +107,9 @@ class AtariEnv(gym.Env, utils.EzPickle):
         if self.game_mode is not None:
             modes = self.ale.getAvailableModes()
 
-            assert self.game_mode in modes, ('Invalid game mode "{}" for game {}.\nAvailable modes are: {}').format(
-                self.game_mode, self.game, modes
-            )
+            assert self.game_mode in modes, (
+                'Invalid game mode "{}" for game {}.\nAvailable modes are: {}'
+            ).format(self.game_mode, self.game, modes)
             self.ale.setMode(self.game_mode)
 
         if self.game_difficulty is not None:

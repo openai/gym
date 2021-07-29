@@ -35,7 +35,12 @@ def cem(f, th_mean, batch_size, n_iter, elite_frac, initial_std=1.0):
     th_std = np.ones_like(th_mean) * initial_std
 
     for _ in range(n_iter):
-        ths = np.array([th_mean + dth for dth in th_std[None, :] * np.random.randn(batch_size, th_mean.size)])
+        ths = np.array(
+            [
+                th_mean + dth
+                for dth in th_std[None, :] * np.random.randn(batch_size, th_mean.size)
+            ]
+        )
         ys = np.array([f(th) for th in ths])
         elite_inds = ys.argsort()[::-1][:n_elite]
         elite_ths = ths[elite_inds]
@@ -96,7 +101,9 @@ if __name__ == "__main__":
         return rew
 
     # Train the agent, and snapshot each stage
-    for (i, iterdata) in enumerate(cem(noisy_evaluation, np.zeros(env.observation_space.shape[0] + 1), **params)):
+    for (i, iterdata) in enumerate(
+        cem(noisy_evaluation, np.zeros(env.observation_space.shape[0] + 1), **params)
+    ):
         print("Iteration %2i. Episode mean reward: %7.3f" % (i, iterdata["y_mean"]))
         agent = BinaryActionLinearPolicy(iterdata["theta_mean"])
         if args.display:

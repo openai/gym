@@ -2,7 +2,10 @@ from gym import envs, logger
 import os
 
 
-SKIP_MUJOCO_WARNING_MESSAGE = "Cannot run mujoco test (either license key not found or mujoco not" "installed properly)."
+SKIP_MUJOCO_WARNING_MESSAGE = (
+    "Cannot run mujoco test (either license key not found or mujoco not"
+    "installed properly)."
+)
 
 
 skip_mujoco = not (os.environ.get("MUJOCO_KEY"))
@@ -18,7 +21,9 @@ def should_skip_env_spec_for_tests(spec):
     # troublesome to run frequently
     ep = spec.entry_point
     # Skip mujoco tests for pull request CI
-    if skip_mujoco and (ep.startswith("gym.envs.mujoco") or ep.startswith("gym.envs.robotics:")):
+    if skip_mujoco and (
+        ep.startswith("gym.envs.mujoco") or ep.startswith("gym.envs.robotics:")
+    ):
         return True
     try:
         import atari_py
@@ -34,7 +39,11 @@ def should_skip_env_spec_for_tests(spec):
     if (
         "GoEnv" in ep
         or "HexEnv" in ep
-        or (ep.startswith("gym.envs.atari") and not spec.id.startswith("Pong") and not spec.id.startswith("Seaquest"))
+        or (
+            ep.startswith("gym.envs.atari")
+            and not spec.id.startswith("Pong")
+            and not spec.id.startswith("Seaquest")
+        )
     ):
         logger.warn("Skipping tests for env {}".format(ep))
         return True

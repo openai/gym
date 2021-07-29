@@ -85,7 +85,9 @@ NESTED_DICT_TEST_CASES = (
     (
         Dict(
             {
-                "key1": Tuple((Dict({"key9": Box(shape=(2,), low=-1, high=1, dtype=np.float32)}),)),
+                "key1": Tuple(
+                    (Dict({"key9": Box(shape=(2,), low=-1, high=1, dtype=np.float32)}),)
+                ),
                 "key2": Box(shape=(), low=-1, high=1, dtype=np.float32),
                 "key3": Box(shape=(2,), low=-1, high=1, dtype=np.float32),
             }

@@ -44,7 +44,8 @@ def batch_space(space, n=1):
         return batch_space_custom(space, n=n)
     else:
         raise ValueError(
-            "Cannot batch space with type `{0}`. The space must " "be a valid `gym.Space` instance.".format(type(space))
+            "Cannot batch space with type `{0}`. The space must "
+            "be a valid `gym.Space` instance.".format(type(space))
         )
 
 
@@ -74,7 +75,14 @@ def batch_space_tuple(space, n=1):
 
 
 def batch_space_dict(space, n=1):
-    return Dict(OrderedDict([(key, batch_space(subspace, n=n)) for (key, subspace) in space.spaces.items()]))
+    return Dict(
+        OrderedDict(
+            [
+                (key, batch_space(subspace, n=n))
+                for (key, subspace) in space.spaces.items()
+            ]
+        )
+    )
 
 
 def batch_space_custom(space, n=1):

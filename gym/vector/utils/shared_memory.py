@@ -56,11 +56,18 @@ def create_base_shared_memory(space, n=1, ctx=mp):
 
 
 def create_tuple_shared_memory(space, n=1, ctx=mp):
-    return tuple(create_shared_memory(subspace, n=n, ctx=ctx) for subspace in space.spaces)
+    return tuple(
+        create_shared_memory(subspace, n=n, ctx=ctx) for subspace in space.spaces
+    )
 
 
 def create_dict_shared_memory(space, n=1, ctx=mp):
-    return OrderedDict([(key, create_shared_memory(subspace, n=n, ctx=ctx)) for (key, subspace) in space.spaces.items()])
+    return OrderedDict(
+        [
+            (key, create_shared_memory(subspace, n=n, ctx=ctx))
+            for (key, subspace) in space.spaces.items()
+        ]
+    )
 
 
 def read_from_shared_memory(shared_memory, space, n=1):
@@ -107,16 +114,24 @@ def read_from_shared_memory(shared_memory, space, n=1):
 
 
 def read_base_from_shared_memory(shared_memory, space, n=1):
-    return np.frombuffer(shared_memory.get_obj(), dtype=space.dtype).reshape((n,) + space.shape)
+    return np.frombuffer(shared_memory.get_obj(), dtype=space.dtype).reshape(
+        (n,) + space.shape
+    )
 
 
 def read_tuple_from_shared_memory(shared_memory, space, n=1):
-    return tuple(read_from_shared_memory(memory, subspace, n=n) for (memory, subspace) in zip(shared_memory, space.spaces))
+    return tuple(
+        read_from_shared_memory(memory, subspace, n=n)
+        for (memory, subspace) in zip(shared_memory, space.spaces)
+    )
 
 
 def read_dict_from_shared_memory(shared_memory, space, n=1):
     return OrderedDict(
-        [(key, read_from_shared_memory(shared_memory[key], subspace, n=n)) for (key, subspace) in space.spaces.items()]
+        [
+            (key, read_from_shared_memory(shared_memory[key], subspace, n=n))
+            for (key, subspace) in space.spaces.items()
+        ]
     )
 
 

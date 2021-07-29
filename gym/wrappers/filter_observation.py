@@ -51,7 +51,11 @@ class FilterObservation(ObservationWrapper):
             )
 
         self.observation_space = type(wrapped_observation_space)(
-            [(name, copy.deepcopy(space)) for name, space in wrapped_observation_space.spaces.items() if name in filter_keys]
+            [
+                (name, copy.deepcopy(space))
+                for name, space in wrapped_observation_space.spaces.items()
+                if name in filter_keys
+            ]
         )
 
         self._env = env
@@ -62,5 +66,11 @@ class FilterObservation(ObservationWrapper):
         return filter_observation
 
     def _filter_observation(self, observation):
-        observation = type(observation)([(name, value) for name, value in observation.items() if name in self._filter_keys])
+        observation = type(observation)(
+            [
+                (name, value)
+                for name, value in observation.items()
+                if name in self._filter_keys
+            ]
+        )
         return observation

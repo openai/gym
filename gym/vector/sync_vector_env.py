@@ -44,7 +44,9 @@ class SyncVectorEnv(VectorEnv):
         )
 
         self._check_observation_spaces()
-        self.observations = create_empty_array(self.single_observation_space, n=self.num_envs, fn=np.zeros)
+        self.observations = create_empty_array(
+            self.single_observation_space, n=self.num_envs, fn=np.zeros
+        )
         self._rewards = np.zeros((self.num_envs,), dtype=np.float64)
         self._dones = np.zeros((self.num_envs,), dtype=np.bool_)
         self._actions = None
@@ -65,7 +67,9 @@ class SyncVectorEnv(VectorEnv):
         for env in self.envs:
             observation = env.reset()
             observations.append(observation)
-        self.observations = concatenate(observations, self.observations, self.single_observation_space)
+        self.observations = concatenate(
+            observations, self.observations, self.single_observation_space
+        )
 
         return deepcopy(self.observations) if self.copy else self.observations
 
@@ -80,7 +84,9 @@ class SyncVectorEnv(VectorEnv):
                 observation = env.reset()
             observations.append(observation)
             infos.append(info)
-        self.observations = concatenate(observations, self.observations, self.single_observation_space)
+        self.observations = concatenate(
+            observations, self.observations, self.single_observation_space
+        )
 
         return (
             deepcopy(self.observations) if self.copy else self.observations,

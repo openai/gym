@@ -65,7 +65,9 @@ class KellyCoinflipEnv(gym.Env):
         return [seed]
 
     def step(self, action):
-        bet_in_dollars = min(action / 100.0, self.wealth)  # action = desired bet in pennies
+        bet_in_dollars = min(
+            action / 100.0, self.wealth
+        )  # action = desired bet in pennies
         self.rounds -= 1
 
         coinflip = flip(self.edge, self.np_random)
@@ -147,19 +149,35 @@ class KellyCoinflipGeneralizedEnv(gym.Env):
         edge = self.np_random.beta(edge_prior_alpha, edge_prior_beta)
         if self.clip_distributions:
             # (clip/resample some parameters to be able to fix obs/action space sizes/bounds)
-            max_wealth_bound = round(genpareto.ppf(0.85, max_wealth_alpha, max_wealth_m))
+            max_wealth_bound = round(
+                genpareto.ppf(0.85, max_wealth_alpha, max_wealth_m)
+            )
             max_wealth = max_wealth_bound + 1.0
             while max_wealth > max_wealth_bound:
-                max_wealth = round(genpareto.rvs(max_wealth_alpha, max_wealth_m, random_state=self.np_random))
-            max_rounds_bound = int(round(norm.ppf(0.99, max_rounds_mean, max_rounds_sd)))
+                max_wealth = round(
+                    genpareto.rvs(
+                        max_wealth_alpha, max_wealth_m, random_state=self.np_random
+                    )
+                )
+            max_rounds_bound = int(
+                round(norm.ppf(0.99, max_rounds_mean, max_rounds_sd))
+            )
             max_rounds = max_rounds_bound + 1
             while max_rounds > max_rounds_bound:
-                max_rounds = int(round(self.np_random.normal(max_rounds_mean, max_rounds_sd)))
+                max_rounds = int(
+                    round(self.np_random.normal(max_rounds_mean, max_rounds_sd))
+                )
 
         else:
-            max_wealth = round(genpareto.rvs(max_wealth_alpha, max_wealth_m, random_state=self.np_random))
+            max_wealth = round(
+                genpareto.rvs(
+                    max_wealth_alpha, max_wealth_m, random_state=self.np_random
+                )
+            )
             max_wealth_bound = max_wealth
-            max_rounds = int(round(self.np_random.normal(max_rounds_mean, max_rounds_sd)))
+            max_rounds = int(
+                round(self.np_random.normal(max_rounds_mean, max_rounds_sd))
+            )
             max_rounds_bound = max_rounds
 
         # add an additional global variable which is the sufficient statistic for the
@@ -176,7 +194,9 @@ class KellyCoinflipGeneralizedEnv(gym.Env):
         self.action_space = spaces.Discrete(int(max_wealth_bound * 100))
         self.observation_space = spaces.Tuple(
             (
-                spaces.Box(0, max_wealth_bound, shape=[1], dtype=np.float32),  # current wealth
+                spaces.Box(
+                    0, max_wealth_bound, shape=[1], dtype=np.float32
+                ),  # current wealth
                 spaces.Discrete(max_rounds_bound + 1),  # rounds elapsed
                 spaces.Discrete(max_rounds_bound + 1),  # wins
                 spaces.Discrete(max_rounds_bound + 1),  # losses

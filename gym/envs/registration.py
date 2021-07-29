@@ -108,7 +108,11 @@ class EnvRegistry(object):
         # reset/step. Set _gym_disable_underscore_compat = True on
         # your environment if you use these methods and don't want
         # compatibility code to be invoked.
-        if hasattr(env, "_reset") and hasattr(env, "_step") and not getattr(env, "_gym_disable_underscore_compat", False):
+        if (
+            hasattr(env, "_reset")
+            and hasattr(env, "_step")
+            and not getattr(env, "_gym_disable_underscore_compat", False)
+        ):
             patch_deprecated_methods(env)
         if env.spec.max_episode_steps is not None:
             from gym.wrappers.time_limit import TimeLimit
@@ -154,7 +158,11 @@ class EnvRegistry(object):
                 if env_name == valid_env_spec._env_name
             ]
             if matching_envs:
-                raise error.DeprecatedEnv("Env {} not found (valid versions include {})".format(id, matching_envs))
+                raise error.DeprecatedEnv(
+                    "Env {} not found (valid versions include {})".format(
+                        id, matching_envs
+                    )
+                )
             else:
                 raise error.UnregisteredEnv("No registered env with id: {}".format(id))
 

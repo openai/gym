@@ -62,7 +62,10 @@ class HotterColder(gym.Env):
         elif action > self.number:
             self.observation = 3
 
-        reward = ((min(action, self.number) + self.bounds) / (max(action, self.number) + self.bounds)) ** 2
+        reward = (
+            (min(action, self.number) + self.bounds)
+            / (max(action, self.number) + self.bounds)
+        ) ** 2
 
         self.guess_count += 1
         done = self.guess_count >= self.guess_max

@@ -37,7 +37,9 @@ class Monitor(Wrapper):
         self._monitor_id = None
         self.env_semantics_autoreset = env.metadata.get("semantics.autoreset")
 
-        self._start(directory, video_callable, force, resume, write_upon_reset, uid, mode)
+        self._start(
+            directory, video_callable, force, resume, write_upon_reset, uid, mode
+        )
 
     def step(self, action):
         self._before_step(action)
@@ -161,7 +163,10 @@ class Monitor(Wrapper):
             json.dump(
                 {
                     "stats": os.path.basename(self.stats_recorder.path),
-                    "videos": [(os.path.basename(v), os.path.basename(m)) for v, m in self.videos],
+                    "videos": [
+                        (os.path.basename(v), os.path.basename(m))
+                        for v, m in self.videos
+                    ],
                     "env_info": self._env_info(),
                 },
                 f,
@@ -194,7 +199,9 @@ class Monitor(Wrapper):
         elif mode == "training":
             type = "t"
         else:
-            raise error.Error('Invalid mode {}: must be "training" or "evaluation"', mode)
+            raise error.Error(
+                'Invalid mode {}: must be "training" or "evaluation"', mode
+            )
         self.stats_recorder.type = type
 
     def _before_step(self, action):
@@ -250,7 +257,9 @@ class Monitor(Wrapper):
             env=self.env,
             base_path=os.path.join(
                 self.directory,
-                "{}.video.{}.video{:06}".format(self.file_prefix, self.file_infix, self.episode_id),
+                "{}.video.{}.video{:06}".format(
+                    self.file_prefix, self.file_infix, self.episode_id
+                ),
             ),
             metadata={"episode_id": self.episode_id},
             enabled=self._video_enabled(),
@@ -260,7 +269,9 @@ class Monitor(Wrapper):
     def _close_video_recorder(self):
         self.video_recorder.close()
         if self.video_recorder.functional:
-            self.videos.append((self.video_recorder.path, self.video_recorder.metadata_path))
+            self.videos.append(
+                (self.video_recorder.path, self.video_recorder.metadata_path)
+            )
 
     def _video_enabled(self):
         return self.video_callable(self.episode_id)
@@ -290,11 +301,19 @@ class Monitor(Wrapper):
 def detect_training_manifests(training_dir, files=None):
     if files is None:
         files = os.listdir(training_dir)
-    return [os.path.join(training_dir, f) for f in files if f.startswith(MANIFEST_PREFIX + ".")]
+    return [
+        os.path.join(training_dir, f)
+        for f in files
+        if f.startswith(MANIFEST_PREFIX + ".")
+    ]
 
 
 def detect_monitor_files(training_dir):
-    return [os.path.join(training_dir, f) for f in os.listdir(training_dir) if f.startswith(FILE_PREFIX + ".")]
+    return [
+        os.path.join(training_dir, f)
+        for f in os.listdir(training_dir)
+        if f.startswith(FILE_PREFIX + ".")
+    ]
 
 
 def clear_monitor_files(training_dir):
@@ -363,7 +382,10 @@ def load_results(training_dir):
             contents = json.load(f)
             # Make these paths absolute again
             stats_files.append(os.path.join(training_dir, contents["stats"]))
-            videos += [(os.path.join(training_dir, v), os.path.join(training_dir, m)) for v, m in contents["videos"]]
+            videos += [
+                (os.path.join(training_dir, v), os.path.join(training_dir, m))
+                for v, m in contents["videos"]
+            ]
             env_infos.append(contents["env_info"])
 
     env_info = collapse_env_infos(env_infos, training_dir)

@@ -22,7 +22,9 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
         self._reset_noise_scale = reset_noise_scale
 
-        self._exclude_current_positions_from_observation = exclude_current_positions_from_observation
+        self._exclude_current_positions_from_observation = (
+            exclude_current_positions_from_observation
+        )
 
         mujoco_env.MujocoEnv.__init__(self, xml_file, 4)
 
@@ -72,8 +74,12 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         noise_low = -self._reset_noise_scale
         noise_high = self._reset_noise_scale
 
-        qpos = self.init_qpos + self.np_random.uniform(low=noise_low, high=noise_high, size=self.model.nq)
-        qvel = self.init_qvel + self.np_random.uniform(low=noise_low, high=noise_high, size=self.model.nv)
+        qpos = self.init_qpos + self.np_random.uniform(
+            low=noise_low, high=noise_high, size=self.model.nq
+        )
+        qvel = self.init_qvel + self.np_random.uniform(
+            low=noise_low, high=noise_high, size=self.model.nv
+        )
 
         self.set_state(qpos, qvel)
 

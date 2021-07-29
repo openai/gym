@@ -88,7 +88,11 @@ def play(env, transpose=True, fps=30, zoom=None, callback=None, keys_to_action=N
         elif hasattr(env.unwrapped, "get_keys_to_action"):
             keys_to_action = env.unwrapped.get_keys_to_action()
         else:
-            assert False, env.spec.id + " does not have explicit key to action mapping, " + "please specify one manually"
+            assert False, (
+                env.spec.id
+                + " does not have explicit key to action mapping, "
+                + "please specify one manually"
+            )
     relevant_keys = set(sum(map(list, keys_to_action.keys()), []))
 
     video_size = [rendered.shape[1], rendered.shape[0]]
@@ -168,7 +172,9 @@ class PlayPlot(object):
         for i, plot in enumerate(self.cur_plot):
             if plot is not None:
                 plot.remove()
-            self.cur_plot[i] = self.ax[i].scatter(range(xmin, xmax), list(self.data[i]), c="blue")
+            self.cur_plot[i] = self.ax[i].scatter(
+                range(xmin, xmax), list(self.data[i]), c="blue"
+            )
             self.ax[i].set_xlim(xmin, xmax)
         plt.pause(0.000001)
 

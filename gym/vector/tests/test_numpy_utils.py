@@ -10,7 +10,9 @@ from gym.vector.tests.utils import spaces
 from gym.vector.utils.numpy_utils import concatenate, create_empty_array
 
 
-@pytest.mark.parametrize("space", spaces, ids=[space.__class__.__name__ for space in spaces])
+@pytest.mark.parametrize(
+    "space", spaces, ids=[space.__class__.__name__ for space in spaces]
+)
 def test_concatenate(space):
     def assert_type(lhs, rhs, n):
         # Special case: if rhs is a list of scalars, lhs must be an np.ndarray
@@ -51,7 +53,9 @@ def test_concatenate(space):
 
 
 @pytest.mark.parametrize("n", [1, 8])
-@pytest.mark.parametrize("space", spaces, ids=[space.__class__.__name__ for space in spaces])
+@pytest.mark.parametrize(
+    "space", spaces, ids=[space.__class__.__name__ for space in spaces]
+)
 def test_create_empty_array(space, n):
     def assert_nested_type(arr, space, n):
         if isinstance(space, _BaseGymSpaces):
@@ -79,7 +83,9 @@ def test_create_empty_array(space, n):
 
 
 @pytest.mark.parametrize("n", [1, 8])
-@pytest.mark.parametrize("space", spaces, ids=[space.__class__.__name__ for space in spaces])
+@pytest.mark.parametrize(
+    "space", spaces, ids=[space.__class__.__name__ for space in spaces]
+)
 def test_create_empty_array_zeros(space, n):
     def assert_nested_type(arr, space, n):
         if isinstance(space, _BaseGymSpaces):
@@ -107,7 +113,9 @@ def test_create_empty_array_zeros(space, n):
     assert_nested_type(array, space, n=n)
 
 
-@pytest.mark.parametrize("space", spaces, ids=[space.__class__.__name__ for space in spaces])
+@pytest.mark.parametrize(
+    "space", spaces, ids=[space.__class__.__name__ for space in spaces]
+)
 def test_create_empty_array_none_shape_ones(space):
     def assert_nested_type(arr, space):
         if isinstance(space, _BaseGymSpaces):
