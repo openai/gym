@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
 
-from gym.spaces import Box, Tuple
+from gym.spaces import Box, Tuple, Discrete, MultiDiscrete
 from tests.vector.utils import CustomSpace, make_env, make_custom_space_env
 
 from gym.vector.sync_vector_env import SyncVectorEnv
@@ -38,6 +38,10 @@ def test_step_sync_vector_env(use_single_action_space):
     try:
         env = SyncVectorEnv(env_fns)
         observations = env.reset()
+
+        assert isinstance(env.single_action_space, Discrete)
+        assert isinstance(env.action_space, MultiDiscrete)
+
         if use_single_action_space:
             actions = [env.single_action_space.sample() for _ in range(8)]
         else:
@@ -78,6 +82,10 @@ def test_custom_space_sync_vector_env():
     try:
         env = SyncVectorEnv(env_fns)
         reset_observations = env.reset()
+
+        assert isinstance(env.single_action_space, CustomSpace)
+        assert isinstance(env.action_space, Tuple)
+
         actions = ("action-2", "action-3", "action-5", "action-7")
         step_observations, rewards, dones, _ = env.step(actions)
     finally:

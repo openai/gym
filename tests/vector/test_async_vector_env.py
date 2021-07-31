@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 
 from multiprocessing import TimeoutError
-from gym.spaces import Box, Tuple
+from gym.spaces import Box, Tuple, Discrete, MultiDiscrete
 from gym.error import AlreadyPendingCallError, NoAsyncCallError, ClosedEnvironmentError
 from tests.vector.utils import (
     CustomSpace,
@@ -48,6 +48,10 @@ def test_step_async_vector_env(shared_memory, use_single_action_space):
     try:
         env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
         observations = env.reset()
+
+        assert isinstance(env.single_action_space, Discrete)
+        assert isinstance(env.action_space, MultiDiscrete)
+
         if use_single_action_space:
             actions = [env.single_action_space.sample() for _ in range(8)]
         else:
@@ -204,6 +208,10 @@ def test_custom_space_async_vector_env():
     try:
         env = AsyncVectorEnv(env_fns, shared_memory=False)
         reset_observations = env.reset()
+
+        assert isinstance(env.single_action_space, CustomSpace)
+        assert isinstance(env.action_space, Tuple)
+
         actions = ("action-2", "action-3", "action-5", "action-7")
         step_observations, rewards, dones, _ = env.step(actions)
     finally:
