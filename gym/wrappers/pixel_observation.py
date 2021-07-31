@@ -1,26 +1,21 @@
-"""An observation wrapper that augments observations by pixel values."""
-
 import collections
 from collections.abc import MutableMapping
 import copy
-
 import numpy as np
 
 from gym import spaces
 from gym import ObservationWrapper
 
 
-STATE_KEY = 'state'
+STATE_KEY = "state"
 
 
 class PixelObservationWrapper(ObservationWrapper):
     """Augment observations by pixel values."""
 
-    def __init__(self,
-                 env,
-                 pixels_only=True,
-                 render_kwargs=None,
-                 pixel_keys=('pixels', )):
+    def __init__(
+        self, env, pixels_only=True, render_kwargs=None, pixel_keys=("pixels",)
+    ):
         """Initializes a new pixel Wrapper.
 
         Args:
@@ -52,17 +47,16 @@ class PixelObservationWrapper(ObservationWrapper):
         for key in pixel_keys:
             render_kwargs.setdefault(key, {})
 
-            render_mode = render_kwargs[key].pop('mode', 'rgb_array')
-            assert render_mode == 'rgb_array', render_mode
-            render_kwargs[key]['mode'] = 'rgb_array'
+            render_mode = render_kwargs[key].pop("mode", "rgb_array")
+            assert render_mode == "rgb_array", render_mode
+            render_kwargs[key]["mode"] = "rgb_array"
 
         wrapped_observation_space = env.observation_space
 
         if isinstance(wrapped_observation_space, spaces.Box):
             self._observation_is_dict = False
             invalid_keys = set([STATE_KEY])
-        elif isinstance(wrapped_observation_space,
-                        (spaces.Dict, MutableMapping)):
+        elif isinstance(wrapped_observation_space, (spaces.Dict, MutableMapping)):
             self._observation_is_dict = True
             invalid_keys = set(wrapped_observation_space.spaces.keys())
         else:
@@ -73,8 +67,9 @@ class PixelObservationWrapper(ObservationWrapper):
             # `observation_keys`
             overlapping_keys = set(pixel_keys) & set(invalid_keys)
             if overlapping_keys:
-                raise ValueError("Duplicate or reserved pixel keys {!r}."
-                                 .format(overlapping_keys))
+                raise ValueError(
+                    "Duplicate or reserved pixel keys {!r}.".format(overlapping_keys)
+                )
 
         if pixels_only:
             self.observation_space = spaces.Dict()
@@ -93,12 +88,13 @@ class PixelObservationWrapper(ObservationWrapper):
             if np.issubdtype(pixels.dtype, np.integer):
                 low, high = (0, 255)
             elif np.issubdtype(pixels.dtype, np.float):
-                low, high = (-float('inf'), float('inf'))
+                low, high = (-float("inf"), float("inf"))
             else:
                 raise TypeError(pixels.dtype)
 
             pixels_space = spaces.Box(
-                shape=pixels.shape, low=low, high=high, dtype=pixels.dtype)
+                shape=pixels.shape, low=low, high=high, dtype=pixels.dtype
+            )
             pixels_spaces[pixel_key] = pixels_space
 
         self.observation_space.spaces.update(pixels_spaces)

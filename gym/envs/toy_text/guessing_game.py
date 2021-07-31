@@ -37,12 +37,15 @@ class GuessingGame(gym.Env):
     The perfect agent would likely learn the bounds of the action space (without referring
     to them explicitly) and then follow binary tree style exploration towards to goal number
     """
+
     def __init__(self):
         self.range = 1000  # Randomly selected number is within +/- this value
         self.bounds = 10000
 
-        self.action_space = spaces.Box(low=np.array([-self.bounds]), high=np.array([self.bounds]),
-                                       dtype=np.float32)
+        self.action_space = spaces.Box(
+            low=np.array([-self.bounds]).astype(np.float32),
+            high=np.array([self.bounds]).astype(np.float32),
+        )
         self.observation_space = spaces.Discrete(4)
 
         self.number = 0
@@ -77,7 +80,11 @@ class GuessingGame(gym.Env):
         reward = 0
         done = False
 
-        if (self.number - self.range * 0.01) < action < (self.number + self.range * 0.01):
+        if (
+            (self.number - self.range * 0.01)
+            < action
+            < (self.number + self.range * 0.01)
+        ):
             reward = 1
             done = True
 
@@ -85,7 +92,12 @@ class GuessingGame(gym.Env):
         if self.guess_count >= self.guess_max:
             done = True
 
-        return self.observation, reward, done, {"number": self.number, "guesses": self.guess_count}
+        return (
+            self.observation,
+            reward,
+            done,
+            {"number": self.number, "guesses": self.guess_count},
+        )
 
     def reset(self):
         self.number = self.np_random.uniform(-self.range, self.range)

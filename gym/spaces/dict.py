@@ -31,8 +31,11 @@ class Dict(Space):
         })
     })
     """
+
     def __init__(self, spaces=None, **spaces_kwargs):
-        assert (spaces is None) or (not spaces_kwargs), 'Use either Dict(spaces=dict(...)) or Dict(foo=x, bar=z)'
+        assert (spaces is None) or (
+            not spaces_kwargs
+        ), "Use either Dict(spaces=dict(...)) or Dict(foo=x, bar=z)"
         if spaces is None:
             spaces = spaces_kwargs
         if isinstance(spaces, dict) and not isinstance(spaces, OrderedDict):
@@ -41,8 +44,12 @@ class Dict(Space):
             spaces = OrderedDict(spaces)
         self.spaces = spaces
         for space in spaces.values():
-            assert isinstance(space, Space), 'Values of the dict should be instances of gym.Space'
-        super(Dict, self).__init__(None, None) # None for shape and dtype, since it'll require special handling
+            assert isinstance(
+                space, Space
+            ), "Values of the dict should be instances of gym.Space"
+        super(Dict, self).__init__(
+            None, None
+        )  # None for shape and dtype, since it'll require special handling
 
     def seed(self, seed=None):
         [space.seed(seed) for space in self.spaces.values()]
@@ -62,18 +69,30 @@ class Dict(Space):
 
     def __getitem__(self, key):
         return self.spaces[key]
-        
+
     def __iter__(self):
         for key in self.spaces:
             yield key
 
+    def __len__(self):
+        return len(self.spaces)
+
+    def __contains__(self, item):
+        return self.contains(item)
+
     def __repr__(self):
-        return "Dict(" + ", ". join([str(k) + ":" + str(s) for k, s in self.spaces.items()]) + ")"
+        return (
+            "Dict("
+            + ", ".join([str(k) + ":" + str(s) for k, s in self.spaces.items()])
+            + ")"
+        )
 
     def to_jsonable(self, sample_n):
         # serialize as dict-repr of vectors
-        return {key: space.to_jsonable([sample[key] for sample in sample_n]) \
-                for key, space in self.spaces.items()}
+        return {
+            key: space.to_jsonable([sample[key] for sample in sample_n])
+            for key, space in self.spaces.items()
+        }
 
     def from_jsonable(self, sample_n):
         dict_of_list = {}

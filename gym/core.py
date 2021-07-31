@@ -30,9 +30,10 @@ class Env(object):
 
     The methods are accessed publicly as "step", "reset", etc...
     """
+
     # Set this in SOME subclasses
-    metadata = {'render.modes': []}
-    reward_range = (-float('inf'), float('inf'))
+    metadata = {"render.modes": []}
+    reward_range = (-float("inf"), float("inf"))
     spec = None
 
     # Set these in ALL subclasses
@@ -150,16 +151,16 @@ class Env(object):
 
     def __str__(self):
         if self.spec is None:
-            return '<{} instance>'.format(type(self).__name__)
+            return "<{} instance>".format(type(self).__name__)
         else:
-            return '<{}<{}>>'.format(type(self).__name__, self.spec.id)
+            return "<{}<{}>>".format(type(self).__name__, self.spec.id)
 
     def __enter__(self):
-        """Support with-statement for the environment. """
+        """Support with-statement for the environment."""
         return self
 
     def __exit__(self, *args):
-        """Support with-statement for the environment. """
+        """Support with-statement for the environment."""
         self.close()
         # propagate exception
         return False
@@ -177,10 +178,16 @@ class GoalEnv(Env):
     def reset(self):
         # Enforce that each GoalEnv uses a Goal-compatible observation space.
         if not isinstance(self.observation_space, gym.spaces.Dict):
-            raise error.Error('GoalEnv requires an observation space of type gym.spaces.Dict')
-        for key in ['observation', 'achieved_goal', 'desired_goal']:
+            raise error.Error(
+                "GoalEnv requires an observation space of type gym.spaces.Dict"
+            )
+        for key in ["observation", "achieved_goal", "desired_goal"]:
             if key not in self.observation_space.spaces:
-                raise error.Error('GoalEnv requires the "{}" key to be part of the observation dictionary.'.format(key))
+                raise error.Error(
+                    'GoalEnv requires the "{}" key to be part of the observation dictionary.'.format(
+                        key
+                    )
+                )
 
     @abstractmethod
     def compute_reward(self, achieved_goal, desired_goal, info):
@@ -216,6 +223,7 @@ class Wrapper(Env):
         Don't forget to call ``super().__init__(env)`` if the subclass overrides :meth:`__init__`.
 
     """
+
     def __init__(self, env):
         self.env = env
         self.action_space = self.env.action_space
@@ -224,8 +232,10 @@ class Wrapper(Env):
         self.metadata = self.env.metadata
 
     def __getattr__(self, name):
-        if name.startswith('_'):
-            raise AttributeError("attempted to get missing private attribute '{}'".format(name))
+        if name.startswith("_"):
+            raise AttributeError(
+                "attempted to get missing private attribute '{}'".format(name)
+            )
         return getattr(self.env, name)
 
     @property
@@ -242,7 +252,7 @@ class Wrapper(Env):
     def reset(self, **kwargs):
         return self.env.reset(**kwargs)
 
-    def render(self, mode='human', **kwargs):
+    def render(self, mode="human", **kwargs):
         return self.env.render(mode, **kwargs)
 
     def close(self):
@@ -255,7 +265,7 @@ class Wrapper(Env):
         return self.env.compute_reward(achieved_goal, desired_goal, info)
 
     def __str__(self):
-        return '<{}{}>'.format(type(self).__name__, self.env)
+        return "<{}{}>".format(type(self).__name__, self.env)
 
     def __repr__(self):
         return str(self)

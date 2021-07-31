@@ -13,8 +13,7 @@ class FakeEnvironment(gym.Env):
     def __init__(self, observation_space):
         self.observation_space = observation_space
         self.obs_keys = self.observation_space.spaces.keys()
-        self.action_space = Box(
-            shape=(1, ), low=-1, high=1, dtype=np.float32)
+        self.action_space = Box(shape=(1,), low=-1, high=1, dtype=np.float32)
 
     def render(self, width=32, height=32, *args, **kwargs):
         del args
@@ -34,48 +33,72 @@ class FakeEnvironment(gym.Env):
 
 
 NESTED_DICT_TEST_CASES = (
-     (Dict({
-        "key1": Box(shape=(2, ), low=-1, high=1, dtype=np.float32),
-        "key2": Dict({
-            "subkey1": Box(shape=(2, ), low=-1, high=1, dtype=np.float32),
-            "subkey2": Box(shape=(2, ), low=-1, high=1, dtype=np.float32)
-        })
-     }), (6, )),
-     (Dict({
-         "key1": Box(shape=(2, 3), low=-1, high=1, dtype=np.float32),
-         "key2": Box(shape=(), low=-1, high=1, dtype=np.float32),
-         "key3": Box(shape=(2, ), low=-1, high=1, dtype=np.float32)
-     }), (9, )),
-     (Dict({
-         "key1": Tuple(
-             (Box(shape=(2, ), low=-1, high=1, dtype=np.float32),
-              Box(shape=(2, ), low=-1, high=1, dtype=np.float32))
-         ),
-         "key2": Box(shape=(), low=-1, high=1, dtype=np.float32),
-         "key3": Box(shape=(2, ), low=-1, high=1, dtype=np.float32)
-     }), (7, )),
-     (Dict({
-         "key1": Tuple(
-             (Box(shape=(2, ), low=-1, high=1, dtype=np.float32), )
-         ),
-         "key2": Box(shape=(), low=-1, high=1, dtype=np.float32),
-         "key3": Box(shape=(2, ), low=-1, high=1, dtype=np.float32)
-     }), (5, )),
-     (Dict({
-         "key1": Tuple(
-             (Dict({
-                 "key9": Box(shape=(2, ), low=-1, high=1, dtype=np.float32)
-             }), )
-         ),
-         "key2": Box(shape=(), low=-1, high=1, dtype=np.float32),
-         "key3": Box(shape=(2, ), low=-1, high=1, dtype=np.float32)
-     }), (5, )),
+    (
+        Dict(
+            {
+                "key1": Box(shape=(2,), low=-1, high=1, dtype=np.float32),
+                "key2": Dict(
+                    {
+                        "subkey1": Box(shape=(2,), low=-1, high=1, dtype=np.float32),
+                        "subkey2": Box(shape=(2,), low=-1, high=1, dtype=np.float32),
+                    }
+                ),
+            }
+        ),
+        (6,),
+    ),
+    (
+        Dict(
+            {
+                "key1": Box(shape=(2, 3), low=-1, high=1, dtype=np.float32),
+                "key2": Box(shape=(), low=-1, high=1, dtype=np.float32),
+                "key3": Box(shape=(2,), low=-1, high=1, dtype=np.float32),
+            }
+        ),
+        (9,),
+    ),
+    (
+        Dict(
+            {
+                "key1": Tuple(
+                    (
+                        Box(shape=(2,), low=-1, high=1, dtype=np.float32),
+                        Box(shape=(2,), low=-1, high=1, dtype=np.float32),
+                    )
+                ),
+                "key2": Box(shape=(), low=-1, high=1, dtype=np.float32),
+                "key3": Box(shape=(2,), low=-1, high=1, dtype=np.float32),
+            }
+        ),
+        (7,),
+    ),
+    (
+        Dict(
+            {
+                "key1": Tuple((Box(shape=(2,), low=-1, high=1, dtype=np.float32),)),
+                "key2": Box(shape=(), low=-1, high=1, dtype=np.float32),
+                "key3": Box(shape=(2,), low=-1, high=1, dtype=np.float32),
+            }
+        ),
+        (5,),
+    ),
+    (
+        Dict(
+            {
+                "key1": Tuple(
+                    (Dict({"key9": Box(shape=(2,), low=-1, high=1, dtype=np.float32)}),)
+                ),
+                "key2": Box(shape=(), low=-1, high=1, dtype=np.float32),
+                "key3": Box(shape=(2,), low=-1, high=1, dtype=np.float32),
+            }
+        ),
+        (5,),
+    ),
 )
 
-class TestNestedDictWrapper(object):
-    @pytest.mark.parametrize("observation_space, flat_shape",
 
-                             NESTED_DICT_TEST_CASES)
+class TestNestedDictWrapper(object):
+    @pytest.mark.parametrize("observation_space, flat_shape", NESTED_DICT_TEST_CASES)
     def test_nested_dicts_size(self, observation_space, flat_shape):
         env = FakeEnvironment(observation_space=observation_space)
 

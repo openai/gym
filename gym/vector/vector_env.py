@@ -2,20 +2,20 @@ import gym
 from gym.spaces import Tuple
 from gym.vector.utils.spaces import batch_space
 
-__all__ = ['VectorEnv']
+__all__ = ["VectorEnv"]
 
 
 class VectorEnv(gym.Env):
     r"""Base class for vectorized environments.
 
-    Each observation returned from vectorized environment is a batch of observations 
-    for each sub-environment. And :meth:`step` is also expected to receive a batch of 
+    Each observation returned from vectorized environment is a batch of observations
+    for each sub-environment. And :meth:`step` is also expected to receive a batch of
     actions for each sub-environment.
-    
+
     .. note::
-    
+
         All sub-environments should share the identical observation and action spaces.
-        In other words, a vector of multiple different environments is not supported. 
+        In other words, a vector of multiple different environments is not supported.
 
     Parameters
     ----------
@@ -28,6 +28,7 @@ class VectorEnv(gym.Env):
     action_space : `gym.spaces.Space` instance
         Action space of a single environment.
     """
+
     def __init__(self, num_envs, observation_space, action_space):
         super(VectorEnv, self).__init__()
         self.num_envs = num_envs
@@ -50,7 +51,7 @@ class VectorEnv(gym.Env):
 
     def reset(self):
         r"""Reset all sub-environments and return a batch of initial observations.
-        
+
         Returns
         -------
         observations : sample from `observation_space`
@@ -66,7 +67,7 @@ class VectorEnv(gym.Env):
         raise NotImplementedError()
 
     def step(self, actions):
-        r"""Take an action for each sub-environments. 
+        r"""Take an action for each sub-environments.
 
         Parameters
         ----------
@@ -92,25 +93,25 @@ class VectorEnv(gym.Env):
         return self.step_wait()
 
     def close_extras(self, **kwargs):
-        r"""Clean up the extra resources e.g. beyond what's in this base class. """
+        r"""Clean up the extra resources e.g. beyond what's in this base class."""
         raise NotImplementedError()
 
     def close(self, **kwargs):
         r"""Close all sub-environments and release resources.
-        
+
         It also closes all the existing image viewers, then calls :meth:`close_extras` and set
-        :attr:`closed` as ``True``. 
-        
+        :attr:`closed` as ``True``.
+
         .. warning::
-        
+
             This function itself does not close the environments, it should be handled
-            in :meth:`close_extras`. This is generic for both synchronous and asynchronous 
-            vectorized environments. 
-        
+            in :meth:`close_extras`. This is generic for both synchronous and asynchronous
+            vectorized environments.
+
         .. note::
-        
-            This will be automatically called when garbage collected or program exited. 
-            
+
+            This will be automatically called when garbage collected or program exited.
+
         """
         if self.closed:
             return
@@ -133,28 +134,31 @@ class VectorEnv(gym.Env):
         pass
 
     def __del__(self):
-        if not getattr(self, 'closed', True):
+        if not getattr(self, "closed", True):
             self.close(terminate=True)
 
     def __repr__(self):
         if self.spec is None:
-            return '{}({})'.format(self.__class__.__name__, self.num_envs)
+            return "{}({})".format(self.__class__.__name__, self.num_envs)
         else:
-            return '{}({}, {})'.format(self.__class__.__name__, self.spec.id, self.num_envs)
+            return "{}({}, {})".format(
+                self.__class__.__name__, self.spec.id, self.num_envs
+            )
 
 
 class VectorEnvWrapper(VectorEnv):
-    r"""Wraps the vectorized environment to allow a modular transformation. 
-    
+    r"""Wraps the vectorized environment to allow a modular transformation.
+
     This class is the base class for all wrappers for vectorized environments. The subclass
     could override some methods to change the behavior of the original vectorized environment
-    without touching the original code. 
-    
+    without touching the original code.
+
     .. note::
-    
+
         Don't forget to call ``super().__init__(env)`` if the subclass overrides :meth:`__init__`.
-    
+
     """
+
     def __init__(self, env):
         assert isinstance(env, VectorEnv)
         self.env = env
@@ -184,8 +188,10 @@ class VectorEnvWrapper(VectorEnv):
 
     # implicitly forward all other methods and attributes to self.env
     def __getattr__(self, name):
-        if name.startswith('_'):
-            raise AttributeError("attempted to get missing private attribute '{}'".format(name))
+        if name.startswith("_"):
+            raise AttributeError(
+                "attempted to get missing private attribute '{}'".format(name)
+            )
         return getattr(self.env, name)
 
     @property
@@ -193,4 +199,4 @@ class VectorEnvWrapper(VectorEnv):
         return self.env.unwrapped
 
     def __repr__(self):
-        return '<{}, {}>'.format(self.__class__.__name__, self.env)
+        return "<{}, {}>".format(self.__class__.__name__, self.env)

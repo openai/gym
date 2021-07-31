@@ -19,6 +19,7 @@ class TransformReward(RewardWrapper):
         f (callable): a function that transforms the reward
 
     """
+
     def __init__(self, env, f):
         super(TransformReward, self).__init__(env)
         assert callable(f)

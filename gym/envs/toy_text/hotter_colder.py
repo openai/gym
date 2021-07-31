@@ -22,12 +22,15 @@ class HotterColder(gym.Env):
     increase the rate in which is guesses in that direction until the reward reaches
     its maximum
     """
+
     def __init__(self):
         self.range = 1000  # +/- the value number can be between
         self.bounds = 2000  # Action space bounds
 
-        self.action_space = spaces.Box(low=np.array([-self.bounds]), high=np.array([self.bounds]),
-                                       dtype=np.float32)
+        self.action_space = spaces.Box(
+            low=np.array([-self.bounds]).astype(np.float32),
+            high=np.array([self.bounds]).astype(np.float32),
+        )
         self.observation_space = spaces.Discrete(4)
 
         self.number = 0
@@ -59,12 +62,20 @@ class HotterColder(gym.Env):
         elif action > self.number:
             self.observation = 3
 
-        reward = ((min(action, self.number) + self.bounds) / (max(action, self.number) + self.bounds)) ** 2
+        reward = (
+            (min(action, self.number) + self.bounds)
+            / (max(action, self.number) + self.bounds)
+        ) ** 2
 
         self.guess_count += 1
         done = self.guess_count >= self.guess_max
 
-        return self.observation, reward[0], done, {"number": self.number, "guesses": self.guess_count}
+        return (
+            self.observation,
+            reward[0],
+            done,
+            {"number": self.number, "guesses": self.guess_count},
+        )
 
     def reset(self):
         self.number = self.np_random.uniform(-self.range, self.range)

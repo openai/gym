@@ -22,6 +22,7 @@ class NChainEnv(gym.Env):
     A Bayesian Framework for Reinforcement Learning by Malcolm Strens (2000)
     http://ceit.aut.ac.ir/~shiry/lecture/machine-learning/papers/BRL-2000.pdf
     """
+
     def __init__(self, n=5, slip=0.2, small=2, large=10):
         self.n = n
         self.slip = slip  # probability of 'slipping' an action

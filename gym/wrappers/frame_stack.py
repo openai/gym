@@ -1,6 +1,5 @@
 from collections import deque
 import numpy as np
-
 from gym.spaces import Box
 from gym import Wrapper
 
@@ -19,7 +18,7 @@ class LazyFrames(object):
         lz4_compress (bool): use lz4 to compress the frames internally
 
     """
-    __slots__ = ('frame_shape', 'dtype', 'shape', 'lz4_compress', '_frames')
+    __slots__ = ("frame_shape", "dtype", "shape", "lz4_compress", "_frames")
 
     def __init__(self, frames, lz4_compress=False):
         self.frame_shape = tuple(frames[0].shape)
@@ -27,6 +26,7 @@ class LazyFrames(object):
         self.dtype = frames[0].dtype
         if lz4_compress:
             from lz4.block import compress
+
             frames = [compress(frame) for frame in frames]
         self._frames = frames
         self.lz4_compress = lz4_compress
@@ -43,7 +43,9 @@ class LazyFrames(object):
     def __getitem__(self, int_or_slice):
         if isinstance(int_or_slice, int):
             return self._check_decompress(self._frames[int_or_slice])  # single frame
-        return np.stack([self._check_decompress(f) for f in self._frames[int_or_slice]], axis=0)
+        return np.stack(
+            [self._check_decompress(f) for f in self._frames[int_or_slice]], axis=0
+        )
 
     def __eq__(self, other):
         return self.__array__() == other
@@ -51,7 +53,10 @@ class LazyFrames(object):
     def _check_decompress(self, frame):
         if self.lz4_compress:
             from lz4.block import decompress
-            return np.frombuffer(decompress(frame), dtype=self.dtype).reshape(self.frame_shape)
+
+            return np.frombuffer(decompress(frame), dtype=self.dtype).reshape(
+                self.frame_shape
+            )
         return frame
 
 
@@ -86,6 +91,7 @@ class FrameStack(Wrapper):
         lz4_compress (bool): use lz4 to compress the frames internally
 
     """
+
     def __init__(self, env, num_stack, lz4_compress=False):
         super(FrameStack, self).__init__(env)
         self.num_stack = num_stack
@@ -94,8 +100,12 @@ class FrameStack(Wrapper):
         self.frames = deque(maxlen=num_stack)
 
         low = np.repeat(self.observation_space.low[np.newaxis, ...], num_stack, axis=0)
-        high = np.repeat(self.observation_space.high[np.newaxis, ...], num_stack, axis=0)
-        self.observation_space = Box(low=low, high=high, dtype=self.observation_space.dtype)
+        high = np.repeat(
+            self.observation_space.high[np.newaxis, ...], num_stack, axis=0
+        )
+        self.observation_space = Box(
+            low=low, high=high, dtype=self.observation_space.dtype
+        )
 
     def _get_observation(self):
         assert len(self.frames) == self.num_stack, (len(self.frames), self.num_stack)

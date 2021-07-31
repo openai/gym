@@ -1,17 +1,17 @@
 import numpy as np
-
 from gym.spaces import Box
 from gym import ObservationWrapper
 
 
 class TimeAwareObservation(ObservationWrapper):
-    r"""Augment the observation with current time step in the trajectory. 
+    r"""Augment the observation with current time step in the trajectory.
 
     .. note::
         Currently it only works with one-dimensional observation space. It doesn't
-        support pixel observation space yet. 
+        support pixel observation space yet.
 
     """
+
     def __init__(self, env):
         super(TimeAwareObservation, self).__init__(env)
         assert isinstance(env.observation_space, Box)

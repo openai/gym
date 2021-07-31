@@ -21,6 +21,4 @@ class DuplicatedInputEnv(algorithmic_env.TapeAlgorithmicEnv):
         return res
 
     def target_from_input_data(self, input_data):
-        return [
-            input_data[i] for i in range(0, len(input_data), self.duplication)
-        ]
+        return [input_data[i] for i in range(0, len(input_data), self.duplication)]
