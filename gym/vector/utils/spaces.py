@@ -147,18 +147,25 @@ def iterate_base(items, space):
 
 
 def iterate_tuple(items, space):
-    # If this is a tuple of custome subspaces only, then simply iterate over items
-    if all(not isinstance(subspace, (_BaseGymSpaces, Tuple, Dict))
-            for subspace in space.spaces):
+    # If this is a tuple of custom subspaces only, then simply iterate over items
+    if all(
+        not isinstance(subspace, (_BaseGymSpaces, Tuple, Dict))
+        for subspace in space.spaces
+    ):
         return iter(items)
 
-    return zip(*[iterate(items[i], subspace)
-        for i, subspace in enumerate(space.spaces)])
+    return zip(
+        *[iterate(items[i], subspace) for i, subspace in enumerate(space.spaces)]
+    )
 
 
 def iterate_dict(items, space):
-    keys, values = zip(*[(key, iterate(items[key], subspace))
-        for key, subspace in space.spaces.items()])
+    keys, values = zip(
+        *[
+            (key, iterate(items[key], subspace))
+            for key, subspace in space.spaces.items()
+        ]
+    )
     for item in zip(*values):
         yield OrderedDict([(key, value) for (key, value) in zip(keys, item)])
 
@@ -166,6 +173,6 @@ def iterate_dict(items, space):
 def iterate_custom(items, space):
     raise CustomSpaceError(
         f"Unable to iterate over {items}, since {space} "
-        "is a custome `gym.Space` instance (i.e. not one of "
+        "is a custom `gym.Space` instance (i.e. not one of "
         "`Box`, `Dict`, etc...)."
     )

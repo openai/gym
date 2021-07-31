@@ -17,5 +17,5 @@ __all__ = [
     "write_to_shared_memory",
     "_BaseGymSpaces",
     "batch_space",
-    "iterate"
+    "iterate",
 ]

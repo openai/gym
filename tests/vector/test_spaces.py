@@ -106,7 +106,7 @@ def test_batch_space_custom_space(space, expected_batch_space_4):
 
 
 @pytest.mark.parametrize(
-    "space,batch_space", 
+    "space,batch_space",
     list(zip(spaces, expected_batch_spaces_4)),
     ids=[space.__class__.__name__ for space in spaces],
 )
