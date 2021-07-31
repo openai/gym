@@ -128,10 +128,10 @@ class Monitor(Wrapper):
         self.file_infix = "{}.{}".format(self._monitor_id, uid if uid else os.getpid())
 
         self.stats_recorder = stats_recorder.StatsRecorder(
-          self.directory,
-          '{}.episode_batch.{}'.format(self.file_prefix, self.file_infix),
-          autoreset=self.env_semantics_autoreset,
-          env_id=env_id
+            self.directory,
+            "{}.episode_batch.{}".format(self.file_prefix, self.file_infix),
+            autoreset=self.env_semantics_autoreset,
+            env_id=env_id,
         )
 
         self.write_upon_reset = write_upon_reset
