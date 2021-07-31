@@ -91,7 +91,7 @@ class Monitor(Wrapper):
         self.directory = os.path.abspath(directory)
 
         if not os.path.exists(self.directory):
-            logger.info('Creating monitor directory %s', self.directory)
+            logger.info("Creating monitor directory %s", self.directory)
             os.makedirs(self.directory, exist_ok=True)
 
         if video_callable is None:
