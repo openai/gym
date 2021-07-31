@@ -4,24 +4,26 @@ from gym import utils
 
 
 DEFAULT_CAMERA_CONFIG = {
-    'trackbodyid': 2,
-    'distance': 4.0,
-    'lookat': np.array((0.0, 0.0, 1.15)),
-    'elevation': -20.0,
+    "trackbodyid": 2,
+    "distance": 4.0,
+    "lookat": np.array((0.0, 0.0, 1.15)),
+    "elevation": -20.0,
 }
 
 
 class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
-    def __init__(self,
-                 xml_file='walker2d.xml',
-                 forward_reward_weight=1.0,
-                 ctrl_cost_weight=1e-3,
-                 healthy_reward=1.0,
-                 terminate_when_unhealthy=True,
-                 healthy_z_range=(0.8, 2.0),
-                 healthy_angle_range=(-1.0, 1.0),
-                 reset_noise_scale=5e-3,
-                 exclude_current_positions_from_observation=True):
+    def __init__(
+        self,
+        xml_file="walker2d.xml",
+        forward_reward_weight=1.0,
+        ctrl_cost_weight=1e-3,
+        healthy_reward=1.0,
+        terminate_when_unhealthy=True,
+        healthy_z_range=(0.8, 2.0),
+        healthy_angle_range=(-1.0, 1.0),
+        reset_noise_scale=5e-3,
+        exclude_current_positions_from_observation=True,
+    ):
         utils.EzPickle.__init__(**locals())
 
         self._forward_reward_weight = forward_reward_weight
@@ -36,16 +38,17 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         self._reset_noise_scale = reset_noise_scale
 
         self._exclude_current_positions_from_observation = (
-            exclude_current_positions_from_observation)
+            exclude_current_positions_from_observation
+        )
 
         mujoco_env.MujocoEnv.__init__(self, xml_file, 4)
 
     @property
     def healthy_reward(self):
-        return float(
-            self.is_healthy
-            or self._terminate_when_unhealthy
-        ) * self._healthy_reward
+        return (
+            float(self.is_healthy or self._terminate_when_unhealthy)
+            * self._healthy_reward
+        )
 
     def control_cost(self, action):
         control_cost = self._ctrl_cost_weight * np.sum(np.square(action))
@@ -66,15 +69,12 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     @property
     def done(self):
-        done = (not self.is_healthy
-                if self._terminate_when_unhealthy
-                else False)
+        done = not self.is_healthy if self._terminate_when_unhealthy else False
         return done
 
     def _get_obs(self):
         position = self.sim.data.qpos.flat.copy()
-        velocity = np.clip(
-            self.sim.data.qvel.flat.copy(), -10, 10)
+        velocity = np.clip(self.sim.data.qvel.flat.copy(), -10, 10)
 
         if self._exclude_current_positions_from_observation:
             position = position[1:]
@@ -86,8 +86,7 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         x_position_before = self.sim.data.qpos[0]
         self.do_simulation(action, self.frame_skip)
         x_position_after = self.sim.data.qpos[0]
-        x_velocity = ((x_position_after - x_position_before)
-                      / self.dt)
+        x_velocity = (x_position_after - x_position_before) / self.dt
 
         ctrl_cost = self.control_cost(action)
 
@@ -101,8 +100,8 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         reward = rewards - costs
         done = self.done
         info = {
-            'x_position': x_position_after,
-            'x_velocity': x_velocity,
+            "x_position": x_position_after,
+            "x_velocity": x_velocity,
         }
 
         return observation, reward, done, info
@@ -112,9 +111,11 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         noise_high = self._reset_noise_scale
 
         qpos = self.init_qpos + self.np_random.uniform(
-            low=noise_low, high=noise_high, size=self.model.nq)
+            low=noise_low, high=noise_high, size=self.model.nq
+        )
         qvel = self.init_qvel + self.np_random.uniform(
-            low=noise_low, high=noise_high, size=self.model.nv)
+            low=noise_low, high=noise_high, size=self.model.nv
+        )
 
         self.set_state(qpos, qvel)
 

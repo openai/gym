@@ -7,12 +7,14 @@ DEFAULT_CAMERA_CONFIG = {}
 
 
 class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
-    def __init__(self,
-                 xml_file='swimmer.xml',
-                 forward_reward_weight=1.0,
-                 ctrl_cost_weight=1e-4,
-                 reset_noise_scale=0.1,
-                 exclude_current_positions_from_observation=True):
+    def __init__(
+        self,
+        xml_file="swimmer.xml",
+        forward_reward_weight=1.0,
+        ctrl_cost_weight=1e-4,
+        reset_noise_scale=0.1,
+        exclude_current_positions_from_observation=True,
+    ):
         utils.EzPickle.__init__(**locals())
 
         self._forward_reward_weight = forward_reward_weight
@@ -21,7 +23,8 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         self._reset_noise_scale = reset_noise_scale
 
         self._exclude_current_positions_from_observation = (
-            exclude_current_positions_from_observation)
+            exclude_current_positions_from_observation
+        )
 
         mujoco_env.MujocoEnv.__init__(self, xml_file, 4)
 
@@ -45,16 +48,14 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         reward = forward_reward - ctrl_cost
         done = False
         info = {
-            'reward_fwd': forward_reward,
-            'reward_ctrl': -ctrl_cost,
-
-            'x_position': xy_position_after[0],
-            'y_position': xy_position_after[1],
-            'distance_from_origin': np.linalg.norm(xy_position_after, ord=2),
-
-            'x_velocity': x_velocity,
-            'y_velocity': y_velocity,
-            'forward_reward': forward_reward,
+            "reward_fwd": forward_reward,
+            "reward_ctrl": -ctrl_cost,
+            "x_position": xy_position_after[0],
+            "y_position": xy_position_after[1],
+            "distance_from_origin": np.linalg.norm(xy_position_after, ord=2),
+            "x_velocity": x_velocity,
+            "y_velocity": y_velocity,
+            "forward_reward": forward_reward,
         }
 
         return observation, reward, done, info
@@ -74,9 +75,11 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         noise_high = self._reset_noise_scale
 
         qpos = self.init_qpos + self.np_random.uniform(
-            low=noise_low, high=noise_high, size=self.model.nq)
+            low=noise_low, high=noise_high, size=self.model.nq
+        )
         qvel = self.init_qvel + self.np_random.uniform(
-            low=noise_low, high=noise_high, size=self.model.nv)
+            low=noise_low, high=noise_high, size=self.model.nv
+        )
 
         self.set_state(qpos, qvel)
 

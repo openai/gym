@@ -39,7 +39,7 @@ env.render()
 ```
 
 This will install `atari-py`, which automatically compiles the [Arcade
-Learning Environment](http://www.arcadelearningenvironment.org/). This
+Learning Environment](https://github.com/mgbellemare/Arcade-Learning-Environment#:~:text=The%20Arcade%20Learning%20Environment%20(ALE)%20is%20a%20simple%20object%2D,of%20emulation%20from%20agent%20design.). This
 can take quite a while (a few minutes on a decent laptop), so just be
 prepared.
 
@@ -146,6 +146,14 @@ Learn more here: https://github.com/openai/roboschool
 ## Third Party Environments
 
 The gym comes prepackaged with many many environments. It's this common API around many environments that makes Gym so great. Here we will list additional environments that do not come prepacked with the gym. Submit another to this list via a pull-request.
+
+### gym-spoof
+
+Spoof, otherwise known as "The 3-coin game", is a multi-agent (2 player), imperfect-information, zero-sum game. 
+
+Learn more here: https://github.com/MouseAndKeyboard/gym-spoof
+
+Platforms: Windows, Mac, Linux
 
 ### PyBullet Robotics Environments
 
@@ -276,7 +284,7 @@ Learn more here: https://github.com/upb-lea/openmodelica-microgrid-gym
 
 ### RubiksCubeGym: OpenAI Gym environments for various twisty puzzles
 
-The RubiksCubeGym package provides enviromnents for twisty puzzles with  multiple reward functions to help simluate the methods used by humans.
+The RubiksCubeGym package provides environments for twisty puzzles with  multiple reward functions to help simluate the methods used by humans.
 
 Learn more here: https://github.com/DoubleGremlin181/RubiksCubeGym
 
@@ -300,7 +308,7 @@ Learn more here: https://github.com/osannolik/gym-goddard
 
 ### gym-pybullet-drones: Learning Quadcopter Control
 
-A simple environment using [PyBullet](http://github.com/bulletphysics/bullet3) to simulate the dynamics of a [Bitcraze Crazyflie 2.x](https://www.bitcraze.io/documentation/hardware/crazyflie_2_1/crazyflie_2_1-datasheet.pdf) nanoquadrotor
+A simple environment using [PyBullet](https://github.com/bulletphysics/bullet3) to simulate the dynamics of a [Bitcraze Crazyflie 2.x](https://www.bitcraze.io/documentation/hardware/crazyflie_2_1/crazyflie_2_1-datasheet.pdf) nanoquadrotor
 
 Learn more here: https://github.com/JacopoPan/gym-pybullet-drones
 
@@ -327,3 +335,69 @@ Learn more here: https://github.com/falox/gym-adserver
 An environment for automated rule-based deductive program verification in the KeY verification system.
 
 Learn more here: https://github.com/Flunzmas/gym-autokey
+
+### gym-riverswim: A hard-exploration environment
+
+A simple environment for benchmarking reinforcement learning exploration techniques in a simplified setting.
+
+Learn more here: https://github.com/erfanMhi/gym-riverswim
+
+### gym-ccc: Continuous classic control environments
+
+Environments that extend gym's classic control and add more problems.
+These environments have features useful for non-RL controllers.
+
+The main highlights are:
+1) non normalized observation corresponding directly to the dynamical state
+2) normalized observation with dynamical state captured in `info['state']`
+3) action spaces are continuous
+4) system parameters (mass, length, etc.) can be specified
+5) reset function (to specify initial conditions) can be specified.
+
+Learn more here: https://github.com/acxz/gym-ccc
+
+### NLPGym: A toolkit to develop RL agents to solve NLP tasks
+
+[NLPGym](https://arxiv.org/pdf/2011.08272v1.pdf) provides interactive environments for standard NLP tasks such as sequence tagging, question answering, and sequence classification. Users can easily customize the tasks with their own datasets, observations, featurizers and reward functions.
+
+Learn more here: https://github.com/rajcscw/nlp-gym
+
+### math-prog-synth-env
+
+In our paper "A Reinforcement Learning Environment for Mathematical Reasoning via Program Synthesis" we convert the DeepMind Mathematics Dataset into an RL environment based around program synthesis.
+
+Learn more here: https://github.com/JohnnyYeeee/math_prog_synth_env , https://arxiv.org/abs/2107.07373
+
+### VirtualTaobao: Environment of online recommendation
+
+An environment for online recommendation, where customers are learned from Taobao.com, one of the world's largest e-commerce platform.
+
+Learn more here: https://github.com/eyounx/VirtualTaobao/
+
+### QASGym: gym environment for Quantum Architecture Search (QAS)
+
+This a list of environments for quantum architecture search following the description in [Quantum Architecture Search via Deep Reinforcement Learning](https://arxiv.org/abs/2104.07715). The agent design the quantum circuit by taking actions in the environment. Each action corresponds to a gate applied on some wires. The goal is to build a circuit U such that generates the target n-qubit quantum state that belongs to the environment and hidden from the agent. The circuits are built using [Google QuantumAI Cirq](https://quantumai.google/cirq). 
+
+Learn more here: https://github.com/qdevpsi3/quantum-arch-search
+
+### robo-gym: Environments for Real and Simulated Robots
+
+robo-gym provides a collection of reinforcement learning environments involving robotic tasks applicable in both simulation and real world robotics. 
+
+Learn more here: https://github.com/jr-robotics/robo-gym
+
+### gym-xiangqi: Xiangqi - The Chinese Chess Game
+
+A reinforcement learning environment of Xiangqi, the Chinese Chess game.
+
+Learn more here: https://github.com/tanliyon/gym-xiangqi
+
+### anomalous_rl_envs: Gym environments with anomaly injection
+
+A set of environments from control tasks: Acrobot, CartPole, and LunarLander with various types of anomalies injected into them. It could be very useful to study the behavior and robustness of a policy.
+
+Learn more here: https://github.com/modanesh/anomalous_rl_envs
+
+### stable-retro
+
+Fork of gym-retro with additional games, states, scenarios, etc. Open to PRs of additional games, features and plateforms since gym-retro is in maintenance mode.

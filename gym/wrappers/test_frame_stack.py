@@ -1,21 +1,31 @@
 import pytest
+
 pytest.importorskip("atari_py")
 
 import numpy as np
 import gym
 from gym.wrappers import FrameStack
+
 try:
     import lz4
 except ImportError:
     lz4 = None
 
 
-@pytest.mark.parametrize('env_id', ['CartPole-v1', 'Pendulum-v0', 'Pong-v0'])
-@pytest.mark.parametrize('num_stack', [2, 3, 4])
-@pytest.mark.parametrize('lz4_compress', [
-    pytest.param(True, marks=pytest.mark.skipif(lz4 is None, reason="Need lz4 to run tests with compression")),
-    False
-])
+@pytest.mark.parametrize("env_id", ["CartPole-v1", "Pendulum-v0", "Pong-v0"])
+@pytest.mark.parametrize("num_stack", [2, 3, 4])
+@pytest.mark.parametrize(
+    "lz4_compress",
+    [
+        pytest.param(
+            True,
+            marks=pytest.mark.skipif(
+                lz4 is None, reason="Need lz4 to run tests with compression"
+            ),
+        ),
+        False,
+    ],
+)
 def test_frame_stack(env_id, num_stack, lz4_compress):
     env = gym.make(env_id)
     shape = env.observation_space.shape

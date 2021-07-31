@@ -17,14 +17,18 @@ ROLLOUT_STEPS = 100
 episodes = ROLLOUT_STEPS
 steps = ROLLOUT_STEPS
 
-ROLLOUT_FILE = os.path.join(DATA_DIR, 'rollout.json')
+ROLLOUT_FILE = os.path.join(DATA_DIR, "rollout.json")
 
 if not os.path.isfile(ROLLOUT_FILE):
     with open(ROLLOUT_FILE, "w") as outfile:
         json.dump({}, outfile, indent=2)
 
+
 def hash_object(unhashed):
-    return hashlib.sha256(str(unhashed).encode('utf-16')).hexdigest() # This is really bad, str could be same while values change
+    return hashlib.sha256(
+        str(unhashed).encode("utf-16")
+    ).hexdigest()  # This is really bad, str could be same while values change
+
 
 def generate_rollout_hash(spec):
     spaces.seed(0)
@@ -38,7 +42,8 @@ def generate_rollout_hash(spec):
 
     total_steps = 0
     for episode in range(episodes):
-        if total_steps >= ROLLOUT_STEPS: break
+        if total_steps >= ROLLOUT_STEPS:
+            break
         observation = env.reset()
 
         for step in range(steps):
@@ -51,9 +56,11 @@ def generate_rollout_hash(spec):
             done_list.append(done)
 
             total_steps += 1
-            if total_steps >= ROLLOUT_STEPS: break
+            if total_steps >= ROLLOUT_STEPS:
+                break
 
-            if done: break
+            if done:
+                break
 
     observations_hash = hash_object(observation_list)
     actions_hash = hash_object(action_list)
@@ -62,6 +69,7 @@ def generate_rollout_hash(spec):
 
     env.close()
     return observations_hash, actions_hash, rewards_hash, dones_hash
+
 
 @pytest.mark.parametrize("spec", spec_list)
 def test_env_semantics(spec):
@@ -72,7 +80,11 @@ def test_env_semantics(spec):
 
     if spec.id not in rollout_dict:
         if not spec.nondeterministic:
-            logger.warn("Rollout does not exist for {}, run generate_json.py to generate rollouts for new envs".format(spec.id))
+            logger.warn(
+                "Rollout does not exist for {}, run generate_json.py to generate rollouts for new envs".format(
+                    spec.id
+                )
+            )
         return
 
     logger.info("Testing rollout for {} environment...".format(spec.id))
@@ -80,14 +92,30 @@ def test_env_semantics(spec):
     observations_now, actions_now, rewards_now, dones_now = generate_rollout_hash(spec)
 
     errors = []
-    if rollout_dict[spec.id]['observations'] != observations_now:
-        errors.append('Observations not equal for {} -- expected {} but got {}'.format(spec.id, rollout_dict[spec.id]['observations'], observations_now))
-    if rollout_dict[spec.id]['actions'] != actions_now:
-        errors.append('Actions not equal for {} -- expected {} but got {}'.format(spec.id, rollout_dict[spec.id]['actions'], actions_now))
-    if rollout_dict[spec.id]['rewards'] != rewards_now:
-        errors.append('Rewards not equal for {} -- expected {} but got {}'.format(spec.id, rollout_dict[spec.id]['rewards'], rewards_now))
-    if rollout_dict[spec.id]['dones'] != dones_now:
-        errors.append('Dones not equal for {} -- expected {} but got {}'.format(spec.id, rollout_dict[spec.id]['dones'], dones_now))
+    if rollout_dict[spec.id]["observations"] != observations_now:
+        errors.append(
+            "Observations not equal for {} -- expected {} but got {}".format(
+                spec.id, rollout_dict[spec.id]["observations"], observations_now
+            )
+        )
+    if rollout_dict[spec.id]["actions"] != actions_now:
+        errors.append(
+            "Actions not equal for {} -- expected {} but got {}".format(
+                spec.id, rollout_dict[spec.id]["actions"], actions_now
+            )
+        )
+    if rollout_dict[spec.id]["rewards"] != rewards_now:
+        errors.append(
+            "Rewards not equal for {} -- expected {} but got {}".format(
+                spec.id, rollout_dict[spec.id]["rewards"], rewards_now
+            )
+        )
+    if rollout_dict[spec.id]["dones"] != dones_now:
+        errors.append(
+            "Dones not equal for {} -- expected {} but got {}".format(
+                spec.id, rollout_dict[spec.id]["dones"], dones_now
+            )
+        )
     if len(errors):
         for error in errors:
             logger.warn(error)

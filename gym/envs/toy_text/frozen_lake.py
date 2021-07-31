@@ -13,12 +13,7 @@ RIGHT = 2
 UP = 3
 
 MAPS = {
-    "4x4": [
-        "SFFF",
-        "FHFH",
-        "FFFH",
-        "HFFG"
-    ],
+    "4x4": ["SFFF", "FHFH", "FFFH", "HFFG"],
     "8x8": [
         "SFFFFFFF",
         "FFFFFFFF",
@@ -27,7 +22,7 @@ MAPS = {
         "FFFHFFFF",
         "FHHFFFHF",
         "FHFFHFHF",
-        "FFFHFFFG"
+        "FFFHFFFG",
     ],
 }
 
@@ -53,17 +48,17 @@ def generate_random_map(size=8, p=0.8):
                     c_new = c + y
                     if r_new < 0 or r_new >= size or c_new < 0 or c_new >= size:
                         continue
-                    if res[r_new][c_new] == 'G':
+                    if res[r_new][c_new] == "G":
                         return True
-                    if (res[r_new][c_new] != 'H'):
+                    if res[r_new][c_new] != "H":
                         frontier.append((r_new, c_new))
         return False
 
     while not valid:
         p = min(1, p)
-        res = np.random.choice(['F', 'H'], (size, size), p=[p, 1-p])
-        res[0][0] = 'S'
-        res[-1][-1] = 'G'
+        res = np.random.choice(["F", "H"], (size, size), p=[p, 1 - p])
+        res[0][0] = "S"
+        res[-1][-1] = "G"
         valid = is_valid(res)
     return ["".join(x) for x in res]
 
@@ -94,27 +89,27 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
     You receive a reward of 1 if you reach the goal, and zero otherwise.
     """
 
-    metadata = {'render.modes': ['human', 'ansi']}
+    metadata = {"render.modes": ["human", "ansi"]}
 
     def __init__(self, desc=None, map_name="4x4", is_slippery=True):
         if desc is None and map_name is None:
             desc = generate_random_map()
         elif desc is None:
             desc = MAPS[map_name]
-        self.desc = desc = np.asarray(desc, dtype='c')
+        self.desc = desc = np.asarray(desc, dtype="c")
         self.nrow, self.ncol = nrow, ncol = desc.shape
         self.reward_range = (0, 1)
 
         nA = 4
         nS = nrow * ncol
 
-        isd = np.array(desc == b'S').astype('float64').ravel()
+        isd = np.array(desc == b"S").astype("float64").ravel()
         isd /= isd.sum()
 
         P = {s: {a: [] for a in range(nA)} for s in range(nS)}
 
         def to_s(row, col):
-            return row*ncol + col
+            return row * ncol + col
 
         def inc(row, col, a):
             if a == LEFT:
@@ -131,8 +126,8 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
             newrow, newcol = inc(row, col, action)
             newstate = to_s(newrow, newcol)
             newletter = desc[newrow, newcol]
-            done = bytes(newletter) in b'GH'
-            reward = float(newletter == b'G')
+            done = bytes(newletter) in b"GH"
+            reward = float(newletter == b"G")
             return newstate, reward, done
 
         for row in range(nrow):
@@ -141,36 +136,34 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
                 for a in range(4):
                     li = P[s][a]
                     letter = desc[row, col]
-                    if letter in b'GH':
+                    if letter in b"GH":
                         li.append((1.0, s, 0, True))
                     else:
                         if is_slippery:
                             for b in [(a - 1) % 4, a, (a + 1) % 4]:
-                                li.append((
-                                    1. / 3.,
-                                    *update_probability_matrix(row, col, b)
-                                ))
+                                li.append(
+                                    (1.0 / 3.0, *update_probability_matrix(row, col, b))
+                                )
                         else:
-                            li.append((
-                                1., *update_probability_matrix(row, col, a)
-                            ))
+                            li.append((1.0, *update_probability_matrix(row, col, a)))
 
         super(FrozenLakeEnv, self).__init__(nS, nA, P, isd)
 
-    def render(self, mode='human'):
-        outfile = StringIO() if mode == 'ansi' else sys.stdout
+    def render(self, mode="human"):
+        outfile = StringIO() if mode == "ansi" else sys.stdout
 
         row, col = self.s // self.ncol, self.s % self.ncol
         desc = self.desc.tolist()
-        desc = [[c.decode('utf-8') for c in line] for line in desc]
+        desc = [[c.decode("utf-8") for c in line] for line in desc]
         desc[row][col] = utils.colorize(desc[row][col], "red", highlight=True)
         if self.lastaction is not None:
-            outfile.write("  ({})\n".format(
-                ["Left", "Down", "Right", "Up"][self.lastaction]))
+            outfile.write(
+                "  ({})\n".format(["Left", "Down", "Right", "Up"][self.lastaction])
+            )
         else:
             outfile.write("\n")
-        outfile.write("\n".join(''.join(line) for line in desc)+"\n")
+        outfile.write("\n".join("".join(line) for line in desc) + "\n")
 
-        if mode != 'human':
+        if mode != "human":
             with closing(outfile):
                 return outfile.getvalue()

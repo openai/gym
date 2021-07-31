@@ -1,11 +1,16 @@
+import argparse
+import json
+import os
+import pickle
+import sys
+from os import path
+
+import numpy as np
+
 import gym
 from gym import wrappers, logger
-import numpy as np
-import pickle
-import json, sys, os
-from os import path
-from _policies import BinaryActionLinearPolicy # Different file so it can be unpickled
-import argparse
+from _policies import BinaryActionLinearPolicy  # Different file so it can be unpickled
+
 
 def cem(f, th_mean, batch_size, n_iter, elite_frac, initial_std=1.0):
     """
@@ -26,17 +31,23 @@ def cem(f, th_mean, batch_size, n_iter, elite_frac, initial_std=1.0):
         'ys_mean': mean value of function over current population
         'theta_mean': mean value of the parameter vector over current population
     """
-    n_elite = int(np.round(batch_size*elite_frac))
+    n_elite = int(np.round(batch_size * elite_frac))
     th_std = np.ones_like(th_mean) * initial_std
 
     for _ in range(n_iter):
-        ths = np.array([th_mean + dth for dth in  th_std[None,:]*np.random.randn(batch_size, th_mean.size)])
+        ths = np.array(
+            [
+                th_mean + dth
+                for dth in th_std[None, :] * np.random.randn(batch_size, th_mean.size)
+            ]
+        )
         ys = np.array([f(th) for th in ths])
         elite_inds = ys.argsort()[::-1][:n_elite]
         elite_ths = ths[elite_inds]
         th_mean = elite_ths.mean(axis=0)
         th_std = elite_ths.std(axis=0)
-        yield {'ys' : ys, 'theta_mean' : th_mean, 'y_mean' : ys.mean()}
+        yield {"ys": ys, "theta_mean": th_mean, "y_mean": ys.mean()}
+
 
 def do_rollout(agent, env, num_steps, render=False):
     total_rew = 0
@@ -45,16 +56,19 @@ def do_rollout(agent, env, num_steps, render=False):
         a = agent.act(ob)
         (ob, reward, done, _info) = env.step(a)
         total_rew += reward
-        if render and t%3==0: env.render()
-        if done: break
-    return total_rew, t+1
+        if render and t % 3 == 0:
+            env.render()
+        if done:
+            break
+    return total_rew, t + 1
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     logger.set_level(logger.INFO)
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--display', action='store_true')
-    parser.add_argument('target', nargs="?", default="CartPole-v0")
+    parser.add_argument("--display", action="store_true")
+    parser.add_argument("target", nargs="?", default="CartPole-v0")
     args = parser.parse_args()
 
     env = gym.make(args.target)
@@ -66,17 +80,19 @@ if __name__ == '__main__':
     # You provide the directory to write to (can be an existing
     # directory, but can't contain previous monitor results. You can
     # also dump to a tempdir if you'd like: tempfile.mkdtemp().
-    outdir = '/tmp/cem-agent-results'
+    outdir = "/tmp/cem-agent-results"
     env = wrappers.Monitor(env, outdir, force=True)
 
     # Prepare snapshotting
     # ----------------------------------------
     def writefile(fname, s):
-        with open(path.join(outdir, fname), 'w') as fh: fh.write(s)
+        with open(path.join(outdir, fname), "w") as fh:
+            fh.write(s)
+
     info = {}
-    info['params'] = params
-    info['argv'] = sys.argv
-    info['env_id'] = env.spec.id
+    info["params"] = params
+    info["argv"] = sys.argv
+    info["env_id"] = env.spec.id
     # ------------------------------------------
 
     def noisy_evaluation(theta):
@@ -86,14 +102,16 @@ if __name__ == '__main__':
 
     # Train the agent, and snapshot each stage
     for (i, iterdata) in enumerate(
-        cem(noisy_evaluation, np.zeros(env.observation_space.shape[0]+1), **params)):
-        print('Iteration %2i. Episode mean reward: %7.3f'%(i, iterdata['y_mean']))
-        agent = BinaryActionLinearPolicy(iterdata['theta_mean'])
-        if args.display: do_rollout(agent, env, 200, render=True)
-        writefile('agent-%.4i.pkl'%i, str(pickle.dumps(agent, -1)))
+        cem(noisy_evaluation, np.zeros(env.observation_space.shape[0] + 1), **params)
+    ):
+        print("Iteration %2i. Episode mean reward: %7.3f" % (i, iterdata["y_mean"]))
+        agent = BinaryActionLinearPolicy(iterdata["theta_mean"])
+        if args.display:
+            do_rollout(agent, env, 200, render=True)
+        writefile("agent-%.4i.pkl" % i, str(pickle.dumps(agent, -1)))
 
     # Write out the env at the end so we store the parameters of this
     # environment.
-    writefile('info.json', json.dumps(info))
+    writefile("info.json", json.dumps(info))
 
     env.close()

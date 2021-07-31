@@ -36,15 +36,19 @@ class KellyCoinflipEnv(gym.Env):
     mistaken bet could end the episode immediately; it's not clear to me which version
     would be better.) For a harder version which randomizes the 3 key parameters, see the
     Generalized Kelly coinflip game."""
-    metadata = {'render.modes': ['human']}
+
+    metadata = {"render.modes": ["human"]}
 
     def __init__(self, initial_wealth=25.0, edge=0.6, max_wealth=250.0, max_rounds=300):
 
         self.action_space = spaces.Discrete(int(max_wealth * 100))  # betting in penny
         # increments
-        self.observation_space = spaces.Tuple((
-            spaces.Box(0, max_wealth, [1], dtype=np.float32),  # (w,b)
-            spaces.Discrete(max_rounds + 1)))
+        self.observation_space = spaces.Tuple(
+            (
+                spaces.Box(0, max_wealth, [1], dtype=np.float32),  # (w,b)
+                spaces.Discrete(max_rounds + 1),
+            )
+        )
         self.reward_range = (0, max_wealth)
         self.edge = edge
         self.wealth = initial_wealth
@@ -61,7 +65,9 @@ class KellyCoinflipEnv(gym.Env):
         return [seed]
 
     def step(self, action):
-        bet_in_dollars = min(action/100.0, self.wealth)  # action = desired bet in pennies
+        bet_in_dollars = min(
+            action / 100.0, self.wealth
+        )  # action = desired bet in pennies
         self.rounds -= 1
 
         coinflip = flip(self.edge, self.np_random)
@@ -80,7 +86,7 @@ class KellyCoinflipEnv(gym.Env):
         self.wealth = self.initial_wealth
         return self._get_obs()
 
-    def render(self, mode='human'):
+    def render(self, mode="human"):
         print("Current wealth: ", self.wealth, "; Rounds left: ", self.rounds)
 
 
@@ -106,11 +112,21 @@ class KellyCoinflipGeneralizedEnv(gym.Env):
     for the edge case alone suggests that the Bayes-optimal value may be very close to
     what one would calculate using a decision tree for any specific case), and
     represents a good challenge for RL agents."""
-    metadata = {'render.modes': ['human']}
 
-    def __init__(self, initial_wealth=25.0, edge_prior_alpha=7, edge_prior_beta=3,
-                 max_wealth_alpha=5.0, max_wealth_m=200.0, max_rounds_mean=300.0,
-                 max_rounds_sd=25.0, reseed=True, clip_distributions=False):
+    metadata = {"render.modes": ["human"]}
+
+    def __init__(
+        self,
+        initial_wealth=25.0,
+        edge_prior_alpha=7,
+        edge_prior_beta=3,
+        max_wealth_alpha=5.0,
+        max_wealth_m=200.0,
+        max_rounds_mean=300.0,
+        max_rounds_sd=25.0,
+        reseed=True,
+        clip_distributions=False,
+    ):
         # clip_distributions=True asserts that state and action space are not modified at reset()
 
         # store the hyper-parameters for passing back into __init__() during resets so
@@ -126,28 +142,42 @@ class KellyCoinflipGeneralizedEnv(gym.Env):
         self.max_rounds_sd = max_rounds_sd
         self.clip_distributions = clip_distributions
 
-        if reseed or not hasattr(self, 'np_random'):
+        if reseed or not hasattr(self, "np_random"):
             self.seed()
 
         # draw this game's set of parameters:
         edge = self.np_random.beta(edge_prior_alpha, edge_prior_beta)
         if self.clip_distributions:
             # (clip/resample some parameters to be able to fix obs/action space sizes/bounds)
-            max_wealth_bound = round(genpareto.ppf(0.85, max_wealth_alpha, max_wealth_m))
+            max_wealth_bound = round(
+                genpareto.ppf(0.85, max_wealth_alpha, max_wealth_m)
+            )
             max_wealth = max_wealth_bound + 1.0
             while max_wealth > max_wealth_bound:
-                max_wealth = round(genpareto.rvs(max_wealth_alpha, max_wealth_m,
-                                                 random_state=self.np_random))
-            max_rounds_bound = int(round(norm.ppf(0.99, max_rounds_mean, max_rounds_sd)))
+                max_wealth = round(
+                    genpareto.rvs(
+                        max_wealth_alpha, max_wealth_m, random_state=self.np_random
+                    )
+                )
+            max_rounds_bound = int(
+                round(norm.ppf(0.99, max_rounds_mean, max_rounds_sd))
+            )
             max_rounds = max_rounds_bound + 1
             while max_rounds > max_rounds_bound:
-                max_rounds = int(round(self.np_random.normal(max_rounds_mean, max_rounds_sd)))
+                max_rounds = int(
+                    round(self.np_random.normal(max_rounds_mean, max_rounds_sd))
+                )
 
         else:
-            max_wealth = round(genpareto.rvs(max_wealth_alpha, max_wealth_m,
-                                             random_state=self.np_random))
+            max_wealth = round(
+                genpareto.rvs(
+                    max_wealth_alpha, max_wealth_m, random_state=self.np_random
+                )
+            )
             max_wealth_bound = max_wealth
-            max_rounds = int(round(self.np_random.normal(max_rounds_mean, max_rounds_sd)))
+            max_rounds = int(
+                round(self.np_random.normal(max_rounds_mean, max_rounds_sd))
+            )
             max_rounds_bound = max_rounds
 
         # add an additional global variable which is the sufficient statistic for the
@@ -161,13 +191,18 @@ class KellyCoinflipGeneralizedEnv(gym.Env):
         self.rounds_elapsed = 0
 
         # the rest proceeds as before:
-        self.action_space = spaces.Discrete(int(max_wealth_bound*100))
-        self.observation_space = spaces.Tuple((
-            spaces.Box(0, max_wealth_bound, shape=[1], dtype=np.float32),  # current wealth
-            spaces.Discrete(max_rounds_bound+1),  # rounds elapsed
-            spaces.Discrete(max_rounds_bound+1),  # wins
-            spaces.Discrete(max_rounds_bound+1),  # losses
-            spaces.Box(0, max_wealth_bound, [1], dtype=np.float32)))  # maximum observed wealth
+        self.action_space = spaces.Discrete(int(max_wealth_bound * 100))
+        self.observation_space = spaces.Tuple(
+            (
+                spaces.Box(
+                    0, max_wealth_bound, shape=[1], dtype=np.float32
+                ),  # current wealth
+                spaces.Discrete(max_rounds_bound + 1),  # rounds elapsed
+                spaces.Discrete(max_rounds_bound + 1),  # wins
+                spaces.Discrete(max_rounds_bound + 1),  # losses
+                spaces.Box(0, max_wealth_bound, [1], dtype=np.float32),
+            )
+        )  # maximum observed wealth
         self.reward_range = (0, max_wealth)
         self.edge = edge
         self.wealth = self.initial_wealth
@@ -180,7 +215,7 @@ class KellyCoinflipGeneralizedEnv(gym.Env):
         return [seed]
 
     def step(self, action):
-        bet_in_dollars = min(action/100.0, self.wealth)
+        bet_in_dollars = min(action / 100.0, self.wealth)
 
         self.rounds -= 1
 
@@ -200,25 +235,42 @@ class KellyCoinflipGeneralizedEnv(gym.Env):
         return self._get_obs(), reward, done, {}
 
     def _get_obs(self):
-        return (np.array([float(self.wealth)]), self.rounds_elapsed, self.wins,
-                self.losses, np.array([float(self.max_ever_wealth)]))
+        return (
+            np.array([float(self.wealth)]),
+            self.rounds_elapsed,
+            self.wins,
+            self.losses,
+            np.array([float(self.max_ever_wealth)]),
+        )
 
     def reset(self):
         # re-init everything to draw new parameters etc, but preserve the RNG for
         # reproducibility and pass in the same hyper-parameters as originally specified:
-        self.__init__(initial_wealth=self.initial_wealth,
-                      edge_prior_alpha=self.edge_prior_alpha,
-                      edge_prior_beta=self.edge_prior_beta,
-                      max_wealth_alpha=self.max_wealth_alpha,
-                      max_wealth_m=self.max_wealth_m,
-                      max_rounds_mean=self.max_rounds_mean,
-                      max_rounds_sd=self.max_rounds_sd,
-                      reseed=False,
-                      clip_distributions=self.clip_distributions)
+        self.__init__(
+            initial_wealth=self.initial_wealth,
+            edge_prior_alpha=self.edge_prior_alpha,
+            edge_prior_beta=self.edge_prior_beta,
+            max_wealth_alpha=self.max_wealth_alpha,
+            max_wealth_m=self.max_wealth_m,
+            max_rounds_mean=self.max_rounds_mean,
+            max_rounds_sd=self.max_rounds_sd,
+            reseed=False,
+            clip_distributions=self.clip_distributions,
+        )
         return self._get_obs()
 
-    def render(self, mode='human'):
-        print("Current wealth: ", self.wealth, "; Rounds left: ", self.rounds,
-              "; True edge: ", self.edge, "; True max wealth: ", self.max_wealth,
-              "; True stopping time: ", self.max_rounds, "; Rounds left: ",
-              self.max_rounds - self.rounds_elapsed)
+    def render(self, mode="human"):
+        print(
+            "Current wealth: ",
+            self.wealth,
+            "; Rounds left: ",
+            self.rounds,
+            "; True edge: ",
+            self.edge,
+            "; True max wealth: ",
+            self.max_wealth,
+            "; True stopping time: ",
+            self.max_rounds,
+            "; Rounds left: ",
+            self.max_rounds - self.rounds_elapsed,
+        )

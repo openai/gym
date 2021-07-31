@@ -17,11 +17,17 @@ class EzPickle(object):
     This is generally needed only for environments which wrap C/C++ code, such as MuJoCo
     and Atari.
     """
+
     def __init__(self, *args, **kwargs):
         self._ezpickle_args = args
         self._ezpickle_kwargs = kwargs
+
     def __getstate__(self):
-        return {"_ezpickle_args" : self._ezpickle_args, "_ezpickle_kwargs": self._ezpickle_kwargs}
+        return {
+            "_ezpickle_args": self._ezpickle_args,
+            "_ezpickle_kwargs": self._ezpickle_kwargs,
+        }
+
     def __setstate__(self, d):
         out = type(self)(*d["_ezpickle_args"], **d["_ezpickle_kwargs"])
         self.__dict__.update(out.__dict__)

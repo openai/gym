@@ -1,15 +1,20 @@
 import json
 import os
+import os.path
 import subprocess
 import tempfile
-import os.path
-import distutils.spawn, distutils.version
-import numpy as np
 from io import StringIO
+
+import distutils.spawn
+import distutils.version
+import numpy as np
+
 from gym import error, logger
 
+
 def touch(path):
-    open(path, 'a').close()
+    open(path, "a").close()
+
 
 class VideoRecorder(object):
     """VideoRecorder renders a nice movie of a rollout, frame by frame. It
@@ -29,8 +34,8 @@ class VideoRecorder(object):
     """
 
     def __init__(self, env, path=None, metadata=None, enabled=True, base_path=None):
-        modes = env.metadata.get('render.modes', [])
-        self._async = env.metadata.get('semantics.async')
+        modes = env.metadata.get("render.modes", [])
+        self._async = env.metadata.get("semantics.async")
         self.enabled = enabled
 
         # Don't bother setting anything else if not enabled
@@ -38,11 +43,15 @@ class VideoRecorder(object):
             return
 
         self.ansi_mode = False
-        if 'rgb_array' not in modes:
-            if 'ansi' in modes:
+        if "rgb_array" not in modes:
+            if "ansi" in modes:
                 self.ansi_mode = True
             else:
-                logger.info('Disabling video recorder because {} neither supports video mode "rgb_array" nor "ansi".'.format(env))
+                logger.info(
+                    'Disabling video recorder because {} neither supports video mode "rgb_array" nor "ansi".'.format(
+                        env
+                    )
+                )
                 # Whoops, turns out we shouldn't be enabled after all
                 self.enabled = False
                 return
@@ -53,39 +62,53 @@ class VideoRecorder(object):
         self.last_frame = None
         self.env = env
 
-        required_ext = '.json' if self.ansi_mode else '.mp4'
+        required_ext = ".json" if self.ansi_mode else ".mp4"
         if path is None:
             if base_path is not None:
                 # Base path given, append ext
                 path = base_path + required_ext
             else:
                 # Otherwise, just generate a unique filename
-                with tempfile.NamedTemporaryFile(suffix=required_ext, delete=False) as f:
+                with tempfile.NamedTemporaryFile(
+                    suffix=required_ext, delete=False
+                ) as f:
                     path = f.name
         self.path = path
 
         path_base, actual_ext = os.path.splitext(self.path)
 
         if actual_ext != required_ext:
-            hint = " HINT: The environment is text-only, therefore we're recording its text output in a structured JSON format." if self.ansi_mode else ''
-            raise error.Error("Invalid path given: {} -- must have file extension {}.{}".format(self.path, required_ext, hint))
+            hint = (
+                " HINT: The environment is text-only, therefore we're recording its text output in a structured JSON format."
+                if self.ansi_mode
+                else ""
+            )
+            raise error.Error(
+                "Invalid path given: {} -- must have file extension {}.{}".format(
+                    self.path, required_ext, hint
+                )
+            )
         # Touch the file in any case, so we know it's present. (This
         # corrects for platform platform differences. Using ffmpeg on
         # OS X, the file is precreated, but not on Linux.
         touch(path)
 
-        self.frames_per_sec = env.metadata.get('video.frames_per_second', 30)
-        self.output_frames_per_sec = env.metadata.get('video.output_frames_per_second', self.frames_per_sec)
-        self.encoder = None # lazily start the process
+        self.frames_per_sec = env.metadata.get("video.frames_per_second", 30)
+        self.output_frames_per_sec = env.metadata.get(
+            "video.output_frames_per_second", self.frames_per_sec
+        )
+        self.encoder = None  # lazily start the process
         self.broken = False
 
         # Dump metadata
         self.metadata = metadata or {}
-        self.metadata['content_type'] = 'video/vnd.openai.ansivid' if self.ansi_mode else 'video/mp4'
-        self.metadata_path = '{}.meta.json'.format(path_base)
+        self.metadata["content_type"] = (
+            "video/vnd.openai.ansivid" if self.ansi_mode else "video/mp4"
+        )
+        self.metadata_path = "{}.meta.json".format(path_base)
         self.write_metadata()
 
-        logger.info('Starting new video recorder writing to %s', self.path)
+        logger.info("Starting new video recorder writing to %s", self.path)
         self.empty = True
 
     @property
@@ -94,10 +117,11 @@ class VideoRecorder(object):
 
     def capture_frame(self):
         """Render the given `env` and add the resulting frame to the video."""
-        if not self.functional: return
-        logger.debug('Capturing video frame: path=%s', self.path)
+        if not self.functional:
+            return
+        logger.debug("Capturing video frame: path=%s", self.path)
 
-        render_mode = 'ansi' if self.ansi_mode else 'rgb_array'
+        render_mode = "ansi" if self.ansi_mode else "rgb_array"
         frame = self.env.render(mode=render_mode)
 
         if frame is None:
@@ -106,7 +130,11 @@ class VideoRecorder(object):
             else:
                 # Indicates a bug in the environment: don't want to raise
                 # an error here.
-                logger.warn('Env returned None on render(). Disabling further rendering for video recorder by marking as disabled: path=%s metadata_path=%s', self.path, self.metadata_path)
+                logger.warn(
+                    "Env returned None on render(). Disabling further rendering for video recorder by marking as disabled: path=%s metadata_path=%s",
+                    self.path,
+                    self.metadata_path,
+                )
                 self.broken = True
         else:
             self.last_frame = frame
@@ -121,7 +149,7 @@ class VideoRecorder(object):
             return
 
         if self.encoder:
-            logger.debug('Closing video encoder: path=%s', self.path)
+            logger.debug("Closing video encoder: path=%s", self.path)
             self.encoder.close()
             self.encoder = None
         else:
@@ -130,11 +158,15 @@ class VideoRecorder(object):
 
             if self.metadata is None:
                 self.metadata = {}
-            self.metadata['empty'] = True
+            self.metadata["empty"] = True
 
         # If broken, get rid of the output file, otherwise we'd leak it.
         if self.broken:
-            logger.info('Cleaning up paths for broken video recorder: path=%s metadata_path=%s', self.path, self.metadata_path)
+            logger.info(
+                "Cleaning up paths for broken video recorder: path=%s metadata_path=%s",
+                self.path,
+                self.metadata_path,
+            )
 
             # Might have crashed before even starting the output file, don't try to remove in that case.
             if os.path.exists(self.path):
@@ -142,30 +174,32 @@ class VideoRecorder(object):
 
             if self.metadata is None:
                 self.metadata = {}
-            self.metadata['broken'] = True
+            self.metadata["broken"] = True
 
         self.write_metadata()
 
     def write_metadata(self):
-        with open(self.metadata_path, 'w') as f:
+        with open(self.metadata_path, "w") as f:
             json.dump(self.metadata, f)
 
     def _encode_ansi_frame(self, frame):
         if not self.encoder:
             self.encoder = TextEncoder(self.path, self.frames_per_sec)
-            self.metadata['encoder_version'] = self.encoder.version_info
+            self.metadata["encoder_version"] = self.encoder.version_info
         self.encoder.capture_frame(frame)
         self.empty = False
 
     def _encode_image_frame(self, frame):
         if not self.encoder:
-            self.encoder = ImageEncoder(self.path, frame.shape, self.frames_per_sec, self.output_frames_per_sec)
-            self.metadata['encoder_version'] = self.encoder.version_info
+            self.encoder = ImageEncoder(
+                self.path, frame.shape, self.frames_per_sec, self.output_frames_per_sec
+            )
+            self.metadata["encoder_version"] = self.encoder.version_info
 
         try:
             self.encoder.capture_frame(frame)
         except error.InvalidFrame as e:
-            logger.warn('Tried to pass invalid video frame, marking as broken: %s', e)
+            logger.warn("Tried to pass invalid video frame, marking as broken: %s", e)
             self.broken = True
         else:
             self.empty = False
@@ -187,51 +221,76 @@ class TextEncoder(object):
         elif isinstance(frame, StringIO):
             string = frame.getvalue()
         else:
-            raise error.InvalidFrame('Wrong type {} for {}: text frame must be a string or StringIO'.format(type(frame), frame))
+            raise error.InvalidFrame(
+                "Wrong type {} for {}: text frame must be a string or StringIO".format(
+                    type(frame), frame
+                )
+            )
 
-        frame_bytes = string.encode('utf-8')
+        frame_bytes = string.encode("utf-8")
 
-        if frame_bytes[-1:] != b'\n':
-            raise error.InvalidFrame('Frame must end with a newline: """{}"""'.format(string))
+        if frame_bytes[-1:] != b"\n":
+            raise error.InvalidFrame(
+                'Frame must end with a newline: """{}"""'.format(string)
+            )
 
-        if b'\r' in frame_bytes:
-            raise error.InvalidFrame('Frame contains carriage returns (only newlines are allowed: """{}"""'.format(string))
+        if b"\r" in frame_bytes:
+            raise error.InvalidFrame(
+                'Frame contains carriage returns (only newlines are allowed: """{}"""'.format(
+                    string
+                )
+            )
 
         self.frames.append(frame_bytes)
 
     def close(self):
-        #frame_duration = float(1) / self.frames_per_sec
-        frame_duration = .5
+        # frame_duration = float(1) / self.frames_per_sec
+        frame_duration = 0.5
 
         # Turn frames into events: clear screen beforehand
         # https://rosettacode.org/wiki/Terminal_control/Clear_the_screen#Python
         # https://rosettacode.org/wiki/Terminal_control/Cursor_positioning#Python
         clear_code = b"%c[2J\033[1;1H" % (27)
         # Decode the bytes as UTF-8 since JSON may only contain UTF-8
-        events = [ (frame_duration, (clear_code+frame.replace(b'\n', b'\r\n')).decode('utf-8'))  for frame in self.frames ]
+        events = [
+            (
+                frame_duration,
+                (clear_code + frame.replace(b"\n", b"\r\n")).decode("utf-8"),
+            )
+            for frame in self.frames
+        ]
 
         # Calculate frame size from the largest frames.
         # Add some padding since we'll get cut off otherwise.
-        height = max([frame.count(b'\n') for frame in self.frames]) + 1
-        width = max([max([len(line) for line in frame.split(b'\n')]) for frame in self.frames]) + 2
+        height = max([frame.count(b"\n") for frame in self.frames]) + 1
+        width = (
+            max(
+                [
+                    max([len(line) for line in frame.split(b"\n")])
+                    for frame in self.frames
+                ]
+            )
+            + 2
+        )
 
         data = {
             "version": 1,
             "width": width,
             "height": height,
-            "duration": len(self.frames)*frame_duration,
+            "duration": len(self.frames) * frame_duration,
             "command": "-",
             "title": "gym VideoRecorder episode",
-            "env": {}, # could add some env metadata here
+            "env": {},  # could add some env metadata here
             "stdout": events,
         }
 
-        with open(self.output_path, 'w') as f:
+        with open(self.output_path, "w") as f:
             json.dump(data, f)
 
     @property
     def version_info(self):
-        return {'backend':'TextEncoder','version':1}
+        return {"backend": "TextEncoder", "version": 1}
+
 
 class ImageEncoder(object):
     def __init__(self, output_path, frame_shape, frames_per_sec, output_frames_per_sec):
@@ -240,67 +299,139 @@ class ImageEncoder(object):
         # Frame shape should be lines-first, so w and h are swapped
         h, w, pixfmt = frame_shape
         if pixfmt != 3 and pixfmt != 4:
-            raise error.InvalidFrame("Your frame has shape {}, but we require (w,h,3) or (w,h,4), i.e., RGB values for a w-by-h image, with an optional alpha channel.".format(frame_shape))
-        self.wh = (w,h)
-        self.includes_alpha = (pixfmt == 4)
+            raise error.InvalidFrame(
+                "Your frame has shape {}, but we require (w,h,3) or (w,h,4), i.e., RGB values for a w-by-h image, with an optional alpha channel.".format(
+                    frame_shape
+                )
+            )
+        self.wh = (w, h)
+        self.includes_alpha = pixfmt == 4
         self.frame_shape = frame_shape
         self.frames_per_sec = frames_per_sec
         self.output_frames_per_sec = output_frames_per_sec
 
-        if distutils.spawn.find_executable('avconv') is not None:
-            self.backend = 'avconv'
-        elif distutils.spawn.find_executable('ffmpeg') is not None:
-            self.backend = 'ffmpeg'
+        if distutils.spawn.find_executable("avconv") is not None:
+            self.backend = "avconv"
+        elif distutils.spawn.find_executable("ffmpeg") is not None:
+            self.backend = "ffmpeg"
         else:
-            raise error.DependencyNotInstalled("""Found neither the ffmpeg nor avconv executables. On OS X, you can install ffmpeg via `brew install ffmpeg`. On most Ubuntu variants, `sudo apt-get install ffmpeg` should do it. On Ubuntu 14.04, however, you'll need to install avconv with `sudo apt-get install libav-tools`.""")
+            raise error.DependencyNotInstalled(
+                """Found neither the ffmpeg nor avconv executables. On OS X, you can install ffmpeg via `brew install ffmpeg`. On most Ubuntu variants, `sudo apt-get install ffmpeg` should do it. On Ubuntu 14.04, however, you'll need to install avconv with `sudo apt-get install libav-tools`."""
+            )
 
         self.start()
 
     @property
     def version_info(self):
         return {
-            'backend':self.backend,
-            'version':str(subprocess.check_output([self.backend, '-version'],
-                                                  stderr=subprocess.STDOUT)),
-            'cmdline':self.cmdline
+            "backend": self.backend,
+            "version": str(
+                subprocess.check_output(
+                    [self.backend, "-version"], stderr=subprocess.STDOUT
+                )
+            ),
+            "cmdline": self.cmdline,
         }
 
     def start(self):
-        self.cmdline = (self.backend,
-                     '-nostats',
-                     '-loglevel', 'error', # suppress warnings
-                     '-y',
+        if self.backend == "ffmpeg":
+            self.cmdline = (
+                self.backend,
+                "-nostats",
+                "-loglevel",
+                "error",  # suppress warnings
+                "-y",
+                # input
+                "-f",
+                "rawvideo",
+                "-s:v",
+                "{}x{}".format(*self.wh),
+                "-pix_fmt",
+                ("rgb32" if self.includes_alpha else "rgb24"),
+                "-r",
+                "%d" % self.frames_per_sec,
+                "-i",
+                "-",  # this used to be /dev/stdin, which is not Windows-friendly
+                # output
+                "-an",
+                "-r",
+                "%d" % self.frames_per_sec,
+                "-vcodec",
+                "mpeg4",
+                "-pix_fmt",
+                "bgr24",
+                "-r",
+                "%d" % self.output_frames_per_sec,
+                self.output_path,
+            )
+        else:
+            self.cmdline = (
+                self.backend,
+                "-nostats",
+                "-loglevel",
+                "error",  # suppress warnings
+                "-y",
+                # input
+                "-f",
+                "rawvideo",
+                "-s:v",
+                "{}x{}".format(*self.wh),
+                "-pix_fmt",
+                ("rgb32" if self.includes_alpha else "rgb24"),
+                "-framerate",
+                "%d" % self.frames_per_sec,
+                "-i",
+                "-",  # this used to be /dev/stdin, which is not Windows-friendly
+                # output
+                "-vf",
+                "scale=trunc(iw/2)*2:trunc(ih/2)*2",
+                "-vcodec",
+                "libx264",
+                "-pix_fmt",
+                "yuv420p",
+                "-r",
+                "%d" % self.output_frames_per_sec,
+                self.output_path,
+            )
 
-                     # input
-                     '-f', 'rawvideo',
-                     '-s:v', '{}x{}'.format(*self.wh),
-                     '-pix_fmt',('rgb32' if self.includes_alpha else 'rgb24'),
-                     '-framerate', '%d' % self.frames_per_sec,
-                     '-i', '-', # this used to be /dev/stdin, which is not Windows-friendly
-
-                     # output
-                     '-vf', 'scale=trunc(iw/2)*2:trunc(ih/2)*2',
-                     '-vcodec', 'libx264',
-                     '-pix_fmt', 'yuv420p',
-                     '-r', '%d' % self.output_frames_per_sec,
-                     self.output_path
-                     )
-
-        logger.debug('Starting ffmpeg with "%s"', ' '.join(self.cmdline))
-        if hasattr(os,'setsid'): #setsid not present on Windows
-            self.proc = subprocess.Popen(self.cmdline, stdin=subprocess.PIPE, preexec_fn=os.setsid)
+        logger.debug('Starting %s with "%s"', self.backend, " ".join(self.cmdline))
+        if hasattr(os, "setsid"):  # setsid not present on Windows
+            self.proc = subprocess.Popen(
+                self.cmdline, stdin=subprocess.PIPE, preexec_fn=os.setsid
+            )
         else:
             self.proc = subprocess.Popen(self.cmdline, stdin=subprocess.PIPE)
 
     def capture_frame(self, frame):
         if not isinstance(frame, (np.ndarray, np.generic)):
-            raise error.InvalidFrame('Wrong type {} for {} (must be np.ndarray or np.generic)'.format(type(frame), frame))
+            raise error.InvalidFrame(
+                "Wrong type {} for {} (must be np.ndarray or np.generic)".format(
+                    type(frame), frame
+                )
+            )
         if frame.shape != self.frame_shape:
-            raise error.InvalidFrame("Your frame has shape {}, but the VideoRecorder is configured for shape {}.".format(frame.shape, self.frame_shape))
+            raise error.InvalidFrame(
+                "Your frame has shape {}, but the VideoRecorder is configured for shape {}.".format(
+                    frame.shape, self.frame_shape
+                )
+            )
         if frame.dtype != np.uint8:
-            raise error.InvalidFrame("Your frame has data type {}, but we require uint8 (i.e. RGB values from 0-255).".format(frame.dtype))
+            raise error.InvalidFrame(
+                "Your frame has data type {}, but we require uint8 (i.e. RGB values from 0-255).".format(
+                    frame.dtype
+                )
+            )
 
-        self.proc.stdin.write(frame.tobytes())
+        try:
+            if distutils.version.LooseVersion(
+                np.__version__
+            ) >= distutils.version.LooseVersion("1.9.0"):
+                self.proc.stdin.write(frame.tobytes())
+            else:
+                self.proc.stdin.write(frame.tostring())
+        except Exception as e:
+            stdout, stderr = self.proc.communicate()
+            logger.error("VideoRecorder encoder failed: %s", stderr)
 
     def close(self):
         self.proc.stdin.close()

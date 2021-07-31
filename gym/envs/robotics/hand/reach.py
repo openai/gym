@@ -7,44 +7,44 @@ from gym.envs.robotics.utils import robot_get_obs
 
 
 FINGERTIP_SITE_NAMES = [
-    'robot0:S_fftip',
-    'robot0:S_mftip',
-    'robot0:S_rftip',
-    'robot0:S_lftip',
-    'robot0:S_thtip',
+    "robot0:S_fftip",
+    "robot0:S_mftip",
+    "robot0:S_rftip",
+    "robot0:S_lftip",
+    "robot0:S_thtip",
 ]
 
 
 DEFAULT_INITIAL_QPOS = {
-    'robot0:WRJ1': -0.16514339750464327,
-    'robot0:WRJ0': -0.31973286565062153,
-    'robot0:FFJ3': 0.14340512546557435,
-    'robot0:FFJ2': 0.32028208333591573,
-    'robot0:FFJ1': 0.7126053607727917,
-    'robot0:FFJ0': 0.6705281001412586,
-    'robot0:MFJ3': 0.000246444303701037,
-    'robot0:MFJ2': 0.3152655251085491,
-    'robot0:MFJ1': 0.7659800313729842,
-    'robot0:MFJ0': 0.7323156897425923,
-    'robot0:RFJ3': 0.00038520700007378114,
-    'robot0:RFJ2': 0.36743546201985233,
-    'robot0:RFJ1': 0.7119514095008576,
-    'robot0:RFJ0': 0.6699446327514138,
-    'robot0:LFJ4': 0.0525442258033891,
-    'robot0:LFJ3': -0.13615534724474673,
-    'robot0:LFJ2': 0.39872030433433003,
-    'robot0:LFJ1': 0.7415570009679252,
-    'robot0:LFJ0': 0.704096378652974,
-    'robot0:THJ4': 0.003673823825070126,
-    'robot0:THJ3': 0.5506291436028695,
-    'robot0:THJ2': -0.014515151997119306,
-    'robot0:THJ1': -0.0015229223564485414,
-    'robot0:THJ0': -0.7894883021600622,
+    "robot0:WRJ1": -0.16514339750464327,
+    "robot0:WRJ0": -0.31973286565062153,
+    "robot0:FFJ3": 0.14340512546557435,
+    "robot0:FFJ2": 0.32028208333591573,
+    "robot0:FFJ1": 0.7126053607727917,
+    "robot0:FFJ0": 0.6705281001412586,
+    "robot0:MFJ3": 0.000246444303701037,
+    "robot0:MFJ2": 0.3152655251085491,
+    "robot0:MFJ1": 0.7659800313729842,
+    "robot0:MFJ0": 0.7323156897425923,
+    "robot0:RFJ3": 0.00038520700007378114,
+    "robot0:RFJ2": 0.36743546201985233,
+    "robot0:RFJ1": 0.7119514095008576,
+    "robot0:RFJ0": 0.6699446327514138,
+    "robot0:LFJ4": 0.0525442258033891,
+    "robot0:LFJ3": -0.13615534724474673,
+    "robot0:LFJ2": 0.39872030433433003,
+    "robot0:LFJ1": 0.7415570009679252,
+    "robot0:LFJ0": 0.704096378652974,
+    "robot0:THJ4": 0.003673823825070126,
+    "robot0:THJ3": 0.5506291436028695,
+    "robot0:THJ2": -0.014515151997119306,
+    "robot0:THJ1": -0.0015229223564485414,
+    "robot0:THJ0": -0.7894883021600622,
 }
 
 
 # Ensure we get the path separator correct on windows
-MODEL_XML_PATH = os.path.join('hand', 'reach.xml')
+MODEL_XML_PATH = os.path.join("hand", "reach.xml")
 
 
 def goal_distance(goal_a, goal_b):
@@ -54,16 +54,24 @@ def goal_distance(goal_a, goal_b):
 
 class HandReachEnv(hand_env.HandEnv, utils.EzPickle):
     def __init__(
-        self, distance_threshold=0.01, n_substeps=20, relative_control=False,
-        initial_qpos=DEFAULT_INITIAL_QPOS, reward_type='sparse',
+        self,
+        distance_threshold=0.01,
+        n_substeps=20,
+        relative_control=False,
+        initial_qpos=DEFAULT_INITIAL_QPOS,
+        reward_type="sparse",
     ):
         utils.EzPickle.__init__(**locals())
         self.distance_threshold = distance_threshold
         self.reward_type = reward_type
 
         hand_env.HandEnv.__init__(
-            self, MODEL_XML_PATH, n_substeps=n_substeps, initial_qpos=initial_qpos,
-            relative_control=relative_control)
+            self,
+            MODEL_XML_PATH,
+            n_substeps=n_substeps,
+            initial_qpos=initial_qpos,
+            relative_control=relative_control,
+        )
 
     def _get_achieved_goal(self):
         goal = [self.sim.data.get_site_xpos(name) for name in FINGERTIP_SITE_NAMES]
@@ -74,7 +82,7 @@ class HandReachEnv(hand_env.HandEnv, utils.EzPickle):
 
     def compute_reward(self, achieved_goal, goal, info):
         d = goal_distance(achieved_goal, goal)
-        if self.reward_type == 'sparse':
+        if self.reward_type == "sparse":
             return -(d > self.distance_threshold).astype(np.float32)
         else:
             return -d
@@ -88,20 +96,22 @@ class HandReachEnv(hand_env.HandEnv, utils.EzPickle):
         self.sim.forward()
 
         self.initial_goal = self._get_achieved_goal().copy()
-        self.palm_xpos = self.sim.data.body_xpos[self.sim.model.body_name2id('robot0:palm')].copy()
+        self.palm_xpos = self.sim.data.body_xpos[
+            self.sim.model.body_name2id("robot0:palm")
+        ].copy()
 
     def _get_obs(self):
         robot_qpos, robot_qvel = robot_get_obs(self.sim)
         achieved_goal = self._get_achieved_goal().ravel()
         observation = np.concatenate([robot_qpos, robot_qvel, achieved_goal])
         return {
-            'observation': observation.copy(),
-            'achieved_goal': achieved_goal.copy(),
-            'desired_goal': self.goal.copy(),
+            "observation": observation.copy(),
+            "achieved_goal": achieved_goal.copy(),
+            "desired_goal": self.goal.copy(),
         }
 
     def _sample_goal(self):
-        thumb_name = 'robot0:S_thtip'
+        thumb_name = "robot0:S_thtip"
         finger_names = [name for name in FINGERTIP_SITE_NAMES if name != thumb_name]
         finger_name = self.np_random.choice(finger_names)
 
@@ -117,7 +127,7 @@ class HandReachEnv(hand_env.HandEnv, utils.EzPickle):
         # overlap.
         goal = self.initial_goal.copy().reshape(-1, 3)
         for idx in [thumb_idx, finger_idx]:
-            offset_direction = (meeting_pos - goal[idx])
+            offset_direction = meeting_pos - goal[idx]
             offset_direction /= np.linalg.norm(offset_direction)
             goal[idx] = meeting_pos - 0.005 * offset_direction
 
@@ -136,14 +146,16 @@ class HandReachEnv(hand_env.HandEnv, utils.EzPickle):
         sites_offset = (self.sim.data.site_xpos - self.sim.model.site_pos).copy()
         goal = self.goal.reshape(5, 3)
         for finger_idx in range(5):
-            site_name = 'target{}'.format(finger_idx)
+            site_name = "target{}".format(finger_idx)
             site_id = self.sim.model.site_name2id(site_name)
             self.sim.model.site_pos[site_id] = goal[finger_idx] - sites_offset[site_id]
 
         # Visualize finger positions.
         achieved_goal = self._get_achieved_goal().reshape(5, 3)
         for finger_idx in range(5):
-            site_name = 'finger{}'.format(finger_idx)
+            site_name = "finger{}".format(finger_idx)
             site_id = self.sim.model.site_name2id(site_name)
-            self.sim.model.site_pos[site_id] = achieved_goal[finger_idx] - sites_offset[site_id]
+            self.sim.model.site_pos[site_id] = (
+                achieved_goal[finger_idx] - sites_offset[site_id]
+            )
         self.sim.forward()

@@ -137,7 +137,8 @@ class CarRacing(gym.Env, EzPickle):
         )
 
         self.action_space = spaces.Box(
-            np.array([-1, 0, 0]), np.array([+1, +1, +1]), dtype=np.float32
+            np.array([-1, 0, 0]).astype(np.float32),
+            np.array([+1, +1, +1]).astype(np.float32),
         )  # steer, gas, brake
 
         self.observation_space = spaces.Box(
@@ -525,8 +526,8 @@ class CarRacing(gym.Env, EzPickle):
                 polygons_.extend([p[0], p[1], 0])
 
         vl = pyglet.graphics.vertex_list(
-            len(polygons_) // 3, ("v3f", polygons_), ("c4f", colors)  # gl.GL_QUADS,
-        )
+            len(polygons_) // 3, ("v3f", polygons_), ("c4f", colors)
+        )  # gl.GL_QUADS,
         vl.draw(gl.GL_QUADS)
         vl.delete()
 
@@ -587,8 +588,8 @@ class CarRacing(gym.Env, EzPickle):
         horiz_ind(20, -10.0 * self.car.wheels[0].joint.angle, (0, 1, 0))
         horiz_ind(30, -0.8 * self.car.hull.angularVelocity, (1, 0, 0))
         vl = pyglet.graphics.vertex_list(
-            len(polygons) // 3, ("v3f", polygons), ("c4f", colors)  # gl.GL_QUADS,
-        )
+            len(polygons) // 3, ("v3f", polygons), ("c4f", colors)
+        )  # gl.GL_QUADS,
         vl.draw(gl.GL_QUADS)
         vl.delete()
         self.score_label.text = "%04i" % self.reward
