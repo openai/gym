@@ -19,6 +19,7 @@ from gym.vector.utils import (
     write_to_shared_memory,
     read_from_shared_memory,
     concatenate,
+    iterate,
     CloudpickleWrapper,
     clear_mpi_env_vars,
 )
@@ -307,6 +308,7 @@ class AsyncVectorEnv(VectorEnv):
                 self._state.value,
             )
 
+        actions = iterate(actions, self.action_space)
         for pipe, action in zip(self.parent_pipes, actions):
             pipe.send(("step", action))
         self._state = AsyncState.WAITING_STEP

@@ -3,7 +3,7 @@ from copy import deepcopy
 
 from gym import logger
 from gym.vector.vector_env import VectorEnv
-from gym.vector.utils import concatenate, create_empty_array
+from gym.vector.utils import concatenate, iterate, create_empty_array
 
 __all__ = ["SyncVectorEnv"]
 
@@ -95,7 +95,7 @@ class SyncVectorEnv(VectorEnv):
         return deepcopy(self.observations) if self.copy else self.observations
 
     def step_async(self, actions):
-        self._actions = actions
+        self._actions = iterate(actions, self.action_space)
 
     def step_wait(self):
         observations, infos = [], []

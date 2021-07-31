@@ -33,7 +33,7 @@ class VectorEnv(gym.Env):
         self.num_envs = num_envs
         self.is_vector_env = True
         self.observation_space = batch_space(observation_space, n=num_envs)
-        self.action_space = Tuple((action_space,) * num_envs)
+        self.action_space = batch_space(action_space, n=num_envs)
 
         self.closed = False
         self.viewer = None
