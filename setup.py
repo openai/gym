@@ -43,7 +43,7 @@ setup(
         "scipy",
         "numpy>=1.18.0",
         "pyglet>=1.4.0",
-        "Pillow<=8.2.0",
+        "Pillow",
         "cloudpickle>=1.2.0,<1.7.0",
     ],
     extras_require=extras,
