@@ -34,6 +34,7 @@ import gym
 import numpy as np
 from gym import spaces
 
+
 def _is_numpy_array_space(space: spaces.Space) -> bool:
     """
     Returns False if provided space is not representable as a single numpy array
@@ -62,6 +63,7 @@ def _check_image_input(observation_space: spaces.Box, key: str = "") -> None:
             "Generally, CNN policies assume observations are within that range, "
             "so you may encounter an issue if the observation values are not."
         )
+
 
 def _check_unsupported_spaces(
     env: gym.Env, observation_space: spaces.Space, action_space: spaces.Space
@@ -99,11 +101,20 @@ def _check_unsupported_spaces(
         )
 
 
-def _check_nan(env: gym.Env) -> None:
+def _check_nan(env: gym.Env, check_inf: bool = True) -> None:
     """Check for Inf and NaN."""
     for _ in range(10):
         action = np.array([env.action_space.sample()])
-        _, _, _, _ = env.step(action)
+        observation, reward, _, _ = env.step(action)
+
+        if np.any(np.isnan(observation)):
+            warnings.warn("Encountered NaN value in observations.")
+        if np.any(np.isnan(reward)):
+            warnings.warn("Encountered NaN value in rewards.")
+        if np.any(np.isinf(observation)):
+            warnings.warn("Encountered inf value in observations.")
+        if np.any(np.isinf(reward)):
+            warnings.warn("Encountered inf value in rewards.")
 
 
 def _check_obs(
