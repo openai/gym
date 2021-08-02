@@ -1,3 +1,32 @@
+"""
+This file is originally from the Stable Baselines3 repository hostedon GitHub
+(https://github.com/DLR-RM/stable-baselines3/)
+Original Author: Antonin Raffin
+
+This file is covered by the MIT License, as described here:
+The MIT License
+
+Copyright (c) 2019 Antonin Raffin
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+"""
+
 import warnings
 from typing import Union
 
@@ -51,7 +80,9 @@ def _check_image_input(observation_space: spaces.Box, key: str = "") -> None:
         )
 
 
-def _check_unsupported_spaces(env: gym.Env, observation_space: spaces.Space, action_space: spaces.Space) -> None:
+def _check_unsupported_spaces(
+    env: gym.Env, observation_space: spaces.Space, action_space: spaces.Space
+) -> None:
     """Emit warnings when the observation space or action space used is not supported by Stable-Baselines."""
 
     if isinstance(observation_space, spaces.Dict):
@@ -93,7 +124,11 @@ def _check_nan(env: gym.Env) -> None:
         _, _, _, _ = vec_env.step(action)
 
 
-def _check_obs(obs: Union[tuple, dict, np.ndarray, int], observation_space: spaces.Space, method_name: str) -> None:
+def _check_obs(
+    obs: Union[tuple, dict, np.ndarray, int],
+    observation_space: spaces.Space,
+    method_name: str,
+) -> None:
     """
     Check that the observation returned by the environment
     correspond to the declared one.
@@ -105,9 +140,13 @@ def _check_obs(obs: Union[tuple, dict, np.ndarray, int], observation_space: spac
 
     # The check for a GoalEnv is done by the base class
     if isinstance(observation_space, spaces.Discrete):
-        assert isinstance(obs, int), f"The observation returned by `{method_name}()` method must be an int"
+        assert isinstance(
+            obs, int
+        ), f"The observation returned by `{method_name}()` method must be an int"
     elif _is_numpy_array_space(observation_space):
-        assert isinstance(obs, np.ndarray), f"The observation returned by `{method_name}()` method must be a numpy array"
+        assert isinstance(
+            obs, np.ndarray
+        ), f"The observation returned by `{method_name}()` method must be a numpy array"
 
     assert observation_space.contains(
         obs
@@ -134,7 +173,9 @@ def _check_box_obs(observation_space: spaces.Box, key: str = "") -> None:
         )
 
 
-def _check_returned_values(env: gym.Env, observation_space: spaces.Space, action_space: spaces.Space) -> None:
+def _check_returned_values(
+    env: gym.Env, observation_space: spaces.Space, action_space: spaces.Space
+) -> None:
     """
     Check the returned values by the env when calling `.reset()` or `.step()` methods.
     """
@@ -142,7 +183,9 @@ def _check_returned_values(env: gym.Env, observation_space: spaces.Space, action
     obs = env.reset()
 
     if isinstance(observation_space, spaces.Dict):
-        assert isinstance(obs, dict), "The observation returned by `reset()` must be a dictionary"
+        assert isinstance(
+            obs, dict
+        ), "The observation returned by `reset()` must be a dictionary"
         for key in observation_space.spaces.keys():
             try:
                 _check_obs(obs[key], observation_space.spaces[key], "reset")
@@ -155,13 +198,17 @@ def _check_returned_values(env: gym.Env, observation_space: spaces.Space, action
     action = action_space.sample()
     data = env.step(action)
 
-    assert len(data) == 4, "The `step()` method must return four values: obs, reward, done, info"
+    assert (
+        len(data) == 4
+    ), "The `step()` method must return four values: obs, reward, done, info"
 
     # Unpack
     obs, reward, done, info = data
 
     if isinstance(observation_space, spaces.Dict):
-        assert isinstance(obs, dict), "The observation returned by `step()` must be a dictionary"
+        assert isinstance(
+            obs, dict
+        ), "The observation returned by `step()` must be a dictionary"
         for key in observation_space.spaces.keys():
             try:
                 _check_obs(obs[key], observation_space.spaces[key], "step")
@@ -172,13 +219,19 @@ def _check_returned_values(env: gym.Env, observation_space: spaces.Space, action
         _check_obs(obs, observation_space, "step")
 
     # We also allow int because the reward will be cast to float
-    assert isinstance(reward, (float, int)), "The reward returned by `step()` must be a float"
+    assert isinstance(
+        reward, (float, int)
+    ), "The reward returned by `step()` must be a float"
     assert isinstance(done, bool), "The `done` signal must be a boolean"
-    assert isinstance(info, dict), "The `info` returned by `step()` must be a python dictionary"
+    assert isinstance(
+        info, dict
+    ), "The `info` returned by `step()` must be a python dictionary"
 
     if isinstance(env, gym.GoalEnv):
         # For a GoalEnv, the keys are checked at reset
-        assert reward == env.compute_reward(obs["achieved_goal"], obs["desired_goal"], info)
+        assert reward == env.compute_reward(
+            obs["achieved_goal"], obs["desired_goal"], info
+        )
 
 
 def _check_spaces(env: gym.Env) -> None:
@@ -189,15 +242,25 @@ def _check_spaces(env: gym.Env) -> None:
     # Helper to link to the code, because gym has no proper documentation
     gym_spaces = " cf https://github.com/openai/gym/blob/master/gym/spaces/"
 
-    assert hasattr(env, "observation_space"), "You must specify an observation space (cf gym.spaces)" + gym_spaces
-    assert hasattr(env, "action_space"), "You must specify an action space (cf gym.spaces)" + gym_spaces
+    assert hasattr(env, "observation_space"), (
+        "You must specify an observation space (cf gym.spaces)" + gym_spaces
+    )
+    assert hasattr(env, "action_space"), (
+        "You must specify an action space (cf gym.spaces)" + gym_spaces
+    )
 
-    assert isinstance(env.observation_space, spaces.Space), "The observation space must inherit from gym.spaces" + gym_spaces
-    assert isinstance(env.action_space, spaces.Space), "The action space must inherit from gym.spaces" + gym_spaces
+    assert isinstance(env.observation_space, spaces.Space), (
+        "The observation space must inherit from gym.spaces" + gym_spaces
+    )
+    assert isinstance(env.action_space, spaces.Space), (
+        "The action space must inherit from gym.spaces" + gym_spaces
+    )
 
 
 # Check render cannot be covered by CI
-def _check_render(env: gym.Env, warn: bool = True, headless: bool = False) -> None:  # pragma: no cover
+def _check_render(
+    env: gym.Env, warn: bool = True, headless: bool = False
+) -> None:  # pragma: no cover
     """
     Check the declared render modes and the `render()`/`close()`
     method of the environment.
@@ -255,7 +318,11 @@ def check_env(env: gym.Env, warn: bool = True, skip_render_check: bool = True) -
     if warn:
         _check_unsupported_spaces(env, observation_space, action_space)
 
-        obs_spaces = observation_space.spaces if isinstance(observation_space, spaces.Dict) else {"": observation_space}
+        obs_spaces = (
+            observation_space.spaces
+            if isinstance(observation_space, spaces.Dict)
+            else {"": observation_space}
+        )
         for key, space in obs_spaces.items():
             if isinstance(space, spaces.Box):
                 _check_box_obs(space, key)
