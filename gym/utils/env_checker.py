@@ -68,7 +68,10 @@ def _check_image_input(observation_space: spaces.Box, key: str = "") -> None:
 def _check_unsupported_spaces(
     env: gym.Env, observation_space: spaces.Space, action_space: spaces.Space
 ) -> None:
-    """Emit warnings when the observation space or action space used is not supported by Stable-Baselines."""
+    """
+    Emit warnings when the observation space or action space may not traditionally
+    be supported by popular RL libraries. e.g. Stable-Baselines3
+    """
 
     if isinstance(observation_space, spaces.Dict):
         nested_dict = False
@@ -77,9 +80,9 @@ def _check_unsupported_spaces(
                 nested_dict = True
         if nested_dict:
             warnings.warn(
-                "Nested observation spaces are not supported by Stable Baselines3 "
-                "(Dict spaces inside Dict space). "
-                "You should flatten it to have only one level of keys."
+                "Nested observation spaces may not be supported if you use an RL library "
+                "for your learning agent (Dict spaces inside Dict space). "
+                "In this case, you should flatten it to have only one level of keys."
                 "For example, `dict(space1=dict(space2=Box(), space3=Box()), spaces4=Discrete())` "
                 "is not supported but `dict(space2=Box(), spaces3=Box(), spaces4=Discrete())` is."
             )
@@ -87,16 +90,15 @@ def _check_unsupported_spaces(
     if isinstance(observation_space, spaces.Tuple):
         warnings.warn(
             "The observation space is a Tuple,"
-            "this is currently not supported by Stable Baselines3. "
+            "this may not be supported if you use an RL library for your learning agent. "
             "However, you can convert it to a Dict observation space "
             "(cf. https://github.com/openai/gym/blob/master/gym/spaces/dict.py). "
-            "which is supported by SB3."
         )
 
     if not _is_numpy_array_space(action_space):
         warnings.warn(
             "The action space is not based off a numpy array. Typically this means it's either a Dict or Tuple space. "
-            "This type of action space is currently not supported by Stable Baselines 3. You should try to flatten the "
+            "This type of action space may not supported by your RL library. You should try to flatten the "
             "action using a wrapper."
         )
 
@@ -307,7 +309,7 @@ def check_env(env: gym.Env, warn: bool = True, skip_render_check: bool = True) -
     action_space = env.action_space
 
     # Warn the user if needed.
-    # A warning means that the environment may run but not work properly with Stable Baselines algorithms
+    # A warning means that the environment may run but not work properly with popular RL libraries.
     if warn:
         _check_unsupported_spaces(env, observation_space, action_space)
 
