@@ -34,10 +34,6 @@ import gym
 import numpy as np
 from gym import spaces
 
-from stable_baselines3.common.preprocessing import is_image_space_channels_first
-from stable_baselines3.common.vec_env import DummyVecEnv, VecCheckNan
-
-
 def _is_numpy_array_space(space: spaces.Space) -> bool:
     """
     Returns False if provided space is not representable as a single numpy array
@@ -48,7 +44,7 @@ def _is_numpy_array_space(space: spaces.Space) -> bool:
 
 def _check_image_input(observation_space: spaces.Box, key: str = "") -> None:
     """
-    Check that the input will be compatible with Stable-Baselines
+    Check that the input adheres to general standards
     when the observation is apparently an image.
     """
     if observation_space.dtype != np.uint8:
@@ -63,22 +59,9 @@ def _check_image_input(observation_space: spaces.Box, key: str = "") -> None:
         warnings.warn(
             f"It seems that your observation space {key} is an image but the "
             "upper and lower bounds are not in [0, 255]. "
-            "Because the CNN policy normalize automatically the observation "
-            "you may encounter issue if the values are not in that range."
+            "Generally, CNN policies assume observations are within that range, "
+            "so you may encounter an issue if the observation values are not."
         )
-
-    non_channel_idx = 0
-    # Check only if width/height of the image is big enough
-    if is_image_space_channels_first(observation_space):
-        non_channel_idx = -1
-
-    if observation_space.shape[non_channel_idx] < 36 or observation_space.shape[1] < 36:
-        warnings.warn(
-            "The minimal resolution for an image is 36x36 for the default `CnnPolicy`. "
-            "You might need to use a custom feature extractor "
-            "cf. https://stable-baselines3.readthedocs.io/en/master/guide/custom_policy.html"
-        )
-
 
 def _check_unsupported_spaces(
     env: gym.Env, observation_space: spaces.Space, action_space: spaces.Space
@@ -117,11 +100,10 @@ def _check_unsupported_spaces(
 
 
 def _check_nan(env: gym.Env) -> None:
-    """Check for Inf and NaN using the VecWrapper."""
-    vec_env = VecCheckNan(DummyVecEnv([lambda: env]))
+    """Check for Inf and NaN."""
     for _ in range(10):
         action = np.array([env.action_space.sample()])
-        _, _, _, _ = vec_env.step(action)
+        _, _, _, _ = env.step(action)
 
 
 def _check_obs(
