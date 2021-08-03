@@ -471,7 +471,8 @@ def _worker_shared_memory(index, env_fn, pipe, parent_pipe, shared_memory, error
                 pipe.send((None, True))
             elif command == "step":
                 observation, reward, done, info = env.step(data)
-                if done:
+                # BUG: See PR #2104: Currently unable to nest VectorEnvs because of this
+                if (done if isinstance(done, bool) else all(done)):
                     observation = env.reset()
                 write_to_shared_memory(
                     index, observation, shared_memory, observation_space
