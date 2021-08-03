@@ -4,12 +4,12 @@ from functools import singledispatch
 
 from gym import spaces
 from gym.spaces import Space, Box, Discrete, MultiDiscrete, MultiBinary, Tuple, Dict
-
+from gym.spaces.utils import pass_space_as_first_positional_argument
 _BaseGymSpaces = (Box, Discrete, MultiDiscrete, MultiBinary)
 __all__ = ["_BaseGymSpaces", "batch_space"]
 
 
-
+@pass_space_as_first_positional_argument
 @singledispatch
 def batch_space(space: Space, n: int = 1) -> Space:
     """Create a (batched) space, containing multiple copies of a single space.

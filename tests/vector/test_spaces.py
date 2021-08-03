@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
 
-from gym.spaces import Box, MultiDiscrete, Tuple, Dict
+from gym.spaces import Box, MultiDiscrete, Tuple, Dict, Space
 from tests.vector.utils import spaces, custom_spaces, CustomSpace
 
 from gym.vector.utils.spaces import batch_space
@@ -90,8 +90,12 @@ expected_custom_batch_spaces_4 = [
     list(zip(spaces, expected_batch_spaces_4)),
     ids=[space.__class__.__name__ for space in spaces],
 )
-def test_batch_space(space, expected_batch_space_4):
-    batch_space_4 = batch_space(space, n=4)
+@pytest.mark.parametrize("use_all_kwargs", [True, False])
+def test_batch_space(space: Space, expected_batch_space_4: Space, use_all_kwargs: bool):
+    if use_all_kwargs:
+        batch_space_4 = batch_space(space=space, n=4)
+    else:
+        batch_space_4 = batch_space(space, n=4)
     assert batch_space_4 == expected_batch_space_4
 
 
@@ -100,6 +104,10 @@ def test_batch_space(space, expected_batch_space_4):
     list(zip(custom_spaces, expected_custom_batch_spaces_4)),
     ids=[space.__class__.__name__ for space in custom_spaces],
 )
-def test_batch_space_custom_space(space, expected_batch_space_4):
-    batch_space_4 = batch_space(space, n=4)
+@pytest.mark.parametrize("use_all_kwargs", [True, False])
+def test_batch_space_custom_space(space: Space, expected_batch_space_4: Space, use_all_kwargs: bool):
+    if use_all_kwargs:
+        batch_space_4 = batch_space(space=space, n=4)
+    else:
+        batch_space_4 = batch_space(space, n=4)
     assert batch_space_4 == expected_batch_space_4

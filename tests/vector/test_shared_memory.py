@@ -1,12 +1,12 @@
 import pytest
 import numpy as np
-
+from typing import Optional
 import multiprocessing as mp
 from multiprocessing.sharedctypes import SynchronizedArray
 from multiprocessing import Array, Process
 from collections import OrderedDict
 
-from gym.spaces import Tuple, Dict
+from gym.spaces import Tuple, Dict, Space
 from gym.error import CustomSpaceError
 from gym.vector.utils.spaces import _BaseGymSpaces
 from tests.vector.utils import spaces, custom_spaces
@@ -49,7 +49,8 @@ expected_types = [
 @pytest.mark.parametrize(
     "ctx", [None, "fork", "spawn"], ids=["default", "fork", "spawn"]
 )
-def test_create_shared_memory(space, expected_type, n, ctx):
+@pytest.mark.parametrize("use_all_kwargs", [True, False])
+def test_create_shared_memory(space, expected_type, n, ctx, use_all_kwargs: bool):
     def assert_nested_type(lhs, rhs, n):
         assert type(lhs) == type(rhs)
         if isinstance(lhs, (list, tuple)):
@@ -72,7 +73,10 @@ def test_create_shared_memory(space, expected_type, n, ctx):
             raise TypeError("Got unknown type `{0}`.".format(type(lhs)))
 
     ctx = mp if (ctx is None) else mp.get_context(ctx)
-    shared_memory = create_shared_memory(space, n=n, ctx=ctx)
+    if use_all_kwargs:
+        shared_memory = create_shared_memory(space=space, n=n, ctx=ctx)
+    else:
+        shared_memory = create_shared_memory(space, n=n, ctx=ctx)
     assert_nested_type(shared_memory, expected_type, n=n)
 
 
@@ -81,7 +85,10 @@ def test_create_shared_memory(space, expected_type, n, ctx):
     "ctx", [None, "fork", "spawn"], ids=["default", "fork", "spawn"]
 )
 @pytest.mark.parametrize("space", custom_spaces)
-def test_create_shared_memory_custom_space(n, ctx, space):
+@pytest.mark.parametrize("use_all_kwargs", [True, False])
+def test_create_shared_memory_custom_space(
+    n: int, ctx: Optional[str], space: Space, use_all_kwargs: bool
+):
     ctx = mp if (ctx is None) else mp.get_context(ctx)
     with pytest.raises(CustomSpaceError):
         shared_memory = create_shared_memory(space, n=n, ctx=ctx)
@@ -90,7 +97,11 @@ def test_create_shared_memory_custom_space(n, ctx, space):
 @pytest.mark.parametrize(
     "space", spaces, ids=[space.__class__.__name__ for space in spaces]
 )
-def test_write_to_shared_memory(space):
+@pytest.mark.parametrize("use_all_kwargs", [True, False])
+@pytest.mark.parametrize("pass_space_first", [True, False])
+def test_write_to_shared_memory(
+    space: Space, use_all_kwargs: bool, pass_space_first: bool
+):
     def assert_nested_equal(lhs, rhs):
         assert isinstance(rhs, list)
         if isinstance(lhs, (list, tuple)):
@@ -108,7 +119,21 @@ def test_write_to_shared_memory(space):
             raise TypeError("Got unknown type `{0}`.".format(type(lhs)))
 
     def write(i, shared_memory, sample):
-        write_to_shared_memory(i, sample, shared_memory, space)
+        if use_all_kwargs:
+            if pass_space_first:
+                write_to_shared_memory(
+                    space=space, index=i, value=sample, shared_memory=shared_memory
+                )
+            else:
+                write_to_shared_memory(
+                    index=i, value=sample, shared_memory=shared_memory, space=space
+                )
+        else:
+            if pass_space_first:
+                write_to_shared_memory(space, i, sample, shared_memory)
+            else:
+                # Original ordering for the positional args:
+                write_to_shared_memory(i, sample, shared_memory, space)
 
     shared_memory_n8 = create_shared_memory(space, n=8)
     samples = [space.sample() for _ in range(8)]
@@ -128,7 +153,11 @@ def test_write_to_shared_memory(space):
 @pytest.mark.parametrize(
     "space", spaces, ids=[space.__class__.__name__ for space in spaces]
 )
-def test_read_from_shared_memory(space):
+@pytest.mark.parametrize("use_all_kwargs", [True, False])
+@pytest.mark.parametrize("pass_space_first", [True, False])
+def test_read_from_shared_memory(
+    space: Space, use_all_kwargs: bool, pass_space_first: bool
+):
     def assert_nested_equal(lhs, rhs, space, n):
         assert isinstance(rhs, list)
         if isinstance(space, Tuple):
@@ -157,8 +186,22 @@ def test_read_from_shared_memory(space):
     def write(i, shared_memory, sample):
         write_to_shared_memory(i, sample, shared_memory, space)
 
-    shared_memory_n8 = create_shared_memory(space, n=8)
-    memory_view_n8 = read_from_shared_memory(shared_memory_n8, space, n=8)
+    if use_all_kwargs:
+        shared_memory_n8 = create_shared_memory(space=space, n=8)
+        if pass_space_first:
+            memory_view_n8 = read_from_shared_memory(
+                space=space, shared_memory=shared_memory_n8, n=8
+            )
+        else:
+            memory_view_n8 = read_from_shared_memory(
+                shared_memory=shared_memory_n8, space=space, n=8
+            )
+    else:
+        shared_memory_n8 = create_shared_memory(space, n=8)
+        if pass_space_first:
+            memory_view_n8 = read_from_shared_memory(space, shared_memory_n8, n=8)
+        else:
+            memory_view_n8 = read_from_shared_memory(shared_memory_n8, space, n=8)
     samples = [space.sample() for _ in range(8)]
 
     processes = [

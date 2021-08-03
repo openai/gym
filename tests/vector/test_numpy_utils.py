@@ -3,7 +3,7 @@ import numpy as np
 
 from collections import OrderedDict
 
-from gym.spaces import Tuple, Dict
+from gym.spaces import Tuple, Dict, Space
 from gym.vector.utils.spaces import _BaseGymSpaces
 from tests.vector.utils import spaces
 
@@ -13,7 +13,9 @@ from gym.vector.utils.numpy_utils import concatenate, create_empty_array
 @pytest.mark.parametrize(
     "space", spaces, ids=[space.__class__.__name__ for space in spaces]
 )
-def test_concatenate(space):
+@pytest.mark.parametrize("space_arg_first", [True, False])
+@pytest.mark.parametrize("use_all_kwargs", [True, False])
+def test_concatenate(space: Space, space_arg_first: bool, use_all_kwargs: bool):
     def assert_type(lhs, rhs, n):
         # Special case: if rhs is a list of scalars, lhs must be an np.ndarray
         if np.isscalar(rhs[0]):
@@ -46,7 +48,15 @@ def test_concatenate(space):
 
     samples = [space.sample() for _ in range(8)]
     array = create_empty_array(space, n=8)
-    concatenated = concatenate(samples, array, space)
+    if space_arg_first:
+        if use_all_kwargs:
+            concatenated = concatenate(items=samples, out=array, space=space)
+        else:
+            concatenated = concatenate(samples, array, space)
+    elif use_all_kwargs:
+        concatenated = concatenate(space=space, items=samples, out=array)
+    else:
+        concatenated = concatenate(space, samples, array)
 
     assert np.all(concatenated == array)
     assert_nested_equal(array, samples, n=8)
@@ -56,7 +66,8 @@ def test_concatenate(space):
 @pytest.mark.parametrize(
     "space", spaces, ids=[space.__class__.__name__ for space in spaces]
 )
-def test_create_empty_array(space, n):
+@pytest.mark.parametrize("use_all_kwargs", [True, False])
+def test_create_empty_array(space: Space, n: int, use_all_kwargs: bool):
     def assert_nested_type(arr, space, n):
         if isinstance(space, _BaseGymSpaces):
             assert isinstance(arr, np.ndarray)
@@ -78,7 +89,10 @@ def test_create_empty_array(space, n):
         else:
             raise TypeError("Got unknown type `{0}`.".format(type(arr)))
 
-    array = create_empty_array(space, n=n, fn=np.empty)
+    if use_all_kwargs:
+        array = create_empty_array(space=space, n=n, fn=np.empty)
+    else:
+        array = create_empty_array(space, n=n, fn=np.empty)
     assert_nested_type(array, space, n=n)
 
 
@@ -86,7 +100,8 @@ def test_create_empty_array(space, n):
 @pytest.mark.parametrize(
     "space", spaces, ids=[space.__class__.__name__ for space in spaces]
 )
-def test_create_empty_array_zeros(space, n):
+@pytest.mark.parametrize("use_all_kwargs", [True, False])
+def test_create_empty_array_zeros(space: Space, n: int, use_all_kwargs: bool):
     def assert_nested_type(arr, space, n):
         if isinstance(space, _BaseGymSpaces):
             assert isinstance(arr, np.ndarray)
@@ -109,14 +124,18 @@ def test_create_empty_array_zeros(space, n):
         else:
             raise TypeError("Got unknown type `{0}`.".format(type(arr)))
 
-    array = create_empty_array(space, n=n, fn=np.zeros)
+    if use_all_kwargs:
+        array = create_empty_array(space=space, n=n, fn=np.zeros)
+    else:
+        array = create_empty_array(space, n=n, fn=np.zeros)
     assert_nested_type(array, space, n=n)
 
 
 @pytest.mark.parametrize(
     "space", spaces, ids=[space.__class__.__name__ for space in spaces]
 )
-def test_create_empty_array_none_shape_ones(space):
+@pytest.mark.parametrize("use_all_kwargs", [True, False])
+def test_create_empty_array_none_shape_ones(space: Space, use_all_kwargs: bool):
     def assert_nested_type(arr, space):
         if isinstance(space, _BaseGymSpaces):
             assert isinstance(arr, np.ndarray)
@@ -139,5 +158,8 @@ def test_create_empty_array_none_shape_ones(space):
         else:
             raise TypeError("Got unknown type `{0}`.".format(type(arr)))
 
-    array = create_empty_array(space, n=None, fn=np.ones)
+    if use_all_kwargs:
+        array = create_empty_array(space=space, n=None, fn=np.ones)
+    else:
+        array = create_empty_array(space, n=None, fn=np.ones)
     assert_nested_type(array, space)

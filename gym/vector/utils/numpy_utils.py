@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from functools import singledispatch
+from functools import singledispatch, wraps
 from typing import Callable, Sequence, Union
 
 import numpy as np
@@ -7,10 +7,12 @@ import numpy as np
 from gym import spaces
 from gym.spaces import Space, Box, Discrete, MultiBinary, MultiDiscrete
 from gym.vector.utils.spaces import _BaseGymSpaces
+from gym.spaces.utils import pass_space_as_first_positional_argument
 
 __all__ = ["concatenate", "create_empty_array"]
 
 
+@pass_space_as_first_positional_argument
 @singledispatch
 def concatenate(
     space: Space, items: Sequence, out: Union[tuple, dict, np.ndarray]
@@ -94,6 +96,7 @@ def _concatenate_custom(
     return tuple(items)
 
 
+@pass_space_as_first_positional_argument
 @singledispatch
 def create_empty_array(
     space: Space, n: int = 1, fn: Callable = np.zeros

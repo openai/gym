@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from functools import singledispatch, reduce
+from functools import singledispatch, reduce, wraps
 import numpy as np
 import operator as op
 from typing import Union
@@ -9,6 +9,17 @@ from gym.error import CustomSpaceError
 from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Space, Tuple
 
 
+def pass_space_as_first_positional_argument(fn):
+    """ Wrapper that passes the space as a positional argument, so that the
+    singledispatch callable can be used even when passing all values with kwargs.
+    """
+    @wraps(fn)
+    def wrapped(space: Space, *args, **kwargs):
+        return fn(space, *args, **kwargs)
+    return wrapped
+
+
+@pass_space_as_first_positional_argument
 @singledispatch
 def flatdim(space: Space) -> int:
     """Return the number of dimensions a flattened equivalent of this space
@@ -47,6 +58,7 @@ def flatdim_dict(space):
     return sum([flatdim(s) for s in space.spaces.values()])
 
 
+@pass_space_as_first_positional_argument
 @singledispatch
 def flatten(space, x):
     """Flatten a data point from a space.
@@ -94,6 +106,7 @@ def flatten_dict(space, x):
     return np.concatenate([flatten(s, x[key]) for key, s in space.spaces.items()])
 
 
+@pass_space_as_first_positional_argument
 @singledispatch
 def unflatten(space, x):
     """Unflatten a data point from a space.
@@ -150,6 +163,7 @@ def unflatten_dict(space, x):
     )
 
 
+@pass_space_as_first_positional_argument
 @singledispatch
 def flatten_space(space):
     """Flatten a space into a single ``Box``.
