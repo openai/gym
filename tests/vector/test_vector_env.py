@@ -85,7 +85,7 @@ def test_nesting_vector_envs(base_env: str,
     
     env = outer_vector_wrapper([  # type: ignore
         partial(inner_vector_wrapper, [
-            make_env(base_env, inner_envs * i + j) for j in range(inner_envs)
+            make_env(base_env, seed=inner_envs * i + j) for j in range(inner_envs)
         ]) for i in range(outer_envs)
     ])
     
