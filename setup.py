@@ -14,7 +14,7 @@ extras = {
     "classic_control": ["pyglet>=1.4.0"],
     "mujoco": ["mujoco_py>=1.50, <2.0", "imageio"],
     "robotics": ["mujoco_py>=1.50, <2.0", "imageio"],
-    "toy_text": ["scipy"]
+    "toy_text": ["scipy"],
 }
 
 # Meta dependency groups.
