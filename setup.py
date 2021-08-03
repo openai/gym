@@ -10,10 +10,11 @@ from version import VERSION
 # Environment-specific dependencies.
 extras = {
     "atari": ["atari-py==0.2.6", "opencv-python>=3."],
-    "box2d": ["box2d-py~=2.3.5"],
-    "classic_control": [],
+    "box2d": ["box2d-py~=2.3.5", "pyglet>=1.4.0"],
+    "classic_control": ["pyglet>=1.4.0"],
     "mujoco": ["mujoco_py>=1.50, <2.0", "imageio"],
     "robotics": ["mujoco_py>=1.50, <2.0", "imageio"],
+    "toy_text": ["scipy"]
 }
 
 # Meta dependency groups.
@@ -40,9 +41,7 @@ setup(
     packages=[package for package in find_packages() if package.startswith("gym")],
     zip_safe=False,
     install_requires=[
-        "scipy",
         "numpy>=1.18.0",
-        "pyglet>=1.4.0",
         "Pillow",
         "cloudpickle>=1.2.0,<1.7.0",
     ],
