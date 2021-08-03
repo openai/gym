@@ -95,7 +95,7 @@ class SyncVectorEnv(VectorEnv):
         return deepcopy(self.observations) if self.copy else self.observations
 
     def step_async(self, actions):
-        self._actions = iterate(actions, self.action_space)
+        self._actions = iterate(self.action_space, actions)
 
     def step_wait(self):
         observations, infos = [], []

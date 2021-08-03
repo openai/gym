@@ -112,7 +112,7 @@ def test_batch_space_custom_space(space, expected_batch_space_4):
 )
 def test_iterate(space, batch_space):
     items = batch_space.sample()
-    iterator = iterate(items, batch_space)
+    iterator = iterate(batch_space, items)
     for i, item in enumerate(iterator):
         assert item in space
     assert i == 3
@@ -125,7 +125,7 @@ def test_iterate(space, batch_space):
 )
 def test_iterate_custom_space(space, batch_space):
     items = batch_space.sample()
-    iterator = iterate(items, batch_space)
+    iterator = iterate(batch_space, items)
     for i, item in enumerate(iterator):
         assert item in space
     assert i == 3

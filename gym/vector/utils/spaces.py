@@ -1,5 +1,6 @@
 import numpy as np
 from collections import OrderedDict
+from functools import singledispatch
 
 from gym.spaces import Space, Box, Discrete, MultiDiscrete, MultiBinary, Tuple, Dict
 from gym.error import CustomSpaceError
@@ -89,7 +90,8 @@ def batch_space_custom(space, n=1):
     return Tuple(tuple(space for _ in range(n)))
 
 
-def iterate(items, space):
+@singledispatch
+def iterate(space, items):
     """Iterate over the elements of a (batched) space.
 
     Parameters
@@ -122,22 +124,17 @@ def iterate(items, space):
     >>> next(it)
     StopIteration
     """
-    if isinstance(space, _BaseGymSpaces):
-        return iterate_base(items, space)
-    elif isinstance(space, Tuple):
-        return iterate_tuple(items, space)
-    elif isinstance(space, Dict):
-        return iterate_dict(items, space)
-    elif isinstance(space, Space):
-        return iterate_custom(items, space)
-    else:
-        raise ValueError(
-            "Space of type `{0}` is not a valid `gym.Space` "
-            "instance.".format(type(space))
-        )
+    raise ValueError(
+        "Space of type `{0}` is not a valid `gym.Space` "
+        "instance.".format(type(space))
+    )
 
 
-def iterate_base(items, space):
+@iterate.register(Box)
+@iterate.register(Discrete)
+@iterate.register(MultiDiscrete)
+@iterate.register(MultiBinary)
+def iterate_base(space, items):
     if isinstance(space, Discrete):
         raise TypeError("Unable to iterate over a space of type `Discrete`.")
     try:
@@ -146,23 +143,26 @@ def iterate_base(items, space):
         raise TypeError(f"Unable to iterate over the following elements: {items}")
 
 
-def iterate_tuple(items, space):
+@iterate.register(Tuple)
+def iterate_tuple(space, items):
     # If this is a tuple of custom subspaces only, then simply iterate over items
     if all(
-        not isinstance(subspace, (_BaseGymSpaces, Tuple, Dict))
+        isinstance(subspace, Space)
+        and (not isinstance(subspace, _BaseGymSpaces + (Tuple, Dict)))
         for subspace in space.spaces
     ):
         return iter(items)
 
     return zip(
-        *[iterate(items[i], subspace) for i, subspace in enumerate(space.spaces)]
+        *[iterate(subspace, items[i]) for i, subspace in enumerate(space.spaces)]
     )
 
 
-def iterate_dict(items, space):
+@iterate.register(Dict)
+def iterate_dict(space, items):
     keys, values = zip(
         *[
-            (key, iterate(items[key], subspace))
+            (key, iterate(subspace, items[key]))
             for key, subspace in space.spaces.items()
         ]
     )
@@ -170,7 +170,8 @@ def iterate_dict(items, space):
         yield OrderedDict([(key, value) for (key, value) in zip(keys, item)])
 
 
-def iterate_custom(items, space):
+@iterate.register(Space)
+def iterate_custom(space, items):
     raise CustomSpaceError(
         f"Unable to iterate over {items}, since {space} "
         "is a custom `gym.Space` instance (i.e. not one of "

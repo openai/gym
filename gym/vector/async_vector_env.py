@@ -308,7 +308,7 @@ class AsyncVectorEnv(VectorEnv):
                 self._state.value,
             )
 
-        actions = iterate(actions, self.action_space)
+        actions = iterate(self.action_space, actions)
         for pipe, action in zip(self.parent_pipes, actions):
             pipe.send(("step", action))
         self._state = AsyncState.WAITING_STEP
