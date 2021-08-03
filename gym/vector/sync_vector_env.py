@@ -85,18 +85,9 @@ class SyncVectorEnv(VectorEnv):
                 observation = env.reset()
             observations.append(observation)
             infos.append(info)
-<<<<<<< HEAD
-<<<<<<< HEAD
         self.observations = concatenate(
             observations, self.observations, self.single_observation_space
         )
-=======
-        concatenate(observations, self.observations, self.single_observation_space)
->>>>>>> Add BatchedVectorEnv, (chunking + flexible n_envs)
-=======
-        self.observations = concatenate(observations, self.observations, self.single_observation_space)
->>>>>>> Add support for Tuple observation spaces, fix test
-
         return (
             deepcopy(self.observations) if self.copy else self.observations,
             np.copy(self._rewards),
