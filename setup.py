@@ -42,7 +42,6 @@ setup(
     zip_safe=False,
     install_requires=[
         "numpy>=1.18.0",
-        "Pillow",
         "cloudpickle>=1.2.0,<1.7.0",
     ],
     extras_require=extras,
