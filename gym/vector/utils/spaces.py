@@ -96,11 +96,11 @@ def iterate(space, items):
 
     Parameters
     ----------
-    items : samples of `space`
-        Items to be iterated over.
-
     space : `gym.spaces.Space` instance
         Space to which `items` belong to.
+
+    items : samples of `space`
+        Items to be iterated over.
 
     Returns
     -------
