@@ -1,3 +1,5 @@
+from abc import abstractmethod
+
 import gym
 from gym import error
 from gym.utils import closer
@@ -38,6 +40,7 @@ class Env(object):
     action_space = None
     observation_space = None
 
+    @abstractmethod
     def step(self, action):
         """Run one timestep of the environment's dynamics. When end of
         episode is reached, you are responsible for calling `reset()`
@@ -56,6 +59,7 @@ class Env(object):
         """
         raise NotImplementedError
 
+    @abstractmethod
     def reset(self):
         """Resets the environment to an initial state and returns an initial
         observation.
@@ -71,7 +75,8 @@ class Env(object):
         """
         raise NotImplementedError
 
-    def render(self, mode="human"):
+    @abstractmethod
+    def render(self, mode='human'):
         """Renders the environment.
 
         The set of supported modes varies per environment. (And some
@@ -184,6 +189,7 @@ class GoalEnv(Env):
                     )
                 )
 
+    @abstractmethod
     def compute_reward(self, achieved_goal, desired_goal, info):
         """Compute the step reward. This externalizes the reward function and makes
         it dependent on a desired goal and the one that was achieved. If you wish to include
@@ -278,6 +284,7 @@ class ObservationWrapper(Wrapper):
         observation, reward, done, info = self.env.step(action)
         return self.observation(observation), reward, done, info
 
+    @abstractmethod
     def observation(self, observation):
         raise NotImplementedError
 
@@ -290,6 +297,7 @@ class RewardWrapper(Wrapper):
         observation, reward, done, info = self.env.step(action)
         return observation, self.reward(reward), done, info
 
+    @abstractmethod
     def reward(self, reward):
         raise NotImplementedError
 
@@ -301,8 +309,10 @@ class ActionWrapper(Wrapper):
     def step(self, action):
         return self.env.step(self.action(action))
 
+    @abstractmethod
     def action(self, action):
         raise NotImplementedError
 
+    @abstractmethod
     def reverse_action(self, action):
         raise NotImplementedError
