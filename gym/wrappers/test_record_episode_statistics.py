@@ -26,7 +26,7 @@ def test_record_episode_statistics(env_id, deque_size):
 
 @pytest.mark.parametrize("env_id", ["CartPole-v0"])
 def test_record_episode_statistics_with_vectorenv(env_id):
-    envs = gym.vector.make(env_id)
+    envs = gym.vector.make(env_id, asynchronous=False)
     envs = RecordEpisodeStatistics(envs)
     envs.reset()
     for _ in range(envs.env.envs[0].spec.max_episode_steps + 1):
