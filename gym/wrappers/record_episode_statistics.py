@@ -11,7 +11,9 @@ class RecordEpisodeStatistics(gym.Wrapper):
         if not isinstance(env, gym.vector.VectorEnv):
             self.num_envs = 1
             self.env_is_vec = False
-        self.t0 = time.time()  # TODO: use perf_counter when gym removes Python 2 support
+        self.t0 = (
+            time.time()
+        )  # TODO: use perf_counter when gym removes Python 2 support
         self.episode_count = 0
         self.episode_returns = None
         self.episode_lengths = None
@@ -25,7 +27,9 @@ class RecordEpisodeStatistics(gym.Wrapper):
         return observations
 
     def step(self, action):
-        observations, rewards, dones, infos = super(RecordEpisodeStatistics, self).step(action)
+        observations, rewards, dones, infos = super(RecordEpisodeStatistics, self).step(
+            action
+        )
         self.episode_returns += rewards
         self.episode_lengths += 1
         if not self.env_is_vec:
@@ -36,11 +40,20 @@ class RecordEpisodeStatistics(gym.Wrapper):
                 infos[i] = infos[i].copy()
                 episode_return = self.episode_returns[i]
                 episode_length = self.episode_lengths[i]
-                episode_info = {"r": episode_return, "l": episode_length, "t": round(time.time() - self.t0, 6)}
+                episode_info = {
+                    "r": episode_return,
+                    "l": episode_length,
+                    "t": round(time.time() - self.t0, 6),
+                }
                 infos[i]["episode"] = episode_info
                 self.return_queue.append(episode_return)
                 self.length_queue.append(episode_length)
                 self.episode_count += 1
                 self.episode_returns[i] = 0
                 self.episode_lengths[i] = 0
-        return observations, rewards, dones if self.env_is_vec else dones[0], infos if self.env_is_vec else infos[0]
+        return (
+            observations,
+            rewards,
+            dones if self.env_is_vec else dones[0],
+            infos if self.env_is_vec else infos[0],
+        )
