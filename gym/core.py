@@ -76,7 +76,7 @@ class Env(object):
         raise NotImplementedError
 
     @abstractmethod
-    def render(self, mode='human'):
+    def render(self, mode="human"):
         """Renders the environment.
 
         The set of supported modes varies per environment. (And some
