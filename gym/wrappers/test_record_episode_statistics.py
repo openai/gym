@@ -22,3 +22,15 @@ def test_record_episode_statistics(env_id, deque_size):
                 break
     assert len(env.return_queue) == deque_size
     assert len(env.length_queue) == deque_size
+
+@pytest.mark.parametrize("env_id", ["CartPole-v0"])
+def test_record_episode_statistics_with_vectorenv(env_id):
+    envs = gym.vector.make(env_id)
+    envs = RecordEpisodeStatistics(envs)
+    envs.reset()
+    for _ in range(envs.spec.max_episode_steps+1):
+        _, _, _, infos = envs.step(envs.action_space.sample())
+        for info in infos:
+            assert "episode" in info
+            assert all([item in info["episode"] for item in ["r", "l", "t"]])
+            break
