@@ -7,10 +7,8 @@ import gym
 class RecordEpisodeStatistics(gym.Wrapper):
     def __init__(self, env, deque_size=100):
         super(RecordEpisodeStatistics, self).__init__(env)
-        self.env_is_vec = True
-        if not isinstance(env, gym.vector.VectorEnv):
-            self.num_envs = 1
-            self.env_is_vec = False
+        self.env_is_vec = isinstance(env, gym.vector.VectorEnv)
+        self.num_envs = getattr(env, "num_envs", 1)
         self.t0 = (
             time.time()
         )  # TODO: use perf_counter when gym removes Python 2 support
