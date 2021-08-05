@@ -29,9 +29,10 @@ def test_record_episode_statistics_with_vectorenv(env_id):
     envs = gym.vector.make(env_id)
     envs = RecordEpisodeStatistics(envs)
     envs.reset()
-    for _ in range(envs.spec.max_episode_steps + 1):
-        _, _, _, infos = envs.step(envs.action_space.sample())
-        for info in infos:
-            assert "episode" in info
-            assert all([item in info["episode"] for item in ["r", "l", "t"]])
-            break
+    for _ in range(envs.env.envs[0].spec.max_episode_steps + 1):
+        _, _, dones, infos = envs.step(envs.action_space.sample())
+        for idx, info in enumerate(infos):
+            if dones[idx]:
+                assert "episode" in info
+                assert all([item in info["episode"] for item in ["r", "l", "t"]])
+                break
