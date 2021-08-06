@@ -1,7 +1,11 @@
 """
-This file is originally from the Stable Baselines3 repository hostedon GitHub
+This file is originally from the Stable Baselines3 repository hosted on GitHub
 (https://github.com/DLR-RM/stable-baselines3/)
 Original Author: Antonin Raffin
+
+It also uses some warnings/assertions from the PettingZoo repository hosted on GitHub
+(https://github.com/PettingZoo-Team/PettingZoo)
+Original Author: Justin Terry
 
 This file is covered by the MIT License, as described here:
 The MIT License
@@ -127,6 +131,58 @@ def _check_box_obs(observation_space: spaces.Box, key: str = "") -> None:
             f"Your observation {key} has an unconventional shape (neither an image, nor a 1D vector). "
             "We recommend you to flatten the observation "
             "to have only a 1D vector or use a custom policy to properly process the data."
+        )
+
+    if np.any(np.equal(observation_space.low, -np.inf)):
+        warnings.warn(
+            "Agent's minimum observation space value is -infinity. This is probably too low."
+        )
+    if np.any(np.equal(observation_space.high, np.inf)):
+        warnings.warn(
+            "Agent's maxmimum observation space value is infinity. This is probably too high"
+        )
+    if np.any(np.equal(observation_space.low, observation_space.high)):
+        warnings.warn("Agent's maximum and minimum observation space values are equal")
+    if np.any(np.greater(observation_space.low, observation_space.high)):
+        assert False, "Agent's minimum observation value is greater than it's maximum"
+    if observation_space.low.shape != observation_space.shape:
+        assert (
+            False
+        ), "Agent's observation_space.low and observation_space have different shapes"
+    if observation_space.high.shape != observation_space.shape:
+        assert (
+            False
+        ), "Agent's observation_space.high and observation_space have different shapes"
+
+
+def _check_box_action(action_space: spaces.Box):
+    if np.any(np.equal(action_space.low, -np.inf)):
+        warnings.warn(
+            "Agent's minimum action space value is -infinity. This is probably too low."
+        )
+    if np.any(np.equal(action_space.high, np.inf)):
+        warnings.warn(
+            "Agent's maxmimum action space value is infinity. This is probably too high"
+        )
+    if np.any(np.equal(action_space.low, action_space.high)):
+        warnings.warn("Agent's maximum and minimum action space values are equal")
+    if np.any(np.greater(action_space.low, action_space.high)):
+        assert False, "Agent's minimum action value is greater than it's maximum"
+    if action_space.low.shape != action_space.shape:
+        assert False, "Agent's action_space.low and action_space have different shapes"
+    if action_space.high.shape != action_space.shape:
+        assert False, "Agent's action_space.high and action_space have different shapes"
+
+
+def _check_normalized_action(action_space: spaces.Box):
+    if (
+        np.any(np.abs(action_space.low) != np.abs(action_space.high))
+        or np.any(np.abs(action_space.low) > 1)
+        or np.any(np.abs(action_space.high) > 1)
+    ):
+        warnings.warn(
+            "We recommend you to use a symmetric and normalized Box action space (range=[-1, 1]) "
+            "cf https://stable-baselines3.readthedocs.io/en/master/guide/rl_tips.html"
         )
 
 
@@ -283,15 +339,9 @@ def check_env(env: gym.Env, warn: bool = True, skip_render_check: bool = True) -
                 _check_box_obs(space, key)
 
         # Check for the action space, it may lead to hard-to-debug issues
-        if isinstance(action_space, spaces.Box) and (
-            np.any(np.abs(action_space.low) != np.abs(action_space.high))
-            or np.any(np.abs(action_space.low) > 1)
-            or np.any(np.abs(action_space.high) > 1)
-        ):
-            warnings.warn(
-                "We recommend you to use a symmetric and normalized Box action space (range=[-1, 1]) "
-                "cf https://stable-baselines3.readthedocs.io/en/master/guide/rl_tips.html"
-            )
+        if isinstance(action_space, spaces.Box):
+            _check_box_action(action_space)
+            _check_normalized_action(action_space)
 
     # ============ Check the returned values ===============
     _check_returned_values(env, observation_space, action_space)
