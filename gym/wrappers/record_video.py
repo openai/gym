@@ -69,7 +69,7 @@ class RecordVideo(gym.Wrapper):
         elif self._video_enabled():
             self.start_video_recorder()
 
-        return observations, rewards, dones, infos
+        return observations, rewards, dones if self.is_vector_env else dones[0], infos
 
     def close_video_recorder(self) -> None:
         if self.recording:
