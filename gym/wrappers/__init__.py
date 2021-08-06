@@ -14,3 +14,4 @@ from gym.wrappers.transform_reward import TransformReward
 from gym.wrappers.resize_observation import ResizeObservation
 from gym.wrappers.clip_action import ClipAction
 from gym.wrappers.record_episode_statistics import RecordEpisodeStatistics
+from gym.wrappers.record_video import RecordVideo
