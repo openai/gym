@@ -58,9 +58,9 @@ def _check_nan(env: gym.Env, check_inf: bool = True) -> None:
             warnings.warn("Encountered NaN value in observations.")
         if np.any(np.isnan(reward)):
             warnings.warn("Encountered NaN value in rewards.")
-        if np.any(np.isinf(observation)):
+        if check_inf and np.any(np.isinf(observation)):
             warnings.warn("Encountered inf value in observations.")
-        if np.any(np.isinf(reward)):
+        if check_inf and np.any(np.isinf(reward)):
             warnings.warn("Encountered inf value in rewards.")
 
 
