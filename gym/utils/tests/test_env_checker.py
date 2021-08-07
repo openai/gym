@@ -14,8 +14,7 @@ class ActionDictTestEnv(gym.Env):
         observation = np.array([1.0, 1.5, 0.5])
         reward = 1
         done = True
-        info = {}
-        return observation, reward, done, info
+        return observation, reward, done
 
     def reset(self):
         return np.array([1.0, 1.5, 0.5])
@@ -25,7 +24,12 @@ class ActionDictTestEnv(gym.Env):
 
 
 def test_check_env_dict_action():
+    # Environment.step() only returns 3 values: obs, reward, done. Not info!
     test_env = ActionDictTestEnv()
 
-    with pytest.warns(Warning):
+    with pytest.raises(AssertionError) as errorinfo:
         check_env(env=test_env, warn=True)
+        assert (
+            str(errorinfo.value)
+            == "The `step()` method must return four values: obs, reward, done, info"
+        )
