@@ -38,6 +38,7 @@ The commonly used methods are:
 ```python
 print(env.action_space)
 #> Discrete(2)
+
 print(env.observation_space)
 #> Box(-3.4028234663852886e+38, 3.4028234663852886e+38, (4,), float32)
 
@@ -47,6 +48,7 @@ print(env.observation_space)
 ```python
 print(env.observation_space.high)
 #> array([4.8000002e+00, 3.4028235e+38, 4.1887903e-01, 3.4028235e+38], dtype=float32)
+
 print(env.observation_space.low)
 #> array([-4.8000002e+00, -3.4028235e+38, -4.1887903e-01, -3.4028235e+38], dtype=float32)
 ```
