@@ -3,6 +3,7 @@ import numpy as np
 
 from gym import envs
 from gym.envs.tests.spec_list import spec_list
+from gym.utils.env_checker import check_env
 
 
 # This runs a smoketest on each official registered env. We may want
@@ -13,6 +14,9 @@ def test_env(spec):
     # Capture warnings
     with pytest.warns(None) as warnings:
         env = spec.make()
+
+    # Test if env adheres to Gym API
+    check_env(env, warn=True, skip_render_check=True)
 
     # Check that dtype is explicitly declared for gym.Box spaces
     for warning_msg in warnings:

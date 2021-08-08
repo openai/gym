@@ -49,9 +49,9 @@ def _check_image_input(observation_space: spaces.Box, key: str = "") -> None:
 
 
 def _check_nan(env: gym.Env, check_inf: bool = True) -> None:
-    """Check for Inf and NaN."""
+    """Check for NaN and Inf."""
     for _ in range(10):
-        action = np.array([env.action_space.sample()])
+        action = env.action_space.sample()
         observation, reward, _, _ = env.step(action)
 
         if np.any(np.isnan(observation)):
@@ -212,7 +212,7 @@ def _check_returned_values(
 
     # We also allow int because the reward will be cast to float
     assert isinstance(
-        reward, (float, int)
+        reward, (float, int, np.float32)
     ), "The reward returned by `step()` must be a float"
     assert isinstance(done, bool), "The `done` signal must be a boolean"
     assert isinstance(
