@@ -184,12 +184,12 @@ def test_bad_space_calls(space_fn):
 
 def test_seed_Dict():
     test_space = Dict({
-          'a': spaces.Box(low=0, high=1, shape=(3, 3)),
+          'a': Box(low=0, high=1, shape=(3, 3)),
           'b': Dict({
-              'b_1': spaces.Box(low=-100, high=100, shape=(2,)),
-              'b_2': spaces.Box(low=-1, high=1, shape=(2,)),
+              'b_1': Box(low=-100, high=100, shape=(2,)),
+              'b_2': Box(low=-1, high=1, shape=(2,)),
               }),
-          'c': spaces.Discrete(5),
+          'c': Discrete(5),
     })
 
     seed_dict = {
@@ -202,13 +202,13 @@ def test_seed_Dict():
     }
 
     test_space.seed(seed_dict)
-    a = spaces.Box(low=0, high=1, shape=(3, 3))
+    a = Box(low=0, high=1, shape=(3, 3))
     a.seed(0)
-    b_1 = spaces.Box(low=-100, high=100, shape=(2,))
+    b_1 = Box(low=-100, high=100, shape=(2,))
     b_1.seed(1)
-    b_2 = spaces.Box(low=-1, high=1, shape=(2,))
+    b_2 = Box(low=-1, high=1, shape=(2,))
     b_2.seed(2)
-    c = spaces.Discrete(5)
+    c = Discrete(5)
     c.seed(3)
 
     for i in range(10):
