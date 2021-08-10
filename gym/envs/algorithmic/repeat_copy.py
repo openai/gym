@@ -6,7 +6,7 @@ from gym.envs.algorithmic import algorithmic_env
 
 
 class RepeatCopyEnv(algorithmic_env.TapeAlgorithmicEnv):
-    MIN_REWARD_SHORTFALL_FOR_PROMOTION = -.1
+    MIN_REWARD_SHORTFALL_FOR_PROMOTION = -0.1
 
     def __init__(self, base=5):
         super(RepeatCopyEnv, self).__init__(base=base, chars=True)

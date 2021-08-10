@@ -31,7 +31,7 @@
 import numpy as np
 import itertools
 
-'''
+"""
 Rotations
 =========
 
@@ -101,7 +101,7 @@ TODO / Missing
     - Random sampling (e.g. sample uniform random rotation)
     - Performance benchmarks/measurements
     - (Maybe) define everything as to/from matricies, for simplicity
-'''
+"""
 
 # For testing whether a number is close to zero
 _FLOAT_EPS = np.finfo(np.float64).eps
@@ -109,7 +109,7 @@ _EPS4 = _FLOAT_EPS * 4.0
 
 
 def euler2mat(euler):
-    """ Convert Euler Angles to Rotation Matrix.  See rotation.py for notes """
+    """Convert Euler Angles to Rotation Matrix.  See rotation.py for notes"""
     euler = np.asarray(euler, dtype=np.float64)
     assert euler.shape[-1] == 3, "Invalid shaped euler {}".format(euler)
 
@@ -133,7 +133,7 @@ def euler2mat(euler):
 
 
 def euler2quat(euler):
-    """ Convert Euler Angles to Quaternions.  See rotation.py for notes """
+    """Convert Euler Angles to Quaternions.  See rotation.py for notes"""
     euler = np.asarray(euler, dtype=np.float64)
     assert euler.shape[-1] == 3, "Invalid shape euler {}".format(euler)
 
@@ -152,27 +152,29 @@ def euler2quat(euler):
 
 
 def mat2euler(mat):
-    """ Convert Rotation Matrix to Euler Angles.  See rotation.py for notes """
+    """Convert Rotation Matrix to Euler Angles.  See rotation.py for notes"""
     mat = np.asarray(mat, dtype=np.float64)
     assert mat.shape[-2:] == (3, 3), "Invalid shape matrix {}".format(mat)
 
     cy = np.sqrt(mat[..., 2, 2] * mat[..., 2, 2] + mat[..., 1, 2] * mat[..., 1, 2])
     condition = cy > _EPS4
     euler = np.empty(mat.shape[:-1], dtype=np.float64)
-    euler[..., 2] = np.where(condition,
-                             -np.arctan2(mat[..., 0, 1], mat[..., 0, 0]),
-                             -np.arctan2(-mat[..., 1, 0], mat[..., 1, 1]))
-    euler[..., 1] = np.where(condition,
-                             -np.arctan2(-mat[..., 0, 2], cy),
-                             -np.arctan2(-mat[..., 0, 2], cy))
-    euler[..., 0] = np.where(condition,
-                             -np.arctan2(mat[..., 1, 2], mat[..., 2, 2]),
-                             0.0)
+    euler[..., 2] = np.where(
+        condition,
+        -np.arctan2(mat[..., 0, 1], mat[..., 0, 0]),
+        -np.arctan2(-mat[..., 1, 0], mat[..., 1, 1]),
+    )
+    euler[..., 1] = np.where(
+        condition, -np.arctan2(-mat[..., 0, 2], cy), -np.arctan2(-mat[..., 0, 2], cy)
+    )
+    euler[..., 0] = np.where(
+        condition, -np.arctan2(mat[..., 1, 2], mat[..., 2, 2]), 0.0
+    )
     return euler
 
 
 def mat2quat(mat):
-    """ Convert Rotation Matrix to Quaternion.  See rotation.py for notes """
+    """Convert Rotation Matrix to Quaternion.  See rotation.py for notes"""
     mat = np.asarray(mat, dtype=np.float64)
     assert mat.shape[-2:] == (3, 3), "Invalid shape matrix {}".format(mat)
 
@@ -194,7 +196,7 @@ def mat2quat(mat):
     K /= 3.0
     # TODO: vectorize this -- probably could be made faster
     q = np.empty(K.shape[:-2] + (4,))
-    it = np.nditer(q[..., 0], flags=['multi_index'])
+    it = np.nditer(q[..., 0], flags=["multi_index"])
     while not it.finished:
         # Use Hermitian eigenvectors, values for speed
         vals, vecs = np.linalg.eigh(K[it.multi_index])
@@ -209,7 +211,7 @@ def mat2quat(mat):
 
 
 def quat2euler(quat):
-    """ Convert Quaternion to Euler Angles.  See rotation.py for notes """
+    """Convert Quaternion to Euler Angles.  See rotation.py for notes"""
     return mat2euler(quat2mat(quat))
 
 
@@ -223,7 +225,7 @@ def subtract_euler(e1, e2):
 
 
 def quat2mat(quat):
-    """ Convert Quaternion to Euler Angles.  See rotation.py for notes """
+    """Convert Quaternion to Euler Angles.  See rotation.py for notes"""
     quat = np.asarray(quat, dtype=np.float64)
     assert quat.shape[-1] == 4, "Invalid shape quat {}".format(quat)
 
@@ -247,10 +249,12 @@ def quat2mat(quat):
     mat[..., 2, 2] = 1.0 - (xX + yY)
     return np.where((Nq > _FLOAT_EPS)[..., np.newaxis, np.newaxis], mat, np.eye(3))
 
+
 def quat_conjugate(q):
     inv_q = -q
     inv_q[..., 0] *= -1
     return inv_q
+
 
 def quat_mul(q0, q1):
     assert q0.shape == q1.shape
@@ -277,83 +281,97 @@ def quat_mul(q0, q1):
     assert q.shape == q0.shape
     return q
 
+
 def quat_rot_vec(q, v0):
     q_v0 = np.array([0, v0[0], v0[1], v0[2]])
     q_v = quat_mul(q, quat_mul(q_v0, quat_conjugate(q)))
     v = q_v[1:]
     return v
 
+
 def quat_identity():
     return np.array([1, 0, 0, 0])
 
+
 def quat2axisangle(quat):
-    theta = 0;
-    axis = np.array([0, 0, 1]);
+    theta = 0
+    axis = np.array([0, 0, 1])
     sin_theta = np.linalg.norm(quat[1:])
 
-    if (sin_theta > 0.0001):
+    if sin_theta > 0.0001:
         theta = 2 * np.arcsin(sin_theta)
         theta *= 1 if quat[0] >= 0 else -1
         axis = quat[1:] / sin_theta
 
     return axis, theta
 
+
 def euler2point_euler(euler):
     _euler = euler.copy()
     if len(_euler.shape) < 2:
-        _euler = np.expand_dims(_euler,0)
-    assert(_euler.shape[1] == 3)
+        _euler = np.expand_dims(_euler, 0)
+    assert _euler.shape[1] == 3
     _euler_sin = np.sin(_euler)
     _euler_cos = np.cos(_euler)
     return np.concatenate([_euler_sin, _euler_cos], axis=-1)
 
+
 def point_euler2euler(euler):
     _euler = euler.copy()
     if len(_euler.shape) < 2:
-        _euler = np.expand_dims(_euler,0)
-    assert(_euler.shape[1] == 6)
+        _euler = np.expand_dims(_euler, 0)
+    assert _euler.shape[1] == 6
     angle = np.arctan(_euler[..., :3] / _euler[..., 3:])
     angle[_euler[..., 3:] < 0] += np.pi
     return angle
+
 
 def quat2point_quat(quat):
     # Should be in qw, qx, qy, qz
     _quat = quat.copy()
     if len(_quat.shape) < 2:
         _quat = np.expand_dims(_quat, 0)
-    assert(_quat.shape[1] == 4)
-    angle = np.arccos(_quat[:,[0]]) * 2
+    assert _quat.shape[1] == 4
+    angle = np.arccos(_quat[:, [0]]) * 2
     xyz = _quat[:, 1:]
-    xyz[np.squeeze(np.abs(np.sin(angle/2))) >= 1e-5] = (xyz / np.sin(angle / 2))[np.squeeze(np.abs(np.sin(angle/2))) >= 1e-5]
-    return np.concatenate([np.sin(angle),np.cos(angle), xyz], axis=-1)
+    xyz[np.squeeze(np.abs(np.sin(angle / 2))) >= 1e-5] = (xyz / np.sin(angle / 2))[
+        np.squeeze(np.abs(np.sin(angle / 2))) >= 1e-5
+    ]
+    return np.concatenate([np.sin(angle), np.cos(angle), xyz], axis=-1)
+
 
 def point_quat2quat(quat):
     _quat = quat.copy()
     if len(_quat.shape) < 2:
         _quat = np.expand_dims(_quat, 0)
-    assert(_quat.shape[1] == 5)
-    angle = np.arctan(_quat[:,[0]] / _quat[:,[1]])
+    assert _quat.shape[1] == 5
+    angle = np.arctan(_quat[:, [0]] / _quat[:, [1]])
     qw = np.cos(angle / 2)
 
     qxyz = _quat[:, 2:]
-    qxyz[np.squeeze(np.abs(np.sin(angle/2))) >= 1e-5] = (qxyz * np.sin(angle/2))[np.squeeze(np.abs(np.sin(angle/2))) >= 1e-5]
+    qxyz[np.squeeze(np.abs(np.sin(angle / 2))) >= 1e-5] = (qxyz * np.sin(angle / 2))[
+        np.squeeze(np.abs(np.sin(angle / 2))) >= 1e-5
+    ]
     return np.concatenate([qw, qxyz], axis=-1)
 
+
 def normalize_angles(angles):
-    '''Puts angles in [-pi, pi] range.'''
+    """Puts angles in [-pi, pi] range."""
     angles = angles.copy()
     if angles.size > 0:
         angles = (angles + np.pi) % (2 * np.pi) - np.pi
-        assert -np.pi-1e-6 <= angles.min() and angles.max() <= np.pi+1e-6
+        assert -np.pi - 1e-6 <= angles.min() and angles.max() <= np.pi + 1e-6
     return angles
 
+
 def round_to_straight_angles(angles):
-    '''Returns closest angle modulo 90 degrees '''
+    """Returns closest angle modulo 90 degrees"""
     angles = np.round(angles / (np.pi / 2)) * (np.pi / 2)
     return normalize_angles(angles)
 
+
 def get_parallel_rotations():
-    mult90 = [0, np.pi/2, -np.pi/2, np.pi]
+    mult90 = [0, np.pi / 2, -np.pi / 2, np.pi]
     parallel_rotations = []
     for euler in itertools.product(mult90, repeat=3):
         canonical = mat2euler(euler2mat(euler))

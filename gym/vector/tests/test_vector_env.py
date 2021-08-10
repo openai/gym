@@ -1,14 +1,17 @@
 import pytest
 import numpy as np
 
-from gym.vector.tests.utils import make_env
+from gym.spaces import Tuple
+from gym.vector.tests.utils import CustomSpace, make_env
 
 from gym.vector.async_vector_env import AsyncVectorEnv
 from gym.vector.sync_vector_env import SyncVectorEnv
+from gym.vector.vector_env import VectorEnv
 
-@pytest.mark.parametrize('shared_memory', [True, False])
+
+@pytest.mark.parametrize("shared_memory", [True, False])
 def test_vector_env_equal(shared_memory):
-    env_fns = [make_env('CubeCrash-v0', i) for i in range(4)]
+    env_fns = [make_env("CubeCrash-v0", i) for i in range(4)]
     num_steps = 100
     try:
         async_env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
@@ -41,3 +44,13 @@ def test_vector_env_equal(shared_memory):
     finally:
         async_env.close()
         sync_env.close()
+
+
+def test_custom_space_vector_env():
+    env = VectorEnv(4, CustomSpace(), CustomSpace())
+
+    assert isinstance(env.single_observation_space, CustomSpace)
+    assert isinstance(env.observation_space, Tuple)
+
+    assert isinstance(env.single_action_space, CustomSpace)
+    assert isinstance(env.action_space, Tuple)

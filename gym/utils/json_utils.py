@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def json_encode_np(obj):
     """
     JSON can't serialize numpy types, so convert to pure python

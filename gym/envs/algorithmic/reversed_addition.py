@@ -1,4 +1,3 @@
-from __future__ import division
 from gym.envs.algorithmic import algorithmic_env
 
 
@@ -20,11 +19,11 @@ class ReversedAdditionEnv(algorithmic_env.GridAlgorithmicEnv):
 
     @property
     def time_limit(self):
-        # Quirk preserved for the sake of consistency: add the length of the input
-        # rather than the length of the desired output (which may differ if there's
-        # an extra carried digit).
-        # TODO: It seems like this time limit is so strict as to make Addition3-v0
-        # unsolvable, since agents aren't even given enough time steps to look at
-        # all the digits. (The solutions on the scoreboard seem to only work by
-        # save-scumming.)
-        return self.input_width*2 + 4
+        # Quirk preserved for the sake of consistency: add the length of the
+        # input rather than the length of the desired output (which may differ
+        # if there's an extra carried digit).
+        # TODO: It seems like this time limit is so strict as to make
+        # Addition3-v0 unsolvable, since agents aren't even given enough time
+        # steps to look at all the digits. (The solutions on the scoreboard
+        # seem to only work by save-scumming.)
+        return self.input_width * 2 + 4

@@ -1,0 +1,9 @@
+atari-py==0.2.6
+opencv-python>=3.
+box2d-py~=2.3.5
+mujoco_py>=1.50, <2.0
+imageio
+scipy
+numpy>=1.18.0
+pyglet>=1.4.0
+cloudpickle>=1.2.0,<1.7.0

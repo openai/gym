@@ -10,7 +10,8 @@ off the end of the tape in any direction. When this happens, agents will observe
 a special blank character (with index=env.base) until they get back in bounds.
 
 Actions consist of 3 sub-actions:
-    - Direction to move the read head (left or right, plus up and down for 2-d envs)
+    - Direction to move the read head (left or right, plus up and down for 2-d
+      envs)
     - Whether to write to the output tape
     - Which character to write (ignored if the above sub-action is 0)
 
@@ -36,12 +37,12 @@ from gym.utils import colorize, seeding
 import sys
 from contextlib import closing
 import numpy as np
-from six import StringIO
+from io import StringIO
 
 
 class AlgorithmicEnv(Env):
 
-    metadata = {'render.modes': ['human', 'ansi']}
+    metadata = {"render.modes": ["human", "ansi"]}
     # Only 'promote' the length of generated input strings if the worst of the
     # last n episodes was no more than this far from the maximum reward
     MIN_REWARD_SHORTFALL_FOR_PROMOTION = -1.0
@@ -61,16 +62,13 @@ class AlgorithmicEnv(Env):
         self.episode_total_reward = None
         # Running tally of reward shortfalls. e.g. if there were 10 points to
         # earn and we got 8, we'd append -2
-        AlgorithmicEnv.reward_shortfalls = []
+        self.reward_shortfalls = []
         if chars:
-            self.charmap = [chr(ord('A')+i) for i in range(base)]
+            self.charmap = [chr(ord("A") + i) for i in range(base)]
         else:
             self.charmap = [str(i) for i in range(base)]
-        self.charmap.append(' ')
-        # TODO: Not clear why this is a class variable rather than instance.
-        # Could lead to some spooky action at a distance if someone is working
-        # with multiple algorithmic envs at once. Also makes testing tricky.
-        AlgorithmicEnv.min_length = starting_min_length
+        self.charmap.append(" ")
+        self.min_length = starting_min_length
         # Three sub-actions:
         #       1. Move read head left or right (or up/down)
         #       2. Write or not
@@ -113,15 +111,18 @@ class AlgorithmicEnv(Env):
         """Return a string representation of the input tape/grid."""
         raise NotImplementedError
 
-    def render(self, mode='human'):
-        outfile = StringIO() if mode == 'ansi' else sys.stdout
-        inp = "Total length of input instance: %d, step: %d\n" % (self.input_width, self.time)
+    def render(self, mode="human"):
+        outfile = StringIO() if mode == "ansi" else sys.stdout
+        inp = "Total length of input instance: %d, step: %d\n" % (
+            self.input_width,
+            self.time,
+        )
         outfile.write(inp)
-        x, y, action = self.read_head_position, self.write_head_position, self.last_action
+        y, action = self.write_head_position, self.last_action
         if action is not None:
             inp_act, out_act, pred = action
         outfile.write("=" * (len(inp) - 1) + "\n")
-        y_str =      "Output Tape         : "
+        y_str = "Output Tape         : "
         target_str = "Targets             : "
         if action is not None:
             pred_str = self.charmap[pred]
@@ -132,7 +133,7 @@ class AlgorithmicEnv(Env):
                 y_str += self._get_str_target(i)
             elif i == (y - 1):
                 if action is not None and out_act == 1:
-                    color = 'green' if pred == self.target[i] else 'red'
+                    color = "green" if pred == self.target[i] else "red"
                     y_str += colorize(pred_str, color, highlight=True)
                 else:
                     y_str += self._get_str_target(i)
@@ -146,12 +147,15 @@ class AlgorithmicEnv(Env):
             move = self.MOVEMENTS[inp_act]
             outfile.write("Action              :   Tuple(move over input: %s,\n" % move)
             out_act = out_act == 1
-            outfile.write("                              write to the output tape: %s,\n" % out_act)
+            outfile.write(
+                "                              write to the output tape: %s,\n"
+                % out_act
+            )
             outfile.write("                              prediction: %s)\n" % pred_str)
         else:
             outfile.write("\n" * 5)
 
-        if mode != 'human':
+        if mode != "human":
             with closing(outfile):
                 return outfile.getvalue()
 
@@ -175,7 +179,8 @@ class AlgorithmicEnv(Env):
                     "It looks like you're calling step() even though this "
                     "environment has already returned done=True. You should "
                     "always call reset() once you receive done=True. Any "
-                    "further steps are undefined behaviour.")
+                    "further steps are undefined behaviour."
+                )
                 correct = False
             if correct:
                 reward = 1.0
@@ -206,15 +211,17 @@ class AlgorithmicEnv(Env):
         """Called between episodes. Update our running record of episode rewards
         and, if appropriate, 'level up' minimum input length."""
         if self.episode_total_reward is None:
-            # This is before the first episode/call to reset(). Nothing to do
+            # This is before the first episode/call to reset(). Nothing to do.
             return
-        AlgorithmicEnv.reward_shortfalls.append(self.episode_total_reward - len(self.target))
-        AlgorithmicEnv.reward_shortfalls = AlgorithmicEnv.reward_shortfalls[-self.last:]
-        if len(AlgorithmicEnv.reward_shortfalls) == self.last and \
-                min(AlgorithmicEnv.reward_shortfalls) >= self.MIN_REWARD_SHORTFALL_FOR_PROMOTION and \
-                AlgorithmicEnv.min_length < 30:
-            AlgorithmicEnv.min_length += 1
-            AlgorithmicEnv.reward_shortfalls = []
+        self.reward_shortfalls.append(self.episode_total_reward - len(self.target))
+        self.reward_shortfalls = self.reward_shortfalls[-self.last :]
+        if (
+            len(self.reward_shortfalls) == self.last
+            and min(self.reward_shortfalls) >= self.MIN_REWARD_SHORTFALL_FOR_PROMOTION
+            and self.min_length < 30
+        ):
+            self.min_length += 1
+            self.reward_shortfalls = []
 
     def reset(self):
         self._check_levelup()
@@ -224,7 +231,7 @@ class AlgorithmicEnv(Env):
         self.write_head_position = 0
         self.episode_total_reward = 0.0
         self.time = 0
-        length = self.np_random.randint(3) + AlgorithmicEnv.min_length
+        length = self.np_random.randint(3) + self.min_length
         self.input_data = self.generate_input_data(length)
         self.target = self.target_from_input_data(self.input_data)
         return self._get_obs()
@@ -241,12 +248,13 @@ class AlgorithmicEnv(Env):
 
 class TapeAlgorithmicEnv(AlgorithmicEnv):
     """An algorithmic env with a 1-d input tape."""
-    MOVEMENTS = ['left', 'right']
+
+    MOVEMENTS = ["left", "right"]
     READ_HEAD_START = 0
 
     def _move(self, movement):
         named = self.MOVEMENTS[movement]
-        self.read_head_position += 1 if named == 'right' else -1
+        self.read_head_position += 1 if named == "right" else -1
 
     def _get_obs(self, pos=None):
         if pos is None:
@@ -268,7 +276,9 @@ class TapeAlgorithmicEnv(AlgorithmicEnv):
         x_str = "Observation Tape    : "
         for i in range(-2, self.input_width + 2):
             if i == x:
-                x_str += colorize(self._get_str_obs(np.array([i])), 'green', highlight=True)
+                x_str += colorize(
+                    self._get_str_obs(np.array([i])), "green", highlight=True
+                )
             else:
                 x_str += self._get_str_obs(np.array([i]))
         x_str += "\n"
@@ -277,7 +287,8 @@ class TapeAlgorithmicEnv(AlgorithmicEnv):
 
 class GridAlgorithmicEnv(AlgorithmicEnv):
     """An algorithmic env with a 2-d input grid."""
-    MOVEMENTS = ['left', 'right', 'up', 'down']
+
+    MOVEMENTS = ["left", "right", "up", "down"]
     READ_HEAD_START = (0, 0)
 
     def __init__(self, rows, *args, **kwargs):
@@ -287,13 +298,13 @@ class GridAlgorithmicEnv(AlgorithmicEnv):
     def _move(self, movement):
         named = self.MOVEMENTS[movement]
         x, y = self.read_head_position
-        if named == 'left':
+        if named == "left":
             x -= 1
-        elif named == 'right':
+        elif named == "right":
             x += 1
-        elif named == 'up':
+        elif named == "up":
             y -= 1
-        elif named == 'down':
+        elif named == "down":
             y += 1
         else:
             raise ValueError("Unrecognized direction: {}".format(named))
@@ -320,12 +331,14 @@ class GridAlgorithmicEnv(AlgorithmicEnv):
         x = self.read_head_position
         label = "Observation Grid    : "
         x_str = ""
-        for j in range(-1, self.rows+1):
+        for j in range(-1, self.rows + 1):
             if j != -1:
                 x_str += " " * len(label)
             for i in range(-2, self.input_width + 2):
                 if i == x[0] and j == x[1]:
-                    x_str += colorize(self._get_str_obs((i, j)), 'green', highlight=True)
+                    x_str += colorize(
+                        self._get_str_obs((i, j)), "green", highlight=True
+                    )
                 else:
                     x_str += self._get_str_obs((i, j))
             x_str += "\n"

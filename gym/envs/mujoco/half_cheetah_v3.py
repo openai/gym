@@ -4,17 +4,19 @@ from gym.envs.mujoco import mujoco_env
 
 
 DEFAULT_CAMERA_CONFIG = {
-    'distance': 4.0,
+    "distance": 4.0,
 }
 
 
 class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
-    def __init__(self,
-                 xml_file='half_cheetah.xml',
-                 forward_reward_weight=1.0,
-                 ctrl_cost_weight=0.1,
-                 reset_noise_scale=0.1,
-                 exclude_current_positions_from_observation=True):
+    def __init__(
+        self,
+        xml_file="half_cheetah.xml",
+        forward_reward_weight=1.0,
+        ctrl_cost_weight=0.1,
+        reset_noise_scale=0.1,
+        exclude_current_positions_from_observation=True,
+    ):
         utils.EzPickle.__init__(**locals())
 
         self._forward_reward_weight = forward_reward_weight
@@ -24,7 +26,8 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         self._reset_noise_scale = reset_noise_scale
 
         self._exclude_current_positions_from_observation = (
-            exclude_current_positions_from_observation)
+            exclude_current_positions_from_observation
+        )
 
         mujoco_env.MujocoEnv.__init__(self, xml_file, 5)
 
@@ -36,8 +39,7 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         x_position_before = self.sim.data.qpos[0]
         self.do_simulation(action, self.frame_skip)
         x_position_after = self.sim.data.qpos[0]
-        x_velocity = ((x_position_after - x_position_before)
-                      / self.dt)
+        x_velocity = (x_position_after - x_position_before) / self.dt
 
         ctrl_cost = self.control_cost(action)
 
@@ -47,11 +49,10 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         reward = forward_reward - ctrl_cost
         done = False
         info = {
-            'x_position': x_position_after,
-            'x_velocity': x_velocity,
-
-            'reward_run': forward_reward,
-            'reward_ctrl': -ctrl_cost
+            "x_position": x_position_after,
+            "x_velocity": x_velocity,
+            "reward_run": forward_reward,
+            "reward_ctrl": -ctrl_cost,
         }
 
         return observation, reward, done, info
@@ -71,9 +72,11 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         noise_high = self._reset_noise_scale
 
         qpos = self.init_qpos + self.np_random.uniform(
-            low=noise_low, high=noise_high, size=self.model.nq)
+            low=noise_low, high=noise_high, size=self.model.nq
+        )
         qvel = self.init_qvel + self._reset_noise_scale * self.np_random.randn(
-            self.model.nv)
+            self.model.nv
+        )
 
         self.set_state(qpos, qvel)
 

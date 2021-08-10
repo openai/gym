@@ -1,9 +1,12 @@
 from gym.utils.closer import Closer
 
+
 class Closeable(object):
     close_called = False
+
     def close(self):
         self.close_called = True
+
 
 def test_register_unregister():
     registry = Closer(atexit_register=False)
