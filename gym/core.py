@@ -4,8 +4,6 @@ import gym
 from gym import error
 from gym.utils import closer
 
-env_closer = closer.Closer()
-
 
 class Env(object):
     """The main OpenAI Gym class. It encapsulates an environment with
