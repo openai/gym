@@ -1,0 +1,30 @@
+repos:
+  - repo: https://github.com/PyCQA/bandit/
+    rev: 1.7.0
+    hooks:
+      - id: bandit
+        args:
+          - --recursive
+          - --skip
+          - B101,B108,B301,B403,B404,B603
+          - .
+  - repo: https://github.com/python/black
+    rev: 21.7b0
+    hooks:
+      - id: black
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.1.0
+    hooks:
+      - id: codespell
+        args:
+          - --ignore-words-list=nd,reacher,thist,ths
+  - repo: https://gitlab.com/pycqa/flake8
+    rev: 3.9.2
+    hooks:
+      - id: flake8
+        args:
+          - --ignore=E203,E402,E712,E722,E731,E741,F401,F403,F405,F524,F841,W503
+          - --max-complexity=30
+          - --max-line-length=456
+          - --show-source
+          - --statistics
