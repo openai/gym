@@ -82,7 +82,7 @@ class PendulumEnv(gym.Env):
 
         self.viewer.add_onetime(self.img)
         self.pole_transform.set_rotation(self.state[0] + np.pi / 2)
-        if self.last_u:
+        if self.last_u is not None:
             self.imgtrans.scale = (-self.last_u / 2, np.abs(self.last_u) / 2)
 
         return self.viewer.render(return_rgb_array=mode == "rgb_array")
