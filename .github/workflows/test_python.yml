@@ -6,6 +6,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
+      - run: pip install --upgrade pip wheel
       - run: pip install isort mypy pytest pyupgrade safety
       - run: isort --check-only --profile black . || true
       - run: pip install -e .[nomujoco]
