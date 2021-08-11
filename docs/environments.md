@@ -374,6 +374,12 @@ An environment for online recommendation, where customers are learned from Taoba
 
 Learn more here: https://github.com/eyounx/VirtualTaobao/
 
+### gym-recsys: Customizable RecSys Simulator for OpenAI Gym
+
+This package describes an OpenAI Gym interface for creating a simulation environment of reinforcement learning-based recommender systems (RL-RecSys). The design strives for simple and flexible APIs to support novel research.
+
+Learn more here: https://github.com/zuoxingdong/gym-recsys
+
 ### QASGym: gym environment for Quantum Architecture Search (QAS)
 
 This a list of environments for quantum architecture search following the description in [Quantum Architecture Search via Deep Reinforcement Learning](https://arxiv.org/abs/2104.07715). The agent design the quantum circuit by taking actions in the environment. Each action corresponds to a gate applied on some wires. The goal is to build a circuit U such that generates the target n-qubit quantum state that belongs to the environment and hidden from the agent. The circuits are built using [Google QuantumAI Cirq](https://quantumai.google/cirq). 
