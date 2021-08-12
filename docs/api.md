@@ -22,7 +22,7 @@ env.close()
 
 The output should look something like this
 
-https://user-images.githubusercontent.com/28860173/129240480-64e351cb-eb63-426a-ad76-5e5d6304e38a.mp4
+![cartpole-no-reset](https://user-images.githubusercontent.com/28860173/129241283-70069f7c-453d-4670-a226-854203bd8a1b.gif)
 
 
 The commonly used methods are: 
