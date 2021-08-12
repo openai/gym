@@ -20,6 +20,10 @@ for _ in range(1000):
 env.close()
 ```
 
+The output should look something like this
+
+![[cartpole-no-reset.mp4]]
+
 The commonly used methods are: 
 
 `reset()` resets the environment to its initial state and returns the observation corresponding to the initial state
