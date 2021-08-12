@@ -20,6 +20,11 @@ for _ in range(1000):
 env.close()
 ```
 
+The output should look something like this
+
+https://user-images.githubusercontent.com/28860173/129240480-64e351cb-eb63-426a-ad76-5e5d6304e38a.mp4
+
+
 The commonly used methods are: 
 
 `reset()` resets the environment to its initial state and returns the observation corresponding to the initial state
