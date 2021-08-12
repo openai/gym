@@ -103,7 +103,6 @@ def test_equality(space):
         (Dict({"position": Discrete(5)}), Dict({"speed": Discrete(5)})),
     ],
 )
-
 def test_inequality(spaces):
     space1, space2 = spaces
     assert space1 != space2, "Expected {} != {}".format(space1, space2)
@@ -181,24 +180,27 @@ def test_bad_space_calls(space_fn):
         space_fn()
 
 
-
 def test_seed_Dict():
-    test_space = Dict({
-          'a': Box(low=0, high=1, shape=(3, 3)),
-          'b': Dict({
-              'b_1': Box(low=-100, high=100, shape=(2,)),
-              'b_2': Box(low=-1, high=1, shape=(2,)),
-              }),
-          'c': Discrete(5),
-    })
+    test_space = Dict(
+        {
+            "a": Box(low=0, high=1, shape=(3, 3)),
+            "b": Dict(
+                {
+                    "b_1": Box(low=-100, high=100, shape=(2,)),
+                    "b_2": Box(low=-1, high=1, shape=(2,)),
+                }
+            ),
+            "c": Discrete(5),
+        }
+    )
 
     seed_dict = {
-          'a': 0,
-          'b': {
-              'b_1': 1,
-              'b_2': 2,
-              },
-          'c': 3,
+        "a": 0,
+        "b": {
+            "b_1": 1,
+            "b_2": 2,
+        },
+        "c": 3,
     }
 
     test_space.seed(seed_dict)
@@ -214,10 +216,10 @@ def test_seed_Dict():
     for i in range(10):
         test_s = test_space.sample()
         a_s = a.sample()
-        assert (test_s['a'] == a_s).all()
+        assert (test_s["a"] == a_s).all()
         b_1_s = b_1.sample()
-        assert (test_s['b']['b_1'] == b_1_s).all()
+        assert (test_s["b"]["b_1"] == b_1_s).all()
         b_2_s = b_2.sample()
-        assert (test_s['b']['b_2'] == b_2_s).all()
+        assert (test_s["b"]["b_2"] == b_2_s).all()
         c_s = c.sample()
-        assert test_s['c'] == c_s
+        assert test_s["c"] == c_s
