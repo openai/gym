@@ -10,13 +10,13 @@ class Tuple(Space):
     self.observation_space = spaces.Tuple((spaces.Discrete(2), spaces.Discrete(3)))
     """
 
-    def __init__(self, spaces):
+    def __init__(self, spaces, seed=None):
         self.spaces = spaces
         for space in spaces:
             assert isinstance(
                 space, Space
             ), "Elements of the tuple must be instances of gym.Space"
-        super(Tuple, self).__init__(None, None)
+        super(Tuple, self).__init__(None, None, seed)
 
     def seed(self, seed=None):
         if type(seed) == list:

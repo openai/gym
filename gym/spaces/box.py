@@ -22,7 +22,7 @@ class Box(Space):
 
     """
 
-    def __init__(self, low, high, shape=None, dtype=np.float32):
+    def __init__(self, low, high, shape=None, dtype=np.float32, seed=None):
         assert dtype is not None, "dtype must be explicitly provided. "
         self.dtype = np.dtype(dtype)
 
@@ -80,7 +80,7 @@ class Box(Space):
         self.bounded_below = -np.inf < self.low
         self.bounded_above = np.inf > self.high
 
-        super(Box, self).__init__(self.shape, self.dtype)
+        super(Box, self).__init__(self.shape, self.dtype, seed)
 
     def is_bounded(self, manner="both"):
         below = np.all(self.bounded_below)

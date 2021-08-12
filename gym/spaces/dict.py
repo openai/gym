@@ -1,6 +1,7 @@
 from collections import OrderedDict
 from .space import Space
 
+
 class Dict(Space):
     """
     A dictionary of simpler spaces.
@@ -31,7 +32,7 @@ class Dict(Space):
     })
     """
 
-    def __init__(self, spaces=None, **spaces_kwargs):
+    def __init__(self, spaces=None, seed=None, **spaces_kwargs):
         assert (spaces is None) or (
             not spaces_kwargs
         ), "Use either Dict(spaces=dict(...)) or Dict(foo=x, bar=z)"
@@ -48,13 +49,19 @@ class Dict(Space):
                 space, Space
             ), "Values of the dict should be instances of gym.Space"
         super(Dict, self).__init__(
-            None, None
+            None, None, seed
         )  # None for shape and dtype, since it'll require special handling
 
     def seed(self, seed=None):
         if type(seed) == dict:
             for key, seed_key in zip(self.spaces, seed):
-                assert key == seed_key, print("Key value", seed_key, "in passed seed dict did not match key value", key, "in spaces Dict.")
+                assert key == seed_key, print(
+                    "Key value",
+                    seed_key,
+                    "in passed seed dict did not match key value",
+                    key,
+                    "in spaces Dict.",
+                )
                 self.spaces[key].seed(seed[seed_key])
         else:
             [space.seed(seed) for space in self.spaces.values()]
