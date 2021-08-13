@@ -46,7 +46,7 @@ def test_env(spec):
 
 # Run a longer rollout on some environments
 def test_random_rollout():
-    for env in [envs.make("CartPole-v0"), envs.make("FrozenLake-v0")]:
+    for env in [envs.make("CartPole-v0"), envs.make("FrozenLake-v1")]:
         agent = lambda ob: env.action_space.sample()
         ob = env.reset()
         for _ in range(10):
@@ -62,7 +62,7 @@ def test_random_rollout():
 def test_env_render_result_is_immutable():
     environs = [
         envs.make("Taxi-v3"),
-        envs.make("FrozenLake-v0"),
+        envs.make("FrozenLake-v1"),
         envs.make("Reverse-v0"),
     ]
 

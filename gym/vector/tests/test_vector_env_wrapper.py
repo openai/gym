@@ -14,7 +14,7 @@ class DummyWrapper(VectorEnvWrapper):
 
 
 def test_vector_env_wrapper_inheritance():
-    env = make("FrozenLake-v0", asynchronous=False)
+    env = make("FrozenLake-v1", asynchronous=False)
     wrapped = DummyWrapper(env)
     wrapped.reset()
     assert wrapped.counter == 1

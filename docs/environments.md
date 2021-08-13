@@ -33,7 +33,7 @@ follows:
 
 ``` python
 import gym
-env = gym.make('SpaceInvaders-v0')
+env = gym.make('SpaceInvaders-v4')
 env.reset()
 env.render()
 ```
@@ -64,7 +64,7 @@ enable rendering. You can get started with them via:
 
 ``` python
 import gym
-env = gym.make('CartPole-v0')
+env = gym.make('CartPole-v1')
 env.reset()
 env.render()
 ```
@@ -92,7 +92,7 @@ you didn't do the full install.
 
 ``` python
 import gym
-env = gym.make('HandManipulateBlock-v0')
+env = gym.make('HandManipulateBlock-v2')
 env.reset()
 env.render()
 ```
@@ -116,7 +116,7 @@ install, so to get started, you can just do:
 
 ``` python
 import gym
-env = gym.make('FrozenLake-v0')
+env = gym.make('FrozenLake-v1')
 env.reset()
 env.render()
 ```

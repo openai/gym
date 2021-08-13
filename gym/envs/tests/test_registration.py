@@ -53,7 +53,7 @@ def test_spec():
 
 def test_spec_with_kwargs():
     map_name_value = "8x8"
-    env = gym.make("FrozenLake-v0", map_name=map_name_value)
+    env = gym.make("FrozenLake-v1", map_name=map_name_value)
     assert env.spec._kwargs["map_name"] == map_name_value
 
 
