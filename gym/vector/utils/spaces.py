@@ -114,7 +114,7 @@ def iterate(space, items):
     ... 'position': Box(low=0, high=1, shape=(2, 3), dtype=np.float32),
     ... 'velocity': Box(low=0, high=1, shape=(2, 2), dtype=np.float32)})
     >>> items = space.sample()
-    >>> it = iterate(items, space)
+    >>> it = iterate(space, items)
     >>> next(it)
     {'position': array([-0.99644893, -0.08304597, -0.7238421 ], dtype=float32),
     'velocity': array([0.35848552, 0.1533453 ], dtype=float32)}
