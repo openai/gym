@@ -62,7 +62,7 @@ def test_record_breaking_render_method():
 
 
 def test_text_envs():
-    env = gym.make("FrozenLake-v0")
+    env = gym.make("FrozenLake-v1")
     video = VideoRecorder(env)
     try:
         env.reset()
