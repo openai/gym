@@ -5,7 +5,7 @@ import tempfile
 import numpy as np
 
 import gym
-from gym.wrappers.monitoring.video_recorder import VideoRecorder
+from gym.wrappers.monitoring.video_recorder import VideoRecorder, video_recorder_closer
 
 
 class BrokenRecordableEnv(object):
@@ -32,6 +32,24 @@ def test_record_simple():
     assert not rec.broken
     assert os.path.exists(rec.path)
     f = open(rec.path)
+    assert os.fstat(f.fileno()).st_size > 100
+
+
+def test_autoclose():
+    env = gym.make("CartPole-v1")
+    rec = VideoRecorder(env)
+    env.reset()
+    rec.capture_frame()
+
+    rec_path = rec.path
+    with video_recorder_closer.lock:
+        num_registered = len(video_recorder_closer.closeables)
+    del rec
+
+    with video_recorder_closer.lock:
+        assert len(video_recorder_closer.closeables) == num_registered - 1
+    assert os.path.exists(rec_path)
+    f = open(rec_path)
     assert os.fstat(f.fileno()).st_size > 100
 
 
