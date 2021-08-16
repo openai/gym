@@ -15,7 +15,7 @@ extras = {
     "mujoco": ["mujoco_py>=1.50, <2.0", "imageio"],
     "robotics": ["mujoco_py>=1.50, <2.0", "imageio"],
     "toy_text": ["scipy"],
-    "wrappers": ["lz4~=3.1", "opencv-python>=3."]
+    "wrappers": ["lz4~=3.1", "opencv-python>=3."],
 }
 
 # Meta dependency groups.
