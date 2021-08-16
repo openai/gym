@@ -10,14 +10,10 @@ import distutils.version
 import numpy as np
 
 from gym import error, logger
-from gym.utils import closer
 
 
 def touch(path):
     open(path, "a").close()
-
-
-video_recorder_closer = closer.Closer()
 
 
 class VideoRecorder(object):
@@ -41,7 +37,6 @@ class VideoRecorder(object):
         modes = env.metadata.get("render.modes", [])
         self._async = env.metadata.get("semantics.async")
         self.enabled = enabled
-        self._recorder_id = video_recorder_closer.register(self)
 
         # Don't bother setting anything else if not enabled
         if not self.enabled:
@@ -149,7 +144,7 @@ class VideoRecorder(object):
                 self._encode_image_frame(frame)
 
     def close(self):
-        """Flush all data to disk and close any open frame encoders."""
+        """Make sure to manually close, or else you'll leak the encoder process"""
         if not self.enabled:
             return
 
@@ -183,17 +178,9 @@ class VideoRecorder(object):
 
         self.write_metadata()
 
-        # Stop tracking this for autoclose
-        video_recorder_closer.unregister(self._recorder_id)
-        self.enabled = False
-
     def write_metadata(self):
         with open(self.metadata_path, "w") as f:
             json.dump(self.metadata, f)
-
-    def __del__(self):
-        # Make sure we've closed up shop when garbage collecting
-        self.close()
 
     def _encode_ansi_frame(self, frame):
         if not self.encoder:
