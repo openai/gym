@@ -28,6 +28,7 @@ class RecordVideo(gym.Wrapper):
 
         self.recording = False
         self.recorded_frames = 0
+        self.is_vector_env = getattr(env, "is_vector_env", False)
 
     def reset(self, **kwargs):
         observations = super(RecordVideo, self).reset(**kwargs)

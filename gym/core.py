@@ -39,7 +39,6 @@ class Env(object):
     # Set these in ALL subclasses
     action_space = None
     observation_space = None
-    is_vector_env = False
 
     @abstractmethod
     def step(self, action):
@@ -231,7 +230,6 @@ class Wrapper(Env):
         self.observation_space = self.env.observation_space
         self.reward_range = self.env.reward_range
         self.metadata = self.env.metadata
-        self.is_vector_env = self.env.is_vector_env
 
     def __getattr__(self, name):
         if name.startswith("_"):

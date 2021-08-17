@@ -111,6 +111,3 @@ class SyncVectorEnv(VectorEnv):
             "observation spaces from all environments must be "
             "equal.".format(self.single_observation_space)
         )
-
-    def render(self, mode="human", **kwargs):
-        return self.envs[0].render(mode, **kwargs)

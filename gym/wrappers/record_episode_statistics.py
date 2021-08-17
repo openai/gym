@@ -16,6 +16,7 @@ class RecordEpisodeStatistics(gym.Wrapper):
         self.episode_lengths = None
         self.return_queue = deque(maxlen=deque_size)
         self.length_queue = deque(maxlen=deque_size)
+        self.is_vector_env = getattr(env, "is_vector_env", False)
 
     def reset(self, **kwargs):
         observations = super(RecordEpisodeStatistics, self).reset(**kwargs)
