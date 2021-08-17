@@ -44,7 +44,7 @@ Gym includes numerous wrappers for environments that include preprocessing and v
 * Needs review (including for good assertion messages and test coverage)
 
 `StickyActions(env, repeat_action_probability)` [text]
-* Create as seperate wrapper from Atari/bring over from SuperSuit
+* Create as separate wrapper from Atari/bring over from SuperSuit
 
 ## Reward Wrappers
 
