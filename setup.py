@@ -15,7 +15,7 @@ extras = {
     "mujoco": ["mujoco_py>=1.50, <2.0"],
     "robotics": ["mujoco_py>=1.50, <2.0"],
     "toy_text": ["scipy>=1.4.1"],
-    "wrappers": ["lz4>=3.1.0", "opencv-python>=3.", "cloudpickle>=1.2.0"],
+    "wrappers": ["lz4>=3.1.0", "opencv-python>=3."],
 }
 
 # Meta dependency groups.
@@ -43,6 +43,7 @@ setup(
     zip_safe=False,
     install_requires=[
         "numpy>=1.18.0",
+        "cloudpickle>=1.2.0",
     ],
     extras_require=extras,
     package_data={
