@@ -36,18 +36,19 @@ def test_record_simple():
 
 
 def test_autoclose():
-    env = gym.make("CartPole-v1")
-    rec = VideoRecorder(env)
-    env.reset()
-    rec.capture_frame()
+    def record():
+        env = gym.make("CartPole-v1")
+        rec = VideoRecorder(env)
+        env.reset()
+        rec.capture_frame()
 
-    rec_path = rec.path
-    with video_recorder_closer.lock:
-        num_registered = len(video_recorder_closer.closeables)
-    del rec
+        rec_path = rec.path
 
-    with video_recorder_closer.lock:
-        assert len(video_recorder_closer.closeables) == num_registered - 1
+        # The function ends without an explicit `rec.close()` call
+        # The Python interpreter will implicitly do `del rec` at garbage clean
+        return rec_path
+
+    rec_path = record()
     assert os.path.exists(rec_path)
     f = open(rec_path)
     assert os.fstat(f.fileno()).st_size > 100
