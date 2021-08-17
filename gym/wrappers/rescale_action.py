@@ -13,17 +13,17 @@ class RescaleAction(gym.ActionWrapper):
 
     """
 
-    def __init__(self, env, a, b):
+    def __init__(self, env, min_action, max_action):
         assert isinstance(
             env.action_space, spaces.Box
         ), "expected Box action space, got {}".format(type(env.action_space))
-        assert np.less_equal(a, b).all(), (a, b)
+        assert np.less_equal(min, min_action).all(), (min_action, max_action)
 
         super(RescaleAction, self).__init__(env)
-        self.a = np.zeros(env.action_space.shape, dtype=env.action_space.dtype) + a
-        self.b = np.zeros(env.action_space.shape, dtype=env.action_space.dtype) + b
+        self.a = np.zeros(env.action_space.shape, dtype=env.action_space.dtype) + min_action
+        self.b = np.zeros(env.action_space.shape, dtype=env.action_space.dtype) + max_action
         self.action_space = spaces.Box(
-            low=a, high=b, shape=env.action_space.shape, dtype=env.action_space.dtype
+            low=min_action, high=max_action, shape=env.action_space.shape, dtype=env.action_space.dtype
         )
 
     def action(self, action):
