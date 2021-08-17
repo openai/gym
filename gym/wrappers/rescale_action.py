@@ -4,11 +4,11 @@ from gym import spaces
 
 
 class RescaleAction(gym.ActionWrapper):
-    r"""Rescales the continuous action space of the environment to a range [a,b].
+    r"""Rescales the continuous action space of the environment to a range [min_action, max_action].
 
     Example::
 
-        >>> RescaleAction(env, a, b).action_space == Box(a,b)
+        >>> RescaleAction(env, min_action, max_action).action_space == Box(min_action, max_action)
         True
 
     """
