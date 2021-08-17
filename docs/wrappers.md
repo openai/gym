@@ -2,6 +2,9 @@ Gym includes numerous wrappers for environments that include preprocessing and v
 
 ## Observation Wrappers
 
+`DelayObservation(env, delay)` [text]
+* Bring over from SuperSuit
+
 `FilterObservation(env, filter_keys)` [text]
 * Needs review (including for good assertion messages and test coverage)
 
@@ -19,45 +22,45 @@ Gym includes numerous wrappers for environments that include preprocessing and v
 `PixelObservationWrapper(pixels_only=True, render_kwargs=None, pixel_keys=("pixels",))` [text]
 * Needs review (including for good assertion messages and test coverage)
 
-`TimeAwareObservation(env)` [text]
-* Needs review (including for good assertion messages and test coverage)
-
-`ResizeObservation(env, shape)` [text]
-* Needs review (including for good assertion messages and test coverage)
-
-`DelayObservation(env, delay)` [text]
-* Bring over from SuperSuit
-
 `RescaleObservation(env, min_obs, max_obs`) [text]
 * Bring over from Supersuit or from https://github.com/openai/gym/pull/1635
 
-`ObservationLambda(env, observation_fn, observation_space_fn)` [text]
-* Bring over from SuperSuit, replaces TransformObservation
+`ResizeObservation(env, shape)` [text]
+* Needs review (including for good assertion messages and test coverage)
+* Switch from CV2 to Lycon2 once released
+
+`TimeAwareObservation(env)` [text]
+* Needs review (including for good assertion messages and test coverage)
 
 ## Action Wrappers
 
 `ClipAction(env)` [text]
 * Needs review (including for good assertion messages and test coverage)
 
-`RescaleAction(env, min_action, max_action)` [text]
-* Needs review (including for good assertion messages and test coverage)
-
 `ChangeDtype(env, dtype)` [text]
 * Bring over from SuperSuit
 
-`ActionLambda(env, change_action_fn, change_space_fn)` [text]
-* Bring over from SuperSuit
+`RescaleAction(env, min_action, max_action)` [text]
+* Needs review (including for good assertion messages and test coverage)
 
 `StickyActions(env, repeat_action_probability)` [text]
 * Create as seperate wrapper from Atari/bring over from SuperSuit
 
 ## Reward Wrappers
 
-`RewardLambda(env, reward_fn)` [text]
-* Bring over from SuperSuit, replaces TransformReward
-
 `ClipReward(env, lower_bound-1, upper_bound=1)` [text]
 * Bring over from SuperSuit
+
+## Lambda Wrappers
+
+`ActionLambda(env, change_action_fn, change_space_fn)` [text]
+* Bring over from SuperSuit
+
+`ObservationLambda(env, observation_fn, observation_space_fn)` [text]
+* Bring over from SuperSuit, replaces TransformObservation
+
+`RewardLambda(env, reward_fn)` [text]
+* Bring over from SuperSuit, replaces TransformReward
 
 ## Other
 `AtariPreprocessing(env, noop_max=30, frame_skip=4, screen_size=84, terminal_on_life_loss=False, grayscale_obs=True, grayscale_newaxis=False, scale_obs=False)` [text]
