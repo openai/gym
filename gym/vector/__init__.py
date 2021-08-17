@@ -12,7 +12,7 @@ __all__ = ["AsyncVectorEnv", "SyncVectorEnv", "VectorEnv", "VectorEnvWrapper", "
 
 def make(id, num_envs=1, asynchronous=True, wrappers=None, **kwargs):
     """Create a vectorized environment from multiple copies of an environment,
-    from its id
+    from its id.
 
     Parameters
     ----------
@@ -22,24 +22,23 @@ def make(id, num_envs=1, asynchronous=True, wrappers=None, **kwargs):
     num_envs : int
         Number of copies of the environment.
 
-    asynchronous : bool (default: `True`)
-        If `True`, wraps the environments in an `AsyncVectorEnv` (which uses
-        `multiprocessing` to run the environments in parallel). If `False`,
-        wraps the environments in a `SyncVectorEnv`.
+    asynchronous : bool
+        If `True`, wraps the environments in an :class:`AsyncVectorEnv` (which uses
+        `multiprocessing`_ to run the environments in parallel). If ``False``,
+        wraps the environments in a :class:`SyncVectorEnv`.
 
-    wrappers : Callable or Iterable of Callables (default: `None`)
-        If not `None`, then apply the wrappers to each internal
+    wrappers : callable, or iterable of callables, optional
+        If not ``None``, then apply the wrappers to each internal
         environment during creation.
 
     Returns
     -------
-    env : `gym.vector.VectorEnv` instance
+    :class:`gym.vector.VectorEnv`
         The vectorized environment.
 
     Example
     -------
-    >>> import gym
-    >>> env = gym.vector.make('CartPole-v1', 3)
+    >>> env = gym.vector.make('CartPole-v1', num_envs=3)
     >>> env.reset()
     array([[-0.04456399,  0.04653909,  0.01326909, -0.02099827],
            [ 0.03073904,  0.00145001, -0.03088818, -0.03131252],
