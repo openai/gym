@@ -21,7 +21,7 @@ class RescaleAction(gym.ActionWrapper):
 
         super(RescaleAction, self).__init__(env)
         self.min_action = np.zeros(env.action_space.shape, dtype=env.action_space.dtype) + min_action
-        self.b = np.zeros(env.action_space.shape, dtype=env.action_space.dtype) + max_action
+        self.max_action = np.zeros(env.action_space.shape, dtype=env.action_space.dtype) + max_action
         self.action_space = spaces.Box(
             low=min_action, high=max_action, shape=env.action_space.shape, dtype=env.action_space.dtype
         )
