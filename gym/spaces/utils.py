@@ -23,18 +23,14 @@ def flatdim(space):
 
 
 @flatdim.register(Box)
-def flatdim_box(space):
+@flatdim.register(MultiBinary)
+def flatdim_box_multibinary(space):
     return reduce(op.mul, space.shape, 1)
 
 
 @flatdim.register(Discrete)
 def flatdim_discrete(space):
     return int(space.n)
-
-
-@flatdim.register(MultiBinary)
-def flatdim_multibinary(space):
-    return reduce(op.mul, space.shape, 2)
 
 
 @flatdim.register(MultiDiscrete)
@@ -67,7 +63,8 @@ def flatten(space, x):
 
 
 @flatten.register(Box)
-def flatten_box(space, x):
+@flatten.register(MultiBinary)
+def flatten_box_multibinary(space, x):
     return np.asarray(x, dtype=space.dtype).flatten()
 
 
@@ -76,13 +73,6 @@ def flatten_discrete(space, x):
     onehot = np.zeros(space.n, dtype=space.dtype)
     onehot[x] = 1
     return onehot
-
-
-@flatten.register(MultiBinary)
-def flatten_multibinary(space, x):
-    onehot = np.zeros(space.shape + (2,), dtype=space.dtype)
-    np.put_along_axis(onehot, x[..., None], 1, axis=-1)
-    return onehot.flatten()
 
 
 @flatten.register(MultiDiscrete)
@@ -120,18 +110,14 @@ def unflatten(space, x):
 
 
 @unflatten.register(Box)
-def unflatten_box(space, x):
+@unflatten.register(MultiBinary)
+def unflatten_box_multibinary(space, x):
     return np.asarray(x, dtype=space.dtype).reshape(space.shape)
 
 
 @unflatten.register(Discrete)
 def unflatten_discrete(space, x):
     return int(np.nonzero(x)[0][0])
-
-
-@unflatten.register(MultiBinary)
-def unflatten_multibinary(space, x):
-    return np.asarray(x[1::2], dtype=space.dtype).reshape(space.shape)
 
 
 @unflatten.register(MultiDiscrete)

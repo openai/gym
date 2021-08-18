@@ -23,7 +23,7 @@ from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Tuple, u
         ),
         (Tuple((Discrete(5), Discrete(2), Discrete(2))), 9),
         (MultiDiscrete([2, 2, 100]), 104),
-        (MultiBinary(10), 20),
+        (MultiBinary(10), 10),
         (
             Dict(
                 {
