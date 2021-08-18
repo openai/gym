@@ -6,67 +6,40 @@ import pytest
 from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Tuple, utils
 
 
-@pytest.mark.parametrize(
-    ["space", "flatdim"],
-    [
-        (Discrete(3), 3),
-        (Box(low=0.0, high=np.inf, shape=(2, 2)), 4),
-        (Tuple([Discrete(5), Discrete(10)]), 15),
-        (
-            Tuple(
-                [
-                    Discrete(5),
-                    Box(low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32),
-                ]
+spaces = [
+    Discrete(3),
+    Box(low=0.0, high=np.inf, shape=(2, 2)),
+    Box(low=0.0, high=np.inf, shape=(2, 2), dtype=np.float16),
+    Tuple([Discrete(5), Discrete(10)]),
+    Tuple(
+        [
+            Discrete(5),
+            Box(low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32),
+        ]
+    ),
+    Tuple((Discrete(5), Discrete(2), Discrete(2))),
+    MultiDiscrete([2, 2, 100]),
+    MultiBinary(10),
+    Dict(
+        {
+            "position": Discrete(5),
+            "velocity": Box(
+                low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32
             ),
-            7,
-        ),
-        (Tuple((Discrete(5), Discrete(2), Discrete(2))), 9),
-        (MultiDiscrete([2, 2, 100]), 104),
-        (MultiBinary(10), 10),
-        (
-            Dict(
-                {
-                    "position": Discrete(5),
-                    "velocity": Box(
-                        low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32
-                    ),
-                }
-            ),
-            7,
-        ),
-    ],
-)
+        }
+    ),
+]
+
+flatdims = [3, 4, 4, 15, 7, 9, 104, 10, 7]
+
+
+@pytest.mark.parametrize(["space", "flatdim"], zip(spaces, flatdims))
 def test_flatdim(space, flatdim):
     dim = utils.flatdim(space)
     assert dim == flatdim, "Expected {} to equal {}".format(dim, flatdim)
 
 
-@pytest.mark.parametrize(
-    "space",
-    [
-        Discrete(3),
-        Box(low=0.0, high=np.inf, shape=(2, 2)),
-        Tuple([Discrete(5), Discrete(10)]),
-        Tuple(
-            [
-                Discrete(5),
-                Box(low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32),
-            ]
-        ),
-        Tuple((Discrete(5), Discrete(2), Discrete(2))),
-        MultiDiscrete([2, 2, 100]),
-        MultiBinary(10),
-        Dict(
-            {
-                "position": Discrete(5),
-                "velocity": Box(
-                    low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32
-                ),
-            }
-        ),
-    ],
-)
+@pytest.mark.parametrize("space", spaces)
 def test_flatten_space_boxes(space):
     flat_space = utils.flatten_space(space)
     assert isinstance(flat_space, Box), "Expected {} to equal {}".format(
@@ -77,31 +50,7 @@ def test_flatten_space_boxes(space):
     assert single_dim == flatdim, "Expected {} to equal {}".format(single_dim, flatdim)
 
 
-@pytest.mark.parametrize(
-    "space",
-    [
-        Discrete(3),
-        Box(low=0.0, high=np.inf, shape=(2, 2)),
-        Tuple([Discrete(5), Discrete(10)]),
-        Tuple(
-            [
-                Discrete(5),
-                Box(low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32),
-            ]
-        ),
-        Tuple((Discrete(5), Discrete(2), Discrete(2))),
-        MultiDiscrete([2, 2, 100]),
-        MultiBinary(10),
-        Dict(
-            {
-                "position": Discrete(5),
-                "velocity": Box(
-                    low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32
-                ),
-            }
-        ),
-    ],
-)
+@pytest.mark.parametrize("space", spaces)
 def test_flat_space_contains_flat_points(space):
     some_samples = [space.sample() for _ in range(10)]
     flattened_samples = [utils.flatten(space, sample) for sample in some_samples]
@@ -112,31 +61,7 @@ def test_flat_space_contains_flat_points(space):
         )
 
 
-@pytest.mark.parametrize(
-    "space",
-    [
-        Discrete(3),
-        Box(low=0.0, high=np.inf, shape=(2, 2)),
-        Tuple([Discrete(5), Discrete(10)]),
-        Tuple(
-            [
-                Discrete(5),
-                Box(low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32),
-            ]
-        ),
-        Tuple((Discrete(5), Discrete(2), Discrete(2))),
-        MultiDiscrete([2, 2, 100]),
-        MultiBinary(10),
-        Dict(
-            {
-                "position": Discrete(5),
-                "velocity": Box(
-                    low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32
-                ),
-            }
-        ),
-    ],
-)
+@pytest.mark.parametrize("space", spaces)
 def test_flatten_dim(space):
     sample = utils.flatten(space, space.sample())
     (single_dim,) = sample.shape
@@ -144,31 +69,7 @@ def test_flatten_dim(space):
     assert single_dim == flatdim, "Expected {} to equal {}".format(single_dim, flatdim)
 
 
-@pytest.mark.parametrize(
-    "space",
-    [
-        Discrete(3),
-        Box(low=0.0, high=np.inf, shape=(2, 2)),
-        Tuple([Discrete(5), Discrete(10)]),
-        Tuple(
-            [
-                Discrete(5),
-                Box(low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32),
-            ]
-        ),
-        Tuple((Discrete(5), Discrete(2), Discrete(2))),
-        MultiDiscrete([2, 2, 100]),
-        MultiBinary(10),
-        Dict(
-            {
-                "position": Discrete(5),
-                "velocity": Box(
-                    low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32
-                ),
-            }
-        ),
-    ],
-)
+@pytest.mark.parametrize("space", spaces)
 def test_flatten_roundtripping(space):
     some_samples = [space.sample() for _ in range(10)]
     flattened_samples = [utils.flatten(space, sample) for sample in some_samples]
@@ -214,38 +115,22 @@ Expecteded flattened types are based off:
    internally by numpy when np.concatenate is called.
 """
 
+expected_flattened_dtypes = [
+    np.int64,
+    np.float32,
+    np.float16,
+    np.int64,
+    np.float64,
+    np.int64,
+    np.int64,
+    np.int8,
+    np.float64,
+]
+
 
 @pytest.mark.parametrize(
     ["original_space", "expected_flattened_dtype"],
-    [
-        (Discrete(3), np.int64),
-        (Box(low=0.0, high=np.inf, shape=(2, 2)), np.float32),
-        (Box(low=0.0, high=np.inf, shape=(2, 2), dtype=np.float16), np.float16),
-        (Tuple([Discrete(5), Discrete(10)]), np.int64),
-        (
-            Tuple(
-                [
-                    Discrete(5),
-                    Box(low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32),
-                ]
-            ),
-            np.float64,
-        ),
-        (Tuple((Discrete(5), Discrete(2), Discrete(2))), np.int64),
-        (MultiDiscrete([2, 2, 100]), np.int64),
-        (MultiBinary(10), np.int8),
-        (
-            Dict(
-                {
-                    "position": Discrete(5),
-                    "velocity": Box(
-                        low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float16
-                    ),
-                }
-            ),
-            np.float64,
-        ),
-    ],
+    zip(spaces, expected_flattened_dtypes),
 )
 def test_dtypes(original_space, expected_flattened_dtype):
     flattened_space = utils.flatten_space(original_space)
