@@ -18,7 +18,7 @@ spaces = [
         ]
     ),
     Tuple((Discrete(5), Discrete(2), Discrete(2))),
-    MultiDiscrete([2, 2, 100]),
+    MultiDiscrete([2, 2, 10]),
     MultiBinary(10),
     Dict(
         {
@@ -30,7 +30,7 @@ spaces = [
     ),
 ]
 
-flatdims = [3, 4, 4, 15, 7, 9, 104, 10, 7]
+flatdims = [3, 4, 4, 15, 7, 9, 14, 10, 7]
 
 
 @pytest.mark.parametrize(["space", "flatdim"], zip(spaces, flatdims))
@@ -177,3 +177,82 @@ def compare_sample_types(original_space, original_sample, unflattened_sample):
             "original_sample's dtype. unflattened_sample: "
             "{} original_sample: {}".format(unflattened_sample, original_sample)
         )
+
+
+samples = [
+    2,
+    np.array([[1.0, 3.0], [5.0, 8.0]], dtype=np.float32),
+    np.array([[1.0, 3.0], [5.0, 8.0]], dtype=np.float16),
+    (3, 7),
+    (2, np.array([0.5, 3.5], dtype=np.float32)),
+    (3, 0, 1),
+    np.array([0, 1, 7], dtype=np.int64),
+    np.array([0, 1, 1, 0, 0, 0, 1, 1, 1, 1], dtype=np.int8),
+    OrderedDict(
+        [("position", 3), ("velocity", np.array([0.5, 3.5], dtype=np.float32))]
+    ),
+]
+
+
+expected_flattened_samples = [
+    np.array([0, 0, 1], dtype=np.int64),
+    np.array([1.0, 3.0, 5.0, 8.0], dtype=np.float32),
+    np.array([1.0, 3.0, 5.0, 8.0], dtype=np.float16),
+    np.array([0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0], dtype=np.int64),
+    np.array([0, 0, 1, 0, 0, 0.5, 3.5], dtype=np.float64),
+    np.array([0, 0, 0, 1, 0, 1, 0, 0, 1], dtype=np.int64),
+    np.array([1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0], dtype=np.int64),
+    np.array([0, 1, 1, 0, 0, 0, 1, 1, 1, 1], dtype=np.int8),
+    np.array([0, 0, 0, 1, 0, 0.5, 3.5], dtype=np.float64),
+]
+
+
+@pytest.mark.parametrize(
+    ["space", "sample", "expected_flattened_sample"],
+    zip(spaces, samples, expected_flattened_samples),
+)
+def test_flatten(space, sample, expected_flattened_sample):
+    assert sample in space
+
+    flattened_sample = utils.flatten(space, sample)
+    assert flattened_sample.shape == expected_flattened_sample.shape
+    assert flattened_sample.dtype == expected_flattened_sample.dtype
+    assert np.all(flattened_sample == expected_flattened_sample)
+
+
+@pytest.mark.parametrize(
+    ["space", "flattened_sample", "expected_sample"],
+    zip(spaces, expected_flattened_samples, samples),
+)
+def test_unflatten(space, flattened_sample, expected_sample):
+    sample = utils.unflatten(space, flattened_sample)
+    assert compare_nested(sample, expected_sample)
+
+
+expected_flattened_spaces = [
+    Box(low=0, high=1, shape=(3,), dtype=np.int64),
+    Box(low=0.0, high=np.inf, shape=(4,), dtype=np.float32),
+    Box(low=0.0, high=np.inf, shape=(4,), dtype=np.float16),
+    Box(low=0, high=1, shape=(15,), dtype=np.int64),
+    Box(
+        low=np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], dtype=np.float64),
+        high=np.array([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 5.0], dtype=np.float64),
+        dtype=np.float64,
+    ),
+    Box(low=0, high=1, shape=(9,), dtype=np.int64),
+    Box(low=0, high=1, shape=(14,), dtype=np.int64),
+    Box(low=0, high=1, shape=(10,), dtype=np.int8),
+    Box(
+        low=np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], dtype=np.float64),
+        high=np.array([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 5.0], dtype=np.float64),
+        dtype=np.float64,
+    ),
+]
+
+
+@pytest.mark.parametrize(
+    ["space", "expected_flattened_space"], zip(spaces, expected_flattened_spaces)
+)
+def test_flatten_space(space, expected_flattened_space):
+    flattened_space = utils.flatten_space(space)
+    assert flattened_space == expected_flattened_space
