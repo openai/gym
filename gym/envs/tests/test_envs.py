@@ -26,6 +26,7 @@ def test_env(spec):
     act_space = env.action_space
     ob = env.reset()
     assert ob_space.contains(ob), "Reset observation: {!r} not in space".format(ob)
+    assert ob.dtype == ob_space.dtype
     a = act_space.sample()
     observation, reward, done, _info = env.step(a)
     assert ob_space.contains(observation), "Step observation: {!r} not in space".format(
@@ -33,6 +34,8 @@ def test_env(spec):
     )
     assert np.isscalar(reward), "{} is not a scalar for {}".format(reward, env)
     assert isinstance(done, bool), "Expected {} to be a boolean".format(done)
+    assert observation.dtype == ob_space.dtype
+
 
     for mode in env.metadata.get("render.modes", []):
         env.render(mode=mode)
