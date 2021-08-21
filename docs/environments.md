@@ -421,3 +421,9 @@ An environment for the stochastic longitudinal control of an electric vehicle.
 It is intended to be a descriptive and comprehensible example for a continuous real-world problem within the field of autonomous driving.
 
 Learn more here: https://github.com/dynamik1703/gym_longicontrol
+
+### safe-control-gym
+
+PyBullet-based CartPole and Quadrotor environments—with [CadADi](https://web.casadi.org) (symbolic) *a priori* dynamics and constraints—for learning-based control and model-based reinforcement learning.
+
+Learn more here: https://github.com/utiasDSL/safe-control-gym
