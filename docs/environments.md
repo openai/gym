@@ -12,18 +12,6 @@ specification of each task is in
 [gym/envs/\_\_init\_\_.py](https://github.com/openai/gym/blob/master/gym/envs/__init__.py).
 It's worth browsing through both.
 
-### Algorithmic
-
-These are a variety of algorithmic tasks, such as learning to copy a
-sequence.
-
-``` python
-import gym
-env = gym.make('Copy-v0')
-env.reset()
-env.render()
-```
-
 ### Atari
 
 The Atari environments are a variety of Atari video games. If you didn't
