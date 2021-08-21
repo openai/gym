@@ -142,7 +142,7 @@ class CarRacing(gym.Env, EzPickle):
         )  # steer, gas, brake
 
         self.observation_space = spaces.Box(
-            low=0, high=255, shape=(STATE_H, STATE_W, 3), dtype=np.float32
+            low=0, high=255, shape=(STATE_H, STATE_W, 3), dtype=np.uint8
         )
 
     def seed(self, seed=None):
@@ -392,7 +392,7 @@ class CarRacing(gym.Env, EzPickle):
                 done = True
                 step_reward = -100
 
-        return self.state.astype(np.float32), step_reward, done, {}
+        return self.state, step_reward, done, {}
 
     def render(self, mode="human"):
         assert mode in ["human", "state_pixels", "rgb_array"]
