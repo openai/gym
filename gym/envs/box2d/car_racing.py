@@ -392,7 +392,7 @@ class CarRacing(gym.Env, EzPickle):
                 done = True
                 step_reward = -100
 
-        return self.state.astype(np.float32), step_reward, done, {}
+        return self.state, step_reward, done, {}
 
     def render(self, mode="human"):
         assert mode in ["human", "state_pixels", "rgb_array"]
