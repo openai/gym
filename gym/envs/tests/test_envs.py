@@ -63,7 +63,6 @@ def test_env_render_result_is_immutable():
     environs = [
         envs.make("Taxi-v3"),
         envs.make("FrozenLake-v1"),
-        envs.make("Reverse-v0"),
     ]
 
     for env in environs:
