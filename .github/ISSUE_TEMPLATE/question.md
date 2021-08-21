@@ -1,6 +1,6 @@
 ---
 name: Question
-labels: Ask a question
+about: Ask a question
 title: "[Question] Question title"
 ---
 

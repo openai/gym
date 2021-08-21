@@ -1,5 +1,5 @@
 ---
-name: "Proposal"
+name: Proposal
 about: Propose changes that are not fixes bugs
 title: "[Proposal] Proposal title"
 ---
