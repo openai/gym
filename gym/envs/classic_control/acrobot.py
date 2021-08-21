@@ -102,7 +102,9 @@ class AcrobotEnv(core.Env):
         return [seed]
 
     def reset(self):
-        self.state = self.np_random.uniform(low=-0.1, high=0.1, size=(4,))
+        self.state = self.np_random.uniform(low=-0.1, high=0.1, size=(4,)).astype(
+            np.float32
+        )
         return self._get_ob()
 
     def step(self, a):
@@ -139,7 +141,9 @@ class AcrobotEnv(core.Env):
 
     def _get_ob(self):
         s = self.state
-        return np.array([cos(s[0]), sin(s[0]), cos(s[1]), sin(s[1]), s[2], s[3]])
+        return np.array(
+            [cos(s[0]), sin(s[0]), cos(s[1]), sin(s[1]), s[2], s[3]], dtype=np.float32
+        )
 
     def _terminal(self):
         s = self.state
