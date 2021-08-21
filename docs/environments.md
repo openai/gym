@@ -414,3 +414,9 @@ Fork of gym-retro with additional games, states, scenarios, etc. Open to PRs of 
 Reinforcement learning environments for compiler optimization tasks, such as LLVM phase ordering, GCC flag tuning, and CUDA loop nest code generation.
 
 Learn more here: https://github.com/facebookresearch/CompilerGym
+
+### safe-control-gym
+
+PyBullet-based CartPole and Quadrotor environments—with [CadADi](https://web.casadi.org) (symbolic) *a priori* dynamics and constraints—for learning-based control and model-based reinforcement learning.
+
+Learn more here: https://github.com/utiasDSL/safe-control-gym
