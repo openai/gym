@@ -9,7 +9,7 @@ action-values: "[(0,1,2,3),(0,1),(0,<a href="#base">base</a>-1)]"
 observation-shape: "(1,)"
 observation-values: "(0,<a href="#base">base</a>)"
 average-total-reward: ""
-import: "from gym.algorithmic import ReversedAddition-v0" or "from gym.algorithmic import ReversedAddition3-v0"
+import: "from gym.envs.algorithmic import reversed_addition" 
 agent-labels: "none"
 ---
 
@@ -33,7 +33,7 @@ The observation space size is `(1,)` .
 
 **Rewards:**
 
-Rewards are issued similar to other Algorithmic Environments.Reward schedule:
+Rewards are issued similar to other Algorithmic Environments. Reward schedule:
 - write a correct character: +1
 - write a wrong character: -.5
 - run out the clock: -1
