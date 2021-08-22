@@ -6,13 +6,13 @@ from gym.utils import seeding
 class RouletteEnv(gym.Env):
     """Simple roulette environment
 
-    The roulette wheel has 37 spots. If the bet is 0 and a 0 comes up,
-    you win a reward of 35. If the parity of your bet matches the parity
+    The roulette wheel has s spots. If the bet is 0 and a 0 comes up,
+    you win a reward of s-2. If the parity of your bet matches the parity
     of the spin, you win 1. Otherwise you receive a reward of -1.
 
-    The long run reward for playing 0 should be -1/37 for any state
+    The long run reward for playing 0 should be -1/s for any state
 
-    The last action (38) stops the rollout for a return of 0 (walking away)
+    The last action (s+1) stops the rollout for a return of 0 (walking away)
     """
 
     def __init__(self, spots=37):
