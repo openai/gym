@@ -1,18 +1,9 @@
+Blackjack
 ---
-action-type: "Discrete"
-title: "Blackjack"
-actions: Discrete
-agents: "1"
-manual-control: "No -Env doesnt render"
-action-shape: "(1,)"
-action-values: "(0, 1)"
-observation-shape: "(3,)"
-observation-values: "[(0,31),(0,10),(0,1)]"
-average-total-reward: ""
-import: "from gym.toy_text import blackjack"
-agent-labels: "none"
+|Title|Action Type|Action Shape|Action Values|Observation Shape|Observation Values|Average Total Reward|Import|
+| ----------- | -----------| ----------- | -----------| ----------- | -----------| ----------- | -----------|
+|Blackjack|Discrete|(1,)|(0,1)|(3,)|[(0,31),(0,10),(0,1)]| |from gym.envs.toy_text import blackjack|
 ---
-
 
 Blackjack is a card game where the goal is to obtain cards that sum to as near as possible to 21 without going over.  They're playing against a fixed dealer.
 
@@ -55,11 +46,6 @@ Reward schedule:
     +1.5 (if <a href="#nat">natural</a> is True.) 
     
     +1 (if <a href="#nat">natural</a> is False.)
-
-### Manual Control
-
-TBD
-
 
 ### Arguments
 

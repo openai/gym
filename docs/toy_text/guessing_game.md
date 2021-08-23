@@ -1,16 +1,7 @@
----
-action-type: "Continuous"
-title: "Guessing Game"
-actions: Continuous
-agents: "1"
-manual-control: "No -Env doesnt render"
-action-shape: "(1,)"
-action-values: "(-10000, 10000)"
-observation-shape: "(1,)"
-observation-values: "(0,3)"
-average-total-reward: ""
-import: "from gym.toy_text import guessing_game"
-agent-labels: "none"
+Frozen Lake---
+|Title|Action Type|Action Shape|Action Values|Observation Shape|Observation Values|Average Total Reward|Import|
+| ----------- | -----------| ----------- | -----------| ----------- | -----------| ----------- | -----------|
+|Frozen Lake|Continuous|(1,)|(-10000, 10000)|(1,)|(0,3)| |from gym.envs.toy_text import guessing_game|
 ---
 
 The object of the game is to guess within 1% of the randomly chosen number
@@ -42,11 +33,6 @@ to them explicitly) and then follow binary tree style exploration towards to goa
 Reward schedule:
 - 0 if the agent's guess is outside of 1% of the target
 - 1 if the agent's guess is inside 1% of the target
-
-### Manual Control
-
-TBD
-
 
 ### Arguments
 

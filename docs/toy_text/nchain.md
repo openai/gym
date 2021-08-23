@@ -1,18 +1,9 @@
+NChain
 ---
-action-type: "Discrete"
-title: "N Chain"
-actions: Discrete
-agents: "1"
-manual-control: "Yes"
-action-shape: "(1,)"
-action-values: "(0,1)"
-observation-shape: "(1,)"
-observation-values: "(0,4)"
-average-total-reward: ""
-import: "from gym.toy_text import nchain"
-agent-labels: "none"
+|Title|Action Type|Action Shape|Action Values|Observation Shape|Observation Values|Average Total Reward|Import|
+| ----------- | -----------| ----------- | -----------| ----------- | -----------| ----------- | -----------|
+|NChain|Discrete|(1,)|(0,1)|(1,)|(0,4)| |from gym.envs.toy_text import nchain|
 ---
-
 
 This game presents moves along a linear chain of states, with two actions:
 
@@ -34,11 +25,6 @@ http://ceit.aut.ac.ir/~shiry/lecture/machine-learning/papers/BRL-2000.pdf
 Reward schedule:
 - <a href="#small">small</a> - reward for performing backward action.
 - <a href="#large">large</a> - reward for reaching end of chain.
-
-### Manual Control
-
-TBD
-
 
 ### Arguments
 

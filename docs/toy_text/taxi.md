@@ -1,17 +1,10 @@
+Taxi
 ---
-action-type: "Discrete"
-title: "Taxi"
-actions: Discrete
-agents: "1"
-manual-control: "Yes"
-action-shape: "(1,)"
-action-values: "(0,5)"
-observation-shape: "(1,)"
-observation-values: "(0,499)"
-average-total-reward: ""
-import: "from gym.toy_text import taxi"
-agent-labels: "none"
+|Title|Action Type|Action Shape|Action Values|Observation Shape|Observation Values|Average Total Reward|Import|
+| ----------- | -----------| ----------- | -----------| ----------- | -----------| ----------- | -----------|
+|Taxi|Discrete|(1,)|(0,5)|(1,)|(0,499)| |from gym.envs.toy_text import taxi|
 ---
+
 
 The Taxi Problem
 from "Hierarchical Reinforcement Learning with the MAXQ Value Function Decomposition"
@@ -78,13 +71,6 @@ Rendering:
 - other letters (R, G, Y and B): locations for passengers and destinations
 state space is represented by:
 (taxi_row, taxi_col, passenger_location, destination)
-
-
-
-### Manual Control
-
-TBD
-
 
 ### Arguments
 

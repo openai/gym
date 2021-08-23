@@ -1,16 +1,8 @@
+Roulette
 ---
-action-type: "Discrete"
-title: "Roulette"
-actions: Discrete
-agents: "1"
-manual-control: "Yes"
-action-shape: "(1,)"
-action-values: "(0,1)"
-observation-shape: "(1,)"
-observation-values: "(0,4)"
-average-total-reward: ""
-import: "from gym.toy_text import roulette"
-agent-labels: "none"
+|Title|Action Type|Action Shape|Action Values|Observation Shape|Observation Values|Average Total Reward|Import|
+| ----------- | -----------| ----------- | -----------| ----------- | -----------| ----------- | -----------|
+|Roulette|Discrete|(1,)|(0,1)|(1,)|(0,4)| |from gym.envs.toy_text import roulette|
 ---
 
 
@@ -26,12 +18,6 @@ Reward schedule:
 - <a href="#spots">spots</a>-2: reward for betting and landing a 0.
 - 1: reward for having same parity as landed number.
 - -1/<a href="#spots">spots</a>: long run reward for playing 0.
-
-
-### Manual Control
-
-TBD
-
 
 ### Arguments
 

@@ -1,16 +1,8 @@
+Frozen Lake
 ---
-action-type: "Discrete"
-title: "Frozen Lake"
-actions: Discrete
-agents: "1"
-manual-control: "Yes"
-action-shape: "(1,)"
-action-values: "(0,3)"
-observation-shape: "(1,)"
-observation-values: "(0,nrows*ncolumns),"
-average-total-reward: ""
-import: "from gym.toy_text import frozen_lake"
-agent-labels: "none"
+|Title|Action Type|Action Shape|Action Values|Observation Shape|Observation Values|Average Total Reward|Import|
+| ----------- | -----------| ----------- | -----------| ----------- | -----------| ----------- | -----------|
+|Frozen Lake|Discrete|(1,)|(0,3)|(1,)|(0,nrows*ncolumns)| |from gym.envs.toy_text import frozen_lake|
 ---
 
 
@@ -33,11 +25,6 @@ The observation is a value representing the agents current position as
 Reward schedule:
 - Reach goal(G): +1
 - Reach hole(H): 0
-
-### Manual Control
-
-TBD
-
 
 ### Arguments
 
