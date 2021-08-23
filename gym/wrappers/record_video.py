@@ -32,7 +32,8 @@ class RecordVideo(gym.Wrapper):
 
     def reset(self, **kwargs):
         observations = super(RecordVideo, self).reset(**kwargs)
-        self.start_video_recorder()
+        if self._video_enabled():
+            self.start_video_recorder()
         return observations
 
     def start_video_recorder(self):
@@ -63,14 +64,15 @@ class RecordVideo(gym.Wrapper):
                     self.close_video_recorder()
             else:
                 if not self.is_vector_env:
-                    dones = [dones]
-                if dones[0]:
+                    if dones:
+                        self.close_video_recorder()
+                elif dones[0]:
                     self.close_video_recorder()
 
         elif self._video_enabled():
             self.start_video_recorder()
 
-        return observations, rewards, dones if self.is_vector_env else dones[0], infos
+        return observations, rewards, dones, infos
 
     def close_video_recorder(self) -> None:
         if self.recording:
