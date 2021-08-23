@@ -26,9 +26,9 @@ def should_skip_env_spec_for_tests(spec):
     ):
         return True
     try:
-        import atari_py
+        import ale_py
     except ImportError:
-        if ep.startswith("gym.envs.atari"):
+        if ep.startswith("ale_py.gym"):
             return True
     try:
         import Box2D
@@ -40,7 +40,7 @@ def should_skip_env_spec_for_tests(spec):
         "GoEnv" in ep
         or "HexEnv" in ep
         or (
-            ep.startswith("gym.envs.atari")
+            ep.startswith("ale_py.gym")
             and not spec.id.startswith("Pong")
             and not spec.id.startswith("Seaquest")
         )

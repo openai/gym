@@ -613,7 +613,6 @@ for reward_type in ["sparse", "dense"]:
 # Atari
 # ----------------------------------------
 
-# # print ', '.join(["'{}'".format(name.split('.')[0]) for name in atari_py.list_games()])
 for game in [
     "adventure",
     "air_raid",
@@ -678,7 +677,7 @@ for game in [
     "yars_revenge",
     "zaxxon",
 ]:
-    for obs_type in ["image", "ram"]:
+    for obs_type in ["rgb", "ram"]:
         # space_invaders should yield SpaceInvaders-v0 and SpaceInvaders-ram-v0
         name = "".join([g.capitalize() for g in game.split("_")])
         if obs_type == "ram":
@@ -694,7 +693,7 @@ for game in [
 
         register(
             id="{}-v0".format(name),
-            entry_point="gym.envs.atari:AtariEnv",
+            entry_point="ale_py.gym:ALGymEnv",
             kwargs={
                 "game": game,
                 "obs_type": obs_type,
@@ -706,7 +705,7 @@ for game in [
 
         register(
             id="{}-v4".format(name),
-            entry_point="gym.envs.atari:AtariEnv",
+            entry_point="ale_py.gym:ALGymEnv",
             kwargs={"game": game, "obs_type": obs_type},
             max_episode_steps=100000,
             nondeterministic=nondeterministic,
@@ -721,7 +720,7 @@ for game in [
         # Use a deterministic frame skip.
         register(
             id="{}Deterministic-v0".format(name),
-            entry_point="gym.envs.atari:AtariEnv",
+            entry_point="ale_py.gym:ALGymEnv",
             kwargs={
                 "game": game,
                 "obs_type": obs_type,
@@ -734,7 +733,7 @@ for game in [
 
         register(
             id="{}Deterministic-v4".format(name),
-            entry_point="gym.envs.atari:AtariEnv",
+            entry_point="ale_py.gym:ALGymEnv",
             kwargs={"game": game, "obs_type": obs_type, "frameskip": frameskip},
             max_episode_steps=100000,
             nondeterministic=nondeterministic,
@@ -742,7 +741,7 @@ for game in [
 
         register(
             id="{}NoFrameskip-v0".format(name),
-            entry_point="gym.envs.atari:AtariEnv",
+            entry_point="ale_py.gym:ALGymEnv",
             kwargs={
                 "game": game,
                 "obs_type": obs_type,
@@ -757,7 +756,7 @@ for game in [
         # deterministic environments.)
         register(
             id="{}NoFrameskip-v4".format(name),
-            entry_point="gym.envs.atari:AtariEnv",
+            entry_point="ale_py.gym:ALGymEnv",
             kwargs={
                 "game": game,
                 "obs_type": obs_type,
