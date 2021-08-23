@@ -1,19 +1,9 @@
+Reverse
 ---
-action-type: "Discrete"
-title: "Reverse"
-actions: Discrete
-agents: "1"
-manual-control: "Yes"
-action-shape: "(3,)"
-action-values: "[(0, 1),(0,1),(0,<a href="#base">base</a>-1)]"
-observation-shape: "(1,)"
-observation-values: "(0,<a href="#base">base</a>)"
-average-total-reward: ""
-import: "from gym.envs.algorithmic import reverse"
-agent-labels: "none"
+|Title|Action Type|Action Shape|Action Values|Observation Shape|Observation Values|Average Total Reward|Import|
+| ----------- | -----------| ----------- | -----------| ----------- | -----------| ----------- | -----------|
+|Reverse|Discrete|(3,)|[(0, 1),(0,1),(0,<a href="#base">base</a>-1)]|(1,)|(0,<a href="#base">base</a>)| |from gym.envs.algorithmic import reverse|
 ---
-
-{% include info_box.md %}
 
 The goal is to reverse a sequence of symbols on the input tape. We provide a special character `r` to indicate the end of the sequence. The model must learn to move right multiple times until it hits the `r` symbol, then move to the left, copying the symbols to the output tape. This task was originally used in the paper <a href="http://arxiv.org/abs/1511.07275">Learning Simple Algorithms from Examples</a>.
 
@@ -37,11 +27,6 @@ Rewards are issued similar to other Algorithmic Environments. Reward schedule:
 - write a wrong character: -.5
 - run out the clock: -1
 - otherwise: 0
-
-### Manual Control
-
-TBA
-
 
 ### Arguments
 
