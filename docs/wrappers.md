@@ -69,8 +69,39 @@ Gym includes numerous wrappers for environments that include preprocessing and v
 `RecordEpisodeStatistic(env)` [text]
 * Needs review (including for good assertion messages and test coverage)
 
-`RecordVideo(env, ...)` [text]
-* https://github.com/openai/gym/pull/2300
+`RecordVideo(env, video_folder, record_video_trigger, video_length=0, name_prefix="rl-video")` [text]
+
+The `RecordVideo` is a lightweight `gym.Wrapper` that helps recording videos. See the following
+code as an example.
+
+```python
+import gym
+env = gym.make("CartPole-v1")
+env = gym.wrappers.RecordVideo(env, "videos", record_video_trigger=lambda x: x % 100 == 0)
+observation = env.reset()
+for _ in range(1000):
+  env.render()
+  action = env.action_space.sample() # your agent here (this takes random actions)
+  observation, reward, done, info = env.step(action)
+
+  if done:
+    observation = env.reset()
+env.close()
+```
+
+To use it, you need to specify the `video_folder` as the storing location and 
+`record_video_trigger` as a frequency at which you want to record.
+
+There are two modes of video the recording:
+1. Episodic mode. 
+    * By default `video_length=0` means the wrapper will record *episodic* videos: it will keep
+    record the frames until the env returns `done=True`.
+2. Fixed-interval mode.
+    * By tuning `video_length` such as `video_length=100`, the wrapper will record exactly 100 frames
+    for every videos the wrapper creates. 
+
+Lastly the `name_prefix` allows you to customize the name of the videos.
+
 
 `TimeLimit(env, max_episode_steps)` [text]
 * Needs review (including for good assertion messages and test coverage)

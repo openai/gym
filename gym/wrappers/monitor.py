@@ -4,6 +4,7 @@ import os
 import numpy as np
 
 import gym
+import warnings
 from gym import Wrapper
 from gym import error, version, logger
 from gym.wrappers.monitoring import stats_recorder, video_recorder
@@ -27,6 +28,9 @@ class Monitor(Wrapper):
         mode=None,
     ):
         super(Monitor, self).__init__(env)
+        warnings.warn(
+            "The Monitor wrapper is being deprecated in favor of gym.wrappers.RecordVideo and gym.wrappers.RecordEpisodeStatistics (see https://github.com/openai/gym/issues/2297)"
+        )
 
         self.videos = []
 
