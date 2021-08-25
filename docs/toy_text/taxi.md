@@ -82,4 +82,5 @@ gym.make('Taxi-v3')
 
 ### Version History
 
+* v1-v3: PRs welcome to clarify these version bumps
 * v0: Initial versions release (1.0.0)
