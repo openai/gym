@@ -408,6 +408,7 @@ Learn more here: https://github.com/modanesh/anomalous_rl_envs
 
 Fork of gym-retro with additional games, states, scenarios, etc. Open to PRs of additional games, features and plateforms since gym-retro is in maintenance mode.
 
+https://github.com/MatPoliquin/stable-retro
 
 ### CompilerGym
 
