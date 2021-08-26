@@ -273,7 +273,7 @@ def rk4(derivs, y0, t):
     :func:`scipy.integrate`.
 
     Args:
-        derivs: the derivative of the system and has the signature ``dy = derivs(yi, ti)``
+        derivs: the derivative of the system and has the signature ``dy = derivs(yi)``
         y0: initial state vector
         t: sample times
         args: additional arguments passed to the derivative function
@@ -281,7 +281,7 @@ def rk4(derivs, y0, t):
 
     Example 1 ::
         ## 2D system
-        def derivs6(x,t):
+        def derivs(x):
             d1 =  x[0] + 2*x[1]
             d2 =  -3*x[0] + 4*x[1]
             return (d1, d2)
@@ -289,15 +289,10 @@ def rk4(derivs, y0, t):
         t = arange(0.0, 2.0, dt)
         y0 = (1,2)
         yout = rk4(derivs6, y0, t)
-    Example 2::
-        ## 1D system
-        alpha = 2
-        def derivs(x,t):
-            return -alpha*x + exp(-t)
-        y0 = 1
-        yout = rk4(derivs, y0, t)
+
     If you have access to scipy, you should probably be using the
-    scipy.integrate tools rather than this function.
+    scipy.integrate tools rather than this function. 
+    This would then require re-adding the time variable to the signature of derivs.
 
     Returns:
         yout: Runge-Kutta approximation of the ODE
