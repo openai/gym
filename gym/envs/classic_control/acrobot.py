@@ -122,7 +122,7 @@ class AcrobotEnv(core.Env):
         s_augmented = np.append(s, torque)
 
         ns = rk4(self._dsdt, s_augmented, [0, self.dt])
-        
+
         ns[0] = wrap(ns[0], -pi, pi)
         ns[1] = wrap(ns[1], -pi, pi)
         ns[2] = bound(ns[2], -self.MAX_VEL_1, self.MAX_VEL_1)
@@ -324,5 +324,5 @@ def rk4(derivs, y0, t):
         k3 = np.asarray(derivs(y0 + dt2 * k2))
         k4 = np.asarray(derivs(y0 + dt * k3))
         yout[i + 1] = y0 + dt / 6.0 * (k1 + 2 * k2 + 2 * k3 + k4)
-    #We only care about the final timestep and we cleave off action value which will be zero
+    # We only care about the final timestep and we cleave off action value which will be zero
     return yout[-1][:4]
