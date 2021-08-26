@@ -291,7 +291,7 @@ def rk4(derivs, y0, t):
         yout = rk4(derivs6, y0, t)
 
     If you have access to scipy, you should probably be using the
-    scipy.integrate tools rather than this function. 
+    scipy.integrate tools rather than this function.
     This would then require re-adding the time variable to the signature of derivs.
 
     Returns:
