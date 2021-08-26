@@ -43,12 +43,16 @@ def test_autoclose():
         rec.capture_frame()
 
         rec_path = rec.path
+        proc = rec.encoder.proc
+
+        assert proc.poll() is None  # subprocess is running
 
         # The function ends without an explicit `rec.close()` call
-        # The Python interpreter will implicitly do `del rec` at garbage clean
-        return rec_path
+        # The Python interpreter will implicitly do `del rec` on garbage cleaning
+        return rec_path, proc
 
-    rec_path = record()
+    rec_path, proc = record()
+    assert proc.poll() is not None
     assert os.path.exists(rec_path)
     f = open(rec_path)
     assert os.fstat(f.fileno()).st_size > 100
