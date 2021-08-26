@@ -6,10 +6,10 @@ from gym.utils import seeding
 class RouletteEnv(gym.Env):
     """Simple roulette environment
 
-    The roulette wheel has s spots. If the bet is 0 and a 0 comes up, you win a reward of s-2. 
+    The roulette wheel has s spots. If the bet is 0 and a 0 comes up, you win a reward of s-2.
     If any other number comes up you get a reward of -1.
 
-    For non-zero bets, if the parity of your bet matches the parity of the spin, you win 1. 
+    For non-zero bets, if the parity of your bet matches the parity of the spin, you win 1.
     Otherwise you receive a reward of -1.
 
     The last action (s+1) stops the rollout for a return of 0 (walking away)"""
