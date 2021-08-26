@@ -135,6 +135,14 @@ Learn more here: https://github.com/openai/roboschool
 
 The gym comes prepackaged with many many environments. It's this common API around many environments that makes Gym so great. Here we will list additional environments that do not come prepacked with the gym. Submit another to this list via a pull-request.
 
+### gym-algorithmic
+
+### Algorithmic
+
+These are a variety of algorithmic tasks, such as learning to copy a sequence. They were previously present in OpenAI Gym prior to version 0.19.1.
+
+Learn more here: https://github.com/Rohan138/gym-algorithmic
+
 ### gym-spoof
 
 Spoof, otherwise known as "The 3-coin game", is a multi-agent (2 player), imperfect-information, zero-sum game. 
