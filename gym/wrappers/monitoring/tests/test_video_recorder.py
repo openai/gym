@@ -5,7 +5,7 @@ import tempfile
 import numpy as np
 
 import gym
-from gym.wrappers.monitoring.video_recorder import VideoRecorder
+from gym.wrappers.monitoring.video_recorder import VideoRecorder, video_recorder_closer
 
 
 class BrokenRecordableEnv(object):
@@ -32,6 +32,29 @@ def test_record_simple():
     assert not rec.broken
     assert os.path.exists(rec.path)
     f = open(rec.path)
+    assert os.fstat(f.fileno()).st_size > 100
+
+
+def test_autoclose():
+    def record():
+        env = gym.make("CartPole-v1")
+        rec = VideoRecorder(env)
+        env.reset()
+        rec.capture_frame()
+
+        rec_path = rec.path
+        proc = rec.encoder.proc
+
+        assert proc.poll() is None  # subprocess is running
+
+        # The function ends without an explicit `rec.close()` call
+        # The Python interpreter will implicitly do `del rec` on garbage cleaning
+        return rec_path, proc
+
+    rec_path, proc = record()
+    assert proc.poll() is not None
+    assert os.path.exists(rec_path)
+    f = open(rec_path)
     assert os.fstat(f.fileno()).st_size > 100
 
 
