@@ -137,9 +137,8 @@ The gym comes prepackaged with many many environments. It's this common API arou
 
 ### gym-algorithmic
 
-### Algorithmic
 
-These are a variety of algorithmic tasks, such as learning to copy a sequence. They were previously present in OpenAI Gym prior to version 0.19.1.
+These are a variety of algorithmic tasks, such as learning to copy a sequence. They were previously present in Gym prior to Gym 0.19.0.
 
 Learn more here: https://github.com/Rohan138/gym-algorithmic
 
