@@ -157,8 +157,14 @@ class EnvRegistry(object):
                 for valid_env_name, valid_env_spec in self.env_specs.items()
                 if env_name == valid_env_spec._env_name
             ]
-            algorithmic_envs = ["Copy", "RepeatCopy", "DuplicatedInput", \
-                "Reverse", "ReversedAdiiton", "ReversedAddition3"]
+            algorithmic_envs = [
+                "Copy",
+                "RepeatCopy",
+                "DuplicatedInput",
+                "Reverse",
+                "ReversedAdiiton",
+                "ReversedAddition3",
+            ]
             if matching_envs:
                 raise error.DeprecatedEnv(
                     "Env {} not found (valid versions include {})".format(
@@ -167,8 +173,9 @@ class EnvRegistry(object):
                 )
             elif env_name in algorithmic_envs:
                 raise error.UnregisteredEnv(
-                    "Algorithmic environments like {} have been moved out of Gym. Install them via `pip install gym-algorithmic` and add `import gym_algorithmic` before using them."
-                    .format(id)
+                    "Algorithmic environments like {} have been moved out of Gym. Install them via `pip install gym-algorithmic` and add `import gym_algorithmic` before using them.".format(
+                        id
+                    )
                 )
             else:
                 raise error.UnregisteredEnv("No registered env with id: {}".format(id))
