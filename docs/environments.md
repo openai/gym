@@ -421,9 +421,3 @@ Learn more here: https://github.com/dynamik1703/gym_longicontrol
 PyBullet-based CartPole and Quadrotor environments—with [CasADi](https://web.casadi.org) (symbolic) *a priori* dynamics and constraints—for learning-based control and model-based reinforcement learning.
 
 Learn more here: https://github.com/utiasDSL/safe-control-gym
-
-## gym-algorithmic
-
-Code of old algorithmic environments that were previously in Gym
-
-https://github.com/jkterry1/gym-algorithmic
