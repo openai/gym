@@ -52,7 +52,8 @@ class Dict(Space):
         )  # None for shape and dtype, since it'll require special handling
 
     def seed(self, seed=None):
-        [space.seed(seed) for space in self.spaces.values()]
+        seed = super().seed(seed)[0]
+        return [space.seed(seed + i)[0] for i, space in enumerate(self.spaces.values())]
 
     def sample(self):
         return OrderedDict([(k, space.sample()) for k, space in self.spaces.items()])
