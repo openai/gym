@@ -140,14 +140,14 @@ class Box(Space):
 
     def contains(self, x):
         if not isinstance(x, np.ndarray):
-            warnings.warn('Casting input x to numpy array.')
+            warnings.warn("Casting input x to numpy array.")
             x = np.asarray(x, dtype=self.dtype)
-        
+
         return (
-            np.can_cast(x.dtype, self.dtype) and
-            x.shape == self.shape and
-            np.any(x >= self.low) and
-            np.any(x <= self.high)
+            np.can_cast(x.dtype, self.dtype)
+            and x.shape == self.shape
+            and np.any(x >= self.low)
+            and np.any(x <= self.high)
         )
 
     def to_jsonable(self, sample_n):
