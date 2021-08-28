@@ -1,5 +1,5 @@
 import numpy as np
-from warnings import warn
+import warnings
 
 from .space import Space
 from gym import logger
