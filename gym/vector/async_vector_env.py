@@ -293,7 +293,7 @@ class AsyncVectorEnv(VectorEnv):
         if not self._poll(timeout):
             self._state = AsyncState.DEFAULT
             raise mp.TimeoutError(
-                f"The call to `reset_wait` has timed out after {timeout} second{'s' if timeout > 1 else ''}."
+                f"The call to `reset_wait` has timed out after {timeout} second(s)."
             )
 
         results, successes = zip(*[pipe.recv() for pipe in self.parent_pipes])
@@ -383,7 +383,7 @@ class AsyncVectorEnv(VectorEnv):
         if not self._poll(timeout):
             self._state = AsyncState.DEFAULT
             raise mp.TimeoutError(
-                f"The call to `step_wait` has timed out after {timeout} second{'s' if timeout > 1 else ''}."
+                f"The call to `step_wait` has timed out after {timeout} second(s)."
             )
 
         results, successes = zip(*[pipe.recv() for pipe in self.parent_pipes])
@@ -411,12 +411,15 @@ class AsyncVectorEnv(VectorEnv):
         ----------
         name : string
             Name of the method or property to call.
+
+        args, kwargs :
+            Arguments and keyword arguments to apply to the method call.
         """
         self._assert_is_running()
         if self._state != AsyncState.DEFAULT:
             raise AlreadyPendingCallError(
                 "Calling `call_async` while waiting "
-                "for a pending call to `{0}` to complete.".format(self._state.value),
+                f"for a pending call to `{self._state.value}` to complete.",
                 self._state.value,
             )
 
@@ -430,7 +433,7 @@ class AsyncVectorEnv(VectorEnv):
         ----------
         timeout : int or float, optional
             Number of seconds before the call to `step_wait` times out. If
-            `None`, the call to `step_wait` never times out.
+            `None` (default), the call to `step_wait` never times out.
 
         Returns
         -------
@@ -441,15 +444,14 @@ class AsyncVectorEnv(VectorEnv):
         self._assert_is_running()
         if self._state != AsyncState.WAITING_CALL:
             raise NoAsyncCallError(
-                "Calling `call_wait` without any prior call " "to `call_async`.",
+                "Calling `call_wait` without any prior call to `call_async`.",
                 AsyncState.WAITING_CALL.value,
             )
 
         if not self._poll(timeout):
             self._state = AsyncState.DEFAULT
             raise mp.TimeoutError(
-                "The call to `call_wait` has timed out after "
-                "{0} second{1}.".format(timeout, "s" if timeout > 1 else "")
+                f"The call to `call_wait` has timed out after {timeout} second(s)."
             )
 
         results, successes = zip(*[pipe.recv() for pipe in self.parent_pipes])
@@ -465,20 +467,25 @@ class AsyncVectorEnv(VectorEnv):
         name : string
             Name of the property to be set in each individual environment.
 
-        values : list or object
-            Values of the property to bet set to. If `values` is a list, then
+        values : list of object
+            Values of the property to be set to. If `values` is a list, then
             it corresponds to the values for each individual environment,
             otherwise a single value is set for all environments.
         """
         self._assert_is_running()
         if not isinstance(values, list):
             values = [values for _ in range(self.num_envs)]
-        assert len(values) == self.num_envs
+        if len(values) != self.num_envs:
+            raise ValueError(
+                "The values must be a list of length the number "
+                f"of environments. Got `{len(values)}` values for "
+                f"{self.num_envs} environments."
+            )
 
         if self._state != AsyncState.DEFAULT:
             raise AlreadyPendingCallError(
                 "Calling `set_attr` while waiting "
-                "for a pending call to `{0}` to complete.".format(self._state.value),
+                f"for a pending call to `{self._state.value}` to complete.",
                 self._state.value,
             )
 
@@ -626,8 +633,8 @@ def _worker(index, env_fn, pipe, parent_pipe, shared_memory, error_queue):
                 name, args, kwargs = data
                 if name in ["reset", "step", "seed", "close"]:
                     raise ValueError(
-                        "Trying to call function `{0}` with "
-                        "`_call`. Use `{0}` directly instead.".format(name)
+                        f"Trying to call function `{name}` with "
+                        f"`_call`. Use `{name}` directly instead."
                     )
                 function = getattr(env, name)
                 if callable(function):
@@ -647,9 +654,9 @@ def _worker(index, env_fn, pipe, parent_pipe, shared_memory, error_queue):
                 )
             else:
                 raise RuntimeError(
-                    "Received unknown command `{0}`. Must "
+                    f"Received unknown command `{command}`. Must "
                     "be one of {`reset`, `step`, `seed`, `close`, `_call`, "
-                    "`_setattr`, `_check_spaces`}.".format(command)
+                    "`_setattr`, `_check_spaces`}."
                 )
     except (KeyboardInterrupt, Exception):
         error_queue.put((index,) + sys.exc_info()[:2])
@@ -691,8 +698,8 @@ def _worker_shared_memory(index, env_fn, pipe, parent_pipe, shared_memory, error
                 name, args, kwargs = data
                 if name in ["reset", "step", "seed", "close"]:
                     raise ValueError(
-                        "Trying to call function `{0}` with "
-                        "`_call`. Use `{0}` directly instead.".format(name)
+                        f"Trying to call function `{name}` with "
+                        f"`_call`. Use `{name}` directly instead."
                     )
                 function = getattr(env, name)
                 if callable(function):
@@ -709,9 +716,9 @@ def _worker_shared_memory(index, env_fn, pipe, parent_pipe, shared_memory, error
                 )
             else:
                 raise RuntimeError(
-                    "Received unknown command `{0}`. Must "
+                    f"Received unknown command `{command}`. Must "
                     "be one of {`reset`, `step`, `seed`, `close`, `_call`, "
-                    "`_setattr`, `_check_spaces`}.".format(command)
+                    "`_setattr`, `_check_spaces`}."
                 )
     except (KeyboardInterrupt, Exception):
         error_queue.put((index,) + sys.exc_info()[:2])
