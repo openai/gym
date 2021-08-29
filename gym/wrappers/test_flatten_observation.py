@@ -24,7 +24,9 @@ def test_flatten_observation(env_id):
         space = spaces.Tuple(
             (spaces.Box(0, 250.0, [1], dtype=np.float32), spaces.Discrete(300 + 1))
         )
-        wrapped_space = spaces.Box(-np.inf, np.inf, [1 + (300 + 1)], dtype=np.float64)
+        low = np.zeros((302,), dtype=np.float64)
+        high = np.array([250.] + [1.] * 301, dtype=np.float64)
+        wrapped_space = spaces.Box(low, high, [1 + (300 + 1)], dtype=np.float64)
 
     assert space.contains(obs)
     assert wrapped_space.contains(wrapped_obs)
