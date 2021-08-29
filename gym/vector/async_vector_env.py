@@ -186,7 +186,7 @@ class AsyncVectorEnv(VectorEnv):
                 child_pipe.close()
 
         self._state = AsyncState.DEFAULT
-        self._check_observation_spaces()
+        self._check_spaces()
 
     def seed(self, seeds=None):
         self._assert_is_running()
@@ -441,18 +441,25 @@ class AsyncVectorEnv(VectorEnv):
                 return False
         return True
 
-    def _check_observation_spaces(self):
+    def _check_spaces(self):
         self._assert_is_running()
+        spaces = (self.single_observation_space, self.single_action_space)
         for pipe in self.parent_pipes:
-            pipe.send(("_check_observation_space", self.single_observation_space))
-        same_spaces, successes = zip(*[pipe.recv() for pipe in self.parent_pipes])
+            pipe.send(("_check_spaces", spaces))
+        results, successes = zip(*[pipe.recv() for pipe in self.parent_pipes])
         self._raise_if_errors(successes)
-        if not all(same_spaces):
+        same_observation_spaces, same_action_spaces = zip(*results)
+        if not all(same_observation_spaces):
             raise RuntimeError(
-                "Some environments have an observation space "
-                "different from `{}`. In order to batch observations, the "
-                "observation spaces from all environments must be "
-                "equal.".format(self.single_observation_space)
+                "Some environments have an observation space different from "
+                f"`{self.single_observation_space}`. In order to batch observations, "
+                "the observation spaces from all environments must be equal."
+            )
+        if not all(same_action_spaces):
+            raise RuntimeError(
+                "Some environments have an action space different from "
+                f"`{self.single_action_space}`. In order to batch actions, the "
+                "action spaces from all environments must be equal."
             )
 
     def _assert_is_running(self):
@@ -502,13 +509,18 @@ def _worker(index, env_fn, pipe, parent_pipe, shared_memory, error_queue):
             elif command == "close":
                 pipe.send((None, True))
                 break
-            elif command == "_check_observation_space":
-                pipe.send((data == env.observation_space, True))
+            elif command == "_check_spaces":
+                pipe.send(
+                    (
+                        (data[0] == env.observation_space, data[1] == env.action_space),
+                        True,
+                    )
+                )
             else:
                 raise RuntimeError(
                     "Received unknown command `{0}`. Must "
                     "be one of {`reset`, `step`, `seed`, `close`, "
-                    "`_check_observation_space`}.".format(command)
+                    "`_check_spaces`}.".format(command)
                 )
     except (KeyboardInterrupt, Exception):
         error_queue.put((index,) + sys.exc_info()[:2])
@@ -546,13 +558,15 @@ def _worker_shared_memory(index, env_fn, pipe, parent_pipe, shared_memory, error
             elif command == "close":
                 pipe.send((None, True))
                 break
-            elif command == "_check_observation_space":
-                pipe.send((data == observation_space, True))
+            elif command == "_check_spaces":
+                pipe.send(
+                    ((data[0] == observation_space, data[1] == env.action_space), True)
+                )
             else:
                 raise RuntimeError(
                     "Received unknown command `{0}`. Must "
                     "be one of {`reset`, `step`, `seed`, `close`, "
-                    "`_check_observation_space`}.".format(command)
+                    "`_check_spaces`}.".format(command)
                 )
     except (KeyboardInterrupt, Exception):
         error_queue.put((index,) + sys.exc_info()[:2])

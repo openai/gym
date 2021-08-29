@@ -64,7 +64,7 @@ class SyncVectorEnv(VectorEnv):
             action_space=action_space,
         )
 
-        self._check_observation_spaces()
+        self._check_spaces()
         self.observations = create_empty_array(
             self.single_observation_space, n=self.num_envs, fn=np.zeros
         )
@@ -121,15 +121,21 @@ class SyncVectorEnv(VectorEnv):
         """Close the environments."""
         [env.close() for env in self.envs]
 
-    def _check_observation_spaces(self):
+    def _check_spaces(self):
         for env in self.envs:
             if not (env.observation_space == self.single_observation_space):
-                break
+                raise RuntimeError(
+                    "Some environments have an observation space different from "
+                    f"`{self.single_observation_space}`. In order to batch observations, "
+                    "the observation spaces from all environments must be equal."
+                )
+
+            if not (env.action_space == self.single_action_space):
+                raise RuntimeError(
+                    "Some environments have an action space different from "
+                    f"`{self.single_action_space}`. In order to batch actions, the "
+                    "action spaces from all environments must be equal."
+                )
+
         else:
             return True
-        raise RuntimeError(
-            "Some environments have an observation space "
-            "different from `{}`. In order to batch observations, the "
-            "observation spaces from all environments must be "
-            "equal.".format(self.single_observation_space)
-        )

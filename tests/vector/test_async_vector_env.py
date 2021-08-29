@@ -193,10 +193,10 @@ def test_already_closed_async_vector_env(shared_memory):
 
 
 @pytest.mark.parametrize("shared_memory", [True, False])
-def test_check_observations_async_vector_env(shared_memory):
-    # CubeCrash-v0 - observation_space: Box(40, 32, 3)
+def test_check_spaces_async_vector_env(shared_memory):
+    # CubeCrash-v0 - observation_space: Box(40, 32, 3), action_space: Discrete(3)
     env_fns = [make_env("CubeCrash-v0", i) for i in range(8)]
-    # MemorizeDigits-v0 - observation_space: Box(24, 32, 3)
+    # MemorizeDigits-v0 - observation_space: Box(24, 32, 3), action_space: Discrete(10)
     env_fns[1] = make_env("MemorizeDigits-v0", 1)
     with pytest.raises(RuntimeError):
         env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
