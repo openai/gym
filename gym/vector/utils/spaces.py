@@ -130,13 +130,15 @@ def iterate(space, items):
     )
 
 
-@iterate.register(Box)
 @iterate.register(Discrete)
+def iterate_discrete(space, items):
+    raise TypeError("Unable to iterate over a space of type `Discrete`.")
+
+
+@iterate.register(Box)
 @iterate.register(MultiDiscrete)
 @iterate.register(MultiBinary)
 def iterate_base(space, items):
-    if isinstance(space, Discrete):
-        raise TypeError("Unable to iterate over a space of type `Discrete`.")
     try:
         return iter(items)
     except TypeError:
