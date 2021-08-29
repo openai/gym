@@ -137,21 +137,6 @@ class SyncVectorEnv(VectorEnv):
         )
 
     def call(self, name, *args, **kwargs):
-        """
-        Parameters
-        ----------
-        name : string
-            Name of the method or property to call.
-
-        args, kwargs :
-            Arguments and keyword arguments to apply to the method call.
-
-        Returns
-        -------
-        results : list
-            List of the results of the individual calls to the method or
-            property for each environment.
-        """
         results = []
         for env in self.envs:
             function = getattr(env, name)
@@ -163,23 +148,12 @@ class SyncVectorEnv(VectorEnv):
         return tuple(results)
 
     def set_attr(self, name, values):
-        """
-        Parameters
-        ----------
-        name : string
-            Name of the property to be set in each individual environment.
-
-        values : list of object
-            Values of the property to be set to. If `values` is a list, then
-            it corresponds to the values for each individual environment,
-            otherwise a single value is set for all environments.
-        """
-        if not isinstance(values, list):
+        if not isinstance(values, (list, tuple)):
             values = [values for _ in range(self.num_envs)]
         if len(values) != self.num_envs:
             raise ValueError(
-                "The values must be a list of length the number "
-                f"of environments. Got `{len(values)}` values for "
+                "Values must be a list or tuple with length equal to the "
+                f"number of environments. Got `{len(values)}` values for "
                 f"{self.num_envs} environments."
             )
 

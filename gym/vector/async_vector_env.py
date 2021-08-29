@@ -412,8 +412,11 @@ class AsyncVectorEnv(VectorEnv):
         name : string
             Name of the method or property to call.
 
-        args, kwargs :
-            Arguments and keyword arguments to apply to the method call.
+        *args
+            Arguments to apply to the method call.
+
+        **kwargs
+            Keywoard arguments to apply to the method call.
         """
         self._assert_is_running()
         if self._state != AsyncState.DEFAULT:
@@ -467,18 +470,18 @@ class AsyncVectorEnv(VectorEnv):
         name : string
             Name of the property to be set in each individual environment.
 
-        values : list of object
-            Values of the property to be set to. If `values` is a list, then
-            it corresponds to the values for each individual environment,
-            otherwise a single value is set for all environments.
+        values : list, tuple, or object
+            Values of the property to be set to. If `values` is a list or
+            tuple, then it corresponds to the values for each individual
+            environment, otherwise a single value is set for all environments.
         """
         self._assert_is_running()
-        if not isinstance(values, list):
+        if not isinstance(values, (list, tuple)):
             values = [values for _ in range(self.num_envs)]
         if len(values) != self.num_envs:
             raise ValueError(
-                "The values must be a list of length the number "
-                f"of environments. Got `{len(values)}` values for "
+                "Values must be a list or tuple with length equal to the "
+                f"number of environments. Got `{len(values)}` values for "
                 f"{self.num_envs} environments."
             )
 
