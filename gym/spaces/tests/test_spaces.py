@@ -178,3 +178,18 @@ def test_class_inequality(spaces):
 def test_bad_space_calls(space_fn):
     with pytest.raises(AssertionError):
         space_fn()
+
+
+def test_box_dtype_check():
+    # Related Issues:
+    # https://github.com/openai/gym/issues/2357
+    # https://github.com/openai/gym/issues/2298
+
+    space = Box(0, 2, tuple(), dtype=np.float32)
+
+    # casting will match the correct type
+    assert space.contains(0.5)
+    
+    # float64 is not in float32 space
+    assert not space.contains(np.array(0.5))
+    assert not space.contains(np.array(1))
