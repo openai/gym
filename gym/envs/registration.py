@@ -188,4 +188,3 @@ def make(id, **kwargs):
 
 def spec(id):
     return registry.spec(id)
-
