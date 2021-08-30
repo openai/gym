@@ -69,15 +69,18 @@ Gym includes numerous wrappers for environments that include preprocessing and v
 `RecordEpisodeStatistic(env)` [text]
 * Needs review (including for good assertion messages and test coverage)
 
-`RecordVideo(env, video_folder, record_video_trigger, video_length=0, name_prefix="rl-video")` [text]
+`RecordVideo(env, video_folder, episode_trigger, step_trigger, video_length=0, name_prefix="rl-video")` [text]
 
 The `RecordVideo` is a lightweight `gym.Wrapper` that helps recording videos. See the following
 code as an example.
 
 ```python
 import gym
+from gym.wrappers import RecordVideo, capped_cubic_video_schedule
 env = gym.make("CartPole-v1")
-env = gym.wrappers.RecordVideo(env, "videos", record_video_trigger=lambda x: x % 100 == 0)
+env = RecordVideo(env, "videos")
+# the above is equivalent as
+# env = RecordVideo(env, "videos", episode_trigger=capped_cubic_video_schedule)
 observation = env.reset()
 for _ in range(1000):
   env.render()
@@ -89,10 +92,35 @@ for _ in range(1000):
 env.close()
 ```
 
-To use it, you need to specify the `video_folder` as the storing location and 
-`record_video_trigger` as a frequency at which you want to record.
+To use it, you need to specify the `video_folder` as the storing location. By default
+the `RecordVideo` uses episode counts to trigger video recording based on the `episode_trigger=capped_cubic_video_schedule`,
+which is a cubic progression for early episodes (1,8,27,...) and then every 1000 episodes (1000, 2000, 3000...).
+This can be changed by modifying the `episode_trigger` argument of the `RecordVideo`).
 
-There are two modes of video the recording:
+Alternatively, you may also trigger the the video recording based on the environment steps via the  
+`step_trigger` like
+
+```python
+import gym
+from gym.wrappers import RecordVideo
+env = gym.make("CartPole-v1")
+env = RecordVideo(env, "videos", step_trigger=lambda x: x % 100 == 0)
+observation = env.reset()
+for _ in range(1000):
+  env.render()
+  action = env.action_space.sample() # your agent here (this takes random actions)
+  observation, reward, done, info = env.step(action)
+
+  if done:
+    observation = env.reset()
+env.close()
+```
+
+Which will trigger the video recording at exactly every 100 environment steps (unless the previous recording hasn't finished yet).
+
+Note that you may use exactly one trigger (i.e. `step_trigger` or `record_video_trigger`) at a time.
+
+There are two modes to end the video recording:
 1. Episodic mode. 
     * By default `video_length=0` means the wrapper will record *episodic* videos: it will keep
     record the frames until the env returns `done=True`.
