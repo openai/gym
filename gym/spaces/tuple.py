@@ -19,8 +19,11 @@ class Tuple(Space):
         super(Tuple, self).__init__(None, None)
 
     def seed(self, seed=None):
-        seed = super().seed(seed)[0]
-        return [space.seed(seed + i)[0] for i, space in enumerate(self.spaces)]
+        seed = super().seed(seed)
+        int_max = np.iinfo(int).max
+        for subspace in self.spaces:
+            seed.append(subspace.seed(self.np_random.randint(int_max))[0])
+        return seed
 
     def sample(self):
         return tuple([space.sample() for space in self.spaces])

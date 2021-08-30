@@ -1,4 +1,5 @@
 from collections import OrderedDict
+import numpy as np
 from .space import Space
 
 
@@ -52,8 +53,11 @@ class Dict(Space):
         )  # None for shape and dtype, since it'll require special handling
 
     def seed(self, seed=None):
-        seed = super().seed(seed)[0]
-        return [space.seed(seed + i)[0] for i, space in enumerate(self.spaces.values())]
+        seed = super().seed(seed)
+        int_max = np.iinfo(int).max
+        for subspace in self.spaces.values():
+            seed.append(subspace.seed(self.np_random.randint(int_max))[0])
+        return seed
 
     def sample(self):
         return OrderedDict([(k, space.sample()) for k, space in self.spaces.items()])
