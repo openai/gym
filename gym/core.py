@@ -204,7 +204,7 @@ class GoalEnv(Env):
             goal. Note that the following should always hold true:
 
                 ob, reward, done, info = env.step()
-                assert reward == env.compute_reward(ob['achieved_goal'], ob['goal'], info)
+                assert reward == env.compute_reward(ob['achieved_goal'], ob['desired_goal'], info)
         """
         raise NotImplementedError
 
