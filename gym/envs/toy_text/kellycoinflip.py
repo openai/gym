@@ -79,7 +79,7 @@ class KellyCoinflipEnv(gym.Env):
         return self._get_obs(), reward, done, {}
 
     def _get_obs(self):
-        return np.array([self.wealth]), self.rounds
+        return np.array([self.wealth], dtype=np.float32), self.rounds
 
     def reset(self):
         self.rounds = self.max_rounds
@@ -236,11 +236,11 @@ class KellyCoinflipGeneralizedEnv(gym.Env):
 
     def _get_obs(self):
         return (
-            np.array([float(self.wealth)]),
+            np.array([float(self.wealth)], dtype=np.float32),
             self.rounds_elapsed,
             self.wins,
             self.losses,
-            np.array([float(self.max_ever_wealth)]),
+            np.array([float(self.max_ever_wealth)], dtype=np.float32),
         )
 
     def reset(self):
