@@ -35,7 +35,7 @@ class FakeArrayObservationEnvironment(FakeEnvironment):
         self.observation_space = spaces.Box(
             shape=(2,), low=-1, high=1, dtype=np.float32
         )
-        super(FakeArrayObservationEnvironment, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class FakeDictObservationEnvironment(FakeEnvironment):
@@ -45,7 +45,7 @@ class FakeDictObservationEnvironment(FakeEnvironment):
                 "state": spaces.Box(shape=(2,), low=-1, high=1, dtype=np.float32),
             }
         )
-        super(FakeDictObservationEnvironment, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class TestPixelObservationWrapper(object):
