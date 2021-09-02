@@ -15,9 +15,7 @@ def test_flatten_observation(env_id):
     obs = env.reset()
     wrapped_obs = wrapped_env.reset()
 
-    space = spaces.Tuple(
-        (spaces.Discrete(32), spaces.Discrete(11), spaces.Discrete(2))
-    )
+    space = spaces.Tuple((spaces.Discrete(32), spaces.Discrete(11), spaces.Discrete(2)))
     wrapped_space = spaces.Box(0, 1, [32 + 11 + 2], dtype=np.int64)
 
     assert space.contains(obs)
