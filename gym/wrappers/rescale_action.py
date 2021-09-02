@@ -19,7 +19,7 @@ class RescaleAction(gym.ActionWrapper):
         ), "expected Box action space, got {}".format(type(env.action_space))
         assert np.less_equal(min_action, max_action).all(), (min_action, max_action)
 
-        super(RescaleAction, self).__init__(env)
+        super().__init__(env)
         self.min_action = (
             np.zeros(env.action_space.shape, dtype=env.action_space.dtype) + min_action
         )
