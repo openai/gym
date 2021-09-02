@@ -141,6 +141,12 @@ These are a variety of algorithmic tasks, such as learning to copy a sequence, p
 
 Learn more here: https://github.com/Rohan138/gym-algorithmic
 
+### gym-legacy-toytext
+
+These are the unused toy-text environments present in Gym prior to Gym 0.20.0.
+
+Learn more here: https://github.com/Rohan138/gym-legacy-toytext
+
 ### gym-spoof
 
 Spoof, otherwise known as "The 3-coin game", is a multi-agent (2 player), imperfect-information, zero-sum game. 
