@@ -12,7 +12,7 @@ class HandEnv(robot_env.RobotEnv):
     def __init__(self, model_path, n_substeps, initial_qpos, relative_control):
         self.relative_control = relative_control
 
-        super(HandEnv, self).__init__(
+        super().__init__(
             model_path=model_path,
             n_substeps=n_substeps,
             n_actions=20,
@@ -57,4 +57,4 @@ class HandEnv(robot_env.RobotEnv):
         self.viewer.cam.elevation = -25.0
 
     def render(self, mode="human", width=500, height=500):
-        return super(HandEnv, self).render(mode, width, height)
+        return super().render(mode, width, height)
