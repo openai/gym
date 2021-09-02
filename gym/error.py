@@ -96,7 +96,7 @@ class APIError(Error):
         json_body=None,
         headers=None,
     ):
-        super(APIError, self).__init__(message)
+        super().__init__(message)
 
         if http_body and hasattr(http_body, "decode"):
             try:
@@ -142,7 +142,7 @@ class InvalidRequestError(APIError):
         json_body=None,
         headers=None,
     ):
-        super(InvalidRequestError, self).__init__(
+        super().__init__(
             message, http_body, http_status, json_body, headers
         )
         self.param = param
@@ -194,7 +194,7 @@ class AlreadyPendingCallError(Exception):
     """
 
     def __init__(self, message, name):
-        super(AlreadyPendingCallError, self).__init__(message)
+        super()__init__(message)
         self.name = name
 
 
@@ -205,7 +205,7 @@ class NoAsyncCallError(Exception):
     """
 
     def __init__(self, message, name):
-        super(NoAsyncCallError, self).__init__(message)
+        super().__init__(message)
         self.name = name
 
 
