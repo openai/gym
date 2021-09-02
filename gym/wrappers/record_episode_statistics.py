@@ -7,7 +7,7 @@ import gym
 class RecordEpisodeStatistics(gym.Wrapper):
     def __init__(self, env, deque_size=100):
         super().__init__(env)
-        self.num_envs = getattr(env, "num_envs", 1)
+        self.num_envs = getattr(env, 'num_envs', 1)
         self.t0 = (
             time.time()
         )  # TODO: use perf_counter when gym removes Python 2 support
@@ -16,7 +16,7 @@ class RecordEpisodeStatistics(gym.Wrapper):
         self.episode_lengths = None
         self.return_queue = deque(maxlen=deque_size)
         self.length_queue = deque(maxlen=deque_size)
-        self.is_vector_env = getattr(env, "is_vector_env", False)
+        self.is_vector_env = getattr(env, 'is_vector_env', False)
 
     def reset(self, **kwargs):
         observations = super().reset(**kwargs)
@@ -25,9 +25,7 @@ class RecordEpisodeStatistics(gym.Wrapper):
         return observations
 
     def step(self, action):
-        observations, rewards, dones, infos = super().step(
-            action
-        )
+        observations, rewards, dones, infos = super().step(action)
         self.episode_returns += rewards
         self.episode_lengths += 1
         if not self.is_vector_env:
@@ -39,11 +37,11 @@ class RecordEpisodeStatistics(gym.Wrapper):
                 episode_return = self.episode_returns[i]
                 episode_length = self.episode_lengths[i]
                 episode_info = {
-                    "r": episode_return,
-                    "l": episode_length,
-                    "t": round(time.time() - self.t0, 6),
+                    'r': episode_return,
+                    'l': episode_length,
+                    't': round(time.time() - self.t0, 6)
                 }
-                infos[i]["episode"] = episode_info
+                infos[i]['episode'] = episode_info
                 self.return_queue.append(episode_return)
                 self.length_queue.append(episode_length)
                 self.episode_count += 1
