@@ -109,7 +109,7 @@ class Env(object):
                 elif mode == 'human':
                     ... # pop up a window and render
                 else:
-                    super(MyEnv, self).render(mode=mode) # just raise an exception
+                    super().render(mode=mode) # just raise an exception
         """
         raise NotImplementedError
 
