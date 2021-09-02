@@ -34,7 +34,7 @@ class Tuple(Space):
             )
 
         for subspace, subseed in zip(self.spaces, subseeds):
-            seed.append(subspace.seed(subseed)[0])
+            seed.append(subspace.seed(int(subseed))[0])
 
         return seed
 

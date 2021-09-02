@@ -1,5 +1,6 @@
 import json  # note: ujson fails this test due to float equality
 import copy
+from collections import OrderedDict
 
 import numpy as np
 import pytest
@@ -230,6 +231,19 @@ def test_seed_returns_list(space):
     assert_integer_list(space.seed(0))
 
 
+def convert_sample_hashable(sample):
+    if isinstance(sample, np.ndarray):
+        return tuple(sample.tolist())
+    if isinstance(sample, (list, tuple)):
+        return tuple(convert_sample_hashable(s) for s in sample)
+    if isinstance(sample, dict):
+        return tuple(
+            (key, convert_sample_hashable(value)) for key, value in sample.items()
+        )
+
+    return sample
+
+
 @pytest.mark.parametrize(
     "space",
     [
@@ -263,7 +277,9 @@ def test_seed_reproducibility(space):
     space2.seed(None)
 
     assert space1.seed(0) == space2.seed(0)
-    assert space1.sample() == space2.sample()
+
+    sample1, sample2 = space1.sample(), space2.sample()
+    assert convert_sample_hashable(sample1) == convert_sample_hashable(sample2)
 
 
 @pytest.mark.parametrize(
@@ -292,6 +308,9 @@ def test_seed_subspace_incorrelated(space):
     subspaces = space.spaces if isinstance(space, Tuple) else space.spaces.values()
 
     space.seed(0)
-    states = [subspace.np_random.get_state() for subspace in subspaces]
+    states = [
+        convert_sample_hashable(subspace.np_random.get_state())
+        for subspace in subspaces
+    ]
 
     assert len(states) == len(set(states))
