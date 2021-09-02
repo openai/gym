@@ -47,7 +47,7 @@ class Dict(Space):
             assert isinstance(
                 space, Space
             ), "Values of the dict should be instances of gym.Space"
-        super(Dict, self).__init__(
+        super().__init__(
             None, None
         )  # None for shape and dtype, since it'll require special handling
 
