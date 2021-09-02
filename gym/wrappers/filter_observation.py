@@ -19,7 +19,7 @@ class FilterObservation(ObservationWrapper):
     """
 
     def __init__(self, env, filter_keys=None):
-        super(FilterObservation, self).__init__(env)
+        super().__init__(env)
 
         wrapped_observation_space = env.observation_space
         assert isinstance(
