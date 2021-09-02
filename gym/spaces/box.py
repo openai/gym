@@ -81,7 +81,7 @@ class Box(Space):
         self.bounded_below = -np.inf < self.low
         self.bounded_above = np.inf > self.high
 
-        super(Box, self).__init__(self.shape, self.dtype)
+        super().__init__(self.shape, self.dtype)
 
     def is_bounded(self, manner="both"):
         below = np.all(self.bounded_below)
