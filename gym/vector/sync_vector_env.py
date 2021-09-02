@@ -38,7 +38,7 @@ class SyncVectorEnv(VectorEnv):
         if (observation_space is None) or (action_space is None):
             observation_space = observation_space or self.envs[0].observation_space
             action_space = action_space or self.envs[0].action_space
-        super(SyncVectorEnv, self).__init__(
+        super().__init__(
             num_envs=len(env_fns),
             observation_space=observation_space,
             action_space=action_space,
