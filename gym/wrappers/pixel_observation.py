@@ -39,7 +39,7 @@ class PixelObservationWrapper(ObservationWrapper):
                 specified `pixel_keys`.
         """
 
-        super(PixelObservationWrapper, self).__init__(env)
+        super().__init__(env)
 
         if render_kwargs is None:
             render_kwargs = {}
