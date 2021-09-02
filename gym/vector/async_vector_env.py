@@ -100,7 +100,7 @@ class AsyncVectorEnv(VectorEnv):
             action_space = action_space or dummy_env.action_space
         dummy_env.close()
         del dummy_env
-        super(AsyncVectorEnv, self).__init__(
+        super().__init__(
             num_envs=len(env_fns),
             observation_space=observation_space,
             action_space=action_space,
