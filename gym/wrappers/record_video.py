@@ -23,7 +23,7 @@ class RecordVideo(gym.Wrapper):
         video_length: int = 0,
         name_prefix: str = "rl-video",
     ):
-        super(RecordVideo, self).__init__(env)
+        super()__init__(env)
 
         if episode_trigger is None and step_trigger is None:
             episode_trigger = capped_cubic_video_schedule
@@ -53,7 +53,7 @@ class RecordVideo(gym.Wrapper):
         self.episode_id = 0
 
     def reset(self, **kwargs):
-        observations = super(RecordVideo, self).reset(**kwargs)
+        observations = super()reset(**kwargs)
         if self._video_enabled():
             self.start_video_recorder()
         return observations
@@ -83,7 +83,7 @@ class RecordVideo(gym.Wrapper):
             return self.episode_trigger(self.step_id)
 
     def step(self, action):
-        observations, rewards, dones, infos = super(RecordVideo, self).step(action)
+        observations, rewards, dones, infos = super()step(action)
 
         self.step_id += 1
         if self.recording:
