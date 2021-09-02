@@ -1,7 +1,7 @@
 ---
 name: Bug Report
 about: Submit a bug report
-title: "[Question] Question title"
+title: "[Bug Report] Bug title"
 
 ---
 
