@@ -194,7 +194,7 @@ class AlreadyPendingCallError(Exception):
     """
 
     def __init__(self, message, name):
-        super()__init__(message)
+        super().__init__(message)
         self.name = name
 
 
