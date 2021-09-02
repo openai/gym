@@ -48,7 +48,7 @@ HEIGHT, WIDTH = 64, 64
 
 class UnittestSlowEnv(gym.Env):
     def __init__(self, slow_reset=0.3):
-        super(UnittestSlowEnv, self).__init__()
+        super().__init__()
         self.slow_reset = slow_reset
         self.observation_space = Box(
             low=0, high=255, shape=(HEIGHT, WIDTH, 3), dtype=np.uint8
@@ -82,7 +82,7 @@ custom_spaces = [
 
 class CustomSpaceEnv(gym.Env):
     def __init__(self):
-        super(CustomSpaceEnv, self).__init__()
+        super().__init__()
         self.observation_space = CustomSpace()
         self.action_space = CustomSpace()
 
