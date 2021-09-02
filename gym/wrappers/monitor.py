@@ -27,7 +27,7 @@ class Monitor(Wrapper):
         uid=None,
         mode=None,
     ):
-        super(Monitor, self).__init__(env)
+        super().__init__(env)
         warnings.warn(
             "The Monitor wrapper is being deprecated in favor of gym.wrappers.RecordVideo and gym.wrappers.RecordEpisodeStatistics (see https://github.com/openai/gym/issues/2297)"
         )
@@ -177,7 +177,7 @@ class Monitor(Wrapper):
 
     def close(self):
         """Flush all monitor data to disk and close any open rending windows."""
-        super(Monitor, self).close()
+        super().close()
 
         if not self.enabled:
             return
