@@ -6,11 +6,25 @@ import gym
 from gym.wrappers import RecordEpisodeStatistics, RecordVideo
 
 
-def test_record_video():
+def test_record_video_using_default_trigger():
     env = gym.make("CartPole-v1")
-    env = gym.wrappers.RecordVideo(
-        env, "videos", record_video_trigger=lambda x: x % 100 == 0
-    )
+    env = gym.wrappers.RecordVideo(env, "videos")
+    env.reset()
+    for _ in range(199):
+        action = env.action_space.sample()
+        _, _, done, _ = env.step(action)
+        if done:
+            env.reset()
+    env.close()
+    assert os.path.isdir("videos")
+    mp4_files = [file for file in os.listdir("videos") if file.endswith(".mp4")]
+    assert len(mp4_files) == env.episode_id
+    shutil.rmtree("videos")
+
+
+def test_record_video_step_trigger():
+    env = gym.make("CartPole-v1")
+    env = gym.wrappers.RecordVideo(env, "videos", step_trigger=lambda x: x % 100 == 0)
     env.reset()
     for _ in range(199):
         action = env.action_space.sample()
@@ -32,7 +46,7 @@ def make_env(gym_id, seed):
         env.observation_space.seed(seed)
         if seed == 1:
             env = gym.wrappers.RecordVideo(
-                env, "videos", record_video_trigger=lambda x: x % 100 == 0
+                env, "videos", step_trigger=lambda x: x % 100 == 0
             )
         return env
 
