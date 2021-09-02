@@ -91,16 +91,6 @@ register(
 )
 
 register(
-    id="KellyCoinflip-v0",
-    entry_point="gym.envs.toy_text:KellyCoinflipEnv",
-    reward_threshold=246.61,
-)
-register(
-    id="KellyCoinflipGeneralized-v0",
-    entry_point="gym.envs.toy_text:KellyCoinflipGeneralizedEnv",
-)
-
-register(
     id="FrozenLake-v1",
     entry_point="gym.envs.toy_text:FrozenLakeEnv",
     kwargs={"map_name": "4x4"},
@@ -122,33 +112,9 @@ register(
 )
 
 register(
-    id="NChain-v0",
-    entry_point="gym.envs.toy_text:NChainEnv",
-    max_episode_steps=1000,
-)
-
-register(
-    id="Roulette-v0",
-    entry_point="gym.envs.toy_text:RouletteEnv",
-    max_episode_steps=100,
-)
-
-register(
     id="Taxi-v3",
     entry_point="gym.envs.toy_text:TaxiEnv",
     reward_threshold=8,  # optimum = 8.46
-    max_episode_steps=200,
-)
-
-register(
-    id="GuessingGame-v0",
-    entry_point="gym.envs.toy_text:GuessingGame",
-    max_episode_steps=200,
-)
-
-register(
-    id="HotterColder-v0",
-    entry_point="gym.envs.toy_text:HotterColder",
     max_episode_steps=200,
 )
 

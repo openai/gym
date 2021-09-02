@@ -153,6 +153,14 @@ class EnvRegistry(object):
                 "ReversedAdiiton",
                 "ReversedAddition3",
             ]
+            toytext_envs = [
+                "KellyCoinflip",
+                "KellyCoinflipGeneralized",
+                "NChain",
+                "Roulette",
+                "GuessingGame",
+                "HotterColder",
+            ]
             if matching_envs:
                 raise error.DeprecatedEnv(
                     "Env {} not found (valid versions include {})".format(
@@ -161,7 +169,13 @@ class EnvRegistry(object):
                 )
             elif env_name in algorithmic_envs:
                 raise error.UnregisteredEnv(
-                    "Algorithmic environments like {} have been moved out of Gym. Install them via `pip install gym-algorithmic` and add `import gym_algorithmic` before using them.".format(
+                    "Algorithmic environment {} has been moved out of Gym. Install it via `pip install gym-algorithmic` and add `import gym_algorithmic` before using it.".format(
+                        id
+                    )
+                )
+            elif env_name in toytext_envs:
+                raise error.UnregisteredEnv(
+                    "Toytext environment {} has been moved out of Gym. Install it via `pip install gym-legacy-toytext` and add `import gym_toytext` before using it.".format(
                         id
                     )
                 )
