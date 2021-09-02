@@ -181,13 +181,13 @@ class EnvRegistry(object):
                 )
             elif env_name in algorithmic_envs:
                 raise error.UnregisteredEnv(
-                    "Algorithmic environment {} has been moved out of Gym. Install it via `pip install gym-algorithmic` and add `import gym_algorithmic` before using them.".format(
+                    "Algorithmic environment {} has been moved out of Gym. Install it via `pip install gym-algorithmic` and add `import gym_algorithmic` before using it.".format(
                         id
                     )
                 )
             elif env_name in toytext_envs:
                 raise error.UnregisteredEnv(
-                    "Toytext environment {} has been moved out of Gym. Install it via `pip install gym-toytext` and add `import gym_toytext` before using them.".format(
+                    "Toytext environment {} has been moved out of Gym. Install it via `pip install gym-legacy-toytext` and add `import gym_toytext` before using it.".format(
                         id
                     )
                 )
