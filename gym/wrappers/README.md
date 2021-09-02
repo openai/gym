@@ -17,7 +17,7 @@ from gym.wrappers import MyWrapper
 
 ## Quick tips for writing your own wrapper
 
-- Don't forget to call `super(class_name, self).__init__(env)` if you override the wrapper's `__init__` function
+- Don't forget to call `super().__init__(env)` if you override the wrapper's `__init__` function
 - You can access the inner environment with `self.unwrapped`
 - You can access the previous layer using `self.env`
 - The variables `metadata`, `action_space`, `observation_space`, `reward_range`, and `spec` are copied to `self` from the previous layer
