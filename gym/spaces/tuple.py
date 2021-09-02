@@ -20,9 +20,22 @@ class Tuple(Space):
 
     def seed(self, seed=None):
         seed = super().seed(seed)
-        int_max = np.iinfo(int).max
-        for subspace in self.spaces:
-            seed.append(subspace.seed(self.np_random.randint(int_max))[0])
+        try:
+            subseeds = self.np_random.choice(
+                np.iinfo(int).max,
+                size=len(self.spaces),
+                replace=False,  # unique subseed for each subspace
+            )
+        except ValueError:
+            subseeds = self.np_random.choice(
+                np.iinfo(int).max,
+                size=len(self.spaces),
+                replace=True,  # we get more than INT_MAX subspaces
+            )
+
+        for subspace, subseed in zip(self.spaces, subseeds):
+            seed.append(subspace.seed(subseed)[0])
+
         return seed
 
     def sample(self):

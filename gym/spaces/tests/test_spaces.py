@@ -1,5 +1,5 @@
 import json  # note: ujson fails this test due to float equality
-from copy import copy
+import copy
 
 import numpy as np
 import pytest
@@ -80,7 +80,7 @@ def test_roundtripping(space):
 )
 def test_equality(space):
     space1 = space
-    space2 = copy(space)
+    space2 = copy.copy(space)
     assert space1 == space2, "Expected {} to equal {}".format(space1, space2)
 
 
@@ -178,3 +178,105 @@ def test_class_inequality(spaces):
 def test_bad_space_calls(space_fn):
     with pytest.raises(AssertionError):
         space_fn()
+
+
+@pytest.mark.parametrize(
+    "space",
+    [
+        Discrete(3),
+        Box(low=0.0, high=np.inf, shape=(2, 2)),
+        Tuple([Discrete(5), Discrete(10)]),
+        Tuple(
+            [
+                Discrete(5),
+                Box(low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32),
+            ]
+        ),
+        Tuple((Discrete(5), Discrete(2), Discrete(2))),
+        MultiDiscrete([2, 2, 100]),
+        MultiBinary(10),
+        Dict(
+            {
+                "position": Discrete(5),
+                "velocity": Box(
+                    low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32
+                ),
+            }
+        ),
+    ],
+)
+def test_seed_returns_list(space):
+    def assert_integer_list(seed):
+        assert isinstance(seed, list)
+        assert len(seed) >= 1
+        assert all([isinstance(s, int) for s in seed])
+
+    assert_integer_list(space.seed(None))
+    assert_integer_list(space.seed(0))
+
+
+@pytest.mark.parametrize(
+    "space",
+    [
+        Discrete(3),
+        Box(low=0.0, high=np.inf, shape=(2, 2)),
+        Tuple([Discrete(5), Discrete(10)]),
+        Tuple(
+            [
+                Discrete(5),
+                Box(low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32),
+            ]
+        ),
+        Tuple((Discrete(5), Discrete(2), Discrete(2))),
+        MultiDiscrete([2, 2, 100]),
+        MultiBinary(10),
+        Dict(
+            {
+                "position": Discrete(5),
+                "velocity": Box(
+                    low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32
+                ),
+            }
+        ),
+    ],
+)
+def test_seed_reproducibility(space):
+    space1 = space
+    space2 = copy.deepcopy(space)
+
+    space1.seed(None)
+    space2.seed(None)
+
+    assert space1.seed(0) == space2.seed(0)
+    assert space1.sample() == space2.sample()
+
+
+@pytest.mark.parametrize(
+    "space",
+    [
+        Tuple([Discrete(100), Discrete(100)]),
+        Tuple([Discrete(5), Discrete(10)]),
+        Tuple(
+            [
+                Discrete(5),
+                Box(low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32),
+            ]
+        ),
+        Tuple((Discrete(5), Discrete(2), Discrete(2))),
+        Dict(
+            {
+                "position": Discrete(5),
+                "velocity": Box(
+                    low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32
+                ),
+            }
+        ),
+    ],
+)
+def test_seed_subspace_incorrelated(space):
+    subspaces = space.spaces if isinstance(space, Tuple) else space.spaces.values()
+
+    space.seed(0)
+    states = [subspace.np_random.get_state() for subspace in subspaces]
+
+    assert len(states) == len(set(states))
