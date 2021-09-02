@@ -32,7 +32,7 @@ class MultiBinary(Space):
             input_n = n
         else:
             input_n = (n,)
-        super(MultiBinary, self).__init__(input_n, np.int8)
+        super().__init__(input_n, np.int8)
 
     def sample(self):
         return self.np_random.randint(low=0, high=2, size=self.n, dtype=self.dtype)
