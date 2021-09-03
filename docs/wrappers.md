@@ -32,6 +32,11 @@ Gym includes numerous wrappers for environments that include preprocessing and v
 `TimeAwareObservation(env)` [text]
 * Needs review (including for good assertion messages and test coverage)
 
+
+`Normalize(norm_obs=True, norm_return=True, clip_obs=10.0, clip_reward=10.0, gamma=0.99, epsilon=1e-8)` [text]
+* This wrapper clips observation and rewards, normalizes the observations to have zero mean and unit variance, and normalizes the *returns* to have zero mean and unit variance.
+
+
 ## Action Wrappers
 
 `ClipAction(env)` [text]
@@ -97,8 +102,7 @@ the `RecordVideo` uses episode counts to trigger video recording based on the `e
 which is a cubic progression for early episodes (1,8,27,...) and then every 1000 episodes (1000, 2000, 3000...).
 This can be changed by modifying the `episode_trigger` argument of the `RecordVideo`).
 
-Alternatively, you may also trigger the the video recording based on the environment steps via the  
-`step_trigger` like
+Alternatively, you may also trigger the the video recording based on the environment steps via the  `step_trigger` like
 
 ```python
 import gym
