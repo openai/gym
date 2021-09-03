@@ -37,25 +37,34 @@ def update_mean_var_count_from_moments(
     return new_mean, new_var, new_count
 
 
-class NormalizedEnv(gym.core.Wrapper):
+class Normalize(gym.core.Wrapper):
     def __init__(
         self,
         env,
-        ob=True,
-        ret=True,
-        clipob=10.0,
-        cliprew=10.0,
+        norm_obs=True,
+        norm_return=True,
+        clip_obs=10.0,
+        clip_reward=10.0,
         gamma=0.99,
         epsilon=1e-8,
     ):
-        super(NormalizedEnv, self).__init__(env)
+        super(Normalize, self).__init__(env)
         self.num_envs = getattr(env, "num_envs", 1)
         self.is_vector_env = getattr(env, "is_vector_env", False)
-        self.ob_rms = RunningMeanStd(shape=self.observation_space.shape) if ob else None
-        self.ret_rms = RunningMeanStd(shape=()) if ret else None
-        self.clipob = clipob
-        self.cliprew = cliprew
-        self.ret = np.zeros(self.num_envs)
+        if self.is_vector_env:
+            self.obs_rms = (
+                RunningMeanStd(shape=self.single_observation_space.shape)
+                if norm_obs
+                else None
+            )
+        else:
+            self.obs_rms = (
+                RunningMeanStd(shape=self.observation_space.shape) if norm_obs else None
+            )
+        self.return_rms = RunningMeanStd(shape=()) if norm_return else None
+        self.clip_obs = clip_obs
+        self.clip_reward = clip_reward
+        self.returns = np.zeros(self.num_envs)
         self.gamma = gamma
         self.epsilon = epsilon
 
@@ -63,27 +72,27 @@ class NormalizedEnv(gym.core.Wrapper):
         obs, rews, dones, infos = self.env.step(action)
         if not self.is_vector_env:
             obs, rews, dones = np.array([obs]), np.array([rews]), np.array([dones])
-        self.ret = self.ret * self.gamma + rews
+        self.returns = self.returns * self.gamma + rews
         obs = self._obfilt(obs)
-        if self.ret_rms:
-            self.ret_rms.update(self.ret)
+        if self.return_rms:
+            self.return_rms.update(self.returns)
             rews = np.clip(
-                rews / np.sqrt(self.ret_rms.var + self.epsilon),
-                -self.cliprew,
-                self.cliprew,
+                rews / np.sqrt(self.return_rms.var + self.epsilon),
+                -self.clip_reward,
+                self.clip_reward,
             )
-        self.ret[dones] = 0.0
+        self.returns[dones] = 0.0
         if not self.is_vector_env:
             return obs[0], rews[0], dones[0], infos
         return obs, rews, dones, infos
 
     def _obfilt(self, obs):
-        if self.ob_rms:
-            self.ob_rms.update(obs)
+        if self.obs_rms:
+            self.obs_rms.update(obs)
             obs = np.clip(
-                (obs - self.ob_rms.mean) / np.sqrt(self.ob_rms.var + self.epsilon),
-                -self.clipob,
-                self.clipob,
+                (obs - self.obs_rms.mean) / np.sqrt(self.obs_rms.var + self.epsilon),
+                -self.clip_obs,
+                self.clip_obs,
             )
             return obs
         else:
