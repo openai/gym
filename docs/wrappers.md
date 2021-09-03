@@ -34,7 +34,7 @@ Gym includes numerous wrappers for environments that include preprocessing and v
 
 
 `Normalize(norm_obs=True, norm_return=True, clip_obs=10.0, clip_reward=10.0, gamma=0.99, epsilon=1e-8)` [text]
-* This wrapper clips observation and rewards, normalizes the observations to have zero mean and unit variance, and normalizes the *returns* to have zero mean and unit variance.
+* This wrapper clips observation and rewards, normalizes the observations to have zero mean and unit variance, and normalizes the *returns* to have and unit variance.
 
 
 ## Action Wrappers
