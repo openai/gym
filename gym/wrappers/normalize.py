@@ -1,10 +1,12 @@
 import numpy as np
+import gym
 
 # taken from https://github.com/openai/baselines/blob/master/baselines/common/vec_env/vec_normalize.py
 class RunningMeanStd(object):
+    # https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Parallel_algorithm
     def __init__(self, epsilon=1e-4, shape=()):
-        self.mean = np.zeros(shape, 'float64')
-        self.var = np.ones(shape, 'float64')
+        self.mean = np.zeros(shape, "float64")
+        self.var = np.ones(shape, "float64")
         self.count = epsilon
 
     def update(self, x):
@@ -15,9 +17,13 @@ class RunningMeanStd(object):
 
     def update_from_moments(self, batch_mean, batch_var, batch_count):
         self.mean, self.var, self.count = update_mean_var_count_from_moments(
-            self.mean, self.var, self.count, batch_mean, batch_var, batch_count)
+            self.mean, self.var, self.count, batch_mean, batch_var, batch_count
+        )
 
-def update_mean_var_count_from_moments(mean, var, count, batch_mean, batch_var, batch_count):
+
+def update_mean_var_count_from_moments(
+    mean, var, count, batch_mean, batch_var, batch_count
+):
     delta = batch_mean - mean
     tot_count = count + batch_count
 
@@ -30,8 +36,18 @@ def update_mean_var_count_from_moments(mean, var, count, batch_mean, batch_var, 
 
     return new_mean, new_var, new_count
 
+
 class NormalizedEnv(gym.core.Wrapper):
-    def __init__(self, env, ob=True, ret=True, clipob=10., cliprew=10., gamma=0.99, epsilon=1e-8):
+    def __init__(
+        self,
+        env,
+        ob=True,
+        ret=True,
+        clipob=10.0,
+        cliprew=10.0,
+        gamma=0.99,
+        epsilon=1e-8,
+    ):
         super(NormalizedEnv, self).__init__(env)
         self.num_envs = getattr(env, "num_envs", 1)
         self.is_vector_env = getattr(env, "is_vector_env", False)
@@ -51,8 +67,12 @@ class NormalizedEnv(gym.core.Wrapper):
         obs = self._obfilt(obs)
         if self.ret_rms:
             self.ret_rms.update(self.ret)
-            rews = np.clip(rews / np.sqrt(self.ret_rms.var + self.epsilon), -self.cliprew, self.cliprew)
-        self.ret[dones] = 0.
+            rews = np.clip(
+                rews / np.sqrt(self.ret_rms.var + self.epsilon),
+                -self.cliprew,
+                self.cliprew,
+            )
+        self.ret[dones] = 0.0
         if not self.is_vector_env:
             return obs[0], rews[0], dones[0], infos
         return obs, rews, dones, infos
@@ -60,7 +80,11 @@ class NormalizedEnv(gym.core.Wrapper):
     def _obfilt(self, obs):
         if self.ob_rms:
             self.ob_rms.update(obs)
-            obs = np.clip((obs - self.ob_rms.mean) / np.sqrt(self.ob_rms.var + self.epsilon), -self.clipob, self.clipob)
+            obs = np.clip(
+                (obs - self.ob_rms.mean) / np.sqrt(self.ob_rms.var + self.epsilon),
+                -self.clipob,
+                self.clipob,
+            )
             return obs
         else:
             return obs
