@@ -3,7 +3,11 @@ import pytest
 import os
 import shutil
 import gym
-from gym.wrappers import RecordEpisodeStatistics, RecordVideo
+from gym.wrappers import (
+    RecordEpisodeStatistics,
+    RecordVideo,
+    capped_cubic_video_schedule,
+)
 
 
 def test_record_video_using_default_trigger():
@@ -18,7 +22,9 @@ def test_record_video_using_default_trigger():
     env.close()
     assert os.path.isdir("videos")
     mp4_files = [file for file in os.listdir("videos") if file.endswith(".mp4")]
-    assert len(mp4_files) == env.episode_id
+    assert len(mp4_files) == sum(
+        [capped_cubic_video_schedule(i) for i in range(env.episode_id)]
+    )
     shutil.rmtree("videos")
 
 
