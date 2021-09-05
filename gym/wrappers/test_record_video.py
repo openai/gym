@@ -9,16 +9,13 @@ from gym.wrappers import (
     capped_cubic_video_schedule,
 )
 
-if os.path.isdir("videos"):
-    shutil.rmtree("videos")
-
 
 def test_record_video_using_default_trigger():
 
     env = gym.make("CartPole-v1")
     env = gym.wrappers.RecordVideo(env, "videos")
     env.reset()
-    for _ in range(199):
+    for _ in range(1000):
         action = env.action_space.sample()
         _, _, done, _ = env.step(action)
         if done:
@@ -26,9 +23,8 @@ def test_record_video_using_default_trigger():
     env.close()
     assert os.path.isdir("videos")
     mp4_files = [file for file in os.listdir("videos") if file.endswith(".mp4")]
-    print(env.episode_id)
     assert len(mp4_files) == sum(
-        [capped_cubic_video_schedule(i) for i in range(env.episode_id)]
+        [capped_cubic_video_schedule(i) for i in range(env.episode_id + 1)]
     )
     shutil.rmtree("videos")
 
