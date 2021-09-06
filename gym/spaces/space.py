@@ -35,7 +35,7 @@ class Space(object):
 
     @property
     def shape(self):
-        """Return the shape of the space as a nonchangeable property"""
+        """Return the shape of the space as an immutable property"""
         return self._shape
 
     def sample(self):
