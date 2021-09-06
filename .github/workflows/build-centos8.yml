@@ -1,0 +1,18 @@
+name: build
+on: [pull_request, push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [36, 38, 39]
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+           docker build -f py-centos8.Dockerfile \
+             --build-arg MUJOCO_KEY=$MUJOCO_KEY \
+             --build-arg PYTHON_VERSION=${{ matrix.python-version }} \
+             --tag gym-docker .
+      - name: Run tests
+        run: docker run gym-docker pytest --forked
