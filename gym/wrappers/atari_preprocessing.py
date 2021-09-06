@@ -100,11 +100,11 @@ class AtariPreprocessing(gym.Wrapper):
             low=_low, high=_high, shape=_shape, dtype=_obs_dtype
         )
 
-    def step(self, action):
+    def step(self, action, **kwargs):
         R = 0.0
 
         for t in range(self.frame_skip):
-            _, reward, done, info = self.env.step(action)
+            _, reward, done, info = self.env.step(action, **kwargs)
             R += reward
             self.game_over = done
 

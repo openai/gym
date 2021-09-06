@@ -24,9 +24,9 @@ class RecordEpisodeStatistics(gym.Wrapper):
         self.episode_lengths = np.zeros(self.num_envs, dtype=np.int32)
         return observations
 
-    def step(self, action):
+    def step(self, action, **kwargs):
         observations, rewards, dones, infos = super(RecordEpisodeStatistics, self).step(
-            action
+            action, **kwargs
         )
         self.episode_returns += rewards
         self.episode_lengths += 1

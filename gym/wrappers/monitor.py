@@ -45,9 +45,9 @@ class Monitor(Wrapper):
             directory, video_callable, force, resume, write_upon_reset, uid, mode
         )
 
-    def step(self, action):
+    def step(self, action, **kwargs):
         self._before_step(action)
-        observation, reward, done, info = self.env.step(action)
+        observation, reward, done, info = self.env.step(action, **kwargs)
         done = self._after_step(observation, reward, done, info)
 
         return observation, reward, done, info

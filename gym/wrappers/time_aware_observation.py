@@ -23,9 +23,9 @@ class TimeAwareObservation(ObservationWrapper):
     def observation(self, observation):
         return np.append(observation, self.t)
 
-    def step(self, action):
+    def step(self, action, **kwargs):
         self.t += 1
-        return super(TimeAwareObservation, self).step(action)
+        return super(TimeAwareObservation, self).step(action, **kwargs)
 
     def reset(self, **kwargs):
         self.t = 0
