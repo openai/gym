@@ -15,7 +15,7 @@ def test_record_video_using_default_trigger():
     env = gym.make("CartPole-v1")
     env = gym.wrappers.RecordVideo(env, "videos")
     env.reset()
-    for _ in range(1000):
+    for _ in range(199):
         action = env.action_space.sample()
         _, _, done, _ = env.step(action)
         if done:
