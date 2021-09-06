@@ -89,6 +89,7 @@ register(
     id="Blackjack-v0",
     entry_point="gym.envs.toy_text:BlackjackEnv",
 )
+
 register(
     id="Blackjack-v1",
     entry_point="gym.envs.toy_text:BlackjackEnv",
