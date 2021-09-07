@@ -19,10 +19,33 @@ class Tuple(Space):
         super(Tuple, self).__init__(None, None, seed)
 
     def seed(self, seed=None):
-        if type(seed) == list:
-            [space.seed(seed[i]) for i, space in enumerate(self.spaces)]
+        seeds = []
+
+        if isinstance(seed, list):
+            seeds = [space.seed(seed[i]) for i, space in enumerate(self.spaces)]
+        elif isinstance(seed, int):
+            seeds = super().seed(seed)
+            try:
+                subseeds = self.np_random.choice(
+                    np.iinfo(int).max,
+                    size=len(self.spaces),
+                    replace=False,  # unique subseed for each subspace
+                )
+            except ValueError:
+                subseeds = self.np_random.choice(
+                    np.iinfo(int).max,
+                    size=len(self.spaces),
+                    replace=True,  # we get more than INT_MAX subspaces
+                )
+
+            for subspace, subseed in zip(self.spaces.values(), subseeds):
+                seeds.append(subspace.seed(int(subseed))[0])
+        elif seed is None:
+            seeds = [space.seed(seed) for space in self.spaces.values()]
         else:
-            [space.seed(seed) for space in self.spaces]
+            raise TypeError("Passed seed not of an expected type: list or int or None")
+            
+        return seeds
 
     def sample(self):
         return tuple([space.sample() for space in self.spaces])

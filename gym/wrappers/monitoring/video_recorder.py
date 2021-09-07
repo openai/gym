@@ -10,10 +10,14 @@ import distutils.version
 import numpy as np
 
 from gym import error, logger
+from gym.utils import closer
 
 
 def touch(path):
     open(path, "a").close()
+
+
+video_recorder_closer = closer.Closer()
 
 
 class VideoRecorder(object):
@@ -37,6 +41,8 @@ class VideoRecorder(object):
         modes = env.metadata.get("render.modes", [])
         self._async = env.metadata.get("semantics.async")
         self.enabled = enabled
+        self._closed = False
+        self._recorder_id = video_recorder_closer.register(self)
 
         # Don't bother setting anything else if not enabled
         if not self.enabled:
@@ -119,6 +125,11 @@ class VideoRecorder(object):
         """Render the given `env` and add the resulting frame to the video."""
         if not self.functional:
             return
+        if self._closed:
+            logger.warn(
+                "The video recorder has been closed and no frames will be captured anymore."
+            )
+            return
         logger.debug("Capturing video frame: path=%s", self.path)
 
         render_mode = "ansi" if self.ansi_mode else "rgb_array"
@@ -144,8 +155,8 @@ class VideoRecorder(object):
                 self._encode_image_frame(frame)
 
     def close(self):
-        """Make sure to manually close, or else you'll leak the encoder process"""
-        if not self.enabled:
+        """Flush all data to disk and close any open frame encoders."""
+        if not self.enabled or self._closed:
             return
 
         if self.encoder:
@@ -178,9 +189,17 @@ class VideoRecorder(object):
 
         self.write_metadata()
 
+        # Stop tracking this for autoclose
+        video_recorder_closer.unregister(self._recorder_id)
+        self._closed = True
+
     def write_metadata(self):
         with open(self.metadata_path, "w") as f:
             json.dump(self.metadata, f)
+
+    def __del__(self):
+        # Make sure we've closed up shop when garbage collecting
+        self.close()
 
     def _encode_ansi_frame(self, frame):
         if not self.encoder:

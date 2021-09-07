@@ -1,4 +1,5 @@
 import numpy as np
+import warnings
 
 from .space import Space
 from gym import logger
@@ -138,10 +139,15 @@ class Box(Space):
         return sample.astype(self.dtype)
 
     def contains(self, x):
-        if isinstance(x, list):
-            x = np.array(x)  # Promote list to array for contains check
+        if not isinstance(x, np.ndarray):
+            warnings.warn("Casting input x to numpy array.")
+            x = np.asarray(x, dtype=self.dtype)
+
         return (
-            x.shape == self.shape and np.all(x >= self.low) and np.all(x <= self.high)
+            np.can_cast(x.dtype, self.dtype)
+            and x.shape == self.shape
+            and np.all(x >= self.low)
+            and np.all(x <= self.high)
         )
 
     def to_jsonable(self, sample_n):

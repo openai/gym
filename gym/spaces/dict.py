@@ -1,4 +1,5 @@
 from collections import OrderedDict
+import numpy as np
 from .space import Space
 
 
@@ -53,7 +54,8 @@ class Dict(Space):
         )  # None for shape and dtype, since it'll require special handling
 
     def seed(self, seed=None):
-        if type(seed) == dict:
+        seeds = []
+        if isinstance(seed, dict):
             for key, seed_key in zip(self.spaces, seed):
                 assert key == seed_key, print(
                     "Key value",
@@ -62,9 +64,31 @@ class Dict(Space):
                     key,
                     "in spaces Dict.",
                 )
-                self.spaces[key].seed(seed[seed_key])
+                seed = self.spaces[key].seed(seed[seed_key])
+                seeds.append(seed)
+        elif isinstance(seed, int):
+            seeds = super().seed(seed)
+            try:
+                subseeds = self.np_random.choice(
+                    np.iinfo(int).max,
+                    size=len(self.spaces),
+                    replace=False,  # unique subseed for each subspace
+                )
+            except ValueError:
+                subseeds = self.np_random.choice(
+                    np.iinfo(int).max,
+                    size=len(self.spaces),
+                    replace=True,  # we get more than INT_MAX subspaces
+                )
+
+            for subspace, subseed in zip(self.spaces.values(), subseeds):
+                seeds.append(subspace.seed(int(subseed))[0])
+        elif seed is None:
+            seeds = [space.seed(seed) for space in self.spaces.values()]
         else:
-            [space.seed(seed) for space in self.spaces.values()]
+            raise TypeError("Passed seed not of an expected type: dict or int or None")
+            
+        return seeds
 
     def sample(self):
         return OrderedDict([(k, space.sample()) for k, space in self.spaces.items()])
@@ -81,6 +105,9 @@ class Dict(Space):
 
     def __getitem__(self, key):
         return self.spaces[key]
+
+    def __setitem__(self, key, value):
+        self.spaces[key] = value
 
     def __iter__(self):
         for key in self.spaces:

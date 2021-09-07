@@ -12,18 +12,6 @@ specification of each task is in
 [gym/envs/\_\_init\_\_.py](https://github.com/openai/gym/blob/master/gym/envs/__init__.py).
 It's worth browsing through both.
 
-### Algorithmic
-
-These are a variety of algorithmic tasks, such as learning to copy a
-sequence.
-
-``` python
-import gym
-env = gym.make('Copy-v0')
-env.reset()
-env.render()
-```
-
 ### Atari
 
 The Atari environments are a variety of Atari video games. If you didn't
@@ -33,7 +21,7 @@ follows:
 
 ``` python
 import gym
-env = gym.make('SpaceInvaders-v0')
+env = gym.make('SpaceInvaders-v4')
 env.reset()
 env.render()
 ```
@@ -64,7 +52,7 @@ enable rendering. You can get started with them via:
 
 ``` python
 import gym
-env = gym.make('CartPole-v0')
+env = gym.make('CartPole-v1')
 env.reset()
 env.render()
 ```
@@ -92,7 +80,7 @@ you didn't do the full install.
 
 ``` python
 import gym
-env = gym.make('HandManipulateBlock-v0')
+env = gym.make('HandManipulateBlock-v2')
 env.reset()
 env.render()
 ```
@@ -116,7 +104,7 @@ install, so to get started, you can just do:
 
 ``` python
 import gym
-env = gym.make('FrozenLake-v0')
+env = gym.make('FrozenLake-v1')
 env.reset()
 env.render()
 ```
@@ -147,9 +135,21 @@ Learn more here: https://github.com/openai/roboschool
 
 The gym comes prepackaged with many many environments. It's this common API around many environments that makes Gym so great. Here we will list additional environments that do not come prepacked with the gym. Submit another to this list via a pull-request.
 
+### gym-algorithmic
+
+These are a variety of algorithmic tasks, such as learning to copy a sequence, present in Gym prior to Gym 0.20.0.
+
+Learn more here: https://github.com/Rohan138/gym-algorithmic
+
+### gym-legacy-toytext
+
+These are the unused toy-text environments present in Gym prior to Gym 0.20.0.
+
+Learn more here: https://github.com/Rohan138/gym-legacy-toytext
+
 ### gym-spoof
 
-Spoof, otherwise known as "The 3-coin game", is a multi-agent (2 player), imperfect-information, zero-sum game. 
+Spoof, otherwise known as "The 3-coin game", is a multi-agent (2 player), imperfect-information, zero-sum game.
 
 Learn more here: https://github.com/MouseAndKeyboard/gym-spoof
 
@@ -177,7 +177,7 @@ Learn more here: https://github.com/222464/PGE
 
 ### gym-inventory: Inventory Control Environments
 
-gym-inventory is a single agent domain featuring discrete state and action spaces that an AI agent might encounter in inventory control problems. 
+gym-inventory is a single agent domain featuring discrete state and action spaces that an AI agent might encounter in inventory control problems.
 
 Learn more here: https://github.com/paulhendricks/gym-inventory
 
@@ -189,7 +189,7 @@ rendering  tool.
 Learn more here: https://github.com/erlerobot/gym-gazebo/
 
 ### gym-maze: 2D maze environment
-A simple 2D maze environment where an agent finds its way from the start position to the goal. 
+A simple 2D maze environment where an agent finds its way from the start position to the goal.
 
 Learn more here: https://github.com/tuzzer/gym-maze/
 
@@ -205,7 +205,7 @@ A minimalistic gridworld environment. Seeks to minimize software dependencies, b
 
 Learn more here: https://github.com/maximecb/gym-minigrid
 
-### gym-miniworld: Minimalistic 3D Interior Environment Simulator 
+### gym-miniworld: Minimalistic 3D Interior Environment Simulator
 
 MiniWorld is a minimalistic 3D interior environment simulator for reinforcement learning & robotics research. It can be used to simulate environments with rooms, doors, hallways and various objects (eg: office and home environments, mazes). MiniWorld can be seen as an alternative to VizDoom or DMLab. It is written 100% in Python and designed to be easily modified or extended.
 
@@ -224,7 +224,7 @@ A lane-following simulator built for the [Duckietown](http://duckietown.org/) pr
 
 Learn more here: https://github.com/duckietown/gym-duckietown
 
-### GymFC: A flight control tuning and training framework 
+### GymFC: A flight control tuning and training framework
 
 GymFC is a modular framework for synthesizing neuro-flight controllers. The
 architecture integrates digital twinning concepts to provide seamless transfer
@@ -244,7 +244,7 @@ Learn more here: https://github.com/AminHP/gym-anytrading
 
 An implementation of the board game Go
 
-Learn more here: https://github.com/aigagror/GymGo 
+Learn more here: https://github.com/aigagror/GymGo
 
 ### gym-electric-motor: Intelligent control of electric drives
 
@@ -276,7 +276,7 @@ gym-carla provides a gym wrapper for the [CARLA simulator](http://carla.org/), w
 
 Learn more here: https://github.com/cjy1992/gym-carla
 
-### openmodelica-microgrid-gym: Intelligent control of microgrids 
+### openmodelica-microgrid-gym: Intelligent control of microgrids
 
 The OpenModelica Microgrid Gym (OMG) package is a software toolbox for the simulation and control optimization of microgrids based on energy conversion by power electronic converters.
 
@@ -302,7 +302,7 @@ Learn more here: https://github.com/addy1997/Gridworld
 
 ### gym-goddard: Goddard's Rocket Problem
 
-An environment for simulating the classical optimal control problem where the thrust of a vertically ascending rocket shall be determined such that it reaches the maximum possible altitude, while being subject to varying aerodynamic drag, gravity and mass. 
+An environment for simulating the classical optimal control problem where the thrust of a vertically ascending rocket shall be determined such that it reaches the maximum possible altitude, while being subject to varying aerodynamic drag, gravity and mass.
 
 Learn more here: https://github.com/osannolik/gym-goddard
 
@@ -382,13 +382,13 @@ Learn more here: https://github.com/zuoxingdong/gym-recsys
 
 ### QASGym: gym environment for Quantum Architecture Search (QAS)
 
-This a list of environments for quantum architecture search following the description in [Quantum Architecture Search via Deep Reinforcement Learning](https://arxiv.org/abs/2104.07715). The agent design the quantum circuit by taking actions in the environment. Each action corresponds to a gate applied on some wires. The goal is to build a circuit U such that generates the target n-qubit quantum state that belongs to the environment and hidden from the agent. The circuits are built using [Google QuantumAI Cirq](https://quantumai.google/cirq). 
+This a list of environments for quantum architecture search following the description in [Quantum Architecture Search via Deep Reinforcement Learning](https://arxiv.org/abs/2104.07715). The agent design the quantum circuit by taking actions in the environment. Each action corresponds to a gate applied on some wires. The goal is to build a circuit U such that generates the target n-qubit quantum state that belongs to the environment and hidden from the agent. The circuits are built using [Google QuantumAI Cirq](https://quantumai.google/cirq).
 
 Learn more here: https://github.com/qdevpsi3/quantum-arch-search
 
 ### robo-gym: Environments for Real and Simulated Robots
 
-robo-gym provides a collection of reinforcement learning environments involving robotic tasks applicable in both simulation and real world robotics. 
+robo-gym provides a collection of reinforcement learning environments involving robotic tasks applicable in both simulation and real world robotics.
 
 Learn more here: https://github.com/jr-robotics/robo-gym
 
@@ -407,3 +407,30 @@ Learn more here: https://github.com/modanesh/anomalous_rl_envs
 ### stable-retro
 
 Fork of gym-retro with additional games, states, scenarios, etc. Open to PRs of additional games, features and plateforms since gym-retro is in maintenance mode.
+
+https://github.com/MatPoliquin/stable-retro
+
+### CompilerGym
+
+Reinforcement learning environments for compiler optimization tasks, such as LLVM phase ordering, GCC flag tuning, and CUDA loop nest code generation.
+
+Learn more here: https://github.com/facebookresearch/CompilerGym
+
+### LongiControl
+
+An environment for the stochastic longitudinal control of an electric vehicle.
+It is intended to be a descriptive and comprehensible example for a continuous real-world problem within the field of autonomous driving.
+
+Learn more here: https://github.com/dynamik1703/gym_longicontrol
+
+### safe-control-gym
+
+PyBullet-based CartPole and Quadrotor environments—with [CasADi](https://web.casadi.org) (symbolic) *a priori* dynamics and constraints—for learning-based control and model-based reinforcement learning.
+
+Learn more here: https://github.com/utiasDSL/safe-control-gym
+
+### MarsExplorer: Deep Reinforcement Learning for Extraterrestrial Exploration
+
+Mars Explorer is an openai-gym compatible environment designed and developed as an initial endeavor to bridge the gap between powerful Deep Reinforcement Learning methodologies and the problem of exploration/coverage of an unknown terrain.
+
+Learn more here: https://github.com/dimikout3/MarsExplorer

@@ -102,7 +102,9 @@ class AcrobotEnv(core.Env):
         return [seed]
 
     def reset(self):
-        self.state = self.np_random.uniform(low=-0.1, high=0.1, size=(4,))
+        self.state = self.np_random.uniform(low=-0.1, high=0.1, size=(4,)).astype(
+            np.float32
+        )
         return self._get_ob()
 
     def step(self, a):
@@ -120,13 +122,6 @@ class AcrobotEnv(core.Env):
         s_augmented = np.append(s, torque)
 
         ns = rk4(self._dsdt, s_augmented, [0, self.dt])
-        # only care about final timestep of integration returned by integrator
-        ns = ns[-1]
-        ns = ns[:4]  # omit action
-        # ODEINT IS TOO SLOW!
-        # ns_continuous = integrate.odeint(self._dsdt, self.s_continuous, [0, self.dt])
-        # self.s_continuous = ns_continuous[-1] # We only care about the state
-        # at the ''final timestep'', self.dt
 
         ns[0] = wrap(ns[0], -pi, pi)
         ns[1] = wrap(ns[1], -pi, pi)
@@ -139,13 +134,15 @@ class AcrobotEnv(core.Env):
 
     def _get_ob(self):
         s = self.state
-        return np.array([cos(s[0]), sin(s[0]), cos(s[1]), sin(s[1]), s[2], s[3]])
+        return np.array(
+            [cos(s[0]), sin(s[0]), cos(s[1]), sin(s[1]), s[2], s[3]], dtype=np.float32
+        )
 
     def _terminal(self):
         s = self.state
         return bool(-cos(s[0]) - cos(s[1] + s[0]) > 1.0)
 
-    def _dsdt(self, s_augmented, t):
+    def _dsdt(self, s_augmented):
         m1 = self.LINK_MASS_1
         m2 = self.LINK_MASS_2
         l1 = self.LINK_LENGTH_1
@@ -268,7 +265,7 @@ def bound(x, m, M=None):
     return min(max(x, m), M)
 
 
-def rk4(derivs, y0, t, *args, **kwargs):
+def rk4(derivs, y0, t):
     """
     Integrate 1D or ND system of ODEs using 4-th order Runge-Kutta.
     This is a toy implementation which may be useful if you find
@@ -276,7 +273,7 @@ def rk4(derivs, y0, t, *args, **kwargs):
     :func:`scipy.integrate`.
 
     Args:
-        derivs: the derivative of the system and has the signature ``dy = derivs(yi, ti)``
+        derivs: the derivative of the system and has the signature ``dy = derivs(yi)``
         y0: initial state vector
         t: sample times
         args: additional arguments passed to the derivative function
@@ -284,7 +281,7 @@ def rk4(derivs, y0, t, *args, **kwargs):
 
     Example 1 ::
         ## 2D system
-        def derivs6(x,t):
+        def derivs(x):
             d1 =  x[0] + 2*x[1]
             d2 =  -3*x[0] + 4*x[1]
             return (d1, d2)
@@ -292,15 +289,10 @@ def rk4(derivs, y0, t, *args, **kwargs):
         t = arange(0.0, 2.0, dt)
         y0 = (1,2)
         yout = rk4(derivs6, y0, t)
-    Example 2::
-        ## 1D system
-        alpha = 2
-        def derivs(x,t):
-            return -alpha*x + exp(-t)
-        y0 = 1
-        yout = rk4(derivs, y0, t)
+
     If you have access to scipy, you should probably be using the
     scipy.integrate tools rather than this function.
+    This would then require re-adding the time variable to the signature of derivs.
 
     Returns:
         yout: Runge-Kutta approximation of the ODE
@@ -322,9 +314,10 @@ def rk4(derivs, y0, t, *args, **kwargs):
         dt2 = dt / 2.0
         y0 = yout[i]
 
-        k1 = np.asarray(derivs(y0, thist, *args, **kwargs))
-        k2 = np.asarray(derivs(y0 + dt2 * k1, thist + dt2, *args, **kwargs))
-        k3 = np.asarray(derivs(y0 + dt2 * k2, thist + dt2, *args, **kwargs))
-        k4 = np.asarray(derivs(y0 + dt * k3, thist + dt, *args, **kwargs))
+        k1 = np.asarray(derivs(y0))
+        k2 = np.asarray(derivs(y0 + dt2 * k1))
+        k3 = np.asarray(derivs(y0 + dt2 * k2))
+        k4 = np.asarray(derivs(y0 + dt * k3))
         yout[i + 1] = y0 + dt / 6.0 * (k1 + 2 * k2 + 2 * k3 + k4)
-    return yout
+    # We only care about the final timestep and we cleave off action value which will be zero
+    return yout[-1][:4]

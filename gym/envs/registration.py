@@ -1,7 +1,6 @@
 import re
 import copy
 import importlib
-import warnings
 
 from gym import error, logger
 
@@ -104,16 +103,6 @@ class EnvRegistry(object):
             logger.info("Making new env: %s", path)
         spec = self.spec(path)
         env = spec.make(**kwargs)
-        # We used to have people override _reset/_step rather than
-        # reset/step. Set _gym_disable_underscore_compat = True on
-        # your environment if you use these methods and don't want
-        # compatibility code to be invoked.
-        if (
-            hasattr(env, "_reset")
-            and hasattr(env, "_step")
-            and not getattr(env, "_gym_disable_underscore_compat", False)
-        ):
-            patch_deprecated_methods(env)
         if env.spec.max_episode_steps is not None:
             from gym.wrappers.time_limit import TimeLimit
 
@@ -125,11 +114,10 @@ class EnvRegistry(object):
 
     def spec(self, path):
         if ":" in path:
-            mod_name, _sep, id = path.partition(":")
+            mod_name, _, id = path.partition(":")
             try:
                 importlib.import_module(mod_name)
-            # catch ImportError for python2.7 compatibility
-            except ImportError:
+            except ModuleNotFoundError:
                 raise error.Error(
                     "A module ({}) was specified for the environment but was not found, make sure the package is installed with `pip install` before calling `gym.make()`".format(
                         mod_name
@@ -157,10 +145,38 @@ class EnvRegistry(object):
                 for valid_env_name, valid_env_spec in self.env_specs.items()
                 if env_name == valid_env_spec._env_name
             ]
+            algorithmic_envs = [
+                "Copy",
+                "RepeatCopy",
+                "DuplicatedInput",
+                "Reverse",
+                "ReversedAdiiton",
+                "ReversedAddition3",
+            ]
+            toytext_envs = [
+                "KellyCoinflip",
+                "KellyCoinflipGeneralized",
+                "NChain",
+                "Roulette",
+                "GuessingGame",
+                "HotterColder",
+            ]
             if matching_envs:
                 raise error.DeprecatedEnv(
                     "Env {} not found (valid versions include {})".format(
                         id, matching_envs
+                    )
+                )
+            elif env_name in algorithmic_envs:
+                raise error.UnregisteredEnv(
+                    "Algorithmic environment {} has been moved out of Gym. Install it via `pip install gym-algorithmic` and add `import gym_algorithmic` before using it.".format(
+                        id
+                    )
+                )
+            elif env_name in toytext_envs:
+                raise error.UnregisteredEnv(
+                    "Toytext environment {} has been moved out of Gym. Install it via `pip install gym-legacy-toytext` and add `import gym_toytext` before using it.".format(
+                        id
                     )
                 )
             else:
@@ -168,7 +184,7 @@ class EnvRegistry(object):
 
     def register(self, id, **kwargs):
         if id in self.env_specs:
-            raise error.Error("Cannot re-register id: {}".format(id))
+            logger.warn("Overriding environment {}".format(id))
         self.env_specs[id] = EnvSpec(id, **kwargs)
 
 
@@ -186,32 +202,3 @@ def make(id, **kwargs):
 
 def spec(id):
     return registry.spec(id)
-
-
-warn_once = True
-
-
-def patch_deprecated_methods(env):
-    """
-    Methods renamed from '_method' to 'method', render() no longer has 'close' parameter, close is a separate method.
-    For backward compatibility, this makes it possible to work with unmodified environments.
-    """
-    global warn_once
-    if warn_once:
-        logger.warn(
-            "Environment '%s' has deprecated methods '_step' and '_reset' rather than 'step' and 'reset'. Compatibility code invoked. Set _gym_disable_underscore_compat = True to disable this behavior."
-            % str(type(env))
-        )
-        warn_once = False
-    env.reset = env._reset
-    env.step = env._step
-    env.seed = env._seed
-
-    def render(mode):
-        return env._render(mode, close=False)
-
-    def close():
-        env._render("human", close=True)
-
-    env.render = render
-    env.close = close
