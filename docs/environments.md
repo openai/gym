@@ -240,6 +240,12 @@ AnyTrading is a collection of OpenAI Gym environments for reinforcement learning
 
 Learn more here: https://github.com/AminHP/gym-anytrading
 
+### gym-mtsim: Real-world simulator/environment for trading markets
+
+MtSim is a general-purpose, flexible, and easy-to-use simulator alongside an OpenAI Gym trading environment for MetaTrader 5 trading platform.
+
+Learn more here: https://github.com/AminHP/gym-mtsim
+
 ### GymGo: The Board Game Go
 
 An implementation of the board game Go
