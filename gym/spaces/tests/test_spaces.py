@@ -225,6 +225,7 @@ def test_seed_Dict():
         c_s = c.sample()
         assert test_s["c"] == c_s
 
+
 def test_box_dtype_check():
     # Related Issues:
     # https://github.com/openai/gym/issues/2357
@@ -358,4 +359,3 @@ def test_seed_subspace_incorrelated(space):
     ]
 
     assert len(states) == len(set(states))
-

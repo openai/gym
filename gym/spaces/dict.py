@@ -87,7 +87,7 @@ class Dict(Space):
             seeds = [space.seed(seed) for space in self.spaces.values()]
         else:
             raise TypeError("Passed seed not of an expected type: dict or int or None")
-            
+
         return seeds
 
     def sample(self):
