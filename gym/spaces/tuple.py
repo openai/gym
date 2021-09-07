@@ -22,7 +22,8 @@ class Tuple(Space):
         seeds = []
 
         if isinstance(seed, list):
-            seeds = [space.seed(seed[i]) for i, space in enumerate(self.spaces)]
+            for i, space in enumerate(self.spaces):
+                seeds += space.seed(seed[i])
         elif isinstance(seed, int):
             seeds = super().seed(seed)
             try:
@@ -38,10 +39,11 @@ class Tuple(Space):
                     replace=True,  # we get more than INT_MAX subspaces
                 )
 
-            for subspace, subseed in zip(self.spaces.values(), subseeds):
+            for subspace, subseed in zip(self.spaces, subseeds):
                 seeds.append(subspace.seed(int(subseed))[0])
         elif seed is None:
-            seeds = [space.seed(seed) for space in self.spaces.values()]
+            for space in self.spaces:
+                seeds += space.seed(seed)
         else:
             raise TypeError("Passed seed not of an expected type: list or int or None")
 

@@ -205,6 +205,8 @@ def test_seed_Dict():
     }
 
     test_space.seed(seed_dict)
+
+    # "Unpack" the dict sub-spaces into individual spaces
     a = Box(low=0, high=1, shape=(3, 3))
     a.seed(0)
     b_1 = Box(low=-100, high=100, shape=(2,))

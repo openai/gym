@@ -64,8 +64,7 @@ class Dict(Space):
                     key,
                     "in spaces Dict.",
                 )
-                seed = self.spaces[key].seed(seed[seed_key])
-                seeds.append(seed)
+                seeds += self.spaces[key].seed(seed[seed_key])
         elif isinstance(seed, int):
             seeds = super().seed(seed)
             try:
@@ -84,7 +83,8 @@ class Dict(Space):
             for subspace, subseed in zip(self.spaces.values(), subseeds):
                 seeds.append(subspace.seed(int(subseed))[0])
         elif seed is None:
-            seeds = [space.seed(seed) for space in self.spaces.values()]
+            for space in self.spaces.values():
+                seeds += space.seed(seed)
         else:
             raise TypeError("Passed seed not of an expected type: dict or int or None")
 
