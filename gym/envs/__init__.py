@@ -88,7 +88,7 @@ register(
 register(
     id="Blackjack-v1",
     entry_point="gym.envs.toy_text:BlackjackEnv",
-    kwargs={"sab": True},
+    kwargs={"sab": True, "natural": False},
 )
 
 register(
