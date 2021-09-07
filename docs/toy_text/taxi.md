@@ -86,5 +86,7 @@ gym.make('Taxi-v3')
 
 ### Version History
 
-* v1-v3: PRs welcome to clarify these version bumps
-* v0: Initial versions release (1.0.0)
+* v3: Map Correction + Cleaner Domain Description
+* v2: Disallow Taxi start location = goal location, Update Taxi observations in the rollout, Update Taxi reward threshold.
+* v1: Remove (3,2) from locs, add passidx<4 check
+* v0: Initial versions release

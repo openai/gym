@@ -7,7 +7,7 @@ from gym.wrappers import FlattenObservation
 from gym import spaces
 
 
-@pytest.mark.parametrize("env_id", ["Blackjack-v0"])
+@pytest.mark.parametrize("env_id", ["Blackjack-v1"])
 def test_flatten_observation(env_id):
     env = gym.make(env_id)
     wrapped_env = FlattenObservation(env)
