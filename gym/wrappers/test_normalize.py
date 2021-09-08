@@ -87,7 +87,7 @@ def test_normalize_observation_vector_env():
     )
 
 
-def test_normalize_observation_vector_env():
+def test_normalize_return_vector_env():
     env_fns = [make_env(0), make_env(1)]
     envs = gym.vector.SyncVectorEnv(env_fns)
     envs = NormalizeReturn(envs)
