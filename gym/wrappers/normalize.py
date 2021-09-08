@@ -38,33 +38,53 @@ def update_mean_var_count_from_moments(
     return new_mean, new_var, new_count
 
 
-class Normalize(gym.core.Wrapper):
+class NormalizeObservation(gym.core.Wrapper):
     def __init__(
         self,
         env,
-        norm_obs=True,
-        norm_return=True,
-        clip_obs=10.0,
-        clip_reward=10.0,
-        gamma=0.99,
         epsilon=1e-8,
     ):
-        super(Normalize, self).__init__(env)
+        super(NormalizeObservation, self).__init__(env)
         self.num_envs = getattr(env, "num_envs", 1)
         self.is_vector_env = getattr(env, "is_vector_env", False)
         if self.is_vector_env:
-            self.obs_rms = (
-                RunningMeanStd(shape=self.single_observation_space.shape)
-                if norm_obs
-                else None
-            )
+            self.obs_rms = RunningMeanStd(shape=self.single_observation_space.shape)
         else:
-            self.obs_rms = (
-                RunningMeanStd(shape=self.observation_space.shape) if norm_obs else None
-            )
-        self.return_rms = RunningMeanStd(shape=()) if norm_return else None
-        self.clip_obs = clip_obs
-        self.clip_reward = clip_reward
+            self.obs_rms = RunningMeanStd(shape=self.observation_space.shape)
+        self.epsilon = epsilon
+
+    def step(self, action):
+        obs, rews, dones, infos = self.env.step(action)
+        if self.is_vector_env:
+            obs = self.normalize(obs)
+        else:
+            obs = self.normalize(np.array([obs]))[0]
+        return obs, rews, dones, infos
+
+    def reset(self):
+        obs = self.env.reset()
+        if self.is_vector_env:
+            obs = self.normalize(obs)
+        else:
+            obs = self.normalize(np.array([obs]))[0]
+        return obs
+
+    def normalize(self, obs):
+        self.obs_rms.update(obs)
+        return (obs - self.obs_rms.mean) / np.sqrt(self.obs_rms.var + self.epsilon)
+
+
+class NormalizeReturn(gym.core.Wrapper):
+    def __init__(
+        self,
+        env,
+        gamma=0.99,
+        epsilon=1e-8,
+    ):
+        super(NormalizeReturn, self).__init__(env)
+        self.num_envs = getattr(env, "num_envs", 1)
+        self.is_vector_env = getattr(env, "is_vector_env", False)
+        self.return_rms = RunningMeanStd(shape=())
         self.returns = np.zeros(self.num_envs)
         self.gamma = gamma
         self.epsilon = epsilon
@@ -72,38 +92,14 @@ class Normalize(gym.core.Wrapper):
     def step(self, action):
         obs, rews, dones, infos = self.env.step(action)
         if not self.is_vector_env:
-            obs, rews, dones = np.array([obs]), np.array([rews]), np.array([dones])
+            rews = np.array([rews])
         self.returns = self.returns * self.gamma + rews
-        obs = self._obfilt(obs)
-        if self.return_rms:
-            self.return_rms.update(self.returns)
-            rews = np.clip(
-                rews / np.sqrt(self.return_rms.var + self.epsilon),
-                -self.clip_reward,
-                self.clip_reward,
-            )
+        rews = self.normalize(rews)
         self.returns[dones] = 0.0
         if not self.is_vector_env:
-            return obs[0], rews[0], dones[0], infos
+            rews = rews[0]
         return obs, rews, dones, infos
 
-    def _obfilt(self, obs):
-        if self.obs_rms:
-            self.obs_rms.update(obs)
-            obs = np.clip(
-                (obs - self.obs_rms.mean) / np.sqrt(self.obs_rms.var + self.epsilon),
-                -self.clip_obs,
-                self.clip_obs,
-            )
-            return obs
-        else:
-            return obs
-
-    def reset(self):
-        obs = self.env.reset()
-        if self.is_vector_env:
-            obs = self._obfilt(obs)
-            return obs
-        else:
-            obs = self._obfilt(np.array([obs]))[0]
-            return obs
+    def normalize(self, rews):
+        self.return_rms.update(self.returns)
+        return rews / np.sqrt(self.return_rms.var + self.epsilon)
