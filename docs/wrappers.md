@@ -33,8 +33,12 @@ Gym includes numerous wrappers for environments that include preprocessing and v
 * Needs review (including for good assertion messages and test coverage)
 
 
-`Normalize(norm_obs=True, norm_return=True, clip_obs=10.0, clip_reward=10.0, gamma=0.99, epsilon=1e-8)` [text]
-* This wrapper clips observation and rewards, normalizes the observations to have zero mean and unit variance, and normalizes the *returns* to have and unit variance.
+`NormalizeObservation(env, epsilon=1e-8)` [text]
+* This wrapper normalizes the observations to have approximately zero mean and unit variance
+
+
+`NormalizeReward(env, gamma=0.99, epsilon=1e-8)` [text]
+* This wrapper normalizes the rewards so that the *discounted returns* to have approximately unit variance. Note the rewards does not have approximately zero mean like done in `NormalizeObservation`. For reference, see page 8 of [Phasic Policy Gradient](https://arxiv.org/pdf/2009.04416.pdf).
 
 
 ## Action Wrappers
