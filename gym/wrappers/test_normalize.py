@@ -2,7 +2,7 @@ import gym
 import numpy as np
 from numpy.testing import assert_almost_equal
 
-from gym.wrappers.normalize import NormalizeObservation, NormalizeReward
+from gym.wrappers.normalize import NormalizeObservation, ScaleRewardByReturnsVariance
 
 
 class DummyRewardEnv(gym.Env):
@@ -46,7 +46,7 @@ def test_normalize_observation():
 
 def test_normalize_return():
     env = DummyRewardEnv(return_reward_idx=0)
-    env = NormalizeReward(env)
+    env = ScaleRewardByReturnsVariance(env)
     env.reset()
     env.step(env.action_space.sample())
     assert_almost_equal(
@@ -90,7 +90,7 @@ def test_normalize_observation_vector_env():
 def test_normalize_return_vector_env():
     env_fns = [make_env(0), make_env(1)]
     envs = gym.vector.SyncVectorEnv(env_fns)
-    envs = NormalizeReward(envs)
+    envs = ScaleRewardByReturnsVariance(envs)
     obs = envs.reset()
     obs, reward, _, _ = envs.step(envs.action_space.sample())
     assert_almost_equal(

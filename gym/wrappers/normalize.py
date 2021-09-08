@@ -74,14 +74,14 @@ class NormalizeObservation(gym.core.Wrapper):
         return (obs - self.obs_rms.mean) / np.sqrt(self.obs_rms.var + self.epsilon)
 
 
-class NormalizeReward(gym.core.Wrapper):
+class ScaleRewardByReturnsVariance(gym.core.Wrapper):
     def __init__(
         self,
         env,
         gamma=0.99,
         epsilon=1e-8,
     ):
-        super(NormalizeReward, self).__init__(env)
+        super(ScaleRewardByReturnsVariance, self).__init__(env)
         self.num_envs = getattr(env, "num_envs", 1)
         self.is_vector_env = getattr(env, "is_vector_env", False)
         self.return_rms = RunningMeanStd(shape=())
