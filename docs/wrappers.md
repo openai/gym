@@ -37,7 +37,7 @@ Gym includes numerous wrappers for environments that include preprocessing and v
 * This wrapper normalizes the observations to have approximately zero mean and unit variance
 
 
-`ScaleRewardByReturnsVariance(env, gamma=0.99, epsilon=1e-8)` [text]
+`NormalizeReward(env, gamma=0.99, epsilon=1e-8)` [text]
 * This wrapper scales the rewards, which are divided through by the standard deviation of a rolling discounted returns. See page 3 of from [Engstrom, Ilyas et al. (2020)](https://arxiv.org/pdf/2005.12729.pdf)
 
 ## Action Wrappers
