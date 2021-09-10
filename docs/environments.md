@@ -14,22 +14,27 @@ It's worth browsing through both.
 
 ### Atari
 
-The Atari environments are a variety of Atari video games. If you didn't
-do the full install, you can install dependencies via `pip install -e
-'.[atari]'` (you'll need `cmake` installed) and then get started as
-follows:
-
+The Atari environments are provided by the [Arcade Learning Environment](https://github.com/mgbellemare/Arcade-Learning-Environment) (ALE).
+If you didn't do the full install, you can install dependencies via `pip install -e '.[atari]'` which will install `ale-py`.
+You can then create any of the legacy Atari environments as such:
 ``` python
 import gym
+
 env = gym.make('SpaceInvaders-v4')
-env.reset()
-env.render()
 ```
 
-This will install `atari-py`, which automatically compiles the [Arcade
-Learning Environment](https://github.com/mgbellemare/Arcade-Learning-Environment#:~:text=The%20Arcade%20Learning%20Environment%20(ALE)%20is%20a%20simple%20object%2D,of%20emulation%20from%20agent%20design.). This
-can take quite a while (a few minutes on a decent laptop), so just be
-prepared.
+Newer versions of the Atari environments live in the [ALE](https://github.com/mgbellemare/Arcade-Learning-Environment) repository
+and are namespaced with `ALE`. For example, the `v5` environments can be included as such:
+
+```python
+import gym
+import ale_py
+
+env = gym.make('ALE/SpaceInvaders-v5')
+```
+
+Note: ROMs are not distributed by the ALE but tools are provided in the ALE to manage ROMs.
+Please see the project's documentation on importing ROMs.
 
 ### Box2d
 
