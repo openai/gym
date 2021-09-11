@@ -1,7 +1,9 @@
+import gc
 import json
 import os
 import shutil
 import tempfile
+import time
 import numpy as np
 
 import gym
@@ -27,7 +29,18 @@ def test_record_simple():
     rec = VideoRecorder(env)
     env.reset()
     rec.capture_frame()
+    proc = rec.encoder.proc
+    with video_recorder_closer.lock:
+        num_registered = len(video_recorder_closer.closeables)
+
+    assert proc.poll() is None  # subprocess is running
+    assert num_registered >= 1
+
     rec.close()
+
+    assert proc.poll() is not None  # subprocess is terminated
+    with video_recorder_closer.lock:
+        assert len(video_recorder_closer.closeables) == num_registered - 1
     assert not rec.empty
     assert not rec.broken
     assert os.path.exists(rec.path)
@@ -44,15 +57,24 @@ def test_autoclose():
 
         rec_path = rec.path
         proc = rec.encoder.proc
+        with video_recorder_closer.lock:
+            num_registered = len(video_recorder_closer.closeables)
 
         assert proc.poll() is None  # subprocess is running
+        assert num_registered >= 1
 
         # The function ends without an explicit `rec.close()` call
         # The Python interpreter will implicitly do `del rec` on garbage cleaning
-        return rec_path, proc
+        return rec_path, proc, num_registered
 
-    rec_path, proc = record()
-    assert proc.poll() is not None
+    rec_path, proc, num_registered = record()
+
+    gc.collect()  # do explicit garbage collection for test
+    time.sleep(5)  # wait for subprocess exiting
+
+    assert proc.poll() is not None  # subprocess is terminated
+    with video_recorder_closer.lock:
+        assert len(video_recorder_closer.closeables) == num_registered - 1
     assert os.path.exists(rec_path)
     f = open(rec_path)
     assert os.fstat(f.fileno()).st_size > 100
