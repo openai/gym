@@ -1,4 +1,4 @@
-atari-py==0.2.6
+ale-py~=0.7
 opencv-python>=3.
 box2d-py==2.3.5
 mujoco_py>=1.50, <2.0
