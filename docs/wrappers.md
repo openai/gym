@@ -141,4 +141,6 @@ Lastly the `name_prefix` allows you to customize the name of the videos.
 `TimeLimit(env, max_episode_steps)` [text]
 * Needs review (including for good assertion messages and test coverage)
 
+`OrderEnforcing(env)` [text]
+
 Some sort of vector environment conversion wrapper needs to be added here, this will be figured out after the API is changed.
