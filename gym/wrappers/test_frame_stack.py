@@ -1,6 +1,6 @@
 import pytest
 
-pytest.importorskip("atari_py")
+pytest.importorskip("ale_py")
 
 import numpy as np
 import gym
@@ -28,23 +28,23 @@ except ImportError:
 )
 def test_frame_stack(env_id, num_stack, lz4_compress):
     env = gym.make(env_id)
+    env.seed(0)
     shape = env.observation_space.shape
     env = FrameStack(env, num_stack, lz4_compress)
     assert env.observation_space.shape == (num_stack,) + shape
     assert env.observation_space.dtype == env.env.observation_space.dtype
 
+    dup = gym.make(env_id)
+    dup.seed(0)
+
     obs = env.reset()
-    obs = np.asarray(obs)
-    assert obs.shape == (num_stack,) + shape
-    for i in range(1, num_stack):
-        assert np.allclose(obs[i - 1], obs[i])
+    dup_obs = dup.reset()
+    assert np.allclose(obs[-1], dup_obs)
 
-    obs, _, _, _ = env.step(env.action_space.sample())
-    obs = np.asarray(obs)
-    assert obs.shape == (num_stack,) + shape
-    for i in range(1, num_stack - 1):
-        assert np.allclose(obs[i - 1], obs[i])
-    assert not np.allclose(obs[-1], obs[-2])
+    for _ in range(num_stack ** 2):
+        action = env.action_space.sample()
+        dup_obs, _, _, _ = dup.step(action)
+        obs, _, _, _ = env.step(action)
+        assert np.allclose(obs[-1], dup_obs)
 
-    obs, _, _, _ = env.step(env.action_space.sample())
     assert len(obs) == num_stack

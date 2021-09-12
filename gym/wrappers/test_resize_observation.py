@@ -4,13 +4,13 @@ import gym
 from gym.wrappers import ResizeObservation
 
 try:
-    import atari_py
+    import ale_py
 except ImportError:
-    atari_py = None
+    ale_py = None
 
 
 @pytest.mark.skipif(
-    atari_py is None, reason="Only run this test when atari_py is installed"
+    ale_py is None, reason="Only run this test when ale_py is installed"
 )
 @pytest.mark.parametrize(
     "env_id", ["PongNoFrameskip-v0", "SpaceInvadersNoFrameskip-v0"]
