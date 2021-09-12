@@ -78,7 +78,14 @@ class EnvSpec(object):
         spec = copy.deepcopy(self)
         spec._kwargs = _kwargs
         env.unwrapped.spec = spec
+        if env.spec.max_episode_steps is not None:
+            from gym.wrappers.time_limit import TimeLimit
 
+            env = TimeLimit(env, max_episode_steps=env.spec.max_episode_steps)
+        else:
+            from gym.wrappers.order_enforcing import OrderEnforcing
+
+            env = OrderEnforcing(env)
         return env
 
     def __repr__(self):
@@ -103,10 +110,6 @@ class EnvRegistry(object):
             logger.info("Making new env: %s", path)
         spec = self.spec(path)
         env = spec.make(**kwargs)
-        if env.spec.max_episode_steps is not None:
-            from gym.wrappers.time_limit import TimeLimit
-
-            env = TimeLimit(env, max_episode_steps=env.spec.max_episode_steps)
         return env
 
     def all(self):
