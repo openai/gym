@@ -66,8 +66,15 @@ class EnvSpec(object):
                     self.id
                 )
             )
+
         _kwargs = self._kwargs.copy()
         _kwargs.update(kwargs)
+
+        # order is enforced by default
+        order_enforce = _kwargs.get("order_enforce", True)
+        if "order_enforce" in _kwargs:
+            del _kwargs["order_enforce"]
+
         if callable(self.entry_point):
             env = self.entry_point(**_kwargs)
         else:
@@ -83,9 +90,10 @@ class EnvSpec(object):
 
             env = TimeLimit(env, max_episode_steps=env.spec.max_episode_steps)
         else:
-            from gym.wrappers.order_enforcing import OrderEnforcing
+            if order_enforce:
+                from gym.wrappers.order_enforcing import OrderEnforcing
 
-            env = OrderEnforcing(env)
+                env = OrderEnforcing(env)
         return env
 
     def __repr__(self):
