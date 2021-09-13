@@ -29,6 +29,7 @@ class EnvSpec(object):
         reward_threshold (Optional[int]): The reward threshold before the task is considered solved
         nondeterministic (bool): Whether this environment is non-deterministic even after seeding
         max_episode_steps (Optional[int]): The maximum number of steps that an episode can consist of
+        order_enforce (Optional[int]): Whether to wrap the environment in an orderEnforcing wrapper
         kwargs (dict): The kwargs to pass to the environment class
 
     """
@@ -40,6 +41,7 @@ class EnvSpec(object):
         reward_threshold=None,
         nondeterministic=False,
         max_episode_steps=None,
+        order_enforce=True,
         kwargs=None,
     ):
         self.id = id
@@ -47,6 +49,7 @@ class EnvSpec(object):
         self.reward_threshold = reward_threshold
         self.nondeterministic = nondeterministic
         self.max_episode_steps = max_episode_steps
+        self.order_enforce = order_enforce
         self._kwargs = {} if kwargs is None else kwargs
 
         match = env_id_re.search(id)
@@ -70,11 +73,6 @@ class EnvSpec(object):
         _kwargs = self._kwargs.copy()
         _kwargs.update(kwargs)
 
-        # order is enforced by default
-        order_enforce = _kwargs.get("order_enforce", True)
-        if "order_enforce" in _kwargs:
-            del _kwargs["order_enforce"]
-
         if callable(self.entry_point):
             env = self.entry_point(**_kwargs)
         else:
@@ -90,7 +88,7 @@ class EnvSpec(object):
 
             env = TimeLimit(env, max_episode_steps=env.spec.max_episode_steps)
         else:
-            if order_enforce:
+            if self.order_enforce:
                 from gym.wrappers.order_enforcing import OrderEnforcing
 
                 env = OrderEnforcing(env)
