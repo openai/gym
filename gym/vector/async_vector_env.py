@@ -349,10 +349,10 @@ class AsyncVectorEnv(VectorEnv):
         self._assert_is_running()
         if timeout is None:
             return True
-        end_time = time.time() + timeout
+        end_time = time.perf_counter() + timeout
         delta = None
         for pipe in self.parent_pipes:
-            delta = max(end_time - time.time(), 0)
+            delta = max(end_time - time.perf_counter(), 0)
             if pipe is None:
                 return False
             if pipe.closed or (not pipe.poll(delta)):

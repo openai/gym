@@ -19,7 +19,7 @@ class Space(object):
     def __init__(self, shape=None, dtype=None, seed=None):
         import numpy as np  # takes about 300-400ms to import, so we load lazily
 
-        self.shape = None if shape is None else tuple(shape)
+        self._shape = None if shape is None else tuple(shape)
         self.dtype = None if dtype is None else np.dtype(dtype)
         self._np_random = None
         if seed is not None:
@@ -34,6 +34,11 @@ class Space(object):
             self.seed()
 
         return self._np_random
+
+    @property
+    def shape(self):
+        """Return the shape of the space as an immutable property"""
+        return self._shape
 
     def sample(self):
         """Randomly sample an element of this space. Can be

@@ -16,5 +16,6 @@ COPY . /usr/local/gym/
 WORKDIR /usr/local/gym/
 
 RUN pip install -e .[nomujoco] && pip install -r test_requirements.txt
+RUN AutoROM --accept-license
 
 ENTRYPOINT ["/usr/local/gym/bin/docker_entrypoint"]

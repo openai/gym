@@ -57,7 +57,7 @@ class Box(Space):
         if np.isscalar(high):
             high = np.full(shape, high, dtype=dtype)
 
-        self.shape = shape
+        self._shape = shape
         self.low = low
         self.high = high
 

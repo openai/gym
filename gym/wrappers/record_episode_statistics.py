@@ -8,9 +8,7 @@ class RecordEpisodeStatistics(gym.Wrapper):
     def __init__(self, env, deque_size=100):
         super(RecordEpisodeStatistics, self).__init__(env)
         self.num_envs = getattr(env, "num_envs", 1)
-        self.t0 = (
-            time.time()
-        )  # TODO: use perf_counter when gym removes Python 2 support
+        self.t0 = time.perf_counter()
         self.episode_count = 0
         self.episode_returns = None
         self.episode_lengths = None
@@ -41,7 +39,7 @@ class RecordEpisodeStatistics(gym.Wrapper):
                 episode_info = {
                     "r": episode_return,
                     "l": episode_length,
-                    "t": round(time.time() - self.t0, 6),
+                    "t": round(time.perf_counter() - self.t0, 6),
                 }
                 infos[i]["episode"] = episode_info
                 self.return_queue.append(episode_return)
