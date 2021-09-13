@@ -691,12 +691,19 @@ for game in [
             # mark it as nondeterministic.
             nondeterministic = True
 
+        default_kwargs = {
+            "game": game,
+            "obs_type": obs_type,
+            "repeat_action_probability": 0.0,
+            "full_action_space": False,
+            "frameskip": (2, 5),
+        }
+
         register(
             id="{}-v0".format(name),
             entry_point="ale_py.gym:ALGymEnv",
             kwargs={
-                "game": game,
-                "obs_type": obs_type,
+                **default_kwargs,
                 "repeat_action_probability": 0.25,
             },
             max_episode_steps=10000,
@@ -706,7 +713,7 @@ for game in [
         register(
             id="{}-v4".format(name),
             entry_point="ale_py.gym:ALGymEnv",
-            kwargs={"game": game, "obs_type": obs_type},
+            kwargs={**default_kwargs},
             max_episode_steps=100000,
             nondeterministic=nondeterministic,
         )
@@ -722,8 +729,7 @@ for game in [
             id="{}Deterministic-v0".format(name),
             entry_point="ale_py.gym:ALGymEnv",
             kwargs={
-                "game": game,
-                "obs_type": obs_type,
+                **default_kwargs,
                 "frameskip": frameskip,
                 "repeat_action_probability": 0.25,
             },
@@ -734,7 +740,7 @@ for game in [
         register(
             id="{}Deterministic-v4".format(name),
             entry_point="ale_py.gym:ALGymEnv",
-            kwargs={"game": game, "obs_type": obs_type, "frameskip": frameskip},
+            kwargs={**default_kwargs, "frameskip": frameskip},
             max_episode_steps=100000,
             nondeterministic=nondeterministic,
         )
@@ -743,8 +749,7 @@ for game in [
             id="{}NoFrameskip-v0".format(name),
             entry_point="ale_py.gym:ALGymEnv",
             kwargs={
-                "game": game,
-                "obs_type": obs_type,
+                **default_kwargs,
                 "frameskip": 1,
                 "repeat_action_probability": 0.25,
             },  # A frameskip of 1 means we get every frame
@@ -758,8 +763,7 @@ for game in [
             id="{}NoFrameskip-v4".format(name),
             entry_point="ale_py.gym:ALGymEnv",
             kwargs={
-                "game": game,
-                "obs_type": obs_type,
+                **default_kwargs,
                 "frameskip": 1,
             },  # A frameskip of 1 means we get every frame
             max_episode_steps=frameskip * 100000,
