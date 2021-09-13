@@ -9,13 +9,13 @@ import numpy as np
 from gym import logger, spaces
 from gym.error import CustomSpaceError
 from gym.spaces import Space
-from gym.spaces.utils import pass_space_as_first_positional_argument
+from gym.spaces.utils import _space_as_first_positional_argument
 from gym.vector.utils.spaces import _BaseGymSpaces
 
 __all__ = ["create_shared_memory", "read_from_shared_memory", "write_to_shared_memory"]
 
 
-@pass_space_as_first_positional_argument
+@_space_as_first_positional_argument
 @singledispatch
 def create_shared_memory(space: Space, n: int = 1, ctx=mp):
     """Create a shared memory object, to be shared across processes. This
@@ -70,7 +70,7 @@ def _create_dict_shared_memory(space: spaces.Dict, n: int = 1, ctx=mp) -> Ordere
         for (key, subspace) in space.spaces.items()])
 
 
-@pass_space_as_first_positional_argument
+@_space_as_first_positional_argument
 @singledispatch
 def read_from_shared_memory(space: Space,
                             shared_memory: Union[dict, tuple, mp.Array],
@@ -143,7 +143,7 @@ def _read_dict_from_shared_memory(space: spaces.Dict,
         subspace, n=n)) for (key, subspace) in space.spaces.items()])
 
 
-@pass_space_as_first_positional_argument
+@_space_as_first_positional_argument
 @singledispatch
 def write_to_shared_memory(space: Space,
                            index: int,
