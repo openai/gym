@@ -9,15 +9,18 @@ from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Space, T
 
 
 def _space_as_first_positional_argument(fn):
-    """ Wrapper that passes the space as a positional argument, so that the
+    """Wrapper that passes the space as a positional argument, so that the
     singledispatch callable can be used even when passing all values with kwargs.
     """
+
     @wraps(fn)
     def wrapped(space: Space, *args, **kwargs):
         return fn(space, *args, **kwargs)
+
     return wrapped
 
 
+@_space_as_first_positional_argument
 @singledispatch
 def flatdim(space: Space) -> int:
     """Return the number of dimensions a flattened equivalent of this space
@@ -65,8 +68,9 @@ def flatten(space, x):
     network, which only understands flat arrays of floats.
 
     Accepts a space and a point from that space. Always returns a 1D array.
-    Raises a ``CustomSpaceError`` if the space is not defined in
-    ``gym.spaces`` and if there isn't a function registered for that type.
+    Raises ``NotImplementedError`` if the space is not defined in
+    ``gym.spaces`` and doesn't have a registered
+    function.
     """
     raise NotImplementedError(f"Unknown space: `{space}`")
 
@@ -113,9 +117,8 @@ def unflatten(space, x):
     that the ``space`` argument is the same as for the ``flatten()`` call.
 
     Accepts a space and a flattened point. Returns a point with a structure
-    that matches the space.
-    Raises a ``CustomSpaceError`` if the space is not defined in
-    ``gym.spaces`` and if there isn't a function registered for that type.
+    that matches the space. Raises ``NotImplementedError`` if the space is not
+    defined in ``gym.spaces`` and doesn't have a registered function.
     """
     raise NotImplementedError(f"Unknown space: `{space}`")
 
@@ -166,33 +169,33 @@ def unflatten_dict(space, x):
 def flatten_space(space):
     """Flatten a space into a single ``Box``.
 
-     This is equivalent to ``flatten()``, but operates on the space itself. The
-     result always is a `Box` with flat boundaries. The box has exactly
-     ``flatdim(space)`` dimensions. Flattening a sample of the original space
-     has the same effect as taking a sample of the flattenend space.
+    This is equivalent to ``flatten()``, but operates on the space itself. The
+    result always is a `Box` with flat boundaries. The box has exactly
+    ``flatdim(space)`` dimensions. Flattening a sample of the original space
+    has the same effect as taking a sample of the flattenend space.
 
-     Raises a ``CustomSpaceError`` if the space is not defined in
-     ``gym.spaces`` and if there isn't a function registered for that type.
+    Raises ``NotImplementedError`` if the space is not defined in
+    ``gym.spaces` and doesn't have a registered function.
 
-     Example::
+    Example::
 
-         >>> box = Box(0.0, 1.0, shape=(3, 4, 5))
-         >>> box
-         Box(3, 4, 5)
-         >>> flatten_space(box)
-         Box(60,)
-         >>> flatten(box, box.sample()) in flatten_space(box)
-         True
+        >>> box = Box(0.0, 1.0, shape=(3, 4, 5))
+        >>> box
+        Box(3, 4, 5)
+        >>> flatten_space(box)
+        Box(60,)
+        >>> flatten(box, box.sample()) in flatten_space(box)
+        True
 
-     Example that flattens a discrete space::
+    Example that flattens a discrete space::
 
-         >>> discrete = Discrete(5)
-         >>> flatten_space(discrete)
-         Box(5,)
-         >>> flatten(box, box.sample()) in flatten_space(box)
-         True
+        >>> discrete = Discrete(5)
+        >>> flatten_space(discrete)
+        Box(5,)
+        >>> flatten(box, box.sample()) in flatten_space(box)
+        True
 
-     Example that recursively flattens a dict::
+    Example that recursively flattens a dict::
 
         >>> space = Dict({"position": Discrete(2),
         ...               "velocity": Box(0, 1, shape=(2, 2))})
