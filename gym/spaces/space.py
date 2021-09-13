@@ -16,12 +16,14 @@ class Space(object):
     not handle custom spaces properly. Use custom spaces with care.
     """
 
-    def __init__(self, shape=None, dtype=None):
+    def __init__(self, shape=None, dtype=None, seed=None):
         import numpy as np  # takes about 300-400ms to import, so we load lazily
 
         self._shape = None if shape is None else tuple(shape)
         self.dtype = None if dtype is None else np.dtype(dtype)
         self._np_random = None
+        if seed is not None:
+            self.seed(seed)
 
     @property
     def np_random(self):
