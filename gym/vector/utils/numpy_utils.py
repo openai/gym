@@ -62,14 +62,14 @@ def concatenate(
 @concatenate.register(spaces.MultiDiscrete)
 @concatenate.register(spaces.MultiBinary)
 def _concatenate_base(
-    space: Space, items: Union[list, tuple], out: Union[tuple, dict, np.ndarray]
+    space: Space, items: Union[list, tuple], out: np.ndarray,
 ) -> np.ndarray:
     return np.stack(items, axis=0, out=out)
 
 
 @concatenate.register(spaces.Tuple)
 def _concatenate_tuples(
-    space: spaces.Tuple, items: Union[list, tuple], out: Union[tuple, dict, np.ndarray]
+    space: spaces.Tuple, items: Union[list, tuple], out: Union[tuple, np.ndarray],
 ) -> tuple:
     return tuple(
         concatenate(subspace, [item[i] for item in items], out=out[i])
@@ -79,11 +79,11 @@ def _concatenate_tuples(
 
 @concatenate.register(spaces.Dict)
 def _concatenate_dicts(
-    space: spaces.Dict, items: Union[list, tuple], out: Union[tuple, dict, np.ndarray]
+    space: spaces.Dict, items: Union[list, tuple], out: dict,
 ) -> OrderedDict:
     return OrderedDict(
         [
-            (key, concatenate(subspace, [item[key] for item in items], out=out[key]))
+            (key, concatenate(subspace, [item[key] for item in items], out=out[key]),)
             for (key, subspace) in space.spaces.items()
         ]
     )
@@ -91,7 +91,7 @@ def _concatenate_dicts(
 
 @concatenate.register(spaces.Space)
 def _concatenate_custom(
-    space: Space, items: Union[list, tuple], out: Union[tuple, dict, np.ndarray]
+    space: Space, items: Union[list, tuple], out: Union[tuple, dict, np.ndarray],
 ) -> Union[tuple, dict, np.ndarray]:
     return tuple(items)
 

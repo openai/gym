@@ -60,21 +60,26 @@ def _create_base_shared_memory(space: Space, n: int = 1, ctx=mp) -> mp.Array:
 
 @create_shared_memory.register(spaces.Tuple)
 def _create_tuple_shared_memory(space: spaces.Tuple, n: int = 1, ctx=mp) -> tuple:
-    return tuple(create_shared_memory(subspace, n=n, ctx=ctx)
-        for subspace in space.spaces)
+    return tuple(
+        create_shared_memory(subspace, n=n, ctx=ctx) for subspace in space.spaces
+    )
 
 
 @create_shared_memory.register(spaces.Dict)
 def _create_dict_shared_memory(space: spaces.Dict, n: int = 1, ctx=mp) -> OrderedDict:
-    return OrderedDict([(key, create_shared_memory(subspace, n=n, ctx=ctx))
-        for (key, subspace) in space.spaces.items()])
+    return OrderedDict(
+        [
+            (key, create_shared_memory(subspace, n=n, ctx=ctx))
+            for (key, subspace) in space.spaces.items()
+        ]
+    )
 
 
 @_space_as_first_positional_argument
 @singledispatch
-def read_from_shared_memory(space: Space,
-                            shared_memory: Union[dict, tuple, mp.Array],
-                            n: int = 1) -> Union[dict, tuple, mp.Array]:
+def read_from_shared_memory(
+    space: Space, shared_memory: Union[dict, tuple, mp.Array], n: int = 1
+) -> Union[dict, tuple, mp.Array]:
     """Read the batch of observations from shared memory as a numpy array.
 
     Parameters
@@ -120,35 +125,41 @@ def read_from_shared_memory(space: Space,
 @read_from_shared_memory.register(spaces.Discrete)
 @read_from_shared_memory.register(spaces.MultiDiscrete)
 @read_from_shared_memory.register(spaces.MultiBinary)
-def _read_base_from_shared_memory(space: Space,
-                                 shared_memory: mp.Array,
-                                 n: int = 1) -> np.ndarray:
-    return np.frombuffer(shared_memory.get_obj(),
-        dtype=space.dtype).reshape((n,) + space.shape)
+def _read_base_from_shared_memory(
+    space: Space, shared_memory: mp.Array, n: int = 1
+) -> np.ndarray:
+    return np.frombuffer(shared_memory.get_obj(), dtype=space.dtype).reshape(
+        (n,) + space.shape
+    )
 
 
 @read_from_shared_memory.register(spaces.Tuple)
-def _read_tuple_from_shared_memory(space: spaces.Tuple,
-                                  shared_memory: tuple,
-                                  n: int = 1) -> tuple:
-    return tuple(read_from_shared_memory(memory, subspace, n=n)
-        for (memory, subspace) in zip(shared_memory, space.spaces))
+def _read_tuple_from_shared_memory(
+    space: spaces.Tuple, shared_memory: tuple, n: int = 1
+) -> tuple:
+    return tuple(
+        read_from_shared_memory(memory, subspace, n=n)
+        for (memory, subspace) in zip(shared_memory, space.spaces)
+    )
 
 
 @read_from_shared_memory.register(spaces.Dict)
-def _read_dict_from_shared_memory(space: spaces.Dict,
-                                 shared_memory: dict,
-                                 n: int = 1) -> OrderedDict:
-    return OrderedDict([(key, read_from_shared_memory(shared_memory[key],
-        subspace, n=n)) for (key, subspace) in space.spaces.items()])
+def _read_dict_from_shared_memory(
+    space: spaces.Dict, shared_memory: dict, n: int = 1
+) -> OrderedDict:
+    return OrderedDict(
+        [
+            (key, read_from_shared_memory(shared_memory[key], subspace, n=n))
+            for (key, subspace) in space.spaces.items()
+        ]
+    )
 
 
 @_space_as_first_positional_argument
 @singledispatch
-def write_to_shared_memory(space: Space,
-                           index: int,
-                           value,
-                           shared_memory: Union[dict, tuple, mp.Array]) -> None:
+def write_to_shared_memory(
+    space: Space, index: int, value, shared_memory: Union[dict, tuple, mp.Array],
+) -> None:
     """Write the observation of a single environment into shared memory.
 
     Parameters
@@ -174,7 +185,7 @@ def write_to_shared_memory(space: Space,
         # Reorder the arguments, to keep this backward compatible.
         index, value, shared_memory, space = space, index, value, shared_memory  # type: ignore
         return write_to_shared_memory(space, index, value, shared_memory)
-    
+
     raise CustomSpaceError(
         f"Cannot write to a shared memory for space with type `{type(space)}`. "
         f"Shared memory only supports default Gym spaces (e.g. `Box`, `Tuple`, "
@@ -188,10 +199,9 @@ def write_to_shared_memory(space: Space,
 @write_to_shared_memory.register(spaces.Box)
 @write_to_shared_memory.register(spaces.MultiDiscrete)
 @write_to_shared_memory.register(spaces.MultiBinary)
-def _write_base_to_shared_memory(space: Space,
-                                index: int,
-                                value,
-                                shared_memory: mp.Array) -> None:
+def _write_base_to_shared_memory(
+    space: Space, index: int, value, shared_memory: mp.Array
+) -> None:
     size = int(np.prod(space.shape))
     destination = np.frombuffer(shared_memory.get_obj(), dtype=space.dtype)
     np.copyto(
@@ -200,20 +210,17 @@ def _write_base_to_shared_memory(space: Space,
     )
 
 
-
 @write_to_shared_memory.register(spaces.Tuple)
-def _write_tuple_to_shared_memory(space: spaces.Tuple,
-                                 index: int,
-                                 value: Iterable,
-                                 shared_memory: tuple) -> None:
+def _write_tuple_to_shared_memory(
+    space: spaces.Tuple, index: int, value: Iterable, shared_memory: tuple
+) -> None:
     for v, memory, subspace in zip(value, shared_memory, space.spaces):
         write_to_shared_memory(subspace, index, v, memory)
 
 
 @write_to_shared_memory.register(spaces.Dict)
-def _write_dict_to_shared_memory(space: spaces.Dict,
-                                index: int,
-                                value: dict,
-                                shared_memory: dict) -> None:
+def _write_dict_to_shared_memory(
+    space: spaces.Dict, index: int, value: dict, shared_memory: dict
+) -> None:
     for key, subspace in space.spaces.items():
         write_to_shared_memory(subspace, index, value[key], shared_memory[key])

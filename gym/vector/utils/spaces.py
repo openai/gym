@@ -38,8 +38,10 @@ def batch_space(space: Space, n: int = 1) -> Space:
     >>> batch_space(space, n=5)
     Dict(position:Box(5, 3), velocity:Box(5, 2))
     """
-    raise ValueError('Cannot batch space with type `{0}`. The space must '
-                     'be a valid `gym.Space` instance.'.format(type(space)))
+    raise ValueError(
+        "Cannot batch space with type `{0}`. The space must "
+        "be a valid `gym.Space` instance.".format(type(space))
+    )
 
 
 @batch_space.register(Box)
@@ -73,8 +75,14 @@ def _batch_tuple_space(space: spaces.Tuple, n: int = 1) -> spaces.Tuple:
 
 @batch_space.register(spaces.Dict)
 def _batch_dict_space(space: spaces.Dict, n: int = 1) -> spaces.Dict:
-    return Dict(OrderedDict([(key, batch_space(subspace, n=n))
-        for (key, subspace) in space.spaces.items()]))
+    return Dict(
+        OrderedDict(
+            [
+                (key, batch_space(subspace, n=n))
+                for (key, subspace) in space.spaces.items()
+            ]
+        )
+    )
 
 
 @batch_space.register(Space)
