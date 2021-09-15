@@ -2,8 +2,7 @@ import re
 import sys
 import copy
 import importlib
-
-from contextlib import contextmanager
+import contextlib
 
 if sys.version_info < (3, 8):
     import importlib_metadata as metadata
@@ -208,7 +207,7 @@ class EnvRegistry(object):
             logger.warn("Overriding environment {}".format(id))
         self.env_specs[id] = EnvSpec(id, **kwargs)
 
-    @contextmanager
+    @contextlib.contextmanager
     def namespace(self, ns):
         self._ns = ns
         yield
@@ -231,33 +230,32 @@ def spec(id):
     return registry.spec(id)
 
 
-@contextmanager
+@contextlib.contextmanager
 def namespace(ns):
     with registry.namespace(ns):
         yield
 
 
-def load_plugins(
-    third_party_entry_point="gym.envs", internal_entry_point="gym.envs.internal"
-):
+def load_env_plugins(entry_point="gym.envs"):
     # Load third-party environments
-    for external in metadata.entry_points().get(third_party_entry_point, []):
-        if external.attr is not None:
+    for plugin in metadata.entry_points().get(entry_point, []):
+        if plugin.attr is None:
             raise error.Error(
-                "Gym environment plugins must specify a root module to load, not a function"
+                f"Gym environment plugin `{plugin.module}` must specify a function to execute, not a root module"
             )
-        # Force namespace on all `register` calls for third-party envs
-        with namespace(external.name):
-            external.load()
 
-    # Load plugins which hook into `gym.envs.internal`
-    # These plugins must be in the whitelist defined at the top of this file
-    # We don't force a namespace on register calls in this module
-    for internal in metadata.entry_points().get(internal_entry_point, []):
-        if internal.module not in plugin_internal_whitelist:
-            continue
-        if external.attr is not None:
-            raise error.Error(
-                "Gym environment plugins must specify a root module to load, not a function"
-            )
-        internal.load()
+        context = namespace(plugin.name)
+        if plugin.name == "__internal__":
+            if plugin.module in plugin_internal_whitelist:
+                context = contextlib.nullcontext()
+            else:
+                logger.warn(
+                    f"Trying to register an internal environment when `{plugin.module}` is not in the whitelist"
+                )
+
+        with context:
+            fn = plugin.load()
+            try:
+                fn()
+            except Exception as e:
+                logger.warn(str(e))
