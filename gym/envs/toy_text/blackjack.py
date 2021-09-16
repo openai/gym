@@ -86,8 +86,6 @@ class BlackjackEnv(gym.Env):
 
         # Flag for full agreement with the (Sutton and Barto, 2018) definition. Overrides self.natural
         self.sab = sab
-        # Start the first game
-        self.reset()
 
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)

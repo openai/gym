@@ -11,6 +11,7 @@ from gym.wrappers import (
 
 
 def test_record_video_using_default_trigger():
+
     env = gym.make("CartPole-v1")
     env = gym.wrappers.RecordVideo(env, "videos")
     env.reset()
@@ -66,7 +67,7 @@ def test_record_video_within_vector():
         _, _, _, infos = envs.step(envs.action_space.sample())
         for info in infos:
             if "episode" in info.keys():
-                print(f"i, episode_reward={info['episode']['r']}")
+                print(f"episode_reward={info['episode']['r']}")
                 break
     assert os.path.isdir("videos")
     mp4_files = [file for file in os.listdir("videos") if file.endswith(".mp4")]

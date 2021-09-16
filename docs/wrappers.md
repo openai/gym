@@ -141,4 +141,15 @@ Lastly the `name_prefix` allows you to customize the name of the videos.
 `TimeLimit(env, max_episode_steps)` [text]
 * Needs review (including for good assertion messages and test coverage)
 
+`OrderEnforcing(env)` [text]
+
+`OrderEnforcing` is a light-weight wrapper that throws an exception when `env.step()` is called before `env.reset()`, the wrapper is enabled by default for environment specs without `max_episode_steps` and can be disabled by passing `order_enforce=False` like:
+```python3
+register(
+    id="CustomEnv-v1",
+    entry_point="...",
+    order_enforce=False,
+)
+```
+
 Some sort of vector environment conversion wrapper needs to be added here, this will be figured out after the API is changed.

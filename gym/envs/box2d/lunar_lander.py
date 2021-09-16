@@ -117,8 +117,6 @@ class LunarLander(gym.Env, EzPickle):
             # Nop, fire left engine, main engine, right engine
             self.action_space = spaces.Discrete(4)
 
-        self.reset()
-
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
