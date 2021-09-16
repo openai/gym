@@ -28,7 +28,6 @@ and are namespaced with `ALE`. For example, the `v5` environments can be include
 
 ```python
 import gym
-import ale_py
 
 env = gym.make('ALE/SpaceInvaders-v5')
 ```

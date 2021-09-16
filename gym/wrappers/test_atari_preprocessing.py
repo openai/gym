@@ -3,7 +3,7 @@ import gym
 from gym.wrappers import AtariPreprocessing
 import pytest
 
-pytest.importorskip("ale_py")
+pytest.importorskip("gym.envs.atari")
 
 
 @pytest.fixture(scope="module")
