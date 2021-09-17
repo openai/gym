@@ -224,10 +224,11 @@ class Wrapper(Env):
 
     def __init__(self, env):
         self.env = env
-        self.action_space = self.env.action_space
-        self.observation_space = self.env.observation_space
-        self.reward_range = self.env.reward_range
-        self.metadata = self.env.metadata
+
+        self._action_space = None
+        self._observation_space = None
+        self._reward_range = None
+        self._metadata = None
 
     def __getattr__(self, name):
         if name.startswith("_"):
@@ -243,6 +244,46 @@ class Wrapper(Env):
     @classmethod
     def class_name(cls):
         return cls.__name__
+
+    @property
+    def action_space(self):
+        if self._action_space is None:
+            return self.env.action_space
+        return self._action_space
+
+    @action_space.setter
+    def action_space(self, space):
+        self._action_space = space
+
+    @property
+    def observation_space(self):
+        if self._observation_space is None:
+            return self.env.observation_space
+        return self._observation_space
+
+    @observation_space.setter
+    def observation_space(self, space):
+        self._observation_space = space
+
+    @property
+    def reward_range(self):
+        if self._reward_range is None:
+            return self.env.reward_range
+        return self._reward_range
+
+    @reward_range.setter
+    def reward_range(self, value):
+        self._reward_range = value
+
+    @property
+    def metadata(self):
+        if self._metadata is None:
+            return self.env.metadata
+        return self._metadata
+
+    @metadata.setter
+    def metadata(self, value):
+        self._metadata = value
 
     def step(self, action):
         return self.env.step(action)
