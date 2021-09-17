@@ -90,10 +90,10 @@ properties = [
 ]
 
 
-@pytest.mark.parametrize("klass", [UnittestEnv, UnknownSpacesEnv])
+@pytest.mark.parametrize("class_", [UnittestEnv, UnknownSpacesEnv])
 @pytest.mark.parametrize("props", properties)
-def test_wrapper_property_forwarding(klass, props):
-    env = klass()
+def test_wrapper_property_forwarding(class_, props):
+    env = class_()
     env = NewPropertyWrapper(env, **props)
 
     # If UnknownSpacesEnv, then call reset to define the spaces
