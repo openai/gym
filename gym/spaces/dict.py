@@ -147,3 +147,12 @@ class Dict(Space):
 
     def __eq__(self, other):
         return isinstance(other, Dict) and self.spaces == other.spaces
+
+    def keys(self):
+        return self.spaces.keys()
+
+    def values(self):
+        return self.spaces.values()
+
+    def items(self):
+        return self.spaces.items()
