@@ -6,7 +6,7 @@ import gym
 from gym.wrappers import GrayScaleObservation
 from gym.wrappers import AtariPreprocessing
 
-pytest.importorskip("ale_py")
+pytest.importorskip("gym.envs.atari")
 pytest.importorskip("cv2")
 
 

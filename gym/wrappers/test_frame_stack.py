@@ -1,6 +1,6 @@
 import pytest
 
-pytest.importorskip("ale_py")
+pytest.importorskip("gym.envs.atari")
 
 import numpy as np
 import gym

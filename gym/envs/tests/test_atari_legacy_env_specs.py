@@ -1,3 +1,7 @@
+import pytest
+
+pytest.importorskip("gym.envs.atari")
+
 from gym.envs.registration import registry
 
 from itertools import product
