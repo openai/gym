@@ -413,3 +413,25 @@ def test_multidiscrete_subspace_reproducibility():
     assert sample_equal(space[:].sample(), space[:].sample())
     assert sample_equal(space[:, :].sample(), space[:, :].sample())
     assert sample_equal(space[:, :].sample(), space.sample())
+
+
+def test_space_legacy_state_pickling():
+    legacy_state = {
+        "shape": (
+            1,
+            2,
+            3,
+        ),
+        "dtype": np.int64,
+        "np_random": np.random.default_rng(),
+        "n": 3,
+    }
+    space = Discrete(1)
+    space.__setstate__(legacy_state)
+
+    assert space.shape == legacy_state["shape"]
+    assert space._shape == legacy_state["shape"]
+    assert space.np_random == legacy_state["np_random"]
+    assert space._np_random == legacy_state["np_random"]
+    assert space.n == 3
+    assert space.dtype == legacy_state["dtype"]
