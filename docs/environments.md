@@ -1,139 +1,10 @@
-# Environments
-
-This is a list of Gym environments, including those packaged with Gym, official OpenAI environments, and third party environment.
-
-For information on creating your own environment, see [Creating your own Environment](creating-environments.md).
-
-## Included Environments
-
-The code for each environment group is housed in its own subdirectory
-[gym/envs](https://github.com/openai/gym/blob/master/gym/envs). The
-specification of each task is in
-[gym/envs/\_\_init\_\_.py](https://github.com/openai/gym/blob/master/gym/envs/__init__.py).
-It's worth browsing through both.
-
-### Atari
-
-The Atari environments are provided by the [Arcade Learning Environment](https://github.com/mgbellemare/Arcade-Learning-Environment) (ALE).
-If you didn't do the full install, you can install dependencies via `pip install -e '.[atari]'` which will install `ale-py`.
-You can then create any of the legacy Atari environments as such:
-``` python
-import gym
-
-env = gym.make('SpaceInvaders-v4')
-```
-
-Newer versions of the Atari environments live in the [ALE](https://github.com/mgbellemare/Arcade-Learning-Environment) repository
-and are namespaced with `ALE`. For example, the `v5` environments can be included as such:
-
-```python
-import gym
-
-env = gym.make('ALE/SpaceInvaders-v5')
-```
-
-Note: ROMs are not distributed by the ALE but tools are provided in the ALE to manage ROMs.
-Please see the project's documentation on importing ROMs.
-
-### Box2d
-
-Box2d is a 2D physics engine. You can install it via `pip install -e
-'.[box2d]'` and then get started as follows:
-
-``` python
-import gym
-env = gym.make('LunarLander-v2')
-env.reset()
-env.render()
-```
-
-### Classic control
-
-These are a variety of classic control tasks, which would appear in a
-typical reinforcement learning textbook. If you didn't do the full
-install, you will need to run `pip install -e '.[classic_control]'` to
-enable rendering. You can get started with them via:
-
-``` python
-import gym
-env = gym.make('CartPole-v1')
-env.reset()
-env.render()
-```
-
-### MuJoCo
-
-[MuJoCo](http://www.mujoco.org/) is a physics engine which can do very
-detailed efficient simulations with contacts. It's not open-source, so
-you'll have to follow the instructions in
-[mujoco-py](https://github.com/openai/mujoco-py#obtaining-the-binaries-and-license-key)
-to set it up. You'll have to also run `pip install -e '.[mujoco]'` if
-you didn't do the full install.
-
-``` python
-import gym
-env = gym.make('Humanoid-v2')
-env.reset()
-env.render()
-```
-
-### Robotics
-
-These environments also use [MuJoCo](http://www.mujoco.org/). You'll have to also run `pip install -e '.[robotics]'` if
-you didn't do the full install.
-
-``` python
-import gym
-env = gym.make('HandManipulateBlock-v2')
-env.reset()
-env.render()
-```
-
-You can also find additional details in the accompanying [technical
-report](https://arxiv.org/abs/1802.09464) and [blog
-post](https://blog.openai.com/ingredients-for-robotics-research/). If
-you use these environments, you can cite them as follows:
-
-    @misc{1802.09464,
-      Author = {Matthias Plappert and Marcin Andrychowicz and Alex Ray and Bob McGrew and Bowen Baker and Glenn Powell and Jonas Schneider and Josh Tobin and Maciek Chociej and Peter Welinder and Vikash Kumar and Wojciech Zaremba},
-      Title = {Multi-Goal Reinforcement Learning: Challenging Robotics Environments and Request for Research},
-      Year = {2018},
-      Eprint = {arXiv:1802.09464},
-    }
-
-### Toy text
-
-Toy environments which are text-based. There's no extra dependency to
-install, so to get started, you can just do:
-
-``` python
-import gym
-env = gym.make('FrozenLake-v1')
-env.reset()
-env.render()
-```
-
-## OpenAI Environments
+# Third Pary Environments
 
 ### Procgen
 
 16 simple-to-use procedurally-generated gym environments which provide a direct measure of how quickly a reinforcement learning agent learns generalizable skills. The environments run at high speed (thousands of steps per second) on a single core.
 
 Learn more here: https://github.com/openai/procgen
-
-### Gym-Retro
-
-Gym Retro lets you turn classic video games into Gym environments for reinforcement learning and comes with integrations for ~1000 games. It uses various emulators that support the Libretro API, making it fairly easy to add new emulators.
-
-Learn more here: https://github.com/openai/retro
-
-### Roboschool (DEPRECATED)
-
-**We recommend using the [PyBullet Robotics Environments](#pybullet-robotics-environments) instead**
-
-3D physics environments like Mujoco environments but uses the Bullet physics engine and does not require a commercial license.
-
-Learn more here: https://github.com/openai/roboschool
 
 ## Third Party Environments
 
@@ -416,7 +287,7 @@ Learn more here: https://github.com/modanesh/anomalous_rl_envs
 
 ### stable-retro
 
-Fork of gym-retro with additional games, states, scenarios, etc. Open to PRs of additional games, features and plateforms since gym-retro is in maintenance mode.
+Supported fork of gym-retro with additional games, states, scenarios, etc. Open to PRs of additional games, features and plateforms since gym-retro is no longer maintained
 
 https://github.com/MatPoliquin/stable-retro
 
