@@ -60,6 +60,25 @@ class Space(object):
     def __contains__(self, x):
         return self.contains(x)
 
+    def __setstate__(self, state):
+        # Don't mutate the original state
+        state = dict(state)
+
+        # Allow for loading of legacy states.
+        # See:
+        #   https://github.com/openai/gym/pull/2397 -- shape
+        #   https://github.com/openai/gym/pull/1913 -- np_random
+        #
+        if "shape" in state:
+            state["_shape"] = state["shape"]
+            del state["shape"]
+        if "np_random" in state:
+            state["_np_random"] = state["np_random"]
+            del state["np_random"]
+
+        # Update our state
+        self.__dict__.update(state)
+
     def to_jsonable(self, sample_n):
         """Convert a batch of samples from this space to a JSONable data type."""
         # By default, assume identity is JSONable
