@@ -1,5 +1,6 @@
 import os.path
 import sys
+import itertools
 
 from setuptools import find_packages, setup
 
@@ -10,6 +11,7 @@ from version import VERSION
 # Environment-specific dependencies.
 extras = {
     "atari": ["ale-py~=0.7"],
+    "accept-rom-license": ["autorom[accept-rom-license]~=0.4.2"],
     "box2d": ["box2d-py==2.3.5", "pyglet>=1.4.0"],
     "classic_control": ["pyglet>=1.4.0"],
     "mujoco": ["mujoco_py>=1.50, <2.0"],
@@ -19,17 +21,20 @@ extras = {
 }
 
 # Meta dependency groups.
+nomujoco_blacklist = set(["mujoco", "robotics", "accept-rom-license"])
+nomujoco_groups = set(extras.keys()) - nomujoco_blacklist
+
 extras["nomujoco"] = list(
-    set(
-        [
-            item
-            for name, group in extras.items()
-            if name != "mujoco" and name != "robotics"
-            for item in group
-        ]
-    )
+    itertools.chain.from_iterable(map(lambda group: extras[group], nomujoco_groups))
 )
-extras["all"] = list(set([item for group in extras.values() for item in group]))
+
+
+all_blacklist = set(["accept-rom-license"])
+all_groups = set(extras.keys()) - all_blacklist
+
+extras["all"] = list(
+    itertools.chain.from_iterable(map(lambda group: extras[group], all_groups))
+)
 
 setup(
     name="gym",
