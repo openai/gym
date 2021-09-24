@@ -1,8 +1,8 @@
 # Third Party Environments
 
-# Video Games environments
+## Video Game Environments
 
-## gym-derk: GPU accelerated MOBA environment
+### gym-derk: GPU accelerated MOBA environment
 
 https://gym.derkgame.com
 
