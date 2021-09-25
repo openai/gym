@@ -35,9 +35,7 @@ class MultiDiscrete(Space):
         super(MultiDiscrete, self).__init__(self.nvec.shape, dtype, seed)
 
     def sample(self):
-        return (self.np_random.random(self.nvec.shape) * self.nvec).astype(
-            self.dtype
-        )
+        return (self.np_random.random(self.nvec.shape) * self.nvec).astype(self.dtype)
 
     def contains(self, x):
         if isinstance(x, list):
