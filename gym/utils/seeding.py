@@ -15,4 +15,5 @@ def np_random(seed=None):
         )
 
     rng = np.random.default_rng(seed)
+    seed = rng.bit_generator._seed_seq.entropy
     return rng, seed
