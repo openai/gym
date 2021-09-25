@@ -78,7 +78,9 @@ class CubeCrash(gym.Env):
     def reset(self):
         self.cube_x = self.np_random.integers.randint(low=3, high=FIELD_W - 3)
         self.cube_y = self.np_random.integers.randint(low=3, high=FIELD_H // 6)
-        self.hole_x = self.np_random.integers.randint(low=HOLE_WIDTH, high=FIELD_W - HOLE_WIDTH)
+        self.hole_x = self.np_random.integers.randint(
+            low=HOLE_WIDTH, high=FIELD_W - HOLE_WIDTH
+        )
         self.bg_color = self.random_color() if self.use_random_colors else color_black
         self.potential = None
         self.step_n = 0
