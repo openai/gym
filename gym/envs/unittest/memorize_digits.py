@@ -81,15 +81,15 @@ class MemorizeDigits(gym.Env):
     def random_color(self):
         return np.array(
             [
-                self.integers.randint(low=0, high=255),
-                self.integers.randint(low=0, high=255),
-                self.integers.randint(low=0, high=255),
+                self.np_random.integers.randint(low=0, high=255),
+                self.np_random.integers.randint(low=0, high=255),
+                self.np_random.integers.randint(low=0, high=255),
             ]
         ).astype("uint8")
 
     def reset(self):
-        self.digit_x = self.integers.randint(low=FIELD_W // 5, high=FIELD_W // 5 * 4)
-        self.digit_y = self.integers.randint(low=FIELD_H // 5, high=FIELD_H // 5 * 4)
+        self.digit_x = self.np_random.integers.randint(low=FIELD_W // 5, high=FIELD_W // 5 * 4)
+        self.digit_y = self.np_random.integers.randint(low=FIELD_H // 5, high=FIELD_H // 5 * 4)
         self.color_bg = self.random_color() if self.use_random_colors else color_black
         self.step_n = 0
         while 1:
