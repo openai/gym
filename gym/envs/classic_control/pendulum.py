@@ -43,7 +43,7 @@ class PendulumEnv(gym.Env):
 
         newthdot = (
             thdot
-            + (-3 * g / (2 * l) * np.sin(th + np.pi) + 3.0 / (m * l ** 2) * u) * dt
+            + (3 * g / (2 * l) * np.sin(th) + 3.0 / (m * l ** 2) * u) * dt
         )
         newth = th + newthdot * dt
         newthdot = np.clip(newthdot, -self.max_speed, self.max_speed)
