@@ -1,9 +1,4 @@
-import hashlib
 import numpy as np
-import os
-import random as _random
-import struct
-import sys
 
 from gym import error
 
