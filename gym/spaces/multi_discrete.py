@@ -59,7 +59,7 @@ class MultiDiscrete(Space):
             subspace = Discrete(nvec)
         else:
             subspace = MultiDiscrete(nvec, self.dtype)
-        subspace.np_random.bit_generator().state = self.np_random.bit_generator().state
+        subspace.np_random.bit_generator.state = self.np_random.bit_generator.state
         return subspace
 
     def __len__(self):
