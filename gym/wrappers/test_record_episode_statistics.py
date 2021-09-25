@@ -4,7 +4,7 @@ import gym
 from gym.wrappers import RecordEpisodeStatistics
 
 
-@pytest.mark.parametrize("env_id", ["CartPole-v0", "Pendulum-v0"])
+@pytest.mark.parametrize("env_id", ["CartPole-v0", "Pendulum-v1"])
 @pytest.mark.parametrize("deque_size", [2, 5])
 def test_record_episode_statistics(env_id, deque_size):
     env = gym.make(env_id)

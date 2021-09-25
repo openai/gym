@@ -6,7 +6,7 @@ import gym
 from gym.wrappers import TransformObservation
 
 
-@pytest.mark.parametrize("env_id", ["CartPole-v1", "Pendulum-v0"])
+@pytest.mark.parametrize("env_id", ["CartPole-v1", "Pendulum-v1"])
 def test_transform_observation(env_id):
     affine_transform = lambda x: 3 * x + 2
     env = gym.make(env_id)

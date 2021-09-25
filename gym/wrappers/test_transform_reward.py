@@ -6,7 +6,7 @@ import gym
 from gym.wrappers import TransformReward
 
 
-@pytest.mark.parametrize("env_id", ["CartPole-v1", "Pendulum-v0"])
+@pytest.mark.parametrize("env_id", ["CartPole-v1", "Pendulum-v1"])
 def test_transform_reward(env_id):
     # use case #1: scale
     scales = [0.1, 200]
