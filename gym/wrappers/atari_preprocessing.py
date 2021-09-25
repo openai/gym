@@ -131,7 +131,7 @@ class AtariPreprocessing(gym.Wrapper):
         # NoopReset
         self.env.reset(**kwargs)
         noops = (
-            self.env.unwrapped.np_random.randint(1, self.noop_max + 1)
+            self.env.unwrapped.np_random.integers(1, self.noop_max + 1)
             if self.noop_max > 0
             else 0
         )

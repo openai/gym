@@ -69,16 +69,16 @@ class CubeCrash(gym.Env):
     def random_color(self):
         return np.array(
             [
-                self.np_random.randint(low=0, high=255),
-                self.np_random.randint(low=0, high=255),
-                self.np_random.randint(low=0, high=255),
+                self.integers.randint(low=0, high=255),
+                self.integers.randint(low=0, high=255),
+                self.integers.randint(low=0, high=255),
             ]
         ).astype("uint8")
 
     def reset(self):
-        self.cube_x = self.np_random.randint(low=3, high=FIELD_W - 3)
-        self.cube_y = self.np_random.randint(low=3, high=FIELD_H // 6)
-        self.hole_x = self.np_random.randint(low=HOLE_WIDTH, high=FIELD_W - HOLE_WIDTH)
+        self.cube_x = self.integers.randint(low=3, high=FIELD_W - 3)
+        self.cube_y = self.integers.randint(low=3, high=FIELD_H // 6)
+        self.hole_x = self.integers.randint(low=HOLE_WIDTH, high=FIELD_W - HOLE_WIDTH)
         self.bg_color = self.random_color() if self.use_random_colors else color_black
         self.potential = None
         self.step_n = 0

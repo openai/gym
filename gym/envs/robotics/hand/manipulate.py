@@ -183,7 +183,7 @@ class ManipulateEnv(hand_env.HandEnv):
                 axis = np.array([0.0, 0.0, 1.0])
                 z_quat = quat_from_angle_and_axis(angle, axis)
                 parallel_quat = self.parallel_quats[
-                    self.np_random.randint(len(self.parallel_quats))
+                    self.np_random.integers(len(self.parallel_quats))
                 ]
                 offset_quat = rotations.quat_mul(z_quat, parallel_quat)
                 initial_quat = rotations.quat_mul(initial_quat, offset_quat)
@@ -254,7 +254,7 @@ class ManipulateEnv(hand_env.HandEnv):
             axis = np.array([0.0, 0.0, 1.0])
             target_quat = quat_from_angle_and_axis(angle, axis)
             parallel_quat = self.parallel_quats[
-                self.np_random.randint(len(self.parallel_quats))
+                self.np_random.integers(len(self.parallel_quats))
             ]
             target_quat = rotations.quat_mul(target_quat, parallel_quat)
         elif self.target_rotation == "xyz":

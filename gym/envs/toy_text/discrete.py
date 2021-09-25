@@ -11,7 +11,7 @@ def categorical_sample(prob_n, np_random):
     """
     prob_n = np.asarray(prob_n)
     csprob_n = np.cumsum(prob_n)
-    return (csprob_n > np_random.rand()).argmax()
+    return (csprob_n > np_random.random()).argmax()
 
 
 class DiscreteEnv(Env):

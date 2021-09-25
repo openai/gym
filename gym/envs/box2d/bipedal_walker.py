@@ -188,7 +188,7 @@ class BipedalWalker(gym.Env, EzPickle):
                 y += velocity
 
             elif state == PIT and oneshot:
-                counter = self.np_random.randint(3, 5)
+                counter = self.np_random.integers(3, 5)
                 poly = [
                     (x, y),
                     (x + TERRAIN_STEP, y),
@@ -215,7 +215,7 @@ class BipedalWalker(gym.Env, EzPickle):
                     y -= 4 * TERRAIN_STEP
 
             elif state == STUMP and oneshot:
-                counter = self.np_random.randint(1, 3)
+                counter = self.np_random.integers(1, 3)
                 poly = [
                     (x, y),
                     (x + counter * TERRAIN_STEP, y),
@@ -228,9 +228,9 @@ class BipedalWalker(gym.Env, EzPickle):
                 self.terrain.append(t)
 
             elif state == STAIRS and oneshot:
-                stair_height = +1 if self.np_random.rand() > 0.5 else -1
-                stair_width = self.np_random.randint(4, 5)
-                stair_steps = self.np_random.randint(3, 5)
+                stair_height = +1 if self.np_random.random() > 0.5 else -1
+                stair_width = self.np_random.integers(4, 5)
+                stair_steps = self.np_random.integers(3, 5)
                 original_y = y
                 for s in range(stair_steps):
                     poly = [
@@ -266,9 +266,9 @@ class BipedalWalker(gym.Env, EzPickle):
             self.terrain_y.append(y)
             counter -= 1
             if counter == 0:
-                counter = self.np_random.randint(TERRAIN_GRASS / 2, TERRAIN_GRASS)
+                counter = self.np_random.integers(TERRAIN_GRASS / 2, TERRAIN_GRASS)
                 if state == GRASS and hardcore:
-                    state = self.np_random.randint(1, _STATES_)
+                    state = self.np_random.integers(1, _STATES_)
                     oneshot = True
                 else:
                     state = GRASS

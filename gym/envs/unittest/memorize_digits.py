@@ -81,15 +81,15 @@ class MemorizeDigits(gym.Env):
     def random_color(self):
         return np.array(
             [
-                self.np_random.randint(low=0, high=255),
-                self.np_random.randint(low=0, high=255),
-                self.np_random.randint(low=0, high=255),
+                self.integers.randint(low=0, high=255),
+                self.integers.randint(low=0, high=255),
+                self.integers.randint(low=0, high=255),
             ]
         ).astype("uint8")
 
     def reset(self):
-        self.digit_x = self.np_random.randint(low=FIELD_W // 5, high=FIELD_W // 5 * 4)
-        self.digit_y = self.np_random.randint(low=FIELD_H // 5, high=FIELD_H // 5 * 4)
+        self.digit_x = self.integers.randint(low=FIELD_W // 5, high=FIELD_W // 5 * 4)
+        self.digit_y = self.integers.randint(low=FIELD_H // 5, high=FIELD_H // 5 * 4)
         self.color_bg = self.random_color() if self.use_random_colors else color_black
         self.step_n = 0
         while 1:
@@ -111,8 +111,8 @@ class MemorizeDigits(gym.Env):
         else:
             if self.digit == action:
                 reward = +1
-            done = self.step_n > 20 and 0 == self.np_random.randint(low=0, high=5)
-        self.digit = self.np_random.randint(low=0, high=10)
+            done = self.step_n > 20 and 0 == self.np_random.integers(low=0, high=5)
+        self.digit = self.np_random.integers(low=0, high=10)
         obs = np.zeros((FIELD_H, FIELD_W, 3), dtype=np.uint8)
         obs[:, :, :] = self.color_bg
         digit_img = np.zeros((6, 6, 3), dtype=np.uint8)

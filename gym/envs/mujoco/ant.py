@@ -48,7 +48,7 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         qpos = self.init_qpos + self.np_random.uniform(
             size=self.model.nq, low=-0.1, high=0.1
         )
-        qvel = self.init_qvel + self.np_random.randn(self.model.nv) * 0.1
+        qvel = self.init_qvel + self.np_random.standard_normal(self.model.nv) * 0.1
         self.set_state(qpos, qvel)
         return self._get_obs()
 
