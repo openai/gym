@@ -12,7 +12,7 @@ except ImportError:
     lz4 = None
 
 
-@pytest.mark.parametrize("env_id", ["CartPole-v1", "Pendulum-v0", "Pong-v0"])
+@pytest.mark.parametrize("env_id", ["CartPole-v1", "Pendulum-v1", "Pong-v0"])
 @pytest.mark.parametrize("num_stack", [2, 3, 4])
 @pytest.mark.parametrize(
     "lz4_compress",

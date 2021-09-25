@@ -42,7 +42,7 @@ register(
 )
 
 register(
-    id="Pendulum-v0",
+    id="Pendulum-v1",
     entry_point="gym.envs.classic_control:PendulumEnv",
     max_episode_steps=200,
 )

@@ -12,8 +12,8 @@ def test_rescale_action():
         env = RescaleAction(env, -1, 1)
     del env
 
-    env = gym.make("Pendulum-v0")
-    wrapped_env = RescaleAction(gym.make("Pendulum-v0"), -1, 1)
+    env = gym.make("Pendulum-v1")
+    wrapped_env = RescaleAction(gym.make("Pendulum-v1"), -1, 1)
 
     seed = 0
     env.seed(seed)
