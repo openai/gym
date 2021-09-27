@@ -1,8 +1,6 @@
 import numpy as np
 from numpy.random import Generator
-from pkg_resources import parse_version
 
-import gym
 from gym import error
 from gym.logger import warn
 
@@ -22,9 +20,6 @@ def np_random(seed=None):
 # TODO: Remove this class and make it alias to `Generator` in Gym release 0.25.0
 # RandomNumberGenerator = np.random.Generator
 class RandomNumberGenerator(np.random.Generator):
-
-    # assert parse_version(gym.__version__) < parse_version(REMOVE_SINCE)
-
     def rand(self, *size):
         warn(
             "Function `rng.rand(*size)` is marked as deprecated "
@@ -78,7 +73,7 @@ class RandomNumberGenerator(np.random.Generator):
         warn(
             "Function `rng.seed(seed)` is marked as deprecated "
             "and will be removed in the future. "
-            "Please use `rng = get_rng(seed)` to create a separated generator instead."
+            "Please use `rng, seed = gym.utils.seeding.np_random(seed)` to create a separate generator instead."
         )
 
         self.bit_generator.state = type(self.bit_generator)(seed).state
