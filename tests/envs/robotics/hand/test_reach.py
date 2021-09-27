@@ -3,7 +3,7 @@ import pickle
 import pytest
 
 from gym import envs
-from gym.envs.tests.spec_list import skip_mujoco, SKIP_MUJOCO_WARNING_MESSAGE
+from tests.envs.spec_list import skip_mujoco, SKIP_MUJOCO_WARNING_MESSAGE
 
 
 @pytest.mark.skipif(skip_mujoco, reason=SKIP_MUJOCO_WARNING_MESSAGE)

@@ -1,16 +1,15 @@
 import pickle
-import unittest
 
 import pytest
 
 from gym import envs
-from gym.envs.tests.spec_list import skip_mujoco, SKIP_MUJOCO_WARNING_MESSAGE
+from tests.envs.spec_list import skip_mujoco, SKIP_MUJOCO_WARNING_MESSAGE
 
 
 ENVIRONMENT_IDS = (
-    "HandManipulateEgg-v0",
-    "HandManipulatePen-v0",
-    "HandManipulateBlock-v0",
+    "HandManipulateEggTouchSensors-v1",
+    "HandManipulatePenTouchSensors-v0",
+    "HandManipulateBlockTouchSensors-v0",
 )
 
 
