@@ -4,7 +4,7 @@ import numpy as np
 from multiprocessing import TimeoutError
 from gym.spaces import Box, Tuple
 from gym.error import AlreadyPendingCallError, NoAsyncCallError, ClosedEnvironmentError
-from tests.vector.utils import (
+from gym.tests.vector.utils import (
     CustomSpace,
     make_env,
     make_slow_env,

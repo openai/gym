@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from tests.envs.spec_list import spec_list
+from gym.tests.envs.spec_list import spec_list
 
 
 @pytest.mark.parametrize("spec", spec_list)

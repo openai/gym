@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 
 from gym import envs
-from tests.envs.spec_list import spec_list
+from gym.tests.envs.spec_list import spec_list
 from gym.spaces import Box
 from gym.utils.env_checker import check_env
 

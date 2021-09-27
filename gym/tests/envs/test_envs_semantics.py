@@ -10,7 +10,7 @@ import os
 
 import pytest
 from gym import spaces, logger
-from tests.envs.spec_list import spec_list
+from gym.tests.envs.spec_list import spec_list
 
 DATA_DIR = os.path.dirname(__file__)
 ROLLOUT_STEPS = 100
