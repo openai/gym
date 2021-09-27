@@ -27,9 +27,9 @@ class RandomNumberGenerator(np.random.Generator):
 
     def rand(self, *size):
         warn(
-            f"Function `rng.rand(*size)` is marked as deprecated "
-            f"and will be removed in the future. "
-            f"Please use `Generator.random(size)` instead."
+            "Function `rng.rand(*size)` is marked as deprecated "
+            "and will be removed in the future. "
+            "Please use `Generator.random(size)` instead."
         )
 
         return self.random(size)
@@ -38,18 +38,18 @@ class RandomNumberGenerator(np.random.Generator):
 
     def randn(self, *size):
         warn(
-            f"Function `rng.randn(*size)` is marked as deprecated "
-            f"and will be removed in the future. "
-            f"Please use `rng.standard_normal(size)` instead."
+            "Function `rng.randn(*size)` is marked as deprecated "
+            "and will be removed in the future. "
+            "Please use `rng.standard_normal(size)` instead."
         )
 
         return self.standard_normal(size)
 
     def randint(self, low, high=None, size=None, dtype=int):
         warn(
-            f"Function `rng.randint(low, [high, size, dtype])` is marked as deprecated "
-            f"and will be removed in the future. "
-            f"Please use `rng.integers(low, [high, size, dtype])` instead."
+            "Function `rng.randint(low, [high, size, dtype])` is marked as deprecated "
+            "and will be removed in the future. "
+            "Please use `rng.integers(low, [high, size, dtype])` instead."
         )
 
         return self.integers(low=low, high=high, size=size, dtype=dtype)
@@ -58,27 +58,27 @@ class RandomNumberGenerator(np.random.Generator):
 
     def get_state(self):
         warn(
-            f"Function `rng.get_state()` is marked as deprecated "
-            f"and will be removed in the future. "
-            f"Please use `rng.bit_generator.state` instead."
+            "Function `rng.get_state()` is marked as deprecated "
+            "and will be removed in the future. "
+            "Please use `rng.bit_generator.state` instead."
         )
 
         return self.bit_generator.state
 
     def set_state(self, state):
         warn(
-            f"Function `rng.set_state(state)` is marked as deprecated "
-            f"and will be removed in the future. "
-            f"Please use `rng.bit_generator.state = state` instead."
+            "Function `rng.set_state(state)` is marked as deprecated "
+            "and will be removed in the future. "
+            "Please use `rng.bit_generator.state = state` instead."
         )
 
         self.bit_generator.state = state
 
     def seed(self, seed=None):
         warn(
-            f"Function `rng.seed(seed)` is marked as deprecated "
-            f"and will be removed in the future. "
-            f"Please use `rng = get_rng(seed)` to create a separated generator instead."
+            "Function `rng.seed(seed)` is marked as deprecated "
+            "and will be removed in the future. "
+            "Please use `rng = get_rng(seed)` to create a separated generator instead."
         )
 
         self.bit_generator.state = type(self.bit_generator)(seed).state
