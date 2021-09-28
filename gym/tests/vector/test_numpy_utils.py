@@ -5,7 +5,7 @@ from collections import OrderedDict
 
 from gym.spaces import Tuple, Dict
 from gym.vector.utils.spaces import _BaseGymSpaces
-from gym.vector.tests.utils import spaces
+from gym.tests.vector.utils import spaces
 
 from gym.vector.utils.numpy_utils import concatenate, create_empty_array
 

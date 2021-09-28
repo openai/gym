@@ -14,7 +14,7 @@ class ArgumentEnv(gym.Env):
 
 gym.register(
     id="test.ArgumentEnv-v0",
-    entry_point="gym.envs.tests.test_registration:ArgumentEnv",
+    entry_point="gym.tests.envs.test_registration:ArgumentEnv",
     kwargs={
         "arg1": "arg1",
         "arg2": "arg2",
