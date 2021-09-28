@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 
 from gym.spaces import Box, Tuple
-from gym.tests.vector.utils import CustomSpace, make_env, make_custom_space_env
+from tests.vector.utils import CustomSpace, make_env, make_custom_space_env
 
 from gym.vector.sync_vector_env import SyncVectorEnv
 
