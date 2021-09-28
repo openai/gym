@@ -4,7 +4,7 @@ import copy
 import importlib
 import contextlib
 
-if sys.version_info < (3, 8):
+if sys.version_info < (3, 9):
     import importlib_metadata as metadata
 else:
     import importlib.metadata as metadata
