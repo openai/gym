@@ -4,8 +4,8 @@ import os
 import sys
 import argparse
 
-from gym.tests.envs.spec_list import should_skip_env_spec_for_tests
-from gym.tests import generate_rollout_hash
+from tests.envs.spec_list import should_skip_env_spec_for_tests
+from tests import generate_rollout_hash
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), os.pardir, "gym", "envs", "tests")
 ROLLOUT_STEPS = 100

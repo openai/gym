@@ -9,7 +9,7 @@ from collections import OrderedDict
 from gym.spaces import Tuple, Dict
 from gym.error import CustomSpaceError
 from gym.vector.utils.spaces import _BaseGymSpaces
-from gym.tests.vector.utils import spaces, custom_spaces
+from tests.vector.utils import spaces, custom_spaces
 
 from gym.vector.utils.shared_memory import (
     create_shared_memory,

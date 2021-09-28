@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 
 from gym.spaces import Box, MultiDiscrete, Tuple, Dict
-from gym.tests.vector.utils import spaces, custom_spaces, CustomSpace
+from tests.vector.utils import spaces, custom_spaces, CustomSpace
 
 from gym.vector.utils.spaces import batch_space
 
