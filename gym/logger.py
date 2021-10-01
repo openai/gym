@@ -1,3 +1,4 @@
+import sys
 import warnings
 
 from gym.utils import colorize
@@ -21,12 +22,12 @@ def set_level(level):
 
 def debug(msg, *args):
     if MIN_LEVEL <= DEBUG:
-        print("%s: %s" % ("DEBUG", msg % args))
+        print("%s: %s" % ("DEBUG", msg % args), file=sys.stderr)
 
 
 def info(msg, *args):
     if MIN_LEVEL <= INFO:
-        print("%s: %s" % ("INFO", msg % args))
+        print("%s: %s" % ("INFO", msg % args), file=sys.stderr)
 
 
 def warn(msg, *args, category=None, stacklevel=1):
@@ -44,7 +45,7 @@ def deprecation(msg, *args):
 
 def error(msg, *args):
     if MIN_LEVEL <= ERROR:
-        print(colorize("%s: %s" % ("ERROR", msg % args), "red"))
+        print(colorize("%s: %s" % ("ERROR", msg % args), "red"), file=sys.stderr)
 
 
 # DEPRECATED:
