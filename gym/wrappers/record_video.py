@@ -1,8 +1,8 @@
 import os
 import gym
 from typing import Callable
-import warnings
 
+from gym import logger
 from gym.wrappers.monitoring import video_recorder
 
 
@@ -38,7 +38,7 @@ class RecordVideo(gym.Wrapper):
         self.video_folder = os.path.abspath(video_folder)
         # Create output folder if needed
         if os.path.isdir(self.video_folder):
-            warnings.warn(
+            logger.warn(
                 f"Overwriting existing videos at {self.video_folder} folder (try specifying a different `video_folder` for the `RecordVideo` wrapper if this is not desired)"
             )
         os.makedirs(self.video_folder, exist_ok=True)

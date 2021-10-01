@@ -1,8 +1,3 @@
-import distutils.version
-import os
-import sys
-import warnings
-
 from gym import error
 from gym.version import VERSION as __version__
 
