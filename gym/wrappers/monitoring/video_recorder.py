@@ -330,6 +330,7 @@ class ImageEncoder(object):
             self.backend = "ffmpeg"
         elif pkgutil.find_loader("imageio_ffmpeg"):
             import imageio_ffmpeg
+
             self.backend = imageio_ffmpeg.get_ffmpeg_exe()
         else:
             raise error.DependencyNotInstalled(
