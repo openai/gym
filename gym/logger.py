@@ -29,9 +29,17 @@ def info(msg, *args):
         print("%s: %s" % ("INFO", msg % args))
 
 
-def warn(msg, *args):
+def warn(msg, *args, category=None, stacklevel=1):
     if MIN_LEVEL <= WARN:
-        warnings.warn(colorize("%s: %s" % ("WARN", msg % args), "yellow"))
+        warnings.warn(
+            colorize("%s: %s" % ("WARN", msg % args), "yellow"),
+            category=category,
+            stacklevel=stacklevel + 1,
+        )
+
+
+def deprecation(msg, *args):
+    warn(msg, *args, category=DeprecationWarning, stacklevel=2)
 
 
 def error(msg, *args):
