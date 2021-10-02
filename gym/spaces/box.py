@@ -1,5 +1,4 @@
 import numpy as np
-import warnings
 
 from .space import Space
 from gym import logger
@@ -140,7 +139,7 @@ class Box(Space):
 
     def contains(self, x):
         if not isinstance(x, np.ndarray):
-            warnings.warn("Casting input x to numpy array.")
+            logger.warn("Casting input x to numpy array.")
             x = np.asarray(x, dtype=self.dtype)
 
         return (

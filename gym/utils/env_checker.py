@@ -10,11 +10,11 @@ Original Author: Justin Terry
 These projects are covered by the MIT License.
 """
 
-import warnings
 from typing import Union
 
 import gym
 import numpy as np
+from gym import logger
 from gym import spaces
 
 
@@ -32,7 +32,7 @@ def _check_image_input(observation_space: spaces.Box, key: str = "") -> None:
     when the observation is apparently an image.
     """
     if observation_space.dtype != np.uint8:
-        warnings.warn(
+        logger.warn(
             f"It seems that your observation {key} is an image but the `dtype` "
             "of your observation_space is not `np.uint8`. "
             "If your observation is not an image, we recommend you to flatten the observation "
@@ -40,7 +40,7 @@ def _check_image_input(observation_space: spaces.Box, key: str = "") -> None:
         )
 
     if np.any(observation_space.low != 0) or np.any(observation_space.high != 255):
-        warnings.warn(
+        logger.warn(
             f"It seems that your observation space {key} is an image but the "
             "upper and lower bounds are not in [0, 255]. "
             "Generally, CNN policies assume observations are within that range, "
@@ -55,13 +55,13 @@ def _check_nan(env: gym.Env, check_inf: bool = True) -> None:
         observation, reward, _, _ = env.step(action)
 
         if np.any(np.isnan(observation)):
-            warnings.warn("Encountered NaN value in observations.")
+            logger.warn("Encountered NaN value in observations.")
         if np.any(np.isnan(reward)):
-            warnings.warn("Encountered NaN value in rewards.")
+            logger.warn("Encountered NaN value in rewards.")
         if check_inf and np.any(np.isinf(observation)):
-            warnings.warn("Encountered inf value in observations.")
+            logger.warn("Encountered inf value in observations.")
         if check_inf and np.any(np.isinf(reward)):
-            warnings.warn("Encountered inf value in rewards.")
+            logger.warn("Encountered inf value in rewards.")
 
 
 def _check_obs(
@@ -106,22 +106,22 @@ def _check_box_obs(observation_space: spaces.Box, key: str = "") -> None:
         _check_image_input(observation_space)
 
     if len(observation_space.shape) not in [1, 3]:
-        warnings.warn(
+        logger.warn(
             f"Your observation {key} has an unconventional shape (neither an image, nor a 1D vector). "
             "We recommend you to flatten the observation "
             "to have only a 1D vector or use a custom policy to properly process the data."
         )
 
     if np.any(np.equal(observation_space.low, -np.inf)):
-        warnings.warn(
+        logger.warn(
             "Agent's minimum observation space value is -infinity. This is probably too low."
         )
     if np.any(np.equal(observation_space.high, np.inf)):
-        warnings.warn(
+        logger.warn(
             "Agent's maxmimum observation space value is infinity. This is probably too high"
         )
     if np.any(np.equal(observation_space.low, observation_space.high)):
-        warnings.warn("Agent's maximum and minimum observation space values are equal")
+        logger.warn("Agent's maximum and minimum observation space values are equal")
     if np.any(np.greater(observation_space.low, observation_space.high)):
         assert False, "Agent's minimum observation value is greater than it's maximum"
     if observation_space.low.shape != observation_space.shape:
@@ -136,15 +136,15 @@ def _check_box_obs(observation_space: spaces.Box, key: str = "") -> None:
 
 def _check_box_action(action_space: spaces.Box):
     if np.any(np.equal(action_space.low, -np.inf)):
-        warnings.warn(
+        logger.warn(
             "Agent's minimum action space value is -infinity. This is probably too low."
         )
     if np.any(np.equal(action_space.high, np.inf)):
-        warnings.warn(
+        logger.warn(
             "Agent's maxmimum action space value is infinity. This is probably too high"
         )
     if np.any(np.equal(action_space.low, action_space.high)):
-        warnings.warn("Agent's maximum and minimum action space values are equal")
+        logger.warn("Agent's maximum and minimum action space values are equal")
     if np.any(np.greater(action_space.low, action_space.high)):
         assert False, "Agent's minimum action value is greater than it's maximum"
     if action_space.low.shape != action_space.shape:
@@ -159,7 +159,7 @@ def _check_normalized_action(action_space: spaces.Box):
         or np.any(np.abs(action_space.low) > 1)
         or np.any(np.abs(action_space.high) > 1)
     ):
-        warnings.warn(
+        logger.warn(
             "We recommend you to use a symmetric and normalized Box action space (range=[-1, 1]) "
             "cf https://stable-baselines3.readthedocs.io/en/master/guide/rl_tips.html"
         )
@@ -264,7 +264,7 @@ def _check_render(
     render_modes = env.metadata.get("render.modes")
     if render_modes is None:
         if warn:
-            warnings.warn(
+            logger.warn(
                 "No render modes was declared in the environment "
                 " (env.metadata['render.modes'] is None or not defined), "
                 "you may have trouble when calling `.render()`"
