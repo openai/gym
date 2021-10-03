@@ -221,6 +221,12 @@ https://github.com/acxz/gym-ccc
 
 Environments that extend gym's classic control and add many new features including continuous action spaces.
 
+### gym-cellular-automata
+
+https://github.com/elbecerrasoto/gym-cellular-automata
+
+Environments where the agent interacts with _Cellular Automata_ by changing its cells states.
+
 ### gym-games
 
 https://github.com/qlan3/gym-games
