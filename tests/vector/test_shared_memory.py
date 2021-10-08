@@ -153,12 +153,12 @@ def test_write_to_shared_memory(
 @pytest.mark.parametrize(
     "space", spaces, ids=[space.__class__.__name__ for space in spaces]
 )
-@pytest.mark.parametrize("use_all_kwargs", [True, False])
-@pytest.mark.parametrize("pass_space_first", [True, False])
+@pytest.mark.parametrize("use_new_ordering", [True, False])
+@pytest.mark.parametrize("n_pos_args", range(4))
 def test_read_from_shared_memory(
-    space: Space, use_all_kwargs: bool, pass_space_first: bool
+    space: Space, use_new_ordering: bool, n_pos_args: int
 ):
-    def assert_nested_equal(lhs, rhs, space, n):
+    def assert_nested_equal(lhs, rhs, space: Space, n: int):
         assert isinstance(rhs, list)
         if isinstance(space, Tuple):
             assert isinstance(lhs, tuple)
@@ -185,27 +185,27 @@ def test_read_from_shared_memory(
 
     def write(i, shared_memory, sample):
         write_to_shared_memory(i, sample, shared_memory, space)
+    n = 8    
+    shared_memory = create_shared_memory(space=space, n=n)
 
-    if use_all_kwargs:
-        shared_memory_n8 = create_shared_memory(space=space, n=8)
-        if pass_space_first:
-            memory_view_n8 = read_from_shared_memory(
-                space=space, shared_memory=shared_memory_n8, n=8
-            )
-        else:
-            memory_view_n8 = read_from_shared_memory(
-                shared_memory=shared_memory_n8, space=space, n=8
-            )
+    positional_args = []
+    if use_new_ordering:
+        keyword_args = OrderedDict([("space", space), ("shared_memory", shared_memory), ("n", n)]) 
     else:
-        shared_memory_n8 = create_shared_memory(space, n=8)
-        if pass_space_first:
-            memory_view_n8 = read_from_shared_memory(space, shared_memory_n8, n=8)
-        else:
-            memory_view_n8 = read_from_shared_memory(shared_memory_n8, space, n=8)
-    samples = [space.sample() for _ in range(8)]
+        keyword_args = OrderedDict([("shared_memory", shared_memory), ("space", space), ("n", n)]) 
+
+    # Take the first `n_pos_args` items out of `keyword_args` and into `positional_args`:
+    for _ in range(n_pos_args):
+        first_key = next(iter(keyword_args))
+        positional_args.append(keyword_args.pop(first_key))
+
+    memory_view = read_from_shared_memory(*positional_args, **keyword_args)
+    # array = create_empty_array(*positional_args, **keyword_args)
+
+    samples = [space.sample() for _ in range(n)]
 
     processes = [
-        Process(target=write, args=(i, shared_memory_n8, samples[i])) for i in range(8)
+        Process(target=write, args=(i, shared_memory, samples[i])) for i in range(n)
     ]
 
     for process in processes:
@@ -213,4 +213,4 @@ def test_read_from_shared_memory(
     for process in processes:
         process.join()
 
-    assert_nested_equal(memory_view_n8, samples, space, n=8)
+    assert_nested_equal(memory_view, samples, space, n=n)
