@@ -97,11 +97,9 @@ def test_create_shared_memory_custom_space(
 @pytest.mark.parametrize(
     "space", spaces, ids=[space.__class__.__name__ for space in spaces]
 )
-@pytest.mark.parametrize("use_all_kwargs", [True, False])
-@pytest.mark.parametrize("pass_space_first", [True, False])
-def test_write_to_shared_memory(
-    space: Space, use_all_kwargs: bool, pass_space_first: bool
-):
+@pytest.mark.parametrize("use_new_ordering", [True, False])
+@pytest.mark.parametrize("n_pos_args", range(4))
+def test_write_to_shared_memory(space: Space, use_new_ordering: bool, n_pos_args: int):
     def assert_nested_equal(lhs, rhs):
         assert isinstance(rhs, list)
         if isinstance(lhs, (list, tuple)):
@@ -119,27 +117,40 @@ def test_write_to_shared_memory(
             raise TypeError("Got unknown type `{0}`.".format(type(lhs)))
 
     def write(i, shared_memory, sample):
-        if use_all_kwargs:
-            if pass_space_first:
-                write_to_shared_memory(
-                    space=space, index=i, value=sample, shared_memory=shared_memory
-                )
-            else:
-                write_to_shared_memory(
-                    index=i, value=sample, shared_memory=shared_memory, space=space
-                )
+        positional_args = []
+        if use_new_ordering:
+            keyword_args = OrderedDict(
+                [
+                    ("space", space),
+                    ("index", i),
+                    ("value", sample),
+                    ("shared_memory", shared_memory),
+                ]
+            )
         else:
-            if pass_space_first:
-                write_to_shared_memory(space, i, sample, shared_memory)
-            else:
-                # Original ordering for the positional args:
-                write_to_shared_memory(i, sample, shared_memory, space)
+            # index, value, shared_memory, space
+            keyword_args = OrderedDict(
+                [
+                    ("index", i),
+                    ("value", sample),
+                    ("shared_memory", shared_memory),
+                    ("space", space),
+                ]
+            )
 
-    shared_memory_n8 = create_shared_memory(space, n=8)
-    samples = [space.sample() for _ in range(8)]
+        # Take the first `n_pos_args` items out of `keyword_args` and into `positional_args`:
+        for _ in range(n_pos_args):
+            first_key = next(iter(keyword_args))
+            positional_args.append(keyword_args.pop(first_key))
+
+        write_to_shared_memory(*positional_args, **keyword_args)
+
+    n = 8
+    shared_memory = create_shared_memory(space, n=n)
+    samples = [space.sample() for _ in range(n)]
 
     processes = [
-        Process(target=write, args=(i, shared_memory_n8, samples[i])) for i in range(8)
+        Process(target=write, args=(i, shared_memory, samples[i])) for i in range(n)
     ]
 
     for process in processes:
@@ -147,7 +158,7 @@ def test_write_to_shared_memory(
     for process in processes:
         process.join()
 
-    assert_nested_equal(shared_memory_n8, samples)
+    assert_nested_equal(shared_memory, samples)
 
 
 @pytest.mark.parametrize(
@@ -155,9 +166,7 @@ def test_write_to_shared_memory(
 )
 @pytest.mark.parametrize("use_new_ordering", [True, False])
 @pytest.mark.parametrize("n_pos_args", range(4))
-def test_read_from_shared_memory(
-    space: Space, use_new_ordering: bool, n_pos_args: int
-):
+def test_read_from_shared_memory(space: Space, use_new_ordering: bool, n_pos_args: int):
     def assert_nested_equal(lhs, rhs, space: Space, n: int):
         assert isinstance(rhs, list)
         if isinstance(space, Tuple):
@@ -185,14 +194,19 @@ def test_read_from_shared_memory(
 
     def write(i, shared_memory, sample):
         write_to_shared_memory(i, sample, shared_memory, space)
-    n = 8    
+
+    n = 8
     shared_memory = create_shared_memory(space=space, n=n)
 
     positional_args = []
     if use_new_ordering:
-        keyword_args = OrderedDict([("space", space), ("shared_memory", shared_memory), ("n", n)]) 
+        keyword_args = OrderedDict(
+            [("space", space), ("shared_memory", shared_memory), ("n", n)]
+        )
     else:
-        keyword_args = OrderedDict([("shared_memory", shared_memory), ("space", space), ("n", n)]) 
+        keyword_args = OrderedDict(
+            [("shared_memory", shared_memory), ("space", space), ("n", n)]
+        )
 
     # Take the first `n_pos_args` items out of `keyword_args` and into `positional_args`:
     for _ in range(n_pos_args):
