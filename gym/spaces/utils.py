@@ -2,8 +2,6 @@ from collections import OrderedDict
 from functools import singledispatch, reduce, wraps
 import numpy as np
 import operator as op
-
-import numpy as np
 from gym.error import CustomSpaceError
 from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Space, Tuple
 
@@ -14,8 +12,11 @@ def _space_as_first_positional_argument(fn):
     """
 
     @wraps(fn)
-    def wrapped(space: Space, *args, **kwargs):
-        return fn(space, *args, **kwargs)
+    def wrapped(*args, **kwargs):
+        if "space" in kwargs:
+            space = kwargs.pop("space")
+            return fn(space, *args, **kwargs)
+        return fn(*args, **kwargs)
 
     return wrapped
 

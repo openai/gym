@@ -1,5 +1,6 @@
 from collections import OrderedDict
-from functools import singledispatch, wraps
+from functools import singledispatch
+from gym.logger import warn
 from typing import Callable, Sequence, Union
 
 import numpy as np
@@ -45,15 +46,20 @@ def concatenate(
     array([[0.6348213 , 0.28607962, 0.60760117],
            [0.87383074, 0.192658  , 0.2148103 ]], dtype=float32)
     """
-    if isinstance(space, (list, tuple)) and isinstance(out, Space):
-        # Re-order the arguments, as this was called with positional arguments.
-        # This adds backward-compatibility with the previous ordering of args.
-        space, items, out = out, space, items  # type: ignore
-        return concatenate(space, items, out)
-
-    assert isinstance(items, (list, tuple)), items
+    if not isinstance(space, Space):
+        if isinstance(out, Space) and isinstance(space, (list, tuple)):
+            # Using the previous ordering. Re-order the arguments and raise a warning.
+            # This makes the change backward-compatible.
+            warn(
+                "Ordering of arguments to `concatenate` has changed: the space must be "
+                "passed as the first argument."
+            )
+            space, items, out = out, space, items  # type: ignore
+            return concatenate(space, items, out)
+        # NOTE: We don't attempt to reorder the other cases, since it would be impossible
+        # to know for sure which of the args is `samples` and which one is `out`.
     raise ValueError(
-        f"Space of type `{0}` is not a valid `gym.Space` instance.".format(type(space))
+        f"Space of type `{type(space)}` is not a valid `gym.Space` instance."
     )
 
 

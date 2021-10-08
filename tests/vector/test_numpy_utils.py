@@ -1,8 +1,9 @@
+import itertools
+from typing import Callable, Tuple as _Tuple, Optional
 import pytest
 import numpy as np
 
 from collections import OrderedDict
-
 from gym.spaces import Tuple, Dict, Space
 from gym.vector.utils.spaces import _BaseGymSpaces
 from tests.vector.utils import spaces
@@ -13,9 +14,9 @@ from gym.vector.utils.numpy_utils import concatenate, create_empty_array
 @pytest.mark.parametrize(
     "space", spaces, ids=[space.__class__.__name__ for space in spaces]
 )
-@pytest.mark.parametrize("space_arg_first", [True, False])
-@pytest.mark.parametrize("use_all_kwargs", [True, False])
-def test_concatenate(space: Space, space_arg_first: bool, use_all_kwargs: bool):
+@pytest.mark.parametrize("use_new_ordering", [True, False])
+@pytest.mark.parametrize("n_pos_args", range(4))
+def test_concatenate(space: Space, use_new_ordering: bool, n_pos_args: int):
     def assert_type(lhs, rhs, n):
         # Special case: if rhs is a list of scalars, lhs must be an np.ndarray
         if np.isscalar(rhs[0]):
@@ -46,33 +47,51 @@ def test_concatenate(space: Space, space_arg_first: bool, use_all_kwargs: bool):
         else:
             raise TypeError("Got unknown type `{0}`.".format(type(lhs)))
 
-    samples = [space.sample() for _ in range(8)]
-    array = create_empty_array(space, n=8)
-    if space_arg_first:
-        if use_all_kwargs:
-            concatenated = concatenate(items=samples, out=array, space=space)
-        else:
-            concatenated = concatenate(samples, array, space)
-    elif use_all_kwargs:
-        concatenated = concatenate(space=space, items=samples, out=array)
+    items = [space.sample() for _ in range(8)]
+    out = create_empty_array(space, n=8)
+    n = 8
+    # Use various ways of passing the arguments to the function. This is used to check for
+    # backward-compatibility.
+    if use_new_ordering:
+        # Using new ordering: (space, items, out)
+        # Test all combinations of positional / keyword arguments that make sense:
+        keyword_args = OrderedDict([("space", space), ("items", items), ("out", out)])
     else:
-        concatenated = concatenate(space, samples, array)
+        keyword_args = OrderedDict([("items", items), ("out", out), ("space", space)])
+    
+    # Take the first `n_pos_args` items out of `keyword_args` and into `positional_args`:
+    positional_args = []
+    for _ in range(n_pos_args):
+        first_key = next(iter(keyword_args))
+        positional_args.append(keyword_args.pop(first_key))
 
-    assert np.all(concatenated == array)
-    assert_nested_equal(array, samples, n=8)
+    # Call the function
+    concatenated = concatenate(*positional_args, **keyword_args)
+    
+    assert np.all(concatenated == out)
+    assert_nested_equal(out, items, n=8)
 
 
-@pytest.mark.parametrize("n", [1, 8])
+@pytest.mark.parametrize("n", [1, 8, None])
 @pytest.mark.parametrize(
     "space", spaces, ids=[space.__class__.__name__ for space in spaces]
 )
-@pytest.mark.parametrize("use_all_kwargs", [True, False])
-def test_create_empty_array(space: Space, n: int, use_all_kwargs: bool):
-    def assert_nested_type(arr, space, n):
+@pytest.mark.parametrize("fn", [np.empty, np.zeros, np.ones])
+@pytest.mark.parametrize("n_pos_args", range(4))
+def test_create_empty_array(space: Space, n: Optional[int], n_pos_args: int, fn: Callable[..., np.ndarray]):
+    
+    def assert_nested_type(arr, space: Space, n: Optional[int]):
         if isinstance(space, _BaseGymSpaces):
             assert isinstance(arr, np.ndarray)
             assert arr.dtype == space.dtype
-            assert arr.shape == (n,) + space.shape
+            if n is None:
+                assert arr.shape == space.shape
+            else:
+                assert arr.shape == (n,) + space.shape
+            if fn is np.zeros:
+                assert np.all(arr == 0)
+            elif fn is np.ones:
+                assert np.all(arr == 1)
 
         elif isinstance(space, Tuple):
             assert isinstance(arr, tuple)
@@ -88,78 +107,13 @@ def test_create_empty_array(space: Space, n: int, use_all_kwargs: bool):
 
         else:
             raise TypeError("Got unknown type `{0}`.".format(type(arr)))
+    
+    positional_args = []
+    keyword_args = OrderedDict([("space", space), ("n", n), ("fn", fn)]) 
+    # Take the first `n_pos_args` items out of `keyword_args` and into `positional_args`:
+    for _ in range(n_pos_args):
+        first_key = next(iter(keyword_args))
+        positional_args.append(keyword_args.pop(first_key))
 
-    if use_all_kwargs:
-        array = create_empty_array(space=space, n=n, fn=np.empty)
-    else:
-        array = create_empty_array(space, n=n, fn=np.empty)
+    array = create_empty_array(*positional_args, **keyword_args)
     assert_nested_type(array, space, n=n)
-
-
-@pytest.mark.parametrize("n", [1, 8])
-@pytest.mark.parametrize(
-    "space", spaces, ids=[space.__class__.__name__ for space in spaces]
-)
-@pytest.mark.parametrize("use_all_kwargs", [True, False])
-def test_create_empty_array_zeros(space: Space, n: int, use_all_kwargs: bool):
-    def assert_nested_type(arr, space, n):
-        if isinstance(space, _BaseGymSpaces):
-            assert isinstance(arr, np.ndarray)
-            assert arr.dtype == space.dtype
-            assert arr.shape == (n,) + space.shape
-            assert np.all(arr == 0)
-
-        elif isinstance(space, Tuple):
-            assert isinstance(arr, tuple)
-            assert len(arr) == len(space.spaces)
-            for i in range(len(arr)):
-                assert_nested_type(arr[i], space.spaces[i], n)
-
-        elif isinstance(space, Dict):
-            assert isinstance(arr, OrderedDict)
-            assert set(arr.keys()) ^ set(space.spaces.keys()) == set()
-            for key in arr.keys():
-                assert_nested_type(arr[key], space.spaces[key], n)
-
-        else:
-            raise TypeError("Got unknown type `{0}`.".format(type(arr)))
-
-    if use_all_kwargs:
-        array = create_empty_array(space=space, n=n, fn=np.zeros)
-    else:
-        array = create_empty_array(space, n=n, fn=np.zeros)
-    assert_nested_type(array, space, n=n)
-
-
-@pytest.mark.parametrize(
-    "space", spaces, ids=[space.__class__.__name__ for space in spaces]
-)
-@pytest.mark.parametrize("use_all_kwargs", [True, False])
-def test_create_empty_array_none_shape_ones(space: Space, use_all_kwargs: bool):
-    def assert_nested_type(arr, space):
-        if isinstance(space, _BaseGymSpaces):
-            assert isinstance(arr, np.ndarray)
-            assert arr.dtype == space.dtype
-            assert arr.shape == space.shape
-            assert np.all(arr == 1)
-
-        elif isinstance(space, Tuple):
-            assert isinstance(arr, tuple)
-            assert len(arr) == len(space.spaces)
-            for i in range(len(arr)):
-                assert_nested_type(arr[i], space.spaces[i])
-
-        elif isinstance(space, Dict):
-            assert isinstance(arr, OrderedDict)
-            assert set(arr.keys()) ^ set(space.spaces.keys()) == set()
-            for key in arr.keys():
-                assert_nested_type(arr[key], space.spaces[key])
-
-        else:
-            raise TypeError("Got unknown type `{0}`.".format(type(arr)))
-
-    if use_all_kwargs:
-        array = create_empty_array(space=space, n=None, fn=np.ones)
-    else:
-        array = create_empty_array(space, n=None, fn=np.ones)
-    assert_nested_type(array, space)
