@@ -49,8 +49,8 @@ expected_types = [
 @pytest.mark.parametrize(
     "ctx", [None, "fork", "spawn"], ids=["default", "fork", "spawn"]
 )
-@pytest.mark.parametrize("use_all_kwargs", [True, False])
-def test_create_shared_memory(space, expected_type, n, ctx, use_all_kwargs: bool):
+@pytest.mark.parametrize("n_pos_args", range(4))
+def test_create_shared_memory(space, expected_type, n, ctx, n_pos_args: int):
     def assert_nested_type(lhs, rhs, n):
         assert type(lhs) == type(rhs)
         if isinstance(lhs, (list, tuple)):
@@ -73,10 +73,20 @@ def test_create_shared_memory(space, expected_type, n, ctx, use_all_kwargs: bool
             raise TypeError("Got unknown type `{0}`.".format(type(lhs)))
 
     ctx = mp if (ctx is None) else mp.get_context(ctx)
-    if use_all_kwargs:
-        shared_memory = create_shared_memory(space=space, n=n, ctx=ctx)
-    else:
-        shared_memory = create_shared_memory(space, n=n, ctx=ctx)
+
+    positional_args = []
+    keyword_args = OrderedDict(
+        [
+            ("space", space),
+            ("n", n),
+            ("ctx", ctx),
+        ]
+    )
+    # Take the first `n_pos_args` items out of `keyword_args` and into `positional_args`:
+    for _ in range(n_pos_args):
+        first_key = next(iter(keyword_args))
+        positional_args.append(keyword_args.pop(first_key))
+    shared_memory = create_shared_memory(*positional_args, **keyword_args)
     assert_nested_type(shared_memory, expected_type, n=n)
 
 
