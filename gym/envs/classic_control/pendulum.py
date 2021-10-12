@@ -18,10 +18,10 @@ class PendulumEnv(gym.Env):
         Num     Observation               Min                     Max
         0                                 -1                       1
         1                                 -1                       1
-        2                                 -8                       8
+        2       Speed                     -8                       8
     Actions:
         Type: Box(2)
-        Num   Action
+        Num   Action (Torque)
         0     -2
         1     +2
     Reward:
