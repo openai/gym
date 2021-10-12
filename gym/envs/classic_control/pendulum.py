@@ -6,6 +6,28 @@ from os import path
 
 
 class PendulumEnv(gym.Env):
+    """
+    Description:
+        The inverted pendulum swingup problem is a classic
+        problem in the control literature. In this version of the
+        problem, the pendulum starts in a random position, and the
+        goal is to swing it up so it stays upright.
+    Source:
+    Observation:
+        Type: Box(3)
+        Num     Observation               Min                     Max
+        0                                 -1                       1
+        1                                 -1                       1
+        2                                 -8                       8
+    Actions:
+        Type: Box(2)
+        Num   Action
+        0     -2
+        1     +2
+    Reward:
+    Starting State:
+    Episode Termination:
+"""
     metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 30}
 
     def __init__(self, g=10.0):
