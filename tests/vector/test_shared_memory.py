@@ -95,9 +95,8 @@ def test_create_shared_memory(space, expected_type, n, ctx, n_pos_args: int):
     "ctx", [None, "fork", "spawn"], ids=["default", "fork", "spawn"]
 )
 @pytest.mark.parametrize("space", custom_spaces)
-@pytest.mark.parametrize("use_all_kwargs", [True, False])
 def test_create_shared_memory_custom_space(
-    n: int, ctx: Optional[str], space: Space, use_all_kwargs: bool
+    n: int, ctx: Optional[str], space: Space
 ):
     ctx = mp if (ctx is None) else mp.get_context(ctx)
     with pytest.raises(CustomSpaceError):
