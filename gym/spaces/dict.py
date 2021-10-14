@@ -1,9 +1,9 @@
-from collections import OrderedDict
+from collections import OrderedDict, Mapping
 import numpy as np
 from .space import Space
 
 
-class Dict(Space):
+class Dict(Space, Mapping):
     """
     A dictionary of simpler spaces.
 
@@ -144,15 +144,3 @@ class Dict(Space):
                 entry[key] = value[i]
             ret.append(entry)
         return ret
-
-    def __eq__(self, other):
-        return isinstance(other, Dict) and self.spaces == other.spaces
-
-    def keys(self):
-        return self.spaces.keys()
-
-    def values(self):
-        return self.spaces.values()
-
-    def items(self):
-        return self.spaces.items()
