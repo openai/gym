@@ -20,10 +20,9 @@ class PendulumEnv(gym.Env):
         1                                 -1                       1
         2       Speed                     -8                       8
     Actions:
-        Type: Box(2)
-        Num   Action
-        0     Apply torque -2
-        1     Apply torque +2
+        Type: Box(1)
+        Num     Action               Min                     Max
+        0       Torque               -2                       2
     Reward:
     Starting State:
     Episode Termination:
