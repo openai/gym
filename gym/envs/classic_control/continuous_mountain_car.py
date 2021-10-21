@@ -38,7 +38,7 @@ class Continuous_MountainCarEnv(gym.Env):
         Type: Box(1)
         Num    Action                    Min            Max
         0      the power coef            -1.0           1.0
-        Note: actual driving force is calculated by multipling the power coef by power (0.0015)
+        Note: actual driving force is calculated by multiplying the power coef by power (0.0015)
 
     Reward:
          Reward of 100 is awarded if the agent reached the flag (position = 0.45) on top of the mountain.
