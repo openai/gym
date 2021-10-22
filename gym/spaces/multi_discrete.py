@@ -1,5 +1,5 @@
 import numpy as np
-from gym.logger import warn
+from gym import logger
 from .space import Space
 from .discrete import Discrete
 
@@ -64,7 +64,7 @@ class MultiDiscrete(Space):
 
     def __len__(self):
         if self.nvec.ndim >= 2:
-            warn("Get length of a multi-dimensional MultiDiscrete space.")
+            logger.warn("Get length of a multi-dimensional MultiDiscrete space.")
         return len(self.nvec)
 
     def __eq__(self, other):

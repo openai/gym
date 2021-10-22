@@ -1,6 +1,7 @@
 import json
 import os
 import os.path
+import pkgutil
 import subprocess
 import tempfile
 from io import StringIO
@@ -327,9 +328,13 @@ class ImageEncoder(object):
             self.backend = "avconv"
         elif distutils.spawn.find_executable("ffmpeg") is not None:
             self.backend = "ffmpeg"
+        elif pkgutil.find_loader("imageio_ffmpeg"):
+            import imageio_ffmpeg
+
+            self.backend = imageio_ffmpeg.get_ffmpeg_exe()
         else:
             raise error.DependencyNotInstalled(
-                """Found neither the ffmpeg nor avconv executables. On OS X, you can install ffmpeg via `brew install ffmpeg`. On most Ubuntu variants, `sudo apt-get install ffmpeg` should do it. On Ubuntu 14.04, however, you'll need to install avconv with `sudo apt-get install libav-tools`."""
+                """Found neither the ffmpeg nor avconv executables. On OS X, you can install ffmpeg via `brew install ffmpeg`. On most Ubuntu variants, `sudo apt-get install ffmpeg` should do it. On Ubuntu 14.04, however, you'll need to install avconv with `sudo apt-get install libav-tools`. Alternatively, please install imageio-ffmpeg with `pip install imageio-ffmpeg`"""
             )
 
         self.start()
@@ -347,65 +352,34 @@ class ImageEncoder(object):
         }
 
     def start(self):
-        if self.backend == "ffmpeg":
-            self.cmdline = (
-                self.backend,
-                "-nostats",
-                "-loglevel",
-                "error",  # suppress warnings
-                "-y",
-                # input
-                "-f",
-                "rawvideo",
-                "-s:v",
-                "{}x{}".format(*self.wh),
-                "-pix_fmt",
-                ("rgb32" if self.includes_alpha else "rgb24"),
-                "-r",
-                "%d" % self.frames_per_sec,
-                "-i",
-                "-",  # this used to be /dev/stdin, which is not Windows-friendly
-                # output
-                "-an",
-                "-r",
-                "%d" % self.frames_per_sec,
-                "-vcodec",
-                "mpeg4",
-                "-pix_fmt",
-                "bgr24",
-                "-r",
-                "%d" % self.output_frames_per_sec,
-                self.output_path,
-            )
-        else:
-            self.cmdline = (
-                self.backend,
-                "-nostats",
-                "-loglevel",
-                "error",  # suppress warnings
-                "-y",
-                # input
-                "-f",
-                "rawvideo",
-                "-s:v",
-                "{}x{}".format(*self.wh),
-                "-pix_fmt",
-                ("rgb32" if self.includes_alpha else "rgb24"),
-                "-framerate",
-                "%d" % self.frames_per_sec,
-                "-i",
-                "-",  # this used to be /dev/stdin, which is not Windows-friendly
-                # output
-                "-vf",
-                "scale=trunc(iw/2)*2:trunc(ih/2)*2",
-                "-vcodec",
-                "libx264",
-                "-pix_fmt",
-                "yuv420p",
-                "-r",
-                "%d" % self.output_frames_per_sec,
-                self.output_path,
-            )
+        self.cmdline = (
+            self.backend,
+            "-nostats",
+            "-loglevel",
+            "error",  # suppress warnings
+            "-y",
+            # input
+            "-f",
+            "rawvideo",
+            "-s:v",
+            "{}x{}".format(*self.wh),
+            "-pix_fmt",
+            ("rgb32" if self.includes_alpha else "rgb24"),
+            "-framerate",
+            "%d" % self.frames_per_sec,
+            "-i",
+            "-",  # this used to be /dev/stdin, which is not Windows-friendly
+            # output
+            "-vf",
+            "scale=trunc(iw/2)*2:trunc(ih/2)*2",
+            "-vcodec",
+            "libx264",
+            "-pix_fmt",
+            "yuv420p",
+            "-r",
+            "%d" % self.output_frames_per_sec,
+            self.output_path,
+        )
 
         logger.debug('Starting %s with "%s"', self.backend, " ".join(self.cmdline))
         if hasattr(os, "setsid"):  # setsid not present on Windows

@@ -2,6 +2,12 @@
 
 ## Video Game Environments
 
+### flappy-bird-gym: A Flappy Bird environment for OpenAI Gym
+
+https://github.com/Talendar/flappy-bird-gym
+
+A simple environment for single-agent reinforcement learning algorithms on a clone of [Flappy Bird](https://en.wikipedia.org/wiki/Flappy_Bird), the hugely popular arcade-style mobile game. Both state and pixel observation environments are available.
+
 ### gym-derk: GPU accelerated MOBA environment
 
 https://gym.derkgame.com
@@ -220,6 +226,12 @@ An environment for automated rule-based deductive program verification in the Ke
 https://github.com/acxz/gym-ccc
 
 Environments that extend gym's classic control and add many new features including continuous action spaces.
+
+### gym-cellular-automata
+
+https://github.com/elbecerrasoto/gym-cellular-automata
+
+Environments where the agent interacts with _Cellular Automata_ by changing its cells states.
 
 ### gym-games
 
