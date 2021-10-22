@@ -14,11 +14,9 @@ class PendulumEnv(gym.Env):
         goal is to swing it up so it stays upright.
     Source:
     Observation:
-        Type: Box(3)
+        Type: Box(1)
         Num     Observation               Min                     Max
-        0       Mass                      -1                       1
-        1       Length                    -1                       1
-        2       Speed                     -8                       8
+        0       Speed                     -8                       8
     Actions:
         Type: Box(1)
         Num     Action               Min                     Max
