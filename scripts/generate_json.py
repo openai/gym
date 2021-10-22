@@ -1,11 +1,11 @@
-from gym import envs, spaces, logger
+from gym import envs, logger
 import json
 import os
 import sys
 import argparse
 
-from gym.envs.tests.spec_list import should_skip_env_spec_for_tests
-from gym.envs.tests.test_envs_semantics import generate_rollout_hash, hash_object
+from tests.envs.spec_list import should_skip_env_spec_for_tests
+from tests import generate_rollout_hash
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), os.pardir, "gym", "envs", "tests")
 ROLLOUT_STEPS = 100

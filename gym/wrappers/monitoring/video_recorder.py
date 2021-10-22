@@ -10,14 +10,10 @@ import distutils.version
 import numpy as np
 
 from gym import error, logger
-from gym.utils import closer
 
 
 def touch(path):
     open(path, "a").close()
-
-
-video_recorder_closer = closer.Closer()
 
 
 class VideoRecorder(object):
@@ -42,7 +38,6 @@ class VideoRecorder(object):
         self._async = env.metadata.get("semantics.async")
         self.enabled = enabled
         self._closed = False
-        self._recorder_id = video_recorder_closer.register(self)
 
         # Don't bother setting anything else if not enabled
         if not self.enabled:
@@ -190,7 +185,6 @@ class VideoRecorder(object):
         self.write_metadata()
 
         # Stop tracking this for autoclose
-        video_recorder_closer.unregister(self._recorder_id)
         self._closed = True
 
     def write_metadata(self):

@@ -64,7 +64,7 @@ class FrameStack(ObservationWrapper):
     r"""Observation wrapper that stacks the observations in a rolling manner.
 
     For example, if the number of stacks is 4, then the returned observation contains
-    the most recent 4 observations. For environment 'Pendulum-v0', the original observation
+    the most recent 4 observations. For environment 'Pendulum-v1', the original observation
     is an array with shape [3], so if we stack 4 observations, the processed observation
     has shape [4, 3].
 

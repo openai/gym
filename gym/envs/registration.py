@@ -248,18 +248,28 @@ def namespace(ns):
 def load_env_plugins(entry_point="gym.envs"):
     # Load third-party environments
     for plugin in metadata.entry_points().get(entry_point, []):
-        if plugin.attr is None:
-            raise error.Error(
-                f"Gym environment plugin `{plugin.module}` must specify a function to execute, not a root module"
-            )
+        # Python 3.8 doesn't support plugin.module, plugin.attr
+        # So we'll have to try and parse this ourselves
+        try:
+            module, attr = plugin.module, plugin.attr
+        except AttributeError:
+            if ":" in plugin.value:
+                module, attr = plugin.value.split(":", maxsplit=1)
+            else:
+                module, attr = plugin.value, None
+        finally:
+            if attr is None:
+                raise error.Error(
+                    f"Gym environment plugin `{module}` must specify a function to execute, not a root module"
+                )
 
         context = namespace(plugin.name)
         if plugin.name == "__internal__":
-            if plugin.module in plugin_internal_whitelist:
+            if module in plugin_internal_whitelist:
                 context = contextlib.nullcontext()
             else:
                 logger.warn(
-                    f"Trying to register an internal environment when `{plugin.module}` is not in the whitelist"
+                    f"Trying to register an internal environment when `{module}` is not in the whitelist"
                 )
 
         with context:
