@@ -64,7 +64,6 @@ class CubeCrash(gym.Env):
 
         self.reset()
 
-
     def random_color(self):
         return np.array(
             [

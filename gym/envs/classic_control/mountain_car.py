@@ -75,7 +75,6 @@ class MountainCarEnv(gym.Env):
 
         self.seed()
 
-
     def step(self, action):
         assert self.action_space.contains(action), "%r (%s) invalid" % (
             action,

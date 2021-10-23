@@ -89,7 +89,6 @@ class BlackjackEnv(gym.Env):
         # Flag for full agreement with the (Sutton and Barto, 2018) definition. Overrides self.natural
         self.sab = sab
 
-
     def step(self, action):
         assert self.action_space.contains(action)
         if action:  # hit: add a card to players hand and return

@@ -27,8 +27,6 @@ class PendulumEnv(gym.Env):
 
         self.seed()
 
-
-
     def step(self, u):
         th, thdot = self.state  # th := theta
 

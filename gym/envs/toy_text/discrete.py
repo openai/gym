@@ -45,7 +45,6 @@ class DiscreteEnv(Env):
         self.seed()
         self.s = categorical_sample(self.isd, self.np_random)
 
-
     def reset(self, seed: Optional[int] = None):
         super().reset(seed=seed)
         self.s = categorical_sample(self.isd, self.np_random)

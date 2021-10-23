@@ -150,7 +150,6 @@ class BipedalWalker(gym.Env, EzPickle):
         )
         self.observation_space = spaces.Box(-high, high)
 
-
     def _destroy(self):
         if not self.terrain:
             return

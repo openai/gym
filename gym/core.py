@@ -7,7 +7,6 @@ from gym.utils import closer, seeding
 from gym.logger import warn
 
 
-
 class Env(object):
     """The main OpenAI Gym class. It encapsulates an environment with
     arbitrary behind-the-scenes dynamics. An environment can be

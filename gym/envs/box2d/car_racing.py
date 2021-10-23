@@ -147,7 +147,6 @@ class CarRacing(gym.Env, EzPickle):
             low=0, high=255, shape=(STATE_H, STATE_W, 3), dtype=np.uint8
         )
 
-
     def _destroy(self):
         if not self.road:
             return

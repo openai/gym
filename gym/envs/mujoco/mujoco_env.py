@@ -85,7 +85,6 @@ class MujocoEnv(gym.Env):
         self.observation_space = convert_observation_to_space(observation)
         return self.observation_space
 
-
     # methods to override:
     # ----------------------------
 
