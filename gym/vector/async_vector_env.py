@@ -162,14 +162,14 @@ class AsyncVectorEnv(VectorEnv):
         self._state = AsyncState.DEFAULT
         self._check_observation_spaces()
 
-    def seed(self, seeds=None):
-        super().seed(seeds=seeds)
+    def seed(self, seed=None):
+        super().seed(seed=seed)
         self._assert_is_running()
-        if seeds is None:
-            seeds = [None for _ in range(self.num_envs)]
-        if isinstance(seeds, int):
-            seeds = [seeds + i for i in range(self.num_envs)]
-        assert len(seeds) == self.num_envs
+        if seed is None:
+            seed = [None for _ in range(self.num_envs)]
+        if isinstance(seed, int):
+            seed = [seed + i for i in range(self.num_envs)]
+        assert len(seed) == self.num_envs
 
         if self._state != AsyncState.DEFAULT:
             raise AlreadyPendingCallError(
@@ -178,19 +178,19 @@ class AsyncVectorEnv(VectorEnv):
                 self._state.value,
             )
 
-        for pipe, seed in zip(self.parent_pipes, seeds):
+        for pipe, seed in zip(self.parent_pipes, seed):
             pipe.send(("seed", seed))
         _, successes = zip(*[pipe.recv() for pipe in self.parent_pipes])
         self._raise_if_errors(successes)
 
-    def reset_async(self, seeds: Optional[Union[int, List[int]]] = None):
+    def reset_async(self, seed: Optional[Union[int, List[int]]] = None):
         self._assert_is_running()
 
-        if seeds is None:
-            seeds = [None for _ in range(self.num_envs)]
-        if isinstance(seeds, int):
-            seeds = [seeds + i for i in range(self.num_envs)]
-        assert len(seeds) == self.num_envs
+        if seed is None:
+            seed = [None for _ in range(self.num_envs)]
+        if isinstance(seed, int):
+            seed = [seed + i for i in range(self.num_envs)]
+        assert len(seed) == self.num_envs
 
         if self._state != AsyncState.DEFAULT:
             raise AlreadyPendingCallError(
@@ -199,18 +199,18 @@ class AsyncVectorEnv(VectorEnv):
                 self._state.value,
             )
 
-        for pipe, seed in zip(self.parent_pipes, seeds):
-            pipe.send(("reset", seed))
+        for pipe, single_seed in zip(self.parent_pipes, seed):
+            pipe.send(("reset", single_seed))
         self._state = AsyncState.WAITING_RESET
 
-    def reset_wait(self, timeout=None, seeds: Optional[int] = None):
+    def reset_wait(self, timeout=None, seed: Optional[int] = None):
         """
         Parameters
         ----------
         timeout : int or float, optional
             Number of seconds before the call to `reset_wait` times out. If
             `None`, the call to `reset_wait` never times out.
-        seeds: ignored
+        seed: ignored
 
         Returns
         -------

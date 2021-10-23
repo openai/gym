@@ -55,28 +55,28 @@ class SyncVectorEnv(VectorEnv):
         self._dones = np.zeros((self.num_envs,), dtype=np.bool_)
         self._actions = None
 
-    def seed(self, seeds=None):
-        super().seed(seeds=seeds)
-        if seeds is None:
-            seeds = [None for _ in range(self.num_envs)]
-        if isinstance(seeds, int):
-            seeds = [seeds + i for i in range(self.num_envs)]
-        assert len(seeds) == self.num_envs
+    def seed(self, seed=None):
+        super().seed(seed=seed)
+        if seed is None:
+            seed = [None for _ in range(self.num_envs)]
+        if isinstance(seed, int):
+            seed = [seed + i for i in range(self.num_envs)]
+        assert len(seed) == self.num_envs
 
-        for env, seed in zip(self.envs, seeds):
-            env.seed(seed)
+        for env, single_seed in zip(self.envs, seed):
+            env.seed(single_seed)
 
-    def reset_wait(self, seeds: Optional[Union[int, List[int]]] = None, **kwargs):
-        if seeds is None:
-            seeds = [None for _ in range(self.num_envs)]
-        if isinstance(seeds, int):
-            seeds = [seeds + i for i in range(self.num_envs)]
-        assert len(seeds) == self.num_envs
+    def reset_wait(self, seed: Optional[Union[int, List[int]]] = None, **kwargs):
+        if seed is None:
+            seed = [None for _ in range(self.num_envs)]
+        if isinstance(seed, int):
+            seed = [seed + i for i in range(self.num_envs)]
+        assert len(seed) == self.num_envs
 
         self._dones[:] = False
         observations = []
-        for env, seed in zip(self.envs, seeds):
-            observation = env.reset(seed=seed)
+        for env, single_seed in zip(self.envs, seed):
+            observation = env.reset(seed=single_seed)
             observations.append(observation)
         self.observations = concatenate(
             observations, self.observations, self.single_observation_space

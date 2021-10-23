@@ -47,13 +47,13 @@ class VectorEnv(gym.Env):
         self.single_observation_space = observation_space
         self.single_action_space = action_space
 
-    def reset_async(self, seeds: Optional[Union[int, List[int]]] = None):
+    def reset_async(self, seed: Optional[Union[int, List[int]]] = None):
         pass
 
-    def reset_wait(self, seeds: Optional[Union[int, List[int]]] = None, **kwargs):
+    def reset_wait(self, seed: Optional[Union[int, List[int]]] = None, **kwargs):
         raise NotImplementedError()
 
-    def reset(self, seeds: Optional[Union[int, List[int]]] = None):
+    def reset(self, seed: Optional[Union[int, List[int]]] = None):
         r"""Reset all sub-environments and return a batch of initial observations.
 
         Returns
@@ -61,8 +61,8 @@ class VectorEnv(gym.Env):
         observations : sample from `observation_space`
             A batch of observations from the vectorized environment.
         """
-        self.reset_async(seeds=seeds)
-        return self.reset_wait(seeds=seeds)
+        self.reset_async(seed=seed)
+        return self.reset_wait(seed=seed)
 
     def step_async(self, actions):
         pass
@@ -124,20 +124,20 @@ class VectorEnv(gym.Env):
         self.close_extras(**kwargs)
         self.closed = True
 
-    def seed(self, seeds=None):
+    def seed(self, seed=None):
         """
         Parameters
         ----------
-        seeds : list of int, or int, optional
-            Random seed for each individual environment. If `seeds` is a list of
+        seed : list of int, or int, optional
+            Random seed for each individual environment. If `seed` is a list of
             length `num_envs`, then the items of the list are chosen as random
-            seeds. If `seeds` is an int, then each environment uses the random
-            seed `seeds + n`, where `n` is the index of the environment (between
+            seeds. If `seed` is an int, then each environment uses the random
+            seed `seed + n`, where `n` is the index of the environment (between
             `0` and `num_envs - 1`).
         """
         warn(
             "Function `env.seed(seed)` is marked as deprecated and will be removed in the future. "
-            "Please use `env.reset(seeds=seeds) instead in VectorEnvs."
+            "Please use `env.reset(seed=seed) instead in VectorEnvs."
         )
 
     def __del__(self):
@@ -190,8 +190,8 @@ class VectorEnvWrapper(VectorEnv):
     def close_extras(self, **kwargs):
         return self.env.close_extras(**kwargs)
 
-    def seed(self, seeds=None):
-        return self.env.seed(seeds)
+    def seed(self, seed=None):
+        return self.env.seed(seed)
 
     # implicitly forward all other methods and attributes to self.env
     def __getattr__(self, name):
