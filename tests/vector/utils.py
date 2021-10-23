@@ -102,7 +102,7 @@ class CustomSpaceEnv(gym.Env):
 def make_env(env_name, seed):
     def _make():
         env = gym.make(env_name)
-        env.seed(seed)
+        env.reset(seed=seed)
         return env
 
     return _make
@@ -111,7 +111,7 @@ def make_env(env_name, seed):
 def make_slow_env(slow_reset, seed):
     def _make():
         env = UnittestSlowEnv(slow_reset=slow_reset)
-        env.seed(seed)
+        env.reset(seed=seed)
         return env
 
     return _make
@@ -120,7 +120,7 @@ def make_slow_env(slow_reset, seed):
 def make_custom_space_env(seed):
     def _make():
         env = CustomSpaceEnv()
-        env.seed(seed)
+        env.reset(seed=seed)
         return env
 
     return _make

@@ -15,10 +15,8 @@ def test_transform_reward(env_id):
         wrapped_env = TransformReward(gym.make(env_id), lambda r: scale * r)
         action = env.action_space.sample()
 
-        env.seed(0)
-        env.reset()
-        wrapped_env.seed(0)
-        wrapped_env.reset()
+        env.reset(seed=0)
+        wrapped_env.reset(seed=0)
 
         _, reward, _, _ = env.step(action)
         _, wrapped_reward, _, _ = wrapped_env.step(action)
@@ -33,10 +31,8 @@ def test_transform_reward(env_id):
     wrapped_env = TransformReward(gym.make(env_id), lambda r: np.clip(r, min_r, max_r))
     action = env.action_space.sample()
 
-    env.seed(0)
-    env.reset()
-    wrapped_env.seed(0)
-    wrapped_env.reset()
+    env.reset(seed=0)
+    wrapped_env.reset(seed=0)
 
     _, reward, _, _ = env.step(action)
     _, wrapped_reward, _, _ = wrapped_env.step(action)
@@ -49,10 +45,8 @@ def test_transform_reward(env_id):
     env = gym.make(env_id)
     wrapped_env = TransformReward(gym.make(env_id), lambda r: np.sign(r))
 
-    env.seed(0)
-    env.reset()
-    wrapped_env.seed(0)
-    wrapped_env.reset()
+    env.reset(seed=0)
+    wrapped_env.reset(seed=0)
 
     for _ in range(1000):
         action = env.action_space.sample()

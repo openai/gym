@@ -16,11 +16,9 @@ def test_rescale_action():
     wrapped_env = RescaleAction(gym.make("Pendulum-v1"), -1, 1)
 
     seed = 0
-    env.seed(seed)
-    wrapped_env.seed(seed)
 
-    obs = env.reset()
-    wrapped_obs = wrapped_env.reset()
+    obs = env.reset(seed=seed)
+    wrapped_obs = wrapped_env.reset(seed=seed)
     assert np.allclose(obs, wrapped_obs)
 
     obs, reward, _, _ = env.step([1.5])

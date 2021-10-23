@@ -504,10 +504,9 @@ def heuristic(env, s):
 
 
 def demo_heuristic_lander(env, seed=None, render=False):
-    env.seed(seed)
     total_reward = 0
     steps = 0
-    s = env.reset()
+    s = env.reset(seed=seed)
     while True:
         a = heuristic(env, s)
         s, r, done, info = env.step(a)

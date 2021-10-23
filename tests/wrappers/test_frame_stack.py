@@ -28,17 +28,15 @@ except ImportError:
 )
 def test_frame_stack(env_id, num_stack, lz4_compress):
     env = gym.make(env_id)
-    env.seed(0)
     shape = env.observation_space.shape
     env = FrameStack(env, num_stack, lz4_compress)
     assert env.observation_space.shape == (num_stack,) + shape
     assert env.observation_space.dtype == env.env.observation_space.dtype
 
     dup = gym.make(env_id)
-    dup.seed(0)
 
-    obs = env.reset()
-    dup_obs = dup.reset()
+    obs = env.reset(seed=0)
+    dup_obs = dup.reset(seed=0)
     assert np.allclose(obs[-1], dup_obs)
 
     for _ in range(num_stack ** 2):
