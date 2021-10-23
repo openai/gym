@@ -57,8 +57,7 @@ class AcrobotEnv(core.Env):
     .. warning::
         This version of the domain uses the Runge-Kutta method for integrating
         the system dynamics and is more realistic, but also considerably harder
-        than the original version which employs Euler integration,
-        see the AcrobotLegacy class.
+        than the original version which employs Euler integration.
     """
 
     metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 15}
