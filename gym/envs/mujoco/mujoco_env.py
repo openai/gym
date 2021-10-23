@@ -1,6 +1,6 @@
 from collections import OrderedDict
 import os
-
+from typing import Optional
 
 from gym import error, spaces
 from gym.utils import seeding
@@ -85,9 +85,6 @@ class MujocoEnv(gym.Env):
         self.observation_space = convert_observation_to_space(observation)
         return self.observation_space
 
-    def seed(self, seed=None):
-        self.np_random, seed = seeding.np_random(seed)
-        return [seed]
 
     # methods to override:
     # ----------------------------
@@ -109,7 +106,8 @@ class MujocoEnv(gym.Env):
 
     # -----------------------------
 
-    def reset(self):
+    def reset(self, seed: Optional[int] = None):
+        super().reset(seed=seed)
         self.sim.reset()
         ob = self.reset_model()
         return ob

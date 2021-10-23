@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 
 from gym import Env, spaces
@@ -43,11 +45,9 @@ class DiscreteEnv(Env):
         self.seed()
         self.s = categorical_sample(self.isd, self.np_random)
 
-    def seed(self, seed=None):
-        self.np_random, seed = seeding.np_random(seed)
-        return [seed]
 
-    def reset(self):
+    def reset(self, seed: Optional[int] = None):
+        super().reset(seed=seed)
         self.s = categorical_sample(self.isd, self.np_random)
         self.lastaction = None
         return int(self.s)

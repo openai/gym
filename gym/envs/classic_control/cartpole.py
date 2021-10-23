@@ -5,6 +5,8 @@ permalink: https://perma.cc/C9ZM-652R
 """
 
 import math
+from typing import Optional
+
 import gym
 from gym import spaces, logger
 from gym.utils import seeding
@@ -96,10 +98,6 @@ class CartPoleEnv(gym.Env):
 
         self.steps_beyond_done = None
 
-    def seed(self, seed=None):
-        self.np_random, seed = seeding.np_random(seed)
-        return [seed]
-
     def step(self, action):
         err_msg = "%r (%s) invalid" % (action, type(action))
         assert self.action_space.contains(action), err_msg
@@ -158,7 +156,8 @@ class CartPoleEnv(gym.Env):
 
         return np.array(self.state, dtype=np.float32), reward, done, {}
 
-    def reset(self):
+    def reset(self, seed: Optional[int] = None):
+        super().reset(seed=seed)
         self.state = self.np_random.uniform(low=-0.05, high=0.05, size=(4,))
         self.steps_beyond_done = None
         return np.array(self.state, dtype=np.float32)

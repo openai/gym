@@ -1,3 +1,5 @@
+from typing import Optional
+
 import gym
 from gym import spaces
 from gym.utils import seeding
@@ -25,9 +27,7 @@ class PendulumEnv(gym.Env):
 
         self.seed()
 
-    def seed(self, seed=None):
-        self.np_random, seed = seeding.np_random(seed)
-        return [seed]
+
 
     def step(self, u):
         th, thdot = self.state  # th := theta
@@ -48,7 +48,8 @@ class PendulumEnv(gym.Env):
         self.state = np.array([newth, newthdot])
         return self._get_obs(), -costs, False, {}
 
-    def reset(self):
+    def reset(self, seed: Optional[int] = None):
+        super().reset(seed=seed)
         high = np.array([np.pi, 1])
         self.state = self.np_random.uniform(low=-high, high=high)
         self.last_u = None

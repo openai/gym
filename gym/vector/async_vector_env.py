@@ -1,3 +1,5 @@
+from typing import Optional, Union, List
+
 import numpy as np
 import multiprocessing as mp
 import time
@@ -6,6 +8,7 @@ from enum import Enum
 from copy import deepcopy
 
 from gym import logger
+from gym.logger import warn
 from gym.vector.vector_env import VectorEnv
 from gym.error import (
     AlreadyPendingCallError,
@@ -160,6 +163,7 @@ class AsyncVectorEnv(VectorEnv):
         self._check_observation_spaces()
 
     def seed(self, seeds=None):
+        super().seed(seeds=seeds)
         self._assert_is_running()
         if seeds is None:
             seeds = [None for _ in range(self.num_envs)]
@@ -179,8 +183,15 @@ class AsyncVectorEnv(VectorEnv):
         _, successes = zip(*[pipe.recv() for pipe in self.parent_pipes])
         self._raise_if_errors(successes)
 
-    def reset_async(self):
+    def reset_async(self, seeds: Optional[Union[int, List[int]]] = None):
         self._assert_is_running()
+
+        if seeds is None:
+            seeds = [None for _ in range(self.num_envs)]
+        if isinstance(seeds, int):
+            seeds = [seeds + i for i in range(self.num_envs)]
+        assert len(seeds) == self.num_envs
+
         if self._state != AsyncState.DEFAULT:
             raise AlreadyPendingCallError(
                 "Calling `reset_async` while waiting "
@@ -188,17 +199,18 @@ class AsyncVectorEnv(VectorEnv):
                 self._state.value,
             )
 
-        for pipe in self.parent_pipes:
-            pipe.send(("reset", None))
+        for pipe, seed in zip(self.parent_pipes, seeds):
+            pipe.send(("reset", seed))
         self._state = AsyncState.WAITING_RESET
 
-    def reset_wait(self, timeout=None):
+    def reset_wait(self, timeout=None, seeds: Optional[int] = None):
         """
         Parameters
         ----------
         timeout : int or float, optional
             Number of seconds before the call to `reset_wait` times out. If
             `None`, the call to `reset_wait` never times out.
+        seeds: ignored
 
         Returns
         -------

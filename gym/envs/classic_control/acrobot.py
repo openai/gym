@@ -1,4 +1,6 @@
 """classic Acrobot task"""
+from typing import Optional
+
 import numpy as np
 from numpy import sin, cos, pi
 
@@ -97,11 +99,8 @@ class AcrobotEnv(core.Env):
         self.state = None
         self.seed()
 
-    def seed(self, seed=None):
-        self.np_random, seed = seeding.np_random(seed)
-        return [seed]
-
-    def reset(self):
+    def reset(self, seed: Optional[int] = None):
+        super().reset(seed=seed)
         self.state = self.np_random.uniform(low=-0.1, high=0.1, size=(4,)).astype(
             np.float32
         )

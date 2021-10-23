@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 from numpy.random import Generator
 
@@ -5,7 +7,7 @@ from gym import error
 from gym.logger import warn
 
 
-def np_random(seed=None):
+def np_random(seed: Optional[int] = None):
     if seed is not None and not (isinstance(seed, int) and 0 <= seed):
         raise error.Error(
             "Seed must be a non-negative integer or omitted, not {}".format(seed)

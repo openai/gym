@@ -1,4 +1,7 @@
+from typing import Optional, Union, List
+
 import gym
+from gym.logger import warn
 from gym.spaces import Tuple
 from gym.vector.utils.spaces import batch_space
 
@@ -44,13 +47,13 @@ class VectorEnv(gym.Env):
         self.single_observation_space = observation_space
         self.single_action_space = action_space
 
-    def reset_async(self):
+    def reset_async(self, seeds: Optional[Union[int, List[int]]] = None):
         pass
 
-    def reset_wait(self, **kwargs):
+    def reset_wait(self, seeds: Optional[Union[int, List[int]]] = None, **kwargs):
         raise NotImplementedError()
 
-    def reset(self):
+    def reset(self, seeds: Optional[Union[int, List[int]]] = None):
         r"""Reset all sub-environments and return a batch of initial observations.
 
         Returns
@@ -58,8 +61,8 @@ class VectorEnv(gym.Env):
         observations : sample from `observation_space`
             A batch of observations from the vectorized environment.
         """
-        self.reset_async()
-        return self.reset_wait()
+        self.reset_async(seeds=seeds)
+        return self.reset_wait(seeds=seeds)
 
     def step_async(self, actions):
         pass
@@ -132,7 +135,10 @@ class VectorEnv(gym.Env):
             seed `seeds + n`, where `n` is the index of the environment (between
             `0` and `num_envs - 1`).
         """
-        pass
+        warn(
+            "Function `env.seed(seed)` is marked as deprecated and will be removed in the future. "
+            "Please use `env.reset(seeds=seeds) instead in VectorEnvs."
+        )
 
     def __del__(self):
         if not getattr(self, "closed", True):
@@ -166,11 +172,11 @@ class VectorEnvWrapper(VectorEnv):
 
     # explicitly forward the methods defined in VectorEnv
     # to self.env (instead of the base class)
-    def reset_async(self):
-        return self.env.reset_async()
+    def reset_async(self, **kwargs):
+        return self.env.reset_async(**kwargs)
 
-    def reset_wait(self):
-        return self.env.reset_wait()
+    def reset_wait(self, **kwargs):
+        return self.env.reset_wait(**kwargs)
 
     def step_async(self, actions):
         return self.env.step_async(actions)

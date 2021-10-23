@@ -1,6 +1,7 @@
 """Tests for the flatten observation wrapper."""
 
 from collections import OrderedDict
+from typing import Optional
 
 import numpy as np
 import pytest
@@ -14,7 +15,8 @@ class FakeEnvironment(gym.Env):
     def __init__(self, observation_space):
         self.observation_space = observation_space
 
-    def reset(self):
+    def reset(self, seed: Optional[int] = None):
+        super().reset(seed=seed)
         self.observation = self.observation_space.sample()
         return self.observation
 

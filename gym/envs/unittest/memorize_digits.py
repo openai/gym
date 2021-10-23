@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 import gym
 from gym import spaces
@@ -74,10 +76,6 @@ class MemorizeDigits(gym.Env):
                 ]
         self.reset()
 
-    def seed(self, seed=None):
-        self.np_random, seed = seeding.np_random(seed)
-        return [seed]
-
     def random_color(self):
         return np.array(
             [
@@ -87,7 +85,8 @@ class MemorizeDigits(gym.Env):
             ]
         ).astype("uint8")
 
-    def reset(self):
+    def reset(self, seed: Optional[int] = None):
+        super().reset(seed=seed)
         self.digit_x = self.np_random.integers(low=FIELD_W // 5, high=FIELD_W // 5 * 4)
         self.digit_y = self.np_random.integers(low=FIELD_H // 5, high=FIELD_H // 5 * 4)
         self.color_bg = self.random_color() if self.use_random_colors else color_black

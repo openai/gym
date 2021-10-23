@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 import gym
 
@@ -61,7 +63,8 @@ class NormalizeObservation(gym.core.Wrapper):
             obs = self.normalize(np.array([obs]))[0]
         return obs, rews, dones, infos
 
-    def reset(self):
+    def reset(self, seed: Optional[int] = None):
+        super().reset(seed=seed)
         obs = self.env.reset()
         if self.is_vector_env:
             obs = self.normalize(obs)

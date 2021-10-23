@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 import gym
 from gym import spaces
@@ -62,9 +64,6 @@ class CubeCrash(gym.Env):
 
         self.reset()
 
-    def seed(self, seed=None):
-        self.np_random, seed = seeding.np_random(seed)
-        return [seed]
 
     def random_color(self):
         return np.array(
@@ -75,7 +74,8 @@ class CubeCrash(gym.Env):
             ]
         ).astype("uint8")
 
-    def reset(self):
+    def reset(self, seed: Optional[int] = None):
+        super().reset(seed=seed)
         self.cube_x = self.np_random.integers(low=3, high=FIELD_W - 3)
         self.cube_y = self.np_random.integers(low=3, high=FIELD_H // 6)
         self.hole_x = self.np_random.integers(low=HOLE_WIDTH, high=FIELD_W - HOLE_WIDTH)

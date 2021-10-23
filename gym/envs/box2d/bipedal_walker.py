@@ -1,5 +1,6 @@
 import sys
 import math
+from typing import Optional
 
 import numpy as np
 import Box2D
@@ -149,9 +150,6 @@ class BipedalWalker(gym.Env, EzPickle):
         )
         self.observation_space = spaces.Box(-high, high)
 
-    def seed(self, seed=None):
-        self.np_random, seed = seeding.np_random(seed)
-        return [seed]
 
     def _destroy(self):
         if not self.terrain:
@@ -312,7 +310,8 @@ class BipedalWalker(gym.Env, EzPickle):
             x2 = max([p[0] for p in poly])
             self.cloud_poly.append((poly, x1, x2))
 
-    def reset(self):
+    def reset(self, seed: Optional[int] = None):
+        super().reset(seed=seed)
         self._destroy()
         self.world.contactListener_bug_workaround = ContactDetector(self)
         self.world.contactListener = self.world.contactListener_bug_workaround

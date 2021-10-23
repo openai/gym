@@ -1,3 +1,5 @@
+from typing import Optional
+
 import gym
 from gym import spaces
 from gym.utils import seeding
@@ -87,9 +89,6 @@ class BlackjackEnv(gym.Env):
         # Flag for full agreement with the (Sutton and Barto, 2018) definition. Overrides self.natural
         self.sab = sab
 
-    def seed(self, seed=None):
-        self.np_random, seed = seeding.np_random(seed)
-        return [seed]
 
     def step(self, action):
         assert self.action_space.contains(action)
@@ -122,7 +121,8 @@ class BlackjackEnv(gym.Env):
     def _get_obs(self):
         return (sum_hand(self.player), self.dealer[0], usable_ace(self.player))
 
-    def reset(self):
+    def reset(self, seed: Optional[int] = None):
+        super().reset(seed=seed)
         self.dealer = draw_hand(self.np_random)
         self.player = draw_hand(self.np_random)
         return self._get_obs()

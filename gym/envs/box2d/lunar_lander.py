@@ -28,6 +28,8 @@ Created by Oleg Klimov. Licensed on the same terms as the rest of OpenAI Gym.
 
 import math
 import sys
+from typing import Optional
+
 import numpy as np
 
 import Box2D
@@ -117,10 +119,6 @@ class LunarLander(gym.Env, EzPickle):
             # Nop, fire left engine, main engine, right engine
             self.action_space = spaces.Discrete(4)
 
-    def seed(self, seed=None):
-        self.np_random, seed = seeding.np_random(seed)
-        return [seed]
-
     def _destroy(self):
         if not self.moon:
             return
@@ -133,7 +131,8 @@ class LunarLander(gym.Env, EzPickle):
         self.world.DestroyBody(self.legs[0])
         self.world.DestroyBody(self.legs[1])
 
-    def reset(self):
+    def reset(self, seed: Optional[int] = None):
+        super().reset(seed=seed)
         self._destroy()
         self.world.contactListener_keepref = ContactDetector(self)
         self.world.contactListener = self.world.contactListener_keepref

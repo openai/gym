@@ -32,6 +32,8 @@ Created by Oleg Klimov. Licensed on the same terms as the rest of OpenAI Gym.
 """
 import sys
 import math
+from typing import Optional
+
 import numpy as np
 
 import Box2D
@@ -145,9 +147,6 @@ class CarRacing(gym.Env, EzPickle):
             low=0, high=255, shape=(STATE_H, STATE_W, 3), dtype=np.uint8
         )
 
-    def seed(self, seed=None):
-        self.np_random, seed = seeding.np_random(seed)
-        return [seed]
 
     def _destroy(self):
         if not self.road:
@@ -343,7 +342,8 @@ class CarRacing(gym.Env, EzPickle):
         self.track = track
         return True
 
-    def reset(self):
+    def reset(self, seed: Optional[int] = None):
+        super().reset(seed=seed)
         self._destroy()
         self.reward = 0.0
         self.prev_reward = 0.0

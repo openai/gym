@@ -3,6 +3,7 @@ http://incompleteideas.net/MountainCar/MountainCar1.cp
 permalink: https://perma.cc/6Z2N-PFWC
 """
 import math
+from typing import Optional
 
 import numpy as np
 
@@ -74,9 +75,6 @@ class MountainCarEnv(gym.Env):
 
         self.seed()
 
-    def seed(self, seed=None):
-        self.np_random, seed = seeding.np_random(seed)
-        return [seed]
 
     def step(self, action):
         assert self.action_space.contains(action), "%r (%s) invalid" % (
@@ -98,7 +96,8 @@ class MountainCarEnv(gym.Env):
         self.state = (position, velocity)
         return np.array(self.state, dtype=np.float32), reward, done, {}
 
-    def reset(self):
+    def reset(self, seed: Optional[int] = None):
+        super().reset(seed=seed)
         self.state = np.array([self.np_random.uniform(low=-0.6, high=-0.4), 0])
         return np.array(self.state, dtype=np.float32)
 
