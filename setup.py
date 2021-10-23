@@ -29,7 +29,7 @@ extras["nomujoco"] = list(
 )
 
 
-all_blacklist = set(["accept-rom-license", "atari"])
+all_blacklist = set(["accept-rom-license"])
 all_groups = set(extras.keys()) - all_blacklist
 
 extras["all"] = list(
