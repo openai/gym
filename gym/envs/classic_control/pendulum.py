@@ -25,8 +25,6 @@ class PendulumEnv(gym.Env):
         )
         self.observation_space = spaces.Box(low=-high, high=high, dtype=np.float32)
 
-        self.seed()
-
     def step(self, u):
         th, thdot = self.state  # th := theta
 

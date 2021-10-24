@@ -29,14 +29,10 @@ def test_atari_preprocessing_grayscale(env_fn):
         noop_max=0,
         grayscale_newaxis=True,
     )
-    env1.seed(0)
-    env2.seed(0)
-    env3.seed(0)
-    env4.seed(0)
-    obs1 = env1.reset()
-    obs2 = env2.reset()
-    obs3 = env3.reset()
-    obs4 = env4.reset()
+    obs1 = env1.reset(seed=0)
+    obs2 = env2.reset(seed=0)
+    obs3 = env3.reset(seed=0)
+    obs4 = env4.reset(seed=0)
     assert env1.observation_space.shape == (210, 160, 3)
     assert env2.observation_space.shape == (84, 84)
     assert env3.observation_space.shape == (84, 84, 3)

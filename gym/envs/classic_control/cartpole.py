@@ -92,7 +92,6 @@ class CartPoleEnv(gym.Env):
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Box(-high, high, dtype=np.float32)
 
-        self.seed()
         self.viewer = None
         self.state = None
 

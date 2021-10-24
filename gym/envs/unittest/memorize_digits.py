@@ -62,7 +62,6 @@ class MemorizeDigits(gym.Env):
     use_random_colors = False
 
     def __init__(self):
-        self.seed()
         self.viewer = None
         self.observation_space = spaces.Box(
             0, 255, (FIELD_H, FIELD_W, 3), dtype=np.uint8

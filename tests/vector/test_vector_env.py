@@ -17,7 +17,6 @@ def test_vector_env_equal(shared_memory):
         async_env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
         sync_env = SyncVectorEnv(env_fns)
 
-
         assert async_env.num_envs == sync_env.num_envs
         assert async_env.observation_space == sync_env.observation_space
         assert async_env.single_observation_space == sync_env.single_observation_space

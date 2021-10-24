@@ -54,7 +54,6 @@ class CubeCrash(gym.Env):
     use_random_colors = False  # Makes env too hard
 
     def __init__(self):
-        self.seed()
         self.viewer = None
 
         self.observation_space = spaces.Box(
@@ -94,6 +93,7 @@ class CubeCrash(gym.Env):
             ):
                 continue
             break
+
         return self.step(0)[0]
 
     def step(self, action):

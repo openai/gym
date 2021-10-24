@@ -73,8 +73,6 @@ class MountainCarEnv(gym.Env):
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(self.low, self.high, dtype=np.float32)
 
-        self.seed()
-
     def step(self, action):
         assert self.action_space.contains(action), "%r (%s) invalid" % (
             action,

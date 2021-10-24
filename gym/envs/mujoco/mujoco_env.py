@@ -73,8 +73,6 @@ class MujocoEnv(gym.Env):
 
         self._set_observation_space(observation)
 
-        self.seed()
-
     def _set_action_space(self):
         bounds = self.model.actuator_ctrlrange.copy().astype(np.float32)
         low, high = bounds.T

@@ -85,8 +85,6 @@ class Continuous_MountainCarEnv(gym.Env):
             low=self.low_state, high=self.high_state, dtype=np.float32
         )
 
-        self.seed()
-
     def step(self, action):
 
         position = self.state[0]

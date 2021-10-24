@@ -97,7 +97,6 @@ class AcrobotEnv(core.Env):
         self.observation_space = spaces.Box(low=low, high=high, dtype=np.float32)
         self.action_space = spaces.Discrete(3)
         self.state = None
-        self.seed()
 
     def reset(self, seed: Optional[int] = None):
         super().reset(seed=seed)

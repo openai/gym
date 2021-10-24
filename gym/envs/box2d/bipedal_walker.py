@@ -123,7 +123,6 @@ class BipedalWalker(gym.Env, EzPickle):
 
     def __init__(self):
         EzPickle.__init__(self)
-        self.seed()
         self.viewer = None
 
         self.world = Box2D.b2World()
