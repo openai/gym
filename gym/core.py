@@ -303,8 +303,8 @@ class Wrapper(Env):
     def step(self, action):
         return self.env.step(action)
 
-    def reset(self, **kwargs):
-        return self.env.reset(**kwargs)
+    def reset(self, seed: Optional[int] = None, **kwargs):
+        return self.env.reset(seed=seed, **kwargs)
 
     def render(self, mode="human", **kwargs):
         return self.env.render(mode, **kwargs)
@@ -330,8 +330,8 @@ class Wrapper(Env):
 
 
 class ObservationWrapper(Wrapper):
-    def reset(self, **kwargs):
-        observation = self.env.reset(**kwargs)
+    def reset(self, seed: Optional[int] = None, **kwargs):
+        observation = self.env.reset(seed=seed, **kwargs)
         return self.observation(observation)
 
     def step(self, action):
@@ -344,8 +344,8 @@ class ObservationWrapper(Wrapper):
 
 
 class RewardWrapper(Wrapper):
-    def reset(self, **kwargs):
-        return self.env.reset(**kwargs)
+    def reset(self, seed: Optional[int] = None, **kwargs):
+        return self.env.reset(seed=seed, **kwargs)
 
     def step(self, action):
         observation, reward, done, info = self.env.step(action)
@@ -357,8 +357,8 @@ class RewardWrapper(Wrapper):
 
 
 class ActionWrapper(Wrapper):
-    def reset(self, **kwargs):
-        return self.env.reset(**kwargs)
+    def reset(self, seed: Optional[int] = None, **kwargs):
+        return self.env.reset(seed=seed, **kwargs)
 
     def step(self, action):
         return self.env.step(self.action(action))

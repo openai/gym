@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 from gym.spaces import Box
 from gym import ObservationWrapper
@@ -27,6 +29,6 @@ class TimeAwareObservation(ObservationWrapper):
         self.t += 1
         return super(TimeAwareObservation, self).step(action)
 
-    def reset(self, **kwargs):
+    def reset(self, seed: Optional[int] = None, **kwargs):
         self.t = 0
-        return super(TimeAwareObservation, self).reset(**kwargs)
+        return super(TimeAwareObservation, self).reset(seed=seed, **kwargs)

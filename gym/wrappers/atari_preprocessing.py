@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 import gym
 from gym.spaces import Box
@@ -127,9 +129,9 @@ class AtariPreprocessing(gym.Wrapper):
                     self.ale.getScreenRGB(self.obs_buffer[0])
         return self._get_obs(), R, done, info
 
-    def reset(self, **kwargs):
+    def reset(self, seed: Optional[int] = None, **kwargs):
         # NoopReset
-        self.env.reset(**kwargs)
+        self.env.reset(seed=seed, **kwargs)
         noops = (
             self.env.unwrapped.np_random.integers(1, self.noop_max + 1)
             if self.noop_max > 0
