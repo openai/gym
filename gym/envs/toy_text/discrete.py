@@ -42,8 +42,6 @@ class DiscreteEnv(Env):
         self.action_space = spaces.Discrete(self.nA)
         self.observation_space = spaces.Discrete(self.nS)
 
-        self.s = categorical_sample(self.isd, self.np_random)
-
     def reset(self, seed: Optional[int] = None):
         super().reset(seed=seed)
         self.s = categorical_sample(self.isd, self.np_random)
