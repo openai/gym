@@ -30,7 +30,6 @@ class VectorEnv(gym.Env):
     """
 
     def __init__(self, num_envs, observation_space, action_space):
-        super(VectorEnv, self).__init__()
         self.num_envs = num_envs
         self.is_vector_env = True
         self.observation_space = batch_space(observation_space, n=num_envs)
