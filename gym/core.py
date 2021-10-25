@@ -80,8 +80,6 @@ class Env(object):
         if seed is not None or self.np_random is None:
             self.np_random, seed = seeding.np_random(seed)
 
-        return seed
-
     @abstractmethod
     def render(self, mode="human"):
         """Renders the environment.
