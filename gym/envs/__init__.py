@@ -279,28 +279,28 @@ for reward_type in ["sparse", "dense"]:
 
     # Fetch
     register(
-        id="FetchSlide{}-v1".format(suffix),
+        id=f"FetchSlide{suffix}-v1",
         entry_point="gym.envs.robotics:FetchSlideEnv",
         kwargs=kwargs,
         max_episode_steps=50,
     )
 
     register(
-        id="FetchPickAndPlace{}-v1".format(suffix),
+        id=f"FetchPickAndPlace{suffix}-v1",
         entry_point="gym.envs.robotics:FetchPickAndPlaceEnv",
         kwargs=kwargs,
         max_episode_steps=50,
     )
 
     register(
-        id="FetchReach{}-v1".format(suffix),
+        id=f"FetchReach{suffix}-v1",
         entry_point="gym.envs.robotics:FetchReachEnv",
         kwargs=kwargs,
         max_episode_steps=50,
     )
 
     register(
-        id="FetchPush{}-v1".format(suffix),
+        id=f"FetchPush{suffix}-v1",
         entry_point="gym.envs.robotics:FetchPushEnv",
         kwargs=kwargs,
         max_episode_steps=50,
@@ -308,21 +308,21 @@ for reward_type in ["sparse", "dense"]:
 
     # Hand
     register(
-        id="HandReach{}-v0".format(suffix),
+        id=f"HandReach{suffix}-v0",
         entry_point="gym.envs.robotics:HandReachEnv",
         kwargs=kwargs,
         max_episode_steps=50,
     )
 
     register(
-        id="HandManipulateBlockRotateZ{}-v0".format(suffix),
+        id=f"HandManipulateBlockRotateZ{suffix}-v0",
         entry_point="gym.envs.robotics:HandBlockEnv",
         kwargs=_merge({"target_position": "ignore", "target_rotation": "z"}, kwargs),
         max_episode_steps=100,
     )
 
     register(
-        id="HandManipulateBlockRotateZTouchSensors{}-v0".format(suffix),
+        id=f"HandManipulateBlockRotateZTouchSensors{suffix}-v0",
         entry_point="gym.envs.robotics:HandBlockTouchSensorsEnv",
         kwargs=_merge(
             {
@@ -336,7 +336,7 @@ for reward_type in ["sparse", "dense"]:
     )
 
     register(
-        id="HandManipulateBlockRotateZTouchSensors{}-v1".format(suffix),
+        id=f"HandManipulateBlockRotateZTouchSensors{suffix}-v1",
         entry_point="gym.envs.robotics:HandBlockTouchSensorsEnv",
         kwargs=_merge(
             {
@@ -350,7 +350,7 @@ for reward_type in ["sparse", "dense"]:
     )
 
     register(
-        id="HandManipulateBlockRotateParallel{}-v0".format(suffix),
+        id=f"HandManipulateBlockRotateParallel{suffix}-v0",
         entry_point="gym.envs.robotics:HandBlockEnv",
         kwargs=_merge(
             {"target_position": "ignore", "target_rotation": "parallel"}, kwargs
@@ -359,7 +359,7 @@ for reward_type in ["sparse", "dense"]:
     )
 
     register(
-        id="HandManipulateBlockRotateParallelTouchSensors{}-v0".format(suffix),
+        id=f"HandManipulateBlockRotateParallelTouchSensors{suffix}-v0",
         entry_point="gym.envs.robotics:HandBlockTouchSensorsEnv",
         kwargs=_merge(
             {
@@ -373,7 +373,7 @@ for reward_type in ["sparse", "dense"]:
     )
 
     register(
-        id="HandManipulateBlockRotateParallelTouchSensors{}-v1".format(suffix),
+        id=f"HandManipulateBlockRotateParallelTouchSensors{suffix}-v1",
         entry_point="gym.envs.robotics:HandBlockTouchSensorsEnv",
         kwargs=_merge(
             {
@@ -387,14 +387,14 @@ for reward_type in ["sparse", "dense"]:
     )
 
     register(
-        id="HandManipulateBlockRotateXYZ{}-v0".format(suffix),
+        id=f"HandManipulateBlockRotateXYZ{suffix}-v0",
         entry_point="gym.envs.robotics:HandBlockEnv",
         kwargs=_merge({"target_position": "ignore", "target_rotation": "xyz"}, kwargs),
         max_episode_steps=100,
     )
 
     register(
-        id="HandManipulateBlockRotateXYZTouchSensors{}-v0".format(suffix),
+        id=f"HandManipulateBlockRotateXYZTouchSensors{suffix}-v0",
         entry_point="gym.envs.robotics:HandBlockTouchSensorsEnv",
         kwargs=_merge(
             {
@@ -408,7 +408,7 @@ for reward_type in ["sparse", "dense"]:
     )
 
     register(
-        id="HandManipulateBlockRotateXYZTouchSensors{}-v1".format(suffix),
+        id=f"HandManipulateBlockRotateXYZTouchSensors{suffix}-v1",
         entry_point="gym.envs.robotics:HandBlockTouchSensorsEnv",
         kwargs=_merge(
             {
@@ -422,7 +422,7 @@ for reward_type in ["sparse", "dense"]:
     )
 
     register(
-        id="HandManipulateBlockFull{}-v0".format(suffix),
+        id=f"HandManipulateBlockFull{suffix}-v0",
         entry_point="gym.envs.robotics:HandBlockEnv",
         kwargs=_merge({"target_position": "random", "target_rotation": "xyz"}, kwargs),
         max_episode_steps=100,
@@ -430,14 +430,14 @@ for reward_type in ["sparse", "dense"]:
 
     # Alias for "Full"
     register(
-        id="HandManipulateBlock{}-v0".format(suffix),
+        id=f"HandManipulateBlock{suffix}-v0",
         entry_point="gym.envs.robotics:HandBlockEnv",
         kwargs=_merge({"target_position": "random", "target_rotation": "xyz"}, kwargs),
         max_episode_steps=100,
     )
 
     register(
-        id="HandManipulateBlockTouchSensors{}-v0".format(suffix),
+        id=f"HandManipulateBlockTouchSensors{suffix}-v0",
         entry_point="gym.envs.robotics:HandBlockTouchSensorsEnv",
         kwargs=_merge(
             {
@@ -451,7 +451,7 @@ for reward_type in ["sparse", "dense"]:
     )
 
     register(
-        id="HandManipulateBlockTouchSensors{}-v1".format(suffix),
+        id=f"HandManipulateBlockTouchSensors{suffix}-v1",
         entry_point="gym.envs.robotics:HandBlockTouchSensorsEnv",
         kwargs=_merge(
             {
@@ -465,14 +465,14 @@ for reward_type in ["sparse", "dense"]:
     )
 
     register(
-        id="HandManipulateEggRotate{}-v0".format(suffix),
+        id=f"HandManipulateEggRotate{suffix}-v0",
         entry_point="gym.envs.robotics:HandEggEnv",
         kwargs=_merge({"target_position": "ignore", "target_rotation": "xyz"}, kwargs),
         max_episode_steps=100,
     )
 
     register(
-        id="HandManipulateEggRotateTouchSensors{}-v0".format(suffix),
+        id=f"HandManipulateEggRotateTouchSensors{suffix}-v0",
         entry_point="gym.envs.robotics:HandEggTouchSensorsEnv",
         kwargs=_merge(
             {
@@ -486,7 +486,7 @@ for reward_type in ["sparse", "dense"]:
     )
 
     register(
-        id="HandManipulateEggRotateTouchSensors{}-v1".format(suffix),
+        id=f"HandManipulateEggRotateTouchSensors{suffix}-v1",
         entry_point="gym.envs.robotics:HandEggTouchSensorsEnv",
         kwargs=_merge(
             {
@@ -500,7 +500,7 @@ for reward_type in ["sparse", "dense"]:
     )
 
     register(
-        id="HandManipulateEggFull{}-v0".format(suffix),
+        id=f"HandManipulateEggFull{suffix}-v0",
         entry_point="gym.envs.robotics:HandEggEnv",
         kwargs=_merge({"target_position": "random", "target_rotation": "xyz"}, kwargs),
         max_episode_steps=100,
@@ -508,14 +508,14 @@ for reward_type in ["sparse", "dense"]:
 
     # Alias for "Full"
     register(
-        id="HandManipulateEgg{}-v0".format(suffix),
+        id=f"HandManipulateEgg{suffix}-v0",
         entry_point="gym.envs.robotics:HandEggEnv",
         kwargs=_merge({"target_position": "random", "target_rotation": "xyz"}, kwargs),
         max_episode_steps=100,
     )
 
     register(
-        id="HandManipulateEggTouchSensors{}-v0".format(suffix),
+        id=f"HandManipulateEggTouchSensors{suffix}-v0",
         entry_point="gym.envs.robotics:HandEggTouchSensorsEnv",
         kwargs=_merge(
             {
@@ -529,7 +529,7 @@ for reward_type in ["sparse", "dense"]:
     )
 
     register(
-        id="HandManipulateEggTouchSensors{}-v1".format(suffix),
+        id=f"HandManipulateEggTouchSensors{suffix}-v1",
         entry_point="gym.envs.robotics:HandEggTouchSensorsEnv",
         kwargs=_merge(
             {
@@ -543,14 +543,14 @@ for reward_type in ["sparse", "dense"]:
     )
 
     register(
-        id="HandManipulatePenRotate{}-v0".format(suffix),
+        id=f"HandManipulatePenRotate{suffix}-v0",
         entry_point="gym.envs.robotics:HandPenEnv",
         kwargs=_merge({"target_position": "ignore", "target_rotation": "xyz"}, kwargs),
         max_episode_steps=100,
     )
 
     register(
-        id="HandManipulatePenRotateTouchSensors{}-v0".format(suffix),
+        id=f"HandManipulatePenRotateTouchSensors{suffix}-v0",
         entry_point="gym.envs.robotics:HandPenTouchSensorsEnv",
         kwargs=_merge(
             {
@@ -564,7 +564,7 @@ for reward_type in ["sparse", "dense"]:
     )
 
     register(
-        id="HandManipulatePenRotateTouchSensors{}-v1".format(suffix),
+        id=f"HandManipulatePenRotateTouchSensors{suffix}-v1",
         entry_point="gym.envs.robotics:HandPenTouchSensorsEnv",
         kwargs=_merge(
             {
@@ -578,7 +578,7 @@ for reward_type in ["sparse", "dense"]:
     )
 
     register(
-        id="HandManipulatePenFull{}-v0".format(suffix),
+        id=f"HandManipulatePenFull{suffix}-v0",
         entry_point="gym.envs.robotics:HandPenEnv",
         kwargs=_merge({"target_position": "random", "target_rotation": "xyz"}, kwargs),
         max_episode_steps=100,
@@ -586,14 +586,14 @@ for reward_type in ["sparse", "dense"]:
 
     # Alias for "Full"
     register(
-        id="HandManipulatePen{}-v0".format(suffix),
+        id=f"HandManipulatePen{suffix}-v0",
         entry_point="gym.envs.robotics:HandPenEnv",
         kwargs=_merge({"target_position": "random", "target_rotation": "xyz"}, kwargs),
         max_episode_steps=100,
     )
 
     register(
-        id="HandManipulatePenTouchSensors{}-v0".format(suffix),
+        id=f"HandManipulatePenTouchSensors{suffix}-v0",
         entry_point="gym.envs.robotics:HandPenTouchSensorsEnv",
         kwargs=_merge(
             {
@@ -607,7 +607,7 @@ for reward_type in ["sparse", "dense"]:
     )
 
     register(
-        id="HandManipulatePenTouchSensors{}-v1".format(suffix),
+        id=f"HandManipulatePenTouchSensors{suffix}-v1",
         entry_point="gym.envs.robotics:HandPenTouchSensorsEnv",
         kwargs=_merge(
             {

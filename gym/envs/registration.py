@@ -29,7 +29,7 @@ def load(name):
     return fn
 
 
-class EnvSpec(object):
+class EnvSpec:
     """A specification for a particular instance of the environment. Used
     to register the parameters for official evaluations.
 
@@ -75,9 +75,7 @@ class EnvSpec(object):
         """Instantiates an instance of the environment with appropriate kwargs"""
         if self.entry_point is None:
             raise error.Error(
-                "Attempting to make deprecated env {}. (HINT: is there a newer registered version of this env?)".format(
-                    self.id
-                )
+                f"Attempting to make deprecated env {self.id}. (HINT: is there a newer registered version of this env?)"
             )
 
         _kwargs = self._kwargs.copy()
@@ -105,10 +103,10 @@ class EnvSpec(object):
         return env
 
     def __repr__(self):
-        return "EnvSpec({})".format(self.id)
+        return f"EnvSpec({self.id})"
 
 
-class EnvRegistry(object):
+class EnvRegistry:
     """Register an env by ID. IDs remain stable over time and are
     guaranteed to resolve to the same environment dynamics (or be
     desupported). The goal is that results on a particular environment
@@ -183,9 +181,7 @@ class EnvRegistry(object):
             ]
             if matching_envs:
                 raise error.DeprecatedEnv(
-                    "Env {} not found (valid versions include {})".format(
-                        id, matching_envs
-                    )
+                    f"Env {id} not found (valid versions include {matching_envs})"
                 )
             elif env_name in algorithmic_envs:
                 raise error.UnregisteredEnv(
@@ -200,7 +196,7 @@ class EnvRegistry(object):
                     )
                 )
             else:
-                raise error.UnregisteredEnv("No registered env with id: {}".format(id))
+                raise error.UnregisteredEnv(f"No registered env with id: {id}")
 
     def register(self, id, **kwargs):
         if self._ns is not None:
@@ -213,7 +209,7 @@ class EnvRegistry(object):
                 )
             id = f"{self._ns}/{id}"
         if id in self.env_specs:
-            logger.warn("Overriding environment {}".format(id))
+            logger.warn(f"Overriding environment {id}")
         self.env_specs[id] = EnvSpec(id, **kwargs)
 
     @contextlib.contextmanager
