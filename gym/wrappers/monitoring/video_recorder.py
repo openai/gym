@@ -17,7 +17,7 @@ def touch(path):
     open(path, "a").close()
 
 
-class VideoRecorder(object):
+class VideoRecorder:
     """VideoRecorder renders a nice movie of a rollout, frame by frame. It
     comes with an `enabled` option so you can still use the same code
     on episodes where you don't want to record video.
@@ -50,9 +50,7 @@ class VideoRecorder(object):
                 self.ansi_mode = True
             else:
                 logger.info(
-                    'Disabling video recorder because {} neither supports video mode "rgb_array" nor "ansi".'.format(
-                        env
-                    )
+                    f'Disabling video recorder because {env} neither supports video mode "rgb_array" nor "ansi".'
                 )
                 # Whoops, turns out we shouldn't be enabled after all
                 self.enabled = False
@@ -86,9 +84,7 @@ class VideoRecorder(object):
                 else ""
             )
             raise error.Error(
-                "Invalid path given: {} -- must have file extension {}.{}".format(
-                    self.path, required_ext, hint
-                )
+                f"Invalid path given: {self.path} -- must have file extension {required_ext}.{hint}"
             )
         # Touch the file in any case, so we know it's present. (This
         # corrects for platform platform differences. Using ffmpeg on
@@ -107,7 +103,7 @@ class VideoRecorder(object):
         self.metadata["content_type"] = (
             "video/vnd.openai.ansivid" if self.ansi_mode else "video/mp4"
         )
-        self.metadata_path = "{}.meta.json".format(path_base)
+        self.metadata_path = f"{path_base}.meta.json"
         self.write_metadata()
 
         logger.info("Starting new video recorder writing to %s", self.path)
@@ -219,7 +215,7 @@ class VideoRecorder(object):
             self.empty = False
 
 
-class TextEncoder(object):
+class TextEncoder:
     """Store a moving picture made out of ANSI frames. Format adapted from
     https://github.com/asciinema/asciinema/blob/master/doc/asciicast-v1.md"""
 
@@ -236,23 +232,17 @@ class TextEncoder(object):
             string = frame.getvalue()
         else:
             raise error.InvalidFrame(
-                "Wrong type {} for {}: text frame must be a string or StringIO".format(
-                    type(frame), frame
-                )
+                f"Wrong type {type(frame)} for {frame}: text frame must be a string or StringIO"
             )
 
         frame_bytes = string.encode("utf-8")
 
         if frame_bytes[-1:] != b"\n":
-            raise error.InvalidFrame(
-                'Frame must end with a newline: """{}"""'.format(string)
-            )
+            raise error.InvalidFrame(f'Frame must end with a newline: """{string}"""')
 
         if b"\r" in frame_bytes:
             raise error.InvalidFrame(
-                'Frame contains carriage returns (only newlines are allowed: """{}"""'.format(
-                    string
-                )
+                f'Frame contains carriage returns (only newlines are allowed: """{string}"""'
             )
 
         self.frames.append(frame_bytes)
@@ -276,14 +266,9 @@ class TextEncoder(object):
 
         # Calculate frame size from the largest frames.
         # Add some padding since we'll get cut off otherwise.
-        height = max([frame.count(b"\n") for frame in self.frames]) + 1
+        height = max(frame.count(b"\n") for frame in self.frames) + 1
         width = (
-            max(
-                [
-                    max([len(line) for line in frame.split(b"\n")])
-                    for frame in self.frames
-                ]
-            )
+            max(max(len(line) for line in frame.split(b"\n")) for frame in self.frames)
             + 2
         )
 
@@ -306,7 +291,7 @@ class TextEncoder(object):
         return {"backend": "TextEncoder", "version": 1}
 
 
-class ImageEncoder(object):
+class ImageEncoder:
     def __init__(self, output_path, frame_shape, frames_per_sec, output_frames_per_sec):
         self.proc = None
         self.output_path = output_path
@@ -392,21 +377,15 @@ class ImageEncoder(object):
     def capture_frame(self, frame):
         if not isinstance(frame, (np.ndarray, np.generic)):
             raise error.InvalidFrame(
-                "Wrong type {} for {} (must be np.ndarray or np.generic)".format(
-                    type(frame), frame
-                )
+                f"Wrong type {type(frame)} for {frame} (must be np.ndarray or np.generic)"
             )
         if frame.shape != self.frame_shape:
             raise error.InvalidFrame(
-                "Your frame has shape {}, but the VideoRecorder is configured for shape {}.".format(
-                    frame.shape, self.frame_shape
-                )
+                f"Your frame has shape {frame.shape}, but the VideoRecorder is configured for shape {self.frame_shape}."
             )
         if frame.dtype != np.uint8:
             raise error.InvalidFrame(
-                "Your frame has data type {}, but we require uint8 (i.e. RGB values from 0-255).".format(
-                    frame.dtype
-                )
+                f"Your frame has data type {frame.dtype}, but we require uint8 (i.e. RGB values from 0-255)."
             )
 
         try:
@@ -424,4 +403,4 @@ class ImageEncoder(object):
         self.proc.stdin.close()
         ret = self.proc.wait()
         if ret != 0:
-            logger.error("VideoRecorder encoder exited with status {}".format(ret))
+            logger.error(f"VideoRecorder encoder exited with status {ret}")

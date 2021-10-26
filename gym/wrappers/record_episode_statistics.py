@@ -6,7 +6,7 @@ import gym
 
 class RecordEpisodeStatistics(gym.Wrapper):
     def __init__(self, env, deque_size=100):
-        super(RecordEpisodeStatistics, self).__init__(env)
+        super().__init__(env)
         self.num_envs = getattr(env, "num_envs", 1)
         self.t0 = time.perf_counter()
         self.episode_count = 0
@@ -17,15 +17,13 @@ class RecordEpisodeStatistics(gym.Wrapper):
         self.is_vector_env = getattr(env, "is_vector_env", False)
 
     def reset(self, **kwargs):
-        observations = super(RecordEpisodeStatistics, self).reset(**kwargs)
+        observations = super().reset(**kwargs)
         self.episode_returns = np.zeros(self.num_envs, dtype=np.float32)
         self.episode_lengths = np.zeros(self.num_envs, dtype=np.int32)
         return observations
 
     def step(self, action):
-        observations, rewards, dones, infos = super(RecordEpisodeStatistics, self).step(
-            action
-        )
+        observations, rewards, dones, infos = super().step(action)
         self.episode_returns += rewards
         self.episode_lengths += 1
         if not self.is_vector_env:
