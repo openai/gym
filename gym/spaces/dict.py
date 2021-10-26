@@ -50,7 +50,7 @@ class Dict(Space, Mapping):
             assert isinstance(
                 space, Space
             ), "Values of the dict should be instances of gym.Space"
-        super(Dict, self).__init__(
+        super().__init__(
             None, None, seed
         )  # None for shape and dtype, since it'll require special handling
 
@@ -111,8 +111,7 @@ class Dict(Space, Mapping):
         self.spaces[key] = value
 
     def __iter__(self):
-        for key in self.spaces:
-            yield key
+        yield from self.spaces
 
     def __len__(self):
         return len(self.spaces)
