@@ -175,7 +175,7 @@ class CarRacing(gym.Env, EzPickle):
         track_segments = np.random.choice(segment_ids, size=len(self.track)-1, replace=False)
         self.obs_to_seg = {i: track_segments[i] for i in range(self.num_obstacles)}
 
-        (angle, pos_x, pos_y) = self.track[0][1:4]
+        (angle, pos_x, pos_y) = self.track[0][1:4]  # first track segment
         for obs_id in range(self.num_obstacles):
             # Index into track segment
             segment = self.obs_to_seg[obs_id]
@@ -198,7 +198,7 @@ class CarRacing(gym.Env, EzPickle):
             print(f"Spawning obstacle {obs_id} at {new_x:.0f}x{new_y:.0f} with "
                   f"orientation {angle}")
 
-            # Create car at location with given angle
+            # Create obstacle at location with given angle
             self.obstacles[obs_id] = Obstacle(self.world, angle, new_x, new_y)
             self.obstacles[obs_id].hull.color = OBS_COLORS[obs_id % len(OBS_COLORS)]
         return True
@@ -420,21 +420,25 @@ class CarRacing(gym.Env, EzPickle):
             self.car.brake(action[2])
 
         # move obstacles laterally across track
-        for obs in self.obstacles:
-            angle = obs.hull.angle
+        for obs_id, obs in enumerate(self.obstacles):
+            # Retrieve obstacle position
+            obs_pos = obs.hull.position
+
+            # Check if obstable is on grass by checking inside road polys
+            # WARNING: Heavy processing
+            on_grass = not (True in [segment.fixtures[0].TestPoint(obs_pos) for segment in self.road])
 
             # Set obstacle velocity at its initial angle
+            angle = obs.hull.angle
             vx = np.cos(angle)
             vy = np.sin(angle)
-            if obs.first_flip:
-                flip_time = 3.0
-            else:
-                flip_time = 6.0
-            if (self.t % flip_time*2) >= flip_time and not obs.flipped:
-                obs.flip_direction()
-            elif (self.t % flip_time*2) < flip_time:
-                obs.flipped = False
-            obs.move([OBS_V*vx*obs.direction, OBS_V*vy*obs.direction])
+
+            # Flip movement direction if obstacle on grass
+            if on_grass:
+                obs.move_direction *= -1.0
+
+            # Move obstacle
+            obs.move([OBS_V*vx*obs.move_direction, OBS_V*vy*obs.move_direction])
 
         self.car.step(1.0 / FPS)
         self.world.Step(1.0 / FPS, 6 * 30, 2 * 30)

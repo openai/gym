@@ -20,7 +20,7 @@ from Box2D.b2 import (
     shape,
 )
 
-HULL_POLY1 = [(-0.5, +0.5), (+0.5, +0.5), (+0.5, -0.5), (-0.5, -0.5)]
+HULL_POLY1 = [(-1, +0.5), (+1, +0.5), (+1, -0.5), (-1, -0.5)]
 
 
 class Obstacle:
@@ -47,17 +47,10 @@ class Obstacle:
             angularDamping=1.0
         )
         self.hull.color = (0.8, 0.2, 0.8)
-        self.direction = 1.0
-        self.flipped = False
-        self.first_flip = True
+        self.move_direction = 1.0
 
     def move(self, velocity):
         self.hull.linearVelocity = (velocity[0], velocity[1])
-
-    def flip_direction(self):
-        self.direction *= -1.0
-        self.flipped = True
-        self.first_flip = False
 
     def draw(self, viewer):
         for f in self.hull.fixtures:
