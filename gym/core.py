@@ -2,7 +2,6 @@ import abc
 
 import gym
 from gym import error
-from gym.utils import closer
 
 
 class Env(abc.ABC):
