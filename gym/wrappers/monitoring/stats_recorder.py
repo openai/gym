@@ -85,7 +85,7 @@ class StatsRecorder(object):
 
         self.done = False
         if self.initial_reset_timestamp is None:
-            self.initial_reset_timestamp = time.time()
+            self.initial_reset_timestamp = time.perf_counter()
 
     def after_reset(self, observation):
         self.steps = 0
@@ -99,7 +99,7 @@ class StatsRecorder(object):
         if self.steps is not None:
             self.episode_lengths.append(self.steps)
             self.episode_rewards.append(float(self.rewards))
-            self.timestamps.append(time.time())
+            self.timestamps.append(time.perf_counter())
 
     def close(self):
         self.flush()

@@ -33,6 +33,7 @@ class SyncVectorEnv(VectorEnv):
         self.env_fns = env_fns
         self.envs = [env_fn() for env_fn in env_fns]
         self.copy = copy
+        self.metadata = self.envs[0].metadata
 
         if (observation_space is None) or (action_space is None):
             observation_space = observation_space or self.envs[0].observation_space

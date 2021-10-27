@@ -10,16 +10,44 @@ class Tuple(Space):
     self.observation_space = spaces.Tuple((spaces.Discrete(2), spaces.Discrete(3)))
     """
 
-    def __init__(self, spaces):
+    def __init__(self, spaces, seed=None):
         self.spaces = spaces
         for space in spaces:
             assert isinstance(
                 space, Space
             ), "Elements of the tuple must be instances of gym.Space"
-        super(Tuple, self).__init__(None, None)
+        super(Tuple, self).__init__(None, None, seed)
 
     def seed(self, seed=None):
-        [space.seed(seed) for space in self.spaces]
+        seeds = []
+
+        if isinstance(seed, list):
+            for i, space in enumerate(self.spaces):
+                seeds += space.seed(seed[i])
+        elif isinstance(seed, int):
+            seeds = super().seed(seed)
+            try:
+                subseeds = self.np_random.choice(
+                    np.iinfo(int).max,
+                    size=len(self.spaces),
+                    replace=False,  # unique subseed for each subspace
+                )
+            except ValueError:
+                subseeds = self.np_random.choice(
+                    np.iinfo(int).max,
+                    size=len(self.spaces),
+                    replace=True,  # we get more than INT_MAX subspaces
+                )
+
+            for subspace, subseed in zip(self.spaces, subseeds):
+                seeds.append(subspace.seed(int(subseed))[0])
+        elif seed is None:
+            for space in self.spaces:
+                seeds += space.seed(seed)
+        else:
+            raise TypeError("Passed seed not of an expected type: list or int or None")
+
+        return seeds
 
     def sample(self):
         return tuple([space.sample() for space in self.spaces])
