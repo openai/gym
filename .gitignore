@@ -37,3 +37,6 @@ tutorial/*.html
 # PyCharm project files
 .idea
 vizdoom.ini
+
+# VS Code project folder
+.vscode

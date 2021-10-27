@@ -42,6 +42,7 @@ from Box2D.b2 import contactListener
 import gym
 from gym import spaces
 from gym.envs.box2d.car_dynamics import Car
+from gym.envs.box2d.obstacle import Obstacle
 from gym.utils import seeding, EzPickle
 
 import pyglet
@@ -72,6 +73,11 @@ BORDER_MIN_COUNT = 4
 
 ROAD_COLOR = [0.4, 0.4, 0.4]
 
+# Specify different obstacle car colors
+OBS_COLORS = [(0.8, 0.0, 0.0), (0.0, 0.0, 0.8),
+              (0.0, 0.8, 0.0), (0.0, 0.8, 0.8),
+              (0.8, 0.8, 0.8), (0.0, 0.0, 0.0),
+              (0.8, 0.0, 0.8), (0.8, 0.8, 0.0)]
 
 class FrictionDetector(contactListener):
     def __init__(self, env):
@@ -119,7 +125,7 @@ class CarRacing(gym.Env, EzPickle):
         "video.frames_per_second": FPS,
     }
 
-    def __init__(self, verbose=1):
+    def __init__(self, verbose=1, num_obstacles=20):
         EzPickle.__init__(self)
         self.seed()
         self.contactListener_keepref = FrictionDetector(self)
@@ -129,6 +135,8 @@ class CarRacing(gym.Env, EzPickle):
         self.invisible_video_window = None
         self.road = None
         self.car = None
+        self.num_obstacles = num_obstacles
+        self.obstacles = [None] * num_obstacles
         self.reward = 0.0
         self.prev_reward = 0.0
         self.verbose = verbose
@@ -155,7 +163,43 @@ class CarRacing(gym.Env, EzPickle):
         for t in self.road:
             self.world.DestroyBody(t)
         self.road = []
+        for obs in self.obstacles:
+            obs.destroy()
         self.car.destroy()
+
+    def _create_obstacles(self):
+        # Set positions of obstacles randomly along the track (not including 0th segment)
+        segment_ids = [i+1 for i in range(len(self.track)-1)]
+        track_segments = np.random.choice(segment_ids, size=len(self.track)-1, replace=False)
+        self.obs_to_seg = {i: track_segments[i] for i in range(self.num_obstacles)}
+
+        (angle, pos_x, pos_y) = self.track[0][1:4]
+        for obs_id in range(self.num_obstacles):
+            # Index into track segment
+            segment = self.obs_to_seg[obs_id]
+
+            # Compute offsets from start (this should be zero for first pair of cars)
+            dx = self.track[segment][2] - pos_x  # x offset
+            dy = self.track[segment][3] - pos_y  # y offset
+
+            # Compute angle based off of track index for car
+            angle = self.track[segment][1]
+
+            # Compute offset angle (normal to angle of track)
+            norm_theta = angle - np.pi/2
+
+            # Compute offsets from position of original starting line
+            new_x = pos_x + dx + np.sin(norm_theta)
+            new_y = pos_y + dy + np.cos(norm_theta)
+
+            # Display spawn locations of cars.
+            print(f"Spawning obstacle {obs_id} at {new_x:.0f}x{new_y:.0f} with "
+                  f"orientation {angle}")
+
+            # Create car at location with given angle
+            self.obstacles[obs_id] = Obstacle(self.world, angle, new_x, new_y)
+            self.obstacles[obs_id].hull.color = OBS_COLORS[obs_id % len(OBS_COLORS)]
+        return True
 
     def _create_track(self):
         CHECKPOINTS = 12
@@ -352,12 +396,15 @@ class CarRacing(gym.Env, EzPickle):
         self.road_poly = []
 
         while True:
-            success = self._create_track()
-            if success:
+            track_success = self._create_track()
+            obs_success = False
+            if track_success:
+                obs_success = self._create_obstacles()
+            if obs_success:
                 break
             if self.verbose == 1:
                 print(
-                    "retry to generate track (normal if there are not many"
+                    "retry to generate track and/or obstacles (normal if there are not many"
                     "instances of this message)"
                 )
         self.car = Car(self.world, *self.track[0][1:4])
@@ -369,6 +416,16 @@ class CarRacing(gym.Env, EzPickle):
             self.car.steer(-action[0])
             self.car.gas(action[1])
             self.car.brake(action[2])
+
+        # move obstacles laterally across track
+        for obs in self.obstacles:
+            angle = obs.hull.angle
+
+            # Compute offsets from position of original starting line
+            fy = np.sin(angle)
+            fx = np.cos(angle)
+
+            obs.move([200*fx, 200*fy])
 
         self.car.step(1.0 / FPS)
         self.world.Step(1.0 / FPS, 6 * 30, 2 * 30)
@@ -415,7 +472,7 @@ class CarRacing(gym.Env, EzPickle):
             return  # reset() not called yet
 
         # Animate zoom first second:
-        zoom = 0.1 * SCALE * max(1 - self.t, 0) + ZOOM * SCALE * min(self.t, 1)
+        zoom = SCALE * ZOOM
         scroll_x = self.car.hull.position[0]
         scroll_y = self.car.hull.position[1]
         angle = -self.car.hull.angle
@@ -464,6 +521,8 @@ class CarRacing(gym.Env, EzPickle):
         t.disable()
         self.render_indicators(WINDOW_W, WINDOW_H)
 
+        self.render_obstacles()
+
         if mode == "human":
             win.flip()
             return self.viewer.isopen
@@ -481,6 +540,11 @@ class CarRacing(gym.Env, EzPickle):
         if self.viewer is not None:
             self.viewer.close()
             self.viewer = None
+
+    def render_obstacles(self):
+        # Set colors for each viewer and draw cars
+        for obs_id, obs in enumerate(self.obstacles):
+            obs.draw(self.viewer)
 
     def render_road(self):
         colors = [0.4, 0.8, 0.4, 1.0] * 4
