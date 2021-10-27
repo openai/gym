@@ -54,7 +54,7 @@ class Env(abc.ABC):
             done (bool): whether the episode has ended, in which case further step() calls will return undefined results
             info (dict): contains auxiliary diagnostic information (helpful for debugging, and sometimes learning)
         """
-        raise NotImplementedError
+        pass
 
     @abc.abstractmethod
     def reset(self):
@@ -70,7 +70,7 @@ class Env(abc.ABC):
         Returns:
             observation (object): the initial observation.
         """
-        raise NotImplementedError
+        pass
 
     @abc.abstractmethod
     def render(self, mode="human"):
@@ -110,7 +110,7 @@ class Env(abc.ABC):
                 else:
                     super(MyEnv, self).render(mode=mode) # just raise an exception
         """
-        raise NotImplementedError
+        pass
 
     def close(self):
         """Override close in your subclass to perform any necessary cleanup.
@@ -205,7 +205,7 @@ class GoalEnv(Env):
                 ob, reward, done, info = env.step()
                 assert reward == env.compute_reward(ob['achieved_goal'], ob['desired_goal'], info)
         """
-        raise NotImplementedError
+        pass
 
 
 class Wrapper(Env):
@@ -324,7 +324,7 @@ class ObservationWrapper(Wrapper):
 
     @abc.abstractmethod
     def observation(self, observation):
-        raise NotImplementedError
+        pass
 
 
 class RewardWrapper(Wrapper):
@@ -337,7 +337,7 @@ class RewardWrapper(Wrapper):
 
     @abc.abstractmethod
     def reward(self, reward):
-        raise NotImplementedError
+        pass
 
 
 class ActionWrapper(Wrapper):
@@ -349,8 +349,8 @@ class ActionWrapper(Wrapper):
 
     @abc.abstractmethod
     def action(self, action):
-        raise NotImplementedError
+        pass
 
     @abc.abstractmethod
     def reverse_action(self, action):
-        raise NotImplementedError
+        pass
