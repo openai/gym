@@ -47,9 +47,17 @@ class Obstacle:
             angularDamping=1.0
         )
         self.hull.color = (0.8, 0.2, 0.8)
+        self.direction = 1.0
+        self.flipped = False
+        self.first_flip = True
 
-    def move(self, force):
-        self.hull.ApplyForceToCenter((force[0], force[1]), True)
+    def move(self, velocity):
+        self.hull.linearVelocity = (velocity[0], velocity[1])
+
+    def flip_direction(self):
+        self.direction *= -1.0
+        self.flipped = True
+        self.first_flip = False
 
     def draw(self, viewer):
         for f in self.hull.fixtures:

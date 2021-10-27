@@ -79,6 +79,8 @@ OBS_COLORS = [(0.8, 0.0, 0.0), (0.0, 0.0, 0.8),
               (0.8, 0.8, 0.8), (0.0, 0.0, 0.0),
               (0.8, 0.0, 0.8), (0.8, 0.8, 0.0)]
 
+OBS_V = 2.0
+
 class FrictionDetector(contactListener):
     def __init__(self, env):
         contactListener.__init__(self)
@@ -421,11 +423,18 @@ class CarRacing(gym.Env, EzPickle):
         for obs in self.obstacles:
             angle = obs.hull.angle
 
-            # Compute offsets from position of original starting line
-            fy = np.sin(angle)
-            fx = np.cos(angle)
-
-            obs.move([200*fx, 200*fy])
+            # Set obstacle velocity at its initial angle
+            vx = np.cos(angle)
+            vy = np.sin(angle)
+            if obs.first_flip:
+                flip_time = 3.0
+            else:
+                flip_time = 6.0
+            if (self.t % flip_time*2) >= flip_time and not obs.flipped:
+                obs.flip_direction()
+            elif (self.t % flip_time*2) < flip_time:
+                obs.flipped = False
+            obs.move([OBS_V*vx*obs.direction, OBS_V*vy*obs.direction])
 
         self.car.step(1.0 / FPS)
         self.world.Step(1.0 / FPS, 6 * 30, 2 * 30)
