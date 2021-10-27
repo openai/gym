@@ -16,12 +16,14 @@ class Space(object):
     not handle custom spaces properly. Use custom spaces with care.
     """
 
-    def __init__(self, shape=None, dtype=None):
+    def __init__(self, shape=None, dtype=None, seed=None):
         import numpy as np  # takes about 300-400ms to import, so we load lazily
 
-        self.shape = None if shape is None else tuple(shape)
+        self._shape = None if shape is None else tuple(shape)
         self.dtype = None if dtype is None else np.dtype(dtype)
         self._np_random = None
+        if seed is not None:
+            self.seed(seed)
 
     @property
     def np_random(self):
@@ -32,6 +34,11 @@ class Space(object):
             self.seed()
 
         return self._np_random
+
+    @property
+    def shape(self):
+        """Return the shape of the space as an immutable property"""
+        return self._shape
 
     def sample(self):
         """Randomly sample an element of this space. Can be
@@ -52,6 +59,25 @@ class Space(object):
 
     def __contains__(self, x):
         return self.contains(x)
+
+    def __setstate__(self, state):
+        # Don't mutate the original state
+        state = dict(state)
+
+        # Allow for loading of legacy states.
+        # See:
+        #   https://github.com/openai/gym/pull/2397 -- shape
+        #   https://github.com/openai/gym/pull/1913 -- np_random
+        #
+        if "shape" in state:
+            state["_shape"] = state["shape"]
+            del state["shape"]
+        if "np_random" in state:
+            state["_np_random"] = state["np_random"]
+            del state["np_random"]
+
+        # Update our state
+        self.__dict__.update(state)
 
     def to_jsonable(self, sample_n):
         """Convert a batch of samples from this space to a JSONable data type."""

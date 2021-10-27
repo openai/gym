@@ -1,8 +1,10 @@
 from collections import OrderedDict
+from collections.abc import Mapping
+import numpy as np
 from .space import Space
 
 
-class Dict(Space):
+class Dict(Space, Mapping):
     """
     A dictionary of simpler spaces.
 
@@ -32,10 +34,11 @@ class Dict(Space):
     })
     """
 
-    def __init__(self, spaces=None, **spaces_kwargs):
+    def __init__(self, spaces=None, seed=None, **spaces_kwargs):
         assert (spaces is None) or (
             not spaces_kwargs
         ), "Use either Dict(spaces=dict(...)) or Dict(foo=x, bar=z)"
+
         if spaces is None:
             spaces = spaces_kwargs
         if isinstance(spaces, dict) and not isinstance(spaces, OrderedDict):
@@ -48,11 +51,45 @@ class Dict(Space):
                 space, Space
             ), "Values of the dict should be instances of gym.Space"
         super(Dict, self).__init__(
-            None, None
+            None, None, seed
         )  # None for shape and dtype, since it'll require special handling
 
     def seed(self, seed=None):
-        [space.seed(seed) for space in self.spaces.values()]
+        seeds = []
+        if isinstance(seed, dict):
+            for key, seed_key in zip(self.spaces, seed):
+                assert key == seed_key, print(
+                    "Key value",
+                    seed_key,
+                    "in passed seed dict did not match key value",
+                    key,
+                    "in spaces Dict.",
+                )
+                seeds += self.spaces[key].seed(seed[seed_key])
+        elif isinstance(seed, int):
+            seeds = super().seed(seed)
+            try:
+                subseeds = self.np_random.choice(
+                    np.iinfo(int).max,
+                    size=len(self.spaces),
+                    replace=False,  # unique subseed for each subspace
+                )
+            except ValueError:
+                subseeds = self.np_random.choice(
+                    np.iinfo(int).max,
+                    size=len(self.spaces),
+                    replace=True,  # we get more than INT_MAX subspaces
+                )
+
+            for subspace, subseed in zip(self.spaces.values(), subseeds):
+                seeds.append(subspace.seed(int(subseed))[0])
+        elif seed is None:
+            for space in self.spaces.values():
+                seeds += space.seed(seed)
+        else:
+            raise TypeError("Passed seed not of an expected type: dict or int or None")
+
+        return seeds
 
     def sample(self):
         return OrderedDict([(k, space.sample()) for k, space in self.spaces.items()])
@@ -70,15 +107,15 @@ class Dict(Space):
     def __getitem__(self, key):
         return self.spaces[key]
 
+    def __setitem__(self, key, value):
+        self.spaces[key] = value
+
     def __iter__(self):
         for key in self.spaces:
             yield key
 
     def __len__(self):
         return len(self.spaces)
-
-    def __contains__(self, item):
-        return self.contains(item)
 
     def __repr__(self):
         return (
@@ -105,6 +142,3 @@ class Dict(Space):
                 entry[key] = value[i]
             ret.append(entry)
         return ret
-
-    def __eq__(self, other):
-        return isinstance(other, Dict) and self.spaces == other.spaces

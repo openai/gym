@@ -96,11 +96,11 @@ class MountainCarEnv(gym.Env):
         reward = -1.0
 
         self.state = (position, velocity)
-        return np.array(self.state), reward, done, {}
+        return np.array(self.state, dtype=np.float32), reward, done, {}
 
     def reset(self):
         self.state = np.array([self.np_random.uniform(low=-0.6, high=-0.4), 0])
-        return np.array(self.state)
+        return np.array(self.state, dtype=np.float32)
 
     def _height(self, xs):
         return np.sin(3 * xs) * 0.45 + 0.55

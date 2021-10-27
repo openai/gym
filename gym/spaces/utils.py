@@ -1,5 +1,7 @@
 from collections import OrderedDict
+from functools import singledispatch, reduce
 import numpy as np
+import operator as op
 
 from gym.spaces import Box
 from gym.spaces import Discrete
@@ -9,6 +11,7 @@ from gym.spaces import Tuple
 from gym.spaces import Dict
 
 
+@singledispatch
 def flatdim(space):
     """Return the number of dimensions a flattened equivalent of this space
     would have.
@@ -16,22 +19,36 @@ def flatdim(space):
     Accepts a space and returns an integer. Raises ``NotImplementedError`` if
     the space is not defined in ``gym.spaces``.
     """
-    if isinstance(space, Box):
-        return int(np.prod(space.shape))
-    elif isinstance(space, Discrete):
-        return int(space.n)
-    elif isinstance(space, Tuple):
-        return int(sum([flatdim(s) for s in space.spaces]))
-    elif isinstance(space, Dict):
-        return int(sum([flatdim(s) for s in space.spaces.values()]))
-    elif isinstance(space, MultiBinary):
-        return int(space.n)
-    elif isinstance(space, MultiDiscrete):
-        return int(np.prod(space.shape))
-    else:
-        raise NotImplementedError
+    raise NotImplementedError(f"Unknown space: `{space}`")
 
 
+@flatdim.register(Box)
+@flatdim.register(MultiBinary)
+def flatdim_box_multibinary(space):
+    return reduce(op.mul, space.shape, 1)
+
+
+@flatdim.register(Discrete)
+def flatdim_discrete(space):
+    return int(space.n)
+
+
+@flatdim.register(MultiDiscrete)
+def flatdim_multidiscrete(space):
+    return int(np.sum(space.nvec))
+
+
+@flatdim.register(Tuple)
+def flatdim_tuple(space):
+    return sum([flatdim(s) for s in space.spaces])
+
+
+@flatdim.register(Dict)
+def flatdim_dict(space):
+    return sum([flatdim(s) for s in space.spaces.values()])
+
+
+@singledispatch
 def flatten(space, x):
     """Flatten a data point from a space.
 
@@ -42,26 +59,43 @@ def flatten(space, x):
     Raises ``NotImplementedError`` if the space is not defined in
     ``gym.spaces``.
     """
-    if isinstance(space, Box):
-        return np.asarray(x, dtype=space.dtype).flatten()
-    elif isinstance(space, Discrete):
-        onehot = np.zeros(space.n, dtype=space.dtype)
-        onehot[x] = 1
-        return onehot
-    elif isinstance(space, Tuple):
-        return np.concatenate(
-            [flatten(s, x_part) for x_part, s in zip(x, space.spaces)]
-        )
-    elif isinstance(space, Dict):
-        return np.concatenate([flatten(s, x[key]) for key, s in space.spaces.items()])
-    elif isinstance(space, MultiBinary):
-        return np.asarray(x, dtype=space.dtype).flatten()
-    elif isinstance(space, MultiDiscrete):
-        return np.asarray(x, dtype=space.dtype).flatten()
-    else:
-        raise NotImplementedError
+    raise NotImplementedError(f"Unknown space: `{space}`")
 
 
+@flatten.register(Box)
+@flatten.register(MultiBinary)
+def flatten_box_multibinary(space, x):
+    return np.asarray(x, dtype=space.dtype).flatten()
+
+
+@flatten.register(Discrete)
+def flatten_discrete(space, x):
+    onehot = np.zeros(space.n, dtype=space.dtype)
+    onehot[x] = 1
+    return onehot
+
+
+@flatten.register(MultiDiscrete)
+def flatten_multidiscrete(space, x):
+    offsets = np.zeros((space.nvec.size + 1,), dtype=space.dtype)
+    offsets[1:] = np.cumsum(space.nvec.flatten())
+
+    onehot = np.zeros((offsets[-1],), dtype=space.dtype)
+    onehot[offsets[:-1] + x.flatten()] = 1
+    return onehot
+
+
+@flatten.register(Tuple)
+def flatten_tuple(space, x):
+    return np.concatenate([flatten(s, x_part) for x_part, s in zip(x, space.spaces)])
+
+
+@flatten.register(Dict)
+def flatten_dict(space, x):
+    return np.concatenate([flatten(s, x[key]) for key, s in space.spaces.items()])
+
+
+@singledispatch
 def unflatten(space, x):
     """Unflatten a data point from a space.
 
@@ -72,34 +106,51 @@ def unflatten(space, x):
     that matches the space. Raises ``NotImplementedError`` if the space is not
     defined in ``gym.spaces``.
     """
-    if isinstance(space, Box):
-        return np.asarray(x, dtype=space.dtype).reshape(space.shape)
-    elif isinstance(space, Discrete):
-        return int(np.nonzero(x)[0][0])
-    elif isinstance(space, Tuple):
-        dims = [flatdim(s) for s in space.spaces]
-        list_flattened = np.split(x, np.cumsum(dims)[:-1])
-        list_unflattened = [
-            unflatten(s, flattened)
-            for flattened, s in zip(list_flattened, space.spaces)
-        ]
-        return tuple(list_unflattened)
-    elif isinstance(space, Dict):
-        dims = [flatdim(s) for s in space.spaces.values()]
-        list_flattened = np.split(x, np.cumsum(dims)[:-1])
-        list_unflattened = [
+    raise NotImplementedError(f"Unknown space: `{space}`")
+
+
+@unflatten.register(Box)
+@unflatten.register(MultiBinary)
+def unflatten_box_multibinary(space, x):
+    return np.asarray(x, dtype=space.dtype).reshape(space.shape)
+
+
+@unflatten.register(Discrete)
+def unflatten_discrete(space, x):
+    return int(np.nonzero(x)[0][0])
+
+
+@unflatten.register(MultiDiscrete)
+def unflatten_multidiscrete(space, x):
+    offsets = np.zeros((space.nvec.size + 1,), dtype=space.dtype)
+    offsets[1:] = np.cumsum(space.nvec.flatten())
+
+    (indices,) = np.nonzero(x)
+    return np.asarray(indices - offsets[:-1], dtype=space.dtype).reshape(space.shape)
+
+
+@unflatten.register(Tuple)
+def unflatten_tuple(space, x):
+    dims = np.asarray([flatdim(s) for s in space.spaces], dtype=np.int_)
+    list_flattened = np.split(x, np.cumsum(dims[:-1]))
+    return tuple(
+        unflatten(s, flattened) for flattened, s in zip(list_flattened, space.spaces)
+    )
+
+
+@unflatten.register(Dict)
+def unflatten_dict(space, x):
+    dims = np.asarray([flatdim(s) for s in space.spaces.values()], dtype=np.int_)
+    list_flattened = np.split(x, np.cumsum(dims[:-1]))
+    return OrderedDict(
+        [
             (key, unflatten(s, flattened))
             for flattened, (key, s) in zip(list_flattened, space.spaces.items())
         ]
-        return OrderedDict(list_unflattened)
-    elif isinstance(space, MultiBinary):
-        return np.asarray(x, dtype=space.dtype).reshape(space.shape)
-    elif isinstance(space, MultiDiscrete):
-        return np.asarray(x, dtype=space.dtype).reshape(space.shape)
-    else:
-        raise NotImplementedError
+    )
 
 
+@singledispatch
 def flatten_space(space):
     """Flatten a space into a single ``Box``.
 
@@ -138,26 +189,36 @@ def flatten_space(space):
         >>> flatten(space, space.sample()) in flatten_space(space)
         True
     """
-    if isinstance(space, Box):
-        return Box(space.low.flatten(), space.high.flatten(), dtype=space.dtype)
-    if isinstance(space, Discrete):
-        return Box(low=0, high=1, shape=(space.n,), dtype=space.dtype)
-    if isinstance(space, Tuple):
-        space = [flatten_space(s) for s in space.spaces]
-        return Box(
-            low=np.concatenate([s.low for s in space]),
-            high=np.concatenate([s.high for s in space]),
-            dtype=np.result_type(*[s.dtype for s in space]),
-        )
-    if isinstance(space, Dict):
-        space = [flatten_space(s) for s in space.spaces.values()]
-        return Box(
-            low=np.concatenate([s.low for s in space]),
-            high=np.concatenate([s.high for s in space]),
-            dtype=np.result_type(*[s.dtype for s in space]),
-        )
-    if isinstance(space, MultiBinary):
-        return Box(low=0, high=1, shape=(space.n,), dtype=space.dtype)
-    if isinstance(space, MultiDiscrete):
-        return Box(low=np.zeros_like(space.nvec), high=space.nvec, dtype=space.dtype)
-    raise NotImplementedError
+    raise NotImplementedError(f"Unknown space: `{space}`")
+
+
+@flatten_space.register(Box)
+def flatten_space_box(space):
+    return Box(space.low.flatten(), space.high.flatten(), dtype=space.dtype)
+
+
+@flatten_space.register(Discrete)
+@flatten_space.register(MultiBinary)
+@flatten_space.register(MultiDiscrete)
+def flatten_space_binary(space):
+    return Box(low=0, high=1, shape=(flatdim(space),), dtype=space.dtype)
+
+
+@flatten_space.register(Tuple)
+def flatten_space_tuple(space):
+    space = [flatten_space(s) for s in space.spaces]
+    return Box(
+        low=np.concatenate([s.low for s in space]),
+        high=np.concatenate([s.high for s in space]),
+        dtype=np.result_type(*[s.dtype for s in space]),
+    )
+
+
+@flatten_space.register(Dict)
+def flatten_space_dict(space):
+    space = [flatten_space(s) for s in space.spaces.values()]
+    return Box(
+        low=np.concatenate([s.low for s in space]),
+        high=np.concatenate([s.high for s in space]),
+        dtype=np.result_type(*[s.dtype for s in space]),
+    )

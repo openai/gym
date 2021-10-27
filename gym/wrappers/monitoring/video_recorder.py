@@ -1,6 +1,7 @@
 import json
 import os
 import os.path
+import pkgutil
 import subprocess
 import tempfile
 from io import StringIO
@@ -37,6 +38,7 @@ class VideoRecorder(object):
         modes = env.metadata.get("render.modes", [])
         self._async = env.metadata.get("semantics.async")
         self.enabled = enabled
+        self._closed = False
 
         # Don't bother setting anything else if not enabled
         if not self.enabled:
@@ -119,6 +121,11 @@ class VideoRecorder(object):
         """Render the given `env` and add the resulting frame to the video."""
         if not self.functional:
             return
+        if self._closed:
+            logger.warn(
+                "The video recorder has been closed and no frames will be captured anymore."
+            )
+            return
         logger.debug("Capturing video frame: path=%s", self.path)
 
         render_mode = "ansi" if self.ansi_mode else "rgb_array"
@@ -144,8 +151,8 @@ class VideoRecorder(object):
                 self._encode_image_frame(frame)
 
     def close(self):
-        """Make sure to manually close, or else you'll leak the encoder process"""
-        if not self.enabled:
+        """Flush all data to disk and close any open frame encoders."""
+        if not self.enabled or self._closed:
             return
 
         if self.encoder:
@@ -178,9 +185,16 @@ class VideoRecorder(object):
 
         self.write_metadata()
 
+        # Stop tracking this for autoclose
+        self._closed = True
+
     def write_metadata(self):
         with open(self.metadata_path, "w") as f:
             json.dump(self.metadata, f)
+
+    def __del__(self):
+        # Make sure we've closed up shop when garbage collecting
+        self.close()
 
     def _encode_ansi_frame(self, frame):
         if not self.encoder:
@@ -314,9 +328,13 @@ class ImageEncoder(object):
             self.backend = "avconv"
         elif distutils.spawn.find_executable("ffmpeg") is not None:
             self.backend = "ffmpeg"
+        elif pkgutil.find_loader("imageio_ffmpeg"):
+            import imageio_ffmpeg
+
+            self.backend = imageio_ffmpeg.get_ffmpeg_exe()
         else:
             raise error.DependencyNotInstalled(
-                """Found neither the ffmpeg nor avconv executables. On OS X, you can install ffmpeg via `brew install ffmpeg`. On most Ubuntu variants, `sudo apt-get install ffmpeg` should do it. On Ubuntu 14.04, however, you'll need to install avconv with `sudo apt-get install libav-tools`."""
+                """Found neither the ffmpeg nor avconv executables. On OS X, you can install ffmpeg via `brew install ffmpeg`. On most Ubuntu variants, `sudo apt-get install ffmpeg` should do it. On Ubuntu 14.04, however, you'll need to install avconv with `sudo apt-get install libav-tools`. Alternatively, please install imageio-ffmpeg with `pip install imageio-ffmpeg`"""
             )
 
         self.start()
@@ -334,65 +352,34 @@ class ImageEncoder(object):
         }
 
     def start(self):
-        if self.backend == "ffmpeg":
-            self.cmdline = (
-                self.backend,
-                "-nostats",
-                "-loglevel",
-                "error",  # suppress warnings
-                "-y",
-                # input
-                "-f",
-                "rawvideo",
-                "-s:v",
-                "{}x{}".format(*self.wh),
-                "-pix_fmt",
-                ("rgb32" if self.includes_alpha else "rgb24"),
-                "-r",
-                "%d" % self.frames_per_sec,
-                "-i",
-                "-",  # this used to be /dev/stdin, which is not Windows-friendly
-                # output
-                "-an",
-                "-r",
-                "%d" % self.frames_per_sec,
-                "-vcodec",
-                "mpeg4",
-                "-pix_fmt",
-                "bgr24",
-                "-r",
-                "%d" % self.output_frames_per_sec,
-                self.output_path,
-            )
-        else:
-            self.cmdline = (
-                self.backend,
-                "-nostats",
-                "-loglevel",
-                "error",  # suppress warnings
-                "-y",
-                # input
-                "-f",
-                "rawvideo",
-                "-s:v",
-                "{}x{}".format(*self.wh),
-                "-pix_fmt",
-                ("rgb32" if self.includes_alpha else "rgb24"),
-                "-framerate",
-                "%d" % self.frames_per_sec,
-                "-i",
-                "-",  # this used to be /dev/stdin, which is not Windows-friendly
-                # output
-                "-vf",
-                "scale=trunc(iw/2)*2:trunc(ih/2)*2",
-                "-vcodec",
-                "libx264",
-                "-pix_fmt",
-                "yuv420p",
-                "-r",
-                "%d" % self.output_frames_per_sec,
-                self.output_path,
-            )
+        self.cmdline = (
+            self.backend,
+            "-nostats",
+            "-loglevel",
+            "error",  # suppress warnings
+            "-y",
+            # input
+            "-f",
+            "rawvideo",
+            "-s:v",
+            "{}x{}".format(*self.wh),
+            "-pix_fmt",
+            ("rgb32" if self.includes_alpha else "rgb24"),
+            "-framerate",
+            "%d" % self.frames_per_sec,
+            "-i",
+            "-",  # this used to be /dev/stdin, which is not Windows-friendly
+            # output
+            "-vf",
+            "scale=trunc(iw/2)*2:trunc(ih/2)*2",
+            "-vcodec",
+            "libx264",
+            "-pix_fmt",
+            "yuv420p",
+            "-r",
+            "%d" % self.output_frames_per_sec,
+            self.output_path,
+        )
 
         logger.debug('Starting %s with "%s"', self.backend, " ".join(self.cmdline))
         if hasattr(os, "setsid"):  # setsid not present on Windows

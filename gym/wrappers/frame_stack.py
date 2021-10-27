@@ -1,7 +1,7 @@
 from collections import deque
 import numpy as np
 from gym.spaces import Box
-from gym import Wrapper
+from gym import ObservationWrapper
 
 
 class LazyFrames(object):
@@ -60,11 +60,11 @@ class LazyFrames(object):
         return frame
 
 
-class FrameStack(Wrapper):
+class FrameStack(ObservationWrapper):
     r"""Observation wrapper that stacks the observations in a rolling manner.
 
     For example, if the number of stacks is 4, then the returned observation contains
-    the most recent 4 observations. For environment 'Pendulum-v0', the original observation
+    the most recent 4 observations. For environment 'Pendulum-v1', the original observation
     is an array with shape [3], so if we stack 4 observations, the processed observation
     has shape [4, 3].
 
@@ -107,16 +107,16 @@ class FrameStack(Wrapper):
             low=low, high=high, dtype=self.observation_space.dtype
         )
 
-    def _get_observation(self):
+    def observation(self):
         assert len(self.frames) == self.num_stack, (len(self.frames), self.num_stack)
         return LazyFrames(list(self.frames), self.lz4_compress)
 
     def step(self, action):
         observation, reward, done, info = self.env.step(action)
         self.frames.append(observation)
-        return self._get_observation(), reward, done, info
+        return self.observation(), reward, done, info
 
     def reset(self, **kwargs):
         observation = self.env.reset(**kwargs)
         [self.frames.append(observation) for _ in range(self.num_stack)]
-        return self._get_observation()
+        return self.observation()

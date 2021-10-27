@@ -38,7 +38,7 @@ class Continuous_MountainCarEnv(gym.Env):
         Type: Box(1)
         Num    Action                    Min            Max
         0      the power coef            -1.0           1.0
-        Note: actual driving force is calculated by multipling the power coef by power (0.0015)
+        Note: actual driving force is calculated by multiplying the power coef by power (0.0015)
 
     Reward:
          Reward of 100 is awarded if the agent reached the flag (position = 0.45) on top of the mountain.
@@ -85,7 +85,6 @@ class Continuous_MountainCarEnv(gym.Env):
         )
 
         self.seed()
-        self.reset()
 
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
@@ -118,12 +117,12 @@ class Continuous_MountainCarEnv(gym.Env):
             reward = 100.0
         reward -= math.pow(action[0], 2) * 0.1
 
-        self.state = np.array([position, velocity])
+        self.state = np.array([position, velocity], dtype=np.float32)
         return self.state, reward, done, {}
 
     def reset(self):
         self.state = np.array([self.np_random.uniform(low=-0.6, high=-0.4), 0])
-        return np.array(self.state)
+        return np.array(self.state, dtype=np.float32)
 
     def _height(self, xs):
         return np.sin(3 * xs) * 0.45 + 0.55

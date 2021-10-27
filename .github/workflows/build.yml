@@ -15,4 +15,4 @@ jobs:
              --build-arg PYTHON_VERSION=${{ matrix.python-version }} \
              --tag gym-docker .
       - name: Run tests
-        run: docker run gym-docker pytest --forked
+        run: docker run gym-docker pytest --forked --import-mode=append

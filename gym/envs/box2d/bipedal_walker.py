@@ -142,8 +142,6 @@ class BipedalWalker(gym.Env, EzPickle):
             categoryBits=0x0001,
         )
 
-        self.reset()
-
         high = np.array([np.inf] * 24).astype(np.float32)
         self.action_space = spaces.Box(
             np.array([-1, -1, -1, -1]).astype(np.float32),
@@ -487,7 +485,7 @@ class BipedalWalker(gym.Env, EzPickle):
             done = True
         if pos[0] > (TERRAIN_LENGTH - TERRAIN_GRASS) * TERRAIN_STEP:
             done = True
-        return np.array(state), reward, done, {}
+        return np.array(state, dtype=np.float32), reward, done, {}
 
     def render(self, mode="human"):
         from gym.envs.classic_control import rendering

@@ -1,5 +1,7 @@
 import numpy as np
+from gym import logger
 from .space import Space
+from .discrete import Discrete
 
 
 class MultiDiscrete(Space):
@@ -23,15 +25,14 @@ class MultiDiscrete(Space):
 
     """
 
-    def __init__(self, nvec, dtype=np.int64):
-
+    def __init__(self, nvec, dtype=np.int64, seed=None):
         """
         nvec: vector of counts of each categorical variable
         """
         assert (np.array(nvec) > 0).all(), "nvec (counts) have to be positive"
         self.nvec = np.asarray(nvec, dtype=dtype)
 
-        super(MultiDiscrete, self).__init__(self.nvec.shape, dtype)
+        super(MultiDiscrete, self).__init__(self.nvec.shape, dtype, seed)
 
     def sample(self):
         return (self.np_random.random_sample(self.nvec.shape) * self.nvec).astype(
@@ -53,6 +54,20 @@ class MultiDiscrete(Space):
 
     def __repr__(self):
         return "MultiDiscrete({})".format(self.nvec)
+
+    def __getitem__(self, index):
+        nvec = self.nvec[index]
+        if nvec.ndim == 0:
+            subspace = Discrete(nvec)
+        else:
+            subspace = MultiDiscrete(nvec, self.dtype)
+        subspace.np_random.set_state(self.np_random.get_state())  # for reproducibility
+        return subspace
+
+    def __len__(self):
+        if self.nvec.ndim >= 2:
+            logger.warn("Get length of a multi-dimensional MultiDiscrete space.")
+        return len(self.nvec)
 
     def __eq__(self, other):
         return isinstance(other, MultiDiscrete) and np.all(self.nvec == other.nvec)

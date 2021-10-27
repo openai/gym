@@ -22,7 +22,7 @@ class Box(Space):
 
     """
 
-    def __init__(self, low, high, shape=None, dtype=np.float32):
+    def __init__(self, low, high, shape=None, dtype=np.float32, seed=None):
         assert dtype is not None, "dtype must be explicitly provided. "
         self.dtype = np.dtype(dtype)
 
@@ -56,7 +56,7 @@ class Box(Space):
         if np.isscalar(high):
             high = np.full(shape, high, dtype=dtype)
 
-        self.shape = shape
+        self._shape = shape
         self.low = low
         self.high = high
 
@@ -80,7 +80,7 @@ class Box(Space):
         self.bounded_below = -np.inf < self.low
         self.bounded_above = np.inf > self.high
 
-        super(Box, self).__init__(self.shape, self.dtype)
+        super(Box, self).__init__(self.shape, self.dtype, seed)
 
     def is_bounded(self, manner="both"):
         below = np.all(self.bounded_below)
@@ -138,10 +138,15 @@ class Box(Space):
         return sample.astype(self.dtype)
 
     def contains(self, x):
-        if isinstance(x, list):
-            x = np.array(x)  # Promote list to array for contains check
+        if not isinstance(x, np.ndarray):
+            logger.warn("Casting input x to numpy array.")
+            x = np.asarray(x, dtype=self.dtype)
+
         return (
-            x.shape == self.shape and np.all(x >= self.low) and np.all(x <= self.high)
+            np.can_cast(x.dtype, self.dtype)
+            and x.shape == self.shape
+            and np.all(x >= self.low)
+            and np.all(x <= self.high)
         )
 
     def to_jsonable(self, sample_n):
