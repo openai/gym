@@ -79,7 +79,7 @@ OBS_COLORS = [(0.8, 0.0, 0.0), (0.0, 0.0, 0.8),
               (0.8, 0.8, 0.8), (0.0, 0.0, 0.0),
               (0.8, 0.0, 0.8), (0.8, 0.8, 0.0)]
 
-OBS_V = 2.0
+OBS_V = 3.0
 
 class FrictionDetector(contactListener):
     def __init__(self, env):
