@@ -66,6 +66,9 @@ class UnittestSlowEnv(gym.Env):
         reward, done = 0.0, False
         return observation, reward, done, {}
 
+    def render(self, *args, **kwargs):
+        raise NotImplementedError
+
 
 class CustomSpace(gym.Space):
     """Minimal custom observation space."""
