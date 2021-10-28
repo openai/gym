@@ -97,6 +97,9 @@ class CustomSpaceEnv(gym.Env):
         reward, done = 0.0, False
         return observation, reward, done, {}
 
+    def render(self, *args, **kwargs):
+        raise NotImplementedError
+
 
 def make_env(env_name, seed):
     def _make():
