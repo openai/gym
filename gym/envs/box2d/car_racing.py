@@ -395,6 +395,7 @@ class CarRacing(gym.Env, EzPickle):
         self.prev_reward = 0.0
         self.tile_visited_count = 0
         self.t = 0.0
+        self.frame_count = 0
         self.road_poly = []
 
         while True:
@@ -425,17 +426,18 @@ class CarRacing(gym.Env, EzPickle):
             obs_pos = obs.hull.position
 
             # Check if obstable is on grass by checking inside road polys
-            # WARNING: Heavy processing
-            on_grass = not (True in [segment.fixtures[0].TestPoint(obs_pos) for segment in self.road])
+            # WARNING: Heavy processing so process every 2 frames
+            if self.frame_count % 10 == 0:
+                on_grass = not (True in [segment.fixtures[0].TestPoint(obs_pos) for segment in self.road])
+                
+                # Flip movement direction if obstacle on grass
+                if on_grass:
+                    obs.move_direction *= -1.0
 
             # Set obstacle velocity at its initial angle
             angle = obs.hull.angle
             vx = np.cos(angle)
             vy = np.sin(angle)
-
-            # Flip movement direction if obstacle on grass
-            if on_grass:
-                obs.move_direction *= -1.0
 
             # Move obstacle
             obs.move([OBS_V*vx*obs.move_direction, OBS_V*vy*obs.move_direction])
@@ -443,6 +445,7 @@ class CarRacing(gym.Env, EzPickle):
         self.car.step(1.0 / FPS)
         self.world.Step(1.0 / FPS, 6 * 30, 2 * 30)
         self.t += 1.0 / FPS
+        self.frame_count += 1
 
         self.state = self.render("state_pixels")
 
@@ -481,7 +484,7 @@ class CarRacing(gym.Env, EzPickle):
             )
             self.transform = rendering.Transform()
 
-        if "t" not in self.__dict__:
+        if "t" not in self.__dict__ or "frame_count" not in self.__dict__:
             return  # reset() not called yet
 
         # Animate zoom first second:
