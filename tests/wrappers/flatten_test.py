@@ -18,6 +18,12 @@ class FakeEnvironment(gym.Env):
         self.observation = self.observation_space.sample()
         return self.observation
 
+    def render(self, *args, **kwargs):
+        raise NotImplementedError
+
+    def step(self, *args, **kwargs):
+        raise NotImplementedError
+
 
 OBSERVATION_SPACES = (
     (

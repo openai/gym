@@ -133,6 +133,9 @@ class VectorEnv(gym.Env):
         """
         pass
 
+    def render(self, *args, **kwargs):
+        raise NotImplementedError
+
     def __del__(self):
         if not getattr(self, "closed", True):
             self.close(terminate=True)

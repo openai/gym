@@ -11,6 +11,15 @@ class ArgumentEnv(gym.Env):
         self.arg2 = arg2
         self.arg3 = arg3
 
+    def render(self, *args, **kwargs):
+        raise NotImplementedError
+
+    def reset(self, *args, **kwargs):
+        raise NotImplementedError
+
+    def step(self, *args, **kwargs):
+        raise NotImplementedError
+
 
 gym.register(
     id="test.ArgumentEnv-v0",

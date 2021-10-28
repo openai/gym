@@ -46,3 +46,6 @@ class RescaleAction(gym.ActionWrapper):
         )
         action = np.clip(action, low, high)
         return action
+
+    def reverse_action(self, *args, **kwargs):
+        raise NotImplementedError

@@ -25,6 +25,9 @@ class DummyRewardEnv(gym.Env):
         self.t = self.return_reward_idx
         return np.array([self.t])
 
+    def render(self, *args, **kwargs):
+        raise NotImplementedError
+
 
 def make_env(return_reward_idx):
     def thunk():

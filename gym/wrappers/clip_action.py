@@ -12,3 +12,6 @@ class ClipAction(ActionWrapper):
 
     def action(self, action):
         return np.clip(action, self.action_space.low, self.action_space.high)
+
+    def reverse_action(self, *args, **kwargs):
+        raise NotImplementedError

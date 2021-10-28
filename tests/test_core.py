@@ -11,6 +11,15 @@ class ArgumentEnv(core.Env):
         self.calls += 1
         self.arg = arg
 
+    def render(self, *args, **kwargs):
+        raise NotImplementedError
+
+    def reset(self, *args, **kwargs):
+        raise NotImplementedError
+
+    def step(self, *args, **kwargs):
+        raise NotImplementedError
+
 
 class UnittestEnv(core.Env):
     observation_space = spaces.Box(low=0, high=255, shape=(64, 64, 3), dtype=np.uint8)
@@ -22,6 +31,9 @@ class UnittestEnv(core.Env):
     def step(self, action):
         observation = self.observation_space.sample()  # Dummy observation
         return (observation, 0.0, False, {})
+
+    def render(self, *args, **kwargs):
+        raise NotImplementedError
 
 
 class UnknownSpacesEnv(core.Env):
@@ -41,6 +53,9 @@ class UnknownSpacesEnv(core.Env):
     def step(self, action):
         observation = self.observation_space.sample()  # Dummy observation
         return (observation, 0.0, False, {})
+
+    def render(self):
+        raise NotImplementedError
 
 
 class NewPropertyWrapper(core.Wrapper):

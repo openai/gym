@@ -126,3 +126,6 @@ class BlackjackEnv(gym.Env):
         self.dealer = draw_hand(self.np_random)
         self.player = draw_hand(self.np_random)
         return self._get_obs()
+
+    def render(self, *args, **kwargs):
+        raise NotImplementedError
