@@ -1,5 +1,6 @@
 import sys
 import warnings
+from typing import Optional, Type
 
 from gym.utils import colorize
 
@@ -9,29 +10,34 @@ WARN = 30
 ERROR = 40
 DISABLED = 50
 
-MIN_LEVEL = 30
+min_level = 30
 
 
-def set_level(level):
+def set_level(level: int) -> None:
     """
     Set logging threshold on current logger.
     """
-    global MIN_LEVEL
-    MIN_LEVEL = level
+    global min_level
+    min_level = level
 
 
-def debug(msg, *args):
-    if MIN_LEVEL <= DEBUG:
+def debug(msg: str, *args: object):
+    if min_level <= DEBUG:
         print("%s: %s" % ("DEBUG", msg % args), file=sys.stderr)
 
 
-def info(msg, *args):
-    if MIN_LEVEL <= INFO:
+def info(msg: str, *args: object):
+    if min_level <= INFO:
         print("%s: %s" % ("INFO", msg % args), file=sys.stderr)
 
 
-def warn(msg, *args, category=None, stacklevel=1):
-    if MIN_LEVEL <= WARN:
+def warn(
+    msg: str,
+    *args: object,
+    category: Optional[Type[Warning]] = None,
+    stacklevel: int = 1
+):
+    if min_level <= WARN:
         warnings.warn(
             colorize("%s: %s" % ("WARN", msg % args), "yellow"),
             category=category,
@@ -39,12 +45,12 @@ def warn(msg, *args, category=None, stacklevel=1):
         )
 
 
-def deprecation(msg, *args):
+def deprecation(msg: str, *args: object):
     warn(msg, *args, category=DeprecationWarning, stacklevel=2)
 
 
-def error(msg, *args):
-    if MIN_LEVEL <= ERROR:
+def error(msg: str, *args: object):
+    if min_level <= ERROR:
         print(colorize("%s: %s" % ("ERROR", msg % args), "red"), file=sys.stderr)
 
 
