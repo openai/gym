@@ -56,5 +56,5 @@ def atomic_write(filepath, binary=False, fsync=False):
     finally:
         try:
             os.remove(tmppath)
-        except (IOError, OSError):
+        except OSError:
             pass
