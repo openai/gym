@@ -100,7 +100,7 @@ class AsyncVectorEnv(VectorEnv):
             action_space = action_space or dummy_env.action_space
         dummy_env.close()
         del dummy_env
-        super(AsyncVectorEnv, self).__init__(
+        super().__init__(
             num_envs=len(env_fns),
             observation_space=observation_space,
             action_space=action_space,
@@ -138,7 +138,7 @@ class AsyncVectorEnv(VectorEnv):
                 parent_pipe, child_pipe = ctx.Pipe()
                 process = ctx.Process(
                     target=target,
-                    name="Worker<{0}>-{1}".format(type(self).__name__, idx),
+                    name=f"Worker<{type(self).__name__}>-{idx}",
                     args=(
                         idx,
                         CloudpickleWrapper(env_fn),
@@ -169,8 +169,7 @@ class AsyncVectorEnv(VectorEnv):
 
         if self._state != AsyncState.DEFAULT:
             raise AlreadyPendingCallError(
-                "Calling `seed` while waiting "
-                "for a pending call to `{0}` to complete.".format(self._state.value),
+                f"Calling `seed` while waiting for a pending call to `{self._state.value}` to complete.",
                 self._state.value,
             )
 
@@ -183,8 +182,7 @@ class AsyncVectorEnv(VectorEnv):
         self._assert_is_running()
         if self._state != AsyncState.DEFAULT:
             raise AlreadyPendingCallError(
-                "Calling `reset_async` while waiting "
-                "for a pending call to `{0}` to complete".format(self._state.value),
+                f"Calling `reset_async` while waiting for a pending call to `{self._state.value}` to complete",
                 self._state.value,
             )
 
@@ -215,8 +213,7 @@ class AsyncVectorEnv(VectorEnv):
         if not self._poll(timeout):
             self._state = AsyncState.DEFAULT
             raise mp.TimeoutError(
-                "The call to `reset_wait` has timed out after "
-                "{0} second{1}.".format(timeout, "s" if timeout > 1 else "")
+                f"The call to `reset_wait` has timed out after {timeout} second{'s' if timeout > 1 else ''}."
             )
 
         results, successes = zip(*[pipe.recv() for pipe in self.parent_pipes])
@@ -240,8 +237,7 @@ class AsyncVectorEnv(VectorEnv):
         self._assert_is_running()
         if self._state != AsyncState.DEFAULT:
             raise AlreadyPendingCallError(
-                "Calling `step_async` while waiting "
-                "for a pending call to `{0}` to complete.".format(self._state.value),
+                f"Calling `step_async` while waiting for a pending call to `{self._state.value}` to complete.",
                 self._state.value,
             )
 
@@ -281,8 +277,7 @@ class AsyncVectorEnv(VectorEnv):
         if not self._poll(timeout):
             self._state = AsyncState.DEFAULT
             raise mp.TimeoutError(
-                "The call to `step_wait` has timed out after "
-                "{0} second{1}.".format(timeout, "s" if timeout > 1 else "")
+                f"The call to `step_wait` has timed out after {timeout} second{'s' if timeout > 1 else ''}."
             )
 
         results, successes = zip(*[pipe.recv() for pipe in self.parent_pipes])
@@ -319,10 +314,9 @@ class AsyncVectorEnv(VectorEnv):
         try:
             if self._state != AsyncState.DEFAULT:
                 logger.warn(
-                    "Calling `close` while waiting for a pending "
-                    "call to `{0}` to complete.".format(self._state.value)
+                    f"Calling `close` while waiting for a pending call to `{self._state.value}` to complete."
                 )
-                function = getattr(self, "{0}_wait".format(self._state.value))
+                function = getattr(self, f"{self._state.value}_wait")
                 function(timeout)
         except mp.TimeoutError:
             terminate = True
@@ -368,7 +362,7 @@ class AsyncVectorEnv(VectorEnv):
         if not all(same_spaces):
             raise RuntimeError(
                 "Some environments have an observation space "
-                "different from `{0}`. In order to batch observations, the "
+                "different from `{}`. In order to batch observations, the "
                 "observation spaces from all environments must be "
                 "equal.".format(self.single_observation_space)
             )
@@ -376,8 +370,7 @@ class AsyncVectorEnv(VectorEnv):
     def _assert_is_running(self):
         if self.closed:
             raise ClosedEnvironmentError(
-                "Trying to operate on `{0}`, after a "
-                "call to `close()`.".format(type(self).__name__)
+                f"Trying to operate on `{type(self).__name__}`, after a call to `close()`."
             )
 
     def _raise_if_errors(self, successes):
@@ -389,10 +382,9 @@ class AsyncVectorEnv(VectorEnv):
         for _ in range(num_errors):
             index, exctype, value = self.error_queue.get()
             logger.error(
-                "Received the following error from Worker-{0}: "
-                "{1}: {2}".format(index, exctype.__name__, value)
+                f"Received the following error from Worker-{index}: {exctype.__name__}: {value}"
             )
-            logger.error("Shutting down Worker-{0}.".format(index))
+            logger.error(f"Shutting down Worker-{index}.")
             self.parent_pipes[index].close()
             self.parent_pipes[index] = None
 
