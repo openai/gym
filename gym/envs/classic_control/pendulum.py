@@ -24,7 +24,8 @@ class PendulumEnv(gym.Env):
     Reward:
     Starting State:
     Episode Termination:
-"""
+    """
+
     metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 30}
 
     def __init__(self, g=10.0):
