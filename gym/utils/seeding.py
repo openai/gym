@@ -7,7 +7,7 @@ import numpy as np
 from numpy.random import Generator
 
 from gym import error
-from gym.logger import warn
+from gym.logger import deprecation
 
 
 def np_random(seed: Optional[int] = None):
@@ -26,7 +26,7 @@ def np_random(seed: Optional[int] = None):
 # RandomNumberGenerator = np.random.Generator
 class RandomNumberGenerator(np.random.Generator):
     def rand(self, *size):
-        warn(
+        deprecation(
             "Function `rng.rand(*size)` is marked as deprecated "
             "and will be removed in the future. "
             "Please use `Generator.random(size)` instead."
@@ -37,7 +37,7 @@ class RandomNumberGenerator(np.random.Generator):
     random_sample = rand
 
     def randn(self, *size):
-        warn(
+        deprecation(
             "Function `rng.randn(*size)` is marked as deprecated "
             "and will be removed in the future. "
             "Please use `rng.standard_normal(size)` instead."
@@ -46,7 +46,7 @@ class RandomNumberGenerator(np.random.Generator):
         return self.standard_normal(size)
 
     def randint(self, low, high=None, size=None, dtype=int):
-        warn(
+        deprecation(
             "Function `rng.randint(low, [high, size, dtype])` is marked as deprecated "
             "and will be removed in the future. "
             "Please use `rng.integers(low, [high, size, dtype])` instead."
@@ -57,7 +57,7 @@ class RandomNumberGenerator(np.random.Generator):
     random_integers = randint
 
     def get_state(self):
-        warn(
+        deprecation(
             "Function `rng.get_state()` is marked as deprecated "
             "and will be removed in the future. "
             "Please use `rng.bit_generator.state` instead."
@@ -66,7 +66,7 @@ class RandomNumberGenerator(np.random.Generator):
         return self.bit_generator.state
 
     def set_state(self, state):
-        warn(
+        deprecation(
             "Function `rng.set_state(state)` is marked as deprecated "
             "and will be removed in the future. "
             "Please use `rng.bit_generator.state = state` instead."
@@ -75,7 +75,7 @@ class RandomNumberGenerator(np.random.Generator):
         self.bit_generator.state = state
 
     def seed(self, seed=None):
-        warn(
+        deprecation(
             "Function `rng.seed(seed)` is marked as deprecated "
             "and will be removed in the future. "
             "Please use `rng, seed = gym.utils.seeding.np_random(seed)` to create a separate generator instead."
@@ -112,7 +112,7 @@ def hash_seed(seed=None, max_bytes=8):
         seed (Optional[int]): None seeds from an operating system specific randomness source.
         max_bytes: Maximum number of bytes to use in the hashed seed.
     """
-    warn(
+    deprecation(
         "Function `hash_seed(seed, max_bytes)` is marked as deprecated and will be removed in the future. "
     )
     if seed is None:
@@ -129,7 +129,7 @@ def create_seed(a=None, max_bytes=8):
         a (Optional[int, str]): None seeds from an operating system specific randomness source.
         max_bytes: Maximum number of bytes to use in the seed.
     """
-    warn(
+    deprecation(
         "Function `create_seed(a, max_bytes)` is marked as deprecated and will be removed in the future. "
     )
     # Adapted from https://svn.python.org/projects/python/tags/r32/Lib/random.py
@@ -149,7 +149,7 @@ def create_seed(a=None, max_bytes=8):
 
 # TODO: don't hardcode sizeof_int here
 def _bigint_from_bytes(bytes):
-    warn(
+    deprecation(
         "Function `_bigint_from_bytes(bytes)` is marked as deprecated and will be removed in the future. "
     )
     sizeof_int = 4
@@ -164,7 +164,7 @@ def _bigint_from_bytes(bytes):
 
 
 def _int_list_from_bigint(bigint):
-    warn(
+    deprecation(
         "Function `_int_list_from_bigint` is marked as deprecated and will be removed in the future. "
     )
     # Special case 0

@@ -4,7 +4,7 @@ from typing import Optional
 import gym
 from gym import error
 from gym.utils import closer, seeding
-from gym.logger import warn
+from gym.logger import deprecation
 
 
 class Env(object):
@@ -143,7 +143,7 @@ class Env(object):
               'seed'. Often, the main seed equals the provided 'seed', but
               this won't be true if seed=None, for example.
         """
-        warn(
+        deprecation(
             "Function `env.seed(seed)` is marked as deprecated and will be removed in the future. "
             "Please use `env.reset(seed=seed) instead."
         )

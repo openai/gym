@@ -1,7 +1,7 @@
 from typing import Optional, Union, List
 
 import gym
-from gym.logger import warn
+from gym.logger import warn, deprecation
 from gym.spaces import Tuple
 from gym.vector.utils.spaces import batch_space
 
@@ -135,7 +135,7 @@ class VectorEnv(gym.Env):
             seed `seed + n`, where `n` is the index of the environment (between
             `0` and `num_envs - 1`).
         """
-        warn(
+        deprecation(
             "Function `env.seed(seed)` is marked as deprecated and will be removed in the future. "
             "Please use `env.reset(seed=seed) instead in VectorEnvs."
         )
