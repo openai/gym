@@ -70,8 +70,10 @@ class RobotEnv(gym.GoalEnv):
         return [seed]
 
     def step(self, action):
-        assert np.shape(action)[-1] == self.action_space.shape[-1], "Action dimension mismatch"
-        
+        assert (
+            np.shape(action)[-1] == self.action_space.shape[-1]
+        ), "Action dimension mismatch"
+
         action = np.clip(action, self.action_space.low, self.action_space.high)
         self._set_action(action)
         self.sim.step()
