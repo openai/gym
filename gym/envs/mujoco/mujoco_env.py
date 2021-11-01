@@ -128,9 +128,8 @@ class MujocoEnv(gym.Env):
         return self.model.opt.timestep * self.frame_skip
 
     def do_simulation(self, ctrl, n_frames):
-        assert (
-            np.shape(ctrl)[-1] == self.action_space.shape[-1]
-        ), "Action dimension mismatch"
+        if np.array(ctrl).shape != self.action_space.shape:
+            raise ValueError("Action dimension mismatch")
 
         self.sim.data.ctrl[:] = ctrl
         for _ in range(n_frames):
