@@ -3,6 +3,7 @@ import gym
 from gym import error, envs
 from gym.envs import registration
 from gym.envs.classic_control import cartpole
+from gym.envs.registration import EnvSpec, EnvSpecTree
 
 
 class ArgumentEnv(gym.Env):
@@ -71,6 +72,13 @@ def test_missing_lookup():
         assert False
 
     try:
+        registry.spec("Test-v1000")
+    except error.UnregisteredEnv:
+        pass
+    else:
+        assert False
+
+    try:
         registry.spec("Unknown-v1")
     except error.UnregisteredEnv:
         pass
@@ -88,3 +96,40 @@ def test_malformed_lookup():
         ), "Unexpected message: {}".format(e)
     else:
         assert False
+
+
+def test_env_spec_tree():
+    spec_tree = EnvSpecTree()
+
+    # Add with namespace
+    spec = EnvSpec("test/Test-v0")
+    spec_tree["test/Test-v0"] = spec
+    assert spec_tree.tree.keys() == {"test"}
+    assert spec_tree.tree["test"].keys() == {"Test"}
+    assert spec_tree.tree["test"]["Test"].keys() == {"0"}
+    assert spec_tree.tree["test"]["Test"]["0"] == spec
+    assert spec_tree["test/Test-v0"] == spec
+
+    # Add without namespace
+    spec = EnvSpec("Test-v0")
+    spec_tree["Test-v0"] = spec
+    assert spec_tree.tree.keys() == {"test", None}
+    assert spec_tree.tree[None].keys() == {"Test"}
+    assert spec_tree.tree[None]["Test"].keys() == {"0"}
+    assert spec_tree.tree[None]["Test"]["0"] == spec
+
+    # Delete last version deletes entire subtree
+    del spec_tree["test/Test-v0"]
+    assert spec_tree.tree.keys() == {None}
+
+    # Append second version for same name
+    spec_tree["Test-v1"] = EnvSpec("Test-v1")
+    assert spec_tree.tree.keys() == {None}
+    assert spec_tree.tree[None].keys() == {"Test"}
+    assert spec_tree.tree[None]["Test"].keys() == {"0", "1"}
+
+    # Deleting one version leaves other
+    del spec_tree["Test-v0"]
+    assert spec_tree.tree.keys() == {None}
+    assert spec_tree.tree[None].keys() == {"Test"}
+    assert spec_tree.tree[None]["Test"].keys() == {"1"}
