@@ -92,6 +92,14 @@ register(
     reward_threshold=900,
 )
 
+register(
+    id="DynamicCarRacing-v0",
+    entry_point="gym.envs.box2d:DynamicCarRacing",
+    max_episode_steps=1000,
+    reward_threshold=900,
+    kwargs={'num_obstacles': 20},
+)
+
 # Toy Text
 # ----------------------------------------
 
