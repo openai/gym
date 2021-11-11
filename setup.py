@@ -41,7 +41,7 @@ setup(
     version=VERSION,
     description="Gym: A universal API for reinforcement learning environments.",
     url="https://github.com/openai/gym",
-    author="OpenAI",
+    author="Gym community",
     author_email="jkterry@umd.edu",
     license="",
     packages=[package for package in find_packages() if package.startswith("gym")],

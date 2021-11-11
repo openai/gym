@@ -59,7 +59,7 @@ print(env.observation_space.low)
 ```
 - There are multiple types of Space types inherently available in gym:
 	- `Box` describes an n-dimensional continuous space. Its a bounded space where we can define the upper and lower limit which describe the valid values our observations can take.
-	- `Discrete` describes a discrete space where { 0, 1, ......., n-1} are the possible values our observation/action can take. 
+	- `Discrete` describes a discrete space where { 0, 1, ......., n-1} are the possible values our observation/action can take. Values can be shifted to { a, a+1, ......., a+n-1} using an optional argument.
 	- `Dict` represents a dictionary of simple spaces.
 	- `Tuple` represents a tuple of simple spaces
 	- `MultiBinary` creates a n-shape binary space. Argument n can be a number or a `list` of numbers
@@ -72,6 +72,10 @@ print(env.observation_space.low)
 	observation_space = Discrete(4)
 	print(observation_space.sample())
 	#> 1
+ 
+	observation_space = Discrete(5, start=-2)
+	print(observation_space.sample())
+	#> -2
 
 	observation_space = Dict({"position": Discrete(2), "velocity": Discrete(3)})
 	print(observation_space.sample())
