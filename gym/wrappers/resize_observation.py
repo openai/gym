@@ -7,7 +7,7 @@ class ResizeObservation(ObservationWrapper):
     r"""Downsample the image observation to a square image."""
 
     def __init__(self, env, shape):
-        super(ResizeObservation, self).__init__(env)
+        super().__init__(env)
         if isinstance(shape, int):
             shape = (shape, shape)
         assert all(x > 0 for x in shape), shape
