@@ -44,8 +44,7 @@ def batch_space(space, n=1):
         return batch_space_custom(space, n=n)
     else:
         raise ValueError(
-            "Cannot batch space with type `{0}`. The space must "
-            "be a valid `gym.Space` instance.".format(type(space))
+            f"Cannot batch space with type `{type(space)}`. The space must be a valid `gym.Space` instance."
         )
 
 
@@ -67,7 +66,7 @@ def batch_space_base(space, n=1):
         return Box(low=0, high=1, shape=(n,) + space.shape, dtype=space.dtype)
 
     else:
-        raise ValueError("Space type `{0}` is not supported.".format(type(space)))
+        raise ValueError(f"Space type `{type(space)}` is not supported.")
 
 
 def batch_space_tuple(space, n=1):
