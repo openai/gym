@@ -40,12 +40,12 @@ def flatdim_multidiscrete(space):
 
 @flatdim.register(Tuple)
 def flatdim_tuple(space):
-    return sum([flatdim(s) for s in space.spaces])
+    return sum(flatdim(s) for s in space.spaces)
 
 
 @flatdim.register(Dict)
 def flatdim_dict(space):
-    return sum([flatdim(s) for s in space.spaces.values()])
+    return sum(flatdim(s) for s in space.spaces.values())
 
 
 @singledispatch

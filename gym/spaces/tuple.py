@@ -16,7 +16,7 @@ class Tuple(Space):
             assert isinstance(
                 space, Space
             ), "Elements of the tuple must be instances of gym.Space"
-        super(Tuple, self).__init__(None, None, seed)
+        super().__init__(None, None, seed)
 
     def seed(self, seed=None):
         seeds = []
@@ -50,7 +50,7 @@ class Tuple(Space):
         return seeds
 
     def sample(self):
-        return tuple([space.sample() for space in self.spaces])
+        return tuple(space.sample() for space in self.spaces)
 
     def contains(self, x):
         if isinstance(x, list):
