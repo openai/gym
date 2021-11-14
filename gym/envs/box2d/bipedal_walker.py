@@ -304,8 +304,8 @@ class BipedalWalker(gym.Env, EzPickle):
                 )
                 for a in range(5)
             ]
-            x1 = min([p[0] for p in poly])
-            x2 = max([p[0] for p in poly])
+            x1 = min(p[0] for p in poly)
+            x2 = max(p[0] for p in poly)
             self.cloud_poly.append((poly, x1, x2))
 
     def reset(self, seed: Optional[int] = None):
@@ -588,11 +588,11 @@ if __name__ == "__main__":
         s, r, done, info = env.step(a)
         total_reward += r
         if steps % 20 == 0 or done:
-            print("\naction " + str(["{:+0.2f}".format(x) for x in a]))
-            print("step {} total_reward {:+0.2f}".format(steps, total_reward))
-            print("hull " + str(["{:+0.2f}".format(x) for x in s[0:4]]))
-            print("leg0 " + str(["{:+0.2f}".format(x) for x in s[4:9]]))
-            print("leg1 " + str(["{:+0.2f}".format(x) for x in s[9:14]]))
+            print("\naction " + str([f"{x:+0.2f}" for x in a]))
+            print(f"step {steps} total_reward {total_reward:+0.2f}")
+            print("hull " + str([f"{x:+0.2f}" for x in s[0:4]]))
+            print("leg0 " + str([f"{x:+0.2f}" for x in s[4:9]]))
+            print("leg1 " + str([f"{x:+0.2f}" for x in s[9:14]]))
         steps += 1
 
         contact0 = s[8]

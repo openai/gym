@@ -26,7 +26,7 @@ class Monitor(Wrapper):
         uid=None,
         mode=None,
     ):
-        super(Monitor, self).__init__(env)
+        super().__init__(env)
         logger.deprecation(
             "The Monitor wrapper is being deprecated in favor of gym.wrappers.RecordVideo and gym.wrappers.RecordEpisodeStatistics (see https://github.com/openai/gym/issues/2297)"
         )
@@ -128,11 +128,11 @@ class Monitor(Wrapper):
         # We use the 'openai-gym' prefix to determine if a file is
         # ours
         self.file_prefix = FILE_PREFIX
-        self.file_infix = "{}.{}".format(self._monitor_id, uid if uid else os.getpid())
+        self.file_infix = f"{self._monitor_id}.{uid if uid else os.getpid()}"
 
         self.stats_recorder = stats_recorder.StatsRecorder(
             self.directory,
-            "{}.episode_batch.{}".format(self.file_prefix, self.file_infix),
+            f"{self.file_prefix}.episode_batch.{self.file_infix}",
             autoreset=self.env_semantics_autoreset,
             env_id=env_id,
         )
@@ -153,7 +153,7 @@ class Monitor(Wrapper):
         # up from the filesystem later.
         path = os.path.join(
             self.directory,
-            "{}.manifest.{}.manifest.json".format(self.file_prefix, self.file_infix),
+            f"{self.file_prefix}.manifest.{self.file_infix}.manifest.json",
         )
         logger.debug("Writing training manifest file to %s", path)
         with atomic_write.atomic_write(path) as f:
@@ -176,7 +176,7 @@ class Monitor(Wrapper):
 
     def close(self):
         """Flush all monitor data to disk and close any open rending windows."""
-        super(Monitor, self).close()
+        super().close()
 
         if not self.enabled:
             return
@@ -258,9 +258,7 @@ class Monitor(Wrapper):
             env=self.env,
             base_path=os.path.join(
                 self.directory,
-                "{}.video.{}.video{:06}".format(
-                    self.file_prefix, self.file_infix, self.episode_id
-                ),
+                f"{self.file_prefix}.video.{self.file_infix}.video{self.episode_id:06}",
             ),
             metadata={"episode_id": self.episode_id},
             enabled=self._video_enabled(),

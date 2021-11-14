@@ -185,11 +185,7 @@ class TaxiEnv(discrete.DiscreteEnv):
         outfile.write("\n".join(["".join(row) for row in out]) + "\n")
         if self.lastaction is not None:
             outfile.write(
-                "  ({})\n".format(
-                    ["South", "North", "East", "West", "Pickup", "Dropoff"][
-                        self.lastaction
-                    ]
-                )
+                f"  ({['South', 'North', 'East', 'West', 'Pickup', 'Dropoff'][self.lastaction]})\n"
             )
         else:
             outfile.write("\n")

@@ -6,7 +6,7 @@ from gym.spaces import Box
 from gym import ObservationWrapper
 
 
-class LazyFrames(object):
+class LazyFrames:
     r"""Ensures common frames are only stored once to optimize memory use.
 
     To further reduce the memory use, it is optionally to turn on lz4 to
@@ -95,7 +95,7 @@ class FrameStack(ObservationWrapper):
     """
 
     def __init__(self, env, num_stack, lz4_compress=False):
-        super(FrameStack, self).__init__(env)
+        super().__init__(env)
         self.num_stack = num_stack
         self.lz4_compress = lz4_compress
 

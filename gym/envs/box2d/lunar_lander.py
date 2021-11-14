@@ -263,10 +263,9 @@ class LunarLander(gym.Env, EzPickle):
         if self.continuous:
             action = np.clip(action, -1, +1).astype(np.float32)
         else:
-            assert self.action_space.contains(action), "%r (%s) invalid " % (
-                action,
-                type(action),
-            )
+            assert self.action_space.contains(
+                action
+            ), f"{action!r} ({type(action)}) invalid "
 
         # Engines
         tip = (math.sin(self.lander.angle), math.cos(self.lander.angle))
@@ -517,8 +516,8 @@ def demo_heuristic_lander(env, seed=None, render=False):
                 break
 
         if steps % 20 == 0 or done:
-            print("observations:", " ".join(["{:+0.2f}".format(x) for x in s]))
-            print("step {} total_reward {:+0.2f}".format(steps, total_reward))
+            print("observations:", " ".join([f"{x:+0.2f}" for x in s]))
+            print(f"step {steps} total_reward {total_reward:+0.2f}")
         steps += 1
         if done:
             break

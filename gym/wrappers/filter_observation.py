@@ -19,7 +19,7 @@ class FilterObservation(ObservationWrapper):
     """
 
     def __init__(self, env, filter_keys=None):
-        super(FilterObservation, self).__init__(env)
+        super().__init__(env)
 
         wrapped_observation_space = env.observation_space
         assert isinstance(
@@ -31,7 +31,7 @@ class FilterObservation(ObservationWrapper):
         if filter_keys is None:
             filter_keys = tuple(observation_keys)
 
-        missing_keys = set(key for key in filter_keys if key not in observation_keys)
+        missing_keys = {key for key in filter_keys if key not in observation_keys}
 
         if missing_keys:
             raise ValueError(

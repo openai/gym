@@ -23,12 +23,12 @@ class RecordVideo(gym.Wrapper):
         video_length: int = 0,
         name_prefix: str = "rl-video",
     ):
-        super(RecordVideo, self).__init__(env)
+        super().__init__(env)
 
         if episode_trigger is None and step_trigger is None:
             episode_trigger = capped_cubic_video_schedule
 
-        trigger_count = sum([x is not None for x in [episode_trigger, step_trigger]])
+        trigger_count = sum(x is not None for x in [episode_trigger, step_trigger])
         assert trigger_count == 1, "Must specify exactly one trigger"
 
         self.episode_trigger = episode_trigger
@@ -53,7 +53,7 @@ class RecordVideo(gym.Wrapper):
         self.episode_id = 0
 
     def reset(self, seed: Optional[int] = None, **kwargs):
-        observations = super(RecordVideo, self).reset(seed=seed, **kwargs)
+        observations = super().reset(seed=seed, **kwargs)
         if not self.recording and self._video_enabled():
             self.start_video_recorder()
         return observations
@@ -83,7 +83,7 @@ class RecordVideo(gym.Wrapper):
             return self.episode_trigger(self.episode_id)
 
     def step(self, action):
-        observations, rewards, dones, infos = super(RecordVideo, self).step(action)
+        observations, rewards, dones, infos = super().step(action)
 
         # increment steps and episodes
         self.step_id += 1

@@ -39,7 +39,7 @@ class PixelObservationWrapper(ObservationWrapper):
                 specified `pixel_keys`.
         """
 
-        super(PixelObservationWrapper, self).__init__(env)
+        super().__init__(env)
 
         if render_kwargs is None:
             render_kwargs = {}
@@ -55,7 +55,7 @@ class PixelObservationWrapper(ObservationWrapper):
 
         if isinstance(wrapped_observation_space, spaces.Box):
             self._observation_is_dict = False
-            invalid_keys = set([STATE_KEY])
+            invalid_keys = {STATE_KEY}
         elif isinstance(wrapped_observation_space, (spaces.Dict, MutableMapping)):
             self._observation_is_dict = True
             invalid_keys = set(wrapped_observation_space.spaces.keys())
@@ -68,7 +68,7 @@ class PixelObservationWrapper(ObservationWrapper):
             overlapping_keys = set(pixel_keys) & set(invalid_keys)
             if overlapping_keys:
                 raise ValueError(
-                    "Duplicate or reserved pixel keys {!r}.".format(overlapping_keys)
+                    f"Duplicate or reserved pixel keys {overlapping_keys!r}."
                 )
 
         if pixels_only:

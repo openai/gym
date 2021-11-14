@@ -5,7 +5,7 @@ import gym
 
 class OrderEnforcing(gym.Wrapper):
     def __init__(self, env):
-        super(OrderEnforcing, self).__init__(env)
+        super().__init__(env)
         self._has_reset = False
 
     def step(self, action):

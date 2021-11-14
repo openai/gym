@@ -5,7 +5,7 @@ import gym
 
 
 # taken from https://github.com/openai/baselines/blob/master/baselines/common/vec_env/vec_normalize.py
-class RunningMeanStd(object):
+class RunningMeanStd:
     # https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Parallel_algorithm
     def __init__(self, epsilon=1e-4, shape=()):
         self.mean = np.zeros(shape, "float64")
@@ -46,7 +46,7 @@ class NormalizeObservation(gym.core.Wrapper):
         env,
         epsilon=1e-8,
     ):
-        super(NormalizeObservation, self).__init__(env)
+        super().__init__(env)
         self.num_envs = getattr(env, "num_envs", 1)
         self.is_vector_env = getattr(env, "is_vector_env", False)
         if self.is_vector_env:
@@ -83,7 +83,7 @@ class NormalizeReward(gym.core.Wrapper):
         gamma=0.99,
         epsilon=1e-8,
     ):
-        super(NormalizeReward, self).__init__(env)
+        super().__init__(env)
         self.num_envs = getattr(env, "num_envs", 1)
         self.is_vector_env = getattr(env, "is_vector_env", False)
         self.return_rms = RunningMeanStd(shape=())
