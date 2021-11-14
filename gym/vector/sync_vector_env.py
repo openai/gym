@@ -16,17 +16,37 @@ class SyncVectorEnv(VectorEnv):
     env_fns : iterable of callable
         Functions that create the environments.
 
-    observation_space : `gym.spaces.Space` instance, optional
-        Observation space of a single environment. If `None`, then the
+    observation_space : :class:`gym.spaces.Space`, optional
+        Observation space of a single environment. If ``None``, then the
         observation space of the first environment is taken.
 
-    action_space : `gym.spaces.Space` instance, optional
-        Action space of a single environment. If `None`, then the action space
+    action_space : :class:`gym.spaces.Space`, optional
+        Action space of a single environment. If ``None``, then the action space
         of the first environment is taken.
 
-    copy : bool (default: `True`)
-        If `True`, then the `reset` and `step` methods return a copy of the
-        observations.
+    copy : bool
+        If ``True``, then the :meth:`reset` and :meth:`step` methods return a
+        copy of the observations.
+
+    Raises
+    ------
+    RuntimeError
+        If the observation space of some sub-environment does not match
+        :obj:`observation_space` (or, by default, the observation space of
+        the first sub-environment).
+
+    Example
+    -------
+
+    .. code-block::
+
+        >>> env = gym.vector.SyncVectorEnv([
+        ...     lambda: gym.make("Pendulum-v0", g=9.81),
+        ...     lambda: gym.make("Pendulum-v0", g=1.62)
+        ... ])
+        >>> env.reset()
+        array([[-0.8286432 ,  0.5597771 ,  0.90249056],
+               [-0.85009176,  0.5266346 ,  0.60007906]], dtype=float32)
     """
 
     def __init__(self, env_fns, observation_space=None, action_space=None, copy=True):
@@ -98,6 +118,7 @@ class SyncVectorEnv(VectorEnv):
         )
 
     def close_extras(self, **kwargs):
+        """Close the environments."""
         [env.close() for env in self.envs]
 
     def _check_observation_spaces(self):

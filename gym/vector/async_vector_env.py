@@ -34,47 +34,75 @@ class AsyncState(Enum):
 
 class AsyncVectorEnv(VectorEnv):
     """Vectorized environment that runs multiple environments in parallel. It
-    uses `multiprocessing` processes, and pipes for communication.
+    uses `multiprocessing`_ processes, and pipes for communication.
 
     Parameters
     ----------
     env_fns : iterable of callable
         Functions that create the environments.
 
-    observation_space : `gym.spaces.Space` instance, optional
-        Observation space of a single environment. If `None`, then the
+    observation_space : :class:`gym.spaces.Space`, optional
+        Observation space of a single environment. If ``None``, then the
         observation space of the first environment is taken.
 
-    action_space : `gym.spaces.Space` instance, optional
-        Action space of a single environment. If `None`, then the action space
+    action_space : :class:`gym.spaces.Space`, optional
+        Action space of a single environment. If ``None``, then the action space
         of the first environment is taken.
 
-    shared_memory : bool (default: `True`)
-        If `True`, then the observations from the worker processes are
+    shared_memory : bool
+        If ``True``, then the observations from the worker processes are
         communicated back through shared variables. This can improve the
         efficiency if the observations are large (e.g. images).
 
-    copy : bool (default: `True`)
-        If `True`, then the `reset` and `step` methods return a copy of the
-        observations.
+    copy : bool
+        If ``True``, then the :meth:`~AsyncVectorEnv.reset` and
+        :meth:`~AsyncVectorEnv.step` methods return a copy of the observations.
 
     context : str, optional
-        Context for multiprocessing. If `None`, then the default context is used.
-        Only available in Python 3.
+        Context for `multiprocessing`_. If ``None``, then the default context is used.
 
-    daemon : bool (default: `True`)
-        If `True`, then subprocesses have `daemon` flag turned on; that is, they
-        will quit if the head process quits. However, `daemon=True` prevents
+    daemon : bool
+        If ``True``, then subprocesses have ``daemon`` flag turned on; that is, they
+        will quit if the head process quits. However, ``daemon=True`` prevents
         subprocesses to spawn children, so for some environments you may want
-        to have it set to `False`
+        to have it set to ``False``.
 
-    worker : function, optional
-        WARNING - advanced mode option! If set, then use that worker in a subprocess
-        instead of a default one. Can be useful to override some inner vector env
-        logic, for instance, how resets on done are handled. Provides high
-        degree of flexibility and a high chance to shoot yourself in the foot; thus,
-        if you are writing your own worker, it is recommended to start from the code
-        for `_worker` (or `_worker_shared_memory`) method below, and add changes
+    worker : callable, optional
+        If set, then use that worker in a subprocess instead of a default one.
+        Can be useful to override some inner vector env logic, for instance,
+        how resets on done are handled.
+
+    Warning
+    -------
+    :attr:`worker` is an advanced mode option. It provides a high degree of
+    flexibility and a high chance to shoot yourself in the foot; thus,
+    if you are writing your own worker, it is recommended to start from the code
+    for ``_worker`` (or ``_worker_shared_memory``) method, and add changes.
+
+    Raises
+    ------
+    RuntimeError
+        If the observation space of some sub-environment does not match
+        :obj:`observation_space` (or, by default, the observation space of
+        the first sub-environment).
+
+    ValueError
+        If :obj:`observation_space` is a custom space (i.e. not a default
+        space in Gym, such as :class:`~gym.spaces.Box`, :class:`~gym.spaces.Discrete`,
+        or :class:`~gym.spaces.Dict`) and :obj:`shared_memory` is ``True``.
+
+    Example
+    -------
+
+    .. code-block::
+
+        >>> env = gym.vector.AsyncVectorEnv([
+        ...     lambda: gym.make("Pendulum-v0", g=9.81),
+        ...     lambda: gym.make("Pendulum-v0", g=1.62)
+        ... ])
+        >>> env.reset()
+        array([[-0.8286432 ,  0.5597771 ,  0.90249056],
+               [-0.85009176,  0.5266346 ,  0.60007906]], dtype=float32)
     """
 
     def __init__(
@@ -179,6 +207,19 @@ class AsyncVectorEnv(VectorEnv):
         self._raise_if_errors(successes)
 
     def reset_async(self):
+        """Send the calls to :obj:`reset` to each sub-environment.
+
+        Raises
+        ------
+        ClosedEnvironmentError
+            If the environment was closed (if :meth:`close` was previously called).
+
+        AlreadyPendingCallError
+            If the environment is already waiting for a pending call to another
+            method (e.g. :meth:`step_async`). This can be caused by two consecutive
+            calls to :meth:`reset_async`, with no call to :meth:`reset_wait` in
+            between.
+        """
         self._assert_is_running()
         if self._state != AsyncState.DEFAULT:
             raise AlreadyPendingCallError(
@@ -191,17 +232,30 @@ class AsyncVectorEnv(VectorEnv):
         self._state = AsyncState.WAITING_RESET
 
     def reset_wait(self, timeout=None):
-        """
+        """Wait for the calls to :obj:`reset` in each sub-environment to finish.
+
         Parameters
         ----------
         timeout : int or float, optional
-            Number of seconds before the call to `reset_wait` times out. If
-            `None`, the call to `reset_wait` never times out.
+            Number of seconds before the call to :meth:`reset_wait` times out.
+            If ``None``, the call to :meth:`reset_wait` never times out.
 
         Returns
         -------
-        observations : sample from `observation_space`
+        element of :attr:`~VectorEnv.observation_space`
             A batch of observations from the vectorized environment.
+
+        Raises
+        ------
+        ClosedEnvironmentError
+            If the environment was closed (if :meth:`close` was previously called).
+
+        NoAsyncCallError
+            If :meth:`reset_wait` was called without any prior call to
+            :meth:`reset_async`.
+
+        TimeoutError
+            If :meth:`reset_wait` timed out.
         """
         self._assert_is_running()
         if self._state != AsyncState.WAITING_RESET:
@@ -228,11 +282,23 @@ class AsyncVectorEnv(VectorEnv):
         return deepcopy(self.observations) if self.copy else self.observations
 
     def step_async(self, actions):
-        """
+        """Send the calls to :obj:`step` to each sub-environment.
+
         Parameters
         ----------
-        actions : iterable of samples from `action_space`
-            List of actions.
+        actions : element of :attr:`~VectorEnv.action_space`
+            Batch of actions.
+
+        Raises
+        ------
+        ClosedEnvironmentError
+            If the environment was closed (if :meth:`close` was previously called).
+
+        AlreadyPendingCallError
+            If the environment is already waiting for a pending call to another
+            method (e.g. :meth:`reset_async`). This can be caused by two consecutive
+            calls to :meth:`step_async`, with no call to :meth:`step_wait` in
+            between.
         """
         self._assert_is_running()
         if self._state != AsyncState.DEFAULT:
@@ -246,26 +312,39 @@ class AsyncVectorEnv(VectorEnv):
         self._state = AsyncState.WAITING_STEP
 
     def step_wait(self, timeout=None):
-        """
+        """Wait for the calls to :obj:`step` in each sub-environment to finish.
+
         Parameters
         ----------
         timeout : int or float, optional
-            Number of seconds before the call to `step_wait` times out. If
-            `None`, the call to `step_wait` never times out.
+            Number of seconds before the call to :meth:`step_wait` times out. If
+            ``None``, the call to :meth:`step_wait` never times out.
 
         Returns
         -------
-        observations : sample from `observation_space`
+        observations : element of :attr:`~VectorEnv.observation_space`
             A batch of observations from the vectorized environment.
 
-        rewards : `np.ndarray` instance (dtype `np.float_`)
+        rewards : :obj:`np.ndarray`, dtype :obj:`np.float_`
             A vector of rewards from the vectorized environment.
 
-        dones : `np.ndarray` instance (dtype `np.bool_`)
+        dones : :obj:`np.ndarray`, dtype :obj:`np.bool_`
             A vector whose entries indicate whether the episode has ended.
 
         infos : list of dict
-            A list of auxiliary diagnostic information.
+            A list of auxiliary diagnostic information dicts from sub-environments.
+
+        Raises
+        ------
+        ClosedEnvironmentError
+            If the environment was closed (if :meth:`close` was previously called).
+
+        NoAsyncCallError
+            If :meth:`step_wait` was called without any prior call to
+            :meth:`step_async`.
+
+        TimeoutError
+            If :meth:`step_wait` timed out.
         """
         self._assert_is_running()
         if self._state != AsyncState.WAITING_STEP:
@@ -298,17 +377,24 @@ class AsyncVectorEnv(VectorEnv):
         )
 
     def close_extras(self, timeout=None, terminate=False):
-        """
+        """Close the environments & clean up the extra resources
+        (processes and pipes).
+
         Parameters
         ----------
         timeout : int or float, optional
-            Number of seconds before the call to `close` times out. If `None`,
-            the call to `close` never times out. If the call to `close` times
-            out, then all processes are terminated.
+            Number of seconds before the call to :meth:`close` times out. If ``None``,
+            the call to :meth:`close` never times out. If the call to :meth:`close`
+            times out, then all processes are terminated.
 
-        terminate : bool (default: `False`)
-            If `True`, then the `close` operation is forced and all processes
+        terminate : bool
+            If ``True``, then the :meth:`close` operation is forced and all processes
             are terminated.
+
+        Raises
+        ------
+        TimeoutError
+            If :meth:`close` timed out.
         """
         timeout = 0 if terminate else timeout
         try:
