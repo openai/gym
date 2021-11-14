@@ -82,6 +82,7 @@ class SyncVectorEnv(VectorEnv):
         for i, (env, action) in enumerate(zip(self.envs, self._actions)):
             observation, self._rewards[i], self._dones[i], info = env.step(action)
             if self._dones[i]:
+                info["terminal_observation"] = observation
                 observation = env.reset()
             observations.append(observation)
             infos.append(info)
