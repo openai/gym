@@ -31,8 +31,16 @@ def test_vector_env_equal(shared_memory):
             actions = async_env.action_space.sample()
             assert actions in sync_env.action_space
 
-            async_observations, async_rewards, async_dones, _ = async_env.step(actions)
-            sync_observations, sync_rewards, sync_dones, _ = sync_env.step(actions)
+            # fmt: off
+            async_observations, async_rewards, async_dones, async_infos = async_env.step(actions)
+            sync_observations, sync_rewards, sync_dones, sync_infos = sync_env.step(actions)
+            # fmt: on
+
+            for idx in range(len(sync_dones)):
+                if sync_dones[idx]:
+                    assert "terminal_observation" in async_infos[idx]
+                    assert "terminal_observation" in sync_infos[idx]
+                    assert sync_dones[idx]
 
             assert np.all(async_observations == sync_observations)
             assert np.all(async_rewards == sync_rewards)

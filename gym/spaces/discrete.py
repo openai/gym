@@ -19,7 +19,7 @@ class Discrete(Space):
         assert n >= 0 and isinstance(start, (int, np.integer))
         self.n = n
         self.start = int(start)
-        super(Discrete, self).__init__((), np.int64, seed)
+        super().__init__((), np.int64, seed)
 
     def sample(self):
         return self.start + self.np_random.randint(self.n)
