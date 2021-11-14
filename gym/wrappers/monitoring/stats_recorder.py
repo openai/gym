@@ -7,7 +7,7 @@ from gym.utils import atomic_write
 from gym.utils.json_utils import json_encode_np
 
 
-class StatsRecorder(object):
+class StatsRecorder:
     def __init__(self, directory, file_prefix, autoreset=False, env_id=None):
         self.autoreset = autoreset
         self.env_id = env_id
@@ -27,7 +27,7 @@ class StatsRecorder(object):
         self.done = None
         self.closed = False
 
-        filename = "{}.stats.json".format(self.file_prefix)
+        filename = f"{self.file_prefix}.stats.json"
         self.path = os.path.join(self.directory, filename)
 
     @property
