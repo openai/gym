@@ -138,7 +138,7 @@ class MemorizeDigits(gym.Env):
             return self.viewer.isopen
 
         else:
-            assert 0, "Render mode '%s' is not supported" % mode
+            assert 0, f"Render mode '{mode}' is not supported"
 
     def close(self):
         if self.viewer is not None:

@@ -23,12 +23,12 @@ def set_level(level: int) -> None:
 
 def debug(msg: str, *args: object):
     if min_level <= DEBUG:
-        print("%s: %s" % ("DEBUG", msg % args), file=sys.stderr)
+        print(f"DEBUG: {msg % args}", file=sys.stderr)
 
 
 def info(msg: str, *args: object):
     if min_level <= INFO:
-        print("%s: %s" % ("INFO", msg % args), file=sys.stderr)
+        print(f"INFO: {msg % args}", file=sys.stderr)
 
 
 def warn(
@@ -39,7 +39,7 @@ def warn(
 ):
     if min_level <= WARN:
         warnings.warn(
-            colorize("%s: %s" % ("WARN", msg % args), "yellow"),
+            colorize(f"WARN: {msg % args}", "yellow"),
             category=category,
             stacklevel=stacklevel + 1,
         )
@@ -51,7 +51,7 @@ def deprecation(msg: str, *args: object):
 
 def error(msg: str, *args: object):
     if min_level <= ERROR:
-        print(colorize("%s: %s" % ("ERROR", msg % args), "red"), file=sys.stderr)
+        print(colorize(f"ERROR: {msg % args}", "red"), file=sys.stderr)
 
 
 # DEPRECATED:

@@ -8,7 +8,7 @@ try:
     matplotlib.use("TkAgg")
     import matplotlib.pyplot as plt
 except ImportError as e:
-    logger.warn("failed to set matplotlib backend, plotting will not work: %s" % str(e))
+    logger.warn(f"failed to set matplotlib backend, plotting will not work: {str(e)}")
     plt = None
 
 from collections import deque
@@ -143,7 +143,7 @@ def play(env, transpose=True, fps=30, zoom=None, callback=None, keys_to_action=N
     pygame.quit()
 
 
-class PlayPlot(object):
+class PlayPlot:
     def __init__(self, callback, horizon_timesteps, plot_names):
         self.data_callback = callback
         self.horizon_timesteps = horizon_timesteps

@@ -22,10 +22,10 @@ class VectorEnv(gym.Env):
     num_envs : int
         Number of environments in the vectorized environment.
 
-    observation_space : `gym.spaces.Space` instance
+    observation_space : :class:`gym.spaces.Space`
         Observation space of a single environment.
 
-    action_space : `gym.spaces.Space` instance
+    action_space : :class:`gym.spaces.Space`
         Action space of a single environment.
     """
 
@@ -54,7 +54,7 @@ class VectorEnv(gym.Env):
 
         Returns
         -------
-        observations : sample from `observation_space`
+        element of :attr:`observation_space`
             A batch of observations from the vectorized environment.
         """
         self.reset_async()
@@ -71,18 +71,18 @@ class VectorEnv(gym.Env):
 
         Parameters
         ----------
-        actions : iterable of samples from `action_space`
-            List of actions.
+        actions : element of :attr:`action_space`
+            Batch of actions.
 
         Returns
         -------
-        observations : sample from `observation_space`
+        observations : element of :attr:`observation_space`
             A batch of observations from the vectorized environment.
 
-        rewards : `np.ndarray` instance (dtype `np.float_`)
+        rewards : :obj:`np.ndarray`, dtype :obj:`np.float_`
             A vector of rewards from the vectorized environment.
 
-        dones : `np.ndarray` instance (dtype `np.bool_`)
+        dones : :obj:`np.ndarray`, dtype :obj:`np.bool_`
             A vector whose entries indicate whether the episode has ended.
 
         infos : list of dict
@@ -121,15 +121,16 @@ class VectorEnv(gym.Env):
         self.closed = True
 
     def seed(self, seeds=None):
-        """
+        """Set the random seed in all sub-environments.
+
         Parameters
         ----------
         seeds : list of int, or int, optional
-            Random seed for each individual environment. If `seeds` is a list of
-            length `num_envs`, then the items of the list are chosen as random
-            seeds. If `seeds` is an int, then each environment uses the random
-            seed `seeds + n`, where `n` is the index of the environment (between
-            `0` and `num_envs - 1`).
+            Random seed for each sub-environment. If ``seeds`` is a list of
+            length ``num_envs``, then the items of the list are chosen as random
+            seeds. If ``seeds`` is an int, then each sub-environment uses the random
+            seed ``seeds + n``, where ``n`` is the index of the sub-environment
+            (between ``0`` and ``num_envs - 1``).
         """
         pass
 
@@ -139,11 +140,9 @@ class VectorEnv(gym.Env):
 
     def __repr__(self):
         if self.spec is None:
-            return "{}({})".format(self.__class__.__name__, self.num_envs)
+            return f"{self.__class__.__name__}({self.num_envs})"
         else:
-            return "{}({}, {})".format(
-                self.__class__.__name__, self.spec.id, self.num_envs
-            )
+            return f"{self.__class__.__name__}({self.spec.id}, {self.num_envs})"
 
 
 class VectorEnvWrapper(VectorEnv):
@@ -189,9 +188,7 @@ class VectorEnvWrapper(VectorEnv):
     # implicitly forward all other methods and attributes to self.env
     def __getattr__(self, name):
         if name.startswith("_"):
-            raise AttributeError(
-                "attempted to get missing private attribute '{}'".format(name)
-            )
+            raise AttributeError(f"attempted to get missing private attribute '{name}'")
         return getattr(self.env, name)
 
     @property
@@ -199,4 +196,4 @@ class VectorEnvWrapper(VectorEnv):
         return self.env.unwrapped
 
     def __repr__(self):
-        return "<{}, {}>".format(self.__class__.__name__, self.env)
+        return f"<{self.__class__.__name__}, {self.env}>"

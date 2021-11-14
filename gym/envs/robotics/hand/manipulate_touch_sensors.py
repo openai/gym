@@ -106,7 +106,7 @@ class ManipulateTouchSensorsEnv(manipulate.ManipulateEnv):
         )
 
     def _render_callback(self):
-        super(ManipulateTouchSensorsEnv, self)._render_callback()
+        super()._render_callback()
         if self.touch_visualisation == "on_touch":
             for touch_sensor_id, site_id in self._touch_sensor_id_site_id:
                 if self.sim.data.sensordata[touch_sensor_id] != 0.0:

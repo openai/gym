@@ -29,4 +29,4 @@ def colorize(string, color, bold=False, highlight=False):
     if bold:
         attr.append("1")
     attrs = ";".join(attr)
-    return "\x1b[%sm%s\x1b[0m" % (attrs, string)
+    return f"\x1b[{attrs}m{string}\x1b[0m"

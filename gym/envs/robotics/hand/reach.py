@@ -146,14 +146,14 @@ class HandReachEnv(hand_env.HandEnv, utils.EzPickle):
         sites_offset = (self.sim.data.site_xpos - self.sim.model.site_pos).copy()
         goal = self.goal.reshape(5, 3)
         for finger_idx in range(5):
-            site_name = "target{}".format(finger_idx)
+            site_name = f"target{finger_idx}"
             site_id = self.sim.model.site_name2id(site_name)
             self.sim.model.site_pos[site_id] = goal[finger_idx] - sites_offset[site_id]
 
         # Visualize finger positions.
         achieved_goal = self._get_achieved_goal().reshape(5, 3)
         for finger_idx in range(5):
-            site_name = "finger{}".format(finger_idx)
+            site_name = f"finger{finger_idx}"
             site_id = self.sim.model.site_name2id(site_name)
             self.sim.model.site_pos[site_id] = (
                 achieved_goal[finger_idx] - sites_offset[site_id]
