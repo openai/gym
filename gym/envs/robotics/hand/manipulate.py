@@ -196,7 +196,7 @@ class ManipulateEnv(hand_env.HandEnv):
                 pass
             else:
                 raise error.Error(
-                    'Unknown target_rotation option "{}".'.format(self.target_rotation)
+                    f'Unknown target_rotation option "{self.target_rotation}".'
                 )
 
         # Randomize initial position.
@@ -238,7 +238,7 @@ class ManipulateEnv(hand_env.HandEnv):
             target_pos = self.sim.data.get_joint_qpos("object:joint")[:3]
         else:
             raise error.Error(
-                'Unknown target_position option "{}".'.format(self.target_position)
+                f'Unknown target_position option "{self.target_position}".'
             )
         assert target_pos is not None
         assert target_pos.shape == (3,)
@@ -265,7 +265,7 @@ class ManipulateEnv(hand_env.HandEnv):
             target_quat = self.sim.data.get_joint_qpos("object:joint")
         else:
             raise error.Error(
-                'Unknown target_rotation option "{}".'.format(self.target_rotation)
+                f'Unknown target_rotation option "{self.target_rotation}".'
             )
         assert target_quat is not None
         assert target_quat.shape == (4,)
