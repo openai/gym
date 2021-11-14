@@ -35,7 +35,7 @@ def warn(
     msg: str,
     *args: object,
     category: Optional[Type[Warning]] = None,
-    stacklevel: int = 1
+    stacklevel: int = 1,
 ):
     if min_level <= WARN:
         warnings.warn(
