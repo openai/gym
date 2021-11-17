@@ -14,9 +14,9 @@ class MultiBinary(Space):
 
     >> self.observation_space.sample()
 
-        array([0,1,0,1,0], dtype =int8)
+        array([0, 1, 0, 1, 0], dtype=int8)
 
-    >> self.observation_space = spaces.MultiBinary([3,2])
+    >> self.observation_space = spaces.MultiBinary([3, 2])
 
     >> self.observation_space.sample()
 
@@ -27,18 +27,21 @@ class MultiBinary(Space):
     """
 
     def __init__(self, n, seed=None):
-        self.n = n
-        if type(n) in [tuple, list, np.ndarray]:
-            input_n = n
+        if isinstance(n, (tuple, list, np.ndarray)):
+            self.n = input_n = tuple(int(i) for i in n)
         else:
+            self.n = n = int(n)
             input_n = (n,)
+
+        assert (np.asarray(input_n) > 0).all(), "n (counts) have to be positive"
+
         super().__init__(input_n, np.int8, seed)
 
     def sample(self):
         return self.np_random.randint(low=0, high=2, size=self.n, dtype=self.dtype)
 
     def contains(self, x):
-        if isinstance(x, list) or isinstance(x, tuple):
+        if isinstance(x, (list, tuple)):
             x = np.array(x)  # Promote list to array for contains check
         if self.shape != x.shape:
             return False
