@@ -1,0 +1,12 @@
+[tool.pyright]
+
+include = ["gym/version.py", "gym/logger.py"]
+exclude = [
+    "**/node_modules",
+    "**/__pycache__",
+]
+strict = ["gym/version.py", "gym/logger.py"]
+
+reportMissingImports = true
+reportMissingTypeStubs = false
+verboseOutput = true

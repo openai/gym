@@ -13,3 +13,22 @@ jobs:
       - run: pytest . || true
       - run: pytest --doctest-modules . || true
       - run: shopt -s globstar && pyupgrade --py36-plus **/*.py || true
+
+  pyright:
+    name: Check types with pyright
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-platform: [ "Linux", "Windows", "Darwin" ]
+        python-version: [ "3.6", "3.7", "3.8", "3.9" ]
+      fail-fast: false
+    env:
+      PYRIGHT_VERSION: 1.1.183
+    steps:
+      - uses: actions/checkout@v2
+      - uses: jakebailey/pyright-action@v1
+        with:
+          version: ${{ env.PYRIGHT_VERSION }}
+          python-platform: ${{ matrix.python-platform }}
+          python-version: ${{ matrix.python-version }}
+          no-comments: ${{ matrix.python-version != '3.9' || matrix.python-platform != 'Linux' }}  # Having each job create the same comment is too noisy.
