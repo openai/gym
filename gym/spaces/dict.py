@@ -43,8 +43,11 @@ class Dict(Space, Mapping):
             spaces = spaces_kwargs
         if isinstance(spaces, dict) and not isinstance(spaces, OrderedDict):
             spaces = OrderedDict(sorted(list(spaces.items())))
-        if isinstance(spaces, list):
+        if isinstance(spaces, (list, tuple)):
             spaces = OrderedDict(spaces)
+
+        assert isinstance(spaces, OrderedDict), "spaces must be a dictionary"
+
         self.spaces = spaces
         for space in spaces.values():
             assert isinstance(
