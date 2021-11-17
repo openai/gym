@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 import numpy as np
 from .space import Space
 
@@ -42,9 +42,15 @@ class Dict(Space, Mapping):
         if spaces is None:
             spaces = spaces_kwargs
         if isinstance(spaces, dict) and not isinstance(spaces, OrderedDict):
-            spaces = OrderedDict(sorted(list(spaces.items())))
-        if isinstance(spaces, list):
+            try:
+                spaces = OrderedDict(sorted(spaces.items()))
+            except TypeError:  # raise when sort by different types of keys
+                spaces = OrderedDict(spaces.items())
+        if isinstance(spaces, Sequence):
             spaces = OrderedDict(spaces)
+
+        assert isinstance(spaces, OrderedDict), "spaces must be a dictionary"
+
         self.spaces = spaces
         for space in spaces.values():
             assert isinstance(
