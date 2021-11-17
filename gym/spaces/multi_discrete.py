@@ -29,8 +29,8 @@ class MultiDiscrete(Space):
         """
         nvec: vector of counts of each categorical variable
         """
-        assert (np.array(nvec) > 0).all(), "nvec (counts) have to be positive"
-        self.nvec = np.asarray(nvec, dtype=dtype)
+        self.nvec = np.array(nvec, dtype=dtype, copy=True)
+        assert (self.nvec > 0).all(), "nvec (counts) have to be positive"
 
         super().__init__(self.nvec.shape, dtype, seed)
 
@@ -40,8 +40,8 @@ class MultiDiscrete(Space):
         )
 
     def contains(self, x):
-        if isinstance(x, list):
-            x = np.array(x)  # Promote list to array for contains check
+        if isinstance(x, (list, tuple)):
+            x = np.array(x)  # Promote list and tuple to array for contains check
         # if nvec is uint32 and space dtype is uint32, then 0 <= x < self.nvec guarantees that x
         # is within correct bounds for space dtype (even though x does not have to be unsigned)
         return x.shape == self.shape and (0 <= x).all() and (x < self.nvec).all()
