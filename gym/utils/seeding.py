@@ -1,14 +1,14 @@
 import hashlib
+from typing import Optional, List, Union, Tuple
+
 import numpy as np
 import os
-import random as _random
 import struct
-import sys
 
 from gym import error
 
 
-def np_random(seed=None):
+def np_random(seed: Optional[int] = None) -> Tuple[np.random.RandomState, int]:
     if seed is not None and not (isinstance(seed, int) and 0 <= seed):
         raise error.Error(f"Seed must be a non-negative integer or omitted, not {seed}")
 
@@ -19,7 +19,7 @@ def np_random(seed=None):
     return rng, seed
 
 
-def hash_seed(seed=None, max_bytes=8):
+def hash_seed(seed: Optional[int] = None, max_bytes: int = 8) -> int:
     """Any given evaluation is likely to have many PRNG's active at
     once. (Most commonly, because the environment is running in
     multiple processes.) There's literature indicating that having
@@ -35,7 +35,7 @@ def hash_seed(seed=None, max_bytes=8):
     rid of simple correlations.)
 
     Args:
-        seed (Optional[int]): None seeds from an operating system specific randomness source.
+        seed: None seeds from an operating system specific randomness source.
         max_bytes: Maximum number of bytes to use in the hashed seed.
     """
     if seed is None:
@@ -44,24 +44,24 @@ def hash_seed(seed=None, max_bytes=8):
     return _bigint_from_bytes(hash[:max_bytes])
 
 
-def create_seed(a=None, max_bytes=8):
+def create_seed(a: Optional[Union[int, str]] = None, max_bytes: int = 8) -> int:
     """Create a strong random seed. Otherwise, Python 2 would seed using
     the system time, which might be non-robust especially in the
     presence of concurrency.
 
     Args:
-        a (Optional[int, str]): None seeds from an operating system specific randomness source.
+        a: None seeds from an operating system specific randomness source.
         max_bytes: Maximum number of bytes to use in the seed.
     """
     # Adapted from https://svn.python.org/projects/python/tags/r32/Lib/random.py
     if a is None:
         a = _bigint_from_bytes(os.urandom(max_bytes))
     elif isinstance(a, str):
-        a = a.encode("utf8")
-        a += hashlib.sha512(a).digest()
-        a = _bigint_from_bytes(a[:max_bytes])
+        bt = a.encode("utf8")
+        bt += hashlib.sha512(bt).digest()
+        a = _bigint_from_bytes(bt[:max_bytes])
     elif isinstance(a, int):
-        a = a % 2 ** (8 * max_bytes)
+        a = int(a % 2 ** (8 * max_bytes))
     else:
         raise error.Error(f"Invalid type for seed: {type(a)} ({a})")
 
@@ -69,26 +69,26 @@ def create_seed(a=None, max_bytes=8):
 
 
 # TODO: don't hardcode sizeof_int here
-def _bigint_from_bytes(bytes):
+def _bigint_from_bytes(bt: bytes) -> int:
     sizeof_int = 4
-    padding = sizeof_int - len(bytes) % sizeof_int
-    bytes += b"\0" * padding
-    int_count = int(len(bytes) / sizeof_int)
-    unpacked = struct.unpack(f"{int_count}I", bytes)
+    padding = sizeof_int - len(bt) % sizeof_int
+    bt += b"\0" * padding
+    int_count = int(len(bt) / sizeof_int)
+    unpacked = struct.unpack(f"{int_count}I", bt)
     accum = 0
     for i, val in enumerate(unpacked):
         accum += 2 ** (sizeof_int * 8 * i) * val
     return accum
 
 
-def _int_list_from_bigint(bigint):
+def _int_list_from_bigint(bigint: int) -> List[int]:
     # Special case 0
     if bigint < 0:
         raise error.Error(f"Seed must be non-negative, not {bigint}")
     elif bigint == 0:
         return [0]
 
-    ints = []
+    ints: List[int] = []
     while bigint > 0:
         bigint, mod = divmod(bigint, 2 ** 32)
         ints.append(mod)
