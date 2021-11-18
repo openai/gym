@@ -1,11 +1,17 @@
+from __future__ import annotations
+
 from abc import abstractmethod
+from typing import TypeVar, Generic, Tuple
 
 import gym
-from gym import error
-from gym.utils import closer
+from gym import error, spaces
 
 
-class Env:
+ObsType = TypeVar("ObsType")
+ActType = TypeVar("ActType")
+
+
+class Env(Generic[ObsType, ActType]):
     """The main OpenAI Gym class. It encapsulates an environment with
     arbitrary behind-the-scenes dynamics. An environment can be
     partially or fully observed.
@@ -35,11 +41,11 @@ class Env:
     spec = None
 
     # Set these in ALL subclasses
-    action_space = None
-    observation_space = None
+    action_space: spaces.Space[ActType]
+    observation_space: spaces.Space[ObsType]
 
     @abstractmethod
-    def step(self, action):
+    def step(self, action: ActType) -> Tuple[ObsType, float, bool, dict]:
         """Run one timestep of the environment's dynamics. When end of
         episode is reached, you are responsible for calling `reset()`
         to reset this environment's state.
@@ -58,7 +64,7 @@ class Env:
         raise NotImplementedError
 
     @abstractmethod
-    def reset(self):
+    def reset(self) -> ObsType:
         """Resets the environment to an initial state and returns an initial
         observation.
 
@@ -139,7 +145,7 @@ class Env:
         return
 
     @property
-    def unwrapped(self):
+    def unwrapped(self) -> Env:
         """Completely unwrap this env.
 
         Returns:
@@ -175,7 +181,7 @@ class GoalEnv(Env):
 
     def reset(self):
         # Enforce that each GoalEnv uses a Goal-compatible observation space.
-        if not isinstance(self.observation_space, gym.spaces.Dict):
+        if not isinstance(self.observation_space, spaces.Dict):
             raise error.Error(
                 "GoalEnv requires an observation space of type gym.spaces.Dict"
             )
