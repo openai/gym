@@ -104,7 +104,6 @@ class APIError(Error):
             except:
                 http_body = (
                     "<Could not decode body as utf-8. "
-                    "Please report to gym@openai.com>"
                 )
 
         self._message = message

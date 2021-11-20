@@ -28,8 +28,9 @@ python gym/envs/box2d/car_racing.py
 Remember it's a powerful rear-wheel drive car -  don't press the accelerator
 and turn at the same time.
 
-Created by Oleg Klimov. Licensed on the same terms as the rest of OpenAI Gym.
+Created by Oleg Klimov.
 """
+
 import sys
 import math
 import numpy as np

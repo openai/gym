@@ -22,7 +22,7 @@ To play yourself, run:
 
 python examples/agents/keyboard_agent.py LunarLander-v2
 
-Created by Oleg Klimov. Licensed on the same terms as the rest of OpenAI Gym.
+Created by Oleg Klimov.
 """
 
 
