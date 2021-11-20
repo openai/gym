@@ -102,9 +102,7 @@ class APIError(Error):
             try:
                 http_body = http_body.decode("utf-8")
             except:
-                http_body = (
-                    "<Could not decode body as utf-8. "
-                )
+                http_body = "<Could not decode body as utf-8. "
 
         self._message = message
         self.http_body = http_body
