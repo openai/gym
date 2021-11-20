@@ -10,7 +10,7 @@ To install the base Gym library, use `pip install gym`.
 
 This does not include dependencies for all families of environments (there's a massive number, and some can be problematic to install on certain systems). You can install these dependencies for one family like `pip install gym[atari]` or use `pip install gym[all]` to install all dependencies.
 
-We support Python 3.7, 3.8 and 3.9 on Linux and macOS. We will accept PRs related to Windows, but do not officially support it.
+We support Python 3.7, 3.8, 3.9 and 3.10 on Linux and macOS. We will accept PRs related to Windows, but do not officially support it.
 
 ## API
 
@@ -41,7 +41,7 @@ Gym keeps strict versioning for reproducibility reasons. All environments end in
 
 ## Citation
 
-A whitepaper from when OpenAI Gym just came out is available https://arxiv.org/pdf/1606.01540, and can be cited with the following bibtex entry:
+A whitepaper from when Gym just came out is available https://arxiv.org/pdf/1606.01540, and can be cited with the following bibtex entry:
 
 ```
 @misc{1606.01540,
