@@ -19,8 +19,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-platform: [ "Linux", "Windows", "Darwin" ]
-        python-version: [ "3.6", "3.7", "3.8", "3.9" ]
+        python-platform: [ "Linux" ]
+        python-version: [ "3.7", "3.10" ]
       fail-fast: false
     env:
       PYRIGHT_VERSION: 1.1.183
