@@ -20,7 +20,7 @@ jobs:
     strategy:
       matrix:
         python-platform: [ "Linux" ]
-        python-version: [ "3.7", "3.10" ]
+        python-version: [ "3.7"]
       fail-fast: false
     env:
       PYRIGHT_VERSION: 1.1.183
