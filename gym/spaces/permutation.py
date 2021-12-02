@@ -18,7 +18,7 @@ class Permutation(Space):
             x = np.array(x)  # Promote list to array for contains check
         # if nvec is uint32 and space dtype is uint32, then 0 <= x < self.nvec guarantees that x
         # is within correct bounds for space dtype (even though x does not have to be unsigned)
-        is_contained = x.shape == self.shape and (0 <= x).all() and (x < self.nvec).all()
+        is_contained = (x.shape == self.shape) and (0 <= x).all() and (x < self.nvec).all()
         is_unique = (np.unique(x).size == len(x))
         return is_unique and is_contained
 
@@ -29,7 +29,7 @@ class Permutation(Space):
         return np.array(sample_n)
 
     def __repr__(self):
-        return f'Permutation({self.n, self.k})'
+        return f'Permutation({self.n}, {self.k})'
 
     def __len__(self):
         return len(self.nvec)
