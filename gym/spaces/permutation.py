@@ -36,4 +36,3 @@ class Permutation(Space):
 
     def __eq__(self, other):
         return isinstance(other, Permutation) and np.all(self.nvec == other.nvec)
-    
