@@ -1,3 +1,5 @@
+from typing import Optional
+
 import gym
 
 
@@ -11,6 +13,6 @@ class OrderEnforcing(gym.Wrapper):
         observation, reward, done, info = self.env.step(action)
         return observation, reward, done, info
 
-    def reset(self, **kwargs):
+    def reset(self, seed: Optional[int] = None, **kwargs):
         self._has_reset = True
-        return self.env.reset(**kwargs)
+        return self.env.reset(seed=seed, **kwargs)

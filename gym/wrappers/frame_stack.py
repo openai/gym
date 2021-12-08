@@ -1,4 +1,6 @@
 from collections import deque
+from typing import Optional
+
 import numpy as np
 from gym.spaces import Box
 from gym import ObservationWrapper
@@ -116,7 +118,7 @@ class FrameStack(ObservationWrapper):
         self.frames.append(observation)
         return self.observation(), reward, done, info
 
-    def reset(self, **kwargs):
-        observation = self.env.reset(**kwargs)
+    def reset(self, seed: Optional[int] = None, **kwargs):
+        observation = self.env.reset(seed=seed, **kwargs)
         [self.frames.append(observation) for _ in range(self.num_stack)]
         return self.observation()

@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 import gym
 import time
@@ -55,7 +57,8 @@ class UnittestSlowEnv(gym.Env):
         )
         self.action_space = Box(low=0.0, high=1.0, shape=(), dtype=np.float32)
 
-    def reset(self):
+    def reset(self, seed: Optional[int] = None):
+        super().reset(seed=seed)
         if self.slow_reset > 0:
             time.sleep(self.slow_reset)
         return self.observation_space.sample()
@@ -86,7 +89,8 @@ class CustomSpaceEnv(gym.Env):
         self.observation_space = CustomSpace()
         self.action_space = CustomSpace()
 
-    def reset(self):
+    def reset(self, seed: Optional[int] = None):
+        super().reset(seed=seed)
         return "reset"
 
     def step(self, action):
@@ -98,7 +102,7 @@ class CustomSpaceEnv(gym.Env):
 def make_env(env_name, seed):
     def _make():
         env = gym.make(env_name)
-        env.seed(seed)
+        env.reset(seed=seed)
         return env
 
     return _make
@@ -107,7 +111,7 @@ def make_env(env_name, seed):
 def make_slow_env(slow_reset, seed):
     def _make():
         env = UnittestSlowEnv(slow_reset=slow_reset)
-        env.seed(seed)
+        env.reset(seed=seed)
         return env
 
     return _make
@@ -116,7 +120,7 @@ def make_slow_env(slow_reset, seed):
 def make_custom_space_env(seed):
     def _make():
         env = CustomSpaceEnv()
-        env.seed(seed)
+        env.reset(seed=seed)
         return env
 
     return _make

@@ -1,5 +1,7 @@
 import os
 import copy
+from typing import Optional
+
 import numpy as np
 
 import gym
@@ -37,7 +39,6 @@ class RobotEnv(gym.GoalEnv):
             "video.frames_per_second": int(np.round(1.0 / self.dt)),
         }
 
-        self.seed()
         self._env_setup(initial_qpos=initial_qpos)
         self.initial_state = copy.deepcopy(self.sim.get_state())
 
@@ -65,10 +66,6 @@ class RobotEnv(gym.GoalEnv):
     # Env methods
     # ----------------------------
 
-    def seed(self, seed=None):
-        self.np_random, seed = seeding.np_random(seed)
-        return [seed]
-
     def step(self, action):
         if np.array(action).shape != self.action_space.shape:
             raise ValueError("Action dimension mismatch")
@@ -86,13 +83,13 @@ class RobotEnv(gym.GoalEnv):
         reward = self.compute_reward(obs["achieved_goal"], self.goal, info)
         return obs, reward, done, info
 
-    def reset(self):
+    def reset(self, seed: Optional[int] = None):
         # Attempt to reset the simulator. Since we randomize initial conditions, it
         # is possible to get into a state with numerical issues (e.g. due to penetration or
         # Gimbel lock) or we may not achieve an initial condition (e.g. an object is within the hand).
         # In this case, we just keep randomizing until we eventually achieve a valid initial
         # configuration.
-        super().reset()
+        super().reset(seed=seed)
         did_reset_sim = False
         while not did_reset_sim:
             did_reset_sim = self._reset_sim()

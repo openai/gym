@@ -17,17 +17,14 @@ def test_vector_env_equal(shared_memory):
         async_env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
         sync_env = SyncVectorEnv(env_fns)
 
-        async_env.seed(0)
-        sync_env.seed(0)
-
         assert async_env.num_envs == sync_env.num_envs
         assert async_env.observation_space == sync_env.observation_space
         assert async_env.single_observation_space == sync_env.single_observation_space
         assert async_env.action_space == sync_env.action_space
         assert async_env.single_action_space == sync_env.single_action_space
 
-        async_observations = async_env.reset()
-        sync_observations = sync_env.reset()
+        async_observations = async_env.reset(seed=0)
+        sync_observations = sync_env.reset(seed=0)
         assert np.all(async_observations == sync_observations)
 
         for _ in range(num_steps):

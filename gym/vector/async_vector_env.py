@@ -1,3 +1,5 @@
+from typing import Optional, Union, List
+
 import numpy as np
 import multiprocessing as mp
 import time
@@ -6,6 +8,7 @@ from enum import Enum
 from copy import deepcopy
 
 from gym import logger
+from gym.logger import warn
 from gym.vector.vector_env import VectorEnv
 from gym.error import (
     AlreadyPendingCallError,
@@ -187,13 +190,14 @@ class AsyncVectorEnv(VectorEnv):
         self._state = AsyncState.DEFAULT
         self._check_observation_spaces()
 
-    def seed(self, seeds=None):
+    def seed(self, seed=None):
+        super().seed(seed=seed)
         self._assert_is_running()
-        if seeds is None:
-            seeds = [None for _ in range(self.num_envs)]
-        if isinstance(seeds, int):
-            seeds = [seeds + i for i in range(self.num_envs)]
-        assert len(seeds) == self.num_envs
+        if seed is None:
+            seed = [None for _ in range(self.num_envs)]
+        if isinstance(seed, int):
+            seed = [seed + i for i in range(self.num_envs)]
+        assert len(seed) == self.num_envs
 
         if self._state != AsyncState.DEFAULT:
             raise AlreadyPendingCallError(
@@ -201,12 +205,12 @@ class AsyncVectorEnv(VectorEnv):
                 self._state.value,
             )
 
-        for pipe, seed in zip(self.parent_pipes, seeds):
+        for pipe, seed in zip(self.parent_pipes, seed):
             pipe.send(("seed", seed))
         _, successes = zip(*[pipe.recv() for pipe in self.parent_pipes])
         self._raise_if_errors(successes)
 
-    def reset_async(self):
+    def reset_async(self, seed: Optional[Union[int, List[int]]] = None):
         """Send the calls to :obj:`reset` to each sub-environment.
 
         Raises
@@ -221,24 +225,31 @@ class AsyncVectorEnv(VectorEnv):
             between.
         """
         self._assert_is_running()
+
+        if seed is None:
+            seed = [None for _ in range(self.num_envs)]
+        if isinstance(seed, int):
+            seed = [seed + i for i in range(self.num_envs)]
+        assert len(seed) == self.num_envs
+
         if self._state != AsyncState.DEFAULT:
             raise AlreadyPendingCallError(
                 f"Calling `reset_async` while waiting for a pending call to `{self._state.value}` to complete",
                 self._state.value,
             )
 
-        for pipe in self.parent_pipes:
-            pipe.send(("reset", None))
+        for pipe, single_seed in zip(self.parent_pipes, seed):
+            pipe.send(("reset", single_seed))
         self._state = AsyncState.WAITING_RESET
 
-    def reset_wait(self, timeout=None):
-        """Wait for the calls to :obj:`reset` in each sub-environment to finish.
-
+    def reset_wait(self, timeout=None, seed: Optional[int] = None):
+        """
         Parameters
         ----------
         timeout : int or float, optional
-            Number of seconds before the call to :meth:`reset_wait` times out.
-            If ``None``, the call to :meth:`reset_wait` never times out.
+            Number of seconds before the call to `reset_wait` times out. If
+            `None`, the call to `reset_wait` never times out.
+        seed: ignored
 
         Returns
         -------
@@ -486,7 +497,7 @@ def _worker(index, env_fn, pipe, parent_pipe, shared_memory, error_queue):
         while True:
             command, data = pipe.recv()
             if command == "reset":
-                observation = env.reset()
+                observation = env.reset(data)
                 pipe.send((observation, True))
             elif command == "step":
                 observation, reward, done, info = env.step(data)
@@ -524,7 +535,7 @@ def _worker_shared_memory(index, env_fn, pipe, parent_pipe, shared_memory, error
         while True:
             command, data = pipe.recv()
             if command == "reset":
-                observation = env.reset()
+                observation = env.reset(data)
                 write_to_shared_memory(
                     index, observation, shared_memory, observation_space
                 )

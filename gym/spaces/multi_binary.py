@@ -35,7 +35,7 @@ class MultiBinary(Space):
         super().__init__(input_n, np.int8, seed)
 
     def sample(self):
-        return self.np_random.randint(low=0, high=2, size=self.n, dtype=self.dtype)
+        return self.np_random.integers(low=0, high=2, size=self.n, dtype=self.dtype)
 
     def contains(self, x):
         if isinstance(x, list) or isinstance(x, tuple):

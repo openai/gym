@@ -1,8 +1,10 @@
 from abc import abstractmethod
+from typing import Optional
 
 import gym
 from gym import error
-from gym.utils import closer
+from gym.utils import closer, seeding
+from gym.logger import deprecation
 
 
 class Env:
@@ -38,6 +40,9 @@ class Env:
     action_space = None
     observation_space = None
 
+    # Created
+    np_random = None
+
     @abstractmethod
     def step(self, action):
         """Run one timestep of the environment's dynamics. When end of
@@ -58,7 +63,7 @@ class Env:
         raise NotImplementedError
 
     @abstractmethod
-    def reset(self):
+    def reset(self, seed: Optional[int] = None):
         """Resets the environment to an initial state and returns an initial
         observation.
 
@@ -71,7 +76,9 @@ class Env:
         Returns:
             observation (object): the initial observation.
         """
-        raise NotImplementedError
+        # Initialize the RNG if it's the first reset, or if the seed is manually passed
+        if seed is not None or self.np_random is None:
+            self.np_random, seed = seeding.np_random(seed)
 
     @abstractmethod
     def render(self, mode="human"):
@@ -136,7 +143,12 @@ class Env:
               'seed'. Often, the main seed equals the provided 'seed', but
               this won't be true if seed=None, for example.
         """
-        return
+        deprecation(
+            "Function `env.seed(seed)` is marked as deprecated and will be removed in the future. "
+            "Please use `env.reset(seed=seed) instead."
+        )
+        self.np_random, seed = seeding.np_random(seed)
+        return [seed]
 
     @property
     def unwrapped(self):
@@ -173,7 +185,8 @@ class GoalEnv(Env):
     actual observations of the environment as per usual.
     """
 
-    def reset(self):
+    def reset(self, seed: Optional[int] = None):
+        super().reset(seed=seed)
         # Enforce that each GoalEnv uses a Goal-compatible observation space.
         if not isinstance(self.observation_space, gym.spaces.Dict):
             raise error.Error(
@@ -286,8 +299,8 @@ class Wrapper(Env):
     def step(self, action):
         return self.env.step(action)
 
-    def reset(self, **kwargs):
-        return self.env.reset(**kwargs)
+    def reset(self, seed: Optional[int] = None, **kwargs):
+        return self.env.reset(seed=seed, **kwargs)
 
     def render(self, mode="human", **kwargs):
         return self.env.render(mode, **kwargs)
@@ -313,8 +326,8 @@ class Wrapper(Env):
 
 
 class ObservationWrapper(Wrapper):
-    def reset(self, **kwargs):
-        observation = self.env.reset(**kwargs)
+    def reset(self, seed: Optional[int] = None, **kwargs):
+        observation = self.env.reset(seed=seed, **kwargs)
         return self.observation(observation)
 
     def step(self, action):
@@ -327,8 +340,8 @@ class ObservationWrapper(Wrapper):
 
 
 class RewardWrapper(Wrapper):
-    def reset(self, **kwargs):
-        return self.env.reset(**kwargs)
+    def reset(self, seed: Optional[int] = None, **kwargs):
+        return self.env.reset(seed=seed, **kwargs)
 
     def step(self, action):
         observation, reward, done, info = self.env.step(action)
@@ -340,8 +353,8 @@ class RewardWrapper(Wrapper):
 
 
 class ActionWrapper(Wrapper):
-    def reset(self, **kwargs):
-        return self.env.reset(**kwargs)
+    def reset(self, seed: Optional[int] = None, **kwargs):
+        return self.env.reset(seed=seed, **kwargs)
 
     def step(self, action):
         return self.env.step(self.action(action))

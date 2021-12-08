@@ -11,11 +11,9 @@ def test_clip_action():
     wrapped_env = ClipAction(make_env())
 
     seed = 0
-    env.seed(seed)
-    wrapped_env.seed(seed)
 
-    env.reset()
-    wrapped_env.reset()
+    env.reset(seed=seed)
+    wrapped_env.reset(seed=seed)
 
     actions = [[0.4], [1.2], [-0.3], [0.0], [-2.5]]
     for action in actions:

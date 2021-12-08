@@ -1,5 +1,7 @@
 import time
 from collections import deque
+from typing import Optional
+
 import numpy as np
 import gym
 
@@ -16,8 +18,8 @@ class RecordEpisodeStatistics(gym.Wrapper):
         self.length_queue = deque(maxlen=deque_size)
         self.is_vector_env = getattr(env, "is_vector_env", False)
 
-    def reset(self, **kwargs):
-        observations = super().reset(**kwargs)
+    def reset(self, seed: Optional[int] = None, **kwargs):
+        observations = super().reset(seed=seed, **kwargs)
         self.episode_returns = np.zeros(self.num_envs, dtype=np.float32)
         self.episode_lengths = np.zeros(self.num_envs, dtype=np.int32)
         return observations
