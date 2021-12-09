@@ -96,7 +96,8 @@ class SyncVectorEnv(VectorEnv):
         self._dones[:] = False
         observations = []
         for env, single_seed in zip(self.envs, seed):
-            observation = env.reset(seed=single_seed)
+            single_kwargs = {**kwargs, "seed": single_seed}
+            observation = env.reset(**single_kwargs)
             observations.append(observation)
         self.observations = concatenate(
             observations, self.observations, self.single_observation_space
