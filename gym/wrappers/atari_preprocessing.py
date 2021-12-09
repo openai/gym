@@ -129,7 +129,7 @@ class AtariPreprocessing(gym.Wrapper):
                     self.ale.getScreenRGB(self.obs_buffer[0])
         return self._get_obs(), R, done, info
 
-    def reset(self, seed: Optional[int] = None, **kwargs):
+    def reset(self, *, seed: Optional[int] = None, **kwargs):
         # NoopReset
         self.env.reset(seed=seed, **kwargs)
         noops = (

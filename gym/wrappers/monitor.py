@@ -51,7 +51,7 @@ class Monitor(Wrapper):
 
         return observation, reward, done, info
 
-    def reset(self, seed: Optional[int] = None, **kwargs):
+    def reset(self, *, seed: Optional[int] = None, **kwargs):
         self._before_reset()
         observation = self.env.reset(seed=seed, **kwargs)
         self._after_reset(observation)
