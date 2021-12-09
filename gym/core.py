@@ -67,11 +67,15 @@ class Env:
         """Resets the environment to an initial state and returns an initial
         observation.
 
-        Note that this function should not reset the environment's random
-        number generator(s); random variables in the environment's state should
-        be sampled independently between multiple calls to `reset()`. In other
-        words, each call of `reset()` should yield an environment suitable for
-        a new episode, independent of previous episodes.
+        Note that unless an explicit seed is provided, this function
+        would not reset the environment's random number generator(s).
+        Random variables in the environment's state should be sampled
+        independently between multiple calls to `reset()`. In other
+        words, each call of `reset()` should yield an environment
+        suitable for a new episode, independent of previous episodes.
+
+        Args:
+            seed (int): the seed for the random number generator(s)
 
         Returns:
             observation (object): the initial observation.
