@@ -83,7 +83,7 @@ class RobotEnv(gym.GoalEnv):
         reward = self.compute_reward(obs["achieved_goal"], self.goal, info)
         return obs, reward, done, info
 
-    def reset(self, seed: Optional[int] = None):
+    def reset(self, *, seed: Optional[int] = None, **kwargs):
         # Attempt to reset the simulator. Since we randomize initial conditions, it
         # is possible to get into a state with numerical issues (e.g. due to penetration or
         # Gimbel lock) or we may not achieve an initial condition (e.g. an object is within the hand).

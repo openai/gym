@@ -63,7 +63,7 @@ class Env:
         raise NotImplementedError
 
     @abstractmethod
-    def reset(self, seed: Optional[int] = None):
+    def reset(self, *, seed: Optional[int] = None, **kwargs):
         """Resets the environment to an initial state and returns an initial
         observation.
 
@@ -185,7 +185,7 @@ class GoalEnv(Env):
     actual observations of the environment as per usual.
     """
 
-    def reset(self, seed: Optional[int] = None):
+    def reset(self, *, seed: Optional[int] = None, **kwargs):
         super().reset(seed=seed)
         # Enforce that each GoalEnv uses a Goal-compatible observation space.
         if not isinstance(self.observation_space, gym.spaces.Dict):

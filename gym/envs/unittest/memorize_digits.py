@@ -84,7 +84,7 @@ class MemorizeDigits(gym.Env):
             ]
         ).astype("uint8")
 
-    def reset(self, seed: Optional[int] = None):
+    def reset(self, *, seed: Optional[int] = None, **kwargs):
         super().reset(seed=seed)
         self.digit_x = self.np_random.integers(low=FIELD_W // 5, high=FIELD_W // 5 * 4)
         self.digit_y = self.np_random.integers(low=FIELD_H // 5, high=FIELD_H // 5 * 4)
