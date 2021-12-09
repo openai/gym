@@ -97,7 +97,7 @@ class VectorEnv(gym.Env):
 
     def close_extras(self, **kwargs):
         r"""Clean up the extra resources e.g. beyond what's in this base class."""
-        raise NotImplementedError()
+        pass
 
     def close(self, **kwargs):
         r"""Close all sub-environments and release resources.
@@ -142,7 +142,7 @@ class VectorEnv(gym.Env):
 
     def __del__(self):
         if not getattr(self, "closed", True):
-            self.close(terminate=True)
+            self.close()
 
     def __repr__(self):
         if self.spec is None:
