@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
+import pytest
+
 import gym
-from gym import error, envs
+from gym import envs, error
 from gym.envs import registration
 from gym.envs.classic_control import cartpole
 from gym.envs.registration import EnvSpec, EnvSpecTree
@@ -27,6 +29,21 @@ def test_make():
     env = envs.make("CartPole-v0")
     assert env.spec.id == "CartPole-v0"
     assert isinstance(env.unwrapped, cartpole.CartPoleEnv)
+
+
+@pytest.mark.parametrize(
+    "env_id_input, env_id_suggested",
+    [
+        ("cartpole-v0", "CartPole-v0"),
+        ("handmanipulateblockrotatez-v0", "HandManipulateBlockRotateZ-v0"),
+        ("humanoidstandup-v2", "HumanoidStandup-v2"),
+    ],
+)
+def test_wrong_capitalized_env(env_id_input, env_id_suggested):
+    with pytest.raises(
+        error.UnregisteredEnv, match=f"did you mean {env_id_suggested} ?"
+    ):
+        envs.make(env_id_input)
 
 
 def test_make_with_kwargs():

@@ -382,7 +382,17 @@ class EnvRegistry:
             # If the environment hasn't been relocated we'll construct a generic error message
             else:
                 name_not_found_error_msg = f"Environment `{id}` doesn't exist"
-                if namespace is not None:
+                # Try to find lower case names that could match
+                lowercase_name_envs = [
+                    item.lower() if isinstance(item, str) else item
+                    for item in self.env_specs.tree[namespace]
+                ]
+                if name.lower() in lowercase_name_envs:
+                    matching_name = tuple(self.env_specs.tree[namespace])[
+                        lowercase_name_envs.index(name.lower())
+                    ]
+                    name_not_found_error_msg += f", did you mean {env_id_from_parts(namespace, matching_name, version)} ?"
+                elif namespace is not None:
                     name_not_found_error_msg += f" in namespace `{namespace}`."
                 else:
                     name_not_found_error_msg += "."
