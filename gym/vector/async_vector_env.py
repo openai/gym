@@ -211,7 +211,7 @@ class AsyncVectorEnv(VectorEnv):
         _, successes = zip(*[pipe.recv() for pipe in self.parent_pipes])
         self._raise_if_errors(successes)
 
-    def reset_async(self, seed: Optional[Union[int, List[int]]] = None):
+    def reset_async(self, *, seed: Optional[Union[int, List[int]]] = None):
         """Send the calls to :obj:`reset` to each sub-environment.
 
         Raises
@@ -243,7 +243,7 @@ class AsyncVectorEnv(VectorEnv):
             pipe.send(("reset", single_seed))
         self._state = AsyncState.WAITING_RESET
 
-    def reset_wait(self, timeout=None, seed: Optional[int] = None):
+    def reset_wait(self, timeout=None, *, seed: Optional[int] = None):
         """
         Parameters
         ----------
@@ -510,7 +510,7 @@ def _worker(index, env_fn, pipe, parent_pipe, shared_memory, error_queue):
         while True:
             command, data = pipe.recv()
             if command == "reset":
-                observation = env.reset(data)
+                observation = env.reset(seed=data)
                 pipe.send((observation, True))
             elif command == "step":
                 observation, reward, done, info = env.step(data)
@@ -553,7 +553,7 @@ def _worker_shared_memory(index, env_fn, pipe, parent_pipe, shared_memory, error
         while True:
             command, data = pipe.recv()
             if command == "reset":
-                observation = env.reset(data)
+                observation = env.reset(seed=data)
                 write_to_shared_memory(
                     index, observation, shared_memory, observation_space
                 )

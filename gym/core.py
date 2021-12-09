@@ -63,7 +63,7 @@ class Env:
         raise NotImplementedError
 
     @abstractmethod
-    def reset(self, seed: Optional[int] = None):
+    def reset(self, *, seed: Optional[int] = None):
         """Resets the environment to an initial state and returns an initial
         observation.
 
@@ -185,7 +185,7 @@ class GoalEnv(Env):
     actual observations of the environment as per usual.
     """
 
-    def reset(self, seed: Optional[int] = None):
+    def reset(self, *, seed: Optional[int] = None):
         super().reset(seed=seed)
         # Enforce that each GoalEnv uses a Goal-compatible observation space.
         if not isinstance(self.observation_space, gym.spaces.Dict):
@@ -299,7 +299,7 @@ class Wrapper(Env):
     def step(self, action):
         return self.env.step(action)
 
-    def reset(self, seed: Optional[int] = None, **kwargs):
+    def reset(self, *, seed: Optional[int] = None, **kwargs):
         return self.env.reset(seed=seed, **kwargs)
 
     def render(self, mode="human", **kwargs):
@@ -326,7 +326,7 @@ class Wrapper(Env):
 
 
 class ObservationWrapper(Wrapper):
-    def reset(self, seed: Optional[int] = None, **kwargs):
+    def reset(self, *, seed: Optional[int] = None, **kwargs):
         observation = self.env.reset(seed=seed, **kwargs)
         return self.observation(observation)
 
@@ -340,7 +340,7 @@ class ObservationWrapper(Wrapper):
 
 
 class RewardWrapper(Wrapper):
-    def reset(self, seed: Optional[int] = None, **kwargs):
+    def reset(self, *, seed: Optional[int] = None, **kwargs):
         return self.env.reset(seed=seed, **kwargs)
 
     def step(self, action):
@@ -353,7 +353,7 @@ class RewardWrapper(Wrapper):
 
 
 class ActionWrapper(Wrapper):
-    def reset(self, seed: Optional[int] = None, **kwargs):
+    def reset(self, *, seed: Optional[int] = None, **kwargs):
         return self.env.reset(seed=seed, **kwargs)
 
     def step(self, action):

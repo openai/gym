@@ -18,7 +18,7 @@ class ActionDictTestEnv(gym.Env):
         done = True
         return observation, reward, done
 
-    def reset(self, seed: Optional[int] = None):
+    def reset(self, *, seed: Optional[int] = None):
         super().reset(seed=seed)
         return np.array([1.0, 1.5, 0.5])
 

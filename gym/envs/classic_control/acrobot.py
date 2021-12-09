@@ -97,7 +97,7 @@ class AcrobotEnv(core.Env):
         self.action_space = spaces.Discrete(3)
         self.state = None
 
-    def reset(self, seed: Optional[int] = None):
+    def reset(self, *, seed: Optional[int] = None):
         super().reset(seed=seed)
         self.state = self.np_random.uniform(low=-0.1, high=0.1, size=(4,)).astype(
             np.float32

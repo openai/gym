@@ -86,7 +86,7 @@ class SyncVectorEnv(VectorEnv):
         for env, single_seed in zip(self.envs, seed):
             env.seed(single_seed)
 
-    def reset_wait(self, seed: Optional[Union[int, List[int]]] = None, **kwargs):
+    def reset_wait(self, *, seed: Optional[Union[int, List[int]]] = None, **kwargs):
         if seed is None:
             seed = [None for _ in range(self.num_envs)]
         if isinstance(seed, int):

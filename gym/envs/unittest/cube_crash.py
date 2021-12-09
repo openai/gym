@@ -72,7 +72,7 @@ class CubeCrash(gym.Env):
             ]
         ).astype("uint8")
 
-    def reset(self, seed: Optional[int] = None):
+    def reset(self, *, seed: Optional[int] = None):
         super().reset(seed=seed)
         self.cube_x = self.np_random.integers(low=3, high=FIELD_W - 3)
         self.cube_y = self.np_random.integers(low=3, high=FIELD_H // 6)

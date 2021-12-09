@@ -18,7 +18,7 @@ class UnittestEnv(core.Env):
     observation_space = spaces.Box(low=0, high=255, shape=(64, 64, 3), dtype=np.uint8)
     action_space = spaces.Discrete(3)
 
-    def reset(self, seed: Optional[int] = None):
+    def reset(self, *, seed: Optional[int] = None):
         super().reset(seed=seed)
         return self.observation_space.sample()  # Dummy observation
 
@@ -34,7 +34,7 @@ class UnknownSpacesEnv(core.Env):
     on external resources), it is not encouraged.
     """
 
-    def reset(self, seed: Optional[int] = None):
+    def reset(self, *, seed: Optional[int] = None):
         super().reset(seed=seed)
         self.observation_space = spaces.Box(
             low=0, high=255, shape=(64, 64, 3), dtype=np.uint8
