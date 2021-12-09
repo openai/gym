@@ -73,6 +73,12 @@ class UnittestSlowEnv(gym.Env):
 class CustomSpace(gym.Space):
     """Minimal custom observation space."""
 
+    def sample(self):
+        return "sample"
+
+    def contains(self, x):
+        return isinstance(x, str)
+
     def __eq__(self, other):
         return isinstance(other, CustomSpace)
 
