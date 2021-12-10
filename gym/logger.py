@@ -11,7 +11,7 @@ ERROR = 40
 DISABLED = 50
 
 min_level = 30
-# delete this comment
+
 
 def set_level(level: int) -> None:
     """
