@@ -11,7 +11,6 @@
 
 # Virtualenv
 /env
-/venv
 
 # Python egg metadata, regenerated from source files by setuptools.
 /*.egg-info
@@ -38,9 +37,3 @@ tutorial/*.html
 # PyCharm project files
 .idea
 vizdoom.ini
-
-# my test files
-mytests/
-
-# vim
-.vim/

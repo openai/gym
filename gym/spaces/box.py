@@ -50,15 +50,6 @@ class Box(Space):
                 "shape must be provided or inferred from the shapes of low or high"
             )
 
-        # handle infinite bounds
-        # -2 is a less than elegant solution to circumvent
-        # inclusive bounds when sampling
-        if high == np.inf:
-            high = 2 ** (dtype(0).nbytes * 8 - 1) - 2
-
-        if low == -np.inf:
-            low = -(2 ** (dtype(0).nbytes * 8 - 1) - 2)
-
         if np.isscalar(low):
             low = np.full(shape, low, dtype=dtype)
 
