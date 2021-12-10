@@ -26,17 +26,18 @@ gym.register(
 
 
 def test_make():
-    env = envs.make("CartPole-v0")
-    assert env.spec.id == "CartPole-v0"
+    env = envs.make("CartPole-v1")
+    assert env.spec.id == "CartPole-v1"
     assert isinstance(env.unwrapped, cartpole.CartPoleEnv)
 
 
 @pytest.mark.parametrize(
     "env_id_input, env_id_suggested",
     [
-        ("cartpole-v0", "CartPole-v0"),
-        ("handmanipulateblockrotatez-v0", "HandManipulateBlockRotateZ-v0"),
-        ("humanoidstandup-v2", "HumanoidStandup-v2"),
+        ("cartpole-v1", "CartPole-v1"),
+        ("blackjack-v1", "Blackjack-v1"),
+        ("mountaincarcontinuous-v0", "MountainCarContinuous-v0"),
+        ("taxi-v3", "Taxi-v3"),
     ],
 )
 def test_wrong_capitalized_env(env_id_input, env_id_suggested):
@@ -106,7 +107,7 @@ def test_missing_lookup():
 def test_malformed_lookup():
     registry = registration.EnvRegistry()
     try:
-        registry.spec(u"“Breakout-v0”")
+        registry.spec("“Breakout-v0”")
     except error.Error as e:
         assert "malformed environment ID" in "{}".format(
             e
