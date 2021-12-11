@@ -11,6 +11,7 @@ from gym.utils import seeding
 import numpy as np
 
 
+
 class CartPoleEnv(gym.Env):
     """
     Description:
@@ -58,6 +59,8 @@ class CartPoleEnv(gym.Env):
         195.0 over 100 consecutive trials.
     """
 
+    
+    
     metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 50}
 
     def __init__(self):

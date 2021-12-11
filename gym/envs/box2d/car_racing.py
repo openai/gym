@@ -44,6 +44,8 @@ from gym import spaces
 from gym.envs.box2d.car_dynamics import Car
 from gym.utils import seeding, EzPickle
 
+#env = gym.make('CartPole-v1')
+
 import pyglet
 
 pyglet.options["debug_gl"] = False
