@@ -50,6 +50,7 @@
 
 * `gym-foo/gym_foo/envs/foo_env.py` should look something like:
   ```python
+  from typing import Optional
   import gym
   from gym import error, spaces, utils
   from gym.utils import seeding
@@ -61,7 +62,8 @@
       ...
     def step(self, action):
       ...
-    def reset(self):
+    def reset(self, seed: Optional[int] = None):
+      super().reset(seed=seed)
       ...
     def render(self, mode='human'):
       ...

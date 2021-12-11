@@ -370,7 +370,7 @@ def test_seed_subspace_incorrelated(space):
 
     space.seed(0)
     states = [
-        convert_sample_hashable(subspace.np_random.get_state())
+        convert_sample_hashable(subspace.np_random.bit_generator.state)
         for subspace in subspaces
     ]
 

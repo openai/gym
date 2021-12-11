@@ -21,11 +21,9 @@ def test_gray_scale_observation(env_id, keep_dim):
     assert rgb_env.observation_space.shape[-1] == 3
 
     seed = 0
-    gray_env.seed(seed)
-    wrapped_env.seed(seed)
 
-    gray_obs = gray_env.reset()
-    wrapped_obs = wrapped_env.reset()
+    gray_obs = gray_env.reset(seed=seed)
+    wrapped_obs = wrapped_env.reset(seed=seed)
 
     if keep_dim:
         assert wrapped_env.observation_space.shape[-1] == 1

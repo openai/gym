@@ -10,11 +10,8 @@ def verify_environments_match(
     old_environment = envs.make(old_environment_id)
     new_environment = envs.make(new_environment_id)
 
-    old_environment.seed(seed)
-    new_environment.seed(seed)
-
-    old_reset_observation = old_environment.reset()
-    new_reset_observation = new_environment.reset()
+    old_reset_observation = old_environment.reset(seed=seed)
+    new_reset_observation = new_environment.reset(seed=seed)
 
     np.testing.assert_allclose(old_reset_observation, new_reset_observation)
 

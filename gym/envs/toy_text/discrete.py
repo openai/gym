@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 
 from gym import Env, spaces
@@ -11,7 +13,7 @@ def categorical_sample(prob_n, np_random):
     """
     prob_n = np.asarray(prob_n)
     csprob_n = np.cumsum(prob_n)
-    return (csprob_n > np_random.rand()).argmax()
+    return (csprob_n > np_random.random()).argmax()
 
 
 class DiscreteEnv(Env):
@@ -40,14 +42,8 @@ class DiscreteEnv(Env):
         self.action_space = spaces.Discrete(self.nA)
         self.observation_space = spaces.Discrete(self.nS)
 
-        self.seed()
-        self.s = categorical_sample(self.isd, self.np_random)
-
-    def seed(self, seed=None):
-        self.np_random, seed = seeding.np_random(seed)
-        return [seed]
-
-    def reset(self):
+    def reset(self, seed: Optional[int] = None):
+        super().reset(seed=seed)
         self.s = categorical_sample(self.isd, self.np_random)
         self.lastaction = None
         return int(self.s)

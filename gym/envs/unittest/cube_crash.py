@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 import gym
 from gym import spaces
@@ -52,7 +54,6 @@ class CubeCrash(gym.Env):
     use_random_colors = False  # Makes env too hard
 
     def __init__(self):
-        self.seed()
         self.viewer = None
 
         self.observation_space = spaces.Box(
@@ -62,23 +63,20 @@ class CubeCrash(gym.Env):
 
         self.reset()
 
-    def seed(self, seed=None):
-        self.np_random, seed = seeding.np_random(seed)
-        return [seed]
-
     def random_color(self):
         return np.array(
             [
-                self.np_random.randint(low=0, high=255),
-                self.np_random.randint(low=0, high=255),
-                self.np_random.randint(low=0, high=255),
+                self.np_random.integers(low=0, high=255),
+                self.np_random.integers(low=0, high=255),
+                self.np_random.integers(low=0, high=255),
             ]
         ).astype("uint8")
 
-    def reset(self):
-        self.cube_x = self.np_random.randint(low=3, high=FIELD_W - 3)
-        self.cube_y = self.np_random.randint(low=3, high=FIELD_H // 6)
-        self.hole_x = self.np_random.randint(low=HOLE_WIDTH, high=FIELD_W - HOLE_WIDTH)
+    def reset(self, seed: Optional[int] = None):
+        super().reset(seed=seed)
+        self.cube_x = self.np_random.integers(low=3, high=FIELD_W - 3)
+        self.cube_y = self.np_random.integers(low=3, high=FIELD_H // 6)
+        self.hole_x = self.np_random.integers(low=HOLE_WIDTH, high=FIELD_W - HOLE_WIDTH)
         self.bg_color = self.random_color() if self.use_random_colors else color_black
         self.potential = None
         self.step_n = 0
@@ -95,6 +93,7 @@ class CubeCrash(gym.Env):
             ):
                 continue
             break
+
         return self.step(0)[0]
 
     def step(self, action):

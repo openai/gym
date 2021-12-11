@@ -1,9 +1,12 @@
+from typing import List, Union, Optional
+
 import numpy as np
 from copy import deepcopy
 
 from gym import logger
+from gym.logger import warn
 from gym.vector.vector_env import VectorEnv
-from gym.vector.utils import concatenate, create_empty_array
+from gym.vector.utils import concatenate, iterate, create_empty_array
 
 __all__ = ["SyncVectorEnv"]
 
@@ -64,7 +67,7 @@ class SyncVectorEnv(VectorEnv):
             action_space=action_space,
         )
 
-        self._check_observation_spaces()
+        self._check_spaces()
         self.observations = create_empty_array(
             self.single_observation_space, n=self.num_envs, fn=np.zeros
         )
@@ -72,21 +75,28 @@ class SyncVectorEnv(VectorEnv):
         self._dones = np.zeros((self.num_envs,), dtype=np.bool_)
         self._actions = None
 
-    def seed(self, seeds=None):
-        if seeds is None:
-            seeds = [None for _ in range(self.num_envs)]
-        if isinstance(seeds, int):
-            seeds = [seeds + i for i in range(self.num_envs)]
-        assert len(seeds) == self.num_envs
+    def seed(self, seed=None):
+        super().seed(seed=seed)
+        if seed is None:
+            seed = [None for _ in range(self.num_envs)]
+        if isinstance(seed, int):
+            seed = [seed + i for i in range(self.num_envs)]
+        assert len(seed) == self.num_envs
 
-        for env, seed in zip(self.envs, seeds):
-            env.seed(seed)
+        for env, single_seed in zip(self.envs, seed):
+            env.seed(single_seed)
 
-    def reset_wait(self):
+    def reset_wait(self, seed: Optional[Union[int, List[int]]] = None, **kwargs):
+        if seed is None:
+            seed = [None for _ in range(self.num_envs)]
+        if isinstance(seed, int):
+            seed = [seed + i for i in range(self.num_envs)]
+        assert len(seed) == self.num_envs
+
         self._dones[:] = False
         observations = []
-        for env in self.envs:
-            observation = env.reset()
+        for env, single_seed in zip(self.envs, seed):
+            observation = env.reset(seed=single_seed)
             observations.append(observation)
         self.observations = concatenate(
             observations, self.observations, self.single_observation_space
@@ -95,7 +105,7 @@ class SyncVectorEnv(VectorEnv):
         return deepcopy(self.observations) if self.copy else self.observations
 
     def step_async(self, actions):
-        self._actions = actions
+        self._actions = iterate(self.action_space, actions)
 
     def step_wait(self):
         observations, infos = [], []
@@ -121,15 +131,21 @@ class SyncVectorEnv(VectorEnv):
         """Close the environments."""
         [env.close() for env in self.envs]
 
-    def _check_observation_spaces(self):
+    def _check_spaces(self):
         for env in self.envs:
             if not (env.observation_space == self.single_observation_space):
-                break
+                raise RuntimeError(
+                    "Some environments have an observation space different from "
+                    f"`{self.single_observation_space}`. In order to batch observations, "
+                    "the observation spaces from all environments must be equal."
+                )
+
+            if not (env.action_space == self.single_action_space):
+                raise RuntimeError(
+                    "Some environments have an action space different from "
+                    f"`{self.single_action_space}`. In order to batch actions, the "
+                    "action spaces from all environments must be equal."
+                )
+
         else:
             return True
-        raise RuntimeError(
-            "Some environments have an observation space "
-            "different from `{}`. In order to batch observations, the "
-            "observation spaces from all environments must be "
-            "equal.".format(self.single_observation_space)
-        )

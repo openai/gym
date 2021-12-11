@@ -14,6 +14,7 @@ permalink: https://perma.cc/6Z2N-PFWC
 """
 
 import math
+from typing import Optional
 
 import numpy as np
 
@@ -83,12 +84,6 @@ class Continuous_MountainCarEnv(gym.Env):
             low=self.low_state, high=self.high_state, dtype=np.float32
         )
 
-        self.seed()
-
-    def seed(self, seed=None):
-        self.np_random, seed = seeding.np_random(seed)
-        return [seed]
-
     def step(self, action):
 
         position = self.state[0]
@@ -119,7 +114,8 @@ class Continuous_MountainCarEnv(gym.Env):
         self.state = np.array([position, velocity], dtype=np.float32)
         return self.state, reward, done, {}
 
-    def reset(self):
+    def reset(self, seed: Optional[int] = None):
+        super().reset(seed=seed)
         self.state = np.array([self.np_random.uniform(low=-0.6, high=-0.4), 0])
         return np.array(self.state, dtype=np.float32)
 

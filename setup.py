@@ -17,11 +17,11 @@ extras = {
     "mujoco": ["mujoco_py>=1.50, <2.0"],
     "robotics": ["mujoco_py>=1.50, <2.0"],
     "toy_text": ["scipy>=1.4.1"],
-    "other": ["lz4>=3.1.0", "opencv-python>=3."],
+    "other": ["lz4>=3.1.0", "opencv-python>=3.0"],
 }
 
 # Meta dependency groups.
-nomujoco_blacklist = set(["mujoco", "robotics", "accept-rom-license"])
+nomujoco_blacklist = set(["mujoco", "robotics", "accept-rom-license", "atari"])
 nomujoco_groups = set(extras.keys()) - nomujoco_blacklist
 
 extras["nomujoco"] = list(
