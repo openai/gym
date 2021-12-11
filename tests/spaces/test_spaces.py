@@ -450,15 +450,20 @@ def test_space_legacy_state_pickling():
     assert space.dtype == legacy_state["dtype"]
 
 
-# @pytest.mark.parametrize(
-#     "space",
-#     [
-#     Box(low=0, high=np.inf, shape=(2, ), dtype=np.float32),
-#     # Box(low=0, high=np.inf, shape=(2, ), dtype=np.int64),
-#     # Box(low=-np.inf, high=0, shape=(2, ), dtype=np.float64),
-#     # Box(low=-np.inf, high=0, shape=(2, ), dtype=np.int64),
-#     ],
-# )
-# def test_infinite_space(space):
-#     assert space.high > space.low, 'High bounnd not higher than low bound'
-#     assert space.contains()
+@pytest.mark.parametrize(
+    "space",
+    [
+    Box(low=0, high=np.inf, shape=(2, ), dtype=np.int64),
+    Box(low=0, high=np.inf, shape=(2, ), dtype=np.float64),
+    Box(low=-np.inf, high=0, shape=(2, ), dtype=np.float64),
+    Box(low=-np.inf, high=0, shape=(2, ), dtype=np.float64),
+    Box(low=0, high=np.inf, shape=(2, ), dtype=np.int32),
+    Box(low=0, high=np.inf, shape=(2, ), dtype=np.float32),
+    Box(low=-np.inf, high=0, shape=(2, ), dtype=np.float32),
+    Box(low=-np.inf, high=0, shape=(2, ), dtype=np.float32),
+    ],
+)
+def test_infinite_space(space):
+    assert np.all(space.high > space.low), 'High bounnd not higher than low bound'
+    # fundamentally, it's hard to say whether all samples will lie in the space
+    assert space.contains(space.sample())

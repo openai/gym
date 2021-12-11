@@ -50,25 +50,24 @@ class Box(Space):
                 "shape must be provided or inferred from the shapes of low or high"
             )
 
-        # handle infinite bounds and cast at the same time
+        # for some reason, -inf has vastly different values from inf in float mode
+        # so resort to this method to enforce bounds for tolerance check
+        def _get_inf(dtype):
+            temp = np.ones((1, )).astype(dtype)
+            return 2 ** (temp[0].nbytes * 8 - 1) - 2
+
+        # handle infinite bounds and broadcast at the same time
         if np.isscalar(low):
-            # low = -(2 ** (dtype(0).nbytes * 8 - 1) - 2) if np.isinf(low) else low
+            low = -_get_inf(dtype) if np.isinf(low) else low
             low = np.full(shape, low, dtype=dtype)
-        # else:
-            # if self.dtype.kind == "f":
-                # low[np.isinf(low)] = np.array([np.finfo(self.dtype).min + 1])
-            # else:
-                # low[np.isinf(low)] = np.array([np.iinfo(self.dtype).min + 2])
+        else:
+            low[np.isinf(low)] = -_get_inf(dtype)
 
         if np.isscalar(high):
-            # high = +(2 ** (dtype(0).nbytes * 8 - 1) - 2) if np.isinf(high) else high
+            high = +(_get_inf(dtype)) if np.isinf(high) else high
             high = np.full(shape, high, dtype=dtype)
-        # else:
-            # if self.dtype.kind == "f":
-                # high[np.isinf(high)] = np.array([-np.finfo(self.dtype).max + 1])
-            # else:
-                # high[np.isinf(high)] = np.array([np.iinfo(self.dtype).max + 2])
-
+        else:
+            high[np.isinf(high)] = +_get_inf(dtype)
 
         self._shape = shape
         self.low = low
