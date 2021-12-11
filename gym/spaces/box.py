@@ -50,20 +50,25 @@ class Box(Space):
                 "shape must be provided or inferred from the shapes of low or high"
             )
 
-        # handle infinite bounds
-        # -2 is a less than elegant solution to circumvent
-        # inclusive bounds when sampling
-        if high == np.inf:
-            high = 2 ** (dtype(0).nbytes * 8 - 1) - 2
-
-        if low == -np.inf:
-            low = -(2 ** (dtype(0).nbytes * 8 - 1) - 2)
-
+        # handle infinite bounds and cast at the same time
         if np.isscalar(low):
+            # low = -(2 ** (dtype(0).nbytes * 8 - 1) - 2) if np.isinf(low) else low
             low = np.full(shape, low, dtype=dtype)
+        # else:
+            # if self.dtype.kind == "f":
+                # low[np.isinf(low)] = np.array([np.finfo(self.dtype).min + 1])
+            # else:
+                # low[np.isinf(low)] = np.array([np.iinfo(self.dtype).min + 2])
 
         if np.isscalar(high):
+            # high = +(2 ** (dtype(0).nbytes * 8 - 1) - 2) if np.isinf(high) else high
             high = np.full(shape, high, dtype=dtype)
+        # else:
+            # if self.dtype.kind == "f":
+                # high[np.isinf(high)] = np.array([-np.finfo(self.dtype).max + 1])
+            # else:
+                # high[np.isinf(high)] = np.array([np.iinfo(self.dtype).max + 2])
+
 
         self._shape = shape
         self.low = low

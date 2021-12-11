@@ -448,3 +448,17 @@ def test_space_legacy_state_pickling():
     assert space._np_random == legacy_state["np_random"]
     assert space.n == 3
     assert space.dtype == legacy_state["dtype"]
+
+
+# @pytest.mark.parametrize(
+#     "space",
+#     [
+#     Box(low=0, high=np.inf, shape=(2, ), dtype=np.float32),
+#     # Box(low=0, high=np.inf, shape=(2, ), dtype=np.int64),
+#     # Box(low=-np.inf, high=0, shape=(2, ), dtype=np.float64),
+#     # Box(low=-np.inf, high=0, shape=(2, ), dtype=np.int64),
+#     ],
+# )
+# def test_infinite_space(space):
+#     assert space.high > space.low, 'High bounnd not higher than low bound'
+#     assert space.contains()
