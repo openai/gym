@@ -53,7 +53,7 @@ class Box(Space):
         # for some reason, -inf has vastly different values from inf in float mode
         # so resort to this method to enforce bounds for tolerance check
         def _get_inf(dtype):
-            temp = np.ones((1, )).astype(dtype)
+            temp = np.ones((1,)).astype(dtype)
             return 2 ** (temp[0].nbytes * 8 - 1) - 2
 
         # handle infinite bounds and broadcast at the same time
@@ -61,13 +61,13 @@ class Box(Space):
             low = -_get_inf(dtype) if np.isinf(low) else low
             low = np.full(shape, low, dtype=dtype)
         else:
-            low[np.isinf(low)] = -_get_inf(dtype)
+            low[np.isinf(low)] = np.array([-_get_inf(dtype)])
 
         if np.isscalar(high):
             high = +_get_inf(dtype) if np.isinf(high) else high
             high = np.full(shape, high, dtype=dtype)
         else:
-            high[np.isinf(high)] = +_get_inf(dtype)
+            high[np.isinf(high)] = np.array([+_get_inf(dtype)])
 
         self._shape = shape
         self.low = low
