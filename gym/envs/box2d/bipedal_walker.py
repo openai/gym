@@ -119,9 +119,7 @@ class ContactDetector(contactListener):
 class BipedalWalker(gym.Env, EzPickle):
     metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": FPS}
 
-    hardcore = False
-
-    def __init__(self):
+    def __init__(self, hardcore=False):
         EzPickle.__init__(self)
         self.viewer = None
 
@@ -130,6 +128,8 @@ class BipedalWalker(gym.Env, EzPickle):
         self.hull = None
 
         self.prev_shaping = None
+
+        self.hardcore = hardcore
 
         self.fd_polygon = fixtureDef(
             shape=polygonShape(vertices=[(0, 0), (1, 0), (1, -1), (0, -1)]),
@@ -564,10 +564,6 @@ class BipedalWalker(gym.Env, EzPickle):
         if self.viewer is not None:
             self.viewer.close()
             self.viewer = None
-
-
-class BipedalWalkerHardcore(BipedalWalker):
-    hardcore = True
 
 
 if __name__ == "__main__":

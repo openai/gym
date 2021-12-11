@@ -91,9 +91,7 @@ class ContactDetector(contactListener):
 class LunarLander(gym.Env, EzPickle):
     metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": FPS}
 
-    continuous = False
-
-    def __init__(self):
+    def __init__(self, continuous=False):
         EzPickle.__init__(self)
         self.viewer = None
 
@@ -103,6 +101,8 @@ class LunarLander(gym.Env, EzPickle):
         self.particles = []
 
         self.prev_reward = None
+
+        self.continuous = continuous
 
         # useful range is -1 .. +1, but spikes can be higher
         self.observation_space = spaces.Box(
@@ -442,10 +442,6 @@ class LunarLander(gym.Env, EzPickle):
         if self.viewer is not None:
             self.viewer.close()
             self.viewer = None
-
-
-class LunarLanderContinuous(LunarLander):
-    continuous = True
 
 
 def heuristic(env, s):
