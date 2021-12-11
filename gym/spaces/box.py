@@ -61,13 +61,13 @@ class Box(Space):
             low = -_get_inf(dtype) if np.isinf(low) else low
             low = np.full(shape, low, dtype=dtype)
         else:
-            low[np.isinf(low)] = np.array([-_get_inf(dtype)])
+            low[np.isinf(low)] = -_get_inf(dtype)
 
         if np.isscalar(high):
             high = +_get_inf(dtype) if np.isinf(high) else high
             high = np.full(shape, high, dtype=dtype)
         else:
-            high[np.isinf(high)] = np.array([+_get_inf(dtype)])
+            high[np.isinf(high)] = +_get_inf(dtype)
 
         self._shape = shape
         self.low = low
