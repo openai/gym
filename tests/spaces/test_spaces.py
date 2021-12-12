@@ -464,6 +464,33 @@ def test_space_legacy_state_pickling():
     ],
 )
 def test_infinite_space(space):
+    # for this test, make sure that spaces that are passed in have only 0 or infinite bounds
+    # because space.high and space.low are both modified within the init
+    # so the only way to test that infinite bounded space are truly infinite during test
+    # is to ensure that we only pass in either infinite or 0
     assert np.all(space.high > space.low), "High bound not higher than low bound"
-    # fundamentally, it's hard to say whether all samples will lie in the space
     assert space.contains(space.sample())
+
+    if space.dtype.kind == "f":
+        if np.any(space.high != 0):
+            assert (
+                space.is_bounded("above") == False
+            ), "float dtype inf upper bound supposed to be unbounded"
+        else:
+            assert (
+                space.is_bounded("above") == True
+            ), "float dtype non-inf upper bound supposed to be bounded"
+
+        if np.any(space.low != 0):
+            assert (
+                space.is_bounded("below") == False
+            ), "float dtype inf lower bound supposed to be unbounded"
+        else:
+            assert (
+                space.is_bounded("below") == True
+            ), "float dtype non-inf lower bound supposed to be bounded"
+
+    elif space.dtype.kind == "i":
+        assert (
+            space.is_bounded("both") == True
+        ), "int dtypes should be bounded on both ends"
