@@ -417,9 +417,6 @@ class CarRacing(gym.Env, EzPickle):
         scroll_x = self.car.hull.position[0]
         scroll_y = self.car.hull.position[1]
         angle = -self.car.hull.angle
-        vel = self.car.hull.linearVelocity
-        if np.linalg.norm(vel) > 0.5:
-            angle = math.atan2(vel[0], vel[1])
         self.transform.set_scale(zoom, zoom)
         self.transform.set_translation(
             WINDOW_W / 2
