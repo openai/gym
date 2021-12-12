@@ -119,7 +119,7 @@ class ContactDetector(contactListener):
 class BipedalWalker(gym.Env, EzPickle):
     metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": FPS}
 
-    def __init__(self, hardcore=False):
+    def __init__(self, hardcore: bool = False):
         EzPickle.__init__(self)
         self.viewer = None
 

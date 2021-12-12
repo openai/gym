@@ -91,7 +91,7 @@ class ContactDetector(contactListener):
 class LunarLander(gym.Env, EzPickle):
     metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": FPS}
 
-    def __init__(self, continuous=False):
+    def __init__(self, continuous: bool = False):
         EzPickle.__init__(self)
         self.viewer = None
 
