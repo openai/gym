@@ -3,7 +3,7 @@ import sys
 import copy
 import importlib
 import contextlib
-from typing import Callable, Union, Type, Optional, Dict
+from typing import Callable, Type, Optional, Union, Dict, Set, Tuple, Generator
 
 if sys.version_info < (3, 8):
     import importlib_metadata as metadata
@@ -13,8 +13,6 @@ else:
 from collections import defaultdict
 from collections.abc import MutableMapping
 from operator import getitem
-
-from typing import Optional, Union, Dict, Set, Tuple, Generator
 
 from gym import error, logger, Env
 
@@ -440,7 +438,7 @@ class EnvSpecTree(MutableMapping):
         match = env_id_re.fullmatch(key)
         if match is None:
             raise KeyError(f"Malformed environment spec key {key}.")
-        return match.group("namespace", "name", "version")
+        return match.group("namespace", "name", "version")  # type: ignore  #
 
     def _exists(self, namespace: Optional[str], name: str, version: str) -> bool:
         # Helper which can look if an ID exists in the tree.
@@ -552,7 +550,7 @@ class EnvRegistry:
     """
 
     def __init__(self):
-        self.env_specs: Dict[str, EnvSpec] = EnvSpecTree()
+        self.env_specs = EnvSpecTree()
         self._ns: Optional[str] = None
 
     def make(self, path: str, **kwargs) -> Env:
@@ -661,8 +659,8 @@ class EnvRegistry:
             versions = self._versions(namespace, name)
             version_not_found_error_msg += ", ".join(
                 map(
-                    lambda version: env_id_from_parts(
-                        getitem(version, 1), name, getitem(version, 0)
+                    lambda v: env_id_from_parts(
+                        getitem(version, 1), name, getitem(version, 0)  # type: ignore
                     ),
                     versions,
                 )
@@ -672,7 +670,7 @@ class EnvRegistry:
             # If we've requested a version less than the
             # most recent version it's considered deprecated.
             # Otherwise it isn't registered.
-            if int(version) < getitem(max(versions), 0):
+            if int(version) < getitem(max(versions), 0):  # type: ignore
                 raise error.DeprecatedEnv(version_not_found_error_msg)
             else:
                 raise error.UnregisteredEnv(version_not_found_error_msg)

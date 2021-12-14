@@ -1,5 +1,5 @@
 import hashlib
-from typing import Optional, List, Union, Tuple
+from typing import Optional, List, Union
 import os
 import struct
 
@@ -10,14 +10,14 @@ from gym import error
 from gym.logger import deprecation
 
 
-def np_random(seed: Optional[int] = None) -> Tuple[np.random.RandomState, int]:
+def np_random(seed: Optional[int] = None) -> tuple:
     if seed is not None and not (isinstance(seed, int) and 0 <= seed):
         raise error.Error(f"Seed must be a non-negative integer or omitted, not {seed}")
 
     seed_seq = np.random.SeedSequence(seed)
-    seed = seed_seq.entropy
+    np_seed = seed_seq.entropy
     rng = RandomNumberGenerator(np.random.PCG64(seed_seq))
-    return rng, seed
+    return rng, np_seed
 
 
 # TODO: Remove this class and make it alias to `Generator` in a future Gym release
