@@ -659,7 +659,7 @@ class EnvRegistry:
             versions = self._versions(namespace, name)
             version_not_found_error_msg += ", ".join(
                 map(
-                    lambda v: env_id_from_parts(
+                    lambda version: env_id_from_parts(
                         getitem(version, 1), name, getitem(version, 0)  # type: ignore
                     ),
                     versions,
