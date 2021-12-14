@@ -26,8 +26,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: python -m venv ~/pyright_venv
-      - run: source ~/pyright_venv/bin/activate
-      - run: pip install -e .[nomujoco]
+      - run: ~/pyright_venv/bin/python -m pip install -e .[nomujoco]
       - uses: jakebailey/pyright-action@v1
         with:
           version: ${{ env.PYRIGHT_VERSION }}
