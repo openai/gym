@@ -24,6 +24,7 @@ jobs:
     env:
       PYRIGHT_VERSION: 1.1.183
     steps:
+      - run: pip install -e .[nomujoco]
       - uses: actions/checkout@v2
       - uses: jakebailey/pyright-action@v1
         with:
