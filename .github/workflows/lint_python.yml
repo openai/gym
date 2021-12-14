@@ -33,4 +33,4 @@ jobs:
           python-platform: ${{ matrix.python-platform }}
           python-version: ${{ matrix.python-version }}
           no-comments: ${{ matrix.python-version != '3.9' || matrix.python-platform != 'Linux' }}  # Having each job create the same comment is too noisy.
-          venv-path: "~/pyright_venv"
+          venv-path: "/home/runner/pyright_venv"
