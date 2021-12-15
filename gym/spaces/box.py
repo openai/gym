@@ -86,8 +86,8 @@ class Box(Space):
         dtype_precision = _get_precision(self.dtype)
         if min(low_precision, high_precision) > dtype_precision:
             logger.warn(f"Box bound precision lowered by casting to {self.dtype}")
-        # self.low = self.low.astype(self.dtype)
-        # self.high = self.high.astype(self.dtype)
+        self.low = self.low.astype(self.dtype)
+        self.high = self.high.astype(self.dtype)
 
         # Boolean arrays which indicate the interval type for each coordinate
         self.bounded_below = -np.inf < self.low
