@@ -453,24 +453,61 @@ def test_space_legacy_state_pickling():
 @pytest.mark.parametrize(
     "space",
     [
-        Box(low=0, high=np.inf, shape=(2,), dtype=np.int64),
-        Box(low=0, high=np.inf, shape=(2,), dtype=np.float64),
-        Box(low=-np.inf, high=0, shape=(2,), dtype=np.int64),
-        Box(low=-np.inf, high=0, shape=(2,), dtype=np.float64),
         Box(low=0, high=np.inf, shape=(2,), dtype=np.int32),
         Box(low=0, high=np.inf, shape=(2,), dtype=np.float32),
+        Box(low=0, high=np.inf, shape=(2,), dtype=np.int64),
+        Box(low=0, high=np.inf, shape=(2,), dtype=np.float64),
         Box(low=-np.inf, high=0, shape=(2,), dtype=np.int32),
         Box(low=-np.inf, high=0, shape=(2,), dtype=np.float32),
+        Box(low=-np.inf, high=0, shape=(2,), dtype=np.int64),
+        Box(low=-np.inf, high=0, shape=(2,), dtype=np.float64),
+        Box(low=-np.inf, high=np.inf, shape=(2,), dtype=np.int32),
+        Box(low=-np.inf, high=np.inf, shape=(2,), dtype=np.float32),
+        Box(low=-np.inf, high=np.inf, shape=(2,), dtype=np.int64),
+        Box(low=-np.inf, high=np.inf, shape=(2,), dtype=np.float64),
+        Box(low=0, high=np.inf, shape=(2, 3), dtype=np.int32),
+        Box(low=0, high=np.inf, shape=(2, 3), dtype=np.float32),
+        Box(low=0, high=np.inf, shape=(2, 3), dtype=np.int64),
+        Box(low=0, high=np.inf, shape=(2, 3), dtype=np.float64),
+        Box(low=-np.inf, high=0, shape=(2, 3), dtype=np.int32),
+        Box(low=-np.inf, high=0, shape=(2, 3), dtype=np.float32),
+        Box(low=-np.inf, high=0, shape=(2, 3), dtype=np.int64),
+        Box(low=-np.inf, high=0, shape=(2, 3), dtype=np.float64),
+        Box(low=-np.inf, high=np.inf, shape=(2, 3), dtype=np.int32),
+        Box(low=-np.inf, high=np.inf, shape=(2, 3), dtype=np.float32),
+        Box(low=-np.inf, high=np.inf, shape=(2, 3), dtype=np.int64),
+        Box(low=-np.inf, high=np.inf, shape=(2, 3), dtype=np.float64),
+        Box(low=np.array([-np.inf, 0]), high=np.array([0.0, np.inf]), dtype=np.int32),
+        Box(low=np.array([-np.inf, 0]), high=np.array([0.0, np.inf]), dtype=np.float32),
+        Box(low=np.array([-np.inf, 0]), high=np.array([0.0, np.inf]), dtype=np.int64),
+        Box(low=np.array([-np.inf, 0]), high=np.array([0.0, np.inf]), dtype=np.float64),
     ],
 )
 def test_infinite_space(space):
     # for this test, make sure that spaces that are passed in have only 0 or infinite bounds
     # because space.high and space.low are both modified within the init
-    # so the only way to test that infinite bounded space are truly infinite during test
-    # is to ensure that we only pass in either infinite or 0
-    assert np.all(space.high > space.low), "High bound not higher than low bound"
-    assert space.contains(space.sample())
+    # so we check for infinite when we know it's not 0
+    space.seed(0)
 
+    assert np.all(space.high > space.low), "High bound not higher than low bound"
+
+    sample = space.sample()
+
+    # check if space contains sample
+    assert space.contains(
+        sample
+    ), "Sample {sample} not inside space according to `space.contains()`"
+
+    # manually check that the sign of the sample is within the bounds
+    assert np.all(
+        np.sign(space.high) >= np.sign(sample)
+    ), f"Sign of sample {sample} is less than space upper bound {space.high}"
+    assert np.all(
+        np.sign(space.low) <= np.sign(sample)
+    ), f"Sign of sample {sample} is more than space lower bound {space.low}"
+
+    # check that int bounds are bounded for everything
+    # but floats are unbounded for infinite
     if space.dtype.kind == "f":
         if np.any(space.high != 0):
             assert (
@@ -494,3 +531,11 @@ def test_infinite_space(space):
         assert (
             space.is_bounded("both") == True
         ), "int dtypes should be bounded on both ends"
+
+    # check for dtype
+    assert (
+        space.high.dtype == space.dtype
+    ), "High's dtype {space.high.dtype} doesn't match `space.dtype`'"
+    assert (
+        space.low.dtype == space.dtype
+    ), "Low's dtype {space.high.dtype} doesn't match `space.dtype`'"
