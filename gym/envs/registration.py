@@ -6,7 +6,7 @@ import contextlib
 from typing import Callable, Type, Optional, Union, Dict, Set, Tuple, Generator
 
 if sys.version_info < (3, 8):
-    import importlib_metadata as metadata
+    import importlib_metadata as metadata  # type: ignore
 else:
     import importlib.metadata as metadata
 
