@@ -62,7 +62,7 @@ setup(
             "envs/robotics/assets/stls/fetch/*.stl",
             "envs/robotics/assets/stls/hand/*.stl",
             "envs/robotics/assets/textures/*.png",
-            "py.typed"
+            "py.typed",
         ]
     },
     tests_require=["pytest", "mock"],
