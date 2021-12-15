@@ -25,12 +25,14 @@ jobs:
       PYRIGHT_VERSION: 1.1.183
     steps:
       - uses: actions/checkout@v2
-      - run: python -m venv ~/pyright_venv
-      - run: ~/pyright_venv/bin/python -m pip install -e .[nomujoco]
+      - uses: actions/setup-python@v2
+      - run: pip install -e .[nomujoco]
+      # - run: python -m venv ~/pyright_venv
+      # - run: ~/pyright_venv/bin/python -m pip install -e .[nomujoco]
       - uses: jakebailey/pyright-action@v1
         with:
           version: ${{ env.PYRIGHT_VERSION }}
           python-platform: ${{ matrix.python-platform }}
           python-version: ${{ matrix.python-version }}
           no-comments: ${{ matrix.python-version != '3.9' || matrix.python-platform != 'Linux' }}  # Having each job create the same comment is too noisy.
-          venv-path: "/home/runner/pyright_venv"
+          # venv-path: "/home/runner/pyright_venv"
