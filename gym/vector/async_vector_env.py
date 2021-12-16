@@ -240,7 +240,10 @@ class AsyncVectorEnv(VectorEnv):
             )
 
         for pipe, single_seed in zip(self.parent_pipes, seed):
-            single_kwargs = {**kwargs, "seed": single_seed}
+            if single_seed is None:
+                single_kwargs = kwargs
+            else:
+                single_kwargs = {**kwargs, "seed": single_seed}
             pipe.send(("reset", single_kwargs))
         self._state = AsyncState.WAITING_RESET
 

@@ -13,6 +13,6 @@ class OrderEnforcing(gym.Wrapper):
         observation, reward, done, info = self.env.step(action)
         return observation, reward, done, info
 
-    def reset(self, *, seed: Optional[int] = None, **kwargs):
+    def reset(self, **kwargs):
         self._has_reset = True
-        return self.env.reset(seed=seed, **kwargs)
+        return self.env.reset(**kwargs)
