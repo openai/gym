@@ -14,7 +14,7 @@ from Box2D.b2 import (
 )
 
 import gym
-from gym import spaces
+from gym import error, spaces
 from gym.utils import colorize, seeding, EzPickle
 
 # This is simple 4-joints walker robot environment.
@@ -564,6 +564,16 @@ class BipedalWalker(gym.Env, EzPickle):
         if self.viewer is not None:
             self.viewer.close()
             self.viewer = None
+
+
+class BipedalWalkerHardcore:
+    def __init__(self):
+        raise error.Error(
+            "Error initializing BipedalWalkerHardcore Environment.\n"
+            "Currently, we do not support initializing this mode of environment by calling the class directly.\n"
+            "To use this environment, instead create it by specifying the hardcore keyword in gym.make, i.e.\n"
+            "gym.make(\"BipedalWalker-v3\", hardcore=True)"
+        )
 
 
 if __name__ == "__main__":

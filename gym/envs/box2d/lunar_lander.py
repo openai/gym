@@ -43,7 +43,7 @@ from Box2D.b2 import (
 )
 
 import gym
-from gym import spaces
+from gym import error, spaces
 from gym.utils import seeding, EzPickle
 
 FPS = 50
@@ -520,6 +520,16 @@ def demo_heuristic_lander(env, seed=None, render=False):
     if render:
         env.close()
     return total_reward
+
+
+class LunarLanderContinuous:
+    def __init__(self):
+        raise error.Error(
+            "Error initializing LunarLanderContinuous Environment.\n"
+            "Currently, we do not support initializing this mode of environment by calling the class directly.\n"
+            "To use this environment, instead create it by specifying the continuous keyword in gym.make, i.e.\n"
+            "gym.make(\"LunarLander-v2\", continuous=True)"
+        )
 
 
 if __name__ == "__main__":
