@@ -572,7 +572,7 @@ class BipedalWalkerHardcore:
             "Error initializing BipedalWalkerHardcore Environment.\n"
             "Currently, we do not support initializing this mode of environment by calling the class directly.\n"
             "To use this environment, instead create it by specifying the hardcore keyword in gym.make, i.e.\n"
-            "gym.make(\"BipedalWalker-v3\", hardcore=True)"
+            'gym.make("BipedalWalker-v3", hardcore=True)'
         )
 
 

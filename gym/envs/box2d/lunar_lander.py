@@ -528,7 +528,7 @@ class LunarLanderContinuous:
             "Error initializing LunarLanderContinuous Environment.\n"
             "Currently, we do not support initializing this mode of environment by calling the class directly.\n"
             "To use this environment, instead create it by specifying the continuous keyword in gym.make, i.e.\n"
-            "gym.make(\"LunarLander-v2\", continuous=True)"
+            'gym.make("LunarLander-v2", continuous=True)'
         )
 
 
