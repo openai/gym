@@ -104,7 +104,7 @@ env.env.book_or_nips = 'nips'
 
 - v1: Maximum number of steps increased from 200 to 500. The observation space for v0 provided direct readings of 
 `theta1` and `theta2` in radians, having a range of `[-pi, pi]`. The v1 observation space as described here provides the
-sine and cosine of each angle instead.
+sin and cosin of each angle instead.
 - v0: Initial versions release (1.0.0) (removed from openai/gym for v1)
 
 ### References
