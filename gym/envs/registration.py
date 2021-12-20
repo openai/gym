@@ -16,28 +16,52 @@ from collections.abc import MutableMapping
 from operator import getitem
 
 from gym import error, logger, Env
-
 from gym.envs.__relocated__ import internal_env_relocation_map
 
-# This format is true today, but it's *not* an official spec.
-# [username/](env-name)-v(version)    env-name is group 1, version is group 2
-#
-# 2016-10-31: We're experimentally expanding the environment ID format
-# to include an optional username.
-env_id_re: re.Pattern = re.compile(
-    r"^(?:(?P<namespace>[\w:-]+)\/)?(?P<name>[\w:.-]+)-v(?P<version>\d+)$"
-)
+
+def check_env_id(env_str: str) -> dict:
+    """Check environment ID string format.
+
+    This format is true today, but it's *not* an official spec.
+    [username/](env-name)-v(version)    env-name is group 1, version is group 2
+
+    2016-10-31: We're experimentally expanding the environment ID format
+    to include an optional username.
+    """
+    # First we try the strict pattern with the version number
+    pattern = re.compile(
+        r"^(?:(?P<namespace>[\w:-]+)\/)?(?P<name>[\w:.-]+)-v(?P<version>\d+)$"
+    )
+
+    match = pattern.fullmatch(env_str)
+    if match:
+        namespace, name, version = match.group("namespace", "name", "version")  # type: ignore  #
+    else:
+        # Then we try a less strict pattern without the version number
+        pattern = re.compile(r"^(?:(?P<namespace>[\w:-]+)\/)?(?P<name>[\w:.-]+)$")
+        match = pattern.fullmatch(env_str)
+        if not match:
+            raise error.Error(
+                f"Malformed environment ID: {env_str}."
+                f"(Currently all IDs must be of the form {pattern}.)"
+            )
+        namespace, name = match.group("namespace", "name")  # type: ignore  #
+        version = None
+    res = {"matched": match, "pattern": pattern, "id_parts": (namespace, name, version)}
+    return res
 
 
-def env_id_from_parts(
-    namespace: Optional[str], name: str, version: Optional[Union[int, str]]
-) -> str:
+def env_id_from_parts(namespace: str, name: str, version: Union[int, str, None]) -> str:
     """
     Construct the environment ID from the namespace, name, and version.
     """
     namespace = "" if namespace is None else f"{namespace}/"
     version = "" if version is None else f"-v{version}"
-    return f"{namespace}{name}{version}"
+    if version:
+        res = f"{namespace}{name}-v{version}"
+    else:
+        res = f"{namespace}{name}"
+    return res
 
 
 def load(name: str) -> Type:
@@ -80,13 +104,8 @@ class EnvSpec:
         self.order_enforce = order_enforce
         self._kwargs = {} if kwargs is None else kwargs
 
-        match = env_id_re.fullmatch(id)
-        if not match:
-            raise error.Error(
-                f"Attempted to register malformed environment ID: {id}."
-                f"(Currently all IDs must be of the form {env_id_re.pattern}.)"
-            )
-        self._env_name = match.group("name")
+        match = check_env_id(id)
+        self._env_name = match["matched"].group("name")
 
     def make(self, **kwargs) -> Env:
         """Instantiates an instance of the environment with appropriate kwargs"""
@@ -180,10 +199,8 @@ class EnvSpecTree(MutableMapping):
     def _get_matches(self, key: str) -> Tuple[str, str, str]:
         # Match the regular expression against a full ID
         # to parse the associated namespace, name, and version.
-        match = env_id_re.fullmatch(key)
-        if match is None:
-            raise KeyError(f"Malformed environment spec key {key}.")
-        return match.group("namespace", "name", "version")  # type: ignore  #
+        match = check_env_id(key)
+        return match["id_parts"]
 
     def _exists(self, namespace: Optional[str], name: str, version: str) -> bool:
         # Helper which can look if an ID exists in the tree.
@@ -273,7 +290,10 @@ class EnvSpecTree(MutableMapping):
                 tree_repr += f"{namespace}{name}: [ "
                 # Print each version comma separated
                 for version_idx, version in enumerate(versions.keys()):
-                    tree_repr += f"v{version}"
+                    if version:
+                        tree_repr += f"v{version}"
+                    else:
+                        tree_repr += ""
                     if version_idx < len(versions) - 1:
                         tree_repr += ","
                     tree_repr += " "
@@ -307,9 +327,9 @@ class EnvRegistry:
 
         # Match the parts of the environment ID as we need to parse
         # if there's a newer version of this environment.
-        match = env_id_re.fullmatch(spec.id)
-        assert match is not None  # Can't be hit as self.spec checks
-        namespace, name, version = match.group("namespace", "name", "version")
+        match = check_env_id(spec.id)
+        assert match["matched"] is not None  # Can't be hit as self.spec checks
+        namespace, name, version = match["id_parts"]
 
         # Get all versions in the requested namespace.
         versions = self._versions(namespace, name)
@@ -344,14 +364,8 @@ class EnvRegistry:
         else:
             id = path
 
-        match = env_id_re.fullmatch(id)
-        if not match:
-            raise error.Error(
-                f"Attempted to look up malformed environment ID: {id.encode('utf-8')}. "
-                f"(Currently all IDs must be of the form {env_id_re.pattern}.)"
-            )
-
-        namespace, name, version = match.group("namespace", "name", "version")
+        match = check_env_id(id)
+        namespace, name, version = match["id_parts"]
 
         # Check if namespace exists
         if namespace not in self.env_specs.tree:
@@ -420,14 +434,10 @@ class EnvRegistry:
 
     def register(self, id: str, **kwargs) -> None:
         # Match ID and and get environment parts
-        match = env_id_re.fullmatch(id)
-        if match is None:
-            raise error.Error(
-                f"Attempted to register malformed environment ID: {id.encode('utf-8')}. "
-                f"(Currently all IDs must be of the form {env_id_re.pattern}.)"
-            )
+        match = check_env_id(id)
+
         if self._ns is not None:
-            namespace, name, version = match.group("namespace", "name", "version")
+            namespace, name, version = match["id_parts"]
             if namespace is not None:
                 logger.warn(
                     f"Custom namespace '{namespace}' is being overridden by namespace '{self._ns}'. "
@@ -448,7 +458,9 @@ class EnvRegistry:
                 lambda version: (
                     int(version),
                     namespace,
-                ),
+                )
+                if isinstance(version, str)
+                else (0, namespace),
                 self.env_specs.tree[namespace][name].keys(),
             )
         )
@@ -471,7 +483,9 @@ class EnvRegistry:
                         lambda version: (
                             int(version),
                             relocated_namespace,
-                        ),
+                        )
+                        if isinstance(version, str)
+                        else (0, namespace),
                         self.env_specs.tree[relocated_namespace][name].keys(),
                     )
                 )

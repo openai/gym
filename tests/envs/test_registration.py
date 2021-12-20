@@ -1,5 +1,8 @@
+# -*- coding: utf-8 -*-
+import pytest
+
 import gym
-from gym import error, envs
+from gym import envs, error
 from gym.envs import registration
 from gym.envs.classic_control import cartpole
 from gym.envs.registration import EnvSpec, EnvSpecTree
@@ -23,9 +26,28 @@ gym.register(
 
 
 def test_make():
-    env = envs.make("CartPole-v0")
-    assert env.spec.id == "CartPole-v0"
+    env = envs.make("CartPole-v1")
+    assert env.spec.id == "CartPole-v1"
     assert isinstance(env.unwrapped, cartpole.CartPoleEnv)
+
+
+@pytest.mark.parametrize(
+    "env_id, namespace, name, version",
+    [
+        (
+            "MyAwesomeNamespace/MyAwesomeEnv-v0",
+            "MyAwesomeNamespace",
+            "MyAwesomeEnv",
+            "0",
+        ),
+        ("MyAwesomeEnv-v0", None, "MyAwesomeEnv", "0"),
+        ("MyAwesomeEnv", None, "MyAwesomeEnv", None),
+    ],
+)
+def test_register(env_id, namespace, name, version):
+    envs.register(env_id)
+    assert gym.envs.spec(env_id).id == env_id
+    assert version in gym.envs.registry.env_specs.tree[namespace][name].keys()
 
 
 def test_make_with_kwargs():
@@ -90,7 +112,7 @@ def test_malformed_lookup():
     try:
         registry.spec("“Breakout-v0”")
     except error.Error as e:
-        assert "malformed environment ID" in f"{e}", f"Unexpected message: {e}"
+        assert "Malformed environment ID" in f"{e}", f"Unexpected message: {e}"
     else:
         assert False
 
@@ -130,3 +152,13 @@ def test_env_spec_tree():
     assert spec_tree.tree.keys() == {None}
     assert spec_tree.tree[None].keys() == {"Test"}
     assert spec_tree.tree[None]["Test"].keys() == {"1"}
+
+    # Add without version
+    myenv = "MyAwesomeEnv"
+    spec = EnvSpec(myenv)
+    spec_tree[myenv] = spec
+    assert spec_tree.tree.keys() == {None}
+    assert myenv in spec_tree.tree[None].keys()
+    assert spec_tree.tree[None][myenv].keys() == {None}
+    assert spec_tree.tree[None][myenv][None] == spec
+    assert spec_tree.__repr__() == "├──Test: [ v1  ]\n" + f"└──{myenv}: [   ]\n"
