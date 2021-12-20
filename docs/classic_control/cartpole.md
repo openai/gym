@@ -61,5 +61,5 @@ gym.make('CartPole-v1')
 
 ### Version History
 
-* v1: maximum episode length increased from 200 to 500 steps, reward threshold increased from 195 to 475.
+* v1: Maximum episode length increased from 200 to 500 steps, reward threshold increased from 195 to 475.
 * v0: Initial versions release (1.0.0)
