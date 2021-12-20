@@ -10,7 +10,7 @@ from gym.vector.utils.spaces import _BaseGymSpaces
 
 __all__ = ["create_shared_memory", "read_from_shared_memory", "write_to_shared_memory"]
 
-
+@singledispatch
 def create_shared_memory(space, n=1, ctx=mp):
     """Create a shared memory object, to be shared across processes. This
     eventually contains the observations from the vectorized environment.
@@ -32,22 +32,15 @@ def create_shared_memory(space, n=1, ctx=mp):
     shared_memory : dict, tuple, or `multiprocessing.Array` instance
         Shared object across processes.
     """
-    if isinstance(space, _BaseGymSpaces):
-        return create_base_shared_memory(space, n=n, ctx=ctx)
-    elif isinstance(space, Tuple):
-        return create_tuple_shared_memory(space, n=n, ctx=ctx)
-    elif isinstance(space, Dict):
-        return create_dict_shared_memory(space, n=n, ctx=ctx)
-    else:
-        raise CustomSpaceError(
-            "Cannot create a shared memory for space with "
-            "type `{}`. Shared memory only supports "
-            "default Gym spaces (e.g. `Box`, `Tuple`, "
-            "`Dict`, etc...), and does not support custom "
-            "Gym spaces.".format(type(space))
-        )
+    raise CustomSpaceError(
+        "Cannot create a shared memory for space with "
+        "type `{}`. Shared memory only supports "
+        "default Gym spaces (e.g. `Box`, `Tuple`, "
+        "`Dict`, etc...), and does not support custom "
+        "Gym spaces.".format(type(space))
+    )
 
-
+@create_shared_memory.register(_BaseGymSpaces)
 def create_base_shared_memory(space, n=1, ctx=mp):
     dtype = space.dtype.char
     if dtype in "?":
@@ -55,12 +48,14 @@ def create_base_shared_memory(space, n=1, ctx=mp):
     return ctx.Array(dtype, n * int(np.prod(space.shape)))
 
 
+@create_shared_memory.register(Tuple)
 def create_tuple_shared_memory(space, n=1, ctx=mp):
     return tuple(
         create_shared_memory(subspace, n=n, ctx=ctx) for subspace in space.spaces
     )
 
 
+@create_shared_memory.register(Dict)
 def create_dict_shared_memory(space, n=1, ctx=mp):
     return OrderedDict(
         [
@@ -70,7 +65,8 @@ def create_dict_shared_memory(space, n=1, ctx=mp):
     )
 
 
-def read_from_shared_memory(shared_memory, space, n=1):
+@singledispatch
+def read_from_shared_memory(space, shared_memory, n=1):
     """Read the batch of observations from shared memory as a numpy array.
 
     Parameters
@@ -97,36 +93,32 @@ def read_from_shared_memory(shared_memory, space, n=1):
     memory of `shared_memory`. Any changes to `shared_memory` are forwarded
     to `observations`, and vice-versa. To avoid any side-effect, use `np.copy`.
     """
-    if isinstance(space, _BaseGymSpaces):
-        return read_base_from_shared_memory(shared_memory, space, n=n)
-    elif isinstance(space, Tuple):
-        return read_tuple_from_shared_memory(shared_memory, space, n=n)
-    elif isinstance(space, Dict):
-        return read_dict_from_shared_memory(shared_memory, space, n=n)
-    else:
-        raise CustomSpaceError(
-            "Cannot read from a shared memory for space with "
-            "type `{}`. Shared memory only supports "
-            "default Gym spaces (e.g. `Box`, `Tuple`, "
-            "`Dict`, etc...), and does not support custom "
-            "Gym spaces.".format(type(space))
-        )
+    raise CustomSpaceError(
+        "Cannot read from a shared memory for space with "
+        "type `{}`. Shared memory only supports "
+        "default Gym spaces (e.g. `Box`, `Tuple`, "
+        "`Dict`, etc...), and does not support custom "
+        "Gym spaces.".format(type(space))
+    )
 
 
-def read_base_from_shared_memory(shared_memory, space, n=1):
+@read_from_shared_memory.register(_BaseGymSpaces)
+def read_base_from_shared_memory(space, shared_memory, n=1):
     return np.frombuffer(shared_memory.get_obj(), dtype=space.dtype).reshape(
         (n,) + space.shape
     )
 
 
-def read_tuple_from_shared_memory(shared_memory, space, n=1):
+@read_from_shared_memory.register(Tuple)
+def read_tuple_from_shared_memory(space, shared_memory, n=1):
     return tuple(
         read_from_shared_memory(memory, subspace, n=n)
         for (memory, subspace) in zip(shared_memory, space.spaces)
     )
 
 
-def read_dict_from_shared_memory(shared_memory, space, n=1):
+@read_from_shared_memory.register(Dict)
+def read_dict_from_shared_memory(space, shared_memory, n=1):
     return OrderedDict(
         [
             (key, read_from_shared_memory(shared_memory[key], subspace, n=n))
@@ -135,7 +127,8 @@ def read_dict_from_shared_memory(shared_memory, space, n=1):
     )
 
 
-def write_to_shared_memory(index, value, shared_memory, space):
+@singledispatch
+def write_to_shared_memory(space, index, value, shared_memory):
     """Write the observation of a single environment into shared memory.
 
     Parameters
@@ -157,23 +150,16 @@ def write_to_shared_memory(index, value, shared_memory, space):
     -------
     `None`
     """
-    if isinstance(space, _BaseGymSpaces):
-        write_base_to_shared_memory(index, value, shared_memory, space)
-    elif isinstance(space, Tuple):
-        write_tuple_to_shared_memory(index, value, shared_memory, space)
-    elif isinstance(space, Dict):
-        write_dict_to_shared_memory(index, value, shared_memory, space)
-    else:
-        raise CustomSpaceError(
-            "Cannot write to a shared memory for space with "
-            "type `{}`. Shared memory only supports "
-            "default Gym spaces (e.g. `Box`, `Tuple`, "
-            "`Dict`, etc...), and does not support custom "
-            "Gym spaces.".format(type(space))
-        )
+    raise CustomSpaceError(
+        "Cannot write to a shared memory for space with "
+        "type `{}`. Shared memory only supports "
+        "default Gym spaces (e.g. `Box`, `Tuple`, "
+        "`Dict`, etc...), and does not support custom "
+        "Gym spaces.".format(type(space))
+    )
 
-
-def write_base_to_shared_memory(index, value, shared_memory, space):
+@write_to_shared_memory.register(_BaseGymSpaces)
+def write_base_to_shared_memory(space, index, value, shared_memory):
     size = int(np.prod(space.shape))
     destination = np.frombuffer(shared_memory.get_obj(), dtype=space.dtype)
     np.copyto(
@@ -181,12 +167,12 @@ def write_base_to_shared_memory(index, value, shared_memory, space):
         np.asarray(value, dtype=space.dtype).flatten(),
     )
 
-
-def write_tuple_to_shared_memory(index, values, shared_memory, space):
+@write_to_shared_memory.register(Tuple)
+def write_tuple_to_shared_memory(space, index, value, shared_memory):
     for value, memory, subspace in zip(values, shared_memory, space.spaces):
         write_to_shared_memory(index, value, memory, subspace)
 
-
-def write_dict_to_shared_memory(index, values, shared_memory, space):
+@write_to_shared_memory.register(Dict)
+def write_dict_to_shared_memory(space, index, value, shared_memory):
     for key, subspace in space.spaces.items():
         write_to_shared_memory(index, values[key], shared_memory[key], subspace)

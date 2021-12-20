@@ -6,8 +6,8 @@ from collections import OrderedDict
 
 __all__ = ["concatenate", "create_empty_array"]
 
-
-def concatenate(items, out, space):
+@singledispatch
+def concatenate(space, items, out):
     """Concatenate multiple samples from space into a single object.
 
     Parameters
@@ -37,32 +37,23 @@ def concatenate(items, out, space):
            [0.87383074, 0.192658  , 0.2148103 ]], dtype=float32)
     """
     assert isinstance(items, (list, tuple))
-    if isinstance(space, _BaseGymSpaces):
-        return concatenate_base(items, out, space)
-    elif isinstance(space, Tuple):
-        return concatenate_tuple(items, out, space)
-    elif isinstance(space, Dict):
-        return concatenate_dict(items, out, space)
-    elif isinstance(space, Space):
-        return concatenate_custom(items, out, space)
-    else:
-        raise ValueError(
+    raise ValueError(
             f"Space of type `{type(space)}` is not a valid `gym.Space` instance."
-        )
+    )
 
-
-def concatenate_base(items, out, space):
+@concatenate.register(_BaseGymSpaces)
+def concatenate_base(space, items, out):
     return np.stack(items, axis=0, out=out)
 
-
-def concatenate_tuple(items, out, space):
+@concatenate.register(Tuple)
+def concatenate_tuple(space, items, out):
     return tuple(
         concatenate([item[i] for item in items], out[i], subspace)
         for (i, subspace) in enumerate(space.spaces)
     )
 
-
-def concatenate_dict(items, out, space):
+@concatenate.register(Dict)
+def concatenate_dict(space, items, out):
     return OrderedDict(
         [
             (key, concatenate([item[key] for item in items], out[key], subspace))
@@ -70,11 +61,12 @@ def concatenate_dict(items, out, space):
         ]
     )
 
-
-def concatenate_custom(items, out, space):
+@concatenate.register(Space)
+def concatenate_custom(space, items, out):
     return tuple(items)
 
 
+@singledispatch
 def create_empty_array(space, n=1, fn=np.zeros):
     """Create an empty (possibly nested) numpy array.
 
@@ -108,29 +100,23 @@ def create_empty_array(space, n=1, fn=np.zeros):
                  ('velocity', array([[0., 0.],
                                      [0., 0.]], dtype=float32))])
     """
-    if isinstance(space, _BaseGymSpaces):
-        return create_empty_array_base(space, n=n, fn=fn)
-    elif isinstance(space, Tuple):
-        return create_empty_array_tuple(space, n=n, fn=fn)
-    elif isinstance(space, Dict):
-        return create_empty_array_dict(space, n=n, fn=fn)
-    elif isinstance(space, Space):
-        return create_empty_array_custom(space, n=n, fn=fn)
-    else:
-        raise ValueError(
-            f"Space of type `{type(space)}` is not a valid `gym.Space` instance."
-        )
+    raise ValueError(
+        f"Space of type `{type(space)}` is not a valid `gym.Space` instance."
+    )
+    
 
-
+@create_empty_array.register(_BaseGymSpaces)
 def create_empty_array_base(space, n=1, fn=np.zeros):
     shape = space.shape if (n is None) else (n,) + space.shape
     return fn(shape, dtype=space.dtype)
 
 
+@create_empty_array.register(Tuple)
 def create_empty_array_tuple(space, n=1, fn=np.zeros):
     return tuple(create_empty_array(subspace, n=n, fn=fn) for subspace in space.spaces)
 
 
+@create_empty_array.register(Dict)
 def create_empty_array_dict(space, n=1, fn=np.zeros):
     return OrderedDict(
         [
@@ -139,6 +125,6 @@ def create_empty_array_dict(space, n=1, fn=np.zeros):
         ]
     )
 
-
+@create_empty_array.register(Space)
 def create_empty_array_custom(space, n=1, fn=np.zeros):
     return None

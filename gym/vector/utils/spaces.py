@@ -8,7 +8,7 @@ from gym.error import CustomSpaceError
 _BaseGymSpaces = (Box, Discrete, MultiDiscrete, MultiBinary)
 __all__ = ["_BaseGymSpaces", "batch_space", "iterate"]
 
-
+@singledispatch
 def batch_space(space, n=1):
     """Create a (batched) space, containing multiple copies of a single space.
 
@@ -36,20 +36,11 @@ def batch_space(space, n=1):
     >>> batch_space(space, n=5)
     Dict(position:Box(5, 3), velocity:Box(5, 2))
     """
-    if isinstance(space, _BaseGymSpaces):
-        return batch_space_base(space, n=n)
-    elif isinstance(space, Tuple):
-        return batch_space_tuple(space, n=n)
-    elif isinstance(space, Dict):
-        return batch_space_dict(space, n=n)
-    elif isinstance(space, Space):
-        return batch_space_custom(space, n=n)
-    else:
-        raise ValueError(
-            f"Cannot batch space with type `{type(space)}`. The space must be a valid `gym.Space` instance."
-        )
+    raise ValueError(
+        f"Cannot batch space with type `{type(space)}`. The space must be a valid `gym.Space` instance."
+    )
 
-
+@batch_space.register(_BaseGymSpaces)
 def batch_space_base(space, n=1):
     if isinstance(space, Box):
         repeats = tuple([n] + [1] * space.low.ndim)
@@ -71,10 +62,12 @@ def batch_space_base(space, n=1):
         raise ValueError(f"Space type `{type(space)}` is not supported.")
 
 
+@batch_space.register(Tuple)
 def batch_space_tuple(space, n=1):
     return Tuple(tuple(batch_space(subspace, n=n) for subspace in space.spaces))
 
 
+@batch_space.register(Dict)
 def batch_space_dict(space, n=1):
     return Dict(
         OrderedDict(
@@ -86,6 +79,7 @@ def batch_space_dict(space, n=1):
     )
 
 
+@batch_space.register(Space)
 def batch_space_custom(space, n=1):
     return Tuple(tuple(space for _ in range(n)))
 
