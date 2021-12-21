@@ -5,7 +5,7 @@ Original Author: Antonin Raffin
 
 It also uses some warnings/assertions from the PettingZoo repository hosted on GitHub
 (https://github.com/PettingZoo-Team/PettingZoo)
-Original Author: Justin Terry
+Original Author: J K Terry
 
 These projects are covered by the MIT License.
 """
