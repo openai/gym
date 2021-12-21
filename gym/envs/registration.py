@@ -290,6 +290,38 @@ internal_env_namespace_relocation_map: Dict[str, Tuple[str, str]] = {
         "ALE",
         "ale-py",
     ),
+    "FetchPickAndPlace": (
+        "gym_robotics",
+        "gym-robotics",
+    ),
+    "FetchPush": (
+        "gym_robotics",
+        "gym-robotics",
+    ),
+    "FetchReach": (
+        "gym_robotics",
+        "gym-robotics",
+    ),
+    "FetchSlide": (
+        "gym_robotics",
+        "gym-robotics",
+    ),
+    "HandManipulateBlock": (
+        "gym_robotics",
+        "gym-robotics",
+    ),
+    "HandManipulateEgg": (
+        "gym_robotics",
+        "gym-robotics",
+    ),
+    "HandManipulatePen": (
+        "gym_robotics",
+        "gym-robotics",
+    ),
+    "HandReach": (
+        "gym_robotics",
+        "gym-robotics",
+    ),
 }
 
 
