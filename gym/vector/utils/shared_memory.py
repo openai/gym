@@ -8,6 +8,8 @@ from gym.spaces import Tuple, Dict
 from gym.error import CustomSpaceError
 from gym.vector.utils.spaces import _BaseGymSpaces
 
+from functools import singledispatch
+
 __all__ = ["create_shared_memory", "read_from_shared_memory", "write_to_shared_memory"]
 
 @singledispatch
