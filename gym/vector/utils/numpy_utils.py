@@ -42,12 +42,9 @@ def concatenate(space, items, out):
     raise ValueError(
             f"Space of type `{type(space)}` is not a valid `gym.Space` instance."
     )
-    
-@concatenate.register(Discrete)
-def concatenate_discrete(space, items):
-    raise TypeError("Unable to iterate over a space of type `Discrete`.")
 
 @concatenate.register(Box)
+@concatenate.register(Discrete)
 @concatenate.register(MultiDiscrete)
 @concatenate.register(MultiBinary)
 def concatenate_base(space, items, out):
@@ -111,12 +108,9 @@ def create_empty_array(space, n=1, fn=np.zeros):
     raise ValueError(
         f"Space of type `{type(space)}` is not a valid `gym.Space` instance."
     )
-    
-@create_empty_array.register(Discrete)
-def create_empty_array_discrete(space, items):
-    raise TypeError("Unable to iterate over a space of type `Discrete`.")
 
 @create_empty_array.register(Box)
+@create_empty_array.register(Discrete)
 @create_empty_array.register(MultiDiscrete)
 @create_empty_array.register(MultiBinary)
 def create_empty_array_base(space, n=1, fn=np.zeros):
