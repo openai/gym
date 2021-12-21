@@ -34,9 +34,6 @@ def env_id_from_parts(namespace: str, name: str, version: Union[int, str]) -> st
     return f"{namespace}{name}-v{version}"
 
 
-# Whitelist of plugins which can hook into the `gym.envs.internal` entry point.
-plugin_internal_whitelist: Set[str] = {"ale_py.gym"}
-
 # The following is a map of environments which have been relocated
 # to a different namespace. This map is important when reporting
 # new versions of an environment outside of Gym.
@@ -784,12 +781,18 @@ def load_env_plugins(entry_point: str = "gym.envs") -> None:
                 )
 
         context = namespace(plugin.name)
-        if plugin.name == "__internal__":
-            if module in plugin_internal_whitelist:
+        if plugin.name.startswith("__") and plugin.name.endswith("__"):
+            # `__internal__` is an artifact of the plugin system when
+            # the root namespace had an allow-list. The allow-list is now
+            # removed and plugins can register environments in the root
+            # namespace with the `__root__` magic key.
+            if plugin.name == "__root__" or plugin.name == "__internal__":
                 context = contextlib.nullcontext()
             else:
                 logger.warn(
-                    f"Trying to register an internal environment when `{module}` is not in the whitelist"
+                    f"The environment namespace magic key `{plugin.name}` is unsupported. "
+                    "To register an environment at the root namespace you should specify "
+                    "the `__root__` namespace."
                 )
 
         with context:
