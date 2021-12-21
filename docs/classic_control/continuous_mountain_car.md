@@ -5,7 +5,15 @@ Continuous Mountain Car
 |Continuous Mountain Car|Continuous|(1,)|[(-1.0,1.0)]|(2,)|[(-1.2,0.6),(-0.07,0.07)]| |`from gym.envs.classic_control.continuous_mountain_car import Continuous_MountainCarEnv`|
 ---
 
-The agent (a car) is started at the bottom of a valley. For any given state the agent may choose to accelerate to the left, right or cease any acceleration.
+The agent (a car) is started at the bottom of a valley. For any given state the agent may choose to accelerate to the left, right or cease any acceleration. The code is originally based on [this code](http://incompleteideas.net/MountainCar/MountainCar1.cp) and the environment appeared first in Andrew Moore's PhD Thesis (1990):
+```
+@TECHREPORT{Moore90efficientmemory-based,
+    author = {Andrew William Moore},
+    title = {Efficient Memory-based Learning for Robot Control},
+    institution = {},
+    year = {1990}
+}
+```
 
 Observation space is a 2-dim vector, where the 1st element represents the "car position" and the 2nd element represents the "car velocity".
 
