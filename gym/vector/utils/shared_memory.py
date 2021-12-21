@@ -4,7 +4,7 @@ from ctypes import c_bool
 from collections import OrderedDict
 
 from gym import logger
-from gym.spaces import Tuple, Dict
+from gym.spaces import Space, Box, Discrete, MultiDiscrete, MultiBinary, Tuple, Dict
 from gym.error import CustomSpaceError
 from gym.vector.utils.spaces import _BaseGymSpaces
 
@@ -42,7 +42,13 @@ def create_shared_memory(space, n=1, ctx=mp):
         "Gym spaces.".format(type(space))
     )
 
-@create_shared_memory.register(_BaseGymSpaces)
+@create_shared_memory.register(Discrete)
+def create_shared_memory_discrete(space, items):
+    raise TypeError("Unable to iterate over a space of type `Discrete`.")
+
+@create_shared_memory.register(Box)
+@create_shared_memory.register(MultiDiscrete)
+@create_shared_memory.register(MultiBinary)
 def create_base_shared_memory(space, n=1, ctx=mp):
     dtype = space.dtype.char
     if dtype in "?":
@@ -102,9 +108,16 @@ def read_from_shared_memory(space, shared_memory, n=1):
         "`Dict`, etc...), and does not support custom "
         "Gym spaces.".format(type(space))
     )
+    
+    
+@read_from_shared_memory.register(Discrete)
+def read_from_shared_memory_discrete(space, items):
+    raise TypeError("Unable to iterate over a space of type `Discrete`.")
 
 
-@read_from_shared_memory.register(_BaseGymSpaces)
+@read_from_shared_memory.register(Box)
+@read_from_shared_memory.register(MultiDiscrete)
+@read_from_shared_memory.register(MultiBinary)
 def read_base_from_shared_memory(space, shared_memory, n=1):
     return np.frombuffer(shared_memory.get_obj(), dtype=space.dtype).reshape(
         (n,) + space.shape
@@ -160,7 +173,15 @@ def write_to_shared_memory(space, index, value, shared_memory):
         "Gym spaces.".format(type(space))
     )
 
-@write_to_shared_memory.register(_BaseGymSpaces)
+
+@write_to_shared_memory.register(Discrete)
+def write_to_shared_memory_discrete(space, items):
+    raise TypeError("Unable to iterate over a space of type `Discrete`.")
+
+
+@write_to_shared_memory.register(Box)
+@write_to_shared_memory.register(MultiDiscrete)
+@write_to_shared_memory.register(MultiBinary)
 def write_base_to_shared_memory(space, index, value, shared_memory):
     size = int(np.prod(space.shape))
     destination = np.frombuffer(shared_memory.get_obj(), dtype=space.dtype)

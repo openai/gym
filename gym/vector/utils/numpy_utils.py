@@ -1,6 +1,6 @@
 import numpy as np
 
-from gym.spaces import Space, Tuple, Dict
+from gym.spaces import Space, Box, Discrete, MultiDiscrete, MultiBinary, Tuple, Dict
 from gym.vector.utils.spaces import _BaseGymSpaces
 from collections import OrderedDict
 
@@ -42,8 +42,14 @@ def concatenate(space, items, out):
     raise ValueError(
             f"Space of type `{type(space)}` is not a valid `gym.Space` instance."
     )
+    
+@concatenate.register(Discrete)
+def concatenate_discrete(space, items):
+    raise TypeError("Unable to iterate over a space of type `Discrete`.")
 
-@concatenate.register(_BaseGymSpaces)
+@concatenate.register(Box)
+@concatenate.register(MultiDiscrete)
+@concatenate.register(MultiBinary)
 def concatenate_base(space, items, out):
     return np.stack(items, axis=0, out=out)
 
@@ -106,8 +112,13 @@ def create_empty_array(space, n=1, fn=np.zeros):
         f"Space of type `{type(space)}` is not a valid `gym.Space` instance."
     )
     
+@create_empty_array.register(Discrete)
+def create_empty_array_discrete(space, items):
+    raise TypeError("Unable to iterate over a space of type `Discrete`.")
 
-@create_empty_array.register(_BaseGymSpaces)
+@create_empty_array.register(Box)
+@create_empty_array.register(MultiDiscrete)
+@create_empty_array.register(MultiBinary)
 def create_empty_array_base(space, n=1, fn=np.zeros):
     shape = space.shape if (n is None) else (n,) + space.shape
     return fn(shape, dtype=space.dtype)

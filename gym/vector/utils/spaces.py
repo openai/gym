@@ -41,8 +41,16 @@ def batch_space(space, n=1):
     raise ValueError(
         f"Cannot batch space with type `{type(space)}`. The space must be a valid `gym.Space` instance."
     )
+    
+    
+@batch_space.register(Discrete)
+def batch_space_discrete(space, items):
+    raise TypeError("Unable to iterate over a space of type `Discrete`.")
 
-@batch_space.register(_BaseGymSpaces)
+
+@batch_space.register(Box)
+@batch_space.register(MultiDiscrete)
+@batch_space.register(MultiBinary)
 def batch_space_base(space, n=1):
     if isinstance(space, Box):
         repeats = tuple([n] + [1] * space.low.ndim)
