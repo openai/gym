@@ -5,7 +5,7 @@ import importlib
 import contextlib
 from typing import Callable, Type, Optional, Union, Dict, Set, Tuple, Generator
 
-if sys.version_info < (3, 8):
+if sys.version_info < (3, 10):
     import importlib_metadata as metadata  # type: ignore
 else:
     import importlib.metadata as metadata
@@ -794,7 +794,7 @@ def namespace(ns: str):
 
 def load_env_plugins(entry_point: str = "gym.envs") -> None:
     # Load third-party environments
-    for plugin in metadata.entry_points().get(entry_point, []):
+    for plugin in metadata.entry_points(group=entry_point):
         # Python 3.8 doesn't support plugin.module, plugin.attr
         # So we'll have to try and parse this ourselves
         try:
