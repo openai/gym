@@ -5,8 +5,6 @@ from functools import singledispatch
 from gym.spaces import Space, Box, Discrete, MultiDiscrete, MultiBinary, Tuple, Dict
 from gym.error import CustomSpaceError
 
-from functools import singledispatch
-
 _BaseGymSpaces = (Box, Discrete, MultiDiscrete, MultiBinary)
 __all__ = ["_BaseGymSpaces", "batch_space", "iterate"]
 

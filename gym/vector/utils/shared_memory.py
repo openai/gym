@@ -120,7 +120,7 @@ def read_base_from_shared_memory(space, shared_memory, n=1):
 @read_from_shared_memory.register(Tuple)
 def read_tuple_from_shared_memory(space, shared_memory, n=1):
     return tuple(
-        read_from_shared_memory(memory, subspace, n=n)
+        read_from_shared_memory(subspace, memory, n=n)
         for (memory, subspace) in zip(shared_memory, space.spaces)
     )
 
@@ -129,7 +129,7 @@ def read_tuple_from_shared_memory(space, shared_memory, n=1):
 def read_dict_from_shared_memory(space, shared_memory, n=1):
     return OrderedDict(
         [
-            (key, read_from_shared_memory(shared_memory[key], subspace, n=n))
+            (key, read_from_shared_memory(subspace, shared_memory[key], n=n))
             for (key, subspace) in space.spaces.items()
         ]
     )
@@ -180,11 +180,11 @@ def write_base_to_shared_memory(space, index, value, shared_memory):
     )
 
 @write_to_shared_memory.register(Tuple)
-def write_tuple_to_shared_memory(space, index, value, shared_memory):
+def write_tuple_to_shared_memory(space, index, values, shared_memory):
     for value, memory, subspace in zip(values, shared_memory, space.spaces):
-        write_to_shared_memory(index, value, memory, subspace)
+        write_to_shared_memory(subspace, index, value, memory)
 
 @write_to_shared_memory.register(Dict)
-def write_dict_to_shared_memory(space, index, value, shared_memory):
+def write_dict_to_shared_memory(space, index, values, shared_memory):
     for key, subspace in space.spaces.items():
-        write_to_shared_memory(index, values[key], shared_memory[key], subspace)
+        write_to_shared_memory(subspace, index, values[key], shared_memory[key])

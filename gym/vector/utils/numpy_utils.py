@@ -53,7 +53,7 @@ def concatenate_base(space, items, out):
 @concatenate.register(Tuple)
 def concatenate_tuple(space, items, out):
     return tuple(
-        concatenate([item[i] for item in items], out[i], subspace)
+        concatenate(subspace, [item[i] for item in items], out[i])
         for (i, subspace) in enumerate(space.spaces)
     )
 
@@ -61,7 +61,7 @@ def concatenate_tuple(space, items, out):
 def concatenate_dict(space, items, out):
     return OrderedDict(
         [
-            (key, concatenate([item[key] for item in items], out[key], subspace))
+            (key, concatenate(subspace, [item[key] for item in items], out[key]))
             for (key, subspace) in space.spaces.items()
         ]
     )

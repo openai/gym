@@ -108,7 +108,7 @@ def test_write_to_shared_memory(space):
             raise TypeError("Got unknown type `{0}`.".format(type(lhs)))
 
     def write(i, shared_memory, sample):
-        write_to_shared_memory(i, sample, shared_memory, space)
+        write_to_shared_memory(space, i, sample, shared_memory)
 
     shared_memory_n8 = create_shared_memory(space, n=8)
     samples = [space.sample() for _ in range(8)]
@@ -155,10 +155,10 @@ def test_read_from_shared_memory(space):
             raise TypeError("Got unknown type `{0}`".format(type(space)))
 
     def write(i, shared_memory, sample):
-        write_to_shared_memory(i, sample, shared_memory, space)
+        write_to_shared_memory(space, i, sample, shared_memory)
 
     shared_memory_n8 = create_shared_memory(space, n=8)
-    memory_view_n8 = read_from_shared_memory(shared_memory_n8, space, n=8)
+    memory_view_n8 = read_from_shared_memory(space, shared_memory_n8, n=8)
     samples = [space.sample() for _ in range(8)]
 
     processes = [
