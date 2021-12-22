@@ -42,12 +42,29 @@ def test_make():
         ),
         ("MyAwesomeEnv-v0", None, "MyAwesomeEnv", "0"),
         ("MyAwesomeEnv", None, "MyAwesomeEnv", None),
+        ("MyAwesomeEnv-vfinal-v0", None, "MyAwesomeEnv-vfinal", "0"),
+        ("MyAwesomeEnv-vfinal", None, "MyAwesomeEnv-vfinal", None),
+        ("MyAwesomeEnv--", None, "MyAwesomeEnv--", None),
+        ("MyAwesomeEnv-v", None, "MyAwesomeEnv-v", None),
     ],
 )
 def test_register(env_id, namespace, name, version):
     envs.register(env_id)
     assert gym.envs.spec(env_id).id == env_id
     assert version in gym.envs.registry.env_specs.tree[namespace][name].keys()
+
+
+@pytest.mark.parametrize(
+    "env_id",
+    [
+        "“Breakout-v0”",
+        "MyNotSoAwesomeEnv-vNone\n",
+        "MyNamespace///MyNotSoAwesomeEnv-vNone",
+    ],
+)
+def test_register_error(env_id):
+    with pytest.raises(error.Error, match="Malformed environment ID"):
+        envs.register(env_id)
 
 
 def test_make_with_kwargs():
