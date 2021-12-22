@@ -1,7 +1,23 @@
+from typing import (
+    TypeVar,
+    Generic,
+    Optional,
+    Sequence,
+    Union,
+    Iterable,
+    Mapping,
+    Tuple,
+)
+
+import numpy as np
+
 from gym.utils import seeding
 
 
-class Space:
+T_cov = TypeVar("T_cov", covariant=True)
+
+
+class Space(Generic[T_cov]):
     """Defines the observation and action spaces, so you can write generic
     code that applies to any Env. For example, you can choose a random
     action.
@@ -16,7 +32,7 @@ class Space:
     not handle custom spaces properly. Use custom spaces with care.
     """
 
-    def __init__(self, shape=None, dtype=None, seed=None):
+    def __init__(self, shape: Optional[Sequence[int]] = None, dtype=None, seed=None):
         import numpy as np  # takes about 300-400ms to import, so we load lazily
 
         self._shape = None if shape is None else tuple(shape)
@@ -26,41 +42,41 @@ class Space:
             self.seed(seed)
 
     @property
-    def np_random(self):
+    def np_random(self) -> np.random.RandomState:
         """Lazily seed the rng since this is expensive and only needed if
         sampling from this space.
         """
         if self._np_random is None:
             self.seed()
 
-        return self._np_random
+        return self._np_random  # type: ignore  ## self.seed() call guarantees right type.
 
     @property
-    def shape(self):
+    def shape(self) -> Optional[Tuple[int, ...]]:
         """Return the shape of the space as an immutable property"""
         return self._shape
 
-    def sample(self):
+    def sample(self) -> T_cov:
         """Randomly sample an element of this space. Can be
         uniform or non-uniform sampling based on boundedness of space."""
         raise NotImplementedError
 
-    def seed(self, seed=None):
+    def seed(self, seed: Optional[int] = None):
         """Seed the PRNG of this space."""
         self._np_random, seed = seeding.np_random(seed)
         return [seed]
 
-    def contains(self, x):
+    def contains(self, x) -> bool:
         """
         Return boolean specifying if x is a valid
         member of this space
         """
         raise NotImplementedError
 
-    def __contains__(self, x):
+    def __contains__(self, x) -> bool:
         return self.contains(x)
 
-    def __setstate__(self, state):
+    def __setstate__(self, state: Union[Iterable, Mapping]):
         # Don't mutate the original state
         state = dict(state)
 
