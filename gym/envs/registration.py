@@ -19,7 +19,7 @@ from gym import error, logger, Env
 from gym.envs.__relocated__ import internal_env_relocation_map
 
 
-def check_env_id(env_str: str) -> dict:
+def parse_env_id(env_str: str) -> dict:
     """Check environment ID string format.
 
     This format is true today, but it's *not* an official spec.
@@ -104,7 +104,7 @@ class EnvSpec:
         self.order_enforce = order_enforce
         self._kwargs = {} if kwargs is None else kwargs
 
-        match = check_env_id(id)
+        match = parse_env_id(id)
         self._env_name = match["matched"].group("name")
 
     def make(self, **kwargs) -> Env:
@@ -199,7 +199,7 @@ class EnvSpecTree(MutableMapping):
     def _get_matches(self, key: str) -> Tuple[str, str, str]:
         # Match the regular expression against a full ID
         # to parse the associated namespace, name, and version.
-        match = check_env_id(key)
+        match = parse_env_id(key)
         return match["id_parts"]
 
     def _exists(self, namespace: Optional[str], name: str, version: str) -> bool:
@@ -327,7 +327,7 @@ class EnvRegistry:
 
         # Match the parts of the environment ID as we need to parse
         # if there's a newer version of this environment.
-        match = check_env_id(spec.id)
+        match = parse_env_id(spec.id)
         assert match["matched"] is not None  # Can't be hit as self.spec checks
         namespace, name, version = match["id_parts"]
 
@@ -364,7 +364,7 @@ class EnvRegistry:
         else:
             id = path
 
-        match = check_env_id(id)
+        match = parse_env_id(id)
         namespace, name, version = match["id_parts"]
 
         # Check if namespace exists
@@ -434,7 +434,7 @@ class EnvRegistry:
 
     def register(self, id: str, **kwargs) -> None:
         # Match ID and and get environment parts
-        match = check_env_id(id)
+        match = parse_env_id(id)
 
         if self._ns is not None:
             namespace, name, version = match["id_parts"]
