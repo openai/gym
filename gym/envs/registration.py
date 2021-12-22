@@ -2,6 +2,7 @@ import re
 import sys
 import copy
 import importlib
+import importlib.util
 import contextlib
 
 if sys.version_info < (3, 8):
@@ -27,12 +28,15 @@ env_id_re: re.Pattern = re.compile(
 )
 
 
-def env_id_from_parts(namespace: str, name: str, version: Union[int, str]) -> str:
+def env_id_from_parts(
+    namespace: Optional[str], name: str, version: Optional[Union[int, str]]
+) -> str:
     """
     Construct the environment ID from the namespace, name, and version.
     """
     namespace = "" if namespace is None else f"{namespace}/"
-    return f"{namespace}{name}-v{version}"
+    version = "" if version is None else f"-v{version}"
+    return f"{namespace}{name}{version}"
 
 
 # The following is a map of environments which have been relocated
@@ -41,7 +45,7 @@ def env_id_from_parts(namespace: str, name: str, version: Union[int, str]) -> st
 # This map should be removed eventually once users
 # are sufficiently aware of the environment relocations.
 # The value of the mapping is (namespace, package,).
-internal_env_namespace_relocation_map: Dict[str, Tuple[str, str]] = {
+internal_env_relocation_map: Dict[str, Tuple[str, str]] = {
     "Adventure": (
         "ALE",
         "ale-py",
@@ -641,38 +645,34 @@ class EnvRegistry:
         # Check if namespace exists
         if namespace not in self.env_specs.tree:
             raise error.UnregisteredEnv(
-                f"Namespace {namespace} does not exist, have you installed the proper package for {namespace}?"
+                f"Namespace `{namespace}` does not exist, have you installed the proper package for `{namespace}`?"
             )
         # Check if name exists in namespace
         elif name not in self.env_specs.tree[namespace]:
-            # If this name has been relocated we'll construct a useful error message.
-            if name in internal_env_namespace_relocation_map:
+            # If this name has been relocated to a new namespace from the root namespace
+            # we'll construct a useful error message.
+            if namespace is None and name in internal_env_relocation_map:
                 # Get the relocated namespace and corresponding package
                 (
                     relocated_namespace,
                     relocated_package,
-                ) = internal_env_namespace_relocation_map[name]
+                ) = internal_env_relocation_map[name]
 
-                name_not_found_error_msg = f"{relocated_namespace} environment {name} has been moved out of Gym to the package {relocated_package}."
-                # If this namespace and name is registered we should instruct the user
-                # to construct it under the new namespace.
-                if (
-                    relocated_namespace in self.env_specs.tree
-                    and name in self.env_specs.tree[relocated_namespace]
-                ):
-                    name_not_found_error_msg += f"Please instantiate the new namespaced environment as {relocated_namespace}/{name}."
-                # Otherwise we'll instruct them to install the package
-                # and then instantiate under the new namespace.
-                else:
-                    name_not_found_error_msg += (
-                        f"Please install the package via `pip install {relocated_package}` and then instantiate the environment "
-                        f"as `{relocated_namespace}/{name}`"
-                    )
-            # If this hasn't been relocated we'll construct a generic error message
+                name_not_found_error_msg = f"The environment `{name}` has been moved out of Gym to the package `{relocated_package}`."
+
+                # Check if the package is installed
+                # If not instruct the user to install the package and then how to instantiate the env
+                if importlib.util.find_spec(relocated_package) is None:
+                    name_not_found_error_msg += f" Please install the package via `pip install {relocated_package}`."
+
+                # Otherwise the user should be able to instantiate the environment directly
+                if namespace != relocated_namespace:
+                    name_not_found_error_msg += f" You can instantiate the new namespaced environment as `{env_id_from_parts(relocated_namespace, name, None)}`."
+            # If the environment hasn't been relocated we'll construct a generic error message
             else:
-                name_not_found_error_msg = f"Environment {id} doesn't exist"
+                name_not_found_error_msg = f"Environment `{id}` doesn't exist"
                 if namespace is not None:
-                    name_not_found_error_msg += f" in namespace {namespace}."
+                    name_not_found_error_msg += f" in namespace `{namespace}`."
                 else:
                     name_not_found_error_msg += "."
             # Throw the error
@@ -747,12 +747,15 @@ class EnvRegistry:
         # This happens for internal environments which have been factored out of Gym.
         # We check if the name has been relocated and we attempt to add the new
         # versions outside of Gym to our set.
-        if name in internal_env_namespace_relocation_map:
-            relocated_namespace, _ = internal_env_namespace_relocation_map[name]
+        if name in internal_env_relocation_map:
+            relocated_namespace, _ = internal_env_relocation_map[name]
 
-            # If this name exists under the new namespace
+            # If there is a new namespace and this name exists under the new namespace
             # we'll add these versions to the set.
-            if name in self.env_specs.tree[relocated_namespace]:
+            if (
+                relocated_namespace is not None
+                and name in self.env_specs.tree[relocated_namespace]
+            ):
                 versions |= set(
                     map(
                         lambda version: (
