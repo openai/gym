@@ -36,8 +36,11 @@ def test_make():
     [
         ("cartpole-v1", "CartPole-v1"),
         ("blackjack-v1", "Blackjack-v1"),
+        ("Blackjock-v1", "Blackjack-v1"),
+        ("blackjack-v10", "Blackjack-v1"),
         ("mountaincarcontinuous-v0", "MountainCarContinuous-v0"),
         ("taxi-v3", "Taxi-v3"),
+        ("taxi-v30", "Taxi-v3"),
     ],
 )
 def test_wrong_capitalized_env(env_id_input, env_id_suggested):

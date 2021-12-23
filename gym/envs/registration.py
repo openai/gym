@@ -1,10 +1,11 @@
-import re
-import sys
+import contextlib
 import copy
+import difflib
 import importlib
 import importlib.util
-import contextlib
-from typing import Callable, Type, Optional, Union, Dict, Set, Tuple, Generator
+import re
+import sys
+from typing import Callable, Dict, Generator, Optional, Set, Tuple, Type, Union
 
 if sys.version_info < (3, 10):
     import importlib_metadata as metadata  # type: ignore
@@ -15,8 +16,7 @@ from collections import defaultdict
 from collections.abc import MutableMapping
 from operator import getitem
 
-from gym import error, logger, Env
-
+from gym import Env, error, logger
 from gym.envs.__relocated__ import internal_env_relocation_map
 
 # This format is true today, but it's *not* an official spec.
@@ -382,16 +382,10 @@ class EnvRegistry:
             # If the environment hasn't been relocated we'll construct a generic error message
             else:
                 name_not_found_error_msg = f"Environment `{id}` doesn't exist"
-                # Try to find lower case names that could match
-                lowercase_name_envs = [
-                    item.lower() if isinstance(item, str) else item
-                    for item in self.env_specs.tree[namespace]
-                ]
-                if name.lower() in lowercase_name_envs:
-                    matching_name = tuple(self.env_specs.tree[namespace])[
-                        lowercase_name_envs.index(name.lower())
-                    ]
-                    name_not_found_error_msg += f", did you mean {env_id_from_parts(namespace, matching_name, version)} ?"
+                # Try to suggest closest environment name that could match
+                matches = difflib.get_close_matches(id, self.env_specs.keys(), n=1)
+                if matches:
+                    name_not_found_error_msg += f", did you mean `{matches[0]}` ?"
                 elif namespace is not None:
                     name_not_found_error_msg += f" in namespace `{namespace}`."
                 else:
