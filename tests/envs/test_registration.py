@@ -45,7 +45,7 @@ def test_make():
 )
 def test_wrong_capitalized_env(env_id_input, env_id_suggested):
     with pytest.raises(
-        error.UnregisteredEnv, match=f"did you mean {env_id_suggested} ?"
+        error.UnregisteredEnv, match=f"did you mean `{env_id_suggested}` ?"
     ):
         envs.make(env_id_input)
 
