@@ -5,6 +5,8 @@ include = [
     "gym/logger.py",
     "gym/envs/registration.py",
     "gym/spaces/space.py",
+    "gym/spaces/box.py",
+    "gym/spaces/discrete.py",
     "gym/core.py",
     "gym/utils/seeding.py"
 ]

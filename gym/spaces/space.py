@@ -7,6 +7,7 @@ from typing import (
     Iterable,
     Mapping,
     Tuple,
+    Type,
 )
 
 import numpy as np
@@ -32,7 +33,12 @@ class Space(Generic[T_cov]):
     not handle custom spaces properly. Use custom spaces with care.
     """
 
-    def __init__(self, shape: Optional[Sequence[int]] = None, dtype=None, seed=None):
+    def __init__(
+        self,
+        shape: Optional[Sequence[int]] = None,
+        dtype: Optional[Union[Type, str]] = None,
+        seed: Optional[int] = None,
+    ):
         import numpy as np  # takes about 300-400ms to import, so we load lazily
 
         self._shape = None if shape is None else tuple(shape)
