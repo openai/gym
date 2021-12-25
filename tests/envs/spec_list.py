@@ -11,7 +11,7 @@ SKIP_MUJOCO_WARNING_MESSAGE = (
 skip_mujoco = not (os.environ.get("MUJOCO_KEY"))
 if not skip_mujoco:
     try:
-        import mujoco_py
+        import dm_control
     except ImportError:
         skip_mujoco = True
 
