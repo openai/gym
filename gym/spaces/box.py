@@ -4,6 +4,12 @@ from .space import Space
 from gym import logger
 
 
+def _short_repr(arr):
+    if arr.size != 0 and np.min(arr) == np.max(arr):
+        return str(np.min(arr))
+    return str(arr)
+
+
 class Box(Space):
     """
     A (possibly unbounded) box in R^n. Specifically, a Box represents the
@@ -154,7 +160,9 @@ class Box(Space):
         return [np.asarray(sample) for sample in sample_n]
 
     def __repr__(self):
-        return f"Box({self.low}, {self.high}, {self.shape}, {self.dtype})"
+        low_repr = _short_repr(self.low)
+        high_repr = _short_repr(self.high)
+        return f"Box({low_repr}, {high_repr}, {self.shape}, {self.dtype})"
 
     def __eq__(self, other):
         return (
