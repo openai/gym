@@ -1,4 +1,5 @@
 import numpy as np
+import warnings
 
 from .space import Space
 from gym import logger
@@ -22,7 +23,7 @@ class Box(Space):
 
     """
 
-    def __init__(self, low, high, shape=None, dtype=np.float32, seed=None):
+    def __init__(self, low, high, shape=None, dtype=np.float32):
         assert dtype is not None, "dtype must be explicitly provided. "
         self.dtype = np.dtype(dtype)
 
@@ -56,7 +57,7 @@ class Box(Space):
         if np.isscalar(high):
             high = np.full(shape, high, dtype=dtype)
 
-        self._shape = shape
+        self.shape = shape
         self.low = low
         self.high = high
 
@@ -70,7 +71,9 @@ class Box(Space):
         high_precision = _get_precision(self.high.dtype)
         dtype_precision = _get_precision(self.dtype)
         if min(low_precision, high_precision) > dtype_precision:
-            logger.warn(f"Box bound precision lowered by casting to {self.dtype}")
+            logger.warn(
+                "Box bound precision lowered by casting to {}".format(self.dtype)
+            )
         self.low = self.low.astype(self.dtype)
         self.high = self.high.astype(self.dtype)
 
@@ -78,7 +81,7 @@ class Box(Space):
         self.bounded_below = -np.inf < self.low
         self.bounded_above = np.inf > self.high
 
-        super().__init__(self.shape, self.dtype, seed)
+        super(Box, self).__init__(self.shape, self.dtype)
 
     def is_bounded(self, manner="both"):
         below = np.all(self.bounded_below)
@@ -137,14 +140,14 @@ class Box(Space):
 
     def contains(self, x):
         if not isinstance(x, np.ndarray):
-            logger.warn("Casting input x to numpy array.")
+            warnings.warn("Casting input x to numpy array.")
             x = np.asarray(x, dtype=self.dtype)
 
         return (
             np.can_cast(x.dtype, self.dtype)
             and x.shape == self.shape
-            and np.all(x >= self.low)
-            and np.all(x <= self.high)
+            and np.any(x >= self.low)
+            and np.any(x <= self.high)
         )
 
     def to_jsonable(self, sample_n):
