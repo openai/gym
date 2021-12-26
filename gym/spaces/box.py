@@ -57,7 +57,7 @@ class Box(Space):
         if np.isscalar(high):
             high = np.full(shape, high, dtype=dtype)
 
-        self.shape = shape
+        self._shape = shape
         self.low = low
         self.high = high
 
@@ -81,7 +81,7 @@ class Box(Space):
         self.bounded_below = -np.inf < self.low
         self.bounded_above = np.inf > self.high
 
-        super(Box, self).__init__(self.shape, self.dtype)
+        super(Box, self).__init__(self._shape, self.dtype)
 
     def is_bounded(self, manner="both"):
         below = np.all(self.bounded_below)
@@ -108,7 +108,7 @@ class Box(Space):
         * (-oo, oo) : normal distribution
         """
         high = self.high if self.dtype.kind == "f" else self.high.astype("int64") + 1
-        sample = np.empty(self.shape)
+        sample = np.empty(self._shape)
 
         # Masking arrays which classify the coordinates according to interval
         # type
@@ -145,9 +145,9 @@ class Box(Space):
 
         return (
             np.can_cast(x.dtype, self.dtype)
-            and x.shape == self.shape
-            and np.any(x >= self.low)
-            and np.any(x <= self.high)
+            and x.shape == self._shape
+            and np.all(x >= self.low)
+            and np.all(x <= self.high)
         )
 
     def to_jsonable(self, sample_n):
@@ -157,12 +157,12 @@ class Box(Space):
         return [np.asarray(sample) for sample in sample_n]
 
     def __repr__(self):
-        return f"Box({self.low}, {self.high}, {self.shape}, {self.dtype})"
+        return f"Box({self.low}, {self.high}, {self._shape}, {self.dtype})"
 
     def __eq__(self, other):
         return (
             isinstance(other, Box)
-            and (self.shape == other.shape)
+            and (self._shape == other.shape)
             and np.allclose(self.low, other.low)
             and np.allclose(self.high, other.high)
         )
