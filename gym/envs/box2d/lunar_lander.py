@@ -43,7 +43,7 @@ from Box2D.b2 import (
 )
 
 import gym
-from gym import spaces
+from gym import error, spaces
 from gym.utils import seeding, EzPickle
 
 FPS = 50
@@ -91,9 +91,7 @@ class ContactDetector(contactListener):
 class LunarLander(gym.Env, EzPickle):
     metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": FPS}
 
-    continuous = False
-
-    def __init__(self):
+    def __init__(self, continuous: bool = False):
         EzPickle.__init__(self)
         self.viewer = None
 
@@ -103,6 +101,8 @@ class LunarLander(gym.Env, EzPickle):
         self.particles = []
 
         self.prev_reward = None
+
+        self.continuous = continuous
 
         # useful range is -1 .. +1, but spikes can be higher
         self.observation_space = spaces.Box(
@@ -444,10 +444,6 @@ class LunarLander(gym.Env, EzPickle):
             self.viewer = None
 
 
-class LunarLanderContinuous(LunarLander):
-    continuous = True
-
-
 def heuristic(env, s):
     """
     The heuristic for
@@ -524,6 +520,16 @@ def demo_heuristic_lander(env, seed=None, render=False):
     if render:
         env.close()
     return total_reward
+
+
+class LunarLanderContinuous:
+    def __init__(self):
+        raise error.Error(
+            "Error initializing LunarLanderContinuous Environment.\n"
+            "Currently, we do not support initializing this mode of environment by calling the class directly.\n"
+            "To use this environment, instead create it by specifying the continuous keyword in gym.make, i.e.\n"
+            'gym.make("LunarLander-v2", continuous=True)'
+        )
 
 
 if __name__ == "__main__":

@@ -66,7 +66,8 @@ register(
 
 register(
     id="LunarLanderContinuous-v2",
-    entry_point="gym.envs.box2d:LunarLanderContinuous",
+    entry_point="gym.envs.box2d:LunarLander",
+    kwargs={"continuous": True},
     max_episode_steps=1000,
     reward_threshold=200,
 )
@@ -80,7 +81,8 @@ register(
 
 register(
     id="BipedalWalkerHardcore-v3",
-    entry_point="gym.envs.box2d:BipedalWalkerHardcore",
+    entry_point="gym.envs.box2d:BipedalWalker",
+    kwargs={"hardcore": True},
     max_episode_steps=2000,
     reward_threshold=300,
 )

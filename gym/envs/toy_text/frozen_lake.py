@@ -1,11 +1,11 @@
 import sys
 from contextlib import closing
+from io import StringIO
+from typing import Optional
 
 import numpy as np
-from io import StringIO
-
-from gym import utils
-from gym.envs.toy_text import discrete
+from gym import Env, spaces, utils
+from gym.envs.toy_text.utils import categorical_sample
 
 LEFT = 0
 DOWN = 1
@@ -63,7 +63,7 @@ def generate_random_map(size=8, p=0.8):
     return ["".join(x) for x in res]
 
 
-class FrozenLakeEnv(discrete.DiscreteEnv):
+class FrozenLakeEnv(Env):
     """
     Winter is here. You and your friends were tossing around a frisbee at the
     park when you made a wild throw that left the frisbee out in the middle of
@@ -103,10 +103,10 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
         nA = 4
         nS = nrow * ncol
 
-        isd = np.array(desc == b"S").astype("float64").ravel()
-        isd /= isd.sum()
+        self.initial_state_distrib = np.array(desc == b"S").astype("float64").ravel()
+        self.initial_state_distrib /= self.initial_state_distrib.sum()
 
-        P = {s: {a: [] for a in range(nA)} for s in range(nS)}
+        self.P = {s: {a: [] for a in range(nA)} for s in range(nS)}
 
         def to_s(row, col):
             return row * ncol + col
@@ -134,7 +134,7 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
             for col in range(ncol):
                 s = to_s(row, col)
                 for a in range(4):
-                    li = P[s][a]
+                    li = self.P[s][a]
                     letter = desc[row, col]
                     if letter in b"GH":
                         li.append((1.0, s, 0, True))
@@ -147,7 +147,22 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
                         else:
                             li.append((1.0, *update_probability_matrix(row, col, a)))
 
-        super().__init__(nS, nA, P, isd)
+        self.observation_space = spaces.Discrete(nS)
+        self.action_space = spaces.Discrete(nA)
+
+    def step(self, a):
+        transitions = self.P[self.s][a]
+        i = categorical_sample([t[0] for t in transitions], self.np_random)
+        p, s, r, d = transitions[i]
+        self.s = s
+        self.lastaction = a
+        return (int(s), r, d, {"prob": p})
+
+    def reset(self, seed: Optional[int] = None):
+        super().reset(seed=seed)
+        self.s = categorical_sample(self.initial_state_distrib, self.np_random)
+        self.lastaction = None
+        return int(self.s)
 
     def render(self, mode="human"):
         outfile = StringIO() if mode == "ansi" else sys.stdout
