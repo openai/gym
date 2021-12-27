@@ -8,6 +8,7 @@ from functools import singledispatch
 
 __all__ = ["concatenate", "create_empty_array"]
 
+
 @singledispatch
 def concatenate(space, items, out):
     """Concatenate multiple samples from space into a single object.
@@ -40,8 +41,9 @@ def concatenate(space, items, out):
     """
     assert isinstance(items, (list, tuple))
     raise ValueError(
-            f"Space of type `{type(space)}` is not a valid `gym.Space` instance."
+        f"Space of type `{type(space)}` is not a valid `gym.Space` instance."
     )
+
 
 @concatenate.register(Box)
 @concatenate.register(Discrete)
@@ -50,12 +52,14 @@ def concatenate(space, items, out):
 def concatenate_base(space, items, out):
     return np.stack(items, axis=0, out=out)
 
+
 @concatenate.register(Tuple)
 def concatenate_tuple(space, items, out):
     return tuple(
         concatenate(subspace, [item[i] for item in items], out[i])
         for (i, subspace) in enumerate(space.spaces)
     )
+
 
 @concatenate.register(Dict)
 def concatenate_dict(space, items, out):
@@ -65,6 +69,7 @@ def concatenate_dict(space, items, out):
             for (key, subspace) in space.spaces.items()
         ]
     )
+
 
 @concatenate.register(Space)
 def concatenate_custom(space, items, out):
@@ -109,6 +114,7 @@ def create_empty_array(space, n=1, fn=np.zeros):
         f"Space of type `{type(space)}` is not a valid `gym.Space` instance."
     )
 
+
 @create_empty_array.register(Box)
 @create_empty_array.register(Discrete)
 @create_empty_array.register(MultiDiscrete)
@@ -131,6 +137,7 @@ def create_empty_array_dict(space, n=1, fn=np.zeros):
             for (key, subspace) in space.spaces.items()
         ]
     )
+
 
 @create_empty_array.register(Space)
 def create_empty_array_custom(space, n=1, fn=np.zeros):

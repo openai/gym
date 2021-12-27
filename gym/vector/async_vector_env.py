@@ -379,7 +379,9 @@ class AsyncVectorEnv(VectorEnv):
 
         if not self.shared_memory:
             self.observations = concatenate(
-                self.single_observation_space, observations_list, self.observations,
+                self.single_observation_space,
+                observations_list,
+                self.observations,
             )
 
         return (

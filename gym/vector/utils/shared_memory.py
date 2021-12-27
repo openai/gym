@@ -12,6 +12,7 @@ from functools import singledispatch
 
 __all__ = ["create_shared_memory", "read_from_shared_memory", "write_to_shared_memory"]
 
+
 @singledispatch
 def create_shared_memory(space, n=1, ctx=mp):
     """Create a shared memory object, to be shared across processes. This
@@ -41,6 +42,7 @@ def create_shared_memory(space, n=1, ctx=mp):
         "`Dict`, etc...), and does not support custom "
         "Gym spaces.".format(type(space))
     )
+
 
 @create_shared_memory.register(Box)
 @create_shared_memory.register(Discrete)
@@ -179,10 +181,12 @@ def write_base_to_shared_memory(space, index, value, shared_memory):
         np.asarray(value, dtype=space.dtype).flatten(),
     )
 
+
 @write_to_shared_memory.register(Tuple)
 def write_tuple_to_shared_memory(space, index, values, shared_memory):
     for value, memory, subspace in zip(values, shared_memory, space.spaces):
         write_to_shared_memory(subspace, index, value, memory)
+
 
 @write_to_shared_memory.register(Dict)
 def write_dict_to_shared_memory(space, index, values, shared_memory):

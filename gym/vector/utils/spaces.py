@@ -8,6 +8,7 @@ from gym.error import CustomSpaceError
 _BaseGymSpaces = (Box, Discrete, MultiDiscrete, MultiBinary)
 __all__ = ["_BaseGymSpaces", "batch_space", "iterate"]
 
+
 @singledispatch
 def batch_space(space, n=1):
     """Create a (batched) space, containing multiple copies of a single space.
