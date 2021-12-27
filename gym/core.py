@@ -63,7 +63,7 @@ class Env:
         raise NotImplementedError
 
     @abstractmethod
-    def reset(self, seed: Optional[int] = None):
+    def reset(self, seed: Optional[int] = None , return_info: Optional[bool] = False):
         """Resets the environment to an initial state and returns an initial
         observation.
 
@@ -75,6 +75,7 @@ class Env:
 
         Returns:
             observation (object): the initial observation.
+            info (optional dictionary): a dictionary containing extra information, this is only returned if return_info is set to true
         """
         # Initialize the RNG if it's the first reset, or if the seed is manually passed
         if seed is not None or self.np_random is None:

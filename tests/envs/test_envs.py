@@ -55,6 +55,20 @@ def test_env(spec):
     env.close()
 
 
+def test_reset_info():
+    env = envs.make("CartPole-v0")
+    obs = env.reset()
+    print(obs)
+    assert (isinstance(obs, np.ndarray))
+    del obs
+    obs,info = env.reset(return_info = True)
+    assert (isinstance(obs, np.ndarray))
+    assert (isinstance(info, dict))
+    env.close()
+    
+        
+
+
 # Run a longer rollout on some environments
 def test_random_rollout():
     for env in [envs.make("CartPole-v0"), envs.make("FrozenLake-v1")]:
