@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import TypeVar, Generic, Tuple
+from typing import TypeVar, Generic, Tuple, Union
 from typing import Optional
 
 import gym
@@ -70,7 +70,7 @@ class Env(Generic[ObsType, ActType]):
         raise NotImplementedError
 
     @abstractmethod
-    def reset(self, seed: Optional[int] = None , return_info: Optional[bool] = False) -> ObsType:
+    def reset(self, seed: Optional[int] = None , return_info: Optional[bool] = False) -> Union[ObsType,Tuple[ObsType, dict]]:
         """Resets the environment to an initial state and returns an initial
         observation.
 
