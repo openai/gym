@@ -1,10 +1,10 @@
-import re
-import sys
+import contextlib
 import copy
 import importlib
 import importlib.util
-import contextlib
-from typing import Callable, Type, Optional, Union, Dict, Set, Tuple, Generator
+import re
+import sys
+from typing import Callable, Generator, Optional, Set, Tuple, Type, Union
 
 if sys.version_info < (3, 10):
     import importlib_metadata as metadata  # type: ignore
@@ -13,9 +13,8 @@ else:
 
 from collections import defaultdict
 from collections.abc import MutableMapping
-from operator import getitem
 
-from gym import error, logger, Env
+from gym import Env, error, logger
 from gym.envs.__relocated__ import internal_env_relocation_map
 
 
@@ -185,13 +184,19 @@ class EnvSpecTree(MutableMapping):
                 for version in versions.keys():
                     yield env_id_from_parts(namespace, name, version)
 
-    def _get_matches(self, key: str) -> Tuple[str, str, str]:
+    def _get_matches(self, key: str) -> Tuple[Optional[str], str, Optional[str]]:
         # Match the regular expression against a full ID
         # to parse the associated namespace, name, and version.
         match = parse_env_id(key)
-        return match.group("namespace", "name", "version")  # type: ignore  #
+        namespace, name, version = match.group("namespace", "name", "version")
+        assert isinstance(namespace, str) or namespace is None
+        assert isinstance(name, str)
+        assert isinstance(version, str) or version is None
+        return namespace, name, version
 
-    def _exists(self, namespace: Optional[str], name: str, version: str) -> bool:
+    def _exists(
+        self, namespace: Optional[str], name: str, version: Optional[str]
+    ) -> bool:
         # Helper which can look if an ID exists in the tree.
         if (
             namespace in self.tree
@@ -325,8 +330,10 @@ class EnvRegistry:
 
         # We check what the latest version of the environment is and display a warning
         # if the user is attempting to initialize an older version.
-        latest_version, latest_ns = max(versions)
-        if int(version) < latest_version:
+        is_lesser_version, latest_version, latest_ns = self._is_lesser_version(
+            version=version, all_versions=versions
+        )
+        if is_lesser_version:
             latest_id = env_id_from_parts(latest_ns, name, latest_version)
             logger.warn(
                 f"The environment {spec.id} is out of date. You should consider "
@@ -403,9 +410,7 @@ class EnvRegistry:
             versions = self._versions(namespace, name)
             version_not_found_error_msg += ", ".join(
                 map(
-                    lambda version: env_id_from_parts(
-                        getitem(version, 1), name, getitem(version, 0)  # type: ignore
-                    ),
+                    lambda version: env_id_from_parts(version[1], name, version[0]),
                     versions,
                 )
             )
@@ -414,7 +419,10 @@ class EnvRegistry:
             # If we've requested a version less than the
             # most recent version it's considered deprecated.
             # Otherwise it isn't registered.
-            if int(version) < getitem(max(versions), 0):  # type: ignore
+            is_lesser_version, latest_version, latest_ns = self._is_lesser_version(
+                version=version, all_versions=versions
+            )
+            if is_lesser_version:
                 raise error.DeprecatedEnv(version_not_found_error_msg)
             else:
                 raise error.UnregisteredEnv(version_not_found_error_msg)
@@ -440,7 +448,7 @@ class EnvRegistry:
             logger.warn(f"Overriding environment {id}")
         self.env_specs[id] = EnvSpec(id, **kwargs)
 
-    def _versions(self, namespace: str, name: str) -> Set[Tuple[int, str]]:
+    def _versions(self, namespace: str, name: str) -> Set[Tuple[Optional[int], str]]:
         # Get the set of versions under the requested namespace
         versions = set(
             map(
@@ -449,7 +457,7 @@ class EnvRegistry:
                     namespace,
                 )
                 if isinstance(version, str)
-                else (0, namespace),
+                else (None, namespace),
                 self.env_specs.tree[namespace][name].keys(),
             )
         )
@@ -474,12 +482,38 @@ class EnvRegistry:
                             relocated_namespace,
                         )
                         if isinstance(version, str)
-                        else (0, namespace),
+                        else (None, namespace),
                         self.env_specs.tree[relocated_namespace][name].keys(),
                     )
                 )
 
-        return versions
+        return versions  # type: ignore
+
+    def _is_lesser_version(
+        self, version: Optional[str], all_versions: Set[Tuple[Optional[int], str]]
+    ) -> Tuple[bool, Optional[int], str]:
+        """Check if version asked is lesser than the latest one."""
+
+        # Check if version(s) are None and temporarily convert to -1 for comparison
+        if version is None:
+            version_asked = -1
+        else:
+            version_asked = int(version)
+        all_versions = set(
+            [
+                (version, namespace) if isinstance(version, int) else (-1, namespace)
+                for version, namespace in all_versions
+            ]
+        )
+
+        latest_version, latest_ns = max(all_versions)
+        assert isinstance(latest_version, int)
+        if version_asked < latest_version:
+            if latest_version == -1:
+                latest_version = None
+            return (True, latest_version, latest_ns)
+        else:
+            return (False, latest_version, latest_ns)
 
     @contextlib.contextmanager
     def namespace(self, ns: str):
