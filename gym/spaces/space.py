@@ -40,7 +40,7 @@ class Space(Generic[T_cov]):
         dtype: Optional[Union[Type, str]] = None,
         seed: Optional[int] = None,
     ):
-        import numpy as np  # takes about 300-400ms to import, so we load lazily
+        import numpy as np  # noqa ## takes about 300-400ms to import, so we load lazily
 
         self._shape = None if shape is None else tuple(shape)
         self.dtype = None if dtype is None else np.dtype(dtype)
@@ -49,7 +49,7 @@ class Space(Generic[T_cov]):
             self.seed(seed)
 
     @property
-    def np_random(self) -> np.random.RandomState:
+    def np_random(self) -> seeding.RandomNumberGenerator:
         """Lazily seed the rng since this is expensive and only needed if
         sampling from this space.
         """
@@ -105,9 +105,9 @@ class Space(Generic[T_cov]):
     def to_jsonable(self, sample_n: Sequence[T_cov]) -> list:
         """Convert a batch of samples from this space to a JSONable data type."""
         # By default, assume identity is JSONable
-        raise NotImplementedError
+        return list(sample_n)
 
     def from_jsonable(self, sample_n: list) -> List[T_cov]:
         """Convert a JSONable data type to a batch of samples from this space."""
         # By default, assume identity is JSONable
-        raise NotImplementedError
+        return sample_n

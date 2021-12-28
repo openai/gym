@@ -9,6 +9,9 @@ include = [
     "gym/spaces/discrete.py",
     "gym/spaces/tuple.py",
     "gym/spaces/dict.py",
+    "gym/spaces/multi_binary.py",
+    "gym/spaces/multi_discrete.py",
+    "gym/spaces/utils.py",
     "gym/core.py",
     "gym/utils/seeding.py"
 ]
