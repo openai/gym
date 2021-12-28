@@ -4,14 +4,7 @@ include = [
     "gym/version.py",
     "gym/logger.py",
     "gym/envs/registration.py",
-    "gym/spaces/space.py",
-    "gym/spaces/box.py",
-    "gym/spaces/discrete.py",
-    "gym/spaces/tuple.py",
-    "gym/spaces/dict.py",
-    "gym/spaces/multi_binary.py",
-    "gym/spaces/multi_discrete.py",
-    "gym/spaces/utils.py",
+    "gym/spaces/**.py",
     "gym/core.py",
     "gym/utils/seeding.py"
 ]
