@@ -30,7 +30,7 @@ class Env(Generic[ObsType, ActType]):
     And set the following attributes:
 
         action_space: The Space object corresponding to valid actions
-        observation_space: The Space object corresponding to valid observations
+        observation_spasce: The Space object corresponding to valid observations
         reward_range: A tuple corresponding to the min and max possible rewards
 
     Note: a default reward range set to [-inf,+inf] already exists. Set it if you want a narrower range.
@@ -70,11 +70,7 @@ class Env(Generic[ObsType, ActType]):
         raise NotImplementedError
 
     @abstractmethod
-<<<<<<< HEAD
     def reset(self, seed: Optional[int] = None , return_info: Optional[bool] = False) -> ObsType:
-=======
-    def reset(self, seed: Optional[int] = None) -> ObsType:
->>>>>>> 2af816241e4d7f41a000f6144f22e12c8231a112
         """Resets the environment to an initial state and returns an initial
         observation.
 
