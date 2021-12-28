@@ -2,10 +2,12 @@ import re
 import sys
 import copy
 import importlib
+import importlib.util
 import contextlib
+from typing import Callable, Type, Optional, Union, Dict, Set, Tuple, Generator
 
-if sys.version_info < (3, 8):
-    import importlib_metadata as metadata
+if sys.version_info < (3, 10):
+    import importlib_metadata as metadata  # type: ignore
 else:
     import importlib.metadata as metadata
 
@@ -13,9 +15,9 @@ from collections import defaultdict
 from collections.abc import MutableMapping
 from operator import getitem
 
-from typing import Optional, Union, Dict, Set, Tuple, Generator
+from gym import error, logger, Env
 
-from gym import error, logger
+from gym.envs.__relocated__ import internal_env_relocation_map
 
 # This format is true today, but it's *not* an official spec.
 # [username/](env-name)-v(version)    env-name is group 1, version is group 2
@@ -27,276 +29,18 @@ env_id_re: re.Pattern = re.compile(
 )
 
 
-def env_id_from_parts(namespace: str, name: str, version: Union[int, str]) -> str:
+def env_id_from_parts(
+    namespace: Optional[str], name: str, version: Optional[Union[int, str]]
+) -> str:
     """
     Construct the environment ID from the namespace, name, and version.
     """
     namespace = "" if namespace is None else f"{namespace}/"
-    return f"{namespace}{name}-v{version}"
+    version = "" if version is None else f"-v{version}"
+    return f"{namespace}{name}{version}"
 
 
-# Whitelist of plugins which can hook into the `gym.envs.internal` entry point.
-plugin_internal_whitelist: Set[str] = {"ale_py.gym"}
-
-# The following is a map of environments which have been relocated
-# to a different namespace. This map is important when reporting
-# new versions of an environment outside of Gym.
-# This map should be removed eventually once users
-# are sufficiently aware of the environment relocations.
-# The value of the mapping is (namespace, package,).
-internal_env_namespace_relocation_map: Dict[str, Tuple[str, str]] = {
-    "Adventure": (
-        "ALE",
-        "ale-py",
-    ),
-    "AirRaid": (
-        "ALE",
-        "ale-py",
-    ),
-    "Alien": (
-        "ALE",
-        "ale-py",
-    ),
-    "Amidar": (
-        "ALE",
-        "ale_py",
-    ),
-    "Assault": (
-        "ALE",
-        "ale-py",
-    ),
-    "Asterix": (
-        "ALE",
-        "ale-py",
-    ),
-    "Asteroids": (
-        "ALE",
-        "ale-py",
-    ),
-    "Atlantis": (
-        "ALE",
-        "ale-py",
-    ),
-    "BankHeist": (
-        "ALE",
-        "ale-py",
-    ),
-    "BattleZone": (
-        "ALE",
-        "ale-py",
-    ),
-    "BeamRider": (
-        "ALE",
-        "ale-py",
-    ),
-    "Berzerk": (
-        "ALE",
-        "ale-py",
-    ),
-    "Bowling": (
-        "ALE",
-        "ale-py",
-    ),
-    "Boxing": (
-        "ALE",
-        "ale-py",
-    ),
-    "Breakout": (
-        "ALE",
-        "ale-py",
-    ),
-    "Carnival": (
-        "ALE",
-        "ale-py",
-    ),
-    "Centipede": (
-        "ALE",
-        "ale-py",
-    ),
-    "ChopperCommand": (
-        "ALE",
-        "ale-py",
-    ),
-    "CrazyClimber": (
-        "ALE",
-        "ale-py",
-    ),
-    "Defender": (
-        "ALE",
-        "ale-py",
-    ),
-    "DemonAttack": (
-        "ALE",
-        "ale-py",
-    ),
-    "DoubleDunk": (
-        "ALE",
-        "ale-py",
-    ),
-    "ElevatorAction": (
-        "ALE",
-        "ale-py",
-    ),
-    "Enduro": (
-        "ALE",
-        "ale-py",
-    ),
-    "FishingDerby": (
-        "ALE",
-        "ale-py",
-    ),
-    "Freeway": (
-        "ALE",
-        "ale-py",
-    ),
-    "Frostbite": (
-        "ALE",
-        "ale-py",
-    ),
-    "Gopher": (
-        "ALE",
-        "ale-py",
-    ),
-    "Gravitar": (
-        "ALE",
-        "ale-py",
-    ),
-    "Hero": (
-        "ALE",
-        "ale-py",
-    ),
-    "IceHockey": (
-        "ALE",
-        "ale-py",
-    ),
-    "Jamesbond": (
-        "ALE",
-        "ale-py",
-    ),
-    "JourneyEscape": (
-        "ALE",
-        "ale-py",
-    ),
-    "Kangaroo": (
-        "ALE",
-        "ale-py",
-    ),
-    "Krull": (
-        "ALE",
-        "ale-py",
-    ),
-    "KungFuMaster": (
-        "ALE",
-        "ale-py",
-    ),
-    "MontezumaRevenge": (
-        "ALE",
-        "ale-py",
-    ),
-    "MsPacman": (
-        "ALE",
-        "ale-py",
-    ),
-    "NameThisGame": (
-        "ALE",
-        "ale-py",
-    ),
-    "Phoenix": (
-        "ALE",
-        "ale-py",
-    ),
-    "Pitfall": (
-        "ALE",
-        "ale-py",
-    ),
-    "Pong": (
-        "ALE",
-        "ale-py",
-    ),
-    "Pooyan": (
-        "ALE",
-        "ale-py",
-    ),
-    "PrivateEye": (
-        "ALE",
-        "ale-py",
-    ),
-    "Qbert": (
-        "ALE",
-        "ale-py",
-    ),
-    "Riverraid": (
-        "ALE",
-        "ale-py",
-    ),
-    "RoadRunner": (
-        "ALE",
-        "ale-py",
-    ),
-    "Robotank": (
-        "ALE",
-        "ale-py",
-    ),
-    "Seaquest": (
-        "ALE",
-        "ale-py",
-    ),
-    "Skiing": (
-        "ALE",
-        "ale-py",
-    ),
-    "Solaris": (
-        "ALE",
-        "ale-py",
-    ),
-    "SpaceInvaders": (
-        "ALE",
-        "ale-py",
-    ),
-    "StarGunner": (
-        "ALE",
-        "ale-py",
-    ),
-    "Tennis": (
-        "ALE",
-        "ale-py",
-    ),
-    "TimePilot": (
-        "ALE",
-        "ale-py",
-    ),
-    "Tutankham": (
-        "ALE",
-        "ale-py",
-    ),
-    "UpNDown": (
-        "ALE",
-        "ale-py",
-    ),
-    "Venture": (
-        "ALE",
-        "ale-py",
-    ),
-    "VideoPinball": (
-        "ALE",
-        "ale-py",
-    ),
-    "WizardOfWor": (
-        "ALE",
-        "ale-py",
-    ),
-    "YarsRevenge": (
-        "ALE",
-        "ale-py",
-    ),
-    "Zaxxon": (
-        "ALE",
-        "ale-py",
-    ),
-}
-
-
-def load(name):
+def load(name: str) -> Type:
     mod_name, attr_name = name.split(":")
     mod = importlib.import_module(mod_name)
     fn = getattr(mod, attr_name)
@@ -308,25 +52,25 @@ class EnvSpec:
     to register the parameters for official evaluations.
 
     Args:
-        id (str): The official environment ID
-        entry_point (Optional[str]): The Python entrypoint of the environment class (e.g. module.name:Class)
-        reward_threshold (Optional[int]): The reward threshold before the task is considered solved
-        nondeterministic (bool): Whether this environment is non-deterministic even after seeding
-        max_episode_steps (Optional[int]): The maximum number of steps that an episode can consist of
-        order_enforce (Optional[int]): Whether to wrap the environment in an orderEnforcing wrapper
-        kwargs (dict): The kwargs to pass to the environment class
+        id: The official environment ID
+        entry_point: The Python entrypoint of the environment class (e.g. module.name:Class)
+        reward_threshold: The reward threshold before the task is considered solved
+        nondeterministic: Whether this environment is non-deterministic even after seeding
+        max_episode_steps: The maximum number of steps that an episode can consist of
+        order_enforce: Whether to wrap the environment in an orderEnforcing wrapper
+        kwargs: The kwargs to pass to the environment class
 
     """
 
     def __init__(
         self,
-        id,
-        entry_point=None,
-        reward_threshold=None,
-        nondeterministic=False,
-        max_episode_steps=None,
-        order_enforce=True,
-        kwargs=None,
+        id: str,
+        entry_point: Union[Callable, str, None] = None,
+        reward_threshold: Optional[int] = None,
+        nondeterministic: bool = False,
+        max_episode_steps: Optional[int] = None,
+        order_enforce: Optional[int] = True,
+        kwargs: dict = None,
     ):
         self.id = id
         self.entry_point = entry_point
@@ -344,7 +88,7 @@ class EnvSpec:
             )
         self._env_name = match.group("name")
 
-    def make(self, **kwargs):
+    def make(self, **kwargs) -> Env:
         """Instantiates an instance of the environment with appropriate kwargs"""
         if self.entry_point is None:
             raise error.Error(
@@ -439,7 +183,7 @@ class EnvSpecTree(MutableMapping):
         match = env_id_re.fullmatch(key)
         if match is None:
             raise KeyError(f"Malformed environment spec key {key}.")
-        return match.group("namespace", "name", "version")
+        return match.group("namespace", "name", "version")  # type: ignore  #
 
     def _exists(self, namespace: Optional[str], name: str, version: str) -> bool:
         # Helper which can look if an ID exists in the tree.
@@ -552,9 +296,9 @@ class EnvRegistry:
 
     def __init__(self):
         self.env_specs = EnvSpecTree()
-        self._ns = None
+        self._ns: Optional[str] = None
 
-    def make(self, path, **kwargs):
+    def make(self, path: str, **kwargs) -> Env:
         if len(kwargs) > 0:
             logger.info("Making new env: %s (%s)", path, kwargs)
         else:
@@ -587,7 +331,7 @@ class EnvRegistry:
     def all(self):
         return self.env_specs.values()
 
-    def spec(self, path):
+    def spec(self, path: str) -> EnvSpec:
         if ":" in path:
             mod_name, _, id = path.partition(":")
             try:
@@ -612,38 +356,34 @@ class EnvRegistry:
         # Check if namespace exists
         if namespace not in self.env_specs.tree:
             raise error.UnregisteredEnv(
-                f"Namespace {namespace} does not exist, have you installed the proper package for {namespace}?"
+                f"Namespace `{namespace}` does not exist, have you installed the proper package for `{namespace}`?"
             )
         # Check if name exists in namespace
         elif name not in self.env_specs.tree[namespace]:
-            # If this name has been relocated we'll construct a useful error message.
-            if name in internal_env_namespace_relocation_map:
+            # If this name has been relocated to a new namespace from the root namespace
+            # we'll construct a useful error message.
+            if namespace is None and name in internal_env_relocation_map:
                 # Get the relocated namespace and corresponding package
                 (
                     relocated_namespace,
                     relocated_package,
-                ) = internal_env_namespace_relocation_map[name]
+                ) = internal_env_relocation_map[name]
 
-                name_not_found_error_msg = f"{relocated_namespace} environment {name} has been moved out of Gym to the package {relocated_package}."
-                # If this namespace and name is registered we should instruct the user
-                # to construct it under the new namespace.
-                if (
-                    relocated_namespace in self.env_specs.tree
-                    and name in self.env_specs.tree[relocated_namespace]
-                ):
-                    name_not_found_error_msg += f"Please instantiate the new namespaced environment as {relocated_namespace}/{name}."
-                # Otherwise we'll instruct them to install the package
-                # and then instantiate under the new namespace.
-                else:
-                    name_not_found_error_msg += (
-                        f"Please install the package via `pip install {relocated_package}` and then instantiate the environment "
-                        f"as `{relocated_namespace}/{name}`"
-                    )
-            # If this hasn't been relocated we'll construct a generic error message
+                name_not_found_error_msg = f"The environment `{name}` has been moved out of Gym to the package `{relocated_package}`."
+
+                # Check if the package is installed
+                # If not instruct the user to install the package and then how to instantiate the env
+                if importlib.util.find_spec(relocated_package) is None:
+                    name_not_found_error_msg += f" Please install the package via `pip install {relocated_package}`."
+
+                # Otherwise the user should be able to instantiate the environment directly
+                if namespace != relocated_namespace:
+                    name_not_found_error_msg += f" You can instantiate the new namespaced environment as `{env_id_from_parts(relocated_namespace, name, None)}`."
+            # If the environment hasn't been relocated we'll construct a generic error message
             else:
-                name_not_found_error_msg = f"Environment {id} doesn't exist"
+                name_not_found_error_msg = f"Environment `{id}` doesn't exist"
                 if namespace is not None:
-                    name_not_found_error_msg += f" in namespace {namespace}."
+                    name_not_found_error_msg += f" in namespace `{namespace}`."
                 else:
                     name_not_found_error_msg += "."
             # Throw the error
@@ -661,7 +401,7 @@ class EnvRegistry:
             version_not_found_error_msg += ", ".join(
                 map(
                     lambda version: env_id_from_parts(
-                        getitem(version, 1), name, getitem(version, 0)
+                        getitem(version, 1), name, getitem(version, 0)  # type: ignore
                     ),
                     versions,
                 )
@@ -671,14 +411,14 @@ class EnvRegistry:
             # If we've requested a version less than the
             # most recent version it's considered deprecated.
             # Otherwise it isn't registered.
-            if int(version) < getitem(max(versions), 0):
+            if int(version) < getitem(max(versions), 0):  # type: ignore
                 raise error.DeprecatedEnv(version_not_found_error_msg)
             else:
                 raise error.UnregisteredEnv(version_not_found_error_msg)
 
         return self.env_specs[id]
 
-    def register(self, id, **kwargs):
+    def register(self, id: str, **kwargs) -> None:
         # Match ID and and get environment parts
         match = env_id_re.fullmatch(id)
         if match is None:
@@ -686,7 +426,6 @@ class EnvRegistry:
                 f"Attempted to register malformed environment ID: {id.encode('utf-8')}. "
                 f"(Currently all IDs must be of the form {env_id_re.pattern}.)"
             )
-
         if self._ns is not None:
             namespace, name, version = match.group("namespace", "name", "version")
             if namespace is not None:
@@ -718,12 +457,15 @@ class EnvRegistry:
         # This happens for internal environments which have been factored out of Gym.
         # We check if the name has been relocated and we attempt to add the new
         # versions outside of Gym to our set.
-        if name in internal_env_namespace_relocation_map:
-            relocated_namespace, _ = internal_env_namespace_relocation_map[name]
+        if name in internal_env_relocation_map:
+            relocated_namespace, _ = internal_env_relocation_map[name]
 
-            # If this name exists under the new namespace
+            # If there is a new namespace and this name exists under the new namespace
             # we'll add these versions to the set.
-            if name in self.env_specs.tree[relocated_namespace]:
+            if (
+                relocated_namespace is not None
+                and name in self.env_specs.tree[relocated_namespace]
+            ):
                 versions |= set(
                     map(
                         lambda version: (
@@ -737,7 +479,7 @@ class EnvRegistry:
         return versions
 
     @contextlib.contextmanager
-    def namespace(self, ns):
+    def namespace(self, ns: str):
         self._ns = ns
         yield
         self._ns = None
@@ -747,36 +489,38 @@ class EnvRegistry:
 registry = EnvRegistry()
 
 
-def register(id, **kwargs):
+def register(id: str, **kwargs) -> None:
     return registry.register(id, **kwargs)
 
 
-def make(id, **kwargs):
+def make(id: str, **kwargs) -> Env:
     return registry.make(id, **kwargs)
 
 
-def spec(id):
+def spec(id: str) -> EnvSpec:
     return registry.spec(id)
 
 
 @contextlib.contextmanager
-def namespace(ns):
+def namespace(ns: str):
     with registry.namespace(ns):
         yield
 
 
-def load_env_plugins(entry_point="gym.envs"):
+def load_env_plugins(entry_point: str = "gym.envs") -> None:
     # Load third-party environments
-    for plugin in metadata.entry_points().get(entry_point, []):
+    for plugin in metadata.entry_points(group=entry_point):
         # Python 3.8 doesn't support plugin.module, plugin.attr
         # So we'll have to try and parse this ourselves
         try:
-            module, attr = plugin.module, plugin.attr
+            module, attr = plugin.module, plugin.attr  # type: ignore  ## error: Cannot access member "attr" for type "EntryPoint"
         except AttributeError:
             if ":" in plugin.value:
                 module, attr = plugin.value.split(":", maxsplit=1)
             else:
                 module, attr = plugin.value, None
+        except:
+            module, attr = None, None
         finally:
             if attr is None:
                 raise error.Error(
@@ -784,12 +528,18 @@ def load_env_plugins(entry_point="gym.envs"):
                 )
 
         context = namespace(plugin.name)
-        if plugin.name == "__internal__":
-            if module in plugin_internal_whitelist:
+        if plugin.name.startswith("__") and plugin.name.endswith("__"):
+            # `__internal__` is an artifact of the plugin system when
+            # the root namespace had an allow-list. The allow-list is now
+            # removed and plugins can register environments in the root
+            # namespace with the `__root__` magic key.
+            if plugin.name == "__root__" or plugin.name == "__internal__":
                 context = contextlib.nullcontext()
             else:
                 logger.warn(
-                    f"Trying to register an internal environment when `{module}` is not in the whitelist"
+                    f"The environment namespace magic key `{plugin.name}` is unsupported. "
+                    "To register an environment at the root namespace you should specify "
+                    "the `__root__` namespace."
                 )
 
         with context:

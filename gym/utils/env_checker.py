@@ -5,7 +5,7 @@ Original Author: Antonin Raffin
 
 It also uses some warnings/assertions from the PettingZoo repository hosted on GitHub
 (https://github.com/PettingZoo-Team/PettingZoo)
-Original Author: Justin Terry
+Original Author: J K Terry
 
 These projects are covered by the MIT License.
 """
@@ -78,7 +78,6 @@ def _check_obs(
             obs, tuple
         ), f"The observation returned by the `{method_name}()` method should be a single value, not a tuple"
 
-    # The check for a GoalEnv is done by the base class
     if isinstance(observation_space, spaces.Discrete):
         assert isinstance(
             obs, int
@@ -218,12 +217,6 @@ def _check_returned_values(
     assert isinstance(
         info, dict
     ), "The `info` returned by `step()` must be a python dictionary"
-
-    if isinstance(env, gym.GoalEnv):
-        # For a GoalEnv, the keys are checked at reset
-        assert reward == env.compute_reward(
-            obs["achieved_goal"], obs["desired_goal"], info
-        )
 
 
 def _check_spaces(env: gym.Env) -> None:
