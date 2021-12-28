@@ -1,8 +1,10 @@
+from typing import Iterable, List, Optional, Union
+import typing as t
 import numpy as np
 from .space import Space
 
 
-class Tuple(Space):
+class Tuple(Space[tuple]):
     """
     A tuple (i.e., product) of simpler spaces
 
@@ -10,16 +12,18 @@ class Tuple(Space):
     self.observation_space = spaces.Tuple((spaces.Discrete(2), spaces.Discrete(3)))
     """
 
-    def __init__(self, spaces, seed=None):
+    def __init__(
+        self, spaces: Iterable[Space], seed: Optional[Union[int, List[int]]] = None
+    ):
         spaces = tuple(spaces)
         self.spaces = spaces
         for space in spaces:
             assert isinstance(
                 space, Space
             ), "Elements of the tuple must be instances of gym.Space"
-        super().__init__(None, None, seed)
+        super().__init__(None, None, seed)  # type: ignore
 
-    def seed(self, seed=None):
+    def seed(self, seed: Optional[Union[int, List[int]]] = None) -> list:
         seeds = []
 
         if isinstance(seed, list):
@@ -50,10 +54,10 @@ class Tuple(Space):
 
         return seeds
 
-    def sample(self):
+    def sample(self) -> t.Tuple:
         return tuple(space.sample() for space in self.spaces)
 
-    def contains(self, x):
+    def contains(self, x) -> bool:
         if isinstance(x, (list, np.ndarray)):
             x = tuple(x)  # Promote list and ndarray to tuple for contains check
         return (
@@ -62,17 +66,17 @@ class Tuple(Space):
             and all(space.contains(part) for (space, part) in zip(self.spaces, x))
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "Tuple(" + ", ".join([str(s) for s in self.spaces]) + ")"
 
-    def to_jsonable(self, sample_n):
+    def to_jsonable(self, sample_n) -> list:
         # serialize as list-repr of tuple of vectors
         return [
             space.to_jsonable([sample[i] for sample in sample_n])
             for i, space in enumerate(self.spaces)
         ]
 
-    def from_jsonable(self, sample_n):
+    def from_jsonable(self, sample_n) -> list:
         return [
             sample
             for sample in zip(
@@ -83,11 +87,11 @@ class Tuple(Space):
             )
         ]
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int) -> Space:
         return self.spaces[index]
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.spaces)
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         return isinstance(other, Tuple) and self.spaces == other.spaces

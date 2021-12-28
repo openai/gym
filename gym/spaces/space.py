@@ -1,4 +1,5 @@
 from typing import (
+    List,
     TypeVar,
     Generic,
     Optional,
@@ -67,7 +68,7 @@ class Space(Generic[T_cov]):
         uniform or non-uniform sampling based on boundedness of space."""
         raise NotImplementedError
 
-    def seed(self, seed: Optional[int] = None):
+    def seed(self, seed: Optional[int] = None) -> list:
         """Seed the PRNG of this space."""
         self._np_random, seed = seeding.np_random(seed)
         return [seed]
@@ -101,12 +102,12 @@ class Space(Generic[T_cov]):
         # Update our state
         self.__dict__.update(state)
 
-    def to_jsonable(self, sample_n):
+    def to_jsonable(self, sample_n: Sequence[T_cov]) -> list:
         """Convert a batch of samples from this space to a JSONable data type."""
         # By default, assume identity is JSONable
-        return sample_n
+        raise NotImplementedError
 
-    def from_jsonable(self, sample_n):
+    def from_jsonable(self, sample_n: list) -> List[T_cov]:
         """Convert a JSONable data type to a batch of samples from this space."""
         # By default, assume identity is JSONable
-        return sample_n
+        raise NotImplementedError

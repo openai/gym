@@ -7,6 +7,8 @@ include = [
     "gym/spaces/space.py",
     "gym/spaces/box.py",
     "gym/spaces/discrete.py",
+    "gym/spaces/tuple.py",
+    "gym/spaces/dict.py",
     "gym/core.py",
     "gym/utils/seeding.py"
 ]
