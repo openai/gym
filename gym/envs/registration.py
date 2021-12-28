@@ -44,7 +44,6 @@ def env_id_from_parts(namespace: str, name: str, version: Union[int, str, None])
     Construct the environment ID from the namespace, name, and version.
     """
     namespace = "" if namespace is None else f"{namespace}/"
-    version = "" if version is None else f"-v{version}"
     if version:
         res = f"{namespace}{name}-v{version}"
     else:
