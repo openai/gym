@@ -451,12 +451,7 @@ class EnvRegistry:
         # Get the set of versions under the requested namespace
         versions = set(
             map(
-                lambda version: (
-                    int(version),
-                    namespace,
-                )
-                if isinstance(version, str)
-                else (None, namespace),
+                lambda version: (version and int(version), namespace),
                 self.env_specs.tree[namespace][name].keys(),
             )
         )
@@ -476,17 +471,12 @@ class EnvRegistry:
             ):
                 versions |= set(
                     map(
-                        lambda version: (
-                            int(version),
-                            relocated_namespace,
-                        )
-                        if isinstance(version, str)
-                        else (None, namespace),
+                        lambda version: (version and int(version), relocated_namespace),
                         self.env_specs.tree[relocated_namespace][name].keys(),
                     )
                 )
 
-        return versions  # type: ignore
+        return versions
 
     def _is_lesser_version(
         self, version: Optional[str], all_versions: Set[Tuple[Optional[int], str]]
