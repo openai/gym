@@ -1,11 +1,11 @@
-import contextlib
+import re
+import sys
 import copy
 import difflib
 import importlib
 import importlib.util
-import re
-import sys
-from typing import Callable, Dict, Generator, Optional, Set, Tuple, Type, Union
+import contextlib
+from typing import Callable, Type, Optional, Union, Dict, Set, Tuple, Generator
 
 if sys.version_info < (3, 10):
     import importlib_metadata as metadata  # type: ignore
@@ -16,7 +16,7 @@ from collections import defaultdict
 from collections.abc import MutableMapping
 from operator import getitem
 
-from gym import Env, error, logger
+from gym import error, logger, Env
 from gym.envs.__relocated__ import internal_env_relocation_map
 
 # This format is true today, but it's *not* an official spec.
