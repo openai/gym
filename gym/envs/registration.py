@@ -4,6 +4,7 @@ import importlib
 import importlib.util
 import re
 import sys
+from operator import itemgetter
 from typing import Callable, Generator, Optional, Set, Tuple, Type, Union
 
 if sys.version_info < (3, 10):
@@ -39,7 +40,9 @@ def parse_env_id(env_str: str) -> re.Match:
     return match
 
 
-def env_id_from_parts(namespace: str, name: str, version: Union[int, str, None]) -> str:
+def env_id_from_parts(
+    namespace: Optional[str], name: str, version: Union[int, str, None]
+) -> str:
     """
     Construct the environment ID from the namespace, name, and version.
     """
@@ -329,10 +332,14 @@ class EnvRegistry:
 
         # We check what the latest version of the environment is and display a warning
         # if the user is attempting to initialize an older version.
-        is_lesser_version, latest_version, latest_ns = self._is_lesser_version(
-            version=version, all_versions=versions
+        latest_version, latest_ns = max(
+            filter(itemgetter(0), versions),
+            default=(
+                None,
+                None,
+            ),
         )
-        if is_lesser_version:
+        if version and latest_version and int(version) < latest_version:
             latest_id = env_id_from_parts(latest_ns, name, latest_version)
             logger.warn(
                 f"The environment {spec.id} is out of date. You should consider "
@@ -418,10 +425,15 @@ class EnvRegistry:
             # If we've requested a version less than the
             # most recent version it's considered deprecated.
             # Otherwise it isn't registered.
-            is_lesser_version, latest_version, latest_ns = self._is_lesser_version(
-                version=version, all_versions=versions
+
+            latest_version, latest_ns = max(
+                filter(itemgetter(0), versions),
+                default=(
+                    None,
+                    None,
+                ),
             )
-            if is_lesser_version:
+            if version and latest_version and int(version) < latest_version:
                 raise error.DeprecatedEnv(version_not_found_error_msg)
             else:
                 raise error.UnregisteredEnv(version_not_found_error_msg)
@@ -477,32 +489,6 @@ class EnvRegistry:
                 )
 
         return versions
-
-    def _is_lesser_version(
-        self, version: Optional[str], all_versions: Set[Tuple[Optional[int], str]]
-    ) -> Tuple[bool, Optional[int], str]:
-        """Check if version asked is lesser than the latest one."""
-
-        # Check if version(s) are None and temporarily convert to -1 for comparison
-        if version is None:
-            version_asked = -1
-        else:
-            version_asked = int(version)
-        all_versions = set(
-            [
-                (version, namespace) if isinstance(version, int) else (-1, namespace)
-                for version, namespace in all_versions
-            ]
-        )
-
-        latest_version, latest_ns = max(all_versions)
-        assert isinstance(latest_version, int)
-        if version_asked < latest_version:
-            if latest_version == -1:
-                latest_version = None
-            return (True, latest_version, latest_ns)
-        else:
-            return (False, latest_version, latest_ns)
 
     @contextlib.contextmanager
     def namespace(self, ns: str):
