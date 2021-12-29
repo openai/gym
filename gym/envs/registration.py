@@ -5,7 +5,7 @@ import importlib.util
 import re
 import sys
 from operator import itemgetter
-from typing import Callable, Generator, Optional, Set, Tuple, Type, Union
+from typing import Callable, Generator, NamedTuple, Optional, Set, Tuple, Type, Union
 
 if sys.version_info < (3, 10):
     import importlib_metadata as metadata  # type: ignore
@@ -17,6 +17,11 @@ from collections.abc import MutableMapping
 
 from gym import Env, error, logger
 from gym.envs.__relocated__ import internal_env_relocation_map
+
+
+class Version(NamedTuple):
+    v: Optional[int]
+    namespace: str
 
 
 def parse_env_id(env_str: str) -> re.Match:
@@ -416,7 +421,9 @@ class EnvRegistry:
             versions = self._versions(namespace, name)
             version_not_found_error_msg += ", ".join(
                 map(
-                    lambda version: env_id_from_parts(version[1], name, version[0]),
+                    lambda version: env_id_from_parts(
+                        version.namespace, name, version.v
+                    ),
                     versions,
                 )
             )
@@ -459,11 +466,11 @@ class EnvRegistry:
             logger.warn(f"Overriding environment {id}")
         self.env_specs[id] = EnvSpec(id, **kwargs)
 
-    def _versions(self, namespace: str, name: str) -> Set[Tuple[Optional[int], str]]:
+    def _versions(self, namespace: str, name: str) -> Set[Version]:
         # Get the set of versions under the requested namespace
         versions = set(
             map(
-                lambda version: (version and int(version), namespace),
+                lambda version: Version(version and int(version), namespace),
                 self.env_specs.tree[namespace][name].keys(),
             )
         )
@@ -483,7 +490,9 @@ class EnvRegistry:
             ):
                 versions |= set(
                     map(
-                        lambda version: (version and int(version), relocated_namespace),
+                        lambda version: Version(
+                            version and int(version), relocated_namespace
+                        ),
                         self.env_specs.tree[relocated_namespace][name].keys(),
                     )
                 )
