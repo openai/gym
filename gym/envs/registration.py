@@ -1,11 +1,21 @@
-import contextlib
+import re
+import sys
 import copy
 import importlib
 import importlib.util
-import re
-import sys
+import contextlib
 from operator import itemgetter
-from typing import Callable, Generator, NamedTuple, Optional, Set, Tuple, Type, Union
+from typing import (
+    Callable,
+    Type,
+    Optional,
+    Union,
+    Dict,
+    Set,
+    Tuple,
+    Generator,
+    NamedTuple,
+)
 
 if sys.version_info < (3, 10):
     import importlib_metadata as metadata  # type: ignore
@@ -15,7 +25,7 @@ else:
 from collections import defaultdict
 from collections.abc import MutableMapping
 
-from gym import Env, error, logger
+from gym import error, logger, Env
 from gym.envs.__relocated__ import internal_env_relocation_map
 
 

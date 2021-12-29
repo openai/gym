@@ -2,7 +2,7 @@
 import pytest
 
 import gym
-from gym import envs, error
+from gym import error, envs
 from gym.envs import registration
 from gym.envs.classic_control import cartpole
 from gym.envs.registration import EnvSpec, EnvSpecTree
@@ -26,8 +26,8 @@ gym.register(
 
 
 def test_make():
-    env = envs.make("CartPole-v1")
-    assert env.spec.id == "CartPole-v1"
+    env = envs.make("CartPole-v0")
+    assert env.spec.id == "CartPole-v0"
     assert isinstance(env.unwrapped, cartpole.CartPoleEnv)
 
 
