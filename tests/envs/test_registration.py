@@ -23,6 +23,15 @@ gym.register(
         "arg2": "arg2",
     },
 )
+gym.register(
+    id="MyAwesomeNamespace/MyAwesomeEnv-v1",
+    entry_point="tests.envs.test_registration:ArgumentEnv",
+    kwargs={
+        "arg1": "arg1",
+        "arg2": "arg2",
+        "arg3": "arg3",
+    },
+)
 
 
 def test_make():
@@ -34,20 +43,60 @@ def test_make():
 @pytest.mark.parametrize(
     "env_id_input, env_id_suggested",
     [
-        ("cartpole-v1", "CartPole-v1"),
-        ("blackjack-v1", "Blackjack-v1"),
-        ("Blackjock-v1", "Blackjack-v1"),
-        ("blackjack-v10", "Blackjack-v1"),
-        ("mountaincarcontinuous-v0", "MountainCarContinuous-v0"),
-        ("taxi-v3", "Taxi-v3"),
-        ("taxi-v30", "Taxi-v3"),
+        ("cartpole-v1", "CartPole"),
+        ("blackjack-v1", "Blackjack"),
+        ("Blackjock-v1", "Blackjack"),
+        ("mountaincarcontinuous-v0", "MountainCarContinuous"),
+        ("taxi-v3", "Taxi"),
+        ("taxi-v30", "Taxi"),
+        ("MyAwesomeNamspce/MyAwesomeEnv-v1", "MyAwesomeNamespace"),
     ],
 )
-def test_wrong_capitalized_env(env_id_input, env_id_suggested):
+def test_env_suggestions(env_id_input, env_id_suggested):
     with pytest.raises(
-        error.UnregisteredEnv, match=f"did you mean `{env_id_suggested}` ?"
+        error.UnregisteredEnv, match=f"Did you mean: `{env_id_suggested}` ?"
     ):
         envs.make(env_id_input)
+
+
+@pytest.mark.parametrize(
+    "env_id_input, version_suggested",
+    [
+        ("CartPole-v12", "`v0`, `v1`"),
+        ("Blackjack-v10", "`v1`"),
+        ("MountainCarContinuous-v100", "`v0`"),
+        ("Taxi-v30", "`v3`"),
+        ("MyAwesomeNamespace/MyAwesomeEnv-v3", "`v1`"),
+    ],
+)
+def test_env_version_suggestions(env_id_input, version_suggested):
+    with pytest.raises(
+        error.UnregisteredEnv, match=f"Valid versions are: \\[ {version_suggested} \\]"
+    ):
+        envs.make(env_id_input)
+
+
+@pytest.mark.parametrize(
+    "env_id, namespace, name, version",
+    [
+        (
+            "MyAwesomeNamespace/MyAwesomeEnv-v0",
+            "MyAwesomeNamespace",
+            "MyAwesomeEnv",
+            0,
+        ),
+        ("MyAwesomeEnv-v0", None, "MyAwesomeEnv", 0),
+        ("MyAwesomeEnv", None, "MyAwesomeEnv", None),
+        ("MyAwesomeEnv-vfinal-v0", None, "MyAwesomeEnv-vfinal", 0),
+        ("MyAwesomeEnv-vfinal", None, "MyAwesomeEnv-vfinal", None),
+        ("MyAwesomeEnv--", None, "MyAwesomeEnv--", None),
+        ("MyAwesomeEnv-v", None, "MyAwesomeEnv-v", None),
+    ],
+)
+def test_register(env_id, namespace, name, version):
+    envs.register(env_id)
+    assert gym.envs.spec(env_id).id == env_id
+    assert version in gym.envs.registry.env_specs.tree[namespace][name].keys()
 
 
 def test_make_with_kwargs():
@@ -76,7 +125,7 @@ def test_spec():
 def test_spec_with_kwargs():
     map_name_value = "8x8"
     env = gym.make("FrozenLake-v1", map_name=map_name_value)
-    assert env.spec._kwargs["map_name"] == map_name_value
+    assert env.spec.kwargs["map_name"] == map_name_value
 
 
 def test_missing_lookup():
@@ -112,7 +161,7 @@ def test_malformed_lookup():
     try:
         registry.spec("“Breakout-v0”")
     except error.Error as e:
-        assert "malformed environment ID" in "{}".format(
+        assert "Malformed environment ID" in "{}".format(
             e
         ), "Unexpected message: {}".format(e)
     else:
@@ -127,8 +176,8 @@ def test_env_spec_tree():
     spec_tree["test/Test-v0"] = spec
     assert spec_tree.tree.keys() == {"test"}
     assert spec_tree.tree["test"].keys() == {"Test"}
-    assert spec_tree.tree["test"]["Test"].keys() == {"0"}
-    assert spec_tree.tree["test"]["Test"]["0"] == spec
+    assert spec_tree.tree["test"]["Test"].keys() == {0}
+    assert spec_tree.tree["test"]["Test"][0] == spec
     assert spec_tree["test/Test-v0"] == spec
 
     # Add without namespace
@@ -136,8 +185,8 @@ def test_env_spec_tree():
     spec_tree["Test-v0"] = spec
     assert spec_tree.tree.keys() == {"test", None}
     assert spec_tree.tree[None].keys() == {"Test"}
-    assert spec_tree.tree[None]["Test"].keys() == {"0"}
-    assert spec_tree.tree[None]["Test"]["0"] == spec
+    assert spec_tree.tree[None]["Test"].keys() == {0}
+    assert spec_tree.tree[None]["Test"][0] == spec
 
     # Delete last version deletes entire subtree
     del spec_tree["test/Test-v0"]
@@ -147,10 +196,20 @@ def test_env_spec_tree():
     spec_tree["Test-v1"] = EnvSpec("Test-v1")
     assert spec_tree.tree.keys() == {None}
     assert spec_tree.tree[None].keys() == {"Test"}
-    assert spec_tree.tree[None]["Test"].keys() == {"0", "1"}
+    assert spec_tree.tree[None]["Test"].keys() == {0, 1}
 
     # Deleting one version leaves other
     del spec_tree["Test-v0"]
     assert spec_tree.tree.keys() == {None}
     assert spec_tree.tree[None].keys() == {"Test"}
-    assert spec_tree.tree[None]["Test"].keys() == {"1"}
+    assert spec_tree.tree[None]["Test"].keys() == {1}
+
+    # Add without version
+    myenv = "MyAwesomeEnv"
+    spec = EnvSpec(myenv)
+    spec_tree[myenv] = spec
+    assert spec_tree.tree.keys() == {None}
+    assert myenv in spec_tree.tree[None].keys()
+    assert spec_tree.tree[None][myenv].keys() == {None}
+    assert spec_tree.tree[None][myenv][None] == spec
+    assert spec_tree.__repr__() == "├──Test: [ v1 ]\n" + f"└──{myenv}: [  ]\n"
