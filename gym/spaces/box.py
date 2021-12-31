@@ -75,15 +75,9 @@ class Box(Space):
         self.low = low
         self.high = high
 
-        def _get_precision(dtype):
-            if np.issubdtype(dtype, np.floating):
-                return np.finfo(dtype).precision
-            else:
-                return np.inf
-
-        low_precision = _get_precision(self.low.dtype)
-        high_precision = _get_precision(self.high.dtype)
-        dtype_precision = _get_precision(self.dtype)
+        low_precision = self.get_precision(self.low.dtype)
+        high_precision = self.get_precision(self.high.dtype)
+        dtype_precision = self.get_precision(self.dtype)
         if min(low_precision, high_precision) > dtype_precision:
             logger.warn(f"Box bound precision lowered by casting to {self.dtype}")
         self.low = self.low.astype(self.dtype)
@@ -94,29 +88,6 @@ class Box(Space):
         self.bounded_above = np.inf > self.high
 
         super().__init__(self.shape, self.dtype, seed)
-
-    @staticmethod
-    def get_inf(dtype, sign):
-        """Returns an infinite that doesn't break things.
-        `dtype` must be an `np.dtype`
-        `bound` must be either `min` or `max`
-        """
-        if np.dtype(dtype).kind == "f":
-            if sign == "+":
-                return np.inf
-            elif sign == "-":
-                return -np.inf
-            else:
-                raise TypeError(f"Unknown sign {sign}, use either '+' or '-'")
-        elif np.dtype(dtype).kind == "i":
-            if sign == "+":
-                return np.iinfo(dtype).max - 2
-            elif sign == "-":
-                return np.iinfo(dtype).min + 2
-            else:
-                raise TypeError(f"Unknown sign {sign}, use either '+' or '-'")
-        else:
-            raise ValueError(f"Unknown dtype {dtype} for infinite bounds")
 
     def is_bounded(self, manner="both"):
         below = np.all(self.bounded_below)
@@ -184,6 +155,34 @@ class Box(Space):
             and np.all(x >= self.low)
             and np.all(x <= self.high)
         )
+
+    def get_inf(self, dtype, sign):
+        """Returns an infinite that doesn't break things.
+        `dtype` must be an `np.dtype`
+        `bound` must be either `min` or `max`
+        """
+        if np.dtype(dtype).kind == "f":
+            if sign == "+":
+                return np.inf
+            elif sign == "-":
+                return -np.inf
+            else:
+                raise TypeError(f"Unknown sign {sign}, use either '+' or '-'")
+        elif np.dtype(dtype).kind == "i":
+            if sign == "+":
+                return np.iinfo(dtype).max - 2
+            elif sign == "-":
+                return np.iinfo(dtype).min + 2
+            else:
+                raise TypeError(f"Unknown sign {sign}, use either '+' or '-'")
+        else:
+            raise ValueError(f"Unknown dtype {dtype} for infinite bounds")
+
+    def get_precision(self, dtype):
+        if np.issubdtype(dtype, np.floating):
+            return np.finfo(dtype).precision
+        else:
+            return np.inf
 
     def to_jsonable(self, sample_n):
         return np.array(sample_n).tolist()
