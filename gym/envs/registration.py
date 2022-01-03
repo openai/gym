@@ -58,7 +58,7 @@ class EnvSpec:
     to register the parameters for official evaluations.
 
     Args:
-        id: The official environment ID
+        id_requested: The official environment ID
         entry_point: The Python entrypoint of the environment class (e.g. module.name:Class)
         reward_threshold: The reward threshold before the task is considered solved
         nondeterministic: Whether this environment is non-deterministic even after seeding
@@ -68,7 +68,7 @@ class EnvSpec:
 
     """
 
-    init_id: InitVar[str]
+    id_requested: InitVar[str]
     entry_point: Optional[Union[Callable, str]] = None
     reward_threshold: Optional[int] = None
     nondeterministic: bool = False
@@ -80,14 +80,14 @@ class EnvSpec:
     name: str = field(init=False)
     version: Optional[int] = field(init=False)
 
-    def __post_init__(self, id):
+    def __post_init__(self, id_requested):
         # Initialize namespace, name, version
-        self.namespace, self.name, self.version = parse_env_id(id)
+        self.namespace, self.name, self.version = parse_env_id(id_requested)
 
     @property
     def id(self) -> str:
         """
-        `id` is an InitVar meaning it's only used at initialization to parse
+        `id_requested` is an InitVar meaning it's only used at initialization to parse
         the namespace, name, and version. This means we can define the dynamic
         property `id` to construct the `id` from the parsed fields. This has the
         benefit that we update the fields and obtain a dynamic id.
