@@ -106,7 +106,7 @@ def test_register_error(env_id):
         ("MyAwesomeNamspce/MyAwesomeEnv-v1", "MyAwesomeNamespace"),
     ],
 )
-def test_env_suggestions(env_id_input, env_id_suggested):
+def test_env_suggestions(register_some_envs, env_id_input, env_id_suggested):
     with pytest.raises(
         error.UnregisteredEnv, match=f"Did you mean: `{env_id_suggested}` ?"
     ):
