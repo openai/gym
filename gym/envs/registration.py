@@ -5,15 +5,7 @@ import difflib
 import importlib
 import importlib.util
 import contextlib
-from typing import (
-    Callable,
-    Type,
-    Optional,
-    Union,
-    Tuple,
-    Generator,
-    Sequence,
-)
+from typing import Callable, Type, Optional, Union, Tuple, Generator, Sequence, cast
 
 if sys.version_info < (3, 10):
     import importlib_metadata as metadata  # type: ignore
@@ -76,7 +68,7 @@ class EnvSpec:
 
     """
 
-    id: InitVar[str]
+    init_id: InitVar[str]
     entry_point: Optional[Union[Callable, str]] = None
     reward_threshold: Optional[int] = None
     nondeterministic: bool = False
@@ -450,7 +442,7 @@ class EnvRegistry:
         # if the user is attempting to initialize an older version.
         latest_spec = max(
             filter(lambda spec: spec.version, versions),
-            key=lambda spec: spec.version,
+            key=lambda spec: cast(int, spec.version),
             default=None,
         )
         if (
