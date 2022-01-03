@@ -25,6 +25,32 @@ gym.register(
 )
 
 
+@pytest.fixture(scope="function")
+def register_some_envs():
+    namespace = "MyAwesomeNamespace"
+    name = "MyAwesomeEnv"
+    gym.register(
+        id=namespace + "/" + name + "-v3",
+        entry_point="tests.envs.test_registration:ArgumentEnv",
+        kwargs={
+            "arg1": "arg1",
+            "arg2": "arg2",
+            "arg3": "arg3",
+        },
+    )
+    gym.register(
+        id=namespace + "/" + name + "-v1",
+        entry_point="tests.envs.test_registration:ArgumentEnv",
+        kwargs={
+            "arg1": "arg1",
+            "arg2": "arg2",
+            "arg3": "arg3",
+        },
+    )
+    yield
+    del gym.envs.registry.env_specs.tree[namespace][name]
+
+
 def test_make():
     env = envs.make("CartPole-v0")
     assert env.spec.id == "CartPole-v0"
@@ -52,6 +78,7 @@ def test_register(env_id, namespace, name, version):
     envs.register(env_id)
     assert gym.envs.spec(env_id).id == env_id
     assert version in gym.envs.registry.env_specs.tree[namespace][name].keys()
+    del gym.envs.registry.env_specs.tree[namespace][name]
 
 
 @pytest.mark.parametrize(
@@ -65,6 +92,42 @@ def test_register(env_id, namespace, name, version):
 def test_register_error(env_id):
     with pytest.raises(error.Error, match="Malformed environment ID"):
         envs.register(env_id)
+
+
+@pytest.mark.parametrize(
+    "env_id_input, env_id_suggested",
+    [
+        ("cartpole-v1", "CartPole"),
+        ("blackjack-v1", "Blackjack"),
+        ("Blackjock-v1", "Blackjack"),
+        ("mountaincarcontinuous-v0", "MountainCarContinuous"),
+        ("taxi-v3", "Taxi"),
+        ("taxi-v30", "Taxi"),
+        ("MyAwesomeNamspce/MyAwesomeEnv-v1", "MyAwesomeNamespace"),
+    ],
+)
+def test_env_suggestions(env_id_input, env_id_suggested):
+    with pytest.raises(
+        error.UnregisteredEnv, match=f"Did you mean: `{env_id_suggested}` ?"
+    ):
+        envs.make(env_id_input)
+
+
+@pytest.mark.parametrize(
+    "env_id_input, suggested_versions",
+    [
+        ("CartPole-v12", "`v0`, `v1`"),
+        ("Blackjack-v10", "`v1`"),
+        ("MountainCarContinuous-v100", "`v0`"),
+        ("Taxi-v30", "`v3`"),
+        ("MyAwesomeNamespace/MyAwesomeEnv-v5", "`v1`, `v3`"),
+    ],
+)
+def test_env_version_suggestions(register_some_envs, env_id_input, suggested_versions):
+    with pytest.raises(
+        error.UnregisteredEnv, match=f"Valid versions are: \\[ {suggested_versions} \\]"
+    ):
+        envs.make(env_id_input)
 
 
 def test_make_with_kwargs():

@@ -316,9 +316,12 @@ class EnvSpecTree(MutableMapping):
         else:
             message += f"{name} could not be found. "
             if all_versions:
+                all_versions_sorted = sorted(
+                    all_versions, key=lambda spec: spec.version
+                )
                 message += "Valid versions are: [ "
                 message += ", ".join(
-                    map(lambda spec: f"`v{spec.version}`", all_versions)
+                    map(lambda spec: f"`v{spec.version}`", all_versions_sorted)
                 )
                 message += " ]."
             else:
