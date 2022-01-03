@@ -150,7 +150,7 @@ class MujocoEnv(gym.Env):
             self._viewers = {}
 
     def get_body_com(self, body_name):
-        return self.data.get_body_xpos(body_name)
+        return self.sim.named.data.xpos[body_name]
 
     def state_vector(self):
         return np.concatenate([self.sim.data.qpos.flat, self.sim.data.qvel.flat])
