@@ -234,7 +234,7 @@ class EnvSpecTree(MutableMapping):
 
         message = f"Namespace `{namespace}` does not exist."
         if namespace:
-            suggestions = difflib.get_close_matches(namespace, self.namespaces())
+            suggestions = difflib.get_close_matches(namespace, self.namespaces(), n=1)
             if suggestions:
                 message += f" Did you mean: `{suggestions[0]}`?"
             else:
