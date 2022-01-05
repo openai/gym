@@ -29,26 +29,24 @@ gym.register(
 def register_some_envs():
     namespace = "MyAwesomeNamespace"
     name = "MyAwesomeEnv"
-    gym.register(
-        id=namespace + "/" + name + "-v3",
-        entry_point="tests.envs.test_registration:ArgumentEnv",
-        kwargs={
-            "arg1": "arg1",
-            "arg2": "arg2",
-            "arg3": "arg3",
-        },
-    )
-    gym.register(
-        id=namespace + "/" + name + "-v1",
-        entry_point="tests.envs.test_registration:ArgumentEnv",
-        kwargs={
-            "arg1": "arg1",
-            "arg2": "arg2",
-            "arg3": "arg3",
-        },
-    )
+    versions = [1, 3, 5]
+    for version in versions:
+        env_id = f"{namespace}/{name}-v{version}"
+        gym.register(
+            id=env_id,
+            entry_point="tests.envs.test_registration:ArgumentEnv",
+            kwargs={
+                "arg1": "arg1",
+                "arg2": "arg2",
+                "arg3": "arg3",
+            },
+        )
+
     yield
-    del gym.envs.registry.env_specs.tree[namespace][name]
+
+    for version in versions:
+        env_id = f"{namespace}/{name}-v{version}"
+        del gym.envs.registry.env_specs[env_id]
 
 
 def test_make():
@@ -78,7 +76,7 @@ def test_register(env_id, namespace, name, version):
     envs.register(env_id)
     assert gym.envs.spec(env_id).id == env_id
     assert version in gym.envs.registry.env_specs.tree[namespace][name].keys()
-    del gym.envs.registry.env_specs.tree[namespace][name]
+    del gym.envs.registry.env_specs[env_id]
 
 
 @pytest.mark.parametrize(
@@ -120,7 +118,7 @@ def test_env_suggestions(register_some_envs, env_id_input, env_id_suggested):
         ("Blackjack-v10", "`v1`"),
         ("MountainCarContinuous-v100", "`v0`"),
         ("Taxi-v30", "`v3`"),
-        ("MyAwesomeNamespace/MyAwesomeEnv-v5", "`v1`, `v3`"),
+        ("MyAwesomeNamespace/MyAwesomeEnv-v6", "`v1`, `v3`, `v5`"),
     ],
 )
 def test_env_version_suggestions(register_some_envs, env_id_input, suggested_versions):
