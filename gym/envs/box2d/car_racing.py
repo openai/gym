@@ -45,6 +45,7 @@ import gym
 from gym import spaces
 from gym.envs.box2d.car_dynamics import Car
 from gym.utils import seeding, EzPickle
+from operator import itemgetter
 
 import pyglet
 
@@ -383,9 +384,21 @@ class CarRacing(gym.Env, EzPickle):
             self.car.fuel_spent = 0.0
             step_reward = self.reward - self.prev_reward
             self.prev_reward = self.reward
-            if self.tile_visited_count == len(self.track):
-                done = True
+
+            # Detect if we are within the first tile of the road
             x, y = self.car.hull.position
+            first_tile = self.road_poly[0][0]
+            x1 = max(first_tile, key=itemgetter(0))[0]
+            y1 = max(first_tile, key=itemgetter(1))[1]
+            x2 = min(first_tile, key=itemgetter(0))[0]
+            y2 = min(first_tile, key=itemgetter(1))[1]
+            in_first_tile = (x1 < x < x2 or x2 < x < x1) and (
+                y1 < y < y2 or y2 < y < y1
+            )
+
+            # Episode ends if 95% tile coverage and we pass again through the first tile
+            if self.tile_visited_count > 0.95 * len(self.track) and in_first_tile:
+                done = True
             if abs(x) > PLAYFIELD or abs(y) > PLAYFIELD:
                 done = True
                 step_reward = -100
