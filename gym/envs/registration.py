@@ -69,13 +69,12 @@ class EnvSpec:
     """
 
     id_requested: InitVar[str]
-    entry_point: Optional[Union[Callable, str]] = None
-    reward_threshold: Optional[int] = None
-    nondeterministic: bool = False
-    max_episode_steps: Optional[int] = None
-    order_enforce: Optional[bool] = True
+    entry_point: Optional[Union[Callable, str]] = field(default=None)
+    reward_threshold: Optional[int] = field(default=None)
+    nondeterministic: bool = field(default=False)
+    max_episode_steps: Optional[int] = field(default=False)
+    order_enforce: Optional[bool] = field(default=True)
     kwargs: dict = field(default_factory=dict)
-
     namespace: Optional[str] = field(init=False)
     name: str = field(init=False)
     version: Optional[int] = field(init=False)
