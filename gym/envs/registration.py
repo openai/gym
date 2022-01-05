@@ -20,6 +20,11 @@ from gym import error, logger, Env
 from gym.envs.__relocated__ import internal_env_relocation_map
 
 
+ENV_ID_RE: re.Pattern = re.compile(
+    r"^(?:(?P<namespace>[\w:-]+)\/)?(?:(?P<name>[\w:.-]+?))(?:-v(?P<version>\d+))?$"
+)
+
+
 def load(name: str) -> Type:
     mod_name, attr_name = name.split(":")
     mod = importlib.import_module(mod_name)
@@ -36,14 +41,11 @@ def parse_env_id(id: str) -> Tuple[Optional[str], str, Optional[int]]:
     2016-10-31: We're experimentally expanding the environment ID format
     to include an optional username.
     """
-    pattern = re.compile(
-        r"^(?:(?P<namespace>[\w:-]+)\/)?(?:(?P<name>[\w:.-]+?))(?:-v(?P<version>\d+))?$"
-    )
-    match = pattern.fullmatch(id)
+    match = ENV_ID_RE.fullmatch(id)
     if not match:
         raise error.Error(
             f"Malformed environment ID: {id}."
-            f"(Currently all IDs must be of the form {pattern}.)"
+            f"(Currently all IDs must be of the form {ENV_ID_RE}.)"
         )
     namespace, name, version = match.group("namespace", "name", "version")
     if version is not None:
