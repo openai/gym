@@ -128,7 +128,7 @@ class MemorizeDigits(gym.Env):
             return self.last_obs
 
         elif mode == "human":
-            from gym.envs.classic_control import rendering
+            from gym.utils import rendering
 
             if self.viewer is None:
                 self.viewer = rendering.SimpleImageViewer()
