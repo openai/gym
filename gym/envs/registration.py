@@ -282,8 +282,16 @@ class EnvSpecTree(MutableMapping):
         # If the version is less than the latest version
         # then we throw an error.DeprecatedEnv exception.
         # Otherwise we throw error.VersionNotFound.
-        all_versions = self.tree[namespace][name].values()
-        latest_spec = max(all_versions, key=lambda spec: spec.version, default=None)
+        versions = self.tree[namespace][name]
+        assert len(versions) > 0
+
+        versioned_specs = list(filter(lambda spec: spec.version, versions.values()))
+        default_spec = versions[None] if None in versions else None
+        assert len(versioned_specs) > 0 or default_spec is not None
+
+        latest_spec = max(
+            versioned_specs, key=lambda spec: spec.version, default=default_spec
+        )
 
         if version is not None:
             message = f"Environment version `v{version}` for `"
@@ -294,8 +302,8 @@ class EnvSpecTree(MutableMapping):
             message += f"{namespace}/"
         message += f"{name}` "
 
-        # If this version doesn't exist but there exists a later version
-        # we should warn the user this version is deprecated.
+        # If this version doesn't exist but there exists a newer non-default
+        # version we should warn the user this version is deprecated.
         if (
             latest_spec
             and latest_spec.version is not None
@@ -305,20 +313,32 @@ class EnvSpecTree(MutableMapping):
             message += "is deprecated. "
             message += f"Please use the latest version `v{latest_spec.version}`."
             raise error.DeprecatedEnv(message)
+        # If this version doesn't exist and there only exists a default version
+        elif latest_spec and latest_spec.version is None:
+            message += "is deprecated. "
+            message += f"`{latest_spec.name}` only provides the default version. "
+            message += (
+                f'You can initialize the environment as `gym.make("{latest_spec.id}")`.'
+            )
+            raise error.DeprecatedEnv(message)
         # Otherwise we've asked for a version that doesn't exist.
         else:
-            message += f"{name} could not be found. "
-            if all_versions:
-                all_versions_sorted = sorted(
-                    all_versions, key=lambda spec: spec.version
+            message += f"could not be found. `{name}` provides "
+
+            if default_spec:
+                message += "a default version"
+                if versioned_specs:
+                    message += " and "
+            if versioned_specs:
+                message += "the versioned environments: [ "
+                versioned_specs_sorted = sorted(
+                    versioned_specs, key=lambda spec: spec.version
                 )
-                message += "Valid versions are: [ "
                 message += ", ".join(
-                    map(lambda spec: f"`v{spec.version}`", all_versions_sorted)
+                    map(lambda spec: f"`v{spec.version}`", versioned_specs_sorted)
                 )
-                message += " ]."
-            else:
-                message += "This environment appears to be unversioned."
+                message += " ]"
+            message += "."
             raise error.VersionNotFound(message)
 
     def __getitem__(self, key: str) -> EnvSpec:
