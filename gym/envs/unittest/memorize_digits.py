@@ -128,10 +128,10 @@ class MemorizeDigits(gym.Env):
             return self.last_obs
 
         elif mode == "human":
-            from gym.utils import rendering
+            from gym.utils import pyglet_rendering
 
             if self.viewer is None:
-                self.viewer = rendering.SimpleImageViewer()
+                self.viewer = pyglet_rendering.SimpleImageViewer()
             self.viewer.imshow(self.last_obs)
             return self.viewer.isopen
 

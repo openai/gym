@@ -382,10 +382,10 @@ class LunarLander(gym.Env, EzPickle):
         return np.array(state, dtype=np.float32), reward, done, {}
 
     def render(self, mode="human"):
-        from gym.utils import rendering
+        from gym.utils import pyglet_rendering
 
         if self.viewer is None:
-            self.viewer = rendering.Viewer(VIEWPORT_W, VIEWPORT_H)
+            self.viewer = pyglet_rendering.Viewer(VIEWPORT_W, VIEWPORT_H)
             self.viewer.set_bounds(0, VIEWPORT_W / SCALE, 0, VIEWPORT_H / SCALE)
 
         for obj in self.particles:
@@ -410,7 +410,7 @@ class LunarLander(gym.Env, EzPickle):
             for f in obj.fixtures:
                 trans = f.body.transform
                 if type(f.shape) is circleShape:
-                    t = rendering.Transform(translation=trans * f.shape.pos)
+                    t = pyglet_rendering.Transform(translation=trans * f.shape.pos)
                     self.viewer.draw_circle(
                         f.shape.radius, 20, color=obj.color1
                     ).add_attr(t)

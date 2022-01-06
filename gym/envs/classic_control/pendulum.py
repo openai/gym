@@ -58,21 +58,21 @@ class PendulumEnv(gym.Env):
 
     def render(self, mode="human"):
         if self.viewer is None:
-            from gym.utils import rendering
+            from gym.utils import pyglet_rendering
 
-            self.viewer = rendering.Viewer(500, 500)
+            self.viewer = pyglet_rendering.Viewer(500, 500)
             self.viewer.set_bounds(-2.2, 2.2, -2.2, 2.2)
-            rod = rendering.make_capsule(1, 0.2)
+            rod = pyglet_rendering.make_capsule(1, 0.2)
             rod.set_color(0.8, 0.3, 0.3)
-            self.pole_transform = rendering.Transform()
+            self.pole_transform = pyglet_rendering.Transform()
             rod.add_attr(self.pole_transform)
             self.viewer.add_geom(rod)
-            axle = rendering.make_circle(0.05)
+            axle = pyglet_rendering.make_circle(0.05)
             axle.set_color(0, 0, 0)
             self.viewer.add_geom(axle)
             fname = path.join(path.dirname(__file__), "assets/clockwise.png")
-            self.img = rendering.Image(fname, 1.0, 1.0)
-            self.imgtrans = rendering.Transform()
+            self.img = pyglet_rendering.Image(fname, 1.0, 1.0)
+            self.imgtrans = pyglet_rendering.Transform()
             self.img.add_attr(self.imgtrans)
 
         self.viewer.add_onetime(self.img)
