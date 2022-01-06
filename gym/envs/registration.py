@@ -461,21 +461,20 @@ class EnvRegistry:
 
         # We check what the latest version of the environment is and display a warning
         # if the user is attempting to initialize an older version.
-        latest_spec = max(
+        latest_versioned_spec = max(
             filter(lambda spec: spec.version, versions),
             key=lambda spec: cast(int, spec.version),
             default=None,
         )
         if (
-            latest_spec
-            and latest_spec.version is not None
+            latest_versioned_spec
             and spec.version is not None
-            and spec.version < latest_spec.version
+            and spec.version < latest_versioned_spec.version
         ):
             logger.warn(
                 f"The environment {spec.id} is out of date. You should consider "
-                f"upgrading to version `v{latest_spec.version}` "
-                f"with the environment ID `{latest_spec.id}`."
+                f"upgrading to version `v{latest_versioned_spec.version}` "
+                f"with the environment ID `{latest_versioned_spec.id}`."
             )
 
         env = spec.make(**kwargs)
