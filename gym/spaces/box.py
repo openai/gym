@@ -173,6 +173,7 @@ class Box(Space):
             and np.allclose(self.high, other.high)
         )
 
+
 def get_inf(dtype, sign):
     """Returns an infinite that doesn't break things.
     `dtype` must be an `np.dtype`
@@ -195,9 +196,9 @@ def get_inf(dtype, sign):
     else:
         raise ValueError(f"Unknown dtype {dtype} for infinite bounds")
 
+
 def get_precision(dtype):
     if np.issubdtype(dtype, np.floating):
         return np.finfo(dtype).precision
     else:
         return np.inf
-
