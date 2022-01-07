@@ -165,15 +165,15 @@ class Box(Space):
     def __repr__(self):
         return f"Box({self.low}, {self.high}, {self.shape}, {self.dtype})"
 
-def __eq__(self, other):
-    return (
-        isinstance(other, Box)
-        and (self.shape == other.shape)
-        and np.allclose(self.low, other.low)
-        and np.allclose(self.high, other.high)
-    )
+    def __eq__(self, other):
+        return (
+            isinstance(other, Box)
+            and (self.shape == other.shape)
+            and np.allclose(self.low, other.low)
+            and np.allclose(self.high, other.high)
+        )
 
-    def get_inf(self, dtype, sign):
+def get_inf(dtype, sign):
     """Returns an infinite that doesn't break things.
     `dtype` must be an `np.dtype`
     `bound` must be either `min` or `max`
@@ -195,8 +195,9 @@ def __eq__(self, other):
     else:
         raise ValueError(f"Unknown dtype {dtype} for infinite bounds")
 
-def get_precision(self, dtype):
+def get_precision(dtype):
     if np.issubdtype(dtype, np.floating):
         return np.finfo(dtype).precision
     else:
         return np.inf
+
