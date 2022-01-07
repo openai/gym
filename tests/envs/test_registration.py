@@ -201,6 +201,33 @@ def test_malformed_lookup():
         assert False
 
 
+def test_default_and_versioned_lookups():
+    registry = registration.EnvRegistry()
+    registry.register("test/Test")
+    registry.register("test/Test-v5")
+
+    with pytest.raises(error.VersionNotFound):
+        registry.spec("test/Test-v9")
+
+    with pytest.raises(error.DeprecatedEnv):
+        registry.spec("test/Test-v4")
+
+    # Should pass both default and v5
+    registry.spec("test/Test")
+    registry.spec("test/Test-v5")
+
+
+def test_default_lookups():
+    registry = registration.EnvRegistry()
+    registry.register("test/Test")
+
+    with pytest.raises(error.DeprecatedEnv):
+        registry.spec("test/Test-v0")
+
+    # Lookup default
+    registry.spec("test/Test")
+
+
 def test_env_spec_tree():
     spec_tree = EnvSpecTree()
 
