@@ -29,9 +29,9 @@ gym.register(
 def register_some_envs():
     namespace = "MyAwesomeNamespace"
     name = "MyAwesomeEnv"
-    versions = [1, 3, 5]
+    versions = [None, 1, 3, 5]
     for version in versions:
-        env_id = f"{namespace}/{name}-v{version}"
+        env_id = f"{namespace}/{name}-v{version}" if version else f"{namespace}/{name}"
         gym.register(
             id=env_id,
             entry_point="tests.envs.test_registration:ArgumentEnv",
@@ -45,7 +45,7 @@ def register_some_envs():
     yield
 
     for version in versions:
-        env_id = f"{namespace}/{name}-v{version}"
+        env_id = f"{namespace}/{name}-v{version}" if version else f"{namespace}/{name}"
         del gym.envs.registry.env_specs[env_id]
 
 
@@ -112,18 +112,24 @@ def test_env_suggestions(register_some_envs, env_id_input, env_id_suggested):
 
 
 @pytest.mark.parametrize(
-    "env_id_input, suggested_versions",
+    "env_id_input, suggested_versions, default_version",
     [
-        ("CartPole-v12", "`v0`, `v1`"),
-        ("Blackjack-v10", "`v1`"),
-        ("MountainCarContinuous-v100", "`v0`"),
-        ("Taxi-v30", "`v3`"),
-        ("MyAwesomeNamespace/MyAwesomeEnv-v6", "`v1`, `v3`, `v5`"),
+        ("CartPole-v12", "`v0`, `v1`", False),
+        ("Blackjack-v10", "`v1`", False),
+        ("MountainCarContinuous-v100", "`v0`", False),
+        ("Taxi-v30", "`v3`", False),
+        ("MyAwesomeNamespace/MyAwesomeEnv-v6", "`v1`, `v3`, `v5`", True),
     ],
 )
-def test_env_version_suggestions(register_some_envs, env_id_input, suggested_versions):
+def test_env_version_suggestions(
+    register_some_envs, env_id_input, suggested_versions, default_version
+):
+    match_str = f"versioned environments: \\[ {suggested_versions} \\]"
+    if default_version:
+        match_str = "provides a default version and the " + match_str
     with pytest.raises(
-        error.UnregisteredEnv, match=f"Valid versions are: \\[ {suggested_versions} \\]"
+        error.UnregisteredEnv,
+        match=match_str,
     ):
         envs.make(env_id_input)
 

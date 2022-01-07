@@ -285,7 +285,9 @@ class EnvSpecTree(MutableMapping):
         versions = self.tree[namespace][name]
         assert len(versions) > 0
 
-        versioned_specs = list(filter(lambda spec: spec.version, versions.values()))
+        versioned_specs = list(
+            filter(lambda spec: isinstance(spec.version, int), versions.values())
+        )
         default_spec = versions[None] if None in versions else None
         assert len(versioned_specs) > 0 or default_spec is not None
 
@@ -469,7 +471,7 @@ class EnvRegistry:
         if (
             latest_versioned_spec
             and spec.version is not None
-            and spec.version < latest_versioned_spec.version
+            and spec.version < cast(int, latest_versioned_spec.version)
         ):
             logger.warn(
                 f"The environment {spec.id} is out of date. You should consider "
