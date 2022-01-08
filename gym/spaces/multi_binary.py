@@ -1,4 +1,6 @@
-from typing import Optional, Tuple, Union, Sequence
+from __future__ import annotations
+
+from typing import Optional, Union, Sequence
 import numpy as np
 from .space import Space
 
@@ -41,7 +43,7 @@ class MultiBinary(Space[np.ndarray]):
         super().__init__(input_n, np.int8, seed)
 
     @property
-    def shape(self) -> Tuple[int, ...]:
+    def shape(self) -> tuple[int, ...]:
         """Has stricter type than gym.Space - never None."""
         return self._shape  # type: ignore
 

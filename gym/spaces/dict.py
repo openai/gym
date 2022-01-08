@@ -1,12 +1,13 @@
+from __future__ import annotations
+
 from collections import OrderedDict
 from collections.abc import Mapping, Sequence
-from typing import Optional, Union
-import typing as t
+from typing import Dict as TypingDict
 import numpy as np
 from .space import Space
 
 
-class Dict(Space[t.Dict[str, Space]], Mapping):
+class Dict(Space[TypingDict[str, Space]], Mapping):
     """
     A dictionary of simpler spaces.
 
@@ -38,8 +39,8 @@ class Dict(Space[t.Dict[str, Space]], Mapping):
 
     def __init__(
         self,
-        spaces: Optional[t.Dict[str, Space]] = None,
-        seed: Optional[Union[t.Dict, int]] = None,
+        spaces: dict[str, Space] | None = None,
+        seed: dict | int | None = None,
         **spaces_kwargs: Space
     ):
         assert (spaces is None) or (
@@ -67,7 +68,7 @@ class Dict(Space[t.Dict[str, Space]], Mapping):
             None, None, seed  # type: ignore
         )  # None for shape and dtype, since it'll require special handling
 
-    def seed(self, seed: Optional[Union[t.Dict, int]] = None) -> list:
+    def seed(self, seed: dict | int | None = None) -> list:
         seeds = []
         if isinstance(seed, dict):
             for key, seed_key in zip(self.spaces, seed):
@@ -143,8 +144,8 @@ class Dict(Space[t.Dict[str, Space]], Mapping):
             for key, space in self.spaces.items()
         }
 
-    def from_jsonable(self, sample_n: t.Dict[str, list]) -> list:
-        dict_of_list: t.Dict[str, list] = {}
+    def from_jsonable(self, sample_n: dict[str, list]) -> list:
+        dict_of_list: dict[str, list] = {}
         for key, space in self.spaces.items():
             dict_of_list[key] = space.from_jsonable(sample_n[key])
         ret = []

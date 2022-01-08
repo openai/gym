@@ -1,5 +1,4 @@
 from typing import Iterable, List, Optional, Union
-import typing as t
 import numpy as np
 from .space import Space
 
@@ -54,7 +53,7 @@ class Tuple(Space[tuple]):
 
         return seeds
 
-    def sample(self) -> t.Tuple:
+    def sample(self) -> tuple:
         return tuple(space.sample() for space in self.spaces)
 
     def contains(self, x) -> bool:

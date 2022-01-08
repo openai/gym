@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Sequence
 import numpy as np
-from typing import List, Tuple
 from gym import logger
 from .space import Space
 from .discrete import Discrete
@@ -27,7 +28,7 @@ class MultiDiscrete(Space[np.ndarray]):
 
     """
 
-    def __init__(self, nvec: List[int], dtype=np.int64, seed=None):
+    def __init__(self, nvec: list[int], dtype=np.int64, seed=None):
         """
         nvec: vector of counts of each categorical variable
         """
@@ -37,7 +38,7 @@ class MultiDiscrete(Space[np.ndarray]):
         super().__init__(self.nvec.shape, dtype, seed)
 
     @property
-    def shape(self) -> Tuple[int, ...]:
+    def shape(self) -> tuple[int, ...]:
         """Has stricter type than gym.Space - never None."""
         return self._shape  # type: ignore
 

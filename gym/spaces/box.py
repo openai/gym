@@ -1,4 +1,6 @@
-from typing import Tuple, SupportsFloat, Union, Type, Optional, Sequence, List
+from __future__ import annotations
+
+from typing import Tuple, SupportsFloat, Union, Type, Optional, Sequence
 
 import numpy as np
 
@@ -179,7 +181,7 @@ class Box(Space[np.ndarray]):
     def to_jsonable(self, sample_n):
         return np.array(sample_n).tolist()
 
-    def from_jsonable(self, sample_n: Sequence[SupportsFloat]) -> List[np.ndarray]:
+    def from_jsonable(self, sample_n: Sequence[SupportsFloat]) -> list[np.ndarray]:
         return [np.asarray(sample) for sample in sample_n]
 
     def __repr__(self) -> str:

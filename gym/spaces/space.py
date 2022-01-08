@@ -1,13 +1,12 @@
+from __future__ import annotations
+
 from typing import (
-    List,
     TypeVar,
     Generic,
     Optional,
     Sequence,
-    Union,
     Iterable,
     Mapping,
-    Tuple,
     Type,
 )
 
@@ -37,7 +36,7 @@ class Space(Generic[T_cov]):
     def __init__(
         self,
         shape: Optional[Sequence[int]] = None,
-        dtype: Optional[Union[Type, str]] = None,
+        dtype: Optional[Type | str] = None,
         seed: Optional[int] = None,
     ):
         import numpy as np  # noqa ## takes about 300-400ms to import, so we load lazily
@@ -59,7 +58,7 @@ class Space(Generic[T_cov]):
         return self._np_random  # type: ignore  ## self.seed() call guarantees right type.
 
     @property
-    def shape(self) -> Optional[Tuple[int, ...]]:
+    def shape(self) -> Optional[tuple[int, ...]]:
         """Return the shape of the space as an immutable property"""
         return self._shape
 
@@ -83,7 +82,7 @@ class Space(Generic[T_cov]):
     def __contains__(self, x) -> bool:
         return self.contains(x)
 
-    def __setstate__(self, state: Union[Iterable, Mapping]):
+    def __setstate__(self, state: Iterable | Mapping):
         # Don't mutate the original state
         state = dict(state)
 
@@ -107,7 +106,7 @@ class Space(Generic[T_cov]):
         # By default, assume identity is JSONable
         return list(sample_n)
 
-    def from_jsonable(self, sample_n: list) -> List[T_cov]:
+    def from_jsonable(self, sample_n: list) -> list[T_cov]:
         """Convert a JSONable data type to a batch of samples from this space."""
         # By default, assume identity is JSONable
         return sample_n
