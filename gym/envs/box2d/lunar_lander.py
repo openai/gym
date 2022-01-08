@@ -31,6 +31,8 @@ import sys
 from typing import Optional
 
 import numpy as np
+import pygame
+from pygame import gfxdraw
 
 import Box2D
 from Box2D.b2 import (
@@ -93,8 +95,8 @@ class LunarLander(gym.Env, EzPickle):
 
     def __init__(self, continuous: bool = False):
         EzPickle.__init__(self)
-        self.viewer = None
-
+        self.screen = None
+        self.isopen = True
         self.world = Box2D.b2World()
         self.moon = None
         self.lander = None
@@ -186,8 +188,8 @@ class LunarLander(gym.Env, EzPickle):
                 restitution=0.0,
             ),  # 0.99 bouncy
         )
-        self.lander.color1 = (0.5, 0.4, 0.9)
-        self.lander.color2 = (0.3, 0.3, 0.5)
+        self.lander.color1 = (128, 102, 230)
+        self.lander.color2 = (77, 77, 128)
         self.lander.ApplyForceToCenter(
             (
                 self.np_random.uniform(-INITIAL_RANDOM, INITIAL_RANDOM),
@@ -210,8 +212,8 @@ class LunarLander(gym.Env, EzPickle):
                 ),
             )
             leg.ground_contact = False
-            leg.color1 = (0.5, 0.4, 0.9)
-            leg.color2 = (0.3, 0.3, 0.5)
+            leg.color1 = (128, 102, 230)
+            leg.color2 = (77, 77, 128)
             rjd = revoluteJointDef(
                 bodyA=self.lander,
                 bodyB=leg,
@@ -382,66 +384,87 @@ class LunarLander(gym.Env, EzPickle):
         return np.array(state, dtype=np.float32), reward, done, {}
 
     def render(self, mode="human"):
-        from gym.utils import pyglet_rendering
+        pygame.init()
 
-        if self.viewer is None:
-            self.viewer = pyglet_rendering.Viewer(VIEWPORT_W, VIEWPORT_H)
-            self.viewer.set_bounds(0, VIEWPORT_W / SCALE, 0, VIEWPORT_H / SCALE)
+        self.screen = pygame.display.set_mode((VIEWPORT_W, VIEWPORT_H))
+        self.surf = pygame.Surface(self.screen.get_size())
+
+        pygame.transform.scale(self.surf, (SCALE, SCALE))
+        pygame.draw.rect(self.surf, (255, 255, 255), self.surf.get_rect())
 
         for obj in self.particles:
             obj.ttl -= 0.15
             obj.color1 = (
-                max(0.2, 0.2 + obj.ttl),
-                max(0.2, 0.5 * obj.ttl),
-                max(0.2, 0.5 * obj.ttl),
-            )
+                int(max(0.2, 0.15 + obj.ttl) * 255),
+                int(max(0.2, 0.5 * obj.ttl) * 255),
+                int(max(0.2, 0.5 * obj.ttl) * 255),
+                )
             obj.color2 = (
-                max(0.2, 0.2 + obj.ttl),
-                max(0.2, 0.5 * obj.ttl),
-                max(0.2, 0.5 * obj.ttl),
+                int(max(0.2, 0.15 + obj.ttl) * 255),
+                int(max(0.2, 0.5 * obj.ttl) * 255),
+                int(max(0.2, 0.5 * obj.ttl) * 255),
             )
 
         self._clean_particles(False)
 
         for p in self.sky_polys:
-            self.viewer.draw_polygon(p, color=(0, 0, 0))
+            scaled_poly = []
+            for coord in p:
+                scaled_poly.append((coord[0] * SCALE, coord[1] * SCALE))
+            pygame.draw.polygon(self.surf, (0, 0, 0), scaled_poly)
+            gfxdraw.aapolygon(self.surf, scaled_poly, (0, 0, 0))
 
         for obj in self.particles + self.drawlist:
             for f in obj.fixtures:
                 trans = f.body.transform
                 if type(f.shape) is circleShape:
-                    t = pyglet_rendering.Transform(translation=trans * f.shape.pos)
-                    self.viewer.draw_circle(
-                        f.shape.radius, 20, color=obj.color1
-                    ).add_attr(t)
-                    self.viewer.draw_circle(
-                        f.shape.radius, 20, color=obj.color2, filled=False, linewidth=2
-                    ).add_attr(t)
+                    pygame.draw.circle(self.surf, color=obj.color1,
+                                       center=trans*f.shape.pos*SCALE, radius=f.shape.radius*SCALE)
+                    pygame.draw.circle(self.surf, color=obj.color2,
+                                       center=trans*f.shape.pos*SCALE, radius=f.shape.radius*SCALE)
+
                 else:
-                    path = [trans * v for v in f.shape.vertices]
-                    self.viewer.draw_polygon(path, color=obj.color1)
+                    path = [trans * v * SCALE for v in f.shape.vertices]
+                    pygame.draw.polygon(self.surf, color=obj.color1, points=path)
+                    gfxdraw.aapolygon(self.surf, path, obj.color1)
                     path.append(path[0])
-                    self.viewer.draw_polyline(path, color=obj.color2, linewidth=2)
+                    pygame.draw.polygon(self.surf, color=obj.color2, points=path, width=1)
+                    gfxdraw.aapolygon(self.surf, path, obj.color1)
 
-        for x in [self.helipad_x1, self.helipad_x2]:
-            flagy1 = self.helipad_y
-            flagy2 = flagy1 + 50 / SCALE
-            self.viewer.draw_polyline([(x, flagy1), (x, flagy2)], color=(1, 1, 1))
-            self.viewer.draw_polygon(
-                [
-                    (x, flagy2),
-                    (x, flagy2 - 10 / SCALE),
-                    (x + 25 / SCALE, flagy2 - 5 / SCALE),
-                ],
-                color=(0.8, 0.8, 0),
-            )
+                for x in [self.helipad_x1, self.helipad_x2]:
+                    x = x * SCALE
+                    flagy1 = self.helipad_y * SCALE
+                    flagy2 = flagy1 + 50
+                    pygame.draw.line(self.surf, color=(255, 255, 255),
+                                     start_pos=(x, flagy1), end_pos=(x, flagy2), width=1)
+                    pygame.draw.polygon(
+                        self.surf,
+                        color=(204, 204, 0),
+                        points=
+                        [
+                            (x, flagy2),
+                            (x, flagy2 - 10),
+                            (x + 25, flagy2 - 5),
+                        ],
+                    )
+                    gfxdraw.aapolygon(self.surf, [(x, flagy2), (x, flagy2 - 10), (x + 25, flagy2 - 5)],
+                                      (204, 204, 0))
 
-        return self.viewer.render(return_rgb_array=mode == "rgb_array")
+        self.surf = pygame.transform.flip(self.surf, False, True)
+        self.screen.blit(self.surf, (0, 0))
+
+        if mode == "human":
+            pygame.display.flip()
+
+        if mode == "rgb_array":
+            return np.transpose(np.array(pygame.surfarray.pixels3d(self.surf)), axes=(1, 0, 2))
+        else:
+            return self.isopen
 
     def close(self):
-        if self.viewer is not None:
-            self.viewer.close()
-            self.viewer = None
+        if self.screen is not None:
+            pygame.quit()
+            self.isopen = False
 
 
 def heuristic(env, s):
