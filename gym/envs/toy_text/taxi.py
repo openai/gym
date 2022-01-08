@@ -1,9 +1,11 @@
 import sys
 from contextlib import closing
 from io import StringIO
-from gym import utils
-from gym.envs.toy_text import discrete
+from typing import Optional
+
 import numpy as np
+from gym import Env, spaces, utils
+from gym.envs.toy_text.utils import categorical_sample
 
 MAP = [
     "+---------+",
@@ -16,7 +18,7 @@ MAP = [
 ]
 
 
-class TaxiEnv(discrete.DiscreteEnv):
+class TaxiEnv(Env):
     """
     The Taxi Problem
     from "Hierarchical Reinforcement Learning with the MAXQ Value Function Decomposition"
@@ -81,9 +83,9 @@ class TaxiEnv(discrete.DiscreteEnv):
         num_columns = 5
         max_row = num_rows - 1
         max_col = num_columns - 1
-        initial_state_distrib = np.zeros(num_states)
+        self.initial_state_distrib = np.zeros(num_states)
         num_actions = 6
-        P = {
+        self.P = {
             state: {action: [] for action in range(num_actions)}
             for state in range(num_states)
         }
@@ -93,7 +95,7 @@ class TaxiEnv(discrete.DiscreteEnv):
                     for dest_idx in range(len(locs)):
                         state = self.encode(row, col, pass_idx, dest_idx)
                         if pass_idx < 4 and pass_idx != dest_idx:
-                            initial_state_distrib[state] += 1
+                            self.initial_state_distrib[state] += 1
                         for action in range(num_actions):
                             # defaults
                             new_row, new_col, new_pass_idx = row, col, pass_idx
@@ -128,11 +130,10 @@ class TaxiEnv(discrete.DiscreteEnv):
                             new_state = self.encode(
                                 new_row, new_col, new_pass_idx, dest_idx
                             )
-                            P[state][action].append((1.0, new_state, reward, done))
-        initial_state_distrib /= initial_state_distrib.sum()
-        discrete.DiscreteEnv.__init__(
-            self, num_states, num_actions, P, initial_state_distrib
-        )
+                            self.P[state][action].append((1.0, new_state, reward, done))
+        self.initial_state_distrib /= self.initial_state_distrib.sum()
+        self.action_space = spaces.Discrete(num_actions)
+        self.observation_space = spaces.Discrete(num_states)
 
     def encode(self, taxi_row, taxi_col, pass_loc, dest_idx):
         # (5) 5, 5, 4
@@ -156,6 +157,20 @@ class TaxiEnv(discrete.DiscreteEnv):
         out.append(i)
         assert 0 <= i < 5
         return reversed(out)
+
+    def step(self, a):
+        transitions = self.P[self.s][a]
+        i = categorical_sample([t[0] for t in transitions], self.np_random)
+        p, s, r, d = transitions[i]
+        self.s = s
+        self.lastaction = a
+        return (int(s), r, d, {"prob": p})
+
+    def reset(self, seed: Optional[int] = None):
+        super().reset(seed=seed)
+        self.s = categorical_sample(self.initial_state_distrib, self.np_random)
+        self.lastaction = None
+        return int(self.s)
 
     def render(self, mode="human"):
         outfile = StringIO() if mode == "ansi" else sys.stdout

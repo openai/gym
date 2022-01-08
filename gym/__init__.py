@@ -3,7 +3,6 @@ from gym.version import VERSION as __version__
 
 from gym.core import (
     Env,
-    GoalEnv,
     Wrapper,
     ObservationWrapper,
     ActionWrapper,
