@@ -11,6 +11,7 @@ class Tuple(Space):
     """
 
     def __init__(self, spaces, seed=None):
+        spaces = tuple(spaces)
         self.spaces = spaces
         for space in spaces:
             assert isinstance(
@@ -53,8 +54,8 @@ class Tuple(Space):
         return tuple(space.sample() for space in self.spaces)
 
     def contains(self, x):
-        if isinstance(x, list):
-            x = tuple(x)  # Promote list to tuple for contains check
+        if isinstance(x, (list, np.ndarray)):
+            x = tuple(x)  # Promote list and ndarray to tuple for contains check
         return (
             isinstance(x, tuple)
             and len(x) == len(self.spaces)

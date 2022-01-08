@@ -16,8 +16,9 @@ class Discrete(Space):
     """
 
     def __init__(self, n, seed=None, start=0):
-        assert n >= 0 and isinstance(start, (int, np.integer))
-        self.n = n
+        assert n > 0, "n (counts) have to be positive"
+        assert isinstance(start, (int, np.integer))
+        self.n = int(n)
         self.start = int(start)
         super().__init__((), np.int64, seed)
 
