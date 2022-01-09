@@ -614,10 +614,6 @@ class BipedalWalker(gym.Env, EzPickle):
             return self.isopen
 
     def close(self):
-        if self.viewer is not None:
-            self.viewer.close()
-            self.viewer = None
-
         if self.screen is not None:
             pygame.quit()
             self.isopen = False
