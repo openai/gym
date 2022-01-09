@@ -492,17 +492,19 @@ class BipedalWalker(gym.Env, EzPickle):
         pygame.init()
 
         self.screen = pygame.display.set_mode((VIEWPORT_W, VIEWPORT_H))
-        self.surf = pygame.Surface((VIEWPORT_W + self.scroll*SCALE, VIEWPORT_H))
+        self.surf = pygame.Surface((VIEWPORT_W + self.scroll * SCALE, VIEWPORT_H))
 
         pygame.transform.scale(self.surf, (SCALE, SCALE))
 
         pygame.draw.polygon(
             self.surf,
             color=(215, 215, 255),
-            points=[(self.scroll*SCALE, 0),
-                    (self.scroll*SCALE + VIEWPORT_W, 0),
-                    (self.scroll*SCALE + VIEWPORT_W, VIEWPORT_H),
-                    (self.scroll*SCALE, VIEWPORT_H)]
+            points=[
+                (self.scroll * SCALE, 0),
+                (self.scroll * SCALE + VIEWPORT_W, 0),
+                (self.scroll * SCALE + VIEWPORT_W, VIEWPORT_H),
+                (self.scroll * SCALE, VIEWPORT_H),
+            ],
         )
 
         for poly, x1, x2 in self.cloud_poly:
@@ -513,10 +515,15 @@ class BipedalWalker(gym.Env, EzPickle):
             pygame.draw.polygon(
                 self.surf,
                 color=(255, 255, 255),
-                points=[(p[0]*SCALE + self.scroll*SCALE / 2, p[1]*SCALE) for p in poly]
+                points=[
+                    (p[0] * SCALE + self.scroll * SCALE / 2, p[1] * SCALE) for p in poly
+                ],
             )
-            gfxdraw.aapolygon(self.surf, [(p[0]*SCALE + self.scroll*SCALE / 2, p[1]*SCALE) for p in poly],
-                              (255, 255, 255))
+            gfxdraw.aapolygon(
+                self.surf,
+                [(p[0] * SCALE + self.scroll * SCALE / 2, p[1] * SCALE) for p in poly],
+                (255, 255, 255),
+            )
         for poly, color in self.terrain_poly:
             if poly[1][0] < self.scroll:
                 continue
@@ -524,12 +531,8 @@ class BipedalWalker(gym.Env, EzPickle):
                 continue
             scaled_poly = []
             for coord in poly:
-                scaled_poly.append(([coord[0]*SCALE, coord[1]*SCALE]))
-            pygame.draw.polygon(
-                self.surf,
-                color=color,
-                points=scaled_poly
-            )
+                scaled_poly.append(([coord[0] * SCALE, coord[1] * SCALE]))
+            pygame.draw.polygon(self.surf, color=color, points=scaled_poly)
             gfxdraw.aapolygon(self.surf, scaled_poly, color)
 
         self.lidar_render = (self.lidar_render + 1) % 100
@@ -540,50 +543,73 @@ class BipedalWalker(gym.Env, EzPickle):
                 if i < len(self.lidar)
                 else self.lidar[len(self.lidar) - i - 1]
             )
-            pygame.draw.line(self.surf, color=(255, 0, 0),
-                             start_pos=(l.p1[0]*SCALE, l.p1[1]*SCALE),
-                             end_pos=(l.p2[0]*SCALE, l.p2[1]*SCALE),
-                             width=1)
+            pygame.draw.line(
+                self.surf,
+                color=(255, 0, 0),
+                start_pos=(l.p1[0] * SCALE, l.p1[1] * SCALE),
+                end_pos=(l.p2[0] * SCALE, l.p2[1] * SCALE),
+                width=1,
+            )
 
         for obj in self.drawlist:
             for f in obj.fixtures:
                 trans = f.body.transform
                 if type(f.shape) is circleShape:
-                    pygame.draw.circle(self.surf, color=obj.color1,
-                                       center=trans*f.shape.pos*SCALE, radius=f.shape.radius*SCALE)
-                    pygame.draw.circle(self.surf, color=obj.color2,
-                                       center=trans*f.shape.pos*SCALE, radius=f.shape.radius*SCALE)
+                    pygame.draw.circle(
+                        self.surf,
+                        color=obj.color1,
+                        center=trans * f.shape.pos * SCALE,
+                        radius=f.shape.radius * SCALE,
+                    )
+                    pygame.draw.circle(
+                        self.surf,
+                        color=obj.color2,
+                        center=trans * f.shape.pos * SCALE,
+                        radius=f.shape.radius * SCALE,
+                    )
                 else:
                     path = [trans * v * SCALE for v in f.shape.vertices]
                     if len(path) > 2:
                         pygame.draw.polygon(self.surf, color=obj.color1, points=path)
                         gfxdraw.aapolygon(self.surf, path, obj.color1)
                         path.append(path[0])
-                        pygame.draw.polygon(self.surf, color=obj.color2, points=path, width=1)
+                        pygame.draw.polygon(
+                            self.surf, color=obj.color2, points=path, width=1
+                        )
                         gfxdraw.aapolygon(self.surf, path, obj.color2)
                     else:
-                        pygame.draw.aaline(self.surf, start_pos=path[0], end_pos=path[1], color=obj.color1)
+                        pygame.draw.aaline(
+                            self.surf,
+                            start_pos=path[0],
+                            end_pos=path[1],
+                            color=obj.color1,
+                        )
 
         flagy1 = TERRAIN_HEIGHT * SCALE
         flagy2 = flagy1 + 50
         x = TERRAIN_STEP * 3 * SCALE
-        pygame.draw.aaline(self.surf, color=(0, 0, 0),
-                           start_pos=(x, flagy1), end_pos=(x, flagy2))
+        pygame.draw.aaline(
+            self.surf, color=(0, 0, 0), start_pos=(x, flagy1), end_pos=(x, flagy2)
+        )
         f = [
             (x, flagy2),
             (x, flagy2 - 10),
             (x + 25, flagy2 - 5),
         ]
         pygame.draw.polygon(self.surf, color=(230, 51, 0), points=f)
-        pygame.draw.lines(self.surf, color=(0, 0, 0), points=f + [f[0]], width=1, closed=False)
+        pygame.draw.lines(
+            self.surf, color=(0, 0, 0), points=f + [f[0]], width=1, closed=False
+        )
 
         self.surf = pygame.transform.flip(self.surf, False, True)
-        self.screen.blit(self.surf, (-self.scroll*SCALE, 0))
+        self.screen.blit(self.surf, (-self.scroll * SCALE, 0))
         if mode == "human":
             pygame.display.flip()
 
         if mode == "rgb_array":
-            return np.transpose(np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2))
+            return np.transpose(
+                np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
+            )
         else:
             return self.isopen
 

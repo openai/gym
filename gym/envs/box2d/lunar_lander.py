@@ -398,7 +398,7 @@ class LunarLander(gym.Env, EzPickle):
                 int(max(0.2, 0.15 + obj.ttl) * 255),
                 int(max(0.2, 0.5 * obj.ttl) * 255),
                 int(max(0.2, 0.5 * obj.ttl) * 255),
-                )
+            )
             obj.color2 = (
                 int(max(0.2, 0.15 + obj.ttl) * 255),
                 int(max(0.2, 0.5 * obj.ttl) * 255),
@@ -418,35 +418,52 @@ class LunarLander(gym.Env, EzPickle):
             for f in obj.fixtures:
                 trans = f.body.transform
                 if type(f.shape) is circleShape:
-                    pygame.draw.circle(self.surf, color=obj.color1,
-                                       center=trans*f.shape.pos*SCALE, radius=f.shape.radius*SCALE)
-                    pygame.draw.circle(self.surf, color=obj.color2,
-                                       center=trans*f.shape.pos*SCALE, radius=f.shape.radius*SCALE)
+                    pygame.draw.circle(
+                        self.surf,
+                        color=obj.color1,
+                        center=trans * f.shape.pos * SCALE,
+                        radius=f.shape.radius * SCALE,
+                    )
+                    pygame.draw.circle(
+                        self.surf,
+                        color=obj.color2,
+                        center=trans * f.shape.pos * SCALE,
+                        radius=f.shape.radius * SCALE,
+                    )
 
                 else:
                     path = [trans * v * SCALE for v in f.shape.vertices]
                     pygame.draw.polygon(self.surf, color=obj.color1, points=path)
                     gfxdraw.aapolygon(self.surf, path, obj.color1)
-                    pygame.draw.aalines(self.surf, color=obj.color2, points=path, closed=True)
+                    pygame.draw.aalines(
+                        self.surf, color=obj.color2, points=path, closed=True
+                    )
 
                 for x in [self.helipad_x1, self.helipad_x2]:
                     x = x * SCALE
                     flagy1 = self.helipad_y * SCALE
                     flagy2 = flagy1 + 50
-                    pygame.draw.line(self.surf, color=(255, 255, 255),
-                                     start_pos=(x, flagy1), end_pos=(x, flagy2), width=1)
+                    pygame.draw.line(
+                        self.surf,
+                        color=(255, 255, 255),
+                        start_pos=(x, flagy1),
+                        end_pos=(x, flagy2),
+                        width=1,
+                    )
                     pygame.draw.polygon(
                         self.surf,
                         color=(204, 204, 0),
-                        points=
-                        [
+                        points=[
                             (x, flagy2),
                             (x, flagy2 - 10),
                             (x + 25, flagy2 - 5),
                         ],
                     )
-                    gfxdraw.aapolygon(self.surf, [(x, flagy2), (x, flagy2 - 10), (x + 25, flagy2 - 5)],
-                                      (204, 204, 0))
+                    gfxdraw.aapolygon(
+                        self.surf,
+                        [(x, flagy2), (x, flagy2 - 10), (x + 25, flagy2 - 5)],
+                        (204, 204, 0),
+                    )
 
         self.surf = pygame.transform.flip(self.surf, False, True)
         self.screen.blit(self.surf, (0, 0))
@@ -455,7 +472,9 @@ class LunarLander(gym.Env, EzPickle):
             pygame.display.flip()
 
         if mode == "rgb_array":
-            return np.transpose(np.array(pygame.surfarray.pixels3d(self.surf)), axes=(1, 0, 2))
+            return np.transpose(
+                np.array(pygame.surfarray.pixels3d(self.surf)), axes=(1, 0, 2)
+            )
         else:
             return self.isopen
 
