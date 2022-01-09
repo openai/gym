@@ -427,9 +427,7 @@ class LunarLander(gym.Env, EzPickle):
                     path = [trans * v * SCALE for v in f.shape.vertices]
                     pygame.draw.polygon(self.surf, color=obj.color1, points=path)
                     gfxdraw.aapolygon(self.surf, path, obj.color1)
-                    path.append(path[0])
-                    pygame.draw.polygon(self.surf, color=obj.color2, points=path, width=1)
-                    gfxdraw.aapolygon(self.surf, path, obj.color1)
+                    pygame.draw.aalines(self.surf, color=obj.color2, points=path, closed=True)
 
                 for x in [self.helipad_x1, self.helipad_x2]:
                     x = x * SCALE
