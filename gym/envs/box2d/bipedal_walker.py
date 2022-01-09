@@ -197,7 +197,7 @@ class BipedalWalker(gym.Env, EzPickle):
                 ]
                 self.fd_polygon.shape.vertices = poly
                 t = self.world.CreateStaticBody(fixtures=self.fd_polygon)
-                t.color1, t.color2 = (1, 1, 1), (0.6, 0.6, 0.6)
+                t.color1, t.color2 = (255, 255, 255), (153, 153, 153)
                 self.terrain.append(t)
 
                 self.fd_polygon.shape.vertices = [
