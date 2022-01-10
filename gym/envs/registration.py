@@ -461,8 +461,9 @@ class EnvRegistry:
         # Get all versions of this spec.
         versions = self.env_specs.versions(spec.namespace, spec.name)
 
-        # We check what the latest version of the environment is and display a warning
-        # if the user is attempting to initialize an older version.
+        # We check what the latest version of the environment is and display
+        # a warning if the user is attempting to initialize an older version
+        # or an unversioned one.
         latest_versioned_spec = max(
             filter(lambda spec: spec.version, versions),
             key=lambda spec: cast(int, spec.version),
@@ -478,6 +479,13 @@ class EnvRegistry:
                 f"upgrading to version `v{latest_versioned_spec.version}` "
                 f"with the environment ID `{latest_versioned_spec.id}`."
             )
+        elif latest_versioned_spec and spec.version is None:
+            logger.warn(
+                f"Using the latest versioned environment `{latest_versioned_spec.id}` "
+                f"instead of the unversioned one `{spec.id}`"
+            )
+            path = latest_versioned_spec.id
+            spec = self.spec(path)
 
         env = spec.make(**kwargs)
         return env
@@ -504,6 +512,23 @@ class EnvRegistry:
 
     def register(self, id: str, **kwargs) -> None:
         spec = EnvSpec(id, **kwargs)
+
+        # Get all versions of this spec.
+        versions = self.env_specs.tree[spec.namespace][spec.name].values()
+
+        # We raise an error if the user is attempting to initialize an
+        # unversioned environment when a versioned one already exists.
+        latest_versioned_spec = max(
+            filter(lambda spec: isinstance(spec.version, int), versions),
+            key=lambda spec: cast(int, spec.version),
+            default=None,
+        )
+
+        if latest_versioned_spec and spec.version is None:
+            message = f"Can't register the unversioned environment `{spec.id}`"
+            message += f" when version `{latest_versioned_spec.version}`"
+            message += " of the same environment already exists"
+            raise error.DeprecatedEnv(message)
 
         if self._ns is not None:
             if spec.namespace is not None:

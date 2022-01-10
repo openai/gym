@@ -273,3 +273,37 @@ def test_env_spec_tree():
     assert spec_tree.tree[None][myenv].keys() == {None}
     assert spec_tree.tree[None][myenv][None] == spec
     assert spec_tree.__repr__() == "├──Test: [ v1 ]\n" + f"└──{myenv}: [  ]\n"
+
+
+@pytest.mark.parametrize(
+    "version",
+    [0, 1],
+)
+def test_register_versioned_unversioned(version):
+    # Register versioned then unversioned
+    versioned_env = f"Test/MyEnv-v{version}"
+    envs.register(versioned_env)
+    assert gym.envs.spec(versioned_env).id == versioned_env
+    unversioned_env = "Test/MyEnv"
+    with pytest.raises(error.DeprecatedEnv):
+        envs.register(unversioned_env)
+
+    # Clean everything
+    del gym.envs.registry.env_specs[versioned_env]
+
+    # Register unversioned then versioned
+    envs.register(unversioned_env)
+    assert gym.envs.spec(unversioned_env).id == unversioned_env
+    envs.register(versioned_env)
+    assert gym.envs.spec(versioned_env).id == versioned_env
+
+    # Clean everything
+    envs_list = [versioned_env, unversioned_env]
+    for env in envs_list:
+        del gym.envs.registry.env_specs[env]
+
+
+def test_return_latest_versioned_env(register_some_envs):
+    with pytest.warns(UserWarning):
+        env = envs.make("MyAwesomeNamespace/MyAwesomeEnv")
+    assert env.spec.id == "MyAwesomeNamespace/MyAwesomeEnv-v5"
