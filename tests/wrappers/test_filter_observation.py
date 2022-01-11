@@ -50,7 +50,7 @@ ERROR_TEST_CASES = (
 )
 
 
-class TestFilterObservation(object):
+class TestFilterObservation:
     @pytest.mark.parametrize(
         "observation_keys,filter_keys", FILTER_OBSERVATION_TEST_CASES
     )
