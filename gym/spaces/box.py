@@ -5,6 +5,11 @@ from gym import logger
 
 
 def _short_repr(arr):
+    """Create a shortened string representation of a numpy array.
+
+    If arr is a multiple of the all-ones vector, return a string representation of the multiplier.
+    Otherwise, return a string representation of the entire array.
+    """
     if arr.size != 0 and np.min(arr) == np.max(arr):
         return str(np.min(arr))
     return str(arr)
@@ -79,6 +84,9 @@ class Box(Space):
             logger.warn(f"Box bound precision lowered by casting to {self.dtype}")
         self.low = self.low.astype(self.dtype)
         self.high = self.high.astype(self.dtype)
+
+        self.low_repr = _short_repr(self.low)
+        self.high_repr = _short_repr(self.high)
 
         # Boolean arrays which indicate the interval type for each coordinate
         self.bounded_below = -np.inf < self.low
@@ -160,9 +168,7 @@ class Box(Space):
         return [np.asarray(sample) for sample in sample_n]
 
     def __repr__(self):
-        low_repr = _short_repr(self.low)
-        high_repr = _short_repr(self.high)
-        return f"Box({low_repr}, {high_repr}, {self.shape}, {self.dtype})"
+        return f"Box({self.low_repr}, {self.high_repr}, {self.shape}, {self.dtype})"
 
     def __eq__(self, other):
         return (
