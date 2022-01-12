@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Tuple, SupportsFloat, Union, Type, Optional, Sequence, Literal
+from typing import Tuple, SupportsFloat, Union, Type, Optional, Sequence
 
 import numpy as np
 
@@ -61,8 +61,8 @@ class Box(Space[np.ndarray]):
             )
         assert isinstance(shape, tuple)
 
-        low = broadcast(low, dtype, shape, inf_sign="-")
-        high = broadcast(high, dtype, shape, inf_sign="+")
+        low = _broadcast(low, dtype, shape, inf_sign="-")
+        high = _broadcast(high, dtype, shape, inf_sign="+")
 
         assert isinstance(low, np.ndarray)
         assert low.shape == shape, "low.shape doesn't match provided shape"
@@ -93,7 +93,7 @@ class Box(Space[np.ndarray]):
         """Has stricter type than gym.Space - never None."""
         return self._shape
 
-    def is_bounded(self, manner: Literal["both", "below", "above"] = "both") -> bool:
+    def is_bounded(self, manner: str = "both") -> bool:
         below = bool(np.all(self.bounded_below))
         above = bool(np.all(self.bounded_above))
         if manner == "both":
@@ -178,7 +178,7 @@ class Box(Space[np.ndarray]):
         )
 
 
-def get_inf(dtype, sign: Literal["+", "-"]) -> SupportsFloat:
+def get_inf(dtype, sign: str) -> SupportsFloat:
     """Returns an infinite that doesn't break things.
     `dtype` must be an `np.dtype`
     `bound` must be either `min` or `max`
@@ -208,11 +208,11 @@ def get_precision(dtype) -> SupportsFloat:
         return np.inf
 
 
-def broadcast(
+def _broadcast(
     value: Union[SupportsFloat, np.ndarray],
     dtype,
     shape: tuple[int, ...],
-    inf_sign: Literal["-", "+"],
+    inf_sign: str,
 ) -> np.ndarray:
     """handle infinite bounds and broadcast at the same time if needed"""
     if np.isscalar(value):
