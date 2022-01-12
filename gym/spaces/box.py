@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Tuple, SupportsFloat, Union, Type, Optional, Sequence, Literal as L
+from typing import Tuple, SupportsFloat, Union, Type, Optional, Sequence, Literal
 
 import numpy as np
 
@@ -61,26 +61,8 @@ class Box(Space[np.ndarray]):
             )
         assert isinstance(shape, tuple)
 
-        # handle infinite bounds and broadcast at the same time if needed
-        if np.isscalar(low):
-            low = get_inf(dtype, "-") if np.isinf(low) else low
-            low = np.full(shape, low, dtype=dtype)
-        else:
-            if np.any(np.isinf(low)):
-                # create new array with dtype, but maintain old one to preserve np.inf
-                temp_low = low.astype(dtype)
-                temp_low[np.isinf(low)] = get_inf(dtype, "-")
-                low = temp_low
-
-        if np.isscalar(high):
-            high = get_inf(dtype, "+") if np.isinf(high) else high
-            high = np.full(shape, high, dtype=dtype)
-        else:
-            if np.any(np.isinf(high)):
-                # create new array with dtype, but maintain old one to preserve np.inf
-                temp_high = high.astype(dtype)
-                temp_high[np.isinf(high)] = get_inf(dtype, "+")
-                high = temp_high
+        low = broadcast(low, dtype, shape, inf_sign="-")
+        high = broadcast(high, dtype, shape, inf_sign="+")
 
         assert isinstance(low, np.ndarray)
         assert low.shape == shape, "low.shape doesn't match provided shape"
@@ -89,8 +71,8 @@ class Box(Space[np.ndarray]):
 
         self._shape: Tuple[int, ...] = shape
 
-        low_precision = get_precision(self.low.dtype)
-        high_precision = get_precision(self.high.dtype)
+        low_precision = get_precision(low.dtype)
+        high_precision = get_precision(high.dtype)
         dtype_precision = get_precision(self.dtype)
         if min(low_precision, high_precision) > dtype_precision:  # type: ignore
             logger.warn(f"Box bound precision lowered by casting to {self.dtype}")
@@ -111,7 +93,7 @@ class Box(Space[np.ndarray]):
         """Has stricter type than gym.Space - never None."""
         return self._shape
 
-    def is_bounded(self, manner: L["both"] | L["below"] | L["above"] = "both") -> bool:
+    def is_bounded(self, manner: Literal["both", "below", "above"] = "both") -> bool:
         below = bool(np.all(self.bounded_below))
         above = bool(np.all(self.bounded_above))
         if manner == "both":
@@ -196,7 +178,7 @@ class Box(Space[np.ndarray]):
         )
 
 
-def get_inf(dtype, sign):
+def get_inf(dtype, sign: Literal["+", "-"]) -> SupportsFloat:
     """Returns an infinite that doesn't break things.
     `dtype` must be an `np.dtype`
     `bound` must be either `min` or `max`
@@ -219,8 +201,28 @@ def get_inf(dtype, sign):
         raise ValueError(f"Unknown dtype {dtype} for infinite bounds")
 
 
-def get_precision(dtype):
+def get_precision(dtype) -> SupportsFloat:
     if np.issubdtype(dtype, np.floating):
         return np.finfo(dtype).precision
     else:
         return np.inf
+
+
+def broadcast(
+    value: Union[SupportsFloat, np.ndarray],
+    dtype,
+    shape: tuple[int, ...],
+    inf_sign: Literal["-", "+"],
+) -> np.ndarray:
+    """handle infinite bounds and broadcast at the same time if needed"""
+    if np.isscalar(value):
+        value = get_inf(dtype, inf_sign) if np.isinf(value) else value  # type: ignore
+        value = np.full(shape, value, dtype=dtype)
+    else:
+        assert isinstance(value, np.ndarray)
+        if np.any(np.isinf(value)):
+            # create new array with dtype, but maintain old one to preserve np.inf
+            temp = value.astype(dtype)
+            temp[np.isinf(value)] = get_inf(dtype, inf_sign)
+            value = temp
+    return value
