@@ -61,23 +61,23 @@ class Box(Space[np.ndarray]):
             )
         assert isinstance(shape, tuple)
 
-        low_array = _broadcast(low, dtype, shape, inf_sign="-")
-        high_array = _broadcast(high, dtype, shape, inf_sign="+")
+        low = _broadcast(low, dtype, shape, inf_sign="-")
+        high = _broadcast(high, dtype, shape, inf_sign="+")
 
-        assert isinstance(low_array, np.ndarray)
-        assert low_array.shape == shape, "low.shape doesn't match provided shape"
-        assert isinstance(high_array, np.ndarray)
-        assert high_array.shape == shape, "high.shape doesn't match provided shape"
+        assert isinstance(low, np.ndarray)
+        assert low.shape == shape, "low.shape doesn't match provided shape"
+        assert isinstance(high, np.ndarray)
+        assert high.shape == shape, "high.shape doesn't match provided shape"
 
         self._shape: Tuple[int, ...] = shape
 
-        low_precision = get_precision(low_array.dtype)
-        high_precision = get_precision(high_array.dtype)
+        low_precision = get_precision(low.dtype)
+        high_precision = get_precision(high.dtype)
         dtype_precision = get_precision(self.dtype)
         if min(low_precision, high_precision) > dtype_precision:  # type: ignore
             logger.warn(f"Box bound precision lowered by casting to {self.dtype}")
-        self.low = low_array.astype(self.dtype)
-        self.high = high_array.astype(self.dtype)
+        self.low = low.astype(self.dtype)
+        self.high = high.astype(self.dtype)
 
         self.low_repr = _short_repr(self.low)
         self.high_repr = _short_repr(self.high)
