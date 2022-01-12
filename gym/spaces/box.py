@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Tuple, SupportsFloat, Union, Type, Optional, Sequence
+from typing import Tuple, SupportsFloat, Union, Type, Optional, Sequence, Literal as L
 
 import numpy as np
 
@@ -111,7 +111,7 @@ class Box(Space[np.ndarray]):
         """Has stricter type than gym.Space - never None."""
         return self._shape
 
-    def is_bounded(self, manner: str = "both") -> bool:
+    def is_bounded(self, manner: L["both"] | L["below"] | L["above"] = "both") -> bool:
         below = bool(np.all(self.bounded_below))
         above = bool(np.all(self.bounded_above))
         if manner == "both":
