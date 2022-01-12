@@ -61,7 +61,7 @@ class Box(Space[np.ndarray]):
             )
         assert isinstance(shape, tuple)
 
-        low = _broadcast(low, dtype, shape, inf_sign="-")
+        low = _broadcast(low, dtype, shape, inf_sign="-")  # type: ignore
         high = _broadcast(high, dtype, shape, inf_sign="+")
 
         assert isinstance(low, np.ndarray)
