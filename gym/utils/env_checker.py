@@ -10,7 +10,7 @@ Original Author: J K Terry
 These projects are covered by the MIT License.
 """
 
-from typing import Union
+from typing import Union, Optional
 
 import gym
 import numpy as np
@@ -274,6 +274,35 @@ def _check_render(
         env.close()
 
 
+def _check_reset_seed(env: gym.Env, seed: Optional[int] = None) -> None:
+    """
+    Check that the environment can be reset with a random seed.
+    """
+    try:
+        env.reset(seed=seed)
+    except TypeError:
+        logger.warn(
+            "The environment cannot be reset with a random seed. This behavior will be deprecated in the future."
+        )
+    else:
+        assert env.np_random is not None, (
+            "Resetting the environment did not result in seeding its random number generator. "
+            "This is likely due to not calling `super().reset(seed=seed)` in the `reset` method."
+        )
+
+
+def _check_reset_options(env: gym.Env) -> None:
+    """
+    Check that the environment can be reset with options.
+    """
+    try:
+        env.reset(options={})
+    except TypeError:
+        logger.warn(
+            "The environment cannot be reset with options. This behavior will be deprecated in the future."
+        )
+
+
 def check_env(env: gym.Env, warn: bool = True, skip_render_check: bool = True) -> None:
     """
     Check that an environment follows Gym API.
@@ -329,3 +358,7 @@ def check_env(env: gym.Env, warn: bool = True, skip_render_check: bool = True) -
     # The check only works with numpy arrays
     if _is_numpy_array_space(observation_space) and _is_numpy_array_space(action_space):
         _check_nan(env)
+
+    # ==== Check the reset method ====
+    _check_reset_seed(env)
+    _check_reset_options(env)
