@@ -23,7 +23,7 @@ class DummyRewardEnv(gym.Env):
         self.t += 1
         return np.array([self.t]), self.t, self.t == len(self.returned_rewards), {}
 
-    def reset(self, *, seed: Optional[int] = None, **kwargs):
+    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
         super().reset(seed=seed)
         self.t = self.return_reward_idx
         return np.array([self.t])

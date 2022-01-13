@@ -19,7 +19,7 @@ class FakeEnvironment(gym.Env):
         image_shape = (height, width, 3)
         return np.zeros(image_shape, dtype=np.uint8)
 
-    def reset(self, *, seed: Optional[int] = None, **kwargs):
+    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
         super().reset(seed=seed)
         observation = self.observation_space.sample()
         return observation

@@ -308,7 +308,7 @@ class BipedalWalker(gym.Env, EzPickle):
             x2 = max(p[0] for p in poly)
             self.cloud_poly.append((poly, x1, x2))
 
-    def reset(self, *, seed: Optional[int] = None, **kwargs):
+    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
         super().reset(seed=seed)
         self._destroy()
         self.world.contactListener_bug_workaround = ContactDetector(self)

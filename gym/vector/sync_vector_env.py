@@ -86,7 +86,11 @@ class SyncVectorEnv(VectorEnv):
         for env, single_seed in zip(self.envs, seed):
             env.seed(single_seed)
 
-    def reset_wait(self, seed: Optional[Union[int, List[int]]] = None, **kwargs):
+    def reset_wait(
+        self,
+        seed: Optional[Union[int, List[int]]] = None,
+        options: Optional[dict] = None,
+    ):
         if seed is None:
             seed = [None for _ in range(self.num_envs)]
         if isinstance(seed, int):
@@ -96,10 +100,11 @@ class SyncVectorEnv(VectorEnv):
         self._dones[:] = False
         observations = []
         for env, single_seed in zip(self.envs, seed):
-            if single_seed is None:
-                single_kwargs = kwargs
-            else:
-                single_kwargs = {**kwargs, "seed": single_seed}
+            single_kwargs = {}
+            if single_seed is not None:
+                single_kwargs["seed"] = single_seed
+            if options is not None:
+                single_kwargs["options"] = options
             observation = env.reset(**single_kwargs)
             observations.append(observation)
         self.observations = concatenate(

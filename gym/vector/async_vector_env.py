@@ -211,7 +211,11 @@ class AsyncVectorEnv(VectorEnv):
         _, successes = zip(*[pipe.recv() for pipe in self.parent_pipes])
         self._raise_if_errors(successes)
 
-    def reset_async(self, seed: Optional[Union[int, List[int]]] = None, **kwargs):
+    def reset_async(
+        self,
+        seed: Optional[Union[int, List[int]]] = None,
+        options: Optional[dict] = None,
+    ):
         """Send the calls to :obj:`reset` to each sub-environment.
 
         Raises
@@ -240,14 +244,18 @@ class AsyncVectorEnv(VectorEnv):
             )
 
         for pipe, single_seed in zip(self.parent_pipes, seed):
-            if single_seed is None:
-                single_kwargs = kwargs
-            else:
-                single_kwargs = {**kwargs, "seed": single_seed}
+            single_kwargs = {}
+            if single_seed is not None:
+                single_kwargs["seed"] = single_seed
+            if options is not None:
+                single_kwargs["options"] = options
+
             pipe.send(("reset", single_kwargs))
         self._state = AsyncState.WAITING_RESET
 
-    def reset_wait(self, timeout=None, seed: Optional[int] = None, **kwargs):
+    def reset_wait(
+        self, timeout=None, seed: Optional[int] = None, options: Optional[dict] = None
+    ):
         """
         Parameters
         ----------
@@ -255,6 +263,7 @@ class AsyncVectorEnv(VectorEnv):
             Number of seconds before the call to `reset_wait` times out. If
             `None`, the call to `reset_wait` never times out.
         seed: ignored
+        options: ignored
 
         Returns
         -------

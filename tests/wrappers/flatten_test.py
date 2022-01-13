@@ -15,7 +15,7 @@ class FakeEnvironment(gym.Env):
     def __init__(self, observation_space):
         self.observation_space = observation_space
 
-    def reset(self, *, seed: Optional[int] = None, **kwargs):
+    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
         super().reset(seed=seed)
         self.observation = self.observation_space.sample()
         return self.observation

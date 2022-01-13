@@ -70,7 +70,9 @@ class Env(Generic[ObsType, ActType]):
         raise NotImplementedError
 
     @abstractmethod
-    def reset(self, *, seed: Optional[int] = None, **kwargs) -> ObsType:
+    def reset(
+        self, *, seed: Optional[int] = None, options: Optional[dict] = None
+    ) -> ObsType:
         """Resets the environment to an initial state and returns an initial
         observation.
 

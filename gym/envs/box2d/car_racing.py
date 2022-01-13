@@ -340,7 +340,7 @@ class CarRacing(gym.Env, EzPickle):
         self.track = track
         return True
 
-    def reset(self, *, seed: Optional[int] = None, **kwargs):
+    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
         super().reset(seed=seed)
         self._destroy()
         self.reward = 0.0
