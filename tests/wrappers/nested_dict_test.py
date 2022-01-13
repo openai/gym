@@ -98,7 +98,7 @@ NESTED_DICT_TEST_CASES = (
 )
 
 
-class TestNestedDictWrapper(object):
+class TestNestedDictWrapper:
     @pytest.mark.parametrize("observation_space, flat_shape", NESTED_DICT_TEST_CASES)
     def test_nested_dicts_size(self, observation_space, flat_shape):
         env = FakeEnvironment(observation_space=observation_space)

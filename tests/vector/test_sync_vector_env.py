@@ -8,7 +8,7 @@ from gym.vector.sync_vector_env import SyncVectorEnv
 
 
 def test_create_sync_vector_env():
-    env_fns = [make_env("CubeCrash-v0", i) for i in range(8)]
+    env_fns = [make_env("FrozenLake-v1", i) for i in range(8)]
     try:
         env = SyncVectorEnv(env_fns)
     finally:
@@ -18,7 +18,7 @@ def test_create_sync_vector_env():
 
 
 def test_reset_sync_vector_env():
-    env_fns = [make_env("CubeCrash-v0", i) for i in range(8)]
+    env_fns = [make_env("CartPole-v1", i) for i in range(8)]
     try:
         env = SyncVectorEnv(env_fns)
         observations = env.reset()
@@ -34,7 +34,7 @@ def test_reset_sync_vector_env():
 
 @pytest.mark.parametrize("use_single_action_space", [True, False])
 def test_step_sync_vector_env(use_single_action_space):
-    env_fns = [make_env("CubeCrash-v0", i) for i in range(8)]
+    env_fns = [make_env("FrozenLake-v1", i) for i in range(8)]
     try:
         env = SyncVectorEnv(env_fns)
         observations = env.reset()
@@ -50,7 +50,7 @@ def test_step_sync_vector_env(use_single_action_space):
     finally:
         env.close()
 
-    assert isinstance(env.observation_space, Box)
+    assert isinstance(env.observation_space, MultiDiscrete)
     assert isinstance(observations, np.ndarray)
     assert observations.dtype == env.observation_space.dtype
     assert observations.shape == (8,) + env.single_observation_space.shape
@@ -68,10 +68,10 @@ def test_step_sync_vector_env(use_single_action_space):
 
 
 def test_check_spaces_sync_vector_env():
-    # CubeCrash-v0 - observation_space: Box(40, 32, 3), action_space: Discrete(3)
-    env_fns = [make_env("CubeCrash-v0", i) for i in range(8)]
-    # MemorizeDigits-v0 - observation_space: Box(24, 32, 3), action_space: Discrete(10)
-    env_fns[1] = make_env("MemorizeDigits-v0", 1)
+    # CartPole-v1 - observation_space: Box(4,), action_space: Discrete(2)
+    env_fns = [make_env("CartPole-v1", i) for i in range(8)]
+    # FrozenLake-v1 - Discrete(16), action_space: Discrete(4)
+    env_fns[1] = make_env("FrozenLake-v1", 1)
     with pytest.raises(RuntimeError):
         env = SyncVectorEnv(env_fns)
         env.close()

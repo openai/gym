@@ -43,7 +43,7 @@ def should_skip_env_spec_for_tests(spec):
             and not spec.id.startswith("Seaquest")
         )
     ):
-        logger.warn("Skipping tests for env {}".format(ep))
+        logger.warn(f"Skipping tests for env {ep}")
         return True
     return False
 
