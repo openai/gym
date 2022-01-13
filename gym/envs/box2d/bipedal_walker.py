@@ -14,7 +14,7 @@ from Box2D.b2 import (
 )
 
 import gym
-from gym import spaces
+from gym import error, spaces
 from gym.utils import colorize, seeding, EzPickle
 
 # This is simple 4-joints walker robot environment.
@@ -119,9 +119,7 @@ class ContactDetector(contactListener):
 class BipedalWalker(gym.Env, EzPickle):
     metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": FPS}
 
-    hardcore = False
-
-    def __init__(self):
+    def __init__(self, hardcore: bool = False):
         EzPickle.__init__(self)
         self.viewer = None
 
@@ -130,6 +128,8 @@ class BipedalWalker(gym.Env, EzPickle):
         self.hull = None
 
         self.prev_shaping = None
+
+        self.hardcore = hardcore
 
         self.fd_polygon = fixtureDef(
             shape=polygonShape(vertices=[(0, 0), (1, 0), (1, -1), (0, -1)]),
@@ -485,10 +485,10 @@ class BipedalWalker(gym.Env, EzPickle):
         return np.array(state, dtype=np.float32), reward, done, {}
 
     def render(self, mode="human"):
-        from gym.envs.classic_control import rendering
+        from gym.utils import pyglet_rendering
 
         if self.viewer is None:
-            self.viewer = rendering.Viewer(VIEWPORT_W, VIEWPORT_H)
+            self.viewer = pyglet_rendering.Viewer(VIEWPORT_W, VIEWPORT_H)
         self.viewer.set_bounds(
             self.scroll, VIEWPORT_W / SCALE + self.scroll, 0, VIEWPORT_H / SCALE
         )
@@ -531,7 +531,7 @@ class BipedalWalker(gym.Env, EzPickle):
             for f in obj.fixtures:
                 trans = f.body.transform
                 if type(f.shape) is circleShape:
-                    t = rendering.Transform(translation=trans * f.shape.pos)
+                    t = pyglet_rendering.Transform(translation=trans * f.shape.pos)
                     self.viewer.draw_circle(
                         f.shape.radius, 30, color=obj.color1
                     ).add_attr(t)
@@ -566,8 +566,14 @@ class BipedalWalker(gym.Env, EzPickle):
             self.viewer = None
 
 
-class BipedalWalkerHardcore(BipedalWalker):
-    hardcore = True
+class BipedalWalkerHardcore:
+    def __init__(self):
+        raise error.Error(
+            "Error initializing BipedalWalkerHardcore Environment.\n"
+            "Currently, we do not support initializing this mode of environment by calling the class directly.\n"
+            "To use this environment, instead create it by specifying the hardcore keyword in gym.make, i.e.\n"
+            'gym.make("BipedalWalker-v3", hardcore=True)'
+        )
 
 
 if __name__ == "__main__":

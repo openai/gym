@@ -66,7 +66,8 @@ register(
 
 register(
     id="LunarLanderContinuous-v2",
-    entry_point="gym.envs.box2d:LunarLanderContinuous",
+    entry_point="gym.envs.box2d:LunarLander",
+    kwargs={"continuous": True},
     max_episode_steps=1000,
     reward_threshold=200,
 )
@@ -80,7 +81,8 @@ register(
 
 register(
     id="BipedalWalkerHardcore-v3",
-    entry_point="gym.envs.box2d:BipedalWalkerHardcore",
+    entry_point="gym.envs.box2d:BipedalWalker",
+    kwargs={"hardcore": True},
     max_episode_steps=2000,
     reward_threshold=300,
 )
@@ -260,29 +262,4 @@ register(
     id="HumanoidStandup-v2",
     entry_point="gym.envs.mujoco:HumanoidStandupEnv",
     max_episode_steps=1000,
-)
-
-# Unit test
-# ---------
-
-register(
-    id="CubeCrash-v0",
-    entry_point="gym.envs.unittest:CubeCrash",
-    reward_threshold=0.9,
-)
-register(
-    id="CubeCrashSparse-v0",
-    entry_point="gym.envs.unittest:CubeCrashSparse",
-    reward_threshold=0.9,
-)
-register(
-    id="CubeCrashScreenBecomesBlack-v0",
-    entry_point="gym.envs.unittest:CubeCrashScreenBecomesBlack",
-    reward_threshold=0.9,
-)
-
-register(
-    id="MemorizeDigits-v0",
-    entry_point="gym.envs.unittest:MemorizeDigits",
-    reward_threshold=20,
 )

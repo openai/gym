@@ -1,13 +1,20 @@
+from __future__ import annotations
+
 from abc import abstractmethod
+from typing import TypeVar, Generic, Tuple
 from typing import Optional
 
 import gym
-from gym import error
+from gym import error, spaces
+
 from gym.utils import closer, seeding
 from gym.logger import deprecation
 
+ObsType = TypeVar("ObsType")
+ActType = TypeVar("ActType")
 
-class Env:
+
+class Env(Generic[ObsType, ActType]):
     """The main OpenAI Gym class. It encapsulates an environment with
     arbitrary behind-the-scenes dynamics. An environment can be
     partially or fully observed.
@@ -37,14 +44,14 @@ class Env:
     spec = None
 
     # Set these in ALL subclasses
-    action_space = None
-    observation_space = None
+    action_space: spaces.Space[ActType]
+    observation_space: spaces.Space[ObsType]
 
     # Created
     np_random = None
 
     @abstractmethod
-    def step(self, action):
+    def step(self, action: ActType) -> Tuple[ObsType, float, bool, dict]:
         """Run one timestep of the environment's dynamics. When end of
         episode is reached, you are responsible for calling `reset()`
         to reset this environment's state.
@@ -63,7 +70,7 @@ class Env:
         raise NotImplementedError
 
     @abstractmethod
-    def reset(self, seed: Optional[int] = None):
+    def reset(self, seed: Optional[int] = None) -> ObsType:
         """Resets the environment to an initial state and returns an initial
         observation.
 
@@ -151,7 +158,7 @@ class Env:
         return [seed]
 
     @property
-    def unwrapped(self):
+    def unwrapped(self) -> Env:
         """Completely unwrap this env.
 
         Returns:

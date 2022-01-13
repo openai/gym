@@ -182,12 +182,12 @@ class AcrobotEnv(core.Env):
         return (dtheta1, dtheta2, ddtheta1, ddtheta2, 0.0)
 
     def render(self, mode="human"):
-        from gym.envs.classic_control import rendering
+        from gym.utils import pyglet_rendering
 
         s = self.state
 
         if self.viewer is None:
-            self.viewer = rendering.Viewer(500, 500)
+            self.viewer = pyglet_rendering.Viewer(500, 500)
             bound = self.LINK_LENGTH_1 + self.LINK_LENGTH_2 + 0.2  # 2.2 for default
             self.viewer.set_bounds(-bound, bound, -bound, bound)
 
@@ -208,7 +208,7 @@ class AcrobotEnv(core.Env):
         self.viewer.draw_line((-2.2, 1), (2.2, 1))
         for ((x, y), th, llen) in zip(xys, thetas, link_lengths):
             l, r, t, b = 0, llen, 0.1, -0.1
-            jtransform = rendering.Transform(rotation=th, translation=(x, y))
+            jtransform = pyglet_rendering.Transform(rotation=th, translation=(x, y))
             link = self.viewer.draw_polygon([(l, b), (l, t), (r, t), (r, b)])
             link.add_attr(jtransform)
             link.set_color(0, 0.8, 0.8)
