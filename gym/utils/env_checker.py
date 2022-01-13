@@ -285,7 +285,7 @@ def _check_reset_seed(env: gym.Env, seed: Optional[int] = None) -> None:
             "The environment cannot be reset with a random seed. This behavior will be deprecated in the future."
         )
     else:
-        assert env.np_random is not None, (
+        assert env.unwrapped.np_random is not None, (
             "Resetting the environment did not result in seeding its random number generator. "
             "This is likely due to not calling `super().reset(seed=seed)` in the `reset` method."
         )
