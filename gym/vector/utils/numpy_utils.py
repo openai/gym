@@ -49,12 +49,12 @@ def concatenate(space, items, out):
 @concatenate.register(Discrete)
 @concatenate.register(MultiDiscrete)
 @concatenate.register(MultiBinary)
-def concatenate_base(space, items, out):
+def _concatenate_base(space, items, out):
     return np.stack(items, axis=0, out=out)
 
 
 @concatenate.register(Tuple)
-def concatenate_tuple(space, items, out):
+def _concatenate_tuple(space, items, out):
     return tuple(
         concatenate(subspace, [item[i] for item in items], out[i])
         for (i, subspace) in enumerate(space.spaces)
@@ -62,7 +62,7 @@ def concatenate_tuple(space, items, out):
 
 
 @concatenate.register(Dict)
-def concatenate_dict(space, items, out):
+def _concatenate_dict(space, items, out):
     return OrderedDict(
         [
             (key, concatenate(subspace, [item[key] for item in items], out[key]))
@@ -72,7 +72,7 @@ def concatenate_dict(space, items, out):
 
 
 @concatenate.register(Space)
-def concatenate_custom(space, items, out):
+def _concatenate_custom(space, items, out):
     return tuple(items)
 
 
@@ -119,18 +119,18 @@ def create_empty_array(space, n=1, fn=np.zeros):
 @create_empty_array.register(Discrete)
 @create_empty_array.register(MultiDiscrete)
 @create_empty_array.register(MultiBinary)
-def create_empty_array_base(space, n=1, fn=np.zeros):
+def _create_empty_array_base(space, n=1, fn=np.zeros):
     shape = space.shape if (n is None) else (n,) + space.shape
     return fn(shape, dtype=space.dtype)
 
 
 @create_empty_array.register(Tuple)
-def create_empty_array_tuple(space, n=1, fn=np.zeros):
+def _create_empty_array_tuple(space, n=1, fn=np.zeros):
     return tuple(create_empty_array(subspace, n=n, fn=fn) for subspace in space.spaces)
 
 
 @create_empty_array.register(Dict)
-def create_empty_array_dict(space, n=1, fn=np.zeros):
+def _create_empty_array_dict(space, n=1, fn=np.zeros):
     return OrderedDict(
         [
             (key, create_empty_array(subspace, n=n, fn=fn))
@@ -140,5 +140,5 @@ def create_empty_array_dict(space, n=1, fn=np.zeros):
 
 
 @create_empty_array.register(Space)
-def create_empty_array_custom(space, n=1, fn=np.zeros):
+def _create_empty_array_custom(space, n=1, fn=np.zeros):
     return None
