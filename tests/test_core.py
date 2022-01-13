@@ -50,6 +50,7 @@ class UnknownSpacesEnv(core.Env):
 
 class OldStyleEnv(core.Env):
     """This environment doesn't accept any arguments in reset, ideally we want to support this too (for now)"""
+
     def __init__(self):
         pass
 
