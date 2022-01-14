@@ -34,6 +34,9 @@ import sys
 import math
 import numpy as np
 
+from functools import reduce
+from operator import concat
+
 import Box2D
 from Box2D.b2 import fixtureDef
 from Box2D.b2 import polygonShape
@@ -535,9 +538,12 @@ class DynamicCarRacing(gym.Env, EzPickle):
             geom.render()
         self.viewer.onetime_geoms = []
         t.disable()
-        self.render_indicators(WINDOW_W, WINDOW_H)
 
         self.render_obstacles()
+        # TODO: rotate pov to match heading of car
+        # TODO: expose angle as parameter to be modified by RL agent
+        self.render_pov_mask(VP_W, VP_H, 0)
+        self.render_indicators(WINDOW_W, WINDOW_H)
 
         if mode == "human":
             win.flip()
@@ -556,6 +562,50 @@ class DynamicCarRacing(gym.Env, EzPickle):
         if self.viewer is not None:
             self.viewer.close()
             self.viewer = None
+
+    def render_pov_mask(self, W, H, theta):
+        W, H = float(W), float(H)
+        colors = [0, 0, 0, 1] * 5
+        z = 0.
+        p1 = [0., H/8, z]
+        p2 = [0., H, z]
+        p3 = [(W/2.)-(3/4)*H*math.tan(math.pi/8.), H, z]
+        p4 = [W/2., H/8., z]
+        p5 = [W/2., H/8., z]
+        p6 = [(W/2.)+(3/4)*H*math.tan(math.pi/8.), H, z]
+        p7 = [W, H, z]
+        p8 = [W, H/8., z]
+        l_polygons = [p1, p2, p3, p4, p5]
+        r_polygons = [p5, p4, p6, p7, p8]
+
+        # rotating cone to follow heading of car
+        rt_l_polygons = []
+        for p in l_polygons:
+            x = p[0] - p4[0]
+            y = p[1] - p4[1]
+            p = [x*math.cos(theta)-y*math.sin(theta), x*math.sin(theta)+y*math.cos(theta)]
+            p = [p[0] + p4[0], p[1] + p4[1], z]
+            rt_l_polygons.append(p)
+        rt_r_polygons = []
+        for p in r_polygons:
+            x = p[0] - p4[0]
+            y = p[1] - p4[1]
+            p = [x*math.cos(theta)-y*math.sin(theta), x*math.sin(theta)+y*math.cos(theta)]
+            p = [p[0] + p4[0], p[1] + p4[1], z]
+            rt_r_polygons.append(p)
+
+        l_polygons = reduce(concat, rt_l_polygons)
+        r_polygons = reduce(concat, rt_r_polygons)
+
+        vl = pyglet.graphics.vertex_list(
+            len(l_polygons) // 3, ("v3f", l_polygons), ("c4f", colors)
+        )
+        vl.draw(gl.GL_POLYGON)
+        vl = pyglet.graphics.vertex_list(
+            len(r_polygons) // 3, ("v3f", r_polygons), ("c4f", colors)
+        )
+        vl.draw(gl.GL_POLYGON)
+        vl.delete()
 
     def render_obstacles(self):
         # Set colors for each viewer and draw cars
