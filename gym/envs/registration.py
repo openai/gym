@@ -456,10 +456,13 @@ class EnvRegistry:
             logger.info("Making new env: %s (%s)", path, kwargs)
         else:
             logger.info("Making new env: %s", path)
-        spec = self.spec(path)
+
+        # We need to manually parse the ID so we can check
+        # the version without error-ing out in self.spec
+        namespace, name, version = parse_env_id(path)
 
         # Get all versions of this spec.
-        versions = self.env_specs.versions(spec.namespace, spec.name)
+        versions = self.env_specs.versions(namespace, name)
 
         # We check what the latest version of the environment is and display
         # a warning if the user is attempting to initialize an older version
@@ -471,24 +474,25 @@ class EnvRegistry:
         )
         if (
             latest_versioned_spec
-            and spec.version is not None
-            and spec.version < cast(int, latest_versioned_spec.version)
+            and version is not None
+            and version < cast(int, latest_versioned_spec.version)
         ):
             logger.warn(
-                f"The environment {spec.id} is out of date. You should consider "
+                f"The environment {path} is out of date. You should consider "
                 f"upgrading to version `v{latest_versioned_spec.version}` "
                 f"with the environment ID `{latest_versioned_spec.id}`."
             )
-        elif latest_versioned_spec and spec.version is None:
+        elif latest_versioned_spec and version is None:
             logger.warn(
                 f"Using the latest versioned environment `{latest_versioned_spec.id}` "
-                f"instead of the unversioned one `{spec.id}`"
+                f"instead of the unversioned environment `{path}`"
             )
             path = latest_versioned_spec.id
-            spec = self.spec(path)
 
-        env = spec.make(**kwargs)
-        return env
+        # Lookup our path
+        spec = self.spec(path)
+        # Construct the environment
+        return spec.make(**kwargs)
 
     def all(self):
         return self.env_specs.values()
@@ -513,36 +517,58 @@ class EnvRegistry:
     def register(self, id: str, **kwargs) -> None:
         spec = EnvSpec(id, **kwargs)
 
-        # Get all versions of this spec.
-        versions = self.env_specs.tree[spec.namespace][spec.name].values()
-
-        # We raise an error if the user is attempting to initialize an
-        # unversioned environment when a versioned one already exists.
-        latest_versioned_spec = max(
-            filter(lambda spec: isinstance(spec.version, int), versions),
-            key=lambda spec: cast(int, spec.version),
-            default=None,
-        )
-
-        if latest_versioned_spec and spec.version is None:
-            message = f"Can't register the unversioned environment `{spec.id}`"
-            message += f" when version `{latest_versioned_spec.version}`"
-            message += " of the same environment already exists"
-            raise error.DeprecatedEnv(message)
-
         if self._ns is not None:
             if spec.namespace is not None:
                 logger.warn(
-                    f"Custom namespace '{spec.namespace}' is being overridden by namespace '{self._ns}'. "
-                    "If you are developing a plugin you shouldn't specify a namespace in `register` calls. "
-                    "The namespace is specified through the entry point key."
+                    f"Custom namespace `{spec.namespace}` is being overridden "
+                    f"by namespace `{self._ns}`. If you are developing a "
+                    "plugin you shouldn't specify a namespace in `register` "
+                    "calls. The namespace is specified through the "
+                    "entry point package metadata."
                 )
             # Replace namespace
             spec.namespace = self._ns
 
-        if spec.id in self.env_specs:
-            logger.warn(f"Overriding environment {id}")
-        self.env_specs[spec.id] = spec
+        try:
+            # Get all versions of this spec.
+            versions = self.env_specs.versions(spec.namespace, spec.name)
+
+            # We raise an error if the user is attempting to initialize an
+            # unversioned environment when a versioned one already exists.
+            latest_versioned_spec = max(
+                filter(lambda spec: isinstance(spec.version, int), versions),
+                key=lambda spec: cast(int, spec.version),
+                default=None,
+            )
+            unversioned_spec = next(
+                filter(lambda spec: spec.version is None, versions), None
+            )
+
+            # Trying to register an unversioned spec when versioned spec exists
+            if unversioned_spec and spec.version is not None:
+                message = (
+                    "Can't register the versioned environment "
+                    f"`{spec.id}` when the unversioned environment "
+                    f"`{unversioned_spec.id}` of the same name already exists."
+                )
+                raise error.RegistrationError(message)
+            elif latest_versioned_spec and spec.version is None:
+                message = (
+                    f"Can't register the unversioned environment `{spec.id}` "
+                    f"when version `{latest_versioned_spec.version}` "
+                    "of the same name already exists. Note: the default "
+                    "behavior is that the `gym.make` with the unversioned "
+                    "environment will return the latest versioned environment."
+                )
+                raise error.RegistrationError(message)
+        # We might not find this namespace or name in which case
+        # we should continue to register the environment.
+        except (error.NamespaceNotFound, error.NameNotFound):
+            pass
+        finally:
+            if spec.id in self.env_specs:
+                logger.warn(f"Overriding environment {id}")
+            self.env_specs[spec.id] = spec
 
     @contextlib.contextmanager
     def namespace(self, ns: str):

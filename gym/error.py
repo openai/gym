@@ -64,6 +64,14 @@ class DeprecatedEnv(Error):
     pass
 
 
+class RegistrationError(Error):
+    """Raised when the user attempts to register an invalid env.
+    For example, an unversioned env when a versioned env exists.
+    """
+
+    pass
+
+
 class UnseedableEnv(Error):
     """Raised when the user tries to seed an env that does not support
     seeding.

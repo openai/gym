@@ -28,10 +28,11 @@ gym.register(
 @pytest.fixture(scope="function")
 def register_some_envs():
     namespace = "MyAwesomeNamespace"
-    name = "MyAwesomeEnv"
-    versions = [None, 1, 3, 5]
+    versioned_name = "MyAwesomeVersionedEnv"
+    unversioned_name = "MyAwesomeUnversionedEnv"
+    versions = [1, 3, 5]
     for version in versions:
-        env_id = f"{namespace}/{name}-v{version}" if version else f"{namespace}/{name}"
+        env_id = f"{namespace}/{versioned_name}-v{version}"
         gym.register(
             id=env_id,
             entry_point="tests.envs.test_registration:ArgumentEnv",
@@ -41,12 +42,22 @@ def register_some_envs():
                 "arg3": "arg3",
             },
         )
+    gym.register(
+        id=f"{namespace}/{unversioned_name}",
+        entry_point="tests.env.test_registration:ArgumentEnv",
+        kwargs={
+            "arg1": "arg1",
+            "arg2": "arg2",
+            "arg3": "arg3",
+        },
+    )
 
     yield
 
     for version in versions:
-        env_id = f"{namespace}/{name}-v{version}" if version else f"{namespace}/{name}"
+        env_id = f"{namespace}/{versioned_name}-v{version}"
         del gym.envs.registry.env_specs[env_id]
+    del gym.envs.registry.env_specs[f"{namespace}/{unversioned_name}"]
 
 
 def test_make():
@@ -101,7 +112,10 @@ def test_register_error(env_id):
         ("mountaincarcontinuous-v0", "MountainCarContinuous"),
         ("taxi-v3", "Taxi"),
         ("taxi-v30", "Taxi"),
-        ("MyAwesomeNamspce/MyAwesomeEnv-v1", "MyAwesomeNamespace"),
+        ("MyAwesomeNamspce/MyAwesomeVersionedEnv-v1", "MyAwesomeNamespace"),
+        ("MyAwesomeNamspce/MyAwesomeUnversionedEnv", "MyAwesomeNamespace"),
+        ("MyAwesomeNamespace/MyAwesomeUnversioneEnv", "MyAwesomeUnversionedEnv"),
+        ("MyAwesomeNamespace/MyAwesomeVersioneEnv", "MyAwesomeVersionedEnv"),
     ],
 )
 def test_env_suggestions(register_some_envs, env_id_input, env_id_suggested):
@@ -118,7 +132,7 @@ def test_env_suggestions(register_some_envs, env_id_input, env_id_suggested):
         ("Blackjack-v10", "`v1`", False),
         ("MountainCarContinuous-v100", "`v0`", False),
         ("Taxi-v30", "`v3`", False),
-        ("MyAwesomeNamespace/MyAwesomeEnv-v6", "`v1`, `v3`, `v5`", True),
+        ("MyAwesomeNamespace/MyAwesomeVersionedEnv-v6", "`v1`, `v3`, `v5`", False),
     ],
 )
 def test_env_version_suggestions(
@@ -201,9 +215,8 @@ def test_malformed_lookup():
         assert False
 
 
-def test_default_and_versioned_lookups():
+def test_versioned_lookups():
     registry = registration.EnvRegistry()
-    registry.register("test/Test")
     registry.register("test/Test-v5")
 
     with pytest.raises(error.VersionNotFound):
@@ -213,7 +226,6 @@ def test_default_and_versioned_lookups():
         registry.spec("test/Test-v4")
 
     # Should pass both default and v5
-    registry.spec("test/Test")
     registry.spec("test/Test-v5")
 
 
@@ -275,17 +287,13 @@ def test_env_spec_tree():
     assert spec_tree.__repr__() == "├──Test: [ v1 ]\n" + f"└──{myenv}: [  ]\n"
 
 
-@pytest.mark.parametrize(
-    "version",
-    [0, 1],
-)
-def test_register_versioned_unversioned(version):
+def test_register_versioned_unversioned():
     # Register versioned then unversioned
-    versioned_env = f"Test/MyEnv-v{version}"
+    versioned_env = "Test/MyEnv-v0"
     envs.register(versioned_env)
     assert gym.envs.spec(versioned_env).id == versioned_env
     unversioned_env = "Test/MyEnv"
-    with pytest.raises(error.DeprecatedEnv):
+    with pytest.raises(error.RegistrationError):
         envs.register(unversioned_env)
 
     # Clean everything
@@ -294,8 +302,8 @@ def test_register_versioned_unversioned(version):
     # Register unversioned then versioned
     envs.register(unversioned_env)
     assert gym.envs.spec(unversioned_env).id == unversioned_env
-    envs.register(versioned_env)
-    assert gym.envs.spec(versioned_env).id == versioned_env
+    with pytest.raises(error.RegistrationError):
+        envs.register(versioned_env)
 
     # Clean everything
     envs_list = [versioned_env, unversioned_env]
@@ -305,5 +313,5 @@ def test_register_versioned_unversioned(version):
 
 def test_return_latest_versioned_env(register_some_envs):
     with pytest.warns(UserWarning):
-        env = envs.make("MyAwesomeNamespace/MyAwesomeEnv")
-    assert env.spec.id == "MyAwesomeNamespace/MyAwesomeEnv-v5"
+        env = envs.make("MyAwesomeNamespace/MyAwesomeVersionedEnv")
+    assert env.spec.id == "MyAwesomeNamespace/MyAwesomeVersionedEnv-v5"
