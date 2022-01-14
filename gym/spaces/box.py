@@ -8,7 +8,7 @@ from .space import Space
 from gym import logger
 
 
-def _short_repr(arr):
+def _short_repr(arr: np.ndarray) -> str:
     """Create a shortened string representation of a numpy array.
 
     If arr is a multiple of the all-ones vector, return a string representation of the multiplier.
