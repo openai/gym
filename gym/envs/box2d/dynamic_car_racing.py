@@ -537,12 +537,11 @@ class DynamicCarRacing(gym.Env, EzPickle):
         for geom in self.viewer.onetime_geoms:
             geom.render()
         self.viewer.onetime_geoms = []
+        # TODO: expose angle as parameter to be modified by RL agent
+        self.render_pov_mask(VP_W/SCALE, VP_H/SCALE, 3, scroll_x, scroll_y, self.car.hull.angle)
         t.disable()
 
         self.render_obstacles()
-        # TODO: rotate pov to match heading of car
-        # TODO: expose angle as parameter to be modified by RL agent
-        self.render_pov_mask(VP_W, VP_H, 0)
         self.render_indicators(WINDOW_W, WINDOW_H)
 
         if mode == "human":
@@ -563,14 +562,14 @@ class DynamicCarRacing(gym.Env, EzPickle):
             self.viewer.close()
             self.viewer = None
 
-    def render_pov_mask(self, W, H, theta):
+    def render_pov_mask(self, W, H, scale, car_x, car_y, theta):
         W, H = float(W), float(H)
         colors = [0, 0, 0, 1] * 5
         z = 0.
         p1 = [0., H/8, z]
         p2 = [0., H, z]
         p3 = [(W/2.)-(3/4)*H*math.tan(math.pi/8.), H, z]
-        p4 = [W/2., H/8., z]
+        p4 = [W/2., H/4., z]
         p5 = [W/2., H/8., z]
         p6 = [(W/2.)+(3/4)*H*math.tan(math.pi/8.), H, z]
         p7 = [W, H, z]
@@ -578,20 +577,29 @@ class DynamicCarRacing(gym.Env, EzPickle):
         l_polygons = [p1, p2, p3, p4, p5]
         r_polygons = [p5, p4, p6, p7, p8]
 
+        # how far behind the car is visible
+        # TODO: replace 0.02 with car.SCALE and automatically measure car length
+        car_length = 250
+        lookbehind_distance = (car_length + 100) * 0.02
+
         # rotating cone to follow heading of car
         rt_l_polygons = []
         for p in l_polygons:
-            x = p[0] - p4[0]
-            y = p[1] - p4[1]
-            p = [x*math.cos(theta)-y*math.sin(theta), x*math.sin(theta)+y*math.cos(theta)]
-            p = [p[0] + p4[0], p[1] + p4[1], z]
+            _x = scale * (p[0] - p4[0])
+            _y = scale * (p[1] - p4[1])
+            _y -= lookbehind_distance
+            x = _x*math.cos(theta)-_y*math.sin(theta)
+            y = _x*math.sin(theta)+_y*math.cos(theta)
+            p = [x + car_x, y + car_y, z]
             rt_l_polygons.append(p)
         rt_r_polygons = []
         for p in r_polygons:
-            x = p[0] - p4[0]
-            y = p[1] - p4[1]
-            p = [x*math.cos(theta)-y*math.sin(theta), x*math.sin(theta)+y*math.cos(theta)]
-            p = [p[0] + p4[0], p[1] + p4[1], z]
+            _x = scale * (p[0] - p4[0])
+            _y = scale * (p[1] - p4[1])
+            _y -= lookbehind_distance
+            x = _x*math.cos(theta)-_y*math.sin(theta)
+            y = _x*math.sin(theta)+_y*math.cos(theta)
+            p = [x + car_x, y + car_y, z]
             rt_r_polygons.append(p)
 
         l_polygons = reduce(concat, rt_l_polygons)

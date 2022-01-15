@@ -50,6 +50,9 @@ MUD_COLOR = (0.4, 0.4, 0.0)
 class Car:
     def __init__(self, world, init_angle, init_x, init_y):
         self.world = world
+        self.init_angle = init_angle
+        self.init_x = init_x
+        self.init_y = init_y
         self.hull = self.world.CreateDynamicBody(
             position=(init_x, init_y),
             angle=init_angle,
