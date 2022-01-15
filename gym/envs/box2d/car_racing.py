@@ -13,8 +13,8 @@ finished in 732 frames, your reward is 1000 - 0.1*732 = 926.8 points.
 The game is solved when the agent consistently gets 900+ points. The generated
 track is random every episode.
 
-The episode finishes when more than some percentage (default is 95%) of the 
-tiles are visited. The car also can go outside of the PLAYFIELD -  that is 
+The episode finishes when more than some percentage (default is 95%) of the
+tiles are visited. The car also can go outside of the PLAYFIELD -  that is
 far off the track, then it will get -100 and die.
 
 Some indicators are shown at the bottom of the window along with the state RGB
@@ -113,9 +113,12 @@ class FrictionDetector(contactListener):
                 self.env.reward += 1000.0 / len(self.env.track)
                 self.env.tile_visited_count += 1
 
-                # Lap is considered completed if enough % of the track was covered 
-                if (tile.idx == 0 and 
-                    self.env.tile_visited_count / len(self.env.track) > self.lap_complete_percent):
+                # Lap is considered completed if enough % of the track was covered
+                if (
+                    tile.idx == 0
+                    and self.env.tile_visited_count / len(self.env.track)
+                    > self.lap_complete_percent
+                ):
                     self.env_new_lap = True
         else:
             obj.tiles.remove(tile)
