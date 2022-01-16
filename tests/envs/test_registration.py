@@ -133,19 +133,26 @@ def test_env_suggestions(register_some_envs, env_id_input, env_id_suggested):
         ("MountainCarContinuous-v100", "`v0`", False),
         ("Taxi-v30", "`v3`", False),
         ("MyAwesomeNamespace/MyAwesomeVersionedEnv-v6", "`v1`, `v3`, `v5`", False),
+        ("MyAwesomeNamespace/MyAwesomeUnversionedEnv-v6", "", True),
     ],
 )
 def test_env_version_suggestions(
     register_some_envs, env_id_input, suggested_versions, default_version
 ):
-    match_str = f"versioned environments: \\[ {suggested_versions} \\]"
     if default_version:
-        match_str = "provides a default version and the " + match_str
-    with pytest.raises(
-        error.UnregisteredEnv,
-        match=match_str,
-    ):
-        envs.make(env_id_input)
+        match_str = "provides the default version"
+        with pytest.raises(
+            error.DeprecatedEnv,
+            match=match_str,
+        ):
+            envs.make(env_id_input)
+    else:
+        match_str = f"versioned environments: \\[ {suggested_versions} \\]"
+        with pytest.raises(
+            error.UnregisteredEnv,
+            match=match_str,
+        ):
+            envs.make(env_id_input)
 
 
 def test_make_with_kwargs():
@@ -225,8 +232,7 @@ def test_versioned_lookups():
     with pytest.raises(error.DeprecatedEnv):
         registry.spec("test/Test-v4")
 
-    # Should pass both default and v5
-    registry.spec("test/Test-v5")
+    assert registry.spec("test/Test-v5")
 
 
 def test_default_lookups():
@@ -300,7 +306,8 @@ def test_register_versioned_unversioned():
     del gym.envs.registry.env_specs[versioned_env]
 
     # Register unversioned then versioned
-    envs.register(unversioned_env)
+    with pytest.warns(UserWarning):
+        envs.register(unversioned_env)
     assert gym.envs.spec(unversioned_env).id == unversioned_env
     with pytest.raises(error.RegistrationError):
         envs.register(versioned_env)
