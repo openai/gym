@@ -1,43 +1,28 @@
 import re
 import sys
 import copy
+import difflib
 import importlib
 import importlib.util
 import contextlib
-from typing import Callable, Type, Optional, Union, Dict, Set, Tuple, Generator
+from typing import Callable, Type, Optional, Union, Tuple, Generator, Sequence, cast
 
 if sys.version_info < (3, 10):
     import importlib_metadata as metadata  # type: ignore
 else:
     import importlib.metadata as metadata
 
+from dataclasses import dataclass, field, InitVar
 from collections import defaultdict
 from collections.abc import MutableMapping
-from operator import getitem
 
 from gym import error, logger, Env
-
 from gym.envs.__relocated__ import internal_env_relocation_map
 
-# This format is true today, but it's *not* an official spec.
-# [username/](env-name)-v(version)    env-name is group 1, version is group 2
-#
-# 2016-10-31: We're experimentally expanding the environment ID format
-# to include an optional username.
-env_id_re: re.Pattern = re.compile(
-    r"^(?:(?P<namespace>[\w:-]+)\/)?(?P<name>[\w:.-]+)-v(?P<version>\d+)$"
+
+ENV_ID_RE: re.Pattern = re.compile(
+    r"^(?:(?P<namespace>[\w:-]+)\/)?(?:(?P<name>[\w:.-]+?))(?:-v(?P<version>\d+))?$"
 )
-
-
-def env_id_from_parts(
-    namespace: Optional[str], name: str, version: Optional[Union[int, str]]
-) -> str:
-    """
-    Construct the environment ID from the namespace, name, and version.
-    """
-    namespace = "" if namespace is None else f"{namespace}/"
-    version = "" if version is None else f"-v{version}"
-    return f"{namespace}{name}{version}"
 
 
 def load(name: str) -> Type:
@@ -47,12 +32,35 @@ def load(name: str) -> Type:
     return fn
 
 
+def parse_env_id(id: str) -> Tuple[Optional[str], str, Optional[int]]:
+    """Parse environment ID string format.
+
+    This format is true today, but it's *not* an official spec.
+    [username/](env-name)-v(version)    env-name is group 1, version is group 2
+
+    2016-10-31: We're experimentally expanding the environment ID format
+    to include an optional username.
+    """
+    match = ENV_ID_RE.fullmatch(id)
+    if not match:
+        raise error.Error(
+            f"Malformed environment ID: {id}."
+            f"(Currently all IDs must be of the form {ENV_ID_RE}.)"
+        )
+    namespace, name, version = match.group("namespace", "name", "version")
+    if version is not None:
+        version = int(version)
+
+    return namespace, name, version
+
+
+@dataclass
 class EnvSpec:
     """A specification for a particular instance of the environment. Used
     to register the parameters for official evaluations.
 
     Args:
-        id: The official environment ID
+        id_requested: The official environment ID
         entry_point: The Python entrypoint of the environment class (e.g. module.name:Class)
         reward_threshold: The reward threshold before the task is considered solved
         nondeterministic: Whether this environment is non-deterministic even after seeding
@@ -62,31 +70,33 @@ class EnvSpec:
 
     """
 
-    def __init__(
-        self,
-        id: str,
-        entry_point: Union[Callable, str, None] = None,
-        reward_threshold: Optional[int] = None,
-        nondeterministic: bool = False,
-        max_episode_steps: Optional[int] = None,
-        order_enforce: Optional[int] = True,
-        kwargs: dict = None,
-    ):
-        self.id = id
-        self.entry_point = entry_point
-        self.reward_threshold = reward_threshold
-        self.nondeterministic = nondeterministic
-        self.max_episode_steps = max_episode_steps
-        self.order_enforce = order_enforce
-        self._kwargs = {} if kwargs is None else kwargs
+    id_requested: InitVar[str]
+    entry_point: Optional[Union[Callable, str]] = field(default=None)
+    reward_threshold: Optional[int] = field(default=None)
+    nondeterministic: bool = field(default=False)
+    max_episode_steps: Optional[int] = field(default=None)
+    order_enforce: bool = field(default=True)
+    kwargs: dict = field(default_factory=dict)
+    namespace: Optional[str] = field(init=False)
+    name: str = field(init=False)
+    version: Optional[int] = field(init=False)
 
-        match = env_id_re.fullmatch(id)
-        if not match:
-            raise error.Error(
-                f"Attempted to register malformed environment ID: {id}."
-                f"(Currently all IDs must be of the form {env_id_re.pattern}.)"
-            )
-        self._env_name = match.group("name")
+    def __post_init__(self, id_requested):
+        # Initialize namespace, name, version
+        self.namespace, self.name, self.version = parse_env_id(id_requested)
+
+    @property
+    def id(self) -> str:
+        """
+        `id_requested` is an InitVar meaning it's only used at initialization to parse
+        the namespace, name, and version. This means we can define the dynamic
+        property `id` to construct the `id` from the parsed fields. This has the
+        benefit that we update the fields and obtain a dynamic id.
+        """
+        namespace = "" if self.namespace is None else f"{self.namespace}/"
+        name = self.name
+        version = "" if self.version is None else f"-v{self.version}"
+        return f"{namespace}{name}{version}"
 
     def make(self, **kwargs) -> Env:
         """Instantiates an instance of the environment with appropriate kwargs"""
@@ -95,8 +105,7 @@ class EnvSpec:
                 f"Attempting to make deprecated env {self.id}. "
                 "(HINT: is there a newer registered version of this env?)"
             )
-
-        _kwargs = self._kwargs.copy()
+        _kwargs = self.kwargs.copy()
         _kwargs.update(kwargs)
 
         if callable(self.entry_point):
@@ -107,7 +116,7 @@ class EnvSpec:
 
         # Make the environment aware of which spec it came from.
         spec = copy.deepcopy(self)
-        spec._kwargs = _kwargs
+        spec.kwargs = _kwargs
         env.unwrapped.spec = spec
         if self.order_enforce:
             from gym.wrappers.order_enforcing import OrderEnforcing
@@ -118,9 +127,6 @@ class EnvSpec:
 
             env = TimeLimit(env, max_episode_steps=env.spec.max_episode_steps)
         return env
-
-    def __repr__(self):
-        return f"EnvSpec({self.id})"
 
 
 class EnvSpecTree(MutableMapping):
@@ -168,40 +174,180 @@ class EnvSpecTree(MutableMapping):
         self.tree = defaultdict(lambda: defaultdict(dict))
         self._length = 0
 
+    def versions(self, namespace: Optional[str], name: str) -> Sequence[EnvSpec]:
+        """
+        Returns the versions associated with a namespace and name.
+
+        Note: This function takes into account environment relocations.
+        For example, `versions(None, "Breakout")` will return,
+            ```
+            [
+                EnvSpec(namespace=None, name="Breakout", version=0),
+                EnvSpec(namespace=None, name="Breakout", version=4),
+                EnvSpec(namespace="ALE", name="Breakout", version=5)
+            ]
+            ```
+        Notice the last environment which is outside of the requested namespace.
+        This only applies to environments which are in the `internal_env_relocation_map`.
+        See `gym/envs/__relocated__.py` for more info.
+        """
+        self._assert_name_exists(namespace, name)
+
+        versions = list(self.tree[namespace][name].values())
+
+        if namespace is None and name in internal_env_relocation_map:
+            relocated_namespace, _ = internal_env_relocation_map[name]
+            try:
+                self._assert_name_exists(relocated_namespace, name)
+                versions += list(self.tree[relocated_namespace][name].values())
+            except error.UnregisteredEnv:
+                pass
+
+        return versions
+
+    def names(self, namespace: Optional[str]) -> Sequence[str]:
+        """
+        Returns all the environment names associated with a namespace.
+        """
+        self._assert_namespace_exists(namespace)
+        return list(self.tree[namespace].keys())
+
+    def namespaces(self) -> Sequence[str]:
+        """
+        Returns all the namespaces contained in the tree.
+        """
+        return list(filter(None, self.tree.keys()))
+
     def __iter__(self) -> Generator[str, None, None]:
-        # Iterate through the structure and generate the IDs contained
-        # in the tree.
+        # Iterate through the structure and generate the IDs contained in the tree.
         for namespace, names in self.tree.items():
             for name, versions in names.items():
-                for version in versions.keys():
-                    yield env_id_from_parts(namespace, name, version)
+                for version, spec in versions.items():
+                    assert spec.namespace == namespace
+                    assert spec.name == name
+                    assert spec.version == version
+                    yield spec.id
 
-    def _get_matches(self, key: str) -> Tuple[str, str, str]:
-        # Match the regular expression against a full ID
-        # to parse the associated namespace, name, and version.
-        match = env_id_re.fullmatch(key)
-        if match is None:
-            raise KeyError(f"Malformed environment spec key {key}.")
-        return match.group("namespace", "name", "version")  # type: ignore  #
+    def _assert_namespace_exists(self, namespace: Optional[str]) -> None:
+        if namespace in self.tree:
+            return
 
-    def _exists(self, namespace: Optional[str], name: str, version: str) -> bool:
-        # Helper which can look if an ID exists in the tree.
-        if (
-            namespace in self.tree
-            and name in self.tree[namespace]
-            and version in self.tree[namespace][name]
-        ):
-            return True
+        message = f"Namespace `{namespace}` does not exist."
+        if namespace:
+            suggestions = difflib.get_close_matches(namespace, self.namespaces(), n=1)
+            if suggestions:
+                message += f" Did you mean: `{suggestions[0]}`?"
+            else:
+                message += f" Have you installed the proper package for `{namespace}`?"
+        raise error.NamespaceNotFound(message)
+
+    def _assert_name_exists(self, namespace: Optional[str], name: str) -> None:
+        self._assert_namespace_exists(namespace)
+        if name in self.tree[namespace]:
+            return
+
+        if namespace is None and name in internal_env_relocation_map:
+            relocated_namespace, relocated_package = internal_env_relocation_map[name]
+            message = f"The environment `{name}` has been moved out of Gym to the package `{relocated_package}`."
+
+            # Check if the package is installed
+            # If not instruct the user to install the package and then how to instantiate the env
+            if importlib.util.find_spec(relocated_package) is None:
+                message += f" Please install the package via `pip install {relocated_package}`."
+
+            # Otherwise the user should be able to instantiate the environment directly
+            if namespace != relocated_namespace:
+                message += f" You can instantiate the new namespaced environment as `{relocated_namespace}/{name}`."
+        # If the environment hasn't been relocated we'll construct a generic error message
         else:
-            return False
+            message = f"Environment `{name}` doesn't exist"
+            if namespace is not None:
+                message += f" in namespace `{namespace}`"
+            message += "."
+            suggestions = difflib.get_close_matches(name, self.names(namespace), n=1)
+            if suggestions:
+                message += f" Did you mean: `{suggestions[0]}`?"
+        # Throw the error
+        raise error.NameNotFound(message)
+
+    def _assert_version_exists(
+        self, namespace: Optional[str], name: str, version: Optional[int]
+    ):
+        self._assert_name_exists(namespace, name)
+        if version in self.tree[namespace][name]:
+            return
+
+        # Construct the appropriate exception.
+        # If the version is less than the latest version
+        # then we throw an error.DeprecatedEnv exception.
+        # Otherwise we throw error.VersionNotFound.
+        versions = self.tree[namespace][name]
+        assert len(versions) > 0
+
+        versioned_specs = list(
+            filter(lambda spec: isinstance(spec.version, int), versions.values())
+        )
+        default_spec = versions[None] if None in versions else None
+        assert len(versioned_specs) > 0 or default_spec is not None
+
+        latest_spec = max(
+            versioned_specs, key=lambda spec: spec.version, default=default_spec
+        )
+
+        if version is not None:
+            message = f"Environment version `v{version}` for `"
+        else:
+            message = "The default version for `"
+
+        if namespace is not None:
+            message += f"{namespace}/"
+        message += f"{name}` "
+
+        # If this version doesn't exist but there exists a newer non-default
+        # version we should warn the user this version is deprecated.
+        if (
+            latest_spec
+            and latest_spec.version is not None
+            and version is not None
+            and version < latest_spec.version
+        ):
+            message += "is deprecated. "
+            message += f"Please use the latest version `v{latest_spec.version}`."
+            raise error.DeprecatedEnv(message)
+        # If this version doesn't exist and there only exists a default version
+        elif latest_spec and latest_spec.version is None:
+            message += "is deprecated. "
+            message += f"`{latest_spec.name}` only provides the default version. "
+            message += (
+                f'You can initialize the environment as `gym.make("{latest_spec.id}")`.'
+            )
+            raise error.DeprecatedEnv(message)
+        # Otherwise we've asked for a version that doesn't exist.
+        else:
+            message += f"could not be found. `{name}` provides "
+
+            if default_spec:
+                message += "a default version"
+                if versioned_specs:
+                    message += " and "
+            if versioned_specs:
+                message += "the versioned environments: [ "
+                versioned_specs_sorted = sorted(
+                    versioned_specs, key=lambda spec: spec.version
+                )
+                message += ", ".join(
+                    map(lambda spec: f"`v{spec.version}`", versioned_specs_sorted)
+                )
+                message += " ]"
+            message += "."
+            raise error.VersionNotFound(message)
 
     def __getitem__(self, key: str) -> EnvSpec:
         # Get an item from the tree.
         # We first parse the components so we can look up the
         # appropriate environment ID.
-        namespace, name, version = self._get_matches(key)
-        if not self._exists(namespace, name, version):
-            raise KeyError(f"{key}")
+        namespace, name, version = parse_env_id(key)
+        self._assert_version_exists(namespace, name, version)
 
         return self.tree[namespace][name][version]
 
@@ -209,7 +355,7 @@ class EnvSpecTree(MutableMapping):
         # Insert an item into the tree.
         # First we parse the components to get the path
         # for insertion.
-        namespace, name, version = self._get_matches(key)
+        namespace, name, version = parse_env_id(key)
         self.tree[namespace][name][version] = value
         # Increase the size
         self._length += 1
@@ -218,9 +364,8 @@ class EnvSpecTree(MutableMapping):
         # Delete an item from the tree.
         # First parse the components so we can follow the
         # path to delete.
-        namespace, name, version = self._get_matches(key)
-        if not self._exists(namespace, name, version):
-            raise KeyError(f"{key}")
+        namespace, name, version = parse_env_id(key)
+        self._assert_version_exists(namespace, name, version)
 
         # Remove the envspec with this version.
         self.tree[namespace][name].pop(version)
@@ -235,8 +380,14 @@ class EnvSpecTree(MutableMapping):
 
     def __contains__(self, key: str) -> bool:
         # Check if the tree contains a path for this key.
-        namespace, name, version = self._get_matches(key)
-        return self._exists(namespace, name, version)
+        namespace, name, version = parse_env_id(key)
+        if (
+            namespace in self.tree
+            and name in self.tree[namespace]
+            and version in self.tree[namespace][name]
+        ):
+            return True
+        return False
 
     def __repr__(self) -> str:
         # Construct a tree-like representation structure
@@ -272,10 +423,12 @@ class EnvSpecTree(MutableMapping):
                 tree_repr += f"{namespace}{name}: [ "
                 # Print each version comma separated
                 for version_idx, version in enumerate(versions.keys()):
-                    tree_repr += f"v{version}"
+                    if version is not None:
+                        tree_repr += f"v{version}"
+                    else:
+                        tree_repr += ""
                     if version_idx < len(versions) - 1:
-                        tree_repr += ","
-                    tree_repr += " "
+                        tree_repr += ", "
                 tree_repr += " ]\n"
 
         return tree_repr
@@ -302,30 +455,43 @@ class EnvRegistry:
             logger.info("Making new env: %s (%s)", path, kwargs)
         else:
             logger.info("Making new env: %s", path)
-        spec = self.spec(path)
 
-        # Match the parts of the environment ID as we need to parse
-        # if there's a newer version of this environment.
-        match = env_id_re.fullmatch(spec.id)
-        assert match is not None  # Can't be hit as self.spec checks
-        namespace, name, version = match.group("namespace", "name", "version")
+        # We need to manually parse the ID so we can check
+        # the version without error-ing out in self.spec
+        namespace, name, version = parse_env_id(path)
 
-        # Get all versions in the requested namespace.
-        versions = self._versions(namespace, name)
+        # Get all versions of this spec.
+        versions = self.env_specs.versions(namespace, name)
 
-        # We check what the latest version of the environment is and display a warning
-        # if the user is attempting to initialize an older version.
-        latest_version, latest_ns = max(versions)
-        if int(version) < latest_version:
-            latest_id = env_id_from_parts(latest_ns, name, latest_version)
+        # We check what the latest version of the environment is and display
+        # a warning if the user is attempting to initialize an older version
+        # or an unversioned one.
+        latest_versioned_spec = max(
+            filter(lambda spec: spec.version, versions),
+            key=lambda spec: cast(int, spec.version),
+            default=None,
+        )
+        if (
+            latest_versioned_spec
+            and version is not None
+            and version < cast(int, latest_versioned_spec.version)
+        ):
             logger.warn(
-                f"The environment {spec.id} is out of date. You should consider "
-                f"upgrading to version v{latest_version} "
-                f"with the environment ID `{latest_id}`."
+                f"The environment {path} is out of date. You should consider "
+                f"upgrading to version `v{latest_versioned_spec.version}` "
+                f"with the environment ID `{latest_versioned_spec.id}`."
             )
+        elif latest_versioned_spec and version is None:
+            logger.warn(
+                f"Using the latest versioned environment `{latest_versioned_spec.id}` "
+                f"instead of the unversioned environment `{path}`"
+            )
+            path = latest_versioned_spec.id
 
-        env = spec.make(**kwargs)
-        return env
+        # Lookup our path
+        spec = self.spec(path)
+        # Construct the environment
+        return spec.make(**kwargs)
 
     def all(self):
         return self.env_specs.values()
@@ -343,145 +509,74 @@ class EnvRegistry:
         else:
             id = path
 
-        match = env_id_re.fullmatch(id)
-        if not match:
-            raise error.Error(
-                f"Attempted to look up malformed environment ID: {id.encode('utf-8')}. "
-                f"(Currently all IDs must be of the form {env_id_re.pattern}.)"
-            )
-
-        namespace, name, version = match.group("namespace", "name", "version")
-
-        # Check if namespace exists
-        if namespace not in self.env_specs.tree:
-            raise error.UnregisteredEnv(
-                f"Namespace `{namespace}` does not exist, have you installed the proper package for `{namespace}`?"
-            )
-        # Check if name exists in namespace
-        elif name not in self.env_specs.tree[namespace]:
-            # If this name has been relocated to a new namespace from the root namespace
-            # we'll construct a useful error message.
-            if namespace is None and name in internal_env_relocation_map:
-                # Get the relocated namespace and corresponding package
-                (
-                    relocated_namespace,
-                    relocated_package,
-                ) = internal_env_relocation_map[name]
-
-                name_not_found_error_msg = f"The environment `{name}` has been moved out of Gym to the package `{relocated_package}`."
-
-                # Check if the package is installed
-                # If not instruct the user to install the package and then how to instantiate the env
-                if importlib.util.find_spec(relocated_package) is None:
-                    name_not_found_error_msg += f" Please install the package via `pip install {relocated_package}`."
-
-                # Otherwise the user should be able to instantiate the environment directly
-                if namespace != relocated_namespace:
-                    name_not_found_error_msg += f" You can instantiate the new namespaced environment as `{env_id_from_parts(relocated_namespace, name, None)}`."
-            # If the environment hasn't been relocated we'll construct a generic error message
-            else:
-                name_not_found_error_msg = f"Environment `{id}` doesn't exist"
-                if namespace is not None:
-                    name_not_found_error_msg += f" in namespace `{namespace}`."
-                else:
-                    name_not_found_error_msg += "."
-            # Throw the error
-            raise error.UnregisteredEnv(name_not_found_error_msg)
-        # We'll now check if the requested version exists
-        elif version not in self.env_specs.tree[namespace][name]:
-            version_not_found_error_msg = f"Environment version {version} for "
-            if namespace is not None:
-                version_not_found_error_msg += f"{namespace}/"
-            version_not_found_error_msg += (
-                f"{name} could not be found. Valid versions are: "
-            )
-            # Retrieve valid versions of this package and print them
-            versions = self._versions(namespace, name)
-            version_not_found_error_msg += ", ".join(
-                map(
-                    lambda version: env_id_from_parts(
-                        getitem(version, 1), name, getitem(version, 0)  # type: ignore
-                    ),
-                    versions,
-                )
-            )
-            version_not_found_error_msg += "."
-
-            # If we've requested a version less than the
-            # most recent version it's considered deprecated.
-            # Otherwise it isn't registered.
-            if int(version) < getitem(max(versions), 0):  # type: ignore
-                raise error.DeprecatedEnv(version_not_found_error_msg)
-            else:
-                raise error.UnregisteredEnv(version_not_found_error_msg)
-
+        # We can go ahead and return the env_spec.
+        # The EnvSpecTree will take care of any exceptions.
         return self.env_specs[id]
 
     def register(self, id: str, **kwargs) -> None:
-        # Match ID and and get environment parts
-        match = env_id_re.fullmatch(id)
-        if match is None:
-            raise error.Error(
-                f"Attempted to register malformed environment ID: {id.encode('utf-8')}. "
-                f"(Currently all IDs must be of the form {env_id_re.pattern}.)"
-            )
+        spec = EnvSpec(id, **kwargs)
+
         if self._ns is not None:
-            namespace, name, version = match.group("namespace", "name", "version")
-            if namespace is not None:
+            if spec.namespace is not None:
                 logger.warn(
-                    f"Custom namespace '{namespace}' is being overridden by namespace '{self._ns}'. "
-                    "If you are developing a plugin you shouldn't specify a namespace in `register` calls. "
-                    "The namespace is specified through the entry point key."
+                    f"Custom namespace `{spec.namespace}` is being overridden "
+                    f"by namespace `{self._ns}`. If you are developing a "
+                    "plugin you shouldn't specify a namespace in `register` "
+                    "calls. The namespace is specified through the "
+                    "entry point package metadata."
                 )
             # Replace namespace
-            id = env_id_from_parts(self._ns, name, version)
+            spec.namespace = self._ns
 
-        if id in self.env_specs:
-            logger.warn(f"Overriding environment {id}")
-        self.env_specs[id] = EnvSpec(id, **kwargs)
+        try:
+            # Get all versions of this spec.
+            versions = self.env_specs.versions(spec.namespace, spec.name)
 
-    def _versions(self, namespace: str, name: str) -> Set[Tuple[int, str]]:
-        # Get the set of versions under the requested namespace
-        versions = set(
-            map(
-                lambda version: (
-                    int(version),
-                    namespace,
-                ),
-                self.env_specs.tree[namespace][name].keys(),
+            # We raise an error if the user is attempting to initialize an
+            # unversioned environment when a versioned one already exists.
+            latest_versioned_spec = max(
+                filter(lambda spec: isinstance(spec.version, int), versions),
+                key=lambda spec: cast(int, spec.version),
+                default=None,
             )
-        )
+            unversioned_spec = next(
+                filter(lambda spec: spec.version is None, versions), None
+            )
 
-        # The newest environment may be outside of the current namespace.
-        # This happens for internal environments which have been factored out of Gym.
-        # We check if the name has been relocated and we attempt to add the new
-        # versions outside of Gym to our set.
-        if name in internal_env_relocation_map:
-            relocated_namespace, _ = internal_env_relocation_map[name]
-
-            # If there is a new namespace and this name exists under the new namespace
-            # we'll add these versions to the set.
-            if (
-                relocated_namespace is not None
-                and name in self.env_specs.tree[relocated_namespace]
-            ):
-                versions |= set(
-                    map(
-                        lambda version: (
-                            int(version),
-                            relocated_namespace,
-                        ),
-                        self.env_specs.tree[relocated_namespace][name].keys(),
-                    )
+            # Trying to register an unversioned spec when versioned spec exists
+            if unversioned_spec and spec.version is not None:
+                message = (
+                    "Can't register the versioned environment "
+                    f"`{spec.id}` when the unversioned environment "
+                    f"`{unversioned_spec.id}` of the same name already exists."
                 )
-
-        return versions
+                raise error.RegistrationError(message)
+            elif latest_versioned_spec and spec.version is None:
+                message = (
+                    f"Can't register the unversioned environment `{spec.id}` "
+                    f"when version `{latest_versioned_spec.version}` "
+                    "of the same name already exists. Note: the default "
+                    "behavior is that the `gym.make` with the unversioned "
+                    "environment will return the latest versioned environment."
+                )
+                raise error.RegistrationError(message)
+        # We might not find this namespace or name in which case
+        # we should continue to register the environment.
+        except (error.NamespaceNotFound, error.NameNotFound):
+            pass
+        finally:
+            if spec.id in self.env_specs:
+                logger.warn(f"Overriding environment {id}")
+            self.env_specs[spec.id] = spec
 
     @contextlib.contextmanager
     def namespace(self, ns: str):
         self._ns = ns
         yield
         self._ns = None
+
+    def __repr__(self):
+        return repr(self.env_specs)
 
 
 # Have a global registry
