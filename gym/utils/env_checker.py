@@ -281,10 +281,17 @@ def _check_reset_seed(env: gym.Env, seed: Optional[int] = None) -> None:
     """
     signature = inspect.signature(env.reset)
     assert (
-        "seed" in signature.parameters
+        "seed" in signature.parameters or "kwargs" in signature.parameters
     ), "The environment cannot be reset with a random seed. This behavior will be deprecated in the future."
 
-    env.reset(seed=seed)
+    try:
+        env.reset(seed=seed)
+    except TypeError as e:
+        raise AssertionError(
+            "The environment cannot be reset with a random seed, even though `seed` or `kwargs` "
+            "appear in the signature. This should never happen, please report this issue. "
+            "The error was: " + str(e)
+        )
 
     if env.unwrapped.np_random is None:
         logger.warn(
@@ -308,8 +315,17 @@ def _check_reset_options(env: gym.Env) -> None:
     """
     signature = inspect.signature(env.reset)
     assert (
-        "options" in signature.parameters
+        "options" in signature.parameters or "kwargs" in signature.parameters
     ), "The environment cannot be reset with options. This behavior will be deprecated in the future."
+
+    try:
+        env.reset(options={})
+    except TypeError as e:
+        raise AssertionError(
+            "The environment cannot be reset with options, even though `options` or `kwargs` "
+            "appear in the signature. This should never happen, please report this issue. "
+            "The error was: " + str(e)
+        )
 
 
 def check_env(env: gym.Env, warn: bool = True, skip_render_check: bool = True) -> None:
