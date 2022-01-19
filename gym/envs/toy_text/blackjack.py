@@ -153,12 +153,12 @@ class BlackjackEnv(gym.Env):
 
         def get_image(path):
             cwd = os.path.dirname(__file__)
-            image = pygame.image.load(cwd + "/" + path)
+            image = pygame.image.load(os.path.join(cwd, path))
             return image
 
         def get_font(path, size):
             cwd = os.path.dirname(__file__)
-            font = pygame.font.Font((cwd + "/" + path), size)
+            font = pygame.font.Font(os.path.join(cwd, path), size)
             return font
 
         small_font = get_font(
