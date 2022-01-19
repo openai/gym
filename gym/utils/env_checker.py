@@ -302,7 +302,7 @@ def _check_reset_seed(env: gym.Env, seed: Optional[int] = None) -> None:
 
     seed_param = signature.parameters.get("seed")
     # Check the default value is None
-    if seed_param.default is not None:
+    if seed_param is not None and seed_param.default is not None:
         logger.warn(
             "The default seed argument in reset should be `None`, "
             "otherwise the environment will by default always be deterministic"
