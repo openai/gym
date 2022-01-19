@@ -10,7 +10,8 @@ Original Author: J K Terry
 These projects are covered by the MIT License.
 """
 
-from typing import Union
+from typing import Union, Optional
+import inspect
 
 import gym
 import numpy as np
@@ -274,6 +275,59 @@ def _check_render(
         env.close()
 
 
+def _check_reset_seed(env: gym.Env, seed: Optional[int] = None) -> None:
+    """
+    Check that the environment can be reset with a random seed.
+    """
+    signature = inspect.signature(env.reset)
+    assert (
+        "seed" in signature.parameters or "kwargs" in signature.parameters
+    ), "The environment cannot be reset with a random seed. This behavior will be deprecated in the future."
+
+    try:
+        env.reset(seed=seed)
+    except TypeError as e:
+        raise AssertionError(
+            "The environment cannot be reset with a random seed, even though `seed` or `kwargs` "
+            "appear in the signature. This should never happen, please report this issue. "
+            "The error was: " + str(e)
+        )
+
+    if env.unwrapped.np_random is None:
+        logger.warn(
+            "Resetting the environment did not result in seeding its random number generator. "
+            "This is likely due to not calling `super().reset(seed=seed)` in the `reset` method. "
+            "If you do not use the python-level random number generator, this is not a problem."
+        )
+
+    seed_param = signature.parameters.get("seed")
+    # Check the default value is None
+    if seed_param is not None and seed_param.default is not None:
+        logger.warn(
+            "The default seed argument in reset should be `None`, "
+            "otherwise the environment will by default always be deterministic"
+        )
+
+
+def _check_reset_options(env: gym.Env) -> None:
+    """
+    Check that the environment can be reset with options.
+    """
+    signature = inspect.signature(env.reset)
+    assert (
+        "options" in signature.parameters or "kwargs" in signature.parameters
+    ), "The environment cannot be reset with options. This behavior will be deprecated in the future."
+
+    try:
+        env.reset(options={})
+    except TypeError as e:
+        raise AssertionError(
+            "The environment cannot be reset with options, even though `options` or `kwargs` "
+            "appear in the signature. This should never happen, please report this issue. "
+            "The error was: " + str(e)
+        )
+
+
 def check_env(env: gym.Env, warn: bool = True, skip_render_check: bool = True) -> None:
     """
     Check that an environment follows Gym API.
@@ -329,3 +383,8 @@ def check_env(env: gym.Env, warn: bool = True, skip_render_check: bool = True) -
     # The check only works with numpy arrays
     if _is_numpy_array_space(observation_space) and _is_numpy_array_space(action_space):
         _check_nan(env)
+
+    # ==== Check the reset method ====
+    _check_reset_seed(env)
+    _check_reset_seed(env, seed=0)
+    _check_reset_options(env)

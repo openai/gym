@@ -114,7 +114,7 @@ class Continuous_MountainCarEnv(gym.Env):
         self.state = np.array([position, velocity], dtype=np.float32)
         return self.state, reward, done, {}
 
-    def reset(self, seed: Optional[int] = None):
+    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
         super().reset(seed=seed)
         self.state = np.array([self.np_random.uniform(low=-0.6, high=-0.4), 0])
         return np.array(self.state, dtype=np.float32)

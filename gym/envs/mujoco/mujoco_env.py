@@ -103,7 +103,7 @@ class MujocoEnv(gym.Env):
 
     # -----------------------------
 
-    def reset(self, seed: Optional[int] = None):
+    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
         super().reset(seed=seed)
         self.sim.reset()
         ob = self.reset_model()
