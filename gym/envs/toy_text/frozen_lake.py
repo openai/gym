@@ -1,9 +1,12 @@
-import sys
 from contextlib import closing
 from io import StringIO
+from os import path
 from typing import Optional
+import pygame
+from pygame.constants import SRCALPHA
 
 import numpy as np
+
 from gym import Env, spaces, utils
 from gym.envs.toy_text.utils import categorical_sample
 
@@ -25,6 +28,8 @@ MAPS = {
         "FFFHFFFG",
     ],
 }
+
+WINDOW_SIZE = (400, 400)
 
 
 def generate_random_map(size=8, p=0.8):
@@ -150,6 +155,10 @@ class FrozenLakeEnv(Env):
         self.observation_space = spaces.Discrete(nS)
         self.action_space = spaces.Discrete(nA)
 
+        self.window_surface = None
+        self.bot_img = None
+        self.background = None
+
     def step(self, a):
         transitions = self.P[self.s][a]
         i = categorical_sample([t[0] for t in transitions], self.np_random)
@@ -164,11 +173,48 @@ class FrozenLakeEnv(Env):
         self.lastaction = None
         return int(self.s)
 
-    def render(self, mode="human"):
-        outfile = StringIO() if mode == "ansi" else sys.stdout
+    def render(self, mode='human'):
+        desc = self.desc.tolist()
+        if mode == 'ansi':
+            return self._render_text(desc)
+        else:
+            return self._render_gui(desc)
+
+    def _render_gui(self, desc):
+        if self.window_surface is None:
+            pygame.init()
+            pygame.display.set_caption('Frozen Lake')
+            self.window_surface = pygame.display.set_mode(WINDOW_SIZE)
+
+        board = pygame.Surface(WINDOW_SIZE)
+        board.fill((255, 255, 255))
+
+        cell_height = WINDOW_SIZE[1] / self.nrow
+        cell_width = WINDOW_SIZE[0] / self.ncol
+
+        for x in range(self.nrow):
+            for y in range(self.ncol):
+                rect = (y * cell_width, x * cell_height, cell_width, cell_height)
+                if desc[x][y] == b'H':
+                    pygame.draw.rect(board, (0, 0, 0), rect)
+                elif desc[x][y] == b'G':
+                    pygame.draw.rect(board, (0, 128, 0), rect)
+
+                pygame.draw.rect(board, (0, 0, 0), rect, 1)
+
+        bot_row, bot_col = self.s // self.ncol, self.s % self.ncol
+        margin = min(cell_width, cell_height) * 0.1
+        pawn_rect = (bot_col * cell_width + margin, bot_row * cell_height + margin,
+                     cell_width - 2 * margin, cell_height - 2 * margin)
+        pygame.draw.ellipse(board, (219, 0, 0), pawn_rect)
+
+        self.window_surface.blit(board, board.get_rect())
+        pygame.display.update()
+
+    def _render_text(self, desc):
+        outfile = StringIO()
 
         row, col = self.s // self.ncol, self.s % self.ncol
-        desc = self.desc.tolist()
         desc = [[c.decode("utf-8") for c in line] for line in desc]
         desc[row][col] = utils.colorize(desc[row][col], "red", highlight=True)
         if self.lastaction is not None:
@@ -177,6 +223,5 @@ class FrozenLakeEnv(Env):
             outfile.write("\n")
         outfile.write("\n".join("".join(line) for line in desc) + "\n")
 
-        if mode != "human":
-            with closing(outfile):
-                return outfile.getvalue()
+        with closing(outfile):
+            return outfile.getvalue()
