@@ -11,6 +11,7 @@ These projects are covered by the MIT License.
 """
 
 from typing import Union, Optional
+import inspect
 
 import gym
 import numpy as np
@@ -278,16 +279,26 @@ def _check_reset_seed(env: gym.Env, seed: Optional[int] = None) -> None:
     """
     Check that the environment can be reset with a random seed.
     """
-    try:
-        env.reset(seed=seed)
-    except TypeError:
+    signature = inspect.signature(env.reset)
+    assert (
+        "seed" in signature.parameters
+    ), "The environment cannot be reset with a random seed. This behavior will be deprecated in the future."
+
+    env.reset(seed=seed)
+
+    if env.unwrapped.np_random is None:
         logger.warn(
-            "The environment cannot be reset with a random seed. This behavior will be deprecated in the future."
-        )
-    else:
-        assert env.unwrapped.np_random is not None, (
             "Resetting the environment did not result in seeding its random number generator. "
-            "This is likely due to not calling `super().reset(seed=seed)` in the `reset` method."
+            "This is likely due to not calling `super().reset(seed=seed)` in the `reset` method. "
+            "If you do not use the python-level random number generator, this is not a problem."
+        )
+
+    seed_param = signature.parameters.get("seed")
+    # Check the default value is None
+    if seed_param.default is not None:
+        logger.warn(
+            "The default seed argument in reset should be `None`, "
+            "otherwise the environment will by default always be deterministic"
         )
 
 
@@ -295,12 +306,10 @@ def _check_reset_options(env: gym.Env) -> None:
     """
     Check that the environment can be reset with options.
     """
-    try:
-        env.reset(options={})
-    except TypeError:
-        logger.warn(
-            "The environment cannot be reset with options. This behavior will be deprecated in the future."
-        )
+    signature = inspect.signature(env.reset)
+    assert (
+        "options" in signature.parameters
+    ), "The environment cannot be reset with options. This behavior will be deprecated in the future."
 
 
 def check_env(env: gym.Env, warn: bool = True, skip_render_check: bool = True) -> None:
@@ -361,4 +370,5 @@ def check_env(env: gym.Env, warn: bool = True, skip_render_check: bool = True) -
 
     # ==== Check the reset method ====
     _check_reset_seed(env)
+    _check_reset_seed(env, seed=0)
     _check_reset_options(env)
