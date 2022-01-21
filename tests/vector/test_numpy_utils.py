@@ -46,7 +46,7 @@ def test_concatenate(space):
 
     samples = [space.sample() for _ in range(8)]
     array = create_empty_array(space, n=8)
-    concatenated = concatenate(samples, array, space)
+    concatenated = concatenate(space, samples, array)
 
     assert np.all(concatenated == array)
     assert_nested_equal(array, samples, n=8)
