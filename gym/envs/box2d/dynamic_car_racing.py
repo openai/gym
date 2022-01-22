@@ -431,7 +431,11 @@ class DynamicCarRacing(gym.Env, EzPickle):
             self.car.gas(action[1])
             self.car.brake(action[2])
             if self.specify_view_angle:
-                self.view_angle = action[3]
+                if self.view_angle is None:
+                    self.view_angle = self.car.hull.angle
+                else:
+                    lookspeed = 0.1
+                    self.view_angle = self.view_angle + lookspeed * action[3]
 
         # move obstacles laterally across track
         for obs_id, obs in enumerate(self.obstacles):
@@ -550,8 +554,6 @@ class DynamicCarRacing(gym.Env, EzPickle):
 
         if self.apply_pov_mask:
             view_angle = self.car.hull.angle if self.view_angle is None else self.view_angle
-            # view_angle = self.car.hull.angle
-            # print(view_angle)
             self.render_pov_mask(VP_W/SCALE, VP_H/SCALE, 3, scroll_x, scroll_y, view_angle)
         t.disable()
 
@@ -580,14 +582,14 @@ class DynamicCarRacing(gym.Env, EzPickle):
         W, H = float(W), float(H)
         colors = [0, 0, 0, 1] * 5
         z = 0.
-        p1 = [0., H/8, z]
-        p2 = [0., H, z]
-        p3 = [(W/2.)-(3/4)*H*math.tan(math.pi/8.), H, z]
+        p1 = [-W, -2 * H, z]
+        p2 = [-W, 2 * H, z]
+        p3 = [(W/2.)-2*(3/4)*H*math.tan(math.pi/8.), 2*H, z]
         p4 = [W/2., H/4., z]
-        p5 = [W/2., H/8., z]
-        p6 = [(W/2.)+(3/4)*H*math.tan(math.pi/8.), H, z]
-        p7 = [W, H, z]
-        p8 = [W, H/8., z]
+        p5 = [W/2., -2 * H, z]
+        p6 = [(W/2.)+2*(3/4)*H*math.tan(math.pi/8.), 2*H, z]
+        p7 = [2*W, 2*H, z]
+        p8 = [2*W, -2*H, z]
         l_polygons = [p1, p2, p3, p4, p5]
         r_polygons = [p5, p4, p6, p7, p8]
 
