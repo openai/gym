@@ -49,6 +49,17 @@ def test_normalize_observation():
     env.step(env.action_space.sample())
     assert_almost_equal(env.obs_rms.mean, 1.0, decimal=4)
 
+    
+def test_normalize_reset_info():
+    env = DummyRewardEnv(return_reward_idx=0)
+    env = NormalizeObservation(env)
+    obs  = env.reset()
+    assert (isinstance(obs, np.ndarray) or isinstance(obs,tuple) or isinstance(obs, int))
+    del obs
+    obs,info = env.reset(return_info = True)
+    assert (isinstance(obs, np.ndarray) or isinstance(obs,tuple) or isinstance(obs, int))
+    assert (isinstance(info, dict))
+
 
 def test_normalize_return():
     env = DummyRewardEnv(return_reward_idx=0)
