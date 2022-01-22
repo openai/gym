@@ -93,11 +93,27 @@ register(
 )
 
 register(
-    id="DynamicCarRacing-v0",
+    id="DynamicObsCarRacing-v0",
     entry_point="gym.envs.box2d:DynamicCarRacing",
     max_episode_steps=1000,
     reward_threshold=900,
-    kwargs={'num_obstacles': 20},
+    kwargs={'num_obstacles': 20, 'apply_pov_mask': True},
+)
+
+register(
+    id="CarRacingCone-v0",
+    entry_point="gym.envs.box2d:DynamicCarRacing",
+    max_episode_steps=1000,
+    reward_threshold=900,
+    kwargs={'num_obstacles': 0, 'apply_pov_mask': True},
+)
+
+register(
+    id="CarRacingManualCone-v0",
+    entry_point="gym.envs.box2d:DynamicCarRacing",
+    max_episode_steps=1000,
+    reward_threshold=900,
+    kwargs={'num_obstacles': 0, 'apply_pov_mask': True, 'specify_view_angle': True},
 )
 
 # Toy Text

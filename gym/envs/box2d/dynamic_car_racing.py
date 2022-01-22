@@ -130,7 +130,7 @@ class DynamicCarRacing(gym.Env, EzPickle):
         "video.frames_per_second": FPS,
     }
 
-    def __init__(self, verbose=1, num_obstacles=20):
+    def __init__(self, verbose=1, num_obstacles=20, apply_pov_mask=False, specify_view_angle=False):
         EzPickle.__init__(self)
         self.seed()
         self.contactListener_keepref = FrictionDetector(self)
@@ -145,6 +145,9 @@ class DynamicCarRacing(gym.Env, EzPickle):
         self.reward = 0.0
         self.prev_reward = 0.0
         self.verbose = verbose
+        self.apply_pov_mask = apply_pov_mask
+        self.specify_view_angle = specify_view_angle
+        self.view_angle = None
         self.fd_tile = fixtureDef(
             shape=polygonShape(vertices=[(0, 0), (1, 0), (1, -1), (0, -1)])
         )
@@ -153,6 +156,11 @@ class DynamicCarRacing(gym.Env, EzPickle):
             np.array([-1, 0, 0]).astype(np.float32),
             np.array([+1, +1, +1]).astype(np.float32),
         )  # steer, gas, brake
+        if self.specify_view_angle:
+            self.action_space = spaces.Box(
+                np.array([-1, 0, 0, -np.pi]).astype(np.float32),
+                np.array([+1, +1, +1, +np.pi]).astype(np.float32),
+            )  # steer, gas, brake, view_angle
 
         self.observation_space = spaces.Box(
             low=0, high=255, shape=(STATE_H, STATE_W, 3), dtype=np.uint8
@@ -173,9 +181,9 @@ class DynamicCarRacing(gym.Env, EzPickle):
         self.car.destroy()
 
     def _create_obstacles(self):
-        # Set positions of obstacles randomly along the track (not including 0th segment)
-        segment_ids = [i+1 for i in range(len(self.track)-1)]
-        track_segments = np.random.choice(segment_ids, size=len(self.track)-1, replace=False)
+        # Set positions of obstacles randomly along the track (not including first few segments)
+        segment_ids = [i+3 for i in range(len(self.track)-3)]
+        track_segments = np.random.choice(segment_ids, size=len(self.track)-3, replace=False)
         self.obs_to_seg = {i: track_segments[i] for i in range(self.num_obstacles)}
 
         (angle, pos_x, pos_y) = self.track[0][1:4]  # first track segment
@@ -198,8 +206,8 @@ class DynamicCarRacing(gym.Env, EzPickle):
             new_y = pos_y + dy + np.cos(norm_theta)
 
             # Display spawn locations of cars.
-            print(f"Spawning obstacle {obs_id} at {new_x:.0f}x{new_y:.0f} with "
-                  f"orientation {angle}")
+            # print(f"Spawning obstacle {obs_id} at {new_x:.0f}x{new_y:.0f} with "
+            #       f"orientation {angle}")
 
             # Create obstacle at location with given angle
             self.obstacles[obs_id] = Obstacle(self.world, angle, new_x, new_y)
@@ -422,6 +430,8 @@ class DynamicCarRacing(gym.Env, EzPickle):
             self.car.steer(-action[0])
             self.car.gas(action[1])
             self.car.brake(action[2])
+            if self.specify_view_angle:
+                self.view_angle = action[3]
 
         # move obstacles laterally across track
         for obs_id, obs in enumerate(self.obstacles):
@@ -537,8 +547,12 @@ class DynamicCarRacing(gym.Env, EzPickle):
         for geom in self.viewer.onetime_geoms:
             geom.render()
         self.viewer.onetime_geoms = []
-        # TODO: expose angle as parameter to be modified by RL agent
-        self.render_pov_mask(VP_W/SCALE, VP_H/SCALE, 3, scroll_x, scroll_y, self.car.hull.angle)
+
+        if self.apply_pov_mask:
+            view_angle = self.car.hull.angle if self.view_angle is None else self.view_angle
+            # view_angle = self.car.hull.angle
+            # print(view_angle)
+            self.render_pov_mask(VP_W/SCALE, VP_H/SCALE, 3, scroll_x, scroll_y, view_angle)
         t.disable()
 
         self.render_obstacles()
