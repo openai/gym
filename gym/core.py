@@ -30,7 +30,7 @@ class Env(Generic[ObsType, ActType]):
     And set the following attributes:
 
         action_space: The Space object corresponding to valid actions
-        observation_spasce: The Space object corresponding to valid observations
+        observation_space: The Space object corresponding to valid observations
         reward_range: A tuple corresponding to the min and max possible rewards
 
     Note: a default reward range set to [-inf,+inf] already exists. Set it if you want a narrower range.
@@ -70,7 +70,7 @@ class Env(Generic[ObsType, ActType]):
         raise NotImplementedError
 
     @abstractmethod
-    def reset(self, seed: Optional[int] = None , return_info: Optional[bool] = False) -> Union[ObsType,Tuple[ObsType, dict]]:
+    def reset(self, seed: Optional[int] = None , return_info: bool = False) -> Union[ObsType,Tuple[ObsType, dict]]:
         """Resets the environment to an initial state and returns an initial
         observation.
 
@@ -261,8 +261,8 @@ class Wrapper(Env):
     def step(self, action):
         return self.env.step(action)
 
-    def reset(self, seed: Optional[int] = None, **kwargs):
-        return self.env.reset(seed=seed, **kwargs)
+    def reset(self, seed: Optional[int] = None,return_info: bool = False, **kwargs):
+        return self.env.reset(seed=seed,return_info=return_info, **kwargs)
 
     def render(self, mode="human", **kwargs):
         return self.env.render(mode, **kwargs)
@@ -288,9 +288,13 @@ class Wrapper(Env):
 
 
 class ObservationWrapper(Wrapper):
-    def reset(self, seed: Optional[int] = None, **kwargs):
-        observation = self.env.reset(seed=seed, **kwargs)
-        return self.observation(observation)
+    def reset(self, seed: Optional[int] = None, return_info : Optional[bool] = None, **kwargs):
+        if return_info != None:
+            observation, info = self.env.reset(seed=seed, return_info = return_info **kwargs)
+            return self.observation(observation), info
+        else:
+            observation = self.env.reset(seed=seed, **kwargs)
+            return self.observation(observation)
 
     def step(self, action):
         observation, reward, done, info = self.env.step(action)

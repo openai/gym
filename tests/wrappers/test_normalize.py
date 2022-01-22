@@ -23,10 +23,13 @@ class DummyRewardEnv(gym.Env):
         self.t += 1
         return np.array([self.t]), self.t, self.t == len(self.returned_rewards), {}
 
-    def reset(self, seed: Optional[int] = None):
+    def reset(self, seed: Optional[int] = None, return_info : Optional[bool] = False):
         super().reset(seed=seed)
         self.t = self.return_reward_idx
-        return np.array([self.t])
+        if not return_info:
+            return np.array([self.t])
+        else:
+            return np.array([self.t]), {}
 
 
 def make_env(return_reward_idx):

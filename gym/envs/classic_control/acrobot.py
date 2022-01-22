@@ -97,12 +97,16 @@ class AcrobotEnv(core.Env):
         self.action_space = spaces.Discrete(3)
         self.state = None
 
-    def reset(self, seed: Optional[int] = None):
+    def reset(self, seed: Optional[int] = None,return_info: bool = False):
         super().reset(seed=seed)
         self.state = self.np_random.uniform(low=-0.1, high=0.1, size=(4,)).astype(
             np.float32
         )
-        return self._get_ob()
+        if not return_info:
+            return self._get_ob()
+        else:
+            return self._get_ob() , {}
+
 
     def step(self, a):
         s = self.state

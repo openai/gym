@@ -211,7 +211,7 @@ class AsyncVectorEnv(VectorEnv):
         _, successes = zip(*[pipe.recv() for pipe in self.parent_pipes])
         self._raise_if_errors(successes)
 
-    def reset_async(self, seed: Optional[Union[int, List[int]]] = None):
+    def reset_async(self, seed: Optional[Union[int, List[int]]] = None, return_info: bool = False):
         """Send the calls to :obj:`reset` to each sub-environment.
 
         Raises
@@ -243,7 +243,7 @@ class AsyncVectorEnv(VectorEnv):
             pipe.send(("reset", single_seed))
         self._state = AsyncState.WAITING_RESET
 
-    def reset_wait(self, timeout=None, seed: Optional[int] = None):
+    def reset_wait(self, timeout=None, seed: Optional[int] = None, return_info: bool = False):
         """
         Parameters
         ----------

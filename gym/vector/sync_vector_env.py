@@ -86,7 +86,7 @@ class SyncVectorEnv(VectorEnv):
         for env, single_seed in zip(self.envs, seed):
             env.seed(single_seed)
 
-    def reset_wait(self, seed: Optional[Union[int, List[int]]] = None, **kwargs):
+    def reset_wait(self, seed: Optional[Union[int, List[int]]] = None, return_info: bool = False, **kwargs):
         if seed is None:
             seed = [None for _ in range(self.num_envs)]
         if isinstance(seed, int):
@@ -95,15 +95,23 @@ class SyncVectorEnv(VectorEnv):
 
         self._dones[:] = False
         observations = []
+        data_list = []
         for env, single_seed in zip(self.envs, seed):
-            observation = env.reset(seed=single_seed)
-            observations.append(observation)
+            if not return_info:
+                observation = env.reset(seed=single_seed)
+                observations.append(observation)
+            else:
+                observation, data = env.reset(seed=single_seed, return_info = True)
+                observations.append(observation)
+                data_list.append(data)
+
         self.observations = concatenate(
             observations, self.observations, self.single_observation_space
         )
-
-        return deepcopy(self.observations) if self.copy else self.observations
-
+        if not return_info:
+            return deepcopy(self.observations) if self.copy else self.observations
+        else:
+            return ( deepcopy(self.observations) if self.copy else self.observations) , data_list
     def step_async(self, actions):
         self._actions = iterate(self.action_space, actions)
 

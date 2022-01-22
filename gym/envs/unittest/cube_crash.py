@@ -72,7 +72,7 @@ class CubeCrash(gym.Env):
             ]
         ).astype("uint8")
 
-    def reset(self, seed: Optional[int] = None):
+    def reset(self, seed: Optional[int] = None, return_info: bool = False):
         super().reset(seed=seed)
         self.cube_x = self.np_random.integers(low=3, high=FIELD_W - 3)
         self.cube_y = self.np_random.integers(low=3, high=FIELD_H // 6)
@@ -93,8 +93,10 @@ class CubeCrash(gym.Env):
             ):
                 continue
             break
-
-        return self.step(0)[0]
+        if not return_info:
+            return self.step(0)[0]
+        else:
+            return self.step(0)[0], {}
 
     def step(self, action):
         if action == 0:

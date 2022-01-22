@@ -18,8 +18,8 @@ class RecordEpisodeStatistics(gym.Wrapper):
         self.length_queue = deque(maxlen=deque_size)
         self.is_vector_env = getattr(env, "is_vector_env", False)
 
-    def reset(self, seed: Optional[int] = None, **kwargs):
-        observations = super().reset(seed=seed, **kwargs)
+    def reset(self, seed: Optional[int] = None,return_info: bool = False, **kwargs):
+        observations = super().reset(seed=seed,return_info=return_info, **kwargs)
         self.episode_returns = np.zeros(self.num_envs, dtype=np.float32)
         self.episode_lengths = np.zeros(self.num_envs, dtype=np.int32)
         return observations

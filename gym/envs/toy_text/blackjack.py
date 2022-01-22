@@ -119,8 +119,11 @@ class BlackjackEnv(gym.Env):
     def _get_obs(self):
         return (sum_hand(self.player), self.dealer[0], usable_ace(self.player))
 
-    def reset(self, seed: Optional[int] = None):
+    def reset(self, seed: Optional[int] = None,return_info: bool = False):
         super().reset(seed=seed)
         self.dealer = draw_hand(self.np_random)
         self.player = draw_hand(self.np_random)
-        return self._get_obs()
+        if not return_info:
+            return self._get_obs()
+        else:
+            return self._get_obs(), {}

@@ -114,11 +114,13 @@ class Continuous_MountainCarEnv(gym.Env):
         self.state = np.array([position, velocity], dtype=np.float32)
         return self.state, reward, done, {}
 
-    def reset(self, seed: Optional[int] = None):
+    def reset(self, seed: Optional[int] = None,return_info: bool = False):
         super().reset(seed=seed)
         self.state = np.array([self.np_random.uniform(low=-0.6, high=-0.4), 0])
-        return np.array(self.state, dtype=np.float32)
-
+        if not return_info:
+            return np.array(self.state, dtype=np.float32)
+        else:
+            return np.array(self.state, dtype=np.float32), {}
     def _height(self, xs):
         return np.sin(3 * xs) * 0.45 + 0.55
 

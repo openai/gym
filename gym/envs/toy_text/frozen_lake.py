@@ -158,11 +158,15 @@ class FrozenLakeEnv(Env):
         self.lastaction = a
         return (int(s), r, d, {"prob": p})
 
-    def reset(self, seed: Optional[int] = None):
+    def reset(self, seed: Optional[int] = None, return_info : bool = False):
         super().reset(seed=seed)
         self.s = categorical_sample(self.initial_state_distrib, self.np_random)
         self.lastaction = None
-        return int(self.s)
+
+        if not return_info:
+            return int(self.s)
+        else:
+            return int(self.s), {"prob": 1}
 
     def render(self, mode="human"):
         outfile = StringIO() if mode == "ansi" else sys.stdout
