@@ -103,7 +103,13 @@ class MujocoEnv(gym.Env):
 
     # -----------------------------
 
-    def reset(self, *, seed: Optional[int] = None, return_info : bool = False, options: Optional[dict] = None):
+    def reset(
+        self,
+        *,
+        seed: Optional[int] = None,
+        return_info: bool = False,
+        options: Optional[dict] = None,
+    ):
         super().reset(seed=seed)
         self.sim.reset()
         ob = self.reset_model()
@@ -111,6 +117,7 @@ class MujocoEnv(gym.Env):
             return ob
         else:
             return ob, {}
+
     def set_state(self, qpos, qvel):
         assert qpos.shape == (self.model.nq,) and qvel.shape == (self.model.nv,)
         old_state = self.sim.get_state()

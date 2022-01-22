@@ -49,7 +49,7 @@ class VectorEnv(gym.Env):
     def reset_async(
         self,
         seed: Optional[Union[int, List[int]]] = None,
-        return_info : bool = False,
+        return_info: bool = False,
         options: Optional[dict] = None,
     ):
         pass
@@ -57,7 +57,7 @@ class VectorEnv(gym.Env):
     def reset_wait(
         self,
         seed: Optional[Union[int, List[int]]] = None,
-        return_info : bool = False,
+        return_info: bool = False,
         options: Optional[dict] = None,
     ):
         raise NotImplementedError()
@@ -66,7 +66,7 @@ class VectorEnv(gym.Env):
         self,
         *,
         seed: Optional[Union[int, List[int]]] = None,
-        return_info : bool = False,
+        return_info: bool = False,
         options: Optional[dict] = None,
     ):
         r"""Reset all sub-environments and return a batch of initial observations.

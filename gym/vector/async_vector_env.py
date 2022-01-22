@@ -255,9 +255,11 @@ class AsyncVectorEnv(VectorEnv):
         self._state = AsyncState.WAITING_RESET
 
     def reset_wait(
-        self, timeout=None, seed: Optional[int] = None,
+        self,
+        timeout=None,
+        seed: Optional[int] = None,
         return_info: bool = False,
-        options: Optional[dict] = None
+        options: Optional[dict] = None,
     ):
         """
         Parameters

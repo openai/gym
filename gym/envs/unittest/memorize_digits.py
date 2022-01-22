@@ -98,10 +98,11 @@ class MemorizeDigits(gym.Env):
                 continue
             break
         self.digit = -1
-        if not  return_info:
+        if not return_info:
             return self.step(0)[0]
         else:
             return self.step(0)[0], {}
+
     def step(self, action):
         reward = -1
         done = False

@@ -23,7 +23,13 @@ class DummyRewardEnv(gym.Env):
         self.t += 1
         return np.array([self.t]), self.t, self.t == len(self.returned_rewards), {}
 
-    def reset(self, *, seed: Optional[int] = None, return_info : Optional[bool] = False, options: Optional[dict] = None):
+    def reset(
+        self,
+        *,
+        seed: Optional[int] = None,
+        return_info: Optional[bool] = False,
+        options: Optional[dict] = None
+    ):
         super().reset(seed=seed)
         self.t = self.return_reward_idx
         if not return_info:
@@ -49,16 +55,16 @@ def test_normalize_observation():
     env.step(env.action_space.sample())
     assert_almost_equal(env.obs_rms.mean, 1.0, decimal=4)
 
-    
+
 def test_normalize_reset_info():
     env = DummyRewardEnv(return_reward_idx=0)
     env = NormalizeObservation(env)
-    obs  = env.reset()
-    assert (isinstance(obs, np.ndarray) or isinstance(obs,tuple) or isinstance(obs, int))
+    obs = env.reset()
+    assert isinstance(obs, np.ndarray) or isinstance(obs, tuple) or isinstance(obs, int)
     del obs
-    obs,info = env.reset(return_info = True)
-    assert (isinstance(obs, np.ndarray) or isinstance(obs,tuple) or isinstance(obs, int))
-    assert (isinstance(info, dict))
+    obs, info = env.reset(return_info=True)
+    assert isinstance(obs, np.ndarray) or isinstance(obs, tuple) or isinstance(obs, int)
+    assert isinstance(info, dict)
 
 
 def test_normalize_return():

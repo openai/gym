@@ -340,7 +340,13 @@ class CarRacing(gym.Env, EzPickle):
         self.track = track
         return True
 
-    def reset(self, *, seed: Optional[int] = None, return_info : bool = False, options: Optional[dict] = None):
+    def reset(
+        self,
+        *,
+        seed: Optional[int] = None,
+        return_info: bool = False,
+        options: Optional[dict] = None,
+    ):
         super().reset(seed=seed)
         self._destroy()
         self.reward = 0.0
@@ -364,6 +370,7 @@ class CarRacing(gym.Env, EzPickle):
             return self.step(None)[0]
         else:
             return self.step(None)[0], {}
+
     def step(self, action):
         if action is not None:
             self.car.steer(-action[0])

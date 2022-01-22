@@ -56,23 +56,60 @@ def test_env(spec):
 
 
 def test_reset_info():
-    env_names = ["CartPole-v0", "CartPole-v1","MountainCar-v0","MountainCarContinuous-v0","Pendulum-v1"
-    ,"Acrobot-v1","LunarLander-v2","LunarLanderContinuous-v2","BipedalWalker-v3","BipedalWalkerHardcore-v3"
-    ,"CarRacing-v0","Blackjack-v1","FrozenLake-v1","FrozenLake8x8-v1","CliffWalking-v0","Taxi-v3"
-    ,"Reacher-v2","Pusher-v2","Thrower-v2","Striker-v2","InvertedPendulum-v2","InvertedDoublePendulum-v2"
-    ,"HalfCheetah-v2","HalfCheetah-v3","Hopper-v2","Hopper-v3","Swimmer-v2","Swimmer-v3","Walker2d-v2"
-    ,"Walker2d-v3","Ant-v2","Ant-v3","Humanoid-v2","Humanoid-v3","HumanoidStandup-v2"]
+    env_names = [
+        "CartPole-v0",
+        "CartPole-v1",
+        "MountainCar-v0",
+        "MountainCarContinuous-v0",
+        "Pendulum-v1",
+        "Acrobot-v1",
+        "LunarLander-v2",
+        "LunarLanderContinuous-v2",
+        "BipedalWalker-v3",
+        "BipedalWalkerHardcore-v3",
+        "CarRacing-v0",
+        "Blackjack-v1",
+        "FrozenLake-v1",
+        "FrozenLake8x8-v1",
+        "CliffWalking-v0",
+        "Taxi-v3",
+        "Reacher-v2",
+        "Pusher-v2",
+        "Thrower-v2",
+        "Striker-v2",
+        "InvertedPendulum-v2",
+        "InvertedDoublePendulum-v2",
+        "HalfCheetah-v2",
+        "HalfCheetah-v3",
+        "Hopper-v2",
+        "Hopper-v3",
+        "Swimmer-v2",
+        "Swimmer-v3",
+        "Walker2d-v2",
+        "Walker2d-v3",
+        "Ant-v2",
+        "Ant-v3",
+        "Humanoid-v2",
+        "Humanoid-v3",
+        "HumanoidStandup-v2",
+    ]
     for env_name in env_names:
         env = envs.make(env_name)
         obs = env.reset()
-        assert (isinstance(obs, np.ndarray) or isinstance(obs,tuple) or isinstance(obs, int))
+        assert (
+            isinstance(obs, np.ndarray)
+            or isinstance(obs, tuple)
+            or isinstance(obs, int)
+        )
         del obs
-        obs,info = env.reset(return_info = True)
-        assert (isinstance(obs, np.ndarray) or isinstance(obs,tuple) or isinstance(obs, int))
-        assert (isinstance(info, dict))
+        obs, info = env.reset(return_info=True)
+        assert (
+            isinstance(obs, np.ndarray)
+            or isinstance(obs, tuple)
+            or isinstance(obs, int)
+        )
+        assert isinstance(info, dict)
         env.close()
-    
-        
 
 
 # Run a longer rollout on some environments

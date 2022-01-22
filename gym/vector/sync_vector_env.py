@@ -103,10 +103,12 @@ class SyncVectorEnv(VectorEnv):
         data_list = []
         for env, single_seed in zip(self.envs, seed):
             if not return_info:
-                observation = env.reset(seed=single_seed, options = options)
+                observation = env.reset(seed=single_seed, options=options)
                 observations.append(observation)
             else:
-                observation, data = env.reset(seed=single_seed, return_info = True, options = options)
+                observation, data = env.reset(
+                    seed=single_seed, return_info=True, options=options
+                )
                 observations.append(observation)
                 data_list.append(data)
 
@@ -116,7 +118,10 @@ class SyncVectorEnv(VectorEnv):
         if not return_info:
             return deepcopy(self.observations) if self.copy else self.observations
         else:
-            return ( deepcopy(self.observations) if self.copy else self.observations) , data_list
+            return (
+                deepcopy(self.observations) if self.copy else self.observations
+            ), data_list
+
     def step_async(self, actions):
         self._actions = iterate(self.action_space, actions)
 

@@ -35,7 +35,13 @@ class UnknownSpacesEnv(core.Env):
     on external resources), it is not encouraged.
     """
 
-    def reset(self, *, seed: Optional[int] = None, return_info: bool = False, options: Optional[dict] = None):
+    def reset(
+        self,
+        *,
+        seed: Optional[int] = None,
+        return_info: bool = False,
+        options: Optional[dict] = None
+    ):
         super().reset(seed=seed)
         self.observation_space = spaces.Box(
             low=0, high=255, shape=(64, 64, 3), dtype=np.uint8
@@ -44,7 +50,8 @@ class UnknownSpacesEnv(core.Env):
         if not return_info:
             return self.observation_space.sample()  # Dummy observation
         else:
-            return self.observation_space.sample(), {} # Dummy observation with info
+            return self.observation_space.sample(), {}  # Dummy observation with info
+
     def step(self, action):
         observation = self.observation_space.sample()  # Dummy observation
         return (observation, 0.0, False, {})

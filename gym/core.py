@@ -71,7 +71,11 @@ class Env(Generic[ObsType, ActType]):
 
     @abstractmethod
     def reset(
-        self, *, seed: Optional[int] = None, return_info : Optional[bool] = False, options: Optional[dict] = None
+        self,
+        *,
+        seed: Optional[int] = None,
+        return_info: Optional[bool] = False,
+        options: Optional[dict] = None,
     ) -> ObsType:
         """Resets the environment to an initial state and returns an initial
         observation.
