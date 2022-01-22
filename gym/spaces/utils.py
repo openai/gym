@@ -24,27 +24,27 @@ def flatdim(space):
 
 @flatdim.register(Box)
 @flatdim.register(MultiBinary)
-def flatdim_box_multibinary(space):
+def _flatdim_box_multibinary(space):
     return reduce(op.mul, space.shape, 1)
 
 
 @flatdim.register(Discrete)
-def flatdim_discrete(space):
+def _flatdim_discrete(space):
     return int(space.n)
 
 
 @flatdim.register(MultiDiscrete)
-def flatdim_multidiscrete(space):
+def _flatdim_multidiscrete(space):
     return int(np.sum(space.nvec))
 
 
 @flatdim.register(Tuple)
-def flatdim_tuple(space):
+def _flatdim_tuple(space):
     return sum(flatdim(s) for s in space.spaces)
 
 
 @flatdim.register(Dict)
-def flatdim_dict(space):
+def _flatdim_dict(space):
     return sum(flatdim(s) for s in space.spaces.values())
 
 
@@ -64,19 +64,19 @@ def flatten(space, x):
 
 @flatten.register(Box)
 @flatten.register(MultiBinary)
-def flatten_box_multibinary(space, x):
+def _flatten_box_multibinary(space, x):
     return np.asarray(x, dtype=space.dtype).flatten()
 
 
 @flatten.register(Discrete)
-def flatten_discrete(space, x):
+def _flatten_discrete(space, x):
     onehot = np.zeros(space.n, dtype=space.dtype)
     onehot[x] = 1
     return onehot
 
 
 @flatten.register(MultiDiscrete)
-def flatten_multidiscrete(space, x):
+def _flatten_multidiscrete(space, x):
     offsets = np.zeros((space.nvec.size + 1,), dtype=space.dtype)
     offsets[1:] = np.cumsum(space.nvec.flatten())
 
@@ -86,12 +86,12 @@ def flatten_multidiscrete(space, x):
 
 
 @flatten.register(Tuple)
-def flatten_tuple(space, x):
+def _flatten_tuple(space, x):
     return np.concatenate([flatten(s, x_part) for x_part, s in zip(x, space.spaces)])
 
 
 @flatten.register(Dict)
-def flatten_dict(space, x):
+def _flatten_dict(space, x):
     return np.concatenate([flatten(s, x[key]) for key, s in space.spaces.items()])
 
 
@@ -111,17 +111,17 @@ def unflatten(space, x):
 
 @unflatten.register(Box)
 @unflatten.register(MultiBinary)
-def unflatten_box_multibinary(space, x):
+def _unflatten_box_multibinary(space, x):
     return np.asarray(x, dtype=space.dtype).reshape(space.shape)
 
 
 @unflatten.register(Discrete)
-def unflatten_discrete(space, x):
+def _unflatten_discrete(space, x):
     return int(np.nonzero(x)[0][0])
 
 
 @unflatten.register(MultiDiscrete)
-def unflatten_multidiscrete(space, x):
+def _unflatten_multidiscrete(space, x):
     offsets = np.zeros((space.nvec.size + 1,), dtype=space.dtype)
     offsets[1:] = np.cumsum(space.nvec.flatten())
 
@@ -130,7 +130,7 @@ def unflatten_multidiscrete(space, x):
 
 
 @unflatten.register(Tuple)
-def unflatten_tuple(space, x):
+def _unflatten_tuple(space, x):
     dims = np.asarray([flatdim(s) for s in space.spaces], dtype=np.int_)
     list_flattened = np.split(x, np.cumsum(dims[:-1]))
     return tuple(
@@ -139,7 +139,7 @@ def unflatten_tuple(space, x):
 
 
 @unflatten.register(Dict)
-def unflatten_dict(space, x):
+def _unflatten_dict(space, x):
     dims = np.asarray([flatdim(s) for s in space.spaces.values()], dtype=np.int_)
     list_flattened = np.split(x, np.cumsum(dims[:-1]))
     return OrderedDict(
@@ -193,19 +193,19 @@ def flatten_space(space):
 
 
 @flatten_space.register(Box)
-def flatten_space_box(space):
+def _flatten_space_box(space):
     return Box(space.low.flatten(), space.high.flatten(), dtype=space.dtype)
 
 
 @flatten_space.register(Discrete)
 @flatten_space.register(MultiBinary)
 @flatten_space.register(MultiDiscrete)
-def flatten_space_binary(space):
+def _flatten_space_binary(space):
     return Box(low=0, high=1, shape=(flatdim(space),), dtype=space.dtype)
 
 
 @flatten_space.register(Tuple)
-def flatten_space_tuple(space):
+def _flatten_space_tuple(space):
     space = [flatten_space(s) for s in space.spaces]
     return Box(
         low=np.concatenate([s.low for s in space]),
@@ -215,7 +215,7 @@ def flatten_space_tuple(space):
 
 
 @flatten_space.register(Dict)
-def flatten_space_dict(space):
+def _flatten_space_dict(space):
     space = [flatten_space(s) for s in space.spaces.values()]
     return Box(
         low=np.concatenate([s.low for s in space]),

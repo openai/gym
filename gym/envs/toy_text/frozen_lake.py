@@ -158,7 +158,7 @@ class FrozenLakeEnv(Env):
         self.lastaction = a
         return (int(s), r, d, {"prob": p})
 
-    def reset(self, seed: Optional[int] = None, return_info : bool = False):
+    def reset(self, *, seed: Optional[int] = None, return_info : bool = False, options: Optional[dict] = None):
         super().reset(seed=seed)
         self.s = categorical_sample(self.initial_state_distrib, self.np_random)
         self.lastaction = None

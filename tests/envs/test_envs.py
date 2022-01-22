@@ -26,24 +26,24 @@ def test_env(spec):
     ob_space = env.observation_space
     act_space = env.action_space
     ob = env.reset()
-    assert ob_space.contains(ob), "Reset observation: {!r} not in space".format(ob)
+    assert ob_space.contains(ob), f"Reset observation: {ob!r} not in space"
     if isinstance(ob_space, Box):
         # Only checking dtypes for Box spaces to avoid iterating through tuple entries
         assert (
             ob.dtype == ob_space.dtype
-        ), "Reset observation dtype: {}, expected: {}".format(ob.dtype, ob_space.dtype)
+        ), f"Reset observation dtype: {ob.dtype}, expected: {ob_space.dtype}"
 
     a = act_space.sample()
     observation, reward, done, _info = env.step(a)
-    assert ob_space.contains(observation), "Step observation: {!r} not in space".format(
+    assert ob_space.contains(
         observation
-    )
-    assert np.isscalar(reward), "{} is not a scalar for {}".format(reward, env)
-    assert isinstance(done, bool), "Expected {} to be a boolean".format(done)
+    ), f"Step observation: {observation!r} not in space"
+    assert np.isscalar(reward), f"{reward} is not a scalar for {env}"
+    assert isinstance(done, bool), f"Expected {done} to be a boolean"
     if isinstance(ob_space, Box):
         assert (
             observation.dtype == ob_space.dtype
-        ), "Step observation dtype: {}, expected: {}".format(ob.dtype, ob_space.dtype)
+        ), f"Step observation dtype: {ob.dtype}, expected: {ob_space.dtype}"
 
     for mode in env.metadata.get("render.modes", []):
         env.render(mode=mode)
@@ -61,8 +61,7 @@ def test_reset_info():
     ,"CarRacing-v0","Blackjack-v1","FrozenLake-v1","FrozenLake8x8-v1","CliffWalking-v0","Taxi-v3"
     ,"Reacher-v2","Pusher-v2","Thrower-v2","Striker-v2","InvertedPendulum-v2","InvertedDoublePendulum-v2"
     ,"HalfCheetah-v2","HalfCheetah-v3","Hopper-v2","Hopper-v3","Swimmer-v2","Swimmer-v3","Walker2d-v2"
-    ,"Walker2d-v3","Ant-v2","Ant-v3","Humanoid-v2","Humanoid-v3","HumanoidStandup-v2","CubeCrash-v0"
-    ,"CubeCrashSparse-v0","CubeCrashScreenBecomesBlack-v0","MemorizeDigits-v0"]
+    ,"Walker2d-v3","Ant-v2","Ant-v3","Humanoid-v2","Humanoid-v3","HumanoidStandup-v2"]
     for env_name in env_names:
         env = envs.make(env_name)
         obs = env.reset()

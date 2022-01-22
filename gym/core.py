@@ -70,7 +70,9 @@ class Env(Generic[ObsType, ActType]):
         raise NotImplementedError
 
     @abstractmethod
-    def reset(self, seed: Optional[int] = None , return_info: bool = False) -> Union[ObsType,Tuple[ObsType, dict]]:
+    def reset(
+        self, *, seed: Optional[int] = None, return_info : Optional[bool] = False, options: Optional[dict] = None
+    ) -> ObsType:
         """Resets the environment to an initial state and returns an initial
         observation.
 
@@ -261,8 +263,8 @@ class Wrapper(Env):
     def step(self, action):
         return self.env.step(action)
 
-    def reset(self, seed: Optional[int] = None,return_info: bool = False, **kwargs):
-        return self.env.reset(seed=seed,return_info=return_info, **kwargs)
+    def reset(self, **kwargs):
+        return self.env.reset(**kwargs)
 
     def render(self, mode="human", **kwargs):
         return self.env.render(mode, **kwargs)
@@ -288,13 +290,9 @@ class Wrapper(Env):
 
 
 class ObservationWrapper(Wrapper):
-    def reset(self, seed: Optional[int] = None, return_info : Optional[bool] = None, **kwargs):
-        if return_info != None:
-            observation, info = self.env.reset(seed=seed, return_info = return_info **kwargs)
-            return self.observation(observation), info
-        else:
-            observation = self.env.reset(seed=seed, **kwargs)
-            return self.observation(observation)
+    def reset(self, **kwargs):
+        observation = self.env.reset(**kwargs)
+        return self.observation(observation)
 
     def step(self, action):
         observation, reward, done, info = self.env.step(action)
@@ -306,8 +304,8 @@ class ObservationWrapper(Wrapper):
 
 
 class RewardWrapper(Wrapper):
-    def reset(self, seed: Optional[int] = None, **kwargs):
-        return self.env.reset(seed=seed, **kwargs)
+    def reset(self, **kwargs):
+        return self.env.reset(**kwargs)
 
     def step(self, action):
         observation, reward, done, info = self.env.step(action)
@@ -319,8 +317,8 @@ class RewardWrapper(Wrapper):
 
 
 class ActionWrapper(Wrapper):
-    def reset(self, seed: Optional[int] = None, **kwargs):
-        return self.env.reset(seed=seed, **kwargs)
+    def reset(self, **kwargs):
+        return self.env.reset(**kwargs)
 
     def step(self, action):
         return self.env.step(self.action(action))

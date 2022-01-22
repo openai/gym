@@ -9,7 +9,7 @@ def test_invalid_seeds():
         except error.Error:
             pass
         else:
-            assert False, "Invalid seed {} passed validation".format(seed)
+            assert False, f"Invalid seed {seed} passed validation"
 
 
 def test_valid_seeds():

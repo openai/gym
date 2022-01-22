@@ -114,7 +114,7 @@ class Continuous_MountainCarEnv(gym.Env):
         self.state = np.array([position, velocity], dtype=np.float32)
         return self.state, reward, done, {}
 
-    def reset(self, seed: Optional[int] = None,return_info: bool = False):
+    def reset(self, *, seed: Optional[int] = None, return_info : bool = False, options: Optional[dict] = None):
         super().reset(seed=seed)
         self.state = np.array([self.np_random.uniform(low=-0.6, high=-0.4), 0])
         if not return_info:
@@ -134,35 +134,35 @@ class Continuous_MountainCarEnv(gym.Env):
         carheight = 20
 
         if self.viewer is None:
-            from gym.envs.classic_control import rendering
+            from gym.utils import pyglet_rendering
 
-            self.viewer = rendering.Viewer(screen_width, screen_height)
+            self.viewer = pyglet_rendering.Viewer(screen_width, screen_height)
             xs = np.linspace(self.min_position, self.max_position, 100)
             ys = self._height(xs)
             xys = list(zip((xs - self.min_position) * scale, ys * scale))
 
-            self.track = rendering.make_polyline(xys)
+            self.track = pyglet_rendering.make_polyline(xys)
             self.track.set_linewidth(4)
             self.viewer.add_geom(self.track)
 
             clearance = 10
 
             l, r, t, b = -carwidth / 2, carwidth / 2, carheight, 0
-            car = rendering.FilledPolygon([(l, b), (l, t), (r, t), (r, b)])
-            car.add_attr(rendering.Transform(translation=(0, clearance)))
-            self.cartrans = rendering.Transform()
+            car = pyglet_rendering.FilledPolygon([(l, b), (l, t), (r, t), (r, b)])
+            car.add_attr(pyglet_rendering.Transform(translation=(0, clearance)))
+            self.cartrans = pyglet_rendering.Transform()
             car.add_attr(self.cartrans)
             self.viewer.add_geom(car)
-            frontwheel = rendering.make_circle(carheight / 2.5)
+            frontwheel = pyglet_rendering.make_circle(carheight / 2.5)
             frontwheel.set_color(0.5, 0.5, 0.5)
             frontwheel.add_attr(
-                rendering.Transform(translation=(carwidth / 4, clearance))
+                pyglet_rendering.Transform(translation=(carwidth / 4, clearance))
             )
             frontwheel.add_attr(self.cartrans)
             self.viewer.add_geom(frontwheel)
-            backwheel = rendering.make_circle(carheight / 2.5)
+            backwheel = pyglet_rendering.make_circle(carheight / 2.5)
             backwheel.add_attr(
-                rendering.Transform(translation=(-carwidth / 4, clearance))
+                pyglet_rendering.Transform(translation=(-carwidth / 4, clearance))
             )
             backwheel.add_attr(self.cartrans)
             backwheel.set_color(0.5, 0.5, 0.5)
@@ -170,9 +170,9 @@ class Continuous_MountainCarEnv(gym.Env):
             flagx = (self.goal_position - self.min_position) * scale
             flagy1 = self._height(self.goal_position) * scale
             flagy2 = flagy1 + 50
-            flagpole = rendering.Line((flagx, flagy1), (flagx, flagy2))
+            flagpole = pyglet_rendering.Line((flagx, flagy1), (flagx, flagy2))
             self.viewer.add_geom(flagpole)
-            flag = rendering.FilledPolygon(
+            flag = pyglet_rendering.FilledPolygon(
                 [(flagx, flagy2), (flagx, flagy2 - 10), (flagx + 25, flagy2 - 5)]
             )
             flag.set_color(0.8, 0.8, 0)

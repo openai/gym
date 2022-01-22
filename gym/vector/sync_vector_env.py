@@ -86,7 +86,12 @@ class SyncVectorEnv(VectorEnv):
         for env, single_seed in zip(self.envs, seed):
             env.seed(single_seed)
 
-    def reset_wait(self, seed: Optional[Union[int, List[int]]] = None, return_info: bool = False, **kwargs):
+    def reset_wait(
+        self,
+        seed: Optional[Union[int, List[int]]] = None,
+        return_info: bool = False,
+        options: Optional[dict] = None,
+    ):
         if seed is None:
             seed = [None for _ in range(self.num_envs)]
         if isinstance(seed, int):
@@ -98,15 +103,15 @@ class SyncVectorEnv(VectorEnv):
         data_list = []
         for env, single_seed in zip(self.envs, seed):
             if not return_info:
-                observation = env.reset(seed=single_seed)
+                observation = env.reset(seed=single_seed, options = options)
                 observations.append(observation)
             else:
-                observation, data = env.reset(seed=single_seed, return_info = True)
+                observation, data = env.reset(seed=single_seed, return_info = True, options = options)
                 observations.append(observation)
                 data_list.append(data)
 
         self.observations = concatenate(
-            observations, self.observations, self.single_observation_space
+            self.single_observation_space, observations, self.observations
         )
         if not return_info:
             return deepcopy(self.observations) if self.copy else self.observations
@@ -125,7 +130,7 @@ class SyncVectorEnv(VectorEnv):
             observations.append(observation)
             infos.append(info)
         self.observations = concatenate(
-            observations, self.observations, self.single_observation_space
+            self.single_observation_space, observations, self.observations
         )
 
         return (

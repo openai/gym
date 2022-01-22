@@ -24,6 +24,30 @@ class UnregisteredEnv(Unregistered):
     pass
 
 
+class NamespaceNotFound(UnregisteredEnv):
+    """Raised when the user requests an env from the registry where the
+    namespace doesn't exist.
+    """
+
+    pass
+
+
+class NameNotFound(UnregisteredEnv):
+    """Raised when the user requests an env from the registry where the
+    name doesn't exist.
+    """
+
+    pass
+
+
+class VersionNotFound(UnregisteredEnv):
+    """Raised when the user requests an env from the registry where the
+    version doesn't exist.
+    """
+
+    pass
+
+
 class UnregisteredBenchmark(Unregistered):
     """Raised when the user requests an env from the registry that does
     not actually exist.
@@ -35,6 +59,14 @@ class UnregisteredBenchmark(Unregistered):
 class DeprecatedEnv(Error):
     """Raised when the user requests an env from the registry with an
     older version number than the latest env with the same name.
+    """
+
+    pass
+
+
+class RegistrationError(Error):
+    """Raised when the user attempts to register an invalid env.
+    For example, an unversioned env when a versioned env exists.
     """
 
     pass

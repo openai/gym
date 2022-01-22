@@ -5,5 +5,6 @@ mujoco_py>=1.50, <2.0
 scipy>=1.4.1
 numpy>=1.18.0
 pyglet>=1.4.0
+pygame==2.1.0
 cloudpickle>=1.2.0
 lz4>=3.1.0

@@ -340,7 +340,7 @@ class CarRacing(gym.Env, EzPickle):
         self.track = track
         return True
 
-    def reset(self, seed: Optional[int] = None,return_info: bool = False):
+    def reset(self, *, seed: Optional[int] = None, return_info : Optional[bool] = False, options: Optional[dict] = None):
         super().reset(seed=seed)
         self._destroy()
         self.reward = 0.0
@@ -397,9 +397,9 @@ class CarRacing(gym.Env, EzPickle):
     def render(self, mode="human"):
         assert mode in ["human", "state_pixels", "rgb_array"]
         if self.viewer is None:
-            from gym.envs.classic_control import rendering
+            from gym.utils import pyglet_rendering
 
-            self.viewer = rendering.Viewer(WINDOW_W, WINDOW_H)
+            self.viewer = pyglet_rendering.Viewer(WINDOW_W, WINDOW_H)
             self.score_label = pyglet.text.Label(
                 "0000",
                 font_size=36,
@@ -409,7 +409,7 @@ class CarRacing(gym.Env, EzPickle):
                 anchor_y="center",
                 color=(255, 255, 255, 255),
             )
-            self.transform = rendering.Transform()
+            self.transform = pyglet_rendering.Transform()
 
         if "t" not in self.__dict__:
             return  # reset() not called yet

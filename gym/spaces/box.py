@@ -4,6 +4,17 @@ from .space import Space
 from gym import logger
 
 
+def _short_repr(arr):
+    """Create a shortened string representation of a numpy array.
+
+    If arr is a multiple of the all-ones vector, return a string representation of the multiplier.
+    Otherwise, return a string representation of the entire array.
+    """
+    if arr.size != 0 and np.min(arr) == np.max(arr):
+        return str(np.min(arr))
+    return str(arr)
+
+
 class Box(Space):
     """
     A (possibly unbounded) box in R^n. Specifically, a Box represents the
@@ -50,29 +61,41 @@ class Box(Space):
                 "shape must be provided or inferred from the shapes of low or high"
             )
 
+        # handle infinite bounds and broadcast at the same time if needed
         if np.isscalar(low):
+            low = get_inf(dtype, "-") if np.isinf(low) else low
             low = np.full(shape, low, dtype=dtype)
+        else:
+            if np.any(np.isinf(low)):
+                # create new array with dtype, but maintain old one to preserve np.inf
+                temp_low = low.astype(dtype)
+                temp_low[np.isinf(low)] = get_inf(dtype, "-")
+                low = temp_low
 
         if np.isscalar(high):
+            high = get_inf(dtype, "+") if np.isinf(high) else high
             high = np.full(shape, high, dtype=dtype)
+        else:
+            if np.any(np.isinf(high)):
+                # create new array with dtype, but maintain old one to preserve np.inf
+                temp_high = high.astype(dtype)
+                temp_high[np.isinf(high)] = get_inf(dtype, "+")
+                high = temp_high
 
         self._shape = shape
         self.low = low
         self.high = high
 
-        def _get_precision(dtype):
-            if np.issubdtype(dtype, np.floating):
-                return np.finfo(dtype).precision
-            else:
-                return np.inf
-
-        low_precision = _get_precision(self.low.dtype)
-        high_precision = _get_precision(self.high.dtype)
-        dtype_precision = _get_precision(self.dtype)
+        low_precision = get_precision(self.low.dtype)
+        high_precision = get_precision(self.high.dtype)
+        dtype_precision = get_precision(self.dtype)
         if min(low_precision, high_precision) > dtype_precision:
             logger.warn(f"Box bound precision lowered by casting to {self.dtype}")
         self.low = self.low.astype(self.dtype)
         self.high = self.high.astype(self.dtype)
+
+        self.low_repr = _short_repr(self.low)
+        self.high_repr = _short_repr(self.high)
 
         # Boolean arrays which indicate the interval type for each coordinate
         self.bounded_below = -np.inf < self.low
@@ -154,7 +177,7 @@ class Box(Space):
         return [np.asarray(sample) for sample in sample_n]
 
     def __repr__(self):
-        return f"Box({self.low}, {self.high}, {self.shape}, {self.dtype})"
+        return f"Box({self.low_repr}, {self.high_repr}, {self.shape}, {self.dtype})"
 
     def __eq__(self, other):
         return (
@@ -163,3 +186,33 @@ class Box(Space):
             and np.allclose(self.low, other.low)
             and np.allclose(self.high, other.high)
         )
+
+
+def get_inf(dtype, sign):
+    """Returns an infinite that doesn't break things.
+    `dtype` must be an `np.dtype`
+    `bound` must be either `min` or `max`
+    """
+    if np.dtype(dtype).kind == "f":
+        if sign == "+":
+            return np.inf
+        elif sign == "-":
+            return -np.inf
+        else:
+            raise TypeError(f"Unknown sign {sign}, use either '+' or '-'")
+    elif np.dtype(dtype).kind == "i":
+        if sign == "+":
+            return np.iinfo(dtype).max - 2
+        elif sign == "-":
+            return np.iinfo(dtype).min + 2
+        else:
+            raise TypeError(f"Unknown sign {sign}, use either '+' or '-'")
+    else:
+        raise ValueError(f"Unknown dtype {dtype} for infinite bounds")
+
+
+def get_precision(dtype):
+    if np.issubdtype(dtype, np.floating):
+        return np.finfo(dtype).precision
+    else:
+        return np.inf

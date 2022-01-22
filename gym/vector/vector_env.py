@@ -46,13 +46,29 @@ class VectorEnv(gym.Env):
         self.single_observation_space = observation_space
         self.single_action_space = action_space
 
-    def reset_async(self, seed: Optional[Union[int, List[int]]] = None,return_info: bool = False):
+    def reset_async(
+        self,
+        seed: Optional[Union[int, List[int]]] = None,
+        return_info : bool = False,
+        options: Optional[dict] = None,
+    ):
         pass
 
-    def reset_wait(self, seed: Optional[Union[int, List[int]]] = None,return_info: bool = False, **kwargs):
+    def reset_wait(
+        self,
+        seed: Optional[Union[int, List[int]]] = None,
+        return_info : bool = False,
+        options: Optional[dict] = None,
+    ):
         raise NotImplementedError()
 
-    def reset(self, seed: Optional[Union[int, List[int]]] = None, return_info: bool = False ):
+    def reset(
+        self,
+        *,
+        seed: Optional[Union[int, List[int]]] = None,
+        return_info : bool = False,
+        options: Optional[dict] = None,
+    ):
         r"""Reset all sub-environments and return a batch of initial observations.
 
         Returns
@@ -60,8 +76,8 @@ class VectorEnv(gym.Env):
         element of :attr:`observation_space`
             A batch of observations from the vectorized environment.
         """
-        self.reset_async(seed=seed, return_info = return_info)
-        return self.reset_wait(seed=seed, return_info = return_info)
+        self.reset_async(seed=seed, return_info=return_info, options=options)
+        return self.reset_wait(seed=seed, return_info=return_info, options=options)
 
     def step_async(self, actions):
         pass

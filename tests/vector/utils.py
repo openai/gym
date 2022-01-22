@@ -50,14 +50,14 @@ HEIGHT, WIDTH = 64, 64
 
 class UnittestSlowEnv(gym.Env):
     def __init__(self, slow_reset=0.3):
-        super(UnittestSlowEnv, self).__init__()
+        super().__init__()
         self.slow_reset = slow_reset
         self.observation_space = Box(
             low=0, high=255, shape=(HEIGHT, WIDTH, 3), dtype=np.uint8
         )
         self.action_space = Box(low=0.0, high=1.0, shape=(), dtype=np.float32)
 
-    def reset(self, seed: Optional[int] = None):
+    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
         super().reset(seed=seed)
         if self.slow_reset > 0:
             time.sleep(self.slow_reset)
@@ -91,16 +91,16 @@ custom_spaces = [
 
 class CustomSpaceEnv(gym.Env):
     def __init__(self):
-        super(CustomSpaceEnv, self).__init__()
+        super().__init__()
         self.observation_space = CustomSpace()
         self.action_space = CustomSpace()
 
-    def reset(self, seed: Optional[int] = None):
+    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
         super().reset(seed=seed)
         return "reset"
 
     def step(self, action):
-        observation = "step({0:s})".format(action)
+        observation = f"step({action:s})"
         reward, done = 0.0, False
         return observation, reward, done, {}
 
