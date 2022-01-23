@@ -1,7 +1,9 @@
 import pytest
-
 import os
 import shutil
+
+import numpy as np
+
 import gym
 from gym.wrappers import (
     RecordEpisodeStatistics,
@@ -27,6 +29,27 @@ def test_record_video_using_default_trigger():
         capped_cubic_video_schedule(i) for i in range(env.episode_id + 1)
     )
     shutil.rmtree("videos")
+
+
+def test_record_video_reset_return_info():
+    env = gym.make("CartPole-v1")
+    env._max_episode_steps = 20
+    env = gym.wrappers.RecordVideo(env, "videos", step_trigger=lambda x: x % 100 == 0)
+    obs, info = env.reset(return_info=True)
+    env.close()
+    assert os.path.isdir("videos")
+    shutil.rmtree("videos")
+    assert isinstance(obs, np.ndarray)
+    assert isinstance(info, dict)
+
+    env = gym.make("CartPole-v1")
+    env._max_episode_steps = 20
+    env = gym.wrappers.RecordVideo(env, "videos", step_trigger=lambda x: x % 100 == 0)
+    obs = env.reset(return_info=False)
+    env.close()
+    assert os.path.isdir("videos")
+    shutil.rmtree("videos")
+    assert isinstance(obs, np.ndarray)
 
 
 def test_record_video_step_trigger():
