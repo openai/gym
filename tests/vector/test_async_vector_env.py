@@ -40,6 +40,20 @@ def test_reset_async_vector_env(shared_memory):
     assert observations.shape == (8,) + env.single_observation_space.shape
     assert observations.shape == env.observation_space.shape
 
+    try:
+        env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
+        observations, infos = env.reset(return_info=True)
+    finally:
+        env.close()
+
+    assert isinstance(env.observation_space, Box)
+    assert isinstance(observations, np.ndarray)
+    assert observations.dtype == env.observation_space.dtype
+    assert observations.shape == (8,) + env.single_observation_space.shape
+    assert observations.shape == env.observation_space.shape
+    assert isinstance(infos, list)
+    assert all([isinstance(info, dict) for info in infos])
+
 
 @pytest.mark.parametrize("shared_memory", [True, False])
 @pytest.mark.parametrize("use_single_action_space", [True, False])
