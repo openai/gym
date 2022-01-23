@@ -16,20 +16,19 @@ Randomly sample an element of this space. Can be
 uniform or non-uniform sampling based on boundedness of space.
 
 ### contains(x)
-Return boolean specifying if x is a valid member of this space
+Return boolean specifying if x is a valid member of this space.
 
-### _property_ shape(_: Optional[Tuple[int, ...]_ )
-Return the shape of the space as an immutable property
+### _property_ shape
+Return the shape of the space as an immutable property.
 
 ### _property_ dtype
-Return the data type of this space
+Return the data type of this space.
 
-### seed(seed: Optional[int] = None)
+### seed(seed)
 Seed the PRNG of this space.
 
-### _property_ np_random(_: numpy.random.mtrand.RandomStat_ )
-Lazily seed the rng since this is expensive and only needed if
-sampling from this space.
+### _property_ np_random
+Returns the random number generator used by this space.
 
 ### to_jsonable(sample_n)
 Convert a batch of samples from this space to a JSONable data type.
@@ -60,7 +59,7 @@ There are two common use cases:
 Returns a boolean array that indicates whether each element of the box is bounded. The 
 returned array has the same shape as the space. Accepts an optional `manner` argument 
 which specifies the direction that the element is bounded. It has the following 
-options: `below`, `above`, `both`
+options: `below`, `above`, `both`.
 
 ### sample()
 
@@ -154,7 +153,7 @@ self.nested_observation_space = spaces.Dict({
 
 ## Tuple
 
-A tuple (i.e., product) of simpler spaces
+A tuple (i.e., product) of simpler spaces.
 
 Example usage:
 ```python
@@ -220,12 +219,11 @@ True
 
 Flatten a data point from a space.
 
-This is useful when e.g. points from spaces must be passed to a neural
-network, which only understands flat arrays of floats.
+This is useful when e.g. points from spaces must be passed to a neural network, which
+only understands flat arrays of floats.
 
-Accepts a space and a point from that space. Always returns a 1D array.
-Raises ``NotImplementedError`` if the space is not defined in
-``gym.spaces``.
+Accepts a space and a point from that space. Always returns a 1D array. Raises 
+``NotImplementedError`` if the space is not defined in ``gym.spaces``.
 
 ### unflatten(space, x)
 
