@@ -4,6 +4,6 @@ try:
     from gym.envs.box2d.lunar_lander import LunarLanderContinuous
     from gym.envs.box2d.bipedal_walker import BipedalWalker, BipedalWalkerHardcore
     from gym.envs.box2d.car_racing import CarRacing
-    from gym.envs.box2d.dynamic_car_racing import DynamicCarRacing
+    from gym.envs.box2d.car_racing_v2 import CarRacingV2
 except ImportError:
     Box2D = None

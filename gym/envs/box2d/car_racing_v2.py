@@ -124,7 +124,7 @@ class FrictionDetector(contactListener):
             obj.tiles.remove(tile)
 
 
-class DynamicCarRacing(gym.Env, EzPickle):
+class CarRacingV2(gym.Env, EzPickle):
     metadata = {
         "render.modes": ["human", "rgb_array", "state_pixels"],
         "video.frames_per_second": FPS,
@@ -147,20 +147,21 @@ class DynamicCarRacing(gym.Env, EzPickle):
         self.verbose = verbose
         self.apply_pov_mask = apply_pov_mask
         self.specify_view_angle = specify_view_angle
-        self._view_angle = None
         self.fd_tile = fixtureDef(
             shape=polygonShape(vertices=[(0, 0), (1, 0), (1, -1), (0, -1)])
         )
 
-        self.action_space = spaces.Box(
-            np.array([-1, 0, 0]).astype(np.float32),
-            np.array([+1, +1, +1]).astype(np.float32),
-        )  # steer, gas, brake
-        if self.specify_view_angle:
+        if self.apply_pov_mask and self.specify_view_angle:
             self.action_space = spaces.Box(
                 np.array([-1, 0, 0, -np.pi]).astype(np.float32),
                 np.array([+1, +1, +1, +np.pi]).astype(np.float32),
             )  # steer, gas, brake, view_angle
+        else:
+            self.specify_view_angle = False
+            self.action_space = spaces.Box(
+                np.array([-1, 0, 0]).astype(np.float32),
+                np.array([+1, +1, +1]).astype(np.float32),
+            )  # steer, gas, brake
 
         self.observation_space = spaces.Box(
             low=0, high=255, shape=(STATE_H, STATE_W, 3), dtype=np.uint8
@@ -181,7 +182,7 @@ class DynamicCarRacing(gym.Env, EzPickle):
         self.car.destroy()
 
     def _create_obstacles(self):
-        # Set positions of obstacles randomly along the track (not including first few segments)
+        # Set positions of obstacles randomly along the track (not including first 3 segments)
         segment_ids = [i+3 for i in range(len(self.track)-3)]
         track_segments = np.random.choice(segment_ids, size=len(self.track)-3, replace=False)
         self.obs_to_seg = {i: track_segments[i] for i in range(self.num_obstacles)}
@@ -425,20 +426,13 @@ class DynamicCarRacing(gym.Env, EzPickle):
 
         return self.step(None)[0]
 
-    @property
-    def view_angle(self):
-        if self._view_angle is None:
-            return self.car.hull.angle
-        return self._view_angle
-
     def step(self, action):
         if action is not None:
             self.car.steer(-action[0])
             self.car.gas(action[1])
             self.car.brake(action[2])
             if self.specify_view_angle:
-                self._view_angle = self.view_angle + 0.1 * action[3]
-
+                self.car.rot_view_angle(action[3])
 
         # move obstacles laterally across track
         for obs_id, obs in enumerate(self.obstacles):
@@ -513,8 +507,7 @@ class DynamicCarRacing(gym.Env, EzPickle):
         scroll_y = self.car.hull.position[1]
         angle = -self.car.hull.angle
         vel = self.car.hull.linearVelocity
-
-        if np.linalg.norm(vel) > 0.5 and not self.specify_view_angle:
+        if np.linalg.norm(vel) > 0.5:
             angle = math.atan2(vel[0], vel[1])
         self.transform.set_scale(zoom, zoom)
         self.transform.set_translation(
@@ -555,9 +548,8 @@ class DynamicCarRacing(gym.Env, EzPickle):
         for geom in self.viewer.onetime_geoms:
             geom.render()
         self.viewer.onetime_geoms = []
-
         if self.apply_pov_mask:
-            self.render_pov_mask(VP_W/SCALE, VP_H/SCALE, 3, scroll_x, scroll_y, self.view_angle)
+            self.render_pov_mask(VP_W/SCALE, VP_H/SCALE, 20, scroll_x, scroll_y, self.car.view_angle)
         t.disable()
 
         self.render_obstacles()
@@ -585,17 +577,17 @@ class DynamicCarRacing(gym.Env, EzPickle):
         W, H = float(W), float(H)
         colors = [0, 0, 0, 1] * 5
         z = 0.
-        p1 = [0., -H, z]
+        p1 = [0., H/8, z]
         p2 = [0., H, z]
         p3 = [(W/2.)-(3/4)*H*math.tan(math.pi/8.), H, z]
         p4 = [W/2., H/4., z]
-        p5 = [W/2., -H, z]
+        p5 = [W/2., H/8., z]
         p6 = [(W/2.)+(3/4)*H*math.tan(math.pi/8.), H, z]
         p7 = [W, H, z]
-        p8 = [W, -H, z]
+        p8 = [W, H/8., z]
         l_polygons = [p1, p2, p3, p4, p5]
         r_polygons = [p5, p4, p6, p7, p8]
-        scale = scale * 2
+
         # how far behind the car is visible
         # TODO: replace 0.02 with car.SCALE and automatically measure car length
         car_length = 250
@@ -781,7 +773,7 @@ if __name__ == "__main__":
         if k == key.DOWN:
             a[2] = 0
 
-    env = DynamicCarRacing()
+    env = CarRacingV2()
     env.render()
     env.viewer.window.on_key_press = key_press
     env.viewer.window.on_key_release = key_release

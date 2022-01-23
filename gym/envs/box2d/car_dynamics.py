@@ -51,6 +51,7 @@ class Car:
     def __init__(self, world, init_angle, init_x, init_y):
         self.world = world
         self.init_angle = init_angle
+        self._view_angle = None
         self.init_x = init_x
         self.init_y = init_y
         self.hull = self.world.CreateDynamicBody(
@@ -137,6 +138,21 @@ class Car:
             self.wheels.append(w)
         self.drawlist = self.wheels + [self.hull]
         self.particles = []
+
+    @property
+    def view_angle(self):
+        if self._view_angle is None:
+            return self.hull.angle
+        return self._view_angle
+
+    def rot_view_angle(self, dtheta):
+        """control: rotate car's viewing direction.
+
+        Args:
+            dtheta (float): Offset viewing angle from current viewing angle.
+        """
+        rot_speed = 0.1  ## TODO: turn into attribute
+        self._view_angle = self.view_angle + rot_speed * dtheta
 
     def gas(self, gas):
         """control: rear wheel drive
