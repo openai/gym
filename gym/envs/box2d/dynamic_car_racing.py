@@ -147,7 +147,7 @@ class DynamicCarRacing(gym.Env, EzPickle):
         self.verbose = verbose
         self.apply_pov_mask = apply_pov_mask
         self.specify_view_angle = specify_view_angle
-        self.view_angle = None
+        self._view_angle = None
         self.fd_tile = fixtureDef(
             shape=polygonShape(vertices=[(0, 0), (1, 0), (1, -1), (0, -1)])
         )
@@ -425,17 +425,20 @@ class DynamicCarRacing(gym.Env, EzPickle):
 
         return self.step(None)[0]
 
+    @property
+    def view_angle(self):
+        if self._view_angle is None:
+            return self.car.hull.angle
+        return self._view_angle
+
     def step(self, action):
         if action is not None:
             self.car.steer(-action[0])
             self.car.gas(action[1])
             self.car.brake(action[2])
             if self.specify_view_angle:
-                if self.view_angle is None:
-                    self.view_angle = self.car.hull.angle
-                else:
-                    lookspeed = 0.1
-                    self.view_angle = self.view_angle + lookspeed * action[3]
+                self._view_angle = self.view_angle + 0.1 * action[3]
+
 
         # move obstacles laterally across track
         for obs_id, obs in enumerate(self.obstacles):
@@ -510,7 +513,8 @@ class DynamicCarRacing(gym.Env, EzPickle):
         scroll_y = self.car.hull.position[1]
         angle = -self.car.hull.angle
         vel = self.car.hull.linearVelocity
-        if np.linalg.norm(vel) > 0.5:
+
+        if np.linalg.norm(vel) > 0.5 and not self.specify_view_angle:
             angle = math.atan2(vel[0], vel[1])
         self.transform.set_scale(zoom, zoom)
         self.transform.set_translation(
@@ -553,8 +557,7 @@ class DynamicCarRacing(gym.Env, EzPickle):
         self.viewer.onetime_geoms = []
 
         if self.apply_pov_mask:
-            view_angle = self.car.hull.angle if self.view_angle is None else self.view_angle
-            self.render_pov_mask(VP_W/SCALE, VP_H/SCALE, 3, scroll_x, scroll_y, view_angle)
+            self.render_pov_mask(VP_W/SCALE, VP_H/SCALE, 3, scroll_x, scroll_y, self.view_angle)
         t.disable()
 
         self.render_obstacles()
@@ -582,17 +585,17 @@ class DynamicCarRacing(gym.Env, EzPickle):
         W, H = float(W), float(H)
         colors = [0, 0, 0, 1] * 5
         z = 0.
-        p1 = [-W, -2 * H, z]
-        p2 = [-W, 2 * H, z]
-        p3 = [(W/2.)-2*(3/4)*H*math.tan(math.pi/8.), 2*H, z]
+        p1 = [0., -H, z]
+        p2 = [0., H, z]
+        p3 = [(W/2.)-(3/4)*H*math.tan(math.pi/8.), H, z]
         p4 = [W/2., H/4., z]
-        p5 = [W/2., -2 * H, z]
-        p6 = [(W/2.)+2*(3/4)*H*math.tan(math.pi/8.), 2*H, z]
-        p7 = [2*W, 2*H, z]
-        p8 = [2*W, -2*H, z]
+        p5 = [W/2., -H, z]
+        p6 = [(W/2.)+(3/4)*H*math.tan(math.pi/8.), H, z]
+        p7 = [W, H, z]
+        p8 = [W, -H, z]
         l_polygons = [p1, p2, p3, p4, p5]
         r_polygons = [p5, p4, p6, p7, p8]
-
+        scale = scale * 2
         # how far behind the car is visible
         # TODO: replace 0.02 with car.SCALE and automatically measure car length
         car_length = 250
