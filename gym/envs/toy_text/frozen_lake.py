@@ -173,9 +173,9 @@ class FrozenLakeEnv(Env):
         self.lastaction = None
         return int(self.s)
 
-    def render(self, mode='human'):
+    def render(self, mode="human"):
         desc = self.desc.tolist()
-        if mode == 'ansi':
+        if mode == "ansi":
             return self._render_text(desc)
         else:
             return self._render_gui(desc)
@@ -183,7 +183,7 @@ class FrozenLakeEnv(Env):
     def _render_gui(self, desc):
         if self.window_surface is None:
             pygame.init()
-            pygame.display.set_caption('Frozen Lake')
+            pygame.display.set_caption("Frozen Lake")
             self.window_surface = pygame.display.set_mode(WINDOW_SIZE)
         if self.water_img is None:
             file_name = path.join(path.dirname(__file__), "img/water.png")
@@ -200,10 +200,14 @@ class FrozenLakeEnv(Env):
         cell_width = WINDOW_SIZE[0] / self.ncol
         cell_height = WINDOW_SIZE[1] / self.nrow
 
-        person_scale = min(cell_width / self.person_img.get_width(),
-                           cell_height / self.person_img.get_height())
-        person_rect = (self.person_img.get_width() * person_scale,
-                       self.person_img.get_height() * person_scale)
+        person_scale = min(
+            cell_width / self.person_img.get_width(),
+            cell_height / self.person_img.get_height(),
+        )
+        person_rect = (
+            self.person_img.get_width() * person_scale,
+            self.person_img.get_height() * person_scale,
+        )
         person_img = pygame.transform.scale(self.person_img, person_rect)
         water_img = pygame.transform.scale(self.water_img, (cell_width, cell_height))
         ice_img = pygame.transform.scale(self.ice_img, (cell_width, cell_height))
@@ -211,9 +215,9 @@ class FrozenLakeEnv(Env):
         for x in range(self.nrow):
             for y in range(self.ncol):
                 rect = (y * cell_width, x * cell_height, cell_width, cell_height)
-                if desc[x][y] == b'H':
+                if desc[x][y] == b"H":
                     self.window_surface.blit(water_img, (rect[0], rect[1]))
-                elif desc[x][y] == b'G':
+                elif desc[x][y] == b"G":
                     pygame.draw.rect(board, (0, 128, 0), rect)
                 else:
                     self.window_surface.blit(ice_img, (rect[0], rect[1]))
@@ -223,8 +227,10 @@ class FrozenLakeEnv(Env):
         bot_row, bot_col = self.s // self.ncol, self.s % self.ncol
         offset_w = (cell_width - person_img.get_width()) / 2
         offset_h = (cell_height - person_img.get_height()) / 2
-        person_rect = (bot_col * cell_width + offset_w,
-                       bot_row * cell_height + offset_h)
+        person_rect = (
+            bot_col * cell_width + offset_w,
+            bot_row * cell_height + offset_h,
+        )
         self.window_surface.blit(person_img, person_rect)
 
         self.window_surface.blit(board, board.get_rect())
