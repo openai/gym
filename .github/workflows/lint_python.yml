@@ -22,7 +22,7 @@ jobs:
         python-version: [ "3.7"]
       fail-fast: false
     env:
-      PYRIGHT_VERSION: 1.1.183
+      PYRIGHT_VERSION: 1.1.204
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
