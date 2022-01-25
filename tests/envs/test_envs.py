@@ -56,6 +56,7 @@ def test_env(spec):
 
 
 def test_reset_info():
+    # blackjack gets its own assert statements because it returns a tuple as an obs, creating ambiguity for the normal assert statements
     env_names = [
         "CartPole-v0",
         "CartPole-v1",
@@ -68,7 +69,6 @@ def test_reset_info():
         "BipedalWalker-v3",
         "BipedalWalkerHardcore-v3",
         "CarRacing-v0",
-        "Blackjack-v1",
         "FrozenLake-v1",
         "FrozenLake8x8-v1",
         "CliffWalking-v0",
@@ -77,20 +77,40 @@ def test_reset_info():
     for env_name in env_names:
         env = envs.make(env_name)
         obs = env.reset()
-        assert (
-            isinstance(obs, np.ndarray)
-            or isinstance(obs, tuple)
-            or isinstance(obs, int)
-        )
+        assert isinstance(obs, np.ndarray) or isinstance(obs, int)
+        del obs
+        env = envs.make(env_name)
+        obs = env.reset(return_info=False)
+        assert isinstance(obs, np.ndarray) or isinstance(obs, int)
         del obs
         obs, info = env.reset(return_info=True)
-        assert (
-            isinstance(obs, np.ndarray)
-            or isinstance(obs, tuple)
-            or isinstance(obs, int)
-        )
+        assert isinstance(obs, np.ndarray) or isinstance(obs, int)
         assert isinstance(info, dict)
         env.close()
+
+    env = envs.make("Blackjack-v1")
+    obs = env.reset()
+    assert isinstance(obs, tuple)
+    assert isinstance(obs[0], int)
+    assert isinstance(obs[1], int)
+    assert isinstance(obs[2], bool)
+
+    del obs
+    obs = env.reset(return_info=False)
+    assert isinstance(obs, tuple)
+    assert isinstance(obs[0], int)
+    assert isinstance(obs[1], int)
+    assert isinstance(obs[2], bool)
+
+    del obs
+    obs, info = env.reset(return_info=True)
+    assert isinstance(obs, tuple)
+    assert isinstance(obs[0], int)
+    assert isinstance(obs[1], int)
+    assert isinstance(obs[2], bool)
+
+    assert isinstance(info, dict)
+    env.close()
 
 
 # Run a longer rollout on some environments

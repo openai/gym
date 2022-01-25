@@ -42,6 +42,18 @@ def test_reset_async_vector_env(shared_memory):
 
     try:
         env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
+        observations = env.reset(return_info=False)
+    finally:
+        env.close()
+
+    assert isinstance(env.observation_space, Box)
+    assert isinstance(observations, np.ndarray)
+    assert observations.dtype == env.observation_space.dtype
+    assert observations.shape == (8,) + env.single_observation_space.shape
+    assert observations.shape == env.observation_space.shape
+
+    try:
+        env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
         observations, infos = env.reset(return_info=True)
     finally:
         env.close()

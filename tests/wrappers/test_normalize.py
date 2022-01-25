@@ -60,10 +60,13 @@ def test_normalize_reset_info():
     env = DummyRewardEnv(return_reward_idx=0)
     env = NormalizeObservation(env)
     obs = env.reset()
-    assert isinstance(obs, np.ndarray) or isinstance(obs, tuple) or isinstance(obs, int)
+    assert isinstance(obs, np.ndarray)
+    del obs
+    obs = env.reset(return_info=False)
+    assert isinstance(obs, np.ndarray)
     del obs
     obs, info = env.reset(return_info=True)
-    assert isinstance(obs, np.ndarray) or isinstance(obs, tuple) or isinstance(obs, int)
+    assert isinstance(obs, np.ndarray)
     assert isinstance(info, dict)
 
 
