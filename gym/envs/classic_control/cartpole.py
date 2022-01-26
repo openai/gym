@@ -16,12 +16,16 @@ import numpy as np
 class CartPoleEnv(gym.Env):
     """
     ### Description
-    This environment corresponds to the version of the cart-pole problem described by Barto, Sutton, and Anderson in ["Neuronlike Adaptive Elements That Can Solve Difficult Learning Control Problem"](https://ieeexplore.ieee.org/document/6313077). A pole is attached by an un-actuated joint to a cart, which moves along a frictionless track. The pendulum starts 
-    upright, and the goal is to prevent it from falling over by increasing and reducing the cart's velocity.
+    This environment corresponds to the version of the cart-pole problem 
+    described by Barto, Sutton, and Anderson in ["Neuronlike Adaptive Elements That Can Solve Difficult Learning Control Problem"](https://ieeexplore.ieee.org/document/6313077). 
+    A pole is attached by an un-actuated joint to a cart, which moves along a 
+    frictionless track. The pendulum starts upright, and the goal is to prevent 
+    it from falling over by increasing and reducing the cart's velocity.
 
     ### Action Space
     The agent take a 1-element vector for actions.
-    The action space is `(action)` in `[0, 1]`, where `action` is used to push the cart with a fixed amount of force:
+    The action space is `(action)` in `[0, 1]`, where `action` is used to push 
+    the cart with a fixed amount of force:
 
     | Num | Action                 |
     |-----|------------------------|

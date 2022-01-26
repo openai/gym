@@ -49,7 +49,8 @@ def is_natural(hand):  # Is this hand a natural blackjack?
 
 class BlackjackEnv(gym.Env):
     """
-    Blackjack is a card game where the goal is to obtain cards that sum to as near as possible to 21 without going over.  They're playing against a fixed dealer.
+    Blackjack is a card game where the goal is to obtain cards that sum to as 
+    near as possible to 21 without going over.  They're playing against a fixed dealer.
 
     Card Values:
 
@@ -58,7 +59,8 @@ class BlackjackEnv(gym.Env):
     - Numerical cards (2-9) have value of their number.
 
     This game is placed with an infinite deck (or with replacement).
-    The game starts with dealer having one face up and one face down card, while player having two face up cards. 
+    The game starts with dealer having one face up and one face down card, while 
+    player having two face up cards. 
 
     The player can request additional cards (hit, action=1) until they decide to stop
     (stick, action=0) or exceed 21 (bust).
@@ -97,7 +99,8 @@ class BlackjackEnv(gym.Env):
     gym.make('Blackjack-v1', natural=False)
     ```
 
-    <a id="nat">`natural`</a>: Whether to give an additional reward for starting with a natural blackjack, i.e. starting with an ace and ten (sum is 21).
+    <a id="nat">`natural`</a>: Whether to give an additional reward for 
+    starting with a natural blackjack, i.e. starting with an ace and ten (sum is 21).
 
     ### Version History
 

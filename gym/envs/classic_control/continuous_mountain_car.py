@@ -25,7 +25,10 @@ from gym.utils import seeding
 
 class Continuous_MountainCarEnv(gym.Env):
     """
-    The agent (a car) is started at the bottom of a valley. For any given state the agent may choose to accelerate to the left, right or cease any acceleration. The code is originally based on [this code](http://incompleteideas.net/MountainCar/MountainCar1.cp) and the environment appeared first in Andrew Moore's PhD Thesis (1990):
+    The agent (a car) is started at the bottom of a valley. For any given state 
+    the agent may choose to accelerate to the left, right or cease any 
+    acceleration. The code is originally based on [this code](http://incompleteideas.net/MountainCar/MountainCar1.cp) 
+    and the environment appeared first in Andrew Moore's PhD Thesis (1990):
     ```
     @TECHREPORT{Moore90efficientmemory-based,
         author = {Andrew William Moore},
@@ -39,7 +42,8 @@ class Continuous_MountainCarEnv(gym.Env):
 
     Action: The actual driving force is calculated by multiplying the power coef by power (0.0015)
 
-    Reward: Reward of 100 is awarded if the agent reached the flag (position = 0.45) on top of the mountain. Reward is decrease based on amount of energy consumed each step.
+    Reward: Reward of 100 is awarded if the agent reached the flag (position = 0.45) 
+    on top of the mountain. Reward is decrease based on amount of energy consumed each step.
 
     Starting State: The position of the car is assigned a uniform random value in [-0.6 , -0.4]. The starting velocity of the car is always assigned to 0.
 

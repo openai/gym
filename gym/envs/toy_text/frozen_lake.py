@@ -118,7 +118,9 @@ class FrozenLakeEnv(Env):
 
         
 
-    `is_slippery`: True/False. If True will move in intended direction with probability of 1/3 else will move in either perpendicular direction with equal probability of 1/3 in both directions.
+    `is_slippery`: True/False. If True will move in intended direction with 
+    probability of 1/3 else will move in either perpendicular direction with 
+    equal probability of 1/3 in both directions.
 
         For example, if action is left and is_slippery is True, then:
         - P(move left)=1/3
