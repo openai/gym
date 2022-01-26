@@ -13,8 +13,16 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     """
     ### Description
 
-    This environment is based on the work by P. Wawrzy´nski in ["A Cat-Like Robot Real-Time Learning to Run"](http://staff.elka.pw.edu.pl/~pwawrzyn/pub-s/0812_LSCLRR.pdf). The HalfCheetah is a 2-dimensional robot consisting of 9 links and 8
-    joints connecting them (including two paws). The goal is to apply a torque on the joints to make the cheetah run forward (right) as fast as possible, with a positive reward allocated based on the distance moved forward and a negative reward allocated for moving backward. The torso and head of the cheetah are fixed, and the torque can only be applied on the other 6 joints over the front and back thighs (connecting to the torso), shins (connecting to the thighs) and feet (connecting to the shins).
+    This environment is based on the work by P. Wawrzy´nski in 
+    ["A Cat-Like Robot Real-Time Learning to Run"](http://staff.elka.pw.edu.pl/~pwawrzyn/pub-s/0812_LSCLRR.pdf). 
+    The HalfCheetah is a 2-dimensional robot consisting of 9 links and 8
+    joints connecting them (including two paws). The goal is to apply a torque 
+    on the joints to make the cheetah run forward (right) as fast as possible, 
+    with a positive reward allocated based on the distance moved forward and a 
+    negative reward allocated for moving backward. The torso and head of the 
+    cheetah are fixed, and the torque can only be applied on the other 6 joints 
+    over the front and back thighs (connecting to the torso), shins 
+    (connecting to the thighs) and feet (connecting to the shins).
 
     ### Action Space
     The agent take a 6-element vector for actions.
@@ -31,7 +39,8 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     ### Observation Space
 
-    The state space consists of positional values of different body parts of the cheetah, followed by the velocities of those individual parts (their derivatives) with all the positions ordered before all the velocities.
+    The state space consists of positional values of different body parts of the
+    cheetah, followed by the velocities of those individual parts (their derivatives) with all the positions ordered before all the velocities.
 
     The observation is a `ndarray` with shape `(17,)` where the elements correspond to the following:
 
@@ -58,7 +67,11 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
 
     **Note:**
-    In practice (and Gym implementation), the first positional element is omitted from the state space since the reward function is calculated based on that value. This value is hidden from the algorithm, which in turn has to develop an abstract understanding of it from the observed rewards.Therefore, observation space has shape `(8,)` and looks like:
+    In practice (and Gym implementation), the first positional element is 
+    omitted from the state space since the reward function is calculated based 
+    on that value. This value is hidden from the algorithm, which in turn has 
+    to develop an abstract understanding of it from the observed rewards. 
+    Therefore, observation space has shape `(8,)` and looks like:
 
     | Num | Observation           | Min                  | Max                | Name (in corresponding XML file) | Joint| Unit |
     |-----|-----------------------|----------------------|--------------------|----------------------|--------------------|--------------------|
@@ -82,20 +95,37 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     ### Rewards
     The reward consists of two parts:
-    - *reward_run*: A reward of moving forward which is measured as *(x-coordinate before action - x-coordinate after action)/dt*. *dt* is the time between actions and is dependeent on the frame_skip parameter (default is 5), where the *dt* for one frame is 0.01 - making the default *dt = 5*0.01 = 0.05*. This reward would be positive if the cheetah runs forward (right) desired.
-    - *reward_control*: A negative reward for penalising the swimmer if it takes actions that are too large. It is measured as *-coefficient x sum(action<sup>2</sup>)* where *coefficient* is a parameter set for the control and has a default value of 0.1
+    - *reward_run*: A reward of moving forward which is measured 
+    as *(x-coordinate before action - x-coordinate after action)/dt*. *dt* is 
+    the time between actions and is dependeent on the frame_skip parameter 
+    (default is 5), where the *dt* for one frame is 0.01 - making the 
+    default *dt = 5*0.01 = 0.05*. This reward would be positive if the cheetah 
+    runs forward (right) desired.
+    - *reward_control*: A negative reward for penalising the swimmer if it takes
+    actions that are too large. It is measured as *-coefficient x 
+    sum(action<sup>2</sup>)* where *coefficient* is a parameter set for the 
+    control and has a default value of 0.1
 
     The total reward returned is ***reward*** *=* *reward_run + reward_control*
 
     ### Starting State
-    All observations start in state (0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,) with a noise added to the initial state for stochasticity. As seen before, the first 8 values in the state are positional and the last 9 values are velocity. A uniform noise in the range of [-0.1, 0.1] is added to the positional values while a standard normal noise with a mean of 0 and standard deviation of 0.1 is added to the initial velocity values of all zeros.
+    All observations start in state (0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
+    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,) with a noise added to the 
+    initial state for stochasticity. As seen before, the first 8 values in the 
+    state are positional and the last 9 values are velocity. A uniform noise in 
+    the range of [-0.1, 0.1] is added to the positional values while a standard 
+    normal noise with a mean of 0 and standard deviation of 0.1 is added to the 
+    initial velocity values of all zeros.
 
     ### Episode Termination
     The episode terminates when the episode length is greater than 1000.
 
     ### Arguments
 
-    No additional arguments are currently supported (in v2 and lower), but modifications can be made to the XML file in the assets folder at `gym/envs/mujoco/assets/half_cheetah.xml` (or by changing the path to a modified XML file in another folder).
+    No additional arguments are currently supported (in v2 and lower), but 
+    modifications can be made to the XML file in the assets folder at 
+    `gym/envs/mujoco/assets/half_cheetah.xml` (or by changing the path to a 
+    modified XML file in another folder).
 
     ```
     env = gym.make('HalfCheetah-v2')
