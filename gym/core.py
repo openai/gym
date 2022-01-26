@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import TypeVar, Generic, Tuple, Union
+from typing import TypeVar, Generic, Tuple
 from typing import Optional
 
 import gym
