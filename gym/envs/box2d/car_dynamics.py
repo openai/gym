@@ -4,7 +4,7 @@ Top-down car dynamics simulation.
 Some ideas are taken from this great tutorial http://www.iforce2d.net/b2dtut/top-down-car by Chris Campbell.
 This simulation is a bit more detailed, with wheels rotation.
 
-Created by Oleg Klimov. Licensed on the same terms as the rest of OpenAI Gym.
+Created by Oleg Klimov
 """
 
 import numpy as np
