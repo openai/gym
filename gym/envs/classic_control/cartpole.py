@@ -16,15 +16,15 @@ import numpy as np
 class CartPoleEnv(gym.Env):
     """
     ### Description
-    This environment corresponds to the version of the cart-pole problem 
-    described by Barto, Sutton, and Anderson in ["Neuronlike Adaptive Elements That Can Solve Difficult Learning Control Problem"](https://ieeexplore.ieee.org/document/6313077). 
-    A pole is attached by an un-actuated joint to a cart, which moves along a 
-    frictionless track. The pendulum starts upright, and the goal is to prevent 
+    This environment corresponds to the version of the cart-pole problem
+    described by Barto, Sutton, and Anderson in ["Neuronlike Adaptive Elements That Can Solve Difficult Learning Control Problem"](https://ieeexplore.ieee.org/document/6313077).
+    A pole is attached by an un-actuated joint to a cart, which moves along a
+    frictionless track. The pendulum starts upright, and the goal is to prevent
     it from falling over by increasing and reducing the cart's velocity.
 
     ### Action Space
     The agent take a 1-element vector for actions.
-    The action space is `(action)` in `[0, 1]`, where `action` is used to push 
+    The action space is `(action)` in `[0, 1]`, where `action` is used to push
     the cart with a fixed amount of force:
 
     | Num | Action                 |
@@ -32,7 +32,7 @@ class CartPoleEnv(gym.Env):
     | 0   | Push cart to the left  |
     | 1   | Push cart to the right |
 
-    Note: The amount the velocity is reduced or increased is not fixed as it depends on the angle the pole is pointing. 
+    Note: The amount the velocity is reduced or increased is not fixed as it depends on the angle the pole is pointing.
     This is because the center of gravity of the pole increases the amount of energy needed to move the cart underneath it
 
     ### Observation Space
@@ -49,7 +49,7 @@ class CartPoleEnv(gym.Env):
     range of possible values in an un-terminated episode:
     - `*`: the cart x-position can be observed between `(-4.8, 4.8)`, but an episode terminates if the cart leaves the
     `(-2.4, 2.4)` range.
-    - `**`: Similarly, the pole angle can be observed between  `(-.418, .418)` radians or precisely **±24°**, but an episode is 
+    - `**`: Similarly, the pole angle can be observed between  `(-.418, .418)` radians or precisely **±24°**, but an episode is
     terminated if the pole angle is outside the `(-.2095, .2095)` range or precisely **±12°**
 
     ### Rewards

@@ -14,18 +14,18 @@ DEFAULT_CAMERA_CONFIG = {
 
 
 class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
-        """
+    """
     ### Description
 
-    This environment is based on the work done by Erez, Tassa, and Todorov in 
+    This environment is based on the work done by Erez, Tassa, and Todorov in
     ["Infinite Horizon Model Predictive Control for Nonlinear Periodic Tasks"]
-    (http://www.roboticsproceedings.org/rss07/p10.pdf). The environment aims to 
+    (http://www.roboticsproceedings.org/rss07/p10.pdf). The environment aims to
     increase the number of indepedent state and control variables as compared to
-    the classic control environments. The hopper is a two-dimensional 
-    one-legged figure that consist of four main body parts - the torso at the 
-    top, the thigh in the middle, the leg in the bottom, and a single foot on 
-    which the entire body rests. The goal is to make hops that move in the 
-    forward (right) direction by applying torques on the three hinges 
+    the classic control environments. The hopper is a two-dimensional
+    one-legged figure that consist of four main body parts - the torso at the
+    top, the thigh in the middle, the leg in the bottom, and a single foot on
+    which the entire body rests. The goal is to make hops that move in the
+    forward (right) direction by applying torques on the three hinges
     connecting the four body parts.
 
     ### Action Space
@@ -42,10 +42,10 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     ### Observation Space
 
     The state space consists of positional values of different body parts of the
-    hopper, followed by the velocities of those individual parts 
+    hopper, followed by the velocities of those individual parts
     (their derivatives) with all the positions ordered before all the velocities.
 
-    The observation is a `ndarray` with shape `(11,)` where the elements 
+    The observation is a `ndarray` with shape `(11,)` where the elements
     correspond to the following:
 
     | Num | Observation           | Min                  | Max                | Name (in corresponding XML file) | Joint| Unit |
@@ -66,10 +66,10 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
 
     **Note:**
-    In practice (and Gym implementation), the first positional element is 
-    omitted from the state space since the reward function is calculated based 
-    on that value. This value is hidden from the algorithm, which in turn has 
-    to develop an abstract understanding of it from the observed rewards. 
+    In practice (and Gym implementation), the first positional element is
+    omitted from the state space since the reward function is calculated based
+    on that value. This value is hidden from the algorithm, which in turn has
+    to develop an abstract understanding of it from the observed rewards.
     Therefore, observation space has shape `(11,)` instead of `(12,)` and looks like:
     | Num | Observation           | Min                  | Max                | Name (in corresponding XML file) | Joint| Unit |
     |-----|-----------------------|----------------------|--------------------|----------------------|--------------------|--------------------|
@@ -88,21 +88,21 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     ### Rewards
     The reward consists of three parts:
     - *alive bonus*: Every timestep that the hopper is alive, it gets a reward of 1,
-    - *reward_forward*: A reward of hopping forward which is measured 
-    as *(x-coordinate before action - x-coordinate after action)/dt*. *dt* is 
-    the time between actions and is dependeent on the frame_skip parameter 
-    (default is 4), where the *dt* for one frame is 0.002 - making the 
-    default *dt = 4*0.002 = 0.008*. This reward would be positive if the hopper 
+    - *reward_forward*: A reward of hopping forward which is measured
+    as *(x-coordinate before action - x-coordinate after action)/dt*. *dt* is
+    the time between actions and is dependeent on the frame_skip parameter
+    (default is 4), where the *dt* for one frame is 0.002 - making the
+    default *dt = 4*0.002 = 0.008*. This reward would be positive if the hopper
     hops forward (right) desired.
-    - *reward_control*: A negative reward for penalising the hopper if it takes 
-    actions that are too large. It is measured as *-coefficient **x** 
-    sum(action<sup>2</sup>)* where *coefficient* is a parameter set for the 
+    - *reward_control*: A negative reward for penalising the hopper if it takes
+    actions that are too large. It is measured as *-coefficient **x**
+    sum(action<sup>2</sup>)* where *coefficient* is a parameter set for the
     control and has a default value of 0.001
 
     The total reward returned is ***reward*** *=* *alive bonus + reward_forward + reward_control*
 
     ### Starting State
-    All observations start in state 
+    All observations start in state
     (0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0) with a uniform nois
     e in the range of [-0.005, 0.005] added to the values for stochasticity.
 
@@ -117,8 +117,8 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     ### Arguments
 
-    No additional arguments are currently supported (in v2 and lower), but 
-    modifications can be made to the XML file in the assets folder 
+    No additional arguments are currently supported (in v2 and lower), but
+    modifications can be made to the XML file in the assets folder
     (or by changing the path to a modified XML file in another folder).
 
     ```

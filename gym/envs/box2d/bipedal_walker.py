@@ -153,6 +153,7 @@ class BipedalWalker(gym.Env, EzPickle):
     OpenAI Gym.
 
     """
+
     metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": FPS}
 
     def __init__(self, hardcore: bool = False):

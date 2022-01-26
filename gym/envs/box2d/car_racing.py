@@ -141,7 +141,7 @@ class CarRacing(gym.Env, EzPickle):
     Created by Oleg Klimov. Licensed on the same terms as the rest of
     OpenAI Gym.
     """
-    
+
     metadata = {
         "render.modes": ["human", "rgb_array", "state_pixels"],
         "video.frames_per_second": FPS,

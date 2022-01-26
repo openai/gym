@@ -49,7 +49,7 @@ def is_natural(hand):  # Is this hand a natural blackjack?
 
 class BlackjackEnv(gym.Env):
     """
-    Blackjack is a card game where the goal is to obtain cards that sum to as 
+    Blackjack is a card game where the goal is to obtain cards that sum to as
     near as possible to 21 without going over.  They're playing against a fixed dealer.
 
     Card Values:
@@ -59,8 +59,8 @@ class BlackjackEnv(gym.Env):
     - Numerical cards (2-9) have value of their number.
 
     This game is placed with an infinite deck (or with replacement).
-    The game starts with dealer having one face up and one face down card, while 
-    player having two face up cards. 
+    The game starts with dealer having one face up and one face down card, while
+    player having two face up cards.
 
     The player can request additional cards (hit, action=1) until they decide to stop
     (stick, action=0) or exceed 21 (bust).
@@ -70,7 +70,7 @@ class BlackjackEnv(gym.Env):
     decided by whose sum is closer to 21.
 
     The agent take a 1-element vector for actions.
-    The action space is `(action)`, where: 
+    The action space is `(action)`, where:
     - `action` is used to decide stick/hit for values (0,1).
 
     The observation of a 3-tuple of: the players current sum,
@@ -87,10 +87,10 @@ class BlackjackEnv(gym.Env):
     - win game: +1
     - lose game: -1
     - draw game: 0
-    - win game with natural blackjack: 
+    - win game with natural blackjack:
 
-        +1.5 (if <a href="#nat">natural</a> is True.) 
-        
+        +1.5 (if <a href="#nat">natural</a> is True.)
+
         +1 (if <a href="#nat">natural</a> is False.)
 
     ### Arguments
@@ -99,7 +99,7 @@ class BlackjackEnv(gym.Env):
     gym.make('Blackjack-v1', natural=False)
     ```
 
-    <a id="nat">`natural`</a>: Whether to give an additional reward for 
+    <a id="nat">`natural`</a>: Whether to give an additional reward for
     starting with a natural blackjack, i.e. starting with an ace and ten (sum is 21).
 
     ### Version History

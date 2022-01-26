@@ -27,7 +27,7 @@ class PendulumEnv(gym.Env):
     - `tau`: torque in `N * m`. Defined as positive _counter-clockwise_.
 
     ### Action Space
-    The action is the torque applied to the pendulum. 
+    The action is the torque applied to the pendulum.
 
     | Num | Action | Min  | Max |
     |-----|--------|------|-----|
@@ -72,6 +72,7 @@ class PendulumEnv(gym.Env):
     * v1: Simplify the math equations, no difference in behavior.
     * v0: Initial versions release (1.0.0)
     """
+
     metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 30}
 
     def __init__(self, g=10.0):

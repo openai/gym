@@ -4,7 +4,6 @@ from gym.envs.mujoco import mujoco_env
 
 
 class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
-    
     def __init__(self):
         mujoco_env.MujocoEnv.__init__(self, "half_cheetah.xml", 5)
         utils.EzPickle.__init__(self)
