@@ -79,12 +79,12 @@ def test_step_async_vector_env(shared_memory, use_single_action_space):
 
 @pytest.mark.parametrize("shared_memory", [True, False])
 def test_call_async_vector_env(shared_memory):
-    env_fns = [make_env("CubeCrash-v0", i) for i in range(4)]
+    env_fns = [make_env("CartPole-v1", i) for i in range(4)]
     try:
         env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
-        observations = env.reset()
+        _ = env.reset()
         images = env.call("render", mode="rgb_array")
-        use_shaped_reward = env.call("use_shaped_reward")
+        gravity = env.call("gravity")
     finally:
         env.close()
 
@@ -92,23 +92,22 @@ def test_call_async_vector_env(shared_memory):
     assert len(images) == 4
     for i in range(4):
         assert isinstance(images[i], np.ndarray)
-        assert np.all(images[i] == observations[i])
 
-    assert isinstance(use_shaped_reward, tuple)
-    assert len(use_shaped_reward) == 4
+    assert isinstance(gravity, tuple)
+    assert len(gravity) == 4
     for i in range(4):
-        assert isinstance(use_shaped_reward[i], bool)
-        assert use_shaped_reward[i]
+        assert isinstance(gravity[i], float)
+        assert gravity[i] == 9.8
 
 
 @pytest.mark.parametrize("shared_memory", [True, False])
 def test_set_attr_async_vector_env(shared_memory):
-    env_fns = [make_env("CubeCrash-v0", i) for i in range(4)]
+    env_fns = [make_env("CartPole-v1", i) for i in range(4)]
     try:
         env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
-        env.set_attr("use_shaped_reward", [True, False, False, True])
-        use_shaped_reward = env.get_attr("use_shaped_reward")
-        assert use_shaped_reward == (True, False, False, True)
+        env.set_attr("gravity", [9.81, 3.72, 8.87, 1.62])
+        gravity = env.get_attr("gravity")
+        assert gravity == (9.81, 3.72, 8.87, 1.62)
     finally:
         env.close()
 
