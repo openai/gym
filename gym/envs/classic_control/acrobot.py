@@ -123,7 +123,7 @@ class AcrobotEnv(core.Env):
     - v1: Maximum number of steps increased from 200 to 500. The observation space for v0 provided direct readings of
     `theta1` and `theta2` in radians, having a range of `[-pi, pi]`. The v1 observation space as described here provides the
     sin and cosin of each angle instead.
-    - v0: Initial versions release (1.0.0) (removed from openai/gym for v1)
+    - v0: Initial versions release (1.0.0) (removed from gym for v1)
 
     ### References
     - Sutton, R. S. (1996). Generalization in Reinforcement Learning: Successful Examples Using Sparse Coarse Coding. In D. Touretzky, M. C. Mozer, & M. Hasselmo (Eds.), Advances in Neural Information Processing Systems (Vol. 8). MIT Press. https://proceedings.neurips.cc/paper/1995/file/8f1d43620bc6bb580df6e80b0dc05c48-Paper.pdf
@@ -332,7 +332,7 @@ def bound(x, m, M=None):
 
 def rk4(derivs, y0, t):
     """
-    Integrate 1D or ND system of ODEs using 4-th order Runge-Kutta.
+    Integrate 1-D or N-D system of ODEs using 4-th order Runge-Kutta.
     This is a toy implementation which may be useful if you find
     yourself stranded on a system w/o scipy.  Otherwise use
     :func:`scipy.integrate`.
@@ -374,8 +374,8 @@ def rk4(derivs, y0, t):
 
     for i in np.arange(len(t) - 1):
 
-        thist = t[i]
-        dt = t[i + 1] - thist
+        this = t[i]
+        dt = t[i + 1] - this
         dt2 = dt / 2.0
         y0 = yout[i]
 

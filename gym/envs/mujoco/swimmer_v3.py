@@ -14,7 +14,7 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     This environment corresponds to the Swimmer environment described in Rémi Coulom's PhD thesis
     ["Reinforcement Learning Using Neural Networks, with Applications to Motor Control"](https://tel.archives-ouvertes.fr/tel-00003985/document).
-    The environment aims to increase the number of indepedent state and control
+    The environment aims to increase the number of independent state and control
     variables as compared to the classic control environments. The swimmers
     consist of three or more segments ('***links***') and one less articulation
     joints ('***rotors***') - one rotor joint connecting exactly two links to
@@ -87,7 +87,7 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     The reward consists of two parts:
     - *reward_front*: A reward of moving forward which is measured
     as *(x-coordinate before action - x-coordinate after action)/dt*. *dt* is
-    the time between actions and is dependeent on tthe frame_skip parameter
+    the time between actions and is dependeent on the frame_skip parameter
     (default is 4), where the *dt* for one frame is 0.01 - making the
     default *dt = 4*0.01 = 0.04*. This reward would be positive if the swimmer
     swims right as desired.

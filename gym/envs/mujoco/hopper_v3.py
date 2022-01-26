@@ -20,7 +20,7 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     This environment is based on the work done by Erez, Tassa, and Todorov in
     ["Infinite Horizon Model Predictive Control for Nonlinear Periodic Tasks"]
     (http://www.roboticsproceedings.org/rss07/p10.pdf). The environment aims to
-    increase the number of indepedent state and control variables as compared to
+    increase the number of independent state and control variables as compared to
     the classic control environments. The hopper is a two-dimensional
     one-legged figure that consist of four main body parts - the torso at the
     top, the thigh in the middle, the leg in the bottom, and a single foot on

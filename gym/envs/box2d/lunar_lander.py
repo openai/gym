@@ -136,8 +136,7 @@ class LunarLander(gym.Env, EzPickle):
     <!-- ### References -->
 
     ### Credits
-    Created by Oleg Klimov. Licensed on the same terms as the rest of
-    OpenAI Gym.
+    Created by Oleg Klimov
     """
 
     metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": FPS}

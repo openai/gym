@@ -138,8 +138,7 @@ class CarRacing(gym.Env, EzPickle):
     - Chris Campbell (2014), http://www.iforce2d.net/b2dtut/top-down-car.
 
     ### Credits
-    Created by Oleg Klimov. Licensed on the same terms as the rest of
-    OpenAI Gym.
+    Created by Oleg Klimov
     """
 
     metadata = {

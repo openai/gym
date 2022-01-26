@@ -149,8 +149,7 @@ class BipedalWalker(gym.Env, EzPickle):
     <!-- ### References -->
 
     ### Credits
-    Created by Oleg Klimov. Licensed on the same terms as the rest of
-    OpenAI Gym.
+    Created by Oleg Klimov
 
     """
 
