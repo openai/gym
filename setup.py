@@ -42,7 +42,7 @@ setup(
     url="https://github.com/openai/gym",
     author="Gym Community",
     author_email="jkterry@umd.edu",
-    license="",
+    license="MIT",
     packages=[package for package in find_packages() if package.startswith("gym")],
     zip_safe=False,
     install_requires=[
