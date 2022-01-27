@@ -489,9 +489,11 @@ class BipedalWalker(gym.Env, EzPickle):
         return np.array(state, dtype=np.float32), reward, done, {}
 
     def render(self, mode="human"):
-        pygame.init()
 
-        self.screen = pygame.display.set_mode((VIEWPORT_W, VIEWPORT_H))
+        if self.screen is None:
+            pygame.init()
+            self.screen = pygame.display.set_mode((VIEWPORT_W, VIEWPORT_H))
+
         self.surf = pygame.Surface((VIEWPORT_W + self.scroll * SCALE, VIEWPORT_H))
 
         pygame.transform.scale(self.surf, (SCALE, SCALE))

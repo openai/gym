@@ -384,9 +384,10 @@ class LunarLander(gym.Env, EzPickle):
         return np.array(state, dtype=np.float32), reward, done, {}
 
     def render(self, mode="human"):
-        pygame.init()
+        if self.screen is None:
+            pygame.init()
+            self.screen = pygame.display.set_mode((VIEWPORT_W, VIEWPORT_H))
 
-        self.screen = pygame.display.set_mode((VIEWPORT_W, VIEWPORT_H))
         self.surf = pygame.Surface(self.screen.get_size())
 
         pygame.transform.scale(self.surf, (SCALE, SCALE))
