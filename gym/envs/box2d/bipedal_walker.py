@@ -108,8 +108,6 @@ class BipedalWalker(gym.Env, EzPickle):
     python gym/envs/box2d/bipedal_walker.py
     ```
 
-    ![BipedalWalker Episode Example](./bipedal_walker.jpg)
-
     ### Action Space
     Actions are motor speed values in the [-1, 1] range for each of the
     4 joints at both hips and knees.

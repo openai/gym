@@ -38,26 +38,34 @@ class Continuous_MountainCarEnv(gym.Env):
     }
     ```
 
-    Observation space is a 2-dim vector, where the 1st element represents the "car position" and the 2nd element represents the "car velocity".
+    ## Observation Space
 
-    Action: The actual driving force is calculated by multiplying the power coef by power (0.0015)
+    The observation space is a 2-dim vector, where the 1st element represents the "car position" and the 2nd element represents the "car velocity".
 
-    Reward: Reward of 100 is awarded if the agent reached the flag (position = 0.45)
+    ## Action
+
+    The actual driving force is calculated by multiplying the power coef by power (0.0015)
+
+    ## Reward
+
+    Reward of 100 is awarded if the agent reached the flag (position = 0.45)
     on top of the mountain. Reward is decrease based on amount of energy consumed each step.
 
-    Starting State: The position of the car is assigned a uniform random value in [-0.6 , -0.4]. The starting velocity of the car is always assigned to 0.
+    ## Starting State
 
-    Episode Termination: The car position is more than 0.45. Episode length is greater than 200
+    The position of the car is assigned a uniform random value in [-0.6 , -0.4]. The starting velocity of the car is always assigned to 0.
 
+    ## Episode Termination
 
+    The car position is more than 0.45. Episode length is greater than 200
 
-    ### Arguments
+    ## Arguments
 
     ```
     gym.make('MountainCarContinuous-v0')
     ```
 
-    ### Version History
+    ## Version History
 
     * v0: Initial versions release (1.0.0)
     """
