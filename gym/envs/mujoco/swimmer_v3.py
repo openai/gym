@@ -9,7 +9,6 @@ DEFAULT_CAMERA_CONFIG = {}
 
 
 class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
-
     def __init__(
         self,
         xml_file="swimmer.xml",

@@ -139,7 +139,7 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     * v1: max_time_steps raised to 1000 for robot based tasks. Added reward_threshold to environments.
     * v0: Initial versions release (1.0.0)
     """
-    
+
     def __init__(self):
         mujoco_env.MujocoEnv.__init__(self, "half_cheetah.xml", 5)
         utils.EzPickle.__init__(self)

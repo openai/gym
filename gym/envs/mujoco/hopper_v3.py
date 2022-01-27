@@ -14,7 +14,6 @@ DEFAULT_CAMERA_CONFIG = {
 
 
 class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
-
     def __init__(
         self,
         xml_file="hopper.xml",
