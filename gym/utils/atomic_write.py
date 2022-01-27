@@ -28,6 +28,7 @@ elif sys.platform.startswith("win"):
             pass
         os.rename(src, dst)
 
+
 else:
     # POSIX rename() is always atomic
     from os import rename as replace
