@@ -24,19 +24,16 @@ __author__ = "Christoph Dann <cdann@cdann.de>"
 
 class AcrobotEnv(core.Env):
     """
-    ### Description
+    ## Description
     The Acrobot system includes two joints and two links, where the joint between the two links is actuated. Initially, the
     links are hanging downwards, and the goal is to swing the end of the lower link up to a given height by applying changes
     to torque on the actuated joint (middle).
 
-
-    ![Acrobot Episode Example](./acrobot.png)
-
-    **Image**: two blue pendulum links connected by two green joints. The joint in between the two pendulum links is acted
+    **Gif**: two blue pendulum links connected by two green joints. The joint in between the two pendulum links is acted
     upon by the agent via changes in torque. The goal is to swing the end of the outer-link to reach the target height
     (black horizontal line above system).
 
-    ### Action Space
+    ## Action Space
 
     The action is either applying +1, 0 or -1 torque on the joint between the two pendulum links.
 
@@ -46,7 +43,7 @@ class AcrobotEnv(core.Env):
     | 1   | apply 0 torque to the joint |
     | 2   | apply 1 torque to the joint |
 
-    ### Observation Space
+    ## Observation Space
 
     The observation space gives information about the two rotational joint angles `theta1` and `theta2`, as well as their
     angular velocities:
@@ -70,24 +67,24 @@ class AcrobotEnv(core.Env):
     or `[cos(theta1) sin(theta1) cos(theta2) sin(theta2) thetaDot1 thetaDot2]`. As an example, a state of
     `[1, 0, 1, 0, ..., ...]` indicates that both links are pointing downwards.
 
-    ### Rewards
+    ## Rewards
 
     All steps that do not reach the goal (termination criteria) incur a reward of -1. Achieving the target height and
     terminating incurs a reward of 0. The reward threshold is -100.
 
-    ### Starting State
+    ## Starting State
 
     At start, each parameter in the underlying state (`theta1`, `theta2`, and the two angular velocities) is initialized
     uniformly at random between -0.1 and 0.1. This means both links are pointing roughly downwards.
 
-    ### Episode Termination
+    ## Episode Termination
     The episode terminates of one of the following occurs:
 
     1. The target height is achieved. As constructed, this occurs when
     `-cos(theta1) - cos(theta2 + theta1) > 1.0`
     2. Episode length is greater than 500 (200 for v0)
 
-    ### Arguments
+    ## Arguments
 
     There are no arguments supported in constructing the environment. As an example:
 
@@ -118,14 +115,14 @@ class AcrobotEnv(core.Env):
     ```
 
 
-    ### Version History
+    ## Version History
 
     - v1: Maximum number of steps increased from 200 to 500. The observation space for v0 provided direct readings of
     `theta1` and `theta2` in radians, having a range of `[-pi, pi]`. The v1 observation space as described here provides the
     sin and cosin of each angle instead.
     - v0: Initial versions release (1.0.0) (removed from gym for v1)
 
-    ### References
+    ## References
     - Sutton, R. S. (1996). Generalization in Reinforcement Learning: Successful Examples Using Sparse Coarse Coding. In D. Touretzky, M. C. Mozer, & M. Hasselmo (Eds.), Advances in Neural Information Processing Systems (Vol. 8). MIT Press. https://proceedings.neurips.cc/paper/1995/file/8f1d43620bc6bb580df6e80b0dc05c48-Paper.pdf
     - Sutton, R. S., Barto, A. G. (2018 ). Reinforcement Learning: An Introduction. The MIT Press.
     """

@@ -59,13 +59,13 @@ class Continuous_MountainCarEnv(gym.Env):
     
     The car position is more than 0.45. Episode length is greater than 200
 
-    ### Arguments
+    ## Arguments
 
     ```
     gym.make('MountainCarContinuous-v0')
     ```
 
-    ### Version History
+    ## Version History
 
     * v0: Initial versions release (1.0.0)
     """
