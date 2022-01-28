@@ -121,7 +121,7 @@ class LunarLander(gym.Env, EzPickle):
 
     ## Arguments
     To use to the _continuous_ environment, you need to specify the
-    `continuous"=True` argument like below:
+    `continuous"=True"` argument like below:
     ```python
     import gym
     env = gym.make("LunarLander-v2", continuous=True)
