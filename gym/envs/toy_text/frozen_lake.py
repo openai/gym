@@ -155,9 +155,11 @@ class FrozenLakeEnv(Env):
         self.action_space = spaces.Discrete(nA)
 
         self.window_surface = None
-        self.water_img = None
+        self.hole_img = None
         self.ice_img = None
-        self.person_img = None
+        self.elf_images = None
+        self.goal_img = None
+        self.start_img = None
 
     def step(self, a):
         transitions = self.P[self.s][a]
@@ -185,56 +187,92 @@ class FrozenLakeEnv(Env):
             pygame.init()
             pygame.display.set_caption("Frozen Lake")
             self.window_surface = pygame.display.set_mode(WINDOW_SIZE)
-        if self.water_img is None:
-            file_name = path.join(path.dirname(__file__), "img/water.png")
-            self.water_img = pygame.image.load(file_name)
+        if self.hole_img is None:
+            file_name = path.join(path.dirname(__file__), "img/hole.png")
+            self.hole_img = pygame.image.load(file_name)
         if self.ice_img is None:
             file_name = path.join(path.dirname(__file__), "img/ice.png")
             self.ice_img = pygame.image.load(file_name)
-        if self.person_img is None:
-            file_name = path.join(path.dirname(__file__), "img/person.png")
-            self.person_img = pygame.image.load(file_name)
+        if self.goal_img is None:
+            file_name = path.join(path.dirname(__file__), "img/goal.png")
+            self.goal_img = pygame.image.load(file_name)
+        if self.start_img is None:
+            file_name = path.join(path.dirname(__file__), "img/stool.png")
+            self.start_img = pygame.image.load(file_name)
+        if self.elf_images is None:
+            elfs = [
+                path.join(path.dirname(__file__), "img/elf_left.png"),
+                path.join(path.dirname(__file__), "img/elf_down.png"),
+                path.join(path.dirname(__file__), "img/elf_right.png"),
+                path.join(path.dirname(__file__), "img/elf_up.png"),
+            ]
+            self.elf_images = [pygame.image.load(f_name) for f_name in elfs]
 
         board = pygame.Surface(WINDOW_SIZE, flags=SRCALPHA)
 
         cell_width = WINDOW_SIZE[0] / self.ncol
         cell_height = WINDOW_SIZE[1] / self.nrow
+        smaller_cell_scale = 0.7
+        small_cell_w = smaller_cell_scale * cell_width
+        small_cell_h = smaller_cell_scale * cell_height
 
-        person_scale = min(
-            cell_width / self.person_img.get_width(),
-            cell_height / self.person_img.get_height(),
+        # prepare graphics
+        last_action = self.lastaction if self.lastaction is not None else 1
+        elf_img = self.elf_images[last_action]
+        elf_scale = min(
+            small_cell_w / elf_img.get_width(),
+            small_cell_h / elf_img.get_height(),
         )
-        person_rect = (
-            self.person_img.get_width() * person_scale,
-            self.person_img.get_height() * person_scale,
+        elf_dims = (
+            elf_img.get_width() * elf_scale,
+            elf_img.get_height() * elf_scale,
         )
-        person_img = pygame.transform.scale(self.person_img, person_rect)
-        water_img = pygame.transform.scale(self.water_img, (cell_width, cell_height))
+        elf_img = pygame.transform.scale(elf_img, elf_dims)
+        hole_img = pygame.transform.scale(self.hole_img, (cell_width, cell_height))
         ice_img = pygame.transform.scale(self.ice_img, (cell_width, cell_height))
+        goal_img = pygame.transform.scale(self.goal_img, (small_cell_w, small_cell_h))
+        start_img = pygame.transform.scale(self.start_img, (small_cell_w, small_cell_h))
 
         for x in range(self.nrow):
             for y in range(self.ncol):
                 rect = (y * cell_width, x * cell_height, cell_width, cell_height)
                 if desc[x][y] == b"H":
-                    self.window_surface.blit(water_img, (rect[0], rect[1]))
+                    self.window_surface.blit(hole_img, (rect[0], rect[1]))
                 elif desc[x][y] == b"G":
-                    pygame.draw.rect(board, (0, 128, 0), rect)
+                    self.window_surface.blit(ice_img, (rect[0], rect[1]))
+                    goal_rect = self._center_small_rect(rect, goal_img.get_size())
+                    self.window_surface.blit(goal_img, goal_rect)
+                elif desc[x][y] == b"S":
+                    self.window_surface.blit(ice_img, (rect[0], rect[1]))
+                    stool_rect = self._center_small_rect(rect, start_img.get_size())
+                    self.window_surface.blit(start_img, stool_rect)
                 else:
                     self.window_surface.blit(ice_img, (rect[0], rect[1]))
 
-                pygame.draw.rect(board, (0, 0, 0), rect, 1)
+                pygame.draw.rect(board, (200, 210, 230), rect, 1)
 
+        # paint the elf
         bot_row, bot_col = self.s // self.ncol, self.s % self.ncol
-        offset_w = (cell_width - person_img.get_width()) / 2
-        offset_h = (cell_height - person_img.get_height()) / 2
-        person_rect = (
-            bot_col * cell_width + offset_w,
-            bot_row * cell_height + offset_h,
+        cell_rect = (
+            bot_col * cell_width,
+            bot_row * cell_height,
+            cell_width,
+            cell_height,
         )
-        self.window_surface.blit(person_img, person_rect)
+        elf_rect = self._center_small_rect(cell_rect, elf_img.get_size())
+        self.window_surface.blit(elf_img, elf_rect)
 
         self.window_surface.blit(board, board.get_rect())
         pygame.display.update()
+
+    @staticmethod
+    def _center_small_rect(big_rect, small_dims):
+        offset_w = (big_rect[2] - small_dims[0]) / 2
+        offset_h = (big_rect[3] - small_dims[1]) / 2
+        return (
+            big_rect[0] + offset_w,
+            big_rect[1] + offset_h,
+        )
 
     def _render_text(self, desc):
         outfile = StringIO()
