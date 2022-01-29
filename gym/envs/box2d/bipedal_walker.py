@@ -139,10 +139,14 @@ class BipedalWalker(gym.Env, EzPickle):
     env = gym.make("BipedalWalker-v3", hardcore=True)
     ```
 
-    <!-- ### Version History -->
-    <!-- - v3: -->
-    <!-- - v2: -->
-    <!-- - v1: -->
+    ### Version History
+    - v3: returns closest lidar trace instead of furthest;
+        faster video recording
+    - v2: Count energy spent
+    - v1: Legs now report contact with ground; motors have higher torque and
+        speed; ground has higher friction; lidar rendered less nervously.
+    - v0: Initial version
+
 
     <!-- ### References -->
 
