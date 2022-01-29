@@ -9,7 +9,7 @@ repos:
           - B101,B108,B301,B403,B404,B603
           - .
   - repo: https://github.com/python/black
-    rev: 21.7b0
+    rev: 21.12b0
     hooks:
       - id: black
   - repo: https://github.com/codespell-project/codespell
