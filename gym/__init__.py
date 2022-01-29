@@ -18,15 +18,16 @@ from gym import wrappers
 __all__ = ["Env", "Space", "Wrapper", "make", "spec", "register"]
 
 
-try:
-    with urllib.request.urlopen(
+try:  # Motivation for snippet explained here: https://github.com/Farama-Foundation/gym-notices
+    with urllib.request.urlopen(  # nosec
         "https://raw.githubusercontent.com/ \
-            Farama-Foundation/gym-notices/main/notices.txt"
+            Farama-Foundation/gym-notices/main/notices.txt",
+        timeout=4,
     ) as f:
         html = f.read().decode("utf-8")
         lines = html.split("\n")
         for line in lines:
             if line.startswith(__version__):
                 print(line.split(" : ")[1])
-except Exception:
+except Exception:  # nosec
     pass
