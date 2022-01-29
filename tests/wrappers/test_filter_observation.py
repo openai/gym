@@ -1,3 +1,5 @@
+from typing import Optional
+
 import pytest
 import numpy as np
 
@@ -22,7 +24,8 @@ class FakeEnvironment(gym.Env):
         image_shape = (height, width, 3)
         return np.zeros(image_shape, dtype=np.uint8)
 
-    def reset(self):
+    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
+        super().reset(seed=seed)
         observation = self.observation_space.sample()
         return observation
 
@@ -47,7 +50,7 @@ ERROR_TEST_CASES = (
 )
 
 
-class TestFilterObservation(object):
+class TestFilterObservation:
     @pytest.mark.parametrize(
         "observation_keys,filter_keys", FILTER_OBSERVATION_TEST_CASES
     )

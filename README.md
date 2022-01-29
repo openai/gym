@@ -2,7 +2,7 @@
 
 Gym is an open source Python library for developing and comparing reinforcement learning algorithms by providing a standard API to communicate between learning algorithms and environments, as well as a standard set of environments compliant with that API. Since its release, Gym's API has become the field standard for doing this.
 
-Gym currently has two pieces of documentation: the [documentation website](http://gym.openai.com) and the [FAQ](https://github.com/openai/gym/wiki/FAQ). A new and more comprehensive documentation website is in the works.
+Gym currently has two pieces of documentation: the [documentation website](http://gym.openai.com) and the [FAQ](https://github.com/openai/gym/wiki/FAQ).
 
 ## Installation
 
@@ -22,10 +22,10 @@ env = gym.make('CartPole-v1')
 
 # env is created, now we can use it: 
 for episode in range(10): 
-    obs = env.reset()
+    observation = env.reset()
     for step in range(50):
         action = env.action_space.sample()  # or given a custom model, action = policy(observation)
-        nobs, reward, done, info = env.step(action)
+        observation, reward, done, info = env.step(action)
 ```
 
 ## Notable Related Libraries

@@ -1,3 +1,9 @@
+from typing import Optional
+import os
+
+import numpy as np
+import pygame
+
 import gym
 from gym import spaces
 from gym.utils import seeding
@@ -42,43 +48,72 @@ def is_natural(hand):  # Is this hand a natural blackjack?
 
 
 class BlackjackEnv(gym.Env):
-    """Simple blackjack environment
-
+    """
     Blackjack is a card game where the goal is to obtain cards that sum to as
-    near as possible to 21 without going over.  They're playing against a fixed
-    dealer.
-    Face cards (Jack, Queen, King) have point value 10.
-    Aces can either count as 11 or 1, and it's called 'usable' at 11.
+    near as possible to 21 without going over.  They're playing against a fixed dealer.
+
+    Card Values:
+
+    - Face cards (Jack, Queen, King) have point value 10.
+    - Aces can either count as 11 or 1, and it's called 'usable ace' at 11.
+    - Numerical cards (2-9) have value of their number.
+
     This game is placed with an infinite deck (or with replacement).
     The game starts with dealer having one face up and one face down card, while
-    player having two face up cards. (Virtually for all Blackjack games today).
+    player having two face up cards.
 
-    The player can request additional cards (hit=1) until they decide to stop
-    (stick=0) or exceed 21 (bust).
-
+    The player can request additional cards (hit, action=1) until they decide to stop
+    (stick, action=0) or exceed 21 (bust).
     After the player sticks, the dealer reveals their facedown card, and draws
     until their sum is 17 or greater.  If the dealer goes bust the player wins.
-
     If neither player nor dealer busts, the outcome (win, lose, draw) is
-    decided by whose sum is closer to 21.  The reward for winning is +1,
-    drawing is 0, and losing is -1.
+    decided by whose sum is closer to 21.
+
+    The agent take a 1-element vector for actions.
+    The action space is `(action)`, where:
+    - `action` is used to decide stick/hit for values (0,1).
 
     The observation of a 3-tuple of: the players current sum,
-    the dealer's one showing card (1-10 where 1 is ace),
-    and whether or not the player holds a usable ace (0 or 1).
+    the dealer's one showing card (1-10 where 1 is ace), and whether or not the player holds a usable ace (0 or 1).
 
     This environment corresponds to the version of the blackjack problem
     described in Example 5.1 in Reinforcement Learning: An Introduction
     by Sutton and Barto.
     http://incompleteideas.net/book/the-book-2nd.html
+
+    **Rewards:**
+
+    Reward schedule:
+    - win game: +1
+    - lose game: -1
+    - draw game: 0
+    - win game with natural blackjack:
+
+        +1.5 (if <a href="#nat">natural</a> is True.)
+
+        +1 (if <a href="#nat">natural</a> is False.)
+
+    ### Arguments
+
+    ```
+    gym.make('Blackjack-v1', natural=False)
+    ```
+
+    <a id="nat">`natural`</a>: Whether to give an additional reward for
+    starting with a natural blackjack, i.e. starting with an ace and ten (sum is 21).
+
+    ### Version History
+
+    * v0: Initial versions release (1.0.0)
     """
+
+    metadata = {"render.modes": ["human", "rgb_array"]}
 
     def __init__(self, natural=False, sab=False):
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Tuple(
             (spaces.Discrete(32), spaces.Discrete(11), spaces.Discrete(2))
         )
-        self.seed()
 
         # Flag to payout 1.5 on a "natural" blackjack win, like casino rules
         # Ref: http://www.bicyclecards.com/how-to-play/blackjack/
@@ -86,10 +121,6 @@ class BlackjackEnv(gym.Env):
 
         # Flag for full agreement with the (Sutton and Barto, 2018) definition. Overrides self.natural
         self.sab = sab
-
-    def seed(self, seed=None):
-        self.np_random, seed = seeding.np_random(seed)
-        return [seed]
 
     def step(self, action):
         assert self.action_space.contains(action)
@@ -122,7 +153,112 @@ class BlackjackEnv(gym.Env):
     def _get_obs(self):
         return (sum_hand(self.player), self.dealer[0], usable_ace(self.player))
 
-    def reset(self):
+    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
+        super().reset(seed=seed)
         self.dealer = draw_hand(self.np_random)
         self.player = draw_hand(self.np_random)
         return self._get_obs()
+
+    def render(self, mode="human"):
+        player_sum, dealer_card_value, usable_ace = self._get_obs()
+        screen_width, screen_height = 600, 500
+        card_img_height = screen_height // 3
+        card_img_width = int(card_img_height * 142 / 197)
+        spacing = screen_height // 20
+
+        bg_color = (7, 99, 36)
+        white = (255, 255, 255)
+
+        if not hasattr(self, "screen"):
+            if mode == "human":
+                pygame.init()
+                self.screen = pygame.display.set_mode((screen_width, screen_height))
+            else:
+                pygame.font.init()
+                self.screen = pygame.Surface((screen_width, screen_height))
+
+        self.screen.fill(bg_color)
+
+        def get_image(path):
+            cwd = os.path.dirname(__file__)
+            image = pygame.image.load(os.path.join(cwd, path))
+            return image
+
+        def get_font(path, size):
+            cwd = os.path.dirname(__file__)
+            font = pygame.font.Font(os.path.join(cwd, path), size)
+            return font
+
+        small_font = get_font(
+            os.path.join("font", "Minecraft.ttf"), screen_height // 15
+        )
+        dealer_text = small_font.render(
+            "Dealer: " + str(dealer_card_value), True, white
+        )
+        dealer_text_rect = self.screen.blit(dealer_text, (spacing, spacing))
+
+        suits = ["C", "D", "H", "S"]
+        dealer_card_suit = self.np_random.choice(suits)
+
+        if dealer_card_value == 1:
+            dealer_card_value_str = "A"
+        elif dealer_card_value == 10:
+            dealer_card_value_str = self.np_random.choice(["J", "Q", "K"])
+        else:
+            dealer_card_value_str = str(dealer_card_value)
+
+        def scale_card_img(card_img):
+            return pygame.transform.scale(card_img, (card_img_width, card_img_height))
+
+        dealer_card_img = scale_card_img(
+            get_image(
+                os.path.join("img", dealer_card_suit + dealer_card_value_str + ".png")
+            )
+        )
+        dealer_card_rect = self.screen.blit(
+            dealer_card_img,
+            (
+                screen_width // 2 - card_img_width - spacing // 2,
+                dealer_text_rect.bottom + spacing,
+            ),
+        )
+
+        hidden_card_img = scale_card_img(get_image(os.path.join("img", "Card.png")))
+        self.screen.blit(
+            hidden_card_img,
+            (
+                screen_width // 2 + spacing // 2,
+                dealer_text_rect.bottom + spacing,
+            ),
+        )
+
+        player_text = small_font.render("Player", True, white)
+        player_text_rect = self.screen.blit(
+            player_text, (spacing, dealer_card_rect.bottom + 1.5 * spacing)
+        )
+
+        large_font = get_font(os.path.join("font", "Minecraft.ttf"), screen_height // 6)
+        player_sum_text = large_font.render(str(player_sum), True, white)
+        player_sum_text_rect = self.screen.blit(
+            player_sum_text,
+            (
+                screen_width // 2 - player_sum_text.get_width() // 2,
+                player_text_rect.bottom + spacing,
+            ),
+        )
+
+        if usable_ace:
+            usable_ace_text = small_font.render("usable ace", True, white)
+            self.screen.blit(
+                usable_ace_text,
+                (
+                    screen_width // 2 - usable_ace_text.get_width() // 2,
+                    player_sum_text_rect.bottom + spacing // 2,
+                ),
+            )
+        if mode == "human":
+            pygame.display.update()
+        else:
+            return np.transpose(
+                np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
+            )

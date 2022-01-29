@@ -6,10 +6,7 @@ from gym import envs
 from tests.envs.spec_list import skip_mujoco, SKIP_MUJOCO_WARNING_MESSAGE
 
 
-ENVIRONMENT_IDS = (
-    "FetchReach-v1",
-    "HalfCheetah-v2",
-)
+ENVIRONMENT_IDS = ("HalfCheetah-v2",)
 
 
 @pytest.mark.skipif(skip_mujoco, reason=SKIP_MUJOCO_WARNING_MESSAGE)

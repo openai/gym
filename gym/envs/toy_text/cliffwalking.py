@@ -1,8 +1,11 @@
-import numpy as np
 import sys
 from contextlib import closing
 from io import StringIO
-from gym.envs.toy_text import discrete
+from typing import Optional
+
+import numpy as np
+from gym import Env, spaces
+from gym.envs.toy_text.utils import categorical_sample
 
 UP = 0
 RIGHT = 1
@@ -10,7 +13,7 @@ DOWN = 2
 LEFT = 3
 
 
-class CliffWalkingEnv(discrete.DiscreteEnv):
+class CliffWalkingEnv(Env):
     """
     This is a simple implementation of the Gridworld Cliff
     reinforcement learning task.
@@ -37,29 +40,30 @@ class CliffWalkingEnv(discrete.DiscreteEnv):
         self.shape = (4, 12)
         self.start_state_index = np.ravel_multi_index((3, 0), self.shape)
 
-        nS = np.prod(self.shape)
-        nA = 4
+        self.nS = np.prod(self.shape)
+        self.nA = 4
 
         # Cliff Location
         self._cliff = np.zeros(self.shape, dtype=np.bool)
         self._cliff[3, 1:-1] = True
 
         # Calculate transition probabilities and rewards
-        P = {}
-        for s in range(nS):
+        self.P = {}
+        for s in range(self.nS):
             position = np.unravel_index(s, self.shape)
-            P[s] = {a: [] for a in range(nA)}
-            P[s][UP] = self._calculate_transition_prob(position, [-1, 0])
-            P[s][RIGHT] = self._calculate_transition_prob(position, [0, 1])
-            P[s][DOWN] = self._calculate_transition_prob(position, [1, 0])
-            P[s][LEFT] = self._calculate_transition_prob(position, [0, -1])
+            self.P[s] = {a: [] for a in range(self.nA)}
+            self.P[s][UP] = self._calculate_transition_prob(position, [-1, 0])
+            self.P[s][RIGHT] = self._calculate_transition_prob(position, [0, 1])
+            self.P[s][DOWN] = self._calculate_transition_prob(position, [1, 0])
+            self.P[s][LEFT] = self._calculate_transition_prob(position, [0, -1])
 
         # Calculate initial state distribution
         # We always start in state (3, 0)
-        isd = np.zeros(nS)
-        isd[self.start_state_index] = 1.0
+        self.initial_state_distrib = np.zeros(self.nS)
+        self.initial_state_distrib[self.start_state_index] = 1.0
 
-        super().__init__(nS, nA, P, isd)
+        self.observation_space = spaces.Discrete(self.nS)
+        self.action_space = spaces.Discrete(self.nA)
 
     def _limit_coordinates(self, coord):
         """
@@ -89,6 +93,20 @@ class CliffWalkingEnv(discrete.DiscreteEnv):
         terminal_state = (self.shape[0] - 1, self.shape[1] - 1)
         is_done = tuple(new_position) == terminal_state
         return [(1.0, new_state, -1, is_done)]
+
+    def step(self, a):
+        transitions = self.P[self.s][a]
+        i = categorical_sample([t[0] for t in transitions], self.np_random)
+        p, s, r, d = transitions[i]
+        self.s = s
+        self.lastaction = a
+        return (int(s), r, d, {"prob": p})
+
+    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
+        super().reset(seed=seed)
+        self.s = categorical_sample(self.initial_state_distrib, self.np_random)
+        self.lastaction = None
+        return int(self.s)
 
     def render(self, mode="human"):
         outfile = StringIO() if mode == "ansi" else sys.stdout

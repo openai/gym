@@ -1,5 +1,8 @@
+__credits__ = ["Andrea PIERRÉ"]
+
 import sys
 import math
+from typing import Optional
 
 import numpy as np
 import Box2D
@@ -13,36 +16,9 @@ from Box2D.b2 import (
 )
 
 import gym
-from gym import spaces
+from gym import error, spaces
 from gym.utils import colorize, seeding, EzPickle
 
-# This is simple 4-joints walker robot environment.
-#
-# There are two versions:
-#
-# - Normal, with slightly uneven terrain.
-#
-# - Hardcore with ladders, stumps, pitfalls.
-#
-# Reward is given for moving forward, total 300+ points up to the far end. If the robot falls,
-# it gets -100. Applying motor torque costs a small amount of points, more optimal agent
-# will get better score.
-#
-# Heuristic is provided for testing, it's also useful to get demonstrations to
-# learn from. To run heuristic:
-#
-# python gym/envs/box2d/bipedal_walker.py
-#
-# State consists of hull angle speed, angular velocity, horizontal speed, vertical speed,
-# position of joints and joints angular speed, legs contact with ground, and 10 lidar
-# rangefinder measurements to help to deal with the hardcore version. There's no coordinates
-# in the state vector. Lidar is less useful in normal version, but it works.
-#
-# To solve the game you need to get 300 points in 1600 time steps.
-#
-# To solve hardcore version you need 300 points in 2000 time steps.
-#
-# Created by Oleg Klimov. Licensed on the same terms as the rest of OpenAI Gym.
 
 FPS = 50
 SCALE = 30.0  # affects how fast-paced the game is, forces should be adjusted as well
@@ -116,13 +92,69 @@ class ContactDetector(contactListener):
 
 
 class BipedalWalker(gym.Env, EzPickle):
+    """
+    ### Description
+    This is simple 4-joints walker robot environment.
+    There are two versions:
+    - Normal, with slightly uneven terrain.
+    - Hardcore with ladders, stumps, pitfalls.
+
+    To solve the game you need to get 300 points in 1600 time steps.
+    To solve the hardcore version you need 300 points in 2000 time steps.
+
+    Heuristic is provided for testing, it's also useful to get demonstrations
+    to learn from. To run the heuristic:
+    ```
+    python gym/envs/box2d/bipedal_walker.py
+    ```
+
+    ### Action Space
+    Actions are motor speed values in the [-1, 1] range for each of the
+    4 joints at both hips and knees.
+
+    ### Observation Space
+    State consists of hull angle speed, angular velocity, horizontal speed,
+    vertical speed, position of joints and joints angular speed, legs contact
+    with ground, and 10 lidar rangefinder measurements. There's no coordinates
+    in the state vector.
+
+    ### Rewards
+    Reward is given for moving forward, total 300+ points up to the far end.
+    If the robot falls, it gets -100. Applying motor torque costs a small
+    amount of points, more optimal agent will get better score.
+
+    ### Starting State
+    The walker starts standing at the left end of the terrain with the hull
+    horizontal, and both legs in the same position with a slight knee angle.
+
+    ### Episode Termination
+    The episode will terminate if the hull gets in contact with the ground or
+    if the walker exceeds the right end of the terrain length.
+
+    ### Arguments
+    To use to the _hardcore_ environment, you need to specify the
+    `hardcore=True` argument like below:
+    ```python
+    import gym
+    env = gym.make("BipedalWalker-v3", hardcore=True)
+    ```
+
+    <!-- ### Version History -->
+    <!-- - v3: -->
+    <!-- - v2: -->
+    <!-- - v1: -->
+
+    <!-- ### References -->
+
+    ### Credits
+    Created by Oleg Klimov
+
+    """
+
     metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": FPS}
 
-    hardcore = False
-
-    def __init__(self):
+    def __init__(self, hardcore: bool = False):
         EzPickle.__init__(self)
-        self.seed()
         self.viewer = None
 
         self.world = Box2D.b2World()
@@ -130,6 +162,8 @@ class BipedalWalker(gym.Env, EzPickle):
         self.hull = None
 
         self.prev_shaping = None
+
+        self.hardcore = hardcore
 
         self.fd_polygon = fixtureDef(
             shape=polygonShape(vertices=[(0, 0), (1, 0), (1, -1), (0, -1)]),
@@ -148,10 +182,6 @@ class BipedalWalker(gym.Env, EzPickle):
             np.array([1, 1, 1, 1]).astype(np.float32),
         )
         self.observation_space = spaces.Box(-high, high)
-
-    def seed(self, seed=None):
-        self.np_random, seed = seeding.np_random(seed)
-        return [seed]
 
     def _destroy(self):
         if not self.terrain:
@@ -188,7 +218,7 @@ class BipedalWalker(gym.Env, EzPickle):
                 y += velocity
 
             elif state == PIT and oneshot:
-                counter = self.np_random.randint(3, 5)
+                counter = self.np_random.integers(3, 5)
                 poly = [
                     (x, y),
                     (x + TERRAIN_STEP, y),
@@ -215,7 +245,7 @@ class BipedalWalker(gym.Env, EzPickle):
                     y -= 4 * TERRAIN_STEP
 
             elif state == STUMP and oneshot:
-                counter = self.np_random.randint(1, 3)
+                counter = self.np_random.integers(1, 3)
                 poly = [
                     (x, y),
                     (x + counter * TERRAIN_STEP, y),
@@ -228,9 +258,9 @@ class BipedalWalker(gym.Env, EzPickle):
                 self.terrain.append(t)
 
             elif state == STAIRS and oneshot:
-                stair_height = +1 if self.np_random.rand() > 0.5 else -1
-                stair_width = self.np_random.randint(4, 5)
-                stair_steps = self.np_random.randint(3, 5)
+                stair_height = +1 if self.np_random.random() > 0.5 else -1
+                stair_width = self.np_random.integers(4, 5)
+                stair_steps = self.np_random.integers(3, 5)
                 original_y = y
                 for s in range(stair_steps):
                     poly = [
@@ -266,9 +296,9 @@ class BipedalWalker(gym.Env, EzPickle):
             self.terrain_y.append(y)
             counter -= 1
             if counter == 0:
-                counter = self.np_random.randint(TERRAIN_GRASS / 2, TERRAIN_GRASS)
+                counter = self.np_random.integers(TERRAIN_GRASS / 2, TERRAIN_GRASS)
                 if state == GRASS and hardcore:
-                    state = self.np_random.randint(1, _STATES_)
+                    state = self.np_random.integers(1, _STATES_)
                     oneshot = True
                 else:
                     state = GRASS
@@ -312,7 +342,8 @@ class BipedalWalker(gym.Env, EzPickle):
             x2 = max(p[0] for p in poly)
             self.cloud_poly.append((poly, x1, x2))
 
-    def reset(self):
+    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
+        super().reset(seed=seed)
         self._destroy()
         self.world.contactListener_bug_workaround = ContactDetector(self)
         self.world.contactListener = self.world.contactListener_bug_workaround
@@ -488,10 +519,10 @@ class BipedalWalker(gym.Env, EzPickle):
         return np.array(state, dtype=np.float32), reward, done, {}
 
     def render(self, mode="human"):
-        from gym.envs.classic_control import rendering
+        from gym.utils import pyglet_rendering
 
         if self.viewer is None:
-            self.viewer = rendering.Viewer(VIEWPORT_W, VIEWPORT_H)
+            self.viewer = pyglet_rendering.Viewer(VIEWPORT_W, VIEWPORT_H)
         self.viewer.set_bounds(
             self.scroll, VIEWPORT_W / SCALE + self.scroll, 0, VIEWPORT_H / SCALE
         )
@@ -534,7 +565,7 @@ class BipedalWalker(gym.Env, EzPickle):
             for f in obj.fixtures:
                 trans = f.body.transform
                 if type(f.shape) is circleShape:
-                    t = rendering.Transform(translation=trans * f.shape.pos)
+                    t = pyglet_rendering.Transform(translation=trans * f.shape.pos)
                     self.viewer.draw_circle(
                         f.shape.radius, 30, color=obj.color1
                     ).add_attr(t)
@@ -569,8 +600,14 @@ class BipedalWalker(gym.Env, EzPickle):
             self.viewer = None
 
 
-class BipedalWalkerHardcore(BipedalWalker):
-    hardcore = True
+class BipedalWalkerHardcore:
+    def __init__(self):
+        raise error.Error(
+            "Error initializing BipedalWalkerHardcore Environment.\n"
+            "Currently, we do not support initializing this mode of environment by calling the class directly.\n"
+            "To use this environment, instead create it by specifying the hardcore keyword in gym.make, i.e.\n"
+            'gym.make("BipedalWalker-v3", hardcore=True)'
+        )
 
 
 if __name__ == "__main__":

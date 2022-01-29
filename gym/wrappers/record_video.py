@@ -1,6 +1,6 @@
 import os
 import gym
-from typing import Callable
+from typing import Callable, Optional
 
 from gym import logger
 from gym.wrappers.monitoring import video_recorder

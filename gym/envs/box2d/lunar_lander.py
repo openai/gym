@@ -1,33 +1,9 @@
-"""
-Rocket trajectory optimization is a classic topic in Optimal Control.
-
-According to Pontryagin's maximum principle it's optimal to fire engine full throttle or
-turn it off. That's the reason this environment is OK to have discreet actions (engine on or off).
-
-The landing pad is always at coordinates (0,0). The coordinates are the first two numbers in the state vector.
-Reward for moving from the top of the screen to the landing pad and zero speed is about 100..140 points.
-If the lander moves away from the landing pad it loses reward. The episode finishes if the lander crashes or
-comes to rest, receiving an additional -100 or +100 points. Each leg with ground contact is +10 points.
-Firing the main engine is -0.3 points each frame. Firing the side engine is -0.03 points each frame.
-Solved is 200 points.
-
-Landing outside the landing pad is possible. Fuel is infinite, so an agent can learn to fly and then land
-on its first attempt. Please see the source code for details.
-
-To see a heuristic landing, run:
-
-python gym/envs/box2d/lunar_lander.py
-
-To play yourself, run:
-
-python examples/agents/keyboard_agent.py LunarLander-v2
-
-Created by Oleg Klimov. Licensed on the same terms as the rest of OpenAI Gym.
-"""
-
+__credits__ = ["Andrea PIERRÉ"]
 
 import math
 import sys
+from typing import Optional
+
 import numpy as np
 
 import Box2D
@@ -41,7 +17,7 @@ from Box2D.b2 import (
 )
 
 import gym
-from gym import spaces
+from gym import error, spaces
 from gym.utils import seeding, EzPickle
 
 FPS = 50
@@ -87,13 +63,84 @@ class ContactDetector(contactListener):
 
 
 class LunarLander(gym.Env, EzPickle):
+    """
+    ### Description
+    This environment is a classic rocket trajectory optimization problem.
+    According to Pontryagin's maximum principle, it is optimal to fire the
+    engine at full throttle or turn it off. This is the reason why this
+    environment has discreet actions: engine on or off.
+
+    There are two environment versions: discrete or continuous.
+    The landing pad is always at coordinates (0,0). The coordinates are the
+    first two numbers in the state vector.
+    Landing outside the landing pad is possible. Fuel is infinite, so an agent
+    can learn to fly and then land on its first attempt.
+
+    To see a heuristic landing, run:
+    ```
+    python gym/envs/box2d/lunar_lander.py
+    ```
+    <!-- To play yourself, run: -->
+    <!-- python examples/agents/keyboard_agent.py LunarLander-v2 -->
+
+    ## Action Space
+    There are four discrete actions available: do nothing, fire left
+    orientation engine, fire main engine, fire right orientation engine.
+
+    ## Observation Space
+    There are 8 states: the coordinates of the lander in `x` & `y`, its linear
+    velocities in `x` & `y`, its angle, its angular velocity, and two boleans
+    showing if each leg is in contact with the ground or not.
+
+    ## Rewards
+    Reward for moving from the top of the screen to the landing pad and zero
+    speed is about 100..140 points.
+    If the lander moves away from the landing pad it loses reward.
+    If the lander crashes, it receives an additional -100 points. If it comes
+    to rest, it receives an additional +100 points. Each leg with ground
+    contact is +10 points.
+    Firing the main engine is -0.3 points each frame. Firing the side engine
+    is -0.03 points each frame. Solved is 200 points.
+
+    ## Starting State
+    The lander starts at the top center of the viewport with a random initial
+    force applied to its center of mass.
+
+    ## Episode Termination
+    The episode finishes if:
+    1) the lander crashes (the lander body gets in contact with the moon);
+    2) the lander gets outside of the viewport (`x` coordinate is greater than 1);
+    3) the lander is not awake. From the [Box2D docs](https://box2d.org/documentation/md__d_1__git_hub_box2d_docs_dynamics.html#autotoc_md61),
+        a body which is not awake is a body which doesn't move and doesn't
+        collide with any other body:
+    > When Box2D determines that a body (or group of bodies) has come to rest,
+    > the body enters a sleep state which has very little CPU overhead. If a
+    > body is awake and collides with a sleeping body, then the sleeping body
+    > wakes up. Bodies will also wake up if a joint or contact attached to
+    > them is destroyed.
+
+    ## Arguments
+    To use to the _continuous_ environment, you need to specify the
+    `continuous"=True` argument like below:
+    ```python
+    import gym
+    env = gym.make("LunarLander-v2", continuous=True)
+    ```
+
+    <!-- ### Version History -->
+    <!-- - v2: -->
+    <!-- - v1: -->
+
+    <!-- ### References -->
+
+    ## Credits
+    Created by Oleg Klimov
+    """
+
     metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": FPS}
 
-    continuous = False
-
-    def __init__(self):
+    def __init__(self, continuous: bool = False):
         EzPickle.__init__(self)
-        self.seed()
         self.viewer = None
 
         self.world = Box2D.b2World()
@@ -102,6 +149,8 @@ class LunarLander(gym.Env, EzPickle):
         self.particles = []
 
         self.prev_reward = None
+
+        self.continuous = continuous
 
         # useful range is -1 .. +1, but spikes can be higher
         self.observation_space = spaces.Box(
@@ -117,10 +166,6 @@ class LunarLander(gym.Env, EzPickle):
             # Nop, fire left engine, main engine, right engine
             self.action_space = spaces.Discrete(4)
 
-    def seed(self, seed=None):
-        self.np_random, seed = seeding.np_random(seed)
-        return [seed]
-
     def _destroy(self):
         if not self.moon:
             return
@@ -133,7 +178,8 @@ class LunarLander(gym.Env, EzPickle):
         self.world.DestroyBody(self.legs[0])
         self.world.DestroyBody(self.legs[1])
 
-    def reset(self):
+    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
+        super().reset(seed=seed)
         self._destroy()
         self.world.contactListener_keepref = ContactDetector(self)
         self.world.contactListener = self.world.contactListener_keepref
@@ -384,10 +430,10 @@ class LunarLander(gym.Env, EzPickle):
         return np.array(state, dtype=np.float32), reward, done, {}
 
     def render(self, mode="human"):
-        from gym.envs.classic_control import rendering
+        from gym.utils import pyglet_rendering
 
         if self.viewer is None:
-            self.viewer = rendering.Viewer(VIEWPORT_W, VIEWPORT_H)
+            self.viewer = pyglet_rendering.Viewer(VIEWPORT_W, VIEWPORT_H)
             self.viewer.set_bounds(0, VIEWPORT_W / SCALE, 0, VIEWPORT_H / SCALE)
 
         for obj in self.particles:
@@ -412,7 +458,7 @@ class LunarLander(gym.Env, EzPickle):
             for f in obj.fixtures:
                 trans = f.body.transform
                 if type(f.shape) is circleShape:
-                    t = rendering.Transform(translation=trans * f.shape.pos)
+                    t = pyglet_rendering.Transform(translation=trans * f.shape.pos)
                     self.viewer.draw_circle(
                         f.shape.radius, 20, color=obj.color1
                     ).add_attr(t)
@@ -444,10 +490,6 @@ class LunarLander(gym.Env, EzPickle):
         if self.viewer is not None:
             self.viewer.close()
             self.viewer = None
-
-
-class LunarLanderContinuous(LunarLander):
-    continuous = True
 
 
 def heuristic(env, s):
@@ -504,10 +546,9 @@ def heuristic(env, s):
 
 
 def demo_heuristic_lander(env, seed=None, render=False):
-    env.seed(seed)
     total_reward = 0
     steps = 0
-    s = env.reset()
+    s = env.reset(seed=seed)
     while True:
         a = heuristic(env, s)
         s, r, done, info = env.step(a)
@@ -527,6 +568,16 @@ def demo_heuristic_lander(env, seed=None, render=False):
     if render:
         env.close()
     return total_reward
+
+
+class LunarLanderContinuous:
+    def __init__(self):
+        raise error.Error(
+            "Error initializing LunarLanderContinuous Environment.\n"
+            "Currently, we do not support initializing this mode of environment by calling the class directly.\n"
+            "To use this environment, instead create it by specifying the continuous keyword in gym.make, i.e.\n"
+            'gym.make("LunarLander-v2", continuous=True)'
+        )
 
 
 if __name__ == "__main__":

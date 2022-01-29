@@ -6,14 +6,14 @@ import gym
 from gym.wrappers.monitoring.video_recorder import VideoRecorder
 
 
-class BrokenRecordableEnv(object):
+class BrokenRecordableEnv:
     metadata = {"render.modes": [None, "rgb_array"]}
 
     def render(self, mode=None):
         pass
 
 
-class UnrecordableEnv(object):
+class UnrecordableEnv:
     metadata = {"render.modes": [None]}
 
     def render(self, mode=None):

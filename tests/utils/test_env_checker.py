@@ -1,3 +1,5 @@
+from typing import Optional
+
 import gym
 import numpy as np
 import pytest
@@ -16,7 +18,8 @@ class ActionDictTestEnv(gym.Env):
         done = True
         return observation, reward, done
 
-    def reset(self):
+    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
+        super().reset(seed=seed)
         return np.array([1.0, 1.5, 0.5])
 
     def render(self, mode="human"):

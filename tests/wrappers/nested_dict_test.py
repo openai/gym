@@ -1,5 +1,5 @@
 """Tests for the filter observation wrapper."""
-
+from typing import Optional
 
 import pytest
 import numpy as np
@@ -21,7 +21,8 @@ class FakeEnvironment(gym.Env):
         image_shape = (height, width, 3)
         return np.zeros(image_shape, dtype=np.uint8)
 
-    def reset(self):
+    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
+        super().reset(seed=seed)
         observation = self.observation_space.sample()
         return observation
 
@@ -97,7 +98,7 @@ NESTED_DICT_TEST_CASES = (
 )
 
 
-class TestNestedDictWrapper(object):
+class TestNestedDictWrapper:
     @pytest.mark.parametrize("observation_space, flat_shape", NESTED_DICT_TEST_CASES)
     def test_nested_dicts_size(self, observation_space, flat_shape):
         env = FakeEnvironment(observation_space=observation_space)

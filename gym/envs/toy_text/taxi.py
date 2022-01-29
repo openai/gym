@@ -1,9 +1,11 @@
 import sys
 from contextlib import closing
 from io import StringIO
-from gym import utils
-from gym.envs.toy_text import discrete
+from typing import Optional
+
 import numpy as np
+from gym import Env, spaces, utils
+from gym.envs.toy_text.utils import categorical_sample
 
 MAP = [
     "+---------+",
@@ -16,19 +18,56 @@ MAP = [
 ]
 
 
-class TaxiEnv(discrete.DiscreteEnv):
+class TaxiEnv(Env):
     """
+
     The Taxi Problem
     from "Hierarchical Reinforcement Learning with the MAXQ Value Function Decomposition"
+
     by Tom Dietterich
 
+
+
     Description:
-    There are four designated locations in the grid world indicated by R(ed), G(reen), Y(ellow), and B(lue). When the episode starts, the taxi starts off at a random square and the passenger is at a random location. The taxi drives to the passenger's location, picks up the passenger, drives to the passenger's destination (another one of the four specified locations), and then drops off the passenger. Once the passenger is dropped off, the episode ends.
+
+    There are four designated locations in the grid world indicated by R(ed),
+    G(reen), Y(ellow), and B(lue). When the episode starts, the taxi starts off
+    at a random square and the passenger is at a random location. The taxi
+    drives to the passenger's location, picks up the passenger, drives to the
+    passenger's destination (another one of the four specified locations), and
+    then drops off the passenger. Once the passenger is dropped off, the episode ends.
+
+    MAP:
+
+        +---------+
+        |R: | : :G|
+        | : | : : |
+        | : : : : |
+        | | : | : |
+        |Y| : |B: |
+        +---------+
+
+    Actions:
+
+    There are 6 discrete deterministic actions:
+    - 0: move south
+    - 1: move north
+    - 2: move east
+    - 3: move west
+    - 4: pickup passenger
+    - 5: drop off passenger
 
     Observations:
-    There are 500 discrete states since there are 25 taxi positions, 5 possible locations of the passenger (including the case when the passenger is in the taxi), and 4 destination locations.
-    Note that there are 400 states that can actually be reached during an episode. The missing states correspond to situations in which the passenger is at the same location as their destination, as this typically signals the end of an episode.
-    Four additional states can be observed right after a successful episodes, when both the passenger and the taxi are at the destination.
+
+    There are 500 discrete states since there are 25 taxi positions, 5 possible
+    locations of the passenger (including the case when the passenger is in the
+    taxi), and 4 destination locations.
+
+    Note that there are 400 states that can actually be reached during an
+    episode. The missing states correspond to situations in which the passenger
+    is at the same location as their destination, as this typically signals the
+    end of an episode. Four additional states can be observed right after a
+    successful episodes, when both the passenger and the taxi are at the destination.
     This gives a total of 404 reachable discrete states.
 
     Passenger locations:
@@ -44,19 +83,14 @@ class TaxiEnv(discrete.DiscreteEnv):
     - 2: Y(ellow)
     - 3: B(lue)
 
-    Actions:
-    There are 6 discrete deterministic actions:
-    - 0: move south
-    - 1: move north
-    - 2: move east
-    - 3: move west
-    - 4: pickup passenger
-    - 5: drop off passenger
 
-    Rewards:
-    There is a default per-step reward of -1,
-    except for delivering the passenger, which is +20,
-    or executing "pickup" and "drop-off" actions illegally, which is -10.
+
+    **Rewards:**
+
+    - -1 per step reward unless other reward is triggered.
+    - +20 delivering passenger.
+    - -10  executing "pickup" and "drop-off" actions illegally.
+
 
     Rendering:
     - blue: passenger
@@ -64,9 +98,23 @@ class TaxiEnv(discrete.DiscreteEnv):
     - yellow: empty taxi
     - green: full taxi
     - other letters (R, G, Y and B): locations for passengers and destinations
-
     state space is represented by:
-        (taxi_row, taxi_col, passenger_location, destination)
+    (taxi_row, taxi_col, passenger_location, destination)
+
+    ### Arguments
+
+    ```
+    gym.make('Taxi-v3')
+    ```
+
+
+
+    ### Version History
+
+    * v3: Map Correction + Cleaner Domain Description
+    * v2: Disallow Taxi start location = goal location, Update Taxi observations in the rollout, Update Taxi reward threshold.
+    * v1: Remove (3,2) from locs, add passidx<4 check
+    * v0: Initial versions release
     """
 
     metadata = {"render.modes": ["human", "ansi"]}
@@ -81,9 +129,9 @@ class TaxiEnv(discrete.DiscreteEnv):
         num_columns = 5
         max_row = num_rows - 1
         max_col = num_columns - 1
-        initial_state_distrib = np.zeros(num_states)
+        self.initial_state_distrib = np.zeros(num_states)
         num_actions = 6
-        P = {
+        self.P = {
             state: {action: [] for action in range(num_actions)}
             for state in range(num_states)
         }
@@ -93,7 +141,7 @@ class TaxiEnv(discrete.DiscreteEnv):
                     for dest_idx in range(len(locs)):
                         state = self.encode(row, col, pass_idx, dest_idx)
                         if pass_idx < 4 and pass_idx != dest_idx:
-                            initial_state_distrib[state] += 1
+                            self.initial_state_distrib[state] += 1
                         for action in range(num_actions):
                             # defaults
                             new_row, new_col, new_pass_idx = row, col, pass_idx
@@ -128,11 +176,10 @@ class TaxiEnv(discrete.DiscreteEnv):
                             new_state = self.encode(
                                 new_row, new_col, new_pass_idx, dest_idx
                             )
-                            P[state][action].append((1.0, new_state, reward, done))
-        initial_state_distrib /= initial_state_distrib.sum()
-        discrete.DiscreteEnv.__init__(
-            self, num_states, num_actions, P, initial_state_distrib
-        )
+                            self.P[state][action].append((1.0, new_state, reward, done))
+        self.initial_state_distrib /= self.initial_state_distrib.sum()
+        self.action_space = spaces.Discrete(num_actions)
+        self.observation_space = spaces.Discrete(num_states)
 
     def encode(self, taxi_row, taxi_col, pass_loc, dest_idx):
         # (5) 5, 5, 4
@@ -156,6 +203,20 @@ class TaxiEnv(discrete.DiscreteEnv):
         out.append(i)
         assert 0 <= i < 5
         return reversed(out)
+
+    def step(self, a):
+        transitions = self.P[self.s][a]
+        i = categorical_sample([t[0] for t in transitions], self.np_random)
+        p, s, r, d = transitions[i]
+        self.s = s
+        self.lastaction = a
+        return (int(s), r, d, {"prob": p})
+
+    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
+        super().reset(seed=seed)
+        self.s = categorical_sample(self.initial_state_distrib, self.np_random)
+        self.lastaction = None
+        return int(self.s)
 
     def render(self, mode="human"):
         outfile = StringIO() if mode == "ansi" else sys.stdout

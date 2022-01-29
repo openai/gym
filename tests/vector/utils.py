@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 import gym
 import time
@@ -48,14 +50,15 @@ HEIGHT, WIDTH = 64, 64
 
 class UnittestSlowEnv(gym.Env):
     def __init__(self, slow_reset=0.3):
-        super(UnittestSlowEnv, self).__init__()
+        super().__init__()
         self.slow_reset = slow_reset
         self.observation_space = Box(
             low=0, high=255, shape=(HEIGHT, WIDTH, 3), dtype=np.uint8
         )
         self.action_space = Box(low=0.0, high=1.0, shape=(), dtype=np.float32)
 
-    def reset(self):
+    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
+        super().reset(seed=seed)
         if self.slow_reset > 0:
             time.sleep(self.slow_reset)
         return self.observation_space.sample()
@@ -70,6 +73,12 @@ class UnittestSlowEnv(gym.Env):
 class CustomSpace(gym.Space):
     """Minimal custom observation space."""
 
+    def sample(self):
+        return "sample"
+
+    def contains(self, x):
+        return isinstance(x, str)
+
     def __eq__(self, other):
         return isinstance(other, CustomSpace)
 
@@ -82,15 +91,16 @@ custom_spaces = [
 
 class CustomSpaceEnv(gym.Env):
     def __init__(self):
-        super(CustomSpaceEnv, self).__init__()
+        super().__init__()
         self.observation_space = CustomSpace()
         self.action_space = CustomSpace()
 
-    def reset(self):
+    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
+        super().reset(seed=seed)
         return "reset"
 
     def step(self, action):
-        observation = "step({0:s})".format(action)
+        observation = f"step({action:s})"
         reward, done = 0.0, False
         return observation, reward, done, {}
 
@@ -98,7 +108,7 @@ class CustomSpaceEnv(gym.Env):
 def make_env(env_name, seed):
     def _make():
         env = gym.make(env_name)
-        env.seed(seed)
+        env.reset(seed=seed)
         return env
 
     return _make
@@ -107,7 +117,7 @@ def make_env(env_name, seed):
 def make_slow_env(slow_reset, seed):
     def _make():
         env = UnittestSlowEnv(slow_reset=slow_reset)
-        env.seed(seed)
+        env.reset(seed=seed)
         return env
 
     return _make
@@ -116,7 +126,7 @@ def make_slow_env(slow_reset, seed):
 def make_custom_space_env(seed):
     def _make():
         env = CustomSpaceEnv()
-        env.seed(seed)
+        env.reset(seed=seed)
         return env
 
     return _make

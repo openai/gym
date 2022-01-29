@@ -4,7 +4,7 @@ import numpy as np
 from gym.spaces import Box, MultiDiscrete, Tuple, Dict
 from tests.vector.utils import spaces, custom_spaces, CustomSpace
 
-from gym.vector.utils.spaces import batch_space
+from gym.vector.utils.spaces import batch_space, iterate
 
 expected_batch_spaces_4 = [
     Box(low=-1.0, high=1.0, shape=(4,), dtype=np.float64),
@@ -103,3 +103,29 @@ def test_batch_space(space, expected_batch_space_4):
 def test_batch_space_custom_space(space, expected_batch_space_4):
     batch_space_4 = batch_space(space, n=4)
     assert batch_space_4 == expected_batch_space_4
+
+
+@pytest.mark.parametrize(
+    "space,batch_space",
+    list(zip(spaces, expected_batch_spaces_4)),
+    ids=[space.__class__.__name__ for space in spaces],
+)
+def test_iterate(space, batch_space):
+    items = batch_space.sample()
+    iterator = iterate(batch_space, items)
+    for i, item in enumerate(iterator):
+        assert item in space
+    assert i == 3
+
+
+@pytest.mark.parametrize(
+    "space,batch_space",
+    list(zip(custom_spaces, expected_custom_batch_spaces_4)),
+    ids=[space.__class__.__name__ for space in custom_spaces],
+)
+def test_iterate_custom_space(space, batch_space):
+    items = batch_space.sample()
+    iterator = iterate(batch_space, items)
+    for i, item in enumerate(iterator):
+        assert item in space
+    assert i == 3

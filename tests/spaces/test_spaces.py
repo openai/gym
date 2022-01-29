@@ -50,8 +50,8 @@ def test_roundtripping(space):
     s1p = space.to_jsonable([sample_1_prime])
     s2 = space.to_jsonable([sample_2])
     s2p = space.to_jsonable([sample_2_prime])
-    assert s1 == s1p, "Expected {} to equal {}".format(s1, s1p)
-    assert s2 == s2p, "Expected {} to equal {}".format(s2, s2p)
+    assert s1 == s1p, f"Expected {s1} to equal {s1p}"
+    assert s2 == s2p, f"Expected {s2} to equal {s2p}"
 
 
 @pytest.mark.parametrize(
@@ -85,7 +85,7 @@ def test_roundtripping(space):
 def test_equality(space):
     space1 = space
     space2 = copy.copy(space)
-    assert space1 == space2, "Expected {} to equal {}".format(space1, space2)
+    assert space1 == space2, f"Expected {space1} to equal {space2}"
 
 
 @pytest.mark.parametrize(
@@ -114,7 +114,7 @@ def test_equality(space):
 )
 def test_inequality(spaces):
     space1, space2 = spaces
-    assert space1 != space2, "Expected {} != {}".format(space1, space2)
+    assert space1 != space2, f"Expected {space1} != {space2}"
 
 
 @pytest.mark.parametrize(
@@ -370,7 +370,7 @@ def test_seed_subspace_incorrelated(space):
 
     space.seed(0)
     states = [
-        convert_sample_hashable(subspace.np_random.get_state())
+        convert_sample_hashable(subspace.np_random.bit_generator.state)
         for subspace in subspaces
     ]
 
@@ -448,3 +448,94 @@ def test_space_legacy_state_pickling():
     assert space._np_random == legacy_state["np_random"]
     assert space.n == 3
     assert space.dtype == legacy_state["dtype"]
+
+
+@pytest.mark.parametrize(
+    "space",
+    [
+        Box(low=0, high=np.inf, shape=(2,), dtype=np.int32),
+        Box(low=0, high=np.inf, shape=(2,), dtype=np.float32),
+        Box(low=0, high=np.inf, shape=(2,), dtype=np.int64),
+        Box(low=0, high=np.inf, shape=(2,), dtype=np.float64),
+        Box(low=-np.inf, high=0, shape=(2,), dtype=np.int32),
+        Box(low=-np.inf, high=0, shape=(2,), dtype=np.float32),
+        Box(low=-np.inf, high=0, shape=(2,), dtype=np.int64),
+        Box(low=-np.inf, high=0, shape=(2,), dtype=np.float64),
+        Box(low=-np.inf, high=np.inf, shape=(2,), dtype=np.int32),
+        Box(low=-np.inf, high=np.inf, shape=(2,), dtype=np.float32),
+        Box(low=-np.inf, high=np.inf, shape=(2,), dtype=np.int64),
+        Box(low=-np.inf, high=np.inf, shape=(2,), dtype=np.float64),
+        Box(low=0, high=np.inf, shape=(2, 3), dtype=np.int32),
+        Box(low=0, high=np.inf, shape=(2, 3), dtype=np.float32),
+        Box(low=0, high=np.inf, shape=(2, 3), dtype=np.int64),
+        Box(low=0, high=np.inf, shape=(2, 3), dtype=np.float64),
+        Box(low=-np.inf, high=0, shape=(2, 3), dtype=np.int32),
+        Box(low=-np.inf, high=0, shape=(2, 3), dtype=np.float32),
+        Box(low=-np.inf, high=0, shape=(2, 3), dtype=np.int64),
+        Box(low=-np.inf, high=0, shape=(2, 3), dtype=np.float64),
+        Box(low=-np.inf, high=np.inf, shape=(2, 3), dtype=np.int32),
+        Box(low=-np.inf, high=np.inf, shape=(2, 3), dtype=np.float32),
+        Box(low=-np.inf, high=np.inf, shape=(2, 3), dtype=np.int64),
+        Box(low=-np.inf, high=np.inf, shape=(2, 3), dtype=np.float64),
+        Box(low=np.array([-np.inf, 0]), high=np.array([0.0, np.inf]), dtype=np.int32),
+        Box(low=np.array([-np.inf, 0]), high=np.array([0.0, np.inf]), dtype=np.float32),
+        Box(low=np.array([-np.inf, 0]), high=np.array([0.0, np.inf]), dtype=np.int64),
+        Box(low=np.array([-np.inf, 0]), high=np.array([0.0, np.inf]), dtype=np.float64),
+    ],
+)
+def test_infinite_space(space):
+    # for this test, make sure that spaces that are passed in have only 0 or infinite bounds
+    # because space.high and space.low are both modified within the init
+    # so we check for infinite when we know it's not 0
+    space.seed(0)
+
+    assert np.all(space.high > space.low), "High bound not higher than low bound"
+
+    sample = space.sample()
+
+    # check if space contains sample
+    assert space.contains(
+        sample
+    ), "Sample {sample} not inside space according to `space.contains()`"
+
+    # manually check that the sign of the sample is within the bounds
+    assert np.all(
+        np.sign(space.high) >= np.sign(sample)
+    ), f"Sign of sample {sample} is less than space upper bound {space.high}"
+    assert np.all(
+        np.sign(space.low) <= np.sign(sample)
+    ), f"Sign of sample {sample} is more than space lower bound {space.low}"
+
+    # check that int bounds are bounded for everything
+    # but floats are unbounded for infinite
+    if space.dtype.kind == "f":
+        if np.any(space.high != 0):
+            assert (
+                space.is_bounded("above") == False
+            ), "float dtype inf upper bound supposed to be unbounded"
+        else:
+            assert (
+                space.is_bounded("above") == True
+            ), "float dtype non-inf upper bound supposed to be bounded"
+
+        if np.any(space.low != 0):
+            assert (
+                space.is_bounded("below") == False
+            ), "float dtype inf lower bound supposed to be unbounded"
+        else:
+            assert (
+                space.is_bounded("below") == True
+            ), "float dtype non-inf lower bound supposed to be bounded"
+
+    elif space.dtype.kind == "i":
+        assert (
+            space.is_bounded("both") == True
+        ), "int dtypes should be bounded on both ends"
+
+    # check for dtype
+    assert (
+        space.high.dtype == space.dtype
+    ), "High's dtype {space.high.dtype} doesn't match `space.dtype`'"
+    assert (
+        space.low.dtype == space.dtype
+    ), "Low's dtype {space.high.dtype} doesn't match `space.dtype`'"
