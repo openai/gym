@@ -127,9 +127,12 @@ class LunarLander(gym.Env, EzPickle):
     env = gym.make("LunarLander-v2", continuous=True)
     ```
 
-    <!-- ### Version History -->
-    <!-- - v2: -->
-    <!-- - v1: -->
+    ### Version History
+    - v2: Count energy spent
+    - v1: Legs contact with ground added in state vector; contact with ground
+        give +10 reward points, and -10 if then lose contact; reward
+        renormalized to 200; harder initial random push.
+    - v0: Initial version
 
     <!-- ### References -->
 
