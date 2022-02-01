@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import TypeVar, Generic, Tuple
+from typing import TypeVar, Generic, Tuple, SupportsFloat
 from typing import Optional
 
 import gym
@@ -185,7 +185,7 @@ class Env(Generic[ObsType, ActType]):
         return False
 
 
-class Wrapper(Env):
+class Wrapper(Env[ObsType, ActType]):
     """Wraps the environment to allow a modular transformation.
 
     This class is the base class for all wrappers. The subclass could override
@@ -198,13 +198,13 @@ class Wrapper(Env):
 
     """
 
-    def __init__(self, env):
+    def __init__(self, env: Env):
         self.env = env
 
-        self._action_space = None
-        self._observation_space = None
-        self._reward_range = None
-        self._metadata = None
+        self._action_space: spaces.Space | None = None
+        self._observation_space: spaces.Space | None = None
+        self._reward_range: tuple[SupportsFloat, SupportsFloat] | None = None
+        self._metadata: dict | None = None
 
     def __getattr__(self, name):
         if name.startswith("_"):
@@ -220,7 +220,7 @@ class Wrapper(Env):
         return cls.__name__
 
     @property
-    def action_space(self):
+    def action_space(self) -> spaces.Space[ActType]:
         if self._action_space is None:
             return self.env.action_space
         return self._action_space
@@ -230,7 +230,7 @@ class Wrapper(Env):
         self._action_space = space
 
     @property
-    def observation_space(self):
+    def observation_space(self) -> spaces.Space:
         if self._observation_space is None:
             return self.env.observation_space
         return self._observation_space
@@ -240,7 +240,7 @@ class Wrapper(Env):
         self._observation_space = space
 
     @property
-    def reward_range(self):
+    def reward_range(self) -> tuple[SupportsFloat, SupportsFloat]:
         if self._reward_range is None:
             return self.env.reward_range
         return self._reward_range
@@ -250,7 +250,7 @@ class Wrapper(Env):
         self._reward_range = value
 
     @property
-    def metadata(self):
+    def metadata(self) -> dict:
         if self._metadata is None:
             return self.env.metadata
         return self._metadata
@@ -259,10 +259,10 @@ class Wrapper(Env):
     def metadata(self, value):
         self._metadata = value
 
-    def step(self, action):
+    def step(self, action: ActType) -> Tuple[ObsType, float, bool, dict]:
         return self.env.step(action)
 
-    def reset(self, **kwargs):
+    def reset(self, **kwargs) -> ObsType:
         return self.env.reset(**kwargs)
 
     def render(self, mode="human", **kwargs):
@@ -274,9 +274,6 @@ class Wrapper(Env):
     def seed(self, seed=None):
         return self.env.seed(seed)
 
-    def compute_reward(self, achieved_goal, desired_goal, info):
-        return self.env.compute_reward(achieved_goal, desired_goal, info)
-
     def __str__(self):
         return f"<{type(self).__name__}{self.env}>"
 
@@ -284,7 +281,7 @@ class Wrapper(Env):
         return str(self)
 
     @property
-    def unwrapped(self):
+    def unwrapped(self) -> Env:
         return self.env.unwrapped
 
 
