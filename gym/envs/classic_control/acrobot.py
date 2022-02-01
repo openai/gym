@@ -171,6 +171,7 @@ class AcrobotEnv(core.Env):
 
     def step(self, a):
         s = self.state
+        assert s is not None, "Call reset before using AcrobotEnv object."
         torque = self.AVAIL_TORQUE[a]
 
         # Add noise to the force action
@@ -196,12 +197,14 @@ class AcrobotEnv(core.Env):
 
     def _get_ob(self):
         s = self.state
+        assert s is not None, "Call reset before using AcrobotEnv object."
         return np.array(
             [cos(s[0]), sin(s[0]), cos(s[1]), sin(s[1]), s[2], s[3]], dtype=np.float32
         )
 
     def _terminal(self):
         s = self.state
+        assert s is not None, "Call reset before using AcrobotEnv object."
         return bool(-cos(s[0]) - cos(s[1] + s[0]) > 1.0)
 
     def _dsdt(self, s_augmented):

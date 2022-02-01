@@ -6,7 +6,8 @@ include = [
     "gym/envs/registration.py",
     "gym/spaces/**.py",
     "gym/core.py",
-    "gym/utils/seeding.py"
+    "gym/utils/seeding.py",
+    "gym/envs/classic_control/*.py"
 ]
 exclude = [
     "**/node_modules",
