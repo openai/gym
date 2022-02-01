@@ -5,11 +5,10 @@ from typing import TypeVar, Generic, Tuple
 from typing import Optional
 
 import gym
-from gym import error, spaces
-
-from gym.utils import closer, seeding
+from gym import spaces
+from gym.utils import seeding
 from gym.logger import deprecation
-from utils.seeding import RandomNumberGenerator
+from gym.utils.seeding import RandomNumberGenerator
 
 ObsType = TypeVar("ObsType")
 ActType = TypeVar("ActType")
@@ -53,6 +52,7 @@ class Env(Generic[ObsType, ActType]):
 
     @property
     def np_random(self) -> RandomNumberGenerator:
+        """Initializes the np_random field if not done already."""
         if self._np_random is None:
             self._np_random, seed = seeding.np_random()
         return self._np_random
@@ -92,7 +92,7 @@ class Env(Generic[ObsType, ActType]):
         Returns:
             observation (object): the initial observation.
         """
-        # Initialize the RNG if it's the first reset, or if the seed is manually passed
+        # Initialize the RNG if the seed is manually passed
         if seed is not None:
             self.seed(seed)
 
