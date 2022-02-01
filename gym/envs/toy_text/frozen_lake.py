@@ -28,8 +28,6 @@ MAPS = {
     ],
 }
 
-WINDOW_SIZE = (400, 400)
-
 
 def generate_random_map(size=8, p=0.8):
     """Generates a random valid map (one that has a path from start to goal)
@@ -154,8 +152,14 @@ class FrozenLakeEnv(Env):
         self.observation_space = spaces.Discrete(nS)
         self.action_space = spaces.Discrete(nA)
 
+        # pygame utils
+        self.window_size = (
+            min(64 * ncol, 512),
+            min(64 * nrow, 512)
+        )
         self.window_surface = None
         self.hole_img = None
+        self.cracked_hole_img = None
         self.ice_img = None
         self.elf_images = None
         self.goal_img = None
@@ -186,10 +190,13 @@ class FrozenLakeEnv(Env):
         if self.window_surface is None:
             pygame.init()
             pygame.display.set_caption("Frozen Lake")
-            self.window_surface = pygame.display.set_mode(WINDOW_SIZE)
+            self.window_surface = pygame.display.set_mode(self.window_size)
         if self.hole_img is None:
             file_name = path.join(path.dirname(__file__), "img/hole.png")
             self.hole_img = pygame.image.load(file_name)
+        if self.cracked_hole_img is None:
+            file_name = path.join(path.dirname(__file__), "img/cracked_hole.png")
+            self.cracked_hole_img = pygame.image.load(file_name)
         if self.ice_img is None:
             file_name = path.join(path.dirname(__file__), "img/ice.png")
             self.ice_img = pygame.image.load(file_name)
@@ -208,15 +215,14 @@ class FrozenLakeEnv(Env):
             ]
             self.elf_images = [pygame.image.load(f_name) for f_name in elfs]
 
-        board = pygame.Surface(WINDOW_SIZE, flags=SRCALPHA)
-
-        cell_width = WINDOW_SIZE[0] / self.ncol
-        cell_height = WINDOW_SIZE[1] / self.nrow
+        board = pygame.Surface(self.window_size, flags=SRCALPHA)
+        cell_width = self.window_size[0] // self.ncol
+        cell_height = self.window_size[1] // self.nrow
         smaller_cell_scale = 0.7
         small_cell_w = smaller_cell_scale * cell_width
         small_cell_h = smaller_cell_scale * cell_height
 
-        # prepare graphics
+        # prepare images
         last_action = self.lastaction if self.lastaction is not None else 1
         elf_img = self.elf_images[last_action]
         elf_scale = min(
@@ -229,27 +235,28 @@ class FrozenLakeEnv(Env):
         )
         elf_img = pygame.transform.scale(elf_img, elf_dims)
         hole_img = pygame.transform.scale(self.hole_img, (cell_width, cell_height))
+        cracked_hole_img = pygame.transform.scale(self.cracked_hole_img, (cell_width, cell_height))
         ice_img = pygame.transform.scale(self.ice_img, (cell_width, cell_height))
         goal_img = pygame.transform.scale(self.goal_img, (small_cell_w, small_cell_h))
         start_img = pygame.transform.scale(self.start_img, (small_cell_w, small_cell_h))
 
-        for x in range(self.nrow):
-            for y in range(self.ncol):
-                rect = (y * cell_width, x * cell_height, cell_width, cell_height)
-                if desc[x][y] == b"H":
+        for y in range(self.nrow):
+            for x in range(self.ncol):
+                rect = (x * cell_width, y * cell_height, cell_width, cell_height)
+                if desc[y][x] == b"H":
                     self.window_surface.blit(hole_img, (rect[0], rect[1]))
-                elif desc[x][y] == b"G":
+                elif desc[y][x] == b"G":
                     self.window_surface.blit(ice_img, (rect[0], rect[1]))
                     goal_rect = self._center_small_rect(rect, goal_img.get_size())
                     self.window_surface.blit(goal_img, goal_rect)
-                elif desc[x][y] == b"S":
+                elif desc[y][x] == b"S":
                     self.window_surface.blit(ice_img, (rect[0], rect[1]))
                     stool_rect = self._center_small_rect(rect, start_img.get_size())
                     self.window_surface.blit(start_img, stool_rect)
                 else:
                     self.window_surface.blit(ice_img, (rect[0], rect[1]))
 
-                pygame.draw.rect(board, (200, 210, 230), rect, 1)
+                pygame.draw.rect(board, (200, 220, 255), rect, 1)
 
         # paint the elf
         bot_row, bot_col = self.s // self.ncol, self.s % self.ncol
@@ -259,8 +266,11 @@ class FrozenLakeEnv(Env):
             cell_width,
             cell_height,
         )
-        elf_rect = self._center_small_rect(cell_rect, elf_img.get_size())
-        self.window_surface.blit(elf_img, elf_rect)
+        if desc[bot_row][bot_col] == b"H":
+            self.window_surface.blit(cracked_hole_img, (cell_rect[0], cell_rect[1]))
+        else:
+            elf_rect = self._center_small_rect(cell_rect, elf_img.get_size())
+            self.window_surface.blit(elf_img, elf_rect)
 
         self.window_surface.blit(board, board.get_rect())
         pygame.display.update()
