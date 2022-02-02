@@ -153,10 +153,7 @@ class FrozenLakeEnv(Env):
         self.action_space = spaces.Discrete(nA)
 
         # pygame utils
-        self.window_size = (
-            min(64 * ncol, 512),
-            min(64 * nrow, 512)
-        )
+        self.window_size = (min(64 * ncol, 512), min(64 * nrow, 512))
         self.window_surface = None
         self.hole_img = None
         self.cracked_hole_img = None
@@ -235,7 +232,9 @@ class FrozenLakeEnv(Env):
         )
         elf_img = pygame.transform.scale(elf_img, elf_dims)
         hole_img = pygame.transform.scale(self.hole_img, (cell_width, cell_height))
-        cracked_hole_img = pygame.transform.scale(self.cracked_hole_img, (cell_width, cell_height))
+        cracked_hole_img = pygame.transform.scale(
+            self.cracked_hole_img, (cell_width, cell_height)
+        )
         ice_img = pygame.transform.scale(self.ice_img, (cell_width, cell_height))
         goal_img = pygame.transform.scale(self.goal_img, (small_cell_w, small_cell_h))
         start_img = pygame.transform.scale(self.start_img, (small_cell_w, small_cell_h))
