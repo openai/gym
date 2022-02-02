@@ -256,7 +256,7 @@ class FrozenLakeEnv(Env):
                 else:
                     self.window_surface.blit(ice_img, (rect[0], rect[1]))
 
-                pygame.draw.rect(board, (200, 220, 255), rect, 1)
+                pygame.draw.rect(board, (180, 200, 230), rect, 1)
 
         # paint the elf
         bot_row, bot_col = self.s // self.ncol, self.s % self.ncol
