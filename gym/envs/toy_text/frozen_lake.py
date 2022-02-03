@@ -215,7 +215,7 @@ class FrozenLakeEnv(Env):
         board = pygame.Surface(self.window_size, flags=SRCALPHA)
         cell_width = self.window_size[0] // self.ncol
         cell_height = self.window_size[1] // self.nrow
-        smaller_cell_scale = 0.7
+        smaller_cell_scale = 0.6
         small_cell_w = smaller_cell_scale * cell_width
         small_cell_h = smaller_cell_scale * cell_height
 
@@ -236,7 +236,7 @@ class FrozenLakeEnv(Env):
             self.cracked_hole_img, (cell_width, cell_height)
         )
         ice_img = pygame.transform.scale(self.ice_img, (cell_width, cell_height))
-        goal_img = pygame.transform.scale(self.goal_img, (small_cell_w, small_cell_h))
+        goal_img = pygame.transform.scale(self.goal_img, (cell_width, cell_height))
         start_img = pygame.transform.scale(self.start_img, (small_cell_w, small_cell_h))
 
         for y in range(self.nrow):
