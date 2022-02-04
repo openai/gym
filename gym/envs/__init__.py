@@ -12,7 +12,7 @@ if sys.version_info >= (3, 8):
 else:
 
     class Literal:
-        def __getitem__(self, parameters):
+        def __class_getitem__(cls, item):
             return Any
 
 
