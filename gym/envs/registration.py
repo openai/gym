@@ -587,10 +587,6 @@ def register(id: str, **kwargs) -> None:
     return registry.register(id, **kwargs)
 
 
-def make(id: str, **kwargs) -> Env:
-    return registry.make(id, **kwargs)
-
-
 def spec(id: str) -> EnvSpec:
     return registry.spec(id)
 
