@@ -1,10 +1,25 @@
+from __future__ import annotations
+
+from typing import Tuple, SupportsFloat, Union, Type, Optional, Sequence
+
 import numpy as np
 
 from .space import Space
 from gym import logger
 
 
-class Box(Space):
+def _short_repr(arr: np.ndarray) -> str:
+    """Create a shortened string representation of a numpy array.
+
+    If arr is a multiple of the all-ones vector, return a string representation of the multiplier.
+    Otherwise, return a string representation of the entire array.
+    """
+    if arr.size != 0 and np.min(arr) == np.max(arr):
+        return str(np.min(arr))
+    return str(arr)
+
+
+class Box(Space[np.ndarray]):
     """
     A (possibly unbounded) box in R^n. Specifically, a Box represents the
     Cartesian product of n closed intervals. Each interval has the form of one
@@ -22,57 +37,50 @@ class Box(Space):
 
     """
 
-    def __init__(self, low, high, shape=None, dtype=np.float32, seed=None):
+    def __init__(
+        self,
+        low: Union[SupportsFloat, np.ndarray],
+        high: Union[SupportsFloat, np.ndarray],
+        shape: Optional[Sequence[int]] = None,
+        dtype: Type = np.float32,
+        seed: Optional[int] = None,
+    ):
         assert dtype is not None, "dtype must be explicitly provided. "
         self.dtype = np.dtype(dtype)
 
         # determine shape if it isn't provided directly
         if shape is not None:
             shape = tuple(shape)
-            assert (
-                np.isscalar(low) or low.shape == shape
-            ), "low.shape doesn't match provided shape"
-            assert (
-                np.isscalar(high) or high.shape == shape
-            ), "high.shape doesn't match provided shape"
         elif not np.isscalar(low):
-            shape = low.shape
-            assert (
-                np.isscalar(high) or high.shape == shape
-            ), "high.shape doesn't match low.shape"
+            shape = low.shape  # type: ignore
         elif not np.isscalar(high):
-            shape = high.shape
-            assert (
-                np.isscalar(low) or low.shape == shape
-            ), "low.shape doesn't match high.shape"
+            shape = high.shape  # type: ignore
         else:
             raise ValueError(
                 "shape must be provided or inferred from the shapes of low or high"
             )
+        assert isinstance(shape, tuple)
 
-        if np.isscalar(low):
-            low = np.full(shape, low, dtype=dtype)
+        low = _broadcast(low, dtype, shape, inf_sign="-")  # type: ignore
+        high = _broadcast(high, dtype, shape, inf_sign="+")
 
-        if np.isscalar(high):
-            high = np.full(shape, high, dtype=dtype)
+        assert isinstance(low, np.ndarray)
+        assert low.shape == shape, "low.shape doesn't match provided shape"
+        assert isinstance(high, np.ndarray)
+        assert high.shape == shape, "high.shape doesn't match provided shape"
 
-        self._shape = shape
-        self.low = low
-        self.high = high
+        self._shape: Tuple[int, ...] = shape
 
-        def _get_precision(dtype):
-            if np.issubdtype(dtype, np.floating):
-                return np.finfo(dtype).precision
-            else:
-                return np.inf
-
-        low_precision = _get_precision(self.low.dtype)
-        high_precision = _get_precision(self.high.dtype)
-        dtype_precision = _get_precision(self.dtype)
-        if min(low_precision, high_precision) > dtype_precision:
+        low_precision = get_precision(low.dtype)
+        high_precision = get_precision(high.dtype)
+        dtype_precision = get_precision(self.dtype)
+        if min(low_precision, high_precision) > dtype_precision:  # type: ignore
             logger.warn(f"Box bound precision lowered by casting to {self.dtype}")
-        self.low = self.low.astype(self.dtype)
-        self.high = self.high.astype(self.dtype)
+        self.low = low.astype(self.dtype)
+        self.high = high.astype(self.dtype)
+
+        self.low_repr = _short_repr(self.low)
+        self.high_repr = _short_repr(self.high)
 
         # Boolean arrays which indicate the interval type for each coordinate
         self.bounded_below = -np.inf < self.low
@@ -80,9 +88,14 @@ class Box(Space):
 
         super().__init__(self.shape, self.dtype, seed)
 
-    def is_bounded(self, manner="both"):
-        below = np.all(self.bounded_below)
-        above = np.all(self.bounded_above)
+    @property
+    def shape(self) -> Tuple[int, ...]:
+        """Has stricter type than gym.Space - never None."""
+        return self._shape
+
+    def is_bounded(self, manner: str = "both") -> bool:
+        below = bool(np.all(self.bounded_below))
+        above = bool(np.all(self.bounded_above))
         if manner == "both":
             return below and above
         elif manner == "below":
@@ -92,7 +105,7 @@ class Box(Space):
         else:
             raise ValueError("manner is not in {'below', 'above', 'both'}")
 
-    def sample(self):
+    def sample(self) -> np.ndarray:
         """
         Generates a single random sample inside of the Box.
 
@@ -135,12 +148,12 @@ class Box(Space):
 
         return sample.astype(self.dtype)
 
-    def contains(self, x):
+    def contains(self, x) -> bool:
         if not isinstance(x, np.ndarray):
             logger.warn("Casting input x to numpy array.")
             x = np.asarray(x, dtype=self.dtype)
 
-        return (
+        return bool(
             np.can_cast(x.dtype, self.dtype)
             and x.shape == self.shape
             and np.all(x >= self.low)
@@ -150,16 +163,66 @@ class Box(Space):
     def to_jsonable(self, sample_n):
         return np.array(sample_n).tolist()
 
-    def from_jsonable(self, sample_n):
+    def from_jsonable(self, sample_n: Sequence[SupportsFloat]) -> list[np.ndarray]:
         return [np.asarray(sample) for sample in sample_n]
 
-    def __repr__(self):
-        return f"Box({self.low}, {self.high}, {self.shape}, {self.dtype})"
+    def __repr__(self) -> str:
+        return f"Box({self.low_repr}, {self.high_repr}, {self.shape}, {self.dtype})"
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         return (
             isinstance(other, Box)
             and (self.shape == other.shape)
             and np.allclose(self.low, other.low)
             and np.allclose(self.high, other.high)
         )
+
+
+def get_inf(dtype, sign: str) -> SupportsFloat:
+    """Returns an infinite that doesn't break things.
+    `dtype` must be an `np.dtype`
+    `bound` must be either `min` or `max`
+    """
+    if np.dtype(dtype).kind == "f":
+        if sign == "+":
+            return np.inf
+        elif sign == "-":
+            return -np.inf
+        else:
+            raise TypeError(f"Unknown sign {sign}, use either '+' or '-'")
+    elif np.dtype(dtype).kind == "i":
+        if sign == "+":
+            return np.iinfo(dtype).max - 2
+        elif sign == "-":
+            return np.iinfo(dtype).min + 2
+        else:
+            raise TypeError(f"Unknown sign {sign}, use either '+' or '-'")
+    else:
+        raise ValueError(f"Unknown dtype {dtype} for infinite bounds")
+
+
+def get_precision(dtype) -> SupportsFloat:
+    if np.issubdtype(dtype, np.floating):
+        return np.finfo(dtype).precision
+    else:
+        return np.inf
+
+
+def _broadcast(
+    value: Union[SupportsFloat, np.ndarray],
+    dtype,
+    shape: tuple[int, ...],
+    inf_sign: str,
+) -> np.ndarray:
+    """handle infinite bounds and broadcast at the same time if needed"""
+    if np.isscalar(value):
+        value = get_inf(dtype, inf_sign) if np.isinf(value) else value  # type: ignore
+        value = np.full(shape, value, dtype=dtype)
+    else:
+        assert isinstance(value, np.ndarray)
+        if np.any(np.isinf(value)):
+            # create new array with dtype, but maintain old one to preserve np.inf
+            temp = value.astype(dtype)
+            temp[np.isinf(value)] = get_inf(dtype, inf_sign)
+            value = temp
+    return value

@@ -1,10 +1,13 @@
+from __future__ import annotations
+
+from collections.abc import Sequence
 import numpy as np
 from gym import logger
 from .space import Space
 from .discrete import Discrete
 
 
-class MultiDiscrete(Space):
+class MultiDiscrete(Space[np.ndarray]):
     """
     - The multi-discrete action space consists of a series of discrete action spaces with different number of actions in each
     - It is useful to represent game controllers or keyboards where each key can be represented as a discrete action space
@@ -25,24 +28,29 @@ class MultiDiscrete(Space):
 
     """
 
-    def __init__(self, nvec, dtype=np.int64, seed=None):
+    def __init__(self, nvec: list[int], dtype=np.int64, seed=None):
         """
         nvec: vector of counts of each categorical variable
         """
-        assert (np.array(nvec) > 0).all(), "nvec (counts) have to be positive"
-        self.nvec = np.asarray(nvec, dtype=dtype)
+        self.nvec = np.array(nvec, dtype=dtype, copy=True)
+        assert (self.nvec > 0).all(), "nvec (counts) have to be positive"
 
         super().__init__(self.nvec.shape, dtype, seed)
 
-    def sample(self):
+    @property
+    def shape(self) -> tuple[int, ...]:
+        """Has stricter type than gym.Space - never None."""
+        return self._shape  # type: ignore
+
+    def sample(self) -> np.ndarray:
         return (self.np_random.random(self.nvec.shape) * self.nvec).astype(self.dtype)
 
-    def contains(self, x):
-        if isinstance(x, list):
+    def contains(self, x) -> bool:
+        if isinstance(x, Sequence):
             x = np.array(x)  # Promote list to array for contains check
         # if nvec is uint32 and space dtype is uint32, then 0 <= x < self.nvec guarantees that x
         # is within correct bounds for space dtype (even though x does not have to be unsigned)
-        return x.shape == self.shape and (0 <= x).all() and (x < self.nvec).all()
+        return bool(x.shape == self.shape and (0 <= x).all() and (x < self.nvec).all())
 
     def to_jsonable(self, sample_n):
         return [sample.tolist() for sample in sample_n]

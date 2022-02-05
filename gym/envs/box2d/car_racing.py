@@ -1,35 +1,5 @@
-"""
-Easiest continuous control task to learn from pixels, a top-down racing
-environment.
-Discrete control is reasonable in this environment as well, on/off
-discretization is fine.
+__credits__ = ["Andrea PIERRÉ"]
 
-State consists of STATE_W x STATE_H pixels.
-
-The reward is -0.1 every frame and +1000/N for every track tile visited, where
-N is the total number of tiles visited in the track. For example, if you have
-finished in 732 frames, your reward is 1000 - 0.1*732 = 926.8 points.
-
-The game is solved when the agent consistently gets 900+ points. The generated
-track is random every episode.
-
-The episode finishes when more than some percentage (default is 95%) of the
-tiles are visited. The car also can go outside of the PLAYFIELD -  that is
-far off the track, then it will get -100 and die.
-
-Some indicators are shown at the bottom of the window along with the state RGB
-buffer. From left to right: the true speed, four ABS sensors, the steering
-wheel position and gyroscope.
-
-To play yourself (it's rather fast for humans), type:
-
-python gym/envs/box2d/car_racing.py
-
-Remember it's a powerful rear-wheel drive car -  don't press the accelerator
-and turn at the same time.
-
-Created by Oleg Klimov. Licensed on the same terms as the rest of OpenAI Gym.
-"""
 import sys
 import math
 from typing import Optional
@@ -125,6 +95,59 @@ class FrictionDetector(contactListener):
 
 
 class CarRacing(gym.Env, EzPickle):
+    """
+    ## Description
+    Easiest continuous control task to learn from pixels, a top-down
+    racing environment. Discreet control is reasonable in this environment as
+    well, on/off discretisation is fine.
+
+    The game is solved when the agent consistently gets 900+ points.
+    The generated track is random every episode.
+
+    Some indicators are shown at the bottom of the window along with the
+    state RGB buffer. From left to right: true speed, four ABS sensors,
+    steering wheel position, gyroscope.
+    To play yourself (it's rather fast for humans), type:
+    ```
+    python gym/envs/box2d/car_racing.py
+    ```
+    Remember it's a powerful rear-wheel drive car - don't press the accelerator
+    and turn at the same time.
+
+    ## Action Space
+    There are 3 actions: steering (-1 is full left, +1 is full right), gas,
+    and breaking.
+
+    ## Observation Space
+    State consists of 96x96 pixels.
+
+    ## Rewards
+    The reward is -0.1 every frame and +1000/N for every track tile visited,
+    where N is the total number of tiles visited in the track. For example,
+    if you have finished in 732 frames, your reward is
+    1000 - 0.1*732 = 926.8 points.
+
+    ## Starting State
+    The car starts stopped at the center of the road.
+
+    ## Episode Termination
+    The episode finishes when all the tiles are visited. The car also can go
+    outside of the playfield - that is far off the track, then it will
+    get -100 and die.
+
+    ## Arguments
+    There are no arguments supported in constructing the environment.
+
+    ## Version History
+    - v0: Current version
+
+    ## References
+    - Chris Campbell (2014), http://www.iforce2d.net/b2dtut/top-down-car.
+
+    ## Credits
+    Created by Oleg Klimov
+    """
+
     metadata = {
         "render.modes": ["human", "rgb_array", "state_pixels"],
         "video.frames_per_second": FPS,
@@ -351,7 +374,7 @@ class CarRacing(gym.Env, EzPickle):
         self.track = track
         return True
 
-    def reset(self, seed: Optional[int] = None):
+    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
         super().reset(seed=seed)
         self._destroy()
         self.reward = 0.0
@@ -407,9 +430,9 @@ class CarRacing(gym.Env, EzPickle):
     def render(self, mode="human"):
         assert mode in ["human", "state_pixels", "rgb_array"]
         if self.viewer is None:
-            from gym.envs.classic_control import rendering
+            from gym.utils import pyglet_rendering
 
-            self.viewer = rendering.Viewer(WINDOW_W, WINDOW_H)
+            self.viewer = pyglet_rendering.Viewer(WINDOW_W, WINDOW_H)
             self.score_label = pyglet.text.Label(
                 "0000",
                 font_size=36,
@@ -419,7 +442,7 @@ class CarRacing(gym.Env, EzPickle):
                 anchor_y="center",
                 color=(255, 255, 255, 255),
             )
-            self.transform = rendering.Transform()
+            self.transform = pyglet_rendering.Transform()
 
         if "t" not in self.__dict__:
             return  # reset() not called yet

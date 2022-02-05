@@ -16,7 +16,7 @@ from gym.vector.async_vector_env import AsyncVectorEnv
 
 @pytest.mark.parametrize("shared_memory", [True, False])
 def test_create_async_vector_env(shared_memory):
-    env_fns = [make_env("CubeCrash-v0", i) for i in range(8)]
+    env_fns = [make_env("CartPole-v1", i) for i in range(8)]
     try:
         env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
     finally:
@@ -27,7 +27,7 @@ def test_create_async_vector_env(shared_memory):
 
 @pytest.mark.parametrize("shared_memory", [True, False])
 def test_reset_async_vector_env(shared_memory):
-    env_fns = [make_env("CubeCrash-v0", i) for i in range(8)]
+    env_fns = [make_env("CartPole-v1", i) for i in range(8)]
     try:
         env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
         observations = env.reset()
@@ -44,7 +44,7 @@ def test_reset_async_vector_env(shared_memory):
 @pytest.mark.parametrize("shared_memory", [True, False])
 @pytest.mark.parametrize("use_single_action_space", [True, False])
 def test_step_async_vector_env(shared_memory, use_single_action_space):
-    env_fns = [make_env("CubeCrash-v0", i) for i in range(8)]
+    env_fns = [make_env("CartPole-v1", i) for i in range(8)]
     try:
         env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
         observations = env.reset()
@@ -78,25 +78,58 @@ def test_step_async_vector_env(shared_memory, use_single_action_space):
 
 
 @pytest.mark.parametrize("shared_memory", [True, False])
+def test_call_async_vector_env(shared_memory):
+    env_fns = [make_env("CartPole-v1", i) for i in range(4)]
+    try:
+        env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
+        _ = env.reset()
+        images = env.call("render", mode="rgb_array")
+        gravity = env.call("gravity")
+    finally:
+        env.close()
+
+    assert isinstance(images, tuple)
+    assert len(images) == 4
+    for i in range(4):
+        assert isinstance(images[i], np.ndarray)
+
+    assert isinstance(gravity, tuple)
+    assert len(gravity) == 4
+    for i in range(4):
+        assert isinstance(gravity[i], float)
+        assert gravity[i] == 9.8
+
+
+@pytest.mark.parametrize("shared_memory", [True, False])
+def test_set_attr_async_vector_env(shared_memory):
+    env_fns = [make_env("CartPole-v1", i) for i in range(4)]
+    try:
+        env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
+        env.set_attr("gravity", [9.81, 3.72, 8.87, 1.62])
+        gravity = env.get_attr("gravity")
+        assert gravity == (9.81, 3.72, 8.87, 1.62)
+    finally:
+        env.close()
+
+
+@pytest.mark.parametrize("shared_memory", [True, False])
 def test_copy_async_vector_env(shared_memory):
-    env_fns = [make_env("CubeCrash-v0", i) for i in range(8)]
+    env_fns = [make_env("CartPole-v1", i) for i in range(8)]
     try:
         env = AsyncVectorEnv(env_fns, shared_memory=shared_memory, copy=True)
         observations = env.reset()
-        observations[0] = 128
-        assert not np.all(env.observations[0] == 128)
+        observations[0] = 0
     finally:
         env.close()
 
 
 @pytest.mark.parametrize("shared_memory", [True, False])
 def test_no_copy_async_vector_env(shared_memory):
-    env_fns = [make_env("CubeCrash-v0", i) for i in range(8)]
+    env_fns = [make_env("CartPole-v1", i) for i in range(8)]
     try:
         env = AsyncVectorEnv(env_fns, shared_memory=shared_memory, copy=False)
         observations = env.reset()
-        observations[0] = 128
-        assert np.all(env.observations[0] == 128)
+        observations[0] = 0
     finally:
         env.close()
 
@@ -129,7 +162,7 @@ def test_step_timeout_async_vector_env(shared_memory):
 @pytest.mark.filterwarnings("ignore::UserWarning")
 @pytest.mark.parametrize("shared_memory", [True, False])
 def test_reset_out_of_order_async_vector_env(shared_memory):
-    env_fns = [make_env("CubeCrash-v0", i) for i in range(4)]
+    env_fns = [make_env("CartPole-v1", i) for i in range(4)]
     with pytest.raises(NoAsyncCallError):
         try:
             env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
@@ -157,7 +190,7 @@ def test_reset_out_of_order_async_vector_env(shared_memory):
 @pytest.mark.filterwarnings("ignore::UserWarning")
 @pytest.mark.parametrize("shared_memory", [True, False])
 def test_step_out_of_order_async_vector_env(shared_memory):
-    env_fns = [make_env("CubeCrash-v0", i) for i in range(4)]
+    env_fns = [make_env("CartPole-v1", i) for i in range(4)]
     with pytest.raises(NoAsyncCallError):
         try:
             env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
@@ -185,7 +218,7 @@ def test_step_out_of_order_async_vector_env(shared_memory):
 
 @pytest.mark.parametrize("shared_memory", [True, False])
 def test_already_closed_async_vector_env(shared_memory):
-    env_fns = [make_env("CubeCrash-v0", i) for i in range(4)]
+    env_fns = [make_env("CartPole-v1", i) for i in range(4)]
     with pytest.raises(ClosedEnvironmentError):
         env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
         env.close()
@@ -194,10 +227,10 @@ def test_already_closed_async_vector_env(shared_memory):
 
 @pytest.mark.parametrize("shared_memory", [True, False])
 def test_check_spaces_async_vector_env(shared_memory):
-    # CubeCrash-v0 - observation_space: Box(40, 32, 3), action_space: Discrete(3)
-    env_fns = [make_env("CubeCrash-v0", i) for i in range(8)]
-    # MemorizeDigits-v0 - observation_space: Box(24, 32, 3), action_space: Discrete(10)
-    env_fns[1] = make_env("MemorizeDigits-v0", 1)
+    # CartPole-v1 - observation_space: Box(4,), action_space: Discrete(2)
+    env_fns = [make_env("CartPole-v1", i) for i in range(8)]
+    # FrozenLake-v1 - Discrete(16), action_space: Discrete(4)
+    env_fns[1] = make_env("FrozenLake-v1", 1)
     with pytest.raises(RuntimeError):
         env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
         env.close(terminate=True)

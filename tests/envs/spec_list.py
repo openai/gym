@@ -21,9 +21,7 @@ def should_skip_env_spec_for_tests(spec):
     # troublesome to run frequently
     ep = spec.entry_point
     # Skip mujoco tests for pull request CI
-    if skip_mujoco and (
-        ep.startswith("gym.envs.mujoco") or ep.startswith("gym.envs.robotics:")
-    ):
+    if skip_mujoco and ep.startswith("gym.envs.mujoco"):
         return True
     try:
         import gym.envs.atari
@@ -45,7 +43,7 @@ def should_skip_env_spec_for_tests(spec):
             and not spec.id.startswith("Seaquest")
         )
     ):
-        logger.warn("Skipping tests for env {}".format(ep))
+        logger.warn(f"Skipping tests for env {ep}")
         return True
     return False
 

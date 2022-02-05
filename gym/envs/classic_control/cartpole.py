@@ -15,49 +15,59 @@ import numpy as np
 
 class CartPoleEnv(gym.Env):
     """
-    Description:
-        A pole is attached by an un-actuated joint to a cart, which moves along
-        a frictionless track. The pendulum starts upright, and the goal is to
-        prevent it from falling over by increasing and reducing the cart's
-        velocity.
+    ### Description
+    This environment corresponds to the version of the cart-pole problem
+    described by Barto, Sutton, and Anderson in ["Neuronlike Adaptive Elements That Can Solve Difficult Learning Control Problem"](https://ieeexplore.ieee.org/document/6313077).
+    A pole is attached by an un-actuated joint to a cart, which moves along a
+    frictionless track. The pendulum starts upright, and the goal is to prevent
+    it from falling over by increasing and reducing the cart's velocity.
 
-    Source:
-        This environment corresponds to the version of the cart-pole problem
-        described by Barto, Sutton, and Anderson
+    ### Action Space
+    The agent take a 1-element vector for actions.
+    The action space is `(action)` in `[0, 1]`, where `action` is used to push
+    the cart with a fixed amount of force:
 
-    Observation:
-        Type: Box(4)
-        Num     Observation               Min                     Max
-        0       Cart Position             -4.8                    4.8
-        1       Cart Velocity             -Inf                    Inf
-        2       Pole Angle                -0.418 rad (-24 deg)    0.418 rad (24 deg)
-        3       Pole Angular Velocity     -Inf                    Inf
+    | Num | Action                 |
+    |-----|------------------------|
+    | 0   | Push cart to the left  |
+    | 1   | Push cart to the right |
 
-    Actions:
-        Type: Discrete(2)
-        Num   Action
-        0     Push cart to the left
-        1     Push cart to the right
+    Note: The amount the velocity is reduced or increased is not fixed as it depends on the angle the pole is pointing.
+    This is because the center of gravity of the pole increases the amount of energy needed to move the cart underneath it
 
-        Note: The amount the velocity that is reduced or increased is not
-        fixed; it depends on the angle the pole is pointing. This is because
-        the center of gravity of the pole increases the amount of energy needed
-        to move the cart underneath it
+    ### Observation Space
+    The observation is a `ndarray` with shape `(4,)` where the elements correspond to the following:
 
-    Reward:
-        Reward is 1 for every step taken, including the termination step
+    | Num | Observation           | Min                  | Max                |
+    |-----|-----------------------|----------------------|--------------------|
+    | 0   | Cart Position         | -4.8*                 | 4.8*                |
+    | 1   | Cart Velocity         | -Inf                 | Inf                |
+    | 2   | Pole Angle            | ~ -0.418 rad (-24°)** | ~ 0.418 rad (24°)** |
+    | 3   | Pole Angular Velocity | -Inf                 | Inf                |
 
-    Starting State:
-        All observations are assigned a uniform random value in [-0.05..0.05]
+    **Note:** above denotes the ranges of possible observations for each element, but in two cases this range exceeds the
+    range of possible values in an un-terminated episode:
+    - `*`: the cart x-position can be observed between `(-4.8, 4.8)`, but an episode terminates if the cart leaves the
+    `(-2.4, 2.4)` range.
+    - `**`: Similarly, the pole angle can be observed between  `(-.418, .418)` radians or precisely **±24°**, but an episode is
+    terminated if the pole angle is outside the `(-.2095, .2095)` range or precisely **±12°**
 
-    Episode Termination:
-        Pole Angle is more than 12 degrees.
-        Cart Position is more than 2.4 (center of the cart reaches the edge of
-        the display).
-        Episode length is greater than 200.
-        Solved Requirements:
-        Considered solved when the average return is greater than or equal to
-        195.0 over 100 consecutive trials.
+    ### Rewards
+    Reward is 1 for every step taken, including the termination step. The threshold is 475 for v1.
+
+    ### Starting State
+    All observations are assigned a uniform random value between (-0.05, 0.05)
+
+    ### Episode Termination
+    The episode terminates of one of the following occurs:
+
+    1. Pole Angle is more than ±12°
+    2. Cart Position is more than ±2.4 (center of the cart reaches the edge of the display)
+    3. Episode length is greater than 500 (200 for v0)
+
+    ### Arguments
+
+    No additional arguments are currently supported.
     """
 
     metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 50}
@@ -155,7 +165,7 @@ class CartPoleEnv(gym.Env):
 
         return np.array(self.state, dtype=np.float32), reward, done, {}
 
-    def reset(self, seed: Optional[int] = None):
+    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
         super().reset(seed=seed)
         self.state = self.np_random.uniform(low=-0.05, high=0.05, size=(4,))
         self.steps_beyond_done = None
@@ -174,13 +184,13 @@ class CartPoleEnv(gym.Env):
         cartheight = 30.0
 
         if self.viewer is None:
-            from gym.envs.classic_control import rendering
+            from gym.utils import pyglet_rendering
 
-            self.viewer = rendering.Viewer(screen_width, screen_height)
+            self.viewer = pyglet_rendering.Viewer(screen_width, screen_height)
             l, r, t, b = -cartwidth / 2, cartwidth / 2, cartheight / 2, -cartheight / 2
             axleoffset = cartheight / 4.0
-            cart = rendering.FilledPolygon([(l, b), (l, t), (r, t), (r, b)])
-            self.carttrans = rendering.Transform()
+            cart = pyglet_rendering.FilledPolygon([(l, b), (l, t), (r, t), (r, b)])
+            self.carttrans = pyglet_rendering.Transform()
             cart.add_attr(self.carttrans)
             self.viewer.add_geom(cart)
             l, r, t, b = (
@@ -189,18 +199,18 @@ class CartPoleEnv(gym.Env):
                 polelen - polewidth / 2,
                 -polewidth / 2,
             )
-            pole = rendering.FilledPolygon([(l, b), (l, t), (r, t), (r, b)])
+            pole = pyglet_rendering.FilledPolygon([(l, b), (l, t), (r, t), (r, b)])
             pole.set_color(0.8, 0.6, 0.4)
-            self.poletrans = rendering.Transform(translation=(0, axleoffset))
+            self.poletrans = pyglet_rendering.Transform(translation=(0, axleoffset))
             pole.add_attr(self.poletrans)
             pole.add_attr(self.carttrans)
             self.viewer.add_geom(pole)
-            self.axle = rendering.make_circle(polewidth / 2)
+            self.axle = pyglet_rendering.make_circle(polewidth / 2)
             self.axle.add_attr(self.poletrans)
             self.axle.add_attr(self.carttrans)
             self.axle.set_color(0.5, 0.5, 0.8)
             self.viewer.add_geom(self.axle)
-            self.track = rendering.Line((0, carty), (screen_width, carty))
+            self.track = pyglet_rendering.Line((0, carty), (screen_width, carty))
             self.track.set_color(0, 0, 0)
             self.viewer.add_geom(self.track)
 

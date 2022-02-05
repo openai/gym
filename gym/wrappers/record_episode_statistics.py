@@ -18,8 +18,8 @@ class RecordEpisodeStatistics(gym.Wrapper):
         self.length_queue = deque(maxlen=deque_size)
         self.is_vector_env = getattr(env, "is_vector_env", False)
 
-    def reset(self, seed: Optional[int] = None, **kwargs):
-        observations = super().reset(seed=seed, **kwargs)
+    def reset(self, **kwargs):
+        observations = super().reset(**kwargs)
         self.episode_returns = np.zeros(self.num_envs, dtype=np.float32)
         self.episode_lengths = np.zeros(self.num_envs, dtype=np.int32)
         return observations
@@ -31,6 +31,8 @@ class RecordEpisodeStatistics(gym.Wrapper):
         if not self.is_vector_env:
             infos = [infos]
             dones = [dones]
+        else:
+            infos = list(infos)  # Convert infos to mutable type
         for i in range(len(dones)):
             if dones[i]:
                 infos[i] = infos[i].copy()
@@ -47,6 +49,8 @@ class RecordEpisodeStatistics(gym.Wrapper):
                 self.episode_count += 1
                 self.episode_returns[i] = 0
                 self.episode_lengths[i] = 0
+        if self.is_vector_env:
+            infos = tuple(infos)
         return (
             observations,
             rewards,

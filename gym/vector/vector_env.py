@@ -46,13 +46,26 @@ class VectorEnv(gym.Env):
         self.single_observation_space = observation_space
         self.single_action_space = action_space
 
-    def reset_async(self, seed: Optional[Union[int, List[int]]] = None):
+    def reset_async(
+        self,
+        seed: Optional[Union[int, List[int]]] = None,
+        options: Optional[dict] = None,
+    ):
         pass
 
-    def reset_wait(self, seed: Optional[Union[int, List[int]]] = None, **kwargs):
+    def reset_wait(
+        self,
+        seed: Optional[Union[int, List[int]]] = None,
+        options: Optional[dict] = None,
+    ):
         raise NotImplementedError()
 
-    def reset(self, seed: Optional[Union[int, List[int]]] = None):
+    def reset(
+        self,
+        *,
+        seed: Optional[Union[int, List[int]]] = None,
+        options: Optional[dict] = None,
+    ):
         r"""Reset all sub-environments and return a batch of initial observations.
 
         Returns
@@ -60,8 +73,8 @@ class VectorEnv(gym.Env):
         element of :attr:`observation_space`
             A batch of observations from the vectorized environment.
         """
-        self.reset_async(seed=seed)
-        return self.reset_wait(seed=seed)
+        self.reset_async(seed=seed, options=options)
+        return self.reset_wait(seed=seed, options=options)
 
     def step_async(self, actions):
         pass
@@ -94,6 +107,60 @@ class VectorEnv(gym.Env):
 
         self.step_async(actions)
         return self.step_wait()
+
+    def call_async(self, name, *args, **kwargs):
+        pass
+
+    def call_wait(self, **kwargs):
+        raise NotImplementedError()
+
+    def call(self, name, *args, **kwargs):
+        """Call a method, or get a property, from each sub-environment.
+
+        Parameters
+        ----------
+        name : string
+            Name of the method or property to call.
+
+        *args
+            Arguments to apply to the method call.
+
+        **kwargs
+            Keywoard arguments to apply to the method call.
+
+        Returns
+        -------
+        results : list
+            List of the results of the individual calls to the method or
+            property for each environment.
+        """
+        self.call_async(name, *args, **kwargs)
+        return self.call_wait()
+
+    def get_attr(self, name):
+        """Get a property from each sub-environment.
+
+        Parameters
+        ----------
+        name : string
+            Name of the property to be get from each individual environment.
+        """
+        return self.call(name)
+
+    def set_attr(self, name, values):
+        """Set a property in each sub-environment.
+
+        Parameters
+        ----------
+        name : string
+            Name of the property to be set in each individual environment.
+
+        values : list, tuple, or object
+            Values of the property to be set to. If `values` is a list or
+            tuple, then it corresponds to the values for each individual
+            environment, otherwise a single value is set for all environments.
+        """
+        raise NotImplementedError()
 
     def close_extras(self, **kwargs):
         r"""Clean up the extra resources e.g. beyond what's in this base class."""

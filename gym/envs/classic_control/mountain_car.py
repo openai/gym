@@ -14,43 +14,44 @@ from gym.utils import seeding
 
 class MountainCarEnv(gym.Env):
     """
-    Description:
-        The agent (a car) is started at the bottom of a valley. For any given
-        state the agent may choose to accelerate to the left, right or cease
-        any acceleration.
+    The agent (a car) is started at the bottom of a valley. For any given state
+    the agent may choose to accelerate to the left, right or cease any
+    acceleration. The code is originally based on [this code](http://incompleteideas.net/MountainCar/MountainCar1.cp)
+    and the environment appeared first in Andrew Moore's PhD Thesis (1990):
+    ```
+    @TECHREPORT{Moore90efficientmemory-based,
+        author = {Andrew William Moore},
+        title = {Efficient Memory-based Learning for Robot Control},
+        institution = {},
+        year = {1990}
+    }
+    ```
 
-    Source:
-        The environment appeared first in Andrew Moore's PhD Thesis (1990).
+    Observation space is a 2-dim vector, where the 1st element represents the "car position" and the 2nd element represents the "car velocity".
 
-    Observation:
-        Type: Box(2)
-        Num    Observation               Min            Max
-        0      Car Position              -1.2           0.6
-        1      Car Velocity              -0.07          0.07
+    There are 3 discrete deterministic actions:
+    - 0: Accelerate to the Left
+    - 1: Don't accelerate
+    - 2: Accelerate to the Right
 
-    Actions:
-        Type: Discrete(3)
-        Num    Action
-        0      Accelerate to the Left
-        1      Don't accelerate
-        2      Accelerate to the Right
+    Reward: Reward of 0 is awarded if the agent reached the flag
+    (position = 0.5) on top of the mountain. Reward of -1 is awarded if the position of the agent is less than 0.5.
 
-        Note: This does not affect the amount of velocity affected by the
-        gravitational pull acting on the car.
+    Starting State: The position of the car is assigned a uniform random value in [-0.6 , -0.4]. The starting velocity of the car is always assigned to 0.
 
-    Reward:
-         Reward of 0 is awarded if the agent reached the flag (position = 0.5)
-         on top of the mountain.
-         Reward of -1 is awarded if the position of the agent is less than 0.5.
+    Episode Termination: The car position is more than 0.5. Episode length is greater than 200
 
-    Starting State:
-         The position of the car is assigned a uniform random value in
-         [-0.6 , -0.4].
-         The starting velocity of the car is always assigned to 0.
 
-    Episode Termination:
-         The car position is more than 0.5
-         Episode length is greater than 200
+
+    ### Arguments
+
+    ```
+    gym.make('MountainCar-v0')
+    ```
+
+    ### Version History
+
+    * v0: Initial versions release (1.0.0)
     """
 
     metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 30}
@@ -92,7 +93,7 @@ class MountainCarEnv(gym.Env):
         self.state = (position, velocity)
         return np.array(self.state, dtype=np.float32), reward, done, {}
 
-    def reset(self, seed: Optional[int] = None):
+    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
         super().reset(seed=seed)
         self.state = np.array([self.np_random.uniform(low=-0.6, high=-0.4), 0])
         return np.array(self.state, dtype=np.float32)
@@ -110,35 +111,35 @@ class MountainCarEnv(gym.Env):
         carheight = 20
 
         if self.viewer is None:
-            from gym.envs.classic_control import rendering
+            from gym.utils import pyglet_rendering
 
-            self.viewer = rendering.Viewer(screen_width, screen_height)
+            self.viewer = pyglet_rendering.Viewer(screen_width, screen_height)
             xs = np.linspace(self.min_position, self.max_position, 100)
             ys = self._height(xs)
             xys = list(zip((xs - self.min_position) * scale, ys * scale))
 
-            self.track = rendering.make_polyline(xys)
+            self.track = pyglet_rendering.make_polyline(xys)
             self.track.set_linewidth(4)
             self.viewer.add_geom(self.track)
 
             clearance = 10
 
             l, r, t, b = -carwidth / 2, carwidth / 2, carheight, 0
-            car = rendering.FilledPolygon([(l, b), (l, t), (r, t), (r, b)])
-            car.add_attr(rendering.Transform(translation=(0, clearance)))
-            self.cartrans = rendering.Transform()
+            car = pyglet_rendering.FilledPolygon([(l, b), (l, t), (r, t), (r, b)])
+            car.add_attr(pyglet_rendering.Transform(translation=(0, clearance)))
+            self.cartrans = pyglet_rendering.Transform()
             car.add_attr(self.cartrans)
             self.viewer.add_geom(car)
-            frontwheel = rendering.make_circle(carheight / 2.5)
+            frontwheel = pyglet_rendering.make_circle(carheight / 2.5)
             frontwheel.set_color(0.5, 0.5, 0.5)
             frontwheel.add_attr(
-                rendering.Transform(translation=(carwidth / 4, clearance))
+                pyglet_rendering.Transform(translation=(carwidth / 4, clearance))
             )
             frontwheel.add_attr(self.cartrans)
             self.viewer.add_geom(frontwheel)
-            backwheel = rendering.make_circle(carheight / 2.5)
+            backwheel = pyglet_rendering.make_circle(carheight / 2.5)
             backwheel.add_attr(
-                rendering.Transform(translation=(-carwidth / 4, clearance))
+                pyglet_rendering.Transform(translation=(-carwidth / 4, clearance))
             )
             backwheel.add_attr(self.cartrans)
             backwheel.set_color(0.5, 0.5, 0.5)
@@ -146,9 +147,9 @@ class MountainCarEnv(gym.Env):
             flagx = (self.goal_position - self.min_position) * scale
             flagy1 = self._height(self.goal_position) * scale
             flagy2 = flagy1 + 50
-            flagpole = rendering.Line((flagx, flagy1), (flagx, flagy2))
+            flagpole = pyglet_rendering.Line((flagx, flagy1), (flagx, flagy2))
             self.viewer.add_geom(flagpole)
-            flag = rendering.FilledPolygon(
+            flag = pyglet_rendering.FilledPolygon(
                 [(flagx, flagy2), (flagx, flagy2 - 10), (flagx + 25, flagy2 - 5)]
             )
             flag.set_color(0.8, 0.8, 0)

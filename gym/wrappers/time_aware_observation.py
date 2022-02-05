@@ -29,6 +29,6 @@ class TimeAwareObservation(ObservationWrapper):
         self.t += 1
         return super().step(action)
 
-    def reset(self, seed: Optional[int] = None, **kwargs):
+    def reset(self, **kwargs):
         self.t = 0
-        return super().reset(seed=seed, **kwargs)
+        return super().reset(**kwargs)
