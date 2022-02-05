@@ -2,6 +2,8 @@
 from typing import Optional
 
 import numpy as np
+import pygame
+from pygame import gfxdraw
 from numpy import sin, cos, pi
 
 from gym import core, spaces
@@ -146,6 +148,8 @@ class AcrobotEnv(core.Env):
 
     torque_noise_max = 0.0
 
+    SCREEN_DIM = 500
+
     #: use dynamics equations from the nips paper or the book
     book_or_nips = "book"
     action_arrow = None
@@ -153,7 +157,8 @@ class AcrobotEnv(core.Env):
     actions_num = 3
 
     def __init__(self):
-        self.viewer = None
+        self.screen = None
+        self.isopen = True
         high = np.array(
             [1.0, 1.0, 1.0, 1.0, self.MAX_VEL_1, self.MAX_VEL_2], dtype=np.float32
         )
@@ -256,46 +261,75 @@ class AcrobotEnv(core.Env):
         return (dtheta1, dtheta2, ddtheta1, ddtheta2, 0.0)
 
     def render(self, mode="human"):
-        from gym.utils import pyglet_rendering
-
+        if self.screen is None:
+            pygame.init()
+            self.screen = pygame.display.set_mode((self.SCREEN_DIM, self.SCREEN_DIM))
+        self.surf = pygame.Surface((self.SCREEN_DIM, self.SCREEN_DIM))
+        self.surf.fill((255, 255, 255))
         s = self.state
 
-        if self.viewer is None:
-            self.viewer = pyglet_rendering.Viewer(500, 500)
-            bound = self.LINK_LENGTH_1 + self.LINK_LENGTH_2 + 0.2  # 2.2 for default
-            self.viewer.set_bounds(-bound, bound, -bound, bound)
+        bound = self.LINK_LENGTH_1 + self.LINK_LENGTH_2 + 0.2  # 2.2 for default
+        scale = self.SCREEN_DIM / (bound * 2)
+        offset = self.SCREEN_DIM / 2
 
         if s is None:
             return None
 
-        p1 = [-self.LINK_LENGTH_1 * cos(s[0]), self.LINK_LENGTH_1 * sin(s[0])]
+        p1 = [
+            -self.LINK_LENGTH_1 * cos(s[0]) * scale,
+            self.LINK_LENGTH_1 * sin(s[0]) * scale,
+        ]
 
         p2 = [
-            p1[0] - self.LINK_LENGTH_2 * cos(s[0] + s[1]),
-            p1[1] + self.LINK_LENGTH_2 * sin(s[0] + s[1]),
+            p1[0] - self.LINK_LENGTH_2 * cos(s[0] + s[1]) * scale,
+            p1[1] + self.LINK_LENGTH_2 * sin(s[0] + s[1]) * scale,
         ]
 
         xys = np.array([[0, 0], p1, p2])[:, ::-1]
         thetas = [s[0] - pi / 2, s[0] + s[1] - pi / 2]
-        link_lengths = [self.LINK_LENGTH_1, self.LINK_LENGTH_2]
+        link_lengths = [self.LINK_LENGTH_1 * scale, self.LINK_LENGTH_2 * scale]
 
-        self.viewer.draw_line((-2.2, 1), (2.2, 1))
+        pygame.draw.line(
+            self.surf,
+            start_pos=(-2.2 * scale + offset, 1 * scale + offset),
+            end_pos=(2.2 * scale + offset, 1 * scale + offset),
+            color=(0, 0, 0),
+        )
+
         for ((x, y), th, llen) in zip(xys, thetas, link_lengths):
-            l, r, t, b = 0, llen, 0.1, -0.1
-            jtransform = pyglet_rendering.Transform(rotation=th, translation=(x, y))
-            link = self.viewer.draw_polygon([(l, b), (l, t), (r, t), (r, b)])
-            link.add_attr(jtransform)
-            link.set_color(0, 0.8, 0.8)
-            circ = self.viewer.draw_circle(0.1)
-            circ.set_color(0.8, 0.8, 0)
-            circ.add_attr(jtransform)
+            x = x + offset
+            y = y + offset
+            l, r, t, b = 0, llen, 0.1 * scale, -0.1 * scale
+            coords = [(l, b), (l, t), (r, t), (r, b)]
+            transformed_coords = []
+            for coord in coords:
+                coord = pygame.math.Vector2(coord).rotate_rad(th)
+                coord = (coord[0] + x, coord[1] + y)
+                transformed_coords.append(coord)
+            gfxdraw.aapolygon(self.surf, transformed_coords, (0, 204, 204))
+            gfxdraw.filled_polygon(self.surf, transformed_coords, (0, 204, 204))
 
-        return self.viewer.render(return_rgb_array=mode == "rgb_array")
+            gfxdraw.aacircle(self.surf, int(x), int(y), int(0.1 * scale), (204, 204, 0))
+            gfxdraw.filled_circle(
+                self.surf, int(x), int(y), int(0.1 * scale), (204, 204, 0)
+            )
+
+        self.surf = pygame.transform.flip(self.surf, False, True)
+        self.screen.blit(self.surf, (0, 0))
+        if mode == "human":
+            pygame.display.flip()
+
+        if mode == "rgb_array":
+            return np.transpose(
+                np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
+            )
+        else:
+            return self.isopen
 
     def close(self):
-        if self.viewer:
-            self.viewer.close()
-            self.viewer = None
+        if self.screen is not None:
+            pygame.quit()
+            self.isopen = False
 
 
 def wrap(x, m, M):
