@@ -266,7 +266,7 @@ class Wrapper(Env[ObsType, ActType]):
     def step(self, action: ActType) -> Tuple[ObsType, float, bool, dict]:
         return self.env.step(action)
 
-    def reset(self, **kwargs) -> ObsType:
+    def reset(self, **kwargs) -> Union[ObsType, tuple[ObsType, dict]]:
         return self.env.reset(**kwargs)
 
     def render(self, mode="human", **kwargs):

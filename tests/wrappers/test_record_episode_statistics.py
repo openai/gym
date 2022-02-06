@@ -26,7 +26,6 @@ def test_record_episode_statistics(env_id, deque_size):
     assert len(env.length_queue) == deque_size
 
 
-
 def test_record_episode_statistics_reset_info():
     env = gym.make("CartPole-v1")
     env = RecordEpisodeStatistics(env)
@@ -37,6 +36,7 @@ def test_record_episode_statistics_reset_info():
     obs, info = env.reset(return_info=True)
     assert ob_space.contains(obs)
     assert isinstance(info, dict)
+
 
 @pytest.mark.parametrize(
     ("num_envs", "asynchronous"), [(1, False), (1, True), (4, False), (4, True)]
