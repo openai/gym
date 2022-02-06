@@ -1,5 +1,7 @@
 import pytest
 
+import numpy as np
+
 import gym
 from gym.wrappers import RecordEpisodeStatistics
 
@@ -22,6 +24,18 @@ def test_record_episode_statistics(env_id, deque_size):
                 break
     assert len(env.return_queue) == deque_size
     assert len(env.length_queue) == deque_size
+
+
+def test_record_episode_statistics_reset_info():
+    env = gym.make("CartPole-v1")
+    env = RecordEpisodeStatistics(env)
+    ob_space = env.observation_space
+    obs = env.reset()
+    assert ob_space.contains(obs)
+    del obs
+    obs, info = env.reset(return_info=True)
+    assert ob_space.contains(obs)
+    assert isinstance(info, dict)
 
 
 @pytest.mark.parametrize(

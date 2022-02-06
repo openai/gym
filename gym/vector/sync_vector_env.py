@@ -89,6 +89,7 @@ class SyncVectorEnv(VectorEnv):
     def reset_wait(
         self,
         seed: Optional[Union[int, List[int]]] = None,
+        return_info: bool = False,
         options: Optional[dict] = None,
     ):
         if seed is None:
@@ -99,19 +100,34 @@ class SyncVectorEnv(VectorEnv):
 
         self._dones[:] = False
         observations = []
+        data_list = []
         for env, single_seed in zip(self.envs, seed):
-            single_kwargs = {}
+
+            kwargs = {}
             if single_seed is not None:
-                single_kwargs["seed"] = single_seed
+                kwargs["seed"] = single_seed
             if options is not None:
-                single_kwargs["options"] = options
-            observation = env.reset(**single_kwargs)
-            observations.append(observation)
+                kwargs["options"] = options
+            if return_info == True:
+                kwargs["return_info"] = return_info
+
+            if not return_info:
+                observation = env.reset(**kwargs)
+                observations.append(observation)
+            else:
+                observation, data = env.reset(**kwargs)
+                observations.append(observation)
+                data_list.append(data)
+
         self.observations = concatenate(
             self.single_observation_space, observations, self.observations
         )
-
-        return deepcopy(self.observations) if self.copy else self.observations
+        if not return_info:
+            return deepcopy(self.observations) if self.copy else self.observations
+        else:
+            return (
+                deepcopy(self.observations) if self.copy else self.observations
+            ), data_list
 
     def step_async(self, actions):
         self._actions = iterate(self.action_space, actions)

@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import TypeVar, Generic, Tuple, SupportsFloat
-from typing import Optional
+from typing import TypeVar, Generic, Tuple, Union, Optional, SupportsFloat
 
 import gym
 from gym import error, spaces
@@ -71,8 +70,12 @@ class Env(Generic[ObsType, ActType]):
 
     @abstractmethod
     def reset(
-        self, *, seed: Optional[int] = None, options: Optional[dict] = None
-    ) -> ObsType:
+        self,
+        *,
+        seed: Optional[int] = None,
+        return_info: bool = False,
+        options: Optional[dict] = None,
+    ) -> Union[ObsType, tuple[ObsType, dict]]:
         """Resets the environment to an initial state and returns an initial
         observation.
 
@@ -84,6 +87,7 @@ class Env(Generic[ObsType, ActType]):
 
         Returns:
             observation (object): the initial observation.
+            info (optional dictionary): a dictionary containing extra information, this is only returned if return_info is set to true
         """
         # Initialize the RNG if it's the first reset, or if the seed is manually passed
         if seed is not None or self.np_random is None:
@@ -262,7 +266,7 @@ class Wrapper(Env[ObsType, ActType]):
     def step(self, action: ActType) -> Tuple[ObsType, float, bool, dict]:
         return self.env.step(action)
 
-    def reset(self, **kwargs) -> ObsType:
+    def reset(self, **kwargs) -> Union[ObsType, tuple[ObsType, dict]]:
         return self.env.reset(**kwargs)
 
     def render(self, mode="human", **kwargs):
