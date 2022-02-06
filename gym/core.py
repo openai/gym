@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import TypeVar, Generic, Tuple
-from typing import Optional
+from typing import TypeVar, Generic, Tuple, Union, Optional
 
 import gym
 from gym import error, spaces
@@ -74,9 +73,9 @@ class Env(Generic[ObsType, ActType]):
         self,
         *,
         seed: Optional[int] = None,
-        return_info: Optional[bool] = False,
+        return_info: bool = False,
         options: Optional[dict] = None,
-    ) -> ObsType:
+    ) -> Union[ObsType, tuple[ObsType, dict]]:
         """Resets the environment to an initial state and returns an initial
         observation.
 

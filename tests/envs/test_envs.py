@@ -55,60 +55,19 @@ def test_env(spec):
     env.close()
 
 
-def test_reset_info():
-    # blackjack gets its own assert statements because it returns a tuple as an obs, creating ambiguity for the normal assert statements
-    env_names = [
-        "CartPole-v0",
-        "CartPole-v1",
-        "MountainCar-v0",
-        "MountainCarContinuous-v0",
-        "Pendulum-v1",
-        "Acrobot-v1",
-        "LunarLander-v2",
-        "LunarLanderContinuous-v2",
-        "BipedalWalker-v3",
-        "BipedalWalkerHardcore-v3",
-        "CarRacing-v0",
-        "FrozenLake-v1",
-        "FrozenLake8x8-v1",
-        "CliffWalking-v0",
-        "Taxi-v3",
-    ]
-    for env_name in env_names:
-        env = envs.make(env_name)
-        obs = env.reset()
-        assert isinstance(obs, np.ndarray) or isinstance(obs, int)
-        del obs
-        env = envs.make(env_name)
-        obs = env.reset(return_info=False)
-        assert isinstance(obs, np.ndarray) or isinstance(obs, int)
-        del obs
-        obs, info = env.reset(return_info=True)
-        assert isinstance(obs, np.ndarray) or isinstance(obs, int)
-        assert isinstance(info, dict)
-        env.close()
+@pytest.mark.parametrize("spec", spec_list)
+def test_reset_info(spec):
 
-    env = envs.make("Blackjack-v1")
+    with pytest.warns(None) as warnings:
+        env = spec.make()
+
+    ob_space = env.observation_space
     obs = env.reset()
-    assert isinstance(obs, tuple)
-    assert isinstance(obs[0], int)
-    assert isinstance(obs[1], int)
-    assert isinstance(obs[2], bool)
-
-    del obs
+    assert ob_space.contains(obs)
     obs = env.reset(return_info=False)
-    assert isinstance(obs, tuple)
-    assert isinstance(obs[0], int)
-    assert isinstance(obs[1], int)
-    assert isinstance(obs[2], bool)
-
-    del obs
+    assert ob_space.contains(obs)
     obs, info = env.reset(return_info=True)
-    assert isinstance(obs, tuple)
-    assert isinstance(obs[0], int)
-    assert isinstance(obs[1], int)
-    assert isinstance(obs[2], bool)
-
+    assert ob_space.contains(obs)
     assert isinstance(info, dict)
     env.close()
 

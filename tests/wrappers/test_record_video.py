@@ -33,32 +33,32 @@ def test_record_video_using_default_trigger():
 
 def test_record_video_reset_return_info():
     env = gym.make("CartPole-v1")
-    env._max_episode_steps = 20
     env = gym.wrappers.RecordVideo(env, "videos", step_trigger=lambda x: x % 100 == 0)
+    ob_space = env.observation_space
     obs, info = env.reset(return_info=True)
     env.close()
     assert os.path.isdir("videos")
     shutil.rmtree("videos")
-    assert isinstance(obs, np.ndarray)
+    assert ob_space.contains(obs)
     assert isinstance(info, dict)
 
     env = gym.make("CartPole-v1")
-    env._max_episode_steps = 20
     env = gym.wrappers.RecordVideo(env, "videos", step_trigger=lambda x: x % 100 == 0)
+    ob_space = env.observation_space
     obs = env.reset(return_info=False)
     env.close()
     assert os.path.isdir("videos")
     shutil.rmtree("videos")
-    assert isinstance(obs, np.ndarray)
+    assert ob_space.contains(obs)
 
     env = gym.make("CartPole-v1")
-    env._max_episode_steps = 20
     env = gym.wrappers.RecordVideo(env, "videos", step_trigger=lambda x: x % 100 == 0)
+    ob_space = env.observation_space
     obs = env.reset()
     env.close()
     assert os.path.isdir("videos")
     shutil.rmtree("videos")
-    assert isinstance(obs, np.ndarray)
+    assert ob_space.contains(obs)
 
 
 def test_record_video_step_trigger():

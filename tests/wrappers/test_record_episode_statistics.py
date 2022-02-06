@@ -29,11 +29,12 @@ def test_record_episode_statistics(env_id, deque_size):
 def test_record_episode_statistics_reset_info():
     env = gym.make("CartPole-v1")
     env = RecordEpisodeStatistics(env)
+    ob_space = env.observation_space
     obs = env.reset()
-    assert isinstance(obs, np.ndarray) or isinstance(obs, tuple) or isinstance(obs, int)
+    assert ob_space.contains(obs)
     del obs
     obs, info = env.reset(return_info=True)
-    assert isinstance(obs, np.ndarray) or isinstance(obs, tuple) or isinstance(obs, int)
+    assert ob_space.contains(obs)
     assert isinstance(info, dict)
 
 

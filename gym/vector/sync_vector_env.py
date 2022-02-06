@@ -102,13 +102,20 @@ class SyncVectorEnv(VectorEnv):
         observations = []
         data_list = []
         for env, single_seed in zip(self.envs, seed):
+
+            kwargs = {}
+            if single_seed != None:
+                kwargs["seed"] = single_seed
+            if options != None:
+                kwargs["options"] = options
+            if return_info == True:
+                kwargs["return_info"] = return_info
+
             if not return_info:
-                observation = env.reset(seed=single_seed, options=options)
+                observation = env.reset(**kwargs)
                 observations.append(observation)
             else:
-                observation, data = env.reset(
-                    seed=single_seed, return_info=True, options=options
-                )
+                observation, data = env.reset(**kwargs)
                 observations.append(observation)
                 data_list.append(data)
 
