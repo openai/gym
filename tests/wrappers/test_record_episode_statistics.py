@@ -26,6 +26,7 @@ def test_record_episode_statistics(env_id, deque_size):
     assert len(env.length_queue) == deque_size
 
 
+
 def test_record_episode_statistics_reset_info():
     env = gym.make("CartPole-v1")
     env = RecordEpisodeStatistics(env)
@@ -37,13 +38,19 @@ def test_record_episode_statistics_reset_info():
     assert ob_space.contains(obs)
     assert isinstance(info, dict)
 
-
-@pytest.mark.parametrize("num_envs", [1, 4])
-def test_record_episode_statistics_with_vectorenv(num_envs):
-    envs = gym.vector.make("CartPole-v0", num_envs=num_envs, asynchronous=False)
+@pytest.mark.parametrize(
+    ("num_envs", "asynchronous"), [(1, False), (1, True), (4, False), (4, True)]
+)
+def test_record_episode_statistics_with_vectorenv(num_envs, asynchronous):
+    envs = gym.vector.make("CartPole-v0", num_envs=num_envs, asynchronous=asynchronous)
     envs = RecordEpisodeStatistics(envs)
+    max_episode_step = (
+        envs.env_fns[0]().spec.max_episode_steps
+        if asynchronous
+        else envs.env.envs[0].spec.max_episode_steps
+    )
     envs.reset()
-    for _ in range(envs.env.envs[0].spec.max_episode_steps + 1):
+    for _ in range(max_episode_step + 1):
         _, _, dones, infos = envs.step(envs.action_space.sample())
         for idx, info in enumerate(infos):
             if dones[idx]:

@@ -98,6 +98,39 @@ def test_step_sync_vector_env(use_single_action_space):
     assert dones.size == 8
 
 
+def test_call_sync_vector_env():
+    env_fns = [make_env("CartPole-v1", i) for i in range(4)]
+    try:
+        env = SyncVectorEnv(env_fns)
+        _ = env.reset()
+        images = env.call("render", mode="rgb_array")
+        gravity = env.call("gravity")
+    finally:
+        env.close()
+
+    assert isinstance(images, tuple)
+    assert len(images) == 4
+    for i in range(4):
+        assert isinstance(images[i], np.ndarray)
+
+    assert isinstance(gravity, tuple)
+    assert len(gravity) == 4
+    for i in range(4):
+        assert isinstance(gravity[i], float)
+        assert gravity[i] == 9.8
+
+
+def test_set_attr_sync_vector_env():
+    env_fns = [make_env("CartPole-v1", i) for i in range(4)]
+    try:
+        env = SyncVectorEnv(env_fns)
+        env.set_attr("gravity", [9.81, 3.72, 8.87, 1.62])
+        gravity = env.get_attr("gravity")
+        assert gravity == (9.81, 3.72, 8.87, 1.62)
+    finally:
+        env.close()
+
+
 def test_check_spaces_sync_vector_env():
     # CartPole-v1 - observation_space: Box(4,), action_space: Discrete(2)
     env_fns = [make_env("CartPole-v1", i) for i in range(8)]
