@@ -104,9 +104,9 @@ class SyncVectorEnv(VectorEnv):
         for env, single_seed in zip(self.envs, seed):
 
             kwargs = {}
-            if single_seed != None:
+            if single_seed is not None:
                 kwargs["seed"] = single_seed
-            if options != None:
+            if options is not None:
                 kwargs["options"] = options
             if return_info == True:
                 kwargs["return_info"] = return_info
