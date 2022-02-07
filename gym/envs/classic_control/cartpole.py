@@ -7,13 +7,13 @@ permalink: https://perma.cc/C9ZM-652R
 import math
 from typing import Optional
 
+import numpy as np
 import pygame
 from pygame import gfxdraw
 
 import gym
 from gym import spaces, logger
 from gym.utils import seeding
-import numpy as np
 
 
 class CartPoleEnv(gym.Env):
