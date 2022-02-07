@@ -72,7 +72,7 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     In practice (and Gym implementation), the first two positional elements are
     omitted from the state space since the reward function is calculated based
     on those values. Therefore, observation space has shape `(8,)` and looks like:
-    
+
     | Num | Observation           | Min                  | Max                | Name (in corresponding XML file) | Joint| Unit |
     |-----|-----------------------|----------------------|--------------------|----------------------|--------------------|--------------------|
     | 0   | angle of the front tip                     | -Inf                 | Inf                | rot | hinge | angle (rad) |
