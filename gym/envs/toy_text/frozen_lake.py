@@ -230,10 +230,10 @@ class FrozenLakeEnv(Env):
 
     def render(self, mode="human"):
         desc = self.desc.tolist()
-        if mode == "ansi":
-            return self._render_text(desc)
+        if mode == "human":
+            return self._render_gui(desc) 
         else:
-            return self._render_gui(desc)
+            return self._render_text(desc)
 
     def _render_gui(self, desc):
         if self.window_surface is None:
