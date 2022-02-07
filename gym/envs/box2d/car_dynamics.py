@@ -9,6 +9,7 @@ Created by Oleg Klimov
 
 import numpy as np
 import math
+import pygame.draw
 import Box2D
 from Box2D.b2 import (
     edgeShape,
@@ -42,9 +43,12 @@ HULL_POLY3 = [
     (-25, +20),
 ]
 HULL_POLY4 = [(-50, -120), (+50, -120), (+50, -90), (-50, -90)]
-WHEEL_COLOR = (0.0, 0.0, 0.0)
-WHEEL_WHITE = (0.3, 0.3, 0.3)
-MUD_COLOR = (0.4, 0.4, 0.0)
+WHEEL_COLOR = (0, 0, 0)
+WHEEL_WHITE = (77, 77, 77)
+MUD_COLOR = (102, 102, 0)
+
+SCALE = 6.0  # Track scale
+PLAYFIELD = 2000 / SCALE  # Game over boundary
 
 
 class Car:
@@ -260,7 +264,82 @@ class Car:
                 True,
             )
 
-    def draw(self, viewer, draw_particles=True):
+    def draw(self, surface, zoom, translation, angle, draw_particles=True):
+        if draw_particles:
+            for p in self.particles:
+                poly = [
+                    (coords[0] + PLAYFIELD, coords[1] + PLAYFIELD) for coords in p.poly
+                ]
+                poly = [pygame.math.Vector2(c).rotate_rad(angle) for c in poly]
+                poly = [
+                    (
+                        coords[0] * zoom + translation[0],
+                        coords[1] * zoom + translation[1],
+                    )
+                    for coords in poly
+                ]
+                pygame.draw.lines(
+                    surface, color=p.color, points=poly, width=2, closed=False
+                )
+
+        for obj in self.drawlist:
+            for f in obj.fixtures:
+                trans = f.body.transform
+                path = [trans * v for v in f.shape.vertices]
+                path = [
+                    (coords[0] + PLAYFIELD, coords[1] + PLAYFIELD) for coords in path
+                ]
+                path = [pygame.math.Vector2(c).rotate_rad(angle) for c in path]
+                path = [
+                    (
+                        coords[0] * zoom + translation[0],
+                        coords[1] * zoom + translation[1],
+                    )
+                    for coords in path
+                ]
+                color = [int(c * 255) for c in obj.color]
+
+                pygame.draw.polygon(surface, color=color, points=path)
+
+                if "phase" not in obj.__dict__:
+                    continue
+                a1 = obj.phase
+                a2 = obj.phase + 1.2  # radians
+                s1 = math.sin(a1)
+                s2 = math.sin(a2)
+                c1 = math.cos(a1)
+                c2 = math.cos(a2)
+                if s1 > 0 and s2 > 0:
+                    continue
+                if s1 > 0:
+                    c1 = np.sign(c1)
+                if s2 > 0:
+                    c2 = np.sign(c2)
+                white_poly = [
+                    (-WHEEL_W * SIZE, +WHEEL_R * c1 * SIZE),
+                    (+WHEEL_W * SIZE, +WHEEL_R * c1 * SIZE),
+                    (+WHEEL_W * SIZE, +WHEEL_R * c2 * SIZE),
+                    (-WHEEL_W * SIZE, +WHEEL_R * c2 * SIZE),
+                ]
+                white_poly = [trans * v for v in white_poly]
+
+                white_poly = [
+                    (coords[0] + PLAYFIELD, coords[1] + PLAYFIELD)
+                    for coords in white_poly
+                ]
+                white_poly = [
+                    pygame.math.Vector2(c).rotate_rad(angle) for c in white_poly
+                ]
+                white_poly = [
+                    (
+                        coords[0] * zoom + translation[0],
+                        coords[1] * zoom + translation[1],
+                    )
+                    for coords in white_poly
+                ]
+                pygame.draw.polygon(surface, color=WHEEL_WHITE, points=white_poly)
+
+    def draw1(self, viewer, draw_particles=True):
         if draw_particles:
             for p in self.particles:
                 viewer.draw_polyline(p.poly, color=p.color, linewidth=5)
