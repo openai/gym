@@ -46,9 +46,10 @@ ROAD_COLOR = [0.4, 0.4, 0.4]
 
 
 class FrictionDetector(contactListener):
-    def __init__(self, env):
+    def __init__(self, env, lap_complete_percent):
         contactListener.__init__(self)
         self.env = env
+        self.lap_complete_percent = lap_complete_percent
 
     def BeginContact(self, contact):
         self._contact(contact, True)
@@ -81,6 +82,14 @@ class FrictionDetector(contactListener):
                 tile.road_visited = True
                 self.env.reward += 1000.0 / len(self.env.track)
                 self.env.tile_visited_count += 1
+
+                # Lap is considered completed if enough % of the track was covered
+                if (
+                    tile.idx == 0
+                    and self.env.tile_visited_count / len(self.env.track)
+                    > self.lap_complete_percent
+                ):
+                    self.env_new_lap = True
         else:
             obj.tiles.remove(tile)
 
@@ -144,9 +153,9 @@ class CarRacing(gym.Env, EzPickle):
         "video.frames_per_second": FPS,
     }
 
-    def __init__(self, verbose=1):
+    def __init__(self, verbose=1, lap_complete_percent=0.95):
         EzPickle.__init__(self)
-        self.contactListener_keepref = FrictionDetector(self)
+        self.contactListener_keepref = FrictionDetector(self, lap_complete_percent)
         self.world = Box2D.b2World((0, 0), contactListener=self.contactListener_keepref)
         self.viewer = None
         self.invisible_state_window = None
@@ -156,6 +165,7 @@ class CarRacing(gym.Env, EzPickle):
         self.reward = 0.0
         self.prev_reward = 0.0
         self.verbose = verbose
+        self.new_lap = False
         self.fd_tile = fixtureDef(
             shape=polygonShape(vertices=[(0, 0), (1, 0), (1, -1), (0, -1)])
         )
@@ -336,6 +346,7 @@ class CarRacing(gym.Env, EzPickle):
             t.color = [ROAD_COLOR[0] + c, ROAD_COLOR[1] + c, ROAD_COLOR[2] + c]
             t.road_visited = False
             t.road_friction = 1.0
+            t.idx = i
             t.fixtures[0].sensor = True
             self.road_poly.append(([road1_l, road1_r, road2_r, road2_l], t.color))
             self.road.append(t)
@@ -363,13 +374,20 @@ class CarRacing(gym.Env, EzPickle):
         self.track = track
         return True
 
-    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
+    def reset(
+        self,
+        *,
+        seed: Optional[int] = None,
+        return_info: bool = False,
+        options: Optional[dict] = None,
+    ):
         super().reset(seed=seed)
         self._destroy()
         self.reward = 0.0
         self.prev_reward = 0.0
         self.tile_visited_count = 0
         self.t = 0.0
+        self.new_lap = False
         self.road_poly = []
 
         while True:
@@ -383,7 +401,10 @@ class CarRacing(gym.Env, EzPickle):
                 )
         self.car = Car(self.world, *self.track[0][1:4])
 
-        return self.step(None)[0]
+        if not return_info:
+            return self.step(None)[0]
+        else:
+            return self.step(None)[0], {}
 
     def step(self, action):
         if action is not None:
@@ -406,7 +427,7 @@ class CarRacing(gym.Env, EzPickle):
             self.car.fuel_spent = 0.0
             step_reward = self.reward - self.prev_reward
             self.prev_reward = self.reward
-            if self.tile_visited_count == len(self.track):
+            if self.tile_visited_count == len(self.track) or self.new_lap:
                 done = True
             x, y = self.car.hull.position
             if abs(x) > PLAYFIELD or abs(y) > PLAYFIELD:
@@ -440,9 +461,6 @@ class CarRacing(gym.Env, EzPickle):
         scroll_x = self.car.hull.position[0]
         scroll_y = self.car.hull.position[1]
         angle = -self.car.hull.angle
-        vel = self.car.hull.linearVelocity
-        if np.linalg.norm(vel) > 0.5:
-            angle = math.atan2(vel[0], vel[1])
         self.transform.set_scale(zoom, zoom)
         self.transform.set_translation(
             WINDOW_W / 2
