@@ -350,7 +350,13 @@ class BipedalWalker(gym.Env, EzPickle):
             x2 = max(p[0] for p in poly)
             self.cloud_poly.append((poly, x1, x2))
 
-    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
+    def reset(
+        self,
+        *,
+        seed: Optional[int] = None,
+        return_info: bool = False,
+        options: Optional[dict] = None,
+    ):
         super().reset(seed=seed)
         self._destroy()
         self.world.contactListener_bug_workaround = ContactDetector(self)
@@ -436,8 +442,10 @@ class BipedalWalker(gym.Env, EzPickle):
                 return fraction
 
         self.lidar = [LidarCallback() for _ in range(10)]
-
-        return self.step(np.array([0, 0, 0, 0]))[0]
+        if not return_info:
+            return self.step(np.array([0, 0, 0, 0]))[0]
+        else:
+            return self.step(np.array([0, 0, 0, 0]))[0], {}
 
     def step(self, action):
         # self.hull.ApplyForceToCenter((0, 20), True) -- Uncomment this to receive a bit of stability help
