@@ -144,7 +144,7 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     ### Rewards
     The reward consists of three parts:
-    - *alive_bonus*: Every timestep that the ant is alive, it gets a reward of 5.
+    - *alive_bonus*: Every timestep that the humanoid is alive, it gets a reward of 5.
     - *lin_vel_cost*: A reward of walking forward which is measured as *1.25 *
     (average center of mass before action - average center of mass after action)/dt*.
     *dt* is the time between actions and is dependent on the frame_skip parameter

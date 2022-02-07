@@ -29,7 +29,7 @@ class InvertedDoublePendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     ### Observation Space
 
-    The state space consists of positional values of different body parts of the hopper,
+    The state space consists of positional values of different body parts of the pendulum system,
     followed by the velocities of those individual parts (their derivatives) with all the
     positions ordered before all the velocities.
 

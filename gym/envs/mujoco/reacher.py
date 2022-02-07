@@ -46,6 +46,7 @@ class ReacherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     reacher the state is created by combining only certain elements of the
     position and velocity, and performing some function transformations on them.
     If one is to read the `.xml` for reacher then they will find 4 joints:
+    
     | Num | Observation                 | Min      | Max      | Name (in corresponding XML file) | Joint | Unit               |
     |-----|-----------------------------|----------|----------|----------------------------------|-------|--------------------|
     | 0   | angle of the first arm      | -Inf     | Inf      | joint0                           | hinge | angle (rad         |

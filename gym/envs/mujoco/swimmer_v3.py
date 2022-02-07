@@ -72,6 +72,7 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     In practice (and Gym implementation), the first two positional elements are
     omitted from the state space since the reward function is calculated based
     on those values. Therefore, observation space has shape `(8,)` and looks like:
+    
     | Num | Observation           | Min                  | Max                | Name (in corresponding XML file) | Joint| Unit |
     |-----|-----------------------|----------------------|--------------------|----------------------|--------------------|--------------------|
     | 0   | angle of the front tip                     | -Inf                 | Inf                | rot | hinge | angle (rad) |
@@ -89,7 +90,7 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     as *(x-coordinate before action - x-coordinate after action)/dt*. *dt* is
     the time between actions and is dependeent on the frame_skip parameter
     (default is 4), where the *dt* for one frame is 0.01 - making the
-    default *dt = 4*0.01 = 0.04*. This reward would be positive if the swimmer
+    default *dt = 4 * 0.01 = 0.04*. This reward would be positive if the swimmer
     swims right as desired.
     - *reward_control*: A negative reward for penalising the swimmer if it takes
     actions that are too large. It is measured as *-coefficient x
