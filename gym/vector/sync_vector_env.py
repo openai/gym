@@ -89,6 +89,7 @@ class SyncVectorEnv(VectorEnv):
     def reset_wait(
         self,
         seed: Optional[Union[int, List[int]]] = None,
+        return_info: bool = False,
         options: Optional[dict] = None,
     ):
         if seed is None:
@@ -99,19 +100,34 @@ class SyncVectorEnv(VectorEnv):
 
         self._dones[:] = False
         observations = []
+        data_list = []
         for env, single_seed in zip(self.envs, seed):
-            single_kwargs = {}
+
+            kwargs = {}
             if single_seed is not None:
-                single_kwargs["seed"] = single_seed
+                kwargs["seed"] = single_seed
             if options is not None:
-                single_kwargs["options"] = options
-            observation = env.reset(**single_kwargs)
-            observations.append(observation)
+                kwargs["options"] = options
+            if return_info == True:
+                kwargs["return_info"] = return_info
+
+            if not return_info:
+                observation = env.reset(**kwargs)
+                observations.append(observation)
+            else:
+                observation, data = env.reset(**kwargs)
+                observations.append(observation)
+                data_list.append(data)
+
         self.observations = concatenate(
             self.single_observation_space, observations, self.observations
         )
-
-        return deepcopy(self.observations) if self.copy else self.observations
+        if not return_info:
+            return deepcopy(self.observations) if self.copy else self.observations
+        else:
+            return (
+                deepcopy(self.observations) if self.copy else self.observations
+            ), data_list
 
     def step_async(self, actions):
         self._actions = iterate(self.action_space, actions)
@@ -135,6 +151,30 @@ class SyncVectorEnv(VectorEnv):
             np.copy(self._dones),
             infos,
         )
+
+    def call(self, name, *args, **kwargs):
+        results = []
+        for env in self.envs:
+            function = getattr(env, name)
+            if callable(function):
+                results.append(function(*args, **kwargs))
+            else:
+                results.append(function)
+
+        return tuple(results)
+
+    def set_attr(self, name, values):
+        if not isinstance(values, (list, tuple)):
+            values = [values for _ in range(self.num_envs)]
+        if len(values) != self.num_envs:
+            raise ValueError(
+                "Values must be a list or tuple with length equal to the "
+                f"number of environments. Got `{len(values)}` values for "
+                f"{self.num_envs} environments."
+            )
+
+        for env, value in zip(self.envs, values):
+            setattr(env, name, value)
 
     def close_extras(self, **kwargs):
         """Close the environments."""

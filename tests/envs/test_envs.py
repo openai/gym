@@ -55,6 +55,23 @@ def test_env(spec):
     env.close()
 
 
+@pytest.mark.parametrize("spec", spec_list)
+def test_reset_info(spec):
+
+    with pytest.warns(None) as warnings:
+        env = spec.make()
+
+    ob_space = env.observation_space
+    obs = env.reset()
+    assert ob_space.contains(obs)
+    obs = env.reset(return_info=False)
+    assert ob_space.contains(obs)
+    obs, info = env.reset(return_info=True)
+    assert ob_space.contains(obs)
+    assert isinstance(info, dict)
+    env.close()
+
+
 # Run a longer rollout on some environments
 def test_random_rollout():
     for env in [envs.make("CartPole-v0"), envs.make("FrozenLake-v1")]:

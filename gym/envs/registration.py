@@ -122,6 +122,7 @@ class EnvSpec:
             from gym.wrappers.order_enforcing import OrderEnforcing
 
             env = OrderEnforcing(env)
+        assert env.spec is not None, "expected spec to be set to the unwrapped env."
         if env.spec.max_episode_steps is not None:
             from gym.wrappers.time_limit import TimeLimit
 

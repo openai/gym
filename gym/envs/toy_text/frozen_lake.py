@@ -67,28 +67,70 @@ def generate_random_map(size=8, p=0.8):
 
 class FrozenLakeEnv(Env):
     """
-    Winter is here. You and your friends were tossing around a frisbee at the
-    park when you made a wild throw that left the frisbee out in the middle of
-    the lake. The water is mostly frozen, but there are a few holes where the
-    ice has melted. If you step into one of those holes, you'll fall into the
-    freezing water. At this time, there's an international frisbee shortage, so
-    it's absolutely imperative that you navigate across the lake and retrieve
-    the disc. However, the ice is slippery, so you won't always move in the
-    direction you intend.
-    The surface is described using a grid like the following
+    Frozen lake involves crossing a frozen lake from Start(S) to goal(G) without falling into any holes(H). The agent may not always move in the intended direction due to the slippery nature of the frozen lake.
 
-        SFFF
-        FHFH
-        FFFH
-        HFFG
+    The agent take a 1-element vector for actions.
+    The action space is `(dir)`, where `dir` decides direction to move in which can be:
 
-    S : starting point, safe
-    F : frozen surface, safe
-    H : hole, fall to your doom
-    G : goal, where the frisbee is located
+    - 0: LEFT
+    - 1: DOWN
+    - 2: RIGHT
+    - 3: UP
 
-    The episode ends when you reach the goal or fall in a hole.
-    You receive a reward of 1 if you reach the goal, and zero otherwise.
+    The observation is a value representing the agents current position as
+
+        current_row * nrows + current_col
+
+    **Rewards:**
+
+    Reward schedule:
+    - Reach goal(G): +1
+    - Reach hole(H): 0
+
+    ### Arguments
+
+    ```
+    gym.make('FrozenLake-v0', desc=None,map_name="4x4", is_slippery=True)
+    ```
+
+    `desc`: Used to specify custom map for frozen lake. For example,
+
+        desc=["SFFF", "FHFH", "FFFH", "HFFG"].
+
+    `map_name`: ID to use any of the preloaded maps.
+
+        "4x4":[
+            "SFFF",
+            "FHFH",
+            "FFFH",
+            "HFFG"
+            ]
+
+        "8x8": [
+            "SFFFFFFF",
+            "FFFFFFFF",
+            "FFFHFFFF",
+            "FFFFFHFF",
+            "FFFHFFFF",
+            "FHHFFFHF",
+            "FHFFHFHF",
+            "FFFHFFFG",
+        ]
+
+
+
+
+    `is_slippery`: True/False. If True will move in intended direction with
+    probability of 1/3 else will move in either perpendicular direction with
+    equal probability of 1/3 in both directions.
+
+        For example, if action is left and is_slippery is True, then:
+        - P(move left)=1/3
+        - P(move up)=1/3
+        - P(move down)=1/3
+    ### Version History
+
+    * v0: Initial versions release (1.0.0)
     """
 
     metadata = {"render.modes": ["human", "ansi"]}
@@ -170,11 +212,21 @@ class FrozenLakeEnv(Env):
         self.lastaction = a
         return (int(s), r, d, {"prob": p})
 
-    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
+    def reset(
+        self,
+        *,
+        seed: Optional[int] = None,
+        return_info: bool = False,
+        options: Optional[dict] = None,
+    ):
         super().reset(seed=seed)
         self.s = categorical_sample(self.initial_state_distrib, self.np_random)
         self.lastaction = None
-        return int(self.s)
+
+        if not return_info:
+            return int(self.s)
+        else:
+            return int(self.s), {"prob": 1}
 
     def render(self, mode="human"):
         desc = self.desc.tolist()

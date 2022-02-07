@@ -1,8 +1,10 @@
+from typing import Optional
+
 import numpy as np
 from .space import Space
 
 
-class Discrete(Space):
+class Discrete(Space[int]):
     r"""A discrete space in :math:`\{ 0, 1, \\dots, n-1 \}`.
 
     A start value can be optionally specified to shift the range
@@ -15,33 +17,33 @@ class Discrete(Space):
 
     """
 
-    def __init__(self, n, seed=None, start=0):
+    def __init__(self, n: int, seed: Optional[int] = None, start: int = 0):
         assert n > 0, "n (counts) have to be positive"
         assert isinstance(start, (int, np.integer))
         self.n = int(n)
         self.start = int(start)
         super().__init__((), np.int64, seed)
 
-    def sample(self):
+    def sample(self) -> int:
         return self.start + self.np_random.randint(self.n)
 
-    def contains(self, x):
+    def contains(self, x) -> bool:
         if isinstance(x, int):
             as_int = x
         elif isinstance(x, (np.generic, np.ndarray)) and (
             x.dtype.char in np.typecodes["AllInteger"] and x.shape == ()
         ):
-            as_int = int(x)
+            as_int = int(x)  # type: ignore
         else:
             return False
         return self.start <= as_int < self.start + self.n
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         if self.start != 0:
             return "Discrete(%d, start=%d)" % (self.n, self.start)
         return "Discrete(%d)" % self.n
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         return (
             isinstance(other, Discrete)
             and self.n == other.n
