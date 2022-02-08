@@ -2,7 +2,7 @@
 
 Gym is an open source Python library for developing and comparing reinforcement learning algorithms by providing a standard API to communicate between learning algorithms and environments, as well as a standard set of environments compliant with that API. Since its release, Gym's API has become the field standard for doing this.
 
-Gym currently has two pieces of documentation: the [documentation website](http://gym.openai.com) and the [FAQ](https://github.com/openai/gym/wiki/FAQ).
+Gym documentation website is at [https://www.gymlibrary.ml/](https://www.gymlibrary.ml/)
 
 ## Installation
 
