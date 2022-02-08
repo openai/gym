@@ -101,7 +101,7 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     (default is 5), where the *dt* for one frame is 0.01 - making the
     default *dt = 5*0.01 = 0.05*. This reward would be positive if the cheetah
     runs forward (right) desired.
-    - *reward_control*: A negative reward for penalising the swimmer if it takes
+    - *reward_control*: A negative reward for penalising the cheetah if it takes
     actions that are too large. It is measured as *-coefficient x
     sum(action<sup>2</sup>)* where *coefficient* is a parameter set for the
     control and has a default value of 0.1

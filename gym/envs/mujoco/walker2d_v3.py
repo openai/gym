@@ -76,6 +76,7 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     hidden from the algorithm, which in turn has to develop an abstract understanding of it
     from the observed rewards. Therefore, observation space has shape `(17,)`
     instead of `(18,)` and looks like:
+
     | Num | Observation                                                       | Min                | Max                | Name (in corresponding XML file) | Joint | Unit |
     |-----|--------------------------------------------------------|----------------|-----------------|----------------------------------------|-------|------|
     | 0   | z-coordinate of the top (height of hopper)         | -Inf                 | Inf                | rootz (torso)      | slide | position (m) |

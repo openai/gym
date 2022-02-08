@@ -12,10 +12,10 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     """
     ### Description
 
-    This environment is based on the environment iintroduced by Schulman,
+    This environment is based on the environment introduced by Schulman,
     Moritz, Levine, Jordan and Abbeel in ["High-Dimensional Continuous Control
     Using Generalized Advantage Estimation"](https://arxiv.org/abs/1506.02438).
-    The ant is a 3D roboot consisting of one torso (free rotational body) with
+    The ant is a 3D robot consisting of one torso (free rotational body) with
     four legs attached to it with each leg having two links. The goal is to
     coordinate the four legs to move in the forward (right) direction by applying
     torques on the eight hinges connecting the two links of each leg and the torso
@@ -41,14 +41,14 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     ### Observation Space
 
-    The state space consists of positional values of different body parts of the hopper,
+    The state space consists of positional values of different body parts of the ant,
     followed by the velocities of those individual parts (their derivatives) with all
     the positions ordered before all the velocities.
 
     The observation is a `ndarray` with shape `(111,)` where the elements correspond to the following:
 
-    | Num | Observation                                             | Min                | Max                | Name (in corresponding XML file) | Joint | Unit |
-    |-----|---------------------------------------------------------|----------------|-----------------|----------------------------------------|-------|------|
+    | Num | Observation                                                 | Min                | Max                | Name (in corresponding XML file) | Joint | Unit |
+    |-----|-------------------------------------------------------------|----------------|-----------------|----------------------------------------|-------|------|
     | 0   | x-coordinate of the torso (centre)                          | -Inf                 | Inf                | torso      | free | position (m) |
     | 1   | y-coordinate of the torso (centre)                          | -Inf                 | Inf                | torso      | free | position (m) |
     | 2   | z-coordinate of the torso (centre)                          | -Inf                 | Inf                | torso      | free | position (m) |
@@ -137,7 +137,7 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     No additional arguments are currently supported (in v2 and lower), but modifications
     can be made to the XML file in the assets folder (or by changing the path to a modified
-    XML file in another folder)..
+    XML file in another folder).
 
     ```
     env = gym.make('Ant-v2')
@@ -146,7 +146,7 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     v3 and beyond take gym.make kwargs such as xml_file, ctrl_cost_weight, reset_noise_scale etc.
 
     ```
-    env = gym.make('Ant-v3', ctrl_cost_weight=0.1, ....)
+    env = gym.make('Ant-v3', ctrl_cost_weight=0.1, ...)
     ```
 
     ### Version History

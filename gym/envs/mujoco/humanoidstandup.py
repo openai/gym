@@ -8,12 +8,12 @@ class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     ### Description
 
     This environment is based on the environment introduced by Tassa, Erez and Todorov
-    in ["Synthesis and stabilization of complex behaviors through online trajectory optimization"]
-    (https://ieeexplore.ieee.org/document/6386025). The 3D bipedal robot is designed to simulate
-    a human. It has a torso (abdomen) with a pair of legs and arms. The legs each consist of two
-    links, and so the arms (representing the knees and elbows respectively). The environment starts
-    with the humanoid layiing on the ground, and then the goal of the environment is to make the
-    humanoid standup and then keep it standing by applying torques on the various hinges.
+    in ["Synthesis and stabilization of complex behaviors through online trajectory optimization"](https://ieeexplore.ieee.org/document/6386025).
+    The 3D bipedal robot is designed to simulate a human. It has a torso (abdomen) with a
+    pair of legs and arms. The legs each consist of two links, and so the arms (representing the
+    knees and elbows respectively). The environment starts with the humanoid layiing on the ground,
+    and then the goal of the environment is to make the humanoid standup and then keep it standing
+    by applying torques on the various hinges.
 
     ### Action Space
     The agent take a 17-element vector for actions.
