@@ -94,7 +94,7 @@ class Env(Generic[ObsType, ActType]):
         """
         # Initialize the RNG if the seed is manually passed
         if seed is not None:
-            self.seed(seed)
+            self.np_random, seed = seeding.np_random(seed)
 
     @abstractmethod
     def render(self, mode="human"):
