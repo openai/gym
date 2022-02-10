@@ -3,9 +3,8 @@ Classic cart-pole system implemented by Rich Sutton et al.
 Copied from http://incompleteideas.net/sutton/book/code/pole.c
 permalink: https://perma.cc/C9ZM-652R
 """
-
 import math
-from typing import Optional
+from typing import Optional, Union
 
 import gym
 from gym import spaces, logger
@@ -13,7 +12,7 @@ from gym.utils import seeding
 import numpy as np
 
 
-class CartPoleEnv(gym.Env):
+class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
     """
     ### Description
     This environment corresponds to the version of the cart-pole problem
@@ -110,7 +109,7 @@ class CartPoleEnv(gym.Env):
     def step(self, action):
         err_msg = f"{action!r} ({type(action)}) invalid"
         assert self.action_space.contains(action), err_msg
-
+        assert self.state is not None, "Call reset before using step method."
         x, x_dot, theta, theta_dot = self.state
         force = self.force_mag if action == 1 else -self.force_mag
         costheta = math.cos(theta)
