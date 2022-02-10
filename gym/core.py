@@ -4,10 +4,10 @@ from abc import abstractmethod
 from typing import TypeVar, Generic, Tuple, Union, Optional, SupportsFloat
 
 import gym
-from gym import error, spaces
-
-from gym.utils import closer, seeding
+from gym import spaces
+from gym.utils import seeding
 from gym.logger import deprecation
+from gym.utils.seeding import RandomNumberGenerator
 
 ObsType = TypeVar("ObsType")
 ActType = TypeVar("ActType")
@@ -47,7 +47,14 @@ class Env(Generic[ObsType, ActType]):
     observation_space: spaces.Space[ObsType]
 
     # Created
-    np_random = None
+    _np_random: RandomNumberGenerator | None = None
+
+    @property
+    def np_random(self) -> RandomNumberGenerator:
+        """Initializes the np_random field if not done already."""
+        if self._np_random is None:
+            self._np_random, seed = seeding.np_random()
+        return self._np_random
 
     @abstractmethod
     def step(self, action: ActType) -> Tuple[ObsType, float, bool, dict]:
@@ -89,9 +96,9 @@ class Env(Generic[ObsType, ActType]):
             observation (object): the initial observation.
             info (optional dictionary): a dictionary containing extra information, this is only returned if return_info is set to true
         """
-        # Initialize the RNG if it's the first reset, or if the seed is manually passed
-        if seed is not None or self.np_random is None:
-            self.np_random, seed = seeding.np_random(seed)
+        # Initialize the RNG if the seed is manually passed
+        if seed is not None:
+            self._np_random, seed = seeding.np_random(seed)
 
     @abstractmethod
     def render(self, mode="human"):
@@ -160,7 +167,7 @@ class Env(Generic[ObsType, ActType]):
             "Function `env.seed(seed)` is marked as deprecated and will be removed in the future. "
             "Please use `env.reset(seed=seed) instead."
         )
-        self.np_random, seed = seeding.np_random(seed)
+        self._np_random, seed = seeding.np_random(seed)
         return [seed]
 
     @property
