@@ -447,6 +447,7 @@ class CarRacing(gym.Env, EzPickle):
 
         # computing transformations
         angle = -self.car.hull.angle
+        # Animating first second zoom.
         zoom = 0.1 * SCALE * max(1 - self.t, 0) + ZOOM * SCALE * min(self.t, 1)
         scroll_x = -(self.car.hull.position[0] + PLAYFIELD) * zoom
         scroll_y = -(self.car.hull.position[1] + PLAYFIELD) * zoom
@@ -474,19 +475,9 @@ class CarRacing(gym.Env, EzPickle):
             pygame.display.flip()
 
         if mode == "rgb_array":
-            scaled_screen = pygame.transform.smoothscale(
-                self.screen, (VIDEO_W, VIDEO_H)
-            )
-            return np.transpose(
-                np.array(pygame.surfarray.pixels3d(scaled_screen)), axes=(1, 0, 2)
-            )
+            return self._create_image_array(self.screen, (VIDEO_W, VIDEO_H))
         elif mode == "state_pixels":
-            scaled_screen = pygame.transform.smoothscale(
-                self.screen, (STATE_W, STATE_H)
-            )
-            return np.transpose(
-                np.array(pygame.surfarray.pixels3d(scaled_screen)), axes=(1, 0, 2)
-            )
+            return self._create_image_array(self.screen, (STATE_W, STATE_H))
         else:
             return self.isopen
 
@@ -499,12 +490,7 @@ class CarRacing(gym.Env, EzPickle):
             (0, 2 * bounds),
         ]
         trans_field = []
-        for coord in field:
-            coord = pygame.math.Vector2(coord).rotate_rad(angle)
-            coord = (coord[0] * zoom + translation[0], coord[1] * zoom + translation[1])
-            trans_field.append(coord)
-        gfxdraw.aapolygon(self.surf, trans_field, (102, 204, 102))
-        gfxdraw.filled_polygon(self.surf, trans_field, (102, 204, 102))
+        self.draw_colored_polygon(self.surf, field, (102, 204, 102), zoom, translation, angle)
 
         k = bounds / (20.0)
         grass = []
@@ -519,25 +505,13 @@ class CarRacing(gym.Env, EzPickle):
                     ]
                 )
         for poly in grass:
-            poly = [pygame.math.Vector2(c).rotate_rad(angle) for c in poly]
-            poly = [
-                (c[0] * zoom + translation[0], c[1] * zoom + translation[1])
-                for c in poly
-            ]
-            gfxdraw.aapolygon(self.surf, poly, (102, 230, 102))
-            gfxdraw.filled_polygon(self.surf, poly, (102, 230, 102))
+            self.draw_colored_polygon(self.surf, poly, (102, 230, 102), zoom, translation, angle)
 
         for poly, color in self.road_poly:
             # converting to pixel coordinates
             poly = [(p[0] + PLAYFIELD, p[1] + PLAYFIELD) for p in poly]
-            poly = [pygame.math.Vector2(c).rotate_rad(angle) for c in poly]
-            poly = [
-                (c[0] * zoom + translation[0], c[1] * zoom + translation[1])
-                for c in poly
-            ]
             color = [int(c * 255) for c in color]
-            gfxdraw.aapolygon(self.surf, poly, color)
-            gfxdraw.filled_polygon(self.surf, poly, color)
+            self.draw_colored_polygon(self.surf, poly, color, zoom, translation, angle)
 
     def render_indicators(self, W, H):
         s = W / 40.0
@@ -606,6 +580,23 @@ class CarRacing(gym.Env, EzPickle):
             (255, 0, 0),
         )
 
+    def draw_colored_polygon(self, surface, poly, color, zoom, translation, angle):
+        poly = [pygame.math.Vector2(c).rotate_rad(angle) for c in poly]
+        poly = [
+            (c[0] * zoom + translation[0], c[1] * zoom + translation[1])
+            for c in poly
+        ]
+        gfxdraw.aapolygon(self.surf, poly, color)
+        gfxdraw.filled_polygon(self.surf, poly, color)
+
+    def _create_image_array(self, screen, size):
+        scaled_screen = pygame.transform.smoothscale(
+            screen, size
+        )
+        return np.transpose(
+            np.array(pygame.surfarray.pixels3d(scaled_screen)), axes=(1, 0, 2)
+        )
+
     def close(self):
         if self.screen is not None:
             pygame.quit()
@@ -626,6 +617,9 @@ if __name__ == "__main__":
                     a[1] = +1.0
                 if event.key == pygame.K_DOWN:
                     a[2] = +0.8  # set 1.0 for wheels to block to zero rotation
+                if event.key == pygame.K_RETURN:
+                    global restart
+                    restart = True
 
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT:

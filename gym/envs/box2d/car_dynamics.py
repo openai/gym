@@ -339,37 +339,6 @@ class Car:
                 ]
                 pygame.draw.polygon(surface, color=WHEEL_WHITE, points=white_poly)
 
-    def draw1(self, viewer, draw_particles=True):
-        if draw_particles:
-            for p in self.particles:
-                viewer.draw_polyline(p.poly, color=p.color, linewidth=5)
-        for obj in self.drawlist:
-            for f in obj.fixtures:
-                trans = f.body.transform
-                path = [trans * v for v in f.shape.vertices]
-                viewer.draw_polygon(path, color=obj.color)
-                if "phase" not in obj.__dict__:
-                    continue
-                a1 = obj.phase
-                a2 = obj.phase + 1.2  # radians
-                s1 = math.sin(a1)
-                s2 = math.sin(a2)
-                c1 = math.cos(a1)
-                c2 = math.cos(a2)
-                if s1 > 0 and s2 > 0:
-                    continue
-                if s1 > 0:
-                    c1 = np.sign(c1)
-                if s2 > 0:
-                    c2 = np.sign(c2)
-                white_poly = [
-                    (-WHEEL_W * SIZE, +WHEEL_R * c1 * SIZE),
-                    (+WHEEL_W * SIZE, +WHEEL_R * c1 * SIZE),
-                    (+WHEEL_W * SIZE, +WHEEL_R * c2 * SIZE),
-                    (-WHEEL_W * SIZE, +WHEEL_R * c2 * SIZE),
-                ]
-                viewer.draw_polygon([trans * v for v in white_poly], color=WHEEL_WHITE)
-
     def _create_particle(self, point1, point2, grass):
         class Particle:
             pass
