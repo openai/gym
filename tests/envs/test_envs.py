@@ -42,7 +42,7 @@ def test_env(spec):
     assert isinstance(done, int) and done in (
         env.NOT_DONE,
         env.TERMINATED,
-        env.TRUNCATED
+        env.TRUNCATED,
     ), f"Expected {done} to be a integer in {(env.NOT_DONE, env.TERMINATED, env.TRUNCATED)}"
     if isinstance(ob_space, Box):
         assert (
@@ -79,7 +79,10 @@ def test_reset_info(spec):
 # Run a longer rollout on some environments
 def test_random_rollout():
     for env in [envs.make("CartPole-v0"), envs.make("FrozenLake-v1")]:
-        def agent(ob): return env.action_space.sample()
+
+        def agent(ob):
+            return env.action_space.sample()
+
         ob = env.reset()
         for _ in range(10):
             assert env.observation_space.contains(ob)
