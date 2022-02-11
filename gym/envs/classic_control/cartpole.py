@@ -194,6 +194,9 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         cartwidth = 50.0
         cartheight = 30.0
 
+        if self.state is None:
+            return None
+
         x = self.state
 
         if self.screen is None:
