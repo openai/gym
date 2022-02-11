@@ -634,11 +634,7 @@ if __name__ == "__main__":
 
     env = CarRacing()
     env.render()
-    record_video = False
-    if record_video:
-        from gym.wrappers.monitor import Monitor
 
-        env = Monitor(env, "/tmp/video-test", force=True)
     isopen = True
     while isopen:
         env.reset()
