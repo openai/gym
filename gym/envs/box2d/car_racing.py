@@ -490,7 +490,9 @@ class CarRacing(gym.Env, EzPickle):
             (0, 2 * bounds),
         ]
         trans_field = []
-        self.draw_colored_polygon(self.surf, field, (102, 204, 102), zoom, translation, angle)
+        self.draw_colored_polygon(
+            self.surf, field, (102, 204, 102), zoom, translation, angle
+        )
 
         k = bounds / (20.0)
         grass = []
@@ -505,7 +507,9 @@ class CarRacing(gym.Env, EzPickle):
                     ]
                 )
         for poly in grass:
-            self.draw_colored_polygon(self.surf, poly, (102, 230, 102), zoom, translation, angle)
+            self.draw_colored_polygon(
+                self.surf, poly, (102, 230, 102), zoom, translation, angle
+            )
 
         for poly, color in self.road_poly:
             # converting to pixel coordinates
@@ -583,16 +587,13 @@ class CarRacing(gym.Env, EzPickle):
     def draw_colored_polygon(self, surface, poly, color, zoom, translation, angle):
         poly = [pygame.math.Vector2(c).rotate_rad(angle) for c in poly]
         poly = [
-            (c[0] * zoom + translation[0], c[1] * zoom + translation[1])
-            for c in poly
+            (c[0] * zoom + translation[0], c[1] * zoom + translation[1]) for c in poly
         ]
         gfxdraw.aapolygon(self.surf, poly, color)
         gfxdraw.filled_polygon(self.surf, poly, color)
 
     def _create_image_array(self, screen, size):
-        scaled_screen = pygame.transform.smoothscale(
-            screen, size
-        )
+        scaled_screen = pygame.transform.smoothscale(screen, size)
         return np.transpose(
             np.array(pygame.surfarray.pixels3d(scaled_screen)), axes=(1, 0, 2)
         )
