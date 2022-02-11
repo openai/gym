@@ -5,6 +5,8 @@ import math
 from typing import Optional
 
 import numpy as np
+import pygame
+from pygame import gfxdraw
 
 import Box2D
 from Box2D.b2 import fixtureDef
@@ -15,11 +17,6 @@ import gym
 from gym import spaces
 from gym.envs.box2d.car_dynamics import Car
 from gym.utils import seeding, EzPickle
-
-import pyglet
-
-pyglet.options["debug_gl"] = False
-from pyglet import gl
 
 STATE_W = 96  # less than Atari 160x192
 STATE_H = 96
@@ -157,7 +154,8 @@ class CarRacing(gym.Env, EzPickle):
         EzPickle.__init__(self)
         self.contactListener_keepref = FrictionDetector(self, lap_complete_percent)
         self.world = Box2D.b2World((0, 0), contactListener=self.contactListener_keepref)
-        self.viewer = None
+        self.screen = None
+        self.isopen = True
         self.invisible_state_window = None
         self.invisible_video_window = None
         self.road = None
@@ -438,235 +436,204 @@ class CarRacing(gym.Env, EzPickle):
 
     def render(self, mode="human"):
         assert mode in ["human", "state_pixels", "rgb_array"]
-        if self.viewer is None:
-            from gym.utils import pyglet_rendering
-
-            self.viewer = pyglet_rendering.Viewer(WINDOW_W, WINDOW_H)
-            self.score_label = pyglet.text.Label(
-                "0000",
-                font_size=36,
-                x=20,
-                y=WINDOW_H * 2.5 / 40.00,
-                anchor_x="left",
-                anchor_y="center",
-                color=(255, 255, 255, 255),
-            )
-            self.transform = pyglet_rendering.Transform()
+        if self.screen is None:
+            pygame.init()
+            self.screen = pygame.display.set_mode((WINDOW_W, WINDOW_H))
 
         if "t" not in self.__dict__:
             return  # reset() not called yet
 
-        # Animate zoom first second:
-        zoom = 0.1 * SCALE * max(1 - self.t, 0) + ZOOM * SCALE * min(self.t, 1)
-        scroll_x = self.car.hull.position[0]
-        scroll_y = self.car.hull.position[1]
+        self.surf = pygame.Surface((WINDOW_W, WINDOW_H))
+
+        # computing transformations
         angle = -self.car.hull.angle
-        self.transform.set_scale(zoom, zoom)
-        self.transform.set_translation(
-            WINDOW_W / 2
-            - (scroll_x * zoom * math.cos(angle) - scroll_y * zoom * math.sin(angle)),
-            WINDOW_H / 4
-            - (scroll_x * zoom * math.sin(angle) + scroll_y * zoom * math.cos(angle)),
-        )
-        self.transform.set_rotation(angle)
+        # Animating first second zoom.
+        zoom = 0.1 * SCALE * max(1 - self.t, 0) + ZOOM * SCALE * min(self.t, 1)
+        scroll_x = -(self.car.hull.position[0] + PLAYFIELD) * zoom
+        scroll_y = -(self.car.hull.position[1] + PLAYFIELD) * zoom
+        trans = pygame.math.Vector2((scroll_x, scroll_y)).rotate_rad(angle)
+        trans = (WINDOW_W / 2 + trans[0], WINDOW_H / 4 + trans[1])
 
-        self.car.draw(self.viewer, mode != "state_pixels")
+        self.render_road(zoom, trans, angle)
+        self.car.draw(self.surf, zoom, trans, angle, mode != "state_pixels")
 
-        arr = None
-        win = self.viewer.window
-        win.switch_to()
-        win.dispatch_events()
+        self.surf = pygame.transform.flip(self.surf, False, True)
 
-        win.clear()
-        t = self.transform
-        if mode == "rgb_array":
-            VP_W = VIDEO_W
-            VP_H = VIDEO_H
-        elif mode == "state_pixels":
-            VP_W = STATE_W
-            VP_H = STATE_H
-        else:
-            pixel_scale = 1
-            if hasattr(win.context, "_nscontext"):
-                pixel_scale = (
-                    win.context._nscontext.view().backingScaleFactor()
-                )  # pylint: disable=protected-access
-            VP_W = int(pixel_scale * WINDOW_W)
-            VP_H = int(pixel_scale * WINDOW_H)
+        self.screen.fill(0)
+        self.screen.blit(self.surf, (0, 0))
 
-        gl.glViewport(0, 0, VP_W, VP_H)
-        t.enable()
-        self.render_road()
-        for geom in self.viewer.onetime_geoms:
-            geom.render()
-        self.viewer.onetime_geoms = []
-        t.disable()
+        # showing stats
         self.render_indicators(WINDOW_W, WINDOW_H)
 
+        font = pygame.font.Font(pygame.font.get_default_font(), 42)
+        text = font.render("%04i" % self.reward, True, (255, 255, 255), (0, 0, 0))
+        text_rect = text.get_rect()
+        text_rect.center = (60, WINDOW_H - WINDOW_H * 2.5 / 40.0)
+        self.screen.blit(text, text_rect)
+
         if mode == "human":
-            win.flip()
-            return self.viewer.isopen
+            pygame.display.flip()
 
-        image_data = (
-            pyglet.image.get_buffer_manager().get_color_buffer().get_image_data()
-        )
-        arr = np.fromstring(image_data.get_data(), dtype=np.uint8, sep="")
-        arr = arr.reshape(VP_H, VP_W, 4)
-        arr = arr[::-1, :, 0:3]
+        if mode == "rgb_array":
+            return self._create_image_array(self.screen, (VIDEO_W, VIDEO_H))
+        elif mode == "state_pixels":
+            return self._create_image_array(self.screen, (STATE_W, STATE_H))
+        else:
+            return self.isopen
 
-        return arr
-
-    def close(self):
-        if self.viewer is not None:
-            self.viewer.close()
-            self.viewer = None
-
-    def render_road(self):
-        colors = [0.4, 0.8, 0.4, 1.0] * 4
-        polygons_ = [
-            +PLAYFIELD,
-            +PLAYFIELD,
-            0,
-            +PLAYFIELD,
-            -PLAYFIELD,
-            0,
-            -PLAYFIELD,
-            -PLAYFIELD,
-            0,
-            -PLAYFIELD,
-            +PLAYFIELD,
-            0,
+    def render_road(self, zoom, translation, angle):
+        bounds = PLAYFIELD
+        field = [
+            (2 * bounds, 2 * bounds),
+            (2 * bounds, 0),
+            (0, 0),
+            (0, 2 * bounds),
         ]
+        trans_field = []
+        self.draw_colored_polygon(
+            self.surf, field, (102, 204, 102), zoom, translation, angle
+        )
 
-        k = PLAYFIELD / 20.0
-        colors.extend([0.4, 0.9, 0.4, 1.0] * 4 * 20 * 20)
-        for x in range(-20, 20, 2):
-            for y in range(-20, 20, 2):
-                polygons_.extend(
+        k = bounds / (20.0)
+        grass = []
+        for x in range(0, 40, 2):
+            for y in range(0, 40, 2):
+                grass.append(
                     [
-                        k * x + k,
-                        k * y + 0,
-                        0,
-                        k * x + 0,
-                        k * y + 0,
-                        0,
-                        k * x + 0,
-                        k * y + k,
-                        0,
-                        k * x + k,
-                        k * y + k,
-                        0,
+                        (k * x + k, k * y + 0),
+                        (k * x + 0, k * y + 0),
+                        (k * x + 0, k * y + k),
+                        (k * x + k, k * y + k),
                     ]
                 )
+        for poly in grass:
+            self.draw_colored_polygon(
+                self.surf, poly, (102, 230, 102), zoom, translation, angle
+            )
 
         for poly, color in self.road_poly:
-            colors.extend([color[0], color[1], color[2], 1] * len(poly))
-            for p in poly:
-                polygons_.extend([p[0], p[1], 0])
-
-        vl = pyglet.graphics.vertex_list(
-            len(polygons_) // 3, ("v3f", polygons_), ("c4f", colors)
-        )  # gl.GL_QUADS,
-        vl.draw(gl.GL_QUADS)
-        vl.delete()
+            # converting to pixel coordinates
+            poly = [(p[0] + PLAYFIELD, p[1] + PLAYFIELD) for p in poly]
+            color = [int(c * 255) for c in color]
+            self.draw_colored_polygon(self.surf, poly, color, zoom, translation, angle)
 
     def render_indicators(self, W, H):
         s = W / 40.0
         h = H / 40.0
-        colors = [0, 0, 0, 1] * 4
-        polygons = [W, 0, 0, W, 5 * h, 0, 0, 5 * h, 0, 0, 0, 0]
+        color = (0, 0, 0)
+        polygon = [(W, H), (W, H - 5 * h), (0, H - 5 * h), (0, H)]
+        pygame.draw.polygon(self.screen, color=color, points=polygon)
 
-        def vertical_ind(place, val, color):
-            colors.extend([color[0], color[1], color[2], 1] * 4)
-            polygons.extend(
-                [
-                    place * s,
-                    h + h * val,
-                    0,
-                    (place + 1) * s,
-                    h + h * val,
-                    0,
-                    (place + 1) * s,
-                    h,
-                    0,
-                    (place + 0) * s,
-                    h,
-                    0,
-                ]
-            )
+        def vertical_ind(place, val):
+            return [
+                (place * s, H - (h + h * val)),
+                ((place + 1) * s, H - (h + h * val)),
+                ((place + 1) * s, H - h),
+                ((place + 0) * s, H - h),
+            ]
 
-        def horiz_ind(place, val, color):
-            colors.extend([color[0], color[1], color[2], 1] * 4)
-            polygons.extend(
-                [
-                    (place + 0) * s,
-                    4 * h,
-                    0,
-                    (place + val) * s,
-                    4 * h,
-                    0,
-                    (place + val) * s,
-                    2 * h,
-                    0,
-                    (place + 0) * s,
-                    2 * h,
-                    0,
-                ]
-            )
+        def horiz_ind(place, val):
+            return [
+                ((place + 0) * s, H - 4 * h),
+                ((place + val) * s, H - 4 * h),
+                ((place + val) * s, H - 2 * h),
+                ((place + 0) * s, H - 2 * h),
+            ]
 
         true_speed = np.sqrt(
             np.square(self.car.hull.linearVelocity[0])
             + np.square(self.car.hull.linearVelocity[1])
         )
 
-        vertical_ind(5, 0.02 * true_speed, (1, 1, 1))
-        vertical_ind(7, 0.01 * self.car.wheels[0].omega, (0.0, 0, 1))  # ABS sensors
-        vertical_ind(8, 0.01 * self.car.wheels[1].omega, (0.0, 0, 1))
-        vertical_ind(9, 0.01 * self.car.wheels[2].omega, (0.2, 0, 1))
-        vertical_ind(10, 0.01 * self.car.wheels[3].omega, (0.2, 0, 1))
-        horiz_ind(20, -10.0 * self.car.wheels[0].joint.angle, (0, 1, 0))
-        horiz_ind(30, -0.8 * self.car.hull.angularVelocity, (1, 0, 0))
-        vl = pyglet.graphics.vertex_list(
-            len(polygons) // 3, ("v3f", polygons), ("c4f", colors)
-        )  # gl.GL_QUADS,
-        vl.draw(gl.GL_QUADS)
-        vl.delete()
-        self.score_label.text = "%04i" % self.reward
-        self.score_label.draw()
+        # simple wrapper to render if the indicator value is above a threshold
+        def render_if_min(value, points, color):
+            if abs(value) > 1e-4:
+                pygame.draw.polygon(self.screen, points=points, color=color)
+
+        render_if_min(true_speed, vertical_ind(5, 0.02 * true_speed), (255, 255, 255))
+        # ABS sensors
+        render_if_min(
+            self.car.wheels[0].omega,
+            vertical_ind(7, 0.01 * self.car.wheels[0].omega),
+            (0, 0, 255),
+        )
+        render_if_min(
+            self.car.wheels[1].omega,
+            vertical_ind(8, 0.01 * self.car.wheels[1].omega),
+            (0, 0, 255),
+        )
+        render_if_min(
+            self.car.wheels[2].omega,
+            vertical_ind(9, 0.01 * self.car.wheels[2].omega),
+            (51, 0, 255),
+        )
+        render_if_min(
+            self.car.wheels[3].omega,
+            vertical_ind(10, 0.01 * self.car.wheels[3].omega),
+            (51, 0, 255),
+        )
+
+        render_if_min(
+            self.car.wheels[0].joint.angle,
+            horiz_ind(20, -10.0 * self.car.wheels[0].joint.angle),
+            (0, 255, 0),
+        )
+        render_if_min(
+            self.car.hull.angularVelocity,
+            horiz_ind(30, -0.8 * self.car.hull.angularVelocity),
+            (255, 0, 0),
+        )
+
+    def draw_colored_polygon(self, surface, poly, color, zoom, translation, angle):
+        poly = [pygame.math.Vector2(c).rotate_rad(angle) for c in poly]
+        poly = [
+            (c[0] * zoom + translation[0], c[1] * zoom + translation[1]) for c in poly
+        ]
+        gfxdraw.aapolygon(self.surf, poly, color)
+        gfxdraw.filled_polygon(self.surf, poly, color)
+
+    def _create_image_array(self, screen, size):
+        scaled_screen = pygame.transform.smoothscale(screen, size)
+        return np.transpose(
+            np.array(pygame.surfarray.pixels3d(scaled_screen)), axes=(1, 0, 2)
+        )
+
+    def close(self):
+        if self.screen is not None:
+            pygame.quit()
+            self.isopen = False
 
 
 if __name__ == "__main__":
-    from pyglet.window import key
-
     a = np.array([0.0, 0.0, 0.0])
 
-    def key_press(k, mod):
-        global restart
-        if k == 0xFF0D:
-            restart = True
-        if k == key.LEFT:
-            a[0] = -1.0
-        if k == key.RIGHT:
-            a[0] = +1.0
-        if k == key.UP:
-            a[1] = +1.0
-        if k == key.DOWN:
-            a[2] = +0.8  # set 1.0 for wheels to block to zero rotation
+    def register_input():
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    a[0] = -1.0
+                if event.key == pygame.K_RIGHT:
+                    a[0] = +1.0
+                if event.key == pygame.K_UP:
+                    a[1] = +1.0
+                if event.key == pygame.K_DOWN:
+                    a[2] = +0.8  # set 1.0 for wheels to block to zero rotation
+                if event.key == pygame.K_RETURN:
+                    global restart
+                    restart = True
 
-    def key_release(k, mod):
-        if k == key.LEFT and a[0] == -1.0:
-            a[0] = 0
-        if k == key.RIGHT and a[0] == +1.0:
-            a[0] = 0
-        if k == key.UP:
-            a[1] = 0
-        if k == key.DOWN:
-            a[2] = 0
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_LEFT:
+                    a[0] = 0
+                if event.key == pygame.K_RIGHT:
+                    a[0] = 0
+                if event.key == pygame.K_UP:
+                    a[1] = 0
+                if event.key == pygame.K_DOWN:
+                    a[2] = 0
 
     env = CarRacing()
     env.render()
-    env.viewer.window.on_key_press = key_press
-    env.viewer.window.on_key_release = key_release
     record_video = False
     if record_video:
         from gym.wrappers.monitor import Monitor
@@ -679,6 +646,7 @@ if __name__ == "__main__":
         steps = 0
         restart = False
         while True:
+            register_input()
             s, r, done, info = env.step(a)
             total_reward += r
             if steps % 200 == 0 or done:
