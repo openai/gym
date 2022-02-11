@@ -275,7 +275,7 @@ class Wrapper(Env[ObsType, ActType]):
     def metadata(self, value):
         self._metadata = value
 
-    def step(self, action: ActType) -> Tuple[ObsType, float, bool, dict]:
+    def step(self, action: ActType) -> Tuple[ObsType, float, int, dict]:
         return self.env.step(action)
 
     def reset(self, **kwargs) -> Union[ObsType, tuple[ObsType, dict]]:
