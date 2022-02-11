@@ -64,7 +64,7 @@ class PendulumEnv(gym.Env):
     `g=10.0`.
 
     ```
-    gym.make('CartPole-v1', g=9.81)
+    gym.make('Pendulum-v1', g=9.81)
     ```
 
     ## Version History
