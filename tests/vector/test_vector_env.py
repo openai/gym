@@ -37,7 +37,7 @@ def test_vector_env_equal(shared_memory):
             # fmt: on
 
             for idx in range(len(sync_dones)):
-                if sync_dones[idx]:
+                if bool(sync_dones[idx]):
                     assert "terminal_observation" in async_infos[idx]
                     assert "terminal_observation" in sync_infos[idx]
                     assert sync_dones[idx]

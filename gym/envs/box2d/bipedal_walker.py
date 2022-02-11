@@ -526,12 +526,12 @@ class BipedalWalker(gym.Env, EzPickle):
             reward -= 0.00035 * MOTORS_TORQUE * np.clip(np.abs(a), 0, 1)
             # normalized to about -50.0 using heuristic, more optimal agent should spend less
 
-        done = False
+        done = self.NOT_DONE
         if self.game_over or pos[0] < 0:
             reward = -100
-            done = True
+            done = self.TERMINATED
         if pos[0] > (TERRAIN_LENGTH - TERRAIN_GRASS) * TERRAIN_STEP:
-            done = True
+            done = self.TERMINATED
         return np.array(state, dtype=np.float32), reward, done, {}
 
     def render(self, mode="human"):

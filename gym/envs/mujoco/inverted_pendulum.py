@@ -92,7 +92,7 @@ class InvertedPendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         self.do_simulation(a, self.frame_skip)
         ob = self._get_obs()
         notdone = np.isfinite(ob).all() and (np.abs(ob[1]) <= 0.2)
-        done = not notdone
+        done = (self.NOT_DONE if notdone else self.TERMINATED)
         return ob, reward, done, {}
 
     def reset_model(self):

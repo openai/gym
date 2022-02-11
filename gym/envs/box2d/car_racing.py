@@ -419,7 +419,7 @@ class CarRacing(gym.Env, EzPickle):
         self.state = self.render("state_pixels")
 
         step_reward = 0
-        done = False
+        done = self.NOT_DONE
         if action is not None:  # First step without action, called from reset()
             self.reward -= 0.1
             # We actually don't want to count fuel spent, we want car to be faster.
@@ -428,10 +428,10 @@ class CarRacing(gym.Env, EzPickle):
             step_reward = self.reward - self.prev_reward
             self.prev_reward = self.reward
             if self.tile_visited_count == len(self.track) or self.new_lap:
-                done = True
+                done = self.TERMINATED
             x, y = self.car.hull.position
             if abs(x) > PLAYFIELD or abs(y) > PLAYFIELD:
-                done = True
+                done = self.TERMINATED
                 step_reward = -100
 
         return self.state, step_reward, done, {}

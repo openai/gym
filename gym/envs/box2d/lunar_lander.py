@@ -434,12 +434,12 @@ class LunarLander(gym.Env, EzPickle):
         )  # less fuel spent is better, about -30 for heuristic landing
         reward -= s_power * 0.03
 
-        done = False
+        done = self.NOT_DONE
         if self.game_over or abs(state[0]) >= 1.0:
-            done = True
+            done = self.TERMINATED
             reward = -100
         if not self.lander.awake:
-            done = True
+            done = self.TERMINATED
             reward = +100
         return np.array(state, dtype=np.float32), reward, done, {}
 

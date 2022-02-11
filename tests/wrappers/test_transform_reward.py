@@ -52,6 +52,6 @@ def test_transform_reward(env_id):
         action = env.action_space.sample()
         _, wrapped_reward, done, _ = wrapped_env.step(action)
         assert wrapped_reward in [-1.0, 0.0, 1.0]
-        if done:
+        if bool(done):
             break
     del env, wrapped_env

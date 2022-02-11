@@ -120,10 +120,11 @@ class Continuous_MountainCarEnv(gym.Env):
             velocity = 0
 
         # Convert a possible numpy bool to a Python bool.
-        done = bool(position >= self.goal_position and velocity >= self.goal_velocity)
+        terminated = bool(position >= self.goal_position and velocity >= self.goal_velocity)
+        done = (self.TERMINATED if terminated else self.NOT_DONE)
 
         reward = 0
-        if done:
+        if terminated:
             reward = 100.0
         reward -= math.pow(action[0], 2) * 0.1
 

@@ -168,7 +168,7 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
         observation = self._get_obs()
         reward = forward_reward - ctrl_cost
-        done = False
+        done = self.NOT_DONE
         info = {
             "reward_fwd": forward_reward,
             "reward_ctrl": -ctrl_cost,

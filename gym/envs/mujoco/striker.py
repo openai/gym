@@ -32,7 +32,7 @@ class StrikerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
         self.do_simulation(a, self.frame_skip)
         ob = self._get_obs()
-        done = False
+        done = self.NOT_DONE
         return ob, reward, done, dict(reward_dist=reward_dist, reward_ctrl=reward_ctrl)
 
     def viewer_setup(self):

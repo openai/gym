@@ -212,7 +212,7 @@ class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         quad_impact_cost = min(quad_impact_cost, 10)
         reward = uph_cost - quad_ctrl_cost - quad_impact_cost + 1
 
-        done = bool(False)
+        done = self.NOT_DONE
         return (
             self._get_obs(),
             reward,

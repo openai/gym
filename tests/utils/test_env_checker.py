@@ -15,7 +15,7 @@ class ActionDictTestEnv(gym.Env):
     def step(self, action):
         observation = np.array([1.0, 1.5, 0.5])
         reward = 1
-        done = True
+        done = self.TERMINATED
         return observation, reward, done
 
     def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):

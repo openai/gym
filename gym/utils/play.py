@@ -101,14 +101,14 @@ def play(env, transpose=True, fps=30, zoom=None, callback=None, keys_to_action=N
 
     pressed_keys = []
     running = True
-    env_done = True
+    env_done = env.NOT_DONE
 
     screen = pygame.display.set_mode(video_size)
     clock = pygame.time.Clock()
 
     while running:
-        if env_done:
-            env_done = False
+        if bool(env_done):
+            env_done = env.NOT_DONE
             obs = env.reset()
         else:
             action = keys_to_action.get(tuple(sorted(pressed_keys)), 0)

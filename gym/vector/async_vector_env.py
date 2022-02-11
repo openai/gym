@@ -376,7 +376,7 @@ class AsyncVectorEnv(VectorEnv):
         rewards : :obj:`np.ndarray`, dtype :obj:`np.float_`
             A vector of rewards from the vectorized environment.
 
-        dones : :obj:`np.ndarray`, dtype :obj:`np.bool_`
+        dones : :obj:`np.ndarray`, dtype :obj:`np.int_`
             A vector whose entries indicate whether the episode has ended.
 
         infos : list of dict
@@ -422,7 +422,7 @@ class AsyncVectorEnv(VectorEnv):
         return (
             deepcopy(self.observations) if self.copy else self.observations,
             np.array(rewards),
-            np.array(dones, dtype=np.bool_),
+            np.array(dones, dtype=np.int_),
             infos,
         )
 
@@ -648,7 +648,7 @@ def _worker(index, env_fn, pipe, parent_pipe, shared_memory, error_queue):
 
             elif command == "step":
                 observation, reward, done, info = env.step(data)
-                if done:
+                if bool(done):
                     info["terminal_observation"] = observation
                     observation = env.reset()
                 pipe.send(((observation, reward, done, info), True))
@@ -717,7 +717,7 @@ def _worker_shared_memory(index, env_fn, pipe, parent_pipe, shared_memory, error
                     pipe.send((None, True))
             elif command == "step":
                 observation, reward, done, info = env.step(data)
-                if done:
+                if bool(done):
                     info["terminal_observation"] = observation
                     observation = env.reset()
                 write_to_shared_memory(

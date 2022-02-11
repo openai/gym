@@ -17,12 +17,13 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         reward += alive_bonus
         reward -= 1e-3 * np.square(a).sum()
         s = self.state_vector()
-        done = not (
+        terminated = not (
             np.isfinite(s).all()
             and (np.abs(s[2:]) < 100).all()
             and (height > 0.7)
             and (abs(ang) < 0.2)
         )
+        done = (self.TERMINATED if terminated else self.NOT_DONE)
         ob = self._get_obs()
         return ob, reward, done, {}
 

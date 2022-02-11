@@ -88,9 +88,9 @@ class RecordVideo(gym.Wrapper):
         # increment steps and episodes
         self.step_id += 1
         if not self.is_vector_env:
-            if dones:
+            if bool(dones):
                 self.episode_id += 1
-        elif dones[0]:
+        elif bool(dones[0]):
             self.episode_id += 1
 
         if self.recording:
@@ -101,9 +101,9 @@ class RecordVideo(gym.Wrapper):
                     self.close_video_recorder()
             else:
                 if not self.is_vector_env:
-                    if dones:
+                    if bool(dones):
                         self.close_video_recorder()
-                elif dones[0]:
+                elif bool(dones[0]):
                     self.close_video_recorder()
 
         elif self._video_enabled():

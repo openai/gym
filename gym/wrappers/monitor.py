@@ -214,7 +214,7 @@ class Monitor(Wrapper):
         if not self.enabled:
             return done
 
-        if done and self.env_semantics_autoreset:
+        if bool(done) and self.env_semantics_autoreset:
             # For envs with BlockingReset wrapping VNCEnv, this observation will be the first one of the new episode
             self.reset_video_recorder()
             self.episode_id += 1

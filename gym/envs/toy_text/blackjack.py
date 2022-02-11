@@ -127,13 +127,13 @@ class BlackjackEnv(gym.Env):
         if action:  # hit: add a card to players hand and return
             self.player.append(draw_card(self.np_random))
             if is_bust(self.player):
-                done = True
+                done = self.TERMINATED
                 reward = -1.0
             else:
-                done = False
+                done = self.NOT_DONE
                 reward = 0.0
         else:  # stick: play out the dealers hand, and score
-            done = True
+            done = self.TERMINATED
             while sum_hand(self.dealer) < 17:
                 self.dealer.append(draw_card(self.np_random))
             reward = cmp(score(self.player), score(self.dealer))

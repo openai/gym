@@ -16,9 +16,9 @@ class TimeLimit(gym.Wrapper):
     def step(self, action):
         observation, reward, done, info = self.env.step(action)
         self._elapsed_steps += 1
-        if self._elapsed_steps >= self._max_episode_steps:
-            info["TimeLimit.truncated"] = not done
-            done = True
+        if self._elapsed_steps >= self._max_episode_steps and done == self.NOT_DONE:
+            info["TimeLimit.truncated"] = True
+            done = self.TRUNCATED
         return observation, reward, done, info
 
     def reset(self, **kwargs):

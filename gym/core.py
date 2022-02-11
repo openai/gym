@@ -49,6 +49,11 @@ class Env(Generic[ObsType, ActType]):
     # Created
     _np_random: RandomNumberGenerator | None = None
 
+    # Done type enumeration
+    NOT_DONE = 0
+    TERMINATED = DONE = 1
+    TRUNCATED = 2
+
     @property
     def np_random(self) -> RandomNumberGenerator:
         """Initializes the np_random field if not done already."""
@@ -57,7 +62,7 @@ class Env(Generic[ObsType, ActType]):
         return self._np_random
 
     @abstractmethod
-    def step(self, action: ActType) -> Tuple[ObsType, float, bool, dict]:
+    def step(self, action: ActType) -> Tuple[ObsType, float, int, dict]:
         """Run one timestep of the environment's dynamics. When end of
         episode is reached, you are responsible for calling `reset()`
         to reset this environment's state.
@@ -70,7 +75,7 @@ class Env(Generic[ObsType, ActType]):
         Returns:
             observation (object): agent's observation of the current environment
             reward (float) : amount of reward returned after previous action
-            done (bool): whether the episode has ended, in which case further step() calls will return undefined results
+            done (int): whether the episode has ended, in which case further step() calls will return undefined results
             info (dict): contains auxiliary diagnostic information (helpful for debugging, and sometimes learning)
         """
         raise NotImplementedError

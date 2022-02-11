@@ -28,7 +28,7 @@ class ThrowerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         reward = reward_dist + 0.002 * reward_ctrl
         self.do_simulation(a, self.frame_skip)
         ob = self._get_obs()
-        done = False
+        done = self.NOT_DONE
         return ob, reward, done, dict(reward_dist=reward_dist, reward_ctrl=reward_ctrl)
 
     def viewer_setup(self):

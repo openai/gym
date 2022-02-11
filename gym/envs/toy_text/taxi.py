@@ -210,7 +210,8 @@ class TaxiEnv(Env):
         p, s, r, d = transitions[i]
         self.s = s
         self.lastaction = a
-        return (int(s), r, d, {"prob": p})
+        done = (self.TERMINATED if d else self.NOT_DONE)
+        return (int(s), r, done, {"prob": p})
 
     def reset(
         self,

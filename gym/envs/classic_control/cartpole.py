@@ -138,14 +138,15 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
 
         self.state = (x, x_dot, theta, theta_dot)
 
-        done = bool(
+        terminated = bool(
             x < -self.x_threshold
             or x > self.x_threshold
             or theta < -self.theta_threshold_radians
             or theta > self.theta_threshold_radians
         )
+        done = (self.TERMINATED if terminated else self.NOT_DONE)
 
-        if not done:
+        if not terminated:
             reward = 1.0
         elif self.steps_beyond_done is None:
             # Pole just fell!

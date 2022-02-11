@@ -184,7 +184,7 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
         observation = self._get_obs()
         reward = forward_reward - ctrl_cost
-        done = False
+        done = self.NOT_DONE
         info = {
             "x_position": x_position_after,
             "x_velocity": x_velocity,

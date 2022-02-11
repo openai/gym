@@ -63,7 +63,7 @@ class StatsRecorder:
         self.steps += 1
         self.total_steps += 1
         self.rewards += reward
-        self.done = done
+        self.done = bool(done)
 
         if done:
             self.save_complete()

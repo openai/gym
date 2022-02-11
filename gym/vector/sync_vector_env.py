@@ -72,7 +72,7 @@ class SyncVectorEnv(VectorEnv):
             self.single_observation_space, n=self.num_envs, fn=np.zeros
         )
         self._rewards = np.zeros((self.num_envs,), dtype=np.float64)
-        self._dones = np.zeros((self.num_envs,), dtype=np.bool_)
+        self._dones = np.zeros((self.num_envs,), dtype=np.int_)
         self._actions = None
 
     def seed(self, seed=None):
@@ -98,7 +98,7 @@ class SyncVectorEnv(VectorEnv):
             seed = [seed + i for i in range(self.num_envs)]
         assert len(seed) == self.num_envs
 
-        self._dones[:] = False
+        self._dones[:] = self.NOT_DONE
         observations = []
         data_list = []
         for env, single_seed in zip(self.envs, seed):
@@ -136,7 +136,7 @@ class SyncVectorEnv(VectorEnv):
         observations, infos = [], []
         for i, (env, action) in enumerate(zip(self.envs, self._actions)):
             observation, self._rewards[i], self._dones[i], info = env.step(action)
-            if self._dones[i]:
+            if bool(self._dones[i]):
                 info["terminal_observation"] = observation
                 observation = env.reset()
             observations.append(observation)

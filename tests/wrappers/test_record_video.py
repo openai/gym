@@ -20,7 +20,7 @@ def test_record_video_using_default_trigger():
     for _ in range(199):
         action = env.action_space.sample()
         _, _, done, _ = env.step(action)
-        if done:
+        if bool(done):
             env.reset()
     env.close()
     assert os.path.isdir("videos")
@@ -69,7 +69,7 @@ def test_record_video_step_trigger():
     for _ in range(199):
         action = env.action_space.sample()
         _, _, done, _ = env.step(action)
-        if done:
+        if bool(done):
             env.reset()
     env.close()
     assert os.path.isdir("videos")

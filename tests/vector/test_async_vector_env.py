@@ -98,7 +98,7 @@ def test_step_async_vector_env(shared_memory, use_single_action_space):
     assert rewards.size == 8
 
     assert isinstance(dones, np.ndarray)
-    assert dones.dtype == np.bool_
+    assert dones.dtype == np.int_
     assert dones.ndim == 1
     assert dones.size == 8
 

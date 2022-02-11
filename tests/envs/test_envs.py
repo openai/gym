@@ -39,7 +39,11 @@ def test_env(spec):
         observation
     ), f"Step observation: {observation!r} not in space"
     assert np.isscalar(reward), f"{reward} is not a scalar for {env}"
-    assert isinstance(done, bool), f"Expected {done} to be a boolean"
+    assert isinstance(done, int) and done in (
+        env.NOT_DONE,
+        env.TERMINATED,
+        env.TRUNCATED
+    ), f"Expected {done} to be a integer in {(env.NOT_DONE, env.TERMINATED, env.TRUNCATED)}"
     if isinstance(ob_space, Box):
         assert (
             observation.dtype == ob_space.dtype
@@ -75,14 +79,14 @@ def test_reset_info(spec):
 # Run a longer rollout on some environments
 def test_random_rollout():
     for env in [envs.make("CartPole-v0"), envs.make("FrozenLake-v1")]:
-        agent = lambda ob: env.action_space.sample()
+        def agent(ob): return env.action_space.sample()
         ob = env.reset()
         for _ in range(10):
             assert env.observation_space.contains(ob)
             a = agent(ob)
             assert env.action_space.contains(a)
             (ob, _reward, done, _info) = env.step(a)
-            if done:
+            if bool(done):
                 break
         env.close()
 

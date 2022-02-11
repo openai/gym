@@ -33,7 +33,7 @@ class AtariPreprocessing(gym.Wrapper):
         noop_max (int): max number of no-ops
         frame_skip (int): the frequency at which the agent experiences the game.
         screen_size (int): resize Atari frame
-        terminal_on_life_loss (bool): if True, then step() returns done=True whenever a
+        terminal_on_life_loss (bool): if True, then step() returns done=1 (TERMINATED) whenever a
             life is lost.
         grayscale_obs (bool): if True, then gray scale observation is returned, otherwise, RGB observation
             is returned.
@@ -107,6 +107,7 @@ class AtariPreprocessing(gym.Wrapper):
 
         for t in range(self.frame_skip):
             _, reward, done, info = self.env.step(action)
+            done = bool(done)
             R += reward
             self.game_over = done
 
@@ -127,6 +128,8 @@ class AtariPreprocessing(gym.Wrapper):
                     self.ale.getScreenGrayscale(self.obs_buffer[0])
                 else:
                     self.ale.getScreenRGB(self.obs_buffer[0])
+
+        done = (self.TERMINATED if done else self.NOT_DONE)
         return self._get_obs(), R, done, info
 
     def reset(self, **kwargs):

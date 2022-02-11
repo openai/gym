@@ -34,7 +34,7 @@ class RecordEpisodeStatistics(gym.Wrapper):
         else:
             infos = list(infos)  # Convert infos to mutable type
         for i in range(len(dones)):
-            if dones[i]:
+            if bool(dones[i]):
                 infos[i] = infos[i].copy()
                 episode_return = self.episode_returns[i]
                 episode_length = self.episode_lengths[i]
