@@ -23,7 +23,7 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             and (height > 0.7)
             and (abs(ang) < 0.2)
         )
-        done = (self.TERMINATED if terminated else self.NOT_DONE)
+        done = self.TERMINATED if terminated else self.NOT_DONE
         ob = self._get_obs()
         return ob, reward, done, {}
 

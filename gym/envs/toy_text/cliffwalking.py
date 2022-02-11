@@ -100,7 +100,7 @@ class CliffWalkingEnv(Env):
         p, s, r, d = transitions[i]
         self.s = s
         self.lastaction = a
-        done = (self.TERMINATED if d else self.NOT_DONE)
+        done = self.TERMINATED if d else self.NOT_DONE
         return (int(s), r, done, {"prob": p})
 
     def reset(

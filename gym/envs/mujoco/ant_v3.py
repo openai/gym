@@ -243,7 +243,7 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         costs = ctrl_cost + contact_cost
 
         reward = rewards - costs
-        done = (self.TERMINATED if self.done else self.NOT_DONE)
+        done = self.TERMINATED if self.done else self.NOT_DONE
         observation = self._get_obs()
         info = {
             "reward_forward": forward_reward,

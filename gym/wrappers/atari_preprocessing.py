@@ -129,7 +129,7 @@ class AtariPreprocessing(gym.Wrapper):
                 else:
                     self.ale.getScreenRGB(self.obs_buffer[0])
 
-        done = (self.TERMINATED if done else self.NOT_DONE)
+        done = self.TERMINATED if done else self.NOT_DONE
         return self._get_obs(), R, done, info
 
     def reset(self, **kwargs):

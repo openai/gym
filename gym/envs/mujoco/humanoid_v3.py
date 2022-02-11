@@ -305,7 +305,7 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
         observation = self._get_obs()
         reward = rewards - costs
-        done = (self.TERMINATED if self.done else self.NOT_DONE)
+        done = self.TERMINATED if self.done else self.NOT_DONE
         info = {
             "reward_linvel": forward_reward,
             "reward_quadctrl": -ctrl_cost,

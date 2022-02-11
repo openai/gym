@@ -40,7 +40,7 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         reward = lin_vel_cost - quad_ctrl_cost - quad_impact_cost + alive_bonus
         qpos = self.sim.data.qpos
         terminated = bool((qpos[2] < 1.0) or (qpos[2] > 2.0))
-        done = (self.TERMINATED if terminated else self.NOT_DONE)
+        done = self.TERMINATED if terminated else self.NOT_DONE
         return (
             self._get_obs(),
             reward,

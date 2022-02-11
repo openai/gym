@@ -236,7 +236,7 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
         observation = self._get_obs()
         reward = rewards - costs
-        done = (self.TERMINATED if self.done else self.NOT_DONE)
+        done = self.TERMINATED if self.done else self.NOT_DONE
         info = {
             "x_position": x_position_after,
             "x_velocity": x_velocity,

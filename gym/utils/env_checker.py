@@ -214,11 +214,13 @@ def _check_returned_values(
     assert isinstance(
         reward, (float, int, np.float32)
     ), "The reward returned by `step()` must be a float"
-    assert isinstance(done, int) and not isinstance(done, bool), "The `done` signal must be an integer"
+    assert isinstance(done, int) and not isinstance(
+        done, bool
+    ), "The `done` signal must be an integer"
     assert done in (
         env.NOT_DONE,
         env.TERMINATED,
-        env.TRUNCATED
+        env.TRUNCATED,
     ), f"The `done` signal must be in {(env.NOT_DONE, env.TERMINATED, env.TRUNCATED)}"
     assert isinstance(
         info, dict

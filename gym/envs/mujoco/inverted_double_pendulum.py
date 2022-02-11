@@ -120,13 +120,13 @@ class InvertedDoublePendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         self.do_simulation(action, self.frame_skip)
         ob = self._get_obs()
         x, _, y = self.sim.data.site_xpos[0]
-        dist_penalty = 0.01 * x ** 2 + (y - 2) ** 2
+        dist_penalty = 0.01 * x**2 + (y - 2) ** 2
         v1, v2 = self.sim.data.qvel[1:3]
-        vel_penalty = 1e-3 * v1 ** 2 + 5e-3 * v2 ** 2
+        vel_penalty = 1e-3 * v1**2 + 5e-3 * v2**2
         alive_bonus = 10
         r = alive_bonus - dist_penalty - vel_penalty
         terminated = bool(y <= 1)
-        done = (self.TERMINATED if terminated else self.NOT_DONE)
+        done = self.TERMINATED if terminated else self.NOT_DONE
         return ob, r, done, {}
 
     def _get_obs(self):

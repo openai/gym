@@ -17,7 +17,7 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         reward += alive_bonus
         reward -= 1e-3 * np.square(a).sum()
         terminated = not (height > 0.8 and height < 2.0 and ang > -1.0 and ang < 1.0)
-        done = (self.TERMINATED if terminated else self.NOT_DONE)
+        done = self.TERMINATED if terminated else self.NOT_DONE
         ob = self._get_obs()
         return ob, reward, done, {}
 
