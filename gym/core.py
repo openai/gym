@@ -65,7 +65,7 @@ class Env(Generic[ObsType, ActType]):
             observation (object): agent's observation of the current environment
             reward (float) : amount of reward returned after previous action
             done (bool): whether the episode has ended, in which case further step() calls will return undefined results
-            info (dict): contains auxiliary diagnostic information (helpful for debugging, and sometimes learning)
+            info (dict): contains auxiliary diagnostic information (helpful for debugging, logging, and sometimes learning)
         """
         raise NotImplementedError
 
@@ -76,11 +76,13 @@ class Env(Generic[ObsType, ActType]):
         """Resets the environment to an initial state and returns an initial
         observation.
 
-        Note that this function should not reset the environment's random
-        number generator(s); random variables in the environment's state should
-        be sampled independently between multiple calls to `reset()`. In other
-        words, each call of `reset()` should yield an environment suitable for
-        a new episode, independent of previous episodes.
+        This method should also reset the environment's random number
+        generator(s) if `seed` is an integer or if the environment has not
+        yet initialized a random number generator. If the environment already
+        has a random number generator and `reset` is called with `seed=None`,
+        the RNG should not be reset.
+        Moreover, `reset` should (in the typical use case) be called with an
+        integer seed right after initialization and then never again.
 
         Returns:
             observation (object): the initial observation.
@@ -94,8 +96,8 @@ class Env(Generic[ObsType, ActType]):
         """Renders the environment.
 
         The set of supported modes varies per environment. (And some
-        environments do not support rendering at all.) By convention,
-        if mode is:
+        third-party environments may not support rendering at all.)
+        By convention, if mode is:
 
         - human: render to the current display or terminal and
           return nothing. Usually for human consumption.
