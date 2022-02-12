@@ -10,7 +10,7 @@ class ReacherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     target that is spawned at a random position.
 
     ### Action Space
-    The action space is [-1, 1]<sup>2</sup>. An action `(a, b)` represents the torques applied at the hinge joints.
+    The action space is a `Box(-1, 1, (2,), float32)`. An action `(a, b)` represents the torques applied at the hinge joints.
 
     | Num | Action                                                                          | Control Min | Control Max | Name (in corresponding XML file) | Joint | Unit |
     |-----|---------------------------------------------------------------------------------|-------------|-------------|--------------------------|-------|------|
@@ -70,6 +70,11 @@ class ReacherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     Euclidean norm of the action, i.e. as *- sum(action<sup>2</sup>)*.
 
     The total reward returned is ***reward*** *=* *reward_distance + reward_control*
+
+    Unlike other environments, Reacher does not allow you to specify weights for the individual reward terms.
+    However, `info` does contain the keys *reward_dist* and *reward_ctrl*. Thus, if you'd like to weight the terms,
+    you should create a wrapper that computes the weighted reward from `info`.
+
 
     ### Starting State
     All observations start in state
