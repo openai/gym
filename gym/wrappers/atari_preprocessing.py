@@ -131,7 +131,9 @@ class AtariPreprocessing(gym.Wrapper):
 
     def reset(self, **kwargs):
         # NoopReset
-        self.env.reset(**kwargs)
+        if kwargs.get("return_info", False):
+            _, info = self.env.reset(**kwargs)
+
         noops = (
             self.env.unwrapped.np_random.integers(1, self.noop_max + 1)
             if self.noop_max > 0
@@ -148,7 +150,11 @@ class AtariPreprocessing(gym.Wrapper):
         else:
             self.ale.getScreenRGB(self.obs_buffer[0])
         self.obs_buffer[1].fill(0)
-        return self._get_obs()
+
+        if kwargs.get("return_info", False):
+            return self._get_obs(), info
+        else:
+            return self._get_obs()
 
     def _get_obs(self):
         if self.frame_skip > 1:  # more efficient in-place pooling
