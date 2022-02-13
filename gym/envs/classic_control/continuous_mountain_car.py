@@ -17,6 +17,8 @@ import math
 from typing import Optional
 
 import numpy as np
+import pygame
+from pygame import gfxdraw
 
 import gym
 from gym import spaces
@@ -91,7 +93,8 @@ class Continuous_MountainCarEnv(gym.Env):
             [self.max_position, self.max_speed], dtype=np.float32
         )
 
-        self.viewer = None
+        self.screen = None
+        self.isopen = True
 
         self.action_space = spaces.Box(
             low=self.min_action, high=self.max_action, shape=(1,), dtype=np.float32
@@ -158,61 +161,79 @@ class Continuous_MountainCarEnv(gym.Env):
         scale = screen_width / world_width
         carwidth = 40
         carheight = 20
-
-        if self.viewer is None:
-            from gym.utils import pyglet_rendering
-
-            self.viewer = pyglet_rendering.Viewer(screen_width, screen_height)
-            xs = np.linspace(self.min_position, self.max_position, 100)
-            ys = self._height(xs)
-            xys = list(zip((xs - self.min_position) * scale, ys * scale))
-
-            self.track = pyglet_rendering.make_polyline(xys)
-            self.track.set_linewidth(4)
-            self.viewer.add_geom(self.track)
-
-            clearance = 10
-
-            l, r, t, b = -carwidth / 2, carwidth / 2, carheight, 0
-            car = pyglet_rendering.FilledPolygon([(l, b), (l, t), (r, t), (r, b)])
-            car.add_attr(pyglet_rendering.Transform(translation=(0, clearance)))
-            self.cartrans = pyglet_rendering.Transform()
-            car.add_attr(self.cartrans)
-            self.viewer.add_geom(car)
-            frontwheel = pyglet_rendering.make_circle(carheight / 2.5)
-            frontwheel.set_color(0.5, 0.5, 0.5)
-            frontwheel.add_attr(
-                pyglet_rendering.Transform(translation=(carwidth / 4, clearance))
-            )
-            frontwheel.add_attr(self.cartrans)
-            self.viewer.add_geom(frontwheel)
-            backwheel = pyglet_rendering.make_circle(carheight / 2.5)
-            backwheel.add_attr(
-                pyglet_rendering.Transform(translation=(-carwidth / 4, clearance))
-            )
-            backwheel.add_attr(self.cartrans)
-            backwheel.set_color(0.5, 0.5, 0.5)
-            self.viewer.add_geom(backwheel)
-            flagx = (self.goal_position - self.min_position) * scale
-            flagy1 = self._height(self.goal_position) * scale
-            flagy2 = flagy1 + 50
-            flagpole = pyglet_rendering.Line((flagx, flagy1), (flagx, flagy2))
-            self.viewer.add_geom(flagpole)
-            flag = pyglet_rendering.FilledPolygon(
-                [(flagx, flagy2), (flagx, flagy2 - 10), (flagx + 25, flagy2 - 5)]
-            )
-            flag.set_color(0.8, 0.8, 0)
-            self.viewer.add_geom(flag)
+        if self.screen is None:
+            pygame.init()
+            self.screen = pygame.display.set_mode((screen_width, screen_height))
+        self.surf = pygame.Surface((screen_width, screen_height))
+        self.surf.fill((255, 255, 255))
 
         pos = self.state[0]
-        self.cartrans.set_translation(
-            (pos - self.min_position) * scale, self._height(pos) * scale
-        )
-        self.cartrans.set_rotation(math.cos(3 * pos))
 
-        return self.viewer.render(return_rgb_array=mode == "rgb_array")
+        xs = np.linspace(self.min_position, self.max_position, 100)
+        ys = self._height(xs)
+        xys = list(zip((xs - self.min_position) * scale, ys * scale))
+
+        pygame.draw.aalines(self.surf, points=xys, closed=False, color=(0, 0, 0))
+
+        clearance = 10
+
+        l, r, t, b = -carwidth / 2, carwidth / 2, carheight, 0
+        coords = []
+        for c in [(l, b), (l, t), (r, t), (r, b)]:
+            c = pygame.math.Vector2(c).rotate_rad(math.cos(3 * pos))
+            coords.append(
+                (
+                    c[0] + (pos - self.min_position) * scale,
+                    c[1] + clearance + self._height(pos) * scale,
+                )
+            )
+
+        gfxdraw.aapolygon(self.surf, coords, (0, 0, 0))
+        gfxdraw.filled_polygon(self.surf, coords, (0, 0, 0))
+
+        for c in [(carwidth / 4, 0), (-carwidth / 4, 0)]:
+            c = pygame.math.Vector2(c).rotate_rad(math.cos(3 * pos))
+            wheel = (
+                int(c[0] + (pos - self.min_position) * scale),
+                int(c[1] + clearance + self._height(pos) * scale),
+            )
+
+            gfxdraw.aacircle(
+                self.surf, wheel[0], wheel[1], int(carheight / 2.5), (128, 128, 128)
+            )
+            gfxdraw.filled_circle(
+                self.surf, wheel[0], wheel[1], int(carheight / 2.5), (128, 128, 128)
+            )
+
+        flagx = int((self.goal_position - self.min_position) * scale)
+        flagy1 = int(self._height(self.goal_position) * scale)
+        flagy2 = flagy1 + 50
+        gfxdraw.vline(self.surf, flagx, flagy1, flagy2, (0, 0, 0))
+
+        gfxdraw.aapolygon(
+            self.surf,
+            [(flagx, flagy2), (flagx, flagy2 - 10), (flagx + 25, flagy2 - 5)],
+            (204, 204, 0),
+        )
+        gfxdraw.filled_polygon(
+            self.surf,
+            [(flagx, flagy2), (flagx, flagy2 - 10), (flagx + 25, flagy2 - 5)],
+            (204, 204, 0),
+        )
+
+        self.surf = pygame.transform.flip(self.surf, False, True)
+        self.screen.blit(self.surf, (0, 0))
+        if mode == "human":
+            pygame.display.flip()
+
+        if mode == "rgb_array":
+            return np.transpose(
+                np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
+            )
+        else:
+            return self.isopen
 
     def close(self):
-        if self.viewer:
-            self.viewer.close()
-            self.viewer = None
+        if self.screen is not None:
+            pygame.quit()
+            self.isopen = False

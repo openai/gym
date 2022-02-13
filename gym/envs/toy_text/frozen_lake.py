@@ -133,7 +133,7 @@ class FrozenLakeEnv(Env):
     * v0: Initial versions release (1.0.0)
     """
 
-    metadata = {"render.modes": ["human", "ansi"]}
+    metadata = {"render.modes": ["human", "ansi", "rgb_array"]}
 
     def __init__(self, desc=None, map_name="4x4", is_slippery=True):
         if desc is None and map_name is None:
@@ -231,16 +231,19 @@ class FrozenLakeEnv(Env):
 
     def render(self, mode="human"):
         desc = self.desc.tolist()
-        if mode == "human":
-            return self._render_gui(desc)
-        else:
+        if mode == "ansi":
             return self._render_text(desc)
+        else:
+            return self._render_gui(desc, mode)
 
-    def _render_gui(self, desc):
+    def _render_gui(self, desc, mode):
         if self.window_surface is None:
             pygame.init()
             pygame.display.set_caption("Frozen Lake")
-            self.window_surface = pygame.display.set_mode(self.window_size)
+            if mode == "human":
+                self.window_surface = pygame.display.set_mode(self.window_size)
+            else:  # rgb_array
+                self.window_surface = pygame.Surface(self.window_size)
         if self.hole_img is None:
             file_name = path.join(path.dirname(__file__), "img/hole.png")
             self.hole_img = pygame.image.load(file_name)
@@ -325,7 +328,12 @@ class FrozenLakeEnv(Env):
             self.window_surface.blit(elf_img, elf_rect)
 
         self.window_surface.blit(board, board.get_rect())
-        pygame.display.update()
+        if mode == "human":
+            pygame.display.update()
+        else:  # rgb_array
+            return np.transpose(
+                np.array(pygame.surfarray.pixels3d(self.window_surface)), axes=(1, 0, 2)
+            )
 
     @staticmethod
     def _center_small_rect(big_rect, small_dims):
