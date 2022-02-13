@@ -50,9 +50,9 @@ class Env(Generic[ObsType, ActType]):
     _np_random: RandomNumberGenerator | None = None
 
     # Done type enumeration
-    NOT_DONE = 0
-    TERMINATED = DONE = 1
-    TRUNCATED = 2
+    NOT_DONE = 0  # the episode is not done yet
+    TERMINATED = DONE = 1  # the episode is terminated, no more further step() calls
+    TRUNCATED = 2  # the episode is truncated by wrappers or step counting, no more further step() calls
 
     @property
     def np_random(self) -> RandomNumberGenerator:
