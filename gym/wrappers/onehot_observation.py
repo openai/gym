@@ -7,11 +7,26 @@ def one_hot(a, size):
     b[a] = 1
     return b
 
-class ProcessObsInputEnv(gym.ObservationWrapper):
+
+class OnehotObservation(gym.ObservationWrapper):
     """
-    This wrapper handles inputs from `Discrete` and `Box` observation space.
-    If the `env.observation_space` is of `Discrete` type, 
-    it returns the one-hot encoding of the state
+    This wrapper one hot encodes the `Discrete` observation space.
+    For example, `Discrete(3)` observation space will be converted
+    to `Box(0, 1, (3,))` observation space, where
+    `(1, 0, 0)`, `(0, 1, 0)` and `(0, 0, 1)` corresponds to the three
+    discrete states
+
+    Example::
+
+        >>> import gym
+        >>> env = gym.make('Taxi-v3')
+        >>> env = gym.wrappers.OnehotObservation(env)
+        >>> env.reset()
+        >>> env.observation_space
+        Box(0, 1, (500,))
+
+    Args:
+        env (Env): environment 
     """
     def __init__(self, env):
         super().__init__(env)
