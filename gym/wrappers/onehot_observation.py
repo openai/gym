@@ -2,12 +2,6 @@ import gym
 import numpy as np
 
 
-def one_hot(a: np.array, size: int) -> np.array:
-    b = np.zeros((size), dtype=np.float32)
-    b[a] = 1
-    return b
-
-
 class OnehotObservation(gym.ObservationWrapper):
     """
     This wrapper one hot encodes the `Discrete` observation space.
@@ -35,8 +29,10 @@ class OnehotObservation(gym.ObservationWrapper):
         if isinstance(self.env.observation_space, gym.spaces.Discrete):
             self.n = self.env.observation_space.n
             self.observation_space = gym.spaces.Box(0, 1, (self.n,))
+        self.onehot_encoding = np.zeros(self.n, dtype=np.float32)
 
     def observation(self, obs):
         if self.n:
-            return one_hot(np.array(obs), self.n)
+            self.onehot_encoding[:] = 0
+            self.onehot_encoding[np.array(obs)] = 1
         return obs
