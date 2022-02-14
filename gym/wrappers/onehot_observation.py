@@ -2,8 +2,8 @@ import gym
 import numpy as np
 
 
-def one_hot(a, size):
-    b = np.zeros((size))
+def one_hot(a: np.array, size: int) -> np.array:
+    b = np.zeros((size), dtype=np.float32)
     b[a] = 1
     return b
 
@@ -29,9 +29,9 @@ class OnehotObservation(gym.ObservationWrapper):
         env (Env): environment
     """
 
-    def __init__(self, env):
+    def __init__(self, env: gym.Env):
         super().__init__(env)
-        self.n = None
+        self.n: int = None
         if isinstance(self.env.observation_space, gym.spaces.Discrete):
             self.n = self.env.observation_space.n
             self.observation_space = gym.spaces.Box(0, 1, (self.n,))
