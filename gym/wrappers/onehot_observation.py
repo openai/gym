@@ -26,8 +26,9 @@ class OnehotObservation(gym.ObservationWrapper):
         Box(0, 1, (500,))
 
     Args:
-        env (Env): environment 
+        env (Env): environment
     """
+
     def __init__(self, env):
         super().__init__(env)
         self.n = None
