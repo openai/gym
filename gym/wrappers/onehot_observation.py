@@ -26,13 +26,13 @@ class OnehotObservation(gym.ObservationWrapper):
     def __init__(self, env: gym.Env):
         super().__init__(env)
         self.n: int = None
-        if isinstance(self.env.observation_space, gym.spaces.Discrete):
-            self.n = self.env.observation_space.n
-            self.observation_space = gym.spaces.Box(0, 1, (self.n,))
+        if not isinstance(self.env.observation_space, gym.spaces.Discrete):
+            raise ValueError("This wrapper can only apply to the Discrete observation space")
+        self.n = self.env.observation_space.n
+        self.observation_space = gym.spaces.Box(0, 1, (self.n,))
         self.onehot_encoding = np.zeros(self.n, dtype=np.float32)
 
     def observation(self, obs):
-        if self.n:
-            self.onehot_encoding[:] = 0
-            self.onehot_encoding[np.array(obs)] = 1
+        self.onehot_encoding[:] = 0
+        self.onehot_encoding[np.array(obs)] = 1
         return obs
