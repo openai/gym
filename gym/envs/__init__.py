@@ -1,11 +1,17 @@
+from __future__ import annotations
+
+from typing import Sequence, SupportsFloat, overload, Any
+import sys
+
+import numpy as np
+
+from gym.core import Env
 from gym.envs.registration import (
     registry,
     register,
     spec,
     load_env_plugins as _load_env_plugins,
 )
-from typing import overload, TYPE_CHECKING, Any
-import sys
 
 if sys.version_info >= (3, 8):
     from typing import Literal
@@ -15,36 +21,6 @@ else:
         def __class_getitem__(cls, item):
             return Any
 
-
-if TYPE_CHECKING:
-    from gym.envs.classic_control import (
-        CartPoleEnv,
-        PendulumEnv,
-        AcrobotEnv,
-        MountainCarEnv,
-        Continuous_MountainCarEnv,
-    )
-    from gym.envs.box2d import (
-        LunarLander,
-        CarRacing,
-        LunarLanderContinuous,
-        BipedalWalker,
-    )
-    from gym.envs.toy_text import TaxiEnv, BlackjackEnv, FrozenLakeEnv, CliffWalkingEnv
-    from gym.envs.mujoco import (
-        AntEnv,
-        HopperEnv,
-        StrikerEnv,
-        SwimmerEnv,
-        Walker2dEnv,
-        ThrowerEnv,
-        HalfCheetahEnv,
-        ReacherEnv,
-        PusherEnv,
-        InvertedPendulumEnv,
-        InvertedDoublePendulumEnv,
-    )
-    from gym import Env
 
 # Hook to load plugins from entry points
 _load_env_plugins()
@@ -309,62 +285,54 @@ register(
 # ----------------------------------------
 
 @overload
-def make(id: Literal["CartPole-v0", "CartPole-v1"], **kwargs) -> "CartPoleEnv": ...
+def make(id: Literal["CartPole-v0", "CartPole-v1"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
 @overload
-def make(id: Literal["MountainCar-v0"], **kwargs) -> "MountainCarEnv": ...
+def make(id: Literal["MountainCar-v0"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
 @overload
-def make(id: Literal["MountainCarContinuous-v0"], **kwargs) -> "Continuous_MountainCarEnv": ...
+def make(id: Literal["MountainCarContinuous-v0"], **kwargs) -> Env[np.ndarray, np.ndarray | Sequence[SupportsFloat]]: ...
 @overload
-def make(id: Literal["Pendulum-v1"], **kwargs) -> "PendulumEnv": ...
+def make(id: Literal["Pendulum-v1"], **kwargs) -> Env[np.ndarray, np.ndarray | Sequence[SupportsFloat]]: ...
 @overload
-def make(id: Literal["Acrobot-v1"], **kwargs) -> "AcrobotEnv": ...
+def make(id: Literal["Acrobot-v1"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
 
 # Box2d
 # ----------------------------------------
 
 @overload
-def make(id: Literal["LunarLander-v2", "LunarLanderContinuous-v2"], **kwargs) -> "LunarLander": ...
+def make(id: Literal["LunarLander-v2", "LunarLanderContinuous-v2"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
 @overload
-def make(id: Literal["BipedalWalker-v3", "BipedalWalkerHardcore-v3"], **kwargs) -> "BipedalWalker": ...
+def make(id: Literal["BipedalWalker-v3", "BipedalWalkerHardcore-v3"], **kwargs) -> Env[np.ndarray, np.ndarray | Sequence[SupportsFloat]]: ...
 @overload
-def make(id: Literal["CarRacing-v0"], **kwargs) -> "CarRacing": ...
+def make(id: Literal["CarRacing-v0"], **kwargs) -> Env[np.ndarray, np.ndarray | Sequence[SupportsFloat]]: ...
 
 # Toy Text
 # ----------------------------------------
 
 @overload
-def make(id: Literal["Blackjack-v1"], **kwargs) -> "BlackjackEnv": ...
+def make(id: Literal["Blackjack-v1"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
 @overload
-def make(id: Literal["FrozenLake-v1", "FrozenLake8x8-v1"], **kwargs) -> "FrozenLakeEnv": ...
+def make(id: Literal["FrozenLake-v1", "FrozenLake8x8-v1"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
 @overload
-def make(id: Literal["CliffWalking-v0"], **kwargs) -> "CliffWalkingEnv": ...
+def make(id: Literal["CliffWalking-v0"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
 @overload
-def make(id: Literal["Taxi-v3"], **kwargs) -> "TaxiEnv": ...
+def make(id: Literal["Taxi-v3"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
 
 # Mujoco
 # ----------------------------------------
 @overload
-def make(id: Literal["Reacher-v2"], **kwargs) -> "ReacherEnv": ...
-@overload
-def make(id: Literal["Pusher-v2"], **kwargs) -> "PusherEnv": ...
-@overload
-def make(id: Literal["Thrower-v2"], **kwargs) -> "ThrowerEnv": ...
-@overload
-def make(id: Literal["Striker-v2"], **kwargs) -> "StrikerEnv": ...
-@overload
-def make(id: Literal["InvertedPendulum-v2"], **kwargs) -> "InvertedPendulumEnv": ...
-@overload
-def make(id: Literal["InvertedDoublePendulum-v2"], **kwargs) -> "InvertedDoublePendulumEnv": ...
-@overload
-def make(id: Literal["HalfCheetah-v2", "HalfCheetah-v3"], **kwargs) -> "HalfCheetahEnv": ...
-@overload
-def make(id: Literal["Hopper-v2", "Hopper-v3"], **kwargs) -> "HopperEnv": ...
-@overload
-def make(id: Literal["Swimmer-v2", "Swimmer-v3"], **kwargs) -> "SwimmerEnv": ...
-@overload
-def make(id: Literal["Walker2d-v2", "Walker2d-v3"], **kwargs) -> "Walker2dEnv": ...
-@overload
-def make(id: Literal["Ant-v2"], **kwargs) -> "AntEnv": ...
+def make(id: Literal[
+    "Reacher-v2",
+    "Pusher-v2",
+    "Thrower-v2",
+    "Striker-v2",
+    "InvertedPendulum-v2",
+    "InvertedDoublePendulum-v2",
+    "HalfCheetah-v2", "HalfCheetah-v3",
+    "Hopper-v2", "Hopper-v3",
+    "Swimmer-v2", "Swimmer-v3",
+    "Walker2d-v2", "Walker2d-v3",
+    "Ant-v2"
+], **kwargs) -> Env[np.ndarray, np.ndarray]: ...
 
 # ----------------------------------------
 
