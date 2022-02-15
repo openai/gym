@@ -102,7 +102,7 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     ### Rewards
     The reward consists of three parts:
-    - *survive_reward*: Every timestep that the ant is healthy, it gets a reward of fixed value `healthy_reward`
+    - *survive_reward*: Every timestep that the ant is healthy (see definition in section "Episode Termination"), it gets a reward of fixed value `healthy_reward`
     - *forward_reward*: A reward of moving forward which is measured as
     *(x-coordinate before action - x-coordinate after action)/dt*. *dt* is the time
     between actions and is dependent on the `frame_skip` parameter (default is 5),
@@ -127,20 +127,22 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     is designed to make it face forward as well.
 
     ### Episode Termination
+    The ant is said to be unhealthy if any of the following happens:
+
+    1. Any of the state space values is no longer finite
+    2. The z-coordinate of the torso is **not** in the closed interval given by `healthy_z_range` (defaults to [0.2, 1.0])
+
     If `terminate_when_unhealthy=True` is passed during construction (which is the default),
     the episode terminates when any of the following happens:
 
     1. The episode duration reaches a 1000 timesteps
-    2. Any of the state space values is no longer finite
-    3. The z-coordinate of the torso is **not** in the closed interval given by `healthy_z_range` (defaults to [0.2, 1.0])
+    2. The ant is unhealthy
 
-    Otherwise (i.e., if `terminate_when_unhealthy=False` is passed), the episode is terminated only when 1000 timesteps are exceeded.
+    If `terminate_when_unhealthy=False` is passed, the episode is terminated only when 1000 timesteps are exceeded.
 
     ### Arguments
 
-    No additional arguments are currently supported in v2 and lower, but modifications
-    can be made to the XML file in the assets folder (or by changing the path to a modified
-    XML file in another folder).
+    No additional arguments are currently supported in v2 and lower.
 
     ```
     env = gym.make('Ant-v2')

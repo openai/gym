@@ -72,7 +72,7 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     ### Rewards
     The reward consists of two parts:
     - *reward_run*: A reward of moving forward which is measured
-    as *`forward_reward_weight` \times (x-coordinate before action - x-coordinate after action)/dt*. *dt* is
+    as *`forward_reward_weight` * (x-coordinate before action - x-coordinate after action)/dt*. *dt* is
     the time between actions and is dependent on the frame_skip parameter
     (fixed to 5), where the frametime is 0.01 - making the
     default *dt = 5 * 0.01 = 0.05*. This reward would be positive if the cheetah
@@ -98,10 +98,7 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     ### Arguments
 
-    No additional arguments are currently supported in v2 and lower, but
-    modifications can be made to the XML file in the assets folder at
-    `gym/envs/mujoco/assets/half_cheetah.xml` (or by changing the path to a
-    modified XML file in another folder).
+    No additional arguments are currently supported in v2 and lower.
 
     ```
     env = gym.make('HalfCheetah-v2')
@@ -113,13 +110,13 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     env = gym.make('HalfCheetah-v3', ctrl_cost_weight=0.1, ....)
     ```
 
-    | Parameter               | Type       | Default      |Description                    |
-    |-------------------------|------------|--------------|-------------------------------|
-    | `xml_file`              | **str**    | `"ant.xml"`  | Path to a MuJoCo model |
-    | `forward_reward_weight` | **float**  | `1.0`        | Weight for *reward_run* in reward (see section on reward) |
-    | `ctrl_cost_weight`      | **float**  | `0.1`        | Weight for control cost in reward (see section on reward) |
-    | `reset_noise_scale`     | **float**  | `0.1`        | Scale of random perturbations of initial position and velocity (see section on Starting State) |
-    | `exclude_current_positions_from_observation`| **bool** | `True` | Whether or not to omit the x- and y-coordinates from observations. Excluding the position can serve as an inductive bias to induce position-agnostic behavior in policies |
+    | Parameter               | Type       | Default              |Description                    |
+    |-------------------------|------------|----------------------|-------------------------------|
+    | `xml_file`              | **str**    | `"half_cheetah.xml"` | Path to a MuJoCo model |
+    | `forward_reward_weight` | **float**  | `1.0`                | Weight for *reward_run* in reward (see section on reward) |
+    | `ctrl_cost_weight`      | **float**  | `0.1`                | Weight for control cost in reward (see section on reward) |
+    | `reset_noise_scale`     | **float**  | `0.1`                | Scale of random perturbations of initial position and velocity (see section on Starting State) |
+    | `exclude_current_positions_from_observation`| **bool** | `True` | Whether or not to omit the x-coordinate from observations. Excluding the position can serve as an inductive bias to induce position-agnostic behavior in policies |
 
 
     ### Version History
