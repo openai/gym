@@ -25,8 +25,7 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     (connecting to the thighs) and feet (connecting to the shins).
 
     ### Action Space
-    The agent take a 6-element vector for actions.
-    The action space is a continuous `(action, action, action, action, action, action)` all in `[-1.0, 1.0]`, where `action` represents the numerical torques applied between *links*
+    The action space is a `Box(-1, 1, (6,), float32)`. An action represents the torques applied between *links*.
 
     | Num | Action                                 | Control Min | Control Max | Name (in corresponding XML file) | Joint | Unit |
     |-------|--------------------------------------|---------------|----------------|---------------------------------------|-------|------|
@@ -39,43 +38,20 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     ### Observation Space
 
-    The state space consists of positional values of different body parts of the
+    Observations consist of positional values of different body parts of the
     cheetah, followed by the velocities of those individual parts (their derivatives) with all the positions ordered before all the velocities.
 
-    The observation is a `ndarray` with shape `(17,)` where the elements correspond to the following:
+    By default, observations do not include the x-coordinate of the cheetah's center of mass. It may
+    be included by passing `exclude_current_positions_from_observation=False` during construction.
+    In that case, the observation space will have 18 dimensions where the first dimension
+    represents the x-coordinate of the cheetah's center of mass.
+
+    However, by default, the observation is a `ndarray` with shape `(17,)` where the elements correspond to the following:
+
 
     | Num | Observation           | Min                  | Max                | Name (in corresponding XML file) | Joint| Unit |
     |-----|-----------------------|----------------------|--------------------|----------------------|--------------------|--------------------|
-    | 0     | x-coordinate of the center of mass         | -Inf                 | Inf                | rootx | slide | position (m) |
-    | 1     | y-coordinate of the center of mass         | -Inf                 | Inf                | rootz | slide | position (m) |
-    | 2     | angle of the front tip                     | -Inf                 | Inf                | rooty | hinge | angle (rad) |
-    | 3     | angle of the back thigh rotor              | -Inf                 | Inf                | bthigh | hinge | angle (rad) |
-    | 4     | angle of the back shin rotor               | -Inf                 | Inf                | bshin | hinge | angle (rad) |
-    | 5     | angle of the back foot rotor               | -Inf                 | Inf                | bfoot | hinge | angle (rad) |
-    | 6     | velocity of the tip along the y-axis       | -Inf                 | Inf                | fthigh | hinge | angle (rad) |
-    | 7     | angular velocity of front tip              | -Inf                 | Inf                | fshin | hinge | angle (rad) |
-    | 8     | angular velocity of second rotor           | -Inf                 | Inf                | ffoot | hinge | angle (rad) |
-    | 9     | x-coordinate of the front tip              | -Inf                 | Inf                | rootx | slide | velocity (m/s) |
-    | 10   | y-coordinate of the front tip               | -Inf                 | Inf                | rootz | slide | velocity (m/s) |
-    | 11   | angle of the front tip                      | -Inf                 | Inf                | rooty | hinge | angular velocity (rad/s) |
-    | 12   | angle of the second rotor                   | -Inf                 | Inf                | bthigh | hinge | angular velocity (rad/s) |
-    | 13   | angle of the second rotor                   | -Inf                 | Inf                | bshin | hinge | angular velocity (rad/s) |
-    | 14   | velocity of the tip along the x-axis        | -Inf                 | Inf                | bfoot | hinge | angular velocity (rad/s) |
-    | 15   | velocity of the tip along the y-axis        | -Inf                 | Inf                | fthigh | hinge |angular velocity (rad/s) |
-    | 16   | angular velocity of front tip               | -Inf                 | Inf                | fshin | hinge | angular velocity (rad/s) |
-    | 17   | angular velocity of second rotor            | -Inf                 | Inf                | ffoot | hinge | angular velocity (rad/s) |
-
-
-    **Note:**
-    In practice (and Gym implementation), the first positional element is
-    omitted from the state space since the reward function is calculated based
-    on that value. This value is hidden from the algorithm, which in turn has
-    to develop an abstract understanding of it from the observed rewards.
-    Therefore, observation space has shape `(8,)` and looks like:
-
-    | Num | Observation           | Min                  | Max                | Name (in corresponding XML file) | Joint| Unit |
-    |-----|-----------------------|----------------------|--------------------|----------------------|--------------------|--------------------|
-    | 0     | y-coordinate of the front tip              | -Inf                 | Inf                | rootz | slide | position (m) |
+    | 0     | z-coordinate of the front tip              | -Inf                 | Inf                | rootz | slide | position (m) |
     | 1     | angle of the front tip                     | -Inf                 | Inf                | rooty | hinge | angle (rad) |
     | 2     | angle of the second rotor                  | -Inf                 | Inf                | bthigh | hinge | angle (rad) |
     | 3     | angle of the second rotor                  | -Inf                 | Inf                | bshin | hinge | angle (rad) |
@@ -96,14 +72,14 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     ### Rewards
     The reward consists of two parts:
     - *reward_run*: A reward of moving forward which is measured
-    as *(x-coordinate before action - x-coordinate after action)/dt*. *dt* is
-    the time between actions and is dependeent on the frame_skip parameter
-    (default is 5), where the *dt* for one frame is 0.01 - making the
-    default *dt = 5*0.01 = 0.05*. This reward would be positive if the cheetah
-    runs forward (right) desired.
+    as *`forward_reward_weight` \times (x-coordinate before action - x-coordinate after action)/dt*. *dt* is
+    the time between actions and is dependent on the frame_skip parameter
+    (fixed to 5), where the frametime is 0.01 - making the
+    default *dt = 5 * 0.01 = 0.05*. This reward would be positive if the cheetah
+    runs forward (right).
     - *reward_control*: A negative reward for penalising the cheetah if it takes
-    actions that are too large. It is measured as *-coefficient x
-    sum(action<sup>2</sup>)* where *coefficient* is a parameter set for the
+    actions that are too large. It is measured as *-`ctrl_cost_weight` *
+    sum(action<sup>2</sup>)* where *`ctrl_cost_weight`* is a parameter set for the
     control and has a default value of 0.1
 
     The total reward returned is ***reward*** *=* *reward_run + reward_control*
@@ -113,8 +89,8 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,) with a noise added to the
     initial state for stochasticity. As seen before, the first 8 values in the
     state are positional and the last 9 values are velocity. A uniform noise in
-    the range of [-0.1, 0.1] is added to the positional values while a standard
-    normal noise with a mean of 0 and standard deviation of 0.1 is added to the
+    the range of [-`reset_noise_scale`, `reset_noise_scale`] is added to the positional values while a standard
+    normal noise with a mean of 0 and standard deviation of `reset_noise_scale` is added to the
     initial velocity values of all zeros.
 
     ### Episode Termination
@@ -122,7 +98,7 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     ### Arguments
 
-    No additional arguments are currently supported (in v2 and lower), but
+    No additional arguments are currently supported in v2 and lower, but
     modifications can be made to the XML file in the assets folder at
     `gym/envs/mujoco/assets/half_cheetah.xml` (or by changing the path to a
     modified XML file in another folder).
@@ -136,6 +112,14 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     ```
     env = gym.make('HalfCheetah-v3', ctrl_cost_weight=0.1, ....)
     ```
+
+    | Parameter               | Type       | Default      |Description                    |
+    |-------------------------|------------|--------------|-------------------------------|
+    | `xml_file`              | **str**    | `"ant.xml"`  | Path to a MuJoCo model |
+    | `forward_reward_weight` | **float**  | `1.0`        | Weight for *reward_run* in reward (see section on reward) |
+    | `ctrl_cost_weight`      | **float**  | `0.1`        | Weight for control cost in reward (see section on reward) |
+    | `reset_noise_scale`     | **float**  | `0.1`        | Scale of random perturbations of initial position and velocity (see section on Starting State) |
+    | `exclude_current_positions_from_observation`| **bool** | `True` | Whether or not to omit the x- and y-coordinates from observations. Excluding the position can serve as an inductive bias to induce position-agnostic behavior in policies |
 
 
     ### Version History
