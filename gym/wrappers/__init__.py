@@ -17,4 +17,4 @@ from gym.wrappers.record_episode_statistics import RecordEpisodeStatistics
 from gym.wrappers.normalize import NormalizeObservation, NormalizeReward
 from gym.wrappers.record_video import RecordVideo, capped_cubic_video_schedule
 from gym.wrappers.order_enforcing import OrderEnforcing
-from gym.wrappers.onehot_observation import OnehotObservation
+from gym.wrappers.one_hot_observation import OneHotObservation
