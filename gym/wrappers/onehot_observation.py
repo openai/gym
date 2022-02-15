@@ -37,4 +37,4 @@ class OnehotObservation(gym.ObservationWrapper):
     def observation(self, obs):
         self.onehot_encoding[:] = 0
         self.onehot_encoding[np.array(obs)] = 1
-        return obs
+        return self.onehot_encoding
