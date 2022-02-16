@@ -40,7 +40,7 @@ if sys.version_info >= (3, 8):
     from typing import Literal
 else:
 
-    class Literal:
+    class Literal(str):
         def __class_getitem__(cls, item):
             return Any
 
