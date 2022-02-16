@@ -31,7 +31,6 @@ class OneHotObservation(gym.ObservationWrapper):
 
     def __init__(self, env: gym.Env):
         super().__init__(env)
-        self.n: int = None
         if not isinstance(self.env.observation_space, gym.spaces.Discrete):
             raise ValueError(
                 "This wrapper can only apply to the Discrete observation space"
