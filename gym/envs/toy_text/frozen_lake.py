@@ -67,9 +67,10 @@ def generate_random_map(size=8, p=0.8):
 
 class FrozenLakeEnv(Env):
     """
-    Frozen lake involves crossing a frozen lake from Start(S) to goal(G) without falling into any holes(H). The agent may not always move in the intended direction due to the slippery nature of the frozen lake.
+    Frozen lake involves crossing a frozen lake from Start(S) to goal(G) without falling into any holes(H) by walking over
+    the Frozen(F) lake. The agent may not always move in the intended direction due to the slippery nature of the frozen lake.
 
-    The agent take a 1-element vector for actions.
+    The agent takes a 1-element vector for actions.
     The action space is `(dir)`, where `dir` decides direction to move in which can be:
 
     - 0: LEFT
@@ -78,19 +79,22 @@ class FrozenLakeEnv(Env):
     - 3: UP
 
     The observation is a value representing the agents current position as
-
-        current_row * nrows + current_col
+        current_row * nrows + current_col (where both the row and col start at 0).
+    For example, the goal position in the 4x4 map can be calculated as follows: 3 * 4 + 3 = 15
+    The amount of possible observation spaces is dependent on the size of the map.
+    The 4x4 map thus has 16 possible observations.
 
     **Rewards:**
 
     Reward schedule:
     - Reach goal(G): +1
     - Reach hole(H): 0
+    - Reach frozen(F): 0
 
     ### Arguments
 
     ```
-    gym.make('FrozenLake-v0', desc=None,map_name="4x4", is_slippery=True)
+    gym.make('FrozenLake-v1', desc=None,map_name="4x4", is_slippery=True)
     ```
 
     `desc`: Used to specify custom map for frozen lake. For example,
@@ -116,9 +120,6 @@ class FrozenLakeEnv(Env):
             "FHFFHFHF",
             "FFFHFFFG",
         ]
-
-
-
 
     `is_slippery`: True/False. If True will move in intended direction with
     probability of 1/3 else will move in either perpendicular direction with
