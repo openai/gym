@@ -135,6 +135,7 @@ class AtariPreprocessing(gym.Wrapper):
         if kwargs.get("return_info", False):
             _, reset_info = self.env.reset(**kwargs)
         else:
+            _ = self.env.reset(**kwargs)
             reset_info = {}
 
         noops = (
