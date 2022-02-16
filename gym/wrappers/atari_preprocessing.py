@@ -1,9 +1,6 @@
-from typing import Optional
-
 import numpy as np
 import gym
 from gym.spaces import Box
-from gym.wrappers import TimeLimit
 
 try:
     import cv2
@@ -45,14 +42,14 @@ class AtariPreprocessing(gym.Wrapper):
 
     def __init__(
         self,
-        env,
-        noop_max=30,
-        frame_skip=4,
-        screen_size=84,
-        terminal_on_life_loss=False,
-        grayscale_obs=True,
-        grayscale_newaxis=False,
-        scale_obs=False,
+        env: gym.Env,
+        noop_max: int = 30,
+        frame_skip: int = 4,
+        screen_size: int = 84,
+        terminal_on_life_loss: bool = False,
+        grayscale_obs: bool = True,
+        grayscale_newaxis: bool = False,
+        scale_obs: bool = False,
     ):
         super().__init__(env)
         assert (
@@ -136,9 +133,9 @@ class AtariPreprocessing(gym.Wrapper):
     def reset(self, **kwargs):
         # NoopReset
         if kwargs.get("return_info", False):
-            _, info = self.env.reset(**kwargs)
+            _, reset_info = self.env.reset(**kwargs)
         else:
-            info = None
+            reset_info = {}
 
         noops = (
             self.env.unwrapped.np_random.integers(1, self.noop_max + 1)
@@ -146,7 +143,8 @@ class AtariPreprocessing(gym.Wrapper):
             else 0
         )
         for _ in range(noops):
-            _, _, done, _ = self.env.step(0)
+            _, _, done, step_info = self.env.step(0)
+            reset_info.update(step_info)
             if done:
                 self.env.reset(**kwargs)
 
@@ -158,7 +156,7 @@ class AtariPreprocessing(gym.Wrapper):
         self.obs_buffer[1].fill(0)
 
         if kwargs.get("return_info", False):
-            return self._get_obs(), info
+            return self._get_obs(), reset_info
         else:
             return self._get_obs()
 
