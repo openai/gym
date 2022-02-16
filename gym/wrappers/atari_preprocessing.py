@@ -147,7 +147,11 @@ class AtariPreprocessing(gym.Wrapper):
             _, _, done, step_info = self.env.step(0)
             reset_info.update(step_info)
             if done:
-                self.env.reset(**kwargs)
+                if kwargs.get("return_info", False):
+                    _, reset_info = self.env.reset(**kwargs)
+                else:
+                    _ = self.env.reset(**kwargs)
+                    reset_info = {}
 
         self.lives = self.ale.lives()
         if self.grayscale_obs:
