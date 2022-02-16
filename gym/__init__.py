@@ -1,5 +1,7 @@
 from gym import error
 from gym.version import VERSION as __version__
+import warnings
+import gym_notices.notices as notices
 
 from gym.core import (
     Env,
@@ -18,3 +20,8 @@ import os
 __all__ = ["Env", "Space", "Wrapper", "make", "spec", "register"]
 
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
+
+# print version warning if necessary
+for key in notices.notices:
+    if __version__ in key:
+        warnings.warn(notices.notices[key])
