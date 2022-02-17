@@ -45,6 +45,8 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     be included by passing `exclude_current_positions_from_observation=False` during construction.
     In that case, the observation space will have 113 dimensions where the first two dimensions
     represent the x- and y- coordinates of the ant's torso.
+    Regardless of whether `exclude_current_positions_from_observation` was set to true or false, the x- and y-coordinates
+    of the torso will be returned in `info` with keys `"x_position"` and `"y_position"`, respectively.
 
     However, by default, an observation is a `ndarray` with shape `(111,)`
     where the elements correspond to the following:
@@ -88,12 +90,6 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     The (x,y,z) coordinates are translational DOFs while the orientations are rotational
     DOFs expressed as quaternions. One can read more about free joints on the [Mujoco Documentation](https://mujoco.readthedocs.io/en/latest/XMLreference.html).
 
-    **Note:** The first two positional
-    coordinates of the torso are omitted from the observation by default since the reward function is calculated based
-    on the x-coordinate value. This value is hidden from the algorithm, which in turn has to
-    develop an abstract understanding of it from the observed rewards.
-    Regardless of whether `exclude_current_positions_from_observation` was set to true or false, the x- and y-coordinates
-    of the torso will be returned in `info` with keys `x_position` and `y_position`, respectively.
 
     **Note:** There have been reported issues that using a Mujoco-Py version > 2.0 results
     in the contact forces always being 0. As such we recommend to use a Mujoco-Py version < 2.0
@@ -102,7 +98,7 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     ### Rewards
     The reward consists of three parts:
-    - *survive_reward*: Every timestep that the ant is healthy (see definition in section "Episode Termination"), it gets a reward of fixed value `healthy_reward`
+    - *healthy_reward*: Every timestep that the ant is healthy (see definition in section "Episode Termination"), it gets a reward of fixed value `healthy_reward`
     - *forward_reward*: A reward of moving forward which is measured as
     *(x-coordinate before action - x-coordinate after action)/dt*. *dt* is the time
     between actions and is dependent on the `frame_skip` parameter (default is 5),
@@ -115,7 +111,7 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     force is too large. It is calculated *`contact_cost_weight` * sum(clip(external contact
     force to `contact_force_range`)<sup>2</sup>)*.
 
-    The total reward returned is ***reward*** *=* *alive survive_reward + forward_reward - ctrl_cost - contact_cost*
+    The total reward returned is ***reward*** *=* *healthy_reward + forward_reward - ctrl_cost - contact_cost* and `info` will also contain the individual reward terms.
 
     ### Starting State
     All observations start in state
@@ -157,8 +153,8 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     | Parameter               | Type       | Default      |Description                    |
     |-------------------------|------------|--------------|-------------------------------|
     | `xml_file`              | **str**    | `"ant.xml"`  | Path to a MuJoCo model |
-    | `ctrl_cost_weight`      | **float**  | `0.5`        | Weight for control cost in reward (see section on reward) |
-    | `contact_cost_weight`   | **float**  | `5e-4`       | Weight for contact cost in reward (see section on reward) |
+    | `ctrl_cost_weight`      | **float**  | `0.5`        | Weight for *ctrl_cost* term (see section on reward) |
+    | `contact_cost_weight`   | **float**  | `5e-4`       | Weight for *contact_cost* term (see section on reward) |
     | `healthy_reward`        | **float**  | `1`          | Constant reward given if the ant is "healthy" after timestep |
     | `terminate_when_unhealthy` | **bool**| `True`       | If true, issue a done signal if the z-coordinate of the torso is no longer in the `healthy_z_range` |
     | `healthy_z_range`       | **tuple**  | `(0.2, 1)`   | The ant is considered healthy if the z-coordinate of the torso is in this range |

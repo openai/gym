@@ -60,6 +60,8 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     be included by passing `exclude_current_positions_from_observation=False` during construction.
     In that case, the observation space will have 378 dimensions where the first two dimensions
     represent the x- and y-coordinates of the torso.
+    Regardless of whether `exclude_current_positions_from_observation` was set to true or false, the x- and y-coordinates
+    will be returned in `info` with keys `"x_position"` and `"y_position"`, respectively.
 
     However, by default, the observation is a `ndarray` with shape `(376,)` where the elements correspond to the following:
 
@@ -137,7 +139,7 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     ### Rewards
     The reward consists of three parts:
-    - *alive_bonus*: Every timestep that the humanoid is alive (see section Episode Termination for definition), it gets a reward of fixed value `healthy_reward`
+    - *healthy_reward*: Every timestep that the humanoid is alive (see section Episode Termination for definition), it gets a reward of fixed value `healthy_reward`
     - *forward_reward*: A reward of walking forward which is measured as *`forward_reward_weight` *
     (average center of mass before action - average center of mass after action)/dt*.
     *dt* is the time between actions and is dependent on the frame_skip parameter
@@ -151,7 +153,7 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     contact force is too large. It is calculated by clipping
     *`contact_cost_weight` * sum(external contact force<sup>2</sup>)* to the interval specified by `contact_cost_range`.
 
-    The total reward returned is ***reward*** *=* *healthy_reward + forward_reward - ctrl_cost - contact_cost*
+    The total reward returned is ***reward*** *=* *healthy_reward + forward_reward - ctrl_cost - contact_cost* and `info` will also contain the individual reward terms
 
     ### Starting State
     All observations start in state

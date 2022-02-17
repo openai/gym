@@ -46,6 +46,8 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     be included by passing `exclude_current_positions_from_observation=False` during construction.
     In that case, the observation space will have 12 dimensions where the first dimension
     represents the x-coordinate of the hopper.
+    Regardless of whether `exclude_current_positions_from_observation` was set to true or false, the x-coordinate
+    will be returned in `info` with key `"x_position"`.
 
     However, by default, the observation is a `ndarray` with shape `(11,)` where the elements
     correspond to the following:
@@ -67,18 +69,18 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     ### Rewards
     The reward consists of three parts:
     - *healthy_reward*: Every timestep that the hopper is healthy (see definition in section "Episode Termination"), it gets a reward of fixed value `healthy_reward`.
-    - *reward_forward*: A reward of hopping forward which is measured
+    - *forward_reward*: A reward of hopping forward which is measured
     as *`forward_reward_weight` * (x-coordinate before action - x-coordinate after action)/dt*. *dt* is
     the time between actions and is dependent on the frame_skip parameter
     (fixed to 4), where the frametime is 0.002 - making the
     default *dt = 4 * 0.002 = 0.008*. This reward would be positive if the hopper
     hops forward (positive x direction).
-    - *reward_control*: A negative reward for penalising the hopper if it takes
-    actions that are too large. It is measured as *-`ctrl_cost_weight` *
+    - *ctrl_cost*: A cost for penalising the hopper if it takes
+    actions that are too large. It is measured as *`ctrl_cost_weight` *
     sum(action<sup>2</sup>)* where *`ctrl_cost_weight`* is a parameter set for the
     control and has a default value of 0.001
 
-    The total reward returned is ***reward*** *=* *healthy_reward + reward_forward + reward_control*
+    The total reward returned is ***reward*** *=* *healthy_reward + forward_reward - ctrl_cost* and `info` will also contain the individual reward terms
 
     ### Starting State
     All observations start in state
@@ -117,8 +119,8 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     | Parameter               | Type       | Default        |Description                    |
     |-------------------------|------------|----------------|-------------------------------|
     | `xml_file`              | **str**    | `"hopper.xml"` | Path to a MuJoCo model |
-    | `forward_reward_weight` | **float**  | `1.0`          | Weight for forward reward (see section on reward) |
-    | `ctrl_cost_weight`      | **float**  | `0.001`        | Weight for control cost in reward (see section on reward) |
+    | `forward_reward_weight` | **float**  | `1.0`          | Weight for *forward_reward* term (see section on reward) |
+    | `ctrl_cost_weight`      | **float**  | `0.001`        | Weight for *ctrl_cost* reward (see section on reward) |
     | `healthy_reward`        | **float**  | `1`            | Constant reward given if the ant is "healthy" after timestep |
     | `terminate_when_unhealthy` | **bool**| `True`         | If true, issue a done signal if the hopper is no longer healthy |
     | `healthy_state_range`   | **tuple**  | `(-100, 100)`  | The elements of `observation[1:]` (if  `exclude_current_positions_from_observation=True`, else `observation[2:]`) must be in this range for the hopper to be considered healthy |

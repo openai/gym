@@ -45,6 +45,8 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     be included by passing `exclude_current_positions_from_observation=False` during construction.
     In that case, the observation space will have 18 dimensions where the first dimension
     represents the x-coordinate of the cheetah's center of mass.
+    Regardless of whether `exclude_current_positions_from_observation` was set to true or false, the x-coordinate
+    will be returned in `info` with key `"x_position"`.
 
     However, by default, the observation is a `ndarray` with shape `(17,)` where the elements correspond to the following:
 
@@ -71,18 +73,18 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     ### Rewards
     The reward consists of two parts:
-    - *reward_run*: A reward of moving forward which is measured
+    - *forward_reward*: A reward of moving forward which is measured
     as *`forward_reward_weight` * (x-coordinate before action - x-coordinate after action)/dt*. *dt* is
     the time between actions and is dependent on the frame_skip parameter
     (fixed to 5), where the frametime is 0.01 - making the
     default *dt = 5 * 0.01 = 0.05*. This reward would be positive if the cheetah
     runs forward (right).
-    - *reward_control*: A negative reward for penalising the cheetah if it takes
-    actions that are too large. It is measured as *-`ctrl_cost_weight` *
+    - *ctrl_cost*: A cost for penalising the cheetah if it takes
+    actions that are too large. It is measured as *`ctrl_cost_weight` *
     sum(action<sup>2</sup>)* where *`ctrl_cost_weight`* is a parameter set for the
     control and has a default value of 0.1
 
-    The total reward returned is ***reward*** *=* *reward_run + reward_control*
+    The total reward returned is ***reward*** *=* *forward_reward - ctrl_cost* and `info` will also contain the individual reward terms
 
     ### Starting State
     All observations start in state (0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
@@ -113,8 +115,8 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     | Parameter               | Type       | Default              |Description                    |
     |-------------------------|------------|----------------------|-------------------------------|
     | `xml_file`              | **str**    | `"half_cheetah.xml"` | Path to a MuJoCo model |
-    | `forward_reward_weight` | **float**  | `1.0`                | Weight for *reward_run* in reward (see section on reward) |
-    | `ctrl_cost_weight`      | **float**  | `0.1`                | Weight for control cost in reward (see section on reward) |
+    | `forward_reward_weight` | **float**  | `1.0`                | Weight for *forward_reward* term (see section on reward) |
+    | `ctrl_cost_weight`      | **float**  | `0.1`                | Weight for *ctrl_cost* weight (see section on reward) |
     | `reset_noise_scale`     | **float**  | `0.1`                | Scale of random perturbations of initial position and velocity (see section on Starting State) |
     | `exclude_current_positions_from_observation`| **bool** | `True` | Whether or not to omit the x-coordinate from observations. Excluding the position can serve as an inductive bias to induce position-agnostic behavior in policies |
 
