@@ -23,6 +23,7 @@ os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 try:
     import gym_notices.notices as notices
     import sys
+
     # print version warning if necessary
     notice = notices.notices.get(__version__)
     if notice is not None:
