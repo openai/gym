@@ -91,7 +91,7 @@ class Env(Generic[ObsType, ActType]):
             info (optional dictionary): a dictionary containing extra information, this is only returned if return_info is set to true
         """
         # Initialize the RNG if the seed is manually passed
-        if seed is not None or self.np_random is None:
+        if seed is not None or not hasattr(self, "np_random") or self.np_random is None:
             self.np_random, seed = seeding.np_random(seed)
 
     @abstractmethod
