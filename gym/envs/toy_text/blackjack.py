@@ -74,8 +74,8 @@ class BlackjackEnv(gym.Env):
     There are two actions: stick (0), and hit (1).
 
     ### Observation Space
-    The observation consists of a 3-tuple containing: the players current sum,
-    the value of the dealers one showing card (1-10 where 1 is ace),
+    The observation consists of a 3-tuple containing: the player's current sum,
+    the value of the dealer's one showing card (1-10 where 1 is ace),
     and whether the player holds a usable ace (0 or 1).
 
     This environment corresponds to the version of the blackjack problem
