@@ -1,6 +1,5 @@
 from gym import error
 from gym.version import VERSION as __version__
-import warnings
 
 from gym.core import (
     Env,
@@ -16,16 +15,18 @@ from gym import vector
 from gym import wrappers
 import os
 
+
 __all__ = ["Env", "Space", "Wrapper", "make", "spec", "register"]
 
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 
 try:
     import gym_notices.notices as notices
-
+    import sys
     # print version warning if necessary
-    for key in notices.notices:
-        if __version__ in key:
-            warnings.warn(notices.notices[key])
+    notice = notices.notices.get(__version__)
+    if notice is not None:
+        print(notice, file=sys.stderr)
+
 except Exception:  # nosec
     pass
