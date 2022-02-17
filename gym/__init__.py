@@ -27,5 +27,5 @@ try:
     for key in notices.notices:
         if __version__ in key:
             warnings.warn(notices.notices[key])
-except Exception:
+except Exception: # nosec
     pass
