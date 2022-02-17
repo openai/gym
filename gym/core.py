@@ -300,8 +300,11 @@ class Wrapper(Env[ObsType, ActType]):
 
 class ObservationWrapper(Wrapper):
     def reset(self, **kwargs):
-        observation = self.env.reset(**kwargs)
-        return self.observation(observation)
+        if kwargs.get("return_info", False):
+            obs, info = self.env.reset(**kwargs)
+            return self.observation(obs), info
+        else:
+            return self.observation(self.env.reset(**kwargs))
 
     def step(self, action):
         observation, reward, done, info = self.env.step(action)
