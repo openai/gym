@@ -94,21 +94,21 @@ class FrictionDetector(contactListener):
 class CarRacing(gym.Env, EzPickle):
     """
     ## Description
-    Easiest continuous control task to learn from pixels, a top-down
-    racing environment. Discreet control is reasonable in this environment as
-    well, on/off discretisation is fine.
+    The easiest continuous control task to learn from pixels - a top-down
+    racing environment. Discrete control is reasonable in this environment as
+    well; on/off discretisation is fine.
 
     The game is solved when the agent consistently gets 900+ points.
     The generated track is random every episode.
 
     Some indicators are shown at the bottom of the window along with the
     state RGB buffer. From left to right: true speed, four ABS sensors,
-    steering wheel position, gyroscope.
+    steering wheel position, and gyroscope.
     To play yourself (it's rather fast for humans), type:
     ```
     python gym/envs/box2d/car_racing.py
     ```
-    Remember it's a powerful rear-wheel drive car - don't press the accelerator
+    Remember: it's a powerful rear-wheel drive car - don't press the accelerator
     and turn at the same time.
 
     ## Action Space
@@ -125,11 +125,11 @@ class CarRacing(gym.Env, EzPickle):
     1000 - 0.1*732 = 926.8 points.
 
     ## Starting State
-    The car starts stopped at the center of the road.
+    The car starts at rest in the center of the road.
 
     ## Episode Termination
-    The episode finishes when all the tiles are visited. The car also can go
-    outside of the playfield - that is far off the track, then it will
+    The episode finishes when all of the tiles are visited. The car can also go
+    outside of the playfield - that is, far off the track, in which case it will
     get -100 and die.
 
     ## Arguments

@@ -23,12 +23,9 @@ class TaxiEnv(Env):
 
     The Taxi Problem
     from "Hierarchical Reinforcement Learning with the MAXQ Value Function Decomposition"
-
     by Tom Dietterich
 
-
-
-    Description:
+    ## Description
 
     There are four designated locations in the grid world indicated by R(ed),
     G(reen), Y(ellow), and B(lue). When the episode starts, the taxi starts off
@@ -37,7 +34,7 @@ class TaxiEnv(Env):
     passenger's destination (another one of the four specified locations), and
     then drops off the passenger. Once the passenger is dropped off, the episode ends.
 
-    MAP:
+    Map:
 
         +---------+
         |R: | : :G|
@@ -47,7 +44,7 @@ class TaxiEnv(Env):
         |Y| : |B: |
         +---------+
 
-    Actions:
+    ## Actions
 
     There are 6 discrete deterministic actions:
     - 0: move south
@@ -57,8 +54,7 @@ class TaxiEnv(Env):
     - 4: pickup passenger
     - 5: drop off passenger
 
-    Observations:
-
+    ## Observations
     There are 500 discrete states since there are 25 taxi positions, 5 possible
     locations of the passenger (including the case when the passenger is in the
     taxi), and 4 destination locations.
@@ -85,14 +81,13 @@ class TaxiEnv(Env):
 
 
 
-    **Rewards:**
-
-    - -1 per step reward unless other reward is triggered.
+    ## Rewards
+    - -1 per step unless other reward is triggered.
     - +20 delivering passenger.
     - -10  executing "pickup" and "drop-off" actions illegally.
 
 
-    Rendering:
+    ## Rendering
     - blue: passenger
     - magenta: destination
     - yellow: empty taxi

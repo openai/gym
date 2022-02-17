@@ -70,12 +70,12 @@ class LunarLander(gym.Env, EzPickle):
     This environment is a classic rocket trajectory optimization problem.
     According to Pontryagin's maximum principle, it is optimal to fire the
     engine at full throttle or turn it off. This is the reason why this
-    environment has discreet actions: engine on or off.
+    environment has discrete actions: engine on or off.
 
     There are two environment versions: discrete or continuous.
     The landing pad is always at coordinates (0,0). The coordinates are the
     first two numbers in the state vector.
-    Landing outside the landing pad is possible. Fuel is infinite, so an agent
+    Landing outside of the landing pad is possible. Fuel is infinite, so an agent
     can learn to fly and then land on its first attempt.
 
     To see a heuristic landing, run:
@@ -91,13 +91,13 @@ class LunarLander(gym.Env, EzPickle):
 
     ## Observation Space
     There are 8 states: the coordinates of the lander in `x` & `y`, its linear
-    velocities in `x` & `y`, its angle, its angular velocity, and two boleans
-    showing if each leg is in contact with the ground or not.
+    velocities in `x` & `y`, its angle, its angular velocity, and two booleans
+    that represent whether each leg is in contact with the ground or not.
 
     ## Rewards
     Reward for moving from the top of the screen to the landing pad and zero
-    speed is about 100..140 points.
-    If the lander moves away from the landing pad it loses reward.
+    speed is about 100-140 points.
+    If the lander moves away from the landing pad, it loses reward.
     If the lander crashes, it receives an additional -100 points. If it comes
     to rest, it receives an additional +100 points. Each leg with ground
     contact is +10 points.
