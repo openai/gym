@@ -46,15 +46,7 @@ class Env(Generic[ObsType, ActType]):
     action_space: spaces.Space[ActType]
     observation_space: spaces.Space[ObsType]
 
-    # Created
-    _np_random: RandomNumberGenerator | None = None
-
-    @property
-    def np_random(self) -> RandomNumberGenerator:
-        """Initializes the np_random field if not done already."""
-        if self._np_random is None:
-            self._np_random, seed = seeding.np_random()
-        return self._np_random
+    np_random: RandomNumberGenerator | None = None
 
     @abstractmethod
     def step(self, action: ActType) -> Tuple[ObsType, float, bool, dict]:
@@ -99,8 +91,8 @@ class Env(Generic[ObsType, ActType]):
             info (optional dictionary): a dictionary containing extra information, this is only returned if return_info is set to true
         """
         # Initialize the RNG if the seed is manually passed
-        if seed is not None:
-            self._np_random, seed = seeding.np_random(seed)
+        if seed is not None or self.np_random is None:
+            self.np_random, seed = seeding.np_random(seed)
 
     @abstractmethod
     def render(self, mode="human"):
@@ -169,7 +161,7 @@ class Env(Generic[ObsType, ActType]):
             "Function `env.seed(seed)` is marked as deprecated and will be removed in the future. "
             "Please use `env.reset(seed=seed) instead."
         )
-        self._np_random, seed = seeding.np_random(seed)
+        self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
     @property
