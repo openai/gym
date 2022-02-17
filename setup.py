@@ -49,7 +49,7 @@ setup(
         "numpy>=1.18.0",
         "cloudpickle>=1.2.0",
         "importlib_metadata>=4.10.0; python_version < '3.10'",
-        "gym_notices>=0.0.3",
+        "gym_notices>=0.0.4",
     ],
     extras_require=extras,
     package_data={
