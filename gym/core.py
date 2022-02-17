@@ -46,7 +46,7 @@ class Env(Generic[ObsType, ActType]):
     action_space: spaces.Space[ActType]
     observation_space: spaces.Space[ObsType]
 
-    np_random: RandomNumberGenerator | None = None
+    np_random: RandomNumberGenerator = None
 
     @abstractmethod
     def step(self, action: ActType) -> Tuple[ObsType, float, bool, dict]:
