@@ -51,8 +51,8 @@ class BlackjackEnv(gym.Env):
     """
     Blackjack is a card game where the goal is to beat the dealer by obtaining cards
     that sum to closer to 21 (without going over 21) than the dealers cards.
-    The dealer is fixed in this environment.
 
+    ### Description
     Card Values:
 
     - Face cards (Jack, Queen, King) have a point value of 10.
@@ -66,14 +66,14 @@ class BlackjackEnv(gym.Env):
     The player can request additional cards (hit, action=1) until they decide to stop (stick, action=0)
     or exceed 21 (bust, immediate loss).
     After the player sticks, the dealer reveals their facedown card, and draws
-    until their sum is 17 or greater.  If the dealer goes bust the player wins.
+    until their sum is 17 or greater.  If the dealer goes bust, the player wins.
     If neither the player nor the dealer busts, the outcome (win, lose, draw) is
     decided by whose sum is closer to 21.
 
-    ## Action Space
+    ### Action Space
     There are two actions: stick (0), and hit (1).
 
-    ## Observation Space
+    ### Observation Space
     The observation consists of a 3-tuple containing: the players current sum,
     the value of the dealers one showing card (1-10 where 1 is ace),
     and whether the player holds a usable ace (0 or 1).
@@ -82,7 +82,7 @@ class BlackjackEnv(gym.Env):
     described in Example 5.1 in Reinforcement Learning: An Introduction
     by Sutton and Barto (http://incompleteideas.net/book/the-book-2nd.html).
 
-    ## Rewards
+    ### Rewards
     - win game: +1
     - lose game: -1
     - draw game: 0
@@ -92,7 +92,7 @@ class BlackjackEnv(gym.Env):
 
         +1 (if <a href="#nat">natural</a> is False)
 
-    ## Arguments
+    ### Arguments
 
     ```
     gym.make('Blackjack-v1', natural=False)
@@ -102,7 +102,6 @@ class BlackjackEnv(gym.Env):
     starting with a natural blackjack, i.e. starting with an ace and ten (sum is 21).
 
     ### Version History
-
     * v0: Initial versions release (1.0.0)
     """
 

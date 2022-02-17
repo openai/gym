@@ -25,8 +25,7 @@ class TaxiEnv(Env):
     from "Hierarchical Reinforcement Learning with the MAXQ Value Function Decomposition"
     by Tom Dietterich
 
-    ## Description
-
+    ### Description
     There are four designated locations in the grid world indicated by R(ed),
     G(reen), Y(ellow), and B(lue). When the episode starts, the taxi starts off
     at a random square and the passenger is at a random location. The taxi
@@ -44,8 +43,7 @@ class TaxiEnv(Env):
         |Y| : |B: |
         +---------+
 
-    ## Actions
-
+    ### Actions
     There are 6 discrete deterministic actions:
     - 0: move south
     - 1: move north
@@ -54,7 +52,7 @@ class TaxiEnv(Env):
     - 4: pickup passenger
     - 5: drop off passenger
 
-    ## Observations
+    ### Observations
     There are 500 discrete states since there are 25 taxi positions, 5 possible
     locations of the passenger (including the case when the passenger is in the
     taxi), and 4 destination locations.
@@ -79,15 +77,12 @@ class TaxiEnv(Env):
     - 2: Y(ellow)
     - 3: B(lue)
 
-
-
-    ## Rewards
+    ### Rewards
     - -1 per step unless other reward is triggered.
     - +20 delivering passenger.
     - -10  executing "pickup" and "drop-off" actions illegally.
 
-
-    ## Rendering
+    ### Rendering
     - blue: passenger
     - magenta: destination
     - yellow: empty taxi
@@ -102,10 +97,7 @@ class TaxiEnv(Env):
     gym.make('Taxi-v3')
     ```
 
-
-
     ### Version History
-
     * v3: Map Correction + Cleaner Domain Description
     * v2: Disallow Taxi start location = goal location, Update Taxi observations in the rollout, Update Taxi reward threshold.
     * v1: Remove (3,2) from locs, add passidx<4 check

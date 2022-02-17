@@ -93,10 +93,10 @@ class FrictionDetector(contactListener):
 
 class CarRacing(gym.Env, EzPickle):
     """
-    ## Description
+    ### Description
     The easiest continuous control task to learn from pixels - a top-down
     racing environment. Discrete control is reasonable in this environment as
-    well; on/off discretisation is fine.
+    well; on/off discretization is fine.
 
     The game is solved when the agent consistently gets 900+ points.
     The generated track is random every episode.
@@ -111,37 +111,37 @@ class CarRacing(gym.Env, EzPickle):
     Remember: it's a powerful rear-wheel drive car - don't press the accelerator
     and turn at the same time.
 
-    ## Action Space
+    ### Action Space
     There are 3 actions: steering (-1 is full left, +1 is full right), gas,
     and breaking.
 
-    ## Observation Space
+    ### Observation Space
     State consists of 96x96 pixels.
 
-    ## Rewards
+    ### Rewards
     The reward is -0.1 every frame and +1000/N for every track tile visited,
     where N is the total number of tiles visited in the track. For example,
     if you have finished in 732 frames, your reward is
     1000 - 0.1*732 = 926.8 points.
 
-    ## Starting State
+    ### Starting State
     The car starts at rest in the center of the road.
 
-    ## Episode Termination
+    ### Episode Termination
     The episode finishes when all of the tiles are visited. The car can also go
     outside of the playfield - that is, far off the track, in which case it will
-    get -100 and die.
+    receive -100 reward and die.
 
-    ## Arguments
+    ### Arguments
     There are no arguments supported in constructing the environment.
 
-    ## Version History
+    ### Version History
     - v0: Current version
 
-    ## References
+    ### References
     - Chris Campbell (2014), http://www.iforce2d.net/b2dtut/top-down-car.
 
-    ## Credits
+    ### Credits
     Created by Oleg Klimov
     """
 

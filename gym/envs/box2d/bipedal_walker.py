@@ -111,30 +111,30 @@ class BipedalWalker(gym.Env, EzPickle):
     python gym/envs/box2d/bipedal_walker.py
     ```
 
-    ## Action Space
+    ### Action Space
     Actions are motor speed values in the [-1, 1] range for each of the
     4 joints at both hips and knees.
 
-    ## Observation Space
+    ### Observation Space
     State consists of hull angle speed, angular velocity, horizontal speed,
     vertical speed, position of joints and joints angular speed, legs contact
     with ground, and 10 lidar rangefinder measurements. There are no coordinates
     in the state vector.
 
-    ## Rewards
+    ### Rewards
     Reward is given for moving forward, totaling 300+ points up to the far end.
     If the robot falls, it gets -100. Applying motor torque costs a small
     amount of points. A more optimal agent will get a better score.
 
-    ## Starting State
+    ### Starting State
     The walker starts standing at the left end of the terrain with the hull
     horizontal, and both legs in the same position with a slight knee angle.
 
-    ## Episode Termination
+    ### Episode Termination
     The episode will terminate if the hull gets in contact with the ground or
     if the walker exceeds the right end of the terrain length.
 
-    ## Arguments
+    ### Arguments
     To use to the _hardcore_ environment, you need to specify the
     `hardcore=True` argument like below:
     ```python
