@@ -130,7 +130,7 @@ class FrozenLakeEnv(Env):
         - P(move up)=1/3
         - P(move down)=1/3
     ### Version History
-
+    * v1: Bug fixes to rewards
     * v0: Initial versions release (1.0.0)
     """
 
