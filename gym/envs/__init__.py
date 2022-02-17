@@ -263,3 +263,55 @@ register(
     entry_point="gym.envs.mujoco:HumanoidStandupEnv",
     max_episode_steps=1000,
 )
+
+# Vizdoom
+
+register(
+    id='VizdoomBasic-v0',
+    entry_point='gym.envs.vizdoom:VizdoomBasic'
+)
+
+register(
+    id='VizdoomCorridor-v0',
+    entry_point='gym.envs.vizdoom:VizdoomCorridor'
+)
+
+register(
+    id='VizdoomDefendCenter-v0',
+    entry_point='gym.envs.vizdoom:VizdoomDefendCenter'
+)
+
+register(
+    id='VizdoomDefendLine-v0',
+    entry_point='gym.envs.vizdoom:VizdoomDefendLine'
+)
+
+register(
+    id='VizdoomHealthGathering-v0',
+    entry_point='gym.envs.vizdoom:VizdoomHealthGathering'
+)
+
+register(
+    id='VizdoomMyWayHome-v0',
+    entry_point='gym.envs.vizdoom:VizdoomMyWayHome'
+)
+
+register(
+    id='VizdoomPredictPosition-v0',
+    entry_point='gym.envs.vizdoom:VizdoomPredictPosition'
+)
+
+register(
+    id='VizdoomTakeCover-v0',
+    entry_point='gym.envs.vizdoom:VizdoomTakeCover'
+)
+
+register(
+    id='VizdoomDeathmatch-v0',
+    entry_point='gym.envs.vizdoom:VizdoomDeathmatch'
+)
+
+register(
+    id='VizdoomHealthGatheringSupreme-v0',
+    entry_point='gym.envs.vizdoom:VizdoomHealthGatheringSupreme'
+)
