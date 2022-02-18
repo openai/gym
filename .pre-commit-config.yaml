@@ -1,3 +1,4 @@
+---
 repos:
   - repo: https://github.com/PyCQA/bandit/
     rev: 1.7.0
@@ -28,3 +29,8 @@ repos:
           - --max-line-length=456
           - --show-source
           - --statistics
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.10.1
+    hooks:
+      - id: isort
+        args: ["--profile", "black"]
