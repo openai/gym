@@ -84,7 +84,7 @@ class FrozenLakeEnv(Env):
     The amount of possible observation spaces is dependent on the size of the map.
     The 4x4 map thus has 16 possible observations.
 
-    **Rewards:**
+    ### Rewards
 
     Reward schedule:
     - Reach goal(G): +1
