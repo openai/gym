@@ -7,7 +7,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
       - run: pip install isort pytest pyupgrade safety
-      - run: isort --check-only --profile black . || true
+      - run: isort --check-only --profile black .
       - run: pip install -e .[nomujoco]
       - run: pytest . || true
       - run: pytest --doctest-modules . || true
