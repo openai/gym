@@ -83,8 +83,8 @@ class Box(Space[np.ndarray]):
         self.high_repr = _short_repr(self.high)
 
         # Boolean arrays which indicate the interval type for each coordinate
-        self.bounded_below = -np.inf < self.low
-        self.bounded_above = np.inf > self.high
+        self.bounded_below = get_inf(dtype, '-') < self.low
+        self.bounded_above = get_inf(dtype, '+') > self.high
 
         super().__init__(self.shape, self.dtype, seed)
 
