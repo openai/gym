@@ -38,8 +38,8 @@ extras["all"] = list(
 setup(
     name="gym",
     version=VERSION,
-    description="Gym: A universal API for reinforcement learning environments.",
-    url="https://github.com/openai/gym",
+    description="Gym: A universal API for reinforcement learning environments",
+    url="https://www.gymlibrary.ml/",
     author="Gym Community",
     author_email="jkterry@umd.edu",
     license="MIT",
