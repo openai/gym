@@ -1,4 +1,4 @@
-from gym.envs.vizdoom.vizdoomenv import VizdoomEnv
+from gym.envs.vizdoom.vizdoom_env import VizdoomEnv
 from gym.envs.vizdoom.vizdoom_env_definitions import (
     VizdoomBasic,
     VizdoomCorridor,

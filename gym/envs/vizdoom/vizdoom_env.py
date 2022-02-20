@@ -3,14 +3,9 @@ from gym import spaces
 import vizdoom.vizdoom as vzd
 import numpy as np
 import os
-from typing import List
+from typing import List, Optional
+import pygame
 
-turn_off_rendering = False
-try:
-    from gym.envs.classic_control import rendering
-except Exception as e:
-    print(e)
-    turn_off_rendering = True
 
 CONFIGS = [
     ["basic.cfg", 3],  # 0
@@ -29,7 +24,8 @@ CONFIGS = [
 class VizdoomEnv(gym.Env):
     def __init__(self, level, **kwargs):
         """
-        Base class for Gym interface for ViZDoom. Child classes are defined in vizdoom_env_definitions.py,
+        Base class for Gym interface for ViZDoom. Thanks to https://github.com/shakenes/vizdoomgym
+        Child classes are defined in vizdoom_env_definitions.py,
         that contain the level parameter and pass through any kwargs from gym.make()
         :param level: index of level in the CONFIGS list above
         :param kwargs: keyword arguments from gym.make(env_name_string, **kwargs) call. 'depth' will render the
@@ -46,7 +42,9 @@ class VizdoomEnv(gym.Env):
 
         # init game
         self.game = vzd.DoomGame()
-        self.game.set_screen_resolution(vzd.ScreenResolution.RES_640X480)
+        self.game.set_screen_resolution(
+            vzd.ScreenResolution.RES_640X480
+        )  # however resolution is overridden by config file
         scenarios_dir = os.path.join(os.path.dirname(__file__), "scenarios")
         self.game.load_config(os.path.join(scenarios_dir, CONFIGS[level][0]))
         self.game.set_window_visible(False)
@@ -62,7 +60,8 @@ class VizdoomEnv(gym.Env):
             self.game.add_available_game_variable(vzd.GameVariable.HEALTH)
         self.game.init()
         self.state = None
-        self.viewer = None
+        self.window_surface = None
+        self.isopen = True
 
         self.action_space = spaces.Discrete(CONFIGS[level][1])
 
@@ -84,7 +83,10 @@ class VizdoomEnv(gym.Env):
                 spaces.Box(
                     0,
                     255,
-                    (self.game.get_screen_height(), self.game.get_screen_width(),),
+                    (
+                        self.game.get_screen_height(),
+                        self.game.get_screen_width(),
+                    ),
                     dtype=np.uint8,
                 )
             )
@@ -93,14 +95,19 @@ class VizdoomEnv(gym.Env):
                 spaces.Box(
                     0,
                     255,
-                    (self.game.get_screen_height(), self.game.get_screen_width(),),
+                    (
+                        self.game.get_screen_height(),
+                        self.game.get_screen_width(),
+                    ),
                     dtype=np.uint8,
                 )
             )
         if self.position:
-            list_spaces.append(spaces.Box(-np.Inf, np.Inf, (4, 1)))
+            list_spaces.append(
+                spaces.Box(np.finfo(np.float32).min, np.finfo(np.float32).max, (4,))
+            )
         if self.health:
-            list_spaces.append(spaces.Box(0, np.Inf, (1, 1)))
+            list_spaces.append(spaces.Box(0, np.finfo(np.float32).max, (1,)))
         if len(list_spaces) == 1:
             self.observation_space = list_spaces[0]
         else:
@@ -113,18 +120,32 @@ class VizdoomEnv(gym.Env):
         act = np.uint8(act)
         act = act.tolist()
 
+        err_msg = f"{action!r} ({type(action)}) invalid"
+        assert self.action_space.contains(action), err_msg
+        assert self.state is not None, "Call reset before using step method."
+
         reward = self.game.make_action(act)
         self.state = self.game.get_state()
         done = self.game.is_episode_finished()
-        info = {"dummy": 0.0} # TODO: Does this have purpose
 
         return self.__collect_observations(), reward, done, {}
 
-    def reset(self):
+    def reset(
+        self,
+        *,
+        seed: Optional[int] = None,
+        return_info: bool = False,
+        options: Optional[dict] = None,
+    ):
+        if seed is not None:
+            self.game.set_seed(seed)
         self.game.new_episode()
         self.state = self.game.get_state()
 
-        return self.__collect_observations()
+        if not return_info:
+            return self.__collect_observations()
+        else:
+            return self.__collect_observations(), {}
 
     def __collect_observations(self):
         observation = []
@@ -136,14 +157,21 @@ class VizdoomEnv(gym.Env):
                 observation.append(self.state.labels_buffer)
             if self.position:
                 observation.append(
-                    np.array([self.state.game_variables[i] for i in range(4)])
+                    np.array(
+                        [self.state.game_variables[i] for i in range(4)],
+                        dtype=np.float32,
+                    )
                 )
                 if self.health:
-                    observation.append(self.state.game_variables[4])
+                    observation.append(
+                        np.array([self.state.game_variables[4]], dtype=np.float32)
+                    )
             elif self.health:
-                observation.append(self.state.game_variables[0])
+                observation.append(
+                    np.array([self.state.game_variables[0]], dtype=np.float32)
+                )
         else:
-            # there is no state in the terminal step, so a "zero observation is returned instead"
+            # there is no state in the terminal step, so a zero observation is returned instead
             if isinstance(self.observation_space, gym.spaces.box.Box):
                 # Box isn't iterable
                 obs_space = [self.observation_space]
@@ -159,21 +187,44 @@ class VizdoomEnv(gym.Env):
         return observation
 
     def render(self, mode="human"):
-        if turn_off_rendering:
-            return
-        try:
-            img = self.game.get_state().screen_buffer
-            img = np.transpose(img, [1, 2, 0])
+        game_state = self.game.get_state()
+        if game_state is None:
+            img = np.zeros(
+                (
+                    self.game.get_screen_channels(),
+                    self.game.get_screen_height(),
+                    self.game.get_screen_width(),
+                )
+            )
+            print(img.shape)
+        else:
+            img = game_state.screen_buffer
+            print(img.shape)
+        img = np.transpose(img, [2, 1, 0])
 
-            if self.viewer is None:
-                self.viewer = rendering.SimpleImageViewer()
-            self.viewer.imshow(img)
-        except AttributeError:
-            pass
-        
+        if self.window_surface is None:
+            pygame.init()
+            pygame.display.set_caption("Vizdoom")
+            if mode == "human":
+                self.window_surface = pygame.display.set_mode(img.shape[:2])
+            else:  # rgb_array
+                self.window_surface = pygame.Surface(img.shape[:2])
+
+        surf = pygame.surfarray.make_surface(img)
+        self.window_surface.blit(surf, (0, 0))
+
+        if mode == "human":
+            pygame.display.update()
+
+        if mode == "rgb_array":
+            return img
+        else:
+            return self.isopen
+
     def close(self):
-        if self.viewer:
-            self.viewer.close()
+        if self.window_surface:
+            pygame.quit()
+            self.isopen = False
 
     @staticmethod
     def get_keys_to_action():
