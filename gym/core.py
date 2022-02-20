@@ -56,6 +56,10 @@ class Env(Generic[ObsType, ActType]):
             self._np_random, seed = seeding.np_random()
         return self._np_random
 
+    @np_random.setter
+    def np_random(self, value: RandomNumberGenerator):
+        self._np_random = value
+
     @abstractmethod
     def step(self, action: ActType) -> Tuple[ObsType, float, bool, dict]:
         """Run one timestep of the environment's dynamics. When end of
@@ -300,8 +304,11 @@ class Wrapper(Env[ObsType, ActType]):
 
 class ObservationWrapper(Wrapper):
     def reset(self, **kwargs):
-        observation = self.env.reset(**kwargs)
-        return self.observation(observation)
+        if kwargs.get("return_info", False):
+            obs, info = self.env.reset(**kwargs)
+            return self.observation(obs), info
+        else:
+            return self.observation(self.env.reset(**kwargs))
 
     def step(self, action):
         observation, reward, done, info = self.env.step(action)
