@@ -65,14 +65,16 @@ class NormalizeObservation(gym.core.Wrapper):
 
     def reset(self, **kwargs):
         output = self.env.reset(**kwargs)
-        if len(output) == 2:
-            obs, _ = output
+        if kwargs.get("return_info", False):
+            obs = output[0]
         else:
             obs = output
+
         if self.is_vector_env:
             obs = self.normalize(obs)
         else:
             obs = self.normalize(np.array([obs]))[0]
+
         return output
 
     def normalize(self, obs):
