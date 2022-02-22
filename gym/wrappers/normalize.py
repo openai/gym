@@ -82,6 +82,7 @@ class NormalizeObservation(gym.core.Wrapper):
         self.obs_rms.update(obs)
         return (obs - self.obs_rms.mean) / np.sqrt(self.obs_rms.var + self.epsilon)
 
+
 class NormalizeReward(gym.core.Wrapper):
     def __init__(
         self,
