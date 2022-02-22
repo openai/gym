@@ -3,6 +3,7 @@ from typing import Optional
 import gym
 import numpy as np
 from numpy.testing import assert_almost_equal
+import pytest
 
 from gym.wrappers.normalize import NormalizeObservation, NormalizeReward
 
@@ -46,10 +47,11 @@ def make_env(return_reward_idx):
     return thunk
 
 
-def test_normalize_observation():
+@pytest.mark.parametrize("return_info", [False, True])
+def test_normalize_observation(return_info: bool):
     env = DummyRewardEnv(return_reward_idx=0)
     env = NormalizeObservation(env)
-    env.reset()
+    env.reset(return_info=return_info)
     env.step(env.action_space.sample())
     assert_almost_equal(env.obs_rms.mean, 0.5, decimal=4)
     env.step(env.action_space.sample())
