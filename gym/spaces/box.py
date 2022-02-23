@@ -61,6 +61,7 @@ class Box(Space[np.ndarray]):
             )
         assert isinstance(shape, tuple)
 
+        _low, _high = low, high # Store originals for determining boundedness
         low = _broadcast(low, dtype, shape, inf_sign="-")  # type: ignore
         high = _broadcast(high, dtype, shape, inf_sign="+")
 
@@ -83,8 +84,8 @@ class Box(Space[np.ndarray]):
         self.high_repr = _short_repr(self.high)
 
         # Boolean arrays which indicate the interval type for each coordinate
-        self.bounded_below = get_inf(dtype, '-') < self.low
-        self.bounded_above = get_inf(dtype, '+') > self.high
+        self.bounded_below = -np.inf < _low
+        self.bounded_above = np.inf > _high
 
         super().__init__(self.shape, self.dtype, seed)
 
