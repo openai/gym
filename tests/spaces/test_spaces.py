@@ -508,29 +508,23 @@ def test_infinite_space(space):
 
     # check that int bounds are bounded for everything
     # but floats are unbounded for infinite
-    if space.dtype.kind == "f":
-        if np.any(space.high != 0):
-            assert (
-                space.is_bounded("above") == False
-            ), "float dtype inf upper bound supposed to be unbounded"
-        else:
-            assert (
-                space.is_bounded("above") == True
-            ), "float dtype non-inf upper bound supposed to be bounded"
-
-        if np.any(space.low != 0):
-            assert (
-                space.is_bounded("below") == False
-            ), "float dtype inf lower bound supposed to be unbounded"
-        else:
-            assert (
-                space.is_bounded("below") == True
-            ), "float dtype non-inf lower bound supposed to be bounded"
-
-    elif space.dtype.kind == "i":
+    if np.any(space.high != 0):
         assert (
-            space.is_bounded("both") == True
-        ), "int dtypes should be bounded on both ends"
+            space.is_bounded("above") == False
+        ), "inf upper bound supposed to be unbounded"
+    else:
+        assert (
+            space.is_bounded("above") == True
+        ), "non-inf upper bound supposed to be bounded"
+
+    if np.any(space.low != 0):
+        assert (
+            space.is_bounded("below") == False
+        ), "inf lower bound supposed to be unbounded"
+    else:
+        assert (
+            space.is_bounded("below") == True
+        ), "non-inf lower bound supposed to be bounded"
 
     # check for dtype
     assert (
