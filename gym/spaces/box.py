@@ -62,9 +62,9 @@ class Box(Space[np.ndarray]):
         assert isinstance(shape, tuple)
 
         # Capture the boundedness information before replacing np.inf with get_inf
-        _low = np.full(shape, low, dtype=dtype) if np.isscalar(low) else low
+        _low = np.full(shape, low, dtype=float) if np.isscalar(low) else low
         self.bounded_below = -np.inf < _low
-        _high = np.full(shape, high, dtype=dtype) if np.isscalar(high) else high
+        _high = np.full(shape, high, dtype=float) if np.isscalar(high) else high
         self.bounded_above = np.inf > _high
 
         low = _broadcast(low, dtype, shape, inf_sign="-")
