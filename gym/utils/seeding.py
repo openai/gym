@@ -97,7 +97,7 @@ class RandomNumberGenerator(np.random.Generator):
         # See: https://github.com/numpy/numpy/blob/41d37b714caa1eef72f984d529f1d40ed48ce535/numpy/random/_generator.pyx#L221-L223
         # And: https://github.com/numpy/numpy/blob/41d37b714caa1eef72f984d529f1d40ed48ce535/numpy/random/_pickle.py#L17-L37
         _, init_args, *args = np.random.Generator.__reduce__(self)
-        return RandomNumberGenerator._generator_ctor, init_args, *args
+        return (RandomNumberGenerator._generator_ctor, init_args, *args)
 
     @staticmethod
     def _generator_ctor(bit_generator_name='MT19937'):
