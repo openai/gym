@@ -24,5 +24,7 @@ def test_rng_pickle():
     rng, _ = seeding.np_random(seed=0)
     pickled = pickle.dumps(rng)
     rng2 = pickle.loads(pickled)
-    assert isinstance(rng2, seeding.RandomNumberGenerator), "Unpickled object is not a RandomNumberGenerator"
+    assert isinstance(
+        rng2, seeding.RandomNumberGenerator
+    ), "Unpickled object is not a RandomNumberGenerator"
     assert rng.random() == rng2.random()

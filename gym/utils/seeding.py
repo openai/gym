@@ -100,15 +100,17 @@ class RandomNumberGenerator(np.random.Generator):
         return (RandomNumberGenerator._generator_ctor, init_args, *args)
 
     @staticmethod
-    def _generator_ctor(bit_generator_name='MT19937'):
+    def _generator_ctor(bit_generator_name="MT19937"):
         # Workaround method for RandomNumberGenerator pickling, see __reduce__ above.
         # Ported from numpy.random._pickle.__generator_ctor function.
         from numpy.random._pickle import BitGenerators
+
         if bit_generator_name in BitGenerators:
             bit_generator = BitGenerators[bit_generator_name]
         else:
-            raise ValueError(str(bit_generator_name) + ' is not a known '
-                                                    'BitGenerator module.')
+            raise ValueError(
+                f"{bit_generator_name} is not a known BitGenerator module."
+            )
         return RandomNumberGenerator(bit_generator())
 
 
