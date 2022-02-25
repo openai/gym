@@ -378,7 +378,6 @@ def test_seed_subspace_incorrelated(space):
 
 
 def test_tuple():
-    # 1D multi-discrete
     spaces = [Discrete(5), Discrete(10), Discrete(5)]
     space_tuple = Tuple(spaces)
 
