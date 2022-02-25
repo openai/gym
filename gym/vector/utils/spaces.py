@@ -53,7 +53,15 @@ def batch_space_base(space, n=1):
         return Box(low=low, high=high, dtype=space.dtype)
 
     elif isinstance(space, Discrete):
-        return MultiDiscrete(np.full((n,), space.n, dtype=space.dtype))
+        if space.start == 0:
+            return MultiDiscrete(np.full((n,), space.n, dtype=space.dtype))
+        else:
+            return Box(
+                low=space.start,
+                high=space.start + space.n,
+                shape=(n,),
+                dtype=space.dtype,
+            )
 
     elif isinstance(space, MultiDiscrete):
         repeats = tuple([n] + [1] * space.nvec.ndim)

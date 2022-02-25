@@ -18,6 +18,7 @@ spaces = [
     Box(low=0, high=255, shape=(), dtype=np.uint8),
     Box(low=0, high=255, shape=(32, 32, 3), dtype=np.uint8),
     Discrete(2),
+    Discrete(5, start=-2),
     Tuple((Discrete(3), Discrete(5))),
     Tuple(
         (
