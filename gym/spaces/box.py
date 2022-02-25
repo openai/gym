@@ -67,8 +67,8 @@ class Box(Space[np.ndarray]):
         _high = np.full(shape, high, dtype=float) if np.isscalar(high) else high
         self.bounded_above = np.inf > _high
 
-        low = _broadcast(low, dtype, shape, inf_sign="-")
-        high = _broadcast(high, dtype, shape, inf_sign="+")
+        low = _broadcast(low, dtype, shape, inf_sign="-") # type: ignore
+        high = _broadcast(high, dtype, shape, inf_sign="+") # type: ignore
 
         assert isinstance(low, np.ndarray)
         assert low.shape == shape, "low.shape doesn't match provided shape"
