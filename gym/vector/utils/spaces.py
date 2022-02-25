@@ -43,45 +43,44 @@ def batch_space(space, n=1):
 
 
 @batch_space.register(Box)
+def _batch_space_box(space, n=1):
+    repeats = tuple([n] + [1] * space.low.ndim)
+    low, high = np.tile(space.low, repeats), np.tile(space.high, repeats)
+    return Box(low=low, high=high, dtype=space.dtype)
+
+
 @batch_space.register(Discrete)
-@batch_space.register(MultiDiscrete)
-@batch_space.register(MultiBinary)
-def batch_space_base(space, n=1):
-    if isinstance(space, Box):
-        repeats = tuple([n] + [1] * space.low.ndim)
-        low, high = np.tile(space.low, repeats), np.tile(space.high, repeats)
-        return Box(low=low, high=high, dtype=space.dtype)
-
-    elif isinstance(space, Discrete):
-        if space.start == 0:
-            return MultiDiscrete(np.full((n,), space.n, dtype=space.dtype))
-        else:
-            return Box(
-                low=space.start,
-                high=space.start + space.n,
-                shape=(n,),
-                dtype=space.dtype,
-            )
-
-    elif isinstance(space, MultiDiscrete):
-        repeats = tuple([n] + [1] * space.nvec.ndim)
-        high = np.tile(space.nvec, repeats) - 1
-        return Box(low=np.zeros_like(high), high=high, dtype=space.dtype)
-
-    elif isinstance(space, MultiBinary):
-        return Box(low=0, high=1, shape=(n,) + space.shape, dtype=space.dtype)
-
+def _batch_space_discrete(space, n=1):
+    if space.start == 0:
+        return MultiDiscrete(np.full((n,), space.n, dtype=space.dtype))
     else:
-        raise ValueError(f"Space type `{type(space)}` is not supported.")
+        return Box(
+            low=space.start,
+            high=space.start + space.n,
+            shape=(n,),
+            dtype=space.dtype,
+        )
+
+
+@batch_space.register(MultiDiscrete)
+def _batch_space_multidiscrete(space, n=1):
+    repeats = tuple([n] + [1] * space.nvec.ndim)
+    high = np.tile(space.nvec, repeats) - 1
+    return Box(low=np.zeros_like(high), high=high, dtype=space.dtype)
+
+
+@batch_space.register(MultiBinary)
+def _batch_space_multibinary(space, n=1):
+    return Box(low=0, high=1, shape=(n,) + space.shape, dtype=space.dtype)
 
 
 @batch_space.register(Tuple)
-def batch_space_tuple(space, n=1):
+def _batch_space_tuple(space, n=1):
     return Tuple(tuple(batch_space(subspace, n=n) for subspace in space.spaces))
 
 
 @batch_space.register(Dict)
-def batch_space_dict(space, n=1):
+def _batch_space_dict(space, n=1):
     return Dict(
         OrderedDict(
             [
@@ -93,7 +92,7 @@ def batch_space_dict(space, n=1):
 
 
 @batch_space.register(Space)
-def batch_space_custom(space, n=1):
+def _batch_space_custom(space, n=1):
     return Tuple(tuple(space for _ in range(n)))
 
 
@@ -138,14 +137,14 @@ def iterate(space, items):
 
 
 @iterate.register(Discrete)
-def iterate_discrete(space, items):
+def _iterate_discrete(space, items):
     raise TypeError("Unable to iterate over a space of type `Discrete`.")
 
 
 @iterate.register(Box)
 @iterate.register(MultiDiscrete)
 @iterate.register(MultiBinary)
-def iterate_base(space, items):
+def _iterate_base(space, items):
     try:
         return iter(items)
     except TypeError:
@@ -153,7 +152,7 @@ def iterate_base(space, items):
 
 
 @iterate.register(Tuple)
-def iterate_tuple(space, items):
+def _iterate_tuple(space, items):
     # If this is a tuple of custom subspaces only, then simply iterate over items
     if all(
         isinstance(subspace, Space)
@@ -168,7 +167,7 @@ def iterate_tuple(space, items):
 
 
 @iterate.register(Dict)
-def iterate_dict(space, items):
+def _iterate_dict(space, items):
     keys, values = zip(
         *[
             (key, iterate(subspace, items[key]))
@@ -180,7 +179,7 @@ def iterate_dict(space, items):
 
 
 @iterate.register(Space)
-def iterate_custom(space, items):
+def _iterate_custom(space, items):
     raise CustomSpaceError(
         f"Unable to iterate over {items}, since {space} "
         "is a custom `gym.Space` instance (i.e. not one of "
