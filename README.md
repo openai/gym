@@ -20,6 +20,7 @@ The Gym API's API models environments as simple Python `env` classes. Creating e
 import gym
 env = gym.make("CartPole-v1")
 observation, info = env.reset(seed=42, return_info=True)
+
 for _ in range(1000):
     action = env.action_space.sample()
     observation, reward, done, info = env.step(action)
