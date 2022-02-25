@@ -84,7 +84,7 @@ def test_roundtripping(space):
 )
 def test_equality(space):
     space1 = space
-    space2 = copy.copy(space)
+    space2 = copy.deepcopy(space)
     assert space1 == space2, f"Expected {space1} to equal {space2}"
 
 
@@ -379,19 +379,20 @@ def test_seed_subspace_incorrelated(space):
 
 def test_tuple():
     # 1D multi-discrete
-    spaces = [Discrete(5), Discrete(10)]
+    spaces = [Discrete(5), Discrete(10), Discrete(5)]
     space_tuple = Tuple(spaces)
 
     assert len(space_tuple) == len(spaces)
-    assert space_tuple.count() == len(spaces)
+    assert space_tuple.count(Discrete(5)) == 2
+    assert space_tuple.count(MultiBinary(2)) == 0
     for i, space in enumerate(space_tuple):
         assert space == spaces[i]
     for i, space in enumerate(reversed(space_tuple)):
         assert space == spaces[len(spaces)-1-i]
-    for i, space in enumerate(spaces):
-        assert space_tuple.index(space) == i
+    assert space_tuple.index(Discrete(5)) == 0
+    assert space_tuple.index(Discrete(5), 1) == 2
     with pytest.raises(ValueError, match=r".* not in tuple"):
-        space_tuple.index(spaces[1], 0, 1)
+        space_tuple.index(Discrete(10), 0, 1)
 
 
 def test_multidiscrete_as_tuple():
