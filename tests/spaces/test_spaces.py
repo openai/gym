@@ -387,7 +387,7 @@ def test_tuple():
     for i, space in enumerate(space_tuple):
         assert space == spaces[i]
     for i, space in enumerate(reversed(space_tuple)):
-        assert space == spaces[len(spaces)-1-i]
+        assert space == spaces[len(spaces) - 1 - i]
     assert space_tuple.index(Discrete(5)) == 0
     assert space_tuple.index(Discrete(5), 1) == 2
     with pytest.raises(ValueError):
