@@ -377,6 +377,23 @@ def test_seed_subspace_incorrelated(space):
     assert len(states) == len(set(states))
 
 
+def test_tuple():
+    # 1D multi-discrete
+    spaces = [Discrete(5), Discrete(10)]
+    space_tuple = Tuple(spaces)
+
+    assert len(space_tuple) == len(spaces)
+    assert space_tuple.count() == len(spaces)
+    for i, space in enumerate(space_tuple):
+        assert space == spaces[i]
+    for i, space in enumerate(reversed(space_tuple)):
+        assert space == spaces[len(spaces)-1-i]
+    for i, space in enumerate(spaces):
+        assert space_tuple.index(space) == i
+    with pytest.raises(ValueError, match=r".* not in tuple"):
+        space_tuple.index(spaces[1], 0, 1)
+
+
 def test_multidiscrete_as_tuple():
     # 1D multi-discrete
     space = MultiDiscrete([3, 4, 5])
