@@ -391,7 +391,7 @@ def test_tuple():
         assert space == spaces[len(spaces)-1-i]
     assert space_tuple.index(Discrete(5)) == 0
     assert space_tuple.index(Discrete(5), 1) == 2
-    with pytest.raises(ValueError, match=r".* not in tuple"):
+    with pytest.raises(ValueError):
         space_tuple.index(Discrete(10), 0, 1)
 
 
