@@ -78,7 +78,7 @@ def _flatten_box_multibinary(space, x) -> np.ndarray:
 @flatten.register(Discrete)
 def _flatten_discrete(space, x) -> np.ndarray:
     onehot = np.zeros(space.n, dtype=space.dtype)
-    onehot[x] = 1
+    onehot[x - space.start] = 1
     return onehot
 
 
@@ -124,7 +124,7 @@ def _unflatten_box_multibinary(space: Box | MultiBinary, x: np.ndarray) -> np.nd
 
 @unflatten.register(Discrete)
 def _unflatten_discrete(space: Discrete, x: np.ndarray) -> int:
-    return int(np.nonzero(x)[0][0])
+    return int(space.start + np.nonzero(x)[0][0])
 
 
 @unflatten.register(MultiDiscrete)
