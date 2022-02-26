@@ -51,6 +51,8 @@ class Discrete(Space[int]):
         )
     
     def __setstate__(self, state):
+        super().__setstate__(state)
+
         # Don't mutate the original state
         state = dict(state)
 
