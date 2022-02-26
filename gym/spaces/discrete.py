@@ -49,7 +49,7 @@ class Discrete(Space[int]):
             and self.n == other.n
             and self.start == other.start
         )
-    
+
     def __setstate__(self, state):
         super().__setstate__(state)
 
@@ -60,6 +60,6 @@ class Discrete(Space[int]):
         # See https://github.com/openai/gym/pull/2470
         if "start" not in state:
             state["start"] = 0
-        
+
         # Update our state
         self.__dict__.update(state)
