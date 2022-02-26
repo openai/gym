@@ -56,7 +56,7 @@ def _batch_space_discrete(space, n=1):
     else:
         return Box(
             low=space.start,
-            high=space.start + space.n,
+            high=space.start + space.n - 1,
             shape=(n,),
             dtype=space.dtype,
         )
