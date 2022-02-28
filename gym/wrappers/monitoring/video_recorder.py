@@ -91,9 +91,9 @@ class VideoRecorder:
         # OS X, the file is precreated, but not on Linux.
         touch(path)
 
-        self.frames_per_sec = env.metadata.get("video.frames_per_second", 30)
+        self.frames_per_sec = env.metadata.get("render_fps", 30)
         self.output_frames_per_sec = env.metadata.get(
-            "video.output_frames_per_second", self.frames_per_sec
+            "render_fps", self.frames_per_sec
         )
         self.encoder = None  # lazily start the process
         self.broken = False
