@@ -105,7 +105,7 @@ class BlackjackEnv(gym.Env):
     * v0: Initial versions release (1.0.0)
     """
 
-    metadata = {"render_modes": ["human", "rgb_array"]}
+    metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
 
     def __init__(self, natural=False, sab=False):
         self.action_space = spaces.Discrete(2)

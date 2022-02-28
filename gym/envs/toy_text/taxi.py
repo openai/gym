@@ -104,7 +104,7 @@ class TaxiEnv(Env):
     * v0: Initial versions release
     """
 
-    metadata = {"render_modes": ["human", "ansi"]}
+    metadata = {"render_modes": ["human", "ansi"], "render_fps": 4}
 
     def __init__(self):
         self.desc = np.asarray(MAP, dtype="c")
