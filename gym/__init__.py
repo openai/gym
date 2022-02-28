@@ -26,7 +26,7 @@ try:
 
     # print version warning if necessary
     notice = notices.notices.get(__version__)
-    if notice is not None:
+    if notice:
         print(notice, file=sys.stderr)
 
 except Exception:  # nosec
