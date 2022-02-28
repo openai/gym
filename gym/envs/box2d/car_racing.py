@@ -146,8 +146,8 @@ class CarRacing(gym.Env, EzPickle):
     """
 
     metadata = {
-        "render.modes": ["human", "rgb_array", "state_pixels"],
-        "video.frames_per_second": FPS,
+        "render_modes": ["human", "rgb_array", "state_pixels"],
+        "render_fps": FPS,
     }
 
     def __init__(self, verbose=1, lap_complete_percent=0.95):

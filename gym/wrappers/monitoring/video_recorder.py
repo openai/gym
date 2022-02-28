@@ -35,7 +35,7 @@ class VideoRecorder:
     """
 
     def __init__(self, env, path=None, metadata=None, enabled=True, base_path=None):
-        modes = env.metadata.get("render.modes", [])
+        modes = env.metadata.get("render_modes", [])
         self._async = env.metadata.get("semantics.async")
         self.enabled = enabled
         self._closed = False
@@ -91,10 +91,8 @@ class VideoRecorder:
         # OS X, the file is precreated, but not on Linux.
         touch(path)
 
-        self.frames_per_sec = env.metadata.get("video.frames_per_second", 30)
-        self.output_frames_per_sec = env.metadata.get(
-            "video.output_frames_per_second", self.frames_per_sec
-        )
+        self.frames_per_sec = env.metadata.get("render_fps", 30)
+        self.output_frames_per_sec = env.metadata.get("render_fps", self.frames_per_sec)
         self.encoder = None  # lazily start the process
         self.broken = False
 

@@ -34,7 +34,7 @@ class CliffWalkingEnv(Env):
     and a reset to the start. An episode terminates when the agent reaches the goal.
     """
 
-    metadata = {"render.modes": ["human", "ansi"]}
+    metadata = {"render_modes": ["human", "ansi"], "render_fps": 4}
 
     def __init__(self):
         self.shape = (4, 12)

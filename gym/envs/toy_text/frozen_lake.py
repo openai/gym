@@ -138,7 +138,7 @@ class FrozenLakeEnv(Env):
     * v0: Initial versions release (1.0.0)
     """
 
-    metadata = {"render.modes": ["human", "ansi", "rgb_array"]}
+    metadata = {"render_modes": ["human", "ansi", "rgb_array"], "render_fps": 4}
 
     def __init__(self, desc=None, map_name="4x4", is_slippery=True):
         if desc is None and map_name is None:
