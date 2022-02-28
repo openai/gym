@@ -131,7 +131,7 @@ class AcrobotEnv(core.Env):
     - Sutton, R. S., Barto, A. G. (2018 ). Reinforcement Learning: An Introduction. The MIT Press.
     """
 
-    metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 15}
+    metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 15}
 
     dt = 0.2
 

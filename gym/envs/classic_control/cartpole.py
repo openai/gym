@@ -74,7 +74,7 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
     No additional arguments are currently supported.
     """
 
-    metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 50}
+    metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 50}
 
     def __init__(self):
         self.gravity = 9.8

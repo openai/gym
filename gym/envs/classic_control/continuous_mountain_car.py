@@ -95,7 +95,7 @@ class Continuous_MountainCarEnv(gym.Env):
     * v0: Initial versions release (1.0.0)
     """
 
-    metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 30}
+    metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 30}
 
     def __init__(self, goal_velocity=0):
         self.min_action = -1.0
