@@ -440,7 +440,7 @@ class CarRacing(gym.Env, EzPickle):
         if self.screen is None:
             pygame.init()
             self.screen = pygame.display.set_mode((WINDOW_W, WINDOW_H))
-            assert self.clock is None
+        if self.clock is None:
             self.clock = pygame.time.Clock()
 
         if "t" not in self.__dict__:

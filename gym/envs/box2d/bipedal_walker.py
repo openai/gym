@@ -540,7 +540,7 @@ class BipedalWalker(gym.Env, EzPickle):
         if self.screen is None:
             pygame.init()
             self.screen = pygame.display.set_mode((VIEWPORT_W, VIEWPORT_H))
-            assert self.clock is None
+        if self.clock is None:
             self.clock = pygame.time.Clock()
 
         self.surf = pygame.Surface((VIEWPORT_W + self.scroll * SCALE, VIEWPORT_H))
