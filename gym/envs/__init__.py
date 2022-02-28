@@ -151,20 +151,6 @@ register(
 )
 
 register(
-    id="Thrower-v2",
-    entry_point="gym.envs.mujoco:ThrowerEnv",
-    max_episode_steps=100,
-    reward_threshold=0.0,
-)
-
-register(
-    id="Striker-v2",
-    entry_point="gym.envs.mujoco:StrikerEnv",
-    max_episode_steps=100,
-    reward_threshold=0.0,
-)
-
-register(
     id="InvertedPendulum-v2",
     entry_point="gym.envs.mujoco:InvertedPendulumEnv",
     max_episode_steps=1000,
