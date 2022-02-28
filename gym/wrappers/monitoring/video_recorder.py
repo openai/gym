@@ -92,9 +92,7 @@ class VideoRecorder:
         touch(path)
 
         self.frames_per_sec = env.metadata.get("render_fps", 30)
-        self.output_frames_per_sec = env.metadata.get(
-            "render_fps", self.frames_per_sec
-        )
+        self.output_frames_per_sec = env.metadata.get("render_fps", self.frames_per_sec)
         self.encoder = None  # lazily start the process
         self.broken = False
 
