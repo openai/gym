@@ -158,6 +158,7 @@ class AcrobotEnv(core.Env):
 
     def __init__(self):
         self.screen = None
+        self.clock = None
         self.isopen = True
         high = np.array(
             [1.0, 1.0, 1.0, 1.0, self.MAX_VEL_1, self.MAX_VEL_2], dtype=np.float32
@@ -267,6 +268,9 @@ class AcrobotEnv(core.Env):
         if self.screen is None:
             pygame.init()
             self.screen = pygame.display.set_mode((self.SCREEN_DIM, self.SCREEN_DIM))
+            assert self.clock is None
+            self.clock = pygame.time.Clock()
+
         self.surf = pygame.Surface((self.SCREEN_DIM, self.SCREEN_DIM))
         self.surf.fill((255, 255, 255))
         s = self.state
@@ -320,6 +324,7 @@ class AcrobotEnv(core.Env):
         self.surf = pygame.transform.flip(self.surf, False, True)
         self.screen.blit(self.surf, (0, 0))
         if mode == "human":
+            self.clock.tick(self.metadata["video.frames_per_second"])
             pygame.display.flip()
 
         if mode == "rgb_array":

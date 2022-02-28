@@ -86,6 +86,7 @@ class PendulumEnv(gym.Env):
         self.m = 1.0
         self.l = 1.0
         self.screen = None
+        self.clock = None
         self.isopen = True
 
         self.screen_dim = 500
@@ -139,6 +140,9 @@ class PendulumEnv(gym.Env):
         if self.screen is None:
             pygame.init()
             self.screen = pygame.display.set_mode((self.screen_dim, self.screen_dim))
+            assert self.clock is None
+            self.clock = pygame.time.Clock()
+
         self.surf = pygame.Surface((self.screen_dim, self.screen_dim))
         self.surf.fill((255, 255, 255))
 
@@ -196,6 +200,7 @@ class PendulumEnv(gym.Env):
         self.surf = pygame.transform.flip(self.surf, False, True)
         self.screen.blit(self.surf, (0, 0))
         if mode == "human":
+            self.clock.tick(self.metadata["video.frames_per_second"])
             pygame.display.flip()
 
         if mode == "rgb_array":

@@ -94,6 +94,7 @@ class Continuous_MountainCarEnv(gym.Env):
         )
 
         self.screen = None
+        self.clock = None
         self.isopen = True
 
         self.action_space = spaces.Box(
@@ -161,6 +162,9 @@ class Continuous_MountainCarEnv(gym.Env):
         if self.screen is None:
             pygame.init()
             self.screen = pygame.display.set_mode((screen_width, screen_height))
+            assert self.clock is None
+            self.clock = pygame.time.Clock()
+
         self.surf = pygame.Surface((screen_width, screen_height))
         self.surf.fill((255, 255, 255))
 
@@ -221,6 +225,7 @@ class Continuous_MountainCarEnv(gym.Env):
         self.surf = pygame.transform.flip(self.surf, False, True)
         self.screen.blit(self.surf, (0, 0))
         if mode == "human":
+            self.clock.tick(self.metadata["video.frames_per_second"])
             pygame.display.flip()
 
         if mode == "rgb_array":
