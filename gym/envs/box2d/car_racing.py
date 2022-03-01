@@ -475,7 +475,7 @@ class CarRacing(gym.Env, EzPickle):
         self.screen.blit(text, text_rect)
 
         if mode == "human":
-            self.clock.tick(self.metadata["video.frames_per_second"])
+            self.clock.tick(self.metadata["render_fps"])
             pygame.display.flip()
 
         if mode == "rgb_array":

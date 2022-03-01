@@ -248,7 +248,7 @@ class Continuous_MountainCarEnv(gym.Env):
         self.surf = pygame.transform.flip(self.surf, False, True)
         self.screen.blit(self.surf, (0, 0))
         if mode == "human":
-            self.clock.tick(self.metadata["video.frames_per_second"])
+            self.clock.tick(self.metadata["render_fps"])
             pygame.display.flip()
 
         if mode == "rgb_array":
