@@ -1,25 +1,27 @@
 """
-A class for providing an automatic reset functionality for gym environments when calling step.
+A class for providing an automatic reset functionality
+for gym environments when calling step.
 
-If done was not true for the previous call to step, step returns
+If done was not true for the previous call to step, step returns:
 
 obs, reward, done, info
 
 as normal.
 
-If done was true for the previous call to step, the action is ignored, and self.env.reset is called, and step returns
+If done was true for the previous call to step, the action is ignored,
+and self.env.reset is called, and step returns:
 
 obs, None, None, info
 
-Warning: When using this wrapper to collect rollouts, note that the action given to .step() which causes the reset (first call to 
-.step() after done = True) will have no effect on any observation, and should likely be excluded from logging.
+Warning: When using this wrapper to collect rollouts, note
+that the actiongiven to .step() which causes the reset
+(first call to .step() after done == True) will
+have no effect on any observation, and should likely
+be excluded from logging.
 
 """
 
 
-from typing import Optional
-
-import numpy as np
 import gym
 
 
@@ -36,7 +38,8 @@ class AutoResetWrapper(gym.Wrapper):
         if self._env_done:
             obs, info = self.reset(
                 return_info=True
-            )  # we are assuming the return_info behavior is implemented in environments using this wrapper
+            )  # in environments using this wrapper we are assuming the
+            #    return_info behavior is implemented
             return obs, None, None, info
 
         obs, reward, done, info = self.env.step(action)
