@@ -158,7 +158,7 @@ class BipedalWalker(gym.Env, EzPickle):
 
     """
 
-    metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": FPS}
+    metadata = {"render_modes": ["human", "rgb_array"], "render_fps": FPS}
 
     def __init__(self, hardcore: bool = False):
         EzPickle.__init__(self)

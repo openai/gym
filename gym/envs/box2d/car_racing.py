@@ -146,8 +146,8 @@ class CarRacing(gym.Env, EzPickle):
     """
 
     metadata = {
-        "render.modes": ["human", "rgb_array", "state_pixels"],
-        "video.frames_per_second": FPS,
+        "render_modes": ["human", "rgb_array", "state_pixels"],
+        "render_fps": FPS,
     }
 
     def __init__(self, verbose=1, lap_complete_percent=0.95):
@@ -638,11 +638,7 @@ if __name__ == "__main__":
 
     env = CarRacing()
     env.render()
-    record_video = False
-    if record_video:
-        from gym.wrappers.monitor import Monitor
 
-        env = Monitor(env, "/tmp/video-test", force=True)
     isopen = True
     while isopen:
         env.reset()

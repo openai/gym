@@ -142,7 +142,7 @@ class LunarLander(gym.Env, EzPickle):
     Created by Oleg Klimov
     """
 
-    metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": FPS}
+    metadata = {"render_modes": ["human", "rgb_array"], "render_fps": FPS}
 
     def __init__(self, continuous: bool = False):
         EzPickle.__init__(self)

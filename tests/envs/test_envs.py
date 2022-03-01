@@ -45,11 +45,11 @@ def test_env(spec):
             observation.dtype == ob_space.dtype
         ), f"Step observation dtype: {ob.dtype}, expected: {ob_space.dtype}"
 
-    for mode in env.metadata.get("render.modes", []):
+    for mode in env.metadata.get("render_modes", []):
         env.render(mode=mode)
 
     # Make sure we can render the environment after close.
-    for mode in env.metadata.get("render.modes", []):
+    for mode in env.metadata.get("render_modes", []):
         env.render(mode=mode)
 
     env.close()
