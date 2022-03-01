@@ -24,17 +24,12 @@ Example:
 | _gif/png before_ | _gif/png after_ |
 
 
-To upload images to a PR -- simply drag and drop an image while in edit mode and it should upload the image directly. You can then paste that source into the above before/after sections. Example below:
-
-| Before | After |
-| ------ | ----- |
-| <img width="914" alt="Screen Shot 2022-01-20 at 8 58 12 PM" src="https://user-images.githubusercontent.com/97185238/150457935-79394dce-4bc4-4f5e-be97-cccd42a77518.png"> | <img width="914" alt="Screen Shot 2022-01-20 at 12 43 54 PM" src="https://user-images.githubusercontent.com/97185238/150457819-812dafac-6623-4096-87ac-119cb54592a6.png"> |
-
+To upload images to a PR -- simply drag and drop an image while in edit mode and it should upload the image directly. You can then paste that source into the above before/after sections.
 -->
 
 # Checklist:
 
-- [ ] I have run locally the [`pre-commit` checks](https://pre-commit.com/) with `pre-commit run --all-files`
+- [ ] I have run the [`pre-commit` checks](https://pre-commit.com/) with `pre-commit run --all-files` (see `CONTRIBUTING.md` instructions to set it up)
 - [ ] I have commented my code, particularly in hard-to-understand areas
 - [ ] I have made corresponding changes to the documentation
 - [ ] My changes generate no new warnings
