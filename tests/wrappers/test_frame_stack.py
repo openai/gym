@@ -39,7 +39,7 @@ def test_frame_stack(env_id, num_stack, lz4_compress):
     dup_obs = dup.reset(seed=0)
     assert np.allclose(obs[-1], dup_obs)
 
-    for _ in range(num_stack ** 2):
+    for _ in range(num_stack**2):
         action = env.action_space.sample()
         dup_obs, _, _, _ = dup.step(action)
         obs, _, _, _ = env.step(action)

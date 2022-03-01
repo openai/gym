@@ -1,7 +1,7 @@
 ---
 repos:
   - repo: https://github.com/PyCQA/bandit/
-    rev: 1.7.0
+    rev: 1.7.3
     hooks:
       - id: bandit
         args:
@@ -10,7 +10,7 @@ repos:
           - B101,B108,B301,B403,B404,B603
           - .
   - repo: https://github.com/python/black
-    rev: 21.7b0
+    rev: 22.1.0
     hooks:
       - id: black
   - repo: https://github.com/codespell-project/codespell
