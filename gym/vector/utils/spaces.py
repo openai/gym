@@ -10,7 +10,7 @@ __all__ = ["_BaseGymSpaces", "batch_space", "iterate"]
 
 
 @singledispatch
-def batch_space(space, n=1):
+def batch_space(space: Space, n: int = 1) -> Space:
     """Create a (batched) space, containing multiple copies of a single space.
 
     Parameters
@@ -38,33 +38,33 @@ def batch_space(space, n=1):
     Dict(position:Box(5, 3), velocity:Box(5, 2))
     """
     raise ValueError(
-        f"Cannot batch space with type `{type(space)}`. The space must be a valid `gym.Space` instance."
+        f"Don't know how to batch space of type `{type(space)}`, it doesn't have a registered "
+        f"handler."
     )
 
 
-@batch_space.register(Box)
-@batch_space.register(Discrete)
-@batch_space.register(MultiDiscrete)
-@batch_space.register(MultiBinary)
-def batch_space_base(space, n=1):
-    if isinstance(space, Box):
-        repeats = tuple([n] + [1] * space.low.ndim)
-        low, high = np.tile(space.low, repeats), np.tile(space.high, repeats)
-        return Box(low=low, high=high, dtype=space.dtype)
+@batch_space.register
+def _batch_box_space(space: Box, n: int) -> Box:
+    repeats = tuple([n] + [1] * space.low.ndim)
+    low, high = np.tile(space.low, repeats), np.tile(space.high, repeats)
+    return type(space)(low=low, high=high, dtype=space.dtype)
 
-    elif isinstance(space, Discrete):
-        return MultiDiscrete(np.full((n,), space.n, dtype=space.dtype))
 
-    elif isinstance(space, MultiDiscrete):
-        repeats = tuple([n] + [1] * space.nvec.ndim)
-        high = np.tile(space.nvec, repeats) - 1
-        return Box(low=np.zeros_like(high), high=high, dtype=space.dtype)
+@batch_space.register
+def _batch_discrete(space: Discrete, n: int) -> MultiDiscrete:
+    return MultiDiscrete(np.full((n,), space.n, dtype=space.dtype))
 
-    elif isinstance(space, MultiBinary):
-        return Box(low=0, high=1, shape=(n,) + space.shape, dtype=space.dtype)
 
-    else:
-        raise ValueError(f"Space type `{type(space)}` is not supported.")
+@batch_space.register
+def _batch_multidiscrete(space: MultiDiscrete, n: int) -> Box:
+    repeats = tuple([n] + [1] * space.nvec.ndim)
+    high = np.tile(space.nvec, repeats) - 1
+    return Box(low=np.zeros_like(high), high=high, dtype=space.dtype)
+
+
+@batch_space.register
+def _batch_multibinary(space: MultiBinary, n: int) -> Box:
+    return Box(low=0, high=1, shape=(n,) + space.shape, dtype=space.dtype)
 
 
 @batch_space.register(Tuple)
