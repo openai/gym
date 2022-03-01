@@ -1,19 +1,12 @@
 from __future__ import annotations
 
-from typing import (
-    TypeVar,
-    Generic,
-    Optional,
-    Sequence,
-    Iterable,
-    Mapping,
-    Type,
-)
+import typing
+from typing import Generic, Iterable, Mapping, Optional, Sequence, Type, TypeVar
 
-import numpy as np
+if typing.TYPE_CHECKING:
+    from gym.spaces.other.filter import FilteredSpace, Predicate
 
 from gym.utils import seeding
-
 
 T_cov = TypeVar("T_cov", covariant=True)
 
@@ -110,3 +103,17 @@ class Space(Generic[T_cov]):
         """Convert a JSONable data type to a batch of samples from this space."""
         # By default, assume identity is JSONable
         return sample_n
+
+    def where(self, *predicates: Predicate[T_cov]) -> FilteredSpace[T_cov]:
+        """Returns a filtered sub-region of `self`, where the elements match the given predicates.
+
+        ```python
+        space: Space[Discrete] = Discretes().where(lambda n: n % 2 == 0)
+
+        assert Discrete(2) in space
+        assert Discrete(3) not in space
+        ```
+        """
+        from gym.spaces.other.filter import FilteredSpace
+
+        return FilteredSpace(self, predicates=list(predicates))
