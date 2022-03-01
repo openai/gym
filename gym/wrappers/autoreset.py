@@ -1,3 +1,22 @@
+"""
+A class for providing an automatic reset functionality for gym environments when calling step.
+
+If done was not true for the previous call to step, step returns
+
+obs, reward, done, info
+
+as normal.
+
+If done was true for the previous call to step, the action is ignored, and self.env.reset is called, and step returns
+
+obs, None, None, info
+
+Warning: When using this wrapper to collect rollouts, note that the action given to .step() which causes the reset (first call to 
+.step() after done = True) will have no effect on any observation, and should likely be excluded from logging.
+
+"""
+
+
 from typing import Optional
 
 import numpy as np
