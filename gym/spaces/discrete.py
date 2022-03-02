@@ -25,7 +25,7 @@ class Discrete(Space[int]):
         super().__init__((), np.int64, seed)
 
     def sample(self) -> int:
-        return self.start + self.np_random.randint(self.n)
+        return int(self.start + self.np_random.integers(self.n))
 
     def contains(self, x) -> bool:
         if isinstance(x, int):
