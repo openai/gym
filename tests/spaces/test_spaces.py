@@ -1,5 +1,7 @@
 import json  # note: ujson fails this test due to float equality
 import copy
+import pickle
+import tempfile
 
 import numpy as np
 import pytest
@@ -508,29 +510,23 @@ def test_infinite_space(space):
 
     # check that int bounds are bounded for everything
     # but floats are unbounded for infinite
-    if space.dtype.kind == "f":
-        if np.any(space.high != 0):
-            assert (
-                space.is_bounded("above") == False
-            ), "float dtype inf upper bound supposed to be unbounded"
-        else:
-            assert (
-                space.is_bounded("above") == True
-            ), "float dtype non-inf upper bound supposed to be bounded"
-
-        if np.any(space.low != 0):
-            assert (
-                space.is_bounded("below") == False
-            ), "float dtype inf lower bound supposed to be unbounded"
-        else:
-            assert (
-                space.is_bounded("below") == True
-            ), "float dtype non-inf lower bound supposed to be bounded"
-
-    elif space.dtype.kind == "i":
+    if np.any(space.high != 0):
         assert (
-            space.is_bounded("both") == True
-        ), "int dtypes should be bounded on both ends"
+            space.is_bounded("above") == False
+        ), "inf upper bound supposed to be unbounded"
+    else:
+        assert (
+            space.is_bounded("above") == True
+        ), "non-inf upper bound supposed to be bounded"
+
+    if np.any(space.low != 0):
+        assert (
+            space.is_bounded("below") == False
+        ), "inf lower bound supposed to be unbounded"
+    else:
+        assert (
+            space.is_bounded("below") == True
+        ), "non-inf lower bound supposed to be bounded"
 
     # check for dtype
     assert (
@@ -555,3 +551,50 @@ def test_discrete_legacy_state_pickling():
 
     assert d.start == 0
     assert d.n == 3
+
+
+@pytest.mark.parametrize(
+    "space",
+    [
+        Discrete(3),
+        Discrete(5, start=-2),
+        Box(low=0.0, high=np.inf, shape=(2, 2)),
+        Tuple([Discrete(5), Discrete(10)]),
+        Tuple(
+            [
+                Discrete(5),
+                Box(low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32),
+            ]
+        ),
+        Tuple((Discrete(5), Discrete(2), Discrete(2))),
+        Tuple((Discrete(5), Discrete(2, start=6), Discrete(2, start=-4))),
+        MultiDiscrete([2, 2, 100]),
+        MultiBinary(10),
+        Dict(
+            {
+                "position": Discrete(5),
+                "velocity": Box(
+                    low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32
+                ),
+            }
+        ),
+    ],
+)
+def test_pickle(space):
+    space.sample()
+
+    # Pickle and unpickle with a string
+    pickled = pickle.dumps(space)
+    space2 = pickle.loads(pickled)
+
+    # Pickle and unpickle with a file
+    with tempfile.TemporaryFile() as f:
+        pickle.dump(space, f)
+        f.seek(0)
+        space3 = pickle.load(f)
+
+    sample = space.sample()
+    sample2 = space2.sample()
+    sample3 = space3.sample()
+    assert sample_equal(sample, sample2)
+    assert sample_equal(sample, sample3)

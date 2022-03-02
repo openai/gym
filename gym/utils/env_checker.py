@@ -255,12 +255,12 @@ def _check_render(
     :param headless: Whether to disable render modes
         that require a graphical interface. False by default.
     """
-    render_modes = env.metadata.get("render.modes")
+    render_modes = env.metadata.get("render_modes")
     if render_modes is None:
         if warn:
             logger.warn(
                 "No render modes was declared in the environment "
-                " (env.metadata['render.modes'] is None or not defined), "
+                " (env.metadata['render_modes'] is None or not defined), "
                 "you may have trouble when calling `.render()`"
             )
 

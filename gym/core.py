@@ -38,7 +38,7 @@ class Env(Generic[ObsType, ActType]):
     """
 
     # Set this in SOME subclasses
-    metadata = {"render.modes": []}
+    metadata = {"render_modes": []}
     reward_range = (-float("inf"), float("inf"))
     spec = None
 
@@ -124,7 +124,7 @@ class Env(Generic[ObsType, ActType]):
           and ANSI escape sequences (e.g. for colors).
 
         Note:
-            Make sure that your class's metadata 'render.modes' key includes
+            Make sure that your class's metadata 'render_modes' key includes
               the list of supported modes. It's recommended to call super()
               in implementations to use the functionality of this method.
 
@@ -134,7 +134,7 @@ class Env(Generic[ObsType, ActType]):
         Example:
 
         class MyEnv(Env):
-            metadata = {'render.modes': ['human', 'rgb_array']}
+            metadata = {'render_modes': ['human', 'rgb_array']}
 
             def render(self, mode='human'):
                 if mode == 'rgb_array':

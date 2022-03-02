@@ -146,8 +146,8 @@ class CarRacing(gym.Env, EzPickle):
     """
 
     metadata = {
-        "render.modes": ["human", "rgb_array", "state_pixels"],
-        "video.frames_per_second": FPS,
+        "render_modes": ["human", "rgb_array", "state_pixels"],
+        "render_fps": FPS,
     }
 
     def __init__(self, verbose=1, lap_complete_percent=0.95):
@@ -155,6 +155,7 @@ class CarRacing(gym.Env, EzPickle):
         self.contactListener_keepref = FrictionDetector(self, lap_complete_percent)
         self.world = Box2D.b2World((0, 0), contactListener=self.contactListener_keepref)
         self.screen = None
+        self.clock = None
         self.isopen = True
         self.invisible_state_window = None
         self.invisible_video_window = None
@@ -439,6 +440,8 @@ class CarRacing(gym.Env, EzPickle):
         if self.screen is None:
             pygame.init()
             self.screen = pygame.display.set_mode((WINDOW_W, WINDOW_H))
+        if self.clock is None:
+            self.clock = pygame.time.Clock()
 
         if "t" not in self.__dict__:
             return  # reset() not called yet
@@ -472,6 +475,7 @@ class CarRacing(gym.Env, EzPickle):
         self.screen.blit(text, text_rect)
 
         if mode == "human":
+            self.clock.tick(self.metadata["render_fps"])
             pygame.display.flip()
 
         if mode == "rgb_array":
@@ -634,11 +638,7 @@ if __name__ == "__main__":
 
     env = CarRacing()
     env.render()
-    record_video = False
-    if record_video:
-        from gym.wrappers.monitor import Monitor
 
-        env = Monitor(env, "/tmp/video-test", force=True)
     isopen = True
     while isopen:
         env.reset()
