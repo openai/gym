@@ -537,6 +537,22 @@ def test_infinite_space(space):
     ), "Low's dtype {space.high.dtype} doesn't match `space.dtype`'"
 
 
+def test_discrete_legacy_state_pickling():
+    legacy_state = {
+        "n": 3,
+    }
+
+    d = Discrete(1)
+    assert "start" in d.__dict__
+    del d.__dict__["start"]  # legacy did not include start param
+    assert "start" not in d.__dict__
+
+    d.__setstate__(legacy_state)
+
+    assert d.start == 0
+    assert d.n == 3
+
+
 @pytest.mark.parametrize(
     "space",
     [
