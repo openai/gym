@@ -61,8 +61,8 @@ def register_some_envs():
 
 
 def test_make():
-    env = envs.make("CartPole-v0")
-    assert env.spec.id == "CartPole-v0"
+    env = envs.make("CartPole-v1")
+    assert env.spec.id == "CartPole-v1"
     assert isinstance(env.unwrapped, cartpole.CartPoleEnv)
 
 
@@ -164,6 +164,8 @@ def test_make_with_kwargs():
     assert env.arg3 == "override_arg3"
 
 
+@pytest.mark.filterwarnings('ignore:.*The environment Humanoid-v0 is out of date. You should consider upgrading to '
+                            'version `v3` with the environment ID `Humanoid-v3`.*')
 def test_make_deprecated():
     try:
         envs.make("Humanoid-v0")
@@ -174,8 +176,8 @@ def test_make_deprecated():
 
 
 def test_spec():
-    spec = envs.spec("CartPole-v0")
-    assert spec.id == "CartPole-v0"
+    spec = envs.spec("CartPole-v1")
+    assert spec.id == "CartPole-v1"
 
 
 def test_spec_with_kwargs():
