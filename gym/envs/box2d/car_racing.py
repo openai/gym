@@ -152,6 +152,7 @@ class CarRacing(gym.Env, EzPickle):
 
     def __init__(self, verbose=1, lap_complete_percent=0.95):
         EzPickle.__init__(self)
+        pygame.init()
         self.contactListener_keepref = FrictionDetector(self, lap_complete_percent)
         self.world = Box2D.b2World((0, 0), contactListener=self.contactListener_keepref)
         self.screen = None
@@ -437,8 +438,7 @@ class CarRacing(gym.Env, EzPickle):
 
     def render(self, mode="human"):
         assert mode in ["human", "state_pixels", "rgb_array"]
-        if self.screen is None:
-            pygame.init()
+        if self.screen is None and mode == "human":
             self.screen = pygame.display.set_mode((WINDOW_W, WINDOW_H))
         if self.clock is None:
             self.clock = pygame.time.Clock()
@@ -462,9 +462,6 @@ class CarRacing(gym.Env, EzPickle):
 
         self.surf = pygame.transform.flip(self.surf, False, True)
 
-        self.screen.fill(0)
-        self.screen.blit(self.surf, (0, 0))
-
         # showing stats
         self.render_indicators(WINDOW_W, WINDOW_H)
 
@@ -472,16 +469,18 @@ class CarRacing(gym.Env, EzPickle):
         text = font.render("%04i" % self.reward, True, (255, 255, 255), (0, 0, 0))
         text_rect = text.get_rect()
         text_rect.center = (60, WINDOW_H - WINDOW_H * 2.5 / 40.0)
-        self.screen.blit(text, text_rect)
+        self.surf.blit(text, text_rect)
 
         if mode == "human":
             self.clock.tick(self.metadata["render_fps"])
+            self.screen.fill(0)
+            self.screen.blit(self.surf, (0, 0))
             pygame.display.flip()
 
         if mode == "rgb_array":
-            return self._create_image_array(self.screen, (VIDEO_W, VIDEO_H))
+            return self._create_image_array(self.surf, (VIDEO_W, VIDEO_H))
         elif mode == "state_pixels":
-            return self._create_image_array(self.screen, (STATE_W, STATE_H))
+            return self._create_image_array(self.surf, (STATE_W, STATE_H))
         else:
             return self.isopen
 
@@ -526,7 +525,7 @@ class CarRacing(gym.Env, EzPickle):
         h = H / 40.0
         color = (0, 0, 0)
         polygon = [(W, H), (W, H - 5 * h), (0, H - 5 * h), (0, H)]
-        pygame.draw.polygon(self.screen, color=color, points=polygon)
+        pygame.draw.polygon(self.surf, color=color, points=polygon)
 
         def vertical_ind(place, val):
             return [
@@ -552,7 +551,7 @@ class CarRacing(gym.Env, EzPickle):
         # simple wrapper to render if the indicator value is above a threshold
         def render_if_min(value, points, color):
             if abs(value) > 1e-4:
-                pygame.draw.polygon(self.screen, points=points, color=color)
+                pygame.draw.polygon(self.surf, points=points, color=color)
 
         render_if_min(true_speed, vertical_ind(5, 0.02 * true_speed), (255, 255, 255))
         # ABS sensors
