@@ -202,6 +202,7 @@ class FrozenLakeEnv(Env):
         # pygame utils
         self.window_size = (min(64 * ncol, 512), min(64 * nrow, 512))
         self.window_surface = None
+        self.clock = None
         self.hole_img = None
         self.cracked_hole_img = None
         self.ice_img = None
@@ -248,6 +249,8 @@ class FrozenLakeEnv(Env):
                 self.window_surface = pygame.display.set_mode(self.window_size)
             else:  # rgb_array
                 self.window_surface = pygame.Surface(self.window_size)
+        if self.clock is None:
+            self.clock = pygame.time.Clock()
         if self.hole_img is None:
             file_name = path.join(path.dirname(__file__), "img/hole.png")
             self.hole_img = pygame.image.load(file_name)
@@ -334,6 +337,7 @@ class FrozenLakeEnv(Env):
         self.window_surface.blit(board, board.get_rect())
         if mode == "human":
             pygame.display.update()
+            self.clock.tick(self.metadata["render_fps"])
         else:  # rgb_array
             return np.transpose(
                 np.array(pygame.surfarray.pixels3d(self.window_surface)), axes=(1, 0, 2)

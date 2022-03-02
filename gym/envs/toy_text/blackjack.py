@@ -183,6 +183,9 @@ class BlackjackEnv(gym.Env):
                 pygame.font.init()
                 self.screen = pygame.Surface((screen_width, screen_height))
 
+        if not hasattr(self, "clock"):
+            self.clock = pygame.time.Clock()
+
         self.screen.fill(bg_color)
 
         def get_image(path):
@@ -264,6 +267,7 @@ class BlackjackEnv(gym.Env):
             )
         if mode == "human":
             pygame.display.update()
+            self.clock.tick(self.metadata["render_fps"])
         else:
             return np.transpose(
                 np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
