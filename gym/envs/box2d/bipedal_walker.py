@@ -163,6 +163,7 @@ class BipedalWalker(gym.Env, EzPickle):
     def __init__(self, hardcore: bool = False):
         EzPickle.__init__(self)
         self.screen = None
+        self.clock = None
         self.isopen = True
 
         self.world = Box2D.b2World()
@@ -539,6 +540,8 @@ class BipedalWalker(gym.Env, EzPickle):
         if self.screen is None:
             pygame.init()
             self.screen = pygame.display.set_mode((VIEWPORT_W, VIEWPORT_H))
+        if self.clock is None:
+            self.clock = pygame.time.Clock()
 
         self.surf = pygame.Surface((VIEWPORT_W + self.scroll * SCALE, VIEWPORT_H))
 
@@ -652,6 +655,7 @@ class BipedalWalker(gym.Env, EzPickle):
         self.surf = pygame.transform.flip(self.surf, False, True)
         self.screen.blit(self.surf, (-self.scroll * SCALE, 0))
         if mode == "human":
+            self.clock.tick(self.metadata["render_fps"])
             pygame.display.flip()
 
         if mode == "rgb_array":
