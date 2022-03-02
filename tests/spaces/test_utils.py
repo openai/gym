@@ -14,7 +14,7 @@ spaces = [
     Tuple(
         [
             Discrete(5),
-            Box(low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32),
+            Box(low=np.array([0.0, 0.0]), high=np.array([1.0, 5.0]), dtype=np.float64),
         ]
     ),
     Tuple((Discrete(5), Discrete(2), Discrete(2))),
@@ -24,7 +24,7 @@ spaces = [
         {
             "position": Discrete(5),
             "velocity": Box(
-                low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32
+                low=np.array([0.0, 0.0]), high=np.array([1.0, 5.0]), dtype=np.float64
             ),
         }
     ),

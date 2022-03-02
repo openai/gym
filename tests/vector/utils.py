@@ -8,12 +8,12 @@ from gym.spaces import Box, Discrete, MultiDiscrete, MultiBinary, Tuple, Dict
 
 spaces = [
     Box(low=np.array(-1.0), high=np.array(1.0), dtype=np.float64),
-    Box(low=np.array([0.0]), high=np.array([10.0]), dtype=np.float32),
+    Box(low=np.array([0.0]), high=np.array([10.0]), dtype=np.float64),
     Box(
-        low=np.array([-1.0, 0.0, 0.0]), high=np.array([1.0, 1.0, 1.0]), dtype=np.float32
+        low=np.array([-1.0, 0.0, 0.0]), high=np.array([1.0, 1.0, 1.0]), dtype=np.float64
     ),
     Box(
-        low=np.array([[-1.0, 0.0], [0.0, -1.0]]), high=np.ones((2, 2)), dtype=np.float32
+        low=np.array([[-1.0, 0.0], [0.0, -1.0]]), high=np.ones((2, 2)), dtype=np.float64
     ),
     Box(low=0, high=255, shape=(), dtype=np.uint8),
     Box(low=0, high=255, shape=(32, 32, 3), dtype=np.uint8),
@@ -22,7 +22,7 @@ spaces = [
     Tuple(
         (
             Discrete(7),
-            Box(low=np.array([0.0, -1.0]), high=np.array([1.0, 1.0]), dtype=np.float32),
+            Box(low=np.array([0.0, -1.0]), high=np.array([1.0, 1.0]), dtype=np.float64),
         )
     ),
     MultiDiscrete([11, 13, 17]),
@@ -31,7 +31,7 @@ spaces = [
         {
             "position": Discrete(23),
             "velocity": Box(
-                low=np.array([0.0]), high=np.array([1.0]), dtype=np.float32
+                low=np.array([0.0]), high=np.array([1.0]), dtype=np.float64
             ),
         }
     ),
