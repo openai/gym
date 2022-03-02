@@ -473,7 +473,6 @@ class CarRacing(gym.Env, EzPickle):
 
         if mode == "human":
             self.clock.tick(self.metadata["render_fps"])
-            
             self.screen.fill(0)
             self.screen.blit(self.surf, (0, 0))
             pygame.display.flip()
