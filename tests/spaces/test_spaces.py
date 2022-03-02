@@ -580,7 +580,7 @@ def test_discrete_legacy_state_pickling():
         Tuple(
             [
                 Discrete(5),
-                Box(low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32),
+                Box(low=np.array([0.0, 0.0]), high=np.array([1, 5]), dtype=np.float64),
             ]
         ),
         Tuple((Discrete(5), Discrete(2), Discrete(2))),
@@ -591,7 +591,7 @@ def test_discrete_legacy_state_pickling():
             {
                 "position": Discrete(5),
                 "velocity": Box(
-                    low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32
+                    low=np.array([0.0, 0.0]), high=np.array([1, 5]), dtype=np.float64
                 ),
             }
         ),
