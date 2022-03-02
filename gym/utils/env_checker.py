@@ -263,7 +263,7 @@ def _check_render(
                 " (env.metadata['render_fps'] is None or not defined), "
                 "rendering may not occur at a inconsistent fps"
             )
-            
+
     render_modes = env.metadata.get("render_modes")
     if render_modes is None:
         if warn:
