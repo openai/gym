@@ -14,7 +14,7 @@ class DummyRewardEnv(gym.Env):
     def __init__(self, return_reward_idx=0):
         self.action_space = gym.spaces.Discrete(2)
         self.observation_space = gym.spaces.Box(
-            low=np.array([-1.0]), high=np.array([1.0])
+            low=np.array([-1.0]), high=np.array([1.0]), dtype=np.float64
         )
         self.returned_rewards = [0, 1, 2, 3, 4]
         self.return_reward_idx = return_reward_idx
