@@ -170,6 +170,8 @@ class CarRacing(gym.Env, EzPickle):
             shape=polygonShape(vertices=[(0, 0), (1, 0), (1, -1), (0, -1)])
         )
 
+        # This will throw a warning in tests/envs/test_envs in utils/env_checker.py as the space is not symmetric
+        #   or normalised however this is not possible here so ignore
         self.action_space = spaces.Box(
             np.array([-1, 0, 0]).astype(np.float32),
             np.array([+1, +1, +1]).astype(np.float32),
