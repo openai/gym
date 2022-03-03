@@ -38,27 +38,27 @@ class FilteredSpace(SpaceWrapper[T_cov]):
 
     Other cool examples:
 
-    >>> unit_circle = Box(-1, 1, shape=(2,), dtype=np.float64, seed=123).where(lambda xy: (xy ** 2).sum() <= 1)
-    >>> np.array((0.1, 0.2)) in unit_circle
+    >>> unit_disk = Box(-1, 1, shape=(2,), dtype=np.float64, seed=123).where(lambda xy: (xy ** 2).sum() <= 1)
+    >>> np.array((0.1, 0.2)) in unit_disk
     True
-    >>> np.array((1, 1)) in unit_circle
+    >>> np.array((1, 1)) in unit_disk
     False
-    >>> unit_circle.sample()
+    >>> unit_disk.sample()
     array([ 0.36470373, -0.89235796])
 
-    >>> def hypersphere(radius: float, dimensions: int) -> FilteredSpace[np.ndarray]:
+    >>> def hyperball(radius: float, dimensions: int) -> FilteredSpace[np.ndarray]:
     ...     return Box(-radius, +radius, shape=(dimensions,)).where(
-    ...         lambda v: v.pow(2).sum() <= radius**dimensions
+    ...         lambda v: v.pow(2).sum() <= radius ** 2
     ...     )
     ...
-    >>> unit_sphere = hypersphere(radius=1, dimensions=3)
+    >>> unit_ball = hyperball(radius=1, dimensions=3)
     """
 
     def __init__(
         self,
         space: Space[T_cov],
         predicates: Sequence[Predicate[T_cov]],
-        max_sampling_attempts: int | None = None,
+        max_sampling_attempts: int | None = 1_000,
     ):
         super().__init__(space=space)
         self.space = space
