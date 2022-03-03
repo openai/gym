@@ -167,7 +167,8 @@ class Box(Space[np.ndarray]):
         return [np.asarray(sample) for sample in sample_n]
 
     def __repr__(self) -> str:
-        return f"Box({self.low_repr}, {self.high_repr}, {self.shape}, {self.dtype})"
+        cls = type(self)
+        return f"{cls.__qualname__}({self.low_repr}, {self.high_repr}, {self.shape}, {self.dtype})"
 
     def __eq__(self, other) -> bool:
         return (
