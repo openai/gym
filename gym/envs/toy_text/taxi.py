@@ -1,11 +1,13 @@
 import sys
 from contextlib import closing
 from io import StringIO
+from os import path
 from typing import Optional
 
 import numpy as np
 from gym import Env, spaces, utils
 from gym.envs.toy_text.utils import categorical_sample
+import pygame
 
 MAP = [
     "+---------+",
@@ -16,6 +18,7 @@ MAP = [
     "|Y| : |B: |",
     "+---------+",
 ]
+WINDOW_SIZE = (400, 400)
 
 
 class TaxiEnv(Env):
@@ -117,7 +120,7 @@ class TaxiEnv(Env):
     * v0: Initial versions release
     """
 
-    metadata = {"render.modes": ["human", "ansi"]}
+    metadata = {"render.modes": ["human", "ansi", "rgb_array"]}
 
     def __init__(self):
         self.desc = np.asarray(MAP, dtype="c")
@@ -181,6 +184,14 @@ class TaxiEnv(Env):
         self.action_space = spaces.Discrete(num_actions)
         self.observation_space = spaces.Discrete(num_states)
 
+        # pygame utils
+        self.window = None
+        self.cell_size = (WINDOW_SIZE[0] / num_columns, WINDOW_SIZE[1] / num_rows)
+        self.taxi_imgs = None
+        self.taxi_orientation = 0
+        self.passenger_img = None
+        self.destination_img = None
+
     def encode(self, taxi_row, taxi_col, pass_loc, dest_idx):
         # (5) 5, 5, 4
         i = taxi_row
@@ -212,13 +223,7 @@ class TaxiEnv(Env):
         self.lastaction = a
         return (int(s), r, d, {"prob": p})
 
-    def reset(
-        self,
-        *,
-        seed: Optional[int] = None,
-        return_info: bool = False,
-        options: Optional[dict] = None,
-    ):
+    def reset(self, *, seed: Optional[int] = None, return_info: bool = False, options: Optional[dict] = None):
         super().reset(seed=seed)
         self.s = categorical_sample(self.initial_state_distrib, self.np_random)
         self.lastaction = None
@@ -228,10 +233,84 @@ class TaxiEnv(Env):
             return int(self.s), {"prob": 1}
 
     def render(self, mode="human"):
-        outfile = StringIO() if mode == "ansi" else sys.stdout
+        desc = self.desc.copy().tolist()
+        if mode == "ansi":
+            return self._render_text(desc)
+        else:
+            return self._render_gui(desc, mode)
 
-        out = self.desc.copy().tolist()
-        out = [[c.decode("utf-8") for c in line] for line in out]
+    def _render_gui(self, desc, mode):
+        if self.window is None:
+            pygame.init()
+            pygame.display.set_caption("Taxi")
+            if mode == 'human':
+                self.window = pygame.display.set_mode(WINDOW_SIZE)
+            else:  # rgb_array
+                self.window = pygame.Surface(WINDOW_SIZE)
+        if self.taxi_imgs is None:
+            file_names = [
+                path.join(path.dirname(__file__), "img/cab_front.png"),
+                path.join(path.dirname(__file__), "img/cab_rear.png"),
+                path.join(path.dirname(__file__), "img/cab_right.png"),
+                path.join(path.dirname(__file__), "img/cab_left.png"),
+            ]
+            self.taxi_imgs = [
+                pygame.transform.scale(pygame.image.load(file_name), self.cell_size)
+                for file_name in file_names
+            ]
+        if self.passenger_img is None:
+            file_name = path.join(path.dirname(__file__), "img/passenger.png")
+            self.passenger_img = pygame.transform.scale(
+                pygame.image.load(file_name),
+                self.cell_size
+            )
+        if self.destination_img is None:
+            file_name = path.join(path.dirname(__file__), "img/destination.png")
+            self.destination_img = pygame.transform.scale(
+                pygame.image.load(file_name),
+                self.cell_size
+            )
+
+        background = pygame.Surface((WINDOW_SIZE[0], WINDOW_SIZE[1]))
+        background.fill((20, 24, 35))
+
+        for y in range(1, len(desc) - 1):
+            for x in range(0, len(desc[y]), 2):
+                if desc[y][x] == b'|':
+                    x_pos = min(x / 2 * self.cell_size[0], WINDOW_SIZE[0] - 1)
+                    start = (x_pos, (y - 1) * self.cell_size[1])
+                    end = (x_pos, y * self.cell_size[1])
+                    pygame.draw.line(background, (255, 255, 255), start, end, 3)
+
+        self.window.blit(background, background.get_rect())
+
+        taxi_row, taxi_col, pass_idx, dest_idx = self.decode(self.s)
+
+        if pass_idx < 4:
+            location = self.locs[pass_idx]
+            position = (location[1] * self.cell_size[0], location[0] * self.cell_size[1])
+            self.window.blit(self.passenger_img, position)
+
+        dest_location = self.locs[dest_idx]
+        dest_position = (dest_location[1] * self.cell_size[0], dest_location[0] * self.cell_size[1])
+        self.window.blit(self.destination_img, dest_position)
+
+        taxi_location = (taxi_col * self.cell_size[0], taxi_row * self.cell_size[1])
+        if self.lastaction in [0, 1, 2, 3]:
+            self.taxi_orientation = self.lastaction
+        self.window.blit(self.taxi_imgs[self.taxi_orientation], taxi_location)
+
+        if mode == "human":
+            pygame.display.update()
+        else:  # rgb_array
+            return np.transpose(
+                np.array(pygame.surfarray.pixels3d(WINDOW_SIZE)), axes=(1, 0, 2)
+            )
+
+    def _render_text(self, desc):
+        outfile = StringIO()
+
+        out = [[c.decode("utf-8") for c in line] for line in desc]
         taxi_row, taxi_col, pass_idx, dest_idx = self.decode(self.s)
 
         def ul(x):
@@ -260,7 +339,5 @@ class TaxiEnv(Env):
         else:
             outfile.write("\n")
 
-        # No need to return anything for human
-        if mode != "human":
-            with closing(outfile):
-                return outfile.getvalue()
+        with closing(outfile):
+            return outfile.getvalue()
