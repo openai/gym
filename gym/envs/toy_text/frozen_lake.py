@@ -133,7 +133,16 @@ class FrozenLakeEnv(Env):
     * v0: Initial versions release (1.0.0)
     """
 
-    metadata = {"render.modes": ["human", "ansi", "rgb_array"]}
+    metadata = {"render_modes": ["human", "ansi", "rgb_array"]}
+
+    def __new__(cls, render_mode="human", **kwargs):
+        subclass_list = [subclass for subclass in cls.__subclasses__()
+                         if render_mode in subclass.metadata["render_modes"]]
+
+        assert len(subclass_list) == 1
+        subclass = subclass_list[0]
+        instance = super(FrozenLakeEnv, subclass).__new__(subclass, render_mode)
+        return instance
 
     def __init__(self, desc=None, map_name="4x4", is_slippery=True):
         if desc is None and map_name is None:
@@ -194,16 +203,6 @@ class FrozenLakeEnv(Env):
         self.observation_space = spaces.Discrete(nS)
         self.action_space = spaces.Discrete(nA)
 
-        # pygame utils
-        self.window_size = (min(64 * ncol, 512), min(64 * nrow, 512))
-        self.window_surface = None
-        self.hole_img = None
-        self.cracked_hole_img = None
-        self.ice_img = None
-        self.elf_images = None
-        self.goal_img = None
-        self.start_img = None
-
     def step(self, a):
         transitions = self.P[self.s][a]
         i = categorical_sample([t[0] for t in transitions], self.np_random)
@@ -213,11 +212,11 @@ class FrozenLakeEnv(Env):
         return (int(s), r, d, {"prob": p})
 
     def reset(
-        self,
-        *,
-        seed: Optional[int] = None,
-        return_info: bool = False,
-        options: Optional[dict] = None,
+            self,
+            *,
+            seed: Optional[int] = None,
+            return_info: bool = False,
+            options: Optional[dict] = None,
     ):
         super().reset(seed=seed)
         self.s = categorical_sample(self.initial_state_distrib, self.np_random)
@@ -228,45 +227,89 @@ class FrozenLakeEnv(Env):
         else:
             return int(self.s), {"prob": 1}
 
-    def render(self, mode="human"):
+    @staticmethod
+    def _center_small_rect(big_rect, small_dims):
+        offset_w = (big_rect[2] - small_dims[0]) / 2
+        offset_h = (big_rect[3] - small_dims[1]) / 2
+        return (
+            big_rect[0] + offset_w,
+            big_rect[1] + offset_h,
+        )
+
+
+class FrozenLakeAnsiRender(FrozenLakeEnv):
+
+    metadata = {"render_modes": ["ansi"]}
+
+    def __init__(self, **kwargs):
+        super(FrozenLakeAnsiRender, self).__init__()
+        self.render_list = []
+
+    def _render(self):
         desc = self.desc.tolist()
-        if mode == "ansi":
-            return self._render_text(desc)
+        outfile = StringIO()
+
+        row, col = self.s // self.ncol, self.s % self.ncol
+        desc = [[c.decode("utf-8") for c in line] for line in desc]
+        desc[row][col] = utils.colorize(desc[row][col], "red", highlight=True)
+        if self.lastaction is not None:
+            outfile.write(f"  ({['Left', 'Down', 'Right', 'Up'][self.lastaction]})\n")
         else:
-            return self._render_gui(desc, mode)
+            outfile.write("\n")
+        outfile.write("\n".join("".join(line) for line in desc) + "\n")
 
-    def _render_gui(self, desc, mode):
-        if self.window_surface is None:
-            pygame.init()
-            pygame.display.set_caption("Frozen Lake")
-            if mode == "human":
-                self.window_surface = pygame.display.set_mode(self.window_size)
-            else:  # rgb_array
-                self.window_surface = pygame.Surface(self.window_size)
-        if self.hole_img is None:
-            file_name = path.join(path.dirname(__file__), "img/hole.png")
-            self.hole_img = pygame.image.load(file_name)
-        if self.cracked_hole_img is None:
-            file_name = path.join(path.dirname(__file__), "img/cracked_hole.png")
-            self.cracked_hole_img = pygame.image.load(file_name)
-        if self.ice_img is None:
-            file_name = path.join(path.dirname(__file__), "img/ice.png")
-            self.ice_img = pygame.image.load(file_name)
-        if self.goal_img is None:
-            file_name = path.join(path.dirname(__file__), "img/goal.png")
-            self.goal_img = pygame.image.load(file_name)
-        if self.start_img is None:
-            file_name = path.join(path.dirname(__file__), "img/stool.png")
-            self.start_img = pygame.image.load(file_name)
-        if self.elf_images is None:
-            elfs = [
-                path.join(path.dirname(__file__), "img/elf_left.png"),
-                path.join(path.dirname(__file__), "img/elf_down.png"),
-                path.join(path.dirname(__file__), "img/elf_right.png"),
-                path.join(path.dirname(__file__), "img/elf_up.png"),
-            ]
-            self.elf_images = [pygame.image.load(f_name) for f_name in elfs]
+        with closing(outfile):
+            return outfile.getvalue()
 
+    def step(self, a):
+        out = super().step(a)
+        self.render_list.append(
+            self._render()
+        )
+        return out
+
+    def collect_render(self):
+        return self.render_list
+
+
+class FrozenLakeRenderGraphics(FrozenLakeEnv):
+    metadata = {"render_modes": ["human", "rgb_array"]}
+
+    def __init__(self, render_mode="human", **kwargs):
+        super().__init__()
+
+        self.render_mode = render_mode
+        self.window_size = (min(64 * self.ncol, 512), min(64 * self.nrow, 512))
+
+        pygame.init()
+        pygame.display.set_caption("Frozen Lake")
+
+        if self.render_mode == "human":
+            self.window_surface = pygame.display.set_mode(self.window_size)
+            self.render_list = None
+        else:
+            self.window_surface = pygame.Surface(self.window_size)
+            self.render_list = []
+
+        file_name = path.join(path.dirname(__file__), "img/hole.png")
+        self.hole_img = pygame.image.load(file_name)
+        file_name = path.join(path.dirname(__file__), "img/cracked_hole.png")
+        self.cracked_hole_img = pygame.image.load(file_name)
+        file_name = path.join(path.dirname(__file__), "img/ice.png")
+        self.ice_img = pygame.image.load(file_name)
+        file_name = path.join(path.dirname(__file__), "img/goal.png")
+        self.goal_img = pygame.image.load(file_name)
+        file_name = path.join(path.dirname(__file__), "img/stool.png")
+        self.start_img = pygame.image.load(file_name)
+        elfs = [
+            path.join(path.dirname(__file__), "img/elf_left.png"),
+            path.join(path.dirname(__file__), "img/elf_down.png"),
+            path.join(path.dirname(__file__), "img/elf_right.png"),
+            path.join(path.dirname(__file__), "img/elf_up.png"),
+        ]
+        self.elf_images = [pygame.image.load(f_name) for f_name in elfs]
+
+    def _render(self):
         board = pygame.Surface(self.window_size, flags=SRCALPHA)
         cell_width = self.window_size[0] // self.ncol
         cell_height = self.window_size[1] // self.nrow
@@ -280,7 +323,7 @@ class FrozenLakeEnv(Env):
         elf_scale = min(
             small_cell_w / elf_img.get_width(),
             small_cell_h / elf_img.get_height(),
-        )
+            )
         elf_dims = (
             elf_img.get_width() * elf_scale,
             elf_img.get_height() * elf_scale,
@@ -297,13 +340,13 @@ class FrozenLakeEnv(Env):
         for y in range(self.nrow):
             for x in range(self.ncol):
                 rect = (x * cell_width, y * cell_height, cell_width, cell_height)
-                if desc[y][x] == b"H":
+                if self.desc[y][x] == b"H":
                     self.window_surface.blit(hole_img, (rect[0], rect[1]))
-                elif desc[y][x] == b"G":
+                elif self.desc[y][x] == b"G":
                     self.window_surface.blit(ice_img, (rect[0], rect[1]))
                     goal_rect = self._center_small_rect(rect, goal_img.get_size())
                     self.window_surface.blit(goal_img, goal_rect)
-                elif desc[y][x] == b"S":
+                elif self.desc[y][x] == b"S":
                     self.window_surface.blit(ice_img, (rect[0], rect[1]))
                     stool_rect = self._center_small_rect(rect, start_img.get_size())
                     self.window_surface.blit(start_img, stool_rect)
@@ -320,43 +363,30 @@ class FrozenLakeEnv(Env):
             cell_width,
             cell_height,
         )
-        if desc[bot_row][bot_col] == b"H":
+        if self.desc[bot_row][bot_col] == b"H":
             self.window_surface.blit(cracked_hole_img, (cell_rect[0], cell_rect[1]))
         else:
             elf_rect = self._center_small_rect(cell_rect, elf_img.get_size())
             self.window_surface.blit(elf_img, elf_rect)
 
         self.window_surface.blit(board, board.get_rect())
-        if mode == "human":
+
+
+    def step(self, a):
+        out = super().step(a)
+        self._render()
+        if self.render_mode == "human":
             pygame.display.update()
-        else:  # rgb_array
-            return np.transpose(
-                np.array(pygame.surfarray.pixels3d(self.window_surface)), axes=(1, 0, 2)
-            )
-
-    @staticmethod
-    def _center_small_rect(big_rect, small_dims):
-        offset_w = (big_rect[2] - small_dims[0]) / 2
-        offset_h = (big_rect[3] - small_dims[1]) / 2
-        return (
-            big_rect[0] + offset_w,
-            big_rect[1] + offset_h,
-        )
-
-    def _render_text(self, desc):
-        outfile = StringIO()
-
-        row, col = self.s // self.ncol, self.s % self.ncol
-        desc = [[c.decode("utf-8") for c in line] for line in desc]
-        desc[row][col] = utils.colorize(desc[row][col], "red", highlight=True)
-        if self.lastaction is not None:
-            outfile.write(f"  ({['Left', 'Down', 'Right', 'Up'][self.lastaction]})\n")
         else:
-            outfile.write("\n")
-        outfile.write("\n".join("".join(line) for line in desc) + "\n")
+            self.render_list.append(
+                np.transpose(
+                    np.array(pygame.surfarray.pixels3d(self.window_surface)), axes=(1, 0, 2)
+                )
+            )
+        return out
 
-        with closing(outfile):
-            return outfile.getvalue()
+    def collect_render(self):
+        return self.render_list
 
 
 # Elf and stool from https://franuka.itch.io/rpg-snow-tileset
