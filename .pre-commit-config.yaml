@@ -1,14 +1,5 @@
 ---
 repos:
-  - repo: https://github.com/PyCQA/bandit/
-    rev: 1.7.3
-    hooks:
-      - id: bandit
-        args:
-          - --recursive
-          - --skip
-          - B101,B108,B301,B403,B404,B603
-          - .
   - repo: https://github.com/python/black
     rev: 22.1.0
     hooks:
