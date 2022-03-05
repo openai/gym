@@ -121,6 +121,9 @@ class BlackjackEnv(gym.Env):
         self.sab = sab
 
         self.render_mode = render_mode
+        self._init_render_list()
+
+    def _init_render_list(self):
         if self.render_mode == "human":
             self.render_list = None
         else:  # rgb_array
@@ -169,7 +172,9 @@ class BlackjackEnv(gym.Env):
         self.dealer = draw_hand(self.np_random)
         self.player = draw_hand(self.np_random)
 
+        self._init_render_list()
         self._render()
+
         if not return_info:
             return self._get_obs()
         else:

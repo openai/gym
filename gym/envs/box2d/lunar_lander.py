@@ -1,7 +1,6 @@
 __credits__ = ["Andrea PIERRÉ"]
 
 import math
-import sys
 from typing import Optional
 
 import numpy as np
@@ -144,7 +143,7 @@ class LunarLander(gym.Env, EzPickle):
 
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": FPS}
 
-    def __init__(self, continuous: bool = False):
+    def __init__(self, render_mode="human", continuous: bool = False):
         EzPickle.__init__(self)
         self.screen = None
         self.clock = None
@@ -153,6 +152,7 @@ class LunarLander(gym.Env, EzPickle):
         self.moon = None
         self.lander = None
         self.particles = []
+        self.render_mode = render_mode
 
         self.prev_reward = None
 
@@ -171,6 +171,9 @@ class LunarLander(gym.Env, EzPickle):
         else:
             # Nop, fire left engine, main engine, right engine
             self.action_space = spaces.Discrete(4)
+
+        if self.render_mode == "rgb_array":
+            self.render_list = []
 
     def _destroy(self):
         if not self.moon:
@@ -295,6 +298,7 @@ class LunarLander(gym.Env, EzPickle):
 
         self.drawlist = [self.lander] + self.legs
 
+        self._render()
         if not return_info:
             return self.step(np.array([0, 0]) if self.continuous else 0)[0]
         else:
@@ -442,9 +446,17 @@ class LunarLander(gym.Env, EzPickle):
         if not self.lander.awake:
             done = True
             reward = +100
+
+        self._render()
         return np.array(state, dtype=np.float32), reward, done, {}
 
-    def render(self, mode="human"):
+    def collect_render(self):
+        if self.render_mode == "human":
+            return self.isopen
+        else:  # rgb_array
+            return self.render_list
+
+    def _render(self):
         if self.screen is None:
             pygame.init()
             self.screen = pygame.display.set_mode((VIEWPORT_W, VIEWPORT_H))
@@ -532,16 +544,15 @@ class LunarLander(gym.Env, EzPickle):
         self.surf = pygame.transform.flip(self.surf, False, True)
         self.screen.blit(self.surf, (0, 0))
 
-        if mode == "human":
+        if self.render_mode == "human":
             self.clock.tick(self.metadata["render_fps"])
             pygame.display.flip()
-
-        if mode == "rgb_array":
-            return np.transpose(
-                np.array(pygame.surfarray.pixels3d(self.surf)), axes=(1, 0, 2)
+        else:  # rgb_array
+            self.render_list.append(
+                np.transpose(
+                    np.array(pygame.surfarray.pixels3d(self.surf)), axes=(1, 0, 2)
+                )
             )
-        else:
-            return self.isopen
 
     def close(self):
         if self.screen is not None:

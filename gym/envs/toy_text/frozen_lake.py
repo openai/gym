@@ -268,9 +268,7 @@ class FrozenLakeAnsiRender(FrozenLakeEnv):
             options: Optional[dict] = None,
     ):
         out = super(FrozenLakeAnsiRender, self).reset(seed=seed, return_info=return_info, options=options)
-        self.render_list.append(
-            self._render()
-        )
+        self.render_list = [self._render()]
         return out
 
 
@@ -288,11 +286,10 @@ class FrozenLakeRenderGraphics(FrozenLakeEnv):
 
         if self.render_mode == "human":
             self.window_surface = pygame.display.set_mode(self.window_size)
-            self.render_list = None
         else:
             self.window_surface = pygame.Surface(self.window_size)
-            self.render_list = []
 
+        self.render_list = []
         file_name = path.join(path.dirname(__file__), "img/hole.png")
         self.hole_img = pygame.image.load(file_name)
         file_name = path.join(path.dirname(__file__), "img/cracked_hole.png")
@@ -374,7 +371,6 @@ class FrozenLakeRenderGraphics(FrozenLakeEnv):
 
         self.window_surface.blit(board, board.get_rect())
 
-
     def step(self, a):
         out = super().step(a)
         self._render()
@@ -389,7 +385,8 @@ class FrozenLakeRenderGraphics(FrozenLakeEnv):
         return out
 
     def collect_render(self):
-        return self.render_list
+        if self.render_mode == "rgb_array":
+            return self.render_list
     
     def reset(
             self,
@@ -399,16 +396,17 @@ class FrozenLakeRenderGraphics(FrozenLakeEnv):
             options: Optional[dict] = None,
     ):
         out = super(FrozenLakeRenderGraphics, self).reset(seed=seed, return_info=return_info, options=options)
+
         self._render()
         if self.render_mode == "human":
             pygame.display.update()
             self.clock.tick(self.metadata["render_fps"])
         else:
-            self.render_list.append(
+            self.render_list = [
                 np.transpose(
                     np.array(pygame.surfarray.pixels3d(self.window_surface)), axes=(1, 0, 2)
                 )
-            )
+            ]
         return out
 
 

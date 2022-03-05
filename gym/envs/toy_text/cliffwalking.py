@@ -66,10 +66,7 @@ class CliffWalkingEnv(Env):
         self.action_space = spaces.Discrete(self.nA)
 
         self.render_mode = render_mode
-        if self.render_mode == "human":
-            self.render_list = None
-        else:
-            self.render_list = []
+        self.render_list = []
 
     def _limit_coordinates(self, coord):
         """
@@ -121,14 +118,17 @@ class CliffWalkingEnv(Env):
         self.s = categorical_sample(self.initial_state_distrib, self.np_random)
         self.lastaction = None
 
+        self.render_list = []
         self._render()
+
         if not return_info:
             return int(self.s)
         else:
             return int(self.s), {"prob": 1}
 
     def collect_render(self):
-        return self.render_list
+        if self.render_mode == "ansi":
+            return self.render_list
 
     def _render(self):
         outfile = StringIO() if self.render_mode == "ansi" else sys.stdout

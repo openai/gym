@@ -107,7 +107,7 @@ class Env(Generic[ObsType, ActType]):
             self._np_random, seed = seeding.np_random(seed)
 
     @abstractmethod
-    def collect_render(self) -> Optional[List]:
+    def collect_renderr(self) -> Optional[List]:
         """Returns a list of renders for the environment until the current time step.
         The i-th element of the list render the environment for the i-th time step using
         the mode specified in the render_mode argument passed at environment construction.
