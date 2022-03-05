@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import TypeVar, Generic, Tuple, Union, Optional, SupportsFloat
+from typing import TypeVar, Generic, Tuple, Union, Optional, SupportsFloat, List
 
 import gym
 from gym import spaces
@@ -107,42 +107,28 @@ class Env(Generic[ObsType, ActType]):
             self._np_random, seed = seeding.np_random(seed)
 
     @abstractmethod
-    def render(self, mode="human"):
-        """Renders the environment.
+    def collect_render(self) -> Optional[List]:
+        """Returns a list of renders for the environment until the current time step.
+        The i-th element of the list render the environment for the i-th time step using
+        the mode specified in the render_mode argument passed at environment construction.
 
         The set of supported modes varies per environment. (And some
         third-party environments may not support rendering at all.)
         By convention, if mode is:
 
-        - human: render to the current display or terminal and
-          return nothing. Usually for human consumption.
-        - rgb_array: Return an numpy.ndarray with shape (x, y, 3),
-          representing RGB values for an x-by-y pixel image, suitable
-          for turning into a video.
-        - ansi: Return a string (str) or StringIO.StringIO containing a
-          terminal-style text representation. The text can include newlines
-          and ANSI escape sequences (e.g. for colors).
+        - human: collect_render return None.
+          The environment is continuously rendered in the current display or terminal. Usually for human consumption.
+        - rgb_array: Return a list of frames. Each frame is a numpy.ndarray with shape (x, y, 3),
+          representing RGB values for an x-by-y pixel image.
+        - ansi: Return a list of strings (str) or StringIO.StringIO containing a
+          terminal-style text representation for each time step.
+          The text can include newlines and ANSI escape sequences (e.g. for colors).
 
         Note:
             Make sure that your class's metadata 'render_modes' key includes
-              the list of supported modes. It's recommended to call super()
-              in implementations to use the functionality of this method.
+            the list of supported modes. It's recommended to call super()
+            in implementations to use the functionality of this method.
 
-        Args:
-            mode (str): the mode to render with
-
-        Example:
-
-        class MyEnv(Env):
-            metadata = {'render_modes': ['human', 'rgb_array']}
-
-            def render(self, mode='human'):
-                if mode == 'rgb_array':
-                    return np.array(...) # return RGB frame suitable for video
-                elif mode == 'human':
-                    ... # pop up a window and render
-                else:
-                    super(MyEnv, self).render(mode=mode) # just raise an exception
         """
         raise NotImplementedError
 
