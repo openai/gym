@@ -172,8 +172,7 @@ class LunarLander(gym.Env, EzPickle):
             # Nop, fire left engine, main engine, right engine
             self.action_space = spaces.Discrete(4)
 
-        if self.render_mode == "rgb_array":
-            self.render_list = []
+        self.render_list = []
 
     def _destroy(self):
         if not self.moon:
@@ -298,6 +297,7 @@ class LunarLander(gym.Env, EzPickle):
 
         self.drawlist = [self.lander] + self.legs
 
+        self.render_list = []
         self._render()
         if not return_info:
             return self.step(np.array([0, 0]) if self.continuous else 0)[0]
