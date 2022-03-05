@@ -36,7 +36,7 @@ class CliffWalkingEnv(Env):
 
     metadata = {"render_modes": ["human", "ansi"], "render_fps": 4}
 
-    def __init__(self):
+    def __init__(self, render_mode="human"):
         self.shape = (4, 12)
         self.start_state_index = np.ravel_multi_index((3, 0), self.shape)
 
@@ -64,6 +64,12 @@ class CliffWalkingEnv(Env):
 
         self.observation_space = spaces.Discrete(self.nS)
         self.action_space = spaces.Discrete(self.nA)
+
+        self.render_mode = render_mode
+        if self.render_mode == "human":
+            self.render_list = None
+        else:
+            self.render_list = []
 
     def _limit_coordinates(self, coord):
         """
@@ -100,6 +106,8 @@ class CliffWalkingEnv(Env):
         p, s, r, d = transitions[i]
         self.s = s
         self.lastaction = a
+
+        self._render()
         return (int(s), r, d, {"prob": p})
 
     def reset(
@@ -112,13 +120,18 @@ class CliffWalkingEnv(Env):
         super().reset(seed=seed)
         self.s = categorical_sample(self.initial_state_distrib, self.np_random)
         self.lastaction = None
+
+        self._render()
         if not return_info:
             return int(self.s)
         else:
             return int(self.s), {"prob": 1}
 
-    def render(self, mode="human"):
-        outfile = StringIO() if mode == "ansi" else sys.stdout
+    def collect_render(self):
+        return self.render_list
+
+    def _render(self):
+        outfile = StringIO() if self.render_mode == "ansi" else sys.stdout
 
         for s in range(self.nS):
             position = np.unravel_index(s, self.shape)
@@ -142,6 +155,6 @@ class CliffWalkingEnv(Env):
         outfile.write("\n")
 
         # No need to return anything for human
-        if mode != "human":
+        if self.render_mode != "human":
             with closing(outfile):
-                return outfile.getvalue()
+                self.render_list.append(outfile.getvalue())
