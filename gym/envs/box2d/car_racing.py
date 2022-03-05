@@ -1,6 +1,5 @@
 __credits__ = ["Andrea PIERRÉ"]
 
-import sys
 import math
 from typing import Optional
 
@@ -150,7 +149,7 @@ class CarRacing(gym.Env, EzPickle):
         "render_fps": FPS,
     }
 
-    def __init__(self, verbose=1, lap_complete_percent=0.95):
+    def __init__(self, render_mode="human", verbose=1, lap_complete_percent=0.95):
         EzPickle.__init__(self)
         pygame.init()
         self.contactListener_keepref = FrictionDetector(self, lap_complete_percent)
@@ -178,6 +177,10 @@ class CarRacing(gym.Env, EzPickle):
         self.observation_space = spaces.Box(
             low=0, high=255, shape=(STATE_H, STATE_W, 3), dtype=np.uint8
         )
+
+        assert render_mode in self.metadata["render_modes"]
+        self.render_mode = render_mode
+        self.render_list = []
 
     def _destroy(self):
         if not self.road:
@@ -401,6 +404,7 @@ class CarRacing(gym.Env, EzPickle):
                 )
         self.car = Car(self.world, *self.track[0][1:4])
 
+        self.render_list = []
         if not return_info:
             return self.step(None)[0]
         else:
@@ -415,8 +419,6 @@ class CarRacing(gym.Env, EzPickle):
         self.car.step(1.0 / FPS)
         self.world.Step(1.0 / FPS, 6 * 30, 2 * 30)
         self.t += 1.0 / FPS
-
-        self.state = self.render("state_pixels")
 
         step_reward = 0
         done = False
@@ -434,11 +436,18 @@ class CarRacing(gym.Env, EzPickle):
                 done = True
                 step_reward = -100
 
+        self._render()
+        self.state = self._create_image_array(self.surf, (STATE_W, STATE_H))
         return self.state, step_reward, done, {}
 
-    def render(self, mode="human"):
-        assert mode in ["human", "state_pixels", "rgb_array"]
-        if self.screen is None and mode == "human":
+    def collect_render(self):
+        if self.render_mode == "human":
+            return self.isopen
+        else:
+            return self.render_list
+
+    def _render(self):
+        if self.screen is None and self.render_mode == "human":
             self.screen = pygame.display.set_mode((WINDOW_W, WINDOW_H))
         if self.clock is None:
             self.clock = pygame.time.Clock()
@@ -458,7 +467,7 @@ class CarRacing(gym.Env, EzPickle):
         trans = (WINDOW_W / 2 + trans[0], WINDOW_H / 4 + trans[1])
 
         self.render_road(zoom, trans, angle)
-        self.car.draw(self.surf, zoom, trans, angle, mode != "state_pixels")
+        self.car.draw(self.surf, zoom, trans, angle, self.render_mode != "state_pixels")
 
         self.surf = pygame.transform.flip(self.surf, False, True)
 
@@ -471,18 +480,20 @@ class CarRacing(gym.Env, EzPickle):
         text_rect.center = (60, WINDOW_H - WINDOW_H * 2.5 / 40.0)
         self.surf.blit(text, text_rect)
 
-        if mode == "human":
+        if self.render_mode == "human":
             self.clock.tick(self.metadata["render_fps"])
             self.screen.fill(0)
             self.screen.blit(self.surf, (0, 0))
             pygame.display.flip()
 
-        if mode == "rgb_array":
-            return self._create_image_array(self.surf, (VIDEO_W, VIDEO_H))
-        elif mode == "state_pixels":
-            return self._create_image_array(self.surf, (STATE_W, STATE_H))
-        else:
-            return self.isopen
+        elif self.render_mode == "rgb_array":
+            self.render_list.append(
+                self._create_image_array(self.surf, (VIDEO_W, VIDEO_H))
+            )
+        else:  # self.render_mode == "state_pixels":
+            self.render_list.append(
+                self._create_image_array(self.surf, (STATE_W, STATE_H))
+            )
 
     def render_road(self, zoom, translation, angle):
         bounds = PLAYFIELD
@@ -636,9 +647,8 @@ if __name__ == "__main__":
                     a[2] = 0
 
     env = CarRacing()
-    env.render()
+    isopen = env.collect_render()
 
-    isopen = True
     while isopen:
         env.reset()
         total_reward = 0.0
@@ -652,7 +662,7 @@ if __name__ == "__main__":
                 print("\naction " + str([f"{x:+0.2f}" for x in a]))
                 print(f"step {steps} total_reward {total_reward:+0.2f}")
             steps += 1
-            isopen = env.render()
+            isopen = env.collect_render()
             if done or restart or isopen == False:
                 break
     env.close()

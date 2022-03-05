@@ -145,6 +145,7 @@ class LunarLander(gym.Env, EzPickle):
 
     def __init__(self, render_mode="human", continuous: bool = False):
         EzPickle.__init__(self)
+        pygame.init()
         self.screen = None
         self.clock = None
         self.isopen = True
@@ -298,7 +299,6 @@ class LunarLander(gym.Env, EzPickle):
         self.drawlist = [self.lander] + self.legs
 
         self.render_list = []
-        self._render()
         if not return_info:
             return self.step(np.array([0, 0]) if self.continuous else 0)[0]
         else:
@@ -457,13 +457,12 @@ class LunarLander(gym.Env, EzPickle):
             return self.render_list
 
     def _render(self):
-        if self.screen is None:
-            pygame.init()
+        if self.screen is None and self.render_mode == "human":
             self.screen = pygame.display.set_mode((VIEWPORT_W, VIEWPORT_H))
         if self.clock is None:
             self.clock = pygame.time.Clock()
 
-        self.surf = pygame.Surface(self.screen.get_size())
+        self.surf = pygame.Surface((VIEWPORT_W, VIEWPORT_H))
 
         pygame.transform.scale(self.surf, (SCALE, SCALE))
         pygame.draw.rect(self.surf, (255, 255, 255), self.surf.get_rect())
@@ -542,9 +541,9 @@ class LunarLander(gym.Env, EzPickle):
                     )
 
         self.surf = pygame.transform.flip(self.surf, False, True)
-        self.screen.blit(self.surf, (0, 0))
 
         if self.render_mode == "human":
+            self.screen.blit(self.surf, (0, 0))
             self.clock.tick(self.metadata["render_fps"])
             pygame.display.flip()
         else:  # rgb_array
@@ -623,7 +622,7 @@ def demo_heuristic_lander(env, seed=None, render=False):
         total_reward += r
 
         if render:
-            still_open = env.render()
+            still_open = env.collect_render()
             if still_open == False:
                 break
 

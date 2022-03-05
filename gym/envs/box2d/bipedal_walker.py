@@ -160,8 +160,9 @@ class BipedalWalker(gym.Env, EzPickle):
 
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": FPS}
 
-    def __init__(self, hardcore: bool = False):
+    def __init__(self, render_mode="human", hardcore: bool = False):
         EzPickle.__init__(self)
+        pygame.init()
         self.screen = None
         self.clock = None
         self.isopen = True
@@ -191,6 +192,10 @@ class BipedalWalker(gym.Env, EzPickle):
             np.array([1, 1, 1, 1]).astype(np.float32),
         )
         self.observation_space = spaces.Box(-high, high)
+
+        assert render_mode in self.metadata["render_modes"]
+        self.render_mode = render_mode
+        self.render_list = []
 
     def _destroy(self):
         if not self.terrain:
@@ -443,6 +448,7 @@ class BipedalWalker(gym.Env, EzPickle):
                 return fraction
 
         self.lidar = [LidarCallback() for _ in range(10)]
+        self.render_list = []
         if not return_info:
             return self.step(np.array([0, 0, 0, 0]))[0]
         else:
@@ -533,12 +539,18 @@ class BipedalWalker(gym.Env, EzPickle):
             done = True
         if pos[0] > (TERRAIN_LENGTH - TERRAIN_GRASS) * TERRAIN_STEP:
             done = True
+
+        self._render()
         return np.array(state, dtype=np.float32), reward, done, {}
 
-    def render(self, mode="human"):
+    def collect_render(self):
+        if self.render_mode == "human":
+            return self.isopen
+        else:  # self.render_mode == "rgb_array":
+            return self.render_list
 
-        if self.screen is None:
-            pygame.init()
+    def _render(self):
+        if self.screen is None and self.render_mode == "human":
             self.screen = pygame.display.set_mode((VIEWPORT_W, VIEWPORT_H))
         if self.clock is None:
             self.clock = pygame.time.Clock()
@@ -653,17 +665,17 @@ class BipedalWalker(gym.Env, EzPickle):
         )
 
         self.surf = pygame.transform.flip(self.surf, False, True)
-        self.screen.blit(self.surf, (-self.scroll * SCALE, 0))
-        if mode == "human":
+
+        if self.render_mode == "human":
+            self.screen.blit(self.surf, (-self.scroll * SCALE, 0))
             self.clock.tick(self.metadata["render_fps"])
             pygame.display.flip()
-
-        if mode == "rgb_array":
-            return np.transpose(
-                np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
+        else:  # self.render_mode == "rgb_array":
+            self.render_list.append(
+                np.transpose(
+                    np.array(pygame.surfarray.pixels3d(self.surf)), axes=(1, 0, 2)
+                )
             )
-        else:
-            return self.isopen
 
     def close(self):
         if self.screen is not None:
@@ -761,6 +773,5 @@ if __name__ == "__main__":
         a[3] = knee_todo[1]
         a = np.clip(0.5 * a, -1.0, 1.0)
 
-        env.render()
         if done:
             break
