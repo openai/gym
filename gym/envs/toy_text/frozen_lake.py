@@ -242,7 +242,7 @@ class FrozenLakeAnsiRender(FrozenLakeEnv):
     metadata = {"render_modes": ["ansi"]}
 
     def __init__(self, **kwargs):
-        super(FrozenLakeAnsiRender, self).__init__()
+        super(FrozenLakeAnsiRender, self).__init__(**kwargs)
         self.render_list = []
 
     def _render(self):
@@ -271,12 +271,25 @@ class FrozenLakeAnsiRender(FrozenLakeEnv):
     def collect_render(self):
         return self.render_list
 
+    def reset(
+            self,
+            *,
+            seed: Optional[int] = None,
+            return_info: bool = False,
+            options: Optional[dict] = None,
+    ):
+        out = super(FrozenLakeAnsiRender, self).reset(seed=seed, return_info=return_info, options=options)
+        self.render_list.append(
+            self._render()
+        )
+        return out
+
 
 class FrozenLakeRenderGraphics(FrozenLakeEnv):
     metadata = {"render_modes": ["human", "rgb_array"]}
 
     def __init__(self, render_mode="human", **kwargs):
-        super().__init__()
+        super().__init__(**kwargs)
 
         self.render_mode = render_mode
         self.window_size = (min(64 * self.ncol, 512), min(64 * self.nrow, 512))
@@ -387,6 +400,25 @@ class FrozenLakeRenderGraphics(FrozenLakeEnv):
 
     def collect_render(self):
         return self.render_list
+    
+    def reset(
+            self,
+            *,
+            seed: Optional[int] = None,
+            return_info: bool = False,
+            options: Optional[dict] = None,
+    ):
+        out = super(FrozenLakeRenderGraphics, self).reset(seed=seed, return_info=return_info, options=options)
+        self._render()
+        if self.render_mode == "human":
+            pygame.display.update()
+        else:
+            self.render_list.append(
+                np.transpose(
+                    np.array(pygame.surfarray.pixels3d(self.window_surface)), axes=(1, 0, 2)
+                )
+            )
+        return out
 
 
 # Elf and stool from https://franuka.itch.io/rpg-snow-tileset
