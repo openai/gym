@@ -107,7 +107,7 @@ class BlackjackEnv(gym.Env):
 
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
 
-    def __init__(self, natural=False, sab=False):
+    def __init__(self, render_mode="human", natural=False, sab=False):
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Tuple(
             (spaces.Discrete(32), spaces.Discrete(11), spaces.Discrete(2))
@@ -119,6 +119,12 @@ class BlackjackEnv(gym.Env):
 
         # Flag for full agreement with the (Sutton and Barto, 2018) definition. Overrides self.natural
         self.sab = sab
+
+        self.render_mode = render_mode
+        if self.render_mode == "human":
+            self.render_list = None
+        else:  # rgb_array
+            self.render_list = []
 
     def step(self, action):
         assert self.action_space.contains(action)
@@ -146,6 +152,8 @@ class BlackjackEnv(gym.Env):
             ):
                 # Natural gives extra points, but doesn't autowin. Legacy implementation
                 reward = 1.5
+
+        self._render()
         return self._get_obs(), reward, done, {}
 
     def _get_obs(self):
@@ -160,12 +168,17 @@ class BlackjackEnv(gym.Env):
         super().reset(seed=seed)
         self.dealer = draw_hand(self.np_random)
         self.player = draw_hand(self.np_random)
+
+        self._render()
         if not return_info:
             return self._get_obs()
         else:
             return self._get_obs(), {}
 
-    def render(self, mode="human"):
+    def collect_render(self):
+        return self.render_list
+
+    def _render(self):
         player_sum, dealer_card_value, usable_ace = self._get_obs()
         screen_width, screen_height = 600, 500
         card_img_height = screen_height // 3
@@ -176,7 +189,7 @@ class BlackjackEnv(gym.Env):
         white = (255, 255, 255)
 
         if not hasattr(self, "screen"):
-            if mode == "human":
+            if self.render_mode == "human":
                 pygame.init()
                 self.screen = pygame.display.set_mode((screen_width, screen_height))
             else:
@@ -265,10 +278,12 @@ class BlackjackEnv(gym.Env):
                     player_sum_text_rect.bottom + spacing // 2,
                 ),
             )
-        if mode == "human":
+        if self.render_mode == "human":
             pygame.display.update()
             self.clock.tick(self.metadata["render_fps"])
         else:
-            return np.transpose(
-                np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
+            self.render_list.append(
+                np.transpose(
+                    np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
+                )
             )
