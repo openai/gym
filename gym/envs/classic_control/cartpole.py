@@ -76,7 +76,7 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
 
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 50}
 
-    def __init__(self):
+    def __init__(self, render_mode="human"):
         self.gravity = 9.8
         self.masscart = 1.0
         self.masspole = 0.1
@@ -106,10 +106,20 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Box(-high, high, dtype=np.float32)
 
-        self.screen = None
-        self.clock = None
+        assert render_mode in self.metadata["render_modes"]
+        self.render_mode = render_mode
+
+        pygame.init()
+        self.screen_width = 600
+        self.screen_height = 400
+        if self.render_mode == "human":
+            self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
+        else:
+            self.screen = pygame.Surface((self.screen_width, self.screen_height))
+        self.clock = pygame.time.Clock()
         self.isopen = True
         self.state = None
+        self.render_list = []
 
         self.steps_beyond_done = None
 
@@ -169,6 +179,7 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
             self.steps_beyond_done += 1
             reward = 0.0
 
+        self._render()
         return np.array(self.state, dtype=np.float32), reward, done, {}
 
     def reset(
@@ -181,17 +192,22 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         super().reset(seed=seed)
         self.state = self.np_random.uniform(low=-0.05, high=0.05, size=(4,))
         self.steps_beyond_done = None
+        self.render_list = []
+        self._render()
         if not return_info:
             return np.array(self.state, dtype=np.float32)
         else:
             return np.array(self.state, dtype=np.float32), {}
 
-    def render(self, mode="human"):
-        screen_width = 600
-        screen_height = 400
+    def collect_render(self):
+        if self.render_mode == "rgb_array":
+            return self.render_list
+        else:  # self.render_mode == "human"
+            return self.isopen
 
+    def _render(self):
         world_width = self.x_threshold * 2
-        scale = screen_width / world_width
+        scale = self.screen_width / world_width
         polewidth = 10.0
         polelen = scale * (2 * self.length)
         cartwidth = 50.0
@@ -202,18 +218,12 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
 
         x = self.state
 
-        if self.screen is None:
-            pygame.init()
-            self.screen = pygame.display.set_mode((screen_width, screen_height))
-        if self.clock is None:
-            self.clock = pygame.time.Clock()
-
-        self.surf = pygame.Surface((screen_width, screen_height))
+        self.surf = pygame.Surface((self.screen_width, self.screen_height))
         self.surf.fill((255, 255, 255))
 
         l, r, t, b = -cartwidth / 2, cartwidth / 2, cartheight / 2, -cartheight / 2
         axleoffset = cartheight / 4.0
-        cartx = x[0] * scale + screen_width / 2.0  # MIDDLE OF CART
+        cartx = x[0] * scale + self.screen_width / 2.0  # MIDDLE OF CART
         carty = 100  # TOP OF CART
         cart_coords = [(l, b), (l, t), (r, t), (r, b)]
         cart_coords = [(c[0] + cartx, c[1] + carty) for c in cart_coords]
@@ -250,20 +260,20 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
             (129, 132, 203),
         )
 
-        gfxdraw.hline(self.surf, 0, screen_width, carty, (0, 0, 0))
+        gfxdraw.hline(self.surf, 0, self.screen_width, carty, (0, 0, 0))
 
         self.surf = pygame.transform.flip(self.surf, False, True)
         self.screen.blit(self.surf, (0, 0))
-        if mode == "human":
+        if self.render_mode == "human":
             self.clock.tick(self.metadata["render_fps"])
             pygame.display.flip()
 
-        if mode == "rgb_array":
-            return np.transpose(
-                np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
+        else:  # self.render_mode == "rgb_array":
+            self.render_list.append(
+                np.transpose(
+                    np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
+                )
             )
-        else:
-            return self.isopen
 
     def close(self):
         if self.screen is not None:

@@ -94,7 +94,7 @@ class MountainCarEnv(gym.Env):
 
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 30}
 
-    def __init__(self, goal_velocity=0):
+    def __init__(self, render_mode="human", goal_velocity=0):
         self.min_position = -1.2
         self.max_position = 0.6
         self.max_speed = 0.07
@@ -107,9 +107,19 @@ class MountainCarEnv(gym.Env):
         self.low = np.array([self.min_position, -self.max_speed], dtype=np.float32)
         self.high = np.array([self.max_position, self.max_speed], dtype=np.float32)
 
-        self.screen = None
-        self.clock = None
+        assert render_mode in self.metadata["render_modes"]
+        self.render_mode = render_mode
+
+        self.screen_width = 600
+        self.screen_height = 400
+        pygame.init()
+        if self.render_mode == "human":
+            self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
+        else:  # self.render_mode == "rgb_array"
+            self.screen = pygame.Surface((self.screen_width, self.screen_height))
+        self.clock = pygame.time.Clock()
         self.isopen = True
+        self.render_list = []
 
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(self.low, self.high, dtype=np.float32)
@@ -131,6 +141,8 @@ class MountainCarEnv(gym.Env):
         reward = -1.0
 
         self.state = (position, velocity)
+
+        self._render()
         return np.array(self.state, dtype=np.float32), reward, done, {}
 
     def reset(
@@ -142,6 +154,8 @@ class MountainCarEnv(gym.Env):
     ):
         super().reset(seed=seed)
         self.state = np.array([self.np_random.uniform(low=-0.6, high=-0.4), 0])
+        self.render_list = []
+        self._render()
         if not return_info:
             return np.array(self.state, dtype=np.float32)
         else:
@@ -150,21 +164,19 @@ class MountainCarEnv(gym.Env):
     def _height(self, xs):
         return np.sin(3 * xs) * 0.45 + 0.55
 
-    def render(self, mode="human"):
-        screen_width = 600
-        screen_height = 400
+    def collect_render(self):
+        if self.render_mode == "rgb_array":
+            return self.render_list
+        else:  # self.render_mode == "human"
+            return self.isopen
 
+    def _render(self):
         world_width = self.max_position - self.min_position
-        scale = screen_width / world_width
+        scale = self.screen_width / world_width
         carwidth = 40
         carheight = 20
-        if self.screen is None:
-            pygame.init()
-            self.screen = pygame.display.set_mode((screen_width, screen_height))
-        if self.clock is None:
-            self.clock = pygame.time.Clock()
 
-        self.surf = pygame.Surface((screen_width, screen_height))
+        self.surf = pygame.Surface((self.screen_width, self.screen_height))
         self.surf.fill((255, 255, 255))
 
         pos = self.state[0]
@@ -223,16 +235,16 @@ class MountainCarEnv(gym.Env):
 
         self.surf = pygame.transform.flip(self.surf, False, True)
         self.screen.blit(self.surf, (0, 0))
-        if mode == "human":
+        if self.render_mode == "human":
             self.clock.tick(self.metadata["render_fps"])
             pygame.display.flip()
 
-        if mode == "rgb_array":
-            return np.transpose(
-                np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
+        else:  # self.render_mode == "rgb_array":
+            self.render_list.append(
+                np.transpose(
+                    np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
+                )
             )
-        else:
-            return self.isopen
 
     def get_keys_to_action(self):
         # Control with left and right arrow keys.
