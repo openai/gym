@@ -78,9 +78,9 @@ class MujocoEnv(gym.Env):
 
         assert render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
-        self.width = width,
-        self.height = height,
-        self.camera_id = camera_id,
+        self.width = width
+        self.height = height
+        self.camera_id = camera_id
         self.camera_name = camera_name
 
         if self.render_mode == "rgb_array" or self.render_mode == "depth_array":
@@ -94,7 +94,7 @@ class MujocoEnv(gym.Env):
                 self.camera_name = "track"
 
             if self.camera_id is None and self.camera_name in self.model._camera_name2id:
-                self.camera_id = self.model.camera_name2id(camera_name)
+                self.camera_id = self.model.camera_name2id(self.camera_name)
 
         self.render_list = []
 
@@ -145,6 +145,7 @@ class MujocoEnv(gym.Env):
         self.sim.reset()
         ob = self.reset_model()
         self.render_list = []
+        self._render()
         if not return_info:
             return ob
         else:
@@ -184,7 +185,6 @@ class MujocoEnv(gym.Env):
             self.render_list.append(data[::-1, :, :])
         elif self.render_mode == "depth_array":
             self._get_viewer(self.render_mode).render(self.width, self.height, camera_id=self.camera_id)
-            self._get_viewer(self.render_mode).render(self.width, self.height)
             # window size used for old mujoco-py:
             # Extract depth part of the read_pixels() tuple
             data = self._get_viewer(self.render_mode).read_pixels(self.width, self.height, depth=True)[1]
