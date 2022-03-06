@@ -174,8 +174,8 @@ class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     """
 
-    def __init__(self):
-        mujoco_env.MujocoEnv.__init__(self, "humanoidstandup.xml", 5)
+    def __init__(self, **kwargs):
+        mujoco_env.MujocoEnv.__init__(self, "humanoidstandup.xml", 5, **kwargs)
         utils.EzPickle.__init__(self)
 
     def _get_obs(self):
@@ -201,6 +201,8 @@ class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         quad_impact_cost = 0.5e-6 * np.square(data.cfrc_ext).sum()
         quad_impact_cost = min(quad_impact_cost, 10)
         reward = uph_cost - quad_ctrl_cost - quad_impact_cost + 1
+
+        super()._render()
 
         done = bool(False)
         return (

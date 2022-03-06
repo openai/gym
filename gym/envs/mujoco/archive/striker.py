@@ -4,12 +4,12 @@ from gym.envs.mujoco import mujoco_env
 
 
 class StrikerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
-    def __init__(self):
+    def __init__(self, **kwargs):
         utils.EzPickle.__init__(self)
         self._striked = False
         self._min_strike_dist = np.inf
         self.strike_threshold = 0.1
-        mujoco_env.MujocoEnv.__init__(self, "striker.xml", 5)
+        mujoco_env.MujocoEnv.__init__(self, "striker.xml", 5, **kwargs)
 
     def step(self, a):
         vec_1 = self.get_body_com("object") - self.get_body_com("tips_arm")
@@ -31,6 +31,9 @@ class StrikerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         reward = 3 * reward_dist + 0.1 * reward_ctrl + 0.5 * reward_near
 
         self.do_simulation(a, self.frame_skip)
+
+        super()._render()
+
         ob = self._get_obs()
         done = False
         return ob, reward, done, dict(reward_dist=reward_dist, reward_ctrl=reward_ctrl)

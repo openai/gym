@@ -136,6 +136,7 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         ctrl_cost_weight=0.1,
         reset_noise_scale=0.1,
         exclude_current_positions_from_observation=True,
+        **kwargs
     ):
         utils.EzPickle.__init__(**locals())
 
@@ -149,7 +150,7 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             exclude_current_positions_from_observation
         )
 
-        mujoco_env.MujocoEnv.__init__(self, xml_file, 5)
+        mujoco_env.MujocoEnv.__init__(self, xml_file, 5, **kwargs)
 
     def control_cost(self, action):
         control_cost = self._ctrl_cost_weight * np.sum(np.square(action))
@@ -164,6 +165,8 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         ctrl_cost = self.control_cost(action)
 
         forward_reward = self._forward_reward_weight * x_velocity
+
+        super()._render()
 
         observation = self._get_obs()
         reward = forward_reward - ctrl_cost

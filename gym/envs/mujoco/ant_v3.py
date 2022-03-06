@@ -181,6 +181,7 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         contact_force_range=(-1.0, 1.0),
         reset_noise_scale=0.1,
         exclude_current_positions_from_observation=True,
+        **kwargs
     ):
         utils.EzPickle.__init__(**locals())
 
@@ -199,7 +200,7 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             exclude_current_positions_from_observation
         )
 
-        mujoco_env.MujocoEnv.__init__(self, xml_file, 5)
+        mujoco_env.MujocoEnv.__init__(self, xml_file, 5, **kwargs)
 
     @property
     def healthy_reward(self):
@@ -254,6 +255,8 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
         rewards = forward_reward + healthy_reward
         costs = ctrl_cost + contact_cost
+
+        super()._render()
 
         reward = rewards - costs
         done = self.done

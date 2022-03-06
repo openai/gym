@@ -109,12 +109,15 @@ class InvertedDoublePendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     """
 
-    def __init__(self):
-        mujoco_env.MujocoEnv.__init__(self, "inverted_double_pendulum.xml", 5)
+    def __init__(self, **kwargs):
+        mujoco_env.MujocoEnv.__init__(self, "inverted_double_pendulum.xml", 5, **kwargs)
         utils.EzPickle.__init__(self)
 
     def step(self, action):
         self.do_simulation(action, self.frame_skip)
+
+        super()._render()
+
         ob = self._get_obs()
         x, _, y = self.sim.data.site_xpos[0]
         dist_penalty = 0.01 * x ** 2 + (y - 2) ** 2
@@ -123,6 +126,7 @@ class InvertedDoublePendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         alive_bonus = 10
         r = alive_bonus - dist_penalty - vel_penalty
         done = bool(y <= 1)
+
         return ob, r, done, {}
 
     def _get_obs(self):

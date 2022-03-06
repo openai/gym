@@ -43,7 +43,16 @@ def convert_observation_to_space(observation):
 class MujocoEnv(gym.Env):
     """Superclass for all MuJoCo environments."""
 
-    def __init__(self, model_path, frame_skip):
+    def __init__(
+            self,
+            model_path,
+            frame_skip,
+            render_mode="human",
+            width=DEFAULT_SIZE,
+            height=DEFAULT_SIZE,
+            camera_id=None,
+            camera_name=None,
+    ):
         if model_path.startswith("/"):
             fullpath = model_path
         else:
@@ -66,6 +75,28 @@ class MujocoEnv(gym.Env):
         self.init_qvel = self.sim.data.qvel.ravel().copy()
 
         self._set_action_space()
+
+        assert render_mode in self.metadata["render_modes"]
+        self.render_mode = render_mode
+        self.width = width,
+        self.height = height,
+        self.camera_id = camera_id,
+        self.camera_name = camera_name
+
+        if self.render_mode == "rgb_array" or self.render_mode == "depth_array":
+            if self.camera_id is not None and self.camera_name is not None:
+                raise ValueError(
+                    "Both `camera_id` and `camera_name` cannot be"
+                    " specified at the same time."
+                )
+
+            if self.camera_name is None and self.camera_id is None:
+                self.camera_name = "track"
+
+            if self.camera_id is None and self.camera_name in self.model._camera_name2id:
+                self.camera_id = self.model.camera_name2id(camera_name)
+
+        self.render_list = []
 
         action = self.action_space.sample()
         observation, _reward, done, _info = self.step(action)
@@ -113,6 +144,7 @@ class MujocoEnv(gym.Env):
         super().reset(seed=seed)
         self.sim.reset()
         ob = self.reset_model()
+        self.render_list = []
         if not return_info:
             return ob
         else:
@@ -139,44 +171,27 @@ class MujocoEnv(gym.Env):
         for _ in range(n_frames):
             self.sim.step()
 
-    def render(
-        self,
-        mode="human",
-        width=DEFAULT_SIZE,
-        height=DEFAULT_SIZE,
-        camera_id=None,
-        camera_name=None,
-    ):
-        if mode == "rgb_array" or mode == "depth_array":
-            if camera_id is not None and camera_name is not None:
-                raise ValueError(
-                    "Both `camera_id` and `camera_name` cannot be"
-                    " specified at the same time."
-                )
+    def collect_render(self):
+        if self.render_mode != "human":
+            return self.render_list
 
-            no_camera_specified = camera_name is None and camera_id is None
-            if no_camera_specified:
-                camera_name = "track"
-
-            if camera_id is None and camera_name in self.model._camera_name2id:
-                camera_id = self.model.camera_name2id(camera_name)
-
-            self._get_viewer(mode).render(width, height, camera_id=camera_id)
-
-        if mode == "rgb_array":
+    def _render(self):
+        if self.render_mode == "rgb_array":
+            self._get_viewer(self.render_mode).render(self.width, self.height, camera_id=self.camera_id)
             # window size used for old mujoco-py:
-            data = self._get_viewer(mode).read_pixels(width, height, depth=False)
+            data = self._get_viewer(self.render_mode).read_pixels(self.width, self.height, depth=False)
             # original image is upside-down, so flip it
-            return data[::-1, :, :]
-        elif mode == "depth_array":
-            self._get_viewer(mode).render(width, height)
+            self.render_list.append(data[::-1, :, :])
+        elif self.render_mode == "depth_array":
+            self._get_viewer(self.render_mode).render(self.width, self.height, camera_id=self.camera_id)
+            self._get_viewer(self.render_mode).render(self.width, self.height)
             # window size used for old mujoco-py:
             # Extract depth part of the read_pixels() tuple
-            data = self._get_viewer(mode).read_pixels(width, height, depth=True)[1]
+            data = self._get_viewer(self.render_mode).read_pixels(self.width, self.height, depth=True)[1]
             # original image is upside-down, so flip it
-            return data[::-1, :]
-        elif mode == "human":
-            self._get_viewer(mode).render()
+            self.render_list.append(data[::-1, :])
+        elif self.render_mode == "human":
+            self._get_viewer(self.render_mode).render()
 
     def close(self):
         if self.viewer is not None:

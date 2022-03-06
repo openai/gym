@@ -129,6 +129,7 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         ctrl_cost_weight=1e-4,
         reset_noise_scale=0.1,
         exclude_current_positions_from_observation=True,
+        **kwargs
     ):
         utils.EzPickle.__init__(**locals())
 
@@ -141,7 +142,7 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             exclude_current_positions_from_observation
         )
 
-        mujoco_env.MujocoEnv.__init__(self, xml_file, 4)
+        mujoco_env.MujocoEnv.__init__(self, xml_file, 4, **kwargs)
 
     def control_cost(self, action):
         control_cost = self._ctrl_cost_weight * np.sum(np.square(action))
@@ -152,11 +153,12 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         self.do_simulation(action, self.frame_skip)
         xy_position_after = self.sim.data.qpos[0:2].copy()
 
+        super()._render()
+
         xy_velocity = (xy_position_after - xy_position_before) / self.dt
         x_velocity, y_velocity = xy_velocity
 
         forward_reward = self._forward_reward_weight * x_velocity
-
         ctrl_cost = self.control_cost(action)
 
         observation = self._get_obs()

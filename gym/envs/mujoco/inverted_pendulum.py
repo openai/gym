@@ -80,13 +80,16 @@ class InvertedPendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     """
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         utils.EzPickle.__init__(self)
-        mujoco_env.MujocoEnv.__init__(self, "inverted_pendulum.xml", 2)
+        mujoco_env.MujocoEnv.__init__(self, "inverted_pendulum.xml", 2, **kwargs)
 
     def step(self, a):
         reward = 1.0
         self.do_simulation(a, self.frame_skip)
+
+        super()._render()
+
         ob = self._get_obs()
         notdone = np.isfinite(ob).all() and (np.abs(ob[1]) <= 0.2)
         done = not notdone

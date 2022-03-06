@@ -116,9 +116,9 @@ class ReacherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     """
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         utils.EzPickle.__init__(self)
-        mujoco_env.MujocoEnv.__init__(self, "reacher.xml", 2)
+        mujoco_env.MujocoEnv.__init__(self, "reacher.xml", 2, **kwargs)
 
     def step(self, a):
         vec = self.get_body_com("fingertip") - self.get_body_com("target")
@@ -126,6 +126,9 @@ class ReacherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         reward_ctrl = -np.square(a).sum()
         reward = reward_dist + reward_ctrl
         self.do_simulation(a, self.frame_skip)
+
+        super()._render()
+
         ob = self._get_obs()
         done = False
         return ob, reward, done, dict(reward_dist=reward_dist, reward_ctrl=reward_ctrl)

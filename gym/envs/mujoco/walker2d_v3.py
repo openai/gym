@@ -154,6 +154,7 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         healthy_angle_range=(-1.0, 1.0),
         reset_noise_scale=5e-3,
         exclude_current_positions_from_observation=True,
+        **kwargs
     ):
         utils.EzPickle.__init__(**locals())
 
@@ -172,7 +173,7 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             exclude_current_positions_from_observation
         )
 
-        mujoco_env.MujocoEnv.__init__(self, xml_file, 4)
+        mujoco_env.MujocoEnv.__init__(self, xml_file, 4, **kwargs)
 
     @property
     def healthy_reward(self):
@@ -219,8 +220,9 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         x_position_after = self.sim.data.qpos[0]
         x_velocity = (x_position_after - x_position_before) / self.dt
 
-        ctrl_cost = self.control_cost(action)
+        super()._render()
 
+        ctrl_cost = self.control_cost(action)
         forward_reward = self._forward_reward_weight * x_velocity
         healthy_reward = self.healthy_reward
 

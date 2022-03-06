@@ -4,11 +4,11 @@ from gym.envs.mujoco import mujoco_env
 
 
 class ThrowerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
-    def __init__(self):
+    def __init__(self, **kwargs):
         utils.EzPickle.__init__(self)
         self._ball_hit_ground = False
         self._ball_hit_location = None
-        mujoco_env.MujocoEnv.__init__(self, "thrower.xml", 5)
+        mujoco_env.MujocoEnv.__init__(self, "thrower.xml", 5, **kwargs)
 
     def step(self, a):
         ball_xy = self.get_body_com("ball")[:2]
@@ -27,6 +27,9 @@ class ThrowerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
         reward = reward_dist + 0.002 * reward_ctrl
         self.do_simulation(a, self.frame_skip)
+
+        super()._render()
+
         ob = self._get_obs()
         done = False
         return ob, reward, done, dict(reward_dist=reward_dist, reward_ctrl=reward_ctrl)
