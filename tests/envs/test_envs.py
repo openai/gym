@@ -1,3 +1,5 @@
+from typing import List
+
 import pytest
 import numpy as np
 
@@ -46,11 +48,17 @@ def test_env(spec):
         ), f"Step observation dtype: {ob.dtype}, expected: {ob_space.dtype}"
 
     for mode in env.metadata.get("render.modes", []):
-        env.render(mode=mode)
+        new_env = spec.make(render_mode=mode)
+        new_env.reset()
+        new_env.collect_render()
+        new_env.close()
 
     # Make sure we can render the environment after close.
     for mode in env.metadata.get("render.modes", []):
-        env.render(mode=mode)
+        new_env = spec.make(render_mode=mode)
+        new_env.reset()
+        new_env.close()
+        new_env.collect_render()
 
     env.close()
 
@@ -89,12 +97,13 @@ def test_random_rollout():
 
 def test_env_render_result_is_immutable():
     environs = [
-        envs.make("Taxi-v3"),
-        envs.make("FrozenLake-v1"),
+        envs.make("Taxi-v3", render_mode="ansi"),
+        envs.make("FrozenLake-v1", render_mode="ansi"),
     ]
 
     for env in environs:
         env.reset()
-        output = env.render(mode="ansi")
-        assert isinstance(output, str)
+        output = env.collect_render()
+        assert isinstance(output, List)
+        assert isinstance(output[0], str)
         env.close()
