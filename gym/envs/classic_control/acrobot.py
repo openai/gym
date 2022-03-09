@@ -162,13 +162,8 @@ class AcrobotEnv(core.Env):
         assert render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
         self.render_list = []
-
         pygame.init()
-        if self.render_mode == "human":
-            self.screen = pygame.display.set_mode((self.SCREEN_DIM, self.SCREEN_DIM))
-        else:  # self.render_mode == "rgb_array":
-            self.screen = pygame.Surface((self.SCREEN_DIM, self.SCREEN_DIM))
-
+        self.screen = None
         self.clock = pygame.time.Clock()
         self.isopen = True
         high = np.array(
@@ -287,6 +282,12 @@ class AcrobotEnv(core.Env):
             return self.render_list
 
     def _render(self):
+        if self.screen is None:
+            if self.render_mode == "human":
+                self.screen = pygame.display.set_mode((self.SCREEN_DIM, self.SCREEN_DIM))
+            else:  # self.render_mode == "rgb_array":
+                self.screen = pygame.Surface((self.SCREEN_DIM, self.SCREEN_DIM))
+
         surf = pygame.Surface((self.SCREEN_DIM, self.SCREEN_DIM))
         surf.fill((255, 255, 255))
         s = self.state

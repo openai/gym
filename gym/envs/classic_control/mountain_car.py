@@ -113,10 +113,7 @@ class MountainCarEnv(gym.Env):
         self.screen_width = 600
         self.screen_height = 400
         pygame.init()
-        if self.render_mode == "human":
-            self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
-        else:  # self.render_mode == "rgb_array"
-            self.screen = pygame.Surface((self.screen_width, self.screen_height))
+        self.screen = None
         self.clock = pygame.time.Clock()
         self.isopen = True
         self.render_list = []
@@ -171,6 +168,12 @@ class MountainCarEnv(gym.Env):
             return self.isopen
 
     def _render(self):
+        if self.screen is None:
+            if self.render_mode == "human":
+                self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
+            else:  # self.render_mode == "rgb_array"
+                self.screen = pygame.Surface((self.screen_width, self.screen_height))
+
         world_width = self.max_position - self.min_position
         scale = self.screen_width / world_width
         carwidth = 40

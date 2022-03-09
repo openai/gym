@@ -99,11 +99,11 @@ def test_step_sync_vector_env(use_single_action_space):
 
 
 def test_call_sync_vector_env():
-    env_fns = [make_env("CartPole-v1", i) for i in range(4)]
+    env_fns = [make_env("CartPole-v1", i, render_mode="rgb_array") for i in range(4)]
     try:
         env = SyncVectorEnv(env_fns)
         _ = env.reset()
-        images = env.call("render", mode="rgb_array")
+        images = env.call("collect_render")
         gravity = env.call("gravity")
     finally:
         env.close()
@@ -111,7 +111,8 @@ def test_call_sync_vector_env():
     assert isinstance(images, tuple)
     assert len(images) == 4
     for i in range(4):
-        assert isinstance(images[i], np.ndarray)
+        assert len(images[i]) == 1
+        assert isinstance(images[i][0], np.ndarray)
 
     assert isinstance(gravity, tuple)
     assert len(gravity) == 4

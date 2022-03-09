@@ -93,11 +93,7 @@ class PendulumEnv(gym.Env):
 
         self.screen_dim = 500
         pygame.init()
-        if self.render_mode == "human":
-            self.screen = pygame.display.set_mode((self.screen_dim, self.screen_dim))
-        else:  # self.render_mode == "rgb_array":
-            self.screen = pygame.Surface((self.screen_dim, self.screen_dim))
-
+        self.screen = None
         self.clock = pygame.time.Clock()
         self.isopen = True
         self.render_list = []
@@ -157,6 +153,12 @@ class PendulumEnv(gym.Env):
             return self.isopen
 
     def _render(self):
+        if self.screen is None:
+            if self.render_mode == "human":
+                self.screen = pygame.display.set_mode((self.screen_dim, self.screen_dim))
+            else:  # self.render_mode == "rgb_array":
+                self.screen = pygame.Surface((self.screen_dim, self.screen_dim))
+
         self.surf = pygame.Surface((self.screen_dim, self.screen_dim))
         self.surf.fill((255, 255, 255))
 

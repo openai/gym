@@ -106,8 +106,11 @@ class TaxiEnv(Env):
 
     metadata = {"render_modes": ["human", "ansi"], "render_fps": 4}
 
-    def __init__(self):
+    def __init__(self, render_mode="human"):
         self.desc = np.asarray(MAP, dtype="c")
+        assert render_mode in self.metadata["render_modes"]
+        self.render_mode = render_mode
+        self.render_list = []
 
         self.locs = locs = [(0, 0), (0, 4), (4, 0), (4, 3)]
 
@@ -197,6 +200,7 @@ class TaxiEnv(Env):
         p, s, r, d = transitions[i]
         self.s = s
         self.lastaction = a
+        self._render()
         return (int(s), r, d, {"prob": p})
 
     def reset(
@@ -209,13 +213,19 @@ class TaxiEnv(Env):
         super().reset(seed=seed)
         self.s = categorical_sample(self.initial_state_distrib, self.np_random)
         self.lastaction = None
+        self.render_list = []
+        self._render()
         if not return_info:
             return int(self.s)
         else:
             return int(self.s), {"prob": 1}
 
-    def render(self, mode="human"):
-        outfile = StringIO() if mode == "ansi" else sys.stdout
+    def collect_render(self):
+        if self.render_mode != "human":
+            return self.render_list
+
+    def _render(self):
+        outfile = StringIO() if self.render_mode == "ansi" else sys.stdout
 
         out = self.desc.copy().tolist()
         out = [[c.decode("utf-8") for c in line] for line in out]
@@ -248,6 +258,6 @@ class TaxiEnv(Env):
             outfile.write("\n")
 
         # No need to return anything for human
-        if mode != "human":
+        if self.render_mode != "human":
             with closing(outfile):
-                return outfile.getvalue()
+                self.render_list.append(outfile.getvalue())

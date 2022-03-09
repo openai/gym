@@ -231,6 +231,7 @@ class FrozenLakeAnsiRender(FrozenLakeEnv):
     metadata = {"render_modes": ["ansi"]}
 
     def __init__(self, **kwargs):
+        del kwargs['render_mode']
         super(FrozenLakeAnsiRender, self).__init__(**kwargs)
         self.render_list = []
 
@@ -277,18 +278,11 @@ class FrozenLakeRenderGraphics(FrozenLakeEnv):
 
     def __init__(self, render_mode="human", **kwargs):
         super().__init__(**kwargs)
+        pygame.init()
 
         self.render_mode = render_mode
         self.window_size = (min(64 * self.ncol, 512), min(64 * self.nrow, 512))
-
-        pygame.init()
-        pygame.display.set_caption("Frozen Lake")
-
-        if self.render_mode == "human":
-            self.window_surface = pygame.display.set_mode(self.window_size)
-        else:
-            self.window_surface = pygame.Surface(self.window_size)
-
+        self.window_surface = None
         self.render_list = []
         file_name = path.join(path.dirname(__file__), "img/hole.png")
         self.hole_img = pygame.image.load(file_name)
@@ -310,6 +304,13 @@ class FrozenLakeRenderGraphics(FrozenLakeEnv):
         self.clock = pygame.time.Clock()
 
     def _render(self):
+        if self.window_surface is None:
+            pygame.display.set_caption("Frozen Lake")
+            if self.render_mode == "human":
+                self.window_surface = pygame.display.set_mode(self.window_size)
+            else:
+                self.window_surface = pygame.Surface(self.window_size)
+
         board = pygame.Surface(self.window_size, flags=SRCALPHA)
         cell_width = self.window_size[0] // self.ncol
         cell_height = self.window_size[1] // self.nrow

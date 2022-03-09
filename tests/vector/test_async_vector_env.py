@@ -105,11 +105,11 @@ def test_step_async_vector_env(shared_memory, use_single_action_space):
 
 @pytest.mark.parametrize("shared_memory", [True, False])
 def test_call_async_vector_env(shared_memory):
-    env_fns = [make_env("CartPole-v1", i) for i in range(4)]
+    env_fns = [make_env("CartPole-v1", i, render_mode="rgb_array") for i in range(4)]
     try:
         env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
         _ = env.reset()
-        images = env.call("render", mode="rgb_array")
+        images = env.call("collect_render")
         gravity = env.call("gravity")
     finally:
         env.close()
@@ -117,7 +117,8 @@ def test_call_async_vector_env(shared_memory):
     assert isinstance(images, tuple)
     assert len(images) == 4
     for i in range(4):
-        assert isinstance(images[i], np.ndarray)
+        assert len(images[i]) == 1
+        assert isinstance(images[i][0], np.ndarray)
 
     assert isinstance(gravity, tuple)
     assert len(gravity) == 4

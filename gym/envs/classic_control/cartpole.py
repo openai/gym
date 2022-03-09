@@ -112,10 +112,7 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         pygame.init()
         self.screen_width = 600
         self.screen_height = 400
-        if self.render_mode == "human":
-            self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
-        else:
-            self.screen = pygame.Surface((self.screen_width, self.screen_height))
+        self.screen = None
         self.clock = pygame.time.Clock()
         self.isopen = True
         self.state = None
@@ -206,6 +203,12 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
             return self.isopen
 
     def _render(self):
+        if self.screen is None:
+            if self.render_mode == "human":
+                self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
+            else:
+                self.screen = pygame.Surface((self.screen_width, self.screen_height))
+
         world_width = self.x_threshold * 2
         scale = self.screen_width / world_width
         polewidth = 10.0

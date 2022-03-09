@@ -35,32 +35,28 @@ class VideoRecorder:
     """
 
     def __init__(self, env, path=None, metadata=None, enabled=True, base_path=None):
-        modes = env.metadata.get("render_modes", [])
         self._async = env.metadata.get("semantics.async")
         self.enabled = enabled
         self._closed = False
 
+        if env.render_mode not in ["rgb_array", "ansi"]:
+            logger.info(
+                f'Disabling video recorder because {env} rendering mode is {env.render_mode}. '
+                f'Set render_mode as "rgb_array" or "ansi" to enable video recording.'
+            )
+            # Whoops, turns out we shouldn't be enabled after all
+            self.enabled = False
+
         # Don't bother setting anything else if not enabled
         if not self.enabled:
             return
-
-        self.ansi_mode = False
-        if "rgb_array" not in modes:
-            if "ansi" in modes:
-                self.ansi_mode = True
-            else:
-                logger.info(
-                    f'Disabling video recorder because {env} neither supports video mode "rgb_array" nor "ansi".'
-                )
-                # Whoops, turns out we shouldn't be enabled after all
-                self.enabled = False
-                return
 
         if path is not None and base_path is not None:
             raise error.Error("You can pass at most one of `path` or `base_path`.")
 
         self.last_frame = None
         self.env = env
+        self.ansi_mode = env.render_mode == "ansi"
 
         required_ext = ".json" if self.ansi_mode else ".mp4"
         if path is None:
@@ -122,27 +118,26 @@ class VideoRecorder:
             return
         logger.debug("Capturing video frame: path=%s", self.path)
 
-        render_mode = "ansi" if self.ansi_mode else "rgb_array"
-        frame = self.env.render(mode=render_mode)
+        frames = self.env.collect_render()
 
-        if frame is None:
+        if frames is None:
             if self._async:
                 return
             else:
                 # Indicates a bug in the environment: don't want to raise
                 # an error here.
                 logger.warn(
-                    "Env returned None on render(). Disabling further rendering for video recorder by marking as disabled: path=%s metadata_path=%s",
+                    "Env returned None on collect_render(). Disabling further rendering for video recorder by marking as disabled: path=%s metadata_path=%s",
                     self.path,
                     self.metadata_path,
                 )
                 self.broken = True
         else:
-            self.last_frame = frame
+            self.last_frame = frames[-1]
             if self.ansi_mode:
-                self._encode_ansi_frame(frame)
+                self._encode_ansi_frame(frames[-1])
             else:
-                self._encode_image_frame(frame)
+                self._encode_image_frame(frames[-1])
 
     def close(self):
         """Flush all data to disk and close any open frame encoders."""

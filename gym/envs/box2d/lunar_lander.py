@@ -147,7 +147,7 @@ class LunarLander(gym.Env, EzPickle):
         EzPickle.__init__(self)
         pygame.init()
         self.screen = None
-        self.clock = None
+        self.clock = pygame.time.Clock()
         self.isopen = True
         self.world = Box2D.b2World()
         self.moon = None
@@ -459,8 +459,6 @@ class LunarLander(gym.Env, EzPickle):
     def _render(self):
         if self.screen is None and self.render_mode == "human":
             self.screen = pygame.display.set_mode((VIEWPORT_W, VIEWPORT_H))
-        if self.clock is None:
-            self.clock = pygame.time.Clock()
 
         self.surf = pygame.Surface((VIEWPORT_W, VIEWPORT_H))
 

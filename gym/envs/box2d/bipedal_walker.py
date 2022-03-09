@@ -196,6 +196,7 @@ class BipedalWalker(gym.Env, EzPickle):
         assert render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
         self.render_list = []
+        self.clock = pygame.time.Clock()
 
     def _destroy(self):
         if not self.terrain:
@@ -552,8 +553,6 @@ class BipedalWalker(gym.Env, EzPickle):
     def _render(self):
         if self.screen is None and self.render_mode == "human":
             self.screen = pygame.display.set_mode((VIEWPORT_W, VIEWPORT_H))
-        if self.clock is None:
-            self.clock = pygame.time.Clock()
 
         self.surf = pygame.Surface((VIEWPORT_W + self.scroll * SCALE, VIEWPORT_H))
 

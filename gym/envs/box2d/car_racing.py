@@ -155,7 +155,7 @@ class CarRacing(gym.Env, EzPickle):
         self.contactListener_keepref = FrictionDetector(self, lap_complete_percent)
         self.world = Box2D.b2World((0, 0), contactListener=self.contactListener_keepref)
         self.screen = None
-        self.clock = None
+        self.clock = pygame.time.Clock()
         self.isopen = True
         self.invisible_state_window = None
         self.invisible_video_window = None
@@ -449,8 +449,6 @@ class CarRacing(gym.Env, EzPickle):
     def _render(self):
         if self.screen is None and self.render_mode == "human":
             self.screen = pygame.display.set_mode((WINDOW_W, WINDOW_H))
-        if self.clock is None:
-            self.clock = pygame.time.Clock()
 
         if "t" not in self.__dict__:
             return  # reset() not called yet

@@ -121,6 +121,9 @@ class BlackjackEnv(gym.Env):
         self.sab = sab
 
         self.render_mode = render_mode
+        pygame.init()
+        pygame.font.init()
+        self.clock = pygame.time.Clock()
         self._init_render_list()
 
     def _init_render_list(self):
@@ -195,14 +198,9 @@ class BlackjackEnv(gym.Env):
 
         if not hasattr(self, "screen"):
             if self.render_mode == "human":
-                pygame.init()
                 self.screen = pygame.display.set_mode((screen_width, screen_height))
             else:
-                pygame.font.init()
                 self.screen = pygame.Surface((screen_width, screen_height))
-
-        if not hasattr(self, "clock"):
-            self.clock = pygame.time.Clock()
 
         self.screen.fill(bg_color)
 
