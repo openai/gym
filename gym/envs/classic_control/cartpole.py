@@ -74,7 +74,7 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
     No additional arguments are currently supported.
     """
 
-    metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 50}
+    metadata = {"render_modes": ["human", "rgb_array", None], "render_fps": 50}
 
     def __init__(self, render_mode="human"):
         self.gravity = 9.8
@@ -176,7 +176,8 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
             self.steps_beyond_done += 1
             reward = 0.0
 
-        self._render()
+        if self.render_mode is not None:
+            self._render()
         return np.array(self.state, dtype=np.float32), reward, done, {}
 
     def reset(
@@ -190,7 +191,8 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         self.state = self.np_random.uniform(low=-0.05, high=0.05, size=(4,))
         self.steps_beyond_done = None
         self.render_list = []
-        self._render()
+        if self.render_mode is not None:
+            self._render()
         if not return_info:
             return np.array(self.state, dtype=np.float32)
         else:
@@ -199,10 +201,11 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
     def collect_render(self):
         if self.render_mode == "rgb_array":
             return self.render_list
-        else:  # self.render_mode == "human"
+        elif self.render_mode == "human":
             return self.isopen
 
     def _render(self):
+        assert self.render_mode is not None
         if self.screen is None:
             if self.render_mode == "human":
                 self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
