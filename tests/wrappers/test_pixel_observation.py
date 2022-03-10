@@ -10,14 +10,13 @@ from gym.wrappers.pixel_observation import PixelObservationWrapper, STATE_KEY
 
 
 class FakeEnvironment(gym.Env):
-    def __init__(self):
+    def __init__(self, render_mode=None):
         self.action_space = spaces.Box(shape=(1,), low=-1, high=1, dtype=np.float32)
+        self.render_mode = render_mode
 
-    def render(self, width=32, height=32, *args, **kwargs):
-        del args
-        del kwargs
+    def collect_render(self, width=32, height=32):
         image_shape = (height, width, 3)
-        return np.zeros(image_shape, dtype=np.uint8)
+        return [np.zeros(image_shape, dtype=np.uint8)]
 
     def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
         super().reset(seed=seed)

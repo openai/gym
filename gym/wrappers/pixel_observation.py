@@ -47,10 +47,6 @@ class PixelObservationWrapper(ObservationWrapper):
         for key in pixel_keys:
             render_kwargs.setdefault(key, {})
 
-            render_mode = render_kwargs[key].pop("mode", "rgb_array")
-            assert render_mode == "rgb_array", render_mode
-            render_kwargs[key]["mode"] = "rgb_array"
-
         wrapped_observation_space = env.observation_space
 
         if isinstance(wrapped_observation_space, spaces.Box):
@@ -83,7 +79,7 @@ class PixelObservationWrapper(ObservationWrapper):
 
         pixels_spaces = {}
         for pixel_key in pixel_keys:
-            pixels = self.env.render(**render_kwargs[pixel_key])
+            pixels = self.env.collect_render(**render_kwargs[pixel_key])[-1]
 
             if np.issubdtype(pixels.dtype, np.integer):
                 low, high = (0, 255)
@@ -118,7 +114,7 @@ class PixelObservationWrapper(ObservationWrapper):
             observation[STATE_KEY] = wrapped_observation
 
         pixel_observations = {
-            pixel_key: self.env.render(**self._render_kwargs[pixel_key])
+            pixel_key: self.env.collect_render(**self._render_kwargs[pixel_key])[-1]
             for pixel_key in self._pixel_keys
         }
 

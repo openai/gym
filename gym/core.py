@@ -22,7 +22,7 @@ class Env(Generic[ObsType, ActType]):
 
         step
         reset
-        render
+        collect_render
         close
         seed
 

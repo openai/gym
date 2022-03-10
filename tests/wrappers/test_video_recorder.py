@@ -22,7 +22,7 @@ class UnrecordableEnv:
     def __init__(self, render_mode=None):
         self.render_mode = render_mode
 
-    def render(self):
+    def collect_render(self):
         pass
 
 

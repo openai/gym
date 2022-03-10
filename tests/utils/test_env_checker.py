@@ -12,6 +12,9 @@ class ActionDictTestEnv(gym.Env):
     action_space = Dict({"position": Discrete(1), "velocity": Discrete(1)})
     observation_space = Box(low=-1.0, high=2.0, shape=(3,), dtype=np.float32)
 
+    def __init__(self, render_mode=None):
+        self.render_mode = render_mode
+
     def step(self, action):
         observation = np.array([1.0, 1.5, 0.5])
         reward = 1
@@ -22,7 +25,7 @@ class ActionDictTestEnv(gym.Env):
         super().reset(seed=seed)
         return np.array([1.0, 1.5, 0.5])
 
-    def render(self, mode="human"):
+    def collect_render(self):
         pass
 
 
