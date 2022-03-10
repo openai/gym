@@ -134,7 +134,7 @@ class FrozenLakeEnv(Env):
         assert len(subclass_list) == 1
         subclass = subclass_list[0]
         instance = super(FrozenLakeEnv, subclass).__new__(
-            subclass, render_mode, **kwargs
+            subclass, render_mode=render_mode, **kwargs
         )
         return instance
 
