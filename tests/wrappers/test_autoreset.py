@@ -61,24 +61,24 @@ def test_autoreset_autoreset():
     assert obs == np.array([1])
     assert reward == 0
     assert done == False
-    assert info == {}
+    assert info == {"info": {}}
     obs, reward, done, info = env.step(action)
     assert obs == np.array([2])
     assert done == False
     assert reward == 0
-    assert info == {}
-    obs, reward, done, info = env.step(action)
-    assert obs == np.array([3])
-    assert done == True
-    assert reward == 1
-    assert info == {}
+    assert info == {"info": {}}
     obs, reward, done, info = env.step(action)
     assert obs == np.array([0])
-    assert reward is None
-    assert done is None
-    assert info == {}
+    assert done == True
+    assert reward == 1
+    assert info == {"info": {}, "final_obs": np.array([3])}
     obs, reward, done, info = env.step(action)
     assert obs == np.array([1])
+    assert reward is 0
+    assert done is False
+    assert info == {"info": {}}
+    obs, reward, done, info = env.step(action)
+    assert obs == np.array([2])
     assert reward == 0
     assert done == False
-    assert info == {}
+    assert info == {"info": {}}
