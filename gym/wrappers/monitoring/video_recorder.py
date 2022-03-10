@@ -41,7 +41,7 @@ class VideoRecorder:
 
         if env.render_mode not in ["rgb_array", "ansi"]:
             logger.info(
-                f'Disabling video recorder because {env} rendering mode is {env.render_mode}. '
+                f"Disabling video recorder because {env} rendering mode is {env.render_mode}. "
                 f'Set render_mode as "rgb_array" or "ansi" to enable video recording.'
             )
             # Whoops, turns out we shouldn't be enabled after all

@@ -155,7 +155,9 @@ class PendulumEnv(gym.Env):
     def _render(self):
         if self.screen is None:
             if self.render_mode == "human":
-                self.screen = pygame.display.set_mode((self.screen_dim, self.screen_dim))
+                self.screen = pygame.display.set_mode(
+                    (self.screen_dim, self.screen_dim)
+                )
             else:  # self.render_mode == "rgb_array":
                 self.screen = pygame.Surface((self.screen_dim, self.screen_dim))
 

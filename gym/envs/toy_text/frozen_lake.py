@@ -125,12 +125,17 @@ class FrozenLakeEnv(Env):
     metadata = {"render_modes": ["human", "ansi", "rgb_array"]}
 
     def __new__(cls, render_mode="human", **kwargs):
-        subclass_list = [subclass for subclass in cls.__subclasses__()
-                         if render_mode in subclass.metadata["render_modes"]]
+        subclass_list = [
+            subclass
+            for subclass in cls.__subclasses__()
+            if render_mode in subclass.metadata["render_modes"]
+        ]
 
         assert len(subclass_list) == 1
         subclass = subclass_list[0]
-        instance = super(FrozenLakeEnv, subclass).__new__(subclass, render_mode, **kwargs)
+        instance = super(FrozenLakeEnv, subclass).__new__(
+            subclass, render_mode, **kwargs
+        )
         return instance
 
     def __init__(self, desc=None, map_name="4x4", is_slippery=True):
@@ -201,11 +206,11 @@ class FrozenLakeEnv(Env):
         return (int(s), r, d, {"prob": p})
 
     def reset(
-            self,
-            *,
-            seed: Optional[int] = None,
-            return_info: bool = False,
-            options: Optional[dict] = None,
+        self,
+        *,
+        seed: Optional[int] = None,
+        return_info: bool = False,
+        options: Optional[dict] = None,
     ):
         super().reset(seed=seed)
         self.s = categorical_sample(self.initial_state_distrib, self.np_random)
@@ -231,7 +236,7 @@ class FrozenLakeAnsiRender(FrozenLakeEnv):
     metadata = {"render_modes": ["ansi"]}
 
     def __init__(self, **kwargs):
-        del kwargs['render_mode']
+        del kwargs["render_mode"]
         super(FrozenLakeAnsiRender, self).__init__(**kwargs)
         self.render_list = []
 
@@ -253,22 +258,22 @@ class FrozenLakeAnsiRender(FrozenLakeEnv):
 
     def step(self, a):
         out = super().step(a)
-        self.render_list.append(
-            self._render()
-        )
+        self.render_list.append(self._render())
         return out
 
     def collect_render(self):
         return self.render_list
 
     def reset(
-            self,
-            *,
-            seed: Optional[int] = None,
-            return_info: bool = False,
-            options: Optional[dict] = None,
+        self,
+        *,
+        seed: Optional[int] = None,
+        return_info: bool = False,
+        options: Optional[dict] = None,
     ):
-        out = super(FrozenLakeAnsiRender, self).reset(seed=seed, return_info=return_info, options=options)
+        out = super(FrozenLakeAnsiRender, self).reset(
+            seed=seed, return_info=return_info, options=options
+        )
         self.render_list = [self._render()]
         return out
 
@@ -324,7 +329,7 @@ class FrozenLakeRenderGraphics(FrozenLakeEnv):
         elf_scale = min(
             small_cell_w / elf_img.get_width(),
             small_cell_h / elf_img.get_height(),
-            )
+        )
         elf_dims = (
             elf_img.get_width() * elf_scale,
             elf_img.get_height() * elf_scale,
@@ -380,7 +385,8 @@ class FrozenLakeRenderGraphics(FrozenLakeEnv):
         else:
             self.render_list.append(
                 np.transpose(
-                    np.array(pygame.surfarray.pixels3d(self.window_surface)), axes=(1, 0, 2)
+                    np.array(pygame.surfarray.pixels3d(self.window_surface)),
+                    axes=(1, 0, 2),
                 )
             )
         return out
@@ -388,15 +394,17 @@ class FrozenLakeRenderGraphics(FrozenLakeEnv):
     def collect_render(self):
         if self.render_mode == "rgb_array":
             return self.render_list
-    
+
     def reset(
-            self,
-            *,
-            seed: Optional[int] = None,
-            return_info: bool = False,
-            options: Optional[dict] = None,
+        self,
+        *,
+        seed: Optional[int] = None,
+        return_info: bool = False,
+        options: Optional[dict] = None,
     ):
-        out = super(FrozenLakeRenderGraphics, self).reset(seed=seed, return_info=return_info, options=options)
+        out = super(FrozenLakeRenderGraphics, self).reset(
+            seed=seed, return_info=return_info, options=options
+        )
 
         self._render()
         if self.render_mode == "human":
@@ -405,7 +413,8 @@ class FrozenLakeRenderGraphics(FrozenLakeEnv):
         else:
             self.render_list = [
                 np.transpose(
-                    np.array(pygame.surfarray.pixels3d(self.window_surface)), axes=(1, 0, 2)
+                    np.array(pygame.surfarray.pixels3d(self.window_surface)),
+                    axes=(1, 0, 2),
                 )
             ]
         return out

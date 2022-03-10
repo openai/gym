@@ -63,7 +63,6 @@ def test_env(spec):
         env.collect_render()
 
 
-
 @pytest.mark.parametrize("spec", spec_list)
 def test_reset_info(spec):
 

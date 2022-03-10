@@ -208,7 +208,9 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         assert self.render_mode is not None
         if self.screen is None:
             if self.render_mode == "human":
-                self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
+                self.screen = pygame.display.set_mode(
+                    (self.screen_width, self.screen_height)
+                )
             else:
                 self.screen = pygame.Surface((self.screen_width, self.screen_height))
 

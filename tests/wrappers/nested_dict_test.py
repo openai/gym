@@ -10,7 +10,6 @@ from gym.wrappers import FilterObservation, FlattenObservation
 
 
 class FakeEnvironment(gym.Env):
-
     def __init__(self, observation_space, render_mode=None):
         self.observation_space = observation_space
         self.obs_keys = self.observation_space.spaces.keys()

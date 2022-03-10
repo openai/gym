@@ -42,7 +42,9 @@ def test_record_episode_statistics_reset_info():
     ("num_envs", "asynchronous"), [(1, False), (1, True), (4, False), (4, True)]
 )
 def test_record_episode_statistics_with_vectorenv(num_envs, asynchronous):
-    envs = gym.vector.make("CartPole-v0", render_mode=None, num_envs=num_envs, asynchronous=asynchronous)
+    envs = gym.vector.make(
+        "CartPole-v0", render_mode=None, num_envs=num_envs, asynchronous=asynchronous
+    )
     envs = RecordEpisodeStatistics(envs)
     max_episode_step = (
         envs.env_fns[0]().spec.max_episode_steps

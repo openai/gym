@@ -9,7 +9,6 @@ from gym.wrappers.filter_observation import FilterObservation
 
 
 class FakeEnvironment(gym.Env):
-
     def __init__(self, render_mode=None, observation_keys=("state")):
         self.observation_space = spaces.Dict(
             {

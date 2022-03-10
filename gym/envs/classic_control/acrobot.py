@@ -284,7 +284,9 @@ class AcrobotEnv(core.Env):
     def _render(self):
         if self.screen is None:
             if self.render_mode == "human":
-                self.screen = pygame.display.set_mode((self.SCREEN_DIM, self.SCREEN_DIM))
+                self.screen = pygame.display.set_mode(
+                    (self.SCREEN_DIM, self.SCREEN_DIM)
+                )
             else:  # self.render_mode == "rgb_array":
                 self.screen = pygame.Surface((self.SCREEN_DIM, self.SCREEN_DIM))
 
@@ -334,9 +336,7 @@ class AcrobotEnv(core.Env):
             gfxdraw.filled_polygon(surf, transformed_coords, (0, 204, 204))
 
             gfxdraw.aacircle(surf, int(x), int(y), int(0.1 * scale), (204, 204, 0))
-            gfxdraw.filled_circle(
-                surf, int(x), int(y), int(0.1 * scale), (204, 204, 0)
-            )
+            gfxdraw.filled_circle(surf, int(x), int(y), int(0.1 * scale), (204, 204, 0))
 
         surf = pygame.transform.flip(surf, False, True)
         self.screen.blit(surf, (0, 0))
