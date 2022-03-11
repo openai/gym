@@ -307,8 +307,9 @@ class FrozenLakeRenderGraphics(FrozenLakeEnv):
 
     def _render(self):
         if self.window_surface is None:
-            pygame.display.set_caption("Frozen Lake")
             if self.render_mode == "human":
+                pygame.display.init()
+                pygame.display.set_caption("Frozen Lake")
                 self.window_surface = pygame.display.set_mode(self.window_size)
             else:
                 self.window_surface = pygame.Surface(self.window_size)
@@ -378,6 +379,7 @@ class FrozenLakeRenderGraphics(FrozenLakeEnv):
         out = super().step(a)
         self._render()
         if self.render_mode == "human":
+            pygame.event.pump()
             pygame.display.update()
         else:
             self.render_list.append(
