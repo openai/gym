@@ -19,7 +19,12 @@ class DummyResetEnv(gym.Env):
 
     def step(self, action):
         self.count += 1
-        return np.array([self.count]), 1 if self.count > 2 else 0, self.count > 2, {}
+        return (
+            np.array([self.count]),
+            1 if self.count > 2 else 0,
+            self.count > 2,
+            {"count": self.count},
+        )
 
     def reset(
         self,
@@ -32,7 +37,7 @@ class DummyResetEnv(gym.Env):
         if not return_info:
             return np.array([self.count])
         else:
-            return np.array([self.count]), {}
+            return np.array([self.count]), {"count": self.count}
 
 
 def test_autoreset_reset_info():
@@ -55,30 +60,34 @@ def test_autoreset_autoreset():
     env = AutoResetWrapper(env)
     obs, info = env.reset(return_info=True)
     assert obs == np.array([0])
-    assert info == {}
+    assert info == {"count": 0}
     action = 1
     obs, reward, done, info = env.step(action)
     assert obs == np.array([1])
     assert reward == 0
     assert done == False
-    assert info == {"info": {}}
+    assert info == {"info": {"count": 1}}
     obs, reward, done, info = env.step(action)
     assert obs == np.array([2])
     assert done == False
     assert reward == 0
-    assert info == {"info": {}}
+    assert info == {"info": {"count": 2}}
     obs, reward, done, info = env.step(action)
     assert obs == np.array([0])
     assert done == True
     assert reward == 1
-    assert info == {"info": {}, "final_obs": np.array([3])}
+    assert info == {
+        "info": {"count": 0},
+        "final_obs": np.array([3]),
+        "final_info": {"count": 3},
+    }
     obs, reward, done, info = env.step(action)
     assert obs == np.array([1])
     assert reward == 0
     assert done == False
-    assert info == {"info": {}}
+    assert info == {"info": {"count": 1}}
     obs, reward, done, info = env.step(action)
     assert obs == np.array([2])
     assert reward == 0
     assert done == False
-    assert info == {"info": {}}
+    assert info == {"info": {"count": 2}}

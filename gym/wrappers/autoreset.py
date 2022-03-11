@@ -17,7 +17,8 @@ final_done is always True
 
 info is a dict of the form {info:{<self.env info>}, "final_obs":<the
 observation after calling self.env.step(), prior to calling
-self.env.reset()>}
+self.env.reset()>,"final_info":<the info after calling 
+self.env.step(), prior to calling self.env.reset()>}
 
 If done is not true when self.env.step() is called, self.step() returns
 obs, reward, and done as normal, and wraps the info returned
@@ -45,6 +46,11 @@ class AutoResetWrapper(gym.Wrapper):
         obs, reward, done, info = self.env.step(action)
         if done:
             new_obs, new_info = self.env.reset(return_info=True)
-            return new_obs, done, reward, {"info": new_info, "final_obs": obs}
+            return (
+                new_obs,
+                done,
+                reward,
+                {"info": new_info, "final_obs": obs, "final_info": info},
+            )
         else:
             return obs, reward, done, {"info": info}
