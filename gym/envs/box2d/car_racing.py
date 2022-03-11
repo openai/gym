@@ -439,6 +439,7 @@ class CarRacing(gym.Env, EzPickle):
     def render(self, mode="human"):
         assert mode in ["human", "state_pixels", "rgb_array"]
         if self.screen is None and mode == "human":
+            pygame.display.init()
             self.screen = pygame.display.set_mode((WINDOW_W, WINDOW_H))
         if self.clock is None:
             self.clock = pygame.time.Clock()
@@ -604,6 +605,7 @@ class CarRacing(gym.Env, EzPickle):
 
     def close(self):
         if self.screen is not None:
+            pygame.display.quit()
             pygame.quit()
             self.isopen = False
 

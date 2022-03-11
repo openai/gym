@@ -447,6 +447,7 @@ class LunarLander(gym.Env, EzPickle):
     def render(self, mode="human"):
         if self.screen is None:
             pygame.init()
+            pygame.display.init()
             self.screen = pygame.display.set_mode((VIEWPORT_W, VIEWPORT_H))
         if self.clock is None:
             self.clock = pygame.time.Clock()
@@ -546,6 +547,7 @@ class LunarLander(gym.Env, EzPickle):
 
     def close(self):
         if self.screen is not None:
+            pygame.display.quit()
             pygame.quit()
             self.isopen = False
 

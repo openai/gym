@@ -269,6 +269,7 @@ class AcrobotEnv(core.Env):
     def render(self, mode="human"):
         if self.screen is None:
             pygame.init()
+            pygame.display.init()
             self.screen = pygame.display.set_mode((self.SCREEN_DIM, self.SCREEN_DIM))
         if self.clock is None:
             self.clock = pygame.time.Clock()
@@ -339,6 +340,7 @@ class AcrobotEnv(core.Env):
 
     def close(self):
         if self.screen is not None:
+            pygame.display.quit()
             pygame.quit()
             self.isopen = False
 

@@ -178,6 +178,7 @@ class BlackjackEnv(gym.Env):
         if not hasattr(self, "screen"):
             if mode == "human":
                 pygame.init()
+                pygame.display.init()
                 self.screen = pygame.display.set_mode((screen_width, screen_height))
             else:
                 pygame.font.init()
