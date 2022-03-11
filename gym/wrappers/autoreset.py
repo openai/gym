@@ -17,7 +17,7 @@ final_done is always True
 
 info is a dict of the form {info:{<self.env info>}, "final_obs":<the
 observation after calling self.env.step(), prior to calling
-self.env.reset()>,"final_info":<the info after calling 
+self.env.reset()>,"final_info":<the info after calling
 self.env.step(), prior to calling self.env.reset()>}
 
 If done is not true when self.env.step() is called, self.step() returns
