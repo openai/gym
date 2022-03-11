@@ -198,6 +198,7 @@ class BlackjackEnv(gym.Env):
 
         if not hasattr(self, "screen"):
             if self.render_mode == "human":
+                pygame.display.init()
                 self.screen = pygame.display.set_mode((screen_width, screen_height))
             else:
                 self.screen = pygame.Surface((screen_width, screen_height))
@@ -282,6 +283,7 @@ class BlackjackEnv(gym.Env):
                 ),
             )
         if self.render_mode == "human":
+            pygame.event.pump()
             pygame.display.update()
             self.clock.tick(self.metadata["render_fps"])
         else:

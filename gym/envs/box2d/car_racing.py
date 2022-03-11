@@ -448,6 +448,7 @@ class CarRacing(gym.Env, EzPickle):
 
     def _render(self):
         if self.screen is None and self.render_mode == "human":
+            pygame.display.init()
             self.screen = pygame.display.set_mode((WINDOW_W, WINDOW_H))
 
         if "t" not in self.__dict__:
@@ -479,6 +480,7 @@ class CarRacing(gym.Env, EzPickle):
         self.surf.blit(text, text_rect)
 
         if self.render_mode == "human":
+            pygame.event.pump()
             self.clock.tick(self.metadata["render_fps"])
             self.screen.fill(0)
             self.screen.blit(self.surf, (0, 0))
@@ -612,6 +614,7 @@ class CarRacing(gym.Env, EzPickle):
 
     def close(self):
         if self.screen is not None:
+            pygame.display.quit()
             pygame.quit()
             self.isopen = False
 

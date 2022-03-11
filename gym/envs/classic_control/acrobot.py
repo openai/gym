@@ -284,6 +284,7 @@ class AcrobotEnv(core.Env):
     def _render(self):
         if self.screen is None:
             if self.render_mode == "human":
+                pygame.display.init()
                 self.screen = pygame.display.set_mode(
                     (self.SCREEN_DIM, self.SCREEN_DIM)
                 )
@@ -342,6 +343,7 @@ class AcrobotEnv(core.Env):
         self.screen.blit(surf, (0, 0))
 
         if self.render_mode == "human":
+            pygame.event.pump()
             self.clock.tick(self.metadata["render_fps"])
             pygame.display.flip()
 
@@ -354,6 +356,7 @@ class AcrobotEnv(core.Env):
 
     def close(self):
         if self.screen is not None:
+            pygame.display.quit()
             pygame.quit()
             self.isopen = False
 

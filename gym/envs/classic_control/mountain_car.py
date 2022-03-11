@@ -170,6 +170,7 @@ class MountainCarEnv(gym.Env):
     def _render(self):
         if self.screen is None:
             if self.render_mode == "human":
+                pygame.display.init()
                 self.screen = pygame.display.set_mode(
                     (self.screen_width, self.screen_height)
                 )
@@ -241,6 +242,7 @@ class MountainCarEnv(gym.Env):
         self.surf = pygame.transform.flip(self.surf, False, True)
         self.screen.blit(self.surf, (0, 0))
         if self.render_mode == "human":
+            pygame.event.pump()
             self.clock.tick(self.metadata["render_fps"])
             pygame.display.flip()
 
@@ -257,5 +259,6 @@ class MountainCarEnv(gym.Env):
 
     def close(self):
         if self.screen is not None:
+            pygame.display.quit()
             pygame.quit()
             self.isopen = False
