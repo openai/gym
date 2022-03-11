@@ -133,9 +133,7 @@ class FrozenLakeEnv(Env):
 
         assert len(subclass_list) == 1
         subclass = subclass_list[0]
-        instance = super(FrozenLakeEnv, subclass).__new__(
-            subclass, **kwargs
-        )
+        instance = super(FrozenLakeEnv, subclass).__new__(subclass)
         return instance
 
     def __init__(self, render_mode="human", desc=None, map_name="4x4", is_slippery=True):
