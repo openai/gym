@@ -39,9 +39,6 @@ import gym
 
 
 class AutoResetWrapper(gym.Wrapper):
-    def reset(self, **kwargs):
-        return self.env.reset(**kwargs)
-
     def step(self, action):
         obs, reward, done, info = self.env.step(action)
         if done:
