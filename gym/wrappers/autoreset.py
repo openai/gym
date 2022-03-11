@@ -45,8 +45,8 @@ class AutoResetWrapper(gym.Wrapper):
             new_obs, new_info = self.env.reset(return_info=True)
             return (
                 new_obs,
-                done,
                 reward,
+                done,
                 {"info": new_info, "final_obs": obs, "final_info": info},
             )
         else:
