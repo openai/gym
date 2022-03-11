@@ -472,6 +472,7 @@ class CarRacing(gym.Env, EzPickle):
         self.surf.blit(text, text_rect)
 
         if mode == "human":
+            pygame.event.pump()
             self.clock.tick(self.metadata["render_fps"])
             self.screen.fill(0)
             self.screen.blit(self.surf, (0, 0))

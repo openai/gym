@@ -336,6 +336,7 @@ class FrozenLakeEnv(Env):
 
         self.window_surface.blit(board, board.get_rect())
         if mode == "human":
+            pygame.event.pump()
             pygame.display.update()
             self.clock.tick(self.metadata["render_fps"])
         else:  # rgb_array
