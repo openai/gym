@@ -136,7 +136,9 @@ class FrozenLakeEnv(Env):
         instance = super(FrozenLakeEnv, subclass).__new__(subclass)
         return instance
 
-    def __init__(self, render_mode="human", desc=None, map_name="4x4", is_slippery=True):
+    def __init__(
+        self, render_mode="human", desc=None, map_name="4x4", is_slippery=True
+    ):
         if desc is None and map_name is None:
             desc = generate_random_map()
         elif desc is None:
