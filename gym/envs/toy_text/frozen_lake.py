@@ -134,11 +134,11 @@ class FrozenLakeEnv(Env):
         assert len(subclass_list) == 1
         subclass = subclass_list[0]
         instance = super(FrozenLakeEnv, subclass).__new__(
-            subclass, render_mode=render_mode, **kwargs
+            subclass, **kwargs
         )
         return instance
 
-    def __init__(self, desc=None, map_name="4x4", is_slippery=True):
+    def __init__(self, render_mode="human", desc=None, map_name="4x4", is_slippery=True):
         if desc is None and map_name is None:
             desc = generate_random_map()
         elif desc is None:
@@ -146,6 +146,7 @@ class FrozenLakeEnv(Env):
         self.desc = desc = np.asarray(desc, dtype="c")
         self.nrow, self.ncol = nrow, ncol = desc.shape
         self.reward_range = (0, 1)
+        self.render_mode = render_mode
 
         nA = 4
         nS = nrow * ncol
@@ -236,7 +237,6 @@ class FrozenLakeAnsiRender(FrozenLakeEnv):
     metadata = {"render_modes": ["ansi"]}
 
     def __init__(self, **kwargs):
-        del kwargs["render_mode"]
         super(FrozenLakeAnsiRender, self).__init__(**kwargs)
         self.render_list = []
 
@@ -281,11 +281,10 @@ class FrozenLakeAnsiRender(FrozenLakeEnv):
 class FrozenLakeRenderGraphics(FrozenLakeEnv):
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
 
-    def __init__(self, render_mode="human", **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
         pygame.init()
 
-        self.render_mode = render_mode
         self.window_size = (min(64 * self.ncol, 512), min(64 * self.nrow, 512))
         self.window_surface = None
         self.render_list = []
