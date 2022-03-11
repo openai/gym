@@ -32,7 +32,7 @@ class CliffWalkingEnv(Env):
     - [3, 11] as the goal at bottom-right
     - [3, 1..10] as the cliff at bottom-center
 
-    If the agent steps on the cliff it returns to the start.
+    If the agent steps on the cliff, it returns to the start.
     An episode terminates when the agent reaches the goal.
 
     ### Actions
@@ -44,9 +44,9 @@ class CliffWalkingEnv(Env):
 
     ### Observations
     There are 3x12 + 1 possible states. In fact, the agent cannot be at the cliff, nor at the goal
-    (as this results the end of episode). They remain all the positions of the first 3 rows plus the bottom-left cell.
-    The observation is simply the current position encoded as
-    [flattened index](https://numpy.org/doc/stable/reference/generated/numpy.unravel_index.html).
+    (as this results in the end of the episode).
+    It remains all the positions of the first 3 rows plus the bottom-left cell.
+    The observation is simply the current position encoded as [flattened index](https://numpy.org/doc/stable/reference/generated/numpy.unravel_index.html).
 
     ### Reward
     Each time step incurs -1 reward, and stepping into the cliff incurs -100 reward.
