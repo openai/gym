@@ -54,7 +54,7 @@ class AtariPreprocessing(gym.Wrapper):
         super().__init__(env)
         assert (
             cv2 is not None
-        ), "opencv-python package not installed! Try running pip install gym[atari] to get dependencies  for atari"
+        ), "opencv-python package not installed! Try running pip install gym[other] to get dependencies  for atari"
         assert frame_skip > 0
         assert screen_size > 0
         assert noop_max >= 0
