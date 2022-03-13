@@ -10,7 +10,9 @@ from gym.utils.env_checker import check_env
 # This runs a smoketest on each official registered env. We may want
 # to try also running environments which are not officially registered
 # envs.
-@pytest.mark.filterwarnings('ignore:.*We recommend you to use a symmetric and normalized Box action space.*')
+@pytest.mark.filterwarnings(
+    "ignore:.*We recommend you to use a symmetric and normalized Box action space.*"
+)
 @pytest.mark.parametrize("spec", spec_list)
 def test_env(spec):
     # Capture warnings
