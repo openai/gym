@@ -19,7 +19,11 @@ from gym.spaces import Tuple, Box, Discrete, MultiDiscrete, MultiBinary, Dict
         Tuple(
             [
                 Discrete(5),
-                Box(low=np.array([0.0, 0.0]), high=np.array([1.0, 5.0]), dtype=np.float64),
+                Box(
+                    low=np.array([0.0, 0.0]),
+                    high=np.array([1.0, 5.0]),
+                    dtype=np.float64,
+                ),
             ]
         ),
         Tuple((Discrete(5), Discrete(2), Discrete(2))),
@@ -30,7 +34,9 @@ from gym.spaces import Tuple, Box, Discrete, MultiDiscrete, MultiBinary, Dict
             {
                 "position": Discrete(5),
                 "velocity": Box(
-                    low=np.array([0.0, 0.0]), high=np.array([1.0, 5.0]), dtype=np.float64
+                    low=np.array([0.0, 0.0]),
+                    high=np.array([1.0, 5.0]),
+                    dtype=np.float64,
                 ),
             }
         ),
@@ -67,7 +73,11 @@ def test_roundtripping(space):
         Tuple(
             [
                 Discrete(5),
-                Box(low=np.array([0.0, 0.0]), high=np.array([1.0, 5.0]), dtype=np.float64),
+                Box(
+                    low=np.array([0.0, 0.0]),
+                    high=np.array([1.0, 5.0]),
+                    dtype=np.float64,
+                ),
             ]
         ),
         Tuple((Discrete(5), Discrete(2), Discrete(2))),
@@ -78,7 +88,9 @@ def test_roundtripping(space):
             {
                 "position": Discrete(5),
                 "velocity": Box(
-                    low=np.array([0.0, 0.0]), high=np.array([1.0, 5.0]), dtype=np.float64
+                    low=np.array([0.0, 0.0]),
+                    high=np.array([1.0, 5.0]),
+                    dtype=np.float64,
                 ),
             }
         ),
@@ -98,8 +110,14 @@ def test_equality(space):
         (MultiDiscrete([2, 2, 100]), MultiDiscrete([2, 2, 8])),
         (MultiBinary(8), MultiBinary(7)),
         (
-            Box(low=np.array([-10.0, 0.0]), high=np.array([10.0, 10.0]), dtype=np.float64),
-            Box(low=np.array([-10.0, 0.0]), high=np.array([10.0, 9.0]), dtype=np.float64),
+            Box(
+                low=np.array([-10.0, 0.0]),
+                high=np.array([10.0, 10.0]),
+                dtype=np.float64,
+            ),
+            Box(
+                low=np.array([-10.0, 0.0]), high=np.array([10.0, 9.0]), dtype=np.float64
+            ),
         ),
         (
             Box(low=-np.inf, high=0.0, shape=(2, 1)),
@@ -156,7 +174,11 @@ def test_sample(space):
     [
         (Discrete(5), MultiBinary(5)),
         (
-            Box(low=np.array([-10.0, 0.0]), high=np.array([10.0, 10.0]), dtype=np.float64),
+            Box(
+                low=np.array([-10.0, 0.0]),
+                high=np.array([10.0, 10.0]),
+                dtype=np.float64,
+            ),
             MultiDiscrete([2, 2, 8]),
         ),
         (
@@ -264,7 +286,11 @@ def test_box_dtype_check():
         Tuple(
             [
                 Discrete(5),
-                Box(low=np.array([0.0, 0.0]), high=np.array([1.0, 5.0]), dtype=np.float64),
+                Box(
+                    low=np.array([0.0, 0.0]),
+                    high=np.array([1.0, 5.0]),
+                    dtype=np.float64,
+                ),
             ]
         ),
         Tuple((Discrete(5), Discrete(2), Discrete(2))),
@@ -274,7 +300,9 @@ def test_box_dtype_check():
             {
                 "position": Discrete(5),
                 "velocity": Box(
-                    low=np.array([0.0, 0.0]), high=np.array([1.0, 5.0]), dtype=np.float64
+                    low=np.array([0.0, 0.0]),
+                    high=np.array([1.0, 5.0]),
+                    dtype=np.float64,
                 ),
             }
         ),
@@ -317,7 +345,11 @@ def sample_equal(sample1, sample2):
         Tuple(
             [
                 Discrete(5),
-                Box(low=np.array([0.0, 0.0]), high=np.array([1.0, 5.0]), dtype=np.float64),
+                Box(
+                    low=np.array([0.0, 0.0]),
+                    high=np.array([1.0, 5.0]),
+                    dtype=np.float64,
+                ),
             ]
         ),
         Tuple((Discrete(5), Discrete(2), Discrete(2))),
@@ -327,7 +359,9 @@ def sample_equal(sample1, sample2):
             {
                 "position": Discrete(5),
                 "velocity": Box(
-                    low=np.array([0.0, 0.0]), high=np.array([1.0, 5.0]), dtype=np.float64
+                    low=np.array([0.0, 0.0]),
+                    high=np.array([1.0, 5.0]),
+                    dtype=np.float64,
                 ),
             }
         ),
@@ -353,7 +387,11 @@ def test_seed_reproducibility(space):
         Tuple(
             [
                 Discrete(5),
-                Box(low=np.array([0.0, 0.0]), high=np.array([1.0, 5.0]), dtype=np.float64),
+                Box(
+                    low=np.array([0.0, 0.0]),
+                    high=np.array([1.0, 5.0]),
+                    dtype=np.float64,
+                ),
             ]
         ),
         Tuple((Discrete(5), Discrete(2), Discrete(2))),
@@ -361,7 +399,9 @@ def test_seed_reproducibility(space):
             {
                 "position": Discrete(5),
                 "velocity": Box(
-                    low=np.array([0.0, 0.0]), high=np.array([1.0, 5.0]), dtype=np.float64
+                    low=np.array([0.0, 0.0]),
+                    high=np.array([1.0, 5.0]),
+                    dtype=np.float64,
                 ),
             }
         ),

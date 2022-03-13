@@ -164,8 +164,10 @@ def test_make_with_kwargs():
     assert env.arg3 == "override_arg3"
 
 
-@pytest.mark.filterwarnings('ignore:.*The environment Humanoid-v0 is out of date. You should consider upgrading to '
-                            'version `v3` with the environment ID `Humanoid-v3`.*')
+@pytest.mark.filterwarnings(
+    "ignore:.*The environment Humanoid-v0 is out of date. You should consider upgrading to "
+    "version `v3` with the environment ID `Humanoid-v3`.*"
+)
 def test_make_deprecated():
     try:
         envs.make("Humanoid-v0")

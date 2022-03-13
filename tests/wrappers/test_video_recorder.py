@@ -84,7 +84,7 @@ def test_record_unrecordable_method():
     rec.close()
 
 
-@pytest.mark.filterwarnings('ignore:.*Env returned None on render.*')
+@pytest.mark.filterwarnings("ignore:.*Env returned None on render.*")
 def test_record_breaking_render_method():
     env = BrokenRecordableEnv()
     rec = VideoRecorder(env)
