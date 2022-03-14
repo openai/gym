@@ -36,6 +36,16 @@ class VideoRecorder:
 
     def __init__(self, env, path=None, metadata=None, enabled=True, base_path=None):
         modes = env.metadata.get("render_modes", [])
+
+        # backward-compatibility mode:
+        backward_compatible_mode = env.metadata.get("render.modes", [])
+        if len(modes) == 0 and len(backward_compatible_mode) > 0:
+            logger.deprecation(
+                '`env.metadata["render.modes"] is marked as deprecated and will be replaced with `env.metadata["render_modes"]` '
+                "see https://github.com/openai/gym/pull/2654 for more details"
+            )
+            modes = backward_compatible_mode
+
         self._async = env.metadata.get("semantics.async")
         self.enabled = enabled
         self._closed = False
@@ -93,6 +103,27 @@ class VideoRecorder:
 
         self.frames_per_sec = env.metadata.get("render_fps", 30)
         self.output_frames_per_sec = env.metadata.get("render_fps", self.frames_per_sec)
+
+        # backward-compatibility mode:
+        self.backward_compatible_frames_per_sec = env.metadata.get(
+            "video.frames_per_second", 30
+        )
+        self.backward_compatible_output_frames_per_sec = env.metadata.get(
+            "video.output_frames_per_second", self.frames_per_sec
+        )
+        if self.frames_per_sec != self.backward_compatible_frames_per_sec:
+            logger.deprecation(
+                '`env.metadata["video.frames_per_second"] is marked as deprecated and will be replaced with `env.metadata["render_fps"]` '
+                "see https://github.com/openai/gym/pull/2654 for more details"
+            )
+            self.frames_per_sec = self.backward_compatible_frames_per_sec
+        if self.output_frames_per_sec != self.backward_compatible_output_frames_per_sec:
+            logger.deprecation(
+                '`env.metadata["video.output_frames_per_second"] is marked as deprecated and will be replaced with `env.metadata["render_fps"]` '
+                "see https://github.com/openai/gym/pull/2654 for more details"
+            )
+            self.output_frames_per_sec = self.backward_compatible_output_frames_per_sec
+
         self.encoder = None  # lazily start the process
         self.broken = False
 

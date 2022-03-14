@@ -244,6 +244,7 @@ class FrozenLakeEnv(Env):
     def _render_gui(self, desc, mode):
         if self.window_surface is None:
             pygame.init()
+            pygame.display.init()
             pygame.display.set_caption("Frozen Lake")
             if mode == "human":
                 self.window_surface = pygame.display.set_mode(self.window_size)
@@ -336,6 +337,7 @@ class FrozenLakeEnv(Env):
 
         self.window_surface.blit(board, board.get_rect())
         if mode == "human":
+            pygame.event.pump()
             pygame.display.update()
             self.clock.tick(self.metadata["render_fps"])
         else:  # rgb_array
