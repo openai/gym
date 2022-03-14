@@ -13,6 +13,9 @@ DISABLED = 50
 min_level = 30
 
 
+warnings.simplefilter("once", DeprecationWarning)
+
+
 def set_level(level: int) -> None:
     """
     Set logging threshold on current logger.
