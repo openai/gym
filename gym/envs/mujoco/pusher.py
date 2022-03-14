@@ -81,7 +81,7 @@ class PusherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     it takes actions that are too large. It is measured as the negative squared
     Euclidean norm of the action, i.e. as *- sum(action<sup>2</sup>)*.
 
-    The total reward returned is ***reward*** *=* *reward_dist + 0.1 \* reward_ctrl + 0.5 \* reward_near*
+    The total reward returned is ***reward*** *=* *reward_dist + 0.1 * reward_ctrl + 0.5 * reward_near*
 
     Unlike other environments, Pusher does not allow you to specify weights for the individual reward terms.
     However, `info` does contain the keys *reward_dist* and *reward_ctrl*. Thus, if you'd like to weight the terms,
@@ -96,7 +96,7 @@ class PusherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     between [-0.3, 0] while the y-position is selected uniformly between [-0.2, 0.2], and this
     process is repeated until the vector norm between the object's (x,y) position and origin is not greater
     than 0.17. The goal always have the same position of (0.45, -0.05, -0.323).
-    
+
     The default framerate is 5 with each frame lasting for 0.01, giving rise to a *dt = 5 * 0.01 = 0.05*
 
     ### Episode Termination
