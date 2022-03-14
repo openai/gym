@@ -8,6 +8,15 @@ from gym.wrappers import AutoResetWrapper
 
 
 class DummyResetEnv(gym.Env):
+    """
+    A dummy environment which returns ascending numbers starting
+    at 0 when self.step() is called. After the third call to self.step()
+    done is true. Info dicts are also returned containing the same number
+    returned as an observation, accessible via the key "count".
+    This environment is provided for the purpose of testing the
+    autoreset wrapper.
+    """
+
     metadata = {}
 
     def __init__(self):
@@ -46,10 +55,8 @@ def test_autoreset_reset_info():
     ob_space = env.observation_space
     obs = env.reset()
     assert ob_space.contains(obs)
-    del obs
     obs = env.reset(return_info=False)
     assert ob_space.contains(obs)
-    del obs
     obs, info = env.reset(return_info=True)
     assert ob_space.contains(obs)
     assert isinstance(info, dict)
@@ -66,18 +73,18 @@ def test_autoreset_autoreset():
     assert obs == np.array([1])
     assert reward == 0
     assert done == False
-    assert info == {"info": {"count": 1}}
+    assert info == {"count": 1}
     obs, reward, done, info = env.step(action)
     assert obs == np.array([2])
     assert done == False
     assert reward == 0
-    assert info == {"info": {"count": 2}}
+    assert info == {"count": 2}
     obs, reward, done, info = env.step(action)
     assert obs == np.array([0])
     assert done == True
     assert reward == 1
     assert info == {
-        "info": {"count": 0},
+        "count": 0,
         "final_obs": np.array([3]),
         "final_info": {"count": 3},
     }
@@ -85,9 +92,9 @@ def test_autoreset_autoreset():
     assert obs == np.array([1])
     assert reward == 0
     assert done == False
-    assert info == {"info": {"count": 1}}
+    assert info == {"count": 1}
     obs, reward, done, info = env.step(action)
     assert obs == np.array([2])
     assert reward == 0
     assert done == False
-    assert info == {"info": {"count": 2}}
+    assert info == {"count": 2}
