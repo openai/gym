@@ -2,18 +2,6 @@
 name: lint_python
 on: [pull_request, push]
 jobs:
-  lint_python:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-      - run: pip install isort pytest pyupgrade
-      - run: isort --diff --check-only --profile black .
-      - run: pip install -e .[nomujoco]
-      - run: pytest .
-      - run: pytest --doctest-modules .
-      - run: shopt -s globstar && pyupgrade --py37-plus **/*.py
-
   pyright:
     name: Check types with pyright
     runs-on: ubuntu-latest

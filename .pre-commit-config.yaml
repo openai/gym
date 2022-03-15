@@ -25,3 +25,8 @@ repos:
     hooks:
       - id: isort
         args: ["--profile", "black"]
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v2.31.0
+    hooks:
+      - id: pyupgrade
+        args: ["--py37-plus"]
