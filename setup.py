@@ -58,6 +58,7 @@ setup(
             "envs/classic_control/assets/*.png",
             "envs/toy_text/font/*.ttf",
             "envs/toy_text/img/*.png",
+            "py.typed",
         ]
     },
     tests_require=["pytest", "mock"],

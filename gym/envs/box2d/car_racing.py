@@ -170,6 +170,8 @@ class CarRacing(gym.Env, EzPickle):
             shape=polygonShape(vertices=[(0, 0), (1, 0), (1, -1), (0, -1)])
         )
 
+        # This will throw a warning in tests/envs/test_envs in utils/env_checker.py as the space is not symmetric
+        #   or normalised however this is not possible here so ignore
         self.action_space = spaces.Box(
             np.array([-1, 0, 0]).astype(np.float32),
             np.array([+1, +1, +1]).astype(np.float32),
@@ -439,6 +441,7 @@ class CarRacing(gym.Env, EzPickle):
     def render(self, mode="human"):
         assert mode in ["human", "state_pixels", "rgb_array"]
         if self.screen is None and mode == "human":
+            pygame.display.init()
             self.screen = pygame.display.set_mode((WINDOW_W, WINDOW_H))
         if self.clock is None:
             self.clock = pygame.time.Clock()
@@ -472,6 +475,7 @@ class CarRacing(gym.Env, EzPickle):
         self.surf.blit(text, text_rect)
 
         if mode == "human":
+            pygame.event.pump()
             self.clock.tick(self.metadata["render_fps"])
             self.screen.fill(0)
             self.screen.blit(self.surf, (0, 0))
@@ -602,8 +606,9 @@ class CarRacing(gym.Env, EzPickle):
         )
 
     def close(self):
+        pygame.quit()
         if self.screen is not None:
-            pygame.quit()
+            pygame.display.quit()
             self.isopen = False
 
 
