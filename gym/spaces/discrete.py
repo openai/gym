@@ -5,10 +5,10 @@ from .space import Space
 
 
 class Discrete(Space[int]):
-    r"""A discrete space in :math:`\{ 0, 1, \\dots, n-1 \}`.
+    r"""A discrete space in :math:`\{ 0, 1, \dots, n-1 \}`.
 
     A start value can be optionally specified to shift the range
-    to :math:`\{ a, a+1, \\dots, a+n-1 \}`.
+    to :math:`\{ a, a+1, \dots, a+n-1 \}`.
 
     Example::
 

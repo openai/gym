@@ -73,7 +73,7 @@ class VectorEnv(gym.Env):
 
         Returns
         -------
-        element of :attr:`observation_space`
+        observations : element of :attr:`observation_space`
             A batch of observations from the vectorized environment.
         """
         self.reset_async(seed=seed, return_info=return_info, options=options)

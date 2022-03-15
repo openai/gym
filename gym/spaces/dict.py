@@ -11,30 +11,32 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
     """
     A dictionary of simpler spaces.
 
-    Example usage:
-    self.observation_space = spaces.Dict({"position": spaces.Discrete(2), "velocity": spaces.Discrete(3)})
+    Example usage::
 
-    Example usage [nested]:
-    self.nested_observation_space = spaces.Dict({
-        'sensors':  spaces.Dict({
-            'position': spaces.Box(low=-100, high=100, shape=(3,)),
-            'velocity': spaces.Box(low=-1, high=1, shape=(3,)),
-            'front_cam': spaces.Tuple((
-                spaces.Box(low=0, high=1, shape=(10, 10, 3)),
-                spaces.Box(low=0, high=1, shape=(10, 10, 3))
-            )),
-            'rear_cam': spaces.Box(low=0, high=1, shape=(10, 10, 3)),
-        }),
-        'ext_controller': spaces.MultiDiscrete((5, 2, 2)),
-        'inner_state':spaces.Dict({
-            'charge': spaces.Discrete(100),
-            'system_checks': spaces.MultiBinary(10),
-            'job_status': spaces.Dict({
-                'task': spaces.Discrete(5),
-                'progress': spaces.Box(low=0, high=100, shape=()),
+        self.observation_space = spaces.Dict({"position": spaces.Discrete(2), "velocity": spaces.Discrete(3)})
+
+    Example usage [nested]::
+    
+        self.nested_observation_space = spaces.Dict({
+            'sensors':  spaces.Dict({
+                'position': spaces.Box(low=-100, high=100, shape=(3,)),
+                'velocity': spaces.Box(low=-1, high=1, shape=(3,)),
+                'front_cam': spaces.Tuple((
+                    spaces.Box(low=0, high=1, shape=(10, 10, 3)),
+                    spaces.Box(low=0, high=1, shape=(10, 10, 3))
+                )),
+                'rear_cam': spaces.Box(low=0, high=1, shape=(10, 10, 3)),
+            }),
+            'ext_controller': spaces.MultiDiscrete((5, 2, 2)),
+            'inner_state':spaces.Dict({
+                'charge': spaces.Discrete(100),
+                'system_checks': spaces.MultiBinary(10),
+                'job_status': spaces.Dict({
+                    'task': spaces.Discrete(5),
+                    'progress': spaces.Box(low=0, high=100, shape=()),
+                })
             })
         })
-    })
     """
 
     def __init__(

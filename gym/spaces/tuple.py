@@ -8,8 +8,9 @@ class Tuple(Space[tuple], Sequence):
     """
     A tuple (i.e., product) of simpler spaces
 
-    Example usage:
-    self.observation_space = spaces.Tuple((spaces.Discrete(2), spaces.Discrete(3)))
+    Example usage::
+
+        self.observation_space = spaces.Tuple((spaces.Discrete(2), spaces.Discrete(3)))
     """
 
     def __init__(
