@@ -2,19 +2,21 @@ import gc
 import os
 import time
 
+import pytest
+
 import gym
 from gym.wrappers.monitoring.video_recorder import VideoRecorder
 
 
 class BrokenRecordableEnv:
-    metadata = {"render.modes": [None, "rgb_array"]}
+    metadata = {"render_modes": [None, "rgb_array"]}
 
     def render(self, mode=None):
         pass
 
 
 class UnrecordableEnv:
-    metadata = {"render.modes": [None]}
+    metadata = {"render_modes": [None]}
 
     def render(self, mode=None):
         pass
@@ -82,6 +84,7 @@ def test_record_unrecordable_method():
     rec.close()
 
 
+@pytest.mark.filterwarnings("ignore:.*Env returned None on render.*")
 def test_record_breaking_render_method():
     env = BrokenRecordableEnv()
     rec = VideoRecorder(env)

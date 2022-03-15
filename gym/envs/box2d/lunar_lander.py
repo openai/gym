@@ -70,12 +70,12 @@ class LunarLander(gym.Env, EzPickle):
     This environment is a classic rocket trajectory optimization problem.
     According to Pontryagin's maximum principle, it is optimal to fire the
     engine at full throttle or turn it off. This is the reason why this
-    environment has discreet actions: engine on or off.
+    environment has discrete actions: engine on or off.
 
     There are two environment versions: discrete or continuous.
     The landing pad is always at coordinates (0,0). The coordinates are the
     first two numbers in the state vector.
-    Landing outside the landing pad is possible. Fuel is infinite, so an agent
+    Landing outside of the landing pad is possible. Fuel is infinite, so an agent
     can learn to fly and then land on its first attempt.
 
     To see a heuristic landing, run:
@@ -85,30 +85,30 @@ class LunarLander(gym.Env, EzPickle):
     <!-- To play yourself, run: -->
     <!-- python examples/agents/keyboard_agent.py LunarLander-v2 -->
 
-    ## Action Space
+    ### Action Space
     There are four discrete actions available: do nothing, fire left
     orientation engine, fire main engine, fire right orientation engine.
 
-    ## Observation Space
+    ### Observation Space
     There are 8 states: the coordinates of the lander in `x` & `y`, its linear
-    velocities in `x` & `y`, its angle, its angular velocity, and two boleans
-    showing if each leg is in contact with the ground or not.
+    velocities in `x` & `y`, its angle, its angular velocity, and two booleans
+    that represent whether each leg is in contact with the ground or not.
 
-    ## Rewards
-    Reward for moving from the top of the screen to the landing pad and zero
-    speed is about 100..140 points.
-    If the lander moves away from the landing pad it loses reward.
+    ### Rewards
+    Reward for moving from the top of the screen to the landing pad and coming
+    to rest is about 100-140 points.
+    If the lander moves away from the landing pad, it loses reward.
     If the lander crashes, it receives an additional -100 points. If it comes
     to rest, it receives an additional +100 points. Each leg with ground
     contact is +10 points.
     Firing the main engine is -0.3 points each frame. Firing the side engine
     is -0.03 points each frame. Solved is 200 points.
 
-    ## Starting State
+    ### Starting State
     The lander starts at the top center of the viewport with a random initial
     force applied to its center of mass.
 
-    ## Episode Termination
+    ### Episode Termination
     The episode finishes if:
     1) the lander crashes (the lander body gets in contact with the moon);
     2) the lander gets outside of the viewport (`x` coordinate is greater than 1);
@@ -121,7 +121,7 @@ class LunarLander(gym.Env, EzPickle):
     > wakes up. Bodies will also wake up if a joint or contact attached to
     > them is destroyed.
 
-    ## Arguments
+    ### Arguments
     To use to the _continuous_ environment, you need to specify the
     `continuous=True` argument like below:
     ```python
@@ -138,15 +138,16 @@ class LunarLander(gym.Env, EzPickle):
 
     <!-- ### References -->
 
-    ## Credits
+    ### Credits
     Created by Oleg Klimov
     """
 
-    metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": FPS}
+    metadata = {"render_modes": ["human", "rgb_array"], "render_fps": FPS}
 
     def __init__(self, continuous: bool = False):
         EzPickle.__init__(self)
         self.screen = None
+        self.clock = None
         self.isopen = True
         self.world = Box2D.b2World()
         self.moon = None
@@ -446,7 +447,10 @@ class LunarLander(gym.Env, EzPickle):
     def render(self, mode="human"):
         if self.screen is None:
             pygame.init()
+            pygame.display.init()
             self.screen = pygame.display.set_mode((VIEWPORT_W, VIEWPORT_H))
+        if self.clock is None:
+            self.clock = pygame.time.Clock()
 
         self.surf = pygame.Surface(self.screen.get_size())
 
@@ -530,6 +534,8 @@ class LunarLander(gym.Env, EzPickle):
         self.screen.blit(self.surf, (0, 0))
 
         if mode == "human":
+            pygame.event.pump()
+            self.clock.tick(self.metadata["render_fps"])
             pygame.display.flip()
 
         if mode == "rgb_array":
@@ -541,6 +547,7 @@ class LunarLander(gym.Env, EzPickle):
 
     def close(self):
         if self.screen is not None:
+            pygame.display.quit()
             pygame.quit()
             self.isopen = False
 

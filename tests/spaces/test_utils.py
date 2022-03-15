@@ -14,7 +14,7 @@ spaces = [
     Tuple(
         [
             Discrete(5),
-            Box(low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32),
+            Box(low=np.array([0.0, 0.0]), high=np.array([1.0, 5.0]), dtype=np.float64),
         ]
     ),
     Tuple((Discrete(5), Discrete(2), Discrete(2))),
@@ -24,13 +24,15 @@ spaces = [
         {
             "position": Discrete(5),
             "velocity": Box(
-                low=np.array([0, 0]), high=np.array([1, 5]), dtype=np.float32
+                low=np.array([0.0, 0.0]), high=np.array([1.0, 5.0]), dtype=np.float64
             ),
         }
     ),
+    Discrete(3, start=2),
+    Discrete(8, start=-5),
 ]
 
-flatdims = [3, 4, 4, 15, 7, 9, 14, 10, 7]
+flatdims = [3, 4, 4, 15, 7, 9, 14, 10, 7, 3, 8]
 
 
 @pytest.mark.parametrize(["space", "flatdim"], zip(spaces, flatdims))
@@ -123,6 +125,8 @@ expected_flattened_dtypes = [
     np.int64,
     np.int8,
     np.float64,
+    np.int64,
+    np.int64,
 ]
 
 
@@ -187,6 +191,8 @@ samples = [
     OrderedDict(
         [("position", 3), ("velocity", np.array([0.5, 3.5], dtype=np.float32))]
     ),
+    3,
+    -2,
 ]
 
 
@@ -200,6 +206,8 @@ expected_flattened_samples = [
     np.array([1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0], dtype=np.int64),
     np.array([0, 1, 1, 0, 0, 0, 1, 1, 1, 1], dtype=np.int8),
     np.array([0, 0, 0, 1, 0, 0.5, 3.5], dtype=np.float64),
+    np.array([0, 1, 0], dtype=np.int64),
+    np.array([0, 0, 0, 1, 0, 0, 0, 0], dtype=np.int64),
 ]
 
 
@@ -243,6 +251,8 @@ expected_flattened_spaces = [
         high=np.array([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 5.0], dtype=np.float64),
         dtype=np.float64,
     ),
+    Box(low=0, high=1, shape=(3,), dtype=np.int64),
+    Box(low=0, high=1, shape=(8,), dtype=np.int64),
 ]
 
 

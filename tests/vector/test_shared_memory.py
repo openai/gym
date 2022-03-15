@@ -26,6 +26,7 @@ expected_types = [
     Array("B", 1),
     Array("B", 32 * 32 * 3),
     Array("i", 1),
+    Array("i", 1),
     (Array("i", 1), Array("i", 1)),
     (Array("i", 1), Array("f", 2)),
     Array("B", 3),

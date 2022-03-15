@@ -12,7 +12,7 @@ class Discrete(Space[int]):
 
     Example::
 
-        >>> Discrete(2)
+        >>> Discrete(2)            # {0, 1}
         >>> Discrete(3, start=-1)  # {-1, 0, 1}
 
     """
@@ -25,7 +25,7 @@ class Discrete(Space[int]):
         super().__init__((), np.int64, seed)
 
     def sample(self) -> int:
-        return self.start + self.np_random.randint(self.n)
+        return int(self.start + self.np_random.integers(self.n))
 
     def contains(self, x) -> bool:
         if isinstance(x, int):
@@ -49,3 +49,17 @@ class Discrete(Space[int]):
             and self.n == other.n
             and self.start == other.start
         )
+
+    def __setstate__(self, state):
+        super().__setstate__(state)
+
+        # Don't mutate the original state
+        state = dict(state)
+
+        # Allow for loading of legacy states.
+        # See https://github.com/openai/gym/pull/2470
+        if "start" not in state:
+            state["start"] = 0
+
+        # Update our state
+        self.__dict__.update(state)

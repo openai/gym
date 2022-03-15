@@ -627,7 +627,7 @@ class AsyncVectorEnv(VectorEnv):
         raise exctype(value)
 
     def __del__(self):
-        if not getattr(self, "closed", True):
+        if not getattr(self, "closed", True) and hasattr(self, "_state"):
             self.close(terminate=True)
 
 

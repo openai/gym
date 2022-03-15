@@ -10,6 +10,9 @@ from gym.utils.env_checker import check_env
 # This runs a smoketest on each official registered env. We may want
 # to try also running environments which are not officially registered
 # envs.
+@pytest.mark.filterwarnings(
+    "ignore:.*We recommend you to use a symmetric and normalized Box action space.*"
+)
 @pytest.mark.parametrize("spec", spec_list)
 def test_env(spec):
     # Capture warnings
@@ -49,11 +52,11 @@ def test_env(spec):
             observation.dtype == ob_space.dtype
         ), f"Step observation dtype: {ob.dtype}, expected: {ob_space.dtype}"
 
-    for mode in env.metadata.get("render.modes", []):
+    for mode in env.metadata.get("render_modes", []):
         env.render(mode=mode)
 
     # Make sure we can render the environment after close.
-    for mode in env.metadata.get("render.modes", []):
+    for mode in env.metadata.get("render_modes", []):
         env.render(mode=mode)
 
     env.close()
@@ -78,11 +81,8 @@ def test_reset_info(spec):
 
 # Run a longer rollout on some environments
 def test_random_rollout():
-    for env in [envs.make("CartPole-v0"), envs.make("FrozenLake-v1")]:
-
-        def agent(ob):
-            return env.action_space.sample()
-
+    for env in [envs.make("CartPole-v1"), envs.make("FrozenLake-v1")]:
+        agent = lambda ob: env.action_space.sample()
         ob = env.reset()
         for _ in range(10):
             assert env.observation_space.contains(ob)
