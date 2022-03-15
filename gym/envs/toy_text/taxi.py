@@ -18,7 +18,7 @@ MAP = [
     "|Y| : |B: |",
     "+---------+",
 ]
-WINDOW_SIZE = (550, 400)
+WINDOW_SIZE = (550, 350)
 
 
 class TaxiEnv(Env):
