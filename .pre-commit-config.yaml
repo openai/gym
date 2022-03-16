@@ -29,4 +29,5 @@ repos:
     rev: v2.31.0
     hooks:
       - id: pyupgrade
-        args: ["--py37-plus"]
+        # TODO: remove `--keep-runtime-typing` option
+        args: ["--py37-plus", "--keep-runtime-typing"]
