@@ -184,6 +184,7 @@ class Continuous_MountainCarEnv(gym.Env):
         carheight = 20
         if self.screen is None:
             pygame.init()
+            pygame.display.init()
             self.screen = pygame.display.set_mode((screen_width, screen_height))
         if self.clock is None:
             self.clock = pygame.time.Clock()
@@ -248,6 +249,7 @@ class Continuous_MountainCarEnv(gym.Env):
         self.surf = pygame.transform.flip(self.surf, False, True)
         self.screen.blit(self.surf, (0, 0))
         if mode == "human":
+            pygame.event.pump()
             self.clock.tick(self.metadata["render_fps"])
             pygame.display.flip()
 
@@ -260,5 +262,6 @@ class Continuous_MountainCarEnv(gym.Env):
 
     def close(self):
         if self.screen is not None:
+            pygame.display.quit()
             pygame.quit()
             self.isopen = False

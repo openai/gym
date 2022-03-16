@@ -41,7 +41,7 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
         self,
         spaces: dict[str, Space] | None = None,
         seed: dict | int | None = None,
-        **spaces_kwargs: Space
+        **spaces_kwargs: Space,
     ):
         assert (spaces is None) or (
             not spaces_kwargs

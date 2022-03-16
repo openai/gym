@@ -178,6 +178,7 @@ class BlackjackEnv(gym.Env):
         if not hasattr(self, "screen"):
             if mode == "human":
                 pygame.init()
+                pygame.display.init()
                 self.screen = pygame.display.set_mode((screen_width, screen_height))
             else:
                 pygame.font.init()
@@ -266,9 +267,12 @@ class BlackjackEnv(gym.Env):
                 ),
             )
         if mode == "human":
+            pygame.event.pump()
             pygame.display.update()
             self.clock.tick(self.metadata["render_fps"])
         else:
             return np.transpose(
                 np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
             )
+
+# Pixel art from Mariia Khmelnytska (https://www.123rf.com/photo_104453049_stock-vector-pixel-art-playing-cards-standart-deck-vector-set.html)
