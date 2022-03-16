@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
 import pytest
 
 import gym
-from gym import error, envs
+from gym import envs, error
 from gym.envs import registration
 from gym.envs.classic_control import cartpole
 from gym.envs.registration import EnvSpec, EnvSpecTree

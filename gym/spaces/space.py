@@ -1,19 +1,10 @@
 from __future__ import annotations
 
-from typing import (
-    TypeVar,
-    Generic,
-    Optional,
-    Sequence,
-    Iterable,
-    Mapping,
-    Type,
-)
+from typing import Generic, Iterable, Mapping, Optional, Sequence, Type, TypeVar
 
 import numpy as np
 
 from gym.utils import seeding
-
 
 T_cov = TypeVar("T_cov", covariant=True)
 

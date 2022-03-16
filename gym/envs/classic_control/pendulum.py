@@ -1,7 +1,7 @@
 __credits__ = ["Carlos Luis"]
 
-from typing import Optional
 from os import path
+from typing import Optional
 
 import numpy as np
 import pygame

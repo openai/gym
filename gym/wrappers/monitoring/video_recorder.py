@@ -1,3 +1,5 @@
+import distutils.spawn
+import distutils.version
 import json
 import os
 import os.path
@@ -6,8 +8,6 @@ import subprocess
 import tempfile
 from io import StringIO
 
-import distutils.spawn
-import distutils.version
 import numpy as np
 
 from gym import error, logger

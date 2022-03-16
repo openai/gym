@@ -1,24 +1,24 @@
 from __future__ import annotations
 
-import re
-import sys
+import contextlib
 import copy
 import difflib
 import importlib
 import importlib.util
-import contextlib
+import re
+import sys
 from typing import (
-    Callable,
-    Type,
-    Optional,
-    Union,
-    Tuple,
-    Generator,
-    Sequence,
-    cast,
-    SupportsFloat,
-    overload,
     Any,
+    Callable,
+    Generator,
+    Optional,
+    Sequence,
+    SupportsFloat,
+    Tuple,
+    Type,
+    Union,
+    cast,
+    overload,
 )
 
 if sys.version_info < (3, 10):
@@ -26,15 +26,14 @@ if sys.version_info < (3, 10):
 else:
     import importlib.metadata as metadata
 
-from dataclasses import dataclass, field, InitVar
 from collections import defaultdict
 from collections.abc import MutableMapping
+from dataclasses import InitVar, dataclass, field
 
 import numpy as np
 
-from gym import error, logger, Env
+from gym import Env, error, logger
 from gym.envs.__relocated__ import internal_env_relocation_map
-
 
 if sys.version_info >= (3, 8):
     from typing import Literal
@@ -670,9 +669,9 @@ def make(id: Literal[
 # ----------------------------------------
 
 @overload
-def make(id: str, **kwargs) -> "Env": ...
+def make(id: str, **kwargs) -> Env: ...
 # fmt: on
-def make(id: str, **kwargs) -> "Env":
+def make(id: str, **kwargs) -> Env:
     return registry.make(id, **kwargs)
 
 

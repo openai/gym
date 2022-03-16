@@ -3,8 +3,8 @@ from typing import Optional
 
 import numpy as np
 import pygame
+from numpy import cos, pi, sin
 from pygame import gfxdraw
-from numpy import sin, cos, pi
 
 from gym import core, spaces
 from gym.utils import seeding

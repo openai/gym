@@ -1,12 +1,12 @@
 """Tests for the pixel observation wrapper."""
 from typing import Optional
 
-import pytest
 import numpy as np
+import pytest
 
 import gym
 from gym import spaces
-from gym.wrappers.pixel_observation import PixelObservationWrapper, STATE_KEY
+from gym.wrappers.pixel_observation import STATE_KEY, PixelObservationWrapper
 
 
 class FakeEnvironment(gym.Env):

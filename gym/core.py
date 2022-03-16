@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import TypeVar, Generic, Tuple, Union, Optional, SupportsFloat
+from typing import Generic, Optional, SupportsFloat, Tuple, TypeVar, Union
 
 import gym
 from gym import spaces
-from gym.utils import seeding
 from gym.logger import deprecation
+from gym.utils import seeding
 from gym.utils.seeding import RandomNumberGenerator
 
 ObsType = TypeVar("ObsType")

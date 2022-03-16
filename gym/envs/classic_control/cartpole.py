@@ -11,7 +11,7 @@ import pygame
 from pygame import gfxdraw
 
 import gym
-from gym import spaces, logger
+from gym import logger, spaces
 from gym.utils import seeding
 
 
