@@ -18,20 +18,43 @@ class CliffWalkingEnv(Env):
     This is a simple implementation of the Gridworld Cliff
     reinforcement learning task.
 
-    Adapted from Example 6.6 (page 106) from Reinforcement Learning: An Introduction
-    by Sutton and Barto:
-    http://incompleteideas.net/book/bookdraft2018jan1.pdf
+    Adapted from Example 6.6 (page 106) from [Reinforcement Learning: An Introduction
+    by Sutton and Barto](http://incompleteideas.net/book/bookdraft2018jan1.pdf).
 
     With inspiration from:
     https://github.com/dennybritz/reinforcement-learning/blob/master/lib/envs/cliff_walking.py
 
+    ### Description
     The board is a 4x12 matrix, with (using NumPy matrix indexing):
-        [3, 0] as the start at bottom-left
-        [3, 11] as the goal at bottom-right
-        [3, 1..10] as the cliff at bottom-center
+    - [3, 0] as the start at bottom-left
+    - [3, 11] as the goal at bottom-right
+    - [3, 1..10] as the cliff at bottom-center
 
-    Each time step incurs -1 reward, and stepping into the cliff incurs -100 reward
-    and a reset to the start. An episode terminates when the agent reaches the goal.
+    If the agent steps on the cliff it returns to the start.
+    An episode terminates when the agent reaches the goal.
+
+    ### Actions
+    There are 4 discrete deterministic actions:
+    - 0: move up
+    - 1: move right
+    - 2: move down
+    - 3: move left
+
+    ### Observations
+    There are 3x12 + 1 possible states. In fact, the agent cannot be at the cliff, nor at the goal (as this results the end of episode). They remain all the positions of the first 3 rows plus the bottom-left cell.
+    The observation is simply the current position encoded as [flattened index](https://numpy.org/doc/stable/reference/generated/numpy.unravel_index.html).
+
+    ### Reward
+    Each time step incurs -1 reward, and stepping into the cliff incurs -100 reward.
+
+    ### Arguments
+
+    ```
+    gym.make('CliffWalking-v0')
+    ```
+
+    ### Version History
+    - v0: Initial version release
     """
 
     metadata = {"render_modes": ["human", "ansi"], "render_fps": 4}
@@ -44,7 +67,7 @@ class CliffWalkingEnv(Env):
         self.nA = 4
 
         # Cliff Location
-        self._cliff = np.zeros(self.shape, dtype=np.bool)
+        self._cliff = np.zeros(self.shape, dtype=bool)
         self._cliff[3, 1:-1] = True
 
         # Calculate transition probabilities and rewards

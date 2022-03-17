@@ -12,6 +12,9 @@ from gym.utils.env_checker import check_env
 # This runs a smoketest on each official registered env. We may want
 # to try also running environments which are not officially registered
 # envs.
+@pytest.mark.filterwarnings(
+    "ignore:.*We recommend you to use a symmetric and normalized Box action space.*"
+)
 @pytest.mark.parametrize("spec", spec_list)
 def test_env(spec):
     # Capture warnings
@@ -82,7 +85,7 @@ def test_reset_info(spec):
 
 # Run a longer rollout on some environments
 def test_random_rollout():
-    for env in [envs.make("CartPole-v0"), envs.make("FrozenLake-v1")]:
+    for env in [envs.make("CartPole-v1"), envs.make("FrozenLake-v1")]:
         agent = lambda ob: env.action_space.sample()
         ob = env.reset()
         for _ in range(10):

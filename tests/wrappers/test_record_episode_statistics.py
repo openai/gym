@@ -6,7 +6,7 @@ import gym
 from gym.wrappers import RecordEpisodeStatistics
 
 
-@pytest.mark.parametrize("env_id", ["CartPole-v0", "Pendulum-v1"])
+@pytest.mark.parametrize("env_id", ["CartPole-v1", "Pendulum-v1"])
 @pytest.mark.parametrize("deque_size", [2, 5])
 def test_record_episode_statistics(env_id, deque_size):
     env = gym.make(env_id)
@@ -43,7 +43,7 @@ def test_record_episode_statistics_reset_info():
 )
 def test_record_episode_statistics_with_vectorenv(num_envs, asynchronous):
     envs = gym.vector.make(
-        "CartPole-v0", render_mode=None, num_envs=num_envs, asynchronous=asynchronous
+        "CartPole-v1", render_mode=None, num_envs=num_envs, asynchronous=asynchronous
     )
     envs = RecordEpisodeStatistics(envs)
     max_episode_step = (

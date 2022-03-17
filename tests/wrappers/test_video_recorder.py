@@ -2,6 +2,8 @@ import gc
 import os
 import time
 
+import pytest
+
 import gym
 from gym.wrappers.monitoring.video_recorder import VideoRecorder
 
@@ -88,6 +90,7 @@ def test_record_unrecordable_method():
     rec.close()
 
 
+@pytest.mark.filterwarnings("ignore:.*Env returned None on render.*")
 def test_record_breaking_render_method():
     env = BrokenRecordableEnv()
     rec = VideoRecorder(env)
