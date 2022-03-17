@@ -109,7 +109,7 @@ class VideoRecorder:
             "video.frames_per_second", self.frames_per_sec
         )
         self.backward_compatible_output_frames_per_sec = env.metadata.get(
-            "video.output_frames_per_second", self.frames_per_sec
+            "video.output_frames_per_second", self.output_frames_per_sec
         )
         if self.frames_per_sec != self.backward_compatible_frames_per_sec:
             logger.deprecation(
