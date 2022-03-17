@@ -106,7 +106,7 @@ class VideoRecorder:
 
         # backward-compatibility mode:
         self.backward_compatible_frames_per_sec = env.metadata.get(
-            "video.frames_per_second", 30
+            "video.frames_per_second", self.frames_per_sec
         )
         self.backward_compatible_output_frames_per_sec = env.metadata.get(
             "video.output_frames_per_second", self.frames_per_sec
