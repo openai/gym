@@ -105,6 +105,7 @@ def test_batch_space_custom_space(space, expected_batch_space_4):
     assert batch_space_4 == expected_batch_space_4
 
 
+@pytest.mark.filterwarnings("ignore:.*Casting input x to numpy array.*")
 @pytest.mark.parametrize(
     "space,batch_space",
     list(zip(spaces, expected_batch_spaces_4)),
@@ -118,6 +119,7 @@ def test_iterate(space, batch_space):
     assert i == 3
 
 
+@pytest.mark.filterwarnings("ignore:.*Casting input x to numpy array.*")
 @pytest.mark.parametrize(
     "space,batch_space",
     list(zip(custom_spaces, expected_custom_batch_spaces_4)),
