@@ -13,6 +13,12 @@ from tests.envs.spec_list import spec_list
 @pytest.mark.filterwarnings(
     "ignore:.*We recommend you to use a symmetric and normalized Box action space.*"
 )
+@pytest.mark.filterwarnings(
+    "ignore:.*Agent's minimum observation space value is -infinity. This is probably too low.*"
+)
+@pytest.mark.filterwarnings(
+    "ignore:.*Agent's maximum observation space value is infinity. This is probably too high.*"
+)
 @pytest.mark.parametrize("spec", spec_list)
 def test_env(spec):
     # Capture warnings
