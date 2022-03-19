@@ -53,7 +53,7 @@ def _check_nan(env: gym.Env, check_inf: bool = True) -> None:
     """Check for NaN and Inf."""
     for _ in range(10):
         action = env.action_space.sample()
-        observation, reward, _, _ = env.step(action)
+        observation, reward, done, _ = env.step(action)
 
         if np.any(np.isnan(observation)):
             logger.warn("Encountered NaN value in observations.")
@@ -63,6 +63,9 @@ def _check_nan(env: gym.Env, check_inf: bool = True) -> None:
             logger.warn("Encountered inf value in observations.")
         if check_inf and np.any(np.isinf(reward)):
             logger.warn("Encountered inf value in rewards.")
+
+        if done:
+            env.reset()
 
 
 def _check_obs(
@@ -118,7 +121,7 @@ def _check_box_obs(observation_space: spaces.Box, key: str = "") -> None:
         )
     if np.any(np.equal(observation_space.high, np.inf)):
         logger.warn(
-            "Agent's maxmimum observation space value is infinity. This is probably too high"
+            "Agent's maximum observation space value is infinity. This is probably too high."
         )
     if np.any(np.equal(observation_space.low, observation_space.high)):
         logger.warn("Agent's maximum and minimum observation space values are equal")
