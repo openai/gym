@@ -369,6 +369,11 @@ class FrozenLakeEnv(Env):
         with closing(outfile):
             return outfile.getvalue()
 
+    def close(self):
+        if self.window_surface is not None:
+            pygame.display.quit()
+            pygame.quit()
+
 
 # Elf and stool from https://franuka.itch.io/rpg-snow-tileset
 # All other assets by Mel Sawyer http://www.cyaneus.com/
