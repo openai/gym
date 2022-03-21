@@ -255,6 +255,7 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
 
         self.surf = pygame.transform.flip(self.surf, False, True)
         if mode == "human":
+            assert self.screen is not None
             self.screen.blit(self.surf, (0, 0))
             pygame.event.pump()
             self.clock.tick(self.metadata["render_fps"])
