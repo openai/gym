@@ -147,6 +147,7 @@ class LunarLander(gym.Env, EzPickle):
     def __init__(self, continuous: bool = False):
         EzPickle.__init__(self)
         self.screen = None
+        self.last_render_mode = None
         self.clock = None
         self.isopen = True
         self.world = Box2D.b2World()
@@ -445,10 +446,14 @@ class LunarLander(gym.Env, EzPickle):
         return np.array(state, dtype=np.float32), reward, done, {}
 
     def render(self, mode="human"):
-        if self.screen is None:
+        if self.screen is None or self.last_render_mode != mode:
             pygame.init()
             pygame.display.init()
-            self.screen = pygame.display.set_mode((VIEWPORT_W, VIEWPORT_H))
+            self.screen = pygame.display.set_mode(
+                (VIEWPORT_W, VIEWPORT_H),
+                flags=pygame.HIDDEN if mode == "rgb_array" else pygame.SHOWN,
+            )
+            self.last_render_mode = mode
         if self.clock is None:
             self.clock = pygame.time.Clock()
 
