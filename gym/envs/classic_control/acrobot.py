@@ -267,7 +267,7 @@ class AcrobotEnv(core.Env):
         return (dtheta1, dtheta2, ddtheta1, ddtheta2, 0.0)
 
     def render(self, mode="human"):
-        if self.screen is None:
+        if self.screen is None and mode == "human":
             pygame.init()
             pygame.display.init()
             self.screen = pygame.display.set_mode((self.SCREEN_DIM, self.SCREEN_DIM))
@@ -325,15 +325,15 @@ class AcrobotEnv(core.Env):
             )
 
         self.surf = pygame.transform.flip(self.surf, False, True)
-        self.screen.blit(self.surf, (0, 0))
         if mode == "human":
+            self.screen.blit(self.surf, (0, 0))
             pygame.event.pump()
             self.clock.tick(self.metadata["render_fps"])
             pygame.display.flip()
 
         if mode == "rgb_array":
             return np.transpose(
-                np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
+                np.array(pygame.surfarray.pixels3d(self.surf)), axes=(1, 0, 2)
             )
         else:
             return self.isopen

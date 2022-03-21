@@ -158,7 +158,7 @@ class MountainCarEnv(gym.Env):
         scale = screen_width / world_width
         carwidth = 40
         carheight = 20
-        if self.screen is None:
+        if self.screen is None and mode == "human":
             pygame.init()
             pygame.display.init()
             self.screen = pygame.display.set_mode((screen_width, screen_height))
@@ -223,15 +223,15 @@ class MountainCarEnv(gym.Env):
         )
 
         self.surf = pygame.transform.flip(self.surf, False, True)
-        self.screen.blit(self.surf, (0, 0))
         if mode == "human":
+            self.screen.blit(self.surf, (0, 0))
             pygame.event.pump()
             self.clock.tick(self.metadata["render_fps"])
             pygame.display.flip()
 
         if mode == "rgb_array":
             return np.transpose(
-                np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
+                np.array(pygame.surfarray.pixels3d(self.surf)), axes=(1, 0, 2)
             )
         else:
             return self.isopen
