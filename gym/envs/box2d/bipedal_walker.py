@@ -536,7 +536,7 @@ class BipedalWalker(gym.Env, EzPickle):
         return np.array(state, dtype=np.float32), reward, done, {}
 
     def render(self, mode="human"):
-        if self.screen is None:
+        if self.screen is None and mode == "human":
             pygame.init()
             pygame.display.init()
             self.screen = pygame.display.set_mode((VIEWPORT_W, VIEWPORT_H))
@@ -653,15 +653,17 @@ class BipedalWalker(gym.Env, EzPickle):
         )
 
         self.surf = pygame.transform.flip(self.surf, False, True)
-        self.screen.blit(self.surf, (-self.scroll * SCALE, 0))
         if mode == "human":
+            self.screen.blit(self.surf, (-self.scroll * SCALE, 0))
             pygame.event.pump()
             self.clock.tick(self.metadata["render_fps"])
             pygame.display.flip()
 
         if mode == "rgb_array":
+            final_surf = pygame.Surface((VIEWPORT_W, VIEWPORT_H))
+            final_surf.blit(self.surf, (-self.scroll * SCALE, 0))
             return np.transpose(
-                np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
+                np.array(pygame.surfarray.pixels3d(final_surf)), axes=(1, 0, 2)
             )
         else:
             return self.isopen
