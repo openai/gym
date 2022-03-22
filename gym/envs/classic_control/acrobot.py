@@ -2,8 +2,6 @@
 from typing import Optional
 
 import numpy as np
-import pygame
-from pygame import gfxdraw
 from numpy import sin, cos, pi
 
 from gym import core, spaces
@@ -240,15 +238,15 @@ class AcrobotEnv(core.Env):
         dtheta1 = s[2]
         dtheta2 = s[3]
         d1 = (
-            m1 * lc1 ** 2
-            + m2 * (l1 ** 2 + lc2 ** 2 + 2 * l1 * lc2 * cos(theta2))
+            m1 * lc1**2
+            + m2 * (l1**2 + lc2**2 + 2 * l1 * lc2 * cos(theta2))
             + I1
             + I2
         )
-        d2 = m2 * (lc2 ** 2 + l1 * lc2 * cos(theta2)) + I2
+        d2 = m2 * (lc2**2 + l1 * lc2 * cos(theta2)) + I2
         phi2 = m2 * lc2 * g * cos(theta1 + theta2 - pi / 2.0)
         phi1 = (
-            -m2 * l1 * lc2 * dtheta2 ** 2 * sin(theta2)
+            -m2 * l1 * lc2 * dtheta2**2 * sin(theta2)
             - 2 * m2 * l1 * lc2 * dtheta2 * dtheta1 * sin(theta2)
             + (m1 * lc1 + m2 * l1) * g * cos(theta1 - pi / 2)
             + phi2
@@ -256,17 +254,20 @@ class AcrobotEnv(core.Env):
         if self.book_or_nips == "nips":
             # the following line is consistent with the description in the
             # paper
-            ddtheta2 = (a + d2 / d1 * phi1 - phi2) / (m2 * lc2 ** 2 + I2 - d2 ** 2 / d1)
+            ddtheta2 = (a + d2 / d1 * phi1 - phi2) / (m2 * lc2**2 + I2 - d2**2 / d1)
         else:
             # the following line is consistent with the java implementation and the
             # book
             ddtheta2 = (
-                a + d2 / d1 * phi1 - m2 * l1 * lc2 * dtheta1 ** 2 * sin(theta2) - phi2
-            ) / (m2 * lc2 ** 2 + I2 - d2 ** 2 / d1)
+                a + d2 / d1 * phi1 - m2 * l1 * lc2 * dtheta1**2 * sin(theta2) - phi2
+            ) / (m2 * lc2**2 + I2 - d2**2 / d1)
         ddtheta1 = -(d2 * ddtheta2 + phi1) / d1
         return (dtheta1, dtheta2, ddtheta1, ddtheta2, 0.0)
 
     def render(self, mode="human"):
+        import pygame
+        from pygame import gfxdraw
+
         if self.screen is None:
             pygame.init()
             pygame.display.init()
@@ -340,6 +341,8 @@ class AcrobotEnv(core.Env):
 
     def close(self):
         if self.screen is not None:
+            import pygame
+
             pygame.display.quit()
             pygame.quit()
             self.isopen = False

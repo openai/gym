@@ -6,8 +6,6 @@ import math
 from typing import Optional
 
 import numpy as np
-import pygame
-from pygame import gfxdraw
 
 import gym
 from gym import spaces
@@ -151,6 +149,9 @@ class MountainCarEnv(gym.Env):
         return np.sin(3 * xs) * 0.45 + 0.55
 
     def render(self, mode="human"):
+        import pygame
+        from pygame import gfxdraw
+
         screen_width = 600
         screen_height = 400
 
@@ -242,6 +243,8 @@ class MountainCarEnv(gym.Env):
 
     def close(self):
         if self.screen is not None:
+            import pygame
+
             pygame.display.quit()
             pygame.quit()
             self.isopen = False
