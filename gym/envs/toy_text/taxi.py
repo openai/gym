@@ -168,7 +168,10 @@ class TaxiEnv(Env):
 
         # pygame utils
         self.window = None
-        self.cell_size = (WINDOW_SIZE[0] / self.desc.shape[1], WINDOW_SIZE[1] / self.desc.shape[0])
+        self.cell_size = (
+            WINDOW_SIZE[0] / self.desc.shape[1],
+            WINDOW_SIZE[1] / self.desc.shape[0],
+        )
         self.taxi_imgs = None
         self.taxi_orientation = 0
         self.passenger_img = None
@@ -208,7 +211,13 @@ class TaxiEnv(Env):
         self.lastaction = a
         return (int(s), r, d, {"prob": p})
 
-    def reset(self, *, seed: Optional[int] = None, return_info: bool = False, options: Optional[dict] = None):
+    def reset(
+        self,
+        *,
+        seed: Optional[int] = None,
+        return_info: bool = False,
+        options: Optional[dict] = None,
+    ):
         super().reset(seed=seed)
         self.s = categorical_sample(self.initial_state_distrib, self.np_random)
         self.lastaction = None
@@ -227,7 +236,7 @@ class TaxiEnv(Env):
         if self.window is None:
             pygame.init()
             pygame.display.set_caption("Taxi")
-            if mode == 'human':
+            if mode == "human":
                 self.window = pygame.display.set_mode(WINDOW_SIZE)
             else:  # rgb_array
                 self.window = pygame.Surface(WINDOW_SIZE)
@@ -245,14 +254,12 @@ class TaxiEnv(Env):
         if self.passenger_img is None:
             file_name = path.join(path.dirname(__file__), "img/passenger.png")
             self.passenger_img = pygame.transform.scale(
-                pygame.image.load(file_name),
-                self.cell_size
+                pygame.image.load(file_name), self.cell_size
             )
         if self.destination_img is None:
             file_name = path.join(path.dirname(__file__), "img/hotel.png")
             self.destination_img = pygame.transform.scale(
-                pygame.image.load(file_name),
-                self.cell_size
+                pygame.image.load(file_name), self.cell_size
             )
         if self.median_horiz is None:
             file_names = [
@@ -277,8 +284,7 @@ class TaxiEnv(Env):
         if self.background_img is None:
             file_name = path.join(path.dirname(__file__), "img/taxi_background.png")
             self.background_img = pygame.transform.scale(
-                pygame.image.load(file_name),
-                self.cell_size
+                pygame.image.load(file_name), self.cell_size
             )
 
         desc = self.desc
@@ -290,17 +296,21 @@ class TaxiEnv(Env):
             for x in range(0, desc.shape[1]):
                 cell = (x * self.cell_size[0], y * self.cell_size[1])
                 self.window.blit(self.background_img, cell)
-                if desc[y][x] == b'|' and (y == 0 or desc[y - 1][x] != b'|'):
+                if desc[y][x] == b"|" and (y == 0 or desc[y - 1][x] != b"|"):
                     self.window.blit(self.median_vert[0], cell)
-                elif desc[y][x] == b'|' and (y == desc.shape[0] - 1 or desc[y + 1][x] != b'|'):
+                elif desc[y][x] == b"|" and (
+                    y == desc.shape[0] - 1 or desc[y + 1][x] != b"|"
+                ):
                     self.window.blit(self.median_vert[2], cell)
-                elif desc[y][x] == b'|':
+                elif desc[y][x] == b"|":
                     self.window.blit(self.median_vert[1], cell)
-                elif desc[y][x] == b'-' and (x == 0 or desc[y][x - 1] != b'-'):
+                elif desc[y][x] == b"-" and (x == 0 or desc[y][x - 1] != b"-"):
                     self.window.blit(self.median_horiz[0], cell)
-                elif desc[y][x] == b'-' and (x == desc.shape[1] - 1 or desc[y][x + 1] != b'-'):
+                elif desc[y][x] == b"-" and (
+                    x == desc.shape[1] - 1 or desc[y][x + 1] != b"-"
+                ):
                     self.window.blit(self.median_horiz[2], cell)
-                elif desc[y][x] == b'-':
+                elif desc[y][x] == b"-":
                     self.window.blit(self.median_horiz[1], cell)
 
         for cell, color in zip(self.locs, self.locs_colors):
@@ -321,11 +331,17 @@ class TaxiEnv(Env):
         taxi_location = self.get_surf_loc((taxi_row, taxi_col))
 
         if dest_loc[1] <= taxi_location[1]:
-            self.window.blit(self.destination_img, (dest_loc[0], dest_loc[1] - self.cell_size[1] // 2))
+            self.window.blit(
+                self.destination_img,
+                (dest_loc[0], dest_loc[1] - self.cell_size[1] // 2),
+            )
             self.window.blit(self.taxi_imgs[self.taxi_orientation], taxi_location)
         else:  # change blit order for overlapping appearance
             self.window.blit(self.taxi_imgs[self.taxi_orientation], taxi_location)
-            self.window.blit(self.destination_img, (dest_loc[0], dest_loc[1] - self.cell_size[1] // 2))
+            self.window.blit(
+                self.destination_img,
+                (dest_loc[0], dest_loc[1] - self.cell_size[1] // 2),
+            )
 
         if mode == "human":
             pygame.display.update()
@@ -335,8 +351,9 @@ class TaxiEnv(Env):
             )
 
     def get_surf_loc(self, map_loc):
-        return (map_loc[1] * 2 + 1) * self.cell_size[0], \
-               (map_loc[0] + 1) * self.cell_size[1]
+        return (map_loc[1] * 2 + 1) * self.cell_size[0], (
+            map_loc[0] + 1
+        ) * self.cell_size[1]
 
     def _render_text(self):
         desc = self.desc.copy().tolist()
