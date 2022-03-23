@@ -10,10 +10,10 @@ from version import VERSION
 
 # Environment-specific dependencies.
 extras = {
-    "atari": ["ale-py~=0.7.1"],
+    "atari": ["ale-py~=0.7.4"],
     "accept-rom-license": ["autorom[accept-rom-license]~=0.4.2"],
     "box2d": ["box2d-py==2.3.5", "pygame==2.1.0"],
-    "classic_control": ["pyglet>=1.4.0"],
+    "classic_control": ["pygame==2.1.0"],
     "mujoco": ["mujoco_py>=1.50, <2.0"],
     "toy_text": ["pygame==2.1.0", "scipy>=1.4.1"],
     "other": ["lz4>=3.1.0", "opencv-python>=3.0"],
@@ -38,8 +38,8 @@ extras["all"] = list(
 setup(
     name="gym",
     version=VERSION,
-    description="Gym: A universal API for reinforcement learning environments.",
-    url="https://github.com/openai/gym",
+    description="Gym: A universal API for reinforcement learning environments",
+    url="https://www.gymlibrary.ml/",
     author="Gym Community",
     author_email="jkterry@umd.edu",
     license="MIT",
@@ -49,6 +49,7 @@ setup(
         "numpy>=1.18.0",
         "cloudpickle>=1.2.0",
         "importlib_metadata>=4.10.0; python_version < '3.10'",
+        "gym_notices>=0.0.4",
     ],
     extras_require=extras,
     package_data={
@@ -57,6 +58,7 @@ setup(
             "envs/classic_control/assets/*.png",
             "envs/toy_text/font/*.ttf",
             "envs/toy_text/img/*.png",
+            "py.typed",
         ]
     },
     tests_require=["pytest", "mock"],

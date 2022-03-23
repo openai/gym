@@ -119,6 +119,14 @@ class FrameStack(ObservationWrapper):
         return self.observation(), reward, done, info
 
     def reset(self, **kwargs):
-        observation = self.env.reset(**kwargs)
-        [self.frames.append(observation) for _ in range(self.num_stack)]
-        return self.observation()
+        if kwargs.get("return_info", False):
+            obs, info = self.env.reset(**kwargs)
+        else:
+            obs = self.env.reset(**kwargs)
+            info = None  # Unused
+        [self.frames.append(obs) for _ in range(self.num_stack)]
+
+        if kwargs.get("return_info", False):
+            return self.observation(), info
+        else:
+            return self.observation()

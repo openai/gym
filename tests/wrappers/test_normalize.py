@@ -3,6 +3,7 @@ from typing import Optional
 import gym
 import numpy as np
 from numpy.testing import assert_almost_equal
+import pytest
 
 from gym.wrappers.normalize import NormalizeObservation, NormalizeReward
 
@@ -13,7 +14,7 @@ class DummyRewardEnv(gym.Env):
     def __init__(self, return_reward_idx=0):
         self.action_space = gym.spaces.Discrete(2)
         self.observation_space = gym.spaces.Box(
-            low=np.array([-1.0]), high=np.array([1.0])
+            low=np.array([-1.0]), high=np.array([1.0]), dtype=np.float64
         )
         self.returned_rewards = [0, 1, 2, 3, 4]
         self.return_reward_idx = return_reward_idx
@@ -46,10 +47,11 @@ def make_env(return_reward_idx):
     return thunk
 
 
-def test_normalize_observation():
+@pytest.mark.parametrize("return_info", [False, True])
+def test_normalize_observation(return_info: bool):
     env = DummyRewardEnv(return_reward_idx=0)
     env = NormalizeObservation(env)
-    env.reset()
+    env.reset(return_info=return_info)
     env.step(env.action_space.sample())
     assert_almost_equal(env.obs_rms.mean, 0.5, decimal=4)
     env.step(env.action_space.sample())

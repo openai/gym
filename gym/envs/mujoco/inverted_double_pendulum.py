@@ -92,9 +92,7 @@ class InvertedDoublePendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     ### Arguments
 
-    No additional arguments are currently supported (in v2 and lower), but modifications can
-    be made to the XML file in the assets folder (or by changing the path to a modified XML
-    file in another folder)..
+    No additional arguments are currently supported.
 
     ```
     env = gym.make('InvertedDoublePendulum-v2')
@@ -105,7 +103,6 @@ class InvertedDoublePendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     ### Version History
 
-    * v3: support for gym.make kwargs such as xml_file, ctrl_cost_weight, reset_noise_scale etc. rgb rendering comes from tracking camera (so agent does not run away from screen)
     * v2: All continuous control environments now use mujoco_py >= 1.50
     * v1: max_time_steps raised to 1000 for robot based tasks (including inverted pendulum)
     * v0: Initial versions release (1.0.0)

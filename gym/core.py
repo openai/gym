@@ -38,7 +38,7 @@ class Env(Generic[ObsType, ActType]):
     """
 
     # Set this in SOME subclasses
-    metadata = {"render.modes": []}
+    metadata = {"render_modes": []}
     reward_range = (-float("inf"), float("inf"))
     spec = None
 
@@ -56,6 +56,10 @@ class Env(Generic[ObsType, ActType]):
             self._np_random, seed = seeding.np_random()
         return self._np_random
 
+    @np_random.setter
+    def np_random(self, value: RandomNumberGenerator):
+        self._np_random = value
+
     @abstractmethod
     def step(self, action: ActType) -> Tuple[ObsType, float, bool, dict]:
         """Run one timestep of the environment's dynamics. When end of
@@ -71,7 +75,7 @@ class Env(Generic[ObsType, ActType]):
             observation (object): agent's observation of the current environment
             reward (float) : amount of reward returned after previous action
             done (bool): whether the episode has ended, in which case further step() calls will return undefined results
-            info (dict): contains auxiliary diagnostic information (helpful for debugging, and sometimes learning)
+            info (dict): contains auxiliary diagnostic information (helpful for debugging, logging, and sometimes learning)
         """
         raise NotImplementedError
 
@@ -86,11 +90,13 @@ class Env(Generic[ObsType, ActType]):
         """Resets the environment to an initial state and returns an initial
         observation.
 
-        Note that this function should not reset the environment's random
-        number generator(s); random variables in the environment's state should
-        be sampled independently between multiple calls to `reset()`. In other
-        words, each call of `reset()` should yield an environment suitable for
-        a new episode, independent of previous episodes.
+        This method should also reset the environment's random number
+        generator(s) if `seed` is an integer or if the environment has not
+        yet initialized a random number generator. If the environment already
+        has a random number generator and `reset` is called with `seed=None`,
+        the RNG should not be reset.
+        Moreover, `reset` should (in the typical use case) be called with an
+        integer seed right after initialization and then never again.
 
         Returns:
             observation (object): the initial observation.
@@ -105,8 +111,8 @@ class Env(Generic[ObsType, ActType]):
         """Renders the environment.
 
         The set of supported modes varies per environment. (And some
-        environments do not support rendering at all.) By convention,
-        if mode is:
+        third-party environments may not support rendering at all.)
+        By convention, if mode is:
 
         - human: render to the current display or terminal and
           return nothing. Usually for human consumption.
@@ -118,7 +124,7 @@ class Env(Generic[ObsType, ActType]):
           and ANSI escape sequences (e.g. for colors).
 
         Note:
-            Make sure that your class's metadata 'render.modes' key includes
+            Make sure that your class's metadata 'render_modes' key includes
               the list of supported modes. It's recommended to call super()
               in implementations to use the functionality of this method.
 
@@ -128,7 +134,7 @@ class Env(Generic[ObsType, ActType]):
         Example:
 
         class MyEnv(Env):
-            metadata = {'render.modes': ['human', 'rgb_array']}
+            metadata = {'render_modes': ['human', 'rgb_array']}
 
             def render(self, mode='human'):
                 if mode == 'rgb_array':
@@ -298,8 +304,11 @@ class Wrapper(Env[ObsType, ActType]):
 
 class ObservationWrapper(Wrapper):
     def reset(self, **kwargs):
-        observation = self.env.reset(**kwargs)
-        return self.observation(observation)
+        if kwargs.get("return_info", False):
+            obs, info = self.env.reset(**kwargs)
+            return self.observation(obs), info
+        else:
+            return self.observation(self.env.reset(**kwargs))
 
     def step(self, action):
         observation, reward, done, info = self.env.step(action)

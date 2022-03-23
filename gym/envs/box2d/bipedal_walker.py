@@ -97,15 +97,15 @@ class ContactDetector(contactListener):
 class BipedalWalker(gym.Env, EzPickle):
     """
     ### Description
-    This is simple 4-joints walker robot environment.
+    This is a simple 4-joint walker robot environment.
     There are two versions:
     - Normal, with slightly uneven terrain.
-    - Hardcore with ladders, stumps, pitfalls.
+    - Hardcore, with ladders, stumps, pitfalls.
 
-    To solve the game you need to get 300 points in 1600 time steps.
-    To solve the hardcore version you need 300 points in 2000 time steps.
+    To solve the normal version, you need to get 300 points in 1600 time steps.
+    To solve the hardcore version, you need 300 points in 2000 time steps.
 
-    Heuristic is provided for testing, it's also useful to get demonstrations
+    A heuristic is provided for testing. It's also useful to get demonstrations
     to learn from. To run the heuristic:
     ```
     python gym/envs/box2d/bipedal_walker.py
@@ -118,13 +118,13 @@ class BipedalWalker(gym.Env, EzPickle):
     ### Observation Space
     State consists of hull angle speed, angular velocity, horizontal speed,
     vertical speed, position of joints and joints angular speed, legs contact
-    with ground, and 10 lidar rangefinder measurements. There's no coordinates
+    with ground, and 10 lidar rangefinder measurements. There are no coordinates
     in the state vector.
 
     ### Rewards
-    Reward is given for moving forward, total 300+ points up to the far end.
+    Reward is given for moving forward, totaling 300+ points up to the far end.
     If the robot falls, it gets -100. Applying motor torque costs a small
-    amount of points, more optimal agent will get better score.
+    amount of points. A more optimal agent will get a better score.
 
     ### Starting State
     The walker starts standing at the left end of the terrain with the hull
@@ -158,11 +158,12 @@ class BipedalWalker(gym.Env, EzPickle):
 
     """
 
-    metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": FPS}
+    metadata = {"render_modes": ["human", "rgb_array"], "render_fps": FPS}
 
     def __init__(self, hardcore: bool = False):
         EzPickle.__init__(self)
         self.screen = None
+        self.clock = None
         self.isopen = True
 
         self.world = Box2D.b2World()
@@ -535,10 +536,12 @@ class BipedalWalker(gym.Env, EzPickle):
         return np.array(state, dtype=np.float32), reward, done, {}
 
     def render(self, mode="human"):
-
         if self.screen is None:
             pygame.init()
+            pygame.display.init()
             self.screen = pygame.display.set_mode((VIEWPORT_W, VIEWPORT_H))
+        if self.clock is None:
+            self.clock = pygame.time.Clock()
 
         self.surf = pygame.Surface((VIEWPORT_W + self.scroll * SCALE, VIEWPORT_H))
 
@@ -652,6 +655,8 @@ class BipedalWalker(gym.Env, EzPickle):
         self.surf = pygame.transform.flip(self.surf, False, True)
         self.screen.blit(self.surf, (-self.scroll * SCALE, 0))
         if mode == "human":
+            pygame.event.pump()
+            self.clock.tick(self.metadata["render_fps"])
             pygame.display.flip()
 
         if mode == "rgb_array":
@@ -663,6 +668,7 @@ class BipedalWalker(gym.Env, EzPickle):
 
     def close(self):
         if self.screen is not None:
+            pygame.display.quit()
             pygame.quit()
             self.isopen = False
 

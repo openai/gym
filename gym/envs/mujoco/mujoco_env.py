@@ -58,8 +58,8 @@ class MujocoEnv(gym.Env):
         self._viewers = {}
 
         self.metadata = {
-            "render.modes": ["human", "rgb_array", "depth_array"],
-            "video.frames_per_second": int(np.round(1.0 / self.dt)),
+            "render_modes": ["human", "rgb_array", "depth_array"],
+            "render_fps": int(np.round(1.0 / self.dt)),
         }
 
         self.init_qpos = self.sim.data.qpos.ravel().copy()

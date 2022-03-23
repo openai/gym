@@ -248,19 +248,28 @@ def _check_render(
     env: gym.Env, warn: bool = True, headless: bool = False
 ) -> None:  # pragma: no cover
     """
-    Check the declared render modes and the `render()`/`close()`
+    Check the declared render modes/fps and the `render()`/`close()`
     method of the environment.
     :param env: The environment to check
     :param warn: Whether to output additional warnings
     :param headless: Whether to disable render modes
         that require a graphical interface. False by default.
     """
-    render_modes = env.metadata.get("render.modes")
+    render_fps = env.metadata.get("render_fps")
+    if render_fps is None:
+        if warn:
+            logger.warn(
+                "No render fps was declared in the environment "
+                " (env.metadata['render_fps'] is None or not defined), "
+                "rendering may not occur at inconsistent fps"
+            )
+
+    render_modes = env.metadata.get("render_modes")
     if render_modes is None:
         if warn:
             logger.warn(
                 "No render modes was declared in the environment "
-                " (env.metadata['render.modes'] is None or not defined), "
+                " (env.metadata['render_modes'] is None or not defined), "
                 "you may have trouble when calling `.render()`"
             )
 

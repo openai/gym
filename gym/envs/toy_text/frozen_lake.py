@@ -67,9 +67,12 @@ def generate_random_map(size=8, p=0.8):
 
 class FrozenLakeEnv(Env):
     """
-    Frozen lake involves crossing a frozen lake from Start(S) to goal(G) without falling into any holes(H). The agent may not always move in the intended direction due to the slippery nature of the frozen lake.
+    Frozen lake involves crossing a frozen lake from Start(S) to Goal(G) without falling into any Holes(H) by walking over
+    the Frozen(F) lake. The agent may not always move in the intended direction due to the slippery nature of the frozen lake.
 
-    The agent take a 1-element vector for actions.
+
+    ### Action Space
+    The agent takes a 1-element vector for actions.
     The action space is `(dir)`, where `dir` decides direction to move in which can be:
 
     - 0: LEFT
@@ -77,20 +80,24 @@ class FrozenLakeEnv(Env):
     - 2: RIGHT
     - 3: UP
 
-    The observation is a value representing the agents current position as
+    ### Observation Space
+    The observation is a value representing the agent's current position as
+    current_row * nrows + current_col (where both the row and col start at 0).
+    For example, the goal position in the 4x4 map can be calculated as follows: 3 * 4 + 3 = 15.
+    The number of possible observations is dependent on the size of the map.
+    For example, the 4x4 map has 16 possible observations.
 
-        current_row * nrows + current_col
-
-    **Rewards:**
+    ### Rewards
 
     Reward schedule:
     - Reach goal(G): +1
     - Reach hole(H): 0
+    - Reach frozen(F): 0
 
     ### Arguments
 
     ```
-    gym.make('FrozenLake-v0', desc=None,map_name="4x4", is_slippery=True)
+    gym.make('FrozenLake-v1', desc=None,map_name="4x4", is_slippery=True)
     ```
 
     `desc`: Used to specify custom map for frozen lake. For example,
@@ -117,9 +124,6 @@ class FrozenLakeEnv(Env):
             "FFFHFFFG",
         ]
 
-
-
-
     `is_slippery`: True/False. If True will move in intended direction with
     probability of 1/3 else will move in either perpendicular direction with
     equal probability of 1/3 in both directions.
@@ -128,12 +132,13 @@ class FrozenLakeEnv(Env):
         - P(move left)=1/3
         - P(move up)=1/3
         - P(move down)=1/3
-    ### Version History
 
+    ### Version History
+    * v1: Bug fixes to rewards
     * v0: Initial versions release (1.0.0)
     """
 
-    metadata = {"render.modes": ["human", "ansi", "rgb_array"]}
+    metadata = {"render_modes": ["human", "ansi", "rgb_array"], "render_fps": 4}
 
     def __init__(self, desc=None, map_name="4x4", is_slippery=True):
         if desc is None and map_name is None:
@@ -197,6 +202,7 @@ class FrozenLakeEnv(Env):
         # pygame utils
         self.window_size = (min(64 * ncol, 512), min(64 * nrow, 512))
         self.window_surface = None
+        self.clock = None
         self.hole_img = None
         self.cracked_hole_img = None
         self.ice_img = None
@@ -238,11 +244,14 @@ class FrozenLakeEnv(Env):
     def _render_gui(self, desc, mode):
         if self.window_surface is None:
             pygame.init()
+            pygame.display.init()
             pygame.display.set_caption("Frozen Lake")
             if mode == "human":
                 self.window_surface = pygame.display.set_mode(self.window_size)
             else:  # rgb_array
                 self.window_surface = pygame.Surface(self.window_size)
+        if self.clock is None:
+            self.clock = pygame.time.Clock()
         if self.hole_img is None:
             file_name = path.join(path.dirname(__file__), "img/hole.png")
             self.hole_img = pygame.image.load(file_name)
@@ -328,7 +337,9 @@ class FrozenLakeEnv(Env):
 
         self.window_surface.blit(board, board.get_rect())
         if mode == "human":
+            pygame.event.pump()
             pygame.display.update()
+            self.clock.tick(self.metadata["render_fps"])
         else:  # rgb_array
             return np.transpose(
                 np.array(pygame.surfarray.pixels3d(self.window_surface)), axes=(1, 0, 2)
@@ -358,6 +369,11 @@ class FrozenLakeEnv(Env):
         with closing(outfile):
             return outfile.getvalue()
 
+    def close(self):
+        if self.window_surface is not None:
+            pygame.display.quit()
+            pygame.quit()
+
 
 # Elf and stool from https://franuka.itch.io/rpg-snow-tileset
-# All other assets by Mel Sawyer
+# All other assets by Mel Sawyer http://www.cyaneus.com/

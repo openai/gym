@@ -1,9 +1,10 @@
+from collections.abc import Sequence
 from typing import Iterable, List, Optional, Union
 import numpy as np
 from .space import Space
 
 
-class Tuple(Space[tuple]):
+class Tuple(Space[tuple], Sequence):
     """
     A tuple (i.e., product) of simpler spaces
 
