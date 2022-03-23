@@ -106,6 +106,14 @@ class Env(Generic[ObsType, ActType]):
         if seed is not None:
             self._np_random, seed = seeding.np_random(seed)
 
+    def render(self, mode="human"):  # TODO: remove from v1.0
+        deprecation(
+            "Render is deprecated. Specify render_mode at initialization and use collect_render instead."
+            "This method will be removed with Gym 1.0"
+        )
+
+        return self._render(mode=mode)
+
     @abstractmethod
     def collect_render(self) -> Optional[List]:
         """Returns a list of renders for the environment until the current time step.
@@ -210,7 +218,7 @@ class Wrapper(Env[ObsType, ActType]):
         self._metadata: dict | None = None
 
     def __getattr__(self, name):
-        if name.startswith("_"):
+        if name.startswith("_") and name != "_render":  # TODO: remove name != "_render" from v1.0
             raise AttributeError(f"attempted to get missing private attribute '{name}'")
         return getattr(self.env, name)
 
