@@ -262,7 +262,7 @@ class TaxiEnv(Env):
                 self.cell_size
             )
         if self.destination_img is None:
-            file_name = path.join(path.dirname(__file__), "img/destination.png")
+            file_name = path.join(path.dirname(__file__), "img/hotel.png")
             self.destination_img = pygame.transform.scale(
                 pygame.image.load(file_name),
                 self.cell_size
