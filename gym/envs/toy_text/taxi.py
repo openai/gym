@@ -166,6 +166,7 @@ class TaxiEnv(Env):
 
         # pygame utils
         self.window = None
+        self.clock = None
         self.cell_size = (
             WINDOW_SIZE[0] / self.desc.shape[1],
             WINDOW_SIZE[1] / self.desc.shape[0],
@@ -240,6 +241,8 @@ class TaxiEnv(Env):
                 self.window = pygame.display.set_mode(WINDOW_SIZE)
             else:  # rgb_array
                 self.window = pygame.Surface(WINDOW_SIZE)
+        if self.clock is None:
+            self.clock = pygame.time.Clock()
         if self.taxi_imgs is None:
             file_names = [
                 path.join(path.dirname(__file__), "img/cab_front.png"),
@@ -342,6 +345,7 @@ class TaxiEnv(Env):
 
         if mode == "human":
             pygame.display.update()
+            self.clock.tick(self.metadata["render_fps"])
         else:  # rgb_array
             return np.transpose(
                 np.array(pygame.surfarray.pixels3d(self.window)), axes=(1, 0, 2)
