@@ -1,4 +1,3 @@
-import sys
 from contextlib import closing
 from io import StringIO
 from os import path
@@ -7,7 +6,6 @@ from typing import Optional
 import numpy as np
 from gym import Env, spaces, utils
 from gym.envs.toy_text.utils import categorical_sample
-import pygame
 
 MAP = [
     "+---------+",
@@ -234,6 +232,8 @@ class TaxiEnv(Env):
 
     def _render_gui(self, mode):
         if self.window is None:
+            import pygame  # dependency to pygame only if rendering with human
+
             pygame.init()
             pygame.display.set_caption("Taxi")
             if mode == "human":
@@ -288,9 +288,6 @@ class TaxiEnv(Env):
             )
 
         desc = self.desc
-        background = pygame.Surface((WINDOW_SIZE[0], WINDOW_SIZE[1]))
-        background.fill((20, 24, 35))
-        self.window.blit(background, background.get_rect())
 
         for y in range(0, desc.shape[0]):
             for x in range(0, desc.shape[1]):
