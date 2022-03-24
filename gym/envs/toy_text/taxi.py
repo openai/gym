@@ -231,9 +231,9 @@ class TaxiEnv(Env):
             return self._render_gui(mode)
 
     def _render_gui(self, mode):
-        if self.window is None:
-            import pygame  # dependency to pygame only if rendering with human
+        import pygame  # dependency to pygame only if rendering with human
 
+        if self.window is None:
             pygame.init()
             pygame.display.set_caption("Taxi")
             if mode == "human":
