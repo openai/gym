@@ -391,3 +391,9 @@ class TaxiEnv(Env):
 
         with closing(outfile):
             return outfile.getvalue()
+
+    def close(self):
+        if self.window is not None:
+            import pygame
+            pygame.display.quit()
+            pygame.quit()
