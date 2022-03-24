@@ -220,6 +220,7 @@ class TaxiEnv(Env):
         super().reset(seed=seed)
         self.s = categorical_sample(self.initial_state_distrib, self.np_random)
         self.lastaction = None
+        self.taxi_orientation = 0
         if not return_info:
             return int(self.s)
         else:
