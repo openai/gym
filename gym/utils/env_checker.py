@@ -265,7 +265,8 @@ def _check_render(
             )
 
     render_fps = env.metadata.get("render_fps")
-    if render_fps is None and render_modes is not None and "human" in render_modes:
+    # We only require `render_fps` if rendering is actually implemented
+    if render_fps is None and render_modes is not None and len(render_modes) > 0:
         if warn:
             logger.warn(
                 "No render fps was declared in the environment "
