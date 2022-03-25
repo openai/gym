@@ -55,7 +55,7 @@ class HumanRendering(gym.Wrapper):
             return self.env.render(mode=mode, **kwargs)
 
     def close(self):
-        if self.screen is not None:
+        if self.window is not None:
             pygame.display.quit()
             pygame.quit()
         self.env.close()
