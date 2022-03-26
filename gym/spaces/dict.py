@@ -3,7 +3,9 @@ from __future__ import annotations
 from collections import OrderedDict
 from collections.abc import Mapping, Sequence
 from typing import Dict as TypingDict
+
 import numpy as np
+
 from .space import Space
 
 

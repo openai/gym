@@ -1,7 +1,7 @@
-import pytest
 from typing import Optional
 
 import numpy as np
+import pytest
 
 import gym
 from gym.wrappers import AutoResetWrapper

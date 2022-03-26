@@ -1,6 +1,6 @@
+import itertools
 import os.path
 import sys
-import itertools
 
 from setuptools import find_packages, setup
 
@@ -20,7 +20,7 @@ extras = {
 }
 
 # Meta dependency groups.
-nomujoco_blacklist = set(["mujoco", "accept-rom-license", "atari"])
+nomujoco_blacklist = {"mujoco", "accept-rom-license", "atari"}
 nomujoco_groups = set(extras.keys()) - nomujoco_blacklist
 
 extras["nomujoco"] = list(
@@ -28,7 +28,7 @@ extras["nomujoco"] = list(
 )
 
 
-all_blacklist = set(["accept-rom-license"])
+all_blacklist = {"accept-rom-license"}
 all_groups = set(extras.keys()) - all_blacklist
 
 extras["all"] = list(

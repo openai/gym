@@ -10,13 +10,13 @@ Original Author: J K Terry
 These projects are covered by the MIT License.
 """
 
-from typing import Union, Optional
 import inspect
+from typing import Optional, Union
+
+import numpy as np
 
 import gym
-import numpy as np
-from gym import logger
-from gym import spaces
+from gym import logger, spaces
 
 
 def _is_numpy_array_space(space: spaces.Space) -> bool:

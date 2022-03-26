@@ -1,7 +1,7 @@
 import hashlib
-from typing import Optional, List, Tuple, Union, Any
 import os
 import struct
+from typing import Any, List, Optional, Tuple, Union
 
 import numpy as np
 from numpy.random import Generator

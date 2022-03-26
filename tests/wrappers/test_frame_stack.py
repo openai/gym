@@ -3,6 +3,7 @@ import pytest
 pytest.importorskip("gym.envs.atari")
 
 import numpy as np
+
 import gym
 from gym.wrappers import FrameStack
 
