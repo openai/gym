@@ -264,7 +264,8 @@ class TaxiEnv(Env):
             file_name = path.join(path.dirname(__file__), "img/hotel.png")
             self.destination_img = pygame.transform.scale(
                 pygame.image.load(file_name), self.cell_size
-            )
+            ).convert_alpha()
+            self.destination_img.set_alpha(170)
         if self.median_horiz is None:
             file_names = [
                 path.join(path.dirname(__file__), "img/gridworld_median_left.png"),
