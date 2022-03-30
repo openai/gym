@@ -225,7 +225,7 @@ class Wrapper(Env[ObsType, ActType]):
 
     def __getattr__(self, name):
         if name.startswith("_"):
-            raise AttributeError(f"attempted to get missing private attribute '{name}'")
+            raise AttributeError(f"accessing private attribute '{name}' is prohibited")
         return getattr(self.env, name)
 
     @property
