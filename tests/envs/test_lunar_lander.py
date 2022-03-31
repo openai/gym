@@ -2,10 +2,8 @@ import pytest
 
 try:
     import Box2D
-    from gym.envs.box2d.lunar_lander import (
-        LunarLander,
-        demo_heuristic_lander,
-    )
+
+    from gym.envs.box2d.lunar_lander import LunarLander, demo_heuristic_lander
 except ImportError:
     Box2D = None
 
