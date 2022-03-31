@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-from typing import Tuple, SupportsFloat, Union, Type, Optional, Sequence
+from typing import Optional, Sequence, SupportsFloat, Tuple, Type, Union
 
 import numpy as np
 
-from .space import Space
 from gym import logger
+
+from .space import Space
 
 
 def _short_repr(arr: np.ndarray) -> str:

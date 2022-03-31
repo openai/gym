@@ -1,27 +1,25 @@
 __credits__ = ["Andrea PIERRÉ"]
 
-import sys
 import math
+import sys
 from typing import Optional
 
+import Box2D
 import numpy as np
 import pygame
-from pygame import gfxdraw
-
-import Box2D
 from Box2D.b2 import (
-    edgeShape,
     circleShape,
+    contactListener,
+    edgeShape,
     fixtureDef,
     polygonShape,
     revoluteJointDef,
-    contactListener,
 )
+from pygame import gfxdraw
 
 import gym
 from gym import error, spaces
-from gym.utils import colorize, seeding, EzPickle
-
+from gym.utils import EzPickle, colorize, seeding
 
 FPS = 50
 SCALE = 30.0  # affects how fast-paced the game is, forces should be adjusted as well
@@ -582,7 +580,7 @@ class BipedalWalker(gym.Env, EzPickle):
                 continue
             scaled_poly = []
             for coord in poly:
-                scaled_poly.append(([coord[0] * SCALE, coord[1] * SCALE]))
+                scaled_poly.append([coord[0] * SCALE, coord[1] * SCALE])
             pygame.draw.polygon(self.surf, color=color, points=scaled_poly)
             gfxdraw.aapolygon(self.surf, scaled_poly, color)
 

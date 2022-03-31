@@ -1,22 +1,20 @@
-import pytest
-import numpy as np
-
 import multiprocessing as mp
-from multiprocessing.sharedctypes import SynchronizedArray
-from multiprocessing import Array, Process
 from collections import OrderedDict
+from multiprocessing import Array, Process
+from multiprocessing.sharedctypes import SynchronizedArray
 
-from gym.spaces import Tuple, Dict
+import numpy as np
+import pytest
+
 from gym.error import CustomSpaceError
-from gym.vector.utils.spaces import _BaseGymSpaces
-from tests.vector.utils import spaces, custom_spaces
-
+from gym.spaces import Dict, Tuple
 from gym.vector.utils.shared_memory import (
     create_shared_memory,
     read_from_shared_memory,
     write_to_shared_memory,
 )
-
+from gym.vector.utils.spaces import _BaseGymSpaces
+from tests.vector.utils import custom_spaces, spaces
 
 expected_types = [
     Array("d", 1),

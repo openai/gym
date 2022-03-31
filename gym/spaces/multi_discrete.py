@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+
 import numpy as np
+
 from gym import logger
-from .space import Space
+
 from .discrete import Discrete
+from .space import Space
 
 
 class MultiDiscrete(Space[np.ndarray]):

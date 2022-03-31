@@ -1,31 +1,31 @@
-from typing import Optional, Union, List
+import multiprocessing as mp
+import sys
+import time
+from copy import deepcopy
+from enum import Enum
+from typing import List, Optional, Union
 
 import numpy as np
-import multiprocessing as mp
-import time
-import sys
-from enum import Enum
-from copy import deepcopy
 
 from gym import logger
-from gym.logger import warn
-from gym.vector.vector_env import VectorEnv
 from gym.error import (
     AlreadyPendingCallError,
-    NoAsyncCallError,
     ClosedEnvironmentError,
     CustomSpaceError,
+    NoAsyncCallError,
 )
+from gym.logger import warn
 from gym.vector.utils import (
-    create_shared_memory,
-    create_empty_array,
-    write_to_shared_memory,
-    read_from_shared_memory,
-    concatenate,
-    iterate,
     CloudpickleWrapper,
     clear_mpi_env_vars,
+    concatenate,
+    create_empty_array,
+    create_shared_memory,
+    iterate,
+    read_from_shared_memory,
+    write_to_shared_memory,
 )
+from gym.vector.vector_env import VectorEnv
 
 __all__ = ["AsyncVectorEnv"]
 
