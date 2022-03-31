@@ -255,15 +255,6 @@ def _check_render(
     :param headless: Whether to disable render modes
         that require a graphical interface. False by default.
     """
-    render_fps = env.metadata.get("render_fps")
-    if render_fps is None:
-        if warn:
-            logger.warn(
-                "No render fps was declared in the environment "
-                " (env.metadata['render_fps'] is None or not defined), "
-                "rendering may not occur at inconsistent fps"
-            )
-
     render_modes = env.metadata.get("render_modes")
     if render_modes is None:
         if warn:
@@ -271,6 +262,16 @@ def _check_render(
                 "No render modes was declared in the environment "
                 " (env.metadata['render_modes'] is None or not defined), "
                 "you may have trouble when calling `.render()`"
+            )
+
+    render_fps = env.metadata.get("render_fps")
+    # We only require `render_fps` if rendering is actually implemented
+    if render_fps is None and render_modes is not None and len(render_modes) > 0:
+        if warn:
+            logger.warn(
+                "No render fps was declared in the environment "
+                " (env.metadata['render_fps'] is None or not defined), "
+                "rendering may occur at inconsistent fps"
             )
 
     else:
@@ -316,6 +317,30 @@ def _check_reset_seed(env: gym.Env, seed: Optional[int] = None) -> None:
             "The default seed argument in reset should be `None`, "
             "otherwise the environment will by default always be deterministic"
         )
+
+
+def _check_reset_info(env: gym.Env) -> None:
+    signature = inspect.signature(env.reset)
+    assert (
+        "return_info" in signature.parameters or "kwargs" in signature.parameters
+    ), "The `reset` method does not provide the `return_info` keyword argument"
+
+    try:
+        result = env.reset(return_info=True)
+    except TypeError as e:
+        raise AssertionError(
+            "The environment cannot be reset with `return_info=True`, even though `return_info` or `kwargs` "
+            "appear in the signature. This should never happen, please report this issue. "
+            "The error was: " + str(e)
+        )
+    assert (
+        len(result) == 2
+    ), "Calling the reset method with `return_info=True` did not return a 2-tuple"
+
+    obs, info = result
+    assert isinstance(
+        info, dict
+    ), "The second element returned by `env.reset(return_info=True)` was not a dictionary"
 
 
 def _check_reset_options(env: gym.Env) -> None:
@@ -397,3 +422,4 @@ def check_env(env: gym.Env, warn: bool = True, skip_render_check: bool = True) -
     _check_reset_seed(env)
     _check_reset_seed(env, seed=0)
     _check_reset_options(env)
+    _check_reset_info(env)
