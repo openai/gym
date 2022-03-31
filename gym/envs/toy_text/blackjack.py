@@ -2,7 +2,6 @@ import os
 from typing import Optional
 
 import numpy as np
-import pygame
 
 import gym
 from gym import spaces
@@ -166,6 +165,8 @@ class BlackjackEnv(gym.Env):
             return self._get_obs(), {}
 
     def render(self, mode="human"):
+        import pygame
+
         player_sum, dealer_card_value, usable_ace = self._get_obs()
         screen_width, screen_height = 600, 500
         card_img_height = screen_height // 3
@@ -277,6 +278,8 @@ class BlackjackEnv(gym.Env):
 
     def close(self):
         if not hasattr(self, "screen"):
+            import pygame
+
             pygame.display.quit()
             pygame.quit()
 

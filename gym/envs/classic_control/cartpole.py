@@ -7,8 +7,6 @@ import math
 from typing import Optional, Union
 
 import numpy as np
-import pygame
-from pygame import gfxdraw
 
 import gym
 from gym import logger, spaces
@@ -187,6 +185,9 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
             return np.array(self.state, dtype=np.float32), {}
 
     def render(self, mode="human"):
+        import pygame
+        from pygame import gfxdraw
+
         screen_width = 600
         screen_height = 400
 
@@ -269,6 +270,8 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
 
     def close(self):
         if self.screen is not None:
+            import pygame
+
             pygame.display.quit()
             pygame.quit()
             self.isopen = False

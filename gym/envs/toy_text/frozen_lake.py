@@ -2,10 +2,7 @@ from contextlib import closing
 from io import StringIO
 from os import path
 from typing import Optional
-
 import numpy as np
-import pygame
-from pygame.constants import SRCALPHA
 
 from gym import Env, spaces, utils
 from gym.envs.toy_text.utils import categorical_sample
@@ -243,6 +240,9 @@ class FrozenLakeEnv(Env):
             return self._render_gui(desc, mode)
 
     def _render_gui(self, desc, mode):
+        import pygame
+        from pygame.constants import SRCALPHA
+
         if self.window_surface is None:
             pygame.init()
             pygame.display.init()
@@ -372,6 +372,8 @@ class FrozenLakeEnv(Env):
 
     def close(self):
         if self.window_surface is not None:
+            import pygame
+
             pygame.display.quit()
             pygame.quit()
 
