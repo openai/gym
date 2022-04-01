@@ -6,7 +6,6 @@ from typing import Optional
 
 import Box2D
 import numpy as np
-import pygame
 from Box2D.b2 import (
     circleShape,
     contactListener,
@@ -15,7 +14,6 @@ from Box2D.b2 import (
     polygonShape,
     revoluteJointDef,
 )
-from pygame import gfxdraw
 
 import gym
 from gym import error, spaces
@@ -534,6 +532,9 @@ class BipedalWalker(gym.Env, EzPickle):
         return np.array(state, dtype=np.float32), reward, done, {}
 
     def render(self, mode="human"):
+        import pygame
+        from pygame import gfxdraw
+
         if self.screen is None:
             pygame.init()
             pygame.display.init()
@@ -666,6 +667,8 @@ class BipedalWalker(gym.Env, EzPickle):
 
     def close(self):
         if self.screen is not None:
+            import pygame
+
             pygame.display.quit()
             pygame.quit()
             self.isopen = False
