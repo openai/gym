@@ -2,7 +2,6 @@ import os
 from typing import Optional
 
 import numpy as np
-import pygame
 
 import gym
 from gym import spaces
@@ -166,6 +165,8 @@ class BlackjackEnv(gym.Env):
             return self._get_obs(), {}
 
     def render(self, mode="human"):
+        import pygame
+
         player_sum, dealer_card_value, usable_ace = self._get_obs()
         screen_width, screen_height = 600, 500
         card_img_height = screen_height // 3
@@ -176,8 +177,8 @@ class BlackjackEnv(gym.Env):
         white = (255, 255, 255)
 
         if not hasattr(self, "screen"):
+            pygame.init()
             if mode == "human":
-                pygame.init()
                 pygame.display.init()
                 self.screen = pygame.display.set_mode((screen_width, screen_height))
             else:
@@ -274,6 +275,13 @@ class BlackjackEnv(gym.Env):
             return np.transpose(
                 np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
             )
+
+    def close(self):
+        if not hasattr(self, "screen"):
+            import pygame
+
+            pygame.display.quit()
+            pygame.quit()
 
 
 # Pixel art from Mariia Khmelnytska (https://www.123rf.com/photo_104453049_stock-vector-pixel-art-playing-cards-standart-deck-vector-set.html)

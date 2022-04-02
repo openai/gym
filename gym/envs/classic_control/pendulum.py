@@ -4,8 +4,6 @@ from os import path
 from typing import Optional
 
 import numpy as np
-import pygame
-from pygame import gfxdraw
 
 import gym
 from gym import spaces
@@ -143,6 +141,9 @@ class PendulumEnv(gym.Env):
         return np.array([np.cos(theta), np.sin(theta), thetadot], dtype=np.float32)
 
     def render(self, mode="human"):
+        import pygame
+        from pygame import gfxdraw
+
         if self.screen is None:
             pygame.init()
             pygame.display.init()
@@ -220,6 +221,8 @@ class PendulumEnv(gym.Env):
 
     def close(self):
         if self.screen is not None:
+            import pygame
+
             pygame.display.quit()
             pygame.quit()
             self.isopen = False

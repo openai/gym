@@ -603,10 +603,10 @@ class CarRacing(gym.Env, EzPickle):
         )
 
     def close(self):
-        pygame.quit()
         if self.screen is not None:
             pygame.display.quit()
             self.isopen = False
+        pygame.quit()
 
 
 if __name__ == "__main__":

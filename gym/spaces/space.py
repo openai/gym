@@ -30,8 +30,6 @@ class Space(Generic[T_cov]):
         dtype: Optional[Type | str] = None,
         seed: Optional[int] = None,
     ):
-        import numpy as np  # noqa ## takes about 300-400ms to import, so we load lazily
-
         self._shape = None if shape is None else tuple(shape)
         self.dtype = None if dtype is None else np.dtype(dtype)
         self._np_random = None

@@ -2,9 +2,7 @@
 from typing import Optional
 
 import numpy as np
-import pygame
 from numpy import cos, pi, sin
-from pygame import gfxdraw
 
 from gym import core, spaces
 from gym.utils import seeding
@@ -267,6 +265,9 @@ class AcrobotEnv(core.Env):
         return (dtheta1, dtheta2, ddtheta1, ddtheta2, 0.0)
 
     def render(self, mode="human"):
+        import pygame
+        from pygame import gfxdraw
+
         if self.screen is None:
             pygame.init()
             pygame.display.init()
@@ -340,6 +341,8 @@ class AcrobotEnv(core.Env):
 
     def close(self):
         if self.screen is not None:
+            import pygame
+
             pygame.display.quit()
             pygame.quit()
             self.isopen = False
