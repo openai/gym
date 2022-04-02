@@ -3,12 +3,12 @@ import pickle
 import pytest
 
 from gym import envs
-from tests.envs.spec_list import SKIP_MUJOCO_WARNING_MESSAGE, skip_mujoco
+from tests.envs.spec_list import SKIP_MUJOCO_V3_WARNING_MESSAGE, skip_mujoco_v3
 
 ENVIRONMENT_IDS = ("HalfCheetah-v2",)
 
 
-@pytest.mark.skipif(skip_mujoco, reason=SKIP_MUJOCO_WARNING_MESSAGE)
+@pytest.mark.skipif(skip_mujoco_v3, reason=SKIP_MUJOCO_V3_WARNING_MESSAGE)
 @pytest.mark.parametrize("environment_id", ENVIRONMENT_IDS)
 def test_serialize_deserialize(environment_id):
     env = envs.make(environment_id)
