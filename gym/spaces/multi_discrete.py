@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+from typing import Optional
 
 import numpy as np
 
@@ -31,7 +32,12 @@ class MultiDiscrete(Space[np.ndarray]):
 
     """
 
-    def __init__(self, nvec: list[int], dtype=np.int64, seed=None):
+    def __init__(
+        self,
+        nvec: list[int] | np.ndarray,
+        dtype=np.int64,
+        seed: Optional[int | np.ndarray] = None,
+    ):
         """
         nvec: vector of counts of each categorical variable
         """
