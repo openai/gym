@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from gym.spaces import Box, Dict, MultiDiscrete, Tuple
+from gym.spaces import Box, Dict, Discrete, MultiDiscrete, Tuple
 from gym.vector.utils.spaces import batch_space, iterate
 from tests.vector.utils import CustomSpace, custom_spaces, spaces
 
@@ -93,6 +93,17 @@ expected_custom_batch_spaces_4 = [
 def test_batch_space(space, expected_batch_space_4):
     batch_space_4 = batch_space(space, n=4)
     assert batch_space_4 == expected_batch_space_4
+
+
+def test_batch_space_seed():
+    for space in [
+        Box(0, 10, seed=123),
+        Discrete(5, seed=123),
+        MultiDiscrete([5, 3], seed=123),
+        Tuple([Discrete(5), Discrete(3)], seed=123),
+        Dict({"space-1": Discrete(5), "space-2": Discrete(10)}, seed=123),
+    ]:
+        assert space.np_random is batch_space(space).np_random
 
 
 @pytest.mark.parametrize(
