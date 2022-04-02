@@ -3,6 +3,7 @@ from typing import Iterable, List, Optional, Union
 
 import numpy as np
 
+from ..utils import seeding
 from .space import Space
 
 
@@ -15,7 +16,9 @@ class Tuple(Space[tuple], Sequence):
     """
 
     def __init__(
-        self, spaces: Iterable[Space], seed: Optional[Union[int, List[int]]] = None
+        self,
+        spaces: Iterable[Space],
+        seed: Optional[Union[int, seeding.RandomNumberGenerator]] = None,
     ):
         spaces = tuple(spaces)
         self.spaces = spaces
