@@ -118,6 +118,7 @@ class RecordVideo(gym.Wrapper):
         self.recorded_frames = 1
 
     def close(self):
+        super().close()
         self.close_video_recorder()
 
     def __del__(self):
