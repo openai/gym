@@ -98,12 +98,27 @@ def test_batch_space(space, expected_batch_space_4):
 def test_batch_space_seed():
     for space in [
         Box(0, 10, seed=123),
-        Discrete(5, seed=123),
-        MultiDiscrete([5, 3], seed=123),
-        Tuple([Discrete(5), Discrete(3)], seed=123),
-        Dict({"space-1": Discrete(5), "space-2": Discrete(10)}, seed=123),
+        Tuple([Box(0, 5, seed=123), Box(0, 3, seed=123)], seed=123),
+        Dict(
+            {"space-1": Box(0, 5, seed=123), "space-2": Box(0, 10, seed=123)}, seed=123
+        ),
     ]:
-        assert space.np_random is batch_space(space).np_random
+        batched_space = batch_space(space)
+        assert space.np_random == batched_space.np_random
+        for _ in range(100):
+            assert np.all(space.sample() == batched_space.sample())
+
+    space = MultiDiscrete([5, 3], seed=123)
+    batched_space = batch_space(space)
+    assert space.np_random == batched_space.np_random
+    # As type(space) == MultiDiscrete and type(batched_space) == Box
+    #   the sample functions are different, therefore cannot check sample equivalence
+
+    space = Discrete(5, seed=123)
+    batched_space = batch_space(space)
+    assert space.np_random == batched_space.np_random
+    # As type(space) == Discrete and type(batched_space) == MultiDiscrete
+    #   the sample functions are different, therefore cannot check sample equivalence
 
 
 @pytest.mark.parametrize(
