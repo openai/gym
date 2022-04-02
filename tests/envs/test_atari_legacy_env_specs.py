@@ -2,9 +2,9 @@ import pytest
 
 pytest.importorskip("gym.envs.atari")
 
-from gym.envs.registration import registry
-
 from itertools import product
+
+from gym.envs.registration import registry
 
 
 def test_ale_legacy_env_specs():

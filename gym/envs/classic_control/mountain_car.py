@@ -6,8 +6,6 @@ import math
 from typing import Optional
 
 import numpy as np
-import pygame
-from pygame import gfxdraw
 
 import gym
 from gym import spaces
@@ -168,6 +166,9 @@ class MountainCarEnv(gym.Env):
             return self.isopen
 
     def _render(self):
+        import pygame
+        from pygame import gfxdraw
+        
         if self.screen is None:
             if self.render_mode == "human":
                 pygame.display.init()
@@ -259,6 +260,8 @@ class MountainCarEnv(gym.Env):
 
     def close(self):
         if self.screen is not None:
+            import pygame
+
             pygame.display.quit()
             pygame.quit()
             self.isopen = False

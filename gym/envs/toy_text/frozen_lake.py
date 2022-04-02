@@ -2,8 +2,7 @@ from contextlib import closing
 from io import StringIO
 from os import path
 from typing import Optional
-import pygame
-from pygame.constants import SRCALPHA
+
 import numpy as np
 
 from gym import Env, spaces, utils
@@ -283,6 +282,9 @@ class FrozenLakeRenderGraphics(FrozenLakeEnv):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        
+        import pygame
+        from pygame.constants import SRCALPHA
         pygame.init()
 
         self.window_size = (min(64 * self.ncol, 512), min(64 * self.nrow, 512))
@@ -308,6 +310,9 @@ class FrozenLakeRenderGraphics(FrozenLakeEnv):
         self.clock = pygame.time.Clock()
 
     def _render(self):
+        import pygame
+        from pygame.constants import SRCALPHA
+        
         if self.window_surface is None:
             if self.render_mode == "human":
                 pygame.display.init()
@@ -419,6 +424,13 @@ class FrozenLakeRenderGraphics(FrozenLakeEnv):
                 )
             ]
         return out
+
+    def close(self):
+        if self.window_surface is not None:
+            import pygame
+
+            pygame.display.quit()
+            pygame.quit()
 
 
 # Elf and stool from https://franuka.itch.io/rpg-snow-tileset

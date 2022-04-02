@@ -4,6 +4,7 @@ from io import StringIO
 from typing import Optional
 
 import numpy as np
+
 from gym import Env, spaces
 from gym.envs.toy_text.utils import categorical_sample
 

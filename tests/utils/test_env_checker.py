@@ -1,10 +1,10 @@
 from typing import Optional
 
-import gym
 import numpy as np
 import pytest
-from gym.spaces import Box, Dict, Discrete
 
+import gym
+from gym.spaces import Box, Dict, Discrete
 from gym.utils.env_checker import check_env
 
 

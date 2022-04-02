@@ -1,10 +1,10 @@
+from collections import OrderedDict
+from functools import singledispatch
+
 import numpy as np
 
-from gym.spaces import Space, Box, Discrete, MultiDiscrete, MultiBinary, Tuple, Dict
+from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Space, Tuple
 from gym.vector.utils.spaces import _BaseGymSpaces
-from collections import OrderedDict
-
-from functools import singledispatch
 
 __all__ = ["concatenate", "create_empty_array"]
 

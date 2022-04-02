@@ -5,8 +5,8 @@ from typing import TypeVar, Generic, Tuple, Union, Optional, SupportsFloat, List
 
 import gym
 from gym import spaces
-from gym.utils import seeding
 from gym.logger import deprecation
+from gym.utils import seeding
 from gym.utils.seeding import RandomNumberGenerator
 
 ObsType = TypeVar("ObsType")
@@ -219,7 +219,7 @@ class Wrapper(Env[ObsType, ActType]):
 
     def __getattr__(self, name):
         if name.startswith("_") and name != "_render":  # TODO: remove name != "_render" from v1.0
-            raise AttributeError(f"attempted to get missing private attribute '{name}'")
+            raise AttributeError(f"accessing private attribute '{name}' is prohibited")
         return getattr(self.env, name)
 
     @property

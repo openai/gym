@@ -1,6 +1,7 @@
 import numpy as np
-from gym.envs.mujoco import mujoco_env
+
 from gym import utils
+from gym.envs.mujoco import mujoco_env
 
 
 def mass_center(model, sim):

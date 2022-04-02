@@ -1,12 +1,11 @@
 from typing import List
-
-import pytest
 import numpy as np
+import pytest
 
 from gym import envs
-from tests.envs.spec_list import spec_list
 from gym.spaces import Box
 from gym.utils.env_checker import check_env
+from tests.envs.spec_list import spec_list
 
 
 # This runs a smoketest on each official registered env. We may want
