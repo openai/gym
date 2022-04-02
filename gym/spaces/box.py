@@ -6,6 +6,7 @@ import numpy as np
 
 from gym import logger
 
+from ..utils import seeding
 from .space import Space
 
 
@@ -44,7 +45,7 @@ class Box(Space[np.ndarray]):
         high: Union[SupportsFloat, np.ndarray],
         shape: Optional[Sequence[int]] = None,
         dtype: Type = np.float32,
-        seed: Optional[int] = None,
+        seed: Optional[int | seeding.RandomNumberGenerator] = None,
     ):
         assert dtype is not None, "dtype must be explicitly provided. "
         self.dtype = np.dtype(dtype)
