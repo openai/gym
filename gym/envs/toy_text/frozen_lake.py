@@ -378,6 +378,5 @@ class FrozenLakeEnv(Env):
             pygame.display.quit()
             pygame.quit()
 
-
 # Elf and stool from https://franuka.itch.io/rpg-snow-tileset
 # All other assets by Mel Sawyer http://www.cyaneus.com/
