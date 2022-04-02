@@ -3,9 +3,11 @@ from __future__ import annotations
 from collections import OrderedDict
 from collections.abc import Mapping, Sequence
 from typing import Dict as TypingDict
+from typing import Optional
 
 import numpy as np
 
+from ..utils import seeding
 from .space import Space
 
 
@@ -42,7 +44,7 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
     def __init__(
         self,
         spaces: dict[str, Space] | None = None,
-        seed: dict | int | None = None,
+        seed: Optional[int | seeding.RandomNumberGenerator] = None,
         **spaces_kwargs: Space,
     ):
         assert (spaces is None) or (
@@ -134,9 +136,9 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
 
     def __repr__(self) -> str:
         return (
-            "Dict("
-            + ", ".join([str(k) + ":" + str(s) for k, s in self.spaces.items()])
-            + ")"
+            "Dict({"
+            + ", ".join([str(k) + ": " + str(s) for k, s in self.spaces.items()])
+            + "})"
         )
 
     def to_jsonable(self, sample_n: list) -> dict:
