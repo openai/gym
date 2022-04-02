@@ -4,6 +4,7 @@ from typing import Optional, Sequence, Union
 
 import numpy as np
 
+from ..utils import seeding
 from .space import Space
 
 
@@ -32,7 +33,9 @@ class MultiBinary(Space[np.ndarray]):
     """
 
     def __init__(
-        self, n: Union[np.ndarray, Sequence[int], int], seed: Optional[int] = None
+        self,
+        n: Union[np.ndarray, Sequence[int], int],
+        seed: Optional[int | seeding.RandomNumberGenerator] = None,
     ):
         if isinstance(n, (Sequence, np.ndarray)):
             self.n = input_n = tuple(int(i) for i in n)
