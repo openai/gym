@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from copy import copy
 from functools import singledispatch
 
 import numpy as np
@@ -47,19 +48,24 @@ def batch_space(space, n=1):
 def _batch_space_box(space, n=1):
     repeats = tuple([n] + [1] * space.low.ndim)
     low, high = np.tile(space.low, repeats), np.tile(space.high, repeats)
-    return Box(low=low, high=high, dtype=space.dtype)
+    return Box(low=low, high=high, dtype=space.dtype, seed=copy(space.np_random))
 
 
 @batch_space.register(Discrete)
 def _batch_space_discrete(space, n=1):
     if space.start == 0:
-        return MultiDiscrete(np.full((n,), space.n, dtype=space.dtype))
+        return MultiDiscrete(
+            np.full((n,), space.n, dtype=space.dtype),
+            dtype=space.dtype,
+            seed=copy(space.np_random),
+        )
     else:
         return Box(
             low=space.start,
             high=space.start + space.n - 1,
             shape=(n,),
             dtype=space.dtype,
+            seed=space.np_random,
         )
 
 
@@ -67,17 +73,31 @@ def _batch_space_discrete(space, n=1):
 def _batch_space_multidiscrete(space, n=1):
     repeats = tuple([n] + [1] * space.nvec.ndim)
     high = np.tile(space.nvec, repeats) - 1
-    return Box(low=np.zeros_like(high), high=high, dtype=space.dtype)
+    return Box(
+        low=np.zeros_like(high),
+        high=high,
+        dtype=space.dtype,
+        seed=copy(space.np_random),
+    )
 
 
 @batch_space.register(MultiBinary)
 def _batch_space_multibinary(space, n=1):
-    return Box(low=0, high=1, shape=(n,) + space.shape, dtype=space.dtype)
+    return Box(
+        low=0,
+        high=1,
+        shape=(n,) + space.shape,
+        dtype=space.dtype,
+        seed=copy(space.np_random),
+    )
 
 
 @batch_space.register(Tuple)
 def _batch_space_tuple(space, n=1):
-    return Tuple(tuple(batch_space(subspace, n=n) for subspace in space.spaces))
+    return Tuple(
+        tuple(batch_space(subspace, n=n) for subspace in space.spaces),
+        seed=copy(space.np_random),
+    )
 
 
 @batch_space.register(Dict)
@@ -88,13 +108,14 @@ def _batch_space_dict(space, n=1):
                 (key, batch_space(subspace, n=n))
                 for (key, subspace) in space.spaces.items()
             ]
-        )
+        ),
+        seed=copy(space.np_random),
     )
 
 
 @batch_space.register(Space)
 def _batch_space_custom(space, n=1):
-    return Tuple(tuple(space for _ in range(n)))
+    return Tuple(tuple(space for _ in range(n)), seed=copy(space.np_random))
 
 
 @singledispatch
