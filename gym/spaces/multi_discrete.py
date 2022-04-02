@@ -7,6 +7,7 @@ import numpy as np
 
 from gym import logger
 
+from ..utils import seeding
 from .discrete import Discrete
 from .space import Space
 
@@ -36,7 +37,7 @@ class MultiDiscrete(Space[np.ndarray]):
         self,
         nvec: list[int] | np.ndarray,
         dtype=np.int64,
-        seed: Optional[int | np.ndarray] = None,
+        seed: Optional[int | seeding.RandomNumberGenerator] = None,
     ):
         """
         nvec: vector of counts of each categorical variable
