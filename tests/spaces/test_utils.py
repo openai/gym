@@ -5,7 +5,6 @@ import pytest
 
 from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Tuple, utils
 
-
 spaces = [
     Discrete(3),
     Box(low=0.0, high=np.inf, shape=(2, 2)),

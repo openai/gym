@@ -1,7 +1,7 @@
 import os
-import gym
 from typing import Callable, Optional
 
+import gym
 from gym import logger
 from gym.wrappers.monitoring import video_recorder
 
@@ -124,6 +124,7 @@ class RecordVideo(gym.Wrapper):
         self.recorded_frames = 1
 
     def close(self):
+        super().close()
         self.close_video_recorder()
 
     def __del__(self):

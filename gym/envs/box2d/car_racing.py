@@ -1,21 +1,19 @@
 __credits__ = ["Andrea PIERRÉ"]
 
 import math
+import sys
 from typing import Optional
 
+import Box2D
 import numpy as np
 import pygame
+from Box2D.b2 import contactListener, fixtureDef, polygonShape
 from pygame import gfxdraw
-
-import Box2D
-from Box2D.b2 import fixtureDef
-from Box2D.b2 import polygonShape
-from Box2D.b2 import contactListener
 
 import gym
 from gym import spaces
 from gym.envs.box2d.car_dynamics import Car
-from gym.utils import seeding, EzPickle
+from gym.utils import EzPickle, seeding
 
 STATE_W = 96  # less than Atari 160x192
 STATE_H = 96
@@ -615,10 +613,10 @@ class CarRacing(gym.Env, EzPickle):
         )
 
     def close(self):
-        pygame.quit()
         if self.screen is not None:
             pygame.display.quit()
             self.isopen = False
+        pygame.quit()
 
 
 if __name__ == "__main__":

@@ -7,17 +7,18 @@ This simulation is a bit more detailed, with wheels rotation.
 Created by Oleg Klimov
 """
 
-import numpy as np
 import math
-import pygame.draw
+
 import Box2D
+import numpy as np
+import pygame.draw
 from Box2D.b2 import (
-    edgeShape,
     circleShape,
+    contactListener,
+    edgeShape,
     fixtureDef,
     polygonShape,
     revoluteJointDef,
-    contactListener,
     shape,
 )
 

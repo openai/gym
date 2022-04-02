@@ -1,11 +1,10 @@
 import collections
-from collections.abc import MutableMapping
 import copy
+from collections.abc import MutableMapping
+
 import numpy as np
 
-from gym import spaces
-from gym import ObservationWrapper
-
+from gym import ObservationWrapper, spaces
 
 STATE_KEY = "state"
 

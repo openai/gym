@@ -1,6 +1,7 @@
-from gym.envs.mujoco import mujoco_env
-from gym import utils
 import numpy as np
+
+from gym import utils
+from gym.envs.mujoco import mujoco_env
 
 
 class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):

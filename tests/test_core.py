@@ -1,10 +1,10 @@
 from typing import Optional
 
-import pytest
 import numpy as np
+import pytest
 
 from gym import core, spaces
-from gym.wrappers import TimeLimit, OrderEnforcing
+from gym.wrappers import OrderEnforcing, TimeLimit
 
 
 class ArgumentEnv(core.Env):

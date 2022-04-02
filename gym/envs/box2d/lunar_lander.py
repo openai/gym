@@ -3,23 +3,22 @@ __credits__ = ["Andrea PIERRÉ"]
 import math
 from typing import Optional
 
+import Box2D
 import numpy as np
 import pygame
-from pygame import gfxdraw
-
-import Box2D
 from Box2D.b2 import (
-    edgeShape,
     circleShape,
+    contactListener,
+    edgeShape,
     fixtureDef,
     polygonShape,
     revoluteJointDef,
-    contactListener,
 )
+from pygame import gfxdraw
 
 import gym
 from gym import error, spaces
-from gym.utils import seeding, EzPickle
+from gym.utils import EzPickle, seeding
 
 FPS = 50
 SCALE = 30.0  # affects how fast-paced the game is, forces should be adjusted as well

@@ -1,11 +1,11 @@
 """Tests for the filter observation wrapper."""
 from typing import Optional
 
-import pytest
 import numpy as np
+import pytest
 
 import gym
-from gym.spaces import Dict, Box, Discrete, Tuple
+from gym.spaces import Box, Dict, Discrete, Tuple
 from gym.wrappers import FilterObservation, FlattenObservation
 
 
