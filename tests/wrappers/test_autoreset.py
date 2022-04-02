@@ -20,9 +20,11 @@ class DummyResetEnv(gym.Env):
     metadata = {}
 
     def __init__(self):
-        self.action_space = gym.spaces.Box(low=np.array([-1.0]), high=np.array([1.0]))
+        self.action_space = gym.spaces.Box(
+            low=np.array([-1.0]), high=np.array([1.0]), dtype=np.float64
+        )
         self.observation_space = gym.spaces.Box(
-            low=np.array([-1.0]), high=np.array([1.0])
+            low=np.array([-1.0]), high=np.array([1.0]), dtype=np.float64
         )
         self.count = 0
 
@@ -68,17 +70,20 @@ def test_autoreset_autoreset():
     obs, info = env.reset(return_info=True)
     assert obs == np.array([0])
     assert info == {"count": 0}
+
     action = 1
     obs, reward, done, info = env.step(action)
     assert obs == np.array([1])
     assert reward == 0
     assert done == False
     assert info == {"count": 1}
+
     obs, reward, done, info = env.step(action)
     assert obs == np.array([2])
     assert done == False
     assert reward == 0
     assert info == {"count": 2}
+
     obs, reward, done, info = env.step(action)
     assert obs == np.array([0])
     assert done == True
@@ -88,11 +93,13 @@ def test_autoreset_autoreset():
         "terminal_observation": np.array([3]),
         "terminal_info": {"count": 3},
     }
+
     obs, reward, done, info = env.step(action)
     assert obs == np.array([1])
     assert reward == 0
     assert done == False
     assert info == {"count": 1}
+
     obs, reward, done, info = env.step(action)
     assert obs == np.array([2])
     assert reward == 0
