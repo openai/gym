@@ -14,19 +14,25 @@ extras = {
     "accept-rom-license": ["autorom[accept-rom-license]~=0.4.2"],
     "box2d": ["box2d-py==2.3.5", "pygame==2.1.0"],
     "classic_control": ["pygame==2.1.0"],
-    "mujoco": ["mujoco_py>=1.50, <2.0"],
+    "mujoco_py": ["mujoco_py<2.2,>=2.1"],
+    "mujoco": ["mujoco==2.1.4", "imageio>=2.14.1"],
     "toy_text": ["pygame==2.1.0", "scipy>=1.4.1"],
     "other": ["lz4>=3.1.0", "opencv-python>=3.0"],
 }
 
 # Meta dependency groups.
-nomujoco_blacklist = {"mujoco", "accept-rom-license", "atari"}
+nomujoco_blacklist = {"mujoco_py", "mujoco", "accept-rom-license", "atari"}
 nomujoco_groups = set(extras.keys()) - nomujoco_blacklist
 
 extras["nomujoco"] = list(
     itertools.chain.from_iterable(map(lambda group: extras[group], nomujoco_groups))
 )
 
+noatari_blacklist = {"accept-rom-license", "atari"}
+noatari_groups = set(extras.keys()) - noatari_blacklist
+extras["noatari"] = list(
+    itertools.chain.from_iterable(map(lambda group: extras[group], noatari_groups))
+)
 
 all_blacklist = {"accept-rom-license"}
 all_groups = set(extras.keys()) - all_blacklist

@@ -2,18 +2,15 @@ import os
 
 from gym import envs, logger
 
-SKIP_MUJOCO_WARNING_MESSAGE = (
-    "Cannot run mujoco test (either license key not found or mujoco not"
-    "installed properly)."
+SKIP_MUJOCO_V3_WARNING_MESSAGE = (
+    "Cannot run mujoco test because mujoco-py is not installed"
 )
 
-
-skip_mujoco = not (os.environ.get("MUJOCO_KEY"))
-if not skip_mujoco:
-    try:
-        import mujoco_py
-    except ImportError:
-        skip_mujoco = True
+skip_mujoco_v3 = False
+try:
+    import mujoco_py
+except ImportError:
+    skip_mujoco_v3 = True
 
 
 def should_skip_env_spec_for_tests(spec):
@@ -21,7 +18,7 @@ def should_skip_env_spec_for_tests(spec):
     # troublesome to run frequently
     ep = spec.entry_point
     # Skip mujoco tests for pull request CI
-    if skip_mujoco and ep.startswith("gym.envs.mujoco"):
+    if skip_mujoco_v3 and ep.startswith("gym.envs.mujoco"):
         return True
     try:
         import gym.envs.atari
