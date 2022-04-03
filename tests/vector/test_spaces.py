@@ -97,10 +97,12 @@ def test_batch_space(space, expected_batch_space_4):
 
 def test_batch_space_seed():
     for space in [
-        Box(0, 10, seed=123),
-        Tuple([Box(0, 5, seed=123), Box(0, 3, seed=123)], seed=123),
+        CustomSpace(seed=123),
+        Box(0, 10, (), seed=123),
+        Tuple([Box(0, 5, (), seed=123), Box(0, 3, (), seed=123)], seed=123),
         Dict(
-            {"space-1": Box(0, 5, seed=123), "space-2": Box(0, 10, seed=123)}, seed=123
+            {"space-1": Box(0, 5, (), seed=123), "space-2": Box(0, 10, (), seed=123)},
+            seed=123,
         ),
     ]:
         batched_space = batch_space(space)
