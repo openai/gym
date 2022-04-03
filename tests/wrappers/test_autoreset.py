@@ -1,5 +1,5 @@
-from typing import Optional
 import types
+from typing import Optional
 from unittest.mock import MagicMock
 
 import numpy as np
@@ -76,7 +76,7 @@ def test_make_autoreset():
     done = False
     while not done:
         obs, reward, done, info = env.step(env.action_space.sample())
-    
+
     assert env.env.reset.called
 
     env = gym.make("CartPole-v1", autoreset=False)

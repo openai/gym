@@ -136,7 +136,7 @@ class EnvSpec:
 
         if "autoreset" in _kwargs:
             self.autoreset = _kwargs["autoreset"]
-            del [_kwargs["autoreset"]]
+            del _kwargs["autoreset"]
 
         if callable(self.entry_point):
             env = self.entry_point(**_kwargs)
