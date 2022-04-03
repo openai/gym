@@ -90,6 +90,7 @@ class EnvSpec:
         nondeterministic: Whether this environment is non-deterministic even after seeding
         max_episode_steps: The maximum number of steps that an episode can consist of
         order_enforce: Whether to wrap the environment in an orderEnforcing wrapper
+        auto_reset: Whether the environment should automatically reset when it reaches the done state
         kwargs: The kwargs to pass to the environment class
 
     """
@@ -100,6 +101,7 @@ class EnvSpec:
     nondeterministic: bool = field(default=False)
     max_episode_steps: Optional[int] = field(default=None)
     order_enforce: bool = field(default=True)
+    auto_reset: bool = field(default=False)
     kwargs: dict = field(default_factory=dict)
     namespace: Optional[str] = field(init=False)
     name: str = field(init=False)
@@ -132,6 +134,10 @@ class EnvSpec:
         _kwargs = self.kwargs.copy()
         _kwargs.update(kwargs)
 
+        if "auto_reset" in _kwargs:
+            self.auto_reset = _kwargs["auto_reset"]
+            del [_kwargs["auto_reset"]]
+
         if callable(self.entry_point):
             env = self.entry_point(**_kwargs)
         else:
@@ -142,15 +148,23 @@ class EnvSpec:
         spec = copy.deepcopy(self)
         spec.kwargs = _kwargs
         env.unwrapped.spec = spec
+
         if self.order_enforce:
             from gym.wrappers.order_enforcing import OrderEnforcing
 
             env = OrderEnforcing(env)
+
         assert env.spec is not None, "expected spec to be set to the unwrapped env."
         if env.spec.max_episode_steps is not None:
             from gym.wrappers.time_limit import TimeLimit
 
             env = TimeLimit(env, max_episode_steps=env.spec.max_episode_steps)
+
+        if self.auto_reset == True:
+            from gym.wrappers.autoreset import AutoResetWrapper
+
+            env = AutoResetWrapper(env)
+
         return env
 
 

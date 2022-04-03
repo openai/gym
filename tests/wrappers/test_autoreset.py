@@ -1,4 +1,6 @@
 from typing import Optional
+import types
+from unittest.mock import MagicMock
 
 import numpy as np
 import pytest
@@ -60,6 +62,46 @@ def test_autoreset_reset_info():
     obs, info = env.reset(return_info=True)
     assert ob_space.contains(obs)
     assert isinstance(info, dict)
+
+
+def test_make_autoreset():
+
+    env = gym.make("CartPole-v1", auto_reset=True)
+    ob_space = env.observation_space
+    obs = env.reset(seed=0)
+    env.action_space.seed(0)
+
+    env.env.reset = MagicMock(side_effect=env.env.reset)
+
+    done = False
+    while not done:
+        obs, reward, done, info = env.step(env.action_space.sample())
+    
+    assert env.env.reset.called
+
+    env = gym.make("CartPole-v1", auto_reset=False)
+    ob_space = env.observation_space
+    obs = env.reset(seed=0)
+    env.action_space.seed(0)
+
+    env.env.reset = MagicMock(side_effect=env.env.reset)
+
+    done = False
+    while not done:
+        obs, reward, done, info = env.step(env.action_space.sample())
+    assert not env.env.reset.called
+
+    env = gym.make("CartPole-v1")
+    ob_space = env.observation_space
+    obs = env.reset(seed=0)
+    env.action_space.seed(0)
+
+    env.env.reset = MagicMock(side_effect=env.env.reset)
+
+    done = False
+    while not done:
+        obs, reward, done, info = env.step(env.action_space.sample())
+    assert not env.env.reset.called
 
 
 def test_autoreset_autoreset():
