@@ -75,7 +75,7 @@ class CustomSpace(gym.Space):
     """Minimal custom observation space."""
 
     def sample(self):
-        return "sample"
+        return self.np_random.integers(0, 10, ())
 
     def contains(self, x):
         return isinstance(x, str)
