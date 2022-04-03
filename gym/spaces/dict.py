@@ -136,9 +136,9 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
 
     def __repr__(self) -> str:
         return (
-            "Dict({"
-            + ", ".join([str(k) + ": " + str(s) for k, s in self.spaces.items()])
-            + "})"
+            "Dict("
+            + ", ".join([str(k) + ":" + str(s) for k, s in self.spaces.items()])
+            + ")"
         )
 
     def to_jsonable(self, sample_n: list) -> dict:
