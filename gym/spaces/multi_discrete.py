@@ -35,7 +35,7 @@ class MultiDiscrete(Space[np.ndarray]):
 
     def __init__(
         self,
-        nvec: list[int] | np.ndarray,
+        nvec: list[int],
         dtype=np.int64,
         seed: Optional[int | seeding.RandomNumberGenerator] = None,
     ):
