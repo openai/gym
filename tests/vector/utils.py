@@ -78,7 +78,7 @@ class CustomSpace(gym.Space):
         return self.np_random.integers(0, 10, ())
 
     def contains(self, x):
-        return isinstance(x, str)
+        return 0 <= x <= 10
 
     def __eq__(self, other):
         return isinstance(other, CustomSpace)
