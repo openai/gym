@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from copy import copy
+from copy import copy, deepcopy
 from functools import singledispatch
 
 import numpy as np
@@ -115,7 +115,10 @@ def _batch_space_dict(space, n=1):
 
 @batch_space.register(Space)
 def _batch_space_custom(space, n=1):
-    return Tuple(tuple(space for _ in range(n)), seed=copy(space.np_random))
+    # Without deepcopy, then the space.np_random is batched_space.spaces[0].np_random
+    # Which is an issue if you are sampling actions of both the original space and the batched space
+    space_copy = deepcopy(space)
+    return Tuple(tuple(space_copy for _ in range(n)), seed=copy(space.np_random))
 
 
 @singledispatch
