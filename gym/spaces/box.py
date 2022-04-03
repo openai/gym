@@ -57,8 +57,6 @@ class Box(Space[np.ndarray]):
             shape = low.shape  # type: ignore
         elif not np.isscalar(high):
             shape = high.shape  # type: ignore
-        elif np.isscalar(low) and np.isscalar(high):
-            shape = ()
         else:
             raise ValueError(
                 "shape must be provided or inferred from the shapes of low or high"
