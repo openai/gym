@@ -66,7 +66,7 @@ def test_autoreset_reset_info():
 
 def test_make_autoreset():
 
-    env = gym.make("CartPole-v1", auto_reset=True)
+    env = gym.make("CartPole-v1", autoreset=True)
     ob_space = env.observation_space
     obs = env.reset(seed=0)
     env.action_space.seed(0)
@@ -79,7 +79,7 @@ def test_make_autoreset():
     
     assert env.env.reset.called
 
-    env = gym.make("CartPole-v1", auto_reset=False)
+    env = gym.make("CartPole-v1", autoreset=False)
     ob_space = env.observation_space
     obs = env.reset(seed=0)
     env.action_space.seed(0)
