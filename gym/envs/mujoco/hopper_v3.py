@@ -230,7 +230,9 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         rewards = forward_reward + healthy_reward
         costs = ctrl_cost
 
-        super()._render()
+        render = self._render(self.render_mode)
+        if self.render_mode in ["rgb_array", "depth_array"]:
+            self.render_list.append(render)
 
         observation = self._get_obs()
         reward = rewards - costs

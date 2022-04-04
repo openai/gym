@@ -48,8 +48,8 @@ class ContactDetector(contactListener):
 
     def BeginContact(self, contact):
         if (
-            self.env.lander == contact.fixtureA.body
-            or self.env.lander == contact.fixtureB.body
+                self.env.lander == contact.fixtureA.body
+                or self.env.lander == contact.fixtureB.body
         ):
             self.env.game_over = True
         for i in range(2):
@@ -140,13 +140,13 @@ class LunarLander(gym.Env, EzPickle):
     Created by Oleg Klimov
     """
 
-    metadata = {"render_modes": ["human", "rgb_array"], "render_fps": FPS}
+    metadata = {"render_modes": [None, "human", "rgb_array"], "render_fps": FPS}
 
-    def __init__(self, render_mode="human", continuous: bool = False):
+    def __init__(self, render_mode=None, continuous: bool = False):
         EzPickle.__init__(self)
         pygame.init()
         self.screen = None
-        self.clock = pygame.time.Clock()
+        self.clock = None
         self.isopen = True
         self.world = Box2D.b2World()
         self.moon = None
@@ -187,11 +187,11 @@ class LunarLander(gym.Env, EzPickle):
         self.world.DestroyBody(self.legs[1])
 
     def reset(
-        self,
-        *,
-        seed: Optional[int] = None,
-        return_info: bool = False,
-        options: Optional[dict] = None,
+            self,
+            *,
+            seed: Optional[int] = None,
+            return_info: bool = False,
+            options: Optional[dict] = None,
     ):
         super().reset(seed=seed)
         self._destroy()
@@ -286,7 +286,7 @@ class LunarLander(gym.Env, EzPickle):
             )
             if i == -1:
                 rjd.lowerAngle = (
-                    +0.9 - 0.5
+                        +0.9 - 0.5
                 )  # The most esoteric numbers here, angled legs have freedom to travel within
                 rjd.upperAngle = +0.9
             else:
@@ -298,6 +298,9 @@ class LunarLander(gym.Env, EzPickle):
         self.drawlist = [self.lander] + self.legs
 
         self.render_list = []
+        render = self._render(self.render_mode)
+        if self.render_mode == "rgb_array":
+            self.render_list.append(render)
         if not return_info:
             return self.step(np.array([0, 0]) if self.continuous else 0)[0]
         else:
@@ -340,7 +343,7 @@ class LunarLander(gym.Env, EzPickle):
 
         m_power = 0.0
         if (self.continuous and action[0] > 0.0) or (
-            not self.continuous and action == 2
+                not self.continuous and action == 2
         ):
             # Main engine
             if self.continuous:
@@ -349,7 +352,7 @@ class LunarLander(gym.Env, EzPickle):
             else:
                 m_power = 1.0
             ox = (
-                tip[0] * (4 / SCALE + 2 * dispersion[0]) + side[0] * dispersion[1]
+                    tip[0] * (4 / SCALE + 2 * dispersion[0]) + side[0] * dispersion[1]
             )  # 4 is move a bit downwards, +-2 for randomness
             oy = -tip[1] * (4 / SCALE + 2 * dispersion[0]) - side[1] * dispersion[1]
             impulse_pos = (self.lander.position[0] + ox, self.lander.position[1] + oy)
@@ -372,7 +375,7 @@ class LunarLander(gym.Env, EzPickle):
 
         s_power = 0.0
         if (self.continuous and np.abs(action[1]) > 0.5) or (
-            not self.continuous and action in [1, 3]
+                not self.continuous and action in [1, 3]
         ):
             # Orientation engines
             if self.continuous:
@@ -383,10 +386,10 @@ class LunarLander(gym.Env, EzPickle):
                 direction = action - 2
                 s_power = 1.0
             ox = tip[0] * dispersion[0] + side[0] * (
-                3 * dispersion[1] + direction * SIDE_ENGINE_AWAY / SCALE
+                    3 * dispersion[1] + direction * SIDE_ENGINE_AWAY / SCALE
             )
             oy = -tip[1] * dispersion[0] - side[1] * (
-                3 * dispersion[1] + direction * SIDE_ENGINE_AWAY / SCALE
+                    3 * dispersion[1] + direction * SIDE_ENGINE_AWAY / SCALE
             )
             impulse_pos = (
                 self.lander.position[0] + ox - tip[0] * 17 / SCALE,
@@ -417,16 +420,16 @@ class LunarLander(gym.Env, EzPickle):
             20.0 * self.lander.angularVelocity / FPS,
             1.0 if self.legs[0].ground_contact else 0.0,
             1.0 if self.legs[1].ground_contact else 0.0,
-        ]
+            ]
         assert len(state) == 8
 
         reward = 0
         shaping = (
-            -100 * np.sqrt(state[0] * state[0] + state[1] * state[1])
-            - 100 * np.sqrt(state[2] * state[2] + state[3] * state[3])
-            - 100 * abs(state[4])
-            + 10 * state[6]
-            + 10 * state[7]
+                -100 * np.sqrt(state[0] * state[0] + state[1] * state[1])
+                - 100 * np.sqrt(state[2] * state[2] + state[3] * state[3])
+                - 100 * abs(state[4])
+                + 10 * state[6]
+                + 10 * state[7]
         )  # And ten points for legs contact, the idea is if you
         # lose contact again after landing, you get negative reward
         if self.prev_shaping is not None:
@@ -434,7 +437,7 @@ class LunarLander(gym.Env, EzPickle):
         self.prev_shaping = shaping
 
         reward -= (
-            m_power * 0.30
+                m_power * 0.30
         )  # less fuel spent is better, about -30 for heuristic landing
         reward -= s_power * 0.03
 
@@ -446,111 +449,114 @@ class LunarLander(gym.Env, EzPickle):
             done = True
             reward = +100
 
-        self._render()
+        render = self._render(self.render_mode)
+        if self.render_mode == "rgb_array":
+            self.render_list.append(render)
         return np.array(state, dtype=np.float32), reward, done, {}
 
     def collect_render(self):
         if self.render_mode == "human":
             return self.isopen
-        else:  # rgb_array
+        elif self.render_mode == "rgb_array":
             return self.render_list
 
-    def _render(self):
-        if self.screen is None and self.render_mode == "human":
-            pygame.display.init()
-            self.screen = pygame.display.set_mode((VIEWPORT_W, VIEWPORT_H))
+    def _render(self, mode):
+        if mode is not None:
+            if self.screen is None and mode == "human":
+                pygame.display.init()
+                self.screen = pygame.display.set_mode((VIEWPORT_W, VIEWPORT_H))
+            if self.clock is None:
+                self.clock = pygame.time.Clock()
 
-        self.surf = pygame.Surface((VIEWPORT_W, VIEWPORT_H))
+            self.surf = pygame.Surface((VIEWPORT_W, VIEWPORT_H))
 
-        pygame.transform.scale(self.surf, (SCALE, SCALE))
-        pygame.draw.rect(self.surf, (255, 255, 255), self.surf.get_rect())
+            pygame.transform.scale(self.surf, (SCALE, SCALE))
+            pygame.draw.rect(self.surf, (255, 255, 255), self.surf.get_rect())
 
-        for obj in self.particles:
-            obj.ttl -= 0.15
-            obj.color1 = (
-                int(max(0.2, 0.15 + obj.ttl) * 255),
-                int(max(0.2, 0.5 * obj.ttl) * 255),
-                int(max(0.2, 0.5 * obj.ttl) * 255),
-            )
-            obj.color2 = (
-                int(max(0.2, 0.15 + obj.ttl) * 255),
-                int(max(0.2, 0.5 * obj.ttl) * 255),
-                int(max(0.2, 0.5 * obj.ttl) * 255),
-            )
+            for obj in self.particles:
+                obj.ttl -= 0.15
+                obj.color1 = (
+                    int(max(0.2, 0.15 + obj.ttl) * 255),
+                    int(max(0.2, 0.5 * obj.ttl) * 255),
+                    int(max(0.2, 0.5 * obj.ttl) * 255),
+                )
+                obj.color2 = (
+                    int(max(0.2, 0.15 + obj.ttl) * 255),
+                    int(max(0.2, 0.5 * obj.ttl) * 255),
+                    int(max(0.2, 0.5 * obj.ttl) * 255),
+                )
 
-        self._clean_particles(False)
+            self._clean_particles(False)
 
-        for p in self.sky_polys:
-            scaled_poly = []
-            for coord in p:
-                scaled_poly.append((coord[0] * SCALE, coord[1] * SCALE))
-            pygame.draw.polygon(self.surf, (0, 0, 0), scaled_poly)
-            gfxdraw.aapolygon(self.surf, scaled_poly, (0, 0, 0))
+            for p in self.sky_polys:
+                scaled_poly = []
+                for coord in p:
+                    scaled_poly.append((coord[0] * SCALE, coord[1] * SCALE))
+                pygame.draw.polygon(self.surf, (0, 0, 0), scaled_poly)
+                gfxdraw.aapolygon(self.surf, scaled_poly, (0, 0, 0))
 
-        for obj in self.particles + self.drawlist:
-            for f in obj.fixtures:
-                trans = f.body.transform
-                if type(f.shape) is circleShape:
-                    pygame.draw.circle(
-                        self.surf,
-                        color=obj.color1,
-                        center=trans * f.shape.pos * SCALE,
-                        radius=f.shape.radius * SCALE,
-                    )
-                    pygame.draw.circle(
-                        self.surf,
-                        color=obj.color2,
-                        center=trans * f.shape.pos * SCALE,
-                        radius=f.shape.radius * SCALE,
-                    )
+            for obj in self.particles + self.drawlist:
+                for f in obj.fixtures:
+                    trans = f.body.transform
+                    if type(f.shape) is circleShape:
+                        pygame.draw.circle(
+                            self.surf,
+                            color=obj.color1,
+                            center=trans * f.shape.pos * SCALE,
+                            radius=f.shape.radius * SCALE,
+                        )
+                        pygame.draw.circle(
+                            self.surf,
+                            color=obj.color2,
+                            center=trans * f.shape.pos * SCALE,
+                            radius=f.shape.radius * SCALE,
+                        )
 
-                else:
-                    path = [trans * v * SCALE for v in f.shape.vertices]
-                    pygame.draw.polygon(self.surf, color=obj.color1, points=path)
-                    gfxdraw.aapolygon(self.surf, path, obj.color1)
-                    pygame.draw.aalines(
-                        self.surf, color=obj.color2, points=path, closed=True
-                    )
+                    else:
+                        path = [trans * v * SCALE for v in f.shape.vertices]
+                        pygame.draw.polygon(self.surf, color=obj.color1, points=path)
+                        gfxdraw.aapolygon(self.surf, path, obj.color1)
+                        pygame.draw.aalines(
+                            self.surf, color=obj.color2, points=path, closed=True
+                        )
 
-                for x in [self.helipad_x1, self.helipad_x2]:
-                    x = x * SCALE
-                    flagy1 = self.helipad_y * SCALE
-                    flagy2 = flagy1 + 50
-                    pygame.draw.line(
-                        self.surf,
-                        color=(255, 255, 255),
-                        start_pos=(x, flagy1),
-                        end_pos=(x, flagy2),
-                        width=1,
-                    )
-                    pygame.draw.polygon(
-                        self.surf,
-                        color=(204, 204, 0),
-                        points=[
-                            (x, flagy2),
-                            (x, flagy2 - 10),
-                            (x + 25, flagy2 - 5),
-                        ],
-                    )
-                    gfxdraw.aapolygon(
-                        self.surf,
-                        [(x, flagy2), (x, flagy2 - 10), (x + 25, flagy2 - 5)],
-                        (204, 204, 0),
-                    )
+                    for x in [self.helipad_x1, self.helipad_x2]:
+                        x = x * SCALE
+                        flagy1 = self.helipad_y * SCALE
+                        flagy2 = flagy1 + 50
+                        pygame.draw.line(
+                            self.surf,
+                            color=(255, 255, 255),
+                            start_pos=(x, flagy1),
+                            end_pos=(x, flagy2),
+                            width=1,
+                        )
+                        pygame.draw.polygon(
+                            self.surf,
+                            color=(204, 204, 0),
+                            points=[
+                                (x, flagy2),
+                                (x, flagy2 - 10),
+                                (x + 25, flagy2 - 5),
+                            ],
+                        )
+                        gfxdraw.aapolygon(
+                            self.surf,
+                            [(x, flagy2), (x, flagy2 - 10), (x + 25, flagy2 - 5)],
+                            (204, 204, 0),
+                        )
 
-        self.surf = pygame.transform.flip(self.surf, False, True)
+            self.surf = pygame.transform.flip(self.surf, False, True)
 
-        if self.render_mode == "human":
-            self.screen.blit(self.surf, (0, 0))
-            pygame.event.pump()
-            self.clock.tick(self.metadata["render_fps"])
-            pygame.display.flip()
-        else:  # rgb_array
-            self.render_list.append(
-                np.transpose(
+            if mode == "human":
+                self.screen.blit(self.surf, (0, 0))
+                pygame.event.pump()
+                self.clock.tick(self.metadata["render_fps"])
+                pygame.display.flip()
+            else:  # rgb_array
+                return np.transpose(
                     np.array(pygame.surfarray.pixels3d(self.surf)), axes=(1, 0, 2)
                 )
-            )
 
     def close(self):
         if self.screen is not None:
@@ -595,7 +601,7 @@ def heuristic(env, s):
     if s[6] or s[7]:  # legs have contact
         angle_todo = 0
         hover_todo = (
-            -(s[3]) * 0.5
+                -(s[3]) * 0.5
         )  # override to reduce fall speed, that's all we need after contact
 
     if env.continuous:

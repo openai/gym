@@ -276,6 +276,9 @@ class Wrapper(Env[ObsType, ActType]):
     def reset(self, **kwargs) -> Union[ObsType, tuple[ObsType, dict]]:
         return self.env.reset(**kwargs)
 
+    def render(self, **kwargs):  # TODO: remove from v1.0
+        return self.env.render(**kwargs)
+
     def collect_render(self):
         return self.env.collect_render()
 

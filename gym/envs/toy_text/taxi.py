@@ -100,9 +100,9 @@ class TaxiEnv(Env):
     * v0: Initial versions release
     """
 
-    metadata = {"render_modes": ["human", "ansi", "rgb_array"], "render_fps": 4}
+    metadata = {"render_modes": [None, "human", "ansi", "rgb_array"], "render_fps": 4}
 
-    def __init__(self, render_mode="human"):
+    def __init__(self, render_mode=None):
         self.desc = np.asarray(MAP, dtype="c")
         assert render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
@@ -212,7 +212,9 @@ class TaxiEnv(Env):
         p, s, r, d = transitions[i]
         self.s = s
         self.lastaction = a
-        self._render()
+        render = self._render(self.render_mode)
+        if self.render_mode in ["ansi", "rgb_array"]:
+            self.render_list.append(render)
         return (int(s), r, d, {"prob": p})
 
     def reset(
@@ -227,20 +229,22 @@ class TaxiEnv(Env):
         self.lastaction = None
         self.taxi_orientation = 0
         self.render_list = []
-        self._render()
+        render = self._render(self.render_mode)
+        if self.render_mode in ["ansi", "rgb_array"]:
+            self.render_list.append(render)
         if not return_info:
             return int(self.s)
         else:
             return int(self.s), {"prob": 1}
 
     def collect_render(self):
-        if self.render_mode != "human":
+        if self.render_mode in ["ansi", "rgb_array"]:
             return self.render_list
 
-    def _render(self):
+    def _render(self, mode):
         if mode == "ansi":
             return self._render_text()
-        else:
+        elif mode in ["human", "rgb_array"]:
             return self._render_gui(mode)
 
     def _render_gui(self, mode):

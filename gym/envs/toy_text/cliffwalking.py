@@ -58,9 +58,9 @@ class CliffWalkingEnv(Env):
     - v0: Initial version release
     """
 
-    metadata = {"render_modes": ["human", "ansi"], "render_fps": 4}
+    metadata = {"render_modes": [None, "human", "ansi"], "render_fps": 4}
 
-    def __init__(self, render_mode="human"):
+    def __init__(self, render_mode=None):
         self.shape = (4, 12)
         self.start_state_index = np.ravel_multi_index((3, 0), self.shape)
 
@@ -128,7 +128,9 @@ class CliffWalkingEnv(Env):
         self.s = s
         self.lastaction = a
 
-        self._render()
+        render = self._render(self.render_mode)
+        if self.render_mode == "ansi":
+            self.render_list.append(render)
         return (int(s), r, d, {"prob": p})
 
     def reset(
@@ -143,7 +145,9 @@ class CliffWalkingEnv(Env):
         self.lastaction = None
 
         self.render_list = []
-        self._render()
+        render = self._render(self.render_mode)
+        if self.render_mode == "ansi":
+            self.render_list.append(render)
 
         if not return_info:
             return int(self.s)
@@ -154,31 +158,32 @@ class CliffWalkingEnv(Env):
         if self.render_mode == "ansi":
             return self.render_list
 
-    def _render(self):
-        outfile = StringIO() if self.render_mode == "ansi" else sys.stdout
+    def _render(self, mode):
+        if mode is not None:
+            outfile = StringIO() if mode == "ansi" else sys.stdout
 
-        for s in range(self.nS):
-            position = np.unravel_index(s, self.shape)
-            if self.s == s:
-                output = " x "
-            # Print terminal state
-            elif position == (3, 11):
-                output = " T "
-            elif self._cliff[position]:
-                output = " C "
-            else:
-                output = " o "
+            for s in range(self.nS):
+                position = np.unravel_index(s, self.shape)
+                if self.s == s:
+                    output = " x "
+                # Print terminal state
+                elif position == (3, 11):
+                    output = " T "
+                elif self._cliff[position]:
+                    output = " C "
+                else:
+                    output = " o "
 
-            if position[1] == 0:
-                output = output.lstrip()
-            if position[1] == self.shape[1] - 1:
-                output = output.rstrip()
-                output += "\n"
+                if position[1] == 0:
+                    output = output.lstrip()
+                if position[1] == self.shape[1] - 1:
+                    output = output.rstrip()
+                    output += "\n"
 
-            outfile.write(output)
-        outfile.write("\n")
+                outfile.write(output)
+            outfile.write("\n")
 
-        # No need to return anything for human
-        if self.render_mode != "human":
-            with closing(outfile):
-                self.render_list.append(outfile.getvalue())
+            # No need to return anything for human
+            if mode != "human":
+                with closing(outfile):
+                    return outfile.getvalue()

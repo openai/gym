@@ -5,7 +5,6 @@ import numpy as np
 
 import gym
 from gym import spaces
-from gym.utils import seeding
 
 
 def cmp(a, b):
@@ -104,9 +103,9 @@ class BlackjackEnv(gym.Env):
     * v0: Initial versions release (1.0.0)
     """
 
-    metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
+    metadata = {"render_modes": [None, "human", "rgb_array"], "render_fps": 4}
 
-    def __init__(self, render_mode="human", natural=False, sab=False):
+    def __init__(self, render_mode=None, natural=False, sab=False):
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Tuple(
             (spaces.Discrete(32), spaces.Discrete(11), spaces.Discrete(2))
@@ -120,16 +119,13 @@ class BlackjackEnv(gym.Env):
         self.sab = sab
 
         self.render_mode = render_mode
-        pygame.init()
-        pygame.font.init()
-        self.clock = pygame.time.Clock()
         self._init_render_list()
 
     def _init_render_list(self):
-        if self.render_mode == "human":
-            self.render_list = None
-        else:  # rgb_array
+        if self.render_mode == "rgb_array":
             self.render_list = []
+        else:
+            self.render_list = None
 
     def step(self, action):
         assert self.action_space.contains(action)
@@ -150,32 +146,36 @@ class BlackjackEnv(gym.Env):
                 # Player automatically wins. Rules consistent with S&B
                 reward = 1.0
             elif (
-                not self.sab
-                and self.natural
-                and is_natural(self.player)
-                and reward == 1.0
+                    not self.sab
+                    and self.natural
+                    and is_natural(self.player)
+                    and reward == 1.0
             ):
                 # Natural gives extra points, but doesn't autowin. Legacy implementation
                 reward = 1.5
 
-        self._render()
+        render = self._render(self.render_mode)
+        if self.render_mode == "rgb_array":
+            self.render_list.append(render)
         return self._get_obs(), reward, done, {}
 
     def _get_obs(self):
         return (sum_hand(self.player), self.dealer[0], usable_ace(self.player))
 
     def reset(
-        self,
-        seed: Optional[int] = None,
-        return_info: bool = False,
-        options: Optional[dict] = None,
+            self,
+            seed: Optional[int] = None,
+            return_info: bool = False,
+            options: Optional[dict] = None,
     ):
         super().reset(seed=seed)
         self.dealer = draw_hand(self.np_random)
         self.player = draw_hand(self.np_random)
 
         self._init_render_list()
-        self._render()
+        render = self._render(self.render_mode)
+        if self.render_mode == "rgb_array":
+            self.render_list.append(render)
 
         if not return_info:
             return self._get_obs()
@@ -185,118 +185,121 @@ class BlackjackEnv(gym.Env):
     def collect_render(self):
         return self.render_list
 
-    def _render(self):
-        import pygame
+    def _render(self, mode):
+        if mode is not None:
+            import pygame
 
-        player_sum, dealer_card_value, usable_ace = self._get_obs()
-        screen_width, screen_height = 600, 500
-        card_img_height = screen_height // 3
-        card_img_width = int(card_img_height * 142 / 197)
-        spacing = screen_height // 20
+            player_sum, dealer_card_value, usable_ace = self._get_obs()
+            screen_width, screen_height = 600, 500
+            card_img_height = screen_height // 3
+            card_img_width = int(card_img_height * 142 / 197)
+            spacing = screen_height // 20
 
-        bg_color = (7, 99, 36)
-        white = (255, 255, 255)
+            bg_color = (7, 99, 36)
+            white = (255, 255, 255)
 
-        if not hasattr(self, "screen"):
-            if self.render_mode == "human":
+            if not hasattr(self, "screen"):
                 pygame.init()
-                pygame.display.init()
-                self.screen = pygame.display.set_mode((screen_width, screen_height))
+                if mode == "human":
+                    pygame.display.init()
+                    self.screen = pygame.display.set_mode((screen_width, screen_height))
+                else:
+                    pygame.font.init()
+                    self.screen = pygame.Surface((screen_width, screen_height))
+
+            if not hasattr(self, "clock"):
+                self.clock = pygame.time.Clock()
+
+            self.screen.fill(bg_color)
+
+            def get_image(path):
+                cwd = os.path.dirname(__file__)
+                image = pygame.image.load(os.path.join(cwd, path))
+                return image
+
+            def get_font(path, size):
+                cwd = os.path.dirname(__file__)
+                font = pygame.font.Font(os.path.join(cwd, path), size)
+                return font
+
+            small_font = get_font(
+                os.path.join("font", "Minecraft.ttf"), screen_height // 15
+            )
+            dealer_text = small_font.render(
+                "Dealer: " + str(dealer_card_value), True, white
+            )
+            dealer_text_rect = self.screen.blit(dealer_text, (spacing, spacing))
+
+            suits = ["C", "D", "H", "S"]
+            dealer_card_suit = self.np_random.choice(suits)
+
+            if dealer_card_value == 1:
+                dealer_card_value_str = "A"
+            elif dealer_card_value == 10:
+                dealer_card_value_str = self.np_random.choice(["J", "Q", "K"])
             else:
-                self.screen = pygame.Surface((screen_width, screen_height))
+                dealer_card_value_str = str(dealer_card_value)
 
-        self.screen.fill(bg_color)
+            def scale_card_img(card_img):
+                return pygame.transform.scale(card_img, (card_img_width, card_img_height))
 
-        def get_image(path):
-            cwd = os.path.dirname(__file__)
-            image = pygame.image.load(os.path.join(cwd, path))
-            return image
-
-        def get_font(path, size):
-            cwd = os.path.dirname(__file__)
-            font = pygame.font.Font(os.path.join(cwd, path), size)
-            return font
-
-        small_font = get_font(
-            os.path.join("font", "Minecraft.ttf"), screen_height // 15
-        )
-        dealer_text = small_font.render(
-            "Dealer: " + str(dealer_card_value), True, white
-        )
-        dealer_text_rect = self.screen.blit(dealer_text, (spacing, spacing))
-
-        suits = ["C", "D", "H", "S"]
-        dealer_card_suit = self.np_random.choice(suits)
-
-        if dealer_card_value == 1:
-            dealer_card_value_str = "A"
-        elif dealer_card_value == 10:
-            dealer_card_value_str = self.np_random.choice(["J", "Q", "K"])
-        else:
-            dealer_card_value_str = str(dealer_card_value)
-
-        def scale_card_img(card_img):
-            return pygame.transform.scale(card_img, (card_img_width, card_img_height))
-
-        dealer_card_img = scale_card_img(
-            get_image(
-                os.path.join("img", dealer_card_suit + dealer_card_value_str + ".png")
-            )
-        )
-        dealer_card_rect = self.screen.blit(
-            dealer_card_img,
-            (
-                screen_width // 2 - card_img_width - spacing // 2,
-                dealer_text_rect.bottom + spacing,
-            ),
-        )
-
-        hidden_card_img = scale_card_img(get_image(os.path.join("img", "Card.png")))
-        self.screen.blit(
-            hidden_card_img,
-            (
-                screen_width // 2 + spacing // 2,
-                dealer_text_rect.bottom + spacing,
-            ),
-        )
-
-        player_text = small_font.render("Player", True, white)
-        player_text_rect = self.screen.blit(
-            player_text, (spacing, dealer_card_rect.bottom + 1.5 * spacing)
-        )
-
-        large_font = get_font(os.path.join("font", "Minecraft.ttf"), screen_height // 6)
-        player_sum_text = large_font.render(str(player_sum), True, white)
-        player_sum_text_rect = self.screen.blit(
-            player_sum_text,
-            (
-                screen_width // 2 - player_sum_text.get_width() // 2,
-                player_text_rect.bottom + spacing,
-            ),
-        )
-
-        if usable_ace:
-            usable_ace_text = small_font.render("usable ace", True, white)
-            self.screen.blit(
-                usable_ace_text,
-                (
-                    screen_width // 2 - usable_ace_text.get_width() // 2,
-                    player_sum_text_rect.bottom + spacing // 2,
-                ),
-            )
-        if self.render_mode == "human":
-            pygame.event.pump()
-            pygame.display.update()
-            self.clock.tick(self.metadata["render_fps"])
-        else:
-            self.render_list.append(
-                np.transpose(
-                    np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
+            dealer_card_img = scale_card_img(
+                get_image(
+                    os.path.join("img", dealer_card_suit + dealer_card_value_str + ".png")
                 )
             )
+            dealer_card_rect = self.screen.blit(
+                dealer_card_img,
+                (
+                    screen_width // 2 - card_img_width - spacing // 2,
+                    dealer_text_rect.bottom + spacing,
+                ),
+            )
+
+            hidden_card_img = scale_card_img(get_image(os.path.join("img", "Card.png")))
+            self.screen.blit(
+                hidden_card_img,
+                (
+                    screen_width // 2 + spacing // 2,
+                    dealer_text_rect.bottom + spacing,
+                ),
+            )
+
+            player_text = small_font.render("Player", True, white)
+            player_text_rect = self.screen.blit(
+                player_text, (spacing, dealer_card_rect.bottom + 1.5 * spacing)
+            )
+
+            large_font = get_font(os.path.join("font", "Minecraft.ttf"), screen_height // 6)
+            player_sum_text = large_font.render(str(player_sum), True, white)
+            player_sum_text_rect = self.screen.blit(
+                player_sum_text,
+                (
+                    screen_width // 2 - player_sum_text.get_width() // 2,
+                    player_text_rect.bottom + spacing,
+                ),
+            )
+
+            if usable_ace:
+                usable_ace_text = small_font.render("usable ace", True, white)
+                self.screen.blit(
+                    usable_ace_text,
+                    (
+                        screen_width // 2 - usable_ace_text.get_width() // 2,
+                        player_sum_text_rect.bottom + spacing // 2,
+                    ),
+                )
+            if mode == "human":
+                pygame.event.pump()
+                pygame.display.update()
+                self.clock.tick(self.metadata["render_fps"])
+            else:
+                return np.transpose(
+                    np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
+                )
 
     def close(self):
-        if not hasattr(self, "screen"):
+        if hasattr(self, "screen"):
             import pygame
 
             pygame.display.quit()

@@ -90,9 +90,9 @@ class MountainCarEnv(gym.Env):
     * v0: Initial versions release (1.0.0)
     """
 
-    metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 30}
+    metadata = {"render_modes": [None, "human", "rgb_array"], "render_fps": 30}
 
-    def __init__(self, render_mode="human", goal_velocity=0):
+    def __init__(self, render_mode=None, goal_velocity=0):
         self.min_position = -1.2
         self.max_position = 0.6
         self.max_speed = 0.07
@@ -110,9 +110,8 @@ class MountainCarEnv(gym.Env):
 
         self.screen_width = 600
         self.screen_height = 400
-        pygame.init()
         self.screen = None
-        self.clock = pygame.time.Clock()
+        self.clock = None
         self.isopen = True
         self.render_list = []
 
@@ -137,20 +136,24 @@ class MountainCarEnv(gym.Env):
 
         self.state = (position, velocity)
 
-        self._render()
+        render = self._render(self.render_mode)
+        if self.render_mode == "rgb_array":
+            self.render_list.append(render)
         return np.array(self.state, dtype=np.float32), reward, done, {}
 
     def reset(
-        self,
-        *,
-        seed: Optional[int] = None,
-        return_info: bool = False,
-        options: Optional[dict] = None,
+            self,
+            *,
+            seed: Optional[int] = None,
+            return_info: bool = False,
+            options: Optional[dict] = None,
     ):
         super().reset(seed=seed)
         self.state = np.array([self.np_random.uniform(low=-0.6, high=-0.4), 0])
         self.render_list = []
-        self._render()
+        render = self._render(self.render_mode)
+        if self.render_mode == "rgb_array":
+            self.render_list.append(render)
         if not return_info:
             return np.array(self.state, dtype=np.float32)
         else:
@@ -162,97 +165,99 @@ class MountainCarEnv(gym.Env):
     def collect_render(self):
         if self.render_mode == "rgb_array":
             return self.render_list
-        else:  # self.render_mode == "human"
+        elif self.render_mode == "human":
             return self.isopen
 
-    def _render(self):
-        import pygame
-        from pygame import gfxdraw
-        
-        if self.screen is None:
-            if self.render_mode == "human":
-                pygame.display.init()
-                self.screen = pygame.display.set_mode(
-                    (self.screen_width, self.screen_height)
+    def _render(self, mode="human"):
+        if mode is not None:
+            import pygame
+            from pygame import gfxdraw
+
+            if self.screen is None:
+                pygame.init()
+                if mode == "human":
+                    pygame.display.init()
+                    self.screen = pygame.display.set_mode(
+                        (self.screen_width, self.screen_height)
+                    )
+                else:  # mode == "rgb_array"
+                    self.screen = pygame.Surface((self.screen_width, self.screen_height))
+            if self.clock is None:
+                self.clock = pygame.time.Clock()
+
+            world_width = self.max_position - self.min_position
+            scale = self.screen_width / world_width
+            carwidth = 40
+            carheight = 20
+
+            self.surf = pygame.Surface((self.screen_width, self.screen_height))
+            self.surf.fill((255, 255, 255))
+
+            pos = self.state[0]
+
+            xs = np.linspace(self.min_position, self.max_position, 100)
+            ys = self._height(xs)
+            xys = list(zip((xs - self.min_position) * scale, ys * scale))
+
+            pygame.draw.aalines(self.surf, points=xys, closed=False, color=(0, 0, 0))
+
+            clearance = 10
+
+            l, r, t, b = -carwidth / 2, carwidth / 2, carheight, 0
+            coords = []
+            for c in [(l, b), (l, t), (r, t), (r, b)]:
+                c = pygame.math.Vector2(c).rotate_rad(math.cos(3 * pos))
+                coords.append(
+                    (
+                        c[0] + (pos - self.min_position) * scale,
+                        c[1] + clearance + self._height(pos) * scale,
+                    )
                 )
-            else:  # self.render_mode == "rgb_array"
-                self.screen = pygame.Surface((self.screen_width, self.screen_height))
 
-        world_width = self.max_position - self.min_position
-        scale = self.screen_width / world_width
-        carwidth = 40
-        carheight = 20
+            gfxdraw.aapolygon(self.surf, coords, (0, 0, 0))
+            gfxdraw.filled_polygon(self.surf, coords, (0, 0, 0))
 
-        self.surf = pygame.Surface((self.screen_width, self.screen_height))
-        self.surf.fill((255, 255, 255))
-
-        pos = self.state[0]
-
-        xs = np.linspace(self.min_position, self.max_position, 100)
-        ys = self._height(xs)
-        xys = list(zip((xs - self.min_position) * scale, ys * scale))
-
-        pygame.draw.aalines(self.surf, points=xys, closed=False, color=(0, 0, 0))
-
-        clearance = 10
-
-        l, r, t, b = -carwidth / 2, carwidth / 2, carheight, 0
-        coords = []
-        for c in [(l, b), (l, t), (r, t), (r, b)]:
-            c = pygame.math.Vector2(c).rotate_rad(math.cos(3 * pos))
-            coords.append(
-                (
-                    c[0] + (pos - self.min_position) * scale,
-                    c[1] + clearance + self._height(pos) * scale,
+            for c in [(carwidth / 4, 0), (-carwidth / 4, 0)]:
+                c = pygame.math.Vector2(c).rotate_rad(math.cos(3 * pos))
+                wheel = (
+                    int(c[0] + (pos - self.min_position) * scale),
+                    int(c[1] + clearance + self._height(pos) * scale),
                 )
+
+                gfxdraw.aacircle(
+                    self.surf, wheel[0], wheel[1], int(carheight / 2.5), (128, 128, 128)
+                )
+                gfxdraw.filled_circle(
+                    self.surf, wheel[0], wheel[1], int(carheight / 2.5), (128, 128, 128)
+                )
+
+            flagx = int((self.goal_position - self.min_position) * scale)
+            flagy1 = int(self._height(self.goal_position) * scale)
+            flagy2 = flagy1 + 50
+            gfxdraw.vline(self.surf, flagx, flagy1, flagy2, (0, 0, 0))
+
+            gfxdraw.aapolygon(
+                self.surf,
+                [(flagx, flagy2), (flagx, flagy2 - 10), (flagx + 25, flagy2 - 5)],
+                (204, 204, 0),
+            )
+            gfxdraw.filled_polygon(
+                self.surf,
+                [(flagx, flagy2), (flagx, flagy2 - 10), (flagx + 25, flagy2 - 5)],
+                (204, 204, 0),
             )
 
-        gfxdraw.aapolygon(self.surf, coords, (0, 0, 0))
-        gfxdraw.filled_polygon(self.surf, coords, (0, 0, 0))
+            self.surf = pygame.transform.flip(self.surf, False, True)
+            self.screen.blit(self.surf, (0, 0))
+            if mode == "human":
+                pygame.event.pump()
+                self.clock.tick(self.metadata["render_fps"])
+                pygame.display.flip()
 
-        for c in [(carwidth / 4, 0), (-carwidth / 4, 0)]:
-            c = pygame.math.Vector2(c).rotate_rad(math.cos(3 * pos))
-            wheel = (
-                int(c[0] + (pos - self.min_position) * scale),
-                int(c[1] + clearance + self._height(pos) * scale),
-            )
-
-            gfxdraw.aacircle(
-                self.surf, wheel[0], wheel[1], int(carheight / 2.5), (128, 128, 128)
-            )
-            gfxdraw.filled_circle(
-                self.surf, wheel[0], wheel[1], int(carheight / 2.5), (128, 128, 128)
-            )
-
-        flagx = int((self.goal_position - self.min_position) * scale)
-        flagy1 = int(self._height(self.goal_position) * scale)
-        flagy2 = flagy1 + 50
-        gfxdraw.vline(self.surf, flagx, flagy1, flagy2, (0, 0, 0))
-
-        gfxdraw.aapolygon(
-            self.surf,
-            [(flagx, flagy2), (flagx, flagy2 - 10), (flagx + 25, flagy2 - 5)],
-            (204, 204, 0),
-        )
-        gfxdraw.filled_polygon(
-            self.surf,
-            [(flagx, flagy2), (flagx, flagy2 - 10), (flagx + 25, flagy2 - 5)],
-            (204, 204, 0),
-        )
-
-        self.surf = pygame.transform.flip(self.surf, False, True)
-        self.screen.blit(self.surf, (0, 0))
-        if self.render_mode == "human":
-            pygame.event.pump()
-            self.clock.tick(self.metadata["render_fps"])
-            pygame.display.flip()
-
-        else:  # self.render_mode == "rgb_array":
-            self.render_list.append(
-                np.transpose(
+            else:  # mode == "rgb_array":
+                return np.transpose(
                     np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
                 )
-            )
 
     def get_keys_to_action(self):
         # Control with left and right arrow keys.

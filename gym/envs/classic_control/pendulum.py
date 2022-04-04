@@ -76,9 +76,9 @@ class PendulumEnv(gym.Env):
 
     """
 
-    metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 30}
+    metadata = {"render_modes": [None, "human", "rgb_array"], "render_fps": 30}
 
-    def __init__(self, render_mode="human", g=10.0):
+    def __init__(self, render_mode=None, g=10.0):
         self.max_speed = 8
         self.max_torque = 2.0
         self.dt = 0.05
@@ -90,9 +90,8 @@ class PendulumEnv(gym.Env):
         self.render_mode = render_mode
 
         self.screen_dim = 500
-        pygame.init()
         self.screen = None
-        self.clock = pygame.time.Clock()
+        self.clock = None
         self.isopen = True
         self.render_list = []
 
@@ -122,22 +121,26 @@ class PendulumEnv(gym.Env):
         newth = th + newthdot * dt
 
         self.state = np.array([newth, newthdot])
-        self._render()
+        render = self._render(self.render_mode)
+        if self.render_mode == "rgb_array":
+            self.render_list.append(render)
         return self._get_obs(), -costs, False, {}
 
     def reset(
-        self,
-        *,
-        seed: Optional[int] = None,
-        return_info: bool = False,
-        options: Optional[dict] = None
+            self,
+            *,
+            seed: Optional[int] = None,
+            return_info: bool = False,
+            options: Optional[dict] = None
     ):
         super().reset(seed=seed)
         high = np.array([np.pi, 1])
         self.state = self.np_random.uniform(low=-high, high=high)
         self.last_u = None
         self.render_list = []
-        self._render()
+        render = self._render(self.render_mode)
+        if self.render_mode == "rgb_array":
+            self.render_list.append(render)
         if not return_info:
             return self._get_obs()
         else:
@@ -150,89 +153,91 @@ class PendulumEnv(gym.Env):
     def collect_render(self):
         if self.render_mode == "rgb_array":
             return self.render_list
-        else:  # self.render_mode == "human"
+        elif self.render_mode == "human":
             return self.isopen
 
-    def _render(self):
-        import pygame
-        from pygame import gfxdraw
+    def _render(self, mode="human"):
+        if mode is not None:
+            import pygame
+            from pygame import gfxdraw
 
-        if self.screen is None:
-            if self.render_mode == "human":
-                pygame.display.init()
-                self.screen = pygame.display.set_mode(
-                    (self.screen_dim, self.screen_dim)
+            if self.screen is None:
+                pygame.init()
+                if mode == "human":
+                    pygame.display.init()
+                    self.screen = pygame.display.set_mode(
+                        (self.screen_dim, self.screen_dim)
+                    )
+                else:  # self.render_mode == "rgb_array":
+                    self.screen = pygame.Surface((self.screen_dim, self.screen_dim))
+            if self.clock is None:
+                self.clock = pygame.time.Clock()
+
+            self.surf = pygame.Surface((self.screen_dim, self.screen_dim))
+            self.surf.fill((255, 255, 255))
+
+            bound = 2.2
+            scale = self.screen_dim / (bound * 2)
+            offset = self.screen_dim // 2
+
+            rod_length = 1 * scale
+            rod_width = 0.2 * scale
+            l, r, t, b = 0, rod_length, rod_width / 2, -rod_width / 2
+            coords = [(l, b), (l, t), (r, t), (r, b)]
+            transformed_coords = []
+            for c in coords:
+                c = pygame.math.Vector2(c).rotate_rad(self.state[0] + np.pi / 2)
+                c = (c[0] + offset, c[1] + offset)
+                transformed_coords.append(c)
+            gfxdraw.aapolygon(self.surf, transformed_coords, (204, 77, 77))
+            gfxdraw.filled_polygon(self.surf, transformed_coords, (204, 77, 77))
+
+            gfxdraw.aacircle(self.surf, offset, offset, int(rod_width / 2), (204, 77, 77))
+            gfxdraw.filled_circle(
+                self.surf, offset, offset, int(rod_width / 2), (204, 77, 77)
+            )
+
+            rod_end = (rod_length, 0)
+            rod_end = pygame.math.Vector2(rod_end).rotate_rad(self.state[0] + np.pi / 2)
+            rod_end = (int(rod_end[0] + offset), int(rod_end[1] + offset))
+            gfxdraw.aacircle(
+                self.surf, rod_end[0], rod_end[1], int(rod_width / 2), (204, 77, 77)
+            )
+            gfxdraw.filled_circle(
+                self.surf, rod_end[0], rod_end[1], int(rod_width / 2), (204, 77, 77)
+            )
+
+            fname = path.join(path.dirname(__file__), "assets/clockwise.png")
+            img = pygame.image.load(fname)
+            if self.last_u is not None:
+                scale_img = pygame.transform.smoothscale(
+                    img, (scale * np.abs(self.last_u) / 2, scale * np.abs(self.last_u) / 2)
                 )
+                is_flip = bool(self.last_u > 0)
+                scale_img = pygame.transform.flip(scale_img, is_flip, True)
+                self.surf.blit(
+                    scale_img,
+                    (
+                        offset - scale_img.get_rect().centerx,
+                        offset - scale_img.get_rect().centery,
+                    ),
+                )
+
+            # drawing axle
+            gfxdraw.aacircle(self.surf, offset, offset, int(0.05 * scale), (0, 0, 0))
+            gfxdraw.filled_circle(self.surf, offset, offset, int(0.05 * scale), (0, 0, 0))
+
+            self.surf = pygame.transform.flip(self.surf, False, True)
+            self.screen.blit(self.surf, (0, 0))
+            if mode == "human":
+                pygame.event.pump()
+                self.clock.tick(self.metadata["render_fps"])
+                pygame.display.flip()
+
             else:  # self.render_mode == "rgb_array":
-                self.screen = pygame.Surface((self.screen_dim, self.screen_dim))
-
-        self.surf = pygame.Surface((self.screen_dim, self.screen_dim))
-        self.surf.fill((255, 255, 255))
-
-        bound = 2.2
-        scale = self.screen_dim / (bound * 2)
-        offset = self.screen_dim // 2
-
-        rod_length = 1 * scale
-        rod_width = 0.2 * scale
-        l, r, t, b = 0, rod_length, rod_width / 2, -rod_width / 2
-        coords = [(l, b), (l, t), (r, t), (r, b)]
-        transformed_coords = []
-        for c in coords:
-            c = pygame.math.Vector2(c).rotate_rad(self.state[0] + np.pi / 2)
-            c = (c[0] + offset, c[1] + offset)
-            transformed_coords.append(c)
-        gfxdraw.aapolygon(self.surf, transformed_coords, (204, 77, 77))
-        gfxdraw.filled_polygon(self.surf, transformed_coords, (204, 77, 77))
-
-        gfxdraw.aacircle(self.surf, offset, offset, int(rod_width / 2), (204, 77, 77))
-        gfxdraw.filled_circle(
-            self.surf, offset, offset, int(rod_width / 2), (204, 77, 77)
-        )
-
-        rod_end = (rod_length, 0)
-        rod_end = pygame.math.Vector2(rod_end).rotate_rad(self.state[0] + np.pi / 2)
-        rod_end = (int(rod_end[0] + offset), int(rod_end[1] + offset))
-        gfxdraw.aacircle(
-            self.surf, rod_end[0], rod_end[1], int(rod_width / 2), (204, 77, 77)
-        )
-        gfxdraw.filled_circle(
-            self.surf, rod_end[0], rod_end[1], int(rod_width / 2), (204, 77, 77)
-        )
-
-        fname = path.join(path.dirname(__file__), "assets/clockwise.png")
-        img = pygame.image.load(fname)
-        if self.last_u is not None:
-            scale_img = pygame.transform.smoothscale(
-                img, (scale * np.abs(self.last_u) / 2, scale * np.abs(self.last_u) / 2)
-            )
-            is_flip = bool(self.last_u > 0)
-            scale_img = pygame.transform.flip(scale_img, is_flip, True)
-            self.surf.blit(
-                scale_img,
-                (
-                    offset - scale_img.get_rect().centerx,
-                    offset - scale_img.get_rect().centery,
-                ),
-            )
-
-        # drawing axle
-        gfxdraw.aacircle(self.surf, offset, offset, int(0.05 * scale), (0, 0, 0))
-        gfxdraw.filled_circle(self.surf, offset, offset, int(0.05 * scale), (0, 0, 0))
-
-        self.surf = pygame.transform.flip(self.surf, False, True)
-        self.screen.blit(self.surf, (0, 0))
-        if self.render_mode == "human":
-            pygame.event.pump()
-            self.clock.tick(self.metadata["render_fps"])
-            pygame.display.flip()
-
-        else:  # self.render_mode == "rgb_array":
-            self.render_list.append(
-                np.transpose(
+                return np.transpose(
                     np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
                 )
-            )
 
     def close(self):
         if self.screen is not None:

@@ -14,7 +14,9 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         self.do_simulation(a, self.frame_skip)
         xposafter = self.get_body_com("torso")[0]
 
-        super()._render()
+        render = self._render(self.render_mode)
+        if self.render_mode in ["rgb_array", "depth_array"]:
+            self.render_list.append(render)
 
         forward_reward = (xposafter - xposbefore) / self.dt
         ctrl_cost = 0.5 * np.square(a).sum()

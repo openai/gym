@@ -72,9 +72,9 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
     No additional arguments are currently supported.
     """
 
-    metadata = {"render_modes": ["human", "rgb_array", None], "render_fps": 50}
+    metadata = {"render_modes": [None, "human", "rgb_array"], "render_fps": 50}
 
-    def __init__(self, render_mode="human"):
+    def __init__(self, render_mode=None):
         self.gravity = 9.8
         self.masscart = 1.0
         self.masspole = 0.1
@@ -97,7 +97,7 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
                 np.finfo(np.float32).max,
                 self.theta_threshold_radians * 2,
                 np.finfo(np.float32).max,
-            ],
+                ],
             dtype=np.float32,
         )
 
@@ -107,11 +107,10 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         assert render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
 
-        pygame.init()
         self.screen_width = 600
         self.screen_height = 400
         self.screen = None
-        self.clock = pygame.time.Clock()
+        self.clock = None
         self.isopen = True
         self.state = None
         self.render_list = []
@@ -130,10 +129,10 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         # For the interested reader:
         # https://coneural.org/florian/papers/05_cart_pole.pdf
         temp = (
-            force + self.polemass_length * theta_dot**2 * sintheta
-        ) / self.total_mass
+                       force + self.polemass_length * theta_dot**2 * sintheta
+               ) / self.total_mass
         thetaacc = (self.gravity * sintheta - costheta * temp) / (
-            self.length * (4.0 / 3.0 - self.masspole * costheta**2 / self.total_mass)
+                self.length * (4.0 / 3.0 - self.masspole * costheta**2 / self.total_mass)
         )
         xacc = temp - self.polemass_length * thetaacc * costheta / self.total_mass
 
@@ -174,23 +173,25 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
             self.steps_beyond_done += 1
             reward = 0.0
 
-        if self.render_mode is not None:
-            self._render()
+        render = self._render(self.render_mode)
+        if self.render_mode == "rgb_array":
+            self.render_list.append(render)
         return np.array(self.state, dtype=np.float32), reward, done, {}
 
     def reset(
-        self,
-        *,
-        seed: Optional[int] = None,
-        return_info: bool = False,
-        options: Optional[dict] = None,
+            self,
+            *,
+            seed: Optional[int] = None,
+            return_info: bool = False,
+            options: Optional[dict] = None,
     ):
         super().reset(seed=seed)
         self.state = self.np_random.uniform(low=-0.05, high=0.05, size=(4,))
         self.steps_beyond_done = None
         self.render_list = []
-        if self.render_mode is not None:
-            self._render()
+        render = self._render(self.render_mode)
+        if self.render_mode == "rgb_array":
+            self.render_list.append(render)
         if not return_info:
             return np.array(self.state, dtype=np.float32)
         else:
@@ -202,90 +203,90 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         elif self.render_mode == "human":
             return self.isopen
 
-    def _render(self):
-        assert self.render_mode is not None
-        
-        import pygame
-        from pygame import gfxdraw
-        
-        if self.screen is None:
-            if self.render_mode == "human":
-                pygame.display.init()
-                self.screen = pygame.display.set_mode(
-                    (self.screen_width, self.screen_height)
-                )
-            else:
-                self.screen = pygame.Surface((self.screen_width, self.screen_height))
+    def _render(self, mode="human"):
+        if mode is not None:
+            import pygame
+            from pygame import gfxdraw
 
-        world_width = self.x_threshold * 2
-        scale = self.screen_width / world_width
-        polewidth = 10.0
-        polelen = scale * (2 * self.length)
-        cartwidth = 50.0
-        cartheight = 30.0
+            if self.screen is None:
+                pygame.init()
+                if mode == "human":
+                    pygame.display.init()
+                    self.screen = pygame.display.set_mode(
+                        (self.screen_width, self.screen_height)
+                    )
+                else:
+                    self.screen = pygame.Surface((self.screen_width, self.screen_height))
+            if self.clock is None:
+                self.clock = pygame.time.Clock()
 
-        if self.state is None:
-            return None
+            world_width = self.x_threshold * 2
+            scale = self.screen_width / world_width
+            polewidth = 10.0
+            polelen = scale * (2 * self.length)
+            cartwidth = 50.0
+            cartheight = 30.0
 
-        x = self.state
+            if self.state is None:
+                return None
 
-        self.surf = pygame.Surface((self.screen_width, self.screen_height))
-        self.surf.fill((255, 255, 255))
+            x = self.state
 
-        l, r, t, b = -cartwidth / 2, cartwidth / 2, cartheight / 2, -cartheight / 2
-        axleoffset = cartheight / 4.0
-        cartx = x[0] * scale + self.screen_width / 2.0  # MIDDLE OF CART
-        carty = 100  # TOP OF CART
-        cart_coords = [(l, b), (l, t), (r, t), (r, b)]
-        cart_coords = [(c[0] + cartx, c[1] + carty) for c in cart_coords]
-        gfxdraw.aapolygon(self.surf, cart_coords, (0, 0, 0))
-        gfxdraw.filled_polygon(self.surf, cart_coords, (0, 0, 0))
+            self.surf = pygame.Surface((self.screen_width, self.screen_height))
+            self.surf.fill((255, 255, 255))
 
-        l, r, t, b = (
-            -polewidth / 2,
-            polewidth / 2,
-            polelen - polewidth / 2,
-            -polewidth / 2,
-        )
+            l, r, t, b = -cartwidth / 2, cartwidth / 2, cartheight / 2, -cartheight / 2
+            axleoffset = cartheight / 4.0
+            cartx = x[0] * scale + self.screen_width / 2.0  # MIDDLE OF CART
+            carty = 100  # TOP OF CART
+            cart_coords = [(l, b), (l, t), (r, t), (r, b)]
+            cart_coords = [(c[0] + cartx, c[1] + carty) for c in cart_coords]
+            gfxdraw.aapolygon(self.surf, cart_coords, (0, 0, 0))
+            gfxdraw.filled_polygon(self.surf, cart_coords, (0, 0, 0))
 
-        pole_coords = []
-        for coord in [(l, b), (l, t), (r, t), (r, b)]:
-            coord = pygame.math.Vector2(coord).rotate_rad(-x[2])
-            coord = (coord[0] + cartx, coord[1] + carty + axleoffset)
-            pole_coords.append(coord)
-        gfxdraw.aapolygon(self.surf, pole_coords, (202, 152, 101))
-        gfxdraw.filled_polygon(self.surf, pole_coords, (202, 152, 101))
+            l, r, t, b = (
+                -polewidth / 2,
+                polewidth / 2,
+                polelen - polewidth / 2,
+                -polewidth / 2,
+            )
 
-        gfxdraw.aacircle(
-            self.surf,
-            int(cartx),
-            int(carty + axleoffset),
-            int(polewidth / 2),
-            (129, 132, 203),
-        )
-        gfxdraw.filled_circle(
-            self.surf,
-            int(cartx),
-            int(carty + axleoffset),
-            int(polewidth / 2),
-            (129, 132, 203),
-        )
+            pole_coords = []
+            for coord in [(l, b), (l, t), (r, t), (r, b)]:
+                coord = pygame.math.Vector2(coord).rotate_rad(-x[2])
+                coord = (coord[0] + cartx, coord[1] + carty + axleoffset)
+                pole_coords.append(coord)
+            gfxdraw.aapolygon(self.surf, pole_coords, (202, 152, 101))
+            gfxdraw.filled_polygon(self.surf, pole_coords, (202, 152, 101))
 
-        gfxdraw.hline(self.surf, 0, self.screen_width, carty, (0, 0, 0))
+            gfxdraw.aacircle(
+                self.surf,
+                int(cartx),
+                int(carty + axleoffset),
+                int(polewidth / 2),
+                (129, 132, 203),
+            )
+            gfxdraw.filled_circle(
+                self.surf,
+                int(cartx),
+                int(carty + axleoffset),
+                int(polewidth / 2),
+                (129, 132, 203),
+            )
 
-        self.surf = pygame.transform.flip(self.surf, False, True)
-        self.screen.blit(self.surf, (0, 0))
-        if self.render_mode == "human":
-            pygame.event.pump()
-            self.clock.tick(self.metadata["render_fps"])
-            pygame.display.flip()
+            gfxdraw.hline(self.surf, 0, self.screen_width, carty, (0, 0, 0))
 
-        else:  # self.render_mode == "rgb_array":
-            self.render_list.append(
-                np.transpose(
+            self.surf = pygame.transform.flip(self.surf, False, True)
+            self.screen.blit(self.surf, (0, 0))
+            if mode == "human":
+                pygame.event.pump()
+                self.clock.tick(self.metadata["render_fps"])
+                pygame.display.flip()
+
+            else:  # mode == "rgb_array":
+                return np.transpose(
                     np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
                 )
-            )
 
     def close(self):
         if self.screen is not None:

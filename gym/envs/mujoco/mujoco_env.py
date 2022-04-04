@@ -48,7 +48,7 @@ class MujocoEnv(gym.Env):
         self,
         model_path,
         frame_skip,
-        render_mode="human",
+        render_mode=None,
         width=DEFAULT_SIZE,
         height=DEFAULT_SIZE,
         camera_id=None,
@@ -68,7 +68,7 @@ class MujocoEnv(gym.Env):
         self._viewers = {}
 
         self.metadata = {
-            "render_modes": ["human", "rgb_array", "depth_array"],
+            "render_modes": [None, "human", "rgb_array", "depth_array"],
             "render_fps": int(np.round(1.0 / self.dt)),
         }
 
@@ -149,7 +149,9 @@ class MujocoEnv(gym.Env):
         self.sim.reset()
         ob = self.reset_model()
         self.render_list = []
-        self._render()
+        render = self._render(self.render_mode)
+        if self.render_mode in ["rgb_array", "depth_array"]:
+            self.render_list.append(render)
         if not return_info:
             return ob
         else:
@@ -177,11 +179,11 @@ class MujocoEnv(gym.Env):
             self.sim.step()
 
     def collect_render(self):
-        if self.render_mode != "human":
+        if self.render_mode in ["rgb_array", "depth_array"]:
             return self.render_list
 
-    def _render(self):
-        if self.render_mode == "rgb_array":
+    def _render(self, mode):
+        if mode == "rgb_array":
             self._get_viewer(self.render_mode).render(
                 self.width, self.height, camera_id=self.camera_id
             )
@@ -190,8 +192,8 @@ class MujocoEnv(gym.Env):
                 self.width, self.height, depth=False
             )
             # original image is upside-down, so flip it
-            self.render_list.append(data[::-1, :, :])
-        elif self.render_mode == "depth_array":
+            return data[::-1, :, :]
+        elif mode == "depth_array":
             self._get_viewer(self.render_mode).render(
                 self.width, self.height, camera_id=self.camera_id
             )
@@ -201,8 +203,8 @@ class MujocoEnv(gym.Env):
                 self.width, self.height, depth=True
             )[1]
             # original image is upside-down, so flip it
-            self.render_list.append(data[::-1, :])
-        elif self.render_mode == "human":
+            return data[::-1, :]
+        elif mode == "human":
             self._get_viewer(self.render_mode).render()
 
     def close(self):
