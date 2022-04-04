@@ -123,9 +123,7 @@ class FrozenLakeEnv(Env):
 
     metadata = {"render_modes": [None, "human", "ansi", "rgb_array"], "render_fps": 4}
 
-    def __init__(
-        self, render_mode=None, desc=None, map_name="4x4", is_slippery=True
-    ):
+    def __init__(self, render_mode=None, desc=None, map_name="4x4", is_slippery=True):
         if desc is None and map_name is None:
             desc = generate_random_map()
         elif desc is None:
@@ -381,6 +379,7 @@ class FrozenLakeEnv(Env):
 
             pygame.display.quit()
             pygame.quit()
+
 
 # Elf and stool from https://franuka.itch.io/rpg-snow-tileset
 # All other assets by Mel Sawyer http://www.cyaneus.com/

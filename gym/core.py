@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import TypeVar, Generic, Tuple, Union, Optional, SupportsFloat, List
+from typing import Generic, List, Optional, SupportsFloat, Tuple, TypeVar, Union
 
 import gym
 from gym import spaces
@@ -218,7 +218,9 @@ class Wrapper(Env[ObsType, ActType]):
         self._metadata: dict | None = None
 
     def __getattr__(self, name):
-        if name.startswith("_") and name != "_render":  # TODO: remove name != "_render" from v1.0
+        if (
+            name.startswith("_") and name != "_render"
+        ):  # TODO: remove name != "_render" from v1.0
             raise AttributeError(f"accessing private attribute '{name}' is prohibited")
         return getattr(self.env, name)
 

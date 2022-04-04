@@ -5,15 +5,14 @@ from typing import Optional
 
 import Box2D
 import numpy as np
+import pygame
 from Box2D.b2 import contactListener, fixtureDef, polygonShape
+from pygame import gfxdraw
 
 import gym
 from gym import spaces
 from gym.envs.box2d.car_dynamics import Car
 from gym.utils import EzPickle, seeding
-
-import pygame
-from pygame import gfxdraw
 
 STATE_W = 96  # less than Atari 160x192
 STATE_H = 96
@@ -452,6 +451,7 @@ class CarRacing(gym.Env, EzPickle):
 
     def _render(self, mode="human"):
         import pygame
+
         pygame.init()
         pygame.display.init()
         pygame.font.init()

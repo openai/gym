@@ -166,11 +166,11 @@ class Continuous_MountainCarEnv(gym.Env):
         return self.state, reward, done, {}
 
     def reset(
-            self,
-            *,
-            seed: Optional[int] = None,
-            return_info: bool = False,
-            options: Optional[dict] = None
+        self,
+        *,
+        seed: Optional[int] = None,
+        return_info: bool = False,
+        options: Optional[dict] = None
     ):
         super().reset(seed=seed)
         self.state = np.array([self.np_random.uniform(low=-0.6, high=-0.4), 0])
@@ -205,7 +205,9 @@ class Continuous_MountainCarEnv(gym.Env):
                         (self.screen_width, self.screen_height)
                     )
                 else:  # mode == "rgb_array"
-                    self.screen = pygame.Surface((self.screen_width, self.screen_height))
+                    self.screen = pygame.Surface(
+                        (self.screen_width, self.screen_height)
+                    )
             if self.clock is None:
                 self.clock = pygame.time.Clock()
 

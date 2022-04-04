@@ -146,10 +146,10 @@ class BlackjackEnv(gym.Env):
                 # Player automatically wins. Rules consistent with S&B
                 reward = 1.0
             elif (
-                    not self.sab
-                    and self.natural
-                    and is_natural(self.player)
-                    and reward == 1.0
+                not self.sab
+                and self.natural
+                and is_natural(self.player)
+                and reward == 1.0
             ):
                 # Natural gives extra points, but doesn't autowin. Legacy implementation
                 reward = 1.5
@@ -163,10 +163,10 @@ class BlackjackEnv(gym.Env):
         return (sum_hand(self.player), self.dealer[0], usable_ace(self.player))
 
     def reset(
-            self,
-            seed: Optional[int] = None,
-            return_info: bool = False,
-            options: Optional[dict] = None,
+        self,
+        seed: Optional[int] = None,
+        return_info: bool = False,
+        options: Optional[dict] = None,
     ):
         super().reset(seed=seed)
         self.dealer = draw_hand(self.np_random)
@@ -241,11 +241,15 @@ class BlackjackEnv(gym.Env):
                 dealer_card_value_str = str(dealer_card_value)
 
             def scale_card_img(card_img):
-                return pygame.transform.scale(card_img, (card_img_width, card_img_height))
+                return pygame.transform.scale(
+                    card_img, (card_img_width, card_img_height)
+                )
 
             dealer_card_img = scale_card_img(
                 get_image(
-                    os.path.join("img", dealer_card_suit + dealer_card_value_str + ".png")
+                    os.path.join(
+                        "img", dealer_card_suit + dealer_card_value_str + ".png"
+                    )
                 )
             )
             dealer_card_rect = self.screen.blit(
@@ -270,7 +274,9 @@ class BlackjackEnv(gym.Env):
                 player_text, (spacing, dealer_card_rect.bottom + 1.5 * spacing)
             )
 
-            large_font = get_font(os.path.join("font", "Minecraft.ttf"), screen_height // 6)
+            large_font = get_font(
+                os.path.join("font", "Minecraft.ttf"), screen_height // 6
+            )
             player_sum_text = large_font.render(str(player_sum), True, white)
             player_sum_text_rect = self.screen.blit(
                 player_sum_text,

@@ -171,11 +171,11 @@ class AcrobotEnv(core.Env):
         self.state = None
 
     def reset(
-            self,
-            *,
-            seed: Optional[int] = None,
-            return_info: bool = False,
-            options: Optional[dict] = None
+        self,
+        *,
+        seed: Optional[int] = None,
+        return_info: bool = False,
+        options: Optional[dict] = None
     ):
         super().reset(seed=seed)
         self.state = self.np_random.uniform(low=-0.1, high=0.1, size=(4,)).astype(
@@ -249,18 +249,18 @@ class AcrobotEnv(core.Env):
         dtheta1 = s[2]
         dtheta2 = s[3]
         d1 = (
-                m1 * lc1**2
-                + m2 * (l1**2 + lc2**2 + 2 * l1 * lc2 * cos(theta2))
-                + I1
-                + I2
+            m1 * lc1**2
+            + m2 * (l1**2 + lc2**2 + 2 * l1 * lc2 * cos(theta2))
+            + I1
+            + I2
         )
         d2 = m2 * (lc2**2 + l1 * lc2 * cos(theta2)) + I2
         phi2 = m2 * lc2 * g * cos(theta1 + theta2 - pi / 2.0)
         phi1 = (
-                -m2 * l1 * lc2 * dtheta2**2 * sin(theta2)
-                - 2 * m2 * l1 * lc2 * dtheta2 * dtheta1 * sin(theta2)
-                + (m1 * lc1 + m2 * l1) * g * cos(theta1 - pi / 2)
-                + phi2
+            -m2 * l1 * lc2 * dtheta2**2 * sin(theta2)
+            - 2 * m2 * l1 * lc2 * dtheta2 * dtheta1 * sin(theta2)
+            + (m1 * lc1 + m2 * l1) * g * cos(theta1 - pi / 2)
+            + phi2
         )
         if self.book_or_nips == "nips":
             # the following line is consistent with the description in the
@@ -270,8 +270,8 @@ class AcrobotEnv(core.Env):
             # the following line is consistent with the java implementation and the
             # book
             ddtheta2 = (
-                               a + d2 / d1 * phi1 - m2 * l1 * lc2 * dtheta1**2 * sin(theta2) - phi2
-                       ) / (m2 * lc2**2 + I2 - d2**2 / d1)
+                a + d2 / d1 * phi1 - m2 * l1 * lc2 * dtheta1**2 * sin(theta2) - phi2
+            ) / (m2 * lc2**2 + I2 - d2**2 / d1)
         ddtheta1 = -(d2 * ddtheta2 + phi1) / d1
         return dtheta1, dtheta2, ddtheta1, ddtheta2, 0.0
 
@@ -312,12 +312,12 @@ class AcrobotEnv(core.Env):
             p1 = [
                 -self.LINK_LENGTH_1 * cos(s[0]) * scale,
                 self.LINK_LENGTH_1 * sin(s[0]) * scale,
-                ]
+            ]
 
             p2 = [
                 p1[0] - self.LINK_LENGTH_2 * cos(s[0] + s[1]) * scale,
                 p1[1] + self.LINK_LENGTH_2 * sin(s[0] + s[1]) * scale,
-                ]
+            ]
 
             xys = np.array([[0, 0], p1, p2])[:, ::-1]
             thetas = [s[0] - pi / 2, s[0] + s[1] - pi / 2]
@@ -344,7 +344,9 @@ class AcrobotEnv(core.Env):
                 gfxdraw.filled_polygon(surf, transformed_coords, (0, 204, 204))
 
                 gfxdraw.aacircle(surf, int(x), int(y), int(0.1 * scale), (204, 204, 0))
-                gfxdraw.filled_circle(surf, int(x), int(y), int(0.1 * scale), (204, 204, 0))
+                gfxdraw.filled_circle(
+                    surf, int(x), int(y), int(0.1 * scale), (204, 204, 0)
+                )
 
             surf = pygame.transform.flip(surf, False, True)
             self.screen.blit(surf, (0, 0))

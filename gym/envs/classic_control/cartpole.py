@@ -97,7 +97,7 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
                 np.finfo(np.float32).max,
                 self.theta_threshold_radians * 2,
                 np.finfo(np.float32).max,
-                ],
+            ],
             dtype=np.float32,
         )
 
@@ -129,10 +129,10 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         # For the interested reader:
         # https://coneural.org/florian/papers/05_cart_pole.pdf
         temp = (
-                       force + self.polemass_length * theta_dot**2 * sintheta
-               ) / self.total_mass
+            force + self.polemass_length * theta_dot**2 * sintheta
+        ) / self.total_mass
         thetaacc = (self.gravity * sintheta - costheta * temp) / (
-                self.length * (4.0 / 3.0 - self.masspole * costheta**2 / self.total_mass)
+            self.length * (4.0 / 3.0 - self.masspole * costheta**2 / self.total_mass)
         )
         xacc = temp - self.polemass_length * thetaacc * costheta / self.total_mass
 
@@ -179,11 +179,11 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         return np.array(self.state, dtype=np.float32), reward, done, {}
 
     def reset(
-            self,
-            *,
-            seed: Optional[int] = None,
-            return_info: bool = False,
-            options: Optional[dict] = None,
+        self,
+        *,
+        seed: Optional[int] = None,
+        return_info: bool = False,
+        options: Optional[dict] = None,
     ):
         super().reset(seed=seed)
         self.state = self.np_random.uniform(low=-0.05, high=0.05, size=(4,))
@@ -216,7 +216,9 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
                         (self.screen_width, self.screen_height)
                     )
                 else:
-                    self.screen = pygame.Surface((self.screen_width, self.screen_height))
+                    self.screen = pygame.Surface(
+                        (self.screen_width, self.screen_height)
+                    )
             if self.clock is None:
                 self.clock = pygame.time.Clock()
 

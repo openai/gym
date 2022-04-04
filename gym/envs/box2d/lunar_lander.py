@@ -48,8 +48,8 @@ class ContactDetector(contactListener):
 
     def BeginContact(self, contact):
         if (
-                self.env.lander == contact.fixtureA.body
-                or self.env.lander == contact.fixtureB.body
+            self.env.lander == contact.fixtureA.body
+            or self.env.lander == contact.fixtureB.body
         ):
             self.env.game_over = True
         for i in range(2):
@@ -187,11 +187,11 @@ class LunarLander(gym.Env, EzPickle):
         self.world.DestroyBody(self.legs[1])
 
     def reset(
-            self,
-            *,
-            seed: Optional[int] = None,
-            return_info: bool = False,
-            options: Optional[dict] = None,
+        self,
+        *,
+        seed: Optional[int] = None,
+        return_info: bool = False,
+        options: Optional[dict] = None,
     ):
         super().reset(seed=seed)
         self._destroy()
@@ -286,7 +286,7 @@ class LunarLander(gym.Env, EzPickle):
             )
             if i == -1:
                 rjd.lowerAngle = (
-                        +0.9 - 0.5
+                    +0.9 - 0.5
                 )  # The most esoteric numbers here, angled legs have freedom to travel within
                 rjd.upperAngle = +0.9
             else:
@@ -343,7 +343,7 @@ class LunarLander(gym.Env, EzPickle):
 
         m_power = 0.0
         if (self.continuous and action[0] > 0.0) or (
-                not self.continuous and action == 2
+            not self.continuous and action == 2
         ):
             # Main engine
             if self.continuous:
@@ -352,7 +352,7 @@ class LunarLander(gym.Env, EzPickle):
             else:
                 m_power = 1.0
             ox = (
-                    tip[0] * (4 / SCALE + 2 * dispersion[0]) + side[0] * dispersion[1]
+                tip[0] * (4 / SCALE + 2 * dispersion[0]) + side[0] * dispersion[1]
             )  # 4 is move a bit downwards, +-2 for randomness
             oy = -tip[1] * (4 / SCALE + 2 * dispersion[0]) - side[1] * dispersion[1]
             impulse_pos = (self.lander.position[0] + ox, self.lander.position[1] + oy)
@@ -375,7 +375,7 @@ class LunarLander(gym.Env, EzPickle):
 
         s_power = 0.0
         if (self.continuous and np.abs(action[1]) > 0.5) or (
-                not self.continuous and action in [1, 3]
+            not self.continuous and action in [1, 3]
         ):
             # Orientation engines
             if self.continuous:
@@ -386,10 +386,10 @@ class LunarLander(gym.Env, EzPickle):
                 direction = action - 2
                 s_power = 1.0
             ox = tip[0] * dispersion[0] + side[0] * (
-                    3 * dispersion[1] + direction * SIDE_ENGINE_AWAY / SCALE
+                3 * dispersion[1] + direction * SIDE_ENGINE_AWAY / SCALE
             )
             oy = -tip[1] * dispersion[0] - side[1] * (
-                    3 * dispersion[1] + direction * SIDE_ENGINE_AWAY / SCALE
+                3 * dispersion[1] + direction * SIDE_ENGINE_AWAY / SCALE
             )
             impulse_pos = (
                 self.lander.position[0] + ox - tip[0] * 17 / SCALE,
@@ -420,16 +420,16 @@ class LunarLander(gym.Env, EzPickle):
             20.0 * self.lander.angularVelocity / FPS,
             1.0 if self.legs[0].ground_contact else 0.0,
             1.0 if self.legs[1].ground_contact else 0.0,
-            ]
+        ]
         assert len(state) == 8
 
         reward = 0
         shaping = (
-                -100 * np.sqrt(state[0] * state[0] + state[1] * state[1])
-                - 100 * np.sqrt(state[2] * state[2] + state[3] * state[3])
-                - 100 * abs(state[4])
-                + 10 * state[6]
-                + 10 * state[7]
+            -100 * np.sqrt(state[0] * state[0] + state[1] * state[1])
+            - 100 * np.sqrt(state[2] * state[2] + state[3] * state[3])
+            - 100 * abs(state[4])
+            + 10 * state[6]
+            + 10 * state[7]
         )  # And ten points for legs contact, the idea is if you
         # lose contact again after landing, you get negative reward
         if self.prev_shaping is not None:
@@ -437,7 +437,7 @@ class LunarLander(gym.Env, EzPickle):
         self.prev_shaping = shaping
 
         reward -= (
-                m_power * 0.30
+            m_power * 0.30
         )  # less fuel spent is better, about -30 for heuristic landing
         reward -= s_power * 0.03
 
@@ -601,7 +601,7 @@ def heuristic(env, s):
     if s[6] or s[7]:  # legs have contact
         angle_todo = 0
         hover_todo = (
-                -(s[3]) * 0.5
+            -(s[3]) * 0.5
         )  # override to reduce fall speed, that's all we need after contact
 
     if env.continuous:

@@ -127,11 +127,11 @@ class PendulumEnv(gym.Env):
         return self._get_obs(), -costs, False, {}
 
     def reset(
-            self,
-            *,
-            seed: Optional[int] = None,
-            return_info: bool = False,
-            options: Optional[dict] = None
+        self,
+        *,
+        seed: Optional[int] = None,
+        return_info: bool = False,
+        options: Optional[dict] = None
     ):
         super().reset(seed=seed)
         high = np.array([np.pi, 1])
@@ -192,7 +192,9 @@ class PendulumEnv(gym.Env):
             gfxdraw.aapolygon(self.surf, transformed_coords, (204, 77, 77))
             gfxdraw.filled_polygon(self.surf, transformed_coords, (204, 77, 77))
 
-            gfxdraw.aacircle(self.surf, offset, offset, int(rod_width / 2), (204, 77, 77))
+            gfxdraw.aacircle(
+                self.surf, offset, offset, int(rod_width / 2), (204, 77, 77)
+            )
             gfxdraw.filled_circle(
                 self.surf, offset, offset, int(rod_width / 2), (204, 77, 77)
             )
@@ -211,7 +213,8 @@ class PendulumEnv(gym.Env):
             img = pygame.image.load(fname)
             if self.last_u is not None:
                 scale_img = pygame.transform.smoothscale(
-                    img, (scale * np.abs(self.last_u) / 2, scale * np.abs(self.last_u) / 2)
+                    img,
+                    (scale * np.abs(self.last_u) / 2, scale * np.abs(self.last_u) / 2),
                 )
                 is_flip = bool(self.last_u > 0)
                 scale_img = pygame.transform.flip(scale_img, is_flip, True)
@@ -225,7 +228,9 @@ class PendulumEnv(gym.Env):
 
             # drawing axle
             gfxdraw.aacircle(self.surf, offset, offset, int(0.05 * scale), (0, 0, 0))
-            gfxdraw.filled_circle(self.surf, offset, offset, int(0.05 * scale), (0, 0, 0))
+            gfxdraw.filled_circle(
+                self.surf, offset, offset, int(0.05 * scale), (0, 0, 0)
+            )
 
             self.surf = pygame.transform.flip(self.surf, False, True)
             self.screen.blit(self.surf, (0, 0))

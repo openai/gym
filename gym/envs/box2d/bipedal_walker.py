@@ -78,8 +78,8 @@ class ContactDetector(contactListener):
 
     def BeginContact(self, contact):
         if (
-                self.env.hull == contact.fixtureA.body
-                or self.env.hull == contact.fixtureB.body
+            self.env.hull == contact.fixtureA.body
+            or self.env.hull == contact.fixtureB.body
         ):
             self.env.game_over = True
         for leg in [self.env.legs[1], self.env.legs[3]]:
@@ -355,11 +355,11 @@ class BipedalWalker(gym.Env, EzPickle):
             self.cloud_poly.append((poly, x1, x2))
 
     def reset(
-            self,
-            *,
-            seed: Optional[int] = None,
-            return_info: bool = False,
-            options: Optional[dict] = None,
+        self,
+        *,
+        seed: Optional[int] = None,
+        return_info: bool = False,
+        options: Optional[dict] = None,
     ):
         super().reset(seed=seed)
         self._destroy()
@@ -512,14 +512,14 @@ class BipedalWalker(gym.Env, EzPickle):
             self.joints[3].angle + 1.0,
             self.joints[3].speed / SPEED_KNEE,
             1.0 if self.legs[3].ground_contact else 0.0,
-            ]
+        ]
         state += [l.fraction for l in self.lidar]
         assert len(state) == 24
 
         self.scroll = pos.x - VIEWPORT_W / SCALE / 5
 
         shaping = (
-                130 * pos[0] / SCALE
+            130 * pos[0] / SCALE
         )  # moving forward is a way to receive reward (normalized to get 300 on completion)
         shaping -= 5.0 * abs(
             state[0]
@@ -585,12 +585,16 @@ class BipedalWalker(gym.Env, EzPickle):
                     self.surf,
                     color=(255, 255, 255),
                     points=[
-                        (p[0] * SCALE + self.scroll * SCALE / 2, p[1] * SCALE) for p in poly
+                        (p[0] * SCALE + self.scroll * SCALE / 2, p[1] * SCALE)
+                        for p in poly
                     ],
                 )
                 gfxdraw.aapolygon(
                     self.surf,
-                    [(p[0] * SCALE + self.scroll * SCALE / 2, p[1] * SCALE) for p in poly],
+                    [
+                        (p[0] * SCALE + self.scroll * SCALE / 2, p[1] * SCALE)
+                        for p in poly
+                    ],
                     (255, 255, 255),
                 )
             for poly, color in self.terrain_poly:
@@ -640,7 +644,9 @@ class BipedalWalker(gym.Env, EzPickle):
                     else:
                         path = [trans * v * SCALE for v in f.shape.vertices]
                         if len(path) > 2:
-                            pygame.draw.polygon(self.surf, color=obj.color1, points=path)
+                            pygame.draw.polygon(
+                                self.surf, color=obj.color1, points=path
+                            )
                             gfxdraw.aapolygon(self.surf, path, obj.color1)
                             path.append(path[0])
                             pygame.draw.polygon(
