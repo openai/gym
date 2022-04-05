@@ -115,6 +115,10 @@ class Env(Generic[ObsType, ActType]):
         return self._render(mode=mode)
 
     @abstractmethod
+    def _render(self, mode="human"):  # TODO: remove from v1.0
+        raise NotImplementedError
+
+    @abstractmethod
     def collect_render(self) -> Optional[List]:
         """Returns a list of renders for the environment until the current time step.
         The i-th element of the list render the environment for the i-th time step using
