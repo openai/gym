@@ -435,6 +435,8 @@ class CarRacing(gym.Env, EzPickle):
     def render(self, mode="human"):
         import pygame
 
+        pygame.font.init()
+
         assert mode in ["human", "state_pixels", "rgb_array"]
         if self.screen is None and mode == "human":
             pygame.init()
