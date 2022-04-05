@@ -4,7 +4,7 @@ import pytest
 import numpy as np
 import pytest
 
-from gym import spaces
+from gym import spaces, Space
 from gym.spaces import Tuple, Box
 
 from gym.vector.async_vector_env import AsyncVectorEnv
@@ -65,7 +65,7 @@ def test_custom_space_vector_env():
     assert isinstance(env.action_space, Tuple)
 
 
-@pytest.mark.parametrize("base_env", ["CubeCrash-v0", "CartPole-v0"])
+@pytest.mark.parametrize("base_env", ["Pendulum-v1", "CartPole-v1"])
 @pytest.mark.parametrize("async_inner", [False, True])
 @pytest.mark.parametrize("async_outer", [False, True])
 @pytest.mark.parametrize("n_inner_envs", [1, 4, 7])
@@ -140,26 +140,12 @@ def test_nesting_vector_envs(
     )
     assert env.observation_space.dtype == single_observation_space.dtype
 
-    assert isinstance(env.action_space, spaces.Tuple)
-    assert len(env.action_space.spaces) == n_outer_envs
-    assert all(
-        isinstance(outer_action_space, spaces.Tuple)
-        and len(outer_action_space.spaces) == n_inner_envs
-        for outer_action_space in env.action_space.spaces
-    )
-    assert all(
-        [
-            len(inner_action_space.spaces) == n_inner_envs
-            for inner_action_space in env.action_space.spaces
-        ]
-    )
-    assert all(
-        [
-            inner_action_space.spaces[i] == single_action_space
-            for inner_action_space in env.action_space.spaces
-            for i in range(n_inner_envs)
-        ]
-    )
+    from gym.vector.utils.spaces import iterate
+
+    def batch_size(space: Space) -> int:
+        return len(list(iterate(space, space.sample())))
+
+    assert batch_size(env.action_space) == n_outer_envs
 
     with env:
         observations = env.reset()

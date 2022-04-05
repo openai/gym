@@ -737,7 +737,10 @@ def _worker_shared_memory(index, env_fn, pipe, parent_pipe, shared_memory, error
                     pipe.send((None, True))
             elif command == "step":
                 observation, reward, done, info = env.step(data)
-                if done:
+                if isinstance(env, VectorEnv):
+                    # VectorEnvs take care of resetting the envs that are done.
+                    pass
+                elif done:
                     info["terminal_observation"] = observation
                     observation = env.reset()
                 write_to_shared_memory(
