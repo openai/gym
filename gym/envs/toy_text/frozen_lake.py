@@ -2,8 +2,7 @@ from contextlib import closing
 from io import StringIO
 from os import path
 from typing import Optional
-import pygame
-from pygame.constants import SRCALPHA
+
 import numpy as np
 
 from gym import Env, spaces, utils
@@ -242,6 +241,9 @@ class FrozenLakeEnv(Env):
             return self._render_gui(desc, mode)
 
     def _render_gui(self, desc, mode):
+        import pygame
+        from pygame.constants import SRCALPHA
+
         if self.window_surface is None:
             pygame.init()
             pygame.display.init()
@@ -371,6 +373,8 @@ class FrozenLakeEnv(Env):
 
     def close(self):
         if self.window_surface is not None:
+            import pygame
+
             pygame.display.quit()
             pygame.quit()
 

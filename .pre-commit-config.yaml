@@ -1,15 +1,7 @@
+---
 repos:
-  - repo: https://github.com/PyCQA/bandit/
-    rev: 1.7.0
-    hooks:
-      - id: bandit
-        args:
-          - --recursive
-          - --skip
-          - B101,B108,B301,B403,B404,B603
-          - .
   - repo: https://github.com/python/black
-    rev: 21.7b0
+    rev: 22.3.0
     hooks:
       - id: black
   - repo: https://github.com/codespell-project/codespell
@@ -28,3 +20,14 @@ repos:
           - --max-line-length=456
           - --show-source
           - --statistics
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.10.1
+    hooks:
+      - id: isort
+        args: ["--profile", "black"]
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v2.31.0
+    hooks:
+      - id: pyupgrade
+        # TODO: remove `--keep-runtime-typing` option
+        args: ["--py37-plus", "--keep-runtime-typing"]

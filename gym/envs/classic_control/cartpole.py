@@ -7,11 +7,9 @@ import math
 from typing import Optional, Union
 
 import numpy as np
-import pygame
-from pygame import gfxdraw
 
 import gym
-from gym import spaces, logger
+from gym import logger, spaces
 from gym.utils import seeding
 
 
@@ -125,10 +123,10 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         # For the interested reader:
         # https://coneural.org/florian/papers/05_cart_pole.pdf
         temp = (
-            force + self.polemass_length * theta_dot ** 2 * sintheta
+            force + self.polemass_length * theta_dot**2 * sintheta
         ) / self.total_mass
         thetaacc = (self.gravity * sintheta - costheta * temp) / (
-            self.length * (4.0 / 3.0 - self.masspole * costheta ** 2 / self.total_mass)
+            self.length * (4.0 / 3.0 - self.masspole * costheta**2 / self.total_mass)
         )
         xacc = temp - self.polemass_length * thetaacc * costheta / self.total_mass
 
@@ -187,6 +185,9 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
             return np.array(self.state, dtype=np.float32), {}
 
     def render(self, mode="human"):
+        import pygame
+        from pygame import gfxdraw
+
         screen_width = 600
         screen_height = 400
 
@@ -269,6 +270,8 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
 
     def close(self):
         if self.screen is not None:
+            import pygame
+
             pygame.display.quit()
             pygame.quit()
             self.isopen = False

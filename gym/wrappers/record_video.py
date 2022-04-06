@@ -1,7 +1,7 @@
 import os
-import gym
 from typing import Callable, Optional
 
+import gym
 from gym import logger
 from gym.wrappers.monitoring import video_recorder
 

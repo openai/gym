@@ -1,9 +1,10 @@
-import numpy as np
 from collections import OrderedDict
 from functools import singledispatch
 
-from gym.spaces import Space, Box, Discrete, MultiDiscrete, MultiBinary, Tuple, Dict
+import numpy as np
+
 from gym.error import CustomSpaceError
+from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Space, Tuple
 
 _BaseGymSpaces = (Box, Discrete, MultiDiscrete, MultiBinary)
 __all__ = ["_BaseGymSpaces", "batch_space", "iterate"]
@@ -131,8 +132,7 @@ def iterate(space, items):
     StopIteration
     """
     raise ValueError(
-        "Space of type `{0}` is not a valid `gym.Space` "
-        "instance.".format(type(space))
+        "Space of type `{}` is not a valid `gym.Space` " "instance.".format(type(space))
     )
 
 

@@ -1,18 +1,13 @@
 from __future__ import annotations
 
-from collections import OrderedDict
-from functools import singledispatch, reduce
-from typing import TypeVar, Union
-import numpy as np
 import operator as op
+from collections import OrderedDict
+from functools import reduce, singledispatch
+from typing import TypeVar, Union
 
-from gym.spaces import Box
-from gym.spaces import Discrete
-from gym.spaces import MultiDiscrete
-from gym.spaces import MultiBinary
-from gym.spaces import Tuple
-from gym.spaces import Dict
-from gym.spaces import Space
+import numpy as np
+
+from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Space, Tuple
 
 
 @singledispatch

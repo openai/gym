@@ -1,10 +1,10 @@
+import time
 from typing import Optional
 
 import numpy as np
-import gym
-import time
 
-from gym.spaces import Box, Discrete, MultiDiscrete, MultiBinary, Tuple, Dict
+import gym
+from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Tuple
 
 spaces = [
     Box(low=np.array(-1.0), high=np.array(1.0), dtype=np.float64),

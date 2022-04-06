@@ -1,10 +1,10 @@
 from typing import Optional
 
-import gym
 import numpy as np
-from numpy.testing import assert_almost_equal
 import pytest
+from numpy.testing import assert_almost_equal
 
+import gym
 from gym.wrappers.normalize import NormalizeObservation, NormalizeReward
 
 
