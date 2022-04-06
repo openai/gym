@@ -139,24 +139,30 @@ seeded_spaces = [
     CustomSpace(seed=123),
     Box(0, 10, (), seed=123),
     Tuple([Box(0, 5, (), seed=123), Box(0, 3, (), seed=123)], seed=123),
-    Dict({"space-1": Box(0, 5, (), seed=123), "space-2": Box(0, 10, (), seed=123)}, seed=123,),
+    Dict(
+        {"space-1": Box(0, 5, (), seed=123), "space-2": Box(0, 10, (), seed=123)},
+        seed=123,
+    ),
     Discrete(5, seed=123),
-    MultiDiscrete([5, 3], seed=123)
+    MultiDiscrete([5, 3], seed=123),
 ]
 
 
 @pytest.mark.parametrize(
-    "space", seeded_spaces,
-    ids=[space.__class__.__name__ for space in seeded_spaces]
+    "space", seeded_spaces, ids=[space.__class__.__name__ for space in seeded_spaces]
 )
 def test_batch_space_seed(space):
     batched_space = batch_space(space)  # n=1
     assert space.np_random == batched_space.np_random
 
 
-@pytest.mark.parametrize("space", spaces, ids=[space.__class__.__name__ for space in spaces])
-@pytest.mark.parametrize("n", [4, 5], ids=[f'n={n}' for n in [3, 5]])
-@pytest.mark.parametrize("base_seed", [123, 456], ids=[f'seed={base_seed}' for base_seed in [123, 456]])
+@pytest.mark.parametrize(
+    "space", spaces, ids=[space.__class__.__name__ for space in spaces]
+)
+@pytest.mark.parametrize("n", [4, 5], ids=[f"n={n}" for n in [3, 5]])
+@pytest.mark.parametrize(
+    "base_seed", [123, 456], ids=[f"seed={base_seed}" for base_seed in [123, 456]]
+)
 def test_rng_different_at_each_index(space, n, base_seed):
     space.seed(base_seed)
 
@@ -168,9 +174,13 @@ def test_rng_different_at_each_index(space, n, base_seed):
     assert not all(np.all(element == sample[0]) for element in sample), sample
 
 
-@pytest.mark.parametrize("space", spaces, ids=[space.__class__.__name__ for space in spaces])
-@pytest.mark.parametrize("n", [1, 2, 5], ids=[f'n={n}' for n in [1, 2, 5]])
-@pytest.mark.parametrize("base_seed", [123, 456], ids=[f'seed={base_seed}' for base_seed in [123, 456]])
+@pytest.mark.parametrize(
+    "space", spaces, ids=[space.__class__.__name__ for space in spaces]
+)
+@pytest.mark.parametrize("n", [1, 2, 5], ids=[f"n={n}" for n in [1, 2, 5]])
+@pytest.mark.parametrize(
+    "base_seed", [123, 456], ids=[f"seed={base_seed}" for base_seed in [123, 456]]
+)
 def test_deterministic(space: Space, n: int, base_seed: int):
     space_a = space
     space_a.seed(base_seed)
@@ -189,8 +199,10 @@ def test_deterministic(space: Space, n: int, base_seed: int):
     space_a.sample()
     space_a_batched_sample = space_a_batched.sample()
     space_b_batched_sample = space_b_batched.sample()
-    for a_sample, b_sample in zip(iterate(space_a_batched, space_a_batched_sample),
-                                  iterate(space_b_batched, space_b_batched_sample)):
+    for a_sample, b_sample in zip(
+        iterate(space_a_batched, space_a_batched_sample),
+        iterate(space_b_batched, space_b_batched_sample),
+    ):
         if isinstance(a_sample, tuple):
             for a_subsample, b_subsample in zip(a_sample, b_sample):
                 assert_array_equal(a_subsample, b_subsample)
