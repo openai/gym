@@ -11,23 +11,18 @@ class MultiBinary(Space[np.ndarray]):
     """
     An n-shape binary space.
 
-    The argument to MultiBinary defines n, which could be a number or a `list` of numbers.
+    The argument to MultiBinary defines n, which could be a number or a ``list`` of numbers.
 
-    Example Usage:
+    Example Usage::
 
-    >> self.observation_space = spaces.MultiBinary(5)
-
-    >> self.observation_space.sample()
-
-        array([0, 1, 0, 1, 0], dtype=int8)
-
-    >> self.observation_space = spaces.MultiBinary([3, 2])
-
-    >> self.observation_space.sample()
-
-        array([[0, 0],
-               [0, 1],
-               [1, 1]], dtype=int8)
+        >>> self.observation_space = spaces.MultiBinary(5)
+        >>> self.observation_space.sample()
+            array([0, 1, 0, 1, 0], dtype=int8)
+        >>> self.observation_space = spaces.MultiBinary([3, 2])
+        >>> self.observation_space.sample()
+            array([[0, 0],
+                [0, 1],
+                [1, 1]], dtype=int8)
 
     """
 
