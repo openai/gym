@@ -65,7 +65,7 @@ def _batch_space_discrete(space, n=1):
             high=space.start + space.n - 1,
             shape=(n,),
             dtype=space.dtype,
-            seed=space.np_random,
+            seed=copy(space.np_random),
         )
 
 
