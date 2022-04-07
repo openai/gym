@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import Iterable
 
 from collections.abc import Sequence
 
@@ -52,7 +53,7 @@ class MultiDiscrete(Space[np.ndarray]):
         # is within correct bounds for space dtype (even though x does not have to be unsigned)
         return bool(x.shape == self.shape and (0 <= x).all() and (x < self.nvec).all())
 
-    def to_jsonable(self, sample_n):
+    def to_jsonable(self, sample_n: Iterable[np.ndarray]):
         return [sample.tolist() for sample in sample_n]
 
     def from_jsonable(self, sample_n):
@@ -66,7 +67,7 @@ class MultiDiscrete(Space[np.ndarray]):
         if nvec.ndim == 0:
             subspace = Discrete(nvec)
         else:
-            subspace = MultiDiscrete(nvec, self.dtype)
+            subspace = MultiDiscrete(nvec, self.dtype)  # type: ignore
         subspace.np_random.bit_generator.state = self.np_random.bit_generator.state
         return subspace
 
