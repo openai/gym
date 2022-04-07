@@ -6,6 +6,8 @@ Gym is an open source Python library for developing and comparing reinforcement 
 
 Gym documentation website is at [https://www.gymlibrary.ml/](https://www.gymlibrary.ml/), and you can propose fixes and changes [here](https://github.com/Farama-Foundation/gym-docs).
 
+Gym also has a discord server for development purposes that you can join here: https://discord.gg/nHg2JRN489
+
 ## Installation
 
 To install the base Gym library, use `pip install gym`.
