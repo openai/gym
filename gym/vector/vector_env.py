@@ -1,7 +1,7 @@
-from typing import Optional, Union, List
+from typing import List, Optional, Union
 
 import gym
-from gym.logger import warn, deprecation
+from gym.logger import deprecation, warn
 from gym.spaces import Tuple
 from gym.vector.utils.spaces import batch_space
 

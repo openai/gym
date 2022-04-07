@@ -1,7 +1,9 @@
-import gym
-import pygame
-import matplotlib
 import argparse
+
+import matplotlib
+import pygame
+
+import gym
 from gym import logger
 
 try:
@@ -12,6 +14,7 @@ except ImportError as e:
     plt = None
 
 from collections import deque
+
 from pygame.locals import VIDEORESIZE
 
 

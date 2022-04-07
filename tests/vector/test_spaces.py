@@ -1,10 +1,9 @@
-import pytest
 import numpy as np
+import pytest
 
-from gym.spaces import Box, MultiDiscrete, Tuple, Dict
-from tests.vector.utils import spaces, custom_spaces, CustomSpace
-
+from gym.spaces import Box, Dict, MultiDiscrete, Tuple
 from gym.vector.utils.spaces import batch_space, iterate
+from tests.vector.utils import CustomSpace, custom_spaces, spaces
 
 expected_batch_spaces_4 = [
     Box(low=-1.0, high=1.0, shape=(4,), dtype=np.float64),

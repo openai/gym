@@ -1,7 +1,7 @@
 import hashlib
-from typing import Optional, List, Tuple, Union, Any
 import os
 import struct
+from typing import Any, List, Optional, Tuple, Union
 
 import numpy as np
 from numpy.random import Generator
@@ -198,6 +198,6 @@ def _int_list_from_bigint(bigint: int) -> List[int]:
 
     ints: List[int] = []
     while bigint > 0:
-        bigint, mod = divmod(bigint, 2 ** 32)
+        bigint, mod = divmod(bigint, 2**32)
         ints.append(mod)
     return ints

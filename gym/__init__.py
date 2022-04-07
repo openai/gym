@@ -1,3 +1,5 @@
+# isort: skip_file
+
 from gym import error
 from gym.version import VERSION as __version__
 

@@ -1,22 +1,17 @@
 __credits__ = ["Andrea PIERRÉ"]
 
-import sys
 import math
+import sys
 from typing import Optional
 
-import numpy as np
-import pygame
-from pygame import gfxdraw
-
 import Box2D
-from Box2D.b2 import fixtureDef
-from Box2D.b2 import polygonShape
-from Box2D.b2 import contactListener
+import numpy as np
+from Box2D.b2 import contactListener, fixtureDef, polygonShape
 
 import gym
 from gym import spaces
 from gym.envs.box2d.car_dynamics import Car
-from gym.utils import seeding, EzPickle
+from gym.utils import EzPickle, seeding
 
 STATE_W = 96  # less than Atari 160x192
 STATE_H = 96
@@ -152,7 +147,6 @@ class CarRacing(gym.Env, EzPickle):
 
     def __init__(self, verbose=1, lap_complete_percent=0.95):
         EzPickle.__init__(self)
-        pygame.init()
         self.contactListener_keepref = FrictionDetector(self, lap_complete_percent)
         self.world = Box2D.b2World((0, 0), contactListener=self.contactListener_keepref)
         self.screen = None
@@ -439,8 +433,13 @@ class CarRacing(gym.Env, EzPickle):
         return self.state, step_reward, done, {}
 
     def render(self, mode="human"):
+        import pygame
+
+        pygame.font.init()
+
         assert mode in ["human", "state_pixels", "rgb_array"]
         if self.screen is None and mode == "human":
+            pygame.init()
             pygame.display.init()
             self.screen = pygame.display.set_mode((WINDOW_W, WINDOW_H))
         if self.clock is None:
@@ -525,6 +524,8 @@ class CarRacing(gym.Env, EzPickle):
             self.draw_colored_polygon(self.surf, poly, color, zoom, translation, angle)
 
     def render_indicators(self, W, H):
+        import pygame
+
         s = W / 40.0
         h = H / 40.0
         color = (0, 0, 0)
@@ -592,6 +593,9 @@ class CarRacing(gym.Env, EzPickle):
         )
 
     def draw_colored_polygon(self, surface, poly, color, zoom, translation, angle):
+        import pygame
+        from pygame import gfxdraw
+
         poly = [pygame.math.Vector2(c).rotate_rad(angle) for c in poly]
         poly = [
             (c[0] * zoom + translation[0], c[1] * zoom + translation[1]) for c in poly
@@ -600,6 +604,8 @@ class CarRacing(gym.Env, EzPickle):
         gfxdraw.filled_polygon(self.surf, poly, color)
 
     def _create_image_array(self, screen, size):
+        import pygame
+
         scaled_screen = pygame.transform.smoothscale(screen, size)
         return np.transpose(
             np.array(pygame.surfarray.pixels3d(scaled_screen)), axes=(1, 0, 2)
@@ -607,13 +613,16 @@ class CarRacing(gym.Env, EzPickle):
 
     def close(self):
         if self.screen is not None:
+            import pygame
+
             pygame.display.quit()
             self.isopen = False
-        pygame.quit()
+            pygame.quit()
 
 
 if __name__ == "__main__":
     a = np.array([0.0, 0.0, 0.0])
+    import pygame
 
     def register_input():
         for event in pygame.event.get():

@@ -4,23 +4,20 @@ import math
 import sys
 from typing import Optional
 
-import numpy as np
-import pygame
-from pygame import gfxdraw
-
 import Box2D
+import numpy as np
 from Box2D.b2 import (
-    edgeShape,
     circleShape,
+    contactListener,
+    edgeShape,
     fixtureDef,
     polygonShape,
     revoluteJointDef,
-    contactListener,
 )
 
 import gym
 from gym import error, spaces
-from gym.utils import seeding, EzPickle
+from gym.utils import EzPickle, seeding
 
 FPS = 50
 SCALE = 30.0  # affects how fast-paced the game is, forces should be adjusted as well
@@ -445,6 +442,9 @@ class LunarLander(gym.Env, EzPickle):
         return np.array(state, dtype=np.float32), reward, done, {}
 
     def render(self, mode="human"):
+        import pygame
+        from pygame import gfxdraw
+
         if self.screen is None:
             pygame.init()
             pygame.display.init()
@@ -547,6 +547,8 @@ class LunarLander(gym.Env, EzPickle):
 
     def close(self):
         if self.screen is not None:
+            import pygame
+
             pygame.display.quit()
             pygame.quit()
             self.isopen = False

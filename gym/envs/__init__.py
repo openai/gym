@@ -1,10 +1,5 @@
-from gym.envs.registration import (
-    registry,
-    register,
-    make,
-    spec,
-    load_env_plugins as _load_env_plugins,
-)
+from gym.envs.registration import load_env_plugins as _load_env_plugins
+from gym.envs.registration import make, register, registry, spec
 
 # Hook to load plugins from entry points
 _load_env_plugins()

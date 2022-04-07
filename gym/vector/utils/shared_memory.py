@@ -1,14 +1,14 @@
-import numpy as np
 import multiprocessing as mp
-from ctypes import c_bool
 from collections import OrderedDict
+from ctypes import c_bool
+from functools import singledispatch
+
+import numpy as np
 
 from gym import logger
-from gym.spaces import Space, Box, Discrete, MultiDiscrete, MultiBinary, Tuple, Dict
 from gym.error import CustomSpaceError
+from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Space, Tuple
 from gym.vector.utils.spaces import _BaseGymSpaces
-
-from functools import singledispatch
 
 __all__ = ["create_shared_memory", "read_from_shared_memory", "write_to_shared_memory"]
 

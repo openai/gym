@@ -1,6 +1,8 @@
 from collections.abc import Sequence
 from typing import Iterable, List, Optional, Union
+
 import numpy as np
+
 from .space import Space
 
 

@@ -1,7 +1,9 @@
 from __future__ import annotations
 
-from typing import Optional, Union, Sequence
+from typing import Optional, Sequence, Union
+
 import numpy as np
+
 from .space import Space
 
 

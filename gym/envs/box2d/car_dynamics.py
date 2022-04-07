@@ -7,17 +7,17 @@ This simulation is a bit more detailed, with wheels rotation.
 Created by Oleg Klimov
 """
 
-import numpy as np
 import math
-import pygame.draw
+
 import Box2D
+import numpy as np
 from Box2D.b2 import (
-    edgeShape,
     circleShape,
+    contactListener,
+    edgeShape,
     fixtureDef,
     polygonShape,
     revoluteJointDef,
-    contactListener,
     shape,
 )
 
@@ -265,6 +265,8 @@ class Car:
             )
 
     def draw(self, surface, zoom, translation, angle, draw_particles=True):
+        import pygame.draw
+
         if draw_particles:
             for p in self.particles:
                 poly = [
