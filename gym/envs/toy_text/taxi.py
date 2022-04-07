@@ -238,8 +238,9 @@ class TaxiEnv(Env):
         if self.window is None:
             pygame.init()
             pygame.display.set_caption("Taxi")
-            self.window = pygame.display.set_mode(WINDOW_SIZE)
-            if mode == "rgb_array":
+            if mode == "human":
+                self.window = pygame.display.set_mode(WINDOW_SIZE)
+            else:  # "rgb_array"
                 self.window = pygame.Surface(WINDOW_SIZE)
         if self.clock is None:
             self.clock = pygame.time.Clock()
@@ -264,7 +265,6 @@ class TaxiEnv(Env):
             self.destination_img = pygame.transform.scale(
                 pygame.image.load(file_name), self.cell_size
             )
-            self.destination_img = self.destination_img.convert_alpha()
             self.destination_img.set_alpha(170)
         if self.median_horiz is None:
             file_names = [
