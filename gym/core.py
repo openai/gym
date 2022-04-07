@@ -63,7 +63,7 @@ class Env(Generic[ObsType, ActType]):
     @abstractmethod
     def step(self, action: ActType) -> Tuple[ObsType, float, bool, dict]:
         """Run one timestep of the environment's dynamics. When end of
-        episode is reached, you are responsible for calling `reset()`
+        episode is reached, you are responsible for calling :meth:`reset`
         to reset this environment's state.
 
         Accepts an action and returns a tuple (observation, reward, done, info).
@@ -71,11 +71,18 @@ class Env(Generic[ObsType, ActType]):
         Args:
             action (object): an action provided by the agent
 
+        This method returns a tuple ``(observation, reward, done, info)``
+
         Returns:
-            observation (object): agent's observation of the current environment
+            observation (object): agent's observation of the current environment. This will be an element of the environment's :attr:`observation_space`. This may, for instance, be a numpy array containing the positions and velocities of certain objects.
             reward (float) : amount of reward returned after previous action
-            done (bool): whether the episode has ended, in which case further step() calls will return undefined results
-            info (dict): contains auxiliary diagnostic information (helpful for debugging, logging, and sometimes learning)
+            done (bool): whether the episode has ended, in which case further :meth:`step` calls will return undefined results. A done signal may be emitted for different reasons: Maybe the task underlying the environment was solved successfully, a certain timelimit was exceeded, or the physics simulation has entered an invalid state. ``info`` may contain additional information regarding the reason for a ``done`` signal.
+            info (dict): contains auxiliary diagnostic information (helpful for debugging, learning, and logging). This might, for instance, contain:
+                
+                - metrics that describe the agent's performance or
+                - state variables that are hidden from observations or
+                - information that distinguishes truncation and termination or
+                - individual reward terms that are combined to produce the total reward
         """
         raise NotImplementedError
 
@@ -91,16 +98,22 @@ class Env(Generic[ObsType, ActType]):
         observation.
 
         This method should also reset the environment's random number
-        generator(s) if `seed` is an integer or if the environment has not
+        generator(s) if ``seed`` is an integer or if the environment has not
         yet initialized a random number generator. If the environment already
-        has a random number generator and `reset` is called with `seed=None`,
+        has a random number generator and :meth:`reset` is called with ``seed=None``,
         the RNG should not be reset.
-        Moreover, `reset` should (in the typical use case) be called with an
+        Moreover, :meth:`reset` should (in the typical use case) be called with an
         integer seed right after initialization and then never again.
 
+        Args:
+            seed (int or None): The seed that is used to initialize the environment's PRNG. If the environment does not already have a PRNG and ``seed=None`` (the default option) is passed, a seed will be chosen from some source of entropy (e.g. timestamp or /dev/urandom). However, if the environment already has a PRNG and ``seed=None`` is pased, the PRNG will *not* be reset. If you pass an integer, the PRNG will be reset even if it already exists. Usually, you want to pass an integer *right after the environment has been initialized and then never again*. Please refer to the minimal example above to see this paradigm in action.
+            return_info (bool): If true, return additional information along with initial observation. This info should be analogous to the info returned in :meth:`step`
+            options (dict or None): Additional information to specify how the environment is reset (optional, depending on the specific environment)
+
+
         Returns:
-            observation (object): the initial observation.
-            info (optional dictionary): a dictionary containing extra information, this is only returned if return_info is set to true
+            observation (object): Observation of the initial state. This will be an element of :attr:`observation_space` (usually a numpy array) and is analogous to the observation returned by :meth:`step`.
+            info (optional dictionary): This will *only* be returned if ``return_info=True`` is passed. It contains auxiliary information complementing ``observation``. This dictionary should be analogous to the ``info`` returned by :meth:`step`.
         """
         # Initialize the RNG if the seed is manually passed
         if seed is not None:
@@ -122,7 +135,7 @@ class Env(Generic[ObsType, ActType]):
         - ansi: Return a string (str) or StringIO.StringIO containing a
           terminal-style text representation. The text can include newlines
           and ANSI escape sequences (e.g. for colors).
-
+                
         Note:
             Make sure that your class's metadata 'render_modes' key includes
               the list of supported modes. It's recommended to call super()
@@ -131,18 +144,18 @@ class Env(Generic[ObsType, ActType]):
         Args:
             mode (str): the mode to render with
 
-        Example:
+        Example::
 
-        class MyEnv(Env):
-            metadata = {'render_modes': ['human', 'rgb_array']}
+            class MyEnv(Env):
+                metadata = {'render_modes': ['human', 'rgb_array']}
 
-            def render(self, mode='human'):
-                if mode == 'rgb_array':
-                    return np.array(...) # return RGB frame suitable for video
-                elif mode == 'human':
-                    ... # pop up a window and render
-                else:
-                    super(MyEnv, self).render(mode=mode) # just raise an exception
+                def render(self, mode='human'):
+                    if mode == 'rgb_array':
+                        return np.array(...) # return RGB frame suitable for video
+                    elif mode == 'human':
+                        ... # pop up a window and render
+                    else:
+                        super(MyEnv, self).render(mode=mode) # just raise an exception
         """
         raise NotImplementedError
 
