@@ -78,7 +78,6 @@ def test_make_autoreset_true(spec):
     with pytest.warns(None) as warnings:
         env = spec.make(autoreset=True)
 
-    # env = gym.make("CartPole-v1", autoreset=True)
     ob_space = env.observation_space
     obs = env.reset(seed=0)
     env.action_space.seed(0)
