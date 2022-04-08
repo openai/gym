@@ -13,9 +13,9 @@ from .space import Space
 class MultiDiscrete(Space[np.ndarray]):
     """
     The multi-discrete action space consists of a series of discrete action spaces with different number of actions in each. It is useful to represent game controllers or keyboards where each key can be represented as a discrete action space. It is parametrized by passing an array of positive integers specifying number of actions for each discrete action space.
-    
-    Note: 
-    
+
+    Note:
+
         Some environment wrappers assume a value of 0 always represents the NOOP action.
 
     e.g. Nintendo Game Controller - Can be conceptualized as 3 discrete action spaces:
