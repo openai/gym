@@ -19,7 +19,7 @@ def flatdim(space: Space) -> int:
     the space is not defined in ``gym.spaces``.
 
     Example usage::
-   
+
         >>> s = spaces.Dict({"position": spaces.Discrete(2), "velocity": spaces.Discrete(3)})
         >>> spaces.flatdim(s)
         5

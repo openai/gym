@@ -36,7 +36,7 @@ class MultiBinary(Space[np.ndarray]):
             input_n = (n,)
 
         # n (counts) have to be positive
-        assert (np.asarray(input_n) > 0).all(),  # type: ignore
+        assert (np.asarray(input_n) > 0).all()  # type: ignore
 
         super().__init__(input_n, np.int8, seed)
 

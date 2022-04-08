@@ -18,7 +18,7 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
         self.observation_space = spaces.Dict({"position": spaces.Discrete(2), "velocity": spaces.Discrete(3)})
 
     Example usage [nested]::
-    
+
         self.nested_observation_space = spaces.Dict({
             'sensors':  spaces.Dict({
                 'position': spaces.Box(low=-100, high=100, shape=(3,)),
