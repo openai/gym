@@ -7,6 +7,7 @@ import pytest
 
 import gym
 from gym.wrappers import AutoResetWrapper
+from tests.envs.spec_list import spec_list
 
 
 class DummyResetEnv(gym.Env):
@@ -64,44 +65,48 @@ def test_autoreset_reset_info():
     assert isinstance(info, dict)
 
 
-def test_make_autoreset():
+@pytest.mark.parametrize("spec", spec_list)
+def test_make_autoreset_true(spec):
+    """
+    Note: This test assumes that the outermost wrapper is AutoResetWrapper
+    so if that is being changed in the future, this test will break and need
+    to be updated.
+    Note: This test assumes that all first-party environments will terminate in a finite
+    amount of time with random actions, which is true as of the time of adding this test.
+    """
+    env = None
+    with pytest.warns(None) as warnings:
+        env = spec.make(autoreset=True)
 
-    env = gym.make("CartPole-v1", autoreset=True)
+    # env = gym.make("CartPole-v1", autoreset=True)
     ob_space = env.observation_space
     obs = env.reset(seed=0)
     env.action_space.seed(0)
 
-    env.env.reset = MagicMock(side_effect=env.env.reset)
+    env.unwrapped.reset = MagicMock(side_effect=env.unwrapped.reset)
 
     done = False
     while not done:
         obs, reward, done, info = env.step(env.action_space.sample())
 
-    assert env.env.reset.called
+    assert isinstance(env, AutoResetWrapper)
+    assert env.unwrapped.reset.called
 
-    env = gym.make("CartPole-v1", autoreset=False)
-    ob_space = env.observation_space
-    obs = env.reset(seed=0)
-    env.action_space.seed(0)
 
-    env.env.reset = MagicMock(side_effect=env.env.reset)
+@pytest.mark.parametrize("spec", spec_list)
+def test_make_autoreset_false(spec):
+    env = None
+    with pytest.warns(None) as warnings:
+        env = spec.make(autoreset=False)
+    assert not isinstance(env, AutoResetWrapper)
 
-    done = False
-    while not done:
-        obs, reward, done, info = env.step(env.action_space.sample())
-    assert not env.env.reset.called
 
-    env = gym.make("CartPole-v1")
-    ob_space = env.observation_space
-    obs = env.reset(seed=0)
-    env.action_space.seed(0)
-
-    env.env.reset = MagicMock(side_effect=env.env.reset)
-
-    done = False
-    while not done:
-        obs, reward, done, info = env.step(env.action_space.sample())
-    assert not env.env.reset.called
+@pytest.mark.parametrize("spec", spec_list)
+def test_make_autoreset_default_false(spec):
+    env = None
+    with pytest.warns(None) as warnings:
+        env = spec.make()
+    assert not isinstance(env, AutoResetWrapper)
 
 
 def test_autoreset_autoreset():

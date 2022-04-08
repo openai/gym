@@ -160,7 +160,7 @@ class EnvSpec:
 
             env = TimeLimit(env, max_episode_steps=env.spec.max_episode_steps)
 
-        if self.autoreset == True:
+        if self.autoreset:
             from gym.wrappers.autoreset import AutoResetWrapper
 
             env = AutoResetWrapper(env)
