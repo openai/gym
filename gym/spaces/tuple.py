@@ -11,8 +11,9 @@ class Tuple(Space[tuple], Sequence):
     """
     A tuple (i.e., product) of simpler spaces
 
-    Example usage:
-    self.observation_space = spaces.Tuple((spaces.Discrete(2), spaces.Discrete(3)))
+    Example usage::
+
+        self.observation_space = spaces.Tuple((spaces.Discrete(2), spaces.Discrete(3)))
     """
 
     def __init__(
@@ -74,7 +75,7 @@ class Tuple(Space[tuple], Sequence):
     def __repr__(self) -> str:
         return "Tuple(" + ", ".join([str(s) for s in self.spaces]) + ")"
 
-    def to_jsonable(self, sample_n) -> list:
+    def to_jsonable(self, sample_n: Sequence) -> list:
         # serialize as list-repr of tuple of vectors
         return [
             space.to_jsonable([sample[i] for sample in sample_n])
