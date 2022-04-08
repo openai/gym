@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional, Iterable, Sequence
+from typing import Iterable, Optional, Sequence
 
 import numpy as np
 
