@@ -11,7 +11,6 @@ import math
 
 import Box2D
 import numpy as np
-import pygame.draw
 from Box2D.b2 import (
     circleShape,
     contactListener,
@@ -266,6 +265,8 @@ class Car:
             )
 
     def draw(self, surface, zoom, translation, angle, draw_particles=True):
+        import pygame.draw
+
         if draw_particles:
             for p in self.particles:
                 poly = [
