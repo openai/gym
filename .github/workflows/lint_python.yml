@@ -8,13 +8,15 @@ jobs:
     strategy:
       matrix:
         python-platform: ["Linux"]
-        python-version: ["3.7"]
+        python-version: ["3.7", "3.8", "3.9", "3.10"]
       fail-fast: false
     env:
-      PYRIGHT_VERSION: 1.1.204
+      PYRIGHT_VERSION: 1.1.235
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
       - run: pip install -e .[nomujoco]
       - uses: jakebailey/pyright-action@v1
         with:

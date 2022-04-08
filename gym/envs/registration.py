@@ -96,7 +96,7 @@ class EnvSpec:
 
     id_requested: InitVar[str]
     entry_point: Optional[Union[Callable, str]] = field(default=None)
-    reward_threshold: Optional[int] = field(default=None)
+    reward_threshold: Optional[float] = field(default=None)
     nondeterministic: bool = field(default=False)
     max_episode_steps: Optional[int] = field(default=None)
     order_enforce: bool = field(default=True)
