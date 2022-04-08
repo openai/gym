@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+from typing import Iterable
 
 import numpy as np
 
@@ -13,9 +14,9 @@ from .space import Space
 class MultiDiscrete(Space[np.ndarray]):
     """
     The multi-discrete action space consists of a series of discrete action spaces with different number of actions in each. It is useful to represent game controllers or keyboards where each key can be represented as a discrete action space. It is parametrized by passing an array of positive integers specifying number of actions for each discrete action space.
-    
-    Note: 
-    
+
+    Note:
+
         Some environment wrappers assume a value of 0 always represents the NOOP action.
 
     e.g. Nintendo Game Controller - Can be conceptualized as 3 discrete action spaces:
@@ -52,7 +53,7 @@ class MultiDiscrete(Space[np.ndarray]):
         # is within correct bounds for space dtype (even though x does not have to be unsigned)
         return bool(x.shape == self.shape and (0 <= x).all() and (x < self.nvec).all())
 
-    def to_jsonable(self, sample_n):
+    def to_jsonable(self, sample_n: Iterable[np.ndarray]):
         return [sample.tolist() for sample in sample_n]
 
     def from_jsonable(self, sample_n):
@@ -66,7 +67,7 @@ class MultiDiscrete(Space[np.ndarray]):
         if nvec.ndim == 0:
             subspace = Discrete(nvec)
         else:
-            subspace = MultiDiscrete(nvec, self.dtype)
+            subspace = MultiDiscrete(nvec, self.dtype)  # type: ignore
         subspace.np_random.bit_generator.state = self.np_random.bit_generator.state
         return subspace
 

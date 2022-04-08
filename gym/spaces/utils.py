@@ -19,7 +19,7 @@ def flatdim(space: Space) -> int:
     the space is not defined in ``gym.spaces``.
 
     Example usage::
-   
+
         >>> s = spaces.Dict({"position": spaces.Discrete(2), "velocity": spaces.Discrete(3)})
         >>> spaces.flatdim(s)
         5
@@ -134,7 +134,7 @@ def _unflatten_multidiscrete(space: MultiDiscrete, x: np.ndarray) -> np.ndarray:
     offsets[1:] = np.cumsum(space.nvec.flatten())
 
     (indices,) = np.nonzero(x)
-    return np.asarray(indices - offsets[:-1], dtype=space.dtype).reshape(space.shape)
+    return np.asarray(indices - offsets[:-1], dtype=space.dtype).reshape(space.shape)  # type: ignore
 
 
 @unflatten.register(Tuple)
