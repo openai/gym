@@ -445,7 +445,7 @@ class LunarLander(gym.Env, EzPickle):
         if not self.lander.awake:
             done = True
             reward = +100
-        
+
         render = self._render(self.render_mode)
         if self.render_mode == "rgb_array":
             self.render_list.append(render)
@@ -461,7 +461,7 @@ class LunarLander(gym.Env, EzPickle):
         if mode is not None:
             import pygame
             from pygame import gfxdraw
-            
+
             if self.screen is None and mode == "human":
                 pygame.init()
                 pygame.display.init()

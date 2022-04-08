@@ -149,6 +149,7 @@ class CarRacing(gym.Env, EzPickle):
         self.contactListener_keepref = FrictionDetector(self, lap_complete_percent)
         self.world = Box2D.b2World((0, 0), contactListener=self.contactListener_keepref)
         self.screen = None
+        self.surf = None
         self.clock = None
         self.isopen = True
         self.invisible_state_window = None
@@ -438,6 +439,9 @@ class CarRacing(gym.Env, EzPickle):
         render = self._render(self.render_mode)
         if self.render_mode in ["rgb_array", "state_pixels"]:
             self.render_list.append(render)
+
+        if self.surf is None:
+            self._build_surf()
         self.state = self._create_image_array(self.surf, (STATE_W, STATE_H))
         return self.state, step_reward, done, {}
 
@@ -451,9 +455,8 @@ class CarRacing(gym.Env, EzPickle):
         if mode is not None:
             import pygame
 
-            pygame.font.init()
-
             assert mode in ["human", "state_pixels", "rgb_array"]
+
             if self.screen is None and mode == "human":
                 pygame.init()
                 pygame.display.init()
@@ -464,30 +467,7 @@ class CarRacing(gym.Env, EzPickle):
             if "t" not in self.__dict__:
                 return  # reset() not called yet
 
-            self.surf = pygame.Surface((WINDOW_W, WINDOW_H))
-
-            # computing transformations
-            angle = -self.car.hull.angle
-            # Animating first second zoom.
-            zoom = 0.1 * SCALE * max(1 - self.t, 0) + ZOOM * SCALE * min(self.t, 1)
-            scroll_x = -(self.car.hull.position[0] + PLAYFIELD) * zoom
-            scroll_y = -(self.car.hull.position[1] + PLAYFIELD) * zoom
-            trans = pygame.math.Vector2((scroll_x, scroll_y)).rotate_rad(angle)
-            trans = (WINDOW_W / 2 + trans[0], WINDOW_H / 4 + trans[1])
-
-            self.render_road(zoom, trans, angle)
-            self.car.draw(self.surf, zoom, trans, angle, self.render_mode != "state_pixels")
-
-            self.surf = pygame.transform.flip(self.surf, False, True)
-
-            # showing stats
-            self.render_indicators(WINDOW_W, WINDOW_H)
-
-            font = pygame.font.Font(pygame.font.get_default_font(), 42)
-            text = font.render("%04i" % self.reward, True, (255, 255, 255), (0, 0, 0))
-            text_rect = text.get_rect()
-            text_rect.center = (60, WINDOW_H - WINDOW_H * 2.5 / 40.0)
-            self.surf.blit(text, text_rect)
+            self._build_surf()
 
             if mode == "human":
                 pygame.event.pump()
@@ -500,6 +480,37 @@ class CarRacing(gym.Env, EzPickle):
                 return self._create_image_array(self.surf, (VIDEO_W, VIDEO_H))
             else:  # mode == "state_pixels"
                 return self._create_image_array(self.surf, (STATE_W, STATE_H))
+
+    def _build_surf(self):
+        import pygame
+
+        pygame.init()
+        pygame.font.init()
+
+        self.surf = pygame.Surface((WINDOW_W, WINDOW_H))
+
+        # computing transformations
+        angle = -self.car.hull.angle
+        # Animating first second zoom.
+        zoom = 0.1 * SCALE * max(1 - self.t, 0) + ZOOM * SCALE * min(self.t, 1)
+        scroll_x = -(self.car.hull.position[0] + PLAYFIELD) * zoom
+        scroll_y = -(self.car.hull.position[1] + PLAYFIELD) * zoom
+        trans = pygame.math.Vector2((scroll_x, scroll_y)).rotate_rad(angle)
+        trans = (WINDOW_W / 2 + trans[0], WINDOW_H / 4 + trans[1])
+
+        self.render_road(zoom, trans, angle)
+        self.car.draw(self.surf, zoom, trans, angle, self.render_mode != "state_pixels")
+
+        self.surf = pygame.transform.flip(self.surf, False, True)
+
+        # showing stats
+        self.render_indicators(WINDOW_W, WINDOW_H)
+
+        font = pygame.font.Font(pygame.font.get_default_font(), 42)
+        text = font.render("%04i" % self.reward, True, (255, 255, 255), (0, 0, 0))
+        text_rect = text.get_rect()
+        text_rect.center = (60, WINDOW_H - WINDOW_H * 2.5 / 40.0)
+        self.surf.blit(text, text_rect)
 
     def render_road(self, zoom, translation, angle):
         bounds = PLAYFIELD

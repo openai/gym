@@ -158,7 +158,6 @@ class BipedalWalker(gym.Env, EzPickle):
 
     def __init__(self, render_mode=None, hardcore: bool = False):
         EzPickle.__init__(self)
-        pygame.init()
         self.screen = None
         self.clock = None
         self.isopen = True
@@ -554,7 +553,7 @@ class BipedalWalker(gym.Env, EzPickle):
         if mode is not None:
             import pygame
             from pygame import gfxdraw
-            
+
             if self.screen is None and mode == "human":
                 pygame.init()
                 pygame.display.init()
