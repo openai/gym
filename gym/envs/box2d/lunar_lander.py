@@ -5,7 +5,6 @@ from typing import Optional
 
 import Box2D
 import numpy as np
-import pygame
 from Box2D.b2 import (
     circleShape,
     contactListener,
@@ -14,7 +13,6 @@ from Box2D.b2 import (
     polygonShape,
     revoluteJointDef,
 )
-from pygame import gfxdraw
 
 import gym
 from gym import error, spaces
@@ -448,7 +446,7 @@ class LunarLander(gym.Env, EzPickle):
         if not self.lander.awake:
             done = True
             reward = +100
-
+        
         render = self._render(self.render_mode)
         if self.render_mode == "rgb_array":
             self.render_list.append(render)
@@ -462,6 +460,9 @@ class LunarLander(gym.Env, EzPickle):
 
     def _render(self, mode):
         if mode is not None:
+            import pygame
+            from pygame import gfxdraw
+            
             if self.screen is None and mode == "human":
                 pygame.display.init()
                 self.screen = pygame.display.set_mode((VIEWPORT_W, VIEWPORT_H))
@@ -560,6 +561,8 @@ class LunarLander(gym.Env, EzPickle):
 
     def close(self):
         if self.screen is not None:
+            import pygame
+
             pygame.display.quit()
             pygame.quit()
             self.isopen = False

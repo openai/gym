@@ -131,7 +131,7 @@ class Continuous_MountainCarEnv(gym.Env):
             low=self.low_state, high=self.high_state, dtype=np.float32
         )
 
-    def step(self, action):
+    def step(self, action: np.ndarray):
 
         position = self.state[0]
         velocity = self.state[1]
