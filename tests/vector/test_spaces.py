@@ -152,7 +152,7 @@ seeded_spaces = [
     "space", seeded_spaces, ids=[space.__class__.__name__ for space in seeded_spaces]
 )
 def test_batch_space_seed(space):
-    batched_space = batch_space(space)  # n=1
+    batched_space = batch_space(space, n=1)
     assert space.np_random == batched_space.np_random
 
 
@@ -204,6 +204,7 @@ def test_deterministic(space: Space, n: int, base_seed: int):
         iterate(space_b_batched, space_b_batched_sample),
     ):
         if isinstance(a_sample, tuple):
+            assert len(a_sample) == len(b_sample)
             for a_subsample, b_subsample in zip(a_sample, b_sample):
                 assert_array_equal(a_subsample, b_subsample)
         else:
