@@ -46,7 +46,7 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
     def __init__(
         self,
         spaces: dict[str, Space] | None = None,
-        seed: Optional[int | seeding.RandomNumberGenerator] = None,
+        seed: Optional[dict | int | seeding.RandomNumberGenerator] = None,
         **spaces_kwargs: Space,
     ):
         assert (spaces is None) or (
@@ -74,7 +74,7 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
             None, None, seed  # type: ignore
         )  # None for shape and dtype, since it'll require special handling
 
-    def seed(self, seed: dict | int | None = None) -> list:
+    def seed(self, seed: Optional[dict | int] = None) -> list:
         seeds = []
         if isinstance(seed, dict):
             for key, seed_key in zip(self.spaces, seed):

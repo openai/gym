@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 from typing import Optional
 
 import numpy as np
 
+from ..utils import seeding
 from .space import Space
 
 
@@ -18,7 +21,12 @@ class Discrete(Space[int]):
 
     """
 
-    def __init__(self, n: int, seed: Optional[int] = None, start: int = 0):
+    def __init__(
+        self,
+        n: int,
+        seed: Optional[int | seeding.RandomNumberGenerator] = None,
+        start: int = 0,
+    ):
         assert n > 0, "n (counts) have to be positive"
         assert isinstance(start, (int, np.integer))
         self.n = int(n)

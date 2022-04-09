@@ -1,5 +1,6 @@
-from collections.abc import Sequence
-from typing import Iterable, List, Optional, Union
+from __future__ import annotations
+
+from typing import Iterable, Optional, Sequence
 
 import numpy as np
 
@@ -19,7 +20,7 @@ class Tuple(Space[tuple], Sequence):
     def __init__(
         self,
         spaces: Iterable[Space],
-        seed: Optional[Union[int, seeding.RandomNumberGenerator]] = None,
+        seed: Optional[int | list[int] | seeding.RandomNumberGenerator] = None,
     ):
         spaces = tuple(spaces)
         self.spaces = spaces
@@ -29,7 +30,7 @@ class Tuple(Space[tuple], Sequence):
             ), "Elements of the tuple must be instances of gym.Space"
         super().__init__(None, None, seed)  # type: ignore
 
-    def seed(self, seed: Optional[Union[int, List[int]]] = None) -> list:
+    def seed(self, seed: Optional[int | list[int]] = None) -> list:
         seeds = []
 
         if isinstance(seed, list):
