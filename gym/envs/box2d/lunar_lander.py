@@ -125,6 +125,16 @@ class LunarLander(gym.Env, EzPickle):
     import gym
     env = gym.make("LunarLander-v2", continuous=True)
     ```
+    If `continuous=True` is passed, continuous actions (corresponding to the throttle of the engines) will be used and the
+    action space will be `Box(-1, +1, (2,), dtype=np.float32)`.
+    The first coordinate of an action determines the throttle of the main engine, while the second
+    coordinate specifies the throttle of the lateral boosters.
+    Given an action `np.array([main, lateral])`, the main engine will be turned off completely if
+    `main < 0` and the throttle scales affinely from 50% to 100% for `0 <= main <= 1` (in particular, the
+    main engine doesn't work  with less than 50% power).
+    Similarly, if `-0.5 < lateral < 0.5`, the lateral boosters will not fire at all. If `lateral < -0.5`, the left
+    booster will fire, and if `lateral > 0.5`, the right booster will fire. Again, the throttle scales affinely
+    from 50% to 100% between -1 and -0.5 (and 0.5 and 1, respectively).
 
     ### Version History
     - v2: Count energy spent
