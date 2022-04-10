@@ -18,6 +18,27 @@ from collections import deque
 from pygame.locals import VIDEORESIZE
 
 
+class PlayableGame:
+    def __init__(self, env):
+        self.env = env
+
+    def get_relevant_keys(self, keys_to_action=None):
+        if keys_to_action is None:
+            if hasattr(self.env, "get_keys_to_action"):
+                keys_to_action = self.env.get_keys_to_action()
+            elif hasattr(self.env.unwrapped, "get_keys_to_action"):
+                keys_to_action = self.env.unwrapped.get_keys_to_action()
+            else:
+                assert False, (
+                    self.env.spec.id
+                    + " does not have explicit key to action mapping, "
+                    + "please specify one manually"
+                )
+        relevant_keys = set(sum(map(list, keys_to_action.keys()), []))
+        return relevant_keys
+
+
+
 def display_arr(screen, arr, video_size, transpose):
     arr_min, arr_max = arr.min(), arr.max()
     arr = 255.0 * (arr - arr_min) / (arr_max - arr_min)
@@ -83,20 +104,11 @@ def play(env, transpose=True, fps=30, zoom=None, callback=None, keys_to_action=N
         If None, default key_to_action mapping for that env is used, if provided.
     """
     env.reset()
+    game = PlayableGame(env)
+    
     rendered = env.render(mode="rgb_array")
 
-    if keys_to_action is None:
-        if hasattr(env, "get_keys_to_action"):
-            keys_to_action = env.get_keys_to_action()
-        elif hasattr(env.unwrapped, "get_keys_to_action"):
-            keys_to_action = env.unwrapped.get_keys_to_action()
-        else:
-            assert False, (
-                env.spec.id
-                + " does not have explicit key to action mapping, "
-                + "please specify one manually"
-            )
-    relevant_keys = set(sum(map(list, keys_to_action.keys()), []))
+    relevant_keys = game.get_relevant_keys(keys_to_action)
 
     video_size = [rendered.shape[1], rendered.shape[0]]
     if zoom is not None:
