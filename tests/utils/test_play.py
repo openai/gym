@@ -49,13 +49,13 @@ def close_pygame():
     pygame.quit()
 
 
-def test_play_relvant_keys():
+def test_play_relevant_keys():
     env = DummyPlayEnv()
     game = PlayableGame(env, dummy_keys_to_action())
     assert game.relevant_keys == {97, 100}
 
 
-def test_play_revant_keys_no_mapping():
+def test_play_relevant_keys_no_mapping():
     env = DummyPlayEnv()
     env.spec = DummyEnvSpec("DummyPlayEnv")
 
