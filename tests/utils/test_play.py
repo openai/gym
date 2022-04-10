@@ -6,7 +6,7 @@ import pygame
 import pytest
 
 import gym
-from gym.utils.play import PlayableGame, play
+from gym.utils.play import PlayableGame
 
 RELEVANT_KEY = 100
 IRRELEVANT_KEY = 1
@@ -41,6 +41,12 @@ class DummyPlayEnv(gym.Env):
 
 def dummy_keys_to_action():
     return {(ord("a"),): 0, (ord("d"),): 1}
+
+
+@pytest.fixture(autouse=True)
+def close_pygame():
+    yield
+    pygame.quit()
 
 
 def test_play_relvant_keys():
