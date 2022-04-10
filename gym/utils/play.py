@@ -19,10 +19,13 @@ from pygame.locals import VIDEORESIZE
 
 
 class PlayableGame:
-    def __init__(self, env):
+    def __init__(self, env, keys_to_action=None):
         self.env = env
+        self.relevant_keys = self.get_relevant_keys(keys_to_action)
+        self.pressed_keys = []
+        self.running = True
 
-    def get_relevant_keys(self, keys_to_action=None):
+    def get_relevant_keys(self, keys_to_action):
         if keys_to_action is None:
             if hasattr(self.env, "get_keys_to_action"):
                 keys_to_action = self.env.get_keys_to_action()
@@ -37,6 +40,30 @@ class PlayableGame:
         relevant_keys = set(sum(map(list, keys_to_action.keys()), []))
         return relevant_keys
 
+    def get_video_size(self, zoom=None):
+        rendered = self.env.render(mode="rgb_array")
+        video_size = [rendered.shape[1], rendered.shape[0]]
+
+        if zoom is not None:
+            video_size = int(video_size[0] * zoom), int(video_size[1] * zoom)
+
+        return video_size
+
+    def process_event(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key in self.relevant_keys:
+                self.pressed_keys.append(event.key)
+            elif event.key == 27:
+                self.running = False
+        elif event.type == pygame.KEYUP:
+            if event.key in self.relevant_keys:
+                self.pressed_keys.remove(event.key)
+        elif event.type == pygame.QUIT:
+            self.running = False
+        elif event.type == VIDEORESIZE:
+            video_size = event.size
+            screen = pygame.display.set_mode(video_size)
+            print(video_size)
 
 
 def display_arr(screen, arr, video_size, transpose):
@@ -104,15 +131,10 @@ def play(env, transpose=True, fps=30, zoom=None, callback=None, keys_to_action=N
         If None, default key_to_action mapping for that env is used, if provided.
     """
     env.reset()
-    game = PlayableGame(env)
-    
-    rendered = env.render(mode="rgb_array")
+    game = PlayableGame(env, keys_to_action)
 
     relevant_keys = game.get_relevant_keys(keys_to_action)
-
-    video_size = [rendered.shape[1], rendered.shape[0]]
-    if zoom is not None:
-        video_size = int(video_size[0] * zoom), int(video_size[1] * zoom)
+    video_size = game.get_video_size(zoom)
 
     pressed_keys = []
     running = True
@@ -137,6 +159,7 @@ def play(env, transpose=True, fps=30, zoom=None, callback=None, keys_to_action=N
 
         # process pygame events
         for event in pygame.event.get():
+            # game.process_event(event)
             # test events, set key states
             if event.type == pygame.KEYDOWN:
                 if event.key in relevant_keys:
