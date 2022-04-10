@@ -20,13 +20,15 @@ from pygame.locals import VIDEORESIZE
 
 
 class PlayableGame:
-    def __init__(self, env, keys_to_action=None):
+    def __init__(self, env, keys_to_action=None, zoom=None):
         self.env = env
-        self.relevant_keys = self.get_relevant_keys(keys_to_action)
+        self.relevant_keys = self._get_relevant_keys(keys_to_action)
+        self.video_size = self._get_video_size(zoom)
+        self.screen = pygame.display.set_mode(self.video_size)
         self.pressed_keys = []
         self.running = True
 
-    def get_relevant_keys(self, keys_to_action):
+    def _get_relevant_keys(self, keys_to_action):
         if keys_to_action is None:
             if hasattr(self.env, "get_keys_to_action"):
                 keys_to_action = self.env.get_keys_to_action()
@@ -41,7 +43,7 @@ class PlayableGame:
         relevant_keys = set(sum(map(list, keys_to_action.keys()), []))
         return relevant_keys
 
-    def get_video_size(self, zoom=None):
+    def _get_video_size(self, zoom=None):
         rendered = self.env.render(mode="rgb_array")
         video_size = [rendered.shape[1], rendered.shape[0]]
 
@@ -62,9 +64,8 @@ class PlayableGame:
         elif event.type == pygame.QUIT:
             self.running = False
         elif event.type == VIDEORESIZE:
-            video_size = event.size
-            screen = pygame.display.set_mode(video_size)
-            print(video_size)
+            self.video_size = event.size
+            self.screen = pygame.display.set_mode(self.video_size)
 
 
 def display_arr(screen, arr, video_size, transpose):
@@ -132,37 +133,30 @@ def play(env, transpose=True, fps=30, zoom=None, callback=None, keys_to_action=N
         If None, default key_to_action mapping for that env is used, if provided.
     """
     env.reset()
-    game = PlayableGame(env, keys_to_action)
+    game = PlayableGame(env, keys_to_action, zoom)
 
-    video_size = game.get_video_size(zoom)
-
-    env_done = True
-
-    screen = pygame.display.set_mode(video_size)
+    done = True
     clock = pygame.time.Clock()
 
     while game.running:
-        if env_done:
-            env_done = False
+        if done:
+            done = False
             obs = env.reset()
         else:
             action = keys_to_action.get(tuple(sorted(game.pressed_keys)), 0)
             prev_obs = obs
-            obs, rew, env_done, info = env.step(action)
+            obs, rew, done, info = env.step(action)
             if callback is not None:
-                callback(prev_obs, obs, action, rew, env_done, info)
+                callback(prev_obs, obs, action, rew, done, info)
         if obs is not None:
             rendered = env.render(mode="rgb_array")
-            display_arr(screen, rendered, transpose=transpose, video_size=video_size)
+            display_arr(
+                game.screen, rendered, transpose=transpose, video_size=game.video_size
+            )
 
         # process pygame events
         for event in pygame.event.get():
             game.process_event(event)
-            # test events, set key states
-            if event.type == VIDEORESIZE:
-                video_size = event.size
-                screen = pygame.display.set_mode(video_size)
-                print(video_size)
 
         pygame.display.flip()
         clock.tick(fps)

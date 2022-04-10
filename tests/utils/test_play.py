@@ -26,7 +26,11 @@ class DummyEnvSpec:
 
 class DummyPlayEnv(gym.Env):
     def step(self, action):
-        ...
+        obs = np.zeros((1, 1))
+        rew = 0
+        done = False
+        info = {}
+        return obs, rew, done, info
 
     def reset(self):
         ...
@@ -64,16 +68,14 @@ def test_play_relevant_keys_with_env_attribute():
 def test_video_size_no_zoom():
     env = DummyPlayEnv()
     game = PlayableGame(env, dummy_keys_to_action())
-    video_size = game.get_video_size()
-    assert video_size == list(env.render().shape)
+    assert game.video_size == list(env.render().shape)
 
 
 def test_video_size_zoom():
     env = DummyPlayEnv()
-    game = PlayableGame(env, dummy_keys_to_action())
-    zoom_value = 2.2
-    video_size = game.get_video_size(zoom=zoom_value)
-    assert video_size == tuple(int(shape * zoom_value) for shape in env.render().shape)
+    zoom = 2.2
+    game = PlayableGame(env, dummy_keys_to_action(), zoom)
+    assert game.video_size == tuple(int(shape * zoom) for shape in env.render().shape)
 
 
 def test_keyboard_quit_event():
@@ -118,12 +120,3 @@ def test_keyboard_keyup_event():
     event = MockKeyEvent(pygame.KEYUP, RELEVANT_KEY)
     game.process_event(event)
     assert game.pressed_keys == []
-
-
-# def test_play_loop():
-#     env = DummyPlayEnv()
-#     keys_to_action = {
-#         (ord('a'),): 0,
-#         (ord('d'),): 1
-#     }
-#     play(env, keys_to_action=keys_to_action)
