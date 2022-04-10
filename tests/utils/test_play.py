@@ -1,5 +1,5 @@
-from dataclasses import dataclass
-from typing import Optional
+from dataclasses import dataclass, field
+from typing import Optional, Tuple
 
 import numpy as np
 import pygame
@@ -8,11 +8,15 @@ import pytest
 import gym
 from gym.utils.play import PlayableGame, play
 
+RELEVANT_KEY = 100
+IRRELEVANT_KEY = 1
+
 
 @dataclass
 class MockKeyEvent:
     type: pygame.event.Event
-    key: Optional[int]
+    key: Optional[int] = field(default=None)
+    size: Optional[Tuple[int, int]] = field(default=None)
 
 
 @dataclass
@@ -75,9 +79,45 @@ def test_video_size_zoom():
 def test_keyboard_quit_event():
     env = DummyPlayEnv()
     game = PlayableGame(env, dummy_keys_to_action())
-    quit_event = MockKeyEvent(pygame.KEYDOWN, 27)
-    game.process_event(quit_event)
+    event = MockKeyEvent(pygame.KEYDOWN, 27)
+    assert game.running == True
+    game.process_event(event)
     assert game.running == False
+
+
+def test_pygame_quit_event():
+    env = DummyPlayEnv()
+    game = PlayableGame(env, dummy_keys_to_action())
+    event = MockKeyEvent(pygame.QUIT)
+    assert game.running == True
+    game.process_event(event)
+    assert game.running == False
+
+
+def test_keyboard_relevant_keydown_event():
+    env = DummyPlayEnv()
+    game = PlayableGame(env, dummy_keys_to_action())
+    event = MockKeyEvent(pygame.KEYDOWN, RELEVANT_KEY)
+    game.process_event(event)
+    assert game.pressed_keys == [RELEVANT_KEY]
+
+
+def test_keyboard_irrelevant_keydown_event():
+    env = DummyPlayEnv()
+    game = PlayableGame(env, dummy_keys_to_action())
+    event = MockKeyEvent(pygame.KEYDOWN, IRRELEVANT_KEY)
+    game.process_event(event)
+    assert game.pressed_keys == []
+
+
+def test_keyboard_keyup_event():
+    env = DummyPlayEnv()
+    game = PlayableGame(env, dummy_keys_to_action())
+    event = MockKeyEvent(pygame.KEYDOWN, RELEVANT_KEY)
+    game.process_event(event)
+    event = MockKeyEvent(pygame.KEYUP, RELEVANT_KEY)
+    game.process_event(event)
+    assert game.pressed_keys == []
 
 
 # def test_play_loop():

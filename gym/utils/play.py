@@ -1,12 +1,13 @@
 import argparse
 
-import matplotlib
 import pygame
 
 import gym
 from gym import logger
 
 try:
+    import matplotlib
+
     matplotlib.use("TkAgg")
     import matplotlib.pyplot as plt
 except ImportError as e:
@@ -133,22 +134,19 @@ def play(env, transpose=True, fps=30, zoom=None, callback=None, keys_to_action=N
     env.reset()
     game = PlayableGame(env, keys_to_action)
 
-    relevant_keys = game.get_relevant_keys(keys_to_action)
     video_size = game.get_video_size(zoom)
 
-    pressed_keys = []
-    running = True
     env_done = True
 
     screen = pygame.display.set_mode(video_size)
     clock = pygame.time.Clock()
 
-    while running:
+    while game.running:
         if env_done:
             env_done = False
             obs = env.reset()
         else:
-            action = keys_to_action.get(tuple(sorted(pressed_keys)), 0)
+            action = keys_to_action.get(tuple(sorted(game.pressed_keys)), 0)
             prev_obs = obs
             obs, rew, env_done, info = env.step(action)
             if callback is not None:
@@ -159,19 +157,9 @@ def play(env, transpose=True, fps=30, zoom=None, callback=None, keys_to_action=N
 
         # process pygame events
         for event in pygame.event.get():
-            # game.process_event(event)
+            game.process_event(event)
             # test events, set key states
-            if event.type == pygame.KEYDOWN:
-                if event.key in relevant_keys:
-                    pressed_keys.append(event.key)
-                elif event.key == 27:
-                    running = False
-            elif event.type == pygame.KEYUP:
-                if event.key in relevant_keys:
-                    pressed_keys.remove(event.key)
-            elif event.type == pygame.QUIT:
-                running = False
-            elif event.type == VIDEORESIZE:
+            if event.type == VIDEORESIZE:
                 video_size = event.size
                 screen = pygame.display.set_mode(video_size)
                 print(video_size)
