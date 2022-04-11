@@ -1,12 +1,13 @@
-from collections import OrderedDict
 import os
+from collections import OrderedDict
+from os import path
 from typing import Optional
 
+import numpy as np
+
+import gym
 from gym import error, spaces
 from gym.utils import seeding
-import numpy as np
-from os import path
-import gym
 
 try:
     import mujoco_py
@@ -58,8 +59,8 @@ class MujocoEnv(gym.Env):
         self._viewers = {}
 
         self.metadata = {
-            "render.modes": ["human", "rgb_array", "depth_array"],
-            "video.frames_per_second": int(np.round(1.0 / self.dt)),
+            "render_modes": ["human", "rgb_array", "depth_array"],
+            "render_fps": int(np.round(1.0 / self.dt)),
         }
 
         self.init_qpos = self.sim.data.qpos.ravel().copy()
@@ -103,11 +104,20 @@ class MujocoEnv(gym.Env):
 
     # -----------------------------
 
-    def reset(self, seed: Optional[int] = None):
+    def reset(
+        self,
+        *,
+        seed: Optional[int] = None,
+        return_info: bool = False,
+        options: Optional[dict] = None,
+    ):
         super().reset(seed=seed)
         self.sim.reset()
         ob = self.reset_model()
-        return ob
+        if not return_info:
+            return ob
+        else:
+            return ob, {}
 
     def set_state(self, qpos, qvel):
         assert qpos.shape == (self.model.nq,) and qvel.shape == (self.model.nv,)

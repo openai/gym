@@ -1,17 +1,16 @@
-import pytest
 import numpy as np
+import pytest
 
 from gym.spaces import Tuple
-from tests.vector.utils import CustomSpace, make_env
-
 from gym.vector.async_vector_env import AsyncVectorEnv
 from gym.vector.sync_vector_env import SyncVectorEnv
 from gym.vector.vector_env import VectorEnv
+from tests.vector.utils import CustomSpace, make_env
 
 
 @pytest.mark.parametrize("shared_memory", [True, False])
 def test_vector_env_equal(shared_memory):
-    env_fns = [make_env("CubeCrash-v0", i) for i in range(4)]
+    env_fns = [make_env("CartPole-v1", i) for i in range(4)]
     num_steps = 100
     try:
         async_env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)

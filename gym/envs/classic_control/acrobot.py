@@ -2,7 +2,7 @@
 from typing import Optional
 
 import numpy as np
-from numpy import sin, cos, pi
+from numpy import cos, pi, sin
 
 from gym import core, spaces
 from gym.utils import seeding
@@ -23,46 +23,113 @@ __author__ = "Christoph Dann <cdann@cdann.de>"
 
 
 class AcrobotEnv(core.Env):
-
     """
-    Acrobot is a 2-link pendulum with only the second joint actuated.
-    Initially, both links point downwards. The goal is to swing the
-    end-effector at a height at least the length of one link above the base.
-    Both links can swing freely and can pass by each other, i.e., they don't
-    collide when they have the same angle.
-    **STATE:**
-    The state consists of the sin() and cos() of the two rotational joint
-    angles and the joint angular velocities :
-    [cos(theta1) sin(theta1) cos(theta2) sin(theta2) thetaDot1 thetaDot2].
-    For the first link, an angle of 0 corresponds to the link pointing downwards.
-    The angle of the second link is relative to the angle of the first link.
-    An angle of 0 corresponds to having the same angle between the two links.
-    A state of [1, 0, 1, 0, ..., ...] means that both links point downwards.
-    **ACTIONS:**
-    The action is either applying +1, 0 or -1 torque on the joint between
-    the two pendulum links.
-    .. note::
-        The dynamics equations were missing some terms in the NIPS paper which
-        are present in the book. R. Sutton confirmed in personal correspondence
-        that the experimental results shown in the paper and the book were
-        generated with the equations shown in the book.
-        However, there is the option to run the domain with the paper equations
-        by setting book_or_nips = 'nips'
-    **REFERENCE:**
-    .. seealso::
-        R. Sutton: Generalization in Reinforcement Learning:
-        Successful Examples Using Sparse Coarse Coding (NIPS 1996)
-    .. seealso::
-        R. Sutton and A. G. Barto:
-        Reinforcement learning: An introduction.
-        Cambridge: MIT press, 1998.
-    .. warning::
-        This version of the domain uses the Runge-Kutta method for integrating
-        the system dynamics and is more realistic, but also considerably harder
-        than the original version which employs Euler integration.
+    ### Description
+
+    The Acrobot environment is based on Sutton's work in
+    ["Generalization in Reinforcement Learning: Successful Examples Using Sparse Coarse Coding"](https://papers.nips.cc/paper/1995/hash/8f1d43620bc6bb580df6e80b0dc05c48-Abstract.html)
+    and [Sutton and Barto's book](http://www.incompleteideas.net/book/the-book-2nd.html).
+    The system consists of two links connected linearly to form a chain, with one end of
+    the chain fixed. The joint between the two links is actuated. The goal is to apply
+    torques on the actuated joint to swing the free end of the linear chain above a
+    given height while starting from the initial state of hanging downwards.
+
+    As seen in the **Gif**: two blue links connected by two green joints. The joint in
+    between the two links is actuated. The goal is to swing the free end of the outer-link
+    to reach the target height (black horizontal line above system) by applying torque on
+    the actuator.
+
+    ### Action Space
+
+    The action is discrete, deterministic, and represents the torque applied on the actuated
+    joint between the two links.
+
+    | Num | Action                                             | Unit               |
+    |----|-------------------------------------------|---------------|
+    | 0   | apply -1 torque to the actuated joint | torque (N m) |
+    | 1   | apply 0 torque to the actuated joint  | torque (N m) |
+    | 2   | apply 1 torque to the actuated joint  | torque (N m) |
+
+    ### Observation Space
+
+    The observation is a `ndarray` with shape `(6,)` that provides information about the
+    two rotational joint angles as well as their angular velocities:
+
+    | Num | Observation           | Min                  | Max                |
+    |-----|-----------------------|----------------------|--------------------|
+    | 0   | Cosine of `theta1`         | -1                 | 1                |
+    | 1   | Sine of `theta1`         | -1                 | 1                |
+    | 2   | Cosine of `theta2`            | -1 | 1 |
+    | 3   | Sine of `theta2`            | -1 | 1 |
+    | 4   | Angular velocity of `theta1` |        ~ -12.567 (-4 * pi)         |      ~ 12.567 (4 * pi)   |
+    | 5   | Angular velocity of `theta2` |        ~ -28.274 (-9 * pi)         |      ~ 28.274 (9 * pi)   |
+
+    where
+    - `theta1` is the angle of the first joint, where an angle of 0 indicates the first link is pointing directly
+    downwards.
+    - `theta2` is ***relative to the angle of the first link.*** An angle of 0 corresponds to having the same angle between the
+    two links.
+
+    The angular velocities of `theta1` and `theta2` are bounded at ±4π, and ±9π rad/s respectively.
+    A state of `[1, 0, 1, 0, ..., ...]` indicates that both links are pointing downwards.
+
+    ### Rewards
+
+    The goal is to have the free end reach a designated target height in as few steps as possible, and as such all steps that do not reach the goal incur a reward of -1. Achieving the target height results in termination with a reward of 0. The reward threshold is -100.
+
+    ### Starting State
+
+    Each parameter in the underlying state (`theta1`, `theta2`, and the two angular velocities) is initialized
+    uniformly between -0.1 and 0.1. This means both links are pointing downwards with some initial stochasticity.
+
+    ### Episode Termination
+
+    The episode terminates if one of the following occurs:
+    1. The free end reaches the target height, which is constructed as:
+    `-cos(theta1) - cos(theta2 + theta1) > 1.0`
+    2. Episode length is greater than 500 (200 for v0)
+
+    ### Arguments
+
+    No additional arguments are currently supported.
+
+    ```
+    env = gym.make('Acrobot-v1')
+    ```
+
+    By default, the dynamics of the acrobot follow those described in Sutton and Barto's book
+    [Reinforcement Learning: An Introduction](http://incompleteideas.net/book/11/node4.html). However, a `book_or_nips` parameter can be modified to change the pendulum dynamics to those described
+    in the original [NeurIPS paper](https://papers.nips.cc/paper/1995/hash/8f1d43620bc6bb580df6e80b0dc05c48-Abstract.html).
+
+    ```
+    # To change the dynamics as described above
+    env.env.book_or_nips = 'nips'
+    ```
+
+    See the following note and
+    the [implementation](https://github.com/openai/gym/blob/master/gym/envs/classic_control/acrobot.py) for details:
+
+    > The dynamics equations were missing some terms in the NIPS paper which
+            are present in the book. R. Sutton confirmed in personal correspondence
+            that the experimental results shown in the paper and the book were
+            generated with the equations shown in the book.
+            However, there is the option to run the domain with the paper equations
+            by setting `book_or_nips = 'nips'`
+
+
+    ### Version History
+
+    - v1: Maximum number of steps increased from 200 to 500. The observation space for v0 provided direct readings of
+    `theta1` and `theta2` in radians, having a range of `[-pi, pi]`. The v1 observation space as described here provides the
+    sine and cosine of each angle instead.
+    - v0: Initial versions release (1.0.0) (removed from gym for v1)
+
+    ### References
+    - Sutton, R. S. (1996). Generalization in Reinforcement Learning: Successful Examples Using Sparse Coarse Coding. In D. Touretzky, M. C. Mozer, & M. Hasselmo (Eds.), Advances in Neural Information Processing Systems (Vol. 8). MIT Press. https://proceedings.neurips.cc/paper/1995/file/8f1d43620bc6bb580df6e80b0dc05c48-Paper.pdf
+    - Sutton, R. S., Barto, A. G. (2018 ). Reinforcement Learning: An Introduction. The MIT Press.
     """
 
-    metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 15}
+    metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 15}
 
     dt = 0.2
 
@@ -81,6 +148,8 @@ class AcrobotEnv(core.Env):
 
     torque_noise_max = 0.0
 
+    SCREEN_DIM = 500
+
     #: use dynamics equations from the nips paper or the book
     book_or_nips = "book"
     action_arrow = None
@@ -88,7 +157,9 @@ class AcrobotEnv(core.Env):
     actions_num = 3
 
     def __init__(self):
-        self.viewer = None
+        self.screen = None
+        self.clock = None
+        self.isopen = True
         high = np.array(
             [1.0, 1.0, 1.0, 1.0, self.MAX_VEL_1, self.MAX_VEL_2], dtype=np.float32
         )
@@ -97,15 +168,25 @@ class AcrobotEnv(core.Env):
         self.action_space = spaces.Discrete(3)
         self.state = None
 
-    def reset(self, seed: Optional[int] = None):
+    def reset(
+        self,
+        *,
+        seed: Optional[int] = None,
+        return_info: bool = False,
+        options: Optional[dict] = None
+    ):
         super().reset(seed=seed)
         self.state = self.np_random.uniform(low=-0.1, high=0.1, size=(4,)).astype(
             np.float32
         )
-        return self._get_ob()
+        if not return_info:
+            return self._get_ob()
+        else:
+            return self._get_ob(), {}
 
     def step(self, a):
         s = self.state
+        assert s is not None, "Call reset before using AcrobotEnv object."
         torque = self.AVAIL_TORQUE[a]
 
         # Add noise to the force action
@@ -131,12 +212,14 @@ class AcrobotEnv(core.Env):
 
     def _get_ob(self):
         s = self.state
+        assert s is not None, "Call reset before using AcrobotEnv object."
         return np.array(
             [cos(s[0]), sin(s[0]), cos(s[1]), sin(s[1]), s[2], s[3]], dtype=np.float32
         )
 
     def _terminal(self):
         s = self.state
+        assert s is not None, "Call reset before using AcrobotEnv object."
         return bool(-cos(s[0]) - cos(s[1] + s[0]) > 1.0)
 
     def _dsdt(self, s_augmented):
@@ -155,15 +238,15 @@ class AcrobotEnv(core.Env):
         dtheta1 = s[2]
         dtheta2 = s[3]
         d1 = (
-            m1 * lc1 ** 2
-            + m2 * (l1 ** 2 + lc2 ** 2 + 2 * l1 * lc2 * cos(theta2))
+            m1 * lc1**2
+            + m2 * (l1**2 + lc2**2 + 2 * l1 * lc2 * cos(theta2))
             + I1
             + I2
         )
-        d2 = m2 * (lc2 ** 2 + l1 * lc2 * cos(theta2)) + I2
+        d2 = m2 * (lc2**2 + l1 * lc2 * cos(theta2)) + I2
         phi2 = m2 * lc2 * g * cos(theta1 + theta2 - pi / 2.0)
         phi1 = (
-            -m2 * l1 * lc2 * dtheta2 ** 2 * sin(theta2)
+            -m2 * l1 * lc2 * dtheta2**2 * sin(theta2)
             - 2 * m2 * l1 * lc2 * dtheta2 * dtheta1 * sin(theta2)
             + (m1 * lc1 + m2 * l1) * g * cos(theta1 - pi / 2)
             + phi2
@@ -171,57 +254,98 @@ class AcrobotEnv(core.Env):
         if self.book_or_nips == "nips":
             # the following line is consistent with the description in the
             # paper
-            ddtheta2 = (a + d2 / d1 * phi1 - phi2) / (m2 * lc2 ** 2 + I2 - d2 ** 2 / d1)
+            ddtheta2 = (a + d2 / d1 * phi1 - phi2) / (m2 * lc2**2 + I2 - d2**2 / d1)
         else:
             # the following line is consistent with the java implementation and the
             # book
             ddtheta2 = (
-                a + d2 / d1 * phi1 - m2 * l1 * lc2 * dtheta1 ** 2 * sin(theta2) - phi2
-            ) / (m2 * lc2 ** 2 + I2 - d2 ** 2 / d1)
+                a + d2 / d1 * phi1 - m2 * l1 * lc2 * dtheta1**2 * sin(theta2) - phi2
+            ) / (m2 * lc2**2 + I2 - d2**2 / d1)
         ddtheta1 = -(d2 * ddtheta2 + phi1) / d1
         return (dtheta1, dtheta2, ddtheta1, ddtheta2, 0.0)
 
     def render(self, mode="human"):
-        from gym.envs.classic_control import rendering
+        import pygame
+        from pygame import gfxdraw
 
+        if self.screen is None:
+            pygame.init()
+            pygame.display.init()
+            self.screen = pygame.display.set_mode((self.SCREEN_DIM, self.SCREEN_DIM))
+        if self.clock is None:
+            self.clock = pygame.time.Clock()
+
+        self.surf = pygame.Surface((self.SCREEN_DIM, self.SCREEN_DIM))
+        self.surf.fill((255, 255, 255))
         s = self.state
 
-        if self.viewer is None:
-            self.viewer = rendering.Viewer(500, 500)
-            bound = self.LINK_LENGTH_1 + self.LINK_LENGTH_2 + 0.2  # 2.2 for default
-            self.viewer.set_bounds(-bound, bound, -bound, bound)
+        bound = self.LINK_LENGTH_1 + self.LINK_LENGTH_2 + 0.2  # 2.2 for default
+        scale = self.SCREEN_DIM / (bound * 2)
+        offset = self.SCREEN_DIM / 2
 
         if s is None:
             return None
 
-        p1 = [-self.LINK_LENGTH_1 * cos(s[0]), self.LINK_LENGTH_1 * sin(s[0])]
+        p1 = [
+            -self.LINK_LENGTH_1 * cos(s[0]) * scale,
+            self.LINK_LENGTH_1 * sin(s[0]) * scale,
+        ]
 
         p2 = [
-            p1[0] - self.LINK_LENGTH_2 * cos(s[0] + s[1]),
-            p1[1] + self.LINK_LENGTH_2 * sin(s[0] + s[1]),
+            p1[0] - self.LINK_LENGTH_2 * cos(s[0] + s[1]) * scale,
+            p1[1] + self.LINK_LENGTH_2 * sin(s[0] + s[1]) * scale,
         ]
 
         xys = np.array([[0, 0], p1, p2])[:, ::-1]
         thetas = [s[0] - pi / 2, s[0] + s[1] - pi / 2]
-        link_lengths = [self.LINK_LENGTH_1, self.LINK_LENGTH_2]
+        link_lengths = [self.LINK_LENGTH_1 * scale, self.LINK_LENGTH_2 * scale]
 
-        self.viewer.draw_line((-2.2, 1), (2.2, 1))
+        pygame.draw.line(
+            self.surf,
+            start_pos=(-2.2 * scale + offset, 1 * scale + offset),
+            end_pos=(2.2 * scale + offset, 1 * scale + offset),
+            color=(0, 0, 0),
+        )
+
         for ((x, y), th, llen) in zip(xys, thetas, link_lengths):
-            l, r, t, b = 0, llen, 0.1, -0.1
-            jtransform = rendering.Transform(rotation=th, translation=(x, y))
-            link = self.viewer.draw_polygon([(l, b), (l, t), (r, t), (r, b)])
-            link.add_attr(jtransform)
-            link.set_color(0, 0.8, 0.8)
-            circ = self.viewer.draw_circle(0.1)
-            circ.set_color(0.8, 0.8, 0)
-            circ.add_attr(jtransform)
+            x = x + offset
+            y = y + offset
+            l, r, t, b = 0, llen, 0.1 * scale, -0.1 * scale
+            coords = [(l, b), (l, t), (r, t), (r, b)]
+            transformed_coords = []
+            for coord in coords:
+                coord = pygame.math.Vector2(coord).rotate_rad(th)
+                coord = (coord[0] + x, coord[1] + y)
+                transformed_coords.append(coord)
+            gfxdraw.aapolygon(self.surf, transformed_coords, (0, 204, 204))
+            gfxdraw.filled_polygon(self.surf, transformed_coords, (0, 204, 204))
 
-        return self.viewer.render(return_rgb_array=mode == "rgb_array")
+            gfxdraw.aacircle(self.surf, int(x), int(y), int(0.1 * scale), (204, 204, 0))
+            gfxdraw.filled_circle(
+                self.surf, int(x), int(y), int(0.1 * scale), (204, 204, 0)
+            )
+
+        self.surf = pygame.transform.flip(self.surf, False, True)
+        self.screen.blit(self.surf, (0, 0))
+        if mode == "human":
+            pygame.event.pump()
+            self.clock.tick(self.metadata["render_fps"])
+            pygame.display.flip()
+
+        if mode == "rgb_array":
+            return np.transpose(
+                np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
+            )
+        else:
+            return self.isopen
 
     def close(self):
-        if self.viewer:
-            self.viewer.close()
-            self.viewer = None
+        if self.screen is not None:
+            import pygame
+
+            pygame.display.quit()
+            pygame.quit()
+            self.isopen = False
 
 
 def wrap(x, m, M):
@@ -264,7 +388,7 @@ def bound(x, m, M=None):
 
 def rk4(derivs, y0, t):
     """
-    Integrate 1D or ND system of ODEs using 4-th order Runge-Kutta.
+    Integrate 1-D or N-D system of ODEs using 4-th order Runge-Kutta.
     This is a toy implementation which may be useful if you find
     yourself stranded on a system w/o scipy.  Otherwise use
     :func:`scipy.integrate`.
@@ -277,7 +401,7 @@ def rk4(derivs, y0, t):
         kwargs: additional keyword arguments passed to the derivative function
 
     Example 1 ::
-        ## 2D system
+        ### 2D system
         def derivs(x):
             d1 =  x[0] + 2*x[1]
             d2 =  -3*x[0] + 4*x[1]
@@ -306,8 +430,8 @@ def rk4(derivs, y0, t):
 
     for i in np.arange(len(t) - 1):
 
-        thist = t[i]
-        dt = t[i + 1] - thist
+        this = t[i]
+        dt = t[i + 1] - this
         dt2 = dt / 2.0
         y0 = yout[i]
 

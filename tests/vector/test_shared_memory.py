@@ -1,22 +1,20 @@
-import pytest
-import numpy as np
-
 import multiprocessing as mp
-from multiprocessing.sharedctypes import SynchronizedArray
-from multiprocessing import Array, Process
 from collections import OrderedDict
+from multiprocessing import Array, Process
+from multiprocessing.sharedctypes import SynchronizedArray
 
-from gym.spaces import Tuple, Dict
+import numpy as np
+import pytest
+
 from gym.error import CustomSpaceError
-from gym.vector.utils.spaces import _BaseGymSpaces
-from tests.vector.utils import spaces, custom_spaces
-
+from gym.spaces import Dict, Tuple
 from gym.vector.utils.shared_memory import (
     create_shared_memory,
     read_from_shared_memory,
     write_to_shared_memory,
 )
-
+from gym.vector.utils.spaces import _BaseGymSpaces
+from tests.vector.utils import custom_spaces, spaces
 
 expected_types = [
     Array("d", 1),
@@ -25,6 +23,7 @@ expected_types = [
     Array("f", 4),
     Array("B", 1),
     Array("B", 32 * 32 * 3),
+    Array("i", 1),
     Array("i", 1),
     (Array("i", 1), Array("i", 1)),
     (Array("i", 1), Array("f", 2)),
@@ -69,7 +68,7 @@ def test_create_shared_memory(space, expected_type, n, ctx):
             assert type(lhs[0]) == type(rhs[0])  # noqa: E721
 
         else:
-            raise TypeError("Got unknown type `{0}`.".format(type(lhs)))
+            raise TypeError(f"Got unknown type `{type(lhs)}`.")
 
     ctx = mp if (ctx is None) else mp.get_context(ctx)
     shared_memory = create_shared_memory(space, n=n, ctx=ctx)
@@ -105,10 +104,10 @@ def test_write_to_shared_memory(space):
             assert np.all(np.array(lhs[:]) == np.stack(rhs, axis=0).flatten())
 
         else:
-            raise TypeError("Got unknown type `{0}`.".format(type(lhs)))
+            raise TypeError(f"Got unknown type `{type(lhs)}`.")
 
     def write(i, shared_memory, sample):
-        write_to_shared_memory(i, sample, shared_memory, space)
+        write_to_shared_memory(space, i, sample, shared_memory)
 
     shared_memory_n8 = create_shared_memory(space, n=8)
     samples = [space.sample() for _ in range(8)]
@@ -152,13 +151,13 @@ def test_read_from_shared_memory(space):
             assert np.all(lhs == np.stack(rhs, axis=0))
 
         else:
-            raise TypeError("Got unknown type `{0}`".format(type(space)))
+            raise TypeError(f"Got unknown type `{type(space)}`")
 
     def write(i, shared_memory, sample):
-        write_to_shared_memory(i, sample, shared_memory, space)
+        write_to_shared_memory(space, i, sample, shared_memory)
 
     shared_memory_n8 = create_shared_memory(space, n=8)
-    memory_view_n8 = read_from_shared_memory(shared_memory_n8, space, n=8)
+    memory_view_n8 = read_from_shared_memory(space, shared_memory_n8, n=8)
     samples = [space.sample() for _ in range(8)]
 
     processes = [

@@ -1,49 +1,23 @@
-import sys
+__credits__ = ["Andrea PIERRÉ"]
+
 import math
+import sys
 from typing import Optional
 
-import numpy as np
 import Box2D
+import numpy as np
 from Box2D.b2 import (
-    edgeShape,
     circleShape,
+    contactListener,
+    edgeShape,
     fixtureDef,
     polygonShape,
     revoluteJointDef,
-    contactListener,
 )
 
 import gym
-from gym import spaces
-from gym.utils import colorize, seeding, EzPickle
-
-# This is simple 4-joints walker robot environment.
-#
-# There are two versions:
-#
-# - Normal, with slightly uneven terrain.
-#
-# - Hardcore with ladders, stumps, pitfalls.
-#
-# Reward is given for moving forward, total 300+ points up to the far end. If the robot falls,
-# it gets -100. Applying motor torque costs a small amount of points, more optimal agent
-# will get better score.
-#
-# Heuristic is provided for testing, it's also useful to get demonstrations to
-# learn from. To run heuristic:
-#
-# python gym/envs/box2d/bipedal_walker.py
-#
-# State consists of hull angle speed, angular velocity, horizontal speed, vertical speed,
-# position of joints and joints angular speed, legs contact with ground, and 10 lidar
-# rangefinder measurements to help to deal with the hardcore version. There's no coordinates
-# in the state vector. Lidar is less useful in normal version, but it works.
-#
-# To solve the game you need to get 300 points in 1600 time steps.
-#
-# To solve hardcore version you need 300 points in 2000 time steps.
-#
-# Created by Oleg Klimov. Licensed on the same terms as the rest of OpenAI Gym.
+from gym import error, spaces
+from gym.utils import EzPickle, colorize, seeding
 
 FPS = 50
 SCALE = 30.0  # affects how fast-paced the game is, forces should be adjusted as well
@@ -117,19 +91,84 @@ class ContactDetector(contactListener):
 
 
 class BipedalWalker(gym.Env, EzPickle):
-    metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": FPS}
+    """
+    ### Description
+    This is a simple 4-joint walker robot environment.
+    There are two versions:
+    - Normal, with slightly uneven terrain.
+    - Hardcore, with ladders, stumps, pitfalls.
 
-    hardcore = False
+    To solve the normal version, you need to get 300 points in 1600 time steps.
+    To solve the hardcore version, you need 300 points in 2000 time steps.
 
-    def __init__(self):
+    A heuristic is provided for testing. It's also useful to get demonstrations
+    to learn from. To run the heuristic:
+    ```
+    python gym/envs/box2d/bipedal_walker.py
+    ```
+
+    ### Action Space
+    Actions are motor speed values in the [-1, 1] range for each of the
+    4 joints at both hips and knees.
+
+    ### Observation Space
+    State consists of hull angle speed, angular velocity, horizontal speed,
+    vertical speed, position of joints and joints angular speed, legs contact
+    with ground, and 10 lidar rangefinder measurements. There are no coordinates
+    in the state vector.
+
+    ### Rewards
+    Reward is given for moving forward, totaling 300+ points up to the far end.
+    If the robot falls, it gets -100. Applying motor torque costs a small
+    amount of points. A more optimal agent will get a better score.
+
+    ### Starting State
+    The walker starts standing at the left end of the terrain with the hull
+    horizontal, and both legs in the same position with a slight knee angle.
+
+    ### Episode Termination
+    The episode will terminate if the hull gets in contact with the ground or
+    if the walker exceeds the right end of the terrain length.
+
+    ### Arguments
+    To use to the _hardcore_ environment, you need to specify the
+    `hardcore=True` argument like below:
+    ```python
+    import gym
+    env = gym.make("BipedalWalker-v3", hardcore=True)
+    ```
+
+    ### Version History
+    - v3: returns closest lidar trace instead of furthest;
+        faster video recording
+    - v2: Count energy spent
+    - v1: Legs now report contact with ground; motors have higher torque and
+        speed; ground has higher friction; lidar rendered less nervously.
+    - v0: Initial version
+
+
+    <!-- ### References -->
+
+    ### Credits
+    Created by Oleg Klimov
+
+    """
+
+    metadata = {"render_modes": ["human", "rgb_array"], "render_fps": FPS}
+
+    def __init__(self, hardcore: bool = False):
         EzPickle.__init__(self)
-        self.viewer = None
+        self.screen = None
+        self.clock = None
+        self.isopen = True
 
         self.world = Box2D.b2World()
         self.terrain = None
         self.hull = None
 
         self.prev_shaping = None
+
+        self.hardcore = hardcore
 
         self.fd_polygon = fixtureDef(
             shape=polygonShape(vertices=[(0, 0), (1, 0), (1, -1), (0, -1)]),
@@ -193,14 +232,14 @@ class BipedalWalker(gym.Env, EzPickle):
                 ]
                 self.fd_polygon.shape.vertices = poly
                 t = self.world.CreateStaticBody(fixtures=self.fd_polygon)
-                t.color1, t.color2 = (1, 1, 1), (0.6, 0.6, 0.6)
+                t.color1, t.color2 = (255, 255, 255), (153, 153, 153)
                 self.terrain.append(t)
 
                 self.fd_polygon.shape.vertices = [
                     (p[0] + TERRAIN_STEP * counter, p[1]) for p in poly
                 ]
                 t = self.world.CreateStaticBody(fixtures=self.fd_polygon)
-                t.color1, t.color2 = (1, 1, 1), (0.6, 0.6, 0.6)
+                t.color1, t.color2 = (255, 255, 255), (153, 153, 153)
                 self.terrain.append(t)
                 counter += 2
                 original_y = y
@@ -220,7 +259,7 @@ class BipedalWalker(gym.Env, EzPickle):
                 ]
                 self.fd_polygon.shape.vertices = poly
                 t = self.world.CreateStaticBody(fixtures=self.fd_polygon)
-                t.color1, t.color2 = (1, 1, 1), (0.6, 0.6, 0.6)
+                t.color1, t.color2 = (255, 255, 255), (153, 153, 153)
                 self.terrain.append(t)
 
             elif state == STAIRS and oneshot:
@@ -249,7 +288,7 @@ class BipedalWalker(gym.Env, EzPickle):
                     ]
                     self.fd_polygon.shape.vertices = poly
                     t = self.world.CreateStaticBody(fixtures=self.fd_polygon)
-                    t.color1, t.color2 = (1, 1, 1), (0.6, 0.6, 0.6)
+                    t.color1, t.color2 = (255, 255, 255), (153, 153, 153)
                     self.terrain.append(t)
                 counter = stair_steps * stair_width
 
@@ -278,11 +317,11 @@ class BipedalWalker(gym.Env, EzPickle):
             ]
             self.fd_edge.shape.vertices = poly
             t = self.world.CreateStaticBody(fixtures=self.fd_edge)
-            color = (0.3, 1.0 if i % 2 == 0 else 0.8, 0.3)
+            color = (76, 255 if i % 2 == 0 else 204, 76)
             t.color1 = color
             t.color2 = color
             self.terrain.append(t)
-            color = (0.4, 0.6, 0.3)
+            color = (102, 153, 76)
             poly += [(poly[1][0], 0), (poly[0][0], 0)]
             self.terrain_poly.append((poly, color))
         self.terrain.reverse()
@@ -308,7 +347,13 @@ class BipedalWalker(gym.Env, EzPickle):
             x2 = max(p[0] for p in poly)
             self.cloud_poly.append((poly, x1, x2))
 
-    def reset(self, seed: Optional[int] = None):
+    def reset(
+        self,
+        *,
+        seed: Optional[int] = None,
+        return_info: bool = False,
+        options: Optional[dict] = None,
+    ):
         super().reset(seed=seed)
         self._destroy()
         self.world.contactListener_bug_workaround = ContactDetector(self)
@@ -329,8 +374,8 @@ class BipedalWalker(gym.Env, EzPickle):
         self.hull = self.world.CreateDynamicBody(
             position=(init_x, init_y), fixtures=HULL_FD
         )
-        self.hull.color1 = (0.5, 0.4, 0.9)
-        self.hull.color2 = (0.3, 0.3, 0.5)
+        self.hull.color1 = (127, 51, 229)
+        self.hull.color2 = (76, 76, 127)
         self.hull.ApplyForceToCenter(
             (self.np_random.uniform(-INITIAL_RANDOM, INITIAL_RANDOM), 0), True
         )
@@ -343,8 +388,8 @@ class BipedalWalker(gym.Env, EzPickle):
                 angle=(i * 0.05),
                 fixtures=LEG_FD,
             )
-            leg.color1 = (0.6 - i / 10.0, 0.3 - i / 10.0, 0.5 - i / 10.0)
-            leg.color2 = (0.4 - i / 10.0, 0.2 - i / 10.0, 0.3 - i / 10.0)
+            leg.color1 = (153 - i * 25, 76 - i * 25, 127 - i * 25)
+            leg.color2 = (102 - i * 25, 51 - i * 25, 76 - i * 25)
             rjd = revoluteJointDef(
                 bodyA=self.hull,
                 bodyB=leg,
@@ -365,8 +410,8 @@ class BipedalWalker(gym.Env, EzPickle):
                 angle=(i * 0.05),
                 fixtures=LOWER_FD,
             )
-            lower.color1 = (0.6 - i / 10.0, 0.3 - i / 10.0, 0.5 - i / 10.0)
-            lower.color2 = (0.4 - i / 10.0, 0.2 - i / 10.0, 0.3 - i / 10.0)
+            lower.color1 = (153 - i * 25, 76 - i * 25, 127 - i * 25)
+            lower.color2 = (102 - i * 25, 51 - i * 25, 76 - i * 25)
             rjd = revoluteJointDef(
                 bodyA=leg,
                 bodyB=lower,
@@ -394,8 +439,10 @@ class BipedalWalker(gym.Env, EzPickle):
                 return fraction
 
         self.lidar = [LidarCallback() for _ in range(10)]
-
-        return self.step(np.array([0, 0, 0, 0]))[0]
+        if not return_info:
+            return self.step(np.array([0, 0, 0, 0]))[0]
+        else:
+            return self.step(np.array([0, 0, 0, 0]))[0], {}
 
     def step(self, action):
         # self.hull.ApplyForceToCenter((0, 20), True) -- Uncomment this to receive a bit of stability help
@@ -485,37 +532,58 @@ class BipedalWalker(gym.Env, EzPickle):
         return np.array(state, dtype=np.float32), reward, done, {}
 
     def render(self, mode="human"):
-        from gym.envs.classic_control import rendering
+        import pygame
+        from pygame import gfxdraw
 
-        if self.viewer is None:
-            self.viewer = rendering.Viewer(VIEWPORT_W, VIEWPORT_H)
-        self.viewer.set_bounds(
-            self.scroll, VIEWPORT_W / SCALE + self.scroll, 0, VIEWPORT_H / SCALE
-        )
+        if self.screen is None:
+            pygame.init()
+            pygame.display.init()
+            self.screen = pygame.display.set_mode((VIEWPORT_W, VIEWPORT_H))
+        if self.clock is None:
+            self.clock = pygame.time.Clock()
 
-        self.viewer.draw_polygon(
-            [
-                (self.scroll, 0),
-                (self.scroll + VIEWPORT_W / SCALE, 0),
-                (self.scroll + VIEWPORT_W / SCALE, VIEWPORT_H / SCALE),
-                (self.scroll, VIEWPORT_H / SCALE),
+        self.surf = pygame.Surface((VIEWPORT_W + self.scroll * SCALE, VIEWPORT_H))
+
+        pygame.transform.scale(self.surf, (SCALE, SCALE))
+
+        pygame.draw.polygon(
+            self.surf,
+            color=(215, 215, 255),
+            points=[
+                (self.scroll * SCALE, 0),
+                (self.scroll * SCALE + VIEWPORT_W, 0),
+                (self.scroll * SCALE + VIEWPORT_W, VIEWPORT_H),
+                (self.scroll * SCALE, VIEWPORT_H),
             ],
-            color=(0.9, 0.9, 1.0),
         )
+
         for poly, x1, x2 in self.cloud_poly:
             if x2 < self.scroll / 2:
                 continue
             if x1 > self.scroll / 2 + VIEWPORT_W / SCALE:
                 continue
-            self.viewer.draw_polygon(
-                [(p[0] + self.scroll / 2, p[1]) for p in poly], color=(1, 1, 1)
+            pygame.draw.polygon(
+                self.surf,
+                color=(255, 255, 255),
+                points=[
+                    (p[0] * SCALE + self.scroll * SCALE / 2, p[1] * SCALE) for p in poly
+                ],
+            )
+            gfxdraw.aapolygon(
+                self.surf,
+                [(p[0] * SCALE + self.scroll * SCALE / 2, p[1] * SCALE) for p in poly],
+                (255, 255, 255),
             )
         for poly, color in self.terrain_poly:
             if poly[1][0] < self.scroll:
                 continue
             if poly[0][0] > self.scroll + VIEWPORT_W / SCALE:
                 continue
-            self.viewer.draw_polygon(poly, color=color)
+            scaled_poly = []
+            for coord in poly:
+                scaled_poly.append([coord[0] * SCALE, coord[1] * SCALE])
+            pygame.draw.polygon(self.surf, color=color, points=scaled_poly)
+            gfxdraw.aapolygon(self.surf, scaled_poly, color)
 
         self.lidar_render = (self.lidar_render + 1) % 100
         i = self.lidar_render
@@ -525,49 +593,95 @@ class BipedalWalker(gym.Env, EzPickle):
                 if i < len(self.lidar)
                 else self.lidar[len(self.lidar) - i - 1]
             )
-            self.viewer.draw_polyline([l.p1, l.p2], color=(1, 0, 0), linewidth=1)
+            pygame.draw.line(
+                self.surf,
+                color=(255, 0, 0),
+                start_pos=(l.p1[0] * SCALE, l.p1[1] * SCALE),
+                end_pos=(l.p2[0] * SCALE, l.p2[1] * SCALE),
+                width=1,
+            )
 
         for obj in self.drawlist:
             for f in obj.fixtures:
                 trans = f.body.transform
                 if type(f.shape) is circleShape:
-                    t = rendering.Transform(translation=trans * f.shape.pos)
-                    self.viewer.draw_circle(
-                        f.shape.radius, 30, color=obj.color1
-                    ).add_attr(t)
-                    self.viewer.draw_circle(
-                        f.shape.radius, 30, color=obj.color2, filled=False, linewidth=2
-                    ).add_attr(t)
+                    pygame.draw.circle(
+                        self.surf,
+                        color=obj.color1,
+                        center=trans * f.shape.pos * SCALE,
+                        radius=f.shape.radius * SCALE,
+                    )
+                    pygame.draw.circle(
+                        self.surf,
+                        color=obj.color2,
+                        center=trans * f.shape.pos * SCALE,
+                        radius=f.shape.radius * SCALE,
+                    )
                 else:
-                    path = [trans * v for v in f.shape.vertices]
-                    self.viewer.draw_polygon(path, color=obj.color1)
-                    path.append(path[0])
-                    self.viewer.draw_polyline(path, color=obj.color2, linewidth=2)
+                    path = [trans * v * SCALE for v in f.shape.vertices]
+                    if len(path) > 2:
+                        pygame.draw.polygon(self.surf, color=obj.color1, points=path)
+                        gfxdraw.aapolygon(self.surf, path, obj.color1)
+                        path.append(path[0])
+                        pygame.draw.polygon(
+                            self.surf, color=obj.color2, points=path, width=1
+                        )
+                        gfxdraw.aapolygon(self.surf, path, obj.color2)
+                    else:
+                        pygame.draw.aaline(
+                            self.surf,
+                            start_pos=path[0],
+                            end_pos=path[1],
+                            color=obj.color1,
+                        )
 
-        flagy1 = TERRAIN_HEIGHT
-        flagy2 = flagy1 + 50 / SCALE
-        x = TERRAIN_STEP * 3
-        self.viewer.draw_polyline(
-            [(x, flagy1), (x, flagy2)], color=(0, 0, 0), linewidth=2
+        flagy1 = TERRAIN_HEIGHT * SCALE
+        flagy2 = flagy1 + 50
+        x = TERRAIN_STEP * 3 * SCALE
+        pygame.draw.aaline(
+            self.surf, color=(0, 0, 0), start_pos=(x, flagy1), end_pos=(x, flagy2)
         )
         f = [
             (x, flagy2),
-            (x, flagy2 - 10 / SCALE),
-            (x + 25 / SCALE, flagy2 - 5 / SCALE),
+            (x, flagy2 - 10),
+            (x + 25, flagy2 - 5),
         ]
-        self.viewer.draw_polygon(f, color=(0.9, 0.2, 0))
-        self.viewer.draw_polyline(f + [f[0]], color=(0, 0, 0), linewidth=2)
+        pygame.draw.polygon(self.surf, color=(230, 51, 0), points=f)
+        pygame.draw.lines(
+            self.surf, color=(0, 0, 0), points=f + [f[0]], width=1, closed=False
+        )
 
-        return self.viewer.render(return_rgb_array=mode == "rgb_array")
+        self.surf = pygame.transform.flip(self.surf, False, True)
+        self.screen.blit(self.surf, (-self.scroll * SCALE, 0))
+        if mode == "human":
+            pygame.event.pump()
+            self.clock.tick(self.metadata["render_fps"])
+            pygame.display.flip()
+
+        if mode == "rgb_array":
+            return np.transpose(
+                np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
+            )
+        else:
+            return self.isopen
 
     def close(self):
-        if self.viewer is not None:
-            self.viewer.close()
-            self.viewer = None
+        if self.screen is not None:
+            import pygame
+
+            pygame.display.quit()
+            pygame.quit()
+            self.isopen = False
 
 
-class BipedalWalkerHardcore(BipedalWalker):
-    hardcore = True
+class BipedalWalkerHardcore:
+    def __init__(self):
+        raise error.Error(
+            "Error initializing BipedalWalkerHardcore Environment.\n"
+            "Currently, we do not support initializing this mode of environment by calling the class directly.\n"
+            "To use this environment, instead create it by specifying the hardcore keyword in gym.make, i.e.\n"
+            'gym.make("BipedalWalker-v3", hardcore=True)'
+        )
 
 
 if __name__ == "__main__":

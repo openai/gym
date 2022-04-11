@@ -1,14 +1,13 @@
-import pytest
 import numpy as np
+import pytest
 
-from gym.spaces import Box, MultiDiscrete, Tuple, Dict
-from tests.vector.utils import spaces, custom_spaces, CustomSpace
-
+from gym.spaces import Box, Dict, MultiDiscrete, Tuple
 from gym.vector.utils.spaces import batch_space, iterate
+from tests.vector.utils import CustomSpace, custom_spaces, spaces
 
 expected_batch_spaces_4 = [
     Box(low=-1.0, high=1.0, shape=(4,), dtype=np.float64),
-    Box(low=0.0, high=10.0, shape=(4, 1), dtype=np.float32),
+    Box(low=0.0, high=10.0, shape=(4, 1), dtype=np.float64),
     Box(
         low=np.array(
             [[-1.0, 0.0, 0.0], [-1.0, 0.0, 0.0], [-1.0, 0.0, 0.0], [-1.0, 0.0, 0.0]]
@@ -16,7 +15,7 @@ expected_batch_spaces_4 = [
         high=np.array(
             [[1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]]
         ),
-        dtype=np.float32,
+        dtype=np.float64,
     ),
     Box(
         low=np.array(
@@ -28,11 +27,12 @@ expected_batch_spaces_4 = [
             ]
         ),
         high=np.ones((4, 2, 2)),
-        dtype=np.float32,
+        dtype=np.float64,
     ),
     Box(low=0, high=255, shape=(4,), dtype=np.uint8),
     Box(low=0, high=255, shape=(4, 32, 32, 3), dtype=np.uint8),
     MultiDiscrete([2, 2, 2, 2]),
+    Box(low=-2, high=2, shape=(4,), dtype=np.int64),
     Tuple((MultiDiscrete([3, 3, 3, 3]), MultiDiscrete([5, 5, 5, 5]))),
     Tuple(
         (
@@ -40,7 +40,7 @@ expected_batch_spaces_4 = [
             Box(
                 low=np.array([[0.0, -1.0], [0.0, -1.0], [0.0, -1.0], [0.0, -1]]),
                 high=np.array([[1.0, 1.0], [1.0, 1.0], [1.0, 1.0], [1.0, 1.0]]),
-                dtype=np.float32,
+                dtype=np.float64,
             ),
         )
     ),
@@ -53,7 +53,7 @@ expected_batch_spaces_4 = [
     Dict(
         {
             "position": MultiDiscrete([23, 23, 23, 23]),
-            "velocity": Box(low=0.0, high=1.0, shape=(4, 1), dtype=np.float32),
+            "velocity": Box(low=0.0, high=1.0, shape=(4, 1), dtype=np.float64),
         }
     ),
     Dict(

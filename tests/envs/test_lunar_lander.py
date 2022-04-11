@@ -2,11 +2,8 @@ import pytest
 
 try:
     import Box2D
-    from gym.envs.box2d.lunar_lander import (
-        LunarLander,
-        LunarLanderContinuous,
-        demo_heuristic_lander,
-    )
+
+    from gym.envs.box2d.lunar_lander import LunarLander, demo_heuristic_lander
 except ImportError:
     Box2D = None
 
@@ -18,7 +15,7 @@ def test_lunar_lander():
 
 @pytest.mark.skipif(Box2D is None, reason="Box2D not installed")
 def test_lunar_lander_continuous():
-    _test_lander(LunarLanderContinuous(), seed=0)
+    _test_lander(LunarLander(continuous=True), seed=0)
 
 
 @pytest.mark.skipif(Box2D is None, reason="Box2D not installed")

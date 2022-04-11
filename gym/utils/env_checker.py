@@ -5,17 +5,18 @@ Original Author: Antonin Raffin
 
 It also uses some warnings/assertions from the PettingZoo repository hosted on GitHub
 (https://github.com/PettingZoo-Team/PettingZoo)
-Original Author: Justin Terry
+Original Author: J K Terry
 
 These projects are covered by the MIT License.
 """
 
-from typing import Union
+import inspect
+from typing import Optional, Union
+
+import numpy as np
 
 import gym
-import numpy as np
-from gym import logger
-from gym import spaces
+from gym import logger, spaces
 
 
 def _is_numpy_array_space(space: spaces.Space) -> bool:
@@ -78,7 +79,6 @@ def _check_obs(
             obs, tuple
         ), f"The observation returned by the `{method_name}()` method should be a single value, not a tuple"
 
-    # The check for a GoalEnv is done by the base class
     if isinstance(observation_space, spaces.Discrete):
         assert isinstance(
             obs, int
@@ -219,12 +219,6 @@ def _check_returned_values(
         info, dict
     ), "The `info` returned by `step()` must be a python dictionary"
 
-    if isinstance(env, gym.GoalEnv):
-        # For a GoalEnv, the keys are checked at reset
-        assert reward == env.compute_reward(
-            obs["achieved_goal"], obs["desired_goal"], info
-        )
-
 
 def _check_spaces(env: gym.Env) -> None:
     """
@@ -254,20 +248,30 @@ def _check_render(
     env: gym.Env, warn: bool = True, headless: bool = False
 ) -> None:  # pragma: no cover
     """
-    Check the declared render modes and the `render()`/`close()`
+    Check the declared render modes/fps and the `render()`/`close()`
     method of the environment.
     :param env: The environment to check
     :param warn: Whether to output additional warnings
     :param headless: Whether to disable render modes
         that require a graphical interface. False by default.
     """
-    render_modes = env.metadata.get("render.modes")
+    render_modes = env.metadata.get("render_modes")
     if render_modes is None:
         if warn:
             logger.warn(
                 "No render modes was declared in the environment "
-                " (env.metadata['render.modes'] is None or not defined), "
+                " (env.metadata['render_modes'] is None or not defined), "
                 "you may have trouble when calling `.render()`"
+            )
+
+    render_fps = env.metadata.get("render_fps")
+    # We only require `render_fps` if rendering is actually implemented
+    if render_fps is None and render_modes is not None and len(render_modes) > 0:
+        if warn:
+            logger.warn(
+                "No render fps was declared in the environment "
+                " (env.metadata['render_fps'] is None or not defined), "
+                "rendering may occur at inconsistent fps"
             )
 
     else:
@@ -279,6 +283,83 @@ def _check_render(
         for render_mode in render_modes:
             env.render(mode=render_mode)
         env.close()
+
+
+def _check_reset_seed(env: gym.Env, seed: Optional[int] = None) -> None:
+    """
+    Check that the environment can be reset with a random seed.
+    """
+    signature = inspect.signature(env.reset)
+    assert (
+        "seed" in signature.parameters or "kwargs" in signature.parameters
+    ), "The environment cannot be reset with a random seed. This behavior will be deprecated in the future."
+
+    try:
+        env.reset(seed=seed)
+    except TypeError as e:
+        raise AssertionError(
+            "The environment cannot be reset with a random seed, even though `seed` or `kwargs` "
+            "appear in the signature. This should never happen, please report this issue. "
+            "The error was: " + str(e)
+        )
+
+    if env.unwrapped.np_random is None:
+        logger.warn(
+            "Resetting the environment did not result in seeding its random number generator. "
+            "This is likely due to not calling `super().reset(seed=seed)` in the `reset` method. "
+            "If you do not use the python-level random number generator, this is not a problem."
+        )
+
+    seed_param = signature.parameters.get("seed")
+    # Check the default value is None
+    if seed_param is not None and seed_param.default is not None:
+        logger.warn(
+            "The default seed argument in reset should be `None`, "
+            "otherwise the environment will by default always be deterministic"
+        )
+
+
+def _check_reset_info(env: gym.Env) -> None:
+    signature = inspect.signature(env.reset)
+    assert (
+        "return_info" in signature.parameters or "kwargs" in signature.parameters
+    ), "The `reset` method does not provide the `return_info` keyword argument"
+
+    try:
+        result = env.reset(return_info=True)
+    except TypeError as e:
+        raise AssertionError(
+            "The environment cannot be reset with `return_info=True`, even though `return_info` or `kwargs` "
+            "appear in the signature. This should never happen, please report this issue. "
+            "The error was: " + str(e)
+        )
+    assert (
+        len(result) == 2
+    ), "Calling the reset method with `return_info=True` did not return a 2-tuple"
+
+    obs, info = result
+    assert isinstance(
+        info, dict
+    ), "The second element returned by `env.reset(return_info=True)` was not a dictionary"
+
+
+def _check_reset_options(env: gym.Env) -> None:
+    """
+    Check that the environment can be reset with options.
+    """
+    signature = inspect.signature(env.reset)
+    assert (
+        "options" in signature.parameters or "kwargs" in signature.parameters
+    ), "The environment cannot be reset with options. This behavior will be deprecated in the future."
+
+    try:
+        env.reset(options={})
+    except TypeError as e:
+        raise AssertionError(
+            "The environment cannot be reset with options, even though `options` or `kwargs` "
+            "appear in the signature. This should never happen, please report this issue. "
+            "The error was: " + str(e)
+        )
 
 
 def check_env(env: gym.Env, warn: bool = True, skip_render_check: bool = True) -> None:
@@ -336,3 +417,9 @@ def check_env(env: gym.Env, warn: bool = True, skip_render_check: bool = True) -
     # The check only works with numpy arrays
     if _is_numpy_array_space(observation_space) and _is_numpy_array_space(action_space):
         _check_nan(env)
+
+    # ==== Check the reset method ====
+    _check_reset_seed(env)
+    _check_reset_seed(env, seed=0)
+    _check_reset_options(env)
+    _check_reset_info(env)

@@ -1,13 +1,12 @@
-import pytest
-import numpy as np
-
 from collections import OrderedDict
 
-from gym.spaces import Tuple, Dict
+import numpy as np
+import pytest
+
+from gym.spaces import Dict, Tuple
+from gym.vector.utils.numpy_utils import concatenate, create_empty_array
 from gym.vector.utils.spaces import _BaseGymSpaces
 from tests.vector.utils import spaces
-
-from gym.vector.utils.numpy_utils import concatenate, create_empty_array
 
 
 @pytest.mark.parametrize(
@@ -42,11 +41,11 @@ def test_concatenate(space):
                 assert_nested_equal(lhs[key], rhs_T_key, n)
 
         else:
-            raise TypeError("Got unknown type `{0}`.".format(type(lhs)))
+            raise TypeError(f"Got unknown type `{type(lhs)}`.")
 
     samples = [space.sample() for _ in range(8)]
     array = create_empty_array(space, n=8)
-    concatenated = concatenate(samples, array, space)
+    concatenated = concatenate(space, samples, array)
 
     assert np.all(concatenated == array)
     assert_nested_equal(array, samples, n=8)
@@ -76,7 +75,7 @@ def test_create_empty_array(space, n):
                 assert_nested_type(arr[key], space.spaces[key], n)
 
         else:
-            raise TypeError("Got unknown type `{0}`.".format(type(arr)))
+            raise TypeError(f"Got unknown type `{type(arr)}`.")
 
     array = create_empty_array(space, n=n, fn=np.empty)
     assert_nested_type(array, space, n=n)
@@ -107,7 +106,7 @@ def test_create_empty_array_zeros(space, n):
                 assert_nested_type(arr[key], space.spaces[key], n)
 
         else:
-            raise TypeError("Got unknown type `{0}`.".format(type(arr)))
+            raise TypeError(f"Got unknown type `{type(arr)}`.")
 
     array = create_empty_array(space, n=n, fn=np.zeros)
     assert_nested_type(array, space, n=n)
@@ -137,7 +136,7 @@ def test_create_empty_array_none_shape_ones(space):
                 assert_nested_type(arr[key], space.spaces[key])
 
         else:
-            raise TypeError("Got unknown type `{0}`.".format(type(arr)))
+            raise TypeError(f"Got unknown type `{type(arr)}`.")
 
     array = create_empty_array(space, n=None, fn=np.ones)
     assert_nested_type(array, space)

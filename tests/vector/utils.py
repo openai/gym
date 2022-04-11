@@ -1,28 +1,29 @@
+import time
 from typing import Optional
 
 import numpy as np
-import gym
-import time
 
-from gym.spaces import Box, Discrete, MultiDiscrete, MultiBinary, Tuple, Dict
+import gym
+from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Tuple
 
 spaces = [
     Box(low=np.array(-1.0), high=np.array(1.0), dtype=np.float64),
-    Box(low=np.array([0.0]), high=np.array([10.0]), dtype=np.float32),
+    Box(low=np.array([0.0]), high=np.array([10.0]), dtype=np.float64),
     Box(
-        low=np.array([-1.0, 0.0, 0.0]), high=np.array([1.0, 1.0, 1.0]), dtype=np.float32
+        low=np.array([-1.0, 0.0, 0.0]), high=np.array([1.0, 1.0, 1.0]), dtype=np.float64
     ),
     Box(
-        low=np.array([[-1.0, 0.0], [0.0, -1.0]]), high=np.ones((2, 2)), dtype=np.float32
+        low=np.array([[-1.0, 0.0], [0.0, -1.0]]), high=np.ones((2, 2)), dtype=np.float64
     ),
     Box(low=0, high=255, shape=(), dtype=np.uint8),
     Box(low=0, high=255, shape=(32, 32, 3), dtype=np.uint8),
     Discrete(2),
+    Discrete(5, start=-2),
     Tuple((Discrete(3), Discrete(5))),
     Tuple(
         (
             Discrete(7),
-            Box(low=np.array([0.0, -1.0]), high=np.array([1.0, 1.0]), dtype=np.float32),
+            Box(low=np.array([0.0, -1.0]), high=np.array([1.0, 1.0]), dtype=np.float64),
         )
     ),
     MultiDiscrete([11, 13, 17]),
@@ -31,7 +32,7 @@ spaces = [
         {
             "position": Discrete(23),
             "velocity": Box(
-                low=np.array([0.0]), high=np.array([1.0]), dtype=np.float32
+                low=np.array([0.0]), high=np.array([1.0]), dtype=np.float64
             ),
         }
     ),
@@ -50,14 +51,14 @@ HEIGHT, WIDTH = 64, 64
 
 class UnittestSlowEnv(gym.Env):
     def __init__(self, slow_reset=0.3):
-        super(UnittestSlowEnv, self).__init__()
+        super().__init__()
         self.slow_reset = slow_reset
         self.observation_space = Box(
             low=0, high=255, shape=(HEIGHT, WIDTH, 3), dtype=np.uint8
         )
         self.action_space = Box(low=0.0, high=1.0, shape=(), dtype=np.float32)
 
-    def reset(self, seed: Optional[int] = None):
+    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
         super().reset(seed=seed)
         if self.slow_reset > 0:
             time.sleep(self.slow_reset)
@@ -91,16 +92,16 @@ custom_spaces = [
 
 class CustomSpaceEnv(gym.Env):
     def __init__(self):
-        super(CustomSpaceEnv, self).__init__()
+        super().__init__()
         self.observation_space = CustomSpace()
         self.action_space = CustomSpace()
 
-    def reset(self, seed: Optional[int] = None):
+    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
         super().reset(seed=seed)
         return "reset"
 
     def step(self, action):
-        observation = "step({0:s})".format(action)
+        observation = f"step({action:s})"
         reward, done = 0.0, False
         return observation, reward, done, {}
 

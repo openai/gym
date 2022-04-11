@@ -1,7 +1,7 @@
 import hashlib
 import os
 import struct
-from typing import Optional
+from typing import Any, List, Optional, Tuple, Union
 
 import numpy as np
 from numpy.random import Generator
@@ -10,14 +10,14 @@ from gym import error
 from gym.logger import deprecation
 
 
-def np_random(seed: Optional[int] = None):
+def np_random(seed: Optional[int] = None) -> Tuple["RandomNumberGenerator", Any]:
     if seed is not None and not (isinstance(seed, int) and 0 <= seed):
         raise error.Error(f"Seed must be a non-negative integer or omitted, not {seed}")
 
     seed_seq = np.random.SeedSequence(seed)
-    seed = seed_seq.entropy
+    np_seed = seed_seq.entropy
     rng = RandomNumberGenerator(np.random.PCG64(seed_seq))
-    return rng, seed
+    return rng, np_seed
 
 
 # TODO: Remove this class and make it alias to `Generator` in a future Gym release
@@ -88,13 +88,38 @@ class RandomNumberGenerator(np.random.Generator):
     set_state.__doc__ = np.random.set_state.__doc__
     seed.__doc__ = np.random.seed.__doc__
 
+    def __reduce__(self):
+        # np.random.Generator defines __reduce__, but it's hard-coded to
+        # return a Generator instead of its subclass RandomNumberGenerator.
+        # We need to override it here, otherwise sampling from a Space will
+        # be broken after pickling and unpickling, due to using the deprecated
+        # methods defined above.
+        # See: https://github.com/numpy/numpy/blob/41d37b714caa1eef72f984d529f1d40ed48ce535/numpy/random/_generator.pyx#L221-L223
+        # And: https://github.com/numpy/numpy/blob/41d37b714caa1eef72f984d529f1d40ed48ce535/numpy/random/_pickle.py#L17-L37
+        _, init_args, *args = np.random.Generator.__reduce__(self)
+        return (RandomNumberGenerator._generator_ctor, init_args, *args)
+
+    @staticmethod
+    def _generator_ctor(bit_generator_name="MT19937"):
+        # Workaround method for RandomNumberGenerator pickling, see __reduce__ above.
+        # Ported from numpy.random._pickle.__generator_ctor function.
+        from numpy.random._pickle import BitGenerators
+
+        if bit_generator_name in BitGenerators:
+            bit_generator = BitGenerators[bit_generator_name]
+        else:
+            raise ValueError(
+                f"{bit_generator_name} is not a known BitGenerator module."
+            )
+        return RandomNumberGenerator(bit_generator())
+
 
 RNG = RandomNumberGenerator
 
 # Legacy functions
 
 
-def hash_seed(seed=None, max_bytes=8):
+def hash_seed(seed: Optional[int] = None, max_bytes: int = 8) -> int:
     """Any given evaluation is likely to have many PRNG's active at
     once. (Most commonly, because the environment is running in
     multiple processes.) There's literature indicating that having
@@ -107,7 +132,7 @@ def hash_seed(seed=None, max_bytes=8):
     is likely not crypto-strength, but it should be good enough to get
     rid of simple correlations.)
     Args:
-        seed (Optional[int]): None seeds from an operating system specific randomness source.
+        seed: None seeds from an operating system specific randomness source.
         max_bytes: Maximum number of bytes to use in the hashed seed.
     """
     deprecation(
@@ -119,12 +144,12 @@ def hash_seed(seed=None, max_bytes=8):
     return _bigint_from_bytes(hash[:max_bytes])
 
 
-def create_seed(a=None, max_bytes=8):
+def create_seed(a: Optional[Union[int, str]] = None, max_bytes: int = 8) -> int:
     """Create a strong random seed. Otherwise, Python 2 would seed using
     the system time, which might be non-robust especially in the
     presence of concurrency.
     Args:
-        a (Optional[int, str]): None seeds from an operating system specific randomness source.
+        a: None seeds from an operating system specific randomness source.
         max_bytes: Maximum number of bytes to use in the seed.
     """
     deprecation(
@@ -134,11 +159,11 @@ def create_seed(a=None, max_bytes=8):
     if a is None:
         a = _bigint_from_bytes(os.urandom(max_bytes))
     elif isinstance(a, str):
-        a = a.encode("utf8")
-        a += hashlib.sha512(a).digest()
-        a = _bigint_from_bytes(a[:max_bytes])
+        bt = a.encode("utf8")
+        bt += hashlib.sha512(bt).digest()
+        a = _bigint_from_bytes(bt[:max_bytes])
     elif isinstance(a, int):
-        a = a % 2 ** (8 * max_bytes)
+        a = int(a % 2 ** (8 * max_bytes))
     else:
         raise error.Error(f"Invalid type for seed: {type(a)} ({a})")
 
@@ -146,22 +171,22 @@ def create_seed(a=None, max_bytes=8):
 
 
 # TODO: don't hardcode sizeof_int here
-def _bigint_from_bytes(bytes):
+def _bigint_from_bytes(bt: bytes) -> int:
     deprecation(
         "Function `_bigint_from_bytes(bytes)` is marked as deprecated and will be removed in the future. "
     )
     sizeof_int = 4
-    padding = sizeof_int - len(bytes) % sizeof_int
-    bytes += b"\0" * padding
-    int_count = int(len(bytes) / sizeof_int)
-    unpacked = struct.unpack(f"{int_count}I", bytes)
+    padding = sizeof_int - len(bt) % sizeof_int
+    bt += b"\0" * padding
+    int_count = int(len(bt) / sizeof_int)
+    unpacked = struct.unpack(f"{int_count}I", bt)
     accum = 0
     for i, val in enumerate(unpacked):
         accum += 2 ** (sizeof_int * 8 * i) * val
     return accum
 
 
-def _int_list_from_bigint(bigint):
+def _int_list_from_bigint(bigint: int) -> List[int]:
     deprecation(
         "Function `_int_list_from_bigint` is marked as deprecated and will be removed in the future. "
     )
@@ -171,8 +196,8 @@ def _int_list_from_bigint(bigint):
     elif bigint == 0:
         return [0]
 
-    ints = []
+    ints: List[int] = []
     while bigint > 0:
-        bigint, mod = divmod(bigint, 2 ** 32)
+        bigint, mod = divmod(bigint, 2**32)
         ints.append(mod)
     return ints

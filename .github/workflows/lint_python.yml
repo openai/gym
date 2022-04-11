@@ -1,31 +1,23 @@
+---
 name: lint_python
 on: [pull_request, push]
 jobs:
-  lint_python:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-      - run: pip install isort mypy pytest pyupgrade safety
-      - run: isort --check-only --profile black . || true
-      - run: pip install -e .[nomujoco]
-      - run: mypy --install-types --non-interactive . || true
-      - run: pytest . || true
-      - run: pytest --doctest-modules . || true
-      - run: shopt -s globstar && pyupgrade --py36-plus **/*.py || true
-
   pyright:
     name: Check types with pyright
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-platform: [ "Linux" ]
-        python-version: [ "3.7"]
+        python-platform: ["Linux"]
+        python-version: ["3.7", "3.8", "3.9", "3.10"]
       fail-fast: false
     env:
-      PYRIGHT_VERSION: 1.1.183
+      PYRIGHT_VERSION: 1.1.235
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: pip install -e .[nomujoco]
       - uses: jakebailey/pyright-action@v1
         with:
           version: ${{ env.PYRIGHT_VERSION }}

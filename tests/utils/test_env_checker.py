@@ -1,10 +1,10 @@
 from typing import Optional
 
-import gym
 import numpy as np
 import pytest
-from gym.spaces import Box, Dict, Discrete
 
+import gym
+from gym.spaces import Box, Dict, Discrete
 from gym.utils.env_checker import check_env
 
 
@@ -18,7 +18,7 @@ class ActionDictTestEnv(gym.Env):
         done = True
         return observation, reward, done
 
-    def reset(self, seed: Optional[int] = None):
+    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
         super().reset(seed=seed)
         return np.array([1.0, 1.5, 0.5])
 

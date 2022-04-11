@@ -2,8 +2,9 @@ from collections import deque
 from typing import Optional
 
 import numpy as np
-from gym.spaces import Box
+
 from gym import ObservationWrapper
+from gym.spaces import Box
 
 
 class LazyFrames:
@@ -118,7 +119,15 @@ class FrameStack(ObservationWrapper):
         self.frames.append(observation)
         return self.observation(), reward, done, info
 
-    def reset(self, seed: Optional[int] = None, **kwargs):
-        observation = self.env.reset(seed=seed, **kwargs)
-        [self.frames.append(observation) for _ in range(self.num_stack)]
-        return self.observation()
+    def reset(self, **kwargs):
+        if kwargs.get("return_info", False):
+            obs, info = self.env.reset(**kwargs)
+        else:
+            obs = self.env.reset(**kwargs)
+            info = None  # Unused
+        [self.frames.append(obs) for _ in range(self.num_stack)]
+
+        if kwargs.get("return_info", False):
+            return self.observation(), info
+        else:
+            return self.observation()

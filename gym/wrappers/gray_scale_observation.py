@@ -1,6 +1,7 @@
 import numpy as np
-from gym.spaces import Box
+
 from gym import ObservationWrapper
+from gym.spaces import Box
 
 
 class GrayScaleObservation(ObservationWrapper):

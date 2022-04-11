@@ -3,13 +3,9 @@ import pickle
 import pytest
 
 from gym import envs
-from tests.envs.spec_list import skip_mujoco, SKIP_MUJOCO_WARNING_MESSAGE
+from tests.envs.spec_list import SKIP_MUJOCO_WARNING_MESSAGE, skip_mujoco
 
-
-ENVIRONMENT_IDS = (
-    "FetchReach-v1",
-    "HalfCheetah-v2",
-)
+ENVIRONMENT_IDS = ("HalfCheetah-v2",)
 
 
 @pytest.mark.skipif(skip_mujoco, reason=SKIP_MUJOCO_WARNING_MESSAGE)

@@ -1,9 +1,10 @@
 from typing import Optional
 
-import gym
 import numpy as np
+import pytest
 from numpy.testing import assert_almost_equal
 
+import gym
 from gym.wrappers.normalize import NormalizeObservation, NormalizeReward
 
 
@@ -13,7 +14,7 @@ class DummyRewardEnv(gym.Env):
     def __init__(self, return_reward_idx=0):
         self.action_space = gym.spaces.Discrete(2)
         self.observation_space = gym.spaces.Box(
-            low=np.array([-1.0]), high=np.array([1.0])
+            low=np.array([-1.0]), high=np.array([1.0]), dtype=np.float64
         )
         self.returned_rewards = [0, 1, 2, 3, 4]
         self.return_reward_idx = return_reward_idx
@@ -23,10 +24,19 @@ class DummyRewardEnv(gym.Env):
         self.t += 1
         return np.array([self.t]), self.t, self.t == len(self.returned_rewards), {}
 
-    def reset(self, seed: Optional[int] = None):
+    def reset(
+        self,
+        *,
+        seed: Optional[int] = None,
+        return_info: Optional[bool] = False,
+        options: Optional[dict] = None
+    ):
         super().reset(seed=seed)
         self.t = self.return_reward_idx
-        return np.array([self.t])
+        if not return_info:
+            return np.array([self.t])
+        else:
+            return np.array([self.t]), {}
 
 
 def make_env(return_reward_idx):
@@ -37,14 +47,29 @@ def make_env(return_reward_idx):
     return thunk
 
 
-def test_normalize_observation():
+@pytest.mark.parametrize("return_info", [False, True])
+def test_normalize_observation(return_info: bool):
     env = DummyRewardEnv(return_reward_idx=0)
     env = NormalizeObservation(env)
-    env.reset()
+    env.reset(return_info=return_info)
     env.step(env.action_space.sample())
     assert_almost_equal(env.obs_rms.mean, 0.5, decimal=4)
     env.step(env.action_space.sample())
     assert_almost_equal(env.obs_rms.mean, 1.0, decimal=4)
+
+
+def test_normalize_reset_info():
+    env = DummyRewardEnv(return_reward_idx=0)
+    env = NormalizeObservation(env)
+    obs = env.reset()
+    assert isinstance(obs, np.ndarray)
+    del obs
+    obs = env.reset(return_info=False)
+    assert isinstance(obs, np.ndarray)
+    del obs
+    obs, info = env.reset(return_info=True)
+    assert isinstance(obs, np.ndarray)
+    assert isinstance(info, dict)
 
 
 def test_normalize_return():
