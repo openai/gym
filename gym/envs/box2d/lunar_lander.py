@@ -353,7 +353,7 @@ class LunarLander(gym.Env, EzPickle):
             else:
                 m_power = 1.0
             # 4 is move a bit downwards, +-2 for randomness
-            ox = +tip[0] * (4 / SCALE + 2 * dispersion[0]) + side[0] * dispersion[0]
+            ox = +tip[0] * (4 / SCALE + 2 * dispersion[0]) + side[0] * dispersion[1]
             oy = -tip[1] * (4 / SCALE + 2 * dispersion[0]) - side[1] * dispersion[1]
             impulse_pos = (self.lander.position[0] + ox, self.lander.position[1] + oy)
             p = self._create_particle(
