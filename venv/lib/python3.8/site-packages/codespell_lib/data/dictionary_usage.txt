@@ -1,0 +1,9 @@
+blacklist->blocklist
+blacklists->blocklists
+man-in-the-middle->on-path attacker
+master->primary, leader, active, writer, coordinator, parent, manager, main,
+masters->primaries, leaders, actives, writers, coordinators, parents, managers,
+slave->secondary, follower, standby, replica, reader, worker, helper, subordinate, subsystem,
+slaves->secondaries, followers, standbys, replicas, readers, workers, helpers, subordinates,
+whitelist->allowlist, permitlist,
+whitelists->allowlists, permitlists,

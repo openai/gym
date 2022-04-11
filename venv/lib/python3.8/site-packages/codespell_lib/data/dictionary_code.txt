@@ -1,0 +1,52 @@
+amin->main
+apoint->appoint
+atend->attend
+atending->attending
+cas->case, cast,
+clas->class
+cloneable->clonable
+cmo->com
+copyable->copiable
+define'd->defined
+dof->of, doff,
+dont->don't
+dur->due
+endcode->encode
+errorstring->error string
+exitst->exits, exists,
+files'->file's
+gae->game, Gael, gale,
+iam->I am, aim,
+iff->if
+ith->with
+keyserver->key server
+lateset->latest
+movei->movie
+mut->must, mutt, moot,
+nto->not
+objext->object
+od->of
+process'->process's
+protecten->protection
+reday->ready
+referer->referrer
+rela->real
+rendir->render
+rendirs->renders
+seeked->sought
+sinc->sync, sink, since,
+sincs->syncs, sinks, since,
+stdio->studio
+stdios->studios
+stoll->still
+storaged->storage, stored,
+storaget->storage
+subpatchs->subpatches
+subprocess'->subprocess's
+thead->thread
+todays->today's
+udate->update, date,
+udates->updates, dates,
+uint->unit
+were'->we're
+whome->whom

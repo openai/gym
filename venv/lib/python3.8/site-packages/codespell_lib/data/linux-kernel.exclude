@@ -1,0 +1,87 @@
+N: Tom Dyas
+ * Copyright (C) 1996 Thomas K. Dyas (tdyas@eden.rutgers.edu)
+ * Copyright (C) 1996 Thomas K. Dyas (tdyas@eden.rutgers.edu)
+ * Copyright (C) 1996 Thomas K. Dyas (tdyas@eden.rutgers.edu)
+ *          Tom Dyas
+ * Copyright (C) 1996 Thomas K. Dyas (tdyas@noc.rutgers.edu)
+MODULE_AUTHOR("Thomas K. Dyas (tdyas@noc.rutgers.edu) and Eddie C. Dost  (ecd@skynet.be)");
+ *  Thomas K. Dyas <tdyas@eden.rutgers.edu>
+ * Added bdflush entry and intvec min/max checking, 2/23/96, Tom Dyas.
+ *		Tom Dyas		:	Module support.
+ *		Tom Dyas	:	Export net symbols.
+ * Copyright (C) 1996,1997 Thomas K. Dyas (tdyas@eden.rutgers.edu)
+MODULE_AUTHOR("Thomas K. Dyas and David S. Miller");
+
+
+
+ * Sun people can't spell worth damn. "compatability" indeed.
+        .asciz "compatability"
+ * Sun people can't spell worth damn. "compatability" indeed.
+	.asciz "compatability"
+
+
+        Jonathan Teh Soon Yew <j.teh@iname.com>
+    <j.teh@iname.com> and Alex van Kaam <darkside@chello.nl>.)
+ <j.teh@iname.com>) */
+
+
+inv24    - change timings parameters for 24bpp modes on Millenium and
+           Millenium II. Specify this if you see strange color shadows around
+           non-Millenium.
+             Millenium I or II, because of these devices have hardware
+* ThrustMaster Millenium 3D Inceptor
+DC390F (Sym53c875) accepted this as well as my Millenium. But the Am53C974
+	{   1, "ThrustMaster Millenium 3D Inceptor",	  6, 2, { 4, 2 }, { 4, 6 }, tmdc_abs, tmdc_btn_joy },
+	 * DoC 2000 (it's in the Millenium docs), but it seems to work. */
+	minfo->millenium = 1;
+	int			millenium;
+						/* 0 except for 6MB Millenium */
+#define isMillenium(x)	 (x->millenium)
+#define isMillenium(x)	 (x->millennium)
+#define FB_AUX_TEXT_MGA_STEP16	3	/* MGA Millenium I: text, attr, 14 reserved bytes */
+#define FB_ACCEL_MATROX_MGA2064W 16	/* Matrox MGA2064W (Millenium)	*/
+#define FB_ACCEL_MATROX_MGA2164W 18	/* Matrox MGA2164W (Millenium II) */
+#define FB_ACCEL_MATROX_MGA2164W_AGP 19	/* Matrox MGA2164W (Millenium II) */
+
+
+ * Copyright (C) 2007 Marvell Internation Ltd.
+ * Copyright (C) 2007-2008 Marvell Internation Ltd.
+
+            dbug(1,dprintf("PTY/ECT/addCONF,relPLCI=%lx",relatedPLCIvalue));
+            /* send PTY/ECT req, cannot check all states because of US stuff */
+        dbug(1,dprintf("ECT OK"));
+   {   /* first indication after ECT-Request on Consultation Call */
+#define INT_CT_REJ 70       /* ECT rejected internal command        */
+	__u8 ip_ect;	/* ECT codepoint of IPv4 header, pre-shifted */
+			__u8 ece:1, cwr:1; /* TCP ECT bits */
+/* set ECT codepoint from IP header.
+		pr_info("new ECT codepoint %x out of mask\n", einfo->ip_ect);
+		/* Funny extension: if ECT is not set on a segment,
+		/* Not-retransmitted data segment: set ECT and inject CWR. */
+			/* ACK or retransmitted segment: clear ECT|CE */
+	 *  "The ECN-Capable Transport (ECT) bit would be set by the
+	 * Now setting the ECT bit all the time, as it should not cause
+
+ * Copyright © 2003 Agere Systems Inc.
+
+S: 1326 De Val-Brillant
+                <slot #2, id = 0x02, characters = "xtension whic">
+
+	at91_set_A_periph(AT91_PIN_PC1, 0);		/* [-SMOE-]{+SOME+} */
+
+	_REGISTER_CLOCK(NULL, "ect", ect_clk)
+infinit:
+	bra	infinit
+the read on an 8-byte boundary (e.g., if you seeked an odd number of bytes
+#define ISNT		   12 
+    (Some conversion-factor data were contributed by Jonathan Teh Soon Yew
+ From HWMon.cpp (Copyright 1998-2000 Jonathan Teh Soon Yew):
+ (These conversions were contributed by Jonathan Teh Soon Yew
+/* linear fits from HWMon.cpp (Copyright 1998-2000 Jonathan Teh Soon Yew)
+/* 	__u16 pallete:1; */
+	__be32 pallete;
+	struct diu_addr pallete;
+	int virtualX, virtualY;
+	struct regid		archType;
+		.ident = "Toshiba Satelite S1800-814",
+	at91_set_A_periph(AT91_PIN_PC1, 0);		/* SMOE */
