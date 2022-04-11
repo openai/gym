@@ -5,10 +5,9 @@ from typing import Iterable, Optional, Sequence
 import numpy as np
 
 from gym import logger
-
-from ..utils import seeding
-from .discrete import Discrete
-from .space import Space
+from gym.spaces.discrete import Discrete
+from gym.spaces.space import Space
+from gym.utils import seeding
 
 
 class MultiDiscrete(Space[np.ndarray]):

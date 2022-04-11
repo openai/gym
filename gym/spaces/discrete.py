@@ -4,8 +4,8 @@ from typing import Optional
 
 import numpy as np
 
-from ..utils import seeding
-from .space import Space
+from gym.spaces.space import Space
+from gym.utils import seeding
 
 
 class Discrete(Space[int]):

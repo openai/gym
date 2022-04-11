@@ -5,9 +5,8 @@ from typing import Optional, Sequence, SupportsFloat, Tuple, Type, Union
 import numpy as np
 
 from gym import logger
-
-from ..utils import seeding
-from .space import Space
+from gym.spaces.space import Space
+from gym.utils import seeding
 
 
 def _short_repr(arr: np.ndarray) -> str:

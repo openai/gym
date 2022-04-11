@@ -4,8 +4,8 @@ from typing import Optional, Sequence, Union
 
 import numpy as np
 
-from ..utils import seeding
-from .space import Space
+from gym.spaces.space import Space
+from gym.utils import seeding
 
 
 class MultiBinary(Space[np.ndarray]):
