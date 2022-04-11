@@ -173,10 +173,7 @@ def test_sync_vector_env_seed():
     env = make_env("BipedalWalker-v3", seed=123)()
     sync_vector_env = SyncVectorEnv([make_env("BipedalWalker-v3", seed=123)])
 
-    assert (
-        env.action_space.np_random.bit_generator.state
-        == sync_vector_env.action_space.np_random.bit_generator.state
-    )
+    assert env.action_space.np_random == sync_vector_env.action_space.np_random
     for _ in range(100):
         env_action = env.action_space.sample()
         vector_action = sync_vector_env.action_space.sample()
