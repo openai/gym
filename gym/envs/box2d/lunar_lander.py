@@ -151,12 +151,12 @@ class LunarLander(gym.Env, EzPickle):
 
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": FPS}
 
-    def __init__(self, continuous: bool = False):
+    def __init__(self, continuous: bool = False, gravity: float = -10.0):
         EzPickle.__init__(self)
         self.screen = None
         self.clock = None
         self.isopen = True
-        self.world = Box2D.b2World()
+        self.world = Box2D.b2World(gravity=(0, gravity))
         self.moon = None
         self.lander = None
         self.particles = []
@@ -352,9 +352,8 @@ class LunarLander(gym.Env, EzPickle):
                 assert m_power >= 0.5 and m_power <= 1.0
             else:
                 m_power = 1.0
-            ox = (
-                tip[0] * (4 / SCALE + 2 * dispersion[0]) + side[0] * dispersion[1]
-            )  # 4 is move a bit downwards, +-2 for randomness
+            # 4 is move a bit downwards, +-2 for randomness
+            ox = +tip[0] * (4 / SCALE + 2 * dispersion[0]) + side[0] * dispersion[0]
             oy = -tip[1] * (4 / SCALE + 2 * dispersion[0]) - side[1] * dispersion[1]
             impulse_pos = (self.lander.position[0] + ox, self.lander.position[1] + oy)
             p = self._create_particle(
