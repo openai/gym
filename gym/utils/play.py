@@ -1,9 +1,11 @@
 import argparse
+from typing import Tuple
 
 import pygame
+from pygame.event import Event
 
 import gym
-from gym import logger
+from gym import Env, logger
 
 try:
     import matplotlib
@@ -20,7 +22,7 @@ from pygame.locals import VIDEORESIZE
 
 
 class PlayableGame:
-    def __init__(self, env, keys_to_action=None, zoom=None):
+    def __init__(self, env: Env, keys_to_action: dict = None, zoom: float = None):
         self.env = env
         self.relevant_keys = self._get_relevant_keys(keys_to_action)
         self.video_size = self._get_video_size(zoom)
@@ -28,7 +30,7 @@ class PlayableGame:
         self.pressed_keys = []
         self.running = True
 
-    def _get_relevant_keys(self, keys_to_action):
+    def _get_relevant_keys(self, keys_to_action: dict) -> set:
         if keys_to_action is None:
             if hasattr(self.env, "get_keys_to_action"):
                 keys_to_action = self.env.get_keys_to_action()
@@ -43,7 +45,7 @@ class PlayableGame:
         relevant_keys = set(sum(map(list, keys_to_action.keys()), []))
         return relevant_keys
 
-    def _get_video_size(self, zoom=None):
+    def _get_video_size(self, zoom: float = None) -> Tuple[int, int]:
         rendered = self.env.render(mode="rgb_array")
         video_size = [rendered.shape[1], rendered.shape[0]]
 
@@ -52,7 +54,7 @@ class PlayableGame:
 
         return video_size
 
-    def process_event(self, event):
+    def process_event(self, event: Event) -> None:
         if event.type == pygame.KEYDOWN:
             if event.key in self.relevant_keys:
                 self.pressed_keys.append(event.key)
