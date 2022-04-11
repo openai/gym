@@ -2,7 +2,7 @@ import copy
 
 import numpy as np
 import pytest
-from numpy.testing._private.utils import assert_array_equal
+from numpy.testing import assert_array_equal
 
 from gym import Space
 from gym.spaces import Box, Dict, Discrete, MultiDiscrete, Tuple
