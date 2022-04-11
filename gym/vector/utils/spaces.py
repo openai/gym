@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from copy import copy, deepcopy
+from copy import deepcopy
 from functools import singledispatch
 
 import numpy as np
@@ -48,7 +48,7 @@ def batch_space(space, n=1):
 def _batch_space_box(space, n=1):
     repeats = tuple([n] + [1] * space.low.ndim)
     low, high = np.tile(space.low, repeats), np.tile(space.high, repeats)
-    return Box(low=low, high=high, dtype=space.dtype, seed=copy(space.np_random))
+    return Box(low=low, high=high, dtype=space.dtype, seed=deepcopy(space.np_random))
 
 
 @batch_space.register(Discrete)
@@ -57,7 +57,7 @@ def _batch_space_discrete(space, n=1):
         return MultiDiscrete(
             np.full((n,), space.n, dtype=space.dtype),
             dtype=space.dtype,
-            seed=copy(space.np_random),
+            seed=deepcopy(space.np_random),
         )
     else:
         return Box(
@@ -65,7 +65,7 @@ def _batch_space_discrete(space, n=1):
             high=space.start + space.n - 1,
             shape=(n,),
             dtype=space.dtype,
-            seed=copy(space.np_random),
+            seed=deepcopy(space.np_random),
         )
 
 
@@ -77,7 +77,7 @@ def _batch_space_multidiscrete(space, n=1):
         low=np.zeros_like(high),
         high=high,
         dtype=space.dtype,
-        seed=copy(space.np_random),
+        seed=deepcopy(space.np_random),
     )
 
 
@@ -88,7 +88,7 @@ def _batch_space_multibinary(space, n=1):
         high=1,
         shape=(n,) + space.shape,
         dtype=space.dtype,
-        seed=copy(space.np_random),
+        seed=deepcopy(space.np_random),
     )
 
 
@@ -96,7 +96,7 @@ def _batch_space_multibinary(space, n=1):
 def _batch_space_tuple(space, n=1):
     return Tuple(
         tuple(batch_space(subspace, n=n) for subspace in space.spaces),
-        seed=copy(space.np_random),
+        seed=deepcopy(space.np_random),
     )
 
 
@@ -109,7 +109,7 @@ def _batch_space_dict(space, n=1):
                 for (key, subspace) in space.spaces.items()
             ]
         ),
-        seed=copy(space.np_random),
+        seed=deepcopy(space.np_random),
     )
 
 
@@ -118,7 +118,7 @@ def _batch_space_custom(space, n=1):
     # Without deepcopy, then the space.np_random is batched_space.spaces[0].np_random
     # Which is an issue if you are sampling actions of both the original space and the batched space
     space_copy = deepcopy(space)
-    return Tuple(tuple(space_copy for _ in range(n)), seed=copy(space.np_random))
+    return Tuple(tuple(space_copy for _ in range(n)), seed=deepcopy(space.np_random))
 
 
 @singledispatch
