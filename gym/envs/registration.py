@@ -185,12 +185,12 @@ def make(
 
 
 def spec(env_id: str) -> EnvSpec:
-    spec = registry.get(env_id)
-    if spec is None:
+    spec_ = registry.get(env_id)
+    if spec_ is None:
         ns, name, version = parse_env_id(env_id)
         check_version_exists(ns, name, version)
-        error.Error(f"No registered env with id: {env_id}")
-    return spec
+        raise error.Error(f"No registered env with id: {env_id}")
+    return spec_
 
 
 def check_namespace_exists(ns: Optional[str]):
@@ -262,7 +262,7 @@ def check_version_exists(ns: Optional[str], name: str, version: Optional[int]):
         for spec_ in registry.values()
         if spec_.namespace == ns and spec_.name == name
     ]
-    env_specs = sorted(env_specs, key=lambda spec: spec.version)
+    env_specs = sorted(env_specs, key=lambda spec_: spec_.version)
 
     default_spec = [spec_ for spec_ in env_specs if spec_.version is None]
 
