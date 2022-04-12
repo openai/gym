@@ -15,13 +15,6 @@ IRRELEVANT_KEY = 1
 
 
 @dataclass
-class MockKeyEvent:
-    type: pygame.event.Event
-    key: Optional[int] = field(default=None)
-    size: Optional[Tuple[int, int]] = field(default=None)
-
-
-@dataclass
 class DummyEnvSpec:
     id: str
 
@@ -111,7 +104,7 @@ def test_video_size_zoom():
 def test_keyboard_quit_event():
     env = DummyPlayEnv()
     game = PlayableGame(env, dummy_keys_to_action())
-    event = MockKeyEvent(pygame.KEYDOWN, 27)
+    event = Event(pygame.KEYDOWN, {"key": 27})
     assert game.running == True
     game.process_event(event)
     assert game.running == False
@@ -120,7 +113,7 @@ def test_keyboard_quit_event():
 def test_pygame_quit_event():
     env = DummyPlayEnv()
     game = PlayableGame(env, dummy_keys_to_action())
-    event = MockKeyEvent(pygame.QUIT)
+    event = Event(pygame.QUIT)
     assert game.running == True
     game.process_event(event)
     assert game.running == False
@@ -129,7 +122,7 @@ def test_pygame_quit_event():
 def test_keyboard_relevant_keydown_event():
     env = DummyPlayEnv()
     game = PlayableGame(env, dummy_keys_to_action())
-    event = MockKeyEvent(pygame.KEYDOWN, RELEVANT_KEY)
+    event = Event(pygame.KEYDOWN, {"key": RELEVANT_KEY})
     game.process_event(event)
     assert game.pressed_keys == [RELEVANT_KEY]
 
@@ -137,7 +130,7 @@ def test_keyboard_relevant_keydown_event():
 def test_keyboard_irrelevant_keydown_event():
     env = DummyPlayEnv()
     game = PlayableGame(env, dummy_keys_to_action())
-    event = MockKeyEvent(pygame.KEYDOWN, IRRELEVANT_KEY)
+    event = Event(pygame.KEYDOWN, {"key": IRRELEVANT_KEY})
     game.process_event(event)
     assert game.pressed_keys == []
 
@@ -145,9 +138,9 @@ def test_keyboard_irrelevant_keydown_event():
 def test_keyboard_keyup_event():
     env = DummyPlayEnv()
     game = PlayableGame(env, dummy_keys_to_action())
-    event = MockKeyEvent(pygame.KEYDOWN, RELEVANT_KEY)
+    event = Event(pygame.KEYDOWN, {"key": RELEVANT_KEY})
     game.process_event(event)
-    event = MockKeyEvent(pygame.KEYUP, RELEVANT_KEY)
+    event = Event(pygame.KEYUP, {"key": RELEVANT_KEY})
     game.process_event(event)
     assert game.pressed_keys == []
 
