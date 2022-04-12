@@ -151,12 +151,21 @@ class LunarLander(gym.Env, EzPickle):
 
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": FPS}
 
-    def __init__(self, continuous: bool = False, gravity: float = -10.0):
+    def __init__(
+        self,
+        continuous: bool = False,
+        gravity: float = -10.0,
+        enable_wind: bool = False,
+    ):
         EzPickle.__init__(self)
 
         assert (
-            -12.0 < gravity and gravity < 0
+            -12.0 < gravity and gravity < 0.0
         ), f"gravity (current value: {gravity}) must be between -12 and 0"
+        self.gravity = gravity
+
+        self.enable_wind = enable_wind
+        self.wind_idx = np.random.randint(-9999, 9999)
 
         self.screen = None
         self.clock = None
@@ -335,6 +344,18 @@ class LunarLander(gym.Env, EzPickle):
             self.world.DestroyBody(self.particles.pop(0))
 
     def step(self, action):
+        # Update wind
+        if self.enable_wind:
+            # the function used for wind is tanh(sin(2 k x) + sin(pi k x)),
+            # which is proven to never be periodic, k = 0.01
+            # it is a computationally cheaper equivalent of perlin noise
+            wind_mag = math.tanh(
+                math.sin(0.02 * self.wind_idx)
+                + (math.sin(math.pi * 0.01 * self.wind_idx))
+            )
+            self.wind_idx += 1
+            self.world.SetGravity((wind_mag, self.gravity))
+
         if self.continuous:
             action = np.clip(action, -1, +1).astype(np.float32)
         else:
