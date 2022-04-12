@@ -277,7 +277,7 @@ def check_version_exists(ns: Optional[str], name: str, version: Optional[int]):
 
     versioned_specs = [spec_ for spec_ in env_specs if spec_.version is not None]
 
-    latest_spec = max(versioned_specs, key=lambda spec: spec.version, default=None)
+    latest_spec = max(versioned_specs, key=lambda spec: spec.version, default=None)  # type: ignore
     if latest_spec is not None and version > latest_spec.version:
         version_list_msg = ", ".join(f"`v{spec_.version}`" for spec_ in env_specs)
         message += f" It provides versioned environments: [ {version_list_msg} ]."
@@ -318,7 +318,7 @@ def check_spec_register(spec: EnvSpec):
             for spec_ in registry.values()
             if spec_.name == spec.name and spec_.version is not None
         ),
-        key=lambda spec_: int(spec_.version),
+        key=lambda spec_: int(spec_.version),  # type: ignore
         default=None,
     )
 
