@@ -85,9 +85,9 @@ class EnvSpec:
         # Initialize namespace, name, version
         self.namespace, self.name, self.version = parse_env_id(self.id)
 
-    def make(self) -> Type:
+    def make(self, **kwargs) -> Type:
         # For compatibility purposes
-        return make(self)
+        return make(self, **kwargs)
 
 
 # Global registry of environments. Meant to be accessed through `register` and `make`
@@ -127,25 +127,29 @@ def make(
     else:
         spec = registry.get(env_id)
 
-    ns, name, version = parse_env_id(env_id)
-    latest_version = find_newest_version(ns, name)
-    if version is not None and latest_version is not None and latest_version > version:
-        logger.warn(
-            f"The environment {env_id} is out of date. You should consider "
-            f"upgrading to version `v{latest_version}`."
-        )
-    if version is None and latest_version is not None:
-        version = latest_version
-        new_env_id = get_env_id(ns, name, version)
-        spec = registry.get(new_env_id)
-        logger.warn(
-            f"Using the latest versioned environment `{new_env_id}` "
-            f"instead of the unversioned environment `{env_id}`."
-        )
+        ns, name, version = parse_env_id(env_id)
+        latest_version = find_newest_version(ns, name)
+        if (
+            version is not None
+            and latest_version is not None
+            and latest_version > version
+        ):
+            logger.warn(
+                f"The environment {env_id} is out of date. You should consider "
+                f"upgrading to version `v{latest_version}`."
+            )
+        if version is None and latest_version is not None:
+            version = latest_version
+            new_env_id = get_env_id(ns, name, version)
+            spec = registry.get(new_env_id)
+            logger.warn(
+                f"Using the latest versioned environment `{new_env_id}` "
+                f"instead of the unversioned environment `{env_id}`."
+            )
 
-    if spec is None:
-        check_version_exists(ns, name, version)
-        raise error.Error(f"No registered env with id: {env_id}")
+        if spec is None:
+            check_version_exists(ns, name, version)
+            raise error.Error(f"No registered env with id: {env_id}")
 
     _kwargs = spec.kwargs.copy()
     _kwargs.update(kwargs)
