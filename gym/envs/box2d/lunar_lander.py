@@ -26,6 +26,7 @@ MAIN_ENGINE_POWER = 13.0
 SIDE_ENGINE_POWER = 0.6
 
 INITIAL_RANDOM = 1000.0  # Set 1500 to make game harder
+WIND_POWER = 15.0
 
 LANDER_POLY = [(-14, +17), (-17, 0), (-17, -10), (+17, -10), (+17, 0), (+14, +17)]
 LEG_AWAY = 20
@@ -345,16 +346,20 @@ class LunarLander(gym.Env, EzPickle):
 
     def step(self, action):
         # Update wind
-        if self.enable_wind:
+        if self.enable_wind and not (
+            self.legs[0].ground_contact or self.legs[1].ground_contact
+        ):
             # the function used for wind is tanh(sin(2 k x) + sin(pi k x)),
             # which is proven to never be periodic, k = 0.01
-            # it is a computationally cheaper equivalent of perlin noise
             wind_mag = math.tanh(
                 math.sin(0.02 * self.wind_idx)
                 + (math.sin(math.pi * 0.01 * self.wind_idx))
-            )
+            ) * WIND_POWER
             self.wind_idx += 1
-            self.world.SetGravity((wind_mag, self.gravity))
+            self.lander.ApplyForceToCenter(
+                (wind_mag, 0.0),
+                True,
+            )
 
         if self.continuous:
             action = np.clip(action, -1, +1).astype(np.float32)
