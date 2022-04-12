@@ -190,7 +190,9 @@ def spec(env_id: str) -> EnvSpec:
         ns, name, version = parse_env_id(env_id)
         check_version_exists(ns, name, version)
         raise error.Error(f"No registered env with id: {env_id}")
-    return spec_
+    else:
+        assert isinstance(spec_, EnvSpec)
+        return spec_
 
 
 def check_namespace_exists(ns: Optional[str]):
@@ -262,7 +264,7 @@ def check_version_exists(ns: Optional[str], name: str, version: Optional[int]):
         for spec_ in registry.values()
         if spec_.namespace == ns and spec_.name == name
     ]
-    env_specs = sorted(env_specs, key=lambda spec_: spec_.version)
+    env_specs = sorted(env_specs, key=lambda spec_: int(spec_.version or -1))
 
     default_spec = [spec_ for spec_ in env_specs if spec_.version is None]
 
@@ -284,16 +286,16 @@ def check_version_exists(ns: Optional[str], name: str, version: Optional[int]):
 
     if latest_spec is not None and version < latest_spec.version:
         raise error.DeprecatedEnv(
-            f"Environment version v{version} for `{get_env_id(ns, name, ns)}` is deprecated. "
+            f"Environment version v{version} for `{get_env_id(ns, name, None)}` is deprecated. "
             f"Please use `{latest_spec.id}` instead."
         )
 
 
 def find_newest_version(ns: Optional[str], name: str) -> Optional[int]:
-    version = [
+    version: list[int] = [
         spec_.version
         for spec_ in registry.values()
-        if spec_.namespace == ns and spec_.name == name
+        if spec_.namespace == ns and spec_.name == name and spec_.version is not None
     ]
     return max(version, default=None)
 
@@ -314,7 +316,7 @@ def check_spec_register(spec: EnvSpec):
         (
             spec_
             for spec_ in registry.values()
-            if spec_.name == spec.name and isinstance(spec_.version, int)
+            if spec_.name == spec.name and spec_.version is not None
         ),
         key=lambda spec_: int(spec_.version),
         default=None,
