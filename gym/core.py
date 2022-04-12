@@ -78,7 +78,7 @@ class Env(Generic[ObsType, ActType]):
             reward (float) : amount of reward returned after previous action
             done (bool): whether the episode has ended, in which case further :meth:`step` calls will return undefined results. A done signal may be emitted for different reasons: Maybe the task underlying the environment was solved successfully, a certain timelimit was exceeded, or the physics simulation has entered an invalid state. ``info`` may contain additional information regarding the reason for a ``done`` signal.
             info (dict): contains auxiliary diagnostic information (helpful for debugging, learning, and logging). This might, for instance, contain:
-                
+
                 - metrics that describe the agent's performance or
                 - state variables that are hidden from observations or
                 - information that distinguishes truncation and termination or
@@ -106,7 +106,8 @@ class Env(Generic[ObsType, ActType]):
         integer seed right after initialization and then never again.
 
         Args:
-            seed (int or None): The seed that is used to initialize the environment's PRNG. If the environment does not already have a PRNG and ``seed=None`` (the default option) is passed, a seed will be chosen from some source of entropy (e.g. timestamp or /dev/urandom). However, if the environment already has a PRNG and ``seed=None`` is pased, the PRNG will *not* be reset. If you pass an integer, the PRNG will be reset even if it already exists. Usually, you want to pass an integer *right after the environment has been initialized and then never again*. Please refer to the minimal example above to see this paradigm in action.
+            seed (int or None): The seed that is used to initialize the environment's PRNG. If the environment does not already have a PRNG and ``seed=None`` (the default option) is passed, a seed will be chosen from some source of entropy (e.g. timestamp or /dev/urandom).
+            However, if the environment already has a PRNG and ``seed=None`` is passed, the PRNG will *not* be reset. If you pass an integer, the PRNG will be reset even if it already exists. Usually, you want to pass an integer *right after the environment has been initialized and then never again*. Please refer to the minimal example above to see this paradigm in action.
             return_info (bool): If true, return additional information along with initial observation. This info should be analogous to the info returned in :meth:`step`
             options (dict or None): Additional information to specify how the environment is reset (optional, depending on the specific environment)
 
@@ -135,7 +136,7 @@ class Env(Generic[ObsType, ActType]):
         - ansi: Return a string (str) or StringIO.StringIO containing a
           terminal-style text representation. The text can include newlines
           and ANSI escape sequences (e.g. for colors).
-                
+
         Note:
             Make sure that your class's metadata 'render_modes' key includes
               the list of supported modes. It's recommended to call super()
