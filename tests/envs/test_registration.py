@@ -310,16 +310,13 @@ def test_register_versioned_unversioned():
     del gym.envs.registry[versioned_env]
 
     # Register unversioned then versioned
-    with pytest.warns(UserWarning):
-        envs.register(unversioned_env)
+    envs.register(unversioned_env)
     assert gym.envs.spec(unversioned_env).id == unversioned_env
     with pytest.raises(error.RegistrationError):
         envs.register(versioned_env)
 
     # Clean everything
-    envs_list = [versioned_env, unversioned_env]
-    for env in envs_list:
-        del gym.envs.registry[env]
+    del gym.envs.registry[unversioned_env]
 
 
 def test_return_latest_versioned_env(register_some_envs):
