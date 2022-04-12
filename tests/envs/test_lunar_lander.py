@@ -30,7 +30,5 @@ def test_lunar_lander_wind_continuous():
 
 @pytest.mark.skipif(Box2D is None, reason="Box2D not installed")
 def _test_lander(env, seed=None, render=False):
-    total_reward = 0
-    for _ in range(10):
-        total_reward += demo_heuristic_lander(env, seed=seed, render=render)
-    assert total_reward / 10 > 100
+    total_reward = demo_heuristic_lander(env, seed=seed, render=render)
+    assert total_reward > 100
