@@ -153,6 +153,11 @@ class LunarLander(gym.Env, EzPickle):
 
     def __init__(self, continuous: bool = False, gravity: float = -10.0):
         EzPickle.__init__(self)
+
+        assert (
+            -12.0 < gravity and gravity < 0
+        ), f"gravity (current value: {gravity}) must be between -12 and 0"
+
         self.screen = None
         self.clock = None
         self.isopen = True
