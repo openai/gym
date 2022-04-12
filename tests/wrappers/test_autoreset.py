@@ -1,10 +1,13 @@
+import types
 from typing import Optional
+from unittest.mock import MagicMock
 
 import numpy as np
 import pytest
 
 import gym
 from gym.wrappers import AutoResetWrapper
+from tests.envs.spec_list import spec_list
 
 
 class DummyResetEnv(gym.Env):
@@ -60,6 +63,49 @@ def test_autoreset_reset_info():
     obs, info = env.reset(return_info=True)
     assert ob_space.contains(obs)
     assert isinstance(info, dict)
+
+
+@pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
+def test_make_autoreset_true(spec):
+    """
+    Note: This test assumes that the outermost wrapper is AutoResetWrapper
+    so if that is being changed in the future, this test will break and need
+    to be updated.
+    Note: This test assumes that all first-party environments will terminate in a finite
+    amount of time with random actions, which is true as of the time of adding this test.
+    """
+    env = None
+    with pytest.warns(None) as warnings:
+        env = spec.make(autoreset=True)
+
+    ob_space = env.observation_space
+    obs = env.reset(seed=0)
+    env.action_space.seed(0)
+
+    env.unwrapped.reset = MagicMock(side_effect=env.unwrapped.reset)
+
+    done = False
+    while not done:
+        obs, reward, done, info = env.step(env.action_space.sample())
+
+    assert isinstance(env, AutoResetWrapper)
+    assert env.unwrapped.reset.called
+
+
+@pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
+def test_make_autoreset_false(spec):
+    env = None
+    with pytest.warns(None) as warnings:
+        env = spec.make(autoreset=False)
+    assert not isinstance(env, AutoResetWrapper)
+
+
+@pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
+def test_make_autoreset_default_false(spec):
+    env = None
+    with pytest.warns(None) as warnings:
+        env = spec.make()
+    assert not isinstance(env, AutoResetWrapper)
 
 
 def test_autoreset_autoreset():
