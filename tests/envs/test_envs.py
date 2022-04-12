@@ -19,7 +19,7 @@ from tests.envs.spec_list import spec_list
 @pytest.mark.filterwarnings(
     "ignore:.*Agent's maximum observation space value is infinity. This is probably too high.*"
 )
-@pytest.mark.parametrize("spec", spec_list)
+@pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
 def test_env(spec):
     # Capture warnings
     with pytest.warns(None) as warnings:
@@ -64,7 +64,7 @@ def test_env(spec):
     env.close()
 
 
-@pytest.mark.parametrize("spec", spec_list)
+@pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
 def test_reset_info(spec):
 
     with pytest.warns(None) as warnings:

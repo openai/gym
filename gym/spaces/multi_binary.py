@@ -11,23 +11,18 @@ class MultiBinary(Space[np.ndarray]):
     """
     An n-shape binary space.
 
-    The argument to MultiBinary defines n, which could be a number or a `list` of numbers.
+    The argument to MultiBinary defines n, which could be a number or a ``list`` of numbers.
 
-    Example Usage:
+    Example Usage::
 
-    >> self.observation_space = spaces.MultiBinary(5)
-
-    >> self.observation_space.sample()
-
-        array([0, 1, 0, 1, 0], dtype=int8)
-
-    >> self.observation_space = spaces.MultiBinary([3, 2])
-
-    >> self.observation_space.sample()
-
-        array([[0, 0],
-               [0, 1],
-               [1, 1]], dtype=int8)
+        >>> self.observation_space = spaces.MultiBinary(5)
+        >>> self.observation_space.sample()
+            array([0, 1, 0, 1, 0], dtype=int8)
+        >>> self.observation_space = spaces.MultiBinary([3, 2])
+        >>> self.observation_space.sample()
+            array([[0, 0],
+                [0, 1],
+                [1, 1]], dtype=int8)
 
     """
 
@@ -36,11 +31,11 @@ class MultiBinary(Space[np.ndarray]):
     ):
         if isinstance(n, (Sequence, np.ndarray)):
             self.n = input_n = tuple(int(i) for i in n)
+            assert (np.asarray(input_n) > 0).all()  # n (counts) have to be positive
         else:
             self.n = n = int(n)
             input_n = (n,)
-
-        assert (np.asarray(input_n) > 0).all(), "n (counts) have to be positive"
+            assert (np.asarray(input_n) > 0).all()  # n (counts) have to be positive
 
         super().__init__(input_n, np.int8, seed)
 
