@@ -351,10 +351,13 @@ class LunarLander(gym.Env, EzPickle):
         ):
             # the function used for wind is tanh(sin(2 k x) + sin(pi k x)),
             # which is proven to never be periodic, k = 0.01
-            wind_mag = math.tanh(
-                math.sin(0.02 * self.wind_idx)
-                + (math.sin(math.pi * 0.01 * self.wind_idx))
-            ) * WIND_POWER
+            wind_mag = (
+                math.tanh(
+                    math.sin(0.02 * self.wind_idx)
+                    + (math.sin(math.pi * 0.01 * self.wind_idx))
+                )
+                * WIND_POWER
+            )
             self.wind_idx += 1
             self.lander.ApplyForceToCenter(
                 (wind_mag, 0.0),
