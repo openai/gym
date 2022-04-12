@@ -1,12 +1,14 @@
 from dataclasses import dataclass, field
-from typing import Optional, Tuple
+from typing import Callable, Optional, Tuple
 
 import numpy as np
 import pygame
 import pytest
+from pygame import KEYDOWN, QUIT, event
+from pygame.event import Event
 
 import gym
-from gym.utils.play import PlayableGame
+from gym.utils.play import PlayableGame, play
 
 RELEVANT_KEY = 100
 IRRELEVANT_KEY = 1
@@ -27,9 +29,7 @@ class DummyEnvSpec:
 class DummyPlayEnv(gym.Env):
     def step(self, action):
         obs = np.zeros((1, 1))
-        rew = 0
-        done = False
-        info = {}
+        rew, done, info = 1, False, {}
         return obs, rew, done, info
 
     def reset(self):
@@ -37,6 +37,30 @@ class DummyPlayEnv(gym.Env):
 
     def render(self, mode="rgb_array"):
         return np.zeros((1, 1))
+
+
+class PlayStatus:
+    def __init__(self, callback: Callable):
+        self.data_callback = callback
+        self.cumulative_reward = 0
+
+    def callback(self, obs_t, obs_tp1, action, rew, done, info):
+        self.cumulative_reward += self.data_callback(
+            obs_t, obs_tp1, action, rew, done, info
+        )
+
+
+# set of key events to inject into the play loop as callback
+callback_events = [
+    Event(KEYDOWN, {"key": RELEVANT_KEY}),
+    Event(KEYDOWN, {"key": RELEVANT_KEY}),
+    Event(QUIT),
+]
+
+
+def callback(obs_t, obs_tp1, action, rew, done, info):
+    event.post(callback_events.pop(0))
+    return rew
 
 
 def dummy_keys_to_action():
@@ -126,3 +150,19 @@ def test_keyboard_keyup_event():
     event = MockKeyEvent(pygame.KEYUP, RELEVANT_KEY)
     game.process_event(event)
     assert game.pressed_keys == []
+
+
+def test_play_loop():
+    env = DummyPlayEnv()
+    cumulative_env_reward = 0
+    for s in range(
+        len(callback_events)
+    ):  # we run the same number of steps executed with play()
+        _, rew, _, _ = env.step(None)
+        cumulative_env_reward += rew
+
+    env_play = DummyPlayEnv()
+    status = PlayStatus(callback)
+    play(env_play, callback=status.callback, keys_to_action=dummy_keys_to_action())
+
+    assert status.cumulative_reward == cumulative_env_reward
