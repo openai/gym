@@ -125,10 +125,15 @@ class CarRacing(gym.Env, EzPickle):
     receive -100 reward and die.
 
     ### Arguments
-    There are no arguments supported in constructing the environment.
+    `lap_complete_percent` dictates the percentage of tiles that must be visited by
+    the agent before a lap is considered complete.
+
+    Passing `hardcore=True` enabled the domain randomized variant of the environment.
+    In this scenario, the background and track colours are different on every reset.
 
     ### Version History
-    - v0: Current version
+    - v1: Current version (0.23.1)
+    - v0: (reference needed)
 
     ### References
     - Chris Campbell (2014), http://www.iforce2d.net/b2dtut/top-down-car.
