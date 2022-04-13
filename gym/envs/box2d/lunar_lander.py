@@ -123,7 +123,13 @@ class LunarLander(gym.Env, EzPickle):
     `continuous=True` argument like below:
     ```python
     import gym
-    env = gym.make("LunarLander-v2", continuous=True)
+    env = gym.make(
+        "LunarLander-v2",
+        continuous: bool = False,
+        gravity: float = -10.0,
+        enable_wind: bool = False,
+        wind_power: float = 15.0,
+    )
     ```
     If `continuous=True` is passed, continuous actions (corresponding to the throttle of the engines) will be used and the
     action space will be `Box(-1, +1, (2,), dtype=np.float32)`.
@@ -135,6 +141,15 @@ class LunarLander(gym.Env, EzPickle):
     Similarly, if `-0.5 < lateral < 0.5`, the lateral boosters will not fire at all. If `lateral < -0.5`, the left
     booster will fire, and if `lateral > 0.5`, the right booster will fire. Again, the throttle scales affinely
     from 50% to 100% between -1 and -0.5 (and 0.5 and 1, respectively).
+
+    `gravity` dictates the gravitational constant, this is bounded to be within 0 and -12.
+
+    If `enable_wind=True` is passed, there will be wind effects applied to the lander.
+    The wind is generated using the function `tanh(sin(2 k (t+C)) + sin(pi k (t+C)))`.
+    `k` is set to 0.01.
+    `C` is sampled randomly between -9999 and 9999.
+
+    `wind_power` dictates the maximum magnitude of wind.
 
     ### Version History
     - v2: Count energy spent
