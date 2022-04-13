@@ -9,8 +9,8 @@ import re
 import sys
 from dataclasses import dataclass, field
 from typing import (
+    Any,
     Callable,
-    Literal,
     Optional,
     Sequence,
     SupportsFloat,
@@ -29,6 +29,15 @@ if sys.version_info < (3, 10):
     import importlib_metadata as metadata  # type: ignore
 else:
     import importlib.metadata as metadata
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+
+    class Literal(str):
+        def __class_getitem__(cls, item):
+            return Any
+
 
 from gym import Env, error, logger
 
