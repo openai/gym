@@ -171,7 +171,6 @@ class LunarLander(gym.Env, EzPickle):
         self.wind_power = wind_power
 
         self.enable_wind = enable_wind
-        self.wind_power = wind_power
         self.wind_idx = np.random.randint(-9999, 9999)
 
         self.screen = None
@@ -659,7 +658,7 @@ def heuristic(env, s):
 def demo_heuristic_lander(env, seed=None, render=False):
 
     # wind power must be reduced for heuristic landing
-    env.wind_power = 1.0
+    env.wind_power = 0.2
 
     total_reward = 0
     steps = 0
