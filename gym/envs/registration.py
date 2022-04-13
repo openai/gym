@@ -207,56 +207,6 @@ def find_newest_version(ns: Optional[str], name: str) -> Optional[int]:
     return max(version, default=None)
 
 
-def check_spec_register(spec: EnvSpec):
-    global registry, current_namespace
-    if current_namespace is not None:
-        if spec.namespace is not None:
-            logger.warn(
-                f"Custom namespace `{spec.namespace}` is being overridden "
-                f"by namespace `{current_namespace}`. If you are developing a "
-                "plugin you shouldn't specify a namespace in `register` "
-                "calls. The namespace is specified through the "
-                "entry point package metadata."
-            )
-
-    latest_versioned_spec = max(
-        (
-            spec_
-            for spec_ in registry.values()
-            if spec_.name == spec.name and spec_.version is not None
-        ),
-        key=lambda spec_: int(spec_.version),  # type: ignore
-        default=None,
-    )
-
-    unversioned_spec = next(
-        (
-            spec_
-            for spec_ in registry.values()
-            if spec_.namespace == spec.namespace
-            and spec_.name == spec.name
-            and spec_.version is None
-        ),
-        None,
-    )
-
-    if unversioned_spec and spec.version is not None:
-        raise error.RegistrationError(
-            "Can't register the versioned environment "
-            f"`{spec.id}` when the unversioned environment "
-            f"`{unversioned_spec.id}` of the same name already exists."
-        )
-    elif latest_versioned_spec and spec.version is None:
-        raise error.RegistrationError(
-            "Can't register the unversioned environment "
-            f"`{spec.id}` when the versioned environment "
-            f"`{latest_versioned_spec.id}` of the same name "
-            f"already exists. Note: the default behavior is "
-            f"that `gym.make` with the unversioned environment "
-            f"will return the latest versioned environment"
-        )
-
-
 def load_env_plugins(entry_point: str = "gym.envs") -> None:
     # Load third-party environments
     for plugin in metadata.entry_points(group=entry_point):
@@ -363,6 +313,56 @@ def make(id: EnvSpec, **kwargs) -> Env: ...
 # Global registry of environments. Meant to be accessed through `register` and `make`
 registry: dict[str, EnvSpec] = dict()
 current_namespace: Optional[str] = None
+
+
+def check_spec_register(spec: EnvSpec):
+    global registry, current_namespace
+    if current_namespace is not None:
+        if spec.namespace is not None:
+            logger.warn(
+                f"Custom namespace `{spec.namespace}` is being overridden "
+                f"by namespace `{current_namespace}`. If you are developing a "
+                "plugin you shouldn't specify a namespace in `register` "
+                "calls. The namespace is specified through the "
+                "entry point package metadata."
+            )
+
+    latest_versioned_spec = max(
+        (
+            spec_
+            for spec_ in registry.values()
+            if spec_.name == spec.name and spec_.version is not None
+        ),
+        key=lambda spec_: int(spec_.version),  # type: ignore
+        default=None,
+    )
+
+    unversioned_spec = next(
+        (
+            spec_
+            for spec_ in registry.values()
+            if spec_.namespace == spec.namespace
+            and spec_.name == spec.name
+            and spec_.version is None
+        ),
+        None,
+    )
+
+    if unversioned_spec and spec.version is not None:
+        raise error.RegistrationError(
+            "Can't register the versioned environment "
+            f"`{spec.id}` when the unversioned environment "
+            f"`{unversioned_spec.id}` of the same name already exists."
+        )
+    elif latest_versioned_spec and spec.version is None:
+        raise error.RegistrationError(
+            "Can't register the unversioned environment "
+            f"`{spec.id}` when the versioned environment "
+            f"`{latest_versioned_spec.id}` of the same name "
+            f"already exists. Note: the default behavior is "
+            f"that `gym.make` with the unversioned environment "
+            f"will return the latest versioned environment"
+        )
 
 
 @contextlib.contextmanager
