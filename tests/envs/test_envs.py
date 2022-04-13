@@ -21,16 +21,10 @@ from tests.envs.spec_list import spec_list
 )
 @pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
 def test_env(spec):
-    # Capture warnings
-    with pytest.warns(None) as warnings:
-        env = spec.make()
+    env = spec.make()
 
     # Test if env adheres to Gym API
     check_env(env, warn=True, skip_render_check=True)
-
-    # Check that dtype is explicitly declared for gym.Box spaces
-    for warning_msg in warnings:
-        assert "autodetected dtype" not in str(warning_msg.message)
 
     ob_space = env.observation_space
     act_space = env.action_space
@@ -66,9 +60,7 @@ def test_env(spec):
 
 @pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
 def test_reset_info(spec):
-
-    with pytest.warns(None) as warnings:
-        env = spec.make()
+    env = spec.make()
 
     ob_space = env.observation_space
     obs = env.reset()

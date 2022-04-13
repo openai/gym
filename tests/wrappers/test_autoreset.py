@@ -76,9 +76,7 @@ def test_make_autoreset_true(spec):
     Note: This test assumes that all first-party environments will terminate in a finite
     amount of time with random actions, which is true as of the time of adding this test.
     """
-    env = None
-    with pytest.warns(None) as warnings:
-        env = spec.make(autoreset=True)
+    env = spec.make(autoreset=True)
 
     ob_space = env.observation_space
     obs = env.reset(seed=0)
@@ -96,17 +94,13 @@ def test_make_autoreset_true(spec):
 
 @pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
 def test_make_autoreset_false(spec):
-    env = None
-    with pytest.warns(None) as warnings:
-        env = spec.make(autoreset=False)
+    env = spec.make(autoreset=False)
     assert not isinstance(env, AutoResetWrapper)
 
 
 @pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
 def test_make_autoreset_default_false(spec):
-    env = None
-    with pytest.warns(None) as warnings:
-        env = spec.make()
+    env = spec.make()
     assert not isinstance(env, AutoResetWrapper)
 
 
