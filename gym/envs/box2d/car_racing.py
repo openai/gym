@@ -34,9 +34,6 @@ TRACK_WIDTH = 40 / SCALE
 BORDER = 8 / SCALE
 BORDER_MIN_COUNT = 4
 
-ROAD_COLOR = [0.4, 0.4, 0.4]
-
-
 class FrictionDetector(contactListener):
     def __init__(self, env, lap_complete_percent):
         contactListener.__init__(self)
@@ -63,9 +60,8 @@ class FrictionDetector(contactListener):
         if not tile:
             return
 
-        tile.color[0] = ROAD_COLOR[0]
-        tile.color[1] = ROAD_COLOR[1]
-        tile.color[2] = ROAD_COLOR[2]
+        # inherit tile color from env
+        tile.color = self.env.norm_road_color
         if not obj or "tiles" not in obj.__dict__:
             return
         if begin:
@@ -145,8 +141,11 @@ class CarRacing(gym.Env, EzPickle):
         "render_fps": FPS,
     }
 
-    def __init__(self, verbose=1, lap_complete_percent=0.95):
+    def __init__(self, verbose=1, lap_complete_percent=0.95, hardcore=False):
         EzPickle.__init__(self)
+        self.hardcore = hardcore
+        self._init_colors()
+
         self.contactListener_keepref = FrictionDetector(self, lap_complete_percent)
         self.world = Box2D.b2World((0, 0), contactListener=self.contactListener_keepref)
         self.screen = None
@@ -182,6 +181,22 @@ class CarRacing(gym.Env, EzPickle):
             self.world.DestroyBody(t)
         self.road = []
         self.car.destroy()
+
+    def _init_colors(self):
+        if self.hardcore:
+            # domain randomize the bg and grass colour
+            self.norm_road_color = self.np_random.uniform(0, 0.8, size=3)
+
+            self.bg_color = self.np_random.uniform(0, 210, size=3)
+
+            self.grass_color = np.copy(self.bg_color)
+            idx = self.np_random.integers(3)
+            self.grass_color[idx] += 20
+        else:
+            # default colours
+            self.norm_road_color = np.array([0.4, 0.4, 0.4])
+            self.bg_color = np.array([102, 204, 102])
+            self.grass_color = np.array([102, 230, 102])
 
     def _create_track(self):
         CHECKPOINTS = 12
@@ -339,7 +354,7 @@ class CarRacing(gym.Env, EzPickle):
             t = self.world.CreateStaticBody(fixtures=self.fd_tile)
             t.userData = t
             c = 0.01 * (i % 3)
-            t.color = [ROAD_COLOR[0] + c, ROAD_COLOR[1] + c, ROAD_COLOR[2] + c]
+            t.color = self.norm_road_color + c
             t.road_visited = False
             t.road_friction = 1.0
             t.idx = i
@@ -385,6 +400,7 @@ class CarRacing(gym.Env, EzPickle):
         self.t = 0.0
         self.new_lap = False
         self.road_poly = []
+        self._init_colors()
 
         while True:
             success = self._create_track()
@@ -495,11 +511,13 @@ class CarRacing(gym.Env, EzPickle):
             (0, 0),
             (0, 2 * bounds),
         ]
-        trans_field = []
+
+        # draw background
         self.draw_colored_polygon(
-            self.surf, field, (102, 204, 102), zoom, translation, angle
+            self.surf, field, self.bg_color, zoom, translation, angle
         )
 
+        # draw grass patches
         k = bounds / (20.0)
         grass = []
         for x in range(0, 40, 2):
@@ -514,9 +532,10 @@ class CarRacing(gym.Env, EzPickle):
                 )
         for poly in grass:
             self.draw_colored_polygon(
-                self.surf, poly, (102, 230, 102), zoom, translation, angle
+                self.surf, poly, self.grass_color, zoom, translation, angle
             )
 
+        # draw road
         for poly, color in self.road_poly:
             # converting to pixel coordinates
             poly = [(p[0] + PLAYFIELD, p[1] + PLAYFIELD) for p in poly]
