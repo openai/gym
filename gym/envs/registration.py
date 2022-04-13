@@ -8,7 +8,19 @@ import importlib.util
 import re
 import sys
 from dataclasses import dataclass, field
-from typing import Callable, Optional, Tuple, Type, Union
+from typing import (
+    Callable,
+    Literal,
+    Optional,
+    Sequence,
+    SupportsFloat,
+    Tuple,
+    Type,
+    Union,
+    overload,
+)
+
+import numpy as np
 
 from gym.envs.__relocated__ import internal_env_relocation_map
 from gym.wrappers import AutoResetWrapper, OrderEnforcing, TimeLimit
@@ -18,7 +30,7 @@ if sys.version_info < (3, 10):
 else:
     import importlib.metadata as metadata
 
-from gym import error, logger
+from gym import Env, error, logger
 
 ENV_ID_RE: re.Pattern = re.compile(
     r"^(?:(?P<namespace>[\w:-]+)\/)?(?:(?P<name>[\w:.-]+?))(?:-v(?P<version>\d+))?$"
@@ -85,114 +97,9 @@ class EnvSpec:
         # Initialize namespace, name, version
         self.namespace, self.name, self.version = parse_env_id(self.id)
 
-    def make(self, **kwargs) -> Type:
+    def make(self, **kwargs) -> Env:
         # For compatibility purposes
         return make(self, **kwargs)
-
-
-# Global registry of environments. Meant to be accessed through `register` and `make`
-registry: dict[str, EnvSpec] = dict()
-current_namespace: Optional[str] = None
-
-
-@contextlib.contextmanager
-def namespace(ns: str):
-    global current_namespace
-    old_namespace = current_namespace
-    current_namespace = ns
-    yield
-    current_namespace = old_namespace
-
-
-def register(id: str, **kwargs):
-    global registry, current_namespace
-    full_id = (current_namespace or "") + id
-    spec = EnvSpec(id=full_id, **kwargs)
-    check_spec_register(spec)
-    if spec.id in registry:
-        raise error.RegistrationError(
-            f"Attempted to register {spec.id} but it was already registered"
-        )
-    registry[spec.id] = spec
-
-
-def make(
-    env_id: str | EnvSpec,
-    max_episode_steps: Optional[int] = None,
-    autoreset: bool = False,
-    **kwargs,
-):
-    if isinstance(env_id, EnvSpec):
-        spec = env_id
-    else:
-        spec = registry.get(env_id)
-
-        ns, name, version = parse_env_id(env_id)
-        latest_version = find_newest_version(ns, name)
-        if (
-            version is not None
-            and latest_version is not None
-            and latest_version > version
-        ):
-            logger.warn(
-                f"The environment {env_id} is out of date. You should consider "
-                f"upgrading to version `v{latest_version}`."
-            )
-        if version is None and latest_version is not None:
-            version = latest_version
-            new_env_id = get_env_id(ns, name, version)
-            spec = registry.get(new_env_id)
-            logger.warn(
-                f"Using the latest versioned environment `{new_env_id}` "
-                f"instead of the unversioned environment `{env_id}`."
-            )
-
-        if spec is None:
-            check_version_exists(ns, name, version)
-            raise error.Error(f"No registered env with id: {env_id}")
-
-    _kwargs = spec.kwargs.copy()
-    _kwargs.update(kwargs)
-
-    # TODO: add a minimal env checker on initialization
-    if spec.entry_point is None:
-        raise error.Error(f"{spec.id} registered but entry_point is not specified")
-    elif callable(spec.entry_point):
-        cls = spec.entry_point
-    else:
-        # Assume it's a string
-        cls = load(spec.entry_point)
-
-    env = cls(**_kwargs)
-
-    spec = copy.deepcopy(spec)
-    spec.kwargs = _kwargs
-
-    env.unwrapped.spec = spec
-
-    if spec.order_enforce:
-        env = OrderEnforcing(env)
-
-    if max_episode_steps is not None:
-        env = TimeLimit(env, max_episode_steps)
-    elif spec.max_episode_steps is not None:
-        env = TimeLimit(env, spec.max_episode_steps)
-
-    if autoreset:
-        env = AutoResetWrapper(env)
-
-    return env
-
-
-def spec(env_id: str) -> EnvSpec:
-    spec_ = registry.get(env_id)
-    if spec_ is None:
-        ns, name, version = parse_env_id(env_id)
-        check_version_exists(ns, name, version)
-        raise error.Error(f"No registered env with id: {env_id}")
-    else:
-        assert isinstance(spec_, EnvSpec)
-        return spec_
 
 
 def check_namespace_exists(ns: Optional[str]):
@@ -391,3 +298,168 @@ def load_env_plugins(entry_point: str = "gym.envs") -> None:
                 fn()
             except Exception as e:
                 logger.warn(str(e))
+
+
+# fmt: off
+@overload
+def make(id: Literal["CartPole-v0", "CartPole-v1"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
+@overload
+def make(id: Literal["MountainCar-v0"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
+@overload
+def make(id: Literal["MountainCarContinuous-v0"], **kwargs) -> Env[np.ndarray, np.ndarray | Sequence[SupportsFloat]]: ...
+@overload
+def make(id: Literal["Pendulum-v1"], **kwargs) -> Env[np.ndarray, np.ndarray | Sequence[SupportsFloat]]: ...
+@overload
+def make(id: Literal["Acrobot-v1"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
+
+# Box2d
+# ----------------------------------------
+
+@overload
+def make(id: Literal["LunarLander-v2", "LunarLanderContinuous-v2"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
+@overload
+def make(id: Literal["BipedalWalker-v3", "BipedalWalkerHardcore-v3"], **kwargs) -> Env[np.ndarray, np.ndarray | Sequence[SupportsFloat]]: ...
+@overload
+def make(id: Literal["CarRacing-v0"], **kwargs) -> Env[np.ndarray, np.ndarray | Sequence[SupportsFloat]]: ...
+
+# Toy Text
+# ----------------------------------------
+
+@overload
+def make(id: Literal["Blackjack-v1"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
+@overload
+def make(id: Literal["FrozenLake-v1", "FrozenLake8x8-v1"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
+@overload
+def make(id: Literal["CliffWalking-v0"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
+@overload
+def make(id: Literal["Taxi-v3"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
+
+# Mujoco
+# ----------------------------------------
+@overload
+def make(id: Literal[
+    "Reacher-v2",
+    "Pusher-v2",
+    "Thrower-v2",
+    "Striker-v2",
+    "InvertedPendulum-v2",
+    "InvertedDoublePendulum-v2",
+    "HalfCheetah-v2", "HalfCheetah-v3",
+    "Hopper-v2", "Hopper-v3",
+    "Swimmer-v2", "Swimmer-v3",
+    "Walker2d-v2", "Walker2d-v3",
+    "Ant-v2"
+], **kwargs) -> Env[np.ndarray, np.ndarray]: ...
+
+
+@overload
+def make(id: str, **kwargs) -> Env: ...
+@overload
+def make(id: EnvSpec, **kwargs) -> Env: ...
+
+# fmt: on
+
+
+# Global registry of environments. Meant to be accessed through `register` and `make`
+registry: dict[str, EnvSpec] = dict()
+current_namespace: Optional[str] = None
+
+
+@contextlib.contextmanager
+def namespace(ns: str):
+    global current_namespace
+    old_namespace = current_namespace
+    current_namespace = ns
+    yield
+    current_namespace = old_namespace
+
+
+def register(id: str, **kwargs):
+    global registry, current_namespace
+    full_id = (current_namespace or "") + id
+    spec = EnvSpec(id=full_id, **kwargs)
+    check_spec_register(spec)
+    if spec.id in registry:
+        raise error.RegistrationError(
+            f"Attempted to register {spec.id} but it was already registered"
+        )
+    registry[spec.id] = spec
+
+
+def make(
+    id: str | EnvSpec,
+    max_episode_steps: Optional[int] = None,
+    autoreset: bool = False,
+    **kwargs,
+) -> Env:
+    if isinstance(id, EnvSpec):
+        spec_ = id
+    else:
+        spec_ = registry.get(id)
+
+        ns, name, version = parse_env_id(id)
+        latest_version = find_newest_version(ns, name)
+        if (
+            version is not None
+            and latest_version is not None
+            and latest_version > version
+        ):
+            logger.warn(
+                f"The environment {id} is out of date. You should consider "
+                f"upgrading to version `v{latest_version}`."
+            )
+        if version is None and latest_version is not None:
+            version = latest_version
+            new_env_id = get_env_id(ns, name, version)
+            spec_ = registry.get(new_env_id)
+            logger.warn(
+                f"Using the latest versioned environment `{new_env_id}` "
+                f"instead of the unversioned environment `{id}`."
+            )
+
+        if spec_ is None:
+            check_version_exists(ns, name, version)
+            raise error.Error(f"No registered env with id: {id}")
+
+    _kwargs = spec_.kwargs.copy()
+    _kwargs.update(kwargs)
+
+    # TODO: add a minimal env checker on initialization
+    if spec_.entry_point is None:
+        raise error.Error(f"{spec_.id} registered but entry_point is not specified")
+    elif callable(spec_.entry_point):
+        cls = spec_.entry_point
+    else:
+        # Assume it's a string
+        cls = load(spec_.entry_point)
+
+    env = cls(**_kwargs)
+
+    spec_ = copy.deepcopy(spec_)
+    spec_.kwargs = _kwargs
+
+    env.unwrapped.spec = spec_
+
+    if spec_.order_enforce:
+        env = OrderEnforcing(env)
+
+    if max_episode_steps is not None:
+        env = TimeLimit(env, max_episode_steps)
+    elif spec_.max_episode_steps is not None:
+        env = TimeLimit(env, spec_.max_episode_steps)
+
+    if autoreset:
+        env = AutoResetWrapper(env)
+
+    return env
+
+
+def spec(env_id: str) -> EnvSpec:
+    spec_ = registry.get(env_id)
+    if spec_ is None:
+        ns, name, version = parse_env_id(env_id)
+        check_version_exists(ns, name, version)
+        raise error.Error(f"No registered env with id: {env_id}")
+    else:
+        assert isinstance(spec_, EnvSpec)
+        return spec_
