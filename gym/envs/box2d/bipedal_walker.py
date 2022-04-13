@@ -444,7 +444,7 @@ class BipedalWalker(gym.Env, EzPickle):
         else:
             return self.step(np.array([0, 0, 0, 0]))[0], {}
 
-    def step(self, action):
+    def step(self, action: np.ndarray):
         # self.hull.ApplyForceToCenter((0, 20), True) -- Uncomment this to receive a bit of stability help
         control_speed = False  # Should be easier as well
         if control_speed:
@@ -531,7 +531,7 @@ class BipedalWalker(gym.Env, EzPickle):
             done = True
         return np.array(state, dtype=np.float32), reward, done, {}
 
-    def render(self, mode="human"):
+    def render(self, mode: str = "human"):
         import pygame
         from pygame import gfxdraw
 
