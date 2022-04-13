@@ -86,6 +86,14 @@ def test_create_shared_memory_custom_space(n, ctx, space):
         shared_memory = create_shared_memory(space, n=n, ctx=ctx)
 
 
+def _process_write(space, i, shared_memory, sample):
+    """
+    For MacOS, there process needs to pickle objects, however an inner function version
+        cannot be pickled therefore, this must be a global function
+    """
+    write_to_shared_memory(space, i, sample, shared_memory)
+
+
 @pytest.mark.parametrize(
     "space", spaces, ids=[space.__class__.__name__ for space in spaces]
 )
@@ -106,14 +114,12 @@ def test_write_to_shared_memory(space):
         else:
             raise TypeError(f"Got unknown type `{type(lhs)}`.")
 
-    def write(i, shared_memory, sample):
-        write_to_shared_memory(space, i, sample, shared_memory)
-
     shared_memory_n8 = create_shared_memory(space, n=8)
     samples = [space.sample() for _ in range(8)]
 
     processes = [
-        Process(target=write, args=(i, shared_memory_n8, samples[i])) for i in range(8)
+        Process(target=_process_write, args=(space, i, shared_memory_n8, samples[i]))
+        for i in range(8)
     ]
 
     for process in processes:
@@ -153,15 +159,13 @@ def test_read_from_shared_memory(space):
         else:
             raise TypeError(f"Got unknown type `{type(space)}`")
 
-    def write(i, shared_memory, sample):
-        write_to_shared_memory(space, i, sample, shared_memory)
-
     shared_memory_n8 = create_shared_memory(space, n=8)
     memory_view_n8 = read_from_shared_memory(space, shared_memory_n8, n=8)
     samples = [space.sample() for _ in range(8)]
 
     processes = [
-        Process(target=write, args=(i, shared_memory_n8, samples[i])) for i in range(8)
+        Process(target=_process_write, args=(space, i, shared_memory_n8, samples[i]))
+        for i in range(8)
     ]
 
     for process in processes:
