@@ -147,7 +147,12 @@ class CarRacing(gym.Env, EzPickle):
         "render_fps": FPS,
     }
 
-    def __init__(self, verbose=1, lap_complete_percent=0.95, hardcore=False):
+    def __init__(
+        self,
+        verbose: bool = True,
+        lap_complete_percent: float = 0.95,
+        hardcore: bool = False,
+    ):
         EzPickle.__init__(self)
         self.hardcore = hardcore
         self._init_colors()
@@ -301,7 +306,7 @@ class CarRacing(gym.Env, EzPickle):
             elif pass_through_start and i1 == -1:
                 i1 = i
                 break
-        if self.verbose == 1:
+        if self.verbose:
             print("Track generation: %i..%i -> %i-tiles track" % (i1, i2, i2 - i1))
         assert i1 != -1
         assert i2 != -1
@@ -412,7 +417,7 @@ class CarRacing(gym.Env, EzPickle):
             success = self._create_track()
             if success:
                 break
-            if self.verbose == 1:
+            if self.verbose:
                 print(
                     "retry to generate track (normal if there are not many"
                     "instances of this message)"
@@ -424,7 +429,7 @@ class CarRacing(gym.Env, EzPickle):
         else:
             return self.step(None)[0], {}
 
-    def step(self, action):
+    def step(self, action: np.ndarray):
         if action is not None:
             self.car.steer(-action[0])
             self.car.gas(action[1])
@@ -454,7 +459,7 @@ class CarRacing(gym.Env, EzPickle):
 
         return self.state, step_reward, done, {}
 
-    def render(self, mode="human"):
+    def render(self, mode: str ="human"):
         import pygame
 
         pygame.font.init()
@@ -481,13 +486,13 @@ class CarRacing(gym.Env, EzPickle):
         trans = pygame.math.Vector2((scroll_x, scroll_y)).rotate_rad(angle)
         trans = (WINDOW_W / 2 + trans[0], WINDOW_H / 4 + trans[1])
 
-        self.render_road(zoom, trans, angle)
+        self._render_road(zoom, trans, angle)
         self.car.draw(self.surf, zoom, trans, angle, mode != "state_pixels")
 
         self.surf = pygame.transform.flip(self.surf, False, True)
 
         # showing stats
-        self.render_indicators(WINDOW_W, WINDOW_H)
+        self._render_indicators(WINDOW_W, WINDOW_H)
 
         font = pygame.font.Font(pygame.font.get_default_font(), 42)
         text = font.render("%04i" % self.reward, True, (255, 255, 255), (0, 0, 0))
@@ -509,7 +514,7 @@ class CarRacing(gym.Env, EzPickle):
         else:
             return self.isopen
 
-    def render_road(self, zoom, translation, angle):
+    def _render_road(self, zoom, translation, angle):
         bounds = PLAYFIELD
         field = [
             (2 * bounds, 2 * bounds),
@@ -519,7 +524,7 @@ class CarRacing(gym.Env, EzPickle):
         ]
 
         # draw background
-        self.draw_colored_polygon(
+        self._draw_colored_polygon(
             self.surf, field, self.bg_color, zoom, translation, angle
         )
 
@@ -537,7 +542,7 @@ class CarRacing(gym.Env, EzPickle):
                     ]
                 )
         for poly in grass:
-            self.draw_colored_polygon(
+            self._draw_colored_polygon(
                 self.surf, poly, self.grass_color, zoom, translation, angle
             )
 
@@ -546,9 +551,9 @@ class CarRacing(gym.Env, EzPickle):
             # converting to pixel coordinates
             poly = [(p[0] + PLAYFIELD, p[1] + PLAYFIELD) for p in poly]
             color = [int(c * 255) for c in color]
-            self.draw_colored_polygon(self.surf, poly, color, zoom, translation, angle)
+            self._draw_colored_polygon(self.surf, poly, color, zoom, translation, angle)
 
-    def render_indicators(self, W, H):
+    def _render_indicators(self, W, H):
         import pygame
 
         s = W / 40.0
@@ -617,7 +622,7 @@ class CarRacing(gym.Env, EzPickle):
             (255, 0, 0),
         )
 
-    def draw_colored_polygon(self, surface, poly, color, zoom, translation, angle):
+    def _draw_colored_polygon(self, surface, poly, color, zoom, translation, angle):
         import pygame
         from pygame import gfxdraw
 
