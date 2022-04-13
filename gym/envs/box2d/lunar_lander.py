@@ -26,7 +26,6 @@ MAIN_ENGINE_POWER = 13.0
 SIDE_ENGINE_POWER = 0.6
 
 INITIAL_RANDOM = 1000.0  # Set 1500 to make game harder
-WIND_POWER = 15.0
 
 LANDER_POLY = [(-14, +17), (-17, 0), (-17, -10), (+17, -10), (+17, 0), (+14, +17)]
 LEG_AWAY = 20
@@ -157,6 +156,7 @@ class LunarLander(gym.Env, EzPickle):
         continuous: bool = False,
         gravity: float = -10.0,
         enable_wind: bool = False,
+        wind_power: float = 15.0,
     ):
         EzPickle.__init__(self)
 
@@ -165,7 +165,13 @@ class LunarLander(gym.Env, EzPickle):
         ), f"gravity (current value: {gravity}) must be between -12 and 0"
         self.gravity = gravity
 
+        assert (
+            0.0 < wind_power and wind_power < 20.0
+        ), f"wind_power (current value: {wind_power}) must be between 0 and 20"
+        self.wind_power = wind_power
+
         self.enable_wind = enable_wind
+        self.wind_power = wind_power
         self.wind_idx = np.random.randint(-9999, 9999)
 
         self.screen = None
@@ -356,7 +362,7 @@ class LunarLander(gym.Env, EzPickle):
                     math.sin(0.02 * self.wind_idx)
                     + (math.sin(math.pi * 0.01 * self.wind_idx))
                 )
-                * WIND_POWER
+                * self.wind_power
             )
             self.wind_idx += 1
             self.lander.ApplyForceToCenter(
@@ -653,8 +659,7 @@ def heuristic(env, s):
 def demo_heuristic_lander(env, seed=None, render=False):
 
     # wind power must be reduced for heuristic landing
-    global WIND_POWER
-    WIND_POWER = 1.0
+    env.wind_power = 1.0
 
     total_reward = 0
     steps = 0
