@@ -34,6 +34,7 @@ TRACK_WIDTH = 40 / SCALE
 BORDER = 8 / SCALE
 BORDER_MIN_COUNT = 4
 
+
 class FrictionDetector(contactListener):
     def __init__(self, env, lap_complete_percent):
         contactListener.__init__(self)
