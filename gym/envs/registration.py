@@ -374,6 +374,9 @@ def check_spec_register(spec: EnvSpec):
         )
 
 
+# Public API
+
+
 @contextlib.contextmanager
 def namespace(ns: str):
     global current_namespace
