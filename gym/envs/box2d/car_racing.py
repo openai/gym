@@ -459,7 +459,7 @@ class CarRacing(gym.Env, EzPickle):
 
         return self.state, step_reward, done, {}
 
-    def render(self, mode: str ="human"):
+    def render(self, mode: str = "human"):
         import pygame
 
         pygame.font.init()
