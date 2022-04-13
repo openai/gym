@@ -181,12 +181,71 @@ class BipedalWalker(gym.Env, EzPickle):
             categoryBits=0x0001,
         )
 
-        high = np.array([np.inf] * 24).astype(np.float32)
+        # we use 5.0 to represent the joints moving at maximum
+        # 5 x the rated speed due to impulses from ground contact etc.
+        low = np.array(
+            [
+                -math.pi,
+                -5.0,
+                -5.0,
+                -5.0,
+                -math.pi,
+                -5.0,
+                -math.pi,
+                -5.0,
+                -0.0,
+                -math.pi,
+                -5.0,
+                -math.pi,
+                -5.0,
+                -0.0,
+            ]
+            + [-1.0] * 10
+        ).astype(np.float32)
+        high = np.array(
+            [
+                math.pi,
+                5.0,
+                5.0,
+                5.0,
+                math.pi,
+                5.0,
+                math.pi,
+                5.0,
+                5.0,
+                math.pi,
+                5.0,
+                math.pi,
+                5.0,
+                5.0,
+            ]
+            + [1.0] * 10
+        ).astype(np.float32)
         self.action_space = spaces.Box(
             np.array([-1, -1, -1, -1]).astype(np.float32),
             np.array([1, 1, 1, 1]).astype(np.float32),
         )
-        self.observation_space = spaces.Box(-high, high)
+        self.observation_space = spaces.Box(low, high)
+
+        # state = [
+        #     self.hull.angle,  # Normal angles up to 0.5 here, but sure more is possible.
+        #     2.0 * self.hull.angularVelocity / FPS,
+        #     0.3 * vel.x * (VIEWPORT_W / SCALE) / FPS,  # Normalized to get -1..1 range
+        #     0.3 * vel.y * (VIEWPORT_H / SCALE) / FPS,
+        #     self.joints[
+        #         0
+        #     ].angle,  # This will give 1.1 on high up, but it's still OK (and there should be spikes on hiting the ground, that's normal too)
+        #     self.joints[0].speed / SPEED_HIP,
+        #     self.joints[1].angle + 1.0,
+        #     self.joints[1].speed / SPEED_KNEE,
+        #     1.0 if self.legs[1].ground_contact else 0.0,
+        #     self.joints[2].angle,
+        #     self.joints[2].speed / SPEED_HIP,
+        #     self.joints[3].angle + 1.0,
+        #     self.joints[3].speed / SPEED_KNEE,
+        #     1.0 if self.legs[3].ground_contact else 0.0,
+        # ]
+        # state += [l.fraction for l in self.lidar]
 
     def _destroy(self):
         if not self.terrain:
@@ -489,9 +548,8 @@ class BipedalWalker(gym.Env, EzPickle):
             2.0 * self.hull.angularVelocity / FPS,
             0.3 * vel.x * (VIEWPORT_W / SCALE) / FPS,  # Normalized to get -1..1 range
             0.3 * vel.y * (VIEWPORT_H / SCALE) / FPS,
-            self.joints[
-                0
-            ].angle,  # This will give 1.1 on high up, but it's still OK (and there should be spikes on hiting the ground, that's normal too)
+            self.joints[0].angle,
+            # This will give 1.1 on high up, but it's still OK (and there should be spikes on hiting the ground, that's normal too)
             self.joints[0].speed / SPEED_HIP,
             self.joints[1].angle + 1.0,
             self.joints[1].speed / SPEED_KNEE,
