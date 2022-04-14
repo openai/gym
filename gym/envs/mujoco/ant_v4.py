@@ -95,7 +95,8 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     develop an abstract understanding of it from the observed rewards. Therefore, observation
     space has shape `(111,)` instead of `(113,)` and the table should not have the first two rows.
 
-    **Note:** There have been reported issues that using a Mujoco-Py version > 2.0 results
+    **Note:** Ant-v4 environment no longer has the following contact forces issue.
+    If using previous Ant versions from v4, there have been reported issues that using a Mujoco-Py version > 2.0 results
     in the contact forces always being 0. As such we recommend to use a Mujoco-Py version < 2.0
     when using the Ant environment if you would like to report results with contact forces (if
     contact forces are not used in your experiments, you can use version > 2.0).

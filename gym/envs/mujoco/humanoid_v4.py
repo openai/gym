@@ -136,10 +136,11 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     Therefore, observation space has shape `(376,)` instead of `(378,)` and the table should
     not have the first two rows.
 
-    **Note:** There have been reported issues that using a Mujoco-Py version > 2.0
-    results in the contact forces always being 0. As such we recommend to use a Mujoco-Py
-    version < 2.0 when using the Humanoid environment if you would like to report results
-    with contact forces (if contact forces are not used in your experiments, you can use
+    **Note:** Humanoid-v4 environment no longer has the following contact forces issue.
+    If using previous Humanoid versions from v4, there have been reported issues that using
+    a Mujoco-Py version > 2.0 results in the contact forces always being 0. As such we recommend
+    to use a Mujoco-Py version < 2.0 when using the Humanoid environment if you would like to report
+    results with contact forces (if contact forces are not used in your experiments, you can use
     version > 2.0).
 
     ### Rewards
