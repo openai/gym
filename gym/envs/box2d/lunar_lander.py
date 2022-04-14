@@ -171,7 +171,6 @@ class LunarLander(gym.Env, EzPickle):
         continuous: bool = False,
         gravity: float = -10.0,
         enable_wind: bool = False,
-        wind_power: float = 15.0,
     ):
         EzPickle.__init__(self)
 
@@ -180,13 +179,9 @@ class LunarLander(gym.Env, EzPickle):
         ), f"gravity (current value: {gravity}) must be between -12 and 0"
         self.gravity = gravity
 
-        assert (
-            0.0 < wind_power and wind_power < 20.0
-        ), f"wind_power (current value: {wind_power}) must be between 0 and 20"
-        self.wind_power = wind_power
-
         self.enable_wind = enable_wind
         self.wind_idx = np.random.randint(-9999, 9999)
+        self.wind_power = 15.0
 
         self.screen = None
         self.clock = None
