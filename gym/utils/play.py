@@ -199,20 +199,3 @@ class PlayPlot:
             )
             self.ax[i].set_xlim(xmin, xmax)
         plt.pause(0.000001)
-
-
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--env",
-        type=str,
-        default="MontezumaRevengeNoFrameskip-v4",
-        help="Define Environment",
-    )
-    args = parser.parse_args()
-    env = gym.make(args.env)
-    play(env, zoom=4, fps=60)
-
-
-if __name__ == "__main__":
-    main()
