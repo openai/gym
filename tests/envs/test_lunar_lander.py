@@ -21,15 +21,11 @@ def test_lunar_lander_continuous():
 @pytest.mark.skipif(Box2D is None, reason="Box2D not installed")
 def test_lunar_lander_wind():
     _test_lander(LunarLander(enable_wind=True), seed=0)
-    _test_lander(LunarLander(enable_wind=True, wind_power=5.0), seed=0)
-    _test_lander(LunarLander(enable_wind=True, wind_power=0.1), seed=0)
 
 
 @pytest.mark.skipif(Box2D is None, reason="Box2D not installed")
 def test_lunar_lander_wind_continuous():
     _test_lander(LunarLander(continuous=True, enable_wind=True), seed=0)
-    _test_lander(LunarLander(continuous=True, enable_wind=True, wind_power=5.0), seed=0)
-    _test_lander(LunarLander(continuous=True, enable_wind=True, wind_power=0.1), seed=0)
 
 
 @pytest.mark.skipif(Box2D is None, reason="Box2D not installed")
