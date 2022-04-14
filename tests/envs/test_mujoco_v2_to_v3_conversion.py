@@ -19,13 +19,26 @@ def verify_environments_match(
 
     for i in range(num_actions):
         action = old_environment.action_space.sample()
-        old_observation, old_reward, old_done, old_info = old_environment.step(action)
-        new_observation, new_reward, new_done, new_info = new_environment.step(action)
+        (
+            old_observation,
+            old_reward,
+            old_terminated,
+            old_truncated,
+            old_info,
+        ) = old_environment.step(action)
+        (
+            new_observation,
+            new_reward,
+            new_terminated,
+            new_truncated,
+            new_info,
+        ) = new_environment.step(action)
 
         eps = 1e-6
         np.testing.assert_allclose(old_observation, new_observation, atol=eps)
         np.testing.assert_allclose(old_reward, new_reward, atol=eps)
-        np.testing.assert_allclose(old_done, new_done, atol=eps)
+        np.testing.assert_equal(old_terminated, new_terminated, atol=eps)
+        np.testing.assert_equal(old_truncated, new_truncated, atol=eps)
 
         for key in old_info:
             np.testing.assert_allclose(old_info[key], new_info[key], atol=eps)

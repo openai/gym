@@ -34,6 +34,7 @@ class DummyResetEnv(gym.Env):
         return (
             np.array([self.count]),
             1 if self.count > 2 else 0,
+            False,
             self.count > 2,
             {"count": self.count},
         )
@@ -84,9 +85,10 @@ def test_make_autoreset_true(spec):
 
     env.unwrapped.reset = MagicMock(side_effect=env.unwrapped.reset)
 
-    done = False
-    while not done:
-        obs, reward, done, info = env.step(env.action_space.sample())
+    terminated = False
+    truncated = False
+    while not terminated and not truncated:
+        obs, reward, terminated, truncated, info = env.step(env.action_space.sample())
 
     assert isinstance(env, AutoResetWrapper)
     assert env.unwrapped.reset.called
@@ -115,32 +117,37 @@ def test_autoreset_autoreset():
     assert obs == np.array([0])
     assert info == {"count": 0}
     action = 1
-    obs, reward, done, info = env.step(action)
+    obs, reward, terminated, truncated, info = env.step(action)
     assert obs == np.array([1])
     assert reward == 0
-    assert done == False
+    assert terminated == False
+    assert truncated == False
     assert info == {"count": 1}
-    obs, reward, done, info = env.step(action)
+    obs, reward, terminated, truncated, info = env.step(action)
     assert obs == np.array([2])
-    assert done == False
+    assert terminated == False
+    assert truncated == False
     assert reward == 0
     assert info == {"count": 2}
-    obs, reward, done, info = env.step(action)
+    obs, reward, terminated, truncated, info = env.step(action)
     assert obs == np.array([0])
-    assert done == True
+    assert terminated == False
+    assert truncated == True
     assert reward == 1
     assert info == {
         "count": 0,
-        "terminal_observation": np.array([3]),
-        "terminal_info": {"count": 3},
+        "closing_observation": np.array([3]),
+        "closing_info": {"count": 3},
     }
-    obs, reward, done, info = env.step(action)
+    obs, reward, terminated, truncated, info = env.step(action)
     assert obs == np.array([1])
     assert reward == 0
-    assert done == False
+    assert terminated == False
+    assert truncated == False
     assert info == {"count": 1}
-    obs, reward, done, info = env.step(action)
+    obs, reward, terminated, truncated, info = env.step(action)
     assert obs == np.array([2])
     assert reward == 0
-    assert done == False
+    assert terminated == False
+    assert truncated == False
     assert info == {"count": 2}

@@ -10,7 +10,7 @@ class TransformReward(RewardWrapper):
         >>> env = gym.make('CartPole-v1')
         >>> env = TransformReward(env, lambda r: 0.01*r)
         >>> env.reset()
-        >>> observation, reward, done, info = env.step(env.action_space.sample())
+        >>> observation, reward, terminated, truncated, info = env.step(env.action_space.sample())
         >>> reward
         0.01
 

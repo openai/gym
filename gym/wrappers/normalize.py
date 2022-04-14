@@ -57,12 +57,12 @@ class NormalizeObservation(gym.core.Wrapper):
         self.epsilon = epsilon
 
     def step(self, action):
-        obs, rews, dones, infos = self.env.step(action)
+        obs, rews, terminateds, truncateds, infos = self.env.step(action)
         if self.is_vector_env:
             obs = self.normalize(obs)
         else:
             obs = self.normalize(np.array([obs]))[0]
-        return obs, rews, dones, infos
+        return obs, rews, terminateds, truncateds, infos
 
     def reset(self, **kwargs):
         return_info = kwargs.get("return_info", False)
@@ -100,15 +100,19 @@ class NormalizeReward(gym.core.Wrapper):
         self.epsilon = epsilon
 
     def step(self, action):
-        obs, rews, dones, infos = self.env.step(action)
+        obs, rews, terminateds, truncateds, infos = self.env.step(action)
         if not self.is_vector_env:
             rews = np.array([rews])
         self.returns = self.returns * self.gamma + rews
         rews = self.normalize(rews)
+        if not self.is_vector_env:  # TODO: Check this
+            dones = terminateds or truncateds
+        else:
+            dones = np.bitwise_or(terminateds, truncateds)
         self.returns[dones] = 0.0
         if not self.is_vector_env:
             rews = rews[0]
-        return obs, rews, dones, infos
+        return obs, rews, terminateds, truncateds, infos
 
     def normalize(self, rews):
         self.return_rms.update(self.returns)

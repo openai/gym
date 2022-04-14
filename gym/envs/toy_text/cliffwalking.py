@@ -106,7 +106,7 @@ class CliffWalkingEnv(Env):
         Determine the outcome for an action. Transition Prob is always 1.0.
         :param current: Current position on the grid as (row, col)
         :param delta: Change in position for transition
-        :return: (1.0, new_state, reward, done)
+        :return: (1.0, new_state, reward, terminated)
         """
         new_position = np.array(current) + np.array(delta)
         new_position = self._limit_coordinates(new_position).astype(int)
@@ -115,16 +115,16 @@ class CliffWalkingEnv(Env):
             return [(1.0, self.start_state_index, -100, False)]
 
         terminal_state = (self.shape[0] - 1, self.shape[1] - 1)
-        is_done = tuple(new_position) == terminal_state
-        return [(1.0, new_state, -1, is_done)]
+        is_terminated = tuple(new_position) == terminal_state
+        return [(1.0, new_state, -1, is_terminated)]
 
     def step(self, a):
         transitions = self.P[self.s][a]
         i = categorical_sample([t[0] for t in transitions], self.np_random)
-        p, s, r, d = transitions[i]
+        p, s, r, t = transitions[i]
         self.s = s
         self.lastaction = a
-        return (int(s), r, d, {"prob": p})
+        return (int(s), r, t, False, {"prob": p})
 
     def reset(
         self,

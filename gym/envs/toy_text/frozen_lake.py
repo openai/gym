@@ -174,9 +174,9 @@ class FrozenLakeEnv(Env):
             newrow, newcol = inc(row, col, action)
             newstate = to_s(newrow, newcol)
             newletter = desc[newrow, newcol]
-            done = bytes(newletter) in b"GH"
+            terminated = bytes(newletter) in b"GH"
             reward = float(newletter == b"G")
-            return newstate, reward, done
+            return newstate, reward, terminated
 
         for row in range(nrow):
             for col in range(ncol):
@@ -212,10 +212,10 @@ class FrozenLakeEnv(Env):
     def step(self, a):
         transitions = self.P[self.s][a]
         i = categorical_sample([t[0] for t in transitions], self.np_random)
-        p, s, r, d = transitions[i]
+        p, s, r, t = transitions[i]
         self.s = s
         self.lastaction = a
-        return (int(s), r, d, {"prob": p})
+        return (int(s), r, t, False, {"prob": p})
 
     def reset(
         self,

@@ -53,7 +53,7 @@ def _check_nan(env: gym.Env, check_inf: bool = True) -> None:
     """Check for NaN and Inf."""
     for _ in range(10):
         action = env.action_space.sample()
-        observation, reward, _, _ = env.step(action)
+        observation, reward, _, _, _ = env.step(action)
 
         if np.any(np.isnan(observation)):
             logger.warn("Encountered NaN value in observations.")
@@ -191,11 +191,14 @@ def _check_returned_values(
     data = env.step(action)
 
     assert (
-        len(data) == 4
-    ), "The `step()` method must return four values: obs, reward, done, info"
+        len(data) == 5 or len(data) == 4
+    ), "The `step()` method must return either four values: obs, reward, done, info, or five values: obs, reward, terminated, truncated, info"
 
     # Unpack
-    obs, reward, done, info = data
+    if len(data) == 4:
+        obs, reward, done, info = data
+    else:
+        obs, reward, terminated, truncated, info = data
 
     if isinstance(observation_space, spaces.Dict):
         assert isinstance(
@@ -214,7 +217,11 @@ def _check_returned_values(
     assert isinstance(
         reward, (float, int, np.float32)
     ), "The reward returned by `step()` must be a float"
-    assert isinstance(done, bool), "The `done` signal must be a boolean"
+    if len(data) == 4:
+        assert isinstance(done, bool), "The `done` signal must be a boolean"
+    else:
+        assert isinstance(terminated, bool), "The `terminated` signal must be a boolean"
+        assert isinstance(truncated, bool), "The `truncated` signal must be a boolean"
     assert isinstance(
         info, dict
     ), "The `info` returned by `step()` must be a python dictionary"

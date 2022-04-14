@@ -1,6 +1,8 @@
 import os
 from typing import Callable, Optional
 
+import numpy as np
+
 import gym
 from gym import logger
 from gym.wrappers.monitoring import video_recorder
@@ -83,14 +85,14 @@ class RecordVideo(gym.Wrapper):
             return self.episode_trigger(self.episode_id)
 
     def step(self, action):
-        observations, rewards, dones, infos = super().step(action)
+        observations, rewards, terminateds, truncateds, infos = super().step(action)
 
         # increment steps and episodes
         self.step_id += 1
         if not self.is_vector_env:
-            if dones:
+            if terminateds or truncateds:
                 self.episode_id += 1
-        elif dones[0]:
+        elif terminateds[0] or truncateds[0]:
             self.episode_id += 1
 
         if self.recording:
@@ -101,15 +103,15 @@ class RecordVideo(gym.Wrapper):
                     self.close_video_recorder()
             else:
                 if not self.is_vector_env:
-                    if dones:
+                    if terminateds or truncateds:
                         self.close_video_recorder()
-                elif dones[0]:
+                elif terminateds[0] or truncateds[0]:
                     self.close_video_recorder()
 
         elif self._video_enabled():
             self.start_video_recorder()
 
-        return observations, rewards, dones, infos
+        return observations, rewards, terminateds, truncateds, infos
 
     def close_video_recorder(self) -> None:
         if self.recording:

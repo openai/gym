@@ -163,17 +163,17 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     selected to be high, thereby indicating a standing up humanoid. The initial
     orientation is designed to make it face forward as well.
 
-    ### Episode Termination
+    ### Episode End
     The humanoid is said to be unhealthy if the z-position of the torso is no longer contained in the
     closed interval specified by the argument `healthy_z_range`.
 
     If `terminate_when_unhealthy=True` is passed during construction (which is the default),
-    the episode terminates when any of the following happens:
+    the episode ends when any of the following happens:
 
-    1. The episode duration reaches a 1000 timesteps
-    3. The humanoid is unhealthy
+    1. Truncation: The episode duration reaches a 1000 timesteps
+    3. Termination: The humanoid is unhealthy
 
-    If `terminate_when_unhealthy=False` is passed, the episode is terminated only when 1000 timesteps are exceeded.
+    If `terminate_when_unhealthy=False` is passed, the episode is ended only when 1000 timesteps are exceeded.
 
 
     ### Arguments
@@ -197,7 +197,7 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     | `ctrl_cost_weight`      | **float**  | `0.1`             | Weight for *ctrl_cost* term (see section on reward) |
     | `contact_cost_weight`   | **float**  | `5e-7`            | Weight for *contact_cost* term (see section on reward) |
     | `healthy_reward`        | **float**  | `5.0`             | Constant reward given if the humanoid is "healthy" after timestep |
-    | `terminate_when_unhealthy` | **bool**| `True`            | If true, issue a done signal if the z-coordinate of the torso is no longer in the `healthy_z_range` |
+    | `terminate_when_unhealthy` | **bool**| `True`            | If true, issue a terminated signal if the z-coordinate of the torso is no longer in the `healthy_z_range` |
     | `healthy_z_range`       | **tuple**  | `(1.0, 2.0)`      | The humanoid is considered healthy if the z-coordinate of the torso is in this range |
     | `reset_noise_scale`     | **float**  | `1e-2`            | Scale of random perturbations of initial position and velocity (see section on Starting State) |
     | `exclude_current_positions_from_observation`| **bool**   | `True`| Whether or not to omit the x- and y-coordinates from observations. Excluding the position can serve as an inductive bias to induce position-agnostic behavior in policies |
@@ -268,9 +268,9 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         return is_healthy
 
     @property
-    def done(self):
-        done = (not self.is_healthy) if self._terminate_when_unhealthy else False
-        return done
+    def terminated(self):
+        terminated = (not self.is_healthy) if self._terminate_when_unhealthy else False
+        return terminated
 
     def _get_obs(self):
         position = self.sim.data.qpos.flat.copy()
@@ -315,7 +315,7 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
         observation = self._get_obs()
         reward = rewards - costs
-        done = self.done
+        terminated = self.terminated
         info = {
             "reward_linvel": forward_reward,
             "reward_quadctrl": -ctrl_cost,
@@ -329,7 +329,7 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             "forward_reward": forward_reward,
         }
 
-        return observation, reward, done, info
+        return observation, reward, terminated, False, info
 
     def reset_model(self):
         noise_low = -self._reset_noise_scale

@@ -581,13 +581,13 @@ class BipedalWalker(gym.Env, EzPickle):
             reward -= 0.00035 * MOTORS_TORQUE * np.clip(np.abs(a), 0, 1)
             # normalized to about -50.0 using heuristic, more optimal agent should spend less
 
-        done = False
+        terminated = False
         if self.game_over or pos[0] < 0:
             reward = -100
-            done = True
+            terminated = True
         if pos[0] > (TERRAIN_LENGTH - TERRAIN_GRASS) * TERRAIN_STEP:
-            done = True
-        return np.array(state, dtype=np.float32), reward, done, {}
+            terminated = True
+        return np.array(state, dtype=np.float32), reward, terminated, False, {}
 
     def render(self, mode: str = "human"):
         import pygame
@@ -757,9 +757,9 @@ if __name__ == "__main__":
     SUPPORT_KNEE_ANGLE = +0.1
     supporting_knee_angle = SUPPORT_KNEE_ANGLE
     while True:
-        s, r, done, info = env.step(a)
+        s, r, terminated, truncated, info = env.step(a)
         total_reward += r
-        if steps % 20 == 0 or done:
+        if steps % 20 == 0 or terminated or truncated:
             print("\naction " + str([f"{x:+0.2f}" for x in a]))
             print(f"step {steps} total_reward {total_reward:+0.2f}")
             print("hull " + str([f"{x:+0.2f}" for x in s[0:4]]))
@@ -823,5 +823,5 @@ if __name__ == "__main__":
         a = np.clip(0.5 * a, -1.0, 1.0)
 
         env.render()
-        if done:
+        if terminated or truncated:
             break

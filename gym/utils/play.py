@@ -41,7 +41,7 @@ def play(env, transpose=True, fps=30, zoom=None, callback=None, keys_to_action=N
     gym.utils.play.PlayPlot. Here's a sample code for plotting the reward
     for last 5 second of gameplay.
 
-        def callback(obs_t, obs_tp1, action, rew, done, info):
+        def callback(obs_t, obs_tp1, action, rew, terminated, truncated, info):
             return [rew,]
         plotter = PlayPlot(callback, 30 * 5, ["reward"])
 
@@ -68,7 +68,8 @@ def play(env, transpose=True, fps=30, zoom=None, callback=None, keys_to_action=N
             obs_tp1: observation after performing action
             action: action that was executed
             rew: reward that was received
-            done: whether the environment is done or not
+            terminated: whether the environment is terminated or not
+            truncated: whether the environment is truncated or not
             info: debug info
     keys_to_action: dict: tuple(int) -> int or None
         Mapping from keys pressed to action performed.
@@ -116,9 +117,11 @@ def play(env, transpose=True, fps=30, zoom=None, callback=None, keys_to_action=N
         else:
             action = keys_to_action.get(tuple(sorted(pressed_keys)), 0)
             prev_obs = obs
-            obs, rew, env_done, info = env.step(action)
+            obs, rew, env_terminated, env_truncated, info = env.step(action)
             if callback is not None:
-                callback(prev_obs, obs, action, rew, env_done, info)
+                callback(
+                    prev_obs, obs, action, rew, env_terminated, env_truncated, info
+                )
         if obs is not None:
             rendered = env.render(mode="rgb_array")
             display_arr(screen, rendered, transpose=transpose, video_size=video_size)
@@ -164,8 +167,10 @@ class PlayPlot:
         self.cur_plot = [None for _ in range(num_plots)]
         self.data = [deque(maxlen=horizon_timesteps) for _ in range(num_plots)]
 
-    def callback(self, obs_t, obs_tp1, action, rew, done, info):
-        points = self.data_callback(obs_t, obs_tp1, action, rew, done, info)
+    def callback(self, obs_t, obs_tp1, action, rew, terminated, truncated, info):
+        points = self.data_callback(
+            obs_t, obs_tp1, action, rew, terminated, truncated, info
+        )
         for point, data_series in zip(points, self.data):
             data_series.append(point)
         self.t += 1

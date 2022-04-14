@@ -15,8 +15,9 @@ class ActionDictTestEnv(gym.Env):
     def step(self, action):
         observation = np.array([1.0, 1.5, 0.5])
         reward = 1
-        done = True
-        return observation, reward, done
+        terminated = True
+        truncated = True
+        return observation, reward, terminated, truncated
 
     def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
         super().reset(seed=seed)
@@ -27,12 +28,12 @@ class ActionDictTestEnv(gym.Env):
 
 
 def test_check_env_dict_action():
-    # Environment.step() only returns 3 values: obs, reward, done. Not info!
+    # Environment.step() only returns 4 values: obs, reward, terminated, truncated. Not info!
     test_env = ActionDictTestEnv()
 
     with pytest.raises(AssertionError) as errorinfo:
         check_env(env=test_env, warn=True)
         assert (
             str(errorinfo.value)
-            == "The `step()` method must return four values: obs, reward, done, info"
+            == "The `step()` method must return four values: obs, reward, terminated, truncated, info"
         )

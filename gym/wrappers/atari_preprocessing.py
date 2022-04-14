@@ -31,7 +31,7 @@ class AtariPreprocessing(gym.Wrapper):
         noop_max (int): max number of no-ops
         frame_skip (int): the frequency at which the agent experiences the game.
         screen_size (int): resize Atari frame
-        terminal_on_life_loss (bool): if True, then step() returns done=True whenever a
+        terminal_on_life_loss (bool): if True, then step() returns terminated=True whenever a
             life is lost.
         grayscale_obs (bool): if True, then gray scale observation is returned, otherwise, RGB observation
             is returned.
@@ -108,16 +108,16 @@ class AtariPreprocessing(gym.Wrapper):
         R = 0.0
 
         for t in range(self.frame_skip):
-            _, reward, done, info = self.env.step(action)
+            _, reward, terminated, truncated, info = self.env.step(action)
             R += reward
-            self.game_over = done
+            self.game_over = terminated
 
             if self.terminal_on_life_loss:
                 new_lives = self.ale.lives()
-                done = done or new_lives < self.lives
+                terminated = terminated or new_lives < self.lives
                 self.lives = new_lives
 
-            if done:
+            if terminated or truncated:
                 break
             if t == self.frame_skip - 2:
                 if self.grayscale_obs:
@@ -129,7 +129,7 @@ class AtariPreprocessing(gym.Wrapper):
                     self.ale.getScreenGrayscale(self.obs_buffer[0])
                 else:
                     self.ale.getScreenRGB(self.obs_buffer[0])
-        return self._get_obs(), R, done, info
+        return self._get_obs(), R, terminated, truncated, info
 
     def reset(self, **kwargs):
         # NoopReset
@@ -145,9 +145,9 @@ class AtariPreprocessing(gym.Wrapper):
             else 0
         )
         for _ in range(noops):
-            _, _, done, step_info = self.env.step(0)
+            _, _, terminated, truncated, step_info = self.env.step(0)
             reset_info.update(step_info)
-            if done:
+            if terminated or truncated:
                 if kwargs.get("return_info", False):
                     _, reset_info = self.env.reset(**kwargs)
                 else:

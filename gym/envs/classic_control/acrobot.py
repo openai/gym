@@ -82,12 +82,12 @@ class AcrobotEnv(core.Env):
     Each parameter in the underlying state (`theta1`, `theta2`, and the two angular velocities) is initialized
     uniformly between -0.1 and 0.1. This means both links are pointing downwards with some initial stochasticity.
 
-    ### Episode Termination
+    ### Episode End
 
-    The episode terminates if one of the following occurs:
-    1. The free end reaches the target height, which is constructed as:
+    The episode ends if one of the following occurs:
+    1. Termination: The free end reaches the target height, which is constructed as:
     `-cos(theta1) - cos(theta2 + theta1) > 1.0`
-    2. Episode length is greater than 500 (200 for v0)
+    2. Truncation: Episode length is greater than 500 (200 for v0)
 
     ### Arguments
 
@@ -206,9 +206,9 @@ class AcrobotEnv(core.Env):
         ns[2] = bound(ns[2], -self.MAX_VEL_1, self.MAX_VEL_1)
         ns[3] = bound(ns[3], -self.MAX_VEL_2, self.MAX_VEL_2)
         self.state = ns
-        terminal = self._terminal()
-        reward = -1.0 if not terminal else 0.0
-        return (self._get_ob(), reward, terminal, {})
+        terminated = self._terminal()
+        reward = -1.0 if not terminated else 0.0
+        return (self._get_ob(), reward, terminated, False, {})
 
     def _get_ob(self):
         s = self.state

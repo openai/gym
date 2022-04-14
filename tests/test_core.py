@@ -25,7 +25,7 @@ class UnittestEnv(core.Env):
 
     def step(self, action):
         observation = self.observation_space.sample()  # Dummy observation
-        return (observation, 0.0, False, {})
+        return (observation, 0.0, False, False, {})
 
 
 class UnknownSpacesEnv(core.Env):
@@ -54,11 +54,12 @@ class UnknownSpacesEnv(core.Env):
 
     def step(self, action):
         observation = self.observation_space.sample()  # Dummy observation
-        return (observation, 0.0, False, {})
+        return (observation, 0.0, False, False, {})
 
 
 class OldStyleEnv(core.Env):
-    """This environment doesn't accept any arguments in reset, ideally we want to support this too (for now)"""
+    """This environment doesn't accept any arguments in reset, step returns one bool instead of two,
+    ideally we want to support this too (for now)"""
 
     def __init__(self):
         pass

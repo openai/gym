@@ -92,7 +92,7 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     (0.0, 1.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
     with a uniform noise in the range of [-`reset_noise_scale`, `reset_noise_scale`] added to the values for stochasticity.
 
-    ### Episode Termination
+    ### Episode End
     The walker is said to be unhealthy if any of the following happens:
 
     1. Any of the state space values is no longer finite
@@ -100,12 +100,12 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     3. The absolute value of the angle (`observation[1]` if `exclude_current_positions_from_observation=False`, else `observation[2]`) is ***not*** in the closed interval specified by `healthy_angle_range`
 
     If `terminate_when_unhealthy=True` is passed during construction (which is the default),
-    the episode terminates when any of the following happens:
+    the episode ends when any of the following happens:
 
-    1. The episode duration reaches a 1000 timesteps
-    2. The walker is unhealthy
+    1. Truncation: The episode duration reaches a 1000 timesteps
+    2. Termination: The walker is unhealthy
 
-    If `terminate_when_unhealthy=False` is passed, the episode is terminated only when 1000 timesteps are exceeded.
+    If `terminate_when_unhealthy=False` is passed, the episode is ended only when 1000 timesteps are exceeded.
 
     ### Arguments
 

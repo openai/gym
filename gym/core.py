@@ -61,12 +61,17 @@ class Env(Generic[ObsType, ActType]):
         self._np_random = value
 
     @abstractmethod
-    def step(self, action: ActType) -> Tuple[ObsType, float, bool, dict]:
+    def step(
+        self, action: ActType
+    ) -> Union[
+        Tuple[ObsType, float, bool, bool, dict], Tuple[ObsType, float, bool, dict]
+    ]:
         """Run one timestep of the environment's dynamics. When end of
         episode is reached, you are responsible for calling :meth:`reset`
         to reset this environment's state.
 
-        Accepts an action and returns a tuple (observation, reward, done, info).
+        Accepts an action and returns either a tuple (observation, reward, terminated, truncated, info) or a tuple
+        (observation, reward, done, info). The latter is deprecated and will be removed in future versions.
 
         Args:
             action (object): an action provided by the agent
@@ -76,13 +81,17 @@ class Env(Generic[ObsType, ActType]):
         Returns:
             observation (object): agent's observation of the current environment. This will be an element of the environment's :attr:`observation_space`. This may, for instance, be a numpy array containing the positions and velocities of certain objects.
             reward (float) : amount of reward returned after previous action
-            done (bool): whether the episode has ended, in which case further :meth:`step` calls will return undefined results. A done signal may be emitted for different reasons: Maybe the task underlying the environment was solved successfully, a certain timelimit was exceeded, or the physics simulation has entered an invalid state. ``info`` may contain additional information regarding the reason for a ``done`` signal.
+            terminated (bool): whether the episode has ended due to a termination, in which case further step() calls will return undefined results
+            truncated (bool): whether the episode has ended due to a truncation, in which case further step() calls will return undefined results
             info (dict): contains auxiliary diagnostic information (helpful for debugging, learning, and logging). This might, for instance, contain:
 
                 - metrics that describe the agent's performance or
                 - state variables that are hidden from observations or
                 - information that distinguishes truncation and termination or
                 - individual reward terms that are combined to produce the total reward
+
+            (deprecated)
+            done (bool): whether the episode has ended due to any reason, in which case further step() calls will return undefined results
         """
         raise NotImplementedError
 
@@ -290,7 +299,11 @@ class Wrapper(Env[ObsType, ActType]):
     def metadata(self, value):
         self._metadata = value
 
-    def step(self, action: ActType) -> Tuple[ObsType, float, bool, dict]:
+    def step(
+        self, action: ActType
+    ) -> Union[
+        Tuple[ObsType, float, bool, bool, dict], Tuple[ObsType, float, bool, dict]
+    ]:
         return self.env.step(action)
 
     def reset(self, **kwargs) -> Union[ObsType, tuple[ObsType, dict]]:
@@ -325,8 +338,13 @@ class ObservationWrapper(Wrapper):
             return self.observation(self.env.reset(**kwargs))
 
     def step(self, action):
-        observation, reward, done, info = self.env.step(action)
-        return self.observation(observation), reward, done, info
+        step_returns = self.env.step(action)
+        if len(step_returns) == 5:
+            observation, reward, terminated, truncated, info = step_returns
+            return self.observation(observation), reward, terminated, truncated, info
+        else:
+            observation, reward, done, info = step_returns
+            return self.observation(observation), reward, done, info
 
     @abstractmethod
     def observation(self, observation):
@@ -338,8 +356,13 @@ class RewardWrapper(Wrapper):
         return self.env.reset(**kwargs)
 
     def step(self, action):
-        observation, reward, done, info = self.env.step(action)
-        return observation, self.reward(reward), done, info
+        step_returns = self.env.step(action)
+        if len(step_returns) == 5:
+            observation, reward, terminated, truncated, info = step_returns
+            return observation, self.reward(reward), terminated, truncated, info
+        else:
+            observation, reward, done, info = step_returns
+            return observation, self.reward(reward), done, info
 
     @abstractmethod
     def reward(self, reward):

@@ -67,8 +67,8 @@ class UnittestSlowEnv(gym.Env):
     def step(self, action):
         time.sleep(action)
         observation = self.observation_space.sample()
-        reward, done = 0.0, False
-        return observation, reward, done, {}
+        reward, terminated, truncated = 0.0, False, False
+        return observation, reward, terminated, truncated, {}
 
 
 class CustomSpace(gym.Space):
@@ -102,8 +102,8 @@ class CustomSpaceEnv(gym.Env):
 
     def step(self, action):
         observation = f"step({action:s})"
-        reward, done = 0.0, False
-        return observation, reward, done, {}
+        reward, terminated, truncated = 0.0, False, False
+        return observation, reward, terminated, truncated, {}
 
 
 def make_env(env_name, seed):

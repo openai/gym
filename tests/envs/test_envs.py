@@ -37,12 +37,13 @@ def test_env(spec):
         ), f"Reset observation dtype: {ob.dtype}, expected: {ob_space.dtype}"
 
     a = act_space.sample()
-    observation, reward, done, _info = env.step(a)
+    observation, reward, terminated, truncated, _info = env.step(a)
     assert ob_space.contains(
         observation
     ), f"Step observation: {observation!r} not in space"
     assert np.isscalar(reward), f"{reward} is not a scalar for {env}"
-    assert isinstance(done, bool), f"Expected {done} to be a boolean"
+    assert isinstance(terminated, bool), f"Expected {terminated} to be a boolean"
+    assert isinstance(truncated, bool), f"Expected {truncated} to be a boolean"
     if isinstance(ob_space, Box):
         assert (
             observation.dtype == ob_space.dtype
@@ -84,8 +85,8 @@ def test_random_rollout():
             assert env.observation_space.contains(ob)
             a = agent(ob)
             assert env.action_space.contains(a)
-            (ob, _reward, done, _info) = env.step(a)
-            if done:
+            (ob, _reward, terminated, truncated, _info) = env.step(a)
+            if terminated or truncated:
                 break
         env.close()
 

@@ -72,7 +72,8 @@ class SyncVectorEnv(VectorEnv):
             self.single_observation_space, n=self.num_envs, fn=np.zeros
         )
         self._rewards = np.zeros((self.num_envs,), dtype=np.float64)
-        self._dones = np.zeros((self.num_envs,), dtype=np.bool_)
+        self._terminateds = np.zeros((self.num_envs,), dtype=np.bool_)
+        self._truncateds = np.zeros((self.num_envs,), dtype=np.bool_)
         self._actions = None
 
     def seed(self, seed=None):
@@ -98,7 +99,8 @@ class SyncVectorEnv(VectorEnv):
             seed = [seed + i for i in range(self.num_envs)]
         assert len(seed) == self.num_envs
 
-        self._dones[:] = False
+        self._terminateds[:] = False
+        self._truncateds[:] = False
         observations = []
         data_list = []
         for env, single_seed in zip(self.envs, seed):
@@ -135,9 +137,15 @@ class SyncVectorEnv(VectorEnv):
     def step_wait(self):
         observations, infos = [], []
         for i, (env, action) in enumerate(zip(self.envs, self._actions)):
-            observation, self._rewards[i], self._dones[i], info = env.step(action)
-            if self._dones[i]:
-                info["terminal_observation"] = observation
+            (
+                observation,
+                self._rewards[i],
+                self._terminateds[i],
+                self._truncateds[i],
+                info,
+            ) = env.step(action)
+            if self._terminateds[i] or self._truncateds[i]:
+                info["closing_observation"] = observation
                 observation = env.reset()
             observations.append(observation)
             infos.append(info)
@@ -148,7 +156,8 @@ class SyncVectorEnv(VectorEnv):
         return (
             deepcopy(self.observations) if self.copy else self.observations,
             np.copy(self._rewards),
-            np.copy(self._dones),
+            np.copy(self._terminateds),
+            np.copy(self._truncateds),
             infos,
         )
 

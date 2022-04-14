@@ -91,6 +91,7 @@ class EnvSpec:
         max_episode_steps: The maximum number of steps that an episode can consist of
         order_enforce: Whether to wrap the environment in an orderEnforcing wrapper
         autoreset: Whether the environment should automatically reset when it reaches the done state
+        return_two_dones: Whether the environment step method returns two bools or one bool as episode ending signal
         kwargs: The kwargs to pass to the environment class
 
     """
@@ -102,6 +103,7 @@ class EnvSpec:
     max_episode_steps: Optional[int] = field(default=None)
     order_enforce: bool = field(default=True)
     autoreset: bool = field(default=False)
+    return_two_dones: bool = field(default=True)
     kwargs: dict = field(default_factory=dict)
     namespace: Optional[str] = field(init=False)
     name: str = field(init=False)
@@ -135,8 +137,16 @@ class EnvSpec:
         _kwargs.update(kwargs)
 
         if "autoreset" in _kwargs:
-            self.autoreset = _kwargs["autoreset"]
+            autoreset = _kwargs["autoreset"]
             del _kwargs["autoreset"]
+        else:
+            autoreset = self.autoreset
+
+        if "return_two_dones" in _kwargs:
+            return_two_dones = _kwargs["return_two_dones"]
+            del _kwargs["return_two_dones"]
+        else:
+            return_two_dones = self.return_two_dones
 
         if callable(self.entry_point):
             env = self.entry_point(**_kwargs)
@@ -149,6 +159,10 @@ class EnvSpec:
         spec.kwargs = _kwargs
         env.unwrapped.spec = spec
 
+        from gym.wrappers import StepCompatibility
+
+        env = StepCompatibility(env, return_two_dones)
+
         if self.order_enforce:
             from gym.wrappers.order_enforcing import OrderEnforcing
 
@@ -160,7 +174,7 @@ class EnvSpec:
 
             env = TimeLimit(env, max_episode_steps=env.spec.max_episode_steps)
 
-        if self.autoreset:
+        if autoreset:
             from gym.wrappers.autoreset import AutoResetWrapper
 
             env = AutoResetWrapper(env)

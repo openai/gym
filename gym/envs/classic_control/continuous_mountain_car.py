@@ -76,11 +76,11 @@ class Continuous_MountainCarEnv(gym.Env):
 
     The position of the car is assigned a uniform random value in `[-0.6 , -0.4]`. The starting velocity of the car is always assigned to 0.
 
-    ### Episode Termination
+    ### Episode End
 
-    The episode terminates if either of the following happens:
-    1. The position of the car is greater than or equal to 0.45 (the goal position on top of the right hill)
-    2. The length of the episode is 999.
+    The episode ends if either of the following happens:
+    1. Termination: The position of the car is greater than or equal to 0.45 (the goal position on top of the right hill)
+    2. Truncation: The length of the episode is 999.
 
     ### Arguments
 
@@ -145,15 +145,17 @@ class Continuous_MountainCarEnv(gym.Env):
             velocity = 0
 
         # Convert a possible numpy bool to a Python bool.
-        done = bool(position >= self.goal_position and velocity >= self.goal_velocity)
+        terminated = bool(
+            position >= self.goal_position and velocity >= self.goal_velocity
+        )
 
         reward = 0
-        if done:
+        if terminated:
             reward = 100.0
         reward -= math.pow(action[0], 2) * 0.1
 
         self.state = np.array([position, velocity], dtype=np.float32)
-        return self.state, reward, done, {}
+        return self.state, reward, terminated, False, {}
 
     def reset(
         self,

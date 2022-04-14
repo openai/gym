@@ -88,12 +88,12 @@ class ReacherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     element ("fingertip" - "target") is calculated at the end once everything
     is set. The default setting has a framerate of 2 and a *dt = 2 * 0.01 = 0.02*
 
-    ### Episode Termination
+    ### Episode End
 
-    The episode terminates when any of the following happens:
+    The episode ends when any of the following happens:
 
-    1. The episode duration reaches a 50 timesteps (with a new random target popping up if the reacher's fingertip reaches it before 50 timesteps)
-    2. Any of the state space values is no longer finite.
+    1. Truncation: The episode duration reaches a 50 timesteps (with a new random target popping up if the reacher's fingertip reaches it before 50 timesteps)
+    2. Termination: Any of the state space values is no longer finite.
 
     ### Arguments
 
@@ -128,8 +128,13 @@ class ReacherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         reward = reward_dist + reward_ctrl
         self.do_simulation(a, self.frame_skip)
         ob = self._get_obs()
-        done = False
-        return ob, reward, done, dict(reward_dist=reward_dist, reward_ctrl=reward_ctrl)
+        return (
+            ob,
+            reward,
+            False,
+            False,
+            dict(reward_dist=reward_dist, reward_ctrl=reward_ctrl),
+        )
 
     def viewer_setup(self):
         self.viewer.cam.trackbodyid = 0

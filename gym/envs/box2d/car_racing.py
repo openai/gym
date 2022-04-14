@@ -415,7 +415,7 @@ class CarRacing(gym.Env, EzPickle):
         self.state = self.render("state_pixels")
 
         step_reward = 0
-        done = False
+        terminated = False
         if action is not None:  # First step without action, called from reset()
             self.reward -= 0.1
             # We actually don't want to count fuel spent, we want car to be faster.
@@ -424,13 +424,13 @@ class CarRacing(gym.Env, EzPickle):
             step_reward = self.reward - self.prev_reward
             self.prev_reward = self.reward
             if self.tile_visited_count == len(self.track) or self.new_lap:
-                done = True
+                terminated = True
             x, y = self.car.hull.position
             if abs(x) > PLAYFIELD or abs(y) > PLAYFIELD:
-                done = True
+                terminated = True
                 step_reward = -100
 
-        return self.state, step_reward, done, {}
+        return self.state, step_reward, terminated, False, {}
 
     def render(self, mode="human"):
         import pygame
@@ -660,13 +660,13 @@ if __name__ == "__main__":
         restart = False
         while True:
             register_input()
-            s, r, done, info = env.step(a)
+            s, r, terminated, truncated, info = env.step(a)
             total_reward += r
-            if steps % 200 == 0 or done:
+            if steps % 200 == 0 or terminated or truncated:
                 print("\naction " + str([f"{x:+0.2f}" for x in a]))
                 print(f"step {steps} total_reward {total_reward:+0.2f}")
             steps += 1
             isopen = env.render()
-            if done or restart or isopen == False:
+            if terminated or truncated or restart or isopen == False:
                 break
     env.close()

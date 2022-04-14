@@ -473,14 +473,14 @@ class LunarLander(gym.Env, EzPickle):
         )  # less fuel spent is better, about -30 for heuristic landing
         reward -= s_power * 0.03
 
-        done = False
+        terminated = False
         if self.game_over or abs(state[0]) >= 1.0:
-            done = True
+            terminated = True
             reward = -100
         if not self.lander.awake:
-            done = True
+            terminated = True
             reward = +100
-        return np.array(state, dtype=np.float32), reward, done, {}
+        return np.array(state, dtype=np.float32), reward, terminated, False, {}
 
     def render(self, mode="human"):
         import pygame
@@ -654,7 +654,7 @@ def demo_heuristic_lander(env, seed=None, render=False):
     s = env.reset(seed=seed)
     while True:
         a = heuristic(env, s)
-        s, r, done, info = env.step(a)
+        s, r, terminated, truncated, info = env.step(a)
         total_reward += r
 
         if render:
@@ -662,11 +662,11 @@ def demo_heuristic_lander(env, seed=None, render=False):
             if still_open == False:
                 break
 
-        if steps % 20 == 0 or done:
+        if steps % 20 == 0 or terminated or truncated:
             print("observations:", " ".join([f"{x:+0.2f}" for x in s]))
             print(f"step {steps} total_reward {total_reward:+0.2f}")
         steps += 1
-        if done:
+        if terminated or truncated:
             break
     if render:
         env.close()

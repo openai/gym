@@ -4,13 +4,16 @@ except ImportError:
     Iterable = (tuple, list)
 
 from gym.vector.async_vector_env import AsyncVectorEnv
+from gym.vector.step_compatibility_vector import StepCompatibilityVector
 from gym.vector.sync_vector_env import SyncVectorEnv
 from gym.vector.vector_env import VectorEnv, VectorEnvWrapper
 
 __all__ = ["AsyncVectorEnv", "SyncVectorEnv", "VectorEnv", "VectorEnvWrapper", "make"]
 
 
-def make(id, num_envs=1, asynchronous=True, wrappers=None, **kwargs):
+def make(
+    id, num_envs=1, asynchronous=True, wrappers=None, return_two_dones=True, **kwargs
+):
     """Create a vectorized environment from multiple copies of an environment,
     from its id.
 
@@ -62,4 +65,8 @@ def make(id, num_envs=1, asynchronous=True, wrappers=None, **kwargs):
         return env
 
     env_fns = [_make_env for _ in range(num_envs)]
-    return AsyncVectorEnv(env_fns) if asynchronous else SyncVectorEnv(env_fns)
+    return (
+        StepCompatibilityVector(AsyncVectorEnv(env_fns), return_two_dones)
+        if asynchronous
+        else StepCompatibilityVector(SyncVectorEnv(env_fns), return_two_dones)
+    )

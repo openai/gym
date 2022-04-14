@@ -87,7 +87,7 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     (0.0, 1.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0) with a uniform noise
      in the range of [-`reset_noise_scale`, `reset_noise_scale`] added to the values for stochasticity.
 
-    ### Episode Termination
+    ### Episode End
     The hopper is said to be unhealthy if any of the following happens:
 
     1. An element of `observation[1:]` (if  `exclude_current_positions_from_observation=True`, else `observation[2:]`) is no longer contained in the closed interval specified by the argument `healthy_state_range`
@@ -95,12 +95,12 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     3. The angle (`observation[1]` if  `exclude_current_positions_from_observation=True`, else `observation[2]`) is no longer contained in the closed interval specified by the argument `healthy_angle_range`
 
     If `terminate_when_unhealthy=True` is passed during construction (which is the default),
-    the episode terminates when any of the following happens:
+    the episode ends when any of the following happens:
 
-    1. The episode duration reaches a 1000 timesteps
-    2. The hopper is unhealthy
+    1. Truncation: The episode duration reaches a 1000 timesteps
+    2. Termination: The hopper is unhealthy
 
-    If `terminate_when_unhealthy=False` is passed, the episode is terminated only when 1000 timesteps are exceeded.
+    If `terminate_when_unhealthy=False` is passed, the episode is ended only when 1000 timesteps are exceeded.
 
     ### Arguments
 
@@ -122,7 +122,7 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     | `forward_reward_weight` | **float**  | `1.0`          | Weight for *forward_reward* term (see section on reward) |
     | `ctrl_cost_weight`      | **float**  | `0.001`        | Weight for *ctrl_cost* reward (see section on reward) |
     | `healthy_reward`        | **float**  | `1`            | Constant reward given if the ant is "healthy" after timestep |
-    | `terminate_when_unhealthy` | **bool**| `True`         | If true, issue a done signal if the hopper is no longer healthy |
+    | `terminate_when_unhealthy` | **bool**| `True`         | If true, issue a terminated signal if the hopper is no longer healthy |
     | `healthy_state_range`   | **tuple**  | `(-100, 100)`  | The elements of `observation[1:]` (if  `exclude_current_positions_from_observation=True`, else `observation[2:]`) must be in this range for the hopper to be considered healthy |
     | `healthy_z_range`       | **tuple**  | `(0.7, float("inf"))`    | The z-coordinate must be in this range for the hopper to be considered healthy |
     | `healthy_angle_range`   | **tuple**  | `(-0.2, 0.2)`   | The angle given by `observation[1]` (if  `exclude_current_positions_from_observation=True`, else `observation[2]`) must be in this range for the hopper to be considered healthy |
@@ -201,9 +201,9 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         return is_healthy
 
     @property
-    def done(self):
-        done = not self.is_healthy if self._terminate_when_unhealthy else False
-        return done
+    def terminated(self):
+        terminated = not self.is_healthy if self._terminate_when_unhealthy else False
+        return terminated
 
     def _get_obs(self):
         position = self.sim.data.qpos.flat.copy()
@@ -231,13 +231,13 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
         observation = self._get_obs()
         reward = rewards - costs
-        done = self.done
+        terminated = self.terminated
         info = {
             "x_position": x_position_after,
             "x_velocity": x_velocity,
         }
 
-        return observation, reward, done, info
+        return observation, reward, terminated, False, info
 
     def reset_model(self):
         noise_low = -self._reset_noise_scale

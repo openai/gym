@@ -101,8 +101,11 @@ class VectorEnv(gym.Env):
         rewards : :obj:`np.ndarray`, dtype :obj:`np.float_`
             A vector of rewards from the vectorized environment.
 
-        dones : :obj:`np.ndarray`, dtype :obj:`np.bool_`
-            A vector whose entries indicate whether the episode has ended.
+        terminateds : :obj:`np.ndarray`, dtype :obj:`np.bool_`
+            A vector whose entries indicate whether the episode has terminated.
+
+        truncateds : :obj:`np.ndarray`, dtype :obj:`np.bool_`
+            A vector whose entries indicate whether the episode has truncated.
 
         infos : list of dict
             A list of auxiliary diagnostic information dicts from sub-environments.

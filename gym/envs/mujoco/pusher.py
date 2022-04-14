@@ -99,12 +99,12 @@ class PusherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     The default framerate is 5 with each frame lasting for 0.01, giving rise to a *dt = 5 * 0.01 = 0.05*
 
-    ### Episode Termination
+    ### Episode End
 
-    The episode terminates when any of the following happens:
+    The episode ends when any of the following happens:
 
-    1. The episode duration reaches a 100 timesteps.
-    2. Any of the state space values is no longer finite.
+    1. Truncation: The episode duration reaches a 100 timesteps.
+    2. Termination: Any of the state space values is no longer finite.
 
     ### Arguments
 
@@ -143,8 +143,13 @@ class PusherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
         self.do_simulation(a, self.frame_skip)
         ob = self._get_obs()
-        done = False
-        return ob, reward, done, dict(reward_dist=reward_dist, reward_ctrl=reward_ctrl)
+        return (
+            ob,
+            reward,
+            False,
+            False,
+            dict(reward_dist=reward_dist, reward_ctrl=reward_ctrl),
+        )
 
     def viewer_setup(self):
         self.viewer.cam.trackbodyid = -1

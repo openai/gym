@@ -56,12 +56,13 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
 
     All observations are assigned a uniformly random value in `(-0.05, 0.05)`
 
-    ### Episode Termination
+    ### Episode End
 
-    The episode terminates if any one of the following occurs:
-    1. Pole Angle is greater than ±12°
-    2. Cart Position is greater than ±2.4 (center of the cart reaches the edge of the display)
-    3. Episode length is greater than 500 (200 for v0)
+    The episode ends if any one of the following occurs:
+
+    1. Termination: Pole Angle is greater than ±12°
+    2. Termination: Cart Position is greater than ±2.4 (center of the cart reaches the edge of the display)
+    3. Truncation: Episode length is greater than 500 (200 for v0)
 
     ### Arguments
 
@@ -109,7 +110,7 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         self.isopen = True
         self.state = None
 
-        self.steps_beyond_done = None
+        self.steps_beyond_terminated = None
 
     def step(self, action):
         err_msg = f"{action!r} ({type(action)}) invalid"
@@ -143,31 +144,31 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
 
         self.state = (x, x_dot, theta, theta_dot)
 
-        done = bool(
+        terminated = bool(
             x < -self.x_threshold
             or x > self.x_threshold
             or theta < -self.theta_threshold_radians
             or theta > self.theta_threshold_radians
         )
 
-        if not done:
+        if not terminated:
             reward = 1.0
-        elif self.steps_beyond_done is None:
+        elif self.steps_beyond_terminated is None:
             # Pole just fell!
-            self.steps_beyond_done = 0
+            self.steps_beyond_terminated = 0
             reward = 1.0
         else:
-            if self.steps_beyond_done == 0:
+            if self.steps_beyond_terminated == 0:
                 logger.warn(
                     "You are calling 'step()' even though this "
-                    "environment has already returned done = True. You "
-                    "should always call 'reset()' once you receive 'done = "
+                    "environment has already returned terminated = True. You "
+                    "should always call 'reset()' once you receive 'terminated = "
                     "True' -- any further steps are undefined behavior."
                 )
-            self.steps_beyond_done += 1
+            self.steps_beyond_terminated += 1
             reward = 0.0
 
-        return np.array(self.state, dtype=np.float32), reward, done, {}
+        return np.array(self.state, dtype=np.float32), reward, terminated, False, {}
 
     def reset(
         self,
@@ -178,7 +179,7 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
     ):
         super().reset(seed=seed)
         self.state = self.np_random.uniform(low=-0.05, high=0.05, size=(4,))
-        self.steps_beyond_done = None
+        self.steps_beyond_terminated = None
         if not return_info:
             return np.array(self.state, dtype=np.float32)
         else:

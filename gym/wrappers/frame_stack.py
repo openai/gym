@@ -115,9 +115,9 @@ class FrameStack(ObservationWrapper):
         return LazyFrames(list(self.frames), self.lz4_compress)
 
     def step(self, action):
-        observation, reward, done, info = self.env.step(action)
+        observation, reward, terminated, truncated, info = self.env.step(action)
         self.frames.append(observation)
-        return self.observation(), reward, done, info
+        return self.observation(), reward, terminated, truncated, info
 
     def reset(self, **kwargs):
         if kwargs.get("return_info", False):

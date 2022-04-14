@@ -45,12 +45,13 @@ def test_env(spec):
 
     assert_equals(initial_observation1, initial_observation2)
 
-    for i, ((o1, r1, d1, i1), (o2, r2, d2, i2)) in enumerate(
+    for i, ((o1, r1, term1, trunc1, i1), (o2, r2, term2, trunc2, i2)) in enumerate(
         zip(step_responses1, step_responses2)
     ):
         assert_equals(o1, o2, f"[{i}] ")
         assert r1 == r2, f"[{i}] r1: {r1}, r2: {r2}"
-        assert d1 == d2, f"[{i}] d1: {d1}, d2: {d2}"
+        assert term1 == term2, f"[{i}] term1: {term1}, term2: {term2}"
+        assert trunc1 == trunc2, f"[{i}] trunc1: {trunc1}, trunc2: {trunc2}"
 
         # Go returns a Pachi game board in info, which doesn't
         # properly check equality. For now, we hack around this by

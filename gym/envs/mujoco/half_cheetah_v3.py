@@ -95,8 +95,8 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     normal noise with a mean of 0 and standard deviation of `reset_noise_scale` is added to the
     initial velocity values of all zeros.
 
-    ### Episode Termination
-    The episode terminates when the episode length is greater than 1000.
+    ### Episode End
+    The episode truncates when the episode length is greater than 1000.
 
     ### Arguments
 
@@ -167,7 +167,7 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
         observation = self._get_obs()
         reward = forward_reward - ctrl_cost
-        done = False
+        terminated = False
         info = {
             "x_position": x_position_after,
             "x_velocity": x_velocity,
@@ -175,7 +175,7 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             "reward_ctrl": -ctrl_cost,
         }
 
-        return observation, reward, done, info
+        return observation, reward, terminated, False, info
 
     def _get_obs(self):
         position = self.sim.data.qpos.flat.copy()

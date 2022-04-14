@@ -58,9 +58,9 @@ class PendulumEnv(gym.Env):
 
     The starting state is a random angle in *[-pi, pi]* and a random angular velocity in *[-1,1]*.
 
-    ### Episode Termination
+    ### Episode Truncation
 
-    The episode terminates at 200 time steps.
+    The episode truncates at 200 time steps.
 
     ### Arguments
 
@@ -118,7 +118,7 @@ class PendulumEnv(gym.Env):
         newth = th + newthdot * dt
 
         self.state = np.array([newth, newthdot])
-        return self._get_obs(), -costs, False, {}
+        return self._get_obs(), -costs, False, False, {}
 
     def reset(
         self,

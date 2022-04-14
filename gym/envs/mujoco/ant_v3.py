@@ -122,19 +122,19 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     to be slightly high, thereby indicating a standing up ant. The initial orientation
     is designed to make it face forward as well.
 
-    ### Episode Termination
+    ### Episode End
     The ant is said to be unhealthy if any of the following happens:
 
     1. Any of the state space values is no longer finite
     2. The z-coordinate of the torso is **not** in the closed interval given by `healthy_z_range` (defaults to [0.2, 1.0])
 
     If `terminate_when_unhealthy=True` is passed during construction (which is the default),
-    the episode terminates when any of the following happens:
+    the episode ends when any of the following happens:
 
-    1. The episode duration reaches a 1000 timesteps
-    2. The ant is unhealthy
+    1. Termination: The episode duration reaches a 1000 timesteps
+    2. Truncation: The ant is unhealthy
 
-    If `terminate_when_unhealthy=False` is passed, the episode is terminated only when 1000 timesteps are exceeded.
+    If `terminate_when_unhealthy=False` is passed, the episode is ended only when 1000 timesteps are exceeded.
 
     ### Arguments
 
@@ -156,7 +156,7 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     | `ctrl_cost_weight`      | **float**  | `0.5`        | Weight for *ctrl_cost* term (see section on reward) |
     | `contact_cost_weight`   | **float**  | `5e-4`       | Weight for *contact_cost* term (see section on reward) |
     | `healthy_reward`        | **float**  | `1`          | Constant reward given if the ant is "healthy" after timestep |
-    | `terminate_when_unhealthy` | **bool**| `True`       | If true, issue a done signal if the z-coordinate of the torso is no longer in the `healthy_z_range` |
+    | `terminate_when_unhealthy` | **bool**| `True`       | If true, issue a terminated signal if the z-coordinate of the torso is no longer in the `healthy_z_range` |
     | `healthy_z_range`       | **tuple**  | `(0.2, 1)`   | The ant is considered healthy if the z-coordinate of the torso is in this range |
     | `contact_force_range`   | **tuple**  | `(-1, 1)`    | Contact forces are clipped to this range in the computation of *contact_cost* |
     | `reset_noise_scale`     | **float**  | `0.1`        | Scale of random perturbations of initial position and velocity (see section on Starting State) |
@@ -234,9 +234,9 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         return is_healthy
 
     @property
-    def done(self):
-        done = not self.is_healthy if self._terminate_when_unhealthy else False
-        return done
+    def terminated(self):
+        terminated = not self.is_healthy if self._terminate_when_unhealthy else False
+        return terminated
 
     def step(self, action):
         xy_position_before = self.get_body_com("torso")[:2].copy()
@@ -256,7 +256,7 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         costs = ctrl_cost + contact_cost
 
         reward = rewards - costs
-        done = self.done
+        terminated = self.terminated
         observation = self._get_obs()
         info = {
             "reward_forward": forward_reward,
@@ -271,7 +271,7 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             "forward_reward": forward_reward,
         }
 
-        return observation, reward, done, info
+        return observation, reward, terminated, False, info
 
     def _get_obs(self):
         position = self.sim.data.qpos.flat.copy()
