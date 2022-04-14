@@ -186,8 +186,8 @@ class MujocoEnv(gym.Env):
         # As of MuJoCo 2.0, force-related quantities like cacc are not computed
         # unless there's a force sensor in the model.
         # See https://github.com/openai/gym/issues/1541
-        # if self._mujoco_bindings.__name__ != "mujoco_py":
-        #     self._mujoco_bindings.mj_rnePostConstraint(self.model, self.data)
+        if self._mujoco_bindings.__name__ != "mujoco_py":
+            self._mujoco_bindings.mj_rnePostConstraint(self.model, self.data)
 
     def render(
         self,
