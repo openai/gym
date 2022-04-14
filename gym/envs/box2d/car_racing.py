@@ -62,7 +62,7 @@ class FrictionDetector(contactListener):
             return
 
         # inherit tile color from env
-        tile.color = self.env.norm_road_color
+        tile.color = self.env.norm_road_color / 255
         if not obj or "tiles" not in obj.__dict__:
             return
         if begin:
@@ -196,7 +196,7 @@ class CarRacing(gym.Env, EzPickle):
     def _init_colors(self):
         if self.hardcore:
             # domain randomize the bg and grass colour
-            self.norm_road_color = self.np_random.uniform(0, 0.8, size=3)
+            self.norm_road_color = self.np_random.uniform(0, 210, size=3)
 
             self.bg_color = self.np_random.uniform(0, 210, size=3)
 
@@ -205,7 +205,7 @@ class CarRacing(gym.Env, EzPickle):
             self.grass_color[idx] += 20
         else:
             # default colours
-            self.norm_road_color = np.array([0.4, 0.4, 0.4])
+            self.norm_road_color = np.array([102, 102, 102])
             self.bg_color = np.array([102, 204, 102])
             self.grass_color = np.array([102, 230, 102])
 
@@ -364,7 +364,7 @@ class CarRacing(gym.Env, EzPickle):
             self.fd_tile.shape.vertices = vertices
             t = self.world.CreateStaticBody(fixtures=self.fd_tile)
             t.userData = t
-            c = 0.01 * (i % 3)
+            c = 0.01 * (i % 3) * 255
             t.color = self.norm_road_color + c
             t.road_visited = False
             t.road_friction = 1.0
