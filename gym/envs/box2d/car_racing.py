@@ -550,7 +550,7 @@ class CarRacing(gym.Env, EzPickle):
         for poly, color in self.road_poly:
             # converting to pixel coordinates
             poly = [(p[0] + PLAYFIELD, p[1] + PLAYFIELD) for p in poly]
-            color = [int(c * 255) for c in color]
+            color = [int(c) for c in color]
             self._draw_colored_polygon(self.surf, poly, color, zoom, translation, angle)
 
     def _render_indicators(self, W, H):
