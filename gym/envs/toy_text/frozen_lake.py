@@ -234,6 +234,9 @@ class FrozenLakeEnv(Env):
             return int(self.s), {"prob": 1}
 
     def render(self, mode="human"):
+        if not hasattr(self, "lastaction"):
+            raise AttributeError("Reset the environment before rendering")
+
         desc = self.desc.tolist()
         if mode == "ansi":
             return self._render_text(desc)
