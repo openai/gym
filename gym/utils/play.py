@@ -72,7 +72,7 @@ class PlayableGame:
         if event.type == pygame.KEYDOWN:
             if event.key in self.relevant_keys:
                 self.pressed_keys.append(event.key)
-            elif event.key == 27:
+            elif event.key == pygame.K_ESCAPE:
                 self.running = False
         elif event.type == pygame.KEYUP:
             if event.key in self.relevant_keys:
