@@ -8,7 +8,7 @@ from pygame import KEYDOWN, QUIT, event
 from pygame.event import Event
 
 import gym
-from gym.utils.play import PlayableGame, play
+from gym.utils.play import MissingKeysToAction, PlayableGame, play
 
 RELEVANT_KEY = 100
 IRRELEVANT_KEY = 1
@@ -76,7 +76,7 @@ def test_play_relevant_keys_no_mapping():
     env = DummyPlayEnv()
     env.spec = DummyEnvSpec("DummyPlayEnv")
 
-    with pytest.raises(AssertionError) as info:
+    with pytest.raises(MissingKeysToAction) as info:
         PlayableGame(env)
 
 
