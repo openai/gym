@@ -1,7 +1,9 @@
 import argparse
-from typing import Tuple
+from typing import Callable, Dict, Optional, Tuple
 
 import pygame
+from numpy.typing import NDArray
+from pygame import Surface
 from pygame.event import Event
 
 import gym
@@ -21,8 +23,19 @@ from collections import deque
 from pygame.locals import VIDEORESIZE
 
 
+class MissingKeysToAction(Exception):
+    """Raised when the environment does not have
+    a default keys_to_action mapping
+    """
+
+
 class PlayableGame:
-    def __init__(self, env: Env, keys_to_action: dict = None, zoom: float = None):
+    def __init__(
+        self,
+        env: Env,
+        keys_to_action: Optional[Dict[Tuple[int], int]] = None,
+        zoom: Optional[float] = None,
+    ):
         self.env = env
         self.relevant_keys = self._get_relevant_keys(keys_to_action)
         self.video_size = self._get_video_size(zoom)
@@ -30,17 +43,18 @@ class PlayableGame:
         self.pressed_keys = []
         self.running = True
 
-    def _get_relevant_keys(self, keys_to_action: dict) -> set:
+    def _get_relevant_keys(
+        self, keys_to_action: Optional[Dict[Tuple[int], int]] = None
+    ) -> set:
         if keys_to_action is None:
             if hasattr(self.env, "get_keys_to_action"):
                 keys_to_action = self.env.get_keys_to_action()
             elif hasattr(self.env.unwrapped, "get_keys_to_action"):
                 keys_to_action = self.env.unwrapped.get_keys_to_action()
             else:
-                assert False, (
-                    self.env.spec.id
-                    + " does not have explicit key to action mapping, "
-                    + "please specify one manually"
+                raise MissingKeysToAction(
+                    "%s does not have explicit key to action mapping, "
+                    "please specify one manually" % self.env.spec.id
                 )
         relevant_keys = set(sum(map(list, keys_to_action.keys()), []))
         return relevant_keys
@@ -70,7 +84,9 @@ class PlayableGame:
             self.screen = pygame.display.set_mode(self.video_size)
 
 
-def display_arr(screen, arr, video_size, transpose):
+def display_arr(
+    screen: Surface, arr: NDArray, video_size: Tuple[int, int], transpose: bool
+):
     arr_min, arr_max = arr.min(), arr.max()
     arr = 255.0 * (arr - arr_min) / (arr_max - arr_min)
     pyg_img = pygame.surfarray.make_surface(arr.swapaxes(0, 1) if transpose else arr)
@@ -78,7 +94,14 @@ def display_arr(screen, arr, video_size, transpose):
     screen.blit(pyg_img, (0, 0))
 
 
-def play(env, transpose=True, fps=30, zoom=None, callback=None, keys_to_action=None):
+def play(
+    env: Env,
+    transpose: Optional[bool] = True,
+    fps: Optional[int] = 30,
+    zoom: Optional[float] = None,
+    callback: Optional[Callable] = None,
+    keys_to_action: Optional[Dict[Tuple[int], int]] = None,
+):
     """Allows one to play the game using keyboard.
 
     To simply play the game use:
