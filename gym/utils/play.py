@@ -56,7 +56,7 @@ class PlayableGame:
                     "%s does not have explicit key to action mapping, "
                     "please specify one manually" % self.env.spec.id
                 )
-        relevant_keys = set(sum(map(list, keys_to_action.keys()), []))
+        relevant_keys = set(sum((list(k) for k in keys_to_action.keys()), []))
         return relevant_keys
 
     def _get_video_size(self, zoom: float = None) -> Tuple[int, int]:
