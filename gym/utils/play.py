@@ -1,4 +1,3 @@
-import argparse
 from typing import Callable, Dict, Optional, Tuple
 
 import pygame
