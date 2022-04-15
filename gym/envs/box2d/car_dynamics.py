@@ -21,6 +21,11 @@ from Box2D.b2 import (
     shape,
 )
 
+try:
+    import pygame
+except ImportError:
+    pygame = None
+
 SIZE = 0.02
 ENGINE_POWER = 100000000 * SIZE * SIZE
 WHEEL_MOMENT_OF_INERTIA = 4000 * SIZE * SIZE
@@ -53,6 +58,9 @@ PLAYFIELD = 2000 / SCALE  # Game over boundary
 
 class Car:
     def __init__(self, world, init_angle, init_x, init_y):
+        if pygame is None:
+            raise ImportError("pygame is not installed, run `pip install gym[box2d]`")
+
         self.world = world
         self.hull = self.world.CreateDynamicBody(
             position=(init_x, init_y),
@@ -265,8 +273,6 @@ class Car:
             )
 
     def draw(self, surface, zoom, translation, angle, draw_particles=True):
-        import pygame.draw
-
         if draw_particles:
             for p in self.particles:
                 poly = [

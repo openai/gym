@@ -19,6 +19,12 @@ import gym
 from gym import error, spaces
 from gym.utils import EzPickle, colorize, seeding
 
+try:
+    import pygame
+    from pygame import gfxdraw
+except ImportError:
+    pygame, gfxdraw = None, None
+
 FPS = 50
 SCALE = 30.0  # affects how fast-paced the game is, forces should be adjusted as well
 
@@ -158,6 +164,9 @@ class BipedalWalker(gym.Env, EzPickle):
 
     def __init__(self, hardcore: bool = False):
         EzPickle.__init__(self)
+        if pygame is None or gfxdraw is None:
+            raise ImportError("pygame is not installed, run `pip install gym[box2d]`")
+
         self.screen = None
         self.clock = None
         self.isopen = True
@@ -590,9 +599,6 @@ class BipedalWalker(gym.Env, EzPickle):
         return np.array(state, dtype=np.float32), reward, done, {}
 
     def render(self, mode: str = "human"):
-        import pygame
-        from pygame import gfxdraw
-
         if self.screen is None:
             pygame.init()
             pygame.display.init()
@@ -725,8 +731,6 @@ class BipedalWalker(gym.Env, EzPickle):
 
     def close(self):
         if self.screen is not None:
-            import pygame
-
             pygame.display.quit()
             pygame.quit()
             self.isopen = False
