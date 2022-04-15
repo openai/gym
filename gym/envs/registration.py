@@ -387,6 +387,14 @@ def namespace(ns: str):
 
 
 def register(id: str, **kwargs):
+    """
+    Register an environment with gym. The `id` parameter corresponds to the name of the environment,
+    with the syntax as follows:
+    `(namespace)/(env_name)-(version)`
+    where `namespace` is optional.
+
+    It takes arbitrary keyword arguments, which are passed to the `EnvSpec` constructor.
+    """
     global registry, current_namespace
     full_id = (current_namespace or "") + id
     spec = EnvSpec(id=full_id, **kwargs)
@@ -404,6 +412,17 @@ def make(
     autoreset: bool = False,
     **kwargs,
 ) -> Env:
+    """
+    Create an environment according to the given ID.
+
+    Args:
+        id: Name of the environment.
+        max_episode_steps: Maximum length of an episode (TimeLimit wrapper).
+        autoreset: Whether to automatically reset the environment after each episode (AutoResetWrapper).
+        kwargs: Additional arguments to pass to the environment constructor.
+    Returns:
+        An instance of the environment.
+    """
     if isinstance(id, EnvSpec):
         spec_ = id
     else:
@@ -467,6 +486,9 @@ def make(
 
 
 def spec(env_id: str) -> EnvSpec:
+    """
+    Retrieve the spec for the given environment from the global registry.
+    """
     spec_ = registry.get(env_id)
     if spec_ is None:
         ns, name, version = parse_env_id(env_id)

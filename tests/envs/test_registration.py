@@ -197,12 +197,9 @@ def test_missing_lookup():
     register(id="Test1-v15", entry_point=None)
     register(id="Test1-v9", entry_point=None)
     register(id="Other1-v100", entry_point=None)
-    try:
-        spec("Test1-v1")  # must match an env name but not the version above
-    except error.DeprecatedEnv:
-        pass
-    else:
-        assert False
+
+    with pytest.raises(error.DeprecatedEnv):
+        spec("Test1-v1")
 
     try:
         spec("Test1-v1000")
@@ -248,53 +245,6 @@ def test_default_lookups():
 
     # Lookup default
     spec("test/Test3")
-
-
-# def test_env_spec_tree():
-#     spec_tree = EnvSpecTree()
-#
-#     # Add with namespace
-#     spec = EnvSpec("test/Test-v0")
-#     spec_tree["test/Test-v0"] = spec
-#     assert spec_tree.tree.keys() == {"test"}
-#     assert spec_tree.tree["test"].keys() == {"Test"}
-#     assert spec_tree.tree["test"]["Test"].keys() == {0}
-#     assert spec_tree.tree["test"]["Test"][0] == spec
-#     assert spec_tree["test/Test-v0"] == spec
-#
-#     # Add without namespace
-#     spec = EnvSpec("Test-v0")
-#     spec_tree["Test-v0"] = spec
-#     assert spec_tree.tree.keys() == {"test", None}
-#     assert spec_tree.tree[None].keys() == {"Test"}
-#     assert spec_tree.tree[None]["Test"].keys() == {0}
-#     assert spec_tree.tree[None]["Test"][0] == spec
-#
-#     # Delete last version deletes entire subtree
-#     del spec_tree["test/Test-v0"]
-#     assert spec_tree.tree.keys() == {None}
-#
-#     # Append second version for same name
-#     spec_tree["Test-v1"] = EnvSpec("Test-v1")
-#     assert spec_tree.tree.keys() == {None}
-#     assert spec_tree.tree[None].keys() == {"Test"}
-#     assert spec_tree.tree[None]["Test"].keys() == {0, 1}
-#
-#     # Deleting one version leaves other
-#     del spec_tree["Test-v0"]
-#     assert spec_tree.tree.keys() == {None}
-#     assert spec_tree.tree[None].keys() == {"Test"}
-#     assert spec_tree.tree[None]["Test"].keys() == {1}
-#
-#     # Add without version
-#     myenv = "MyAwesomeEnv"
-#     spec = EnvSpec(myenv)
-#     spec_tree[myenv] = spec
-#     assert spec_tree.tree.keys() == {None}
-#     assert myenv in spec_tree.tree[None].keys()
-#     assert spec_tree.tree[None][myenv].keys() == {None}
-#     assert spec_tree.tree[None][myenv][None] == spec
-#     assert spec_tree.__repr__() == "├──Test: [ v1 ]\n" + f"└──{myenv}: [  ]\n"
 
 
 def test_register_versioned_unversioned():
