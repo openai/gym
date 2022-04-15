@@ -101,6 +101,7 @@ def play(
     zoom: Optional[float] = None,
     callback: Optional[Callable] = None,
     keys_to_action: Optional[Dict[Tuple[int], int]] = None,
+    seed: Optional[int] = None,
 ):
     """Allows one to play the game using keyboard.
 
@@ -157,7 +158,7 @@ def play(
             }
         If None, default key_to_action mapping for that env is used, if provided.
     """
-    env.reset()
+    env.reset(seed=seed)
     game = PlayableGame(env, keys_to_action, zoom)
 
     done = True
@@ -166,7 +167,7 @@ def play(
     while game.running:
         if done:
             done = False
-            obs = env.reset()
+            obs = env.reset(seed=seed)
         else:
             action = keys_to_action.get(tuple(sorted(game.pressed_keys)), 0)
             prev_obs = obs

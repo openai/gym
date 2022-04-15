@@ -4,7 +4,7 @@ from typing import Callable, Optional, Tuple
 import numpy as np
 import pygame
 import pytest
-from pygame import KEYDOWN, QUIT, event
+from pygame import KEYDOWN, KEYUP, QUIT, event
 from pygame.event import Event
 
 import gym
@@ -26,7 +26,7 @@ class DummyPlayEnv(gym.Env):
         rew, done, info = 1, False, {}
         return obs, rew, done, info
 
-    def reset(self):
+    def reset(self, seed=None):
         ...
 
     def render(self, mode="rgb_array"):
@@ -37,24 +37,14 @@ class PlayStatus:
     def __init__(self, callback: Callable):
         self.data_callback = callback
         self.cumulative_reward = 0
+        self.last_observation = None
 
     def callback(self, obs_t, obs_tp1, action, rew, done, info):
-        self.cumulative_reward += self.data_callback(
+        _, obs_tp1, _, rew, _, _ = self.data_callback(
             obs_t, obs_tp1, action, rew, done, info
         )
-
-
-# set of key events to inject into the play loop as callback
-callback_events = [
-    Event(KEYDOWN, {"key": RELEVANT_KEY_1}),
-    Event(KEYDOWN, {"key": RELEVANT_KEY_1}),
-    Event(QUIT),
-]
-
-
-def callback(obs_t, obs_tp1, action, rew, done, info):
-    event.post(callback_events.pop(0))
-    return rew
+        self.cumulative_reward += rew
+        self.last_observation = obs_tp1
 
 
 def dummy_keys_to_action():
@@ -147,6 +137,17 @@ def test_keyboard_keyup_event():
 
 
 def test_play_loop():
+    # set of key events to inject into the play loop as callback
+    callback_events = [
+        Event(KEYDOWN, {"key": RELEVANT_KEY_1}),
+        Event(KEYDOWN, {"key": RELEVANT_KEY_1}),
+        Event(QUIT),
+    ]
+
+    def callback(obs_t, obs_tp1, action, rew, done, info):
+        event.post(callback_events.pop(0))
+        return obs_t, obs_tp1, action, rew, done, info
+
     env = DummyPlayEnv()
     cumulative_env_reward = 0
     for s in range(
@@ -160,3 +161,53 @@ def test_play_loop():
     play(env_play, callback=status.callback, keys_to_action=dummy_keys_to_action())
 
     assert status.cumulative_reward == cumulative_env_reward
+
+
+def test_play_loop_real_env():
+    SEED = 42
+    ENV = "CartPole-v1"
+
+    # set of key events to inject into the play loop as callback
+    callback_events = [
+        Event(KEYDOWN, {"key": RELEVANT_KEY_1}),
+        Event(KEYUP, {"key": RELEVANT_KEY_1}),
+        Event(KEYDOWN, {"key": RELEVANT_KEY_2}),
+        Event(KEYUP, {"key": RELEVANT_KEY_2}),
+        Event(KEYDOWN, {"key": RELEVANT_KEY_1}),
+        Event(KEYUP, {"key": RELEVANT_KEY_1}),
+        Event(KEYDOWN, {"key": RELEVANT_KEY_1}),
+        Event(KEYUP, {"key": RELEVANT_KEY_1}),
+        Event(KEYDOWN, {"key": RELEVANT_KEY_2}),
+        Event(KEYUP, {"key": RELEVANT_KEY_2}),
+        Event(QUIT),
+    ]
+    keydown_events = [k for k in callback_events if k.type == KEYDOWN]
+
+    def callback(obs_t, obs_tp1, action, rew, done, info):
+        pygame_event = callback_events.pop(0)
+        event.post(pygame_event)
+
+        # after releasing a key, post new events until
+        # we have one keydown
+        while pygame_event.type == KEYUP:
+            pygame_event = callback_events.pop(0)
+            event.post(pygame_event)
+
+        return obs_t, obs_tp1, action, rew, done, info
+
+    env = gym.make(ENV)
+    env.reset(seed=SEED)
+    keys_to_action = dummy_keys_to_action()
+
+    # first action is 0 because at the first iteration
+    # we have no input in the game
+    env.step(0)
+    for e in keydown_events:  # we run the same number of steps executed with play()
+        action = keys_to_action[(e.key,)]
+        obs, _, _, _ = env.step(action)
+
+    env_play = gym.make(ENV)
+    status = PlayStatus(callback)
+    play(env_play, callback=status.callback, keys_to_action=keys_to_action, seed=SEED)
+
+    assert (status.last_observation == obs).all()
