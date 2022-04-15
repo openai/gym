@@ -128,12 +128,12 @@ class CarRacing(gym.Env, EzPickle):
     `lap_complete_percent` dictates the percentage of tiles that must be visited by
     the agent before a lap is considered complete.
 
-    Passing `hardcore=True` enabled the domain randomized variant of the environment.
+    Passing `domain_randomize=True` enabled the domain randomized variant of the environment.
     In this scenario, the background and track colours are different on every reset.
 
     ### Version History
-    - v1: Current version (0.23.1)
-    - v0: (reference needed)
+    - v1: Current version (0.24.0)
+    - v0: Original version
 
     ### References
     - Chris Campbell (2014), http://www.iforce2d.net/b2dtut/top-down-car.
@@ -151,10 +151,10 @@ class CarRacing(gym.Env, EzPickle):
         self,
         verbose: bool = True,
         lap_complete_percent: float = 0.95,
-        hardcore: bool = False,
+        domain_randomize: bool = False,
     ):
         EzPickle.__init__(self)
-        self.hardcore = hardcore
+        self.domain_randomize = domain_randomize
         self._init_colors()
 
         self.contactListener_keepref = FrictionDetector(self, lap_complete_percent)
@@ -194,7 +194,7 @@ class CarRacing(gym.Env, EzPickle):
         self.car.destroy()
 
     def _init_colors(self):
-        if self.hardcore:
+        if self.domain_randomize:
             # domain randomize the bg and grass colour
             self.norm_road_color = self.np_random.uniform(0, 0.8, size=3)
 
