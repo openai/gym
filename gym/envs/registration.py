@@ -650,7 +650,6 @@ def make(id: Literal["LunarLander-v2", "LunarLanderContinuous-v2"], **kwargs) ->
 def make(id: Literal["BipedalWalker-v3", "BipedalWalkerHardcore-v3"], **kwargs) -> Env[np.ndarray, np.ndarray | Sequence[SupportsFloat]]: ...
 @overload
 def make(id: Literal["CarRacing-v1", "CarRacingDomainRandomize-v1"], **kwargs) -> Env[np.ndarray, np.ndarray | Sequence[SupportsFloat]]: ...
-@overload
 
 # Toy Text
 # ----------------------------------------
