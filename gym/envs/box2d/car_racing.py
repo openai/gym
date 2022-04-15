@@ -391,7 +391,10 @@ class CarRacing(gym.Env, EzPickle):
                     y2 + side * (TRACK_WIDTH + BORDER) * math.sin(beta2),
                 )
                 self.road_poly.append(
-                    ([b1_l, b1_r, b2_r, b2_l], (255, 255, 255) if i % 2 == 0 else (255, 0, 0))
+                    (
+                        [b1_l, b1_r, b2_r, b2_l],
+                        (255, 255, 255) if i % 2 == 0 else (255, 0, 0),
+                    )
                 )
         self.track = track
         return True
