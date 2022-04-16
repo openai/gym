@@ -58,7 +58,7 @@ class PlayableGame:
         relevant_keys = set(sum((list(k) for k in keys_to_action.keys()), []))
         return relevant_keys
 
-    def _get_video_size(self, zoom: float = None) -> Tuple[int, int]:
+    def _get_video_size(self, zoom: Optional[float] = None) -> Tuple[int, int]:
         # TODO: this needs to be updated when the render API API change goes through
         rendered = self.env.render(mode="rgb_array")
         video_size = [rendered.shape[1], rendered.shape[0]]
