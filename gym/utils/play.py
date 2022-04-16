@@ -59,7 +59,7 @@ class PlayableGame:
         return relevant_keys
 
     def _get_video_size(self, zoom: Optional[float] = None) -> Tuple[int, int]:
-        # TODO: this needs to be updated when the render API API change goes through
+        # TODO: this needs to be updated when the render API change goes through
         rendered = self.env.render(mode="rgb_array")
         video_size = [rendered.shape[1], rendered.shape[0]]
 
@@ -175,7 +175,7 @@ def play(
             if callback is not None:
                 callback(prev_obs, obs, action, rew, done, info)
         if obs is not None:
-            # TODO: this needs to be updated when the render API API change goes through
+            # TODO: this needs to be updated when the render API change goes through
             rendered = env.render(mode="rgb_array")
             display_arr(
                 game.screen, rendered, transpose=transpose, video_size=game.video_size
