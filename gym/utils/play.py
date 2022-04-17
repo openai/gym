@@ -157,6 +157,8 @@ def play(
                 # ...
             }
         If None, default key_to_action mapping for that env is used, if provided.
+    seed: bool or None
+        Random seed used when resetting the environment. If None, no seed is used.
     """
     env.reset(seed=seed)
     game = PlayableGame(env, keys_to_action, zoom)
