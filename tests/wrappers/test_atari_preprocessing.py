@@ -13,7 +13,7 @@ def env_fn():
 
 
 def test_atari_preprocessing_grayscale(env_fn):
-    import cv2
+    import tinyscaler
 
     env1 = env_fn()
     env2 = AtariPreprocessing(
@@ -42,8 +42,10 @@ def test_atari_preprocessing_grayscale(env_fn):
     assert obs2.shape == (84, 84)
     assert obs3.shape == (84, 84, 3)
     assert obs4.shape == (84, 84, 1)
-    assert np.allclose(obs3, cv2.resize(obs1, (84, 84), interpolation=cv2.INTER_AREA))
-    obs3_gray = cv2.cvtColor(obs3, cv2.COLOR_RGB2GRAY)
+    assert np.allclose(obs3, tinyscaler.scale(obs1, (84, 84)))
+    obs3_gray = (
+        obs3[:, :, 0] * 0.2126 + obs3[:, :, 1] * 0.587 + obs3[:, :, 2] * 0.114
+    )  # Convert rgb to grayscale
     # the edges of the numbers do not render quite the same in the grayscale, so we ignore them
     assert np.allclose(obs2[10:38], obs3_gray[10:38])
     # the paddle also do not render quite the same

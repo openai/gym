@@ -27,9 +27,11 @@ class GrayScaleObservation(ObservationWrapper):
             )
 
     def observation(self, observation):
-        import cv2
-
-        observation = cv2.cvtColor(observation, cv2.COLOR_RGB2GRAY)
+        grayscale_obs = (
+            observation[..., 0] * 0.2126
+            + observation[..., 1] * 0.587
+            + observation[..., 2] * 0.114
+        )
         if self.keep_dim:
-            observation = np.expand_dims(observation, -1)
-        return observation
+            grayscale_obs = np.expand_dims(grayscale_obs, -1)
+        return grayscale_obs
