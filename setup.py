@@ -10,13 +10,13 @@ from version import VERSION
 
 # Environment-specific dependencies.
 extras = {
-    "atari": ["ale-py~=0.7.4", "tinyscaler>=1.0.0"],
+    "atari": ["ale-py~=0.7.4"],
     "accept-rom-license": ["autorom[accept-rom-license]~=0.4.2"],
     "box2d": ["box2d-py==2.3.5", "pygame==2.1.0"],
     "classic_control": ["pygame==2.1.0"],
     "mujoco": ["mujoco_py>=1.50, <2.0"],
     "toy_text": ["pygame==2.1.0", "scipy>=1.4.1"],
-    "other": ["lz4>=3.1.0", "opencv-python>=3.0"],
+    "other": ["lz4>=3.1.0", "tinyscaler>=1.0.0"],
 }
 
 # Meta dependency groups.

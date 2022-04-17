@@ -15,7 +15,7 @@ class ResizeObservation(ObservationWrapper):
     def __init__(self, env, shape):
         if tinyscaler is None:
             raise ImportError(
-                "Tinyscaler is not installed, run `pip install gym[atari]`"
+                "Tinyscaler is not installed, Try run `pip install gym[other]` to get dependencies"
             )
 
         super().__init__(env)

@@ -55,7 +55,7 @@ class AtariPreprocessing(gym.Wrapper):
         super().__init__(env)
         assert (
             tinyscaler is not None
-        ), "tinyscaler not installed! Try running pip install gym[atari] to get dependencies for atari"
+        ), "tinyscaler not installed. Try run `pip install gym[other]` to get dependencies"
         assert frame_skip > 0
         assert screen_size > 0
         assert noop_max >= 0
