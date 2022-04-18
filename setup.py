@@ -16,7 +16,7 @@ extras = {
     "classic_control": ["pygame==2.1.0"],
     "mujoco": ["mujoco_py>=1.50, <2.0"],
     "toy_text": ["pygame==2.1.0", "scipy>=1.4.1"],
-    "other": ["lz4>=3.1.0", "tinyscaler>=1.0.0"],
+    "other": ["lz4>=3.1.0", "tinyscaler>=1.0.4"],
 }
 
 # Meta dependency groups.
