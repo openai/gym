@@ -65,7 +65,7 @@ def test_autoreset_reset_info():
     assert isinstance(info, dict)
 
 
-@pytest.mark.parametrize("spec", spec_list)
+@pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
 def test_make_autoreset_true(spec):
     """
     Note: This test assumes that the outermost wrapper is AutoResetWrapper
@@ -92,7 +92,7 @@ def test_make_autoreset_true(spec):
     assert env.unwrapped.reset.called
 
 
-@pytest.mark.parametrize("spec", spec_list)
+@pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
 def test_make_autoreset_false(spec):
     env = None
     with pytest.warns(None) as warnings:
@@ -100,7 +100,7 @@ def test_make_autoreset_false(spec):
     assert not isinstance(env, AutoResetWrapper)
 
 
-@pytest.mark.parametrize("spec", spec_list)
+@pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
 def test_make_autoreset_default_false(spec):
     env = None
     with pytest.warns(None) as warnings:
