@@ -7,6 +7,7 @@ import numpy as np
 
 from gym import Env, spaces, utils
 from gym.envs.toy_text.utils import categorical_sample
+from gym.utils.renderer import Renderer
 
 LEFT = 0
 DOWN = 1
@@ -131,7 +132,6 @@ class FrozenLakeEnv(Env):
         self.desc = desc = np.asarray(desc, dtype="c")
         self.nrow, self.ncol = nrow, ncol = desc.shape
         self.reward_range = (0, 1)
-        self.render_mode = render_mode
 
         nA = 4
         nS = nrow * ncol
@@ -183,7 +183,8 @@ class FrozenLakeEnv(Env):
         self.observation_space = spaces.Discrete(nS)
         self.action_space = spaces.Discrete(nA)
 
-        self.render_list = []
+        assert render_mode in self.metadata["render_modes"]
+        self.renderer = Renderer(render_mode, self._render)
 
         # pygame utils
         self.window_size = (min(64 * ncol, 512), min(64 * nrow, 512))
@@ -203,9 +204,7 @@ class FrozenLakeEnv(Env):
         self.s = s
         self.lastaction = a
 
-        render = self._render(self.render_mode)
-        if self.render_mode in ["ansi", "rgb_array"]:
-            self.render_list.append(render)
+        self.renderer.render_step()
 
         return (int(s), r, d, {"prob": p})
 
@@ -220,19 +219,19 @@ class FrozenLakeEnv(Env):
         self.s = categorical_sample(self.initial_state_distrib, self.np_random)
         self.lastaction = None
 
-        self.render_list = []
-        render = self._render(self.render_mode)
-        if self.render_mode in ["ansi", "rgb_array"]:
-            self.render_list.append(render)
+        self.renderer.reset()
+        self.renderer.render_step()
 
         if not return_info:
             return int(self.s)
         else:
             return int(self.s), {"prob": 1}
 
-    def collect_render(self):
-        if self.render_mode in ["ansi", "rgb_array"]:
-            return self.render_list
+    def render(self, mode="human"):
+        if self.renderer.mode is not None:
+            return self.renderer.get_renders()
+        else:
+            return self._render(mode)
 
     def _render(self, mode="human"):
         if mode == "ansi":

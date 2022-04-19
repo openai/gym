@@ -22,7 +22,7 @@ class Env(Generic[ObsType, ActType]):
 
         step
         reset
-        collect_render
+        render
         close
         seed
 
@@ -120,29 +120,15 @@ class Env(Generic[ObsType, ActType]):
         if seed is not None:
             self._np_random, seed = seeding.np_random(seed)
 
-    def render(self, mode="human"):  # TODO: remove from v1.0
-        deprecation(
-            "Render is deprecated. Specify render_mode at initialization and use collect_render instead."
-            "This method will be removed with Gym 1.0"
-        )
-
-        return self._render(mode=mode)
-
     @abstractmethod
-    def _render(self, mode="human"):  # TODO: remove from v1.0
-        raise NotImplementedError
-
-    @abstractmethod
-    def collect_render(self) -> Optional[List]:
-        """Returns a list of renders for the environment until the current time step.
-        The i-th element of the list render the environment for the i-th time step using
-        the mode specified in the render_mode argument passed at environment construction.
+    def render(self, mode="human"):
+        """Compute the render(s) as specified by render_mode attribute during initialization of the environment.
 
         The set of supported modes varies per environment. (And some
         third-party environments may not support rendering at all.)
-        By convention, if mode is:
+        By convention, if render_mode is:
 
-        - human: collect_render return None.
+        - human: render return None.
           The environment is continuously rendered in the current display or terminal. Usually for human consumption.
         - rgb_array: Return a list of frames. Each frame is a numpy.ndarray with shape (x, y, 3),
           representing RGB values for an x-by-y pixel image.
@@ -235,9 +221,7 @@ class Wrapper(Env[ObsType, ActType]):
         self._metadata: dict | None = None
 
     def __getattr__(self, name):
-        if (
-            name.startswith("_") and name != "_render"
-        ):  # TODO: remove name != "_render" from v1.0
+        if name.startswith("_"):
             raise AttributeError(f"accessing private attribute '{name}' is prohibited")
         return getattr(self.env, name)
 
@@ -295,11 +279,8 @@ class Wrapper(Env[ObsType, ActType]):
     def reset(self, **kwargs) -> Union[ObsType, tuple[ObsType, dict]]:
         return self.env.reset(**kwargs)
 
-    def render(self, **kwargs):  # TODO: remove from v1.0
+    def render(self, **kwargs):
         return self.env.render(**kwargs)
-
-    def collect_render(self):
-        return self.env.collect_render()
 
     def close(self):
         return self.env.close()

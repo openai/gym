@@ -128,9 +128,7 @@ class ReacherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         reward = reward_dist + reward_ctrl
         self.do_simulation(a, self.frame_skip)
 
-        render = self._render(self.render_mode)
-        if self.render_mode in ["rgb_array", "depth_array"]:
-            self.render_list.append(render)
+        self.renderer.render_step()
 
         ob = self._get_obs()
         done = False

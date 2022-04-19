@@ -7,6 +7,7 @@ import pkgutil
 import subprocess
 import tempfile
 from io import StringIO
+from typing import List
 
 import numpy as np
 
@@ -35,17 +36,31 @@ class VideoRecorder:
     """
 
     def __init__(self, env, path=None, metadata=None, enabled=True, base_path=None):
+        modes = env.metadata.get("render_modes", [])
+
+        # backward-compatibility mode:
+        backward_compatible_mode = env.metadata.get("render.modes", [])
+        if len(modes) == 0 and len(backward_compatible_mode) > 0:
+            logger.deprecation(
+                '`env.metadata["render.modes"] is marked as deprecated and will be replaced with `env.metadata["render_modes"]` '
+                "see https://github.com/openai/gym/pull/2654 for more details"
+            )
+            modes = backward_compatible_mode
+
         self._async = env.metadata.get("semantics.async")
         self.enabled = enabled
         self._closed = False
 
-        if env.render_mode not in ["rgb_array", "ansi"]:
-            logger.info(
-                f"Disabling video recorder because {env} rendering mode is {env.render_mode}. "
-                f'Set render_mode as "rgb_array" or "ansi" to enable video recording.'
-            )
-            # Whoops, turns out we shouldn't be enabled after all
-            self.enabled = False
+        self.ansi_mode = False
+        if "rgb_array" not in modes:
+            if "ansi" in modes:
+                self.ansi_mode = True
+            else:
+                logger.info(
+                    f'Disabling video recorder because {env} neither supports video mode "rgb_array" nor "ansi".'
+                )
+                # Whoops, turns out we shouldn't be enabled after all
+                self.enabled = False
 
         # Don't bother setting anything else if not enabled
         if not self.enabled:
@@ -56,7 +71,6 @@ class VideoRecorder:
 
         self.last_frame = None
         self.env = env
-        self.ansi_mode = env.render_mode == "ansi"
 
         required_ext = ".json" if self.ansi_mode else ".mp4"
         if path is None:
@@ -139,26 +153,29 @@ class VideoRecorder:
             return
         logger.debug("Capturing video frame: path=%s", self.path)
 
-        frames = self.env.collect_render()
+        render_mode = "ansi" if self.ansi_mode else "rgb_array"
+        frame = self.env.render(mode=render_mode)
+        if isinstance(frame, List):
+            frame = frame[-1]
 
-        if frames is None:
+        if frame is None:
             if self._async:
                 return
             else:
                 # Indicates a bug in the environment: don't want to raise
                 # an error here.
                 logger.warn(
-                    "Env returned None on collect_render(). Disabling further rendering for video recorder by marking as disabled: path=%s metadata_path=%s",
+                    "Env returned None on render(). Disabling further rendering for video recorder by marking as disabled: path=%s metadata_path=%s",
                     self.path,
                     self.metadata_path,
                 )
                 self.broken = True
         else:
-            self.last_frame = frames[-1]
+            self.last_frame = frame
             if self.ansi_mode:
-                self._encode_ansi_frame(frames[-1])
+                self._encode_ansi_frame(frame)
             else:
-                self._encode_image_frame(frames[-1])
+                self._encode_image_frame(frame)
 
     def close(self):
         """Flush all data to disk and close any open frame encoders."""

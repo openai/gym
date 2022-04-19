@@ -1,6 +1,7 @@
 import collections
 import copy
 from collections.abc import MutableMapping
+from typing import List
 
 import numpy as np
 
@@ -78,7 +79,8 @@ class PixelObservationWrapper(ObservationWrapper):
 
         pixels_spaces = {}
         for pixel_key in pixel_keys:
-            pixels = self.env.collect_render(**render_kwargs[pixel_key])[-1]
+            pixels = self.env.render(**render_kwargs[pixel_key])
+            pixels = pixels[-1] if isinstance(pixels, List) else pixels
 
             if np.issubdtype(pixels.dtype, np.integer):
                 low, high = (0, 255)
@@ -113,7 +115,7 @@ class PixelObservationWrapper(ObservationWrapper):
             observation[STATE_KEY] = wrapped_observation
 
         pixel_observations = {
-            pixel_key: self.env.collect_render(**self._render_kwargs[pixel_key])[-1]
+            pixel_key: self.env.render(**self._render_kwargs[pixel_key])
             for pixel_key in self._pixel_keys
         }
 

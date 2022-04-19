@@ -281,9 +281,7 @@ def _check_render(
             render_modes.remove("human")
         # Check all declared render modes
         for render_mode in render_modes:
-            new_env = env.__class__(render_mode=render_mode)
-            new_env.collect_render()
-            new_env.close()
+            env.render(mode=render_mode)
         env.close()
 
 

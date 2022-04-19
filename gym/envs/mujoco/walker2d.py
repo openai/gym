@@ -14,9 +14,7 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         self.do_simulation(a, self.frame_skip)
         posafter, height, ang = self.sim.data.qpos[0:3]
 
-        render = self._render(self.render_mode)
-        if self.render_mode in ["rgb_array", "depth_array"]:
-            self.render_list.append(render)
+        self.renderer.render_step()
 
         alive_bonus = 1.0
         reward = (posafter - posbefore) / self.dt

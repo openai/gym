@@ -102,7 +102,7 @@ def test_call_sync_vector_env():
     try:
         env = SyncVectorEnv(env_fns)
         _ = env.reset()
-        images = env.call("collect_render")
+        images = env.call("render")
         gravity = env.call("gravity")
     finally:
         env.close()

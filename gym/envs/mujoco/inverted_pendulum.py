@@ -89,9 +89,7 @@ class InvertedPendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         reward = 1.0
         self.do_simulation(a, self.frame_skip)
 
-        render = self._render(self.render_mode)
-        if self.render_mode in ["rgb_array", "depth_array"]:
-            self.render_list.append(render)
+        self.renderer.render_step()
 
         ob = self._get_obs()
         notdone = np.isfinite(ob).all() and (np.abs(ob[1]) <= 0.2)

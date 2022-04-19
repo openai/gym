@@ -220,9 +220,7 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         x_position_after = self.sim.data.qpos[0]
         x_velocity = (x_position_after - x_position_before) / self.dt
 
-        render = self._render(self.render_mode)
-        if self.render_mode in ["rgb_array", "depth_array"]:
-            self.render_list.append(render)
+        self.renderer.render_step()
 
         ctrl_cost = self.control_cost(action)
         forward_reward = self._forward_reward_weight * x_velocity

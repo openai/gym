@@ -117,9 +117,7 @@ class InvertedDoublePendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     def step(self, action):
         self.do_simulation(action, self.frame_skip)
 
-        render = self._render(self.render_mode)
-        if self.render_mode in ["rgb_array", "depth_array"]:
-            self.render_list.append(render)
+        self.renderer.render_step()
 
         ob = self._get_obs()
         x, _, y = self.sim.data.site_xpos[0]

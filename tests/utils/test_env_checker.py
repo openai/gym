@@ -25,7 +25,7 @@ class ActionDictTestEnv(gym.Env):
         super().reset(seed=seed)
         return np.array([1.0, 1.5, 0.5])
 
-    def collect_render(self):
+    def render(self, mode="human"):
         pass
 
 

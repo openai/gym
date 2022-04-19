@@ -5,6 +5,7 @@ import numpy as np
 
 import gym
 from gym import spaces
+from gym.utils.renderer import Renderer
 
 
 def cmp(a, b):
@@ -118,14 +119,8 @@ class BlackjackEnv(gym.Env):
         # Flag for full agreement with the (Sutton and Barto, 2018) definition. Overrides self.natural
         self.sab = sab
 
-        self.render_mode = render_mode
-        self._init_render_list()
-
-    def _init_render_list(self):
-        if self.render_mode == "rgb_array":
-            self.render_list = []
-        else:
-            self.render_list = None
+        assert render_mode in self.metadata["render_modes"]
+        self.renderer = Renderer(render_mode, self._render)
 
     def step(self, action):
         assert self.action_space.contains(action)
@@ -154,9 +149,7 @@ class BlackjackEnv(gym.Env):
                 # Natural gives extra points, but doesn't autowin. Legacy implementation
                 reward = 1.5
 
-        render = self._render(self.render_mode)
-        if self.render_mode == "rgb_array":
-            self.render_list.append(render)
+        self.renderer.render_step()
         return self._get_obs(), reward, done, {}
 
     def _get_obs(self):
@@ -172,18 +165,19 @@ class BlackjackEnv(gym.Env):
         self.dealer = draw_hand(self.np_random)
         self.player = draw_hand(self.np_random)
 
-        self._init_render_list()
-        render = self._render(self.render_mode)
-        if self.render_mode == "rgb_array":
-            self.render_list.append(render)
+        self.renderer.reset()
+        self.renderer.render_step()
 
         if not return_info:
             return self._get_obs()
         else:
             return self._get_obs(), {}
 
-    def collect_render(self):
-        return self.render_list
+    def render(self, mode="human"):
+        if self.renderer.mode is not None:
+            return self.renderer.get_renders()
+        else:
+            return self._render(mode)
 
     def _render(self, mode):
         if mode is not None:

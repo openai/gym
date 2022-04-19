@@ -16,7 +16,7 @@ class FakeEnvironment(gym.Env):
         self.action_space = Box(shape=(1,), low=-1, high=1, dtype=np.float32)
         self.render_mode = render_mode
 
-    def collect_render(self):
+    def render(self, mode="human"):
         image_shape = (32, 32, 3)
         return np.zeros(image_shape, dtype=np.uint8)
 

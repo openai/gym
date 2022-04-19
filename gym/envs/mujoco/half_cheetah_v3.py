@@ -166,9 +166,7 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
         forward_reward = self._forward_reward_weight * x_velocity
 
-        render = self._render(self.render_mode)
-        if self.render_mode in ["rgb_array", "depth_array"]:
-            self.render_list.append(render)
+        self.renderer.render_step()
 
         observation = self._get_obs()
         reward = forward_reward - ctrl_cost

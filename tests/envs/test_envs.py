@@ -50,20 +50,14 @@ def test_env(spec):
             observation.dtype == ob_space.dtype
         ), f"Step observation dtype: {ob.dtype}, expected: {ob_space.dtype}"
 
-    env.close()
-
     for mode in env.metadata.get("render_modes", []):
-        env = spec.make(render_mode=mode)
-        env.reset()
-        env.collect_render()
-        env.close()
+        env.render(mode=mode)
 
     # Make sure we can render the environment after close.
     for mode in env.metadata.get("render_modes", []):
-        env = spec.make(render_mode=mode)
-        env.reset()
-        env.close()
-        env.collect_render()
+        env.render(mode=mode)
+
+    env.close()
 
 
 @pytest.mark.parametrize("spec", spec_list)
@@ -106,7 +100,7 @@ def test_env_render_result_is_immutable():
 
     for env in environs:
         env.reset()
-        output = env.collect_render()
+        output = env.render()
         assert isinstance(output, List)
         assert isinstance(output[0], str)
         env.close()

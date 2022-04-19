@@ -7,6 +7,7 @@ import numpy as np
 
 from gym import Env, spaces, utils
 from gym.envs.toy_text.utils import categorical_sample
+from gym.utils.renderer import Renderer
 
 MAP = [
     "+---------+",
@@ -104,9 +105,6 @@ class TaxiEnv(Env):
 
     def __init__(self, render_mode=None):
         self.desc = np.asarray(MAP, dtype="c")
-        assert render_mode in self.metadata["render_modes"]
-        self.render_mode = render_mode
-        self.render_list = []
 
         self.locs = locs = [(0, 0), (0, 4), (4, 0), (4, 3)]
         self.locs_colors = [(255, 0, 0), (0, 255, 0), (255, 255, 0), (0, 0, 255)]
@@ -168,6 +166,9 @@ class TaxiEnv(Env):
         self.action_space = spaces.Discrete(num_actions)
         self.observation_space = spaces.Discrete(num_states)
 
+        assert render_mode in self.metadata["render_modes"]
+        self.renderer = Renderer(render_mode, self._render)
+
         # pygame utils
         self.window = None
         self.clock = None
@@ -212,9 +213,7 @@ class TaxiEnv(Env):
         p, s, r, d = transitions[i]
         self.s = s
         self.lastaction = a
-        render = self._render(self.render_mode)
-        if self.render_mode in ["ansi", "rgb_array"]:
-            self.render_list.append(render)
+        self.renderer.render_step()
         return (int(s), r, d, {"prob": p})
 
     def reset(
@@ -228,18 +227,18 @@ class TaxiEnv(Env):
         self.s = categorical_sample(self.initial_state_distrib, self.np_random)
         self.lastaction = None
         self.taxi_orientation = 0
-        self.render_list = []
-        render = self._render(self.render_mode)
-        if self.render_mode in ["ansi", "rgb_array"]:
-            self.render_list.append(render)
+        self.renderer.reset()
+        self.renderer.render_step()
         if not return_info:
             return int(self.s)
         else:
             return int(self.s), {"prob": 1}
 
-    def collect_render(self):
-        if self.render_mode in ["ansi", "rgb_array"]:
-            return self.render_list
+    def render(self, mode="human"):
+        if self.renderer.mode is not None:
+            return self.renderer.get_renders()
+        else:
+            return self._render(mode)
 
     def _render(self, mode):
         if mode == "ansi":
@@ -254,7 +253,7 @@ class TaxiEnv(Env):
             pygame.init()
             pygame.display.set_caption("Taxi")
             self.window = pygame.display.set_mode(WINDOW_SIZE)
-            if self.render_mode == "rgb_array":
+            if mode == "rgb_array":
                 self.window = pygame.Surface(WINDOW_SIZE)
         if self.clock is None:
             self.clock = pygame.time.Clock()

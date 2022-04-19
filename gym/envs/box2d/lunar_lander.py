@@ -17,6 +17,7 @@ from Box2D.b2 import (
 import gym
 from gym import error, spaces
 from gym.utils import EzPickle, seeding
+from gym.utils.renderer import Renderer
 
 FPS = 50
 SCALE = 30.0  # affects how fast-paced the game is, forces should be adjusted as well
@@ -149,7 +150,6 @@ class LunarLander(gym.Env, EzPickle):
         self.moon = None
         self.lander = None
         self.particles = []
-        self.render_mode = render_mode
 
         self.prev_reward = None
 
@@ -169,7 +169,8 @@ class LunarLander(gym.Env, EzPickle):
             # Nop, fire left engine, main engine, right engine
             self.action_space = spaces.Discrete(4)
 
-        self.render_list = []
+        assert render_mode in self.metadata["render_modes"]
+        self.renderer = Renderer(render_mode, self._render)
 
     def _destroy(self):
         if not self.moon:
@@ -294,10 +295,7 @@ class LunarLander(gym.Env, EzPickle):
 
         self.drawlist = [self.lander] + self.legs
 
-        self.render_list = []
-        render = self._render(self.render_mode)
-        if self.render_mode == "rgb_array":
-            self.render_list.append(render)
+        self.renderer.reset()
         if not return_info:
             return self.step(np.array([0, 0]) if self.continuous else 0)[0]
         else:
@@ -446,16 +444,14 @@ class LunarLander(gym.Env, EzPickle):
             done = True
             reward = +100
 
-        render = self._render(self.render_mode)
-        if self.render_mode == "rgb_array":
-            self.render_list.append(render)
+        self.renderer.render_step()
         return np.array(state, dtype=np.float32), reward, done, {}
 
-    def collect_render(self):
-        if self.render_mode == "human":
-            return self.isopen
-        elif self.render_mode == "rgb_array":
-            return self.render_list
+    def render(self, mode="human"):
+        if self.renderer.mode is not None:
+            return self.renderer.get_renders()
+        else:
+            return self._render(mode)
 
     def _render(self, mode="human"):
         if mode is not None:
@@ -631,7 +627,7 @@ def demo_heuristic_lander(env, seed=None, render=False):
         total_reward += r
 
         if render:
-            still_open = env.collect_render()
+            still_open = env.render()
             if still_open == False:
                 break
 

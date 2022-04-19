@@ -109,7 +109,7 @@ def test_call_async_vector_env(shared_memory):
     try:
         env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
         _ = env.reset()
-        images = env.call("collect_render")
+        images = env.call("render")
         gravity = env.call("gravity")
     finally:
         env.close()

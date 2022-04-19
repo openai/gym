@@ -314,9 +314,7 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         rewards = forward_reward + healthy_reward
         costs = ctrl_cost + contact_cost
 
-        render = self._render(self.render_mode)
-        if self.render_mode in ["rgb_array", "depth_array"]:
-            self.render_list.append(render)
+        self.renderer.render_step()
 
         observation = self._get_obs()
         reward = rewards - costs

@@ -21,6 +21,7 @@ import numpy as np
 import gym
 from gym import spaces
 from gym.utils import seeding
+from gym.utils.renderer import Renderer
 
 
 class Continuous_MountainCarEnv(gym.Env):
@@ -115,14 +116,13 @@ class Continuous_MountainCarEnv(gym.Env):
         )
 
         assert render_mode in self.metadata["render_modes"]
-        self.render_mode = render_mode
+        self.renderer = Renderer(render_mode, self._render)
 
         self.screen_width = 600
         self.screen_height = 400
         self.screen = None
         self.clock = None
         self.isopen = True
-        self.render_list = []
 
         self.action_space = spaces.Box(
             low=self.min_action, high=self.max_action, shape=(1,), dtype=np.float32
@@ -160,9 +160,7 @@ class Continuous_MountainCarEnv(gym.Env):
 
         self.state = np.array([position, velocity], dtype=np.float32)
 
-        render = self._render(self.render_mode)
-        if self.render_mode == "rgb_array":
-            self.render_list.append(render)
+        self.renderer.render_step()
         return self.state, reward, done, {}
 
     def reset(
@@ -174,10 +172,8 @@ class Continuous_MountainCarEnv(gym.Env):
     ):
         super().reset(seed=seed)
         self.state = np.array([self.np_random.uniform(low=-0.6, high=-0.4), 0])
-        self.render_list = []
-        render = self._render(self.render_mode)
-        if self.render_mode == "rgb_array":
-            self.render_list.append(render)
+        self.renderer.reset()
+        self.renderer.render_step()
         if not return_info:
             return np.array(self.state, dtype=np.float32)
         else:
@@ -186,11 +182,11 @@ class Continuous_MountainCarEnv(gym.Env):
     def _height(self, xs):
         return np.sin(3 * xs) * 0.45 + 0.55
 
-    def collect_render(self):
-        if self.render_mode == "rgb_array":
-            return self.render_list
-        elif self.render_mode == "human":
-            return self.isopen
+    def render(self, mode="human"):
+        if self.renderer.mode is not None:
+            return self.renderer.get_renders()
+        else:
+            return self._render(mode)
 
     def _render(self, mode="human"):
         if mode is not None:

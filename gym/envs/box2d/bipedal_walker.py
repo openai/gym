@@ -18,6 +18,7 @@ from Box2D.b2 import (
 import gym
 from gym import error, spaces
 from gym.utils import EzPickle, colorize, seeding
+from gym.utils.renderer import Renderer
 
 FPS = 50
 SCALE = 30.0  # affects how fast-paced the game is, forces should be adjusted as well
@@ -158,8 +159,6 @@ class BipedalWalker(gym.Env, EzPickle):
 
     def __init__(self, render_mode=None, hardcore: bool = False):
         EzPickle.__init__(self)
-        self.screen = None
-        self.clock = None
         self.isopen = True
 
         self.world = Box2D.b2World()
@@ -189,8 +188,9 @@ class BipedalWalker(gym.Env, EzPickle):
         self.observation_space = spaces.Box(-high, high)
 
         assert render_mode in self.metadata["render_modes"]
-        self.render_mode = render_mode
-        self.render_list = []
+        self.renderer = Renderer(render_mode, self._render)
+        self.screen = None
+        self.clock = None
 
     def _destroy(self):
         if not self.terrain:
@@ -443,10 +443,7 @@ class BipedalWalker(gym.Env, EzPickle):
                 return fraction
 
         self.lidar = [LidarCallback() for _ in range(10)]
-        self.render_list = []
-        render = self._render(self.render_mode)
-        if self.render_mode == "rgb_array":
-            self.render_list.append(render)
+        self.renderer.reset()
         if not return_info:
             return self.step(np.array([0, 0, 0, 0]))[0]
         else:
@@ -538,16 +535,14 @@ class BipedalWalker(gym.Env, EzPickle):
         if pos[0] > (TERRAIN_LENGTH - TERRAIN_GRASS) * TERRAIN_STEP:
             done = True
 
-        render = self._render(self.render_mode)
-        if self.render_mode == "rgb_array":
-            self.render_list.append(render)
+        self.renderer.render_step()
         return np.array(state, dtype=np.float32), reward, done, {}
 
-    def collect_render(self):
-        if self.render_mode == "human":
-            return self.isopen
-        elif self.render_mode == "rgb_array":
-            return self.render_list
+    def render(self, mode="human"):
+        if self.renderer.mode is not None:
+            return self.renderer.get_renders()
+        else:
+            return self._render(mode)
 
     def _render(self, mode="human"):
         if mode is not None:

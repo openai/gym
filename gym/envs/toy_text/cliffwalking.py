@@ -7,6 +7,7 @@ import numpy as np
 
 from gym import Env, spaces
 from gym.envs.toy_text.utils import categorical_sample
+from gym.utils.renderer import Renderer
 
 UP = 0
 RIGHT = 1
@@ -89,8 +90,8 @@ class CliffWalkingEnv(Env):
         self.observation_space = spaces.Discrete(self.nS)
         self.action_space = spaces.Discrete(self.nA)
 
-        self.render_mode = render_mode
-        self.render_list = []
+        assert render_mode in self.metadata["render_modes"]
+        self.renderer = Renderer(render_mode, self._render)
 
     def _limit_coordinates(self, coord):
         """
@@ -127,10 +128,7 @@ class CliffWalkingEnv(Env):
         p, s, r, d = transitions[i]
         self.s = s
         self.lastaction = a
-
-        render = self._render(self.render_mode)
-        if self.render_mode == "ansi":
-            self.render_list.append(render)
+        self.renderer.render_step()
         return (int(s), r, d, {"prob": p})
 
     def reset(
@@ -143,20 +141,18 @@ class CliffWalkingEnv(Env):
         super().reset(seed=seed)
         self.s = categorical_sample(self.initial_state_distrib, self.np_random)
         self.lastaction = None
-
-        self.render_list = []
-        render = self._render(self.render_mode)
-        if self.render_mode == "ansi":
-            self.render_list.append(render)
-
+        self.renderer.reset()
+        self.renderer.render_step()
         if not return_info:
             return int(self.s)
         else:
             return int(self.s), {"prob": 1}
 
-    def collect_render(self):
-        if self.render_mode == "ansi":
-            return self.render_list
+    def render(self, mode="human"):
+        if self.renderer.mode is not None:
+            return self.renderer.get_renders()
+        else:
+            return self._render(mode)
 
     def _render(self, mode):
         if mode is not None:

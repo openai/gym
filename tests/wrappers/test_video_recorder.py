@@ -14,7 +14,7 @@ class BrokenRecordableEnv:
     def __init__(self, render_mode="rgb_array"):
         self.render_mode = render_mode
 
-    def collect_render(self):
+    def render(self, mode="human"):
         pass
 
 
@@ -24,7 +24,7 @@ class UnrecordableEnv:
     def __init__(self, render_mode=None):
         self.render_mode = render_mode
 
-    def collect_render(self):
+    def render(self, mode="human"):
         pass
 
 

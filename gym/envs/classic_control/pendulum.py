@@ -7,6 +7,7 @@ import numpy as np
 
 import gym
 from gym import spaces
+from gym.utils.renderer import Renderer
 
 
 class PendulumEnv(gym.Env):
@@ -87,13 +88,12 @@ class PendulumEnv(gym.Env):
         self.l = 1.0
 
         assert render_mode in self.metadata["render_modes"]
-        self.render_mode = render_mode
+        self.renderer = Renderer(render_mode, self._render)
 
         self.screen_dim = 500
         self.screen = None
         self.clock = None
         self.isopen = True
-        self.render_list = []
 
         high = np.array([1.0, 1.0, self.max_speed], dtype=np.float32)
         # This will throw a warning in tests/envs/test_envs in utils/env_checker.py as the space is not symmetric
@@ -121,9 +121,7 @@ class PendulumEnv(gym.Env):
         newth = th + newthdot * dt
 
         self.state = np.array([newth, newthdot])
-        render = self._render(self.render_mode)
-        if self.render_mode == "rgb_array":
-            self.render_list.append(render)
+        self.renderer.render_step()
         return self._get_obs(), -costs, False, {}
 
     def reset(
@@ -137,10 +135,9 @@ class PendulumEnv(gym.Env):
         high = np.array([np.pi, 1])
         self.state = self.np_random.uniform(low=-high, high=high)
         self.last_u = None
-        self.render_list = []
-        render = self._render(self.render_mode)
-        if self.render_mode == "rgb_array":
-            self.render_list.append(render)
+
+        self.renderer.reset()
+        self.renderer.render_step()
         if not return_info:
             return self._get_obs()
         else:
@@ -150,11 +147,11 @@ class PendulumEnv(gym.Env):
         theta, thetadot = self.state
         return np.array([np.cos(theta), np.sin(theta), thetadot], dtype=np.float32)
 
-    def collect_render(self):
-        if self.render_mode == "rgb_array":
-            return self.render_list
-        elif self.render_mode == "human":
-            return self.isopen
+    def render(self, mode="human"):
+        if self.renderer.mode is not None:
+            return self.renderer.get_renders()
+        else:
+            return self._render(mode)
 
     def _render(self, mode="human"):
         if mode is not None:

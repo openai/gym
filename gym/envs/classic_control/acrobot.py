@@ -19,6 +19,7 @@ __author__ = "Christoph Dann <cdann@cdann.de>"
 
 # SOURCE:
 # https://github.com/rlpy/rlpy/blob/master/rlpy/Domains/Acrobot.py
+from gym.utils.renderer import Renderer
 
 
 class AcrobotEnv(core.Env):
@@ -157,8 +158,7 @@ class AcrobotEnv(core.Env):
 
     def __init__(self, render_mode=None):
         assert render_mode in self.metadata["render_modes"]
-        self.render_mode = render_mode
-        self.render_list = []
+        self.renderer = Renderer(render_mode, self._render)
         self.screen = None
         self.clock = None
         self.isopen = True
@@ -182,10 +182,8 @@ class AcrobotEnv(core.Env):
             np.float32
         )
 
-        self.render_list = []
-        render = self._render(self.render_mode)
-        if self.render_mode == "rgb_array":
-            self.render_list.append(render)
+        self.renderer.reset()
+        self.renderer.render_step()
         if not return_info:
             return self._get_ob()
         else:
@@ -216,9 +214,7 @@ class AcrobotEnv(core.Env):
         terminal = self._terminal()
         reward = -1.0 if not terminal else 0.0
 
-        render = self._render(self.render_mode)
-        if self.render_mode == "rgb_array":
-            self.render_list.append(render)
+        self.renderer.render_step()
         return self._get_ob(), reward, terminal, {}
 
     def _get_ob(self):
@@ -275,11 +271,11 @@ class AcrobotEnv(core.Env):
         ddtheta1 = -(d2 * ddtheta2 + phi1) / d1
         return dtheta1, dtheta2, ddtheta1, ddtheta2, 0.0
 
-    def collect_render(self):
-        if self.render_mode == "human":
-            return self.isopen
-        elif self.render_mode == "rgb_array":
-            return self.render_list
+    def render(self, mode="human"):
+        if self.renderer.mode is not None:
+            return self.renderer.get_renders()
+        else:
+            return self._render(mode)
 
     def _render(self, mode="human"):
         if mode is not None:

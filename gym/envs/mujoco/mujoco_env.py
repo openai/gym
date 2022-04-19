@@ -8,6 +8,7 @@ import numpy as np
 import gym
 from gym import error, spaces
 from gym.utils import seeding
+from gym.utils.renderer import Renderer
 
 try:
     import mujoco_py
@@ -100,7 +101,7 @@ class MujocoEnv(gym.Env):
             ):
                 self.camera_id = self.model.camera_name2id(self.camera_name)
 
-        self.render_list = []
+        self.renderer = Renderer(self.render_mode, self._render)
 
         action = self.action_space.sample()
         observation, _reward, done, _info = self.step(action)
@@ -148,10 +149,8 @@ class MujocoEnv(gym.Env):
         super().reset(seed=seed)
         self.sim.reset()
         ob = self.reset_model()
-        self.render_list = []
-        render = self._render(self.render_mode)
-        if self.render_mode in ["rgb_array", "depth_array"]:
-            self.render_list.append(render)
+        self.renderer.reset()
+        self.renderer.render_step()
         if not return_info:
             return ob
         else:
@@ -178,34 +177,36 @@ class MujocoEnv(gym.Env):
         for _ in range(n_frames):
             self.sim.step()
 
-    def collect_render(self):
-        if self.render_mode in ["rgb_array", "depth_array"]:
-            return self.render_list
+    def render(self, mode="human"):
+        if self.renderer.mode is not None:
+            return self.renderer.get_renders()
+        else:
+            return self._render(mode)
 
     def _render(self, mode):
         if mode == "rgb_array":
-            self._get_viewer(self.render_mode).render(
+            self._get_viewer(mode).render(
                 self.width, self.height, camera_id=self.camera_id
             )
             # window size used for old mujoco-py:
-            data = self._get_viewer(self.render_mode).read_pixels(
+            data = self._get_viewer(mode).read_pixels(
                 self.width, self.height, depth=False
             )
             # original image is upside-down, so flip it
             return data[::-1, :, :]
         elif mode == "depth_array":
-            self._get_viewer(self.render_mode).render(
+            self._get_viewer(mode).render(
                 self.width, self.height, camera_id=self.camera_id
             )
             # window size used for old mujoco-py:
             # Extract depth part of the read_pixels() tuple
-            data = self._get_viewer(self.render_mode).read_pixels(
+            data = self._get_viewer(mode).read_pixels(
                 self.width, self.height, depth=True
             )[1]
             # original image is upside-down, so flip it
             return data[::-1, :]
         elif mode == "human":
-            self._get_viewer(self.render_mode).render()
+            self._get_viewer(mode).render()
 
     def close(self):
         if self.viewer is not None:

@@ -11,6 +11,7 @@ import gym
 from gym import spaces
 from gym.envs.box2d.car_dynamics import Car
 from gym.utils import EzPickle, seeding
+from gym.utils.renderer import Renderer
 
 STATE_W = 96  # less than Atari 160x192
 STATE_H = 96
@@ -176,8 +177,7 @@ class CarRacing(gym.Env, EzPickle):
         )
 
         assert render_mode in self.metadata["render_modes"]
-        self.render_mode = render_mode
-        self.render_list = []
+        self.renderer = Renderer(render_mode, self._render)
 
     def _destroy(self):
         if not self.road:
@@ -401,10 +401,7 @@ class CarRacing(gym.Env, EzPickle):
                 )
         self.car = Car(self.world, *self.track[0][1:4])
 
-        self.render_list = []
-        render = self._render(self.render_mode)
-        if self.render_mode in ["rgb_array", "state_pixels"]:
-            self.render_list.append(render)
+        self.renderer.reset()
         if not return_info:
             return self.step(None)[0]
         else:
@@ -436,20 +433,18 @@ class CarRacing(gym.Env, EzPickle):
                 done = True
                 step_reward = -100
 
-        render = self._render(self.render_mode)
-        if self.render_mode in ["rgb_array", "state_pixels"]:
-            self.render_list.append(render)
+        self.renderer.render_step()
 
         if self.surf is None:
             self._build_surf()
         self.state = self._create_image_array(self.surf, (STATE_W, STATE_H))
         return self.state, step_reward, done, {}
 
-    def collect_render(self):
-        if self.render_mode == "human":
-            return self.isopen
-        elif self.render_mode in ["rgb_array", "state_pixels"]:
-            return self.render_list
+    def render(self, mode="human"):
+        if self.renderer.mode is not None:
+            return self.renderer.get_renders()
+        else:
+            return self._render(mode)
 
     def _render(self, mode="human"):
         if mode is not None:
@@ -467,7 +462,7 @@ class CarRacing(gym.Env, EzPickle):
             if "t" not in self.__dict__:
                 return  # reset() not called yet
 
-            self._build_surf()
+            self._build_surf(mode=mode)
 
             if mode == "human":
                 pygame.event.pump()
@@ -481,7 +476,7 @@ class CarRacing(gym.Env, EzPickle):
             else:  # mode == "state_pixels"
                 return self._create_image_array(self.surf, (STATE_W, STATE_H))
 
-    def _build_surf(self):
+    def _build_surf(self, mode="state_pixels"):
         import pygame
 
         pygame.init()
@@ -499,7 +494,7 @@ class CarRacing(gym.Env, EzPickle):
         trans = (WINDOW_W / 2 + trans[0], WINDOW_H / 4 + trans[1])
 
         self.render_road(zoom, trans, angle)
-        self.car.draw(self.surf, zoom, trans, angle, self.render_mode != "state_pixels")
+        self.car.draw(self.surf, zoom, trans, angle, mode != "state_pixels")
 
         self.surf = pygame.transform.flip(self.surf, False, True)
 
@@ -675,8 +670,9 @@ if __name__ == "__main__":
                     a[2] = 0
 
     env = CarRacing()
-    isopen = env.collect_render()
+    env.render()
 
+    isopen = True
     while isopen:
         env.reset()
         total_reward = 0.0
@@ -690,7 +686,7 @@ if __name__ == "__main__":
                 print("\naction " + str([f"{x:+0.2f}" for x in a]))
                 print(f"step {steps} total_reward {total_reward:+0.2f}")
             steps += 1
-            isopen = env.collect_render()
+            isopen = env.render()
             if done or restart or isopen == False:
                 break
     env.close()

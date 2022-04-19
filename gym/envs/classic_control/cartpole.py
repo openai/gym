@@ -11,6 +11,7 @@ import numpy as np
 import gym
 from gym import logger, spaces
 from gym.utils import seeding
+from gym.utils.renderer import Renderer
 
 
 class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
@@ -105,7 +106,7 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         self.observation_space = spaces.Box(-high, high, dtype=np.float32)
 
         assert render_mode in self.metadata["render_modes"]
-        self.render_mode = render_mode
+        self.renderer = Renderer(render_mode, self._render)
 
         self.screen_width = 600
         self.screen_height = 400
@@ -113,7 +114,6 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         self.clock = None
         self.isopen = True
         self.state = None
-        self.render_list = []
 
         self.steps_beyond_done = None
 
@@ -173,9 +173,7 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
             self.steps_beyond_done += 1
             reward = 0.0
 
-        render = self._render(self.render_mode)
-        if self.render_mode == "rgb_array":
-            self.render_list.append(render)
+        self.renderer.render_step()
         return np.array(self.state, dtype=np.float32), reward, done, {}
 
     def reset(
@@ -188,20 +186,18 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         super().reset(seed=seed)
         self.state = self.np_random.uniform(low=-0.05, high=0.05, size=(4,))
         self.steps_beyond_done = None
-        self.render_list = []
-        render = self._render(self.render_mode)
-        if self.render_mode == "rgb_array":
-            self.render_list.append(render)
+        self.renderer.reset()
+        self.renderer.render_step()
         if not return_info:
             return np.array(self.state, dtype=np.float32)
         else:
             return np.array(self.state, dtype=np.float32), {}
 
-    def collect_render(self):
-        if self.render_mode == "rgb_array":
-            return self.render_list
-        elif self.render_mode == "human":
-            return self.isopen
+    def render(self, mode="human"):
+        if self.renderer.mode is not None:
+            return self.renderer.get_renders()
+        else:
+            return self._render(mode)
 
     def _render(self, mode="human"):
         if mode is not None:
