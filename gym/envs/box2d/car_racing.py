@@ -2,7 +2,7 @@ __credits__ = ["Andrea PIERRÉ"]
 
 import math
 import sys
-from typing import Optional
+from typing import Optional, Union
 
 import Box2D
 import numpy as np
@@ -152,8 +152,10 @@ class CarRacing(gym.Env, EzPickle):
         verbose: bool = True,
         lap_complete_percent: float = 0.95,
         domain_randomize: bool = False,
+        continuous: bool = True,
     ):
         EzPickle.__init__(self)
+        self.continuous = continuous
         self.domain_randomize = domain_randomize
         self._init_colors()
 
@@ -176,10 +178,14 @@ class CarRacing(gym.Env, EzPickle):
 
         # This will throw a warning in tests/envs/test_envs in utils/env_checker.py as the space is not symmetric
         #   or normalised however this is not possible here so ignore
-        self.action_space = spaces.Box(
-            np.array([-1, 0, 0]).astype(np.float32),
-            np.array([+1, +1, +1]).astype(np.float32),
-        )  # steer, gas, brake
+        if self.continuous:
+            self.action_space = spaces.Box(
+                np.array([-1, 0, 0]).astype(np.float32),
+                np.array([+1, +1, +1]).astype(np.float32),
+            )  # steer, gas, brake
+        else:
+            self.action_space = spaces.Discrete(5)
+            # do nothing, left accel, right, gas, brake
 
         self.observation_space = spaces.Box(
             low=0, high=255, shape=(STATE_H, STATE_W, 3), dtype=np.uint8
@@ -432,11 +438,16 @@ class CarRacing(gym.Env, EzPickle):
         else:
             return self.step(None)[0], {}
 
-    def step(self, action: np.ndarray):
+    def step(self, action: Union[np.ndarray, int]):
         if action is not None:
-            self.car.steer(-action[0])
-            self.car.gas(action[1])
-            self.car.brake(action[2])
+            if self.continuous:
+                self.car.steer(-action[0])
+                self.car.gas(action[1])
+                self.car.brake(action[2])
+            else:
+                self.car.steer(-1 * (action == 1) + 1 * (action == 2))
+                self.car.gas(0.3 * (action == 3))
+                self.car.brake(0.8 * (action == 4))
 
         self.car.step(1.0 / FPS)
         self.world.Step(1.0 / FPS, 6 * 30, 2 * 30)
