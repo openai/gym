@@ -45,8 +45,19 @@ def should_skip_env_spec_for_tests(spec):
     return False
 
 
+def skip_mujoco_py_env_for_test(spec):
+    ep = spec.entry_point
+    version = spec.version
+    if ep.startswith("gym.envs.mujoco") and version < 4:
+        return True
+    return False
+
+
 spec_list = [
     spec
     for spec in sorted(envs.registry.all(), key=lambda x: x.id)
     if spec.entry_point is not None and not should_skip_env_spec_for_tests(spec)
+]
+spec_list_no_mujoco_py = [
+    spec for spec in spec_list if not skip_mujoco_py_env_for_test(spec)
 ]

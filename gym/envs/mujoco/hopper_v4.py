@@ -1,5 +1,3 @@
-__credits__ = ["Rushiv Arora"]
-
 import numpy as np
 
 from gym import utils
