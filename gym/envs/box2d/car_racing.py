@@ -34,8 +34,6 @@ TRACK_WIDTH = 40 / SCALE
 BORDER = 8 / SCALE
 BORDER_MIN_COUNT = 4
 
-ROAD_COLOR = [0.4, 0.4, 0.4]
-
 
 class FrictionDetector(contactListener):
     def __init__(self, env, lap_complete_percent):
@@ -63,9 +61,8 @@ class FrictionDetector(contactListener):
         if not tile:
             return
 
-        tile.color[0] = ROAD_COLOR[0]
-        tile.color[1] = ROAD_COLOR[1]
-        tile.color[2] = ROAD_COLOR[2]
+        # inherit tile color from env
+        tile.color = self.env.road_color / 255
         if not obj or "tiles" not in obj.__dict__:
             return
         if begin:
@@ -128,10 +125,15 @@ class CarRacing(gym.Env, EzPickle):
     receive -100 reward and die.
 
     ### Arguments
-    There are no arguments supported in constructing the environment.
+    `lap_complete_percent` dictates the percentage of tiles that must be visited by
+    the agent before a lap is considered complete.
+
+    Passing `domain_randomize=True` enabled the domain randomized variant of the environment.
+    In this scenario, the background and track colours are different on every reset.
 
     ### Version History
-    - v0: Current version
+    - v1: Change track completion logic and add domain randomization (0.24.0)
+    - v0: Original version
 
     ### References
     - Chris Campbell (2014), http://www.iforce2d.net/b2dtut/top-down-car.
@@ -145,8 +147,17 @@ class CarRacing(gym.Env, EzPickle):
         "render_fps": FPS,
     }
 
-    def __init__(self, render_mode=None, verbose=1, lap_complete_percent=0.95):
+    def __init__(
+        self,
+        render_mode: Optional[str] = None,
+        verbose: bool = True,
+        lap_complete_percent: float = 0.95,
+        domain_randomize: bool = False,
+    ):
         EzPickle.__init__(self)
+        self.domain_randomize = domain_randomize
+        self._init_colors()
+
         self.contactListener_keepref = FrictionDetector(self, lap_complete_percent)
         self.world = Box2D.b2World((0, 0), contactListener=self.contactListener_keepref)
         self.screen = None
@@ -186,6 +197,22 @@ class CarRacing(gym.Env, EzPickle):
             self.world.DestroyBody(t)
         self.road = []
         self.car.destroy()
+
+    def _init_colors(self):
+        if self.domain_randomize:
+            # domain randomize the bg and grass colour
+            self.road_color = self.np_random.uniform(0, 210, size=3)
+
+            self.bg_color = self.np_random.uniform(0, 210, size=3)
+
+            self.grass_color = np.copy(self.bg_color)
+            idx = self.np_random.integers(3)
+            self.grass_color[idx] += 20
+        else:
+            # default colours
+            self.road_color = np.array([102, 102, 102])
+            self.bg_color = np.array([102, 204, 102])
+            self.grass_color = np.array([102, 230, 102])
 
     def _create_track(self):
         CHECKPOINTS = 12
@@ -284,7 +311,7 @@ class CarRacing(gym.Env, EzPickle):
             elif pass_through_start and i1 == -1:
                 i1 = i
                 break
-        if self.verbose == 1:
+        if self.verbose:
             print("Track generation: %i..%i -> %i-tiles track" % (i1, i2, i2 - i1))
         assert i1 != -1
         assert i2 != -1
@@ -342,8 +369,8 @@ class CarRacing(gym.Env, EzPickle):
             self.fd_tile.shape.vertices = vertices
             t = self.world.CreateStaticBody(fixtures=self.fd_tile)
             t.userData = t
-            c = 0.01 * (i % 3)
-            t.color = [ROAD_COLOR[0] + c, ROAD_COLOR[1] + c, ROAD_COLOR[2] + c]
+            c = 0.01 * (i % 3) * 255
+            t.color = self.road_color + c
             t.road_visited = False
             t.road_friction = 1.0
             t.idx = i
@@ -369,7 +396,10 @@ class CarRacing(gym.Env, EzPickle):
                     y2 + side * (TRACK_WIDTH + BORDER) * math.sin(beta2),
                 )
                 self.road_poly.append(
-                    ([b1_l, b1_r, b2_r, b2_l], (1, 1, 1) if i % 2 == 0 else (1, 0, 0))
+                    (
+                        [b1_l, b1_r, b2_r, b2_l],
+                        (255, 255, 255) if i % 2 == 0 else (255, 0, 0),
+                    )
                 )
         self.track = track
         return True
@@ -389,12 +419,13 @@ class CarRacing(gym.Env, EzPickle):
         self.t = 0.0
         self.new_lap = False
         self.road_poly = []
+        self._init_colors()
 
         while True:
             success = self._create_track()
             if success:
                 break
-            if self.verbose == 1:
+            if self.verbose:
                 print(
                     "retry to generate track (normal if there are not many"
                     "instances of this message)"
@@ -407,7 +438,7 @@ class CarRacing(gym.Env, EzPickle):
         else:
             return self.step(None)[0], {}
 
-    def step(self, action):
+    def step(self, action: np.ndarray):
         if action is not None:
             self.car.steer(-action[0])
             self.car.gas(action[1])
@@ -440,13 +471,13 @@ class CarRacing(gym.Env, EzPickle):
         self.state = self._create_image_array(self.surf, (STATE_W, STATE_H))
         return self.state, step_reward, done, {}
 
-    def render(self, mode="human"):
+    def render(self, mode: str = "human"):
         if self.renderer.mode is not None:
             return self.renderer.get_renders()
         else:
             return self._render(mode)
 
-    def _render(self, mode="human"):
+    def _render(self, mode: str = "human"):
         if mode is not None:
             import pygame
 
@@ -471,10 +502,12 @@ class CarRacing(gym.Env, EzPickle):
                 self.screen.blit(self.surf, (0, 0))
                 pygame.display.flip()
 
-            elif mode == "rgb_array":
+            if mode == "rgb_array":
                 return self._create_image_array(self.surf, (VIDEO_W, VIDEO_H))
-            else:  # mode == "state_pixels"
+            elif mode == "state_pixels":
                 return self._create_image_array(self.surf, (STATE_W, STATE_H))
+            else:
+                return self.isopen
 
     def _build_surf(self, mode="state_pixels"):
         import pygame
@@ -493,13 +526,13 @@ class CarRacing(gym.Env, EzPickle):
         trans = pygame.math.Vector2((scroll_x, scroll_y)).rotate_rad(angle)
         trans = (WINDOW_W / 2 + trans[0], WINDOW_H / 4 + trans[1])
 
-        self.render_road(zoom, trans, angle)
+        self._render_road(zoom, trans, angle)
         self.car.draw(self.surf, zoom, trans, angle, mode != "state_pixels")
 
         self.surf = pygame.transform.flip(self.surf, False, True)
 
         # showing stats
-        self.render_indicators(WINDOW_W, WINDOW_H)
+        self._render_indicators(WINDOW_W, WINDOW_H)
 
         font = pygame.font.Font(pygame.font.get_default_font(), 42)
         text = font.render("%04i" % self.reward, True, (255, 255, 255), (0, 0, 0))
@@ -507,7 +540,7 @@ class CarRacing(gym.Env, EzPickle):
         text_rect.center = (60, WINDOW_H - WINDOW_H * 2.5 / 40.0)
         self.surf.blit(text, text_rect)
 
-    def render_road(self, zoom, translation, angle):
+    def _render_road(self, zoom, translation, angle):
         bounds = PLAYFIELD
         field = [
             (2 * bounds, 2 * bounds),
@@ -515,11 +548,13 @@ class CarRacing(gym.Env, EzPickle):
             (0, 0),
             (0, 2 * bounds),
         ]
-        trans_field = []
-        self.draw_colored_polygon(
-            self.surf, field, (102, 204, 102), zoom, translation, angle
+
+        # draw background
+        self._draw_colored_polygon(
+            self.surf, field, self.bg_color, zoom, translation, angle
         )
 
+        # draw grass patches
         k = bounds / (20.0)
         grass = []
         for x in range(0, 40, 2):
@@ -533,17 +568,18 @@ class CarRacing(gym.Env, EzPickle):
                     ]
                 )
         for poly in grass:
-            self.draw_colored_polygon(
-                self.surf, poly, (102, 230, 102), zoom, translation, angle
+            self._draw_colored_polygon(
+                self.surf, poly, self.grass_color, zoom, translation, angle
             )
 
+        # draw road
         for poly, color in self.road_poly:
             # converting to pixel coordinates
             poly = [(p[0] + PLAYFIELD, p[1] + PLAYFIELD) for p in poly]
-            color = [int(c * 255) for c in color]
-            self.draw_colored_polygon(self.surf, poly, color, zoom, translation, angle)
+            color = [int(c) for c in color]
+            self._draw_colored_polygon(self.surf, poly, color, zoom, translation, angle)
 
-    def render_indicators(self, W, H):
+    def _render_indicators(self, W, H):
         import pygame
 
         s = W / 40.0
@@ -612,7 +648,7 @@ class CarRacing(gym.Env, EzPickle):
             (255, 0, 0),
         )
 
-    def draw_colored_polygon(self, surface, poly, color, zoom, translation, angle):
+    def _draw_colored_polygon(self, surface, poly, color, zoom, translation, angle):
         import pygame
         from pygame import gfxdraw
 

@@ -15,7 +15,7 @@ from tests.envs.spec_list import spec_list
 @pytest.mark.filterwarnings(
     "ignore:.*We recommend you to use a symmetric and normalized Box action space.*"
 )
-@pytest.mark.parametrize("spec", spec_list)
+@pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
 def test_env(spec):
     # Capture warnings
     with pytest.warns(None) as warnings:
@@ -60,7 +60,7 @@ def test_env(spec):
     env.close()
 
 
-@pytest.mark.parametrize("spec", spec_list)
+@pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
 def test_reset_info(spec):
 
     with pytest.warns(None) as warnings:

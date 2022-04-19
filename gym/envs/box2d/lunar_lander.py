@@ -123,8 +123,33 @@ class LunarLander(gym.Env, EzPickle):
     `continuous=True` argument like below:
     ```python
     import gym
-    env = gym.make("LunarLander-v2", continuous=True)
+    env = gym.make(
+        "LunarLander-v2",
+        continuous: bool = False,
+        gravity: float = -10.0,
+        enable_wind: bool = False,
+        wind_power: float = 15.0,
+    )
     ```
+    If `continuous=True` is passed, continuous actions (corresponding to the throttle of the engines) will be used and the
+    action space will be `Box(-1, +1, (2,), dtype=np.float32)`.
+    The first coordinate of an action determines the throttle of the main engine, while the second
+    coordinate specifies the throttle of the lateral boosters.
+    Given an action `np.array([main, lateral])`, the main engine will be turned off completely if
+    `main < 0` and the throttle scales affinely from 50% to 100% for `0 <= main <= 1` (in particular, the
+    main engine doesn't work  with less than 50% power).
+    Similarly, if `-0.5 < lateral < 0.5`, the lateral boosters will not fire at all. If `lateral < -0.5`, the left
+    booster will fire, and if `lateral > 0.5`, the right booster will fire. Again, the throttle scales affinely
+    from 50% to 100% between -1 and -0.5 (and 0.5 and 1, respectively).
+
+    `gravity` dictates the gravitational constant, this is bounded to be within 0 and -12.
+
+    If `enable_wind=True` is passed, there will be wind effects applied to the lander.
+    The wind is generated using the function `tanh(sin(2 k (t+C)) + sin(pi k (t+C)))`.
+    `k` is set to 0.01.
+    `C` is sampled randomly between -9999 and 9999.
+
+    `wind_power` dictates the maximum magnitude of wind.
 
     ### Version History
     - v2: Count energy spent
@@ -141,12 +166,33 @@ class LunarLander(gym.Env, EzPickle):
 
     metadata = {"render_modes": [None, "human", "rgb_array"], "render_fps": FPS}
 
-    def __init__(self, render_mode=None, continuous: bool = False):
+    def __init__(
+        self,
+        render_mode: Optional[str] = None,
+        continuous: bool = False,
+        gravity: float = -10.0,
+        enable_wind: bool = False,
+        wind_power: float = 15.0,
+    ):
         EzPickle.__init__(self)
+
+        assert (
+            -12.0 < gravity and gravity < 0.0
+        ), f"gravity (current value: {gravity}) must be between -12 and 0"
+        self.gravity = gravity
+
+        assert (
+            0.0 < wind_power and wind_power < 20.0
+        ), f"wind_power (current value: {wind_power}) must be between 0 and 20"
+        self.wind_power = wind_power
+
+        self.enable_wind = enable_wind
+        self.wind_idx = np.random.randint(-9999, 9999)
+
         self.screen = None
         self.clock = None
         self.isopen = True
-        self.world = Box2D.b2World()
+        self.world = Box2D.b2World(gravity=(0, gravity))
         self.moon = None
         self.lander = None
         self.particles = []
@@ -155,10 +201,41 @@ class LunarLander(gym.Env, EzPickle):
 
         self.continuous = continuous
 
+        low = np.array(
+            [
+                # these are bounds for position
+                # realistically the environment should have ended
+                # long before we reach more than 50% outside
+                -1.5,
+                -1.5,
+                # velocity bounds is 5x rated speed
+                -5.0,
+                -5.0,
+                -math.pi,
+                -5.0,
+                -0.0,
+                -0.0,
+            ]
+        ).astype(np.float32)
+        high = np.array(
+            [
+                # these are bounds for position
+                # realistically the environment should have ended
+                # long before we reach more than 50% outside
+                1.5,
+                1.5,
+                # velocity bounds is 5x rated speed
+                5.0,
+                5.0,
+                math.pi,
+                5.0,
+                1.0,
+                1.0,
+            ]
+        ).astype(np.float32)
+
         # useful range is -1 .. +1, but spikes can be higher
-        self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(8,), dtype=np.float32
-        )
+        self.observation_space = spaces.Box(low, high)
 
         if self.continuous:
             # Action is two floats [main engine, left-right engines].
@@ -324,6 +401,25 @@ class LunarLander(gym.Env, EzPickle):
             self.world.DestroyBody(self.particles.pop(0))
 
     def step(self, action):
+        # Update wind
+        if self.enable_wind and not (
+            self.legs[0].ground_contact or self.legs[1].ground_contact
+        ):
+            # the function used for wind is tanh(sin(2 k x) + sin(pi k x)),
+            # which is proven to never be periodic, k = 0.01
+            wind_mag = (
+                math.tanh(
+                    math.sin(0.02 * self.wind_idx)
+                    + (math.sin(math.pi * 0.01 * self.wind_idx))
+                )
+                * self.wind_power
+            )
+            self.wind_idx += 1
+            self.lander.ApplyForceToCenter(
+                (wind_mag, 0.0),
+                True,
+            )
+
         if self.continuous:
             action = np.clip(action, -1, +1).astype(np.float32)
         else:
@@ -346,9 +442,8 @@ class LunarLander(gym.Env, EzPickle):
                 assert m_power >= 0.5 and m_power <= 1.0
             else:
                 m_power = 1.0
-            ox = (
-                tip[0] * (4 / SCALE + 2 * dispersion[0]) + side[0] * dispersion[1]
-            )  # 4 is move a bit downwards, +-2 for randomness
+            # 4 is move a bit downwards, +-2 for randomness
+            ox = tip[0] * (4 / SCALE + 2 * dispersion[0]) + side[0] * dispersion[1]
             oy = -tip[1] * (4 / SCALE + 2 * dispersion[0]) - side[1] * dispersion[1]
             impulse_pos = (self.lander.position[0] + ox, self.lander.position[1] + oy)
             p = self._create_particle(
@@ -618,6 +713,10 @@ def heuristic(env, s):
 
 
 def demo_heuristic_lander(env, seed=None, render=False):
+
+    # wind power must be reduced for heuristic landing
+    env.wind_power = 0.2
+
     total_reward = 0
     steps = 0
     s = env.reset(seed=seed)

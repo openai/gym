@@ -31,12 +31,11 @@ class MultiBinary(Space[np.ndarray]):
     ):
         if isinstance(n, (Sequence, np.ndarray)):
             self.n = input_n = tuple(int(i) for i in n)
+            assert (np.asarray(input_n) > 0).all()  # n (counts) have to be positive
         else:
             self.n = n = int(n)
             input_n = (n,)
-
-        # n (counts) have to be positive
-        assert (np.asarray(input_n) > 0).all()  # type: ignore
+            assert (np.asarray(input_n) > 0).all()  # n (counts) have to be positive
 
         super().__init__(input_n, np.int8, seed)
 
