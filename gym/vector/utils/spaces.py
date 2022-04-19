@@ -120,7 +120,7 @@ def _batch_space_custom(space, n=1):
     batched_space = Tuple(
         tuple(deepcopy(space) for _ in range(n)), seed=deepcopy(space.np_random)
     )
-    new_seeds = batched_space.np_random.integers(0, 1e8, n)
+    new_seeds = list(map(int, batched_space.np_random.integers(0, 1e8, n)))
     batched_space.seed(new_seeds)
     return batched_space
 
