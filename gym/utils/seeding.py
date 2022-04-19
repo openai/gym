@@ -23,12 +23,6 @@ def np_random(seed: Optional[int] = None) -> Tuple["RandomNumberGenerator", Any]
 # TODO: Remove this class and make it alias to `Generator` in a future Gym release
 # RandomNumberGenerator = np.random.Generator
 class RandomNumberGenerator(np.random.Generator):
-    def __eq__(self, other):
-        if isinstance(other, RandomNumberGenerator):
-            return self.bit_generator.state == other.bit_generator.state
-        else:
-            return False
-
     def rand(self, *size):
         deprecation(
             "Function `rng.rand(*size)` is marked as deprecated "

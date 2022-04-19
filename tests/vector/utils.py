@@ -5,6 +5,7 @@ import numpy as np
 
 import gym
 from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Tuple
+from gym.utils.seeding import RandomNumberGenerator
 
 spaces = [
     Box(low=np.array(-1.0), high=np.array(1.0), dtype=np.float64),
@@ -132,3 +133,7 @@ def make_custom_space_env(seed):
         return env
 
     return _make
+
+
+def assert_rng_equal(rng_1: RandomNumberGenerator, rng_2: RandomNumberGenerator):
+    assert rng_1.bit_generator.state == rng_2.bit_generator.state

@@ -7,7 +7,7 @@ from numpy.testing import assert_array_equal
 from gym import Space
 from gym.spaces import Box, Dict, Discrete, MultiDiscrete, Tuple
 from gym.vector.utils.spaces import batch_space, iterate
-from tests.vector.utils import CustomSpace, custom_spaces, spaces
+from tests.vector.utils import CustomSpace, assert_rng_equal, custom_spaces, spaces
 
 expected_batch_spaces_4 = [
     Box(low=-1.0, high=1.0, shape=(4,), dtype=np.float64),
@@ -151,7 +151,7 @@ def test_rng_different_at_each_index(space: Space, n: int, base_seed: int):
 
     batched_space = batch_space(space, n)
     assert space.np_random is not batched_space.np_random
-    assert space.np_random == batched_space.np_random
+    assert_rng_equal(space.np_random, batched_space.np_random)
 
     batched_sample = batched_space.sample()
     sample = list(iterate(batched_space, batched_sample))
@@ -171,13 +171,13 @@ def test_deterministic(space: Space, n: int, base_seed: int):
     space_a = space
     space_a.seed(base_seed)
     space_b = copy.deepcopy(space_a)
-    assert space_a.np_random == space_b.np_random
+    assert_rng_equal(space_a.np_random, space_b.np_random)
     assert space_a.np_random is not space_b.np_random
 
     # Batch the spaces and check that the np_random are not reference equal
     space_a_batched = batch_space(space_a, n)
     space_b_batched = batch_space(space_b, n)
-    assert space_a_batched.np_random == space_b_batched.np_random
+    assert_rng_equal(space_a_batched.np_random, space_b_batched.np_random)
     assert space_a_batched.np_random is not space_b_batched.np_random
     # Create that the batched space is not reference equal to the origin spaces
     assert space_a.np_random is not space_a_batched.np_random

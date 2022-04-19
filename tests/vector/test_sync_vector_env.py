@@ -3,7 +3,12 @@ import pytest
 
 from gym.spaces import Box, Discrete, MultiDiscrete, Tuple
 from gym.vector.sync_vector_env import SyncVectorEnv
-from tests.vector.utils import CustomSpace, make_custom_space_env, make_env
+from tests.vector.utils import (
+    CustomSpace,
+    assert_rng_equal,
+    make_custom_space_env,
+    make_env,
+)
 
 
 def test_create_sync_vector_env():
@@ -173,7 +178,7 @@ def test_sync_vector_env_seed():
     env = make_env("BipedalWalker-v3", seed=123)()
     sync_vector_env = SyncVectorEnv([make_env("BipedalWalker-v3", seed=123)])
 
-    assert env.action_space.np_random == sync_vector_env.action_space.np_random
+    assert_rng_equal(env.action_space.np_random, sync_vector_env.action_space.np_random)
     for _ in range(100):
         env_action = env.action_space.sample()
         vector_action = sync_vector_env.action_space.sample()
