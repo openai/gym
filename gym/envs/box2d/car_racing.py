@@ -128,8 +128,11 @@ class CarRacing(gym.Env, EzPickle):
     `lap_complete_percent` dictates the percentage of tiles that must be visited by
     the agent before a lap is considered complete.
 
-    Passing `domain_randomize=True` enabled the domain randomized variant of the environment.
+    Passing `domain_randomize=True` enables the domain randomized variant of the environment.
     In this scenario, the background and track colours are different on every reset.
+
+    Passing `continuous=False` converts the environment to use discrete action space.
+    The discrete action space has 5 actions: [do nothing, left, right, gas, brake].
 
     ### Version History
     - v1: Change track completion logic and add domain randomization (0.24.0)
@@ -185,7 +188,7 @@ class CarRacing(gym.Env, EzPickle):
             )  # steer, gas, brake
         else:
             self.action_space = spaces.Discrete(5)
-            # do nothing, left accel, right, gas, brake
+            # do nothing, left, right, gas, brake
 
         self.observation_space = spaces.Box(
             low=0, high=255, shape=(STATE_H, STATE_W, 3), dtype=np.uint8
