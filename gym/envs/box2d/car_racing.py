@@ -449,7 +449,7 @@ class CarRacing(gym.Env, EzPickle):
                 self.car.brake(action[2])
             else:
                 self.car.steer(-1 * (action == 1) + 1 * (action == 2))
-                self.car.gas(0.3 * (action == 3))
+                self.car.gas(0.2 * (action == 3))
                 self.car.brake(0.8 * (action == 4))
 
         self.car.step(1.0 / FPS)
