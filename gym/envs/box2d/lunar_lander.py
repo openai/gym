@@ -704,7 +704,7 @@ def heuristic(env, s):
 def demo_heuristic_lander(env, seed=None, render=False):
 
     # wind power must be reduced for heuristic landing
-    env.wind_power = 0.2
+    env.wind_power = 0.02
 
     total_reward = 0
     steps = 0
