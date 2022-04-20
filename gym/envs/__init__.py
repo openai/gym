@@ -89,6 +89,14 @@ register(
     reward_threshold=900,
 )
 
+register(
+    id="CarRacingDomainRandomize-v1",
+    entry_point="gym.envs.box2d:CarRacing",
+    kwargs={"domain_randomize": True},
+    max_episode_steps=1000,
+    reward_threshold=900,
+)
+
 # Toy Text
 # ----------------------------------------
 
