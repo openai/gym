@@ -103,7 +103,7 @@ class EnvSpec:
     max_episode_steps: Optional[int] = field(default=None)
     order_enforce: bool = field(default=True)
     autoreset: bool = field(default=False)
-    return_two_dones: bool = field(default=True)
+    return_two_dones: bool = field(default=False)
     kwargs: dict = field(default_factory=dict)
     namespace: Optional[str] = field(init=False)
     name: str = field(init=False)

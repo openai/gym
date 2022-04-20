@@ -6,13 +6,13 @@ from gym.wrappers import RescaleAction
 
 
 def test_rescale_action():
-    env = gym.make("CartPole-v1")
+    env = gym.make("CartPole-v1", return_two_dones=True)
     with pytest.raises(AssertionError):
         env = RescaleAction(env, -1, 1)
     del env
 
-    env = gym.make("Pendulum-v1")
-    wrapped_env = RescaleAction(gym.make("Pendulum-v1"), -1, 1)
+    env = gym.make("Pendulum-v1", return_two_dones=True)
+    wrapped_env = RescaleAction(gym.make("Pendulum-v1", return_two_dones=True), -1, 1)
 
     seed = 0
 

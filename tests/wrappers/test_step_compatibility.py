@@ -33,26 +33,25 @@ class NewStepEnv(gym.Env):
 
 
 @pytest.mark.parametrize("env", [OldStepEnv, NewStepEnv])
-def test_step_compatibility_to_old_api(env):
-    env = StepCompatibility(env(), False)
+def test_step_compatibility_to_new_api(env):
+    env = StepCompatibility(env(), True)
+    step_returns = env.step(0)
+    _, _, terminated, truncated, _ = step_returns
+    assert isinstance(terminated, bool)
+    assert isinstance(truncated, bool)
+
+
+@pytest.mark.parametrize("env", [OldStepEnv, NewStepEnv])
+@pytest.mark.parametrize("return_two_dones", [None, False])
+def test_step_compatibility_to_old_api(env, return_two_dones):
+    if return_two_dones is None:
+        env = StepCompatibility(env())  # default behavior is to retain old API
+    else:
+        env = StepCompatibility(env(), return_two_dones)
     step_returns = env.step(0)
     assert len(step_returns) == 4
     _, _, done, _ = step_returns
     assert isinstance(done, bool)
-
-
-@pytest.mark.parametrize("env", [OldStepEnv, NewStepEnv])
-@pytest.mark.parametrize("return_two_dones", [None, True])
-def test_step_compatibility_to_new_api(env, return_two_dones):
-    if return_two_dones is None:
-        env = StepCompatibility(env())  # default behavior is to convert to new api
-    else:
-        env = StepCompatibility(env(), return_two_dones)
-    step_returns = env.step(0)
-    assert len(step_returns) == 5
-    _, _, terminated, truncated, _ = step_returns
-    assert isinstance(terminated, bool)
-    assert isinstance(truncated, bool)
 
 
 @pytest.mark.parametrize("return_two_dones", [None, True, False])
@@ -64,7 +63,7 @@ def test_step_compatibility_in_make(return_two_dones):
 
     env.reset()
     step_returns = env.step(0)
-    if return_two_dones == True or return_two_dones == None:  # new api
+    if return_two_dones == True:  # new api
         assert len(step_returns) == 5
         _, _, terminated, truncated, _ = step_returns
         assert isinstance(terminated, bool)

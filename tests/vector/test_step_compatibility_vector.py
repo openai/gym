@@ -56,6 +56,7 @@ def test_vector_step_compatibility_new_env(VecEnv):
     assert len(step_returns) == 4
     _, _, dones, _ = step_returns
     assert dones.dtype == np.bool_
+    vec_env.close()
 
     vec_env = StepCompatibilityVector(VecEnv([lambda: env for env in envs]))
     vec_env.reset()
@@ -64,6 +65,7 @@ def test_vector_step_compatibility_new_env(VecEnv):
     _, _, terminateds, truncateds, _ = step_returns
     assert terminateds.dtype == np.bool_
     assert truncateds.dtype == np.bool_
+    vec_env.close()
 
 
 @pytest.mark.parametrize("async_bool", [True, False])
@@ -77,6 +79,7 @@ def test_vector_step_compatibility_existing(async_bool):
     assert len(step_returns) == 4
     _, _, dones, _ = step_returns
     assert dones.dtype == np.bool_
+    env.close()
 
     env = gym.vector.make(
         "CartPole-v1", num_envs=3, asynchronous=async_bool, return_two_dones=True
@@ -87,3 +90,4 @@ def test_vector_step_compatibility_existing(async_bool):
     _, _, terminateds, truncateds, _ = step_returns
     assert terminateds.dtype == np.bool_
     assert truncateds.dtype == np.bool_
+    env.close()

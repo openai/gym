@@ -23,8 +23,8 @@ class DummyEnvSpec:
 class DummyPlayEnv(gym.Env):
     def step(self, action):
         obs = np.zeros((1, 1))
-        rew, done, info = 1, False, {}
-        return obs, rew, done, info
+        rew, terminated, truncated, info = 1, False, False, {}
+        return obs, rew, terminated, truncated, info
 
     def reset(self, seed=None):
         ...
@@ -39,9 +39,9 @@ class PlayStatus:
         self.cumulative_reward = 0
         self.last_observation = None
 
-    def callback(self, obs_t, obs_tp1, action, rew, done, info):
-        _, obs_tp1, _, rew, _, _ = self.data_callback(
-            obs_t, obs_tp1, action, rew, done, info
+    def callback(self, obs_t, obs_tp1, action, rew, terminated, truncated, info):
+        _, obs_tp1, _, rew, _, _, _ = self.data_callback(
+            obs_t, obs_tp1, action, rew, terminated, truncated, info
         )
         self.cumulative_reward += rew
         self.last_observation = obs_tp1
@@ -144,16 +144,16 @@ def test_play_loop():
         Event(QUIT),
     ]
 
-    def callback(obs_t, obs_tp1, action, rew, done, info):
+    def callback(obs_t, obs_tp1, action, rew, terminated, truncated, info):
         event.post(callback_events.pop(0))
-        return obs_t, obs_tp1, action, rew, done, info
+        return obs_t, obs_tp1, action, rew, terminated, truncated, info
 
     env = DummyPlayEnv()
     cumulative_env_reward = 0
     for s in range(
         len(callback_events)
     ):  # we run the same number of steps executed with play()
-        _, rew, _, _ = env.step(None)
+        _, rew, _, _, _ = env.step(None)
         cumulative_env_reward += rew
 
     env_play = DummyPlayEnv()
@@ -183,7 +183,7 @@ def test_play_loop_real_env():
     ]
     keydown_events = [k for k in callback_events if k.type == KEYDOWN]
 
-    def callback(obs_t, obs_tp1, action, rew, done, info):
+    def callback(obs_t, obs_tp1, action, rew, terminated, truncated, info):
         pygame_event = callback_events.pop(0)
         event.post(pygame_event)
 
@@ -193,9 +193,9 @@ def test_play_loop_real_env():
             pygame_event = callback_events.pop(0)
             event.post(pygame_event)
 
-        return obs_t, obs_tp1, action, rew, done, info
+        return obs_t, obs_tp1, action, rew, terminated, truncated, info
 
-    env = gym.make(ENV)
+    env = gym.make(ENV, return_two_dones=True)
     env.reset(seed=SEED)
     keys_to_action = dummy_keys_to_action()
 
@@ -204,9 +204,9 @@ def test_play_loop_real_env():
     env.step(0)
     for e in keydown_events:
         action = keys_to_action[(e.key,)]
-        obs, _, _, _ = env.step(action)
+        obs, _, _, _, _ = env.step(action)
 
-    env_play = gym.make(ENV)
+    env_play = gym.make(ENV, return_two_dones=True)
     status = PlayStatus(callback)
     play(env_play, callback=status.callback, keys_to_action=keys_to_action, seed=SEED)
 

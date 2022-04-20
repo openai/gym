@@ -15,7 +15,7 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     """
     ### Description
 
-    This environment builds on the hopper environment based on the work done by Erez, Tassa, and Todorov
+    This environment builds on the hopper environment based on the work terminated by Erez, Tassa, and Todorov
     in ["Infinite Horizon Model Predictive Control for Nonlinear Periodic Tasks"](http://www.roboticsproceedings.org/rss07/p10.pdf)
     by adding another set of legs making it possible for the robot to walker forward instead of
     hop. Like other Mujoco environments, this environment aims to increase the number of independent state
@@ -127,7 +127,7 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     | `forward_reward_weight` | **float**  | `1.0`        | Weight for *forward_reward* term (see section on reward) |
     | `ctrl_cost_weight`      | **float**  | `1e-3`       | Weight for *ctr_cost* term (see section on reward) |
     | `healthy_reward`        | **float**  | `1.0`        | Constant reward given if the ant is "healthy" after timestep |
-    | `terminate_when_unhealthy` | **bool**| `True`       | If true, issue a done signal if the z-coordinate of the walker is no longer healthy |
+    | `terminate_when_unhealthy` | **bool**| `True`       | If true, issue a terminated signal if the z-coordinate of the walker is no longer healthy |
     | `healthy_z_range`       | **tuple**  | `(0.8, 2)`   | The z-coordinate of the top of the walker must be in this range to be considered healthy |
     | `healthy_angle_range`   | **tuple**  | `(-1, 1)`    | The angle must be in this range to be considered healthy|
     | `reset_noise_scale`     | **float**  | `5e-3`       | Scale of random perturbations of initial position and velocity (see section on Starting State) |
@@ -199,9 +199,9 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         return is_healthy
 
     @property
-    def done(self):
-        done = not self.is_healthy if self._terminate_when_unhealthy else False
-        return done
+    def terminated(self):
+        terminated = not self.is_healthy if self._terminate_when_unhealthy else False
+        return terminated
 
     def _get_obs(self):
         position = self.sim.data.qpos.flat.copy()
@@ -229,13 +229,13 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
         observation = self._get_obs()
         reward = rewards - costs
-        done = self.done
+        terminated = self.terminated
         info = {
             "x_position": x_position_after,
             "x_velocity": x_velocity,
         }
 
-        return observation, reward, done, info
+        return observation, reward, terminated, False, info
 
     def reset_model(self):
         noise_low = -self._reset_noise_scale

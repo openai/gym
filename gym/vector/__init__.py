@@ -7,6 +7,7 @@ from gym.vector.async_vector_env import AsyncVectorEnv
 from gym.vector.step_compatibility_vector import StepCompatibilityVector
 from gym.vector.sync_vector_env import SyncVectorEnv
 from gym.vector.vector_env import VectorEnv, VectorEnvWrapper
+from gym.wrappers import StepCompatibility
 
 __all__ = ["AsyncVectorEnv", "SyncVectorEnv", "VectorEnv", "VectorEnvWrapper", "make"]
 
@@ -52,6 +53,7 @@ def make(
 
     def _make_env():
         env = make_(id, **kwargs)
+        env = StepCompatibility(env, return_two_dones=True)
         if wrappers is not None:
             if callable(wrappers):
                 env = wrappers(env)

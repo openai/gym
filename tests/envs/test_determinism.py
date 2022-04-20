@@ -9,14 +9,14 @@ def test_env(spec):
     # Note that this precludes running this test in multiple
     # threads. However, we probably already can't do multithreading
     # due to some environments.
-    env1 = spec.make()
+    env1 = spec.make(return_two_dones=True)
     initial_observation1 = env1.reset(seed=0)
     env1.action_space.seed(0)
     action_samples1 = [env1.action_space.sample() for i in range(4)]
     step_responses1 = [env1.step(action) for action in action_samples1]
     env1.close()
 
-    env2 = spec.make()
+    env2 = spec.make(return_two_dones=True)
     initial_observation2 = env2.reset(seed=0)
     env2.action_space.seed(0)
     action_samples2 = [env2.action_space.sample() for i in range(4)]

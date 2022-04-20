@@ -54,7 +54,7 @@ class DummyResetEnv(gym.Env):
 
 
 def test_autoreset_reset_info():
-    env = gym.make("CartPole-v1")
+    env = gym.make("CartPole-v1", return_two_dones=True)
     env = AutoResetWrapper(env)
     ob_space = env.observation_space
     obs = env.reset()
@@ -77,7 +77,7 @@ def test_make_autoreset_true(spec):
     """
     env = None
     with pytest.warns(None) as warnings:
-        env = spec.make(autoreset=True)
+        env = spec.make(autoreset=True, return_two_dones=True)
 
     ob_space = env.observation_space
     obs = env.reset(seed=0)
@@ -98,7 +98,7 @@ def test_make_autoreset_true(spec):
 def test_make_autoreset_false(spec):
     env = None
     with pytest.warns(None) as warnings:
-        env = spec.make(autoreset=False)
+        env = spec.make(autoreset=False, return_two_dones=True)
     assert not isinstance(env, AutoResetWrapper)
 
 
@@ -106,7 +106,7 @@ def test_make_autoreset_false(spec):
 def test_make_autoreset_default_false(spec):
     env = None
     with pytest.warns(None) as warnings:
-        env = spec.make()
+        env = spec.make(return_two_dones=True)
     assert not isinstance(env, AutoResetWrapper)
 
 

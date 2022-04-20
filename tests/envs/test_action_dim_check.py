@@ -11,7 +11,7 @@ ENVIRONMENT_IDS = ("HalfCheetah-v2",)
 @pytest.mark.skipif(skip_mujoco, reason=SKIP_MUJOCO_WARNING_MESSAGE)
 @pytest.mark.parametrize("environment_id", ENVIRONMENT_IDS)
 def test_serialize_deserialize(environment_id):
-    env = envs.make(environment_id)
+    env = envs.make(environment_id, return_two_dones=True)
     env.reset()
 
     with pytest.raises(ValueError, match="Action dimension mismatch"):

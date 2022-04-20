@@ -3,9 +3,15 @@ from gym import logger
 
 
 class StepCompatibility(gym.Wrapper):
-    def __init__(self, env, return_two_dones=True):
+    def __init__(self, env, return_two_dones=False):
         super().__init__(env)
         self._return_two_dones = return_two_dones
+        if not self._return_two_dones:
+            logger.warn(
+                "Initializing environment in old step API which returns one bool instead of two. "
+                "Note that vector API and most wrappers would not work as these have been upgraded to the new API. "
+                "To use these features, please set `return_two_dones=True` in make to use new API (see docs for more details)."
+            )
 
     def step(self, action):
         step_returns = self.env.step(action)
@@ -23,6 +29,7 @@ class StepCompatibility(gym.Wrapper):
                 logger.warn(
                     "Core environment uses old step API which returns one boolean (done). Please upgrade to new API to return two booleans - terminated, truncated"
                 )
+
                 return step_returns
             elif len(step_returns) == 5:
                 return self._step_returns_new_to_old(step_returns)

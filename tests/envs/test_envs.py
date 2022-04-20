@@ -17,7 +17,7 @@ from tests.envs.spec_list import spec_list
 def test_env(spec):
     # Capture warnings
     with pytest.warns(None) as warnings:
-        env = spec.make()
+        env = spec.make(return_two_dones=True)
 
     # Test if env adheres to Gym API
     check_env(env, warn=True, skip_render_check=True)
@@ -63,7 +63,7 @@ def test_env(spec):
 def test_reset_info(spec):
 
     with pytest.warns(None) as warnings:
-        env = spec.make()
+        env = spec.make(return_two_dones=True)
 
     ob_space = env.observation_space
     obs = env.reset()
@@ -78,7 +78,10 @@ def test_reset_info(spec):
 
 # Run a longer rollout on some environments
 def test_random_rollout():
-    for env in [envs.make("CartPole-v1"), envs.make("FrozenLake-v1")]:
+    for env in [
+        envs.make("CartPole-v1", return_two_dones=True),
+        envs.make("FrozenLake-v1", return_two_dones=True),
+    ]:
         agent = lambda ob: env.action_space.sample()
         ob = env.reset()
         for _ in range(10):
@@ -93,8 +96,8 @@ def test_random_rollout():
 
 def test_env_render_result_is_immutable():
     environs = [
-        envs.make("Taxi-v3"),
-        envs.make("FrozenLake-v1"),
+        envs.make("Taxi-v3", return_two_dones=True),
+        envs.make("FrozenLake-v1", return_two_dones=True),
     ]
 
     for env in environs:

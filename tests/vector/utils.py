@@ -106,9 +106,10 @@ class CustomSpaceEnv(gym.Env):
         return observation, reward, terminated, truncated, {}
 
 
-def make_env(env_name, seed):
+def make_env(env_name, seed, return_two_dones=True):
+    # return_two_dones=True, only for compatibility with vector tests, to be removed at v1.0
     def _make():
-        env = gym.make(env_name)
+        env = gym.make(env_name, return_two_dones=return_two_dones)
         env.reset(seed=seed)
         return env
 
