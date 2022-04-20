@@ -20,7 +20,7 @@ class StepCompatibilityVector(VectorEnvWrapper):
     def _step_returns_new_to_old(self, step_returns):
         assert len(step_returns) == 5
         observations, rewards, terminateds, truncateds, infos = step_returns
-        logger.warn(
+        logger.deprecation(
             "Using a vector wrapper to transform new step API (which returns two bool vectors terminateds, truncateds) into old (returns one bool vector dones). "
             "This wrapper will be removed in the future. "
             "It is recommended to upgrade your accompanying code instead to be compatible with the new API, and use the new API. "

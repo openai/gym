@@ -1,3 +1,5 @@
+import warnings
+
 import pytest
 
 import gym
@@ -57,7 +59,10 @@ def test_step_compatibility_to_old_api(env, return_two_dones):
 @pytest.mark.parametrize("return_two_dones", [None, True, False])
 def test_step_compatibility_in_make(return_two_dones):
     if return_two_dones is None:
-        env = gym.make("CartPole-v1")  # check default behavior
+        with pytest.warns(
+            DeprecationWarning, match="Initializing environment in old step API"
+        ):
+            env = gym.make("CartPole-v1")
     else:
         env = gym.make("CartPole-v1", return_two_dones=return_two_dones)
 
