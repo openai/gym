@@ -9,7 +9,7 @@ __all__ = ["VectorEnv"]
 
 
 class VectorEnv(gym.Env):
-    r"""Base class for vectorized environments. Runs multiple independent copies of the 
+    r"""Base class for vectorized environments. Runs multiple independent copies of the
     same environment in parallel. This is not the same as 1 environment that has multiple
     sub components, but it is many copies of the same base env.
 
