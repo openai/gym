@@ -345,7 +345,9 @@ def _check_spec_register(spec: EnvSpec):
         (
             spec_
             for spec_ in registry.values()
-            if spec_.name == spec.name and spec_.version is not None
+            if spec_.namespace == spec.namespace
+            and spec_.name == spec.name
+            and spec_.version is not None
         ),
         key=lambda spec_: int(spec_.version),  # type: ignore
         default=None,
