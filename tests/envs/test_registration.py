@@ -83,7 +83,7 @@ def test_make():
     ],
 )
 def test_register(env_id, namespace, name, version):
-    envs.register(env_id)
+    register(env_id)
     assert gym.envs.spec(env_id).id == env_id
     full_name = f"{name}"
     if namespace:
@@ -104,7 +104,7 @@ def test_register(env_id, namespace, name, version):
 )
 def test_register_error(env_id):
     with pytest.raises(error.Error, match="Malformed environment ID"):
-        envs.register(env_id)
+        register(env_id)
 
 
 @pytest.mark.parametrize(
@@ -250,20 +250,20 @@ def test_default_lookups():
 def test_register_versioned_unversioned():
     # Register versioned then unversioned
     versioned_env = "Test/MyEnv-v0"
-    envs.register(versioned_env)
+    register(versioned_env)
     assert gym.envs.spec(versioned_env).id == versioned_env
     unversioned_env = "Test/MyEnv"
     with pytest.raises(error.RegistrationError):
-        envs.register(unversioned_env)
+        register(unversioned_env)
 
     # Clean everything
     del gym.envs.registry[versioned_env]
 
     # Register unversioned then versioned
-    envs.register(unversioned_env)
+    register(unversioned_env)
     assert gym.envs.spec(unversioned_env).id == unversioned_env
     with pytest.raises(error.RegistrationError):
-        envs.register(versioned_env)
+        register(versioned_env)
 
     # Clean everything
     del gym.envs.registry[unversioned_env]
