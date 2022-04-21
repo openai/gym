@@ -49,7 +49,7 @@ class MujocoEnv(gym.Env):
         self,
         model_path,
         frame_skip,
-        render_mode=None,
+        render_mode: Optional[str] = None,
         width=DEFAULT_SIZE,
         height=DEFAULT_SIZE,
         camera_id=None,

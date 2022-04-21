@@ -61,7 +61,7 @@ class CliffWalkingEnv(Env):
 
     metadata = {"render_modes": [None, "human", "ansi"], "render_fps": 4}
 
-    def __init__(self, render_mode=None):
+    def __init__(self, render_mode: Optional[str] = None):
         self.shape = (4, 12)
         self.start_state_index = np.ravel_multi_index((3, 0), self.shape)
 

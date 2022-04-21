@@ -156,7 +156,7 @@ class AcrobotEnv(core.Env):
     domain_fig = None
     actions_num = 3
 
-    def __init__(self, render_mode=None):
+    def __init__(self, render_mode: Optional[str] = None):
         assert render_mode in self.metadata["render_modes"]
         self.renderer = Renderer(render_mode, self._render)
         self.screen = None

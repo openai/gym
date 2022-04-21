@@ -157,7 +157,7 @@ class BipedalWalker(gym.Env, EzPickle):
 
     metadata = {"render_modes": [None, "human", "rgb_array"], "render_fps": FPS}
 
-    def __init__(self, render_mode=None, hardcore: bool = False):
+    def __init__(self, render_mode: Optional[str] = None, hardcore: bool = False):
         EzPickle.__init__(self)
         self.isopen = True
 

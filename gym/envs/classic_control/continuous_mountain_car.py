@@ -96,7 +96,7 @@ class Continuous_MountainCarEnv(gym.Env):
 
     metadata = {"render_modes": [None, "human", "rgb_array"], "render_fps": 30}
 
-    def __init__(self, render_mode=None, goal_velocity=0):
+    def __init__(self, render_mode: Optional[str] = None, goal_velocity=0):
         self.min_action = -1.0
         self.max_action = 1.0
         self.min_position = -1.2

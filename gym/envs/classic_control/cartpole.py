@@ -75,7 +75,7 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
 
     metadata = {"render_modes": [None, "human", "rgb_array"], "render_fps": 50}
 
-    def __init__(self, render_mode=None):
+    def __init__(self, render_mode: Optional[str] = None):
         self.gravity = 9.8
         self.masscart = 1.0
         self.masspole = 0.1
