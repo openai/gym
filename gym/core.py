@@ -128,6 +128,7 @@ class Env(Generic[ObsType, ActType]):
         third-party environments may not support rendering at all.)
         By convention, if render_mode is:
 
+        - None (default): no render is computed.
         - human: render return None.
           The environment is continuously rendered in the current display or terminal. Usually for human consumption.
         - rgb_array: Return a list of frames. Each frame is a numpy.ndarray with shape (x, y, 3),
@@ -135,6 +136,11 @@ class Env(Generic[ObsType, ActType]):
         - ansi: Return a list of strings (str) or StringIO.StringIO containing a
           terminal-style text representation for each time step.
           The text can include newlines and ANSI escape sequences (e.g. for colors).
+
+        Note:
+            Rendering computations is performed internally even if you don't call render().
+            To avoid this, you can set render_mode = None and, if the environment supports it,
+            call render() specifying the argument 'mode'.
 
         Note:
             Make sure that your class's metadata 'render_modes' key includes
