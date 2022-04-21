@@ -66,7 +66,7 @@ def parse_env_id(id: str) -> Tuple[Optional[str], str, Optional[int]]:
     if not match:
         raise error.Error(
             f"Malformed environment ID: {id}."
-            f"(Currently all IDs must be of the form {ENV_ID_RE}.)"
+            f"(Currently all IDs must be of the form [namespace/](env-name)-v(version). (namespace is optional))"
         )
     namespace, name, version = match.group("namespace", "name", "version")
     if version is not None:
