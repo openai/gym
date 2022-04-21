@@ -111,7 +111,8 @@ class EnvSpec:
         return make(self, **kwargs)
 
 
-def check_namespace_exists(ns: Optional[str]):
+def _check_namespace_exists(ns: Optional[str]):
+    """Check if a namespace exists. If it doesn't, print a helpful error message."""
     if ns is None:
         return
     namespaces = {
@@ -132,8 +133,9 @@ def check_namespace_exists(ns: Optional[str]):
     raise error.NamespaceNotFound(f"Namespace {ns} not found. {suggestion_msg}")
 
 
-def check_name_exists(ns: Optional[str], name: str):
-    check_namespace_exists(ns)
+def _check_name_exists(ns: Optional[str], name: str):
+    """Check if an env exists in a namespace. If it doesn't, print a helpful error message."""
+    _check_namespace_exists(ns)
     names = {spec_.name for spec_ in registry.values()}
 
     if name in names:
@@ -165,11 +167,13 @@ def check_name_exists(ns: Optional[str], name: str):
     )
 
 
-def check_version_exists(ns: Optional[str], name: str, version: Optional[int]):
+def _check_version_exists(ns: Optional[str], name: str, version: Optional[int]):
+    """Check if an env version exists in a namespace. If it doesn't, print a helpful error message.
+    This is a complete test whether an environment identifier is valid, and will provide the best available hints."""
     if get_env_id(ns, name, version) in registry:
         return
 
-    check_name_exists(ns, name)
+    _check_name_exists(ns, name)
     if version is None:
         return
 
@@ -324,7 +328,8 @@ registry: dict[str, EnvSpec] = dict()
 current_namespace: Optional[str] = None
 
 
-def check_spec_register(spec: EnvSpec):
+def _check_spec_register(spec: EnvSpec):
+    """Checks whether the spec is valid to be registered. Helper function for `register`."""
     global registry, current_namespace
     if current_namespace is not None:
         if spec.namespace is not None:
@@ -398,7 +403,7 @@ def register(id: str, **kwargs):
     global registry, current_namespace
     full_id = (current_namespace or "") + id
     spec = EnvSpec(id=full_id, **kwargs)
-    check_spec_register(spec)
+    _check_spec_register(spec)
     if spec.id in registry:
         raise error.RegistrationError(
             f"Attempted to register {spec.id} but it was already registered"
@@ -449,7 +454,7 @@ def make(
             )
 
         if spec_ is None:
-            check_version_exists(ns, name, version)
+            _check_version_exists(ns, name, version)
             raise error.Error(f"No registered env with id: {id}")
 
     _kwargs = spec_.kwargs.copy()
@@ -492,7 +497,7 @@ def spec(env_id: str) -> EnvSpec:
     spec_ = registry.get(env_id)
     if spec_ is None:
         ns, name, version = parse_env_id(env_id)
-        check_version_exists(ns, name, version)
+        _check_version_exists(ns, name, version)
         raise error.Error(f"No registered env with id: {env_id}")
     else:
         assert isinstance(spec_, EnvSpec)
