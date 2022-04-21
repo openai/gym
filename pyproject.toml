@@ -20,4 +20,4 @@ reportMissingTypeStubs = false
 verboseOutput = true
 
 [tool.pytest.ini_options]
-filterwarnings = ["ignore::DeprecationWarning"]
+filterwarnings = ['ignore:.*\[StepAPI\].*:DeprecationWarning'] # to be removed at 1.0 when old step API is removed

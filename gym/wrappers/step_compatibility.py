@@ -8,7 +8,7 @@ class StepCompatibility(gym.Wrapper):
         self._return_two_dones = return_two_dones
         if not self._return_two_dones:
             logger.deprecation(
-                "Initializing environment in old step API which returns one bool instead of two. "
+                "[StepAPI] Initializing environment in old step API which returns one bool instead of two. "
                 "Note that vector API and most wrappers would not work as these have been upgraded to the new API. "
                 "To use these features, please set `return_two_dones=True` in make to use new API (see docs for more details)."
             )
@@ -18,7 +18,7 @@ class StepCompatibility(gym.Wrapper):
         if self._return_two_dones:
             if len(step_returns) == 5:
                 logger.deprecation(
-                    "Using an environment with new step API that returns two bools terminated, truncated instead of one bool done. "
+                    "[StepAPI] Using an environment with new step API that returns two bools terminated, truncated instead of one bool done. "
                     "Take care to update supporting code to be compatible with this API"
                 )
                 return step_returns
@@ -27,7 +27,7 @@ class StepCompatibility(gym.Wrapper):
         else:
             if len(step_returns) == 4:
                 logger.deprecation(
-                    "Core environment uses old step API which returns one boolean (done). Please upgrade to new API to return two booleans - terminated, truncated"
+                    "[StepAPI] Core environment uses old step API which returns one boolean (done). Please upgrade to new API to return two booleans - terminated, truncated"
                 )
 
                 return step_returns
@@ -37,7 +37,7 @@ class StepCompatibility(gym.Wrapper):
     def _step_returns_old_to_new(self, step_returns):
         assert len(step_returns) == 4
         logger.deprecation(
-            "Using a wrapper to transform env with old step API into new. This wrapper will be removed in the future. "
+            "[StepAPI] Using a wrapper to transform env with old step API into new. This wrapper will be removed in the future. "
             "It is recommended to upgrade the core env to the new step API."
             "If 'TimeLimit.truncated' is set at truncation, terminated and truncated values will be accurate"
             "Otherwise, `terminated=done` and `truncated=False`"
@@ -62,7 +62,7 @@ class StepCompatibility(gym.Wrapper):
     def _step_returns_new_to_old(self, step_returns):
         assert len(step_returns) == 5
         logger.deprecation(
-            "Using a wrapper to transform new step API (which returns two booleans terminated, truncated) into old (returns one boolean done). "
+            "[StepAPI] Using a wrapper to transform new step API (which returns two booleans terminated, truncated) into old (returns one boolean done). "
             "This wrapper will be removed in the future. "
             "It is recommended to upgrade your accompanying code instead to be compatible with the new API, and use the new API. "
         )
