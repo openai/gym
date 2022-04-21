@@ -52,8 +52,7 @@ def make(
     from gym.envs import make as make_
 
     def _make_env():
-        env = make_(id, **kwargs)
-        env = StepCompatibility(env, return_two_dones=True)
+        env = make_(id, return_two_dones=True, **kwargs)
         if wrappers is not None:
             if callable(wrappers):
                 env = wrappers(env)

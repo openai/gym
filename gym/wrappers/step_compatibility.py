@@ -39,7 +39,7 @@ class StepCompatibility(gym.Wrapper):
         logger.deprecation(
             "[StepAPI] Using a wrapper to transform env with old step API into new. This wrapper will be removed in the future. "
             "It is recommended to upgrade the core env to the new step API."
-            "If 'TimeLimit.truncated' is set at truncation, terminated and truncated values will be accurate"
+            "If 'TimeLimit.truncated' is set at truncation, terminated and truncated values will be accurate. "
             "Otherwise, `terminated=done` and `truncated=False`"
         )
 
