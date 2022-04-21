@@ -10,9 +10,10 @@ class Renderer:
         self.render_list = []
 
     def render_step(self) -> None:
-        render_return = self.render(self.mode)
-        if self.mode not in NO_RETURNS_RENDER:
-            self.render_list.append(render_return)
+        if self.mode is not None:
+            render_return = self.render(self.mode)
+            if self.mode not in NO_RETURNS_RENDER:
+                self.render_list.append(render_return)
 
     def get_renders(self) -> Optional[List]:
         if self.mode not in NO_RETURNS_RENDER:
