@@ -211,7 +211,7 @@ def _check_version_exists(ns: Optional[str], name: str, version: Optional[int]):
         )
 
 
-def find_newest_version(ns: Optional[str], name: str) -> Optional[int]:
+def find_highest_version(ns: Optional[str], name: str) -> Optional[int]:
     version: list[int] = [
         spec_.version
         for spec_ in registry.values()
@@ -434,7 +434,7 @@ def make(
         spec_ = registry.get(id)
 
         ns, name, version = parse_env_id(id)
-        latest_version = find_newest_version(ns, name)
+        latest_version = find_highest_version(ns, name)
         if (
             version is not None
             and latest_version is not None
