@@ -1,12 +1,11 @@
 from functools import partial
 from typing import Callable, Type
-import pytest
+
 import numpy as np
 import pytest
 
-from gym import spaces, Space
-from gym.spaces import Tuple, Box
-
+from gym import Space, spaces
+from gym.spaces import Box, Tuple
 from gym.vector.async_vector_env import AsyncVectorEnv
 from gym.vector.sync_vector_env import SyncVectorEnv
 from gym.vector.vector_env import VectorEnv
@@ -93,9 +92,9 @@ def test_nesting_vector_envs(
     - base_env : str
         The base environment id.
     - async_inner : bool
-        Wether the inner VectorEnv will be async or not.
+        Whether the inner VectorEnv will be async or not.
     - async_outer : bool
-        Wether the outer VectorEnv will be async or not.
+        Whether the outer VectorEnv will be async or not.
     - n_inner_envs : int
         Number of inner environments.
     - n_outer_envs : int
