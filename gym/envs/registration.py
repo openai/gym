@@ -407,9 +407,7 @@ def register(id: str, **kwargs):
     spec = EnvSpec(id=full_id, **kwargs)
     _check_spec_register(spec)
     if spec.id in registry:
-        raise error.RegistrationError(
-            f"Attempted to register {spec.id} but it was already registered"
-        )
+        logger.warn(f"Overriding environment {id}")
     registry[spec.id] = spec
 
 
