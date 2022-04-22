@@ -416,7 +416,7 @@ def register(id: str, **kwargs):
             )
         ns_id = current_namespace
     else:
-        ns_id = ns or ""
+        ns_id = ns
 
     full_id = get_env_id(ns_id, name, version)
 
