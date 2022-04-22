@@ -1,42 +1,71 @@
-"""Wrapper that tracks the cumulative rewards and episode lengths."""
 import time
 from collections import deque
+from typing import Optional
 
 import numpy as np
 
 import gym
+from gym.vector.utils import StrategiesEnum
+
+
+class ClassicStatsInfoStrategy:
+    def __init__(self, num_envs: int):
+        self.info = {}
+
+    def add_info(self, infos: dict, env_num: int):
+        self.info = {**self.info, **infos}
+
+    def add_episode_statistics(self, infos: dict, env_num: int):
+        self.info = {**self.info, **infos}
+
+    def get_info(self):
+        return self.info
+
+
+class ClassicVecEnvStatsInfoStrategy:
+    def __init__(self, num_envs: int):
+        self.info = [{} for _ in range(num_envs)]
+
+    def add_info(self, infos: list, env_num: int):
+        self.info[env_num] = {**self.info[env_num], **infos[env_num]}
+
+    def add_episode_statistics(self, infos: dict, env_num: int):
+        self.info[env_num] = {**self.info[env_num], **infos}
+
+    def get_info(self):
+        return tuple(self.info)
+
+
+class BraxVecEnvStatsInfoStrategy:
+    def __init__(self, num_envs: int):
+        self.num_envs = num_envs
+        self.info = {}
+
+    def add_info(self, info: dict, env_num: int):
+        self.info = {**self.info, **info}
+
+    def add_episode_statistics(self, info: dict, env_num: int):
+        episode_info = info["episode"]
+        self.info["episode"] = self.info.get("episode", {})
+        for k in episode_info.keys():
+            info_array = self.info["episode"].get(
+                k, [None for _ in range(self.num_envs)]
+            )
+            info_array[env_num] = episode_info[k]
+            self.info["episode"][k] = info_array
+
+    def get_info(self):
+        return self.info
+
+
+WRAPPED_ENV_INFO_MAP = {
+    StrategiesEnum.classic.value: ClassicVecEnvStatsInfoStrategy,
+    StrategiesEnum.brax.value: BraxVecEnvStatsInfoStrategy,
+}
 
 
 class RecordEpisodeStatistics(gym.Wrapper):
-    """This wrapper will keep track of cumulative rewards and episode lengths.
-
-    At the end of an episode, the statistics of the episode will be added to ``info``. After the completion
-    of an episode, ``info`` will look like this::
-
-        >>> info = {
-        ...     ...
-        ...     "episode": {
-        ...         "r": "<cumulative reward>",
-        ...         "l": "<episode length>",
-        ...         "t": "<elapsed time since instantiation of wrapper>"
-        ...     },
-        ... }
-
-    Moreover, the most recent rewards and episode lengths are stored in buffers that can be accessed via
-    :attr:`wrapped_env.return_queue` and :attr:`wrapped_env.length_queue` respectively.
-
-    Attributes:
-        return_queue: The cumulative rewards of the last ``deque_size``-many episodes
-        length_queue: The lengths of the last ``deque_size``-many episodes
-    """
-
-    def __init__(self, env: gym.Env, deque_size: int = 100):
-        """This wrapper will keep track of cumulative rewards and episode lengths.
-
-        Args:
-            env (Env): The environment to apply the wrapper
-            deque_size: The size of the buffers :attr:`return_queue` and :attr:`length_queue`
-        """
+    def __init__(self, env, deque_size=100):
         super().__init__(env)
         self.num_envs = getattr(env, "num_envs", 1)
         self.t0 = time.perf_counter()
@@ -46,45 +75,50 @@ class RecordEpisodeStatistics(gym.Wrapper):
         self.return_queue = deque(maxlen=deque_size)
         self.length_queue = deque(maxlen=deque_size)
         self.is_vector_env = getattr(env, "is_vector_env", False)
+        if self.is_vector_env:
+            if hasattr(self.env, "shared_memory"):  # WIP only for sync vec
+                self.StatsInfoStrategy = ClassicVecEnvStatsInfoStrategy
+            else:
+                self.StatsInfoStrategy = WRAPPED_ENV_INFO_MAP[self.env.info_format]
+        else:
+            self.StatsInfoStrategy = ClassicStatsInfoStrategy
 
     def reset(self, **kwargs):
-        """Resets the environment using kwargs and resets the episode returns and lengths."""
         observations = super().reset(**kwargs)
         self.episode_returns = np.zeros(self.num_envs, dtype=np.float32)
         self.episode_lengths = np.zeros(self.num_envs, dtype=np.int32)
         return observations
 
     def step(self, action):
-        """Steps through the environment, recording the episode statistics."""
+        infos_processor = self.StatsInfoStrategy(self.num_envs)
         observations, rewards, dones, infos = super().step(action)
         self.episode_returns += rewards
         self.episode_lengths += 1
         if not self.is_vector_env:
-            infos = [infos]
             dones = [dones]
-        else:
-            infos = list(infos)  # Convert infos to mutable type
+        dones = list(dones)
+
         for i in range(len(dones)):
             if dones[i]:
-                infos[i] = infos[i].copy()
+                infos_processor.add_info(infos, i)
                 episode_return = self.episode_returns[i]
                 episode_length = self.episode_lengths[i]
                 episode_info = {
-                    "r": episode_return,
-                    "l": episode_length,
-                    "t": round(time.perf_counter() - self.t0, 6),
+                    "episode": {
+                        "r": episode_return,
+                        "l": episode_length,
+                        "t": round(time.perf_counter() - self.t0, 6),
+                    }
                 }
-                infos[i]["episode"] = episode_info
+                infos_processor.add_episode_statistics(episode_info, i)
                 self.return_queue.append(episode_return)
                 self.length_queue.append(episode_length)
                 self.episode_count += 1
                 self.episode_returns[i] = 0
                 self.episode_lengths[i] = 0
-        if self.is_vector_env:
-            infos = tuple(infos)
         return (
             observations,
             rewards,
             dones if self.is_vector_env else dones[0],
-            infos if self.is_vector_env else infos[0],
+            infos_processor.get_info(),
         )

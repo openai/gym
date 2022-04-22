@@ -65,6 +65,10 @@ class InvalidAction(Error):
     """Raised when the user performs an action not contained within the action space."""
 
 
+class InvalidInfoFormat(Exception):
+    """Raised when the info format is not available"""
+
+
 # API errors
 
 

@@ -3,8 +3,23 @@ from typing import List, Optional, Union
 
 import numpy as np
 
-from gym.vector.utils import concatenate, create_empty_array, iterate
+from gym import logger
+from gym.error import InvalidInfoFormat
+from gym.logger import warn
+from gym.vector.utils import (
+    BraxVecEnvInfoStrategy,
+    ClassicVecEnvInfoStrategy,
+    StrategiesEnum,
+    concatenate,
+    create_empty_array,
+    iterate,
+)
 from gym.vector.vector_env import VectorEnv
+
+INFO_FORMATS = {
+    StrategiesEnum.classic.value: ClassicVecEnvInfoStrategy,
+    StrategiesEnum.brax.value: BraxVecEnvInfoStrategy,
+}
 
 __all__ = ["SyncVectorEnv"]
 
@@ -50,11 +65,25 @@ class SyncVectorEnv(VectorEnv):
                [-0.85009176,  0.5266346 ,  0.60007906]], dtype=float32)
     """
 
-    def __init__(self, env_fns, observation_space=None, action_space=None, copy=True):
+    def __init__(
+        self,
+        env_fns,
+        observation_space=None,
+        action_space=None,
+        copy=True,
+        info_format="classic",
+    ):
         self.env_fns = env_fns
         self.envs = [env_fn() for env_fn in env_fns]
         self.copy = copy
         self.metadata = self.envs[0].metadata
+        if info_format not in INFO_FORMATS:
+            raise InvalidInfoFormat(
+                "%s is not an available format for info, please choose one between %s"
+                % (info_format, list(INFO_FORMATS.keys()))
+            )
+        self.info_format = info_format
+        self.InfoStrategy = INFO_FORMATS[self.info_format]
 
         if (observation_space is None) or (action_space is None):
             observation_space = observation_space or self.envs[0].observation_space
@@ -106,7 +135,7 @@ class SyncVectorEnv(VectorEnv):
                 kwargs["seed"] = single_seed
             if options is not None:
                 kwargs["options"] = options
-            if return_info is True:
+            if return_info == True:
                 kwargs["return_info"] = return_info
 
             if not return_info:
@@ -131,14 +160,14 @@ class SyncVectorEnv(VectorEnv):
         self._actions = iterate(self.action_space, actions)
 
     def step_wait(self):
-        observations, infos = [], []
+        observations, infos = [], self.InfoStrategy(self.num_envs)
         for i, (env, action) in enumerate(zip(self.envs, self._actions)):
             observation, self._rewards[i], self._dones[i], info = env.step(action)
             if self._dones[i]:
                 info["terminal_observation"] = observation
                 observation = env.reset()
             observations.append(observation)
-            infos.append(info)
+            infos.add_info(info, i)
         self.observations = concatenate(
             self.single_observation_space, observations, self.observations
         )
@@ -147,7 +176,7 @@ class SyncVectorEnv(VectorEnv):
             deepcopy(self.observations) if self.copy else self.observations,
             np.copy(self._rewards),
             np.copy(self._dones),
-            infos,
+            infos.get_info(),
         )
 
     def call(self, name, *args, **kwargs):
