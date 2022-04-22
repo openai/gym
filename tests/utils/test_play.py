@@ -1,5 +1,5 @@
-from dataclasses import dataclass, field
-from typing import Callable, Optional, Tuple
+from dataclasses import dataclass
+from typing import Callable
 
 import numpy as np
 import pygame
@@ -76,7 +76,7 @@ def test_play_relevant_keys_with_env_attribute():
     env = DummyPlayEnv()
     env.get_keys_to_action = dummy_keys_to_action
     game = PlayableGame(env)
-    assert game.relevant_keys == {97, 100}
+    assert game.relevant_keys == {RELEVANT_KEY_1, RELEVANT_KEY_2}
 
 
 def test_video_size_no_zoom():
@@ -134,33 +134,6 @@ def test_keyboard_keyup_event():
     event = Event(pygame.KEYUP, {"key": RELEVANT_KEY_1})
     game.process_event(event)
     assert game.pressed_keys == []
-
-
-def test_play_loop():
-    # set of key events to inject into the play loop as callback
-    callback_events = [
-        Event(KEYDOWN, {"key": RELEVANT_KEY_1}),
-        Event(KEYDOWN, {"key": RELEVANT_KEY_1}),
-        Event(QUIT),
-    ]
-
-    def callback(obs_t, obs_tp1, action, rew, terminated, truncated, info):
-        event.post(callback_events.pop(0))
-        return obs_t, obs_tp1, action, rew, terminated, truncated, info
-
-    env = DummyPlayEnv()
-    cumulative_env_reward = 0
-    for s in range(
-        len(callback_events)
-    ):  # we run the same number of steps executed with play()
-        _, rew, _, _, _ = env.step(None)
-        cumulative_env_reward += rew
-
-    env_play = DummyPlayEnv()
-    status = PlayStatus(callback)
-    play(env_play, callback=status.callback, keys_to_action=dummy_keys_to_action())
-
-    assert status.cumulative_reward == cumulative_env_reward
 
 
 def test_play_loop_real_env():
