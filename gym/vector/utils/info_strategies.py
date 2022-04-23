@@ -1,10 +1,40 @@
 """
 Strategies for processing the info dictionary of VecEnvs
 """
+from abc import ABC, abstractmethod
 from enum import Enum
 
 
-class ClassicVecEnvInfoStrategy:
+class VecEnvInfoStrategyInterface(ABC):
+    """Interface for implementing a info
+    processing strategy for vectorized environments
+    """
+
+    @abstractmethod
+    def __init__(self, num_envs: int):
+        ...
+
+    @abstractmethod
+    def add_info(self, info: dict, env_num: int):
+        """Get the info dict from the
+        environment and process with the defined strategy
+        """
+
+    @abstractmethod
+    def get_info(self):
+        """Return the info for the
+        vectorized env
+        """
+
+
+class ClassicVecEnvInfoStrategy(VecEnvInfoStrategyInterface):
+    """Process the info dictionary of an environment
+    so that the vectorized info is returned in the form of a list of dictionaries.
+
+    Example with 3 environments:
+        [{}, {}, {}]
+    """
+
     def __init__(self, num_envs: int):
         self.num_envs = num_envs
         self.info = []
@@ -16,7 +46,25 @@ class ClassicVecEnvInfoStrategy:
         return self.info
 
 
-class BraxVecEnvInfoStrategy:
+class BraxVecEnvInfoStrategy(VecEnvInfoStrategyInterface):
+    """Process the info dictionary of an environment
+    so that the vectorized info is returned in the form of a single dictionary.
+    Keys of the dictionary represents the `info` key; Values are lists
+    in which each index correspond to an environment. If the environment
+    at index `i` does not have a value for `info` then it is set to `None`
+
+    This strategy matches Brax library info's output structure.
+
+    Example with 3 environments in which only the last has the `terminal_observation` info:
+        {
+            "terminal_observation": [
+                None,
+                None,
+                array([0.13,  1.58 , -0.22, -2.56])
+            ]
+        }
+    """
+
     def __init__(self, num_envs: int):
         self.num_envs = num_envs
         self.info = {}
