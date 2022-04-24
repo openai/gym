@@ -28,13 +28,16 @@ class Space(Generic[T_cov]):
         self,
         shape: Optional[Sequence[int]] = None,
         dtype: Optional[Type | str] = None,
-        seed: Optional[int] = None,
+        seed: Optional[int | seeding.RandomNumberGenerator] = None,
     ):
         self._shape = None if shape is None else tuple(shape)
         self.dtype = None if dtype is None else np.dtype(dtype)
         self._np_random = None
         if seed is not None:
-            self.seed(seed)
+            if isinstance(seed, seeding.RandomNumberGenerator):
+                self._np_random = seed
+            else:
+                self.seed(seed)
 
     @property
     def np_random(self) -> seeding.RandomNumberGenerator:
