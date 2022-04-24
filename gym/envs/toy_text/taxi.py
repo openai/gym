@@ -69,8 +69,8 @@ class TaxiEnv(Env):
     Each state space is represented by the tuple:
     (taxi_row, taxi_col, passenger_location, destination)
 
-    An observation is the encoded integer corresponding to the state space tuple, so 
-    that each state can be decoded with the method decode(s).
+    An observation is an integer that encodes the corresponding state.
+    The state tuple can then be decoded with the "decode" method.
 
     Passenger locations:
     - 0: R(ed)
