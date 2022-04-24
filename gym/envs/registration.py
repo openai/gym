@@ -7,6 +7,7 @@ import importlib
 import importlib.util
 import re
 import sys
+import warnings
 from dataclasses import dataclass, field
 from typing import (
     Any,
@@ -225,6 +226,7 @@ def load_env_plugins(entry_point: str = "gym.envs") -> None:
     for plugin in metadata.entry_points(group=entry_point):
         # Python 3.8 doesn't support plugin.module, plugin.attr
         # So we'll have to try and parse this ourselves
+        module, attr = None, None
         try:
             module, attr = plugin.module, plugin.attr  # type: ignore  ## error: Cannot access member "attr" for type "EntryPoint"
         except AttributeError:
@@ -232,7 +234,10 @@ def load_env_plugins(entry_point: str = "gym.envs") -> None:
                 module, attr = plugin.value.split(":", maxsplit=1)
             else:
                 module, attr = plugin.value, None
-        except Exception:
+        except Exception as e:
+            warnings.warn(
+                f"While trying to load plugin `{plugin}` from {entry_point}, an exception occurred: {e}"
+            )
             module, attr = None, None
         finally:
             if attr is None:
