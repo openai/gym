@@ -61,7 +61,7 @@ def test_env(spec):
 @pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
 def test_reset_info(spec):
 
-    with pytest.warns():
+    with pytest.warns(None):
         env = spec.make()
 
     ob_space = env.observation_space

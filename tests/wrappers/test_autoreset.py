@@ -22,7 +22,9 @@ class DummyResetEnv(gym.Env):
     metadata = {}
 
     def __init__(self):
-        self.action_space = gym.spaces.Box(low=np.array([-1.0]), high=np.array([1.0]))
+        self.action_space = gym.spaces.Box(
+            low=np.array([-1.0]), high=np.array([1.0]), dtype=np.float64
+        )
         self.observation_space = gym.spaces.Box(
             low=np.array([-1.0]), high=np.array([1.0])
         )
@@ -62,6 +64,7 @@ def test_autoreset_reset_info():
     obs, info = env.reset(return_info=True)
     assert ob_space.contains(obs)
     assert isinstance(info, dict)
+    env.close()
 
 
 @pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
@@ -73,7 +76,7 @@ def test_make_autoreset_true(spec):
     Note: This test assumes that all first-party environments will terminate in a finite
     amount of time with random actions, which is true as of the time of adding this test.
     """
-    with pytest.warns():
+    with pytest.warns(None):
         env = spec.make(autoreset=True)
 
     env.reset(seed=0)
@@ -87,22 +90,23 @@ def test_make_autoreset_true(spec):
 
     assert isinstance(env, AutoResetWrapper)
     assert env.unwrapped.reset.called
+    env.close()
 
 
 @pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
 def test_make_autoreset_false(spec):
-    env = None
-    with pytest.warns():
+    with pytest.warns(None):
         env = spec.make(autoreset=False)
     assert not isinstance(env, AutoResetWrapper)
+    env.close()
 
 
 @pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
 def test_make_autoreset_default_false(spec):
-    env = None
-    with pytest.warns():
+    with pytest.warns(None):
         env = spec.make()
     assert not isinstance(env, AutoResetWrapper)
+    env.close()
 
 
 def test_autoreset_autoreset():
@@ -141,3 +145,4 @@ def test_autoreset_autoreset():
     assert reward == 0
     assert done is False
     assert info == {"count": 2}
+    env.close()
