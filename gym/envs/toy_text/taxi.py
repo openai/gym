@@ -66,6 +66,12 @@ class TaxiEnv(Env):
     successful episodes, when both the passenger and the taxi are at the destination.
     This gives a total of 404 reachable discrete states.
 
+    Each state space is represented by the tuple:
+    (taxi_row, taxi_col, passenger_location, destination)
+
+    An observation is the encoded integer corresponding to the state space tuple, so 
+    that each state can be decoded with the method decode(s).
+
     Passenger locations:
     - 0: R(ed)
     - 1: G(reen)
@@ -83,9 +89,6 @@ class TaxiEnv(Env):
     - -1 per step unless other reward is triggered.
     - +20 delivering passenger.
     - -10  executing "pickup" and "drop-off" actions illegally.
-
-    state space is represented by:
-    (taxi_row, taxi_col, passenger_location, destination)
 
     ### Arguments
 
