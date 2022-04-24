@@ -65,8 +65,7 @@ def test_create_shared_memory(space, expected_type, n, ctx):
             # Assert the length of the array
             assert len(lhs[:]) == n * len(rhs[:])
             # Assert the data type
-            assert type(lhs[0]) == type(rhs[0])  # noqa: E721
-
+            assert isinstance(lhs[0], type(rhs[0]))
         else:
             raise TypeError(f"Got unknown type `{type(lhs)}`.")
 
