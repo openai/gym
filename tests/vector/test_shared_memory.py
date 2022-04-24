@@ -83,7 +83,7 @@ def test_create_shared_memory(space, expected_type, n, ctx):
 def test_create_shared_memory_custom_space(n, ctx, space):
     ctx = mp if (ctx is None) else mp.get_context(ctx)
     with pytest.raises(CustomSpaceError):
-        shared_memory = create_shared_memory(space, n=n, ctx=ctx)
+        create_shared_memory(space, n=n, ctx=ctx)
 
 
 @pytest.mark.parametrize(

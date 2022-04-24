@@ -421,9 +421,6 @@ class BipedalWalker(gym.Env, EzPickle):
         self.scroll = 0.0
         self.lidar_render = 0
 
-        W = VIEWPORT_W / SCALE
-        H = VIEWPORT_H / SCALE
-
         self._generate_terrain(self.hardcore)
         self._generate_clouds()
 

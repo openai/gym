@@ -67,7 +67,7 @@ def test_play_relevant_keys_no_mapping():
     env = DummyPlayEnv()
     env.spec = DummyEnvSpec("DummyPlayEnv")
 
-    with pytest.raises(MissingKeysToAction) as info:
+    with pytest.raises(MissingKeysToAction):
         PlayableGame(env)
 
 
