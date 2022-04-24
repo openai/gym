@@ -15,6 +15,7 @@ from gym.error import (
     NoAsyncCallError,
 )
 from gym.vector.utils import (
+    ClassicVecEnvInfoStrategy,
     CloudpickleWrapper,
     clear_mpi_env_vars,
     concatenate,
@@ -126,6 +127,7 @@ class AsyncVectorEnv(VectorEnv):
         self.copy = copy
         dummy_env = env_fns[0]()
         self.metadata = dummy_env.metadata
+        self.InfoStrategy = ClassicVecEnvInfoStrategy
 
         if (observation_space is None) or (action_space is None):
             observation_space = observation_space or dummy_env.observation_space
@@ -406,10 +408,21 @@ class AsyncVectorEnv(VectorEnv):
                 f"The call to `step_wait` has timed out after {timeout} second(s)."
             )
 
-        results, successes = zip(*[pipe.recv() for pipe in self.parent_pipes])
+        observations_list, rewards, dones = [], [], []
+        successes = []
+        infos = self.InfoStrategy(self.num_envs)
+        for i, pipe in enumerate(self.parent_pipes):
+            result, success = pipe.recv()
+            obs, rew, done, info = result
+            infos.add_info(info, i)
+
+            successes.append(success)
+            observations_list.append(obs)
+            rewards.append(rew)
+            dones.append(done)
+
         self._raise_if_errors(successes)
         self._state = AsyncState.DEFAULT
-        observations_list, rewards, dones, infos = zip(*results)
 
         if not self.shared_memory:
             self.observations = concatenate(
@@ -422,7 +435,7 @@ class AsyncVectorEnv(VectorEnv):
             deepcopy(self.observations) if self.copy else self.observations,
             np.array(rewards),
             np.array(dones, dtype=np.bool_),
-            infos,
+            tuple(infos.get_info()),
         )
 
     def call_async(self, name, *args, **kwargs):
