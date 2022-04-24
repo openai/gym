@@ -1,5 +1,3 @@
-import pickle
-
 import pytest
 
 from gym import envs

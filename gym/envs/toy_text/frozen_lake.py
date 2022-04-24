@@ -242,7 +242,6 @@ class FrozenLakeEnv(Env):
 
     def _render_gui(self, desc, mode):
         import pygame
-        from pygame.constants import SRCALPHA
 
         if self.window_surface is None:
             pygame.init()

@@ -5,7 +5,6 @@ from numpy.typing import NDArray
 from pygame import Surface
 from pygame.event import Event
 
-import gym
 from gym import Env, logger
 
 try:
