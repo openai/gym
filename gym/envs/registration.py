@@ -232,7 +232,7 @@ def load_env_plugins(entry_point: str = "gym.envs") -> None:
                 module, attr = plugin.value.split(":", maxsplit=1)
             else:
                 module, attr = plugin.value, None
-        except:
+        except Exception:
             module, attr = None, None
         finally:
             if attr is None:
