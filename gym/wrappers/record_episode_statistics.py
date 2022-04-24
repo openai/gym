@@ -76,10 +76,7 @@ class RecordEpisodeStatistics(gym.Wrapper):
         self.length_queue = deque(maxlen=deque_size)
         self.is_vector_env = getattr(env, "is_vector_env", False)
         if self.is_vector_env:
-            if hasattr(self.env, "shared_memory"):  # WIP only for sync vec
-                self.StatsInfoStrategy = ClassicVecEnvStatsInfoStrategy
-            else:
-                self.StatsInfoStrategy = WRAPPED_ENV_INFO_MAP[self.env.info_format]
+            self.StatsInfoStrategy = WRAPPED_ENV_INFO_MAP[self.env.info_format]
         else:
             self.StatsInfoStrategy = ClassicStatsInfoStrategy
 
