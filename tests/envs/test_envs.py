@@ -78,13 +78,12 @@ def test_reset_info(spec):
 # Run a longer rollout on some environments
 def test_random_rollout():
     for env in [envs.make("CartPole-v1"), envs.make("FrozenLake-v1")]:
-        agent = lambda ob: env.action_space.sample()
         ob = env.reset()
         for _ in range(10):
             assert env.observation_space.contains(ob)
-            a = agent(ob)
-            assert env.action_space.contains(a)
-            (ob, _reward, done, _info) = env.step(a)
+            action = env.action_space.sample()
+            assert env.action_space.contains(action)
+            (ob, _reward, done, _info) = env.step(action)
             if done:
                 break
         env.close()
