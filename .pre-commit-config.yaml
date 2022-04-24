@@ -15,8 +15,8 @@ repos:
     hooks:
       - id: flake8
         args:
-          - '{--pre-file-ignores="*/__init__.py": "F401"}'
-          - --ignore=E203,E741,W503,E302,E704
+          - '--per-file-ignores=*/__init__.py:F401 gym/envs/registration.py:E704 E302'
+          - --ignore=E203,W503
           - --max-complexity=30
           - --max-line-length=456
           - --show-source
