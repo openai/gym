@@ -712,7 +712,7 @@ def demo_heuristic_lander(env, seed=None, render=False):
 
         if render:
             still_open = env.render()
-            if still_open == False:
+            if still_open is False:
                 break
 
         if steps % 20 == 0 or done:

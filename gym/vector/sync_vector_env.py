@@ -106,7 +106,7 @@ class SyncVectorEnv(VectorEnv):
                 kwargs["seed"] = single_seed
             if options is not None:
                 kwargs["options"] = options
-            if return_info == True:
+            if return_info is True:
                 kwargs["return_info"] = return_info
 
             if not return_info:

@@ -638,7 +638,7 @@ def _worker(index, env_fn, pipe, parent_pipe, shared_memory, error_queue):
         while True:
             command, data = pipe.recv()
             if command == "reset":
-                if "return_info" in data and data["return_info"] == True:
+                if "return_info" in data and data["return_info"] is True:
                     observation, info = env.reset(**data)
                     pipe.send(((observation, info), True))
                 else:
@@ -702,7 +702,7 @@ def _worker_shared_memory(index, env_fn, pipe, parent_pipe, shared_memory, error
         while True:
             command, data = pipe.recv()
             if command == "reset":
-                if "return_info" in data and data["return_info"] == True:
+                if "return_info" in data and data["return_info"] is True:
                     observation, info = env.reset(**data)
                     write_to_shared_memory(
                         observation_space, index, observation, shared_memory

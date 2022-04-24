@@ -115,16 +115,16 @@ def test_autoreset_autoreset():
     obs, reward, done, info = env.step(action)
     assert obs == np.array([1])
     assert reward == 0
-    assert done == False
+    assert done is False
     assert info == {"count": 1}
     obs, reward, done, info = env.step(action)
     assert obs == np.array([2])
-    assert done == False
+    assert done is False
     assert reward == 0
     assert info == {"count": 2}
     obs, reward, done, info = env.step(action)
     assert obs == np.array([0])
-    assert done == True
+    assert done is True
     assert reward == 1
     assert info == {
         "count": 0,
@@ -134,10 +134,10 @@ def test_autoreset_autoreset():
     obs, reward, done, info = env.step(action)
     assert obs == np.array([1])
     assert reward == 0
-    assert done == False
+    assert done is False
     assert info == {"count": 1}
     obs, reward, done, info = env.step(action)
     assert obs == np.array([2])
     assert reward == 0
-    assert done == False
+    assert done is False
     assert info == {"count": 2}

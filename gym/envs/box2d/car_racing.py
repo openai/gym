@@ -699,6 +699,6 @@ if __name__ == "__main__":
                 print(f"step {steps} total_reward {total_reward:+0.2f}")
             steps += 1
             isopen = env.render()
-            if done or restart or isopen == False:
+            if done or restart or isopen is False:
                 break
     env.close()
