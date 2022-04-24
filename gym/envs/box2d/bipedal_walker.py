@@ -1,7 +1,6 @@
 __credits__ = ["Andrea PIERRÉ"]
 
 import math
-import sys
 from typing import Optional
 
 import Box2D
@@ -17,7 +16,7 @@ from Box2D.b2 import (
 
 import gym
 from gym import error, spaces
-from gym.utils import EzPickle, colorize, seeding
+from gym.utils import EzPickle
 
 FPS = 50
 SCALE = 30.0  # affects how fast-paced the game is, forces should be adjusted as well

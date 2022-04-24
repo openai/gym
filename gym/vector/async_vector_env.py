@@ -14,7 +14,6 @@ from gym.error import (
     CustomSpaceError,
     NoAsyncCallError,
 )
-from gym.logger import warn
 from gym.vector.utils import (
     CloudpickleWrapper,
     clear_mpi_env_vars,

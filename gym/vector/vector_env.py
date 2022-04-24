@@ -1,8 +1,7 @@
 from typing import List, Optional, Union
 
 import gym
-from gym.logger import deprecation, warn
-from gym.spaces import Tuple
+from gym.logger import deprecation
 from gym.vector.utils.spaces import batch_space
 
 __all__ = ["VectorEnv"]

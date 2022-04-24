@@ -3,8 +3,6 @@ from typing import List, Optional, Union
 
 import numpy as np
 
-from gym import logger
-from gym.logger import warn
 from gym.vector.utils import concatenate, create_empty_array, iterate
 from gym.vector.vector_env import VectorEnv
 
