@@ -8,7 +8,6 @@ import tempfile
 from io import StringIO
 
 import numpy as np
-import packaging.version
 
 from gym import error, logger
 
@@ -418,12 +417,7 @@ class ImageEncoder:
             )
 
         try:
-            if packaging.version.Version(np.__version__) >= packaging.version.Version(
-                "1.9.0"
-            ):
-                self.proc.stdin.write(frame.tobytes())
-            else:
-                self.proc.stdin.write(frame.tostring())
+            self.proc.stdin.write(frame.tostring())
         except Exception as e:
             stdout, stderr = self.proc.communicate()
             logger.error("VideoRecorder encoder failed: %s", stderr)
