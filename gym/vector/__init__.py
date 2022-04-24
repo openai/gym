@@ -65,7 +65,7 @@ def make(
 
     env_fns = [_make_env for _ in range(num_envs)]
     return (
-        AsyncVectorEnv(env_fns)
+        AsyncVectorEnv(env_fns, info_format=info_format)
         if asynchronous
         else SyncVectorEnv(env_fns, info_format=info_format)
     )

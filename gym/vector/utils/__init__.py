@@ -12,6 +12,12 @@ from gym.vector.utils.shared_memory import (
 )
 from gym.vector.utils.spaces import _BaseGymSpaces, batch_space, iterate
 
+INFO_FORMATS = {
+    StrategiesEnum.classic.value: ClassicVecEnvInfoStrategy,
+    StrategiesEnum.brax.value: BraxVecEnvInfoStrategy,
+}
+
+
 __all__ = [
     "CloudpickleWrapper",
     "clear_mpi_env_vars",

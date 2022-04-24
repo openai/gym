@@ -15,6 +15,7 @@ from gym.error import (
     NoAsyncCallError,
 )
 from gym.vector.utils import (
+    INFO_FORMATS,
     ClassicVecEnvInfoStrategy,
     CloudpickleWrapper,
     clear_mpi_env_vars,
@@ -120,6 +121,7 @@ class AsyncVectorEnv(VectorEnv):
         context=None,
         daemon=True,
         worker=None,
+        info_format="classic",
     ):
         ctx = mp.get_context(context)
         self.env_fns = env_fns
@@ -127,7 +129,8 @@ class AsyncVectorEnv(VectorEnv):
         self.copy = copy
         dummy_env = env_fns[0]()
         self.metadata = dummy_env.metadata
-        self.InfoStrategy = ClassicVecEnvInfoStrategy
+        self.info_format = info_format
+        self.InfoStrategy = INFO_FORMATS[self.info_format]
 
         if (observation_space is None) or (action_space is None):
             observation_space = observation_space or dummy_env.observation_space
@@ -435,7 +438,7 @@ class AsyncVectorEnv(VectorEnv):
             deepcopy(self.observations) if self.copy else self.observations,
             np.array(rewards),
             np.array(dones, dtype=np.bool_),
-            tuple(infos.get_info()),
+            infos.get_info(),
         )
 
     def call_async(self, name, *args, **kwargs):

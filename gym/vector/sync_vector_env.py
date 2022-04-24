@@ -7,6 +7,7 @@ from gym import logger
 from gym.error import InvalidInfoFormat
 from gym.logger import warn
 from gym.vector.utils import (
+    INFO_FORMATS,
     BraxVecEnvInfoStrategy,
     ClassicVecEnvInfoStrategy,
     StrategiesEnum,
@@ -15,11 +16,6 @@ from gym.vector.utils import (
     iterate,
 )
 from gym.vector.vector_env import VectorEnv
-
-INFO_FORMATS = {
-    StrategiesEnum.classic.value: ClassicVecEnvInfoStrategy,
-    StrategiesEnum.brax.value: BraxVecEnvInfoStrategy,
-}
 
 __all__ = ["SyncVectorEnv"]
 
