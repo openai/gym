@@ -312,9 +312,11 @@ class AsyncVectorEnv(VectorEnv):
         self._raise_if_errors(successes)
         self._state = AsyncState.DEFAULT
 
+        infos = self.InfoStrategy(self.num_envs)
         if return_info:
-            results, infos = zip(*results)
-            infos = list(infos)
+            results, info_data = zip(*results)
+            for i, info in enumerate(info_data):
+                infos.add_info(info, i)
 
             if not self.shared_memory:
                 self.observations = concatenate(
@@ -323,7 +325,7 @@ class AsyncVectorEnv(VectorEnv):
 
             return (
                 deepcopy(self.observations) if self.copy else self.observations
-            ), infos
+            ), infos.get_info()
         else:
             if not self.shared_memory:
                 self.observations = concatenate(
