@@ -15,7 +15,8 @@ repos:
     hooks:
       - id: flake8
         args:
-          - --ignore=E203,E741,F401,W503,E302,E704
+          - '{--pre-file-ignores="*/__init__.py": "F401"}'
+          - --ignore=E203,E741,W503,E302,E704
           - --max-complexity=30
           - --max-line-length=456
           - --show-source
