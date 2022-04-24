@@ -11,7 +11,7 @@ repos:
         args:
           - --ignore-words-list=nd,reacher,thist,ths
   - repo: https://gitlab.com/PyCQA/flake8
-    rev: 4.0.1
+    rev: 3.9.2
     hooks:
       - id: flake8
         args:
@@ -26,7 +26,7 @@ repos:
       - id: isort
         args: ["--profile", "black"]
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.31.0
+    rev: v2.32.0
     hooks:
       - id: pyupgrade
         # TODO: remove `--keep-runtime-typing` option
