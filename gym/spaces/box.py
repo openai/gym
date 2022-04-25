@@ -5,8 +5,8 @@ from typing import Optional, Sequence, SupportsFloat, Tuple, Type, Union
 import numpy as np
 
 from gym import logger
-
-from .space import Space
+from gym.spaces.space import Space
+from gym.utils import seeding
 
 
 def _short_repr(arr: np.ndarray) -> str:
@@ -46,7 +46,7 @@ class Box(Space[np.ndarray]):
         high: Union[SupportsFloat, np.ndarray],
         shape: Optional[Sequence[int]] = None,
         dtype: Type = np.float32,
-        seed: Optional[int] = None,
+        seed: Optional[int | seeding.RandomNumberGenerator] = None,
     ):
         assert dtype is not None, "dtype must be explicitly provided. "
         self.dtype = np.dtype(dtype)
