@@ -214,7 +214,7 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
                     self.screen = pygame.display.set_mode(
                         (self.screen_width, self.screen_height)
                     )
-                else:
+                else:  # mode in ["rgb_array", "single_rgb_array"]
                     self.screen = pygame.Surface(
                         (self.screen_width, self.screen_height)
                     )

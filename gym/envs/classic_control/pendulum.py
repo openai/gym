@@ -168,7 +168,7 @@ class PendulumEnv(gym.Env):
                     self.screen = pygame.display.set_mode(
                         (self.screen_dim, self.screen_dim)
                     )
-                elif mode in ["rgb_array", "single_rgb_array"]:
+                else:  # mode in ["rgb_array", "single_rgb_array"]
                     self.screen = pygame.Surface((self.screen_dim, self.screen_dim))
             if self.clock is None:
                 self.clock = pygame.time.Clock()

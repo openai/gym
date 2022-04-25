@@ -179,7 +179,7 @@ class MountainCarEnv(gym.Env):
                     self.screen = pygame.display.set_mode(
                         (self.screen_width, self.screen_height)
                     )
-                elif mode in ["rgb_array", "single_rgb_array"]:
+                else:  # mode in ["rgb_array", "single_rgb_array"]
                     self.screen = pygame.Surface(
                         (self.screen_width, self.screen_height)
                     )

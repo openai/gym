@@ -292,7 +292,7 @@ class AcrobotEnv(core.Env):
                     self.screen = pygame.display.set_mode(
                         (self.SCREEN_DIM, self.SCREEN_DIM)
                     )
-                elif mode in ["rgb_array", "single_rgb_array"]:
+                else:  # mode in ["rgb_array", "single_rgb_array"]
                     self.screen = pygame.Surface((self.SCREEN_DIM, self.SCREEN_DIM))
             if self.clock is None:
                 self.clock = pygame.time.Clock()
