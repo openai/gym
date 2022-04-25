@@ -6,6 +6,21 @@ from gym.vector.vector_env import VectorEnvWrapper
 
 
 class StepCompatibilityVector(VectorEnvWrapper):
+    r"""A wrapper which can transform a vector environment to a new or old step API.
+
+    Old step API refers to step() method returning (observation, reward, done, info)
+    New step API refers to step() method returning (observation, reward, terminated, truncated, info)
+    (Refer to docs for details on the API change)
+
+    This wrapper is to be used to ease transition to new API. It will be removed in v1.0
+
+    Parameters
+    ----------
+        env (gym.vector.VectorEnv): the vector env to wrap. Has to be in new step API
+        return_two_dones (bool): True to use vector env with new step API, False to use vector env with old step API. (True by default)
+
+    """
+
     def __init__(self, env, return_two_dones=True):
         super().__init__(env)
         self._return_two_dones = return_two_dones
@@ -21,8 +36,8 @@ class StepCompatibilityVector(VectorEnvWrapper):
         assert len(step_returns) == 5
         observations, rewards, terminateds, truncateds, infos = step_returns
         logger.deprecation(
-            "[StepAPI] Using a vector wrapper to transform new step API (which returns two bool vectors terminateds, truncateds) into old (returns one bool vector dones). "
-            "This wrapper will be removed in the future. "
+            "Using a vector wrapper to transform new step API (which returns two bool vectors terminateds, truncateds) into old (returns one bool vector dones). "
+            "This wrapper will be removed in v1.0. "
             "It is recommended to upgrade your accompanying code instead to be compatible with the new API, and use the new API. "
         )
         dones = []
