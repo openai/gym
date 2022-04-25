@@ -417,7 +417,7 @@ class ImageEncoder:
             )
 
         try:
-            self.proc.stdin.write(frame.tostring())
+            self.proc.stdin.write(frame.tobytes())
         except Exception as e:
             stdout, stderr = self.proc.communicate()
             logger.error("VideoRecorder encoder failed: %s", stderr)
