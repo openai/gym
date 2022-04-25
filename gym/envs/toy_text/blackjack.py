@@ -111,7 +111,7 @@ class BlackjackEnv(gym.Env):
     """
 
     metadata = {
-        "render_modes": [None, "human", "rgb_array", "single_rgb_array"],
+        "render_modes": ["human", "rgb_array", "single_rgb_array"],
         "render_fps": 4,
     }
 
@@ -128,7 +128,7 @@ class BlackjackEnv(gym.Env):
         # Flag for full agreement with the (Sutton and Barto, 2018) definition. Overrides self.natural
         self.sab = sab
 
-        assert render_mode in self.metadata["render_modes"]
+        assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.renderer = Renderer(render_mode, self._render)
 
     def step(self, action):

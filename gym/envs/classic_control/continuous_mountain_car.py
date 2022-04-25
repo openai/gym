@@ -95,7 +95,7 @@ class Continuous_MountainCarEnv(gym.Env):
     """
 
     metadata = {
-        "render_modes": [None, "human", "rgb_array", "single_rgb_array"],
+        "render_modes": ["human", "rgb_array", "single_rgb_array"],
         "render_fps": 30,
     }
 
@@ -118,7 +118,7 @@ class Continuous_MountainCarEnv(gym.Env):
             [self.max_position, self.max_speed], dtype=np.float32
         )
 
-        assert render_mode in self.metadata["render_modes"]
+        assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.renderer = Renderer(render_mode, self._render)
 
         self.screen_width = 600

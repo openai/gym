@@ -143,14 +143,7 @@ class CarRacing(gym.Env, EzPickle):
     """
 
     metadata = {
-        "render_modes": [
-            None,
-            "human",
-            "rgb_array",
-            "state_pixels",
-            "single_rgb_array",
-            "single_state_pixels",
-        ],
+        "render_modes": ["human", "rgb_array", "state_pixels", "single_rgb_array"],
         "render_fps": FPS,
     }
 
@@ -194,7 +187,7 @@ class CarRacing(gym.Env, EzPickle):
             low=0, high=255, shape=(STATE_H, STATE_W, 3), dtype=np.uint8
         )
 
-        assert render_mode in self.metadata["render_modes"]
+        assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.renderer = Renderer(render_mode, self._render)
 
     def _destroy(self):

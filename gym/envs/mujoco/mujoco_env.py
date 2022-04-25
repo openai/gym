@@ -69,14 +69,7 @@ class MujocoEnv(gym.Env):
         self._viewers = {}
 
         self.metadata = {
-            "render_modes": [
-                None,
-                "human",
-                "rgb_array",
-                "depth_array",
-                "single_rgb_array",
-                "single_depth_array",
-            ],
+            "render_modes": ["human", "rgb_array", "depth_array", "single_rgb_array"],
             "render_fps": int(np.round(1.0 / self.dt)),
         }
 
@@ -85,7 +78,7 @@ class MujocoEnv(gym.Env):
 
         self._set_action_space()
 
-        assert render_mode in self.metadata["render_modes"]
+        assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.renderer = Renderer(render_mode, self._render)
         self.width = width
         self.height = height

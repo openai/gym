@@ -130,7 +130,7 @@ class AcrobotEnv(core.Env):
     """
 
     metadata = {
-        "render_modes": [None, "human", "rgb_array", "single_rgb_array"],
+        "render_modes": ["human", "rgb_array", "single_rgb_array"],
         "render_fps": 15,
     }
 
@@ -160,7 +160,7 @@ class AcrobotEnv(core.Env):
     actions_num = 3
 
     def __init__(self, render_mode: Optional[str] = None):
-        assert render_mode in self.metadata["render_modes"]
+        assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.renderer = Renderer(render_mode, self._render)
         self.screen = None
         self.clock = None

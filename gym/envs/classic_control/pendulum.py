@@ -78,7 +78,7 @@ class PendulumEnv(gym.Env):
     """
 
     metadata = {
-        "render_modes": [None, "human", "rgb_array", "single_rgb_array"],
+        "render_modes": ["human", "rgb_array", "single_rgb_array"],
         "render_fps": 30,
     }
 
@@ -90,7 +90,7 @@ class PendulumEnv(gym.Env):
         self.m = 1.0
         self.l = 1.0
 
-        assert render_mode in self.metadata["render_modes"]
+        assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.renderer = Renderer(render_mode, self._render)
 
         self.screen_dim = 500

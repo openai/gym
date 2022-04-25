@@ -59,7 +59,7 @@ class CliffWalkingEnv(Env):
     - v0: Initial version release
     """
 
-    metadata = {"render_modes": [None, "human", "ansi"], "render_fps": 4}
+    metadata = {"render_modes": ["human", "ansi"], "render_fps": 4}
 
     def __init__(self, render_mode: Optional[str] = None):
         self.shape = (4, 12)
@@ -90,7 +90,7 @@ class CliffWalkingEnv(Env):
         self.observation_space = spaces.Discrete(self.nS)
         self.action_space = spaces.Discrete(self.nA)
 
-        assert render_mode in self.metadata["render_modes"]
+        assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.renderer = Renderer(render_mode, self._render)
 
     def _limit_coordinates(self, coord):

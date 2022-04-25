@@ -165,7 +165,7 @@ class LunarLander(gym.Env, EzPickle):
     """
 
     metadata = {
-        "render_modes": [None, "human", "rgb_array", "single_rgb_array"],
+        "render_modes": ["human", "rgb_array", "single_rgb_array"],
         "render_fps": FPS,
     }
 
@@ -249,7 +249,7 @@ class LunarLander(gym.Env, EzPickle):
             # Nop, fire left engine, main engine, right engine
             self.action_space = spaces.Discrete(4)
 
-        assert render_mode in self.metadata["render_modes"]
+        assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.renderer = Renderer(render_mode, self._render)
 
     def _destroy(self):

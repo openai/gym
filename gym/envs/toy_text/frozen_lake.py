@@ -123,7 +123,7 @@ class FrozenLakeEnv(Env):
     """
 
     metadata = {
-        "render_modes": [None, "human", "ansi", "rgb_array", "single_rgb_array"],
+        "render_modes": ["human", "ansi", "rgb_array", "single_rgb_array"],
         "render_fps": 4,
     }
 
@@ -192,7 +192,7 @@ class FrozenLakeEnv(Env):
         self.observation_space = spaces.Discrete(nS)
         self.action_space = spaces.Discrete(nA)
 
-        assert render_mode in self.metadata["render_modes"]
+        assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.renderer = Renderer(render_mode, self._render)
 
         # pygame utils
