@@ -50,6 +50,6 @@ def should_skip_env_spec_for_tests(spec):
 
 spec_list = [
     spec
-    for spec in sorted(envs.registry.all(), key=lambda x: x.id)
+    for spec in sorted(envs.registry.values(), key=lambda x: x.id)
     if spec.entry_point is not None and not should_skip_env_spec_for_tests(spec)
 ]
