@@ -25,6 +25,15 @@ repos:
     hooks:
       - id: isort
         args: ["--profile", "black"]
+  - repo: https://github.com/pycqa/pydocstyle
+    rev: 6.1.1  # pick a git hash / tag to point to
+    hooks:
+      - id: pydocstyle
+        args:
+          - --source
+          - --explain
+          - --count
+          - --convention=google
   - repo: https://github.com/asottile/pyupgrade
     rev: v2.31.0
     hooks:
