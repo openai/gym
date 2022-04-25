@@ -1,7 +1,13 @@
 import pytest
 
 import gym
-from gym.wrappers import RecordEpisodeStatistics
+from gym.error import NoMatchingInfoStrategy
+from gym.wrappers import (
+    BraxVecEnvStatsInfoStrategy,
+    ClassicVecEnvStatsInfoStrategy,
+    RecordEpisodeStatistics,
+    get_statistic_info_strategy,
+)
 
 
 @pytest.mark.parametrize("env_id", ["CartPole-v1", "Pendulum-v1"])
@@ -55,3 +61,38 @@ def test_record_episode_statistics_with_vectorenv(num_envs, asynchronous):
                 assert "episode" in info
                 assert all([item in info["episode"] for item in ["r", "l", "t"]])
                 break
+
+
+@pytest.mark.parametrize(("num_envs", "asynchronous"), [(3, False), (3, True)])
+def test_episode_statistics_brax_info(num_envs, asynchronous):
+    envs = gym.vector.make(
+        "CartPole-v1", asynchronous=asynchronous, num_envs=num_envs, info_format="brax"
+    )
+    envs = RecordEpisodeStatistics(envs)
+    envs.reset()
+    dones = [False for _ in range(num_envs)]
+    actions = np.array([1, 0, 1])
+    while not any(dones):
+        _, _, dones, infos = envs.step(actions)
+
+    assert "episode" in infos
+    assert len(infos["episode"]) == num_envs
+    assert "terminal_observation" in infos
+    for i in range(num_envs):
+        if dones[i]:
+            assert infos["terminal_observation"][i] is not None
+        else:
+            assert infos["terminal_observation"][i] is None
+
+
+@pytest.mark.parametrize(("info_format"), [("classic"), ("brax"), ("non_existent")])
+def test_get_statistic_info_strategy(info_format):
+    if info_format == "classic":
+        InfoStrategy = get_statistic_info_strategy(info_format)
+        assert InfoStrategy == ClassicVecEnvStatsInfoStrategy
+    elif info_format == "brax":
+        InfoStrategy = get_statistic_info_strategy(info_format)
+        assert InfoStrategy == BraxVecEnvStatsInfoStrategy
+    else:
+        with pytest.raises(NoMatchingInfoStrategy):
+            get_statistic_info_strategy(info_format)

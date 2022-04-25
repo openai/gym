@@ -12,7 +12,6 @@ from gym.error import (
     AlreadyPendingCallError,
     ClosedEnvironmentError,
     CustomSpaceError,
-    InvalidInfoFormat,
     NoAsyncCallError,
 )
 from gym.vector.utils import (

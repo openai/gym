@@ -66,7 +66,7 @@ def get_statistic_info_strategy(wrapped_env_strategy: str):
     }
     if wrapped_env_strategy not in strategies:
         raise NoMatchingInfoStrategy(
-            "Wrapped environment has an info format of type %s which is not a processable format by this wrappers. Please use one in %s"
+            "Wrapped environment has an info format of type %s which is not a processable format by this wrapper. Please use one in %s"
             % (wrapped_env_strategy, list(strategies.keys()))
         )
     return strategies[wrapped_env_strategy]

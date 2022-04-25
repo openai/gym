@@ -1,13 +1,17 @@
 import pytest
 
-from gym.vector.utils import BraxVecEnvInfoStrategy, ClassicVecEnvInfoStrategy
+from gym.error import InvalidInfoFormat
+from gym.vector.utils import (
+    BraxVecEnvInfoStrategy,
+    ClassicVecEnvInfoStrategy,
+    get_info_strategy,
+)
 
 
-def test_classic_vec_env_info_strategy():
-    NUM_ENVS = 3
-
-    infos = ClassicVecEnvInfoStrategy(NUM_ENVS)
-    for i in range(NUM_ENVS):
+@pytest.mark.parametrize(("num_envs"), [3])
+def test_classic_vec_env_info_strategy(num_envs):
+    infos = ClassicVecEnvInfoStrategy(num_envs)
+    for i in range(num_envs):
         info = {"example_info": i}
         infos.add_info(info, i)
 
@@ -15,11 +19,12 @@ def test_classic_vec_env_info_strategy():
     assert expected_info == infos.get_info()
 
 
-def test_brax_vec_env_info_strategy():
+@pytest.mark.parametrize(("num_envs"), [3])
+def test_brax_vec_env_info_strategy(num_envs):
     NUM_ENVS = 3
 
-    infos = BraxVecEnvInfoStrategy(NUM_ENVS)
-    for i in range(NUM_ENVS):
+    infos = BraxVecEnvInfoStrategy(num_envs)
+    for i in range(num_envs):
         info = {"example_info": i}
         infos.add_info(info, i)
 
@@ -27,14 +32,26 @@ def test_brax_vec_env_info_strategy():
     assert expected_info == infos.get_info()
 
 
-def test_brax_vec_env_info_strategy_with_nones():
-    NUM_ENVS = 5
-
-    infos = BraxVecEnvInfoStrategy(NUM_ENVS)
-    for i in range(NUM_ENVS):
+@pytest.mark.parametrize(("num_envs"), [5])
+def test_brax_vec_env_info_strategy_with_nones(num_envs):
+    infos = BraxVecEnvInfoStrategy(num_envs)
+    for i in range(num_envs):
         if i % 2 == 0:
             info = {"example_info": i}
             infos.add_info(info, i)
 
     expected_info = {"example_info": [0, None, 2, None, 4]}
     assert expected_info == infos.get_info()
+
+
+@pytest.mark.parametrize(("info_format"), [("classic"), ("brax"), ("non_existent")])
+def test_get_info_strategy(info_format):
+    if info_format == "classic":
+        InfoStrategy = get_info_strategy(info_format)
+        assert InfoStrategy == ClassicVecEnvInfoStrategy
+    elif info_format == "brax":
+        InfoStrategy = get_info_strategy(info_format)
+        assert InfoStrategy == BraxVecEnvInfoStrategy
+    else:
+        with pytest.raises(InvalidInfoFormat):
+            get_info_strategy(info_format)
