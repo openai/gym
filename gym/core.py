@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import Generic, List, Optional, SupportsFloat, Tuple, TypeVar, Union
+from typing import Generic, Optional, SupportsFloat, Tuple, TypeVar, Union
 
 import gym
 from gym import spaces

@@ -129,7 +129,10 @@ class AcrobotEnv(core.Env):
     - Sutton, R. S., Barto, A. G. (2018 ). Reinforcement Learning: An Introduction. The MIT Press.
     """
 
-    metadata = {"render_modes": [None, "human", "rgb_array"], "render_fps": 15}
+    metadata = {
+        "render_modes": [None, "human", "rgb_array", "single_rgb_array"],
+        "render_fps": 15,
+    }
 
     dt = 0.2
 
@@ -289,7 +292,7 @@ class AcrobotEnv(core.Env):
                     self.screen = pygame.display.set_mode(
                         (self.SCREEN_DIM, self.SCREEN_DIM)
                     )
-                else:  # mode == "rgb_array":
+                elif mode in ["rgb_array", "single_rgb_array"]:
                     self.screen = pygame.Surface((self.SCREEN_DIM, self.SCREEN_DIM))
             if self.clock is None:
                 self.clock = pygame.time.Clock()
@@ -352,7 +355,7 @@ class AcrobotEnv(core.Env):
                 self.clock.tick(self.metadata["render_fps"])
                 pygame.display.flip()
 
-            else:  # mode == "rgb_array":
+            elif mode in ["rgb_array", "single_rgb_array"]:
                 return np.transpose(
                     np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
                 )

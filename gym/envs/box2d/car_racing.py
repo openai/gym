@@ -143,7 +143,14 @@ class CarRacing(gym.Env, EzPickle):
     """
 
     metadata = {
-        "render_modes": [None, "human", "rgb_array", "state_pixels"],
+        "render_modes": [
+            None,
+            "human",
+            "rgb_array",
+            "state_pixels",
+            "single_rgb_array",
+            "single_state_pixels",
+        ],
         "render_fps": FPS,
     }
 
@@ -481,8 +488,6 @@ class CarRacing(gym.Env, EzPickle):
         if mode is not None:
             import pygame
 
-            assert mode in ["human", "state_pixels", "rgb_array"]
-
             if self.screen is None and mode == "human":
                 pygame.init()
                 pygame.display.init()
@@ -502,7 +507,7 @@ class CarRacing(gym.Env, EzPickle):
                 self.screen.blit(self.surf, (0, 0))
                 pygame.display.flip()
 
-            if mode == "rgb_array":
+            if mode in ["rgb_array", "single_rgb_array"]:
                 return self._create_image_array(self.surf, (VIDEO_W, VIDEO_H))
             elif mode == "state_pixels":
                 return self._create_image_array(self.surf, (STATE_W, STATE_H))

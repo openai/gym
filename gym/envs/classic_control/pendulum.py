@@ -77,7 +77,10 @@ class PendulumEnv(gym.Env):
 
     """
 
-    metadata = {"render_modes": [None, "human", "rgb_array"], "render_fps": 30}
+    metadata = {
+        "render_modes": [None, "human", "rgb_array", "single_rgb_array"],
+        "render_fps": 30,
+    }
 
     def __init__(self, render_mode: Optional[str] = None, g=10.0):
         self.max_speed = 8
@@ -165,7 +168,7 @@ class PendulumEnv(gym.Env):
                     self.screen = pygame.display.set_mode(
                         (self.screen_dim, self.screen_dim)
                     )
-                else:  # self.render_mode == "rgb_array":
+                elif mode in ["rgb_array", "single_rgb_array"]:
                     self.screen = pygame.Surface((self.screen_dim, self.screen_dim))
             if self.clock is None:
                 self.clock = pygame.time.Clock()

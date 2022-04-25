@@ -94,7 +94,10 @@ class Continuous_MountainCarEnv(gym.Env):
     * v0: Initial versions release (1.0.0)
     """
 
-    metadata = {"render_modes": [None, "human", "rgb_array"], "render_fps": 30}
+    metadata = {
+        "render_modes": [None, "human", "rgb_array", "single_rgb_array"],
+        "render_fps": 30,
+    }
 
     def __init__(self, render_mode: Optional[str] = None, goal_velocity=0):
         self.min_action = -1.0
@@ -200,7 +203,7 @@ class Continuous_MountainCarEnv(gym.Env):
                     self.screen = pygame.display.set_mode(
                         (self.screen_width, self.screen_height)
                     )
-                else:  # mode == "rgb_array"
+                elif mode in ["rgb_array", "single_rgb_array"]:
                     self.screen = pygame.Surface(
                         (self.screen_width, self.screen_height)
                     )

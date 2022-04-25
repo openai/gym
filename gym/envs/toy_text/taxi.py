@@ -101,7 +101,10 @@ class TaxiEnv(Env):
     * v0: Initial versions release
     """
 
-    metadata = {"render_modes": [None, "human", "ansi", "rgb_array"], "render_fps": 4}
+    metadata = {
+        "render_modes": [None, "human", "ansi", "rgb_array", "single_rgb_array"],
+        "render_fps": 4,
+    }
 
     def __init__(self, render_mode: Optional[str] = None):
         self.desc = np.asarray(MAP, dtype="c")
@@ -243,7 +246,7 @@ class TaxiEnv(Env):
     def _render(self, mode):
         if mode == "ansi":
             return self._render_text()
-        elif mode in ["human", "rgb_array"]:
+        elif mode in ["human", "rgb_array", "single_rgb_array"]:
             return self._render_gui(mode)
 
     def _render_gui(self, mode):
@@ -254,7 +257,7 @@ class TaxiEnv(Env):
             pygame.display.set_caption("Taxi")
             if mode == "human":
                 self.window = pygame.display.set_mode(WINDOW_SIZE)
-            else:  # "rgb_array"
+            elif mode in ["rgb_array", "single_rgb_array"]:
                 self.window = pygame.Surface(WINDOW_SIZE)
         if self.clock is None:
             self.clock = pygame.time.Clock()
@@ -362,7 +365,7 @@ class TaxiEnv(Env):
         if mode == "human":
             pygame.display.update()
             self.clock.tick(self.metadata["render_fps"])
-        else:  # rgb_array
+        elif mode in ["rgb_array", "single_rgb_array"]:
             return np.transpose(
                 np.array(pygame.surfarray.pixels3d(self.window)), axes=(1, 0, 2)
             )
