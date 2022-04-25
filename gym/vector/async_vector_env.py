@@ -12,16 +12,16 @@ from gym.error import (
     AlreadyPendingCallError,
     ClosedEnvironmentError,
     CustomSpaceError,
+    InvalidInfoFormat,
     NoAsyncCallError,
 )
 from gym.vector.utils import (
-    INFO_FORMATS,
-    ClassicVecEnvInfoStrategy,
     CloudpickleWrapper,
     clear_mpi_env_vars,
     concatenate,
     create_empty_array,
     create_shared_memory,
+    get_info_strategy,
     iterate,
     read_from_shared_memory,
     write_to_shared_memory,
@@ -78,6 +78,11 @@ class AsyncVectorEnv(VectorEnv):
         Can be useful to override some inner vector env logic, for instance,
         how resets on done are handled.
 
+    info_format : str, optional
+        Choose one of the available info formatting strategies. Default behaviour
+        is returning a list of dictionaries where each dictionary represents the
+        info of the environment at index i.
+
     Warning
     -------
     :attr:`worker` is an advanced mode option. It provides a high degree of
@@ -96,6 +101,9 @@ class AsyncVectorEnv(VectorEnv):
         If :obj:`observation_space` is a custom space (i.e. not a default
         space in Gym, such as :class:`~gym.spaces.Box`, :class:`~gym.spaces.Discrete`,
         or :class:`~gym.spaces.Dict`) and :obj:`shared_memory` is ``True``.
+
+    InvalidInfoFormat
+        If the info format does not matches any of the available.
 
     Example
     -------
@@ -130,7 +138,7 @@ class AsyncVectorEnv(VectorEnv):
         dummy_env = env_fns[0]()
         self.metadata = dummy_env.metadata
         self.info_format = info_format
-        self.InfoStrategy = INFO_FORMATS[self.info_format]
+        self.InfoStrategy = get_info_strategy(self.info_format)
 
         if (observation_space is None) or (action_space is None):
             observation_space = observation_space or dummy_env.observation_space

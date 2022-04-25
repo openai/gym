@@ -3,18 +3,7 @@ from typing import List, Optional, Union
 
 import numpy as np
 
-from gym import logger
-from gym.error import InvalidInfoFormat
-from gym.logger import warn
-from gym.vector.utils import (
-    INFO_FORMATS,
-    BraxVecEnvInfoStrategy,
-    ClassicVecEnvInfoStrategy,
-    StrategiesEnum,
-    concatenate,
-    create_empty_array,
-    iterate,
-)
+from gym.vector.utils import concatenate, create_empty_array, get_info_strategy, iterate
 from gym.vector.vector_env import VectorEnv
 
 __all__ = ["SyncVectorEnv"]
@@ -40,12 +29,20 @@ class SyncVectorEnv(VectorEnv):
         If ``True``, then the :meth:`reset` and :meth:`step` methods return a
         copy of the observations.
 
+    info_format : str, optional
+        Choose one of the available info formatting strategies. Default behaviour
+        is returning a list of dictionaries where each dictionary represents the
+        info of the environment at index i.
+
     Raises
     ------
     RuntimeError
         If the observation space of some sub-environment does not match
         :obj:`observation_space` (or, by default, the observation space of
         the first sub-environment).
+
+    InvalidInfoFormat
+        If the info format does not matches any of the available.
 
     Example
     -------
@@ -73,13 +70,8 @@ class SyncVectorEnv(VectorEnv):
         self.envs = [env_fn() for env_fn in env_fns]
         self.copy = copy
         self.metadata = self.envs[0].metadata
-        if info_format not in INFO_FORMATS:
-            raise InvalidInfoFormat(
-                "%s is not an available format for info, please choose one between %s"
-                % (info_format, list(INFO_FORMATS.keys()))
-            )
         self.info_format = info_format
-        self.InfoStrategy = INFO_FORMATS[self.info_format]
+        self.InfoStrategy = get_info_strategy(self.info_format)
 
         if (observation_space is None) or (action_space is None):
             observation_space = observation_space or self.envs[0].observation_space

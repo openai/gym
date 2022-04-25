@@ -5,6 +5,7 @@ from typing import Optional
 import numpy as np
 
 import gym
+from gym.error import NoMatchingInfoStrategy
 from gym.vector.utils import StrategiesEnum
 
 
@@ -58,10 +59,17 @@ class BraxVecEnvStatsInfoStrategy:
         return self.info
 
 
-WRAPPED_ENV_INFO_MAP = {
-    StrategiesEnum.classic.value: ClassicVecEnvStatsInfoStrategy,
-    StrategiesEnum.brax.value: BraxVecEnvStatsInfoStrategy,
-}
+def get_statistic_info_strategy(wrapped_env_strategy: str):
+    strategies = {
+        StrategiesEnum.classic.value: ClassicVecEnvStatsInfoStrategy,
+        StrategiesEnum.brax.value: BraxVecEnvStatsInfoStrategy,
+    }
+    if wrapped_env_strategy not in strategies:
+        raise NoMatchingInfoStrategy(
+            "Wrapped environment has an info format of type %s which is not a processable format by this wrappers. Please use one in %s"
+            % (wrapped_env_strategy, list(strategies.keys()))
+        )
+    return strategies[wrapped_env_strategy]
 
 
 class RecordEpisodeStatistics(gym.Wrapper):
@@ -76,7 +84,7 @@ class RecordEpisodeStatistics(gym.Wrapper):
         self.length_queue = deque(maxlen=deque_size)
         self.is_vector_env = getattr(env, "is_vector_env", False)
         if self.is_vector_env:
-            self.StatsInfoStrategy = WRAPPED_ENV_INFO_MAP[self.env.info_format]
+            self.StatsInfoStrategy = get_statistic_info_strategy(self.env.info_format)
         else:
             self.StatsInfoStrategy = ClassicStatsInfoStrategy
 

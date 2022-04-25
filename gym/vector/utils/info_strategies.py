@@ -4,8 +4,10 @@ Strategies for processing the info dictionary of VecEnvs
 from abc import ABC, abstractmethod
 from enum import Enum
 
+from gym.error import InvalidInfoFormat
 
-class VecEnvInfoStrategyInterface(ABC):
+
+class VecEnvInfoStrategy(ABC):
     """Interface for implementing a info
     processing strategy for vectorized environments
     """
@@ -27,7 +29,7 @@ class VecEnvInfoStrategyInterface(ABC):
         """
 
 
-class ClassicVecEnvInfoStrategy(VecEnvInfoStrategyInterface):
+class ClassicVecEnvInfoStrategy(VecEnvInfoStrategy):
     """Process the info dictionary of an environment
     so that the vectorized info is returned in the form of a list of dictionaries.
 
@@ -46,7 +48,7 @@ class ClassicVecEnvInfoStrategy(VecEnvInfoStrategyInterface):
         return self.info
 
 
-class BraxVecEnvInfoStrategy(VecEnvInfoStrategyInterface):
+class BraxVecEnvInfoStrategy(VecEnvInfoStrategy):
     """Process the info dictionary of an environment
     so that the vectorized info is returned in the form of a single dictionary.
     Keys of the dictionary represents the `info` key; Values are lists
@@ -82,3 +84,16 @@ class BraxVecEnvInfoStrategy(VecEnvInfoStrategyInterface):
 class StrategiesEnum(Enum):
     classic: str = "classic"
     brax: str = "brax"
+
+
+def get_info_strategy(info_format: str) -> VecEnvInfoStrategy:
+    strategies = {
+        StrategiesEnum.classic.value: ClassicVecEnvInfoStrategy,
+        StrategiesEnum.brax.value: BraxVecEnvInfoStrategy,
+    }
+    if info_format not in strategies:
+        raise InvalidInfoFormat(
+            "%s is not an available format for info, please choose one between %s"
+            % (info_format, list(strategies.keys()))
+        )
+    return strategies[info_format]

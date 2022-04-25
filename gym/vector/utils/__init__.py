@@ -2,6 +2,7 @@ from gym.vector.utils.info_strategies import (
     BraxVecEnvInfoStrategy,
     ClassicVecEnvInfoStrategy,
     StrategiesEnum,
+    get_info_strategy,
 )
 from gym.vector.utils.misc import CloudpickleWrapper, clear_mpi_env_vars
 from gym.vector.utils.numpy_utils import concatenate, create_empty_array
@@ -11,12 +12,6 @@ from gym.vector.utils.shared_memory import (
     write_to_shared_memory,
 )
 from gym.vector.utils.spaces import _BaseGymSpaces, batch_space, iterate
-
-INFO_FORMATS = {
-    StrategiesEnum.classic.value: ClassicVecEnvInfoStrategy,
-    StrategiesEnum.brax.value: BraxVecEnvInfoStrategy,
-}
-
 
 __all__ = [
     "CloudpickleWrapper",
@@ -32,4 +27,5 @@ __all__ = [
     "ClassicVecEnvInfoStrategy",
     "BraxVecEnvInfoStrategy",
     "StrategiesEnum",
+    "get_info_strategy",
 ]

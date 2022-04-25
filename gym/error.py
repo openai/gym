@@ -69,6 +69,13 @@ class InvalidInfoFormat(Exception):
     """Raised when the info format is not available"""
 
 
+class NoMatchingInfoStrategy(Exception):
+    """
+    Raised when the wrapper does not support the info
+    processing strategy of the underlying environment
+    """
+
+
 # API errors
 
 
