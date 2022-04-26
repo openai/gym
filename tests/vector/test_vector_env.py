@@ -146,15 +146,14 @@ def test_nesting_vector_envs(
 
     assert batch_size(env.action_space) == n_outer_envs
 
-    with env:
-        observations = env.reset()
-        assert observations in env.observation_space
+    observations = env.reset()
+    assert observations in env.observation_space
 
-        actions = env.action_space.sample()
-        assert actions in env.action_space
+    actions = env.action_space.sample()
+    assert actions in env.action_space
 
-        observations, rewards, dones, _ = env.step(actions)
-        assert observations in env.observation_space
+    observations, rewards, dones, _ = env.step(actions)
+    assert observations in env.observation_space
 
     assert isinstance(env.observation_space, Box)
     assert isinstance(observations, np.ndarray)
@@ -173,3 +172,4 @@ def test_nesting_vector_envs(
     assert dones.dtype == np.bool_
     assert dones.ndim == 2
     assert dones.shape == (n_outer_envs, n_inner_envs)
+    env.close()
