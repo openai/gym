@@ -85,12 +85,8 @@ class FrictionDetector(contactListener):
 class CarRacing(gym.Env, EzPickle):
     """
     ### Description
-    The easiest continuous control task to learn from pixels - a top-down
-    racing environment. Discrete control is reasonable in this environment as
-    well; on/off discretization is fine.
-
-    The game is solved when the agent consistently gets 900+ points.
-    The generated track is random every episode.
+    The easiest control task to learn from pixels - a top-down
+    racing environment. The generated track is random every episode.
 
     Some indicators are shown at the bottom of the window along with the
     state RGB buffer. From left to right: true speed, four ABS sensors,
