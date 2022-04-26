@@ -3,8 +3,6 @@ from typing import List, Optional, Union
 
 import numpy as np
 
-from gym import logger
-from gym.logger import warn
 from gym.vector.utils import concatenate, create_empty_array, iterate
 from gym.vector.vector_env import VectorEnv
 
@@ -111,7 +109,7 @@ class SyncVectorEnv(VectorEnv):
                 kwargs["seed"] = single_seed
             if options is not None:
                 kwargs["options"] = options
-            if return_info == True:
+            if return_info is True:
                 kwargs["return_info"] = return_info
 
             if not return_info:
@@ -136,7 +134,7 @@ class SyncVectorEnv(VectorEnv):
         self._actions = iterate(self.action_space, actions)
 
     def step_wait(self):
-        observations, rewards, dones, infos = [], [], [], []
+        observations, infos = [], []
         for i, (env, action) in enumerate(zip(self.envs, self._actions)):
             observation, self._rewards[i], self._dones[i], info = env.step(action)
             if isinstance(env, VectorEnv):

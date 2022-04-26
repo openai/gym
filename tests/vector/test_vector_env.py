@@ -128,7 +128,6 @@ def test_nesting_vector_envs(
     # Create a single test environment.
     with make_env(base_env, 0)() as temp_single_env:
         single_observation_space = temp_single_env.observation_space
-        single_action_space = temp_single_env.action_space
 
     assert isinstance(single_observation_space, Box)
     assert isinstance(env.observation_space, Box)
