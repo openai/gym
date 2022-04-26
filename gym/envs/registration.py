@@ -271,6 +271,8 @@ def load_env_plugins(entry_point: str = "gym.envs") -> None:
 # fmt: off
 # Classic control
 # ----------------------------------------
+
+
 @overload
 def make(id: Literal["CartPole-v1"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
 @overload
@@ -284,6 +286,8 @@ def make(id: Literal["Acrobot-v1"], **kwargs) -> Env[np.ndarray, np.ndarray | in
 
 # Box2d
 # ----------------------------------------
+
+
 @overload
 def make(id: Literal["LunarLander-v2", "LunarLanderContinuous-v2"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
 @overload
@@ -293,6 +297,8 @@ def make(id: Literal["CarRacing-v1", "CarRacingDomainRandomize-v1"], **kwargs) -
 
 # Toy Text
 # ----------------------------------------
+
+
 @overload
 def make(id: Literal["Blackjack-v1"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
 @overload
@@ -304,6 +310,8 @@ def make(id: Literal["Taxi-v3"], **kwargs) -> Env[np.ndarray, np.ndarray | int]:
 
 # Mujoco
 # ----------------------------------------
+
+
 @overload
 def make(id: Literal[
     "Reacher-v2",
