@@ -1,7 +1,6 @@
 __credits__ = ["Andrea PIERRÉ"]
 
 import math
-import sys
 from typing import Optional, Union
 
 import Box2D
