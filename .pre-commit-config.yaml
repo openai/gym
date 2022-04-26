@@ -11,7 +11,7 @@ repos:
         args:
           - --ignore-words-list=nd,reacher,thist,ths
   - repo: https://gitlab.com/PyCQA/flake8
-    rev: 3.9.2
+    rev: 4.0.1
     hooks:
       - id: flake8
         args:
