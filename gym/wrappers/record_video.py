@@ -1,5 +1,5 @@
 import os
-from typing import Callable, Optional
+from typing import Callable
 
 import gym
 from gym import logger

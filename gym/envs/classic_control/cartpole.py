@@ -10,7 +10,6 @@ import numpy as np
 
 import gym
 from gym import logger, spaces
-from gym.utils import seeding
 
 
 class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):

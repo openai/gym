@@ -1,6 +1,3 @@
-import sys
-
-
 class Error(Exception):
     pass
 
@@ -133,7 +130,7 @@ class APIError(Error):
         if http_body and hasattr(http_body, "decode"):
             try:
                 http_body = http_body.decode("utf-8")
-            except:
+            except Exception:
                 http_body = "<Could not decode body as utf-8.>"
 
         self._message = message
