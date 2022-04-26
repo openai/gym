@@ -88,11 +88,11 @@ def test_episode_statistics_brax_info(num_envs, asynchronous):
 @pytest.mark.parametrize(("info_format"), [("classic"), ("brax"), ("non_existent")])
 def test_get_statistic_info_strategy(info_format):
     if info_format == "classic":
-        InfoStrategy = get_statistic_info_strategy(info_format)
-        assert InfoStrategy == ClassicVecEnvStatsInfoStrategy
+        info_strategy = get_statistic_info_strategy(info_format)
+        assert info_strategy == ClassicVecEnvStatsInfoStrategy
     elif info_format == "brax":
-        InfoStrategy = get_statistic_info_strategy(info_format)
-        assert InfoStrategy == BraxVecEnvStatsInfoStrategy
+        info_strategy = get_statistic_info_strategy(info_format)
+        assert info_strategy == BraxVecEnvStatsInfoStrategy
     else:
         with pytest.raises(NoMatchingInfoStrategy):
             get_statistic_info_strategy(info_format)

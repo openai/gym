@@ -71,7 +71,7 @@ class SyncVectorEnv(VectorEnv):
         self.copy = copy
         self.metadata = self.envs[0].metadata
         self.info_format = info_format
-        self.InfoStrategy = get_info_strategy(self.info_format)
+        self.info_strategy = get_info_strategy(self.info_format)
 
         if (observation_space is None) or (action_space is None):
             observation_space = observation_space or self.envs[0].observation_space
@@ -115,7 +115,7 @@ class SyncVectorEnv(VectorEnv):
 
         self._dones[:] = False
         observations = []
-        data_list = self.InfoStrategy(self.num_envs)
+        data_list = self.info_strategy(self.num_envs)
         for i, (env, single_seed) in enumerate(zip(self.envs, seed)):
 
             kwargs = {}
@@ -148,7 +148,7 @@ class SyncVectorEnv(VectorEnv):
         self._actions = iterate(self.action_space, actions)
 
     def step_wait(self):
-        observations, infos = [], self.InfoStrategy(self.num_envs)
+        observations, infos = [], self.info_strategy(self.num_envs)
         for i, (env, action) in enumerate(zip(self.envs, self._actions)):
             observation, self._rewards[i], self._dones[i], info = env.step(action)
             if self._dones[i]:

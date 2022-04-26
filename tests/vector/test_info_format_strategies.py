@@ -47,11 +47,11 @@ def test_brax_vec_env_info_strategy_with_nones(num_envs):
 @pytest.mark.parametrize(("info_format"), [("classic"), ("brax"), ("non_existent")])
 def test_get_info_strategy(info_format):
     if info_format == "classic":
-        InfoStrategy = get_info_strategy(info_format)
-        assert InfoStrategy == ClassicVecEnvInfoStrategy
+        info_strategy = get_info_strategy(info_format)
+        assert info_strategy == ClassicVecEnvInfoStrategy
     elif info_format == "brax":
-        InfoStrategy = get_info_strategy(info_format)
-        assert InfoStrategy == BraxVecEnvInfoStrategy
+        info_strategy = get_info_strategy(info_format)
+        assert info_strategy == BraxVecEnvInfoStrategy
     else:
         with pytest.raises(InvalidInfoFormat):
             get_info_strategy(info_format)

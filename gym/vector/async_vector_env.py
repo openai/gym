@@ -137,7 +137,7 @@ class AsyncVectorEnv(VectorEnv):
         dummy_env = env_fns[0]()
         self.metadata = dummy_env.metadata
         self.info_format = info_format
-        self.InfoStrategy = get_info_strategy(self.info_format)
+        self.info_strategy = get_info_strategy(self.info_format)
 
         if (observation_space is None) or (action_space is None):
             observation_space = observation_space or dummy_env.observation_space
@@ -319,7 +319,7 @@ class AsyncVectorEnv(VectorEnv):
         self._raise_if_errors(successes)
         self._state = AsyncState.DEFAULT
 
-        infos = self.InfoStrategy(self.num_envs)
+        infos = self.info_strategy(self.num_envs)
         if return_info:
             results, info_data = zip(*results)
             for i, info in enumerate(info_data):
@@ -422,7 +422,7 @@ class AsyncVectorEnv(VectorEnv):
 
         observations_list, rewards, dones = [], [], []
         successes = []
-        infos = self.InfoStrategy(self.num_envs)
+        infos = self.info_strategy(self.num_envs)
         for i, pipe in enumerate(self.parent_pipes):
             result, success = pipe.recv()
             obs, rew, done, info = result
