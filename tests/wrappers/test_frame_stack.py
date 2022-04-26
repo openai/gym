@@ -1,8 +1,5 @@
-import pytest
-
-pytest.importorskip("gym.envs.atari")
-
 import numpy as np
+import pytest
 
 import gym
 from gym.wrappers import FrameStack
@@ -11,6 +8,9 @@ try:
     import lz4
 except ImportError:
     lz4 = None
+
+
+pytest.importorskip("gym.envs.atari")
 
 
 @pytest.mark.parametrize("env_id", ["CartPole-v1", "Pendulum-v1", "Pong-v0"])

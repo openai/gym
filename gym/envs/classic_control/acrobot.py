@@ -5,7 +5,6 @@ import numpy as np
 from numpy import cos, pi, sin
 
 from gym import core, spaces
-from gym.utils import seeding
 
 __copyright__ = "Copyright 2013, RLPy http://acl.mit.edu/RLPy"
 __credits__ = [

@@ -5,10 +5,8 @@ from functools import singledispatch
 
 import numpy as np
 
-from gym import logger
 from gym.error import CustomSpaceError
-from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Space, Tuple
-from gym.vector.utils.spaces import _BaseGymSpaces
+from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Tuple
 
 __all__ = ["create_shared_memory", "read_from_shared_memory", "write_to_shared_memory"]
 

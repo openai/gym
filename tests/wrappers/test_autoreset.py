@@ -1,4 +1,3 @@
-import types
 from typing import Optional
 from unittest.mock import MagicMock
 
@@ -23,7 +22,9 @@ class DummyResetEnv(gym.Env):
     metadata = {}
 
     def __init__(self):
-        self.action_space = gym.spaces.Box(low=np.array([-1.0]), high=np.array([1.0]))
+        self.action_space = gym.spaces.Box(
+            low=np.array([-1.0]), high=np.array([1.0]), dtype=np.float64
+        )
         self.observation_space = gym.spaces.Box(
             low=np.array([-1.0]), high=np.array([1.0])
         )
@@ -63,6 +64,7 @@ def test_autoreset_reset_info():
     obs, info = env.reset(return_info=True)
     assert ob_space.contains(obs)
     assert isinstance(info, dict)
+    env.close()
 
 
 @pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
@@ -74,12 +76,10 @@ def test_make_autoreset_true(spec):
     Note: This test assumes that all first-party environments will terminate in a finite
     amount of time with random actions, which is true as of the time of adding this test.
     """
-    env = None
-    with pytest.warns(None) as warnings:
+    with pytest.warns(None):
         env = spec.make(autoreset=True)
 
-    ob_space = env.observation_space
-    obs = env.reset(seed=0)
+    env.reset(seed=0)
     env.action_space.seed(0)
 
     env.unwrapped.reset = MagicMock(side_effect=env.unwrapped.reset)
@@ -90,22 +90,23 @@ def test_make_autoreset_true(spec):
 
     assert isinstance(env, AutoResetWrapper)
     assert env.unwrapped.reset.called
+    env.close()
 
 
 @pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
 def test_make_autoreset_false(spec):
-    env = None
-    with pytest.warns(None) as warnings:
+    with pytest.warns(None):
         env = spec.make(autoreset=False)
     assert not isinstance(env, AutoResetWrapper)
+    env.close()
 
 
 @pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
 def test_make_autoreset_default_false(spec):
-    env = None
-    with pytest.warns(None) as warnings:
+    with pytest.warns(None):
         env = spec.make()
     assert not isinstance(env, AutoResetWrapper)
+    env.close()
 
 
 def test_autoreset_autoreset():
@@ -118,16 +119,16 @@ def test_autoreset_autoreset():
     obs, reward, done, info = env.step(action)
     assert obs == np.array([1])
     assert reward == 0
-    assert done == False
+    assert done is False
     assert info == {"count": 1}
     obs, reward, done, info = env.step(action)
     assert obs == np.array([2])
-    assert done == False
+    assert done is False
     assert reward == 0
     assert info == {"count": 2}
     obs, reward, done, info = env.step(action)
     assert obs == np.array([0])
-    assert done == True
+    assert done is True
     assert reward == 1
     assert info == {
         "count": 0,
@@ -137,10 +138,11 @@ def test_autoreset_autoreset():
     obs, reward, done, info = env.step(action)
     assert obs == np.array([1])
     assert reward == 0
-    assert done == False
+    assert done is False
     assert info == {"count": 1}
     obs, reward, done, info = env.step(action)
     assert obs == np.array([2])
     assert reward == 0
-    assert done == False
+    assert done is False
     assert info == {"count": 2}
+    env.close()

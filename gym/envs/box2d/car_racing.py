@@ -11,7 +11,7 @@ from Box2D.b2 import contactListener, fixtureDef, polygonShape
 import gym
 from gym import spaces
 from gym.envs.box2d.car_dynamics import Car
-from gym.utils import EzPickle, seeding
+from gym.utils import EzPickle
 
 STATE_W = 96  # less than Atari 160x192
 STATE_H = 96
@@ -714,6 +714,6 @@ if __name__ == "__main__":
                 print(f"step {steps} total_reward {total_reward:+0.2f}")
             steps += 1
             isopen = env.render()
-            if done or restart or isopen == False:
+            if done or restart or isopen is False:
                 break
     env.close()

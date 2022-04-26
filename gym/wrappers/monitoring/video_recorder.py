@@ -1,9 +1,8 @@
-import distutils.spawn
-import distutils.version
 import json
 import os
 import os.path
 import pkgutil
+import shutil
 import subprocess
 import tempfile
 from io import StringIO
@@ -338,9 +337,9 @@ class ImageEncoder:
         self.frames_per_sec = frames_per_sec
         self.output_frames_per_sec = output_frames_per_sec
 
-        if distutils.spawn.find_executable("avconv") is not None:
+        if shutil.which("avconv") is not None:
             self.backend = "avconv"
-        elif distutils.spawn.find_executable("ffmpeg") is not None:
+        elif shutil.which("ffmpeg") is not None:
             self.backend = "ffmpeg"
         elif pkgutil.find_loader("imageio_ffmpeg"):
             import imageio_ffmpeg
@@ -418,13 +417,8 @@ class ImageEncoder:
             )
 
         try:
-            if distutils.version.LooseVersion(
-                np.__version__
-            ) >= distutils.version.LooseVersion("1.9.0"):
-                self.proc.stdin.write(frame.tobytes())
-            else:
-                self.proc.stdin.write(frame.tostring())
-        except Exception as e:
+            self.proc.stdin.write(frame.tobytes())
+        except Exception:
             stdout, stderr = self.proc.communicate()
             logger.error("VideoRecorder encoder failed: %s", stderr)
 
