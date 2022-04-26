@@ -81,15 +81,15 @@ class BraxVecEnvInfoStrategy(VecEnvInfoStrategy):
         return self.info
 
 
-class StrategiesEnum(Enum):
+class InfoStrategiesEnum(Enum):
     classic: str = "classic"
     brax: str = "brax"
 
 
 def get_info_strategy(info_format: str) -> VecEnvInfoStrategy:
     strategies = {
-        StrategiesEnum.classic.value: ClassicVecEnvInfoStrategy,
-        StrategiesEnum.brax.value: BraxVecEnvInfoStrategy,
+        InfoStrategiesEnum.classic.value: ClassicVecEnvInfoStrategy,
+        InfoStrategiesEnum.brax.value: BraxVecEnvInfoStrategy,
     }
     if info_format not in strategies:
         raise InvalidInfoFormat(

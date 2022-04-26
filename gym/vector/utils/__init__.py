@@ -1,7 +1,7 @@
 from gym.vector.utils.info_strategies import (
     BraxVecEnvInfoStrategy,
     ClassicVecEnvInfoStrategy,
-    StrategiesEnum,
+    InfoStrategiesEnum,
     get_info_strategy,
 )
 from gym.vector.utils.misc import CloudpickleWrapper, clear_mpi_env_vars
@@ -26,6 +26,6 @@ __all__ = [
     "iterate",
     "ClassicVecEnvInfoStrategy",
     "BraxVecEnvInfoStrategy",
-    "StrategiesEnum",
+    "InfoStrategiesEnum",
     "get_info_strategy",
 ]

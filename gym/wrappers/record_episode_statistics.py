@@ -6,7 +6,7 @@ import numpy as np
 
 import gym
 from gym.error import NoMatchingInfoStrategy
-from gym.vector.utils import StrategiesEnum
+from gym.vector.utils import InfoStrategiesEnum
 
 
 class ClassicStatsInfoStrategy:
@@ -61,8 +61,8 @@ class BraxVecEnvStatsInfoStrategy:
 
 def get_statistic_info_strategy(wrapped_env_strategy: str):
     strategies = {
-        StrategiesEnum.classic.value: ClassicVecEnvStatsInfoStrategy,
-        StrategiesEnum.brax.value: BraxVecEnvStatsInfoStrategy,
+        InfoStrategiesEnum.classic.value: ClassicVecEnvStatsInfoStrategy,
+        InfoStrategiesEnum.brax.value: BraxVecEnvStatsInfoStrategy,
     }
     if wrapped_env_strategy not in strategies:
         raise NoMatchingInfoStrategy(
