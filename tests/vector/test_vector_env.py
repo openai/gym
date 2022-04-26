@@ -1,10 +1,10 @@
 from functools import partial
-from typing import Callable, Type
+from typing import Type
 
 import numpy as np
 import pytest
 
-from gym import Space, spaces
+from gym import Space
 from gym.spaces import Box, Tuple
 from gym.vector.async_vector_env import AsyncVectorEnv
 from gym.vector.sync_vector_env import SyncVectorEnv
