@@ -33,6 +33,11 @@ def make(
         If not ``None``, then apply the wrappers to each internal
         environment during creation.
 
+    info_format : str, optional
+        Choose one of the available info formatting strategies. Default behaviour
+        is returning a list of dictionaries where each dictionary represents the
+        info of the environment at index i.
+
     Returns
     -------
     :class:`gym.vector.VectorEnv`

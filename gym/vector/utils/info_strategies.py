@@ -86,14 +86,16 @@ class InfoStrategiesEnum(Enum):
     brax: str = "brax"
 
 
-def get_info_strategy(info_format: str) -> VecEnvInfoStrategy:
+class InfoStrategyFactory:
     strategies = {
         InfoStrategiesEnum.classic.value: ClassicVecEnvInfoStrategy,
         InfoStrategiesEnum.brax.value: BraxVecEnvInfoStrategy,
     }
-    if info_format not in strategies:
-        raise InvalidInfoFormat(
-            "%s is not an available format for info, please choose one between %s"
-            % (info_format, list(strategies.keys()))
-        )
-    return strategies[info_format]
+
+    def get_info_strategy(info_format: str) -> VecEnvInfoStrategy:
+        if info_format not in InfoStrategyFactory.strategies:
+            raise InvalidInfoFormat(
+                "%s is not an available format for info, please choose one between %s"
+                % (info_format, list(InfoStrategyFactory.strategies.keys()))
+            )
+        return InfoStrategyFactory.strategies[info_format]

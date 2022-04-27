@@ -59,17 +59,22 @@ class BraxVecEnvStatsInfoStrategy:
         return self.info
 
 
-def get_statistic_info_strategy(wrapped_env_strategy: str):
+class StatsInfoStrategyFactory:
     strategies = {
         InfoStrategiesEnum.classic.value: ClassicVecEnvStatsInfoStrategy,
         InfoStrategiesEnum.brax.value: BraxVecEnvStatsInfoStrategy,
     }
-    if wrapped_env_strategy not in strategies:
-        raise NoMatchingInfoStrategy(
-            "Wrapped environment has an info format of type %s which is not a processable format by this wrapper. Please use one in %s"
-            % (wrapped_env_strategy, list(strategies.keys()))
-        )
-    return strategies[wrapped_env_strategy]
+
+    def get_stats_info_strategy(wrapped_env_strategy: str):
+        if wrapped_env_strategy not in StatsInfoStrategyFactory.strategies:
+            raise NoMatchingInfoStrategy(
+                "Wrapped environment has an info format of type %s which is not a processable format by this wrapper. Please use one in %s"
+                % (
+                    wrapped_env_strategy,
+                    list(StatsInfoStrategyFactory.strategies.keys()),
+                )
+            )
+        return StatsInfoStrategyFactory.strategies[wrapped_env_strategy]
 
 
 class RecordEpisodeStatistics(gym.Wrapper):
@@ -84,9 +89,11 @@ class RecordEpisodeStatistics(gym.Wrapper):
         self.length_queue = deque(maxlen=deque_size)
         self.is_vector_env = getattr(env, "is_vector_env", False)
         if self.is_vector_env:
-            self.StatsInfoStrategy = get_statistic_info_strategy(self.env.info_format)
+            self.stats_info_strategy = StatsInfoStrategyFactory.get_stats_info_strategy(
+                self.env.info_format
+            )
         else:
-            self.StatsInfoStrategy = ClassicStatsInfoStrategy
+            self.stats_info_strategy = ClassicStatsInfoStrategy
 
     def reset(self, **kwargs):
         observations = super().reset(**kwargs)
@@ -95,7 +102,7 @@ class RecordEpisodeStatistics(gym.Wrapper):
         return observations
 
     def step(self, action):
-        infos_processor = self.StatsInfoStrategy(self.num_envs)
+        infos_processor = self.stats_info_strategy(self.num_envs)
         observations, rewards, dones, infos = super().step(action)
         self.episode_returns += rewards
         self.episode_lengths += 1

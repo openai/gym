@@ -3,7 +3,12 @@ from typing import List, Optional, Union
 
 import numpy as np
 
-from gym.vector.utils import concatenate, create_empty_array, get_info_strategy, iterate
+from gym.vector.utils import (
+    InfoStrategyFactory,
+    concatenate,
+    create_empty_array,
+    iterate,
+)
 from gym.vector.vector_env import VectorEnv
 
 __all__ = ["SyncVectorEnv"]
@@ -71,7 +76,7 @@ class SyncVectorEnv(VectorEnv):
         self.copy = copy
         self.metadata = self.envs[0].metadata
         self.info_format = info_format
-        self.info_strategy = get_info_strategy(self.info_format)
+        self.info_strategy = InfoStrategyFactory.get_info_strategy(self.info_format)
 
         if (observation_space is None) or (action_space is None):
             observation_space = observation_space or self.envs[0].observation_space

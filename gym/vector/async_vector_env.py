@@ -16,11 +16,11 @@ from gym.error import (
 )
 from gym.vector.utils import (
     CloudpickleWrapper,
+    InfoStrategyFactory,
     clear_mpi_env_vars,
     concatenate,
     create_empty_array,
     create_shared_memory,
-    get_info_strategy,
     iterate,
     read_from_shared_memory,
     write_to_shared_memory,
@@ -137,7 +137,7 @@ class AsyncVectorEnv(VectorEnv):
         dummy_env = env_fns[0]()
         self.metadata = dummy_env.metadata
         self.info_format = info_format
-        self.info_strategy = get_info_strategy(self.info_format)
+        self.info_strategy = InfoStrategyFactory.get_info_strategy(self.info_format)
 
         if (observation_space is None) or (action_space is None):
             observation_space = observation_space or dummy_env.observation_space

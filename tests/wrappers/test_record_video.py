@@ -107,7 +107,10 @@ def test_record_video_within_vector_brax_info():
     envs = gym.wrappers.RecordEpisodeStatistics(envs)
     envs.reset()
     for i in range(199):
-        envs.step(envs.action_space.sample())
+        _, _, _, infos = envs.step(envs.action_space.sample())
+        if infos:
+            assert type(infos) == dict
+            assert "episode" in infos
     assert os.path.isdir("videos")
     mp4_files = [file for file in os.listdir("videos") if file.endswith(".mp4")]
     assert len(mp4_files) == 2

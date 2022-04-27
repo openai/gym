@@ -4,7 +4,7 @@ from gym.error import InvalidInfoFormat
 from gym.vector.utils import (
     BraxVecEnvInfoStrategy,
     ClassicVecEnvInfoStrategy,
-    get_info_strategy,
+    InfoStrategyFactory,
 )
 
 
@@ -15,7 +15,12 @@ def test_classic_vec_env_info_strategy(num_envs):
         info = {"example_info": i}
         infos.add_info(info, i)
 
-    expected_info = [{"example_info": 0}, {"example_info": 1}, {"example_info": 2}]
+    expected_info = [
+        {"example_info": 0},
+        {"example_info": 1},
+        {"example_info": 2},
+    ]
+    print(infos.get_info())
     assert expected_info == infos.get_info()
 
 
@@ -47,11 +52,11 @@ def test_brax_vec_env_info_strategy_with_nones(num_envs):
 @pytest.mark.parametrize(("info_format"), [("classic"), ("brax"), ("non_existent")])
 def test_get_info_strategy(info_format):
     if info_format == "classic":
-        info_strategy = get_info_strategy(info_format)
+        info_strategy = InfoStrategyFactory.get_info_strategy(info_format)
         assert info_strategy == ClassicVecEnvInfoStrategy
     elif info_format == "brax":
-        info_strategy = get_info_strategy(info_format)
+        info_strategy = InfoStrategyFactory.get_info_strategy(info_format)
         assert info_strategy == BraxVecEnvInfoStrategy
     else:
         with pytest.raises(InvalidInfoFormat):
-            get_info_strategy(info_format)
+            InfoStrategyFactory.get_info_strategy(info_format)
