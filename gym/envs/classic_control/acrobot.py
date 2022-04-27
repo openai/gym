@@ -264,8 +264,13 @@ class AcrobotEnv(core.Env):
         return (dtheta1, dtheta2, ddtheta1, ddtheta2, 0.0)
 
     def render(self, mode="human"):
-        import pygame
-        from pygame import gfxdraw
+        try:
+            import pygame
+            from pygame import gfxdraw
+        except ImportError:
+            raise ImportError(
+                "pygame is not installed, run `pip install gym[classic_control]`"
+            )
 
         if self.screen is None:
             pygame.init()

@@ -184,8 +184,13 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
             return np.array(self.state, dtype=np.float32), {}
 
     def render(self, mode="human"):
-        import pygame
-        from pygame import gfxdraw
+        try:
+            import pygame
+            from pygame import gfxdraw
+        except ImportError:
+            raise ImportError(
+                "pygame is not installed, run `pip install gym[classic_control]`"
+            )
 
         screen_width = 600
         screen_height = 400

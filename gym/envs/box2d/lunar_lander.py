@@ -3,20 +3,24 @@ __credits__ = ["Andrea PIERRÉ"]
 import math
 from typing import Optional
 
-import Box2D
 import numpy as np
-from Box2D.b2 import (
-    circleShape,
-    contactListener,
-    edgeShape,
-    fixtureDef,
-    polygonShape,
-    revoluteJointDef,
-)
 
 import gym
 from gym import error, spaces
 from gym.utils import EzPickle
+
+try:
+    import Box2D
+    from Box2D.b2 import (
+        circleShape,
+        contactListener,
+        edgeShape,
+        fixtureDef,
+        polygonShape,
+        revoluteJointDef,
+    )
+except ImportError:
+    raise ImportError("Box2d is not installed, run `pip install gym[box2d]`")
 
 FPS = 50
 SCALE = 30.0  # affects how fast-paced the game is, forces should be adjusted as well
@@ -535,8 +539,11 @@ class LunarLander(gym.Env, EzPickle):
         return np.array(state, dtype=np.float32), reward, done, {}
 
     def render(self, mode="human"):
-        import pygame
-        from pygame import gfxdraw
+        try:
+            import pygame
+            from pygame import gfxdraw
+        except ImportError:
+            raise ImportError("Pygame is not installed, run `pip install gym[box2d]`")
 
         if self.screen is None:
             pygame.init()

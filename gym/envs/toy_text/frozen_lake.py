@@ -241,7 +241,12 @@ class FrozenLakeEnv(Env):
             return self._render_gui(desc, mode)
 
     def _render_gui(self, desc, mode):
-        import pygame
+        try:
+            import pygame
+        except ImportError:
+            raise ImportError(
+                "pygame is not installed, run `pip install gym[toy_text]`"
+            )
 
         if self.window_surface is None:
             pygame.init()

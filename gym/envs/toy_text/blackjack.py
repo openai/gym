@@ -170,7 +170,12 @@ class BlackjackEnv(gym.Env):
             return self._get_obs(), {}
 
     def render(self, mode="human"):
-        import pygame
+        try:
+            import pygame
+        except ImportError:
+            raise ImportError(
+                "pygame is not installed, run `pip install gym[toy_text]`"
+            )
 
         player_sum, dealer_card_value, usable_ace = self._get_obs()
         screen_width, screen_height = 600, 500
