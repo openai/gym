@@ -8,7 +8,7 @@ from pygame import KEYDOWN, KEYUP, QUIT, event
 from pygame.event import Event
 
 import gym
-from gym.utils.play import MissingKeysToAction, PlayableGame, play
+from gym.utils.play import MissingKeysToAction, PlayableGame, PlayPlot, play
 
 RELEVANT_KEY_1 = ord("a")  # 97
 RELEVANT_KEY_2 = ord("d")  # 100
@@ -184,3 +184,35 @@ def test_play_loop_real_env():
     play(env_play, callback=status.callback, keys_to_action=keys_to_action, seed=SEED)
 
     assert (status.last_observation == obs).all()
+
+
+def test_play_plot_horizon():
+    """Test if plot length is limited at horizon_timesteps datapoints"""
+    HORIZON_TIMESTEPS = 10
+    NUM_STEPS = 20
+
+    def callback(obs_t, obs_tp1, action, rew, done, info):
+        return [
+            rew,
+        ]
+
+    plotter = PlayPlot(callback, HORIZON_TIMESTEPS, ["reward"])
+
+    for i in range(NUM_STEPS):
+        plotter.callback(1, 1, 1, i, False, {})
+
+    assert len(plotter.data[0]) == HORIZON_TIMESTEPS
+    assert plotter.data[0][-1] == i
+
+
+def test_play_plot_multiple_plots():
+    """Test if multiple plots (> 1) are managed correctly"""
+    HORIZON_TIMESTEPS = 10
+    PLOT_NAMES = ["reward", "done"]
+
+    def callback(obs_t, obs_tp1, action, rew, done, info):
+        return [rew, done]
+
+    plotter = PlayPlot(callback, HORIZON_TIMESTEPS, PLOT_NAMES)
+
+    assert len(plotter.data) == len(PLOT_NAMES)

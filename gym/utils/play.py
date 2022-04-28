@@ -201,7 +201,7 @@ class PlayPlot:
     horizon_timesteps: int
         number of timesteps to show on the plot axis.
 
-    plot_name: List[string]
+    plot_names: List[string]
         titles of the plots.
     """
 
