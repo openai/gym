@@ -1,4 +1,4 @@
-from typing import Callable, Dict, Optional, Tuple
+from typing import Callable, Dict, List, Optional, Tuple
 
 import pygame
 from numpy.typing import NDArray
@@ -112,18 +112,6 @@ def play(
     verifying that the frame-level preprocessing does not render the game
     unplayable.
 
-    If you wish to plot real time statistics as you play, you can use
-    gym.utils.play.PlayPlot. Here's a sample code for plotting the reward
-    for last 5 second of gameplay.
-
-        def callback(obs_t, obs_tp1, action, rew, done, info):
-            return [rew,]
-        plotter = PlayPlot(callback, 30 * 5, ["reward"])
-
-        env = gym.make("Pong-v4")
-        play(env, callback=plotter.callback)
-
-
     Arguments
     ---------
     env: gym.Env
@@ -192,7 +180,34 @@ def play(
 
 
 class PlayPlot:
-    def __init__(self, callback, horizon_timesteps, plot_names):
+    """Plot real time statistics as playing with an
+    environment.
+
+    Sample code for plotting the reward
+    of the last 5 second of gameplay.
+
+        def callback(obs_t, obs_tp1, action, rew, done, info):
+            return [rew,]
+        plotter = PlayPlot(callback, 30 * 5, ["reward"])
+
+        env = gym.make("Pong-v4")
+        play(env, callback=plotter.callback)
+
+    Arguments
+    ---------
+    callback: Callable
+        callback function which will be called after every step inside the `play` function.
+
+    horizon_timesteps: int
+        number of timesteps to show on the plot axis.
+
+    plot_name: List[string]
+        titles of the plots.
+    """
+
+    def __init__(
+        self, callback: Callable, horizon_timesteps: int, plot_names: List[str]
+    ):
         self.data_callback = callback
         self.horizon_timesteps = horizon_timesteps
         self.plot_names = plot_names
