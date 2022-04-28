@@ -7,6 +7,11 @@ import pytest
 from pygame import KEYDOWN, KEYUP, QUIT, event
 from pygame.event import Event
 
+try:
+    import matplotlib
+except ImportError:
+    matplotlib = None
+
 import gym
 from gym.utils.play import MissingKeysToAction, PlayableGame, PlayPlot, play
 
@@ -186,8 +191,12 @@ def test_play_loop_real_env():
     assert (status.last_observation == obs).all()
 
 
+@pytest.mark.skipif(matplotlib is None, reason="Module Matplolib not found")
 def test_play_plot_horizon():
     """Test if plot length is limited at horizon_timesteps datapoints"""
+    # plot window remains open until all tests are finished
+    # https://github.com/matplotlib/matplotlib/issues/8560/
+    # https://github.com/matplotlib/matplotlib/issues/17109
     HORIZON_TIMESTEPS = 10
     NUM_STEPS = 20
 
@@ -205,9 +214,10 @@ def test_play_plot_horizon():
     assert plotter.data[0][-1] == i
 
 
+@pytest.mark.skipif(matplotlib is None, reason="Module Matplolib not found")
 def test_play_plot_multiple_plots():
     """Test if multiple plots (> 1) are managed correctly"""
-    HORIZON_TIMESTEPS = 10
+    HORIZON_TIMESTEPS = 5
     PLOT_NAMES = ["reward", "done"]
 
     def callback(obs_t, obs_tp1, action, rew, done, info):
