@@ -180,11 +180,11 @@ def play(
 
 
 class PlayPlot:
-    """Plot real time statistics as playing with an
+    """Plot real time statistics while playing with an
     environment.
 
     Sample code for plotting the reward
-    of the last 5 second of gameplay.
+    of the last 5 seconds of gameplay.
 
         def callback(obs_t, obs_tp1, action, rew, done, info):
             return [rew,]
