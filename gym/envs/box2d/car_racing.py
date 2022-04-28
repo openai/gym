@@ -8,13 +8,14 @@ import numpy as np
 import gym
 from gym import spaces
 from gym.envs.box2d.car_dynamics import Car
+from gym.error import DependencyNotInstalled
 from gym.utils import EzPickle
 
 try:
     import Box2D
     from Box2D.b2 import contactListener, fixtureDef, polygonShape
 except ImportError:
-    raise ImportError("Box2D is not installed, run `pip install gym[box2d]`")
+    raise DependencyNotInstalled("box2D is not installed, run `pip install gym[box2d]`")
 
 
 STATE_W = 96  # less than Atari 160x192
@@ -470,7 +471,9 @@ class CarRacing(gym.Env, EzPickle):
         try:
             import pygame
         except ImportError:
-            raise ImportError("Pygame is not installed, run `pip install gym[box2d]`")
+            raise DependencyNotInstalled(
+                "pygame is not installed, run `pip install gym[box2d]`"
+            )
 
         pygame.font.init()
 

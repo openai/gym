@@ -7,6 +7,7 @@ import numpy as np
 
 import gym
 from gym import spaces
+from gym.error import DependencyNotInstalled
 
 
 class PendulumEnv(gym.Env):
@@ -144,7 +145,7 @@ class PendulumEnv(gym.Env):
             import pygame
             from pygame import gfxdraw
         except ImportError:
-            raise ImportError(
+            raise DependencyNotInstalled(
                 "pygame is not installed, run `pip install gym[classic_control]`"
             )
 

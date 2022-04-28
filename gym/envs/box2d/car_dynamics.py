@@ -11,10 +11,12 @@ import math
 
 import numpy as np
 
+from gym.error import DependencyNotInstalled
+
 try:
     from Box2D.b2 import fixtureDef, polygonShape, revoluteJointDef
 except ImportError:
-    raise ImportError("Box2D is not installed, run `pip install gym[box2d]`")
+    raise DependencyNotInstalled("box2D is not installed, run `pip install gym[box2d]`")
 
 
 SIZE = 0.02

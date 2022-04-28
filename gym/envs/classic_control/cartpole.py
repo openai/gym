@@ -10,6 +10,7 @@ import numpy as np
 
 import gym
 from gym import logger, spaces
+from gym.error import DependencyNotInstalled
 
 
 class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
@@ -188,7 +189,7 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
             import pygame
             from pygame import gfxdraw
         except ImportError:
-            raise ImportError(
+            raise DependencyNotInstalled(
                 "pygame is not installed, run `pip install gym[classic_control]`"
             )
 

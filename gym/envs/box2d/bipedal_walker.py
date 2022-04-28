@@ -7,6 +7,7 @@ import numpy as np
 
 import gym
 from gym import error, spaces
+from gym.error import DependencyNotInstalled
 from gym.utils import EzPickle
 
 try:
@@ -20,7 +21,7 @@ try:
         revoluteJointDef,
     )
 except ImportError:
-    raise ImportError("Box2D is not installed, run `pip install gym[box2d]`")
+    raise DependencyNotInstalled("box2D is not installed, run `pip install gym[box2d]`")
 
 
 FPS = 50
@@ -595,7 +596,9 @@ class BipedalWalker(gym.Env, EzPickle):
             import pygame
             from pygame import gfxdraw
         except ImportError:
-            raise ImportError("Pygame is not installed, run `pip install gym[box2d]`")
+            raise DependencyNotInstalled(
+                "pygame is not installed, run `pip install gym[box2d]`"
+            )
 
         if self.screen is None:
             pygame.init()

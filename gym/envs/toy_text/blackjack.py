@@ -5,6 +5,7 @@ import numpy as np
 
 import gym
 from gym import spaces
+from gym.error import DependencyNotInstalled
 
 
 def cmp(a, b):
@@ -173,7 +174,7 @@ class BlackjackEnv(gym.Env):
         try:
             import pygame
         except ImportError:
-            raise ImportError(
+            raise DependencyNotInstalled(
                 "pygame is not installed, run `pip install gym[toy_text]`"
             )
 
