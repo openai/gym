@@ -10,12 +10,13 @@ repos:
       - id: codespell
         args:
           - --ignore-words-list=nd,reacher,thist,ths
-  - repo: https://gitlab.com/pycqa/flake8
-    rev: 3.9.2
+  - repo: https://gitlab.com/PyCQA/flake8
+    rev: 4.0.1
     hooks:
       - id: flake8
         args:
-          - --ignore=E203,E402,E712,E722,E731,E741,F401,F403,F405,F524,F841,W503,E302,E704
+          - '--per-file-ignores=*/__init__.py:F401 gym/envs/registration.py:E704'
+          - --ignore=E203,W503,E741
           - --max-complexity=30
           - --max-line-length=456
           - --show-source
@@ -35,7 +36,7 @@ repos:
           - --count
           - --convention=google
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.31.0
+    rev: v2.32.0
     hooks:
       - id: pyupgrade
         # TODO: remove `--keep-runtime-typing` option

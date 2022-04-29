@@ -3,7 +3,6 @@ from __future__ import annotations
 from abc import abstractmethod
 from typing import Generic, Optional, SupportsFloat, Tuple, TypeVar, Union
 
-import gym
 from gym import spaces
 from gym.logger import deprecation
 from gym.utils import seeding

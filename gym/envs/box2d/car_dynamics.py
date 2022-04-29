@@ -9,17 +9,8 @@ Created by Oleg Klimov
 
 import math
 
-import Box2D
 import numpy as np
-from Box2D.b2 import (
-    circleShape,
-    contactListener,
-    edgeShape,
-    fixtureDef,
-    polygonShape,
-    revoluteJointDef,
-    shape,
-)
+from Box2D.b2 import fixtureDef, polygonShape, revoluteJointDef
 
 SIZE = 0.02
 ENGINE_POWER = 100000000 * SIZE * SIZE
