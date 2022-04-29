@@ -14,6 +14,27 @@ def capped_cubic_video_schedule(episode_id):
 
 
 class RecordVideo(gym.Wrapper):
+    """This wrapper records videos of rollouts.
+
+    Usually, you only want to record episodes intermittently, say every hundreth episode.
+    To do this, you can specify **either** `episode_trigger` **or** `step_trigger` (not both).
+    They should be functions returning a boolean that indicates whether a recording should be started at the
+    current episode or step, respectively.
+    If neither `episode_trigger` nor `step_trigger` is passed, a default `episode_trigger` will be employed.
+
+    By default, the recording will be stopped once a `done` signal has been emitted by the environment. However, you can
+    also create recordings of fixed length (possibly spanning several episodes) by passing a strictly positive value for
+    `video_length`.
+
+    Args:
+        env: The environment that will be wrapped
+        video_folder (str): The folder where the recordings will be stored
+        epidsode_trigger: Function that accepts an integer and returns `True` iff a recording should be started at this episode
+        step_trigger: Function that accepts an integer and returns `True` iff a recording should be started at this step
+        video_length (int): The length of recorded episodes. If 0, entire episodes are recorded. Otherwise, snippets of the specified length are captured
+        name_prefix (str): Will be prepended to the filename of the recordings
+    """
+
     def __init__(
         self,
         env,
