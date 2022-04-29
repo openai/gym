@@ -3,14 +3,20 @@ __credits__ = ["Andrea PIERRÉ"]
 import math
 from typing import Optional, Union
 
-import Box2D
 import numpy as np
-from Box2D.b2 import contactListener, fixtureDef, polygonShape
 
 import gym
 from gym import spaces
 from gym.envs.box2d.car_dynamics import Car
+from gym.error import DependencyNotInstalled
 from gym.utils import EzPickle
+
+try:
+    import Box2D
+    from Box2D.b2 import contactListener, fixtureDef, polygonShape
+except ImportError:
+    raise DependencyNotInstalled("box2D is not installed, run `pip install gym[box2d]`")
+
 
 STATE_W = 96  # less than Atari 160x192
 STATE_H = 96
@@ -472,7 +478,12 @@ class CarRacing(gym.Env, EzPickle):
         return self.state, step_reward, done, {}
 
     def render(self, mode: str = "human"):
-        import pygame
+        try:
+            import pygame
+        except ImportError:
+            raise DependencyNotInstalled(
+                "pygame is not installed, run `pip install gym[box2d]`"
+            )
 
         pygame.font.init()
 

@@ -7,6 +7,7 @@ import numpy as np
 
 import gym
 from gym import spaces
+from gym.error import DependencyNotInstalled
 
 
 class PendulumEnv(gym.Env):
@@ -140,8 +141,13 @@ class PendulumEnv(gym.Env):
         return np.array([np.cos(theta), np.sin(theta), thetadot], dtype=np.float32)
 
     def render(self, mode="human"):
-        import pygame
-        from pygame import gfxdraw
+        try:
+            import pygame
+            from pygame import gfxdraw
+        except ImportError:
+            raise DependencyNotInstalled(
+                "pygame is not installed, run `pip install gym[classic_control]`"
+            )
 
         if self.screen is None:
             pygame.init()
