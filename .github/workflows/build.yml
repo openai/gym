@@ -1,5 +1,10 @@
+---
 name: build
-on: [pull_request, push]
+on:
+  pull_request:
+    branches:
+      - '*'
+  push:
 
 jobs:
   build:
@@ -9,10 +14,30 @@ jobs:
         python-version: ['3.7', '3.8', '3.9', '3.10']
     steps:
       - uses: actions/checkout@v2
-      - run: |
+      - name: Build container
+        run: |
            docker build -f py.Dockerfile \
              --build-arg MUJOCO_KEY=$MUJOCO_KEY \
              --build-arg PYTHON_VERSION=${{ matrix.python-version }} \
              --tag gym-docker .
       - name: Run tests
-        run: docker run gym-docker pytest --import-mode=append
+        run: |
+          docker run -v /tmp:/tmp gym-docker \
+          pytest --cov-report=term-missing:skip-covered \
+          --junitxml=/tmp/pytest.xml --cov=gym tests/ | \
+          tee /tmp/pytest-coverage.txt
+
+      - name: Coverage comment
+        if: PYTHON_VERSION == '3.10'
+        uses: MishaKav/pytest-coverage-comment@main
+        with:
+          pytest-coverage-path: /tmp/pytest-coverage.txt
+          junitxml-path: /tmp/pytest.xml
+          title: Coverage report details
+          badge-title: Coverage
+          hide-badge: false
+          hide-report: false
+          create-new-comment: false
+          hide-comment: false
+          report-only-changed-files: true
+          junitxml-title: JUnit Xml Summary
