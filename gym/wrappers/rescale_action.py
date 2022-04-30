@@ -5,9 +5,9 @@ from gym import spaces
 
 
 class RescaleAction(gym.ActionWrapper):
-    r"""Rescales the continuous action space of the environment to a range [min_action, max_action].
+    """Rescales the continuous action space of the environment to a range [min_action, max_action].
 
-    Example::
+    Examples::
 
         >>> RescaleAction(env, min_action, max_action).action_space == Box(min_action, max_action)
         True

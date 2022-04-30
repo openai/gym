@@ -2,9 +2,9 @@ from gym import ObservationWrapper
 
 
 class TransformObservation(ObservationWrapper):
-    r"""Transform the observation via an arbitrary function.
+    """Transform the observation via an arbitrary function.
 
-    Example::
+    Examples::
 
         >>> import gym
         >>> env = gym.make('CartPole-v1')

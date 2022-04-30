@@ -14,7 +14,8 @@ class Tuple(Space[tuple], Sequence):
 
     Example usage::
 
-        self.observation_space = spaces.Tuple((spaces.Discrete(2), spaces.Discrete(3)))
+        >>> from gym.spaces import Discrete
+        >>> observation_space = Tuple((Discrete(2), Discrete(3)))
     """
 
     def __init__(

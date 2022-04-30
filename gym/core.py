@@ -147,16 +147,17 @@ class Env(Generic[ObsType, ActType]):
 
         Example::
 
-            class MyEnv(Env):
-                metadata = {'render_modes': ['human', 'rgb_array']}
-
-                def render(self, mode='human'):
-                    if mode == 'rgb_array':
-                        return np.array(...) # return RGB frame suitable for video
-                    elif mode == 'human':
-                        ... # pop up a window and render
-                    else:
-                        super(MyEnv, self).render(mode=mode) # just raise an exception
+            >>> import numpy as np
+            >>> class MyEnv(Env):
+            ...     metadata = {'render_modes': ['human', 'rgb_array']}
+            ...
+            ...     def render(self, mode='human'):
+            ...         if mode == 'rgb_array':
+            ...             return np.array(...) # return RGB frame suitable for video
+            ...         elif mode == 'human':
+            ...             ... # pop up a window and render
+            ...         else:
+            ...             super().render(mode=mode) # just raise an exception
         """
         raise NotImplementedError
 

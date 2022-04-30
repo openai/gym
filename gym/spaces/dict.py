@@ -17,30 +17,32 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
 
     Example usage::
 
-        self.observation_space = spaces.Dict({"position": spaces.Discrete(2), "velocity": spaces.Discrete(3)})
+        >>> from gym.spaces import Discrete
+        >>> observation_space = Dict({"position": Discrete(2), "velocity": Discrete(3)})
 
     Example usage [nested]::
 
-        self.nested_observation_space = spaces.Dict({
-            'sensors':  spaces.Dict({
-                'position': spaces.Box(low=-100, high=100, shape=(3,)),
-                'velocity': spaces.Box(low=-1, high=1, shape=(3,)),
-                'front_cam': spaces.Tuple((
-                    spaces.Box(low=0, high=1, shape=(10, 10, 3)),
-                    spaces.Box(low=0, high=1, shape=(10, 10, 3))
-                )),
-                'rear_cam': spaces.Box(low=0, high=1, shape=(10, 10, 3)),
-            }),
-            'ext_controller': spaces.MultiDiscrete((5, 2, 2)),
-            'inner_state':spaces.Dict({
-                'charge': spaces.Discrete(100),
-                'system_checks': spaces.MultiBinary(10),
-                'job_status': spaces.Dict({
-                    'task': spaces.Discrete(5),
-                    'progress': spaces.Box(low=0, high=100, shape=()),
-                })
-            })
-        })
+        >>> from gym.spaces import Box, Tuple, MultiDiscrete, MultiBinary
+        >>> nested_observation_space = Dict({
+        ...     'sensors':  Dict({
+        ...         'position': Box(low=-100, high=100, shape=(3,)),
+        ...         'velocity': Box(low=-1, high=1, shape=(3,)),
+        ...         'front_cam': Tuple((
+        ...             Box(low=0, high=1, shape=(10, 10, 3)),
+        ...             Box(low=0, high=1, shape=(10, 10, 3))
+        ...         )),
+        ...         'rear_cam': Box(low=0, high=1, shape=(10, 10, 3)),
+        ...     }),
+        ...     'ext_controller': MultiDiscrete([5, 2, 2]),
+        ...     'inner_state':Dict({
+        ...         'charge': Discrete(100),
+        ...         'system_checks': MultiBinary(10),
+        ...         'job_status': Dict({
+        ...             'task': Discrete(5),
+        ...             'progress': Box(low=0, high=100, shape=()),
+        ...         })
+        ...     })
+        ... })
     """
 
     def __init__(

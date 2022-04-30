@@ -2,7 +2,7 @@ from gym import RewardWrapper
 
 
 class TransformReward(RewardWrapper):
-    r"""Transform the reward via an arbitrary function.
+    """Transform the reward via an arbitrary function.
 
     Example::
 
