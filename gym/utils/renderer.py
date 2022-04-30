@@ -4,11 +4,11 @@ from typing import Any, Callable, List, Optional
 NO_RETURNS_RENDER = [None, "human"]
 
 # list of modes with which render returns just a single frame of the current state
-SINGLE_RENDER = ["single_rgb_array"]
+SINGLE_RENDER = ["single_rgb_array", "single_depth_array", "single_state_pixels"]
 
 
 class Renderer:
-    """ This class serves to easily integrate collection of renders for environments
+    """This class serves to easily integrate collection of renders for environments
     that has a function that computes a single render.
 
     To use this function:

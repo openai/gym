@@ -69,7 +69,13 @@ class MujocoEnv(gym.Env):
         self._viewers = {}
 
         self.metadata = {
-            "render_modes": ["human", "rgb_array", "depth_array", "single_rgb_array"],
+            "render_modes": [
+                "human",
+                "rgb_array",
+                "depth_array",
+                "single_rgb_array",
+                "single_depth_array",
+            ],
             "render_fps": int(np.round(1.0 / self.dt)),
         }
 
@@ -192,7 +198,7 @@ class MujocoEnv(gym.Env):
             )
             # original image is upside-down, so flip it
             return data[::-1, :, :]
-        elif mode == "depth_array":
+        elif mode in ["depth_array", "single_depth_array"]:
             self._get_viewer(mode).render(
                 self.width, self.height, camera_id=self.camera_id
             )
@@ -217,7 +223,12 @@ class MujocoEnv(gym.Env):
         if self.viewer is None:
             if mode == "human":
                 self.viewer = mujoco_py.MjViewer(self.sim)
-            elif mode == "rgb_array" or mode == "depth_array":
+            elif mode in [
+                "rgb_array",
+                "depth_array",
+                "single_rgb_array",
+                "single_depth_array",
+            ]:
                 self.viewer = mujoco_py.MjRenderContextOffscreen(self.sim, -1)
 
             self.viewer_setup()
