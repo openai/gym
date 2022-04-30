@@ -1,3 +1,5 @@
+from typing import Union
+
 import numpy as np
 
 from gym import ObservationWrapper
@@ -5,9 +7,17 @@ from gym.spaces import Box
 
 
 class ResizeObservation(ObservationWrapper):
-    r"""Downsample the image observation to a square image."""
+    """Resize the image observation.
 
-    def __init__(self, env, shape):
+    This wrapper works on environments with image observations (or more generally observations of shape AxBxC) and resizes
+    the observation to the shape given by the 2-tuple `shape`. The argument `shape` may also be an integer. In that case, the
+    observation is scaled to a square of side-length `shape`.
+
+    Args:
+        shape (Union[tuple, int]): The dimensions of the resized observation
+    """
+
+    def __init__(self, env, shape: Union[tuple, int]):
         super().__init__(env)
         if isinstance(shape, int):
             shape = (shape, shape)

@@ -7,7 +7,9 @@ import numpy as np
 
 from gym import Env, spaces, utils
 from gym.envs.toy_text.utils import categorical_sample
+from gym.error import DependencyNotInstalled
 from gym.utils.renderer import Renderer
+
 
 MAP = [
     "+---------+",
@@ -67,6 +69,12 @@ class TaxiEnv(Env):
     successful episodes, when both the passenger and the taxi are at the destination.
     This gives a total of 404 reachable discrete states.
 
+    Each state space is represented by the tuple:
+    (taxi_row, taxi_col, passenger_location, destination)
+
+    An observation is an integer that encodes the corresponding state.
+    The state tuple can then be decoded with the "decode" method.
+
     Passenger locations:
     - 0: R(ed)
     - 1: G(reen)
@@ -84,9 +92,6 @@ class TaxiEnv(Env):
     - -1 per step unless other reward is triggered.
     - +20 delivering passenger.
     - -10  executing "pickup" and "drop-off" actions illegally.
-
-    state space is represented by:
-    (taxi_row, taxi_col, passenger_location, destination)
 
     ### Arguments
 
@@ -250,7 +255,12 @@ class TaxiEnv(Env):
             return self._render_gui(mode)
 
     def _render_gui(self, mode):
-        import pygame  # dependency to pygame only if rendering with human
+        try:
+            import pygame  # dependency to pygame only if rendering with human
+        except ImportError:
+            raise DependencyNotInstalled(
+                "pygame is not installed, run `pip install gym[toy_text]`"
+            )
 
         if self.window is None:
             pygame.init()

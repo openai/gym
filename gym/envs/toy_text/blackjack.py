@@ -5,6 +5,7 @@ import numpy as np
 
 import gym
 from gym import spaces
+from gym.error import DependencyNotInstalled
 from gym.utils.renderer import Renderer
 
 
@@ -190,7 +191,12 @@ class BlackjackEnv(gym.Env):
 
     def _render(self, mode):
         if mode is not None:
-            import pygame
+            try:
+                import pygame
+            except ImportError:
+                raise DependencyNotInstalled(
+                    "pygame is not installed, run `pip install gym[toy_text]`"
+                )
 
             player_sum, dealer_card_value, usable_ace = self._get_obs()
             screen_width, screen_height = 600, 500

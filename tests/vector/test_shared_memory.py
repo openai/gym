@@ -65,8 +65,7 @@ def test_create_shared_memory(space, expected_type, n, ctx):
             # Assert the length of the array
             assert len(lhs[:]) == n * len(rhs[:])
             # Assert the data type
-            assert type(lhs[0]) == type(rhs[0])  # noqa: E721
-
+            assert isinstance(lhs[0], type(rhs[0]))
         else:
             raise TypeError(f"Got unknown type `{type(lhs)}`.")
 
@@ -83,7 +82,7 @@ def test_create_shared_memory(space, expected_type, n, ctx):
 def test_create_shared_memory_custom_space(n, ctx, space):
     ctx = mp if (ctx is None) else mp.get_context(ctx)
     with pytest.raises(CustomSpaceError):
-        shared_memory = create_shared_memory(space, n=n, ctx=ctx)
+        create_shared_memory(space, n=n, ctx=ctx)
 
 
 @pytest.mark.parametrize(

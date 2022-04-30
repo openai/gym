@@ -7,7 +7,9 @@ import numpy as np
 
 from gym import Env, spaces, utils
 from gym.envs.toy_text.utils import categorical_sample
+from gym.error import DependencyNotInstalled
 from gym.utils.renderer import Renderer
+
 
 LEFT = 0
 DOWN = 1
@@ -249,8 +251,12 @@ class FrozenLakeEnv(Env):
             return self._render_gui(mode)
 
     def _render_gui(self, mode):
-        import pygame
-        from pygame.constants import SRCALPHA
+        try:
+            import pygame
+        except ImportError:
+            raise DependencyNotInstalled(
+                "pygame is not installed, run `pip install gym[toy_text]`"
+            )
 
         if self.window_surface is None:
             pygame.init()

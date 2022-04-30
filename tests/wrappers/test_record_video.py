@@ -1,15 +1,8 @@
 import os
 import shutil
 
-import numpy as np
-import pytest
-
 import gym
-from gym.wrappers import (
-    RecordEpisodeStatistics,
-    RecordVideo,
-    capped_cubic_video_schedule,
-)
+from gym.wrappers import capped_cubic_video_schedule
 
 
 def test_record_video_using_default_trigger():

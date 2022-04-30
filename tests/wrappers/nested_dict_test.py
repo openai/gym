@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 
 import gym
-from gym.spaces import Box, Dict, Discrete, Tuple
+from gym.spaces import Box, Dict, Tuple
 from gym.wrappers import FilterObservation, FlattenObservation
 
 

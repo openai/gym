@@ -7,11 +7,18 @@ from gym import spaces
 class RescaleAction(gym.ActionWrapper):
     r"""Rescales the continuous action space of the environment to a range [min_action, max_action].
 
+    The wrapped environment `env` must have an action space of type `spaces.Box`. If `min_action`
+    or `max_action` are numpy arrays, the shape must match the shape of the environment's action space.
+
     Example::
 
         >>> RescaleAction(env, min_action, max_action).action_space == Box(min_action, max_action)
         True
 
+    Args:
+        env: The environment that will be wrapped
+        min_action (Union[np.array, float]): The lower bound of the new action space. This may be a numpy array or a scalar.
+        max_action (Union[np.array, float]): The upper bound of the new action space. This may be a numpy array or a scalar.
     """
 
     def __init__(self, env, min_action, max_action):

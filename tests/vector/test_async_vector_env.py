@@ -168,7 +168,7 @@ def test_reset_timeout_async_vector_env(shared_memory):
         try:
             env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
             env.reset_async()
-            observations = env.reset_wait(timeout=0.1)
+            env.reset_wait(timeout=0.1)
         finally:
             env.close(terminate=True)
 
@@ -179,7 +179,7 @@ def test_step_timeout_async_vector_env(shared_memory):
     with pytest.raises(TimeoutError):
         try:
             env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
-            observations = env.reset()
+            env.reset()
             env.step_async([0.1, 0.1, 0.3, 0.1])
             observations, rewards, dones, _ = env.step_wait(timeout=0.1)
         finally:
@@ -193,7 +193,7 @@ def test_reset_out_of_order_async_vector_env(shared_memory):
     with pytest.raises(NoAsyncCallError):
         try:
             env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
-            observations = env.reset_wait()
+            env.reset_wait()
         except NoAsyncCallError as exception:
             assert exception.name == "reset"
             raise
@@ -204,7 +204,7 @@ def test_reset_out_of_order_async_vector_env(shared_memory):
         try:
             env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
             actions = env.action_space.sample()
-            observations = env.reset()
+            env.reset()
             env.step_async(actions)
             env.reset_async()
         except NoAsyncCallError as exception:
@@ -249,7 +249,7 @@ def test_already_closed_async_vector_env(shared_memory):
     with pytest.raises(ClosedEnvironmentError):
         env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
         env.close()
-        observations = env.reset()
+        env.reset()
 
 
 @pytest.mark.parametrize("shared_memory", [True, False])
