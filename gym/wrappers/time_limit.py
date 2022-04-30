@@ -22,11 +22,7 @@ class TimeLimit(gym.Wrapper):
     Args:
         env: The environment that will be wrapped
         max_episode_steps (Optional[int]): The maximum number of steps until a done-signal occurs. If it is `None`, the value from `env.spec` (if available) will be used
-
     """
-
-    """
-        """
 
     def __init__(self, env: gym.Env, max_episode_steps: Optional[int] = None):
         """Initialises the TimeLimit wrapper with an environment and a max episode steps.

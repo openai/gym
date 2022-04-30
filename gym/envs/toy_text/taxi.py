@@ -7,6 +7,7 @@ import numpy as np
 
 from gym import Env, spaces, utils
 from gym.envs.toy_text.utils import categorical_sample
+from gym.error import DependencyNotInstalled
 
 MAP = [
     "+---------+",
@@ -237,7 +238,12 @@ class TaxiEnv(Env):
             return self._render_gui(mode)
 
     def _render_gui(self, mode):
-        import pygame  # dependency to pygame only if rendering with human
+        try:
+            import pygame  # dependency to pygame only if rendering with human
+        except ImportError:
+            raise DependencyNotInstalled(
+                "pygame is not installed, run `pip install gym[toy_text]`"
+            )
 
         if self.window is None:
             pygame.init()

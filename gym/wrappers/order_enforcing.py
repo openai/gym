@@ -7,6 +7,7 @@ class OrderEnforcing(gym.Wrapper):
     """A wrapper that will produce an error if `step` is called before an initial `reset`.
 
     Example::
+
         >>> from gym.envs.classic_control import CartPoleEnv
         >>> env = CartPoleEnv()
         >>> env = OrderEnforcing(env)

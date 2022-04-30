@@ -1,4 +1,5 @@
 """Wrapper for resizing observations."""
+from typing import Union
 
 import numpy as np
 
@@ -16,6 +17,7 @@ class ResizeObservation(ObservationWrapper):
     observation is scaled to a square of side-length `shape`.
 
     Example::
+
         >>> import gym
         >>> env = gym.make('CarRacing-v1')
         >>> env.observation_space.shape
@@ -30,7 +32,7 @@ class ResizeObservation(ObservationWrapper):
         shape (Union[tuple, int]): The dimensions of the resized observation
     """
 
-    def __init__(self, env: gym.Env, shape: int):
+    def __init__(self, env: gym.Env, shape: Union[tuple, int]):
         """Resizes the env observations to shape.
 
         Args:

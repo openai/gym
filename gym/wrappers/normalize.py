@@ -54,8 +54,7 @@ class NormalizeObservation(gym.core.Wrapper):
         newly instantiated or the policy was changed recently.
 
     Args:
-        env (Env): The environment to apply the wrapper
-        epsilon: A stability parameter that is used when scaling the observations.
+         epsilon: A stability parameter that is used when scaling the observations.
     """
 
     def __init__(self, env: gym.Env, epsilon: float = 1e-8):
