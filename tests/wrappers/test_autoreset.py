@@ -1,6 +1,6 @@
 """Tests the gym.wrapper.AutoResetWrapper operates as expected."""
 
-from typing import Optional
+from typing import Generator, Optional
 from unittest.mock import MagicMock
 
 import numpy as np
@@ -54,6 +54,13 @@ class DummyResetEnv(gym.Env):
             return np.array([self.count]), {"count": self.count}
 
 
+def unwrap_env(env) -> Generator[gym.Wrapper, None, None]:
+    """Unwraps an environment yielding all wrappers around environment."""
+    while isinstance(env, gym.Wrapper):
+        yield type(env)
+        env = env.env
+
+
 @pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
 def test_make_autoreset_true(spec):
     """Tests gym.make with autoreset=True, and check that the reset actually happens.
@@ -65,7 +72,7 @@ def test_make_autoreset_true(spec):
     """
     with pytest.warns(None):
         env = gym.make(spec.id, autoreset=True)
-    assert isinstance(env, AutoResetWrapper)
+    assert AutoResetWrapper in unwrap_env(env)
 
     env.reset(seed=0)
     env.unwrapped.reset = MagicMock(side_effect=env.unwrapped.reset)
@@ -83,19 +90,17 @@ def test_gym_make_autoreset(spec):
     """Tests that gym.make autoreset wrapper is applied only when gym.make(..., autoreset=True)."""
     with pytest.warns(None):
         env = gym.make(spec.id)
-    assert not isinstance(
-        env, AutoResetWrapper
-    )  # todo improve through iteratively unwrapped until gym.Env
+    assert AutoResetWrapper not in unwrap_env(env)
     env.close()
 
     with pytest.warns(None):
         env = gym.make(spec.id, autoreset=False)
-    assert not isinstance(env, AutoResetWrapper)
+    assert AutoResetWrapper not in unwrap_env(env)
     env.close()
 
     with pytest.warns(None):
         env = gym.make(spec.id, autoreset=True)
-    assert isinstance(env, AutoResetWrapper)
+    assert AutoResetWrapper in unwrap_env(env)
     env.close()
 
 
