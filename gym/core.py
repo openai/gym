@@ -4,7 +4,7 @@ from __future__ import annotations
 from abc import abstractmethod
 from typing import Generic, Optional, SupportsFloat, TypeVar, Union
 
-from gym import Space
+from gym import spaces
 from gym.logger import deprecation
 from gym.utils import seeding
 from gym.utils.seeding import RandomNumberGenerator
@@ -44,8 +44,8 @@ class Env(Generic[ObsType, ActType]):
     spec = None
 
     # Set these in ALL subclasses
-    action_space: Space[ActType]
-    observation_space: Space[ObsType]
+    action_space: spaces.Space[ActType]
+    observation_space: spaces.Space[ObsType]
 
     # Created
     _np_random: RandomNumberGenerator | None = None
@@ -234,8 +234,8 @@ class Wrapper(Env[ObsType, ActType]):
         """Wraps the environment to allow a modular transformation."""
         self.env = env
 
-        self._action_space: Space | None = None
-        self._observation_space: Space | None = None
+        self._action_space: spaces.Space | None = None
+        self._observation_space: spaces.Space | None = None
         self._reward_range: tuple[SupportsFloat, SupportsFloat] | None = None
         self._metadata: dict | None = None
 
@@ -256,26 +256,26 @@ class Wrapper(Env[ObsType, ActType]):
         return cls.__name__
 
     @property
-    def action_space(self) -> Space[ActType]:
+    def action_space(self) -> spaces.Space[ActType]:
         """Returns the action space."""
         if self._action_space is None:
             return self.env.action_space
         return self._action_space
 
     @action_space.setter
-    def action_space(self, space: Space):
+    def action_space(self, space: spaces.Space):
         """Sets the action space."""
         self._action_space = space
 
     @property
-    def observation_space(self) -> Space:
+    def observation_space(self) -> spaces.Space:
         """Returns the observation space."""
         if self._observation_space is None:
             return self.env.observation_space
         return self._observation_space
 
     @observation_space.setter
-    def observation_space(self, space: Space):
+    def observation_space(self, space: spaces.Space):
         """Sets the observation shape."""
         self._observation_space = space
 
