@@ -1,3 +1,6 @@
+"""Wrapper for rescaling actions to within a max and min action."""
+from typing import Union
+
 import numpy as np
 
 import gym
@@ -5,16 +8,43 @@ from gym import spaces
 
 
 class RescaleAction(gym.ActionWrapper):
-    r"""Rescales the continuous action space of the environment to a range [min_action, max_action].
+    """Rescales the continuous action space of the environment to a range [min_action, max_action].
+
+    The wrapped environment `env` must have an action space of type `spaces.Box`. If `min_action`
+    or `max_action` are numpy arrays, the shape must match the shape of the environment's action space.
 
     Example::
+
+        >>> import gym
+        >>> env = gym.make('CartPole-v1')
+        >>> env.action_space
+        Box(-1.0, 1.0, (4,), float32)
+        >>> env = RescaleAction(env, min_action=-0.5, max_action=np.array([0.0, 0.5, 1.0, 0.75]))
+        >>> env.action_space
+        Box(-0.5, [0.   0.5  1.   0.75], (4,), float32)
 
         >>> RescaleAction(env, min_action, max_action).action_space == Box(min_action, max_action)
         True
 
+    Args:
+        env (Env): The environment to apply the wrapper
+        min_action (Union[np.array, float]): The lower bound of the new action space. This may be a numpy array or a scalar.
+        max_action (Union[np.array, float]): The upper bound of the new action space. This may be a numpy array or a scalar.
     """
 
-    def __init__(self, env, min_action, max_action):
+    def __init__(
+        self,
+        env: gym.Env,
+        min_action: Union[float, int, np.ndarray],
+        max_action: Union[float, int, np.ndarray],
+    ):
+        """Initialises the rescale action wrapper.
+
+        Args:
+            env (Env): The environment to apply the wrapper
+            min_action (float, int or np.ndarray): The min values for each action
+            max_action (float, int or np.ndarray): The max values for each action
+        """
         assert isinstance(
             env.action_space, spaces.Box
         ), f"expected Box action space, got {type(env.action_space)}"
@@ -35,6 +65,13 @@ class RescaleAction(gym.ActionWrapper):
         )
 
     def action(self, action):
+        """Rescales the action to have the same ratio of values between max_action and min_action.
+
+        Args:
+            action: The action to rescale
+
+        Returns: The rescaled action
+        """
         assert np.all(np.greater_equal(action, self.min_action)), (
             action,
             self.min_action,

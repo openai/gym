@@ -1,3 +1,4 @@
+"""A wrapper for video recording environments by rolling it out, frame by frame."""
 import json
 import os
 import os.path
@@ -6,34 +7,51 @@ import shutil
 import subprocess
 import tempfile
 from io import StringIO
+from typing import Optional, Union
 
 import numpy as np
 
 from gym import error, logger
 
 
-def touch(path):
+def touch(path: str):
+    """Touch a filename at path."""
     open(path, "a").close()
 
 
 class VideoRecorder:
-    """VideoRecorder renders a nice movie of a rollout, frame by frame. It
-    comes with an `enabled` option so you can still use the same code
-    on episodes where you don't want to record video.
+    """VideoRecorder renders a nice movie of a rollout, frame by frame.
+
+    It comes with an `enabled` option so you can still use the same code on episodes where you don't want to record video.
 
     Note:
-        You are responsible for calling `close` on a created
-        VideoRecorder, or else you may leak an encoder process.
+        You are responsible for calling `close` on a created VideoRecorder, or else you may leak an encoder process.
 
     Args:
         env (Env): Environment to take video of.
         path (Optional[str]): Path to the video file; will be randomly chosen if omitted.
-        base_path (Optional[str]): Alternatively, path to the video file without extension, which will be added.
         metadata (Optional[dict]): Contents to save to the metadata file.
         enabled (bool): Whether to actually record video, or just no-op (for convenience)
+        base_path (Optional[str]): Alternatively, path to the video file without extension, which will be added.
     """
 
-    def __init__(self, env, path=None, metadata=None, enabled=True, base_path=None):
+    def __init__(
+        self,
+        env,
+        path: Optional[str] = None,
+        metadata: Optional[dict] = None,
+        enabled: bool = True,
+        base_path: Optional[str] = None,
+    ):
+        """Video recorder renders a nice movie of a rollout, frame by frame.
+
+        Args:
+            env (Env): Environment to take video of.
+            path (Optional[str]): Path to the video file; will be randomly chosen if omitted.
+            metadata (Optional[dict]): Contents to save to the metadata file.
+            enabled (bool): Whether to actually record video, or just no-op (for convenience)
+            base_path (Optional[str]): Alternatively, path to the video file without extension, which will be added.
+        """
         modes = env.metadata.get("render_modes", [])
 
         # backward-compatibility mode:
@@ -134,11 +152,12 @@ class VideoRecorder:
         self.metadata_path = f"{path_base}.meta.json"
         self.write_metadata()
 
-        logger.info("Starting new video recorder writing to %s", self.path)
+        logger.info(f"Starting new video recorder writing to {self.path}")
         self.empty = True
 
     @property
     def functional(self):
+        """Returns if the video recorder is functional, is enabled and not broken."""
         return self.enabled and not self.broken
 
     def capture_frame(self):
@@ -213,10 +232,12 @@ class VideoRecorder:
         self._closed = True
 
     def write_metadata(self):
+        """Writes metadata to metadata path."""
         with open(self.metadata_path, "w") as f:
             json.dump(self.metadata, f)
 
     def __del__(self):
+        """Closes the environment correctly when the recorder is deleted."""
         # Make sure we've closed up shop when garbage collecting
         self.close()
 
@@ -244,16 +265,28 @@ class VideoRecorder:
 
 
 class TextEncoder:
-    """Store a moving picture made out of ANSI frames. Format adapted from
-    https://github.com/asciinema/asciinema/blob/master/doc/asciicast-v1.md"""
+    """Store a moving picture made out of ANSI frames.
 
-    def __init__(self, output_path, frames_per_sec):
+    Format adapted from https://github.com/asciinema/asciinema/blob/master/doc/asciicast-v1.md
+    """
+
+    def __init__(self, output_path: str, frames_per_sec: int):
+        """Stores a moving picture for an environment with ANSI frames.
+
+        Args:
+            output_path: The output path of the frames
+            frames_per_sec: The number of frames per seconds for the output video
+        """
         self.output_path = output_path
         self.frames_per_sec = frames_per_sec
         self.frames = []
 
-    def capture_frame(self, frame):
-        string = None
+    def capture_frame(self, frame: Union[str, StringIO]):
+        """Captures an ANSI frame and adds it to the frames.
+
+        Args:
+            frame: A string or StringIO frame
+        """
         if isinstance(frame, str):
             string = frame
         elif isinstance(frame, StringIO):
@@ -276,6 +309,7 @@ class TextEncoder:
         self.frames.append(frame_bytes)
 
     def close(self):
+        """Closes the text encoder, dumping all data to output path."""
         # frame_duration = float(1) / self.frames_per_sec
         frame_duration = 0.5
 
@@ -316,11 +350,28 @@ class TextEncoder:
 
     @property
     def version_info(self):
+        """Returns the version info, backend=TextEncoder and Version number=1."""
         return {"backend": "TextEncoder", "version": 1}
 
 
 class ImageEncoder:
-    def __init__(self, output_path, frame_shape, frames_per_sec, output_frames_per_sec):
+    """Captures image based frames of environments for Video Recorder."""
+
+    def __init__(
+        self,
+        output_path: str,
+        frame_shape: tuple[int, int, int],
+        frames_per_sec: int,
+        output_frames_per_sec: int,
+    ):
+        """Encoder for capturing image based frames of environment for Video Recorder.
+
+        Args:
+            output_path: The output data path
+            frame_shape: The expected frame shape, a tuple of height, weight and channels (3 or 4)
+            frames_per_sec: The number of frames per second the environment runs at
+            output_frames_per_sec: The output number of frames per second for the video
+        """
         self.proc = None
         self.output_path = output_path
         # Frame shape should be lines-first, so w and h are swapped
@@ -354,6 +405,7 @@ class ImageEncoder:
 
     @property
     def version_info(self):
+        """Returns the version info: backend, version and cmdline."""
         return {
             "backend": self.backend,
             "version": str(
@@ -365,6 +417,7 @@ class ImageEncoder:
         }
 
     def start(self):
+        """Starts a subprocess using the backend and cmdline."""
         self.cmdline = (
             self.backend,
             "-nostats",
@@ -402,7 +455,8 @@ class ImageEncoder:
         else:
             self.proc = subprocess.Popen(self.cmdline, stdin=subprocess.PIPE)
 
-    def capture_frame(self, frame):
+    def capture_frame(self, frame: Union[np.ndarray, np.generic]):
+        """Captures a frame writing it to the backend subprocess."""
         if not isinstance(frame, (np.ndarray, np.generic)):
             raise error.InvalidFrame(
                 f"Wrong type {type(frame)} for {frame} (must be np.ndarray or np.generic)"
@@ -423,6 +477,7 @@ class ImageEncoder:
             logger.error("VideoRecorder encoder failed: %s", stderr)
 
     def close(self):
+        """Closes the Image encoder."""
         self.proc.stdin.close()
         ret = self.proc.wait()
         if ret != 0:

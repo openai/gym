@@ -1,6 +1,8 @@
+"""Implementation of Atari 2600 Preprocessing following the guidelines of Machado et al., 2018."""
 import numpy as np
 
 import gym
+from gym.error import DependencyNotInstalled
 from gym.spaces import Box
 
 try:
@@ -10,7 +12,7 @@ except ImportError:
 
 
 class AtariPreprocessing(gym.Wrapper):
-    r"""Atari 2600 preprocessings.
+    """Atari 2600 preprocessings.
 
     This class follows the guidelines in
     Machado et al. (2018), "Revisiting the Arcade Learning Environment:
@@ -27,7 +29,7 @@ class AtariPreprocessing(gym.Wrapper):
     * Scale observation: optional
 
     Args:
-        env (Env): environment
+        env (Env): The environment to apply the wrapper
         noop_max (int): max number of no-ops
         frame_skip (int): the frequency at which the agent experiences the game.
         screen_size (int): resize Atari frame
@@ -52,10 +54,27 @@ class AtariPreprocessing(gym.Wrapper):
         grayscale_newaxis: bool = False,
         scale_obs: bool = False,
     ):
+        """Wrapper for Atari 2600 preprocessing.
+
+        Args:
+            env (Env): The environment to apply the wrapper
+            noop_max (int): max number of no-ops
+            frame_skip (int): the frequency at which the agent experiences the game.
+            screen_size (int): resize Atari frame
+            terminal_on_life_loss (bool): if True, then step() returns done=True whenever a
+                life is lost.
+            grayscale_obs (bool): if True, then gray scale observation is returned, otherwise, RGB observation
+                is returned.
+            grayscale_newaxis (bool): if True and grayscale_obs=True, then a channel axis is added to
+                grayscale observations to make them 3-dimensional.
+            scale_obs (bool): if True, then observation normalized in range [0,1] is returned. It also limits memory
+                optimization benefits of FrameStack Wrapper.
+        """
         super().__init__(env)
-        assert (
-            cv2 is not None
-        ), "opencv-python package not installed! Try running pip install gym[other] to get dependencies  for atari"
+        if cv2 is None:
+            raise DependencyNotInstalled(
+                "opencv-python package not installed, run `pip install gym[other]` to get dependencies for atari"
+            )
         assert frame_skip > 0
         assert screen_size > 0
         assert noop_max >= 0
@@ -65,8 +84,8 @@ class AtariPreprocessing(gym.Wrapper):
                 and getattr(env.unwrapped, "_frameskip", None) != 1
             ):
                 raise ValueError(
-                    "Disable frame-skipping in the original env. Otherwise, more than one"
-                    " frame-skip will happen as through this wrapper"
+                    "Disable frame-skipping in the original env. Otherwise, more than one "
+                    "frame-skip will happen as through this wrapper"
                 )
         self.noop_max = noop_max
         assert env.unwrapped.get_action_meanings()[0] == "NOOP"
@@ -105,16 +124,18 @@ class AtariPreprocessing(gym.Wrapper):
         )
 
     def step(self, action):
-        R = 0.0
+        """Applies the preprocessing for a step."""
+        total_reward = 0.0
 
         for t in range(self.frame_skip):
             _, reward, done, info = self.env.step(action)
-            R += reward
+            total_reward += reward
             self.game_over = done
 
             if self.terminal_on_life_loss:
                 new_lives = self.ale.lives()
                 done = done or new_lives < self.lives
+                self.game_over = done
                 self.lives = new_lives
 
             if done:
@@ -129,9 +150,10 @@ class AtariPreprocessing(gym.Wrapper):
                     self.ale.getScreenGrayscale(self.obs_buffer[0])
                 else:
                     self.ale.getScreenRGB(self.obs_buffer[0])
-        return self._get_obs(), R, done, info
+        return self._get_obs(), total_reward, done, info
 
     def reset(self, **kwargs):
+        """Resets the environment using preprocessing."""
         # NoopReset
         if kwargs.get("return_info", False):
             _, reset_info = self.env.reset(**kwargs)

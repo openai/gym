@@ -1,5 +1,8 @@
+"""A wrapper for filtering dictionary observations by their keys."""
 import copy
+from typing import Sequence
 
+import gym
 from gym import ObservationWrapper, spaces
 
 
@@ -7,18 +10,23 @@ class FilterObservation(ObservationWrapper):
     """Filter dictionary observations by their keys.
 
     Args:
-        env: The environment to wrap.
-        filter_keys: List of keys to be included in the observations.
+        env: The environment to apply the wrapper
+        filter_keys: List of keys to be included in the observations
 
     Raises:
         ValueError: If observation keys in not instance of None or
             iterable.
         ValueError: If any of the `filter_keys` are not included in
             the original `env`'s observation space
-
     """
 
-    def __init__(self, env, filter_keys=None):
+    def __init__(self, env: gym.Env, filter_keys: Sequence[str] = None):
+        """A wrapper that filters dictionary observations by their keys.
+
+        Args:
+            env: The environment to apply the wrapper
+            filter_keys: List of keys to be included in the observations
+        """
         super().__init__(env)
 
         wrapped_observation_space = env.observation_space
@@ -58,6 +66,13 @@ class FilterObservation(ObservationWrapper):
         self._filter_keys = tuple(filter_keys)
 
     def observation(self, observation):
+        """Filters the observations.
+
+        Args:
+            observation: The observation to filter
+
+        Returns: The filtered observations
+        """
         filter_observation = self._filter_observation(observation)
         return filter_observation
 

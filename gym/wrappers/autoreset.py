@@ -1,10 +1,9 @@
+"""Wrapper that autoreset environments when done=True."""
 import gym
 
 
 class AutoResetWrapper(gym.Wrapper):
-    """
-    A class for providing an automatic reset functionality
-    for gym environments when calling self.step().
+    """A class for providing an automatic reset functionality for gym environments when calling self.step().
 
     When calling step causes self.env.step() to return done,
     self.env.reset() is called,
@@ -39,6 +38,13 @@ class AutoResetWrapper(gym.Wrapper):
     """
 
     def step(self, action):
+        """Steps through the environment with action and resets the environment if done=False.
+
+        Args:
+            action: The action to take
+
+        Returns: The autoreset environment step
+        """
         obs, reward, done, info = self.env.step(action)
 
         if done:

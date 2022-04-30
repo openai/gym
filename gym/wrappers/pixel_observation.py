@@ -1,9 +1,12 @@
+"""Wrapper for augmenting observations by pixel values."""
 import collections
 import copy
 from collections.abc import MutableMapping
+from typing import Any, Optional
 
 import numpy as np
 
+import gym
 from gym import ObservationWrapper, spaces
 
 STATE_KEY = "state"
@@ -13,7 +16,11 @@ class PixelObservationWrapper(ObservationWrapper):
     """Augment observations by pixel values."""
 
     def __init__(
-        self, env, pixels_only=True, render_kwargs=None, pixel_keys=("pixels",)
+        self,
+        env: gym.Env,
+        pixels_only: bool = True,
+        render_kwargs: Optional[dict[str, Any]] = None,
+        pixel_keys: tuple[str, ...] = ("pixels",),
     ):
         """Initializes a new pixel Wrapper.
 
@@ -37,7 +44,6 @@ class PixelObservationWrapper(ObservationWrapper):
             ValueError: If `env`'s observation already contains any of the
                 specified `pixel_keys`.
         """
-
         super().__init__(env)
 
         if render_kwargs is None:
@@ -104,6 +110,13 @@ class PixelObservationWrapper(ObservationWrapper):
         self._pixel_keys = pixel_keys
 
     def observation(self, observation):
+        """Updates the observations with the pixel observations.
+
+        Args:
+            observation: The observation to add pixel observations for
+
+        Returns: The updated pixel observations
+        """
         pixel_observation = self._add_pixel_observation(observation)
         return pixel_observation
 

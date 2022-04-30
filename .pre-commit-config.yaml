@@ -30,7 +30,7 @@ repos:
     rev: 6.1.1  # pick a git hash / tag to point to
     hooks:
       - id: pydocstyle
-        exclude: ^(gym/version.py)|(gym/(wrappers|envs|spaces|utils|vector)/)|(tests/)
+        exclude: ^(gym/version.py)|(gym/(envs|spaces|utils|vector)/)|(tests/)
         args:
           - --source
           - --explain
