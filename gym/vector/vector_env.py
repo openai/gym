@@ -1,4 +1,5 @@
-from typing import List, Optional, Union
+"""Base class for vectorized environments."""
+from typing import Any, Optional, Union
 
 import gym
 from gym.logger import deprecation
@@ -8,32 +9,28 @@ __all__ = ["VectorEnv"]
 
 
 class VectorEnv(gym.Env):
-    r"""Base class for vectorized environments. Runs multiple independent copies of the
-    same environment in parallel. This is not the same as 1 environment that has multiple
-    sub components, but it is many copies of the same base env.
+    """Base class for vectorized environments. Runs multiple independent copies of the same environment in parallel.
 
-    Each observation returned from vectorized environment is a batch of observations
-    for each parallel environment. And :meth:`step` is also expected to receive a batch of
-    actions for each parallel environment.
+    This is not the same as 1 environment that has multiple sub components, but it is many copies of the same base env.
+
+    Each observation returned from vectorized environment is a batch of observations for each parallel environment.
+    And :meth:`step` is also expected to receive a batch of actions for each parallel environment.
 
     .. note::
-
         All parallel environments should share the identical observation and action spaces.
         In other words, a vector of multiple different environments is not supported.
-
-    Parameters
-    ----------
-    num_envs : int
-        Number of environments in the vectorized environment.
-
-    observation_space : :class:`gym.spaces.Space`
-        Observation space of a single environment.
-
-    action_space : :class:`gym.spaces.Space`
-        Action space of a single environment.
     """
 
-    def __init__(self, num_envs, observation_space, action_space):
+    def __init__(
+        self, num_envs: int, observation_space: gym.Space, action_space: gym.Space
+    ):
+        """Base class for vectorized environments.
+
+        Args:
+            num_envs: Number of environments in the vectorized environment.
+            observation_space: Observation space of a single environment.
+            action_space: Action space of a single environment.
+        """
         self.num_envs = num_envs
         self.is_vector_env = True
         self.observation_space = batch_space(observation_space, n=num_envs)
@@ -49,129 +46,112 @@ class VectorEnv(gym.Env):
 
     def reset_async(
         self,
-        seed: Optional[Union[int, List[int]]] = None,
+        seed: Optional[Union[int, list[int]]] = None,
         return_info: bool = False,
         options: Optional[dict] = None,
     ):
+        """Reset the vector environments asynchronously."""
         pass
 
     def reset_wait(
         self,
-        seed: Optional[Union[int, List[int]]] = None,
+        seed: Optional[Union[int, list[int]]] = None,
         return_info: bool = False,
         options: Optional[dict] = None,
     ):
+        """Resets the vector environments while waiting for the results."""
         raise NotImplementedError()
 
     def reset(
         self,
         *,
-        seed: Optional[Union[int, List[int]]] = None,
+        seed: Optional[Union[int, list[int]]] = None,
         return_info: bool = False,
         options: Optional[dict] = None,
     ):
-        r"""Reset all parallel environments and return a batch of initial observations.
+        """Reset all parallel environments and return a batch of initial observations.
 
-        Returns
-        -------
-        observations : element of :attr:`observation_space`
+        Args:
+            seed: The environment reset seeds
+            return_info: If to return the info
+            options: If to return the options
+
+        Returns:
             A batch of observations from the vectorized environment.
         """
         self.reset_async(seed=seed, return_info=return_info, options=options)
         return self.reset_wait(seed=seed, return_info=return_info, options=options)
 
     def step_async(self, actions):
+        """Steps through the environment action asynchronously."""
         pass
 
     def step_wait(self, **kwargs):
+        """Steps through the vector environment while waiting for results."""
         raise NotImplementedError()
 
     def step(self, actions):
-        r"""Take an action for each parallel environment.
+        """Take an action for each parallel environment.
 
-        Parameters
-        ----------
-        actions : element of :attr:`action_space`
-            Batch of actions.
+        Args:
+            actions: element of :attr:`action_space` Batch of actions.
 
-        Returns
-        -------
-        observations : element of :attr:`observation_space`
-            A batch of observations from the vectorized environment.
-
-        rewards : :obj:`np.ndarray`, dtype :obj:`np.float_`
-            A vector of rewards from the vectorized environment.
-
-        dones : :obj:`np.ndarray`, dtype :obj:`np.bool_`
-            A vector whose entries indicate whether the episode has ended.
-
-        infos : list of dict
-            A list of auxiliary diagnostic information dicts from each parallel environment.
+        Returns:
+            Batch of observations, rewards, done and infos
         """
-
         self.step_async(actions)
         return self.step_wait()
 
     def call_async(self, name, *args, **kwargs):
+        """Calls a method name for each parallel environment asynchronously."""
         pass
 
     def call_wait(self, **kwargs):
+        """Calls a method and wait for the results."""
         raise NotImplementedError()
 
-    def call(self, name, *args, **kwargs):
+    def call(self, name: str, *args, **kwargs) -> list[Any]:
         """Call a method, or get a property, from each parallel environment.
 
-        Parameters
-        ----------
-        name : string
-            Name of the method or property to call.
+        Args:
+            name (str): Name of the method or property to call.
+            *args: Arguments to apply to the method call.
+            **kwargs: Keyword arguments to apply to the method call.
 
-        *args
-            Arguments to apply to the method call.
-
-        **kwargs
-            Keywoard arguments to apply to the method call.
-
-        Returns
-        -------
-        results : list
-            List of the results of the individual calls to the method or
-            property for each environment.
+        Returns:
+            List of the results of the individual calls to the method or property for each environment.
         """
         self.call_async(name, *args, **kwargs)
         return self.call_wait()
 
-    def get_attr(self, name):
+    def get_attr(self, name: str):
         """Get a property from each parallel environment.
 
-        Parameters
-        ----------
-        name : string
-            Name of the property to be get from each individual environment.
+        Args:
+            name (str): Name of the property to be get from each individual environment.
+
+        Returns:
+            The property with name
         """
         return self.call(name)
 
-    def set_attr(self, name, values):
+    def set_attr(self, name: str, values: Union[list, tuple, object]):
         """Set a property in each parallel environment.
 
-        Parameters
-        ----------
-        name : string
-            Name of the property to be set in each individual environment.
-
-        values : list, tuple, or object
-            Values of the property to be set to. If `values` is a list or
-            tuple, then it corresponds to the values for each individual
-            environment, otherwise a single value is set for all environments.
+        Args:
+            name (str): Name of the property to be set in each individual environment.
+            values (list, tuple, or object): Values of the property to be set to. If `values` is a list or
+                tuple, then it corresponds to the values for each individual environment, otherwise a single value
+                is set for all environments.
         """
         raise NotImplementedError()
 
     def close_extras(self, **kwargs):
-        r"""Clean up the extra resources e.g. beyond what's in this base class."""
+        """Clean up the extra resources e.g. beyond what's in this base class."""
         pass
 
     def close(self, **kwargs):
-        r"""Close all parallel environments and release resources.
+        """Close all parallel environments and release resources.
 
         It also closes all the existing image viewers, then calls :meth:`close_extras` and set
         :attr:`closed` as ``True``.
@@ -212,10 +192,12 @@ class VectorEnv(gym.Env):
         )
 
     def __del__(self):
+        """Closes the vector environment."""
         if not getattr(self, "closed", True):
             self.close()
 
     def __repr__(self):
+        """Returns a string representation of the vector using the class name, number of environments and environment spec id."""
         if self.spec is None:
             return f"{self.__class__.__name__}({self.num_envs})"
         else:
@@ -223,7 +205,7 @@ class VectorEnv(gym.Env):
 
 
 class VectorEnvWrapper(VectorEnv):
-    r"""Wraps the vectorized environment to allow a modular transformation.
+    """Wraps the vectorized environment to allow a modular transformation.
 
     This class is the base class for all wrappers for vectorized environments. The subclass
     could override some methods to change the behavior of the original vectorized environment
@@ -232,10 +214,9 @@ class VectorEnvWrapper(VectorEnv):
     .. note::
 
         Don't forget to call ``super().__init__(env)`` if the subclass overrides :meth:`__init__`.
-
     """
 
-    def __init__(self, env):
+    def __init__(self, env: VectorEnv):
         assert isinstance(env, VectorEnv)
         self.env = env
 

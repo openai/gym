@@ -1,44 +1,40 @@
+"""Utility functions for vector environments to share memory between processes."""
 import multiprocessing as mp
 from collections import OrderedDict
 from ctypes import c_bool
 from functools import singledispatch
+from typing import Union
 
 import numpy as np
 
 from gym.error import CustomSpaceError
-from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Tuple
+from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Space, Tuple
 
 __all__ = ["create_shared_memory", "read_from_shared_memory", "write_to_shared_memory"]
 
 
 @singledispatch
-def create_shared_memory(space, n=1, ctx=mp):
-    """Create a shared memory object, to be shared across processes. This
-    eventually contains the observations from the vectorized environment.
+def create_shared_memory(
+    space: Space, n: int = 1, ctx=mp
+) -> Union[dict, tuple, mp.Array]:
+    """Create a shared memory object, to be shared across processes.
 
-    Parameters
-    ----------
-    space : `gym.spaces.Space` instance
-        Observation space of a single environment in the vectorized environment.
+    This eventually contains the observations from the vectorized environment.
 
-    n : int
-        Number of environments in the vectorized environment (i.e. the number
-        of processes).
+    Args:
+        space: Observation space of a single environment in the vectorized environment.
+        n: Number of environments in the vectorized environment (i.e. the number of processes).
+        ctx: The multiprocess module
 
-    ctx : `multiprocessing` context
-        Context for multiprocessing.
-
-    Returns
-    -------
-    shared_memory : dict, tuple, or `multiprocessing.Array` instance
-        Shared object across processes.
+    Returns:
+        shared_memory for the shared object across processes.
     """
     raise CustomSpaceError(
         "Cannot create a shared memory for space with "
-        "type `{}`. Shared memory only supports "
+        f"type `{type(space)}`. Shared memory only supports "
         "default Gym spaces (e.g. `Box`, `Tuple`, "
         "`Dict`, etc...), and does not support custom "
-        "Gym spaces.".format(type(space))
+        "Gym spaces."
     )
 
 
@@ -46,7 +42,7 @@ def create_shared_memory(space, n=1, ctx=mp):
 @create_shared_memory.register(Discrete)
 @create_shared_memory.register(MultiDiscrete)
 @create_shared_memory.register(MultiBinary)
-def _create_base_shared_memory(space, n=1, ctx=mp):
+def _create_base_shared_memory(space, n: int = 1, ctx=mp):
     dtype = space.dtype.char
     if dtype in "?":
         dtype = c_bool
@@ -54,7 +50,7 @@ def _create_base_shared_memory(space, n=1, ctx=mp):
 
 
 @create_shared_memory.register(Tuple)
-def _create_tuple_shared_memory(space, n=1, ctx=mp):
+def _create_tuple_shared_memory(space, n: int = 1, ctx=mp):
     return tuple(
         create_shared_memory(subspace, n=n, ctx=ctx) for subspace in space.spaces
     )
@@ -71,39 +67,32 @@ def _create_dict_shared_memory(space, n=1, ctx=mp):
 
 
 @singledispatch
-def read_from_shared_memory(space, shared_memory, n=1):
+def read_from_shared_memory(
+    space: Space, shared_memory: Union[dict, tuple, mp.Array], n: int = 1
+) -> Union[dict, tuple, np.ndarray]:
     """Read the batch of observations from shared memory as a numpy array.
 
-    Parameters
-    ----------
-    shared_memory : dict, tuple, or `multiprocessing.Array` instance
-        Shared object across processes. This contains the observations from the
-        vectorized environment. This object is created with `create_shared_memory`.
+    ..notes::
+        The numpy array objects returned by `read_from_shared_memory` shares the
+        memory of `shared_memory`. Any changes to `shared_memory` are forwarded
+        to `observations`, and vice-versa. To avoid any side-effect, use `np.copy`.
 
-    space : `gym.spaces.Space` instance
-        Observation space of a single environment in the vectorized environment.
+    Args:
+        space: Observation space of a single environment in the vectorized environment.
+        shared_memory: Shared object across processes. This contains the observations from the vectorized environment.
+            This object is created with `create_shared_memory`.
+        n: Number of environments in the vectorized environment (i.e. the number of processes).
 
-    n : int
-        Number of environments in the vectorized environment (i.e. the number
-        of processes).
-
-    Returns
-    -------
-    observations : dict, tuple or `np.ndarray` instance
+    Returns:
         Batch of observations as a (possibly nested) numpy array.
 
-    Notes
-    -----
-    The numpy array objects returned by `read_from_shared_memory` shares the
-    memory of `shared_memory`. Any changes to `shared_memory` are forwarded
-    to `observations`, and vice-versa. To avoid any side-effect, use `np.copy`.
     """
     raise CustomSpaceError(
         "Cannot read from a shared memory for space with "
-        "type `{}`. Shared memory only supports "
+        f"type `{type(space)}`. Shared memory only supports "
         "default Gym spaces (e.g. `Box`, `Tuple`, "
         "`Dict`, etc...), and does not support custom "
-        "Gym spaces.".format(type(space))
+        "Gym spaces."
     )
 
 
@@ -111,14 +100,14 @@ def read_from_shared_memory(space, shared_memory, n=1):
 @read_from_shared_memory.register(Discrete)
 @read_from_shared_memory.register(MultiDiscrete)
 @read_from_shared_memory.register(MultiBinary)
-def _read_base_from_shared_memory(space, shared_memory, n=1):
+def _read_base_from_shared_memory(space, shared_memory, n: int = 1):
     return np.frombuffer(shared_memory.get_obj(), dtype=space.dtype).reshape(
         (n,) + space.shape
     )
 
 
 @read_from_shared_memory.register(Tuple)
-def _read_tuple_from_shared_memory(space, shared_memory, n=1):
+def _read_tuple_from_shared_memory(space, shared_memory, n: int = 1):
     return tuple(
         read_from_shared_memory(subspace, memory, n=n)
         for (memory, subspace) in zip(shared_memory, space.spaces)
@@ -126,7 +115,7 @@ def _read_tuple_from_shared_memory(space, shared_memory, n=1):
 
 
 @read_from_shared_memory.register(Dict)
-def _read_dict_from_shared_memory(space, shared_memory, n=1):
+def _read_dict_from_shared_memory(space, shared_memory, n: int = 1):
     return OrderedDict(
         [
             (key, read_from_shared_memory(subspace, shared_memory[key], n=n))
@@ -136,34 +125,26 @@ def _read_dict_from_shared_memory(space, shared_memory, n=1):
 
 
 @singledispatch
-def write_to_shared_memory(space, index, value, shared_memory):
+def write_to_shared_memory(
+    space: Space,
+    index: int,
+    value: np.ndarray,
+    shared_memory: Union[dict, tuple, mp.Array],
+):
     """Write the observation of a single environment into shared memory.
 
-    Parameters
-    ----------
-    index : int
-        Index of the environment (must be in `[0, num_envs)`).
-
-    value : sample from `space`
-        Observation of the single environment to write to shared memory.
-
-    shared_memory : dict, tuple, or `multiprocessing.Array` instance
-        Shared object across processes. This contains the observations from the
-        vectorized environment. This object is created with `create_shared_memory`.
-
-    space : `gym.spaces.Space` instance
-        Observation space of a single environment in the vectorized environment.
-
-    Returns
-    -------
-    `None`
+    Args:
+        space: Observation space of a single environment in the vectorized environment.
+        index: Index of the environment (must be in `[0, num_envs)`).
+        value: Observation of the single environment to write to shared memory.
+        shared_memory: Shared object across processes. This contains the observations from the vectorized environment. This object is created with `create_shared_memory`.
     """
     raise CustomSpaceError(
         "Cannot write to a shared memory for space with "
-        "type `{}`. Shared memory only supports "
+        f"type `{type(space)}`. Shared memory only supports "
         "default Gym spaces (e.g. `Box`, `Tuple`, "
         "`Dict`, etc...), and does not support custom "
-        "Gym spaces.".format(type(space))
+        "Gym spaces."
     )
 
 
