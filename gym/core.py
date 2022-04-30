@@ -1,9 +1,10 @@
+"""Core API for Environment, Wrapper, ActionWrapper and ObservationWrapper."""
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import Generic, Optional, SupportsFloat, Tuple, TypeVar, Union
+from typing import Generic, Optional, SupportsFloat, TypeVar, Union
 
-from gym import spaces
+from gym import Space
 from gym.logger import deprecation
 from gym.utils import seeding
 from gym.utils.seeding import RandomNumberGenerator
@@ -13,9 +14,10 @@ ActType = TypeVar("ActType")
 
 
 class Env(Generic[ObsType, ActType]):
-    """The main OpenAI Gym class. It encapsulates an environment with
-    arbitrary behind-the-scenes dynamics. An environment can be
-    partially or fully observed.
+    """The main OpenAI Gym class.
+
+    It encapsulates an environment with arbitrary behind-the-scenes dynamics.
+    An environment can be partially or fully observed.
 
     The main API methods that users of this class need to know are:
 
@@ -42,8 +44,8 @@ class Env(Generic[ObsType, ActType]):
     spec = None
 
     # Set these in ALL subclasses
-    action_space: spaces.Space[ActType]
-    observation_space: spaces.Space[ObsType]
+    action_space: Space[ActType]
+    observation_space: Space[ObsType]
 
     # Created
     _np_random: RandomNumberGenerator | None = None
@@ -60,11 +62,10 @@ class Env(Generic[ObsType, ActType]):
         self._np_random = value
 
     @abstractmethod
-    def step(self, action: ActType) -> Tuple[ObsType, float, bool, dict]:
-        """Run one timestep of the environment's dynamics. When end of
-        episode is reached, you are responsible for calling :meth:`reset`
-        to reset this environment's state.
+    def step(self, action: ActType) -> tuple[ObsType, float, bool, dict]:
+        """Run one timestep of the environment's dynamics.
 
+        When end of episode is reached, you are responsible for calling :meth:`reset` to reset this environment's state.
         Accepts an action and returns a tuple (observation, reward, done, info).
 
         Args:
@@ -93,8 +94,7 @@ class Env(Generic[ObsType, ActType]):
         return_info: bool = False,
         options: Optional[dict] = None,
     ) -> Union[ObsType, tuple[ObsType, dict]]:
-        """Resets the environment to an initial state and returns an initial
-        observation.
+        """Resets the environment to an initial state and returns an initial observation.
 
         This method should also reset the environment's random number
         generator(s) if ``seed`` is an integer or if the environment has not
@@ -200,6 +200,7 @@ class Env(Generic[ObsType, ActType]):
         return self
 
     def __str__(self):
+        """Returns a string for the environment with the spec id if specified."""
         if self.spec is None:
             return f"<{type(self).__name__} instance>"
         else:
@@ -230,94 +231,117 @@ class Wrapper(Env[ObsType, ActType]):
     """
 
     def __init__(self, env: Env):
+        """Wraps the environment to allow a modular transformation."""
         self.env = env
 
-        self._action_space: spaces.Space | None = None
-        self._observation_space: spaces.Space | None = None
+        self._action_space: Space | None = None
+        self._observation_space: Space | None = None
         self._reward_range: tuple[SupportsFloat, SupportsFloat] | None = None
         self._metadata: dict | None = None
 
     def __getattr__(self, name):
+        """Gets an attribute if the name does not start with _."""
         if name.startswith("_"):
             raise AttributeError(f"accessing private attribute '{name}' is prohibited")
         return getattr(self.env, name)
 
     @property
     def spec(self):
+        """Returns the environment spec."""
         return self.env.spec
 
     @classmethod
     def class_name(cls):
+        """Returns the class name."""
         return cls.__name__
 
     @property
-    def action_space(self) -> spaces.Space[ActType]:
+    def action_space(self) -> Space[ActType]:
+        """Returns the action space."""
         if self._action_space is None:
             return self.env.action_space
         return self._action_space
 
     @action_space.setter
-    def action_space(self, space):
+    def action_space(self, space: Space):
+        """Sets the action space."""
         self._action_space = space
 
     @property
-    def observation_space(self) -> spaces.Space:
+    def observation_space(self) -> Space:
+        """Returns the observation space."""
         if self._observation_space is None:
             return self.env.observation_space
         return self._observation_space
 
     @observation_space.setter
-    def observation_space(self, space):
+    def observation_space(self, space: Space):
+        """Sets the observation shape."""
         self._observation_space = space
 
     @property
     def reward_range(self) -> tuple[SupportsFloat, SupportsFloat]:
+        """Return the reward range."""
         if self._reward_range is None:
             return self.env.reward_range
         return self._reward_range
 
     @reward_range.setter
-    def reward_range(self, value):
+    def reward_range(self, value: tuple[SupportsFloat, SupportsFloat]):
+        """Sets the reward range."""
         self._reward_range = value
 
     @property
     def metadata(self) -> dict:
+        """Returns the environment metadata."""
         if self._metadata is None:
             return self.env.metadata
         return self._metadata
 
     @metadata.setter
     def metadata(self, value):
+        """Sets the metadata."""
         self._metadata = value
 
-    def step(self, action: ActType) -> Tuple[ObsType, float, bool, dict]:
+    def step(self, action: ActType) -> tuple[ObsType, float, bool, dict]:
+        """Steps through the environment with action."""
         return self.env.step(action)
 
     def reset(self, **kwargs) -> Union[ObsType, tuple[ObsType, dict]]:
+        """Resets the environment with kwargs."""
         return self.env.reset(**kwargs)
 
     def render(self, **kwargs):
+        """Renders the environment with kwargs."""
         return self.env.render(**kwargs)
 
     def close(self):
+        """Closes the environment."""
         return self.env.close()
 
     def seed(self, seed=None):
+        """Seeds the environment."""
         return self.env.seed(seed)
 
     def __str__(self):
+        """Returns the wrapper name and the unwrapped environment string."""
         return f"<{type(self).__name__}{self.env}>"
 
     def __repr__(self):
+        """Returns string of the wrapper."""
         return str(self)
 
     @property
     def unwrapped(self) -> Env:
+        """Unwraps all wrappers to the environment."""
         return self.env.unwrapped
 
 
 class ObservationWrapper(Wrapper):
+    """A wrapper that can modify the returning observations from a step."""
+
     def reset(self, **kwargs):
+        """Resets the environment with the modified observations."""
         if kwargs.get("return_info", False):
             obs, info = self.env.reset(**kwargs)
             return self.observation(obs), info
@@ -325,38 +349,43 @@ class ObservationWrapper(Wrapper):
             return self.observation(self.env.reset(**kwargs))
 
     def step(self, action):
+        """Modifies the observation before returning the step."""
         observation, reward, done, info = self.env.step(action)
         return self.observation(observation), reward, done, info
 
     @abstractmethod
     def observation(self, observation):
+        """Modifies the observations."""
         raise NotImplementedError
 
 
 class RewardWrapper(Wrapper):
-    def reset(self, **kwargs):
-        return self.env.reset(**kwargs)
+    """A wrapper that can modify the returning reward from a step."""
 
     def step(self, action):
+        """Modifies the reward after the environment step."""
         observation, reward, done, info = self.env.step(action)
         return observation, self.reward(reward), done, info
 
     @abstractmethod
     def reward(self, reward):
+        """Modifies the reward."""
         raise NotImplementedError
 
 
 class ActionWrapper(Wrapper):
-    def reset(self, **kwargs):
-        return self.env.reset(**kwargs)
+    """A wrapper that can modify the action before stepping."""
 
     def step(self, action):
+        """Runs the environment step using the modified action."""
         return self.env.step(self.action(action))
 
     @abstractmethod
     def action(self, action):
+        """Modifies the action during the action."""
         raise NotImplementedError
 
     @abstractmethod
     def reverse_action(self, action):
+        """Reverse an action, unused in project."""
         raise NotImplementedError

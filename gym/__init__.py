@@ -1,3 +1,4 @@
+"""Sets the available functions and modules within gym."""
 # isort: skip_file
 
 from gym import error
