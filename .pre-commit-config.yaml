@@ -30,11 +30,12 @@ repos:
     rev: 6.1.1  # pick a git hash / tag to point to
     hooks:
       - id: pydocstyle
+        exclude: ^(gym/version.py)|(gym/(wrappers|envs|spaces|utils|vector)/)|(tests/)
         args:
           - --source
           - --explain
-          - --count
           - --convention=google
+        additional_dependencies: ["toml"]
   - repo: https://github.com/asottile/pyupgrade
     rev: v2.32.0
     hooks:
