@@ -69,6 +69,10 @@ class InvalidInfoFormat(Exception):
     """Raised when the info format is not available"""
 
 
+class InvalidInfoStrategy(Exception):
+    """Raised when trying to add an info strategy that not subclass VecEnvInfoStrategy"""
+
+
 class NoMatchingInfoStrategy(Exception):
     """
     Raised when the wrapper does not support the info

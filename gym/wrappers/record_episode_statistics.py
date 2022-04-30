@@ -1,15 +1,42 @@
 import time
+from abc import ABC, abstractmethod
 from collections import deque
 from typing import Optional
 
 import numpy as np
 
 import gym
-from gym.error import NoMatchingInfoStrategy
+from gym.error import InvalidInfoStrategy, NoMatchingInfoStrategy
 from gym.vector.utils import InfoStrategiesEnum
 
 
-class ClassicStatsInfoStrategy:
+class StatstInfoStrategy(ABC):
+    """Interface for implementing a info
+    processing strategy for RecordEpisodeStatistics
+    """
+
+    @abstractmethod
+    def __init__(self, num_envs: int):
+        ...
+
+    @abstractmethod
+    def add_info(self, info: dict, env_num: int):
+        """Get the info dict from the
+        environment and process with the defined strategy
+        """
+
+    @abstractmethod
+    def add_episode_statistics(self, infos: dict, env_num: int):
+        """Add the episode statistics to the info"""
+
+    @abstractmethod
+    def get_info(self):
+        """Return the info for the
+        vectorized env
+        """
+
+
+class ClassicStatsInfoStrategy(StatstInfoStrategy):
     def __init__(self, num_envs: int):
         self.info = {}
 
@@ -23,7 +50,7 @@ class ClassicStatsInfoStrategy:
         return self.info
 
 
-class ClassicVecEnvStatsInfoStrategy:
+class ClassicVecEnvStatsInfoStrategy(StatstInfoStrategy):
     def __init__(self, num_envs: int):
         self.info = [{} for _ in range(num_envs)]
 
@@ -37,7 +64,7 @@ class ClassicVecEnvStatsInfoStrategy:
         return tuple(self.info)
 
 
-class BraxVecEnvStatsInfoStrategy:
+class BraxVecEnvStatsInfoStrategy(StatstInfoStrategy):
     def __init__(self, num_envs: int):
         self.num_envs = num_envs
         self.info = {}
@@ -49,9 +76,7 @@ class BraxVecEnvStatsInfoStrategy:
         episode_info = info["episode"]
         self.info["episode"] = self.info.get("episode", {})
         for k in episode_info.keys():
-            info_array = self.info["episode"].get(
-                k, [None for _ in range(self.num_envs)]
-            )
+            info_array = self.info["episode"].get(k, np.zeros(self.num_envs))
             info_array[env_num] = episode_info[k]
             self.info["episode"][k] = info_array
 
@@ -60,21 +85,28 @@ class BraxVecEnvStatsInfoStrategy:
 
 
 class StatsInfoStrategyFactory:
-    strategies = {
+    _strategies = {
         InfoStrategiesEnum.classic.value: ClassicVecEnvStatsInfoStrategy,
         InfoStrategiesEnum.brax.value: BraxVecEnvStatsInfoStrategy,
     }
 
     def get_stats_info_strategy(wrapped_env_strategy: str):
-        if wrapped_env_strategy not in StatsInfoStrategyFactory.strategies:
+        if wrapped_env_strategy not in StatsInfoStrategyFactory._strategies:
             raise NoMatchingInfoStrategy(
                 "Wrapped environment has an info format of type %s which is not a processable format by this wrapper. Please use one in %s"
                 % (
                     wrapped_env_strategy,
-                    list(StatsInfoStrategyFactory.strategies.keys()),
+                    list(StatsInfoStrategyFactory._strategies.keys()),
                 )
             )
-        return StatsInfoStrategyFactory.strategies[wrapped_env_strategy]
+        return StatsInfoStrategyFactory._strategies[wrapped_env_strategy]
+
+    def add_info_strategy(name: str, strategy: StatstInfoStrategy) -> None:
+        if not issubclass(strategy, StatstInfoStrategy):
+            raise InvalidInfoStrategy(
+                "The strategy need to subclass the Abstract Base Class `StatstInfoStrategy`"
+            )
+        StatsInfoStrategyFactory._strategies[name] = strategy
 
 
 class RecordEpisodeStatistics(gym.Wrapper):

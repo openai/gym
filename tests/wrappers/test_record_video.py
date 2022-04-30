@@ -1,6 +1,8 @@
 import os
 import shutil
 
+import pytest
+
 import gym
 from gym.wrappers import capped_cubic_video_schedule
 
@@ -100,6 +102,9 @@ def test_record_video_within_vector():
     shutil.rmtree("videos")
 
 
+@pytest.mark.filterwarnings(
+    "ignore::UserWarning"
+)  # bool dtype in key `Timelimit.truncated` raise an informative warning to the user
 def test_record_video_within_vector_brax_info():
     envs = gym.vector.SyncVectorEnv(
         [make_env("CartPole-v1", 1 + i) for i in range(2)], info_format="brax"

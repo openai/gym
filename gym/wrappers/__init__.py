@@ -13,6 +13,7 @@ from gym.wrappers.record_episode_statistics import (
     ClassicVecEnvStatsInfoStrategy,
     RecordEpisodeStatistics,
     StatsInfoStrategyFactory,
+    StatstInfoStrategy,
 )
 from gym.wrappers.record_video import RecordVideo, capped_cubic_video_schedule
 from gym.wrappers.rescale_action import RescaleAction

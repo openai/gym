@@ -1,12 +1,13 @@
 import pytest
 
 import gym
-from gym.error import NoMatchingInfoStrategy
+from gym.error import InvalidInfoStrategy, NoMatchingInfoStrategy
 from gym.wrappers import (
     BraxVecEnvStatsInfoStrategy,
     ClassicVecEnvStatsInfoStrategy,
     RecordEpisodeStatistics,
     StatsInfoStrategyFactory,
+    StatstInfoStrategy,
 )
 
 
@@ -96,3 +97,20 @@ def test_get_statistic_info_strategy(info_format):
     else:
         with pytest.raises(NoMatchingInfoStrategy):
             StatsInfoStrategyFactory.get_stats_info_strategy(info_format)
+
+
+def test_add_valid_stats_info_strategy():
+    class Strategy(StatstInfoStrategy):
+        ...
+
+    StatsInfoStrategyFactory.add_info_strategy("valid", Strategy)
+    info_strategy = StatsInfoStrategyFactory.get_stats_info_strategy("valid")
+    assert info_strategy == Strategy
+
+
+def test_add_not_valid_info_strategy():
+    class Strategy:
+        ...
+
+    with pytest.raises(InvalidInfoStrategy):
+        StatsInfoStrategyFactory.add_info_strategy("not_valid", Strategy)
