@@ -34,8 +34,8 @@ class DummyResetEnv(gym.Env):
         self.count += 1
         return (
             np.array([self.count]),  # Obs
-            self.count > 1,  # Reward
-            self.count > 1,  # Done
+            self.count > 2,  # Reward
+            self.count > 2,  # Done
             {"count": self.count},  # Info
         )
 
