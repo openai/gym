@@ -10,7 +10,6 @@ from gym.envs.toy_text.utils import categorical_sample
 from gym.error import DependencyNotInstalled
 from gym.utils.renderer import Renderer
 
-
 MAP = [
     "+---------+",
     "|R: | : :G|",

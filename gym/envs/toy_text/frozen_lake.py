@@ -10,7 +10,6 @@ from gym.envs.toy_text.utils import categorical_sample
 from gym.error import DependencyNotInstalled
 from gym.utils.renderer import Renderer
 
-
 LEFT = 0
 DOWN = 1
 RIGHT = 2

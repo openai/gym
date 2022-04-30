@@ -554,7 +554,7 @@ class LunarLander(gym.Env, EzPickle):
         if self.renderer.mode is not None:
             return self.renderer.get_renders()
         else:
-            return self._render(mode)        
+            return self._render(mode)
 
     def _render(self, mode="human"):
         if mode is not None:

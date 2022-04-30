@@ -8,7 +8,6 @@ import numpy as np
 import gym
 from gym import spaces
 from gym.envs.box2d.car_dynamics import Car
-
 from gym.error import DependencyNotInstalled
 from gym.utils import EzPickle
 from gym.utils.renderer import Renderer

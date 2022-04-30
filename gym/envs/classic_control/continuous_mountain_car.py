@@ -284,7 +284,7 @@ class Continuous_MountainCarEnv(gym.Env):
                 self.clock.tick(self.metadata["render_fps"])
                 pygame.display.flip()
 
-            else:  # mode == "rgb_array":
+            elif mode in ["rgb_array", "single_rgb_array"]:
                 return np.transpose(
                     np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
                 )
