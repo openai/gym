@@ -52,8 +52,8 @@ class PlayableGame:
                 keys_to_action = self.env.unwrapped.get_keys_to_action()
             else:
                 raise MissingKeysToAction(
-                    "%s does not have explicit key to action mapping, "
-                    "please specify one manually" % self.env.spec.id
+                    f"{self.env.spec.id} does not have explicit key to action mapping, "
+                    "please specify one manually"
                 )
         relevant_keys = set(sum((list(k) for k in keys_to_action.keys()), []))
         return relevant_keys

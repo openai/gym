@@ -61,13 +61,14 @@ class BraxVecEnvInfoStrategy(VecEnvInfoStrategy):
     This strategy matches Brax library info's output structure.
 
     Example with 3 environments in which only the last has the `terminal_observation` info:
-        {
-            "terminal_observation": np.array([
-                None,
-                None,
-                array([0.13,  1.58 , -0.22, -2.56])
-            ])
-        }
+
+        >>> {
+        ...     "terminal_observation": np.array([
+        ...         None,
+        ...         None,
+        ...         array([0.13,  1.58 , -0.22, -2.56])
+        ...     ])
+        ... }
     """
 
     def __init__(self, num_envs: int):
@@ -77,8 +78,7 @@ class BraxVecEnvInfoStrategy(VecEnvInfoStrategy):
     def _init_info_array(self, num_envs: int, key: str, dtype: type) -> np.ndarray:
         if dtype == bool:
             warnings.warn(
-                "found boolean dtype in info for key `%s`, empty values are set to `False`"
-                % key
+                f"found boolean dtype in info for key `{key}`, empty values are set to `False`"
             )
         if dtype not in [int, float, bool]:
             dtype = object
@@ -114,8 +114,7 @@ class InfoStrategyFactory:
     def get_info_strategy(info_format: str) -> VecEnvInfoStrategy:
         if info_format not in InfoStrategyFactory._strategies:
             raise InvalidInfoFormat(
-                "%s is not an available format for info, please choose one between %s"
-                % (info_format, list(InfoStrategyFactory._strategies.keys()))
+                f"{info_format} is not an available format for info, please choose one between {list(InfoStrategyFactory._strategies.keys())}"
             )
         return InfoStrategyFactory._strategies[info_format]
 
