@@ -1,14 +1,19 @@
 [tool.pyright]
 
-include = [
-    "gym/**",
-    "tests/**"
-]
-exclude = [
-    "**/node_modules",
-    "**/__pycache__",
-]
-
-reportMissingImports = true
+typeCheckingMode = "basic"
+reportUnusedImport = "warning"
+pythonVersion = 3.7
+typeshedPath = "typeshed"
+enableTypeIgnoreComments = true
+reportUnknownMemberType = "none"
+reportUnknownParameterType = "none"
+reportUnknownVariableType = "none"
+reportUnknownArgumentType = "none"
+reportPrivateUsage = "warning"
+reportUntypedFunctionDecorator = "none"
 reportMissingTypeStubs = false
+reportUnboundVariable = "warning"
+reportMissingImports = "warning"
+reportGeneralTypeIssues = "none"
+
 verboseOutput = true
