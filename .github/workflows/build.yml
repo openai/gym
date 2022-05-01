@@ -31,6 +31,7 @@ jobs:
         if: matrix.python-version == '3.10'
         uses: MishaKav/pytest-coverage-comment@main
         with:
+          token: {{ secrets.GITHUB_TOKEN }}
           pytest-coverage-path: /tmp/pytest-coverage.txt
           junitxml-path: /tmp/pytest.xml
           title: Coverage report details
