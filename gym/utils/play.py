@@ -110,18 +110,6 @@ def play(
     verifying that the frame-level preprocessing does not render the game
     unplayable.
 
-    If you wish to plot real time statistics as you play, you can use
-    gym.utils.play.PlayPlot. Here's a sample code for plotting the reward
-    for last 5 second of gameplay.
-
-        def callback(obs_t, obs_tp1, action, rew, done, info):
-            return [rew,]
-        plotter = PlayPlot(callback, 30 * 5, ["reward"])
-
-        env = gym.make("Pong-v4")
-        play(env, callback=plotter.callback)
-
-
     Arguments
     ---------
     env: gym.Env
