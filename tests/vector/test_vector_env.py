@@ -1,14 +1,20 @@
 from functools import partial
-from typing import Type
+from typing import Callable, Type
 
 import numpy as np
 import pytest
+from numpy.testing import assert_allclose
 
+import gym
 from gym import Space
+from gym.core import ObsType
 from gym.spaces import Box, Tuple
 from gym.vector.async_vector_env import AsyncVectorEnv
 from gym.vector.sync_vector_env import SyncVectorEnv
+from gym.vector.utils.numpy_utils import concatenate
+from gym.vector.utils.spaces import iterate
 from gym.vector.vector_env import VectorEnv
+from gym.wrappers import AutoResetWrapper
 from tests.vector.utils import CustomSpace, make_env
 
 
@@ -64,13 +70,43 @@ def test_custom_space_vector_env():
     assert isinstance(env.action_space, Tuple)
 
 
-@pytest.mark.parametrize("base_env", ["Pendulum-v1", "CartPole-v1"])
+def _batch_size(space: Space) -> int:
+    return len(list(iterate(space, space.sample())))
+
+
+from gym.envs.registration import EnvSpec, registry
+
+
+def _is_local_env_spec(spec: EnvSpec) -> bool:
+    if not isinstance(spec.entry_point, str):
+        return False
+    # If it is one of the envs
+    return any(
+        spec.entry_point.startswith(f"gym.envs.{package}")
+        for package in ["classic_control", "toy_text"]
+    )
+
+
+# Only use 'local' envs for testing
+# NOTE: we can't instantiate envs from Atari when in the gym repository folder.
+local_env_ids = [spec.id for spec in registry.all() if _is_local_env_spec(spec)]
+
+
+def _make_seeded_env(env_id: str, seed: int) -> gym.Env:
+    env = gym.make(env_id)
+    env.seed(seed)
+    env.action_space.seed(seed)
+    env.observation_space.seed(seed)
+    return env
+
+
+@pytest.mark.parametrize("env_id", local_env_ids)
 @pytest.mark.parametrize("async_inner", [False, True])
 @pytest.mark.parametrize("async_outer", [False, True])
 @pytest.mark.parametrize("n_inner_envs", [1, 4, 7])
 @pytest.mark.parametrize("n_outer_envs", [1, 4, 7])
 def test_nesting_vector_envs(
-    base_env: str,
+    env_id: str,
     async_inner: bool,
     async_outer: bool,
     n_inner_envs: int,
@@ -89,8 +125,8 @@ def test_nesting_vector_envs(
 
     Parameters
     ----------
-    - base_env : str
-        The base environment id.
+    - env_id : str
+        ID of a gym environment to use as the base environment.
     - async_inner : bool
         Whether the inner VectorEnv will be async or not.
     - async_outer : bool
@@ -101,74 +137,156 @@ def test_nesting_vector_envs(
         Number of outer environments.
     """
 
-    inner_vectorenv_type: Type[VectorEnv] = (
-        AsyncVectorEnv if async_inner else SyncVectorEnv
-    )
-    outer_vectorenv_type: Type[VectorEnv] = (
-        partial(AsyncVectorEnv, daemon=False) if async_outer else SyncVectorEnv
-    )
     # NOTE: When nesting AsyncVectorEnvs, only the "innermost" envs can have
     # `daemon=True`, otherwise the "daemonic processes are not allowed to have
     # children" AssertionError is raised in `multiprocessing.process`.
+    inner_vectorenv_type = AsyncVectorEnv if async_inner else SyncVectorEnv
+    outer_vectorenv_type = (
+        partial(AsyncVectorEnv, daemon=False) if async_outer else SyncVectorEnv
+    )
 
-    # Create the VectorEnv of VectorEnvs
-    env = outer_vectorenv_type(
+    base_seed = 123
+
+    # Create the functions for the envs at each index (i, j)
+    env_fns_grid = [
         [
-            partial(
-                inner_vectorenv_type,
-                env_fns=[
-                    make_env(base_env, seed=n_inner_envs * i + j)
-                    for j in range(n_inner_envs)
-                ],
-            )
-            for i in range(n_outer_envs)
+            partial(_make_seeded_env, env_id, seed=base_seed)  # + n_inner_envs * i + j)
+            for j in range(n_inner_envs)
         ]
+        for i in range(n_outer_envs)
+    ]
+
+    outer_env_fns = [
+        partial(
+            inner_vectorenv_type,
+            env_fns=inner_env_fns,
+        )
+        for inner_env_fns in env_fns_grid
+    ]
+
+    env = outer_vectorenv_type(env_fns=outer_env_fns)
+
+    # IDEA: Note the initial obs, action, next_obs, reward, done, info in all these envs, and then
+    # compare with those of the vectorenv.
+
+    base_obs: list[list] = np.zeros([n_outer_envs, n_inner_envs]).tolist()
+    base_act: list[list] = np.zeros([n_outer_envs, n_inner_envs]).tolist()
+    base_next_obs: list[list] = np.zeros([n_outer_envs, n_inner_envs]).tolist()
+    base_reward = np.zeros(shape=(n_outer_envs, n_inner_envs), dtype=float)
+    base_done = np.zeros(shape=(n_outer_envs, n_inner_envs), dtype=bool)
+    base_info: list[list[dict]] = np.zeros([n_outer_envs, n_inner_envs]).tolist()
+
+    # Create an env temporarily to get the observation and action spaces.
+    with env_fns_grid[0][0]() as temp_env:
+        base_observation_space = temp_env.observation_space
+        base_action_space = temp_env.action_space
+
+    # Go through each index (i, j) and create the env with the seed at that index, getting the
+    # initial state, action, next_obs, reward, done, info, etc.
+    # This will then be compared with the states produced by the VectorEnv equivalent.
+
+    for i in range(n_outer_envs):
+        for j in range(n_inner_envs):
+            # Create a properly seeded environment. Then, reset, and step once.
+            with env_fns_grid[i][j]() as temp_env:
+
+                # Add the AutoResetWrapper to the individual environments to replicate what will
+                # happen in the VectorEnv. (See the note below).
+                temp_env = AutoResetWrapper(temp_env)
+
+                assert temp_env.observation_space == base_observation_space
+                assert temp_env.action_space == base_action_space
+
+                # NOTE: This will change a bit once the AutoResetWrapper is used in the VectorEnvs.
+                base_obs[i][j], base_info[i][j] = temp_env.reset(return_info=True)
+                base_act[i][j] = base_action_space.sample()
+                (
+                    base_next_obs[i][j],
+                    base_reward[i][j],
+                    base_done[i][j],
+                    base_info[i][j],
+                ) = temp_env.step(base_act[i][j])
+
+    obs = env.reset()
+
+    # NOTE: creating these values so they aren't possibly unbound below and type hinters can relax.
+    i = -1
+    j = -1
+
+    for i, obs_i in enumerate(iterate(env.observation_space, obs)):
+        for j, obs_ij in enumerate(iterate(env.single_observation_space, obs_i)):
+            assert obs_ij in base_observation_space
+            # Assert that each observation is what we'd expect (following the single env.)
+            assert_allclose(obs_ij, base_obs[i][j])
+
+        assert j == n_inner_envs - 1
+    assert i == n_outer_envs - 1
+
+    # NOTE: Sampling an action using env.action_space.sample() would give a different value than
+    # if we sampled actions from each env individually and batched them.
+    # In order to check that everything is working correctly, we'll instead create the action by
+    # concatenating the individual actions, and pass it to the vectorenv, to check if that will
+    # recreate the same result for all individual envs.
+    # _ = env.action_space.sample()
+    action = concatenate(
+        env.single_action_space,
+        [
+            concatenate(base_action_space, base_act[i], out=None)
+            for i in range(n_outer_envs)
+        ],
+        out=None,
     )
 
-    # Create a single test environment.
-    with make_env(base_env, 0)() as temp_single_env:
-        single_observation_space = temp_single_env.observation_space
+    for i, action_i in enumerate(iterate(env.action_space, action)):
+        for j, action_ij in enumerate(iterate(env.single_action_space, action_i)):
+            assert action_ij in base_action_space
+            # Assert that each observation is what we'd expect (following the single env.)
+            # assert_allclose(act_ij, base_act)
+        assert j == n_inner_envs - 1
+    assert i == n_outer_envs - 1
 
-    assert isinstance(single_observation_space, Box)
-    assert isinstance(env.observation_space, Box)
-    assert env.observation_space.shape == (
-        n_outer_envs,
-        n_inner_envs,
-        *single_observation_space.shape,
-    )
-    assert env.observation_space.dtype == single_observation_space.dtype
+    # Perform a single step:
 
-    from gym.vector.utils.spaces import iterate
+    next_obs, reward, done, info = env.step(action)
 
-    def batch_size(space: Space) -> int:
-        return len(list(iterate(space, space.sample())))
+    for i, next_obs_i in enumerate(iterate(env.observation_space, next_obs)):
+        for j, next_obs_ij in enumerate(
+            iterate(env.single_observation_space, next_obs_i)
+        ):
+            assert next_obs_ij in base_observation_space
+            # Assert that each next observation is what we'd expect (following the single env.)
+            assert_allclose(next_obs_ij, base_next_obs[i][j])
 
-    assert batch_size(env.action_space) == n_outer_envs
+    for i, rew_i in enumerate(reward):
+        for j, rew_ij in enumerate(rew_i):
+            # Assert that each reward is what we'd expect (following the single env.)
+            assert_allclose(rew_ij, base_reward[i][j])
+        assert j == n_inner_envs - 1
+    assert i == n_outer_envs - 1
 
-    observations = env.reset()
-    assert observations in env.observation_space
+    for i, done_i in enumerate(done):
+        for j, done_ij in enumerate(done_i):
+            assert done_ij == base_done[i][j]
+        assert j == n_inner_envs - 1
+    assert i == n_outer_envs - 1
 
-    actions = env.action_space.sample()
-    assert actions in env.action_space
+    for i, info_i in enumerate(info):
+        for j, info_ij in enumerate(info_i):
+            # NOTE: Since the VectorEnvs don't apply an AutoResetWrapper to the individual envs,
+            # the autoreset logic is in the 'worker' code, and this code doesn't add the
+            # 'terminal_info' entry in the 'info' dictionary.
+            # NOTE: This test-case is forward-compatible in case the VectorEnvs do end up adding
+            # the 'terminal_info' entry in the 'info' dictionary.
+            expected_info = base_info[i][j].copy()
+            if (
+                info_ij != base_info[i][j]
+                and ("terminal_info" in expected_info)
+                and ("terminal_info" not in info_ij)
+            ):
+                # Remove the 'terminal_info' key from the expected info dict and compare as before.
+                expected_info.pop("terminal_info")
+            assert info_ij == expected_info
+        assert j == n_inner_envs - 1
+    assert i == n_outer_envs - 1
 
-    observations, rewards, dones, _ = env.step(actions)
-    assert observations in env.observation_space
-
-    assert isinstance(env.observation_space, Box)
-    assert isinstance(observations, np.ndarray)
-    assert observations.dtype == env.observation_space.dtype
-    assert (
-        observations.shape
-        == (n_outer_envs, n_inner_envs) + single_observation_space.shape
-    )
-
-    assert isinstance(rewards, np.ndarray)
-    assert isinstance(rewards[0], np.ndarray)
-    assert rewards.ndim == 2
-    assert rewards.shape == (n_outer_envs, n_inner_envs)
-
-    assert isinstance(dones, np.ndarray)
-    assert dones.dtype == np.bool_
-    assert dones.ndim == 2
-    assert dones.shape == (n_outer_envs, n_inner_envs)
     env.close()
