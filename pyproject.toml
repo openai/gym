@@ -1,10 +1,30 @@
 [tool.pyright]
 
+include = [
+    "gym/**",
+    "tests/**"
+]
+
+exclude = [
+    "**/node_modules",
+    "**/__pycache__",
+
+    "gym/envs/box2d/**",
+    # "gym/envs/classic_control/**",
+    "gym/envs/mujoco/**",
+    "gym/envs/toy_text/**",
+    "gym/spaces/**",
+    "gym/utils/**",
+    "gym/vector/**",
+    "gym/wrappers/**",
+    "tests/**"
+]
+
 typeCheckingMode = "basic"
-reportUnusedImport = "warning"
-pythonVersion = 3.7
+pythonVersion = "3.7"
 typeshedPath = "typeshed"
 enableTypeIgnoreComments = true
+
 reportUnknownMemberType = "none"
 reportUnknownParameterType = "none"
 reportUnknownVariableType = "none"
@@ -13,7 +33,5 @@ reportPrivateUsage = "warning"
 reportUntypedFunctionDecorator = "none"
 reportMissingTypeStubs = false
 reportUnboundVariable = "warning"
-reportMissingImports = "warning"
-reportGeneralTypeIssues = "none"
-
-verboseOutput = true
+reportMissingImports ="none"
+reportGeneralTypeIssues ="none"
