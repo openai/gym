@@ -1,14 +1,13 @@
+import warnings
 from functools import partial
-from typing import Callable, Type
 
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
 
 import gym
-from gym import Space
-from gym.core import ObsType
-from gym.spaces import Box, Tuple
+from gym.envs.registration import EnvSpec, registry
+from gym.spaces import Tuple
 from gym.vector.async_vector_env import AsyncVectorEnv
 from gym.vector.sync_vector_env import SyncVectorEnv
 from gym.vector.utils.numpy_utils import concatenate
@@ -70,17 +69,10 @@ def test_custom_space_vector_env():
     assert isinstance(env.action_space, Tuple)
 
 
-def _batch_size(space: Space) -> int:
-    return len(list(iterate(space, space.sample())))
-
-
-from gym.envs.registration import EnvSpec, registry
-
-
 def _is_local_env_spec(spec: EnvSpec) -> bool:
     if not isinstance(spec.entry_point, str):
         return False
-    # If it is one of the envs
+    # If it is one of the deprecated envs, ignore the warning.
     return any(
         spec.entry_point.startswith(f"gym.envs.{package}")
         for package in ["classic_control", "toy_text"]
@@ -93,11 +85,14 @@ local_env_ids = [spec.id for spec in registry.all() if _is_local_env_spec(spec)]
 
 
 def _make_seeded_env(env_id: str, seed: int) -> gym.Env:
-    env = gym.make(env_id)
-    env.seed(seed)
-    env.action_space.seed(seed)
-    env.observation_space.seed(seed)
-    return env
+    # Ignore any depcrecated environment warnings, since we will always need to test those.
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", category=UserWarning)
+        env = gym.make(env_id)
+        # env.seed(seed)
+        env.action_space.seed(seed)
+        env.observation_space.seed(seed)
+        return env
 
 
 @pytest.mark.parametrize("env_id", local_env_ids)
@@ -148,9 +143,14 @@ def test_nesting_vector_envs(
     base_seed = 123
 
     # Create the functions for the envs at each index (i, j)
+    seeds = [
+        [base_seed + i * n_inner_envs + j for j in range(n_inner_envs)]
+        for i in range(n_outer_envs)
+    ]
+
     env_fns_grid = [
         [
-            partial(_make_seeded_env, env_id, seed=base_seed)  # + n_inner_envs * i + j)
+            partial(_make_seeded_env, env_id, seed=seeds[i][j])
             for j in range(n_inner_envs)
         ]
         for i in range(n_outer_envs)
@@ -166,7 +166,7 @@ def test_nesting_vector_envs(
 
     env = outer_vectorenv_type(env_fns=outer_env_fns)
 
-    # IDEA: Note the initial obs, action, next_obs, reward, done, info in all these envs, and then
+    # Note the initial obs, action, next_obs, reward, done, info in all these envs, and then
     # compare with those of the vectorenv.
 
     base_obs: list[list] = np.zeros([n_outer_envs, n_inner_envs]).tolist()
@@ -198,7 +198,9 @@ def test_nesting_vector_envs(
                 assert temp_env.action_space == base_action_space
 
                 # NOTE: This will change a bit once the AutoResetWrapper is used in the VectorEnvs.
-                base_obs[i][j], base_info[i][j] = temp_env.reset(return_info=True)
+                base_obs[i][j], base_info[i][j] = temp_env.reset(
+                    seed=seeds[i][j], return_info=True
+                )
                 base_act[i][j] = base_action_space.sample()
                 (
                     base_next_obs[i][j],
@@ -207,7 +209,7 @@ def test_nesting_vector_envs(
                     base_info[i][j],
                 ) = temp_env.step(base_act[i][j])
 
-    obs = env.reset()
+    obs = env.reset(seed=seeds)
 
     # NOTE: creating these values so they aren't possibly unbound below and type hinters can relax.
     i = -1
