@@ -195,7 +195,7 @@ def play(
 class PlayPlot:
     def __init__(self, callback, horizon_timesteps, plot_names):
         deprecation(
-            "`PlayPlot` is marked as deprecated and will be removed in gym 1.0."
+            "`PlayPlot` is marked as deprecated and will be removed in the near future."
         )
         self.data_callback = callback
         self.horizon_timesteps = horizon_timesteps
