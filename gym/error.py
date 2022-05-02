@@ -148,10 +148,7 @@ class APIError(Error):
             return self._message
 
     def __str__(self):
-        try:  # Python 2
-            return unicode(self).encode("utf-8")
-        except NameError:  # Python 3
-            return self.__unicode__()
+        return self.__unicode__()
 
 
 class APIConnectionError(APIError):
