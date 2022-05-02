@@ -31,7 +31,7 @@ class MultiBinary(Space[np.ndarray]):
         n: Union[np.ndarray, Sequence[int], int],
         seed: Optional[int | seeding.RandomNumberGenerator] = None,
     ):
-        """Constructor of `MultiBinary` space.
+        """Constructor of ``MultiBinary`` space.
 
         Args:
             n: This will fix the shape of elements of the space. It can either be an integer (if the space is flat)

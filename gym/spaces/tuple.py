@@ -15,6 +15,7 @@ class Tuple(Space[tuple], Sequence):
     Elements of this space are tuples of elements of the simpler spaces.
 
     Example usage::
+
         >> observation_space = spaces.Tuple((spaces.Discrete(2), spaces.Box(-1, 1, shape=(2,))))
         >> observation_space.sample()
         (0, array([0.03633198, 0.42370757], dtype=float32))
@@ -25,7 +26,7 @@ class Tuple(Space[tuple], Sequence):
         spaces: Iterable[Space],
         seed: Optional[int | list[int] | seeding.RandomNumberGenerator] = None,
     ):
-        r"""Constructor of `Tuple` space.
+        r"""Constructor of ``Tuple`` space.
 
         The generated instance will represent the cartesian product :math:`\text{spaces}[0] \times ... \times \text{spaces}[-1]`.
 
@@ -123,5 +124,5 @@ class Tuple(Space[tuple], Sequence):
         return len(self.spaces)
 
     def __eq__(self, other) -> bool:
-        """Check whether `other` is equivalent to this instance."""
+        """Check whether ``other`` is equivalent to this instance."""
         return isinstance(other, Tuple) and self.spaces == other.spaces

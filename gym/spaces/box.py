@@ -22,10 +22,11 @@ def _short_repr(arr: np.ndarray) -> str:
 
 
 class Box(Space[np.ndarray]):
-    """A (possibly unbounded) box in R^n.
+    r"""A (possibly unbounded) box in :math:`\mathbb{R}^n`.
 
     Specifically, a Box represents the Cartesian product of n closed intervals.
-    Each interval has the form of one of [a, b], (-oo, b], [a, oo), or (-oo, oo).
+    Each interval has the form of one of :math:`[a, b]`, :math:`(-\infty, b]`,
+    :math:`[a, \infty)`, or :math:`(-\infty, \infty)`.
 
     There are two common use cases:
 
@@ -48,20 +49,20 @@ class Box(Space[np.ndarray]):
         dtype: Type = np.float32,
         seed: Optional[int | seeding.RandomNumberGenerator] = None,
     ):
-        r"""Constructor of `Box`.
+        r"""Constructor of ``Box``.
 
-        The argument `low` specifies the lower bound of each dimension and `high` specifies the upper bounds.
+        The argument ``low`` specifies the lower bound of each dimension and ``high`` specifies the upper bounds.
         I.e., the space that is constructed will be the product of the intervals :math:`[\text{low}[i], \text{high}[i]]`.
-        If `low` (or `high`) is a scalar, the lower bound (or upper bound, respectively) will be assumed to be
+        If ``low`` (or ``high``) is a scalar, the lower bound (or upper bound, respectively) will be assumed to be
         this value across all dimensions.
 
 
         Args:
             low (Union[SupportsFloat, np.ndarray]): Lower bounds of the intervals
             high (Union[SupportsFloat, np.ndarray]): Upper bounds of the intervals
-            shape (Optional[Sequence[int]]): This only needs to be specified if both `low` and `high` are scalars and determines the shape of the space.
-                Otherwise, the shape is inferred from the shape of `low` or `high`.
-            dtype: The dtype of the elements of the space. If this is an integer type, the `Box` is essentially a discrete space.
+            shape (Optional[Sequence[int]]): This only needs to be specified if both ``low`` and ``high`` are scalars and determines the shape of the space.
+                Otherwise, the shape is inferred from the shape of ``low`` or ``high``.
+            dtype: The dtype of the elements of the space. If this is an integer type, the ``Box`` is essentially a discrete space.
             seed: Optionally, you can use this argument to seed the RNG that is used to sample from the space
         """
         assert dtype is not None, "dtype must be explicitly provided. "
@@ -118,7 +119,7 @@ class Box(Space[np.ndarray]):
         """Checks whether the box is bounded in some sense.
 
         Args:
-            manner (str): One of `"both"`, `"below"`, `"above"`.
+            manner (str): One of ``"both"``, ``"below"``, ``"above"``.
 
         Raises:
             ValueError: If `manner` is neither `"both"` nor `"below"`or `"above"`
@@ -140,10 +141,10 @@ class Box(Space[np.ndarray]):
         In creating a sample of the box, each coordinate is sampled (independently) from a distribution
         that is chosen according to the form of the interval:
 
-        * [a, b] : uniform distribution
-        * [a, oo) : shifted exponential distribution
-        * (-oo, b] : shifted negative exponential distribution
-        * (-oo, oo) : normal distribution
+        * :math:`[a, b]` : uniform distribution
+        * :math:`[a, \infty)` : shifted exponential distribution
+        * :math:`(-\infty, b]` : shifted negative exponential distribution
+        * :math:`(-\infty, \infty)` : normal distribution
         """
         high = self.high if self.dtype.kind == "f" else self.high.astype("int64") + 1
         sample = np.empty(self.shape)

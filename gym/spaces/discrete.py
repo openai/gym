@@ -26,14 +26,14 @@ class Discrete(Space[int]):
         seed: Optional[int | seeding.RandomNumberGenerator] = None,
         start: int = 0,
     ):
-        r"""Constructor of `Discrete` space.
+        r"""Constructor of ``Discrete`` space.
 
         This will construct the space :math:`\\{\text{start}, ..., \text{start} + n - 1\\}`.
 
         Args:
             n (int): The number of elements of this space
             start (int): The smallest element of this space.
-            seed: Optionally, you can use this argument to seed the RNG that is used to sample from the `Dict` space
+            seed: Optionally, you can use this argument to seed the RNG that is used to sample from the ``Dict`` space
         """
         assert n > 0, "n (counts) have to be positive"
         assert isinstance(start, (int, np.integer))
@@ -67,7 +67,7 @@ class Discrete(Space[int]):
         return "Discrete(%d)" % self.n
 
     def __eq__(self, other) -> bool:
-        """Check whether `other` is equivalent to this instance."""
+        """Check whether ``other`` is equivalent to this instance."""
         return (
             isinstance(other, Discrete)
             and self.n == other.n

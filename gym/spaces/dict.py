@@ -19,27 +19,33 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
 
     Example usage::
 
-        >> observation_space = spaces.Dict({"position": spaces.Discrete(2), "velocity": spaces.Discrete(3)})
-        >> observation_space.sample()
+        >>> observation_space = spaces.Dict({"position": spaces.Discrete(2), "velocity": spaces.Discrete(3)})
+        >>> observation_space.sample()
         OrderedDict([('position', 1), ('velocity', 2)])
 
     Example usage [nested]::
 
-        >> nested_observation_space = spaces.Dict({
-            'ext_controller': spaces.MultiDiscrete((5, 2, 2)),
-            'inner_state':spaces.Dict({
-                'charge': spaces.Discrete(100),
-                'system_checks': spaces.MultiBinary(10),
-                'job_status': spaces.Dict({
-                    'task': spaces.Discrete(5),
-                    'progress': spaces.Box(low=0, high=100, shape=()),
-                })
-            })
-        })
+        >>> spaces.Dict(
+        ...     {
+        ...         "ext_controller": spaces.MultiDiscrete((5, 2, 2)),
+        ...         "inner_state": spaces.Dict(
+        ...             {
+        ...                 "charge": spaces.Discrete(100),
+        ...                 "system_checks": spaces.MultiBinary(10),
+        ...                 "job_status": spaces.Dict(
+        ...                     {
+        ...                         "task": spaces.Discrete(5),
+        ...                         "progress": spaces.Box(low=0, high=100, shape=()),
+        ...                     }
+        ...                 ),
+        ...             }
+        ...         ),
+        ...     }
+        ...)
 
-    It can be convenient to use `Dict` spaces if you want to make complex observations or actions more human-readable.
+    It can be convenient to use ``Dict`` spaces if you want to make complex observations or actions more human-readable.
     Usually, it will be not be possible to use elements of this space directly in learning code. However, you can easily
-    convert `Dict` observations to flat arrays by using a `FlattenObservation` wrapper. Similar wrappers can be
+    convert `Dict` observations to flat arrays by using a ``FlattenObservation`` wrapper. Similar wrappers can be
     implemented to deal with `Dict` actions.
     """
 
@@ -52,8 +58,8 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
         """Constructor of `Dict` space.
 
         This space can be instantiated in one of two ways: Either you pass a dictionary
-        of spaces to `__init__` via the `spaces` argument, or you pass the spaces as separate
-        keyword arguments (where you will need to avoid the keys `spaces` and `seed`)
+        of spaces to `__init__` via the ``spaces`` argument, or you pass the spaces as separate
+        keyword arguments (where you will need to avoid the keys ``spaces`` and ``seed``)
 
         Example::
             >>> spaces.Dict({"position": spaces.Box(-1, 1, shape=(2,)), "color": spaces.Discrete(3)})

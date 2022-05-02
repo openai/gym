@@ -35,11 +35,11 @@ class MultiDiscrete(Space[np.ndarray]):
         dtype=np.int64,
         seed: Optional[int | seeding.RandomNumberGenerator] = None,
     ):
-        """Constructor of `MultiDiscrete` space.
+        """Constructor of ``MultiDiscrete`` space.
 
-        The argument `nvec` will determine the number of values each categorical variable can take.
+        The argument ``nvec`` will determine the number of values each categorical variable can take.
 
-        Although this feature is rarely used, `MultiDiscrete` spaces may also have several axes
+        Although this feature is rarely used, ``MultiDiscrete`` spaces may also have several axes
         if `nvec has several axes:
 
         Example::
@@ -62,7 +62,7 @@ class MultiDiscrete(Space[np.ndarray]):
 
     @property
     def shape(self) -> tuple[int, ...]:
-        """Has stricter type than gym.Space - never None."""
+        """Has stricter type than ``gym.Space` - never None."""
         return self._shape  # type: ignore
 
     def sample(self) -> np.ndarray:
@@ -90,7 +90,7 @@ class MultiDiscrete(Space[np.ndarray]):
         return f"MultiDiscrete({self.nvec})"
 
     def __getitem__(self, index):
-        """Extract a subspace from `MultiDiscrete` space."""
+        """Extract a subspace from this ``MultiDiscrete`` space."""
         nvec = self.nvec[index]
         if nvec.ndim == 0:
             subspace = Discrete(nvec)
@@ -100,11 +100,11 @@ class MultiDiscrete(Space[np.ndarray]):
         return subspace
 
     def __len__(self):
-        """Gives the `len` of samples from this space."""
+        """Gives the ``len`` of samples from this space."""
         if self.nvec.ndim >= 2:
             logger.warn("Get length of a multi-dimensional MultiDiscrete space.")
         return len(self.nvec)
 
     def __eq__(self, other):
-        """Check whether `other` is equivalent to this instance."""
+        """Check whether ``other`` is equivalent to this instance."""
         return isinstance(other, MultiDiscrete) and np.all(self.nvec == other.nvec)

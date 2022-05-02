@@ -16,22 +16,19 @@ class Space(Generic[T_cov]):
     Spaces are crucially used in Gym to define the format of valid actions and observations.
     They serve various purposes:
 
-    * They clearly define how to interact with environments, i.e. they specify what actions
-    need to look like and what observations will look like
-    * They allow us to work with highly structured data (e.g. in the form of elements of `Dict` spaces)
-    and painlessly transform them into flat arrays that can be used in learning code
-    * They provide a method to sample random elements. This is especially useful for exploration and
-    debugging.
+    * They clearly define how to interact with environments, i.e. they specify what actions need to look like and what observations will look like
+    * They allow us to work with highly structured data (e.g. in the form of elements of `Dict` spaces) and painlessly transform them into flat arrays that can be used in learning code
+    * They provide a method to sample random elements. This is especially useful for exploration and debugging.
 
-    Different spaces can be combined hierarchically via container spaces (`Tuple` and `Dict`) to build a
+    Different spaces can be combined hierarchically via container spaces (``Tuple`` and ``Dict``) to build a
     more expressive space
 
     .. warning::
-        Custom observation & action spaces can inherit from the `Space`
+        Custom observation & action spaces can inherit from the ``Space``
         class. However, most use-cases should be covered by the existing space
-        classes (e.g. `Box`, `Discrete`, etc...), and container classes (`Tuple` &
-        `Dict`). Note that parametrized probability distributions (through the
-        `sample()` method), and batching functions (in `gym.vector.VectorEnv`), are
+        classes (e.g. ``Box``, ``Discrete``, etc...), and container classes (``Tuple`` &
+        ``Dict``). Note that parametrized probability distributions (through the
+        ``sample()`` method), and batching functions (in ``gym.vector.VectorEnv``), are
         only well-defined for instances of spaces provided in gym by default.
         Moreover, some implementations of Reinforcement Learning algorithms might
         not handle custom spaces properly. Use custom spaces with care.
@@ -43,7 +40,7 @@ class Space(Generic[T_cov]):
         dtype: Optional[Type | str] = None,
         seed: Optional[int | seeding.RandomNumberGenerator] = None,
     ):
-        """Constructor of `Space`.
+        """Constructor of ``Space``.
 
         Args:
             shape (Optional[Sequence[int]]): If elements of the space are numpy arrays, this should specify their shape.
