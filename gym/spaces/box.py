@@ -136,7 +136,7 @@ class Box(Space[np.ndarray]):
             raise ValueError("manner is not in {'below', 'above', 'both'}")
 
     def sample(self) -> np.ndarray:
-        """Generates a single random sample inside the Box.
+        r"""Generates a single random sample inside the Box.
 
         In creating a sample of the box, each coordinate is sampled (independently) from a distribution
         that is chosen according to the form of the interval:
