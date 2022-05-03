@@ -20,6 +20,10 @@ exclude = [
     "tests/**"
 ]
 
+strict = [
+
+]
+
 typeCheckingMode = "basic"
 pythonVersion = "3.7"
 typeshedPath = "typeshed"
@@ -33,5 +37,5 @@ reportPrivateUsage = "warning"
 reportUntypedFunctionDecorator = "none"
 reportMissingTypeStubs = false
 reportUnboundVariable = "warning"
-reportMissingImports ="none"
+reportMissingImports ="error"
 reportGeneralTypeIssues ="none"
