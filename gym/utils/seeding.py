@@ -4,7 +4,6 @@ import struct
 from typing import Any, List, Optional, Tuple, Union
 
 import numpy as np
-from numpy.random import Generator
 
 from gym import error
 from gym.logger import deprecation

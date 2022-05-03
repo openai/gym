@@ -7,6 +7,7 @@ import importlib
 import importlib.util
 import re
 import sys
+import warnings
 from dataclasses import dataclass, field
 from typing import (
     Any,
@@ -225,6 +226,7 @@ def load_env_plugins(entry_point: str = "gym.envs") -> None:
     for plugin in metadata.entry_points(group=entry_point):
         # Python 3.8 doesn't support plugin.module, plugin.attr
         # So we'll have to try and parse this ourselves
+        module, attr = None, None
         try:
             module, attr = plugin.module, plugin.attr  # type: ignore  ## error: Cannot access member "attr" for type "EntryPoint"
         except AttributeError:
@@ -232,7 +234,10 @@ def load_env_plugins(entry_point: str = "gym.envs") -> None:
                 module, attr = plugin.value.split(":", maxsplit=1)
             else:
                 module, attr = plugin.value, None
-        except:
+        except Exception as e:
+            warnings.warn(
+                f"While trying to load plugin `{plugin}` from {entry_point}, an exception occurred: {e}"
+            )
             module, attr = None, None
         finally:
             if attr is None:
@@ -264,8 +269,12 @@ def load_env_plugins(entry_point: str = "gym.envs") -> None:
 
 
 # fmt: off
+# Classic control
+# ----------------------------------------
+
+
 @overload
-def make(id: Literal["CartPole-v0", "CartPole-v1"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
+def make(id: Literal["CartPole-v1"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
 @overload
 def make(id: Literal["MountainCar-v0"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
 @overload
@@ -278,6 +287,7 @@ def make(id: Literal["Acrobot-v1"], **kwargs) -> Env[np.ndarray, np.ndarray | in
 # Box2d
 # ----------------------------------------
 
+
 @overload
 def make(id: Literal["LunarLander-v2", "LunarLanderContinuous-v2"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
 @overload
@@ -287,6 +297,7 @@ def make(id: Literal["CarRacing-v1", "CarRacingDomainRandomize-v1"], **kwargs) -
 
 # Toy Text
 # ----------------------------------------
+
 
 @overload
 def make(id: Literal["Blackjack-v1"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
@@ -299,6 +310,8 @@ def make(id: Literal["Taxi-v3"], **kwargs) -> Env[np.ndarray, np.ndarray | int]:
 
 # Mujoco
 # ----------------------------------------
+
+
 @overload
 def make(id: Literal[
     "Reacher-v2",

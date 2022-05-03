@@ -11,7 +11,7 @@ SKIP_MUJOCO_WARNING_MESSAGE = (
 skip_mujoco = not (os.environ.get("MUJOCO_KEY"))
 if not skip_mujoco:
     try:
-        import mujoco_py
+        import mujoco_py  # noqa:F401
     except ImportError:
         skip_mujoco = True
 
@@ -24,12 +24,12 @@ def should_skip_env_spec_for_tests(spec):
     if skip_mujoco and ep.startswith("gym.envs.mujoco"):
         return True
     try:
-        import gym.envs.atari
+        import gym.envs.atari  # noqa:F401
     except ImportError:
         if ep.startswith("gym.envs.atari"):
             return True
     try:
-        import Box2D
+        import Box2D  # noqa:F401
     except ImportError:
         if ep.startswith("gym.envs.box2d"):
             return True

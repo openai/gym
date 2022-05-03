@@ -1,14 +1,13 @@
 from __future__ import annotations
 
-from collections.abc import Sequence
-from typing import Iterable
+from typing import Iterable, Optional, Sequence
 
 import numpy as np
 
 from gym import logger
-
-from .discrete import Discrete
-from .space import Space
+from gym.spaces.discrete import Discrete
+from gym.spaces.space import Space
+from gym.utils import seeding
 
 
 class MultiDiscrete(Space[np.ndarray]):
@@ -29,7 +28,12 @@ class MultiDiscrete(Space[np.ndarray]):
 
     """
 
-    def __init__(self, nvec: list[int], dtype=np.int64, seed=None):
+    def __init__(
+        self,
+        nvec: list[int],
+        dtype=np.int64,
+        seed: Optional[int | seeding.RandomNumberGenerator] = None,
+    ):
         """
         nvec: vector of counts of each categorical variable
         """
