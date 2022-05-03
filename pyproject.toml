@@ -29,6 +29,10 @@ pythonVersion = "3.7"
 typeshedPath = "typeshed"
 enableTypeIgnoreComments = true
 
+# This is required as the CI pre-commit does not download the module (i.e. numpy, pygame, box2d)
+#   Therefore, we have to ignore missing imports
+reportMissingImports = "none"
+
 reportUnknownMemberType = "none"
 reportUnknownParameterType = "none"
 reportUnknownVariableType = "none"
@@ -37,5 +41,4 @@ reportPrivateUsage = "warning"
 reportUntypedFunctionDecorator = "none"
 reportMissingTypeStubs = false
 reportUnboundVariable = "warning"
-reportMissingImports ="error"
 reportGeneralTypeIssues ="none"
