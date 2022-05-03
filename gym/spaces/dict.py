@@ -41,7 +41,7 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
         ...             }
         ...         ),
         ...     }
-        ...)
+        ... )
 
     It can be convenient to use ``Dict`` spaces if you want to make complex observations or actions more human-readable.
     Usually, it will be not be possible to use elements of this space directly in learning code. However, you can easily
