@@ -5,9 +5,13 @@ from gym.spaces import Box
 
 
 class GrayScaleObservation(ObservationWrapper):
-    r"""Convert the image observation from RGB to gray scale."""
+    """Convert the image observation from RGB to gray scale.
 
-    def __init__(self, env, keep_dim=False):
+    Args:
+        keep_dim (bool): If `True`, a singleton dimension will be added, i.e. observations are of the shape AxBx1. Otherwise they are of shape AxB
+    """
+
+    def __init__(self, env, keep_dim: bool = False):
         super().__init__(env)
         self.keep_dim = keep_dim
 

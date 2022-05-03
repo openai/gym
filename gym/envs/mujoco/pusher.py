@@ -1,4 +1,3 @@
-import mujoco_py
 import numpy as np
 
 from gym import utils

@@ -5,8 +5,8 @@ from numpy.typing import NDArray
 from pygame import Surface
 from pygame.event import Event
 
-import gym
 from gym import Env, logger
+from gym.logger import deprecation
 
 try:
     import matplotlib
@@ -198,6 +198,9 @@ def play(
 
 class PlayPlot:
     def __init__(self, callback, horizon_timesteps, plot_names):
+        deprecation(
+            "`PlayPlot` is marked as deprecated and will be removed in the near future."
+        )
         self.data_callback = callback
         self.horizon_timesteps = horizon_timesteps
         self.plot_names = plot_names

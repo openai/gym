@@ -1,9 +1,9 @@
-from typing import Optional
-
 import gym
 
 
 class OrderEnforcing(gym.Wrapper):
+    """This will produce an error if `step` is called before an initial `reset`"""
+
     def __init__(self, env):
         super().__init__(env)
         self._has_reset = False

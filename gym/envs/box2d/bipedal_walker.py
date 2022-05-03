@@ -1,23 +1,28 @@
 __credits__ = ["Andrea PIERRÉ"]
 
 import math
-import sys
 from typing import Optional
 
-import Box2D
 import numpy as np
-from Box2D.b2 import (
-    circleShape,
-    contactListener,
-    edgeShape,
-    fixtureDef,
-    polygonShape,
-    revoluteJointDef,
-)
 
 import gym
 from gym import error, spaces
-from gym.utils import EzPickle, colorize, seeding
+from gym.error import DependencyNotInstalled
+from gym.utils import EzPickle
+
+try:
+    import Box2D
+    from Box2D.b2 import (
+        circleShape,
+        contactListener,
+        edgeShape,
+        fixtureDef,
+        polygonShape,
+        revoluteJointDef,
+    )
+except ImportError:
+    raise DependencyNotInstalled("box2D is not installed, run `pip install gym[box2d]`")
+
 
 FPS = 50
 SCALE = 30.0  # affects how fast-paced the game is, forces should be adjusted as well
@@ -422,9 +427,6 @@ class BipedalWalker(gym.Env, EzPickle):
         self.scroll = 0.0
         self.lidar_render = 0
 
-        W = VIEWPORT_W / SCALE
-        H = VIEWPORT_H / SCALE
-
         self._generate_terrain(self.hardcore)
         self._generate_clouds()
 
@@ -590,8 +592,13 @@ class BipedalWalker(gym.Env, EzPickle):
         return np.array(state, dtype=np.float32), reward, terminated, False, {}
 
     def render(self, mode: str = "human"):
-        import pygame
-        from pygame import gfxdraw
+        try:
+            import pygame
+            from pygame import gfxdraw
+        except ImportError:
+            raise DependencyNotInstalled(
+                "pygame is not installed, run `pip install gym[box2d]`"
+            )
 
         if self.screen is None:
             pygame.init()

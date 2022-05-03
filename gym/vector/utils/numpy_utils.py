@@ -4,7 +4,6 @@ from functools import singledispatch
 import numpy as np
 
 from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Space, Tuple
-from gym.vector.utils.spaces import _BaseGymSpaces
 
 __all__ = ["concatenate", "create_empty_array"]
 

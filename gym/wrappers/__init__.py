@@ -1,4 +1,3 @@
-from gym import error
 from gym.wrappers.atari_preprocessing import AtariPreprocessing
 from gym.wrappers.autoreset import AutoResetWrapper
 from gym.wrappers.clip_action import ClipAction

@@ -67,7 +67,7 @@ def test_play_relevant_keys_no_mapping():
     env = DummyPlayEnv()
     env.spec = DummyEnvSpec("DummyPlayEnv")
 
-    with pytest.raises(MissingKeysToAction) as info:
+    with pytest.raises(MissingKeysToAction):
         PlayableGame(env)
 
 
@@ -96,18 +96,18 @@ def test_keyboard_quit_event():
     env = DummyPlayEnv()
     game = PlayableGame(env, dummy_keys_to_action())
     event = Event(pygame.KEYDOWN, {"key": pygame.K_ESCAPE})
-    assert game.running == True
+    assert game.running is True
     game.process_event(event)
-    assert game.running == False
+    assert game.running is False
 
 
 def test_pygame_quit_event():
     env = DummyPlayEnv()
     game = PlayableGame(env, dummy_keys_to_action())
     event = Event(pygame.QUIT)
-    assert game.running == True
+    assert game.running is True
     game.process_event(event)
-    assert game.running == False
+    assert game.running is False
 
 
 def test_keyboard_relevant_keydown_event():

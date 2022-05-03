@@ -1,5 +1,3 @@
-from typing import Optional
-
 import numpy as np
 
 import gym
@@ -42,6 +40,16 @@ def update_mean_var_count_from_moments(
 
 
 class NormalizeObservation(gym.core.Wrapper):
+    """This wrapper will normalize observations s.t. each coordinate is centered with unit variance.
+
+    .. note ::
+        The normalization depends on past trajectories and observations will not be normalized correctly if the wrapper was
+        newly instantiated or the policy was changed recently.
+
+    Args:
+         epsilon: A stability parameter that is used when scaling the observations.
+    """
+
     def __init__(
         self,
         env,
@@ -85,6 +93,19 @@ class NormalizeObservation(gym.core.Wrapper):
 
 
 class NormalizeReward(gym.core.Wrapper):
+    """This wrapper will normalize immediate rewards s.t. their exponential moving average has a fixed variance.
+
+    The exponential moving average will have variance (1 - `gamma`)**2.
+
+    .. note ::
+        The scaling depends on past trajectories and rewards will not be scaled correctly if the wrapper was newly
+        instantiated or the policy was changed recently.
+
+    Args:
+        epsilon (float): A stability parameter
+        gamma (float): The discount factor that is used in the exponential moving average.
+    """
+
     def __init__(
         self,
         env,
