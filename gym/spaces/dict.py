@@ -62,6 +62,7 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
         keyword arguments (where you will need to avoid the keys ``spaces`` and ``seed``)
 
         Example::
+
             >>> spaces.Dict({"position": spaces.Box(-1, 1, shape=(2,)), "color": spaces.Discrete(3)})
             Dict(color:Discrete(3), position:Box(-1.0, 1.0, (2,), float32))
             >>> spaces.Dict(position=spaces.Box(-1, 1, shape=(2,)), color=spaces.Discrete(3))
