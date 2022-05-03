@@ -2,7 +2,7 @@ import pytest
 
 import gym
 from gym import envs, error
-from gym.envs import register, spec
+from gym.envs import register, registration, registry, spec
 from gym.envs.classic_control import cartpole
 
 
