@@ -40,6 +40,6 @@ repos:
         language: node
         pass_filenames: false
         types: [python]
-        additional_dependencies: ["pyright@1.1.242"]
+        additional_dependencies: ["pyright"]
         args:
           - --project=pyproject.toml
