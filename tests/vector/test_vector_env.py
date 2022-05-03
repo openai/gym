@@ -14,6 +14,7 @@ from gym.vector.utils.numpy_utils import concatenate
 from gym.vector.utils.spaces import iterate
 from gym.vector.vector_env import VectorEnv
 from gym.wrappers import AutoResetWrapper
+from tests.envs.spec_list import should_skip_env_spec_for_tests
 from tests.vector.utils import CustomSpace, make_env
 
 
@@ -69,19 +70,12 @@ def test_custom_space_vector_env():
     assert isinstance(env.action_space, Tuple)
 
 
-def _is_local_env_spec(spec: EnvSpec) -> bool:
-    if not isinstance(spec.entry_point, str):
-        return False
-    # If it is one of the deprecated envs, ignore the warning.
-    return any(
-        spec.entry_point.startswith(f"gym.envs.{package}")
-        for package in ["classic_control", "toy_text"]
-    )
-
-
-# Only use 'local' envs for testing
-# NOTE: we can't instantiate envs from Atari when in the gym repository folder.
-local_env_ids = [spec.id for spec in registry.all() if _is_local_env_spec(spec)]
+# Only use 'local' envs for testing.
+# NOTE: this won't work if the atari dependencies are installed, as we can't gym.make() them when
+# inside the git repo folder.
+local_env_ids = [
+    spec.id for spec in registry.all() if not should_skip_env_spec_for_tests(spec)
+]
 
 
 def _make_seeded_env(env_id: str, seed: int) -> gym.Env:
