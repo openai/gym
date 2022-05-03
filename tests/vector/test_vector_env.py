@@ -153,9 +153,9 @@ def test_nesting_vector_envs(
     outer_env_fns = [
         partial(
             inner_vectorenv_type,
-            env_fns=inner_env_fns,
+            env_fns=env_fns_grid[i],
         )
-        for inner_env_fns in env_fns_grid
+        for i in range(n_outer_envs)
     ]
 
     env = outer_vectorenv_type(env_fns=outer_env_fns)
