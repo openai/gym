@@ -1,7 +1,7 @@
 import numpy as np
 
 import gym
-from gym.wrappers import step_api_compatibility
+from gym.wrappers.step_compatibility import step_api_compatibility
 
 
 # taken from https://github.com/openai/baselines/blob/master/baselines/common/vec_env/vec_normalize.py

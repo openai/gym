@@ -3,7 +3,7 @@ from typing import Callable
 
 import gym
 from gym import logger
-from gym.wrappers import step_api_compatibility
+from gym.wrappers.step_compatibility import step_api_compatibility
 from gym.wrappers.monitoring import video_recorder
 
 

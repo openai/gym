@@ -4,7 +4,7 @@ import numpy as np
 
 from gym import ObservationWrapper
 from gym.spaces import Box
-from gym.wrappers import step_api_compatibility
+from gym.wrappers.step_compatibility import step_api_compatibility
 
 
 class LazyFrames:

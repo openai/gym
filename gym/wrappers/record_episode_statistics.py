@@ -4,7 +4,7 @@ from collections import deque
 import numpy as np
 
 import gym
-from gym.wrappers import step_api_compatibility
+from gym.wrappers.step_compatibility import step_api_compatibility
 
 
 @step_api_compatibility
