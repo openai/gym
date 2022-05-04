@@ -224,6 +224,10 @@ class VectorEnv(gym.Env):
         else:
             return f"{self.__class__.__name__}({self.spec.id}, {self.num_envs})"
 
+    @staticmethod
+    def get_env_step_return(env, action):
+        return env.step(action)
+
 
 class VectorEnvWrapper(VectorEnv):
     r"""Wraps the vectorized environment to allow a modular transformation.

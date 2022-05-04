@@ -303,7 +303,7 @@ class Wrapper(Env[ObsType, ActType]):
     ) -> Union[
         Tuple[ObsType, float, bool, bool, dict], Tuple[ObsType, float, bool, dict]
     ]:
-        return self.env.step(action)
+        return self._get_env_step_returns(action)
 
     def reset(self, **kwargs) -> Union[ObsType, tuple[ObsType, dict]]:
         return self.env.reset(**kwargs)
@@ -326,6 +326,9 @@ class Wrapper(Env[ObsType, ActType]):
     @property
     def unwrapped(self) -> Env:
         return self.env.unwrapped
+
+    def _get_env_step_returns(self, action):
+        return self.env.step(action)
 
 
 class ObservationWrapper(Wrapper):

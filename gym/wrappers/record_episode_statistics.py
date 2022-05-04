@@ -4,8 +4,10 @@ from collections import deque
 import numpy as np
 
 import gym
+from gym.wrappers import step_api_compatibility
 
 
+@step_api_compatibility
 class RecordEpisodeStatistics(gym.Wrapper):
     """This wrapper will keep track of cumulative rewards and episode lengths.
 
@@ -35,6 +37,8 @@ class RecordEpisodeStatistics(gym.Wrapper):
         length_queue: The lengths of the last `deque_size`-many episodes
     """
 
+    new_step_api = True
+
     def __init__(self, env, deque_size=100):
         super().__init__(env)
         self.num_envs = getattr(env, "num_envs", 1)
@@ -53,7 +57,13 @@ class RecordEpisodeStatistics(gym.Wrapper):
         return observations
 
     def step(self, action):
-        observations, rewards, terminateds, truncateds, infos = super().step(action)
+        (
+            observations,
+            rewards,
+            terminateds,
+            truncateds,
+            infos,
+        ) = self._get_env_step_returns(action)
         self.episode_returns += rewards
         self.episode_lengths += 1
         if not self.is_vector_env:

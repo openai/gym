@@ -1,6 +1,7 @@
 import numpy as np
 
 import gym
+from gym.wrappers import step_api_compatibility
 
 
 # taken from https://github.com/openai/baselines/blob/master/baselines/common/vec_env/vec_normalize.py
@@ -50,6 +51,8 @@ class NormalizeObservation(gym.core.Wrapper):
          epsilon: A stability parameter that is used when scaling the observations.
     """
 
+    new_step_api = True
+
     def __init__(
         self,
         env,
@@ -65,7 +68,7 @@ class NormalizeObservation(gym.core.Wrapper):
         self.epsilon = epsilon
 
     def step(self, action):
-        obs, rews, terminateds, truncateds, infos = self.env.step(action)
+        obs, rews, terminateds, truncateds, infos = self._get_env_step_returns(action)
         if self.is_vector_env:
             obs = self.normalize(obs)
         else:
@@ -92,6 +95,7 @@ class NormalizeObservation(gym.core.Wrapper):
         return (obs - self.obs_rms.mean) / np.sqrt(self.obs_rms.var + self.epsilon)
 
 
+@step_api_compatibility
 class NormalizeReward(gym.core.Wrapper):
     """This wrapper will normalize immediate rewards s.t. their exponential moving average has a fixed variance.
 
@@ -105,6 +109,8 @@ class NormalizeReward(gym.core.Wrapper):
         epsilon (float): A stability parameter
         gamma (float): The discount factor that is used in the exponential moving average.
     """
+
+    new_step_api = True
 
     def __init__(
         self,
@@ -121,12 +127,12 @@ class NormalizeReward(gym.core.Wrapper):
         self.epsilon = epsilon
 
     def step(self, action):
-        obs, rews, terminateds, truncateds, infos = self.env.step(action)
+        obs, rews, terminateds, truncateds, infos = self._get_env_step_returns(action)
         if not self.is_vector_env:
             rews = np.array([rews])
         self.returns = self.returns * self.gamma + rews
         rews = self.normalize(rews)
-        if not self.is_vector_env:  # TODO: Check this
+        if not self.is_vector_env:
             dones = terminateds or truncateds
         else:
             dones = np.bitwise_or(terminateds, truncateds)

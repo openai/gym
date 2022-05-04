@@ -15,44 +15,38 @@ class StepCompatibility(gym.Wrapper):
     Parameters
     ----------
         env (gym.Env): the env to wrap. Can be in old or new API
-        return_two_dones (bool): True to use env with new step API, False to use env with old step API. (False by default)
+        new_step_api (bool): True to use env with new step API, False to use env with old step API. (False by default)
 
     """
 
-    def __init__(self, env, return_two_dones=False):
+    def __init__(self, env: gym.Env, new_step_api=False):
         super().__init__(env)
-        self._return_two_dones = return_two_dones
-        if not self._return_two_dones:
+        self.new_step_api = new_step_api
+        if not self.new_step_api:
             logger.deprecation(
                 "Initializing environment in old step API which returns one bool instead of two. "
                 "Note that vector API and most wrappers would not work as these have been upgraded to the new API. "
-                "To use these features, please set `return_two_dones=True` in make to use new API (see docs for more details)."
+                "To use these features, please set `new_step_api=True` in make to use new API (see docs for more details)."
             )
 
     def step(self, action):
         step_returns = self.env.step(action)
-        if self._return_two_dones:
-            if len(step_returns) == 5:
-                logger.deprecation(
-                    "Using an environment with new step API that returns two bools terminated, truncated instead of one bool done. "
-                    "Take care to supporting code to be compatible with this API"
-                )
-                return step_returns
-            else:
-                return self._step_returns_old_to_new(step_returns)
+        if self.new_step_api:
+            return step_to_new_api(step_returns)
         else:
-            if len(step_returns) == 4:
-                logger.deprecation(
-                    "Core environment uses old step API which returns one boolean (done). Please upgrade to new API to return two booleans - terminated, truncated"
-                )
+            return step_to_old_api(step_returns)
 
-                return step_returns
-            elif len(step_returns) == 5:
-                return self._step_returns_new_to_old(step_returns)
 
-    def _step_returns_old_to_new(self, step_returns):
-        # Method to transform old step API to new
+def step_to_new_api(step_returns, is_vector_env=False):
+    # Method to transform step returns to new step API
 
+    if len(step_returns) == 5:
+        logger.deprecation(
+            "Using an environment with new step API that returns two bools terminated, truncated instead of one bool done. "
+            "Take care to supporting code to be compatible with this API"
+        )
+        return step_returns
+    else:
         assert len(step_returns) == 4
         logger.deprecation(
             "Using a wrapper to transform env with old step API into new. This wrapper will be removed in v1.0. "
@@ -61,25 +55,46 @@ class StepCompatibility(gym.Wrapper):
             "Otherwise, `terminated=done` and `truncated=False`"
         )
 
-        obs, rew, done, info = step_returns
-        if "TimeLimit.truncated" not in info:
-            terminated = done
-            truncated = False
-        elif info["TimeLimit.truncated"]:
-            terminated = False
-            truncated = True
-        else:
-            # This means info["TimeLimit.truncated"] exists but is False, which means the core environment had already terminated,
-            # but it also exceeded maximum timesteps at the same step.
+        observations, rewards, dones, infos = step_returns
 
-            terminated = True
-            truncated = True
+        terminateds = []
+        truncateds = []
+        if not is_vector_env:
+            dones = [dones]
+            infos = [infos]
+        for i in range(len(dones)):
+            if "TimeLimit.truncated" not in infos[i]:
+                terminateds.append(dones[i])
+                truncateds.append(False)
+            elif infos[i]["TimeLimit.truncated"]:
+                terminateds.append(False)
+                truncateds.append(True)
+            else:
+                # This means info["TimeLimit.truncated"] exists but is False, which means the core environment had already terminated,
+                # but it also exceeded maximum timesteps at the same step.
 
-        return obs, rew, terminated, truncated, info
+                terminateds.append(True)
+                truncateds.append(True)
 
-    def _step_returns_new_to_old(self, step_returns):
-        # Method to transform new step API to old
+        return (
+            observations,
+            rewards,
+            terminateds if is_vector_env else terminateds[0],
+            truncateds if is_vector_env else truncateds[0],
+            infos if is_vector_env else infos[0],
+        )
 
+
+def step_to_old_api(step_returns, is_vector_env=False):
+    # Method to transform step returns to old step API
+
+    if len(step_returns) == 4:
+        logger.deprecation(
+            "Core environment uses old step API which returns one boolean (done). Please upgrade to new API to return two booleans - terminated, truncated"
+        )
+
+        return step_returns
+    else:
         assert len(step_returns) == 5
         logger.deprecation(
             "Using a wrapper to transform new step API (which returns two booleans terminated, truncated) into old (returns one boolean done). "
@@ -87,10 +102,53 @@ class StepCompatibility(gym.Wrapper):
             "It is recommended to upgrade your accompanying code instead to be compatible with the new API, and use the new API. "
         )
 
-        obs, reward, terminated, truncated, info = step_returns
-        done = terminated or truncated
-        if truncated:
-            info[
-                "TimeLimit.truncated"
-            ] = not terminated  # to be consistent with old API
-        return obs, reward, done, info
+        observations, rewards, terminateds, truncateds, infos = step_returns
+        dones = []
+        if not is_vector_env:
+            terminateds = [terminateds]
+            truncateds = [truncateds]
+            infos = [infos]
+
+        for i in range(len(terminateds)):
+            dones.append(terminateds[i] or truncateds[i])
+            # to be consistent with old API
+            if truncateds[i]:
+                infos[i]["TimeLimit.truncated"] = not terminateds[i]
+        return (
+            observations,
+            rewards,
+            dones if is_vector_env else dones[0],
+            infos if is_vector_env else infos[0],
+        )
+
+
+def step_api_compatibility(WrapperClass):
+    """
+    A step API compatibility wrapper function to transform wrappers in new step API to old
+    """
+
+    class StepCompatibilityWrapper(StepCompatibility):
+        def __init__(self, env: gym.Wrapper, output_new_step_api: bool = False):
+            super().__init__(WrapperClass(env), output_new_step_api)
+            if hasattr(WrapperClass, "new_step_api"):
+                self.has_new_step_api = WrapperClass.new_step_api
+            else:
+                self.has_new_step_api = False
+            self.wrap = WrapperClass(env)
+
+        def _get_env_step_returns(self, action):
+            return (
+                step_to_new_api(self.wrap.step(action))
+                if self.has_new_step_api
+                else step_to_old_api(self.wrap.step(action))
+            )
+
+    return StepCompatibilityWrapper
+
+
+# def check_is_new_api(env: Union[gym.Env, gym.Wrapper]):
+#     env_copy = deepcopy(env)
+#     env_copy.reset()
+#     step_returns = env_copy.step(env_copy.action_space.sample())
+#     del env_copy
+#     return len(step_returns) == 5

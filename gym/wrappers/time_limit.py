@@ -28,7 +28,7 @@ class TimeLimit(gym.Wrapper):
         self._elapsed_steps = None
 
     def step(self, action):
-        step_returns = self.env.step(action)
+        step_returns = self._get_env_step_returns(action)
         if len(step_returns) == 4:
             observation, reward, done, info = self.env.step(action)
             if self._elapsed_steps >= self._max_episode_steps:

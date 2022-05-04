@@ -14,6 +14,7 @@ from gym.error import (
     CustomSpaceError,
     NoAsyncCallError,
 )
+from gym.vector.step_compatibility_vector import step_api_vector_compatibility
 from gym.vector.utils import (
     CloudpickleWrapper,
     clear_mpi_env_vars,
@@ -25,6 +26,7 @@ from gym.vector.utils import (
     write_to_shared_memory,
 )
 from gym.vector.vector_env import VectorEnv
+from gym.wrappers.step_compatibility import step_to_new_api
 
 __all__ = ["AsyncVectorEnv"]
 
@@ -36,6 +38,7 @@ class AsyncState(Enum):
     WAITING_CALL = "call"
 
 
+@step_api_vector_compatibility
 class AsyncVectorEnv(VectorEnv):
     """Vectorized environment that runs multiple environments in parallel. It
     uses `multiprocessing`_ processes, and pipes for communication.
@@ -650,7 +653,9 @@ def _worker(index, env_fn, pipe, parent_pipe, shared_memory, error_queue):
                     pipe.send((observation, True))
 
             elif command == "step":
-                observation, reward, terminated, truncated, info = env.step(data)
+                observation, reward, terminated, truncated, info = step_to_new_api(
+                    env.step(data)
+                )
                 if terminated or truncated:
                     info["closing_observation"] = observation
                     observation = env.reset()
@@ -719,7 +724,9 @@ def _worker_shared_memory(index, env_fn, pipe, parent_pipe, shared_memory, error
                     )
                     pipe.send((None, True))
             elif command == "step":
-                observation, reward, terminated, truncated, info = env.step(data)
+                observation, reward, terminated, truncated, info = step_to_new_api(
+                    env.step(data)
+                )
                 if terminated or truncated:
                     info["closing_observation"] = observation
                     observation = env.reset()

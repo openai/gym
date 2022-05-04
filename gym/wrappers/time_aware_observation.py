@@ -2,8 +2,10 @@ import numpy as np
 
 from gym import ObservationWrapper
 from gym.spaces import Box
+from gym.wrappers import step_api_compatibility
 
 
+@step_api_compatibility
 class TimeAwareObservation(ObservationWrapper):
     r"""Augment the observation with current time step in the trajectory.
 
@@ -12,6 +14,7 @@ class TimeAwareObservation(ObservationWrapper):
         support pixel observation space yet.
 
     """
+    new_step_api = True
 
     def __init__(self, env):
         super().__init__(env)

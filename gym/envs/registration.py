@@ -97,7 +97,7 @@ class EnvSpec:
     max_episode_steps: Optional[int] = field(default=None)
     order_enforce: bool = field(default=True)
     autoreset: bool = field(default=False)
-    return_two_dones: bool = field(default=False)
+    new_step_api: bool = field(default=False)
     kwargs: dict = field(default_factory=dict)
 
     namespace: Optional[str] = field(init=False)
@@ -429,7 +429,7 @@ def make(
     id: str | EnvSpec,
     max_episode_steps: Optional[int] = None,
     autoreset: bool = False,
-    return_two_dones: bool = False,
+    new_step_api: bool = False,
     **kwargs,
 ) -> Env:
     """
@@ -439,7 +439,7 @@ def make(
         id: Name of the environment.
         max_episode_steps: Maximum length of an episode (TimeLimit wrapper).
         autoreset: Whether to automatically reset the environment after each episode (AutoResetWrapper).
-        return_two_dones: Whether to use old or new step API (StepCompatibility wrapper). Will be removed at v1.0
+        new_step_api: Whether to use old or new step API (StepCompatibility wrapper). Will be removed at v1.0
         kwargs: Additional arguments to pass to the environment constructor.
     Returns:
         An instance of the environment.
@@ -495,7 +495,7 @@ def make(
     if spec_.order_enforce:
         env = OrderEnforcing(env)
 
-    env = StepCompatibility(env, return_two_dones)
+    env = StepCompatibility(env, new_step_api)
 
     if max_episode_steps is not None:
         env = TimeLimit(env, max_episode_steps)

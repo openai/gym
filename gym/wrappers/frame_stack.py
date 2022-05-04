@@ -4,6 +4,7 @@ import numpy as np
 
 from gym import ObservationWrapper
 from gym.spaces import Box
+from gym.wrappers import step_api_compatibility
 
 
 class LazyFrames:
@@ -62,6 +63,7 @@ class LazyFrames:
         return frame
 
 
+@step_api_compatibility
 class FrameStack(ObservationWrapper):
     r"""Observation wrapper that stacks the observations in a rolling manner.
 
@@ -93,6 +95,7 @@ class FrameStack(ObservationWrapper):
         lz4_compress (bool): use lz4 to compress the frames internally
 
     """
+    new_step_api = True
 
     def __init__(self, env, num_stack, lz4_compress=False):
         super().__init__(env)
@@ -114,7 +117,9 @@ class FrameStack(ObservationWrapper):
         return LazyFrames(list(self.frames), self.lz4_compress)
 
     def step(self, action):
-        observation, reward, terminated, truncated, info = self.env.step(action)
+        observation, reward, terminated, truncated, info = self._get_env_step_returns(
+            action
+        )
         self.frames.append(observation)
         return self.observation(), reward, terminated, truncated, info
 

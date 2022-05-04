@@ -1,10 +1,9 @@
 import os
 from typing import Callable
 
-import numpy as np
-
 import gym
 from gym import logger
+from gym.wrappers import step_api_compatibility
 from gym.wrappers.monitoring import video_recorder
 
 
@@ -15,6 +14,7 @@ def capped_cubic_video_schedule(episode_id):
         return episode_id % 1000 == 0
 
 
+@step_api_compatibility
 class RecordVideo(gym.Wrapper):
     """This wrapper records videos of rollouts.
 
@@ -36,6 +36,8 @@ class RecordVideo(gym.Wrapper):
         video_length (int): The length of recorded episodes. If 0, entire episodes are recorded. Otherwise, snippets of the specified length are captured
         name_prefix (str): Will be prepended to the filename of the recordings
     """
+
+    new_step_api = True
 
     def __init__(
         self,
@@ -106,7 +108,13 @@ class RecordVideo(gym.Wrapper):
             return self.episode_trigger(self.episode_id)
 
     def step(self, action):
-        observations, rewards, terminateds, truncateds, infos = super().step(action)
+        (
+            observations,
+            rewards,
+            terminateds,
+            truncateds,
+            infos,
+        ) = self._get_env_step_returns(action)
 
         # increment steps and episodes
         self.step_id += 1

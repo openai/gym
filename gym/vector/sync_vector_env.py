@@ -3,12 +3,15 @@ from typing import List, Optional, Union
 
 import numpy as np
 
+from gym.vector.step_compatibility_vector import step_api_vector_compatibility
 from gym.vector.utils import concatenate, create_empty_array, iterate
 from gym.vector.vector_env import VectorEnv
+from gym.wrappers.step_compatibility import step_to_new_api
 
 __all__ = ["SyncVectorEnv"]
 
 
+@step_api_vector_compatibility
 class SyncVectorEnv(VectorEnv):
     """Vectorized environment that serially runs multiple environments.
 
@@ -141,7 +144,7 @@ class SyncVectorEnv(VectorEnv):
                 self._terminateds[i],
                 self._truncateds[i],
                 info,
-            ) = env.step(action)
+            ) = step_to_new_api(env.step(action))
             if self._terminateds[i] or self._truncateds[i]:
                 info["closing_observation"] = observation
                 observation = env.reset()

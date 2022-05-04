@@ -4,16 +4,14 @@ except ImportError:
     Iterable = (tuple, list)
 
 from gym.vector.async_vector_env import AsyncVectorEnv
-from gym.vector.step_compatibility_vector import StepCompatibilityVector
 from gym.vector.sync_vector_env import SyncVectorEnv
 from gym.vector.vector_env import VectorEnv, VectorEnvWrapper
-from gym.wrappers import StepCompatibility
 
 __all__ = ["AsyncVectorEnv", "SyncVectorEnv", "VectorEnv", "VectorEnvWrapper", "make"]
 
 
 def make(
-    id, num_envs=1, asynchronous=True, wrappers=None, return_two_dones=True, **kwargs
+    id, num_envs=1, asynchronous=True, wrappers=None, new_step_api=False, **kwargs
 ):
     """Create a vectorized environment from multiple copies of an environment,
     from its id.
@@ -52,7 +50,7 @@ def make(
     from gym.envs import make as make_
 
     def _make_env():
-        env = make_(id, return_two_dones=True, **kwargs)
+        env = make_(id, new_step_api=True, **kwargs)
         if wrappers is not None:
             if callable(wrappers):
                 env = wrappers(env)
@@ -67,7 +65,7 @@ def make(
 
     env_fns = [_make_env for _ in range(num_envs)]
     return (
-        StepCompatibilityVector(AsyncVectorEnv(env_fns), return_two_dones)
+        AsyncVectorEnv(env_fns, new_step_api=new_step_api)
         if asynchronous
-        else StepCompatibilityVector(SyncVectorEnv(env_fns), return_two_dones)
+        else SyncVectorEnv(env_fns, new_step_api=new_step_api)
     )
