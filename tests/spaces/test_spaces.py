@@ -569,20 +569,20 @@ def test_infinite_space(space):
     # but floats are unbounded for infinite
     if np.any(space.high != 0):
         assert (
-            space.is_bounded("above") is False
+            space.is_bounded("above") == False
         ), "inf upper bound supposed to be unbounded"
     else:
         assert (
-            space.is_bounded("above") is True
+            space.is_bounded("above") == True
         ), "non-inf upper bound supposed to be bounded"
 
     if np.any(space.low != 0):
         assert (
-            space.is_bounded("below") is False
+            space.is_bounded("below") == False
         ), "inf lower bound supposed to be unbounded"
     else:
         assert (
-            space.is_bounded("below") is True
+            space.is_bounded("below") == True
         ), "non-inf lower bound supposed to be bounded"
 
     # check for dtype

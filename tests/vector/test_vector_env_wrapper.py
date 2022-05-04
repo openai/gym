@@ -1,3 +1,4 @@
+import gym
 from gym.vector import VectorEnvWrapper, make
 
 

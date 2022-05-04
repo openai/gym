@@ -9,14 +9,14 @@ def test_env(spec):
     # Note that this precludes running this test in multiple
     # threads. However, we probably already can't do multithreading
     # due to some environments.
-    env1 = spec.make(return_two_dones=True)
+    env1 = spec.make()
     initial_observation1 = env1.reset(seed=0)
     env1.action_space.seed(0)
     action_samples1 = [env1.action_space.sample() for i in range(4)]
     step_responses1 = [env1.step(action) for action in action_samples1]
     env1.close()
 
-    env2 = spec.make(return_two_dones=True)
+    env2 = spec.make()
     initial_observation2 = env2.reset(seed=0)
     env2.action_space.seed(0)
     action_samples2 = [env2.action_space.sample() for i in range(4)]
@@ -45,13 +45,12 @@ def test_env(spec):
 
     assert_equals(initial_observation1, initial_observation2)
 
-    for i, ((o1, r1, term1, trunc1, i1), (o2, r2, term2, trunc2, i2)) in enumerate(
+    for i, ((o1, r1, d1, i1), (o2, r2, d2, i2)) in enumerate(
         zip(step_responses1, step_responses2)
     ):
         assert_equals(o1, o2, f"[{i}] ")
         assert r1 == r2, f"[{i}] r1: {r1}, r2: {r2}"
-        assert term1 == term2, f"[{i}] term1: {term1}, term2: {term2}"
-        assert trunc1 == trunc2, f"[{i}] trunc1: {trunc1}, trunc2: {trunc2}"
+        assert d1 == d2, f"[{i}] d1: {d1}, d2: {d2}"
 
         # Go returns a Pachi game board in info, which doesn't
         # properly check equality. For now, we hack around this by

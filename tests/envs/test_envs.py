@@ -17,7 +17,7 @@ from tests.envs.spec_list import spec_list
 def test_env(spec):
     # Capture warnings
     with pytest.warns(None) as warnings:
-        env = spec.make(return_two_dones=True)
+        env = spec.make()
 
     # Test if env adheres to Gym API
     check_env(env, warn=True, skip_render_check=True)
@@ -37,13 +37,12 @@ def test_env(spec):
         ), f"Reset observation dtype: {ob.dtype}, expected: {ob_space.dtype}"
 
     a = act_space.sample()
-    observation, reward, terminated, truncated, _info = env.step(a)
+    observation, reward, done, _info = env.step(a)
     assert ob_space.contains(
         observation
     ), f"Step observation: {observation!r} not in space"
     assert np.isscalar(reward), f"{reward} is not a scalar for {env}"
-    assert isinstance(terminated, bool), f"Expected {terminated} to be a boolean"
-    assert isinstance(truncated, bool), f"Expected {truncated} to be a boolean"
+    assert isinstance(done, bool), f"Expected {done} to be a boolean"
     if isinstance(ob_space, Box):
         assert (
             observation.dtype == ob_space.dtype
@@ -62,8 +61,8 @@ def test_env(spec):
 @pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
 def test_reset_info(spec):
 
-    with pytest.warns(None):
-        env = spec.make(return_two_dones=True)
+    with pytest.warns(None) as warnings:
+        env = spec.make()
 
     ob_space = env.observation_space
     obs = env.reset()
@@ -78,22 +77,23 @@ def test_reset_info(spec):
 
 # Run a longer rollout on some environments
 def test_random_rollout():
-    for env in [envs.make("CartPole-v1", return_two_dones=True), envs.make("FrozenLake-v1", return_two_dones=True)]:
+    for env in [envs.make("CartPole-v1"), envs.make("FrozenLake-v1")]:
+        agent = lambda ob: env.action_space.sample()
         ob = env.reset()
         for _ in range(10):
             assert env.observation_space.contains(ob)
-            action = env.action_space.sample()
-            assert env.action_space.contains(action)
-            (ob, _reward, terminated, truncated, _info) = env.step(action)
-            if terminated or truncated:
+            a = agent(ob)
+            assert env.action_space.contains(a)
+            (ob, _reward, done, _info) = env.step(a)
+            if done:
                 break
         env.close()
 
 
 def test_env_render_result_is_immutable():
     environs = [
-        envs.make("Taxi-v3", return_two_dones=True),
-        envs.make("FrozenLake-v1", return_two_dones=True),
+        envs.make("Taxi-v3"),
+        envs.make("FrozenLake-v1"),
     ]
 
     for env in environs:

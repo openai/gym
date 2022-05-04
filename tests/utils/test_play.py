@@ -168,7 +168,7 @@ def test_play_loop_real_env():
 
         return obs_t, obs_tp1, action, rew, terminated, truncated, info
 
-    env = gym.make(ENV, return_two_dones=True)
+    env = gym.make(ENV)
     env.reset(seed=SEED)
     keys_to_action = dummy_keys_to_action()
 
@@ -179,7 +179,7 @@ def test_play_loop_real_env():
         action = keys_to_action[(e.key,)]
         obs, _, _, _, _ = env.step(action)
 
-    env_play = gym.make(ENV, return_two_dones=True)
+    env_play = gym.make(ENV)
     status = PlayStatus(callback)
     play(env_play, callback=status.callback, keys_to_action=keys_to_action, seed=SEED)
 

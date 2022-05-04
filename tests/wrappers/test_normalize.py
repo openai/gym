@@ -22,13 +22,7 @@ class DummyRewardEnv(gym.Env):
 
     def step(self, action):
         self.t += 1
-        return (
-            np.array([self.t]),
-            self.t,
-            self.t == len(self.returned_rewards),
-            False,
-            {},
-        )
+        return np.array([self.t]), self.t, self.t == len(self.returned_rewards), {}
 
     def reset(
         self,
@@ -100,7 +94,7 @@ def test_normalize_observation_vector_env():
     env_fns = [make_env(0), make_env(1)]
     envs = gym.vector.SyncVectorEnv(env_fns)
     envs.reset()
-    obs, reward, _, _, _ = envs.step(envs.action_space.sample())
+    obs, reward, _, _ = envs.step(envs.action_space.sample())
     np.testing.assert_almost_equal(obs, np.array([[1], [2]]), decimal=4)
     np.testing.assert_almost_equal(reward, np.array([1, 2]), decimal=4)
 
@@ -113,7 +107,7 @@ def test_normalize_observation_vector_env():
         np.mean([0.5]),  # the mean of first observations [[0, 1]]
         decimal=4,
     )
-    obs, reward, _, _, _ = envs.step(envs.action_space.sample())
+    obs, reward, _, _ = envs.step(envs.action_space.sample())
     assert_almost_equal(
         envs.obs_rms.mean,
         np.mean([1.0]),  # the mean of first and second observations [[0, 1], [1, 2]]
@@ -126,13 +120,13 @@ def test_normalize_return_vector_env():
     envs = gym.vector.SyncVectorEnv(env_fns)
     envs = NormalizeReward(envs)
     obs = envs.reset()
-    obs, reward, _, _, _ = envs.step(envs.action_space.sample())
+    obs, reward, _, _ = envs.step(envs.action_space.sample())
     assert_almost_equal(
         envs.return_rms.mean,
         np.mean([1.5]),  # the mean of first returns [[1, 2]]
         decimal=4,
     )
-    obs, reward, _, _, _ = envs.step(envs.action_space.sample())
+    obs, reward, _, _ = envs.step(envs.action_space.sample())
     assert_almost_equal(
         envs.return_rms.mean,
         np.mean(

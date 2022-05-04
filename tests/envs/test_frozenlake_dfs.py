@@ -1,3 +1,6 @@
+import numpy as np
+import pytest
+
 from gym.envs.toy_text.frozen_lake import generate_random_map
 
 

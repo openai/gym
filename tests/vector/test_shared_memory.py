@@ -65,7 +65,8 @@ def test_create_shared_memory(space, expected_type, n, ctx):
             # Assert the length of the array
             assert len(lhs[:]) == n * len(rhs[:])
             # Assert the data type
-            assert isinstance(lhs[0], type(rhs[0]))
+            assert type(lhs[0]) == type(rhs[0])  # noqa: E721
+
         else:
             raise TypeError(f"Got unknown type `{type(lhs)}`.")
 
@@ -82,7 +83,7 @@ def test_create_shared_memory(space, expected_type, n, ctx):
 def test_create_shared_memory_custom_space(n, ctx, space):
     ctx = mp if (ctx is None) else mp.get_context(ctx)
     with pytest.raises(CustomSpaceError):
-        create_shared_memory(space, n=n, ctx=ctx)
+        shared_memory = create_shared_memory(space, n=n, ctx=ctx)
 
 
 @pytest.mark.parametrize(
@@ -123,10 +124,6 @@ def test_write_to_shared_memory(space):
     assert_nested_equal(shared_memory_n8, samples)
 
 
-def _process_write(space, i, shared_memory, sample):
-    write_to_shared_memory(space, i, sample, shared_memory)
-
-
 @pytest.mark.parametrize(
     "space", spaces, ids=[space.__class__.__name__ for space in spaces]
 )
@@ -156,13 +153,15 @@ def test_read_from_shared_memory(space):
         else:
             raise TypeError(f"Got unknown type `{type(space)}`")
 
+    def write(i, shared_memory, sample):
+        write_to_shared_memory(space, i, sample, shared_memory)
+
     shared_memory_n8 = create_shared_memory(space, n=8)
     memory_view_n8 = read_from_shared_memory(space, shared_memory_n8, n=8)
     samples = [space.sample() for _ in range(8)]
 
     processes = [
-        Process(target=_process_write, args=(space, i, shared_memory_n8, samples[i]))
-        for i in range(8)
+        Process(target=write, args=(i, shared_memory_n8, samples[i])) for i in range(8)
     ]
 
     for process in processes:

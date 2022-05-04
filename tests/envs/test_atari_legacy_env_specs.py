@@ -1,10 +1,10 @@
-from itertools import product
-
 import pytest
 
-from gym.envs.registration import registry
-
 pytest.importorskip("gym.envs.atari")
+
+from itertools import product
+
+from gym.envs.registration import registry
 
 
 def test_ale_legacy_env_specs():

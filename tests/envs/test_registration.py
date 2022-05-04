@@ -2,8 +2,9 @@ import pytest
 
 import gym
 from gym import envs, error
-from gym.envs import register, spec
+from gym.envs import registration
 from gym.envs.classic_control import cartpole
+from gym.envs.registration import EnvSpec, EnvSpecTree
 
 
 class ArgumentEnv(gym.Env):
@@ -54,8 +55,8 @@ def register_some_envs():
 
     for version in versions:
         env_id = f"{namespace}/{versioned_name}-v{version}"
-        del gym.envs.registry[env_id]
-    del gym.envs.registry[f"{namespace}/{unversioned_name}"]
+        del gym.envs.registry.env_specs[env_id]
+    del gym.envs.registry.env_specs[f"{namespace}/{unversioned_name}"]
 
 
 def test_make():
@@ -82,15 +83,10 @@ def test_make():
     ],
 )
 def test_register(env_id, namespace, name, version):
-    register(env_id)
+    envs.register(env_id)
     assert gym.envs.spec(env_id).id == env_id
-    full_name = f"{name}"
-    if namespace:
-        full_name = f"{namespace}/{full_name}"
-    if version is not None:
-        full_name = f"{full_name}-v{version}"
-    assert full_name in gym.envs.registry.keys()
-    del gym.envs.registry[env_id]
+    assert version in gym.envs.registry.env_specs.tree[namespace][name].keys()
+    del gym.envs.registry.env_specs[env_id]
 
 
 @pytest.mark.parametrize(
@@ -103,7 +99,7 @@ def test_register(env_id, namespace, name, version):
 )
 def test_register_error(env_id):
     with pytest.raises(error.Error, match="Malformed environment ID"):
-        register(env_id)
+        envs.register(env_id)
 
 
 @pytest.mark.parametrize(
@@ -192,23 +188,27 @@ def test_spec_with_kwargs():
 
 
 def test_missing_lookup():
-    register(id="Test1-v0", entry_point=None)
-    register(id="Test1-v15", entry_point=None)
-    register(id="Test1-v9", entry_point=None)
-    register(id="Other1-v100", entry_point=None)
-
-    with pytest.raises(error.DeprecatedEnv):
-        spec("Test1-v1")
+    registry = registration.EnvRegistry()
+    registry.register(id="Test-v0", entry_point=None)
+    registry.register(id="Test-v15", entry_point=None)
+    registry.register(id="Test-v9", entry_point=None)
+    registry.register(id="Other-v100", entry_point=None)
+    try:
+        registry.spec("Test-v1")  # must match an env name but not the version above
+    except error.DeprecatedEnv:
+        pass
+    else:
+        assert False
 
     try:
-        spec("Test1-v1000")
+        registry.spec("Test-v1000")
     except error.UnregisteredEnv:
         pass
     else:
         assert False
 
     try:
-        spec("Unknown1-v1")
+        registry.spec("Unknown-v1")
     except error.UnregisteredEnv:
         pass
     else:
@@ -216,8 +216,9 @@ def test_missing_lookup():
 
 
 def test_malformed_lookup():
+    registry = registration.EnvRegistry()
     try:
-        spec("“Breakout-v0”")
+        registry.spec("“Breakout-v0”")
     except error.Error as e:
         assert "Malformed environment ID" in f"{e}", f"Unexpected message: {e}"
     else:
@@ -225,47 +226,99 @@ def test_malformed_lookup():
 
 
 def test_versioned_lookups():
-    register("test/Test2-v5")
+    registry = registration.EnvRegistry()
+    registry.register("test/Test-v5")
 
     with pytest.raises(error.VersionNotFound):
-        spec("test/Test2-v9")
+        registry.spec("test/Test-v9")
 
     with pytest.raises(error.DeprecatedEnv):
-        spec("test/Test2-v4")
+        registry.spec("test/Test-v4")
 
-    assert spec("test/Test2-v5")
+    assert registry.spec("test/Test-v5")
 
 
 def test_default_lookups():
-    register("test/Test3")
+    registry = registration.EnvRegistry()
+    registry.register("test/Test")
 
     with pytest.raises(error.DeprecatedEnv):
-        spec("test/Test3-v0")
+        registry.spec("test/Test-v0")
 
     # Lookup default
-    spec("test/Test3")
+    registry.spec("test/Test")
+
+
+def test_env_spec_tree():
+    spec_tree = EnvSpecTree()
+
+    # Add with namespace
+    spec = EnvSpec("test/Test-v0")
+    spec_tree["test/Test-v0"] = spec
+    assert spec_tree.tree.keys() == {"test"}
+    assert spec_tree.tree["test"].keys() == {"Test"}
+    assert spec_tree.tree["test"]["Test"].keys() == {0}
+    assert spec_tree.tree["test"]["Test"][0] == spec
+    assert spec_tree["test/Test-v0"] == spec
+
+    # Add without namespace
+    spec = EnvSpec("Test-v0")
+    spec_tree["Test-v0"] = spec
+    assert spec_tree.tree.keys() == {"test", None}
+    assert spec_tree.tree[None].keys() == {"Test"}
+    assert spec_tree.tree[None]["Test"].keys() == {0}
+    assert spec_tree.tree[None]["Test"][0] == spec
+
+    # Delete last version deletes entire subtree
+    del spec_tree["test/Test-v0"]
+    assert spec_tree.tree.keys() == {None}
+
+    # Append second version for same name
+    spec_tree["Test-v1"] = EnvSpec("Test-v1")
+    assert spec_tree.tree.keys() == {None}
+    assert spec_tree.tree[None].keys() == {"Test"}
+    assert spec_tree.tree[None]["Test"].keys() == {0, 1}
+
+    # Deleting one version leaves other
+    del spec_tree["Test-v0"]
+    assert spec_tree.tree.keys() == {None}
+    assert spec_tree.tree[None].keys() == {"Test"}
+    assert spec_tree.tree[None]["Test"].keys() == {1}
+
+    # Add without version
+    myenv = "MyAwesomeEnv"
+    spec = EnvSpec(myenv)
+    spec_tree[myenv] = spec
+    assert spec_tree.tree.keys() == {None}
+    assert myenv in spec_tree.tree[None].keys()
+    assert spec_tree.tree[None][myenv].keys() == {None}
+    assert spec_tree.tree[None][myenv][None] == spec
+    assert spec_tree.__repr__() == "├──Test: [ v1 ]\n" + f"└──{myenv}: [  ]\n"
 
 
 def test_register_versioned_unversioned():
     # Register versioned then unversioned
     versioned_env = "Test/MyEnv-v0"
-    register(versioned_env)
+    envs.register(versioned_env)
     assert gym.envs.spec(versioned_env).id == versioned_env
     unversioned_env = "Test/MyEnv"
     with pytest.raises(error.RegistrationError):
-        register(unversioned_env)
+        envs.register(unversioned_env)
 
     # Clean everything
-    del gym.envs.registry[versioned_env]
+    del gym.envs.registry.env_specs[versioned_env]
 
     # Register unversioned then versioned
-    register(unversioned_env)
+    with pytest.warns(UserWarning):
+        envs.register(unversioned_env)
     assert gym.envs.spec(unversioned_env).id == unversioned_env
     with pytest.raises(error.RegistrationError):
-        register(versioned_env)
+        envs.register(versioned_env)
 
     # Clean everything
-    del gym.envs.registry[unversioned_env]
+    envs_list = [versioned_env, unversioned_env]
+    for env in envs_list:
+        del gym.envs.registry.env_specs[env]
 
 
 def test_return_latest_versioned_env(register_some_envs):

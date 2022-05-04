@@ -1,19 +1,26 @@
 import os
 import shutil
 
+import numpy as np
+import pytest
+
 import gym
-from gym.wrappers import capped_cubic_video_schedule
+from gym.wrappers import (
+    RecordEpisodeStatistics,
+    RecordVideo,
+    capped_cubic_video_schedule,
+)
 
 
 def test_record_video_using_default_trigger():
 
-    env = gym.make("CartPole-v1", return_two_dones=True)
+    env = gym.make("CartPole-v1")
     env = gym.wrappers.RecordVideo(env, "videos")
     env.reset()
     for _ in range(199):
         action = env.action_space.sample()
-        _, _, terminated, truncated, _ = env.step(action)
-        if terminated or truncated:
+        _, _, done, _ = env.step(action)
+        if done:
             env.reset()
     env.close()
     assert os.path.isdir("videos")
@@ -25,7 +32,7 @@ def test_record_video_using_default_trigger():
 
 
 def test_record_video_reset_return_info():
-    env = gym.make("CartPole-v1", return_two_dones=True)
+    env = gym.make("CartPole-v1")
     env = gym.wrappers.RecordVideo(env, "videos", step_trigger=lambda x: x % 100 == 0)
     ob_space = env.observation_space
     obs, info = env.reset(return_info=True)
@@ -35,7 +42,7 @@ def test_record_video_reset_return_info():
     assert ob_space.contains(obs)
     assert isinstance(info, dict)
 
-    env = gym.make("CartPole-v1", return_two_dones=True)
+    env = gym.make("CartPole-v1")
     env = gym.wrappers.RecordVideo(env, "videos", step_trigger=lambda x: x % 100 == 0)
     ob_space = env.observation_space
     obs = env.reset(return_info=False)
@@ -44,7 +51,7 @@ def test_record_video_reset_return_info():
     shutil.rmtree("videos")
     assert ob_space.contains(obs)
 
-    env = gym.make("CartPole-v1", return_two_dones=True)
+    env = gym.make("CartPole-v1")
     env = gym.wrappers.RecordVideo(env, "videos", step_trigger=lambda x: x % 100 == 0)
     ob_space = env.observation_space
     obs = env.reset()
@@ -55,14 +62,14 @@ def test_record_video_reset_return_info():
 
 
 def test_record_video_step_trigger():
-    env = gym.make("CartPole-v1", return_two_dones=True)
+    env = gym.make("CartPole-v1")
     env._max_episode_steps = 20
     env = gym.wrappers.RecordVideo(env, "videos", step_trigger=lambda x: x % 100 == 0)
     env.reset()
     for _ in range(199):
         action = env.action_space.sample()
-        _, _, terminated, truncated, _ = env.step(action)
-        if terminated or truncated:
+        _, _, done, _ = env.step(action)
+        if done:
             env.reset()
     env.close()
     assert os.path.isdir("videos")
@@ -73,7 +80,7 @@ def test_record_video_step_trigger():
 
 def make_env(gym_id, seed):
     def thunk():
-        env = gym.make(gym_id, return_two_dones=True)
+        env = gym.make(gym_id)
         env._max_episode_steps = 20
         if seed == 1:
             env = gym.wrappers.RecordVideo(
@@ -89,7 +96,7 @@ def test_record_video_within_vector():
     envs = gym.wrappers.RecordEpisodeStatistics(envs)
     envs.reset()
     for i in range(199):
-        _, _, _, _, infos = envs.step(envs.action_space.sample())
+        _, _, _, infos = envs.step(envs.action_space.sample())
         for info in infos:
             if "episode" in info.keys():
                 print(f"episode_reward={info['episode']['r']}")

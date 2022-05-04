@@ -27,8 +27,8 @@ class FakeEnvironment(gym.Env):
     def step(self, action):
         del action
         observation = self.observation_space.sample()
-        reward, terminated, truncated, info = 0.0, False, False, {}
-        return observation, reward, terminated, truncated, info
+        reward, terminal, info = 0.0, False, {}
+        return observation, reward, terminal, info
 
 
 class FakeArrayObservationEnvironment(FakeEnvironment):

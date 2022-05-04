@@ -82,7 +82,7 @@ def test_step_async_vector_env(shared_memory, use_single_action_space):
             actions = [env.single_action_space.sample() for _ in range(8)]
         else:
             actions = env.action_space.sample()
-        observations, rewards, terminateds, truncateds, _ = env.step(actions)
+        observations, rewards, dones, _ = env.step(actions)
     finally:
         env.close()
 
@@ -97,15 +97,10 @@ def test_step_async_vector_env(shared_memory, use_single_action_space):
     assert rewards.ndim == 1
     assert rewards.size == 8
 
-    assert isinstance(terminateds, np.ndarray)
-    assert terminateds.dtype == np.bool_
-    assert terminateds.ndim == 1
-    assert terminateds.size == 8
-
-    assert isinstance(truncateds, np.ndarray)
-    assert truncateds.dtype == np.bool_
-    assert truncateds.ndim == 1
-    assert truncateds.size == 8
+    assert isinstance(dones, np.ndarray)
+    assert dones.dtype == np.bool_
+    assert dones.ndim == 1
+    assert dones.size == 8
 
 
 @pytest.mark.parametrize("shared_memory", [True, False])
@@ -172,7 +167,7 @@ def test_reset_timeout_async_vector_env(shared_memory):
         try:
             env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
             env.reset_async()
-            env.reset_wait(timeout=0.1)
+            observations = env.reset_wait(timeout=0.1)
         finally:
             env.close(terminate=True)
 
@@ -183,11 +178,9 @@ def test_step_timeout_async_vector_env(shared_memory):
     with pytest.raises(TimeoutError):
         try:
             env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
-            env.reset()
+            observations = env.reset()
             env.step_async([0.1, 0.1, 0.3, 0.1])
-            observations, rewards, terminateds, truncateds, _ = env.step_wait(
-                timeout=0.1
-            )
+            observations, rewards, dones, _ = env.step_wait(timeout=0.1)
         finally:
             env.close(terminate=True)
 
@@ -199,7 +192,7 @@ def test_reset_out_of_order_async_vector_env(shared_memory):
     with pytest.raises(NoAsyncCallError):
         try:
             env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
-            env.reset_wait()
+            observations = env.reset_wait()
         except NoAsyncCallError as exception:
             assert exception.name == "reset"
             raise
@@ -210,7 +203,7 @@ def test_reset_out_of_order_async_vector_env(shared_memory):
         try:
             env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
             actions = env.action_space.sample()
-            env.reset()
+            observations = env.reset()
             env.step_async(actions)
             env.reset_async()
         except NoAsyncCallError as exception:
@@ -229,7 +222,7 @@ def test_step_out_of_order_async_vector_env(shared_memory):
             env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
             actions = env.action_space.sample()
             observations = env.reset()
-            observations, rewards, terminateds, truncateds, infos = env.step_wait()
+            observations, rewards, dones, infos = env.step_wait()
         except AlreadyPendingCallError as exception:
             assert exception.name == "step"
             raise
@@ -255,7 +248,7 @@ def test_already_closed_async_vector_env(shared_memory):
     with pytest.raises(ClosedEnvironmentError):
         env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
         env.close()
-        env.reset()
+        observations = env.reset()
 
 
 @pytest.mark.parametrize("shared_memory", [True, False])
@@ -279,7 +272,7 @@ def test_custom_space_async_vector_env():
         assert isinstance(env.action_space, Tuple)
 
         actions = ("action-2", "action-3", "action-5", "action-7")
-        step_observations, rewards, termianteds, truncateds, _ = env.step(actions)
+        step_observations, rewards, dones, _ = env.step(actions)
     finally:
         env.close()
 

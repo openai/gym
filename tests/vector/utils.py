@@ -5,7 +5,6 @@ import numpy as np
 
 import gym
 from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Tuple
-from gym.utils.seeding import RandomNumberGenerator
 
 spaces = [
     Box(low=np.array(-1.0), high=np.array(1.0), dtype=np.float64),
@@ -68,18 +67,18 @@ class UnittestSlowEnv(gym.Env):
     def step(self, action):
         time.sleep(action)
         observation = self.observation_space.sample()
-        reward, terminated, truncated = 0.0, False, False
-        return observation, reward, terminated, truncated, {}
+        reward, done = 0.0, False
+        return observation, reward, done, {}
 
 
 class CustomSpace(gym.Space):
     """Minimal custom observation space."""
 
     def sample(self):
-        return self.np_random.integers(0, 10, ())
+        return "sample"
 
     def contains(self, x):
-        return 0 <= x <= 10
+        return isinstance(x, str)
 
     def __eq__(self, other):
         return isinstance(other, CustomSpace)
@@ -103,15 +102,13 @@ class CustomSpaceEnv(gym.Env):
 
     def step(self, action):
         observation = f"step({action:s})"
-        reward, terminated, truncated = 0.0, False, False
-        return observation, reward, terminated, truncated, {}
+        reward, done = 0.0, False
+        return observation, reward, done, {}
 
 
-def make_env(env_name, seed, return_two_dones=True):
-    # return_two_dones=True, only for compatibility with vector tests, to be removed at v1.0
+def make_env(env_name, seed):
     def _make():
-        env = gym.make(env_name, return_two_dones=return_two_dones)
-        env.action_space.seed(seed)
+        env = gym.make(env_name)
         env.reset(seed=seed)
         return env
 
@@ -134,7 +131,3 @@ def make_custom_space_env(seed):
         return env
 
     return _make
-
-
-def assert_rng_equal(rng_1: RandomNumberGenerator, rng_2: RandomNumberGenerator):
-    assert rng_1.bit_generator.state == rng_2.bit_generator.state

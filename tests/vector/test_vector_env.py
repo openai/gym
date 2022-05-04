@@ -31,19 +31,19 @@ def test_vector_env_equal(shared_memory):
             assert actions in sync_env.action_space
 
             # fmt: off
-            async_observations, async_rewards, async_terminateds, async_truncateds, async_infos = async_env.step(actions)
-            sync_observations, sync_rewards, sync_terminateds, sync_truncateds, sync_infos = sync_env.step(actions)
+            async_observations, async_rewards, async_dones, async_infos = async_env.step(actions)
+            sync_observations, sync_rewards, sync_dones, sync_infos = sync_env.step(actions)
             # fmt: on
 
-            for idx in range(len(sync_terminateds)):
-                if sync_terminateds[idx] or sync_truncateds[idx]:
-                    assert "closing_observation" in async_infos[idx]
-                    assert "closing_observation" in sync_infos[idx]
+            for idx in range(len(sync_dones)):
+                if sync_dones[idx]:
+                    assert "terminal_observation" in async_infos[idx]
+                    assert "terminal_observation" in sync_infos[idx]
+                    assert sync_dones[idx]
 
             assert np.all(async_observations == sync_observations)
             assert np.all(async_rewards == sync_rewards)
-            assert np.all(async_terminateds == sync_terminateds)
-            assert np.all(async_truncateds == sync_truncateds)
+            assert np.all(async_dones == sync_dones)
 
     finally:
         async_env.close()

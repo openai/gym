@@ -1,5 +1,8 @@
-import numpy as np
 import pytest
+
+pytest.importorskip("gym.envs.atari")
+
+import numpy as np
 
 import gym
 from gym.wrappers import FrameStack
@@ -8,9 +11,6 @@ try:
     import lz4
 except ImportError:
     lz4 = None
-
-
-pytest.importorskip("gym.envs.atari")
 
 
 @pytest.mark.parametrize("env_id", ["CartPole-v1", "Pendulum-v1", "Pong-v0"])
@@ -42,8 +42,8 @@ def test_frame_stack(env_id, num_stack, lz4_compress):
 
     for _ in range(num_stack**2):
         action = env.action_space.sample()
-        dup_obs, _, _, _, _ = dup.step(action)
-        obs, _, _, _, _ = env.step(action)
+        dup_obs, _, _, _ = dup.step(action)
+        obs, _, _, _ = env.step(action)
         assert np.allclose(obs[-1], dup_obs)
 
     assert len(obs) == num_stack
