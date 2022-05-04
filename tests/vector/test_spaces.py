@@ -1,9 +1,13 @@
+import copy
+
 import numpy as np
 import pytest
+from numpy.testing import assert_array_equal
 
+from gym import Space
 from gym.spaces import Box, Dict, MultiDiscrete, Tuple
 from gym.vector.utils.spaces import batch_space, iterate
-from tests.vector.utils import CustomSpace, custom_spaces, spaces
+from tests.vector.utils import CustomSpace, assert_rng_equal, custom_spaces, spaces
 
 expected_batch_spaces_4 = [
     Box(low=-1.0, high=1.0, shape=(4,), dtype=np.float64),
@@ -129,3 +133,66 @@ def test_iterate_custom_space(space, batch_space):
     for i, item in enumerate(iterator):
         assert item in space
     assert i == 3
+
+
+@pytest.mark.parametrize(
+    "space", spaces, ids=[space.__class__.__name__ for space in spaces]
+)
+@pytest.mark.parametrize("n", [4, 5], ids=[f"n={n}" for n in [4, 5]])
+@pytest.mark.parametrize(
+    "base_seed", [123, 456], ids=[f"seed={base_seed}" for base_seed in [123, 456]]
+)
+def test_rng_different_at_each_index(space: Space, n: int, base_seed: int):
+    """
+    Tests that the rng values produced at each index are different
+    to prevent if the rng is copied for each subspace
+    """
+    space.seed(base_seed)
+
+    batched_space = batch_space(space, n)
+    assert space.np_random is not batched_space.np_random
+    assert_rng_equal(space.np_random, batched_space.np_random)
+
+    batched_sample = batched_space.sample()
+    sample = list(iterate(batched_space, batched_sample))
+    assert not all(np.all(element == sample[0]) for element in sample), sample
+
+
+@pytest.mark.parametrize(
+    "space", spaces, ids=[space.__class__.__name__ for space in spaces]
+)
+@pytest.mark.parametrize("n", [1, 2, 5], ids=[f"n={n}" for n in [1, 2, 5]])
+@pytest.mark.parametrize(
+    "base_seed", [123, 456], ids=[f"seed={base_seed}" for base_seed in [123, 456]]
+)
+def test_deterministic(space: Space, n: int, base_seed: int):
+    """Tests the batched spaces are deterministic by using a copied version"""
+    # Copy the spaces and check that the np_random are not reference equal
+    space_a = space
+    space_a.seed(base_seed)
+    space_b = copy.deepcopy(space_a)
+    assert_rng_equal(space_a.np_random, space_b.np_random)
+    assert space_a.np_random is not space_b.np_random
+
+    # Batch the spaces and check that the np_random are not reference equal
+    space_a_batched = batch_space(space_a, n)
+    space_b_batched = batch_space(space_b, n)
+    assert_rng_equal(space_a_batched.np_random, space_b_batched.np_random)
+    assert space_a_batched.np_random is not space_b_batched.np_random
+    # Create that the batched space is not reference equal to the origin spaces
+    assert space_a.np_random is not space_a_batched.np_random
+
+    # Check that batched space a and b random number generator are not effected by the original space
+    space_a.sample()
+    space_a_batched_sample = space_a_batched.sample()
+    space_b_batched_sample = space_b_batched.sample()
+    for a_sample, b_sample in zip(
+        iterate(space_a_batched, space_a_batched_sample),
+        iterate(space_b_batched, space_b_batched_sample),
+    ):
+        if isinstance(a_sample, tuple):
+            assert len(a_sample) == len(b_sample)
+            for a_subsample, b_subsample in zip(a_sample, b_sample):
+                assert_array_equal(a_subsample, b_subsample)
+        else:
+            assert_array_equal(a_sample, b_sample)
