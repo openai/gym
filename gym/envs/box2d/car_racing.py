@@ -10,6 +10,10 @@ from gym import spaces
 from gym.envs.box2d.car_dynamics import Car
 from gym.error import DependencyNotInstalled
 from gym.utils import EzPickle
+from gym.utils.action_validator import (
+    validate_action_continuous,
+    validate_action_discrete,
+)
 
 try:
     import Box2D
@@ -438,10 +442,12 @@ class CarRacing(gym.Env, EzPickle):
         self.car = Car(self.world, *self.track[0][1:4])
 
         if not return_info:
-            return self.step(None)[0]
+            return self._compute_pixel_state()
         else:
-            return self.step(None)[0], {}
+            return self._compute_pixel_state(), {}
 
+    @validate_action_discrete
+    @validate_action_continuous
     def step(self, action: Union[np.ndarray, int]):
         if action is not None:
             if self.continuous:
@@ -453,11 +459,7 @@ class CarRacing(gym.Env, EzPickle):
                 self.car.gas(0.2 * (action == 3))
                 self.car.brake(0.8 * (action == 4))
 
-        self.car.step(1.0 / FPS)
-        self.world.Step(1.0 / FPS, 6 * 30, 2 * 30)
-        self.t += 1.0 / FPS
-
-        self.state = self.render("state_pixels")
+        self.state = self._compute_pixel_state()
 
         step_reward = 0
         done = False
@@ -536,6 +538,15 @@ class CarRacing(gym.Env, EzPickle):
             return self._create_image_array(self.surf, (STATE_W, STATE_H))
         else:
             return self.isopen
+
+    def _compute_pixel_state(self):
+        self.car.step(1.0 / FPS)
+        self.world.Step(1.0 / FPS, 6 * 30, 2 * 30)
+        self.t += 1.0 / FPS
+
+        self.state = self.render("state_pixels")
+
+        return self.state
 
     def _render_road(self, zoom, translation, angle):
         bounds = PLAYFIELD

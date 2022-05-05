@@ -11,6 +11,7 @@ import numpy as np
 import gym
 from gym import logger, spaces
 from gym.error import DependencyNotInstalled
+from gym.utils.action_validator import validate_action_discrete
 
 
 class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
@@ -111,9 +112,8 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
 
         self.steps_beyond_done = None
 
+    @validate_action_discrete
     def step(self, action):
-        err_msg = f"{action!r} ({type(action)}) invalid"
-        assert self.action_space.contains(action), err_msg
         assert self.state is not None, "Call reset before using step method."
         x, x_dot, theta, theta_dot = self.state
         force = self.force_mag if action == 1 else -self.force_mag

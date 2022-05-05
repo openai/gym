@@ -21,6 +21,7 @@ import numpy as np
 import gym
 from gym import spaces
 from gym.error import DependencyNotInstalled
+from gym.utils.action_validator import validate_action_continuous
 
 
 class Continuous_MountainCarEnv(gym.Env):
@@ -125,6 +126,7 @@ class Continuous_MountainCarEnv(gym.Env):
             low=self.low_state, high=self.high_state, dtype=np.float32
         )
 
+    @validate_action_continuous
     def step(self, action: np.ndarray):
 
         position = self.state[0]
