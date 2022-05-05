@@ -30,7 +30,7 @@ Alternatively, pyright is a built-in feature of VSCode that will automatically p
 ### Adding typing to more modules and packages
 If you would like to add typing to a module in the project, 
 the list of included, excluded and strict files can be found in pyproject.toml (pyproject.toml -> [tool.pyright]). 
-To run `pyright` for the project, run the pre-commit process (`pre-commit run --all-files`) or `pyright --project=pyproject.toml`
+To run `pyright` for the project, run the pre-commit process (`pre-commit run --all-files`) or `pyright`
 
 ## Git hooks
 The CI will run several checks on the new code pushed to the Gym repository. These checks can also be run locally without waiting for the CI by following the steps below:
@@ -41,5 +41,5 @@ Once those two steps are done, the Git hooks will be run automatically at every 
 The Git hooks can also be run manually with `pre-commit run --all-files`, and if needed they can be skipped (not recommended) with `git commit --no-verify`. 
 **Note:** you may have to run `pre-commit run --all-files` manually a couple of times to make it pass when you commit, as each formatting tool will first format the code and fail the first time but should pass the second time.
 
-Additionally, for pull requests, the project runs a number of tests for the whole project using [pytest](https://docs.pytest.org/en/7.1.x/getting-started.html#install-pytest).
-These tests can be run locally with `pytest tests/`. 
+Additionally, for pull requests, the project runs a number of tests for the whole project using [pytest](https://docs.pytest.org/en/latest/getting-started.html#install-pytest).
+These tests can be run locally with `pytest` in the root folder. 
