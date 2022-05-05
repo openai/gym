@@ -1,4 +1,5 @@
-"""Set of Error classes."""
+"""Set of Error classes for gym."""
+import warnings
 
 
 class Error(Exception):
@@ -29,7 +30,7 @@ class VersionNotFound(UnregisteredEnv):
 
 
 class UnregisteredBenchmark(Unregistered):
-    """Raised when the user requests an env from the registry that does not actually exist. unused error."""
+    """Raised when the user requests an env from the registry that does not actually exist."""
 
 
 class DeprecatedEnv(Error):
@@ -41,34 +42,34 @@ class RegistrationError(Error):
 
 
 class UnseedableEnv(Error):
-    """Raised when the user tries to seed an env that does not support seeding. unused error."""
+    """Raised when the user tries to seed an env that does not support seeding."""
 
 
 class DependencyNotInstalled(Error):
     """Raised when the user has not installed a dependency."""
 
 
-class UnsupportedMode(Exception):
-    """Raised when the user requests a rendering mode not supported by the environment. unused error."""
+class UnsupportedMode(Error):
+    """Raised when the user requests a rendering mode not supported by the environment."""
 
 
 class ResetNeeded(Error):
     """When the order enforcing is violated, i.e. step or render is called before reset."""
 
 
-class ResetNotAllowed(Exception):
-    """When the monitor is active, raised when the user tries to step an environment that's not yet done. unused error."""
+class ResetNotAllowed(Error):
+    """When the monitor is active, raised when the user tries to step an environment that's not yet done."""
 
 
-class InvalidAction(Exception):
-    """Raised when the user performs an action not contained within the action space. unused error."""
+class InvalidAction(Error):
+    """Raised when the user performs an action not contained within the action space."""
 
 
 # API errors
 
 
 class APIError(Error):
-    """Unused error."""
+    """Deprecated, to be removed at gym 1.0."""
 
     def __init__(
         self,
@@ -80,6 +81,8 @@ class APIError(Error):
     ):
         """Initialise API error."""
         super().__init__(message)
+
+        warnings.warn("APIError is deprecated and will be removed at gym 1.0")
 
         if http_body and hasattr(http_body, "decode"):
             try:
@@ -108,11 +111,11 @@ class APIError(Error):
 
 
 class APIConnectionError(APIError):
-    """Unused error."""
+    """Deprecated, to be removed at gym 1.0."""
 
 
 class InvalidRequestError(APIError):
-    """Unused error."""
+    """Deprecated, to be removed at gym 1.0."""
 
     def __init__(
         self,
@@ -129,11 +132,11 @@ class InvalidRequestError(APIError):
 
 
 class AuthenticationError(APIError):
-    """Unused error."""
+    """Deprecated, to be removed at gym 1.0."""
 
 
 class RateLimitError(APIError):
-    """Unused error."""
+    """Deprecated, to be removed at gym 1.0."""
 
 
 # Video errors
@@ -151,15 +154,15 @@ class InvalidFrame(Error):
 
 
 class DoubleWrapperError(Error):
-    """Unused error."""
+    """Error message for when using double wrappers."""
 
 
 class WrapAfterConfigureError(Error):
-    """Unused error."""
+    """Error message for using wrap after configure."""
 
 
 class RetriesExceededError(Error):
-    """unused error."""
+    """Error message for retries exceeding set number."""
 
 
 # Vectorized environments errors
