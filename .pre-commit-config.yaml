@@ -34,7 +34,7 @@ repos:
         args: ["--py37-plus", "--keep-runtime-typing"]
   - repo: local
     hooks:
-    -   id: pyright
+      - id: pyright
         name: pyright
         entry: pyright
         language: node
