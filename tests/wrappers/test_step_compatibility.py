@@ -75,6 +75,3 @@ def test_step_compatibility_in_make(new_step_api):
         assert len(step_returns) == 4
         _, _, done, _ = step_returns
         assert isinstance(done, bool)
-
-
-test_step_compatibility_in_make(True)

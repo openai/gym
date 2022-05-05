@@ -10,13 +10,18 @@ class StepAPICompatibility(gym.Wrapper):
     New step API refers to step() method returning (observation, reward, terminated, truncated, info)
     (Refer to docs for details on the API change)
 
-    This wrapper is to be used to ease transition to new API and for backward compatibility. It will be removed in v1.0
+    This wrapper is to be used to ease transition to new API and for backward compatibility.
 
-
-    Parameters
-    ----------
+    Args:
         env (gym.Env): the env to wrap. Can be in old or new API
         new_step_api (bool): True to use env with new step API, False to use env with old step API. (False by default)
+
+    Examples:
+        >>> env = gym.make("CartPole-v1")
+        >>> env # wrapper applied by default, set to old API
+        <TimeLimit<OrderEnforcing<StepAPICompatibility<CartPoleEnv<CartPole-v1>>>>>
+        >>> env = gym.make("CartPole-v1", new_step_api=True) # set to new API
+        >>> env = StepAPICompatibility(CustomEnv(), new_step_api=True) # manually using wrapper on unregistered envs
 
     """
 
@@ -26,8 +31,7 @@ class StepAPICompatibility(gym.Wrapper):
         if not self.new_step_api:
             deprecation(
                 "Initializing environment in old step API which returns one bool instead of two. "
-                "Note that vector API and most wrappers would not work as these have been upgraded to the new API. "
-                "To use these features, please set `new_step_api=True` in make to use new API (see docs for more details)."
+                "It is recommended to set `new_step_api=True` to use new step API. This will be the default behaviour in future. "
             )
 
     def step(self, action):

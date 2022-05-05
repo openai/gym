@@ -4,7 +4,6 @@ import pytest
 import gym
 from gym.spaces import Discrete
 from gym.vector import AsyncVectorEnv, SyncVectorEnv
-from gym.wrappers import StepAPICompatibility
 
 
 class OldStepEnv(gym.Env):
