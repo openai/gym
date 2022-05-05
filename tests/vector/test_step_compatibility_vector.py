@@ -3,8 +3,8 @@ import pytest
 
 import gym
 from gym.spaces import Discrete
-from gym.vector import AsyncVectorEnv, StepCompatibilityVector, SyncVectorEnv
-from gym.wrappers import StepCompatibility
+from gym.vector import AsyncVectorEnv, SyncVectorEnv
+from gym.wrappers import StepAPICompatibility
 
 
 class OldStepEnv(gym.Env):
@@ -44,13 +44,11 @@ class NewStepEnv(gym.Env):
 def test_vector_step_compatibility_new_env(VecEnv):
 
     envs = [
-        StepCompatibility(OldStepEnv()),
+        OldStepEnv(),
         NewStepEnv(),
-    ]  # input to vec env must be in new step api
+    ]
 
-    vec_env = StepCompatibilityVector(
-        VecEnv([lambda: env for env in envs]), return_two_dones=False
-    )
+    vec_env = VecEnv([lambda: env for env in envs])
     vec_env.reset()
     step_returns = vec_env.step([0, 0])
     assert len(step_returns) == 4
@@ -58,7 +56,7 @@ def test_vector_step_compatibility_new_env(VecEnv):
     assert dones.dtype == np.bool_
     vec_env.close()
 
-    vec_env = StepCompatibilityVector(VecEnv([lambda: env for env in envs]))
+    vec_env = VecEnv([lambda: env for env in envs], new_step_api=True)
     vec_env.reset()
     step_returns = vec_env.step([0, 0])
     assert len(step_returns) == 5
@@ -71,9 +69,7 @@ def test_vector_step_compatibility_new_env(VecEnv):
 @pytest.mark.parametrize("async_bool", [True, False])
 def test_vector_step_compatibility_existing(async_bool):
 
-    env = gym.vector.make(
-        "CartPole-v1", num_envs=3, asynchronous=async_bool, return_two_dones=False
-    )
+    env = gym.vector.make("CartPole-v1", num_envs=3, asynchronous=async_bool)
     env.reset()
     step_returns = env.step(env.action_space.sample())
     assert len(step_returns) == 4
@@ -82,7 +78,7 @@ def test_vector_step_compatibility_existing(async_bool):
     env.close()
 
     env = gym.vector.make(
-        "CartPole-v1", num_envs=3, asynchronous=async_bool, return_two_dones=True
+        "CartPole-v1", num_envs=3, asynchronous=async_bool, new_step_api=True
     )
     env.reset()
     step_returns = env.step(env.action_space.sample())

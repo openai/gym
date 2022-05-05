@@ -1,10 +1,8 @@
-import warnings
-
 import pytest
 
 import gym
 from gym.spaces import Discrete
-from gym.wrappers import StepCompatibility
+from gym.wrappers import StepAPICompatibility
 
 
 class OldStepEnv(gym.Env):
@@ -36,7 +34,7 @@ class NewStepEnv(gym.Env):
 
 @pytest.mark.parametrize("env", [OldStepEnv, NewStepEnv])
 def test_step_compatibility_to_new_api(env):
-    env = StepCompatibility(env(), True)
+    env = StepAPICompatibility(env(), True)
     step_returns = env.step(0)
     _, _, terminated, truncated, _ = step_returns
     assert isinstance(terminated, bool)
@@ -44,36 +42,39 @@ def test_step_compatibility_to_new_api(env):
 
 
 @pytest.mark.parametrize("env", [OldStepEnv, NewStepEnv])
-@pytest.mark.parametrize("return_two_dones", [None, False])
-def test_step_compatibility_to_old_api(env, return_two_dones):
-    if return_two_dones is None:
-        env = StepCompatibility(env())  # default behavior is to retain old API
+@pytest.mark.parametrize("new_step_api", [None, False])
+def test_step_compatibility_to_old_api(env, new_step_api):
+    if new_step_api is None:
+        env = StepAPICompatibility(env())  # default behavior is to retain old API
     else:
-        env = StepCompatibility(env(), return_two_dones)
+        env = StepAPICompatibility(env(), new_step_api)
     step_returns = env.step(0)
     assert len(step_returns) == 4
     _, _, done, _ = step_returns
     assert isinstance(done, bool)
 
 
-@pytest.mark.parametrize("return_two_dones", [None, True, False])
-def test_step_compatibility_in_make(return_two_dones):
-    if return_two_dones is None:
+@pytest.mark.parametrize("new_step_api", [None, True, False])
+def test_step_compatibility_in_make(new_step_api):
+    if new_step_api is None:
         with pytest.warns(
             DeprecationWarning, match="Initializing environment in old step API"
         ):
             env = gym.make("CartPole-v1")
     else:
-        env = gym.make("CartPole-v1", return_two_dones=return_two_dones)
+        env = gym.make("CartPole-v1", new_step_api=new_step_api)
 
     env.reset()
     step_returns = env.step(0)
-    if return_two_dones == True:  # new api
+    if new_step_api:
         assert len(step_returns) == 5
         _, _, terminated, truncated, _ = step_returns
         assert isinstance(terminated, bool)
         assert isinstance(truncated, bool)
-    else:  # old api
+    else:
         assert len(step_returns) == 4
         _, _, done, _ = step_returns
         assert isinstance(done, bool)
+
+
+test_step_compatibility_in_make(True)

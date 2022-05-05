@@ -497,18 +497,17 @@ def make(
 
     env.unwrapped.spec = spec_
 
+    env = StepAPICompatibility(env, new_step_api)
     if spec_.order_enforce:
         env = OrderEnforcing(env)
 
-    env = StepAPICompatibility(env, new_step_api)
-
     if max_episode_steps is not None:
-        env = TimeLimit(env, max_episode_steps)
+        env = TimeLimit(env, max_episode_steps, new_step_api)
     elif spec_.max_episode_steps is not None:
-        env = TimeLimit(env, spec_.max_episode_steps)
+        env = TimeLimit(env, spec_.max_episode_steps, new_step_api)
 
     if autoreset:
-        env = AutoResetWrapper(env)
+        env = AutoResetWrapper(env, new_step_api)
 
     return env
 
