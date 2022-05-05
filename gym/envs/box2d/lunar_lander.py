@@ -377,9 +377,20 @@ class LunarLander(gym.Env, EzPickle):
         self.drawlist = [self.lander] + self.legs
 
         if not return_info:
-            return self.step(np.array([0, 0]) if self.continuous else 0)[0]
+            return self.step(
+                np.zeros(self.action_space.shape, dtype=self.action_space.dtype)
+                if self.continuous
+                else 0
+            )[0]
         else:
-            return self.step(np.array([0, 0]) if self.continuous else 0)[0], {}
+            return (
+                self.step(
+                    np.zeros(self.action_space.shape, dtype=self.action_space.dtype)
+                    if self.continuous
+                    else 0
+                )[0],
+                {},
+            )
 
     def _create_particle(self, mass, x, y, ttl):
         p = self.world.CreateDynamicBody(
@@ -709,6 +720,8 @@ def heuristic(env, s):
             a = 3
         elif angle_todo > +0.05:
             a = 1
+    if isinstance(a, np.ndarray):
+        a = a.astype(env.action_space.dtype)
     return a
 
 

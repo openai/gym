@@ -52,6 +52,8 @@ def test_discrete_actions_out_of_bound(environment_id):
         "MountainCarContinuous-v0",
         "LunarLanderContinuous-v2",
         "CarRacing-v1",
+        "BipedalWalker-v3",
+        "Pendulum-v1",
     ),
 )
 def test_box_actions_out_of_bound(environment_id):

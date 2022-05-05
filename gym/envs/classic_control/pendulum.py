@@ -8,6 +8,7 @@ import numpy as np
 import gym
 from gym import spaces
 from gym.error import DependencyNotInstalled
+from gym.utils.action_validator import validate_action_continuous
 
 
 class PendulumEnv(gym.Env):
@@ -101,6 +102,7 @@ class PendulumEnv(gym.Env):
         )
         self.observation_space = spaces.Box(low=-high, high=high, dtype=np.float32)
 
+    @validate_action_continuous
     def step(self, u):
         th, thdot = self.state  # th := theta
 
