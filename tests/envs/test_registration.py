@@ -2,7 +2,7 @@ import pytest
 
 import gym
 from gym import envs, error
-from gym.envs import register, spec
+from gym.envs import register, registration, registry, spec
 from gym.envs.classic_control import cartpole
 
 
@@ -272,3 +272,15 @@ def test_return_latest_versioned_env(register_some_envs):
     with pytest.warns(UserWarning):
         env = envs.make("MyAwesomeNamespace/MyAwesomeVersionedEnv")
     assert env.spec.id == "MyAwesomeNamespace/MyAwesomeVersionedEnv-v5"
+
+
+def test_namespace():
+    # Check if the namespace context manager works
+    with registration.namespace("MyDefaultNamespace"):
+        register("MyDefaultEnvironment-v0")
+    register("MyDefaultEnvironment-v1")
+    assert "MyDefaultNamespace/MyDefaultEnvironment-v0" in registry
+    assert "MyDefaultEnvironment-v1" in registry
+
+    del registry["MyDefaultNamespace/MyDefaultEnvironment-v0"]
+    del registry["MyDefaultEnvironment-v1"]
