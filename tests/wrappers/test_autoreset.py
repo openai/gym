@@ -12,9 +12,9 @@ from tests.envs.spec_list import spec_list
 
 
 class DummyResetEnv(gym.Env):
-    """A dummy environment which returns ascending numbers starting at 0 when self.step() is called.
+    """A dummy environment which returns ascending numbers starting at `0` when :meth:`self.step()` is called.
 
-    After the second call to self.step() done is true.
+    After the second call to :meth:`self.step()` done is true.
     Info dicts are also returned containing the same number returned as an observation, accessible via the key "count".
     This environment is provided for the purpose of testing the autoreset wrapper.
     """
@@ -30,7 +30,7 @@ class DummyResetEnv(gym.Env):
         self.count = 0
 
     def step(self, action: int):
-        """Steps the DummyEnv with the incremented step, reward and done if self.count > 1 and updated info."""
+        """Steps the DummyEnv with the incremented step, reward and done `if self.count > 1` and updated info."""
         self.count += 1
         return (
             np.array([self.count]),  # Obs
@@ -63,7 +63,7 @@ def unwrap_env(env) -> Generator[gym.Wrapper, None, None]:
 
 @pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
 def test_make_autoreset_true(spec):
-    """Tests gym.make with autoreset=True, and check that the reset actually happens.
+    """Tests gym.make with `autoreset=True`, and check that the reset actually happens.
 
     Note: This test assumes that the outermost wrapper is AutoResetWrapper so if that
      is being changed in the future, this test will break and need to be updated.
@@ -87,7 +87,7 @@ def test_make_autoreset_true(spec):
 
 @pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
 def test_gym_make_autoreset(spec):
-    """Tests that gym.make autoreset wrapper is applied only when gym.make(..., autoreset=True)."""
+    """Tests that `gym.make` autoreset wrapper is applied only when `gym.make(..., autoreset=True)`."""
     with pytest.warns(None):
         env = gym.make(spec.id)
     assert AutoResetWrapper not in unwrap_env(env)
