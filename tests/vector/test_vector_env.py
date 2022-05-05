@@ -37,8 +37,8 @@ def test_vector_env_equal(shared_memory):
 
             for idx in range(len(sync_dones)):
                 if sync_dones[idx]:
-                    assert "terminal_observation" in async_infos[idx]
-                    assert "terminal_observation" in sync_infos[idx]
+                    assert "closing_observation" in async_infos[idx]
+                    assert "closing_observation" in sync_infos[idx]
                     assert sync_dones[idx]
 
             assert np.all(async_observations == sync_observations)

@@ -55,3 +55,6 @@ def test_record_episode_statistics_with_vectorenv(num_envs, asynchronous):
                 assert "episode" in info
                 assert all([item in info["episode"] for item in ["r", "l", "t"]])
                 break
+
+
+test_record_episode_statistics("Pendulum-v1", 2)

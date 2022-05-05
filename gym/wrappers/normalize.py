@@ -1,7 +1,7 @@
 import numpy as np
 
 import gym
-from gym.wrappers.step_compatibility import step_api_compatibility
+from gym.utils.step_api_compatibility import step_api_compatibility
 
 
 # taken from https://github.com/openai/baselines/blob/master/baselines/common/vec_env/vec_normalize.py
@@ -51,14 +51,13 @@ class NormalizeObservation(gym.core.Wrapper):
          epsilon: A stability parameter that is used when scaling the observations.
     """
 
-    new_step_api = True
-
     def __init__(
         self,
         env,
         epsilon=1e-8,
+        new_step_api=False,
     ):
-        super().__init__(env)
+        super().__init__(env, new_step_api)
         self.num_envs = getattr(env, "num_envs", 1)
         self.is_vector_env = getattr(env, "is_vector_env", False)
         if self.is_vector_env:
@@ -68,12 +67,18 @@ class NormalizeObservation(gym.core.Wrapper):
         self.epsilon = epsilon
 
     def step(self, action):
-        obs, rews, terminateds, truncateds, infos = self._get_env_step_returns(action)
+        obs, rews, terminateds, truncateds, infos = step_api_compatibility(
+            self.env.step(action), True, self.is_vector_env
+        )
         if self.is_vector_env:
             obs = self.normalize(obs)
         else:
             obs = self.normalize(np.array([obs]))[0]
-        return obs, rews, terminateds, truncateds, infos
+        return step_api_compatibility(
+            (obs, rews, terminateds, truncateds, infos),
+            self.new_step_api,
+            self.is_vector_env,
+        )
 
     def reset(self, **kwargs):
         return_info = kwargs.get("return_info", False)
@@ -95,7 +100,6 @@ class NormalizeObservation(gym.core.Wrapper):
         return (obs - self.obs_rms.mean) / np.sqrt(self.obs_rms.var + self.epsilon)
 
 
-@step_api_compatibility
 class NormalizeReward(gym.core.Wrapper):
     """This wrapper will normalize immediate rewards s.t. their exponential moving average has a fixed variance.
 
@@ -110,15 +114,14 @@ class NormalizeReward(gym.core.Wrapper):
         gamma (float): The discount factor that is used in the exponential moving average.
     """
 
-    new_step_api = True
-
     def __init__(
         self,
         env,
         gamma=0.99,
         epsilon=1e-8,
+        new_step_api=False,
     ):
-        super().__init__(env)
+        super().__init__(env, new_step_api)
         self.num_envs = getattr(env, "num_envs", 1)
         self.is_vector_env = getattr(env, "is_vector_env", False)
         self.return_rms = RunningMeanStd(shape=())
@@ -127,7 +130,9 @@ class NormalizeReward(gym.core.Wrapper):
         self.epsilon = epsilon
 
     def step(self, action):
-        obs, rews, terminateds, truncateds, infos = self._get_env_step_returns(action)
+        obs, rews, terminateds, truncateds, infos = step_api_compatibility(
+            self.env.step(action), True, self.is_vector_env
+        )
         if not self.is_vector_env:
             rews = np.array([rews])
         self.returns = self.returns * self.gamma + rews
@@ -139,7 +144,11 @@ class NormalizeReward(gym.core.Wrapper):
         self.returns[dones] = 0.0
         if not self.is_vector_env:
             rews = rews[0]
-        return obs, rews, terminateds, truncateds, infos
+        return step_api_compatibility(
+            (obs, rews, terminateds, truncateds, infos),
+            self.new_step_api,
+            self.is_vector_env,
+        )
 
     def normalize(self, rews):
         self.return_rms.update(self.returns)

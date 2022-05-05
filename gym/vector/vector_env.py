@@ -33,7 +33,7 @@ class VectorEnv(gym.Env):
         Action space of a single environment.
     """
 
-    def __init__(self, num_envs, observation_space, action_space):
+    def __init__(self, num_envs, observation_space, action_space, new_step_api=False):
         self.num_envs = num_envs
         self.is_vector_env = True
         self.observation_space = batch_space(observation_space, n=num_envs)
@@ -46,6 +46,8 @@ class VectorEnv(gym.Env):
         # kept in separate properties
         self.single_observation_space = observation_space
         self.single_action_space = action_space
+
+        self.new_step_api = new_step_api
 
     def reset_async(
         self,
@@ -268,6 +270,15 @@ class VectorEnvWrapper(VectorEnv):
 
     def seed(self, seed=None):
         return self.env.seed(seed)
+
+    def call(self, *args, **kwargs):
+        return self.env.call(*args, **kwargs)
+
+    # def setattr(self, name, values):
+    #     return self.env.set_attr(name, values)
+
+    # def getattr(self, name):
+    #     return self.env.getattr(name)
 
     # implicitly forward all other methods and attributes to self.env
     def __getattr__(self, name):

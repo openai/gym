@@ -24,7 +24,12 @@ from typing import (
 import numpy as np
 
 from gym.envs.__relocated__ import internal_env_relocation_map
-from gym.wrappers import AutoResetWrapper, OrderEnforcing, StepCompatibility, TimeLimit
+from gym.wrappers import (
+    AutoResetWrapper,
+    OrderEnforcing,
+    StepAPICompatibility,
+    TimeLimit,
+)
 
 if sys.version_info < (3, 10):
     import importlib_metadata as metadata  # type: ignore
@@ -439,7 +444,7 @@ def make(
         id: Name of the environment.
         max_episode_steps: Maximum length of an episode (TimeLimit wrapper).
         autoreset: Whether to automatically reset the environment after each episode (AutoResetWrapper).
-        new_step_api: Whether to use old or new step API (StepCompatibility wrapper). Will be removed at v1.0
+        new_step_api: Whether to use old or new step API (StepAPICompatibility wrapper). Will be removed at v1.0
         kwargs: Additional arguments to pass to the environment constructor.
     Returns:
         An instance of the environment.
@@ -495,7 +500,7 @@ def make(
     if spec_.order_enforce:
         env = OrderEnforcing(env)
 
-    env = StepCompatibility(env, new_step_api)
+    env = StepAPICompatibility(env, new_step_api)
 
     if max_episode_steps is not None:
         env = TimeLimit(env, max_episode_steps)

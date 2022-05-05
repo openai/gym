@@ -3,15 +3,13 @@ from typing import List, Optional, Union
 
 import numpy as np
 
-from gym.vector.step_compatibility_vector import step_api_vector_compatibility
+from gym.utils.step_api_compatibility import step_api_compatibility
 from gym.vector.utils import concatenate, create_empty_array, iterate
 from gym.vector.vector_env import VectorEnv
-from gym.wrappers.step_compatibility import step_to_new_api
 
 __all__ = ["SyncVectorEnv"]
 
 
-@step_api_vector_compatibility
 class SyncVectorEnv(VectorEnv):
     """Vectorized environment that serially runs multiple environments.
 
@@ -53,7 +51,14 @@ class SyncVectorEnv(VectorEnv):
                [-0.85009176,  0.5266346 ,  0.60007906]], dtype=float32)
     """
 
-    def __init__(self, env_fns, observation_space=None, action_space=None, copy=True):
+    def __init__(
+        self,
+        env_fns,
+        observation_space=None,
+        action_space=None,
+        copy=True,
+        new_step_api=False,
+    ):
         self.env_fns = env_fns
         self.envs = [env_fn() for env_fn in env_fns]
         self.copy = copy
@@ -66,6 +71,7 @@ class SyncVectorEnv(VectorEnv):
             num_envs=len(env_fns),
             observation_space=observation_space,
             action_space=action_space,
+            new_step_api=new_step_api,
         )
 
         self._check_spaces()
@@ -144,7 +150,7 @@ class SyncVectorEnv(VectorEnv):
                 self._terminateds[i],
                 self._truncateds[i],
                 info,
-            ) = step_to_new_api(env.step(action))
+            ) = step_api_compatibility(env.step(action), True)
             if self._terminateds[i] or self._truncateds[i]:
                 info["closing_observation"] = observation
                 observation = env.reset()
@@ -154,12 +160,16 @@ class SyncVectorEnv(VectorEnv):
             self.single_observation_space, observations, self.observations
         )
 
-        return (
-            deepcopy(self.observations) if self.copy else self.observations,
-            np.copy(self._rewards),
-            np.copy(self._terminateds),
-            np.copy(self._truncateds),
-            infos,
+        return step_api_compatibility(
+            (
+                deepcopy(self.observations) if self.copy else self.observations,
+                np.copy(self._rewards),
+                np.copy(self._terminateds),
+                np.copy(self._truncateds),
+                infos,
+            ),
+            new_step_api=self.new_step_api,
+            is_vector_env=True,
         )
 
     def call(self, name, *args, **kwargs):

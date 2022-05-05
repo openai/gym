@@ -14,7 +14,7 @@ from gym.error import (
     CustomSpaceError,
     NoAsyncCallError,
 )
-from gym.vector.step_compatibility_vector import step_api_vector_compatibility
+from gym.utils.step_api_compatibility import step_api_compatibility
 from gym.vector.utils import (
     CloudpickleWrapper,
     clear_mpi_env_vars,
@@ -26,7 +26,6 @@ from gym.vector.utils import (
     write_to_shared_memory,
 )
 from gym.vector.vector_env import VectorEnv
-from gym.wrappers.step_compatibility import step_to_new_api
 
 __all__ = ["AsyncVectorEnv"]
 
@@ -38,7 +37,6 @@ class AsyncState(Enum):
     WAITING_CALL = "call"
 
 
-@step_api_vector_compatibility
 class AsyncVectorEnv(VectorEnv):
     """Vectorized environment that runs multiple environments in parallel. It
     uses `multiprocessing`_ processes, and pipes for communication.
@@ -122,6 +120,7 @@ class AsyncVectorEnv(VectorEnv):
         context=None,
         daemon=True,
         worker=None,
+        new_step_api=False,
     ):
         ctx = mp.get_context(context)
         self.env_fns = env_fns
@@ -139,6 +138,7 @@ class AsyncVectorEnv(VectorEnv):
             num_envs=len(env_fns),
             observation_space=observation_space,
             action_space=action_space,
+            new_step_api=new_step_api,
         )
 
         if self.shared_memory:
@@ -415,7 +415,13 @@ class AsyncVectorEnv(VectorEnv):
         results, successes = zip(*[pipe.recv() for pipe in self.parent_pipes])
         self._raise_if_errors(successes)
         self._state = AsyncState.DEFAULT
-        observations_list, rewards, terminateds, truncateds, infos = zip(*results)
+        (
+            observations_list,
+            rewards,
+            terminateds,
+            truncateds,
+            infos,
+        ) = step_api_compatibility(tuple(zip(*results)), True, True)
 
         if not self.shared_memory:
             self.observations = concatenate(
@@ -424,12 +430,16 @@ class AsyncVectorEnv(VectorEnv):
                 self.observations,
             )
 
-        return (
-            deepcopy(self.observations) if self.copy else self.observations,
-            np.array(rewards),
-            np.array(terminateds, dtype=np.bool_),
-            np.array(truncateds, dtype=np.bool_),
-            infos,
+        return step_api_compatibility(
+            (
+                deepcopy(self.observations) if self.copy else self.observations,
+                np.array(rewards),
+                np.array(terminateds, dtype=np.bool_),
+                np.array(truncateds, dtype=np.bool_),
+                infos,
+            ),
+            self.new_step_api,
+            True,
         )
 
     def call_async(self, name, *args, **kwargs):
@@ -653,9 +663,13 @@ def _worker(index, env_fn, pipe, parent_pipe, shared_memory, error_queue):
                     pipe.send((observation, True))
 
             elif command == "step":
-                observation, reward, terminated, truncated, info = step_to_new_api(
-                    env.step(data)
-                )
+                (
+                    observation,
+                    reward,
+                    terminated,
+                    truncated,
+                    info,
+                ) = step_api_compatibility(env.step(data), True)
                 if terminated or truncated:
                     info["closing_observation"] = observation
                     observation = env.reset()
@@ -724,9 +738,13 @@ def _worker_shared_memory(index, env_fn, pipe, parent_pipe, shared_memory, error
                     )
                     pipe.send((None, True))
             elif command == "step":
-                observation, reward, terminated, truncated, info = step_to_new_api(
-                    env.step(data)
-                )
+                (
+                    observation,
+                    reward,
+                    terminated,
+                    truncated,
+                    info,
+                ) = step_api_compatibility(env.step(data), True)
                 if terminated or truncated:
                     info["closing_observation"] = observation
                     observation = env.reset()

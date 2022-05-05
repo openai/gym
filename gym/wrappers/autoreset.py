@@ -1,8 +1,7 @@
 import gym
-from gym.wrappers.step_compatibility import step_api_compatibility
+from gym.utils.step_api_compatibility import step_api_compatibility
 
 
-@step_api_compatibility
 class AutoResetWrapper(gym.Wrapper):
     """
     A class for providing an automatic reset functionality
@@ -40,14 +39,13 @@ class AutoResetWrapper(gym.Wrapper):
     use this wrapper!
     """
 
-    new_step_api = True  # whether this wrapper is written in new API (assumed old API if not present)
-
-    def __init__(self, env: gym.Env) -> None:
-        super().__init__(env)
-        self.new_step_api = True
+    def __init__(self, env: gym.Env, new_step_api: bool = False) -> None:
+        super().__init__(env, new_step_api)
 
     def step(self, action):
-        obs, reward, terminated, truncated, info = self._get_env_step_returns(action)
+        obs, reward, terminated, truncated, info = step_api_compatibility(
+            self.env.step(action), new_step_api=True
+        )
 
         if terminated or truncated:
 
@@ -65,4 +63,6 @@ class AutoResetWrapper(gym.Wrapper):
             obs = new_obs
             info = new_info
 
-        return obs, reward, terminated, truncated, info
+        return step_api_compatibility(
+            (obs, reward, terminated, truncated, info), self.new_step_api
+        )

@@ -4,10 +4,9 @@ from collections import deque
 import numpy as np
 
 import gym
-from gym.wrappers.step_compatibility import step_api_compatibility
+from gym.utils.step_api_compatibility import step_api_compatibility
 
 
-@step_api_compatibility
 class RecordEpisodeStatistics(gym.Wrapper):
     """This wrapper will keep track of cumulative rewards and episode lengths.
 
@@ -37,10 +36,8 @@ class RecordEpisodeStatistics(gym.Wrapper):
         length_queue: The lengths of the last `deque_size`-many episodes
     """
 
-    new_step_api = True
-
-    def __init__(self, env, deque_size=100):
-        super().__init__(env)
+    def __init__(self, env, deque_size=100, new_step_api=False):
+        super().__init__(env, new_step_api)
         self.num_envs = getattr(env, "num_envs", 1)
         self.t0 = time.perf_counter()
         self.episode_count = 0
@@ -63,7 +60,7 @@ class RecordEpisodeStatistics(gym.Wrapper):
             terminateds,
             truncateds,
             infos,
-        ) = self._get_env_step_returns(action)
+        ) = step_api_compatibility(self.env.step(action), True, self.is_vector_env)
         self.episode_returns += rewards
         self.episode_lengths += 1
         if not self.is_vector_env:
@@ -90,10 +87,14 @@ class RecordEpisodeStatistics(gym.Wrapper):
                 self.episode_lengths[i] = 0
         if self.is_vector_env:
             infos = tuple(infos)
-        return (
-            observations,
-            rewards,
-            terminateds if self.is_vector_env else terminateds[0],
-            truncateds if self.is_vector_env else truncateds[0],
-            infos if self.is_vector_env else infos[0],
+        return step_api_compatibility(
+            (
+                observations,
+                rewards,
+                terminateds if self.is_vector_env else terminateds[0],
+                truncateds if self.is_vector_env else truncateds[0],
+                infos if self.is_vector_env else infos[0],
+            ),
+            self.new_step_api,
+            self.is_vector_env,
         )

@@ -132,8 +132,8 @@ def test_autoreset_autoreset():
     assert reward == 1
     assert info == {
         "count": 0,
-        "terminal_observation": np.array([3]),
-        "terminal_info": {"count": 3},
+        "closing_observation": np.array([3]),
+        "closing_info": {"count": 3},
     }
     obs, reward, done, info = env.step(action)
     assert obs == np.array([1])

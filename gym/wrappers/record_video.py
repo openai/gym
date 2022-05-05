@@ -3,7 +3,7 @@ from typing import Callable
 
 import gym
 from gym import logger
-from gym.wrappers.step_compatibility import step_api_compatibility
+from gym.utils.step_api_compatibility import step_api_compatibility
 from gym.wrappers.monitoring import video_recorder
 
 
@@ -14,7 +14,6 @@ def capped_cubic_video_schedule(episode_id):
         return episode_id % 1000 == 0
 
 
-@step_api_compatibility
 class RecordVideo(gym.Wrapper):
     """This wrapper records videos of rollouts.
 
@@ -37,8 +36,6 @@ class RecordVideo(gym.Wrapper):
         name_prefix (str): Will be prepended to the filename of the recordings
     """
 
-    new_step_api = True
-
     def __init__(
         self,
         env,
@@ -47,8 +44,9 @@ class RecordVideo(gym.Wrapper):
         step_trigger: Callable[[int], bool] = None,
         video_length: int = 0,
         name_prefix: str = "rl-video",
+        new_step_api: bool = False,
     ):
-        super().__init__(env)
+        super().__init__(env, new_step_api)
 
         if episode_trigger is None and step_trigger is None:
             episode_trigger = capped_cubic_video_schedule
@@ -114,7 +112,7 @@ class RecordVideo(gym.Wrapper):
             terminateds,
             truncateds,
             infos,
-        ) = self._get_env_step_returns(action)
+        ) = step_api_compatibility(self.env.step(action), True, self.is_vector_env)
 
         # increment steps and episodes
         self.step_id += 1
@@ -140,7 +138,11 @@ class RecordVideo(gym.Wrapper):
         elif self._video_enabled():
             self.start_video_recorder()
 
-        return observations, rewards, terminateds, truncateds, infos
+        return step_api_compatibility(
+            (observations, rewards, terminateds, truncateds, infos),
+            self.new_step_api,
+            self.is_vector_env,
+        )
 
     def close_video_recorder(self) -> None:
         if self.recording:

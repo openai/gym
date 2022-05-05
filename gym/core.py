@@ -237,13 +237,14 @@ class Wrapper(Env[ObsType, ActType]):
 
     """
 
-    def __init__(self, env: Env):
+    def __init__(self, env: Env, new_step_api: bool = False):
         self.env = env
 
         self._action_space: spaces.Space | None = None
         self._observation_space: spaces.Space | None = None
         self._reward_range: tuple[SupportsFloat, SupportsFloat] | None = None
         self._metadata: dict | None = None
+        self.new_step_api = new_step_api
 
     def __getattr__(self, name):
         if name.startswith("_"):
@@ -303,7 +304,7 @@ class Wrapper(Env[ObsType, ActType]):
     ) -> Union[
         Tuple[ObsType, float, bool, bool, dict], Tuple[ObsType, float, bool, dict]
     ]:
-        return self._get_env_step_returns(action)
+        return self.env.step(action)
 
     def reset(self, **kwargs) -> Union[ObsType, tuple[ObsType, dict]]:
         return self.env.reset(**kwargs)
@@ -326,9 +327,6 @@ class Wrapper(Env[ObsType, ActType]):
     @property
     def unwrapped(self) -> Env:
         return self.env.unwrapped
-
-    def _get_env_step_returns(self, action):
-        return self.env.step(action)
 
 
 class ObservationWrapper(Wrapper):
