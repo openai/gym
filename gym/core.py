@@ -1,10 +1,10 @@
-"""Core API for Environment, Wrapper, ActionWrapper and ObservationWrapper."""
+"""Core API for Environment, Wrapper, ActionWrapper, RewardWrapper and ObservationWrapper."""
 from __future__ import annotations
 
 from abc import abstractmethod
 from typing import Generic, Optional, SupportsFloat, TypeVar, Union
 
-from gym import Space
+from gym import spaces
 from gym.logger import deprecation
 from gym.utils import seeding
 from gym.utils.seeding import RandomNumberGenerator
@@ -14,28 +14,28 @@ ActType = TypeVar("ActType")
 
 
 class Env(Generic[ObsType, ActType]):
-    """The main OpenAI Gym class.
+    r"""The main OpenAI Gym class.
 
     It encapsulates an environment with arbitrary behind-the-scenes dynamics.
     An environment can be partially or fully observed.
 
     The main API methods that users of this class need to know are:
-
-        step
-        reset
-        render
-        close
-        seed
+    - :meth:`step` - Takes a step in the environment using an action returning the next observation,
+        reward, if the environment terminated and more information.
+    - :meth:`reset` - Resets the environment to an initial state, returning the initial observation.
+    - :meth:`render` - Renders the environment observation with modes depending on the output
+    - :meth:`close` - Closes the environment, important for rendering where pygame is imported
+    - :meth:`seed` - Seeds the environment's random number generator, this is deprecated function for :meth:`reset(seed)`.
 
     And set the following attributes:
+    - :attr:`action_space` - The Space object corresponding to valid actions
+    - :attr:`observation_space` - The Space object corresponding to valid observations
+    - :attr:`reward_range` - A tuple corresponding to the minimum and maximum possible rewards
+    - :attr:`spec` - An environment spec that contains the information used to initialise the environment from `gym.make`
+    - :attr:`metadata` - The metadata of the environment, i.e. render modes
+    - :attr:`np_random` - The random number generator for the environment
 
-        action_space: The Space object corresponding to valid actions
-        observation_space: The Space object corresponding to valid observations
-        reward_range: A tuple corresponding to the min and max possible rewards
-
-    Note: a default reward range set to [-inf,+inf] already exists. Set it if you want a narrower range.
-
-    The methods are accessed publicly as "step", "reset", etc...
+    Note: a default reward range set to [-\inf,+\inf] already exists. Set it if you want a narrower range.
     """
 
     # Set this in SOME subclasses
@@ -44,15 +44,15 @@ class Env(Generic[ObsType, ActType]):
     spec = None
 
     # Set these in ALL subclasses
-    action_space: Space[ActType]
-    observation_space: Space[ObsType]
+    action_space: spaces.Space[ActType]
+    observation_space: spaces.Space[ObsType]
 
     # Created
-    _np_random: RandomNumberGenerator | None = None
+    _np_random: Optional[RandomNumberGenerator] = None
 
     @property
     def np_random(self) -> RandomNumberGenerator:
-        """Initializes the np_random field if not done already."""
+        """Returns the environment's internal :attr:`_np_random` that if not set will initialises with a random seed."""
         if self._np_random is None:
             self._np_random, seed = seeding.np_random()
         return self._np_random
@@ -66,23 +66,21 @@ class Env(Generic[ObsType, ActType]):
         """Run one timestep of the environment's dynamics.
 
         When end of episode is reached, you are responsible for calling :meth:`reset` to reset this environment's state.
-        Accepts an action and returns a tuple (observation, reward, done, info).
+        Accepts an action and returns a tuple `(observation, reward, done, info)`.
 
         Args:
             action (object): an action provided by the agent
 
-        This method returns a tuple ``(observation, reward, done, info)``
-
         Returns:
-            observation (object): agent's observation of the current environment. This will be an element of the environment's :attr:`observation_space`. This may, for instance, be a numpy array containing the positions and velocities of certain objects.
-            reward (float) : amount of reward returned after previous action
-            done (bool): whether the episode has ended, in which case further :meth:`step` calls will return undefined results. A done signal may be emitted for different reasons: Maybe the task underlying the environment was solved successfully, a certain timelimit was exceeded, or the physics simulation has entered an invalid state. ``info`` may contain additional information regarding the reason for a ``done`` signal.
-            info (dict): contains auxiliary diagnostic information (helpful for debugging, learning, and logging). This might, for instance, contain:
-
-                - metrics that describe the agent's performance or
-                - state variables that are hidden from observations or
-                - information that distinguishes truncation and termination or
-                - individual reward terms that are combined to produce the total reward
+            ``(observation, reward, done, info)``: A tuple containing the environment's current `observation`, `reward` for the previous step,
+            `done` if the episode has terminated and `info` for more information about the step.
+            For the `observation` this will be an element of the environment's :attr:`observation_space`. This may, for instance, be a numpy array containing the positions and velocities of certain objects.
+            For the `reward` will be the amount of reward returned after previous action.
+            `done` is whether the episode has ended, in which case further :meth:`step` calls will return undefined results.
+            A done signal may be emitted for different reasons: Maybe the task underlying the environment was solved successfully, a certain timelimit was exceeded, or the physics simulation has entered an invalid state.
+            `info` may contain additional information regarding the reason for a ``done`` signal.
+            `info` contains auxiliary diagnostic information (helpful for debugging, learning, and logging). This might, for instance, contain: metrics that describe the agent's performance state, variables that are hidden from observations,
+            information that distinguishes truncation and termination or individual reward terms that are combined to produce the total reward
         """
         raise NotImplementedError
 
@@ -94,10 +92,10 @@ class Env(Generic[ObsType, ActType]):
         return_info: bool = False,
         options: Optional[dict] = None,
     ) -> Union[ObsType, tuple[ObsType, dict]]:
-        """Resets the environment to an initial state and returns an initial observation.
+        """Resets the environment to an initial state and returns the initial observation.
 
-        This method should also reset the environment's random number
-        generator(s) if ``seed`` is an integer or if the environment has not
+        This method can reset the environment's random number
+        generator(s) if :param:`seed` is an integer or if the environment has not
         yet initialized a random number generator. If the environment already
         has a random number generator and :meth:`reset` is called with ``seed=None``,
         the RNG should not be reset.
@@ -105,9 +103,10 @@ class Env(Generic[ObsType, ActType]):
         integer seed right after initialization and then never again.
 
         Args:
-            seed (int or None):
-                The seed that is used to initialize the environment's PRNG. If the environment does not already have a PRNG and ``seed=None`` (the default option) is passed, a seed will be chosen from some source of entropy (e.g. timestamp or /dev/urandom).
-                However, if the environment already has a PRNG and ``seed=None`` is passed, the PRNG will *not* be reset. If you pass an integer, the PRNG will be reset even if it already exists. Usually, you want to pass an integer *right after the environment has been initialized and then never again*. Please refer to the minimal example above to see this paradigm in action.
+            seed (int or None): The seed that is used to initialize the environment's PRNG.
+                If the environment does not already have a PRNG and ``seed=None`` (the default option) is passed, a seed will be chosen from some source of entropy (e.g. timestamp or /dev/urandom).
+                However, if the environment already has a PRNG and ``seed=None`` is passed, the PRNG will *not* be reset. If you pass an integer, the PRNG will be reset even if it already exists.
+                Usually, you want to pass an integer *right after the environment has been initialized and then never again*. Please refer to the minimal example above to see this paradigm in action.
             return_info (bool): If true, return additional information along with initial observation. This info should be analogous to the info returned in :meth:`step`
             options (dict or None): Additional information to specify how the environment is reset (optional, depending on the specific environment)
 
@@ -124,7 +123,7 @@ class Env(Generic[ObsType, ActType]):
     def render(self, mode="human"):
         """Renders the environment.
 
-        The set of supported modes varies per environment. (And some
+        A set of supported modes varies per environment. (And some
         third-party environments may not support rendering at all.)
         By convention, if mode is:
 
@@ -142,21 +141,20 @@ class Env(Generic[ObsType, ActType]):
               the list of supported modes. It's recommended to call super()
               in implementations to use the functionality of this method.
 
+        Example:
+            >>> class MyEnv(Env):
+            ...    metadata = {'render_modes': ['human', 'rgb_array']}
+            ...
+            ...    def render(self, mode='human'):
+            ...        if mode == 'rgb_array':
+            ...            return np.array(...) # return RGB frame suitable for video
+            ...        elif mode == 'human':
+            ...            ... # pop up a window and render
+            ...        else:
+            ...            super(MyEnv, self).render(mode=mode) # just raise an exception
+
         Args:
-            mode (str): the mode to render with
-
-        Example::
-
-            class MyEnv(Env):
-                metadata = {'render_modes': ['human', 'rgb_array']}
-
-                def render(self, mode='human'):
-                    if mode == 'rgb_array':
-                        return np.array(...) # return RGB frame suitable for video
-                    elif mode == 'human':
-                        ... # pop up a window and render
-                    else:
-                        super(MyEnv, self).render(mode=mode) # just raise an exception
+            mode: the mode to render with, valid modes are `env.metadata["render_modes"]`
         """
         raise NotImplementedError
 
@@ -169,7 +167,9 @@ class Env(Generic[ObsType, ActType]):
         pass
 
     def seed(self, seed=None):
-        """Sets the seed for this env's random number generator(s).
+        """Deprecated function that sets the seed for the env's random number generator(s).
+
+        Use `env.reset(seed=seed)` as the new API for setting the seed of the environment.
 
         Note:
             Some environments use multiple pseudorandom number generators.
@@ -185,14 +185,14 @@ class Env(Generic[ObsType, ActType]):
         """
         deprecation(
             "Function `env.seed(seed)` is marked as deprecated and will be removed in the future. "
-            "Please use `env.reset(seed=seed) instead."
+            "Please use `env.reset(seed=seed)` instead."
         )
         self._np_random, seed = seeding.np_random(seed)
         return [seed]
 
     @property
     def unwrapped(self) -> Env:
-        """Completely unwrap this env.
+        """Returns the base non-wrapped environment.
 
         Returns:
             gym.Env: The base non-wrapped gym.Env instance
@@ -200,7 +200,7 @@ class Env(Generic[ObsType, ActType]):
         return self
 
     def __str__(self):
-        """Returns a string for the environment with the spec id if specified."""
+        """Returns a string of the environment with the spec id if specified."""
         if self.spec is None:
             return f"<{type(self).__name__} instance>"
         else:
@@ -218,77 +218,76 @@ class Env(Generic[ObsType, ActType]):
 
 
 class Wrapper(Env[ObsType, ActType]):
-    """Wraps the environment to allow a modular transformation.
+    """Wraps an environment to allow a modular transformation of the :meth:`step` and :meth:`reset` methods.
 
     This class is the base class for all wrappers. The subclass could override
     some methods to change the behavior of the original environment without touching the
     original code.
 
-    .. note::
-
+    Note:
         Don't forget to call ``super().__init__(env)`` if the subclass overrides :meth:`__init__`.
-
     """
 
     def __init__(self, env: Env):
-        """Wraps the environment to allow a modular transformation."""
+        """Wraps an environment to allow a modular transformation of the :meth:`step` and :meth:`reset` methods.
+
+        Args:
+            env: The environment to wrap
+        """
         self.env = env
 
-        self._action_space: Space | None = None
-        self._observation_space: Space | None = None
-        self._reward_range: tuple[SupportsFloat, SupportsFloat] | None = None
-        self._metadata: dict | None = None
+        self._action_space: Optional[spaces.Space] = None
+        self._observation_space: Optional[spaces.Space] = None
+        self._reward_range: Optional[tuple[SupportsFloat, SupportsFloat]] = None
+        self._metadata: Optional[dict] = None
 
     def __getattr__(self, name):
-        """Gets an attribute if the name does not start with _."""
+        """Returns an attribute with :param:`name`, unless :param:`name` starts with an underscore."""
         if name.startswith("_"):
             raise AttributeError(f"accessing private attribute '{name}' is prohibited")
         return getattr(self.env, name)
 
     @property
     def spec(self):
-        """Returns the environment spec."""
+        """Returns the environment specification."""
         return self.env.spec
 
     @classmethod
     def class_name(cls):
-        """Returns the class name."""
+        """Returns the class name of the wrapper."""
         return cls.__name__
 
     @property
-    def action_space(self) -> Space[ActType]:
-        """Returns the action space."""
+    def action_space(self) -> spaces.Space[ActType]:
+        """Returns the action space of the environment."""
         if self._action_space is None:
             return self.env.action_space
         return self._action_space
 
     @action_space.setter
-    def action_space(self, space: Space):
-        """Sets the action space."""
+    def action_space(self, space: spaces.Space):
         self._action_space = space
 
     @property
-    def observation_space(self) -> Space:
-        """Returns the observation space."""
+    def observation_space(self) -> spaces.Space:
+        """Returns the observation space of the environment."""
         if self._observation_space is None:
             return self.env.observation_space
         return self._observation_space
 
     @observation_space.setter
-    def observation_space(self, space: Space):
-        """Sets the observation shape."""
+    def observation_space(self, space: spaces.Space):
         self._observation_space = space
 
     @property
     def reward_range(self) -> tuple[SupportsFloat, SupportsFloat]:
-        """Return the reward range."""
+        """Return the reward range of the environment."""
         if self._reward_range is None:
             return self.env.reward_range
         return self._reward_range
 
     @reward_range.setter
     def reward_range(self, value: tuple[SupportsFloat, SupportsFloat]):
-        """Sets the reward range."""
         self._reward_range = value
 
     @property
@@ -300,7 +299,6 @@ class Wrapper(Env[ObsType, ActType]):
 
     @metadata.setter
     def metadata(self, value):
-        """Sets the metadata."""
         self._metadata = value
 
     def step(self, action: ActType) -> tuple[ObsType, float, bool, dict]:
@@ -328,20 +326,20 @@ class Wrapper(Env[ObsType, ActType]):
         return f"<{type(self).__name__}{self.env}>"
 
     def __repr__(self):
-        """Returns string of the wrapper."""
+        """Returns the string representation of the wrapper."""
         return str(self)
 
     @property
     def unwrapped(self) -> Env:
-        """Unwraps all wrappers to the environment."""
+        """Returns the base environment of the wrapper."""
         return self.env.unwrapped
 
 
 class ObservationWrapper(Wrapper):
-    """A wrapper that can modify the returning observations from a step."""
+    """A wrapper that can modify observations using :meth:`observation` for :meth:`reset` and :meth:`step`."""
 
     def reset(self, **kwargs):
-        """Resets the environment with the modified observations."""
+        """Resets the environment, returning a modified observation using :meth:`self.observation`."""
         if kwargs.get("return_info", False):
             obs, info = self.env.reset(**kwargs)
             return self.observation(obs), info
@@ -349,13 +347,13 @@ class ObservationWrapper(Wrapper):
             return self.observation(self.env.reset(**kwargs))
 
     def step(self, action):
-        """Modifies the observation before returning the step."""
+        """Returns a modified observation using :meth:`self.observation` after calling :meth:`env.step`."""
         observation, reward, done, info = self.env.step(action)
         return self.observation(observation), reward, done, info
 
     @abstractmethod
     def observation(self, observation):
-        """Modifies the observations."""
+        """Returns a modified observation."""
         raise NotImplementedError
 
 
@@ -363,29 +361,29 @@ class RewardWrapper(Wrapper):
     """A wrapper that can modify the returning reward from a step."""
 
     def step(self, action):
-        """Modifies the reward after the environment step."""
+        """Modifies the reward using :meth:`self.reward` after the environment :meth:`env.step`."""
         observation, reward, done, info = self.env.step(action)
         return observation, self.reward(reward), done, info
 
     @abstractmethod
     def reward(self, reward):
-        """Modifies the reward."""
+        """Returns a modified :param:`reward`."""
         raise NotImplementedError
 
 
 class ActionWrapper(Wrapper):
-    """A wrapper that can modify the action before stepping."""
+    """A wrapper that can modify the action before :meth:`env.step`."""
 
     def step(self, action):
-        """Runs the environment step using the modified action."""
+        """Runs the environment :meth:`env.step` using the modified :param:`action` from :meth:`self.action`."""
         return self.env.step(self.action(action))
 
     @abstractmethod
     def action(self, action):
-        """Modifies the action during the action."""
+        """Returns a modified action before :meth:`env.step` is called."""
         raise NotImplementedError
 
     @abstractmethod
     def reverse_action(self, action):
-        """Reverse an action, unused in project."""
+        """Returns a reversed :param:`action`."""
         raise NotImplementedError
