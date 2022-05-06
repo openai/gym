@@ -1,4 +1,6 @@
 """A wrapper for video recording environments by rolling it out, frame by frame."""
+from __future__ import annotations
+
 import json
 import os
 import os.path
