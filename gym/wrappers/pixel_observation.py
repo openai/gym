@@ -80,6 +80,7 @@ class PixelObservationWrapper(ObservationWrapper):
 
         # Extend observation space with pixels.
 
+        self.env.reset()
         pixels_spaces = {}
         for pixel_key in pixel_keys:
             pixels = self.env.render(**render_kwargs[pixel_key])
