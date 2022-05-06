@@ -12,7 +12,7 @@ from gym import error
 from gym.logger import deprecation
 
 
-def np_random(seed: Optional[int] = None) -> tuple["RandomNumberGenerator", Any]:
+def np_random(seed: Optional[int] = None) -> tuple[RandomNumberGenerator, Any]:
     """Generates a random number generator from the seed and returns the Generator and seed.
 
     Args:
