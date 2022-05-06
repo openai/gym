@@ -1,8 +1,10 @@
 """Wrapper for augmenting observations by pixel values."""
+from __future__ import annotations
+
 import collections
 import copy
 from collections.abc import MutableMapping
-from typing import Any, Optional, Tuple
+from typing import Any, Optional
 
 import numpy as np
 
@@ -44,7 +46,7 @@ class PixelObservationWrapper(ObservationWrapper):
         env: gym.Env,
         pixels_only: bool = True,
         render_kwargs: Optional[dict[str, Any]] = None,
-        pixel_keys: Tuple[str, ...] = ("pixels",),
+        pixel_keys: tuple[str, ...] = ("pixels",),
     ):
         """Initializes a new pixel Wrapper.
 
