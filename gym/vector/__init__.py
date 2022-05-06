@@ -1,4 +1,5 @@
 """Module for vector environments."""
+from __future__ import annotations
 from typing import Iterable, Optional, Union
 
 from gym.vector.async_vector_env import AsyncVectorEnv

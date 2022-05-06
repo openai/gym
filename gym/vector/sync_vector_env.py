@@ -1,4 +1,6 @@
 """A synchronous vector environment."""
+from __future__ import annotations
+
 from copy import deepcopy
 from typing import Any, Iterator, Optional, Sequence, Union
 
