@@ -14,11 +14,9 @@ import inspect
 from typing import Optional, Union
 
 import numpy as np
-import pytest
 
 import gym
 from gym import logger, spaces
-from gym.error import ResetNeeded
 
 
 def _is_numpy_array_space(space: spaces.Space) -> bool:

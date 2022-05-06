@@ -1,6 +1,5 @@
 """Wrapper to enforce the order of environments."""
 import gym
-from gym.error import ResetNeeded
 
 
 class OrderEnforcing(gym.Wrapper):
@@ -25,6 +24,7 @@ class OrderEnforcing(gym.Wrapper):
         self._has_reset = False
 
     def step(self, action):
+        """Steps through the environment with :param:`kwargs`."""
         assert self._has_reset, "Cannot call env.step() before calling env.reset()"
         return self.env.step(action)
 
