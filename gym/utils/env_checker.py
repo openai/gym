@@ -14,6 +14,7 @@ import inspect
 from typing import Optional, Union
 
 import numpy as np
+import pytest
 
 import gym
 from gym import logger, spaces
@@ -384,11 +385,11 @@ def check_env(env: gym.Env, warn: bool = True, skip_render_check: bool = True) -
     # Define aliases for convenience
     observation_space = env.observation_space
     action_space = env.action_space
-    try:
-        env.step(env.action_space.sample())
 
-    except AssertionError as e:
-        assert str(e) == "Cannot call env.step() before calling reset()"
+    with pytest.raises(AssertionError):
+        # As environments are normally wrapped by OrderEnforcing
+        # "Cannot call env.render() before calling env.reset()" is raised
+        env.step(env.action_space.sample())
 
     # Warn the user if needed.
     # A warning means that the environment may run but not work properly with popular RL libraries.
