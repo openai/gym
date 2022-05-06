@@ -2,7 +2,7 @@
 import collections
 import copy
 from collections.abc import MutableMapping
-from typing import Any, Optional
+from typing import Any, Optional, Tuple
 
 import numpy as np
 
@@ -44,7 +44,7 @@ class PixelObservationWrapper(ObservationWrapper):
         env: gym.Env,
         pixels_only: bool = True,
         render_kwargs: Optional[dict[str, Any]] = None,
-        pixel_keys: tuple[str, ...] = ("pixels",),
+        pixel_keys: Tuple[str, ...] = ("pixels",),
     ):
         """Initializes a new pixel Wrapper.
 
