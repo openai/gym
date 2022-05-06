@@ -14,7 +14,6 @@ import inspect
 from typing import Optional, Union
 
 import numpy as np
-import pytest
 
 import gym
 from gym import logger, spaces
