@@ -21,6 +21,7 @@ def test_vector_env_wrapper_inheritance():
 
 
 def test_vector_env_wrapper_attributes():
+    """Test if `set_attr`, `call` methods for VecEnvWrapper get correctly forwarded to the vector env it is wrapping."""
     env = make("CartPole-v1", num_envs=3)
     wrapped = DummyWrapper(make("CartPole-v1", num_envs=3))
 
