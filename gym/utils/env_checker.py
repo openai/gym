@@ -18,7 +18,6 @@ import pytest
 
 import gym
 from gym import logger, spaces
-from gym.error import ResetNeeded
 
 
 def _is_numpy_array_space(space: spaces.Space) -> bool:
@@ -387,7 +386,7 @@ def check_env(env: gym.Env, warn: bool = True, skip_render_check: bool = True) -
     observation_space = env.observation_space
     action_space = env.action_space
 
-    with pytest.raises(ResetNeeded):
+    with pytest.raises(AssertionError):
         # As environments are normally wrapped by OrderEnforcing
         # "Cannot call env.render() before calling env.reset()" is raised
         env.step(env.action_space.sample())
