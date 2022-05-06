@@ -66,7 +66,10 @@ def _check_nan(env: gym.Env, check_inf: bool = True):
     """
     for _ in range(10):
         action = env.action_space.sample()
-        observation, reward, _, _ = env.step(action)
+        observation, reward, done, _ = env.step(action)
+
+        if done:
+            env.reset()
 
         if np.any(np.isnan(observation)):
             logger.warn("Encountered NaN value in observations.")

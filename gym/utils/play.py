@@ -11,6 +11,7 @@ from pygame.locals import VIDEORESIZE
 from gym import Env, logger
 from gym.core import ActType, ObsType
 from gym.error import DependencyNotInstalled
+from gym.logger import deprecation
 
 try:
     import matplotlib
@@ -202,10 +203,7 @@ def play(
 
 
 class PlayPlot:
-    """Plays a plot for a callback with a certain number of horizon timesteps.
-
-    todo add example
-    """
+    """Plays a plot for a callback with a certain number of horizon timesteps."""
 
     def __init__(
         self, callback: callable, horizon_timesteps: int, plot_names: list[str]
@@ -217,6 +215,9 @@ class PlayPlot:
             horizon_timesteps: The horzion timestep for the number of time steps in which to show information
             plot_names: List of plot names
         """
+        deprecation(
+            "`PlayPlot` is marked as deprecated and will be removed in the near future."
+        )
         self.data_callback = callback
         self.horizon_timesteps = horizon_timesteps
         self.plot_names = plot_names
