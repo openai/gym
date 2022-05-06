@@ -386,10 +386,12 @@ def check_env(env: gym.Env, warn: bool = True, skip_render_check: bool = True) -
     observation_space = env.observation_space
     action_space = env.action_space
 
-    with pytest.raises(AssertionError):
+    try:
         # As environments are normally wrapped by OrderEnforcing
         # "Cannot call env.render() before calling env.reset()" is raised
         env.step(env.action_space.sample())
+    except AssertionError as e:
+        assert "Cannot call env.step()" in str(e)
 
     # Warn the user if needed.
     # A warning means that the environment may run but not work properly with popular RL libraries.
