@@ -25,11 +25,8 @@ class OrderEnforcing(gym.Wrapper):
         self._has_reset = False
 
     def step(self, action):
-        """Steps through the environment with :param:`action`."""
-        if self._has_reset is False:
-            raise ResetNeeded("Cannot call `env.step()` before calling `env.reset()`")
-        observation, reward, done, info = self.env.step(action)
-        return observation, reward, done, info
+        assert self._has_reset, "Cannot call env.step() before calling env.reset()"
+        return self.env.step(action)
 
     def reset(self, **kwargs):
         """Resets the environment with :param:`kwargs`."""
@@ -38,6 +35,14 @@ class OrderEnforcing(gym.Wrapper):
 
     def render(self, **kwargs):
         """Checks that the environment has been :meth:`reset` before rendering the environment."""
-        if self._has_reset is False:
-            raise ResetNeeded("Cannot call `env.render()` before calling `env.reset()`")
-        return super().render(**kwargs)
+        if hasattr(self.unwrapped, "disable_render_order_enforcing"):
+            if not self.unwrapped.disable_render_order_enforcing:
+                assert (
+                    self._has_reset
+                ), "Cannot call env.render() before calling env.reset()"
+        else:
+            assert self._has_reset, (
+                "Cannot call env.render() before calling env.reset(), if this is a intended property, "
+                "set `disable_render_order_enforcing=True` on the base environment (env.unwrapped)."
+            )
+        return self.env.render(**kwargs)
