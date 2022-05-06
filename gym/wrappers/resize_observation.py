@@ -13,11 +13,10 @@ class ResizeObservation(ObservationWrapper):
     """Resize the image observation.
 
     This wrapper works on environments with image observations (or more generally observations of shape AxBxC) and resizes
-    the observation to the shape given by the 2-tuple `shape`. The argument `shape` may also be an integer. In that case, the
-    observation is scaled to a square of side-length `shape`.
+    the observation to the shape given by the 2-tuple :attr:`shape`. The argument :attr:`shape` may also be an integer.
+    In that case, the observation is scaled to a square of side-length :attr:`shape`.
 
-    Example::
-
+    Example:
         >>> import gym
         >>> env = gym.make('CarRacing-v1')
         >>> env.observation_space.shape
@@ -26,10 +25,6 @@ class ResizeObservation(ObservationWrapper):
         >>> obs = env.reset()
         >>> obs.shape
         (64, 64, 3)
-
-    Args:
-        env: The environment to apply the wrapper
-        shape (Union[tuple, int]): The dimensions of the resized observation
     """
 
     def __init__(self, env: gym.Env, shape: Union[tuple, int]):

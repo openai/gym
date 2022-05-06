@@ -10,11 +10,10 @@ from gym import spaces
 class RescaleAction(gym.ActionWrapper):
     """Rescales the continuous action space of the environment to a range [min_action, max_action].
 
-    The wrapped environment `env` must have an action space of type `spaces.Box`. If `min_action`
-    or `max_action` are numpy arrays, the shape must match the shape of the environment's action space.
+    The wrapped environment :class:`Env` must have an action space of type :class:`spaces.Box`. If :attr:`min_action`
+    or :attr:`max_action` are numpy arrays, the shape must match the shape of the environment's action space.
 
-    Example::
-
+    Example:
         >>> import gym
         >>> env = gym.make('CartPole-v1')
         >>> env.action_space
@@ -25,11 +24,6 @@ class RescaleAction(gym.ActionWrapper):
 
         >>> RescaleAction(env, min_action, max_action).action_space == Box(min_action, max_action)
         True
-
-    Args:
-        env (Env): The environment to apply the wrapper
-        min_action (Union[np.array, float]): The lower bound of the new action space. This may be a numpy array or a scalar.
-        max_action (Union[np.array, float]): The upper bound of the new action space. This may be a numpy array or a scalar.
     """
 
     def __init__(
@@ -42,8 +36,8 @@ class RescaleAction(gym.ActionWrapper):
 
         Args:
             env (Env): The environment to apply the wrapper
-            min_action (float, int or np.ndarray): The min values for each action
-            max_action (float, int or np.ndarray): The max values for each action
+            min_action (float, int or np.ndarray): The min values for each action. This may be a numpy array or a scalar.
+            max_action (float, int or np.ndarray): The max values for each action. This may be a numpy array or a scalar.
         """
         assert isinstance(
             env.action_space, spaces.Box
@@ -65,7 +59,7 @@ class RescaleAction(gym.ActionWrapper):
         )
 
     def action(self, action):
-        """Rescales the action to have the same ratio of values between max_action and min_action.
+        """Rescales the action to have the same ratio of values between :attr:`max_action` and :attr:`min_action`.
 
         Args:
             action: The action to rescale

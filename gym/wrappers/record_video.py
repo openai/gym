@@ -18,22 +18,14 @@ def capped_cubic_video_schedule(episode_id: int) -> bool:
 class RecordVideo(gym.Wrapper):
     """This wrapper records videos of rollouts.
 
-    Usually, you only want to record episodes intermittently, say every hundreth episode.
-    To do this, you can specify **either** `episode_trigger` **or** `step_trigger` (not both).
+    Usually, you only want to record episodes intermittently, say every hundredth episode.
+    To do this, you can specify **either** :attr:`episode_trigger` **or** :attr:`step_trigger` (not both).
     They should be functions returning a boolean that indicates whether a recording should be started at the
     current episode or step, respectively.
-    If neither `episode_trigger` nor `step_trigger` is passed, a default `episode_trigger` will be employed.
+    If neither :attr:`episode_trigger` nor :attr:`step_trigger` is passed, a default :attr:`episode_trigger` will be employed.
     By default, the recording will be stopped once a `done` signal has been emitted by the environment. However, you can
     also create recordings of fixed length (possibly spanning several episodes) by passing a strictly positive value for
-    `video_length`.
-
-    Args:
-        env: The environment that will be wrapped
-        video_folder (str): The folder where the recordings will be stored
-        episode_trigger: Function that accepts an integer and returns `True` iff a recording should be started at this episode
-        step_trigger: Function that accepts an integer and returns `True` iff a recording should be started at this step
-        video_length (int): The length of recorded episodes. If 0, entire episodes are recorded. Otherwise, snippets of the specified length are captured
-        name_prefix (str): Will be prepended to the filename of the recordings
+    :attr:`video_length`.
     """
 
     def __init__(
@@ -52,7 +44,8 @@ class RecordVideo(gym.Wrapper):
             video_folder (str): The folder where the recordings will be stored
             episode_trigger: Function that accepts an integer and returns `True` iff a recording should be started at this episode
             step_trigger: Function that accepts an integer and returns `True` iff a recording should be started at this step
-            video_length (int): The length of recorded episodes. If 0, entire episodes are recorded. Otherwise, snippets of the specified length are captured
+            video_length (int): The length of recorded episodes. If 0, entire episodes are recorded.
+                Otherwise, snippets of the specified length are captured
             name_prefix (str): Will be prepended to the filename of the recordings
         """
         super().__init__(env)
@@ -71,7 +64,8 @@ class RecordVideo(gym.Wrapper):
         # Create output folder if needed
         if os.path.isdir(self.video_folder):
             logger.warn(
-                f"Overwriting existing videos at {self.video_folder} folder (try specifying a different `video_folder` for the `RecordVideo` wrapper if this is not desired)"
+                f"Overwriting existing videos at {self.video_folder} folder "
+                f"(try specifying a different `video_folder` for the `RecordVideo` wrapper if this is not desired)"
             )
         os.makedirs(self.video_folder, exist_ok=True)
 
@@ -92,7 +86,7 @@ class RecordVideo(gym.Wrapper):
         return observations
 
     def start_video_recorder(self):
-        """Starts video recorder using video_recorder.VideoRecorder."""
+        """Starts video recorder using :class:`video_recorder.VideoRecorder`."""
         self.close_video_recorder()
 
         video_name = f"{self.name_prefix}-step-{self.step_id}"
@@ -117,7 +111,7 @@ class RecordVideo(gym.Wrapper):
             return self.episode_trigger(self.episode_id)
 
     def step(self, action):
-        """Steps through the environment using action, recording observations if self.recording."""
+        """Steps through the environment using action, recording observations if :attr:`self.recording`."""
         observations, rewards, dones, infos = super().step(action)
 
         # increment steps and episodes

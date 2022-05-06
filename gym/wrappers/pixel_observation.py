@@ -13,7 +13,31 @@ STATE_KEY = "state"
 
 
 class PixelObservationWrapper(ObservationWrapper):
-    """Augment observations by pixel values."""
+    """Augment observations by pixel values.
+
+    Example:
+        >>> import gym
+        >>> env = gym.wrappers.PixelObservationWrapper(gym.make('CarRacing-v1'))
+        >>> obs = env.reset()
+        >>> obs.keys()
+        odict_keys(['pixels'])
+        >>> obs['pixels'].shape
+        (400, 600, 3)
+        >>> env = gym.wrappers.PixelObservationWrapper(gym.make('CarRacing-v1'), pixels_only=False)
+        >>> obs = env.reset()
+        >>> obs.keys()
+        odict_keys(['state', 'pixels'])
+        >>> obs['state'].shape
+        (96, 96, 3)
+        >>> obs['pixels'].shape
+        (400, 600, 3)
+        >>> env = gym.wrappers.PixelObservationWrapper(gym.make('CarRacing-v1'), pixel_keys=('obs',))
+        >>> obs = env.reset()
+        >>> obs.keys()
+        odict_keys(['obs'])
+        >>> obs['obs'].shape
+        (400, 600, 3)
+    """
 
     def __init__(
         self,
@@ -86,6 +110,7 @@ class PixelObservationWrapper(ObservationWrapper):
 
         # Extend observation space with pixels.
 
+        self.env.reset()
         pixels_spaces = {}
         for pixel_key in pixel_keys:
             pixels = self.env.render(**render_kwargs[pixel_key])
@@ -104,7 +129,6 @@ class PixelObservationWrapper(ObservationWrapper):
 
         self.observation_space.spaces.update(pixels_spaces)
 
-        self._env = env
         self._pixels_only = pixels_only
         self._render_kwargs = render_kwargs
         self._pixel_keys = pixel_keys

@@ -12,35 +12,20 @@ except ImportError:
 
 
 class AtariPreprocessing(gym.Wrapper):
-    """Atari 2600 preprocessings.
+    """Atari 2600 preprocessing wrapper.
 
-    This class follows the guidelines in
-    Machado et al. (2018), "Revisiting the Arcade Learning Environment:
-    Evaluation Protocols and Open Problems for General Agents".
+    This class follows the guidelines in Machado et al. (2018),
+    "Revisiting the Arcade Learning Environment: Evaluation Protocols and Open Problems for General Agents".
 
-    Specifically:
-
-    * NoopReset: obtain initial state by taking random number of no-ops on reset.
-    * Frame skipping: 4 by default
-    * Max-pooling: most recent two observations
-    * Termination signal when a life is lost: turned off by default. Not recommended by Machado et al. (2018).
-    * Resize to a square image: 84x84 by default
-    * Grayscale observation: optional
-    * Scale observation: optional
-
-    Args:
-        env (Env): The environment to apply the wrapper
-        noop_max (int): max number of no-ops
-        frame_skip (int): the frequency at which the agent experiences the game.
-        screen_size (int): resize Atari frame
-        terminal_on_life_loss (bool): if True, then step() returns done=True whenever a
-            life is lost.
-        grayscale_obs (bool): if True, then gray scale observation is returned, otherwise, RGB observation
-            is returned.
-        grayscale_newaxis (bool): if True and grayscale_obs=True, then a channel axis is added to
-            grayscale observations to make them 3-dimensional.
-        scale_obs (bool): if True, then observation normalized in range [0,1] is returned. It also limits memory
-            optimization benefits of FrameStack Wrapper.
+    Specifically, the following preprocess stages applies to the atari environment:
+    - Noop Reset: Obtains the initial state by taking a random number of no-ops on reset, default max 30 no-ops.
+    - Frame skipping: The number of frames skipped between steps, 4 by default
+    - Max-pooling: Pools over the most recent two observations from the frame skips
+    - Termination signal when a life is lost: When the agent losses a life during the environment, then the environment is terminated.
+        Turned off by default. Not recommended by Machado et al. (2018).
+    - Resize to a square image: Resizes the atari environment original observation shape from 210x180 to 84x84 by default
+    - Grayscale observation: If the observation is colour or greyscale, by default, greyscale.
+    - Scale observation: If to scale the observation between [0, 1) or [0, 255), by default, not scaled.
     """
 
     def __init__(
@@ -57,17 +42,17 @@ class AtariPreprocessing(gym.Wrapper):
         """Wrapper for Atari 2600 preprocessing.
 
         Args:
-            env (Env): The environment to apply the wrapper
-            noop_max (int): max number of no-ops
-            frame_skip (int): the frequency at which the agent experiences the game.
+            env (Env): The environment to apply the preprocessing
+            noop_max (int): For No-op reset, the max number no-ops actions are taken at reset, to turn off, set to 0.
+            frame_skip (int): The number of frames between new observation the agents observations effecting the frequency at which the agent experiences the game.
             screen_size (int): resize Atari frame
-            terminal_on_life_loss (bool): if True, then step() returns done=True whenever a
+            terminal_on_life_loss (bool): `if True`, then :meth:`step()` returns `done=True` whenever a
                 life is lost.
             grayscale_obs (bool): if True, then gray scale observation is returned, otherwise, RGB observation
                 is returned.
-            grayscale_newaxis (bool): if True and grayscale_obs=True, then a channel axis is added to
+            grayscale_newaxis (bool): `if True and grayscale_obs=True`, then a channel axis is added to
                 grayscale observations to make them 3-dimensional.
-            scale_obs (bool): if True, then observation normalized in range [0,1] is returned. It also limits memory
+            scale_obs (bool): if True, then observation normalized in range [0,1) is returned. It also limits memory
                 optimization benefits of FrameStack Wrapper.
         """
         super().__init__(env)
@@ -124,7 +109,7 @@ class AtariPreprocessing(gym.Wrapper):
         )
 
     def step(self, action):
-        """Applies the preprocessing for a step."""
+        """Applies the preprocessing for an :meth:`env.step`."""
         total_reward = 0.0
 
         for t in range(self.frame_skip):

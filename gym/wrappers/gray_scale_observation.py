@@ -9,9 +9,14 @@ from gym.spaces import Box
 class GrayScaleObservation(ObservationWrapper):
     """Convert the image observation from RGB to gray scale.
 
-    Args:
-        env (Env): The environment to apply the wrapper
-        keep_dim (bool): If `True`, a singleton dimension will be added, i.e. observations are of the shape AxBx1. Otherwise they are of shape AxB
+    Example:
+        >>> env = gym.make('CarRacing-v1')
+        >>> env.reset()
+        (96, 96, 3)
+        >>> env = gym.wrappers.GrayScaleObservation(gym.make('CarRacing-v1'))
+        (96, 96)
+        >>> env = gym.wrappers.GrayScaleObservation(gym.make('CarRacing-v1'), keep_dim=True)
+        (96, 96, 1)
     """
 
     def __init__(self, env: gym.Env, keep_dim: bool = False):
@@ -19,7 +24,8 @@ class GrayScaleObservation(ObservationWrapper):
 
         Args:
             env (Env): The environment to apply the wrapper
-            keep_dim (bool): If `True`, a singleton dimension will be added, i.e. observations are of the shape AxBx1. Otherwise they are of shape AxB
+            keep_dim (bool): If `True`, a singleton dimension will be added, i.e. observations are of the shape AxBx1.
+                Otherwise, they are of shape AxB.
         """
         super().__init__(env)
         self.keep_dim = keep_dim

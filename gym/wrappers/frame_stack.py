@@ -13,16 +13,10 @@ from gym.spaces import Box
 class LazyFrames:
     """Ensures common frames are only stored once to optimize memory use.
 
-    To further reduce the memory use, it is optionally to turn on lz4 to
-    compress the observations.
+    To further reduce the memory use, it is optionally to turn on lz4 to compress the observations.
 
-    .. note::
-
+    Note:
         This object should only be converted to numpy array just before forward pass.
-
-    Args:
-        frames (list): The frames to convert to lazy frames
-        lz4_compress (bool): Use lz4 to compress the frames internally
     """
 
     __slots__ = ("frame_shape", "dtype", "shape", "lz4_compress", "_frames")
@@ -106,17 +100,12 @@ class FrameStack(ObservationWrapper):
     is an array with shape [3], so if we stack 4 observations, the processed observation
     has shape [4, 3].
 
-    .. note::
+    Note:
+        - To be memory efficient, the stacked observations are wrapped by :class:`LazyFrame`.
+        - The observation space must be :class:`Box` type. If one uses :class:`Dict`
+          as observation space, it should apply :class:`FlattenDictWrapper` at first.
 
-        To be memory efficient, the stacked observations are wrapped by :class:`LazyFrame`.
-
-    .. note::
-
-        The observation space must be `Box` type. If one uses `Dict`
-        as observation space, it should apply `FlattenDictWrapper` at first.
-
-    Example::
-
+    Example:
         >>> import gym
         >>> env = gym.make('CarRacing-v1')
         >>> env = FrameStack(env, 4)
@@ -125,11 +114,6 @@ class FrameStack(ObservationWrapper):
         >>> obs = env.reset()
         >>> obs.shape
         (4, 96, 96, 3)
-
-    Args:
-        env (Env): The environment to apply the wrapper
-        num_stack (int): The number of frames to stack
-        lz4_compress (bool): Use lz4 to compress the frames internally
     """
 
     def __init__(self, env: gym.Env, num_stack: int, lz4_compress: bool = False):
@@ -154,13 +138,13 @@ class FrameStack(ObservationWrapper):
             low=low, high=high, dtype=self.observation_space.dtype
         )
 
-    def observation(self, _):
+    def observation(self, observation):
         """Converts the wrappers current frames to lazy frames.
 
         Args:
-            _: Ignored
+            observation: Ignored
 
-        Returns: LazyFrames for the current wrappers self.frames
+        Returns: LazyFrames for the current wrappers :attr:`self.frames`
         """
         assert len(self.frames) == self.num_stack, (len(self.frames), self.num_stack)
         return LazyFrames(list(self.frames), self.lz4_compress)

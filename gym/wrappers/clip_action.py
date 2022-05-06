@@ -7,18 +7,15 @@ from gym.spaces import Box
 
 
 class ClipAction(ActionWrapper):
-    """Clip the continuous action within the valid bound.
+    """Clip the continuous action within the valid Box observation space bound.
 
-    Example::
+    Example:
         >>> import gym
         >>> env = gym.make('Bipedal-Walker-v3')
         >>> env = ClipAction(env)
         >>> env.action_space
         Box(-1.0, 1.0, (4,), float32)
         >>> env.step(np.array([5.0, 2.0, -10.0, 0.0]))
-
-    Args:
-        env (Env): The environment to apply the wrapper
     """
 
     def __init__(self, env: gym.Env):

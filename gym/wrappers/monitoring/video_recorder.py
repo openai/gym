@@ -22,17 +22,10 @@ def touch(path: str):
 class VideoRecorder:
     """VideoRecorder renders a nice movie of a rollout, frame by frame.
 
-    It comes with an `enabled` option so you can still use the same code on episodes where you don't want to record video.
+    It comes with an `enabled` option, so you can still use the same code on episodes where you don't want to record video.
 
     Note:
         You are responsible for calling `close` on a created VideoRecorder, or else you may leak an encoder process.
-
-    Args:
-        env (Env): Environment to take video of.
-        path (Optional[str]): Path to the video file; will be randomly chosen if omitted.
-        metadata (Optional[dict]): Contents to save to the metadata file.
-        enabled (bool): Whether to actually record video, or just no-op (for convenience)
-        base_path (Optional[str]): Alternatively, path to the video file without extension, which will be added.
     """
 
     def __init__(
@@ -58,8 +51,8 @@ class VideoRecorder:
         backward_compatible_mode = env.metadata.get("render.modes", [])
         if len(modes) == 0 and len(backward_compatible_mode) > 0:
             logger.deprecation(
-                '`env.metadata["render.modes"] is marked as deprecated and will be replaced with `env.metadata["render_modes"]` '
-                "see https://github.com/openai/gym/pull/2654 for more details"
+                '`env.metadata["render.modes"] is marked as deprecated and will be replaced '
+                'with `env.metadata["render_modes"]` see https://github.com/openai/gym/pull/2654 for more details'
             )
             modes = backward_compatible_mode
 
@@ -105,17 +98,18 @@ class VideoRecorder:
         path_base, actual_ext = os.path.splitext(self.path)
 
         if actual_ext != required_ext:
-            hint = (
-                " HINT: The environment is text-only, therefore we're recording its text output in a structured JSON format."
-                if self.ansi_mode
-                else ""
-            )
+            if self.ansi_mode:
+                hint = (
+                    " HINT: The environment is text-only, "
+                    "therefore we're recording its text output in a structured JSON format."
+                )
+            else:
+                hint = ""
             raise error.Error(
                 f"Invalid path given: {self.path} -- must have file extension {required_ext}.{hint}"
             )
-        # Touch the file in any case, so we know it's present. (This
-        # corrects for platform platform differences. Using ffmpeg on
-        # OS X, the file is precreated, but not on Linux.
+        # Touch the file in any case, so we know it's present. This corrects for platform platform differences.
+        # Using ffmpeg on OS X, the file is precreated, but not on Linux.
         touch(path)
 
         self.frames_per_sec = env.metadata.get("render_fps", 30)
@@ -130,14 +124,14 @@ class VideoRecorder:
         )
         if self.frames_per_sec != self.backward_compatible_frames_per_sec:
             logger.deprecation(
-                '`env.metadata["video.frames_per_second"] is marked as deprecated and will be replaced with `env.metadata["render_fps"]` '
-                "see https://github.com/openai/gym/pull/2654 for more details"
+                '`env.metadata["video.frames_per_second"] is marked as deprecated and will be replaced '
+                'with `env.metadata["render_fps"]` see https://github.com/openai/gym/pull/2654 for more details'
             )
             self.frames_per_sec = self.backward_compatible_frames_per_sec
         if self.output_frames_per_sec != self.backward_compatible_output_frames_per_sec:
             logger.deprecation(
-                '`env.metadata["video.output_frames_per_second"] is marked as deprecated and will be replaced with `env.metadata["render_fps"]` '
-                "see https://github.com/openai/gym/pull/2654 for more details"
+                '`env.metadata["video.output_frames_per_second"] is marked as deprecated and will be replaced '
+                'with `env.metadata["render_fps"]` see https://github.com/openai/gym/pull/2654 for more details'
             )
             self.output_frames_per_sec = self.backward_compatible_output_frames_per_sec
 
@@ -181,9 +175,8 @@ class VideoRecorder:
                 # Indicates a bug in the environment: don't want to raise
                 # an error here.
                 logger.warn(
-                    "Env returned None on render(). Disabling further rendering for video recorder by marking as disabled: path=%s metadata_path=%s",
-                    self.path,
-                    self.metadata_path,
+                    "Env returned None on `render()`. Disabling further rendering for video recorder by marking as "
+                    f"disabled: path={self.path} metadata_path={self.metadata_path}"
                 )
                 self.broken = True
         else:
@@ -378,9 +371,8 @@ class ImageEncoder:
         h, w, pixfmt = frame_shape
         if pixfmt != 3 and pixfmt != 4:
             raise error.InvalidFrame(
-                "Your frame has shape {}, but we require (w,h,3) or (w,h,4), i.e., RGB values for a w-by-h image, with an optional alpha channel.".format(
-                    frame_shape
-                )
+                f"Your frame has shape {frame_shape}, but we require (w,h,3) or (w,h,4), "
+                "i.e., RGB values for a w-by-h image, with an optional alpha channel."
             )
         self.wh = (w, h)
         self.includes_alpha = pixfmt == 4
@@ -398,7 +390,11 @@ class ImageEncoder:
             self.backend = imageio_ffmpeg.get_ffmpeg_exe()
         else:
             raise error.DependencyNotInstalled(
-                """Found neither the ffmpeg nor avconv executables. On OS X, you can install ffmpeg via `brew install ffmpeg`. On most Ubuntu variants, `sudo apt-get install ffmpeg` should do it. On Ubuntu 14.04, however, you'll need to install avconv with `sudo apt-get install libav-tools`. Alternatively, please install imageio-ffmpeg with `pip install imageio-ffmpeg`"""
+                "Found neither the ffmpeg nor avconv executables. "
+                "On OS X, you can install ffmpeg via `brew install ffmpeg`. "
+                "On most Ubuntu variants, `sudo apt-get install ffmpeg` should do it. "
+                "On Ubuntu 14.04, however, you'll need to install avconv with `sudo apt-get install libav-tools`. "
+                "Alternatively, please install imageio-ffmpeg with `pip install imageio-ffmpeg`"
             )
 
         self.start()

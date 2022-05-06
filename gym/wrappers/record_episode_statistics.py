@@ -10,26 +10,21 @@ import gym
 class RecordEpisodeStatistics(gym.Wrapper):
     """This wrapper will keep track of cumulative rewards and episode lengths.
 
-    At the end of an episode, the statistics of the episode will be added to `info`. After the completion
-    of an episode, `info` will look like this:
-    ```
-    info = {
-        ...
-        "episode": {
-            "r": <cumulative reward>,
-            "l": <episode length>,
-            "t": <elapsed time since instantiation of wrapper>,
-        }
-        ...
-    }
-    ```
+    Example:
+        At the end of an episode, the statistics of the episode will be added to `info`. After the completion
+        of an episode, `info` will look like this:
+
+        >>> info = {
+        ...     ...
+        ...     "episode": {
+        ...         "r": "<cumulative reward>",
+        ...         "l": "<episode length>",
+        ...         "t": "<elapsed time since instantiation of wrapper>"
+        ...     },
+        ... }
 
     Moreover, the most recent rewards and episode lengths are stored in buffers that can be accessed via
-    `wrapped_env.return_queue` and wrapped_env.length_queue respectively.
-
-    Args:
-        env (Env): The environment to apply the wrapper
-        deque_size: The size of the buffers `return_queue` and `length_queue`
+    :attr:`wrapped_env.return_queue` and :attr:`wrapped_env.length_queue` respectively.
 
     Attributes:
         return_queue: The cumulative rewards of the last `deque_size`-many episodes
@@ -37,7 +32,12 @@ class RecordEpisodeStatistics(gym.Wrapper):
     """
 
     def __init__(self, env: gym.Env, deque_size: int = 100):
-        """This wrapper will keep track of cumulative rewards and episode lengths."""
+        """This wrapper will keep track of cumulative rewards and episode lengths.
+
+        Args:
+            env (Env): The environment to apply the wrapper
+            deque_size: The size of the buffers :attr:`return_queue` and :attr:`length_queue`
+        """
         super().__init__(env)
         self.num_envs = getattr(env, "num_envs", 1)
         self.t0 = time.perf_counter()

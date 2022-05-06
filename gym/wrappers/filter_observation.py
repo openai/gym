@@ -7,17 +7,21 @@ from gym import ObservationWrapper, spaces
 
 
 class FilterObservation(ObservationWrapper):
-    """Filter dictionary observations by their keys.
+    """Filter Dict observation space by the keys.
 
-    Args:
-        env: The environment to apply the wrapper
-        filter_keys: List of keys to be included in the observations
-
-    Raises:
-        ValueError: If observation keys in not instance of None or
-            iterable.
-        ValueError: If any of the `filter_keys` are not included in
-            the original `env`'s observation space
+    Example:
+        >>> import gym
+        >>> env = gym.wrappers.TransformObservation(
+        ...     gym.make('CartPole-v1'), lambda obs: {'obs': obs, 'time': 0}
+        ... )
+        >>> env.observation_space = gym.spaces.Dict(obs=env.observation_space, time=gym.spaces.Discrete(1))
+        >>> env.reset()
+        {'obs': array([-0.00067088, -0.01860439,  0.04772898, -0.01911527], dtype=float32), 'time': 0}
+        >>> env = FilterObservation(env, filter_keys=['time'])
+        >>> env.reset()
+        {'obs': array([ 0.04560107,  0.04466959, -0.0328232 , -0.02367178], dtype=float32)}
+        >>> env.step(0)
+        ({'obs': array([ 0.04649447, -0.14996664, -0.03329664,  0.25847703], dtype=float32)}, 1.0, False, {})
     """
 
     def __init__(self, env: gym.Env, filter_keys: Sequence[str] = None):
@@ -26,6 +30,12 @@ class FilterObservation(ObservationWrapper):
         Args:
             env: The environment to apply the wrapper
             filter_keys: List of keys to be included in the observations
+
+        Raises:
+            ValueError: If observation keys in not instance of None or
+                iterable.
+            ValueError: If any of the `filter_keys` are not included in
+                the original `env`'s observation space
         """
         super().__init__(env)
 
@@ -44,14 +54,10 @@ class FilterObservation(ObservationWrapper):
         if missing_keys:
             raise ValueError(
                 "All the filter_keys must be included in the "
-                "original obsrevation space.\n"
-                "Filter keys: {filter_keys}\n"
-                "Observation keys: {observation_keys}\n"
-                "Missing keys: {missing_keys}".format(
-                    filter_keys=filter_keys,
-                    observation_keys=observation_keys,
-                    missing_keys=missing_keys,
-                )
+                "original observation space.\n"
+                f"Filter keys: {filter_keys}\n"
+                f"Observation keys: {observation_keys}\n"
+                f"Missing keys: {missing_keys}"
             )
 
         self.observation_space = type(wrapped_observation_space)(
@@ -71,7 +77,8 @@ class FilterObservation(ObservationWrapper):
         Args:
             observation: The observation to filter
 
-        Returns: The filtered observations
+        Returns:
+            The filtered observations
         """
         filter_observation = self._filter_observation(observation)
         return filter_observation
