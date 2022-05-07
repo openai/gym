@@ -48,7 +48,7 @@ class FakeDictObservationEnvironment(FakeEnvironment):
         super().__init__(*args, **kwargs)
 
 
-class TestPixelObservationWrapper:
+class TestPixelObservationWrapper(gym.Wrapper):
     @pytest.mark.parametrize("pixels_only", (True, False))
     def test_dict_observation(self, pixels_only):
         pixel_key = "rgb"

@@ -43,7 +43,7 @@ class EnvDecorator(type):  # TODO: remove with gym 1.0
                     "use render_mode during environment initialization instead.\n"
                     "See here for more information: https://www.gymlibrary.ml/content/api/"
                 )
-            elif "render_mode" not in self.spec.kwargs.keys():  # type: ignore
+            elif self.spec is not None and "render_mode" not in self.spec.kwargs.keys():  # type: ignore
                 deprecation(
                     "You are calling render method, "
                     "but you didn't specified the argument render_mode at environment initialization. "
