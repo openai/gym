@@ -1,7 +1,17 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import Generic, Optional, SupportsFloat, Tuple, TypeVar, Union, List, Any, Dict, Callable
+from typing import (
+    Any,
+    Dict,
+    Generic,
+    List,
+    Optional,
+    SupportsFloat,
+    Tuple,
+    TypeVar,
+    Union,
+)
 
 from gym import spaces
 from gym.logger import deprecation
@@ -13,7 +23,7 @@ ActType = TypeVar("ActType")
 RenderFrame = TypeVar("RenderFrame")
 
 
-class EnvDecorator(type): # TODO: remove with gym 1.0
+class EnvDecorator(type):  # TODO: remove with gym 1.0
     def __new__(cls, name, bases, attr):
         if "render" in attr.keys():
             attr["render"] = EnvDecorator.deprecate_mode(attr["render"])
@@ -24,7 +34,9 @@ class EnvDecorator(type): # TODO: remove with gym 1.0
     def deprecate_mode(render_func):  # type: ignore
         render_return = Optional[Union[RenderFrame, List[RenderFrame]]]
 
-        def render(self: object, *args: Tuple[Any], **kwargs: Dict[str, Any]) -> render_return:
+        def render(
+            self: object, *args: Tuple[Any], **kwargs: Dict[str, Any]
+        ) -> render_return:
             if "mode" in kwargs.keys():
                 deprecation(
                     "The argument mode in render method is deprecated; "
