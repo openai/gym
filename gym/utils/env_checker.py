@@ -445,12 +445,19 @@ def env_checker_make(env: gym.Env) -> None:
         "return_info" in signature.parameters or "kwargs" in signature.parameters
     ), "The `reset` method does not provide the `return_info` keyword argument. You can disable this message by calling `gym.make(..., check_env=False)`"
 
-    assert hasattr(
-        env, "observation_space"
-    ), "You must specify an observation space. You can disable this message by calling `gym.make(..., check_env=False)`"
-    assert hasattr(
-        env, "action_space"
-    ), "You must specify an action space. You can disable this message by calling `gym.make(..., check_env=False)`"
+    try:
+        env.observation_space
+    except AttributeError:
+        raise gym.error.Error(
+            "You must specify an observation space. You can disable this message by calling `gym.make(..., check_env=False)`"
+        )
+
+    try:
+        env.action_space
+    except AttributeError:
+        raise gym.error.Error(
+            "You must specify an action space. You can disable this message by calling `gym.make(..., check_env=False)`"
+        )
 
     assert isinstance(
         env.observation_space, spaces.Space
