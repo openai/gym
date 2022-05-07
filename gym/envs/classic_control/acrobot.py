@@ -162,7 +162,8 @@ class AcrobotEnv(core.Env):
 
     def __init__(self, render_mode: Optional[str] = None):
         assert render_mode is None or render_mode in self.metadata["render_modes"]
-        self.renderer = Renderer(render_mode, self._render)
+        self.render_mode = render_mode
+        self.renderer = Renderer(self.render_mode, self._render)
         self.screen = None
         self.clock = None
         self.isopen = True
@@ -276,7 +277,7 @@ class AcrobotEnv(core.Env):
         return dtheta1, dtheta2, ddtheta1, ddtheta2, 0.0
 
     def render(self, mode="human"):
-        if self.renderer.mode is not None:
+        if self.render_mode is not None:
             return self.renderer.get_renders()
         else:
             return self._render(mode)

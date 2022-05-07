@@ -110,7 +110,8 @@ class MountainCarEnv(gym.Env):
         self.high = np.array([self.max_position, self.max_speed], dtype=np.float32)
 
         assert render_mode is None or render_mode in self.metadata["render_modes"]
-        self.renderer = Renderer(render_mode, self._render)
+        self.render_mode = render_mode
+        self.renderer = Renderer(self.render_mode, self._render)
 
         self.screen_width = 600
         self.screen_height = 400
@@ -162,7 +163,7 @@ class MountainCarEnv(gym.Env):
         return np.sin(3 * xs) * 0.45 + 0.55
 
     def render(self, mode="human"):
-        if self.renderer.mode is not None:
+        if self.render_mode is not None:
             return self.renderer.get_renders()
         else:
             return self._render(mode)

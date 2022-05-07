@@ -205,7 +205,8 @@ class CarRacing(gym.Env, EzPickle):
         )
 
         assert render_mode is None or render_mode in self.metadata["render_modes"]
-        self.renderer = Renderer(render_mode, self._render)
+        self.render_mode = render_mode
+        self.renderer = Renderer(self.render_mode, self._render)
 
     def _destroy(self):
         if not self.road:
@@ -494,7 +495,7 @@ class CarRacing(gym.Env, EzPickle):
         return self.state, step_reward, done, {}
 
     def render(self, mode: str = "human"):
-        if self.renderer.mode is not None:
+        if self.render_mode is not None:
             return self.renderer.get_renders()
         else:
             return self._render(mode)

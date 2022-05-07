@@ -84,13 +84,14 @@ class MujocoEnv(gym.Env):
         self._set_action_space()
 
         assert render_mode is None or render_mode in self.metadata["render_modes"]
-        self.renderer = Renderer(render_mode, self._render)
+        self.render_mode = render_mode
+        self.renderer = Renderer(self.render_mode, self._render)
         self.width = width
         self.height = height
         self.camera_id = camera_id
         self.camera_name = camera_name
 
-        if self.renderer.mode == "rgb_array" or self.renderer.mode == "depth_array":
+        if self.render_mode == "rgb_array" or self.render_mode == "depth_array":
             if self.camera_id is not None and self.camera_name is not None:
                 raise ValueError(
                     "Both `camera_id` and `camera_name` cannot be"
@@ -181,7 +182,7 @@ class MujocoEnv(gym.Env):
             self.sim.step()
 
     def render(self, mode="human"):
-        if self.renderer.mode is not None:
+        if self.render_mode is not None:
             return self.renderer.get_renders()
         else:
             return self._render(mode)

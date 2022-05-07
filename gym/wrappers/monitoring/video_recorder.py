@@ -17,8 +17,14 @@ def touch(path):
     open(path, "a").close()
 
 
-class VideoRecorder:
-    """VideoRecorder renders a nice movie of a rollout, frame by frame. It
+class VideoRecorder:  # TODO: remove with gym 1.0
+    """
+    Note:
+        VideoRecorder is deprecated.
+        Collect the frames with render_mode='rgb_array' and use an external library like MoviePy:
+        https://zulko.github.io/moviepy/getting_started/videoclips.html#videoclip
+
+    VideoRecorder renders a nice movie of a rollout, frame by frame. It
     comes with an `enabled` option so you can still use the same code
     on episodes where you don't want to record video.
 
@@ -36,6 +42,11 @@ class VideoRecorder:
 
     def __init__(self, env, path=None, metadata=None, enabled=True, base_path=None):
         modes = env.metadata.get("render_modes", [])
+        logger.deprecation(
+            "VideoRecorder is deprecated.\n"
+            "Collect the frames with render_mode='rgb_array' and use an external library like MoviePy: "
+            "https://zulko.github.io/moviepy/getting_started/videoclips.html#videoclip"
+        )
 
         # backward-compatibility mode:
         backward_compatible_mode = env.metadata.get("render.modes", [])

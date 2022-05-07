@@ -274,15 +274,13 @@ def _check_render(
                 "rendering may occur at inconsistent fps"
             )
 
-    else:
-        # Don't check render mode that require a
-        # graphical interface (useful for CI)
-        if headless and "human" in render_modes:
-            render_modes.remove("human")
-        # Check all declared render modes
-        for render_mode in render_modes:
-            env.render(mode=render_mode)
-        env.close()
+    if warn:
+        if not hasattr(env, "render_mode"):
+            logger.warn("Environments must define render_mode.")
+        elif env.render_mode is not None and env.render_mode not in render_modes:
+            logger.warn(
+                "The environment was initialized successfully with an unsupported render mode."
+            )
 
 
 def _check_reset_seed(env: gym.Env, seed: Optional[int] = None) -> None:

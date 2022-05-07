@@ -4,7 +4,7 @@ from abc import abstractmethod
 from typing import Generic, Optional, SupportsFloat, Tuple, TypeVar, Union
 
 from gym import spaces
-from gym.logger import deprecation
+from gym.logger import deprecate_mode, deprecation
 from gym.utils import seeding
 from gym.utils.seeding import RandomNumberGenerator
 
@@ -12,7 +12,15 @@ ObsType = TypeVar("ObsType")
 ActType = TypeVar("ActType")
 
 
-class Env(Generic[ObsType, ActType]):
+class EnvDecorator(type):
+    def __new__(mcs, name, bases, attr):
+        if "render" in attr.keys():
+            attr["render"] = deprecate_mode(attr["render"])
+
+        return super().__new__(mcs, name, bases, attr)
+
+
+class Env(Generic[ObsType, ActType], metaclass=EnvDecorator):
     """The main OpenAI Gym class. It encapsulates an environment with
     arbitrary behind-the-scenes dynamics. An environment can be
     partially or fully observed.
@@ -38,6 +46,9 @@ class Env(Generic[ObsType, ActType]):
 
     # Set this in SOME subclasses
     metadata = {"render_modes": []}
+    render_mode = (
+        None  # define render_mode if your environment supports some render modes
+    )
     reward_range = (-float("inf"), float("inf"))
     spec = None
 
@@ -121,7 +132,7 @@ class Env(Generic[ObsType, ActType]):
             self._np_random, seed = seeding.np_random(seed)
 
     @abstractmethod
-    def render(self, mode="human"):
+    def render(self, mode="human"):  # TODO: remove kwarg mode with gym 1.0
         """Compute the render(s) as specified by render_mode attribute during initialization of the environment.
 
         The set of supported modes varies per environment. (And some

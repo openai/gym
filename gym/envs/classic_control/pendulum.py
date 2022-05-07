@@ -92,7 +92,8 @@ class PendulumEnv(gym.Env):
         self.l = 1.0
 
         assert render_mode is None or render_mode in self.metadata["render_modes"]
-        self.renderer = Renderer(render_mode, self._render)
+        self.render_mode = render_mode
+        self.renderer = Renderer(self.render_mode, self._render)
 
         self.screen_dim = 500
         self.screen = None
@@ -152,7 +153,7 @@ class PendulumEnv(gym.Env):
         return np.array([np.cos(theta), np.sin(theta), thetadot], dtype=np.float32)
 
     def render(self, mode="human"):
-        if self.renderer.mode is not None:
+        if self.render_mode is not None:
             return self.renderer.get_renders()
         else:
             return self._render(mode)
@@ -245,7 +246,7 @@ class PendulumEnv(gym.Env):
                 self.clock.tick(self.metadata["render_fps"])
                 pygame.display.flip()
 
-            else:  # self.render_mode == "rgb_array":
+            else:  # mode == "rgb_array":
                 return np.transpose(
                     np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
                 )

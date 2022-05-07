@@ -91,7 +91,8 @@ class CliffWalkingEnv(Env):
         self.action_space = spaces.Discrete(self.nA)
 
         assert render_mode is None or render_mode in self.metadata["render_modes"]
-        self.renderer = Renderer(render_mode, self._render)
+        self.render_mode = render_mode
+        self.renderer = Renderer(self.render_mode, self._render)
 
     def _limit_coordinates(self, coord):
         """
@@ -149,7 +150,7 @@ class CliffWalkingEnv(Env):
             return int(self.s), {"prob": 1}
 
     def render(self, mode="human"):
-        if self.renderer.mode is not None:
+        if self.render_mode is not None:
             return self.renderer.get_renders()
         else:
             return self._render(mode)
