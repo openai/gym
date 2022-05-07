@@ -1,23 +1,48 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import Generic, Optional, SupportsFloat, Tuple, TypeVar, Union
+from typing import Generic, Optional, SupportsFloat, Tuple, TypeVar, Union, List, Any, Dict, Callable
 
 from gym import spaces
-from gym.logger import deprecate_mode, deprecation
+from gym.logger import deprecation
 from gym.utils import seeding
 from gym.utils.seeding import RandomNumberGenerator
 
 ObsType = TypeVar("ObsType")
 ActType = TypeVar("ActType")
+RenderFrame = TypeVar("RenderFrame")
 
 
-class EnvDecorator(type):
-    def __new__(mcs, name, bases, attr):
+class EnvDecorator(type): # TODO: remove with gym 1.0
+    def __new__(cls, name, bases, attr):
         if "render" in attr.keys():
-            attr["render"] = deprecate_mode(attr["render"])
+            attr["render"] = EnvDecorator.deprecate_mode(attr["render"])
 
-        return super().__new__(mcs, name, bases, attr)
+        return super().__new__(cls, name, bases, attr)
+
+    @staticmethod
+    def deprecate_mode(render_func):  # type: ignore
+        render_return = Optional[Union[RenderFrame, List[RenderFrame]]]
+
+        def render(self: object, *args: Tuple[Any], **kwargs: Dict[str, Any]) -> render_return:
+            if "mode" in kwargs.keys():
+                deprecation(
+                    "The argument mode in render method is deprecated; "
+                    "use render_mode during environment initialization instead.\n"
+                    "See here for more information: https://www.gymlibrary.ml/content/api/"
+                )
+            elif "render_mode" not in self.spec.kwargs.keys():  # type: ignore
+                deprecation(
+                    "You are calling render method, "
+                    "but you didn't specified the argument render_mode at environment initialization. "
+                    "To maintain backward compatibility, the environment will render in human mode.\n"
+                    "If you want to render in human mode, initialize the environment in this way: "
+                    "gym.make('EnvName', render_mode='human')"
+                )
+
+            return render_func(self, *args, **kwargs)
+
+        return render
 
 
 class Env(Generic[ObsType, ActType], metaclass=EnvDecorator):
@@ -132,7 +157,8 @@ class Env(Generic[ObsType, ActType], metaclass=EnvDecorator):
             self._np_random, seed = seeding.np_random(seed)
 
     @abstractmethod
-    def render(self, mode="human"):  # TODO: remove kwarg mode with gym 1.0
+    # TODO: remove kwarg mode with gym 1.0
+    def render(self, mode="human") -> Optional[Union[RenderFrame, List[RenderFrame]]]:
         """Compute the render(s) as specified by render_mode attribute during initialization of the environment.
 
         The set of supported modes varies per environment. (And some

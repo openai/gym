@@ -15,7 +15,7 @@ color2num = dict(
 )
 
 
-def colorize(string, color, bold=False, highlight=False):
+def colorize(string: str, color: str, bold=False, highlight=False):
     """Return string surrounded by appropriate terminal color codes to
     print colorized text.  Valid colors: gray, red, green, yellow,
     blue, magenta, cyan, white, crimson
