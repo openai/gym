@@ -8,11 +8,11 @@ from gym.wrappers import OrderEnforcing, TimeLimit
 
 
 class ArgumentEnv(core.Env):
-    observation_space = spaces.Box(low=0, high=1, shape=(1,))
-    action_space = spaces.Box(low=0, high=1, shape=(1,))
     calls = 0
 
     def __init__(self, arg):
+        self.observation_space = spaces.Box(low=0, high=1, shape=(1,))
+        self.action_space = spaces.Box(low=0, high=1, shape=(1,))
         self.calls += 1
         self.arg = arg
 
