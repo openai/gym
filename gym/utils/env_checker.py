@@ -426,3 +426,23 @@ def check_env(env: gym.Env, warn: bool = True, skip_render_check: bool = True) -
     _check_reset_seed(env, seed=0)
     _check_reset_options(env)
     _check_reset_info(env)
+
+
+def env_checker_make(env: gym.Env) -> None:
+    """
+    A partial env checker to be used in `gym.make`, which does not mutate the environment (e.g. by resetting it)
+    """
+    signature = inspect.signature(env.reset)
+    assert (
+        "return_info" in signature.parameters or "kwargs" in signature.parameters
+    ), "The `reset` method does not provide the `return_info` keyword argument"
+
+    assert (
+        "seed" in signature.parameters or "kwargs" in signature.parameters
+    ), "The environment cannot be reset with a random seed. This behavior will be deprecated in the future."
+
+    assert (
+        "return_info" in signature.parameters or "kwargs" in signature.parameters
+    ), "The `reset` method does not provide the `return_info` keyword argument"
+
+    _check_spaces(env)
