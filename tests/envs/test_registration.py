@@ -7,6 +7,9 @@ from gym.envs.classic_control import cartpole
 
 
 class ArgumentEnv(gym.Env):
+    observation_space = gym.spaces.Box(low=0, high=1, shape=(1,))
+    action_space = gym.spaces.Box(low=0, high=1, shape=(1,))
+
     def __init__(self, arg1, arg2, arg3):
         self.arg1 = arg1
         self.arg2 = arg2
