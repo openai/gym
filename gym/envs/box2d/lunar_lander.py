@@ -418,6 +418,19 @@ class LunarLander(gym.Env, EzPickle):
                 (wind_mag, 0.0),
                 True,
             )
+        
+            torque_mag = (
+                math.tanh(
+                    math.sin(0.02 * self.torque_idx)
+                    + (math.sin(math.pi * 0.01 * self.torque_idx))
+                )
+                * self.wind_power
+            )
+            self.torque_idx += 1
+            self.lander.ApplyTorque(
+                (torque_mag, 0.0),
+                True,
+            )
 
         if self.continuous:
             action = np.clip(action, -1, +1).astype(np.float32)
