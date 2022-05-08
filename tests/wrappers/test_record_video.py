@@ -94,7 +94,7 @@ def test_record_video_within_vector():
         # break when every env is done
         if "episode" in infos and all(infos["_episode"]):
             print(f"episode_reward={infos['episode']['r']}")
-            break
+
     assert os.path.isdir("videos")
     mp4_files = [file for file in os.listdir("videos") if file.endswith(".mp4")]
     assert len(mp4_files) == 2
