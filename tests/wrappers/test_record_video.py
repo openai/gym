@@ -1,8 +1,6 @@
 import os
 import shutil
 
-import pytest
-
 import gym
 from gym.wrappers import capped_cubic_video_schedule
 
@@ -92,30 +90,11 @@ def test_record_video_within_vector():
     envs.reset()
     for i in range(199):
         _, _, _, infos = envs.step(envs.action_space.sample())
-        for info in infos:
-            if "episode" in info.keys():
-                print(f"episode_reward={info['episode']['r']}")
-                break
-    assert os.path.isdir("videos")
-    mp4_files = [file for file in os.listdir("videos") if file.endswith(".mp4")]
-    assert len(mp4_files) == 2
-    shutil.rmtree("videos")
 
-
-@pytest.mark.filterwarnings(
-    "ignore::UserWarning"
-)  # bool dtype in key `Timelimit.truncated` raise an informative warning to the user
-def test_record_video_within_vector_brax_info():
-    envs = gym.vector.SyncVectorEnv(
-        [make_env("CartPole-v1", 1 + i) for i in range(2)], info_format="brax"
-    )
-    envs = gym.wrappers.RecordEpisodeStatistics(envs)
-    envs.reset()
-    for i in range(199):
-        _, _, _, infos = envs.step(envs.action_space.sample())
-        if infos:
-            assert type(infos) == dict
-            assert "episode" in infos
+        # break when every env is done
+        if "episode" in infos and all(infos["_episode"]):
+            print(f"episode_reward={infos['episode']['r']}")
+            break
     assert os.path.isdir("videos")
     mp4_files = [file for file in os.listdir("videos") if file.endswith(".mp4")]
     assert len(mp4_files) == 2

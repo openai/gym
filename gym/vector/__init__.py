@@ -10,9 +10,7 @@ from gym.vector.vector_env import VectorEnv, VectorEnvWrapper
 __all__ = ["AsyncVectorEnv", "SyncVectorEnv", "VectorEnv", "VectorEnvWrapper", "make"]
 
 
-def make(
-    id, num_envs=1, asynchronous=True, wrappers=None, info_format="classic", **kwargs
-):
+def make(id, num_envs=1, asynchronous=True, wrappers=None, **kwargs):
     """Create a vectorized environment from multiple copies of an environment,
     from its id.
 
@@ -32,11 +30,6 @@ def make(
     wrappers : callable, or iterable of callables, optional
         If not ``None``, then apply the wrappers to each internal
         environment during creation.
-
-    info_format : str, optional
-        Choose one of the available info formatting strategies. Default behaviour
-        is returning a list of dictionaries where each dictionary represents the
-        info of the environment at index i.
 
     Returns
     -------
@@ -69,8 +62,4 @@ def make(
         return env
 
     env_fns = [_make_env for _ in range(num_envs)]
-    return (
-        AsyncVectorEnv(env_fns, info_format=info_format)
-        if asynchronous
-        else SyncVectorEnv(env_fns, info_format=info_format)
-    )
+    return AsyncVectorEnv(env_fns) if asynchronous else SyncVectorEnv(env_fns)

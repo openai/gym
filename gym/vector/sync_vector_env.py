@@ -3,12 +3,7 @@ from typing import List, Optional, Union
 
 import numpy as np
 
-from gym.vector.utils import (
-    InfoStrategyFactory,
-    concatenate,
-    create_empty_array,
-    iterate,
-)
+from gym.vector.utils import BraxInfoProcessor, concatenate, create_empty_array, iterate
 from gym.vector.vector_env import VectorEnv
 
 __all__ = ["SyncVectorEnv"]
@@ -33,11 +28,6 @@ class SyncVectorEnv(VectorEnv):
     copy : bool
         If ``True``, then the :meth:`reset` and :meth:`step` methods return a
         copy of the observations.
-
-    info_format : str, optional
-        Choose one of the available info formatting strategies. Default behaviour
-        is returning a list of dictionaries where each dictionary represents the
-        info of the environment at index i.
 
     Raises
     ------
@@ -69,14 +59,12 @@ class SyncVectorEnv(VectorEnv):
         observation_space=None,
         action_space=None,
         copy=True,
-        info_format="classic",
     ):
         self.env_fns = env_fns
         self.envs = [env_fn() for env_fn in env_fns]
         self.copy = copy
         self.metadata = self.envs[0].metadata
-        self.info_format = info_format
-        self.info_strategy = InfoStrategyFactory.get_info_strategy(self.info_format)
+        self.info_processor = BraxInfoProcessor
 
         if (observation_space is None) or (action_space is None):
             observation_space = observation_space or self.envs[0].observation_space
@@ -120,7 +108,7 @@ class SyncVectorEnv(VectorEnv):
 
         self._dones[:] = False
         observations = []
-        data_list = self.info_strategy(self.num_envs)
+        data_list = self.info_processor(self.num_envs)
         for i, (env, single_seed) in enumerate(zip(self.envs, seed)):
 
             kwargs = {}
@@ -153,7 +141,7 @@ class SyncVectorEnv(VectorEnv):
         self._actions = iterate(self.action_space, actions)
 
     def step_wait(self):
-        observations, infos = [], self.info_strategy(self.num_envs)
+        observations, infos = [], self.info_processor(self.num_envs)
         for i, (env, action) in enumerate(zip(self.envs, self._actions)):
             observation, self._rewards[i], self._dones[i], info = env.step(action)
             if self._dones[i]:

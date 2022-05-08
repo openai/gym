@@ -1,14 +1,7 @@
 import pytest
 
 import gym
-from gym.error import InvalidInfoStrategy, NoMatchingInfoStrategy
-from gym.wrappers import (
-    BraxVecEnvStatsInfoStrategy,
-    ClassicVecEnvStatsInfoStrategy,
-    RecordEpisodeStatistics,
-    StatsInfoStrategyFactory,
-    StatstInfoStrategy,
-)
+from gym.wrappers import RecordEpisodeStatistics
 
 
 @pytest.mark.parametrize("env_id", ["CartPole-v1", "Pendulum-v1"])
@@ -57,21 +50,20 @@ def test_record_episode_statistics_with_vectorenv(num_envs, asynchronous):
     envs.reset()
     for _ in range(max_episode_step + 1):
         _, _, dones, infos = envs.step(envs.action_space.sample())
-        for idx, info in enumerate(infos):
-            if dones[idx]:
-                assert "episode" in info
-                assert all([item in info["episode"] for item in ["r", "l", "t"]])
-                break
+        if any(dones):
+            assert "episode" in infos
+            assert "_episode" in infos
+            assert all([item in infos["episode"] for item in ["r", "l", "t"]])
+            break
 
 
 @pytest.mark.parametrize(("num_envs", "asynchronous"), [(3, False), (3, True)])
 def test_episode_statistics_brax_info(num_envs, asynchronous):
-    envs = gym.vector.make(
-        "CartPole-v1", asynchronous=asynchronous, num_envs=num_envs, info_format="brax"
-    )
+    envs = gym.vector.make("CartPole-v1", asynchronous=asynchronous, num_envs=num_envs)
     envs = RecordEpisodeStatistics(envs)
     envs.reset()
     dones = [False for _ in range(num_envs)]
+
     actions = np.array([1, 0, 1])
     while not any(dones):
         _, _, dones, infos = envs.step(actions)
@@ -84,33 +76,3 @@ def test_episode_statistics_brax_info(num_envs, asynchronous):
             assert infos["terminal_observation"][i] is not None
         else:
             assert infos["terminal_observation"][i] is None
-
-
-@pytest.mark.parametrize(("info_format"), [("classic"), ("brax"), ("non_existent")])
-def test_get_statistic_info_strategy(info_format):
-    if info_format == "classic":
-        info_strategy = StatsInfoStrategyFactory.get_stats_info_strategy(info_format)
-        assert info_strategy == ClassicVecEnvStatsInfoStrategy
-    elif info_format == "brax":
-        info_strategy = StatsInfoStrategyFactory.get_stats_info_strategy(info_format)
-        assert info_strategy == BraxVecEnvStatsInfoStrategy
-    else:
-        with pytest.raises(NoMatchingInfoStrategy):
-            StatsInfoStrategyFactory.get_stats_info_strategy(info_format)
-
-
-def test_add_valid_stats_info_strategy():
-    class Strategy(StatstInfoStrategy):
-        ...
-
-    StatsInfoStrategyFactory.add_info_strategy("valid", Strategy)
-    info_strategy = StatsInfoStrategyFactory.get_stats_info_strategy("valid")
-    assert info_strategy == Strategy
-
-
-def test_add_not_valid_info_strategy():
-    class Strategy:
-        ...
-
-    with pytest.raises(InvalidInfoStrategy):
-        StatsInfoStrategyFactory.add_info_strategy("not_valid", Strategy)

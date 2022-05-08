@@ -1,10 +1,4 @@
-from gym.vector.utils.info_strategies import (
-    BraxVecEnvInfoStrategy,
-    ClassicVecEnvInfoStrategy,
-    InfoStrategiesEnum,
-    InfoStrategyFactory,
-    VecEnvInfoStrategy,
-)
+from gym.vector.utils.info_processor import BraxInfoProcessor
 from gym.vector.utils.misc import CloudpickleWrapper, clear_mpi_env_vars
 from gym.vector.utils.numpy_utils import concatenate, create_empty_array
 from gym.vector.utils.shared_memory import (
@@ -25,9 +19,5 @@ __all__ = [
     "_BaseGymSpaces",
     "batch_space",
     "iterate",
-    "ClassicVecEnvInfoStrategy",
-    "BraxVecEnvInfoStrategy",
-    "VecEnvInfoStrategy",
-    "InfoStrategiesEnum",
-    "InfoStrategyFactory",
+    "BraxInfoProcessor",
 ]

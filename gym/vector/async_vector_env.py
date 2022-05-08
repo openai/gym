@@ -15,8 +15,8 @@ from gym.error import (
     NoAsyncCallError,
 )
 from gym.vector.utils import (
+    BraxInfoProcessor,
     CloudpickleWrapper,
-    InfoStrategyFactory,
     clear_mpi_env_vars,
     concatenate,
     create_empty_array,
@@ -77,11 +77,6 @@ class AsyncVectorEnv(VectorEnv):
         Can be useful to override some inner vector env logic, for instance,
         how resets on done are handled.
 
-    info_format : str, optional
-        Choose one of the available info formatting strategies. Default behaviour
-        is returning a list of dictionaries where each dictionary represents the
-        info of the environment at index i.
-
     Warning
     -------
     :attr:`worker` is an advanced mode option. It provides a high degree of
@@ -128,7 +123,6 @@ class AsyncVectorEnv(VectorEnv):
         context=None,
         daemon=True,
         worker=None,
-        info_format="classic",
     ):
         ctx = mp.get_context(context)
         self.env_fns = env_fns
@@ -136,8 +130,7 @@ class AsyncVectorEnv(VectorEnv):
         self.copy = copy
         dummy_env = env_fns[0]()
         self.metadata = dummy_env.metadata
-        self.info_format = info_format
-        self.info_strategy = InfoStrategyFactory.get_info_strategy(self.info_format)
+        self.info_processor = BraxInfoProcessor
 
         if (observation_space is None) or (action_space is None):
             observation_space = observation_space or dummy_env.observation_space
@@ -319,7 +312,7 @@ class AsyncVectorEnv(VectorEnv):
         self._raise_if_errors(successes)
         self._state = AsyncState.DEFAULT
 
-        infos = self.info_strategy(self.num_envs)
+        infos = self.info_processor(self.num_envs)
         if return_info:
             results, info_data = zip(*results)
             for i, info in enumerate(info_data):
@@ -422,7 +415,7 @@ class AsyncVectorEnv(VectorEnv):
 
         observations_list, rewards, dones = [], [], []
         successes = []
-        infos = self.info_strategy(self.num_envs)
+        infos = self.info_processor(self.num_envs)
         for i, pipe in enumerate(self.parent_pipes):
             result, success = pipe.recv()
             obs, rew, done, info = result
