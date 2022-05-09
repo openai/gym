@@ -9,10 +9,6 @@ import gym
 from gym import error, spaces
 from gym.error import DependencyNotInstalled
 from gym.utils import EzPickle
-from gym.utils.action_validator import (
-    validate_action_continuous,
-    validate_action_discrete,
-)
 
 try:
     import Box2D
@@ -377,20 +373,9 @@ class LunarLander(gym.Env, EzPickle):
         self.drawlist = [self.lander] + self.legs
 
         if not return_info:
-            return self.step(
-                np.zeros(self.action_space.shape, dtype=self.action_space.dtype)
-                if self.continuous
-                else 0
-            )[0]
+            return self.step(np.array([0, 0]) if self.continuous else 0)[0]
         else:
-            return (
-                self.step(
-                    np.zeros(self.action_space.shape, dtype=self.action_space.dtype)
-                    if self.continuous
-                    else 0
-                )[0],
-                {},
-            )
+            return self.step(np.array([0, 0]) if self.continuous else 0)[0], {}
 
     def _create_particle(self, mass, x, y, ttl):
         p = self.world.CreateDynamicBody(
@@ -414,12 +399,7 @@ class LunarLander(gym.Env, EzPickle):
         while self.particles and (all or self.particles[0].ttl < 0):
             self.world.DestroyBody(self.particles.pop(0))
 
-    @validate_action_discrete
-    @validate_action_continuous
     def step(self, action):
-        if self.continuous:
-            action = np.clip(action, -1, +1).astype(np.float32)
-
         # Update wind
         if self.enable_wind and not (
             self.legs[0].ground_contact or self.legs[1].ground_contact
@@ -438,6 +418,13 @@ class LunarLander(gym.Env, EzPickle):
                 (wind_mag, 0.0),
                 True,
             )
+
+        if self.continuous:
+            action = np.clip(action, -1, +1).astype(np.float32)
+        else:
+            assert self.action_space.contains(
+                action
+            ), f"{action!r} ({type(action)}) invalid "
 
         # Engines
         tip = (math.sin(self.lander.angle), math.cos(self.lander.angle))
@@ -720,8 +707,6 @@ def heuristic(env, s):
             a = 3
         elif angle_todo > +0.05:
             a = 1
-    if isinstance(a, np.ndarray):
-        a = a.astype(env.action_space.dtype)
     return a
 
 

@@ -9,7 +9,6 @@ import gym
 from gym import error, spaces
 from gym.error import DependencyNotInstalled
 from gym.utils import EzPickle
-from gym.utils.action_validator import validate_action_continuous
 
 try:
     import Box2D
@@ -502,18 +501,10 @@ class BipedalWalker(gym.Env, EzPickle):
 
         self.lidar = [LidarCallback() for _ in range(10)]
         if not return_info:
-            return self.step(
-                np.zeros(self.action_space.shape, dtype=self.action_space.dtype)
-            )[0]
+            return self.step(np.array([0, 0, 0, 0]))[0]
         else:
-            return (
-                self.step(
-                    np.zeros(self.action_space.shape, dtype=self.action_space.dtype)
-                )[0],
-                {},
-            )
+            return self.step(np.array([0, 0, 0, 0]))[0], {}
 
-    @validate_action_continuous
     def step(self, action: np.ndarray):
         # self.hull.ApplyForceToCenter((0, 20), True) -- Uncomment this to receive a bit of stability help
         control_speed = False  # Should be easier as well

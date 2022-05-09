@@ -10,7 +10,6 @@ import numpy as np
 import gym
 from gym import spaces
 from gym.error import DependencyNotInstalled
-from gym.utils.action_validator import validate_action_discrete
 
 
 class MountainCarEnv(gym.Env):
@@ -113,8 +112,11 @@ class MountainCarEnv(gym.Env):
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(self.low, self.high, dtype=np.float32)
 
-    @validate_action_discrete
     def step(self, action: int):
+        assert self.action_space.contains(
+            action
+        ), f"{action!r} ({type(action)}) invalid"
+
         position, velocity = self.state
         velocity += (action - 1) * self.force + math.cos(3 * position) * (-self.gravity)
         velocity = np.clip(velocity, -self.max_speed, self.max_speed)

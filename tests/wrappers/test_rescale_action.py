@@ -20,12 +20,10 @@ def test_rescale_action():
     wrapped_obs = wrapped_env.reset(seed=seed)
     assert np.allclose(obs, wrapped_obs)
 
-    obs, reward, _, _ = env.step(np.array([1.5], dtype=env.action_space.dtype))
+    obs, reward, _, _ = env.step([1.5])
     with pytest.raises(AssertionError):
-        wrapped_env.step(np.array([1.5], dtype=env.action_space.dtype))
-    wrapped_obs, wrapped_reward, _, _ = wrapped_env.step(
-        np.array([0.75], dtype=env.action_space.dtype)
-    )
+        wrapped_env.step([1.5])
+    wrapped_obs, wrapped_reward, _, _ = wrapped_env.step([0.75])
 
     assert np.allclose(obs, wrapped_obs)
     assert np.allclose(reward, wrapped_reward)
