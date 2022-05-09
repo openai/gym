@@ -21,6 +21,8 @@ class OrderEnforcing(gym.Wrapper):
 
     def render(self, **kwargs):
         if self._disable_render_order_enforcing is False and not self._has_reset:
-            raise ResetNeeded("Cannot call env.render() before calling env.reset(), if this is a intended action, "
-                              "set `disable_render_order_enforcing` on the OrderEnforcer wrapper = False.")
+            raise ResetNeeded(
+                "Cannot call env.render() before calling env.reset(), if this is a intended action, "
+                "set `disable_render_order_enforcing` on the OrderEnforcer wrapper = False."
+            )
         return self.env.render(**kwargs)
