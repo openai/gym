@@ -8,6 +8,7 @@ import numpy as np
 from gym import Env, spaces, utils
 from gym.envs.toy_text.utils import categorical_sample
 from gym.error import DependencyNotInstalled
+from gym.utils.action_validator import validate_action_discrete
 
 LEFT = 0
 DOWN = 1
@@ -210,6 +211,7 @@ class FrozenLakeEnv(Env):
         self.goal_img = None
         self.start_img = None
 
+    @validate_action_discrete
     def step(self, a):
         transitions = self.P[self.s][a]
         i = categorical_sample([t[0] for t in transitions], self.np_random)

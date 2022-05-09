@@ -14,7 +14,7 @@ def test_clip_action():
     env.reset(seed=seed)
     wrapped_env.reset(seed=seed)
 
-    actions = [[0.4], [1.2], [-0.3], [0.0], [-2.5]]
+    actions = np.array([[0.4], [1.2], [-0.3], [0.0], [-2.5]], dtype="float32")
     for action in actions:
         obs1, r1, d1, _ = env.step(
             np.clip(action, env.action_space.low, env.action_space.high)
