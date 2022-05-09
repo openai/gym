@@ -35,6 +35,5 @@ def test_order_enforcing():
 
     # Assert that with disable_render_order_enforcing works
     env = CartPoleEnv()
-    env.disable_render_order_enforcing = True
-    env = OrderEnforcing(env)
+    env = OrderEnforcing(env, disable_render_order_enforcing=True)
     env.render()  # no assertion error
