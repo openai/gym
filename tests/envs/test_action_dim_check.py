@@ -59,6 +59,8 @@ def test_box_actions_out_of_bound(env, seed):
     The expected behaviour is that an action `out-of-bound` has the same effect
     of an action with value exactly at the upper (or lower) bound.
     """
+    OOB_VALUE = 100
+
     env.reset(seed=seed)
 
     oob_env = envs.make(env.spec.id)
@@ -74,7 +76,7 @@ def test_box_actions_out_of_bound(env, seed):
     ):
         if is_upper_bound:
             obs, _, _, _ = env.step(upper_bounds)
-            upper_bounds[i] += np.cast[dtype](100)
+            upper_bounds[i] += np.cast[dtype](OOB_VALUE)
             oob_obs, _, _, _ = oob_env.step(upper_bounds)
 
             assert np.alltrue(obs == oob_obs)
@@ -82,7 +84,7 @@ def test_box_actions_out_of_bound(env, seed):
 
         elif is_lower_bound:
             obs, _, _, _ = env.step(lower_bounds)
-            lower_bounds[i] -= np.cast[dtype](100)
+            lower_bounds[i] -= np.cast[dtype](OOB_VALUE)
             oob_obs, _, _, _ = oob_env.step(lower_bounds)
 
             assert np.alltrue(obs == oob_obs)
