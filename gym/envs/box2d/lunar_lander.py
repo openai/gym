@@ -191,6 +191,7 @@ class LunarLander(gym.Env, EzPickle):
 
         self.enable_wind = enable_wind
         self.wind_idx = np.random.randint(-9999, 9999)
+        self.torque_idx = np.random.randint(-9999, 9999)
 
         self.screen = None
         self.clock = None
@@ -418,9 +419,9 @@ class LunarLander(gym.Env, EzPickle):
                 (wind_mag, 0.0),
                 True,
             )
-            
+
             # the function used for torque is tanh(sin(2 k x) + sin(pi k x)),
-            # which is proven to never be periodic, k = 0.01            
+            # which is proven to never be periodic, k = 0.01
             torque_mag = (
                 math.tanh(
                     math.sin(0.02 * self.torque_idx)
@@ -430,7 +431,7 @@ class LunarLander(gym.Env, EzPickle):
             )
             self.torque_idx += 1
             self.lander.ApplyTorque(
-                (torque_mag, 0.0),
+                (torque_mag),
                 True,
             )
 
