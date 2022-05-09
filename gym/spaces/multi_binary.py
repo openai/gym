@@ -31,12 +31,12 @@ class MultiBinary(Space[np.ndarray]):
         n: Union[np.ndarray, Sequence[int], int],
         seed: Optional[int | seeding.RandomNumberGenerator] = None,
     ):
-        """Constructor of ``MultiBinary`` space.
+        """Constructor of :class:`MultiBinary` space.
 
         Args:
             n: This will fix the shape of elements of the space. It can either be an integer (if the space is flat)
                 or some sort of sequence (tuple, list or np.ndarray) if there are multiple axes.
-            seed: Optionally, you can use this argument to seed the RNG that is used to sample from the space
+            seed: Optionally, you can use this argument to seed the RNG that is used to sample from the space.
         """
         if isinstance(n, (Sequence, np.ndarray)):
             self.n = input_n = tuple(int(i) for i in n)

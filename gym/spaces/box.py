@@ -49,21 +49,22 @@ class Box(Space[np.ndarray]):
         dtype: Type = np.float32,
         seed: Optional[int | seeding.RandomNumberGenerator] = None,
     ):
-        r"""Constructor of ``Box``.
+        r"""Constructor of :class:`Box`.
 
         The argument ``low`` specifies the lower bound of each dimension and ``high`` specifies the upper bounds.
         I.e., the space that is constructed will be the product of the intervals :math:`[\text{low}[i], \text{high}[i]]`.
+
         If ``low`` (or ``high``) is a scalar, the lower bound (or upper bound, respectively) will be assumed to be
         this value across all dimensions.
 
 
         Args:
-            low (Union[SupportsFloat, np.ndarray]): Lower bounds of the intervals
-            high (Union[SupportsFloat, np.ndarray]): Upper bounds of the intervals
+            low (Union[SupportsFloat, np.ndarray]): Lower bounds of the intervals.
+            high (Union[SupportsFloat, np.ndarray]): Upper bounds of the intervals.
             shape (Optional[Sequence[int]]): This only needs to be specified if both ``low`` and ``high`` are scalars and determines the shape of the space.
                 Otherwise, the shape is inferred from the shape of ``low`` or ``high``.
-            dtype: The dtype of the elements of the space. If this is an integer type, the ``Box`` is essentially a discrete space.
-            seed: Optionally, you can use this argument to seed the RNG that is used to sample from the space
+            dtype: The dtype of the elements of the space. If this is an integer type, the :class:`Box` is essentially a discrete space.
+            seed: Optionally, you can use this argument to seed the RNG that is used to sample from the space.
         """
         assert dtype is not None, "dtype must be explicitly provided. "
         self.dtype = np.dtype(dtype)

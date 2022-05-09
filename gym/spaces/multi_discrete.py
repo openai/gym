@@ -12,11 +12,11 @@ from gym.utils import seeding
 
 
 class MultiDiscrete(Space[np.ndarray]):
-    """This represents the cartesian product of arbitrary `Discrete` spaces.
+    """This represents the cartesian product of arbitrary :class:`Discrete` spaces.
 
     It is useful to represent game controllers or keyboards where each key can be represented as a discrete action space.
 
-    .. note::
+    Note:
         Some environment wrappers assume a value of 0 always represents the NOOP action.
 
     e.g. Nintendo Game Controller - Can be conceptualized as 3 discrete action spaces:
@@ -35,12 +35,12 @@ class MultiDiscrete(Space[np.ndarray]):
         dtype=np.int64,
         seed: Optional[int | seeding.RandomNumberGenerator] = None,
     ):
-        """Constructor of ``MultiDiscrete`` space.
+        """Constructor of :class:`MultiDiscrete` space.
 
         The argument ``nvec`` will determine the number of values each categorical variable can take.
 
-        Although this feature is rarely used, ``MultiDiscrete`` spaces may also have several axes
-        if `nvec has several axes:
+        Although this feature is rarely used, :class:`MultiDiscrete` spaces may also have several axes
+        if ``nvec`` has several axes:
 
         Example::
 
@@ -52,8 +52,8 @@ class MultiDiscrete(Space[np.ndarray]):
         Args:
             nvec: vector of counts of each categorical variable. This will usually be a list of integers. However,
                 you may also pass a more complicated numpy array if you'd like the space to have several axes.
-            dtype: TODO
-            seed: Optionally, you can use this argument to seed the RNG that is used to sample from the space
+            dtype: This should be some kind of integer type.
+            seed: Optionally, you can use this argument to seed the RNG that is used to sample from the space.
         """
         self.nvec = np.array(nvec, dtype=dtype, copy=True)
         assert (self.nvec > 0).all(), "nvec (counts) have to be positive"
@@ -62,7 +62,7 @@ class MultiDiscrete(Space[np.ndarray]):
 
     @property
     def shape(self) -> tuple[int, ...]:
-        """Has stricter type than ``gym.Space` - never None."""
+        """Has stricter type than :class:`gym.Space` - never None."""
         return self._shape  # type: ignore
 
     def sample(self) -> np.ndarray:

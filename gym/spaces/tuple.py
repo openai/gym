@@ -10,9 +10,9 @@ from gym.utils import seeding
 
 
 class Tuple(Space[tuple], Sequence):
-    """A tuple (more precisely the cartesian product) of simpler spaces.
+    """A tuple (more precisely: the cartesian product) of :class:`Space` instances.
 
-    Elements of this space are tuples of elements of the simpler spaces.
+    Elements of this space are tuples of elements of the constituent spaces.
 
     Example usage::
 
@@ -26,13 +26,13 @@ class Tuple(Space[tuple], Sequence):
         spaces: Iterable[Space],
         seed: Optional[int | list[int] | seeding.RandomNumberGenerator] = None,
     ):
-        r"""Constructor of ``Tuple`` space.
+        r"""Constructor of :class:`Tuple`` space.
 
         The generated instance will represent the cartesian product :math:`\text{spaces}[0] \times ... \times \text{spaces}[-1]`.
 
         Args:
-            spaces (Iterable[Space]): The spaces that are involved in the cartesian product
-            seed: Optionally, you can use this argument to seed the RNG that is used to sample from the space
+            spaces (Iterable[Space]): The spaces that are involved in the cartesian product.
+            seed: Optionally, you can use this argument to seed the RNGs of the ``spaces`` to ensure reproducible sampling.
         """
         spaces = tuple(spaces)
         self.spaces = spaces

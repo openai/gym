@@ -13,9 +13,9 @@ from gym.utils import seeding
 
 
 class Dict(Space[TypingDict[str, Space]], Mapping):
-    """A dictionary of simpler spaces.
+    """A dictionary of :class:`Space` instances.
 
-    Elements of this space are (ordered) dictionaries of elements from the simpler spaces.
+    Elements of this space are (ordered) dictionaries of elements from the constituent spaces.
 
     Example usage::
 
@@ -43,22 +43,22 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
         ...     }
         ... )
 
-    It can be convenient to use ``Dict`` spaces if you want to make complex observations or actions more human-readable.
+    It can be convenient to use :class:`Dict` spaces if you want to make complex observations or actions more human-readable.
     Usually, it will be not be possible to use elements of this space directly in learning code. However, you can easily
-    convert `Dict` observations to flat arrays by using a ``FlattenObservation`` wrapper. Similar wrappers can be
-    implemented to deal with `Dict` actions.
+    convert `Dict` observations to flat arrays by using a :class:`gym.wrappers.FlattenObservation` wrapper. Similar wrappers can be
+    implemented to deal with :class:`Dict` actions.
     """
 
     def __init__(
         self,
-        spaces: dict[str, Space] | None = None,
+        spaces: Optional[dict[str, Space]] = None,
         seed: Optional[dict | int | seeding.RandomNumberGenerator] = None,
         **spaces_kwargs: Space,
     ):
-        """Constructor of `Dict` space.
+        """Constructor of :class:`Dict` space.
 
         This space can be instantiated in one of two ways: Either you pass a dictionary
-        of spaces to `__init__` via the ``spaces`` argument, or you pass the spaces as separate
+        of spaces to :meth:`__init__` via the ``spaces`` argument, or you pass the spaces as separate
         keyword arguments (where you will need to avoid the keys ``spaces`` and ``seed``)
 
         Example::
@@ -69,9 +69,9 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
             Dict(color:Discrete(3), position:Box(-1.0, 1.0, (2,), float32))
 
         Args:
-            spaces: A dictionary of spaces. This specifies the structure of the `Dict` space
-            seed: Optionally, you can use this argument to seed the RNG that is used to sample from the space
-            **spaces_kwargs: If `spaces` is `None`, you need to pass the simpler spaces as keyword arguments, as described above.
+            spaces: A dictionary of spaces. This specifies the structure of the :class:`Dict` space
+            seed: Optionally, you can use this argument to seed the RNGs of the spaces that make up the :class:`Dict` space.
+            **spaces_kwargs: If ``spaces`` is ``None``, you need to pass the constituent spaces as keyword arguments, as described above.
         """
         assert (spaces is None) or (
             not spaces_kwargs
@@ -139,7 +139,7 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
     def sample(self) -> dict:
         """Generates a single random sample from this space.
 
-        The sample is an ordered dictionary of independent samples from the simpler spaces.
+        The sample is an ordered dictionary of independent samples from the constituent spaces.
         """
         return OrderedDict([(k, space.sample()) for k, space in self.spaces.items()])
 
