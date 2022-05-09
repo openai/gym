@@ -422,13 +422,10 @@ class LunarLander(gym.Env, EzPickle):
 
             # the function used for torque is tanh(sin(2 k x) + sin(pi k x)),
             # which is proven to never be periodic, k = 0.01
-            torque_mag = (
-                math.tanh(
-                    math.sin(0.02 * self.torque_idx)
-                    + (math.sin(math.pi * 0.01 * self.torque_idx))
-                )
-                * self.wind_power
-            )
+            torque_mag = math.tanh(
+                math.sin(0.02 * self.torque_idx)
+                + (math.sin(math.pi * 0.01 * self.torque_idx))
+            ) * (self.wind_power * 0.2)
             self.torque_idx += 1
             self.lander.ApplyTorque(
                 (torque_mag),
