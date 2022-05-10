@@ -1,3 +1,4 @@
+"""Setups the project."""
 import itertools
 import os.path
 import sys

@@ -33,7 +33,7 @@ class AutoResetWrapper(gym.Wrapper):
     new observation from after calling self.env.reset() is returned
     by self.step() alongside the terminal reward and done state from the
     previous episode . If you need the terminal state from the previous
-    episode, you need to retrieve it via the the "terminal_observation" key
+    episode, you need to retrieve it via the "terminal_observation" key
     in the info dict. Make sure you know what you're doing if you
     use this wrapper!
     """
