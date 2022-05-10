@@ -20,14 +20,16 @@ class Env(Generic[ObsType, ActType]):
     An environment can be partially or fully observed.
 
     The main API methods that users of this class need to know are:
-    - :meth:`step` - Takes a step in the environment using an action returning the next observation,
-        reward, if the environment terminated and more information.
+
+    - :meth:`step` - Takes a step in the environment using an action returning the next observation, reward,
+      if the environment terminated and more information.
     - :meth:`reset` - Resets the environment to an initial state, returning the initial observation.
     - :meth:`render` - Renders the environment observation with modes depending on the output
     - :meth:`close` - Closes the environment, important for rendering where pygame is imported
-    - :meth:`seed` - Seeds the environment's random number generator, this is deprecated function for :meth:`reset(seed)`.
+    - :meth:`seed` - Seeds the environment's random number generator, :deprecated: in favor of `Env.reset(seed=seed)`.
 
     And set the following attributes:
+
     - :attr:`action_space` - The Space object corresponding to valid actions
     - :attr:`observation_space` - The Space object corresponding to valid observations
     - :attr:`reward_range` - A tuple corresponding to the minimum and maximum possible rewards
@@ -35,7 +37,7 @@ class Env(Generic[ObsType, ActType]):
     - :attr:`metadata` - The metadata of the environment, i.e. render modes
     - :attr:`np_random` - The random number generator for the environment
 
-    Note: a default reward range set to [-\inf,+\inf] already exists. Set it if you want a narrower range.
+    Note: a default reward range set to :math:`(-\infty,+\infty)` already exists. Set it if you want a narrower range.
     """
 
     # Set this in SOME subclasses
@@ -52,7 +54,7 @@ class Env(Generic[ObsType, ActType]):
 
     @property
     def np_random(self) -> RandomNumberGenerator:
-        """Returns the environment's internal :attr:`_np_random` that if not set will initialises with a random seed."""
+        """Returns the environment's internal :attr:`_np_random` that if not set will initialise with a random seed."""
         if self._np_random is None:
             self._np_random, seed = seeding.np_random()
         return self._np_random
@@ -72,15 +74,17 @@ class Env(Generic[ObsType, ActType]):
             action (object): an action provided by the agent
 
         Returns:
-            ``(observation, reward, done, info)``: A tuple containing the environment's current `observation`, `reward` for the previous step,
-            `done` if the episode has terminated and `info` for more information about the step.
-            For the `observation` this will be an element of the environment's :attr:`observation_space`. This may, for instance, be a numpy array containing the positions and velocities of certain objects.
-            For the `reward` will be the amount of reward returned after previous action.
-            `done` is whether the episode has ended, in which case further :meth:`step` calls will return undefined results.
-            A done signal may be emitted for different reasons: Maybe the task underlying the environment was solved successfully, a certain timelimit was exceeded, or the physics simulation has entered an invalid state.
-            `info` may contain additional information regarding the reason for a ``done`` signal.
-            `info` contains auxiliary diagnostic information (helpful for debugging, learning, and logging). This might, for instance, contain: metrics that describe the agent's performance state, variables that are hidden from observations,
-            information that distinguishes truncation and termination or individual reward terms that are combined to produce the total reward
+            observation (object): this will be an element of the environment's :attr:`observation_space`.
+                This may, for instance, be a numpy array containing the positions and velocities of certain objects.
+            reward (float): The amount of reward returned as a result of taking the action.
+            done (bool): A boolean value for if the episode has ended, in which case further :meth:`step` calls will return undefined results.
+                A done signal may be emitted for different reasons: Maybe the task underlying the environment was solved successfully,
+                a certain timelimit was exceeded, or the physics simulation has entered an invalid state.
+            info (dictionary): A dictionary that may contain additional information regarding the reason for a ``done`` signal.
+                `info` contains auxiliary diagnostic information (helpful for debugging, learning, and logging).
+                This might, for instance, contain: metrics that describe the agent's performance state, variables that are
+                hidden from observations, information that distinguishes truncation and termination or individual reward terms
+                that are combined to produce the total reward
         """
         raise NotImplementedError
 
@@ -94,26 +98,32 @@ class Env(Generic[ObsType, ActType]):
     ) -> Union[ObsType, tuple[ObsType, dict]]:
         """Resets the environment to an initial state and returns the initial observation.
 
-        This method can reset the environment's random number
-        generator(s) if :param:`seed` is an integer or if the environment has not
-        yet initialized a random number generator. If the environment already
-        has a random number generator and :meth:`reset` is called with ``seed=None``,
-        the RNG should not be reset.
-        Moreover, :meth:`reset` should (in the typical use case) be called with an
+        This method can reset the environment's random number generator(s) if ``seed`` is an integer or
+        if the environment has not yet initialized a random number generator.
+        If the environment already has a random number generator and :meth:`reset` is called with ``seed=None``,
+        the RNG should not be reset. Moreover, :meth:`reset` should (in the typical use case) be called with an
         integer seed right after initialization and then never again.
 
         Args:
-            seed (int or None): The seed that is used to initialize the environment's PRNG.
-                If the environment does not already have a PRNG and ``seed=None`` (the default option) is passed, a seed will be chosen from some source of entropy (e.g. timestamp or /dev/urandom).
-                However, if the environment already has a PRNG and ``seed=None`` is passed, the PRNG will *not* be reset. If you pass an integer, the PRNG will be reset even if it already exists.
-                Usually, you want to pass an integer *right after the environment has been initialized and then never again*. Please refer to the minimal example above to see this paradigm in action.
-            return_info (bool): If true, return additional information along with initial observation. This info should be analogous to the info returned in :meth:`step`
-            options (dict or None): Additional information to specify how the environment is reset (optional, depending on the specific environment)
+            seed (optional int): The seed that is used to initialize the environment's PRNG.
+                If the environment does not already have a PRNG and ``seed=None`` (the default option) is passed,
+                a seed will be chosen from some source of entropy (e.g. timestamp or /dev/urandom).
+                However, if the environment already has a PRNG and ``seed=None`` is passed, the PRNG will *not* be reset.
+                If you pass an integer, the PRNG will be reset even if it already exists.
+                Usually, you want to pass an integer *right after the environment has been initialized and then never again*.
+                Please refer to the minimal example above to see this paradigm in action.
+            return_info (bool): If true, return additional information along with initial observation.
+                This info should be analogous to the info returned in :meth:`step`
+            options (optional dict): Additional information to specify how the environment is reset (optional,
+                depending on the specific environment)
 
 
         Returns:
-            observation (object): Observation of the initial state. This will be an element of :attr:`observation_space` (usually a numpy array) and is analogous to the observation returned by :meth:`step`.
-            info (optional dictionary): This will *only* be returned if ``return_info=True`` is passed. It contains auxiliary information complementing ``observation``. This dictionary should be analogous to the ``info`` returned by :meth:`step`.
+            observation (object): Observation of the initial state. This will be an element of :attr:`observation_space`
+                (typically a numpy array) and is analogous to the observation returned by :meth:`step`.
+            info (optional dictionary): This will *only* be returned if ``return_info=True`` is passed.
+                It contains auxiliary information complementing ``observation``. This dictionary should be analogous to
+                the ``info`` returned by :meth:`step`.
         """
         # Initialize the RNG if the seed is manually passed
         if seed is not None:
@@ -129,7 +139,7 @@ class Env(Generic[ObsType, ActType]):
 
         - human: render to the current display or terminal and
           return nothing. Usually for human consumption.
-        - rgb_array: Return an numpy.ndarray with shape (x, y, 3),
+        - rgb_array: Return a numpy.ndarray with shape (x, y, 3),
           representing RGB values for an x-by-y pixel image, suitable
           for turning into a video.
         - ansi: Return a string (str) or StringIO.StringIO containing a
@@ -138,8 +148,8 @@ class Env(Generic[ObsType, ActType]):
 
         Note:
             Make sure that your class's metadata 'render_modes' key includes
-              the list of supported modes. It's recommended to call super()
-              in implementations to use the functionality of this method.
+            the list of supported modes. It's recommended to call super()
+            in implementations to use the functionality of this method.
 
         Example:
             >>> class MyEnv(Env):
@@ -154,33 +164,20 @@ class Env(Generic[ObsType, ActType]):
             ...            super(MyEnv, self).render(mode=mode) # just raise an exception
 
         Args:
-            mode (str): the mode to render with
-
-        Example::
-
-            class MyEnv(Env):
-                metadata = {'render_modes': ['human', 'rgb_array']}
-
-                def render(self, mode='human'):
-                    if mode == 'rgb_array':
-                        return np.array(...) # return RGB frame suitable for video
-                    elif mode == 'human':
-                        ... # pop up a window and render
-                    else:
-                        super(MyEnv, self).render(mode=mode) # just raise an exception
+            mode: the mode to render with, valid modes are `env.metadata["render_modes"]`
         """
         raise NotImplementedError
 
     def close(self):
         """Override close in your subclass to perform any necessary cleanup.
 
-        Environments will automatically close() themselves when
+        Environments will automatically :meth:`close()` themselves when
         garbage collected or when the program exits.
         """
         pass
 
     def seed(self, seed=None):
-        """Deprecated function that sets the seed for the env's random number generator(s).
+        """:deprecated: function that sets the seed for the environment's random number generator(s).
 
         Use `env.reset(seed=seed)` as the new API for setting the seed of the environment.
 
@@ -189,12 +186,15 @@ class Env(Generic[ObsType, ActType]):
             We want to capture all such seeds used in order to ensure that
             there aren't accidental correlations between multiple generators.
 
+        Args:
+            seed(Optional int): The seed value for the random number geneartor
+
         Returns:
-            list<bigint>: Returns the list of seeds used in this env's random
+            seeds (List[int]): Returns the list of seeds used in this environment's random
               number generators. The first value in the list should be the
               "main" seed, or the value which a reproducer should pass to
               'seed'. Often, the main seed equals the provided 'seed', but
-              this won't be true if seed=None, for example.
+              this won't be true `if seed=None`, for example.
         """
         deprecation(
             "Function `env.seed(seed)` is marked as deprecated and will be removed in the future. "
@@ -255,7 +255,7 @@ class Wrapper(Env[ObsType, ActType]):
         self._metadata: Optional[dict] = None
 
     def __getattr__(self, name):
-        """Returns an attribute with :param:`name`, unless :param:`name` starts with an underscore."""
+        """Returns an attribute with ``name``, unless ``name`` starts with an underscore."""
         if name.startswith("_"):
             raise AttributeError(f"accessing private attribute '{name}' is prohibited")
         return getattr(self.env, name)
@@ -380,7 +380,7 @@ class RewardWrapper(Wrapper):
 
     @abstractmethod
     def reward(self, reward):
-        """Returns a modified :param:`reward`."""
+        """Returns a modified ``reward``."""
         raise NotImplementedError
 
 
@@ -388,7 +388,7 @@ class ActionWrapper(Wrapper):
     """A wrapper that can modify the action before :meth:`env.step`."""
 
     def step(self, action):
-        """Runs the environment :meth:`env.step` using the modified :param:`action` from :meth:`self.action`."""
+        """Runs the environment :meth:`env.step` using the modified ``action`` from :meth:`self.action`."""
         return self.env.step(self.action(action))
 
     @abstractmethod
@@ -398,5 +398,5 @@ class ActionWrapper(Wrapper):
 
     @abstractmethod
     def reverse_action(self, action):
-        """Returns a reversed :param:`action`."""
+        """Returns a reversed ``action``."""
         raise NotImplementedError
