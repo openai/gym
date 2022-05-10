@@ -76,16 +76,16 @@ def test_box_actions_out_of_bound(env, seed):
     ):
         if is_upper_bound:
             obs, _, _, _ = env.step(upper_bounds)
-            upper_bounds[i] += np.cast[dtype](OOB_VALUE)
+            oob_action = upper_bounds.copy()
+            oob_action[i] += np.cast[dtype](OOB_VALUE)
             oob_obs, _, _, _ = oob_env.step(upper_bounds)
 
             assert np.alltrue(obs == oob_obs)
-            return
 
-        elif is_lower_bound:
+        if is_lower_bound:
             obs, _, _, _ = env.step(lower_bounds)
-            lower_bounds[i] -= np.cast[dtype](OOB_VALUE)
+            oob_action = lower_bounds.copy()
+            oob_action[i] -= np.cast[dtype](OOB_VALUE)
             oob_obs, _, _, _ = oob_env.step(lower_bounds)
 
             assert np.alltrue(obs == oob_obs)
-            return
