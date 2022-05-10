@@ -1,3 +1,4 @@
+"""Implementation of a space that represents the cartesian product of other spaces as a dictionary."""
 from __future__ import annotations
 
 from collections import OrderedDict
@@ -12,43 +13,66 @@ from gym.utils import seeding
 
 
 class Dict(Space[TypingDict[str, Space]], Mapping):
-    """
-    A dictionary of simpler spaces.
+    """A dictionary of :class:`Space` instances.
+
+    Elements of this space are (ordered) dictionaries of elements from the constituent spaces.
 
     Example usage::
 
-        self.observation_space = spaces.Dict({"position": spaces.Discrete(2), "velocity": spaces.Discrete(3)})
+        >>> observation_space = spaces.Dict({"position": spaces.Discrete(2), "velocity": spaces.Discrete(3)})
+        >>> observation_space.sample()
+        OrderedDict([('position', 1), ('velocity', 2)])
 
     Example usage [nested]::
 
-        self.nested_observation_space = spaces.Dict({
-            'sensors':  spaces.Dict({
-                'position': spaces.Box(low=-100, high=100, shape=(3,)),
-                'velocity': spaces.Box(low=-1, high=1, shape=(3,)),
-                'front_cam': spaces.Tuple((
-                    spaces.Box(low=0, high=1, shape=(10, 10, 3)),
-                    spaces.Box(low=0, high=1, shape=(10, 10, 3))
-                )),
-                'rear_cam': spaces.Box(low=0, high=1, shape=(10, 10, 3)),
-            }),
-            'ext_controller': spaces.MultiDiscrete((5, 2, 2)),
-            'inner_state':spaces.Dict({
-                'charge': spaces.Discrete(100),
-                'system_checks': spaces.MultiBinary(10),
-                'job_status': spaces.Dict({
-                    'task': spaces.Discrete(5),
-                    'progress': spaces.Box(low=0, high=100, shape=()),
-                })
-            })
-        })
+        >>> spaces.Dict(
+        ...     {
+        ...         "ext_controller": spaces.MultiDiscrete((5, 2, 2)),
+        ...         "inner_state": spaces.Dict(
+        ...             {
+        ...                 "charge": spaces.Discrete(100),
+        ...                 "system_checks": spaces.MultiBinary(10),
+        ...                 "job_status": spaces.Dict(
+        ...                     {
+        ...                         "task": spaces.Discrete(5),
+        ...                         "progress": spaces.Box(low=0, high=100, shape=()),
+        ...                     }
+        ...                 ),
+        ...             }
+        ...         ),
+        ...     }
+        ... )
+
+    It can be convenient to use :class:`Dict` spaces if you want to make complex observations or actions more human-readable.
+    Usually, it will be not be possible to use elements of this space directly in learning code. However, you can easily
+    convert `Dict` observations to flat arrays by using a :class:`gym.wrappers.FlattenObservation` wrapper. Similar wrappers can be
+    implemented to deal with :class:`Dict` actions.
     """
 
     def __init__(
         self,
-        spaces: dict[str, Space] | None = None,
+        spaces: Optional[dict[str, Space]] = None,
         seed: Optional[dict | int | seeding.RandomNumberGenerator] = None,
         **spaces_kwargs: Space,
     ):
+        """Constructor of :class:`Dict` space.
+
+        This space can be instantiated in one of two ways: Either you pass a dictionary
+        of spaces to :meth:`__init__` via the ``spaces`` argument, or you pass the spaces as separate
+        keyword arguments (where you will need to avoid the keys ``spaces`` and ``seed``)
+
+        Example::
+
+            >>> spaces.Dict({"position": spaces.Box(-1, 1, shape=(2,)), "color": spaces.Discrete(3)})
+            Dict(color:Discrete(3), position:Box(-1.0, 1.0, (2,), float32))
+            >>> spaces.Dict(position=spaces.Box(-1, 1, shape=(2,)), color=spaces.Discrete(3))
+            Dict(color:Discrete(3), position:Box(-1.0, 1.0, (2,), float32))
+
+        Args:
+            spaces: A dictionary of spaces. This specifies the structure of the :class:`Dict` space
+            seed: Optionally, you can use this argument to seed the RNGs of the spaces that make up the :class:`Dict` space.
+            **spaces_kwargs: If ``spaces`` is ``None``, you need to pass the constituent spaces as keyword arguments, as described above.
+        """
         assert (spaces is None) or (
             not spaces_kwargs
         ), "Use either Dict(spaces=dict(...)) or Dict(foo=x, bar=z)"
@@ -75,6 +99,7 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
         )  # None for shape and dtype, since it'll require special handling
 
     def seed(self, seed: Optional[dict | int] = None) -> list:
+        """Seed the PRNG of this space and all subspaces."""
         seeds = []
         if isinstance(seed, dict):
             for key, seed_key in zip(self.spaces, seed):
@@ -112,9 +137,14 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
         return seeds
 
     def sample(self) -> dict:
+        """Generates a single random sample from this space.
+
+        The sample is an ordered dictionary of independent samples from the constituent spaces.
+        """
         return OrderedDict([(k, space.sample()) for k, space in self.spaces.items()])
 
     def contains(self, x) -> bool:
+        """Return boolean specifying if x is a valid member of this space."""
         if not isinstance(x, dict) or len(x) != len(self.spaces):
             return False
         for k, space in self.spaces.items():
@@ -125,18 +155,23 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
         return True
 
     def __getitem__(self, key):
+        """Get the space that is associated to `key`."""
         return self.spaces[key]
 
     def __setitem__(self, key, value):
+        """Set the space that is associated to `key`."""
         self.spaces[key] = value
 
     def __iter__(self):
+        """Iterator through the keys of the subspaces."""
         yield from self.spaces
 
     def __len__(self) -> int:
+        """Gives the number of simpler spaces that make up the `Dict` space."""
         return len(self.spaces)
 
     def __repr__(self) -> str:
+        """Gives a string representation of this space."""
         return (
             "Dict("
             + ", ".join([str(k) + ":" + str(s) for k, s in self.spaces.items()])
@@ -144,6 +179,7 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
         )
 
     def to_jsonable(self, sample_n: list) -> dict:
+        """Convert a batch of samples from this space to a JSONable data type."""
         # serialize as dict-repr of vectors
         return {
             key: space.to_jsonable([sample[key] for sample in sample_n])
@@ -151,6 +187,7 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
         }
 
     def from_jsonable(self, sample_n: dict[str, list]) -> list:
+        """Convert a JSONable data type to a batch of samples from this space."""
         dict_of_list: dict[str, list] = {}
         for key, space in self.spaces.items():
             dict_of_list[key] = space.from_jsonable(sample_n[key])
