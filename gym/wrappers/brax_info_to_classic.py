@@ -1,3 +1,5 @@
+from typing import List
+
 import gym
 
 
@@ -26,9 +28,26 @@ class BraxInfoToClassic(gym.Wrapper):
 
     def step(self, action):
         observation, reward, done, infos = self.env.step(action)
-        # TODO
-        return observation, reward, done, infos
+
+        classic_info = self._convert_brax_info_to_classic(infos)
+
+        return observation, reward, done, classic_info
 
     def reset(self, **kwargs):
-        # TODO
-        ...
+        if not kwargs.get("return_info"):
+            obs = self.env.reset(**kwargs)
+            return obs
+
+        obs, infos = self.env.reset(**kwargs)
+        classic_info = self._convert_brax_info_to_classic(infos)
+        return obs, classic_info
+
+    def _convert_brax_info_to_classic(self, infos: dict) -> List[dict]:
+        classic_info = [{} for _ in range(self.num_envs)]
+        for k in infos:
+            if k.startswith("_"):
+                continue
+            for i, has_info in enumerate(infos[f"_{k}"]):
+                if has_info:
+                    classic_info[i][k] = infos[k][i]
+        return classic_info
