@@ -20,6 +20,7 @@ import numpy as np
 
 import gym
 from gym import spaces
+from gym.error import DependencyNotInstalled
 
 
 class Continuous_MountainCarEnv(gym.Env):
@@ -172,8 +173,13 @@ class Continuous_MountainCarEnv(gym.Env):
         return np.sin(3 * xs) * 0.45 + 0.55
 
     def render(self, mode="human"):
-        import pygame
-        from pygame import gfxdraw
+        try:
+            import pygame
+            from pygame import gfxdraw
+        except ImportError:
+            raise DependencyNotInstalled(
+                "pygame is not installed, run `pip install gym[classic_control]`"
+            )
 
         screen_width = 600
         screen_height = 400

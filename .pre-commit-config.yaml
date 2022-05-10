@@ -42,3 +42,14 @@ repos:
       - id: pyupgrade
         # TODO: remove `--keep-runtime-typing` option
         args: ["--py37-plus", "--keep-runtime-typing"]
+  - repo: local
+    hooks:
+      - id: pyright
+        name: pyright
+        entry: pyright
+        language: node
+        pass_filenames: false
+        types: [python]
+        additional_dependencies: ["pyright"]
+        args:
+          - --project=pyproject.toml

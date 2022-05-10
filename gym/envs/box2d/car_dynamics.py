@@ -10,7 +10,14 @@ Created by Oleg Klimov
 import math
 
 import numpy as np
-from Box2D.b2 import fixtureDef, polygonShape, revoluteJointDef
+
+from gym.error import DependencyNotInstalled
+
+try:
+    from Box2D.b2 import fixtureDef, polygonShape, revoluteJointDef
+except ImportError:
+    raise DependencyNotInstalled("box2D is not installed, run `pip install gym[box2d]`")
+
 
 SIZE = 0.02
 ENGINE_POWER = 100000000 * SIZE * SIZE

@@ -7,6 +7,34 @@ import gym
 
 
 class RecordEpisodeStatistics(gym.Wrapper):
+    """This wrapper will keep track of cumulative rewards and episode lengths.
+
+    At the end of an episode, the statistics of the episode will be added to `info`. After the completion
+    of an episode, `info` will look like this:
+
+    ```
+    info = {
+        ...
+        "episode": {
+            "r": <cumulative reward>,
+            "l": <episode length>,
+            "t": <elapsed time since instantiation of wrapper>,
+        }
+        ...
+    }
+    ```
+
+    Moreover, the most recent rewards and episode lengths are stored in buffers that can be accessed via
+    `wrapped_env.return_queue` and wrapped_env.length_queue respectively.
+
+    Args:
+        deque_size: The size of the buffers `return_queue` and `length_queue`
+
+    Attributes:
+        return_queue: The cumulative rewards of the last `deque_size`-many episodes
+        length_queue: The lengths of the last `deque_size`-many episodes
+    """
+
     def __init__(self, env, deque_size=100):
         super().__init__(env)
         self.num_envs = getattr(env, "num_envs", 1)
