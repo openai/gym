@@ -262,6 +262,12 @@ class VectorEnvWrapper(VectorEnv):
     def seed(self, seed=None):
         return self.env.seed(seed)
 
+    def call(self, name, *args, **kwargs):
+        return self.env.call(name, *args, **kwargs)
+
+    def set_attr(self, name, values):
+        return self.env.set_attr(name, values)
+
     # implicitly forward all other methods and attributes to self.env
     def __getattr__(self, name):
         if name.startswith("_"):
@@ -274,3 +280,6 @@ class VectorEnvWrapper(VectorEnv):
 
     def __repr__(self):
         return f"<{self.__class__.__name__}, {self.env}>"
+
+    def __del__(self):
+        self.env.__del__()
