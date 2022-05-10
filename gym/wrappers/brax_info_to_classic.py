@@ -48,6 +48,19 @@ class BraxInfoToClassic(gym.Wrapper):
             if k.startswith("_"):
                 continue
             for i, has_info in enumerate(infos[f"_{k}"]):
+
+                # TODO: simplify this block
+                # used when this wrapper wraps also RecordEpisodeStatistic
+                if k == "episode":
+                    for statistic in ["r", "l", "t"]:
+                        if "episode" not in classic_info[i] and has_info:
+                            classic_info[i]["episode"] = {}
+                        if has_info:
+                            classic_info[i]["episode"][statistic] = infos[k][statistic][
+                                i
+                            ]
+                    continue
+
                 if has_info:
                     classic_info[i][k] = infos[k][i]
         return classic_info
