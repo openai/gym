@@ -37,7 +37,7 @@ class Env(Generic[ObsType, ActType]):
     - :attr:`metadata` - The metadata of the environment, i.e. render modes
     - :attr:`np_random` - The random number generator for the environment
 
-    Note: a default reward range set to :math:`[-\infty,+\infty]` already exists. Set it if you want a narrower range.
+    Note: a default reward range set to :math:`(-\infty,+\infty)` already exists. Set it if you want a narrower range.
     """
 
     # Set this in SOME subclasses
