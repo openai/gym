@@ -1,3 +1,5 @@
+"""Test environment determinism by performing a rollout."""
+
 import numpy as np
 import pytest
 
@@ -76,6 +78,14 @@ def test_env(spec):
 
 
 def assert_equals(a, b, prefix=None):
+    """Assert equality of data structures `a` and `b`.
+
+    Args:
+        a: first data structure
+        b: second data structure
+        prefix: prefix for failed assertion message for types and dicts
+
+    """
     assert type(a) == type(b), f"{prefix}Differing types: {a} and {b}"
     if isinstance(a, dict):
         assert list(a.keys()) == list(b.keys()), f"{prefix}Key sets differ: {a} and {b}"
