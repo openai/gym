@@ -40,7 +40,8 @@ class TimeAwareObservation(ObservationWrapper):
         Args:
             observation: The observation to add the time step to
 
-        Returns: The observation with the time step appended to
+        Returns:
+            The observation with the time step appended to
         """
         return np.append(observation, self.t)
 
@@ -50,7 +51,8 @@ class TimeAwareObservation(ObservationWrapper):
         Args:
             action: The action to take
 
-        Returns: The environment's step using the action.
+        Returns:
+            The environment's step using the action.
         """
         self.t += 1
         return super().step(action)
@@ -61,7 +63,8 @@ class TimeAwareObservation(ObservationWrapper):
         Args:
             **kwargs: Kwargs to apply to env.reset()
 
-        Returns: The reset environment
+        Returns:
+            The reset environment
         """
         self.t = 0
         return super().reset(**kwargs)

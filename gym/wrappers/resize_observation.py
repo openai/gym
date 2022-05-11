@@ -50,7 +50,8 @@ class ResizeObservation(ObservationWrapper):
         Args:
             observation: The observation to reshape
 
-        Returns: The reshaped observations
+        Returns:
+            The reshaped observations
         """
         try:
             import cv2

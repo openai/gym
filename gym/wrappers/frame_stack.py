@@ -49,7 +49,8 @@ class LazyFrames:
         Args:
             dtype: The dtype of the stacked frames
 
-        Returns: The array of stacked frames with dtype
+        Returns:
+            The array of stacked frames with dtype
         """
         arr = self[:]
         if dtype is not None:
@@ -59,7 +60,8 @@ class LazyFrames:
     def __len__(self):
         """Returns the number of frame stacks.
 
-        Returns: The number of frame stacks
+        Returns:
+            The number of frame stacks
         """
         return self.shape[0]
 
@@ -69,7 +71,8 @@ class LazyFrames:
         Args:
             int_or_slice: Index or slice to get items for
 
-        Returns: np.stacked frames for the int or slice
+        Returns:
+            np.stacked frames for the int or slice
 
         """
         if isinstance(int_or_slice, int):
@@ -144,7 +147,8 @@ class FrameStack(ObservationWrapper):
         Args:
             observation: Ignored
 
-        Returns: LazyFrames for the current wrappers :attr:`self.frames`
+        Returns:
+            LazyFrames for the current wrappers :attr:`self.frames`
         """
         assert len(self.frames) == self.num_stack, (len(self.frames), self.num_stack)
         return LazyFrames(list(self.frames), self.lz4_compress)
@@ -155,7 +159,8 @@ class FrameStack(ObservationWrapper):
         Args:
             action: The action to step through the environment with
 
-        Returns: Stacked observations, reward, done and information from the environment
+        Returns:
+            Stacked observations, reward, done and information from the environment
         """
         observation, reward, done, info = self.env.step(action)
         self.frames.append(observation)
@@ -167,7 +172,8 @@ class FrameStack(ObservationWrapper):
         Args:
             **kwargs: The kwargs for the environment reset
 
-        Returns: The stacked observations
+        Returns:
+            The stacked observations
         """
         if kwargs.get("return_info", False):
             obs, info = self.env.reset(**kwargs)

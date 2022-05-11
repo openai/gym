@@ -64,7 +64,8 @@ class RescaleAction(gym.ActionWrapper):
         Args:
             action: The action to rescale
 
-        Returns: The rescaled action
+        Returns:
+            The rescaled action
         """
         assert np.all(np.greater_equal(action, self.min_action)), (
             action,

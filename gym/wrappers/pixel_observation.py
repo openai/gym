@@ -141,7 +141,8 @@ class PixelObservationWrapper(ObservationWrapper):
         Args:
             observation: The observation to add pixel observations for
 
-        Returns: The updated pixel observations
+        Returns:
+            The updated pixel observations
         """
         pixel_observation = self._add_pixel_observation(observation)
         return pixel_observation

@@ -51,7 +51,8 @@ class GrayScaleObservation(ObservationWrapper):
         Args:
             observation: Colour observations
 
-        Returns: Grayscale observations
+        Returns:
+            Grayscale observations
         """
         import cv2
 

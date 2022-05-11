@@ -33,6 +33,7 @@ class ClipAction(ActionWrapper):
         Args:
             action: The action to clip
 
-        Returns: The clipped action
+        Returns:
+            The clipped action
         """
         return np.clip(action, self.action_space.low, self.action_space.high)

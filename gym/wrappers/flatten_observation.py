@@ -35,6 +35,7 @@ class FlattenObservation(ObservationWrapper):
         Args:
             observation: The observation to flatten
 
-        Returns: The flattened observation
+        Returns:
+            The flattened observation
         """
         return spaces.flatten(self.env.observation_space, observation)

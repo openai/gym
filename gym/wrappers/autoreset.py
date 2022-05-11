@@ -46,7 +46,8 @@ class AutoResetWrapper(gym.Wrapper):
         Args:
             action: The action to take
 
-        Returns: The autoreset environment :meth:`step`
+        Returns:
+            The autoreset environment :meth:`step`
         """
         obs, reward, done, info = self.env.step(action)
 
