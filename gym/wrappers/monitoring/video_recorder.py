@@ -27,7 +27,7 @@ class VideoRecorder:
     It comes with an `enabled` option, so you can still use the same code on episodes where you don't want to record video.
 
     Note:
-        You are responsible for calling `close` on a created VideoRecorder, or else you may leak an encoder process.
+        You are responsible for calling :meth:`close` on a created VideoRecorder, or else you may leak an encoder process.
     """
 
     def __init__(
