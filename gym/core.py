@@ -349,7 +349,32 @@ class Wrapper(Env[ObsType, ActType]):
 
 
 class ObservationWrapper(Wrapper):
-    """A wrapper that can modify observations using :meth:`observation` for :meth:`reset` and :meth:`step`."""
+    """Superclass of wrappers that can modify observations using :meth:`observation` for :meth:`reset` and :meth:`step`.
+
+    If you would like to apply a function to the observation that is returned by the base environment before
+    passing it to learning code, you can simply inherit from :class:`ObservationWrapper` and overwrite the method
+    :meth:`observation` to implement that transformation. The transformation defined in that method must be
+    defined on the base environment’s observation space. However, it may take values in a different space.
+    In that case, you need to specify the new observation space of the wrapper by setting :attr:`self._observation_space`
+    in the :meth:`__init__` method of your wrapper.
+
+    For example, you might have a 2D navigation task where the environment returns dictionaries as observations with
+    keys ``"agent_position"`` and ``"target_position"``. A common thing to do might be to throw away some degrees of
+    freedom and only consider the position of the target relative to the agent, i.e.
+    ``observation["target_position"] - observation["agent_position"]``. For this, you could implement an
+    observation wrapper like this::
+
+        class RelativePosition(gym.ObservationWrapper):
+            def __init__(self, env):
+                super().__init__(env)
+                self._observation_space = Box(shape=(2,), low=-np.inf, high=np.inf)
+
+            def observation(self, obs):
+                return obs["target"] - obs["agent"]
+
+    Among others, Gym provides the observation wrapper :class:`TimeAwareObservation`, which adds information about the
+    index of the timestep to the observation.
+    """
 
     def reset(self, **kwargs):
         """Resets the environment, returning a modified observation using :meth:`self.observation`."""
@@ -371,7 +396,28 @@ class ObservationWrapper(Wrapper):
 
 
 class RewardWrapper(Wrapper):
-    """A wrapper that can modify the returning reward from a step."""
+    """Superclass of wrappers that can modify the returning reward from a step.
+
+    If you would like to apply a function to the reward that is returned by the base environment before
+    passing it to learning code, you can simply inherit from :class:`RewardWrapper` and overwrite the method
+    :meth:`reward` to implement that transformation.
+    This transformation might change the reward range; to specify the reward range of your wrapper,
+    you can simply define :attr:`self._reward_range` in :meth:`__init__`.
+
+    Let us look at an example: Sometimes (especially when we do not have control over the reward
+    because it is intrinsic), we want to clip the reward to a range to gain some numerical stability.
+    To do that, we could, for instance, implement the following wrapper::
+
+        class ClipReward(gym.RewardWrapper):
+            def __init__(self, env, min_reward, max_reward):
+                super().__init__(env)
+                self.min_reward = min_reward
+                self.max_reward = max_reward
+                self._reward_range = (min_reward, max_reward)
+
+            def reward(self, reward):
+                return np.clip(reward, self.min_reward, self.max_reward)
+    """
 
     def step(self, action):
         """Modifies the reward using :meth:`self.reward` after the environment :meth:`env.step`."""
@@ -385,7 +431,36 @@ class RewardWrapper(Wrapper):
 
 
 class ActionWrapper(Wrapper):
-    """A wrapper that can modify the action before :meth:`env.step`."""
+    """Superclass of wrappers that can modify the action before :meth:`env.step`.
+
+    If you would like to apply a function to the action before passing it to the base environment,
+    you can simply inherit from :class:`ActionWrapper` and overwrite the method :meth:`action` to implement
+    that transformation. The transformation defined in that method must take values in the base environment’s
+    action space. However, its domain might differ from the original action space.
+    In that case, you need to specify the new action space of the wrapper by setting :attr:`self._action_space` in
+    the :meth:`__init__` method of your wrapper.
+
+    Let’s say you have an environment with action space of type :class:`gym.spaces.Box`, but you would only like
+    to use a finite subset of actions. Then, you might want to implement the following wrapper::
+
+        class DiscreteActions(gym.ActionWrapper):
+            def __init__(self, env, disc_to_cont):
+                super().__init__(env)
+                self.disc_to_cont = disc_to_cont
+                self._action_space = Discrete(len(disc_to_cont))
+
+            def action(self, act):
+                return self.disc_to_cont[act]
+
+        if __name__ == "__main__":
+            env = gym.make("LunarLanderContinuous-v2")
+            wrapped_env = DiscreteActions(env, [np.array([1,0]), np.array([-1,0]),
+                                                np.array([0,1]), np.array([0,-1])])
+            print(wrapped_env.action_space)         #Discrete(4)
+
+
+    Among others, Gym provides the action wrappers :class:`ClipAction` and :class:`RescaleAction`.
+    """
 
     def step(self, action):
         """Runs the environment :meth:`env.step` using the modified ``action`` from :meth:`self.action`."""
