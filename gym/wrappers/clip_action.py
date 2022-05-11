@@ -16,6 +16,7 @@ class ClipAction(ActionWrapper):
         >>> env.action_space
         Box(-1.0, 1.0, (4,), float32)
         >>> env.step(np.array([5.0, 2.0, -10.0, 0.0]))
+        # Executes the action np.array([1.0, 1.0, -1.0, 0]) in the base environment
     """
 
     def __init__(self, env: gym.Env):
