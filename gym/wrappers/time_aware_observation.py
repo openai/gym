@@ -22,7 +22,7 @@ class TimeAwareObservation(ObservationWrapper):
     """
 
     def __init__(self, env: gym.Env):
-        """Initialise time aware observation that requires an environment with a Box observation space.
+        """Initialize :class:`TimeAwareObservation` that requires an environment with a flat :class:`Box` observation space.
 
         Args:
             env: The environment to apply the wrapper
