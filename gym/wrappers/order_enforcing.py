@@ -29,7 +29,7 @@ class OrderEnforcing(gym.Wrapper):
         return self.env.step(action)
 
     def reset(self, **kwargs):
-        """Resets the environment with :param:`kwargs`."""
+        """Resets the environment with `kwargs`."""
         self._has_reset = True
         return self.env.reset(**kwargs)
 
