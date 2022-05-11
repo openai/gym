@@ -9,7 +9,7 @@ class TimeLimit(gym.Wrapper):
 
     Oftentimes, it is **very** important to distinguish `done` signals that were produced by the
     `TimeLimit` wrapper (truncations) and those that originate from the underlying environment (terminations).
-    This can be done by looking at the `info` that is returned when `done` signal was issued.
+    This can be done by looking at the ``info`` that is returned when `done`-signal was issued.
     The done-signal originates from the time limit (i.e. it signifies a *truncation*) if and only if
     the key `"TimeLimit.truncated"` exists in ``info`` and the corresponding value is ``True``.
 
