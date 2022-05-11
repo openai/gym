@@ -65,12 +65,7 @@ def test_env(spec):
 
         assert rew1 == rew2, f"[{i}] r1: {rew1}, r2: {rew2}"
         assert done1 == done2, f"[{i}] d1: {done1}, d2: {done2}"
-
-        # Go returns a Pachi game board in info, which doesn't
-        # properly check equality. For now, we hack around this by
-        # just skipping Go.
-        if spec.id not in ["Go9x9-v0", "Go19x19-v0"]:
-            assert_equals(info1, info2, f"[{i}] ")
+        assert_equals(info1, info2, f"[{i}] ")
 
         if done1:  # done2 verified in previous assertion
             env1.reset(seed=SEED)
