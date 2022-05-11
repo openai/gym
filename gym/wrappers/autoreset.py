@@ -3,41 +3,23 @@ import gym
 
 
 class AutoResetWrapper(gym.Wrapper):
-    """A class for providing an automatic reset functionality for gym environments when calling :meth:`self.step()`.
+    """A class for providing an automatic reset functionality for gym environments when calling :meth:`self.step`.
 
-    When calling step causes :meth:`self.env.step()` to return done, :meth:`self.env.reset` is called,
-    and the return format of :meth:`self.step()` is as follows: `(new_obs, terminal_reward, terminal_done, info)`
-     - new_obs is the first observation after calling :meth:`self.env.reset`
-     - terminal_reward is the reward after calling :meth:`self.env.step`, prior to calling :meth:`self.env.reset`.
-     - terminal_done is always True
-     - info is a dict containing all the keys from the info dict returned by the call to :meth:`self.env.reset`,
+    When calling step causes :meth:`Env.step` to return done, :meth:`Env.reset` is called,
+    and the return format of :meth:`self.step` is as follows: `(new_obs, terminal_reward, terminal_done, info)`
+     - ``new_obs`` is the first observation after calling :meth:`self.env.reset`
+     - ``terminal_reward`` is the reward after calling :meth:`self.env.step`, prior to calling :meth:`self.env.reset`.
+     - ``terminal_done`` is always True
+     - ``info`` is a dict containing all the keys from the info dict returned by the call to :meth:`self.env.reset`,
        with an additional key "terminal_observation" containing the observation returned by the last call to :meth:`self.env.step`
        and "terminal_info" containing the info dict returned by the last call to :meth:`self.env.step`.
 
-    `If done is not true` when :meth:`self.env.step` is called, :meth:`self.step` returns obs, reward, done, and info as normal.
-
-    terminal_reward is the reward after calling self.env.step(),
-    prior to calling self.env.reset()
-
-    terminal_done is always True
-
-    info is a dict containing all the keys from the info dict returned by
-    the call to self.env.reset(), with an additional key "terminal_observation"
-    containing the observation returned by the last call to self.env.step()
-    and "terminal_info" containing the info dict returned by the last call
-    to self.env.step().
-
-    If done is not true when self.env.step() is called, self.step() returns
-    obs, reward, done, and info as normal.
-
-    Warning: When using this wrapper to collect rollouts, note
-    that the when self.env.step() returns done, a
-    new observation from after calling self.env.reset() is returned
-    by self.step() alongside the terminal reward and done state from the
-    previous episode . If you need the terminal state from the previous
-    episode, you need to retrieve it via the "terminal_observation" key
-    in the info dict. Make sure you know what you're doing if you
-    use this wrapper!
+    Warning: When using this wrapper to collect rollouts, note that when :meth:`Env.step` returns done, a
+        new observation from after calling :meth:`Env.reset` is returned by :meth:`Env.step` alongside the
+        terminal reward and done state from the previous episode.
+        If you need the terminal state from the previous episode, you need to retrieve it via the
+        "terminal_observation" key in the info dict.
+        Make sure you know what you're doing if you use this wrapper!
     """
 
     def step(self, action):
