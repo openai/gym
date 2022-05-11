@@ -1,4 +1,4 @@
-"""Module of wrapper functions."""
+"""Module of wrapper classes."""
 from gym.wrappers.atari_preprocessing import AtariPreprocessing
 from gym.wrappers.autoreset import AutoResetWrapper
 from gym.wrappers.clip_action import ClipAction
