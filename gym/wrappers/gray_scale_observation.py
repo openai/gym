@@ -1,4 +1,4 @@
-"""Wrapper that converts a colour observation to greyscale."""
+"""Wrapper that converts a color observation to grayscale."""
 import numpy as np
 
 import gym
@@ -11,12 +11,14 @@ class GrayScaleObservation(ObservationWrapper):
 
     Example:
         >>> env = gym.make('CarRacing-v1')
-        >>> env.reset()
-        (96, 96, 3)
-        >>> env = gym.wrappers.GrayScaleObservation(gym.make('CarRacing-v1'))
-        (96, 96)
-        >>> env = gym.wrappers.GrayScaleObservation(gym.make('CarRacing-v1'), keep_dim=True)
-        (96, 96, 1)
+        >>> env.observation_space
+        Box(0, 255, (96, 96, 3), uint8)
+        >>> env = GrayScaleObservation(gym.make('CarRacing-v1'))
+        >>> env.observation_space
+        Box(0, 255, (96, 96), uint8)
+        >>> env = GrayScaleObservation(gym.make('CarRacing-v1'), keep_dim=True)
+        >>> env.observation_space
+        Box(0, 255, (96, 96, 1), uint8)
     """
 
     def __init__(self, env: gym.Env, keep_dim: bool = False):
