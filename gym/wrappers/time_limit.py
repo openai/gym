@@ -8,7 +8,7 @@ class TimeLimit(gym.Wrapper):
     """This wrapper will issue a `done` signal if a maximum number of timesteps is exceeded.
 
     Oftentimes, it is **very** important to distinguish `done` signals that were produced by the
-    `TimeLimit` wrapper (truncations) and those that originate from the underlying environment (terminations).
+    :class:`TimeLimit` wrapper (truncations) and those that originate from the underlying environment (terminations).
     This can be done by looking at the ``info`` that is returned when `done`-signal was issued.
     The done-signal originates from the time limit (i.e. it signifies a *truncation*) if and only if
     the key `"TimeLimit.truncated"` exists in ``info`` and the corresponding value is ``True``.
