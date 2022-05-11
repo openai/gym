@@ -9,18 +9,33 @@ def test_env(spec):
     # Note that this precludes running this test in multiple
     # threads. However, we probably already can't do multithreading
     # due to some environments.
+    SEED = 0
+    NUM_STEPS = 50
+
     env1 = spec.make()
-    initial_observation1 = env1.reset(seed=0)
-    env1.action_space.seed(0)
-    action_samples1 = [env1.action_space.sample() for i in range(4)]
-    step_responses1 = [env1.step(action) for action in action_samples1]
+    initial_observation1 = env1.reset(seed=SEED)
+    env1.action_space.seed(SEED)
+    action_samples1 = [env1.action_space.sample() for _ in range(NUM_STEPS)]
+
+    step_responses1 = []
+    for action in action_samples1:
+        obs, rew, done, info = env1.step(action)
+        step_responses1.append((obs, rew, done, info))
+        if done:
+            env1.reset(seed=SEED)
     env1.close()
 
     env2 = spec.make()
-    initial_observation2 = env2.reset(seed=0)
-    env2.action_space.seed(0)
-    action_samples2 = [env2.action_space.sample() for i in range(4)]
-    step_responses2 = [env2.step(action) for action in action_samples2]
+    initial_observation2 = env2.reset(seed=SEED)
+    env2.action_space.seed(SEED)
+    action_samples2 = [env2.action_space.sample() for _ in range(NUM_STEPS)]
+
+    step_responses2 = []
+    for action in action_samples1:
+        obs, rew, done, info = env2.step(action)
+        step_responses2.append((obs, rew, done, info))
+        if done:
+            env2.reset(seed=SEED)
     env2.close()
 
     for i, (action_sample1, action_sample2) in enumerate(
