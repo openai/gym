@@ -11,8 +11,8 @@ class RecordEpisodeStatistics(gym.Wrapper):
     """This wrapper will keep track of cumulative rewards and episode lengths.
 
     Example:
-        At the end of an episode, the statistics of the episode will be added to `info`. After the completion
-        of an episode, `info` will look like this:
+        At the end of an episode, the statistics of the episode will be added to ``info``. After the completion
+        of an episode, ``info`` will look like this::
 
         >>> info = {
         ...     ...
