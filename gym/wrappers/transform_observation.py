@@ -35,6 +35,6 @@ class TransformObservation(ObservationWrapper):
             observation: The observation to transform
 
         Returns:
-            The transform observation
+            The transformed observation
         """
         return self.f(observation)
