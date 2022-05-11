@@ -1,3 +1,4 @@
+"""Implementation of a space that represents the cartesian product of other spaces."""
 from __future__ import annotations
 
 from typing import Iterable, Optional, Sequence
@@ -9,13 +10,16 @@ from gym.utils import seeding
 
 
 class Tuple(Space[tuple], Sequence):
-    """
-    A tuple (i.e., product) of simpler spaces
+    """A tuple (more precisely: the cartesian product) of :class:`Space` instances.
+
+    Elements of this space are tuples of elements of the constituent spaces.
 
     Example usage::
 
-        >>> from gym.spaces import Discrete
-        >>> observation_space = Tuple((Discrete(2), Discrete(3)))
+        >>> from gym.spaces import Box, Discrete
+        >>> observation_space = Tuple((Discrete(2), Box(-1, 1, shape=(2,))))
+        >>> observation_space.sample()
+        (0, array([0.03633198, 0.42370757], dtype=float32))
     """
 
     def __init__(
@@ -23,6 +27,14 @@ class Tuple(Space[tuple], Sequence):
         spaces: Iterable[Space],
         seed: Optional[int | list[int] | seeding.RandomNumberGenerator] = None,
     ):
+        r"""Constructor of :class:`Tuple`` space.
+
+        The generated instance will represent the cartesian product :math:`\text{spaces}[0] \times ... \times \text{spaces}[-1]`.
+
+        Args:
+            spaces (Iterable[Space]): The spaces that are involved in the cartesian product.
+            seed: Optionally, you can use this argument to seed the RNGs of the ``spaces`` to ensure reproducible sampling.
+        """
         spaces = tuple(spaces)
         self.spaces = spaces
         for space in spaces:
@@ -32,6 +44,7 @@ class Tuple(Space[tuple], Sequence):
         super().__init__(None, None, seed)  # type: ignore
 
     def seed(self, seed: Optional[int | list[int]] = None) -> list:
+        """Seed the PRNG of this space and all subspaces."""
         seeds = []
 
         if isinstance(seed, list):
@@ -63,9 +76,14 @@ class Tuple(Space[tuple], Sequence):
         return seeds
 
     def sample(self) -> tuple:
+        """Generates a single random sample inside this space.
+
+        This method draws independent samples from the subspaces.
+        """
         return tuple(space.sample() for space in self.spaces)
 
     def contains(self, x) -> bool:
+        """Return boolean specifying if x is a valid member of this space."""
         if isinstance(x, (list, np.ndarray)):
             x = tuple(x)  # Promote list and ndarray to tuple for contains check
         return (
@@ -75,9 +93,11 @@ class Tuple(Space[tuple], Sequence):
         )
 
     def __repr__(self) -> str:
+        """Gives a string representation of this space."""
         return "Tuple(" + ", ".join([str(s) for s in self.spaces]) + ")"
 
     def to_jsonable(self, sample_n: Sequence) -> list:
+        """Convert a batch of samples from this space to a JSONable data type."""
         # serialize as list-repr of tuple of vectors
         return [
             space.to_jsonable([sample[i] for sample in sample_n])
@@ -85,6 +105,7 @@ class Tuple(Space[tuple], Sequence):
         ]
 
     def from_jsonable(self, sample_n) -> list:
+        """Convert a JSONable data type to a batch of samples from this space."""
         return [
             sample
             for sample in zip(
@@ -96,10 +117,13 @@ class Tuple(Space[tuple], Sequence):
         ]
 
     def __getitem__(self, index: int) -> Space:
+        """Get the subspace at specific `index`."""
         return self.spaces[index]
 
     def __len__(self) -> int:
+        """Get the number of subspaces that are involved in the cartesian product."""
         return len(self.spaces)
 
     def __eq__(self, other) -> bool:
+        """Check whether ``other`` is equivalent to this instance."""
         return isinstance(other, Tuple) and self.spaces == other.spaces
