@@ -1,4 +1,4 @@
-"""Wrapper that converts a colour observation to greyscale."""
+"""Wrapper that converts a color observation to grayscale."""
 import numpy as np
 
 import gym
