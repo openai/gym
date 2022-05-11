@@ -24,7 +24,7 @@ def touch(path: str):
 class VideoRecorder:
     """VideoRecorder renders a nice movie of a rollout, frame by frame.
 
-    It comes with an `enabled` option, so you can still use the same code on episodes where you don't want to record video.
+    It comes with an ``enabled`` option, so you can still use the same code on episodes where you don't want to record video.
 
     Note:
         You are responsible for calling :meth:`close` on a created VideoRecorder, or else you may leak an encoder process.
