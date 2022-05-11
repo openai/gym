@@ -27,8 +27,8 @@ class RecordEpisodeStatistics(gym.Wrapper):
     :attr:`wrapped_env.return_queue` and :attr:`wrapped_env.length_queue` respectively.
 
     Attributes:
-        return_queue: The cumulative rewards of the last `deque_size`-many episodes
-        length_queue: The lengths of the last `deque_size`-many episodes
+        return_queue: The cumulative rewards of the last ``deque_size``-many episodes
+        length_queue: The lengths of the last ``deque_size``-many episodes
     """
 
     def __init__(self, env: gym.Env, deque_size: int = 100):
