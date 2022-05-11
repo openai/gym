@@ -355,7 +355,7 @@ class ObservationWrapper(Wrapper):
     passing it to learning code, you can simply inherit from :class:`ObservationWrapper` and overwrite the method
     :meth:`observation` to implement that transformation. The transformation defined in that method must be
     defined on the base environment’s observation space. However, it may take values in a different space.
-    In that case, you need to specify the new observation space of the wrapper by setting :attr:`self._observation_space`
+    In that case, you need to specify the new observation space of the wrapper by setting :attr:`self.observation_space`
     in the :meth:`__init__` method of your wrapper.
 
     For example, you might have a 2D navigation task where the environment returns dictionaries as observations with
@@ -367,7 +367,7 @@ class ObservationWrapper(Wrapper):
         class RelativePosition(gym.ObservationWrapper):
             def __init__(self, env):
                 super().__init__(env)
-                self._observation_space = Box(shape=(2,), low=-np.inf, high=np.inf)
+                self.observation_space = Box(shape=(2,), low=-np.inf, high=np.inf)
 
             def observation(self, obs):
                 return obs["target"] - obs["agent"]
@@ -402,7 +402,7 @@ class RewardWrapper(Wrapper):
     passing it to learning code, you can simply inherit from :class:`RewardWrapper` and overwrite the method
     :meth:`reward` to implement that transformation.
     This transformation might change the reward range; to specify the reward range of your wrapper,
-    you can simply define :attr:`self._reward_range` in :meth:`__init__`.
+    you can simply define :attr:`self.reward_range` in :meth:`__init__`.
 
     Let us look at an example: Sometimes (especially when we do not have control over the reward
     because it is intrinsic), we want to clip the reward to a range to gain some numerical stability.
@@ -413,7 +413,7 @@ class RewardWrapper(Wrapper):
                 super().__init__(env)
                 self.min_reward = min_reward
                 self.max_reward = max_reward
-                self._reward_range = (min_reward, max_reward)
+                self.reward_range = (min_reward, max_reward)
 
             def reward(self, reward):
                 return np.clip(reward, self.min_reward, self.max_reward)
@@ -437,7 +437,7 @@ class ActionWrapper(Wrapper):
     you can simply inherit from :class:`ActionWrapper` and overwrite the method :meth:`action` to implement
     that transformation. The transformation defined in that method must take values in the base environment’s
     action space. However, its domain might differ from the original action space.
-    In that case, you need to specify the new action space of the wrapper by setting :attr:`self._action_space` in
+    In that case, you need to specify the new action space of the wrapper by setting :attr:`self.action_space` in
     the :meth:`__init__` method of your wrapper.
 
     Let’s say you have an environment with action space of type :class:`gym.spaces.Box`, but you would only like
@@ -447,7 +447,7 @@ class ActionWrapper(Wrapper):
             def __init__(self, env, disc_to_cont):
                 super().__init__(env)
                 self.disc_to_cont = disc_to_cont
-                self._action_space = Discrete(len(disc_to_cont))
+                self.action_space = Discrete(len(disc_to_cont))
 
             def action(self, act):
                 return self.disc_to_cont[act]
