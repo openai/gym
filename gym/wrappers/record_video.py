@@ -42,7 +42,7 @@ class RecordVideo(gym.Wrapper):
         Args:
             env: The environment that will be wrapped
             video_folder (str): The folder where the recordings will be stored
-            episode_trigger: Function that accepts an integer and returns `True` iff a recording should be started at this episode
+            episode_trigger: Function that accepts an integer and returns ``True`` iff a recording should be started at this episode
             step_trigger: Function that accepts an integer and returns `True` iff a recording should be started at this step
             video_length (int): The length of recorded episodes. If 0, entire episodes are recorded.
                 Otherwise, snippets of the specified length are captured
