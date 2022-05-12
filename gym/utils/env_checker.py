@@ -187,7 +187,7 @@ def _check_box_action(action_space: Box):
 
 
 def _check_normalized_action(action_space: Box):
-    """Checks that a box action space is normalised.
+    """Checks that a box action space is normalized.
 
     Args:
         action_space: A box action space
