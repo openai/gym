@@ -59,7 +59,7 @@ class RescaleAction(gym.ActionWrapper):
         )
 
     def action(self, action):
-        """Rescales the action to have the same ratio of values between :attr:`max_action` and :attr:`min_action`.
+        """Rescales the action affinely from  [:attr:`min_action`, :attr:`max_action`] to the action space of the wrapped environment, :attr:`env`.
 
         Args:
             action: The action to rescale
