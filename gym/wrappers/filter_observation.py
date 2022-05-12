@@ -34,8 +34,8 @@ class FilterObservation(ObservationWrapper):
         Raises:
             ValueError: If observation keys in not instance of None or
                 iterable.
-            ValueError: If any of the `filter_keys` are not included in
-                the original `env`'s observation space
+            ValueError: If any of the ``filter_keys`` are not included in
+                the original ``env``'s observation space
         """
         super().__init__(env)
 
