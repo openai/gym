@@ -32,7 +32,7 @@ class RescaleAction(gym.ActionWrapper):
         min_action: Union[float, int, np.ndarray],
         max_action: Union[float, int, np.ndarray],
     ):
-        """Initialises the rescale action wrapper.
+        """Initializes the :class:`RescaleAction` wrapper.
 
         Args:
             env (Env): The environment to apply the wrapper
