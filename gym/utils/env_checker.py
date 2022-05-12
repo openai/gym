@@ -118,7 +118,7 @@ def _check_obs(
 
 
 def _check_box_obs(observation_space: Box, key: str = ""):
-    """Check that the observation space is correctly formatted when dealing with a ``Box()`` space.
+    """Check that the observation space is correctly formatted when dealing with a :class:`Box` space.
 
     In particular, it checks:
     - that the dimensions are big enough when it is an image, and that the type matches
