@@ -1,4 +1,4 @@
-"""Wrapper for flatten an observation of an environment."""
+"""Wrapper for flattening observations of an environment."""
 import gym
 import gym.spaces as spaces
 from gym import ObservationWrapper
