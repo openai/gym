@@ -7,7 +7,7 @@ from gym.spaces import Box
 
 
 class ClipAction(ActionWrapper):
-    """Clip the continuous action within the valid Box observation space bound.
+    """Clip the continuous action within the valid :class:`Box` observation space bound.
 
     Example:
         >>> import gym
