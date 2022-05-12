@@ -102,7 +102,7 @@ class PlayableGame:
 def display_arr(
     screen: Surface, arr: np.ndarray, video_size: tuple[int, int], transpose: bool
 ):
-    """Displays an arr on screen.
+    """Displays a numpy array on screen.
 
     Args:
         screen: The screen to show the array on
@@ -205,17 +205,41 @@ def play(
 
 
 class PlayPlot:
-    """Plays a plot for a callback with a certain number of horizon timesteps."""
+    """Provides a callback to create live plots of arbitrary metrics when using :func:`play`.
+    
+    This class is instantiated with a function that accepts information about a single environment transition:
+        - obs_t: observation before performing action
+        - obs_tp1: observation after performing action
+        - action: action that was executed
+        - rew: reward that was received
+        - done: whether the environment is done or not
+        - info: debug info
+    
+    It should return a list of metrics that are computed from this data. 
+    For instance, the function may look like this::
+    
+        def compute_metrics(obs_t, obs_tp, action, reward, done, info):
+            return [reward, info["cumulative_reward"], np.linalg.norm(action)]
+            
+    :class:`PlayPlot` provides the method :meth:`callback` which will pass its arguments along to that function and uses the returned values to update live plots of the metrics.
+    
+    Typically, this :meth:`callback` will be used in conjunction with :func:`play` to see how the metrics evolve as you play::
+        
+        >>> plotter = PlayPlot(compute_metrics, horizon_timesteps=200, plot_names=["Immediate Rew.", "Cumulative Rew.", "Action Magnitude"])
+        >>> play(your_env, callback=plotter.callback)
+        """
 
     def __init__(
         self, callback: callable, horizon_timesteps: int, plot_names: list[str]
     ):
-        """Initialise the class with a callback, horizon time steps and plot names.
-
+        """Constructor of :class:`PlayPlot`.
+        
+        The function ``callback`` that is passed to this constructor should return a list of metrics that is of length ``len(plot_names)``. 
+        
         Args:
-            callback: The callback information
-            horizon_timesteps: The horzion timestep for the number of time steps in which to show information
-            plot_names: List of plot names
+            callback: Function that computes metrics from environment transitions
+            horizon_timesteps: The time horizon used for the live plots
+            plot_names: List of plot titles
         """
         deprecation(
             "`PlayPlot` is marked as deprecated and will be removed in the near future."
