@@ -18,7 +18,7 @@ class EzPickle:
     """
 
     def __init__(self, *args, **kwargs):
-        """Uses the args and kwargs from the object's constructor for pickling."""
+        """Uses the ``args`` and ``kwargs`` from the object's constructor for pickling."""
         self._ezpickle_args = args
         self._ezpickle_kwargs = kwargs
 
