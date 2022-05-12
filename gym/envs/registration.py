@@ -12,6 +12,7 @@ from dataclasses import dataclass, field
 from typing import (
     Any,
     Callable,
+    Iterable,
     Optional,
     Sequence,
     SupportsFloat,
@@ -336,8 +337,40 @@ def make(id: EnvSpec, **kwargs) -> Env: ...
 # fmt: on
 
 
+class EnvRegistry(dict):
+    """A glorified dictionary for compatibility reasons"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def make(self, path: str, **kwargs) -> Env:
+        logger.warn(
+            "The `registry.make` method is deprecated. Please use `gym.make` instead."
+        )
+        return make(path, **kwargs)
+
+    def all(self) -> Iterable[EnvSpec]:
+        logger.warn(
+            "The `registry.all` method is deprecated. Please use `registry.values` instead."
+        )
+        return self.values()
+
+    def spec(self, path: str):
+        logger.warn(
+            "The `registry.spec` method is deprecated. Please use `gym.spec` instead."
+        )
+        return spec(path)
+
+    @property
+    def env_specs(self):
+        logger.warn(
+            "The `registry.env_specs` property is deprecated. Please use `registry` directly instead."
+        )
+        return self
+
+
 # Global registry of environments. Meant to be accessed through `register` and `make`
-registry: dict[str, EnvSpec] = dict()
+registry: dict[str, EnvSpec] = EnvRegistry()
 current_namespace: Optional[str] = None
 
 
