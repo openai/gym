@@ -23,7 +23,7 @@ class AutoResetWrapper(gym.Wrapper):
     """
 
     def step(self, action):
-        """Steps through the environment with action and resets the environment `if done=False`.
+        """Steps through the environment with action and resets the environment if a done-signal is encountered.
 
         Args:
             action: The action to take
