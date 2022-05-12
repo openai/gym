@@ -26,7 +26,7 @@ except ImportError:
 
 
 class MissingKeysToAction(Exception):
-    """Raised when the environment does not have a default keys_to_action mapping."""
+    """Raised when the environment does not have a default ``keys_to_action`` mapping."""
 
 
 class PlayableGame:
