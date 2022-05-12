@@ -286,7 +286,7 @@ def _check_spaces(env: gym.Env):
 
 # Check render cannot be covered by CI
 def _check_render(env: gym.Env, warn: bool = True, headless: bool = False):
-    """Check the declared render modes/fps and the `render()`/`close()` method of the environment.
+    """Check the declared render modes/fps and the :meth:`render`/:meth:`close` method of the environment.
 
     Args:
         env: The environment to check
