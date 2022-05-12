@@ -204,7 +204,7 @@ def _check_normalized_action(action_space: Box):
 
 
 def _check_returned_values(env: gym.Env, observation_space: Space, action_space: Space):
-    """Check the returned values by the env when calling `.reset()` or `.step()` methods.
+    """Check the returned values by the env when calling :meth:`env.reset` or :meth:`env.step` methods.
 
     Args:
         env: The environment
@@ -324,7 +324,7 @@ def _check_render(env: gym.Env, warn: bool = True, headless: bool = False):
 
 
 def _check_reset_seed(env: gym.Env, seed: Optional[int] = None):
-    """Check that the environment can be reset with a random seed.
+    """Check that the environment can be reset with a seed.
 
     Args:
         env: The environment to check
