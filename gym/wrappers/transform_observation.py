@@ -7,9 +7,9 @@ from gym import ObservationWrapper
 
 class TransformObservation(ObservationWrapper):
     """Transform the observation via an arbitrary function :attr:`f`.
-    
+
     The function :attr:`f` should be defined on the observation space of the wrapped environment and should, ideally, return values in the same space.
-    
+
     If the transformation you wish to apply to observations returns values in a *different* space, you should subclass :class:`ObservationWrapper`, implement the transformation, and set the new observation space accordingly. If you were to use this wrapper instead, the observation space would be set incorrectly.
 
     Example:

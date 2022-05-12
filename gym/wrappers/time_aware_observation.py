@@ -9,7 +9,7 @@ from gym.spaces import Box
 class TimeAwareObservation(ObservationWrapper):
     """Augment the observation with the current time step in the episode.
 
-    The observation space of the wrapped environment is assumed to be a flat :class:`Box`. 
+    The observation space of the wrapped environment is assumed to be a flat :class:`Box`.
     In particular, pixel observations are not supported. This wrapper will append the current timestep within the current episode to the observation.
 
     Example:

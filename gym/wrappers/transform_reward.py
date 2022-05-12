@@ -7,7 +7,7 @@ from gym import RewardWrapper
 
 class TransformReward(RewardWrapper):
     """Transform the reward via an arbitrary function.
-    
+
     Warning:
         If the base environment specifies a reward range which is not invariant under :attr:`f`, the :attr:`reward_range` of the wrapped environment will be incorrect.
 

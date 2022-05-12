@@ -9,8 +9,8 @@ from gym.wrappers.monitoring import video_recorder
 
 def capped_cubic_video_schedule(episode_id: int) -> bool:
     """The default episode trigger.
-    
-    This function will trigger recordings at the episode indices 0, 1, 4, 8, 27, ..., :math:`k^3`, ..., 729, 1000, 2000, 3000, ... 
+
+    This function will trigger recordings at the episode indices 0, 1, 4, 8, 27, ..., :math:`k^3`, ..., 729, 1000, 2000, 3000, ...
     """
     if episode_id < 1000:
         return int(round(episode_id ** (1.0 / 3))) ** 3 == episode_id
