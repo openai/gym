@@ -10,7 +10,7 @@ from gym import spaces
 class RescaleAction(gym.ActionWrapper):
     """Rescales the continuous action space of the environment to a range [min_action, max_action].
 
-    The wrapped environment :class:`Env` must have an action space of type :class:`spaces.Box`. If :attr:`min_action`
+    The base environment :attr:`env` must have an action space of type :class:`spaces.Box`. If :attr:`min_action`
     or :attr:`max_action` are numpy arrays, the shape must match the shape of the environment's action space.
 
     Example:
