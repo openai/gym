@@ -139,7 +139,7 @@ def play(
     unplayable.
 
     If you wish to plot real time statistics as you play, you can use
-    gym.utils.play.PlayPlot. Here's a sample code for plotting the reward
+    :class:`gym.utils.play.PlayPlot`. Here's a sample code for plotting the reward
     for last 5 second of gameplay.
 
     >>> def callback(obs_t, obs_tp1, action, rew, done, info):
