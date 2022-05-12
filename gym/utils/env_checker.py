@@ -261,7 +261,7 @@ def _check_returned_values(env: gym.Env, observation_space: Space, action_space:
 
 
 def _check_spaces(env: gym.Env):
-    """Check that the observation and action spaces are defined and inherit from gym.spaces.Space.
+    """Check that the observation and action spaces are defined and inherit from :class:`gym.spaces.Space`.
 
     Args:
         env: The environment's observation and action space to check
