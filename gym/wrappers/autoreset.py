@@ -6,7 +6,7 @@ class AutoResetWrapper(gym.Wrapper):
     """A class for providing an automatic reset functionality for gym environments when calling :meth:`self.step`.
 
     When calling step causes :meth:`Env.step` to return done, :meth:`Env.reset` is called,
-    and the return format of :meth:`self.step` is as follows: `(new_obs, terminal_reward, terminal_done, info)`
+    and the return format of :meth:`self.step` is as follows: ``(new_obs, terminal_reward, terminal_done, info)``
      - ``new_obs`` is the first observation after calling :meth:`self.env.reset`
      - ``terminal_reward`` is the reward after calling :meth:`self.env.step`, prior to calling :meth:`self.env.reset`.
      - ``terminal_done`` is always True
