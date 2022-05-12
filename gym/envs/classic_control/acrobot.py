@@ -408,7 +408,7 @@ def rk4(derivs, y0, t):
         >>> dt = 0.0005
         >>> t = arange(0.0, 2.0, dt)
         >>> y0 = (1,2)
-        >>> yout = rk4(derivs6, y0, t)
+        >>> yout = rk4(derivs, y0, t)
 
     If you have access to scipy, you should probably be using the
     scipy.integrate tools rather than this function.
