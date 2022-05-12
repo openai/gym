@@ -51,7 +51,7 @@ class GrayScaleObservation(ObservationWrapper):
         """Converts the colour observation to greyscale.
 
         Args:
-            observation: Colour observations
+            observation: Color observations
 
         Returns:
             Grayscale observations
