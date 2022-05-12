@@ -45,7 +45,7 @@ class ResizeObservation(ObservationWrapper):
         self.observation_space = Box(low=0, high=255, shape=obs_shape, dtype=np.uint8)
 
     def observation(self, observation):
-        """Updates the observations by resizing the observation to shape.
+        """Updates the observations by resizing the observation to shape given by :attr:`shape`.
 
         Args:
             observation: The observation to reshape
