@@ -17,7 +17,7 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
 
     Elements of this space are (ordered) dictionaries of elements from the constituent spaces.
 
-    Example usage::
+    Example usage:
 
         >>> from gym.spaces import Dict, Discrete
         >>> observation_space = Dict({"position": Discrete(2), "velocity": Discrete(3)})
