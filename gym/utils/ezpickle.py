@@ -11,7 +11,7 @@ class EzPickle:
         ...        Animal.__init__()
         ...        EzPickle.__init__(furcolor, tailkind)
 
-    When this object is unpickled, a new Dog will be constructed by passing the provided furcolor and tailkind into the constructor.
+    When this object is unpickled, a new ``Dog`` will be constructed by passing the provided furcolor and tailkind into the constructor.
     However, philosophers are still not sure whether it is still the same dog.
 
     This is generally needed only for environments which wrap C/C++ code, such as MuJoCo and Atari.
