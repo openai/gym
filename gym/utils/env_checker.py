@@ -35,7 +35,7 @@ def _is_numpy_array_space(space: Space) -> bool:
 
 def _check_image_input(observation_space: Box, key: str = ""):
     """Check whether an observation space of type :class:`Box` adheres to general standards for spaces that represent images.
-    
+
     It will check that:
     - The datatype is ``np.uint8``
     - The lower bound is 0 across all dimensions
