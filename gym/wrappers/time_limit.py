@@ -14,9 +14,10 @@ class TimeLimit(gym.Wrapper):
     the key `"TimeLimit.truncated"` exists in ``info`` and the corresponding value is ``True``.
 
     Example:
-        >>> import gym
-        >>> env = gym.make('CartPole-v1')
-        >>> env = TimeLimit(env, max_episode_steps=1000)
+       >>> from gym.envs.classic_control import CartPoleEnv
+       >>> from gym.wrappers import TimeLimit
+       >>> env = CartPoleEnv()
+       >>> env = TimeLimit(env, max_episode_steps=1000)
     """
 
     def __init__(self, env: gym.Env, max_episode_steps: Optional[int] = None):
