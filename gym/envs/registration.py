@@ -462,7 +462,13 @@ def make(
     else:
         module, id = (None, id) if ":" not in id else id.split(":")
         if module is not None:
-            importlib.import_module(module)
+            try:
+                importlib.import_module(module)
+            except ModuleNotFoundError as e:
+                raise ModuleNotFoundError(
+                    f"{e}. Environment registration via importing a module failed. "
+                    f"Check whether '{module}' contains env registration and can be imported."
+                )
         spec_ = registry.get(id)
 
         ns, name, version = parse_env_id(id)

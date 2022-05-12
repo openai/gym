@@ -288,4 +288,4 @@ def test_namespace():
 
 def test_import_module_during_make():
     # Test custom environment which is registered at make
-    gym.make("tests.envs.dummy_env:Dummy-v0")
+    gym.make("tests.envs.register_during_make_env:RegisterDuringMakeEnv-v0")
