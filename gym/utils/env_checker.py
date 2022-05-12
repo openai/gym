@@ -163,7 +163,7 @@ def _check_box_obs(observation_space: Box, key: str = ""):
 
 
 def _check_box_action(action_space: Box):
-    """Checks that box action space.
+    """Checks that a :class:`Box` action space is defined in a sensible way.
 
     Args:
         action_space: A box action space
