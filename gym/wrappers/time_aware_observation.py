@@ -17,7 +17,9 @@ class TimeAwareObservation(ObservationWrapper):
         >>> env = gym.make('CartPole-v1')
         >>> env = TimeAwareObservation(env)
         >>> env.reset()
-        array([ 0.01746378, -0.0495109 , -0.01070071, -0.03747902,  0.        ])
+        array([ 0.03810719,  0.03522411,  0.02231044, -0.01088205,  0.        ])
+        >>> env.step(env.action_space.sample())[0]
+        array([ 0.03881167, -0.16021058,  0.0220928 ,  0.28875574,  1.        ])
     """
 
     def __init__(self, env: gym.Env):
