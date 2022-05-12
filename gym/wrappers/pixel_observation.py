@@ -67,8 +67,8 @@ class PixelObservationWrapper(ObservationWrapper):
             ValueError: If `env`'s observation spec is not compatible with the
                 wrapper. Supported formats are a single array, or a dict of
                 arrays.
-            ValueError: If `env`'s observation already contains any of the
-                specified `pixel_keys`.
+            ValueError: If ``env``'s observation already contains any of the
+                specified ``pixel_keys``.
         """
         super().__init__(env)
 
