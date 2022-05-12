@@ -7,7 +7,7 @@ from gym.spaces import Box
 
 
 class TimeAwareObservation(ObservationWrapper):
-    """Augment the observation with current time step in the trajectory.
+    """Augment the observation with the current time step in the episode.
 
     Note:
         Currently it only works with one-dimensional observation space.
