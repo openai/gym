@@ -22,13 +22,13 @@ class RecordVideo(gym.Wrapper):
     """This wrapper records videos of rollouts.
 
     Usually, you only want to record episodes intermittently, say every hundredth episode.
-    To do this, you can specify **either** :attr:`episode_trigger` **or** :attr:`step_trigger` (not both).
+    To do this, you can specify **either** ``episode_trigger`` **or** ``step_trigger`` (not both).
     They should be functions returning a boolean that indicates whether a recording should be started at the
     current episode or step, respectively.
-    If neither :attr:`episode_trigger` nor :attr:`step_trigger` is passed, a default :attr:`episode_trigger` will be employed.
+    If neither :attr:`episode_trigger` nor ``step_trigger`` is passed, a default ``episode_trigger`` will be employed.
     By default, the recording will be stopped once a `done` signal has been emitted by the environment. However, you can
     also create recordings of fixed length (possibly spanning several episodes) by passing a strictly positive value for
-    :attr:`video_length`.
+    ``video_length``.
     """
 
     def __init__(
