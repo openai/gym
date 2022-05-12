@@ -42,8 +42,9 @@ class TimeLimit(gym.Wrapper):
             action: The environment step action
 
         Returns:
-            The environment step information with the information and done updated
-            if the number of steps elapsed >= max episode steps
+            The environment step ``(observation, reward, done, info)`` with "TimeLimit.truncated"=True
+            when truncated (the number of steps elapsed >= max episode steps) or
+            "TimeLimit.truncated"=False if the environment terminated
         """
         observation, reward, done, info = self.env.step(action)
         self._elapsed_steps += 1
