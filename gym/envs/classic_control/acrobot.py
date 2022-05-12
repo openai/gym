@@ -398,7 +398,7 @@ def rk4(derivs, y0, t):
     yourself stranded on a system w/o scipy.  Otherwise use
     :func:`scipy.integrate`.
 
-    Example::
+    Example:
 
         >>> ### 2D system
         >>> def derivs(x):
