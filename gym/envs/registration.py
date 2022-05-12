@@ -450,7 +450,7 @@ def make(
     Create an environment according to the given ID.
 
     Args:
-        id: Name of the environment.
+        id: Name of the environment. Optionally, a module to import can be included, eg. 'module:Env-v0'
         max_episode_steps: Maximum length of an episode (TimeLimit wrapper).
         autoreset: Whether to automatically reset the environment after each episode (AutoResetWrapper).
         kwargs: Additional arguments to pass to the environment constructor.
@@ -460,6 +460,9 @@ def make(
     if isinstance(id, EnvSpec):
         spec_ = id
     else:
+        module, id = (None, id) if ":" not in id else id.split(":")
+        if module is not None:
+            importlib.import_module(module)
         spec_ = registry.get(id)
 
         ns, name, version = parse_env_id(id)
