@@ -206,7 +206,7 @@ def play(
 
 class PlayPlot:
     """Provides a callback to create live plots of arbitrary metrics when using :func:`play`.
-    
+
     This class is instantiated with a function that accepts information about a single environment transition:
         - obs_t: observation before performing action
         - obs_tp1: observation after performing action
@@ -214,28 +214,28 @@ class PlayPlot:
         - rew: reward that was received
         - done: whether the environment is done or not
         - info: debug info
-    
-    It should return a list of metrics that are computed from this data. 
+
+    It should return a list of metrics that are computed from this data.
     For instance, the function may look like this::
-    
+
         def compute_metrics(obs_t, obs_tp, action, reward, done, info):
             return [reward, info["cumulative_reward"], np.linalg.norm(action)]
-            
+
     :class:`PlayPlot` provides the method :meth:`callback` which will pass its arguments along to that function and uses the returned values to update live plots of the metrics.
-    
+
     Typically, this :meth:`callback` will be used in conjunction with :func:`play` to see how the metrics evolve as you play::
-        
+
         >>> plotter = PlayPlot(compute_metrics, horizon_timesteps=200, plot_names=["Immediate Rew.", "Cumulative Rew.", "Action Magnitude"])
         >>> play(your_env, callback=plotter.callback)
-        """
+    """
 
     def __init__(
         self, callback: callable, horizon_timesteps: int, plot_names: list[str]
     ):
         """Constructor of :class:`PlayPlot`.
-        
-        The function ``callback`` that is passed to this constructor should return a list of metrics that is of length ``len(plot_names)``. 
-        
+
+        The function ``callback`` that is passed to this constructor should return a list of metrics that is of length ``len(plot_names)``.
+
         Args:
             callback: Function that computes metrics from environment transitions
             horizon_timesteps: The time horizon used for the live plots
