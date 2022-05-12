@@ -106,7 +106,8 @@ class FrameStack(ObservationWrapper):
     Note:
         - To be memory efficient, the stacked observations are wrapped by :class:`LazyFrame`.
         - The observation space must be :class:`Box` type. If one uses :class:`Dict`
-          as observation space, it should apply :class:`FlattenDictWrapper` at first.
+          as observation space, it should apply :class:`FlattenObservation` wrapper first.
+          - After :meth:`reset` is called, the frame buffer will be filled with the initial observation. I.e. the observation returned by :meth:`reset` will consist of ``num_stack`-many identical frames,
 
     Example:
         >>> import gym
