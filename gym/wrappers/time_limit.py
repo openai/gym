@@ -21,7 +21,7 @@ class TimeLimit(gym.Wrapper):
     """
 
     def __init__(self, env: gym.Env, max_episode_steps: Optional[int] = None):
-        """Initialises the TimeLimit wrapper with an environment and a max episode steps.
+        """Initializes the :class:`TimeLimit` wrapper with an environment and the number of steps after which truncation will occur.
 
         Args:
             env: The environment to apply the wrapper
