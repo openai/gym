@@ -149,7 +149,7 @@ class FrameStack(ObservationWrapper):
             observation: Ignored
 
         Returns:
-            LazyFrames for the current wrappers :attr:`self.frames`
+            :class:`LazyFrames` object for the wrapper's frame buffer,  :attr:`self.frames`
         """
         assert len(self.frames) == self.num_stack, (len(self.frames), self.num_stack)
         return LazyFrames(list(self.frames), self.lz4_compress)
