@@ -29,7 +29,7 @@ class FilterObservation(ObservationWrapper):
 
         Args:
             env: The environment to apply the wrapper
-            filter_keys: List of keys to be included in the observations
+            filter_keys: List of keys to be included in the observations. If ``None``, observations will not be filtered and this wrapper has no effect
 
         Raises:
             ValueError: If observation keys in not instance of None or
