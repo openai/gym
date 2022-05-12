@@ -169,7 +169,7 @@ def play(
                 ...    sorted(ord('w'), ord(' ')) -> 2
                 ...    # ...
                 ... }
-            If None, default key_to_action mapping for that env is used, if provided.
+            If ``None``, default ``key_to_action`` mapping for that environment is used, if provided.
         seed: Random seed used when resetting the environment. If None, no seed is used.
     """
     env.reset(seed=seed)
