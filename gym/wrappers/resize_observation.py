@@ -28,7 +28,7 @@ class ResizeObservation(ObservationWrapper):
     """
 
     def __init__(self, env: gym.Env, shape: Union[tuple, int]):
-        """Resizes the env observations to shape.
+        """Resizes image observations to shape given by :attr:`shape`.
 
         Args:
             env: The environment to apply the wrapper
