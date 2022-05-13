@@ -22,8 +22,7 @@ class ResizeObservation(ObservationWrapper):
         >>> env.observation_space.shape
         (96, 96, 3)
         >>> env = ResizeObservation(env, 64)
-        >>> obs = env.reset()
-        >>> obs.shape
+        >>> env.observation_space.shape
         (64, 64, 3)
     """
 

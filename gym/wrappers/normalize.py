@@ -16,7 +16,7 @@ class RunningMeanStd:
         self.count = epsilon
 
     def update(self, x):
-        """Updates the mean, var and count from x."""
+        """Updates the mean, var and count from a batch of samples."""
         batch_mean = np.mean(x, axis=0)
         batch_var = np.var(x, axis=0)
         batch_count = x.shape[0]
@@ -104,7 +104,7 @@ class NormalizeObservation(gym.core.Wrapper):
 class NormalizeReward(gym.core.Wrapper):
     """This wrapper will normalize immediate rewards s.t. their exponential moving average has a fixed variance.
 
-    The exponential moving average will have variance (1 - `gamma`)**2.
+    The exponential moving average will have variance :math:`(1 - \gamma)^2`.
 
     Note:
         The scaling depends on past trajectories and rewards will not be scaled correctly if the wrapper was newly

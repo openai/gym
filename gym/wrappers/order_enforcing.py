@@ -1,4 +1,4 @@
-"""Wrapper to enforce the order of environments."""
+"""Wrapper to enforce the proper ordering of environment operations."""
 import gym
 
 

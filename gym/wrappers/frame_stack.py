@@ -44,7 +44,7 @@ class LazyFrames:
         self.lz4_compress = lz4_compress
 
     def __array__(self, dtype=None):
-        """Gets the array of stacked frames with dtype.
+        """Gets a numpy array of stacked frames with specific dtype.
 
         Args:
             dtype: The dtype of the stacked frames
@@ -155,7 +155,7 @@ class FrameStack(ObservationWrapper):
         return LazyFrames(list(self.frames), self.lz4_compress)
 
     def step(self, action):
-        """Steps through the environment, appending the observation to the set of frames.
+        """Steps through the environment, appending the observation to the frame buffer.
 
         Args:
             action: The action to step through the environment with
