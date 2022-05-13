@@ -17,9 +17,6 @@ import numpy as np
 
 import gym
 from gym import logger, spaces
-from gym.error import ResetNeeded
-from gym.wrappers import OrderEnforcing
-from tests.wrappers.utils import has_wrapper
 
 
 def _is_numpy_array_space(space: spaces.Space) -> bool:
