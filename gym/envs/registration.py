@@ -137,7 +137,7 @@ def _check_namespace_exists(ns: Optional[str]):
 def _check_name_exists(ns: Optional[str], name: str):
     """Check if an env exists in a namespace. If it doesn't, print a helpful error message."""
     _check_namespace_exists(ns)
-    names = {spec_.name for spec_ in registry.values()}
+    names = {spec_.name for spec_ in registry.values() if spec_.namespace == ns}
 
     if name in names:
         return
@@ -377,13 +377,13 @@ def _check_spec_register(spec: EnvSpec):
         None,
     )
 
-    if unversioned_spec and spec.version is not None:
+    if unversioned_spec is not None and spec.version is not None:
         raise error.RegistrationError(
             "Can't register the versioned environment "
             f"`{spec.id}` when the unversioned environment "
             f"`{unversioned_spec.id}` of the same name already exists."
         )
-    elif latest_versioned_spec and spec.version is None:
+    elif latest_versioned_spec is not None and spec.version is None:
         raise error.RegistrationError(
             "Can't register the unversioned environment "
             f"`{spec.id}` when the versioned environment "
@@ -410,17 +410,33 @@ def register(id: str, **kwargs):
     """
     Register an environment with gym. The `id` parameter corresponds to the name of the environment,
     with the syntax as follows:
-    `(namespace)/(env_name)-(version)`
+    `(namespace)/(env_name)-v(version)`
     where `namespace` is optional.
 
     It takes arbitrary keyword arguments, which are passed to the `EnvSpec` constructor.
     """
     global registry, current_namespace
-    full_id = (current_namespace or "") + id
+    ns, name, version = parse_env_id(id)
+
+    if current_namespace is not None:
+        if kwargs.get("namespace") is not None:
+            logger.warn(
+                f"Custom namespace `{kwargs.get('namespace')}` is being overridden "
+                f"by namespace `{current_namespace}`. If you are developing a "
+                "plugin you shouldn't specify a namespace in `register` "
+                "calls. The namespace is specified through the "
+                "entry point package metadata."
+            )
+        ns_id = current_namespace
+    else:
+        ns_id = ns
+
+    full_id = get_env_id(ns_id, name, version)
+
     spec = EnvSpec(id=full_id, **kwargs)
     _check_spec_register(spec)
     if spec.id in registry:
-        logger.warn(f"Overriding environment {id}")
+        logger.warn(f"Overriding environment {spec.id}")
     registry[spec.id] = spec
 
 

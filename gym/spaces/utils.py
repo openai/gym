@@ -1,3 +1,7 @@
+"""Implementation of utility functions that can be applied to spaces.
+
+These functions mostly take care of flattening and unflattening elements of spaces to facilitate their usage in learning code.
+"""
 from __future__ import annotations
 
 import operator as op
@@ -12,11 +16,12 @@ from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Space, T
 
 @singledispatch
 def flatdim(space: Space) -> int:
-    """Return the number of dimensions a flattened equivalent of this space
-    would have.
+    """Return the number of dimensions a flattened equivalent of this space would have.
 
-    Accepts a space and returns an integer. Raises ``NotImplementedError`` if
-    the space is not defined in ``gym.spaces``.
+    Accepts a space and returns an integer.
+
+    Raises:
+         NotImplementedError: if the space is not defined in ``gym.spaces``.
 
     Example usage::
 
