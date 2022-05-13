@@ -188,12 +188,12 @@ class LunarLander(gym.Env, EzPickle):
         self.gravity = gravity
 
         assert (
-            0.0 < wind_power and wind_power < 20.0
+            0.0 <= wind_power and wind_power < 20.0
         ), f"wind_power (current value: {wind_power}) must be between 0 and 20"
         self.wind_power = wind_power
 
         assert (
-            0.0 < torque_power and torque_power < 2.0
+            0.0 <= torque_power and torque_power < 2.0
         ), f"torque_power (current value: {torque_power} must be between 0 and 2"
         self.torque_power = torque_power
 
