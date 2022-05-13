@@ -4,8 +4,16 @@ import gym
 
 
 class BraxInfoToClassic(gym.Wrapper):
-    """This wrapper converts the `Brax` info format of a
+    """Converts `Brax` info format to `classic`.
+
+    This wrapper converts the `Brax` info format of a
     vector environment to the `classic` info format.
+    This wrapper is intended to be used around vectorized
+    environments. If using other wrappers that perform
+    operation on info like `RecordEpisodeStatistics` this
+    need to be the outermost wrapper.
+
+    i.e. BraxInfoToClassic(RecordEpisodeStatistics(envs))
 
     Example::
 
@@ -28,7 +36,6 @@ class BraxInfoToClassic(gym.Wrapper):
 
     def step(self, action):
         observation, reward, done, infos = self.env.step(action)
-
         classic_info = self._convert_brax_info_to_classic(infos)
 
         return observation, reward, done, classic_info
@@ -44,23 +51,26 @@ class BraxInfoToClassic(gym.Wrapper):
 
     def _convert_brax_info_to_classic(self, infos: dict) -> List[dict]:
         classic_info = [{} for _ in range(self.num_envs)]
+        classic_info = self._process_episode_statistics(infos, classic_info)
         for k in infos:
             if k.startswith("_"):
                 continue
             for i, has_info in enumerate(infos[f"_{k}"]):
-
-                # TODO: simplify this block
-                # used when this wrapper wraps also RecordEpisodeStatistic
-                if k == "episode":
-                    for statistic in ["r", "l", "t"]:
-                        if "episode" not in classic_info[i] and has_info:
-                            classic_info[i]["episode"] = {}
-                        if has_info:
-                            classic_info[i]["episode"][statistic] = infos[k][statistic][
-                                i
-                            ]
-                    continue
-
                 if has_info:
                     classic_info[i][k] = infos[k][i]
+        return classic_info
+
+    def _process_episode_statistics(self, infos, classic_info):
+        episode_statistics = infos.pop("episode", False)
+        if not episode_statistics:
+            return classic_info
+
+        episode_statistics_mask = infos.pop("_episode", False)
+        for i, has_info in enumerate(episode_statistics_mask):
+            if has_info:
+                classic_info[i]["episode"] = {}
+                classic_info[i]["episode"]["r"] = episode_statistics["r"][i]
+                classic_info[i]["episode"]["l"] = episode_statistics["l"][i]
+                classic_info[i]["episode"]["t"] = episode_statistics["t"][i]
+
         return classic_info

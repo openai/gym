@@ -5,8 +5,9 @@ import numpy as np
 
 
 class BraxInfoProcessor:
-    """Process the info dictionary of an environment
-    so that the vectorized info is returned in the form of a single dictionary.
+    """Process info of vectorized environment to match `Brax` format.
+
+    Return info of a vectorized environment in the form of a single dictionary.
     Keys of the dictionary represents the `info` key; Values are lists
     in which each index correspond to an environment. If the environment
     at index `i` does not have a value for `info` then it is set to `0` for
