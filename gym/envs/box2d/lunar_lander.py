@@ -133,6 +133,7 @@ class LunarLander(gym.Env, EzPickle):
         gravity: float = -10.0,
         enable_wind: bool = False,
         wind_power: float = 15.0,
+        torque_power: float = 1.5,
     )
     ```
     If `continuous=True` is passed, continuous actions (corresponding to the throttle of the engines) will be used and the
