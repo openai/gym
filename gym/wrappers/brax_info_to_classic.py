@@ -65,7 +65,7 @@ class BraxInfoToClassic(gym.Wrapper):
         if not episode_statistics:
             return classic_info
 
-        episode_statistics_mask = infos.pop("_episode", False)
+        episode_statistics_mask = infos.pop("_episode")
         for i, has_info in enumerate(episode_statistics_mask):
             if has_info:
                 classic_info[i]["episode"] = {}
