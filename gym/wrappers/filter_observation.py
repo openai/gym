@@ -32,29 +32,26 @@ class FilterObservation(ObservationWrapper):
             filter_keys: List of keys to be included in the observations. If ``None``, observations will not be filtered and this wrapper has no effect
 
         Raises:
-            ValueError: If observation keys in not instance of None or
-                iterable.
-            ValueError: If any of the ``filter_keys`` are not included in
-                the original ``env``'s observation space
+            ValueError: If the environment's observation space is not :class:`spaces.Dict`
+            ValueError: If any of the `filter_keys` are not included in the original `env`'s observation space
         """
         super().__init__(env)
 
         wrapped_observation_space = env.observation_space
-        assert isinstance(
-            wrapped_observation_space, spaces.Dict
-        ), "FilterObservationWrapper is only usable with dict observations."
+        if not isinstance(wrapped_observation_space, spaces.Dict):
+            raise ValueError(
+                f"FilterObservationWrapper is only usable with dict observations, "
+                f"environment observation space is {type(wrapped_observation_space)}"
+            )
 
         observation_keys = wrapped_observation_space.spaces.keys()
-
         if filter_keys is None:
             filter_keys = tuple(observation_keys)
 
         missing_keys = {key for key in filter_keys if key not in observation_keys}
-
         if missing_keys:
             raise ValueError(
-                "All the filter_keys must be included in the "
-                "original observation space.\n"
+                "All the filter_keys must be included in the original observation space.\n"
                 f"Filter keys: {filter_keys}\n"
                 f"Observation keys: {observation_keys}\n"
                 f"Missing keys: {missing_keys}"
