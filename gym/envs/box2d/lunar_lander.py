@@ -431,7 +431,7 @@ class LunarLander(gym.Env, EzPickle):
             torque_mag = math.tanh(
                 math.sin(0.02 * self.torque_idx)
                 + (math.sin(math.pi * 0.01 * self.torque_idx))
-            ) * (self.wind_power * 0.2)
+            ) * (self.torque_power)
             self.torque_idx += 1
             self.lander.ApplyTorque(
                 (torque_mag),
