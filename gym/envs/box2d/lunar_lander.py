@@ -157,8 +157,7 @@ class LunarLander(gym.Env, EzPickle):
     `wind_power` dictates the maximum magnitude of wind.
 
     ### Version History
-    - v2: Added turbulance in the form of kwarg torque_power to version 0.24
-    - v2: Count energy spent
+    - v2: Count energy spent and in 0.24, added turbulance with wind power and torque_power parameters
     - v1: Legs contact with ground added in state vector; contact with ground
         give +10 reward points, and -10 if then lose contact; reward
         renormalized to 200; harder initial random push.
