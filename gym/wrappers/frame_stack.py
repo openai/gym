@@ -5,7 +5,6 @@ from typing import Union
 import numpy as np
 
 import gym
-from gym import ObservationWrapper
 from gym.error import DependencyNotInstalled
 from gym.spaces import Box
 
@@ -95,7 +94,7 @@ class LazyFrames:
         return frame
 
 
-class FrameStack(ObservationWrapper):
+class FrameStack(gym.ObservationWrapper):
     """Observation wrapper that stacks the observations in a rolling manner.
 
     For example, if the number of stacks is 4, then the returned observation contains

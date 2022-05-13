@@ -9,12 +9,12 @@ from typing import Any, Optional
 import numpy as np
 
 import gym
-from gym import ObservationWrapper, spaces
+from gym import spaces
 
 STATE_KEY = "state"
 
 
-class PixelObservationWrapper(ObservationWrapper):
+class PixelObservationWrapper(gym.ObservationWrapper):
     """Augment observations by pixel values.
 
     Observations of this wrapper will be dictionaries of images.

@@ -1,10 +1,9 @@
 """Wrapper for flattening observations of an environment."""
 import gym
 import gym.spaces as spaces
-from gym import ObservationWrapper
 
 
-class FlattenObservation(ObservationWrapper):
+class FlattenObservation(gym.ObservationWrapper):
     """Observation wrapper that flattens the observation.
 
     Example:

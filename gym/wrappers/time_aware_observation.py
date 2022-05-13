@@ -2,11 +2,10 @@
 import numpy as np
 
 import gym
-from gym import ObservationWrapper
 from gym.spaces import Box
 
 
-class TimeAwareObservation(ObservationWrapper):
+class TimeAwareObservation(gym.ObservationWrapper):
     """Augment the observation with the current time step in the episode.
 
     The observation space of the wrapped environment is assumed to be a flat :class:`Box`.

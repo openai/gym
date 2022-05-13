@@ -4,12 +4,11 @@ from typing import Union
 import numpy as np
 
 import gym
-from gym import ObservationWrapper
 from gym.error import DependencyNotInstalled
 from gym.spaces import Box
 
 
-class ResizeObservation(ObservationWrapper):
+class ResizeObservation(gym.ObservationWrapper):
     """Resize the image observation.
 
     This wrapper works on environments with image observations (or more generally observations of shape AxBxC) and resizes

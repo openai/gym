@@ -2,11 +2,10 @@
 import numpy as np
 
 import gym
-from gym import ObservationWrapper
 from gym.spaces import Box
 
 
-class GrayScaleObservation(ObservationWrapper):
+class GrayScaleObservation(gym.ObservationWrapper):
     """Convert the image observation from RGB to gray scale.
 
     Example:

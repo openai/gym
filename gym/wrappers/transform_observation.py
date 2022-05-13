@@ -2,10 +2,9 @@
 from typing import Any, Callable
 
 import gym
-from gym import ObservationWrapper
 
 
-class TransformObservation(ObservationWrapper):
+class TransformObservation(gym.ObservationWrapper):
     """Transform the observation via an arbitrary function :attr:`f`.
 
     The function :attr:`f` should be defined on the observation space of the base environment, ``env``, and should, ideally, return values in the same space.

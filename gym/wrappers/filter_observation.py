@@ -3,10 +3,10 @@ import copy
 from typing import Sequence
 
 import gym
-from gym import ObservationWrapper, spaces
+from gym import spaces
 
 
-class FilterObservation(ObservationWrapper):
+class FilterObservation(gym.ObservationWrapper):
     """Filter Dict observation space by the keys.
 
     Example:
