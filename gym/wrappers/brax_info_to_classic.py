@@ -1,3 +1,5 @@
+"""Wrapper that converts the brax-style info format for vec envs into the classic one."""
+
 from typing import List
 
 import gym
@@ -29,18 +31,25 @@ class BraxInfoToClassic(gym.Wrapper):
     """
 
     def __init__(self, env):
+        """This wrapper will convert the brax info into the classic (old) format.
+
+        Args:
+            env (Env): The environment to apply the wrapper
+        """
         assert getattr(
             env, "is_vector_env", False
         ), "This wrapper can only be used in vectorized environments."
         super().__init__(env)
 
     def step(self, action):
+        """Steps through the environment, convert brax info to classic."""
         observation, reward, done, infos = self.env.step(action)
         classic_info = self._convert_brax_info_to_classic(infos)
 
         return observation, reward, done, classic_info
 
     def reset(self, **kwargs):
+        """Resets the environment using kwargs."""
         if not kwargs.get("return_info"):
             obs = self.env.reset(**kwargs)
             return obs

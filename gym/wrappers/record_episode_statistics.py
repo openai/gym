@@ -1,7 +1,6 @@
 """Wrapper that tracks the cumulative rewards and episode lengths."""
 import time
 from collections import deque
-from typing import Optional
 
 import numpy as np
 
@@ -9,28 +8,39 @@ import gym
 
 
 class ClassicStatsInfo:
+    """Manage episode statistics."""
+
     def __init__(self, num_envs: int):
+        """Classic EpisodeStatics info."""
         self.info = {}
 
     def add_info(self, infos: dict, env_num: int):
+        """Add info."""
         self.info = {**self.info, **infos}
 
     def add_episode_statistics(self, infos: dict, env_num: int):
+        """Add episode statistics."""
         self.info = {**self.info, **infos}
 
     def get_info(self):
+        """Return info."""
         return self.info
 
 
 class BraxVecEnvStatsInfo:
+    """Manage episode statistics in the Brax format for vectorized envs."""
+
     def __init__(self, num_envs: int):
+        """Brax-style episode statistics."""
         self.num_envs = num_envs
         self.info = {}
 
     def add_info(self, info: dict, env_num: int):
+        """Add info."""
         self.info = {**self.info, **info}
 
     def add_episode_statistics(self, info: dict, env_num: int):
+        """Add episode statistics."""
         episode_info = info["episode"]
 
         self.info["episode"] = self.info.get("episode", {})
@@ -46,6 +56,7 @@ class BraxVecEnvStatsInfo:
             self.info["episode"][k] = info_array
 
     def get_info(self):
+        """Returns info."""
         return self.info
 
 
