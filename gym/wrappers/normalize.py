@@ -102,7 +102,7 @@ class NormalizeObservation(gym.core.Wrapper):
 
 
 class NormalizeReward(gym.core.Wrapper):
-    """This wrapper will normalize immediate rewards s.t. their exponential moving average has a fixed variance.
+    r"""This wrapper will normalize immediate rewards s.t. their exponential moving average has a fixed variance.
 
     The exponential moving average will have variance :math:`(1 - \gamma)^2`.
 
