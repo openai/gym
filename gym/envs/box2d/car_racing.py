@@ -153,7 +153,7 @@ class CarRacing(gym.Env, EzPickle):
 
     def __init__(
         self,
-        verbose: bool = True,
+        verbose: bool = False,
         lap_complete_percent: float = 0.95,
         domain_randomize: bool = False,
         continuous: bool = True,
