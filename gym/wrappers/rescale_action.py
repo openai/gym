@@ -18,11 +18,12 @@ class RescaleAction(gym.ActionWrapper):
         >>> env = gym.make('CartPole-v1')
         >>> env.action_space
         Box(-1.0, 1.0, (4,), float32)
-        >>> env = RescaleAction(env, min_action=-0.5, max_action=np.array([0.0, 0.5, 1.0, 0.75]))
+        >>> min_action = -0.5
+        >>> max_action = np.array([0.0, 0.5, 1.0, 0.75])
+        >>> env = RescaleAction(env, min_action=min_action, max_action=max_action)
         >>> env.action_space
         Box(-0.5, [0.   0.5  1.   0.75], (4,), float32)
-
-        >>> RescaleAction(env, min_action, max_action).action_space == Box(min_action, max_action)
+        >>> RescaleAction(env, min_action, max_action).action_space == gym.spaces.Box(min_action, max_action)
         True
     """
 
