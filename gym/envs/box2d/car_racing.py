@@ -645,7 +645,9 @@ class CarRacing(gym.Env, EzPickle):
             (255, 0, 0),
         )
 
-    def _draw_colored_polygon(self, surface, poly, color, zoom, translation, angle, clip=True):
+    def _draw_colored_polygon(
+        self, surface, poly, color, zoom, translation, angle, clip=True
+    ):
         import pygame
         from pygame import gfxdraw
 
