@@ -655,8 +655,13 @@ class CarRacing(gym.Env, EzPickle):
         poly = [
             (c[0] * zoom + translation[0], c[1] * zoom + translation[1]) for c in poly
         ]
+        # This checks if the polygon is out of bounds of the screen, and we skip drawing if so.
+        if not clip:
+            gfxdraw.aapolygon(self.surf, poly, color)
+            gfxdraw.filled_polygon(self.surf, poly, color)
+            return
         for coord in poly:
-            if not clip or (0 < coord[0] < WINDOW_W) or (0 < coord[1] < WINDOW_H):
+            if (0 < coord[0] < WINDOW_W) and (0 < coord[1] < WINDOW_H):
                 gfxdraw.aapolygon(self.surf, poly, color)
                 gfxdraw.filled_polygon(self.surf, poly, color)
                 return
