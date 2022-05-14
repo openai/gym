@@ -1,25 +1,25 @@
-"""Wrapper that converts the brax-style info format for vec envs into the classic one."""
+"""Wrapper that converts the info format for vec envs into the (old) classic one."""
 
 from typing import List
 
 import gym
 
 
-class BraxInfoToClassic(gym.Wrapper):
-    """Converts `Brax` info format to `classic`.
+class ClassicVectorInfo(gym.Wrapper):
+    """Converts info format to `classic`.
 
-    This wrapper converts the `Brax` info format of a
+    This wrapper converts the info format of a
     vector environment to the `classic` info format.
     This wrapper is intended to be used around vectorized
     environments. If using other wrappers that perform
     operation on info like `RecordEpisodeStatistics` this
     need to be the outermost wrapper.
 
-    i.e. BraxInfoToClassic(RecordEpisodeStatistics(envs))
+    i.e. ClassicVectorInfo(RecordEpisodeStatistics(envs))
 
     Example::
 
-    >>> # brax
+    >>> # actual
     ...  {
     ...      k: np.array[0., 0., 0.5, 0.3],
     ...      _k: np.array[False, False, True, True]
@@ -31,7 +31,7 @@ class BraxInfoToClassic(gym.Wrapper):
     """
 
     def __init__(self, env):
-        """This wrapper will convert the brax info into the classic (old) format.
+        """This wrapper will convert the info into the classic (old) format.
 
         Args:
             env (Env): The environment to apply the wrapper
@@ -42,9 +42,9 @@ class BraxInfoToClassic(gym.Wrapper):
         super().__init__(env)
 
     def step(self, action):
-        """Steps through the environment, convert brax info to classic."""
+        """Steps through the environment, convert info to classic."""
         observation, reward, done, infos = self.env.step(action)
-        classic_info = self._convert_brax_info_to_classic(infos)
+        classic_info = self._convert_info_to_classic(infos)
 
         return observation, reward, done, classic_info
 
@@ -55,10 +55,10 @@ class BraxInfoToClassic(gym.Wrapper):
             return obs
 
         obs, infos = self.env.reset(**kwargs)
-        classic_info = self._convert_brax_info_to_classic(infos)
+        classic_info = self._convert_info_to_classic(infos)
         return obs, classic_info
 
-    def _convert_brax_info_to_classic(self, infos: dict) -> List[dict]:
+    def _convert_info_to_classic(self, infos: dict) -> List[dict]:
         classic_info = [{} for _ in range(self.num_envs)]
         classic_info = self._process_episode_statistics(infos, classic_info)
         for k in infos:

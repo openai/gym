@@ -1,7 +1,7 @@
 import pytest
 
 import gym
-from gym.wrappers import BraxInfoToClassic, RecordEpisodeStatistics
+from gym.wrappers import ClassicVectorInfo, RecordEpisodeStatistics
 
 ENV_ID = "CartPole-v1"
 NUM_ENVS = 3
@@ -12,15 +12,15 @@ def test_usage_in_vector_env():
     env = gym.make(ENV_ID)
     vector_env = gym.vector.make(ENV_ID, num_envs=NUM_ENVS)
 
-    BraxInfoToClassic(vector_env)
+    ClassicVectorInfo(vector_env)
 
     with pytest.raises(AssertionError):
-        BraxInfoToClassic(env)
+        ClassicVectorInfo(env)
 
 
-def test_brax_info_to_classic():
+def test_info_to_classic():
     env_to_wrap = gym.vector.make(ENV_ID, num_envs=NUM_ENVS)
-    wrapped_env = BraxInfoToClassic(env_to_wrap)
+    wrapped_env = ClassicVectorInfo(env_to_wrap)
     _, info = wrapped_env.reset(return_info=True)
     assert isinstance(info, list)
     assert len(info) == NUM_ENVS
@@ -35,9 +35,9 @@ def test_brax_info_to_classic():
                 assert "terminal_observation" not in info_classic[i]
 
 
-def test_brax_info_to_classic_statistics():
+def test_info_to_classic_statistics():
     env_to_wrap = gym.vector.make(ENV_ID, num_envs=NUM_ENVS)
-    wrapped_env = BraxInfoToClassic(RecordEpisodeStatistics(env_to_wrap))
+    wrapped_env = ClassicVectorInfo(RecordEpisodeStatistics(env_to_wrap))
     _, info = wrapped_env.reset(return_info=True)
     assert isinstance(info, list)
     assert len(info) == NUM_ENVS
