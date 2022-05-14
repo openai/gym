@@ -15,7 +15,6 @@ from gym.error import (
     NoAsyncCallError,
 )
 from gym.vector.utils import (
-    BraxInfoProcessor,
     CloudpickleWrapper,
     clear_mpi_env_vars,
     concatenate,
@@ -130,7 +129,6 @@ class AsyncVectorEnv(VectorEnv):
         self.copy = copy
         dummy_env = env_fns[0]()
         self.metadata = dummy_env.metadata
-        self.info_processor = BraxInfoProcessor
 
         if (observation_space is None) or (action_space is None):
             observation_space = observation_space or dummy_env.observation_space
@@ -312,11 +310,11 @@ class AsyncVectorEnv(VectorEnv):
         self._raise_if_errors(successes)
         self._state = AsyncState.DEFAULT
 
-        infos = self.info_processor(self.num_envs)
+        infos = {}
         if return_info:
             results, info_data = zip(*results)
             for i, info in enumerate(info_data):
-                infos.add_info(info, i)
+                infos = self._add_info(infos, info, i)
 
             if not self.shared_memory:
                 self.observations = concatenate(
@@ -325,7 +323,7 @@ class AsyncVectorEnv(VectorEnv):
 
             return (
                 deepcopy(self.observations) if self.copy else self.observations
-            ), infos.get_info()
+            ), infos
         else:
             if not self.shared_memory:
                 self.observations = concatenate(
@@ -413,13 +411,12 @@ class AsyncVectorEnv(VectorEnv):
                 f"The call to `step_wait` has timed out after {timeout} second(s)."
             )
 
-        observations_list, rewards, dones = [], [], []
+        observations_list, rewards, dones, infos = [], [], [], {}
         successes = []
-        infos = self.info_processor(self.num_envs)
         for i, pipe in enumerate(self.parent_pipes):
             result, success = pipe.recv()
             obs, rew, done, info = result
-            infos.add_info(info, i)
+            infos = self._add_info(infos, info, i)
 
             successes.append(success)
             observations_list.append(obs)
@@ -440,7 +437,7 @@ class AsyncVectorEnv(VectorEnv):
             deepcopy(self.observations) if self.copy else self.observations,
             np.array(rewards),
             np.array(dones, dtype=np.bool_),
-            infos.get_info(),
+            infos,
         )
 
     def call_async(self, name, *args, **kwargs):

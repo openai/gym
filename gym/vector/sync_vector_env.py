@@ -3,7 +3,7 @@ from typing import List, Optional, Union
 
 import numpy as np
 
-from gym.vector.utils import BraxInfoProcessor, concatenate, create_empty_array, iterate
+from gym.vector.utils import concatenate, create_empty_array, iterate
 from gym.vector.vector_env import VectorEnv
 
 __all__ = ["SyncVectorEnv"]
@@ -64,7 +64,6 @@ class SyncVectorEnv(VectorEnv):
         self.envs = [env_fn() for env_fn in env_fns]
         self.copy = copy
         self.metadata = self.envs[0].metadata
-        self.info_processor = BraxInfoProcessor
 
         if (observation_space is None) or (action_space is None):
             observation_space = observation_space or self.envs[0].observation_space
@@ -108,7 +107,7 @@ class SyncVectorEnv(VectorEnv):
 
         self._dones[:] = False
         observations = []
-        data_list = self.info_processor(self.num_envs)
+        data_list = {}
         for i, (env, single_seed) in enumerate(zip(self.envs, seed)):
 
             kwargs = {}
@@ -125,7 +124,7 @@ class SyncVectorEnv(VectorEnv):
             else:
                 observation, data = env.reset(**kwargs)
                 observations.append(observation)
-                data_list.add_info(data, i)
+                data_list = self._add_info(data_list, data, i)
 
         self.observations = concatenate(
             self.single_observation_space, observations, self.observations
@@ -135,20 +134,20 @@ class SyncVectorEnv(VectorEnv):
         else:
             return (
                 deepcopy(self.observations) if self.copy else self.observations
-            ), data_list.get_info()
+            ), data_list
 
     def step_async(self, actions):
         self._actions = iterate(self.action_space, actions)
 
     def step_wait(self):
-        observations, infos = [], self.info_processor(self.num_envs)
+        observations, infos = [], {}
         for i, (env, action) in enumerate(zip(self.envs, self._actions)):
             observation, self._rewards[i], self._dones[i], info = env.step(action)
             if self._dones[i]:
                 info["terminal_observation"] = observation
                 observation = env.reset()
             observations.append(observation)
-            infos.add_info(info, i)
+            infos = self._add_info(infos, info, i)
         self.observations = concatenate(
             self.single_observation_space, observations, self.observations
         )
@@ -157,7 +156,7 @@ class SyncVectorEnv(VectorEnv):
             deepcopy(self.observations) if self.copy else self.observations,
             np.copy(self._rewards),
             np.copy(self._dones),
-            infos.get_info(),
+            infos,
         )
 
     def call(self, name, *args, **kwargs):

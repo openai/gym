@@ -1,5 +1,7 @@
 from typing import List, Optional, Union
 
+import numpy as np
+
 import gym
 from gym.logger import deprecation
 from gym.vector.utils.spaces import batch_space
@@ -210,6 +212,27 @@ class VectorEnv(gym.Env):
             "Function `env.seed(seed)` is marked as deprecated and will be removed in the future. "
             "Please use `env.reset(seed=seed) instead in VectorEnvs."
         )
+
+    def _add_info(self, infos: dict, info: dict, env_num: int):
+        for k in info.keys():
+            if k not in infos:
+                info_array, array_mask = self._init_info_array(type(info[k]))
+            else:
+                info_array, array_mask = infos[k], infos[f"_{k}"]
+
+            info_array[env_num], array_mask[env_num] = info[k], True
+            infos[k], infos[f"_{k}"] = info_array, array_mask
+        return infos
+
+    def _init_info_array(self, dtype: type) -> np.ndarray:
+        if dtype not in [int, float, bool]:
+            dtype = object
+            array = np.zeros(self.num_envs, dtype=dtype)
+            array[:] = None
+        else:
+            array = np.zeros(self.num_envs, dtype=dtype)
+        array_mask = np.zeros(self.num_envs, dtype=bool)
+        return array, array_mask
 
     def __del__(self):
         if not getattr(self, "closed", True):
