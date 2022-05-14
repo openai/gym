@@ -133,7 +133,7 @@ class LunarLander(gym.Env, EzPickle):
         gravity: float = -10.0,
         enable_wind: bool = False,
         wind_power: float = 15.0,
-        torque_power: float = 1.5,
+        turbulance_power: float = 1.5,
     )
     ```
     If `continuous=True` is passed, continuous actions (corresponding to the throttle of the engines) will be used and the
@@ -157,7 +157,7 @@ class LunarLander(gym.Env, EzPickle):
     `wind_power` dictates the maximum magnitude of wind.
 
     ### Version History
-    - v2: Count energy spent and in 0.24, added turbulance with wind power and torque_power parameters
+    - v2: Count energy spent and in 0.24, added turbulance with wind power and turbulance_power parameters
     - v1: Legs contact with ground added in state vector; contact with ground
         give +10 reward points, and -10 if then lose contact; reward
         renormalized to 200; harder initial random push.
@@ -177,7 +177,7 @@ class LunarLander(gym.Env, EzPickle):
         gravity: float = -10.0,
         enable_wind: bool = False,
         wind_power: float = 15.0,
-        torque_power: float = 1.5,
+        turbulance_power: float = 1.5,
     ):
         EzPickle.__init__(self)
 
@@ -192,9 +192,9 @@ class LunarLander(gym.Env, EzPickle):
         self.wind_power = wind_power
 
         assert (
-            0.0 <= torque_power and torque_power < 2.0
-        ), f"torque_power (current value: {torque_power} must be between 0 and 2"
-        self.torque_power = torque_power
+            0.0 <= turbulance_power and turbulance_power < 2.0
+        ), f"turbulance_power (current value: {turbulance_power} must be between 0 and 2"
+        self.turbulance_power = turbulance_power
 
         self.enable_wind = enable_wind
         self.wind_idx = np.random.randint(-9999, 9999)
@@ -432,7 +432,7 @@ class LunarLander(gym.Env, EzPickle):
             torque_mag = math.tanh(
                 math.sin(0.02 * self.torque_idx)
                 + (math.sin(math.pi * 0.01 * self.torque_idx))
-            ) * (self.torque_power)
+            ) * (self.turbulance_power)
             self.torque_idx += 1
             self.lander.ApplyTorque(
                 (torque_mag),
