@@ -310,8 +310,8 @@ class AsyncVectorEnv(VectorEnv):
         self._raise_if_errors(successes)
         self._state = AsyncState.DEFAULT
 
-        infos = {}
         if return_info:
+            infos = {}
             results, info_data = zip(*results)
             for i, info in enumerate(info_data):
                 infos = self._add_info(infos, info, i)

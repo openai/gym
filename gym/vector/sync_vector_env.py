@@ -107,7 +107,7 @@ class SyncVectorEnv(VectorEnv):
 
         self._dones[:] = False
         observations = []
-        data_list = {}
+        infos = {}
         for i, (env, single_seed) in enumerate(zip(self.envs, seed)):
 
             kwargs = {}
@@ -124,7 +124,7 @@ class SyncVectorEnv(VectorEnv):
             else:
                 observation, data = env.reset(**kwargs)
                 observations.append(observation)
-                data_list = self._add_info(data_list, data, i)
+                infos = self._add_info(infos, data, i)
 
         self.observations = concatenate(
             self.single_observation_space, observations, self.observations
@@ -134,7 +134,7 @@ class SyncVectorEnv(VectorEnv):
         else:
             return (
                 deepcopy(self.observations) if self.copy else self.observations
-            ), data_list
+            ), infos
 
     def step_async(self, actions):
         self._actions = iterate(self.action_space, actions)
