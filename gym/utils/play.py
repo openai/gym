@@ -102,7 +102,7 @@ def play(
     fps: Optional[int] = None,
     zoom: Optional[float] = None,
     callback: Optional[Callable] = None,
-    keys_to_action: Optional[Dict[Union[Tuple[int], str], ActType]] = None,
+    keys_to_action: Optional[Dict[Union[Tuple[Union[str, int]], str], ActType]] = None,
     seed: Optional[int] = None,
     noop: ActType = 0,
 ):
