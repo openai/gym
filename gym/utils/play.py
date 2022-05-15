@@ -153,7 +153,7 @@ def play(
         transpose: If this is ``True``, the output of observation is transposed. Defaults to ``True``.
         fps: Maximum number of steps of the environment to execute every second. Defaults to 30.
         zoom: Make screen edge this many times bigger
-        callback: Callback if a callback is provided it will be executed after
+        callback: If a callback is provided, it will be executed after
             every step. It takes the following input:
                 obs_t: observation before performing action
                 obs_tp1: observation after performing action
