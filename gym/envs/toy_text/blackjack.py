@@ -288,7 +288,7 @@ class BlackjackEnv(gym.Env):
             )
 
     def close(self):
-        if not hasattr(self, "screen"):
+        if hasattr(self, "screen"):
             import pygame
 
             pygame.display.quit()

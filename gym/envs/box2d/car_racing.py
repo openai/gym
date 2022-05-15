@@ -153,7 +153,7 @@ class CarRacing(gym.Env, EzPickle):
 
     def __init__(
         self,
-        verbose: bool = True,
+        verbose: bool = False,
         lap_complete_percent: float = 0.95,
         domain_randomize: bool = False,
         continuous: bool = True,
@@ -548,7 +548,7 @@ class CarRacing(gym.Env, EzPickle):
 
         # draw background
         self._draw_colored_polygon(
-            self.surf, field, self.bg_color, zoom, translation, angle
+            self.surf, field, self.bg_color, zoom, translation, angle, clip=False
         )
 
         # draw grass patches
@@ -645,7 +645,9 @@ class CarRacing(gym.Env, EzPickle):
             (255, 0, 0),
         )
 
-    def _draw_colored_polygon(self, surface, poly, color, zoom, translation, angle):
+    def _draw_colored_polygon(
+        self, surface, poly, color, zoom, translation, angle, clip=True
+    ):
         import pygame
         from pygame import gfxdraw
 
@@ -653,8 +655,16 @@ class CarRacing(gym.Env, EzPickle):
         poly = [
             (c[0] * zoom + translation[0], c[1] * zoom + translation[1]) for c in poly
         ]
-        gfxdraw.aapolygon(self.surf, poly, color)
-        gfxdraw.filled_polygon(self.surf, poly, color)
+        # This checks if the polygon is out of bounds of the screen, and we skip drawing if so.
+        if not clip:
+            gfxdraw.aapolygon(self.surf, poly, color)
+            gfxdraw.filled_polygon(self.surf, poly, color)
+            return
+        for coord in poly:
+            if (0 < coord[0] < WINDOW_W) and (0 < coord[1] < WINDOW_H):
+                gfxdraw.aapolygon(self.surf, poly, color)
+                gfxdraw.filled_polygon(self.surf, poly, color)
+                return
 
     def _create_image_array(self, screen, size):
         import pygame

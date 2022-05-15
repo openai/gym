@@ -1,20 +1,44 @@
 [tool.pyright]
 
 include = [
-    "gym/version.py",
-    "gym/logger.py",
-    "gym/envs/registration.py",
-    "gym/spaces/**.py",
-    "gym/core.py",
-    "gym/utils/seeding.py",
-    "gym/envs/classic_control/*.py"
+    "gym/**",
+    "tests/**"
 ]
+
 exclude = [
     "**/node_modules",
     "**/__pycache__",
-]
-strict = ["gym/version.py", "gym/logger.py"]
 
-reportMissingImports = true
+    "gym/envs/box2d/**",
+    # "gym/envs/classic_control/**",
+    "gym/envs/mujoco/**",
+    "gym/envs/toy_text/**",
+    "gym/spaces/**",
+    "gym/utils/**",
+    "gym/vector/**",
+    "gym/wrappers/**",
+    "tests/**"
+]
+
+strict = [
+
+]
+
+typeCheckingMode = "basic"
+pythonVersion = "3.7"
+typeshedPath = "typeshed"
+enableTypeIgnoreComments = true
+
+# This is required as the CI pre-commit does not download the module (i.e. numpy, pygame, box2d)
+#   Therefore, we have to ignore missing imports
+reportMissingImports = "none"
+
+reportUnknownMemberType = "none"
+reportUnknownParameterType = "none"
+reportUnknownVariableType = "none"
+reportUnknownArgumentType = "none"
+reportPrivateUsage = "warning"
+reportUntypedFunctionDecorator = "none"
 reportMissingTypeStubs = false
-verboseOutput = true
+reportUnboundVariable = "warning"
+reportGeneralTypeIssues ="none"
