@@ -155,10 +155,8 @@ class LunarLander(gym.Env, EzPickle):
     `k` is set to 0.01.
     `C` is sampled randomly between -9999 and 9999.
 
-    `wind_power` dictates the maximum magnitude of wind.
-
-    The recommended value for `wind_power` is between 0.0 and 20.0.
-    The recommended value for `turbulence_power` is between 0.0 and 2.0.
+    `wind_power` dictates the maximum magnitude of linear wind applied to the craft. The recommended value for `wind_power` is between 0.0 and 20.0.
+    `turbulence_power` dictates the maximum magnitude of rotational wind applied to the craft. The recommended value for `turbulence_power` is between 0.0 and 2.0.
 
     ### Version History
     - v2: Count energy spent and in 0.24, added turbulance with wind power and turbulence_power parameters
