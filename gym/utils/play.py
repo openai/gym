@@ -1,4 +1,4 @@
-from typing import Callable, Dict, Optional, Tuple
+from typing import Callable, Dict, Optional, Tuple, Union
 
 import pygame
 from numpy.typing import NDArray
@@ -20,6 +20,8 @@ except ImportError as e:
 from collections import deque
 
 from pygame.locals import VIDEORESIZE
+
+from gym.core import ActType
 
 
 class MissingKeysToAction(Exception):
@@ -97,11 +99,12 @@ def display_arr(
 def play(
     env: Env,
     transpose: Optional[bool] = True,
-    fps: Optional[int] = 30,
+    fps: Optional[int] = None,
     zoom: Optional[float] = None,
     callback: Optional[Callable] = None,
-    keys_to_action: Optional[Dict[Tuple[int], int]] = None,
+    keys_to_action: Optional[Dict[Union[Tuple[Union[str, int]], str], ActType]] = None,
     seed: Optional[int] = None,
+    noop: ActType = 0,
 ):
     """Allows one to play the game using keyboard.
 
@@ -161,7 +164,19 @@ def play(
         Random seed used when resetting the environment. If None, no seed is used.
     """
     env.reset(seed=seed)
-    game = PlayableGame(env, keys_to_action, zoom)
+
+    key_code_to_action = {}
+
+    for key_combination, action in keys_to_action.items():
+        key_code = tuple(
+            sorted(ord(key) if isinstance(key, str) else key for key in key_combination)
+        )
+        key_code_to_action[key_code] = action
+
+    game = PlayableGame(env, key_code_to_action, zoom)
+
+    if fps is None:
+        fps = env.metadata.get("render_fps", 30)
 
     done = True
     clock = pygame.time.Clock()
@@ -171,7 +186,7 @@ def play(
             done = False
             obs = env.reset(seed=seed)
         else:
-            action = keys_to_action.get(tuple(sorted(game.pressed_keys)), 0)
+            action = key_code_to_action.get(tuple(sorted(game.pressed_keys)), noop)
             prev_obs = obs
             obs, rew, done, info = env.step(action)
             if callback is not None:
