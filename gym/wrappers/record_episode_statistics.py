@@ -41,11 +41,11 @@ class ClassicStatsInfo:
         return self.info
 
 
-class BraxVecEnvStatsInfo:
-    """Manage episode statistics in the Brax format for vectorized envs."""
+class VecEnvStatsInfo:
+    """Manage episode statistics for vectorized envs."""
 
     def __init__(self, num_envs: int):
-        """Brax-style episode statistics.
+        """Episode statistics for vectorized envs.
 
         Args:
             num_envs (int): number of environments.
@@ -93,8 +93,12 @@ class BraxVecEnvStatsInfo:
 class RecordEpisodeStatistics(gym.Wrapper):
     """This wrapper will keep track of cumulative rewards and episode lengths.
 
-    At the end of an episode, the statistics of the episode will be added to ``info``. After the completion
-    of an episode, ``info`` will look like this::
+    At the end of an episode, the statistics of the episode will be added to ``info``
+    using the key ``episode``. If using a vectorized environment also the key
+    ``_episode`` is used which indicates whether the env at the respective index has
+    the episode statistics.
+
+    After the completion of an episode, ``info`` will look like this::
 
         >>> info = {
         ...     ...
@@ -103,6 +107,18 @@ class RecordEpisodeStatistics(gym.Wrapper):
         ...         "l": "<episode length>",
         ...         "t": "<elapsed time since instantiation of wrapper>"
         ...     },
+        ... }
+
+    For a vectorized environments the output will be in the form of::
+
+        >>> infos = {
+        ...     ...
+        ...     "episode": {
+        ...         "r": "<array of cumulative reward>",
+        ...         "l": "<array of episode length>",
+        ...         "t": "<array of elapsed time since instantiation of wrapper>"
+        ...     },
+        ...     "_episode": "<boolean array of length num-envs>"
         ... }
 
     Moreover, the most recent rewards and episode lengths are stored in buffers that can be accessed via
@@ -130,7 +146,7 @@ class RecordEpisodeStatistics(gym.Wrapper):
         self.length_queue = deque(maxlen=deque_size)
         self.is_vector_env = getattr(env, "is_vector_env", False)
         if self.is_vector_env:
-            self.stats_info_processor = BraxVecEnvStatsInfo
+            self.stats_info_processor = VecEnvStatsInfo
         else:
             self.stats_info_processor = ClassicStatsInfo
 

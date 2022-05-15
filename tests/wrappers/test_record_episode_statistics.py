@@ -1,4 +1,3 @@
-import numpy as np
 import pytest
 
 import gym
@@ -56,24 +55,6 @@ def test_record_episode_statistics_with_vectorenv(num_envs, asynchronous):
             assert "_episode" in infos
             assert all([item in infos["episode"] for item in ["r", "l", "t"]])
             break
-
-
-@pytest.mark.parametrize(("num_envs", "asynchronous"), [(3, False), (3, True)])
-def test_episode_statistics_brax_info(num_envs, asynchronous):
-    envs = gym.vector.make("CartPole-v1", asynchronous=asynchronous, num_envs=num_envs)
-    envs = RecordEpisodeStatistics(envs)
-    envs.reset()
-    dones = [False for _ in range(num_envs)]
-
-    actions = np.array([1, 0, 1])
-    while not any(dones):
-        _, _, dones, infos = envs.step(actions)
-
-    assert "episode" in infos
-    assert len(infos["episode"]) == num_envs
-    assert "terminal_observation" in infos
-    for i in range(num_envs):
-        if dones[i]:
-            assert infos["terminal_observation"][i] is not None
         else:
-            assert infos["terminal_observation"][i] is None
+            assert "episode" not in infos
+            assert "_episode" not in infos
