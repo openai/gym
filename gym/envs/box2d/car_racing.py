@@ -38,6 +38,10 @@ TRACK_TURN_RATE = 0.31
 TRACK_WIDTH = 40 / SCALE
 BORDER = 8 / SCALE
 BORDER_MIN_COUNT = 4
+GRASS_DIM = PLAYFIELD / 20.0
+MAX_SHAPE_DIM = (
+    max(GRASS_DIM, TRACK_WIDTH, TRACK_DETAIL_STEP) * math.sqrt(2) * ZOOM * SCALE
+)
 
 
 class FrictionDetector(contactListener):
@@ -552,16 +556,15 @@ class CarRacing(gym.Env, EzPickle):
         )
 
         # draw grass patches
-        k = bounds / (20.0)
         grass = []
         for x in range(0, 40, 2):
             for y in range(0, 40, 2):
                 grass.append(
                     [
-                        (k * x + k, k * y + 0),
-                        (k * x + 0, k * y + 0),
-                        (k * x + 0, k * y + k),
-                        (k * x + k, k * y + k),
+                        (GRASS_DIM * x + GRASS_DIM, GRASS_DIM * y + 0),
+                        (GRASS_DIM * x + 0, GRASS_DIM * y + 0),
+                        (GRASS_DIM * x + 0, GRASS_DIM * y + GRASS_DIM),
+                        (GRASS_DIM * x + GRASS_DIM, GRASS_DIM * y + GRASS_DIM),
                     ]
                 )
         for poly in grass:
@@ -656,13 +659,13 @@ class CarRacing(gym.Env, EzPickle):
             (c[0] * zoom + translation[0], c[1] * zoom + translation[1]) for c in poly
         ]
         # This checks if the polygon is out of bounds of the screen, and we skip drawing if so.
-        # instead of calculating exactly if the polygon and screen overlap,
+        # Instead of calculating exactly if the polygon and screen overlap,
         # we simply check if the polygon is in a larger bounding box whose dimension
-        # is greater than the screen by the (approximate) maximum length of an object's side
-        max_shape_dim = 100
+        # is greater than the screen by MAX_SHAPE_DIM, which is the maximum
+        # diagonal length of an environment object
         if not clip or any(
-            (-max_shape_dim <= coord[0] <= WINDOW_W + max_shape_dim)
-            and (-max_shape_dim <= coord[1] <= WINDOW_H + max_shape_dim)
+            (-MAX_SHAPE_DIM <= coord[0] <= WINDOW_W + MAX_SHAPE_DIM)
+            and (-MAX_SHAPE_DIM <= coord[1] <= WINDOW_H + MAX_SHAPE_DIM)
             for coord in poly
         ):
             gfxdraw.aapolygon(self.surf, poly, color)
