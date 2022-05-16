@@ -1,8 +1,7 @@
+import numpy as np
 import pytest
 
 import gym
-import numpy as np
-
 
 ENV_ID = "CartPole-v1"
 NUM_ENVS = 3
@@ -17,15 +16,15 @@ def test_vector_env_info(asynchronous):
         action = env.action_space.sample()
         _, _, dones, infos = env.step(action)
         if any(dones):
-            assert len(infos['terminal_observation']) == NUM_ENVS
-            assert len(infos['_terminal_observation']) == NUM_ENVS
-            
-            assert isinstance(infos['terminal_observation'], np.ndarray)
-            assert isinstance(infos['_terminal_observation'], np.ndarray)
+            assert len(infos["terminal_observation"]) == NUM_ENVS
+            assert len(infos["_terminal_observation"]) == NUM_ENVS
+
+            assert isinstance(infos["terminal_observation"], np.ndarray)
+            assert isinstance(infos["_terminal_observation"], np.ndarray)
 
             for i, done in enumerate(dones):
                 if done:
-                    assert infos['_terminal_observation'][i]
+                    assert infos["_terminal_observation"][i]
                 else:
-                    assert not infos['_terminal_observation'][i]
-                    assert infos['terminal_observation'][i] == None
+                    assert not infos["_terminal_observation"][i]
+                    assert infos["terminal_observation"][i] is None
