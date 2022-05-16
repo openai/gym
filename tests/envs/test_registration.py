@@ -162,7 +162,12 @@ def test_env_version_suggestions(
 
 
 def test_make_with_kwargs():
-    env = envs.make("test.ArgumentEnv-v0", arg2="override_arg2", arg3="override_arg3")
+    env = envs.make(
+        "test.ArgumentEnv-v0",
+        arg2="override_arg2",
+        arg3="override_arg3",
+        disable_env_checker=True,
+    )
     assert env.spec.id == "test.ArgumentEnv-v0"
     assert isinstance(env.unwrapped, ArgumentEnv)
     assert env.arg1 == "arg1"
@@ -273,7 +278,9 @@ def test_register_versioned_unversioned():
 
 def test_return_latest_versioned_env(register_some_envs):
     with pytest.warns(UserWarning):
-        env = envs.make("MyAwesomeNamespace/MyAwesomeVersionedEnv")
+        env = envs.make(
+            "MyAwesomeNamespace/MyAwesomeVersionedEnv", disable_env_checker=True
+        )
     assert env.spec.id == "MyAwesomeNamespace/MyAwesomeVersionedEnv-v5"
 
 
