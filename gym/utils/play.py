@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from collections import deque
-from typing import Callable, Optional
+from typing import Callable, Dict, Optional, Tuple, Union
 
 import numpy as np
 import pygame
@@ -120,11 +120,12 @@ def display_arr(
 def play(
     env: Env,
     transpose: Optional[bool] = True,
-    fps: Optional[int] = 30,
+    fps: Optional[int] = None,
     zoom: Optional[float] = None,
     callback: Optional[Callable] = None,
-    keys_to_action: Optional[dict[tuple[int], int]] = None,
+    keys_to_action: Optional[Dict[Union[Tuple[Union[str, int]], str], ActType]] = None,
     seed: Optional[int] = None,
+    noop: ActType = 0,
 ):
     """Allows one to play the game using keyboard.
 
@@ -142,10 +143,10 @@ def play(
     :class:`gym.utils.play.PlayPlot`. Here's a sample code for plotting the reward
     for last 5 second of gameplay.
 
-    >>> def callback(obs_t, obs_tp1, action, rew, done, info):
-    ...        return [rew,]
-    >>> plotter = PlayPlot(callback, 30 * 5, ["reward"])
-    >>> play(gym.make("CarRacing-v1"), callback=plotter.callback)
+        >>> def callback(obs_t, obs_tp1, action, rew, done, info):
+        ...        return [rew,]
+        >>> plotter = PlayPlot(callback, 30 * 5, ["reward"])
+        >>> play(gym.make("CarRacing-v1"), callback=plotter.callback)
 
 
     Args:
@@ -171,9 +172,22 @@ def play(
                 ... }
             If ``None``, default ``key_to_action`` mapping for that environment is used, if provided.
         seed: Random seed used when resetting the environment. If None, no seed is used.
+        noop: The action used when no key input has been entered.
     """
     env.reset(seed=seed)
-    game = PlayableGame(env, keys_to_action, zoom)
+
+    key_code_to_action = {}
+
+    for key_combination, action in keys_to_action.items():
+        key_code = tuple(
+            sorted(ord(key) if isinstance(key, str) else key for key in key_combination)
+        )
+        key_code_to_action[key_code] = action
+
+    game = PlayableGame(env, key_code_to_action, zoom)
+
+    if fps is None:
+        fps = env.metadata.get("render_fps", 30)
 
     done = True
     clock = pygame.time.Clock()
@@ -183,7 +197,7 @@ def play(
             done = False
             obs = env.reset(seed=seed)
         else:
-            action = keys_to_action.get(tuple(sorted(game.pressed_keys)), 0)
+            action = key_code_to_action.get(tuple(sorted(game.pressed_keys)), noop)
             prev_obs = obs
             obs, rew, done, info = env.step(action)
             if callback is not None:
@@ -221,7 +235,8 @@ class PlayPlot:
         def compute_metrics(obs_t, obs_tp, action, reward, done, info):
             return [reward, info["cumulative_reward"], np.linalg.norm(action)]
 
-    :class:`PlayPlot` provides the method :meth:`callback` which will pass its arguments along to that function and uses the returned values to update live plots of the metrics.
+    :class:`PlayPlot` provides the method :meth:`callback` which will pass its arguments along to that function
+    and uses the returned values to update live plots of the metrics.
 
     Typically, this :meth:`callback` will be used in conjunction with :func:`play` to see how the metrics evolve as you play::
 
@@ -234,7 +249,8 @@ class PlayPlot:
     ):
         """Constructor of :class:`PlayPlot`.
 
-        The function ``callback`` that is passed to this constructor should return a list of metrics that is of length ``len(plot_names)``.
+        The function ``callback`` that is passed to this constructor should return
+        a list of metrics that is of length ``len(plot_names)``.
 
         Args:
             callback: Function that computes metrics from environment transitions
