@@ -1,6 +1,7 @@
 __credits__ = ["Andrea PIERRÉ"]
 
 import math
+import warnings
 from typing import Optional
 
 import numpy as np
@@ -8,7 +9,7 @@ import numpy as np
 import gym
 from gym import error, spaces
 from gym.error import DependencyNotInstalled
-from gym.utils import EzPickle
+from gym.utils import EzPickle, colorize
 
 try:
     import Box2D
@@ -133,6 +134,7 @@ class LunarLander(gym.Env, EzPickle):
         gravity: float = -10.0,
         enable_wind: bool = False,
         wind_power: float = 15.0,
+        turbulence_power: float = 1.5,
     )
     ```
     If `continuous=True` is passed, continuous actions (corresponding to the throttle of the engines) will be used and the
@@ -153,10 +155,11 @@ class LunarLander(gym.Env, EzPickle):
     `k` is set to 0.01.
     `C` is sampled randomly between -9999 and 9999.
 
-    `wind_power` dictates the maximum magnitude of wind.
+    `wind_power` dictates the maximum magnitude of linear wind applied to the craft. The recommended value for `wind_power` is between 0.0 and 20.0.
+    `turbulence_power` dictates the maximum magnitude of rotational wind applied to the craft. The recommended value for `turbulence_power` is between 0.0 and 2.0.
 
     ### Version History
-    - v2: Count energy spent
+    - v2: Count energy spent and in v0.24, added turbulance with wind power and turbulence_power parameters
     - v1: Legs contact with ground added in state vector; contact with ground
         give +10 reward points, and -10 if then lose contact; reward
         renormalized to 200; harder initial random push.
@@ -176,6 +179,7 @@ class LunarLander(gym.Env, EzPickle):
         gravity: float = -10.0,
         enable_wind: bool = False,
         wind_power: float = 15.0,
+        turbulence_power: float = 1.5,
     ):
         EzPickle.__init__(self)
 
@@ -184,13 +188,27 @@ class LunarLander(gym.Env, EzPickle):
         ), f"gravity (current value: {gravity}) must be between -12 and 0"
         self.gravity = gravity
 
-        assert (
-            0.0 < wind_power and wind_power < 20.0
-        ), f"wind_power (current value: {wind_power}) must be between 0 and 20"
+        if 0.0 > wind_power or wind_power > 20.0:
+            warnings.warn(
+                colorize(
+                    f"WARN: wind_power value is recommended to be between 0.0 and 20.0, (current value: {wind_power})",
+                    "yellow",
+                ),
+            )
         self.wind_power = wind_power
+
+        if 0.0 > turbulence_power or turbulence_power > 2.0:
+            warnings.warn(
+                colorize(
+                    f"WARN: turbulence_power value is recommended to be between 0.0 and 2.0, (current value: {turbulence_power})",
+                    "yellow",
+                ),
+            )
+        self.turbulence_power = turbulence_power
 
         self.enable_wind = enable_wind
         self.wind_idx = np.random.randint(-9999, 9999)
+        self.torque_idx = np.random.randint(-9999, 9999)
 
         self.screen = None
         self.clock = None
@@ -416,6 +434,18 @@ class LunarLander(gym.Env, EzPickle):
             self.wind_idx += 1
             self.lander.ApplyForceToCenter(
                 (wind_mag, 0.0),
+                True,
+            )
+
+            # the function used for torque is tanh(sin(2 k x) + sin(pi k x)),
+            # which is proven to never be periodic, k = 0.01
+            torque_mag = math.tanh(
+                math.sin(0.02 * self.torque_idx)
+                + (math.sin(math.pi * 0.01 * self.torque_idx))
+            ) * (self.turbulence_power)
+            self.torque_idx += 1
+            self.lander.ApplyTorque(
+                (torque_mag),
                 True,
             )
 
