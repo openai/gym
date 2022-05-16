@@ -152,10 +152,10 @@ def play(
     Args:
         env: Environment to use for playing.
         transpose: If this is ``True``, the output of observation is transposed. Defaults to ``True``.
-        fps: Maximum number of steps of the environment to execute every second. Defaults to 30.
-        zoom: Make screen edge this many times bigger
-        callback: If a callback is provided, it will be executed after
-            every step. It takes the following input:
+        fps: Maximum number of steps of the environment executed every second. Defaults to 30 if environment
+            does not have "render_fps" in its metadata.
+        zoom: Zoom the observation in, ``zoom`` amount, should be positive float
+        callback: If a callback is provided, it will be executed after every step. It takes the following input:
                 obs_t: observation before performing action
                 obs_tp1: observation after performing action
                 action: action that was executed
@@ -167,7 +167,7 @@ def play(
             to trigger action number 2 then key_to_action dict would look like this:
                 >>> {
                 ...    # ...
-                ...    sorted(ord('w'), ord(' ')) -> 2
+                ...    sorted((ord('w'), ord(' '))): 2
                 ...    # ...
                 ... }
             If ``None``, default ``key_to_action`` mapping for that environment is used, if provided.
