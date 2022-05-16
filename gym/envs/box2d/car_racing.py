@@ -8,7 +8,7 @@ import numpy as np
 import gym
 from gym import spaces
 from gym.envs.box2d.car_dynamics import Car
-from gym.error import DependencyNotInstalled
+from gym.error import DependencyNotInstalled, InvalidAction
 from gym.utils import EzPickle
 
 try:
@@ -449,6 +449,11 @@ class CarRacing(gym.Env, EzPickle):
                 self.car.gas(action[1])
                 self.car.brake(action[2])
             else:
+                if not self.action_space.contains(action):
+                    raise InvalidAction(
+                        f"you passed the invalid action `{action}`. "
+                        f"The supported action_space is `{self.action_space}`"
+                    )
                 self.car.steer(-0.6 * (action == 1) + 0.6 * (action == 2))
                 self.car.gas(0.2 * (action == 3))
                 self.car.brake(0.8 * (action == 4))
