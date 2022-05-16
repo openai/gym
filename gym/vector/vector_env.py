@@ -213,7 +213,23 @@ class VectorEnv(gym.Env):
             "Please use `env.reset(seed=seed) instead in VectorEnvs."
         )
 
-    def _add_info(self, infos: dict, info: dict, env_num: int):
+    def _add_info(self, infos: dict, info: dict, env_num: int) -> dict:
+        """Add env info to the info dictionary of the vectorized environment.
+
+        Given the `info` of a single environment add it to the `infos` dictionary
+        which represents all the infos of the vectorized environment.
+        Every `key` of `info` is paired with a boolean mask `_key` representing
+        whether or not the i-indexed environment has this `info`.
+
+        Args:
+            infos (dict): the infos of the vectorized environment
+            info (dict): the info coming from the single environment
+            env_num (int): the index of the single environment
+
+        Returns:
+            infos (dict): the (updated) infos of the vectorized environment
+
+        """
         for k in info.keys():
             if k not in infos:
                 info_array, array_mask = self._init_info_array(type(info[k]))
@@ -226,8 +242,7 @@ class VectorEnv(gym.Env):
 
     def _init_info_array(self, dtype: type) -> np.ndarray:
         if dtype not in [int, float, bool]:
-            dtype = object
-            array = np.zeros(self.num_envs, dtype=dtype)
+            array = np.zeros(self.num_envs, dtype=object)
             array[:] = None
         else:
             array = np.zeros(self.num_envs, dtype=dtype)

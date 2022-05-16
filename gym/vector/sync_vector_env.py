@@ -122,9 +122,9 @@ class SyncVectorEnv(VectorEnv):
                 observation = env.reset(**kwargs)
                 observations.append(observation)
             else:
-                observation, data = env.reset(**kwargs)
+                observation, info = env.reset(**kwargs)
                 observations.append(observation)
-                infos = self._add_info(infos, data, i)
+                infos = self._add_info(infos, info, i)
 
         self.observations = concatenate(
             self.single_observation_space, observations, self.observations
