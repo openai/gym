@@ -656,15 +656,17 @@ class CarRacing(gym.Env, EzPickle):
             (c[0] * zoom + translation[0], c[1] * zoom + translation[1]) for c in poly
         ]
         # This checks if the polygon is out of bounds of the screen, and we skip drawing if so.
-        if not clip:
+        # instead of calculating exactly if the polygon and screen overlap,
+        # we simply check if the polygon is in a larger bounding box whose dimension
+        # is greater than the screen by the (approximate) maximum length of an object's side
+        max_shape_dim = 100
+        if not clip or any(
+            (-max_shape_dim <= coord[0] <= WINDOW_W + max_shape_dim)
+            and (-max_shape_dim <= coord[1] <= WINDOW_H + max_shape_dim)
+            for coord in poly
+        ):
             gfxdraw.aapolygon(self.surf, poly, color)
             gfxdraw.filled_polygon(self.surf, poly, color)
-            return
-        for coord in poly:
-            if (0 < coord[0] < WINDOW_W) and (0 < coord[1] < WINDOW_H):
-                gfxdraw.aapolygon(self.surf, poly, color)
-                gfxdraw.filled_polygon(self.surf, poly, color)
-                return
 
     def _create_image_array(self, screen, size):
         import pygame
