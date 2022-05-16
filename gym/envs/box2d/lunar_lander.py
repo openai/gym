@@ -159,7 +159,7 @@ class LunarLander(gym.Env, EzPickle):
     `turbulence_power` dictates the maximum magnitude of rotational wind applied to the craft. The recommended value for `turbulence_power` is between 0.0 and 2.0.
 
     ### Version History
-    - v2: Count energy spent and in 0.24, added turbulance with wind power and turbulence_power parameters
+    - v2: Count energy spent and in v0.24, added turbulance with wind power and turbulence_power parameters
     - v1: Legs contact with ground added in state vector; contact with ground
         give +10 reward points, and -10 if then lose contact; reward
         renormalized to 200; harder initial random push.
