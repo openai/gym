@@ -519,7 +519,12 @@ def make(
         env = AutoResetWrapper(env)
 
     if not disable_env_checker:
-        check_env(env)
+        try:
+            check_env(env)
+        except Exception as e:
+            logger.warn(
+                f"Env check failed with the following message: {e}\nYou can set `disable_env_checker=True` to disable this check."
+            )
 
     return env
 
