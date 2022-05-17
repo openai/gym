@@ -53,6 +53,7 @@ def test_record_episode_statistics_with_vectorenv(num_envs, asynchronous):
         if any(dones):
             assert "episode" in infos
             assert "_episode" in infos
+            assert all(infos["_episode"] == dones)
             assert all([item in infos["episode"] for item in ["r", "l", "t"]])
             break
         else:

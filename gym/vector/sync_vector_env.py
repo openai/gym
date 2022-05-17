@@ -36,8 +36,6 @@ class SyncVectorEnv(VectorEnv):
         :obj:`observation_space` (or, by default, the observation space of
         the first sub-environment).
 
-    InvalidInfoFormat
-        If the info format does not matches any of the available.
 
     Example
     -------

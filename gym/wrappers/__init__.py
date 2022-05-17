@@ -17,4 +17,4 @@ from gym.wrappers.time_aware_observation import TimeAwareObservation
 from gym.wrappers.time_limit import TimeLimit
 from gym.wrappers.transform_observation import TransformObservation
 from gym.wrappers.transform_reward import TransformReward
-from gym.wrappers.vec_info_to_classic import ClassicVectorInfo
+from gym.wrappers.vec_info_to_classic import VectorListInfo

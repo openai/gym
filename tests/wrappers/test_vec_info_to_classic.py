@@ -1,7 +1,7 @@
 import pytest
 
 import gym
-from gym.wrappers import ClassicVectorInfo, RecordEpisodeStatistics
+from gym.wrappers import RecordEpisodeStatistics, VectorListInfo
 
 ENV_ID = "CartPole-v1"
 NUM_ENVS = 3
@@ -12,15 +12,15 @@ def test_usage_in_vector_env():
     env = gym.make(ENV_ID)
     vector_env = gym.vector.make(ENV_ID, num_envs=NUM_ENVS)
 
-    ClassicVectorInfo(vector_env)
+    VectorListInfo(vector_env)
 
     with pytest.raises(AssertionError):
-        ClassicVectorInfo(env)
+        VectorListInfo(env)
 
 
 def test_info_to_classic():
     env_to_wrap = gym.vector.make(ENV_ID, num_envs=NUM_ENVS)
-    wrapped_env = ClassicVectorInfo(env_to_wrap)
+    wrapped_env = VectorListInfo(env_to_wrap)
     _, info = wrapped_env.reset(return_info=True)
     assert isinstance(info, list)
     assert len(info) == NUM_ENVS
@@ -37,7 +37,7 @@ def test_info_to_classic():
 
 def test_info_to_classic_statistics():
     env_to_wrap = gym.vector.make(ENV_ID, num_envs=NUM_ENVS)
-    wrapped_env = ClassicVectorInfo(RecordEpisodeStatistics(env_to_wrap))
+    wrapped_env = VectorListInfo(RecordEpisodeStatistics(env_to_wrap))
     _, info = wrapped_env.reset(return_info=True)
     assert isinstance(info, list)
     assert len(info) == NUM_ENVS

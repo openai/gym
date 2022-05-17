@@ -7,7 +7,7 @@ import numpy as np
 import gym
 
 
-class StatsInfo:
+class EnvStatsInfo:
     """Manage episode statistics in non vectorized envs."""
 
     def __init__(self, num_envs: int):
@@ -42,7 +42,7 @@ class StatsInfo:
         return self.info
 
 
-class VecEnvStatsInfo(StatsInfo):
+class VectorEnvStatsInfo(EnvStatsInfo):
     """Manage episode statistics for vectorized envs."""
 
     def add_episode_statistics(self, info: dict, env_num: int):
@@ -125,9 +125,9 @@ class RecordEpisodeStatistics(gym.Wrapper):
         self.length_queue = deque(maxlen=deque_size)
         self.is_vector_env = getattr(env, "is_vector_env", False)
         if self.is_vector_env:
-            self.infos_processor = VecEnvStatsInfo(self.num_envs)
+            self.infos_processor = VectorEnvStatsInfo(self.num_envs)
         else:
-            self.infos_processor = StatsInfo(self.num_envs)
+            self.infos_processor = EnvStatsInfo(self.num_envs)
 
     def reset(self, **kwargs):
         """Resets the environment using kwargs and resets the episode returns and lengths."""
