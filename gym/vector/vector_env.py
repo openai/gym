@@ -91,7 +91,7 @@ class VectorEnv(gym.Env):
     def step(self, actions):
         r"""Take an action for each parallel environment.
 
-        Parameters
+        Args:
         ----------
         actions : element of :attr:`action_space`
             Batch of actions.
@@ -107,8 +107,12 @@ class VectorEnv(gym.Env):
         dones : :obj:`np.ndarray`, dtype :obj:`np.bool_`
             A vector whose entries indicate whether the episode has ended.
 
-        infos : list of dict
-            A list of auxiliary diagnostic information dicts from each parallel environment.
+        infos : dict
+            A dict of auxiliary diagnostic information. Each `key` of the dict
+            is an array of length `num_envs` where each index of the array
+            represents the info coming from the i-th vectorized environment.
+            Each `key` is paired with a `_key` representing whether or not the i-th
+            environment has data or not.
         """
 
         self.step_async(actions)
