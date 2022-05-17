@@ -236,7 +236,7 @@ class VectorEnv(gym.Env):
         """
         for k in info.keys():
             if k not in infos:
-                info_array, array_mask = self._init_info_array(type(info[k]))
+                info_array, array_mask = self._init_info_arrays(type(info[k]))
             else:
                 info_array, array_mask = infos[k], infos[f"_{k}"]
 
@@ -244,12 +244,12 @@ class VectorEnv(gym.Env):
             infos[k], infos[f"_{k}"] = info_array, array_mask
         return infos
 
-    def _init_info_array(self, dtype: type) -> np.ndarray:
-        if dtype not in [int, float, bool]:
+    def _init_info_arrays(self, dtype: type) -> np.ndarray:
+        if dtype in [int, float, bool] or issubclass(dtype, np.number):
+            array = np.zeros(self.num_envs, dtype=dtype)
+        else:
             array = np.zeros(self.num_envs, dtype=object)
             array[:] = None
-        else:
-            array = np.zeros(self.num_envs, dtype=dtype)
         array_mask = np.zeros(self.num_envs, dtype=bool)
         return array, array_mask
 
