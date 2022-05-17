@@ -91,7 +91,7 @@ class VectorEnv(gym.Env):
     def step(self, actions):
         r"""Take an action for each parallel environment.
 
-        Args:
+        Parameters:
         ----------
         actions : element of :attr:`action_space`
             Batch of actions.
