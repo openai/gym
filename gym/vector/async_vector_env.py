@@ -95,7 +95,6 @@ class AsyncVectorEnv(VectorEnv):
         space in Gym, such as :class:`~gym.spaces.Box`, :class:`~gym.spaces.Discrete`,
         or :class:`~gym.spaces.Dict`) and :obj:`shared_memory` is ``True``.
 
-
     Example
     -------
 

@@ -36,7 +36,6 @@ class SyncVectorEnv(VectorEnv):
         :obj:`observation_space` (or, by default, the observation space of
         the first sub-environment).
 
-
     Example
     -------
 
