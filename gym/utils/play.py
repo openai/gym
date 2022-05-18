@@ -133,9 +133,18 @@ def play(
 
         >>> import gym
         >>> from gym.utils.play import play
-        >>> play(gym.make("CarRacing-v1"))
+        >>> play(gym.make("CarRacing-v1"), keys_to_action={"w": np.array([0, 0.7, 0]),
+        ...                                                "a": np.array([-1, 0, 0]),
+        ...                                                "s": np.array([0, 0, 1]),
+        ...                                                "d": np.array([1, 0, 0]),
+        ...                                                "wa": np.array([-1, 0.7, 0]),
+        ...                                                "dw": np.array([1, 0.7, 0]),
+        ...                                                "ds": np.array([1, 0, 1]),
+        ...                                                "as": np.array([-1, 0, 1]),
+        ...                                               }, noop=np.array([0,0,0]))
 
-    Above code works also if env is wrapped, so it's particularly useful in
+
+    Above code works also if the environment is wrapped, so it's particularly useful in
     verifying that the frame-level preprocessing does not render the game
     unplayable.
 
@@ -146,14 +155,14 @@ def play(
         >>> def callback(obs_t, obs_tp1, action, rew, done, info):
         ...        return [rew,]
         >>> plotter = PlayPlot(callback, 30 * 5, ["reward"])
-        >>> play(gym.make("CarRacing-v1"), callback=plotter.callback)
+        >>> play(gym.make("ALE/AirRaid-v5"), callback=plotter.callback)
 
 
     Args:
         env: Environment to use for playing.
         transpose: If this is ``True``, the output of observation is transposed. Defaults to ``True``.
-        fps: Maximum number of steps of the environment executed every second. Defaults to 30 if environment
-            does not have "render_fps" in its metadata.
+        fps: Maximum number of steps of the environment executed every second. If ``None`` (the default),
+            ``env.metadata["render_fps""]`` (or 30, if the environment does not specify "render_fps") is used.
         zoom: Zoom the observation in, ``zoom`` amount, should be positive float
         callback: If a callback is provided, it will be executed after every step. It takes the following input:
                 obs_t: observation before performing action
@@ -163,16 +172,31 @@ def play(
                 done: whether the environment is done or not
                 info: debug info
         keys_to_action:  Mapping from keys pressed to action performed.
-            For example if pressed 'w' and space at the same time is supposed
-            to trigger action number 2 then key_to_action dict would look like this:
+            Different formats are supported: Key combinations can either be expressed as a tuple of unicode code
+            points of the keys, as a tuple of characters, or as a string where each character of the string represents
+            one key.
+            For example if pressing 'w' and space at the same time is supposed
+            to trigger action number 2 then ``key_to_action`` dict could look like this:
                 >>> {
                 ...    # ...
-                ...    sorted((ord('w'), ord(' '))): 2
+                ...    (ord('w'), ord(' ')): 2
+                ...    # ...
+                ... }
+            or like this:
+                >>> {
+                ...    # ...
+                ...    ("w", " "): 2
+                ...    # ...
+                ... }
+            or like this:
+                >>> {
+                ...    # ...
+                ...    "w ": 2
                 ...    # ...
                 ... }
             If ``None``, default ``key_to_action`` mapping for that environment is used, if provided.
         seed: Random seed used when resetting the environment. If None, no seed is used.
-        noop: The action used when no key input has been entered.
+        noop: The action used when no key input has been entered, or the entered key combination is unknown.
     """
     env.reset(seed=seed)
 
