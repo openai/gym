@@ -1,5 +1,6 @@
 """Wrapper to enforce the proper ordering of environment operations."""
 import gym
+from gym.error import ResetNeeded
 
 
 class OrderEnforcing(gym.Wrapper):
@@ -18,14 +19,21 @@ class OrderEnforcing(gym.Wrapper):
         >>> env.step(0)
     """
 
-    def __init__(self, env):
-        """A wrapper that will produce an error if :meth:`step` is called before an initial :meth:`reset`."""
+    def __init__(self, env: gym.Env, disable_render_order_enforcing: bool = False):
+        """A wrapper that will produce an error if :meth:`step` is called before an initial :meth:`reset`.
+
+        Args:
+            env: The environment to wrap
+            disable_render_order_enforcing: If to disable render order enforcing
+        """
         super().__init__(env)
-        self._has_reset = False
+        self._has_reset: bool = False
+        self._disable_render_order_enforcing: bool = disable_render_order_enforcing
 
     def step(self, action):
-        """Steps through the environment with :param:`kwargs`."""
-        assert self._has_reset, "Cannot call env.step() before calling env.reset()"
+        """Steps through the environment with `kwargs`."""
+        if not self._has_reset:
+            raise ResetNeeded("Cannot call env.step() before calling env.reset()")
         return self.env.step(action)
 
     def reset(self, **kwargs):
@@ -34,15 +42,10 @@ class OrderEnforcing(gym.Wrapper):
         return self.env.reset(**kwargs)
 
     def render(self, **kwargs):
-        """Checks that the environment has been :meth:`reset` before rendering the environment."""
-        if hasattr(self.unwrapped, "disable_render_order_enforcing"):
-            if not self.unwrapped.disable_render_order_enforcing:
-                assert (
-                    self._has_reset
-                ), "Cannot call env.render() before calling env.reset()"
-        else:
-            assert self._has_reset, (
-                "Cannot call env.render() before calling env.reset(), if this is a intended property, "
-                "set `disable_render_order_enforcing=True` on the base environment (env.unwrapped)."
+        """Renders the environment with `kwargs`."""
+        if not self._disable_render_order_enforcing and not self._has_reset:
+            raise ResetNeeded(
+                "Cannot call `env.render()` before calling `env.reset()`, if this is a intended action, "
+                "set `disable_render_order_enforcing=True` on the OrderEnforcer wrapper."
             )
         return self.env.render(**kwargs)
