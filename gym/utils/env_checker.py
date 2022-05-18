@@ -53,7 +53,10 @@ def _check_nan(env: gym.Env, check_inf: bool = True) -> None:
     """Check for NaN and Inf."""
     for _ in range(10):
         action = env.action_space.sample()
-        observation, reward, _, _ = env.step(action)
+        observation, reward, done, _ = env.step(action)
+
+        if done:
+            env.reset()
 
         if np.any(np.isnan(observation)):
             logger.warn("Encountered NaN value in observations.")
@@ -384,11 +387,6 @@ def check_env(env: gym.Env, warn: bool = True, skip_render_check: bool = True) -
     # Define aliases for convenience
     observation_space = env.observation_space
     action_space = env.action_space
-    try:
-        env.step(env.action_space.sample())
-
-    except AssertionError as e:
-        assert str(e) == "Cannot call env.step() before calling reset()"
 
     # Warn the user if needed.
     # A warning means that the environment may run but not work properly with popular RL libraries.

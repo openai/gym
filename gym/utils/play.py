@@ -1,12 +1,16 @@
-import argparse
+from typing import Callable, Dict, Optional, Tuple, Union
 
-import matplotlib
 import pygame
+from numpy.typing import NDArray
+from pygame import Surface
+from pygame.event import Event
 
-import gym
-from gym import logger
+from gym import Env, logger
+from gym.logger import deprecation
 
 try:
+    import matplotlib
+
     matplotlib.use("TkAgg")
     import matplotlib.pyplot as plt
 except ImportError as e:
@@ -17,8 +21,74 @@ from collections import deque
 
 from pygame.locals import VIDEORESIZE
 
+from gym.core import ActType
 
-def display_arr(screen, arr, video_size, transpose):
+
+class MissingKeysToAction(Exception):
+    """Raised when the environment does not have
+    a default keys_to_action mapping
+    """
+
+
+class PlayableGame:
+    def __init__(
+        self,
+        env: Env,
+        keys_to_action: Optional[Dict[Tuple[int], int]] = None,
+        zoom: Optional[float] = None,
+    ):
+        self.env = env
+        self.relevant_keys = self._get_relevant_keys(keys_to_action)
+        self.video_size = self._get_video_size(zoom)
+        self.screen = pygame.display.set_mode(self.video_size)
+        self.pressed_keys = []
+        self.running = True
+
+    def _get_relevant_keys(
+        self, keys_to_action: Optional[Dict[Tuple[int], int]] = None
+    ) -> set:
+        if keys_to_action is None:
+            if hasattr(self.env, "get_keys_to_action"):
+                keys_to_action = self.env.get_keys_to_action()
+            elif hasattr(self.env.unwrapped, "get_keys_to_action"):
+                keys_to_action = self.env.unwrapped.get_keys_to_action()
+            else:
+                raise MissingKeysToAction(
+                    "%s does not have explicit key to action mapping, "
+                    "please specify one manually" % self.env.spec.id
+                )
+        relevant_keys = set(sum((list(k) for k in keys_to_action.keys()), []))
+        return relevant_keys
+
+    def _get_video_size(self, zoom: Optional[float] = None) -> Tuple[int, int]:
+        # TODO: this needs to be updated when the render API change goes through
+        rendered = self.env.render(mode="rgb_array")
+        video_size = [rendered.shape[1], rendered.shape[0]]
+
+        if zoom is not None:
+            video_size = int(video_size[0] * zoom), int(video_size[1] * zoom)
+
+        return video_size
+
+    def process_event(self, event: Event) -> None:
+        if event.type == pygame.KEYDOWN:
+            if event.key in self.relevant_keys:
+                self.pressed_keys.append(event.key)
+            elif event.key == pygame.K_ESCAPE:
+                self.running = False
+        elif event.type == pygame.KEYUP:
+            if event.key in self.relevant_keys:
+                self.pressed_keys.remove(event.key)
+        elif event.type == pygame.QUIT:
+            self.running = False
+        elif event.type == VIDEORESIZE:
+            self.video_size = event.size
+            self.screen = pygame.display.set_mode(self.video_size)
+
+
+def display_arr(
+    screen: Surface, arr: NDArray, video_size: Tuple[int, int], transpose: bool
+):
     arr_min, arr_max = arr.min(), arr.max()
     arr = 255.0 * (arr - arr_min) / (arr_max - arr_min)
     pyg_img = pygame.surfarray.make_surface(arr.swapaxes(0, 1) if transpose else arr)
@@ -26,7 +96,16 @@ def display_arr(screen, arr, video_size, transpose):
     screen.blit(pyg_img, (0, 0))
 
 
-def play(env, transpose=True, fps=30, zoom=None, callback=None, keys_to_action=None):
+def play(
+    env: Env,
+    transpose: Optional[bool] = True,
+    fps: Optional[int] = None,
+    zoom: Optional[float] = None,
+    callback: Optional[Callable] = None,
+    keys_to_action: Optional[Dict[Union[Tuple[Union[str, int]], str], ActType]] = None,
+    seed: Optional[int] = None,
+    noop: ActType = 0,
+):
     """Allows one to play the game using keyboard.
 
     To simply play the game use:
@@ -81,65 +160,47 @@ def play(env, transpose=True, fps=30, zoom=None, callback=None, keys_to_action=N
                 # ...
             }
         If None, default key_to_action mapping for that env is used, if provided.
+    seed: bool or None
+        Random seed used when resetting the environment. If None, no seed is used.
     """
-    env.reset()
-    rendered = env.render(mode="rgb_array")
+    env.reset(seed=seed)
 
-    if keys_to_action is None:
-        if hasattr(env, "get_keys_to_action"):
-            keys_to_action = env.get_keys_to_action()
-        elif hasattr(env.unwrapped, "get_keys_to_action"):
-            keys_to_action = env.unwrapped.get_keys_to_action()
-        else:
-            assert False, (
-                env.spec.id
-                + " does not have explicit key to action mapping, "
-                + "please specify one manually"
-            )
-    relevant_keys = set(sum(map(list, keys_to_action.keys()), []))
+    key_code_to_action = {}
 
-    video_size = [rendered.shape[1], rendered.shape[0]]
-    if zoom is not None:
-        video_size = int(video_size[0] * zoom), int(video_size[1] * zoom)
+    for key_combination, action in keys_to_action.items():
+        key_code = tuple(
+            sorted(ord(key) if isinstance(key, str) else key for key in key_combination)
+        )
+        key_code_to_action[key_code] = action
 
-    pressed_keys = []
-    running = True
-    env_done = True
+    game = PlayableGame(env, key_code_to_action, zoom)
 
-    screen = pygame.display.set_mode(video_size)
+    if fps is None:
+        fps = env.metadata.get("render_fps", 30)
+
+    done = True
     clock = pygame.time.Clock()
 
-    while running:
-        if env_done:
-            env_done = False
-            obs = env.reset()
+    while game.running:
+        if done:
+            done = False
+            obs = env.reset(seed=seed)
         else:
-            action = keys_to_action.get(tuple(sorted(pressed_keys)), 0)
+            action = key_code_to_action.get(tuple(sorted(game.pressed_keys)), noop)
             prev_obs = obs
-            obs, rew, env_done, info = env.step(action)
+            obs, rew, done, info = env.step(action)
             if callback is not None:
-                callback(prev_obs, obs, action, rew, env_done, info)
+                callback(prev_obs, obs, action, rew, done, info)
         if obs is not None:
+            # TODO: this needs to be updated when the render API change goes through
             rendered = env.render(mode="rgb_array")
-            display_arr(screen, rendered, transpose=transpose, video_size=video_size)
+            display_arr(
+                game.screen, rendered, transpose=transpose, video_size=game.video_size
+            )
 
         # process pygame events
         for event in pygame.event.get():
-            # test events, set key states
-            if event.type == pygame.KEYDOWN:
-                if event.key in relevant_keys:
-                    pressed_keys.append(event.key)
-                elif event.key == 27:
-                    running = False
-            elif event.type == pygame.KEYUP:
-                if event.key in relevant_keys:
-                    pressed_keys.remove(event.key)
-            elif event.type == pygame.QUIT:
-                running = False
-            elif event.type == VIDEORESIZE:
-                video_size = event.size
-                screen = pygame.display.set_mode(video_size)
-                print(video_size)
+            game.process_event(event)
 
         pygame.display.flip()
         clock.tick(fps)
@@ -148,6 +209,9 @@ def play(env, transpose=True, fps=30, zoom=None, callback=None, keys_to_action=N
 
 class PlayPlot:
     def __init__(self, callback, horizon_timesteps, plot_names):
+        deprecation(
+            "`PlayPlot` is marked as deprecated and will be removed in the near future."
+        )
         self.data_callback = callback
         self.horizon_timesteps = horizon_timesteps
         self.plot_names = plot_names
@@ -180,20 +244,3 @@ class PlayPlot:
             )
             self.ax[i].set_xlim(xmin, xmax)
         plt.pause(0.000001)
-
-
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--env",
-        type=str,
-        default="MontezumaRevengeNoFrameskip-v4",
-        help="Define Environment",
-    )
-    args = parser.parse_args()
-    env = gym.make(args.env)
-    play(env, zoom=4, fps=60)
-
-
-if __name__ == "__main__":
-    main()

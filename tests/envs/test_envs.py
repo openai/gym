@@ -13,7 +13,7 @@ from tests.envs.spec_list import spec_list
 @pytest.mark.filterwarnings(
     "ignore:.*We recommend you to use a symmetric and normalized Box action space.*"
 )
-@pytest.mark.parametrize("spec", spec_list)
+@pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
 def test_env(spec):
     # Capture warnings
     with pytest.warns(None) as warnings:
@@ -58,10 +58,10 @@ def test_env(spec):
     env.close()
 
 
-@pytest.mark.parametrize("spec", spec_list)
+@pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
 def test_reset_info(spec):
 
-    with pytest.warns(None) as warnings:
+    with pytest.warns(None):
         env = spec.make()
 
     ob_space = env.observation_space
@@ -73,21 +73,6 @@ def test_reset_info(spec):
     assert ob_space.contains(obs)
     assert isinstance(info, dict)
     env.close()
-
-
-# Run a longer rollout on some environments
-def test_random_rollout():
-    for env in [envs.make("CartPole-v1"), envs.make("FrozenLake-v1")]:
-        agent = lambda ob: env.action_space.sample()
-        ob = env.reset()
-        for _ in range(10):
-            assert env.observation_space.contains(ob)
-            a = agent(ob)
-            assert env.action_space.contains(a)
-            (ob, _reward, done, _info) = env.step(a)
-            if done:
-                break
-        env.close()
 
 
 def test_env_render_result_is_immutable():

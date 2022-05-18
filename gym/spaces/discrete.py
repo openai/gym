@@ -1,24 +1,40 @@
+"""Implementation of a space consisting of finitely many elements."""
+from __future__ import annotations
+
 from typing import Optional
 
 import numpy as np
 
-from .space import Space
+from gym.spaces.space import Space
+from gym.utils import seeding
 
 
 class Discrete(Space[int]):
-    r"""A discrete space in :math:`\{ 0, 1, \\dots, n-1 \}`.
+    r"""A space consisting of finitely many elements.
 
-    A start value can be optionally specified to shift the range
-    to :math:`\{ a, a+1, \\dots, a+n-1 \}`.
+    This class represents a finite subset of integers, more specifically a set of the form :math:`\{ a, a+1, \dots, a+n-1 \}`.
 
     Example::
 
         >>> Discrete(2)            # {0, 1}
         >>> Discrete(3, start=-1)  # {-1, 0, 1}
-
     """
 
-    def __init__(self, n: int, seed: Optional[int] = None, start: int = 0):
+    def __init__(
+        self,
+        n: int,
+        seed: Optional[int | seeding.RandomNumberGenerator] = None,
+        start: int = 0,
+    ):
+        r"""Constructor of :class:`Discrete` space.
+
+        This will construct the space :math:`\{\text{start}, ..., \text{start} + n - 1\}`.
+
+        Args:
+            n (int): The number of elements of this space.
+            seed: Optionally, you can use this argument to seed the RNG that is used to sample from the ``Dict`` space.
+            start (int): The smallest element of this space.
+        """
         assert n > 0, "n (counts) have to be positive"
         assert isinstance(start, (int, np.integer))
         self.n = int(n)
@@ -26,9 +42,14 @@ class Discrete(Space[int]):
         super().__init__((), np.int64, seed)
 
     def sample(self) -> int:
+        """Generates a single random sample from this space.
+
+        A sample will be chosen uniformly at random.
+        """
         return int(self.start + self.np_random.integers(self.n))
 
     def contains(self, x) -> bool:
+        """Return boolean specifying if x is a valid member of this space."""
         if isinstance(x, int):
             as_int = x
         elif isinstance(x, (np.generic, np.ndarray)) and (
@@ -40,11 +61,13 @@ class Discrete(Space[int]):
         return self.start <= as_int < self.start + self.n
 
     def __repr__(self) -> str:
+        """Gives a string representation of this space."""
         if self.start != 0:
             return "Discrete(%d, start=%d)" % (self.n, self.start)
         return "Discrete(%d)" % self.n
 
     def __eq__(self, other) -> bool:
+        """Check whether ``other`` is equivalent to this instance."""
         return (
             isinstance(other, Discrete)
             and self.n == other.n
@@ -52,6 +75,10 @@ class Discrete(Space[int]):
         )
 
     def __setstate__(self, state):
+        """Used when loading a pickled space.
+
+        This method has to be implemented explicitly to allow for loading of legacy states.
+        """
         super().__setstate__(state)
 
         # Don't mutate the original state

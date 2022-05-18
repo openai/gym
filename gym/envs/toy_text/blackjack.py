@@ -5,7 +5,7 @@ import numpy as np
 
 import gym
 from gym import spaces
-from gym.utils import seeding
+from gym.error import DependencyNotInstalled
 
 
 def cmp(a, b):
@@ -94,11 +94,17 @@ class BlackjackEnv(gym.Env):
     ### Arguments
 
     ```
-    gym.make('Blackjack-v1', natural=False)
+    gym.make('Blackjack-v1', natural=False, sab=False)
     ```
 
-    <a id="nat">`natural`</a>: Whether to give an additional reward for
+    <a id="nat">`natural=False`</a>: Whether to give an additional reward for
     starting with a natural blackjack, i.e. starting with an ace and ten (sum is 21).
+
+    <a id="sab">`sab=False`</a>: Whether to follow the exact rules outlined in the book by
+    Sutton and Barto. If `sab` is `True`, the keyword argument `natural` will be ignored.
+    If the player achieves a natural blackjack and the dealer does not, the player
+    will win (i.e. get a reward of +1). The reverse rule does not apply.
+    If both the player and the dealer get a natural, it will be a draw (i.e. reward 0).
 
     ### Version History
     * v0: Initial versions release (1.0.0)
@@ -165,7 +171,12 @@ class BlackjackEnv(gym.Env):
             return self._get_obs(), {}
 
     def render(self, mode="human"):
-        import pygame
+        try:
+            import pygame
+        except ImportError:
+            raise DependencyNotInstalled(
+                "pygame is not installed, run `pip install gym[toy_text]`"
+            )
 
         player_sum, dealer_card_value, usable_ace = self._get_obs()
         screen_width, screen_height = 600, 500
@@ -277,7 +288,7 @@ class BlackjackEnv(gym.Env):
             )
 
     def close(self):
-        if not hasattr(self, "screen"):
+        if hasattr(self, "screen"):
             import pygame
 
             pygame.display.quit()

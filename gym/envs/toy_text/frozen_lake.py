@@ -7,6 +7,7 @@ import numpy as np
 
 from gym import Env, spaces, utils
 from gym.envs.toy_text.utils import categorical_sample
+from gym.error import DependencyNotInstalled
 
 LEFT = 0
 DOWN = 1
@@ -241,8 +242,12 @@ class FrozenLakeEnv(Env):
             return self._render_gui(desc, mode)
 
     def _render_gui(self, desc, mode):
-        import pygame
-        from pygame.constants import SRCALPHA
+        try:
+            import pygame
+        except ImportError:
+            raise DependencyNotInstalled(
+                "pygame is not installed, run `pip install gym[toy_text]`"
+            )
 
         if self.window_surface is None:
             pygame.init()
@@ -278,12 +283,11 @@ class FrozenLakeEnv(Env):
             ]
             self.elf_images = [pygame.image.load(f_name) for f_name in elfs]
 
-        board = pygame.Surface(self.window_size, flags=SRCALPHA)
         cell_width = self.window_size[0] // self.ncol
         cell_height = self.window_size[1] // self.nrow
         smaller_cell_scale = 0.6
-        small_cell_w = smaller_cell_scale * cell_width
-        small_cell_h = smaller_cell_scale * cell_height
+        small_cell_w = int(smaller_cell_scale * cell_width)
+        small_cell_h = int(smaller_cell_scale * cell_height)
 
         # prepare images
         last_action = self.lastaction if self.lastaction is not None else 1
@@ -321,7 +325,7 @@ class FrozenLakeEnv(Env):
                 else:
                     self.window_surface.blit(ice_img, (rect[0], rect[1]))
 
-                pygame.draw.rect(board, (180, 200, 230), rect, 1)
+                pygame.draw.rect(self.window_surface, (180, 200, 230), rect, 1)
 
         # paint the elf
         bot_row, bot_col = self.s // self.ncol, self.s % self.ncol
@@ -337,7 +341,6 @@ class FrozenLakeEnv(Env):
             elf_rect = self._center_small_rect(cell_rect, elf_img.get_size())
             self.window_surface.blit(elf_img, elf_rect)
 
-        self.window_surface.blit(board, board.get_rect())
         if mode == "human":
             pygame.event.pump()
             pygame.display.update()

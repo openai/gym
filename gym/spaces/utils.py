@@ -1,9 +1,13 @@
+"""Implementation of utility functions that can be applied to spaces.
+
+These functions mostly take care of flattening and unflattening elements of spaces to facilitate their usage in learning code.
+"""
 from __future__ import annotations
 
 import operator as op
 from collections import OrderedDict
 from functools import reduce, singledispatch
-from typing import TypeVar, Union
+from typing import TypeVar, Union, cast
 
 import numpy as np
 
@@ -12,11 +16,18 @@ from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Space, T
 
 @singledispatch
 def flatdim(space: Space) -> int:
-    """Return the number of dimensions a flattened equivalent of this space
-    would have.
+    """Return the number of dimensions a flattened equivalent of this space would have.
 
-    Accepts a space and returns an integer. Raises ``NotImplementedError`` if
-    the space is not defined in ``gym.spaces``.
+    Accepts a space and returns an integer.
+
+    Raises:
+         NotImplementedError: if the space is not defined in ``gym.spaces``.
+
+    Example usage::
+
+        >>> s = spaces.Dict({"position": spaces.Discrete(2), "velocity": spaces.Discrete(3)})
+        >>> spaces.flatdim(s)
+        5
     """
     raise NotImplementedError(f"Unknown space: `{space}`")
 
@@ -101,8 +112,8 @@ def _flatten_dict(space, x) -> np.ndarray:
 def unflatten(space: Space[T], x: np.ndarray) -> T:
     """Unflatten a data point from a space.
 
-    This reverses the transformation applied by ``flatten()``. You must ensure
-    that the ``space`` argument is the same as for the ``flatten()`` call.
+    This reverses the transformation applied by :func:`flatten`. You must ensure
+    that the ``space`` argument is the same as for the :func:`flatten` call.
 
     Accepts a space and a flattened point. Returns a point with a structure
     that matches the space. Raises ``NotImplementedError`` if the space is not
@@ -127,7 +138,7 @@ def _unflatten_multidiscrete(space: MultiDiscrete, x: np.ndarray) -> np.ndarray:
     offsets = np.zeros((space.nvec.size + 1,), dtype=space.dtype)
     offsets[1:] = np.cumsum(space.nvec.flatten())
 
-    (indices,) = np.nonzero(x)
+    (indices,) = cast(type(offsets[:-1]), np.nonzero(x))
     return np.asarray(indices - offsets[:-1], dtype=space.dtype).reshape(space.shape)
 
 
@@ -156,9 +167,9 @@ def _unflatten_dict(space: Dict, x: np.ndarray) -> dict:
 def flatten_space(space: Space) -> Box:
     """Flatten a space into a single ``Box``.
 
-    This is equivalent to ``flatten()``, but operates on the space itself. The
+    This is equivalent to :func:`flatten`, but operates on the space itself. The
     result always is a `Box` with flat boundaries. The box has exactly
-    ``flatdim(space)`` dimensions. Flattening a sample of the original space
+    :func:`flatdim` dimensions. Flattening a sample of the original space
     has the same effect as taking a sample of the flattenend space.
 
     Raises ``NotImplementedError`` if the space is not defined in

@@ -1,4 +1,4 @@
-from typing import Dict, Tuple
+from typing import Dict, Optional, Tuple
 
 # The following is a map of environments which have been relocated
 # to a different namespace. This map is important when reporting
@@ -6,7 +6,7 @@ from typing import Dict, Tuple
 # This map should be removed eventually once users
 # are sufficiently aware of the environment relocations.
 # The value of the mapping is (namespace, package,).
-internal_env_relocation_map: Dict[str, Tuple[str, str]] = {
+internal_env_relocation_map: Dict[str, Tuple[Optional[str], str]] = {
     "Adventure": ("ALE", "ale-py"),
     "AdventureDeterministic": (None, "ale-py"),
     "AdventureNoFrameskip": (None, "ale-py"),
@@ -386,12 +386,9 @@ internal_env_relocation_map: Dict[str, Tuple[str, str]] = {
     "HandReach": (None, "gym-robotics"),
     "HandManipulateBlockRotateZ": (None, "gym-robotics"),
     "HandManipulateBlockRotateZTouchSensors": (None, "gym-robotics"),
-    "HandManipulateBlockRotateZTouchSensors": (None, "gym-robotics"),
     "HandManipulateBlockRotateParallel": (None, "gym-robotics"),
     "HandManipulateBlockRotateParallelTouchSensors": (None, "gym-robotics"),
-    "HandManipulateBlockRotateParallelTouchSensors": (None, "gym-robotics"),
     "HandManipulateBlockRotateXYZ": (None, "gym-robotics"),
-    "HandManipulateBlockRotateXYZTouchSensors": (None, "gym-robotics"),
     "HandManipulateBlockRotateXYZTouchSensors": (None, "gym-robotics"),
     "HandManipulateBlockFull": (None, "gym-robotics"),
     "HandManipulateBlock": (None, "gym-robotics"),
@@ -413,12 +410,9 @@ internal_env_relocation_map: Dict[str, Tuple[str, str]] = {
     "HandReachDense": (None, "gym-robotics"),
     "HandManipulateBlockRotateZDense": (None, "gym-robotics"),
     "HandManipulateBlockRotateZTouchSensorsDense": (None, "gym-robotics"),
-    "HandManipulateBlockRotateZTouchSensorsDense": (None, "gym-robotics"),
     "HandManipulateBlockRotateParallelDense": (None, "gym-robotics"),
     "HandManipulateBlockRotateParallelTouchSensorsDense": (None, "gym-robotics"),
-    "HandManipulateBlockRotateParallelTouchSensorsDense": (None, "gym-robotics"),
     "HandManipulateBlockRotateXYZDense": (None, "gym-robotics"),
-    "HandManipulateBlockRotateXYZTouchSensorsDense": (None, "gym-robotics"),
     "HandManipulateBlockRotateXYZTouchSensorsDense": (None, "gym-robotics"),
     "HandManipulateBlockFullDense": (None, "gym-robotics"),
     "HandManipulateBlockDense": (None, "gym-robotics"),

@@ -1,23 +1,24 @@
 from typing import List, Optional, Union
 
 import gym
-from gym.logger import deprecation, warn
-from gym.spaces import Tuple
+from gym.logger import deprecation
 from gym.vector.utils.spaces import batch_space
 
 __all__ = ["VectorEnv"]
 
 
 class VectorEnv(gym.Env):
-    r"""Base class for vectorized environments.
+    r"""Base class for vectorized environments. Runs multiple independent copies of the
+    same environment in parallel. This is not the same as 1 environment that has multiple
+    sub components, but it is many copies of the same base env.
 
     Each observation returned from vectorized environment is a batch of observations
-    for each sub-environment. And :meth:`step` is also expected to receive a batch of
-    actions for each sub-environment.
+    for each parallel environment. And :meth:`step` is also expected to receive a batch of
+    actions for each parallel environment.
 
     .. note::
 
-        All sub-environments should share the identical observation and action spaces.
+        All parallel environments should share the identical observation and action spaces.
         In other words, a vector of multiple different environments is not supported.
 
     Parameters
@@ -69,11 +70,11 @@ class VectorEnv(gym.Env):
         return_info: bool = False,
         options: Optional[dict] = None,
     ):
-        r"""Reset all sub-environments and return a batch of initial observations.
+        r"""Reset all parallel environments and return a batch of initial observations.
 
         Returns
         -------
-        element of :attr:`observation_space`
+        observations : element of :attr:`observation_space`
             A batch of observations from the vectorized environment.
         """
         self.reset_async(seed=seed, return_info=return_info, options=options)
@@ -86,7 +87,7 @@ class VectorEnv(gym.Env):
         raise NotImplementedError()
 
     def step(self, actions):
-        r"""Take an action for each sub-environments.
+        r"""Take an action for each parallel environment.
 
         Parameters
         ----------
@@ -105,7 +106,7 @@ class VectorEnv(gym.Env):
             A vector whose entries indicate whether the episode has ended.
 
         infos : list of dict
-            A list of auxiliary diagnostic information dicts from sub-environments.
+            A list of auxiliary diagnostic information dicts from each parallel environment.
         """
 
         self.step_async(actions)
@@ -118,7 +119,7 @@ class VectorEnv(gym.Env):
         raise NotImplementedError()
 
     def call(self, name, *args, **kwargs):
-        """Call a method, or get a property, from each sub-environment.
+        """Call a method, or get a property, from each parallel environment.
 
         Parameters
         ----------
@@ -141,7 +142,7 @@ class VectorEnv(gym.Env):
         return self.call_wait()
 
     def get_attr(self, name):
-        """Get a property from each sub-environment.
+        """Get a property from each parallel environment.
 
         Parameters
         ----------
@@ -151,7 +152,7 @@ class VectorEnv(gym.Env):
         return self.call(name)
 
     def set_attr(self, name, values):
-        """Set a property in each sub-environment.
+        """Set a property in each parallel environment.
 
         Parameters
         ----------
@@ -170,7 +171,7 @@ class VectorEnv(gym.Env):
         pass
 
     def close(self, **kwargs):
-        r"""Close all sub-environments and release resources.
+        r"""Close all parallel environments and release resources.
 
         It also closes all the existing image viewers, then calls :meth:`close_extras` and set
         :attr:`closed` as ``True``.
@@ -194,15 +195,15 @@ class VectorEnv(gym.Env):
         self.closed = True
 
     def seed(self, seed=None):
-        """Set the random seed in all sub-environments.
+        """Set the random seed in all parallel environments.
 
         Parameters
         ----------
         seed : list of int, or int, optional
-            Random seed for each sub-environment. If ``seed`` is a list of
+            Random seed for each parallel environment. If ``seed`` is a list of
             length ``num_envs``, then the items of the list are chosen as random
-            seeds. If ``seed`` is an int, then each sub-environment uses the random
-            seed ``seed + n``, where ``n`` is the index of the sub-environment
+            seeds. If ``seed`` is an int, then each parallel environment uses the random
+            seed ``seed + n``, where ``n`` is the index of the parallel environment
             (between ``0`` and ``num_envs - 1``).
         """
         deprecation(
@@ -261,6 +262,12 @@ class VectorEnvWrapper(VectorEnv):
     def seed(self, seed=None):
         return self.env.seed(seed)
 
+    def call(self, name, *args, **kwargs):
+        return self.env.call(name, *args, **kwargs)
+
+    def set_attr(self, name, values):
+        return self.env.set_attr(name, values)
+
     # implicitly forward all other methods and attributes to self.env
     def __getattr__(self, name):
         if name.startswith("_"):
@@ -273,3 +280,6 @@ class VectorEnvWrapper(VectorEnv):
 
     def __repr__(self):
         return f"<{self.__class__.__name__}, {self.env}>"
+
+    def __del__(self):
+        self.env.__del__()

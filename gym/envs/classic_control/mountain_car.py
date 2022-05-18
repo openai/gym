@@ -9,7 +9,7 @@ import numpy as np
 
 import gym
 from gym import spaces
-from gym.utils import seeding
+from gym.error import DependencyNotInstalled
 
 
 class MountainCarEnv(gym.Env):
@@ -112,7 +112,7 @@ class MountainCarEnv(gym.Env):
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(self.low, self.high, dtype=np.float32)
 
-    def step(self, action):
+    def step(self, action: int):
         assert self.action_space.contains(
             action
         ), f"{action!r} ({type(action)}) invalid"
@@ -149,8 +149,13 @@ class MountainCarEnv(gym.Env):
         return np.sin(3 * xs) * 0.45 + 0.55
 
     def render(self, mode="human"):
-        import pygame
-        from pygame import gfxdraw
+        try:
+            import pygame
+            from pygame import gfxdraw
+        except ImportError:
+            raise DependencyNotInstalled(
+                "pygame is not installed, run `pip install gym[classic_control]`"
+            )
 
         screen_width = 600
         screen_height = 400
