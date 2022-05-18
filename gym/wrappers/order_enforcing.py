@@ -27,8 +27,8 @@ class OrderEnforcing(gym.Wrapper):
             disable_render_order_enforcing: If to disable render order enforcing
         """
         super().__init__(env)
-        self._has_reset = False
-        self._disable_render_order_enforcing = disable_render_order_enforcing
+        self._has_reset: bool = False
+        self._disable_render_order_enforcing: bool = disable_render_order_enforcing
 
     def step(self, action):
         """Steps through the environment with `kwargs`."""
@@ -43,9 +43,9 @@ class OrderEnforcing(gym.Wrapper):
 
     def render(self, **kwargs):
         """Renders the environment with `kwargs`."""
-        if self._disable_render_order_enforcing is False and not self._has_reset:
+        if not self._disable_render_order_enforcing and not self._has_reset:
             raise ResetNeeded(
                 "Cannot call `env.render()` before calling `env.reset()`, if this is a intended action, "
-                "set `disable_render_order_enforcing` on the OrderEnforcer wrapper = False."
+                "set `disable_render_order_enforcing=True` on the OrderEnforcer wrapper."
             )
         return self.env.render(**kwargs)
