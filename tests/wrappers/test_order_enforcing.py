@@ -10,7 +10,7 @@ from tests.wrappers.utils import has_wrapper
 
 @pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
 def test_gym_make_order_enforcing(spec):
-    """checks that gym.make wrappers the environment with the OrderEnforcing wrapper."""
+    """Checks that gym.make wrappers the environment with the OrderEnforcing wrapper."""
     env = gym.make(spec.id)
 
     assert has_wrapper(env, OrderEnforcing)
