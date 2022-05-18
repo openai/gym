@@ -7,6 +7,9 @@ from gym.envs.classic_control import cartpole
 
 
 class ArgumentEnv(gym.Env):
+    observation_space = gym.spaces.Box(low=0, high=1, shape=(1,))
+    action_space = gym.spaces.Box(low=0, high=1, shape=(1,))
+
     def __init__(self, arg1, arg2, arg3):
         self.arg1 = arg1
         self.arg2 = arg2
@@ -159,7 +162,11 @@ def test_env_version_suggestions(
 
 
 def test_make_with_kwargs():
-    env = envs.make("test.ArgumentEnv-v0", arg2="override_arg2", arg3="override_arg3")
+    env = envs.make(
+        "test.ArgumentEnv-v0",
+        arg2="override_arg2",
+        arg3="override_arg3",
+    )
     assert env.spec.id == "test.ArgumentEnv-v0"
     assert isinstance(env.unwrapped, ArgumentEnv)
     assert env.arg1 == "arg1"

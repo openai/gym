@@ -8,6 +8,8 @@ from gym.wrappers import OrderEnforcing, TimeLimit
 
 
 class ArgumentEnv(core.Env):
+    observation_space = spaces.Box(low=0, high=1, shape=(1,))
+    action_space = spaces.Box(low=0, high=1, shape=(1,))
     calls = 0
 
     def __init__(self, arg):
@@ -19,8 +21,16 @@ class UnittestEnv(core.Env):
     observation_space = spaces.Box(low=0, high=255, shape=(64, 64, 3), dtype=np.uint8)
     action_space = spaces.Discrete(3)
 
-    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
+    def reset(
+        self,
+        *,
+        seed: Optional[int] = None,
+        return_info: bool = False,
+        options: Optional[dict] = None
+    ):
         super().reset(seed=seed)
+        if return_info:
+            return self.observation_space.sample(), {"info": "dummy"}
         return self.observation_space.sample()  # Dummy observation
 
     def step(self, action):
