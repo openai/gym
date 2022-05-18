@@ -6,7 +6,7 @@ import pytest
 from numpy.testing import assert_allclose
 
 import gym
-from gym.envs.registration import EnvSpec, registry
+from gym.envs.registration import registry
 from gym.spaces import Tuple
 from gym.vector.async_vector_env import AsyncVectorEnv
 from gym.vector.sync_vector_env import SyncVectorEnv
@@ -74,7 +74,7 @@ def test_custom_space_vector_env():
 # NOTE: this won't work if the atari dependencies are installed, as we can't gym.make() them when
 # inside the git repo folder.
 local_env_ids = [
-    spec.id for spec in registry.all() if not should_skip_env_spec_for_tests(spec)
+    spec.id for spec in registry.values() if not should_skip_env_spec_for_tests(spec)
 ]
 
 
@@ -92,8 +92,8 @@ def _make_seeded_env(env_id: str, seed: int) -> gym.Env:
 @pytest.mark.parametrize("env_id", local_env_ids)
 @pytest.mark.parametrize("async_inner", [False, True])
 @pytest.mark.parametrize("async_outer", [False, True])
-@pytest.mark.parametrize("n_inner_envs", [1, 4, 7])
-@pytest.mark.parametrize("n_outer_envs", [1, 4, 7])
+@pytest.mark.parametrize("n_inner_envs", [1, 2, 3])
+@pytest.mark.parametrize("n_outer_envs", [1, 2, 3])
 def test_nesting_vector_envs(
     env_id: str,
     async_inner: bool,
@@ -236,8 +236,8 @@ def test_nesting_vector_envs(
     for i, action_i in enumerate(iterate(env.action_space, action)):
         for j, action_ij in enumerate(iterate(env.single_action_space, action_i)):
             assert action_ij in base_action_space
-            # Assert that each observation is what we'd expect (following the single env.)
-            # assert_allclose(act_ij, base_act)
+            # Assert that each action is what we'd expect (following the single env.)
+            assert_allclose(action_ij, base_act[i][j])
         assert j == n_inner_envs - 1
     assert i == n_outer_envs - 1
 
