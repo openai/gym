@@ -79,7 +79,7 @@ local_env_ids = [
 
 
 def _make_seeded_env(env_id: str, seed: int) -> gym.Env:
-    # Ignore any depcrecated environment warnings, since we will always need to test those.
+    # Ignore any deprecated environment warnings, since we will always need to test those.
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", category=UserWarning)
         env = gym.make(env_id)

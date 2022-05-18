@@ -1,6 +1,7 @@
 import os
 
 from gym import envs, logger
+from gym.envs.registration import EnvSpec
 
 SKIP_MUJOCO_WARNING_MESSAGE = (
     "Cannot run mujoco test (either license key not found or mujoco not"
@@ -16,10 +17,16 @@ if not skip_mujoco:
         skip_mujoco = True
 
 
-def should_skip_env_spec_for_tests(spec):
+def should_skip_env_spec_for_tests(spec: EnvSpec) -> bool:
     # We skip tests for envs that require dependencies or are otherwise
     # troublesome to run frequently
     ep = spec.entry_point
+
+    if not isinstance(ep, str):
+        # Skip entry points that aren't strings.
+        # (Also avoids type checking errors below)
+        return False
+
     # Skip mujoco tests for pull request CI
     if skip_mujoco and ep.startswith("gym.envs.mujoco"):
         return True
