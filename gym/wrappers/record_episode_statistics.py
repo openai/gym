@@ -140,6 +140,9 @@ class RecordEpisodeStatistics(gym.Wrapper):
         """Steps through the environment, recording the episode statistics."""
         self.infos_processor.info = {}
         observations, rewards, dones, infos = super().step(action)
+        assert isinstance(
+            infos, dict
+        ), f"`info` dtype is {type(infos)} while supported dtype is `dict`. This may be due to usage of other wrappers in the wrong order."
         self.episode_returns += rewards
         self.episode_lengths += 1
         if not self.is_vector_env:

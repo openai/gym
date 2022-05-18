@@ -1,7 +1,7 @@
 import pytest
 
 import gym
-from gym.wrappers import RecordEpisodeStatistics
+from gym.wrappers import RecordEpisodeStatistics, VectorListInfo
 
 
 @pytest.mark.parametrize("env_id", ["CartPole-v1", "Pendulum-v1"])
@@ -59,3 +59,12 @@ def test_record_episode_statistics_with_vectorenv(num_envs, asynchronous):
         else:
             assert "episode" not in infos
             assert "_episode" not in infos
+
+
+def test_wrong_wrapping_order():
+    envs = gym.vector.make("CartPole-v1", num_envs=3)
+    wrapped_env = RecordEpisodeStatistics(VectorListInfo(envs))
+    wrapped_env.reset()
+
+    with pytest.raises(AssertionError):
+        wrapped_env.step(wrapped_env.action_space.sample())
