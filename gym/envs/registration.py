@@ -451,10 +451,16 @@ def make(
     """
     Create an environment according to the given ID.
 
+    Warnings:
+        In v0.24, `gym.utils.env_checker.env_checker` is run for every initialised environment.
+        This calls the :meth:`Env.reset`, :meth:`Env.step` and :meth:`Env.render` functions to valid
+        if they follow the gym API. To disable this feature, set parameter `disable_env_checker=True`.
+
     Args:
         id: Name of the environment.
         max_episode_steps: Maximum length of an episode (TimeLimit wrapper).
         autoreset: Whether to automatically reset the environment after each episode (AutoResetWrapper).
+        disable_env_checker: If to disable the environment checker
         kwargs: Additional arguments to pass to the environment constructor.
     Returns:
         An instance of the environment.
