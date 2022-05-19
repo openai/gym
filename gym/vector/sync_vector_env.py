@@ -90,7 +90,7 @@ class SyncVectorEnv(VectorEnv):
         return_info: bool = False,
         options: Optional[dict] = None,
     ):
-        """"Waits for the calls triggered by :meth:`reset_async` to finish and returns the results.
+        """Waits for the calls triggered by :meth:`reset_async` to finish and returns the results.
 
         Args:
             seed: The reset environment seed
@@ -138,7 +138,7 @@ class SyncVectorEnv(VectorEnv):
             ), data_list
 
     def step_async(self, actions):
-        """Converts the actions to an iterated version."""
+        """Sets :attr:`_actions` for use by the :meth:`step_wait` by converting the ``actions`` to an iterable version."""
         self._actions = iterate(self.action_space, actions)
 
     def step_wait(self):
@@ -212,7 +212,7 @@ class SyncVectorEnv(VectorEnv):
         """Close the environments."""
         [env.close() for env in self.envs]
 
-    def _check_spaces(self):
+    def _check_spaces(self) -> bool:
         for env in self.envs:
             if not (env.observation_space == self.single_observation_space):
                 raise RuntimeError(
@@ -228,5 +228,4 @@ class SyncVectorEnv(VectorEnv):
                     "action spaces from all environments must be equal."
                 )
 
-        else:
-            return True
+        return True

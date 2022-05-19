@@ -13,12 +13,12 @@ __all__ = ["VectorEnv"]
 class VectorEnv(gym.Env):
     """Base class for vectorized environments. Runs multiple independent copies of the same environment in parallel.
 
-    This is not the same as 1 environment that has multiple sub components, but it is many copies of the same base env.
+    This is not the same as 1 environment that has multiple subcomponents, but it is many copies of the same base env.
 
     Each observation returned from vectorized environment is a batch of observations for each parallel environment.
     And :meth:`step` is also expected to receive a batch of actions for each parallel environment.
 
-    .. note::
+    Notes:
         All parallel environments should share the identical observation and action spaces.
         In other words, a vector of multiple different environments is not supported.
     """
@@ -53,7 +53,7 @@ class VectorEnv(gym.Env):
         options: Optional[dict] = None,
     ):
         """Reset the sub-environments asynchronously.
-        
+
         This method will return ``None``. A call to :meth:`reset_async` should be followed by a call to :meth:`reset_wait` to retrieve the results.
         """
         pass
@@ -65,7 +65,7 @@ class VectorEnv(gym.Env):
         options: Optional[dict] = None,
     ):
         """Retrieves the results of a :meth:`reset_async` call.
-        
+
         A call to this method must always be preceded by a call to :meth:`reset_async`.
         """
         raise NotImplementedError()
@@ -92,14 +92,14 @@ class VectorEnv(gym.Env):
 
     def step_async(self, actions):
         """Asynchronously performs steps in the sub-environments.
-        
+
         The results can be retrieved via a call to :meth:`step_wait`.
         """
         pass
 
     def step_wait(self, **kwargs):
         """Retrieves the results of a :meth:`step_async` call.
-        
+
         A call to this method must always be preceded by a call to :meth:`step_async`.
         """
         raise NotImplementedError()
@@ -121,7 +121,7 @@ class VectorEnv(gym.Env):
         pass
 
     def call_wait(self, **kwargs):
-        """Calls a method and wait for the results."""
+        """After calling a method in :meth:`call_async`, this function collects the results."""
         raise NotImplementedError()
 
     def call(self, name: str, *args, **kwargs) -> list[Any]:
@@ -170,14 +170,12 @@ class VectorEnv(gym.Env):
         It also closes all the existing image viewers, then calls :meth:`close_extras` and set
         :attr:`closed` as ``True``.
 
-        .. warning::
-
+        Warnings:
             This function itself does not close the environments, it should be handled
             in :meth:`close_extras`. This is generic for both synchronous and asynchronous
             vectorized environments.
 
-        .. note::
-
+        Notes:
             This will be automatically called when garbage collected or program exited.
 
         """
@@ -191,14 +189,12 @@ class VectorEnv(gym.Env):
     def seed(self, seed=None):
         """Set the random seed in all parallel environments.
 
-        Parameters
-        ----------
-        seed : list of int, or int, optional
-            Random seed for each parallel environment. If ``seed`` is a list of
-            length ``num_envs``, then the items of the list are chosen as random
-            seeds. If ``seed`` is an int, then each parallel environment uses the random
-            seed ``seed + n``, where ``n`` is the index of the parallel environment
-            (between ``0`` and ``num_envs - 1``).
+        Args:
+            seed: Random seed for each parallel environment. If ``seed`` is a list of
+                length ``num_envs``, then the items of the list are chosen as random
+                seeds. If ``seed`` is an int, then each parallel environment uses the random
+                seed ``seed + n``, where ``n`` is the index of the parallel environment
+                (between ``0`` and ``num_envs - 1``).
         """
         deprecation(
             "Function `env.seed(seed)` is marked as deprecated and will be removed in the future. "
@@ -225,8 +221,7 @@ class VectorEnvWrapper(VectorEnv):
     could override some methods to change the behavior of the original vectorized environment
     without touching the original code.
 
-    .. note::
-
+    Notes:
         Don't forget to call ``super().__init__(env)`` if the subclass overrides :meth:`__init__`.
     """
 

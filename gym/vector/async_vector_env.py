@@ -12,6 +12,7 @@ import numpy as np
 
 import gym
 from gym import logger
+from gym.core import ObsType
 from gym.error import (
     AlreadyPendingCallError,
     ClosedEnvironmentError,
@@ -189,7 +190,7 @@ class AsyncVectorEnv(VectorEnv):
         options: Optional[dict] = None,
     ):
         """Send calls to the :obj:`reset` methods of the sub-environments.
-        
+
         To get the results of these calls, you may invoke :meth:`reset_wait`.
 
         Args:
@@ -235,8 +236,8 @@ class AsyncVectorEnv(VectorEnv):
         seed: Optional[int] = None,
         return_info: bool = False,
         options: Optional[dict] = None,
-    ) -> tuple[np.ndarray, list[dict]]:
-        """"Waits for the calls triggered by :meth:`reset_async` to finish and returns the results.
+    ) -> Union[ObsType, tuple[ObsType, list[dict]]]:
+        """Waits for the calls triggered by :meth:`reset_async` to finish and returns the results.
 
         Args:
             timeout: Number of seconds before the call to `reset_wait` times out. If `None`, the call to `reset_wait` never times out.
