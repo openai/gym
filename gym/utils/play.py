@@ -80,7 +80,7 @@ class PlayableGame:
 
     def process_event(self, event: Event):
         """Processes a PyGame event.
-        
+
         In particular, this function is used to keep track of which buttons are currently pressed and to exit the :func:`play` function when the PyGame window is closed.
 
         Args:
