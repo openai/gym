@@ -7,66 +7,33 @@ import numpy as np
 import gym
 
 
-class EnvStatsInfo:
-    """Manage episode statistics in non vectorized envs."""
+def add_vector_episode_statistics(
+    episode_info: dict, info: dict, num_envs: int, env_num: int
+):
+    """Add episode statistics.
 
-    def __init__(self, num_envs: int):
-        """Initialize EpisodeStatistics info.
+    Add statistics coming from the vectorized environment.
 
-        Args:
-            num_envs (int): number of environments.
-        """
-        self.num_envs = num_envs
-        self.info = {}
+    Args:
+        episode_info (dict): episode statistics data.
+        info (dict): info dict of the environment.
+        num_envs (int): number of environments.
+        env_num (int): env number of the vectorized environments.
 
-    def add_info(self, infos: dict, env_num: int):
-        """Add info.
+    Returns:
+        info (dict): the input info dict with the episode statistics.
+    """
+    info["episode"] = info.get("episode", {})
 
-        Args:
-            infos (dict): info dict of the environment.
-            env_num (int): environment number.
-        """
-        self.info = {**self.info, **infos}
+    info["_episode"] = info.get("_episode", np.zeros(num_envs, dtype=bool))
+    info["_episode"][env_num] = True
 
-    def add_episode_statistics(self, infos: dict, env_num: int):
-        """Add episode statistics.
+    for k in episode_info.keys():
+        info_array = info["episode"].get(k, np.zeros(num_envs))
+        info_array[env_num] = episode_info[k]
+        info["episode"][k] = info_array
 
-        Args:
-            infos (dict): info dict of the environment.
-            env_num (int): env number.
-        """
-        self.info = {**self.info, **infos}
-
-    def get_info(self):
-        """Return info."""
-        return self.info
-
-
-class VectorEnvStatsInfo(EnvStatsInfo):
-    """Manage episode statistics for vectorized envs."""
-
-    def add_episode_statistics(self, info: dict, env_num: int):
-        """Add episode statistics.
-
-        Add statistics coming from the vectorized environment.
-
-        Args:
-            info (dict): info dict of the environment.
-            env_num (int): env number of the vectorized environments.
-        """
-        episode_info = info["episode"]
-
-        self.info["episode"] = self.info.get("episode", {})
-
-        self.info["_episode"] = self.info.get(
-            "_episode", np.zeros(self.num_envs, dtype=bool)
-        )
-        self.info["_episode"][env_num] = True
-
-        for k in episode_info.keys():
-            info_array = self.info["episode"].get(k, np.zeros(self.num_envs))
-            info_array[env_num] = episode_info[k]
-            self.info["episode"][k] = info_array
+    return info
 
 
 class RecordEpisodeStatistics(gym.Wrapper):
@@ -124,10 +91,6 @@ class RecordEpisodeStatistics(gym.Wrapper):
         self.return_queue = deque(maxlen=deque_size)
         self.length_queue = deque(maxlen=deque_size)
         self.is_vector_env = getattr(env, "is_vector_env", False)
-        if self.is_vector_env:
-            self.infos_processor = VectorEnvStatsInfo(self.num_envs)
-        else:
-            self.infos_processor = EnvStatsInfo(self.num_envs)
 
     def reset(self, **kwargs):
         """Resets the environment using kwargs and resets the episode returns and lengths."""
@@ -138,11 +101,12 @@ class RecordEpisodeStatistics(gym.Wrapper):
 
     def step(self, action):
         """Steps through the environment, recording the episode statistics."""
-        self.infos_processor.info = {}
+        info = {}
         observations, rewards, dones, infos = super().step(action)
         assert isinstance(
             infos, dict
         ), f"`info` dtype is {type(infos)} while supported dtype is `dict`. This may be due to usage of other wrappers in the wrong order."
+        info = {**info, **infos}
         self.episode_returns += rewards
         self.episode_lengths += 1
         if not self.is_vector_env:
@@ -151,7 +115,6 @@ class RecordEpisodeStatistics(gym.Wrapper):
 
         for i in range(len(dones)):
             if dones[i]:
-                self.infos_processor.add_info(infos, i)
                 episode_return = self.episode_returns[i]
                 episode_length = self.episode_lengths[i]
                 episode_info = {
@@ -161,7 +124,12 @@ class RecordEpisodeStatistics(gym.Wrapper):
                         "t": round(time.perf_counter() - self.t0, 6),
                     }
                 }
-                self.infos_processor.add_episode_statistics(episode_info, i)
+                if self.is_vector_env:
+                    info = add_vector_episode_statistics(
+                        episode_info["episode"], info, self.num_envs, i
+                    )
+                else:
+                    info = {**info, **episode_info}
                 self.return_queue.append(episode_return)
                 self.length_queue.append(episode_length)
                 self.episode_count += 1
@@ -171,5 +139,5 @@ class RecordEpisodeStatistics(gym.Wrapper):
             observations,
             rewards,
             dones if self.is_vector_env else dones[0],
-            self.infos_processor.get_info(),
+            info,
         )
