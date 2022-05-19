@@ -8,15 +8,15 @@ import gym
 
 
 def add_vector_episode_statistics(
-    episode_info: dict, info: dict, num_envs: int, env_num: int
+    info: dict, episode_info: dict, num_envs: int, env_num: int
 ):
     """Add episode statistics.
 
     Add statistics coming from the vectorized environment.
 
     Args:
-        episode_info (dict): episode statistics data.
         info (dict): info dict of the environment.
+        episode_info (dict): episode statistics data.
         num_envs (int): number of environments.
         env_num (int): env number of the vectorized environments.
 
@@ -126,7 +126,7 @@ class RecordEpisodeStatistics(gym.Wrapper):
                 }
                 if self.is_vector_env:
                     info = add_vector_episode_statistics(
-                        episode_info["episode"], info, self.num_envs, i
+                        info, episode_info["episode"], self.num_envs, i
                     )
                 else:
                     info = {**info, **episode_info}
