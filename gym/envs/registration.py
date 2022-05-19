@@ -24,6 +24,7 @@ from typing import (
 import numpy as np
 
 from gym.envs.__relocated__ import internal_env_relocation_map
+from gym.utils.env_checker import check_env
 from gym.wrappers import AutoResetWrapper, OrderEnforcing, TimeLimit
 
 if sys.version_info < (3, 10):
@@ -444,6 +445,7 @@ def make(
     id: str | EnvSpec,
     max_episode_steps: Optional[int] = None,
     autoreset: bool = False,
+    disable_env_checker: bool = False,
     **kwargs,
 ) -> Env:
     """
@@ -515,6 +517,14 @@ def make(
 
     if autoreset:
         env = AutoResetWrapper(env)
+
+    if not disable_env_checker:
+        try:
+            check_env(env)
+        except Exception as e:
+            logger.warn(
+                f"Env check failed with the following message: {e}\nYou can set `disable_env_checker=True` to disable this check."
+            )
 
     return env
 
