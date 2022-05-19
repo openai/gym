@@ -340,6 +340,8 @@ def make(id: EnvSpec, **kwargs) -> Env: ...
 class EnvRegistry(dict):
     """A glorified dictionary for compatibility reasons"""
 
+    # TODO: remove this at 1.0
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -349,22 +351,34 @@ class EnvRegistry(dict):
         )
         return make(path, **kwargs)
 
+    def register(self, id: str, **kwargs) -> None:
+        logger.warn(
+            "The `registry.register` method is deprecated. Please use `gym.register` instead."
+        )
+        return register(id, **kwargs)
+
     def all(self) -> Iterable[EnvSpec]:
         logger.warn(
             "The `registry.all` method is deprecated. Please use `registry.values` instead."
         )
         return self.values()
 
-    def spec(self, path: str):
+    def spec(self, path: str) -> EnvSpec:
         logger.warn(
             "The `registry.spec` method is deprecated. Please use `gym.spec` instead."
         )
         return spec(path)
 
+    def namespace(self, ns: str):
+        logger.warn(
+            "The `registry.namespace` method is deprecated. Please use `gym.namespace` instead."
+        )
+        return namespace(ns)
+
     @property
     def env_specs(self):
         logger.warn(
-            "The `registry.env_specs` property is deprecated. Please use `registry` directly instead."
+            "The `registry.env_specs` property along with `EnvSpecTree` is deprecated. Please use `registry` directly as a dictionary instead."
         )
         return self
 
