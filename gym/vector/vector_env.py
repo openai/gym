@@ -52,7 +52,10 @@ class VectorEnv(gym.Env):
         return_info: bool = False,
         options: Optional[dict] = None,
     ):
-        """Reset the vector environments asynchronously."""
+        """Reset the sub-environments asynchronously.
+        
+        This method will return ``None``. A call to :meth:`reset_async` should be followed by a call to :meth:`reset_wait` to retrieve the results.
+        """
         pass
 
     def reset_wait(
@@ -61,7 +64,10 @@ class VectorEnv(gym.Env):
         return_info: bool = False,
         options: Optional[dict] = None,
     ):
-        """Resets the vector environments while waiting for the results."""
+        """Retrieves the results of a :meth:`reset_async` call.
+        
+        A call to this method must always be preceded by a call to :meth:`reset_async`.
+        """
         raise NotImplementedError()
 
     def reset(
@@ -85,11 +91,17 @@ class VectorEnv(gym.Env):
         return self.reset_wait(seed=seed, return_info=return_info, options=options)
 
     def step_async(self, actions):
-        """Steps through the environment action asynchronously."""
+        """Asynchronously performs steps in the sub-environments.
+        
+        The results can be retrieved via a call to :meth:`step_wait`.
+        """
         pass
 
     def step_wait(self, **kwargs):
-        """Steps through the vector environment while waiting for results."""
+        """Retrieves the results of a :meth:`step_async` call.
+        
+        A call to this method must always be preceded by a call to :meth:`step_async`.
+        """
         raise NotImplementedError()
 
     def step(self, actions):
@@ -138,7 +150,7 @@ class VectorEnv(gym.Env):
         return self.call(name)
 
     def set_attr(self, name: str, values: Union[list, tuple, object]):
-        """Set a property in each parallel environment.
+        """Set a property in each sub-environment.
 
         Args:
             name (str): Name of the property to be set in each individual environment.
@@ -199,7 +211,7 @@ class VectorEnv(gym.Env):
             self.close()
 
     def __repr__(self):
-        """Returns a string representation of the vector using the class name, number of environments and environment spec id."""
+        """Returns a string representation of the vector environment using the class name, number of environments and environment spec id."""
         if self.spec is None:
             return f"{self.__class__.__name__}({self.num_envs})"
         else:

@@ -361,7 +361,7 @@ def _check_reset_seed(env: gym.Env, seed: Optional[int] = None):
 
 
 def _check_reset_info(env: gym.Env):
-    """Checks reset information of an environment.
+    """Checks that :meth:`reset` supports the ``return_info`` keyword.
 
     Args:
         env: The environment to check

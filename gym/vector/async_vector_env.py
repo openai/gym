@@ -43,7 +43,7 @@ class AsyncState(Enum):
 class AsyncVectorEnv(VectorEnv):
     """Vectorized environment that runs multiple environments in parallel.
 
-    It uses `multiprocessing` processes, and pipes for communication.
+    It uses ``multiprocessing`` processes, and pipes for communication.
 
     Example::
 
@@ -188,7 +188,9 @@ class AsyncVectorEnv(VectorEnv):
         return_info: bool = False,
         options: Optional[dict] = None,
     ):
-        """Send the calls to :obj:`reset` to each sub-environment.
+        """Send calls to the :obj:`reset` methods of the sub-environments.
+        
+        To get the results of these calls, you may invoke :meth:`reset_wait`.
 
         Args:
             seed: List of seeds for each environment
@@ -234,7 +236,7 @@ class AsyncVectorEnv(VectorEnv):
         return_info: bool = False,
         options: Optional[dict] = None,
     ) -> tuple[np.ndarray, list[dict]]:
-        """Resets the environment waiting for the result.
+        """"Waits for the calls triggered by :meth:`reset_async` to finish and returns the results.
 
         Args:
             timeout: Number of seconds before the call to `reset_wait` times out. If `None`, the call to `reset_wait` never times out.
@@ -409,11 +411,11 @@ class AsyncVectorEnv(VectorEnv):
         return results
 
     def set_attr(self, name: str, values: Union[list, tuple, object]):
-        """Sets an attribute name with values.
+        """Sets an attribute of the sub-environments.
 
         Args:
             name: Name of the property to be set in each individual environment.
-            values: Values of the property to be set to. If `values` is a list or
+            values: Values of the property to be set to. If ``values`` is a list or
                 tuple, then it corresponds to the values for each individual
                 environment, otherwise a single value is set for all environments.
         """

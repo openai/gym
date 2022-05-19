@@ -79,7 +79,9 @@ class PlayableGame:
         return video_size
 
     def process_event(self, event: Event):
-        """Processes an event.
+        """Processes a PyGame event.
+        
+        In particular, this function is used to keep track of which buttons are currently pressed and to exit the :func:`play` function when the PyGame window is closed.
 
         Args:
             event: The event to process
@@ -150,11 +152,11 @@ def play(
 
     If you wish to plot real time statistics as you play, you can use
     :class:`gym.utils.play.PlayPlot`. Here's a sample code for plotting the reward
-    for last 5 second of gameplay.
+    for last 150 steps.
 
         >>> def callback(obs_t, obs_tp1, action, rew, done, info):
         ...        return [rew,]
-        >>> plotter = PlayPlot(callback, 30 * 5, ["reward"])
+        >>> plotter = PlayPlot(callback, 150, ["reward"])
         >>> play(gym.make("ALE/AirRaid-v5"), callback=plotter.callback)
 
 

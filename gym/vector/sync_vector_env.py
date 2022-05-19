@@ -69,7 +69,7 @@ class SyncVectorEnv(VectorEnv):
         self._actions = None
 
     def seed(self, seed: Optional[Union[int, Sequence[int]]] = None):
-        """Sets all vector environments.
+        """Sets the seed in all sub-environments.
 
         Args:
             seed: The seed
@@ -90,7 +90,7 @@ class SyncVectorEnv(VectorEnv):
         return_info: bool = False,
         options: Optional[dict] = None,
     ):
-        """Resets the environment, waiting for each result.
+        """"Waits for the calls triggered by :meth:`reset_async` to finish and returns the results.
 
         Args:
             seed: The reset environment seed
@@ -188,11 +188,13 @@ class SyncVectorEnv(VectorEnv):
         return tuple(results)
 
     def set_attr(self, name: str, values: Union[list, tuple, Any]):
-        """Sets the attribute of a property with values.
+        """Sets an attribute of the sub-environments.
 
         Args:
             name: The property name to change
-            values: The value to set the property
+            values: Values of the property to be set to. If ``values`` is a list or
+                tuple, then it corresponds to the values for each individual
+                environment, otherwise, a single value is set for all environments.
         """
         if not isinstance(values, (list, tuple)):
             values = [values for _ in range(self.num_envs)]
