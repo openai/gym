@@ -1,4 +1,4 @@
-"""Wrapper that converts the info format for vec envs into the (old) classic one."""
+"""Wrapper that converts the info format for vec envs into the list format."""
 
 from typing import List
 
@@ -6,10 +6,10 @@ import gym
 
 
 class VectorListInfo(gym.Wrapper):
-    """Converts info format to `classic`.
+    """Converts infos of vectorized envinroments from dict to List[dict].
 
     This wrapper converts the info format of a
-    vector environment to the `classic` info format.
+    vector environment from a dictionary to a list of dictionaries.
     This wrapper is intended to be used around vectorized
     environments. If using other wrappers that perform
     operation on info like `RecordEpisodeStatistics` this
@@ -30,7 +30,7 @@ class VectorListInfo(gym.Wrapper):
     """
 
     def __init__(self, env):
-        """This wrapper will convert the info into the classic (old) format.
+        """This wrapper will convert the info into the list format.
 
         Args:
             env (Env): The environment to apply the wrapper
@@ -41,44 +41,74 @@ class VectorListInfo(gym.Wrapper):
         super().__init__(env)
 
     def step(self, action):
-        """Steps through the environment, convert info to classic."""
+        """Steps through the environment, convert dict info to list."""
         observation, reward, done, infos = self.env.step(action)
-        classic_info = self._convert_info_to_classic(infos)
+        list_info = self._convert_info_to_list(infos)
 
-        return observation, reward, done, classic_info
+        return observation, reward, done, list_info
 
     def reset(self, **kwargs):
         """Resets the environment using kwargs."""
         if not kwargs.get("return_info"):
-            obs = self.env.reset(**kwargs)
-            return obs
+            return self.env.reset(**kwargs)
 
         obs, infos = self.env.reset(**kwargs)
-        classic_info = self._convert_info_to_classic(infos)
-        return obs, classic_info
+        list_info = self._convert_info_to_list(infos)
+        return obs, list_info
 
-    def _convert_info_to_classic(self, infos: dict) -> List[dict]:
-        classic_info = [{} for _ in range(self.num_envs)]
-        classic_info = self._process_episode_statistics(infos, classic_info)
+    def _convert_info_to_list(self, infos: dict) -> List[dict]:
+        """Convert the dict info to list.
+
+        Convert the dict info of the vectorized environment
+        into a list of dictionaries where the i-th dictionary
+        has the info of the i-th environment.
+
+        Args:
+            infos (dict): info dict coming from the env.
+
+        Returns:
+            list_info (list): converted info.
+
+        """
+        list_info = [{} for _ in range(self.num_envs)]
+        list_info = self._process_episode_statistics(infos, list_info)
         for k in infos:
             if k.startswith("_"):
                 continue
             for i, has_info in enumerate(infos[f"_{k}"]):
                 if has_info:
-                    classic_info[i][k] = infos[k][i]
-        return classic_info
+                    list_info[i][k] = infos[k][i]
+        return list_info
 
-    def _process_episode_statistics(self, infos, classic_info):
+    def _process_episode_statistics(self, infos: dict, list_info: list) -> List[dict]:
+        """Process episode statistics.
+
+        `RecordEpisodeStatistics` wrapper add extra
+        information to the info. This information are in
+        the form of a dict of dict. This method process these
+        information and add them to the info.
+        `RecordEpisodeStatistics` info contains the keys
+        "r", "l", "t" which represents "cumulative reward",
+        "episode length", "elapsed time since instantiation of wrapper".
+
+        Args:
+            infos (dict): infos coming from `RecordEpisodeStatistics`.
+            list_info (list): info of the current vectorized environment.
+
+        Returns:
+            list_info (list): updated info.
+
+        """
         episode_statistics = infos.pop("episode", False)
         if not episode_statistics:
-            return classic_info
+            return list_info
 
         episode_statistics_mask = infos.pop("_episode")
         for i, has_info in enumerate(episode_statistics_mask):
             if has_info:
-                classic_info[i]["episode"] = {}
-                classic_info[i]["episode"]["r"] = episode_statistics["r"][i]
-                classic_info[i]["episode"]["l"] = episode_statistics["l"][i]
-                classic_info[i]["episode"]["t"] = episode_statistics["t"][i]
+                list_info[i]["episode"] = {}
+                list_info[i]["episode"]["r"] = episode_statistics["r"][i]
+                list_info[i]["episode"]["l"] = episode_statistics["l"][i]
+                list_info[i]["episode"]["t"] = episode_statistics["t"][i]
 
-        return classic_info
+        return list_info

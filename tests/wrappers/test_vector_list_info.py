@@ -6,6 +6,7 @@ from gym.wrappers import RecordEpisodeStatistics, VectorListInfo
 ENV_ID = "CartPole-v1"
 NUM_ENVS = 3
 ENV_STEPS = 50
+SEED = 42
 
 
 def test_usage_in_vector_env():
@@ -21,7 +22,8 @@ def test_usage_in_vector_env():
 def test_info_to_list():
     env_to_wrap = gym.vector.make(ENV_ID, num_envs=NUM_ENVS)
     wrapped_env = VectorListInfo(env_to_wrap)
-    _, info = wrapped_env.reset(return_info=True)
+    wrapped_env.action_space.seed(SEED)
+    _, info = wrapped_env.reset(seed=SEED, return_info=True)
     assert isinstance(info, list)
     assert len(info) == NUM_ENVS
 
@@ -38,7 +40,8 @@ def test_info_to_list():
 def test_info_to_list_statistics():
     env_to_wrap = gym.vector.make(ENV_ID, num_envs=NUM_ENVS)
     wrapped_env = VectorListInfo(RecordEpisodeStatistics(env_to_wrap))
-    _, info = wrapped_env.reset(return_info=True)
+    _, info = wrapped_env.reset(seed=SEED, return_info=True)
+    wrapped_env.action_space.seed(SEED)
     assert isinstance(info, list)
     assert len(info) == NUM_ENVS
 

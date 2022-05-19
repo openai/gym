@@ -245,6 +245,22 @@ class VectorEnv(gym.Env):
         return infos
 
     def _init_info_arrays(self, dtype: type) -> np.ndarray:
+        """Initialize the info array.
+
+        Initialize the info array. If the dtype is numeric
+        the info array will have the same dtype, otherwise
+        will be an array of `None`. Also, a boolean array
+        of the same length is returned. It will be used for
+        assessing which environment has info data.
+
+        Args:
+            dtype (type): data type of the info coming from the env.
+
+        Returns:
+            array (np.ndarray): the initialized info array.
+            array_mask (np.ndarray): the initialized boolean array.
+
+        """
         if dtype in [int, float, bool] or issubclass(dtype, np.number):
             array = np.zeros(self.num_envs, dtype=dtype)
         else:
