@@ -1,7 +1,7 @@
 """Implementation of a space that represents closed boxes in euclidean space."""
 from __future__ import annotations
 
-from typing import Optional, Sequence, SupportsFloat, Tuple, Type, Union
+from typing import Optional, Sequence, SupportsFloat, Union
 
 import numpy as np
 
@@ -15,6 +15,12 @@ def _short_repr(arr: np.ndarray) -> str:
 
     If arr is a multiple of the all-ones vector, return a string representation of the multiplier.
     Otherwise, return a string representation of the entire array.
+
+    Args:
+        arr: The array to represent
+
+    Returns:
+        A short representation of the array
     """
     if arr.size != 0 and np.min(arr) == np.max(arr):
         return str(np.min(arr))
@@ -46,7 +52,7 @@ class Box(Space[np.ndarray]):
         low: Union[SupportsFloat, np.ndarray],
         high: Union[SupportsFloat, np.ndarray],
         shape: Optional[Sequence[int]] = None,
-        dtype: Type = np.float32,
+        dtype: type = np.float32,
         seed: Optional[int | seeding.RandomNumberGenerator] = None,
     ):
         r"""Constructor of :class:`Box`.
@@ -57,7 +63,6 @@ class Box(Space[np.ndarray]):
         If ``low`` (or ``high``) is a scalar, the lower bound (or upper bound, respectively) will be assumed to be
         this value across all dimensions.
 
-
         Args:
             low (Union[SupportsFloat, np.ndarray]): Lower bounds of the intervals.
             high (Union[SupportsFloat, np.ndarray]): Upper bounds of the intervals.
@@ -65,6 +70,10 @@ class Box(Space[np.ndarray]):
                 Otherwise, the shape is inferred from the shape of ``low`` or ``high``.
             dtype: The dtype of the elements of the space. If this is an integer type, the :class:`Box` is essentially a discrete space.
             seed: Optionally, you can use this argument to seed the RNG that is used to sample from the space.
+
+        Raises:
+            ValueError: If no shape information is provided (shape is None, low is None and high is None) then a
+                value error is raised.
         """
         assert dtype is not None, "dtype must be explicitly provided. "
         self.dtype = np.dtype(dtype)
@@ -96,7 +105,7 @@ class Box(Space[np.ndarray]):
         assert isinstance(high, np.ndarray)
         assert high.shape == shape, "high.shape doesn't match provided shape"
 
-        self._shape: Tuple[int, ...] = shape
+        self._shape: tuple[int, ...] = shape
 
         low_precision = get_precision(low.dtype)
         high_precision = get_precision(high.dtype)
@@ -112,7 +121,7 @@ class Box(Space[np.ndarray]):
         super().__init__(self.shape, self.dtype, seed)
 
     @property
-    def shape(self) -> Tuple[int, ...]:
+    def shape(self) -> tuple[int, ...]:
         """Has stricter type than gym.Space - never None."""
         return self._shape
 
@@ -121,6 +130,9 @@ class Box(Space[np.ndarray]):
 
         Args:
             manner (str): One of ``"both"``, ``"below"``, ``"above"``.
+
+        Returns:
+            If the space is bounded
 
         Raises:
             ValueError: If `manner` is neither `"both"` nor `"below"`or `"above"`
@@ -146,6 +158,9 @@ class Box(Space[np.ndarray]):
         * :math:`[a, \infty)` : shifted exponential distribution
         * :math:`(-\infty, b]` : shifted negative exponential distribution
         * :math:`(-\infty, \infty)` : normal distribution
+
+        Returns:
+            A sampled value from the Box
         """
         high = self.high if self.dtype.kind == "f" else self.high.astype("int64") + 1
         sample = np.empty(self.shape)
@@ -204,6 +219,9 @@ class Box(Space[np.ndarray]):
 
         The representation will include bounds, shape and dtype.
         If a bound is uniform, only the corresponding scalar will be given to avoid redundant and ugly strings.
+
+        Returns:
+            A representation of the space
         """
         return f"Box({self.low_repr}, {self.high_repr}, {self.shape}, {self.dtype})"
 
@@ -223,6 +241,13 @@ def get_inf(dtype, sign: str) -> SupportsFloat:
     Args:
         dtype: An `np.dtype`
         sign (str): must be either `"+"` or `"-"`
+
+    Returns:
+        Gets an infinite value with the sign and dtype
+
+    Raises:
+        TypeError: Unknown sign, use either '+' or '-'
+        ValueError: Unknown dtype for infinite bounds
     """
     if np.dtype(dtype).kind == "f":
         if sign == "+":

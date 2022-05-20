@@ -28,6 +28,9 @@ def create_shared_memory(
 
     Returns:
         shared_memory for the shared object across processes.
+
+    Raises:
+        CustomSpaceError: Space is not a valid :class:`gym.Space` instance
     """
     raise CustomSpaceError(
         "Cannot create a shared memory for space with "
@@ -86,6 +89,8 @@ def read_from_shared_memory(
     Returns:
         Batch of observations as a (possibly nested) numpy array.
 
+    Raises:
+        CustomSpaceError: Space is not a valid :class:`gym.Space` instance
     """
     raise CustomSpaceError(
         "Cannot read from a shared memory for space with "
@@ -137,7 +142,11 @@ def write_to_shared_memory(
         space: Observation space of a single environment in the vectorized environment.
         index: Index of the environment (must be in `[0, num_envs)`).
         value: Observation of the single environment to write to shared memory.
-        shared_memory: Shared object across processes. This contains the observations from the vectorized environment. This object is created with `create_shared_memory`.
+        shared_memory: Shared object across processes. This contains the observations from the vectorized environment.
+            This object is created with `create_shared_memory`.
+
+    Raises:
+        CustomSpaceError: Space is not a valid :class:`gym.Space` instance
     """
     raise CustomSpaceError(
         "Cannot write to a shared memory for space with "

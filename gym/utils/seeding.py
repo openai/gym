@@ -20,6 +20,9 @@ def np_random(seed: Optional[int] = None) -> tuple[RandomNumberGenerator, Any]:
 
     Returns:
         The generator and resulting seed
+
+    Raises:
+        Error: Seed must be a non-negative integer or omitted
     """
     if seed is not None and not (isinstance(seed, int) and 0 <= seed):
         raise error.Error(f"Seed must be a non-negative integer or omitted, not {seed}")
@@ -175,6 +178,9 @@ def create_seed(a: Optional[Union[int, str]] = None, max_bytes: int = 8) -> int:
 
     Returns:
         A seed
+
+    Raises:
+        Error: Invalid type for seed, expects None or str or int
     """
     deprecation(
         "Function `create_seed(a, max_bytes)` is marked as deprecated and will be removed in the future. "

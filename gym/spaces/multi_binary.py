@@ -57,6 +57,9 @@ class MultiBinary(Space[np.ndarray]):
         """Generates a single random sample from this space.
 
         A sample is drawn by independent, fair coin tosses (one toss per binary variable of the space).
+
+        Returns:
+            Sampled values from space
         """
         return self.np_random.integers(low=0, high=2, size=self.n, dtype=self.dtype)
 

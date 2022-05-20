@@ -1,4 +1,5 @@
 import os
+from abc import abstractmethod
 from collections import OrderedDict
 from os import path
 from typing import Optional
@@ -12,9 +13,8 @@ try:
     import mujoco_py
 except ImportError as e:
     raise error.DependencyNotInstalled(
-        "{}. (HINT: you need to install mujoco_py, and also perform the setup instructions here: https://github.com/openai/mujoco-py/.)".format(
-            e
-        )
+        f"{e}. (HINT: you need to install mujoco_py, and also perform "
+        f"the setup instructions here: https://github.com/openai/mujoco-py/.)"
     )
 
 DEFAULT_SIZE = 500
@@ -86,20 +86,19 @@ class MujocoEnv(gym.Env):
     # methods to override:
     # ----------------------------
 
+    @abstractmethod
     def reset_model(self):
         """
         Reset the robot degrees of freedom (qpos and qvel).
         Implement this in each subclass.
         """
-        raise NotImplementedError
 
+    @abstractmethod
     def viewer_setup(self):
         """
         This method is called when the viewer is initialized.
-        Optionally implement this method, if you need to tinker with camera position
-        and so forth.
+        Optionally implement this method, if you need to tinker with camera position and so forth.
         """
-        pass
 
     # -----------------------------
 

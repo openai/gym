@@ -1,6 +1,7 @@
 """Base class for vectorized environments."""
 from __future__ import annotations
 
+from abc import abstractmethod
 from typing import Any, Optional, Union
 
 import gym
@@ -54,10 +55,17 @@ class VectorEnv(gym.Env):
     ):
         """Reset the sub-environments asynchronously.
 
-        This method will return ``None``. A call to :meth:`reset_async` should be followed by a call to :meth:`reset_wait` to retrieve the results.
+        This method will return ``None``. A call to :meth:`reset_async` should be followed
+        by a call to :meth:`reset_wait` to retrieve the results.
+
+        Args:
+            seed: The reset seed
+            return_info: If to return info
+            options: Reset options
         """
         pass
 
+    @abstractmethod
     def reset_wait(
         self,
         seed: Optional[Union[int, list[int]]] = None,
@@ -67,8 +75,18 @@ class VectorEnv(gym.Env):
         """Retrieves the results of a :meth:`reset_async` call.
 
         A call to this method must always be preceded by a call to :meth:`reset_async`.
+
+        Args:
+            seed: The reset seed
+            return_info: If to return info
+            options: Reset options
+
+        Returns:
+            The results from :meth:`reset_async`
+
+        Raises:
+            NotImplementedError: VectorEnv does not implement function
         """
-        raise NotImplementedError()
 
     def reset(
         self,
@@ -90,19 +108,28 @@ class VectorEnv(gym.Env):
         self.reset_async(seed=seed, return_info=return_info, options=options)
         return self.reset_wait(seed=seed, return_info=return_info, options=options)
 
+    @abstractmethod
     def step_async(self, actions):
         """Asynchronously performs steps in the sub-environments.
 
         The results can be retrieved via a call to :meth:`step_wait`.
-        """
-        pass
 
+        Args:
+            actions: The actions to take asynchronously
+        """
+
+    @abstractmethod
     def step_wait(self, **kwargs):
         """Retrieves the results of a :meth:`step_async` call.
 
         A call to this method must always be preceded by a call to :meth:`step_async`.
+
+        Args:
+            **kwargs: Additional keywords for vector implementation
+
+        Returns:
+            The results from the :meth:`step_async` call
         """
-        raise NotImplementedError()
 
     def step(self, actions):
         """Take an action for each parallel environment.
@@ -116,13 +143,13 @@ class VectorEnv(gym.Env):
         self.step_async(actions)
         return self.step_wait()
 
+    @abstractmethod
     def call_async(self, name, *args, **kwargs):
         """Calls a method name for each parallel environment asynchronously."""
-        pass
 
+    @abstractmethod
     def call_wait(self, **kwargs):
         """After calling a method in :meth:`call_async`, this function collects the results."""
-        raise NotImplementedError()
 
     def call(self, name: str, *args, **kwargs) -> list[Any]:
         """Call a method, or get a property, from each parallel environment.
@@ -149,6 +176,7 @@ class VectorEnv(gym.Env):
         """
         return self.call(name)
 
+    @abstractmethod
     def set_attr(self, name: str, values: Union[list, tuple, object]):
         """Set a property in each sub-environment.
 
@@ -158,7 +186,6 @@ class VectorEnv(gym.Env):
                 tuple, then it corresponds to the values for each individual environment, otherwise a single value
                 is set for all environments.
         """
-        raise NotImplementedError()
 
     def close_extras(self, **kwargs):
         """Clean up the extra resources e.g. beyond what's in this base class."""
@@ -178,6 +205,8 @@ class VectorEnv(gym.Env):
         Notes:
             This will be automatically called when garbage collected or program exited.
 
+        Args:
+            **kwargs: Keyword arguments passed to :meth:`close_extras`
         """
         if self.closed:
             return
@@ -206,8 +235,12 @@ class VectorEnv(gym.Env):
         if not getattr(self, "closed", True):
             self.close()
 
-    def __repr__(self):
-        """Returns a string representation of the vector environment using the class name, number of environments and environment spec id."""
+    def __repr__(self) -> str:
+        """Returns a string representation of the vector environment.
+
+        Returns:
+            A string containing the class name, number of environments and environment spec id
+        """
         if self.spec is None:
             return f"{self.__class__.__name__}({self.num_envs})"
         else:

@@ -71,7 +71,7 @@ class Env(Generic[ObsType, ActType]):
         Accepts an action and returns a tuple `(observation, reward, done, info)`.
 
         Args:
-            action (object): an action provided by the agent
+            action (ActType): an action provided by the agent
 
         Returns:
             observation (object): this will be an element of the environment's :attr:`observation_space`.
@@ -152,6 +152,7 @@ class Env(Generic[ObsType, ActType]):
             in implementations to use the functionality of this method.
 
         Example:
+            >>> import numpy as np
             >>> class MyEnv(Env):
             ...    metadata = {'render_modes': ['human', 'rgb_array']}
             ...
@@ -161,7 +162,7 @@ class Env(Generic[ObsType, ActType]):
             ...        elif mode == 'human':
             ...            ... # pop up a window and render
             ...        else:
-            ...            super(MyEnv, self).render(mode=mode) # just raise an exception
+            ...            super().render(mode=mode) # just raise an exception
 
         Args:
             mode: the mode to render with, valid modes are `env.metadata["render_modes"]`
@@ -208,7 +209,7 @@ class Env(Generic[ObsType, ActType]):
         """Returns the base non-wrapped environment.
 
         Returns:
-            gym.Env: The base non-wrapped gym.Env instance
+            Env: The base non-wrapped gym.Env instance
         """
         return self
 

@@ -73,19 +73,30 @@ class AsyncVectorEnv(VectorEnv):
 
         Args:
             env_fns: Functions that create the environments.
-            observation_space: Observation space of a single environment. If ``None``, then the observation space of the first environment is taken.
-            action_space: Action space of a single environment. If ``None``, then the action space of the first environment is taken.
-            shared_memory: If ``True``, then the observations from the worker processes are communicated back through shared variables. This can improve the efficiency if the observations are large (e.g. images).
-            copy: If ``True``, then the :meth:`~AsyncVectorEnv.reset` and :meth:`~AsyncVectorEnv.step` methods return a copy of the observations.
+            observation_space: Observation space of a single environment. If ``None``,
+                then the observation space of the first environment is taken.
+            action_space: Action space of a single environment. If ``None``,
+                then the action space of the first environment is taken.
+            shared_memory: If ``True``, then the observations from the worker processes are communicated back through
+                shared variables. This can improve the efficiency if the observations are large (e.g. images).
+            copy: If ``True``, then the :meth:`~AsyncVectorEnv.reset` and :meth:`~AsyncVectorEnv.step` methods
+                return a copy of the observations.
             context: Context for `multiprocessing`_. If ``None``, then the default context is used.
-            daemon: If ``True``, then subprocesses have ``daemon`` flag turned on; that is, they will quit if the head process quits. However, ``daemon=True`` prevents subprocesses to spawn children, so for some environments you may want to have it set to ``False``.
-            worker: If set, then use that worker in a subprocess instead of a default one. Can be useful to override some inner vector env logic, for instance, how resets on done are handled.
+            daemon: If ``True``, then subprocesses have ``daemon`` flag turned on; that is, they will quit if
+                the head process quits. However, ``daemon=True`` prevents subprocesses to spawn children,
+                so for some environments you may want to have it set to ``False``.
+            worker: If set, then use that worker in a subprocess instead of a default one.
+                Can be useful to override some inner vector env logic, for instance, how resets on done are handled.
 
-        Warnings: worker is an advanced mode option. It provides a high degree of flexibility and a high chance to shoot yourself in the foot; thus, if you are writing your own worker, it is recommended to start from the code for ``_worker`` (or ``_worker_shared_memory``) method, and add changes.
+        Warnings: worker is an advanced mode option. It provides a high degree of flexibility and a high chance
+            to shoot yourself in the foot; thus, if you are writing your own worker, it is recommended to start
+            from the code for ``_worker`` (or ``_worker_shared_memory``) method, and add changes.
 
         Raises:
-            RuntimeError: If the observation space of some sub-environment does not match observation_space (or, by default, the observation space of the first sub-environment).
-            ValueError: If observation_space is a custom space (i.e. not a default space in Gym, such as gym.spaces.Box, gym.spaces.Discrete, or gym.spaces.Dict) and shared_memory is True.
+            RuntimeError: If the observation space of some sub-environment does not match observation_space
+                (or, by default, the observation space of the first sub-environment).
+            ValueError: If observation_space is a custom space (i.e. not a default space in Gym,
+                such as gym.spaces.Box, gym.spaces.Discrete, or gym.spaces.Dict) and shared_memory is True.
         """
         ctx = mp.get_context(context)
         self.env_fns = env_fns
@@ -163,6 +174,9 @@ class AsyncVectorEnv(VectorEnv):
 
         Args:
             seed: The seeds use with the environments
+
+        Raises:
+            AlreadyPendingCallError: Calling `seed` while waiting for a pending call to complete
         """
         super().seed(seed=seed)
         self._assert_is_running()
@@ -370,6 +384,10 @@ class AsyncVectorEnv(VectorEnv):
             name: Name of the method or property to call.
             *args: Arguments to apply to the method call.
             **kwargs: Keyword arguments to apply to the method call.
+
+        Raises:
+            ClosedEnvironmentError: If the environment was closed (if :meth:`close` was previously called).
+            AlreadyPendingCallError: Calling `call_async` while waiting for a pending call to complete
         """
         self._assert_is_running()
         if self._state != AsyncState.DEFAULT:
@@ -387,10 +405,15 @@ class AsyncVectorEnv(VectorEnv):
         """Calls all parent pipes and waits for the results.
 
         Args:
-            timeout: Number of seconds before the call to `step_wait` times out. If `None` (default), the call to `step_wait` never times out.
+            timeout: Number of seconds before the call to `step_wait` times out.
+                If `None` (default), the call to `step_wait` never times out.
 
         Returns:
             List of the results of the individual calls to the method or property for each environment.
+
+        Raises:
+            NoAsyncCallError: Calling `call_wait` without any prior call to `call_async`.
+            TimeoutError: The call to `call_wait` has timed out after timeout second(s).
         """
         self._assert_is_running()
         if self._state != AsyncState.WAITING_CALL:
@@ -419,6 +442,10 @@ class AsyncVectorEnv(VectorEnv):
             values: Values of the property to be set to. If ``values`` is a list or
                 tuple, then it corresponds to the values for each individual
                 environment, otherwise a single value is set for all environments.
+
+        Raises:
+            ValueError: Values must be a list or tuple with length equal to the number of environments.
+            AlreadyPendingCallError: Calling `set_attr` while waiting for a pending call to complete.
         """
         self._assert_is_running()
         if not isinstance(values, (list, tuple)):
