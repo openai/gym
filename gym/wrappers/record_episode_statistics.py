@@ -101,12 +101,10 @@ class RecordEpisodeStatistics(gym.Wrapper):
 
     def step(self, action):
         """Steps through the environment, recording the episode statistics."""
-        info = {}
         observations, rewards, dones, infos = super().step(action)
         assert isinstance(
             infos, dict
         ), f"`info` dtype is {type(infos)} while supported dtype is `dict`. This may be due to usage of other wrappers in the wrong order."
-        info = {**info, **infos}
         self.episode_returns += rewards
         self.episode_lengths += 1
         if not self.is_vector_env:
@@ -125,11 +123,11 @@ class RecordEpisodeStatistics(gym.Wrapper):
                     }
                 }
                 if self.is_vector_env:
-                    info = add_vector_episode_statistics(
-                        info, episode_info["episode"], self.num_envs, i
+                    infos = add_vector_episode_statistics(
+                        infos, episode_info["episode"], self.num_envs, i
                     )
                 else:
-                    info = {**info, **episode_info}
+                    infos = {**infos, **episode_info}
                 self.return_queue.append(episode_return)
                 self.length_queue.append(episode_length)
                 self.episode_count += 1
@@ -139,5 +137,5 @@ class RecordEpisodeStatistics(gym.Wrapper):
             observations,
             rewards,
             dones if self.is_vector_env else dones[0],
-            info,
+            infos,
         )
