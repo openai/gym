@@ -1,5 +1,4 @@
 import os
-from abc import abstractmethod
 from collections import OrderedDict
 from os import path
 from typing import Optional
@@ -86,14 +85,12 @@ class MujocoEnv(gym.Env):
     # methods to override:
     # ----------------------------
 
-    @abstractmethod
     def reset_model(self):
         """
         Reset the robot degrees of freedom (qpos and qvel).
         Implement this in each subclass.
         """
 
-    @abstractmethod
     def viewer_setup(self):
         """
         This method is called when the viewer is initialized.

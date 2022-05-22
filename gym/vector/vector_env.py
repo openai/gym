@@ -1,7 +1,6 @@
 """Base class for vectorized environments."""
 from __future__ import annotations
 
-from abc import abstractmethod
 from typing import Any, Optional, Union
 
 import gym
@@ -65,7 +64,6 @@ class VectorEnv(gym.Env):
         """
         pass
 
-    @abstractmethod
     def reset_wait(
         self,
         seed: Optional[Union[int, list[int]]] = None,
@@ -108,7 +106,6 @@ class VectorEnv(gym.Env):
         self.reset_async(seed=seed, return_info=return_info, options=options)
         return self.reset_wait(seed=seed, return_info=return_info, options=options)
 
-    @abstractmethod
     def step_async(self, actions):
         """Asynchronously performs steps in the sub-environments.
 
@@ -118,7 +115,6 @@ class VectorEnv(gym.Env):
             actions: The actions to take asynchronously
         """
 
-    @abstractmethod
     def step_wait(self, **kwargs):
         """Retrieves the results of a :meth:`step_async` call.
 
@@ -143,12 +139,10 @@ class VectorEnv(gym.Env):
         self.step_async(actions)
         return self.step_wait()
 
-    @abstractmethod
     def call_async(self, name, *args, **kwargs):
         """Calls a method name for each parallel environment asynchronously."""
 
-    @abstractmethod
-    def call_wait(self, **kwargs):
+    def call_wait(self, **kwargs) -> list[Any]:
         """After calling a method in :meth:`call_async`, this function collects the results."""
 
     def call(self, name: str, *args, **kwargs) -> list[Any]:
@@ -176,7 +170,6 @@ class VectorEnv(gym.Env):
         """
         return self.call(name)
 
-    @abstractmethod
     def set_attr(self, name: str, values: Union[list, tuple, object]):
         """Set a property in each sub-environment.
 
