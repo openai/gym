@@ -280,9 +280,7 @@ class Car:
             for f in obj.fixtures:
                 trans = f.body.transform
                 path = [trans * v for v in f.shape.vertices]
-                path = [
-                    (coords[0], coords[1]) for coords in path
-                ]
+                path = [(coords[0], coords[1]) for coords in path]
                 path = [pygame.math.Vector2(c).rotate_rad(angle) for c in path]
                 path = [
                     (
@@ -317,10 +315,7 @@ class Car:
                 ]
                 white_poly = [trans * v for v in white_poly]
 
-                white_poly = [
-                    (coords[0], coords[1])
-                    for coords in white_poly
-                ]
+                white_poly = [(coords[0], coords[1]) for coords in white_poly]
                 white_poly = [
                     pygame.math.Vector2(c).rotate_rad(angle) for c in white_poly
                 ]
