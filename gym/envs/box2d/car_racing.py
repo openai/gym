@@ -480,6 +480,11 @@ class CarRacing(gym.Env, EzPickle):
         self.world.Step(1.0 / FPS, 6 * 30, 2 * 30)
         self.t += 1.0 / FPS
 
+        # if self.surf is None:
+        #     self._build_surf()
+        # self.state = self._create_image_array(self.surf, (STATE_W, STATE_H))
+        self.state = self.render("state_pixels")
+
         step_reward = 0
         done = False
         if action is not None:  # First step without action, called from reset()
@@ -497,10 +502,6 @@ class CarRacing(gym.Env, EzPickle):
                 step_reward = -100
 
         self.renderer.render_step()
-
-        if self.surf is None:
-            self._build_surf()
-        self.state = self._create_image_array(self.surf, (STATE_W, STATE_H))
         return self.state, step_reward, done, {}
 
     def render(self, mode: str = "human"):
@@ -525,9 +526,6 @@ class CarRacing(gym.Env, EzPickle):
             if self.clock is None:
                 self.clock = pygame.time.Clock()
 
-            if "t" not in self.__dict__:
-                return  # reset() not called yet
-
             self._build_surf(mode=mode)
 
             if mode == "human":
@@ -551,6 +549,9 @@ class CarRacing(gym.Env, EzPickle):
             raise DependencyNotInstalled(
                 "pygame is not installed, run `pip install gym[box2d]`"
             )
+
+        if "t" not in self.__dict__:
+            return  # reset() not called yet
 
         pygame.init()
         pygame.font.init()
