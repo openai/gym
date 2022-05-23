@@ -1,3 +1,4 @@
+"""A wrapper for video recording environments by rolling it out, frame by frame."""
 import json
 import os
 import os.path
@@ -6,7 +7,7 @@ import shutil
 import subprocess
 import tempfile
 from io import StringIO
-from typing import List, Optional, Union
+from typing import List, Optional, Tuple, Union
 
 import numpy as np
 
@@ -19,14 +20,14 @@ def touch(path: str):
 
 
 class VideoRecorder:  # TODO: remove with gym 1.0
-    """
+    """VideoRecorder renders a nice movie of a rollout, frame by frame.
+
+    It comes with an ``enabled`` option, so you can still use the same code on episodes where you don't want to record video.
+
     Note:
         VideoRecorder is deprecated.
         Collect the frames with render_mode='rgb_array' and use an external library like MoviePy:
         https://zulko.github.io/moviepy/getting_started/videoclips.html#videoclip
-
-    VideoRecorder renders a nice movie of a rollout, frame by frame.
-    It comes with an ``enabled`` option, so you can still use the same code on episodes where you don't want to record video.
 
     Note:
         You are responsible for calling :meth:`close` on a created VideoRecorder, or else you may leak an encoder process.
@@ -68,10 +69,6 @@ class VideoRecorder:  # TODO: remove with gym 1.0
         self._async = env.metadata.get("semantics.async")
         self.enabled = enabled
         self._closed = False
-
-        # Don't bother setting anything else if not enabled
-        if not self.enabled:
-            return
 
         self.ansi_mode = False
         if "rgb_array" not in modes:
@@ -367,7 +364,7 @@ class ImageEncoder:
     def __init__(
         self,
         output_path: str,
-        frame_shape: tuple[int, int, int],
+        frame_shape: Tuple[int, int, int],
         frames_per_sec: int,
         output_frames_per_sec: int,
     ):

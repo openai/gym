@@ -24,15 +24,15 @@ ActType = TypeVar("ActType")
 RenderFrame = TypeVar("RenderFrame")
 
 
-class EnvDecorator(type):  # TODO: remove with gym 1.0
+class _EnvDecorator(type):  # TODO: remove with gym 1.0
     def __new__(cls, name, bases, attr):
         if "render" in attr.keys():
-            attr["render"] = EnvDecorator.deprecate_mode(attr["render"])
+            attr["render"] = _EnvDecorator._deprecate_mode(attr["render"])
 
         return super().__new__(cls, name, bases, attr)
 
     @staticmethod
-    def deprecate_mode(render_func):  # type: ignore
+    def _deprecate_mode(render_func):  # type: ignore
         render_return = Optional[Union[RenderFrame, List[RenderFrame]]]
 
         def render(
@@ -58,7 +58,7 @@ class EnvDecorator(type):  # TODO: remove with gym 1.0
         return render
 
 
-class Env(Generic[ObsType, ActType], metaclass=EnvDecorator):
+class Env(Generic[ObsType, ActType], metaclass=_EnvDecorator):
     r"""The main OpenAI Gym class.
 
     It encapsulates an environment with arbitrary behind-the-scenes dynamics.
@@ -87,7 +87,9 @@ class Env(Generic[ObsType, ActType], metaclass=EnvDecorator):
 
     # Set this in SOME subclasses
     metadata = {"render_modes": []}
-    render_mode = None  # define render_mode if your environment supports some render modes
+    render_mode = (
+        None  # define render_mode if your environment supports some render modes
+    )
     reward_range = (-float("inf"), float("inf"))
     spec = None
 
@@ -178,7 +180,7 @@ class Env(Generic[ObsType, ActType], metaclass=EnvDecorator):
     @abstractmethod
     # TODO: remove kwarg mode with gym 1.0
     def render(self, mode="human") -> Optional[Union[RenderFrame, List[RenderFrame]]]:
-        """Compute the render(s) as specified by render_mode attribute during initialization of the environment.
+        """Compute the render frames as specified by render_mode attribute during initialization of the environment.
 
         The set of supported modes varies per environment. (And some
         third-party environments may not support rendering at all.)

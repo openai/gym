@@ -1,3 +1,4 @@
+"""A utility class to collect render frames from a function that computes a single frame."""
 from typing import Any, Callable, List, Optional
 
 # list of modes with which render function returns None
@@ -8,13 +9,12 @@ SINGLE_RENDER = ["single_rgb_array", "single_depth_array", "single_state_pixels"
 
 
 class Renderer:
-    """This class serves to easily integrate collection of renders for environments
-    that has a function that computes a single render.
+    """This class serves to easily integrate collection of renders for environments that can computes a single render.
 
     To use this function:
     - instantiate this class with the mode and the function that computes a single frame
     - call render_step method each time the frame should be saved in the list
-      (usually at the end of the step method)
+      (usually at the end of the step and reset methods)
     - call get_renders whenever you want to retrieve renders
       (usually in the render method)
     - call reset to clean the render list
@@ -22,17 +22,31 @@ class Renderer:
     """
 
     def __init__(self, mode: Optional[str], render: Callable[[str], Any]):
+        """Instantiates a Renderer object.
+
+        Args:
+            mode (Optional[str]): Way to render
+            render (Callable[[str], Any]): Function that receives the mode and computes a single frame
+        """
         self.mode = mode
         self.render = render
         self.render_list = []
 
     def render_step(self) -> None:
+        """Computes a frame and save it to the render collection list.
+
+        This method should be usually called inside environment's step and reset method.
+        """
         if self.mode is not None and self.mode not in SINGLE_RENDER:
             render_return = self.render(self.mode)
             if self.mode not in NO_RETURNS_RENDER:
                 self.render_list.append(render_return)
 
     def get_renders(self) -> Optional[List]:
+        """Pops all the frames from the render collection list.
+
+        This method should be usually called in the environment's render method to retrieve the frames collected till this time step.
+        """
         if self.mode in SINGLE_RENDER:
             return self.render(self.mode)
         elif self.mode not in NO_RETURNS_RENDER:
@@ -41,4 +55,8 @@ class Renderer:
             return renders
 
     def reset(self):
+        """Resets the render collection list.
+
+        This method should be usually called inside environment's reset method.
+        """
         self.render_list = []
