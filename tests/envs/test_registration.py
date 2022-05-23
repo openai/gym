@@ -2,11 +2,14 @@ import pytest
 
 import gym
 from gym import envs, error
-from gym.envs import register, spec
+from gym.envs import register, registration, registry, spec
 from gym.envs.classic_control import cartpole
 
 
 class ArgumentEnv(gym.Env):
+    observation_space = gym.spaces.Box(low=0, high=1, shape=(1,))
+    action_space = gym.spaces.Box(low=0, high=1, shape=(1,))
+
     def __init__(self, arg1, arg2, arg3):
         self.arg1 = arg1
         self.arg2 = arg2
@@ -159,7 +162,11 @@ def test_env_version_suggestions(
 
 
 def test_make_with_kwargs():
-    env = envs.make("test.ArgumentEnv-v0", arg2="override_arg2", arg3="override_arg3")
+    env = envs.make(
+        "test.ArgumentEnv-v0",
+        arg2="override_arg2",
+        arg3="override_arg3",
+    )
     assert env.spec.id == "test.ArgumentEnv-v0"
     assert isinstance(env.unwrapped, ArgumentEnv)
     assert env.arg1 == "arg1"
@@ -272,3 +279,20 @@ def test_return_latest_versioned_env(register_some_envs):
     with pytest.warns(UserWarning):
         env = envs.make("MyAwesomeNamespace/MyAwesomeVersionedEnv")
     assert env.spec.id == "MyAwesomeNamespace/MyAwesomeVersionedEnv-v5"
+
+
+def test_namespace():
+    # Check if the namespace context manager works
+    with registration.namespace("MyDefaultNamespace"):
+        register("MyDefaultEnvironment-v0")
+    register("MyDefaultEnvironment-v1")
+    assert "MyDefaultNamespace/MyDefaultEnvironment-v0" in registry
+    assert "MyDefaultEnvironment-v1" in registry
+
+    del registry["MyDefaultNamespace/MyDefaultEnvironment-v0"]
+    del registry["MyDefaultEnvironment-v1"]
+
+
+def test_import_module_during_make():
+    # Test custom environment which is registered at make
+    gym.make("tests.envs.register_during_make_env:RegisterDuringMakeEnv-v0")

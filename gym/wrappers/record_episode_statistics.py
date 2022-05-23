@@ -1,3 +1,4 @@
+"""Wrapper that tracks the cumulative rewards and episode lengths."""
 import time
 from collections import deque
 
@@ -9,33 +10,33 @@ import gym
 class RecordEpisodeStatistics(gym.Wrapper):
     """This wrapper will keep track of cumulative rewards and episode lengths.
 
-    At the end of an episode, the statistics of the episode will be added to `info`. After the completion
-    of an episode, `info` will look like this:
+    At the end of an episode, the statistics of the episode will be added to ``info``. After the completion
+    of an episode, ``info`` will look like this::
 
-    ```
-    info = {
-        ...
-        "episode": {
-            "r": <cumulative reward>,
-            "l": <episode length>,
-            "t": <elapsed time since instantiation of wrapper>,
-        }
-        ...
-    }
-    ```
+        >>> info = {
+        ...     ...
+        ...     "episode": {
+        ...         "r": "<cumulative reward>",
+        ...         "l": "<episode length>",
+        ...         "t": "<elapsed time since instantiation of wrapper>"
+        ...     },
+        ... }
 
     Moreover, the most recent rewards and episode lengths are stored in buffers that can be accessed via
-    `wrapped_env.return_queue` and wrapped_env.length_queue respectively.
-
-    Args:
-        deque_size: The size of the buffers `return_queue` and `length_queue`
+    :attr:`wrapped_env.return_queue` and :attr:`wrapped_env.length_queue` respectively.
 
     Attributes:
-        return_queue: The cumulative rewards of the last `deque_size`-many episodes
-        length_queue: The lengths of the last `deque_size`-many episodes
+        return_queue: The cumulative rewards of the last ``deque_size``-many episodes
+        length_queue: The lengths of the last ``deque_size``-many episodes
     """
 
-    def __init__(self, env, deque_size=100):
+    def __init__(self, env: gym.Env, deque_size: int = 100):
+        """This wrapper will keep track of cumulative rewards and episode lengths.
+
+        Args:
+            env (Env): The environment to apply the wrapper
+            deque_size: The size of the buffers :attr:`return_queue` and :attr:`length_queue`
+        """
         super().__init__(env)
         self.num_envs = getattr(env, "num_envs", 1)
         self.t0 = time.perf_counter()
@@ -47,12 +48,14 @@ class RecordEpisodeStatistics(gym.Wrapper):
         self.is_vector_env = getattr(env, "is_vector_env", False)
 
     def reset(self, **kwargs):
+        """Resets the environment using kwargs and resets the episode returns and lengths."""
         observations = super().reset(**kwargs)
         self.episode_returns = np.zeros(self.num_envs, dtype=np.float32)
         self.episode_lengths = np.zeros(self.num_envs, dtype=np.int32)
         return observations
 
     def step(self, action):
+        """Steps through the environment, recording the episode statistics."""
         observations, rewards, dones, infos = super().step(action)
         self.episode_returns += rewards
         self.episode_lengths += 1

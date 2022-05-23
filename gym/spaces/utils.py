@@ -1,3 +1,7 @@
+"""Implementation of utility functions that can be applied to spaces.
+
+These functions mostly take care of flattening and unflattening elements of spaces to facilitate their usage in learning code.
+"""
 from __future__ import annotations
 
 import operator as op
@@ -12,16 +16,18 @@ from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Space, T
 
 @singledispatch
 def flatdim(space: Space) -> int:
-    """Return the number of dimensions a flattened equivalent of this space
-    would have.
+    """Return the number of dimensions a flattened equivalent of this space would have.
 
-    Accepts a space and returns an integer. Raises ``NotImplementedError`` if
-    the space is not defined in ``gym.spaces``.
+    Accepts a space and returns an integer.
+
+    Raises:
+         NotImplementedError: if the space is not defined in ``gym.spaces``.
 
     Example usage::
 
-        >>> s = spaces.Dict({"position": spaces.Discrete(2), "velocity": spaces.Discrete(3)})
-        >>> spaces.flatdim(s)
+        >>> from gym.spaces import Discrete
+        >>> space = Dict({"position": Discrete(2), "velocity": Discrete(3)})
+        >>> flatdim(space)
         5
     """
     raise NotImplementedError(f"Unknown space: `{space}`")
@@ -190,8 +196,7 @@ def flatten_space(space: Space) -> Box:
 
     Example that recursively flattens a dict::
 
-        >>> space = Dict({"position": Discrete(2),
-        ...               "velocity": Box(0, 1, shape=(2, 2))})
+        >>> space = Dict({"position": Discrete(2), "velocity": Box(0, 1, shape=(2, 2))})
         >>> flatten_space(space)
         Box(6,)
         >>> flatten(space, space.sample()) in flatten_space(space)

@@ -45,9 +45,6 @@ WHEEL_COLOR = (0, 0, 0)
 WHEEL_WHITE = (77, 77, 77)
 MUD_COLOR = (102, 102, 0)
 
-SCALE = 6.0  # Track scale
-PLAYFIELD = 2000 / SCALE  # Game over boundary
-
 
 class Car:
     def __init__(self, world, init_angle, init_x, init_y):
@@ -267,10 +264,7 @@ class Car:
 
         if draw_particles:
             for p in self.particles:
-                poly = [
-                    (coords[0] + PLAYFIELD, coords[1] + PLAYFIELD) for coords in p.poly
-                ]
-                poly = [pygame.math.Vector2(c).rotate_rad(angle) for c in poly]
+                poly = [pygame.math.Vector2(c).rotate_rad(angle) for c in p.poly]
                 poly = [
                     (
                         coords[0] * zoom + translation[0],
@@ -286,9 +280,7 @@ class Car:
             for f in obj.fixtures:
                 trans = f.body.transform
                 path = [trans * v for v in f.shape.vertices]
-                path = [
-                    (coords[0] + PLAYFIELD, coords[1] + PLAYFIELD) for coords in path
-                ]
+                path = [(coords[0], coords[1]) for coords in path]
                 path = [pygame.math.Vector2(c).rotate_rad(angle) for c in path]
                 path = [
                     (
@@ -323,10 +315,7 @@ class Car:
                 ]
                 white_poly = [trans * v for v in white_poly]
 
-                white_poly = [
-                    (coords[0] + PLAYFIELD, coords[1] + PLAYFIELD)
-                    for coords in white_poly
-                ]
+                white_poly = [(coords[0], coords[1]) for coords in white_poly]
                 white_poly = [
                     pygame.math.Vector2(c).rotate_rad(angle) for c in white_poly
                 ]

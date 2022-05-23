@@ -26,9 +26,30 @@ repos:
     hooks:
       - id: isort
         args: ["--profile", "black"]
+  - repo: https://github.com/pycqa/pydocstyle
+    rev: 6.1.1  # pick a git hash / tag to point to
+    hooks:
+      - id: pydocstyle
+        exclude: ^(gym/version.py)|(gym/envs/)|(tests/)
+        args:
+          - --source
+          - --explain
+          - --convention=google
+        additional_dependencies: ["toml"]
   - repo: https://github.com/asottile/pyupgrade
     rev: v2.32.0
     hooks:
       - id: pyupgrade
         # TODO: remove `--keep-runtime-typing` option
         args: ["--py37-plus", "--keep-runtime-typing"]
+  - repo: local
+    hooks:
+      - id: pyright
+        name: pyright
+        entry: pyright
+        language: node
+        pass_filenames: false
+        types: [python]
+        additional_dependencies: ["pyright"]
+        args:
+          - --project=pyproject.toml

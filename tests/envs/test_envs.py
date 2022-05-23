@@ -77,20 +77,6 @@ def test_reset_info(spec):
     env.close()
 
 
-# Run a longer rollout on some environments
-def test_random_rollout():
-    for env in [envs.make("CartPole-v1"), envs.make("FrozenLake-v1")]:
-        ob = env.reset()
-        for _ in range(10):
-            assert env.observation_space.contains(ob)
-            action = env.action_space.sample()
-            assert env.action_space.contains(action)
-            (ob, _reward, done, _info) = env.step(action)
-            if done:
-                break
-        env.close()
-
-
 def test_env_render_result_is_immutable():
     environs = [
         envs.make("Taxi-v3", render_mode="ansi"),
