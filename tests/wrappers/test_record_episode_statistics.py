@@ -1,7 +1,9 @@
+import numpy as np
 import pytest
 
 import gym
 from gym.wrappers import RecordEpisodeStatistics, VectorListInfo
+from gym.wrappers.record_episode_statistics import add_vector_episode_statistics
 
 
 @pytest.mark.parametrize("env_id", ["CartPole-v1", "Pendulum-v1"])
@@ -68,3 +70,29 @@ def test_wrong_wrapping_order():
 
     with pytest.raises(AssertionError):
         wrapped_env.step(wrapped_env.action_space.sample())
+
+
+def test_add_vector_episode_statistics():
+    NUM_ENVS = 5
+
+    info = {}
+    for i in range(NUM_ENVS):
+        episode_info = {
+            "episode": {
+                "r": i,
+                "l": i,
+                "t": i,
+            }
+        }
+        info = add_vector_episode_statistics(info, episode_info["episode"], NUM_ENVS, i)
+        assert np.alltrue(info["_episode"][: i + 1])
+
+        for j in range(NUM_ENVS):
+            if j <= i:
+                assert info["episode"]["r"][j] == j
+                assert info["episode"]["l"][j] == j
+                assert info["episode"]["t"][j] == j
+            else:
+                assert info["episode"]["r"][j] == 0
+                assert info["episode"]["l"][j] == 0
+                assert info["episode"]["t"][j] == 0
