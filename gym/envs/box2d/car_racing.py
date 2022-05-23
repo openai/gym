@@ -513,8 +513,8 @@ class CarRacing(gym.Env, EzPickle):
         angle = -self.car.hull.angle
         # Animating first second zoom.
         zoom = 0.1 * SCALE * max(1 - self.t, 0) + ZOOM * SCALE * min(self.t, 1)
-        scroll_x = -(self.car.hull.position[0] + PLAYFIELD) * zoom
-        scroll_y = -(self.car.hull.position[1] + PLAYFIELD) * zoom
+        scroll_x = -(self.car.hull.position[0]) * zoom
+        scroll_y = -(self.car.hull.position[1]) * zoom
         trans = pygame.math.Vector2((scroll_x, scroll_y)).rotate_rad(angle)
         trans = (WINDOW_W / 2 + trans[0], WINDOW_H / 4 + trans[1])
 
@@ -549,10 +549,10 @@ class CarRacing(gym.Env, EzPickle):
     def _render_road(self, zoom, translation, angle):
         bounds = PLAYFIELD
         field = [
-            (2 * bounds, 2 * bounds),
-            (2 * bounds, 0),
-            (0, 0),
-            (0, 2 * bounds),
+            (bounds, bounds),
+            (bounds, -bounds),
+            (-bounds, -bounds),
+            (-bounds, bounds),
         ]
 
         # draw background
@@ -562,8 +562,8 @@ class CarRacing(gym.Env, EzPickle):
 
         # draw grass patches
         grass = []
-        for x in range(0, 40, 2):
-            for y in range(0, 40, 2):
+        for x in range(-20, 20, 2):
+            for y in range(-20, 20, 2):
                 grass.append(
                     [
                         (GRASS_DIM * x + GRASS_DIM, GRASS_DIM * y + 0),
@@ -580,7 +580,7 @@ class CarRacing(gym.Env, EzPickle):
         # draw road
         for poly, color in self.road_poly:
             # converting to pixel coordinates
-            poly = [(p[0] + PLAYFIELD, p[1] + PLAYFIELD) for p in poly]
+            poly = [(p[0], p[1]) for p in poly]
             color = [int(c) for c in color]
             self._draw_colored_polygon(self.surf, poly, color, zoom, translation, angle)
 
