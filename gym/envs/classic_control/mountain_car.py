@@ -127,6 +127,8 @@ class MountainCarEnv(gym.Env):
 
         done = bool(position >= self.goal_position and velocity >= self.goal_velocity)
         reward = -1.0
+        if done:
+            reward = 0
 
         self.state = (position, velocity)
         return np.array(self.state, dtype=np.float32), reward, done, {}
