@@ -12,6 +12,7 @@ from dataclasses import dataclass, field
 from typing import (
     Any,
     Callable,
+    Iterable,
     Optional,
     Sequence,
     SupportsFloat,
@@ -24,6 +25,7 @@ from typing import (
 import numpy as np
 
 from gym.envs.__relocated__ import internal_env_relocation_map
+from gym.utils.env_checker import check_env
 from gym.wrappers import AutoResetWrapper, OrderEnforcing, TimeLimit
 
 if sys.version_info < (3, 10):
@@ -336,8 +338,55 @@ def make(id: EnvSpec, **kwargs) -> Env: ...
 # fmt: on
 
 
+class EnvRegistry(dict):
+    """A glorified dictionary for compatibility reasons.
+    Turns out that some existing code directly used the old `EnvRegistry` code,
+    even though the intended API was just `register` and `make`. This reimplements some
+    of the old methods, so that e.g. pybullet environments will still work.
+    Ideally, nobody should ever use these methods, and they will be removed soon."""
+
+    # TODO: remove this at 1.0
+
+    def make(self, path: str, **kwargs) -> Env:
+        logger.warn(
+            "The `registry.make` method is deprecated. Please use `gym.make` instead."
+        )
+        return make(path, **kwargs)
+
+    def register(self, id: str, **kwargs) -> None:
+        logger.warn(
+            "The `registry.register` method is deprecated. Please use `gym.register` instead."
+        )
+        return register(id, **kwargs)
+
+    def all(self) -> Iterable[EnvSpec]:
+        logger.warn(
+            "The `registry.all` method is deprecated. Please use `registry.values` instead."
+        )
+        return self.values()
+
+    def spec(self, path: str) -> EnvSpec:
+        logger.warn(
+            "The `registry.spec` method is deprecated. Please use `gym.spec` instead."
+        )
+        return spec(path)
+
+    def namespace(self, ns: str):
+        logger.warn(
+            "The `registry.namespace` method is deprecated. Please use `gym.namespace` instead."
+        )
+        return namespace(ns)
+
+    @property
+    def env_specs(self):
+        logger.warn(
+            "The `registry.env_specs` property along with `EnvSpecTree` is deprecated. Please use `registry` directly as a dictionary instead."
+        )
+        return self
+
+
 # Global registry of environments. Meant to be accessed through `register` and `make`
-registry: dict[str, EnvSpec] = dict()
+registry: dict[str, EnvSpec] = EnvRegistry()
 current_namespace: Optional[str] = None
 
 
@@ -444,15 +493,22 @@ def make(
     id: str | EnvSpec,
     max_episode_steps: Optional[int] = None,
     autoreset: bool = False,
+    disable_env_checker: bool = False,
     **kwargs,
 ) -> Env:
     """
     Create an environment according to the given ID.
 
+    Warnings:
+        In v0.24, `gym.utils.env_checker.env_checker` is run for every initialised environment.
+        This calls the :meth:`Env.reset`, :meth:`Env.step` and :meth:`Env.render` functions to valid
+        if they follow the gym API. To disable this feature, set parameter `disable_env_checker=True`.
+
     Args:
-        id: Name of the environment.
+        id: Name of the environment. Optionally, a module to import can be included, eg. 'module:Env-v0'
         max_episode_steps: Maximum length of an episode (TimeLimit wrapper).
         autoreset: Whether to automatically reset the environment after each episode (AutoResetWrapper).
+        disable_env_checker: If to disable the environment checker
         kwargs: Additional arguments to pass to the environment constructor.
     Returns:
         An instance of the environment.
@@ -460,6 +516,15 @@ def make(
     if isinstance(id, EnvSpec):
         spec_ = id
     else:
+        module, id = (None, id) if ":" not in id else id.split(":")
+        if module is not None:
+            try:
+                importlib.import_module(module)
+            except ModuleNotFoundError as e:
+                raise ModuleNotFoundError(
+                    f"{e}. Environment registration via importing a module failed. "
+                    f"Check whether '{module}' contains env registration and can be imported."
+                )
         spec_ = registry.get(id)
 
         ns, name, version = parse_env_id(id)
@@ -515,6 +580,14 @@ def make(
 
     if autoreset:
         env = AutoResetWrapper(env)
+
+    if not disable_env_checker:
+        try:
+            check_env(env)
+        except Exception as e:
+            logger.warn(
+                f"Env check failed with the following message: {e}\nYou can set `disable_env_checker=True` to disable this check."
+            )
 
     return env
 

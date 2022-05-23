@@ -8,7 +8,7 @@ import numpy as np
 import gym
 from gym import spaces
 from gym.envs.box2d.car_dynamics import Car
-from gym.error import DependencyNotInstalled
+from gym.error import DependencyNotInstalled, InvalidAction
 from gym.utils import EzPickle
 
 try:
@@ -38,6 +38,10 @@ TRACK_TURN_RATE = 0.31
 TRACK_WIDTH = 40 / SCALE
 BORDER = 8 / SCALE
 BORDER_MIN_COUNT = 4
+GRASS_DIM = PLAYFIELD / 20.0
+MAX_SHAPE_DIM = (
+    max(GRASS_DIM, TRACK_WIDTH, TRACK_DETAIL_STEP) * math.sqrt(2) * ZOOM * SCALE
+)
 
 
 class FrictionDetector(contactListener):
@@ -449,6 +453,11 @@ class CarRacing(gym.Env, EzPickle):
                 self.car.gas(action[1])
                 self.car.brake(action[2])
             else:
+                if not self.action_space.contains(action):
+                    raise InvalidAction(
+                        f"you passed the invalid action `{action}`. "
+                        f"The supported action_space is `{self.action_space}`"
+                    )
                 self.car.steer(-0.6 * (action == 1) + 0.6 * (action == 2))
                 self.car.gas(0.2 * (action == 3))
                 self.car.brake(0.8 * (action == 4))
@@ -504,8 +513,8 @@ class CarRacing(gym.Env, EzPickle):
         angle = -self.car.hull.angle
         # Animating first second zoom.
         zoom = 0.1 * SCALE * max(1 - self.t, 0) + ZOOM * SCALE * min(self.t, 1)
-        scroll_x = -(self.car.hull.position[0] + PLAYFIELD) * zoom
-        scroll_y = -(self.car.hull.position[1] + PLAYFIELD) * zoom
+        scroll_x = -(self.car.hull.position[0]) * zoom
+        scroll_y = -(self.car.hull.position[1]) * zoom
         trans = pygame.math.Vector2((scroll_x, scroll_y)).rotate_rad(angle)
         trans = (WINDOW_W / 2 + trans[0], WINDOW_H / 4 + trans[1])
 
@@ -540,28 +549,27 @@ class CarRacing(gym.Env, EzPickle):
     def _render_road(self, zoom, translation, angle):
         bounds = PLAYFIELD
         field = [
-            (2 * bounds, 2 * bounds),
-            (2 * bounds, 0),
-            (0, 0),
-            (0, 2 * bounds),
+            (bounds, bounds),
+            (bounds, -bounds),
+            (-bounds, -bounds),
+            (-bounds, bounds),
         ]
 
         # draw background
         self._draw_colored_polygon(
-            self.surf, field, self.bg_color, zoom, translation, angle
+            self.surf, field, self.bg_color, zoom, translation, angle, clip=False
         )
 
         # draw grass patches
-        k = bounds / (20.0)
         grass = []
-        for x in range(0, 40, 2):
-            for y in range(0, 40, 2):
+        for x in range(-20, 20, 2):
+            for y in range(-20, 20, 2):
                 grass.append(
                     [
-                        (k * x + k, k * y + 0),
-                        (k * x + 0, k * y + 0),
-                        (k * x + 0, k * y + k),
-                        (k * x + k, k * y + k),
+                        (GRASS_DIM * x + GRASS_DIM, GRASS_DIM * y + 0),
+                        (GRASS_DIM * x + 0, GRASS_DIM * y + 0),
+                        (GRASS_DIM * x + 0, GRASS_DIM * y + GRASS_DIM),
+                        (GRASS_DIM * x + GRASS_DIM, GRASS_DIM * y + GRASS_DIM),
                     ]
                 )
         for poly in grass:
@@ -572,7 +580,7 @@ class CarRacing(gym.Env, EzPickle):
         # draw road
         for poly, color in self.road_poly:
             # converting to pixel coordinates
-            poly = [(p[0] + PLAYFIELD, p[1] + PLAYFIELD) for p in poly]
+            poly = [(p[0], p[1]) for p in poly]
             color = [int(c) for c in color]
             self._draw_colored_polygon(self.surf, poly, color, zoom, translation, angle)
 
@@ -645,7 +653,9 @@ class CarRacing(gym.Env, EzPickle):
             (255, 0, 0),
         )
 
-    def _draw_colored_polygon(self, surface, poly, color, zoom, translation, angle):
+    def _draw_colored_polygon(
+        self, surface, poly, color, zoom, translation, angle, clip=True
+    ):
         import pygame
         from pygame import gfxdraw
 
@@ -653,8 +663,18 @@ class CarRacing(gym.Env, EzPickle):
         poly = [
             (c[0] * zoom + translation[0], c[1] * zoom + translation[1]) for c in poly
         ]
-        gfxdraw.aapolygon(self.surf, poly, color)
-        gfxdraw.filled_polygon(self.surf, poly, color)
+        # This checks if the polygon is out of bounds of the screen, and we skip drawing if so.
+        # Instead of calculating exactly if the polygon and screen overlap,
+        # we simply check if the polygon is in a larger bounding box whose dimension
+        # is greater than the screen by MAX_SHAPE_DIM, which is the maximum
+        # diagonal length of an environment object
+        if not clip or any(
+            (-MAX_SHAPE_DIM <= coord[0] <= WINDOW_W + MAX_SHAPE_DIM)
+            and (-MAX_SHAPE_DIM <= coord[1] <= WINDOW_H + MAX_SHAPE_DIM)
+            for coord in poly
+        ):
+            gfxdraw.aapolygon(self.surf, poly, color)
+            gfxdraw.filled_polygon(self.surf, poly, color)
 
     def _create_image_array(self, screen, size):
         import pygame

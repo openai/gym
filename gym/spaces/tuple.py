@@ -16,8 +16,9 @@ class Tuple(Space[tuple], Sequence):
 
     Example usage::
 
-        >> observation_space = spaces.Tuple((spaces.Discrete(2), spaces.Box(-1, 1, shape=(2,))))
-        >> observation_space.sample()
+        >>> from gym.spaces import Box, Discrete
+        >>> observation_space = Tuple((Discrete(2), Box(-1, 1, shape=(2,))))
+        >>> observation_space.sample()
         (0, array([0.03633198, 0.42370757], dtype=float32))
     """
 

@@ -17,25 +17,27 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
 
     Elements of this space are (ordered) dictionaries of elements from the constituent spaces.
 
-    Example usage::
+    Example usage:
 
-        >>> observation_space = spaces.Dict({"position": spaces.Discrete(2), "velocity": spaces.Discrete(3)})
+        >>> from gym.spaces import Dict, Discrete
+        >>> observation_space = Dict({"position": Discrete(2), "velocity": Discrete(3)})
         >>> observation_space.sample()
         OrderedDict([('position', 1), ('velocity', 2)])
 
     Example usage [nested]::
 
-        >>> spaces.Dict(
+        >>> from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete
+        >>> Dict(
         ...     {
-        ...         "ext_controller": spaces.MultiDiscrete((5, 2, 2)),
-        ...         "inner_state": spaces.Dict(
+        ...         "ext_controller": MultiDiscrete([5, 2, 2]),
+        ...         "inner_state": Dict(
         ...             {
-        ...                 "charge": spaces.Discrete(100),
-        ...                 "system_checks": spaces.MultiBinary(10),
-        ...                 "job_status": spaces.Dict(
+        ...                 "charge": Discrete(100),
+        ...                 "system_checks": MultiBinary(10),
+        ...                 "job_status": Dict(
         ...                     {
-        ...                         "task": spaces.Discrete(5),
-        ...                         "progress": spaces.Box(low=0, high=100, shape=()),
+        ...                         "task": Discrete(5),
+        ...                         "progress": Box(low=0, high=100, shape=()),
         ...                     }
         ...                 ),
         ...             }
@@ -63,9 +65,10 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
 
         Example::
 
-            >>> spaces.Dict({"position": spaces.Box(-1, 1, shape=(2,)), "color": spaces.Discrete(3)})
+            >>> from gym.spaces import Box, Discrete
+            >>> Dict({"position": Box(-1, 1, shape=(2,)), "color": Discrete(3)})
             Dict(color:Discrete(3), position:Box(-1.0, 1.0, (2,), float32))
-            >>> spaces.Dict(position=spaces.Box(-1, 1, shape=(2,)), color=spaces.Discrete(3))
+            >>> Dict(position=Box(-1, 1, shape=(2,)), color=Discrete(3))
             Dict(color:Discrete(3), position:Box(-1.0, 1.0, (2,), float32))
 
         Args:

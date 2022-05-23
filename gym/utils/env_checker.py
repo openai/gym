@@ -1,4 +1,5 @@
-"""
+"""A set of functions for checking an environment details.
+
 This file is originally from the Stable Baselines3 repository hosted on GitHub
 (https://github.com/DLR-RM/stable-baselines3/)
 Original Author: Antonin Raffin
@@ -16,21 +17,33 @@ from typing import Optional, Union
 import numpy as np
 
 import gym
-from gym import logger, spaces
+from gym import logger
+from gym.spaces import Box, Dict, Discrete, Space, Tuple
 
 
-def _is_numpy_array_space(space: spaces.Space) -> bool:
+def _is_numpy_array_space(space: Space) -> bool:
+    """Checks if a space can be represented as a single numpy array (e.g. Dict and Tuple spaces return False).
+
+    Args:
+        space: The space to check
+
+    Returns:
+        Returns False if the provided space is not representable as a single numpy array
     """
-    Returns False if provided space is not representable as a single numpy array
-    (e.g. Dict and Tuple spaces return False)
-    """
-    return not isinstance(space, (spaces.Dict, spaces.Tuple))
+    return not isinstance(space, (Dict, Tuple))
 
 
-def _check_image_input(observation_space: spaces.Box, key: str = "") -> None:
-    """
-    Check that the input adheres to general standards
-    when the observation is apparently an image.
+def _check_image_input(observation_space: Box, key: str = ""):
+    """Check whether an observation space of type :class:`Box` adheres to general standards for spaces that represent images.
+
+    It will check that:
+    - The datatype is ``np.uint8``
+    - The lower bound is 0 across all dimensions
+    - The upper bound is 255 across all dimensions
+
+    Args:
+        observation_space: The observation space to check
+        key: The observation shape key for warning
     """
     if observation_space.dtype != np.uint8:
         logger.warn(
@@ -49,8 +62,13 @@ def _check_image_input(observation_space: spaces.Box, key: str = "") -> None:
         )
 
 
-def _check_nan(env: gym.Env, check_inf: bool = True) -> None:
-    """Check for NaN and Inf."""
+def _check_nan(env: gym.Env, check_inf: bool = True):
+    """Check if the environment observation, reward are NaN and Inf.
+
+    Args:
+        env: The environment to check
+        check_inf: Checks if the observation is infinity
+    """
     for _ in range(10):
         action = env.action_space.sample()
         observation, reward, done, _ = env.step(action)
@@ -70,19 +88,22 @@ def _check_nan(env: gym.Env, check_inf: bool = True) -> None:
 
 def _check_obs(
     obs: Union[tuple, dict, np.ndarray, int],
-    observation_space: spaces.Space,
+    observation_space: Space,
     method_name: str,
-) -> None:
+):
+    """Check that the observation returned by the environment correspond to the declared one.
+
+    Args:
+        obs: The observation to check
+        observation_space: The observation space of the observation
+        method_name: The method name that generated the observation
     """
-    Check that the observation returned by the environment
-    correspond to the declared one.
-    """
-    if not isinstance(observation_space, spaces.Tuple):
+    if not isinstance(observation_space, Tuple):
         assert not isinstance(
             obs, tuple
         ), f"The observation returned by the `{method_name}()` method should be a single value, not a tuple"
 
-    if isinstance(observation_space, spaces.Discrete):
+    if isinstance(observation_space, Discrete):
         assert isinstance(
             obs, int
         ), f"The observation returned by `{method_name}()` method must be an int"
@@ -96,12 +117,16 @@ def _check_obs(
     ), f"The observation returned by the `{method_name}()` method does not match the given observation space"
 
 
-def _check_box_obs(observation_space: spaces.Box, key: str = "") -> None:
-    """
-    Check that the observation space is correctly formatted
-    when dealing with a ``Box()`` space. In particular, it checks:
+def _check_box_obs(observation_space: Box, key: str = ""):
+    """Check that the observation space is correctly formatted when dealing with a :class:`Box` space.
+
+    In particular, it checks:
     - that the dimensions are big enough when it is an image, and that the type matches
     - that the observation has an expected shape (warn the user if not)
+
+    Args:
+        observation_space: Checks if the Box observation space
+        key: The observation key
     """
     # If image, check the low and high values, the type and the number of channels
     # and the shape (minimal value)
@@ -137,14 +162,19 @@ def _check_box_obs(observation_space: spaces.Box, key: str = "") -> None:
         ), "Agent's observation_space.high and observation_space have different shapes"
 
 
-def _check_box_action(action_space: spaces.Box):
+def _check_box_action(action_space: Box):
+    """Checks that a :class:`Box` action space is defined in a sensible way.
+
+    Args:
+        action_space: A box action space
+    """
     if np.any(np.equal(action_space.low, -np.inf)):
         logger.warn(
             "Agent's minimum action space value is -infinity. This is probably too low."
         )
     if np.any(np.equal(action_space.high, np.inf)):
         logger.warn(
-            "Agent's maxmimum action space value is infinity. This is probably too high"
+            "Agent's maximum action space value is infinity. This is probably too high"
         )
     if np.any(np.equal(action_space.low, action_space.high)):
         logger.warn("Agent's maximum and minimum action space values are equal")
@@ -156,7 +186,12 @@ def _check_box_action(action_space: spaces.Box):
         assert False, "Agent's action_space.high and action_space have different shapes"
 
 
-def _check_normalized_action(action_space: spaces.Box):
+def _check_normalized_action(action_space: Box):
+    """Checks that a box action space is normalized.
+
+    Args:
+        action_space: A box action space
+    """
     if (
         np.any(np.abs(action_space.low) != np.abs(action_space.high))
         or np.any(np.abs(action_space.low) > 1)
@@ -168,16 +203,18 @@ def _check_normalized_action(action_space: spaces.Box):
         )
 
 
-def _check_returned_values(
-    env: gym.Env, observation_space: spaces.Space, action_space: spaces.Space
-) -> None:
-    """
-    Check the returned values by the env when calling `.reset()` or `.step()` methods.
+def _check_returned_values(env: gym.Env, observation_space: Space, action_space: Space):
+    """Check the returned values by the env when calling :meth:`env.reset` or :meth:`env.step` methods.
+
+    Args:
+        env: The environment
+        observation_space: The environment's observation space
+        action_space: The environment's action space
     """
     # because env inherits from gym.Env, we assume that `reset()` and `step()` methods exists
     obs = env.reset()
 
-    if isinstance(observation_space, spaces.Dict):
+    if isinstance(observation_space, Dict):
         assert isinstance(
             obs, dict
         ), "The observation returned by `reset()` must be a dictionary"
@@ -200,7 +237,7 @@ def _check_returned_values(
     # Unpack
     obs, reward, done, info = data
 
-    if isinstance(observation_space, spaces.Dict):
+    if isinstance(observation_space, Dict):
         assert isinstance(
             obs, dict
         ), "The observation returned by `step()` must be a dictionary"
@@ -223,10 +260,11 @@ def _check_returned_values(
     ), "The `info` returned by `step()` must be a python dictionary"
 
 
-def _check_spaces(env: gym.Env) -> None:
-    """
-    Check that the observation and action spaces are defined
-    and inherit from gym.spaces.Space.
+def _check_spaces(env: gym.Env):
+    """Check that the observation and action spaces are defined and inherit from :class:`gym.spaces.Space`.
+
+    Args:
+        env: The environment's observation and action space to check
     """
     # Helper to link to the code, because gym has no proper documentation
     gym_spaces = " cf https://github.com/openai/gym/blob/master/gym/spaces/"
@@ -238,25 +276,22 @@ def _check_spaces(env: gym.Env) -> None:
         "You must specify an action space (cf gym.spaces)" + gym_spaces
     )
 
-    assert isinstance(env.observation_space, spaces.Space), (
+    assert isinstance(env.observation_space, Space), (
         "The observation space must inherit from gym.spaces" + gym_spaces
     )
-    assert isinstance(env.action_space, spaces.Space), (
+    assert isinstance(env.action_space, Space), (
         "The action space must inherit from gym.spaces" + gym_spaces
     )
 
 
 # Check render cannot be covered by CI
-def _check_render(
-    env: gym.Env, warn: bool = True, headless: bool = False
-) -> None:  # pragma: no cover
-    """
-    Check the declared render modes/fps and the `render()`/`close()`
-    method of the environment.
-    :param env: The environment to check
-    :param warn: Whether to output additional warnings
-    :param headless: Whether to disable render modes
-        that require a graphical interface. False by default.
+def _check_render(env: gym.Env, warn: bool = True, headless: bool = False):
+    """Check the declared render modes/fps and the :meth:`render`/:meth:`close` method of the environment.
+
+    Args:
+        env: The environment to check
+        warn: Whether to output additional warnings
+        headless: Whether to disable render modes that require a graphical interface. False by default.
     """
     render_modes = env.metadata.get("render_modes")
     if render_modes is None:
@@ -288,9 +323,12 @@ def _check_render(
         env.close()
 
 
-def _check_reset_seed(env: gym.Env, seed: Optional[int] = None) -> None:
-    """
-    Check that the environment can be reset with a random seed.
+def _check_reset_seed(env: gym.Env, seed: Optional[int] = None):
+    """Check that the environment can be reset with a seed.
+
+    Args:
+        env: The environment to check
+        seed: The optional seed to use
     """
     signature = inspect.signature(env.reset)
     assert (
@@ -303,7 +341,7 @@ def _check_reset_seed(env: gym.Env, seed: Optional[int] = None) -> None:
         raise AssertionError(
             "The environment cannot be reset with a random seed, even though `seed` or `kwargs` "
             "appear in the signature. This should never happen, please report this issue. "
-            "The error was: " + str(e)
+            f"The error was: {e}"
         )
 
     if env.unwrapped.np_random is None:
@@ -322,7 +360,12 @@ def _check_reset_seed(env: gym.Env, seed: Optional[int] = None) -> None:
         )
 
 
-def _check_reset_info(env: gym.Env) -> None:
+def _check_reset_info(env: gym.Env):
+    """Checks that :meth:`reset` supports the ``return_info`` keyword.
+
+    Args:
+        env: The environment to check
+    """
     signature = inspect.signature(env.reset)
     assert (
         "return_info" in signature.parameters or "kwargs" in signature.parameters
@@ -334,7 +377,7 @@ def _check_reset_info(env: gym.Env) -> None:
         raise AssertionError(
             "The environment cannot be reset with `return_info=True`, even though `return_info` or `kwargs` "
             "appear in the signature. This should never happen, please report this issue. "
-            "The error was: " + str(e)
+            f"The error was: {e}"
         )
     assert (
         len(result) == 2
@@ -346,9 +389,11 @@ def _check_reset_info(env: gym.Env) -> None:
     ), "The second element returned by `env.reset(return_info=True)` was not a dictionary"
 
 
-def _check_reset_options(env: gym.Env) -> None:
-    """
-    Check that the environment can be reset with options.
+def _check_reset_options(env: gym.Env):
+    """Check that the environment can be reset with options.
+
+    Args:
+        env: The environment to check
     """
     signature = inspect.signature(env.reset)
     assert (
@@ -361,22 +406,22 @@ def _check_reset_options(env: gym.Env) -> None:
         raise AssertionError(
             "The environment cannot be reset with options, even though `options` or `kwargs` "
             "appear in the signature. This should never happen, please report this issue. "
-            "The error was: " + str(e)
+            f"The error was: {e}"
         )
 
 
-def check_env(env: gym.Env, warn: bool = True, skip_render_check: bool = True) -> None:
-    """
-    Check that an environment follows Gym API.
+def check_env(env: gym.Env, warn: bool = True, skip_render_check: bool = True):
+    """Check that an environment follows Gym API.
+
     This is particularly useful when using a custom environment.
     Please take a look at https://github.com/openai/gym/blob/master/gym/core.py
     for more information about the API.
     It also optionally check that the environment is compatible with Stable-Baselines.
-    :param env: The Gym environment that will be checked
-    :param warn: Whether to output additional warnings
-        mainly related to the interaction with Stable Baselines
-    :param skip_render_check: Whether to skip the checks for the render method.
-        True by default (useful for the CI)
+
+    Args:
+        env: The Gym environment that will be checked
+        warn: Whether to output additional warnings mainly related to the interaction with Stable Baselines
+        skip_render_check: Whether to skip the checks for the render method. True by default (useful for the CI)
     """
     assert isinstance(
         env, gym.Env
@@ -388,27 +433,20 @@ def check_env(env: gym.Env, warn: bool = True, skip_render_check: bool = True) -
     observation_space = env.observation_space
     action_space = env.action_space
 
-    try:
-        # As environments are normally wrapped by OrderEnforcing
-        # "Cannot call env.render() before calling env.reset()" is raised
-        env.step(env.action_space.sample())
-    except AssertionError as e:
-        assert "Cannot call env.step()" in str(e)
-
     # Warn the user if needed.
     # A warning means that the environment may run but not work properly with popular RL libraries.
     if warn:
         obs_spaces = (
             observation_space.spaces
-            if isinstance(observation_space, spaces.Dict)
+            if isinstance(observation_space, Dict)
             else {"": observation_space}
         )
         for key, space in obs_spaces.items():
-            if isinstance(space, spaces.Box):
+            if isinstance(space, Box):
                 _check_box_obs(space, key)
 
         # Check for the action space, it may lead to hard-to-debug issues
-        if isinstance(action_space, spaces.Box):
+        if isinstance(action_space, Box):
             _check_box_action(action_space)
             _check_normalized_action(action_space)
 

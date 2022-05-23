@@ -1,7 +1,10 @@
+"""Set of random number generator functions: seeding, generator, hashing seeds."""
+from __future__ import annotations
+
 import hashlib
 import os
 import struct
-from typing import Any, List, Optional, Tuple, Union
+from typing import Any, Optional, Union
 
 import numpy as np
 
@@ -9,7 +12,15 @@ from gym import error
 from gym.logger import deprecation
 
 
-def np_random(seed: Optional[int] = None) -> Tuple["RandomNumberGenerator", Any]:
+def np_random(seed: Optional[int] = None) -> tuple[RandomNumberGenerator, Any]:
+    """Generates a random number generator from the seed and returns the Generator and seed.
+
+    Args:
+        seed: The seed used to create the generator
+
+    Returns:
+        The generator and resulting seed
+    """
     if seed is not None and not (isinstance(seed, int) and 0 <= seed):
         raise error.Error(f"Seed must be a non-negative integer or omitted, not {seed}")
 
@@ -22,7 +33,10 @@ def np_random(seed: Optional[int] = None) -> Tuple["RandomNumberGenerator", Any]
 # TODO: Remove this class and make it alias to `Generator` in a future Gym release
 # RandomNumberGenerator = np.random.Generator
 class RandomNumberGenerator(np.random.Generator):
+    """Random number generator class that inherits from numpy's random Generator class."""
+
     def rand(self, *size):
+        """Deprecated rand function using random."""
         deprecation(
             "Function `rng.rand(*size)` is marked as deprecated "
             "and will be removed in the future. "
@@ -34,6 +48,7 @@ class RandomNumberGenerator(np.random.Generator):
     random_sample = rand
 
     def randn(self, *size):
+        """Deprecated random standard normal function use standard_normal."""
         deprecation(
             "Function `rng.randn(*size)` is marked as deprecated "
             "and will be removed in the future. "
@@ -43,6 +58,7 @@ class RandomNumberGenerator(np.random.Generator):
         return self.standard_normal(size)
 
     def randint(self, low, high=None, size=None, dtype=int):
+        """Deprecated random integer function use integers."""
         deprecation(
             "Function `rng.randint(low, [high, size, dtype])` is marked as deprecated "
             "and will be removed in the future. "
@@ -54,6 +70,7 @@ class RandomNumberGenerator(np.random.Generator):
     random_integers = randint
 
     def get_state(self):
+        """Deprecated get rng state use bit_generator.state."""
         deprecation(
             "Function `rng.get_state()` is marked as deprecated "
             "and will be removed in the future. "
@@ -63,6 +80,7 @@ class RandomNumberGenerator(np.random.Generator):
         return self.bit_generator.state
 
     def set_state(self, state):
+        """Deprecated set rng state function use bit_generator.state = state."""
         deprecation(
             "Function `rng.set_state(state)` is marked as deprecated "
             "and will be removed in the future. "
@@ -72,6 +90,7 @@ class RandomNumberGenerator(np.random.Generator):
         self.bit_generator.state = state
 
     def seed(self, seed=None):
+        """Deprecated seed function use gym.utils.seeding.np_random(seed)."""
         deprecation(
             "Function `rng.seed(seed)` is marked as deprecated "
             "and will be removed in the future. "
@@ -88,6 +107,7 @@ class RandomNumberGenerator(np.random.Generator):
     seed.__doc__ = np.random.seed.__doc__
 
     def __reduce__(self):
+        """Reduces the Random Number Generator to a RandomNumberGenerator, init_args and additional args."""
         # np.random.Generator defines __reduce__, but it's hard-coded to
         # return a Generator instead of its subclass RandomNumberGenerator.
         # We need to override it here, otherwise sampling from a Space will
@@ -119,20 +139,21 @@ RNG = RandomNumberGenerator
 
 
 def hash_seed(seed: Optional[int] = None, max_bytes: int = 8) -> int:
-    """Any given evaluation is likely to have many PRNG's active at
-    once. (Most commonly, because the environment is running in
-    multiple processes.) There's literature indicating that having
-    linear correlations between seeds of multiple PRNG's can correlate
-    the outputs:
-    http://blogs.unity3d.com/2015/01/07/a-primer-on-repeatable-random-numbers/
-    http://stackoverflow.com/questions/1554958/how-different-do-random-seeds-need-to-be
-    http://dl.acm.org/citation.cfm?id=1276928
-    Thus, for sanity we hash the seeds before using them. (This scheme
-    is likely not crypto-strength, but it should be good enough to get
-    rid of simple correlations.)
+    """Any given evaluation is likely to have many PRNG's active at once.
+
+    (Most commonly, because the environment is running in multiple processes.)
+    There's literature indicating that having linear correlations between seeds of multiple PRNG's can correlate the outputs:
+        http://blogs.unity3d.com/2015/01/07/a-primer-on-repeatable-random-numbers/
+        http://stackoverflow.com/questions/1554958/how-different-do-random-seeds-need-to-be
+        http://dl.acm.org/citation.cfm?id=1276928
+    Thus, for sanity we hash the seeds before using them. (This scheme is likely not crypto-strength, but it should be good enough to get rid of simple correlations.)
+
     Args:
         seed: None seeds from an operating system specific randomness source.
         max_bytes: Maximum number of bytes to use in the hashed seed.
+
+    Returns:
+        The hashed seed
     """
     deprecation(
         "Function `hash_seed(seed, max_bytes)` is marked as deprecated and will be removed in the future. "
@@ -144,12 +165,16 @@ def hash_seed(seed: Optional[int] = None, max_bytes: int = 8) -> int:
 
 
 def create_seed(a: Optional[Union[int, str]] = None, max_bytes: int = 8) -> int:
-    """Create a strong random seed. Otherwise, Python 2 would seed using
-    the system time, which might be non-robust especially in the
-    presence of concurrency.
+    """Create a strong random seed.
+
+    Otherwise, Python 2 would seed using the system time, which might be non-robust especially in the presence of concurrency.
+
     Args:
         a: None seeds from an operating system specific randomness source.
         max_bytes: Maximum number of bytes to use in the seed.
+
+    Returns:
+        A seed
     """
     deprecation(
         "Function `create_seed(a, max_bytes)` is marked as deprecated and will be removed in the future. "
@@ -185,7 +210,7 @@ def _bigint_from_bytes(bt: bytes) -> int:
     return accum
 
 
-def _int_list_from_bigint(bigint: int) -> List[int]:
+def _int_list_from_bigint(bigint: int) -> list[int]:
     deprecation(
         "Function `_int_list_from_bigint` is marked as deprecated and will be removed in the future. "
     )
@@ -195,7 +220,7 @@ def _int_list_from_bigint(bigint: int) -> List[int]:
     elif bigint == 0:
         return [0]
 
-    ints: List[int] = []
+    ints: list[int] = []
     while bigint > 0:
         bigint, mod = divmod(bigint, 2**32)
         ints.append(mod)

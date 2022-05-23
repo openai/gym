@@ -16,11 +16,11 @@ class MultiBinary(Space[np.ndarray]):
 
     Example Usage::
 
-        >>> self.observation_space = spaces.MultiBinary(5)
-        >>> self.observation_space.sample()
+        >>> observation_space = MultiBinary(5)
+        >>> observation_space.sample()
             array([0, 1, 0, 1, 0], dtype=int8)
-        >>> self.observation_space = spaces.MultiBinary([3, 2])
-        >>> self.observation_space.sample()
+        >>> observation_space = MultiBinary([3, 2])
+        >>> observation_space.sample()
             array([[0, 0],
                 [0, 1],
                 [1, 1]], dtype=int8)
