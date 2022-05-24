@@ -27,7 +27,7 @@ class Tuple(Space[tuple], Sequence):
         spaces: Iterable[Space],
         seed: Optional[int | list[int] | seeding.RandomNumberGenerator] = None,
     ):
-        r"""Constructor of :class:`Tuple`` space.
+        r"""Constructor of :class:`Tuple` space.
 
         The generated instance will represent the cartesian product :math:`\text{spaces}[0] \times ... \times \text{spaces}[-1]`.
 

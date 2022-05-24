@@ -24,7 +24,7 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     This environment builds on the hopper environment based on the work done by Erez, Tassa, and Todorov
     in ["Infinite Horizon Model Predictive Control for Nonlinear Periodic Tasks"](http://www.roboticsproceedings.org/rss07/p10.pdf)
-    by adding another set of legs making it possiible for the robot to walker forward instead of
+    by adding another set of legs making it possible for the robot to walker forward instead of
     hop. Like other Mujoco environments, this environment aims to increase the number of independent state
     and control variables as compared to the classic control environments. The walker is a
     two-dimensional two-legged figure that consist of four main body parts - a single torso at the top
@@ -54,28 +54,26 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     The observation is a `ndarray` with shape `(17,)` where the elements correspond to the following:
 
-    | Num | Observation                                                       | Min                | Max                | Name (in corresponding XML file) | Joint | Unit |
-    |-----|--------------------------------------------------------|----------------|-----------------|----------------------------------------|-------|------|
-    | 0   | x-coordinate of the top                            | -Inf                 | Inf                | rootx (torso)      | slide | position (m) |
-    | 1   | z-coordinate of the top (height of hopper)         | -Inf                 | Inf                | rootz (torso)      | slide | position (m) |
-    | 2   | angle of the top                                   | -Inf                 | Inf                | rooty (torso)      | hinge | angle (rad) |
-    | 3   | angle of the thigh joint                           | -Inf                 | Inf                | thigh_joint        | hinge | angle (rad) |
-    | 4   | angle of the leg joint                             | -Inf                 | Inf                | leg_joint            | hinge | angle (rad) |
-    | 5   | angle of the foot joint                            | -Inf                 | Inf                | foot_joint          | hinge | angle (rad) |
-    | 6   | angle of the left thigh joint                      | -Inf                 | Inf                | thigh_left_joint  | hinge | angle (rad) |
-    | 7   | angle of the left leg joint                        | -Inf                 | Inf                | leg_left_joint    | hinge | angle (rad) |
-    | 8   | angle of the left foot joint                       | -Inf                 | Inf                | foot_left_joint  | hinge | angle (rad) |
-    | 9   | velocity of the x-coordinate of the top            | -Inf                 | Inf                | rootx               | slide | velocity (m/s) |
-    | 10  | velocity of the z-coordinate (height) of the top   | -Inf                 | Inf                | rootz                | slide | velocity (m/s)  |
-    | 11  | angular velocity of the angle of the top           | -Inf                 | Inf                | rooty                | hinge | angular velocity (rad/s) |
-    | 12  | angular velocity of the thigh hinge                | -Inf                 | Inf                | thigh_joint        | hinge | angular velocity (rad/s) |
-    | 13  | angular velocity of the leg hinge                  | -Inf                 | Inf                | leg_joint            |  hinge | angular velocity (rad/s) |
-    | 14  | angular velocity of the foot hinge                 | -Inf                 | Inf                | foot_joint           | hinge | angular velocity (rad/s) |
-    | 15  | angular velocity of the thigh hinge                | -Inf                 | Inf                | thigh_left_joint   | hinge | angular velocity (rad/s) |
-    | 16  | angular velocity of the leg hinge                  | -Inf                 | Inf                | leg_left_joint     | hinge | angular velocity (rad/s) |
-    | 17  | angular velocity of the foot hinge                 | -Inf                 | Inf                | foot_left_joint    | hinge | angular velocity (rad/s) |
-
-
+    | Num | Observation                                      | Min  | Max | Name (in corresponding XML file) | Joint | Unit                     |
+    |-----|--------------------------------------------------|------|-----|----------------------------------|-------|--------------------------|
+    | 0   | x-coordinate of the top                          | -Inf | Inf | rootx (torso)                    | slide | position (m)             |
+    | 1   | z-coordinate of the top (height of hopper)       | -Inf | Inf | rootz (torso)                    | slide | position (m)             |
+    | 2   | angle of the top                                 | -Inf | Inf | rooty (torso)                    | hinge | angle (rad)              |
+    | 3   | angle of the thigh joint                         | -Inf | Inf | thigh_joint                      | hinge | angle (rad)              |
+    | 4   | angle of the leg joint                           | -Inf | Inf | leg_joint                        | hinge | angle (rad)              |
+    | 5   | angle of the foot joint                          | -Inf | Inf | foot_joint                       | hinge | angle (rad)              |
+    | 6   | angle of the left thigh joint                    | -Inf | Inf | thigh_left_joint                 | hinge | angle (rad)              |
+    | 7   | angle of the left leg joint                      | -Inf | Inf | leg_left_joint                   | hinge | angle (rad)              |
+    | 8   | angle of the left foot joint                     | -Inf | Inf | foot_left_joint                  | hinge | angle (rad)              |
+    | 9   | velocity of the x-coordinate of the top          | -Inf | Inf | rootx                            | slide | velocity (m/s)           |
+    | 10  | velocity of the z-coordinate (height) of the top | -Inf | Inf | rootz                            | slide | velocity (m/s)           |
+    | 11  | angular velocity of the angle of the top         | -Inf | Inf | rooty                            | hinge | angular velocity (rad/s) |
+    | 12  | angular velocity of the thigh hinge              | -Inf | Inf | thigh_joint                      | hinge | angular velocity (rad/s) |
+    | 13  | angular velocity of the leg hinge                | -Inf | Inf | leg_joint                        | hinge | angular velocity (rad/s) |
+    | 14  | angular velocity of the foot hinge               | -Inf | Inf | foot_joint                       | hinge | angular velocity (rad/s) |
+    | 15  | angular velocity of the thigh hinge              | -Inf | Inf | thigh_left_joint                 | hinge | angular velocity (rad/s) |
+    | 16  | angular velocity of the leg hinge                | -Inf | Inf | leg_left_joint                   | hinge | angular velocity (rad/s) |
+    | 17  | angular velocity of the foot hinge               | -Inf | Inf | foot_left_joint                  | hinge | angular velocity (rad/s) |
 
     **Note:**
     In practice (and Gym implementation), the first positional element is omitted from the
@@ -84,32 +82,32 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     from the observed rewards. Therefore, observation space has shape `(17,)`
     instead of `(18,)` and looks like:
 
-    | Num | Observation                                                       | Min                | Max                | Name (in corresponding XML file) | Joint | Unit |
-    |-----|--------------------------------------------------------|----------------|-----------------|----------------------------------------|-------|------|
-    | 0   | z-coordinate of the top (height of hopper)         | -Inf                 | Inf                | rootz (torso)      | slide | position (m) |
-    | 1   | angle of the top                                   | -Inf                 | Inf                | rooty (torso)      | hinge | angle (rad) |
-    | 2   | angle of the thigh joint                           | -Inf                 | Inf                | thigh_joint        | hinge | angle (rad) |
-    | 3   | angle of the leg joint                             | -Inf                 | Inf                | leg_joint            | hinge | angle (rad) |
-    | 4   | angle of the foot joint                            | -Inf                 | Inf                | foot_joint          | hinge | angle (rad) |
-    | 5   | angle of the left thigh joint                      | -Inf                 | Inf                | thigh_left_joint  | hinge | angle (rad) |
-    | 6   | angle of the left leg joint                        | -Inf                 | Inf                | leg_left_joint    | hinge | angle (rad) |
-    | 7   | angle of the left foot joint                       | -Inf                 | Inf                | foot_left_joint  | hinge | angle (rad) |
-    | 8   | velocity of the x-coordinate of the top            | -Inf                 | Inf                | rootx               | slide | velocity (m/s) |
-    | 9   | velocity of the z-coordinate (height) of the top   | -Inf                 | Inf                | rootz                | slide | velocity (m/s)  |
-    | 10  | angular velocity of the angle of the top           | -Inf                 | Inf                | rooty                | hinge | angular velocity (rad/s) |
-    | 11  | angular velocity of the thigh hinge                | -Inf                 | Inf                | thigh_joint        | hinge | angular velocity (rad/s) |
-    | 12  | angular velocity of the leg hinge                  | -Inf                 | Inf                | leg_joint            |  hinge | angular velocity (rad/s) |
-    | 13  | angular velocity of the foot hinge                 | -Inf                 | Inf                | foot_joint           | hinge | angular velocity (rad/s) |
-    | 14  | angular velocity of the thigh hinge                | -Inf                 | Inf                | thigh_left_joint   | hinge | angular velocity (rad/s) |
-    | 15  | angular velocity of the leg hinge                  | -Inf                 | Inf                | leg_left_joint     | hinge | angular velocity (rad/s) |
-    | 16  | angular velocity of the foot hinge                 | -Inf                 | Inf                | foot_left_joint    | hinge | angular velocity (rad/s) |
+    | Num | Observation                                      | Min  | Max | Name (in corresponding XML file) | Joint | Unit                     |
+    |-----|--------------------------------------------------|------|-----|----------------------------------|-------|--------------------------|
+    | 0   | z-coordinate of the top (height of hopper)       | -Inf | Inf | rootz (torso)                    | slide | position (m)             |
+    | 1   | angle of the top                                 | -Inf | Inf | rooty (torso)                    | hinge | angle (rad)              |
+    | 2   | angle of the thigh joint                         | -Inf | Inf | thigh_joint                      | hinge | angle (rad)              |
+    | 3   | angle of the leg joint                           | -Inf | Inf | leg_joint                        | hinge | angle (rad)              |
+    | 4   | angle of the foot joint                          | -Inf | Inf | foot_joint                       | hinge | angle (rad)              |
+    | 5   | angle of the left thigh joint                    | -Inf | Inf | thigh_left_joint                 | hinge | angle (rad)              |
+    | 6   | angle of the left leg joint                      | -Inf | Inf | leg_left_joint                   | hinge | angle (rad)              |
+    | 7   | angle of the left foot joint                     | -Inf | Inf | foot_left_joint                  | hinge | angle (rad)              |
+    | 8   | velocity of the x-coordinate of the top          | -Inf | Inf | rootx                            | slide | velocity (m/s)           |
+    | 9   | velocity of the z-coordinate (height) of the top | -Inf | Inf | rootz                            | slide | velocity (m/s)           |
+    | 10  | angular velocity of the angle of the top         | -Inf | Inf | rooty                            | hinge | angular velocity (rad/s) |
+    | 11  | angular velocity of the thigh hinge              | -Inf | Inf | thigh_joint                      | hinge | angular velocity (rad/s) |
+    | 12  | angular velocity of the leg hinge                | -Inf | Inf | leg_joint                        | hinge | angular velocity (rad/s) |
+    | 13  | angular velocity of the foot hinge               | -Inf | Inf | foot_joint                       | hinge | angular velocity (rad/s) |
+    | 14  | angular velocity of the thigh hinge              | -Inf | Inf | thigh_left_joint                 | hinge | angular velocity (rad/s) |
+    | 15  | angular velocity of the leg hinge                | -Inf | Inf | leg_left_joint                   | hinge | angular velocity (rad/s) |
+    | 16  | angular velocity of the foot hinge               | -Inf | Inf | foot_left_joint                  | hinge | angular velocity (rad/s) |
 
     ### Rewards
     The reward consists of three parts:
     - *alive bonus*: Every timestep that the walker is alive, it gets a reward of 1,
     - *reward_forward*: A reward of walking forward which is measured as
     *(x-coordinate before action - x-coordinate after action)/dt*.
-    *dt* is the time between actions and is dependeent on the frame_skip parameter
+    *dt* is the time between actions and is dependent on the frame_skip parameter
     (default is 4), where the *dt* for one frame is 0.002 - making the default
     *dt = 4 * 0.002 = 0.008*. This reward would be positive if the walker walks forward (right) desired.
     - *reward_control*: A negative reward for penalising the walker if it
@@ -142,15 +140,15 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     env = gym.make('Walker2d-v2')
     ```
 
-    v3 and beyond take gym.make kwargs such as xml_file, ctrl_cost_weight, reset_noise_scale etc.
+    v3 and v4 take gym.make kwargs such as xml_file, ctrl_cost_weight, reset_noise_scale etc.
 
     ```
-    env = gym.make('Walker2d-v3', ctrl_cost_weight=0.1, ....)
+    env = gym.make('Walker2d-v4', ctrl_cost_weight=0.1, ....)
     ```
 
     ### Version History
 
-    * v4: all mujoco environments now use the mujoco binidings in mujoco>=2.1.3
+    * v4: all mujoco environments now use the mujoco bindings in mujoco>=2.1.3
     * v3: support for gym.make kwargs such as xml_file, ctrl_cost_weight, reset_noise_scale etc. rgb rendering comes from tracking camera (so agent does not run away from screen)
     * v2: All continuous control environments now use mujoco_py >= 1.50
     * v1: max_time_steps raised to 1000 for robot based tasks. Added reward_threshold to environments.

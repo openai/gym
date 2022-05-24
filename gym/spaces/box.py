@@ -123,7 +123,7 @@ class Box(Space[np.ndarray]):
             manner (str): One of ``"both"``, ``"below"``, ``"above"``.
 
         Raises:
-            ValueError: If `manner` is neither `"both"` nor `"below"`or `"above"`
+            ValueError: If `manner` is neither ``"both"`` nor ``"below"`` or ``"above"``
         """
         below = bool(np.all(self.bounded_below))
         above = bool(np.all(self.bounded_above))

@@ -55,40 +55,40 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     The observation is a `ndarray` with shape `(8,)` where the elements correspond to the following:
 
-    | Num | Observation           | Min                  | Max                | Name (in corresponding XML file) | Joint| Unit |
-    |-----|-----------------------|----------------------|--------------------|----------------------|--------------------|--------------------|
-    | 0   | x-coordinate of the front tip              | -Inf                 | Inf                | slider1 | slide | position (m) |
-    | 1   | y-coordinate of the front tip              | -Inf                 | Inf                | slider2 | slide | position (m) |
-    | 2   | angle of the front tip                     | -Inf                 | Inf                | rot | hinge | angle (rad) |
-    | 3   | angle of the second rotor                  | -Inf                 | Inf                | rot2 | hinge | angle (rad) |
-    | 4   | angle of the second rotor                  | -Inf                 | Inf                | rot3 | hinge | angle (rad) |
-    | 5   | velocity of the tip along the x-axis       | -Inf                 | Inf                | slider1 | slide | velocity (m/s) |
-    | 6   | velocity of the tip along the y-axis       | -Inf                 | Inf                | slider2 | slide | velocity (m/s) |
-    | 7   | angular velocity of front tip              | -Inf                 | Inf                | rot | hinge | angular velocity (rad/s) |
-    | 8   | angular velocity of second rotor           | -Inf                 | Inf                | rot2 | hinge | angular velocity (rad/s) |
-    | 9   | angular velocity of third rotor            | -Inf                 | Inf                | rot3 | hinge | angular velocity (rad/s) |
+    | Num | Observation                          | Min  | Max | Name (in corresponding XML file) | Joint | Unit                     |
+    |-----|--------------------------------------|------|-----|----------------------------------|-------|--------------------------|
+    | 0   | x-coordinate of the front tip        | -Inf | Inf | slider1                          | slide | position (m)             |
+    | 1   | y-coordinate of the front tip        | -Inf | Inf | slider2                          | slide | position (m)             |
+    | 2   | angle of the front tip               | -Inf | Inf | rot                              | hinge | angle (rad)              |
+    | 3   | angle of the second rotor            | -Inf | Inf | rot2                             | hinge | angle (rad)              |
+    | 4   | angle of the second rotor            | -Inf | Inf | rot3                             | hinge | angle (rad)              |
+    | 5   | velocity of the tip along the x-axis | -Inf | Inf | slider1                          | slide | velocity (m/s)           |
+    | 6   | velocity of the tip along the y-axis | -Inf | Inf | slider2                          | slide | velocity (m/s)           |
+    | 7   | angular velocity of front tip        | -Inf | Inf | rot                              | hinge | angular velocity (rad/s) |
+    | 8   | angular velocity of second rotor     | -Inf | Inf | rot2                             | hinge | angular velocity (rad/s) |
+    | 9   | angular velocity of third rotor      | -Inf | Inf | rot3                             | hinge | angular velocity (rad/s) |
 
     **Note:**
     In practice (and Gym implementation), the first two positional elements are
     omitted from the state space since the reward function is calculated based
     on those values. Therefore, observation space has shape `(8,)` and looks like:
 
-    | Num | Observation           | Min                  | Max                | Name (in corresponding XML file) | Joint| Unit |
-    |-----|-----------------------|----------------------|--------------------|----------------------|--------------------|--------------------|
-    | 0   | angle of the front tip                     | -Inf                 | Inf                | rot | hinge | angle (rad) |
-    | 1   | angle of the second rotor                  | -Inf                 | Inf                | rot2 | hinge | angle (rad) |
-    | 2   | angle of the second rotor                  | -Inf                 | Inf                | rot3 | hinge | angle (rad) |
-    | 3   | velocity of the tip along the x-axis       | -Inf                 | Inf                | slider1 | slide | velocity (m/s) |
-    | 4   | velocity of the tip along the y-axis       | -Inf                 | Inf                | slider2 | slide | velocity (m/s) |
-    | 5   | angular velocity of front tip              | -Inf                 | Inf                | rot | hinge | angular velocity (rad/s) |
-    | 6   | angular velocity of second rotor           | -Inf                 | Inf                | rot2 | hinge | angular velocity (rad/s) |
-    | 7   | angular velocity of third rotor            | -Inf                 | Inf                | rot3 | hinge | angular velocity (rad/s) |
+    | Num | Observation                          | Min  | Max | Name (in corresponding XML file) | Joint | Unit                     |
+    |-----|--------------------------------------|------|-----|----------------------------------|-------|--------------------------|
+    | 0   | angle of the front tip               | -Inf | Inf | rot                              | hinge | angle (rad)              |
+    | 1   | angle of the second rotor            | -Inf | Inf | rot2                             | hinge | angle (rad)              |
+    | 2   | angle of the second rotor            | -Inf | Inf | rot3                             | hinge | angle (rad)              |
+    | 3   | velocity of the tip along the x-axis | -Inf | Inf | slider1                          | slide | velocity (m/s)           |
+    | 4   | velocity of the tip along the y-axis | -Inf | Inf | slider2                          | slide | velocity (m/s)           |
+    | 5   | angular velocity of front tip        | -Inf | Inf | rot                              | hinge | angular velocity (rad/s) |
+    | 6   | angular velocity of second rotor     | -Inf | Inf | rot2                             | hinge | angular velocity (rad/s) |
+    | 7   | angular velocity of third rotor      | -Inf | Inf | rot3                             | hinge | angular velocity (rad/s) |
 
     ### Rewards
     The reward consists of two parts:
     - *reward_front*: A reward of moving forward which is measured
     as *(x-coordinate before action - x-coordinate after action)/dt*. *dt* is
-    the time between actions and is dependeent on the frame_skip parameter
+    the time between actions and is dependent on the frame_skip parameter
     (default is 4), where the *dt* for one frame is 0.01 - making the
     default *dt = 4 * 0.01 = 0.04*. This reward would be positive if the swimmer
     swims right as desired.
@@ -115,15 +115,15 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     gym.make('Swimmer-v2')
     ```
 
-    v3 and beyond take gym.make kwargs such as xml_file, ctrl_cost_weight, reset_noise_scale etc.
+    v3 and v4 take gym.make kwargs such as xml_file, ctrl_cost_weight, reset_noise_scale etc.
 
     ```
-    env = gym.make('Swimmer-v3', ctrl_cost_weight=0.1, ....)
+    env = gym.make('Swimmer-v4', ctrl_cost_weight=0.1, ....)
     ```
 
     ### Version History
 
-    * v4: all mujoco environments now use the mujoco binidings in mujoco>=2.1.3
+    * v4: all mujoco environments now use the mujoco bindings in mujoco>=2.1.3
     * v3: support for gym.make kwargs such as xml_file, ctrl_cost_weight, reset_noise_scale etc. rgb rendering comes from tracking camera (so agent does not run away from screen)
     * v2: All continuous control environments now use mujoco_py >= 1.50
     * v1: max_time_steps raised to 1000 for robot based tasks. Added reward_threshold to environments.
