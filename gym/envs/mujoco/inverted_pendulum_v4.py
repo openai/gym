@@ -36,12 +36,12 @@ class InvertedPendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     The observation is a `ndarray` with shape `(4,)` where the elements correspond to the following:
 
-    | Num | Observation           | Min                  | Max                | Name (in corresponding XML file) | Joint| Unit |
-    |-----|-----------------------|----------------------|--------------------|----------------------|--------------------|--------------------|
-    | 0   | position of the cart along the linear surface | -Inf                 | Inf                | slider | slide | position (m) |
-    | 1   | vertical angle of the pole on the cart        | -Inf                 | Inf                | hinge | hinge | angle (rad) |
-    | 2   | linear velocity of the cart                   | -Inf                 | Inf                | slider | slide | velocity (m/s) |
-    | 3   | angular velocity of the pole on the cart      | -Inf                 | Inf                | hinge | hinge | anglular velocity (rad/s) |
+    | Num | Observation                                   | Min  | Max | Name (in corresponding XML file) | Joint | Unit                     |
+    |-----|-----------------------------------------------|------|-----|----------------------------------|-------|--------------------------|
+    | 0   | position of the cart along the linear surface | -Inf | Inf | slider                           | slide | position (m)             |
+    | 1   | vertical angle of the pole on the cart        | -Inf | Inf | hinge                            | hinge | angle (rad)              |
+    | 2   | linear velocity of the cart                   | -Inf | Inf | slider                           | slide | velocity (m/s)           |
+    | 3   | angular velocity of the pole on the cart      | -Inf | Inf | hinge                            | hinge | angular velocity (rad/s) |
 
 
     ### Rewards
@@ -60,7 +60,7 @@ class InvertedPendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     1. The episode duration reaches 1000 timesteps.
     2. Any of the state space values is no longer finite.
-    3. The absolutely value of the vertical angle between the pole and the cart is greater than 0.2 radian.
+    3. The absolute value of the vertical angle between the pole and the cart is greater than 0.2 radians.
 
     ### Arguments
 
@@ -71,13 +71,18 @@ class InvertedPendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     ```
     env = gym.make('InvertedPendulum-v2')
     ```
+
     There is no v3 for InvertedPendulum, unlike the robot environments where a
     v3 and beyond take gym.make kwargs such as xml_file, ctrl_cost_weight, reset_noise_scale etc.
 
+    There is a v4 version that uses the mujoco-bindings
+    ```
+    env = gym.make('InvertedPendulum-v4')
+    ```
 
     ### Version History
 
-    * v4: all mujoco environments now use the mujoco binidings in mujoco>=2.1.3
+    * v4: all mujoco environments now use the mujoco bindings in mujoco>=2.1.3
     * v3: support for gym.make kwargs such as xml_file, ctrl_cost_weight, reset_noise_scale etc. rgb rendering comes from tracking camera (so agent does not run away from screen)
     * v2: All continuous control environments now use mujoco_py >= 1.50
     * v1: max_time_steps raised to 1000 for robot based tasks (including inverted pendulum)

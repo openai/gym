@@ -370,7 +370,9 @@ class EnvRegistry(dict):
     Turns out that some existing code directly used the old `EnvRegistry` code,
     even though the intended API was just `register` and `make`.
     This reimplements some old methods, so that e.g. pybullet environments will still work.
-    Ideally, nobody should ever use these methods, and they will be removed soon."""
+
+    Ideally, nobody should ever use these methods, and they will be removed soon.
+    """
 
     # TODO: remove this at 1.0
 
