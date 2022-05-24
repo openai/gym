@@ -8,17 +8,19 @@ from gym.envs.registration import EnvSpec
 from gym.spaces.box import Box
 from gym.spaces.discrete import Discrete
 from gym.spaces.space import Space
-from tests.envs.spec_list import SKIP_MUJOCO_WARNING_MESSAGE, skip_mujoco, spec_list
+from tests.envs.spec_list import (
+    SKIP_MUJOCO_V3_WARNING_MESSAGE,
+    skip_mujoco_v3,
+    spec_list,
+)
 
 ENVIRONMENT_IDS = ("HalfCheetah-v2",)
 
 
 def make_envs_by_action_space_type(spec_list: List[EnvSpec], action_space: Space):
     """Make environments of specific action_space type.
-
     This function returns a filtered list of environment from the
     spec_list that matches the action_space type.
-
     Args:
         spec_list (list): list of registered environments' specification
         action_space (gym.spaces.Space): action_space type
@@ -31,7 +33,7 @@ def make_envs_by_action_space_type(spec_list: List[EnvSpec], action_space: Space
     return filtered_envs
 
 
-@pytest.mark.skipif(skip_mujoco, reason=SKIP_MUJOCO_WARNING_MESSAGE)
+@pytest.mark.skipif(skip_mujoco_v3, reason=SKIP_MUJOCO_V3_WARNING_MESSAGE)
 @pytest.mark.parametrize("environment_id", ENVIRONMENT_IDS)
 def test_serialize_deserialize(environment_id):
     env = envs.make(environment_id)
@@ -47,10 +49,8 @@ def test_serialize_deserialize(environment_id):
 @pytest.mark.parametrize("env", make_envs_by_action_space_type(spec_list, Discrete))
 def test_discrete_actions_out_of_bound(env):
     """Test out of bound actions in Discrete action_space.
-
     In discrete action_space environments, `out-of-bound`
     actions are not allowed and should raise an exception.
-
     Args:
         env (gym.Env): the gym environment
     """
@@ -69,11 +69,9 @@ def test_discrete_actions_out_of_bound(env):
 )
 def test_box_actions_out_of_bound(env, seed):
     """Test out of bound actions in Box action_space.
-
     Environments with Box actions spaces perform clipping inside `step`.
     The expected behaviour is that an action `out-of-bound` has the same effect
     of an action with value exactly at the upper (or lower) bound.
-
     Args:
         env (gym.Env): the gym environment
         seed (int): seed value for determinism
