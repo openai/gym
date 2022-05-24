@@ -15,7 +15,7 @@ COPY . /usr/local/gym/
 WORKDIR /usr/local/gym/
 
 RUN if [[ python:$PYTHON_VERSION == 3.6 ]] ; \
-    then pip install .[nomujoco] && pip install -r test_requirements.txt ; \
+    then pip install .[box2d,classic_control,toy_text,other] && pip install -r test_requirements.txt ; \
     else pip install .[noatari] && pip install -r test_requirements.txt ; fi
 
 ENTRYPOINT ["/usr/local/gym/bin/docker_entrypoint"]
