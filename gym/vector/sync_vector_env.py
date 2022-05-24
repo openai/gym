@@ -111,8 +111,8 @@ class SyncVectorEnv(VectorEnv):
 
         self._dones[:] = False
         observations = []
-        data_list = []
-        for env, single_seed in zip(self.envs, seed):
+        infos = {}
+        for i, (env, single_seed) in enumerate(zip(self.envs, seed)):
 
             kwargs = {}
             if single_seed is not None:
@@ -126,9 +126,9 @@ class SyncVectorEnv(VectorEnv):
                 observation = env.reset(**kwargs)
                 observations.append(observation)
             else:
-                observation, data = env.reset(**kwargs)
+                observation, info = env.reset(**kwargs)
                 observations.append(observation)
-                data_list.append(data)
+                infos = self._add_info(infos, info, i)
 
         self.observations = concatenate(
             self.single_observation_space, observations, self.observations
@@ -138,7 +138,7 @@ class SyncVectorEnv(VectorEnv):
         else:
             return (
                 deepcopy(self.observations) if self.copy else self.observations
-            ), data_list
+            ), infos
 
     def step_async(self, actions):
         """Sets :attr:`_actions` for use by the :meth:`step_wait` by converting the ``actions`` to an iterable version."""
@@ -150,14 +150,14 @@ class SyncVectorEnv(VectorEnv):
         Returns:
             The batched environment step results
         """
-        observations, infos = [], []
+        observations, infos = [], {}
         for i, (env, action) in enumerate(zip(self.envs, self._actions)):
             observation, self._rewards[i], self._dones[i], info = env.step(action)
             if self._dones[i]:
                 info["terminal_observation"] = observation
                 observation = env.reset()
             observations.append(observation)
-            infos.append(info)
+            infos = self._add_info(infos, info, i)
         self.observations = concatenate(
             self.single_observation_space, observations, self.observations
         )

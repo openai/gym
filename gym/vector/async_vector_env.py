@@ -285,8 +285,10 @@ class AsyncVectorEnv(VectorEnv):
         self._state = AsyncState.DEFAULT
 
         if return_info:
-            results, infos = zip(*results)
-            infos = list(infos)
+            infos = {}
+            results, info_data = zip(*results)
+            for i, info in enumerate(info_data):
+                infos = self._add_info(infos, info, i)
 
             if not self.shared_memory:
                 self.observations = concatenate(
@@ -358,10 +360,20 @@ class AsyncVectorEnv(VectorEnv):
                 f"The call to `step_wait` has timed out after {timeout} second(s)."
             )
 
-        results, successes = zip(*[pipe.recv() for pipe in self.parent_pipes])
+        observations_list, rewards, dones, infos = [], [], [], {}
+        successes = []
+        for i, pipe in enumerate(self.parent_pipes):
+            result, success = pipe.recv()
+            obs, rew, done, info = result
+
+            successes.append(success)
+            observations_list.append(obs)
+            rewards.append(rew)
+            dones.append(done)
+            infos = self._add_info(infos, info, i)
+
         self._raise_if_errors(successes)
         self._state = AsyncState.DEFAULT
-        observations_list, rewards, dones, infos = zip(*results)
 
         if not self.shared_memory:
             self.observations = concatenate(
