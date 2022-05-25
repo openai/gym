@@ -40,12 +40,12 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
 
     The observation is a `ndarray` with shape `(4,)` with the values corresponding to the following positions and velocities:
 
-    | Num | Observation           | Min                  | Max                |
-    |-----|-----------------------|----------------------|--------------------|
-    | 0   | Cart Position         | -4.8                 | 4.8                |
-    | 1   | Cart Velocity         | -Inf                 | Inf                |
-    | 2   | Pole Angle            | ~ -0.418 rad (-24°)  | ~ 0.418 rad (24°)  |
-    | 3   | Pole Angular Velocity | -Inf                 | Inf                |
+    | Num | Observation           | Min                 | Max               |
+    |-----|-----------------------|---------------------|-------------------|
+    | 0   | Cart Position         | -4.8                | 4.8               |
+    | 1   | Cart Velocity         | -Inf                | Inf               |
+    | 2   | Pole Angle            | ~ -0.418 rad (-24°) | ~ 0.418 rad (24°) |
+    | 3   | Pole Angular Velocity | -Inf                | Inf               |
 
     **Note:** While the ranges above denote the possible values for observation space of each element,
         it is not reflective of the allowed values of the state space in an unterminated episode. Particularly:

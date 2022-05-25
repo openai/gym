@@ -14,15 +14,15 @@ class PusherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     ### Action Space
     The action space is a `Box(-2, 2, (7,), float32)`. An action `(a, b)` represents the torques applied at the hinge joints.
 
-    | Num | Action                                                             | Control Min | Control Max | Name (in corresponding XML file) | Joint | Unit         |
-    |-----|--------------------------------------------------------------------|-------------|-------------|----------------------------------|-------|--------------|
-    | 0    | Rotation of the panning the shoulder                              | -2          | 2           | r_shoulder_pan_joint             | hinge | torque (N m) |
-    | 1    | Rotation of the shoulder lifting joint                            | -2          | 2           | r_shoulder_lift_joint            | hinge | torque (N m) |
-    | 2    | Rotation of the shoulder rolling joint                            | -2          | 2           | r_upper_arm_roll_joint           | hinge | torque (N m) |
-    | 3    | Rotation of hinge joint that flexed the elbow                     | -2          | 2           | r_elbow_flex_joint               | hinge | torque (N m) |
-    | 4    | Rotation of hinge that rolls the forearm                          | -2          | 2           | r_forearm_roll_joint             | hinge | torque (N m) |
-    | 5    | Rotation of flexing the wrist                                     | -2          | 2           | r_wrist_flex_joint               | hinge | torque (N m) |
-    | 6    | Rotation of rolling the wrist                                     | -2          | 2           | r_wrist_roll_joint               | hinge | torque (N m) |
+    | Num | Action                                         | Control Min | Control Max | Name (in corresponding XML file) | Joint | Unit         |
+    |-----|------------------------------------------------|-------------|-------------|----------------------------------|-------|--------------|
+    | 0    | Rotation of the panning the shoulder          | -2          | 2           | r_shoulder_pan_joint             | hinge | torque (N m) |
+    | 1    | Rotation of the shoulder lifting joint        | -2          | 2           | r_shoulder_lift_joint            | hinge | torque (N m) |
+    | 2    | Rotation of the shoulder rolling joint        | -2          | 2           | r_upper_arm_roll_joint           | hinge | torque (N m) |
+    | 3    | Rotation of hinge joint that flexed the elbow | -2          | 2           | r_elbow_flex_joint               | hinge | torque (N m) |
+    | 4    | Rotation of hinge that rolls the forearm      | -2          | 2           | r_forearm_roll_joint             | hinge | torque (N m) |
+    | 5    | Rotation of flexing the wrist                 | -2          | 2           | r_wrist_flex_joint               | hinge | torque (N m) |
+    | 6    | Rotation of rolling the wrist                 | -2          | 2           | r_wrist_roll_joint               | hinge | torque (N m) |
 
     ### Observation Space
 

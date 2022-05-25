@@ -49,10 +49,10 @@ class Continuous_MountainCarEnv(gym.Env):
 
     The observation is a `ndarray` with shape `(2,)` where the elements correspond to the following:
 
-    | Num | Observation                                                 | Min                | Max    | Unit |
-    |-----|-------------------------------------------------------------|--------------------|--------|------|
-    | 0   | position of the car along the x-axis                        | -Inf               | Inf    | position (m) |
-    | 1   | velocity of the car                                         | -Inf               | Inf  | position (m) |
+    | Num | Observation                          | Min  | Max | Unit         |
+    |-----|--------------------------------------|------|-----|--------------|
+    | 0   | position of the car along the x-axis | -Inf | Inf | position (m) |
+    | 1   | velocity of the car                  | -Inf | Inf | position (m) |
 
     ### Action Space
 
