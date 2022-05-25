@@ -1,9 +1,7 @@
-from __future__ import annotations
-
 from contextlib import closing
 from io import StringIO
 from os import path
-from typing import Optional
+from typing import List, Optional
 
 import numpy as np
 
@@ -31,7 +29,7 @@ MAPS = {
 }
 
 
-def generate_random_map(size: int = 8, p: float = 0.8) -> list[str]:
+def generate_random_map(size: int = 8, p: float = 0.8) -> List[str]:
     """Generates a random valid map (one that has a path from start to goal)
 
     Args:

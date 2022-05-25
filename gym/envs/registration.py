@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import contextlib
 import copy
 import difflib
@@ -10,12 +8,14 @@ import sys
 import warnings
 from dataclasses import dataclass, field
 from typing import (
-    Any,
     Callable,
+    Dict,
     Iterable,
+    List,
     Optional,
     Sequence,
     SupportsFloat,
+    Tuple,
     Union,
     overload,
 )
@@ -34,15 +34,11 @@ else:
 if sys.version_info >= (3, 8):
     from typing import Literal
 else:
-
-    class Literal(str):
-        def __class_getitem__(cls, item):
-            return Any
-
+    from typing_extensions import Literal
 
 from gym import Env, error, logger
 
-ENV_ID_RE: re.Pattern = re.compile(
+ENV_ID_RE = re.compile(
     r"^(?:(?P<namespace>[\w:-]+)\/)?(?:(?P<name>[\w:.-]+?))(?:-v(?P<version>\d+))?$"
 )
 
@@ -54,7 +50,7 @@ def load(name: str) -> type:
     return fn
 
 
-def parse_env_id(id: str) -> tuple[Optional[str], str, Optional[int]]:
+def parse_env_id(id: str) -> Tuple[Optional[str], str, Optional[int]]:
     """Parse environment ID string format.
 
     This format is true today, but it's *not* an official spec.
@@ -241,7 +237,7 @@ def _check_version_exists(ns: Optional[str], name: str, version: Optional[int]):
 
 
 def find_highest_version(ns: Optional[str], name: str) -> Optional[int]:
-    version: list[int] = [
+    version: List[int] = [
         spec_.version
         for spec_ in registry.values()
         if spec_.namespace == ns and spec_.name == name and spec_.version is not None
@@ -302,39 +298,39 @@ def load_env_plugins(entry_point: str = "gym.envs") -> None:
 
 
 @overload
-def make(id: Literal["CartPole-v1"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
+def make(id: Literal["CartPole-v0", "CartPole-v1"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
 @overload
-def make(id: Literal["MountainCar-v0"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
+def make(id: Literal["MountainCar-v0"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
 @overload
-def make(id: Literal["MountainCarContinuous-v0"], **kwargs) -> Env[np.ndarray, np.ndarray | Sequence[SupportsFloat]]: ...
+def make(id: Literal["MountainCarContinuous-v0"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, Sequence[SupportsFloat]]]: ...
 @overload
-def make(id: Literal["Pendulum-v1"], **kwargs) -> Env[np.ndarray, np.ndarray | Sequence[SupportsFloat]]: ...
+def make(id: Literal["Pendulum-v1"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, Sequence[SupportsFloat]]]: ...
 @overload
-def make(id: Literal["Acrobot-v1"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
+def make(id: Literal["Acrobot-v1"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
 
 # Box2d
 # ----------------------------------------
 
 
 @overload
-def make(id: Literal["LunarLander-v2", "LunarLanderContinuous-v2"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
+def make(id: Literal["LunarLander-v2", "LunarLanderContinuous-v2"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
 @overload
-def make(id: Literal["BipedalWalker-v3", "BipedalWalkerHardcore-v3"], **kwargs) -> Env[np.ndarray, np.ndarray | Sequence[SupportsFloat]]: ...
+def make(id: Literal["BipedalWalker-v3", "BipedalWalkerHardcore-v3"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, Sequence[SupportsFloat]]]: ...
 @overload
-def make(id: Literal["CarRacing-v1", "CarRacingDomainRandomize-v1"], **kwargs) -> Env[np.ndarray, np.ndarray | Sequence[SupportsFloat]]: ...
+def make(id: Literal["CarRacing-v1", "CarRacingDomainRandomize-v1"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, Sequence[SupportsFloat]]]: ...
 
 # Toy Text
 # ----------------------------------------
 
 
 @overload
-def make(id: Literal["Blackjack-v1"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
+def make(id: Literal["Blackjack-v1"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
 @overload
-def make(id: Literal["FrozenLake-v1", "FrozenLake8x8-v1"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
+def make(id: Literal["FrozenLake-v1", "FrozenLake8x8-v1"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
 @overload
-def make(id: Literal["CliffWalking-v0"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
+def make(id: Literal["CliffWalking-v0"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
 @overload
-def make(id: Literal["Taxi-v3"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
+def make(id: Literal["Taxi-v3"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
 
 # Mujoco
 # ----------------------------------------
@@ -415,7 +411,7 @@ class EnvRegistry(dict):
 
 
 # Global registry of environments. Meant to be accessed through `register` and `make`
-registry: dict[str, EnvSpec] = EnvRegistry()
+registry: Dict[str, EnvSpec] = EnvRegistry()
 current_namespace: Optional[str] = None
 
 
@@ -522,7 +518,7 @@ def register(id: str, **kwargs):
 
 
 def make(
-    id: str | EnvSpec,
+    id: Union[str, EnvSpec],
     max_episode_steps: Optional[int] = None,
     autoreset: bool = False,
     disable_env_checker: bool = False,

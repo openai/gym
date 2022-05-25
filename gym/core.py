@@ -1,12 +1,16 @@
 """Core API for Environment, Wrapper, ActionWrapper, RewardWrapper and ObservationWrapper."""
-from __future__ import annotations
-
-from typing import Generic, Optional, SupportsFloat, TypeVar, Union
+import sys
+from typing import Generic, Optional, SupportsFloat, Tuple, TypeVar, Union
 
 from gym import spaces
-from gym.logger import deprecation
+from gym.logger import deprecation, warn
 from gym.utils import seeding
 from gym.utils.seeding import RandomNumberGenerator
+
+if sys.version_info == (3, 6):
+    warn(
+        "Gym minimally supports python 3.6 as the python foundation not longer supports the version, please update your version to 3.7+"
+    )
 
 ObsType = TypeVar("ObsType")
 ActType = TypeVar("ActType")
@@ -62,7 +66,7 @@ class Env(Generic[ObsType, ActType]):
     def np_random(self, value: RandomNumberGenerator):
         self._np_random = value
 
-    def step(self, action: ActType) -> tuple[ObsType, float, bool, dict]:
+    def step(self, action: ActType) -> Tuple[ObsType, float, bool, dict]:
         """Run one timestep of the environment's dynamics.
 
         When end of episode is reached, you are responsible for calling :meth:`reset` to reset this environment's state.
@@ -92,7 +96,7 @@ class Env(Generic[ObsType, ActType]):
         seed: Optional[int] = None,
         return_info: bool = False,
         options: Optional[dict] = None,
-    ) -> Union[ObsType, tuple[ObsType, dict]]:
+    ) -> Union[ObsType, Tuple[ObsType, dict]]:
         """Resets the environment to an initial state and returns the initial observation.
 
         This method can reset the environment's random number generator(s) if ``seed`` is an integer or
@@ -201,7 +205,7 @@ class Env(Generic[ObsType, ActType]):
         return [seed]
 
     @property
-    def unwrapped(self) -> Env:
+    def unwrapped(self) -> "Env":
         """Returns the base non-wrapped environment.
 
         Returns:
@@ -248,7 +252,7 @@ class Wrapper(Env[ObsType, ActType]):
 
         self._action_space: Optional[spaces.Space] = None
         self._observation_space: Optional[spaces.Space] = None
-        self._reward_range: Optional[tuple[SupportsFloat, SupportsFloat]] = None
+        self._reward_range: Optional[Tuple[SupportsFloat, SupportsFloat]] = None
         self._metadata: Optional[dict] = None
 
     def __getattr__(self, name):
@@ -290,14 +294,14 @@ class Wrapper(Env[ObsType, ActType]):
         self._observation_space = space
 
     @property
-    def reward_range(self) -> tuple[SupportsFloat, SupportsFloat]:
+    def reward_range(self) -> Tuple[SupportsFloat, SupportsFloat]:
         """Return the reward range of the environment."""
         if self._reward_range is None:
             return self.env.reward_range
         return self._reward_range
 
     @reward_range.setter
-    def reward_range(self, value: tuple[SupportsFloat, SupportsFloat]):
+    def reward_range(self, value: Tuple[SupportsFloat, SupportsFloat]):
         self._reward_range = value
 
     @property
@@ -311,11 +315,11 @@ class Wrapper(Env[ObsType, ActType]):
     def metadata(self, value):
         self._metadata = value
 
-    def step(self, action: ActType) -> tuple[ObsType, float, bool, dict]:
+    def step(self, action: ActType) -> Tuple[ObsType, float, bool, dict]:
         """Steps through the environment with action."""
         return self.env.step(action)
 
-    def reset(self, **kwargs) -> Union[ObsType, tuple[ObsType, dict]]:
+    def reset(self, **kwargs) -> Union[ObsType, Tuple[ObsType, dict]]:
         """Resets the environment with kwargs."""
         return self.env.reset(**kwargs)
 

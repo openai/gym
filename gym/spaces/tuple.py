@@ -1,7 +1,5 @@
 """Implementation of a space that represents the cartesian product of other spaces."""
-from __future__ import annotations
-
-from typing import Iterable, Optional, Sequence
+from typing import Iterable, List, Optional, Sequence, Union
 
 import numpy as np
 
@@ -25,7 +23,7 @@ class Tuple(Space[tuple], Sequence):
     def __init__(
         self,
         spaces: Iterable[Space],
-        seed: Optional[int | list[int] | seeding.RandomNumberGenerator] = None,
+        seed: Optional[Union[int, List[int], seeding.RandomNumberGenerator]] = None,
     ):
         r"""Constructor of :class:`Tuple` space.
 
@@ -43,7 +41,7 @@ class Tuple(Space[tuple], Sequence):
             ), "Elements of the tuple must be instances of gym.Space"
         super().__init__(None, None, seed)  # type: ignore
 
-    def seed(self, seed: Optional[int | list[int]] = None) -> list:
+    def seed(self, seed: Optional[Union[int, List[int]]] = None) -> list:
         """Seed the PRNG of this space and all subspaces."""
         seeds = []
 

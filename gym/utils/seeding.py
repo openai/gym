@@ -1,10 +1,8 @@
 """Set of random number generator functions: seeding, generator, hashing seeds."""
-from __future__ import annotations
-
 import hashlib
 import os
 import struct
-from typing import Any, Optional, Union
+from typing import Any, List, Optional, Tuple, Union
 
 import numpy as np
 
@@ -12,7 +10,7 @@ from gym import error
 from gym.logger import deprecation
 
 
-def np_random(seed: Optional[int] = None) -> tuple[RandomNumberGenerator, Any]:
+def np_random(seed: Optional[int] = None) -> Tuple["RandomNumberGenerator", Any]:
     """Generates a random number generator from the seed and returns the Generator and seed.
 
     Args:
@@ -216,7 +214,7 @@ def _bigint_from_bytes(bt: bytes) -> int:
     return accum
 
 
-def _int_list_from_bigint(bigint: int) -> list[int]:
+def _int_list_from_bigint(bigint: int) -> List[int]:
     deprecation(
         "Function `_int_list_from_bigint` is marked as deprecated and will be removed in the future. "
     )
@@ -226,7 +224,7 @@ def _int_list_from_bigint(bigint: int) -> list[int]:
     elif bigint == 0:
         return [0]
 
-    ints: list[int] = []
+    ints: List[int] = []
     while bigint > 0:
         bigint, mod = divmod(bigint, 2**32)
         ints.append(mod)

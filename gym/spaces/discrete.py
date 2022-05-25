@@ -1,7 +1,5 @@
 """Implementation of a space consisting of finitely many elements."""
-from __future__ import annotations
-
-from typing import Optional
+from typing import Optional, Union
 
 import numpy as np
 
@@ -23,7 +21,7 @@ class Discrete(Space[int]):
     def __init__(
         self,
         n: int,
-        seed: Optional[int | seeding.RandomNumberGenerator] = None,
+        seed: Optional[Union[int, seeding.RandomNumberGenerator]] = None,
         start: int = 0,
     ):
         r"""Constructor of :class:`Discrete` space.

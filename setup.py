@@ -55,8 +55,9 @@ setup(
     install_requires=[
         "numpy>=1.18.0",
         "cloudpickle>=1.2.0",
-        "importlib_metadata>=4.10.0; python_version < '3.10'",
+        "importlib_metadata>=4.8.0; python_version < '3.10'",
         "gym_notices>=0.0.4",
+        "dataclasses==0.8; python_version == '3.6'",
     ],
     extras_require=extras,
     package_data={
@@ -69,9 +70,10 @@ setup(
         ]
     },
     tests_require=["pytest", "mock"],
-    python_requires=">=3.7",
+    python_requires=">=3.6",
     classifiers=[
         "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",

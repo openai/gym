@@ -1,7 +1,5 @@
 """Base class for vectorized environments."""
-from __future__ import annotations
-
-from typing import Any, Optional, Union
+from typing import Any, List, Optional, Union
 
 import numpy as np
 
@@ -50,7 +48,7 @@ class VectorEnv(gym.Env):
 
     def reset_async(
         self,
-        seed: Optional[Union[int, list[int]]] = None,
+        seed: Optional[Union[int, List[int]]] = None,
         return_info: bool = False,
         options: Optional[dict] = None,
     ):
@@ -68,7 +66,7 @@ class VectorEnv(gym.Env):
 
     def reset_wait(
         self,
-        seed: Optional[Union[int, list[int]]] = None,
+        seed: Optional[Union[int, List[int]]] = None,
         return_info: bool = False,
         options: Optional[dict] = None,
     ):
@@ -91,7 +89,7 @@ class VectorEnv(gym.Env):
     def reset(
         self,
         *,
-        seed: Optional[Union[int, list[int]]] = None,
+        seed: Optional[Union[int, List[int]]] = None,
         return_info: bool = False,
         options: Optional[dict] = None,
     ):
@@ -144,10 +142,10 @@ class VectorEnv(gym.Env):
     def call_async(self, name, *args, **kwargs):
         """Calls a method name for each parallel environment asynchronously."""
 
-    def call_wait(self, **kwargs) -> list[Any]:
+    def call_wait(self, **kwargs) -> List[Any]:
         """After calling a method in :meth:`call_async`, this function collects the results."""
 
-    def call(self, name: str, *args, **kwargs) -> list[Any]:
+    def call(self, name: str, *args, **kwargs) -> List[Any]:
         """Call a method, or get a property, from each parallel environment.
 
         Args:

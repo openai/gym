@@ -14,6 +14,7 @@ ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/root/.mujoco/mujoco210/bin
 COPY . /usr/local/gym/
 WORKDIR /usr/local/gym/
 
-RUN pip install .[noatari] && pip install -r test_requirements.txt
+RUN if [ python:$PYTHON_VERSION = "python:3.6.15" ] ; then pip install .[box2d,classic_control,toy_text,other] ; else pip install .[noatari] ; fi
+RUN pip install -r test_requirements.txt
 
 ENTRYPOINT ["/usr/local/gym/bin/docker_entrypoint"]

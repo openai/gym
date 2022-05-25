@@ -1,7 +1,17 @@
 """Implementation of the `Space` metaclass."""
-from __future__ import annotations
 
-from typing import Generic, Iterable, Mapping, Optional, Sequence, TypeVar
+from typing import (
+    Generic,
+    Iterable,
+    List,
+    Mapping,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    TypeVar,
+    Union,
+)
 
 import numpy as np
 
@@ -39,8 +49,8 @@ class Space(Generic[T_cov]):
     def __init__(
         self,
         shape: Optional[Sequence[int]] = None,
-        dtype: Optional[type | str | np.dtype] = None,
-        seed: Optional[int | seeding.RandomNumberGenerator] = None,
+        dtype: Optional[Union[Type, str, np.dtype]] = None,
+        seed: Optional[Union[int, seeding.RandomNumberGenerator]] = None,
     ):
         """Constructor of :class:`Space`.
 
@@ -67,7 +77,7 @@ class Space(Generic[T_cov]):
         return self._np_random  # type: ignore  ## self.seed() call guarantees right type.
 
     @property
-    def shape(self) -> Optional[tuple[int, ...]]:
+    def shape(self) -> Optional[Tuple[int, ...]]:
         """Return the shape of the space as an immutable property."""
         return self._shape
 
@@ -88,7 +98,7 @@ class Space(Generic[T_cov]):
         """Return boolean specifying if x is a valid member of this space."""
         return self.contains(x)
 
-    def __setstate__(self, state: Iterable | Mapping):
+    def __setstate__(self, state: Union[Iterable, Mapping]):
         """Used when loading a pickled space.
 
         This method was implemented explicitly to allow for loading of legacy states.
@@ -119,7 +129,7 @@ class Space(Generic[T_cov]):
         # By default, assume identity is JSONable
         return list(sample_n)
 
-    def from_jsonable(self, sample_n: list) -> list[T_cov]:
+    def from_jsonable(self, sample_n: list) -> List[T_cov]:
         """Convert a JSONable data type to a batch of samples from this space."""
         # By default, assume identity is JSONable
         return sample_n

@@ -1,7 +1,5 @@
 """Implementation of a space that represents closed boxes in euclidean space."""
-from __future__ import annotations
-
-from typing import Optional, Sequence, SupportsFloat, Union
+from typing import List, Optional, Sequence, SupportsFloat, Tuple, Type, Union
 
 import numpy as np
 
@@ -52,8 +50,8 @@ class Box(Space[np.ndarray]):
         low: Union[SupportsFloat, np.ndarray],
         high: Union[SupportsFloat, np.ndarray],
         shape: Optional[Sequence[int]] = None,
-        dtype: type = np.float32,
-        seed: Optional[int | seeding.RandomNumberGenerator] = None,
+        dtype: Type = np.float32,
+        seed: Optional[Union[int, seeding.RandomNumberGenerator]] = None,
     ):
         r"""Constructor of :class:`Box`.
 
@@ -105,7 +103,7 @@ class Box(Space[np.ndarray]):
         assert isinstance(high, np.ndarray)
         assert high.shape == shape, "high.shape doesn't match provided shape"
 
-        self._shape: tuple[int, ...] = shape
+        self._shape: Tuple[int, ...] = shape
 
         low_precision = get_precision(low.dtype)
         high_precision = get_precision(high.dtype)
@@ -121,7 +119,7 @@ class Box(Space[np.ndarray]):
         super().__init__(self.shape, self.dtype, seed)
 
     @property
-    def shape(self) -> tuple[int, ...]:
+    def shape(self) -> Tuple[int, ...]:
         """Has stricter type than gym.Space - never None."""
         return self._shape
 
@@ -210,7 +208,7 @@ class Box(Space[np.ndarray]):
         """Convert a batch of samples from this space to a JSONable data type."""
         return np.array(sample_n).tolist()
 
-    def from_jsonable(self, sample_n: Sequence[SupportsFloat]) -> list[np.ndarray]:
+    def from_jsonable(self, sample_n: Sequence[SupportsFloat]) -> List[np.ndarray]:
         """Convert a JSONable data type to a batch of samples from this space."""
         return [np.asarray(sample) for sample in sample_n]
 
@@ -278,7 +276,7 @@ def get_precision(dtype) -> SupportsFloat:
 def _broadcast(
     value: Union[SupportsFloat, np.ndarray],
     dtype,
-    shape: tuple[int, ...],
+    shape: Tuple[int, ...],
     inf_sign: str,
 ) -> np.ndarray:
     """Handle infinite bounds and broadcast at the same time if needed."""

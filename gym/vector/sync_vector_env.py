@@ -1,8 +1,6 @@
 """A synchronous vector environment."""
-from __future__ import annotations
-
 from copy import deepcopy
-from typing import Any, Iterator, Optional, Sequence, Union
+from typing import Any, Iterator, List, Optional, Sequence, Union
 
 import numpy as np
 
@@ -89,7 +87,7 @@ class SyncVectorEnv(VectorEnv):
 
     def reset_wait(
         self,
-        seed: Optional[Union[int, list[int]]] = None,
+        seed: Optional[Union[int, List[int]]] = None,
         return_info: bool = False,
         options: Optional[dict] = None,
     ):

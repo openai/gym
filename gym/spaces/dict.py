@@ -1,10 +1,8 @@
 """Implementation of a space that represents the cartesian product of other spaces as a dictionary."""
-from __future__ import annotations
-
 from collections import OrderedDict
 from collections.abc import Mapping, Sequence
 from typing import Dict as TypingDict
-from typing import Optional
+from typing import Optional, Union
 
 import numpy as np
 
@@ -53,8 +51,8 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
 
     def __init__(
         self,
-        spaces: Optional[dict[str, Space]] = None,
-        seed: Optional[dict | int | seeding.RandomNumberGenerator] = None,
+        spaces: Optional[TypingDict[str, Space]] = None,
+        seed: Optional[Union[dict, int, seeding.RandomNumberGenerator]] = None,
         **spaces_kwargs: Space,
     ):
         """Constructor of :class:`Dict` space.
@@ -101,7 +99,7 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
             None, None, seed  # type: ignore
         )  # None for shape and dtype, since it'll require special handling
 
-    def seed(self, seed: Optional[dict | int] = None) -> list:
+    def seed(self, seed: Optional[Union[dict, int]] = None) -> list:
         """Seed the PRNG of this space and all subspaces."""
         seeds = []
         if isinstance(seed, dict):
@@ -188,9 +186,9 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
             for key, space in self.spaces.items()
         }
 
-    def from_jsonable(self, sample_n: dict[str, list]) -> list:
+    def from_jsonable(self, sample_n: TypingDict[str, list]) -> list:
         """Convert a JSONable data type to a batch of samples from this space."""
-        dict_of_list: dict[str, list] = {}
+        dict_of_list: TypingDict[str, list] = {}
         for key, space in self.spaces.items():
             dict_of_list[key] = space.from_jsonable(sample_n[key])
         ret = []

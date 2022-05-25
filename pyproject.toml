@@ -25,7 +25,7 @@ strict = [
 ]
 
 typeCheckingMode = "basic"
-pythonVersion = "3.7"
+pythonVersion = "3.6"
 typeshedPath = "typeshed"
 enableTypeIgnoreComments = true
 
