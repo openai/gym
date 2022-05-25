@@ -6,6 +6,7 @@ import importlib.util
 import re
 import sys
 import warnings
+from dataclasses import dataclass, field
 from typing import (
     Callable,
     Dict,
@@ -85,27 +86,23 @@ def get_env_id(ns: Optional[str], name: str, version: Optional[int]):
     return full_name
 
 
+@dataclass
 class EnvSpec:
-    def __init__(
-        self,
-        id: str,
-        entry_point: Optional[Union[Callable, str]] = None,
-        reward_threshold: Optional[float] = None,
-        nondeterministic: bool = False,
-        max_episode_steps: Optional[int] = None,
-        order_enforce: bool = True,
-        autoreset: bool = False,
-        kwargs: dict = None,
-    ):
-        self.id = id
-        self.entry_point = entry_point
-        self.reward_threshold = reward_threshold
-        self.nondeterministic = nondeterministic
-        self.max_episode_steps = max_episode_steps
-        self.order_enforce = order_enforce
-        self.autoreset = autoreset
-        self.kwargs = {} if kwargs is None else kwargs
+    id: str
+    entry_point: Optional[Union[Callable, str]] = field(default=None)
+    reward_threshold: Optional[float] = field(default=None)
+    nondeterministic: bool = field(default=False)
+    max_episode_steps: Optional[int] = field(default=None)
+    order_enforce: bool = field(default=True)
+    autoreset: bool = field(default=False)
+    kwargs: dict = field(default_factory=dict)
 
+    namespace: Optional[str] = field(init=False)
+    name: str = field(init=False)
+    version: Optional[int] = field(init=False)
+
+    def __post_init__(self):
+        # Initialize namespace, name, version
         self.namespace, self.name, self.version = parse_env_id(self.id)
 
     def make(self, **kwargs) -> Env:
