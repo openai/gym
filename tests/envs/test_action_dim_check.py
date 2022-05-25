@@ -17,7 +17,9 @@ from tests.envs.spec_list import (
 ENVIRONMENT_IDS = ("HalfCheetah-v2",)
 
 
-def filters_envs_action_space_type(env_spec_list: List[EnvSpec], action_space: type) -> List[Env]:
+def filters_envs_action_space_type(
+    env_spec_list: List[EnvSpec], action_space: type
+) -> List[Env]:
     """Make environments of specific action_space type.
 
     This function returns a filtered list of environment from the spec_list that matches the action_space type.
