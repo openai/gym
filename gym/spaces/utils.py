@@ -2,8 +2,6 @@
 
 These functions mostly take care of flattening and unflattening elements of spaces to facilitate their usage in learning code.
 """
-from __future__ import annotations
-
 import operator as op
 from collections import OrderedDict
 from functools import reduce, singledispatch
@@ -125,7 +123,9 @@ def unflatten(space: Space[T], x: np.ndarray) -> T:
 
 @unflatten.register(Box)
 @unflatten.register(MultiBinary)
-def _unflatten_box_multibinary(space: Box | MultiBinary, x: np.ndarray) -> np.ndarray:
+def _unflatten_box_multibinary(
+    space: Union[Box, MultiBinary], x: np.ndarray
+) -> np.ndarray:
     return np.asarray(x, dtype=space.dtype).reshape(space.shape)
 
 

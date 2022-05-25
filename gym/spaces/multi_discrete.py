@@ -1,7 +1,5 @@
 """Implementation of a space that represents the cartesian product of `Discrete` spaces."""
-from __future__ import annotations
-
-from typing import Iterable, Optional, Sequence, Union
+from typing import Iterable, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
 
@@ -31,9 +29,9 @@ class MultiDiscrete(Space[np.ndarray]):
 
     def __init__(
         self,
-        nvec: Union[np.ndarray, list[int]],
+        nvec: Union[np.ndarray, List[int]],
         dtype=np.int64,
-        seed: Optional[int | seeding.RandomNumberGenerator] = None,
+        seed: Optional[Union[int, seeding.RandomNumberGenerator]] = None,
     ):
         """Constructor of :class:`MultiDiscrete` space.
 
@@ -61,7 +59,7 @@ class MultiDiscrete(Space[np.ndarray]):
         super().__init__(self.nvec.shape, dtype, seed)
 
     @property
-    def shape(self) -> tuple[int, ...]:
+    def shape(self) -> Tuple[int, ...]:
         """Has stricter type than :class:`gym.Space` - never None."""
         return self._shape  # type: ignore
 

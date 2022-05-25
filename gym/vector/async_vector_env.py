@@ -1,12 +1,10 @@
 """An async vector environment."""
-from __future__ import annotations
-
 import multiprocessing as mp
 import sys
 import time
 from copy import deepcopy
 from enum import Enum
-from typing import Optional, Sequence, Union
+from typing import List, Optional, Sequence, Tuple, Union
 
 import numpy as np
 
@@ -185,7 +183,7 @@ class AsyncVectorEnv(VectorEnv):
 
     def reset_async(
         self,
-        seed: Optional[Union[int, list[int]]] = None,
+        seed: Optional[Union[int, List[int]]] = None,
         return_info: bool = False,
         options: Optional[dict] = None,
     ):
@@ -236,7 +234,7 @@ class AsyncVectorEnv(VectorEnv):
         seed: Optional[int] = None,
         return_info: bool = False,
         options: Optional[dict] = None,
-    ) -> Union[ObsType, tuple[ObsType, list[dict]]]:
+    ) -> Union[ObsType, Tuple[ObsType, List[dict]]]:
         """Waits for the calls triggered by :meth:`reset_async` to finish and returns the results.
 
         Args:
@@ -319,7 +317,7 @@ class AsyncVectorEnv(VectorEnv):
 
     def step_wait(
         self, timeout: Optional[Union[int, float]] = None
-    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, list[dict]]:
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, List[dict]]:
         """Wait for the calls to :obj:`step` in each sub-environment to finish.
 
         Args:

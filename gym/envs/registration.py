@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import contextlib
 import copy
 import difflib
@@ -8,11 +6,11 @@ import importlib.util
 import re
 import sys
 import warnings
-from dataclasses import dataclass, field
 from typing import (
-    Any,
     Callable,
+    Dict,
     Iterable,
+    List,
     Optional,
     Sequence,
     SupportsFloat,
@@ -36,15 +34,12 @@ else:
 if sys.version_info >= (3, 8):
     from typing import Literal
 else:
-
-    class Literal(str):
-        def __class_getitem__(cls, item):
-            return Any
+    from typing_extensions import Literal
 
 
 from gym import Env, error, logger
 
-ENV_ID_RE: re.Pattern = re.compile(
+ENV_ID_RE = re.compile(
     r"^(?:(?P<namespace>[\w:-]+)\/)?(?:(?P<name>[\w:.-]+?))(?:-v(?P<version>\d+))?$"
 )
 
@@ -90,23 +85,27 @@ def get_env_id(ns: Optional[str], name: str, version: Optional[int]):
     return full_name
 
 
-@dataclass
 class EnvSpec:
-    id: str
-    entry_point: Optional[Union[Callable, str]] = field(default=None)
-    reward_threshold: Optional[float] = field(default=None)
-    nondeterministic: bool = field(default=False)
-    max_episode_steps: Optional[int] = field(default=None)
-    order_enforce: bool = field(default=True)
-    autoreset: bool = field(default=False)
-    kwargs: dict = field(default_factory=dict)
+    def __init__(
+        self,
+        id: str,
+        entry_point: Optional[Union[Callable, str]] = None,
+        reward_threshold: Optional[float] = None,
+        nondeterministic: bool = False,
+        max_episode_steps: Optional[int] = None,
+        order_enforce: bool = True,
+        autoreset: bool = False,
+        kwargs: dict = None,
+    ):
+        self.id = id
+        self.entry_point = entry_point
+        self.reward_threshold = reward_threshold
+        self.nondeterministic = nondeterministic
+        self.max_episode_steps = max_episode_steps
+        self.order_enforce = order_enforce
+        self.autoreset = autoreset
+        self.kwargs = {} if kwargs is None else kwargs
 
-    namespace: Optional[str] = field(init=False)
-    name: str = field(init=False)
-    version: Optional[int] = field(init=False)
-
-    def __post_init__(self):
-        # Initialize namespace, name, version
         self.namespace, self.name, self.version = parse_env_id(self.id)
 
     def make(self, **kwargs) -> Env:
@@ -215,7 +214,7 @@ def _check_version_exists(ns: Optional[str], name: str, version: Optional[int]):
 
 
 def find_highest_version(ns: Optional[str], name: str) -> Optional[int]:
-    version: list[int] = [
+    version: List[int] = [
         spec_.version
         for spec_ in registry.values()
         if spec_.namespace == ns and spec_.name == name and spec_.version is not None
@@ -276,39 +275,39 @@ def load_env_plugins(entry_point: str = "gym.envs") -> None:
 
 
 @overload
-def make(id: Literal["CartPole-v1"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
+def make(id: Literal["CartPole-v0", "CartPole-v1"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
 @overload
-def make(id: Literal["MountainCar-v0"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
+def make(id: Literal["MountainCar-v0"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
 @overload
-def make(id: Literal["MountainCarContinuous-v0"], **kwargs) -> Env[np.ndarray, np.ndarray | Sequence[SupportsFloat]]: ...
+def make(id: Literal["MountainCarContinuous-v0"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, Sequence[SupportsFloat]]]: ...
 @overload
-def make(id: Literal["Pendulum-v1"], **kwargs) -> Env[np.ndarray, np.ndarray | Sequence[SupportsFloat]]: ...
+def make(id: Literal["Pendulum-v1"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, Sequence[SupportsFloat]]]: ...
 @overload
-def make(id: Literal["Acrobot-v1"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
+def make(id: Literal["Acrobot-v1"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
 
 # Box2d
 # ----------------------------------------
 
 
 @overload
-def make(id: Literal["LunarLander-v2", "LunarLanderContinuous-v2"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
+def make(id: Literal["LunarLander-v2", "LunarLanderContinuous-v2"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
 @overload
-def make(id: Literal["BipedalWalker-v3", "BipedalWalkerHardcore-v3"], **kwargs) -> Env[np.ndarray, np.ndarray | Sequence[SupportsFloat]]: ...
+def make(id: Literal["BipedalWalker-v3", "BipedalWalkerHardcore-v3"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, Sequence[SupportsFloat]]]: ...
 @overload
-def make(id: Literal["CarRacing-v1", "CarRacingDomainRandomize-v1"], **kwargs) -> Env[np.ndarray, np.ndarray | Sequence[SupportsFloat]]: ...
+def make(id: Literal["CarRacing-v1", "CarRacingDomainRandomize-v1"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, Sequence[SupportsFloat]]]: ...
 
 # Toy Text
 # ----------------------------------------
 
 
 @overload
-def make(id: Literal["Blackjack-v1"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
+def make(id: Literal["Blackjack-v1"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
 @overload
-def make(id: Literal["FrozenLake-v1", "FrozenLake8x8-v1"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
+def make(id: Literal["FrozenLake-v1", "FrozenLake8x8-v1"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
 @overload
-def make(id: Literal["CliffWalking-v0"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
+def make(id: Literal["CliffWalking-v0"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
 @overload
-def make(id: Literal["Taxi-v3"], **kwargs) -> Env[np.ndarray, np.ndarray | int]: ...
+def make(id: Literal["Taxi-v3"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
 
 # Mujoco
 # ----------------------------------------
@@ -388,7 +387,7 @@ class EnvRegistry(dict):
 
 
 # Global registry of environments. Meant to be accessed through `register` and `make`
-registry: dict[str, EnvSpec] = EnvRegistry()
+registry: Dict[str, EnvSpec] = EnvRegistry()
 current_namespace: Optional[str] = None
 
 
@@ -492,7 +491,7 @@ def register(id: str, **kwargs):
 
 
 def make(
-    id: str | EnvSpec,
+    id: Union[str, EnvSpec],
     max_episode_steps: Optional[int] = None,
     autoreset: bool = False,
     disable_env_checker: bool = False,

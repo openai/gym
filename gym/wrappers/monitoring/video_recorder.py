@@ -1,6 +1,4 @@
 """A wrapper for video recording environments by rolling it out, frame by frame."""
-from __future__ import annotations
-
 import json
 import os
 import os.path
@@ -9,7 +7,7 @@ import shutil
 import subprocess
 import tempfile
 from io import StringIO
-from typing import Optional, Union
+from typing import Optional, Tuple, Union
 
 import numpy as np
 
@@ -355,7 +353,7 @@ class ImageEncoder:
     def __init__(
         self,
         output_path: str,
-        frame_shape: tuple[int, int, int],
+        frame_shape: Tuple[int, int, int],
         frames_per_sec: int,
         output_frames_per_sec: int,
     ):

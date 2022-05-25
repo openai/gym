@@ -1,8 +1,5 @@
 """Core API for Environment, Wrapper, ActionWrapper, RewardWrapper and ObservationWrapper."""
-from __future__ import annotations
-
-from abc import abstractmethod
-from typing import Generic, Optional, SupportsFloat, TypeVar, Union
+from typing import Generic, Optional, SupportsFloat, Tuple, TypeVar, Union
 
 from gym import spaces
 from gym.logger import deprecation
@@ -63,8 +60,7 @@ class Env(Generic[ObsType, ActType]):
     def np_random(self, value: RandomNumberGenerator):
         self._np_random = value
 
-    @abstractmethod
-    def step(self, action: ActType) -> tuple[ObsType, float, bool, dict]:
+    def step(self, action: ActType) -> Tuple[ObsType, float, bool, dict]:
         """Run one timestep of the environment's dynamics.
 
         When end of episode is reached, you are responsible for calling :meth:`reset` to reset this environment's state.
@@ -88,14 +84,13 @@ class Env(Generic[ObsType, ActType]):
         """
         raise NotImplementedError
 
-    @abstractmethod
     def reset(
         self,
         *,
         seed: Optional[int] = None,
         return_info: bool = False,
         options: Optional[dict] = None,
-    ) -> Union[ObsType, tuple[ObsType, dict]]:
+    ) -> Union[ObsType, Tuple[ObsType, dict]]:
         """Resets the environment to an initial state and returns the initial observation.
 
         This method can reset the environment's random number generator(s) if ``seed`` is an integer or
@@ -129,7 +124,6 @@ class Env(Generic[ObsType, ActType]):
         if seed is not None:
             self._np_random, seed = seeding.np_random(seed)
 
-    @abstractmethod
     def render(self, mode="human"):
         """Renders the environment.
 
@@ -204,7 +198,7 @@ class Env(Generic[ObsType, ActType]):
         return [seed]
 
     @property
-    def unwrapped(self) -> Env:
+    def unwrapped(self) -> "Env":
         """Returns the base non-wrapped environment.
 
         Returns:
@@ -251,7 +245,7 @@ class Wrapper(Env[ObsType, ActType]):
 
         self._action_space: Optional[spaces.Space] = None
         self._observation_space: Optional[spaces.Space] = None
-        self._reward_range: Optional[tuple[SupportsFloat, SupportsFloat]] = None
+        self._reward_range: Optional[Tuple[SupportsFloat, SupportsFloat]] = None
         self._metadata: Optional[dict] = None
 
     def __getattr__(self, name):
@@ -293,14 +287,14 @@ class Wrapper(Env[ObsType, ActType]):
         self._observation_space = space
 
     @property
-    def reward_range(self) -> tuple[SupportsFloat, SupportsFloat]:
+    def reward_range(self) -> Tuple[SupportsFloat, SupportsFloat]:
         """Return the reward range of the environment."""
         if self._reward_range is None:
             return self.env.reward_range
         return self._reward_range
 
     @reward_range.setter
-    def reward_range(self, value: tuple[SupportsFloat, SupportsFloat]):
+    def reward_range(self, value: Tuple[SupportsFloat, SupportsFloat]):
         self._reward_range = value
 
     @property
@@ -314,11 +308,11 @@ class Wrapper(Env[ObsType, ActType]):
     def metadata(self, value):
         self._metadata = value
 
-    def step(self, action: ActType) -> tuple[ObsType, float, bool, dict]:
+    def step(self, action: ActType) -> Tuple[ObsType, float, bool, dict]:
         """Steps through the environment with action."""
         return self.env.step(action)
 
-    def reset(self, **kwargs) -> Union[ObsType, tuple[ObsType, dict]]:
+    def reset(self, **kwargs) -> Union[ObsType, Tuple[ObsType, dict]]:
         """Resets the environment with kwargs."""
         return self.env.reset(**kwargs)
 
@@ -389,7 +383,6 @@ class ObservationWrapper(Wrapper):
         observation, reward, done, info = self.env.step(action)
         return self.observation(observation), reward, done, info
 
-    @abstractmethod
     def observation(self, observation):
         """Returns a modified observation."""
         raise NotImplementedError
@@ -424,7 +417,6 @@ class RewardWrapper(Wrapper):
         observation, reward, done, info = self.env.step(action)
         return observation, self.reward(reward), done, info
 
-    @abstractmethod
     def reward(self, reward):
         """Returns a modified ``reward``."""
         raise NotImplementedError
@@ -466,12 +458,10 @@ class ActionWrapper(Wrapper):
         """Runs the environment :meth:`env.step` using the modified ``action`` from :meth:`self.action`."""
         return self.env.step(self.action(action))
 
-    @abstractmethod
     def action(self, action):
         """Returns a modified action before :meth:`env.step` is called."""
         raise NotImplementedError
 
-    @abstractmethod
     def reverse_action(self, action):
         """Returns a reversed ``action``."""
         raise NotImplementedError

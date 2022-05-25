@@ -1,8 +1,6 @@
 """Utilities of visualising an environment."""
-from __future__ import annotations
-
 from collections import deque
-from typing import Callable, Dict, Optional, Tuple, Union
+from typing import Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import pygame
@@ -35,7 +33,7 @@ class PlayableGame:
     def __init__(
         self,
         env: Env,
-        keys_to_action: Optional[dict[tuple[int], int]] = None,
+        keys_to_action: Optional[Dict[Tuple[int], int]] = None,
         zoom: Optional[float] = None,
     ):
         """Wraps an environment with a dictionary of keyboard buttons to action and if to zoom in on the environment.
@@ -53,7 +51,7 @@ class PlayableGame:
         self.running = True
 
     def _get_relevant_keys(
-        self, keys_to_action: Optional[dict[tuple[int], int]] = None
+        self, keys_to_action: Optional[Dict[Tuple[int], int]] = None
     ) -> set:
         if keys_to_action is None:
             if hasattr(self.env, "get_keys_to_action"):
@@ -68,7 +66,7 @@ class PlayableGame:
         relevant_keys = set(sum((list(k) for k in keys_to_action.keys()), []))
         return relevant_keys
 
-    def _get_video_size(self, zoom: Optional[float] = None) -> tuple[int, int]:
+    def _get_video_size(self, zoom: Optional[float] = None) -> Tuple[int, int]:
         # TODO: this needs to be updated when the render API change goes through
         rendered = self.env.render(mode="rgb_array")
         video_size = [rendered.shape[1], rendered.shape[0]]
@@ -102,7 +100,7 @@ class PlayableGame:
 
 
 def display_arr(
-    screen: Surface, arr: np.ndarray, video_size: tuple[int, int], transpose: bool
+    screen: Surface, arr: np.ndarray, video_size: Tuple[int, int], transpose: bool
 ):
     """Displays a numpy array on screen.
 
@@ -271,7 +269,7 @@ class PlayPlot:
     """
 
     def __init__(
-        self, callback: callable, horizon_timesteps: int, plot_names: list[str]
+        self, callback: callable, horizon_timesteps: int, plot_names: List[str]
     ):
         """Constructor of :class:`PlayPlot`.
 

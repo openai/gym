@@ -1,7 +1,5 @@
 """Module for vector environments."""
-from __future__ import annotations
-
-from typing import Iterable, Optional, Union
+from typing import Iterable, List, Optional, Union
 
 from gym.vector.async_vector_env import AsyncVectorEnv
 from gym.vector.sync_vector_env import SyncVectorEnv
@@ -14,7 +12,7 @@ def make(
     id: str,
     num_envs: int = 1,
     asynchronous: bool = True,
-    wrappers: Optional[Union[callable, list[callable]]] = None,
+    wrappers: Optional[Union[callable, List[callable]]] = None,
     **kwargs,
 ) -> VectorEnv:
     """Create a vectorized environment from multiple copies of an environment, from its id.
