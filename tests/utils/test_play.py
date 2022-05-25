@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Callable
 
 import numpy as np
@@ -14,9 +15,9 @@ RELEVANT_KEY_2 = ord("d")  # 100
 IRRELEVANT_KEY = 1
 
 
+@dataclass
 class DummyEnvSpec:
-    def __init__(self, id: str):
-        self.id = id
+    id: str
 
 
 class DummyPlayEnv(gym.Env):
