@@ -1,1 +1,1 @@
-from gym.wrappers.torch_wrapper import TorchWrapper
+from gym.dev_wrappers.torch_wrapper import TorchWrapper
