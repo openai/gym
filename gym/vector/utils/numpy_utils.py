@@ -33,6 +33,9 @@ def concatenate(
 
     Returns:
         The output object. This object is a (possibly nested) numpy array.
+
+    Raises:
+        ValueError: Space is not a valid :class:`gym.Space` instance
     """
     raise ValueError(
         f"Space of type `{type(space)}` is not a valid `gym.Space` instance."
@@ -95,6 +98,9 @@ def create_empty_array(
 
     Returns:
         The output object. This object is a (possibly nested) numpy array.
+
+    Raises:
+        ValueError: Space is not a valid :class:`gym.Space` instance
     """
     raise ValueError(
         f"Space of type `{type(space)}` is not a valid `gym.Space` instance."

@@ -39,6 +39,9 @@ def clear_mpi_env_vars():
 
     This context manager is a hacky way to clear those environment variables
     temporarily such as when we are starting multiprocessing Processes.
+
+    Yields:
+        Yields for the context manager
     """
     removed_environment = {}
     for k, v in list(os.environ.items()):

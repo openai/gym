@@ -1,7 +1,6 @@
 """Core API for Environment, Wrapper, ActionWrapper, RewardWrapper and ObservationWrapper."""
 from __future__ import annotations
 
-from abc import abstractmethod
 from typing import Generic, Optional, SupportsFloat, TypeVar, Union
 
 from gym import spaces
@@ -63,7 +62,6 @@ class Env(Generic[ObsType, ActType]):
     def np_random(self, value: RandomNumberGenerator):
         self._np_random = value
 
-    @abstractmethod
     def step(self, action: ActType) -> tuple[ObsType, float, bool, dict]:
         """Run one timestep of the environment's dynamics.
 
@@ -71,7 +69,7 @@ class Env(Generic[ObsType, ActType]):
         Accepts an action and returns a tuple `(observation, reward, done, info)`.
 
         Args:
-            action (object): an action provided by the agent
+            action (ActType): an action provided by the agent
 
         Returns:
             observation (object): this will be an element of the environment's :attr:`observation_space`.
@@ -88,7 +86,6 @@ class Env(Generic[ObsType, ActType]):
         """
         raise NotImplementedError
 
-    @abstractmethod
     def reset(
         self,
         *,
@@ -129,7 +126,6 @@ class Env(Generic[ObsType, ActType]):
         if seed is not None:
             self._np_random, seed = seeding.np_random(seed)
 
-    @abstractmethod
     def render(self, mode="human"):
         """Renders the environment.
 
@@ -152,6 +148,7 @@ class Env(Generic[ObsType, ActType]):
             in implementations to use the functionality of this method.
 
         Example:
+            >>> import numpy as np
             >>> class MyEnv(Env):
             ...    metadata = {'render_modes': ['human', 'rgb_array']}
             ...
@@ -161,7 +158,7 @@ class Env(Generic[ObsType, ActType]):
             ...        elif mode == 'human':
             ...            ... # pop up a window and render
             ...        else:
-            ...            super(MyEnv, self).render(mode=mode) # just raise an exception
+            ...            super().render(mode=mode) # just raise an exception
 
         Args:
             mode: the mode to render with, valid modes are `env.metadata["render_modes"]`
@@ -208,7 +205,7 @@ class Env(Generic[ObsType, ActType]):
         """Returns the base non-wrapped environment.
 
         Returns:
-            gym.Env: The base non-wrapped gym.Env instance
+            Env: The base non-wrapped gym.Env instance
         """
         return self
 
@@ -389,7 +386,6 @@ class ObservationWrapper(Wrapper):
         observation, reward, done, info = self.env.step(action)
         return self.observation(observation), reward, done, info
 
-    @abstractmethod
     def observation(self, observation):
         """Returns a modified observation."""
         raise NotImplementedError
@@ -424,7 +420,6 @@ class RewardWrapper(Wrapper):
         observation, reward, done, info = self.env.step(action)
         return observation, self.reward(reward), done, info
 
-    @abstractmethod
     def reward(self, reward):
         """Returns a modified ``reward``."""
         raise NotImplementedError
@@ -466,12 +461,10 @@ class ActionWrapper(Wrapper):
         """Runs the environment :meth:`env.step` using the modified ``action`` from :meth:`self.action`."""
         return self.env.step(self.action(action))
 
-    @abstractmethod
     def action(self, action):
         """Returns a modified action before :meth:`env.step` is called."""
         raise NotImplementedError
 
-    @abstractmethod
     def reverse_action(self, action):
         """Returns a reversed ``action``."""
         raise NotImplementedError
