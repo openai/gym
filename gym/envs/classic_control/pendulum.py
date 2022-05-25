@@ -14,7 +14,10 @@ class PendulumEnv(gym.Env):
     """
        ### Description
 
-    The inverted pendulum swingup problem is based on the classic problem in control theory. The system consists of a pendulum attached at one end to a fixed point, and the other end being free. The pendulum starts in a random position and the goal is to apply torque on the free end to swing it into an upright position, with its center of gravity right above the fixed point.
+    The inverted pendulum swingup problem is based on the classic problem in control theory.
+    The system consists of a pendulum attached at one end to a fixed point, and the other end being free.
+    The pendulum starts in a random position and the goal is to apply torque on the free end to swing it
+    into an upright position, with its center of gravity right above the fixed point.
 
     The diagram below specifies the coordinate system used for the implementation of the pendulum's
     dynamic equations.
@@ -36,7 +39,8 @@ class PendulumEnv(gym.Env):
 
     ### Observation Space
 
-    The observation is a `ndarray` with shape `(3,)` representing the x-y coordinates of the pendulum's free end and its angular velocity.
+    The observation is a `ndarray` with shape `(3,)` representing the x-y coordinates of the pendulum's free
+    end and its angular velocity.
 
     | Num | Observation      | Min  | Max |
     |-----|------------------|------|-----|
@@ -51,8 +55,9 @@ class PendulumEnv(gym.Env):
     *r = -(theta<sup>2</sup> + 0.1 * theta_dt<sup>2</sup> + 0.001 * torque<sup>2</sup>)*
 
     where `$\theta$` is the pendulum's angle normalized between *[-pi, pi]* (with 0 being in the upright position).
-    Based on the above equation, the minimum reward that can be obtained is *-(pi<sup>2</sup> + 0.1 * 8<sup>2</sup> + 0.001 * 2<sup>2</sup>) = -16.2736044*, while the maximum reward is zero (pendulum is
-    upright with zero velocity and no torque applied).
+    Based on the above equation, the minimum reward that can be obtained is
+    *-(pi<sup>2</sup> + 0.1 * 8<sup>2</sup> + 0.001 * 2<sup>2</sup>) = -16.2736044*,
+    while the maximum reward is zero (pendulum is upright with zero velocity and no torque applied).
 
     ### Starting State
 
@@ -64,7 +69,8 @@ class PendulumEnv(gym.Env):
 
     ### Arguments
 
-    - `g`: acceleration of gravity measured in *(m s<sup>-2</sup>)* used to calculate the pendulum dynamics. The default value is g = 10.0 .
+    - `g`: acceleration of gravity measured in *(m s<sup>-2</sup>)* used to calculate the pendulum dynamics.
+      The default value is g = 10.0 .
 
     ```
     gym.make('Pendulum-v1', g=9.81)

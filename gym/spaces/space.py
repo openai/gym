@@ -26,8 +26,10 @@ class Space(Generic[T_cov]):
     Spaces are crucially used in Gym to define the format of valid actions and observations.
     They serve various purposes:
 
-    * They clearly define how to interact with environments, i.e. they specify what actions need to look like and what observations will look like
-    * They allow us to work with highly structured data (e.g. in the form of elements of :class:`Dict` spaces) and painlessly transform them into flat arrays that can be used in learning code
+    * They clearly define how to interact with environments, i.e. they specify what actions need to look like
+      and what observations will look like
+    * They allow us to work with highly structured data (e.g. in the form of elements of :class:`Dict` spaces)
+      and painlessly transform them into flat arrays that can be used in learning code
     * They provide a method to sample random elements. This is especially useful for exploration and debugging.
 
     Different spaces can be combined hierarchically via container spaces (:class:`Tuple` and :class:`Dict`) to build a
@@ -47,7 +49,7 @@ class Space(Generic[T_cov]):
     def __init__(
         self,
         shape: Optional[Sequence[int]] = None,
-        dtype: Optional[Union[Type, str]] = None,
+        dtype: Optional[Union[Type, str, np.dtype]] = None,
         seed: Optional[Union[int, seeding.RandomNumberGenerator]] = None,
     ):
         """Constructor of :class:`Space`.
@@ -100,6 +102,9 @@ class Space(Generic[T_cov]):
         """Used when loading a pickled space.
 
         This method was implemented explicitly to allow for loading of legacy states.
+
+        Args:
+            state: The updated state value
         """
         # Don't mutate the original state
         state = dict(state)

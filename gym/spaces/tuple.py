@@ -77,6 +77,9 @@ class Tuple(Space[tuple], Sequence):
         """Generates a single random sample inside this space.
 
         This method draws independent samples from the subspaces.
+
+        Returns:
+            Tuple of the subspace's samples
         """
         return tuple(space.sample() for space in self.spaces)
 

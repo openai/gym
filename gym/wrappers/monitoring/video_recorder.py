@@ -44,6 +44,10 @@ class VideoRecorder:
             metadata (Optional[dict]): Contents to save to the metadata file.
             enabled (bool): Whether to actually record video, or just no-op (for convenience)
             base_path (Optional[str]): Alternatively, path to the video file without extension, which will be added.
+
+        Raises:
+            Error: You can pass at most one of `path` or `base_path`
+            Error: Invalid path given that must have a particular file extension
         """
         modes = env.metadata.get("render_modes", [])
 
@@ -279,6 +283,9 @@ class TextEncoder:
 
         Args:
             frame: A string or StringIO frame
+
+        Raises:
+            InvalidFrame: Wrong type for a frame, expects text frame to be a string or StringIO
         """
         if isinstance(frame, str):
             string = frame
@@ -364,6 +371,10 @@ class ImageEncoder:
             frame_shape: The expected frame shape, a tuple of height, weight and channels (3 or 4)
             frames_per_sec: The number of frames per second the environment runs at
             output_frames_per_sec: The output number of frames per second for the video
+
+        Raises:
+            InvalidFrame: Expects frame to have shape (w,h,3) or (w,h,4)
+            DependencyNotInstalled: Found neither the ffmpeg nor avconv executables.
         """
         self.proc = None
         self.output_path = output_path

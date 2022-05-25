@@ -26,6 +26,9 @@ class LazyFrames:
         Args:
             frames (list): The frames to convert to lazy frames
             lz4_compress (bool): Use lz4 to compress the frames internally
+
+        Raises:
+            DependencyNotInstalled: lz4 is not installed
         """
         self.frame_shape = tuple(frames[0].shape)
         self.shape = (len(frames),) + self.frame_shape

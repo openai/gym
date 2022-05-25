@@ -15,8 +15,6 @@ from typing import (
     Optional,
     Sequence,
     SupportsFloat,
-    Tuple,
-    Type,
     Union,
     overload,
 )
@@ -45,14 +43,14 @@ ENV_ID_RE = re.compile(
 )
 
 
-def load(name: str) -> Type:
+def load(name: str) -> type:
     mod_name, attr_name = name.split(":")
     mod = importlib.import_module(mod_name)
     fn = getattr(mod, attr_name)
     return fn
 
 
-def parse_env_id(id: str) -> Tuple[Optional[str], str, Optional[int]]:
+def parse_env_id(id: str) -> tuple[Optional[str], str, Optional[int]]:
     """Parse environment ID string format.
 
     This format is true today, but it's *not* an official spec.
@@ -60,6 +58,15 @@ def parse_env_id(id: str) -> Tuple[Optional[str], str, Optional[int]]:
 
     2016-10-31: We're experimentally expanding the environment ID format
     to include an optional namespace.
+
+    Args:
+        id: The environment id to parse
+
+    Returns:
+        A tuple of environment namespace, environment name and version number
+
+    Raises:
+        Error: If the environment id does not a valid environment regex
     """
     match = ENV_ID_RE.fullmatch(id)
     if not match:
@@ -74,9 +81,17 @@ def parse_env_id(id: str) -> Tuple[Optional[str], str, Optional[int]]:
     return namespace, name, version
 
 
-def get_env_id(ns: Optional[str], name: str, version: Optional[int]):
-    """Get the full env ID given a name and (optional) version and namespace.
-    Inverse of parse_env_id."""
+def get_env_id(ns: Optional[str], name: str, version: Optional[int]) -> str:
+    """Get the full env ID given a name and (optional) version and namespace. Inverse of :meth:`parse_env_id`.
+
+    Args:
+        ns: The environment namespace
+        name: The environment name
+        version: The environment version
+
+    Returns:
+        The environment id
+    """
 
     full_name = name
     if version is not None:
@@ -168,7 +183,18 @@ def _check_name_exists(ns: Optional[str], name: str):
 
 def _check_version_exists(ns: Optional[str], name: str, version: Optional[int]):
     """Check if an env version exists in a namespace. If it doesn't, print a helpful error message.
-    This is a complete test whether an environment identifier is valid, and will provide the best available hints."""
+    This is a complete test whether an environment identifier is valid, and will provide the best available hints.
+
+    Args:
+        ns: The environment namespace
+        name: The environment space
+        version: The environment version
+
+    Raises:
+        DeprecatedEnv: The environment doesn't exist but a default version does
+        VersionNotFound: The ``version`` used doesn't exist
+        DeprecatedEnv: Environment version is deprecated
+    """
     if get_env_id(ns, name, version) in registry:
         return
 
@@ -340,6 +366,7 @@ class EnvRegistry(dict):
     Turns out that some existing code directly used the old `EnvRegistry` code,
     even though the intended API was just `register` and `make`.
     This reimplements some old methods, so that e.g. pybullet environments will still work.
+
     Ideally, nobody should ever use these methods, and they will be removed soon.
     """
 
@@ -454,13 +481,16 @@ def namespace(ns: str):
 
 
 def register(id: str, **kwargs):
-    """
-    Register an environment with gym. The `id` parameter corresponds to the name of the environment,
-    with the syntax as follows:
-    `(namespace)/(env_name)-v(version)`
-    where `namespace` is optional.
+    """Register an environment with gym.
+
+    The `id` parameter corresponds to the name of the environment, with the syntax as follows:
+    `(namespace)/(env_name)-v(version)` where `namespace` is optional.
 
     It takes arbitrary keyword arguments, which are passed to the `EnvSpec` constructor.
+
+    Args:
+        id: The environment id
+        **kwargs: arbitrary keyword arguments which are passed to the environment constructor
     """
     global registry, current_namespace
     ns, name, version = parse_env_id(id)
@@ -494,8 +524,7 @@ def make(
     disable_env_checker: bool = False,
     **kwargs,
 ) -> Env:
-    """
-    Create an environment according to the given ID.
+    """Create an environment according to the given ID.
 
     Warnings:
         In v0.24, `gym.utils.env_checker.env_checker` is run for every initialised environment.
@@ -508,8 +537,12 @@ def make(
         autoreset: Whether to automatically reset the environment after each episode (AutoResetWrapper).
         disable_env_checker: If to disable the environment checker
         kwargs: Additional arguments to pass to the environment constructor.
+
     Returns:
         An instance of the environment.
+
+    Raises:
+        Error: If the ``id`` doesn't exist then an error is raised
     """
     if isinstance(id, EnvSpec):
         spec_ = id
@@ -584,7 +617,8 @@ def make(
             check_env(env)
         except Exception as e:
             logger.warn(
-                f"Env check failed with the following message: {e}\nYou can call `gym.make(..., disable_env_checker=True)` to disable this check."
+                f"Env check failed with the following message: {e}\n"
+                f"You can set `disable_env_checker=True` to disable this check."
             )
 
     return env

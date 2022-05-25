@@ -50,6 +50,9 @@ class ResizeObservation(gym.ObservationWrapper):
 
         Returns:
             The reshaped observations
+
+        Raises:
+            DependencyNotInstalled: opencv-python is not installed
         """
         try:
             import cv2

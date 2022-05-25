@@ -75,6 +75,7 @@ class PixelObservationWrapper(gym.ObservationWrapper):
                 arrays.
             ValueError: If ``env``'s observation already contains any of the
                 specified ``pixel_keys``.
+            TypeError: When an unexpected pixel type is used
         """
         super().__init__(env)
 

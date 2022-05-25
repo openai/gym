@@ -37,12 +37,15 @@ class SyncVectorEnv(VectorEnv):
 
         Args:
             env_fns: iterable of callable functions that create the environments.
-            observation_space: Observation space of a single environment. If ``None``, then the observation space of the first environment is taken.
-            action_space: Action space of a single environment. If ``None``, then the action space of the first environment is taken.
+            observation_space: Observation space of a single environment. If ``None``,
+                then the observation space of the first environment is taken.
+            action_space: Action space of a single environment. If ``None``,
+                then the action space of the first environment is taken.
             copy: If ``True``, then the :meth:`reset` and :meth:`step` methods return a copy of the observations.
 
         Raises:
-            RuntimeError: If the observation space of some sub-environment does not match observation_space (or, by default, the observation space of the first sub-environment).
+            RuntimeError: If the observation space of some sub-environment does not match observation_space
+                (or, by default, the observation space of the first sub-environment).
         """
         self.env_fns = env_fns
         self.envs = [env_fn() for env_fn in env_fns]
@@ -193,6 +196,9 @@ class SyncVectorEnv(VectorEnv):
             values: Values of the property to be set to. If ``values`` is a list or
                 tuple, then it corresponds to the values for each individual
                 environment, otherwise, a single value is set for all environments.
+
+        Raises:
+            ValueError: Values must be a list or tuple with length equal to the number of environments.
         """
         if not isinstance(values, (list, tuple)):
             values = [values for _ in range(self.num_envs)]

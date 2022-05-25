@@ -60,8 +60,8 @@ class PlayableGame:
                 keys_to_action = self.env.unwrapped.get_keys_to_action()
             else:
                 raise MissingKeysToAction(
-                    "%s does not have explicit key to action mapping, "
-                    "please specify one manually" % self.env.spec.id
+                    f"{self.env.spec.id} does not have explicit key to action mapping, "
+                    "please specify one manually"
                 )
         relevant_keys = set(sum((list(k) for k in keys_to_action.keys()), []))
         return relevant_keys
@@ -79,7 +79,8 @@ class PlayableGame:
     def process_event(self, event: Event):
         """Processes a PyGame event.
 
-        In particular, this function is used to keep track of which buttons are currently pressed and to exit the :func:`play` function when the PyGame window is closed.
+        In particular, this function is used to keep track of which buttons are currently pressed
+        and to exit the :func:`play` function when the PyGame window is closed.
 
         Args:
             event: The event to process
@@ -256,15 +257,16 @@ class PlayPlot:
     It should return a list of metrics that are computed from this data.
     For instance, the function may look like this::
 
-        def compute_metrics(obs_t, obs_tp, action, reward, done, info):
-            return [reward, info["cumulative_reward"], np.linalg.norm(action)]
+        >>> def compute_metrics(obs_t, obs_tp, action, reward, done, info):
+        ...     return [reward, info["cumulative_reward"], np.linalg.norm(action)]
 
     :class:`PlayPlot` provides the method :meth:`callback` which will pass its arguments along to that function
     and uses the returned values to update live plots of the metrics.
 
     Typically, this :meth:`callback` will be used in conjunction with :func:`play` to see how the metrics evolve as you play::
 
-        >>> plotter = PlayPlot(compute_metrics, horizon_timesteps=200, plot_names=["Immediate Rew.", "Cumulative Rew.", "Action Magnitude"])
+        >>> plotter = PlayPlot(compute_metrics, horizon_timesteps=200,
+        ...                    plot_names=["Immediate Rew.", "Cumulative Rew.", "Action Magnitude"])
         >>> play(your_env, callback=plotter.callback)
     """
 
@@ -280,6 +282,9 @@ class PlayPlot:
             callback: Function that computes metrics from environment transitions
             horizon_timesteps: The time horizon used for the live plots
             plot_names: List of plot titles
+
+        Raises:
+            DependencyNotInstalled: If matplotlib is not installed
         """
         deprecation(
             "`PlayPlot` is marked as deprecated and will be removed in the near future."

@@ -54,6 +54,10 @@ class AtariPreprocessing(gym.Wrapper):
                 grayscale observations to make them 3-dimensional.
             scale_obs (bool): if True, then observation normalized in range [0,1) is returned. It also limits memory
                 optimization benefits of FrameStack Wrapper.
+
+        Raises:
+            DependencyNotInstalled: opencv-python package not installed
+            ValueError: Disable frame-skipping in the original env
         """
         super().__init__(env)
         if cv2 is None:

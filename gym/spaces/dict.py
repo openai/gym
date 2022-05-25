@@ -141,6 +141,9 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
         """Generates a single random sample from this space.
 
         The sample is an ordered dictionary of independent samples from the constituent spaces.
+
+        Returns:
+            A dictionary with the same key and sampled values from :attr:`self.spaces`
         """
         return OrderedDict([(k, space.sample()) for k, space in self.spaces.items()])
 
@@ -155,11 +158,11 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
                 return False
         return True
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str) -> Space:
         """Get the space that is associated to `key`."""
         return self.spaces[key]
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key: str, value: Space):
         """Set the space that is associated to `key`."""
         self.spaces[key] = value
 
@@ -173,11 +176,7 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
 
     def __repr__(self) -> str:
         """Gives a string representation of this space."""
-        return (
-            "Dict("
-            + ", ".join([str(k) + ":" + str(s) for k, s in self.spaces.items()])
-            + ")"
-        )
+        return "Dict(" + ", ".join([f"{k}: {s}" for k, s in self.spaces.items()]) + ")"
 
     def to_jsonable(self, sample_n: list) -> dict:
         """Convert a batch of samples from this space to a JSONable data type."""
