@@ -142,7 +142,7 @@ class VectorEnv(gym.Env):
     def call_async(self, name, *args, **kwargs):
         """Calls a method name for each parallel environment asynchronously."""
 
-    def call_wait(self, **kwargs) -> list[Any]:
+    def call_wait(self, **kwargs) -> List[Any]:
         """After calling a method in :meth:`call_async`, this function collects the results."""
 
     def call(self, name: str, *args, **kwargs) -> List[Any]:
