@@ -65,7 +65,7 @@ def test_reset_sync_vector_env():
     assert observations.dtype == env.observation_space.dtype
     assert observations.shape == (8,) + env.single_observation_space.shape
     assert observations.shape == env.observation_space.shape
-    assert isinstance(infos, list)
+    assert isinstance(infos, dict)
     assert all([isinstance(info, dict) for info in infos])
 
 

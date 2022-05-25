@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from typing import Any, Optional, Union
 
+import numpy as np
+
 import gym
 from gym.logger import deprecation
 from gym.vector.utils.spaces import batch_space
@@ -200,6 +202,58 @@ class VectorEnv(gym.Env):
             "Function `env.seed(seed)` is marked as deprecated and will be removed in the future. "
             "Please use `env.reset(seed=seed) instead in VectorEnvs."
         )
+
+    def _add_info(self, infos: dict, info: dict, env_num: int) -> dict:
+        """Add env info to the info dictionary of the vectorized environment.
+
+        Given the `info` of a single environment add it to the `infos` dictionary
+        which represents all the infos of the vectorized environment.
+        Every `key` of `info` is paired with a boolean mask `_key` representing
+        whether or not the i-indexed environment has this `info`.
+
+        Args:
+            infos (dict): the infos of the vectorized environment
+            info (dict): the info coming from the single environment
+            env_num (int): the index of the single environment
+
+        Returns:
+            infos (dict): the (updated) infos of the vectorized environment
+
+        """
+        for k in info.keys():
+            if k not in infos:
+                info_array, array_mask = self._init_info_arrays(type(info[k]))
+            else:
+                info_array, array_mask = infos[k], infos[f"_{k}"]
+
+            info_array[env_num], array_mask[env_num] = info[k], True
+            infos[k], infos[f"_{k}"] = info_array, array_mask
+        return infos
+
+    def _init_info_arrays(self, dtype: type) -> np.ndarray:
+        """Initialize the info array.
+
+        Initialize the info array. If the dtype is numeric
+        the info array will have the same dtype, otherwise
+        will be an array of `None`. Also, a boolean array
+        of the same length is returned. It will be used for
+        assessing which environment has info data.
+
+        Args:
+            dtype (type): data type of the info coming from the env.
+
+        Returns:
+            array (np.ndarray): the initialized info array.
+            array_mask (np.ndarray): the initialized boolean array.
+
+        """
+        if dtype in [int, float, bool] or issubclass(dtype, np.number):
+            array = np.zeros(self.num_envs, dtype=dtype)
+        else:
+            array = np.zeros(self.num_envs, dtype=object)
+            array[:] = None
+        array_mask = np.zeros(self.num_envs, dtype=bool)
+        return array, array_mask
 
     def __del__(self):
         """Closes the vector environment."""

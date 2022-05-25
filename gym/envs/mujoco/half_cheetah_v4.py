@@ -13,7 +13,7 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     """
     ### Description
 
-    This environment is based on the work by P. Wawrzy´nski in
+    This environment is based on the work by P. Wawrzyński in
     ["A Cat-Like Robot Real-Time Learning to Run"](http://staff.elka.pw.edu.pl/~pwawrzyn/pub-s/0812_LSCLRR.pdf).
     The HalfCheetah is a 2-dimensional robot consisting of 9 links and 8
     joints connecting them (including two paws). The goal is to apply a torque
@@ -28,14 +28,14 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     The agent take a 6-element vector for actions.
     The action space is a continuous `(action, action, action, action, action, action)` all in `[-1.0, 1.0]`, where `action` represents the numerical torques applied between *links*
 
-    | Num | Action                                 | Control Min | Control Max | Name (in corresponding XML file) | Joint | Unit |
-    |-------|--------------------------------------|---------------|----------------|---------------------------------------|-------|------|
-    | 0   | Torque applied on the back thigh rotor | -1 | 1 | bthigh | hinge | torque (N m) |
-    | 1   | Torque applied on the back shin rotor  | -1 | 1 | bshin | hinge | torque (N m) |
-    | 2   | Torque applied on the back foot rotor  | -1 | 1 | bfoot | hinge | torque (N m) |
-    | 3   | Torque applied on the front thigh rotor| -1 | 1 | fthigh | hinge | torque (N m) |
-    | 4   | Torque applied on the front shin rotor | -1 | 1 | fshin | hinge | torque (N m) |
-    | 5   | Torque applied on the front foot rotor | -1 | 1 | ffoot | hinge | torque (N m) |
+    | Num | Action                                  | Control Min | Control Max | Name (in corresponding XML file) | Joint | Unit         |
+    |-----|-----------------------------------------|-------------|-------------|----------------------------------|-------|--------------|
+    | 0   | Torque applied on the back thigh rotor  | -1          | 1           | bthigh                           | hinge | torque (N m) |
+    | 1   | Torque applied on the back shin rotor   | -1          | 1           | bshin                            | hinge | torque (N m) |
+    | 2   | Torque applied on the back foot rotor   | -1          | 1           | bfoot                            | hinge | torque (N m) |
+    | 3   | Torque applied on the front thigh rotor | -1          | 1           | fthigh                           | hinge | torque (N m) |
+    | 4   | Torque applied on the front shin rotor  | -1          | 1           | fshin                            | hinge | torque (N m) |
+    | 5   | Torque applied on the front foot rotor  | -1          | 1           | ffoot                            | hinge | torque (N m) |
 
     ### Observation Space
 
@@ -44,26 +44,26 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     The observation is a `ndarray` with shape `(17,)` where the elements correspond to the following:
 
-    | Num | Observation           | Min                  | Max                | Name (in corresponding XML file) | Joint| Unit |
-    |-----|-----------------------|----------------------|--------------------|----------------------|--------------------|--------------------|
-    | 0     | x-coordinate of the center of mass         | -Inf                 | Inf                | rootx | slide | position (m) |
-    | 1     | y-coordinate of the center of mass         | -Inf                 | Inf                | rootz | slide | position (m) |
-    | 2     | angle of the front tip                     | -Inf                 | Inf                | rooty | hinge | angle (rad) |
-    | 3     | angle of the back thigh rotor              | -Inf                 | Inf                | bthigh | hinge | angle (rad) |
-    | 4     | angle of the back shin rotor               | -Inf                 | Inf                | bshin | hinge | angle (rad) |
-    | 5     | angle of the back foot rotor               | -Inf                 | Inf                | bfoot | hinge | angle (rad) |
-    | 6     | velocity of the tip along the y-axis       | -Inf                 | Inf                | fthigh | hinge | angle (rad) |
-    | 7     | angular velocity of front tip              | -Inf                 | Inf                | fshin | hinge | angle (rad) |
-    | 8     | angular velocity of second rotor           | -Inf                 | Inf                | ffoot | hinge | angle (rad) |
-    | 9     | x-coordinate of the front tip              | -Inf                 | Inf                | rootx | slide | velocity (m/s) |
-    | 10   | y-coordinate of the front tip               | -Inf                 | Inf                | rootz | slide | velocity (m/s) |
-    | 11   | angle of the front tip                      | -Inf                 | Inf                | rooty | hinge | angular velocity (rad/s) |
-    | 12   | angle of the second rotor                   | -Inf                 | Inf                | bthigh | hinge | angular velocity (rad/s) |
-    | 13   | angle of the second rotor                   | -Inf                 | Inf                | bshin | hinge | angular velocity (rad/s) |
-    | 14   | velocity of the tip along the x-axis        | -Inf                 | Inf                | bfoot | hinge | angular velocity (rad/s) |
-    | 15   | velocity of the tip along the y-axis        | -Inf                 | Inf                | fthigh | hinge |angular velocity (rad/s) |
-    | 16   | angular velocity of front tip               | -Inf                 | Inf                | fshin | hinge | angular velocity (rad/s) |
-    | 17   | angular velocity of second rotor            | -Inf                 | Inf                | ffoot | hinge | angular velocity (rad/s) |
+    | Num | Observation                          | Min  | Max | Name (in corresponding XML file) | Joint | Unit                     |
+    |-----|--------------------------------------|------|-----|----------------------------------|---- --|--------------------------|
+    | 0   | x-coordinate of the center of mass   | -Inf | Inf | rootx                            | slide | position (m)             |
+    | 1   | y-coordinate of the center of mass   | -Inf | Inf | rootz                            | slide | position (m)             |
+    | 2   | angle of the front tip               | -Inf | Inf | rooty                            | hinge | angle (rad)              |
+    | 3   | angle of the back thigh rotor        | -Inf | Inf | bthigh                           | hinge | angle (rad)              |
+    | 4   | angle of the back shin rotor         | -Inf | Inf | bshin                            | hinge | angle (rad)              |
+    | 5   | angle of the back foot rotor         | -Inf | Inf | bfoot                            | hinge | angle (rad)              |
+    | 6   | velocity of the tip along the y-axis | -Inf | Inf | fthigh                           | hinge | angle (rad)              |
+    | 7   | angular velocity of front tip        | -Inf | Inf | fshin                            | hinge | angle (rad)              |
+    | 8   | angular velocity of second rotor     | -Inf | Inf | ffoot                            | hinge | angle (rad)              |
+    | 9   | x-coordinate of the front tip        | -Inf | Inf | rootx                            | slide | velocity (m/s)           |
+    | 10  | y-coordinate of the front tip        | -Inf | Inf | rootz                            | slide | velocity (m/s)           |
+    | 11  | angle of the front tip               | -Inf | Inf | rooty                            | hinge | angular velocity (rad/s) |
+    | 12  | angle of the second rotor            | -Inf | Inf | bthigh                           | hinge | angular velocity (rad/s) |
+    | 13  | angle of the second rotor            | -Inf | Inf | bshin                            | hinge | angular velocity (rad/s) |
+    | 14  | velocity of the tip along the x-axis | -Inf | Inf | bfoot                            | hinge | angular velocity (rad/s) |
+    | 15  | velocity of the tip along the y-axis | -Inf | Inf | fthigh                           | hinge |angular velocity (rad/s)  |
+    | 16  | angular velocity of front tip        | -Inf | Inf | fshin                            | hinge | angular velocity (rad/s) |
+    | 17  | angular velocity of second rotor     | -Inf | Inf | ffoot                            | hinge | angular velocity (rad/s) |
 
 
     **Note:**
@@ -73,31 +73,31 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     to develop an abstract understanding of it from the observed rewards.
     Therefore, observation space has shape `(8,)` and looks like:
 
-    | Num | Observation           | Min                  | Max                | Name (in corresponding XML file) | Joint| Unit |
-    |-----|-----------------------|----------------------|--------------------|----------------------|--------------------|--------------------|
-    | 0     | y-coordinate of the front tip              | -Inf                 | Inf                | rootz | slide | position (m) |
-    | 1     | angle of the front tip                     | -Inf                 | Inf                | rooty | hinge | angle (rad) |
-    | 2     | angle of the second rotor                  | -Inf                 | Inf                | bthigh | hinge | angle (rad) |
-    | 3     | angle of the second rotor                  | -Inf                 | Inf                | bshin | hinge | angle (rad) |
-    | 4     | velocity of the tip along the x-axis       | -Inf                 | Inf                | bfoot | hinge | angle (rad) |
-    | 5     | velocity of the tip along the y-axis       | -Inf                 | Inf                | fthigh | hinge | angle (rad) |
-    | 6     | angular velocity of front tip              | -Inf                 | Inf                | fshin | hinge | angle (rad) |
-    | 7     | angular velocity of second rotor           | -Inf                 | Inf                | ffoot | hinge | angle (rad) |
-    | 8     | x-coordinate of the front tip              | -Inf                 | Inf                | rootx | slide | velocity (m/s) |
-    | 9     | y-coordinate of the front tip              | -Inf                 | Inf                | rootz | slide | velocity (m/s) |
-    | 10   | angle of the front tip                      | -Inf                 | Inf                | rooty | hinge | angular velocity (rad/s) |
-    | 11   | angle of the second rotor                   | -Inf                 | Inf                | bthigh | hinge | angular velocity (rad/s) |
-    | 12   | angle of the second rotor                   | -Inf                 | Inf                | bshin | hinge | angular velocity (rad/s) |
-    | 13   | velocity of the tip along the x-axis        | -Inf                 | Inf                | bfoot | hinge | angular velocity (rad/s) |
-    | 14   | velocity of the tip along the y-axis        | -Inf                 | Inf                | fthigh | hinge |angular velocity (rad/s) |
-    | 15   | angular velocity of front tip               | -Inf                 | Inf                | fshin | hinge | angular velocity (rad/s) |
-    | 16   | angular velocity of second rotor            | -Inf                 | Inf                | ffoot | hinge | angular velocity (rad/s) |
+    | Num | Observation                          | Min  | Max | Name (in corresponding XML file) | Joint | Unit                     |
+    |-----|--------------------------------------|------|-----|----------------------------------|-------|--------------------------|
+    | 0   | y-coordinate of the front tip        | -Inf | Inf | rootz                            | slide | position (m)             |
+    | 1   | angle of the front tip               | -Inf | Inf | rooty                            | hinge | angle (rad)              |
+    | 2   | angle of the second rotor            | -Inf | Inf | bthigh                           | hinge | angle (rad)              |
+    | 3   | angle of the second rotor            | -Inf | Inf | bshin                            | hinge | angle (rad)              |
+    | 4   | velocity of the tip along the x-axis | -Inf | Inf | bfoot                            | hinge | angle (rad)              |
+    | 5   | velocity of the tip along the y-axis | -Inf | Inf | fthigh                           | hinge | angle (rad)              |
+    | 6   | angular velocity of front tip        | -Inf | Inf | fshin                            | hinge | angle (rad)              |
+    | 7   | angular velocity of second rotor     | -Inf | Inf | ffoot                            | hinge | angle (rad)              |
+    | 8   | x-coordinate of the front tip        | -Inf | Inf | rootx                            | slide | velocity (m/s)           |
+    | 9   | y-coordinate of the front tip        | -Inf | Inf | rootz                            | slide | velocity (m/s)           |
+    | 10  | angle of the front tip               | -Inf | Inf | rooty                            | hinge | angular velocity (rad/s) |
+    | 11  | angle of the second rotor            | -Inf | Inf | bthigh                           | hinge | angular velocity (rad/s) |
+    | 12  | angle of the second rotor            | -Inf | Inf | bshin                            | hinge | angular velocity (rad/s) |
+    | 13  | velocity of the tip along the x-axis | -Inf | Inf | bfoot                            | hinge | angular velocity (rad/s) |
+    | 14  | velocity of the tip along the y-axis | -Inf | Inf | fthigh                           | hinge |angular velocity (rad/s)  |
+    | 15  | angular velocity of front tip        | -Inf | Inf | fshin                            | hinge | angular velocity (rad/s) |
+    | 16  | angular velocity of second rotor     | -Inf | Inf | ffoot                            | hinge | angular velocity (rad/s) |
 
     ### Rewards
     The reward consists of two parts:
     - *reward_run*: A reward of moving forward which is measured
     as *(x-coordinate before action - x-coordinate after action)/dt*. *dt* is
-    the time between actions and is dependeent on the frame_skip parameter
+    the time between actions and is dependent on the frame_skip parameter
     (default is 5), where the *dt* for one frame is 0.01 - making the
     default *dt = 5*0.01 = 0.05*. This reward would be positive if the cheetah
     runs forward (right) desired.
@@ -131,16 +131,15 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     env = gym.make('HalfCheetah-v2')
     ```
 
-    v3 and beyond take gym.make kwargs such as xml_file, ctrl_cost_weight, reset_noise_scale etc.
+    v3 and v4 take gym.make kwargs such as xml_file, ctrl_cost_weight, reset_noise_scale etc.
 
     ```
-    env = gym.make('HalfCheetah-v3', ctrl_cost_weight=0.1, ....)
+    env = gym.make('HalfCheetah-v4', ctrl_cost_weight=0.1, ....)
     ```
-
 
     ### Version History
 
-    * v4: all mujoco environments now use the mujoco binidings in mujoco>=2.1.3
+    * v4: all mujoco environments now use the mujoco bindings in mujoco>=2.1.3
     * v3: support for gym.make kwargs such as xml_file, ctrl_cost_weight, reset_noise_scale etc. rgb rendering comes from tracking camera (so agent does not run away from screen)
     * v2: All continuous control environments now use mujoco_py >= 1.50
     * v1: max_time_steps raised to 1000 for robot based tasks. Added reward_threshold to environments.

@@ -340,10 +340,12 @@ def make(id: EnvSpec, **kwargs) -> Env: ...
 
 class EnvRegistry(dict):
     """A glorified dictionary for compatibility reasons.
+
     Turns out that some existing code directly used the old `EnvRegistry` code,
-    even though the intended API was just `register` and `make`. This reimplements some
-    of the old methods, so that e.g. pybullet environments will still work.
-    Ideally, nobody should ever use these methods, and they will be removed soon."""
+    even though the intended API was just `register` and `make`.
+    This reimplements some old methods, so that e.g. pybullet environments will still work.
+    Ideally, nobody should ever use these methods, and they will be removed soon.
+    """
 
     # TODO: remove this at 1.0
 
@@ -586,7 +588,7 @@ def make(
             check_env(env)
         except Exception as e:
             logger.warn(
-                f"Env check failed with the following message: {e}\nYou can set `disable_env_checker=True` to disable this check."
+                f"Env check failed with the following message: {e}\nYou can call `gym.make(..., disable_env_checker=True)` to disable this check."
             )
 
     return env
