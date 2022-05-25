@@ -1,10 +1,16 @@
 """Core API for Environment, Wrapper, ActionWrapper, RewardWrapper and ObservationWrapper."""
+import sys
 from typing import Generic, Optional, SupportsFloat, Tuple, TypeVar, Union
 
 from gym import spaces
-from gym.logger import deprecation
+from gym.logger import deprecation, warn
 from gym.utils import seeding
 from gym.utils.seeding import RandomNumberGenerator
+
+if sys.version_info == (3, 6):
+    warn(
+        "Gym minimally supports python 3.6 as the python foundation not longer supports the version, please update your version to 3.7+"
+    )
 
 ObsType = TypeVar("ObsType")
 ActType = TypeVar("ActType")
