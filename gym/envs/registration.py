@@ -15,6 +15,7 @@ from typing import (
     Optional,
     Sequence,
     SupportsFloat,
+    Tuple,
     Union,
     overload,
 )
@@ -35,7 +36,6 @@ if sys.version_info >= (3, 8):
 else:
     from typing_extensions import Literal
 
-
 from gym import Env, error, logger
 
 ENV_ID_RE = re.compile(
@@ -50,7 +50,7 @@ def load(name: str) -> type:
     return fn
 
 
-def parse_env_id(id: str) -> tuple[Optional[str], str, Optional[int]]:
+def parse_env_id(id: str) -> Tuple[Optional[str], str, Optional[int]]:
     """Parse environment ID string format.
 
     This format is true today, but it's *not* an official spec.
