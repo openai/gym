@@ -5,7 +5,7 @@ from gym.envs.box2d import BipedalWalker
 
 
 @pytest.mark.parametrize("seed", range(10))
-def test_bipedal_walker_hardcore_creation(seed):
+def test_bipedal_walker_hardcore_creation(seed: int):
     """Test BipedalWalker hardcore creation.
 
     BipedalWalker with `hardcore=True` should have ladders
