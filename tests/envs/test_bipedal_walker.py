@@ -1,4 +1,4 @@
-"""Test bidepwalker environment."""
+"""Test BipedalWalker environment."""
 import pytest
 
 from gym.envs.box2d import BipedalWalker
