@@ -198,7 +198,7 @@ class Box(Space[np.ndarray]):
             x = np.asarray(x, dtype=self.dtype)
 
         return bool(
-            np.can_cast(x.dtype, self.dtype)
+            np.can_cast(x.dtype, self.dtype, casting='same_kind')
             and x.shape == self.shape
             and np.all(x >= self.low)
             and np.all(x <= self.high)
