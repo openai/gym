@@ -342,3 +342,102 @@ register(
     entry_point="gym.envs.mujoco.humanoidstandup_v4:HumanoidStandupEnv",
     max_episode_steps=1000,
 )
+
+# Phys3d (brax environments)
+# ----------------------------------------
+
+register(
+    id="phys3d/Acrobot-v0",
+    entry_point="gym.envs.phys3d.acrobot:Acrobot",
+    max_episode_steps=1000,
+)
+
+register(
+    id="phys3d/Ant-v0",
+    entry_point="gym.envs.phys3d.ant:Ant",
+    max_episode_steps=1000,
+)
+
+register(
+    id="phys3d/Fast-v0",
+    entry_point="gym.envs.phys3d.fast:Fast",
+    max_episode_steps=1000,
+)
+
+register(
+    id="phys3d/Fetch-v0",
+    entry_point="gym.envs.phys3d.fetch:Fetch",
+    max_episode_steps=1000,
+)
+
+register(
+    id="phys3d/Grasp-v0",
+    entry_point="gym.envs.phys3d.grasp:Grasp",
+    max_episode_steps=1000,
+)
+
+register(
+    id="phys3d/Halfcheetah-v0",
+    entry_point="gym.envs.phys3d.halfcheetah:Halfcheetah",
+    max_episode_steps=1000,
+)
+
+register(
+    id="phys3d/Hopper-v0",
+    entry_point="gym.envs.phys3d.hopper:Hopper",
+    max_episode_steps=1000,
+)
+
+register(
+    id="phys3d/Humanoid-v0",
+    entry_point="gym.envs.phys3d.humanoid:Humanoid",
+    max_episode_steps=1000,
+)
+
+register(
+    id="phys3d/HumanoidStandup-v0",
+    entry_point="gym.envs.phys3d.humanoid_standup:HumanoidStandup",
+    max_episode_steps=1000,
+)
+
+register(
+    id="phys3d/InvertedDoublePendulum-v0",
+    entry_point="gym.envs.phys3d.inverted_double_pendulum:InvertedDoublePendulum",
+    max_episode_steps=1000,
+)
+
+register(
+    id="phys3d/InvertedPendulum-v0",
+    entry_point="gym.envs.phys3d.inverted_pendulum:InvertedPendulum",
+    max_episode_steps=1000,
+)
+
+register(
+    id="phys3d/Reacher-v0",
+    entry_point="gym.envs.phys3d.reacher:Reacher",
+    max_episode_steps=1000,
+)
+
+register(
+    id="phys3d/ReacherAngle-v0",
+    entry_point="gym.envs.phys3d.reacherangle:ReacherAngle",
+    max_episode_steps=1000,
+)
+
+register(
+    id="phys3d/Swimmer-v0",
+    entry_point="gym.envs.phys3d.swimmer:Swimmer",
+    max_episode_steps=1000,
+)
+
+register(
+    id="phys3d/Ur5e-v0",
+    entry_point="gym.envs.phys3d.ur5e:Ur5e",
+    max_episode_steps=1000,
+)
+
+register(
+    id="phys3d/Walker2d-v0",
+    entry_point="gym.envs.phys3d.walker2d:Walker2d",
+    max_episode_steps=1000,
+)

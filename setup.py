@@ -18,6 +18,7 @@ extras = {
     "mujoco_py": ["mujoco_py<2.2,>=2.1"],
     "mujoco": ["mujoco==2.2.0", "imageio>=2.14.1"],
     "toy_text": ["pygame==2.1.0", "scipy>=1.4.1"],
+    "phys3d": ["brax==0.0.13", "brax-jumpy==0.0.1"],
     "other": ["lz4>=3.1.0", "opencv-python>=3.0", "matplotlib>=3.0"],
 }
 
