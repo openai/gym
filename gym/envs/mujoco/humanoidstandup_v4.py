@@ -96,7 +96,7 @@ class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     | 43  | angular velocity of the angle between right upper arm and right_lower_arm                                       | -Inf | Inf | right_elbow                      | hinge | angular velocity (rad/s) |
     | 44  | coordinate-1 (multi-axis) of the angular velocity of the angle between torso and left arm (in left_upper_arm)   | -Inf | Inf | left_shoulder1                   | hinge | angular velocity (rad/s) |
     | 45  | coordinate-2 (multi-axis) of the angular velocity of the angle between torso and left arm (in left_upper_arm)   | -Inf | Inf | left_shoulder2                   | hinge | angular velocity (rad/s) |
-    | 46  | angular velocity of the angle between left upper arm and left_lower_arm                                         | -Inf | Inf | left_elbow                        | hinge | angular velocity (rad/s) |
+    | 46  | angular velocity of the angle between left upper arm and left_lower_arm                                         | -Inf | Inf | left_elbow                       | hinge | angular velocity (rad/s) |
 
 
     Additionally, after all the positional and velocity based values in the table,
