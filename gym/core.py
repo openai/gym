@@ -332,7 +332,11 @@ class Wrapper(Env[ObsType, ActType]):
         Tuple[ObsType, float, bool, bool, dict], Tuple[ObsType, float, bool, dict]
     ]:
         """Steps through the environment with action."""
-        return self.env.step(action)  # ! Does this take self.new_step_api into account?
+        from gym.utils.step_api_compatibility import (  # avoid circular import
+            step_api_compatibility,
+        )
+
+        return step_api_compatibility(self.env.step(action), self.new_step_api)
 
     def reset(self, **kwargs) -> Union[ObsType, Tuple[ObsType, dict]]:
         """Resets the environment with kwargs."""
