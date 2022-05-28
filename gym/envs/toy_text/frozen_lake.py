@@ -1,7 +1,7 @@
 from contextlib import closing
 from io import StringIO
 from os import path
-from typing import Optional
+from typing import List, Optional
 
 import numpy as np
 
@@ -29,10 +29,15 @@ MAPS = {
 }
 
 
-def generate_random_map(size=8, p=0.8):
+def generate_random_map(size: int = 8, p: float = 0.8) -> List[str]:
     """Generates a random valid map (one that has a path from start to goal)
-    :param size: size of each side of the grid
-    :param p: probability that a tile is frozen
+
+    Args:
+        size: size of each side of the grid
+        p: probability that a tile is frozen
+
+    Returns:
+        A random valid map
     """
     valid = False
 
@@ -67,8 +72,9 @@ def generate_random_map(size=8, p=0.8):
 
 class FrozenLakeEnv(Env):
     """
-    Frozen lake involves crossing a frozen lake from Start(S) to Goal(G) without falling into any Holes(H) by walking over
-    the Frozen(F) lake. The agent may not always move in the intended direction due to the slippery nature of the frozen lake.
+    Frozen lake involves crossing a frozen lake from Start(S) to Goal(G) without falling into any Holes(H)
+    by walking over the Frozen(F) lake.
+    The agent may not always move in the intended direction due to the slippery nature of the frozen lake.
 
 
     ### Action Space

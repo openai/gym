@@ -1,3 +1,5 @@
+"""Module of wrapper classes."""
+from gym import error
 from gym.wrappers.atari_preprocessing import AtariPreprocessing
 from gym.wrappers.autoreset import AutoResetWrapper
 from gym.wrappers.clip_action import ClipAction
@@ -16,3 +18,4 @@ from gym.wrappers.time_aware_observation import TimeAwareObservation
 from gym.wrappers.time_limit import TimeLimit
 from gym.wrappers.transform_observation import TransformObservation
 from gym.wrappers.transform_reward import TransformReward
+from gym.wrappers.vector_list_info import VectorListInfo

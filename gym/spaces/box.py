@@ -1,6 +1,5 @@
-from __future__ import annotations
-
-from typing import Optional, Sequence, SupportsFloat, Tuple, Type, Union
+"""Implementation of a space that represents closed boxes in euclidean space."""
+from typing import List, Optional, Sequence, SupportsFloat, Tuple, Type, Union
 
 import numpy as np
 
@@ -14,6 +13,12 @@ def _short_repr(arr: np.ndarray) -> str:
 
     If arr is a multiple of the all-ones vector, return a string representation of the multiplier.
     Otherwise, return a string representation of the entire array.
+
+    Args:
+        arr: The array to represent
+
+    Returns:
+        A short representation of the array
     """
     if arr.size != 0 and np.min(arr) == np.max(arr):
         return str(np.min(arr))
@@ -21,10 +26,11 @@ def _short_repr(arr: np.ndarray) -> str:
 
 
 class Box(Space[np.ndarray]):
-    """
-    A (possibly unbounded) box in R^n. Specifically, a Box represents the
-    Cartesian product of n closed intervals. Each interval has the form of one
-    of [a, b], (-oo, b], [a, oo), or (-oo, oo).
+    r"""A (possibly unbounded) box in :math:`\mathbb{R}^n`.
+
+    Specifically, a Box represents the Cartesian product of n closed intervals.
+    Each interval has the form of one of :math:`[a, b]`, :math:`(-\infty, b]`,
+    :math:`[a, \infty)`, or :math:`(-\infty, \infty)`.
 
     There are two common use cases:
 
@@ -37,7 +43,6 @@ class Box(Space[np.ndarray]):
 
         >>> Box(low=np.array([-1.0, -2.0]), high=np.array([2.0, 4.0]), dtype=np.float32)
         Box(2,)
-
     """
 
     def __init__(
@@ -46,8 +51,28 @@ class Box(Space[np.ndarray]):
         high: Union[SupportsFloat, np.ndarray],
         shape: Optional[Sequence[int]] = None,
         dtype: Type = np.float32,
-        seed: Optional[int | seeding.RandomNumberGenerator] = None,
+        seed: Optional[Union[int, seeding.RandomNumberGenerator]] = None,
     ):
+        r"""Constructor of :class:`Box`.
+
+        The argument ``low`` specifies the lower bound of each dimension and ``high`` specifies the upper bounds.
+        I.e., the space that is constructed will be the product of the intervals :math:`[\text{low}[i], \text{high}[i]]`.
+
+        If ``low`` (or ``high``) is a scalar, the lower bound (or upper bound, respectively) will be assumed to be
+        this value across all dimensions.
+
+        Args:
+            low (Union[SupportsFloat, np.ndarray]): Lower bounds of the intervals.
+            high (Union[SupportsFloat, np.ndarray]): Upper bounds of the intervals.
+            shape (Optional[Sequence[int]]): This only needs to be specified if both ``low`` and ``high`` are scalars and determines the shape of the space.
+                Otherwise, the shape is inferred from the shape of ``low`` or ``high``.
+            dtype: The dtype of the elements of the space. If this is an integer type, the :class:`Box` is essentially a discrete space.
+            seed: Optionally, you can use this argument to seed the RNG that is used to sample from the space.
+
+        Raises:
+            ValueError: If no shape information is provided (shape is None, low is None and high is None) then a
+                value error is raised.
+        """
         assert dtype is not None, "dtype must be explicitly provided. "
         self.dtype = np.dtype(dtype)
 
@@ -99,6 +124,17 @@ class Box(Space[np.ndarray]):
         return self._shape
 
     def is_bounded(self, manner: str = "both") -> bool:
+        """Checks whether the box is bounded in some sense.
+
+        Args:
+            manner (str): One of ``"both"``, ``"below"``, ``"above"``.
+
+        Returns:
+            If the space is bounded
+
+        Raises:
+            ValueError: If `manner` is neither ``"both"`` nor ``"below"`` or ``"above"``
+        """
         below = bool(np.all(self.bounded_below))
         above = bool(np.all(self.bounded_above))
         if manner == "both":
@@ -111,16 +147,18 @@ class Box(Space[np.ndarray]):
             raise ValueError("manner is not in {'below', 'above', 'both'}")
 
     def sample(self) -> np.ndarray:
-        """
-        Generates a single random sample inside of the Box.
+        r"""Generates a single random sample inside the Box.
 
-        In creating a sample of the box, each coordinate is sampled according to
-        the form of the interval:
+        In creating a sample of the box, each coordinate is sampled (independently) from a distribution
+        that is chosen according to the form of the interval:
 
-        * [a, b] : uniform distribution
-        * [a, oo) : shifted exponential distribution
-        * (-oo, b] : shifted negative exponential distribution
-        * (-oo, oo) : normal distribution
+        * :math:`[a, b]` : uniform distribution
+        * :math:`[a, \infty)` : shifted exponential distribution
+        * :math:`(-\infty, b]` : shifted negative exponential distribution
+        * :math:`(-\infty, \infty)` : normal distribution
+
+        Returns:
+            A sampled value from the Box
         """
         high = self.high if self.dtype.kind == "f" else self.high.astype("int64") + 1
         sample = np.empty(self.shape)
@@ -154,6 +192,7 @@ class Box(Space[np.ndarray]):
         return sample.astype(self.dtype)
 
     def contains(self, x) -> bool:
+        """Return boolean specifying if x is a valid member of this space."""
         if not isinstance(x, np.ndarray):
             logger.warn("Casting input x to numpy array.")
             x = np.asarray(x, dtype=self.dtype)
@@ -166,15 +205,26 @@ class Box(Space[np.ndarray]):
         )
 
     def to_jsonable(self, sample_n):
+        """Convert a batch of samples from this space to a JSONable data type."""
         return np.array(sample_n).tolist()
 
-    def from_jsonable(self, sample_n: Sequence[SupportsFloat]) -> list[np.ndarray]:
+    def from_jsonable(self, sample_n: Sequence[SupportsFloat]) -> List[np.ndarray]:
+        """Convert a JSONable data type to a batch of samples from this space."""
         return [np.asarray(sample) for sample in sample_n]
 
     def __repr__(self) -> str:
+        """A string representation of this space.
+
+        The representation will include bounds, shape and dtype.
+        If a bound is uniform, only the corresponding scalar will be given to avoid redundant and ugly strings.
+
+        Returns:
+            A representation of the space
+        """
         return f"Box({self.low_repr}, {self.high_repr}, {self.shape}, {self.dtype})"
 
     def __eq__(self, other) -> bool:
+        """Check whether `other` is equivalent to this instance."""
         return (
             isinstance(other, Box)
             and (self.shape == other.shape)
@@ -185,8 +235,17 @@ class Box(Space[np.ndarray]):
 
 def get_inf(dtype, sign: str) -> SupportsFloat:
     """Returns an infinite that doesn't break things.
-    `dtype` must be an `np.dtype`
-    `bound` must be either `min` or `max`
+
+    Args:
+        dtype: An `np.dtype`
+        sign (str): must be either `"+"` or `"-"`
+
+    Returns:
+        Gets an infinite value with the sign and dtype
+
+    Raises:
+        TypeError: Unknown sign, use either '+' or '-'
+        ValueError: Unknown dtype for infinite bounds
     """
     if np.dtype(dtype).kind == "f":
         if sign == "+":
@@ -207,6 +266,7 @@ def get_inf(dtype, sign: str) -> SupportsFloat:
 
 
 def get_precision(dtype) -> SupportsFloat:
+    """Get precision of a data type."""
     if np.issubdtype(dtype, np.floating):
         return np.finfo(dtype).precision
     else:
@@ -216,10 +276,10 @@ def get_precision(dtype) -> SupportsFloat:
 def _broadcast(
     value: Union[SupportsFloat, np.ndarray],
     dtype,
-    shape: tuple[int, ...],
+    shape: Tuple[int, ...],
     inf_sign: str,
 ) -> np.ndarray:
-    """handle infinite bounds and broadcast at the same time if needed"""
+    """Handle infinite bounds and broadcast at the same time if needed."""
     if np.isscalar(value):
         value = get_inf(dtype, inf_sign) if np.isinf(value) else value  # type: ignore
         value = np.full(shape, value, dtype=dtype)

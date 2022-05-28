@@ -20,7 +20,7 @@
         <body name="leg" pos="0 0 0.35">
           <joint axis="0 -1 0" name="leg_joint" pos="0 0 0.6" range="-150 0" type="hinge"/>
           <geom friction="0.9" fromto="0 0 0.6 0 0 0.1" name="leg_geom" size="0.04" type="capsule"/>
-          <body name="foot" pos="0.2/2 0 0.1">
+          <body name="foot" pos="0.2 0 0">
             <joint axis="0 -1 0" name="foot_joint" pos="0 0 0.1" range="-45 45" type="hinge"/>
             <geom friction="0.9" fromto="-0.0 0 0.1 0.2 0 0.1" name="foot_geom" size="0.06" type="capsule"/>
           </body>
@@ -33,7 +33,7 @@
         <body name="leg_left" pos="0 0 0.35">
           <joint axis="0 -1 0" name="leg_left_joint" pos="0 0 0.6" range="-150 0" type="hinge"/>
           <geom friction="0.9" fromto="0 0 0.6 0 0 0.1" name="leg_left_geom" rgba=".7 .3 .6 1" size="0.04" type="capsule"/>
-          <body name="foot_left" pos="0.2/2 0 0.1">
+          <body name="foot_left" pos="0.2 0 0">
             <joint axis="0 -1 0" name="foot_left_joint" pos="0 0 0.1" range="-45 45" type="hinge"/>
             <geom friction="1.9" fromto="-0.0 0 0.1 0.2 0 0.1" name="foot_left_geom" rgba=".7 .3 .6 1" size="0.06" type="capsule"/>
           </body>

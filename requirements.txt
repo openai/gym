@@ -1,7 +1,6 @@
-ale-py~=0.7
+ale-py~=0.7.5
 opencv-python>=3.0
 box2d-py==2.3.5
-mujoco_py>=1.50, <2.0
 scipy>=1.4.1
 numpy>=1.18.0
 pyglet>=1.4.0

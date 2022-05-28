@@ -1,5 +1,8 @@
-from __future__ import annotations
+"""Implementation of utility functions that can be applied to spaces.
 
+These functions mostly take care of flattening and unflattening elements of spaces
+ to facilitate their usage in learning code.
+"""
 import operator as op
 from collections import OrderedDict
 from functools import reduce, singledispatch
@@ -12,17 +15,23 @@ from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Space, T
 
 @singledispatch
 def flatdim(space: Space) -> int:
-    """Return the number of dimensions a flattened equivalent of this space
-    would have.
-
-    Accepts a space and returns an integer. Raises ``NotImplementedError`` if
-    the space is not defined in ``gym.spaces``.
+    """Return the number of dimensions a flattened equivalent of this space would have.
 
     Example usage::
 
-        >>> s = spaces.Dict({"position": spaces.Discrete(2), "velocity": spaces.Discrete(3)})
-        >>> spaces.flatdim(s)
+        >>> from gym.spaces import Discrete
+        >>> space = Dict({"position": Discrete(2), "velocity": Discrete(3)})
+        >>> flatdim(space)
         5
+
+    Args:
+        space: The space to return the number of dimensions of the flattened spaces
+
+    Returns:
+        The number of dimensions for the flattened spaces
+
+    Raises:
+         NotImplementedError: if the space is not defined in ``gym.spaces``.
     """
     raise NotImplementedError(f"Unknown space: `{space}`")
 
@@ -63,9 +72,15 @@ def flatten(space: Space[T], x: T) -> np.ndarray:
     This is useful when e.g. points from spaces must be passed to a neural
     network, which only understands flat arrays of floats.
 
-    Accepts a space and a point from that space. Always returns a 1D array.
-    Raises ``NotImplementedError`` if the space is not defined in
-    ``gym.spaces``.
+    Args:
+        space: The space that ``x`` is flattened by
+        x: The value to flatten
+
+    Returns:
+        The flattened ``x``, always returns a 1D array.
+
+    Raises:
+        NotImplementedError: If the space is not defined in ``gym.spaces``.
     """
     raise NotImplementedError(f"Unknown space: `{space}`")
 
@@ -110,16 +125,24 @@ def unflatten(space: Space[T], x: np.ndarray) -> T:
     This reverses the transformation applied by :func:`flatten`. You must ensure
     that the ``space`` argument is the same as for the :func:`flatten` call.
 
-    Accepts a space and a flattened point. Returns a point with a structure
-    that matches the space. Raises ``NotImplementedError`` if the space is not
-    defined in ``gym.spaces``.
+    Args:
+        space: The space used to unflatten ``x``
+        x: The array to unflatten
+
+    Returns:
+        A point with a structure that matches the space.
+
+    Raises:
+        NotImplementedError: if the space is not defined in ``gym.spaces``.
     """
     raise NotImplementedError(f"Unknown space: `{space}`")
 
 
 @unflatten.register(Box)
 @unflatten.register(MultiBinary)
-def _unflatten_box_multibinary(space: Box | MultiBinary, x: np.ndarray) -> np.ndarray:
+def _unflatten_box_multibinary(
+    space: Union[Box, MultiBinary], x: np.ndarray
+) -> np.ndarray:
     return np.asarray(x, dtype=space.dtype).reshape(space.shape)
 
 
@@ -167,9 +190,6 @@ def flatten_space(space: Space) -> Box:
     :func:`flatdim` dimensions. Flattening a sample of the original space
     has the same effect as taking a sample of the flattenend space.
 
-    Raises ``NotImplementedError`` if the space is not defined in
-    ``gym.spaces``.
-
     Example::
 
         >>> box = Box(0.0, 1.0, shape=(3, 4, 5))
@@ -190,12 +210,20 @@ def flatten_space(space: Space) -> Box:
 
     Example that recursively flattens a dict::
 
-        >>> space = Dict({"position": Discrete(2),
-        ...               "velocity": Box(0, 1, shape=(2, 2))})
+        >>> space = Dict({"position": Discrete(2), "velocity": Box(0, 1, shape=(2, 2))})
         >>> flatten_space(space)
         Box(6,)
         >>> flatten(space, space.sample()) in flatten_space(space)
         True
+
+    Args:
+        space: The space to flatten
+
+    Returns:
+        A flattened Box
+
+    Raises:
+        NotImplementedError: if the space is not defined in ``gym.spaces``.
     """
     raise NotImplementedError(f"Unknown space: `{space}`")
 

@@ -1,3 +1,4 @@
+"""Wrapper for recording videos."""
 import os
 from typing import Callable
 
@@ -7,7 +8,17 @@ from gym.utils.step_api_compatibility import step_api_compatibility
 from gym.wrappers.monitoring import video_recorder
 
 
-def capped_cubic_video_schedule(episode_id):
+def capped_cubic_video_schedule(episode_id: int) -> bool:
+    """The default episode trigger.
+
+    This function will trigger recordings at the episode indices 0, 1, 4, 8, 27, ..., :math:`k^3`, ..., 729, 1000, 2000, 3000, ...
+
+    Args:
+        episode_id: The episode number
+
+    Returns:
+        If to apply a video schedule number
+    """
     if episode_id < 1000:
         return int(round(episode_id ** (1.0 / 3))) ** 3 == episode_id
     else:
@@ -17,28 +28,19 @@ def capped_cubic_video_schedule(episode_id):
 class RecordVideo(gym.Wrapper):
     """This wrapper records videos of rollouts.
 
-    Usually, you only want to record episodes intermittently, say every hundreth episode.
-    To do this, you can specify **either** `episode_trigger` **or** `step_trigger` (not both).
+    Usually, you only want to record episodes intermittently, say every hundredth episode.
+    To do this, you can specify **either** ``episode_trigger`` **or** ``step_trigger`` (not both).
     They should be functions returning a boolean that indicates whether a recording should be started at the
     current episode or step, respectively.
-    If neither `episode_trigger` nor `step_trigger` is passed, a default `episode_trigger` will be employed.
-
+    If neither :attr:`episode_trigger` nor ``step_trigger`` is passed, a default ``episode_trigger`` will be employed.
     By default, the recording will be stopped once a `done` signal has been emitted by the environment. However, you can
     also create recordings of fixed length (possibly spanning several episodes) by passing a strictly positive value for
-    `video_length`.
-
-    Args:
-        env: The environment that will be wrapped
-        video_folder (str): The folder where the recordings will be stored
-        epidsode_trigger: Function that accepts an integer and returns `True` iff a recording should be started at this episode
-        step_trigger: Function that accepts an integer and returns `True` iff a recording should be started at this step
-        video_length (int): The length of recorded episodes. If 0, entire episodes are recorded. Otherwise, snippets of the specified length are captured
-        name_prefix (str): Will be prepended to the filename of the recordings
+    ``video_length``.
     """
 
     def __init__(
         self,
-        env,
+        env: gym.Env,
         video_folder: str,
         episode_trigger: Callable[[int], bool] = None,
         step_trigger: Callable[[int], bool] = None,
@@ -46,7 +48,18 @@ class RecordVideo(gym.Wrapper):
         name_prefix: str = "rl-video",
         new_step_api: bool = False,
     ):
-        super().__init__(env, new_step_api)
+        """Wrapper records videos of rollouts.
+
+        Args:
+            env: The environment that will be wrapped
+            video_folder (str): The folder where the recordings will be stored
+            episode_trigger: Function that accepts an integer and returns ``True`` iff a recording should be started at this episode
+            step_trigger: Function that accepts an integer and returns ``True`` iff a recording should be started at this step
+            video_length (int): The length of recorded episodes. If 0, entire episodes are recorded.
+                Otherwise, snippets of the specified length are captured
+            name_prefix (str): Will be prepended to the filename of the recordings
+        """
+        super().__init__(env)
 
         if episode_trigger is None and step_trigger is None:
             episode_trigger = capped_cubic_video_schedule
@@ -62,7 +75,8 @@ class RecordVideo(gym.Wrapper):
         # Create output folder if needed
         if os.path.isdir(self.video_folder):
             logger.warn(
-                f"Overwriting existing videos at {self.video_folder} folder (try specifying a different `video_folder` for the `RecordVideo` wrapper if this is not desired)"
+                f"Overwriting existing videos at {self.video_folder} folder "
+                f"(try specifying a different `video_folder` for the `RecordVideo` wrapper if this is not desired)"
             )
         os.makedirs(self.video_folder, exist_ok=True)
 
@@ -76,12 +90,14 @@ class RecordVideo(gym.Wrapper):
         self.episode_id = 0
 
     def reset(self, **kwargs):
+        """Reset the environment using kwargs and then starts recording if video enabled."""
         observations = super().reset(**kwargs)
         if not self.recording and self._video_enabled():
             self.start_video_recorder()
         return observations
 
     def start_video_recorder(self):
+        """Starts video recorder using :class:`video_recorder.VideoRecorder`."""
         self.close_video_recorder()
 
         video_name = f"{self.name_prefix}-step-{self.step_id}"
@@ -106,13 +122,8 @@ class RecordVideo(gym.Wrapper):
             return self.episode_trigger(self.episode_id)
 
     def step(self, action):
-        (
-            observations,
-            rewards,
-            terminateds,
-            truncateds,
-            infos,
-        ) = step_api_compatibility(self.env.step(action), True, self.is_vector_env)
+        """Steps through the environment using action, recording observations if :attr:`self.recording`."""
+        observations, rewards, dones, infos = super().step(action)
 
         # increment steps and episodes
         self.step_id += 1
@@ -144,15 +155,18 @@ class RecordVideo(gym.Wrapper):
             self.is_vector_env,
         )
 
-    def close_video_recorder(self) -> None:
+    def close_video_recorder(self):
+        """Closes the video recorder if currently recording."""
         if self.recording:
             self.video_recorder.close()
         self.recording = False
         self.recorded_frames = 1
 
     def close(self):
+        """Closes the wrapper then the video recorder."""
         super().close()
         self.close_video_recorder()
 
     def __del__(self):
+        """Closes the video recorder."""
         self.close_video_recorder()

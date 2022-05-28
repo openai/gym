@@ -1,3 +1,4 @@
+"""A wrapper for video recording environments by rolling it out, frame by frame."""
 import json
 import os
 import os.path
@@ -6,42 +7,56 @@ import shutil
 import subprocess
 import tempfile
 from io import StringIO
+from typing import Optional, Tuple, Union
 
 import numpy as np
 
 from gym import error, logger
 
 
-def touch(path):
+def touch(path: str):
+    """Touch a filename at path."""
     open(path, "a").close()
 
 
 class VideoRecorder:
-    """VideoRecorder renders a nice movie of a rollout, frame by frame. It
-    comes with an `enabled` option so you can still use the same code
-    on episodes where you don't want to record video.
+    """VideoRecorder renders a nice movie of a rollout, frame by frame.
+
+    It comes with an ``enabled`` option, so you can still use the same code on episodes where you don't want to record video.
 
     Note:
-        You are responsible for calling `close` on a created
-        VideoRecorder, or else you may leak an encoder process.
-
-    Args:
-        env (Env): Environment to take video of.
-        path (Optional[str]): Path to the video file; will be randomly chosen if omitted.
-        base_path (Optional[str]): Alternatively, path to the video file without extension, which will be added.
-        metadata (Optional[dict]): Contents to save to the metadata file.
-        enabled (bool): Whether to actually record video, or just no-op (for convenience)
+        You are responsible for calling :meth:`close` on a created VideoRecorder, or else you may leak an encoder process.
     """
 
-    def __init__(self, env, path=None, metadata=None, enabled=True, base_path=None):
+    def __init__(
+        self,
+        env,
+        path: Optional[str] = None,
+        metadata: Optional[dict] = None,
+        enabled: bool = True,
+        base_path: Optional[str] = None,
+    ):
+        """Video recorder renders a nice movie of a rollout, frame by frame.
+
+        Args:
+            env (Env): Environment to take video of.
+            path (Optional[str]): Path to the video file; will be randomly chosen if omitted.
+            metadata (Optional[dict]): Contents to save to the metadata file.
+            enabled (bool): Whether to actually record video, or just no-op (for convenience)
+            base_path (Optional[str]): Alternatively, path to the video file without extension, which will be added.
+
+        Raises:
+            Error: You can pass at most one of `path` or `base_path`
+            Error: Invalid path given that must have a particular file extension
+        """
         modes = env.metadata.get("render_modes", [])
 
         # backward-compatibility mode:
         backward_compatible_mode = env.metadata.get("render.modes", [])
         if len(modes) == 0 and len(backward_compatible_mode) > 0:
             logger.deprecation(
-                '`env.metadata["render.modes"] is marked as deprecated and will be replaced with `env.metadata["render_modes"]` '
-                "see https://github.com/openai/gym/pull/2654 for more details"
+                '`env.metadata["render.modes"] is marked as deprecated and will be replaced '
+                'with `env.metadata["render_modes"]` see https://github.com/openai/gym/pull/2654 for more details'
             )
             modes = backward_compatible_mode
 
@@ -87,17 +102,18 @@ class VideoRecorder:
         path_base, actual_ext = os.path.splitext(self.path)
 
         if actual_ext != required_ext:
-            hint = (
-                " HINT: The environment is text-only, therefore we're recording its text output in a structured JSON format."
-                if self.ansi_mode
-                else ""
-            )
+            if self.ansi_mode:
+                hint = (
+                    " HINT: The environment is text-only, "
+                    "therefore we're recording its text output in a structured JSON format."
+                )
+            else:
+                hint = ""
             raise error.Error(
                 f"Invalid path given: {self.path} -- must have file extension {required_ext}.{hint}"
             )
-        # Touch the file in any case, so we know it's present. (This
-        # corrects for platform platform differences. Using ffmpeg on
-        # OS X, the file is precreated, but not on Linux.
+        # Touch the file in any case, so we know it's present. This corrects for platform platform differences.
+        # Using ffmpeg on OS X, the file is precreated, but not on Linux.
         touch(path)
 
         self.frames_per_sec = env.metadata.get("render_fps", 30)
@@ -112,14 +128,14 @@ class VideoRecorder:
         )
         if self.frames_per_sec != self.backward_compatible_frames_per_sec:
             logger.deprecation(
-                '`env.metadata["video.frames_per_second"] is marked as deprecated and will be replaced with `env.metadata["render_fps"]` '
-                "see https://github.com/openai/gym/pull/2654 for more details"
+                '`env.metadata["video.frames_per_second"] is marked as deprecated and will be replaced '
+                'with `env.metadata["render_fps"]` see https://github.com/openai/gym/pull/2654 for more details'
             )
             self.frames_per_sec = self.backward_compatible_frames_per_sec
         if self.output_frames_per_sec != self.backward_compatible_output_frames_per_sec:
             logger.deprecation(
-                '`env.metadata["video.output_frames_per_second"] is marked as deprecated and will be replaced with `env.metadata["render_fps"]` '
-                "see https://github.com/openai/gym/pull/2654 for more details"
+                '`env.metadata["video.output_frames_per_second"] is marked as deprecated and will be replaced '
+                'with `env.metadata["render_fps"]` see https://github.com/openai/gym/pull/2654 for more details'
             )
             self.output_frames_per_sec = self.backward_compatible_output_frames_per_sec
 
@@ -134,11 +150,12 @@ class VideoRecorder:
         self.metadata_path = f"{path_base}.meta.json"
         self.write_metadata()
 
-        logger.info("Starting new video recorder writing to %s", self.path)
+        logger.info(f"Starting new video recorder writing to {self.path}")
         self.empty = True
 
     @property
     def functional(self):
+        """Returns if the video recorder is functional, is enabled and not broken."""
         return self.enabled and not self.broken
 
     def capture_frame(self):
@@ -162,9 +179,8 @@ class VideoRecorder:
                 # Indicates a bug in the environment: don't want to raise
                 # an error here.
                 logger.warn(
-                    "Env returned None on render(). Disabling further rendering for video recorder by marking as disabled: path=%s metadata_path=%s",
-                    self.path,
-                    self.metadata_path,
+                    "Env returned None on `render()`. Disabling further rendering for video recorder by marking as "
+                    f"disabled: path={self.path} metadata_path={self.metadata_path}"
                 )
                 self.broken = True
         else:
@@ -213,10 +229,12 @@ class VideoRecorder:
         self._closed = True
 
     def write_metadata(self):
+        """Writes metadata to metadata path."""
         with open(self.metadata_path, "w") as f:
             json.dump(self.metadata, f)
 
     def __del__(self):
+        """Closes the environment correctly when the recorder is deleted."""
         # Make sure we've closed up shop when garbage collecting
         self.close()
 
@@ -244,16 +262,31 @@ class VideoRecorder:
 
 
 class TextEncoder:
-    """Store a moving picture made out of ANSI frames. Format adapted from
-    https://github.com/asciinema/asciinema/blob/master/doc/asciicast-v1.md"""
+    """Store a moving picture made out of ANSI frames.
 
-    def __init__(self, output_path, frames_per_sec):
+    Format adapted from https://github.com/asciinema/asciinema/blob/master/doc/asciicast-v1.md
+    """
+
+    def __init__(self, output_path: str, frames_per_sec: int):
+        """Stores a moving picture for an environment with ANSI frames.
+
+        Args:
+            output_path: The output path of the frames
+            frames_per_sec: The number of frames per seconds for the output video
+        """
         self.output_path = output_path
         self.frames_per_sec = frames_per_sec
         self.frames = []
 
-    def capture_frame(self, frame):
-        string = None
+    def capture_frame(self, frame: Union[str, StringIO]):
+        """Captures an ANSI frame and adds it to the frames.
+
+        Args:
+            frame: A string or StringIO frame
+
+        Raises:
+            InvalidFrame: Wrong type for a frame, expects text frame to be a string or StringIO
+        """
         if isinstance(frame, str):
             string = frame
         elif isinstance(frame, StringIO):
@@ -276,6 +309,7 @@ class TextEncoder:
         self.frames.append(frame_bytes)
 
     def close(self):
+        """Closes the text encoder, dumping all data to output path."""
         # frame_duration = float(1) / self.frames_per_sec
         frame_duration = 0.5
 
@@ -316,20 +350,40 @@ class TextEncoder:
 
     @property
     def version_info(self):
+        """Returns the version info, backend=TextEncoder and Version number=1."""
         return {"backend": "TextEncoder", "version": 1}
 
 
 class ImageEncoder:
-    def __init__(self, output_path, frame_shape, frames_per_sec, output_frames_per_sec):
+    """Captures image based frames of environments for Video Recorder."""
+
+    def __init__(
+        self,
+        output_path: str,
+        frame_shape: Tuple[int, int, int],
+        frames_per_sec: int,
+        output_frames_per_sec: int,
+    ):
+        """Encoder for capturing image based frames of environment for Video Recorder.
+
+        Args:
+            output_path: The output data path
+            frame_shape: The expected frame shape, a tuple of height, weight and channels (3 or 4)
+            frames_per_sec: The number of frames per second the environment runs at
+            output_frames_per_sec: The output number of frames per second for the video
+
+        Raises:
+            InvalidFrame: Expects frame to have shape (w,h,3) or (w,h,4)
+            DependencyNotInstalled: Found neither the ffmpeg nor avconv executables.
+        """
         self.proc = None
         self.output_path = output_path
         # Frame shape should be lines-first, so w and h are swapped
         h, w, pixfmt = frame_shape
         if pixfmt != 3 and pixfmt != 4:
             raise error.InvalidFrame(
-                "Your frame has shape {}, but we require (w,h,3) or (w,h,4), i.e., RGB values for a w-by-h image, with an optional alpha channel.".format(
-                    frame_shape
-                )
+                f"Your frame has shape {frame_shape}, but we require (w,h,3) or (w,h,4), "
+                "i.e., RGB values for a w-by-h image, with an optional alpha channel."
             )
         self.wh = (w, h)
         self.includes_alpha = pixfmt == 4
@@ -347,13 +401,18 @@ class ImageEncoder:
             self.backend = imageio_ffmpeg.get_ffmpeg_exe()
         else:
             raise error.DependencyNotInstalled(
-                """Found neither the ffmpeg nor avconv executables. On OS X, you can install ffmpeg via `brew install ffmpeg`. On most Ubuntu variants, `sudo apt-get install ffmpeg` should do it. On Ubuntu 14.04, however, you'll need to install avconv with `sudo apt-get install libav-tools`. Alternatively, please install imageio-ffmpeg with `pip install imageio-ffmpeg`"""
+                "Found neither the ffmpeg nor avconv executables. "
+                "On OS X, you can install ffmpeg via `brew install ffmpeg`. "
+                "On most Ubuntu variants, `sudo apt-get install ffmpeg` should do it. "
+                "On Ubuntu 14.04, however, you'll need to install avconv with `sudo apt-get install libav-tools`. "
+                "Alternatively, please install imageio-ffmpeg with `pip install imageio-ffmpeg`"
             )
 
         self.start()
 
     @property
     def version_info(self):
+        """Returns the version info: backend, version and cmdline."""
         return {
             "backend": self.backend,
             "version": str(
@@ -365,6 +424,7 @@ class ImageEncoder:
         }
 
     def start(self):
+        """Starts a subprocess using the backend and cmdline."""
         self.cmdline = (
             self.backend,
             "-nostats",
@@ -402,7 +462,8 @@ class ImageEncoder:
         else:
             self.proc = subprocess.Popen(self.cmdline, stdin=subprocess.PIPE)
 
-    def capture_frame(self, frame):
+    def capture_frame(self, frame: Union[np.ndarray, np.generic]):
+        """Captures a frame writing it to the backend subprocess."""
         if not isinstance(frame, (np.ndarray, np.generic)):
             raise error.InvalidFrame(
                 f"Wrong type {type(frame)} for {frame} (must be np.ndarray or np.generic)"
@@ -423,6 +484,7 @@ class ImageEncoder:
             logger.error("VideoRecorder encoder failed: %s", stderr)
 
     def close(self):
+        """Closes the Image encoder."""
         self.proc.stdin.close()
         ret = self.proc.wait()
         if ret != 0:
