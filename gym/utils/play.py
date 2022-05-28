@@ -1,4 +1,7 @@
 """Utilities of visualising an environment."""
+
+# TODO: Convert to new step API in 1.0
+
 from collections import deque
 from typing import Callable, Dict, List, Optional, Tuple, Union
 

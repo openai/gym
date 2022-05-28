@@ -1,3 +1,4 @@
+import warnings
 from typing import List
 
 import numpy as np
@@ -30,7 +31,11 @@ def filters_envs_action_space_type(
     """
     filtered_envs = []
     for spec in env_spec_list:
-        env = gym.make(spec.id)
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore", message=".*step API.*", category=DeprecationWarning
+            )  # since this function is outside scope of pytest warning suppression
+            env = gym.make(spec.id)
         if isinstance(env.action_space, action_space):
             filtered_envs.append(env)
     return filtered_envs

@@ -1,16 +1,36 @@
+"""Contains methods for step compatibility, from old-to-new and new-to-old API, to be removed in 1.0."""
+from typing import Tuple, Union
+
 import numpy as np
 
+from gym.core import ObsType
 from gym.logger import deprecation
 
+OldStepType = Tuple[
+    Union[ObsType, np.ndarray],
+    Union[float, np.ndarray],
+    Union[bool, np.ndarray],
+    Union[dict, list],
+]
 
-def step_to_new_api(step_returns, is_vector_env=False):
-    """Function to transform step returns to new step API irrespective of input API
+NewStepType = Tuple[
+    Union[ObsType, np.ndarray],
+    Union[float, np.ndarray],
+    Union[bool, np.ndarray],
+    Union[bool, np.ndarray],
+    Union[dict, list],
+]
+
+
+def step_to_new_api(
+    step_returns: Union[OldStepType, NewStepType], is_vector_env=False
+) -> NewStepType:
+    """Function to transform step returns to new step API irrespective of input API.
 
     Args:
         step_returns (tuple): Items returned by step(). Can be (obs, rew, done, info) or (obs, rew, terminated, truncated, info)
         is_vector_env (bool): Whether the step_returns are from a vector environment
     """
-
     if len(step_returns) == 5:
         deprecation(
             "Using an environment with new step API that returns two bools terminated, truncated instead of one bool done. "
@@ -32,12 +52,26 @@ def step_to_new_api(step_returns, is_vector_env=False):
         truncateds = []
         if not is_vector_env:
             dones = [dones]
-            infos = [infos]
+
         for i in range(len(dones)):
-            if "TimeLimit.truncated" not in infos[i]:
+            if "TimeLimit.truncated" not in infos or (
+                is_vector_env
+                and "TimeLimit.truncated" in infos
+                and not infos["_TimeLimit.truncated"][
+                    i
+                ]  # if mask is False, it's the same as TimeLimit.truncated attribute not being present
+            ):
                 terminateds.append(dones[i])
                 truncateds.append(False)
-            elif infos[i]["TimeLimit.truncated"]:
+            elif (
+                infos["TimeLimit.truncated"]
+                if not is_vector_env
+                else (  # handle vector info as both dict and list
+                    infos["TimeLimit.truncated"][i]
+                    if isinstance(infos, dict)
+                    else infos[i]["TimeLimit.truncated"]
+                )
+            ):
                 terminateds.append(False)
                 truncateds.append(True)
             else:
@@ -52,18 +86,19 @@ def step_to_new_api(step_returns, is_vector_env=False):
             rewards,
             np.array(terminateds, dtype=np.bool_) if is_vector_env else terminateds[0],
             np.array(truncateds, dtype=np.bool_) if is_vector_env else truncateds[0],
-            infos if is_vector_env else infos[0],
+            infos,
         )
 
 
-def step_to_old_api(step_returns, is_vector_env=False):
-    """Function to transform step returns to old step API irrespective of input API
+def step_to_old_api(
+    step_returns: Union[NewStepType, OldStepType], is_vector_env: bool = False
+) -> OldStepType:
+    """Function to transform step returns to old step API irrespective of input API.
 
     Args:
         step_returns (tuple): Items returned by step(). Can be (obs, rew, done, info) or (obs, rew, terminated, truncated, info)
         is_vector_env (bool): Whether the step_returns are from a vector environment
     """
-
     if len(step_returns) == 4:
         deprecation(
             "Using old step API which returns one boolean (done). Please upgrade to new API to return two booleans - terminated, truncated"
@@ -82,24 +117,41 @@ def step_to_old_api(step_returns, is_vector_env=False):
         if not is_vector_env:
             terminateds = [terminateds]
             truncateds = [truncateds]
-            infos = [infos]
 
-        for i in range(len(terminateds)):
+        n_envs = len(terminateds)
+
+        for i in range(n_envs):
             dones.append(terminateds[i] or truncateds[i])
             # to be consistent with old API
             if truncateds[i]:
-                infos[i]["TimeLimit.truncated"] = not terminateds[i]
+                if is_vector_env:
+                    # handle vector infos for dict and list
+                    if isinstance(infos, dict):
+                        if "TimeLimit.truncated" not in infos:
+                            # TODO: This should ideally not be done manually and should use vector_env's _add_info()
+                            infos["TimeLimit.truncated"] = np.zeros(n_envs, dtype=bool)
+                            infos["_TimeLimit.truncated"] = np.zeros(n_envs, dtype=bool)
+
+                        infos["TimeLimit.truncated"][i] = not terminateds[i]
+                        infos["_TimeLimit.truncated"][i] = True
+                    else:
+                        # if vector info is a list
+                        infos[i]["TimeLimit.truncated"] = not terminateds[i]
+                else:
+                    infos["TimeLimit.truncated"] = not terminateds[i]
         return (
             observations,
             rewards,
             np.array(dones, dtype=np.bool_) if is_vector_env else dones[0],
-            infos if is_vector_env else infos[0],
+            infos,
         )
 
 
 def step_api_compatibility(
-    step_returns, new_step_api: bool = False, is_vector_env: bool = False
-):
+    step_returns: Union[NewStepType, OldStepType],
+    new_step_api: bool = False,
+    is_vector_env: bool = False,
+) -> Union[NewStepType, OldStepType]:
     """Function to transform step returns to the API specified by `new_step_api` bool.
 
     Old step API refers to step() method returning (observation, reward, done, info)
@@ -121,9 +173,7 @@ def step_api_compatibility(
         >>> obs, rew, done, info = step_api_compatibility(env.step(action))
         >>> obs, rew, terminated, truncated, info = step_api_compatibility(env.step(action), new_step_api=True)
         >>> observations, rewards, dones, infos = step_api_compatibility(vec_env.step(action), is_vector_env=True)
-
     """
-
     if new_step_api:
         return step_to_new_api(step_returns, is_vector_env)
     else:

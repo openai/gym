@@ -122,13 +122,20 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     (0.0, 1.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
     with a uniform noise in the range of [-0.005, 0.005] added to the values for stochasticity.
 
-    ### Episode Termination
-    The episode terminates when any of the following happens:
+    ### Episode End
+    The walker is said to be unhealthy if any of the following happens:
 
-    1. The episode duration reaches a 1000 timesteps
-    2. Any of the state space values is no longer finite
-    3. The height of the walker (index 1) is ***not*** in the range `[0.8, 2]`
-    4. The absolute value of the angle (index 2) is ***not*** in the range `[-1, 1]`
+    1. Any of the state space values is no longer finite
+    2. The height of the walker is ***not*** in the closed interval specified by `healthy_z_range`
+    3. The absolute value of the angle (`observation[1]` if `exclude_current_positions_from_observation=False`, else `observation[2]`) is ***not*** in the closed interval specified by `healthy_angle_range`
+
+    If `terminate_when_unhealthy=True` is passed during construction (which is the default),
+    the episode ends when any of the following happens:
+
+    1. Truncation: The episode duration reaches a 1000 timesteps
+    2. Termination: The walker is unhealthy
+
+    If `terminate_when_unhealthy=False` is passed, the episode is ended only when 1000 timesteps are exceeded.
 
     ### Arguments
 
@@ -212,9 +219,9 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         return is_healthy
 
     @property
-    def done(self):
-        done = not self.is_healthy if self._terminate_when_unhealthy else False
-        return done
+    def terminated(self):
+        terminated = not self.is_healthy if self._terminate_when_unhealthy else False
+        return terminated
 
     def _get_obs(self):
         position = self.data.qpos.flat.copy()
@@ -242,13 +249,13 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
         observation = self._get_obs()
         reward = rewards - costs
-        done = self.done
+        terminated = self.terminated
         info = {
             "x_position": x_position_after,
             "x_velocity": x_velocity,
         }
 
-        return observation, reward, done, info
+        return observation, reward, terminated, False, info
 
     def reset_model(self):
         noise_low = -self._reset_noise_scale

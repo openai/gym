@@ -1,5 +1,5 @@
 """Base class for vectorized environments."""
-from typing import Any, List, Optional, Union
+from typing import Any, List, Optional, Tuple, Union
 
 import numpy as np
 
@@ -24,7 +24,11 @@ class VectorEnv(gym.Env):
     """
 
     def __init__(
-        self, num_envs: int, observation_space: gym.Space, action_space: gym.Space
+        self,
+        num_envs: int,
+        observation_space: gym.Space,
+        action_space: gym.Space,
+        new_step_api: bool = False,
     ):
         """Base class for vectorized environments.
 
@@ -32,6 +36,7 @@ class VectorEnv(gym.Env):
             num_envs: Number of environments in the vectorized environment.
             observation_space: Observation space of a single environment.
             action_space: Action space of a single environment.
+            new_step_api (bool): Whether the vector env's step method outputs two boolean arrays (new API) or one boolean array (old API)
         """
         self.num_envs = num_envs
         self.is_vector_env = True
@@ -136,7 +141,7 @@ class VectorEnv(gym.Env):
             actions: element of :attr:`action_space` Batch of actions.
 
         Returns:
-            Batch of observations, rewards, done and infos
+            Batch of (observations, rewards, terminateds, truncateds, infos) or (observations, rewards, dones, infos)
         """
         self.step_async(actions)
         return self.step_wait()
@@ -144,7 +149,7 @@ class VectorEnv(gym.Env):
     def call_async(self, name, *args, **kwargs):
         """Calls a method name for each parallel environment asynchronously."""
 
-    def call_wait(self, **kwargs) -> List[Any]:
+    def call_wait(self, **kwargs) -> List[Any]:  # type: ignore
         """After calling a method in :meth:`call_async`, this function collects the results."""
 
     def call(self, name: str, *args, **kwargs) -> List[Any]:
@@ -252,7 +257,7 @@ class VectorEnv(gym.Env):
             infos[k], infos[f"_{k}"] = info_array, array_mask
         return infos
 
-    def _init_info_arrays(self, dtype: type) -> np.ndarray:
+    def _init_info_arrays(self, dtype: type) -> Tuple[np.ndarray, np.ndarray]:
         """Initialize the info array.
 
         Initialize the info array. If the dtype is numeric
@@ -292,10 +297,6 @@ class VectorEnv(gym.Env):
             return f"{self.__class__.__name__}({self.num_envs})"
         else:
             return f"{self.__class__.__name__}({self.spec.id}, {self.num_envs})"
-
-    @staticmethod
-    def get_env_step_return(env, action):
-        return env.step(action)
 
 
 class VectorEnvWrapper(VectorEnv):

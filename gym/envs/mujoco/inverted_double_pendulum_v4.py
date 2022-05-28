@@ -84,12 +84,12 @@ class InvertedDoublePendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     of [-0.1, 0.1] added to the positional values (cart position and pole angles) and standard
     normal force with a standard deviation of 0.1 added to the velocity values for stochasticity.
 
-    ### Episode Termination
-    The episode terminates when any of the following happens:
+    ### Episode End
+    The episode ends when any of the following happens:
 
-    1. The episode duration reaches 1000 timesteps.
-    2. Any of the state space values is no longer finite.
-    3. The y_coordinate of the tip of the second pole *is less than or equal* to 1. The maximum standing height of the system is 1.196 m when all the parts are perpendicularly vertical on top of each other).
+    1.Truncation:  The episode duration reaches 1000 timesteps.
+    2.Termination: Any of the state space values is no longer finite.
+    3.Termination: The y_coordinate of the tip of the second pole *is less than or equal* to 1. The maximum standing height of the system is 1.196 m when all the parts are perpendicularly vertical on top of each other).
 
     ### Arguments
 
@@ -131,8 +131,8 @@ class InvertedDoublePendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         vel_penalty = 1e-3 * v1**2 + 5e-3 * v2**2
         alive_bonus = 10
         r = alive_bonus - dist_penalty - vel_penalty
-        done = bool(y <= 1)
-        return ob, r, done, {}
+        terminated = bool(y <= 1)
+        return ob, r, terminated, False, {}
 
     def _get_obs(self):
         return np.concatenate(

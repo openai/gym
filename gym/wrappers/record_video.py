@@ -58,8 +58,9 @@ class RecordVideo(gym.Wrapper):
             video_length (int): The length of recorded episodes. If 0, entire episodes are recorded.
                 Otherwise, snippets of the specified length are captured
             name_prefix (str): Will be prepended to the filename of the recordings
+            new_step_api (bool): Whether the wrapper's step method outputs two booleans (new API) or one boolean (old API)
         """
-        super().__init__(env)
+        super().__init__(env, new_step_api)
 
         if episode_trigger is None and step_trigger is None:
             episode_trigger = capped_cubic_video_schedule
@@ -123,7 +124,13 @@ class RecordVideo(gym.Wrapper):
 
     def step(self, action):
         """Steps through the environment using action, recording observations if :attr:`self.recording`."""
-        observations, rewards, dones, infos = super().step(action)
+        (
+            observations,
+            rewards,
+            terminateds,
+            truncateds,
+            infos,
+        ) = step_api_compatibility(self.env.step(action), True, self.is_vector_env)
 
         # increment steps and episodes
         self.step_id += 1

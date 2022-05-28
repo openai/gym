@@ -4,6 +4,7 @@ import numpy as np
 import gym
 from gym.error import DependencyNotInstalled
 from gym.spaces import Box
+from gym.utils.step_api_compatibility import step_api_compatibility
 
 try:
     import cv2
@@ -38,6 +39,7 @@ class AtariPreprocessing(gym.Wrapper):
         grayscale_obs: bool = True,
         grayscale_newaxis: bool = False,
         scale_obs: bool = False,
+        new_step_api: bool = False,
     ):
         """Wrapper for Atari 2600 preprocessing.
 
@@ -59,7 +61,7 @@ class AtariPreprocessing(gym.Wrapper):
             DependencyNotInstalled: opencv-python package not installed
             ValueError: Disable frame-skipping in the original env
         """
-        super().__init__(env)
+        super().__init__(env, new_step_api)
         if cv2 is None:
             raise DependencyNotInstalled(
                 "opencv-python package not installed, run `pip install gym[other]` to get dependencies for atari"
@@ -117,14 +119,16 @@ class AtariPreprocessing(gym.Wrapper):
         total_reward = 0.0
 
         for t in range(self.frame_skip):
-            _, reward, done, info = self.env.step(action)
+            _, reward, terminated, truncated, info = step_api_compatibility(
+                self.env.step(action), True
+            )
             total_reward += reward
-            self.game_over = done
+            self.game_over = terminated
 
             if self.terminal_on_life_loss:
                 new_lives = self.ale.lives()
-                done = done or new_lives < self.lives
-                self.game_over = done
+                terminated = terminated or new_lives < self.lives
+                self.game_over = terminated
                 self.lives = new_lives
 
             if terminated or truncated:
@@ -139,7 +143,10 @@ class AtariPreprocessing(gym.Wrapper):
                     self.ale.getScreenGrayscale(self.obs_buffer[0])
                 else:
                     self.ale.getScreenRGB(self.obs_buffer[0])
-        return self._get_obs(), total_reward, done, info
+        return step_api_compatibility(
+            (self._get_obs(), total_reward, terminated, truncated, info),
+            self.new_step_api,
+        )
 
     def reset(self, **kwargs):
         """Resets the environment using preprocessing."""

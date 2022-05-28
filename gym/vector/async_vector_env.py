@@ -67,6 +67,7 @@ class AsyncVectorEnv(VectorEnv):
         context: Optional[str] = None,
         daemon: bool = True,
         worker: Optional[callable] = None,
+        new_step_api: bool = False,
     ):
         """Vectorized environment that runs multiple environments in parallel.
 
@@ -86,6 +87,7 @@ class AsyncVectorEnv(VectorEnv):
                 so for some environments you may want to have it set to ``False``.
             worker: If set, then use that worker in a subprocess instead of a default one.
                 Can be useful to override some inner vector env logic, for instance, how resets on done are handled.
+            new_step_api: If True, step method returns 2 bools - terminated, truncated, instead of 1 bool - done
 
         Warnings: worker is an advanced mode option. It provides a high degree of flexibility and a high chance
             to shoot yourself in the foot; thus, if you are writing your own worker, it is recommended to start
@@ -340,7 +342,7 @@ class AsyncVectorEnv(VectorEnv):
             timeout: Number of seconds before the call to :meth:`step_wait` times out. If ``None``, the call to :meth:`step_wait` never times out.
 
         Returns:
-             The batched environment step information, obs, reward, done and info
+             The batched environment step information, (obs, reward, terminated, truncated, info) or (obs, reward, done, info) depending on new_step_api
 
         Raises:
             ClosedEnvironmentError: If the environment was closed (if :meth:`close` was previously called).
@@ -360,16 +362,17 @@ class AsyncVectorEnv(VectorEnv):
                 f"The call to `step_wait` has timed out after {timeout} second(s)."
             )
 
-        observations_list, rewards, dones, infos = [], [], [], {}
+        observations_list, rewards, terminateds, truncateds, infos = [], [], [], [], {}
         successes = []
         for i, pipe in enumerate(self.parent_pipes):
             result, success = pipe.recv()
-            obs, rew, done, info = result
+            obs, rew, terminated, truncated, info = step_api_compatibility(result, True)
 
             successes.append(success)
             observations_list.append(obs)
             rewards.append(rew)
-            dones.append(done)
+            terminateds.append(terminated)
+            truncateds.append(truncated)
             infos = self._add_info(infos, info, i)
 
         self._raise_if_errors(successes)

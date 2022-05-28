@@ -102,8 +102,8 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     ### Starting State
     All observations start in state (0,0,0,0,0,0,0,0) with a Uniform noise in the range of [-0.1, 0.1] is added to the initial state for stochasticity.
 
-    ### Episode Termination
-    The episode terminates when the episode length is greater than 1000.
+    ### Episode End
+    The episode truncates when the episode length is greater than 1000.
 
     ### Arguments
 
@@ -169,7 +169,6 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
         observation = self._get_obs()
         reward = forward_reward - ctrl_cost
-        done = False
         info = {
             "reward_fwd": forward_reward,
             "reward_ctrl": -ctrl_cost,
@@ -181,7 +180,7 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             "forward_reward": forward_reward,
         }
 
-        return observation, reward, done, info
+        return observation, reward, False, False, info
 
     def _get_obs(self):
         position = self.data.qpos.flat.copy()

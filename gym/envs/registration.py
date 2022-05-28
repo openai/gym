@@ -24,7 +24,12 @@ import numpy as np
 
 from gym.envs.__relocated__ import internal_env_relocation_map
 from gym.utils.env_checker import check_env
-from gym.wrappers import AutoResetWrapper, OrderEnforcing, TimeLimit
+from gym.wrappers import (
+    AutoResetWrapper,
+    OrderEnforcing,
+    StepAPICompatibility,
+    TimeLimit,
+)
 
 if sys.version_info < (3, 10):
     import importlib_metadata as metadata  # type: ignore
@@ -522,6 +527,7 @@ def make(
     id: Union[str, EnvSpec],
     max_episode_steps: Optional[int] = None,
     autoreset: bool = False,
+    new_step_api: bool = False,
     disable_env_checker: bool = False,
     **kwargs,
 ) -> Env:
@@ -536,6 +542,7 @@ def make(
         id: Name of the environment. Optionally, a module to import can be included, eg. 'module:Env-v0'
         max_episode_steps: Maximum length of an episode (TimeLimit wrapper).
         autoreset: Whether to automatically reset the environment after each episode (AutoResetWrapper).
+        new_step_api: Whether to use old or new step API (StepAPICompatibility wrapper). Will be removed at v1.0
         disable_env_checker: If to disable the environment checker
         kwargs: Additional arguments to pass to the environment constructor.
 
@@ -613,6 +620,15 @@ def make(
 
     if autoreset:
         env = AutoResetWrapper(env, new_step_api)
+
+    if not disable_env_checker:
+        try:
+            check_env(env)
+        except Exception as e:
+            logger.warn(
+                f"Env check failed with the following message: {e}\n"
+                f"You can set `disable_env_checker=True` to disable this check."
+            )
 
     if not disable_env_checker:
         try:

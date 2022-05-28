@@ -19,6 +19,7 @@ import numpy as np
 import gym
 from gym import logger
 from gym.spaces import Box, Dict, Discrete, Space, Tuple
+from gym.utils.step_api_compatibility import step_api_compatibility
 
 
 def _is_numpy_array_space(space: Space) -> bool:
@@ -71,7 +72,7 @@ def _check_nan(env: gym.Env, check_inf: bool = True):
     """
     for _ in range(10):
         action = env.action_space.sample()
-        observation, reward, done, _ = env.step(action)
+        observation, reward, done, _ = step_api_compatibility(env.step(action), False)
 
         if done:
             env.reset()

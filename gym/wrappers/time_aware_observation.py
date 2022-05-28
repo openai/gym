@@ -22,13 +22,14 @@ class TimeAwareObservation(gym.ObservationWrapper):
         array([ 0.03881167, -0.16021058,  0.0220928 ,  0.28875574,  1.        ])
     """
 
-    def __init__(self, env: gym.Env):
+    def __init__(self, env: gym.Env, new_step_api: bool = False):
         """Initialize :class:`TimeAwareObservation` that requires an environment with a flat :class:`Box` observation space.
 
         Args:
             env: The environment to apply the wrapper
+            new_step_api (bool): Whether the wrapper's step method outputs two booleans (new API) or one boolean (old API)
         """
-        super().__init__(env)
+        super().__init__(env, new_step_api)
         assert isinstance(env.observation_space, Box)
         assert env.observation_space.dtype == np.float32
         low = np.append(self.observation_space.low, 0.0)

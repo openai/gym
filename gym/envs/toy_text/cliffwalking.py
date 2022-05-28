@@ -107,7 +107,7 @@ class CliffWalkingEnv(Env):
             delta: Change in position for transition
 
         Returns:
-            Tuple of ``(1.0, new_state, reward, done)``
+            Tuple of ``(1.0, new_state, reward, terminated)``
         """
         new_position = np.array(current) + np.array(delta)
         new_position = self._limit_coordinates(new_position).astype(int)
