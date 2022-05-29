@@ -486,7 +486,10 @@ def register(id: str, **kwargs):
     ns, name, version = parse_env_id(id)
 
     if current_namespace is not None:
-        if kwargs.get("namespace") is not None and kwargs.get("namespace") != current_namespace:
+        if (
+            kwargs.get("namespace") is not None
+            and kwargs.get("namespace") != current_namespace
+        ):
             logger.warn(
                 f"Custom namespace `{kwargs.get('namespace')}` is being overridden "
                 f"by namespace `{current_namespace}`. If you are developing a "
