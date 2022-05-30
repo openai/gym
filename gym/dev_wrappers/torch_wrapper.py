@@ -1,4 +1,4 @@
-from typing import Union, Tuple
+from typing import Optional, Tuple, Union
 
 from brax.io.torch import (
     torch_to_jax,
@@ -6,22 +6,30 @@ from brax.io.torch import (
 )
 import torch
 
-from gym import Wrapper
+from gym import Env, Wrapper
+
 class TorchWrapper(Wrapper):
+    def __init__(self,
+        env: Union[Wrapper, Env],
+        device: Optional[torch.device] = None):
+
+        super().__init__(env)
+        self.device: Optional[torch.device] = device
+
     def step(self, action: torch.Tensor) -> Tuple[torch.Tensor, float, bool, dict]:
         jax_action = torch_to_jax(action)
+        obs, reward, done, info = super().step(jax_action)
 
-        # TODO: look at the device argument for moving returned observation back to device
-        return jax_to_torch(self.env.step(jax_action))
+        return jax_to_torch(obs, device=self.device), reward, done, info
 
     def reset(self, **kwargs) -> Union[torch.Tensor, tuple[torch.Tensor, dict]]:
         return_info = kwargs.get("return_info", False)
         if return_info:
-            obs, info = self.env.reset(**kwargs)
+            obs, info = super().reset(**kwargs)
         else:
-            obs = self.env.reset(**kwargs)
+            obs = super().reset(**kwargs)
 
-        obs = jax_to_torch(obs)
+        obs = jax_to_torch(obs, device=self.device)
 
         # TODO: handle vector_env here?
         if return_info:

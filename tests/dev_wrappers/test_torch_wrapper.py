@@ -62,3 +62,21 @@ def test_torch_wrapper_reset_info():
     assert isinstance(obs, torch.Tensor)
     assert isinstance(info, dict)
 
+
+def test_torch_wrapper_step():
+    env = DummyJaxEnv(return_reward_idx=0)
+    env = TorchWrapper(env)
+
+    (obs, *_) = env.step(torch.Tensor(env.action_space.sample()))
+    assert isinstance(obs, torch.Tensor)
+    assert env.observation_space.contains(obs.numpy())
+
+
+def test_torch_wrapper_device():
+    env = DummyJaxEnv(return_reward_idx=0)
+    env = TorchWrapper(env, device="meta")
+
+    (obs, *_) = env.step(torch.Tensor(env.action_space.sample()))
+    assert isinstance(obs, torch.Tensor)
+    assert obs.device == torch.device("meta")
+
