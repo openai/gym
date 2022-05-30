@@ -80,3 +80,12 @@ def test_torch_wrapper_device():
     assert isinstance(obs, torch.Tensor)
     assert obs.device == torch.device("meta")
 
+
+@pytest.mark.xfail(reason="VectorEnv for brax not yet implemented")
+def test_torch_wrapper_vector_env():
+    env_fns = [make_env(0), make_env(1)]
+    envs = gym.vector.SyncVectorEnv(env_fns)
+    envs.reset()
+
+    (obs, *_) = envs.step(torch.Tensor(envs.action_space.sample()))
+    assert all(isinstance(o, torch.Tensor) for o in obs)
