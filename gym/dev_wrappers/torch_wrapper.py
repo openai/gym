@@ -37,16 +37,3 @@ class TorchWrapper(Wrapper):
         else:
             return obs
 
-    @property
-    def action_space(self):
-        act_space = self.env.action_space if self._action_space is None else self._action_space
-        return jax_to_torch(act_space)
-
-    @action_space.setter
-    def action_space(self, space: torch.Tensor):
-        self._action_space = torch_to_jax(space)
-
-    @property
-    def observation_space(self):
-        obs_space = self.env.observation_space if self._observation_space is None else self._observation_space
-        return jax_to_torch(obs_space)
