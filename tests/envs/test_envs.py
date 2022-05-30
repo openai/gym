@@ -1,10 +1,8 @@
 import numpy as np
 import pytest
 
-from gym import envs
 from gym.spaces import Box
 from gym.utils.env_checker import check_env
-from tests.envs.spec_list import spec_list, spec_list_no_mujoco_py
 
 
 # This runs a smoketest on each official registered env. We may want
@@ -16,17 +14,13 @@ from tests.envs.spec_list import spec_list, spec_list_no_mujoco_py
 @pytest.mark.parametrize(
     "spec", spec_list_no_mujoco_py, ids=[spec.id for spec in spec_list_no_mujoco_py]
 )
-def test_env(spec):
+def test_env_gym_api(spec):
     # Capture warnings
-    with pytest.warns(None) as warnings:
-        env = spec.make()
+    with pytest.warns(None):
+        env = spec.make(disable_env_check=True)
 
     # Test if env adheres to Gym API
     check_env(env, warn=True, skip_render_check=True)
-
-    # Check that dtype is explicitly declared for gym.Box spaces
-    for warning_msg in warnings:
-        assert "autodetected dtype" not in str(warning_msg.message)
 
     ob_space = env.observation_space
     act_space = env.action_space
@@ -64,29 +58,73 @@ def test_env(spec):
 
 @pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
 def test_reset_info(spec):
-
     with pytest.warns(None):
-        env = spec.make()
+        env = spec.make(disable_env_check=True)
 
-    ob_space = env.observation_space
     obs = env.reset()
-    assert ob_space.contains(obs)
+    assert obs in env.observation_space
+
     obs = env.reset(return_info=False)
-    assert ob_space.contains(obs)
+    assert obs in env.observation_space
+
     obs, info = env.reset(return_info=True)
-    assert ob_space.contains(obs)
+    assert obs in env.observation_space
     assert isinstance(info, dict)
+
     env.close()
 
 
-def test_env_render_result_is_immutable():
-    environs = [
-        envs.make("Taxi-v3"),
-        envs.make("FrozenLake-v1"),
-    ]
+# Note that this precludes running this test in multiple threads.
+# However, we probably already can't do multithreading due to some environments.
+SEED = 0
+NUM_STEPS = 50
 
-    for env in environs:
-        env.reset()
-        output = env.render(mode="ansi")
-        assert isinstance(output, str)
-        env.close()
+
+@pytest.mark.parametrize("env", testing_envs, ids=[env.id for env in testing_envs])
+def test_env_determinism_rollout(env):
+    """Run a rollout with two environments and assert equality.
+
+    This test run a rollout of NUM_STEPS steps with two environments
+    initialized with the same seed and assert that:
+
+    - observation after first reset are the same
+    - same actions are sampled by the two envs
+    - observations are contained in the observation space
+    - obs, rew, done and info are equals between the two envs
+
+    Args:
+        env (gym.Env): Environment
+    """
+    # Don't check rollout equality if it's a nondeterministic environment.
+    if env.spec.nondeterministic is True:
+        return
+
+    env_1 = env.spec.make(disable_env_checker=True)
+    env_2 = env.spec.make(disable_env_checker=True)
+
+    initial_obs_1 = env_1.reset(seed=SEED)
+    initial_obs_2 = env_2.reset(seed=SEED)
+    assert_equals(initial_obs_1, initial_obs_2)
+
+    env_1.action_space.seed(SEED)
+
+    for time_step in range(NUM_STEPS):
+        # We don't evaluate the determinism of actions
+        action = env_1.action_space.sample()
+
+        obs_1, rew_1, done_1, info_1 = env_1.step(action)
+        obs_2, rew_2, done_2, info_2 = env_2.step(action)
+
+        assert_equals(obs_1, obs_2, f"{time_step=} ")
+        assert env_1.observation_space.contains(obs_1)  # obs_2 verified by previous assertion
+
+        assert rew_1 == rew_2, f"{time_step=} {rew_1=}, {rew_2=}"
+        assert done_1 == done_2, f"{time_step=} {done_1=}, {done_2=}"
+        assert_equals(info_1, info_2, f"{time_step=} ")
+
+        if done_1:  # done_2 verified by previous assertion
+            env_1.reset(seed=SEED)
+            env_2.reset(seed=SEED)
+
+    env_1.close()
+    env_2.close()
