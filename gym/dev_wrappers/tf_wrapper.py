@@ -5,9 +5,9 @@ import tensorflow as tf
 
 from gym import Env, Wrapper
 
+
 class TensorFlowWrapper(Wrapper):
-    def __init__(self,
-        env: Union[Env, Wrapper]):
+    def __init__(self, env: Union[Env, Wrapper]):
 
         super().__init__(env)
         self.is_vector_env = getattr(env, "is_vector_env", False)
@@ -46,4 +46,3 @@ class TensorFlowWrapper(Wrapper):
 
     def _jax_to_tf(self, arr):
         return tf.experimental.dlpack.from_dlpack(jax.dlpack.to_dlpack(arr))
-

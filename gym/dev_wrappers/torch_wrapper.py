@@ -1,12 +1,10 @@
 from typing import Optional, Tuple, Union
 
-from brax.io.torch import (
-    torch_to_jax,
-    jax_to_torch
-)
 import torch
+from brax.io.torch import jax_to_torch, torch_to_jax
 
 from gym import Env, Wrapper
+
 
 class TorchWrapper(Wrapper):
     """This wrapper will convert torch inputs for the actions and observations to Jax arrays
@@ -18,9 +16,7 @@ class TorchWrapper(Wrapper):
         device: The device the torch Tensors should be moved to
     """
 
-    def __init__(self,
-        env: Union[Wrapper, Env],
-        device: Optional[torch.device] = None):
+    def __init__(self, env: Union[Wrapper, Env], device: Optional[torch.device] = None):
 
         super().__init__(env)
         self.device: Optional[torch.device] = device
@@ -55,4 +51,3 @@ class TorchWrapper(Wrapper):
             return obs, info
         else:
             return obs
-

@@ -8,6 +8,7 @@ import tensorflow as tf
 import gym
 from gym.dev_wrappers.tf_wrapper import TensorFlowWrapper
 
+
 class DummyJaxEnv(gym.Env):
     metadata = {}
 
