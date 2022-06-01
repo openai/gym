@@ -24,7 +24,7 @@ class TorchWrapper(Wrapper):
 
     def step(self, action: torch.Tensor) -> Tuple[torch.Tensor, float, bool, dict]:
         jax_action = torch_to_jax(action)
-        obs, reward, done, info = super().step(jax_action)
+        obs, reward, done, info = self.env.step(jax_action)
 
         # TODO: Verify this captures vector envs and converts everything from jax to torch
         if self.is_vector_env:
@@ -37,9 +37,9 @@ class TorchWrapper(Wrapper):
     def reset(self, **kwargs) -> Union[torch.Tensor, tuple[torch.Tensor, dict]]:
         return_info = kwargs.get("return_info", False)
         if return_info:
-            obs, info = super().reset(**kwargs)
+            obs, info = self.env.reset(**kwargs)
         else:
-            obs = super().reset(**kwargs)
+            obs = self.env.reset(**kwargs)
 
         # TODO: Verify this captures vector envs and converts everything from jax to torch
         if self.is_vector_env:

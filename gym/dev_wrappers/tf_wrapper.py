@@ -14,7 +14,7 @@ class TensorFlowWrapper(Wrapper):
 
     def step(self, action: tf.Tensor):
         jax_action = self._tf_to_jax(action)
-        obs, reward, done, info = super().step(jax_action)
+        obs, reward, done, info = self.env.step(jax_action)
 
         if self.is_vector_env:
             obs = [self._jax_to_tf(o) for o in obs]
@@ -26,9 +26,9 @@ class TensorFlowWrapper(Wrapper):
     def reset(self, **kwargs) -> Union[tf.Tensor, tuple[tf.Tensor, dict]]:
         return_info = kwargs.get("return_info", False)
         if return_info:
-            obs, info = super().reset(**kwargs)
+            obs, info = self.env.reset(**kwargs)
         else:
-            obs = super().reset(**kwargs)
+            obs = self.env.reset(**kwargs)
 
         # TODO: Verify this captures vector envs and converts everything from jax to torch
         if self.is_vector_env:
