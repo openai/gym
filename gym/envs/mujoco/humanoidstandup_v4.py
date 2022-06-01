@@ -23,7 +23,7 @@ class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     represents the numerical torques applied at the hinge joints.
 
     | Num | Action                                                                             | Control Min | Control Max | Name (in corresponding XML file) | Joint | Unit         |
-    |-----|------------------------------------------------------------------------------------|-------------|-------------|-------------------------------- -|-------|--------------|
+    |-----|------------------------------------------------------------------------------------|-------------|-------------|----------------------------------|-------|--------------|
     | 0   | Torque applied on the hinge in the y-coordinate of the abdomen                     | -0.4        | 0.4         | hip_1 (front_left_leg)           | hinge | torque (N m) |
     | 1   | Torque applied on the hinge in the z-coordinate of the abdomen                     | -0.4        | 0.4         | angle_1 (front_left_leg)         | hinge | torque (N m) |
     | 2   | Torque applied on the hinge in the x-coordinate of the abdomen                     | -0.4        | 0.4         | hip_2 (front_right_leg)          | hinge | torque (N m) |
