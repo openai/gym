@@ -48,7 +48,7 @@ class MountainCarEnv(gym.Env):
     There are 3 discrete deterministic actions:
 
     | Num | Observation             | Value | Unit         |
-    |-----|-------------------------|------ |--------------|
+    |-----|-------------------------|-------|--------------|
     | 0   | Accelerate to the left  | Inf   | position (m) |
     | 1   | Don't accelerate        | Inf   | position (m) |
     | 2   | Accelerate to the right | Inf   | position (m) |
