@@ -1,11 +1,11 @@
 """A utility class to collect render frames from a function that computes a single frame."""
-from typing import Any, Callable, List, Optional
+from typing import Any, Callable, List, Optional, Set
 
 # list of modes with which render function returns None
-NO_RETURNS_RENDER = [None, "human"]
+NO_RETURNS_RENDER = {"human"}
 
 # list of modes with which render returns just a single frame of the current state
-SINGLE_RENDER = ["single_rgb_array", "single_depth_array", "single_state_pixels"]
+SINGLE_RENDER = {"single_rgb_array", "single_depth_array", "single_state_pixels"}
 
 
 class Renderer:
@@ -21,13 +21,30 @@ class Renderer:
       (usually in the reset method of the environment)
     """
 
-    def __init__(self, mode: Optional[str], render: Callable[[str], Any]):
+    def __init__(
+        self,
+        mode: Optional[str],
+        render: Callable[[str], Any],
+        no_returns_render: Optional[Set[str]] = None,
+        single_render: Optional[Set[str]] = None,
+    ):
         """Instantiates a Renderer object.
 
         Args:
             mode (Optional[str]): Way to render
             render (Callable[[str], Any]): Function that receives the mode and computes a single frame
+            no_returns_render (Optional[Set[str]]): Set of render modes that don't return any value.
+                The default value is the set {"human"}.
+            single_render (Optional[Set[str]]): Set of render modes that should return a single frame.
+                The default value is the set {"single_rgb_array", "single_depth_array", "single_state_pixels"}.
         """
+        if no_returns_render is None:
+            no_returns_render = NO_RETURNS_RENDER
+        if single_render is None:
+            single_render = SINGLE_RENDER
+
+        self.no_returns_render = no_returns_render
+        self.single_render = single_render
         self.mode = mode
         self.render = render
         self.render_list = []
@@ -49,7 +66,7 @@ class Renderer:
         """
         if self.mode in SINGLE_RENDER:
             return self.render(self.mode)
-        elif self.mode not in NO_RETURNS_RENDER:
+        elif self.mode is not None and self.mode not in NO_RETURNS_RENDER:
             renders = self.render_list
             self.render_list = []
             return renders
