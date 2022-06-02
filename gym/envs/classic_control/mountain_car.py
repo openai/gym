@@ -69,8 +69,7 @@ class MountainCarEnv(gym.Env):
     ### Reward:
 
     The goal is to reach the flag placed on top of the right hill as quickly as possible, as such the agent is
-    penalised with a reward of -1 for each timestep it isn't at the goal and is not penalised (reward = 0) for
-    when it reaches the goal.
+    penalised with a reward of -1 for each timestep.
 
     ### Starting State
 
