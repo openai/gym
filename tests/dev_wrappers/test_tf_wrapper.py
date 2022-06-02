@@ -50,18 +50,22 @@ def make_env(return_reward_idx):
 
 def test_tf_wrapper_reset_info():
     env = DummyJaxEnv(return_reward_idx=0)
-    env = jax_to_tf_v0(env)
     obs = env.reset()
-    assert isinstance(obs, tf.Tensor)
-    del obs
+    assert isinstance(obs, jnp.ndarray) and not isinstance(obs, np.ndarray)
 
-    obs = env.reset(return_info=False)
-    assert isinstance(obs, tf.Tensor)
-    del obs
+    env = jax_to_tf_v0(env)
+    tf_obs = env.reset()
+    assert isinstance(tf_obs, tf.Tensor)
+    assert tf_obs.numpy() == obs
 
-    obs, info = env.reset(return_info=True)
-    assert isinstance(obs, tf.Tensor)
+    tf_obs = env.reset(return_info=False)
+    assert isinstance(tf_obs, tf.Tensor)
+    assert tf_obs.numpy() == obs
+
+    tf_obs, info = env.reset(return_info=True)
+    assert isinstance(tf_obs, tf.Tensor)
     assert isinstance(info, dict)
+    assert tf_obs.numpy() == obs
 
 
 def test_tf_wrapper_step():

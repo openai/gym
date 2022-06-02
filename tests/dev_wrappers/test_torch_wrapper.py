@@ -50,18 +50,22 @@ def make_env(return_reward_idx):
 
 def test_torch_wrapper_reset_info():
     env = DummyJaxEnv(return_reward_idx=0)
-    env = jax_to_torch_v0(env)
     obs = env.reset()
-    assert isinstance(obs, torch.Tensor)
-    del obs
+    assert isinstance(obs, jnp.ndarray) and not isinstance(obs, np.ndarray)
 
-    obs = env.reset(return_info=False)
-    assert isinstance(obs, torch.Tensor)
-    del obs
+    env = jax_to_torch_v0(env)
+    torch_obs = env.reset()
+    assert isinstance(torch_obs, torch.Tensor)
+    assert torch_obs.numpy() == obs
 
-    obs, info = env.reset(return_info=True)
-    assert isinstance(obs, torch.Tensor)
+    torch_obs = env.reset(return_info=False)
+    assert isinstance(torch_obs, torch.Tensor)
+    assert torch_obs.numpy() == obs
+
+    torch_obs, info = env.reset(return_info=True)
+    assert isinstance(torch_obs, torch.Tensor)
     assert isinstance(info, dict)
+    assert torch_obs.numpy() == obs
 
 
 def test_torch_wrapper_step():
