@@ -4,11 +4,12 @@ import re
 
 from setuptools import find_packages, setup
 
-with open('gym/version.py') as file:
+with open("gym/version.py") as file:
     full_version = file.read()
-    assert re.match(r'VERSION = "\d\.\d+\.\d+"\n', full_version).group(0) == full_version, \
-        f'Unexpected version re'
-    VERSION = re.search(r'\d\.\d+\.\d+', full_version).group(0)
+    assert (
+        re.match(r'VERSION = "\d\.\d+\.\d+"\n', full_version).group(0) == full_version
+    ), f"Unexpected version: {full_version}"
+    VERSION = re.search(r"\d\.\d+\.\d+", full_version).group(0)
 
 # Environment-specific dependencies.
 extras = {
@@ -24,23 +25,23 @@ extras = {
 
 # Testing dependency groups.
 testing_group = set(extras.keys()) - {"accept-rom-license", "atari"}
-extras["testing"] = list(set(
-    itertools.chain.from_iterable(map(lambda group: extras[group], testing_group))
-)) + ["pytest", "mock"]
+extras["testing"] = list(
+    set(itertools.chain.from_iterable(map(lambda group: extras[group], testing_group)))
+) + ["pytest", "mock"]
 
 # All dependency groups
 all_groups = set(extras.keys()) - {"accept-rom-license"}
-extras["all"] = list(set(
-    itertools.chain.from_iterable(map(lambda group: extras[group], all_groups))
-))
+extras["all"] = list(
+    set(itertools.chain.from_iterable(map(lambda group: extras[group], all_groups)))
+)
 
 # Gets the requirements from "requirements.txt"
-with open('requirements.txt') as file:
+with open("requirements.txt") as file:
     install_requirements = list(map(lambda line: line.strip(), file.readlines()))
 
 # Updates the test_requirements.txt based on `extras["testing"]`
-with open('test_requirements.txt', 'w') as file:
-    file.writelines(list(map(lambda line: f'{line}\n', extras["testing"])))
+with open("test_requirements.txt", "w") as file:
+    file.writelines(list(map(lambda line: f"{line}\n", extras["testing"])))
 
 setup(
     name="gym",
