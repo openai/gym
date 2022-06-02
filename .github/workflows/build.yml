@@ -5,6 +5,8 @@ on:
     branches:
       - '*'
   push:
+permissions:
+  pull-requests: write
 
 jobs:
   build:
