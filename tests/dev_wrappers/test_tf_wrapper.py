@@ -6,7 +6,7 @@ import pytest
 import tensorflow as tf
 
 import gym
-from gym.dev_wrappers.tf_wrapper import TensorFlowWrapper
+from gym.wrappers import jax_to_tf_v0
 
 
 class DummyJaxEnv(gym.Env):
@@ -50,7 +50,7 @@ def make_env(return_reward_idx):
 
 def test_tf_wrapper_reset_info():
     env = DummyJaxEnv(return_reward_idx=0)
-    env = TensorFlowWrapper(env)
+    env = jax_to_tf_v0(env)
     obs = env.reset()
     assert isinstance(obs, tf.Tensor)
     del obs
@@ -66,7 +66,7 @@ def test_tf_wrapper_reset_info():
 
 def test_tf_wrapper_step():
     env = DummyJaxEnv(return_reward_idx=0)
-    env = TensorFlowWrapper(env)
+    env = jax_to_tf_v0(env)
 
     (obs, *_) = env.step(tf.convert_to_tensor(env.action_space.sample()))
     assert isinstance(obs, tf.Tensor)

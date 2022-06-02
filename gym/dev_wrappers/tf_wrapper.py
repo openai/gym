@@ -13,8 +13,15 @@ except ImportError:
     )
 
 
-class TensorFlowWrapper(Wrapper):
+class jax_to_tf_v0(Wrapper):
     def __init__(self, env: Union[Env, Wrapper]):
+        """This wrapper will convert TensorFlow inputs for the actions and observations to Jax arrays
+        for an underlying Jax environment then convert the return observations from Jax arrays back to
+        TensorFlow tensors.
+
+        Args:
+            env: The JAx-based environment to wrap
+        """
         super().__init__(env)
 
     def step(self, action: tf.Tensor):

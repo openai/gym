@@ -11,17 +11,16 @@ except ImportError:
 from brax.io.torch import jax_to_torch, torch_to_jax
 
 
-class TorchWrapper(Wrapper):
-    """This wrapper will convert torch inputs for the actions and observations to Jax arrays
-    for an underlying Jax environment then convert the return observations from Jax arrays
-    back to torch tensors.
-
-    Args:
-        env: The Jax-based environment to wrap
-        device: The device the torch Tensors should be moved to
-    """
-
+class jax_to_torch_v0(Wrapper):
     def __init__(self, env: Union[Wrapper, Env], device: Optional[torch.device] = None):
+        """This wrapper will convert torch inputs for the actions and observations to Jax arrays
+        for an underlying Jax environment then convert the return observations from Jax arrays
+        back to torch tensors.
+
+        Args:
+            env: The Jax-based environment to wrap
+            device: The device the torch Tensors should be moved to
+        """
 
         super().__init__(env)
         self.device: Optional[torch.device] = device
