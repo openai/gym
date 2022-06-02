@@ -31,16 +31,8 @@ class TorchWrapper(Wrapper):
         return obs, reward, done, info
 
     def reset(self, **kwargs) -> Union[torch.Tensor, tuple[torch.Tensor, dict]]:
-        return_info = kwargs.get("return_info", False)
-        if return_info:
-            obs, info = self.env.reset(**kwargs)
+        result = self.env.reset(**kwargs)
+        if kwargs.get("return_info", False):
+            return jax_to_torch(result[0], device=self.device), result[1]
         else:
-            obs = self.env.reset(**kwargs)
-
-        # TODO: Verify this captures vector envs and converts everything from jax to torch
-        obs = jax_to_torch(obs, device=self.device)
-
-        if return_info:
-            return obs, info
-        else:
-            return obs
+            return jax_to_torch(result, device=self.device)
