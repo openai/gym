@@ -1,9 +1,16 @@
 from typing import Union
 
 import jax.dlpack
-import tensorflow as tf
 
 from gym import Env, Wrapper
+from gym.error import DependencyNotInstalled
+
+try:
+    import tensorflow as tf
+except ImportError:
+    raise DependencyNotInstalled(
+        "tensorflow is not installed, run `pip install tensorflow`"
+    )
 
 
 class TensorFlowWrapper(Wrapper):

@@ -1,9 +1,14 @@
 from typing import Optional, Tuple, Union
 
-import torch
-from brax.io.torch import jax_to_torch, torch_to_jax
-
 from gym import Env, Wrapper
+from gym.error import DependencyNotInstalled
+
+try:
+    import torch
+except ImportError:
+    raise DependencyNotInstalled("torch is not installed, run `pip install torch`")
+
+from brax.io.torch import jax_to_torch, torch_to_jax
 
 
 class TorchWrapper(Wrapper):
