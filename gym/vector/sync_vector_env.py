@@ -163,7 +163,7 @@ class SyncVectorEnv(VectorEnv):
                 info,
             ) = step_api_compatibility(env.step(action), True)
             if self._terminateds[i] or self._truncateds[i]:
-                info["closing_observation"] = observation
+                info["final_observation"] = observation
                 observation = env.reset()
             observations.append(observation)
             infos = self._add_info(infos, info, i)

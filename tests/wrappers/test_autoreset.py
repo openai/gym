@@ -132,8 +132,8 @@ def test_autoreset_wrapper_autoreset():
     assert reward == 1
     assert info == {
         "count": 0,
-        "closing_observation": np.array([3]),
-        "closing_info": {"count": 3},
+        "final_observation": np.array([3]),
+        "final_info": {"count": 3},
     }
 
     obs, reward, done, info = env.step(action)

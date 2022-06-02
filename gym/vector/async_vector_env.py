@@ -621,7 +621,7 @@ def _worker(index, env_fn, pipe, parent_pipe, shared_memory, error_queue):
                     info,
                 ) = step_api_compatibility(env.step(data), True)
                 if terminated or truncated:
-                    info["closing_observation"] = observation
+                    info["final_observation"] = observation
                     observation = env.reset()
                 pipe.send(((observation, reward, terminated, truncated, info), True))
             elif command == "seed":
@@ -696,7 +696,7 @@ def _worker_shared_memory(index, env_fn, pipe, parent_pipe, shared_memory, error
                     info,
                 ) = step_api_compatibility(env.step(data), True)
                 if terminated or truncated:
-                    info["closing_observation"] = observation
+                    info["final_observation"] = observation
                     observation = env.reset()
                 write_to_shared_memory(
                     observation_space, index, observation, shared_memory
