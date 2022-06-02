@@ -10,16 +10,13 @@ class TensorFlowWrapper(Wrapper):
     def __init__(self, env: Union[Env, Wrapper]):
 
         super().__init__(env)
-        self.is_vector_env = getattr(env, "is_vector_env", False)
 
     def step(self, action: tf.Tensor):
         jax_action = self._tf_to_jax(action)
         obs, reward, done, info = self.env.step(jax_action)
 
-        if self.is_vector_env:
-            obs = [self._jax_to_tf(o) for o in obs]
-        else:
-            obs = self._jax_to_tf(obs)
+        # TODO: Verify this captures vector envs and converts everything from jax to tensorflow
+        obs = self._jax_to_tf(obs)
 
         return obs, reward, done, info
 
@@ -30,11 +27,8 @@ class TensorFlowWrapper(Wrapper):
         else:
             obs = self.env.reset(**kwargs)
 
-        # TODO: Verify this captures vector envs and converts everything from jax to torch
-        if self.is_vector_env:
-            obs = [self._jax_to_tf(o) for o in obs]
-        else:
-            obs = self._jax_to_tf(obs)
+        # TODO: Verify this captures vector envs and converts everything from jax to tensorflow
+        obs = self._jax_to_tf(obs)
 
         if return_info:
             return obs, info

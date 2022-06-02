@@ -20,17 +20,13 @@ class TorchWrapper(Wrapper):
 
         super().__init__(env)
         self.device: Optional[torch.device] = device
-        self.is_vector_env = getattr(env, "is_vector_env", False)
 
     def step(self, action: torch.Tensor) -> Tuple[torch.Tensor, float, bool, dict]:
         jax_action = torch_to_jax(action)
         obs, reward, done, info = self.env.step(jax_action)
 
         # TODO: Verify this captures vector envs and converts everything from jax to torch
-        if self.is_vector_env:
-            obs = [jax_to_torch(o, device=self.device) for o in obs]
-        else:
-            obs = jax_to_torch(obs, device=self.device)
+        obs = jax_to_torch(obs, device=self.device)
 
         return obs, reward, done, info
 
@@ -42,10 +38,7 @@ class TorchWrapper(Wrapper):
             obs = self.env.reset(**kwargs)
 
         # TODO: Verify this captures vector envs and converts everything from jax to torch
-        if self.is_vector_env:
-            obs = [jax_to_torch(o, device=self.device) for o in obs]
-        else:
-            obs = jax_to_torch(obs, device=self.device)
+        obs = jax_to_torch(obs, device=self.device)
 
         if return_info:
             return obs, info
