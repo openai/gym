@@ -202,6 +202,11 @@ def play(
         seed: Random seed used when resetting the environment. If None, no seed is used.
         noop: The action used when no key input has been entered, or the entered key combination is unknown.
     """
+
+    deprecation(
+        "`play.py` currently supports only the old step API which returns one boolean, however this will soon be updated to support only the new step api that returns two bools."
+    )
+
     env.reset(seed=seed)
 
     key_code_to_action = {}
