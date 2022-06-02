@@ -56,16 +56,16 @@ def test_torch_wrapper_reset_info():
     env = jax_to_torch_v0(env)
     torch_obs = env.reset()
     assert isinstance(torch_obs, torch.Tensor)
-    assert torch_obs.numpy() == obs
+    assert torch_obs.numpy() == jnp.asarray(obs)
 
     torch_obs = env.reset(return_info=False)
     assert isinstance(torch_obs, torch.Tensor)
-    assert torch_obs.numpy() == obs
+    assert torch_obs.numpy() == jnp.asarray(obs)
 
     torch_obs, info = env.reset(return_info=True)
     assert isinstance(torch_obs, torch.Tensor)
     assert isinstance(info, dict)
-    assert torch_obs.numpy() == obs
+    assert torch_obs.numpy() == jnp.asarray(obs)
 
 
 def test_torch_wrapper_step():

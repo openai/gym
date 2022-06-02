@@ -56,16 +56,16 @@ def test_tf_wrapper_reset_info():
     env = jax_to_tf_v0(env)
     tf_obs = env.reset()
     assert isinstance(tf_obs, tf.Tensor)
-    assert tf_obs.numpy() == obs
+    assert tf_obs.numpy() == jnp.asarray(obs)
 
     tf_obs = env.reset(return_info=False)
     assert isinstance(tf_obs, tf.Tensor)
-    assert tf_obs.numpy() == obs
+    assert tf_obs.numpy() == jnp.asarray(obs)
 
     tf_obs, info = env.reset(return_info=True)
     assert isinstance(tf_obs, tf.Tensor)
     assert isinstance(info, dict)
-    assert tf_obs.numpy() == obs
+    assert tf_obs.numpy() == jnp.asarray(obs)
 
 
 def test_tf_wrapper_step():
