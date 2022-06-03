@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 
 from gym import utils
@@ -204,6 +206,7 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     def __init__(
         self,
+        render_mode: Optional[str] = None,
         xml_file="humanoid.xml",
         forward_reward_weight=1.25,
         ctrl_cost_weight=0.1,
@@ -227,7 +230,7 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             exclude_current_positions_from_observation
         )
 
-        mujoco_env.MujocoEnv.__init__(self, xml_file, 5)
+        mujoco_env.MujocoEnv.__init__(self, xml_file, 5, render_mode=render_mode)
 
     @property
     def healthy_reward(self):
@@ -306,6 +309,7 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             "forward_reward": forward_reward,
         }
 
+        self.renderer.render_step()
         return observation, reward, done, info
 
     def reset_model(self):

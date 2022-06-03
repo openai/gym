@@ -11,12 +11,12 @@ DEFAULT_CAMERA_CONFIG = {}
 class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     def __init__(
         self,
+        render_mode: Optional[str] = None,
         xml_file="swimmer.xml",
         forward_reward_weight=1.0,
         ctrl_cost_weight=1e-4,
         reset_noise_scale=0.1,
         exclude_current_positions_from_observation=True,
-        **kwargs
     ):
         utils.EzPickle.__init__(**locals())
 
@@ -29,7 +29,7 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             exclude_current_positions_from_observation
         )
 
-        mujoco_env.MujocoEnv.__init__(self, xml_file, 4, mujoco_bindings="mujoco_py", **kwargs)
+        mujoco_env.MujocoEnv.__init__(self, xml_file, 4, render_mode=render_mode, mujoco_bindings="mujoco_py")
 
     def control_cost(self, action):
         control_cost = self._ctrl_cost_weight * np.sum(np.square(action))

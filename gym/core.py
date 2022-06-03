@@ -50,7 +50,8 @@ class _EnvDecorator(type):  # TODO: remove with gym 1.0
                     "but you didn't specified the argument render_mode at environment initialization. "
                     "To maintain backward compatibility, the environment will render in human mode.\n"
                     "If you want to render in human mode, initialize the environment in this way: "
-                    "gym.make('EnvName', render_mode='human')"
+                    "gym.make('EnvName', render_mode='human') and don't call the render method.\n"
+                    "See here for more information: https://www.gymlibrary.ml/content/api/"
                 )
 
             return render_func(self, *args, **kwargs)

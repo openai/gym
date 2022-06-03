@@ -254,7 +254,6 @@ class MujocoEnv(gym.Env):
 
                 self._get_viewer(mode).render(width, height, camera_id=camera_id)
 
-
         if mode in ["rgb_array", "single_rgb_array"]:
             data = self._get_viewer(mode).read_pixels(width, height, depth=False)
             # original image is upside-down, so flip it

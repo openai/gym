@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 
 from gym import utils
@@ -14,6 +16,7 @@ DEFAULT_CAMERA_CONFIG = {
 class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     def __init__(
         self,
+        render_mode: Optional[str] = None,
         xml_file="walker2d.xml",
         forward_reward_weight=1.0,
         ctrl_cost_weight=1e-3,
@@ -42,7 +45,7 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             exclude_current_positions_from_observation
         )
 
-        mujoco_env.MujocoEnv.__init__(self, xml_file, 4, mujoco_bindings="mujoco_py", **kwargs)
+        mujoco_env.MujocoEnv.__init__(self, xml_file, 4, render_mode=render_mode, mujoco_bindings="mujoco_py")
 
     @property
     def healthy_reward(self):
