@@ -222,6 +222,12 @@ class RenderContext:
 
         self.scn.ngeom += 1
 
+    def close(self):
+        """Override close in your rendering subclass to perform any necessary cleanup
+        after env.close() is called.
+        """
+        pass
+
 
 class RenderContextOffscreen(RenderContext):
     """Offscreen rendering class with opengl context."""
@@ -304,7 +310,7 @@ class Viewer(RenderContext):
 
         super().__init__(model, data, offscreen=False)
 
-    def _key_callback(self, key, action):
+    def _key_callback(self, window, key, scancode, action, mods):
         if action != glfw.RELEASE:
             return
         # Switch cameras
