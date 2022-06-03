@@ -1,4 +1,3 @@
-import os
 from collections import OrderedDict
 from os import path
 from typing import Optional
@@ -6,19 +5,10 @@ from typing import Optional
 import numpy as np
 
 import gym
-from gym import error, spaces
+from gym import error, logger, spaces
 from gym.utils.renderer import Renderer
 
-try:
-    import mujoco_py
-except ImportError as e:
-    raise error.DependencyNotInstalled(
-        "{}. (HINT: you need to install mujoco_py, and also perform the setup instructions here: https://github.com/openai/mujoco-py/.)".format(
-            e
-        )
-    )
-
-DEFAULT_SIZE = 500
+DEFAULT_SIZE = 480
 
 
 def convert_observation_to_space(observation):
@@ -44,28 +34,57 @@ def convert_observation_to_space(observation):
 class MujocoEnv(gym.Env):
     """Superclass for all MuJoCo environments."""
 
-    def __init__(
-        self,
-        model_path,
-        frame_skip,
-        render_mode: Optional[str] = None,
-        width=DEFAULT_SIZE,
-        height=DEFAULT_SIZE,
-        camera_id=None,
-        camera_name=None,
-    ):
+    def __init__(self, model_path, frame_skip, render_mode: Optional[str] = None, mujoco_bindings="mujoco"):
         if model_path.startswith("/"):
             fullpath = model_path
         else:
-            fullpath = os.path.join(os.path.dirname(__file__), "assets", model_path)
+            fullpath = path.join(path.dirname(__file__), "assets", model_path)
         if not path.exists(fullpath):
             raise OSError(f"File {fullpath} does not exist")
-        self.frame_skip = frame_skip
-        self.model = mujoco_py.load_model_from_path(fullpath)
-        self.sim = mujoco_py.MjSim(self.model)
-        self.data = self.sim.data
-        self.viewer = None
+
+        if mujoco_bindings == "mujoco_py":
+            logger.warn(
+                "This version of the mujoco environments depends "
+                "on the mujoco-py bindings, which are no longer maintained "
+                "and may stop working. Please upgrade to the v4 versions of "
+                "the environments (which depend on the mujoco python bindings instead), unless "
+                "you are trying to precisely replicate previous works)."
+            )
+            try:
+                import mujoco_py
+
+                self._mujoco_bindings = mujoco_py
+            except ImportError as e:
+                raise error.DependencyNotInstalled(
+                    "{}. (HINT: you need to install mujoco_py, and also perform the setup instructions here: https://github.com/openai/mujoco-py/.)".format(
+                        e
+                    )
+                )
+
+            self.model = self._mujoco_bindings.load_model_from_path(fullpath)
+            self.sim = self._mujoco_bindings.MjSim(self.model)
+            self.data = self.sim.data
+
+        elif mujoco_bindings == "mujoco":
+            try:
+                import mujoco
+
+                self._mujoco_bindings = mujoco
+
+            except ImportError as e:
+                raise error.DependencyNotInstalled(
+                    f"{e}. (HINT: you need to install mujoco)"
+                )
+            self.model = self._mujoco_bindings.MjModel.from_xml_path(fullpath)
+            self.data = self._mujoco_bindings.MjData(self.model)
+
+        self.init_qpos = self.data.qpos.ravel().copy()
+        self.init_qvel = self.data.qvel.ravel().copy()
         self._viewers = {}
+
+        self.frame_skip = frame_skip
+
+        self.viewer = None
 
         self.metadata = {
             "render_modes": [
@@ -78,34 +97,11 @@ class MujocoEnv(gym.Env):
             "render_fps": int(np.round(1.0 / self.dt)),
         }
 
-        self.init_qpos = self.sim.data.qpos.ravel().copy()
-        self.init_qvel = self.sim.data.qvel.ravel().copy()
-
         self._set_action_space()
 
         assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
         self.renderer = Renderer(self.render_mode, self._render)
-        self.width = width
-        self.height = height
-        self.camera_id = camera_id
-        self.camera_name = camera_name
-
-        if self.render_mode == "rgb_array" or self.render_mode == "depth_array":
-            if self.camera_id is not None and self.camera_name is not None:
-                raise ValueError(
-                    "Both `camera_id` and `camera_name` cannot be"
-                    " specified at the same time."
-                )
-
-            if self.camera_name is None and self.camera_id is None:
-                self.camera_name = "track"
-
-            if (
-                self.camera_id is None
-                and self.camera_name in self.model._camera_name2id
-            ):
-                self.camera_id = self.model.camera_name2id(self.camera_name)
 
         action = self.action_space.sample()
         observation, _reward, done, _info = self.step(action)
@@ -151,7 +147,12 @@ class MujocoEnv(gym.Env):
         options: Optional[dict] = None,
     ):
         super().reset(seed=seed)
-        self.sim.reset()
+
+        if self._mujoco_bindings.__name__ == "mujoco_py":
+            self.sim.reset()
+        else:
+            self._mujoco_bindings.mj_resetData(self.model, self.data)
+
         ob = self.reset_model()
         self.renderer.reset()
         self.renderer.render_step()
@@ -162,12 +163,19 @@ class MujocoEnv(gym.Env):
 
     def set_state(self, qpos, qvel):
         assert qpos.shape == (self.model.nq,) and qvel.shape == (self.model.nv,)
-        old_state = self.sim.get_state()
-        new_state = mujoco_py.MjSimState(
-            old_state.time, qpos, qvel, old_state.act, old_state.udd_state
-        )
-        self.sim.set_state(new_state)
-        self.sim.forward()
+        if self._mujoco_bindings.__name__ == "mujoco_py":
+            state = self.sim.get_state()
+            state = self._mujoco_bindings.MjSimState(
+                state.time, qpos, qvel, state.act, state.udd_state
+            )
+            self.sim.set_state(state)
+            self.sim.forward()
+        else:
+            self.data.qpos[:] = np.copy(qpos)
+            self.data.qvel[:] = np.copy(qvel)
+            if self.model.na == 0:
+                self.data.act[:] = None
+            self._mujoco_bindings.mj_forward(self.model, self.data)
 
     @property
     def dt(self):
@@ -177,38 +185,84 @@ class MujocoEnv(gym.Env):
         if np.array(ctrl).shape != self.action_space.shape:
             raise ValueError("Action dimension mismatch")
 
-        self.sim.data.ctrl[:] = ctrl
+        if self._mujoco_bindings.__name__ == "mujoco_py":
+            self.sim.data.ctrl[:] = ctrl
+        else:
+            self.data.ctrl[:] = ctrl
         for _ in range(n_frames):
-            self.sim.step()
+            if self._mujoco_bindings.__name__ == "mujoco_py":
+                self.sim.step()
+            else:
+                self._mujoco_bindings.mj_step(self.model, self.data)
 
-    def render(self, mode="human"):
+        # As of MuJoCo 2.0, force-related quantities like cacc are not computed
+        # unless there's a force sensor in the model.
+        # See https://github.com/openai/gym/issues/1541
+        if self._mujoco_bindings.__name__ != "mujoco_py":
+            self._mujoco_bindings.mj_rnePostConstraint(self.model, self.data)
+
+    def render(
+            self,
+            mode="human",
+            width=DEFAULT_SIZE,
+            height=DEFAULT_SIZE,
+            camera_id=None,
+            camera_name=None,
+    ):
         if self.render_mode is not None:
             return self.renderer.get_renders()
         else:
-            return self._render(mode)
+            return self._render(
+                mode=mode,
+                width=width,
+                height=height,
+                camera_id=camera_id,
+                camera_name=camera_name
+            )
 
-    def _render(self, mode):
+    def _render(
+            self,
+            mode="human",
+            width=DEFAULT_SIZE,
+            height=DEFAULT_SIZE,
+            camera_id=None,
+            camera_name=None,
+    ):
         assert mode in self.metadata["render_modes"]
 
+        if mode == "rgb_array" or mode == "depth_array":
+            if camera_id is not None and camera_name is not None:
+                raise ValueError(
+                    "Both `camera_id` and `camera_name` cannot be"
+                    " specified at the same time."
+                )
+
+            no_camera_specified = camera_name is None and camera_id is None
+            if no_camera_specified:
+                camera_name = "track"
+
+            if camera_id is None:
+                if self._mujoco_bindings.__name__ == "mujoco_py":
+                    if camera_name in self.model._camera_name2id:
+                        camera_id = self.model.camera_name2id(camera_name)
+                else:
+                    camera_id = self._mujoco_bindings.mj_name2id(
+                        self.model,
+                        self._mujoco_bindings.mjtObj.mjOBJ_CAMERA,
+                        camera_name,
+                    )
+
+                self._get_viewer(mode).render(width, height, camera_id=camera_id)
+
+
         if mode in ["rgb_array", "single_rgb_array"]:
-            self._get_viewer(mode).render(
-                self.width, self.height, camera_id=self.camera_id
-            )
-            # window size used for old mujoco-py:
-            data = self._get_viewer(mode).read_pixels(
-                self.width, self.height, depth=False
-            )
+            data = self._get_viewer(mode).read_pixels(width, height, depth=False)
             # original image is upside-down, so flip it
             return data[::-1, :, :]
         elif mode in ["depth_array", "single_depth_array"]:
-            self._get_viewer(mode).render(
-                self.width, self.height, camera_id=self.camera_id
-            )
-            # window size used for old mujoco-py:
+            self._get_viewer(mode).render(width, height)
             # Extract depth part of the read_pixels() tuple
-            data = self._get_viewer(mode).read_pixels(
-                self.width, self.height, depth=True
-            )[1]
+            data = self._get_viewer(mode).read_pixels(width, height, depth=True)[1]
             # original image is upside-down, so flip it
             return data[::-1, :]
         elif mode == "human":
@@ -216,29 +270,45 @@ class MujocoEnv(gym.Env):
 
     def close(self):
         if self.viewer is not None:
-            # self.viewer.finish()
             self.viewer = None
             self._viewers = {}
 
-    def _get_viewer(self, mode):
+    def _get_viewer(self, mode, width=DEFAULT_SIZE, height=DEFAULT_SIZE):
         self.viewer = self._viewers.get(mode)
         if self.viewer is None:
             if mode == "human":
-                self.viewer = mujoco_py.MjViewer(self.sim)
+                if self._mujoco_bindings.__name__ == "mujoco_py":
+                    self.viewer = self._mujoco_bindings.MjViewer(self.sim)
+                else:
+                    from gym.envs.mujoco.mujoco_rendering import Viewer
+
+                    self.viewer = Viewer(self.model, self.data)
             elif mode in [
                 "rgb_array",
                 "depth_array",
                 "single_rgb_array",
                 "single_depth_array",
             ]:
-                self.viewer = mujoco_py.MjRenderContextOffscreen(self.sim, -1)
+                if self._mujoco_bindings.__name__ == "mujoco_py":
+                    self.viewer = self._mujoco_bindings.MjRenderContextOffscreen(
+                        self.sim, -1
+                    )
+                else:
+                    from gym.envs.mujoco.mujoco_rendering import RenderContextOffscreen
+
+                    self.viewer = RenderContextOffscreen(
+                        width, height, self.model, self.data
+                    )
 
             self.viewer_setup()
             self._viewers[mode] = self.viewer
         return self.viewer
 
     def get_body_com(self, body_name):
-        return self.data.get_body_xpos(body_name)
+        if self._mujoco_bindings.__name__ == "mujoco_py":
+            return self.data.get_body_xpos(body_name)
+        else:
+            return self.data.body(body_name).xpos
 
     def state_vector(self):
-        return np.concatenate([self.sim.data.qpos.flat, self.sim.data.qvel.flat])
+        return np.concatenate([self.data.qpos.flat, self.data.qvel.flat])

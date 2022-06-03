@@ -6,7 +6,7 @@ import pytest
 from gym import envs
 from gym.spaces import Box
 from gym.utils.env_checker import check_env
-from tests.envs.spec_list import spec_list
+from tests.envs.spec_list import spec_list, spec_list_no_mujoco_py
 
 
 # This runs a smoketest on each official registered env. We may want
@@ -15,7 +15,9 @@ from tests.envs.spec_list import spec_list
 @pytest.mark.filterwarnings(
     "ignore:.*We recommend you to use a symmetric and normalized Box action space.*"
 )
-@pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
+@pytest.mark.parametrize(
+    "spec", spec_list_no_mujoco_py, ids=[spec.id for spec in spec_list_no_mujoco_py]
+)
 def test_env(spec):
     # Capture warnings
     with pytest.warns(None) as warnings:

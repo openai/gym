@@ -6,7 +6,7 @@ from gym.envs.mujoco import mujoco_env
 
 class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     def __init__(self, **kwargs):
-        mujoco_env.MujocoEnv.__init__(self, "hopper.xml", 4, **kwargs)
+        mujoco_env.MujocoEnv.__init__(self, "hopper.xml", 4, mujoco_bindings="mujoco_py", **kwargs)
         utils.EzPickle.__init__(self)
 
     def step(self, a):
