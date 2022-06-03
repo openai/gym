@@ -188,6 +188,8 @@ class MujocoEnv(gym.Env):
             return self._render(mode)
 
     def _render(self, mode):
+        assert mode in self.metadata["render_modes"]
+
         if mode in ["rgb_array", "single_rgb_array"]:
             self._get_viewer(mode).render(
                 self.width, self.height, camera_id=self.camera_id

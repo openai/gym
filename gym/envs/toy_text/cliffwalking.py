@@ -156,31 +156,31 @@ class CliffWalkingEnv(Env):
             return self._render(mode)
 
     def _render(self, mode):
-        if mode is not None:
-            outfile = StringIO() if mode == "ansi" else sys.stdout
+        assert mode in self.metadata["render_modes"]
+        outfile = StringIO() if mode == "ansi" else sys.stdout
 
-            for s in range(self.nS):
-                position = np.unravel_index(s, self.shape)
-                if self.s == s:
-                    output = " x "
-                # Print terminal state
-                elif position == (3, 11):
-                    output = " T "
-                elif self._cliff[position]:
-                    output = " C "
-                else:
-                    output = " o "
+        for s in range(self.nS):
+            position = np.unravel_index(s, self.shape)
+            if self.s == s:
+                output = " x "
+            # Print terminal state
+            elif position == (3, 11):
+                output = " T "
+            elif self._cliff[position]:
+                output = " C "
+            else:
+                output = " o "
 
-                if position[1] == 0:
-                    output = output.lstrip()
-                if position[1] == self.shape[1] - 1:
-                    output = output.rstrip()
-                    output += "\n"
+            if position[1] == 0:
+                output = output.lstrip()
+            if position[1] == self.shape[1] - 1:
+                output = output.rstrip()
+                output += "\n"
 
-                outfile.write(output)
-            outfile.write("\n")
+            outfile.write(output)
+        outfile.write("\n")
 
-            # No need to return anything for human
-            if mode != "human":
-                with closing(outfile):
-                    return outfile.getvalue()
+        # No need to return anything for human
+        if mode != "human":
+            with closing(outfile):
+                return outfile.getvalue()

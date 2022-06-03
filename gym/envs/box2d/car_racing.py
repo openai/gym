@@ -508,64 +508,64 @@ class CarRacing(gym.Env, EzPickle):
             return self._render(mode)
 
     def _render(self, mode: str = "human"):
-        if mode is not None:
-            try:
-                import pygame
-            except ImportError:
-                raise DependencyNotInstalled(
-                    "pygame is not installed, run `pip install gym[box2d]`"
-                )
+        assert mode in self.metadata["render_modes"]
+        try:
+            import pygame
+        except ImportError:
+            raise DependencyNotInstalled(
+                "pygame is not installed, run `pip install gym[box2d]`"
+            )
 
-            pygame.font.init()
+        pygame.font.init()
 
-            if self.screen is None and mode == "human":
-                pygame.init()
-                pygame.display.init()
-                self.screen = pygame.display.set_mode((WINDOW_W, WINDOW_H))
-            if self.clock is None:
-                self.clock = pygame.time.Clock()
+        if self.screen is None and mode == "human":
+            pygame.init()
+            pygame.display.init()
+            self.screen = pygame.display.set_mode((WINDOW_W, WINDOW_H))
+        if self.clock is None:
+            self.clock = pygame.time.Clock()
 
-            if "t" not in self.__dict__:
-                return  # reset() not called yet
+        if "t" not in self.__dict__:
+            return  # reset() not called yet
 
-            self.surf = pygame.Surface((WINDOW_W, WINDOW_H))
+        self.surf = pygame.Surface((WINDOW_W, WINDOW_H))
 
-            # computing transformations
-            angle = -self.car.hull.angle
-            # Animating first second zoom.
-            zoom = 0.1 * SCALE * max(1 - self.t, 0) + ZOOM * SCALE * min(self.t, 1)
-            scroll_x = -(self.car.hull.position[0]) * zoom
-            scroll_y = -(self.car.hull.position[1]) * zoom
-            trans = pygame.math.Vector2((scroll_x, scroll_y)).rotate_rad(angle)
-            trans = (WINDOW_W / 2 + trans[0], WINDOW_H / 4 + trans[1])
+        # computing transformations
+        angle = -self.car.hull.angle
+        # Animating first second zoom.
+        zoom = 0.1 * SCALE * max(1 - self.t, 0) + ZOOM * SCALE * min(self.t, 1)
+        scroll_x = -(self.car.hull.position[0]) * zoom
+        scroll_y = -(self.car.hull.position[1]) * zoom
+        trans = pygame.math.Vector2((scroll_x, scroll_y)).rotate_rad(angle)
+        trans = (WINDOW_W / 2 + trans[0], WINDOW_H / 4 + trans[1])
 
-            self._render_road(zoom, trans, angle)
-            self.car.draw(self.surf, zoom, trans, angle, mode != "state_pixels")
+        self._render_road(zoom, trans, angle)
+        self.car.draw(self.surf, zoom, trans, angle, mode not in ["state_pixels", "single_state_pixels"])
 
-            self.surf = pygame.transform.flip(self.surf, False, True)
+        self.surf = pygame.transform.flip(self.surf, False, True)
 
-            # showing stats
-            self._render_indicators(WINDOW_W, WINDOW_H)
+        # showing stats
+        self._render_indicators(WINDOW_W, WINDOW_H)
 
-            font = pygame.font.Font(pygame.font.get_default_font(), 42)
-            text = font.render("%04i" % self.reward, True, (255, 255, 255), (0, 0, 0))
-            text_rect = text.get_rect()
-            text_rect.center = (60, WINDOW_H - WINDOW_H * 2.5 / 40.0)
-            self.surf.blit(text, text_rect)
+        font = pygame.font.Font(pygame.font.get_default_font(), 42)
+        text = font.render("%04i" % self.reward, True, (255, 255, 255), (0, 0, 0))
+        text_rect = text.get_rect()
+        text_rect.center = (60, WINDOW_H - WINDOW_H * 2.5 / 40.0)
+        self.surf.blit(text, text_rect)
 
-            if mode == "human":
-                pygame.event.pump()
-                self.clock.tick(self.metadata["render_fps"])
-                self.screen.fill(0)
-                self.screen.blit(self.surf, (0, 0))
-                pygame.display.flip()
+        if mode == "human":
+            pygame.event.pump()
+            self.clock.tick(self.metadata["render_fps"])
+            self.screen.fill(0)
+            self.screen.blit(self.surf, (0, 0))
+            pygame.display.flip()
 
-            if mode in ["rgb_array", "single_rgb_array"]:
-                return self._create_image_array(self.surf, (VIDEO_W, VIDEO_H))
-            elif mode in ["state_pixels", "single_state_pixels"]:
-                return self._create_image_array(self.surf, (STATE_W, STATE_H))
-            else:
-                return self.isopen
+        if mode in ["rgb_array", "single_rgb_array"]:
+            return self._create_image_array(self.surf, (VIDEO_W, VIDEO_H))
+        elif mode in ["state_pixels", "single_state_pixels"]:
+            return self._create_image_array(self.surf, (STATE_W, STATE_H))
+        else:
+            return self.isopen
 
     def _render_road(self, zoom, translation, angle):
         bounds = PLAYFIELD

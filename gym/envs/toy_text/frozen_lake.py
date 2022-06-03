@@ -245,6 +245,7 @@ class FrozenLakeEnv(Env):
             return self._render(mode)
 
     def _render(self, mode="human"):
+        assert mode in self.metadata["render_modes"]
         if mode == "ansi":
             return self._render_text()
         elif mode in ["human", "rgb_array", "single_rgb_array"]:

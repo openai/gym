@@ -283,89 +283,89 @@ class AcrobotEnv(core.Env):
             return self._render(mode)
 
     def _render(self, mode="human"):
-        if mode is not None:
-            try:
-                import pygame
-                from pygame import gfxdraw
-            except ImportError:
-                raise DependencyNotInstalled(
-                    "pygame is not installed, run `pip install gym[classic_control]`"
-                )
-
-            if self.screen is None:
-                pygame.init()
-                if mode == "human":
-                    pygame.display.init()
-                    self.screen = pygame.display.set_mode(
-                        (self.SCREEN_DIM, self.SCREEN_DIM)
-                    )
-                else:  # mode in ["rgb_array", "single_rgb_array"]
-                    self.screen = pygame.Surface((self.SCREEN_DIM, self.SCREEN_DIM))
-            if self.clock is None:
-                self.clock = pygame.time.Clock()
-
-            surf = pygame.Surface((self.SCREEN_DIM, self.SCREEN_DIM))
-            surf.fill((255, 255, 255))
-            s = self.state
-
-            bound = self.LINK_LENGTH_1 + self.LINK_LENGTH_2 + 0.2  # 2.2 for default
-            scale = self.SCREEN_DIM / (bound * 2)
-            offset = self.SCREEN_DIM / 2
-
-            if s is None:
-                return None
-
-            p1 = [
-                -self.LINK_LENGTH_1 * cos(s[0]) * scale,
-                self.LINK_LENGTH_1 * sin(s[0]) * scale,
-            ]
-
-            p2 = [
-                p1[0] - self.LINK_LENGTH_2 * cos(s[0] + s[1]) * scale,
-                p1[1] + self.LINK_LENGTH_2 * sin(s[0] + s[1]) * scale,
-            ]
-
-            xys = np.array([[0, 0], p1, p2])[:, ::-1]
-            thetas = [s[0] - pi / 2, s[0] + s[1] - pi / 2]
-            link_lengths = [self.LINK_LENGTH_1 * scale, self.LINK_LENGTH_2 * scale]
-
-            pygame.draw.line(
-                surf,
-                start_pos=(-2.2 * scale + offset, 1 * scale + offset),
-                end_pos=(2.2 * scale + offset, 1 * scale + offset),
-                color=(0, 0, 0),
+        assert mode in self.metadata["render_modes"]
+        try:
+            import pygame
+            from pygame import gfxdraw
+        except ImportError:
+            raise DependencyNotInstalled(
+                "pygame is not installed, run `pip install gym[classic_control]`"
             )
 
-            for ((x, y), th, llen) in zip(xys, thetas, link_lengths):
-                x = x + offset
-                y = y + offset
-                l, r, t, b = 0, llen, 0.1 * scale, -0.1 * scale
-                coords = [(l, b), (l, t), (r, t), (r, b)]
-                transformed_coords = []
-                for coord in coords:
-                    coord = pygame.math.Vector2(coord).rotate_rad(th)
-                    coord = (coord[0] + x, coord[1] + y)
-                    transformed_coords.append(coord)
-                gfxdraw.aapolygon(surf, transformed_coords, (0, 204, 204))
-                gfxdraw.filled_polygon(surf, transformed_coords, (0, 204, 204))
-
-                gfxdraw.aacircle(surf, int(x), int(y), int(0.1 * scale), (204, 204, 0))
-                gfxdraw.filled_circle(
-                    surf, int(x), int(y), int(0.1 * scale), (204, 204, 0)
-                )
-
-            surf = pygame.transform.flip(surf, False, True)
-            self.screen.blit(surf, (0, 0))
-
+        if self.screen is None:
+            pygame.init()
             if mode == "human":
-                pygame.event.pump()
-                self.clock.tick(self.metadata["render_fps"])
-                pygame.display.flip()
-
-            elif mode in ["rgb_array", "single_rgb_array"]:
-                return np.transpose(
-                    np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
+                pygame.display.init()
+                self.screen = pygame.display.set_mode(
+                    (self.SCREEN_DIM, self.SCREEN_DIM)
                 )
+            else:  # mode in ["rgb_array", "single_rgb_array"]
+                self.screen = pygame.Surface((self.SCREEN_DIM, self.SCREEN_DIM))
+        if self.clock is None:
+            self.clock = pygame.time.Clock()
+
+        surf = pygame.Surface((self.SCREEN_DIM, self.SCREEN_DIM))
+        surf.fill((255, 255, 255))
+        s = self.state
+
+        bound = self.LINK_LENGTH_1 + self.LINK_LENGTH_2 + 0.2  # 2.2 for default
+        scale = self.SCREEN_DIM / (bound * 2)
+        offset = self.SCREEN_DIM / 2
+
+        if s is None:
+            return None
+
+        p1 = [
+            -self.LINK_LENGTH_1 * cos(s[0]) * scale,
+            self.LINK_LENGTH_1 * sin(s[0]) * scale,
+        ]
+
+        p2 = [
+            p1[0] - self.LINK_LENGTH_2 * cos(s[0] + s[1]) * scale,
+            p1[1] + self.LINK_LENGTH_2 * sin(s[0] + s[1]) * scale,
+        ]
+
+        xys = np.array([[0, 0], p1, p2])[:, ::-1]
+        thetas = [s[0] - pi / 2, s[0] + s[1] - pi / 2]
+        link_lengths = [self.LINK_LENGTH_1 * scale, self.LINK_LENGTH_2 * scale]
+
+        pygame.draw.line(
+            surf,
+            start_pos=(-2.2 * scale + offset, 1 * scale + offset),
+            end_pos=(2.2 * scale + offset, 1 * scale + offset),
+            color=(0, 0, 0),
+        )
+
+        for ((x, y), th, llen) in zip(xys, thetas, link_lengths):
+            x = x + offset
+            y = y + offset
+            l, r, t, b = 0, llen, 0.1 * scale, -0.1 * scale
+            coords = [(l, b), (l, t), (r, t), (r, b)]
+            transformed_coords = []
+            for coord in coords:
+                coord = pygame.math.Vector2(coord).rotate_rad(th)
+                coord = (coord[0] + x, coord[1] + y)
+                transformed_coords.append(coord)
+            gfxdraw.aapolygon(surf, transformed_coords, (0, 204, 204))
+            gfxdraw.filled_polygon(surf, transformed_coords, (0, 204, 204))
+
+            gfxdraw.aacircle(surf, int(x), int(y), int(0.1 * scale), (204, 204, 0))
+            gfxdraw.filled_circle(
+                surf, int(x), int(y), int(0.1 * scale), (204, 204, 0)
+            )
+
+        surf = pygame.transform.flip(surf, False, True)
+        self.screen.blit(surf, (0, 0))
+
+        if mode == "human":
+            pygame.event.pump()
+            self.clock.tick(self.metadata["render_fps"])
+            pygame.display.flip()
+
+        elif mode in ["rgb_array", "single_rgb_array"]:
+            return np.transpose(
+                np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
+            )
 
 
 def close(self):
