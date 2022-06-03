@@ -33,6 +33,9 @@ def batch_space(space: Space, n: int = 1) -> Space:
 
     Returns:
         Space (e.g. the observation space) for a batch of environments in the vectorized environment.
+
+    Raises:
+        ValueError: Cannot batch space that is not a valid :class:`gym.Space` instance
     """
     raise ValueError(
         f"Cannot batch space with type `{type(space)}`. The space must be a valid `gym.Space` instance."
@@ -147,9 +150,12 @@ def iterate(space: Space, items) -> Iterator:
 
     Returns:
         Iterator over the elements in `items`.
+
+    Raises:
+        ValueError: Space is not an instance of :class:`gym.Space`
     """
     raise ValueError(
-        f"Space of type `{type(space)}` is not a valid `gym.Space` " "instance."
+        f"Space of type `{type(space)}` is not a valid `gym.Space` instance."
     )
 
 

@@ -1,4 +1,4 @@
-ale-py~=0.7
+ale-py~=0.7.5
 opencv-python>=3.0
 box2d-py==2.3.5
 scipy>=1.4.1

@@ -1,8 +1,6 @@
 """Utilities of visualising an environment."""
-from __future__ import annotations
-
 from collections import deque
-from typing import Callable, Dict, Optional, Tuple, Union
+from typing import Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import pygame
@@ -35,7 +33,7 @@ class PlayableGame:
     def __init__(
         self,
         env: Env,
-        keys_to_action: Optional[dict[tuple[int], int]] = None,
+        keys_to_action: Optional[Dict[Tuple[int], int]] = None,
         zoom: Optional[float] = None,
     ):
         """Wraps an environment with a dictionary of keyboard buttons to action and if to zoom in on the environment.
@@ -53,7 +51,7 @@ class PlayableGame:
         self.running = True
 
     def _get_relevant_keys(
-        self, keys_to_action: Optional[dict[tuple[int], int]] = None
+        self, keys_to_action: Optional[Dict[Tuple[int], int]] = None
     ) -> set:
         if keys_to_action is None:
             if hasattr(self.env, "get_keys_to_action"):
@@ -62,13 +60,13 @@ class PlayableGame:
                 keys_to_action = self.env.unwrapped.get_keys_to_action()
             else:
                 raise MissingKeysToAction(
-                    "%s does not have explicit key to action mapping, "
-                    "please specify one manually" % self.env.spec.id
+                    f"{self.env.spec.id} does not have explicit key to action mapping, "
+                    "please specify one manually"
                 )
         relevant_keys = set(sum((list(k) for k in keys_to_action.keys()), []))
         return relevant_keys
 
-    def _get_video_size(self, zoom: Optional[float] = None) -> tuple[int, int]:
+    def _get_video_size(self, zoom: Optional[float] = None) -> Tuple[int, int]:
         # TODO: this needs to be updated when the render API change goes through
         rendered = self.env.render(mode="rgb_array")
         video_size = [rendered.shape[1], rendered.shape[0]]
@@ -81,7 +79,8 @@ class PlayableGame:
     def process_event(self, event: Event):
         """Processes a PyGame event.
 
-        In particular, this function is used to keep track of which buttons are currently pressed and to exit the :func:`play` function when the PyGame window is closed.
+        In particular, this function is used to keep track of which buttons are currently pressed
+        and to exit the :func:`play` function when the PyGame window is closed.
 
         Args:
             event: The event to process
@@ -102,7 +101,7 @@ class PlayableGame:
 
 
 def display_arr(
-    screen: Surface, arr: np.ndarray, video_size: tuple[int, int], transpose: bool
+    screen: Surface, arr: np.ndarray, video_size: Tuple[int, int], transpose: bool
 ):
     """Displays a numpy array on screen.
 
@@ -258,20 +257,21 @@ class PlayPlot:
     It should return a list of metrics that are computed from this data.
     For instance, the function may look like this::
 
-        def compute_metrics(obs_t, obs_tp, action, reward, done, info):
-            return [reward, info["cumulative_reward"], np.linalg.norm(action)]
+        >>> def compute_metrics(obs_t, obs_tp, action, reward, done, info):
+        ...     return [reward, info["cumulative_reward"], np.linalg.norm(action)]
 
     :class:`PlayPlot` provides the method :meth:`callback` which will pass its arguments along to that function
     and uses the returned values to update live plots of the metrics.
 
     Typically, this :meth:`callback` will be used in conjunction with :func:`play` to see how the metrics evolve as you play::
 
-        >>> plotter = PlayPlot(compute_metrics, horizon_timesteps=200, plot_names=["Immediate Rew.", "Cumulative Rew.", "Action Magnitude"])
+        >>> plotter = PlayPlot(compute_metrics, horizon_timesteps=200,
+        ...                    plot_names=["Immediate Rew.", "Cumulative Rew.", "Action Magnitude"])
         >>> play(your_env, callback=plotter.callback)
     """
 
     def __init__(
-        self, callback: callable, horizon_timesteps: int, plot_names: list[str]
+        self, callback: callable, horizon_timesteps: int, plot_names: List[str]
     ):
         """Constructor of :class:`PlayPlot`.
 
@@ -282,6 +282,9 @@ class PlayPlot:
             callback: Function that computes metrics from environment transitions
             horizon_timesteps: The time horizon used for the live plots
             plot_names: List of plot titles
+
+        Raises:
+            DependencyNotInstalled: If matplotlib is not installed
         """
         deprecation(
             "`PlayPlot` is marked as deprecated and will be removed in the near future."

@@ -30,16 +30,16 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     action, action)` all in `[-1, 1]`, where `action` represents the numerical torques
     applied at the hinge joints.
 
-    | Num | Action                    | Control Min | Control Max | Name (in corresponding XML file) | Joint | Unit |
-    |-----|----------------------|---------------|----------------|---------------------------------------|-------|------|
-    | 0   | Torque applied on the rotor between the torso and front left hip   | -1 | 1 | hip_1 (front_left_leg)       | hinge | torque (N m) |
-    | 1   | Torque applied on the rotor between the front left two links       | -1 | 1 | angle_1 (front_left_leg)     | hinge | torque (N m) |
-    | 2   | Torque applied on the rotor between the torso and front right hip  | -1 | 1 | hip_2 (front_right_leg)      | hinge | torque (N m) |
-    | 3   | Torque applied on the rotor between the front right two links      | -1 | 1 | angle_2 (front_right_leg)    | hinge | torque (N m) |
-    | 4   | Torque applied on the rotor between the torso and back left hip    | -1 | 1 | hip_3 (back_leg)             | hinge | torque (N m) |
-    | 5   | Torque applied on the rotor between the back left two links        | -1 | 1 | angle_3 (back_leg)           | hinge | torque (N m) |
-    | 6   | Torque applied on the rotor between the torso and back right hip   | -1 | 1 | hip_4 (right_back_leg)       | hinge | torque (N m) |
-    | 7   | Torque applied on the rotor between the back right two links       | -1 | 1 | angle_4 (right_back_leg)     | hinge | torque (N m) |
+    | Num | Action                                                             | Control Min | Control Max | Name (in corresponding XML file) | Joint | Unit         |
+    |-----|--------------------------------------------------------------------|-------------|-------------|----------------------------------|-------|--------------|
+    | 0   | Torque applied on the rotor between the torso and front left hip   | -1          | 1           | hip_1 (front_left_leg)           | hinge | torque (N m) |
+    | 1   | Torque applied on the rotor between the front left two links       | -1          | 1           | angle_1 (front_left_leg)         | hinge | torque (N m) |
+    | 2   | Torque applied on the rotor between the torso and front right hip  | -1          | 1           | hip_2 (front_right_leg)          | hinge | torque (N m) |
+    | 3   | Torque applied on the rotor between the front right two links      | -1          | 1           | angle_2 (front_right_leg)        | hinge | torque (N m) |
+    | 4   | Torque applied on the rotor between the torso and back left hip    | -1          | 1           | hip_3 (back_leg)                 | hinge | torque (N m) |
+    | 5   | Torque applied on the rotor between the back left two links        | -1          | 1           | angle_3 (back_leg)               | hinge | torque (N m) |
+    | 6   | Torque applied on the rotor between the torso and back right hip   | -1          | 1           | hip_4 (right_back_leg)           | hinge | torque (N m) |
+    | 7   | Torque applied on the rotor between the back right two links       | -1          | 1           | angle_4 (right_back_leg)         | hinge | torque (N m) |
 
     ### Observation Space
 
@@ -49,37 +49,37 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     The observation is a `ndarray` with shape `(111,)` where the elements correspond to the following:
 
-    | Num | Observation                                                 | Min                | Max                | Name (in corresponding XML file) | Joint | Unit |
-    |-----|-------------------------------------------------------------|----------------|-----------------|----------------------------------------|-------|------|
-    | 0   | x-coordinate of the torso (centre)                          | -Inf                 | Inf                | torso      | free | position (m) |
-    | 1   | y-coordinate of the torso (centre)                          | -Inf                 | Inf                | torso      | free | position (m) |
-    | 2   | z-coordinate of the torso (centre)                          | -Inf                 | Inf                | torso      | free | position (m) |
-    | 3   | x-orientation of the torso (centre)                         | -Inf                 | Inf                | torso      | free | angle (rad) |
-    | 4   | y-orientation of the torso (centre)                         | -Inf                 | Inf                | torso      | free | angle (rad) |
-    | 5   | z-orientation of the torso (centre)                         | -Inf                 | Inf                | torso      | free | angle (rad) |
-    | 6   | w-orientation of the torso (centre)                         | -Inf                 | Inf               | torso       | free | angle (rad) |
-    | 7   | angle between torso and first link on front left            | -Inf                 | Inf               | hip_1 (front_left_leg) | hinge | angle (rad) |
-    | 8   | angle between the two links on the front left               | -Inf                 | Inf               | ankle_1 (front_left_leg) | hinge | angle (rad) |
-    | 9   | angle between torso and first link on front right           | -Inf                 | Inf               | hip_2 (front_right_leg) | hinge | angle (rad) |
-    | 10  | angle between the two links on the front right              | -Inf                 | Inf               | ankle_2 (front_right_leg) | hinge | angle (rad) |
-    | 11  | angle between torso and first link on back left             | -Inf                 | Inf               | hip_3 (back_leg) | hinge | angle (rad) |
-    | 12  | angle between the two links on the back left                | -Inf                 | Inf               | ankle_3 (back_leg) | hinge | angle (rad) |
-    | 13  | angle between torso and first link on back right            | -Inf                 | Inf               | hip_4 (right_back_leg) | hinge | angle (rad) |
-    | 14  | angle between the two links on the back right               | -Inf                 | Inf               | ankle_4 (right_back_leg) | hinge | angle (rad) |
-    | 15  | x-coordinate velocity of the torso                          | -Inf                 | Inf                | torso      | free | velocity (m/s) |
-    | 16  | y-coordinate velocity of the torso                          | -Inf                 | Inf                | torso      | free | velocity (m/s) |
-    | 17  | z-coordinate velocity of the torso                          | -Inf                 | Inf                | torso      | free | velocity (m/s) |
-    | 18  | x-coordinate angular velocity of the torso                  | -Inf                 | Inf                | torso      | free | angular velocity (rad/s) |
-    | 19  | y-coordinate angular velocity of the torso                  | -Inf                 | Inf                | torso      | free | angular velocity (rad/s) |
-    | 20  | z-coordinate angular velocity of the torso                  | -Inf                 | Inf                | torso      | free | angular velocity (rad/s) |
-    | 21  | angular velocity of angle between torso and front left link | -Inf                 | Inf               | hip_1 (front_left_leg) | hinge | angle (rad) |
-    | 22  | angular velocity of the angle between front left links      | -Inf                 | Inf               | ankle_1 (front_left_leg) | hinge | angle (rad) |
-    | 23  | angular velocity of angle between torso and front right link| -Inf                 | Inf               | hip_2 (front_right_leg) | hinge | angle (rad) |
-    | 24  | angular velocity of the angle between front right links     | -Inf                 | Inf               | ankle_2 (front_right_leg) | hinge | angle (rad) |
-    | 25  | angular velocity of angle between torso and back left link  | -Inf                 | Inf               | hip_3 (back_leg) | hinge | angle (rad) |
-    | 26  | angular velocity of the angle between back left links       | -Inf                 | Inf               | ankle_3 (back_leg) | hinge | angle (rad) |
-    | 27  | angular velocity of angle between torso and back right link | -Inf                 | Inf               | hip_4 (right_back_leg) | hinge | angle (rad) |
-    | 28  |angular velocity of the angle between back right links       | -Inf                 | Inf               | ankle_4 (right_back_leg) | hinge | angle (rad) |
+    | Num | Observation                                                  | Min  | Max | Name (in corresponding XML file) | Joint | Unit                     |
+    |-----|--------------------------------------------------------------|------|-----|----------------------------------|-------|--------------------------|
+    | 0   | x-coordinate of the torso (centre)                           | -Inf | Inf | torso                            | free  | position (m)             |
+    | 1   | y-coordinate of the torso (centre)                           | -Inf | Inf | torso                            | free  | position (m)             |
+    | 2   | z-coordinate of the torso (centre)                           | -Inf | Inf | torso                            | free  | position (m)             |
+    | 3   | x-orientation of the torso (centre)                          | -Inf | Inf | torso                            | free  | angle (rad)              |
+    | 4   | y-orientation of the torso (centre)                          | -Inf | Inf | torso                            | free  | angle (rad)              |
+    | 5   | z-orientation of the torso (centre)                          | -Inf | Inf | torso                            | free  | angle (rad)              |
+    | 6   | w-orientation of the torso (centre)                          | -Inf | Inf | torso                            | free  | angle (rad)              |
+    | 7   | angle between torso and first link on front left             | -Inf | Inf | hip_1 (front_left_leg)           | hinge | angle (rad)              |
+    | 8   | angle between the two links on the front left                | -Inf | Inf | ankle_1 (front_left_leg)         | hinge | angle (rad)              |
+    | 9   | angle between torso and first link on front right            | -Inf | Inf | hip_2 (front_right_leg)          | hinge | angle (rad)              |
+    | 10  | angle between the two links on the front right               | -Inf | Inf | ankle_2 (front_right_leg)        | hinge | angle (rad)              |
+    | 11  | angle between torso and first link on back left              | -Inf | Inf | hip_3 (back_leg)                 | hinge | angle (rad)              |
+    | 12  | angle between the two links on the back left                 | -Inf | Inf | ankle_3 (back_leg)               | hinge | angle (rad)              |
+    | 13  | angle between torso and first link on back right             | -Inf | Inf | hip_4 (right_back_leg)           | hinge | angle (rad)              |
+    | 14  | angle between the two links on the back right                | -Inf | Inf | ankle_4 (right_back_leg)         | hinge | angle (rad)              |
+    | 15  | x-coordinate velocity of the torso                           | -Inf | Inf | torso                            | free  | velocity (m/s)           |
+    | 16  | y-coordinate velocity of the torso                           | -Inf | Inf | torso                            | free  | velocity (m/s)           |
+    | 17  | z-coordinate velocity of the torso                           | -Inf | Inf | torso                            | free  | velocity (m/s)           |
+    | 18  | x-coordinate angular velocity of the torso                   | -Inf | Inf | torso                            | free  | angular velocity (rad/s) |
+    | 19  | y-coordinate angular velocity of the torso                   | -Inf | Inf | torso                            | free  | angular velocity (rad/s) |
+    | 20  | z-coordinate angular velocity of the torso                   | -Inf | Inf | torso                            | free  | angular velocity (rad/s) |
+    | 21  | angular velocity of angle between torso and front left link  | -Inf | Inf | hip_1 (front_left_leg)           | hinge | angle (rad)              |
+    | 22  | angular velocity of the angle between front left links       | -Inf | Inf | ankle_1 (front_left_leg)         | hinge | angle (rad)              |
+    | 23  | angular velocity of angle between torso and front right link | -Inf | Inf | hip_2 (front_right_leg)          | hinge | angle (rad)              |
+    | 24  | angular velocity of the angle between front right links      | -Inf | Inf | ankle_2 (front_right_leg)        | hinge | angle (rad)              |
+    | 25  | angular velocity of angle between torso and back left link   | -Inf | Inf | hip_3 (back_leg)                 | hinge | angle (rad)              |
+    | 26  | angular velocity of the angle between back left links        | -Inf | Inf | ankle_3 (back_leg)               | hinge | angle (rad)              |
+    | 27  | angular velocity of angle between torso and back right link  | -Inf | Inf | hip_4 (right_back_leg)           | hinge | angle (rad)              |
+    | 28  | angular velocity of the angle between back right links       | -Inf | Inf | ankle_4 (right_back_leg)         | hinge | angle (rad)              |
 
 
     The remaining 14*6 = 84 elements in the state are contact forces
@@ -150,14 +150,14 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     env = gym.make('Ant-v2')
     ```
 
-    v3 and beyond take gym.make kwargs such as xml_file, ctrl_cost_weight, reset_noise_scale etc.
+    v3 and v4 take gym.make kwargs such as xml_file, ctrl_cost_weight, reset_noise_scale etc.
 
     ```
-    env = gym.make('Ant-v3', ctrl_cost_weight=0.1, ...)
+    env = gym.make('Ant-v4', ctrl_cost_weight=0.1, ...)
     ```
 
     ### Version History
-    * v4: all mujoco environments now use the mujoco binidings in mujoco>=2.1.3
+    * v4: all mujoco environments now use the mujoco bindings in mujoco>=2.1.3
     * v3: support for gym.make kwargs such as xml_file, ctrl_cost_weight, reset_noise_scale etc. rgb rendering comes from tracking camera (so agent does not run away from screen)
     * v2: All continuous control environments now use mujoco_py >= 1.50
     * v1: max_time_steps raised to 1000 for robot based tasks. Added reward_threshold to environments.

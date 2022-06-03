@@ -92,10 +92,11 @@ def test_record_video_within_vector():
     envs.reset()
     for i in range(199):
         _, _, _, infos = envs.step(envs.action_space.sample())
-        for info in infos:
-            if "episode" in info.keys():
-                print(f"episode_reward={info['episode']['r']}")
-                break
+
+        # break when every env is done
+        if "episode" in infos and all(infos["_episode"]):
+            print(f"episode_reward={infos['episode']['r']}")
+
     assert os.path.isdir("videos")
     mp4_files = [file for file in os.listdir("videos") if file.endswith(".mp4")]
     assert len(mp4_files) == 2

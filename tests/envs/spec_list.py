@@ -1,7 +1,10 @@
 from gym import envs, logger
 
 SKIP_MUJOCO_V3_WARNING_MESSAGE = (
-    "Cannot run mujoco test because mujoco-py is not installed"
+    "Cannot run mujoco test because `mujoco-py` is not installed"
+)
+SKIP_MUJOCO_V4_WARNING_MESSAGE = (
+    "Cannot run mujoco test because `mujoco` is not installed"
 )
 
 skip_mujoco_v3 = False
@@ -10,13 +13,19 @@ try:
 except ImportError:
     skip_mujoco_v3 = True
 
+skip_mujoco_v4 = False
+try:
+    import mujoco  # noqa:F401
+except ImportError:
+    skip_mujoco_v4 = True
+
 
 def should_skip_env_spec_for_tests(spec):
     # We skip tests for envs that require dependencies or are otherwise
     # troublesome to run frequently
     ep = spec.entry_point
     # Skip mujoco tests for pull request CI
-    if skip_mujoco_v3 and ep.startswith("gym.envs.mujoco"):
+    if (skip_mujoco_v3 or skip_mujoco_v4) and ep.startswith("gym.envs.mujoco"):
         return True
     try:
         import gym.envs.atari  # noqa:F401

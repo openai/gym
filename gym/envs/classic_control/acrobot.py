@@ -45,8 +45,8 @@ class AcrobotEnv(core.Env):
     The action is discrete, deterministic, and represents the torque applied on the actuated
     joint between the two links.
 
-    | Num | Action                                             | Unit               |
-    |----|-------------------------------------------|---------------|
+    | Num | Action                                | Unit         |
+    |-----|---------------------------------------|--------------|
     | 0   | apply -1 torque to the actuated joint | torque (N m) |
     | 1   | apply 0 torque to the actuated joint  | torque (N m) |
     | 2   | apply 1 torque to the actuated joint  | torque (N m) |
@@ -56,27 +56,29 @@ class AcrobotEnv(core.Env):
     The observation is a `ndarray` with shape `(6,)` that provides information about the
     two rotational joint angles as well as their angular velocities:
 
-    | Num | Observation           | Min                  | Max                |
-    |-----|-----------------------|----------------------|--------------------|
-    | 0   | Cosine of `theta1`         | -1                 | 1                |
-    | 1   | Sine of `theta1`         | -1                 | 1                |
-    | 2   | Cosine of `theta2`            | -1 | 1 |
-    | 3   | Sine of `theta2`            | -1 | 1 |
-    | 4   | Angular velocity of `theta1` |        ~ -12.567 (-4 * pi)         |      ~ 12.567 (4 * pi)   |
-    | 5   | Angular velocity of `theta2` |        ~ -28.274 (-9 * pi)         |      ~ 28.274 (9 * pi)   |
+    | Num | Observation                  | Min                 | Max               |
+    |-----|------------------------------|---------------------|-------------------|
+    | 0   | Cosine of `theta1`           | -1                  | 1                 |
+    | 1   | Sine of `theta1`             | -1                  | 1                 |
+    | 2   | Cosine of `theta2`           | -1                  | 1                 |
+    | 3   | Sine of `theta2`             | -1                  | 1                 |
+    | 4   | Angular velocity of `theta1` | ~ -12.567 (-4 * pi) | ~ 12.567 (4 * pi) |
+    | 5   | Angular velocity of `theta2` | ~ -28.274 (-9 * pi) | ~ 28.274 (9 * pi) |
 
     where
     - `theta1` is the angle of the first joint, where an angle of 0 indicates the first link is pointing directly
     downwards.
-    - `theta2` is ***relative to the angle of the first link.*** An angle of 0 corresponds to having the same angle between the
-    two links.
+    - `theta2` is ***relative to the angle of the first link.***
+        An angle of 0 corresponds to having the same angle between the two links.
 
     The angular velocities of `theta1` and `theta2` are bounded at ±4π, and ±9π rad/s respectively.
     A state of `[1, 0, 1, 0, ..., ...]` indicates that both links are pointing downwards.
 
     ### Rewards
 
-    The goal is to have the free end reach a designated target height in as few steps as possible, and as such all steps that do not reach the goal incur a reward of -1. Achieving the target height results in termination with a reward of 0. The reward threshold is -100.
+    The goal is to have the free end reach a designated target height in as few steps as possible,
+    and as such all steps that do not reach the goal incur a reward of -1.
+    Achieving the target height results in termination with a reward of 0. The reward threshold is -100.
 
     ### Starting State
 
@@ -99,7 +101,8 @@ class AcrobotEnv(core.Env):
     ```
 
     By default, the dynamics of the acrobot follow those described in Sutton and Barto's book
-    [Reinforcement Learning: An Introduction](http://incompleteideas.net/book/11/node4.html). However, a `book_or_nips` parameter can be modified to change the pendulum dynamics to those described
+    [Reinforcement Learning: An Introduction](http://incompleteideas.net/book/11/node4.html).
+    However, a `book_or_nips` parameter can be modified to change the pendulum dynamics to those described
     in the original [NeurIPS paper](https://papers.nips.cc/paper/1995/hash/8f1d43620bc6bb580df6e80b0dc05c48-Abstract.html).
 
     ```
@@ -126,7 +129,9 @@ class AcrobotEnv(core.Env):
     - v0: Initial versions release (1.0.0) (removed from gym for v1)
 
     ### References
-    - Sutton, R. S. (1996). Generalization in Reinforcement Learning: Successful Examples Using Sparse Coarse Coding. In D. Touretzky, M. C. Mozer, & M. Hasselmo (Eds.), Advances in Neural Information Processing Systems (Vol. 8). MIT Press. https://proceedings.neurips.cc/paper/1995/file/8f1d43620bc6bb580df6e80b0dc05c48-Paper.pdf
+    - Sutton, R. S. (1996). Generalization in Reinforcement Learning: Successful Examples Using Sparse Coarse Coding.
+        In D. Touretzky, M. C. Mozer, & M. Hasselmo (Eds.), Advances in Neural Information Processing Systems (Vol. 8).
+        MIT Press. https://proceedings.neurips.cc/paper/1995/file/8f1d43620bc6bb580df6e80b0dc05c48-Paper.pdf
     - Sutton, R. S., Barto, A. G. (2018 ). Reinforcement Learning: An Introduction. The MIT Press.
     """
 
@@ -402,6 +407,8 @@ def bound(x, m, M=None):
 
     Args:
         x: scalar
+        m: The lower bound
+        M: The upper bound
 
     Returns:
         x: scalar, bound between min (m) and Max (M)
@@ -420,15 +427,15 @@ def rk4(derivs, y0, t):
     yourself stranded on a system w/o scipy.  Otherwise use
     :func:`scipy.integrate`.
 
-    Example:
+    Example for 2D system:
 
-        >>> ### 2D system
         >>> def derivs(x):
         ...     d1 =  x[0] + 2*x[1]
         ...     d2 =  -3*x[0] + 4*x[1]
-        ...     return (d1, d2)
+        ...     return d1, d2
+
         >>> dt = 0.0005
-        >>> t = arange(0.0, 2.0, dt)
+        >>> t = np.arange(0.0, 2.0, dt)
         >>> y0 = (1,2)
         >>> yout = rk4(derivs, y0, t)
 

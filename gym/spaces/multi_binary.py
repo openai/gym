@@ -1,7 +1,5 @@
 """Implementation of a space that consists of binary np.ndarrays of a fixed shape."""
-from __future__ import annotations
-
-from typing import Optional, Sequence, Union
+from typing import Optional, Sequence, Tuple, Union
 
 import numpy as np
 
@@ -29,7 +27,7 @@ class MultiBinary(Space[np.ndarray]):
     def __init__(
         self,
         n: Union[np.ndarray, Sequence[int], int],
-        seed: Optional[int | seeding.RandomNumberGenerator] = None,
+        seed: Optional[Union[int, seeding.RandomNumberGenerator]] = None,
     ):
         """Constructor of :class:`MultiBinary` space.
 
@@ -49,7 +47,7 @@ class MultiBinary(Space[np.ndarray]):
         super().__init__(input_n, np.int8, seed)
 
     @property
-    def shape(self) -> tuple[int, ...]:
+    def shape(self) -> Tuple[int, ...]:
         """Has stricter type than gym.Space - never None."""
         return self._shape  # type: ignore
 
@@ -57,6 +55,9 @@ class MultiBinary(Space[np.ndarray]):
         """Generates a single random sample from this space.
 
         A sample is drawn by independent, fair coin tosses (one toss per binary variable of the space).
+
+        Returns:
+            Sampled values from space
         """
         return self.np_random.integers(low=0, high=2, size=self.n, dtype=self.dtype)
 

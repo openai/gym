@@ -1,8 +1,6 @@
 """A synchronous vector environment."""
-from __future__ import annotations
-
 from copy import deepcopy
-from typing import Any, Iterator, Optional, Sequence, Union
+from typing import Any, Iterator, List, Optional, Sequence, Union
 
 import numpy as np
 
@@ -39,12 +37,15 @@ class SyncVectorEnv(VectorEnv):
 
         Args:
             env_fns: iterable of callable functions that create the environments.
-            observation_space: Observation space of a single environment. If ``None``, then the observation space of the first environment is taken.
-            action_space: Action space of a single environment. If ``None``, then the action space of the first environment is taken.
+            observation_space: Observation space of a single environment. If ``None``,
+                then the observation space of the first environment is taken.
+            action_space: Action space of a single environment. If ``None``,
+                then the action space of the first environment is taken.
             copy: If ``True``, then the :meth:`reset` and :meth:`step` methods return a copy of the observations.
 
         Raises:
-            RuntimeError: If the observation space of some sub-environment does not match observation_space (or, by default, the observation space of the first sub-environment).
+            RuntimeError: If the observation space of some sub-environment does not match observation_space
+                (or, by default, the observation space of the first sub-environment).
         """
         self.env_fns = env_fns
         self.envs = [env_fn() for env_fn in env_fns]
@@ -86,7 +87,7 @@ class SyncVectorEnv(VectorEnv):
 
     def reset_wait(
         self,
-        seed: Optional[Union[int, list[int]]] = None,
+        seed: Optional[Union[int, List[int]]] = None,
         return_info: bool = False,
         options: Optional[dict] = None,
     ):
@@ -108,8 +109,8 @@ class SyncVectorEnv(VectorEnv):
 
         self._dones[:] = False
         observations = []
-        data_list = []
-        for env, single_seed in zip(self.envs, seed):
+        infos = {}
+        for i, (env, single_seed) in enumerate(zip(self.envs, seed)):
 
             kwargs = {}
             if single_seed is not None:
@@ -123,9 +124,9 @@ class SyncVectorEnv(VectorEnv):
                 observation = env.reset(**kwargs)
                 observations.append(observation)
             else:
-                observation, data = env.reset(**kwargs)
+                observation, info = env.reset(**kwargs)
                 observations.append(observation)
-                data_list.append(data)
+                infos = self._add_info(infos, info, i)
 
         self.observations = concatenate(
             self.single_observation_space, observations, self.observations
@@ -135,7 +136,7 @@ class SyncVectorEnv(VectorEnv):
         else:
             return (
                 deepcopy(self.observations) if self.copy else self.observations
-            ), data_list
+            ), infos
 
     def step_async(self, actions):
         """Sets :attr:`_actions` for use by the :meth:`step_wait` by converting the ``actions`` to an iterable version."""
@@ -147,14 +148,14 @@ class SyncVectorEnv(VectorEnv):
         Returns:
             The batched environment step results
         """
-        observations, infos = [], []
+        observations, infos = [], {}
         for i, (env, action) in enumerate(zip(self.envs, self._actions)):
             observation, self._rewards[i], self._dones[i], info = env.step(action)
             if self._dones[i]:
                 info["terminal_observation"] = observation
                 observation = env.reset()
             observations.append(observation)
-            infos.append(info)
+            infos = self._add_info(infos, info, i)
         self.observations = concatenate(
             self.single_observation_space, observations, self.observations
         )
@@ -195,6 +196,9 @@ class SyncVectorEnv(VectorEnv):
             values: Values of the property to be set to. If ``values`` is a list or
                 tuple, then it corresponds to the values for each individual
                 environment, otherwise, a single value is set for all environments.
+
+        Raises:
+            ValueError: Values must be a list or tuple with length equal to the number of environments.
         """
         if not isinstance(values, (list, tuple)):
             values = [values for _ in range(self.num_envs)]

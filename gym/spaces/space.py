@@ -1,7 +1,17 @@
 """Implementation of the `Space` metaclass."""
-from __future__ import annotations
 
-from typing import Generic, Iterable, Mapping, Optional, Sequence, Type, TypeVar
+from typing import (
+    Generic,
+    Iterable,
+    List,
+    Mapping,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    TypeVar,
+    Union,
+)
 
 import numpy as np
 
@@ -16,8 +26,10 @@ class Space(Generic[T_cov]):
     Spaces are crucially used in Gym to define the format of valid actions and observations.
     They serve various purposes:
 
-    * They clearly define how to interact with environments, i.e. they specify what actions need to look like and what observations will look like
-    * They allow us to work with highly structured data (e.g. in the form of elements of :class:`Dict` spaces) and painlessly transform them into flat arrays that can be used in learning code
+    * They clearly define how to interact with environments, i.e. they specify what actions need to look like
+      and what observations will look like
+    * They allow us to work with highly structured data (e.g. in the form of elements of :class:`Dict` spaces)
+      and painlessly transform them into flat arrays that can be used in learning code
     * They provide a method to sample random elements. This is especially useful for exploration and debugging.
 
     Different spaces can be combined hierarchically via container spaces (:class:`Tuple` and :class:`Dict`) to build a
@@ -37,8 +49,8 @@ class Space(Generic[T_cov]):
     def __init__(
         self,
         shape: Optional[Sequence[int]] = None,
-        dtype: Optional[Type | str] = None,
-        seed: Optional[int | seeding.RandomNumberGenerator] = None,
+        dtype: Optional[Union[Type, str, np.dtype]] = None,
+        seed: Optional[Union[int, seeding.RandomNumberGenerator]] = None,
     ):
         """Constructor of :class:`Space`.
 
@@ -65,7 +77,7 @@ class Space(Generic[T_cov]):
         return self._np_random  # type: ignore  ## self.seed() call guarantees right type.
 
     @property
-    def shape(self) -> Optional[tuple[int, ...]]:
+    def shape(self) -> Optional[Tuple[int, ...]]:
         """Return the shape of the space as an immutable property."""
         return self._shape
 
@@ -86,10 +98,13 @@ class Space(Generic[T_cov]):
         """Return boolean specifying if x is a valid member of this space."""
         return self.contains(x)
 
-    def __setstate__(self, state: Iterable | Mapping):
+    def __setstate__(self, state: Union[Iterable, Mapping]):
         """Used when loading a pickled space.
 
         This method was implemented explicitly to allow for loading of legacy states.
+
+        Args:
+            state: The updated state value
         """
         # Don't mutate the original state
         state = dict(state)
@@ -114,7 +129,7 @@ class Space(Generic[T_cov]):
         # By default, assume identity is JSONable
         return list(sample_n)
 
-    def from_jsonable(self, sample_n: list) -> list[T_cov]:
+    def from_jsonable(self, sample_n: list) -> List[T_cov]:
         """Convert a JSONable data type to a batch of samples from this space."""
         # By default, assume identity is JSONable
         return sample_n

@@ -210,6 +210,10 @@ def _check_returned_values(env: gym.Env, observation_space: Space, action_space:
         env: The environment
         observation_space: The environment's observation space
         action_space: The environment's action space
+
+    Raises:
+        AssertionError: If the ``observation_space`` is :class:`Dict` and
+            keys from :meth:`Env.reset` are not in the observation space
     """
     # because env inherits from gym.Env, we assume that `reset()` and `step()` methods exists
     obs = env.reset()
@@ -327,6 +331,10 @@ def _check_reset_seed(env: gym.Env, seed: Optional[int] = None):
     Args:
         env: The environment to check
         seed: The optional seed to use
+
+    Raises:
+        AssertionError: The environment cannot be reset with a random seed,
+            even though `seed` or `kwargs` appear in the signature.
     """
     signature = inspect.signature(env.reset)
     assert (
@@ -363,6 +371,10 @@ def _check_reset_info(env: gym.Env):
 
     Args:
         env: The environment to check
+
+    Raises:
+        AssertionError: The environment cannot be reset with `return_info=True`,
+            even though `return_info` or `kwargs` appear in the signature.
     """
     signature = inspect.signature(env.reset)
     assert (
@@ -392,6 +404,10 @@ def _check_reset_options(env: gym.Env):
 
     Args:
         env: The environment to check
+
+    Raises:
+        AssertionError: The environment cannot be reset with options,
+            even though `options` or `kwargs` appear in the signature.
     """
     signature = inspect.signature(env.reset)
     assert (

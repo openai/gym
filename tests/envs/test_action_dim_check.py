@@ -3,11 +3,11 @@ from typing import List
 import numpy as np
 import pytest
 
-from gym import envs
+import gym
+from gym import Env
 from gym.envs.registration import EnvSpec
 from gym.spaces.box import Box
 from gym.spaces.discrete import Discrete
-from gym.spaces.space import Space
 from tests.envs.spec_list import (
     SKIP_MUJOCO_V3_WARNING_MESSAGE,
     skip_mujoco_v3,
@@ -17,17 +17,20 @@ from tests.envs.spec_list import (
 ENVIRONMENT_IDS = ("HalfCheetah-v2",)
 
 
-def make_envs_by_action_space_type(spec_list: List[EnvSpec], action_space: Space):
+def filters_envs_action_space_type(
+    env_spec_list: List[EnvSpec], action_space: type
+) -> List[Env]:
     """Make environments of specific action_space type.
-    This function returns a filtered list of environment from the
-    spec_list that matches the action_space type.
+
+    This function returns a filtered list of environment from the spec_list that matches the action_space type.
+
     Args:
-        spec_list (list): list of registered environments' specification
+        env_spec_list (list): list of registered environments' specification
         action_space (gym.spaces.Space): action_space type
     """
     filtered_envs = []
-    for spec in spec_list:
-        env = envs.make(spec.id)
+    for spec in env_spec_list:
+        env = gym.make(spec.id)
         if isinstance(env.action_space, action_space):
             filtered_envs.append(env)
     return filtered_envs
@@ -36,7 +39,7 @@ def make_envs_by_action_space_type(spec_list: List[EnvSpec], action_space: Space
 @pytest.mark.skipif(skip_mujoco_v3, reason=SKIP_MUJOCO_V3_WARNING_MESSAGE)
 @pytest.mark.parametrize("environment_id", ENVIRONMENT_IDS)
 def test_serialize_deserialize(environment_id):
-    env = envs.make(environment_id)
+    env = gym.make(environment_id)
     env.reset()
 
     with pytest.raises(ValueError, match="Action dimension mismatch"):
@@ -46,7 +49,7 @@ def test_serialize_deserialize(environment_id):
         env.step(0.1)
 
 
-@pytest.mark.parametrize("env", make_envs_by_action_space_type(spec_list, Discrete))
+@pytest.mark.parametrize("env", filters_envs_action_space_type(spec_list, Discrete))
 def test_discrete_actions_out_of_bound(env):
     """Test out of bound actions in Discrete action_space.
     In discrete action_space environments, `out-of-bound`
@@ -65,7 +68,7 @@ def test_discrete_actions_out_of_bound(env):
 
 @pytest.mark.parametrize(
     ("env", "seed"),
-    [(env, 42) for env in make_envs_by_action_space_type(spec_list, Box)],
+    [(env, 42) for env in filters_envs_action_space_type(spec_list, Box)],
 )
 def test_box_actions_out_of_bound(env, seed):
     """Test out of bound actions in Box action_space.
@@ -80,7 +83,7 @@ def test_box_actions_out_of_bound(env, seed):
 
     env.reset(seed=seed)
 
-    oob_env = envs.make(env.spec.id)
+    oob_env = gym.make(env.spec.id)
     oob_env.reset(seed=seed)
 
     dtype = env.action_space.dtype

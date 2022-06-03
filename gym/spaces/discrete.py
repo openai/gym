@@ -1,7 +1,5 @@
 """Implementation of a space consisting of finitely many elements."""
-from __future__ import annotations
-
-from typing import Optional
+from typing import Optional, Union
 
 import numpy as np
 
@@ -23,7 +21,7 @@ class Discrete(Space[int]):
     def __init__(
         self,
         n: int,
-        seed: Optional[int | seeding.RandomNumberGenerator] = None,
+        seed: Optional[Union[int, seeding.RandomNumberGenerator]] = None,
         start: int = 0,
     ):
         r"""Constructor of :class:`Discrete` space.
@@ -45,6 +43,9 @@ class Discrete(Space[int]):
         """Generates a single random sample from this space.
 
         A sample will be chosen uniformly at random.
+
+        Returns:
+            A sampled integer from the space
         """
         return int(self.start + self.np_random.integers(self.n))
 
@@ -78,6 +79,9 @@ class Discrete(Space[int]):
         """Used when loading a pickled space.
 
         This method has to be implemented explicitly to allow for loading of legacy states.
+
+        Args:
+            state: The new state
         """
         super().__setstate__(state)
 
