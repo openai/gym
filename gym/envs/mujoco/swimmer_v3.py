@@ -1,5 +1,7 @@
 __credits__ = ["Rushiv Arora"]
 
+from typing import Optional
+
 import numpy as np
 
 from gym import utils
@@ -29,7 +31,9 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             exclude_current_positions_from_observation
         )
 
-        mujoco_env.MujocoEnv.__init__(self, xml_file, 4, render_mode=render_mode, mujoco_bindings="mujoco_py")
+        mujoco_env.MujocoEnv.__init__(
+            self, xml_file, 4, render_mode=render_mode, mujoco_bindings="mujoco_py"
+        )
 
     def control_cost(self, action):
         control_cost = self._ctrl_cost_weight * np.sum(np.square(action))

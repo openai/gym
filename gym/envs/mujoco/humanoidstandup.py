@@ -9,7 +9,11 @@ from gym.envs.mujoco import mujoco_env
 class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     def __init__(self, render_mode: Optional[str] = None):
         mujoco_env.MujocoEnv.__init__(
-            self, "humanoidstandup.xml", 5, render_mode=render_mode, mujoco_bindings="mujoco_py"
+            self,
+            "humanoidstandup.xml",
+            5,
+            render_mode=render_mode,
+            mujoco_bindings="mujoco_py",
         )
         utils.EzPickle.__init__(self)
 

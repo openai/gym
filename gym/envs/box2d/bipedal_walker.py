@@ -649,16 +649,12 @@ class BipedalWalker(gym.Env, EzPickle):
                 self.surf,
                 color=(255, 255, 255),
                 points=[
-                    (p[0] * SCALE + self.scroll * SCALE / 2, p[1] * SCALE)
-                    for p in poly
+                    (p[0] * SCALE + self.scroll * SCALE / 2, p[1] * SCALE) for p in poly
                 ],
             )
             gfxdraw.aapolygon(
                 self.surf,
-                [
-                    (p[0] * SCALE + self.scroll * SCALE / 2, p[1] * SCALE)
-                    for p in poly
-                ],
+                [(p[0] * SCALE + self.scroll * SCALE / 2, p[1] * SCALE) for p in poly],
                 (255, 255, 255),
             )
         for poly, color in self.terrain_poly:
@@ -708,9 +704,7 @@ class BipedalWalker(gym.Env, EzPickle):
                 else:
                     path = [trans * v * SCALE for v in f.shape.vertices]
                     if len(path) > 2:
-                        pygame.draw.polygon(
-                            self.surf, color=obj.color1, points=path
-                        )
+                        pygame.draw.polygon(self.surf, color=obj.color1, points=path)
                         gfxdraw.aapolygon(self.surf, path, obj.color1)
                         path.append(path[0])
                         pygame.draw.polygon(

@@ -34,7 +34,13 @@ def convert_observation_to_space(observation):
 class MujocoEnv(gym.Env):
     """Superclass for all MuJoCo environments."""
 
-    def __init__(self, model_path, frame_skip, render_mode: Optional[str] = None, mujoco_bindings="mujoco"):
+    def __init__(
+        self,
+        model_path,
+        frame_skip,
+        render_mode: Optional[str] = None,
+        mujoco_bindings="mujoco",
+    ):
         if model_path.startswith("/"):
             fullpath = model_path
         else:
@@ -202,12 +208,12 @@ class MujocoEnv(gym.Env):
             self._mujoco_bindings.mj_rnePostConstraint(self.model, self.data)
 
     def render(
-            self,
-            mode="human",
-            width=DEFAULT_SIZE,
-            height=DEFAULT_SIZE,
-            camera_id=None,
-            camera_name=None,
+        self,
+        mode="human",
+        width=DEFAULT_SIZE,
+        height=DEFAULT_SIZE,
+        camera_id=None,
+        camera_name=None,
     ):
         if self.render_mode is not None:
             return self.renderer.get_renders()
@@ -217,16 +223,16 @@ class MujocoEnv(gym.Env):
                 width=width,
                 height=height,
                 camera_id=camera_id,
-                camera_name=camera_name
+                camera_name=camera_name,
             )
 
     def _render(
-            self,
-            mode="human",
-            width=DEFAULT_SIZE,
-            height=DEFAULT_SIZE,
-            camera_id=None,
-            camera_name=None,
+        self,
+        mode="human",
+        width=DEFAULT_SIZE,
+        height=DEFAULT_SIZE,
+        camera_id=None,
+        camera_name=None,
     ):
         assert mode in self.metadata["render_modes"]
 

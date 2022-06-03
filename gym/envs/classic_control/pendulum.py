@@ -199,9 +199,7 @@ class PendulumEnv(gym.Env):
         gfxdraw.aapolygon(self.surf, transformed_coords, (204, 77, 77))
         gfxdraw.filled_polygon(self.surf, transformed_coords, (204, 77, 77))
 
-        gfxdraw.aacircle(
-            self.surf, offset, offset, int(rod_width / 2), (204, 77, 77)
-        )
+        gfxdraw.aacircle(self.surf, offset, offset, int(rod_width / 2), (204, 77, 77))
         gfxdraw.filled_circle(
             self.surf, offset, offset, int(rod_width / 2), (204, 77, 77)
         )
@@ -235,9 +233,7 @@ class PendulumEnv(gym.Env):
 
         # drawing axle
         gfxdraw.aacircle(self.surf, offset, offset, int(0.05 * scale), (0, 0, 0))
-        gfxdraw.filled_circle(
-            self.surf, offset, offset, int(0.05 * scale), (0, 0, 0)
-        )
+        gfxdraw.filled_circle(self.surf, offset, offset, int(0.05 * scale), (0, 0, 0))
 
         self.surf = pygame.transform.flip(self.surf, False, True)
         self.screen.blit(self.surf, (0, 0))

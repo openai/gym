@@ -41,7 +41,7 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             exclude_current_positions_from_observation
         )
 
-        mujoco_env.MujocoEnv.__init__(self, xml_file, 5, mujoco_bindings="mujoco_py", **kwargs)
+        mujoco_env.MujocoEnv.__init__(self, xml_file, 5, mujoco_bindings="mujoco_py")
 
     @property
     def healthy_reward(self):

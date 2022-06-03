@@ -252,15 +252,11 @@ class BlackjackEnv(gym.Env):
             dealer_card_value_str = str(dealer_card_value)
 
         def scale_card_img(card_img):
-            return pygame.transform.scale(
-                card_img, (card_img_width, card_img_height)
-            )
+            return pygame.transform.scale(card_img, (card_img_width, card_img_height))
 
         dealer_card_img = scale_card_img(
             get_image(
-                os.path.join(
-                    "img", dealer_card_suit + dealer_card_value_str + ".png"
-                )
+                os.path.join("img", dealer_card_suit + dealer_card_value_str + ".png")
             )
         )
         dealer_card_rect = self.screen.blit(
@@ -285,9 +281,7 @@ class BlackjackEnv(gym.Env):
             player_text, (spacing, dealer_card_rect.bottom + 1.5 * spacing)
         )
 
-        large_font = get_font(
-            os.path.join("font", "Minecraft.ttf"), screen_height // 6
-        )
+        large_font = get_font(os.path.join("font", "Minecraft.ttf"), screen_height // 6)
         player_sum_text = large_font.render(str(player_sum), True, white)
         player_sum_text_rect = self.screen.blit(
             player_sum_text,

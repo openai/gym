@@ -540,7 +540,13 @@ class CarRacing(gym.Env, EzPickle):
         trans = (WINDOW_W / 2 + trans[0], WINDOW_H / 4 + trans[1])
 
         self._render_road(zoom, trans, angle)
-        self.car.draw(self.surf, zoom, trans, angle, mode not in ["state_pixels", "single_state_pixels"])
+        self.car.draw(
+            self.surf,
+            zoom,
+            trans,
+            angle,
+            mode not in ["state_pixels", "single_state_pixels"],
+        )
 
         self.surf = pygame.transform.flip(self.surf, False, True)
 

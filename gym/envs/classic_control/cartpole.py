@@ -221,9 +221,7 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
                     (self.screen_width, self.screen_height)
                 )
             else:  # mode in ["rgb_array", "single_rgb_array"]
-                self.screen = pygame.Surface(
-                    (self.screen_width, self.screen_height)
-                )
+                self.screen = pygame.Surface((self.screen_width, self.screen_height))
         if self.clock is None:
             self.clock = pygame.time.Clock()
 

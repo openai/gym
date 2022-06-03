@@ -350,9 +350,7 @@ class AcrobotEnv(core.Env):
             gfxdraw.filled_polygon(surf, transformed_coords, (0, 204, 204))
 
             gfxdraw.aacircle(surf, int(x), int(y), int(0.1 * scale), (204, 204, 0))
-            gfxdraw.filled_circle(
-                surf, int(x), int(y), int(0.1 * scale), (204, 204, 0)
-            )
+            gfxdraw.filled_circle(surf, int(x), int(y), int(0.1 * scale), (204, 204, 0))
 
         surf = pygame.transform.flip(surf, False, True)
         self.screen.blit(surf, (0, 0))
