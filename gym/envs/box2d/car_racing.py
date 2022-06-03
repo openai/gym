@@ -480,10 +480,7 @@ class CarRacing(gym.Env, EzPickle):
         self.world.Step(1.0 / FPS, 6 * 30, 2 * 30)
         self.t += 1.0 / FPS
 
-        # if self.surf is None:
-        #     self._build_surf()
-        # self.state = self._create_image_array(self.surf, (STATE_W, STATE_H))
-        self.state = self.render("state_pixels")
+        self.state = self._render("state_pixels")
 
         step_reward = 0
         done = False

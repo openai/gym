@@ -313,7 +313,7 @@ def _check_render(env: gym.Env, warn: bool = True, headless: bool = False):
             )
 
     if warn:
-        if not hasattr(env, "render_mode"):
+        if not hasattr(env, "render_mode"):  # TODO: raise an error with gym 1.0
             logger.warn("Environments must define render_mode.")
         elif env.render_mode is not None and env.render_mode not in render_modes:
             logger.warn(
