@@ -480,7 +480,7 @@ class CarRacing(gym.Env, EzPickle):
         self.world.Step(1.0 / FPS, 6 * 30, 2 * 30)
         self.t += 1.0 / FPS
 
-        self.state = self._render("state_pixels")
+        self.state = self._render("single_state_pixels")
 
         step_reward = 0
         done = False
@@ -516,6 +516,8 @@ class CarRacing(gym.Env, EzPickle):
                     "pygame is not installed, run `pip install gym[box2d]`"
                 )
 
+            pygame.font.init()
+
             if self.screen is None and mode == "human":
                 pygame.init()
                 pygame.display.init()
@@ -523,7 +525,33 @@ class CarRacing(gym.Env, EzPickle):
             if self.clock is None:
                 self.clock = pygame.time.Clock()
 
-            self._build_surf(mode=mode)
+            if "t" not in self.__dict__:
+                return  # reset() not called yet
+
+            self.surf = pygame.Surface((WINDOW_W, WINDOW_H))
+
+            # computing transformations
+            angle = -self.car.hull.angle
+            # Animating first second zoom.
+            zoom = 0.1 * SCALE * max(1 - self.t, 0) + ZOOM * SCALE * min(self.t, 1)
+            scroll_x = -(self.car.hull.position[0]) * zoom
+            scroll_y = -(self.car.hull.position[1]) * zoom
+            trans = pygame.math.Vector2((scroll_x, scroll_y)).rotate_rad(angle)
+            trans = (WINDOW_W / 2 + trans[0], WINDOW_H / 4 + trans[1])
+
+            self._render_road(zoom, trans, angle)
+            self.car.draw(self.surf, zoom, trans, angle, mode != "state_pixels")
+
+            self.surf = pygame.transform.flip(self.surf, False, True)
+
+            # showing stats
+            self._render_indicators(WINDOW_W, WINDOW_H)
+
+            font = pygame.font.Font(pygame.font.get_default_font(), 42)
+            text = font.render("%04i" % self.reward, True, (255, 255, 255), (0, 0, 0))
+            text_rect = text.get_rect()
+            text_rect.center = (60, WINDOW_H - WINDOW_H * 2.5 / 40.0)
+            self.surf.blit(text, text_rect)
 
             if mode == "human":
                 pygame.event.pump()
@@ -538,51 +566,6 @@ class CarRacing(gym.Env, EzPickle):
                 return self._create_image_array(self.surf, (STATE_W, STATE_H))
             else:
                 return self.isopen
-
-    def _build_surf(self, mode="state_pixels"):
-        try:
-            import pygame
-        except ImportError:
-            raise DependencyNotInstalled(
-                "pygame is not installed, run `pip install gym[box2d]`"
-            )
-
-        if "t" not in self.__dict__:
-            return  # reset() not called yet
-
-        pygame.init()
-        pygame.font.init()
-
-        self.surf = pygame.Surface((WINDOW_W, WINDOW_H))
-
-        # computing transformations
-        angle = -self.car.hull.angle
-        # Animating first second zoom.
-        zoom = 0.1 * SCALE * max(1 - self.t, 0) + ZOOM * SCALE * min(self.t, 1)
-        scroll_x = -(self.car.hull.position[0]) * zoom
-        scroll_y = -(self.car.hull.position[1]) * zoom
-        trans = pygame.math.Vector2((scroll_x, scroll_y)).rotate_rad(angle)
-        trans = (WINDOW_W / 2 + trans[0], WINDOW_H / 4 + trans[1])
-
-        self._render_road(zoom, trans, angle)
-        self.car.draw(
-            self.surf,
-            zoom,
-            trans,
-            angle,
-            mode not in ["state_pixels", "single_state_pixels"],
-        )
-
-        self.surf = pygame.transform.flip(self.surf, False, True)
-
-        # showing stats
-        self._render_indicators(WINDOW_W, WINDOW_H)
-
-        font = pygame.font.Font(pygame.font.get_default_font(), 42)
-        text = font.render("%04i" % self.reward, True, (255, 255, 255), (0, 0, 0))
-        text_rect = text.get_rect()
-        text_rect.center = (60, WINDOW_H - WINDOW_H * 2.5 / 40.0)
-        self.surf.blit(text, text_rect)
 
     def _render_road(self, zoom, translation, angle):
         bounds = PLAYFIELD
