@@ -48,7 +48,7 @@ class AtariPreprocessing(gym.Wrapper):
             noop_max (int): For No-op reset, the max number no-ops actions are taken at reset, to turn off, set to 0.
             frame_skip (int): The number of frames between new observation the agents observations effecting the frequency at which the agent experiences the game.
             screen_size (int): resize Atari frame
-            terminal_on_life_loss (bool): `if True`, then :meth:`step()` returns `done=True` whenever a
+            terminal_on_life_loss (bool): `if True`, then :meth:`step()` returns `terminated=True` whenever a
                 life is lost.
             grayscale_obs (bool): if True, then gray scale observation is returned, otherwise, RGB observation
                 is returned.

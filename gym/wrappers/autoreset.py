@@ -16,10 +16,10 @@ class AutoResetWrapper(gym.Wrapper):
        with an additional key "final_observation" containing the observation returned by the last call to :meth:`self.env.step`
        and "final_info" containing the info dict returned by the last call to :meth:`self.env.step`.
 
-    Warning: When using this wrapper to collect rollouts, note that when :meth:`Env.step` returns done, a
+    Warning: When using this wrapper to collect rollouts, note that when :meth:`Env.step` returns `terminated` or `truncated`, a
         new observation from after calling :meth:`Env.reset` is returned by :meth:`Env.step` alongside the
-        closing reward and done state from the previous episode.
-        If you need the closing state from the previous episode, you need to retrieve it via the
+        final reward and done state from the previous episode.
+        If you need the final state from the previous episode, you need to retrieve it via the
         "final_observation" key in the info dict.
         Make sure you know what you're doing if you use this wrapper!
     """
@@ -34,7 +34,7 @@ class AutoResetWrapper(gym.Wrapper):
         super().__init__(env, new_step_api)
 
     def step(self, action):
-        """Steps through the environment with action and resets the environment if a done-signal is encountered.
+        """Steps through the environment with action and resets the environment if a terminated or truncated signal is encountered.
 
         Args:
             action: The action to take

@@ -86,7 +86,7 @@ class AsyncVectorEnv(VectorEnv):
                 the head process quits. However, ``daemon=True`` prevents subprocesses to spawn children,
                 so for some environments you may want to have it set to ``False``.
             worker: If set, then use that worker in a subprocess instead of a default one.
-                Can be useful to override some inner vector env logic, for instance, how resets on done are handled.
+                Can be useful to override some inner vector env logic, for instance, how resets on termination or truncation are handled.
             new_step_api: If True, step method returns 2 bools - terminated, truncated, instead of 1 bool - done
 
         Warnings: worker is an advanced mode option. It provides a high degree of flexibility and a high chance

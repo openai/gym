@@ -33,7 +33,7 @@ class RecordVideo(gym.Wrapper):
     They should be functions returning a boolean that indicates whether a recording should be started at the
     current episode or step, respectively.
     If neither :attr:`episode_trigger` nor ``step_trigger`` is passed, a default ``episode_trigger`` will be employed.
-    By default, the recording will be stopped once a `done` signal has been emitted by the environment. However, you can
+    By default, the recording will be stopped once a `terminated` or `truncated` signal has been emitted by the environment. However, you can
     also create recordings of fixed length (possibly spanning several episodes) by passing a strictly positive value for
     ``video_length``.
     """

@@ -86,11 +86,11 @@ class Env(Generic[ObsType, ActType]):
             reward (float): The amount of reward returned as a result of taking the action.
             terminated (bool): whether the episode has ended due to reaching a terminal state intrinsic to the core environment, in which case further step() calls will return undefined results
             truncated (bool): whether the episode has ended due to a truncation, i.e., a timelimit outside the scope of the problem defined in the environment.
-            info (dictionary): A dictionary that may contain additional information regarding the reason for a ``done`` signal.
-                `info` contains auxiliary diagnostic information (helpful for debugging, learning, and logging).
+            info (dictionary): `info` contains auxiliary diagnostic information (helpful for debugging, learning, and logging).
                 This might, for instance, contain: metrics that describe the agent's performance state, variables that are
-                hidden from observations, information that distinguishes truncation and termination or individual reward terms
-                that are combined to produce the total reward
+                hidden from observations, or individual reward terms that are combined to produce the total reward.
+                It also can contain information that distinguishes truncation and termination, however this is deprecated in favour
+                of returning two booleans, and will be removed in a future version.
 
             (deprecated)
             done (bool): A boolean value for if the episode has ended, in which case further :meth:`step` calls will return undefined results.

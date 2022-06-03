@@ -171,7 +171,7 @@ class FrameStack(gym.ObservationWrapper):
             action: The action to step through the environment with
 
         Returns:
-            Stacked observations, reward, done and information from the environment
+            Stacked observations, reward, terminated, truncated, and information from the environment
         """
         observation, reward, terminated, truncated, info = step_api_compatibility(
             self.env.step(action), True
