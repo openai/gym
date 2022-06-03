@@ -163,7 +163,9 @@ class AtariPreprocessing(gym.Wrapper):
             else 0
         )
         for _ in range(noops):
-            _, _, terminated, truncated, step_info = self.env.step(0)
+            _, _, terminated, truncated, step_info = step_api_compatibility(
+                self.env.step(0), True
+            )
             reset_info.update(step_info)
             if terminated or truncated:
                 if kwargs.get("return_info", False):
