@@ -62,7 +62,7 @@ class _EnvDecorator(type):  # TODO: remove with gym 1.0
         return render
 
 
-class Env(Generic[ObsType, ActType], metaclass=_EnvDecorator):
+class Env(Generic[ObsType, ActType]):
     r"""The main OpenAI Gym class.
 
     It encapsulates an environment with arbitrary behind-the-scenes dynamics.
@@ -88,6 +88,8 @@ class Env(Generic[ObsType, ActType], metaclass=_EnvDecorator):
 
     Note: a default reward range set to :math:`(-\infty,+\infty)` already exists. Set it if you want a narrower range.
     """
+
+    __metaclass__ = _EnvDecorator
 
     # Set this in SOME subclasses
     metadata = {"render_modes": []}
