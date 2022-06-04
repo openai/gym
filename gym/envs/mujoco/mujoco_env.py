@@ -273,6 +273,8 @@ class MujocoEnv(gym.Env):
 
     def close(self):
         if self.viewer is not None:
+            if self._mujoco_bindings.__name__ == "mujoco":
+                self.viewer.close()
             self.viewer = None
             self._viewers = {}
 
