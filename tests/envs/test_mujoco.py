@@ -59,11 +59,12 @@ def test_mujoco_incompatible_v3_to_v2(env_name: str):
 MUJOCO_V4_ENVS = [spec.name for spec in mujoco_testing_env_specs if spec.version == 4]
 
 
-@pytest.mark.parametrize("env_name", MUJOCO_V4_ENVS)
-def test_mujoco_v4_envs(env_name):
-    if f"{env_name}-v3" in gym.envs.registry:
-        verify_environments_match(f"{env_name}-v3", f"{env_name}-v4")
-    elif f"{env_name}-v2" in gym.envs.registry:
-        verify_environments_match(f"{env_name}-v2", f"{env_name}-v4")
-    else:
-        raise Exception(f"Could not find v2 or v3 mujoco env for {env_name}")
+# TODO, re-add if true
+# @pytest.mark.parametrize("env_name", MUJOCO_V4_ENVS)
+# def test_mujoco_v4_envs(env_name):
+#     if f"{env_name}-v3" in gym.envs.registry:
+#         verify_environments_match(f"{env_name}-v3", f"{env_name}-v4")
+#     elif f"{env_name}-v2" in gym.envs.registry:
+#         verify_environments_match(f"{env_name}-v2", f"{env_name}-v4")
+#     else:
+#         raise Exception(f"Could not find v2 or v3 mujoco env for {env_name}")
