@@ -1,5 +1,5 @@
 """Implementation of a space that represents closed boxes in euclidean space."""
-from typing import List, Optional, Sequence, SupportsFloat, Tuple, Type, Union
+from typing import Dict, List, Optional, Sequence, SupportsFloat, Tuple, Type, Union
 
 import numpy as np
 
@@ -231,6 +231,17 @@ class Box(Space[np.ndarray]):
             and np.allclose(self.low, other.low)
             and np.allclose(self.high, other.high)
         )
+
+    def __setstate__(self, state: Dict):
+        """Sets the state of the box for unpickling a box with legacy support."""
+        super().__setstate__(state)
+
+        # legacy support through re-adding "low_repr" and "high_repr" if missing from pickled state
+        if not hasattr(self, "low_repr"):
+            self.low_repr = _short_repr(self.low)
+
+        if not hasattr(self, "high_repr"):
+            self.high_repr = _short_repr(self.high)
 
 
 def get_inf(dtype, sign: str) -> SupportsFloat:

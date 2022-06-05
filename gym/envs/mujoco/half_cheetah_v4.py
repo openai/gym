@@ -45,7 +45,7 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     The observation is a `ndarray` with shape `(17,)` where the elements correspond to the following:
 
     | Num | Observation                          | Min  | Max | Name (in corresponding XML file) | Joint | Unit                     |
-    |-----|--------------------------------------|------|-----|----------------------------------|---- --|--------------------------|
+    |-----|--------------------------------------|------|-----|----------------------------------|-------|--------------------------|
     | 0   | x-coordinate of the center of mass   | -Inf | Inf | rootx                            | slide | position (m)             |
     | 1   | y-coordinate of the center of mass   | -Inf | Inf | rootz                            | slide | position (m)             |
     | 2   | angle of the front tip               | -Inf | Inf | rooty                            | hinge | angle (rad)              |
@@ -61,7 +61,7 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     | 12  | angle of the second rotor            | -Inf | Inf | bthigh                           | hinge | angular velocity (rad/s) |
     | 13  | angle of the second rotor            | -Inf | Inf | bshin                            | hinge | angular velocity (rad/s) |
     | 14  | velocity of the tip along the x-axis | -Inf | Inf | bfoot                            | hinge | angular velocity (rad/s) |
-    | 15  | velocity of the tip along the y-axis | -Inf | Inf | fthigh                           | hinge |angular velocity (rad/s)  |
+    | 15  | velocity of the tip along the y-axis | -Inf | Inf | fthigh                           | hinge | angular velocity (rad/s) |
     | 16  | angular velocity of front tip        | -Inf | Inf | fshin                            | hinge | angular velocity (rad/s) |
     | 17  | angular velocity of second rotor     | -Inf | Inf | ffoot                            | hinge | angular velocity (rad/s) |
 
