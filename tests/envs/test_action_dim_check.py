@@ -19,7 +19,7 @@ def test_mujoco_action_dimensions(env_spec: EnvSpec):
     env.reset()
 
     with pytest.raises(ValueError, match="Action dimension mismatch"):
-        env.step([0.1])
+        env.step(env.action_space.sample()[1:])
 
     with pytest.raises(ValueError, match="Action dimension mismatch"):
         env.step(0.1)
