@@ -1,18 +1,16 @@
 """Setups the project."""
 import itertools
-import os
+import os.path
 import sys
-from typing import Dict, List
 
 from setuptools import find_packages, setup
 
 # Don't import gym module here, since deps may not be installed
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "gym"))
-with open(os.path.join(os.path.dirname(__file__), "gym", "version.py")) as file:
-    VERSION = file.read().replace("VERSION = ", "").replace('"', "")
+from version import VERSION  # noqa:E402
 
 # Environment-specific dependencies.
-extras: Dict[str, List[str]] = {
+extras = {
     "atari": ["ale-py~=0.7.5"],
     "accept-rom-license": ["autorom[accept-rom-license]~=0.4.2"],
     "box2d": ["box2d-py==2.3.5", "pygame==2.1.0"],
@@ -24,12 +22,22 @@ extras: Dict[str, List[str]] = {
 }
 
 # Meta dependency groups.
-test_groups = {"mujoco_py", "mujoco", "box2d", "classic_control", "toy_text", "other"}
-extras["testing"] = list(
-    itertools.chain.from_iterable(map(lambda group: extras[group], test_groups))
-) + ["pytest", "mock"]
+nomujoco_blacklist = {"mujoco_py", "mujoco", "accept-rom-license", "atari"}
+nomujoco_groups = set(extras.keys()) - nomujoco_blacklist
 
-all_groups = set(extras.keys()) - {"accept-rom-license"}
+extras["nomujoco"] = list(
+    itertools.chain.from_iterable(map(lambda group: extras[group], nomujoco_groups))
+)
+
+noatari_blacklist = {"accept-rom-license", "atari"}
+noatari_groups = set(extras.keys()) - noatari_blacklist
+extras["noatari"] = list(
+    itertools.chain.from_iterable(map(lambda group: extras[group], noatari_groups))
+)
+
+all_blacklist = {"accept-rom-license"}
+all_groups = set(extras.keys()) - all_blacklist
+
 extras["all"] = list(
     itertools.chain.from_iterable(map(lambda group: extras[group], all_groups))
 )
@@ -75,7 +83,7 @@ setup(
             "py.typed",
         ]
     },
-    tests_require=extras["testing"],
+    tests_require=["pytest", "mock"],
     python_requires=">=3.6",
     classifiers=[
         "Programming Language :: Python :: 3",
