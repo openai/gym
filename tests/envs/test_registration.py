@@ -62,7 +62,7 @@ def register_some_envs():
 
 
 def test_make():
-    env = envs.make("CartPole-v1")
+    env = envs.make("CartPole-v1", disable_env_checker=True)
     assert env.spec.id == "CartPole-v1"
     assert isinstance(env.unwrapped, cartpole.CartPoleEnv)
 
@@ -128,7 +128,7 @@ def test_env_suggestions(register_some_envs, env_id_input, env_id_suggested):
     with pytest.raises(
         error.UnregisteredEnv, match=f"Did you mean: `{env_id_suggested}` ?"
     ):
-        envs.make(env_id_input)
+        gym.make(env_id_input, disable_env_checker=True)
 
 
 @pytest.mark.parametrize(
@@ -151,14 +151,14 @@ def test_env_version_suggestions(
             error.DeprecatedEnv,
             match=match_str,
         ):
-            envs.make(env_id_input)
+            envs.make(env_id_input, disable_env_checker=True)
     else:
         match_str = f"versioned environments: \\[ {suggested_versions} \\]"
         with pytest.raises(
             error.UnregisteredEnv,
             match=match_str,
         ):
-            envs.make(env_id_input)
+            envs.make(env_id_input, disable_env_checker=True)
 
 
 def test_make_with_kwargs():
@@ -166,6 +166,7 @@ def test_make_with_kwargs():
         "test.ArgumentEnv-v0",
         arg2="override_arg2",
         arg3="override_arg3",
+        disable_env_checker=True,
     )
     assert env.spec.id == "test.ArgumentEnv-v0"
     assert isinstance(env.unwrapped, ArgumentEnv)
@@ -194,7 +195,10 @@ def test_spec():
 
 def test_spec_with_kwargs():
     map_name_value = "8x8"
-    env = gym.make("FrozenLake-v1", map_name=map_name_value)
+    env = gym.make(
+        "FrozenLake-v1",
+        map_name=map_name_value,
+    )
     assert env.spec.kwargs["map_name"] == map_name_value
 
 
@@ -277,7 +281,9 @@ def test_register_versioned_unversioned():
 
 def test_return_latest_versioned_env(register_some_envs):
     with pytest.warns(UserWarning):
-        env = envs.make("MyAwesomeNamespace/MyAwesomeVersionedEnv")
+        env = envs.make(
+            "MyAwesomeNamespace/MyAwesomeVersionedEnv", disable_env_checker=True
+        )
     assert env.spec.id == "MyAwesomeNamespace/MyAwesomeVersionedEnv-v5"
 
 
@@ -295,4 +301,7 @@ def test_namespace():
 
 def test_import_module_during_make():
     # Test custom environment which is registered at make
-    gym.make("tests.envs.register_during_make_env:RegisterDuringMakeEnv-v0")
+    gym.make(
+        "tests.envs.register_during_make_env:RegisterDuringMakeEnv-v0",
+        disable_env_checker=True,
+    )

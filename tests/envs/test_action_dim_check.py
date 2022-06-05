@@ -66,7 +66,7 @@ def test_box_actions_out_of_bound(env: gym.Env):
     """
     env.reset(seed=42)
 
-    oob_env = gym.make(env.spec.id)
+    oob_env = gym.make(env.spec.id, disable_env_checker=True)
     oob_env.reset(seed=42)
 
     assert isinstance(env.action_space, Box)

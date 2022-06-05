@@ -3,7 +3,7 @@ from gym.wrappers import TimeLimit
 
 
 def test_time_limit_reset_info():
-    env = gym.make("CartPole-v1")
+    env = gym.make("CartPole-v1", disable_env_checker=True)
     env = TimeLimit(env)
     ob_space = env.observation_space
     obs = env.reset()

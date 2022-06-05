@@ -12,8 +12,8 @@ def verify_environments_match(
 ):
     """Verifies with two environment ids (old and new) are identical in obs, reward and done
     (except info where all old info must be contained in new info)."""
-    old_env = envs.make(old_env_id)
-    new_env = envs.make(new_env_id)
+    old_env = envs.make(old_env_id, disable_env_checker=True)
+    new_env = envs.make(new_env_id, disable_env_checker=True)
 
     old_reset_obs = old_env.reset(seed=seed)
     new_reset_obs = new_env.reset(seed=seed)

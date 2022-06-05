@@ -37,9 +37,6 @@ def test_env_determinism_rollout(env_spec):
     - same actions are sampled by the two envs
     - observations are contained in the observation space
     - obs, rew, done and info are equals between the two envs
-
-    Args:
-        env (gym.Env): Environment
     """
     # Don't check rollout equality if it's a nondeterministic environment.
     if env_spec.nondeterministic is True:
@@ -61,14 +58,14 @@ def test_env_determinism_rollout(env_spec):
         obs_1, rew_1, done_1, info_1 = env_1.step(action)
         obs_2, rew_2, done_2, info_2 = env_2.step(action)
 
-        assert_equals(obs_1, obs_2, f"{time_step=} ")
+        assert_equals(obs_1, obs_2, f"[{time_step}] ")
         assert env_1.observation_space.contains(
             obs_1
         )  # obs_2 verified by previous assertion
 
-        assert rew_1 == rew_2, f"{time_step=} {rew_1=}, {rew_2=}"
-        assert done_1 == done_2, f"{time_step=} {done_1=}, {done_2=}"
-        assert_equals(info_1, info_2, f"{time_step=} ")
+        assert rew_1 == rew_2, f"[{time_step}] reward 1={rew_1}, reward 2={rew_2=}"
+        assert done_1 == done_2, f"[{time_step}] done 1={done_1}, done 2={done_2}"
+        assert_equals(info_1, info_2, f"[{time_step}] ")
 
         if done_1:  # done_2 verified by previous assertion
             env_1.reset(seed=SEED)

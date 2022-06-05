@@ -6,7 +6,7 @@ from gym.wrappers import TimeAwareObservation
 
 @pytest.mark.parametrize("env_id", ["CartPole-v1", "Pendulum-v1"])
 def test_time_aware_observation(env_id):
-    env = gym.make(env_id)
+    env = gym.make(env_id, disable_env_checker=True)
     wrapped_env = TimeAwareObservation(env)
 
     assert wrapped_env.observation_space.shape[0] == env.observation_space.shape[0] + 1
