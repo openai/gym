@@ -23,8 +23,8 @@ from typing import (
 import numpy as np
 
 from gym.envs.__relocated__ import internal_env_relocation_map
+from gym.utils.env_checker import check_env
 from gym.wrappers import AutoResetWrapper, OrderEnforcing, TimeLimit
-from gym.wrappers.env_checker import PassiveEnvChecker
 
 if sys.version_info < (3, 10):
     import importlib_metadata as metadata  # type: ignore
@@ -43,15 +43,7 @@ ENV_ID_RE = re.compile(
 )
 
 
-def load(name: str) -> callable:
-    """Loads an environment with name and returns an environment creation function
-
-    Args:
-        name: The environment name
-
-    Returns:
-        Calls the environment constructor
-    """
+def load(name: str) -> type:
     mod_name, attr_name = name.split(":")
     mod = importlib.import_module(mod_name)
     fn = getattr(mod, attr_name)
@@ -527,6 +519,11 @@ def make(
 ) -> Env:
     """Create an environment according to the given ID.
 
+    Warnings:
+        In v0.24, `gym.utils.env_checker.env_checker` is run for every initialised environment.
+        This calls the :meth:`Env.reset`, :meth:`Env.step` and :meth:`Env.render` functions to valid
+        if they follow the gym API. To disable this feature, set parameter `disable_env_checker=True`.
+
     Args:
         id: Name of the environment. Optionally, a module to import can be included, eg. 'module:Env-v0'
         max_episode_steps: Maximum length of an episode (TimeLimit wrapper).
@@ -581,44 +578,49 @@ def make(
     _kwargs = spec_.kwargs.copy()
     _kwargs.update(kwargs)
 
+    # TODO: add a minimal env checker on initialization
     if spec_.entry_point is None:
         raise error.Error(f"{spec_.id} registered but entry_point is not specified")
     elif callable(spec_.entry_point):
-        env_creator = spec_.entry_point
+        cls = spec_.entry_point
     else:
         # Assume it's a string
-        env_creator = load(spec_.entry_point)
+        cls = load(spec_.entry_point)
 
-    env = env_creator(**_kwargs)
+    env = cls(**_kwargs)
 
-    # Copies the environment creation specification and kwargs to add to the environment specification details
     spec_ = copy.deepcopy(spec_)
     spec_.kwargs = _kwargs
+
     env.unwrapped.spec = spec_
 
-    # Run the environment checker as the lowest level wrapper
-    if disable_env_checker is False:
-        env = PassiveEnvChecker(env)
-
-    # Add the order enforcing wrapper
     if spec_.order_enforce:
         env = OrderEnforcing(env)
 
-    # Add the time limit wrapper
     if max_episode_steps is not None:
         env = TimeLimit(env, max_episode_steps)
     elif spec_.max_episode_steps is not None:
         env = TimeLimit(env, spec_.max_episode_steps)
 
-    # Add the autoreset wrapper
     if autoreset:
         env = AutoResetWrapper(env)
+
+    if not disable_env_checker:
+        try:
+            check_env(env)
+        except Exception as e:
+            logger.warn(
+                f"Env check failed with the following message: {e}\n"
+                f"You can set `disable_env_checker=True` to disable this check."
+            )
 
     return env
 
 
 def spec(env_id: str) -> EnvSpec:
-    """Retrieve the spec for the given environment from the global registry."""
+    """
+    Retrieve the spec for the given environment from the global registry.
+    """
     spec_ = registry.get(env_id)
     if spec_ is None:
         ns, name, version = parse_env_id(env_id)

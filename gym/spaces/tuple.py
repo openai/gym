@@ -33,8 +33,9 @@ class Tuple(Space[tuple], Sequence):
             spaces (Iterable[Space]): The spaces that are involved in the cartesian product.
             seed: Optionally, you can use this argument to seed the RNGs of the ``spaces`` to ensure reproducible sampling.
         """
-        self.spaces = tuple(spaces)
-        for space in self.spaces:
+        spaces = tuple(spaces)
+        self.spaces = spaces
+        for space in spaces:
             assert isinstance(
                 space, Space
             ), "Elements of the tuple must be instances of gym.Space"

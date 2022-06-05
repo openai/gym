@@ -33,7 +33,6 @@ class Discrete(Space[int]):
             seed: Optionally, you can use this argument to seed the RNG that is used to sample from the ``Dict`` space.
             start (int): The smallest element of this space.
         """
-        assert isinstance(n, (int, np.integer))
         assert n > 0, "n (counts) have to be positive"
         assert isinstance(start, (int, np.integer))
         self.n = int(n)
