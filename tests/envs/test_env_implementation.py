@@ -31,7 +31,7 @@ def test_env_kwargs(env_name, kwargs):
     pass
 
 
-@pytest.mark.parametrize("seed", range(10))
+@pytest.mark.parametrize("seed", range(5))
 def test_bipedal_walker_hardcore_creation(seed: int):
     """Test BipedalWalker hardcore creation.
 
@@ -49,7 +49,7 @@ def test_bipedal_walker_hardcore_creation(seed: int):
     env = gym.make("BipedalWalker-v3", disable_env_checker=True).unwrapped
     hc_env = gym.make("BipedalWalkerHardcore-v3", disable_env_checker=True).unwrapped
     assert isinstance(env, BipedalWalker) and isinstance(hc_env, BipedalWalker)
-    assert env.hardcore is False and env.hardcore is True
+    assert env.hardcore is False and hc_env.hardcore is True
 
     env.reset(seed=seed)
     hc_env.reset(seed=seed)
