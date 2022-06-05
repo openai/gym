@@ -52,7 +52,6 @@ def test_env(spec):
             observation.dtype == ob_space.dtype
         ), f"Step observation dtype: {ob.dtype}, expected: {ob_space.dtype}"
 
-    env.render()
     env.close()
 
 
