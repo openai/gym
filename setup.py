@@ -34,6 +34,18 @@ extras["all"] = list(
     itertools.chain.from_iterable(map(lambda group: extras[group], all_groups))
 )
 
+# Uses the readme as the description on PyPI
+with open("README.md") as fh:
+    long_description = ""
+    header_count = 0
+    for line in fh:
+        if line.startswith("##"):
+            header_count += 1
+        if header_count < 2:
+            long_description += line
+        else:
+            break
+
 setup(
     name="gym",
     version=VERSION,
@@ -44,6 +56,8 @@ setup(
     license="MIT",
     packages=[package for package in find_packages() if package.startswith("gym")],
     zip_safe=False,
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     install_requires=[
         "numpy>=1.18.0",
         "cloudpickle>=1.2.0",
