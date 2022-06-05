@@ -1,35 +1,41 @@
 """Finds all the specs that we can test with"""
-
-from typing import Optional, Union, Dict, Tuple
+from typing import Optional
 
 import numpy as np
 
 import gym
+from gym import logger
 from gym.envs.registration import EnvSpec
 
 
-def if_test_env_spec(env_spec: EnvSpec) -> Optional[gym.Env]:
-    """Tries to make the environment showing if it is possible."""
+def try_make_env(env_spec: EnvSpec) -> Optional[gym.Env]:
+    """Tries to make the environment showing if it is possible. Warning no wrappers, including time limit."""
     try:
-        return env_spec.make(disable_env_checker=True)
-    except ImportError:
+        return env_spec.make(disable_env_checker=True).unwrapped
+    except ImportError as e:
+        logger.warn(f"Not testing {env_spec.id} due to error: {e}")
         return None
 
 
-testing_envs = filter(lambda x: x is not None, [
-    if_test_env_spec(env_spec)
-    for env_spec in gym.envs.registry.values()
-])
-mujoco_testing_envs = [
-    env
-    for env in testing_envs
-    if "mujoco" in env.spec.entry_point
+# Tries to make all environment to previous recreation if not necessary.
+all_testing_initialised_envs = list(
+    filter(None, [try_make_env(env_spec) for env_spec in gym.envs.registry.values()])
+)
+
+# All testing, mujoco and gym environment specs
+all_testing_env_specs = [env.spec for env in all_testing_initialised_envs]
+mujoco_testing_env_specs = [
+    env_spec
+    for env_spec in all_testing_env_specs
+    if "gym.envs.mujoco" in env_spec.entry_point
 ]
-gym_testing_envs = [
-    env
-    for env in testing_envs
-    for gym_entry_point in ["box2d", "classic_control", "toy_text"]
-    if gym_entry_point in env.spec.entry_point
+gym_testing_env_specs = [
+    env_spec
+    for env_spec in all_testing_env_specs
+    if any(
+        f"gym.{ep}" in env_spec.entry_point
+        for ep in ["box2d", "classic_control", "toy_text"]
+    )
 ]
 
 
