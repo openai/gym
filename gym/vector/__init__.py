@@ -42,6 +42,8 @@ def make(
     """
 
     def create_env(_disable_env_checker):
+        """Creates an environment that can enable or disable the environment checker."""
+
         def _make_env():
             env = gym.envs.registration.make(
                 id, disable_env_checker=_disable_env_checker, **kwargs
@@ -58,7 +60,7 @@ def make(
                     raise NotImplementedError
             return env
 
-        return _make_env()
+        return _make_env
 
     env_fns = [
         create_env(env_num == 0 and disable_env_checker is False)
