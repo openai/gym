@@ -3,6 +3,7 @@ import pytest
 
 import gym
 from gym import envs
+from tests.envs.utils import mujoco_testing_env_specs
 
 EPS = 1e-6
 
@@ -38,10 +39,8 @@ def verify_environments_match(
 
 MUJOCO_V2_V3_ENVS = [
     spec.name
-    for spec in gym.envs.registry.values()
-    if "mujoco" in spec.entry_point
-    and spec.version == 2
-    and f"{spec.name}-v3" in gym.envs.registry
+    for spec in mujoco_testing_env_specs
+    if spec.version == 2 and f"{spec.name}-v3" in gym.envs.registry
 ]
 
 
@@ -57,11 +56,7 @@ def test_mujoco_incompatible_v3_to_v2(env_name: str):
         verify_environments_match(f"{env_name}-v3", f"{env_name}-v2")
 
 
-MUJOCO_V4_ENVS = [
-    spec.name
-    for spec in gym.envs.registry.values()
-    if "mujoco" in spec.entry_point and spec.version == 4
-]
+MUJOCO_V4_ENVS = [spec.name for spec in mujoco_testing_env_specs if spec.version == 4]
 
 
 @pytest.mark.parametrize("env_name", MUJOCO_V4_ENVS)
