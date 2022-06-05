@@ -1,15 +1,13 @@
 """Setups the project."""
 import itertools
-import re
+import os.path
+import sys
 
 from setuptools import find_packages, setup
 
-with open("gym/version.py") as file:
-    full_version = file.read()
-    assert (
-        re.match(r'VERSION = "\d\.\d+\.\d+"\n', full_version).group(0) == full_version
-    ), f"Unexpected version: {full_version}"
-    VERSION = re.search(r"\d\.\d+\.\d+", full_version).group(0)
+# Don't import gym module here, since deps may not be installed
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "gym"))
+from version import VERSION  # noqa:E402
 
 # Environment-specific dependencies.
 extras = {
@@ -19,29 +17,30 @@ extras = {
     "classic_control": ["pygame==2.1.0"],
     "mujoco_py": ["mujoco_py<2.2,>=2.1"],
     "mujoco": ["mujoco==2.2.0", "imageio>=2.14.1"],
-    "toy_text": ["pygame==2.1.0"],
+    "toy_text": ["pygame==2.1.0", "scipy>=1.4.1"],
     "other": ["lz4>=3.1.0", "opencv-python>=3.0", "matplotlib>=3.0"],
 }
 
-# Testing dependency groups.
-testing_group = set(extras.keys()) - {"accept-rom-license", "atari"}
-extras["testing"] = list(
-    set(itertools.chain.from_iterable(map(lambda group: extras[group], testing_group)))
-) + ["pytest", "mock"]
+# Meta dependency groups.
+nomujoco_blacklist = {"mujoco_py", "mujoco", "accept-rom-license", "atari"}
+nomujoco_groups = set(extras.keys()) - nomujoco_blacklist
 
-# All dependency groups
-all_groups = set(extras.keys()) - {"accept-rom-license"}
-extras["all"] = list(
-    set(itertools.chain.from_iterable(map(lambda group: extras[group], all_groups)))
+extras["nomujoco"] = list(
+    itertools.chain.from_iterable(map(lambda group: extras[group], nomujoco_groups))
 )
 
-# Gets the requirements from "requirements.txt"
-with open("requirements.txt") as file:
-    install_requirements = list(map(lambda line: line.strip(), file.readlines()))
+noatari_blacklist = {"accept-rom-license", "atari"}
+noatari_groups = set(extras.keys()) - noatari_blacklist
+extras["noatari"] = list(
+    itertools.chain.from_iterable(map(lambda group: extras[group], noatari_groups))
+)
 
-# Updates the test_requirements.txt based on `extras["testing"]`
-with open("test_requirements.txt", "w") as file:
-    file.writelines(list(map(lambda line: f"{line}\n", extras["testing"])))
+all_blacklist = {"accept-rom-license"}
+all_groups = set(extras.keys()) - all_blacklist
+
+extras["all"] = list(
+    itertools.chain.from_iterable(map(lambda group: extras[group], all_groups))
+)
 
 # Uses the readme as the description on PyPI
 with open("README.md") as fh:
@@ -67,9 +66,14 @@ setup(
     zip_safe=False,
     long_description=long_description,
     long_description_content_type="text/markdown",
-    install_requires=install_requirements,
+    install_requires=[
+        "numpy>=1.18.0",
+        "cloudpickle>=1.2.0",
+        "importlib_metadata>=4.8.0; python_version < '3.10'",
+        "gym_notices>=0.0.4",
+        "dataclasses==0.8; python_version == '3.6'",
+    ],
     extras_require=extras,
-    tests_require=extras["testing"],
     package_data={
         "gym": [
             "envs/mujoco/assets/*.xml",
@@ -79,6 +83,7 @@ setup(
             "py.typed",
         ]
     },
+    tests_require=["pytest", "mock"],
     python_requires=">=3.6",
     classifiers=[
         "Programming Language :: Python :: 3",
