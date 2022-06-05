@@ -152,17 +152,21 @@ def check_observation_space(observation_space):
         assert (
             observation_space.n > 0
         ), f"There are no available discrete observations, n={observation_space.n}"
-    elif type(observation_space, (spaces.MultiDiscrete, spaces.MultiBinary)):
+    elif isinstance(observation_space, spaces.MultiDiscrete):
         assert np.all(
-            observation_space.shape > 0
-        ), f"All dimensions of multi-space must be greater than 0, {observation_space.spaces}."
-    elif type(observation_space, spaces.Tuple):
+            observation_space.nvec > 0
+        ), f"All dimensions of multi-discrete must be greater than 0, {observation_space.nvec}"
+    elif isinstance(observation_space, spaces.MultiBinary):
+        assert np.all(
+            np.asarray(observation_space.shape) > 0
+        ), f"All dimensions of multi-binary must be greater than 0, {observation_space.shape}"
+    elif isinstance(observation_space, spaces.Tuple):
         assert (
             len(observation_space.spaces) > 0
         ), "An empty Tuple observation space is not allowed."
         for subspace in observation_space.spaces:
             check_observation_space(subspace)
-    elif type(observation_space, spaces.Dict):
+    elif isinstance(observation_space, spaces.Dict):
         assert (
             len(observation_space.spaces.keys()) > 0
         ), "An empty Dict observation space is not allowed."
@@ -183,17 +187,21 @@ def check_action_space(action_space):
         assert (
             action_space.n > 0
         ), f"There are no available discrete actions, n={action_space.n}"
-    elif type(action_space, (spaces.MultiDiscrete, spaces.MultiBinary)):
+    elif isinstance(action_space, spaces.MultiDiscrete):
         assert np.all(
-            action_space.shape > 0
-        ), f"All dimensions of multi-space must be greater than 0, {action_space.spaces}."
-    elif type(action_space, spaces.Tuple):
+            action_space.nvec > 0
+        ), f"All dimensions of multi-discrete must be greater than 0, {action_space.nvec}"
+    elif isinstance(action_space, spaces.MultiBinary):
+        assert np.all(
+            np.asarray(action_space.shape) > 0
+        ), f"All dimensions of multi-binary must be greater than 0, {action_space.shape}"
+    elif isinstance(action_space, spaces.Tuple):
         assert (
             len(action_space.spaces) > 0
         ), "An empty Tuple action space is not allowed."
         for subspace in action_space.spaces:
             check_action_space(subspace)
-    elif type(action_space, spaces.Dict):
+    elif isinstance(action_space, spaces.Dict):
         assert (
             len(action_space.spaces.keys()) > 0
         ), "An empty Dict action space is not allowed."
