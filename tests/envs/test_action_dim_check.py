@@ -2,13 +2,17 @@ import numpy as np
 import pytest
 
 import gym
-
 from gym.envs.registration import EnvSpec
 from gym.spaces.box import Box
 from gym.spaces.discrete import Discrete
+from tests.envs.utils import all_testing_initialised_envs, mujoco_testing_env_specs
 
 
-@pytest.mark.parametrize("env_spec", mujoco_testing_envs, id=[env.spec.id for env in mujoco_testing_envs])
+@pytest.mark.parametrize(
+    "env_spec",
+    mujoco_testing_env_specs,
+    ids=[env_spec.id for env_spec in mujoco_testing_env_specs],
+)
 def test_mujoco_action_dimensions(env_spec: EnvSpec):
     """Test that mujoco step actions if out of bounds then an error is raised."""
     env = env_spec.make(disable_env_checker=True)
@@ -21,7 +25,12 @@ def test_mujoco_action_dimensions(env_spec: EnvSpec):
         env.step(0.1)
 
 
-@pytest.mark.parametrize("env", filter(lambda env: isinstance(env.action_space, Discrete), testing_envs))
+@pytest.mark.parametrize(
+    "env",
+    filter(
+        lambda env: isinstance(env.action_space, Discrete), all_testing_initialised_envs
+    ),
+)
 def test_discrete_actions_out_of_bound(env):
     """Test out of bound actions in Discrete action_space.
 
@@ -42,7 +51,9 @@ def test_discrete_actions_out_of_bound(env):
 OOB_VALUE = 100
 
 
-@pytest.mark.parametrize("env", filter(lambda env: isinstance(env, Box), testing_envs))
+@pytest.mark.parametrize(
+    "env", filter(lambda env: isinstance(env, Box), all_testing_initialised_envs)
+)
 def test_box_actions_out_of_bound(env: gym.Env):
     """Test out of bound actions in Box action_space.
 
