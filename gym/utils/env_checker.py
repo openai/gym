@@ -199,8 +199,10 @@ def check_render(env: gym.Env, headless: bool = False):
         env.close()
 
 
-def check_env(env: gym.Env, skip_render_check: bool = True):
+def check_env(env: gym.Env, warn: bool = None, skip_render_check: bool = True):
     """Check that an environment follows Gym API.
+
+    This is an invasive function that calls the environment's reset and step.
 
     This is particularly useful when using a custom environment.
     Please take a look at https://www.gymlibrary.ml/content/environment_creation/
@@ -208,8 +210,12 @@ def check_env(env: gym.Env, skip_render_check: bool = True):
 
     Args:
         env: The Gym environment that will be checked
+        warn: Ignored
         skip_render_check: Whether to skip the checks for the render method. True by default (useful for the CI)
     """
+    if warn is not None:
+        logger.warn("`check_env` warn parameter is now ignored.")
+
     assert isinstance(
         env, gym.Env
     ), "Your environment must inherit from the gym.Env class https://www.gymlibrary.ml/content/environment_creation/"
