@@ -63,7 +63,7 @@ def test_env_determinism_rollout(env_spec):
             obs_1
         )  # obs_2 verified by previous assertion
 
-        assert rew_1 == rew_2, f"[{time_step}] reward 1={rew_1}, reward 2={rew_2=}"
+        assert rew_1 == rew_2, f"[{time_step}] reward 1={rew_1}, reward 2={rew_2}"
         assert done_1 == done_2, f"[{time_step}] done 1={done_1}, done 2={done_2}"
         assert_equals(info_1, info_2, f"[{time_step}] ")
 
