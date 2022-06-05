@@ -46,8 +46,8 @@ def test_bipedal_walker_hardcore_creation(seed: int):
     HC_TERRAINS_COLOR1 = (255, 255, 255)
     HC_TERRAINS_COLOR2 = (153, 153, 153)
 
-    env = gym.make("BipedalWalker-v2", disable_env_checker=True).unwrapped
-    hc_env = gym.make("BipedalWalkerHardcore-v2", disable_env_checker=True).unwrapped
+    env = gym.make("BipedalWalker-v3", disable_env_checker=True).unwrapped
+    hc_env = gym.make("BipedalWalkerHardcore-v3", disable_env_checker=True).unwrapped
     assert isinstance(env, BipedalWalker) and isinstance(hc_env, BipedalWalker)
     assert env.hardcore is False and env.hardcore is True
 
