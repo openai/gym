@@ -74,13 +74,16 @@ def check_reset_seed(env: gym.Env):
             obs_2 = env.reset(seed=123)
             assert obs_2 in env.observation_space
             assert data_equivalence(obs_1, obs_2)
-            seed_123_rng = deepcopy(env.np_random)
+            seed_123_rng = deepcopy(env.unwrapped.np_random)
 
             # Note: for some environment, they may initialise at the same state, therefore we cannot check the obs_1 != obs_3
             obs_4 = env.reset(seed=None)
             assert obs_4 in env.observation_space
 
-            assert env.np_random.bit_generator.state != seed_123_rng.bit_generator.state
+            assert (
+                env.unwrapped.np_random.bit_generator.state
+                != seed_123_rng.bit_generator.state
+            )
         except TypeError as e:
             raise AssertionError(
                 "The environment cannot be reset with a random seed, even though `seed` or `kwargs` appear in the signature. "
