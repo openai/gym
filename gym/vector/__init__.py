@@ -1,6 +1,7 @@
 """Module for vector environments."""
 from typing import Iterable, List, Optional, Union
 
+import gym
 from gym.vector.async_vector_env import AsyncVectorEnv
 from gym.vector.sync_vector_env import SyncVectorEnv
 from gym.vector.vector_env import VectorEnv, VectorEnvWrapper
@@ -13,6 +14,7 @@ def make(
     num_envs: int = 1,
     asynchronous: bool = True,
     wrappers: Optional[Union[callable, List[callable]]] = None,
+    disable_env_checker: bool = False,
     **kwargs,
 ) -> VectorEnv:
     """Create a vectorized environment from multiple copies of an environment, from its id.
@@ -32,26 +34,34 @@ def make(
         num_envs: Number of copies of the environment.
         asynchronous: If `True`, wraps the environments in an :class:`AsyncVectorEnv` (which uses `multiprocessing`_ to run the environments in parallel). If ``False``, wraps the environments in a :class:`SyncVectorEnv`.
         wrappers: If not ``None``, then apply the wrappers to each internal environment during creation.
+        disable_env_checker: If to disable the env checker, if True it will only run on the first environment created.
         **kwargs: Keywords arguments applied during gym.make
 
     Returns:
         The vectorized environment.
     """
-    from gym.envs import make as make_
 
-    def _make_env():
-        env = make_(id, **kwargs)
-        if wrappers is not None:
-            if callable(wrappers):
-                env = wrappers(env)
-            elif isinstance(wrappers, Iterable) and all(
-                [callable(w) for w in wrappers]
-            ):
-                for wrapper in wrappers:
-                    env = wrapper(env)
-            else:
-                raise NotImplementedError
-        return env
+    def create_env(_disable_env_checker):
+        def _make_env():
+            env = gym.envs.registration.make(
+                id, disable_env_checker=_disable_env_checker, **kwargs
+            )
+            if wrappers is not None:
+                if callable(wrappers):
+                    env = wrappers(env)
+                elif isinstance(wrappers, Iterable) and all(
+                    [callable(w) for w in wrappers]
+                ):
+                    for wrapper in wrappers:
+                        env = wrapper(env)
+                else:
+                    raise NotImplementedError
+            return env
 
-    env_fns = [_make_env for _ in range(num_envs)]
+        return _make_env()
+
+    env_fns = [
+        create_env(env_num == 0 and disable_env_checker is False)
+        for env_num in range(num_envs)
+    ]
     return AsyncVectorEnv(env_fns) if asynchronous else SyncVectorEnv(env_fns)
