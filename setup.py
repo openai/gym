@@ -43,6 +43,18 @@ with open("requirements.txt") as file:
 with open("test_requirements.txt", "w") as file:
     file.writelines(list(map(lambda line: f"{line}\n", extras["testing"])))
 
+# Uses the readme as the description on PyPI
+with open("README.md") as fh:
+    long_description = ""
+    header_count = 0
+    for line in fh:
+        if line.startswith("##"):
+            header_count += 1
+        if header_count < 2:
+            long_description += line
+        else:
+            break
+
 setup(
     name="gym",
     version=VERSION,
@@ -53,6 +65,8 @@ setup(
     license="MIT",
     packages=[package for package in find_packages() if package.startswith("gym")],
     zip_safe=False,
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     install_requires=install_requirements,
     extras_require=extras,
     tests_require=extras["testing"],
