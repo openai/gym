@@ -28,6 +28,8 @@ RenderFrame = TypeVar("RenderFrame")
 
 
 class _EnvDecorator(type):  # TODO: remove with gym 1.0
+    """Metaclass used for adding deprecation warning to the mode kwarg in the render method."""
+
     def __new__(cls, name, bases, attr):
         if "render" in attr.keys():
             attr["render"] = _EnvDecorator._deprecate_mode(attr["render"])
@@ -190,8 +192,10 @@ class Env(Generic[ObsType, ActType]):
         - None (default): no render is computed.
         - human: render return None.
           The environment is continuously rendered in the current display or terminal. Usually for human consumption.
-        - rgb_array: Return a list of frames. Each frame is a numpy.ndarray with shape (x, y, 3),
-          representing RGB values for an x-by-y pixel image.
+        - single_rgb_array: return a single frame representing the current state of the environment.
+          A frame is a numpy.ndarray with shape (x, y, 3) representing RGB values for an x-by-y pixel image.
+        - rgb_array: return a list of frames representing the states of the environment since the last reset.
+          Each frame is a numpy.ndarray with shape (x, y, 3), as with single_rgb_array.
         - ansi: Return a list of strings (str) or StringIO.StringIO containing a
           terminal-style text representation for each time step.
           The text can include newlines and ANSI escape sequences (e.g. for colors).

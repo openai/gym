@@ -671,17 +671,17 @@ class BipedalWalker(gym.Env, EzPickle):
         self.lidar_render = (self.lidar_render + 1) % 100
         i = self.lidar_render
         if i < 2 * len(self.lidar):
-            l = (
+            single_lidar = (
                 self.lidar[i]
                 if i < len(self.lidar)
                 else self.lidar[len(self.lidar) - i - 1]
             )
-            if hasattr(l, "p1") and hasattr(l, "p2"):
+            if hasattr(single_lidar, "p1") and hasattr(single_lidar, "p2"):
                 pygame.draw.line(
                     self.surf,
                     color=(255, 0, 0),
-                    start_pos=(l.p1[0] * SCALE, l.p1[1] * SCALE),
-                    end_pos=(l.p2[0] * SCALE, l.p2[1] * SCALE),
+                    start_pos=(single_lidar.p1[0] * SCALE, single_lidar.p1[1] * SCALE),
+                    end_pos=(single_lidar.p2[0] * SCALE, single_lidar.p2[1] * SCALE),
                     width=1,
                 )
 
@@ -742,7 +742,7 @@ class BipedalWalker(gym.Env, EzPickle):
             pygame.event.pump()
             self.clock.tick(self.metadata["render_fps"])
             pygame.display.flip()
-        elif mode in ["rgb_array", "single_rgb_array"]:
+        elif mode in {"rgb_array", "single_rgb_array"}:
             return np.transpose(
                 np.array(pygame.surfarray.pixels3d(self.surf)), axes=(1, 0, 2)
             )

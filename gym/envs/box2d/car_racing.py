@@ -566,9 +566,9 @@ class CarRacing(gym.Env, EzPickle):
             self.screen.blit(self.surf, (0, 0))
             pygame.display.flip()
 
-        if mode in ["rgb_array", "single_rgb_array"]:
+        if mode in {"rgb_array", "single_rgb_array"}:
             return self._create_image_array(self.surf, (VIDEO_W, VIDEO_H))
-        elif mode in ["state_pixels", "single_state_pixels"]:
+        elif mode in {"state_pixels", "single_state_pixels"}:
             return self._create_image_array(self.surf, (STATE_W, STATE_H))
         else:
             return self.isopen

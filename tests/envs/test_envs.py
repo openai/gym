@@ -72,6 +72,21 @@ def test_reset_info(spec):
     env.close()
 
 
+@pytest.mark.parametrize(
+    "spec", spec_list_no_mujoco_py, ids=[spec.id for spec in spec_list_no_mujoco_py]
+)
+def test_render_modes(spec):
+    env = spec.make()
+
+    for mode in env.metadata.get("render_modes", []):
+        if mode != "human":
+            new_env = spec.make(render_mode=mode)
+
+            new_env.reset()
+            new_env.step(new_env.action_space.sample())
+            new_env.render()
+
+
 def test_env_render_result_is_immutable():
     environs = [
         envs.make("Taxi-v3", render_mode="ansi"),

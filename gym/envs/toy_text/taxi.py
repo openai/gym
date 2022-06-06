@@ -252,7 +252,7 @@ class TaxiEnv(Env):
         assert mode in self.metadata["render_modes"]
         if mode == "ansi":
             return self._render_text()
-        elif mode in ["human", "rgb_array", "single_rgb_array"]:
+        elif mode in {"human", "rgb_array", "single_rgb_array"}:
             return self._render_gui(mode)
 
     def _render_gui(self, mode):
@@ -268,7 +268,7 @@ class TaxiEnv(Env):
             pygame.display.set_caption("Taxi")
             if mode == "human":
                 self.window = pygame.display.set_mode(WINDOW_SIZE)
-            elif mode in ["rgb_array", "single_rgb_array"]:
+            elif mode in {"rgb_array", "single_rgb_array"}:
                 self.window = pygame.Surface(WINDOW_SIZE)
         if self.clock is None:
             self.clock = pygame.time.Clock()
@@ -376,7 +376,7 @@ class TaxiEnv(Env):
         if mode == "human":
             pygame.display.update()
             self.clock.tick(self.metadata["render_fps"])
-        elif mode in ["rgb_array", "single_rgb_array"]:
+        elif mode in {"rgb_array", "single_rgb_array"}:
             return np.transpose(
                 np.array(pygame.surfarray.pixels3d(self.window)), axes=(1, 0, 2)
             )
