@@ -22,7 +22,7 @@ def test_env(spec):
         env = spec.make()
 
     # Test if env adheres to Gym API
-    check_env(env, warn=True, skip_render_check=True)
+    check_env(env, skip_render_check=True)
 
     # Check that dtype is explicitly declared for gym.Box spaces
     for warning_msg in warnings:
