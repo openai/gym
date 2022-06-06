@@ -29,19 +29,11 @@ extras["testing"] = list(
     set(itertools.chain.from_iterable(map(lambda group: extras[group], testing_group)))
 ) + ["pytest", "mock"]
 
-# All dependency groups
+# All dependency groups - accept rom license as requires user to run
 all_groups = set(extras.keys()) - {"accept-rom-license"}
 extras["all"] = list(
     set(itertools.chain.from_iterable(map(lambda group: extras[group], all_groups)))
 )
-
-# Gets the requirements from "requirements.txt"
-with open("requirements.txt") as file:
-    install_requirements = list(map(lambda line: line.strip(), file.readlines()))
-
-# Updates the test_requirements.txt based on `extras["testing"]`
-with open("test_requirements.txt", "w") as file:
-    file.writelines(list(map(lambda line: f"{line}\n", extras["testing"])))
 
 # Uses the readme as the description on PyPI
 with open("README.md") as fh:
@@ -56,20 +48,31 @@ with open("README.md") as fh:
             break
 
 setup(
-    name="gym",
-    version=VERSION,
-    description="Gym: A universal API for reinforcement learning environments",
-    url="https://www.gymlibrary.ml/",
     author="Gym Community",
     author_email="jkterry@umd.edu",
+    classifiers=[
+        # Python 3.6 is minimally supported (only with basic gym environments and API)
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+    ],
+    description="Gym: A universal API for reinforcement learning environments",
+    extras_require=extras,
+    install_requires=[
+        "numpy >= 1.18.0",
+        "cloudpickle >= 1.2.0",
+        "importlib_metadata >= 4.8.0; python_version < '3.10'",
+        "gym_notices >= 0.0.4",
+        "dataclasses == 0.8; python_version == '3.6'",
+    ],
     license="MIT",
-    packages=[package for package in find_packages() if package.startswith("gym")],
-    zip_safe=False,
     long_description=long_description,
     long_description_content_type="text/markdown",
-    install_requires=install_requirements,
-    extras_require=extras,
-    tests_require=extras["testing"],
+    name="gym",
+    packages=[package for package in find_packages() if package.startswith("gym")],
     package_data={
         "gym": [
             "envs/mujoco/assets/*.xml",
@@ -80,12 +83,8 @@ setup(
         ]
     },
     python_requires=">=3.6",
-    classifiers=[
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
-    ],
+    tests_require=extras["testing"],
+    url="https://www.gymlibrary.ml/",
+    version=VERSION,
+    zip_safe=False,
 )
