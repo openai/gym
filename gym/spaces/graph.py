@@ -6,6 +6,7 @@ import numpy as np
 
 from gym.spaces.box import Box
 from gym.spaces.discrete import Discrete
+from gym.spaces.multi_discrete import MultiDiscrete
 from gym.spaces.space import Space
 from gym.utils import seeding
 
@@ -13,7 +14,7 @@ from gym.utils import seeding
 class GraphObj:
     def __init__(
         self,
-        nodes: Optional[np.ndarray] = None,
+        nodes: np.ndarray,
         edges: Optional[np.ndarray] = None,
         node_list: Optional[np.ndarray] = None,
     ):
@@ -26,12 +27,27 @@ class GraphObj:
         return f"GraphObj(nodes: \n{self.nodes}, \n\nedges: \n{self.edges}, \n\nnode_list\n{self.node_list})"
 
     def __eq__(self, other) -> bool:
-        return (
-            isinstance(other, GraphObj)
-            and (self.nodes == other.nodes)
-            and (self.edges == other.edges)
-            and (self.node_list == other.node_list)
-        )
+        if not isinstance(other, GraphObj):
+            return False
+        if np.any(self.nodes != other.nodes):
+            return False
+        if self.edges is not None:
+            if other.edges is None:
+                return False
+            elif np.all(self.edges != other.edges):
+                return False
+
+            if other.node_list is None:
+                return False
+            elif np.all(self.node_list != other.node_list):
+                return False
+        else:
+            if other.edges is not None:
+                return False
+            if other.node_list is not None:
+                return False
+
+        return True
 
 
 class Graph(Space):
@@ -85,9 +101,7 @@ class Graph(Space):
                 seed=self._np_random,
             )
         elif isinstance(base_space, Discrete):
-            return Discrete(
-                n=base_space.n, seed=self._np_random, start=base_space.start
-            )
+            return MultiDiscrete(nvec=[base_space.n] * num, seed=self._np_random)
         else:
             raise AssertionError(
                 "Only Box and Discrete can be accepted as a base_space."
@@ -132,7 +146,7 @@ class Graph(Space):
                     return False
         if x.edges is not None:
             for edge in x.edges:
-                if not self.node_space.contains(edge):
+                if not self.edge_space.contains(edge):
                     return False
 
             if len(x.node_list) != len(x.edges):
@@ -168,9 +182,10 @@ class Graph(Space):
         ret_n = []
         for sample in sample_n:
             ret = {}
-            ret["nodes"] = sample.nodes
-            ret["edges"] = sample.edges
-            ret["node_list"] = sample.node_list
+            ret["nodes"] = sample.nodes.tolist()
+            if sample.edges is not None:
+                ret["edges"] = sample.edges.tolist()
+                ret["node_list"] = sample.node_list.tolist()
             ret_n.append(ret)
         return ret_n
 
@@ -178,8 +193,17 @@ class Graph(Space):
         """Convert a JSONable data type to a batch of samples from this space."""
         ret = []
         for sample in sample_n:
-            ret_n = GraphObj(
-                sample_n["nodes"], sample_n["edges"], sample_n["node_list"]
-            )
+            if "edges" in sample:
+                ret_n = GraphObj(
+                    np.asarray(sample["nodes"]),
+                    np.asarray(sample["edges"]),
+                    np.asarray(sample["node_list"]),
+                )
+            else:
+                ret_n = GraphObj(
+                    np.asarray(sample["nodes"]),
+                    None,
+                    None,
+                )
             ret.append(ret_n)
         return ret
