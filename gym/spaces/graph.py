@@ -16,15 +16,15 @@ class GraphObj:
         self,
         nodes: np.ndarray,
         edges: Optional[np.ndarray] = None,
-        node_list: Optional[np.ndarray] = None,
+        edge_links: Optional[np.ndarray] = None,
     ):
 
         self.nodes = nodes
         self.edges = edges
-        self.node_list = node_list
+        self.edge_links = edge_links
 
     def __repr__(self) -> str:
-        return f"GraphObj(nodes: \n{self.nodes}, \n\nedges: \n{self.edges}, \n\nnode_list\n{self.node_list})"
+        return f"GraphObj(nodes: \n{self.nodes}, \n\nedges: \n{self.edges}, \n\nedge_links\n{self.edge_links})"
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, GraphObj):
@@ -37,14 +37,14 @@ class GraphObj:
             elif np.all(self.edges != other.edges):
                 return False
 
-            if other.node_list is None:
+            if other.edge_links is None:
                 return False
-            elif np.all(self.node_list != other.node_list):
+            elif np.all(self.edge_links != other.edge_links):
                 return False
         else:
             if other.edges is not None:
                 return False
-            if other.node_list is not None:
+            if other.edge_links is not None:
                 return False
 
         return True
@@ -52,7 +52,7 @@ class GraphObj:
 
 class Graph(Space):
     """
-    A dictionary representing graph spaces with `node_features`, `edge_features` and `edge_list`.
+    A dictionary representing graph spaces with `node_features`, `edge_features` and `edge_links`.
 
     Example usage::
 
@@ -149,19 +149,19 @@ class Graph(Space):
                 if not self.edge_space.contains(edge):
                     return False
 
-            if len(x.node_list) != len(x.edges):
+            if len(x.edge_links) != len(x.edges):
                 return False
 
-            if x.node_list.shape[-1] != 2:
+            if x.edge_links.shape[-1] != 2:
                 return False
 
-            if not np.issubdtype(x.node_list.dtype, np.integer):
+            if not np.issubdtype(x.edge_links.dtype, np.integer):
                 return False
 
-            if x.node_list.max() >= len(x.edges):
+            if x.edge_links.max() >= len(x.edges):
                 return False
 
-            if x.node_list.min() < 0:
+            if x.edge_links.min() < 0:
                 return False
 
         return True
@@ -185,7 +185,7 @@ class Graph(Space):
             ret["nodes"] = sample.nodes.tolist()
             if sample.edges is not None:
                 ret["edges"] = sample.edges.tolist()
-                ret["node_list"] = sample.node_list.tolist()
+                ret["edge_links"] = sample.edge_links.tolist()
             ret_n.append(ret)
         return ret_n
 
@@ -197,7 +197,7 @@ class Graph(Space):
                 ret_n = GraphObj(
                     np.asarray(sample["nodes"]),
                     np.asarray(sample["edges"]),
-                    np.asarray(sample["node_list"]),
+                    np.asarray(sample["edge_links"]),
                 )
             else:
                 ret_n = GraphObj(
