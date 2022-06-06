@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from typing import Optional, Sequence, Union
 
 import numpy as np
@@ -63,7 +61,7 @@ class Graph(Space):
         self,
         node_space: Union[Box, Discrete],
         edge_space: Union[Box, Discrete],
-        seed: Optional[int | seeding.RandomNumberGenerator] = None,
+        seed: Optional[Union[int, seeding.RandomNumberGenerator]] = None,
     ):
         self._np_random = None
         if seed is not None:
@@ -87,7 +85,7 @@ class Graph(Space):
 
         super().__init__(None, None, seed)
 
-    def _generate_sample_space(self, base_space, num) -> Optional[Box | Discrete]:
+    def _generate_sample_space(self, base_space, num) -> Optional[Union[Box, Discrete]]:
         # the possibility of this space having nothing
         if num == 0:
             return None
@@ -176,7 +174,7 @@ class Graph(Space):
             and (self.edge_space == other.edge_space)
         )
 
-    def to_jsonable(self, sample_n: GraphObj) -> list[dict]:
+    def to_jsonable(self, sample_n: GraphObj) -> list:
         """Convert a batch of samples from this space to a JSONable data type."""
         # serialize as list of dicts
         ret_n = []
@@ -189,7 +187,7 @@ class Graph(Space):
             ret_n.append(ret)
         return ret_n
 
-    def from_jsonable(self, sample_n: Sequence[dict]) -> list[GraphObj]:
+    def from_jsonable(self, sample_n: Sequence[dict]) -> list:
         """Convert a JSONable data type to a batch of samples from this space."""
         ret = []
         for sample in sample_n:
