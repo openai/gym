@@ -401,9 +401,6 @@ def bound(x, m, M=None):
 def rk4(derivs, y0, t):
     """
     Integrate 1-D or N-D system of ODEs using 4-th order Runge-Kutta.
-    This is a toy implementation which may be useful if you find
-    yourself stranded on a system w/o scipy.  Otherwise use
-    :func:`scipy.integrate`.
 
     Example for 2D system:
 
@@ -416,10 +413,6 @@ def rk4(derivs, y0, t):
         >>> t = np.arange(0.0, 2.0, dt)
         >>> y0 = (1,2)
         >>> yout = rk4(derivs, y0, t)
-
-    If you have access to scipy, you should probably be using the
-    :func:`scipy.integrate` tools rather than this function.
-    This would then require re-adding the time variable to the signature of derivs.
 
     Args:
         derivs: the derivative of the system and has the signature ``dy = derivs(yi)``
