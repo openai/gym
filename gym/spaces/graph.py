@@ -10,6 +10,20 @@ from gym.utils import seeding
 
 
 class GraphObj:
+    """
+    A base for constructing information as graphs.
+
+    `nodes` must be a nx... sized vector, where ... denotes the shape of
+    the base shape that each node feature must be.
+
+    `edges` must be either None or a np.ndarray where the first
+    dimension (denoted n) is the number of edges.
+    If edges is None, then edge_links must also be None.
+
+    `edge_links` must be a nx2 sized array of ints, where edge_links.max()
+    is not to be equal or larger than the size of the first dimension of nodes, and
+    edge_links.min() is not to be smaller than 0.
+    """
     def __init__(
         self,
         nodes: np.ndarray,
@@ -22,9 +36,17 @@ class GraphObj:
         self.edge_links = edge_links
 
     def __repr__(self) -> str:
+        """A string representation of this graph.
+
+        The representation will include nodes, edges, and edge_links
+
+        Returns:
+            The information in this graph.
+        """
         return f"GraphObj(nodes: \n{self.nodes}, \n\nedges: \n{self.edges}, \n\nedge_links\n{self.edge_links})"
 
     def __eq__(self, other) -> bool:
+        """Check whether `other` is equivalent to this instance."""
         if not isinstance(other, GraphObj):
             return False
         if np.any(self.nodes != other.nodes):
@@ -136,6 +158,7 @@ class Graph(Space):
         return GraphObj(sampled_nodes, sampled_edges, sampled_node_list)
 
     def contains(self, x: GraphObj) -> bool:
+        """Return boolean specifying if x is a valid member of this space."""
         if not isinstance(x, GraphObj):
             return False
         if x.nodes is not None:
@@ -165,9 +188,17 @@ class Graph(Space):
         return True
 
     def __repr__(self) -> str:
+        """A string representation of this space.
+
+        The representation will include node_space and edge_space
+
+        Returns:
+            A representation of the space
+        """
         return f"Graph({self.node_space}, {self.edge_space})"
 
     def __eq__(self, other) -> bool:
+        """Check whether `other` is equivalent to this instance."""
         return (
             isinstance(other, Graph)
             and (self.node_space == other.node_space)
