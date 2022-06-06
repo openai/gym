@@ -11,6 +11,7 @@ from gym.utils import seeding
 
 class GraphObj:
     r"""A base for constructing information as graphs."""
+
     def __init__(
         self,
         nodes: np.ndarray,
@@ -52,23 +53,23 @@ class GraphObj:
             return False
         if self.edges is not None:
             if other.edges is None:
-                print('fail1')
+                print("fail1")
                 return False
             if np.all(self.edges != other.edges):
-                print('fail2')
+                print("fail2")
                 return False
             if other.edge_links is None:
-                print('fail3')
+                print("fail3")
                 return False
             if np.all(self.edge_links != other.edge_links):
-                print('fail4')
+                print("fail4")
                 return False
         else:
             if other.edges is not None:
-                print('fail6')
+                print("fail6")
                 return False
             if other.edge_links is not None:
-                print('fail7')
+                print("fail7")
                 return False
 
         return True
