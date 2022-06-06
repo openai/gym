@@ -12,17 +12,6 @@ from gym.utils import seeding
 class GraphObj:
     """
     A base for constructing information as graphs.
-
-    `nodes` must be a nx... sized vector, where ... denotes the shape of
-    the base shape that each node feature must be.
-
-    `edges` must be either None or a np.ndarray where the first
-    dimension (denoted n) is the number of edges.
-    If edges is None, then edge_links must also be None.
-
-    `edge_links` must be a nx2 sized array of ints, where edge_links.max()
-    is not to be equal or larger than the size of the first dimension of nodes, and
-    edge_links.min() is not to be smaller than 0.
     """
     def __init__(
         self,
@@ -30,7 +19,18 @@ class GraphObj:
         edges: Optional[np.ndarray] = None,
         edge_links: Optional[np.ndarray] = None,
     ):
+        """
+        ``nodes`` must be a nx... sized vector, where ... denotes the shape of
+        the base shape that each node feature must be.
 
+        ``edges`` must be either None or a np.ndarray where the first
+        dimension (denoted n) is the number of edges.
+        If edges is None, then edge_links must also be None.
+
+        ``edge_links`` must be a nx2 sized array of ints, where edge_links.max()
+        is not to be equal or larger than the size of the first dimension of nodes, and
+        edge_links.min() is not to be smaller than 0.
+        """
         self.nodes = nodes
         self.edges = edges
         self.edge_links = edge_links
@@ -82,9 +82,22 @@ class Graph(Space):
     def __init__(
         self,
         node_space: Union[Box, Discrete],
-        edge_space: Union[Box, Discrete],
+        edge_space: Union[None, Box, Discrete],
         seed: Optional[Union[int, seeding.RandomNumberGenerator]] = None,
     ):
+        r"""Constructor of :class:`Graph`.
+
+        The argument ``node_space`` specifies the base space that each node feature will use.
+        This argument must be either a Box or Discrete instance.
+
+        The argument ``edge_space`` specifies the base space that each edge feature will use.
+        This argument must be either a Box or Discrete instance.
+
+        Args:
+            node_space (Union[Box, Discrete]): space of the node features.
+            edge_space (Union[None, Box, Discrete]): space of the node features.
+            seed: Optionally, you can use this argument to seed the RNG that is used to sample from the space.
+        """
         self._np_random = None
         if seed is not None:
             if isinstance(seed, seeding.RandomNumberGenerator):
@@ -95,9 +108,10 @@ class Graph(Space):
         assert isinstance(
             node_space, (Box, Discrete)
         ), "Values of the node_space should be instances of Box or Discrete"
-        assert isinstance(
-            edge_space, (Box, Discrete)
-        ), "Values of the edge_space should be instances of Box or Discrete"
+        if edge_space is not None:
+            assert isinstance(
+                edge_space, (Box, Discrete)
+            ), "Values of the edge_space should be instances of Box or Discrete"
 
         self.node_space = node_space
         self.edge_space = edge_space
@@ -122,6 +136,8 @@ class Graph(Space):
             )
         elif isinstance(base_space, Discrete):
             return MultiDiscrete(nvec=[base_space.n] * num, seed=self._np_random)
+        elif base_space == None:
+            return None
         else:
             raise AssertionError(
                 "Only Box and Discrete can be accepted as a base_space."
