@@ -1,3 +1,4 @@
+"""Implementation of a space that represents graph information where nodes and edges can be represented with euclidean space."""
 from typing import Optional, Sequence, Union
 
 import numpy as np
@@ -154,7 +155,7 @@ class Graph(Space):
             return None
 
     def sample(self) -> GraphObj:
-        """Returns a random sized graph space with num_nodes between 1 and 10"""
+        """Returns a random sized graph space with num_nodes between 1 and 10."""
         num_nodes = self.np_random.integers(low=1, high=10)
 
         # we only have edges when we have at least 2 nodes
