@@ -170,14 +170,12 @@ def check_reset_options(env: gym.Env):
         )
 
 
-# Check render cannot be covered by CI
-def _check_render(env: gym.Env, warn: bool = True):
-    """Check the declared render modes/fps and the :meth:`render`/:meth:`close` method of the environment.
+def check_render(env: gym.Env, warn: bool = True):
+    """Check the declared render modes/fps of the environment.
 
     Args:
         env: The environment to check
         warn: Whether to output additional warnings
-        headless: Whether to disable render modes that require a graphical interface. False by default.
     """
     render_modes = env.metadata.get("render_modes")
     if render_modes is None:
@@ -200,7 +198,7 @@ def _check_render(env: gym.Env, warn: bool = True):
 
     if warn:
         if not hasattr(env, "render_mode"):  # TODO: raise an error with gym 1.0
-            logger.warn("Environments must define render_mode.")
+            logger.warn("Environments must define render_mode attribute.")
         elif env.render_mode is not None and env.render_mode not in render_modes:
             logger.warn(
                 "The environment was initialized successfully with an unsupported render mode."
