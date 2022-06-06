@@ -52,18 +52,23 @@ class GraphObj:
             return False
         if self.edges is not None:
             if other.edges is None:
+                print('fail1')
                 return False
-            elif np.all(self.edges != other.edges):
+            if np.all(self.edges != other.edges):
+                print('fail2')
                 return False
-
             if other.edge_links is None:
+                print('fail3')
                 return False
-            elif np.all(self.edge_links != other.edge_links):
+            if np.all(self.edge_links != other.edge_links):
+                print('fail4')
                 return False
         else:
             if other.edges is not None:
+                print('fail6')
                 return False
             if other.edge_links is not None:
+                print('fail7')
                 return False
 
         return True
@@ -164,10 +169,11 @@ class Graph(Space):
         sampled_edges = self._sample_sample_space(edge_sample_space)
 
         sampled_node_list = None
-        if num_edges > 0:
-            sampled_node_list = self.np_random.integers(
-                low=0, high=num_edges, size=(num_edges, 2)
-            )
+        if sampled_edges is not None:
+            if num_edges > 0:
+                sampled_node_list = self.np_random.integers(
+                    low=0, high=num_edges, size=(num_edges, 2)
+                )
 
         return GraphObj(sampled_nodes, sampled_edges, sampled_node_list)
 

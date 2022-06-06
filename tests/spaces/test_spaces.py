@@ -444,7 +444,10 @@ def test_seed_subspace_incorrelated(space):
     elif isinstance(space, Dict):
         subspaces = space.spaces.values()
     elif isinstance(space, Graph):
-        subspaces = [space.node_space, space.edge_space]
+        if space.edge_space is not None:
+            subspaces = [space.node_space, space.edge_space]
+        else:
+            subspaces = [space.node_space]
 
     space.seed(0)
     states = [
