@@ -10,16 +10,15 @@ from gym.utils import seeding
 
 
 class GraphObj:
-    """
-    A base for constructing information as graphs.
-    """
+    r"""A base for constructing information as graphs."""
     def __init__(
         self,
         nodes: np.ndarray,
         edges: Optional[np.ndarray] = None,
         edge_links: Optional[np.ndarray] = None,
     ):
-        """
+        r"""Constructor for Graph information.
+
         ``nodes`` must be a nx... sized vector, where ... denotes the shape of
         the base shape that each node feature must be.
 
@@ -71,8 +70,7 @@ class GraphObj:
 
 
 class Graph(Space):
-    """
-    A dictionary representing graph spaces with `node_features`, `edge_features` and `edge_links`.
+    r"""A dictionary representing graph spaces with `node_features`, `edge_features` and `edge_links`.
 
     Example usage::
 
@@ -136,7 +134,7 @@ class Graph(Space):
             )
         elif isinstance(base_space, Discrete):
             return MultiDiscrete(nvec=[base_space.n] * num, seed=self._np_random)
-        elif base_space == None:
+        elif base_space is None:
             return None
         else:
             raise AssertionError(
