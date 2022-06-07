@@ -143,6 +143,8 @@ class Graph(Space):
                     return False
         if x.edges is not None:
             for edge in x.edges:
+                if self.edge_space is None:
+                    return False
                 if not self.edge_space.contains(edge):
                     return False
 
