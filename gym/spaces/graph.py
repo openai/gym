@@ -103,13 +103,6 @@ class Graph(Space):
             edge_space (Union[None, Box, Discrete]): space of the node features.
             seed: Optionally, you can use this argument to seed the RNG that is used to sample from the space.
         """
-        self._np_random = None
-        if seed is not None:
-            if isinstance(seed, seeding.RandomNumberGenerator):
-                self._np_random = seed
-            else:
-                self.seed(seed)
-
         assert isinstance(
             node_space, (Box, Discrete)
         ), "Values of the node_space should be instances of Box or Discrete"
@@ -126,7 +119,7 @@ class Graph(Space):
 
         super().__init__(None, None, seed)
 
-    def _generate_sample_space(self, base_space, num) -> Optional[Union[Box, Discrete]]:
+    def _generate_sample_space(self, base_space: Union[None, Box, Discrete], num: int) -> Optional[Union[Box, Discrete]]:
         # the possibility of this space having nothing
         if num == 0:
             return None
@@ -170,14 +163,14 @@ class Graph(Space):
         sampled_nodes = self._sample_sample_space(node_sample_space)
         sampled_edges = self._sample_sample_space(edge_sample_space)
 
-        sampled_node_list = None
+        sampled_edge_links = None
         if sampled_edges is not None:
             if num_edges > 0:
-                sampled_node_list = self.np_random.integers(
+                sampled_edge_links = self.np_random.integers(
                     low=0, high=num_edges, size=(num_edges, 2)
                 )
 
-        return GraphObj(sampled_nodes, sampled_edges, sampled_node_list)
+        return GraphObj(sampled_nodes, sampled_edges, sampled_edge_links)
 
     def contains(self, x: GraphObj) -> bool:
         """Return boolean specifying if x is a valid member of this space."""
