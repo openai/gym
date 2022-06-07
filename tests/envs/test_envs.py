@@ -1,5 +1,6 @@
 import pytest
 
+from gym.envs.registration import EnvSpec
 from gym.utils.env_checker import check_env
 from tests.envs.utils import all_testing_env_specs, assert_equals, gym_testing_env_specs
 
@@ -9,10 +10,11 @@ from tests.envs.utils import all_testing_env_specs, assert_equals, gym_testing_e
 
 
 @pytest.mark.parametrize(
-    "spec", gym_testing_env_specs, ids=[spec.id for spec in gym_testing_env_specs]
+    "env_spec", gym_testing_env_specs, ids=[spec.id for spec in gym_testing_env_specs]
 )
-def test_run_env_checker(spec):
-    env = spec.make(disable_env_checker=True)
+def test_run_env_checker(env_spec: EnvSpec):
+    """Runs the gym environment checker on the environment spec that calls the `reset`, `step` and `render`."""
+    env = env_spec.make(disable_env_checker=True)
     check_env(env, skip_render_check=False)
 
     env.close()
@@ -27,7 +29,7 @@ NUM_STEPS = 50
 @pytest.mark.parametrize(
     "env_spec", all_testing_env_specs, ids=[env.id for env in all_testing_env_specs]
 )
-def test_env_determinism_rollout(env_spec):
+def test_env_determinism_rollout(env_spec: EnvSpec):
     """Run a rollout with two environments and assert equality.
 
     This test run a rollout of NUM_STEPS steps with two environments

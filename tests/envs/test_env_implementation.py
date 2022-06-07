@@ -26,7 +26,7 @@ def test_lunar_lander_heuristics():
     ],
 )
 def test_env_kwargs(env_name, kwargs):
-    # TODO
+    # TODO:
     # env = gym.make(env_name, disable_env_checker=True)
     pass
 
@@ -70,34 +70,32 @@ def test_bipedal_walker_hardcore_creation(seed: int):
     assert hc_terrains_color2_count > 0
 
 
-# Test that FrozenLake map generation creates valid maps of various sizes.
-def test_frozenlake_dfs_map_generation():
-    def frozenlake_dfs_path_exists(res):
-        frontier, discovered = [], set()
-        frontier.append((0, 0))
-        while frontier:
-            r, c = frontier.pop()
-            if not (r, c) in discovered:
-                discovered.add((r, c))
-                directions = [(1, 0), (0, 1), (-1, 0), (0, -1)]
-                for x, y in directions:
-                    r_new = r + x
-                    c_new = c + y
-                    if r_new < 0 or r_new >= size or c_new < 0 or c_new >= size:
-                        continue
-                    if res[r_new][c_new] == "G":
-                        return True
-                    if res[r_new][c_new] not in "#H":
-                        frontier.append((r_new, c_new))
-        return False
+@pytest.mark.parametrize("map_size", [5, 10, 16])
+def test_frozenlake_dfs_map_generation(map_size: int):
+    """Frozenlake has the ability to generate random maps.
 
-    map_sizes = [
-        5,
-        10,
-        16,
-    ]  # Currently, you can only create max 8x8 maps so there is no point testing beyond this
-    for size in map_sizes:
-        new_frozenlake = generate_random_map(size)
-        assert len(new_frozenlake) == size
-        assert len(new_frozenlake[0]) == size
-        assert frozenlake_dfs_path_exists(new_frozenlake)
+    This function checks that the random maps will always be possible to solve for sizes 5, 10, 16,
+    currently only 8x8 maps can be generated.
+    """
+    new_frozenlake = generate_random_map(map_size)
+    assert len(new_frozenlake) == map_size
+    assert len(new_frozenlake[0]) == map_size
+
+    # Runs a depth first search through the map to find the path.
+    directions = [(1, 0), (0, 1), (-1, 0), (0, -1)]
+    frontier, discovered = [], set()
+    frontier.append((0, 0))
+    while frontier:
+        row, col = frontier.pop()
+        if (row, col) not in discovered:
+            discovered.add((row, col))
+
+            for row_direction, col_direction in directions:
+                new_row = row + row_direction
+                new_col = col + col_direction
+                if 0 <= new_row < map_size and 0 <= new_col < map_size:
+                    if new_frozenlake[new_row][new_col] == "G":
+                        return  # Successful, a route through the map was found
+                    if new_frozenlake[new_row][new_col] not in "#H":
+                        frontier.append((new_row, new_col))
+    raise AssertionError("No path through the frozenlake was found.")

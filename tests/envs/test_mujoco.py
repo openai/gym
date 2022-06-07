@@ -46,12 +46,13 @@ MUJOCO_V2_V3_ENVS = [
 
 @pytest.mark.parametrize("env_name", MUJOCO_V2_V3_ENVS)
 def test_mujoco_v2_to_v3_conversion(env_name: str):
+    """Checks that all v2 mujoco environments are the same as v3 environments."""
     verify_environments_match(f"{env_name}-v2", f"{env_name}-v3")
 
 
 @pytest.mark.parametrize("env_name", MUJOCO_V2_V3_ENVS)
 def test_mujoco_incompatible_v3_to_v2(env_name: str):
-    # v3 mujoco environments have additional information so the info check will fail
+    """Checks that the v3 environment are slightly different from v2, (v3 has additional info keys that v2 does not)."""
     with pytest.raises(KeyError):
         verify_environments_match(f"{env_name}-v3", f"{env_name}-v2")
 

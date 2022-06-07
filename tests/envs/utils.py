@@ -37,6 +37,20 @@ gym_testing_env_specs = [
         for ep in ["box2d", "classic_control", "toy_text"]
     )
 ]
+# TODO, add minimum testing env spec in testing
+minimum_testing_env_specs = [
+    env_spec
+    for env_spec in [
+        "CartPole-v1",
+        "MountainCarContinuous-v0",
+        "LunarLander-v2",
+        "LunarLanderContinuous-v2",
+        "CarRacing-v1",
+        "Blackjack-v1",
+        "Reacher-v4",
+    ]
+    if env_spec in all_testing_env_specs
+]
 
 
 def assert_equals(a, b, prefix=None):

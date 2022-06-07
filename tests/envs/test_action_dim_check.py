@@ -2,9 +2,8 @@ import numpy as np
 import pytest
 
 import gym
+from gym import spaces
 from gym.envs.registration import EnvSpec
-from gym.spaces.box import Box
-from gym.spaces.discrete import Discrete
 from tests.envs.utils import all_testing_initialised_envs, mujoco_testing_env_specs
 
 
@@ -14,24 +13,49 @@ from tests.envs.utils import all_testing_initialised_envs, mujoco_testing_env_sp
     ids=[env_spec.id for env_spec in mujoco_testing_env_specs],
 )
 def test_mujoco_action_dimensions(env_spec: EnvSpec):
-    """Test that mujoco step actions if out of bounds then an error is raised."""
+    """Test that for all mujoco environment, mis-dimensioned actions, an error is raised.
+
+    Types of mis-dimensioned actions:
+     * Too few actions
+     * Too many actions
+     * Too few dimensions
+     * Too many dimensions
+     * Incorrect shape
+    """
     env = env_spec.make(disable_env_checker=True)
     env.reset()
 
+    # Too few actions
     with pytest.raises(ValueError, match="Action dimension mismatch"):
         env.step(env.action_space.sample()[1:])
 
+    # Too many actions
+    with pytest.raises(ValueError, match="Action dimension mismatch"):
+        env.step(np.append(env.action_space.sample(), 0))
+
+    # Too few dimensions
     with pytest.raises(ValueError, match="Action dimension mismatch"):
         env.step(0.1)
+
+    # Too many dimensions
+    with pytest.raises(ValueError, match="Action dimension mismatch"):
+        env.step(np.expand_dims(env.action_space.sample(), 0))
+
+    # Incorrect shape
+    with pytest.raises(ValueError, match="Action dimension mismatch"):
+        env.step(np.expand_dims(env.action_space.sample(), 1))
+
+    env.close()
 
 
 @pytest.mark.parametrize(
     "env",
     filter(
-        lambda env: isinstance(env.action_space, Discrete), all_testing_initialised_envs
+        lambda env: isinstance(env.action_space, spaces.Discrete),
+        all_testing_initialised_envs,
     ),
 )
-def test_discrete_actions_out_of_bound(env):
+def test_discrete_actions_out_of_bound(env: gym.Env):
     """Test out of bound actions in Discrete action_space.
 
     In discrete action_space environments, `out-of-bound`
@@ -40,19 +64,21 @@ def test_discrete_actions_out_of_bound(env):
     Args:
         env (gym.Env): the gym environment
     """
-    assert isinstance(env.action_space, Discrete)
+    assert isinstance(env.action_space, spaces.Discrete)
     upper_bound = env.action_space.start + env.action_space.n - 1
 
     env.reset()
     with pytest.raises(Exception):
         env.step(upper_bound + 1)
 
+    env.close()
+
 
 OOB_VALUE = 100
 
 
 @pytest.mark.parametrize(
-    "env", filter(lambda env: isinstance(env, Box), all_testing_initialised_envs)
+    "env", filter(lambda env: isinstance(env, spaces.Box), all_testing_initialised_envs)
 )
 def test_box_actions_out_of_bound(env: gym.Env):
     """Test out of bound actions in Box action_space.
@@ -69,7 +95,7 @@ def test_box_actions_out_of_bound(env: gym.Env):
     oob_env = gym.make(env.spec.id, disable_env_checker=True)
     oob_env.reset(seed=42)
 
-    assert isinstance(env.action_space, Box)
+    assert isinstance(env.action_space, spaces.Box)
     dtype = env.action_space.dtype
     upper_bounds = env.action_space.high
     lower_bounds = env.action_space.low
@@ -96,3 +122,5 @@ def test_box_actions_out_of_bound(env: gym.Env):
             oob_obs, _, _, _ = oob_env.step(oob_action)
 
             assert np.alltrue(obs == oob_obs)
+
+    env.close()
