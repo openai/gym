@@ -326,6 +326,21 @@ class Wrapper(Env[ObsType, ActType]):
     def metadata(self, value):
         self._metadata = value
 
+    @property
+    def np_random(self) -> RandomNumberGenerator:
+        """Returns the environment np_random."""
+        return self.env.np_random
+
+    @np_random.setter
+    def np_random(self, value):
+        self.env.np_random = value
+
+    @property
+    def _np_random(self):
+        raise AttributeError(
+            "Can't access `_np_random` of a wrapper, use `.unwrapped._np_random` or `.np_random`."
+        )
+
     def step(
         self, action: ActType
     ) -> Union[

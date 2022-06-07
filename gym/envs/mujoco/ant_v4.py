@@ -48,7 +48,7 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     The observation is a `ndarray` with shape `(111,)` where the elements correspond to the following:
 
     | Num | Observation                                                  | Min  | Max | Name (in corresponding XML file) | Joint | Unit                     |
-    |-----|--------------------------------------------------------------|------|-----|------------------------ ---------|-------|--------------------------|
+    |-----|--------------------------------------------------------------|------|-----|----------------------------------|-------|--------------------------|
     | 0   | x-coordinate of the torso (centre)                           | -Inf | Inf | torso                            | free  | position (m)             |
     | 1   | y-coordinate of the torso (centre)                           | -Inf | Inf | torso                            | free  | position (m)             |
     | 2   | z-coordinate of the torso (centre)                           | -Inf | Inf | torso                            | free  | position (m)             |
