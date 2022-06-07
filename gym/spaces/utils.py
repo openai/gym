@@ -266,7 +266,7 @@ def flatten_space(space: Space) -> Box:
 
         >>> space = Graph(node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=Discrete(5))
         >>> flatten_space(space)
-        Box(17,)
+        Graph(Box(-100.0, 100.0, (12,), float32), Box(0, 1, (5,), int64))
         >>> flatten(space, space.sample()) in flatten_space(space)
         True
 
