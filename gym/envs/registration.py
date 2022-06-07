@@ -23,7 +23,12 @@ from typing import (
 import numpy as np
 
 from gym.envs.__relocated__ import internal_env_relocation_map
-from gym.wrappers import AutoResetWrapper, OrderEnforcing, StepAPICompatibility, TimeLimit
+from gym.wrappers import (
+    AutoResetWrapper,
+    OrderEnforcing,
+    StepAPICompatibility,
+    TimeLimit,
+)
 from gym.wrappers.env_checker import PassiveEnvChecker
 
 if sys.version_info < (3, 10):
@@ -602,7 +607,7 @@ def make(
     # Run the environment checker as the lowest level wrapper
     if disable_env_checker is False:
         env = PassiveEnvChecker(env)
-        
+
     env = StepAPICompatibility(env, new_step_api)
 
     # Add the order enforcing wrapper
@@ -618,15 +623,6 @@ def make(
     # Add the autoreset wrapper
     if autoreset:
         env = AutoResetWrapper(env, new_step_api)
-
-    if not disable_env_checker:
-        try:
-            check_env(env)
-        except Exception as e:
-            logger.warn(
-                f"Env check failed with the following message: {e}\n"
-                f"You can set `disable_env_checker=True` to disable this check."
-            )
 
     return env
 

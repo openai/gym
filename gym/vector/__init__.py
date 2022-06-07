@@ -48,7 +48,10 @@ def make(
 
         def _make_env():
             env = gym.envs.registration.make(
-                id, disable_env_checker=_disable_env_checker, new_step_api=True, **kwargs
+                id,
+                disable_env_checker=_disable_env_checker,
+                new_step_api=True,
+                **kwargs,
             )
             if wrappers is not None:
                 if callable(wrappers):
@@ -68,4 +71,8 @@ def make(
         create_env(env_num == 0 and disable_env_checker is False)
         for env_num in range(num_envs)
     ]
-    return AsyncVectorEnv(env_fns, new_step_api=new_step_api) if asynchronous else SyncVectorEnv(env_fns, new_step_api=new_step_api)
+    return (
+        AsyncVectorEnv(env_fns, new_step_api=new_step_api)
+        if asynchronous
+        else SyncVectorEnv(env_fns, new_step_api=new_step_api)
+    )

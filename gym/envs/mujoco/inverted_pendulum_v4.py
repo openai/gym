@@ -98,7 +98,7 @@ class InvertedPendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         reward = 1.0
         self.do_simulation(a, self.frame_skip)
         ob = self._get_obs()
-        terminated = not np.isfinite(ob).all() or (np.abs(ob[1]) > 0.2)
+        terminated = bool(not np.isfinite(ob).all() or (np.abs(ob[1]) > 0.2))
         return ob, reward, terminated, False, {}
 
     def reset_model(self):

@@ -27,7 +27,6 @@ from gym.utils.passive_env_checker import (
     passive_env_reset_check,
     passive_env_step_check,
 )
-from gym.utils.step_api_compatibility import step_api_compatibility
 
 
 def data_equivalence(data_1, data_2) -> bool:

@@ -255,12 +255,18 @@ def passive_env_step_check(env, action):
     if len(result) == 4:
         obs, reward, done, info = result
 
-        assert isinstance(done, bool), "The `done` signal must be a boolean"
+        assert isinstance(
+            done, bool
+        ), f"The `done` signal is of type `{type(done)}` must be a boolean"
     elif len(result) == 5:
         obs, reward, terminated, truncated, info = result
 
-        assert isinstance(terminated, bool), "The `terminated` signal must be a boolean"
-        assert isinstance(truncated, bool), "The `truncated` signal must be a boolean"
+        assert isinstance(
+            terminated, bool
+        ), f"The `terminated` signal is of type `{type(terminated)}`. It must be a boolean"
+        assert isinstance(
+            truncated, bool
+        ), f"The `truncated` signal of type `{type(truncated)}`. It must be a boolean."
         assert (
             terminated is False or truncated is False
         ), "Only `terminated` or `truncated` can be true, not both."
