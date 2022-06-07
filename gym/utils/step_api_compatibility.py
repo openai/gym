@@ -32,10 +32,6 @@ def step_to_new_api(
         is_vector_env (bool): Whether the step_returns are from a vector environment
     """
     if len(step_returns) == 5:
-        deprecation(
-            "Using an environment with new step API that returns two bools terminated, truncated instead of one bool done. "
-            "Take care to supporting code to be compatible with this API"
-        )
         return step_returns
     else:
         assert len(step_returns) == 4
