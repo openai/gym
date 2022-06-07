@@ -12,7 +12,7 @@ from gym.utils import seeding
 
 
 class Graph(Space):
-    r"""A dictionary representing graph spaces with `node_features`, `edge_features` and `edge_links`.
+    r"""A space representing graph information as a series of `nodes` connected with `edges` according to an adjacency matrix represented as a series of `edge_links`.
 
     Example usage::
 
