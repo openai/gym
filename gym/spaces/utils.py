@@ -10,7 +10,16 @@ from typing import TypeVar, Union, cast
 
 import numpy as np
 
-from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Space, Tuple
+from gym.spaces import (
+    Box,
+    Dict,
+    Discrete,
+    Graph,
+    MultiBinary,
+    MultiDiscrete,
+    Space,
+    Tuple,
+)
 
 
 @singledispatch
@@ -253,6 +262,18 @@ def _flatten_space_tuple(space: Tuple) -> Box:
 @flatten_space.register(Dict)
 def _flatten_space_dict(space: Dict) -> Box:
     space_list = [flatten_space(s) for s in space.spaces.values()]
+    return Box(
+        low=np.concatenate([s.low for s in space_list]),
+        high=np.concatenate([s.high for s in space_list]),
+        dtype=np.result_type(*[s.dtype for s in space_list]),
+    )
+
+
+@flatten_space.register(Graph)
+def _flatten_space_graph(space: Graph) -> Box:
+    space_list = []
+    space_list.append(flatten_space(space.node_space))
+    space_list.append(flatten_space(space.edge_space))
     return Box(
         low=np.concatenate([s.low for s in space_list]),
         high=np.concatenate([s.high for s in space_list]),
