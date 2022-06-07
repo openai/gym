@@ -57,7 +57,7 @@ class Graph(Space):
     def graph_obj(
         nodes: np.ndarray, edges: np.ndarray, edge_links: np.array
     ) -> NamedTuple:
-        r"""Returns a NamedTuple representing a graph object
+        r"""Returns a NamedTuple representing a graph object.
 
         Args:
             nodes (np.ndarray): an (n x ...) sized array representing the features for n nodes.
