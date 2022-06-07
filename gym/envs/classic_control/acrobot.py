@@ -20,6 +20,7 @@ __author__ = "Christoph Dann <cdann@cdann.de>"
 
 # SOURCE:
 # https://github.com/rlpy/rlpy/blob/master/rlpy/Domains/Acrobot.py
+from gym.utils.renderer import Renderer
 
 
 class AcrobotEnv(core.Env):
@@ -134,7 +135,10 @@ class AcrobotEnv(core.Env):
     - Sutton, R. S., Barto, A. G. (2018 ). Reinforcement Learning: An Introduction. The MIT Press.
     """
 
-    metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 15}
+    metadata = {
+        "render_modes": ["human", "rgb_array", "single_rgb_array"],
+        "render_fps": 15,
+    }
 
     dt = 0.2
 
@@ -161,7 +165,10 @@ class AcrobotEnv(core.Env):
     domain_fig = None
     actions_num = 3
 
-    def __init__(self):
+    def __init__(self, render_mode: Optional[str] = None):
+        assert render_mode is None or render_mode in self.metadata["render_modes"]
+        self.render_mode = render_mode
+        self.renderer = Renderer(self.render_mode, self._render)
         self.screen = None
         self.clock = None
         self.isopen = True
@@ -184,6 +191,9 @@ class AcrobotEnv(core.Env):
         self.state = self.np_random.uniform(low=-0.1, high=0.1, size=(4,)).astype(
             np.float32
         )
+
+        self.renderer.reset()
+        self.renderer.render_step()
         if not return_info:
             return self._get_ob()
         else:
@@ -213,7 +223,9 @@ class AcrobotEnv(core.Env):
         self.state = ns
         terminal = self._terminal()
         reward = -1.0 if not terminal else 0.0
-        return (self._get_ob(), reward, terminal, {})
+
+        self.renderer.render_step()
+        return self._get_ob(), reward, terminal, {}
 
     def _get_ob(self):
         s = self.state
@@ -267,9 +279,16 @@ class AcrobotEnv(core.Env):
                 a + d2 / d1 * phi1 - m2 * l1 * lc2 * dtheta1**2 * sin(theta2) - phi2
             ) / (m2 * lc2**2 + I2 - d2**2 / d1)
         ddtheta1 = -(d2 * ddtheta2 + phi1) / d1
-        return (dtheta1, dtheta2, ddtheta1, ddtheta2, 0.0)
+        return dtheta1, dtheta2, ddtheta1, ddtheta2, 0.0
 
     def render(self, mode="human"):
+        if self.render_mode is not None:
+            return self.renderer.get_renders()
+        else:
+            return self._render(mode)
+
+    def _render(self, mode="human"):
+        assert mode in self.metadata["render_modes"]
         try:
             import pygame
             from pygame import gfxdraw
@@ -280,13 +299,18 @@ class AcrobotEnv(core.Env):
 
         if self.screen is None:
             pygame.init()
-            pygame.display.init()
-            self.screen = pygame.display.set_mode((self.SCREEN_DIM, self.SCREEN_DIM))
+            if mode == "human":
+                pygame.display.init()
+                self.screen = pygame.display.set_mode(
+                    (self.SCREEN_DIM, self.SCREEN_DIM)
+                )
+            else:  # mode in {"rgb_array", "single_rgb_array"}
+                self.screen = pygame.Surface((self.SCREEN_DIM, self.SCREEN_DIM))
         if self.clock is None:
             self.clock = pygame.time.Clock()
 
-        self.surf = pygame.Surface((self.SCREEN_DIM, self.SCREEN_DIM))
-        self.surf.fill((255, 255, 255))
+        surf = pygame.Surface((self.SCREEN_DIM, self.SCREEN_DIM))
+        surf.fill((255, 255, 255))
         s = self.state
 
         bound = self.LINK_LENGTH_1 + self.LINK_LENGTH_2 + 0.2  # 2.2 for default
@@ -311,7 +335,7 @@ class AcrobotEnv(core.Env):
         link_lengths = [self.LINK_LENGTH_1 * scale, self.LINK_LENGTH_2 * scale]
 
         pygame.draw.line(
-            self.surf,
+            surf,
             start_pos=(-2.2 * scale + offset, 1 * scale + offset),
             end_pos=(2.2 * scale + offset, 1 * scale + offset),
             color=(0, 0, 0),
@@ -327,35 +351,33 @@ class AcrobotEnv(core.Env):
                 coord = pygame.math.Vector2(coord).rotate_rad(th)
                 coord = (coord[0] + x, coord[1] + y)
                 transformed_coords.append(coord)
-            gfxdraw.aapolygon(self.surf, transformed_coords, (0, 204, 204))
-            gfxdraw.filled_polygon(self.surf, transformed_coords, (0, 204, 204))
+            gfxdraw.aapolygon(surf, transformed_coords, (0, 204, 204))
+            gfxdraw.filled_polygon(surf, transformed_coords, (0, 204, 204))
 
-            gfxdraw.aacircle(self.surf, int(x), int(y), int(0.1 * scale), (204, 204, 0))
-            gfxdraw.filled_circle(
-                self.surf, int(x), int(y), int(0.1 * scale), (204, 204, 0)
-            )
+            gfxdraw.aacircle(surf, int(x), int(y), int(0.1 * scale), (204, 204, 0))
+            gfxdraw.filled_circle(surf, int(x), int(y), int(0.1 * scale), (204, 204, 0))
 
-        self.surf = pygame.transform.flip(self.surf, False, True)
-        self.screen.blit(self.surf, (0, 0))
+        surf = pygame.transform.flip(surf, False, True)
+        self.screen.blit(surf, (0, 0))
+
         if mode == "human":
             pygame.event.pump()
             self.clock.tick(self.metadata["render_fps"])
             pygame.display.flip()
 
-        if mode == "rgb_array":
+        elif mode in {"rgb_array", "single_rgb_array"}:
             return np.transpose(
                 np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
             )
-        else:
-            return self.isopen
 
-    def close(self):
-        if self.screen is not None:
-            import pygame
 
-            pygame.display.quit()
-            pygame.quit()
-            self.isopen = False
+def close(self):
+    if self.screen is not None:
+        import pygame
+
+        pygame.display.quit()
+        pygame.quit()
+        self.isopen = False
 
 
 def wrap(x, m, M):

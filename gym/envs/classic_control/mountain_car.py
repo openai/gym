@@ -10,6 +10,7 @@ import numpy as np
 import gym
 from gym import spaces
 from gym.error import DependencyNotInstalled
+from gym.utils.renderer import Renderer
 
 
 class MountainCarEnv(gym.Env):
@@ -94,9 +95,12 @@ class MountainCarEnv(gym.Env):
     * v0: Initial versions release (1.0.0)
     """
 
-    metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 30}
+    metadata = {
+        "render_modes": ["human", "rgb_array", "single_rgb_array"],
+        "render_fps": 30,
+    }
 
-    def __init__(self, goal_velocity=0):
+    def __init__(self, render_mode: Optional[str] = None, goal_velocity=0):
         self.min_position = -1.2
         self.max_position = 0.6
         self.max_speed = 0.07
@@ -109,6 +113,12 @@ class MountainCarEnv(gym.Env):
         self.low = np.array([self.min_position, -self.max_speed], dtype=np.float32)
         self.high = np.array([self.max_position, self.max_speed], dtype=np.float32)
 
+        assert render_mode is None or render_mode in self.metadata["render_modes"]
+        self.render_mode = render_mode
+        self.renderer = Renderer(self.render_mode, self._render)
+
+        self.screen_width = 600
+        self.screen_height = 400
         self.screen = None
         self.clock = None
         self.isopen = True
@@ -133,6 +143,8 @@ class MountainCarEnv(gym.Env):
         reward = -1.0
 
         self.state = (position, velocity)
+
+        self.renderer.render_step()
         return np.array(self.state, dtype=np.float32), reward, done, {}
 
     def reset(
@@ -144,6 +156,8 @@ class MountainCarEnv(gym.Env):
     ):
         super().reset(seed=seed)
         self.state = np.array([self.np_random.uniform(low=-0.6, high=-0.4), 0])
+        self.renderer.reset()
+        self.renderer.render_step()
         if not return_info:
             return np.array(self.state, dtype=np.float32)
         else:
@@ -153,6 +167,13 @@ class MountainCarEnv(gym.Env):
         return np.sin(3 * xs) * 0.45 + 0.55
 
     def render(self, mode="human"):
+        if self.render_mode is not None:
+            return self.renderer.get_renders()
+        else:
+            return self._render(mode)
+
+    def _render(self, mode="human"):
+        assert mode in self.metadata["render_modes"]
         try:
             import pygame
             from pygame import gfxdraw
@@ -161,21 +182,24 @@ class MountainCarEnv(gym.Env):
                 "pygame is not installed, run `pip install gym[classic_control]`"
             )
 
-        screen_width = 600
-        screen_height = 400
-
-        world_width = self.max_position - self.min_position
-        scale = screen_width / world_width
-        carwidth = 40
-        carheight = 20
         if self.screen is None:
             pygame.init()
-            pygame.display.init()
-            self.screen = pygame.display.set_mode((screen_width, screen_height))
+            if mode == "human":
+                pygame.display.init()
+                self.screen = pygame.display.set_mode(
+                    (self.screen_width, self.screen_height)
+                )
+            else:  # mode in {"rgb_array", "single_rgb_array"}
+                self.screen = pygame.Surface((self.screen_width, self.screen_height))
         if self.clock is None:
             self.clock = pygame.time.Clock()
 
-        self.surf = pygame.Surface((screen_width, screen_height))
+        world_width = self.max_position - self.min_position
+        scale = self.screen_width / world_width
+        carwidth = 40
+        carheight = 20
+
+        self.surf = pygame.Surface((self.screen_width, self.screen_height))
         self.surf.fill((255, 255, 255))
 
         pos = self.state[0]
@@ -239,12 +263,10 @@ class MountainCarEnv(gym.Env):
             self.clock.tick(self.metadata["render_fps"])
             pygame.display.flip()
 
-        if mode == "rgb_array":
+        elif mode in {"rgb_array", "single_rgb_array"}:
             return np.transpose(
                 np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
             )
-        else:
-            return self.isopen
 
     def get_keys_to_action(self):
         # Control with left and right arrow keys.

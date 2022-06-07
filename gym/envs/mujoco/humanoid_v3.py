@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 
 from gym import utils
@@ -20,6 +22,7 @@ def mass_center(model, sim):
 class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     def __init__(
         self,
+        render_mode: Optional[str] = None,
         xml_file="humanoid.xml",
         forward_reward_weight=1.25,
         ctrl_cost_weight=0.1,
@@ -47,7 +50,9 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             exclude_current_positions_from_observation
         )
 
-        mujoco_env.MujocoEnv.__init__(self, xml_file, 5, mujoco_bindings="mujoco_py")
+        mujoco_env.MujocoEnv.__init__(
+            self, xml_file, 5, render_mode=render_mode, mujoco_bindings="mujoco_py"
+        )
 
     @property
     def healthy_reward(self):
@@ -120,6 +125,8 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
         rewards = forward_reward + healthy_reward
         costs = ctrl_cost + contact_cost
+
+        self.renderer.render_step()
 
         observation = self._get_obs()
         reward = rewards - costs
