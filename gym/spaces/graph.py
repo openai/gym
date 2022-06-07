@@ -11,6 +11,23 @@ from gym.spaces.space import Space
 from gym.utils import seeding
 
 
+class GraphInstance(namedtuple("GraphInstance", ["nodes", "edges", "edge_links"])):
+    r"""Returns a NamedTuple representing a graph object.
+
+    Args:
+        nodes (np.ndarray): an (n x ...) sized array representing the features for n nodes.
+        (...) must adhere to the shape of the node space.
+
+        edges (np.ndarray): an (m x ...) sized array representing the features for m nodes.
+        (...) must adhere to the shape of the edge space.
+
+        edge_links (np.ndarray): an (m x 2) sized array of ints representing the two nodes that each edge connects.
+
+    Returns:
+        A NamedTuple representing a graph with `.nodes`, `.edges`, and `.edge_links`.
+    """
+
+
 class Graph(Space):
     r"""A space representing graph information as a series of `nodes` connected with `edges` according to an adjacency matrix represented as a series of `edge_links`.
 
@@ -18,8 +35,6 @@ class Graph(Space):
 
         self.observation_space = spaces.Graph(node_space=space.Box(low=-100, high=100, shape=(3,)), edge_space=spaces.Discrete(3))
     """
-
-    _graph_obj_ctor = namedtuple("graph_obj", ["nodes", "edges", "edge_links"])
 
     def __init__(
         self,
@@ -52,26 +67,6 @@ class Graph(Space):
         self.edge_space = edge_space
 
         super().__init__(None, None, seed)
-
-    @staticmethod
-    def graph_obj(
-        nodes: np.ndarray, edges: np.ndarray, edge_links: np.array
-    ) -> NamedTuple:
-        r"""Returns a NamedTuple representing a graph object.
-
-        Args:
-            nodes (np.ndarray): an (n x ...) sized array representing the features for n nodes.
-            (...) must adhere to the shape of the node space.
-
-            edges (np.ndarray): an (m x ...) sized array representing the features for m nodes.
-            (...) must adhere to the shape of the edge space.
-
-            edge_links (np.ndarray): an (m x 2) sized array of ints representing the two nodes that each edge connects.
-
-        Returns:
-            A NamedTuple representing a graph with attributes .nodes, .edges, and .edge_links.
-        """
-        return Graph._graph_obj_ctor(nodes, edges, edge_links)
 
     def _generate_sample_space(
         self, base_space: Union[None, Box, Discrete], num: int
@@ -129,13 +124,11 @@ class Graph(Space):
                 low=0, high=num_edges, size=(num_edges, 2)
             )
 
-        return Graph.graph_obj(sampled_nodes, sampled_edges, sampled_edge_links)
+        return GraphInstance(sampled_nodes, sampled_edges, sampled_edge_links)
 
-    def contains(self, x: NamedTuple) -> bool:
+    def contains(self, x: GraphInstance) -> bool:
         """Return boolean specifying if x is a valid member of this space."""
-        if not isinstance(x, Graph._graph_obj_ctor):
-            print(type(x))
-            print(type(Graph.graph_obj(None, None, None)))
+        if not isinstance(x, GraphInstance):
             return False
         if x.nodes is not None:
             for node in x.nodes:
@@ -201,13 +194,13 @@ class Graph(Space):
         ret = []
         for sample in sample_n:
             if "edges" in sample:
-                ret_n = Graph.graph_obj(
+                ret_n = GraphInstance(
                     np.asarray(sample["nodes"]),
                     np.asarray(sample["edges"]),
                     np.asarray(sample["edge_links"]),
                 )
             else:
-                ret_n = Graph.graph_obj(
+                ret_n = GraphInstance(
                     np.asarray(sample["nodes"]),
                     None,
                     None,
