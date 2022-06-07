@@ -33,7 +33,7 @@ class Graph(Space):
         This argument must be either a Box or Discrete instance.
 
         The argument ``edge_space`` specifies the base space that each edge feature will use.
-        This argument must be either a Box or Discrete instance.
+        This argument must be either a None, Box or Discrete instance.
 
         Args:
             node_space (Union[Box, Discrete]): space of the node features.
