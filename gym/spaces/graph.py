@@ -1,5 +1,6 @@
 """Implementation of a space that represents graph information where nodes and edges can be represented with euclidean space."""
-from typing import Optional, Sequence, Union
+from collections import namedtuple
+from typing import NamedTuple, Optional, Sequence, Union
 
 import numpy as np
 
@@ -10,72 +11,6 @@ from gym.spaces.space import Space
 from gym.utils import seeding
 
 
-class GraphObj:
-    r"""A base for constructing information as graphs."""
-
-    def __init__(
-        self,
-        nodes: np.ndarray,
-        edges: Optional[np.ndarray] = None,
-        edge_links: Optional[np.ndarray] = None,
-    ):
-        r"""Constructor for Graph information.
-
-        ``nodes`` must be a nx... sized vector, where ... denotes the shape of
-        the base shape that each node feature must be.
-
-        ``edges`` must be either None or a np.ndarray where the first
-        dimension (denoted n) is the number of edges.
-        If edges is None, then edge_links must also be None.
-
-        ``edge_links`` must be a nx2 sized array of ints, where edge_links.max()
-        is not to be equal or larger than the size of the first dimension of nodes, and
-        edge_links.min() is not to be smaller than 0.
-        """
-        self.nodes = nodes
-        self.edges = edges
-        self.edge_links = edge_links
-
-    def __repr__(self) -> str:
-        """A string representation of this graph.
-
-        The representation will include nodes, edges, and edge_links
-
-        Returns:
-            The information in this graph.
-        """
-        return f"GraphObj(nodes: \n{self.nodes}, \n\nedges: \n{self.edges}, \n\nedge_links\n{self.edge_links})"
-
-    def __eq__(self, other) -> bool:
-        """Check whether `other` is equivalent to this instance."""
-        if not isinstance(other, GraphObj):
-            return False
-        if np.any(self.nodes != other.nodes):
-            return False
-        if self.edges is not None:
-            if other.edges is None:
-                print("fail1")
-                return False
-            if np.all(self.edges != other.edges):
-                print("fail2")
-                return False
-            if other.edge_links is None:
-                print("fail3")
-                return False
-            if np.all(self.edge_links != other.edge_links):
-                print("fail4")
-                return False
-        else:
-            if other.edges is not None:
-                print("fail6")
-                return False
-            if other.edge_links is not None:
-                print("fail7")
-                return False
-
-        return True
-
-
 class Graph(Space):
     r"""A dictionary representing graph spaces with `node_features`, `edge_features` and `edge_links`.
 
@@ -83,6 +18,8 @@ class Graph(Space):
 
         self.observation_space = spaces.Graph(node_space=space.Box(low=-100, high=100, shape=(3,)), edge_space=spaces.Discrete(3))
     """
+
+    _graph_obj_ctor = namedtuple("graph_obj", ["nodes", "edges", "edge_links"])
 
     def __init__(
         self,
@@ -114,12 +51,31 @@ class Graph(Space):
         self.node_space = node_space
         self.edge_space = edge_space
 
-        # graph object creator
-        self.graphObj = GraphObj
-
         super().__init__(None, None, seed)
 
-    def _generate_sample_space(self, base_space: Union[None, Box, Discrete], num: int) -> Optional[Union[Box, Discrete]]:
+    @staticmethod
+    def graph_obj(
+        nodes: np.ndarray, edges: np.ndarray, edge_links: np.array
+    ) -> NamedTuple:
+        r"""Returns a NamedTuple representing a graph object
+
+        Args:
+            nodes (np.ndarray): an (n x ...) sized array representing the features for n nodes.
+            (...) must adhere to the shape of the node space.
+
+            edges (np.ndarray): an (m x ...) sized array representing the features for m nodes.
+            (...) must adhere to the shape of the edge space.
+
+            edge_links (np.ndarray): an (m x 2) sized array of ints representing the two nodes that each edge connects.
+
+        Returns:
+            A NamedTuple representing a graph with attributes .nodes, .edges, and .edge_links.
+        """
+        return Graph._graph_obj_ctor(nodes, edges, edge_links)
+
+    def _generate_sample_space(
+        self, base_space: Union[None, Box, Discrete], num: int
+    ) -> Optional[Union[Box, Discrete]]:
         # the possibility of this space having nothing
         if num == 0:
             return None
@@ -147,8 +103,12 @@ class Graph(Space):
         else:
             return None
 
-    def sample(self) -> GraphObj:
-        """Returns a random sized graph space with num_nodes between 1 and 10."""
+    def sample(self) -> NamedTuple:
+        """Generates a single sample graph with num_nodes between 1 and 10 sampled from the Graph.
+
+        Returns:
+            A NamedTuple representing a graph with attributes .nodes, .edges, and .edge_links.
+        """
         num_nodes = self.np_random.integers(low=1, high=10)
 
         # we only have edges when we have at least 2 nodes
@@ -164,17 +124,18 @@ class Graph(Space):
         sampled_edges = self._sample_sample_space(edge_sample_space)
 
         sampled_edge_links = None
-        if sampled_edges is not None:
-            if num_edges > 0:
-                sampled_edge_links = self.np_random.integers(
-                    low=0, high=num_edges, size=(num_edges, 2)
-                )
+        if sampled_edges is not None and num_edges > 0:
+            sampled_edge_links = self.np_random.integers(
+                low=0, high=num_edges, size=(num_edges, 2)
+            )
 
-        return GraphObj(sampled_nodes, sampled_edges, sampled_edge_links)
+        return Graph.graph_obj(sampled_nodes, sampled_edges, sampled_edge_links)
 
-    def contains(self, x: GraphObj) -> bool:
+    def contains(self, x: NamedTuple) -> bool:
         """Return boolean specifying if x is a valid member of this space."""
-        if not isinstance(x, GraphObj):
+        if not isinstance(x, Graph._graph_obj_ctor):
+            print(type(x))
+            print(type(Graph.graph_obj(None, None, None)))
             return False
         if x.nodes is not None:
             for node in x.nodes:
@@ -220,7 +181,7 @@ class Graph(Space):
             and (self.edge_space == other.edge_space)
         )
 
-    def to_jsonable(self, sample_n: GraphObj) -> list:
+    def to_jsonable(self, sample_n: NamedTuple) -> list:
         """Convert a batch of samples from this space to a JSONable data type."""
         # serialize as list of dicts
         ret_n = []
@@ -238,13 +199,13 @@ class Graph(Space):
         ret = []
         for sample in sample_n:
             if "edges" in sample:
-                ret_n = GraphObj(
+                ret_n = Graph.graph_obj(
                     np.asarray(sample["nodes"]),
                     np.asarray(sample["edges"]),
                     np.asarray(sample["edge_links"]),
                 )
             else:
-                ret_n = GraphObj(
+                ret_n = Graph.graph_obj(
                     np.asarray(sample["nodes"]),
                     None,
                     None,
