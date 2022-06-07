@@ -15,6 +15,7 @@ from gym.spaces import (
     Dict,
     Discrete,
     Graph,
+    GraphInstance,
     MultiBinary,
     MultiDiscrete,
     Space,
@@ -127,6 +128,24 @@ def _flatten_dict(space, x) -> np.ndarray:
     return np.concatenate([flatten(s, x[key]) for key, s in space.spaces.items()])
 
 
+@flatten.register(Graph)
+def _flatten_graph(space, x) -> np.ndarray:
+    def _graph_unflatten(space, x):
+        ret = None
+        if space is not None and x is not None:
+            if isinstance(space, Box):
+                ret = x.reshape(x.shape[0], -1)
+            elif isinstance(space, Discrete):
+                ret = np.zeros((x.shape[0], space.n - space.start), dtype=space.dtype)
+                ret[np.arange(x.shape[0]), x - space.start] = 1
+        return ret
+
+    nodes = _graph_unflatten(space.node_space, x.nodes)
+    edges = _graph_unflatten(space.edge_space, x.edges)
+
+    return GraphInstance(nodes, edges, x.edge_links)
+
+
 @singledispatch
 def unflatten(space: Space[T], x: np.ndarray) -> T:
     """Unflatten a data point from a space.
@@ -190,6 +209,23 @@ def _unflatten_dict(space: Dict, x: np.ndarray) -> dict:
     )
 
 
+@unflatten.register(Graph)
+def _unflatten_graph(space: Graph, x: GraphInstance) -> GraphInstance:
+    def _graph_unflatten(space, x):
+        ret = None
+        if space is not None and x is not None:
+            if isinstance(space, Box):
+                ret = x.reshape(-1, *space.shape)
+            elif isinstance(space, Discrete):
+                ret = np.asarray(np.nonzero(x))[-1, :]
+        return ret
+
+    nodes = _graph_unflatten(space.node_space, x.nodes)
+    edges = _graph_unflatten(space.edge_space, x.edges)
+
+    return GraphInstance(nodes, edges, x.edge_links)
+
+
 @singledispatch
 def flatten_space(space: Space) -> Box:
     """Flatten a space into a single ``Box``.
@@ -222,6 +258,15 @@ def flatten_space(space: Space) -> Box:
         >>> space = Dict({"position": Discrete(2), "velocity": Box(0, 1, shape=(2, 2))})
         >>> flatten_space(space)
         Box(6,)
+        >>> flatten(space, space.sample()) in flatten_space(space)
+        True
+
+
+    Example that flattens a graph::
+
+        >>> space = Graph(node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=Discrete(5))
+        >>> flatten_space(space)
+        Box(17,)
         >>> flatten(space, space.sample()) in flatten_space(space)
         True
 
@@ -270,12 +315,10 @@ def _flatten_space_dict(space: Dict) -> Box:
 
 
 @flatten_space.register(Graph)
-def _flatten_space_graph(space: Graph) -> Box:
-    space_list = []
-    space_list.append(flatten_space(space.node_space))
-    space_list.append(flatten_space(space.edge_space))
-    return Box(
-        low=np.concatenate([s.low for s in space_list]),
-        high=np.concatenate([s.high for s in space_list]),
-        dtype=np.result_type(*[s.dtype for s in space_list]),
+def _flatten_space_graph(space: Graph) -> Graph:
+    return Graph(
+        node_space=flatten_space(space.node_space),
+        edge_space=flatten_space(space.edge_space)
+        if space.edge_space is not None
+        else None,
     )

@@ -129,31 +129,38 @@ class Graph(Space):
     def contains(self, x: GraphInstance) -> bool:
         """Return boolean specifying if x is a valid member of this space."""
         if not isinstance(x, GraphInstance):
+            print("fail 1")
             return False
-        if x.nodes is not None:
-            for node in x.nodes:
-                if not self.node_space.contains(node):
-                    return False
+        for node in x.nodes:
+            if not self.node_space.contains(node):
+                return False
         if x.edges is not None:
             for edge in x.edges:
                 if self.edge_space is None:
+                    print("fail 3")
                     return False
                 if not self.edge_space.contains(edge):
+                    print("fail 4")
                     return False
 
             if len(x.edge_links) != len(x.edges):
+                print("fail 5")
                 return False
 
             if x.edge_links.shape[-1] != 2:
+                print("fail 6")
                 return False
 
             if not np.issubdtype(x.edge_links.dtype, np.integer):
+                print("fail 7")
                 return False
 
             if x.edge_links.max() >= len(x.edges):
+                print("fail 8")
                 return False
 
             if x.edge_links.min() < 0:
+                print("fail 9")
                 return False
 
         return True
