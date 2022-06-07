@@ -87,7 +87,10 @@ def flatten(space: Space[T], x: T) -> np.ndarray:
         x: The value to flatten
 
     Returns:
-        The flattened ``x``, always returns a 1D array.
+        The flattened ``x``, always returns a 1D array for non-graph spaces.
+        For graph spaces, returns a `GraphInstance` where the `nodes` are
+        n x k arrays, `edges` are either m x k arrays or `None`, and
+        `edge_links` are either m x 2 arrays or `None`.
 
     Raises:
         NotImplementedError: If the space is not defined in ``gym.spaces``.
@@ -231,9 +234,12 @@ def flatten_space(space: Space) -> Box:
     """Flatten a space into a single ``Box``.
 
     This is equivalent to :func:`flatten`, but operates on the space itself. The
-    result always is a `Box` with flat boundaries. The box has exactly
-    :func:`flatdim` dimensions. Flattening a sample of the original space
-    has the same effect as taking a sample of the flattenend space.
+    result for non-graph spaces is always a `Box` with flat boundaries. While
+    the result for graph spaces is always a `Graph` with `node_space` being a `Box`
+    with flat boundaries and `edge_space` being a `Box` with flat boundaries or
+    `None`. The box has exactly :func:`flatdim` dimensions. Flattening a sample
+    of the original space has the same effect as taking a sample of the flattenend
+    space.
 
     Example::
 
