@@ -121,7 +121,7 @@ class Graph(Space):
         sampled_edge_links = None
         if sampled_edges is not None and num_edges > 0:
             sampled_edge_links = self.np_random.integers(
-                low=0, high=num_edges, size=(num_edges, 2)
+                low=0, high=num_nodes, size=(num_edges, 2)
             )
 
         return GraphInstance(sampled_nodes, sampled_edges, sampled_edge_links)
@@ -139,21 +139,29 @@ class Graph(Space):
         - any edge in edges is not contained in Graph.edge_space
         """
         if not isinstance(x, GraphInstance):
+            print('fail 1')
             return False
         if x.edges is not None:
             if not np.issubdtype(x.edge_links.dtype, np.integer):
+                print('fail 2')
                 return False
             if x.edge_links.shape[-1] != 2:
+                print('fail 3')
                 return False
             if self.edge_space is None:
+                print('fail 4')
                 return False
             if x.edge_links.min() < 0:
+                print('fail 5')
                 return False
             if x.edge_links.max() >= len(x.nodes):
+                print('fail 6')
                 return False
             if len(x.edges) != len(x.edge_links):
+                print('fail 7')
                 return False
             if any(edge not in self.edge_space for edge in x.edges):
+                print('fail 8')
                 return False
         if any(node not in self.node_space for node in x.nodes):
             return False
