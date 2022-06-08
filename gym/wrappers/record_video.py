@@ -24,7 +24,7 @@ def capped_cubic_video_schedule(episode_id: int) -> bool:
         return episode_id % 1000 == 0
 
 
-class RecordVideo(gym.Wrapper):
+class RecordVideo(gym.Wrapper):  # TODO: remove with gym 1.0
     """This wrapper records videos of rollouts.
 
     Usually, you only want to record episodes intermittently, say every hundredth episode.
@@ -35,6 +35,11 @@ class RecordVideo(gym.Wrapper):
     By default, the recording will be stopped once a `done` signal has been emitted by the environment. However, you can
     also create recordings of fixed length (possibly spanning several episodes) by passing a strictly positive value for
     ``video_length``.
+
+    Note:
+        RecordVideo is deprecated.
+        Collect the frames with render_mode='rgb_array' and use an external library like MoviePy:
+        https://zulko.github.io/moviepy/getting_started/videoclips.html#videoclip
     """
 
     def __init__(
@@ -58,6 +63,11 @@ class RecordVideo(gym.Wrapper):
             name_prefix (str): Will be prepended to the filename of the recordings
         """
         super().__init__(env)
+        logger.deprecation(
+            "RecordVideo is deprecated.\n"
+            "Collect the frames with render_mode='rgb_array' and use an external library like MoviePy: "
+            "https://zulko.github.io/moviepy/getting_started/videoclips.html#videoclip"
+        )
 
         if episode_trigger is None and step_trigger is None:
             episode_trigger = capped_cubic_video_schedule
@@ -90,7 +100,13 @@ class RecordVideo(gym.Wrapper):
     def reset(self, **kwargs):
         """Reset the environment using kwargs and then starts recording if video enabled."""
         observations = super().reset(**kwargs)
-        if not self.recording and self._video_enabled():
+        if self.recording:
+            self.video_recorder.capture_frame()
+            self.recorded_frames += 1
+            if self.video_length > 0:
+                if self.recorded_frames > self.video_length:
+                    self.close_video_recorder()
+        elif self._video_enabled():
             self.start_video_recorder()
         return observations
 

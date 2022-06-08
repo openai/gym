@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 
 from gym import utils
@@ -118,8 +120,10 @@ class InvertedDoublePendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     """
 
-    def __init__(self):
-        mujoco_env.MujocoEnv.__init__(self, "inverted_double_pendulum.xml", 5)
+    def __init__(self, render_mode: Optional[str] = None):
+        mujoco_env.MujocoEnv.__init__(
+            self, "inverted_double_pendulum.xml", 5, render_mode=render_mode
+        )
         utils.EzPickle.__init__(self)
 
     def step(self, action):
@@ -132,6 +136,9 @@ class InvertedDoublePendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         alive_bonus = 10
         r = alive_bonus - dist_penalty - vel_penalty
         done = bool(y <= 1)
+
+        self.renderer.render_step()
+
         return ob, r, done, {}
 
     def _get_obs(self):

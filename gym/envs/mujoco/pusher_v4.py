@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 
 from gym import utils
@@ -132,9 +134,9 @@ class PusherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     """
 
-    def __init__(self):
+    def __init__(self, render_mode: Optional[str] = None):
         utils.EzPickle.__init__(self)
-        mujoco_env.MujocoEnv.__init__(self, "pusher.xml", 5)
+        mujoco_env.MujocoEnv.__init__(self, "pusher.xml", 5, render_mode=render_mode)
 
     def step(self, a):
         vec_1 = self.get_body_com("object") - self.get_body_com("tips_arm")
@@ -148,6 +150,9 @@ class PusherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         self.do_simulation(a, self.frame_skip)
         ob = self._get_obs()
         done = False
+
+        self.renderer.render_step()
+
         return ob, reward, done, dict(reward_dist=reward_dist, reward_ctrl=reward_ctrl)
 
     def viewer_setup(self):

@@ -44,6 +44,7 @@ def test_record_episode_statistics_reset_info():
 def test_record_episode_statistics_with_vectorenv(num_envs, asynchronous):
     envs = gym.vector.make(
         "CartPole-v1",
+        render_mode=None,
         num_envs=num_envs,
         asynchronous=asynchronous,
         disable_env_checker=True,

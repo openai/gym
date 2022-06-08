@@ -75,3 +75,18 @@ def test_env_determinism_rollout(env_spec: EnvSpec):
 
     env_1.close()
     env_2.close()
+
+
+@pytest.mark.parametrize(
+    "spec", gym_testing_env_specs, ids=[spec.id for spec in gym_testing_env_specs]
+)
+def test_render_modes(spec):
+    env = spec.make()
+
+    for mode in env.metadata.get("render_modes", []):
+        if mode != "human":
+            new_env = spec.make(render_mode=mode)
+
+            new_env.reset()
+            new_env.step(new_env.action_space.sample())
+            new_env.render()
