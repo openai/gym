@@ -77,7 +77,7 @@ def check_reset_seed(env: gym.Env):
             seed_123_rng = deepcopy(env.unwrapped.np_random)
 
             # Note: for some environment, they may initialise at the same state, therefore we cannot check the obs_1 != obs_3
-            obs_4 = env.reset(seed=None)
+            obs_4 = env.reset(seed=-1)
             assert obs_4 in env.observation_space
 
             assert (
