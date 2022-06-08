@@ -63,7 +63,6 @@ def make(
         return _make_env
 
     env_fns = [
-        create_env(env_num == 0 and disable_env_checker is False)
-        for env_num in range(num_envs)
+        create_env(disable_env_checker or env_num > 0) for env_num in range(num_envs)
     ]
     return AsyncVectorEnv(env_fns) if asynchronous else SyncVectorEnv(env_fns)
