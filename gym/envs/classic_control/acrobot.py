@@ -223,7 +223,7 @@ class AcrobotEnv(core.Env):
         self.state = ns
         terminated = self._terminal()
         reward = -1.0 if not terminated else 0.0
-        
+
         self.renderer.render_step()
         return (self._get_ob(), reward, terminated, False, {})
 
