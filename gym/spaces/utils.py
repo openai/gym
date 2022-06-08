@@ -139,6 +139,7 @@ def _flatten_dict(space, x) -> np.ndarray:
 @flatten.register(Graph)
 def _flatten_graph(space, x) -> np.ndarray:
     """We're not using `.flatten()` here because a graph is not a homogenous space, see `.flatten` docstring."""
+
     def _graph_unflatten(space, x):
         ret = None
         if space is not None and x is not None:
@@ -225,6 +226,7 @@ def _unflatten_graph(space: Graph, x: GraphInstance) -> GraphInstance:
     The size of the outcome is actually not fixed, but determined based on the number of
     nodes and edges in the graph.
     """
+
     def _graph_unflatten(space, x):
         ret = None
         if space is not None and x is not None:
