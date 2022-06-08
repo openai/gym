@@ -178,9 +178,7 @@ class Env(Generic[ObsType, ActType]):
                 the ``info`` returned by :meth:`step`.
         """
         # Initialize the RNG if the seed is manually passed
-        if seed == -1:
-            self._np_random, seed = seeding.np_random(None)
-        elif seed is not None:
+        if seed is not None:
             self._np_random, seed = seeding.np_random(seed)
 
     # TODO: remove kwarg mode with gym 1.0
