@@ -14,7 +14,7 @@ from gym.spaces import (
     utils,
 )
 
-homogenous_spaces = [
+homogeneous_spaces = [
     Discrete(3),
     Box(low=0.0, high=np.inf, shape=(2, 2)),
     Box(low=0.0, high=np.inf, shape=(2, 2), dtype=np.float16),
@@ -49,13 +49,13 @@ graph_spaces = [
 ]
 
 
-@pytest.mark.parametrize(["space", "flatdim"], zip(homogenous_spaces, flatdims))
+@pytest.mark.parametrize(["space", "flatdim"], zip(homogeneous_spaces, flatdims))
 def test_flatdim(space, flatdim):
     dim = utils.flatdim(space)
     assert dim == flatdim, f"Expected {dim} to equal {flatdim}"
 
 
-@pytest.mark.parametrize("space", homogenous_spaces)
+@pytest.mark.parametrize("space", homogeneous_spaces)
 def test_flatten_space_boxes(space):
     flat_space = utils.flatten_space(space)
     assert isinstance(flat_space, Box), f"Expected {type(flat_space)} to equal {Box}"
@@ -64,7 +64,7 @@ def test_flatten_space_boxes(space):
     assert single_dim == flatdim, f"Expected {single_dim} to equal {flatdim}"
 
 
-@pytest.mark.parametrize("space", homogenous_spaces + graph_spaces)
+@pytest.mark.parametrize("space", homogeneous_spaces + graph_spaces)
 def test_flat_space_contains_flat_points(space):
     some_samples = [space.sample() for _ in range(10)]
     flattened_samples = [utils.flatten(space, sample) for sample in some_samples]
@@ -75,7 +75,7 @@ def test_flat_space_contains_flat_points(space):
         ), f"Expected sample #{i} {flat_sample} to be in {flat_space}"
 
 
-@pytest.mark.parametrize("space", homogenous_spaces)
+@pytest.mark.parametrize("space", homogeneous_spaces)
 def test_flatten_dim(space):
     sample = utils.flatten(space, space.sample())
     (single_dim,) = sample.shape
@@ -83,7 +83,7 @@ def test_flatten_dim(space):
     assert single_dim == flatdim, f"Expected {single_dim} to equal {flatdim}"
 
 
-@pytest.mark.parametrize("space", homogenous_spaces + graph_spaces)
+@pytest.mark.parametrize("space", homogeneous_spaces + graph_spaces)
 def test_flatten_roundtripping(space):
     some_samples = [space.sample() for _ in range(10)]
     flattened_samples = [utils.flatten(space, sample) for sample in some_samples]
@@ -146,7 +146,7 @@ expected_flattened_dtypes = [
 
 @pytest.mark.parametrize(
     ["original_space", "expected_flattened_dtype"],
-    zip(homogenous_spaces, expected_flattened_dtypes),
+    zip(homogeneous_spaces, expected_flattened_dtypes),
 )
 def test_dtypes(original_space, expected_flattened_dtype):
     flattened_space = utils.flatten_space(original_space)
@@ -227,7 +227,7 @@ expected_flattened_samples = [
 
 @pytest.mark.parametrize(
     ["space", "sample", "expected_flattened_sample"],
-    zip(homogenous_spaces, samples, expected_flattened_samples),
+    zip(homogeneous_spaces, samples, expected_flattened_samples),
 )
 def test_flatten(space, sample, expected_flattened_sample):
     assert sample in space
@@ -240,7 +240,7 @@ def test_flatten(space, sample, expected_flattened_sample):
 
 @pytest.mark.parametrize(
     ["space", "flattened_sample", "expected_sample"],
-    zip(homogenous_spaces, expected_flattened_samples, samples),
+    zip(homogeneous_spaces, expected_flattened_samples, samples),
 )
 def test_unflatten(space, flattened_sample, expected_sample):
     sample = utils.unflatten(space, flattened_sample)
@@ -272,7 +272,7 @@ expected_flattened_spaces = [
 
 @pytest.mark.parametrize(
     ["space", "expected_flattened_space"],
-    zip(homogenous_spaces, expected_flattened_spaces),
+    zip(homogeneous_spaces, expected_flattened_spaces),
 )
 def test_flatten_space(space, expected_flattened_space):
     flattened_space = utils.flatten_space(space)
