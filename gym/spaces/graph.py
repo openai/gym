@@ -57,11 +57,11 @@ class Graph(Space):
         """
         assert isinstance(
             node_space, (Box, Discrete)
-        ), "Values of the node_space should be instances of Box or Discrete"
+        ), f"Values of the node_space should be instances of Box or Discrete, got {type(node_space)}"
         if edge_space is not None:
             assert isinstance(
                 edge_space, (Box, Discrete)
-            ), "Values of the edge_space should be instances of Box or Discrete"
+            ), f"Values of the edge_space should be instances of None Box or Discrete, got {type(node_space)}"
 
         self.node_space = node_space
         self.edge_space = edge_space
@@ -71,7 +71,7 @@ class Graph(Space):
     def _generate_sample_space(
         self, base_space: Union[None, Box, Discrete], num: int
     ) -> Optional[Union[Box, Discrete]]:
-        # the possibility of this space having nothing
+        # the possibility of this space , got {type(base_space)}aving nothing
         if num == 0:
             return None
 
@@ -89,7 +89,7 @@ class Graph(Space):
             return None
         else:
             raise AssertionError(
-                "Only Box and Discrete can be accepted as a base_space."
+                f"Only Box and Discrete can be accepted as a base_space, got {type(base_space)}, you should not have gotten this error."
             )
 
     def _sample_sample_space(self, sample_space) -> Optional[np.ndarray]:
@@ -127,41 +127,36 @@ class Graph(Space):
         return GraphInstance(sampled_nodes, sampled_edges, sampled_edge_links)
 
     def contains(self, x: GraphInstance) -> bool:
-        """Return boolean specifying if x is a valid member of this space."""
+        """Return boolean specifying if x is a valid member of this space.
+
+        Returns False when:
+        - any node in nodes is not contained in Graph.node_space
+        - edge_links is not of dtype int
+        - len(edge_links) != len(edges)
+        - has edges but Graph.edge_space is None
+        - edge_links has index less than 0
+        - edge_links has index more than number of nodes
+        - any edge in edges is not contained in Graph.edge_space
+        """
         if not isinstance(x, GraphInstance):
-            print("fail 1")
             return False
-        for node in x.nodes:
-            if not self.node_space.contains(node):
-                return False
         if x.edges is not None:
-            for edge in x.edges:
-                if self.edge_space is None:
-                    print("fail 3")
-                    return False
-                if not self.edge_space.contains(edge):
-                    print("fail 4")
-                    return False
-
-            if len(x.edge_links) != len(x.edges):
-                print("fail 5")
-                return False
-
-            if x.edge_links.shape[-1] != 2:
-                print("fail 6")
-                return False
-
             if not np.issubdtype(x.edge_links.dtype, np.integer):
-                print("fail 7")
                 return False
-
-            if x.edge_links.max() >= len(x.edges):
-                print("fail 8")
+            if x.edge_links.shape[-1] != 2:
                 return False
-
+            if self.edge_space is None:
+                return False
             if x.edge_links.min() < 0:
-                print("fail 9")
                 return False
+            if x.edge_links.max() >= len(x.nodes):
+                return False
+            if len(x.edges) != len(x.edge_links):
+                return False
+            if any(edge not in self.edge_space for edge in x.edges):
+                return False
+        if any(node not in self.node_space for node in x.nodes):
+            return False
 
         return True
 
