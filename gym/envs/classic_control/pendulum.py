@@ -8,6 +8,7 @@ import numpy as np
 import gym
 from gym import spaces
 from gym.error import DependencyNotInstalled
+from gym.utils.renderer import Renderer
 
 
 class PendulumEnv(gym.Env):
@@ -83,20 +84,27 @@ class PendulumEnv(gym.Env):
 
     """
 
-    metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 30}
+    metadata = {
+        "render_modes": ["human", "rgb_array", "single_rgb_array"],
+        "render_fps": 30,
+    }
 
-    def __init__(self, g=10.0):
+    def __init__(self, render_mode: Optional[str] = None, g=10.0):
         self.max_speed = 8
         self.max_torque = 2.0
         self.dt = 0.05
         self.g = g
         self.m = 1.0
         self.l = 1.0
+
+        assert render_mode is None or render_mode in self.metadata["render_modes"]
+        self.render_mode = render_mode
+        self.renderer = Renderer(self.render_mode, self._render)
+
+        self.screen_dim = 500
         self.screen = None
         self.clock = None
         self.isopen = True
-
-        self.screen_dim = 500
 
         high = np.array([1.0, 1.0, self.max_speed], dtype=np.float32)
         # This will throw a warning in tests/envs/test_envs in utils/env_checker.py as the space is not symmetric
@@ -124,6 +132,7 @@ class PendulumEnv(gym.Env):
         newth = th + newthdot * dt
 
         self.state = np.array([newth, newthdot])
+        self.renderer.render_step()
         return self._get_obs(), -costs, False, False, {}
 
     def reset(
@@ -137,6 +146,9 @@ class PendulumEnv(gym.Env):
         high = np.array([np.pi, 1])
         self.state = self.np_random.uniform(low=-high, high=high)
         self.last_u = None
+
+        self.renderer.reset()
+        self.renderer.render_step()
         if not return_info:
             return self._get_obs()
         else:
@@ -147,6 +159,13 @@ class PendulumEnv(gym.Env):
         return np.array([np.cos(theta), np.sin(theta), thetadot], dtype=np.float32)
 
     def render(self, mode="human"):
+        if self.render_mode is not None:
+            return self.renderer.get_renders()
+        else:
+            return self._render(mode)
+
+    def _render(self, mode="human"):
+        assert mode in self.metadata["render_modes"]
         try:
             import pygame
             from pygame import gfxdraw
@@ -157,8 +176,13 @@ class PendulumEnv(gym.Env):
 
         if self.screen is None:
             pygame.init()
-            pygame.display.init()
-            self.screen = pygame.display.set_mode((self.screen_dim, self.screen_dim))
+            if mode == "human":
+                pygame.display.init()
+                self.screen = pygame.display.set_mode(
+                    (self.screen_dim, self.screen_dim)
+                )
+            else:  # mode in {"rgb_array", "single_rgb_array"}
+                self.screen = pygame.Surface((self.screen_dim, self.screen_dim))
         if self.clock is None:
             self.clock = pygame.time.Clock()
 
@@ -200,7 +224,8 @@ class PendulumEnv(gym.Env):
         img = pygame.image.load(fname)
         if self.last_u is not None:
             scale_img = pygame.transform.smoothscale(
-                img, (scale * np.abs(self.last_u) / 2, scale * np.abs(self.last_u) / 2)
+                img,
+                (scale * np.abs(self.last_u) / 2, scale * np.abs(self.last_u) / 2),
             )
             is_flip = bool(self.last_u > 0)
             scale_img = pygame.transform.flip(scale_img, is_flip, True)
@@ -223,12 +248,10 @@ class PendulumEnv(gym.Env):
             self.clock.tick(self.metadata["render_fps"])
             pygame.display.flip()
 
-        if mode == "rgb_array":
+        else:  # mode == "rgb_array":
             return np.transpose(
                 np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
             )
-        else:
-            return self.isopen
 
     def close(self):
         if self.screen is not None:

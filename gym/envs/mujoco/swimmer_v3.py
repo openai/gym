@@ -1,5 +1,7 @@
 __credits__ = ["Rushiv Arora"]
 
+from typing import Optional
+
 import numpy as np
 
 from gym import utils
@@ -11,6 +13,7 @@ DEFAULT_CAMERA_CONFIG = {}
 class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     def __init__(
         self,
+        render_mode: Optional[str] = None,
         xml_file="swimmer.xml",
         forward_reward_weight=1.0,
         ctrl_cost_weight=1e-4,
@@ -28,7 +31,9 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             exclude_current_positions_from_observation
         )
 
-        mujoco_env.MujocoEnv.__init__(self, xml_file, 4, mujoco_bindings="mujoco_py")
+        mujoco_env.MujocoEnv.__init__(
+            self, xml_file, 4, render_mode=render_mode, mujoco_bindings="mujoco_py"
+        )
 
     def control_cost(self, action):
         control_cost = self._ctrl_cost_weight * np.sum(np.square(action))
@@ -39,11 +44,12 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         self.do_simulation(action, self.frame_skip)
         xy_position_after = self.sim.data.qpos[0:2].copy()
 
+        self.renderer.render_step()
+
         xy_velocity = (xy_position_after - xy_position_before) / self.dt
         x_velocity, y_velocity = xy_velocity
 
         forward_reward = self._forward_reward_weight * x_velocity
-
         ctrl_cost = self.control_cost(action)
 
         observation = self._get_obs()

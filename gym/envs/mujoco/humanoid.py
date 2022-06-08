@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 
 from gym import utils
@@ -11,9 +13,13 @@ def mass_center(model, sim):
 
 
 class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
-    def __init__(self):
+    def __init__(self, render_mode: Optional[str] = None):
         mujoco_env.MujocoEnv.__init__(
-            self, "humanoid.xml", 5, mujoco_bindings="mujoco_py"
+            self,
+            "humanoid.xml",
+            5,
+            render_mode=render_mode,
+            mujoco_bindings="mujoco_py",
         )
         utils.EzPickle.__init__(self)
 
@@ -34,6 +40,9 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         pos_before = mass_center(self.model, self.sim)
         self.do_simulation(a, self.frame_skip)
         pos_after = mass_center(self.model, self.sim)
+
+        self.renderer.render_step()
+
         alive_bonus = 5.0
         data = self.sim.data
         lin_vel_cost = 1.25 * (pos_after - pos_before) / self.dt

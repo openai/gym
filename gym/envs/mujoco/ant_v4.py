@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 
 from gym import utils
@@ -171,6 +173,7 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     def __init__(
         self,
+        render_mode: Optional[str] = None,
         xml_file="ant.xml",
         ctrl_cost_weight=0.5,
         use_contact_forces=False,
@@ -201,7 +204,7 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             exclude_current_positions_from_observation
         )
 
-        mujoco_env.MujocoEnv.__init__(self, xml_file, 5)
+        mujoco_env.MujocoEnv.__init__(self, xml_file, 5, render_mode=render_mode)
 
     @property
     def healthy_reward(self):
@@ -275,6 +278,7 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
         reward = rewards - costs
 
+        self.renderer.render_step()
         return observation, reward, terminated, False, info
 
     def _get_obs(self):

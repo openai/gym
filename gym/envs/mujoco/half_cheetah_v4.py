@@ -1,4 +1,7 @@
 __credits__ = ["Rushiv Arora"]
+
+from typing import Optional
+
 import numpy as np
 
 from gym import utils
@@ -148,6 +151,7 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     def __init__(
         self,
+        render_mode: Optional[str] = None,
         xml_file="half_cheetah.xml",
         forward_reward_weight=1.0,
         ctrl_cost_weight=0.1,
@@ -166,7 +170,7 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             exclude_current_positions_from_observation
         )
 
-        mujoco_env.MujocoEnv.__init__(self, xml_file, 5)
+        mujoco_env.MujocoEnv.__init__(self, xml_file, 5, render_mode=render_mode)
 
     def control_cost(self, action):
         control_cost = self._ctrl_cost_weight * np.sum(np.square(action))
@@ -192,6 +196,7 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             "reward_ctrl": -ctrl_cost,
         }
 
+        self.renderer.render_step()
         return observation, reward, terminated, False, info
 
     def _get_obs(self):
