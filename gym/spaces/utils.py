@@ -138,7 +138,7 @@ def _flatten_dict(space, x) -> np.ndarray:
 
 @flatten.register(Graph)
 def _flatten_graph(space, x) -> np.ndarray:
-    """We're not using `.flatten()` here because a graph is not a homogeneous space, see `.flatten` docstring."""
+    """We're not using `.unflatten() for :class:`Box` and :class:`Discrete` because a graph is not a homogeneous space, see `.flatten` docstring."""
 
     def _graph_unflatten(space, x):
         ret = None
@@ -221,7 +221,7 @@ def _unflatten_dict(space: Dict, x: np.ndarray) -> dict:
 
 @unflatten.register(Graph)
 def _unflatten_graph(space: Graph, x: GraphInstance) -> GraphInstance:
-    """We're not using `.unflatten()` here because a graph is not a homogeneous space.
+    """We're not using `.unflatten() for :class:`Box` and :class:`Discrete` because a graph is not a homogeneous space.
 
     The size of the outcome is actually not fixed, but determined based on the number of
     nodes and edges in the graph.
