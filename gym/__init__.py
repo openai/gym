@@ -13,9 +13,7 @@ from gym.core import (
 )
 from gym.spaces import Space
 from gym.envs import make, spec, register
-from gym import logger
-from gym import vector
-from gym import wrappers
+from gym import logger, vector, wrappers
 import os
 import sys
 
