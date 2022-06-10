@@ -89,6 +89,15 @@ register(
     reward_threshold=900,
 )
 
+# Phys2D
+# ----------------------------------------
+register(
+    id="LunarLander-v3",
+    entry_point="gym.envs.phys2d.lunar_lander:LunarLander",
+    max_episode_steps=1000,
+    reward_threshold=200,
+)
+
 # Toy Text
 # ----------------------------------------
 
