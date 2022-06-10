@@ -1,7 +1,7 @@
 """Root __init__ of the gym module setting the __all__ of gym modules."""
 # isort: skip_file
 
-from gym import error
+# from gym import error
 from gym.version import VERSION as __version__
 
 from gym.core import (
