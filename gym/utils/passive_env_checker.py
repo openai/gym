@@ -276,7 +276,7 @@ def passive_env_step_check(env, action):
         logger.warn("Encountered inf value in observations.")
 
     assert isinstance(
-        reward, (float, int, np.float32)
+        reward, (float, int, np.floating, np.integer)
     ), "The reward returned by `step()` must be a float"
     if np.any(np.isnan(reward)):
         logger.warn("Encountered NaN value in rewards.")
