@@ -20,7 +20,7 @@ from copy import deepcopy
 import numpy as np
 
 import gym
-from gym import error, logger
+from gym import logger
 from gym.utils.passive_env_checker import (
     check_action_space,
     check_observation_space,
@@ -70,15 +70,37 @@ def check_reset_seed(env: gym.Env):
     if "seed" in signature.parameters or "kwargs" in signature.parameters:
         try:
             obs_1 = env.reset(seed=123)
-            assert obs_1 in env.observation_space
-            obs_2 = env.reset(seed=123)
-            assert obs_2 in env.observation_space
-            assert data_equivalence(obs_1, obs_2)
+            assert (
+                obs_1 in env.observation_space
+            ), "The observation returns by `env.reset(seed=123)` is not within the observation space"
             seed_123_rng = deepcopy(env.unwrapped.np_random)
+            obs_2 = env.reset(seed=123)
+            assert (
+                obs_2 in env.observation_space
+            ), "The observation returns by `env.reset(seed=123)` is not within the observation space"
+            if env.spec is not None and env.spec.nondeterministic is False:
+                assert data_equivalence(
+                    obs_1, obs_2
+                ), "`env.reset(seed=123)` is not deterministic as the observations are not equivalent"
+            assert (
+                env.unwrapped.np_random.bit_generator.state
+                == seed_123_rng.bit_generator.state
+            ), (
+                "Mostly likely the environment reset function does not call `super().reset(seed=seed)` "
+                "as the random generates are not same when the same seeds are passed to `env.reset`."
+            )
 
             obs_3 = env.reset(seed=456)
-            assert obs_3 in env.observation_space
-            assert env.unwrapped.np_random.bit_generator.state != seed_123_rng
+            assert (
+                obs_3 in env.observation_space
+            ), "The observation returns by `env.reset(seed=456)` is not within the observation space"
+            assert (
+                env.unwrapped.np_random.bit_generator.state
+                != seed_123_rng.bit_generator.state
+            ), (
+                "Mostly likely the environment reset function does not call `super().reset(seed=seed)` "
+                "as the random generates are not different when different seeds are passed to `env.reset`."
+            )
 
         except TypeError as e:
             raise AssertionError(
@@ -87,7 +109,7 @@ def check_reset_seed(env: gym.Env):
                 f"The error was: {e}"
             )
 
-        if env.unwrapped.np_random is None:
+        if env.unwrapped._np_random is None:
             logger.warn(
                 "Resetting the environment did not result in seeding its random number generator. "
                 "This is likely due to not calling `super().reset(seed=seed)` in the `reset` method. "
@@ -102,8 +124,8 @@ def check_reset_seed(env: gym.Env):
                 "otherwise the environment will by default always be deterministic"
             )
     else:
-        raise error.Error(
-            "The `reset` method does not provide the `return_info` keyword argument"
+        raise gym.error.Error(
+            "The `reset` method does not provide the `seed` keyword argument"
         )
 
 
@@ -120,11 +142,19 @@ def check_reset_info(env: gym.Env):
     signature = inspect.signature(env.reset)
     if "return_info" in signature.parameters or "kwargs" in signature.parameters:
         try:
+            obs = env.reset(return_info=False)
+            assert (
+                obs in env.observation_space
+            ), "The value returned by `env.reset(return_info=True)` is not within the observation space"
+
             result = env.reset(return_info=True)
             assert (
                 len(result) == 2
             ), "Calling the reset method with `return_info=True` did not return a 2-tuple"
             obs, info = result
+            assert (
+                obs in env.observation_space
+            ), "The second element returned by `env.reset(return_info=True)` is not within the observation space"
             assert isinstance(
                 info, dict
             ), "The second element returned by `env.reset(return_info=True)` was not a dictionary"
@@ -135,7 +165,7 @@ def check_reset_info(env: gym.Env):
                 f"The error was: {e}"
             )
     else:
-        raise error.Error(
+        raise gym.error.Error(
             "The `reset` method does not provide the `return_info` keyword argument"
         )
 
@@ -161,47 +191,58 @@ def check_reset_options(env: gym.Env):
                 f"The error was: {e}"
             )
     else:
-        raise error.Error(
+        raise gym.error.Error(
             "The `reset` method does not provide the `options` keyword argument"
         )
 
 
-def check_render(env: gym.Env, warn: bool = True):
+def check_render(env: gym.Env):
     """Check the declared render modes/fps of the environment.
 
     Args:
         env: The environment to check
-        warn: Whether to output additional warnings
     """
     render_modes = env.metadata.get("render_modes")
     if render_modes is None:
-        if warn:
-            logger.warn(
-                "No render modes was declared in the environment "
-                " (env.metadata['render_modes'] is None or not defined), "
-                "you may have trouble when calling `.render()`"
-            )
+        raise gym.error.Error(
+            "No render modes was declared in the environment "
+            "(env.metadata['render_modes'] is None or not defined), "
+            "you may have trouble when calling `.render()`."
+        )
+    else:
+        assert isinstance(
+            render_modes, (list, tuple)
+        ), f"Expects the render_modes to be a sequence (i.e. list, tuple), actual type: {type(render_modes)}"
+        assert all(
+            isinstance(mode, str) for mode in render_modes
+        ), f"Expects all render modes to be strings, actual types: {[type(mode) for mode in render_modes]}."
 
-    render_fps = env.metadata.get("render_fps")
-    # We only require `render_fps` if rendering is actually implemented
-    if render_fps is None and render_modes is not None and len(render_modes) > 0:
-        if warn:
-            logger.warn(
-                "No render fps was declared in the environment "
-                " (env.metadata['render_fps'] is None or not defined), "
-                "rendering may occur at inconsistent fps"
-            )
+        render_fps = env.metadata.get("render_fps")
+        # We only require `render_fps` if rendering is actually implemented
+        if len(render_modes) > 0:
+            if render_fps is None:
+                logger.warn(
+                    "No render fps was declared in the environment "
+                    "(env.metadata['render_fps'] is None or not defined), "
+                    "rendering may occur at inconsistent fps."
+                )
+            else:
+                assert isinstance(
+                    render_fps, int
+                ), f"Expects the `env.metadata['render_fps']` to be an integer, actual type: {type(render_fps)}."
 
-    if warn:
-        if not hasattr(env, "render_mode"):  # TODO: raise an error with gym 1.0
-            logger.warn("Environments must define render_mode attribute.")
-        elif env.render_mode is not None and env.render_mode not in render_modes:
-            logger.warn(
-                "The environment was initialized successfully with an unsupported render mode."
-            )
+        # env.render is now an attribute with default None
+        if len(render_modes) == 0:
+            assert (
+                env.render_mode is None
+            ), "With no render_modes, expects the render_mode to be None"
+        else:
+            assert (
+                env.render_mode in render_modes
+            ), "The environment was initialized successfully however with an unsupported render mode."
 
 
-def check_env(env: gym.Env, warn: bool = None, skip_render_check: bool = True):
+def check_env(env: gym.Env, warn: bool = None, skip_render_check: bool = False):
     """Check that an environment follows Gym API.
 
     This is an invasive function that calls the environment's reset and step.
