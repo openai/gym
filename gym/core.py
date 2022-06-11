@@ -231,7 +231,7 @@ class Env(Generic[ObsType, ActType]):
             there aren't accidental correlations between multiple generators.
 
         Args:
-            seed(Optional int): The seed value for the random number geneartor
+            seed(Optional int): The seed value for the random number generator
 
         Returns:
             seeds (List[int]): Returns the list of seeds used in this environment's random
