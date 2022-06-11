@@ -207,7 +207,6 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     def __init__(
         self,
         render_mode: Optional[str] = None,
-        xml_file="humanoid.xml",
         forward_reward_weight=1.25,
         ctrl_cost_weight=0.1,
         healthy_reward=5.0,
@@ -230,7 +229,7 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             exclude_current_positions_from_observation
         )
 
-        mujoco_env.MujocoEnv.__init__(self, xml_file, 5, render_mode=render_mode)
+        mujoco_env.MujocoEnv.__init__(self, "humanoid.xml", 5, render_mode=render_mode)
 
     @property
     def healthy_reward(self):
