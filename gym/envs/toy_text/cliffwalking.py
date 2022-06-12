@@ -97,17 +97,19 @@ class CliffWalkingEnv(Env):
         self.renderer = Renderer(self.render_mode, self._render)
 
         # pygame utils
-        self.cell_size = (75, 75)
+        self.cell_size = (60, 60)
         self.window_size = (
             self.shape[1] * self.cell_size[1],
             self.shape[0] * self.cell_size[0]
         )
         self.window_surface = None
         self.clock = None
-        self.hiker_images = None
+        self.elf_images = None
         self.start_img = None
         self.goal_img = None
         self.cliff_img = None
+        self.mountain_bg_img = None
+        self.near_cliff_img = None
 
     def _limit_coordinates(self, coord: np.ndarray) -> np.ndarray:
         """Prevent the agent from falling out of the grid world."""
@@ -188,43 +190,48 @@ class CliffWalkingEnv(Env):
                 self.window_surface = pygame.Surface(self.window_size)
         if self.clock is None:
             self.clock = pygame.time.Clock()
-        if self.hiker_images is None:
+        if self.elf_images is None:
             hikers = [
-                path.join(path.dirname(__file__), "img/hiker_up.png"),
-                path.join(path.dirname(__file__), "img/hiker_right.png"),
-                path.join(path.dirname(__file__), "img/hiker_down.png"),
-                path.join(path.dirname(__file__), "img/hiker_left.png"),
+                path.join(path.dirname(__file__), "img/elf_up.png"),
+                path.join(path.dirname(__file__), "img/elf_right.png"),
+                path.join(path.dirname(__file__), "img/elf_down.png"),
+                path.join(path.dirname(__file__), "img/elf_left.png"),
             ]
-            self.hiker_images = [
+            self.elf_images = [
                 pygame.transform.scale(pygame.image.load(f_name), self.cell_size)
                 for f_name in hikers
             ]
         if self.start_img is None:
             file_name = path.join(path.dirname(__file__), "img/stool.png")
-            self.smaller_cell = (self.cell_size[0] // 2, self.cell_size[1] // 2)
-            self.start_img = pygame.transform.scale(pygame.image.load(file_name), self.smaller_cell)
+            self.start_img = pygame.transform.scale(pygame.image.load(file_name), self.cell_size)
         if self.goal_img is None:
             file_name = path.join(path.dirname(__file__), "img/cookie.png")
-            self.smaller_cell = (self.cell_size[0] // 2, self.cell_size[1] // 2)
-            self.goal_img = pygame.transform.scale(pygame.image.load(file_name), self.smaller_cell)
+            self.goal_img = pygame.transform.scale(pygame.image.load(file_name), self.cell_size)
+        if self.mountain_bg_img is None:
+            file_name = path.join(path.dirname(__file__), "img/mountain_bg.png")
+            self.mountain_bg_img = pygame.transform.scale(pygame.image.load(file_name), self.cell_size)
+        if self.near_cliff_img is None:
+            file_name = path.join(path.dirname(__file__), "img/near_cliff_img.png")
+            self.near_cliff_img = pygame.transform.scale(pygame.image.load(file_name), self.cell_size)
         if self.cliff_img is None:
             file_name = path.join(path.dirname(__file__), "img/cliff.png")
             self.cliff_img = pygame.transform.scale(pygame.image.load(file_name), self.cell_size)
 
-        self.window_surface.fill((255, 255, 255))
-
         for s in range(self.nS):
             row, col = np.unravel_index(s, self.shape)
             pos = (col * self.cell_size[0], row * self.cell_size[1])
+            self.window_surface.blit(self.mountain_bg_img, pos)
             if self._cliff[row, col]:
                 self.window_surface.blit(self.cliff_img, pos)
+            # if row < self.shape[0] - 1 and self._cliff[row + 1, col]:
+            #     self.window_surface.blit(self.near_cliff_img, pos)
             if s == self.start_state_index:
                 self.window_surface.blit(self.start_img, pos)
             if s == self.nS - 1:
                 self.window_surface.blit(self.goal_img, pos)
             if s == self.s:
                 last_action = self.lastaction if self.lastaction is not None else 2
-                self.window_surface.blit(self.hiker_images[last_action], pos)
+                self.window_surface.blit(self.elf_images[last_action], pos)
 
         if mode == "human":
             pygame.event.pump()
