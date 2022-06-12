@@ -1,7 +1,7 @@
 from typing import Optional
 
-import pytest
 import numpy as np
+import pytest
 
 import gym
 from gym import spaces
@@ -9,7 +9,7 @@ from gym.wrappers.filter_observation import FilterObservation
 
 
 class FakeEnvironment(gym.Env):
-    def __init__(self, observation_keys=("state")):
+    def __init__(self, render_mode=None, observation_keys=("state")):
         self.observation_space = spaces.Dict(
             {
                 name: spaces.Box(shape=(2,), low=-1, high=1, dtype=np.float32)
@@ -17,11 +17,10 @@ class FakeEnvironment(gym.Env):
             }
         )
         self.action_space = spaces.Box(shape=(1,), low=-1, high=1, dtype=np.float32)
+        self.render_mode = render_mode
 
-    def render(self, width=32, height=32, *args, **kwargs):
-        del args
-        del kwargs
-        image_shape = (height, width, 3)
+    def render(self, mode="human"):
+        image_shape = (32, 32, 3)
         return np.zeros(image_shape, dtype=np.uint8)
 
     def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):

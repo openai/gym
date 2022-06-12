@@ -1,21 +1,20 @@
 """Tests for the pixel observation wrapper."""
 from typing import Optional
 
-import pytest
 import numpy as np
+import pytest
 
 import gym
 from gym import spaces
-from gym.wrappers.pixel_observation import PixelObservationWrapper, STATE_KEY
+from gym.wrappers.pixel_observation import STATE_KEY, PixelObservationWrapper
 
 
 class FakeEnvironment(gym.Env):
-    def __init__(self):
+    def __init__(self, render_mode=None):
         self.action_space = spaces.Box(shape=(1,), low=-1, high=1, dtype=np.float32)
+        self.render_mode = render_mode
 
-    def render(self, width=32, height=32, *args, **kwargs):
-        del args
-        del kwargs
+    def render(self, mode="human", width=32, height=32):
         image_shape = (height, width, 3)
         return np.zeros(image_shape, dtype=np.uint8)
 
@@ -49,7 +48,7 @@ class FakeDictObservationEnvironment(FakeEnvironment):
         super().__init__(*args, **kwargs)
 
 
-class TestPixelObservationWrapper:
+class TestPixelObservationWrapper(gym.Wrapper):
     @pytest.mark.parametrize("pixels_only", (True, False))
     def test_dict_observation(self, pixels_only):
         pixel_key = "rgb"

@@ -7,19 +7,17 @@ This simulation is a bit more detailed, with wheels rotation.
 Created by Oleg Klimov
 """
 
-import numpy as np
 import math
-import pygame.draw
-import Box2D
-from Box2D.b2 import (
-    edgeShape,
-    circleShape,
-    fixtureDef,
-    polygonShape,
-    revoluteJointDef,
-    contactListener,
-    shape,
-)
+
+import numpy as np
+
+from gym.error import DependencyNotInstalled
+
+try:
+    from Box2D.b2 import fixtureDef, polygonShape, revoluteJointDef
+except ImportError:
+    raise DependencyNotInstalled("box2D is not installed, run `pip install gym[box2d]`")
+
 
 SIZE = 0.02
 ENGINE_POWER = 100000000 * SIZE * SIZE
@@ -46,9 +44,6 @@ HULL_POLY4 = [(-50, -120), (+50, -120), (+50, -90), (-50, -90)]
 WHEEL_COLOR = (0, 0, 0)
 WHEEL_WHITE = (77, 77, 77)
 MUD_COLOR = (102, 102, 0)
-
-SCALE = 6.0  # Track scale
-PLAYFIELD = 2000 / SCALE  # Game over boundary
 
 
 class Car:
@@ -265,12 +260,11 @@ class Car:
             )
 
     def draw(self, surface, zoom, translation, angle, draw_particles=True):
+        import pygame.draw
+
         if draw_particles:
             for p in self.particles:
-                poly = [
-                    (coords[0] + PLAYFIELD, coords[1] + PLAYFIELD) for coords in p.poly
-                ]
-                poly = [pygame.math.Vector2(c).rotate_rad(angle) for c in poly]
+                poly = [pygame.math.Vector2(c).rotate_rad(angle) for c in p.poly]
                 poly = [
                     (
                         coords[0] * zoom + translation[0],
@@ -286,9 +280,7 @@ class Car:
             for f in obj.fixtures:
                 trans = f.body.transform
                 path = [trans * v for v in f.shape.vertices]
-                path = [
-                    (coords[0] + PLAYFIELD, coords[1] + PLAYFIELD) for coords in path
-                ]
+                path = [(coords[0], coords[1]) for coords in path]
                 path = [pygame.math.Vector2(c).rotate_rad(angle) for c in path]
                 path = [
                     (
@@ -323,10 +315,7 @@ class Car:
                 ]
                 white_poly = [trans * v for v in white_poly]
 
-                white_poly = [
-                    (coords[0] + PLAYFIELD, coords[1] + PLAYFIELD)
-                    for coords in white_poly
-                ]
+                white_poly = [(coords[0], coords[1]) for coords in white_poly]
                 white_poly = [
                     pygame.math.Vector2(c).rotate_rad(angle) for c in white_poly
                 ]

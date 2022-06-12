@@ -7,52 +7,58 @@ import math
 from typing import Optional, Union
 
 import numpy as np
-import pygame
-from pygame import gfxdraw
 
 import gym
-from gym import spaces, logger
-from gym.utils import seeding
+from gym import logger, spaces
+from gym.error import DependencyNotInstalled
+from gym.utils.renderer import Renderer
 
 
 class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
     """
     ### Description
 
-    This environment corresponds to the version of the cart-pole problem
-    described by Barto, Sutton, and Anderson in ["Neuronlike Adaptive Elements That Can Solve Difficult Learning Control Problem"](https://ieeexplore.ieee.org/document/6313077).
-    A pole is attached by an un-actuated joint to a cart, which moves along a
-    frictionless track. The pendulum is placed upright on the cart and the goal is to balance the pole by applying forces in the left and right direction on the cart.
+    This environment corresponds to the version of the cart-pole problem described by Barto, Sutton, and Anderson in
+    ["Neuronlike Adaptive Elements That Can Solve Difficult Learning Control Problem"](https://ieeexplore.ieee.org/document/6313077).
+    A pole is attached by an un-actuated joint to a cart, which moves along a frictionless track.
+    The pendulum is placed upright on the cart and the goal is to balance the pole by applying forces
+     in the left and right direction on the cart.
 
     ### Action Space
 
-    The action is a `ndarray` with shape `(1,)` which can take values `{0, 1}` indicating the direction of the fixed force the cart is pushed with.
+    The action is a `ndarray` with shape `(1,)` which can take values `{0, 1}` indicating the direction
+     of the fixed force the cart is pushed with.
 
     | Num | Action                 |
     |-----|------------------------|
     | 0   | Push cart to the left  |
     | 1   | Push cart to the right |
 
-    **Note**: The velocity that is reduced or increased by the applied force is not fixed and it depends on the angle the pole is pointing. The center of gravity of the pole varies the amount of energy needed to move the cart underneath it
+    **Note**: The velocity that is reduced or increased by the applied force is not fixed and it depends on the angle
+     the pole is pointing. The center of gravity of the pole varies the amount of energy needed to move the cart underneath it
 
     ### Observation Space
 
     The observation is a `ndarray` with shape `(4,)` with the values corresponding to the following positions and velocities:
 
-    | Num | Observation           | Min                  | Max                |
-    |-----|-----------------------|----------------------|--------------------|
-    | 0   | Cart Position         | -4.8                 | 4.8                |
-    | 1   | Cart Velocity         | -Inf                 | Inf                |
-    | 2   | Pole Angle            | ~ -0.418 rad (-24°)  | ~ 0.418 rad (24°)  |
-    | 3   | Pole Angular Velocity | -Inf                 | Inf                |
+    | Num | Observation           | Min                 | Max               |
+    |-----|-----------------------|---------------------|-------------------|
+    | 0   | Cart Position         | -4.8                | 4.8               |
+    | 1   | Cart Velocity         | -Inf                | Inf               |
+    | 2   | Pole Angle            | ~ -0.418 rad (-24°) | ~ 0.418 rad (24°) |
+    | 3   | Pole Angular Velocity | -Inf                | Inf               |
 
-    **Note:** While the ranges above denote the possible values for observation space of each element, it is not reflective of the allowed values of the state space in an unterminated episode. Particularly:
-    -  The cart x-position (index 0) can be take values between `(-4.8, 4.8)`, but the episode terminates if the cart leaves the `(-2.4, 2.4)` range.
-    -  The pole angle can be observed between  `(-.418, .418)` radians (or **±24°**), but the episode terminates if the pole angle is not in the range `(-.2095, .2095)` (or **±12°**)
+    **Note:** While the ranges above denote the possible values for observation space of each element,
+        it is not reflective of the allowed values of the state space in an unterminated episode. Particularly:
+    -  The cart x-position (index 0) can be take values between `(-4.8, 4.8)`, but the episode terminates
+       if the cart leaves the `(-2.4, 2.4)` range.
+    -  The pole angle can be observed between  `(-.418, .418)` radians (or **±24°**), but the episode terminates
+       if the pole angle is not in the range `(-.2095, .2095)` (or **±12°**)
 
     ### Rewards
 
-    Since the goal is to keep the pole upright for as long as possible, a reward of `+1` for every step taken, including the termination step, is allotted. The threshold for rewards is 475 for v1.
+    Since the goal is to keep the pole upright for as long as possible, a reward of `+1` for every step taken,
+    including the termination step, is allotted. The threshold for rewards is 475 for v1.
 
     ### Starting State
 
@@ -74,9 +80,12 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
     No additional arguments are currently supported.
     """
 
-    metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 50}
+    metadata = {
+        "render_modes": ["human", "rgb_array", "single_rgb_array"],
+        "render_fps": 50,
+    }
 
-    def __init__(self):
+    def __init__(self, render_mode: Optional[str] = None):
         self.gravity = 9.8
         self.masscart = 1.0
         self.masspole = 0.1
@@ -106,6 +115,12 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Box(-high, high, dtype=np.float32)
 
+        assert render_mode is None or render_mode in self.metadata["render_modes"]
+        self.render_mode = render_mode
+        self.renderer = Renderer(self.render_mode, self._render)
+
+        self.screen_width = 600
+        self.screen_height = 400
         self.screen = None
         self.clock = None
         self.isopen = True
@@ -125,10 +140,10 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         # For the interested reader:
         # https://coneural.org/florian/papers/05_cart_pole.pdf
         temp = (
-            force + self.polemass_length * theta_dot ** 2 * sintheta
+            force + self.polemass_length * theta_dot**2 * sintheta
         ) / self.total_mass
         thetaacc = (self.gravity * sintheta - costheta * temp) / (
-            self.length * (4.0 / 3.0 - self.masspole * costheta ** 2 / self.total_mass)
+            self.length * (4.0 / 3.0 - self.masspole * costheta**2 / self.total_mass)
         )
         xacc = temp - self.polemass_length * thetaacc * costheta / self.total_mass
 
@@ -169,6 +184,7 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
             self.steps_beyond_done += 1
             reward = 0.0
 
+        self.renderer.render_step()
         return np.array(self.state, dtype=np.float32), reward, done, {}
 
     def reset(
@@ -181,17 +197,43 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         super().reset(seed=seed)
         self.state = self.np_random.uniform(low=-0.05, high=0.05, size=(4,))
         self.steps_beyond_done = None
+        self.renderer.reset()
+        self.renderer.render_step()
         if not return_info:
             return np.array(self.state, dtype=np.float32)
         else:
             return np.array(self.state, dtype=np.float32), {}
 
     def render(self, mode="human"):
-        screen_width = 600
-        screen_height = 400
+        if self.render_mode is not None:
+            return self.renderer.get_renders()
+        else:
+            return self._render(mode)
+
+    def _render(self, mode="human"):
+        assert mode in self.metadata["render_modes"]
+        try:
+            import pygame
+            from pygame import gfxdraw
+        except ImportError:
+            raise DependencyNotInstalled(
+                "pygame is not installed, run `pip install gym[classic_control]`"
+            )
+
+        if self.screen is None:
+            pygame.init()
+            if mode == "human":
+                pygame.display.init()
+                self.screen = pygame.display.set_mode(
+                    (self.screen_width, self.screen_height)
+                )
+            else:  # mode in {"rgb_array", "single_rgb_array"}
+                self.screen = pygame.Surface((self.screen_width, self.screen_height))
+        if self.clock is None:
+            self.clock = pygame.time.Clock()
 
         world_width = self.x_threshold * 2
-        scale = screen_width / world_width
+        scale = self.screen_width / world_width
         polewidth = 10.0
         polelen = scale * (2 * self.length)
         cartwidth = 50.0
@@ -202,19 +244,12 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
 
         x = self.state
 
-        if self.screen is None:
-            pygame.init()
-            pygame.display.init()
-            self.screen = pygame.display.set_mode((screen_width, screen_height))
-        if self.clock is None:
-            self.clock = pygame.time.Clock()
-
-        self.surf = pygame.Surface((screen_width, screen_height))
+        self.surf = pygame.Surface((self.screen_width, self.screen_height))
         self.surf.fill((255, 255, 255))
 
         l, r, t, b = -cartwidth / 2, cartwidth / 2, cartheight / 2, -cartheight / 2
         axleoffset = cartheight / 4.0
-        cartx = x[0] * scale + screen_width / 2.0  # MIDDLE OF CART
+        cartx = x[0] * scale + self.screen_width / 2.0  # MIDDLE OF CART
         carty = 100  # TOP OF CART
         cart_coords = [(l, b), (l, t), (r, t), (r, b)]
         cart_coords = [(c[0] + cartx, c[1] + carty) for c in cart_coords]
@@ -251,7 +286,7 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
             (129, 132, 203),
         )
 
-        gfxdraw.hline(self.surf, 0, screen_width, carty, (0, 0, 0))
+        gfxdraw.hline(self.surf, 0, self.screen_width, carty, (0, 0, 0))
 
         self.surf = pygame.transform.flip(self.surf, False, True)
         self.screen.blit(self.surf, (0, 0))
@@ -260,15 +295,15 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
             self.clock.tick(self.metadata["render_fps"])
             pygame.display.flip()
 
-        if mode == "rgb_array":
+        elif mode in {"rgb_array", "single_rgb_array"}:
             return np.transpose(
                 np.array(pygame.surfarray.pixels3d(self.screen)), axes=(1, 0, 2)
             )
-        else:
-            return self.isopen
 
     def close(self):
         if self.screen is not None:
+            import pygame
+
             pygame.display.quit()
             pygame.quit()
             self.isopen = False

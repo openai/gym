@@ -1,10 +1,12 @@
-import pytest
+from typing import List
+
 import numpy as np
+import pytest
 
 from gym import envs
-from tests.envs.spec_list import spec_list
 from gym.spaces import Box
 from gym.utils.env_checker import check_env
+from tests.envs.spec_list import spec_list, spec_list_no_mujoco_py
 
 
 # This runs a smoketest on each official registered env. We may want
@@ -13,14 +15,16 @@ from gym.utils.env_checker import check_env
 @pytest.mark.filterwarnings(
     "ignore:.*We recommend you to use a symmetric and normalized Box action space.*"
 )
-@pytest.mark.parametrize("spec", spec_list)
+@pytest.mark.parametrize(
+    "spec", spec_list_no_mujoco_py, ids=[spec.id for spec in spec_list_no_mujoco_py]
+)
 def test_env(spec):
     # Capture warnings
     with pytest.warns(None) as warnings:
         env = spec.make()
 
     # Test if env adheres to Gym API
-    check_env(env, warn=True, skip_render_check=True)
+    check_env(env, skip_render_check=True)
 
     # Check that dtype is explicitly declared for gym.Box spaces
     for warning_msg in warnings:
@@ -48,20 +52,13 @@ def test_env(spec):
             observation.dtype == ob_space.dtype
         ), f"Step observation dtype: {ob.dtype}, expected: {ob_space.dtype}"
 
-    for mode in env.metadata.get("render_modes", []):
-        env.render(mode=mode)
-
-    # Make sure we can render the environment after close.
-    for mode in env.metadata.get("render_modes", []):
-        env.render(mode=mode)
-
     env.close()
 
 
-@pytest.mark.parametrize("spec", spec_list)
+@pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
 def test_reset_info(spec):
 
-    with pytest.warns(None) as warnings:
+    with pytest.warns(None):
         env = spec.make()
 
     ob_space = env.observation_space
@@ -75,29 +72,30 @@ def test_reset_info(spec):
     env.close()
 
 
-# Run a longer rollout on some environments
-def test_random_rollout():
-    for env in [envs.make("CartPole-v1"), envs.make("FrozenLake-v1")]:
-        agent = lambda ob: env.action_space.sample()
-        ob = env.reset()
-        for _ in range(10):
-            assert env.observation_space.contains(ob)
-            a = agent(ob)
-            assert env.action_space.contains(a)
-            (ob, _reward, done, _info) = env.step(a)
-            if done:
-                break
-        env.close()
+@pytest.mark.parametrize(
+    "spec", spec_list_no_mujoco_py, ids=[spec.id for spec in spec_list_no_mujoco_py]
+)
+def test_render_modes(spec):
+    env = spec.make()
+
+    for mode in env.metadata.get("render_modes", []):
+        if mode != "human":
+            new_env = spec.make(render_mode=mode)
+
+            new_env.reset()
+            new_env.step(new_env.action_space.sample())
+            new_env.render()
 
 
 def test_env_render_result_is_immutable():
     environs = [
-        envs.make("Taxi-v3"),
-        envs.make("FrozenLake-v1"),
+        envs.make("Taxi-v3", render_mode="ansi"),
+        envs.make("FrozenLake-v1", render_mode="ansi"),
     ]
 
     for env in environs:
         env.reset()
-        output = env.render(mode="ansi")
-        assert isinstance(output, str)
+        output = env.render()
+        assert isinstance(output, List)
+        assert isinstance(output[0], str)
         env.close()

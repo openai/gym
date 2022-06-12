@@ -1,24 +1,23 @@
 """Tests for the filter observation wrapper."""
 from typing import Optional
 
-import pytest
 import numpy as np
+import pytest
 
 import gym
-from gym.spaces import Dict, Box, Discrete, Tuple
+from gym.spaces import Box, Dict, Tuple
 from gym.wrappers import FilterObservation, FlattenObservation
 
 
 class FakeEnvironment(gym.Env):
-    def __init__(self, observation_space):
+    def __init__(self, observation_space, render_mode=None):
         self.observation_space = observation_space
         self.obs_keys = self.observation_space.spaces.keys()
         self.action_space = Box(shape=(1,), low=-1, high=1, dtype=np.float32)
+        self.render_mode = render_mode
 
-    def render(self, width=32, height=32, *args, **kwargs):
-        del args
-        del kwargs
-        image_shape = (height, width, 3)
+    def render(self, mode="human"):
+        image_shape = (32, 32, 3)
         return np.zeros(image_shape, dtype=np.uint8)
 
     def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):

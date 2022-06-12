@@ -1,19 +1,23 @@
 from gym import envs, logger
-import os
 
-
-SKIP_MUJOCO_WARNING_MESSAGE = (
-    "Cannot run mujoco test (either license key not found or mujoco not"
-    "installed properly)."
+SKIP_MUJOCO_V3_WARNING_MESSAGE = (
+    "Cannot run mujoco test because `mujoco-py` is not installed"
+)
+SKIP_MUJOCO_V4_WARNING_MESSAGE = (
+    "Cannot run mujoco test because `mujoco` is not installed"
 )
 
+skip_mujoco_v3 = False
+try:
+    import mujoco_py  # noqa:F401
+except ImportError:
+    skip_mujoco_v3 = True
 
-skip_mujoco = not (os.environ.get("MUJOCO_KEY"))
-if not skip_mujoco:
-    try:
-        import mujoco_py
-    except ImportError:
-        skip_mujoco = True
+skip_mujoco_v4 = False
+try:
+    import mujoco  # noqa:F401
+except ImportError:
+    skip_mujoco_v4 = True
 
 
 def should_skip_env_spec_for_tests(spec):
@@ -21,15 +25,15 @@ def should_skip_env_spec_for_tests(spec):
     # troublesome to run frequently
     ep = spec.entry_point
     # Skip mujoco tests for pull request CI
-    if skip_mujoco and ep.startswith("gym.envs.mujoco"):
+    if (skip_mujoco_v3 or skip_mujoco_v4) and ep.startswith("gym.envs.mujoco"):
         return True
     try:
-        import gym.envs.atari
+        import gym.envs.atari  # noqa:F401
     except ImportError:
         if ep.startswith("gym.envs.atari"):
             return True
     try:
-        import Box2D
+        import Box2D  # noqa:F401
     except ImportError:
         if ep.startswith("gym.envs.box2d"):
             return True
@@ -48,8 +52,19 @@ def should_skip_env_spec_for_tests(spec):
     return False
 
 
+def skip_mujoco_py_env_for_test(spec):
+    ep = spec.entry_point
+    version = spec.version
+    if ep.startswith("gym.envs.mujoco") and version < 4:
+        return True
+    return False
+
+
 spec_list = [
     spec
-    for spec in sorted(envs.registry.all(), key=lambda x: x.id)
+    for spec in sorted(envs.registry.values(), key=lambda x: x.id)
     if spec.entry_point is not None and not should_skip_env_spec_for_tests(spec)
+]
+spec_list_no_mujoco_py = [
+    spec for spec in spec_list if not skip_mujoco_py_env_for_test(spec)
 ]

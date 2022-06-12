@@ -1,17 +1,25 @@
+from typing import Optional
+
 import numpy as np
+
 from gym import utils
 from gym.envs.mujoco import mujoco_env
 
 
 class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
-    def __init__(self):
-        mujoco_env.MujocoEnv.__init__(self, "hopper.xml", 4)
+    def __init__(self, render_mode: Optional[str] = None):
+        mujoco_env.MujocoEnv.__init__(
+            self, "hopper.xml", 4, render_mode=render_mode, mujoco_bindings="mujoco_py"
+        )
         utils.EzPickle.__init__(self)
 
     def step(self, a):
         posbefore = self.sim.data.qpos[0]
         self.do_simulation(a, self.frame_skip)
         posafter, height, ang = self.sim.data.qpos[0:3]
+
+        self.renderer.render_step()
+
         alive_bonus = 1.0
         reward = (posafter - posbefore) / self.dt
         reward += alive_bonus

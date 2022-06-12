@@ -6,12 +6,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.7', '3.8', '3.9', '3.10']
+        python-version: ['3.6', '3.7', '3.8', '3.9', '3.10']
     steps:
       - uses: actions/checkout@v2
       - run: |
            docker build -f py.Dockerfile \
-             --build-arg MUJOCO_KEY=$MUJOCO_KEY \
              --build-arg PYTHON_VERSION=${{ matrix.python-version }} \
              --tag gym-docker .
       - name: Run tests

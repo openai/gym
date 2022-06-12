@@ -1,10 +1,9 @@
+import numpy as np
 import pytest
 
-import numpy as np
-
 import gym
-from gym.wrappers import FlattenObservation
 from gym import spaces
+from gym.wrappers import FlattenObservation
 
 
 @pytest.mark.parametrize("env_id", ["Blackjack-v1"])

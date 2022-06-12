@@ -1,10 +1,11 @@
+import time
 from typing import Optional
 
 import numpy as np
-import gym
-import time
 
-from gym.spaces import Box, Discrete, MultiDiscrete, MultiBinary, Tuple, Dict
+import gym
+from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Tuple
+from gym.utils.seeding import RandomNumberGenerator
 
 spaces = [
     Box(low=np.array(-1.0), high=np.array(1.0), dtype=np.float64),
@@ -75,10 +76,10 @@ class CustomSpace(gym.Space):
     """Minimal custom observation space."""
 
     def sample(self):
-        return "sample"
+        return self.np_random.integers(0, 10, ())
 
     def contains(self, x):
-        return isinstance(x, str)
+        return 0 <= x <= 10
 
     def __eq__(self, other):
         return isinstance(other, CustomSpace)
@@ -106,9 +107,10 @@ class CustomSpaceEnv(gym.Env):
         return observation, reward, done, {}
 
 
-def make_env(env_name, seed):
+def make_env(env_name, seed, **kwargs):
     def _make():
-        env = gym.make(env_name)
+        env = gym.make(env_name, **kwargs)
+        env.action_space.seed(seed)
         env.reset(seed=seed)
         return env
 
@@ -131,3 +133,7 @@ def make_custom_space_env(seed):
         return env
 
     return _make
+
+
+def assert_rng_equal(rng_1: RandomNumberGenerator, rng_2: RandomNumberGenerator):
+    assert rng_1.bit_generator.state == rng_2.bit_generator.state

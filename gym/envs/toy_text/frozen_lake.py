@@ -1,13 +1,14 @@
 from contextlib import closing
 from io import StringIO
 from os import path
-from typing import Optional
-import pygame
-from pygame.constants import SRCALPHA
+from typing import List, Optional
+
 import numpy as np
 
 from gym import Env, spaces, utils
 from gym.envs.toy_text.utils import categorical_sample
+from gym.error import DependencyNotInstalled
+from gym.utils.renderer import Renderer
 
 LEFT = 0
 DOWN = 1
@@ -29,10 +30,15 @@ MAPS = {
 }
 
 
-def generate_random_map(size=8, p=0.8):
+def generate_random_map(size: int = 8, p: float = 0.8) -> List[str]:
     """Generates a random valid map (one that has a path from start to goal)
-    :param size: size of each side of the grid
-    :param p: probability that a tile is frozen
+
+    Args:
+        size: size of each side of the grid
+        p: probability that a tile is frozen
+
+    Returns:
+        A random valid map
     """
     valid = False
 
@@ -67,8 +73,9 @@ def generate_random_map(size=8, p=0.8):
 
 class FrozenLakeEnv(Env):
     """
-    Frozen lake involves crossing a frozen lake from Start(S) to Goal(G) without falling into any Holes(H) by walking over
-    the Frozen(F) lake. The agent may not always move in the intended direction due to the slippery nature of the frozen lake.
+    Frozen lake involves crossing a frozen lake from Start(S) to Goal(G) without falling into any Holes(H)
+    by walking over the Frozen(F) lake.
+    The agent may not always move in the intended direction due to the slippery nature of the frozen lake.
 
 
     ### Action Space
@@ -138,9 +145,18 @@ class FrozenLakeEnv(Env):
     * v0: Initial versions release (1.0.0)
     """
 
-    metadata = {"render_modes": ["human", "ansi", "rgb_array"], "render_fps": 4}
+    metadata = {
+        "render_modes": ["human", "ansi", "rgb_array", "single_rgb_array"],
+        "render_fps": 4,
+    }
 
-    def __init__(self, desc=None, map_name="4x4", is_slippery=True):
+    def __init__(
+        self,
+        render_mode: Optional[str] = None,
+        desc=None,
+        map_name="4x4",
+        is_slippery=True,
+    ):
         if desc is None and map_name is None:
             desc = generate_random_map()
         elif desc is None:
@@ -199,6 +215,10 @@ class FrozenLakeEnv(Env):
         self.observation_space = spaces.Discrete(nS)
         self.action_space = spaces.Discrete(nA)
 
+        assert render_mode is None or render_mode in self.metadata["render_modes"]
+        self.render_mode = render_mode
+        self.renderer = Renderer(self.render_mode, self._render)
+
         # pygame utils
         self.window_size = (min(64 * ncol, 512), min(64 * nrow, 512))
         self.window_surface = None
@@ -216,6 +236,9 @@ class FrozenLakeEnv(Env):
         p, s, r, d = transitions[i]
         self.s = s
         self.lastaction = a
+
+        self.renderer.render_step()
+
         return (int(s), r, d, {"prob": p})
 
     def reset(
@@ -229,26 +252,42 @@ class FrozenLakeEnv(Env):
         self.s = categorical_sample(self.initial_state_distrib, self.np_random)
         self.lastaction = None
 
+        self.renderer.reset()
+        self.renderer.render_step()
+
         if not return_info:
             return int(self.s)
         else:
             return int(self.s), {"prob": 1}
 
     def render(self, mode="human"):
-        desc = self.desc.tolist()
-        if mode == "ansi":
-            return self._render_text(desc)
+        if self.render_mode is not None:
+            return self.renderer.get_renders()
         else:
-            return self._render_gui(desc, mode)
+            return self._render(mode)
 
-    def _render_gui(self, desc, mode):
+    def _render(self, mode="human"):
+        assert mode in self.metadata["render_modes"]
+        if mode == "ansi":
+            return self._render_text()
+        elif mode in {"human", "rgb_array", "single_rgb_array"}:
+            return self._render_gui(mode)
+
+    def _render_gui(self, mode):
+        try:
+            import pygame
+        except ImportError:
+            raise DependencyNotInstalled(
+                "pygame is not installed, run `pip install gym[toy_text]`"
+            )
+
         if self.window_surface is None:
             pygame.init()
             pygame.display.init()
             pygame.display.set_caption("Frozen Lake")
             if mode == "human":
                 self.window_surface = pygame.display.set_mode(self.window_size)
-            else:  # rgb_array
+            elif mode in {"rgb_array", "single_rgb_array"}:
                 self.window_surface = pygame.Surface(self.window_size)
         if self.clock is None:
             self.clock = pygame.time.Clock()
@@ -276,12 +315,11 @@ class FrozenLakeEnv(Env):
             ]
             self.elf_images = [pygame.image.load(f_name) for f_name in elfs]
 
-        board = pygame.Surface(self.window_size, flags=SRCALPHA)
         cell_width = self.window_size[0] // self.ncol
         cell_height = self.window_size[1] // self.nrow
         smaller_cell_scale = 0.6
-        small_cell_w = smaller_cell_scale * cell_width
-        small_cell_h = smaller_cell_scale * cell_height
+        small_cell_w = int(smaller_cell_scale * cell_width)
+        small_cell_h = int(smaller_cell_scale * cell_height)
 
         # prepare images
         last_action = self.lastaction if self.lastaction is not None else 1
@@ -303,6 +341,7 @@ class FrozenLakeEnv(Env):
         goal_img = pygame.transform.scale(self.goal_img, (cell_width, cell_height))
         start_img = pygame.transform.scale(self.start_img, (small_cell_w, small_cell_h))
 
+        desc = self.desc.tolist()
         for y in range(self.nrow):
             for x in range(self.ncol):
                 rect = (x * cell_width, y * cell_height, cell_width, cell_height)
@@ -319,7 +358,7 @@ class FrozenLakeEnv(Env):
                 else:
                     self.window_surface.blit(ice_img, (rect[0], rect[1]))
 
-                pygame.draw.rect(board, (180, 200, 230), rect, 1)
+                pygame.draw.rect(self.window_surface, (180, 200, 230), rect, 1)
 
         # paint the elf
         bot_row, bot_col = self.s // self.ncol, self.s % self.ncol
@@ -335,12 +374,11 @@ class FrozenLakeEnv(Env):
             elf_rect = self._center_small_rect(cell_rect, elf_img.get_size())
             self.window_surface.blit(elf_img, elf_rect)
 
-        self.window_surface.blit(board, board.get_rect())
         if mode == "human":
             pygame.event.pump()
             pygame.display.update()
             self.clock.tick(self.metadata["render_fps"])
-        else:  # rgb_array
+        elif mode in {"rgb_array", "single_rgb_array"}:
             return np.transpose(
                 np.array(pygame.surfarray.pixels3d(self.window_surface)), axes=(1, 0, 2)
             )
@@ -354,7 +392,8 @@ class FrozenLakeEnv(Env):
             big_rect[1] + offset_h,
         )
 
-    def _render_text(self, desc):
+    def _render_text(self):
+        desc = self.desc.tolist()
         outfile = StringIO()
 
         row, col = self.s // self.ncol, self.s % self.ncol
@@ -371,6 +410,8 @@ class FrozenLakeEnv(Env):
 
     def close(self):
         if self.window_surface is not None:
+            import pygame
+
             pygame.display.quit()
             pygame.quit()
 

@@ -1,7 +1,9 @@
 import unittest
+
 import numpy as np
+
 from gym import envs
-from tests.envs.spec_list import skip_mujoco, SKIP_MUJOCO_WARNING_MESSAGE
+from tests.envs.spec_list import SKIP_MUJOCO_V3_WARNING_MESSAGE, skip_mujoco_v3
 
 
 def verify_environments_match(
@@ -29,7 +31,7 @@ def verify_environments_match(
             np.testing.assert_allclose(old_info[key], new_info[key], atol=eps)
 
 
-@unittest.skipIf(skip_mujoco, SKIP_MUJOCO_WARNING_MESSAGE)
+@unittest.skipIf(skip_mujoco_v3, SKIP_MUJOCO_V3_WARNING_MESSAGE)
 class Mujocov2Tov3ConversionTest(unittest.TestCase):
     def test_environments_match(self):
         test_cases = (

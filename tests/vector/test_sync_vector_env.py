@@ -1,10 +1,16 @@
-import pytest
 import numpy as np
+import pytest
 
-from gym.spaces import Box, Tuple, Discrete, MultiDiscrete
-from tests.vector.utils import CustomSpace, make_env, make_custom_space_env
-
+from gym.envs.registration import EnvSpec
+from gym.spaces import Box, Discrete, MultiDiscrete, Tuple
 from gym.vector.sync_vector_env import SyncVectorEnv
+from tests.envs.spec_list import spec_list
+from tests.vector.utils import (
+    CustomSpace,
+    assert_rng_equal,
+    make_custom_space_env,
+    make_env,
+)
 
 
 def test_create_sync_vector_env():
@@ -59,7 +65,7 @@ def test_reset_sync_vector_env():
     assert observations.dtype == env.observation_space.dtype
     assert observations.shape == (8,) + env.single_observation_space.shape
     assert observations.shape == env.observation_space.shape
-    assert isinstance(infos, list)
+    assert isinstance(infos, dict)
     assert all([isinstance(info, dict) for info in infos])
 
 
@@ -99,11 +105,11 @@ def test_step_sync_vector_env(use_single_action_space):
 
 
 def test_call_sync_vector_env():
-    env_fns = [make_env("CartPole-v1", i) for i in range(4)]
+    env_fns = [make_env("CartPole-v1", i, render_mode="rgb_array") for i in range(4)]
     try:
         env = SyncVectorEnv(env_fns)
         _ = env.reset()
-        images = env.call("render", mode="rgb_array")
+        images = env.call("render")
         gravity = env.call("gravity")
     finally:
         env.close()
@@ -111,7 +117,8 @@ def test_call_sync_vector_env():
     assert isinstance(images, tuple)
     assert len(images) == 4
     for i in range(4):
-        assert isinstance(images[i], np.ndarray)
+        assert len(images[i]) == 1
+        assert isinstance(images[i][0], np.ndarray)
 
     assert isinstance(gravity, tuple)
     assert len(gravity) == 4
@@ -168,3 +175,27 @@ def test_custom_space_sync_vector_env():
         "step(action-5)",
         "step(action-7)",
     )
+
+
+def test_sync_vector_env_seed():
+    env = make_env("BipedalWalker-v3", seed=123)()
+    sync_vector_env = SyncVectorEnv([make_env("BipedalWalker-v3", seed=123)])
+
+    assert_rng_equal(env.action_space.np_random, sync_vector_env.action_space.np_random)
+    for _ in range(100):
+        env_action = env.action_space.sample()
+        vector_action = sync_vector_env.action_space.sample()
+        assert np.all(env_action == vector_action)
+
+
+@pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
+def test_sync_vector_determinism(spec: EnvSpec, seed: int = 123, n: int = 3):
+    """Check that for all environments, the sync vector envs produce the same action samples using the same seeds"""
+    env_1 = SyncVectorEnv([make_env(spec.id, seed=seed) for _ in range(n)])
+    env_2 = SyncVectorEnv([make_env(spec.id, seed=seed) for _ in range(n)])
+    assert_rng_equal(env_1.action_space.np_random, env_2.action_space.np_random)
+
+    for _ in range(100):
+        env_1_samples = env_1.action_space.sample()
+        env_2_samples = env_2.action_space.sample()
+        assert np.all(env_1_samples == env_2_samples)

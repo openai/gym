@@ -1,8 +1,12 @@
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://pre-commit.com/) [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
 ## Gym
 
 Gym is an open source Python library for developing and comparing reinforcement learning algorithms by providing a standard API to communicate between learning algorithms and environments, as well as a standard set of environments compliant with that API. Since its release, Gym's API has become the field standard for doing this.
 
-Gym documentation website is at [https://www.gymlibrary.ml/](https://www.gymlibrary.ml/), and you can propose fixes and changes [here](https://github.com/Farama-Foundation/gym-docs).
+Gym documentation website is at [https://www.gymlibrary.ml/](https://www.gymlibrary.ml/), and you can propose fixes and changes to it [here](https://github.com/Farama-Foundation/gym-docs).
+
+Gym also has a discord server for development purposes that you can join here: https://discord.gg/nHg2JRN489
 
 ## Installation
 
@@ -41,6 +45,11 @@ env.close()
 ## Environment Versioning
 
 Gym keeps strict versioning for reproducibility reasons. All environments end in a suffix like "\_v0".  When changes are made to environments that might impact learning results, the number is increased by one to prevent potential confusion.
+
+## MuJoCo Environments
+
+The latest "\_v4" and future versions of the MuJoCo environments will no longer depend on `mujoco-py`. Instead `mujoco` will be the required dependency for future gym MuJoCo environment versions. Old gym MuJoCo environment versions that depend on `mujoco-py` will still be kept but unmaintained.
+To install the dependencies for the latest gym MuJoCo environments use `pip install gym[mujoco]`. Dependencies for old MuJoCo environments can still be installed by `pip install gym[mujoco_py]`. 
 
 ## Citation
 

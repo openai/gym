@@ -1,12 +1,12 @@
-from typing import Optional
 import os
+from typing import Optional
 
 import numpy as np
-import pygame
 
 import gym
 from gym import spaces
-from gym.utils import seeding
+from gym.error import DependencyNotInstalled
+from gym.utils.renderer import Renderer
 
 
 def cmp(a, b):
@@ -95,19 +95,28 @@ class BlackjackEnv(gym.Env):
     ### Arguments
 
     ```
-    gym.make('Blackjack-v1', natural=False)
+    gym.make('Blackjack-v1', natural=False, sab=False)
     ```
 
-    <a id="nat">`natural`</a>: Whether to give an additional reward for
+    <a id="nat">`natural=False`</a>: Whether to give an additional reward for
     starting with a natural blackjack, i.e. starting with an ace and ten (sum is 21).
+
+    <a id="sab">`sab=False`</a>: Whether to follow the exact rules outlined in the book by
+    Sutton and Barto. If `sab` is `True`, the keyword argument `natural` will be ignored.
+    If the player achieves a natural blackjack and the dealer does not, the player
+    will win (i.e. get a reward of +1). The reverse rule does not apply.
+    If both the player and the dealer get a natural, it will be a draw (i.e. reward 0).
 
     ### Version History
     * v0: Initial versions release (1.0.0)
     """
 
-    metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
+    metadata = {
+        "render_modes": ["human", "rgb_array", "single_rgb_array"],
+        "render_fps": 4,
+    }
 
-    def __init__(self, natural=False, sab=False):
+    def __init__(self, render_mode: Optional[str] = None, natural=False, sab=False):
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Tuple(
             (spaces.Discrete(32), spaces.Discrete(11), spaces.Discrete(2))
@@ -119,6 +128,10 @@ class BlackjackEnv(gym.Env):
 
         # Flag for full agreement with the (Sutton and Barto, 2018) definition. Overrides self.natural
         self.sab = sab
+
+        assert render_mode is None or render_mode in self.metadata["render_modes"]
+        self.render_mode = render_mode
+        self.renderer = Renderer(self.render_mode, self._render)
 
     def step(self, action):
         assert self.action_space.contains(action)
@@ -146,6 +159,8 @@ class BlackjackEnv(gym.Env):
             ):
                 # Natural gives extra points, but doesn't autowin. Legacy implementation
                 reward = 1.5
+
+        self.renderer.render_step()
         return self._get_obs(), reward, done, {}
 
     def _get_obs(self):
@@ -160,12 +175,31 @@ class BlackjackEnv(gym.Env):
         super().reset(seed=seed)
         self.dealer = draw_hand(self.np_random)
         self.player = draw_hand(self.np_random)
+
+        self.renderer.reset()
+        self.renderer.render_step()
+
         if not return_info:
             return self._get_obs()
         else:
             return self._get_obs(), {}
 
     def render(self, mode="human"):
+        if self.render_mode is not None:
+            return self.renderer.get_renders()
+        else:
+            return self._render(mode)
+
+    def _render(self, mode):
+        assert mode in self.metadata["render_modes"]
+
+        try:
+            import pygame
+        except ImportError:
+            raise DependencyNotInstalled(
+                "pygame is not installed, run `pip install gym[toy_text]`"
+            )
+
         player_sum, dealer_card_value, usable_ace = self._get_obs()
         screen_width, screen_height = 600, 500
         card_img_height = screen_height // 3
@@ -276,7 +310,9 @@ class BlackjackEnv(gym.Env):
             )
 
     def close(self):
-        if not hasattr(self, "screen"):
+        if hasattr(self, "screen"):
+            import pygame
+
             pygame.display.quit()
             pygame.quit()
 

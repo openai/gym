@@ -1,27 +1,47 @@
-from __future__ import annotations
+"""Implementation of utility functions that can be applied to spaces.
 
-from collections import OrderedDict
-from functools import singledispatch, reduce
-from typing import TypeVar, Union
-import numpy as np
+These functions mostly take care of flattening and unflattening elements of spaces
+ to facilitate their usage in learning code.
+"""
 import operator as op
+from collections import OrderedDict
+from functools import reduce, singledispatch
+from typing import TypeVar, Union, cast
 
-from gym.spaces import Box
-from gym.spaces import Discrete
-from gym.spaces import MultiDiscrete
-from gym.spaces import MultiBinary
-from gym.spaces import Tuple
-from gym.spaces import Dict
-from gym.spaces import Space
+import numpy as np
+
+from gym.spaces import (
+    Box,
+    Dict,
+    Discrete,
+    Graph,
+    GraphInstance,
+    MultiBinary,
+    MultiDiscrete,
+    Space,
+    Tuple,
+)
 
 
 @singledispatch
 def flatdim(space: Space) -> int:
-    """Return the number of dimensions a flattened equivalent of this space
-    would have.
+    """Return the number of dimensions a flattened equivalent of this space would have.
 
-    Accepts a space and returns an integer. Raises ``NotImplementedError`` if
-    the space is not defined in ``gym.spaces``.
+    Example usage::
+
+        >>> from gym.spaces import Discrete
+        >>> space = Dict({"position": Discrete(2), "velocity": Discrete(3)})
+        >>> flatdim(space)
+        5
+
+    Args:
+        space: The space to return the number of dimensions of the flattened spaces
+
+    Returns:
+        The number of dimensions for the flattened spaces
+
+    Raises:
+         NotImplementedError: if the space is not defined in ``gym.spaces``.
     """
     raise NotImplementedError(f"Unknown space: `{space}`")
 
@@ -62,9 +82,23 @@ def flatten(space: Space[T], x: T) -> np.ndarray:
     This is useful when e.g. points from spaces must be passed to a neural
     network, which only understands flat arrays of floats.
 
-    Accepts a space and a point from that space. Always returns a 1D array.
-    Raises ``NotImplementedError`` if the space is not defined in
-    ``gym.spaces``.
+    Args:
+        space: The space that ``x`` is flattened by
+        x: The value to flatten
+
+    Returns:
+        - The flattened ``x``, always returns a 1D array for non-graph spaces.
+        - For graph spaces, returns `GraphInstance` where:
+            - `nodes` are n x k arrays
+            - `edges` are either:
+                - m x k arrays
+                - None
+            - `edge_links` are either:
+                - m x 2 arrays
+                - None
+
+    Raises:
+        NotImplementedError: If the space is not defined in ``gym.spaces``.
     """
     raise NotImplementedError(f"Unknown space: `{space}`")
 
@@ -102,23 +136,51 @@ def _flatten_dict(space, x) -> np.ndarray:
     return np.concatenate([flatten(s, x[key]) for key, s in space.spaces.items()])
 
 
+@flatten.register(Graph)
+def _flatten_graph(space, x) -> np.ndarray:
+    """We're not using `.unflatten() for :class:`Box` and :class:`Discrete` because a graph is not a homogeneous space, see `.flatten` docstring."""
+
+    def _graph_unflatten(space, x):
+        ret = None
+        if space is not None and x is not None:
+            if isinstance(space, Box):
+                ret = x.reshape(x.shape[0], -1)
+            elif isinstance(space, Discrete):
+                ret = np.zeros((x.shape[0], space.n - space.start), dtype=space.dtype)
+                ret[np.arange(x.shape[0]), x - space.start] = 1
+        return ret
+
+    nodes = _graph_unflatten(space.node_space, x.nodes)
+    edges = _graph_unflatten(space.edge_space, x.edges)
+
+    return GraphInstance(nodes, edges, x.edge_links)
+
+
 @singledispatch
 def unflatten(space: Space[T], x: np.ndarray) -> T:
     """Unflatten a data point from a space.
 
-    This reverses the transformation applied by ``flatten()``. You must ensure
-    that the ``space`` argument is the same as for the ``flatten()`` call.
+    This reverses the transformation applied by :func:`flatten`. You must ensure
+    that the ``space`` argument is the same as for the :func:`flatten` call.
 
-    Accepts a space and a flattened point. Returns a point with a structure
-    that matches the space. Raises ``NotImplementedError`` if the space is not
-    defined in ``gym.spaces``.
+    Args:
+        space: The space used to unflatten ``x``
+        x: The array to unflatten
+
+    Returns:
+        A point with a structure that matches the space.
+
+    Raises:
+        NotImplementedError: if the space is not defined in ``gym.spaces``.
     """
     raise NotImplementedError(f"Unknown space: `{space}`")
 
 
 @unflatten.register(Box)
 @unflatten.register(MultiBinary)
-def _unflatten_box_multibinary(space: Box | MultiBinary, x: np.ndarray) -> np.ndarray:
+def _unflatten_box_multibinary(
+    space: Union[Box, MultiBinary], x: np.ndarray
+) -> np.ndarray:
     return np.asarray(x, dtype=space.dtype).reshape(space.shape)
 
 
@@ -132,7 +194,7 @@ def _unflatten_multidiscrete(space: MultiDiscrete, x: np.ndarray) -> np.ndarray:
     offsets = np.zeros((space.nvec.size + 1,), dtype=space.dtype)
     offsets[1:] = np.cumsum(space.nvec.flatten())
 
-    (indices,) = np.nonzero(x)
+    (indices,) = cast(type(offsets[:-1]), np.nonzero(x))
     return np.asarray(indices - offsets[:-1], dtype=space.dtype).reshape(space.shape)
 
 
@@ -157,17 +219,40 @@ def _unflatten_dict(space: Dict, x: np.ndarray) -> dict:
     )
 
 
+@unflatten.register(Graph)
+def _unflatten_graph(space: Graph, x: GraphInstance) -> GraphInstance:
+    """We're not using `.unflatten() for :class:`Box` and :class:`Discrete` because a graph is not a homogeneous space.
+
+    The size of the outcome is actually not fixed, but determined based on the number of
+    nodes and edges in the graph.
+    """
+
+    def _graph_unflatten(space, x):
+        ret = None
+        if space is not None and x is not None:
+            if isinstance(space, Box):
+                ret = x.reshape(-1, *space.shape)
+            elif isinstance(space, Discrete):
+                ret = np.asarray(np.nonzero(x))[-1, :]
+        return ret
+
+    nodes = _graph_unflatten(space.node_space, x.nodes)
+    edges = _graph_unflatten(space.edge_space, x.edges)
+
+    return GraphInstance(nodes, edges, x.edge_links)
+
+
 @singledispatch
 def flatten_space(space: Space) -> Box:
     """Flatten a space into a single ``Box``.
 
-    This is equivalent to ``flatten()``, but operates on the space itself. The
-    result always is a `Box` with flat boundaries. The box has exactly
-    ``flatdim(space)`` dimensions. Flattening a sample of the original space
-    has the same effect as taking a sample of the flattenend space.
-
-    Raises ``NotImplementedError`` if the space is not defined in
-    ``gym.spaces``.
+    This is equivalent to :func:`flatten`, but operates on the space itself. The
+    result for non-graph spaces is always a `Box` with flat boundaries. While
+    the result for graph spaces is always a `Graph` with `node_space` being a `Box`
+    with flat boundaries and `edge_space` being a `Box` with flat boundaries or
+    `None`. The box has exactly :func:`flatdim` dimensions. Flattening a sample
+    of the original space has the same effect as taking a sample of the flattenend
+    space.
 
     Example::
 
@@ -189,12 +274,29 @@ def flatten_space(space: Space) -> Box:
 
     Example that recursively flattens a dict::
 
-        >>> space = Dict({"position": Discrete(2),
-        ...               "velocity": Box(0, 1, shape=(2, 2))})
+        >>> space = Dict({"position": Discrete(2), "velocity": Box(0, 1, shape=(2, 2))})
         >>> flatten_space(space)
         Box(6,)
         >>> flatten(space, space.sample()) in flatten_space(space)
         True
+
+
+    Example that flattens a graph::
+
+        >>> space = Graph(node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=Discrete(5))
+        >>> flatten_space(space)
+        Graph(Box(-100.0, 100.0, (12,), float32), Box(0, 1, (5,), int64))
+        >>> flatten(space, space.sample()) in flatten_space(space)
+        True
+
+    Args:
+        space: The space to flatten
+
+    Returns:
+        A flattened Box
+
+    Raises:
+        NotImplementedError: if the space is not defined in ``gym.spaces``.
     """
     raise NotImplementedError(f"Unknown space: `{space}`")
 
@@ -228,4 +330,14 @@ def _flatten_space_dict(space: Dict) -> Box:
         low=np.concatenate([s.low for s in space_list]),
         high=np.concatenate([s.high for s in space_list]),
         dtype=np.result_type(*[s.dtype for s in space_list]),
+    )
+
+
+@flatten_space.register(Graph)
+def _flatten_space_graph(space: Graph) -> Graph:
+    return Graph(
+        node_space=flatten_space(space.node_space),
+        edge_space=flatten_space(space.edge_space)
+        if space.edge_space is not None
+        else None,
     )

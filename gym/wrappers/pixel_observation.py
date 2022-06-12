@@ -1,55 +1,99 @@
+"""Wrapper for augmenting observations by pixel values."""
 import collections
-from collections.abc import MutableMapping
 import copy
+from collections.abc import MutableMapping
+from typing import Any, Dict, List, Optional, Tuple
+
 import numpy as np
 
+import gym
 from gym import spaces
-from gym import ObservationWrapper
-
 
 STATE_KEY = "state"
 
 
-class PixelObservationWrapper(ObservationWrapper):
-    """Augment observations by pixel values."""
+class PixelObservationWrapper(gym.ObservationWrapper):
+    """Augment observations by pixel values.
+
+    Observations of this wrapper will be dictionaries of images.
+    You can also choose to add the observation of the base environment to this dictionary.
+    In that case, if the base environment has an observation space of type :class:`Dict`, the dictionary
+    of rendered images will be updated with the base environment's observation. If, however, the observation
+    space is of type :class:`Box`, the base environment's observation (which will be an element of the :class:`Box`
+    space) will be added to the dictionary under the key "state".
+
+    Example:
+        >>> import gym
+        >>> env = PixelObservationWrapper(gym.make('CarRacing-v1'))
+        >>> obs = env.reset()
+        >>> obs.keys()
+        odict_keys(['pixels'])
+        >>> obs['pixels'].shape
+        (400, 600, 3)
+        >>> env = PixelObservationWrapper(gym.make('CarRacing-v1'), pixels_only=False)
+        >>> obs = env.reset()
+        >>> obs.keys()
+        odict_keys(['state', 'pixels'])
+        >>> obs['state'].shape
+        (96, 96, 3)
+        >>> obs['pixels'].shape
+        (400, 600, 3)
+        >>> env = PixelObservationWrapper(gym.make('CarRacing-v1'), pixel_keys=('obs',))
+        >>> obs = env.reset()
+        >>> obs.keys()
+        odict_keys(['obs'])
+        >>> obs['obs'].shape
+        (400, 600, 3)
+    """
 
     def __init__(
-        self, env, pixels_only=True, render_kwargs=None, pixel_keys=("pixels",)
+        self,
+        env: gym.Env,
+        pixels_only: bool = True,
+        render_kwargs: Optional[Dict[str, Dict[str, Any]]] = None,
+        pixel_keys: Tuple[str, ...] = ("pixels",),
     ):
         """Initializes a new pixel Wrapper.
 
         Args:
             env: The environment to wrap.
-            pixels_only: If `True` (default), the original observation returned
+            pixels_only (bool): If ``True`` (default), the original observation returned
                 by the wrapped environment will be discarded, and a dictionary
-                observation will only include pixels. If `False`, the
+                observation will only include pixels. If ``False``, the
                 observation dictionary will contain both the original
                 observations and the pixel observations.
-            render_kwargs: Optional `dict` containing keyword arguments passed
-                to the `self.render` method.
+            render_kwargs (dict): Optional dictionary containing that maps elements of ``pixel_keys``to
+                keyword arguments passed to the :meth:`self.render` method.
             pixel_keys: Optional custom string specifying the pixel
-                observation's key in the `OrderedDict` of observations.
-                Defaults to 'pixels'.
+                observation's key in the ``OrderedDict`` of observations.
+                Defaults to ``(pixels,)``.
 
         Raises:
-            ValueError: If `env`'s observation spec is not compatible with the
+            AssertionError: If any of the keys in ``render_kwargs``do not show up in ``pixel_keys``.
+            ValueError: If ``env``'s observation space is not compatible with the
                 wrapper. Supported formats are a single array, or a dict of
                 arrays.
-            ValueError: If `env`'s observation already contains any of the
-                specified `pixel_keys`.
+            ValueError: If ``env``'s observation already contains any of the
+                specified ``pixel_keys``.
+            TypeError: When an unexpected pixel type is used
         """
-
         super().__init__(env)
+
+        # Avoid side-effects that occur when render_kwargs is manipulated
+        render_kwargs = copy.deepcopy(render_kwargs)
 
         if render_kwargs is None:
             render_kwargs = {}
 
+        for key in render_kwargs:
+            assert key in pixel_keys, (
+                "The argument render_kwargs should map elements of "
+                "pixel_keys to dictionaries of keyword arguments. "
+                f"Found key '{key}' in render_kwargs but not in pixel_keys."
+            )
+
         for key in pixel_keys:
             render_kwargs.setdefault(key, {})
-
-            render_mode = render_kwargs[key].pop("mode", "rgb_array")
-            assert render_mode == "rgb_array", render_mode
-            render_kwargs[key]["mode"] = "rgb_array"
 
         wrapped_observation_space = env.observation_space
 
@@ -81,9 +125,11 @@ class PixelObservationWrapper(ObservationWrapper):
 
         # Extend observation space with pixels.
 
+        self.env.reset()
         pixels_spaces = {}
         for pixel_key in pixel_keys:
             pixels = self.env.render(**render_kwargs[pixel_key])
+            pixels = pixels[-1] if isinstance(pixels, List) else pixels
 
             if np.issubdtype(pixels.dtype, np.integer):
                 low, high = (0, 255)
@@ -99,12 +145,19 @@ class PixelObservationWrapper(ObservationWrapper):
 
         self.observation_space.spaces.update(pixels_spaces)
 
-        self._env = env
         self._pixels_only = pixels_only
         self._render_kwargs = render_kwargs
         self._pixel_keys = pixel_keys
 
     def observation(self, observation):
+        """Updates the observations with the pixel observations.
+
+        Args:
+            observation: The observation to add pixel observations for
+
+        Returns:
+            The updated pixel observations
+        """
         pixel_observation = self._add_pixel_observation(observation)
         return pixel_observation
 
