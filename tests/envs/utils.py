@@ -9,7 +9,7 @@ from gym.envs.registration import EnvSpec
 
 
 def try_make_env(env_spec: EnvSpec) -> Optional[gym.Env]:
-    """Tries to make the environment showing if it is possible. Warning no wrappers, including time limit."""
+    """Tries to make the environment showing if it is possible. Warning the environments have no wrappers, including time limit and order enforcing."""
     try:
         return env_spec.make(disable_env_checker=True).unwrapped
     except ImportError as e:
@@ -17,7 +17,7 @@ def try_make_env(env_spec: EnvSpec) -> Optional[gym.Env]:
         return None
 
 
-# Tries to make all environment to previous recreation if not necessary.
+# Tries to make all environment to test with
 all_testing_initialised_envs = list(
     filter(None, [try_make_env(env_spec) for env_spec in gym.envs.registry.values()])
 )
