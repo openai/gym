@@ -12,25 +12,6 @@ def test_lunar_lander_heuristics():
     assert total_reward > 100
 
 
-@pytest.mark.parametrize(
-    "env_name,kwargs",
-    [
-        ["LunarLanderContinuous-v2", {"continuous": True}],
-        ["BipedalWalkerHardcore-v3", {"hardcore": True}],
-        ["CarRacingDomainRandomize-v1", {"domain_randomize": True}],
-        ["CarRacingDiscrete-v1", {"continuous": False}],
-        [
-            "CarRacingDomainRandomizeDiscrete-v1",
-            {"domain_randomize": True, "continuous": False},
-        ],
-    ],
-)
-def test_env_kwargs(env_name, kwargs):
-    # TODO:
-    # env = gym.make(env_name, disable_env_checker=True)
-    pass
-
-
 @pytest.mark.parametrize("seed", range(5))
 def test_bipedal_walker_hardcore_creation(seed: int):
     """Test BipedalWalker hardcore creation.
