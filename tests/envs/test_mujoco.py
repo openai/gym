@@ -28,7 +28,7 @@ def verify_environments_match(
 
         np.testing.assert_allclose(old_obs, new_obs, atol=EPS)
         np.testing.assert_allclose(old_reward, new_reward, atol=EPS)
-        np.testing.assert_allclose(old_done, new_done, atol=EPS)
+        np.testing.assert_equal(old_done, new_done, atol=EPS)
 
         for key in old_info:
             np.testing.assert_allclose(old_info[key], new_info[key], atol=EPS)
