@@ -16,7 +16,7 @@ from gym.core import ObsType
 
 
 @struct.dataclass
-class BraxState:
+class JaxState:
     """Environment state for training and inference."""
 
     qp: brax.QP
@@ -27,7 +27,7 @@ class BraxState:
     info: Dict[str, Any] = struct.field(default_factory=dict)
 
 
-class BraxEnv(gym.Env, abc.ABC):
+class JaxEnv(gym.Env, abc.ABC):
     """API for driving a brax system for training and inference."""
 
     def __init__(self, config: Optional[str], backend: Optional[str] = None):
@@ -39,23 +39,22 @@ class BraxEnv(gym.Env, abc.ABC):
             "render.modes": ["human", "rgb_array"],
             "video.frames_per_second": 1 / self.sys.config.dt,
         }
-        self.seed(0)
         self.backend = backend
         self.state = None
 
-        def internal_reset(key):
+        def _reset(key):
             key1, key2 = jp.random_split(key)
-            state = self.brax_reset(key2)
+            state = self.internal_reset(key2)
             return state, state.obs, key1
 
-        self.internal_reset = jax.jit(internal_reset, backend=self.backend)
+        self.reset_jit = jax.jit(_reset, backend=self.backend)
 
-        def internal_step(state, action):
-            state = self.brax_step(state, action)
+        def _step(state, action):
+            state = self.internal_step(state, action)
             info = {**state.metrics, **state.info}
             return state, state.obs, state.reward, state.done, info
 
-        self.internal_step = jax.jit(internal_step, backend=self.backend)
+        self.step_jit = jax.jit(_step, backend=self.backend)
 
     def reset(
         self,
@@ -67,30 +66,30 @@ class BraxEnv(gym.Env, abc.ABC):
         if seed is not None:
             self.np_random = jax.random.PRNGKey(seed)
 
-        self.state, obs, self.np_random = self.internal_reset(self.np_random)
+        self.state, obs, self.np_random = self.reset_jit(self.np_random)
         # We return device arrays for pytorch users.
         return (obs, {}) if return_info else obs
 
     @abc.abstractmethod
-    def brax_reset(self, rng: jp.ndarray) -> BraxState:
-        """Resets the environment to an initial state."""
+    def internal_reset(self, rng: jp.ndarray) -> JaxState:
+        """A stateless resets of the environment to an initial state."""
 
     def step(self, action):
-        self.state, obs, reward, terminate, info = self.internal_step(
+        self.state, obs, reward, terminate, info = self.step_jit(
             self.state, action
         )
         # We return device arrays for pytorch users.
         return obs, reward, terminate, False, info
 
     @abc.abstractmethod
-    def brax_step(self, state: BraxState, action: jp.ndarray) -> BraxState:
-        """Run one timestep of the environment's dynamics."""
+    def internal_step(self, state: JaxState, action: jp.ndarray) -> JaxState:
+        """A stateless step in the environment's dynamics."""
 
     @property
     def observation_size(self) -> int:
         """The size of the observation vector returned in step and reset."""
         rng = jp.random_prngkey(0)
-        reset_state = self.unwrapped.brax_reset(rng)
+        reset_state = self.unwrapped.internal_reset(rng)
         return reset_state.obs.shape[-1]
 
     @property
@@ -99,7 +98,7 @@ class BraxEnv(gym.Env, abc.ABC):
         return self.sys.num_joint_dof + self.sys.num_forces_dof
 
     @property
-    def unwrapped(self) -> "BraxEnv":
+    def unwrapped(self) -> "JaxEnv":
         return self
 
     def seed(self, seed: int = 0):

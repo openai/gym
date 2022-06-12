@@ -6,10 +6,10 @@ import brax
 import jumpy as jp
 from brax import math
 
-from gym.envs.phys3d.env import BraxEnv, BraxState
+from gym.envs.jax_env import JaxEnv, JaxState
 
 
-class Grasp(BraxEnv):
+class Grasp(JaxEnv):
     """Grasp trains an agent to pick up an object.
 
     Grasp observes three bodies: 'Hand', 'Object', and 'Target'.
@@ -41,7 +41,7 @@ class Grasp(BraxEnv):
         self._min_act = jp.concatenate([self._min_act, jp.array([-10, -10, 3.5])])
         self._range_act = jp.concatenate([self._range_act, jp.array([20, 20, 10])])
 
-    def brax_reset(self, rng: jp.ndarray) -> BraxState:
+    def internal_reset(self, rng: jp.ndarray) -> JaxState:
         qp = self.sys.default_qp()
         # rng, target = self._random_target(rng)
         # pos = qp.pos.at[self.target_idx].set(target)
@@ -57,9 +57,9 @@ class Grasp(BraxEnv):
             "closeToObject": zero,
         }
         info = {"rng": rng}
-        return BraxState(qp, obs, reward, terminate, metrics, info)
+        return JaxState(qp, obs, reward, terminate, metrics, info)
 
-    def brax_step(self, state: BraxState, action: jp.ndarray) -> BraxState:
+    def internal_step(self, state: JaxState, action: jp.ndarray) -> JaxState:
         # actuate the palm
         action = self._min_act + self._range_act * ((action + 1) / 2.0)
         target_pos = action[-3:]

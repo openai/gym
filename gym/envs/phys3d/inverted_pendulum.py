@@ -3,17 +3,17 @@
 import brax
 import jumpy as jp
 
-from gym.envs.phys3d.env import BraxEnv, BraxState
+from gym.envs.jax_env import JaxEnv, JaxState
 
 
-class InvertedPendulum(BraxEnv):
+class InvertedPendulum(JaxEnv):
     """Trains an inverted pendulum to remain stationary."""
 
     def __init__(self, legacy_spring: bool = False, **kwargs):
         config = _SYSTEM_CONFIG_SPRING if legacy_spring else _SYSTEM_CONFIG
         super().__init__(config=config, **kwargs)
 
-    def brax_reset(self, rng: jp.ndarray) -> BraxState:
+    def internal_reset(self, rng: jp.ndarray) -> JaxState:
         """Resets the environment to an initial state."""
         rng, rng1, rng2 = jp.random_split(rng, 3)
         qpos = self.sys.default_angle() + jp.random_uniform(
@@ -27,9 +27,9 @@ class InvertedPendulum(BraxEnv):
         metrics = {
             "survive_reward": zero,
         }
-        return BraxState(qp, obs, reward, terminate, metrics)
+        return JaxState(qp, obs, reward, terminate, metrics)
 
-    def brax_step(self, state: BraxState, action: jp.ndarray) -> BraxState:
+    def internal_step(self, state: JaxState, action: jp.ndarray) -> JaxState:
         """Run one timestep of the environment's dynamics."""
         reward = 1.0
         qp, info = self.sys.step(state.qp, action)

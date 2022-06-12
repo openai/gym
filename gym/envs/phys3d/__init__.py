@@ -1,4 +1,3 @@
-from gym.envs.phys3d.acrobot import Acrobot
 from gym.envs.phys3d.ant import Ant
 from gym.envs.phys3d.fast import Fast
 from gym.envs.phys3d.fetch import Fetch

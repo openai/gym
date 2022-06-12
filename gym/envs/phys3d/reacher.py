@@ -8,10 +8,10 @@ from typing import Tuple
 import brax
 import jumpy as jp
 
-from gym.envs.phys3d.env import BraxEnv, BraxState
+from gym.envs.jax_env import JaxEnv, JaxState
 
 
-class Reacher(BraxEnv):
+class Reacher(JaxEnv):
     """Trains a reacher arm to touch a sequence of random targets."""
 
     def __init__(self, legacy_spring: bool = False, **kwargs):
@@ -20,7 +20,7 @@ class Reacher(BraxEnv):
         self.target_idx = self.sys.body.index["target"]
         self.arm_idx = self.sys.body.index["body1"]
 
-    def brax_reset(self, rng: jp.ndarray) -> BraxState:
+    def internal_reset(self, rng: jp.ndarray) -> JaxState:
         rng, rng1, rng2 = jp.random_split(rng, 3)
         qpos = self.sys.default_angle() + jp.random_uniform(
             rng1, (self.sys.num_joint_dof,), -0.1, 0.1
@@ -37,9 +37,9 @@ class Reacher(BraxEnv):
             "rewardDist": zero,
             "rewardCtrl": zero,
         }
-        return BraxState(qp, obs, reward, terminate, metrics)
+        return JaxState(qp, obs, reward, terminate, metrics)
 
-    def brax_step(self, state: BraxState, action: jp.ndarray) -> BraxState:
+    def internal_step(self, state: JaxState, action: jp.ndarray) -> JaxState:
         qp, info = self.sys.step(state.qp, action)
         obs = self._get_obs(qp, info)
 

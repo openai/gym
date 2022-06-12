@@ -6,10 +6,10 @@ import brax
 import jumpy as jp
 from brax.physics import bodies
 
-from gym.envs.phys3d.env import BraxEnv, BraxState
+from gym.envs.jax_env import JaxEnv, JaxState
 
 
-class Walker2d(BraxEnv):
+class Walker2d(JaxEnv):
     """Trains a 2D walker to run in the +x direction.
 
     This is similar to the Walker2d-V3 Mujoco environment in OpenAI Gym, which is
@@ -59,7 +59,7 @@ class Walker2d(BraxEnv):
         self.mass = body.mass.reshape(-1, 1)
         self.inertia = body.inertia
 
-    def brax_reset(self, rng: jp.ndarray) -> BraxState:
+    def internal_reset(self, rng: jp.ndarray) -> JaxState:
         """Resets the environment to an initial state."""
         rng, rng1, rng2 = jp.random_split(rng, 3)
         qpos = self.sys.default_angle() + jp.random_uniform(
@@ -74,9 +74,9 @@ class Walker2d(BraxEnv):
             "reward_ctrl": zero,
             "reward_healthy": zero,
         }
-        return BraxState(qp, obs, reward, terminate, metrics)
+        return JaxState(qp, obs, reward, terminate, metrics)
 
-    def brax_step(self, state: BraxState, action: jp.ndarray) -> BraxState:
+    def internal_step(self, state: JaxState, action: jp.ndarray) -> JaxState:
         """Run one timestep of the environment's dynamics."""
         # Reverse torque improves performance over a range of hparams.
         qp, _ = self.sys.step(state.qp, -action)

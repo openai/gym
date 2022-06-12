@@ -2,10 +2,10 @@
 
 import jumpy as jp
 
-from gym.envs.phys3d.env import BraxEnv, BraxState
+from gym.envs.jax_env import JaxEnv, JaxState
 
 
-class Acrobot(BraxEnv):
+class Acrobot(JaxEnv):
     """Trains an acrobot to swingup and balance.
 
     Observations:
@@ -21,7 +21,7 @@ class Acrobot(BraxEnv):
         config = _SYSTEM_CONFIG_SPRING if legacy_spring else _SYSTEM_CONFIG
         super().__init__(config=config, **kwargs)
 
-    def brax_reset(self, rng: jp.ndarray) -> BraxState:
+    def internal_reset(self, rng: jp.ndarray) -> JaxState:
         """Resets the environment to an initial state."""
         rng, rng1, rng2 = jp.random_split(rng, 3)
 
@@ -41,9 +41,9 @@ class Acrobot(BraxEnv):
             "alive_bonus": zero,
             "r_tot": zero,
         }
-        return BraxState(qp, obs, reward, terminate, metrics)
+        return JaxState(qp, obs, reward, terminate, metrics)
 
-    def brax_step(self, state: BraxState, action: jp.ndarray) -> BraxState:
+    def internal_step(self, state: JaxState, action: jp.ndarray) -> JaxState:
         """Run one timestep of the environment's dynamics."""
         qp, info = self.sys.step(state.qp, action)
         (joint_angle,), (joint_vel,) = self.sys.joints[0].angle_vel(qp)

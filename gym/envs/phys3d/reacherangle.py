@@ -8,10 +8,10 @@ from typing import Tuple
 import brax
 import jumpy as jp
 
-from gym.envs.phys3d.env import BraxEnv, BraxState
+from gym.envs.jax_env import JaxEnv, JaxState
 
 
-class ReacherAngle(BraxEnv):
+class ReacherAngle(JaxEnv):
     """Trains a reacher arm to touch a random target via angle actuators."""
 
     def __init__(self, legacy_spring: bool = False, **kwargs):
@@ -28,7 +28,7 @@ class ReacherAngle(BraxEnv):
         self._min_act = jp.array([limit[0] for limit in limits])
         self._range_act = jp.array([limit[1] - limit[0] for limit in limits])
 
-    def brax_reset(self, rng: jp.ndarray) -> BraxState:
+    def internal_reset(self, rng: jp.ndarray) -> JaxState:
         rng, rng1, rng2 = jp.random_split(rng, 3)
         qpos = self.sys.default_angle() + jp.random_uniform(
             rng1, (self.sys.num_joint_dof,), -0.1, 0.1
@@ -45,9 +45,9 @@ class ReacherAngle(BraxEnv):
             "rewardDist": zero,
             "rewardCtrl": zero,
         }
-        return BraxState(qp, obs, reward, terminate, metrics)
+        return JaxState(qp, obs, reward, terminate, metrics)
 
-    def brax_step(self, state: BraxState, action: jp.ndarray) -> BraxState:
+    def internal_step(self, state: JaxState, action: jp.ndarray) -> JaxState:
         action = self._min_act + self._range_act * ((action + 1) / 2.0)
 
         qp, info = self.sys.step(state.qp, action)

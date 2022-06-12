@@ -3,23 +3,23 @@
 import brax
 import jax.numpy as jnp
 
-from gym.envs.phys3d.env import BraxEnv, BraxState
+from gym.envs.jax_env import JaxEnv, JaxState
 
 
-class Fast(BraxEnv):
+class Fast(JaxEnv):
     """Trains an agent to go fast."""
 
     def __init__(self, **kwargs):
         super().__init__(config="dt: .02", **kwargs)
 
-    def brax_reset(self, rng: jnp.ndarray) -> BraxState:
+    def internal_reset(self, rng: jnp.ndarray) -> JaxState:
         zero = jnp.zeros(1)
         qp = brax.QP(pos=zero, vel=zero, rot=zero, ang=zero)
         obs = jnp.zeros(2)
         reward, terminate = jnp.zeros(2)
-        return BraxState(qp, obs, reward, terminate)
+        return JaxState(qp, obs, reward, terminate)
 
-    def brax_step(self, state: BraxState, action: jnp.ndarray) -> BraxState:
+    def internal_step(self, state: JaxState, action: jnp.ndarray) -> JaxState:
         vel = state.qp.vel + (action > 0) * self.sys.config.dt
         pos = state.qp.pos + vel * self.sys.config.dt
 

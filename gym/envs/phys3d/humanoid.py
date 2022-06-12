@@ -4,10 +4,10 @@ import brax
 import jumpy as jp
 from brax.physics import bodies
 
-from gym.envs.phys3d.env import BraxEnv, BraxState
+from gym.envs.jax_env import JaxEnv, JaxState
 
 
-class Humanoid(BraxEnv):
+class Humanoid(JaxEnv):
     """Trains a humanoid to run in the +x direction."""
 
     def __init__(self, legacy_spring: bool = False, **kwargs):
@@ -19,7 +19,7 @@ class Humanoid(BraxEnv):
         self.inertia = body.inertia
         self.inertia_matrix = jp.array([jp.diag(a) for a in self.inertia])
 
-    def brax_reset(self, rng: jp.ndarray) -> BraxState:
+    def internal_reset(self, rng: jp.ndarray) -> JaxState:
         """Resets the environment to an initial state."""
         rng, rng1, rng2 = jp.random_split(rng, 3)
         qpos = self.sys.default_angle() + jp.random_uniform(
@@ -36,9 +36,9 @@ class Humanoid(BraxEnv):
             "reward_alive": zero,
             "reward_impact": zero,
         }
-        return BraxState(qp, obs, reward, terminate, metrics)
+        return JaxState(qp, obs, reward, terminate, metrics)
 
-    def brax_step(self, state: BraxState, action: jp.ndarray) -> BraxState:
+    def internal_step(self, state: JaxState, action: jp.ndarray) -> JaxState:
         """Run one timestep of the environment's dynamics."""
         qp, info = self.sys.step(state.qp, action)
         obs = self._get_obs(qp, info, action)

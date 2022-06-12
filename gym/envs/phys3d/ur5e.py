@@ -13,10 +13,10 @@ import brax
 import jumpy as jp
 from brax import math
 
-from gym.envs.phys3d.env import BraxEnv, BraxState
+from gym.envs.jax_env import JaxEnv, JaxState
 
 
-class Ur5e(BraxEnv):
+class Ur5e(JaxEnv):
     """Trains a UR5E robotic arm to touch a sequence of random targets."""
 
     def __init__(self, legacy_spring: bool = False, **kwargs):
@@ -27,7 +27,7 @@ class Ur5e(BraxEnv):
         self.target_idx = self.sys.body.index["Target"]
         self.torso_idx = self.sys.body.index["wrist_3_link"]
 
-    def brax_reset(self, rng: jp.ndarray) -> BraxState:
+    def internal_reset(self, rng: jp.ndarray) -> JaxState:
         qp = self.sys.default_qp()
         rng, target = self._random_target(rng)
         pos = jp.index_update(qp.pos, self.target_idx, target)
@@ -41,9 +41,9 @@ class Ur5e(BraxEnv):
             "movingToTarget": zero,
         }
         info = {"rng": rng}
-        return BraxState(qp, obs, reward, terminate, metrics, info)
+        return JaxState(qp, obs, reward, terminate, metrics, info)
 
-    def brax_step(self, state: BraxState, action: jp.ndarray) -> BraxState:
+    def internal_step(self, state: JaxState, action: jp.ndarray) -> JaxState:
         qp, info = self.sys.step(state.qp, action)
         obs = self._get_obs(qp, info)
 

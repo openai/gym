@@ -6,10 +6,10 @@ import brax
 import jumpy as jp
 from brax import math
 
-from gym.envs.phys3d.env import BraxEnv, BraxState
+from gym.envs.jax_env import JaxEnv, JaxState
 
 
-class Fetch(BraxEnv):
+class Fetch(JaxEnv):
     """Fetch trains a dog to run to a target location."""
 
     def __init__(self, legacy_spring: bool = False, **kwargs):
@@ -22,7 +22,7 @@ class Fetch(BraxEnv):
         self.target_idx = self.sys.body.index["Target"]
         self.torso_idx = self.sys.body.index["Torso"]
 
-    def brax_reset(self, rng: jp.ndarray) -> BraxState:
+    def internal_reset(self, rng: jp.ndarray) -> JaxState:
         qp = self.sys.default_qp()
         rng, target = self._random_target(rng)
         pos = jp.index_update(qp.pos, self.target_idx, target)
@@ -38,9 +38,9 @@ class Fetch(BraxEnv):
             "torsoHeight": zero,
         }
         info = {"rng": rng}
-        return BraxState(qp, obs, reward, terminate, metrics, info)
+        return JaxState(qp, obs, reward, terminate, metrics, info)
 
-    def brax_step(self, state: BraxState, action: jp.ndarray) -> BraxState:
+    def internal_step(self, state: JaxState, action: jp.ndarray) -> JaxState:
         qp, info = self.sys.step(state.qp, action)
         obs = self._get_obs(qp, info)
 

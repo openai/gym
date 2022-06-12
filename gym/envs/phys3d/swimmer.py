@@ -7,10 +7,10 @@ import brax
 import jumpy as jp
 from brax import math
 
-from gym.envs.phys3d.env import BraxEnv, BraxState
+from gym.envs.jax_env import JaxEnv, JaxState
 
 
-class Swimmer(BraxEnv):
+class Swimmer(JaxEnv):
     """Trains a swimmer to swim forward."""
 
     def __init__(self, legacy_spring: bool = False, **kwargs):
@@ -53,7 +53,7 @@ class Swimmer(BraxEnv):
             )
         )
 
-    def brax_reset(self, rng: jp.ndarray) -> BraxState:
+    def internal_reset(self, rng: jp.ndarray) -> JaxState:
         rng, rng1, rng2 = jp.random_split(rng, 3)
         qpos = self.sys.default_angle() + jp.random_uniform(
             rng1, (self.sys.num_joint_dof,), -0.1, 0.1
@@ -67,9 +67,9 @@ class Swimmer(BraxEnv):
             "rewardFwd": zero,
             "rewardCtrl": zero,
         }
-        return BraxState(qp, obs, reward, terminate, metrics)
+        return JaxState(qp, obs, reward, terminate, metrics)
 
-    def brax_step(self, state: BraxState, action: jp.ndarray) -> BraxState:
+    def internal_step(self, state: JaxState, action: jp.ndarray) -> JaxState:
         force = self._get_viscous_force(state.qp)
         act = jp.concatenate([action, force.reshape(-1)], axis=0)
         qp, info = self.sys.step(state.qp, act)
