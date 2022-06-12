@@ -150,8 +150,9 @@ def check_reset_info(env: gym.Env):
             ), "The value returned by `env.reset(return_info=True)` is not within the observation space"
 
             result = env.reset(return_info=True)
-            assert isinstance(result, tuple), \
-                f"Calling the reset method with `return_info=True` did not return a tuple, actual type: {type(result)}"
+            assert isinstance(
+                result, tuple
+            ), f"Calling the reset method with `return_info=True` did not return a tuple, actual type: {type(result)}"
             assert (
                 len(result) == 2
             ), f"Calling the reset method with `return_info=True` did not return a 2-tuple, actual length: {len(result)}"

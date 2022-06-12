@@ -101,11 +101,11 @@ def _check_box_action_space(action_space: spaces.Box):
     """
     if np.any(np.equal(action_space.low, -np.inf)):
         logger.warn(
-            f"Agent's minimum action space value is -infinity. This is probably too low."
+            "Agent's minimum action space value is -infinity. This is probably too low."
         )
     if np.any(np.equal(action_space.high, np.inf)):
         logger.warn(
-            f"Agent's maximum action space value is infinity. This is probably too high."
+            "Agent's maximum action space value is infinity. This is probably too high."
         )
     assert (
         action_space.low.shape == action_space.shape
@@ -187,7 +187,9 @@ def check_obs(obs, observation_space: spaces.Space, method_name: str):
             obs, np.ndarray
         ), f"{pre} must be a numpy array, actually type: {type(obs)}"
     elif isinstance(observation_space, spaces.Tuple):
-        assert isinstance(obs, tuple), f"{pre} must be a tuple, actually type: {type(obs)}"
+        assert isinstance(
+            obs, tuple
+        ), f"{pre} must be a tuple, actually type: {type(obs)}"
         assert len(obs) == len(
             observation_space.spaces
         ), f"{pre} length is not same as the observation space length, obs length: {len(obs)}, space length: {len(observation_space.spaces)}"
@@ -233,7 +235,9 @@ def passive_env_reset_checker(env, **kwargs):
     # Checks the result of env.reset with kwargs
     result = env.reset(**kwargs)
     if "return_info" in kwargs and kwargs["return_info"] is True:
-        assert isinstance(result, tuple), f"The result returned by `env.reset(return_info=True)` was not a tuple, actually type: {type(result)}"
+        assert isinstance(
+            result, tuple
+        ), f"The result returned by `env.reset(return_info=True)` was not a tuple, actually type: {type(result)}"
         obs, info = result
         assert isinstance(
             info, dict
@@ -320,7 +324,9 @@ def passive_env_render_checker(env, **kwargs):
                     "rendering may occur at inconsistent fps."
                 )
             else:
-                assert isinstance(render_fps, int), f"Expects the `env.metadata['render_fps']` to be an integer, actual type: {type(render_fps)}."
+                assert isinstance(
+                    render_fps, int
+                ), f"Expects the `env.metadata['render_fps']` to be an integer, actual type: {type(render_fps)}."
                 assert (
                     render_fps > 0
                 ), f"Expects the `env.metadata['render_fps']` to be greater than zero, actual value: {render_fps}."
@@ -331,6 +337,8 @@ def passive_env_render_checker(env, **kwargs):
                 env.render_mode is None
             ), "With no render_modes, expects the render_mode to be None"
         else:
-            assert env.render_mode is None or env.render_mode in render_modes, "The environment was initialized successfully however with an unsupported render mode."
+            assert (
+                env.render_mode is None or env.render_mode in render_modes
+            ), "The environment was initialized successfully however with an unsupported render mode."
 
     return env.render(**kwargs)
