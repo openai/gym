@@ -24,8 +24,9 @@ from gym import logger
 from gym.utils.passive_env_checker import (
     check_action_space,
     check_observation_space,
-    passive_env_reset_check,
-    passive_env_step_check,
+    passive_env_render_checker,
+    passive_env_reset_checker,
+    passive_env_step_checker,
 )
 
 
@@ -121,7 +122,8 @@ def check_reset_seed(env: gym.Env):
         if seed_param is not None and seed_param.default is not None:
             logger.warn(
                 "The default seed argument in reset should be `None`, "
-                "otherwise the environment will by default always be deterministic"
+                "otherwise the environment will by default always be deterministic. "
+                f"Actual default: {seed_param.default}"
             )
     else:
         raise gym.error.Error(
@@ -148,9 +150,11 @@ def check_reset_info(env: gym.Env):
             ), "The value returned by `env.reset(return_info=True)` is not within the observation space"
 
             result = env.reset(return_info=True)
+            assert isinstance(result, tuple), \
+                f"Calling the reset method with `return_info=True` did not return a tuple, actual type: {type(result)}"
             assert (
                 len(result) == 2
-            ), "Calling the reset method with `return_info=True` did not return a 2-tuple"
+            ), f"Calling the reset method with `return_info=True` did not return a 2-tuple, actual length: {len(result)}"
             obs, info = result
             assert (
                 obs in env.observation_space
@@ -196,52 +200,6 @@ def check_reset_options(env: gym.Env):
         )
 
 
-def check_render(env: gym.Env):
-    """Check the declared render modes/fps of the environment.
-
-    Args:
-        env: The environment to check
-    """
-    render_modes = env.metadata.get("render_modes")
-    if render_modes is None:
-        raise gym.error.Error(
-            "No render modes was declared in the environment "
-            "(env.metadata['render_modes'] is None or not defined), "
-            "you may have trouble when calling `.render()`."
-        )
-    else:
-        assert isinstance(
-            render_modes, (list, tuple)
-        ), f"Expects the render_modes to be a sequence (i.e. list, tuple), actual type: {type(render_modes)}"
-        assert all(
-            isinstance(mode, str) for mode in render_modes
-        ), f"Expects all render modes to be strings, actual types: {[type(mode) for mode in render_modes]}."
-
-        render_fps = env.metadata.get("render_fps")
-        # We only require `render_fps` if rendering is actually implemented
-        if len(render_modes) > 0:
-            if render_fps is None:
-                logger.warn(
-                    "No render fps was declared in the environment "
-                    "(env.metadata['render_fps'] is None or not defined), "
-                    "rendering may occur at inconsistent fps."
-                )
-            else:
-                assert isinstance(
-                    render_fps, int
-                ), f"Expects the `env.metadata['render_fps']` to be an integer, actual type: {type(render_fps)}."
-
-        # env.render is now an attribute with default None
-        if len(render_modes) == 0:
-            assert (
-                env.render_mode is None
-            ), "With no render_modes, expects the render_mode to be None"
-        else:
-            assert (
-                env.render_mode in render_modes
-            ), "The environment was initialized successfully however with an unsupported render mode."
-
-
 def check_env(env: gym.Env, warn: bool = None, skip_render_check: bool = False):
     """Check that an environment follows Gym API.
 
@@ -279,9 +237,12 @@ def check_env(env: gym.Env, warn: bool = None, skip_render_check: bool = False):
     check_reset_info(env)
 
     # ============ Check the returned values ===============
-    passive_env_reset_check(env)
-    passive_env_step_check(env, env.action_space.sample())
+    passive_env_reset_checker(env)
+    passive_env_step_checker(env, env.action_space.sample())
 
     # ==== Check the render method and the declared render modes ====
     if not skip_render_check:
-        check_render(env)
+        if env.render_mode is not None:
+            passive_env_render_checker(env)
+
+        # todo: recreate the environment with a different render_mode for check that each work
