@@ -270,6 +270,8 @@ def passive_env_step_check(env, action):
         )
 
     _check_obs(obs, env.observation_space, "step")
+    if isinstance(obs, dict):
+        obs = spaces.flatten(env.observation_space, obs)
     if np.any(np.isnan(obs)):
         logger.warn("Encountered NaN value in observations.")
     if np.any(np.isinf(obs)):
