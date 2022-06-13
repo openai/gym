@@ -6,7 +6,7 @@ import tempfile
 import numpy as np
 import pytest
 
-from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Tuple
+from gym.spaces import Box, Dict, Discrete, Graph, MultiBinary, MultiDiscrete, Tuple
 
 
 @pytest.mark.parametrize(
@@ -40,6 +40,9 @@ from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Tuple
                 ),
             }
         ),
+        Graph(node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=Discrete(5)),
+        Graph(node_space=Discrete(5), edge_space=Box(low=-100, high=100, shape=(3, 4))),
+        Graph(node_space=Discrete(5), edge_space=None),
     ],
 )
 def test_roundtripping(space):
@@ -94,6 +97,9 @@ def test_roundtripping(space):
                 ),
             }
         ),
+        Graph(node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=Discrete(5)),
+        Graph(node_space=Discrete(5), edge_space=Box(low=-100, high=100, shape=(3, 4))),
+        Graph(node_space=Discrete(5), edge_space=None),
     ],
 )
 def test_equality(space):
@@ -130,6 +136,12 @@ def test_equality(space):
         ),
         (Dict({"position": Discrete(5)}), Dict({"position": Discrete(4)})),
         (Dict({"position": Discrete(5)}), Dict({"speed": Discrete(5)})),
+        (
+            Graph(
+                node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=Discrete(5)
+            ),
+            Graph(node_space=Discrete(5), edge_space=None),
+        ),
     ],
 )
 def test_inequality(spaces):
@@ -191,6 +203,12 @@ def test_sample(space):
         (
             Box(low=np.array([-np.inf, 0.0]), high=np.array([0.0, np.inf])),
             Box(low=np.array([-np.inf, 1.0]), high=np.array([0.0, np.inf])),
+        ),
+        (
+            Graph(
+                node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=Discrete(5)
+            ),
+            Graph(node_space=Discrete(5), edge_space=None),
         ),
     ],
 )
@@ -306,6 +324,10 @@ def test_box_dtype_check():
                 ),
             }
         ),
+        Graph(node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=Discrete(5)),
+        Graph(node_space=Discrete(5), edge_space=Box(low=-100, high=100, shape=(3, 4))),
+        Graph(node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=None),
+        Graph(node_space=Discrete(5), edge_space=None),
     ],
 )
 def test_seed_returns_list(space):
@@ -365,6 +387,10 @@ def sample_equal(sample1, sample2):
                 ),
             }
         ),
+        Graph(node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=Discrete(5)),
+        Graph(node_space=Discrete(5), edge_space=Box(low=-100, high=100, shape=(3, 4))),
+        Graph(node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=None),
+        Graph(node_space=Discrete(5), edge_space=None),
     ],
 )
 def test_seed_reproducibility(space):
@@ -405,10 +431,23 @@ def test_seed_reproducibility(space):
                 ),
             }
         ),
+        Graph(node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=Discrete(5)),
+        Graph(node_space=Discrete(5), edge_space=Box(low=-100, high=100, shape=(3, 4))),
+        Graph(node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=None),
+        Graph(node_space=Discrete(5), edge_space=None),
     ],
 )
 def test_seed_subspace_incorrelated(space):
-    subspaces = space.spaces if isinstance(space, Tuple) else space.spaces.values()
+    subspaces = []
+    if isinstance(space, Tuple):
+        subspaces = space.spaces
+    elif isinstance(space, Dict):
+        subspaces = space.spaces.values()
+    elif isinstance(space, Graph):
+        if space.edge_space is not None:
+            subspaces = [space.node_space, space.edge_space]
+        else:
+            subspaces = [space.node_space]
 
     space.seed(0)
     states = [
@@ -610,6 +649,28 @@ def test_discrete_legacy_state_pickling():
     assert d.n == 3
 
 
+def test_box_legacy_state_pickling():
+    legacy_state = {
+        "dtype": np.dtype("float32"),
+        "_shape": (5,),
+        "low": np.array([0.0, 0.0, 0.0, 0.0, 0.0], dtype=np.float32),
+        "high": np.array([1.0, 1.0, 1.0, 1.0, 1.0], dtype=np.float32),
+        "bounded_below": np.array([True, True, True, True, True]),
+        "bounded_above": np.array([True, True, True, True, True]),
+        "_np_random": None,
+    }
+
+    b = Box(-1, 1, ())
+    assert "low_repr" in b.__dict__ and "high_repr" in b.__dict__
+    del b.__dict__["low_repr"]
+    del b.__dict__["high_repr"]
+    assert "low_repr" not in b.__dict__ and "high_repr" not in b.__dict__
+
+    b.__setstate__(legacy_state)
+    assert b.low_repr == "0.0"
+    assert b.high_repr == "1.0"
+
+
 @pytest.mark.parametrize(
     "space",
     [
@@ -635,6 +696,10 @@ def test_discrete_legacy_state_pickling():
                 ),
             }
         ),
+        Graph(node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=Discrete(5)),
+        Graph(node_space=Discrete(5), edge_space=Box(low=-100, high=100, shape=(3, 4))),
+        Graph(node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=None),
+        Graph(node_space=Discrete(5), edge_space=None),
     ],
 )
 def test_pickle(space):

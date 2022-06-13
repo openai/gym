@@ -1,4 +1,7 @@
 __credits__ = ["Rushiv Arora"]
+
+from typing import Optional
+
 import numpy as np
 
 from gym import utils
@@ -45,7 +48,7 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     The observation is a `ndarray` with shape `(17,)` where the elements correspond to the following:
 
     | Num | Observation                          | Min  | Max | Name (in corresponding XML file) | Joint | Unit                     |
-    |-----|--------------------------------------|------|-----|----------------------------------|---- --|--------------------------|
+    |-----|--------------------------------------|------|-----|----------------------------------|-------|--------------------------|
     | 0   | x-coordinate of the center of mass   | -Inf | Inf | rootx                            | slide | position (m)             |
     | 1   | y-coordinate of the center of mass   | -Inf | Inf | rootz                            | slide | position (m)             |
     | 2   | angle of the front tip               | -Inf | Inf | rooty                            | hinge | angle (rad)              |
@@ -61,7 +64,7 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     | 12  | angle of the second rotor            | -Inf | Inf | bthigh                           | hinge | angular velocity (rad/s) |
     | 13  | angle of the second rotor            | -Inf | Inf | bshin                            | hinge | angular velocity (rad/s) |
     | 14  | velocity of the tip along the x-axis | -Inf | Inf | bfoot                            | hinge | angular velocity (rad/s) |
-    | 15  | velocity of the tip along the y-axis | -Inf | Inf | fthigh                           | hinge |angular velocity (rad/s)  |
+    | 15  | velocity of the tip along the y-axis | -Inf | Inf | fthigh                           | hinge | angular velocity (rad/s) |
     | 16  | angular velocity of front tip        | -Inf | Inf | fshin                            | hinge | angular velocity (rad/s) |
     | 17  | angular velocity of second rotor     | -Inf | Inf | ffoot                            | hinge | angular velocity (rad/s) |
 
@@ -148,7 +151,7 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     def __init__(
         self,
-        xml_file="half_cheetah.xml",
+        render_mode: Optional[str] = None,
         forward_reward_weight=1.0,
         ctrl_cost_weight=0.1,
         reset_noise_scale=0.1,
@@ -166,7 +169,9 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             exclude_current_positions_from_observation
         )
 
-        mujoco_env.MujocoEnv.__init__(self, xml_file, 5)
+        mujoco_env.MujocoEnv.__init__(
+            self, "half_cheetah.xml", 5, render_mode=render_mode
+        )
 
     def control_cost(self, action):
         control_cost = self._ctrl_cost_weight * np.sum(np.square(action))
@@ -192,6 +197,7 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             "reward_ctrl": -ctrl_cost,
         }
 
+        self.renderer.render_step()
         return observation, reward, done, info
 
     def _get_obs(self):

@@ -7,7 +7,7 @@ import shutil
 import subprocess
 import tempfile
 from io import StringIO
-from typing import Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 import numpy as np
 
@@ -19,10 +19,15 @@ def touch(path: str):
     open(path, "a").close()
 
 
-class VideoRecorder:
+class VideoRecorder:  # TODO: remove with gym 1.0
     """VideoRecorder renders a nice movie of a rollout, frame by frame.
 
     It comes with an ``enabled`` option, so you can still use the same code on episodes where you don't want to record video.
+
+    Note:
+        VideoRecorder is deprecated.
+        Collect the frames with render_mode='rgb_array' and use an external library like MoviePy:
+        https://zulko.github.io/moviepy/getting_started/videoclips.html#videoclip
 
     Note:
         You are responsible for calling :meth:`close` on a created VideoRecorder, or else you may leak an encoder process.
@@ -50,6 +55,11 @@ class VideoRecorder:
             Error: Invalid path given that must have a particular file extension
         """
         modes = env.metadata.get("render_modes", [])
+        logger.deprecation(
+            "VideoRecorder is deprecated.\n"
+            "Collect the frames with render_mode='rgb_array' and use an external library like MoviePy: "
+            "https://zulko.github.io/moviepy/getting_started/videoclips.html#videoclip"
+        )
 
         # backward-compatibility mode:
         backward_compatible_mode = env.metadata.get("render.modes", [])
@@ -64,10 +74,6 @@ class VideoRecorder:
         self.enabled = enabled
         self._closed = False
 
-        # Don't bother setting anything else if not enabled
-        if not self.enabled:
-            return
-
         self.ansi_mode = False
         if "rgb_array" not in modes:
             if "ansi" in modes:
@@ -78,7 +84,10 @@ class VideoRecorder:
                 )
                 # Whoops, turns out we shouldn't be enabled after all
                 self.enabled = False
-                return
+
+        # Don't bother setting anything else if not enabled
+        if not self.enabled:
+            return
 
         if path is not None and base_path is not None:
             raise error.Error("You can pass at most one of `path` or `base_path`.")
@@ -171,6 +180,8 @@ class VideoRecorder:
 
         render_mode = "ansi" if self.ansi_mode else "rgb_array"
         frame = self.env.render(mode=render_mode)
+        if isinstance(frame, List):
+            frame = frame[-1]
 
         if frame is None:
             if self._async:

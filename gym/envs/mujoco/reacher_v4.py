@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 
 from gym import utils
@@ -13,10 +15,10 @@ class ReacherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     ### Action Space
     The action space is a `Box(-1, 1, (2,), float32)`. An action `(a, b)` represents the torques applied at the hinge joints.
 
-    | Num | Action                                                                          | Control Min | Control Max | Name (in corresponding XML file) | Joint | Unit |
-    |-----|---------------------------------------------------------------------------------|-------------|-------------|--------------------------|-------|------|
-    | 0   | Torque applied at the first hinge (connecting the link to the point of fixture) | -1 | 1 | joint0  | hinge | torque (N m) |
-    | 1   |  Torque applied at the second hinge (connecting the two links)                  | -1 | 1 | joint1  | hinge | torque (N m) |
+    | Num | Action                                                                          | Control Min | Control Max | Name (in corresponding XML file) | Joint | Unit         |
+    |-----|---------------------------------------------------------------------------------|-------------|-------------|----------------------------------|-------|--------------|
+    | 0   | Torque applied at the first hinge (connecting the link to the point of fixture) | -1          | 1           | joint0                           | hinge | torque (N m) |
+    | 1   | Torque applied at the second hinge (connecting the two links)                   | -1          | 1           | joint1                           | hinge | torque (N m) |
 
     ### Observation Space
 
@@ -52,7 +54,7 @@ class ReacherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     If one is to read the `.xml` for reacher then they will find 4 joints:
 
     | Num | Observation                | Min  | Max | Name (in corresponding XML file) | Joint | Unit         |
-    |-----|----------------------------|----- |-----|----------------------------------|-------|--------------|
+    |-----|----------------------------|------|-----|----------------------------------|-------|--------------|
     | 0   | angle of the first arm     | -Inf | Inf | joint0                           | hinge | angle (rad)  |
     | 1   | angle of the second arm    | -Inf | Inf | joint1                           | hinge | angle (rad)  |
     | 2   | x-coordinate of the target | -Inf | Inf | target_x                         | slide | position (m) |
@@ -122,9 +124,9 @@ class ReacherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     """
 
-    def __init__(self):
+    def __init__(self, render_mode: Optional[str] = None):
         utils.EzPickle.__init__(self)
-        mujoco_env.MujocoEnv.__init__(self, "reacher.xml", 2)
+        mujoco_env.MujocoEnv.__init__(self, "reacher.xml", 2, render_mode=render_mode)
 
     def step(self, a):
         vec = self.get_body_com("fingertip") - self.get_body_com("target")
@@ -134,6 +136,9 @@ class ReacherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         self.do_simulation(a, self.frame_skip)
         ob = self._get_obs()
         done = False
+
+        self.renderer.render_step()
+
         return ob, reward, done, dict(reward_dist=reward_dist, reward_ctrl=reward_ctrl)
 
     def viewer_setup(self):

@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 
 from gym import utils
@@ -23,7 +25,7 @@ class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     represents the numerical torques applied at the hinge joints.
 
     | Num | Action                                                                             | Control Min | Control Max | Name (in corresponding XML file) | Joint | Unit         |
-    |-----|------------------------------------------------------------------------------------|-------------|-------------|-------------------------------- -|-------|--------------|
+    |-----|------------------------------------------------------------------------------------|-------------|-------------|----------------------------------|-------|--------------|
     | 0   | Torque applied on the hinge in the y-coordinate of the abdomen                     | -0.4        | 0.4         | hip_1 (front_left_leg)           | hinge | torque (N m) |
     | 1   | Torque applied on the hinge in the z-coordinate of the abdomen                     | -0.4        | 0.4         | angle_1 (front_left_leg)         | hinge | torque (N m) |
     | 2   | Torque applied on the hinge in the x-coordinate of the abdomen                     | -0.4        | 0.4         | hip_2 (front_right_leg)          | hinge | torque (N m) |
@@ -96,7 +98,7 @@ class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     | 43  | angular velocity of the angle between right upper arm and right_lower_arm                                       | -Inf | Inf | right_elbow                      | hinge | angular velocity (rad/s) |
     | 44  | coordinate-1 (multi-axis) of the angular velocity of the angle between torso and left arm (in left_upper_arm)   | -Inf | Inf | left_shoulder1                   | hinge | angular velocity (rad/s) |
     | 45  | coordinate-2 (multi-axis) of the angular velocity of the angle between torso and left arm (in left_upper_arm)   | -Inf | Inf | left_shoulder2                   | hinge | angular velocity (rad/s) |
-    | 46  | angular velocity of the angle between left upper arm and left_lower_arm                                         | -Inf | Inf | left_elbow                        | hinge | angular velocity (rad/s) |
+    | 46  | angular velocity of the angle between left upper arm and left_lower_arm                                         | -Inf | Inf | left_elbow                       | hinge | angular velocity (rad/s) |
 
 
     Additionally, after all the positional and velocity based values in the table,
@@ -190,8 +192,10 @@ class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     """
 
-    def __init__(self):
-        mujoco_env.MujocoEnv.__init__(self, "humanoidstandup.xml", 5)
+    def __init__(self, render_mode: Optional[str] = None):
+        mujoco_env.MujocoEnv.__init__(
+            self, "humanoidstandup.xml", 5, render_mode=render_mode
+        )
         utils.EzPickle.__init__(self)
 
     def _get_obs(self):
@@ -217,6 +221,8 @@ class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         quad_impact_cost = 0.5e-6 * np.square(data.cfrc_ext).sum()
         quad_impact_cost = min(quad_impact_cost, 10)
         reward = uph_cost - quad_ctrl_cost - quad_impact_cost + 1
+
+        self.renderer.render_step()
 
         done = bool(False)
         return (

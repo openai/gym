@@ -2,7 +2,7 @@
 import collections
 import copy
 from collections.abc import MutableMapping
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
@@ -95,10 +95,6 @@ class PixelObservationWrapper(gym.ObservationWrapper):
         for key in pixel_keys:
             render_kwargs.setdefault(key, {})
 
-            render_mode = render_kwargs[key].pop("mode", "rgb_array")
-            assert render_mode == "rgb_array", render_mode
-            render_kwargs[key]["mode"] = "rgb_array"
-
         wrapped_observation_space = env.observation_space
 
         if isinstance(wrapped_observation_space, spaces.Box):
@@ -133,6 +129,7 @@ class PixelObservationWrapper(gym.ObservationWrapper):
         pixels_spaces = {}
         for pixel_key in pixel_keys:
             pixels = self.env.render(**render_kwargs[pixel_key])
+            pixels = pixels[-1] if isinstance(pixels, List) else pixels
 
             if np.issubdtype(pixels.dtype, np.integer):
                 low, high = (0, 255)

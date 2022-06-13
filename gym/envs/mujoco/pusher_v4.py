@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 
 from gym import utils
@@ -16,20 +18,20 @@ class PusherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     | Num | Action                                         | Control Min | Control Max | Name (in corresponding XML file) | Joint | Unit         |
     |-----|------------------------------------------------|-------------|-------------|----------------------------------|-------|--------------|
-    | 0    | Rotation of the panning the shoulder          | -2          | 2           | r_shoulder_pan_joint             | hinge | torque (N m) |
-    | 1    | Rotation of the shoulder lifting joint        | -2          | 2           | r_shoulder_lift_joint            | hinge | torque (N m) |
-    | 2    | Rotation of the shoulder rolling joint        | -2          | 2           | r_upper_arm_roll_joint           | hinge | torque (N m) |
-    | 3    | Rotation of hinge joint that flexed the elbow | -2          | 2           | r_elbow_flex_joint               | hinge | torque (N m) |
-    | 4    | Rotation of hinge that rolls the forearm      | -2          | 2           | r_forearm_roll_joint             | hinge | torque (N m) |
-    | 5    | Rotation of flexing the wrist                 | -2          | 2           | r_wrist_flex_joint               | hinge | torque (N m) |
-    | 6    | Rotation of rolling the wrist                 | -2          | 2           | r_wrist_roll_joint               | hinge | torque (N m) |
+    | 0   | Rotation of the panning the shoulder          | -2          | 2           | r_shoulder_pan_joint             | hinge | torque (N m) |
+    | 1   | Rotation of the shoulder lifting joint        | -2          | 2           | r_shoulder_lift_joint            | hinge | torque (N m) |
+    | 2   | Rotation of the shoulder rolling joint        | -2          | 2           | r_upper_arm_roll_joint           | hinge | torque (N m) |
+    | 3   | Rotation of hinge joint that flexed the elbow | -2          | 2           | r_elbow_flex_joint               | hinge | torque (N m) |
+    | 4   | Rotation of hinge that rolls the forearm      | -2          | 2           | r_forearm_roll_joint             | hinge | torque (N m) |
+    | 5   | Rotation of flexing the wrist                 | -2          | 2           | r_wrist_flex_joint               | hinge | torque (N m) |
+    | 6   | Rotation of rolling the wrist                 | -2          | 2           | r_wrist_roll_joint               | hinge | torque (N m) |
 
     ### Observation Space
 
     Observations consist of
 
     - Angle of rotational joints on the pusher
-    - Anglular velocities of rotational joints on the pusher
+    - Angular velocities of rotational joints on the pusher
     - The coordinates of the fingertip of the pusher
     - The coordinates of the object to be moved
     - The coordinates of the goal position
@@ -38,31 +40,31 @@ class PusherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     An analogy can be drawn to a human arm in order to help understand the state space, with the words flex and roll meaning the
     same as human joints.
 
-    | Num | Observation                                               | Min  | Max | Name (in corresponding XML file) | Joint    | Unit                     |
-    |-----|-----------------------------------------------------------|------|-----|----------------------------------|------ ---|--------------------------|
-    | 0    | Rotation of the panning the shoulder                     | -Inf | Inf | r_shoulder_pan_joint             | hinge    | angle (rad)              |
-    | 1    | Rotation of the shoulder lifting joint                   | -Inf | Inf | r_shoulder_lift_joint            | hinge    | angle (rad)              |
-    | 2    | Rotation of the shoulder rolling joint                   | -Inf | Inf | r_upper_arm_roll_joint           | hinge    | angle (rad)              |
-    | 3    | Rotation of hinge joint that flexed the elbow            | -Inf | Inf | r_elbow_flex_joint               | hinge    | angle (rad)              |
-    | 4    | Rotation of hinge that rolls the forearm                 | -Inf | Inf | r_forearm_roll_joint             | hinge    | angle (rad)              |
-    | 5    | Rotation of flexing the wrist                            | -Inf | Inf | r_wrist_flex_joint               | hinge    | angle (rad)              |
-    | 6    | Rotation of rolling the wrist                            | -Inf | Inf | r_wrist_roll_joint               | hinge    | angle (rad)              |
-    | 7    | Rotational velocity of the panning the shoulder          | -Inf | Inf | r_shoulder_pan_joint             | hinge    | angular velocity (rad/s) |
-    | 8    | Rotational velocity of the shoulder lifting joint        | -Inf | Inf | r_shoulder_lift_joint            | hinge    | angular velocity (rad/s) |
-    | 9    | Rotational velocity of the shoulder rolling joint        | -Inf | Inf | r_upper_arm_roll_joint           | hinge    | angular velocity (rad/s) |
-    | 10   | Rotational velocity of hinge joint that flexed the elbow | -Inf | Inf | r_elbow_flex_joint               | hinge    | angular velocity (rad/s) |
-    | 11   | Rotational velocity of hinge that rolls the forearm      | -Inf | Inf | r_forearm_roll_joint             | hinge    | angular velocity (rad/s) |
-    | 12   | Rotational velocity of flexing the wrist                 | -Inf | Inf | r_wrist_flex_joint               | hinge    | angular velocity (rad/s) |
-    | 13   | Rotational velocity of rolling the wrist                 | -Inf | Inf | r_wrist_roll_joint               | hinge    | angular velocity (rad/s) |
-    | 14   | x-coordinate of the fingertip of the pusher              | -Inf | Inf | tips_arm                         | slide    | position (m)             |
-    | 15   | y-coordinate of the fingertip of the pusher              | -Inf | Inf | tips_arm                         | slide    | position (m)             |
-    | 16   | z-coordinate of the fingertip of the pusher              | -Inf | Inf | tips_arm                         | slide    | position (m)             |
-    | 17   | x-coordinate of the object to be moved                   | -Inf | Inf | object (obj_slidex)              | slide    | position (m)             |
-    | 18   | y-coordinate of the object to be moved                   | -Inf | Inf | object (obj_slidey)              | slide    | position (m)             |
-    | 19   | z-coordinate of the object to be moved                   | -Inf | Inf | object                           | cylinder | position (m)             |
-    | 20   | x-coordinate of the goal position of the object          | -Inf | Inf | goal (goal_slidex)               | slide    | position (m)             |
-    | 21   | y-coordinate of the goal position of the object          | -Inf | Inf | goal (goal_slidey)               | slide    | position (m)             |
-    | 22   | z-coordinate of the goal position of the object          | -Inf | Inf | goal                             | sphere   | position (m)             |
+    | Num | Observation                                              | Min  | Max | Name (in corresponding XML file) | Joint    | Unit                     |
+    |-----|----------------------------------------------------------|------|-----|----------------------------------|----------|--------------------------|
+    | 0   | Rotation of the panning the shoulder                     | -Inf | Inf | r_shoulder_pan_joint             | hinge    | angle (rad)              |
+    | 1   | Rotation of the shoulder lifting joint                   | -Inf | Inf | r_shoulder_lift_joint            | hinge    | angle (rad)              |
+    | 2   | Rotation of the shoulder rolling joint                   | -Inf | Inf | r_upper_arm_roll_joint           | hinge    | angle (rad)              |
+    | 3   | Rotation of hinge joint that flexed the elbow            | -Inf | Inf | r_elbow_flex_joint               | hinge    | angle (rad)              |
+    | 4   | Rotation of hinge that rolls the forearm                 | -Inf | Inf | r_forearm_roll_joint             | hinge    | angle (rad)              |
+    | 5   | Rotation of flexing the wrist                            | -Inf | Inf | r_wrist_flex_joint               | hinge    | angle (rad)              |
+    | 6   | Rotation of rolling the wrist                            | -Inf | Inf | r_wrist_roll_joint               | hinge    | angle (rad)              |
+    | 7   | Rotational velocity of the panning the shoulder          | -Inf | Inf | r_shoulder_pan_joint             | hinge    | angular velocity (rad/s) |
+    | 8   | Rotational velocity of the shoulder lifting joint        | -Inf | Inf | r_shoulder_lift_joint            | hinge    | angular velocity (rad/s) |
+    | 9   | Rotational velocity of the shoulder rolling joint        | -Inf | Inf | r_upper_arm_roll_joint           | hinge    | angular velocity (rad/s) |
+    | 10  | Rotational velocity of hinge joint that flexed the elbow | -Inf | Inf | r_elbow_flex_joint               | hinge    | angular velocity (rad/s) |
+    | 11  | Rotational velocity of hinge that rolls the forearm      | -Inf | Inf | r_forearm_roll_joint             | hinge    | angular velocity (rad/s) |
+    | 12  | Rotational velocity of flexing the wrist                 | -Inf | Inf | r_wrist_flex_joint               | hinge    | angular velocity (rad/s) |
+    | 13  | Rotational velocity of rolling the wrist                 | -Inf | Inf | r_wrist_roll_joint               | hinge    | angular velocity (rad/s) |
+    | 14  | x-coordinate of the fingertip of the pusher              | -Inf | Inf | tips_arm                         | slide    | position (m)             |
+    | 15  | y-coordinate of the fingertip of the pusher              | -Inf | Inf | tips_arm                         | slide    | position (m)             |
+    | 16  | z-coordinate of the fingertip of the pusher              | -Inf | Inf | tips_arm                         | slide    | position (m)             |
+    | 17  | x-coordinate of the object to be moved                   | -Inf | Inf | object (obj_slidex)              | slide    | position (m)             |
+    | 18  | y-coordinate of the object to be moved                   | -Inf | Inf | object (obj_slidey)              | slide    | position (m)             |
+    | 19  | z-coordinate of the object to be moved                   | -Inf | Inf | object                           | cylinder | position (m)             |
+    | 20  | x-coordinate of the goal position of the object          | -Inf | Inf | goal (goal_slidex)               | slide    | position (m)             |
+    | 21  | y-coordinate of the goal position of the object          | -Inf | Inf | goal (goal_slidey)               | slide    | position (m)             |
+    | 22  | z-coordinate of the goal position of the object          | -Inf | Inf | goal                             | sphere   | position (m)             |
 
 
     ### Rewards
@@ -132,9 +134,9 @@ class PusherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     """
 
-    def __init__(self):
+    def __init__(self, render_mode: Optional[str] = None):
         utils.EzPickle.__init__(self)
-        mujoco_env.MujocoEnv.__init__(self, "pusher.xml", 5)
+        mujoco_env.MujocoEnv.__init__(self, "pusher.xml", 5, render_mode=render_mode)
 
     def step(self, a):
         vec_1 = self.get_body_com("object") - self.get_body_com("tips_arm")
@@ -148,6 +150,9 @@ class PusherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         self.do_simulation(a, self.frame_skip)
         ob = self._get_obs()
         done = False
+
+        self.renderer.render_step()
+
         return ob, reward, done, dict(reward_dist=reward_dist, reward_ctrl=reward_ctrl)
 
     def viewer_setup(self):

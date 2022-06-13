@@ -15,7 +15,7 @@ class RescaleAction(gym.ActionWrapper):
 
     Example:
         >>> import gym
-        >>> env = gym.make('CartPole-v1')
+        >>> env = gym.make('BipedalWalker-v3')
         >>> env.action_space
         Box(-1.0, 1.0, (4,), float32)
         >>> min_action = -0.5

@@ -1,3 +1,5 @@
+from typing import List
+
 import numpy as np
 import pytest
 
@@ -22,7 +24,7 @@ def test_env(spec):
         env = spec.make()
 
     # Test if env adheres to Gym API
-    check_env(env, warn=True, skip_render_check=True)
+    check_env(env, skip_render_check=True)
 
     # Check that dtype is explicitly declared for gym.Box spaces
     for warning_msg in warnings:
@@ -49,15 +51,6 @@ def test_env(spec):
         assert (
             observation.dtype == ob_space.dtype
         ), f"Step observation dtype: {ob.dtype}, expected: {ob_space.dtype}"
-    for mode in env.metadata.get("render_modes", []):
-        if not (mode == "human" and spec.entry_point.startswith("gym.envs.mujoco")):
-            env.render(mode=mode)
-
-    # Make sure we can render the environment after close.
-    for mode in env.metadata.get("render_modes", []):
-        if not (mode == "human" and spec.entry_point.startswith("gym.envs.mujoco")):
-
-            env.render(mode=mode)
 
     env.close()
 
@@ -79,14 +72,30 @@ def test_reset_info(spec):
     env.close()
 
 
+@pytest.mark.parametrize(
+    "spec", spec_list_no_mujoco_py, ids=[spec.id for spec in spec_list_no_mujoco_py]
+)
+def test_render_modes(spec):
+    env = spec.make()
+
+    for mode in env.metadata.get("render_modes", []):
+        if mode != "human":
+            new_env = spec.make(render_mode=mode)
+
+            new_env.reset()
+            new_env.step(new_env.action_space.sample())
+            new_env.render()
+
+
 def test_env_render_result_is_immutable():
     environs = [
-        envs.make("Taxi-v3"),
-        envs.make("FrozenLake-v1"),
+        envs.make("Taxi-v3", render_mode="ansi"),
+        envs.make("FrozenLake-v1", render_mode="ansi"),
     ]
 
     for env in environs:
         env.reset()
-        output = env.render(mode="ansi")
-        assert isinstance(output, str)
+        output = env.render()
+        assert isinstance(output, List)
+        assert isinstance(output[0], str)
         env.close()

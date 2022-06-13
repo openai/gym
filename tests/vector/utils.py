@@ -107,9 +107,9 @@ class CustomSpaceEnv(gym.Env):
         return observation, reward, done, {}
 
 
-def make_env(env_name, seed):
+def make_env(env_name, seed, **kwargs):
     def _make():
-        env = gym.make(env_name)
+        env = gym.make(env_name, **kwargs)
         env.action_space.seed(seed)
         env.reset(seed=seed)
         return env

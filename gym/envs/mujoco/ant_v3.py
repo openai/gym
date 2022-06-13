@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 
 from gym import utils
@@ -11,6 +13,7 @@ DEFAULT_CAMERA_CONFIG = {
 class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     def __init__(
         self,
+        render_mode: Optional[str] = None,
         xml_file="ant.xml",
         ctrl_cost_weight=0.5,
         contact_cost_weight=5e-4,
@@ -93,6 +96,8 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
         rewards = forward_reward + healthy_reward
         costs = ctrl_cost + contact_cost
+
+        self.renderer.render_step()
 
         reward = rewards - costs
         done = self.done

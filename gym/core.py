@@ -1,6 +1,16 @@
 """Core API for Environment, Wrapper, ActionWrapper, RewardWrapper and ObservationWrapper."""
 import sys
-from typing import Generic, Optional, SupportsFloat, Tuple, TypeVar, Union
+from typing import (
+    Any,
+    Dict,
+    Generic,
+    List,
+    Optional,
+    SupportsFloat,
+    Tuple,
+    TypeVar,
+    Union,
+)
 
 from gym import spaces
 from gym.logger import deprecation, warn
@@ -14,6 +24,44 @@ if sys.version_info == (3, 6):
 
 ObsType = TypeVar("ObsType")
 ActType = TypeVar("ActType")
+RenderFrame = TypeVar("RenderFrame")
+
+
+class _EnvDecorator(type):  # TODO: remove with gym 1.0
+    """Metaclass used for adding deprecation warning to the mode kwarg in the render method."""
+
+    def __new__(cls, name, bases, attr):
+        if "render" in attr.keys():
+            attr["render"] = _EnvDecorator._deprecate_mode(attr["render"])
+
+        return super().__new__(cls, name, bases, attr)
+
+    @staticmethod
+    def _deprecate_mode(render_func):  # type: ignore
+        render_return = Optional[Union[RenderFrame, List[RenderFrame]]]
+
+        def render(
+            self: object, *args: Tuple[Any], **kwargs: Dict[str, Any]
+        ) -> render_return:
+            if "mode" in kwargs.keys():
+                deprecation(
+                    "The argument mode in render method is deprecated; "
+                    "use render_mode during environment initialization instead.\n"
+                    "See here for more information: https://www.gymlibrary.ml/content/api/"
+                )
+            elif self.spec is not None and "render_mode" not in self.spec.kwargs.keys():  # type: ignore
+                deprecation(
+                    "You are calling render method, "
+                    "but you didn't specified the argument render_mode at environment initialization. "
+                    "To maintain backward compatibility, the environment will render in human mode.\n"
+                    "If you want to render in human mode, initialize the environment in this way: "
+                    "gym.make('EnvName', render_mode='human') and don't call the render method.\n"
+                    "See here for more information: https://www.gymlibrary.ml/content/api/"
+                )
+
+            return render_func(self, *args, **kwargs)
+
+        return render
 
 
 class Env(Generic[ObsType, ActType]):
@@ -43,8 +91,11 @@ class Env(Generic[ObsType, ActType]):
     Note: a default reward range set to :math:`(-\infty,+\infty)` already exists. Set it if you want a narrower range.
     """
 
+    __metaclass__ = _EnvDecorator
+
     # Set this in SOME subclasses
     metadata = {"render_modes": []}
+    render_mode = None  # define render_mode if your environment supports rendering
     reward_range = (-float("inf"), float("inf"))
     spec = None
 
@@ -127,45 +178,39 @@ class Env(Generic[ObsType, ActType]):
                 the ``info`` returned by :meth:`step`.
         """
         # Initialize the RNG if the seed is manually passed
-        if seed is not None:
+        if seed == -1:
+            self._np_random, seed = seeding.np_random(None)
+        elif seed is not None:
             self._np_random, seed = seeding.np_random(seed)
 
-    def render(self, mode="human"):
-        """Renders the environment.
+    # TODO: remove kwarg mode with gym 1.0
+    def render(self, mode="human") -> Optional[Union[RenderFrame, List[RenderFrame]]]:
+        """Compute the render frames as specified by render_mode attribute during initialization of the environment.
 
-        A set of supported modes varies per environment. (And some
+        The set of supported modes varies per environment. (And some
         third-party environments may not support rendering at all.)
-        By convention, if mode is:
+        By convention, if render_mode is:
 
-        - human: render to the current display or terminal and
-          return nothing. Usually for human consumption.
-        - rgb_array: Return a numpy.ndarray with shape (x, y, 3),
-          representing RGB values for an x-by-y pixel image, suitable
-          for turning into a video.
-        - ansi: Return a string (str) or StringIO.StringIO containing a
-          terminal-style text representation. The text can include newlines
-          and ANSI escape sequences (e.g. for colors).
+        - None (default): no render is computed.
+        - human: render return None.
+          The environment is continuously rendered in the current display or terminal. Usually for human consumption.
+        - single_rgb_array: return a single frame representing the current state of the environment.
+          A frame is a numpy.ndarray with shape (x, y, 3) representing RGB values for an x-by-y pixel image.
+        - rgb_array: return a list of frames representing the states of the environment since the last reset.
+          Each frame is a numpy.ndarray with shape (x, y, 3), as with single_rgb_array.
+        - ansi: Return a list of strings (str) or StringIO.StringIO containing a
+          terminal-style text representation for each time step.
+          The text can include newlines and ANSI escape sequences (e.g. for colors).
+
+        Note:
+            Rendering computations is performed internally even if you don't call render().
+            To avoid this, you can set render_mode = None and, if the environment supports it,
+            call render() specifying the argument 'mode'.
 
         Note:
             Make sure that your class's metadata 'render_modes' key includes
             the list of supported modes. It's recommended to call super()
             in implementations to use the functionality of this method.
-
-        Example:
-            >>> import numpy as np
-            >>> class MyEnv(Env):
-            ...    metadata = {'render_modes': ['human', 'rgb_array']}
-            ...
-            ...    def render(self, mode='human'):
-            ...        if mode == 'rgb_array':
-            ...            return np.array(...) # return RGB frame suitable for video
-            ...        elif mode == 'human':
-            ...            ... # pop up a window and render
-            ...        else:
-            ...            super().render(mode=mode) # just raise an exception
-
-        Args:
-            mode: the mode to render with, valid modes are `env.metadata["render_modes"]`
         """
         raise NotImplementedError
 
@@ -314,6 +359,21 @@ class Wrapper(Env[ObsType, ActType]):
     @metadata.setter
     def metadata(self, value):
         self._metadata = value
+
+    @property
+    def np_random(self) -> RandomNumberGenerator:
+        """Returns the environment np_random."""
+        return self.env.np_random
+
+    @np_random.setter
+    def np_random(self, value):
+        self.env.np_random = value
+
+    @property
+    def _np_random(self):
+        raise AttributeError(
+            "Can't access `_np_random` of a wrapper, use `.unwrapped._np_random` or `.np_random`."
+        )
 
     def step(self, action: ActType) -> Tuple[ObsType, float, bool, dict]:
         """Steps through the environment with action."""

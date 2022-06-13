@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 
 from gym import utils
@@ -14,6 +16,7 @@ DEFAULT_CAMERA_CONFIG = {
 class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     def __init__(
         self,
+        render_mode: Optional[str] = None,
         xml_file="walker2d.xml",
         forward_reward_weight=1.0,
         ctrl_cost_weight=1e-3,
@@ -23,6 +26,7 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         healthy_angle_range=(-1.0, 1.0),
         reset_noise_scale=5e-3,
         exclude_current_positions_from_observation=True,
+        **kwargs
     ):
         utils.EzPickle.__init__(**locals())
 
@@ -41,7 +45,9 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             exclude_current_positions_from_observation
         )
 
-        mujoco_env.MujocoEnv.__init__(self, xml_file, 4, mujoco_bindings="mujoco_py")
+        mujoco_env.MujocoEnv.__init__(
+            self, xml_file, 4, render_mode=render_mode, mujoco_bindings="mujoco_py"
+        )
 
     @property
     def healthy_reward(self):
@@ -88,8 +94,9 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         x_position_after = self.sim.data.qpos[0]
         x_velocity = (x_position_after - x_position_before) / self.dt
 
-        ctrl_cost = self.control_cost(action)
+        self.renderer.render_step()
 
+        ctrl_cost = self.control_cost(action)
         forward_reward = self._forward_reward_weight * x_velocity
         healthy_reward = self.healthy_reward
 
