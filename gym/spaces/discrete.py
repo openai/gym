@@ -38,6 +38,7 @@ class Discrete(Space[int]):
         assert isinstance(start, (int, np.integer))
         self.n = int(n)
         self.start = int(start)
+        # todo, this is incorrect, dtype should be int but int64 is faster, we should probably change
         super().__init__((), np.int64, seed)
 
     def sample(self) -> int:

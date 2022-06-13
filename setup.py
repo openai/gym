@@ -20,14 +20,14 @@ extras = {
     "mujoco_py": ["mujoco_py<2.2,>=2.1"],
     "mujoco": ["mujoco==2.2.0", "imageio>=2.14.1"],
     "toy_text": ["pygame==2.1.0"],
-    "other": ["lz4>=3.1.0", "opencv-python>=3.0", "matplotlib>=3.0"],
+    "other": ["lz4>=3.1.0", "opencv-python>=3.0", "matplotlib>=3.0", "pytest==6.2.5"],
 }
 
 # Testing dependency groups.
 testing_group = set(extras.keys()) - {"accept-rom-license", "atari"}
 extras["testing"] = list(
     set(itertools.chain.from_iterable(map(lambda group: extras[group], testing_group)))
-) + ["pytest", "mock"]
+)
 
 # All dependency groups - accept rom license as requires user to run
 all_groups = set(extras.keys()) - {"accept-rom-license"}
