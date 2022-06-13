@@ -129,7 +129,7 @@ def _return_info_not_dict(self, seed=None, return_info=False, options=None):
         [
             AssertionError,
             _return_info_obs_outside,
-            "The second element returned by `env.reset(return_info=True)` is not within the observation space",
+            "The first element returned by `env.reset(return_info=True)` is not within the observation space",
         ],
         [
             AssertionError,
