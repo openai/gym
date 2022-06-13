@@ -12,7 +12,10 @@ class HumanRendering(gym.Wrapper):
     This wrapper is particularly useful when you have implemented an environment that can produce
     RGB images but haven't implemented any code to render the images to the screen.
     If you want to use this wrapper with your environments, remember to specify ``"render_fps"``
-    in the metadata of your environment
+    in the metadata of your environment.
+
+    Note: The ``render_mode`` of the wrapped environment must be either ``'rgb_array'``
+        or ``'single_rgb_array'``.
 
     Example:
         >>> env = gym.make("LunarLander-v2", render_mode="single_rgb_array")
