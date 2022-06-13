@@ -359,6 +359,11 @@ class Wrapper(Env[ObsType, ActType]):
         self._metadata = value
 
     @property
+    def render_mode(self) -> Optional[str]:
+        """Returns the environment render_mode."""
+        return self.env.render_mode
+
+    @property
     def np_random(self) -> RandomNumberGenerator:
         """Returns the environment np_random."""
         return self.env.np_random
