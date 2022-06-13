@@ -194,7 +194,10 @@ def passive_env_reset_checker(env, **kwargs):
                 f"Actual default: {seed_param}"
             )
 
-    if "return_info" not in signature.parameters and "kwargs" not in signature.parameters:
+    if (
+        "return_info" not in signature.parameters
+        and "kwargs" not in signature.parameters
+    ):
         logger.warn(
             "Future gym versions will require that `Env.reset` can be passed `return_info` to return information from the environment resetting."
         )

@@ -202,8 +202,7 @@ def check_reset_options(env: gym.Env):
 
 
 def check_space_limit(space, space_type: str):
-    """Check the space limit for only the Box space as a test that only runs as part of `check_env`"""
-
+    """Check the space limit for only the Box space as a test that only runs as part of `check_env`."""
     if isinstance(space, spaces.Box):
         if np.any(np.equal(space.low, -np.inf)):
             logger.warn(
@@ -218,7 +217,11 @@ def check_space_limit(space, space_type: str):
         if space_type == "action":
             if space.shape == (1,):
                 if (
-                    np.any(np.logical_or(space.low == 0, np.abs(space.low) != np.abs(space.high)))
+                    np.any(
+                        np.logical_or(
+                            space.low == 0, np.abs(space.low) != np.abs(space.high)
+                        )
+                    )
                     or np.any(space.low < -1)
                     or np.any(space.high > 1)
                 ):

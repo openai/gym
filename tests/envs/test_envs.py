@@ -1,14 +1,11 @@
 from typing import List
 
-import numpy as np
 import pytest
 
 import gym
 from gym import envs
-from gym.spaces import Box
 from gym.utils.env_checker import check_env
 from tests.envs.spec_list import spec_list, spec_list_no_mujoco_py
-
 
 # This runs a smoketest on each official registered env. We may want
 # to try also running environments which are not officially registered
@@ -16,14 +13,12 @@ from tests.envs.spec_list import spec_list, spec_list_no_mujoco_py
 IGNORE_WARNINGS = [
     "Agent's minimum observation space value is -infinity. This is probably too low.",
     "Agent's maximum observation space value is infinity. This is probably too high.",
-    "We recommend you to use a symmetric and normalized Box action space (range=[-1, 1]) https://stable-baselines3.readthedocs.io/en/master/guide/rl_tips.html"
+    "We recommend you to use a symmetric and normalized Box action space (range=[-1, 1]) https://stable-baselines3.readthedocs.io/en/master/guide/rl_tips.html",
 ]
-IGNORE_WARNINGS = [f'\x1b[33mWARN: {message}\x1b[0m' for message in IGNORE_WARNINGS]
+IGNORE_WARNINGS = [f"\x1b[33mWARN: {message}\x1b[0m" for message in IGNORE_WARNINGS]
 
 
-@pytest.mark.parametrize(
-    "spec", spec_list, ids=[spec.id for spec in spec_list]
-)
+@pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
 def test_env(spec):
     # Capture warnings
     env = spec.make(disable_env_checker=True)
