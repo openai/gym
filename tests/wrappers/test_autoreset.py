@@ -70,8 +70,7 @@ def test_make_autoreset_true(spec):
     Note: This test assumes that all first-party environments will terminate in a finite
      amount of time with random actions, which is true as of the time of adding this test.
     """
-    with pytest.warns(None):
-        env = gym.make(spec.id, autoreset=True)
+    env = gym.make(spec.id, autoreset=True)
     assert AutoResetWrapper in unwrap_env(env)
 
     env.reset(seed=0)
@@ -88,18 +87,15 @@ def test_make_autoreset_true(spec):
 @pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
 def test_gym_make_autoreset(spec):
     """Tests that `gym.make` autoreset wrapper is applied only when `gym.make(..., autoreset=True)`."""
-    with pytest.warns(None):
-        env = gym.make(spec.id)
+    env = gym.make(spec.id)
     assert AutoResetWrapper not in unwrap_env(env)
     env.close()
 
-    with pytest.warns(None):
-        env = gym.make(spec.id, autoreset=False)
+    env = gym.make(spec.id, autoreset=False)
     assert AutoResetWrapper not in unwrap_env(env)
     env.close()
 
-    with pytest.warns(None):
-        env = gym.make(spec.id, autoreset=True)
+    env = gym.make(spec.id, autoreset=True)
     assert AutoResetWrapper in unwrap_env(env)
     env.close()
 
