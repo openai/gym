@@ -1,35 +1,79 @@
-import gym
-import pygame
+"""A wrapper that adds human-renering functionality to an environment."""
 import numpy as np
+import pygame
+
+import gym
+from gym.utils.renderer import Renderer
 
 
 class HumanRendering(gym.Wrapper):
+    """Performs human rendering for an environment that only supports rgb_array rendering.
+
+    This wrapper is particularly useful when you have implemented an environment that can produce
+    RGB images but haven't implemented any code to render the images to the screen.
+    If you want to use this wrapper with your environments, remember to specify ``"render_fps"``
+    in the metadata of your environment
+
+    Example:
+        >>> env = gym.make("LunarLander-v2", render_mode="single_rgb_array")
+        >>> wrapped = HumanRendering(env)
+        >>> wrapped.reset()     # This will start rendering to the screen
+    """
+
     def __init__(self, env):
+        """Initialize a :class:`HumanRendering` instance.
+
+        Args:
+            env: The environment that is being wrapped
+        """
         super().__init__(env)
-        assert (
-            "render_modes" in env.metadata
-            and "rgb_array" in env.metadata["render_modes"]
-        ), "Base environment must support rgb_array rendering"
-        assert (
-            "human" not in env.metadata["render_modes"]
-        ), "Base environment already provides human-mode"
+        assert env.render_mode in [
+            "single_rgb_array",
+            "rgb_array",
+        ], f"Expected env.render_mode to be one of 'rgb_array' or 'single_rgb_array' but got {env.render_mode}"
         assert (
             "render_fps" in env.metadata
         ), "Base environment does not specify framerate"
 
+        self._renderer = Renderer("human", self._render_frame)
         self.screen_size = None
         self.window = None
         self.clock = None
 
-        metadata = env.metadata
-        metadata["render_modes"].append("human")
-        self.metadata = metadata
+    @property
+    def render_mode(self):
+        """Always returns ``'human'``."""
+        return "human"
 
-    def render(self, mode="human", **kwargs):
-        if mode == "human":
-            rgb_array = np.transpose(
-                self.env.render(mode="rgb_array", **kwargs), axes=(1, 0, 2)
+    def step(self, *args, **kwargs):
+        """Perform a step in the base environment and render a frame to the screen."""
+        result = self.env.step(*args, **kwargs)
+        self._renderer.render_step()
+        return result
+
+    def reset(self, *args, **kwargs):
+        """Reset the base environment and render a frame to the screen."""
+        result = self.env.reset(*args, **kwargs)
+        self._renderer.render_step()
+        return result
+
+    def render(self):
+        """This method doesn't do much, actual rendering is performed in :meth:`step` and :meth:`reset`."""
+        return self._renderer.get_renders()
+
+    def _render_frame(self, mode="human", **kwargs):
+        """Fetch the last frame from the base environment and render it to the screen."""
+        if self.env.render_mode == "rgb_array":
+            last_rgb_array = self.env.render(**kwargs)[-1]
+        elif self.env.render_mode == "single_rgb_array":
+            last_rgb_array = self.env.render(**kwargs)
+        else:
+            raise Exception(
+                "Wrapped environment must have mode 'rgb_array' or 'single_rgb_array'"
             )
+
+        if mode == "human":
+            rgb_array = np.transpose(last_rgb_array, axes=(1, 0, 2))
 
             if self.screen_size is None:
                 self.screen_size = rgb_array.shape[:2]
@@ -52,9 +96,10 @@ class HumanRendering(gym.Wrapper):
             self.clock.tick(self.metadata["render_fps"])
             pygame.display.flip()
         else:
-            return self.env.render(mode=mode, **kwargs)
+            raise Exception("Can only use 'human' rendering in HumanRendering wrapper")
 
     def close(self):
+        """Close the rendering window."""
         if self.window is not None:
             pygame.display.quit()
             pygame.quit()
