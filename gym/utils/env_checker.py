@@ -20,7 +20,7 @@ from copy import deepcopy
 import numpy as np
 
 import gym
-from gym import logger
+from gym import logger, spaces
 from gym.utils.passive_env_checker import (
     check_action_space,
     check_observation_space,
@@ -201,6 +201,39 @@ def check_reset_options(env: gym.Env):
         )
 
 
+def check_space_limit(space, space_type: str):
+    """Check the space limit for only the Box space as a test that only runs as part of `check_env`"""
+
+    if isinstance(space, spaces.Box):
+        if np.any(np.equal(space.low, -np.inf)):
+            logger.warn(
+                f"Agent's minimum {space_type} space value is -infinity. This is probably too low."
+            )
+        if np.any(np.equal(space.high, np.inf)):
+            logger.warn(
+                f"Agent's maximum {space_type} space value is infinity. This is probably too high."
+            )
+
+        # Check that the Box space is normalized
+        if space_type == "action":
+            if space.shape == (1,):
+                if (
+                    np.any(np.logical_or(space.low == 0, np.abs(space.low) != np.abs(space.high)))
+                    or np.any(space.low < -1)
+                    or np.any(space.high > 1)
+                ):
+                    logger.warn(
+                        "We recommend you to use a symmetric and normalized Box action space (range=[-1, 1]) "
+                        "https://stable-baselines3.readthedocs.io/en/master/guide/rl_tips.html"  # TODO Add to gymlibrary.ml?
+                    )
+    elif isinstance(space, spaces.Tuple):
+        for subspace in space.spaces:
+            check_space_limit(subspace, space_type)
+    elif isinstance(space, spaces.Dict):
+        for subspace in space.values():
+            check_space_limit(subspace, space_type)
+
+
 def check_env(env: gym.Env, warn: bool = None, skip_render_check: bool = False):
     """Check that an environment follows Gym API.
 
@@ -227,10 +260,12 @@ def check_env(env: gym.Env, warn: bool = None, skip_render_check: bool = False):
         env, "action_space"
     ), "You must specify a action space. https://www.gymlibrary.ml/content/environment_creation/"
     check_action_space(env.action_space)
+    check_space_limit(env.action_space, "action")
     assert hasattr(
         env, "observation_space"
     ), "You must specify an observation space. https://www.gymlibrary.ml/content/environment_creation/"
     check_observation_space(env.observation_space)
+    check_space_limit(env.observation_space, "observation")
 
     # ==== Check the reset method ====
     check_reset_seed(env)

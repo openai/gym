@@ -53,16 +53,6 @@ def modified_space(space: spaces.Space, attribute: str, value):
         ],
         [
             UserWarning,
-            spaces.Box(np.array([-np.inf, -np.inf]), np.ones(2)),
-            "Agent's minimum observation space value is -infinity. This is probably too low.",
-        ],
-        [
-            UserWarning,
-            spaces.Box(np.zeros(2), np.array([np.inf, np.inf])),
-            "Agent's maximum observation space value is infinity. This is probably too high.",
-        ],
-        [
-            UserWarning,
             spaces.Box(np.zeros(5), np.zeros(5)),
             "Agent's maximum and minimum observation space values are equal",
         ],
@@ -130,16 +120,6 @@ def test_check_observation_space(test, space, message: str):
             "Action space does not inherit from `gym.spaces.Space`, actual type: <class 'str'>",
         ],
         # ===== Check box observation space ====
-        [
-            UserWarning,
-            spaces.Box(np.array([-np.inf, -np.inf]), np.ones(2)),
-            "Agent's minimum action space value is -infinity. This is probably too low.",
-        ],
-        [
-            UserWarning,
-            spaces.Box(np.zeros(2), np.array([np.inf, np.inf])),
-            "Agent's maximum action space value is infinity. This is probably too high.",
-        ],
         [
             UserWarning,
             spaces.Box(np.zeros(5), np.zeros(5)),

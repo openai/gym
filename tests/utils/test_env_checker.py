@@ -211,5 +211,7 @@ def test_check_env(env, message: str):
     ],
 )
 def test_no_error_warnings(env):
-    with pytest.warns(None):
+    with pytest.warns(None) as warnings:
         check_env(env)
+
+    assert len(warnings) == 0

@@ -33,15 +33,6 @@ def _check_box_observation_space(observation_space: spaces.Box):
             f"Actual observation shape: {observation_space.shape}"
         )
 
-    if np.any(np.equal(observation_space.low, -np.inf)):
-        logger.warn(
-            "Agent's minimum observation space value is -infinity. This is probably too low."
-        )
-    if np.any(np.equal(observation_space.high, np.inf)):
-        logger.warn(
-            "Agent's maximum observation space value is infinity. This is probably too high."
-        )
-
     assert (
         observation_space.low.shape == observation_space.shape
     ), f"Agent's observation_space.low and observation_space have different shapes, low shape: {observation_space.low.shape}, box shape: {observation_space.shape}"
@@ -99,14 +90,6 @@ def _check_box_action_space(action_space: spaces.Box):
     Args:
         action_space: A box action space
     """
-    if np.any(np.equal(action_space.low, -np.inf)):
-        logger.warn(
-            "Agent's minimum action space value is -infinity. This is probably too low."
-        )
-    if np.any(np.equal(action_space.high, np.inf)):
-        logger.warn(
-            "Agent's maximum action space value is infinity. This is probably too high."
-        )
     assert (
         action_space.low.shape == action_space.shape
     ), f"Agent's action_space.low and action_space have different shapes, low shape: {action_space.low.shape}, box shape: {action_space.shape}"
@@ -119,17 +102,6 @@ def _check_box_action_space(action_space: spaces.Box):
     assert np.all(
         action_space.low <= action_space.high
     ), "Agent's minimum action value is greater than it's maximum"
-
-    # Check that the Box space is normalized
-    if (
-        np.any(np.abs(action_space.low) != np.abs(action_space.high))
-        or np.any(np.abs(action_space.low) < -1)
-        or np.any(np.abs(action_space.high) > 1)
-    ):
-        logger.warn(
-            "We recommend you to use a symmetric and normalized Box action space (range=[-1, 1]) "
-            "https://stable-baselines3.readthedocs.io/en/master/guide/rl_tips.html"  # TODO Add to gymlibrary.ml?
-        )
 
 
 def check_action_space(action_space):
@@ -209,7 +181,7 @@ def check_obs(obs, observation_space: spaces.Space, method_name: str):
 def passive_env_reset_checker(env, **kwargs):
     """A passive check of the `Env.reset` function investigating the returning reset information and returning the data unchanged."""
     signature = inspect.signature(env.reset)
-    if "seed" not in signature.parameters or "kwargs" in signature.parameters:
+    if "seed" not in signature.parameters and "kwargs" not in signature.parameters:
         logger.warn(
             "Future gym versions will require that `Env.reset` can be passed a `seed` instead of using `Env.seed` for resetting the environment random number generator."
         )
@@ -222,12 +194,12 @@ def passive_env_reset_checker(env, **kwargs):
                 f"Actual default: {seed_param}"
             )
 
-    if "return_info" not in signature.parameters or "kwargs" in signature.parameters:
+    if "return_info" not in signature.parameters and "kwargs" not in signature.parameters:
         logger.warn(
             "Future gym versions will require that `Env.reset` can be passed `return_info` to return information from the environment resetting."
         )
 
-    if "options" not in signature.parameters or "kwargs" in signature.parameters:
+    if "options" not in signature.parameters and "kwargs" not in signature.parameters:
         logger.warn(
             "Future gym versions will require that `Env.reset` can be passed `options` to allow the environment initialisation to be passed additional information."
         )
