@@ -159,7 +159,7 @@ def check_reset_info(env: gym.Env):
             obs, info = result
             assert (
                 obs in env.observation_space
-            ), "The second element returned by `env.reset(return_info=True)` is not within the observation space"
+            ), "The first element returned by `env.reset(return_info=True)` is not within the observation space"
             assert isinstance(
                 info, dict
             ), "The second element returned by `env.reset(return_info=True)` was not a dictionary"
