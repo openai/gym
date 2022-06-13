@@ -98,7 +98,7 @@ class VectorEnv(gym.Env):
         Args:
             seed: The environment reset seeds
             return_info: If to return the info
-            options: If to return the options
+            options: The environment reset options
 
         Returns:
             A batch of observations from the vectorized environment.
