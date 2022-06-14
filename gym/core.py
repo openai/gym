@@ -387,7 +387,7 @@ class Wrapper(Env[ObsType, ActType]):
         return self.env.reset(**kwargs)
 
     def render(self, *args, **kwargs):
-        """Renders the environment with kwargs."""
+        """Renders the environment."""
         return self.env.render(*args, **kwargs)
 
     def close(self):
