@@ -1,5 +1,3 @@
-from typing import Optional
-
 import numpy as np
 
 from gym import utils
@@ -193,9 +191,7 @@ class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     """
 
     def __init__(self, **kwargs):
-        mujoco_env.MujocoEnv.__init__(
-            self, "humanoidstandup.xml", 5, **kwargs
-        )
+        mujoco_env.MujocoEnv.__init__(self, "humanoidstandup.xml", 5, **kwargs)
         utils.EzPickle.__init__(self)
 
     def _get_obs(self):

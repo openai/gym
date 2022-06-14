@@ -1,7 +1,5 @@
 __credits__ = ["Rushiv Arora"]
 
-from typing import Optional
-
 import numpy as np
 
 from gym import utils
@@ -50,7 +48,7 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         )
 
         mujoco_env.MujocoEnv.__init__(
-            self, xml_file, 4, mujoco_bindings="mujoco_py",  **kwargs
+            self, xml_file, 4, mujoco_bindings="mujoco_py", **kwargs
         )
 
     @property

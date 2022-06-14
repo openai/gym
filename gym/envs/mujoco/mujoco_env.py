@@ -112,7 +112,13 @@ class MujocoEnv(gym.Env):
 
         assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
-        render_frame = partial(self._render, width=width, height=height, camera_name=camera_name, camera_id=camera_id)
+        render_frame = partial(
+            self._render,
+            width=width,
+            height=height,
+            camera_name=camera_name,
+            camera_id=camera_id,
+        )
         self.renderer = Renderer(self.render_mode, render_frame)
 
         action = self.action_space.sample()
@@ -212,15 +218,15 @@ class MujocoEnv(gym.Env):
             self._mujoco_bindings.mj_rnePostConstraint(self.model, self.data)
 
     def render(
-        self,
-        mode="human",
-        width=None,
-        height=None,
-        camera_id=None,
-        camera_name=None
+        self, mode="human", width=None, height=None, camera_id=None, camera_name=None
     ):
         if self.render_mode is not None:
-            assert width is None and height is None and camera_id is None and camera_name is None, "Unexpected argument for render. Specify render arguments at environment initialization."
+            assert (
+                width is None
+                and height is None
+                and camera_id is None
+                and camera_name is None
+            ), "Unexpected argument for render. Specify render arguments at environment initialization."
             return self.renderer.get_renders()
         else:
             width = width if width is not None else DEFAULT_SIZE
@@ -239,7 +245,7 @@ class MujocoEnv(gym.Env):
         width=DEFAULT_SIZE,
         height=DEFAULT_SIZE,
         camera_id=None,
-        camera_name=None
+        camera_name=None,
     ):
         assert mode in self.metadata["render_modes"]
 

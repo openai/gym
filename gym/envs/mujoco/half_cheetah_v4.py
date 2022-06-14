@@ -1,7 +1,5 @@
 __credits__ = ["Rushiv Arora"]
 
-from typing import Optional
-
 import numpy as np
 
 from gym import utils
@@ -169,9 +167,7 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             exclude_current_positions_from_observation
         )
 
-        mujoco_env.MujocoEnv.__init__(
-            self, "half_cheetah.xml", 5,  **kwargs
-        )
+        mujoco_env.MujocoEnv.__init__(self, "half_cheetah.xml", 5, **kwargs)
 
     def control_cost(self, action):
         control_cost = self._ctrl_cost_weight * np.sum(np.square(action))

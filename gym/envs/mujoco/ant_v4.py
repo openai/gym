@@ -1,5 +1,3 @@
-from typing import Optional
-
 import numpy as np
 
 from gym import utils
@@ -166,7 +164,6 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     def __init__(
         self,
-        render_mode: Optional[str] = None,
         xml_file="ant.xml",
         ctrl_cost_weight=0.5,
         use_contact_forces=False,
