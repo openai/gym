@@ -120,9 +120,9 @@ class InvertedDoublePendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     """
 
-    def __init__(self, render_mode: Optional[str] = None):
+    def __init__(self, **kwargs):
         mujoco_env.MujocoEnv.__init__(
-            self, "inverted_double_pendulum.xml", 5, render_mode=render_mode
+            self, "inverted_double_pendulum.xml", 5, **kwargs
         )
         utils.EzPickle.__init__(self)
 

@@ -7,13 +7,13 @@ from gym.envs.mujoco import mujoco_env
 
 
 class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
-    def __init__(self, render_mode: Optional[str] = None):
+    def __init__(self, **kwargs):
         mujoco_env.MujocoEnv.__init__(
             self,
             "walker2d.xml",
             4,
-            render_mode=render_mode,
             mujoco_bindings="mujoco_py",
+            **kwargs
         )
         utils.EzPickle.__init__(self)
 
