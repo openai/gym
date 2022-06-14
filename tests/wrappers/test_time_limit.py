@@ -22,7 +22,7 @@ def test_time_limit_reset_info():
 
 @pytest.mark.parametrize("double_wrap", [False, True])
 def test_time_limit_wrapper(double_wrap):
-    # The pendulum env do not terminates by default
+    # The pendulum env does not terminate by default
     # so we are sure termination is only due to timeout
     env = PendulumEnv()
     max_episode_length = 20
@@ -44,6 +44,9 @@ def test_time_limit_wrapper(double_wrap):
     assert "TimeLimit.truncated" in info
     assert info["TimeLimit.truncated"] is True
 
+
+@pytest.mark.parametrize("double_wrap", [False, True])
+def test_termination_on_last_step(double_wrap):
     # Special case: termination at the last timestep
     # but not due to timeout
     env = PendulumEnv()
