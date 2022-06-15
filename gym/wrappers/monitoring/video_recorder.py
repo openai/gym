@@ -59,10 +59,10 @@ class VideoRecorder:
                 self.ansi_mode = True
             else:
                 logger.info(
-                    f'Disabling video recorder because {env} does not support any compatible video '
+                    f"Disabling video recorder because {env} does not support any compatible video "
                     'mode between ["single_rgb_array", "rgb_array", "ansi"]'
                 )
-                # Whoops, turns out we shouldn't be enabled after all
+                # Disable since the environment has not been initialized with a compatible `render_mode`
                 self.enabled = False
 
         # Don't bother setting anything else if not enabled
