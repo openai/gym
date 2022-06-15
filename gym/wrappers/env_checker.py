@@ -48,10 +48,10 @@ class PassiveEnvChecker(gym.Wrapper):
         else:
             return self.env.reset(**kwargs)
 
-    def render(self, **kwargs):
+    def render(self, *args, **kwargs):
         """Renders the environment that on the first call will run the `passive_env_render_check`."""
         if self.checked_render is False:
             self.checked_render = True
-            return passive_env_render_check(self.env, **kwargs)
+            return passive_env_render_check(self.env, *args, **kwargs)
         else:
-            return self.env.render(**kwargs)
+            return self.env.render(*args, **kwargs)
