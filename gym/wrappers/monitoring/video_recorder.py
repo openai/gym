@@ -19,15 +19,10 @@ def touch(path: str):
     open(path, "a").close()
 
 
-class VideoRecorder:  # TODO: remove with gym 1.0
+class VideoRecorder:
     """VideoRecorder renders a nice movie of a rollout, frame by frame.
 
     It comes with an ``enabled`` option, so you can still use the same code on episodes where you don't want to record video.
-
-    Note:
-        VideoRecorder is deprecated.
-        Collect the frames with render_mode='rgb_array' and use an external library like MoviePy:
-        https://zulko.github.io/moviepy/getting_started/videoclips.html#videoclip
 
     Note:
         You are responsible for calling :meth:`close` on a created VideoRecorder, or else you may leak an encoder process.
@@ -54,33 +49,19 @@ class VideoRecorder:  # TODO: remove with gym 1.0
             Error: You can pass at most one of `path` or `base_path`
             Error: Invalid path given that must have a particular file extension
         """
-        modes = env.metadata.get("render_modes", [])
-        logger.deprecation(
-            "VideoRecorder is deprecated.\n"
-            "Collect the frames with render_mode='rgb_array' and use an external library like MoviePy: "
-            "https://zulko.github.io/moviepy/getting_started/videoclips.html#videoclip"
-        )
-
-        # backward-compatibility mode:
-        backward_compatible_mode = env.metadata.get("render.modes", [])
-        if len(modes) == 0 and len(backward_compatible_mode) > 0:
-            logger.deprecation(
-                '`env.metadata["render.modes"] is marked as deprecated and will be replaced '
-                'with `env.metadata["render_modes"]` see https://github.com/openai/gym/pull/2654 for more details'
-            )
-            modes = backward_compatible_mode
 
         self._async = env.metadata.get("semantics.async")
         self.enabled = enabled
         self._closed = False
 
         self.ansi_mode = False
-        if "rgb_array" not in modes:
-            if "ansi" in modes:
+        if "rgb_array" != env.render_mode and "single_rgb_array" != env.render_mode:
+            if "ansi" == env.render_mode:
                 self.ansi_mode = True
             else:
                 logger.info(
-                    f'Disabling video recorder because {env} neither supports video mode "rgb_array" nor "ansi".'
+                    f'Disabling video recorder because {env} does not support any compatible video '
+                    'mode between ["single_rgb_array", "rgb_array", "ansi"]'
                 )
                 # Whoops, turns out we shouldn't be enabled after all
                 self.enabled = False
@@ -178,8 +159,7 @@ class VideoRecorder:  # TODO: remove with gym 1.0
             return
         logger.debug("Capturing video frame: path=%s", self.path)
 
-        render_mode = "ansi" if self.ansi_mode else "rgb_array"
-        frame = self.env.render(mode=render_mode)
+        frame = self.env.render()
         if isinstance(frame, List):
             frame = frame[-1]
 

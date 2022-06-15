@@ -24,7 +24,7 @@ def capped_cubic_video_schedule(episode_id: int) -> bool:
         return episode_id % 1000 == 0
 
 
-class RecordVideo(gym.Wrapper):  # TODO: remove with gym 1.0
+class RecordVideo(gym.Wrapper):
     """This wrapper records videos of rollouts.
 
     Usually, you only want to record episodes intermittently, say every hundredth episode.
@@ -35,11 +35,6 @@ class RecordVideo(gym.Wrapper):  # TODO: remove with gym 1.0
     By default, the recording will be stopped once a `done` signal has been emitted by the environment. However, you can
     also create recordings of fixed length (possibly spanning several episodes) by passing a strictly positive value for
     ``video_length``.
-
-    Note:
-        RecordVideo is deprecated.
-        Collect the frames with render_mode='rgb_array' and use an external library like MoviePy:
-        https://zulko.github.io/moviepy/getting_started/videoclips.html#videoclip
     """
 
     def __init__(
@@ -63,11 +58,6 @@ class RecordVideo(gym.Wrapper):  # TODO: remove with gym 1.0
             name_prefix (str): Will be prepended to the filename of the recordings
         """
         super().__init__(env)
-        logger.deprecation(
-            "RecordVideo is deprecated.\n"
-            "Collect the frames with render_mode='rgb_array' and use an external library like MoviePy: "
-            "https://zulko.github.io/moviepy/getting_started/videoclips.html#videoclip"
-        )
 
         if episode_trigger is None and step_trigger is None:
             episode_trigger = capped_cubic_video_schedule
