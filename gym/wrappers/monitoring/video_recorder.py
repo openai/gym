@@ -49,7 +49,6 @@ class VideoRecorder:
             Error: You can pass at most one of `path` or `base_path`
             Error: Invalid path given that must have a particular file extension
         """
-
         self._async = env.metadata.get("semantics.async")
         self.enabled = enabled
         self._closed = False
