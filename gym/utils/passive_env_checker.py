@@ -272,7 +272,7 @@ def passive_env_step_checker(env, action):
     return result
 
 
-def passive_env_render_checker(env, **kwargs):
+def passive_env_render_checker(env, *args, **kwargs):
     """A passive check of the `Env.render` that the declared render modes/fps in the metadata of the environment is declared."""
     render_modes = env.metadata.get("render_modes")
     if render_modes is None:
@@ -316,4 +316,4 @@ def passive_env_render_checker(env, **kwargs):
                 env.render_mode is None or env.render_mode in render_modes
             ), "The environment was initialized successfully however with an unsupported render mode."
 
-    return env.render(**kwargs)
+    return env.render(*args, **kwargs)
