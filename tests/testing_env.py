@@ -31,8 +31,8 @@ def basic_step_fn(self, action: ActType) -> Tuple[ObsType, float, bool, dict]:
 class GenericTestEnv(gym.Env):
     def __init__(
         self,
-        action_space: spaces.Space = spaces.Box(0, 1, ()),
-        observation_space: spaces.Space = spaces.Box(0, 1, ()),
+        action_space: spaces.Space = spaces.Box(0, 1, (1,)),
+        observation_space: spaces.Space = spaces.Box(0, 1, (1,)),
         reset_fn: callable = basic_reset_fn,
         step_fn: callable = basic_step_fn,
         render_fn: callable = None,

@@ -6,7 +6,6 @@ import pytest
 
 import gym
 from gym import spaces
-from gym.utils import seeding
 from gym.utils.env_checker import (
     check_env,
     check_reset_info,
@@ -19,7 +18,8 @@ from tests.testing_env import GenericTestEnv
 def _no_super_reset(self, seed=None, return_info=False, options=None):
     self.np_random.random()  # generates a new prng
     # generate seed deterministic result
-    return seeding.np_random(seed)[0].random()
+    self.observation_space.seed(0)
+    return self.observation_space.sample()
 
 
 def _super_reset_fixed(self, seed=None, return_info=False, options=None):
@@ -80,32 +80,32 @@ def test_check_reset_seed(test, func: callable, message: str):
             check_reset_seed(GenericTestEnv(reset_fn=func))
 
 
-def _reset_return_info_type(seed=None, return_info=False, options=None):
+def _reset_return_info_type(self, seed=None, return_info=False, options=None):
     if return_info:
         return [1, 2]
     else:
-        return 0
+        return self.observation_space.sample()
 
 
-def _reset_return_info_length(seed=None, return_info=False, options=None):
+def _reset_return_info_length(self, seed=None, return_info=False, options=None):
     if return_info:
         return 1, 2, 3
     else:
-        return 0
+        return self.observation_space.sample()
 
 
 def _return_info_obs_outside(self, seed=None, return_info=False, options=None):
     if return_info:
         return self.observation_space.sample() + self.observation_space.high, {}
     else:
-        return 0
+        return self.observation_space.sample()
 
 
 def _return_info_not_dict(self, seed=None, return_info=False, options=None):
     if return_info:
-        return 0, ["key", "value"]
+        return self.observation_space.sample(), ["key", "value"]
     else:
-        return 0
+        return self.observation_space.sample()
 
 
 @pytest.mark.parametrize(
@@ -179,7 +179,7 @@ def test_check_reset_options():
         ],
     ],
 )
-def test_check_env(env, message: str):
+def test_check_env(env: gym.Env, message: str):
     """Tests the check_env function works as expected."""
     with pytest.raises(AssertionError, match=f"^{re.escape(message)}$"):
         check_env(env)
@@ -214,4 +214,4 @@ def test_no_error_warnings(env):
     with pytest.warns(None) as warnings:
         check_env(env)
 
-    assert len(warnings) == 0
+    assert len(warnings) == 0, [warning.message for warning in warnings]

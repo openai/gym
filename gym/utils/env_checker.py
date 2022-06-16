@@ -218,8 +218,9 @@ def check_space_limit(space, space_type: str):
             if space.shape == (1,):
                 if (
                     np.any(
-                        np.logical_or(
-                            space.low == 0, np.abs(space.low) != np.abs(space.high)
+                        np.logical_and(
+                            space.low != np.zeros_like(space.low),
+                            np.abs(space.low) != np.abs(space.high),
                         )
                     )
                     or np.any(space.low < -1)
