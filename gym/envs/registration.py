@@ -589,6 +589,14 @@ def make(
         # Assume it's a string
         env_creator = load(spec_.entry_point)
 
+    # check render_mode is valid
+    render_modes = env_creator.metadata["render_modes"]
+    mode = kwargs.get("render_mode")
+    if mode is not None and mode not in render_modes:
+        raise error.Error(
+            f"Invalid render_mode provided: {mode}. Valid render_modes: None, {', '.join(render_modes)}"
+        )
+
     env = env_creator(**_kwargs)
 
     # Copies the environment creation specification and kwargs to add to the environment specification details
