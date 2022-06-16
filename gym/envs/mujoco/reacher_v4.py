@@ -1,5 +1,3 @@
-from typing import Optional
-
 import numpy as np
 
 from gym import utils
@@ -124,9 +122,9 @@ class ReacherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     """
 
-    def __init__(self, render_mode: Optional[str] = None):
+    def __init__(self, **kwargs):
         utils.EzPickle.__init__(self)
-        mujoco_env.MujocoEnv.__init__(self, "reacher.xml", 2, render_mode=render_mode)
+        mujoco_env.MujocoEnv.__init__(self, "reacher.xml", 2, **kwargs)
 
     def step(self, a):
         vec = self.get_body_com("fingertip") - self.get_body_com("target")

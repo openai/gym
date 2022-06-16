@@ -11,7 +11,7 @@ pytest.importorskip("gym.envs.atari")
 )
 @pytest.mark.parametrize("shape", [16, 32, (8, 5), [10, 7]])
 def test_resize_observation(env_id, shape):
-    env = gym.make(env_id)
+    env = gym.make(env_id, disable_env_checker=True)
     env = ResizeObservation(env, shape)
 
     assert env.observation_space.shape[-1] == 3

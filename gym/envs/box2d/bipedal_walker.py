@@ -254,7 +254,6 @@ class BipedalWalker(gym.Env, EzPickle):
         # ]
         # state += [l.fraction for l in self.lidar]
 
-        assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
         self.renderer = Renderer(self.render_mode, self._render)
         self.screen = None
