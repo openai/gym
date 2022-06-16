@@ -1,5 +1,3 @@
-from typing import Optional
-
 import numpy as np
 
 from gym import utils
@@ -7,10 +5,10 @@ from gym.envs.mujoco import mujoco_env
 
 
 class PusherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
-    def __init__(self, render_mode: Optional[str] = None):
+    def __init__(self, **kwargs):
         utils.EzPickle.__init__(self)
         mujoco_env.MujocoEnv.__init__(
-            self, "pusher.xml", 5, render_mode=render_mode, mujoco_bindings="mujoco_py"
+            self, "pusher.xml", 5, mujoco_bindings="mujoco_py", **kwargs
         )
 
     def step(self, a):

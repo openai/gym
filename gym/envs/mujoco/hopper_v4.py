@@ -1,5 +1,3 @@
-from typing import Optional
-
 import numpy as np
 
 from gym import utils
@@ -142,7 +140,6 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     def __init__(
         self,
-        render_mode: Optional[str] = None,
         forward_reward_weight=1.0,
         ctrl_cost_weight=1e-3,
         healthy_reward=1.0,
@@ -152,6 +149,7 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         healthy_angle_range=(-0.2, 0.2),
         reset_noise_scale=5e-3,
         exclude_current_positions_from_observation=True,
+        **kwargs
     ):
         utils.EzPickle.__init__(**locals())
 
@@ -172,7 +170,7 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             exclude_current_positions_from_observation
         )
 
-        mujoco_env.MujocoEnv.__init__(self, "hopper.xml", 4, render_mode=render_mode)
+        mujoco_env.MujocoEnv.__init__(self, "hopper.xml", 4, **kwargs)
 
     @property
     def healthy_reward(self):

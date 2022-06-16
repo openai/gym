@@ -208,7 +208,6 @@ class CarRacing(gym.Env, EzPickle):
             low=0, high=255, shape=(STATE_H, STATE_W, 3), dtype=np.uint8
         )
 
-        assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
         self.renderer = Renderer(self.render_mode, self._render)
 

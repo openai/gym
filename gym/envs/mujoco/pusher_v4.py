@@ -1,5 +1,3 @@
-from typing import Optional
-
 import numpy as np
 
 from gym import utils
@@ -134,9 +132,9 @@ class PusherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     """
 
-    def __init__(self, render_mode: Optional[str] = None):
+    def __init__(self, **kwargs):
         utils.EzPickle.__init__(self)
-        mujoco_env.MujocoEnv.__init__(self, "pusher.xml", 5, render_mode=render_mode)
+        mujoco_env.MujocoEnv.__init__(self, "pusher.xml", 5, **kwargs)
 
     def step(self, a):
         vec_1 = self.get_body_com("object") - self.get_body_com("tips_arm")
