@@ -4,7 +4,7 @@ import pytest
 
 import gym
 from gym.wrappers.env_checker import PassiveEnvChecker
-from tests.envs.spec_list import spec_list
+from tests.envs.utils import all_testing_env_specs
 from tests.testing_env import GenericTestEnv
 from tests.wrappers.utils import has_wrapper
 
@@ -89,7 +89,9 @@ IGNORE_WARNINGS = [
 ]
 
 
-@pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
+@pytest.mark.parametrize(
+    "spec", all_testing_env_specs, ids=[spec.id for spec in all_testing_env_specs]
+)
 def test_wrapper_passes(spec):
     with pytest.warns(None) as warnings:
         if spec.id == "CliffWalking-v0":

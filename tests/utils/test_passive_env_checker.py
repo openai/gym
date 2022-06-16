@@ -447,7 +447,7 @@ def test_passive_env_step_checker(test, func, message):
             GenericTestEnv(
                 render_modes=["Testing mode"], render_fps=30, render_mode="Non mode"
             ),
-            "The environment was initialized successfully however with an unsupported render mode.",
+            "The environment was initialized successfully however with an unsupported render mode. Render mode: Non mode, modes: ['Testing mode']",
         ],
     ],
 )

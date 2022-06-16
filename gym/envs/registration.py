@@ -594,7 +594,7 @@ def make(
     mode = kwargs.get("render_mode")
     if mode is not None and mode not in render_modes:
         raise error.Error(
-            f"Invalid render_mode provided: {mode}. Valid render_modes: None, {', '.join(render_modes)}"
+            f"Invalid render_mode provided: {mode}. Valid render_modes: {[None] + render_modes}"
         )
 
     env = env_creator(**_kwargs)

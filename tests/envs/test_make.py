@@ -9,7 +9,7 @@ from gym.envs.classic_control import cartpole
 from gym.wrappers import AutoResetWrapper, OrderEnforcing, TimeLimit
 from gym.wrappers.env_checker import PassiveEnvChecker
 from tests.envs.register_during_make_env import RegisterDuringMakeEnv
-from tests.envs.spec_list import spec_list
+from tests.envs.utils import all_testing_env_specs
 from tests.wrappers.utils import has_wrapper
 
 
@@ -98,7 +98,7 @@ def test_make_disable_env_checker():
 
 def test_make_order_enforcing():
     """Checks that gym.make wrappers the environment with the OrderEnforcing wrapper."""
-    assert all(spec.order_enforce is True for spec in spec_list)
+    assert all(spec.order_enforce is True for spec in all_testing_env_specs)
 
     env = gym.make("CartPole-v1", disable_env_checker=True)
     assert has_wrapper(env, OrderEnforcing)
@@ -109,11 +109,10 @@ def test_make_order_enforcing():
         id="test.ArgumentEnv-v0",
         entry_point="tests.envs.test_make:ArgumentEnv",
         order_enforce=False,
+        kwargs={"arg1": None, "arg2": None, "arg3": None},
     )
 
-    env = gym.make(
-        "test.ArgumentEnv-v0", arg2=None, arg3=None, disable_env_checker=True
-    )
+    env = gym.make("test.ArgumentEnv-v0", disable_env_checker=True)
     assert has_wrapper(env, OrderEnforcing) is False
     env.close()
 
@@ -130,9 +129,9 @@ def test_make_render_mode():
 
     assert "no mode" not in valid_render_modes
     with pytest.raises(
-        AssertionError,
+        gym.error.Error,
         match=re.escape(
-            "Invalid render_mode provided: no mode, Valid render_modes: ['human', 'rgb_array', 'single_rgb_array']"
+            "Invalid render_mode provided: no mode. Valid render_modes: [None, 'human', 'rgb_array', 'single_rgb_array']"
         ),
     ):
         gym.make("CartPole-v1", render_mode="no mode", disable_env_checker=True)

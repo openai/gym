@@ -190,6 +190,17 @@ class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     """
 
+    metadata = {
+        "render_modes": [
+            "human",
+            "rgb_array",
+            "depth_array",
+            "single_rgb_array",
+            "single_depth_array",
+        ],
+        "render_fps": 67,
+    }
+
     def __init__(self, **kwargs):
         mujoco_env.MujocoEnv.__init__(self, "humanoidstandup.xml", 5, **kwargs)
         utils.EzPickle.__init__(self)

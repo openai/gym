@@ -5,6 +5,17 @@ from gym.envs.mujoco import mujoco_env
 
 
 class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
+    metadata = {
+        "render_modes": [
+            "human",
+            "rgb_array",
+            "depth_array",
+            "single_rgb_array",
+            "single_depth_array",
+        ],
+        "render_fps": 125,
+    }
+
     def __init__(self, **kwargs):
         mujoco_env.MujocoEnv.__init__(
             self, "walker2d.xml", 4, mujoco_bindings="mujoco_py", **kwargs

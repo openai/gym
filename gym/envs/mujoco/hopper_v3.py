@@ -14,6 +14,17 @@ DEFAULT_CAMERA_CONFIG = {
 
 
 class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
+    metadata = {
+        "render_modes": [
+            "human",
+            "rgb_array",
+            "depth_array",
+            "single_rgb_array",
+            "single_depth_array",
+        ],
+        "render_fps": 125,
+    }
+
     def __init__(
         self,
         xml_file="hopper.xml",
