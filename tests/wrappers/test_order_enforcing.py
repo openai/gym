@@ -1,19 +1,9 @@
 import pytest
 
-import gym
 from gym.envs.classic_control import CartPoleEnv
 from gym.error import ResetNeeded
 from gym.wrappers import OrderEnforcing
-from tests.envs.spec_list import spec_list
 from tests.wrappers.utils import has_wrapper
-
-
-@pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
-def test_gym_make_order_enforcing(spec):
-    """Checks that gym.make wrappers the environment with the OrderEnforcing wrapper."""
-    env = gym.make(spec.id)
-
-    assert has_wrapper(env, OrderEnforcing)
 
 
 def test_order_enforcing():

@@ -35,6 +35,16 @@ class TimeLimit(gym.Wrapper):
         self._max_episode_steps = max_episode_steps
         self._elapsed_steps = None
 
+    @property
+    def max_episode_steps(self):
+        """The max episode steps."""
+        return self._max_episode_steps
+
+    @property
+    def elapsed_steps(self):
+        """The number of elapsed steps."""
+        return self._elapsed_steps
+
     def step(self, action):
         """Steps through the environment and if the number of steps elapsed exceeds ``max_episode_steps`` then truncate.
 
