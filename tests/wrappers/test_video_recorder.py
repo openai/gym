@@ -29,7 +29,7 @@ class UnrecordableEnv:
 
 
 def test_record_simple():
-    env = gym.make("CartPole-v1", render_mode="rgb_array")
+    env = gym.make("CartPole-v1", render_mode="rgb_array", disable_env_checker=True)
     rec = VideoRecorder(env)
     env.reset()
     rec.capture_frame()
@@ -49,7 +49,7 @@ def test_record_simple():
 
 def test_autoclose():
     def record():
-        env = gym.make("CartPole-v1", render_mode="rgb_array")
+        env = gym.make("CartPole-v1", render_mode="rgb_array", disable_env_checker=True)
         rec = VideoRecorder(env)
         env.reset()
         rec.capture_frame()
@@ -102,7 +102,7 @@ def test_record_breaking_render_method():
 
 
 def test_text_envs():
-    env = gym.make("FrozenLake-v1", render_mode="rgb_array")
+    env = gym.make("FrozenLake-v1", render_mode="rgb_array", disable_env_checker=True)
     video = VideoRecorder(env)
     try:
         env.reset()

@@ -13,8 +13,12 @@ pytest.importorskip("cv2")
 )
 @pytest.mark.parametrize("keep_dim", [True, False])
 def test_gray_scale_observation(env_id, keep_dim):
-    gray_env = AtariPreprocessing(gym.make(env_id), screen_size=84, grayscale_obs=True)
-    rgb_env = AtariPreprocessing(gym.make(env_id), screen_size=84, grayscale_obs=False)
+    gray_env = AtariPreprocessing(
+        gym.make(env_id, disable_env_checker=True), screen_size=84, grayscale_obs=True
+    )
+    rgb_env = AtariPreprocessing(
+        gym.make(env_id, disable_env_checker=True), screen_size=84, grayscale_obs=False
+    )
     wrapped_env = GrayScaleObservation(rgb_env, keep_dim=keep_dim)
     assert rgb_env.observation_space.shape[-1] == 3
 
