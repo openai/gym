@@ -74,7 +74,7 @@ def test_env_failure():
     assert env.elapsed_steps is None
     with pytest.raises(gym.error.Error):
         env.reset()
-    assert env.elapsed_steps is None
+    assert env.elapsed_steps == 0
 
     env = TimeLimit(GenericTestEnv(step_fn=_raise_exception), 10)
     assert env.elapsed_steps is None

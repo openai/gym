@@ -92,7 +92,11 @@ IGNORE_WARNINGS = [
 @pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
 def test_wrapper_passes(spec):
     with pytest.warns(None) as warnings:
-        env = gym.make(spec.id, render_mode="human")  # todo, change this to rgb_array
+        if spec.id == "CliffWalking-v0":
+            # Cliffwalking is the only gym environment without rgb_array rendering
+            env = gym.make(spec.id, render_mode="human")
+        else:
+            env = gym.make(spec.id, render_mode="rgb_array")
         assert has_wrapper(env, PassiveEnvChecker)
 
         env.reset()
@@ -106,3 +110,5 @@ def test_wrapper_passes(spec):
         )
         for warning in warnings
     ), [warning.message.args[0] for warning in warnings]
+
+    env.close()

@@ -440,7 +440,7 @@ def test_passive_env_step_checker(test, func, message):
         [
             AssertionError,
             GenericTestEnv(render_modes=[], render_fps=30, render_mode="Test"),
-            "With no render_modes, expects the render_mode to be None",
+            "With no render_modes, expects the Env.render_mode to be None, actual value: Test",
         ],
         [
             AssertionError,

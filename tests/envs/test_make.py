@@ -108,7 +108,7 @@ def test_make_order_enforcing():
     gym.register(
         id="test.ArgumentEnv-v0",
         entry_point="tests.envs.test_make:ArgumentEnv",
-        order_enforcing=False,
+        order_enforce=False,
     )
 
     env = gym.make("test.ArgumentEnv-v0", arg2=None, arg3=None)
