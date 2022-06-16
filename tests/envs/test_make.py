@@ -54,7 +54,7 @@ def test_make_max_episode_steps():
     assert env.spec.max_episode_steps == 100
     env.close()
 
-    # Env spec has no max episode steps, todo replace with TestingEnv
+    # Env spec has no max episode steps, todo replace with GenericTestingEnv
     gym.register(
         id="test.ArgumentEnv-v0", entry_point="tests.envs.test_make:ArgumentEnv"
     )
@@ -114,6 +114,36 @@ def test_make_order_enforcing():
     env = gym.make("test.ArgumentEnv-v0", arg2=None, arg3=None)
     assert has_wrapper(env, OrderEnforcing) is False
     env.close()
+
+
+def test_make_render_mode():
+    env = gym.make("CartPole-v1", disable_env_checker=True)
+    assert env.render_mode is None
+    env.close()
+
+    env = gym.make("CartPole-v1", render_mode=None, disable_env_checker=True)
+    assert env.render_mode is None
+    valid_render_modes = env.metadata["render_modes"]
+    env.close()
+
+    assert "no mode" not in valid_render_modes
+    with pytest.raises(
+        AssertionError,
+        match=re.escape(
+            "Invalid render_mode provided: no mode, Valid render_modes: ['human', 'rgb_array', 'single_rgb_array']"
+        ),
+    ):
+        gym.make("CartPole-v1", render_mode="no mode", disable_env_checker=True)
+
+    assert len(valid_render_modes) > 0
+    with pytest.warns(None) as warnings:
+        env = gym.make(
+            "CartPole-v1", render_mode=valid_render_modes[0], disable_env_checker=True
+        )
+        assert env.render_mode == valid_render_modes[0]
+        env.close()
+
+    assert len(warnings) == 0
 
 
 def test_make_kwargs():
