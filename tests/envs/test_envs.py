@@ -1,13 +1,8 @@
-from typing import List
-
 import pytest
 
 import gym
-from gym import envs
 from gym.envs.registration import EnvSpec
 from gym.utils.env_checker import check_env
-from tests.envs.spec_list import spec_list, spec_list_no_mujoco_py
-
 from tests.envs.utils import all_testing_env_specs, assert_equals, gym_testing_env_specs
 
 # This runs a smoketest on each official registered env. We may want
@@ -21,7 +16,9 @@ IGNORE_WARNINGS = [
 IGNORE_WARNINGS = [f"\x1b[33mWARN: {message}\x1b[0m" for message in IGNORE_WARNINGS]
 
 
-@pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
+@pytest.mark.parametrize(
+    "spec", all_testing_env_specs, ids=[spec.id for spec in all_testing_env_specs]
+)
 def test_env(spec):
     # Capture warnings
     env = spec.make(disable_env_checker=True)
@@ -90,6 +87,7 @@ def test_env_determinism_rollout(env_spec: EnvSpec):
 
     env_1.close()
     env_2.close()
+
 
 @pytest.mark.parametrize(
     "spec", gym_testing_env_specs, ids=[spec.id for spec in gym_testing_env_specs]

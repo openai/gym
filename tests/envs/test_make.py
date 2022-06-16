@@ -24,7 +24,7 @@ class ArgumentEnv(gym.Env):
 
 
 def test_make():
-    env = gym.make("CartPole-v1")
+    env = gym.make("CartPole-v1", disable_env_checker=True)
     assert env.spec.id == "CartPole-v1"
     assert isinstance(env.unwrapped, cartpole.CartPoleEnv)
     env.close()
@@ -68,11 +68,11 @@ def test_make_max_episode_steps():
 
 def test_gym_make_autoreset():
     """Tests that `gym.make` autoreset wrapper is applied only when `gym.make(..., autoreset=True)`."""
-    env = gym.make("CartPole-v1")
+    env = gym.make("CartPole-v1", disable_env_checker=True)
     assert has_wrapper(env, AutoResetWrapper) is False
     env.close()
 
-    env = gym.make("CartPole-v1", autoreset=False)
+    env = gym.make("CartPole-v1", autoreset=False, disable_env_checker=True)
     assert has_wrapper(env, AutoResetWrapper) is False
     env.close()
 
@@ -100,7 +100,7 @@ def test_make_order_enforcing():
     """Checks that gym.make wrappers the environment with the OrderEnforcing wrapper."""
     assert all(spec.order_enforce is True for spec in spec_list)
 
-    env = gym.make("CartPole-v1")
+    env = gym.make("CartPole-v1", disable_env_checker=True)
     assert has_wrapper(env, OrderEnforcing)
     # We can assume that there all other specs will also have the order enforcing
     env.close()
@@ -111,7 +111,9 @@ def test_make_order_enforcing():
         order_enforce=False,
     )
 
-    env = gym.make("test.ArgumentEnv-v0", arg2=None, arg3=None)
+    env = gym.make(
+        "test.ArgumentEnv-v0", arg2=None, arg3=None, disable_env_checker=True
+    )
     assert has_wrapper(env, OrderEnforcing) is False
     env.close()
 
@@ -160,6 +162,7 @@ def test_make_kwargs():
         "test.ArgumentEnv-v0",
         arg2="override_arg2",
         arg3="override_arg3",
+        disable_env_checker=True,
     )
     assert env.spec.id == "test.ArgumentEnv-v0"
     assert isinstance(env.unwrapped, ArgumentEnv)
@@ -171,6 +174,9 @@ def test_make_kwargs():
 
 def test_import_module_during_make():
     # Test custom environment which is registered at make
-    env = gym.make("tests.envs.register_during_make_env:RegisterDuringMakeEnv-v0")
+    env = gym.make(
+        "tests.envs.register_during_make_env:RegisterDuringMakeEnv-v0",
+        disable_env_checker=True,
+    )
     assert isinstance(env.unwrapped, RegisterDuringMakeEnv)
     env.close()
