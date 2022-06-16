@@ -218,7 +218,12 @@ class MujocoEnv(gym.Env):
             self._mujoco_bindings.mj_rnePostConstraint(self.model, self.data)
 
     def render(
-        self, mode="human", width=None, height=None, camera_id=None, camera_name=None
+        self,
+        mode: str = "human",
+        width: Optional[int] = None,
+        height: Optional[int] = None,
+        camera_id: Optional[int] = None,
+        camera_name: Optional[str] = None,
     ):
         if self.render_mode is not None:
             assert (
@@ -241,11 +246,11 @@ class MujocoEnv(gym.Env):
 
     def _render(
         self,
-        mode="human",
-        width=DEFAULT_SIZE,
-        height=DEFAULT_SIZE,
-        camera_id=None,
-        camera_name=None,
+        mode: str = "human",
+        width: int = DEFAULT_SIZE,
+        height: int = DEFAULT_SIZE,
+        camera_id: Optional[int] = None,
+        camera_name: Optional[str] = None,
     ):
         assert mode in self.metadata["render_modes"]
 
