@@ -15,7 +15,7 @@ def basic_reset_fn(
     return_info: bool = False,
     options: Optional[dict] = None,
 ) -> Union[ObsType, Tuple[ObsType, dict]]:
-    super(TestingEnv, self).reset(seed=seed)
+    super(GenericTestEnv, self).reset(seed=seed)
     self.observation_space.seed(seed)
     if return_info:
         return self.observation_space.sample(), {"options": options}
@@ -28,7 +28,7 @@ def basic_step_fn(self, action: ActType) -> Tuple[ObsType, float, bool, dict]:
 
 
 # todo: change all testing environment to this generic class
-class TestingEnv(gym.Env):
+class GenericTestEnv(gym.Env):
     def __init__(
         self,
         action_space: spaces.Space = spaces.Box(0, 1, ()),

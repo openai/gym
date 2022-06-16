@@ -5,7 +5,7 @@ import pytest
 import gym
 from gym.wrappers.env_checker import PassiveEnvChecker
 from tests.envs.spec_list import spec_list
-from tests.testing_env import TestingEnv
+from tests.testing_env import GenericTestEnv
 from tests.wrappers.utils import has_wrapper
 
 
@@ -13,19 +13,19 @@ from tests.wrappers.utils import has_wrapper
     "env, message",
     [
         (
-            TestingEnv(action_space=None),
+            GenericTestEnv(action_space=None),
             "You must specify a action space. https://www.gymlibrary.ml/content/environment_creation/",
         ),
         (
-            TestingEnv(action_space="error"),
+            GenericTestEnv(action_space="error"),
             "Action space does not inherit from `gym.spaces.Space`, actual type: <class 'str'>",
         ),
         (
-            TestingEnv(observation_space=None),
+            GenericTestEnv(observation_space=None),
             "You must specify an observation space. https://www.gymlibrary.ml/content/environment_creation/",
         ),
         (
-            TestingEnv(observation_space="error"),
+            GenericTestEnv(observation_space="error"),
             "Observation space does not inherit from `gym.spaces.Space`, actual type: <class 'str'>",
         ),
     ],
@@ -34,8 +34,10 @@ def test_initialise_failures(env, message):
     with pytest.raises(AssertionError, match=f"^{re.escape(message)}$"):
         PassiveEnvChecker(env)
 
+    env.close()
 
-def _reset_failure(self):
+
+def _reset_failure(self, seed=None, return_info=False, options=None):
     return "error"
 
 
@@ -44,7 +46,7 @@ def _step_failure(self, action):
 
 
 def test_api_failures():
-    env = TestingEnv(
+    env = GenericTestEnv(
         reset_fn=_reset_failure, step_fn=_step_failure, render_modes="error"
     )
     env = PassiveEnvChecker(env)
@@ -73,6 +75,8 @@ def test_api_failures():
         env.render()
     assert env.checked_render
 
+    env.close()
+
 
 IGNORE_WARNINGS = [
     r"The environment \w+-v\d is out of date\. You should consider upgrading to version `v\d`\.",
@@ -88,7 +92,7 @@ IGNORE_WARNINGS = [
 @pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
 def test_wrapper_passes(spec):
     with pytest.warns(None) as warnings:
-        env = gym.make(spec.id, render_mode="human")
+        env = gym.make(spec.id, render_mode="human")  # todo, change this to rgb_array
         assert has_wrapper(env, PassiveEnvChecker)
 
         env.reset()

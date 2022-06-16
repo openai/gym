@@ -13,7 +13,7 @@ from gym.utils.env_checker import (
     check_reset_options,
     check_reset_seed,
 )
-from tests.testing_env import TestingEnv
+from tests.testing_env import GenericTestEnv
 
 
 def _no_super_reset(self, seed=None, return_info=False, options=None):
@@ -24,16 +24,16 @@ def _no_super_reset(self, seed=None, return_info=False, options=None):
 
 def _super_reset_fixed(self, seed=None, return_info=False, options=None):
     # Call super that ignores the seed passed, use fixed seed
-    super(TestingEnv, self).reset(seed=1)
+    super(GenericTestEnv, self).reset(seed=1)
     # deterministic output
     self.observation_space._np_random = self.np_random
     return self.observation_space.sample()
 
 
 def _reset_default_seed(
-    self: TestingEnv, seed="Error", return_info=False, options=None
+    self: GenericTestEnv, seed="Error", return_info=False, options=None
 ):
-    super(TestingEnv, self).reset(seed=seed)
+    super(GenericTestEnv, self).reset(seed=seed)
     self.observation_space._np_random = self.np_random
     return self.observation_space.sample()
 
@@ -74,10 +74,10 @@ def test_check_reset_seed(test, func: callable, message: str):
         with pytest.warns(
             UserWarning, match=f"^\\x1b\\[33mWARN: {re.escape(message)}\\x1b\\[0m$"
         ):
-            check_reset_seed(TestingEnv(reset_fn=func))
+            check_reset_seed(GenericTestEnv(reset_fn=func))
     else:
         with pytest.raises(test, match=f"^{re.escape(message)}$"):
-            check_reset_seed(TestingEnv(reset_fn=func))
+            check_reset_seed(GenericTestEnv(reset_fn=func))
 
 
 def _reset_return_info_type(seed=None, return_info=False, options=None):
@@ -144,10 +144,10 @@ def test_check_reset_info(test, func: callable, message: str):
         with pytest.warns(
             UserWarning, match=f"^\\x1b\\[33mWARN: {re.escape(message)}\\x1b\\[0m$"
         ):
-            check_reset_info(TestingEnv(reset_fn=func))
+            check_reset_info(GenericTestEnv(reset_fn=func))
     else:
         with pytest.raises(test, match=f"^{re.escape(message)}$"):
-            check_reset_info(TestingEnv(reset_fn=func))
+            check_reset_info(GenericTestEnv(reset_fn=func))
 
 
 def test_check_reset_options():
@@ -159,7 +159,7 @@ def test_check_reset_options():
             "The `reset` method does not provide the `options` keyword argument"
         ),
     ):
-        check_reset_options(TestingEnv(reset_fn=lambda self: 0))
+        check_reset_options(GenericTestEnv(reset_fn=lambda self: 0))
 
 
 @pytest.mark.parametrize(
@@ -170,11 +170,11 @@ def test_check_reset_options():
             "Your environment must inherit from the gym.Env class https://www.gymlibrary.ml/content/environment_creation/",
         ],
         [
-            TestingEnv(action_space=None),
+            GenericTestEnv(action_space=None),
             "You must specify a action space. https://www.gymlibrary.ml/content/environment_creation/",
         ],
         [
-            TestingEnv(observation_space=None),
+            GenericTestEnv(observation_space=None),
             "You must specify an observation space. https://www.gymlibrary.ml/content/environment_creation/",
         ],
     ],
@@ -190,17 +190,17 @@ def test_check_env(env, message: str):
     [
         gym.make("CartPole-v1", disable_env_checker=True),
         gym.make("MountainCar-v0", disable_env_checker=True),
-        TestingEnv(
+        GenericTestEnv(
             observation_space=spaces.Dict(
                 a=spaces.Discrete(10), b=spaces.Box(np.zeros(2), np.ones(2))
             )
         ),
-        TestingEnv(
+        GenericTestEnv(
             observation_space=spaces.Tuple(
                 [spaces.Discrete(10), spaces.Box(np.zeros(2), np.ones(2))]
             )
         ),
-        TestingEnv(
+        GenericTestEnv(
             observation_space=spaces.Dict(
                 a=spaces.Tuple(
                     [spaces.Discrete(10), spaces.Box(np.zeros(2), np.ones(2))]

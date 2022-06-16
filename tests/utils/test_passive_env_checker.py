@@ -14,7 +14,7 @@ from gym.utils.passive_env_checker import (
     passive_env_reset_checker,
     passive_env_step_checker,
 )
-from tests.testing_env import TestingEnv
+from tests.testing_env import GenericTestEnv
 
 
 def modified_space(space: spaces.Space, attribute: str, value):
@@ -317,10 +317,10 @@ def test_passive_env_reset_checker(test, func: callable, message: str, kwargs: D
         with pytest.warns(
             UserWarning, match=f"^\\x1b\\[33mWARN: {re.escape(message)}\\x1b\\[0m$"
         ):
-            passive_env_reset_checker(TestingEnv(reset_fn=func), **kwargs)
+            passive_env_reset_checker(GenericTestEnv(reset_fn=func), **kwargs)
     else:
         with pytest.raises(test, match=f"^{re.escape(message)}$"):
-            passive_env_reset_checker(TestingEnv(reset_fn=func), **kwargs)
+            passive_env_reset_checker(GenericTestEnv(reset_fn=func), **kwargs)
 
 
 def modified_step(
@@ -398,10 +398,10 @@ def test_passive_env_step_checker(test, func, message):
         with pytest.warns(
             UserWarning, match=f"^\\x1b\\[33mWARN: {re.escape(message)}\\x1b\\[0m$"
         ):
-            passive_env_step_checker(TestingEnv(step_fn=func), 0)
+            passive_env_step_checker(GenericTestEnv(step_fn=func), 0)
     else:
         with pytest.raises(test, match=f"^{re.escape(message)}$"):
-            passive_env_step_checker(TestingEnv(step_fn=func), 0)
+            passive_env_step_checker(GenericTestEnv(step_fn=func), 0)
 
 
 @pytest.mark.parametrize(
@@ -409,22 +409,22 @@ def test_passive_env_step_checker(test, func, message):
     [
         [
             gym.error.Error,
-            TestingEnv(render_modes=None),
+            GenericTestEnv(render_modes=None),
             "No render modes was declared in the environment (env.metadata['render_modes'] is None or not defined), you may have trouble when calling `.render()`.",
         ],
         [
             AssertionError,
-            TestingEnv(render_modes="Testing mode"),
+            GenericTestEnv(render_modes="Testing mode"),
             "Expects the render_modes to be a sequence (i.e. list, tuple), actual type: <class 'str'>",
         ],
         [
             AssertionError,
-            TestingEnv(render_modes=["Testing mode", 1]),
+            GenericTestEnv(render_modes=["Testing mode", 1]),
             "Expects all render modes to be strings, actual types: [<class 'str'>, <class 'int'>].",
         ],
         [
             UserWarning,
-            TestingEnv(
+            GenericTestEnv(
                 render_modes=["Testing mode"],
                 render_fps=None,
                 render_mode="Testing mode",
@@ -434,24 +434,24 @@ def test_passive_env_step_checker(test, func, message):
         ],
         [
             AssertionError,
-            TestingEnv(render_modes=["Testing mode"], render_fps="fps"),
+            GenericTestEnv(render_modes=["Testing mode"], render_fps="fps"),
             "Expects the `env.metadata['render_fps']` to be an integer, actual type: <class 'str'>.",
         ],
         [
             AssertionError,
-            TestingEnv(render_modes=[], render_fps=30, render_mode="Test"),
+            GenericTestEnv(render_modes=[], render_fps=30, render_mode="Test"),
             "With no render_modes, expects the render_mode to be None",
         ],
         [
             AssertionError,
-            TestingEnv(
+            GenericTestEnv(
                 render_modes=["Testing mode"], render_fps=30, render_mode="Non mode"
             ),
             "The environment was initialized successfully however with an unsupported render mode.",
         ],
     ],
 )
-def test_passive_render_checker(test, env: TestingEnv, message: str):
+def test_passive_render_checker(test, env: GenericTestEnv, message: str):
     """Tests the passive render checker."""
     if test is UserWarning:
         with pytest.warns(
