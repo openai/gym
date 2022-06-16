@@ -226,6 +226,7 @@ def passive_env_reset_checker(env, **kwargs):
 
 def passive_env_step_checker(env, action):
     """A passive check for the environment step, investigating the returning data then returning the data unchanged."""
+    # We don't check the action as for some environments then out-of-bounds values can be given
     result = env.step(action)
     assert isinstance(
         result, tuple
@@ -310,10 +311,11 @@ def passive_env_render_checker(env, *args, **kwargs):
         if len(render_modes) == 0:
             assert (
                 env.render_mode is None
-            ), "With no render_modes, expects the render_mode to be None"
+            ), f"With no render_modes, expects the Env.render_mode to be None, actual value: {env.render_mode}"
         else:
-            assert (
-                env.render_mode is None or env.render_mode in render_modes
-            ), "The environment was initialized successfully however with an unsupported render mode."
+            assert env.render_mode is None or env.render_mode in render_modes, (
+                "The environment was initialized successfully however with an unsupported render mode. "
+                f"Render mode: {env.render_mode}, modes: {render_modes}"
+            )
 
     return env.render(*args, **kwargs)
