@@ -589,7 +589,7 @@ def make(
         # Assume it's a string
         env_creator = load(spec_.entry_point)
 
-    mode = kwargs.get("render_mode")
+    mode = _kwargs.get("render_mode")
     apply_human_rendering = False
 
     # If we have access to metadata we check that "render_mode" is valid
