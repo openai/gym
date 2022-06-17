@@ -273,6 +273,10 @@ class Env(Generic[ObsType, ActType]):
         # propagate exception
         return False
 
+    def __del__(self):
+        """The environment's destructor."""
+        self.close()
+
 
 class Wrapper(Env[ObsType, ActType]):
     """Wraps an environment to allow a modular transformation of the :meth:`step` and :meth:`reset` methods.
