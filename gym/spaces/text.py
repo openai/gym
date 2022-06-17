@@ -19,8 +19,8 @@ class Text(Space[str]):
     Example::
         >>> # {"", "B5", "hello", ...}
         >>> Text(5)
-        >>> # {"01", "0123456789", ...}
-        >>> Text(min_length = 2,
+        >>> # {"0", "42", "0123456789", ...}
+        >>> Text(min_length = 1,
         ...      max_length = 10,
         ...      charset = string.digits)
     """
