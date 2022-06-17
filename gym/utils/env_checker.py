@@ -20,12 +20,13 @@ from copy import deepcopy
 import numpy as np
 
 import gym
-from gym import error, logger
+from gym import logger, spaces
 from gym.utils.passive_env_checker import (
     check_action_space,
     check_observation_space,
-    passive_env_reset_check,
-    passive_env_step_check,
+    passive_env_render_checker,
+    passive_env_reset_checker,
+    passive_env_step_checker,
 )
 
 
@@ -70,20 +71,38 @@ def check_reset_seed(env: gym.Env):
     if "seed" in signature.parameters or "kwargs" in signature.parameters:
         try:
             obs_1 = env.reset(seed=123)
-            assert obs_1 in env.observation_space
-            obs_2 = env.reset(seed=123)
-            assert obs_2 in env.observation_space
-            assert data_equivalence(obs_1, obs_2)
+            assert (
+                obs_1 in env.observation_space
+            ), "The observation returns by `env.reset(seed=123)` is not within the observation space"
             seed_123_rng = deepcopy(env.unwrapped.np_random)
+            obs_2 = env.reset(seed=123)
+            assert (
+                obs_2 in env.observation_space
+            ), "The observation returns by `env.reset(seed=123)` is not within the observation space"
+            if env.spec is not None and env.spec.nondeterministic is False:
+                assert data_equivalence(
+                    obs_1, obs_2
+                ), "`env.reset(seed=123)` is not deterministic as the observations are not equivalent"
+            assert (
+                env.unwrapped.np_random.bit_generator.state
+                == seed_123_rng.bit_generator.state
+            ), (
+                "Mostly likely the environment reset function does not call `super().reset(seed=seed)` "
+                "as the random generates are not same when the same seeds are passed to `env.reset`."
+            )
 
-            # Note: for some environment, they may initialise at the same state, therefore we cannot check the obs_1 != obs_3
-            obs_4 = env.reset(seed=None)
-            assert obs_4 in env.observation_space
-
+            obs_3 = env.reset(seed=456)
+            assert (
+                obs_3 in env.observation_space
+            ), "The observation returns by `env.reset(seed=456)` is not within the observation space"
             assert (
                 env.unwrapped.np_random.bit_generator.state
                 != seed_123_rng.bit_generator.state
+            ), (
+                "Mostly likely the environment reset function does not call `super().reset(seed=seed)` "
+                "as the random generates are not different when different seeds are passed to `env.reset`."
             )
+
         except TypeError as e:
             raise AssertionError(
                 "The environment cannot be reset with a random seed, even though `seed` or `kwargs` appear in the signature. "
@@ -91,7 +110,7 @@ def check_reset_seed(env: gym.Env):
                 f"The error was: {e}"
             )
 
-        if env.unwrapped.np_random is None:
+        if env.unwrapped._np_random is None:
             logger.warn(
                 "Resetting the environment did not result in seeding its random number generator. "
                 "This is likely due to not calling `super().reset(seed=seed)` in the `reset` method. "
@@ -103,11 +122,12 @@ def check_reset_seed(env: gym.Env):
         if seed_param is not None and seed_param.default is not None:
             logger.warn(
                 "The default seed argument in reset should be `None`, "
-                "otherwise the environment will by default always be deterministic"
+                "otherwise the environment will by default always be deterministic. "
+                f"Actual default: {seed_param.default}"
             )
     else:
-        raise error.Error(
-            "The `reset` method does not provide the `return_info` keyword argument"
+        raise gym.error.Error(
+            "The `reset` method does not provide the `seed` keyword argument"
         )
 
 
@@ -124,11 +144,22 @@ def check_reset_info(env: gym.Env):
     signature = inspect.signature(env.reset)
     if "return_info" in signature.parameters or "kwargs" in signature.parameters:
         try:
+            obs = env.reset(return_info=False)
+            assert (
+                obs in env.observation_space
+            ), "The value returned by `env.reset(return_info=True)` is not within the observation space"
+
             result = env.reset(return_info=True)
+            assert isinstance(
+                result, tuple
+            ), f"Calling the reset method with `return_info=True` did not return a tuple, actual type: {type(result)}"
             assert (
                 len(result) == 2
-            ), "Calling the reset method with `return_info=True` did not return a 2-tuple"
+            ), f"Calling the reset method with `return_info=True` did not return a 2-tuple, actual length: {len(result)}"
             obs, info = result
+            assert (
+                obs in env.observation_space
+            ), "The first element returned by `env.reset(return_info=True)` is not within the observation space"
             assert isinstance(
                 info, dict
             ), "The second element returned by `env.reset(return_info=True)` was not a dictionary"
@@ -139,7 +170,7 @@ def check_reset_info(env: gym.Env):
                 f"The error was: {e}"
             )
     else:
-        raise error.Error(
+        raise gym.error.Error(
             "The `reset` method does not provide the `return_info` keyword argument"
         )
 
@@ -165,47 +196,49 @@ def check_reset_options(env: gym.Env):
                 f"The error was: {e}"
             )
     else:
-        raise error.Error(
+        raise gym.error.Error(
             "The `reset` method does not provide the `options` keyword argument"
         )
 
 
-def check_render(env: gym.Env, warn: bool = True):
-    """Check the declared render modes/fps of the environment.
-
-    Args:
-        env: The environment to check
-        warn: Whether to output additional warnings
-    """
-    render_modes = env.metadata.get("render_modes")
-    if render_modes is None:
-        if warn:
+def check_space_limit(space, space_type: str):
+    """Check the space limit for only the Box space as a test that only runs as part of `check_env`."""
+    if isinstance(space, spaces.Box):
+        if np.any(np.equal(space.low, -np.inf)):
             logger.warn(
-                "No render modes was declared in the environment "
-                " (env.metadata['render_modes'] is None or not defined), "
-                "you may have trouble when calling `.render()`"
+                f"Agent's minimum {space_type} space value is -infinity. This is probably too low."
+            )
+        if np.any(np.equal(space.high, np.inf)):
+            logger.warn(
+                f"Agent's maximum {space_type} space value is infinity. This is probably too high."
             )
 
-    render_fps = env.metadata.get("render_fps")
-    # We only require `render_fps` if rendering is actually implemented
-    if render_fps is None and render_modes is not None and len(render_modes) > 0:
-        if warn:
-            logger.warn(
-                "No render fps was declared in the environment "
-                " (env.metadata['render_fps'] is None or not defined), "
-                "rendering may occur at inconsistent fps"
-            )
+        # Check that the Box space is normalized
+        if space_type == "action":
+            if space.shape == (1,):
+                if (
+                    np.any(
+                        np.logical_and(
+                            space.low != np.zeros_like(space.low),
+                            np.abs(space.low) != np.abs(space.high),
+                        )
+                    )
+                    or np.any(space.low < -1)
+                    or np.any(space.high > 1)
+                ):
+                    logger.warn(
+                        "We recommend you to use a symmetric and normalized Box action space (range=[-1, 1]) "
+                        "https://stable-baselines3.readthedocs.io/en/master/guide/rl_tips.html"  # TODO Add to gymlibrary.ml?
+                    )
+    elif isinstance(space, spaces.Tuple):
+        for subspace in space.spaces:
+            check_space_limit(subspace, space_type)
+    elif isinstance(space, spaces.Dict):
+        for subspace in space.values():
+            check_space_limit(subspace, space_type)
 
-    if warn:
-        if not hasattr(env, "render_mode"):  # TODO: raise an error with gym 1.0
-            logger.warn("Environments must define render_mode attribute.")
-        elif env.render_mode is not None and env.render_mode not in render_modes:
-            logger.warn(
-                "The environment was initialized successfully with an unsupported render mode."
-            )
 
-
-def check_env(env: gym.Env, warn: bool = None, skip_render_check: bool = True):
+def check_env(env: gym.Env, warn: bool = None, skip_render_check: bool = False):
     """Check that an environment follows Gym API.
 
     This is an invasive function that calls the environment's reset and step.
@@ -230,11 +263,13 @@ def check_env(env: gym.Env, warn: bool = None, skip_render_check: bool = True):
     assert hasattr(
         env, "action_space"
     ), "You must specify a action space. https://www.gymlibrary.ml/content/environment_creation/"
-    check_observation_space(env.action_space)
+    check_action_space(env.action_space)
+    check_space_limit(env.action_space, "action")
     assert hasattr(
         env, "observation_space"
     ), "You must specify an observation space. https://www.gymlibrary.ml/content/environment_creation/"
-    check_action_space(env.observation_space)
+    check_observation_space(env.observation_space)
+    check_space_limit(env.observation_space, "observation")
 
     # ==== Check the reset method ====
     check_reset_seed(env)
@@ -242,9 +277,12 @@ def check_env(env: gym.Env, warn: bool = None, skip_render_check: bool = True):
     check_reset_info(env)
 
     # ============ Check the returned values ===============
-    passive_env_reset_check(env)
-    passive_env_step_check(env, env.action_space.sample())
+    passive_env_reset_checker(env)
+    passive_env_step_checker(env, env.action_space.sample())
 
     # ==== Check the render method and the declared render modes ====
     if not skip_render_check:
-        check_render(env)
+        if env.render_mode is not None:
+            passive_env_render_checker(env)
+
+        # todo: recreate the environment with a different render_mode for check that each work

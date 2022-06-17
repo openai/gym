@@ -1,23 +1,34 @@
 import pytest
 
+import gym
 from gym.envs.registration import EnvSpec
 from gym.utils.env_checker import check_env
 from tests.envs.utils import all_testing_env_specs, assert_equals, gym_testing_env_specs
 
 # This runs a smoketest on each official registered env. We may want
-# to try also running environments which are not officially registered
-# envs.
+# to try also running environments which are not officially registered envs.
+IGNORE_WARNINGS = [
+    "Agent's minimum observation space value is -infinity. This is probably too low.",
+    "Agent's maximum observation space value is infinity. This is probably too high.",
+    "We recommend you to use a symmetric and normalized Box action space (range=[-1, 1]) https://stable-baselines3.readthedocs.io/en/master/guide/rl_tips.html",
+]
+IGNORE_WARNINGS = [f"\x1b[33mWARN: {message}\x1b[0m" for message in IGNORE_WARNINGS]
 
 
 @pytest.mark.parametrize(
-    "env_spec", gym_testing_env_specs, ids=[spec.id for spec in gym_testing_env_specs]
+    "spec", all_testing_env_specs, ids=[spec.id for spec in all_testing_env_specs]
 )
-def test_run_env_checker(env_spec: EnvSpec):
-    """Runs the gym environment checker on the environment spec that calls the `reset`, `step` and `render`."""
-    env = env_spec.make(disable_env_checker=True)
-    check_env(env, skip_render_check=False)
+def test_env(spec):
+    # Capture warnings
+    env = spec.make(disable_env_checker=True)
 
-    env.close()
+    # Test if env adheres to Gym API
+    with pytest.warns(None) as warnings:
+        check_env(env)
+
+    for warning in warnings.list:
+        if warning.message.args[0] not in IGNORE_WARNINGS:
+            raise gym.error.Error(f"Unexpected warning: {warning.message}")
 
 
 # Note that this precludes running this test in multiple threads.

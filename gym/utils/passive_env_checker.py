@@ -3,6 +3,7 @@ import inspect
 
 import numpy as np
 
+import gym
 from gym import error, logger, spaces
 
 
@@ -16,12 +17,10 @@ def _check_box_observation_space(observation_space: spaces.Box):
     if len(observation_space.shape) == 3:
         if observation_space.dtype != np.uint8:
             logger.warn(
-                f"It seems that your observation space ({observation_space}) is an image but the `dtype` of your observation_space is not `np.uint8`. "
+                f"It seems that your observation space is an image but the `dtype` of your observation_space is not `np.uint8`, actual type: {observation_space.dtype}. "
                 "If your observation is not an image, we recommend you to flatten the observation to have only a 1D vector"
             )
-        if np.any(observation_space.low != 0) or np.any(
-            observation_space.high != 255
-        ):  # todo np.all?
+        if np.any(observation_space.low != 0) or np.any(observation_space.high != 255):
             logger.warn(
                 "It seems that your observation space is an image but the upper and lower bounds are not in [0, 255]. "
                 "Generally, CNN policies assume observations are within that range, so you may encounter an issue if the observation values are not."
@@ -31,118 +30,29 @@ def _check_box_observation_space(observation_space: spaces.Box):
         logger.warn(
             "Your observation space has an unconventional shape (neither an image, nor a 1D vector). "
             "We recommend you to flatten the observation to have only a 1D vector or use a custom policy to properly process the data. "
-            f"Observation space={observation_space}"
+            f"Actual observation shape: {observation_space.shape}"
         )
 
-    if np.any(np.equal(observation_space.low, -np.inf)):
-        logger.warn(
-            "Agent's minimum observation space value is -infinity. This is probably too low."
-        )
-    if np.any(np.equal(observation_space.high, np.inf)):
-        logger.warn(
-            "Agent's maximum observation space value is infinity. This is probably too high."
-        )
+    assert (
+        observation_space.low.shape == observation_space.shape
+    ), f"Agent's observation_space.low and observation_space have different shapes, low shape: {observation_space.low.shape}, box shape: {observation_space.shape}"
+    assert (
+        observation_space.high.shape == observation_space.shape
+    ), f"Agent's observation_space.high and observation_space have different shapes, high shape: {observation_space.high.shape}, box shape: {observation_space.shape}"
 
     if np.any(np.equal(observation_space.low, observation_space.high)):
         logger.warn("Agent's maximum and minimum observation space values are equal")
-    if np.any(np.greater(observation_space.low, observation_space.high)):
-        raise AssertionError(
-            "Agent's minimum observation value is greater than it's maximum"
-        )
-    if observation_space.low.shape != observation_space.shape:
-        raise AssertionError(
-            "Agent's observation_space.low and observation_space have different shapes"
-        )
-    if observation_space.high.shape != observation_space.shape:
-        raise AssertionError(
-            "Agent's observation_space.high and observation_space have different shapes"
-        )
 
-
-def _check_box_action_space(action_space: spaces.Box):
-    """Checks that a :class:`Box` action space is defined in a sensible way.
-
-    Args:
-        action_space: A box action space
-    """
-    if np.any(np.equal(action_space.low, -np.inf)):
-        logger.warn(
-            "Agent's minimum action space value is -infinity. This is probably too low."
-        )
-    if np.any(np.equal(action_space.high, np.inf)):
-        logger.warn(
-            "Agent's maximum action space value is infinity. This is probably too high"
-        )
-    if np.any(np.equal(action_space.low, action_space.high)):
-        logger.warn("Agent's maximum and minimum action space values are equal")
-    if np.any(np.greater(action_space.low, action_space.high)):
-        raise AssertionError(
-            "Agent's minimum action value is greater than it's maximum"
-        )
-    if action_space.low.shape != action_space.shape:
-        raise AssertionError(
-            "Agent's action_space.low and action_space have different shapes"
-        )
-    if action_space.high.shape != action_space.shape:
-        raise AssertionError(
-            "Agent's action_space.high and action_space have different shapes"
-        )
-
-    # Check that the Box space is normalized
-    if (
-        np.any(np.abs(action_space.low) != np.abs(action_space.high))
-        or np.any(np.abs(action_space.low) > 1)
-        or np.any(np.abs(action_space.high) > 1)
-    ):
-        logger.warn(
-            "We recommend you to use a symmetric and normalized Box action space (range=[-1, 1]) "
-            "https://stable-baselines3.readthedocs.io/en/master/guide/rl_tips.html"  # TODO Add to gymlibrary.ml?
-        )
-
-
-def _check_obs(obs, observation_space: spaces.Space, method_name: str):
-    """Check that the observation returned by the environment correspond to the declared one.
-
-    Args:
-        obs: The observation to check
-        observation_space: The observation space of the observation
-        method_name: The method name that generated the observation
-    """
-    pre = f"The observation returned by the `{method_name}()` method"
-
-    assert observation_space.contains(
-        obs
-    ), f"{pre} is not contained with the observation space ({observation_space})"
-
-    if isinstance(observation_space, spaces.Discrete):
-        assert isinstance(
-            obs, int
-        ), f"The observation returned by `{method_name}()` method must be an int, actually {type(obs)}"
-    elif isinstance(
-        observation_space, (spaces.Box, spaces.MultiBinary, spaces.MultiDiscrete)
-    ):
-        assert isinstance(
-            obs, np.ndarray
-        ), f"The observation returned by `{method_name}()` method must be a numpy array, actually {type(obs)}"
-    elif isinstance(observation_space, spaces.Tuple):
-        assert isinstance(
-            obs, tuple
-        ), f"The observation returned by the `{method_name}()` method must be a tuple, actually {type(obs)}"
-        for sub_obs, sub_space in zip(obs, observation_space.spaces):
-            _check_obs(sub_obs, sub_space, method_name)
-    elif isinstance(observation_space, spaces.Dict):
-        assert isinstance(
-            obs, dict
-        ), f"The observation returned by the `{method_name}()` method must be a dict, actually {type(obs)}"
-        for space_key in observation_space.keys():
-            _check_obs(obs[space_key], observation_space[space_key], method_name)
+    assert np.all(
+        observation_space.low <= observation_space.high
+    ), "Agent's minimum observation value is greater than it's maximum"
 
 
 def check_observation_space(observation_space):
     """A passive check of the environment observation space that should not affect the environment."""
     if not isinstance(observation_space, spaces.Space):
         raise AssertionError(
-            f"Observation space ({observation_space}) does not inherit from gym.spaces.Space"
+            f"Observation space does not inherit from `gym.spaces.Space`, actual type: {type(observation_space)}"
         )
 
     elif isinstance(observation_space, spaces.Box):
@@ -150,16 +60,16 @@ def check_observation_space(observation_space):
         _check_box_observation_space(observation_space)
     elif isinstance(observation_space, spaces.Discrete):
         assert (
-            observation_space.n > 0
-        ), f"There are no available discrete observations, n={observation_space.n}"
+            observation_space.shape == () and observation_space.n > 0
+        ), f"Discrete observation space's number of dimensions must be positive, actual dimensions: {observation_space.n}"
     elif isinstance(observation_space, spaces.MultiDiscrete):
         assert np.all(
-            observation_space.nvec > 0
-        ), f"All dimensions of multi-discrete must be greater than 0, {observation_space.nvec}"
+            np.asarray(observation_space.shape) > 0
+        ), f"All dimensions of multi-discrete observation space must be greater than 0, actual shape: {observation_space.shape}"
     elif isinstance(observation_space, spaces.MultiBinary):
         assert np.all(
             np.asarray(observation_space.shape) > 0
-        ), f"All dimensions of multi-binary must be greater than 0, {observation_space.shape}"
+        ), f"All dimensions of multi-binary observation space must be greater than 0, actual shape: {observation_space.shape}"
     elif isinstance(observation_space, spaces.Tuple):
         assert (
             len(observation_space.spaces) > 0
@@ -174,11 +84,31 @@ def check_observation_space(observation_space):
             check_observation_space(subspace)
 
 
+def _check_box_action_space(action_space: spaces.Box):
+    """Checks that a :class:`Box` action space is defined in a sensible way.
+
+    Args:
+        action_space: A box action space
+    """
+    assert (
+        action_space.low.shape == action_space.shape
+    ), f"Agent's action_space.low and action_space have different shapes, low shape: {action_space.low.shape}, box shape: {action_space.shape}"
+    assert (
+        action_space.high.shape == action_space.shape
+    ), f"Agent's action_space.high and action_space have different shapes, high shape: {action_space.high.shape}, box shape: {action_space.shape}"
+
+    if np.any(np.equal(action_space.low, action_space.high)):
+        logger.warn("Agent's maximum and minimum action space values are equal")
+    assert np.all(
+        action_space.low <= action_space.high
+    ), "Agent's minimum action value is greater than it's maximum"
+
+
 def check_action_space(action_space):
     """A passive check of the environment action space that should not affect the environment."""
     if not isinstance(action_space, spaces.Space):
         raise AssertionError(
-            f"Action space ({action_space}) does not inherit from gym.spaces.Space"
+            f"Action space does not inherit from `gym.spaces.Space`, actual type: {type(action_space)}"
         )
 
     elif isinstance(action_space, spaces.Box):
@@ -186,15 +116,15 @@ def check_action_space(action_space):
     elif isinstance(action_space, spaces.Discrete):
         assert (
             action_space.n > 0
-        ), f"There are no available discrete actions, n={action_space.n}"
+        ), f"Discrete action space's number of dimensions must be positive, actual dimensions: {action_space.n}"
     elif isinstance(action_space, spaces.MultiDiscrete):
         assert np.all(
-            action_space.nvec > 0
-        ), f"All dimensions of multi-discrete must be greater than 0, {action_space.nvec}"
+            np.asarray(action_space.shape) > 0
+        ), f"All dimensions of multi-discrete action space must be greater than 0, actual shape: {action_space.shape}"
     elif isinstance(action_space, spaces.MultiBinary):
         assert np.all(
             np.asarray(action_space.shape) > 0
-        ), f"All dimensions of multi-binary must be greater than 0, {action_space.shape}"
+        ), f"All dimensions of multi-binary action space must be greater than 0, actual shape: {action_space.shape}"
     elif isinstance(action_space, spaces.Tuple):
         assert (
             len(action_space.spaces) > 0
@@ -209,27 +139,70 @@ def check_action_space(action_space):
             check_action_space(subspace)
 
 
-def passive_env_reset_check(env, **kwargs):
+def check_obs(obs, observation_space: spaces.Space, method_name: str):
+    """Check that the observation returned by the environment correspond to the declared one.
+
+    Args:
+        obs: The observation to check
+        observation_space: The observation space of the observation
+        method_name: The method name that generated the observation
+    """
+    pre = f"The obs returned by the `{method_name}()` method"
+    if isinstance(observation_space, spaces.Discrete):
+        assert isinstance(
+            obs, (np.int64, int)
+        ), f"{pre} must be an int or np.int64, actually type: {type(obs)}"
+    elif isinstance(
+        observation_space, (spaces.Box, spaces.MultiBinary, spaces.MultiDiscrete)
+    ):
+        assert isinstance(
+            obs, np.ndarray
+        ), f"{pre} must be a numpy array, actually type: {type(obs)}"
+    elif isinstance(observation_space, spaces.Tuple):
+        assert isinstance(
+            obs, tuple
+        ), f"{pre} must be a tuple, actually type: {type(obs)}"
+        assert len(obs) == len(
+            observation_space.spaces
+        ), f"{pre} length is not same as the observation space length, obs length: {len(obs)}, space length: {len(observation_space.spaces)}"
+        for sub_obs, sub_space in zip(obs, observation_space.spaces):
+            check_obs(sub_obs, sub_space, method_name)
+    elif isinstance(observation_space, spaces.Dict):
+        assert isinstance(obs, dict), f"{pre} must be a dict, actually {type(obs)}"
+        assert (
+            obs.keys() == observation_space.spaces.keys()
+        ), f"{pre} observation keys is not same as the observation space keys, obs keys: {list(obs.keys())}, space keys: {list(observation_space.spaces.keys())}"
+        for space_key in observation_space.spaces.keys():
+            check_obs(obs[space_key], observation_space[space_key], method_name)
+
+    assert observation_space.contains(obs), f"{pre} is not within the observation space"
+
+
+def passive_env_reset_checker(env, **kwargs):
     """A passive check of the `Env.reset` function investigating the returning reset information and returning the data unchanged."""
     signature = inspect.signature(env.reset)
-    if "seed" not in signature.parameters or "kwargs" in signature.parameters:
+    if "seed" not in signature.parameters and "kwargs" not in signature.parameters:
         logger.warn(
-            "Future gym versions will require that `Env.reset` can be passed a `seed` instead of using `Env.seed` for resetting the environment random number generator. "
+            "Future gym versions will require that `Env.reset` can be passed a `seed` instead of using `Env.seed` for resetting the environment random number generator."
         )
     else:
         seed_param = signature.parameters.get("seed")
         # Check the default value is None
         if seed_param is not None and seed_param.default is not None:
             logger.warn(
-                "The default seed argument in `Env.reset` should be `None`, otherwise the environment will by default always be deterministic"
+                "The default seed argument in `Env.reset` should be `None`, otherwise the environment will by default always be deterministic. "
+                f"Actual default: {seed_param}"
             )
 
-    if "return_info" not in signature.parameters or "kwargs" in signature.parameters:
+    if (
+        "return_info" not in signature.parameters
+        and "kwargs" not in signature.parameters
+    ):
         logger.warn(
             "Future gym versions will require that `Env.reset` can be passed `return_info` to return information from the environment resetting."
         )
 
-    if "options" not in signature.parameters or "kwargs" in signature.parameters:
+    if "options" not in signature.parameters and "kwargs" not in signature.parameters:
         logger.warn(
             "Future gym versions will require that `Env.reset` can be passed `options` to allow the environment initialisation to be passed additional information."
         )
@@ -237,74 +210,112 @@ def passive_env_reset_check(env, **kwargs):
     # Checks the result of env.reset with kwargs
     result = env.reset(**kwargs)
     if "return_info" in kwargs and kwargs["return_info"] is True:
+        assert isinstance(
+            result, tuple
+        ), f"The result returned by `env.reset(return_info=True)` was not a tuple, actually type: {type(result)}"
         obs, info = result
-        _check_obs(obs, env.observation_space, "reset")
         assert isinstance(
             info, dict
-        ), f"The second element returned by `env.reset(return_info=True)` was not a dictionary, actually {type(info)}"
+        ), f"The second element returned by `env.reset(return_info=True)` was not a dictionary, actually type: {type(info)}"
     else:
         obs = result
-        _check_obs(obs, env.observation_space, "reset")
 
+    check_obs(obs, env.observation_space, "reset")
     return result
 
 
-def passive_env_step_check(env, action):
+def passive_env_step_checker(env, action):
     """A passive check for the environment step, investigating the returning data then returning the data unchanged."""
+    # We don't check the action as for some environments then out-of-bounds values can be given
     result = env.step(action)
+    assert isinstance(
+        result, tuple
+    ), f"Expects step result to be a tuple, actual type: {type(result)}"
     if len(result) == 4:
         obs, reward, done, info = result
 
-        assert isinstance(done, bool), "The `done` signal must be a boolean"
+        assert isinstance(
+            done, bool
+        ), f"The `done` signal must be a boolean, actual type: {type(done)}"
     elif len(result) == 5:
         obs, reward, terminated, truncated, info = result
 
-        assert isinstance(terminated, bool), "The `terminated` signal must be a boolean"
-        assert isinstance(truncated, bool), "The `truncated` signal must be a boolean"
+        assert isinstance(
+            terminated, bool
+        ), f"The `terminated` signal must be a boolean, actual type: {type(terminated)}"
+        assert isinstance(
+            truncated, bool
+        ), f"The `truncated` signal must be a boolean, actual type: {type(truncated)}"
         assert (
             terminated is False or truncated is False
         ), "Only `terminated` or `truncated` can be true, not both."
     else:
         raise error.Error(
-            f"Expected `Env.step` to return a four or five elements, actually {len(result)} elements returned."
+            f"Expected `Env.step` to return a four or five elements, actually number of elements returned: {len(result)}."
         )
 
-    _check_obs(obs, env.observation_space, "step")
-    if np.any(np.isnan(obs)):
-        logger.warn("Encountered NaN value in observations.")
-    if np.any(np.isinf(obs)):
-        logger.warn("Encountered inf value in observations.")
+    check_obs(obs, env.observation_space, "step")
 
-    assert isinstance(
-        reward, (float, int, np.floating, np.integer)
-    ), "The reward returned by `step()` must be a float"
-    if np.any(np.isnan(reward)):
-        logger.warn("Encountered NaN value in rewards.")
-    if np.any(np.isinf(reward)):
-        logger.warn("Encountered inf value in rewards.")
+    assert (
+        isinstance(reward, (float, int))
+        or np.issubdtype(type(reward), np.integer)
+        or np.issubdtype(type(reward), np.floating)
+    ), f"The reward returned by `step()` must be a float, int, np.integer or np.floating, actual type: {type(reward)}"
+    if np.isnan(reward):
+        logger.warn("The reward is a NaN value.")
+    if np.isinf(reward):
+        logger.warn("The reward is an inf value.")
 
     assert isinstance(
         info, dict
-    ), "The `info` returned by `step()` must be a python dictionary"
+    ), f"The `info` returned by `step()` must be a python dictionary, actual type: {type(info)}"
 
     return result
 
 
-def passive_env_render_check(env, *args, **kwargs):
-    """A passive check of the `Env.render` that the declared render modes/fps in the metadata of the environment is decleared."""
+def passive_env_render_checker(env, *args, **kwargs):
+    """A passive check of the `Env.render` that the declared render modes/fps in the metadata of the environment is declared."""
     render_modes = env.metadata.get("render_modes")
     if render_modes is None:
-        logger.warn(
-            "No render modes was declared in the environment (env.metadata['render_modes'] is None or not defined), "
-            "you may have trouble when calling `.render()`"
+        raise gym.error.Error(
+            "No render modes was declared in the environment "
+            "(env.metadata['render_modes'] is None or not defined), "
+            "you may have trouble when calling `.render()`."
         )
+    else:
+        assert isinstance(
+            render_modes, (list, tuple)
+        ), f"Expects the render_modes to be a sequence (i.e. list, tuple), actual type: {type(render_modes)}"
+        assert all(
+            isinstance(mode, str) for mode in render_modes
+        ), f"Expects all render modes to be strings, actual types: {[type(mode) for mode in render_modes]}."
 
-    render_fps = env.metadata.get("render_fps")
-    # We only require `render_fps` if rendering is actually implemented
-    if render_fps is None:
-        logger.warn(
-            "No render fps was declared in the environment (env.metadata['render_fps'] is None or not defined), "
-            "rendering may occur at inconsistent fps"
-        )
+        render_fps = env.metadata.get("render_fps")
+        # We only require `render_fps` if rendering is actually implemented
+        if len(render_modes) > 0:
+            if render_fps is None:
+                logger.warn(
+                    "No render fps was declared in the environment "
+                    "(env.metadata['render_fps'] is None or not defined), "
+                    "rendering may occur at inconsistent fps."
+                )
+            else:
+                assert isinstance(
+                    render_fps, int
+                ), f"Expects the `env.metadata['render_fps']` to be an integer, actual type: {type(render_fps)}."
+                assert (
+                    render_fps > 0
+                ), f"Expects the `env.metadata['render_fps']` to be greater than zero, actual value: {render_fps}."
+
+        # env.render is now an attribute with default None
+        if len(render_modes) == 0:
+            assert (
+                env.render_mode is None
+            ), f"With no render_modes, expects the Env.render_mode to be None, actual value: {env.render_mode}"
+        else:
+            assert env.render_mode is None or env.render_mode in render_modes, (
+                "The environment was initialized successfully however with an unsupported render mode. "
+                f"Render mode: {env.render_mode}, modes: {render_modes}"
+            )
 
     return env.render(*args, **kwargs)
