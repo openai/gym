@@ -40,7 +40,7 @@ class Discrete(Space[int]):
         self.start = int(start)
         super().__init__((), np.int64, seed)
 
-    def sample(self) -> int:
+    def sample(self, mask: np.ndarray = None) -> int:
         """Generates a single random sample from this space.
 
         A sample will be chosen uniformly at random.
@@ -48,6 +48,15 @@ class Discrete(Space[int]):
         Returns:
             A sampled integer from the space
         """
+        if mask is not None:
+            assert isinstance(mask, np.ndarray)
+            assert mask.dtype == np.int8
+            assert mask.shape == (self.n,)
+            if np.any(mask):
+                return int(self.start + self.np_random.choice(np.where(mask)))
+            else:
+                return self.start
+
         return int(self.start + self.np_random.integers(self.n))
 
     def contains(self, x) -> bool:

@@ -63,8 +63,22 @@ class MultiDiscrete(Space[np.ndarray]):
         """Has stricter type than :class:`gym.Space` - never None."""
         return self._shape  # type: ignore
 
-    def sample(self) -> np.ndarray:
+    def sample(self, mask: np.ndarray = None) -> np.ndarray:
         """Generates a single random sample this space."""
+        if mask is not None:
+            assert isinstance(mask, np.ndarray)
+            assert mask.dtype == np.int8
+            assert mask.shape == self.shape
+
+            multi_mask = [np.where(row) for row in mask]
+            return np.array(
+                [
+                    self.np_random.choice(row_mask) if len(row_mask) > 0 else 0
+                    for row_mask in multi_mask
+                ],
+                dtype=self.dtype,
+            )
+
         return (self.np_random.random(self.nvec.shape) * self.nvec).astype(self.dtype)
 
     def contains(self, x) -> bool:

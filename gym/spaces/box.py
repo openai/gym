@@ -146,7 +146,7 @@ class Box(Space[np.ndarray]):
         else:
             raise ValueError("manner is not in {'below', 'above', 'both'}")
 
-    def sample(self) -> np.ndarray:
+    def sample(self, mask: np.ndarray = None) -> np.ndarray:
         r"""Generates a single random sample inside the Box.
 
         In creating a sample of the box, each coordinate is sampled (independently) from a distribution
@@ -160,6 +160,9 @@ class Box(Space[np.ndarray]):
         Returns:
             A sampled value from the Box
         """
+        if mask is not None:
+            return np.zeros(self.shape, self.dtype)
+
         high = self.high if self.dtype.kind == "f" else self.high.astype("int64") + 1
         sample = np.empty(self.shape)
 

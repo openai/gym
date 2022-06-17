@@ -214,6 +214,22 @@ class TaxiEnv(Env):
         assert 0 <= i < 5
         return reversed(out)
 
+    def valid_mask(self, row, col, pass_loc, dest_idx, max_row):
+        mask = np.zeros(6, dtype=bool)
+        if row < max_row:
+            mask[0] = 1
+        if row > 0:
+            mask[1] = 1
+        if self.desc[1 + row, 2 * col + 2] == b":":
+            mask[2] = 1
+        if self.desc[1 + row, 2 * col] == b":":
+            mask[3] = 1
+        if (row, col) == self.locs[pass_loc]:
+            mask[4] = 1
+        if (row, col) == self.locs[dest_idx]:
+            mask[5] = 1
+        return mask
+
     def step(self, a):
         transitions = self.P[self.s][a]
         i = categorical_sample([t[0] for t in transitions], self.np_random)
@@ -221,7 +237,10 @@ class TaxiEnv(Env):
         self.s = s
         self.lastaction = a
         self.renderer.render_step()
-        return (int(s), r, d, {"prob": p})
+
+        taxi_row, taxi_col, pass_loc, dest_idx = self.decode(s)
+        mask = self.valid_mask(taxi_row, taxi_col, pass_loc, dest_idx, 4)
+        return int(s), r, d, {"prob": p, "action_mask": mask}
 
     def reset(
         self,
@@ -239,7 +258,9 @@ class TaxiEnv(Env):
         if not return_info:
             return int(self.s)
         else:
-            return int(self.s), {"prob": 1}
+            taxi_row, taxi_col, pass_loc, dest_idx = self.decode(self.s)
+            mask = self.valid_mask(taxi_row, taxi_col, pass_loc, dest_idx, 4)
+            return int(self.s), {"prob": 1, "action_mask": mask}
 
     def render(self, mode="human"):
         if self.render_mode is not None:

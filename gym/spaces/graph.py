@@ -4,6 +4,7 @@ from typing import NamedTuple, Optional, Sequence, Union
 
 import numpy as np
 
+import gym
 from gym.spaces.box import Box
 from gym.spaces.discrete import Discrete
 from gym.spaces.multi_discrete import MultiDiscrete
@@ -98,12 +99,17 @@ class Graph(Space):
         else:
             return None
 
-    def sample(self) -> NamedTuple:
+    def sample(self, mask=None) -> NamedTuple:
         """Generates a single sample graph with num_nodes between 1 and 10 sampled from the Graph.
 
         Returns:
             A NamedTuple representing a graph with attributes .nodes, .edges, and .edge_links.
         """
+        if mask is not None:
+            raise gym.error.Error(
+                "Action masking for graphs are not supported at this time, please raise an issue on github."
+            )
+
         num_nodes = self.np_random.integers(low=1, high=10)
 
         # we only have edges when we have at least 2 nodes

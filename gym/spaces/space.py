@@ -81,7 +81,7 @@ class Space(Generic[T_cov]):
         """Return the shape of the space as an immutable property."""
         return self._shape
 
-    def sample(self) -> T_cov:
+    def sample(self, mask=None) -> T_cov:
         """Randomly sample an element of this space. Can be uniform or non-uniform sampling based on boundedness of space."""
         raise NotImplementedError
 
