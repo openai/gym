@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from functools import partial
 from os import path
 from typing import Optional
 
@@ -39,6 +40,10 @@ class MujocoEnv(gym.Env):
         model_path,
         frame_skip,
         render_mode: Optional[str] = None,
+        width: int = DEFAULT_SIZE,
+        height: int = DEFAULT_SIZE,
+        camera_id: Optional[int] = None,
+        camera_name: Optional[str] = None,
         mujoco_bindings="mujoco",
     ):
         if model_path.startswith("/"):
@@ -105,9 +110,15 @@ class MujocoEnv(gym.Env):
 
         self._set_action_space()
 
-        assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
-        self.renderer = Renderer(self.render_mode, self._render)
+        render_frame = partial(
+            self._render,
+            width=width,
+            height=height,
+            camera_name=camera_name,
+            camera_id=camera_id,
+        )
+        self.renderer = Renderer(self.render_mode, render_frame)
 
         action = self.action_space.sample()
         observation, _reward, done, _info = self.step(action)
@@ -207,15 +218,23 @@ class MujocoEnv(gym.Env):
 
     def render(
         self,
-        mode="human",
-        width=DEFAULT_SIZE,
-        height=DEFAULT_SIZE,
-        camera_id=None,
-        camera_name=None,
+        mode: str = "human",
+        width: Optional[int] = None,
+        height: Optional[int] = None,
+        camera_id: Optional[int] = None,
+        camera_name: Optional[str] = None,
     ):
         if self.render_mode is not None:
+            assert (
+                width is None
+                and height is None
+                and camera_id is None
+                and camera_name is None
+            ), "Unexpected argument for render. Specify render arguments at environment initialization."
             return self.renderer.get_renders()
         else:
+            width = width if width is not None else DEFAULT_SIZE
+            height = height if height is not None else DEFAULT_SIZE
             return self._render(
                 mode=mode,
                 width=width,
@@ -226,11 +245,11 @@ class MujocoEnv(gym.Env):
 
     def _render(
         self,
-        mode="human",
-        width=DEFAULT_SIZE,
-        height=DEFAULT_SIZE,
-        camera_id=None,
-        camera_name=None,
+        mode: str = "human",
+        width: int = DEFAULT_SIZE,
+        height: int = DEFAULT_SIZE,
+        camera_id: Optional[int] = None,
+        camera_name: Optional[str] = None,
     ):
         assert mode in self.metadata["render_modes"]
 

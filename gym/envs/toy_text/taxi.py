@@ -173,7 +173,6 @@ class TaxiEnv(Env):
         self.action_space = spaces.Discrete(num_actions)
         self.observation_space = spaces.Discrete(num_states)
 
-        assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
         self.renderer = Renderer(self.render_mode, self._render)
 

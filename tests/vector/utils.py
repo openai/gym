@@ -109,7 +109,7 @@ class CustomSpaceEnv(gym.Env):
 
 def make_env(env_name, seed, **kwargs):
     def _make():
-        env = gym.make(env_name, **kwargs)
+        env = gym.make(env_name, disable_env_checker=True, **kwargs)
         env.action_space.seed(seed)
         env.reset(seed=seed)
         return env
