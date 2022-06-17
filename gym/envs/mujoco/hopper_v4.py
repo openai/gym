@@ -138,6 +138,17 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     * v0: Initial versions release (1.0.0)
     """
 
+    metadata = {
+        "render_modes": [
+            "human",
+            "rgb_array",
+            "depth_array",
+            "single_rgb_array",
+            "single_depth_array",
+        ],
+        "render_fps": 125,
+    }
+
     def __init__(
         self,
         forward_reward_weight=1.0,
