@@ -214,20 +214,24 @@ class TaxiEnv(Env):
         assert 0 <= i < 5
         return reversed(out)
 
-    def action_mask(self, row, col, pass_loc, dest_idx):
+    def action_mask(self, state: int):
         """Computes an action mask for the action space using the state information."""
-        mask = np.zeros(6, dtype=bool)
-        if row < 5:
+        mask = np.zeros(6, dtype=np.int8)
+        taxi_row, taxi_col, pass_loc, dest_idx = self.decode(state)
+        if taxi_row < 4:
             mask[0] = 1
-        if row > 0:
+        if taxi_row > 0:
             mask[1] = 1
-        if col < 5 and self.desc[1 + row, 2 * col + 2] == b":":
+        if taxi_col < 4 and self.desc[taxi_row + 1, 2 * taxi_col + 2] == b":":
             mask[2] = 1
-        if col > 0 and self.desc[1 + row, 2 * col] == b":":
+        if taxi_col > 0 and self.desc[taxi_row + 1, 2 * taxi_col] == b":":
             mask[3] = 1
-        if pass_loc < 4 and (row, col) == self.locs[pass_loc]:
+        if pass_loc < 4 and (taxi_row, taxi_col) == self.locs[pass_loc]:
             mask[4] = 1
-        if pass_loc == 4 and (row, col) == self.locs[dest_idx]:
+        if pass_loc == 4 and (
+            (taxi_row, taxi_col) == self.locs[dest_idx]
+            or (taxi_row, taxi_col) in self.locs
+        ):
             mask[5] = 1
         return mask
 
@@ -239,9 +243,7 @@ class TaxiEnv(Env):
         self.lastaction = a
         self.renderer.render_step()
 
-        taxi_row, taxi_col, pass_loc, dest_idx = self.decode(s)
-        mask = self.action_mask(taxi_row, taxi_col, pass_loc, dest_idx)
-        return int(s), r, d, {"prob": p, "action_mask": mask}
+        return int(s), r, d, {"prob": p, "action_mask": self.action_mask(s)}
 
     def reset(
         self,
@@ -259,9 +261,7 @@ class TaxiEnv(Env):
         if not return_info:
             return int(self.s)
         else:
-            taxi_row, taxi_col, pass_loc, dest_idx = self.decode(self.s)
-            mask = self.action_mask(taxi_row, taxi_col, pass_loc, dest_idx)
-            return int(self.s), {"prob": 1, "action_mask": mask}
+            return int(self.s), {"prob": 1, "action_mask": self.action_mask(self.s)}
 
     def render(self, mode="human"):
         if self.render_mode is not None:
