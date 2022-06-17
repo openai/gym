@@ -1,8 +1,8 @@
 """A wrapper that adds human-renering functionality to an environment."""
 import numpy as np
-import pygame
 
 import gym
+from gym.error import DependencyNotInstalled
 from gym.utils.renderer import Renderer
 
 
@@ -36,7 +36,7 @@ class HumanRendering(gym.Wrapper):
         ], f"Expected env.render_mode to be one of 'rgb_array' or 'single_rgb_array' but got {env.render_mode}"
         assert (
             "render_fps" in env.metadata
-        ), "Base environment does not specify framerate"
+        ), "The base environment must specify 'render_fps' to be used with the HumanRendering wrapper"
 
         self._renderer = Renderer("human", self._render_frame)
         self.screen_size = None
@@ -66,6 +66,12 @@ class HumanRendering(gym.Wrapper):
 
     def _render_frame(self, mode="human", **kwargs):
         """Fetch the last frame from the base environment and render it to the screen."""
+        try:
+            import pygame
+        except ImportError:
+            raise DependencyNotInstalled(
+                "pygame is not installed, run `pip install gym[box2d]`"
+            )
         if self.env.render_mode == "rgb_array":
             last_rgb_array = self.env.render(**kwargs)[-1]
         elif self.env.render_mode == "single_rgb_array":
@@ -104,6 +110,8 @@ class HumanRendering(gym.Wrapper):
     def close(self):
         """Close the rendering window."""
         if self.window is not None:
+            import pygame
+
             pygame.display.quit()
             pygame.quit()
         self.env.close()

@@ -23,7 +23,7 @@ from typing import (
 import numpy as np
 
 from gym.envs.__relocated__ import internal_env_relocation_map
-from gym.wrappers import AutoResetWrapper, OrderEnforcing, TimeLimit
+from gym.wrappers import AutoResetWrapper, HumanRendering, OrderEnforcing, TimeLimit
 from gym.wrappers.env_checker import PassiveEnvChecker
 
 if sys.version_info < (3, 10):
@@ -589,7 +589,32 @@ def make(
         # Assume it's a string
         env_creator = load(spec_.entry_point)
 
-    env = env_creator(**_kwargs)
+    render_mode = _kwargs.get("render_mode", None)
+    """
+    If the user asks for `render_mode=='human'` but the environment doesn't implement that mode,
+    we will try to fall back to rgb-array rendering and apply the `HumanRendering` wrapper.
+    """
+    if (
+        render_mode == "human"
+        and issubclass(env_creator, Env)
+        and "human" not in env_creator.metadata["render_modes"]
+        and (
+            "single_rgb_array" in env_creator.metadata["render_modes"]
+            or "rgb_array" in env_creator.metadata["render_modes"]
+        )
+    ):
+        logger.warn(
+            "You are trying to use 'human' rendering for an environment that doesn't natively support it. "
+            "The HumanRendering wrapper is being applied to your environment."
+        )
+        _kwargs["render_mode"] = (
+            "single_rgb_array"
+            if "single_rgb_array" in env_creator.metadata["render_modes"]
+            else "rgb_array"
+        )
+        env = HumanRendering(env_creator(**_kwargs))
+    else:
+        env = env_creator(**_kwargs)
 
     # Copies the environment creation specification and kwargs to add to the environment specification details
     spec_ = copy.deepcopy(spec_)

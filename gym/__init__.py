@@ -1,25 +1,23 @@
 """Root __init__ of the gym module setting the __all__ of gym modules."""
 # isort: skip_file
-import os
 
-os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
+from gym import error
+from gym.version import VERSION as __version__
 
-from gym import error  # noqa: E402
-from gym.version import VERSION as __version__  # noqa: E402
-
-from gym.core import (  # noqa: E402
+from gym.core import (
     Env,
     Wrapper,
     ObservationWrapper,
     ActionWrapper,
     RewardWrapper,
 )
-from gym.spaces import Space  # noqa: E402
-from gym.envs import make, spec, register  # noqa: E402
-from gym import logger  # noqa: E402
-from gym import vector  # noqa: E402
-from gym import wrappers  # noqa: E402
-import sys  # noqa: E402
+from gym.spaces import Space
+from gym.envs import make, spec, register
+from gym import logger
+from gym import vector
+from gym import wrappers
+import os
+import sys
 
 __all__ = ["Env", "Space", "Wrapper", "make", "spec", "register"]
 
@@ -30,6 +28,8 @@ __all__ = ["Env", "Space", "Wrapper", "make", "spec", "register"]
 
 if sys.platform.startswith("linux"):
     os.environ["SDL_AUDIODRIVER"] = "dsp"
+
+os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 
 try:
     import gym_notices.notices as notices
