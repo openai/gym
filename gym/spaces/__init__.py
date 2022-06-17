@@ -11,6 +11,7 @@ are vectors in the two-dimensional unit cube, the environment code may contain t
 from gym.spaces.box import Box
 from gym.spaces.dict import Dict
 from gym.spaces.discrete import Discrete
+from gym.spaces.text import Text
 from gym.spaces.graph import Graph, GraphInstance
 from gym.spaces.multi_binary import MultiBinary
 from gym.spaces.multi_discrete import MultiDiscrete
@@ -22,6 +23,7 @@ __all__ = [
     "Space",
     "Box",
     "Discrete",
+    "Text",
     "Graph",
     "GraphInstance",
     "MultiDiscrete",
