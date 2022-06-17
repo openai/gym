@@ -109,9 +109,9 @@ class HumanRendering(gym.Wrapper):
 
     def close(self):
         """Close the rendering window."""
+        super().close()
         if self.window is not None:
             import pygame
 
             pygame.display.quit()
             pygame.quit()
-        self.env.close()
