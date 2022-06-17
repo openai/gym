@@ -94,10 +94,8 @@ IGNORE_WARNINGS = [
 )
 def test_wrapper_passes(spec):
     with pytest.warns(None) as warnings:
-        if spec.id == "CliffWalking-v0":
-            # Cliffwalking is the only gym environment without rgb_array rendering
-            env = gym.make(spec.id, render_mode="human")
-        else:
+        # Cliffwalking is the only gym environment without rgb_array rendering
+        if spec.id != "CliffWalking-v0":
             env = gym.make(spec.id, render_mode="rgb_array")
         assert has_wrapper(env, PassiveEnvChecker)
 
