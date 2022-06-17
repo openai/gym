@@ -214,19 +214,20 @@ class TaxiEnv(Env):
         assert 0 <= i < 5
         return reversed(out)
 
-    def valid_mask(self, row, col, pass_loc, dest_idx, max_row):
+    def action_mask(self, row, col, pass_loc, dest_idx):
+        """Computes an action mask for the action space using the state information."""
         mask = np.zeros(6, dtype=bool)
-        if row < max_row:
+        if row < 5:
             mask[0] = 1
         if row > 0:
             mask[1] = 1
-        if self.desc[1 + row, 2 * col + 2] == b":":
+        if col < 5 and self.desc[1 + row, 2 * col + 2] == b":":
             mask[2] = 1
-        if self.desc[1 + row, 2 * col] == b":":
+        if col > 0 and self.desc[1 + row, 2 * col] == b":":
             mask[3] = 1
-        if (row, col) == self.locs[pass_loc]:
+        if pass_loc < 4 and (row, col) == self.locs[pass_loc]:
             mask[4] = 1
-        if (row, col) == self.locs[dest_idx]:
+        if pass_loc == 4 and (row, col) == self.locs[dest_idx]:
             mask[5] = 1
         return mask
 
@@ -239,7 +240,7 @@ class TaxiEnv(Env):
         self.renderer.render_step()
 
         taxi_row, taxi_col, pass_loc, dest_idx = self.decode(s)
-        mask = self.valid_mask(taxi_row, taxi_col, pass_loc, dest_idx, 4)
+        mask = self.action_mask(taxi_row, taxi_col, pass_loc, dest_idx)
         return int(s), r, d, {"prob": p, "action_mask": mask}
 
     def reset(
@@ -259,7 +260,7 @@ class TaxiEnv(Env):
             return int(self.s)
         else:
             taxi_row, taxi_col, pass_loc, dest_idx = self.decode(self.s)
-            mask = self.valid_mask(taxi_row, taxi_col, pass_loc, dest_idx, 4)
+            mask = self.action_mask(taxi_row, taxi_col, pass_loc, dest_idx)
             return int(self.s), {"prob": 1, "action_mask": mask}
 
     def render(self, mode="human"):
