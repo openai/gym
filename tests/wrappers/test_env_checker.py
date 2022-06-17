@@ -4,7 +4,7 @@ import pytest
 
 import gym
 from gym.wrappers.env_checker import PassiveEnvChecker
-from tests.envs.utils import all_testing_env_specs
+from tests.envs.utils import all_testing_initialised_envs
 from tests.testing_env import GenericTestEnv
 from tests.wrappers.utils import has_wrapper
 
@@ -89,14 +89,17 @@ IGNORE_WARNINGS = [
 ]
 
 
-@pytest.mark.parametrize(
-    "spec", all_testing_env_specs, ids=[spec.id for spec in all_testing_env_specs]
-)
+RGB_SPECS = [
+    env.spec
+    for env in all_testing_initialised_envs
+    if "rgb_array" in env.metadata["render_modes"]
+]
+
+
+@pytest.mark.parametrize("spec", RGB_SPECS, ids=[spec.id for spec in RGB_SPECS])
 def test_wrapper_passes(spec):
     with pytest.warns(None) as warnings:
-        # Cliffwalking is the only gym environment without rgb_array rendering
-        if spec.id != "CliffWalking-v0":
-            env = gym.make(spec.id, render_mode="rgb_array")
+        env = gym.make(spec.id, render_mode="rgb_array")
         assert has_wrapper(env, PassiveEnvChecker)
 
         env.reset()
