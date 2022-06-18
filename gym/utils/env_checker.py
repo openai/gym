@@ -230,11 +230,11 @@ def check_env(env: gym.Env, warn: bool = None, skip_render_check: bool = True):
     assert hasattr(
         env, "action_space"
     ), "You must specify a action space. https://www.gymlibrary.ml/content/environment_creation/"
-    check_observation_space(env.action_space)
+    check_action_space(env.action_space)
     assert hasattr(
         env, "observation_space"
     ), "You must specify an observation space. https://www.gymlibrary.ml/content/environment_creation/"
-    check_action_space(env.observation_space)
+    check_observation_space(env.observation_space)
 
     # ==== Check the reset method ====
     check_reset_seed(env)
