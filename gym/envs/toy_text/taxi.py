@@ -56,6 +56,12 @@ class TaxiEnv(Env):
     - 4: pickup passenger
     - 5: drop off passenger
 
+    For some cases, taking these actions will have no effect on the state of the agent.
+    In v0.25.0, ``info["action_mask"]`` contains a numpy.ndarray for each of the action specifying
+    if the action will change the state.
+    To sample a modifying action, use ``action = env.action_space.sample(info["action_mask"])``
+    Or with a Q-value based algorithm ``action = np.argmax(q_values[obs, np.where(info["action_mask"] == 1)[0]])``.
+
     ### Observations
     There are 500 discrete states since there are 25 taxi positions, 5 possible
     locations of the passenger (including the case when the passenger is in the
@@ -99,7 +105,7 @@ class TaxiEnv(Env):
     ```
 
     ### Version History
-    * v3: Map Correction + Cleaner Domain Description
+    * v3: Map Correction + Cleaner Domain Description, v0.25.0 action masking added to the reset and step information
     * v2: Disallow Taxi start location = goal location, Update Taxi observations in the rollout, Update Taxi reward threshold.
     * v1: Remove (3,2) from locs, add passidx<4 check
     * v0: Initial versions release

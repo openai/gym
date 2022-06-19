@@ -6,6 +6,7 @@ import tempfile
 import numpy as np
 import pytest
 
+from gym import Space
 from gym.spaces import Box, Dict, Discrete, Graph, MultiBinary, MultiDiscrete, Tuple
 
 
@@ -154,31 +155,71 @@ def test_inequality(spaces):
     [
         Discrete(5),
         Discrete(8, start=-20),
-        Box(low=0, high=255, shape=(2,), dtype="uint8"),
+        Box(low=0, high=255, shape=(2,)),
         Box(low=-np.inf, high=np.inf, shape=(3, 3)),
         Box(low=1.0, high=np.inf, shape=(3, 3)),
         Box(low=-np.inf, high=2.0, shape=(3, 3)),
+        Box(low=np.array([0, 2]), high=np.array([10, 4])),
+        MultiDiscrete([3, 5]),
+        MultiDiscrete(np.array([[3, 5], [2, 2]])),
+        MultiBinary([2, 4]),
     ],
 )
-def test_sample(space):
+def test_sample(space: Space, n_trials: int = 1_000):
+    """Test the space sample works, todo, add chi-squared testing for the distribution"""
     space.seed(0)
-    n_trials = 100
     samples = np.array([space.sample() for _ in range(n_trials)])
-    expected_mean = 0.0
-    if isinstance(space, Box):
-        if space.is_bounded():
-            expected_mean = (space.high + space.low) / 2
-        elif space.is_bounded("below"):
-            expected_mean = 1 + space.low
-        elif space.is_bounded("above"):
-            expected_mean = -1 + space.high
-        else:
-            expected_mean = 0.0
-    elif isinstance(space, Discrete):
-        expected_mean = space.start + space.n / 2
-    else:
-        raise NotImplementedError
-    np.testing.assert_allclose(expected_mean, samples.mean(), atol=3.0 * samples.std())
+    assert len(samples) == n_trials
+
+
+@pytest.mark.parametrize(
+    "space,mask",
+    [
+        (Discrete(5), np.array([0, 1, 1, 0, 1], dtype=np.int8)),
+        (Discrete(4, start=-20), np.array([1, 1, 0, 1], dtype=np.int8)),
+        (Discrete(4, start=1), np.array([0, 0, 0, 0], dtype=np.int8)),
+        (MultiDiscrete([3, 2]), np.array([[0, 1], [1, 1], [0, 0]], dtype=np.int8)),
+        # (MultiDiscrete(np.array([[3, 2], [2, 2]])), np.array([[[0, 1], [1, 1], [0, 0]], [[0, 1], [1, 1]]], dtype=np.int8)), Unsupported currently
+        (MultiBinary([2, 4]), np.array([[1, 1, 0, 0], [0, 0, 0, 0]], dtype=np.int8)),
+    ],
+)
+def test_space_sample_mask(space, mask, n_trials: int = 100):
+    """Test the space sample with mask works, todo, add chi-squared testing for the distribution"""
+    space.seed(0)
+    samples = np.array([space.sample(mask) for _ in range(n_trials)])
+    assert len(samples) == n_trials
+
+
+@pytest.mark.parametrize(
+    "space,mask",
+    [
+        (
+            Dict(a=Discrete(2), b=MultiDiscrete([2, 4])),
+            {
+                "a": np.array([0, 1], dtype=np.int8),
+                "b": np.array([[0, 0, 0, 0], [1, 1, 1, 0]], dtype=np.int8),
+            },
+        ),
+        (
+            Tuple([Box(0, 1, ()), Discrete(3), MultiBinary([2, 1])]),
+            (
+                None,
+                np.array([0, 1, 0], dtype=np.int8),
+                np.array([[0], [1]], dtype=np.int8),
+            ),
+        ),
+        (
+            Dict(a=Tuple([Box(0, 1, ()), Discrete(3)]), b=Discrete(3)),
+            {
+                "a": (None, np.array([1, 0, 0], dtype=np.int8)),
+                "b": np.array([0, 1, 1], dtype=np.int8),
+            },
+        ),
+    ],
+)
+def test_composite_space_sample_mask(space, mask):
+    """Test that composite space samples use the mask correctly."""
+    space.sample(mask)
 
 
 @pytest.mark.parametrize(

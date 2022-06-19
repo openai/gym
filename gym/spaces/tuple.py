@@ -72,17 +72,25 @@ class Tuple(Space[tuple], Sequence):
 
         return seeds
 
-    def sample(self, mask: Tuple[np.ndarray] = None) -> tuple:
+    def sample(self, mask: Optional[Tuple[Optional[np.ndarray]]] = None) -> tuple:
         """Generates a single random sample inside this space.
 
         This method draws independent samples from the subspaces.
+
+        Args:
+            mask: An optional tuple of optional masks for each of the subspace's samples, expects the same number of masks as spaces
 
         Returns:
             Tuple of the subspace's samples
         """
         if mask is not None:
-            assert isinstance(mask, tuple)
-            assert len(mask) == len(self.spaces)
+            assert isinstance(
+                mask, tuple
+            ), f"Expected type of mask is tuple, actual type: {type(mask)}"
+            assert len(mask) == len(
+                self.spaces
+            ), f"Expected length of mask is {len(self.spaces)}, actual length: {len(mask)}"
+
             return tuple(
                 space.sample(mask=sub_mask)
                 for space, sub_mask in zip(self.spaces, mask)

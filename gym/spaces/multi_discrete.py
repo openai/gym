@@ -23,8 +23,17 @@ class MultiDiscrete(Space[np.ndarray]):
     2. Button A:   Discrete 2  - NOOP[0], Pressed[1] - params: min: 0, max: 1
     3. Button B:   Discrete 2  - NOOP[0], Pressed[1] - params: min: 0, max: 1
 
-    It can be initialized as ``MultiDiscrete([ 5, 2, 2 ])``
+    It can be initialized as ``MultiDiscrete([ 5, 2, 2 ])`` such that a sample is array([3, 1, 0])
 
+    Although this feature is rarely used, :class:`MultiDiscrete` spaces may also have several axes
+    if ``nvec`` has several axes:
+
+    Example::
+
+        >> d = MultiDiscrete(np.array([[1, 2], [3, 4]]))
+        >> d.sample()
+        array([[0, 0],
+               [2, 3]])
     """
 
     def __init__(
@@ -36,16 +45,6 @@ class MultiDiscrete(Space[np.ndarray]):
         """Constructor of :class:`MultiDiscrete` space.
 
         The argument ``nvec`` will determine the number of values each categorical variable can take.
-
-        Although this feature is rarely used, :class:`MultiDiscrete` spaces may also have several axes
-        if ``nvec`` has several axes:
-
-        Example::
-
-            >> d = MultiDiscrete(np.array([[1, 2], [3, 4]]))
-            >> d.sample()
-            array([[0, 0],
-                   [2, 3]])
 
         Args:
             nvec: vector of counts of each categorical variable. This will usually be a list of integers. However,
@@ -63,14 +62,30 @@ class MultiDiscrete(Space[np.ndarray]):
         """Has stricter type than :class:`gym.Space` - never None."""
         return self._shape  # type: ignore
 
-    def sample(self, mask: np.ndarray = None) -> np.ndarray:
-        """Generates a single random sample this space."""
-        if mask is not None:
-            assert isinstance(mask, np.ndarray)
-            assert mask.dtype == np.int8
-            assert mask.shape == self.shape
+    def sample(self, mask: Optional[np.ndarray] = None) -> np.ndarray:
+        """Generates a single random sample this space.
 
-            multi_mask = [np.where(row) for row in mask]
+        Args:
+            mask: An optional mask for multi-discrete, expected shape is `space.nvec`. If there are no possible actions, defaults to 0
+
+        Returns:
+            An np.ndarray of shape `space.shape`
+        """
+        if mask is not None:
+            assert isinstance(
+                mask, np.ndarray
+            ), f"The expected type of the mask is np.ndarray, actual type: {type(mask)}"
+            assert (
+                mask.dtype == np.int8
+            ), f"The expected dtype of the mask is np.int8, actual dtype: {mask.dtype}"
+            assert np.all(
+                mask.shape == self.nvec
+            ), f"The expected shape of the mask is {self.nvec}, actual shape: {mask.shape}. We don't support multi-axis nvec currently."
+            assert np.all(
+                np.logical_or(mask == 0, mask == 1)
+            ), f"All values of a mask should be 0 or 1, actual values: {mask}"
+
+            multi_mask = [np.where(row)[0] for row in mask]
             return np.array(
                 [
                     self.np_random.choice(row_mask) if len(row_mask) > 0 else 0

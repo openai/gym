@@ -1,7 +1,6 @@
 """Implementation of a space that represents the cartesian product of other spaces as a dictionary."""
 from collections import OrderedDict
 from collections.abc import Mapping, Sequence
-from typing import Dict
 from typing import Dict as TypingDict
 from typing import Optional, Union
 
@@ -138,10 +137,13 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
 
         return seeds
 
-    def sample(self, mask: Dict[str, np.ndarray] = None) -> dict:
+    def sample(self, mask: Optional[TypingDict[str, np.ndarray]] = None) -> dict:
         """Generates a single random sample from this space.
 
         The sample is an ordered dictionary of independent samples from the constituent spaces.
+
+        Args:
+            mask: An optional mask for each of the subspaces, expects the same keys as the space
 
         Returns:
             A dictionary with the same key and sampled values from :attr:`self.spaces`
@@ -149,10 +151,10 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
         if mask is not None:
             assert isinstance(
                 mask, dict
-            ), f"Expects mask to be a dict, actual type: {type(dict)}"
+            ), f"Expects mask to be a dict, actual type: {type(mask)}"
             assert (
-                mask.keys == self.keys()
-            ), f"Expect mask keys to be same as space keys, mask keys: {mask.keys()}, space keys: {self.keys()}"
+                mask.keys() == self.spaces.keys()
+            ), f"Expect mask keys to be same as space keys, mask keys: {mask.keys()}, space keys: {self.spaces.keys()}"
             return OrderedDict(
                 [(k, space.sample(mask[k])) for k, space in self.spaces.items()]
             )
