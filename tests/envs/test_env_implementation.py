@@ -100,5 +100,5 @@ def test_taxi_encode_decode():
     for _ in range(100):
         assert (
             env.encode(*env.decode(state)) == state
-        ), f"{state=}, encode decode: {env.encode(*env.decode(state))}"
+        ), f"state={state}, encode(decode(state))={env.encode(*env.decode(state))}"
         state, _, _, _ = env.step(env.action_space.sample())

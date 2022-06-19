@@ -56,12 +56,6 @@ class TaxiEnv(Env):
     - 4: pickup passenger
     - 5: drop off passenger
 
-    For some cases, taking these actions will have no effect on the state of the agent.
-    In v0.25.0, ``info["action_mask"]`` contains a numpy.ndarray for each of the action specifying
-    if the action will change the state.
-    To sample a modifying action, use ``action = env.action_space.sample(info["action_mask"])``
-    Or with a Q-value based algorithm ``action = np.argmax(q_values[obs, np.where(info["action_mask"] == 1)[0]])``.
-
     ### Observations
     There are 500 discrete states since there are 25 taxi positions, 5 possible
     locations of the passenger (including the case when the passenger is in the
@@ -92,6 +86,20 @@ class TaxiEnv(Env):
     - 1: G(reen)
     - 2: Y(ellow)
     - 3: B(lue)
+
+    ### Info
+
+    ``step`` and ``reset(return_info=True)`` will return an info dictionary that contains "p" and "action_mask".
+
+    As Taxi is a stochastic environment for transitions then the "p" key represents the probability of the
+    transition. However, this value is permanently 1.0 for an unknown reason.
+
+    For some cases, taking these actions will have no effect on the state of the agent.
+    In v0.25.0, ``info["action_mask"]`` contains a numpy.ndarray for each of the action specifying
+    if the action will change the state.
+
+    To sample a modifying action, use ``action = env.action_space.sample(info["action_mask"])``
+    Or with a Q-value based algorithm ``action = np.argmax(q_values[obs, np.where(info["action_mask"] == 1)[0]])``.
 
     ### Rewards
     - -1 per step unless other reward is triggered.
@@ -267,7 +275,7 @@ class TaxiEnv(Env):
         if not return_info:
             return int(self.s)
         else:
-            return int(self.s), {"prob": 1, "action_mask": self.action_mask(self.s)}
+            return int(self.s), {"prob": 1.0, "action_mask": self.action_mask(self.s)}
 
     def render(self, mode="human"):
         if self.render_mode is not None:
