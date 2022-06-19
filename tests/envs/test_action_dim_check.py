@@ -48,12 +48,16 @@ def test_mujoco_action_dimensions(env_spec: EnvSpec):
     env.close()
 
 
-@pytest.mark.parametrize(
-    "env",
+DISCRETE_ENVS = list(
     filter(
         lambda env: isinstance(env.action_space, spaces.Discrete),
         all_testing_initialised_envs,
-    ),
+    )
+)
+
+
+@pytest.mark.parametrize(
+    "env", DISCRETE_ENVS, ids=[env.spec.id for env in DISCRETE_ENVS]
 )
 def test_discrete_actions_out_of_bound(env: gym.Env):
     """Test out of bound actions in Discrete action_space.
@@ -74,12 +78,16 @@ def test_discrete_actions_out_of_bound(env: gym.Env):
     env.close()
 
 
+BOX_ENVS = list(
+    filter(
+        lambda env: isinstance(env.action_space, spaces.Box),
+        all_testing_initialised_envs,
+    )
+)
 OOB_VALUE = 100
 
 
-@pytest.mark.parametrize(
-    "env", filter(lambda env: isinstance(env, spaces.Box), all_testing_initialised_envs)
-)
+@pytest.mark.parametrize("env", BOX_ENVS, ids=[env.spec.id for env in BOX_ENVS])
 def test_box_actions_out_of_bound(env: gym.Env):
     """Test out of bound actions in Box action_space.
 
