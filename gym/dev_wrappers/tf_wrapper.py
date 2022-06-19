@@ -1,6 +1,7 @@
-from typing import Union
+from typing import Any, Dict, Union
 
 import jax.dlpack
+from jax.interpreters.xla import DeviceArray
 
 from gym import Env, Wrapper
 from gym.error import DependencyNotInstalled
@@ -46,3 +47,13 @@ class jax_to_tf_v0(Wrapper):
     def _jax_to_tf(self, arr):
         # TODO: Verify this captures vector envs and converts everything from jax to tensorflow
         return tf.experimental.dlpack.from_dlpack(jax.dlpack.to_dlpack(arr))
+
+    def _tf_dict_to_jax(
+        self, value: Dict[str, Union[tf.Tensor, Any]]
+    ) -> Dict[str, Union[DeviceArray, Any]]:
+        return type(value)(**{k: self._tf_to_jax(v) for k, v in value.items()})
+
+    def _jax_dict_to_tf(
+        self, value: Dict[str, Union[DeviceArray, Any]]
+    ) -> Dict[str, Union[tf.Tensor, Any]]:
+        return type(value)(**{k: self._tf_to_jax(v) for k, v in value.items()})
