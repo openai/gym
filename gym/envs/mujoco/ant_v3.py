@@ -9,6 +9,17 @@ DEFAULT_CAMERA_CONFIG = {
 
 
 class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
+    metadata = {
+        "render_modes": [
+            "human",
+            "rgb_array",
+            "depth_array",
+            "single_rgb_array",
+            "single_depth_array",
+        ],
+        "render_fps": 20,
+    }
+
     def __init__(
         self,
         xml_file="ant.xml",

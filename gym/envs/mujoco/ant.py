@@ -5,6 +5,17 @@ from gym.envs.mujoco import mujoco_env
 
 
 class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
+    metadata = {
+        "render_modes": [
+            "human",
+            "rgb_array",
+            "depth_array",
+            "single_rgb_array",
+            "single_depth_array",
+        ],
+        "render_fps": 20,
+    }
+
     def __init__(self, **kwargs):
         mujoco_env.MujocoEnv.__init__(
             self, "ant.xml", 5, mujoco_bindings="mujoco_py", **kwargs
