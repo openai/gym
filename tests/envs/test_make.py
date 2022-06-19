@@ -23,6 +23,16 @@ class ArgumentEnv(gym.Env):
         self.arg3 = arg3
 
 
+gym.register(
+    id="test.ArgumentEnv-v0",
+    entry_point="tests.envs.test_make:ArgumentEnv",
+    kwargs={
+        "arg1": "arg1",
+        "arg2": "arg2",
+    },
+)
+
+
 def test_make():
     env = gym.make("CartPole-v1", disable_env_checker=True)
     assert env.spec.id == "CartPole-v1"
@@ -44,20 +54,18 @@ def test_make_max_episode_steps():
     # Default, uses the spec's
     env = gym.make("CartPole-v1", disable_env_checker=True)
     assert has_wrapper(env, TimeLimit)
-    assert env.max_episode_steps == gym.envs.registry["CartPole-v1"].max_episode_steps
+    assert (
+        env.spec.max_episode_steps == gym.envs.registry["CartPole-v1"].max_episode_steps
+    )
     env.close()
 
     # Custom max episode steps
     env = gym.make("CartPole-v1", max_episode_steps=100, disable_env_checker=True)
     assert has_wrapper(env, TimeLimit)
-    assert env.max_episode_steps == 100
     assert env.spec.max_episode_steps == 100
     env.close()
 
-    # Env spec has no max episode steps, todo replace with GenericTestingEnv
-    gym.register(
-        id="test.ArgumentEnv-v0", entry_point="tests.envs.test_make:ArgumentEnv"
-    )
+    # Env spec has no max episode steps
     assert gym.envs.registry["test.ArgumentEnv-v0"].max_episode_steps is None
     env = gym.make(
         "test.ArgumentEnv-v0", arg1=None, arg2=None, arg3=None, disable_env_checker=True
@@ -106,13 +114,13 @@ def test_make_order_enforcing():
     env.close()
 
     gym.register(
-        id="test.ArgumentEnv-v0",
+        id="test.OrderlessArgumentEnv-v0",
         entry_point="tests.envs.test_make:ArgumentEnv",
         order_enforce=False,
         kwargs={"arg1": None, "arg2": None, "arg3": None},
     )
 
-    env = gym.make("test.ArgumentEnv-v0", disable_env_checker=True)
+    env = gym.make("test.OrderlessArgumentEnv-v0", disable_env_checker=True)
     assert has_wrapper(env, OrderEnforcing) is False
     env.close()
 
@@ -131,7 +139,7 @@ def test_make_render_mode():
     with pytest.raises(
         gym.error.Error,
         match=re.escape(
-            "Invalid render_mode provided: no mode. Valid render_modes: [None, 'human', 'rgb_array', 'single_rgb_array']"
+            "Invalid render_mode provided: no mode. Valid render_modes: None, human, rgb_array, single_rgb_array"
         ),
     ):
         gym.make("CartPole-v1", render_mode="no mode", disable_env_checker=True)
@@ -148,15 +156,6 @@ def test_make_render_mode():
 
 
 def test_make_kwargs():
-    gym.register(
-        id="test.ArgumentEnv-v0",
-        entry_point="tests.envs.test_make:ArgumentEnv",
-        kwargs={
-            "arg1": "arg1",
-            "arg2": "arg2",
-        },
-    )
-
     env = gym.make(
         "test.ArgumentEnv-v0",
         arg2="override_arg2",
