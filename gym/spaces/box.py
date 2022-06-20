@@ -64,8 +64,8 @@ class Box(Space[np.ndarray]):
         Args:
             low (Union[SupportsFloat, np.ndarray]): Lower bounds of the intervals.
             high (Union[SupportsFloat, np.ndarray]): Upper bounds of the intervals.
-            shape (Optional[Sequence[int]]): This only needs to be specified if both ``low`` and ``high`` are scalars and determines the shape of the space.
-                Otherwise, the shape is inferred from the shape of ``low`` or ``high``.
+            shape (Optional[Sequence[int]]): The shape is inferred from the shape of ``low`` or ``high`` `np.ndarray`s with
+                scalars defaulting to (1,)
             dtype: The dtype of the elements of the space. If this is an integer type, the :class:`Box` is essentially a discrete space.
             seed: Optionally, you can use this argument to seed the RNG that is used to sample from the space.
 
@@ -84,7 +84,7 @@ class Box(Space[np.ndarray]):
         elif not np.isscalar(high):
             shape = high.shape  # type: ignore
         elif np.isscalar(low) and np.isscalar(high):
-            shape = ()
+            shape = (1,)
         else:
             raise ValueError(
                 "shape must be provided or inferred from the shapes of low or high"
