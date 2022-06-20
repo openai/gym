@@ -619,7 +619,10 @@ def make(
             apply_human_rendering = True
         elif mode is not None and mode not in render_modes:
             raise error.Error(
-                f"Invalid render_mode provided: {mode}. Valid render_modes: None, {', '.join(render_modes)}"
+                f"Invalid render_mode provided: {mode}. Valid render_modes: None, {', '.join(render_modes)}, {mode == 'human'}"
+                f"{'human' not in render_modes}"
+                f"{('single_rgb_array' in render_modes or 'rgb_array' in render_modes)}"
+                f"{('render_mode' in creator_signature.parameters or 'kwargs' in creator_signature.parameters)}"
             )
 
     env = env_creator(**_kwargs)
