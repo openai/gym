@@ -8,24 +8,18 @@ import gym
 from gym.envs.classic_control import cartpole
 from gym.wrappers import AutoResetWrapper, OrderEnforcing, TimeLimit
 from gym.wrappers.env_checker import PassiveEnvChecker
-from tests.envs.register_during_make_env import RegisterDuringMakeEnv
 from tests.envs.utils import all_testing_env_specs
+from tests.envs.utils_envs import ArgumentEnv, RegisterDuringMakeEnv
 from tests.wrappers.utils import has_wrapper
 
-
-class ArgumentEnv(gym.Env):
-    observation_space = gym.spaces.Box(low=0, high=1, shape=(1,))
-    action_space = gym.spaces.Box(low=0, high=1, shape=(1,))
-
-    def __init__(self, arg1, arg2, arg3):
-        self.arg1 = arg1
-        self.arg2 = arg2
-        self.arg3 = arg3
-
+gym.register(
+    "RegisterDuringMakeEnv-v0",
+    entry_point="tests.envs.utils_envs:RegisterDuringMakeEnv",
+)
 
 gym.register(
     id="test.ArgumentEnv-v0",
-    entry_point="tests.envs.test_make:ArgumentEnv",
+    entry_point="tests.envs.utils_envs:ArgumentEnv",
     kwargs={
         "arg1": "arg1",
         "arg2": "arg2",
@@ -66,7 +60,7 @@ def test_make_max_episode_steps():
     env.close()
 
     # Env spec has no max episode steps
-    assert gym.envs.registry["test.ArgumentEnv-v0"].max_episode_steps is None
+    assert gym.spec("test.ArgumentEnv-v0").max_episode_steps is None
     env = gym.make(
         "test.ArgumentEnv-v0", arg1=None, arg2=None, arg3=None, disable_env_checker=True
     )
@@ -115,7 +109,7 @@ def test_make_order_enforcing():
 
     gym.register(
         id="test.OrderlessArgumentEnv-v0",
-        entry_point="tests.envs.test_make:ArgumentEnv",
+        entry_point="tests.envs.utils_envs:ArgumentEnv",
         order_enforce=False,
         kwargs={"arg1": None, "arg2": None, "arg3": None},
     )
@@ -173,7 +167,7 @@ def test_make_kwargs():
 def test_import_module_during_make():
     # Test custom environment which is registered at make
     env = gym.make(
-        "tests.envs.register_during_make_env:RegisterDuringMakeEnv-v0",
+        "tests.envs.utils:RegisterDuringMakeEnv-v0",
         disable_env_checker=True,
     )
     assert isinstance(env.unwrapped, RegisterDuringMakeEnv)

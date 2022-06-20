@@ -1,5 +1,5 @@
 """Tests that gym.register works as expected."""
-
+import re
 from typing import Optional
 
 import pytest
@@ -18,7 +18,7 @@ def register_testing_envs():
         env_id = f"{namespace}/{versioned_name}-v{version}"
         gym.register(
             id=env_id,
-            entry_point="tests.envs.test_make:ArgumentEnv",
+            entry_point="tests.envs.utils_envs:ArgumentEnv",
             kwargs={
                 "arg1": "arg1",
                 "arg2": "arg2",
@@ -27,7 +27,7 @@ def register_testing_envs():
         )
     gym.register(
         id=f"{namespace}/{unversioned_name}",
-        entry_point="tests.env.test_register:ArgumentEnv",
+        entry_point="tests.env.utils_envs:ArgumentEnv",
         kwargs={
             "arg1": "arg1",
             "arg2": "arg2",
@@ -86,7 +86,7 @@ def test_register(
     ],
 )
 def test_register_error(env_id):
-    with pytest.raises(gym.error.Error, match="Malformed environment ID"):
+    with pytest.raises(gym.error.Error, match=f"^Malformed environment ID: {env_id}"):
         gym.register(env_id)
 
 
@@ -127,15 +127,16 @@ def test_env_version_suggestions(
     register_testing_envs, env_id_input, suggested_versions, default_version
 ):
     if default_version:
-        match_str = "provides the default version"
         with pytest.raises(
             gym.error.DeprecatedEnv,
-            match=match_str,
+            match="It provides the default version",  # env name,
         ):
             gym.make(env_id_input)
     else:
-        match_str = f"versioned environments: \\[ {suggested_versions} \\]"
-        with pytest.raises(gym.error.UnregisteredEnv, match=match_str):
+        with pytest.raises(
+            gym.error.UnregisteredEnv,
+            match=f"It provides versioned environments: \\[ {suggested_versions} \\]",
+        ):
             gym.make(env_id_input)
 
 
@@ -147,7 +148,10 @@ def test_register_versioned_unversioned():
 
     unversioned_env = "Test/MyEnv"
     with pytest.raises(
-        gym.error.RegistrationError, match="Can't register the unversioned environment"
+        gym.error.RegistrationError,
+        match=re.escape(
+            "Can't register the unversioned environment `Test/MyEnv` when the versioned environment `Test/MyEnv-v0` of the same name already exists"
+        ),
     ):
         gym.register(unversioned_env)
 
@@ -157,7 +161,12 @@ def test_register_versioned_unversioned():
     # Register unversioned then versioned
     gym.register(unversioned_env)
     assert gym.envs.spec(unversioned_env).id == unversioned_env
-    with pytest.raises(gym.error.RegistrationError):
+    with pytest.raises(
+        gym.error.RegistrationError,
+        match=re.escape(
+            "Can't register the versioned environment `Test/MyEnv-v0` when the unversioned environment `Test/MyEnv` of the same name already exists."
+        ),
+    ):
         gym.register(versioned_env)
 
     # Clean everything
@@ -165,7 +174,12 @@ def test_register_versioned_unversioned():
 
 
 def test_make_latest_versioned_env(register_testing_envs):
-    with pytest.warns(UserWarning, match="Using the latest versioned environment"):
+    with pytest.warns(
+        UserWarning,
+        match=re.escape(
+            "Using the latest versioned environment `MyAwesomeNamespace/MyAwesomeVersionedEnv-v5` instead of the unversioned environment `MyAwesomeNamespace/MyAwesomeVersionedEnv`."
+        ),
+    ):
         env = gym.make("MyAwesomeNamespace/MyAwesomeVersionedEnv")
     assert env.spec.id == "MyAwesomeNamespace/MyAwesomeVersionedEnv-v5"
 
