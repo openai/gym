@@ -11,6 +11,7 @@ from gym import error, spaces
 from gym.error import DependencyNotInstalled
 from gym.utils import EzPickle, colorize
 from gym.utils.renderer import Renderer
+from gym.utils.step_api_compatibility import step_api_compatibility
 
 try:
     import Box2D
@@ -762,7 +763,7 @@ def demo_heuristic_lander(env, seed=None, render=False):
     s = env.reset(seed=seed)
     while True:
         a = heuristic(env, s)
-        s, r, terminated, truncated, info = env.step(a)
+        s, r, terminated, truncated, info = step_api_compatibility(env.step(a), True)
         total_reward += r
 
         if render:
