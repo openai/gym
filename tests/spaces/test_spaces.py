@@ -150,6 +150,37 @@ def test_inequality(spaces):
     assert space1 != space2, f"Expected {space1} != {space2}"
 
 
+# The expected sum of variance for an alpha of 0.05
+# CHI_SQUARED = [0] + [scipy.stats.chi2.isf(0.05, df=df) for df in range(1, 25)]
+CHI_SQUARED = [
+    0,
+    3.8414588206941285,
+    5.991464547107983,
+    7.814727903251178,
+    9.487729036781158,
+    11.070497693516355,
+    12.59158724374398,
+    14.067140449340167,
+    15.507313055865454,
+    16.91897760462045,
+    18.30703805327515,
+    19.67513757268249,
+    21.02606981748307,
+    22.362032494826945,
+    23.684791304840576,
+    24.99579013972863,
+    26.296227604864242,
+    27.587111638275335,
+    28.869299430392637,
+    30.143527205646155,
+    31.41043284423092,
+    32.670573340917315,
+    33.92443847144379,
+    35.17246162690807,
+    36.415028501807306,
+]
+
+
 @pytest.mark.parametrize(
     "space",
     [
@@ -166,10 +197,82 @@ def test_inequality(spaces):
     ],
 )
 def test_sample(space: Space, n_trials: int = 1_000):
-    """Test the space sample works, todo, add chi-squared testing for the distribution"""
+    """Test the space sample has the expected distribution with the chi-squared test and KS test.
+
+    Example code with scipy.stats.chisquared
+
+    import scipy.stats
+    variance = np.sum(np.square(observed_frequency - expected_frequency) / expected_frequency)
+    f'X2 at alpha=0.05 = {scipy.stats.chi2.isf(0.05, df=4)}'
+    f'p-value = {scipy.stats.chi2.sf(variance, df=4)}'
+    scipy.stats.chisquare(f_obs=observed_frequency)
+    """
     space.seed(0)
     samples = np.array([space.sample() for _ in range(n_trials)])
     assert len(samples) == n_trials
+
+    if isinstance(space, Discrete):
+        expected_frequency = np.ones(space.n) * n_trials / space.n
+        observed_frequency = np.zeros(space.n)
+        for sample in samples:
+            observed_frequency[sample - space.start] += 1
+        degrees_of_freedom = space.n - 1
+
+        assert observed_frequency.shape == expected_frequency.shape
+        assert np.sum(observed_frequency) == n_trials
+
+        variance = np.sum(
+            np.square(expected_frequency - observed_frequency) / expected_frequency
+        )
+        assert variance < CHI_SQUARED[degrees_of_freedom]
+    elif isinstance(space, MultiBinary):
+        expected_frequency = n_trials / 2
+        observed_frequency = np.sum(samples, axis=0)
+        assert observed_frequency.shape == space.shape
+
+        variance = (
+            2 * np.square(observed_frequency - expected_frequency) / expected_frequency
+        )
+        assert variance.shape == space.shape
+        assert np.all(variance < CHI_SQUARED[1])
+    elif isinstance(space, MultiDiscrete):
+        # Due to the multi-axis capability of MultiDiscrete, these functions need to be recursive and that the expected / observed numpy are of non-regular shapes
+        def _generate_frequency(dim, func):
+            if isinstance(dim, np.ndarray):
+                print(dim)
+                return np.array(
+                    [_generate_frequency(sub_dim, func) for sub_dim in dim],
+                    dtype=object,
+                )
+            else:
+                return func(dim)
+
+        def _update_observed_frequency(obs_sample, obs_freq):
+            if isinstance(obs_sample, np.ndarray):
+                for sub_sample, sub_freq in zip(obs_sample, obs_freq):
+                    _update_observed_frequency(sub_sample, sub_freq)
+            else:
+                obs_freq[obs_sample] += 1
+
+        expected_frequency = _generate_frequency(
+            space.nvec, lambda dim: np.ones(dim) * n_trials / dim
+        )
+        observed_frequency = _generate_frequency(space.nvec, lambda dim: np.zeros(dim))
+        for sample in samples:
+            _update_observed_frequency(sample, observed_frequency)
+
+        def _chi_squared_test(dim, exp_freq, obs_freq):
+            if isinstance(dim, np.ndarray):
+                for sub_dim, sub_exp_freq, sub_obs_freq in zip(dim, exp_freq, obs_freq):
+                    _chi_squared_test(sub_dim, sub_exp_freq, sub_obs_freq)
+            else:
+                assert exp_freq.shape == (dim,) and obs_freq.shape == (dim,)
+                assert np.sum(obs_freq) == n_trials
+                _variance = np.sum(np.square(exp_freq - obs_freq) / exp_freq)
+                _degrees_of_freedom = dim - 1
+                assert _variance < CHI_SQUARED[_degrees_of_freedom]
+
+        _chi_squared_test(space.nvec, expected_frequency, observed_frequency)
 
 
 @pytest.mark.parametrize(
