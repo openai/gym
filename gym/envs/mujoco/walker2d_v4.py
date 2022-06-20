@@ -10,13 +10,6 @@ DEFAULT_CAMERA_CONFIG = {
     "elevation": -20.0,
 }
 
-DEFAULT_CAMERA_CONFIG = {
-    "trackbodyid": 2,
-    "distance": 4.0,
-    "lookat": np.array((0.0, 0.0, 1.15)),
-    "elevation": -20.0,
-}
-
 
 class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     """
@@ -153,8 +146,18 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     * v2: All continuous control environments now use mujoco_py >= 1.50
     * v1: max_time_steps raised to 1000 for robot based tasks. Added reward_threshold to environments.
     * v0: Initial versions release (1.0.0)
-
     """
+
+    metadata = {
+        "render_modes": [
+            "human",
+            "rgb_array",
+            "depth_array",
+            "single_rgb_array",
+            "single_depth_array",
+        ],
+        "render_fps": 125,
+    }
 
     def __init__(
         self,

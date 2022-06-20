@@ -97,16 +97,16 @@ class MujocoEnv(gym.Env):
 
         self.viewer = None
 
-        self.metadata = {
-            "render_modes": [
-                "human",
-                "rgb_array",
-                "depth_array",
-                "single_rgb_array",
-                "single_depth_array",
-            ],
-            "render_fps": int(np.round(1.0 / self.dt)),
-        }
+        assert self.metadata["render_modes"] == [
+            "human",
+            "rgb_array",
+            "depth_array",
+            "single_rgb_array",
+            "single_depth_array",
+        ]
+        assert (
+            int(np.round(1.0 / self.dt)) == self.metadata["render_fps"]
+        ), f'Expected value: {int(np.round(1.0 / self.dt))}, Actual value: {self.metadata["render_fps"]}'
 
         self._set_action_space()
 
