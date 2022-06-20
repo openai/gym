@@ -3,7 +3,6 @@ import copy
 import difflib
 import importlib
 import importlib.util
-import inspect
 import re
 import sys
 import warnings
@@ -596,22 +595,12 @@ def make(
     # If we have access to metadata we check that "render_mode" is valid
     if hasattr(env_creator, "metadata"):
         render_modes = env_creator.metadata["render_modes"]
-        creator_signature = inspect.signature(env_creator)
-
-        has_starred_kwargs = False
-        for param in creator_signature.parameters.values():
-            has_starred_kwargs = (
-                has_starred_kwargs or param.kind == inspect.Parameter.VAR_KEYWORD
-            )
 
         # We might be able to fall back to the HumanRendering wrapper if 'human' rendering is not supported natively
         if (
             mode == "human"
             and "human" not in render_modes
             and ("single_rgb_array" in render_modes or "rgb_array" in render_modes)
-            and (  # Here we check whether the new API is used
-                "render_mode" in creator_signature.parameters or has_starred_kwargs
-            )
         ):
             logger.warn(
                 "You are trying to use 'human' rendering for an environment that doesn't natively support it. "
@@ -625,14 +614,25 @@ def make(
             apply_human_rendering = True
         elif mode is not None and mode not in render_modes:
             raise error.Error(
-                f"Invalid render_mode provided: {mode}. Valid render_modes: None, {', '.join(render_modes)}, {mode == 'human'}"
-                f"{'human' not in render_modes}"
-                f"{('single_rgb_array' in render_modes or 'rgb_array' in render_modes)}"
-                f"{('render_mode' in creator_signature.parameters or 'kwargs' in creator_signature.parameters)}"
-                f"{creator_signature.parameters}"
+                f"Invalid render_mode provided: {mode}. Valid render_modes: None, {', '.join(render_modes)}"
             )
 
-    env = env_creator(**_kwargs)
+    try:
+        env = env_creator(**_kwargs)
+    except TypeError as e:
+        if (
+            str(e)
+            == "TypeError: __init__() got an unexpected keyword argument 'render_mode'"
+            and apply_human_rendering
+        ):
+            raise AttributeError(
+                "Gym tried to apply the HumanRendering wrapper to your environment but it"
+                "looks like your environment does not support the new render API. Either implement"
+                "human-rendering natively in your environment, change the render_mode argument, or use the new API."
+            )
+        else:
+            raise e
+
     if apply_human_rendering:
         env = HumanRendering(env)
 
