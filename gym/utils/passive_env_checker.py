@@ -235,19 +235,19 @@ def passive_env_step_checker(env, action):
         obs, reward, done, info = result
 
         assert isinstance(
-            done, bool
+            done, (bool, np.bool_)
         ), f"The `done` signal must be a boolean, actual type: {type(done)}"
     elif len(result) == 5:
         obs, reward, terminated, truncated, info = result
 
         assert isinstance(
-            terminated, bool
+            terminated, (bool, np.bool_)
         ), f"The `terminated` signal must be a boolean, actual type: {type(terminated)}"
         assert isinstance(
-            truncated, bool
+            truncated, (bool, np.bool_)
         ), f"The `truncated` signal must be a boolean, actual type: {type(truncated)}"
-        assert (
-            terminated is False or truncated is False
+        assert (  # As this can be np.bool_ then == not is
+            terminated == False or truncated == False  # noqa:E712
         ), "Only `terminated` or `truncated` can be true, not both."
     else:
         raise error.Error(
