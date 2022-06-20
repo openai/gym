@@ -50,32 +50,54 @@ def step_to_new_api(
             dones = [dones]
 
         for i in range(len(dones)):
-            if "TimeLimit.truncated" not in infos or (
+            # For every condition, handling - info single env /  info vector env (list) / info vector env (dict)
+
+            # TimeLimit.truncated attribute not present - implies either terminated or episode still ongoing based on `done`
+            if (not is_vector_env and "TimeLimit.truncated" not in infos) or (
                 is_vector_env
-                and "TimeLimit.truncated" in infos
-                and not infos["_TimeLimit.truncated"][
-                    i
-                ]  # if mask is False, it's the same as TimeLimit.truncated attribute not being present
+                and (
+                    (
+                        isinstance(infos, list)
+                        and "TimeLimit.truncated" not in infos[i]
+                    )  # vector env, list info api
+                    or (
+                        "TimeLimit.truncated" in infos
+                        and not infos["_TimeLimit.truncated"][i]
+                    )  # vector env, dict info api, if mask is False, it's the same as TimeLimit.truncated attribute not being present for env 'i'
+                )
             ):
+
                 terminateds.append(dones[i])
                 truncateds.append(False)
+
+            # This means info["TimeLimit.truncated"] exists and is True, which means the truncation has occurred but termination has not.
             elif (
                 infos["TimeLimit.truncated"]
                 if not is_vector_env
-                else (  # handle vector info as both dict and list
+                else (
                     infos["TimeLimit.truncated"][i]
                     if isinstance(infos, dict)
                     else infos[i]["TimeLimit.truncated"]
                 )
             ):
+                assert dones[i] is True
                 terminateds.append(False)
                 truncateds.append(True)
             else:
                 # This means info["TimeLimit.truncated"] exists but is False, which means the core environment had already terminated,
                 # but it also exceeded maximum timesteps at the same step.
-
+                assert dones[i] is True
                 terminateds.append(True)
                 truncateds.append(True)
+
+            # removing "TimeLimit.truncated" from info
+            if isinstance(infos, list):
+                infos[i].pop(["TimeLimit.truncated"], None)
+
+        # if info dict vector, can only pop after all envs are processed (also for single env)
+        if isinstance(infos, dict):
+            infos.pop("TimeLimit.truncated", None)
+            infos.pop("TimeLimit.truncated_", None)
 
         return (
             observations,
@@ -118,7 +140,6 @@ def step_to_old_api(
 
         for i in range(n_envs):
             dones.append(terminateds[i] or truncateds[i])
-            # to be consistent with old API
             if truncateds[i]:
                 if is_vector_env:
                     # handle vector infos for dict and list
