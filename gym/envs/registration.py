@@ -596,12 +596,16 @@ def make(
     # If we have access to metadata we check that "render_mode" is valid
     if hasattr(env_creator, "metadata"):
         render_modes = env_creator.metadata["render_modes"]
+        creator_signature = inspect.signature(env_creator)
         # We might be able to fall back to the HumanRendering wrapper if 'human' rendering is not supported natively
         if (
             mode == "human"
             and "human" not in render_modes
             and ("single_rgb_array" in render_modes or "rgb_array" in render_modes)
-            and "render_mode" in inspect.signature(env_creator).parameters
+            and (
+                "render_mode" in creator_signature.parameters
+                or "kwargs" in creator_signature.parameters
+            )
         ):
             logger.warn(
                 "You are trying to use 'human' rendering for an environment that doesn't natively support it. "
