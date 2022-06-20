@@ -8,7 +8,7 @@ import pytest
 
 import gym
 from gym.wrappers import AutoResetWrapper
-from tests.envs.spec_list import spec_list
+from tests.envs.utils import all_testing_env_specs
 
 
 class DummyResetEnv(gym.Env):
@@ -61,7 +61,9 @@ def unwrap_env(env) -> Generator[gym.Wrapper, None, None]:
         env = env.env
 
 
-@pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
+@pytest.mark.parametrize(
+    "spec", all_testing_env_specs, ids=[spec.id for spec in all_testing_env_specs]
+)
 def test_make_autoreset_true(spec):
     """Tests gym.make with `autoreset=True`, and check that the reset actually happens.
 
@@ -71,7 +73,7 @@ def test_make_autoreset_true(spec):
      amount of time with random actions, which is true as of the time of adding this test.
     """
     with pytest.warns(None):
-        env = gym.make(spec.id, autoreset=True)
+        env = gym.make(spec.id, autoreset=True, disable_env_checker=True)
     assert AutoResetWrapper in unwrap_env(env)
 
     env.reset(seed=0)
@@ -85,21 +87,23 @@ def test_make_autoreset_true(spec):
     env.close()
 
 
-@pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
+@pytest.mark.parametrize(
+    "spec", all_testing_env_specs, ids=[spec.id for spec in all_testing_env_specs]
+)
 def test_gym_make_autoreset(spec):
     """Tests that `gym.make` autoreset wrapper is applied only when `gym.make(..., autoreset=True)`."""
     with pytest.warns(None):
-        env = gym.make(spec.id)
+        env = gym.make(spec.id, disable_env_checker=True)
     assert AutoResetWrapper not in unwrap_env(env)
     env.close()
 
     with pytest.warns(None):
-        env = gym.make(spec.id, autoreset=False)
+        env = gym.make(spec.id, autoreset=False, disable_env_checker=True)
     assert AutoResetWrapper not in unwrap_env(env)
     env.close()
 
     with pytest.warns(None):
-        env = gym.make(spec.id, autoreset=True)
+        env = gym.make(spec.id, autoreset=True, disable_env_checker=True)
     assert AutoResetWrapper in unwrap_env(env)
     env.close()
 

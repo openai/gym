@@ -22,11 +22,11 @@ class PassiveEnvChecker(gym.Wrapper):
         assert hasattr(
             env, "action_space"
         ), "You must specify a action space. https://www.gymlibrary.ml/content/environment_creation/"
-        check_observation_space(env.action_space)
+        check_action_space(env.action_space)
         assert hasattr(
             env, "observation_space"
         ), "You must specify an observation space. https://www.gymlibrary.ml/content/environment_creation/"
-        check_action_space(env.observation_space)
+        check_observation_space(env.observation_space)
 
         self.checked_reset = False
         self.checked_step = False
@@ -48,10 +48,10 @@ class PassiveEnvChecker(gym.Wrapper):
         else:
             return self.env.reset(**kwargs)
 
-    def render(self, **kwargs):
+    def render(self, *args, **kwargs):
         """Renders the environment that on the first call will run the `passive_env_render_check`."""
         if self.checked_render is False:
             self.checked_render = True
-            return passive_env_render_check(self.env, **kwargs)
+            return passive_env_render_check(self.env, *args, **kwargs)
         else:
-            return self.env.render(**kwargs)
+            return self.env.render(*args, **kwargs)

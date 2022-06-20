@@ -104,12 +104,20 @@ class FrozenLakeEnv(Env):
     ### Arguments
 
     ```
-    gym.make('FrozenLake-v1', desc=None,map_name="4x4", is_slippery=True)
+    gym.make('FrozenLake-v1', desc=None, map_name="4x4", is_slippery=True)
     ```
 
     `desc`: Used to specify custom map for frozen lake. For example,
 
         desc=["SFFF", "FHFH", "FFFH", "HFFG"].
+
+        A random generated map can be specified by calling the function `generate_random_map`. For example,
+
+        ```
+        from gym.envs.toy_text.frozen_lake import generate_random_map
+
+        gym.make('FrozenLake-v1', desc=generate_random_map(size=8))
+        ```
 
     `map_name`: ID to use any of the preloaded maps.
 
@@ -215,7 +223,6 @@ class FrozenLakeEnv(Env):
         self.observation_space = spaces.Discrete(nS)
         self.action_space = spaces.Discrete(nA)
 
-        assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
         self.renderer = Renderer(self.render_mode, self._render)
 

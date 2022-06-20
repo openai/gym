@@ -4,7 +4,7 @@ import pytest
 from gym.envs.registration import EnvSpec
 from gym.spaces import Box, Discrete, MultiDiscrete, Tuple
 from gym.vector.sync_vector_env import SyncVectorEnv
-from tests.envs.spec_list import spec_list
+from tests.envs.utils import all_testing_env_specs
 from tests.vector.utils import (
     CustomSpace,
     assert_rng_equal,
@@ -188,7 +188,9 @@ def test_sync_vector_env_seed():
         assert np.all(env_action == vector_action)
 
 
-@pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
+@pytest.mark.parametrize(
+    "spec", all_testing_env_specs, ids=[spec.id for spec in all_testing_env_specs]
+)
 def test_sync_vector_determinism(spec: EnvSpec, seed: int = 123, n: int = 3):
     """Check that for all environments, the sync vector envs produce the same action samples using the same seeds"""
     env_1 = SyncVectorEnv([make_env(spec.id, seed=seed) for _ in range(n)])

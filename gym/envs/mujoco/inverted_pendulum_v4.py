@@ -1,5 +1,3 @@
-from typing import Optional
-
 import numpy as np
 
 from gym import utils
@@ -89,14 +87,22 @@ class InvertedPendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     * v2: All continuous control environments now use mujoco_py >= 1.50
     * v1: max_time_steps raised to 1000 for robot based tasks (including inverted pendulum)
     * v0: Initial versions release (1.0.0)
-
     """
 
-    def __init__(self, render_mode: Optional[str] = None):
+    metadata = {
+        "render_modes": [
+            "human",
+            "rgb_array",
+            "depth_array",
+            "single_rgb_array",
+            "single_depth_array",
+        ],
+        "render_fps": 25,
+    }
+
+    def __init__(self, **kwargs):
         utils.EzPickle.__init__(self)
-        mujoco_env.MujocoEnv.__init__(
-            self, "inverted_pendulum.xml", 2, render_mode=render_mode
-        )
+        mujoco_env.MujocoEnv.__init__(self, "inverted_pendulum.xml", 2, **kwargs)
 
     def step(self, a):
         reward = 1.0

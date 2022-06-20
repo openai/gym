@@ -1,5 +1,3 @@
-from typing import Optional
-
 import numpy as np
 
 from gym import utils
@@ -13,13 +11,20 @@ def mass_center(model, sim):
 
 
 class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
-    def __init__(self, render_mode: Optional[str] = None):
+    metadata = {
+        "render_modes": [
+            "human",
+            "rgb_array",
+            "depth_array",
+            "single_rgb_array",
+            "single_depth_array",
+        ],
+        "render_fps": 67,
+    }
+
+    def __init__(self, **kwargs):
         mujoco_env.MujocoEnv.__init__(
-            self,
-            "humanoid.xml",
-            5,
-            render_mode=render_mode,
-            mujoco_bindings="mujoco_py",
+            self, "humanoid.xml", 5, mujoco_bindings="mujoco_py", **kwargs
         )
         utils.EzPickle.__init__(self)
 

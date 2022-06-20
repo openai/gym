@@ -1,7 +1,5 @@
 __credits__ = ["Rushiv Arora"]
 
-from typing import Optional
-
 import numpy as np
 
 from gym import utils
@@ -149,13 +147,24 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     * v0: Initial versions release (1.0.0)
     """
 
+    metadata = {
+        "render_modes": [
+            "human",
+            "rgb_array",
+            "depth_array",
+            "single_rgb_array",
+            "single_depth_array",
+        ],
+        "render_fps": 20,
+    }
+
     def __init__(
         self,
-        render_mode: Optional[str] = None,
         forward_reward_weight=1.0,
         ctrl_cost_weight=0.1,
         reset_noise_scale=0.1,
         exclude_current_positions_from_observation=True,
+        **kwargs
     ):
         utils.EzPickle.__init__(**locals())
 
@@ -169,9 +178,7 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             exclude_current_positions_from_observation
         )
 
-        mujoco_env.MujocoEnv.__init__(
-            self, "half_cheetah.xml", 5, render_mode=render_mode
-        )
+        mujoco_env.MujocoEnv.__init__(self, "half_cheetah.xml", 5, **kwargs)
 
     def control_cost(self, action):
         control_cost = self._ctrl_cost_weight * np.sum(np.square(action))

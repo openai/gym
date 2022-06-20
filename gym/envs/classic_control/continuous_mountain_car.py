@@ -124,7 +124,6 @@ class Continuous_MountainCarEnv(gym.Env):
             [self.max_position, self.max_speed], dtype=np.float32
         )
 
-        assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
         self.renderer = Renderer(self.render_mode, self._render)
 

@@ -27,7 +27,7 @@ extras = {
 testing_group = set(extras.keys()) - {"accept-rom-license", "atari"}
 extras["testing"] = list(
     set(itertools.chain.from_iterable(map(lambda group: extras[group], testing_group)))
-) + ["pytest", "mock"]
+) + ["pytest==7.0.1"]
 
 # All dependency groups - accept rom license as requires user to run
 all_groups = set(extras.keys()) - {"accept-rom-license"}

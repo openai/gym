@@ -1,16 +1,7 @@
-from typing import Optional
-
 import numpy as np
 
 from gym import utils
 from gym.envs.mujoco import mujoco_env
-
-DEFAULT_CAMERA_CONFIG = {
-    "trackbodyid": 2,
-    "distance": 4.0,
-    "lookat": np.array((0.0, 0.0, 1.15)),
-    "elevation": -20.0,
-}
 
 DEFAULT_CAMERA_CONFIG = {
     "trackbodyid": 2,
@@ -162,12 +153,21 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     * v2: All continuous control environments now use mujoco_py >= 1.50
     * v1: max_time_steps raised to 1000 for robot based tasks. Added reward_threshold to environments.
     * v0: Initial versions release (1.0.0)
-
     """
+
+    metadata = {
+        "render_modes": [
+            "human",
+            "rgb_array",
+            "depth_array",
+            "single_rgb_array",
+            "single_depth_array",
+        ],
+        "render_fps": 125,
+    }
 
     def __init__(
         self,
-        render_mode: Optional[str] = None,
         forward_reward_weight=1.0,
         ctrl_cost_weight=1e-3,
         healthy_reward=1.0,
@@ -176,6 +176,7 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         healthy_angle_range=(-1.0, 1.0),
         reset_noise_scale=5e-3,
         exclude_current_positions_from_observation=True,
+        **kwargs
     ):
         utils.EzPickle.__init__(**locals())
 
@@ -194,7 +195,7 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             exclude_current_positions_from_observation
         )
 
-        mujoco_env.MujocoEnv.__init__(self, "walker2d.xml", 4, render_mode=render_mode)
+        mujoco_env.MujocoEnv.__init__(self, "walker2d.xml", 4, **kwargs)
 
     @property
     def healthy_reward(self):

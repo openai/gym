@@ -1,5 +1,3 @@
-from typing import Optional
-
 import numpy as np
 
 from gym import utils
@@ -121,12 +119,22 @@ class ReacherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     * v2: All continuous control environments now use mujoco_py >= 1.50
     * v1: max_time_steps raised to 1000 for robot based tasks (not including reacher, which has a max_time_steps of 50). Added reward_threshold to environments.
     * v0: Initial versions release (1.0.0)
-
     """
 
-    def __init__(self, render_mode: Optional[str] = None):
+    metadata = {
+        "render_modes": [
+            "human",
+            "rgb_array",
+            "depth_array",
+            "single_rgb_array",
+            "single_depth_array",
+        ],
+        "render_fps": 50,
+    }
+
+    def __init__(self, **kwargs):
         utils.EzPickle.__init__(self)
-        mujoco_env.MujocoEnv.__init__(self, "reacher.xml", 2, render_mode=render_mode)
+        mujoco_env.MujocoEnv.__init__(self, "reacher.xml", 2, **kwargs)
 
     def step(self, a):
         vec = self.get_body_com("fingertip") - self.get_body_com("target")
