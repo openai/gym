@@ -100,7 +100,7 @@ def step_to_new_api(
         # if info dict vector, can only pop after all envs are processed (also for single env)
         if isinstance(infos, dict):
             infos.pop("TimeLimit.truncated", None)
-            infos.pop("TimeLimit.truncated_", None)
+            infos.pop("_TimeLimit.truncated", None)
 
         return (
             observations,
