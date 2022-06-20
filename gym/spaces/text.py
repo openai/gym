@@ -64,11 +64,14 @@ class Text(Space[str]):
     
     def contains(self, x) -> bool:
         """Return boolean specifying if x is a valid member of this space."""
-        if isinstance(x, str) and self.min_length <= len(x) <= self.max_length:
-            for c in x:
-                if c not in self.charset:
-                    return False
-            return True
+        if isinstance(x, str):
+            if self.min_length <= len(x) <= self.max_length:
+                for c in x:
+                    if c not in self.charset:
+                        return False
+                return True
+            else:
+                return False
         else:
             return False
         
