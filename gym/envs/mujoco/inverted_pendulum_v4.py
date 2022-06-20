@@ -36,12 +36,12 @@ class InvertedPendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     The observation is a `ndarray` with shape `(4,)` where the elements correspond to the following:
 
-    | Num | Observation           | Min                  | Max                | Name (in corresponding XML file) | Joint| Unit |
-    |-----|-----------------------|----------------------|--------------------|----------------------|--------------------|--------------------|
-    | 0   | position of the cart along the linear surface | -Inf                 | Inf                | slider | slide | position (m) |
-    | 1   | vertical angle of the pole on the cart        | -Inf                 | Inf                | hinge | hinge | angle (rad) |
-    | 2   | linear velocity of the cart                   | -Inf                 | Inf                | slider | slide | velocity (m/s) |
-    | 3   | angular velocity of the pole on the cart      | -Inf                 | Inf                | hinge | hinge | anglular velocity (rad/s) |
+    | Num | Observation                                   | Min  | Max | Name (in corresponding XML file) | Joint | Unit                      |
+    | --- | --------------------------------------------- | ---- | --- | -------------------------------- | ----- | ------------------------- |
+    | 0   | position of the cart along the linear surface | -Inf | Inf | slider                           | slide | position (m)              |
+    | 1   | vertical angle of the pole on the cart        | -Inf | Inf | hinge                            | hinge | angle (rad)               |
+    | 2   | linear velocity of the cart                   | -Inf | Inf | slider                           | slide | velocity (m/s)            |
+    | 3   | angular velocity of the pole on the cart      | -Inf | Inf | hinge                            | hinge | anglular velocity (rad/s) |
 
 
     ### Rewards

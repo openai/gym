@@ -28,14 +28,15 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     ### Action Space
     The action space is a `Box(-1, 1, (6,), float32)`. An action represents the torques applied between *links*.
 
-    | Num | Action                                 | Control Min | Control Max | Name (in corresponding XML file) | Joint | Unit |
-    |-------|--------------------------------------|---------------|----------------|---------------------------------------|-------|------|
-    | 0   | Torque applied on the back thigh rotor | -1 | 1 | bthigh | hinge | torque (N m) |
-    | 1   | Torque applied on the back shin rotor  | -1 | 1 | bshin | hinge | torque (N m) |
-    | 2   | Torque applied on the back foot rotor  | -1 | 1 | bfoot | hinge | torque (N m) |
-    | 3   | Torque applied on the front thigh rotor| -1 | 1 | fthigh | hinge | torque (N m) |
-    | 4   | Torque applied on the front shin rotor | -1 | 1 | fshin | hinge | torque (N m) |
-    | 5   | Torque applied on the front foot rotor | -1 | 1 | ffoot | hinge | torque (N m) |
+    | Num | Action                                  | Control Min | Control Max | Name (in corresponding XML file) | Joint | Unit         |
+    | --- | --------------------------------------- | ----------- | ----------- | -------------------------------- | ----- | ------------ |
+    | 0   | Torque applied on the back thigh rotor  | -1          | 1           | bthigh                           | hinge | torque (N m) |
+    | 1   | Torque applied on the back shin rotor   | -1          | 1           | bshin                            | hinge | torque (N m) |
+    | 2   | Torque applied on the back foot rotor   | -1          | 1           | bfoot                            | hinge | torque (N m) |
+    | 3   | Torque applied on the front thigh rotor | -1          | 1           | fthigh                           | hinge | torque (N m) |
+    | 4   | Torque applied on the front shin rotor  | -1          | 1           | fshin                            | hinge | torque (N m) |
+    | 5   | Torque applied on the front foot rotor  | -1          | 1           | ffoot                            | hinge | torque (N m) |
+
 
     ### Observation Space
 
@@ -52,25 +53,25 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     However, by default, the observation is a `ndarray` with shape `(17,)` where the elements correspond to the following:
 
 
-    | Num | Observation           | Min                  | Max                | Name (in corresponding XML file) | Joint| Unit |
-    |-----|-----------------------|----------------------|--------------------|----------------------|--------------------|--------------------|
-    | 0     | z-coordinate of the front tip              | -Inf                 | Inf                | rootz | slide | position (m) |
-    | 1     | angle of the front tip                     | -Inf                 | Inf                | rooty | hinge | angle (rad) |
-    | 2     | angle of the second rotor                  | -Inf                 | Inf                | bthigh | hinge | angle (rad) |
-    | 3     | angle of the second rotor                  | -Inf                 | Inf                | bshin | hinge | angle (rad) |
-    | 4     | velocity of the tip along the x-axis       | -Inf                 | Inf                | bfoot | hinge | angle (rad) |
-    | 5     | velocity of the tip along the y-axis       | -Inf                 | Inf                | fthigh | hinge | angle (rad) |
-    | 6     | angular velocity of front tip              | -Inf                 | Inf                | fshin | hinge | angle (rad) |
-    | 7     | angular velocity of second rotor           | -Inf                 | Inf                | ffoot | hinge | angle (rad) |
-    | 8     | x-coordinate of the front tip              | -Inf                 | Inf                | rootx | slide | velocity (m/s) |
-    | 9     | y-coordinate of the front tip              | -Inf                 | Inf                | rootz | slide | velocity (m/s) |
-    | 10   | angle of the front tip                      | -Inf                 | Inf                | rooty | hinge | angular velocity (rad/s) |
-    | 11   | angle of the second rotor                   | -Inf                 | Inf                | bthigh | hinge | angular velocity (rad/s) |
-    | 12   | angle of the second rotor                   | -Inf                 | Inf                | bshin | hinge | angular velocity (rad/s) |
-    | 13   | velocity of the tip along the x-axis        | -Inf                 | Inf                | bfoot | hinge | angular velocity (rad/s) |
-    | 14   | velocity of the tip along the y-axis        | -Inf                 | Inf                | fthigh | hinge |angular velocity (rad/s) |
-    | 15   | angular velocity of front tip               | -Inf                 | Inf                | fshin | hinge | angular velocity (rad/s) |
-    | 16   | angular velocity of second rotor            | -Inf                 | Inf                | ffoot | hinge | angular velocity (rad/s) |
+    | Num | Observation                          | Min  | Max | Name (in corresponding XML file) | Joint | Unit                     |
+    | --- | ------------------------------------ | ---- | --- | -------------------------------- | ----- | ------------------------ |
+    | 0   | z-coordinate of the front tip        | -Inf | Inf | rootz                            | slide | position (m)             |
+    | 1   | angle of the front tip               | -Inf | Inf | rooty                            | hinge | angle (rad)              |
+    | 2   | angle of the second rotor            | -Inf | Inf | bthigh                           | hinge | angle (rad)              |
+    | 3   | angle of the second rotor            | -Inf | Inf | bshin                            | hinge | angle (rad)              |
+    | 4   | velocity of the tip along the x-axis | -Inf | Inf | bfoot                            | hinge | angle (rad)              |
+    | 5   | velocity of the tip along the y-axis | -Inf | Inf | fthigh                           | hinge | angle (rad)              |
+    | 6   | angular velocity of front tip        | -Inf | Inf | fshin                            | hinge | angle (rad)              |
+    | 7   | angular velocity of second rotor     | -Inf | Inf | ffoot                            | hinge | angle (rad)              |
+    | 8   | x-coordinate of the front tip        | -Inf | Inf | rootx                            | slide | velocity (m/s)           |
+    | 9   | y-coordinate of the front tip        | -Inf | Inf | rootz                            | slide | velocity (m/s)           |
+    | 10  | angle of the front tip               | -Inf | Inf | rooty                            | hinge | angular velocity (rad/s) |
+    | 11  | angle of the second rotor            | -Inf | Inf | bthigh                           | hinge | angular velocity (rad/s) |
+    | 12  | angle of the second rotor            | -Inf | Inf | bshin                            | hinge | angular velocity (rad/s) |
+    | 13  | velocity of the tip along the x-axis | -Inf | Inf | bfoot                            | hinge | angular velocity (rad/s) |
+    | 14  | velocity of the tip along the y-axis | -Inf | Inf | fthigh                           | hinge | angular velocity (rad/s) |
+    | 15  | angular velocity of front tip        | -Inf | Inf | fshin                            | hinge | angular velocity (rad/s) |
+    | 16  | angular velocity of second rotor     | -Inf | Inf | ffoot                            | hinge | angular velocity (rad/s) |
 
     ### Rewards
     The reward consists of two parts:
@@ -113,13 +114,13 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     env = gym.make('HalfCheetah-v4', ctrl_cost_weight=0.1, ....)
     ```
 
-    | Parameter               | Type       | Default              |Description                     |
-    |-------------------------|------------|----------------------|--------------------------------|
-    | `xml_file`              | **str**    | `"half_cheetah.xml"` | Path to a MuJoCo model |
-    | `forward_reward_weight` | **float**  | `1.0`                | Weight for *forward_reward* term (see section on reward) |
-    | `ctrl_cost_weight`      | **float**  | `0.1`                | Weight for *ctrl_cost* weight (see section on reward) |
-    | `reset_noise_scale`     | **float**  | `0.1`                | Scale of random perturbations of initial position and velocity (see section on Starting State) |
-    | `exclude_current_positions_from_observation`| **bool** | `True` | Whether or not to omit the x-coordinate from observations. Excluding the position can serve as an inductive bias to induce position-agnostic behavior in policies |
+    | Parameter                                    | Type      | Default              | Description                                                                                                                                                       |
+    | -------------------------------------------- | --------- | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+    | `xml_file`                                   | **str**   | `"half_cheetah.xml"` | Path to a MuJoCo model                                                                                                                                            |
+    | `forward_reward_weight`                      | **float** | `1.0`                | Weight for _forward_reward_ term (see section on reward)                                                                                                          |
+    | `ctrl_cost_weight`                           | **float** | `0.1`                | Weight for _ctrl_cost_ weight (see section on reward)                                                                                                             |
+    | `reset_noise_scale`                          | **float** | `0.1`                | Scale of random perturbations of initial position and velocity (see section on Starting State)                                                                    |
+    | `exclude_current_positions_from_observation` | **bool**  | `True`               | Whether or not to omit the x-coordinate from observations. Excluding the position can serve as an inductive bias to induce position-agnostic behavior in policies |
 
     ### Version History
 

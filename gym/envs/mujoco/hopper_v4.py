@@ -50,19 +50,20 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     However, by default, the observation is a `ndarray` with shape `(11,)` where the elements
     correspond to the following:
 
-    | Num | Observation           | Min                  | Max                | Name (in corresponding XML file) | Joint| Unit |
-    |-----|-----------------------|----------------------|--------------------|----------------------|--------------------|--------------------|
-    | 0   | z-coordinate of the top (height of hopper)       | -Inf                 | Inf                | rootz | slide | position (m) |
-    | 1   | angle of the top                                 | -Inf                 | Inf                | rooty | hinge | angle (rad) |
-    | 2   | angle of the thigh joint                         | -Inf                 | Inf                | thigh_joint | hinge | angle (rad) |
-    | 3   | angle of the leg joint                           | -Inf                 | Inf                | leg_joint | hinge | angle (rad) |
-    | 4   | angle of the foot joint                          | -Inf                 | Inf                | foot_joint | hinge | angle (rad) |
-    | 5   | velocity of the x-coordinate of the top          | -Inf                 | Inf                | rootx | slide | velocity (m/s) |
-    | 6   | velocity of the z-coordinate (height) of the top | -Inf                 | Inf                | rootz | slide | velocity (m/s)  |
-    | 7   | angular velocity of the angle of the top         | -Inf                 | Inf                | rooty | hinge | angular velocity (rad/s) |
-    | 8   | angular velocity of the thigh hinge              | -Inf                 | Inf                | thigh_joint | hinge | angular velocity (rad/s) |
-    | 9   | angular velocity of the leg hinge                | -Inf                 | Inf                | leg_joint | hinge | angular velocity (rad/s) |
-    | 10  | angular velocity of the foot hinge               | -Inf                 | Inf                | foot_joint | hinge | angular velocity (rad/s) |
+    | Num | Observation                                      | Min  | Max | Name (in corresponding XML file) | Joint | Unit                     |
+    | --- | ------------------------------------------------ | ---- | --- | -------------------------------- | ----- | ------------------------ |
+    | 0   | z-coordinate of the top (height of hopper)       | -Inf | Inf | rootz                            | slide | position (m)             |
+    | 1   | angle of the top                                 | -Inf | Inf | rooty                            | hinge | angle (rad)              |
+    | 2   | angle of the thigh joint                         | -Inf | Inf | thigh_joint                      | hinge | angle (rad)              |
+    | 3   | angle of the leg joint                           | -Inf | Inf | leg_joint                        | hinge | angle (rad)              |
+    | 4   | angle of the foot joint                          | -Inf | Inf | foot_joint                       | hinge | angle (rad)              |
+    | 5   | velocity of the x-coordinate of the top          | -Inf | Inf | rootx                            | slide | velocity (m/s)           |
+    | 6   | velocity of the z-coordinate (height) of the top | -Inf | Inf | rootz                            | slide | velocity (m/s)           |
+    | 7   | angular velocity of the angle of the top         | -Inf | Inf | rooty                            | hinge | angular velocity (rad/s) |
+    | 8   | angular velocity of the thigh hinge              | -Inf | Inf | thigh_joint                      | hinge | angular velocity (rad/s) |
+    | 9   | angular velocity of the leg hinge                | -Inf | Inf | leg_joint                        | hinge | angular velocity (rad/s) |
+    | 10  | angular velocity of the foot hinge               | -Inf | Inf | foot_joint                       | hinge | angular velocity (rad/s) |
+
 
     ### Rewards
     The reward consists of three parts:
@@ -114,19 +115,18 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     env = gym.make('Hopper-v4', ctrl_cost_weight=0.1, ....)
     ```
 
-    | Parameter               | Type       | Default        |Description                    |
-    |-------------------------|------------|----------------|-------------------------------|
-    | `xml_file`              | **str**    | `"hopper.xml"` | Path to a MuJoCo model |
-    | `forward_reward_weight` | **float**  | `1.0`          | Weight for *forward_reward* term (see section on reward) |
-    | `ctrl_cost_weight`      | **float**  | `0.001`        | Weight for *ctrl_cost* reward (see section on reward) |
-    | `healthy_reward`        | **float**  | `1`            | Constant reward given if the ant is "healthy" after timestep |
-    | `terminate_when_unhealthy` | **bool**| `True`         | If true, issue a done signal if the hopper is no longer healthy |
-    | `healthy_state_range`   | **tuple**  | `(-100, 100)`  | The elements of `observation[1:]` (if  `exclude_current_positions_from_observation=True`, else `observation[2:]`) must be in this range for the hopper to be considered healthy |
-    | `healthy_z_range`       | **tuple**  | `(0.7, float("inf"))`    | The z-coordinate must be in this range for the hopper to be considered healthy |
-    | `healthy_angle_range`   | **tuple**  | `(-0.2, 0.2)`   | The angle given by `observation[1]` (if  `exclude_current_positions_from_observation=True`, else `observation[2]`) must be in this range for the hopper to be considered healthy |
-    | `reset_noise_scale`     | **float**  | `5e-3`         | Scale of random perturbations of initial position and velocity (see section on Starting State) |
-    | `exclude_current_positions_from_observation`| **bool** | `True`| Whether or not to omit the x-coordinate from observations. Excluding the position can serve as an inductive bias to induce position-agnostic behavior in policies |
-
+    | Parameter                                    | Type      | Default               | Description                                                                                                                                                                     |
+    | -------------------------------------------- | --------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+    | `xml_file`                                   | **str**   | `"hopper.xml"`        | Path to a MuJoCo model                                                                                                                                                          |
+    | `forward_reward_weight`                      | **float** | `1.0`                 | Weight for _forward_reward_ term (see section on reward)                                                                                                                        |
+    | `ctrl_cost_weight`                           | **float** | `0.001`               | Weight for _ctrl_cost_ reward (see section on reward)                                                                                                                           |
+    | `healthy_reward`                             | **float** | `1`                   | Constant reward given if the ant is "healthy" after timestep                                                                                                                    |
+    | `terminate_when_unhealthy`                   | **bool**  | `True`                | If true, issue a done signal if the hopper is no longer healthy                                                                                                                 |
+    | `healthy_state_range`                        | **tuple** | `(-100, 100)`         | The elements of `observation[1:]` (if `exclude_current_positions_from_observation=True`, else `observation[2:]`) must be in this range for the hopper to be considered healthy  |
+    | `healthy_z_range`                            | **tuple** | `(0.7, float("inf"))` | The z-coordinate must be in this range for the hopper to be considered healthy                                                                                                  |
+    | `healthy_angle_range`                        | **tuple** | `(-0.2, 0.2)`         | The angle given by `observation[1]` (if `exclude_current_positions_from_observation=True`, else `observation[2]`) must be in this range for the hopper to be considered healthy |
+    | `reset_noise_scale`                          | **float** | `5e-3`                | Scale of random perturbations of initial position and velocity (see section on Starting State)                                                                                  |
+    | `exclude_current_positions_from_observation` | **bool**  | `True`                | Whether or not to omit the x-coordinate from observations. Excluding the position can serve as an inductive bias to induce position-agnostic behavior in policies               |
 
     ### Version History
 

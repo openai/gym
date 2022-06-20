@@ -36,19 +36,19 @@ class InvertedDoublePendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     The observation is a `ndarray` with shape `(11,)` where the elements correspond to the following:
 
-    | Num | Observation           | Min                  | Max                | Name (in corresponding XML file) | Joint| Unit |
-    |-----|-----------------------|----------------------|--------------------|----------------------|--------------------|--------------------|
-    | 0   | position of the cart along the linear surface                        | -Inf                 | Inf                | slider | slide | position (m) |
-    | 1   | sine of the angle between the cart and the first pole                | -Inf                 | Inf                | sin(hinge) | hinge | unitless |
-    | 2   | sine of the angle between the two poles                              | -Inf                 | Inf                | sin(hinge2) | hinge | unitless |
-    | 3   | cosine of the angle between the cart and the first pole              | -Inf                 | Inf                | cos(hinge) | hinge | unitless |
-    | 4   | cosine of the angle between the two poles                            | -Inf                 | Inf                | cos(hinge2) | hinge | unitless |
-    | 5   | velocity of the cart                                                 | -Inf                 | Inf                | slider | slide | velocity (m/s) |
-    | 6   | angular velocity of the angle between the cart and the first pole    | -Inf                 | Inf                | hinge | hinge | angular velocity (rad/s) |
-    | 7   | angular velocity of the angle between the two poles                  | -Inf                 | Inf                | hinge2 | hinge | angular velocity (rad/s) |
-    | 8   | constraint force - 1                                                 | -Inf                 | Inf                |  |  | Force (N) |
-    | 9   | constraint force - 2                                                 | -Inf                 | Inf                |  |  | Force (N) |
-    | 10  | constraint force - 3                                                 | -Inf                 | Inf                |  |  | Force (N) |
+    | Num | Observation                                                       | Min  | Max | Name (in corresponding XML file) | Joint | Unit                     |
+    | --- | ----------------------------------------------------------------- | ---- | --- | -------------------------------- | ----- | ------------------------ |
+    | 0   | position of the cart along the linear surface                     | -Inf | Inf | slider                           | slide | position (m)             |
+    | 1   | sine of the angle between the cart and the first pole             | -Inf | Inf | sin(hinge)                       | hinge | unitless                 |
+    | 2   | sine of the angle between the two poles                           | -Inf | Inf | sin(hinge2)                      | hinge | unitless                 |
+    | 3   | cosine of the angle between the cart and the first pole           | -Inf | Inf | cos(hinge)                       | hinge | unitless                 |
+    | 4   | cosine of the angle between the two poles                         | -Inf | Inf | cos(hinge2)                      | hinge | unitless                 |
+    | 5   | velocity of the cart                                              | -Inf | Inf | slider                           | slide | velocity (m/s)           |
+    | 6   | angular velocity of the angle between the cart and the first pole | -Inf | Inf | hinge                            | hinge | angular velocity (rad/s) |
+    | 7   | angular velocity of the angle between the two poles               | -Inf | Inf | hinge2                           | hinge | angular velocity (rad/s) |
+    | 8   | constraint force - 1                                              | -Inf | Inf |                                  |       | Force (N)                |
+    | 9   | constraint force - 2                                              | -Inf | Inf |                                  |       | Force (N)                |
+    | 10  | constraint force - 3                                              | -Inf | Inf |                                  |       | Force (N)                |
 
 
     There is physical contact between the robots and their environment - and Mujoco

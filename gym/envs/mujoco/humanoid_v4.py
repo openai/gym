@@ -65,53 +65,53 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     However, by default, the observation is a `ndarray` with shape `(376,)` where the elements correspond to the following:
 
-    | Num | Observation                                                        | Min                | Max                | Name (in corresponding XML file) | Joint | Unit |
-    |-----|---------------------------------------------------------|----------------|-----------------|----------------------------------------|-------|------|
-    | 0   | z-coordinate of the torso (centre)                                                                              | -Inf                 | Inf                | root      | free | position (m) |
-    | 1   | x-orientation of the torso (centre)                                                                             | -Inf                 | Inf                | root      | free | angle (rad) |
-    | 2   | y-orientation of the torso (centre)                                                                             | -Inf                 | Inf                | root      | free | angle (rad) |
-    | 3   | z-orientation of the torso (centre)                                                                             | -Inf                 | Inf                | root      | free | angle (rad) |
-    | 4   | w-orientation of the torso (centre)                                                                             | -Inf                 | Inf                | root       | free | angle (rad) |
-    | 5   | z-angle of the abdomen (in lower_waist)                                                                         | -Inf                 | Inf               | abdomen_z | hinge | angle (rad) |
-    | 6   | y-angle of the abdomen (in lower_waist)                                                                         | -Inf                 | Inf               | abdomen_y | hinge | angle (rad) |
-    | 7   | x-angle of the abdomen (in pelvis)                                                                              | -Inf                 | Inf               | abdomen_x | hinge | angle (rad) |
-    | 8   | x-coordinate of angle between pelvis and right hip (in right_thigh)                                             | -Inf                 | Inf               | right_hip_x | hinge | angle (rad) |
-    | 9   | z-coordinate of angle between pelvis and right hip (in right_thigh)                                             | -Inf                 | Inf               | right_hip_z | hinge | angle (rad) |
-    | 19  | y-coordinate of angle between pelvis and right hip (in right_thigh)                                             | -Inf                 | Inf               | right_hip_y | hinge | angle (rad) |
-    | 11  | angle between right hip and the right shin (in right_knee)                                                      | -Inf                 | Inf               | right_knee | hinge | angle (rad) |
-    | 12  | x-coordinate of angle between pelvis and left hip (in left_thigh)                                               | -Inf                 | Inf               | left_hip_x | hinge | angle (rad) |
-    | 13  | z-coordinate of angle between pelvis and left hip (in left_thigh)                                               | -Inf                 | Inf               | left_hip_z | hinge | angle (rad) |
-    | 14  | y-coordinate of angle between pelvis and left hip (in left_thigh)                                               | -Inf                 | Inf               | left_hip_y | hinge | angle (rad) |
-    | 15  | angle between left hip and the left shin (in left_knee)                                                         | -Inf                 | Inf               | left_knee | hinge | angle (rad) |
-    | 16  | coordinate-1 (multi-axis) angle between torso and right arm (in right_upper_arm)                                | -Inf                 | Inf               | right_shoulder1 | hinge | angle (rad) |
-    | 17  | coordinate-2 (multi-axis) angle between torso and right arm (in right_upper_arm)                                | -Inf                 | Inf               | right_shoulder2 | hinge | angle (rad) |
-    | 18  | angle between right upper arm and right_lower_arm                                                               | -Inf                 | Inf               | right_elbow | hinge | angle (rad) |
-    | 19  | coordinate-1 (multi-axis) angle between torso and left arm (in left_upper_arm)                                  | -Inf                 | Inf               | left_shoulder1 | hinge | angle (rad) |
-    | 20  | coordinate-2 (multi-axis) angle between torso and left arm (in left_upper_arm)                                  | -Inf                 | Inf               | left_shoulder2 | hinge | angle (rad) |
-    | 21  | angle between left upper arm and left_lower_arm                                                                 | -Inf                 | Inf               | left_elbow | hinge | angle (rad) |
-    | 22  | x-coordinate velocity of the torso (centre)                                                                     | -Inf                 | Inf                | root      | free | velocity (m/s) |
-    | 23  | y-coordinate velocity of the torso (centre)                                                                     | -Inf                 | Inf                | root      | free | velocity (m/s) |
-    | 24  | z-coordinate velocity of the torso (centre)                                                                     | -Inf                 | Inf                | root      | free | velocity (m/s) |
-    | 25  | x-coordinate angular velocity of the torso (centre)                                                             | -Inf                 | Inf                | root      | free | anglular velocity (rad/s) |
-    | 26  | y-coordinate angular velocity of the torso (centre)                                                             | -Inf                 | Inf                | root      | free | anglular velocity (rad/s) |
-    | 27  | z-coordinate angular velocity of the torso (centre)                                                             | -Inf                 | Inf                | root      | free | anglular velocity (rad/s) |
-    | 28  | z-coordinate of angular velocity of the abdomen (in lower_waist)                                                | -Inf                 | Inf               | abdomen_z | hinge | anglular velocity (rad/s) |
-    | 29  | y-coordinate of angular velocity of the abdomen (in lower_waist)                                                | -Inf                 | Inf               | abdomen_y | hinge | anglular velocity (rad/s) |
-    | 30  | x-coordinate of angular velocity of the abdomen (in pelvis)                                                     | -Inf                 | Inf               | abdomen_x | hinge | aanglular velocity (rad/s) |
-    | 31  | x-coordinate of the angular velocity of the angle between pelvis and right hip (in right_thigh)                 | -Inf                 | Inf               | right_hip_x | hinge | anglular velocity (rad/s) |
-    | 32  | z-coordinate of the angular velocity of the angle between pelvis and right hip (in right_thigh)                 | -Inf                 | Inf               | right_hip_z | hinge | anglular velocity (rad/s) |
-    | 33  | y-coordinate of the angular velocity of the angle between pelvis and right hip (in right_thigh)                 | -Inf                 | Inf               | right_hip_y | hinge | anglular velocity (rad/s) |
-    | 34  | angular velocity of the angle between right hip and the right shin (in right_knee)                              | -Inf                 | Inf               | right_knee | hinge | anglular velocity (rad/s) |
-    | 35  | x-coordinate of the angular velocity of the angle between pelvis and left hip (in left_thigh)                   | -Inf                 | Inf               | left_hip_x | hinge | anglular velocity (rad/s) |
-    | 36  | z-coordinate of the angular velocity of the angle between pelvis and left hip (in left_thigh)                   | -Inf                 | Inf               | left_hip_z | hinge | anglular velocity (rad/s) |
-    | 37  | y-coordinate of the angular velocity of the angle between pelvis and left hip (in left_thigh)                   | -Inf                 | Inf               | left_hip_y | hinge | anglular velocity (rad/s) |
-    | 38  | angular velocity of the angle between left hip and the left shin (in left_knee)                                 | -Inf                 | Inf               | left_knee | hinge | anglular velocity (rad/s) |
-    | 39  | coordinate-1 (multi-axis) of the angular velocity of the angle between torso and right arm (in right_upper_arm) | -Inf                 | Inf               | right_shoulder1 | hinge | anglular velocity (rad/s) |
-    | 40  | coordinate-2 (multi-axis) of the angular velocity of the angle between torso and right arm (in right_upper_arm) | -Inf                 | Inf               | right_shoulder2 | hinge | anglular velocity (rad/s) |
-    | 41  | angular velocity of the angle between right upper arm and right_lower_arm                                       | -Inf                 | Inf               | right_elbow | hinge | anglular velocity (rad/s) |
-    | 42  | coordinate-1 (multi-axis) of the angular velocity of the angle between torso and left arm (in left_upper_arm)   | -Inf                 | Inf               | left_shoulder1 | hinge | anglular velocity (rad/s) |
-    | 43  | coordinate-2 (multi-axis) of the angular velocity of the angle between torso and left arm (in left_upper_arm)   | -Inf                 | Inf               | left_shoulder2 | hinge | anglular velocity (rad/s) |
-    | 44  | angular velocitty of the angle between left upper arm and left_lower_arm                                        | -Inf                 | Inf               | left_elbow | hinge | anglular velocity (rad/s) |
+    | Num | Observation                                                                                                     | Min  | Max | Name (in corresponding XML file) | Joint | Unit                       |
+    | --- | --------------------------------------------------------------------------------------------------------------- | ---- | --- | -------------------------------- | ----- | -------------------------- |
+    | 0   | z-coordinate of the torso (centre)                                                                              | -Inf | Inf | root                             | free  | position (m)               |
+    | 1   | x-orientation of the torso (centre)                                                                             | -Inf | Inf | root                             | free  | angle (rad)                |
+    | 2   | y-orientation of the torso (centre)                                                                             | -Inf | Inf | root                             | free  | angle (rad)                |
+    | 3   | z-orientation of the torso (centre)                                                                             | -Inf | Inf | root                             | free  | angle (rad)                |
+    | 4   | w-orientation of the torso (centre)                                                                             | -Inf | Inf | root                             | free  | angle (rad)                |
+    | 5   | z-angle of the abdomen (in lower_waist)                                                                         | -Inf | Inf | abdomen_z                        | hinge | angle (rad)                |
+    | 6   | y-angle of the abdomen (in lower_waist)                                                                         | -Inf | Inf | abdomen_y                        | hinge | angle (rad)                |
+    | 7   | x-angle of the abdomen (in pelvis)                                                                              | -Inf | Inf | abdomen_x                        | hinge | angle (rad)                |
+    | 8   | x-coordinate of angle between pelvis and right hip (in right_thigh)                                             | -Inf | Inf | right_hip_x                      | hinge | angle (rad)                |
+    | 9   | z-coordinate of angle between pelvis and right hip (in right_thigh)                                             | -Inf | Inf | right_hip_z                      | hinge | angle (rad)                |
+    | 19  | y-coordinate of angle between pelvis and right hip (in right_thigh)                                             | -Inf | Inf | right_hip_y                      | hinge | angle (rad)                |
+    | 11  | angle between right hip and the right shin (in right_knee)                                                      | -Inf | Inf | right_knee                       | hinge | angle (rad)                |
+    | 12  | x-coordinate of angle between pelvis and left hip (in left_thigh)                                               | -Inf | Inf | left_hip_x                       | hinge | angle (rad)                |
+    | 13  | z-coordinate of angle between pelvis and left hip (in left_thigh)                                               | -Inf | Inf | left_hip_z                       | hinge | angle (rad)                |
+    | 14  | y-coordinate of angle between pelvis and left hip (in left_thigh)                                               | -Inf | Inf | left_hip_y                       | hinge | angle (rad)                |
+    | 15  | angle between left hip and the left shin (in left_knee)                                                         | -Inf | Inf | left_knee                        | hinge | angle (rad)                |
+    | 16  | coordinate-1 (multi-axis) angle between torso and right arm (in right_upper_arm)                                | -Inf | Inf | right_shoulder1                  | hinge | angle (rad)                |
+    | 17  | coordinate-2 (multi-axis) angle between torso and right arm (in right_upper_arm)                                | -Inf | Inf | right_shoulder2                  | hinge | angle (rad)                |
+    | 18  | angle between right upper arm and right_lower_arm                                                               | -Inf | Inf | right_elbow                      | hinge | angle (rad)                |
+    | 19  | coordinate-1 (multi-axis) angle between torso and left arm (in left_upper_arm)                                  | -Inf | Inf | left_shoulder1                   | hinge | angle (rad)                |
+    | 20  | coordinate-2 (multi-axis) angle between torso and left arm (in left_upper_arm)                                  | -Inf | Inf | left_shoulder2                   | hinge | angle (rad)                |
+    | 21  | angle between left upper arm and left_lower_arm                                                                 | -Inf | Inf | left_elbow                       | hinge | angle (rad)                |
+    | 22  | x-coordinate velocity of the torso (centre)                                                                     | -Inf | Inf | root                             | free  | velocity (m/s)             |
+    | 23  | y-coordinate velocity of the torso (centre)                                                                     | -Inf | Inf | root                             | free  | velocity (m/s)             |
+    | 24  | z-coordinate velocity of the torso (centre)                                                                     | -Inf | Inf | root                             | free  | velocity (m/s)             |
+    | 25  | x-coordinate angular velocity of the torso (centre)                                                             | -Inf | Inf | root                             | free  | anglular velocity (rad/s)  |
+    | 26  | y-coordinate angular velocity of the torso (centre)                                                             | -Inf | Inf | root                             | free  | anglular velocity (rad/s)  |
+    | 27  | z-coordinate angular velocity of the torso (centre)                                                             | -Inf | Inf | root                             | free  | anglular velocity (rad/s)  |
+    | 28  | z-coordinate of angular velocity of the abdomen (in lower_waist)                                                | -Inf | Inf | abdomen_z                        | hinge | anglular velocity (rad/s)  |
+    | 29  | y-coordinate of angular velocity of the abdomen (in lower_waist)                                                | -Inf | Inf | abdomen_y                        | hinge | anglular velocity (rad/s)  |
+    | 30  | x-coordinate of angular velocity of the abdomen (in pelvis)                                                     | -Inf | Inf | abdomen_x                        | hinge | aanglular velocity (rad/s) |
+    | 31  | x-coordinate of the angular velocity of the angle between pelvis and right hip (in right_thigh)                 | -Inf | Inf | right_hip_x                      | hinge | anglular velocity (rad/s)  |
+    | 32  | z-coordinate of the angular velocity of the angle between pelvis and right hip (in right_thigh)                 | -Inf | Inf | right_hip_z                      | hinge | anglular velocity (rad/s)  |
+    | 33  | y-coordinate of the angular velocity of the angle between pelvis and right hip (in right_thigh)                 | -Inf | Inf | right_hip_y                      | hinge | anglular velocity (rad/s)  |
+    | 34  | angular velocity of the angle between right hip and the right shin (in right_knee)                              | -Inf | Inf | right_knee                       | hinge | anglular velocity (rad/s)  |
+    | 35  | x-coordinate of the angular velocity of the angle between pelvis and left hip (in left_thigh)                   | -Inf | Inf | left_hip_x                       | hinge | anglular velocity (rad/s)  |
+    | 36  | z-coordinate of the angular velocity of the angle between pelvis and left hip (in left_thigh)                   | -Inf | Inf | left_hip_z                       | hinge | anglular velocity (rad/s)  |
+    | 37  | y-coordinate of the angular velocity of the angle between pelvis and left hip (in left_thigh)                   | -Inf | Inf | left_hip_y                       | hinge | anglular velocity (rad/s)  |
+    | 38  | angular velocity of the angle between left hip and the left shin (in left_knee)                                 | -Inf | Inf | left_knee                        | hinge | anglular velocity (rad/s)  |
+    | 39  | coordinate-1 (multi-axis) of the angular velocity of the angle between torso and right arm (in right_upper_arm) | -Inf | Inf | right_shoulder1                  | hinge | anglular velocity (rad/s)  |
+    | 40  | coordinate-2 (multi-axis) of the angular velocity of the angle between torso and right arm (in right_upper_arm) | -Inf | Inf | right_shoulder2                  | hinge | anglular velocity (rad/s)  |
+    | 41  | angular velocity of the angle between right upper arm and right_lower_arm                                       | -Inf | Inf | right_elbow                      | hinge | anglular velocity (rad/s)  |
+    | 42  | coordinate-1 (multi-axis) of the angular velocity of the angle between torso and left arm (in left_upper_arm)   | -Inf | Inf | left_shoulder1                   | hinge | anglular velocity (rad/s)  |
+    | 43  | coordinate-2 (multi-axis) of the angular velocity of the angle between torso and left arm (in left_upper_arm)   | -Inf | Inf | left_shoulder2                   | hinge | anglular velocity (rad/s)  |
+    | 44  | angular velocitty of the angle between left upper arm and left_lower_arm                                        | -Inf | Inf | left_elbow                       | hinge | anglular velocity (rad/s)  |
 
     Additionally, after all the positional and velocity based values in the table,
     the observation contains (in order):
@@ -191,18 +191,17 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     env = gym.make('Humanoid-v4', ctrl_cost_weight=0.1, ....)
     ```
 
-    | Parameter               | Type       | Default           |Description                    |
-    |-------------------------|------------|-------------------|-------------------------------|
-    | `xml_file`              | **str**    | `"humanoid.xml"`  | Path to a MuJoCo model |
-    | `forward_reward_weight` | **float**  | `1.25`            | Weight for *forward_reward* term (see section on reward) |
-    | `ctrl_cost_weight`      | **float**  | `0.1`             | Weight for *ctrl_cost* term (see section on reward) |
-    | `contact_cost_weight`   | **float**  | `5e-7`            | Weight for *contact_cost* term (see section on reward) |
-    | `healthy_reward`        | **float**  | `5.0`             | Constant reward given if the humanoid is "healthy" after timestep |
-    | `terminate_when_unhealthy` | **bool**| `True`            | If true, issue a done signal if the z-coordinate of the torso is no longer in the `healthy_z_range` |
-    | `healthy_z_range`       | **tuple**  | `(1.0, 2.0)`      | The humanoid is considered healthy if the z-coordinate of the torso is in this range |
-    | `reset_noise_scale`     | **float**  | `1e-2`            | Scale of random perturbations of initial position and velocity (see section on Starting State) |
-    | `exclude_current_positions_from_observation`| **bool**   | `True`| Whether or not to omit the x- and y-coordinates from observations. Excluding the position can serve as an inductive bias to induce position-agnostic behavior in policies |
-
+    | Parameter                                    | Type      | Default          | Description                                                                                                                                                               |
+    | -------------------------------------------- | --------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+    | `xml_file`                                   | **str**   | `"humanoid.xml"` | Path to a MuJoCo model                                                                                                                                                    |
+    | `forward_reward_weight`                      | **float** | `1.25`           | Weight for _forward_reward_ term (see section on reward)                                                                                                                  |
+    | `ctrl_cost_weight`                           | **float** | `0.1`            | Weight for _ctrl_cost_ term (see section on reward)                                                                                                                       |
+    | `contact_cost_weight`                        | **float** | `5e-7`           | Weight for _contact_cost_ term (see section on reward)                                                                                                                    |
+    | `healthy_reward`                             | **float** | `5.0`            | Constant reward given if the humanoid is "healthy" after timestep                                                                                                         |
+    | `terminate_when_unhealthy`                   | **bool**  | `True`           | If true, issue a done signal if the z-coordinate of the torso is no longer in the `healthy_z_range`                                                                       |
+    | `healthy_z_range`                            | **tuple** | `(1.0, 2.0)`     | The humanoid is considered healthy if the z-coordinate of the torso is in this range                                                                                      |
+    | `reset_noise_scale`                          | **float** | `1e-2`           | Scale of random perturbations of initial position and velocity (see section on Starting State)                                                                            |
+    | `exclude_current_positions_from_observation` | **bool**  | `True`           | Whether or not to omit the x- and y-coordinates from observations. Excluding the position can serve as an inductive bias to induce position-agnostic behavior in policies |
 
     ### Version History
 
