@@ -620,15 +620,11 @@ def make(
     try:
         env = env_creator(**_kwargs)
     except TypeError as e:
-        if (
-            str(e)
-            == "TypeError: __init__() got an unexpected keyword argument 'render_mode'"
-            and apply_human_rendering
-        ):
+        if str(e).find("got an unexpected keyword argument 'render_mode'"):
             raise AttributeError(
-                "Gym tried to apply the HumanRendering wrapper to your environment but it"
-                "looks like your environment does not support the new render API. Either implement"
-                "human-rendering natively in your environment, change the render_mode argument, or use the new API."
+                f"You passed render_mode='human' although {id} doesn't implement human-rendering natively. "
+                "Gym tried to apply the HumanRendering wrapper but it looks like your environment is using the old "
+                "rendering API, which is not supported by the HumanRendering wrapper."
             )
         else:
             raise e
