@@ -384,7 +384,9 @@ def test_make_render_mode():
     # Make sure that an error is thrown a user tries to use the wrapper on an environment with old API
     with pytest.raises(
         AttributeError,
-        match="You\\ passed\\ render_mode='human'\\ although\\ .* doesn't\\ implement\\ human\\-rendering\\ natively\\.",
+        match=re.escape(
+            "You passed render_mode='human' although test/NoHumanOldAPI-v0 doesn't implement human-rendering natively."
+        ),
     ):
         gym.make("test/NoHumanOldAPI-v0", render_mode="human", disable_env_checker=True)
 
