@@ -33,7 +33,7 @@ class HumanRendering(gym.Wrapper):
         assert env.render_mode in [
             "single_rgb_array",
             "rgb_array",
-        ], f"Expected env.render_mode to be one of 'rgb_array' or 'single_rgb_array' but got {env.render_mode}"
+        ], f"Expected env.render_mode to be one of 'rgb_array' or 'single_rgb_array' but got '{env.render_mode}'"
         assert (
             "render_fps" in env.metadata
         ), "The base environment must specify 'render_fps' to be used with the HumanRendering wrapper"

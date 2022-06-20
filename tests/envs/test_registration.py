@@ -1,9 +1,12 @@
+import numpy as np
 import pytest
 
 import gym
 from gym import envs, error
 from gym.envs import register, registration, registry, spec
 from gym.envs.classic_control import cartpole
+from gym.wrappers import HumanRendering
+from tests.wrappers.utils import has_wrapper
 
 
 class ArgumentEnv(gym.Env):
@@ -16,6 +19,38 @@ class ArgumentEnv(gym.Env):
         self.arg3 = arg3
 
 
+"""Environments to test render_mode"""
+
+
+class NoHuman(gym.Env):
+    """Environment that does not human-rendering."""
+
+    metadata = {"render_modes": ["rgb_array"], "render_fps": 4}
+
+    def __init__(self, render_mode=None):
+        assert render_mode in self.metadata["render_modes"]
+        self.render_mode = render_mode
+
+
+class NoHumanOldAPI(gym.Env):
+    """Environment that does not human-rendering."""
+
+    metadata = {"render_modes": ["rgb_array"], "render_fps": 4}
+
+    def __init__(self):
+        pass
+
+
+class NoHumanNoRGB(gym.Env):
+    """Environment that has neither human- nor rgb-rendering"""
+
+    metadata = {"render_modes": ["ascii"], "render_fps": 4}
+
+    def __init__(self, render_mode=None):
+        assert render_mode in self.metadata["render_modes"]
+        self.render_mode = render_mode
+
+
 gym.register(
     id="test.ArgumentEnv-v0",
     entry_point="tests.envs.test_registration:ArgumentEnv",
@@ -23,6 +58,19 @@ gym.register(
         "arg1": "arg1",
         "arg2": "arg2",
     },
+)
+gym.register(
+    id="test/NoHuman-v0",
+    entry_point="tests.envs.test_registration:NoHuman",
+)
+gym.register(
+    id="test/NoHumanOldAPI-v0",
+    entry_point="tests.envs.test_registration:NoHumanOldAPI",
+)
+
+gym.register(
+    id="test/NoHumanNoRGB-v0",
+    entry_point="tests.envs.test_registration:NoHumanNoRGB",
 )
 
 
@@ -305,3 +353,51 @@ def test_import_module_during_make():
         "tests.envs.register_during_make_env:RegisterDuringMakeEnv-v0",
         disable_env_checker=True,
     )
+
+
+def test_make_render_mode():
+    # Make sure that render_mode is applied correctly
+    env = gym.make("CartPole-v1", render_mode="rgb_array", disable_env_checker=True)
+    assert env.render_mode == "rgb_array"
+    env.reset()
+    renders = env.render()
+    assert isinstance(
+        renders, list
+    )  # Make sure that the `render` method does what is supposed to
+    assert isinstance(renders[0], np.ndarray)
+    env.close()
+
+    # Make sure that native rendering is used when possible
+    env = gym.make("CartPole-v1", render_mode="human", disable_env_checker=True)
+    assert not has_wrapper(env, HumanRendering)  # Should use native human-rendering
+    assert env.render_mode == "human"
+    env.close()
+
+    # Make sure that `HumanRendering` is applied here
+    env = gym.make(
+        "test/NoHuman-v0", render_mode="human", disable_env_checker=True
+    )  # This environment doesn't use native rendering
+    assert has_wrapper(env, HumanRendering)
+    assert env.render_mode == "human"
+    env.close()
+
+    # Make sure that an error is thrown a user tries to use the wrapper on an environment with old API
+    with pytest.raises(
+        gym.error.Error,
+        match="Invalid render_mode provided: human. Valid render_modes: None, rgb_array",
+    ):
+        gym.make("test/NoHumanOldAPI-v0", render_mode="human", disable_env_checker=True)
+
+    # Make sure that the `HumanRendering` is not applied if the environment doesn't have rgb-rendering
+    with pytest.raises(
+        gym.error.Error,
+        match="Invalid render_mode provided: human. Valid render_modes: None, ascii",
+    ):
+        gym.make("test/NoHumanNoRGB-v0", render_mode="human", disable_env_checker=True)
+
+    # Make sure that an error is thrown if the mode is not supported
+    with pytest.raises(
+        gym.error.Error,
+        match="Invalid render_mode provided: ascii. Valid render_modes: None, rgb_array",
+    ):
+        gym.make("test/NoHuman-v0", render_mode="ascii", disable_env_checker=True)

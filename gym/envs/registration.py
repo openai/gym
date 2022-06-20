@@ -3,6 +3,7 @@ import copy
 import difflib
 import importlib
 import importlib.util
+import inspect
 import re
 import sys
 import warnings
@@ -600,6 +601,7 @@ def make(
             mode == "human"
             and "human" not in render_modes
             and ("single_rgb_array" in render_modes or "rgb_array" in render_modes)
+            and "render_mode" in inspect.signature(env_creator).parameters
         ):
             logger.warn(
                 "You are trying to use 'human' rendering for an environment that doesn't natively support it. "
