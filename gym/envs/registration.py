@@ -623,6 +623,7 @@ def make(
                 f"{'human' not in render_modes}"
                 f"{('single_rgb_array' in render_modes or 'rgb_array' in render_modes)}"
                 f"{('render_mode' in creator_signature.parameters or 'kwargs' in creator_signature.parameters)}"
+                f"{creator_signature.parameters}"
             )
 
     env = env_creator(**_kwargs)
