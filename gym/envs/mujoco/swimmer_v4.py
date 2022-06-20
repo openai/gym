@@ -96,13 +96,13 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     No additional arguments are currently supported in v2 and lower.
 
     ```
-    gym.make('Swimmer-v2')
+    gym.make('Swimmer-v4')
     ```
 
-    v3 and beyond take gym.make kwargs such as xml_file, ctrl_cost_weight, reset_noise_scale etc.
+    v3 and v4 take gym.make kwargs such as xml_file, ctrl_cost_weight, reset_noise_scale etc.
 
     ```
-    env = gym.make('Swimmer-v3', ctrl_cost_weight=0.1, ....)
+    env = gym.make('Swimmer-v4', ctrl_cost_weight=0.1, ....)
     ```
 
     | Parameter               | Type       | Default      |Description                    |

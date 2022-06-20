@@ -112,13 +112,13 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     No additional arguments are currently supported in v2 and lower.
 
     ```
-    env = gym.make('Walker2d-v2')
+    env = gym.make('Walker2d-v4')
     ```
 
     v3 and beyond take gym.make kwargs such as xml_file, ctrl_cost_weight, reset_noise_scale etc.
 
     ```
-    env = gym.make('Walker2d-v3', ctrl_cost_weight=0.1, ....)
+    env = gym.make('Walker2d-v4', ctrl_cost_weight=0.1, ....)
     ```
 
     | Parameter               | Type       | Default      |Description                    |

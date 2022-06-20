@@ -14,7 +14,7 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     """
     ### Description
 
-    This environment is based on the work by P. Wawrzy´nski in
+    This environment is based on the work by P. Wawrzyński in
     ["A Cat-Like Robot Real-Time Learning to Run"](http://staff.elka.pw.edu.pl/~pwawrzyn/pub-s/0812_LSCLRR.pdf).
     The HalfCheetah is a 2-dimensional robot consisting of 9 links and 8
     joints connecting them (including two paws). The goal is to apply a torque
@@ -107,10 +107,10 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     env = gym.make('HalfCheetah-v2')
     ```
 
-    v3 and beyond take gym.make kwargs such as xml_file, ctrl_cost_weight, reset_noise_scale etc.
+    v3 and v4 take gym.make kwargs such as xml_file, ctrl_cost_weight, reset_noise_scale etc.
 
     ```
-    env = gym.make('HalfCheetah-v3', ctrl_cost_weight=0.1, ....)
+    env = gym.make('HalfCheetah-v4', ctrl_cost_weight=0.1, ....)
     ```
 
     | Parameter               | Type       | Default              |Description                     |

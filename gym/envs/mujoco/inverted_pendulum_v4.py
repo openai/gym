@@ -60,14 +60,14 @@ class InvertedPendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     1. The episode duration reaches 1000 timesteps.
     2. Any of the state space values is no longer finite.
-    3. The absolutely value of the vertical angle between the pole and the cart is greater than 0.2 radian.
+    3. The absolute value of the vertical angle between the pole and the cart is greater than 0.2 radians.
 
     ### Arguments
 
     No additional arguments are currently supported.
 
     ```
-    env = gym.make('InvertedPendulum-v2')
+    env = gym.make('InvertedPendulum-v4')
     ```
     There is no v3 for InvertedPendulum, unlike the robot environments where a
     v3 and beyond take gym.make kwargs such as xml_file, ctrl_cost_weight, reset_noise_scale etc.

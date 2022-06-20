@@ -29,7 +29,7 @@ class PusherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     Observations consist of
 
     - Angle of rotational joints on the pusher
-    - Anglular velocities of rotational joints on the pusher
+    - Angular velocities of rotational joints on the pusher
     - The coordinates of the fingertip of the pusher
     - The coordinates of the object to be moved
     - The coordinates of the goal position
@@ -112,7 +112,7 @@ class PusherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     (or by changing the path to a modified XML file in another folder)..
 
     ```
-    env = gym.make('Pusher-v2')
+    env = gym.make('Pusher-v4')
     ```
 
     There is no v3 for Pusher, unlike the robot environments where a v3 and

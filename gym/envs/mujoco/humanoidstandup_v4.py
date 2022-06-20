@@ -118,7 +118,8 @@ class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     DOFs expressed as quaternions. One can read more about free joints on the
     [Mujoco Documentation](https://mujoco.readthedocs.io/en/latest/XMLreference.html).
 
-    **Note:** There have been reported issues that using a Mujoco-Py version > 2.0 results
+    **Note:** HumanoidStandup-v4 environment no longer has the following contact forces issue.
+    If using previous HumanoidStandup versions from v4, there have been reported issues that using a Mujoco-Py version > 2.0 results
     in the contact forces always being 0. As such we recommend to use a Mujoco-Py version < 2.0
     when using the Humanoid environment if you would like to report results with contact forces
     (if contact forces are not used in your experiments, you can use version > 2.0).
@@ -126,12 +127,12 @@ class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     ### Rewards
     The reward consists of three parts:
     - *uph_cost*: A reward for moving upward (in an attempt to stand up). This is not a relative
-    reward which meaures how much upward it has moved from the last timestep, but it is an
+    reward which measures how much upward it has moved from the last timestep, but it is an
     absolute reward which measures how much upward the Humanoid has moved overall. It is
     measured as *(z coordinate after action - 0)/(atomic timestep)*, where *z coordinate after
     action* is index 0 in the state/index 2 in the table, and *atomic timestep* is the time for
     one frame of movement even though the simulation has a framerate of 5 (done in order to inflate
-    rewards a little for fassteer learning).
+    rewards a little for faster learning).
     - *quad_ctrl_cost*: A negative reward for penalising the humanoid if it has too large of
     a control force. If there are *nu* actuators/controls, then the control has shape  `nu x 1`.
     It is measured as *0.1 **x** sum(control<sup>2</sup>)*.
@@ -160,7 +161,7 @@ class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     No additional arguments are currently supported.
 
     ```
-    env = gym.make('HumanoidStandup-v2')
+    env = gym.make('HumanoidStandup-v4')
     ```
 
     There is no v3 for HumanoidStandup, unlike the robot environments where a v3 and

@@ -102,7 +102,7 @@ class ReacherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     (or by changing the path to a modified XML file in another folder)..
 
     ```
-    env = gym.make('Reacher-v2')
+    env = gym.make('Reacher-v4')
     ```
 
     There is no v3 for Reacher, unlike the robot environments where a v3 and

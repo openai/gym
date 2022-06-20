@@ -131,7 +131,8 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     DOFs expressed as quaternions. One can read more about free joints on the
     [Mujoco Documentation](https://mujoco.readthedocs.io/en/latest/XMLreference.html).
 
-    **Note:** There have been reported issues that using a Mujoco-Py version > 2.0
+    **Note:** Humanoid-v4 environment no longer has the following contact forces issue.
+    If using previous Humanoid versions from v4, there have been reported issues that using a Mujoco-Py version > 2.0
     results in the contact forces always being 0. As such we recommend to use a Mujoco-Py
     version < 2.0 when using the Humanoid environment if you would like to report results
     with contact forces (if contact forces are not used in your experiments, you can use
@@ -181,13 +182,13 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     No additional arguments are currently supported in v2 and lower.
 
     ```
-    env = gym.make('Humanoid-v2')
+    env = gym.make('Humanoid-v4')
     ```
 
-    v3 and beyond take gym.make kwargs such as xml_file, ctrl_cost_weight, reset_noise_scale etc.
+    v3 and v4 take gym.make kwargs such as xml_file, ctrl_cost_weight, reset_noise_scale etc.
 
     ```
-    env = gym.make('Humanoid-v3', ctrl_cost_weight=0.1, ....)
+    env = gym.make('Humanoid-v4', ctrl_cost_weight=0.1, ....)
     ```
 
     | Parameter               | Type       | Default           |Description                    |

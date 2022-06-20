@@ -96,7 +96,7 @@ class InvertedDoublePendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     No additional arguments are currently supported.
 
     ```
-    env = gym.make('InvertedDoublePendulum-v2')
+    env = gym.make('InvertedDoublePendulum-v4')
     ```
     There is no v3 for InvertedPendulum, unlike the robot environments where a v3 and
     beyond take gym.make kwargs such as xml_file, ctrl_cost_weight, reset_noise_scale etc.

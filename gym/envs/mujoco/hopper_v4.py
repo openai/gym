@@ -108,10 +108,10 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     env = gym.make('Hopper-v2')
     ```
 
-    v3 and beyond take gym.make kwargs such as xml_file, ctrl_cost_weight, reset_noise_scale etc.
+    v3 and v4 take gym.make kwargs such as xml_file, ctrl_cost_weight, reset_noise_scale etc.
 
     ```
-    env = gym.make('Hopper-v3', ctrl_cost_weight=0.1, ....)
+    env = gym.make('Hopper-v4', ctrl_cost_weight=0.1, ....)
     ```
 
     | Parameter               | Type       | Default        |Description                    |
