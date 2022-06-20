@@ -1,3 +1,5 @@
+import re
+
 import pytest
 
 import gym
@@ -21,6 +23,8 @@ def test_human_rendering():
 
     with pytest.raises(
         AssertionError,
-        match="Expected env.render_mode to be one of 'rgb_array' or 'single_rgb_array' but got 'human'",
+        match=re.escape(
+            "Expected env.render_mode to be one of 'rgb_array' or 'single_rgb_array' but got 'human'"
+        ),
     ):
         HumanRendering(gym.make("CartPole-v1", render_mode="human"))

@@ -597,14 +597,20 @@ def make(
     if hasattr(env_creator, "metadata"):
         render_modes = env_creator.metadata["render_modes"]
         creator_signature = inspect.signature(env_creator)
+
+        has_starred_kwargs = False
+        for param in creator_signature.parameters.values():
+            has_starred_kwargs = (
+                has_starred_kwargs or param.kind == inspect.Parameter.VAR_KEYWORD
+            )
+
         # We might be able to fall back to the HumanRendering wrapper if 'human' rendering is not supported natively
         if (
             mode == "human"
             and "human" not in render_modes
             and ("single_rgb_array" in render_modes or "rgb_array" in render_modes)
-            and (
-                "render_mode" in creator_signature.parameters
-                or "kwargs" in creator_signature.parameters
+            and (  # Here we check whether the new API is used
+                "render_mode" in creator_signature.parameters or has_starred_kwargs
             )
         ):
             logger.warn(

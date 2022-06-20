@@ -1,3 +1,5 @@
+import re
+
 import numpy as np
 import pytest
 
@@ -19,11 +21,9 @@ class ArgumentEnv(gym.Env):
         self.arg3 = arg3
 
 
-"""Environments to test render_mode"""
-
-
+# Environments to test render_mode
 class NoHuman(gym.Env):
-    """Environment that does not human-rendering."""
+    """Environment that does not have human-rendering."""
 
     metadata = {"render_modes": ["rgb_array"], "render_fps": 4}
 
@@ -33,7 +33,7 @@ class NoHuman(gym.Env):
 
 
 class NoHumanOldAPI(gym.Env):
-    """Environment that does not human-rendering."""
+    """Environment that does not have human-rendering."""
 
     metadata = {"render_modes": ["rgb_array"], "render_fps": 4}
 
@@ -384,20 +384,26 @@ def test_make_render_mode():
     # Make sure that an error is thrown a user tries to use the wrapper on an environment with old API
     with pytest.raises(
         gym.error.Error,
-        match="Invalid render_mode provided: human. Valid render_modes: None, rgb_array",
+        match=re.escape(
+            "Invalid render_mode provided: human. Valid render_modes: None, rgb_array"
+        ),
     ):
         gym.make("test/NoHumanOldAPI-v0", render_mode="human", disable_env_checker=True)
 
     # Make sure that the `HumanRendering` is not applied if the environment doesn't have rgb-rendering
     with pytest.raises(
         gym.error.Error,
-        match="Invalid render_mode provided: human. Valid render_modes: None, ascii",
+        match=re.escape(
+            "Invalid render_mode provided: human. Valid render_modes: None, ascii"
+        ),
     ):
         gym.make("test/NoHumanNoRGB-v0", render_mode="human", disable_env_checker=True)
 
     # Make sure that an error is thrown if the mode is not supported
     with pytest.raises(
         gym.error.Error,
-        match="Invalid render_mode provided: ascii. Valid render_modes: None, rgb_array",
+        match=re.escape(
+            "Invalid render_mode provided: ascii. Valid render_modes: None, rgb_array"
+        ),
     ):
         gym.make("test/NoHuman-v0", render_mode="ascii", disable_env_checker=True)
