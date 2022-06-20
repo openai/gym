@@ -152,47 +152,35 @@ def test_inequality(spaces):
 
 # The expected sum of variance for an alpha of 0.05
 # CHI_SQUARED = [0] + [scipy.stats.chi2.isf(0.05, df=df) for df in range(1, 25)]
-CHI_SQUARED = [
-    0,
-    3.8414588206941285,
-    5.991464547107983,
-    7.814727903251178,
-    9.487729036781158,
-    11.070497693516355,
-    12.59158724374398,
-    14.067140449340167,
-    15.507313055865454,
-    16.91897760462045,
-    18.30703805327515,
-    19.67513757268249,
-    21.02606981748307,
-    22.362032494826945,
-    23.684791304840576,
-    24.99579013972863,
-    26.296227604864242,
-    27.587111638275335,
-    28.869299430392637,
-    30.143527205646155,
-    31.41043284423092,
-    32.670573340917315,
-    33.92443847144379,
-    35.17246162690807,
-    36.415028501807306,
-]
+CHI_SQUARED = np.array(
+    [
+        0.01,
+        3.8414588206941285,
+        5.991464547107983,
+        7.814727903251178,
+        9.487729036781158,
+        11.070497693516355,
+        12.59158724374398,
+        14.067140449340167,
+        15.507313055865454,
+        16.91897760462045,
+    ]
+)
 
 
 @pytest.mark.parametrize(
     "space",
     [
+        Discrete(1),
         Discrete(5),
         Discrete(8, start=-20),
-        Box(low=0, high=255, shape=(2,)),
-        Box(low=-np.inf, high=np.inf, shape=(3, 3)),
-        Box(low=1.0, high=np.inf, shape=(3, 3)),
-        Box(low=-np.inf, high=2.0, shape=(3, 3)),
+        Box(low=0, high=255, shape=(2,), dtype=np.uint8),
+        Box(low=-np.inf, high=np.inf, shape=(3,)),
+        Box(low=1.0, high=np.inf, shape=(3,)),
+        Box(low=-np.inf, high=2.0, shape=(3,)),
         Box(low=np.array([0, 2]), high=np.array([10, 4])),
         MultiDiscrete([3, 5]),
-        MultiDiscrete(np.array([[3, 5], [2, 2]])),
+        MultiDiscrete(np.array([[3, 5], [2, 1]])),
         MultiBinary([2, 4]),
     ],
 )
@@ -211,6 +199,7 @@ def test_sample(space: Space, n_trials: int = 1_000):
     samples = np.array([space.sample() for _ in range(n_trials)])
     assert len(samples) == n_trials
 
+    # todo add Box space test
     if isinstance(space, Discrete):
         expected_frequency = np.ones(space.n) * n_trials / space.n
         observed_frequency = np.zeros(space.n)
@@ -230,6 +219,7 @@ def test_sample(space: Space, n_trials: int = 1_000):
         observed_frequency = np.sum(samples, axis=0)
         assert observed_frequency.shape == space.shape
 
+        # As this is a binary space, then we can be lazy in the variance as the np.square is symmetric for the 0 and 1 categories
         variance = (
             2 * np.square(observed_frequency - expected_frequency) / expected_frequency
         )
@@ -239,7 +229,6 @@ def test_sample(space: Space, n_trials: int = 1_000):
         # Due to the multi-axis capability of MultiDiscrete, these functions need to be recursive and that the expected / observed numpy are of non-regular shapes
         def _generate_frequency(dim, func):
             if isinstance(dim, np.ndarray):
-                print(dim)
                 return np.array(
                     [_generate_frequency(sub_dim, func) for sub_dim in dim],
                     dtype=object,
@@ -268,6 +257,7 @@ def test_sample(space: Space, n_trials: int = 1_000):
             else:
                 assert exp_freq.shape == (dim,) and obs_freq.shape == (dim,)
                 assert np.sum(obs_freq) == n_trials
+                assert np.sum(exp_freq) == n_trials
                 _variance = np.sum(np.square(exp_freq - obs_freq) / exp_freq)
                 _degrees_of_freedom = dim - 1
                 assert _variance < CHI_SQUARED[_degrees_of_freedom]
@@ -281,16 +271,46 @@ def test_sample(space: Space, n_trials: int = 1_000):
         (Discrete(5), np.array([0, 1, 1, 0, 1], dtype=np.int8)),
         (Discrete(4, start=-20), np.array([1, 1, 0, 1], dtype=np.int8)),
         (Discrete(4, start=1), np.array([0, 0, 0, 0], dtype=np.int8)),
-        (MultiDiscrete([3, 2]), np.array([[0, 1], [1, 1], [0, 0]], dtype=np.int8)),
-        # (MultiDiscrete(np.array([[3, 2], [2, 2]])), np.array([[[0, 1], [1, 1], [0, 0]], [[0, 1], [1, 1]]], dtype=np.int8)), Unsupported currently
-        (MultiBinary([2, 4]), np.array([[1, 1, 0, 0], [0, 0, 0, 0]], dtype=np.int8)),
+        (MultiBinary([3, 2]), np.array([[0, 1], [1, 1], [0, 0]], dtype=np.int8)),
+        # todo MultiDiscrete spaces
     ],
 )
 def test_space_sample_mask(space, mask, n_trials: int = 100):
     """Test the space sample with mask works, todo, add chi-squared testing for the distribution"""
-    space.seed(0)
+    space.seed(1)
     samples = np.array([space.sample(mask) for _ in range(n_trials)])
-    assert len(samples) == n_trials
+
+    if isinstance(space, Discrete):
+        if np.any(mask == 1):
+            expected_frequency = np.ones(space.n) * (n_trials / np.sum(mask)) * mask
+        else:
+            expected_frequency = np.zeros(space.n)
+            expected_frequency[0] = n_trials
+        observed_frequency = np.zeros(space.n)
+        for sample in samples:
+            observed_frequency[sample - space.start] += 1
+        degrees_of_freedom = max(np.sum(mask) - 1, 0)
+
+        assert observed_frequency.shape == expected_frequency.shape
+        assert np.sum(observed_frequency) == n_trials
+        assert np.sum(expected_frequency) == n_trials
+        variance = np.sum(
+            np.square(expected_frequency - observed_frequency)
+            / np.clip(expected_frequency, 1, None)
+        )
+        assert variance < CHI_SQUARED[degrees_of_freedom]
+    elif isinstance(space, MultiBinary):
+        expected_frequency = np.ones(space.shape) * mask * (n_trials / 2)
+        observed_frequency = np.sum(samples, axis=0)
+        assert space.shape == expected_frequency.shape == observed_frequency.shape
+
+        variance = (
+            2
+            * np.square(observed_frequency - expected_frequency)
+            / np.clip(expected_frequency, 1, None)
+        )
+        assert variance.shape == space.shape
+        assert np.all(variance < CHI_SQUARED[1])
 
 
 @pytest.mark.parametrize(

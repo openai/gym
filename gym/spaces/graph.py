@@ -98,7 +98,8 @@ class Graph(Space):
         """Generates a single sample graph with num_nodes between 1 and 10 sampled from the Graph.
 
         Args:
-            mask: An optional tuple for the node space mask and the edge space mask (only valid for Discrete spaces)
+            mask: An optional tuple for the node space mask and the edge space mask (only valid for Discrete spaces).
+                The expected shape for the node mask is ``node_space.n`` and edge mask is ``edge_space.n``.
 
         Returns:
             A NamedTuple representing a graph with attributes .nodes, .edges, and .edge_links.

@@ -57,7 +57,8 @@ class MultiBinary(Space[np.ndarray]):
         A sample is drawn by independent, fair coin tosses (one toss per binary variable of the space).
 
         Args:
-            mask: An optional np.ndarray to mask samples, where mask == 0 will have samples == 0
+            mask: An optional np.ndarray to mask samples with expected shape of ``space.shape``.
+                Where mask == 0 then the samples will be 0.
 
         Returns:
             Sampled values from space
@@ -76,7 +77,9 @@ class MultiBinary(Space[np.ndarray]):
                 np.logical_or(mask == 0, mask == 1)
             ), f"All values of a mask should be 0 or 1, actual values: {mask}"
 
-            return mask * self.np_random.integers(0, 2, self.n, self.dtype)
+            return mask * self.np_random.integers(
+                low=0, high=2, size=self.n, dtype=self.dtype
+            )
 
         return self.np_random.integers(low=0, high=2, size=self.n, dtype=self.dtype)
 

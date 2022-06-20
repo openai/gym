@@ -78,7 +78,8 @@ class Tuple(Space[tuple], Sequence):
         This method draws independent samples from the subspaces.
 
         Args:
-            mask: An optional tuple of optional masks for each of the subspace's samples, expects the same number of masks as spaces
+            mask: An optional tuple of optional masks for each of the subspace's samples,
+                expects the same number of masks as spaces
 
         Returns:
             Tuple of the subspace's samples

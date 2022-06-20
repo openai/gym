@@ -88,7 +88,7 @@ class Space(Generic[T_cov]):
         Can be uniform or non-uniform sampling based on boundedness of space.
 
         Args:
-            mask: A mask used for sampling, see Space for implementation details.
+            mask: A mask used for sampling, expected ``dtype=np.int8`` and see sample implementation for expected shape.
 
         Returns:
             A sampled actions from the space

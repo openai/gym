@@ -3,7 +3,6 @@ from typing import Iterable, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
 
-import gym
 from gym import logger
 from gym.spaces.discrete import Discrete
 from gym.spaces.space import Space
@@ -63,40 +62,18 @@ class MultiDiscrete(Space[np.ndarray]):
         """Has stricter type than :class:`gym.Space` - never None."""
         return self._shape  # type: ignore
 
-    def sample(self, mask: Optional[np.ndarray] = None) -> np.ndarray:
+    def sample(self, mask: Optional[Tuple[np.ndarray, ...]] = None) -> np.ndarray:
         """Generates a single random sample this space.
 
         Args:
-            mask: An optional mask for multi-discrete, expected shape is `space.nvec`. If there are no possible actions, defaults to 0
+            mask: An optional mask for multi-discrete, expected shape is `space.nvec` however for multi-axis nvec then
+                we expect np.ndarray dtype=object. If there are no possible actions, defaults to 0
 
         Returns:
             An np.ndarray of shape `space.shape`
         """
         if mask is not None:
-            assert isinstance(
-                mask, np.ndarray
-            ), f"The expected type of the mask is np.ndarray, actual type: {type(mask)}"
-            if self.nvec.ndim == 1:
-                assert (
-                    mask.dtype == np.int8
-                ), f"The expected dtype of the mask is np.int8, actual dtype: {mask.dtype}"
-                assert np.all(
-                    mask.shape == self.nvec
-                ), f"The expected shape of the mask is {self.nvec}, actual shape: {mask.shape}. We don't support multi-axis nvec currently."
-                assert np.all(
-                    np.logical_or(mask == 0, mask == 1)
-                ), f"All values of a mask should be 0 or 1, actual values: {mask}"
-
-                multi_mask = [np.where(row)[0] for row in mask]
-                return np.array(
-                    [
-                        self.np_random.choice(row_mask) if len(row_mask) > 0 else 0
-                        for row_mask in multi_mask
-                    ],
-                    dtype=self.dtype,
-                )
-            else:
-                raise gym.error.Error()
+            pass
 
         return (self.np_random.random(self.nvec.shape) * self.nvec).astype(self.dtype)
 

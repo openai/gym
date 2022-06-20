@@ -46,7 +46,8 @@ class Discrete(Space[int]):
         A sample will be chosen uniformly at random with the mask if provided
 
         Args:
-            mask: An optional mask for if an action can be selected. Expected shape is (n,). If not possible actions, will default to `space.start`
+            mask: An optional mask for if an action can be selected. Expected shape is (n,).
+                If there are no possible actions, will default to `space.start`.
 
         Returns:
             A sampled integer from the space
@@ -61,11 +62,14 @@ class Discrete(Space[int]):
             assert mask.shape == (
                 self.n,
             ), f"The expected shape of the mask is {(self.n,)}, actual shape: {mask.shape}"
+            valid_action_mask = mask == 1
             assert np.all(
-                np.logical_or(mask == 0, mask == 1)
+                np.logical_or(mask == 0, valid_action_mask)
             ), f"All values of a mask should be 0 or 1, actual values: {mask}"
-            if np.any(mask == 1):
-                return int(self.start + self.np_random.choice(np.where(mask)[0]))
+            if np.any(valid_action_mask):
+                return int(
+                    self.start + self.np_random.choice(np.where(valid_action_mask)[0])
+                )
             else:
                 return self.start
 
