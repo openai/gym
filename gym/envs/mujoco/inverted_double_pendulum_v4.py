@@ -6,7 +6,7 @@ from gym.envs.mujoco import mujoco_env
 
 class InvertedDoublePendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     """
-        ### Description
+    ### Description
 
     This environment originates from control theory and builds on the cartpole
     environment based on the work done by Barto, Sutton, and Anderson in
