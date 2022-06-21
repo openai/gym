@@ -135,8 +135,11 @@ class Env(Generic[ObsType, ActType]):
             observation (object): this will be an element of the environment's :attr:`observation_space`.
                 This may, for instance, be a numpy array containing the positions and velocities of certain objects.
             reward (float): The amount of reward returned as a result of taking the action.
-            terminated (bool): whether the episode has ended due to reaching a terminal state intrinsic to the core environment, in which case further step() calls will return undefined results
-            truncated (bool): whether the episode has ended due to a truncation, i.e., a timelimit outside the scope of the problem defined in the environment.
+            terminated (bool): whether a `terminal state` (as defined under the MDP of the task) is reached. 
+                In this case further step() calls could return undefined results.  
+            truncated (bool): whether a truncation condition outside the scope of the MDP is satisfied. 
+                Typically a timelimit, but could also be used to indicate agent physically going out of bounds. 
+                Can be used to end the episode prematurely before a `terminal state` is reached.
             info (dictionary): `info` contains auxiliary diagnostic information (helpful for debugging, learning, and logging).
                 This might, for instance, contain: metrics that describe the agent's performance state, variables that are
                 hidden from observations, or individual reward terms that are combined to produce the total reward.
