@@ -8,21 +8,21 @@ class PusherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     """
     ### Description
     "Pusher" is a multi-jointed robot arm which is very similar to that of a human.
-    The goal is to move a target cylinder (called *object*) to a goal position using the robot's end effector (called *fingertip*).
-    The robot consists of shoulder, elbow, forearm, and wrist joints.
+     The goal is to move a target cylinder (called *object*) to a goal position using the robot's end effector (called *fingertip*).
+      The robot consists of shoulder, elbow, forearm, and wrist joints.
 
     ### Action Space
     The action space is a `Box(-2, 2, (7,), float32)`. An action `(a, b)` represents the torques applied at the hinge joints.
 
-    | Num | Action                                         | Control Min | Control Max | Name (in corresponding XML file) | Joint | Unit         |
-    |-----|------------------------------------------------|-------------|-------------|----------------------------------|-------|--------------|
-    | 0   | Rotation of the panning the shoulder          | -2          | 2           | r_shoulder_pan_joint             | hinge | torque (N m) |
-    | 1   | Rotation of the shoulder lifting joint        | -2          | 2           | r_shoulder_lift_joint            | hinge | torque (N m) |
-    | 2   | Rotation of the shoulder rolling joint        | -2          | 2           | r_upper_arm_roll_joint           | hinge | torque (N m) |
-    | 3   | Rotation of hinge joint that flexed the elbow | -2          | 2           | r_elbow_flex_joint               | hinge | torque (N m) |
-    | 4   | Rotation of hinge that rolls the forearm      | -2          | 2           | r_forearm_roll_joint             | hinge | torque (N m) |
-    | 5   | Rotation of flexing the wrist                 | -2          | 2           | r_wrist_flex_joint               | hinge | torque (N m) |
-    | 6   | Rotation of rolling the wrist                 | -2          | 2           | r_wrist_roll_joint               | hinge | torque (N m) |
+    | Num | Action                                                             | Control Min | Control Max | Name (in corresponding XML file) | Joint | Unit         |
+    |-----|--------------------------------------------------------------------|-------------|-------------|----------------------------------|-------|--------------|
+    | 0    | Rotation of the panning the shoulder                              | -2          | 2           | r_shoulder_pan_joint             | hinge | torque (N m) |
+    | 1    | Rotation of the shoulder lifting joint                            | -2          | 2           | r_shoulder_lift_joint            | hinge | torque (N m) |
+    | 2    | Rotation of the shoulder rolling joint                            | -2          | 2           | r_upper_arm_roll_joint           | hinge | torque (N m) |
+    | 3    | Rotation of hinge joint that flexed the elbow                     | -2          | 2           | r_elbow_flex_joint               | hinge | torque (N m) |
+    | 4    | Rotation of hinge that rolls the forearm                          | -2          | 2           | r_forearm_roll_joint             | hinge | torque (N m) |
+    | 5    | Rotation of flexing the wrist                                     | -2          | 2           | r_wrist_flex_joint               | hinge | torque (N m) |
+    | 6    | Rotation of rolling the wrist                                     | -2          | 2           | r_wrist_roll_joint               | hinge | torque (N m) |
 
     ### Observation Space
 
@@ -39,7 +39,7 @@ class PusherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     same as human joints.
 
     | Num | Observation                                              | Min  | Max | Name (in corresponding XML file) | Joint    | Unit                     |
-    |-----|----------------------------------------------------------|------|-----|----------------------------------|----------|--------------------------|
+    | --- | -------------------------------------------------------- | ---- | --- | -------------------------------- | -------- | ------------------------ |
     | 0   | Rotation of the panning the shoulder                     | -Inf | Inf | r_shoulder_pan_joint             | hinge    | angle (rad)              |
     | 1   | Rotation of the shoulder lifting joint                   | -Inf | Inf | r_shoulder_lift_joint            | hinge    | angle (rad)              |
     | 2   | Rotation of the shoulder rolling joint                   | -Inf | Inf | r_upper_arm_roll_joint           | hinge    | angle (rad)              |
@@ -112,16 +112,12 @@ class PusherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     (or by changing the path to a modified XML file in another folder)..
 
     ```
-    env = gym.make('Pusher-v2')
+    env = gym.make('Pusher-v4')
     ```
 
     There is no v3 for Pusher, unlike the robot environments where a v3 and
     beyond take gym.make kwargs such as xml_file, ctrl_cost_weight, reset_noise_scale etc.
 
-    There is a v4 version that uses the mujoco-bindings
-    ```
-    env = gym.make('Pusher-v4')
-    ```
 
     ### Version History
 
