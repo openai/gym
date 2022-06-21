@@ -2,6 +2,7 @@ import copy
 import json  # note: ujson fails this test due to float equality
 import pickle
 import tempfile
+from typing import List, Union
 
 import numpy as np
 import pytest
@@ -272,11 +273,31 @@ def test_sample(space: Space, n_trials: int = 1_000):
         (Discrete(4, start=-20), np.array([1, 1, 0, 1], dtype=np.int8)),
         (Discrete(4, start=1), np.array([0, 0, 0, 0], dtype=np.int8)),
         (MultiBinary([3, 2]), np.array([[0, 1], [1, 1], [0, 0]], dtype=np.int8)),
-        # todo MultiDiscrete spaces
+        (
+            MultiDiscrete([5, 3]),
+            (
+                np.array([0, 1, 1, 0, 1], dtype=np.int8),
+                np.array([0, 1, 1], dtype=np.int8),
+            ),
+        ),
+        (
+            MultiDiscrete(np.array([4, 2])),
+            (np.array([0, 0, 0, 0], dtype=np.int8), np.array([1, 1], dtype=np.int8)),
+        ),
+        (
+            MultiDiscrete(np.array([[2, 2], [4, 3]])),
+            (
+                (np.array([0, 1], dtype=np.int8), np.array([1, 1], dtype=np.int8)),
+                (
+                    np.array([0, 1, 1, 0], dtype=np.int8),
+                    np.array([1, 0, 0], dtype=np.int8),
+                ),
+            ),
+        ),
     ],
 )
 def test_space_sample_mask(space, mask, n_trials: int = 100):
-    """Test the space sample with mask works, todo, add chi-squared testing for the distribution"""
+    """Test the space sample with mask works using the pearson chi-squared test."""
     space.seed(1)
     samples = np.array([space.sample(mask) for _ in range(n_trials)])
 
@@ -311,6 +332,64 @@ def test_space_sample_mask(space, mask, n_trials: int = 100):
         )
         assert variance.shape == space.shape
         assert np.all(variance < CHI_SQUARED[1])
+    elif isinstance(space, MultiDiscrete):
+        # Due to the multi-axis capability of MultiDiscrete, these functions need to be recursive and that the expected / observed numpy are of non-regular shapes
+        def _generate_frequency(
+            _dim: Union[np.ndarray, int], _mask, func: callable
+        ) -> List:
+            if isinstance(_dim, np.ndarray):
+                return [
+                    _generate_frequency(sub_dim, sub_mask, func)
+                    for sub_dim, sub_mask in zip(_dim, _mask)
+                ]
+            else:
+                return func(_dim, _mask)
+
+        def _update_observed_frequency(obs_sample, obs_freq):
+            if isinstance(obs_sample, np.ndarray):
+                for sub_sample, sub_freq in zip(obs_sample, obs_freq):
+                    _update_observed_frequency(sub_sample, sub_freq)
+            else:
+                obs_freq[obs_sample] += 1
+
+        def _exp_freq_fn(_dim: int, _mask: np.ndarray):
+            if np.any(_mask == 1):
+                print(f"{_dim=}, {_mask=}")
+                assert _dim == len(_mask)
+                return np.ones(_dim) * (n_trials / np.sum(_mask)) * _mask
+            else:
+                freq = np.zeros(_dim)
+                freq[0] = n_trials
+                return freq
+
+        expected_frequency = _generate_frequency(
+            space.nvec, mask, lambda dim, _mask: _exp_freq_fn(dim, _mask)
+        )
+        observed_frequency = _generate_frequency(
+            space.nvec, mask, lambda dim, _: np.zeros(dim)
+        )
+        for sample in samples:
+            _update_observed_frequency(sample, observed_frequency)
+
+        def _chi_squared_test(dim, _mask, exp_freq, obs_freq):
+            if isinstance(dim, np.ndarray):
+                for sub_dim, sub_mask, sub_exp_freq, sub_obs_freq in zip(
+                    dim, _mask, exp_freq, obs_freq
+                ):
+                    _chi_squared_test(sub_dim, sub_mask, sub_exp_freq, sub_obs_freq)
+            else:
+                assert exp_freq.shape == (dim,) and obs_freq.shape == (dim,)
+                assert np.sum(obs_freq) == n_trials
+                assert np.sum(exp_freq) == n_trials
+                _variance = np.sum(
+                    np.square(exp_freq - obs_freq) / np.clip(exp_freq, 1, None)
+                )
+                _degrees_of_freedom = max(np.sum(_mask) - 1, 0)
+                assert _variance < CHI_SQUARED[_degrees_of_freedom]
+
+        _chi_squared_test(space.nvec, mask, expected_frequency, observed_frequency)
+    else:
+        raise NotImplementedError()
 
 
 @pytest.mark.parametrize(
@@ -320,7 +399,10 @@ def test_space_sample_mask(space, mask, n_trials: int = 100):
             Dict(a=Discrete(2), b=MultiDiscrete([2, 4])),
             {
                 "a": np.array([0, 1], dtype=np.int8),
-                "b": np.array([[0, 0, 0, 0], [1, 1, 1, 0]], dtype=np.int8),
+                "b": (
+                    np.array([0, 1], dtype=np.int8),
+                    np.array([1, 1, 0, 0], dtype=np.int8),
+                ),
             },
         ),
         (

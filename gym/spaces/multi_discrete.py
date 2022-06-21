@@ -8,6 +8,8 @@ from gym.spaces.discrete import Discrete
 from gym.spaces.space import Space
 from gym.utils import seeding
 
+SAMPLE_MASK_TYPE = Tuple[Union["SAMPLE_MASK_TYPE", np.ndarray]]
+
 
 class MultiDiscrete(Space[np.ndarray]):
     """This represents the cartesian product of arbitrary :class:`Discrete` spaces.
@@ -62,18 +64,54 @@ class MultiDiscrete(Space[np.ndarray]):
         """Has stricter type than :class:`gym.Space` - never None."""
         return self._shape  # type: ignore
 
-    def sample(self, mask: Optional[Tuple[np.ndarray, ...]] = None) -> np.ndarray:
+    def sample(self, mask: Optional[SAMPLE_MASK_TYPE] = None) -> np.ndarray:
         """Generates a single random sample this space.
 
         Args:
-            mask: An optional mask for multi-discrete, expected shape is `space.nvec` however for multi-axis nvec then
-                we expect np.ndarray dtype=object. If there are no possible actions, defaults to 0
+            mask: An optional mask for multi-discrete, expects tuples with a `np.ndarray` mask in the position of each
+                action with shape `(n,)` where `n` is the number of actions and `dtype=np.int8`.
+                If there are no possible actions, the default action is 0
 
         Returns:
-            An np.ndarray of shape `space.shape`
+            An `np.ndarray` of shape `space.shape`
         """
         if mask is not None:
-            pass
+
+            def _apply_mask(
+                sub_mask: SAMPLE_MASK_TYPE, sub_nvec: np.ndarray
+            ) -> Union[int, List[int]]:
+                if isinstance(sub_mask, np.ndarray):
+                    assert np.isscalar(
+                        sub_nvec
+                    ), f"Expects the mask to be for an action, actual for {sub_nvec}"
+                    assert (
+                        len(sub_mask) == sub_nvec
+                    ), f"Expects the mask length to be equal to the number of actions, mask length: {len(sub_mask)}, nvec length: {sub_nvec}"
+                    assert (
+                        sub_mask.dtype == np.int8
+                    ), f"Expects the mask dtype to be np.int8, actual dtype: {sub_mask.dtype}"
+                    valid_action_mask = sub_mask == 1
+                    assert np.all(
+                        np.logical_or(sub_mask == 0, valid_action_mask)
+                    ), f"Expects all masks values to 0 or 1, actual values: {sub_mask}"
+
+                    if np.any(valid_action_mask):
+                        return self.np_random.choice(np.where(valid_action_mask)[0])
+                    else:
+                        return 0
+                else:
+                    assert isinstance(
+                        sub_mask, tuple
+                    ), f"Expects the mask to be a tuple or np.ndarray, actual type: {type(sub_mask)}"
+                    assert len(sub_mask) == len(
+                        sub_nvec
+                    ), f"Expects the mask length to be equal to the number of actions, mask length: {len(sub_mask)}, nvec length: {len(sub_nvec)}"
+                    return [
+                        _apply_mask(new_mask, new_nvec)
+                        for new_mask, new_nvec in zip(sub_mask, sub_nvec)
+                    ]
+
+            return np.array(_apply_mask(mask, self.nvec), dtype=self.dtype)
 
         return (self.np_random.random(self.nvec.shape) * self.nvec).astype(self.dtype)
 
