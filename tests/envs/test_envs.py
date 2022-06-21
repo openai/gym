@@ -30,6 +30,8 @@ def test_env(spec):
         if warning.message.args[0] not in IGNORE_WARNINGS:
             raise gym.error.Error(f"Unexpected warning: {warning.message}")
 
+    env.close()
+
 
 # Note that this precludes running this test in multiple threads.
 # However, we probably already can't do multithreading due to some environments.
@@ -101,3 +103,6 @@ def test_render_modes(spec):
             new_env.reset()
             new_env.step(new_env.action_space.sample())
             new_env.render()
+
+            new_env.close()
+    env.close()

@@ -36,6 +36,9 @@ def verify_environments_match(
         if old_done:
             break
 
+    old_env.close()
+    new_env.close()
+
 
 MUJOCO_V2_V3_ENVS = [
     spec.name

@@ -11,6 +11,8 @@ def test_lunar_lander_heuristics():
     total_reward = demo_heuristic_lander(lunar_lander, seed=1)
     assert total_reward > 100
 
+    lunar_lander.close()
+
 
 @pytest.mark.parametrize("seed", range(5))
 def test_bipedal_walker_hardcore_creation(seed: int):
@@ -49,6 +51,9 @@ def test_bipedal_walker_hardcore_creation(seed: int):
 
     assert hc_terrains_color1_count > 0
     assert hc_terrains_color2_count > 0
+
+    env.close()
+    hc_env.close()
 
 
 @pytest.mark.parametrize("map_size", [5, 10, 16])
