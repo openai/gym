@@ -1,7 +1,9 @@
 """Implementation of a space that represents graph information where nodes and edges can be represented with euclidean space."""
 from collections import namedtuple
 from typing import NamedTuple, Optional, Sequence, Union
+
 import numpy as np
+
 from gym.spaces.box import Box
 from gym.spaces.discrete import Discrete
 from gym.spaces.multi_discrete import MultiDiscrete
