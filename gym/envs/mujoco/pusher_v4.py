@@ -129,8 +129,18 @@ class PusherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     * v2: All continuous control environments now use mujoco_py >= 1.50
     * v1: max_time_steps raised to 1000 for robot based tasks (not including reacher, which has a max_time_steps of 50). Added reward_threshold to environments.
     * v0: Initial versions release (1.0.0)
-
     """
+
+    metadata = {
+        "render_modes": [
+            "human",
+            "rgb_array",
+            "depth_array",
+            "single_rgb_array",
+            "single_depth_array",
+        ],
+        "render_fps": 20,
+    }
 
     def __init__(self, **kwargs):
         utils.EzPickle.__init__(self)

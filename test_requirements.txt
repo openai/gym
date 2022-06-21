@@ -6,5 +6,4 @@ matplotlib>=3.0
 imageio>=2.14.1
 pygame==2.1.0
 mujoco_py<2.2,>=2.1
-pytest
-mock
+pytest==7.0.1
