@@ -10,6 +10,7 @@ from gym import spaces
 from gym.envs.box2d.car_dynamics import Car
 from gym.error import DependencyNotInstalled, InvalidAction
 from gym.utils import EzPickle
+from gym.utils.renderer import Renderer
 
 try:
     import Box2D
@@ -87,7 +88,7 @@ class FrictionDetector(contactListener):
                     and self.env.tile_visited_count / len(self.env.track)
                     > self.lap_complete_percent
                 ):
-                    self.env_new_lap = True
+                    self.env.new_lap = True
         else:
             obj.tiles.remove(tile)
 
@@ -151,12 +152,19 @@ class CarRacing(gym.Env, EzPickle):
     """
 
     metadata = {
-        "render_modes": ["human", "rgb_array", "state_pixels"],
+        "render_modes": [
+            "human",
+            "rgb_array",
+            "state_pixels",
+            "single_rgb_array",
+            "single_state_pixels",
+        ],
         "render_fps": FPS,
     }
 
     def __init__(
         self,
+        render_mode: Optional[str] = None,
         verbose: bool = False,
         lap_complete_percent: float = 0.95,
         domain_randomize: bool = False,
@@ -170,6 +178,7 @@ class CarRacing(gym.Env, EzPickle):
         self.contactListener_keepref = FrictionDetector(self, lap_complete_percent)
         self.world = Box2D.b2World((0, 0), contactListener=self.contactListener_keepref)
         self.screen = None
+        self.surf = None
         self.clock = None
         self.isopen = True
         self.invisible_state_window = None
@@ -198,6 +207,9 @@ class CarRacing(gym.Env, EzPickle):
         self.observation_space = spaces.Box(
             low=0, high=255, shape=(STATE_H, STATE_W, 3), dtype=np.uint8
         )
+
+        self.render_mode = render_mode
+        self.renderer = Renderer(self.render_mode, self._render)
 
     def _destroy(self):
         if not self.road:
@@ -441,6 +453,7 @@ class CarRacing(gym.Env, EzPickle):
                 )
         self.car = Car(self.world, *self.track[0][1:4])
 
+        self.renderer.reset()
         if not return_info:
             return self.step(None)[0]
         else:
@@ -466,10 +479,11 @@ class CarRacing(gym.Env, EzPickle):
         self.world.Step(1.0 / FPS, 6 * 30, 2 * 30)
         self.t += 1.0 / FPS
 
-        self.state = self.render("state_pixels")
+        self.state = self._render("single_state_pixels")
 
         step_reward = 0
         done = False
+        info = {}
         if action is not None:  # First step without action, called from reset()
             self.reward -= 0.1
             # We actually don't want to count fuel spent, we want car to be faster.
@@ -479,14 +493,26 @@ class CarRacing(gym.Env, EzPickle):
             self.prev_reward = self.reward
             if self.tile_visited_count == len(self.track) or self.new_lap:
                 done = True
+                # Termination due to finishing lap
+                # This should not be treated as a failure
+                # but like a timeout
+                info["TimeLimit.truncated"] = True
             x, y = self.car.hull.position
             if abs(x) > PLAYFIELD or abs(y) > PLAYFIELD:
                 done = True
                 step_reward = -100
 
-        return self.state, step_reward, done, {}
+        self.renderer.render_step()
+        return self.state, step_reward, done, info
 
     def render(self, mode: str = "human"):
+        if self.render_mode is not None:
+            return self.renderer.get_renders()
+        else:
+            return self._render(mode)
+
+    def _render(self, mode: str = "human"):
+        assert mode in self.metadata["render_modes"]
         try:
             import pygame
         except ImportError:
@@ -496,7 +522,6 @@ class CarRacing(gym.Env, EzPickle):
 
         pygame.font.init()
 
-        assert mode in ["human", "state_pixels", "rgb_array"]
         if self.screen is None and mode == "human":
             pygame.init()
             pygame.display.init()
@@ -519,7 +544,13 @@ class CarRacing(gym.Env, EzPickle):
         trans = (WINDOW_W / 2 + trans[0], WINDOW_H / 4 + trans[1])
 
         self._render_road(zoom, trans, angle)
-        self.car.draw(self.surf, zoom, trans, angle, mode != "state_pixels")
+        self.car.draw(
+            self.surf,
+            zoom,
+            trans,
+            angle,
+            mode not in ["state_pixels", "single_state_pixels"],
+        )
 
         self.surf = pygame.transform.flip(self.surf, False, True)
 
@@ -539,9 +570,9 @@ class CarRacing(gym.Env, EzPickle):
             self.screen.blit(self.surf, (0, 0))
             pygame.display.flip()
 
-        if mode == "rgb_array":
+        if mode in {"rgb_array", "single_rgb_array"}:
             return self._create_image_array(self.surf, (VIDEO_W, VIDEO_H))
-        elif mode == "state_pixels":
+        elif mode in {"state_pixels", "single_state_pixels"}:
             return self._create_image_array(self.surf, (STATE_W, STATE_H))
         else:
             return self.isopen

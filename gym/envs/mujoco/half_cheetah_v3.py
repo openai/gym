@@ -1,4 +1,5 @@
 __credits__ = ["Rushiv Arora"]
+
 import numpy as np
 
 from gym import utils
@@ -10,6 +11,17 @@ DEFAULT_CAMERA_CONFIG = {
 
 
 class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
+    metadata = {
+        "render_modes": [
+            "human",
+            "rgb_array",
+            "depth_array",
+            "single_rgb_array",
+            "single_depth_array",
+        ],
+        "render_fps": 20,
+    }
+
     def __init__(
         self,
         xml_file="half_cheetah.xml",
@@ -17,6 +29,7 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         ctrl_cost_weight=0.1,
         reset_noise_scale=0.1,
         exclude_current_positions_from_observation=True,
+        **kwargs
     ):
         utils.EzPickle.__init__(**locals())
 
@@ -30,7 +43,9 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             exclude_current_positions_from_observation
         )
 
-        mujoco_env.MujocoEnv.__init__(self, xml_file, 5, mujoco_bindings="mujoco_py")
+        mujoco_env.MujocoEnv.__init__(
+            self, xml_file, 5, mujoco_bindings="mujoco_py", **kwargs
+        )
 
     def control_cost(self, action):
         control_cost = self._ctrl_cost_weight * np.sum(np.square(action))
@@ -45,6 +60,8 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         ctrl_cost = self.control_cost(action)
 
         forward_reward = self._forward_reward_weight * x_velocity
+
+        self.renderer.render_step()
 
         observation = self._get_obs()
         reward = forward_reward - ctrl_cost

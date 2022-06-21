@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from functools import partial
 from os import path
 from typing import Optional
 
@@ -6,6 +7,7 @@ import numpy as np
 
 import gym
 from gym import error, logger, spaces
+from gym.utils.renderer import Renderer
 
 DEFAULT_SIZE = 480
 
@@ -33,8 +35,17 @@ def convert_observation_to_space(observation):
 class MujocoEnv(gym.Env):
     """Superclass for all MuJoCo environments."""
 
-    def __init__(self, model_path, frame_skip, mujoco_bindings="mujoco"):
-
+    def __init__(
+        self,
+        model_path,
+        frame_skip,
+        render_mode: Optional[str] = None,
+        width: int = DEFAULT_SIZE,
+        height: int = DEFAULT_SIZE,
+        camera_id: Optional[int] = None,
+        camera_name: Optional[str] = None,
+        mujoco_bindings="mujoco",
+    ):
         if model_path.startswith("/"):
             fullpath = model_path
         else:
@@ -86,12 +97,28 @@ class MujocoEnv(gym.Env):
 
         self.viewer = None
 
-        self.metadata = {
-            "render_modes": ["human", "rgb_array", "depth_array"],
-            "render_fps": int(np.round(1.0 / self.dt)),
-        }
+        assert self.metadata["render_modes"] == [
+            "human",
+            "rgb_array",
+            "depth_array",
+            "single_rgb_array",
+            "single_depth_array",
+        ]
+        assert (
+            int(np.round(1.0 / self.dt)) == self.metadata["render_fps"]
+        ), f'Expected value: {int(np.round(1.0 / self.dt))}, Actual value: {self.metadata["render_fps"]}'
 
         self._set_action_space()
+
+        self.render_mode = render_mode
+        render_frame = partial(
+            self._render,
+            width=width,
+            height=height,
+            camera_name=camera_name,
+            camera_id=camera_id,
+        )
+        self.renderer = Renderer(self.render_mode, render_frame)
 
         action = self.action_space.sample()
         observation, _reward, done, _info = self.step(action)
@@ -142,6 +169,8 @@ class MujocoEnv(gym.Env):
             self._mujoco_bindings.mj_resetData(self.model, self.data)
 
         ob = self.reset_model()
+        self.renderer.reset()
+        self.renderer.render_step()
         if not return_info:
             return ob
         else:
@@ -189,13 +218,47 @@ class MujocoEnv(gym.Env):
 
     def render(
         self,
-        mode="human",
-        width=DEFAULT_SIZE,
-        height=DEFAULT_SIZE,
-        camera_id=None,
-        camera_name=None,
+        mode: str = "human",
+        width: Optional[int] = None,
+        height: Optional[int] = None,
+        camera_id: Optional[int] = None,
+        camera_name: Optional[str] = None,
     ):
-        if mode == "rgb_array" or mode == "depth_array":
+        if self.render_mode is not None:
+            assert (
+                width is None
+                and height is None
+                and camera_id is None
+                and camera_name is None
+            ), "Unexpected argument for render. Specify render arguments at environment initialization."
+            return self.renderer.get_renders()
+        else:
+            width = width if width is not None else DEFAULT_SIZE
+            height = height if height is not None else DEFAULT_SIZE
+            return self._render(
+                mode=mode,
+                width=width,
+                height=height,
+                camera_id=camera_id,
+                camera_name=camera_name,
+            )
+
+    def _render(
+        self,
+        mode: str = "human",
+        width: int = DEFAULT_SIZE,
+        height: int = DEFAULT_SIZE,
+        camera_id: Optional[int] = None,
+        camera_name: Optional[str] = None,
+    ):
+        assert mode in self.metadata["render_modes"]
+
+        if mode in {
+            "rgb_array",
+            "single_rgb_array",
+            "depth_array",
+            "single_depth_array",
+        }:
             if camera_id is not None and camera_name is not None:
                 raise ValueError(
                     "Both `camera_id` and `camera_name` cannot be"
@@ -219,11 +282,11 @@ class MujocoEnv(gym.Env):
 
                 self._get_viewer(mode).render(width, height, camera_id=camera_id)
 
-        if mode == "rgb_array":
+        if mode in {"rgb_array", "single_rgb_array"}:
             data = self._get_viewer(mode).read_pixels(width, height, depth=False)
             # original image is upside-down, so flip it
             return data[::-1, :, :]
-        elif mode == "depth_array":
+        elif mode in {"depth_array", "single_depth_array"}:
             self._get_viewer(mode).render(width, height)
             # Extract depth part of the read_pixels() tuple
             data = self._get_viewer(mode).read_pixels(width, height, depth=True)[1]
@@ -249,7 +312,12 @@ class MujocoEnv(gym.Env):
                     from gym.envs.mujoco.mujoco_rendering import Viewer
 
                     self.viewer = Viewer(self.model, self.data)
-            elif mode == "rgb_array" or mode == "depth_array":
+            elif mode in {
+                "rgb_array",
+                "depth_array",
+                "single_rgb_array",
+                "single_depth_array",
+            }:
                 if self._mujoco_bindings.__name__ == "mujoco_py":
                     self.viewer = self._mujoco_bindings.MjRenderContextOffscreen(
                         self.sim, -1

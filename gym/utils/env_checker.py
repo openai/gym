@@ -170,37 +170,39 @@ def check_reset_options(env: gym.Env):
         )
 
 
-# Check render cannot be covered by CI
-def check_render(env: gym.Env, headless: bool = False):
-    """Check the declared render modes/fps and the :meth:`render`/:meth:`close` method of the environment.
+def check_render(env: gym.Env, warn: bool = True):
+    """Check the declared render modes/fps of the environment.
 
     Args:
         env: The environment to check
-        headless: Whether to disable render modes that require a graphical interface. False by default.
+        warn: Whether to output additional warnings
     """
     render_modes = env.metadata.get("render_modes")
     if render_modes is None:
-        logger.warn(
-            "No render modes was declared in the environment  (env.metadata['render_modes'] is None or not defined), you may have trouble when calling `.render()`"
-        )
+        if warn:
+            logger.warn(
+                "No render modes was declared in the environment "
+                " (env.metadata['render_modes'] is None or not defined), "
+                "you may have trouble when calling `.render()`"
+            )
 
     render_fps = env.metadata.get("render_fps")
     # We only require `render_fps` if rendering is actually implemented
-    if render_fps is None:
-        logger.warn(
-            "No render fps was declared in the environment (env.metadata['render_fps'] is None or not defined), rendering may occur at inconsistent fps"
-        )
+    if render_fps is None and render_modes is not None and len(render_modes) > 0:
+        if warn:
+            logger.warn(
+                "No render fps was declared in the environment "
+                " (env.metadata['render_fps'] is None or not defined), "
+                "rendering may occur at inconsistent fps"
+            )
 
-    if render_modes is not None:
-        # Don't check render mode that require a
-        # graphical interface (useful for CI)
-        if headless and "human" in render_modes:
-            render_modes.remove("human")
-
-        # Check all declared render modes
-        for mode in render_modes:
-            env.render(mode=mode)
-        env.close()
+    if warn:
+        if not hasattr(env, "render_mode"):  # TODO: raise an error with gym 1.0
+            logger.warn("Environments must define render_mode attribute.")
+        elif env.render_mode is not None and env.render_mode not in render_modes:
+            logger.warn(
+                "The environment was initialized successfully with an unsupported render mode."
+            )
 
 
 def check_env(env: gym.Env, warn: bool = None, skip_render_check: bool = True):
@@ -228,11 +230,11 @@ def check_env(env: gym.Env, warn: bool = None, skip_render_check: bool = True):
     assert hasattr(
         env, "action_space"
     ), "You must specify a action space. https://www.gymlibrary.ml/content/environment_creation/"
-    check_observation_space(env.action_space)
+    check_action_space(env.action_space)
     assert hasattr(
         env, "observation_space"
     ), "You must specify an observation space. https://www.gymlibrary.ml/content/environment_creation/"
-    check_action_space(env.observation_space)
+    check_observation_space(env.observation_space)
 
     # ==== Check the reset method ====
     check_reset_seed(env)

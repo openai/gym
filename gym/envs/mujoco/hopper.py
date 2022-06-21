@@ -5,9 +5,20 @@ from gym.envs.mujoco import mujoco_env
 
 
 class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
-    def __init__(self):
+    metadata = {
+        "render_modes": [
+            "human",
+            "rgb_array",
+            "depth_array",
+            "single_rgb_array",
+            "single_depth_array",
+        ],
+        "render_fps": 125,
+    }
+
+    def __init__(self, **kwargs):
         mujoco_env.MujocoEnv.__init__(
-            self, "hopper.xml", 4, mujoco_bindings="mujoco_py"
+            self, "hopper.xml", 4, mujoco_bindings="mujoco_py", **kwargs
         )
         utils.EzPickle.__init__(self)
 
@@ -15,6 +26,9 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         posbefore = self.sim.data.qpos[0]
         self.do_simulation(a, self.frame_skip)
         posafter, height, ang = self.sim.data.qpos[0:3]
+
+        self.renderer.render_step()
+
         alive_bonus = 1.0
         reward = (posafter - posbefore) / self.dt
         reward += alive_bonus

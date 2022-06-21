@@ -18,6 +18,17 @@ def mass_center(model, sim):
 
 
 class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
+    metadata = {
+        "render_modes": [
+            "human",
+            "rgb_array",
+            "depth_array",
+            "single_rgb_array",
+            "single_depth_array",
+        ],
+        "render_fps": 67,
+    }
+
     def __init__(
         self,
         xml_file="humanoid.xml",
@@ -30,6 +41,7 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         healthy_z_range=(1.0, 2.0),
         reset_noise_scale=1e-2,
         exclude_current_positions_from_observation=True,
+        **kwargs
     ):
         utils.EzPickle.__init__(**locals())
 
@@ -47,7 +59,9 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             exclude_current_positions_from_observation
         )
 
-        mujoco_env.MujocoEnv.__init__(self, xml_file, 5, mujoco_bindings="mujoco_py")
+        mujoco_env.MujocoEnv.__init__(
+            self, xml_file, 5, mujoco_bindings="mujoco_py", **kwargs
+        )
 
     @property
     def healthy_reward(self):
@@ -120,6 +134,8 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
         rewards = forward_reward + healthy_reward
         costs = ctrl_cost + contact_cost
+
+        self.renderer.render_step()
 
         observation = self._get_obs()
         reward = rewards - costs

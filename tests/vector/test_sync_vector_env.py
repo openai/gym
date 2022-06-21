@@ -4,7 +4,7 @@ import pytest
 from gym.envs.registration import EnvSpec
 from gym.spaces import Box, Discrete, MultiDiscrete, Tuple
 from gym.vector.sync_vector_env import SyncVectorEnv
-from tests.envs.spec_list import spec_list
+from tests.envs.utils import all_testing_env_specs
 from tests.vector.utils import (
     CustomSpace,
     assert_rng_equal,
@@ -105,11 +105,11 @@ def test_step_sync_vector_env(use_single_action_space):
 
 
 def test_call_sync_vector_env():
-    env_fns = [make_env("CartPole-v1", i) for i in range(4)]
+    env_fns = [make_env("CartPole-v1", i, render_mode="rgb_array") for i in range(4)]
     try:
         env = SyncVectorEnv(env_fns)
         _ = env.reset()
-        images = env.call("render", mode="rgb_array")
+        images = env.call("render")
         gravity = env.call("gravity")
     finally:
         env.close()
@@ -117,7 +117,8 @@ def test_call_sync_vector_env():
     assert isinstance(images, tuple)
     assert len(images) == 4
     for i in range(4):
-        assert isinstance(images[i], np.ndarray)
+        assert len(images[i]) == 1
+        assert isinstance(images[i][0], np.ndarray)
 
     assert isinstance(gravity, tuple)
     assert len(gravity) == 4
@@ -187,7 +188,9 @@ def test_sync_vector_env_seed():
         assert np.all(env_action == vector_action)
 
 
-@pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
+@pytest.mark.parametrize(
+    "spec", all_testing_env_specs, ids=[spec.id for spec in all_testing_env_specs]
+)
 def test_sync_vector_determinism(spec: EnvSpec, seed: int = 123, n: int = 3):
     """Check that for all environments, the sync vector envs produce the same action samples using the same seeds"""
     env_1 = SyncVectorEnv([make_env(spec.id, seed=seed) for _ in range(n)])

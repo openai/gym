@@ -5,10 +5,21 @@ from gym.envs.mujoco import mujoco_env
 
 
 class PusherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
-    def __init__(self):
+    metadata = {
+        "render_modes": [
+            "human",
+            "rgb_array",
+            "depth_array",
+            "single_rgb_array",
+            "single_depth_array",
+        ],
+        "render_fps": 20,
+    }
+
+    def __init__(self, **kwargs):
         utils.EzPickle.__init__(self)
         mujoco_env.MujocoEnv.__init__(
-            self, "pusher.xml", 5, mujoco_bindings="mujoco_py"
+            self, "pusher.xml", 5, mujoco_bindings="mujoco_py", **kwargs
         )
 
     def step(self, a):
@@ -21,6 +32,9 @@ class PusherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         reward = reward_dist + 0.1 * reward_ctrl + 0.5 * reward_near
 
         self.do_simulation(a, self.frame_skip)
+
+        self.renderer.render_step()
+
         ob = self._get_obs()
         done = False
         return ob, reward, done, dict(reward_dist=reward_dist, reward_ctrl=reward_ctrl)

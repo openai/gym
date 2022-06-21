@@ -5,14 +5,30 @@ from gym.envs.mujoco import mujoco_env
 
 
 class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
-    def __init__(self):
-        mujoco_env.MujocoEnv.__init__(self, "ant.xml", 5, mujoco_bindings="mujoco_py")
+    metadata = {
+        "render_modes": [
+            "human",
+            "rgb_array",
+            "depth_array",
+            "single_rgb_array",
+            "single_depth_array",
+        ],
+        "render_fps": 20,
+    }
+
+    def __init__(self, **kwargs):
+        mujoco_env.MujocoEnv.__init__(
+            self, "ant.xml", 5, mujoco_bindings="mujoco_py", **kwargs
+        )
         utils.EzPickle.__init__(self)
 
     def step(self, a):
         xposbefore = self.get_body_com("torso")[0]
         self.do_simulation(a, self.frame_skip)
         xposafter = self.get_body_com("torso")[0]
+
+        self.renderer.render_step()
+
         forward_reward = (xposafter - xposbefore) / self.dt
         ctrl_cost = 0.5 * np.square(a).sum()
         contact_cost = (

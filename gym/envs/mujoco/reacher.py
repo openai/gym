@@ -5,10 +5,21 @@ from gym.envs.mujoco import mujoco_env
 
 
 class ReacherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
-    def __init__(self):
+    metadata = {
+        "render_modes": [
+            "human",
+            "rgb_array",
+            "depth_array",
+            "single_rgb_array",
+            "single_depth_array",
+        ],
+        "render_fps": 50,
+    }
+
+    def __init__(self, **kwargs):
         utils.EzPickle.__init__(self)
         mujoco_env.MujocoEnv.__init__(
-            self, "reacher.xml", 2, mujoco_bindings="mujoco_py"
+            self, "reacher.xml", 2, mujoco_bindings="mujoco_py", **kwargs
         )
 
     def step(self, a):
@@ -17,6 +28,9 @@ class ReacherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         reward_ctrl = -np.square(a).sum()
         reward = reward_dist + reward_ctrl
         self.do_simulation(a, self.frame_skip)
+
+        self.renderer.render_step()
+
         ob = self._get_obs()
         done = False
         return ob, reward, done, dict(reward_dist=reward_dist, reward_ctrl=reward_ctrl)

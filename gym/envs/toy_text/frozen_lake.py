@@ -8,6 +8,7 @@ import numpy as np
 from gym import Env, spaces, utils
 from gym.envs.toy_text.utils import categorical_sample
 from gym.error import DependencyNotInstalled
+from gym.utils.renderer import Renderer
 
 LEFT = 0
 DOWN = 1
@@ -103,12 +104,20 @@ class FrozenLakeEnv(Env):
     ### Arguments
 
     ```
-    gym.make('FrozenLake-v1', desc=None,map_name="4x4", is_slippery=True)
+    gym.make('FrozenLake-v1', desc=None, map_name="4x4", is_slippery=True)
     ```
 
     `desc`: Used to specify custom map for frozen lake. For example,
 
         desc=["SFFF", "FHFH", "FFFH", "HFFG"].
+
+        A random generated map can be specified by calling the function `generate_random_map`. For example,
+
+        ```
+        from gym.envs.toy_text.frozen_lake import generate_random_map
+
+        gym.make('FrozenLake-v1', desc=generate_random_map(size=8))
+        ```
 
     `map_name`: ID to use any of the preloaded maps.
 
@@ -144,9 +153,18 @@ class FrozenLakeEnv(Env):
     * v0: Initial versions release (1.0.0)
     """
 
-    metadata = {"render_modes": ["human", "ansi", "rgb_array"], "render_fps": 4}
+    metadata = {
+        "render_modes": ["human", "ansi", "rgb_array", "single_rgb_array"],
+        "render_fps": 4,
+    }
 
-    def __init__(self, desc=None, map_name="4x4", is_slippery=True):
+    def __init__(
+        self,
+        render_mode: Optional[str] = None,
+        desc=None,
+        map_name="4x4",
+        is_slippery=True,
+    ):
         if desc is None and map_name is None:
             desc = generate_random_map()
         elif desc is None:
@@ -205,6 +223,9 @@ class FrozenLakeEnv(Env):
         self.observation_space = spaces.Discrete(nS)
         self.action_space = spaces.Discrete(nA)
 
+        self.render_mode = render_mode
+        self.renderer = Renderer(self.render_mode, self._render)
+
         # pygame utils
         self.window_size = (min(64 * ncol, 512), min(64 * nrow, 512))
         self.window_surface = None
@@ -222,6 +243,9 @@ class FrozenLakeEnv(Env):
         p, s, r, d = transitions[i]
         self.s = s
         self.lastaction = a
+
+        self.renderer.render_step()
+
         return (int(s), r, d, {"prob": p})
 
     def reset(
@@ -235,19 +259,28 @@ class FrozenLakeEnv(Env):
         self.s = categorical_sample(self.initial_state_distrib, self.np_random)
         self.lastaction = None
 
+        self.renderer.reset()
+        self.renderer.render_step()
+
         if not return_info:
             return int(self.s)
         else:
             return int(self.s), {"prob": 1}
 
     def render(self, mode="human"):
-        desc = self.desc.tolist()
-        if mode == "ansi":
-            return self._render_text(desc)
+        if self.render_mode is not None:
+            return self.renderer.get_renders()
         else:
-            return self._render_gui(desc, mode)
+            return self._render(mode)
 
-    def _render_gui(self, desc, mode):
+    def _render(self, mode="human"):
+        assert mode in self.metadata["render_modes"]
+        if mode == "ansi":
+            return self._render_text()
+        elif mode in {"human", "rgb_array", "single_rgb_array"}:
+            return self._render_gui(mode)
+
+    def _render_gui(self, mode):
         try:
             import pygame
         except ImportError:
@@ -261,7 +294,7 @@ class FrozenLakeEnv(Env):
             pygame.display.set_caption("Frozen Lake")
             if mode == "human":
                 self.window_surface = pygame.display.set_mode(self.window_size)
-            else:  # rgb_array
+            elif mode in {"rgb_array", "single_rgb_array"}:
                 self.window_surface = pygame.Surface(self.window_size)
         if self.clock is None:
             self.clock = pygame.time.Clock()
@@ -315,6 +348,7 @@ class FrozenLakeEnv(Env):
         goal_img = pygame.transform.scale(self.goal_img, (cell_width, cell_height))
         start_img = pygame.transform.scale(self.start_img, (small_cell_w, small_cell_h))
 
+        desc = self.desc.tolist()
         for y in range(self.nrow):
             for x in range(self.ncol):
                 rect = (x * cell_width, y * cell_height, cell_width, cell_height)
@@ -351,7 +385,7 @@ class FrozenLakeEnv(Env):
             pygame.event.pump()
             pygame.display.update()
             self.clock.tick(self.metadata["render_fps"])
-        else:  # rgb_array
+        elif mode in {"rgb_array", "single_rgb_array"}:
             return np.transpose(
                 np.array(pygame.surfarray.pixels3d(self.window_surface)), axes=(1, 0, 2)
             )
@@ -365,7 +399,8 @@ class FrozenLakeEnv(Env):
             big_rect[1] + offset_h,
         )
 
-    def _render_text(self, desc):
+    def _render_text(self):
+        desc = self.desc.tolist()
         outfile = StringIO()
 
         row, col = self.s // self.ncol, self.s % self.ncol

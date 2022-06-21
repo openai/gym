@@ -5,9 +5,20 @@ from gym.envs.mujoco import mujoco_env
 
 
 class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
-    def __init__(self):
+    metadata = {
+        "render_modes": [
+            "human",
+            "rgb_array",
+            "depth_array",
+            "single_rgb_array",
+            "single_depth_array",
+        ],
+        "render_fps": 25,
+    }
+
+    def __init__(self, **kwargs):
         mujoco_env.MujocoEnv.__init__(
-            self, "swimmer.xml", 4, mujoco_bindings="mujoco_py"
+            self, "swimmer.xml", 4, mujoco_bindings="mujoco_py", **kwargs
         )
         utils.EzPickle.__init__(self)
 
@@ -16,6 +27,9 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         xposbefore = self.sim.data.qpos[0]
         self.do_simulation(a, self.frame_skip)
         xposafter = self.sim.data.qpos[0]
+
+        self.renderer.render_step()
+
         reward_fwd = (xposafter - xposbefore) / self.dt
         reward_ctrl = -ctrl_cost_coeff * np.square(a).sum()
         reward = reward_fwd + reward_ctrl

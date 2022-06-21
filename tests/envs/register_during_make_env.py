@@ -1,6 +1,7 @@
 import gym
 
 
+# todo, remove, use a generic testing environment
 class RegisterDuringMakeEnv(gym.Env):
     """Used in `test_registration.py` to check if `env.make` can import and register an env"""
 

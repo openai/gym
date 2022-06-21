@@ -4,14 +4,16 @@ import gym
 from gym.envs.classic_control import CartPoleEnv
 from gym.error import ResetNeeded
 from gym.wrappers import OrderEnforcing
-from tests.envs.spec_list import spec_list
+from tests.envs.utils import all_testing_env_specs
 from tests.wrappers.utils import has_wrapper
 
 
-@pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
+@pytest.mark.parametrize(
+    "spec", all_testing_env_specs, ids=[spec.id for spec in all_testing_env_specs]
+)
 def test_gym_make_order_enforcing(spec):
     """Checks that gym.make wrappers the environment with the OrderEnforcing wrapper."""
-    env = gym.make(spec.id)
+    env = gym.make(spec.id, disable_env_checker=True)
 
     assert has_wrapper(env, OrderEnforcing)
 
