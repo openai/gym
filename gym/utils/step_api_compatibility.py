@@ -93,15 +93,6 @@ def step_to_new_api(
                 terminateds.append(True)
                 truncateds.append(True)
 
-            # removing "TimeLimit.truncated" from info
-            if isinstance(infos, list):
-                infos[i].pop(["TimeLimit.truncated"], None)
-
-        # if info dict vector, can only pop after all envs are processed (also for single env)
-        if isinstance(infos, dict):
-            infos.pop("TimeLimit.truncated", None)
-            infos.pop("_TimeLimit.truncated", None)
-
         return (
             observations,
             rewards,
@@ -152,13 +143,19 @@ def step_to_old_api(
                             infos["TimeLimit.truncated"] = np.zeros(n_envs, dtype=bool)
                             infos["_TimeLimit.truncated"] = np.zeros(n_envs, dtype=bool)
 
-                        infos["TimeLimit.truncated"][i] = not terminateds[i]
+                        infos["TimeLimit.truncated"][i] = (
+                            not terminateds[i] or infos["TimeLimit.truncated"][i]
+                        )
                         infos["_TimeLimit.truncated"][i] = True
                     else:
                         # if vector info is a list
-                        infos[i]["TimeLimit.truncated"] = not terminateds[i]
+                        infos[i]["TimeLimit.truncated"] = not terminateds[i] or infos[
+                            i
+                        ].get("TimeLimit.truncated", False)
                 else:
-                    infos["TimeLimit.truncated"] = not terminateds[i]
+                    infos["TimeLimit.truncated"] = not terminateds[i] or infos.get(
+                        "TimeLimit.truncated", False
+                    )
         return (
             observations,
             rewards,
