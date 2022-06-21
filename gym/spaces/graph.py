@@ -1,9 +1,7 @@
 """Implementation of a space that represents graph information where nodes and edges can be represented with euclidean space."""
 from collections import namedtuple
 from typing import NamedTuple, Optional, Sequence, Union
-
 import numpy as np
-
 from gym.spaces.box import Box
 from gym.spaces.discrete import Discrete
 from gym.spaces.multi_discrete import MultiDiscrete
@@ -98,19 +96,27 @@ class Graph(Space):
         else:
             return None
 
-    def sample(self) -> NamedTuple:
+    def sample(
+        self, num_nodes: Union[None, int] = None, num_edges: Union[None, int] = None
+    ) -> NamedTuple:
         """Generates a single sample graph with num_nodes between 1 and 10 sampled from the Graph.
 
         Returns:
             A NamedTuple representing a graph with attributes .nodes, .edges, and .edge_links.
         """
-        num_nodes = self.np_random.integers(low=1, high=10)
+        if num_nodes is None:
+            num_nodes = self.np_random.integers(low=1, high=10)
+        else:
+            assert num_nodes > 0, f"num_nodes must be more than 0, give {num_nodes}."
 
         # we only have edges when we have at least 2 nodes
         num_edges = 0
-        if num_nodes > 1:
-            # maximal number of edges is (n*n) allowing self connections and two way is allowed
-            num_edges = self.np_random.integers(num_nodes * num_nodes)
+        if num_edges is None:
+            if num_nodes > 1:
+                # maximal number of edges is (n*(n-1)) allowing self connections and two way is allowed
+                num_edges = self.np_random.integers(num_nodes * (num_nodes - 1))
+        else:
+            assert num_edges > 0, f"num_edges must be more than 0, give {num_nodes}."
 
         node_sample_space = self._generate_sample_space(self.node_space, num_nodes)
         edge_sample_space = self._generate_sample_space(self.edge_space, num_edges)
