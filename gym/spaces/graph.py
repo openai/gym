@@ -1,6 +1,6 @@
 """Implementation of a space that represents graph information where nodes and edges can be represented with euclidean space."""
 from collections import namedtuple
-from typing import NamedTuple, Optional, Sequence, Tuple, Union
+from typing import NamedTuple, Optional, Sequence, Union
 
 import numpy as np
 
@@ -92,39 +92,36 @@ class Graph(Space):
                 f"Only Box and Discrete can be accepted as a base_space, got {type(base_space)}, you should not have gotten this error."
             )
 
-    def sample(
-        self, mask: Optional[Tuple[Optional[np.ndarray], Optional[np.ndarray]]] = None
-    ) -> NamedTuple:
+    def sample(self, mask: None = None) -> NamedTuple:
         """Generates a single sample graph with num_nodes between 1 and 10 sampled from the Graph.
 
         Args:
-            mask: An optional tuple for the node space mask and the edge space mask (only valid for Discrete spaces).
-                The expected shape for the node mask is ``node_space.n`` and edge mask is ``edge_space.n``.
+            mask: As the number of nodes to determined during sample, it is not possible to know the mask beforehand.
 
         Returns:
             A NamedTuple representing a graph with attributes .nodes, .edges, and .edge_links.
         """
-        node_mask, edge_mask = mask if mask is not None else (None, None)
+        if mask is not None:
+            raise NotImplementedError(
+                "Graph.sample(mask) is not implemented as the number of nodes is determined within the function."
+            )
+
         num_nodes = self.np_random.integers(low=1, high=10)
 
         # we only have edges when we have at least 2 nodes
         num_edges = 0
         if num_nodes > 1:
-            # maximal number of edges is (n*n) allowing self connections and two way is allowed
+            # maximal number of edges is (n*n) allowing self connections and two-way is allowed
             num_edges = self.np_random.integers(num_nodes * num_nodes)
 
         node_sample_space = self._generate_sample_space(self.node_space, num_nodes)
         edge_sample_space = self._generate_sample_space(self.edge_space, num_edges)
 
         sampled_nodes = (
-            node_sample_space.sample(node_mask)
-            if node_sample_space is not None
-            else None
+            node_sample_space.sample() if node_sample_space is not None else None
         )
         sampled_edges = (
-            edge_sample_space.sample(edge_mask)
-            if edge_sample_space is not None
-            else None
+            edge_sample_space.sample() if edge_sample_space is not None else None
         )
 
         sampled_edge_links = None

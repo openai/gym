@@ -354,7 +354,6 @@ def test_space_sample_mask(space, mask, n_trials: int = 100):
 
         def _exp_freq_fn(_dim: int, _mask: np.ndarray):
             if np.any(_mask == 1):
-                print(f"{_dim=}, {_mask=}")
                 assert _dim == len(_mask)
                 return np.ones(_dim) * (n_trials / np.sum(_mask)) * _mask
             else:
@@ -419,6 +418,17 @@ def test_space_sample_mask(space, mask, n_trials: int = 100):
                 "a": (None, np.array([1, 0, 0], dtype=np.int8)),
                 "b": np.array([0, 1, 1], dtype=np.int8),
             },
+        ),
+        (Graph(node_space=Discrete(5), edge_space=Discrete(3)), None),
+        (
+            Graph(node_space=Discrete(3), edge_space=Box(low=0, high=1, shape=(5,))),
+            None,
+        ),
+        (
+            Graph(
+                node_space=Box(low=-100, high=100, shape=(3,)), edge_space=Discrete(3)
+            ),
+            None,
         ),
     ],
 )
