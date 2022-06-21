@@ -36,12 +36,12 @@ class InvertedPendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     The observation is a `ndarray` with shape `(4,)` where the elements correspond to the following:
 
-    | Num | Observation                                   | Min  | Max | Name (in corresponding XML file) | Joint | Unit                     |
-    |-----|-----------------------------------------------|------|-----|----------------------------------|-------|--------------------------|
-    | 0   | position of the cart along the linear surface | -Inf | Inf | slider                           | slide | position (m)             |
-    | 1   | vertical angle of the pole on the cart        | -Inf | Inf | hinge                            | hinge | angle (rad)              |
-    | 2   | linear velocity of the cart                   | -Inf | Inf | slider                           | slide | velocity (m/s)           |
-    | 3   | angular velocity of the pole on the cart      | -Inf | Inf | hinge                            | hinge | angular velocity (rad/s) |
+    | Num | Observation                                   | Min  | Max | Name (in corresponding XML file) | Joint | Unit                      |
+    | --- | --------------------------------------------- | ---- | --- | -------------------------------- | ----- | ------------------------- |
+    | 0   | position of the cart along the linear surface | -Inf | Inf | slider                           | slide | position (m)              |
+    | 1   | vertical angle of the pole on the cart        | -Inf | Inf | hinge                            | hinge | angle (rad)               |
+    | 2   | linear velocity of the cart                   | -Inf | Inf | slider                           | slide | velocity (m/s)            |
+    | 3   | angular velocity of the pole on the cart      | -Inf | Inf | hinge                            | hinge | anglular velocity (rad/s) |
 
 
     ### Rewards
@@ -64,21 +64,14 @@ class InvertedPendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     ### Arguments
 
-    No additional arguments are currently supported (in v2 and lower),
-    but modifications can be made to the XML file in the assets folder
-    (or by changing the path to a modified XML file in another folder).
+    No additional arguments are currently supported.
 
-    ```
-    env = gym.make('InvertedPendulum-v2')
-    ```
-
-    There is no v3 for InvertedPendulum, unlike the robot environments where a
-    v3 and beyond take gym.make kwargs such as xml_file, ctrl_cost_weight, reset_noise_scale etc.
-
-    There is a v4 version that uses the mujoco-bindings
     ```
     env = gym.make('InvertedPendulum-v4')
     ```
+    There is no v3 for InvertedPendulum, unlike the robot environments where a
+    v3 and beyond take gym.make kwargs such as xml_file, ctrl_cost_weight, reset_noise_scale etc.
+
 
     ### Version History
 
