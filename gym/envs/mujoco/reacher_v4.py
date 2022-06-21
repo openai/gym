@@ -36,8 +36,8 @@ class ReacherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     | 1   | cosine of the angle of the second arm                                                          | -Inf | Inf | cos(joint1)                      | hinge | unitless                 |
     | 2   | sine of the angle of the first arm                                                             | -Inf | Inf | cos(joint0)                      | hinge | unitless                 |
     | 3   | sine of the angle of the second arm                                                            | -Inf | Inf | cos(joint1)                      | hinge | unitless                 |
-    | 4   | x-coorddinate of the target                                                                    | -Inf | Inf | target_x                         | slide | position (m)             |
-    | 5   | y-coorddinate of the target                                                                    | -Inf | Inf | target_y                         | slide | position (m)             |
+    | 4   | x-coordinate of the target                                                                    | -Inf | Inf | target_x                         | slide | position (m)             |
+    | 5   | y-coordinate of the target                                                                    | -Inf | Inf | target_y                         | slide | position (m)             |
     | 6   | angular velocity of the first arm                                                              | -Inf | Inf | joint0                           | hinge | angular velocity (rad/s) |
     | 7   | angular velocity of the second arm                                                             | -Inf | Inf | joint1                           | hinge | angular velocity (rad/s) |
     | 8   | x-value of position_fingertip - position_target                                                | -Inf | Inf | NA                               | slide | position (m)             |
