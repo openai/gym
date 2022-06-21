@@ -17,7 +17,7 @@ from gym.utils.passive_env_checker import (
 from tests.testing_env import GenericTestEnv
 
 
-def modified_space(space: spaces.Space, attribute: str, value):
+def _modify_space(space: spaces.Space, attribute: str, value):
     setattr(space, attribute, value)
     return space
 
@@ -63,28 +63,28 @@ def modified_space(space: spaces.Space, attribute: str, value):
         ],
         [
             AssertionError,
-            modified_space(spaces.Box(np.zeros(2), np.ones(2)), "low", np.zeros(3)),
+            _modify_space(spaces.Box(np.zeros(2), np.ones(2)), "low", np.zeros(3)),
             "Agent's observation_space.low and observation_space have different shapes, low shape: (3,), box shape: (2,)",
         ],
         [
             AssertionError,
-            modified_space(spaces.Box(np.zeros(2), np.ones(2)), "high", np.ones(3)),
+            _modify_space(spaces.Box(np.zeros(2), np.ones(2)), "high", np.ones(3)),
             "Agent's observation_space.high and observation_space have different shapes, high shape: (3,), box shape: (2,)",
         ],
         # ==== Other observation spaces (Discrete, MultiDiscrete, MultiBinary, Tuple, Dict)
         [
             AssertionError,
-            modified_space(spaces.Discrete(5), "n", -1),
+            _modify_space(spaces.Discrete(5), "n", -1),
             "Discrete observation space's number of dimensions must be positive, actual dimensions: -1",
         ],
         [
             AssertionError,
-            modified_space(spaces.MultiDiscrete([2, 2]), "_shape", (2, -1)),
+            _modify_space(spaces.MultiDiscrete([2, 2]), "_shape", (2, -1)),
             "All dimensions of multi-discrete observation space must be greater than 0, actual shape: (2, -1)",
         ],
         [
             AssertionError,
-            modified_space(spaces.MultiBinary((2, 2)), "_shape", (2, -1)),
+            _modify_space(spaces.MultiBinary((2, 2)), "_shape", (2, -1)),
             "All dimensions of multi-binary observation space must be greater than 0, actual shape: (2, -1)",
         ],
         [
@@ -132,28 +132,28 @@ def test_check_observation_space(test, space, message: str):
         ],
         [
             AssertionError,
-            modified_space(spaces.Box(np.zeros(2), np.ones(2)), "low", np.zeros(3)),
+            _modify_space(spaces.Box(np.zeros(2), np.ones(2)), "low", np.zeros(3)),
             "Agent's action_space.low and action_space have different shapes, low shape: (3,), box shape: (2,)",
         ],
         [
             AssertionError,
-            modified_space(spaces.Box(np.zeros(2), np.ones(2)), "high", np.ones(3)),
+            _modify_space(spaces.Box(np.zeros(2), np.ones(2)), "high", np.ones(3)),
             "Agent's action_space.high and action_space have different shapes, high shape: (3,), box shape: (2,)",
         ],
         # ==== Other observation spaces (Discrete, MultiDiscrete, MultiBinary, Tuple, Dict)
         [
             AssertionError,
-            modified_space(spaces.Discrete(5), "n", -1),
+            _modify_space(spaces.Discrete(5), "n", -1),
             "Discrete action space's number of dimensions must be positive, actual dimensions: -1",
         ],
         [
             AssertionError,
-            modified_space(spaces.MultiDiscrete([2, 2]), "_shape", (2, -1)),
+            _modify_space(spaces.MultiDiscrete([2, 2]), "_shape", (2, -1)),
             "All dimensions of multi-discrete action space must be greater than 0, actual shape: (2, -1)",
         ],
         [
             AssertionError,
-            modified_space(spaces.MultiBinary((2, 2)), "_shape", (2, -1)),
+            _modify_space(spaces.MultiBinary((2, 2)), "_shape", (2, -1)),
             "All dimensions of multi-binary action space must be greater than 0, actual shape: (2, -1)",
         ],
         [
@@ -453,6 +453,7 @@ def test_passive_env_step_checker(test, func, message):
 )
 def test_passive_render_checker(test, env: GenericTestEnv, message: str):
     """Tests the passive render checker."""
+    print(env.metadata)
     if test is UserWarning:
         with pytest.warns(
             UserWarning, match=f"^\\x1b\\[33mWARN: {re.escape(message)}\\x1b\\[0m$"
