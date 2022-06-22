@@ -175,8 +175,17 @@ class BlackjackEnv(gym.Env):
         self.dealer = draw_hand(self.np_random)
         self.player = draw_hand(self.np_random)
 
-        self.dealer_top_card_suit = None
-        self.dealer_top_card_value_str = None
+        _, dealer_card_value, _ = self._get_obs()
+
+        suits = ["C", "D", "H", "S"]
+        self.dealer_top_card_suit = self.np_random.choice(suits)
+
+        if dealer_card_value == 1:
+            self.dealer_top_card_value_str = "A"
+        elif dealer_card_value == 10:
+            self.dealer_top_card_value_str = self.np_random.choice(["J", "Q", "K"])
+        else:
+            self.dealer_top_card_value_str = str(dealer_card_value)
 
         self.renderer.reset()
         self.renderer.render_step()
@@ -242,18 +251,6 @@ class BlackjackEnv(gym.Env):
             "Dealer: " + str(dealer_card_value), True, white
         )
         dealer_text_rect = self.screen.blit(dealer_text, (spacing, spacing))
-
-        if self.dealer_top_card_suit is None:
-            suits = ["C", "D", "H", "S"]
-            self.dealer_top_card_suit = self.np_random.choice(suits)
-
-        if dealer_card_value == 1:
-            self.dealer_top_card_value_str = "A"
-        elif dealer_card_value == 10:
-            if self.dealer_top_card_value_str is None:
-                self.dealer_top_card_value_str = self.np_random.choice(["J", "Q", "K"])
-        else:
-            self.dealer_top_card_value_str = str(dealer_card_value)
 
         def scale_card_img(card_img):
             return pygame.transform.scale(card_img, (card_img_width, card_img_height))
