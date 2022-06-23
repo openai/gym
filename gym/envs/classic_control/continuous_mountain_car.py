@@ -29,12 +29,6 @@ LIMIT_LOW = -1.2
 LIMIT_HIGH = 0.6
 
 
-DEFAULT_LOW = -0.6
-DEFAULT_HIGH = -0.4
-LIMIT_LOW = -1.2
-LIMIT_HIGH = 0.6
-
-
 class Continuous_MountainCarEnv(gym.Env):
     """
     ### Description

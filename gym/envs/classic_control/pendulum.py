@@ -14,10 +14,6 @@ DEFAULT_X = np.pi
 DEFAULT_Y = 1.0
 
 
-DEFAULT_X = np.pi
-DEFAULT_Y = 1.0
-
-
 class PendulumEnv(gym.Env):
     """
        ### Description
@@ -167,7 +163,6 @@ class PendulumEnv(gym.Env):
             # to be non-negative: (0., 1.).
             x = max(0.0, min(1.0, x))
             y = max(0.0, min(1.0, y))
-            assert x < y
             high = np.array([x, y])
         low = -high  # We enforce symmetric limits.
         self.state = self.np_random.uniform(low=low, high=high)

@@ -1,4 +1,3 @@
-import numpy as np
 import pytest
 
 import gym
@@ -90,26 +89,35 @@ def test_frozenlake_dfs_map_generation(map_size: int):
         "CartPole-v1",
         "MountainCar-v0",
         "MountainCarContinuous-v0",
-        "Pendulum-v1",
     ],
 )
-@pytest.mark.parametrize("low_high", [None, (-1.0, 1.0), (0.0, 2.0), (-2.0, 1.0)])
-def test_customizable_resets(env_id, low_high):
+@pytest.mark.parametrize(
+    "option",
+    [
+        None,
+        {"low": -1.0, "high": 1.0},
+        {"low": 0.0, "high": 2.0},
+        {"low": -2.0, "high": 1.0},
+    ],
+)
+def test_classic_control_resets(env_id, option):
     env = gym.make(env_id, disable_env_checker=True)
 
     # For each environment, make sure we can reset and step without out-of-bound errors.
-    if low_high is None:
-        env.reset()
-    else:
-        low, high = low_high
+    obs = env.reset(options=option)
+    assert obs in env.observation_space
 
-        if env == "pendulum":
-            # Pendulum is initialized a little differently, where we specify the
-            # x and y values for the upper limit (and lower limit is just the negative of it).
-            obs = env.reset(options={"x": low, "y": high})
-        else:
-            obs = env.reset(options={"low": low, "high": high})
+    obs, _, _, _ = env.step(env.action_space.sample())
+    assert obs in env.observation_space
 
-        assert np.all(low <= obs) and np.all(obs <= high)
-        obs = env.step(env.action_space.sample())
-        assert np.all(low <= obs) and np.all(obs <= high)
+
+@pytest.mark.parametrize(
+    "option", [None, {"x": -1.0, "y": 1.0}, {"x": 0.0, "y": 2.0}, {"x": -2.0, "y": 1.0}]
+)
+def test_pendulum_reset(option):
+    env = gym.make("Pendulum-v1", disable_env_checker=True)
+    obs = env.reset(options=option)
+    assert obs in env.observation_space
+
+    obs, _, _, _ = env.step(env.action_space.sample())
+    assert obs in env.observation_space
