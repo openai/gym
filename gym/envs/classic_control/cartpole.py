@@ -19,6 +19,12 @@ LIMIT_LOW = -0.2
 LIMIT_HIGH = 0.2
 
 
+DEFAULT_LOW = -0.05
+DEFAULT_HIGH = 0.05
+LIMIT_LOW = -0.2
+LIMIT_HIGH = 0.2
+
+
 class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
     """
     ### Description

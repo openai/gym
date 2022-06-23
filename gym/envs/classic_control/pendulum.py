@@ -14,6 +14,10 @@ DEFAULT_X = np.pi
 DEFAULT_Y = 1.0
 
 
+DEFAULT_X = np.pi
+DEFAULT_Y = 1.0
+
+
 class PendulumEnv(gym.Env):
     """
        ### Description

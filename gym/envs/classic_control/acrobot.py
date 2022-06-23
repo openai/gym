@@ -28,6 +28,12 @@ LIMIT_LOW = -1.0
 LIMIT_HIGH = 1.0
 
 
+DEFAULT_LOW = -0.1
+DEFAULT_HIGH = 0.1
+LIMIT_LOW = -1.0
+LIMIT_HIGH = 1.0
+
+
 class AcrobotEnv(core.Env):
     """
     ### Description
