@@ -1,12 +1,10 @@
 import numpy as np
 import pytest
-from typing import Optional
 
 import gym
 from gym.envs.box2d import BipedalWalker
 from gym.envs.box2d.lunar_lander import demo_heuristic_lander
 from gym.envs.toy_text.frozen_lake import generate_random_map
-import numpy as np
 
 
 def test_lunar_lander_heuristics():
