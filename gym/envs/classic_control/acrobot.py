@@ -23,6 +23,12 @@ __author__ = "Christoph Dann <cdann@cdann.de>"
 from gym.utils.renderer import Renderer
 
 
+DEFAULT_LOW = -0.1
+DEFAULT_HIGH = 0.1
+LIMIT_LOW = -1.0
+LIMIT_HIGH = 1.0
+
+
 class AcrobotEnv(core.Env):
     """
     ### Description
@@ -187,7 +193,20 @@ class AcrobotEnv(core.Env):
         options: Optional[dict] = None
     ):
         super().reset(seed=seed)
-        self.state = self.np_random.uniform(low=-0.1, high=0.1, size=(4,)).astype(
+        if options is None:
+            low = DEFAULT_LOW
+            high = DEFAULT_HIGH
+        else:
+          low = options.pop('low', DEFAULT_LOW)
+          high = options.pop('high', DEFAULT_HIGH)
+          # We expect only numerical inputs.
+          assert type(low) == int or float
+          assert type(high) == int or float
+          # Since the same boundaries are used for all observations, we set the
+          # limits according to the most restrictive (cos/sin): (-1., 1.).
+          low = max(low, LIMIT_LOW)
+          high = min(high, LIMIT_HIGH)
+        self.state = self.np_random.uniform(low=low, high=high, size=(4,)).astype(
             np.float32
         )
 
