@@ -25,6 +25,9 @@ def _short_repr(arr: np.ndarray) -> str:
     return str(arr)
 
 
+BOX_SHAPE_TYPE = Tuple[Union[int, "BOX_SHAPE_TYPE"], ...]
+
+
 class Box(Space[np.ndarray]):
     r"""A (possibly unbounded) box in :math:`\mathbb{R}^n`.
 
@@ -79,6 +82,17 @@ class Box(Space[np.ndarray]):
         # determine shape if it isn't provided directly
         if shape is not None:
             shape = tuple(shape)
+
+            def _assert_shape(_shape):
+                if isinstance(_shape, tuple):
+                    for sub_shape in _shape:
+                        _assert_shape(sub_shape)
+                else:
+                    assert np.issubdtype(
+                        type(_shape), np.integer
+                    ), f"Expect shape to be tuple or integer, actual type: {type(_shape)}"
+
+            _assert_shape(shape)
         elif isinstance(low, np.ndarray):
             shape = low.shape
         elif isinstance(high, np.ndarray):
@@ -91,7 +105,6 @@ class Box(Space[np.ndarray]):
             raise ValueError(
                 f"Box shape is inferred from low and high, expect their type to be np.ndarray or np.integer, actual type low: {type(low)}, high: {type(high)}"
             )
-        assert isinstance(shape, tuple) and all(isinstance(dim, int) for dim in shape)
 
         # Capture the boundedness information before replacing np.inf with get_inf
         _low = np.full(shape, low, dtype=float) if np.isscalar(low) else low
@@ -123,7 +136,7 @@ class Box(Space[np.ndarray]):
         super().__init__(self.shape, self.dtype, seed)
 
     @property
-    def shape(self) -> Tuple[int, ...]:
+    def shape(self) -> BOX_SHAPE_TYPE:
         """Has stricter type than gym.Space - never None."""
         return self._shape
 
