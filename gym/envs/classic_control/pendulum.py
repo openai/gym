@@ -152,8 +152,8 @@ class PendulumEnv(gym.Env):
           x = options.pop('x', DEFAULT_X)
           y = options.pop('y', DEFAULT_Y)
           # We expect only numerical inputs.
-          assert type(tmp_low) == int or float
-          assert type(tmp_high) == int or float
+          assert type(x) == int or float
+          assert type(y) == int or float
           # Since the same boundaries are used for all observations, we set the
           # limits according to the most restrictive (sin/cos). Since these are
           # the values that will be used for the `high` variable, we enforce them
