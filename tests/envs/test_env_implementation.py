@@ -1,9 +1,11 @@
 import pytest
+from typing import Optional
 
 import gym
 from gym.envs.box2d import BipedalWalker
 from gym.envs.box2d.lunar_lander import demo_heuristic_lander
 from gym.envs.toy_text.frozen_lake import generate_random_map
+import numpy as np
 
 
 def test_lunar_lander_heuristics():
@@ -80,3 +82,34 @@ def test_frozenlake_dfs_map_generation(map_size: int):
                     if new_frozenlake[new_row][new_col] not in "#H":
                         frontier.append((new_row, new_col))
     raise AssertionError("No path through the frozenlake was found.")
+
+
+@pytest.mark.parametrize("low_high", [None, (-1.0, 1.0), (0., 2.), (-2., 1.)])
+def test_customizable_resets(low_high: Optional[list]):
+    envs = {
+        'acrobot': gym.make('Acrobot-v1'),
+        'cartpole': gym.make('CartPole-v1'),
+        'mountaincar': gym.make('MountainCar-v0'),
+        'mountaincar_continuous': gym.make('MountainCarContinuous-v0'),
+        'pendulum': gym.make('Pendulum-v1'),
+    }
+    for env in envs:
+        # For each environment, make sure we can reset and step without out-of-bound
+        # errors.
+        if low_high is None:
+            envs[env].reset()
+        else:
+            low, high = low_high
+            for i in range(15):
+                if env == 'pendulum':
+                    # Pendulum is initialized a little differently, where we specify the
+                    # x and y values for the upper limit (and lower limit is just the
+                    # negative of it).
+                    envs[env].reset(options={'x': low, 'y': high})
+                else:
+                    envs[env].reset(options={'low': low, 'high': high})
+                    assert np.all((envs[env].state >= low) & (envs[env].state <+ high))
+                if env.endswith('continuous') or env == 'pendulum':
+                    envs[env].step([0])
+                else:
+                    envs[env].step(0)

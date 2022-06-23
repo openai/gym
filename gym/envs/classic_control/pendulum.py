@@ -11,6 +11,10 @@ from gym.error import DependencyNotInstalled
 from gym.utils.renderer import Renderer
 
 
+DEFAULT_X = np.pi
+DEFAULT_Y = 1.0
+
+
 class PendulumEnv(gym.Env):
     """
        ### Description
@@ -142,8 +146,24 @@ class PendulumEnv(gym.Env):
         options: Optional[dict] = None
     ):
         super().reset(seed=seed)
-        high = np.array([np.pi, 1])
-        self.state = self.np_random.uniform(low=-high, high=high)
+        if options is None:
+            high = np.array([np.pi, 1])
+        else:
+            x = options.pop('x', DEFAULT_X)
+            y = options.pop('y', DEFAULT_Y)
+            # We expect only numerical inputs.
+            assert type(x) == int or float
+            assert type(y) == int or float
+            # Since the same boundaries are used for all observations, we set the
+            # limits according to the most restrictive (sin/cos). Since these are
+            # the values that will be used for the `high` variable, we enforce them
+            # to be non-negative: (0., 1.).
+            x = max(0.0, min(1.0, x))
+            y = max(0.0, min(1.0, y))
+            assert x < y
+            high = np.array([x, y])
+        low = -high  # We enforce symmetric limits.
+        self.state = self.np_random.uniform(low=low, high=high)
         self.last_u = None
 
         self.renderer.reset()
