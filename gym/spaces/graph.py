@@ -91,20 +91,20 @@ class Graph(Space):
 
     def sample(
         self,
-        num_nodes: int,
-        num_edges: Optional[int] = None,
         mask: Optional[
             Tuple[Optional[SAMPLE_MASK_TYPE], Optional[SAMPLE_MASK_TYPE]]
         ] = None,
+        num_nodes: int = 10,
+        num_edges: Optional[int] = None,
     ) -> NamedTuple:
         """Generates a single sample graph with num_nodes between 1 and 10 sampled from the Graph.
 
         Args:
-            num_nodes: The number of nodes that will be sampled
-            num_edges: An optional number of edges, otherwise, a random number between 0 and `num_nodes`^2
             mask: An optional tuple of optional node and edge mask that is only possible with Discrete spaces
                 (Box spaces don't support sample masks).
                 If no `num_edges` is provided then the `edge_mask` is multiplied by the number of edges
+            num_nodes: The number of nodes that will be sampled, the default is 10 nodes
+            num_edges: An optional number of edges, otherwise, a random number between 0 and `num_nodes`^2
 
         Returns:
             A NamedTuple representing a graph with attributes .nodes, .edges, and .edge_links.
@@ -125,7 +125,8 @@ class Graph(Space):
                 num_edges = self.np_random.integers(num_nodes * num_nodes)
             else:
                 num_edges = 0
-            edge_space_mask = tuple(edge_space_mask for _ in range(num_edges))
+            if edge_space_mask is not None:
+                edge_space_mask = tuple(edge_space_mask for _ in range(num_edges))
         else:
             assert (
                 num_edges >= 0
