@@ -24,6 +24,12 @@ from gym.error import DependencyNotInstalled
 from gym.utils.renderer import Renderer
 
 
+DEFAULT_LOW = -0.6
+DEFAULT_HIGH = -0.4
+LIMIT_LOW = -1.2
+LIMIT_HIGH = 0.6
+
+
 class Continuous_MountainCarEnv(gym.Env):
     """
     ### Description
@@ -180,7 +186,20 @@ class Continuous_MountainCarEnv(gym.Env):
         options: Optional[dict] = None
     ):
         super().reset(seed=seed)
-        self.state = np.array([self.np_random.uniform(low=-0.6, high=-0.4), 0])
+        if options is None:
+            low = DEFAULT_LOW
+            high = DEFAULT_HIGH
+        else:
+            low = options.pop('low', DEFAULT_LOW)
+            high = options.pop('high', DEFAULT_HIGH)
+            # We expect only numerical inputs.
+            assert type(low) == int or float
+            assert type(high) == int or float
+            # MountainCar expects states to be within -1.2 and 0.6.
+            low = max(low, LIMIT_LOW)
+            high = min(high, LIMIT_HIGH)
+            assert low < high
+        self.state = np.array([self.np_random.uniform(low=low, high=high), 0])
         self.renderer.reset()
         self.renderer.render_step()
         if not return_info:
