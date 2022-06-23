@@ -10,7 +10,6 @@ from gym import spaces
 from gym.error import DependencyNotInstalled
 from gym.utils.renderer import Renderer
 
-
 DEFAULT_X = np.pi
 DEFAULT_Y = 1.0
 
@@ -149,11 +148,15 @@ class PendulumEnv(gym.Env):
         if options is None:
             high = np.array([np.pi, 1])
         else:
-            x = options.pop('x', DEFAULT_X)
-            y = options.pop('y', DEFAULT_Y)
+            x = options.pop("x", DEFAULT_X)
+            y = options.pop("y", DEFAULT_Y)
             # We expect only numerical inputs.
-            assert type(x) == int or float
-            assert type(y) == int or float
+            assert np.issubdtype(type(x), np.integer) or np.issubdtype(
+                type(x), np.floating
+            )
+            assert np.issubdtype(type(y), np.integer) or np.issubdtype(
+                type(y), np.floating
+            )
             # Since the same boundaries are used for all observations, we set the
             # limits according to the most restrictive (sin/cos). Since these are
             # the values that will be used for the `high` variable, we enforce them

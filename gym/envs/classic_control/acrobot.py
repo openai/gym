@@ -22,7 +22,6 @@ __author__ = "Christoph Dann <cdann@cdann.de>"
 # https://github.com/rlpy/rlpy/blob/master/rlpy/Domains/Acrobot.py
 from gym.utils.renderer import Renderer
 
-
 DEFAULT_LOW = -0.1
 DEFAULT_HIGH = 0.1
 LIMIT_LOW = -1.0
@@ -197,11 +196,15 @@ class AcrobotEnv(core.Env):
             low = DEFAULT_LOW
             high = DEFAULT_HIGH
         else:
-            low = options.pop('low', DEFAULT_LOW)
-            high = options.pop('high', DEFAULT_HIGH)
+            low = options.pop("low", DEFAULT_LOW)
+            high = options.pop("high", DEFAULT_HIGH)
             # We expect only numerical inputs.
-            assert type(low) == int or float
-            assert type(high) == int or float
+            assert np.issubdtype(type(high), np.integer) or np.issubdtype(
+                type(high), np.floating
+            )
+            assert np.issubdtype(type(low), np.integer) or np.issubdtype(
+                type(low), np.floating
+            )
             # Since the same boundaries are used for all observations, we set the
             # limits according to the most restrictive (cos/sin): (-1., 1.).
             low = max(low, LIMIT_LOW)

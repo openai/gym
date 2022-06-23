@@ -12,7 +12,6 @@ from gym import spaces
 from gym.error import DependencyNotInstalled
 from gym.utils.renderer import Renderer
 
-
 DEFAULT_LOW = -0.6
 DEFAULT_HIGH = -0.4
 LIMIT_LOW = -1.2
@@ -164,11 +163,15 @@ class MountainCarEnv(gym.Env):
             low = DEFAULT_LOW
             high = DEFAULT_HIGH
         else:
-            low = options.pop('low', DEFAULT_LOW)
-            high = options.pop('high', DEFAULT_HIGH)
+            low = options.pop("low", DEFAULT_LOW)
+            high = options.pop("high", DEFAULT_HIGH)
             # We expect only numerical inputs.
-            assert type(low) == int or float
-            assert type(high) == int or float
+            assert np.issubdtype(type(high), np.integer) or np.issubdtype(
+                type(high), np.floating
+            )
+            assert np.issubdtype(type(low), np.integer) or np.issubdtype(
+                type(low), np.floating
+            )
             # MountainCar expects states to be within -1.2 and 0.6.
             low = max(low, LIMIT_LOW)
             high = min(high, LIMIT_HIGH)

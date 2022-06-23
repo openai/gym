@@ -13,7 +13,6 @@ from gym import logger, spaces
 from gym.error import DependencyNotInstalled
 from gym.utils.renderer import Renderer
 
-
 DEFAULT_LOW = -0.05
 DEFAULT_HIGH = 0.05
 LIMIT_LOW = -0.2
@@ -204,15 +203,18 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
             low = DEFAULT_LOW
             high = DEFAULT_HIGH
         else:
-            low = options.pop('low', DEFAULT_LOW)
-            high = options.pop('high', DEFAULT_HIGH)
+            low = options.pop("low", DEFAULT_LOW)
+            high = options.pop("high", DEFAULT_HIGH)
             # We expect only numerical inputs.
-            assert type(low) == int or float
-            assert type(high) == int or float
+            assert np.issubdtype(type(high), np.integer) or np.issubdtype(
+                type(high), np.floating
+            )
+            assert np.issubdtype(type(low), np.integer) or np.issubdtype(
+                type(low), np.floating
+            )
             # Since the same boundaries are used for all observations, we set the
             # limits according to the most restrictive (pole angle). As per the
-            # documentation at the top of the file, we restrict them to be within
-            # (-.2, .2).
+            # documentation at the top of the file, we restrict them to be within (-.2, .2).
             low = max(low, LIMIT_LOW)
             high = min(high, LIMIT_HIGH)
             assert low < high
