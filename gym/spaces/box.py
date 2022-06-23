@@ -64,8 +64,8 @@ class Box(Space[np.ndarray]):
         Args:
             low (Union[SupportsFloat, np.ndarray]): Lower bounds of the intervals.
             high (Union[SupportsFloat, np.ndarray]): Upper bounds of the intervals.
-            shape (Optional[Sequence[int]]): The shape is inferred from the shape of ``low`` or ``high`` `np.ndarray`s with
-                scalars defaulting to (1,)
+            shape (Optional[Sequence[int]]): The shape is inferred from the shape of `low` or `high` `np.ndarray`s with
+                `low` and `high` scalars defaulting to a shape of (1,)
             dtype: The dtype of the elements of the space. If this is an integer type, the :class:`Box` is essentially a discrete space.
             seed: Optionally, you can use this argument to seed the RNG that is used to sample from the space.
 
@@ -79,17 +79,19 @@ class Box(Space[np.ndarray]):
         # determine shape if it isn't provided directly
         if shape is not None:
             shape = tuple(shape)
-        elif not np.isscalar(low):
-            shape = low.shape  # type: ignore
-        elif not np.isscalar(high):
-            shape = high.shape  # type: ignore
-        elif np.isscalar(low) and np.isscalar(high):
+        elif isinstance(low, np.ndarray):
+            shape = low.shape
+        elif isinstance(high, np.ndarray):
+            shape = high.shape
+        elif np.issubdtype(type(low), np.integer) and np.issubdtype(
+            type(high), np.integer
+        ):
             shape = (1,)
         else:
             raise ValueError(
-                "shape must be provided or inferred from the shapes of low or high"
+                f"Box shape is inferred from low and high, expect their type to be np.ndarray or np.integer, actual type low: {type(low)}, high: {type(high)}"
             )
-        assert isinstance(shape, tuple)
+        assert isinstance(shape, tuple) and all(isinstance(dim, int) for dim in shape)
 
         # Capture the boundedness information before replacing np.inf with get_inf
         _low = np.full(shape, low, dtype=float) if np.isscalar(low) else low
