@@ -241,25 +241,24 @@ def passive_env_step_checker(env, action):
         obs, reward, terminated, truncated, info = result
 
         assert isinstance(
-            terminated, (bool, np.bool_)
+            terminated,
+            (
+                bool,
+                np.bool_,
+            ),  # np.bool is actual python bool not np boolean type, therefore bool_ or bool8
         ), f"The `terminated` signal must be a boolean, actual type: {type(terminated)}"
         assert isinstance(
             truncated, (bool, np.bool_)
         ), f"The `truncated` signal must be a boolean, actual type: {type(truncated)}"
-        assert (  # As this can be np.bool_ then == not is
-            terminated == False or truncated == False  # noqa:E712
-        ), "Only `terminated` or `truncated` can be true, not both."
     else:
         raise error.Error(
-            f"Expected `Env.step` to return a four or five elements, actually number of elements returned: {len(result)}."
+            f"Expected `Env.step` to return a four or five element tuple, actually number of elements returned: {len(result)}."
         )
 
     check_obs(obs, env.observation_space, "step")
 
-    assert (
-        isinstance(reward, (float, int))
-        or np.issubdtype(type(reward), np.integer)
-        or np.issubdtype(type(reward), np.floating)
+    assert np.issubdtype(type(reward), np.integer) or np.issubdtype(
+        type(reward), np.floating
     ), f"The reward returned by `step()` must be a float, int, np.integer or np.floating, actual type: {type(reward)}"
     if np.isnan(reward):
         logger.warn("The reward is a NaN value.")
