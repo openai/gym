@@ -25,9 +25,6 @@ def _short_repr(arr: np.ndarray) -> str:
     return str(arr)
 
 
-BOX_SHAPE_TYPE = Tuple[Union[int, "BOX_SHAPE_TYPE"], ...]
-
-
 class Box(Space[np.ndarray]):
     r"""A (possibly unbounded) box in :math:`\mathbb{R}^n`.
 
@@ -81,18 +78,7 @@ class Box(Space[np.ndarray]):
 
         # determine shape if it isn't provided directly
         if shape is not None:
-            shape = tuple(shape)
-
-            def _assert_shape(_shape):
-                if isinstance(_shape, tuple):
-                    for sub_shape in _shape:
-                        _assert_shape(sub_shape)
-                else:
-                    assert np.issubdtype(
-                        type(_shape), np.integer
-                    ), f"Expect shape to be tuple or integer, actual type: {type(_shape)}"
-
-            _assert_shape(shape)
+            shape = tuple(int(dim) for dim in shape)
         elif isinstance(low, np.ndarray):
             shape = low.shape
         elif isinstance(high, np.ndarray):
@@ -136,7 +122,7 @@ class Box(Space[np.ndarray]):
         super().__init__(self.shape, self.dtype, seed)
 
     @property
-    def shape(self) -> BOX_SHAPE_TYPE:
+    def shape(self) -> Tuple[int, ...]:
         """Has stricter type than gym.Space - never None."""
         return self._shape
 
