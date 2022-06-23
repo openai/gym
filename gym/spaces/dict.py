@@ -1,6 +1,7 @@
 """Implementation of a space that represents the cartesian product of other spaces as a dictionary."""
 from collections import OrderedDict
 from collections.abc import Mapping, Sequence
+from typing import Any
 from typing import Dict as TypingDict
 from typing import Optional, Union
 
@@ -137,7 +138,7 @@ class Dict(Space[TypingDict[str, Space]], Mapping):
 
         return seeds
 
-    def sample(self, mask: Optional[TypingDict[str, np.ndarray]] = None) -> dict:
+    def sample(self, mask: Optional[TypingDict[str, Any]] = None) -> dict:
         """Generates a single random sample from this space.
 
         The sample is an ordered dictionary of independent samples from the constituent spaces.

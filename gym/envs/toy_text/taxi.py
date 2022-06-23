@@ -89,13 +89,15 @@ class TaxiEnv(Env):
 
     ### Info
 
-    ``step`` and ``reset(return_info=True)`` will return an info dictionary that contains "p" and "action_mask".
+    ``step`` and ``reset(return_info=True)`` will return an info dictionary that contains "p" and "action_mask" containing
+        the probability that the state is taken and a mask of what actions will result in a change of state to speed up training.
 
-    As Taxi is a stochastic environment for transitions then the "p" key represents the probability of the
-    transition. However, this value is permanently 1.0 for an unknown reason.
+    As Taxi's initial state is a stochastic, the "p" key represents the probability of the
+    transition however this value is currently bugged being 1.0, this will be fixed soon.
+    As the steps are deterministic, "p" represents the probability of the transition which is always 1.0
 
-    For some cases, taking these actions will have no effect on the state of the agent.
-    In v0.25.0, ``info["action_mask"]`` contains a numpy.ndarray for each of the action specifying
+    For some cases, taking an action will have no effect on the state of the agent.
+    In v0.25.0, ``info["action_mask"]`` contains a np.ndarray for each of the action specifying
     if the action will change the state.
 
     To sample a modifying action, use ``action = env.action_space.sample(info["action_mask"])``

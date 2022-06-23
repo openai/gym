@@ -46,8 +46,9 @@ class Discrete(Space[int]):
         A sample will be chosen uniformly at random with the mask if provided
 
         Args:
-            mask: An optional mask for if an action can be selected. Expected shape is (n,).
-                If there are no possible actions, will default to `space.start`.
+            mask: An optional mask for if an action can be selected.
+                Expected `np.ndarray` of shape `(n,)` and dtype `np.int8` where `1` represents valid actions and `0` invalid / infeasible actions.
+                If there are no possible actions (i.e. `np.all(mask == 0)`) then `space.start` will be returned.
 
         Returns:
             A sampled integer from the space
