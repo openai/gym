@@ -25,7 +25,7 @@ class MultiDiscrete(Space[np.ndarray]):
     2. Button A:   Discrete 2  - NOOP[0], Pressed[1] - params: min: 0, max: 1
     3. Button B:   Discrete 2  - NOOP[0], Pressed[1] - params: min: 0, max: 1
 
-    It can be initialized as ``MultiDiscrete([ 5, 2, 2 ])`` such that a sample is array([3, 1, 0])
+    It can be initialized as ``MultiDiscrete([ 5, 2, 2 ])`` such that a sample might be ``array([3, 1, 0])``.
 
     Although this feature is rarely used, :class:`MultiDiscrete` spaces may also have several axes
     if ``nvec`` has several axes:
