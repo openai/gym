@@ -361,14 +361,9 @@ def modified_step(
             "The `truncated` signal must be a boolean, actual type: <class 'str'>",
         ],
         [
-            AssertionError,
-            lambda self, _: modified_step(self, terminated=True, truncated=True),
-            "Only `terminated` or `truncated` can be true, not both.",
-        ],
-        [
             gym.error.Error,
             lambda self, _: (1, 2, 3),
-            "Expected `Env.step` to return a four or five elements, actually number of elements returned: 3.",
+            "Expected `Env.step` to return a four or five element tuple, actually number of elements returned: 3.",
         ],
         [
             AssertionError,
