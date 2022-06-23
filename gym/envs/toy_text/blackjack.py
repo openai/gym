@@ -259,7 +259,7 @@ class BlackjackEnv(gym.Env):
             get_image(
                 os.path.join(
                     "img",
-                    f"{self.dealer_top_card_suit + self.dealer_top_card_value_str + '.png'}",
+                    f"{self.dealer_top_card_suit}{self.dealer_top_card_value_str}.png",
                 )
             )
         )
