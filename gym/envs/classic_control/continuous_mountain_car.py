@@ -26,6 +26,8 @@ from gym.utils.renderer import Renderer
 
 DEFAULT_LOW = -0.6
 DEFAULT_HIGH = -0.4
+LIMIT_LOW = -1.2
+LIMIT_HIGH = 0.6
 
 
 class Continuous_MountainCarEnv(gym.Env):
@@ -188,12 +190,15 @@ class Continuous_MountainCarEnv(gym.Env):
             low = DEFAULT_LOW
             high = DEFAULT_HIGH
         else:
-          low = options.pop('low', DEFAULT_LOW)
-          high = options.pop('high', DEFAULT_HIGH)
-          # We expect only numerical inputs.
-          assert type(low) == int or float
-          assert type(high) == int or float
-          # There are no limits for mountain car initializations 🙂.
+            low = options.pop('low', DEFAULT_LOW)
+            high = options.pop('high', DEFAULT_HIGH)
+            # We expect only numerical inputs.
+            assert type(low) == int or float
+            assert type(high) == int or float
+            # MountainCar expects states to be within -1.2 and 0.6.
+            low = max(low, LIMIT_LOW)
+            high = min(high, LIMIT_HIGH)
+            assert low < high
         self.state = np.array([self.np_random.uniform(low=low, high=high), 0])
         self.renderer.reset()
         self.renderer.render_step()

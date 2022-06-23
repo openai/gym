@@ -197,15 +197,16 @@ class AcrobotEnv(core.Env):
             low = DEFAULT_LOW
             high = DEFAULT_HIGH
         else:
-          low = options.pop('low', DEFAULT_LOW)
-          high = options.pop('high', DEFAULT_HIGH)
-          # We expect only numerical inputs.
-          assert type(low) == int or float
-          assert type(high) == int or float
-          # Since the same boundaries are used for all observations, we set the
-          # limits according to the most restrictive (cos/sin): (-1., 1.).
-          low = max(low, LIMIT_LOW)
-          high = min(high, LIMIT_HIGH)
+            low = options.pop('low', DEFAULT_LOW)
+            high = options.pop('high', DEFAULT_HIGH)
+            # We expect only numerical inputs.
+            assert type(low) == int or float
+            assert type(high) == int or float
+            # Since the same boundaries are used for all observations, we set the
+            # limits according to the most restrictive (cos/sin): (-1., 1.).
+            low = max(low, LIMIT_LOW)
+            high = min(high, LIMIT_HIGH)
+            assert low < high
         self.state = self.np_random.uniform(low=low, high=high, size=(4,)).astype(
             np.float32
         )
