@@ -169,10 +169,10 @@ class RecordVideo(gym.Wrapper):
         self.recording = False
         self.recorded_frames = 1
 
-    def render(self, **kwargs):
+    def render(self, *args, **kwargs):
         """Compute the render frames as specified by render_mode attribute during initialization of the environment or as specified in kwargs."""
         if self.video_recorder is None or not self.video_recorder.enabled:
-            return super().render(**kwargs)
+            return super().render(*args, **kwargs)
 
         if len(self.video_recorder.render_history) > 0:
             recorded_frames = [
@@ -182,12 +182,12 @@ class RecordVideo(gym.Wrapper):
             if self.recording:
                 return recorded_frames
             else:
-                return recorded_frames + super().render(**kwargs)
+                return recorded_frames + super().render(*args, **kwargs)
         else:
             if self.recording:
                 return self.video_recorder.last_frame
             else:
-                return super().render(**kwargs)
+                return super().render(*args, **kwargs)
 
     def close(self):
         """Closes the wrapper then the video recorder."""

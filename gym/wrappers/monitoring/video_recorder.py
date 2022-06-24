@@ -19,7 +19,7 @@ def touch(path: str):
     open(path, "a").close()
 
 
-class VideoRecorder:
+class VideoRecorder:  # TODO: remove with gym 1.0
     """VideoRecorder renders a nice movie of a rollout, frame by frame.
 
     It comes with an ``enabled`` option, so you can still use the same code on episodes where you don't want to record video.
@@ -75,7 +75,6 @@ class VideoRecorder:
             if self.render_mode is None and (
                 "single_rgb_array" in modes or "rgb_array" in modes
             ):
-                self.render_mode = "rgb_array"
                 logger.deprecation(
                     f"Recording ability for environment {env} initialized with `render_mode=None` is marked "
                     "as deprecated and will be removed in the future."
@@ -180,7 +179,10 @@ class VideoRecorder:
 
     def capture_frame(self):
         """Render the given `env` and add the resulting frame to the video."""
-        frame = self.env.render(mode=self.render_mode)
+        if self.render_mode is None:
+            frame = self.env.render(mode="rgb_array")
+        else:
+            frame = self.env.render()
         if isinstance(frame, List):
             self.render_history += frame
             frame = frame[-1]
