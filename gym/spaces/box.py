@@ -25,6 +25,11 @@ def _short_repr(arr: np.ndarray) -> str:
     return str(arr)
 
 
+def is_float_integer(var) -> bool:
+    """Checks if a variable is an integer or float."""
+    return np.issubdtype(type(var), np.integer) or np.issubdtype(type(var), np.floating)
+
+
 class Box(Space[np.ndarray]):
     r"""A (possibly unbounded) box in :math:`\mathbb{R}^n`.
 
@@ -73,38 +78,45 @@ class Box(Space[np.ndarray]):
             ValueError: If no shape information is provided (shape is None, low is None and high is None) then a
                 value error is raised.
         """
-        assert dtype is not None, "dtype must be explicitly provided. "
+        assert (
+            dtype is not None
+        ), "Box dtype must be explicitly provided, cannot be None."
         self.dtype = np.dtype(dtype)
 
         # determine shape if it isn't provided directly
         if shape is not None:
-            shape = tuple(int(dim) for dim in shape)
+            assert all(
+                np.issubdtype(type(dim), np.integer) for dim in shape
+            ), f"Expect all shape elements to be an integer, actual type: {tuple(type(dim) for dim in shape)}"
+            shape = tuple(int(dim) for dim in shape)  # This changes any np types to int
         elif isinstance(low, np.ndarray):
             shape = low.shape
         elif isinstance(high, np.ndarray):
             shape = high.shape
-        elif np.issubdtype(type(low), np.integer) and np.issubdtype(
-            type(high), np.integer
-        ):
+        elif is_float_integer(low) and is_float_integer(high):
             shape = (1,)
         else:
             raise ValueError(
-                f"Box shape is inferred from low and high, expect their type to be np.ndarray or np.integer, actual type low: {type(low)}, high: {type(high)}"
+                f"Box shape is inferred from low and high, expect their types to be np.ndarray, an integer or a float, actual type low: {type(low)}, high: {type(high)}"
             )
 
         # Capture the boundedness information before replacing np.inf with get_inf
-        _low = np.full(shape, low, dtype=float) if np.isscalar(low) else low
-        self.bounded_below = -np.inf < _low  # type: ignore
-        _high = np.full(shape, high, dtype=float) if np.isscalar(high) else high
-        self.bounded_above = np.inf > _high  # type: ignore
+        _low = np.full(shape, low, dtype=float) if is_float_integer(low) else low
+        self.bounded_below = -np.inf < _low
+        _high = np.full(shape, high, dtype=float) if is_float_integer(high) else high
+        self.bounded_above = np.inf > _high
 
         low = _broadcast(low, dtype, shape, inf_sign="-")  # type: ignore
         high = _broadcast(high, dtype, shape, inf_sign="+")  # type: ignore
 
         assert isinstance(low, np.ndarray)
-        assert low.shape == shape, "low.shape doesn't match provided shape"
+        assert (
+            low.shape == shape
+        ), f"low.shape doesn't match provided shape, low.shape: {low.shape}, shape: {shape}"
         assert isinstance(high, np.ndarray)
-        assert high.shape == shape, "high.shape doesn't match provided shape"
+        assert (
+            high.shape == shape
+        ), f"high.shape doesn't match provided shape, high.shape: {high.shape}, shape: {shape}"
 
         self._shape: Tuple[int, ...] = shape
 
@@ -294,7 +306,7 @@ def _broadcast(
     inf_sign: str,
 ) -> np.ndarray:
     """Handle infinite bounds and broadcast at the same time if needed."""
-    if np.isscalar(value):
+    if is_float_integer(value):
         value = get_inf(dtype, inf_sign) if np.isinf(value) else value  # type: ignore
         value = np.full(shape, value, dtype=dtype)
     else:
