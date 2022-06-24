@@ -35,6 +35,7 @@ class VideoRecorder:
         metadata: Optional[dict] = None,
         enabled: bool = True,
         base_path: Optional[str] = None,
+        internal_backand_use: bool = False,
     ):
         """Video recorder renders a nice movie of a rollout, frame by frame.
 
@@ -53,14 +54,22 @@ class VideoRecorder:
         self.enabled = enabled
         self._closed = False
 
+        self.render_history = []
+        self.last_frame = None
+        self.env = env
+
         self.ansi_mode = False
         if "rgb_array" != env.render_mode and "single_rgb_array" != env.render_mode:
             if "ansi" == env.render_mode:
                 self.ansi_mode = True
+                logger.deprecation(
+                    f'Recording ability for {env} initialized with `render_mode="ansi"` is marked '
+                    "as deprecated and will be removed in the future."
+                )
             else:
                 logger.info(
-                    f"Disabling video recorder because {env} does not support any compatible video "
-                    'mode between ["single_rgb_array", "rgb_array", "ansi"]'
+                    f"Disabling video recorder because {env} was not initialized with any compatible video "
+                    "mode between `single_rgb_array` and `rgb_array`"
                 )
                 # Disable since the environment has not been initialized with a compatible `render_mode`
                 self.enabled = False
@@ -69,11 +78,13 @@ class VideoRecorder:
         if not self.enabled:
             return
 
+        if not internal_backand_use:
+            logger.deprecation(
+                f"{self.__class__} is marked as deprecated and will be removed in the future."
+            )
+
         if path is not None and base_path is not None:
             raise error.Error("You can pass at most one of `path` or `base_path`.")
-
-        self.last_frame = None
-        self.env = env
 
         required_ext = ".json" if self.ansi_mode else ".mp4"
         if path is None:
@@ -149,6 +160,12 @@ class VideoRecorder:
 
     def capture_frame(self):
         """Render the given `env` and add the resulting frame to the video."""
+        frame = self.env.render()
+        if isinstance(frame, List):
+            self.render_history += frame
+            frame = frame[-1]
+        self.last_frame = frame
+
         if not self.functional:
             return
         if self._closed:
@@ -157,10 +174,6 @@ class VideoRecorder:
             )
             return
         logger.debug("Capturing video frame: path=%s", self.path)
-
-        frame = self.env.render()
-        if isinstance(frame, List):
-            frame = frame[-1]
 
         if frame is None:
             if self._async:
@@ -174,7 +187,6 @@ class VideoRecorder:
                 )
                 self.broken = True
         else:
-            self.last_frame = frame
             if self.ansi_mode:
                 self._encode_ansi_frame(frame)
             else:

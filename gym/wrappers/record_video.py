@@ -83,6 +83,7 @@ class RecordVideo(gym.Wrapper):
         self.video_length = video_length
 
         self.recording = False
+        self.done = False
         self.recorded_frames = 0
         self.is_vector_env = getattr(env, "is_vector_env", False)
         self.episode_id = 0
@@ -90,7 +91,9 @@ class RecordVideo(gym.Wrapper):
     def reset(self, **kwargs):
         """Reset the environment using kwargs and then starts recording if video enabled."""
         observations = super().reset(**kwargs)
+        self.done = False
         if self.recording:
+            self.video_recorder.frames = []
             self.video_recorder.capture_frame()
             self.recorded_frames += 1
             if self.video_length > 0:
@@ -113,6 +116,7 @@ class RecordVideo(gym.Wrapper):
             env=self.env,
             base_path=base_path,
             metadata={"step_id": self.step_id, "episode_id": self.episode_id},
+            internal_backand_use=True,
         )
 
         self.video_recorder.capture_frame()
@@ -129,29 +133,32 @@ class RecordVideo(gym.Wrapper):
         """Steps through the environment using action, recording observations if :attr:`self.recording`."""
         observations, rewards, dones, infos = super().step(action)
 
-        # increment steps and episodes
-        self.step_id += 1
-        if not self.is_vector_env:
-            if dones:
+        if not self.done:
+            # increment steps and episodes
+            self.step_id += 1
+            if not self.is_vector_env:
+                if dones:
+                    self.episode_id += 1
+                    self.done = True
+            elif dones[0]:
                 self.episode_id += 1
-        elif dones[0]:
-            self.episode_id += 1
+                self.done = True
 
-        if self.recording:
-            self.video_recorder.capture_frame()
-            self.recorded_frames += 1
-            if self.video_length > 0:
-                if self.recorded_frames > self.video_length:
-                    self.close_video_recorder()
-            else:
-                if not self.is_vector_env:
-                    if dones:
+            if self.recording:
+                self.video_recorder.capture_frame()
+                self.recorded_frames += 1
+                if self.video_length > 0:
+                    if self.recorded_frames > self.video_length:
                         self.close_video_recorder()
-                elif dones[0]:
-                    self.close_video_recorder()
+                else:
+                    if not self.is_vector_env:
+                        if dones:
+                            self.close_video_recorder()
+                    elif dones[0]:
+                        self.close_video_recorder()
 
-        elif self._video_enabled():
-            self.start_video_recorder()
+            elif self._video_enabled():
+                self.start_video_recorder()
 
         return observations, rewards, dones, infos
 
@@ -161,6 +168,26 @@ class RecordVideo(gym.Wrapper):
             self.video_recorder.close()
         self.recording = False
         self.recorded_frames = 1
+
+    def render(self, **kwargs):
+        """Compute the render frames as specified by render_mode attribute during initialization of the environment or as specified in kwargs."""
+        if self.video_recorder is None or not self.video_recorder.enabled:
+            return super().render(**kwargs)
+
+        if len(self.video_recorder.render_history) > 0:
+            recorded_frames = [
+                self.video_recorder.render_history.pop()
+                for _ in range(len(self.video_recorder.render_history))
+            ]
+            if self.recording:
+                return recorded_frames
+            else:
+                return recorded_frames + super().render(**kwargs)
+        else:
+            if self.recording:
+                return self.video_recorder.last_frame
+            else:
+                return super().render(**kwargs)
 
     def close(self):
         """Closes the wrapper then the video recorder."""
