@@ -3,7 +3,6 @@ import numpy as np
 
 import gym
 from gym.error import DependencyNotInstalled
-from gym.utils.renderer import Renderer
 
 
 class HumanRendering(gym.Wrapper):
@@ -14,13 +13,30 @@ class HumanRendering(gym.Wrapper):
     If you want to use this wrapper with your environments, remember to specify ``"render_fps"``
     in the metadata of your environment.
 
-    Note: The ``render_mode`` of the wrapped environment must be either ``'rgb_array'``
-        or ``'single_rgb_array'``.
+    The ``render_mode`` of the wrapped environment must be either ``'rgb_array'`` or ``'single_rgb_array'``.
 
     Example:
         >>> env = gym.make("LunarLander-v2", render_mode="single_rgb_array")
         >>> wrapped = HumanRendering(env)
         >>> wrapped.reset()     # This will start rendering to the screen
+
+    The wrapper can also be applied directly when the environment is instantiated, simply by passing
+    ``render_mode="human"`` to ``make``. The wrapper will only be applied if the environment does not
+    implement human-rendering natively (i.e. ``render_mode`` does not contain ``"human"``).
+
+    Example:
+        >>> env = gym.make("NoNativeRendering-v2", render_mode="human")      # NoNativeRendering-v0 doesn't implement human-rendering natively
+        >>> env.reset()     # This will start rendering to the screen
+
+    Warning: If the base environment uses ``render_mode="rgb_array"``, its (i.e. the *base environment's*) render method
+        will always return an empty list:
+
+            >>> env = gym.make("LunarLander-v2", render_mode="rgb_array")
+            >>> wrapped = HumanRendering(env)
+            >>> wrapped.reset()
+            >>> env.render()
+            []          # env.render() will always return an empty list!
+
     """
 
     def __init__(self, env):
@@ -38,7 +54,6 @@ class HumanRendering(gym.Wrapper):
             "render_fps" in env.metadata
         ), "The base environment must specify 'render_fps' to be used with the HumanRendering wrapper"
 
-        self._renderer = Renderer("human", self._render_frame)
         self.screen_size = None
         self.window = None
         self.clock = None
@@ -51,18 +66,18 @@ class HumanRendering(gym.Wrapper):
     def step(self, *args, **kwargs):
         """Perform a step in the base environment and render a frame to the screen."""
         result = self.env.step(*args, **kwargs)
-        self._renderer.render_step()
+        self._render_frame()
         return result
 
     def reset(self, *args, **kwargs):
         """Reset the base environment and render a frame to the screen."""
         result = self.env.reset(*args, **kwargs)
-        self._renderer.render_step()
+        self._render_frame()
         return result
 
     def render(self):
         """This method doesn't do much, actual rendering is performed in :meth:`step` and :meth:`reset`."""
-        return self._renderer.get_renders()
+        return None
 
     def _render_frame(self, mode="human", **kwargs):
         """Fetch the last frame from the base environment and render it to the screen."""
