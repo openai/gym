@@ -3,7 +3,6 @@ import inspect
 
 import numpy as np
 
-import gym
 from gym import error, logger, spaces
 
 
@@ -45,7 +44,7 @@ def _check_box_observation_space(observation_space: spaces.Box):
 
     assert np.all(
         observation_space.low <= observation_space.high
-    ), "Agent's minimum observation value is greater than it's maximum"
+    ), "An Agent's minimum observation value is greater than it's maximum"
 
 
 def check_observation_space(observation_space):
@@ -64,7 +63,7 @@ def check_observation_space(observation_space):
         ), f"Discrete observation space's number of dimensions must be positive, actual dimensions: {observation_space.n}"
     elif isinstance(observation_space, spaces.MultiDiscrete):
         assert np.all(
-            np.asarray(observation_space.shape) > 0
+            observation_space.nvec > 0
         ), f"All dimensions of multi-discrete observation space must be greater than 0, actual shape: {observation_space.shape}"
     elif isinstance(observation_space, spaces.MultiBinary):
         assert np.all(
@@ -149,19 +148,20 @@ def check_obs(obs, observation_space: spaces.Space, method_name: str):
     """
     pre = f"The obs returned by the `{method_name}()` method"
     if isinstance(observation_space, spaces.Discrete):
-        assert isinstance(
-            obs, (np.int64, int)
-        ), f"{pre} must be an int or np.int64, actually type: {type(obs)}"
+        if not isinstance(obs, (np.int64, int)):
+            logger.warn(
+                f"{pre} was expecting an int or np.int64, actually type: {type(obs)}"
+            )
     elif isinstance(
         observation_space, (spaces.Box, spaces.MultiBinary, spaces.MultiDiscrete)
     ):
-        assert isinstance(
-            obs, np.ndarray
-        ), f"{pre} must be a numpy array, actually type: {type(obs)}"
+        if not isinstance(obs, np.ndarray):
+            logger.warn(
+                f"{pre} was expecting a numpy array, actually type: {type(obs)}"
+            )
     elif isinstance(observation_space, spaces.Tuple):
-        assert isinstance(
-            obs, tuple
-        ), f"{pre} must be a tuple, actually type: {type(obs)}"
+        if not isinstance(obs, tuple):
+            logger.warn(f"{pre} was expecting a tuple, actually type: {type(obs)}")
         assert len(obs) == len(
             observation_space.spaces
         ), f"{pre} length is not same as the observation space length, obs length: {len(obs)}, space length: {len(observation_space.spaces)}"
@@ -175,7 +175,8 @@ def check_obs(obs, observation_space: spaces.Space, method_name: str):
         for space_key in observation_space.spaces.keys():
             check_obs(obs[space_key], observation_space[space_key], method_name)
 
-    assert observation_space.contains(obs), f"{pre} is not within the observation space"
+    if obs not in observation_space:
+        logger.warn(f"{pre} is not within the observation space")
 
 
 def passive_env_reset_checker(env, **kwargs):
@@ -240,16 +241,15 @@ def passive_env_step_checker(env, action):
     elif len(result) == 5:
         obs, reward, terminated, truncated, info = result
 
-        assert isinstance(
-            terminated,
-            (
-                bool,
-                np.bool_,
-            ),  # np.bool is actual python bool not np boolean type, therefore bool_ or bool8
-        ), f"The `terminated` signal must be a boolean, actual type: {type(terminated)}"
-        assert isinstance(
-            truncated, (bool, np.bool_)
-        ), f"The `truncated` signal must be a boolean, actual type: {type(truncated)}"
+        # np.bool is actual python bool not np boolean type, therefore bool_ or bool8
+        if not isinstance(terminated, (bool, np.bool_)):
+            logger.warn(
+                f"The `terminated` signal must be a boolean, actual type: {type(terminated)}"
+            )
+        if not isinstance(truncated, (bool, np.bool_)):
+            logger.warn(
+                f"The `truncated` signal must be a boolean, actual type: {type(truncated)}"
+            )
     else:
         raise error.Error(
             f"Expected `Env.step` to return a four or five element tuple, actually number of elements returned: {len(result)}."
@@ -257,9 +257,13 @@ def passive_env_step_checker(env, action):
 
     check_obs(obs, env.observation_space, "step")
 
-    assert np.issubdtype(type(reward), np.integer) or np.issubdtype(
-        type(reward), np.floating
-    ), f"The reward returned by `step()` must be a float, int, np.integer or np.floating, actual type: {type(reward)}"
+    if not (
+        np.issubdtype(type(reward), np.integer)
+        or np.issubdtype(type(reward), np.floating)
+    ):
+        logger.warn(
+            f"The reward returned by `step()` must be a float, int, np.integer or np.floating, actual type: {type(reward)}"
+        )
     if np.isnan(reward):
         logger.warn("The reward is a NaN value.")
     if np.isinf(reward):
@@ -276,18 +280,20 @@ def passive_env_render_checker(env, *args, **kwargs):
     """A passive check of the `Env.render` that the declared render modes/fps in the metadata of the environment is declared."""
     render_modes = env.metadata.get("render_modes")
     if render_modes is None:
-        raise gym.error.Error(
+        logger.warn(
             "No render modes was declared in the environment "
             "(env.metadata['render_modes'] is None or not defined), "
             "you may have trouble when calling `.render()`."
         )
     else:
-        assert isinstance(
-            render_modes, (list, tuple)
-        ), f"Expects the render_modes to be a sequence (i.e. list, tuple), actual type: {type(render_modes)}"
-        assert all(
-            isinstance(mode, str) for mode in render_modes
-        ), f"Expects all render modes to be strings, actual types: {[type(mode) for mode in render_modes]}."
+        if not isinstance(render_modes, (list, tuple)):
+            logger.warn(
+                f"Expects the render_modes to be a sequence (i.e. list, tuple), actual type: {type(render_modes)}"
+            )
+        if not all(isinstance(mode, str) for mode in render_modes):
+            logger.warn(
+                f"Expects all render modes to be strings, actual types: {[type(mode) for mode in render_modes]}."
+            )
 
         render_fps = env.metadata.get("render_fps")
         # We only require `render_fps` if rendering is actually implemented
@@ -299,9 +305,10 @@ def passive_env_render_checker(env, *args, **kwargs):
                     "rendering may occur at inconsistent fps."
                 )
             else:
-                assert isinstance(
-                    render_fps, int
-                ), f"Expects the `env.metadata['render_fps']` to be an integer, actual type: {type(render_fps)}."
+                if not isinstance(render_fps, int):
+                    logger.warn(
+                        f"Expects the `env.metadata['render_fps']` to be an integer, actual type: {type(render_fps)}."
+                    )
                 assert (
                     render_fps > 0
                 ), f"Expects the `env.metadata['render_fps']` to be greater than zero, actual value: {render_fps}."
