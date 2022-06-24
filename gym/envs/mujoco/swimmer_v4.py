@@ -33,13 +33,11 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     * *k*: viscous-friction coefficient
 
     While the default environment has *n* = 3, *l<sub>i</sub>* = 0.1,
-    and *k* = 0.1. It is possible to tweak the MuJoCo XML files to increase the
+    and *k* = 0.1. It is possible to pass a custom MuJoCo XML file during construction to increase the
     number of links, or to tweak any of the parameters.
 
     ### Action Space
-    The agent take a 2-element vector for actions.
-    The action space is a continuous `(action, action)` in `[-1, 1]`, where
-    `action` represents the numerical torques applied between *links*
+    The action space is a `Box(-1, 1, (2,), float32)`. An action represents the torques applied between *links*
 
     | Num | Action                             | Control Min | Control Max | Name (in corresponding XML file) | Joint | Unit         |
     |-----|------------------------------------|-------------|-------------|----------------------------------|-------|--------------|
@@ -48,33 +46,21 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     ### Observation Space
 
-    The state space consists of:
-    * A<sub>0</sub>: position of first point
+    By default, observations consists of:
     * θ<sub>i</sub>: angle of part *i* with respect to the *x* axis
-    * A<sub>0</sub>, θ<sub>i</sub>: their derivatives with respect to time (velocity and angular velocity)
+    * θ<sub>i</sub>': its derivative with respect to time (angular velocity)
 
-    The observation is a `ndarray` with shape `(8,)` where the elements correspond to the following:
+    In the default case, observations do not include the x- and y-coordinates of the front tip. These may
+    be included by passing `exclude_current_positions_from_observation=False` during construction.
+    Then, the observation space will have 10 dimensions where the first two dimensions
+    represent the x- and y-coordinates of the front tip.
+    Regardless of whether `exclude_current_positions_from_observation` was set to true or false, the x- and y-coordinates
+    will be returned in `info` with keys `"x_position"` and `"y_position"`, respectively.
 
-    | Num | Observation                          | Min  | Max | Name (in corresponding XML file) | Joint | Unit                     |
-    |-----|--------------------------------------|------|-----|----------------------------------|-------|--------------------------|
-    | 0   | x-coordinate of the front tip        | -Inf | Inf | slider1                          | slide | position (m)             |
-    | 1   | y-coordinate of the front tip        | -Inf | Inf | slider2                          | slide | position (m)             |
-    | 2   | angle of the front tip               | -Inf | Inf | rot                              | hinge | angle (rad)              |
-    | 3   | angle of the second rotor            | -Inf | Inf | rot2                             | hinge | angle (rad)              |
-    | 4   | angle of the second rotor            | -Inf | Inf | rot3                             | hinge | angle (rad)              |
-    | 5   | velocity of the tip along the x-axis | -Inf | Inf | slider1                          | slide | velocity (m/s)           |
-    | 6   | velocity of the tip along the y-axis | -Inf | Inf | slider2                          | slide | velocity (m/s)           |
-    | 7   | angular velocity of front tip        | -Inf | Inf | rot                              | hinge | angular velocity (rad/s) |
-    | 8   | angular velocity of second rotor     | -Inf | Inf | rot2                             | hinge | angular velocity (rad/s) |
-    | 9   | angular velocity of third rotor      | -Inf | Inf | rot3                             | hinge | angular velocity (rad/s) |
-
-    **Note:**
-    In practice (and Gym implementation), the first two positional elements are
-    omitted from the state space since the reward function is calculated based
-    on those values. Therefore, observation space has shape `(8,)` and looks like:
+    By default, the observation is a `ndarray` with shape `(8,)` where the elements correspond to the following:
 
     | Num | Observation                          | Min  | Max | Name (in corresponding XML file) | Joint | Unit                     |
-    |-----|--------------------------------------|------|-----|----------------------------------|-------|--------------------------|
+    | --- | ------------------------------------ | ---- | --- | -------------------------------- | ----- | ------------------------ |
     | 0   | angle of the front tip               | -Inf | Inf | rot                              | hinge | angle (rad)              |
     | 1   | angle of the second rotor            | -Inf | Inf | rot2                             | hinge | angle (rad)              |
     | 2   | angle of the second rotor            | -Inf | Inf | rot3                             | hinge | angle (rad)              |
@@ -86,33 +72,31 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     ### Rewards
     The reward consists of two parts:
-    - *reward_front*: A reward of moving forward which is measured
-    as *(x-coordinate before action - x-coordinate after action)/dt*. *dt* is
+    - *forward_reward*: A reward of moving forward which is measured
+    as *`forward_reward_weight` * (x-coordinate before action - x-coordinate after action)/dt*. *dt* is
     the time between actions and is dependent on the frame_skip parameter
-    (default is 4), where the *dt* for one frame is 0.01 - making the
+    (default is 4), where the frametime is 0.01 - making the
     default *dt = 4 * 0.01 = 0.04*. This reward would be positive if the swimmer
     swims right as desired.
-    - *reward_control*: A negative reward for penalising the swimmer if it takes
-    actions that are too large. It is measured as *-coefficient x
-    sum(action<sup>2</sup>)* where *coefficient* is a parameter set for the
-    control and has a default value of 0.0001
+    - *ctrl_cost*: A cost for penalising the swimmer if it takes
+    actions that are too large. It is measured as *`ctrl_cost_weight` *
+    sum(action<sup>2</sup>)* where *`ctrl_cost_weight`* is a parameter set for the
+    control and has a default value of 1e-4
 
-    The total reward returned is ***reward*** *=* *reward_front + reward_control*
+    The total reward returned is ***reward*** *=* *forward_reward - ctrl_cost* and `info` will also contain the individual reward terms
 
     ### Starting State
-    All observations start in state (0,0,0,0,0,0,0,0) with a Uniform noise in the range of [-0.1, 0.1] is added to the initial state for stochasticity.
+    All observations start in state (0,0,0,0,0,0,0,0) with a Uniform noise in the range of [-`reset_noise_scale`, `reset_noise_scale`] is added to the initial state for stochasticity.
 
     ### Episode Termination
     The episode terminates when the episode length is greater than 1000.
 
     ### Arguments
 
-    No additional arguments are currently supported (in v2 and lower), but
-    modifications can be made to the XML file in the assets folder
-    (or by changing the path to a modified XML file in another folder).
+    No additional arguments are currently supported in v2 and lower.
 
     ```
-    gym.make('Swimmer-v2')
+    gym.make('Swimmer-v4')
     ```
 
     v3 and v4 take gym.make kwargs such as xml_file, ctrl_cost_weight, reset_noise_scale etc.
@@ -120,6 +104,15 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     ```
     env = gym.make('Swimmer-v4', ctrl_cost_weight=0.1, ....)
     ```
+
+    | Parameter                                    | Type      | Default         | Description                                                                                                                                                               |
+    | -------------------------------------------- | --------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+    | `xml_file`                                   | **str**   | `"swimmer.xml"` | Path to a MuJoCo model                                                                                                                                                    |
+    | `forward_reward_weight`                      | **float** | `1.0`           | Weight for _forward_reward_ term (see section on reward)                                                                                                                  |
+    | `ctrl_cost_weight`                           | **float** | `1e-4`          | Weight for _ctrl_cost_ term (see section on reward)                                                                                                                       |
+    | `reset_noise_scale`                          | **float** | `0.1`           | Scale of random perturbations of initial position and velocity (see section on Starting State)                                                                            |
+    | `exclude_current_positions_from_observation` | **bool**  | `True`          | Whether or not to omit the x- and y-coordinates from observations. Excluding the position can serve as an inductive bias to induce position-agnostic behavior in policies |
+
 
     ### Version History
 
