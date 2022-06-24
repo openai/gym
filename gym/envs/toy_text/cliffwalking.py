@@ -217,14 +217,17 @@ class CliffWalkingEnv(Env):
             file_name = path.join(path.dirname(__file__), "img/cliff.png")
             self.cliff_img = pygame.transform.scale(pygame.image.load(file_name), self.cell_size)
 
+        self.window_surface.fill((101, 119, 123))
+
         for s in range(self.nS):
             row, col = np.unravel_index(s, self.shape)
             pos = (col * self.cell_size[0], row * self.cell_size[1])
-            self.window_surface.blit(self.mountain_bg_img, pos)
+            if s % 5 == 0:
+                self.window_surface.blit(self.mountain_bg_img, pos)
             if self._cliff[row, col]:
                 self.window_surface.blit(self.cliff_img, pos)
-            # if row < self.shape[0] - 1 and self._cliff[row + 1, col]:
-            #     self.window_surface.blit(self.near_cliff_img, pos)
+            if row < self.shape[0] - 1 and self._cliff[row + 1, col]:
+                self.window_surface.blit(self.near_cliff_img, pos)
             if s == self.start_state_index:
                 self.window_surface.blit(self.start_img, pos)
             if s == self.nS - 1:
