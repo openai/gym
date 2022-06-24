@@ -342,3 +342,8 @@ register(
     entry_point="gym.envs.mujoco.humanoidstandup_v4:HumanoidStandupEnv",
     max_episode_steps=1000,
 )
+
+register(
+    id='BoatControl-v0',
+    entry_point='gym.envs.classic_control:BoatControl',
+)
