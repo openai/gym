@@ -43,7 +43,7 @@ class _EnvDecorator(type):  # TODO: remove with gym 1.0
         def render(
             self: object, *args: Tuple[Any], **kwargs: Dict[str, Any]
         ) -> render_return:
-            if "mode" in kwargs.keys():
+            if "mode" in kwargs.keys() or len(args) > 0:
                 deprecation(
                     "The argument mode in render method is deprecated; "
                     "use render_mode during environment initialization instead.\n"
@@ -239,7 +239,7 @@ class Env(Generic[ObsType, ActType], metaclass=decorator):
             there aren't accidental correlations between multiple generators.
 
         Args:
-            seed(Optional int): The seed value for the random number geneartor
+            seed(Optional int): The seed value for the random number generator
 
         Returns:
             seeds (List[int]): Returns the list of seeds used in this environment's random
@@ -394,9 +394,9 @@ class Wrapper(Env[ObsType, ActType]):
         """Resets the environment with kwargs."""
         return self.env.reset(**kwargs)
 
-    def render(self, **kwargs):
-        """Renders the environment with kwargs."""
-        return self.env.render(**kwargs)
+    def render(self, *args, **kwargs):
+        """Renders the environment."""
+        return self.env.render(*args, **kwargs)
 
     def close(self):
         """Closes the environment."""

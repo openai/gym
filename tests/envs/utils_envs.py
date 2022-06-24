@@ -8,14 +8,12 @@ class RegisterDuringMakeEnv(gym.Env):
         self.action_space = gym.spaces.Discrete(1)
         self.observation_space = gym.spaces.Discrete(1)
 
-    def reset(self, *, seed=None, return_info=True, options=None):
-        return 0, {}
 
-    def step(self, action):
-        return 0, 0, False, {}
+class ArgumentEnv(gym.Env):
+    observation_space = gym.spaces.Box(low=-1, high=1, shape=(1,))
+    action_space = gym.spaces.Box(low=-1, high=1, shape=(1,))
 
-
-gym.register(
-    "RegisterDuringMakeEnv-v0",
-    entry_point="tests.envs.register_during_make_env:RegisterDuringMakeEnv",
-)
+    def __init__(self, arg1, arg2, arg3):
+        self.arg1 = arg1
+        self.arg2 = arg2
+        self.arg3 = arg3

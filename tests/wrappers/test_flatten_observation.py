@@ -8,7 +8,7 @@ from gym.wrappers import FlattenObservation
 
 @pytest.mark.parametrize("env_id", ["Blackjack-v1"])
 def test_flatten_observation(env_id):
-    env = gym.make(env_id)
+    env = gym.make(env_id, disable_env_checker=True)
     wrapped_env = FlattenObservation(env)
 
     obs = env.reset()

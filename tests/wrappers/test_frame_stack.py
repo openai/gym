@@ -28,13 +28,13 @@ pytest.importorskip("gym.envs.atari")
     ],
 )
 def test_frame_stack(env_id, num_stack, lz4_compress):
-    env = gym.make(env_id)
+    env = gym.make(env_id, disable_env_checker=True)
     shape = env.observation_space.shape
     env = FrameStack(env, num_stack, lz4_compress)
     assert env.observation_space.shape == (num_stack,) + shape
     assert env.observation_space.dtype == env.env.observation_space.dtype
 
-    dup = gym.make(env_id)
+    dup = gym.make(env_id, disable_env_checker=True)
 
     obs = env.reset(seed=0)
     dup_obs = dup.reset(seed=0)
