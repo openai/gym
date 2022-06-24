@@ -116,7 +116,7 @@ class RecordVideo(gym.Wrapper):
             env=self.env,
             base_path=base_path,
             metadata={"step_id": self.step_id, "episode_id": self.episode_id},
-            internal_backand_use=True,
+            internal_backend_use=True,
         )
 
         self.video_recorder.capture_frame()

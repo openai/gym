@@ -35,7 +35,7 @@ class VideoRecorder:
         metadata: Optional[dict] = None,
         enabled: bool = True,
         base_path: Optional[str] = None,
-        internal_backand_use: bool = False,
+        internal_backend_use: bool = False,
     ):
         """Video recorder renders a nice movie of a rollout, frame by frame.
 
@@ -58,17 +58,37 @@ class VideoRecorder:
         self.last_frame = None
         self.env = env
 
+        self.render_mode = env.render_mode
+        modes = env.metadata.get("render_modes", [])
+
+        # backward-compatibility mode:
+        backward_compatible_mode = env.metadata.get("render.modes", [])
+        if len(modes) == 0 and len(backward_compatible_mode) > 0:
+            logger.deprecation(
+                '`env.metadata["render.modes"] is marked as deprecated and will be replaced '
+                'with `env.metadata["render_modes"]` see https://github.com/openai/gym/pull/2654 for more details'
+            )
+            modes = backward_compatible_mode
+
         self.ansi_mode = False
-        if "rgb_array" != env.render_mode and "single_rgb_array" != env.render_mode:
-            if "ansi" == env.render_mode:
+        if "rgb_array" != self.render_mode and "single_rgb_array" != self.render_mode:
+            if self.render_mode is None and (
+                "single_rgb_array" in modes or "rgb_array" in modes
+            ):
+                self.render_mode = "rgb_array"
+                logger.deprecation(
+                    f"Recording ability for environment {env} initialized with `render_mode=None` is marked "
+                    "as deprecated and will be removed in the future."
+                )
+            elif "ansi" == env.render_mode:
                 self.ansi_mode = True
                 logger.deprecation(
-                    f'Recording ability for {env} initialized with `render_mode="ansi"` is marked '
+                    f'Recording ability for environment {env} initialized with `render_mode="ansi"` is marked '
                     "as deprecated and will be removed in the future."
                 )
             else:
                 logger.info(
-                    f"Disabling video recorder because {env} was not initialized with any compatible video "
+                    f"Disabling video recorder because environment {env} was not initialized with any compatible video "
                     "mode between `single_rgb_array` and `rgb_array`"
                 )
                 # Disable since the environment has not been initialized with a compatible `render_mode`
@@ -78,7 +98,7 @@ class VideoRecorder:
         if not self.enabled:
             return
 
-        if not internal_backand_use:
+        if not internal_backend_use:
             logger.deprecation(
                 f"{self.__class__} is marked as deprecated and will be removed in the future."
             )
@@ -160,7 +180,7 @@ class VideoRecorder:
 
     def capture_frame(self):
         """Render the given `env` and add the resulting frame to the video."""
-        frame = self.env.render()
+        frame = self.env.render(mode=self.render_mode)
         if isinstance(frame, List):
             self.render_history += frame
             frame = frame[-1]
