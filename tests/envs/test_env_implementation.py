@@ -84,7 +84,14 @@ def test_frozenlake_dfs_map_generation(map_size: int):
     raise AssertionError("No path through the frozenlake was found.")
 
 
-@pytest.mark.parametrize("low_high", [None, (-1.0, 1.0), (0., 2.), (-2., 1.)])
+@pytest.mark.parametrize("low_high",
+                         [None,
+                          (-1.0, 1.0),
+                          (np.array(-1.0), np.array(1.0)),
+                          (-1., 2.),
+                          (np.array(-1.0), np.array(2.0)),
+                          (-2., 1.),
+                          (np.array(-2.0), np.array(1.0))])
 def test_customizable_resets(low_high: Optional[list]):
     envs = {
         'acrobot': gym.make('Acrobot-v1'),
@@ -94,8 +101,7 @@ def test_customizable_resets(low_high: Optional[list]):
         'pendulum': gym.make('Pendulum-v1'),
     }
     for env in envs:
-        # For each environment, make sure we can reset and step without out-of-bound
-        # errors.
+        # First ensure we can do a reset and the values are within expected ranges.
         if low_high is None:
             envs[env].reset()
         else:
@@ -108,8 +114,28 @@ def test_customizable_resets(low_high: Optional[list]):
                     envs[env].reset(options={'x': low, 'y': high})
                 else:
                     envs[env].reset(options={'low': low, 'high': high})
-                    assert np.all((envs[env].state >= low) & (envs[env].state <+ high))
+                assert np.all((envs[env].state >= low) & (envs[env].state <= high))
                 if env.endswith('continuous') or env == 'pendulum':
                     envs[env].step([0])
                 else:
                     envs[env].step(0)
+
+@pytest.mark.parametrize("low_high",
+                         [('x', 'y'), ([-1.], [1.]),
+                          (np.array([-1.]), np.array([1.]))])
+def test_invalid_customizable_resets(low_high: list):
+    envs = {
+        'acrobot': gym.make('Acrobot-v1'),
+        'cartpole': gym.make('CartPole-v1'),
+        'mountaincar': gym.make('MountainCar-v0'),
+        'mountaincar_continuous': gym.make('MountainCarContinuous-v0'),
+        'pendulum': gym.make('Pendulum-v1'),
+    }
+    for env in envs:
+        low, high = low_high
+        if env == 'pendulum':
+            with pytest.raises(AssertionError):
+                envs[env].reset(options={'x': low, 'y': high})
+        else:
+            with pytest.raises(AssertionError):
+                envs[env].reset(options={'low': low, 'high': high})

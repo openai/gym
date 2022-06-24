@@ -11,13 +11,8 @@ import numpy as np
 import gym
 from gym import logger, spaces
 from gym.error import DependencyNotInstalled
+from gym.utils import option_parser
 from gym.utils.renderer import Renderer
-
-
-DEFAULT_LOW = -0.05
-DEFAULT_HIGH = 0.05
-LIMIT_LOW = -0.2
-LIMIT_HIGH = 0.2
 
 
 class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
@@ -200,22 +195,16 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         options: Optional[dict] = None,
     ):
         super().reset(seed=seed)
-        if options is None:
-            low = DEFAULT_LOW
-            high = DEFAULT_HIGH
-        else:
-            low = options.pop('low', DEFAULT_LOW)
-            high = options.pop('high', DEFAULT_HIGH)
-            # We expect only numerical inputs.
-            assert type(low) == int or float
-            assert type(high) == int or float
-            # Since the same boundaries are used for all observations, we set the
-            # limits according to the most restrictive (pole angle). As per the
-            # documentation at the top of the file, we restrict them to be within
-            # (-.2, .2).
-            low = max(low, LIMIT_LOW)
-            high = min(high, LIMIT_HIGH)
-            assert low < high
+        # Since the same boundaries are used for all observations, we set the
+        # limits according to the most restrictive (pole angle). As per the
+        # documentation at the top of the file, we restrict them to be within
+        # (-.2, .2).
+        low, high = option_parser.maybe_parse_reset_bounds(
+                -0.05,  # default low
+                0.05,  # default high
+                -0.2,  # limit low
+                0.2,  # limit high
+                options)
         self.state = self.np_random.uniform(low=low, high=high, size=(4,))
         self.steps_beyond_done = None
         self.renderer.reset()

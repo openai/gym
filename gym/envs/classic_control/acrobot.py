@@ -20,13 +20,8 @@ __author__ = "Christoph Dann <cdann@cdann.de>"
 
 # SOURCE:
 # https://github.com/rlpy/rlpy/blob/master/rlpy/Domains/Acrobot.py
+from gym.utils import option_parser
 from gym.utils.renderer import Renderer
-
-
-DEFAULT_LOW = -0.1
-DEFAULT_HIGH = 0.1
-LIMIT_LOW = -1.0
-LIMIT_HIGH = 1.0
 
 
 class AcrobotEnv(core.Env):
@@ -193,20 +188,14 @@ class AcrobotEnv(core.Env):
         options: Optional[dict] = None
     ):
         super().reset(seed=seed)
-        if options is None:
-            low = DEFAULT_LOW
-            high = DEFAULT_HIGH
-        else:
-            low = options.pop('low', DEFAULT_LOW)
-            high = options.pop('high', DEFAULT_HIGH)
-            # We expect only numerical inputs.
-            assert type(low) == int or float
-            assert type(high) == int or float
-            # Since the same boundaries are used for all observations, we set the
-            # limits according to the most restrictive (cos/sin): (-1., 1.).
-            low = max(low, LIMIT_LOW)
-            high = min(high, LIMIT_HIGH)
-            assert low < high
+        # Since the same boundaries are used for all observations, we set the
+        # limits according to the most restrictive (cos/sin): (-1., 1.).
+        low, high = option_parser.maybe_parse_reset_bounds(
+                -0.1,  # default low
+                0.1,  # default high
+                -1.0,  # limit low
+                1.0,  # limit high
+                options)
         self.state = self.np_random.uniform(low=low, high=high, size=(4,)).astype(
             np.float32
         )

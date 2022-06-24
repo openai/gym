@@ -8,6 +8,7 @@ import numpy as np
 import gym
 from gym import spaces
 from gym.error import DependencyNotInstalled
+from gym.utils import option_parser
 from gym.utils.renderer import Renderer
 
 
@@ -152,8 +153,8 @@ class PendulumEnv(gym.Env):
             x = options.pop('x', DEFAULT_X)
             y = options.pop('y', DEFAULT_Y)
             # We expect only numerical inputs.
-            assert type(x) == int or float
-            assert type(y) == int or float
+            assert option_parser.verify_number(x)
+            assert option_parser.verify_number(y)
             # Since the same boundaries are used for all observations, we set the
             # limits according to the most restrictive (sin/cos). Since these are
             # the values that will be used for the `high` variable, we enforce them
