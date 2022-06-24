@@ -65,7 +65,10 @@ class _EnvDecorator(type):  # TODO: remove with gym 1.0
 
 
 decorator = _EnvDecorator
-if sys.version_info[0:2] == (3, 6):  # needed for https://github.com/python/typing/issues/449
+if sys.version_info[0:2] == (
+    3,
+    6,
+):  # needed for https://github.com/python/typing/issues/449
     from typing import GenericMeta
 
     class _GenericEnvDecorator(GenericMeta, _EnvDecorator):
