@@ -81,8 +81,8 @@ class MultiDiscrete(Space[np.ndarray]):
                 sub_mask: SAMPLE_MASK_TYPE, sub_nvec: np.ndarray
             ) -> Union[int, List[int]]:
                 if isinstance(sub_mask, np.ndarray):
-                    assert np.isscalar(
-                        sub_nvec
+                    assert np.issubdtype(
+                        type(sub_nvec, np.integer)
                     ), f"Expects the mask to be for an action, actual for {sub_nvec}"
                     assert (
                         len(sub_mask) == sub_nvec
@@ -90,6 +90,7 @@ class MultiDiscrete(Space[np.ndarray]):
                     assert (
                         sub_mask.dtype == np.int8
                     ), f"Expects the mask dtype to be np.int8, actual dtype: {sub_mask.dtype}"
+
                     valid_action_mask = sub_mask == 1
                     assert np.all(
                         np.logical_or(sub_mask == 0, valid_action_mask)
