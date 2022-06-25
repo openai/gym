@@ -121,8 +121,8 @@ class Graph(Space):
         # we only have edges when we have at least 2 nodes
         if num_edges is None:
             if num_nodes > 1:
-                # maximal number of edges is n*(n-1) allowing self connections and two-way is allowed
-                num_edges = self.np_random.integers(num_nodes * num_nodes)
+                # maximal number of edges is `n*(n-1)` allowing self connections and two-way is allowed
+                num_edges = self.np_random.integers(num_nodes * (num_nodes - 1))
             else:
                 num_edges = 0
             if edge_space_mask is not None:
