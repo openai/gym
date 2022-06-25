@@ -17,7 +17,7 @@ from gym.logger import deprecation, warn
 from gym.utils import seeding
 from gym.utils.seeding import RandomNumberGenerator
 
-if sys.version_info == (3, 6):
+if sys.version_info[0:2] == (3, 6):
     warn(
         "Gym minimally supports python 3.6 as the python foundation not longer supports the version, please update your version to 3.7+"
     )
@@ -64,7 +64,18 @@ class _EnvDecorator(type):  # TODO: remove with gym 1.0
         return render
 
 
-class Env(Generic[ObsType, ActType]):
+decorator = _EnvDecorator
+if sys.version_info[0:2] == (3, 6):
+    # needed for https://github.com/python/typing/issues/449
+    from typing import GenericMeta
+
+    class _GenericEnvDecorator(GenericMeta, _EnvDecorator):
+        pass
+
+    decorator = _GenericEnvDecorator
+
+
+class Env(Generic[ObsType, ActType], metaclass=decorator):
     r"""The main OpenAI Gym class.
 
     It encapsulates an environment with arbitrary behind-the-scenes dynamics.
@@ -90,8 +101,6 @@ class Env(Generic[ObsType, ActType]):
 
     Note: a default reward range set to :math:`(-\infty,+\infty)` already exists. Set it if you want a narrower range.
     """
-
-    __metaclass__ = _EnvDecorator
 
     # Set this in SOME subclasses
     metadata = {"render_modes": []}
