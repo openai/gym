@@ -8,7 +8,7 @@ from gym.spaces.discrete import Discrete
 from gym.spaces.space import Space
 from gym.utils import seeding
 
-SAMPLE_MASK_TYPE = Tuple[Union["SAMPLE_MASK_TYPE", np.ndarray]]
+SAMPLE_MASK_TYPE = Tuple[Union["SAMPLE_MASK_TYPE", np.ndarray], ...]
 
 
 class MultiDiscrete(Space[np.ndarray]):
@@ -82,7 +82,7 @@ class MultiDiscrete(Space[np.ndarray]):
             ) -> Union[int, List[int]]:
                 if isinstance(sub_mask, np.ndarray):
                     assert np.issubdtype(
-                        type(sub_nvec, np.integer)
+                        type(sub_nvec), np.integer
                     ), f"Expects the mask to be for an action, actual for {sub_nvec}"
                     assert (
                         len(sub_mask) == sub_nvec

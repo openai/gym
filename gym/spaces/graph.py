@@ -92,7 +92,10 @@ class Graph(Space):
     def sample(
         self,
         mask: Optional[
-            Tuple[Optional[SAMPLE_MASK_TYPE], Optional[SAMPLE_MASK_TYPE]]
+            Tuple[
+                Optional[Union[np.ndarray, SAMPLE_MASK_TYPE]],
+                Optional[Union[np.ndarray, SAMPLE_MASK_TYPE]],
+            ]
         ] = None,
         num_nodes: int = 10,
         num_edges: Optional[int] = None,
