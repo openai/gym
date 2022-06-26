@@ -76,7 +76,7 @@ class VideoRecorder:  # TODO: remove with gym 1.0
                 "single_rgb_array" in modes or "rgb_array" in modes
             ):
                 logger.deprecation(
-                    f"Recording ability for environment {env} initialized with `render_mode=None` is marked "
+                    f"Recording ability for environment {env.spec.id} initialized with `render_mode=None` is marked "
                     "as deprecated and will be removed in the future."
                 )
             elif "ansi" == env.render_mode:
@@ -86,7 +86,7 @@ class VideoRecorder:  # TODO: remove with gym 1.0
                     "as deprecated and will be removed in the future."
                 )
             else:
-                logger.info(
+                logger.warn(
                     f"Disabling video recorder because environment {env} was not initialized with any compatible video "
                     "mode between `single_rgb_array` and `rgb_array`"
                 )
