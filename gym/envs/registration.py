@@ -359,6 +359,13 @@ def make(id: Literal[
     "Ant-v2"
 ], **kwargs) -> Env[np.ndarray, np.ndarray]: ...
 
+# Toy Text
+# ----------------------------------------
+
+
+@overload
+def make(id: Literal["Jax-BlackJack-v0"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, int]]: ...
+
 
 @overload
 def make(id: str, **kwargs) -> Env: ...

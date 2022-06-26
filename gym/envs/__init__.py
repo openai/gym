@@ -342,3 +342,12 @@ register(
     entry_point="gym.envs.mujoco.humanoidstandup_v4:HumanoidStandupEnv",
     max_episode_steps=1000,
 )
+
+# Jax Toy Text
+# ----------------------------------------
+
+register(
+    id="Jax-BlackJack-v0",
+    entry_point="gym.envs.jax_toy_text.jax_blackjack:JaxBlackJackEnv",
+    kwargs={"sutton_and_barto": True, "natural": False},
+)
