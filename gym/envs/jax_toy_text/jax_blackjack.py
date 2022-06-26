@@ -1,70 +1,69 @@
-
-from functools import partial
-import math
 import os
 import time
+from functools import partial
+from typing import Optional
 
-import jax.numpy as jnp
 import jax
-from jax import random, jit, pmap, vmap
+import jax.numpy as jnp
 import numpy as np
-
+from jax import jit, random
 
 import gym
 from gym import spaces
-
-from gym.utils.renderer import Renderer
 from gym.error import DependencyNotInstalled
-
-
+from gym.utils.renderer import Renderer
 
 deck = jnp.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10])
 
 
-#converts a tuple of device arrays into a tutple of ints
+# converts a tuple of device arrays into a tutple of ints
 def obs_from_device(obs):
-    return tuple([int(jax.device_get(obs[i])) for i in range(len(obs))])
-
+    return tuple(int(jax.device_get(obs[i])) for i in range(len(obs)))
 
 
 def cmp(a, b):
     return (a > b).astype(int) - (a < b).astype(int)
 
-#gets a random card(with replacement)
+
+# gets a random card(with replacement)
 def random_card(key):
     key = random.split(key)[0]
-    choice = random.choice(key,deck,shape=(1,))
-    
+    choice = random.choice(key, deck, shape=(1,))
+
     return choice[0].astype(int), key
 
+
 # draws a starting hand of two cards
-def draw_hand(key,hand):
+def draw_hand(key, hand):
     new_card, key = random_card(key)
     hand = hand.at[0].set(new_card)
     new_card, key = random_card(key)
-    hand =  hand.at[1].set(new_card)
+    hand = hand.at[1].set(new_card)
     return hand, key
 
-#draws a single card
+
+# draws a single card
 def draw_card(key, hand, index):
     new_card, key = random_card(key)
     hand = hand.at[index].set(new_card)
-    return key, hand, index+1
+    return key, hand, index + 1
 
 
 def usable_ace(hand):  # Does this hand have a usable ace?
-    return  jnp.logical_and((jnp.count_nonzero(hand==1) > 0 ) , (sum(hand) + 10 <= 21))
+    return jnp.logical_and((jnp.count_nonzero(hand == 1) > 0), (sum(hand) + 10 <= 21))
+
 
 # the player has decided to take a card
 def take(env_state):
     state, key = env_state
     dealer_hand = state[0]
     player_hand = state[1]
-    dealer_cards = state[2] 
+    dealer_cards = state[2]
     player_cards = state[3]
-    key, new_player_hand, _ = draw_card(key, player_hand,player_cards)
-    
-    return (dealer_hand,new_player_hand, dealer_cards,player_cards + 1 ),  key
+    key, new_player_hand, _ = draw_card(key, player_hand, player_cards)
+
+    return (dealer_hand, new_player_hand, dealer_cards, player_cards + 1), key
+
 
 # the player has decided to not take a card, ending the active portion
 # of the game and turning control over to the dealer
@@ -72,20 +71,27 @@ def notake(env_state):
     state, key = env_state
     dealer_hand = state[0]
     player_hand = state[1]
-    dealer_cards = state[2] 
+    dealer_cards = state[2]
     player_cards = state[3]
 
-    draw_card_wrapper = lambda val : draw_card(*val) 
+    def draw_card_wrapper(val):
+        return draw_card(*val)
 
-    key,dealer_hand, dealer_cards = jax.lax.while_loop(lambda val: sum_hand(val[1])<17, draw_card_wrapper, (key, dealer_hand, dealer_cards))
+    key, dealer_hand, dealer_cards = jax.lax.while_loop(
+        lambda val: sum_hand(val[1]) < 17,
+        draw_card_wrapper,
+        (key, dealer_hand, dealer_cards),
+    )
 
     return (dealer_hand, player_hand, dealer_cards, player_cards), key
+
 
 # gets an observation from env state
 def _get_obsv(env_state):
     return (sum_hand(env_state[0][1]), env_state[0][0][0], usable_ace(env_state[0][1]))
 
-def sum_hand(hand):  # Return current hand total 
+
+def sum_hand(hand):  # Return current hand total
     return sum(hand) + (10 * usable_ace(hand))
 
 
@@ -98,7 +104,12 @@ def score(hand):  # What is the score of this hand (0 if bust)
 
 
 def is_natural(hand):  # Is this hand a natural blackjack?
-    return jnp.logical_and(jnp.logical_and(jnp.count_nonzero(hand) == 2 , (jnp.count_nonzero(hand==1) > 0 )) , (jnp.count_nonzero(hand==10) > 0 ))
+    return jnp.logical_and(
+        jnp.logical_and(
+            jnp.count_nonzero(hand) == 2, (jnp.count_nonzero(hand == 1) > 0)
+        ),
+        (jnp.count_nonzero(hand == 10) > 0),
+    )
 
 
 class JaxBlackJackEnv(gym.Env):
@@ -166,15 +177,13 @@ class JaxBlackJackEnv(gym.Env):
     * v1: Initial versions release (1.0.0)
     """
 
-
-
     metadata = {
         "render_modes": ["human", "rgb_array", "single_rgb_array"],
         "render_fps": 4,
     }
 
-    def __init__(self, render_mode = None, natural = False, sutton_and_barto = False):
-        
+    def __init__(self, render_mode=None, natural=False, sutton_and_barto=False):
+
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Tuple(
             (spaces.Discrete(32), spaces.Discrete(11), spaces.Discrete(2))
@@ -189,87 +198,89 @@ class JaxBlackJackEnv(gym.Env):
 
         # 1 = Ace, 2-10 = Number cards, Jack/Queen/King = 10
 
-
         self.render_mode = render_mode
         self.renderer = Renderer(self.render_mode, self._render)
 
     @partial(jit, static_argnums=(0,))
     def jit_step(self, env_state, action):
-        
 
         env_state = jax.lax.cond(action, take, notake, env_state)
-        
 
         state, key = env_state
         dealer_hand = state[0]
         player_hand = state[1]
-        dealer_cards = state[2] 
+        dealer_cards = state[2]
         player_cards = state[3]
 
-        # -1 reward if the player busts, otherwise +1 if better than dealer, 0 if tie, -1 if loss. 
-        reward = (is_bust(player_hand) * -1  * action) + ((jnp.logical_not(action)) * cmp(score(player_hand), score(dealer_hand)))
-        
-        #in the natural setting, if the player wins with a natural blackjack, then reward is 1.5
+        # -1 reward if the player busts, otherwise +1 if better than dealer, 0 if tie, -1 if loss.
+        reward = (is_bust(player_hand) * -1 * action) + (
+            (jnp.logical_not(action)) * cmp(score(player_hand), score(dealer_hand))
+        )
+
+        # in the natural setting, if the player wins with a natural blackjack, then reward is 1.5
         if self.natural and not self.sutton_and_barto:
-            condition = jnp.logical_and(is_natural(player_hand) , (reward == 1))
-            reward = reward * jnp.logical_not(condition) + 1.5 * condition 
+            condition = jnp.logical_and(is_natural(player_hand), (reward == 1))
+            reward = reward * jnp.logical_not(condition) + 1.5 * condition
 
         # in the sutton and barto setting, if the player gets a natural blackjack and the dealer gets
         # a non-natural blackjack, the player wins. A dealer natural blackjack and a player
         # non-natural blackjack should result in a tie.
         if self.sutton_and_barto:
-            condition = jnp.logical_and(is_natural(player_hand) , jnp.logical_not(is_natural(dealer_hand)))
-            reward = reward * jnp.logical_not(condition) + 1 * condition 
-        
+            condition = jnp.logical_and(
+                is_natural(player_hand), jnp.logical_not(is_natural(dealer_hand))
+            )
+            reward = reward * jnp.logical_not(condition) + 1 * condition
+
         # note that only a bust or player action ends the round, the player
         # can still request another card with 21 cards
         done = (is_bust(player_hand) * action) + ((jnp.logical_not(action)) * 1)
 
-        
-
         new_state = (dealer_hand, player_hand, dealer_cards, player_cards), key
 
-  
         return new_state, _get_obsv(new_state), reward, done, {}
-        
 
     @partial(jit, static_argnums=(0,))
     def jit_reset(self, key):
-      #env_state = self._reset(key)
+        # env_state = self._reset(key)
 
-      player_hand = jnp.zeros(21)
-      dealer_hand =  jnp.zeros(21)
-      player_hand, key = draw_hand(key, player_hand)
-      dealer_hand, key  = draw_hand(key, dealer_hand)
-      dealer_cards = 2
-      player_cards = 2
+        player_hand = jnp.zeros(21)
+        dealer_hand = jnp.zeros(21)
+        player_hand, key = draw_hand(key, player_hand)
+        dealer_hand, key = draw_hand(key, dealer_hand)
+        dealer_cards = 2
+        player_cards = 2
 
-      state = (dealer_hand, player_hand, dealer_cards, player_cards)
-  
-      key = random.split(key)[0]
-      
-      env_state = (state,key)
+        state = (dealer_hand, player_hand, dealer_cards, player_cards)
 
-      return env_state, _get_obsv(env_state)
+        key = random.split(key)[0]
 
+        env_state = (state, key)
+
+        return env_state, _get_obsv(env_state)
 
     def step(self, action):
         assert self.action_space.contains(action)
-        new_state, observation,reward,done,info = self.jit_step(self.state, action)
+        new_state, observation, reward, done, info = self.jit_step(self.state, action)
         self.state = new_state
         self.renderer.render_step()
         return obs_from_device(observation), float(reward), bool(done), info
 
-    def reset(self, seed = 0, return_info = False):
-        key =  random.PRNGKey(seed)
+    def reset(
+        self,
+        seed: Optional[int] = 0,
+        return_info: bool = False,
+        options: Optional[dict] = None,
+    ):
+        super().reset(seed=seed)
+
+        key = random.PRNGKey(seed)
         new_state, observation = self.jit_reset(key)
         self.state = new_state
 
-
         _, dealer_card_value, _ = obs_from_device(_get_obsv(self.state))
-        
+
         suits = ["C", "D", "H", "S"]
-        
+
         self.dealer_card_suit = self.np_random.choice(suits)
 
         if dealer_card_value == 1:
@@ -282,18 +293,15 @@ class JaxBlackJackEnv(gym.Env):
         self.renderer.reset()
         self.renderer.render_step()
         if not return_info:
-            return obs_from_device(observation) #, {}
+            return obs_from_device(observation)  # , {}
         else:
-            return obs_from_device(observation) , {}
-
+            return obs_from_device(observation), {}
 
     def render(self, mode="human"):
         if self.render_mode is not None:
             return self.renderer.get_renders()
         else:
             return self._render(mode)
-
-
 
     def _render(self, mode):
         assert mode in self.metadata["render_modes"]
@@ -339,7 +347,7 @@ class JaxBlackJackEnv(gym.Env):
             return font
 
         small_font = get_font(
-            os.path.join("..","toy_text","font", "Minecraft.ttf"), screen_height // 15
+            os.path.join("..", "toy_text", "font", "Minecraft.ttf"), screen_height // 15
         )
         dealer_text = small_font.render(
             "Dealer: " + str(dealer_card_value), True, white
@@ -351,7 +359,12 @@ class JaxBlackJackEnv(gym.Env):
 
         dealer_card_img = scale_card_img(
             get_image(
-                os.path.join("..","toy_text","img", f"{self.dealer_card_suit}{self.dealer_card_value_str}.png")
+                os.path.join(
+                    "..",
+                    "toy_text",
+                    "img",
+                    f"{self.dealer_card_suit}{self.dealer_card_value_str}.png",
+                )
             )
         )
         dealer_card_rect = self.screen.blit(
@@ -362,7 +375,9 @@ class JaxBlackJackEnv(gym.Env):
             ),
         )
 
-        hidden_card_img = scale_card_img(get_image(os.path.join("..","toy_text","img", "Card.png")))
+        hidden_card_img = scale_card_img(
+            get_image(os.path.join("..", "toy_text", "img", "Card.png"))
+        )
         self.screen.blit(
             hidden_card_img,
             (
@@ -376,7 +391,9 @@ class JaxBlackJackEnv(gym.Env):
             player_text, (spacing, dealer_card_rect.bottom + 1.5 * spacing)
         )
 
-        large_font = get_font(os.path.join("..","toy_text","font", "Minecraft.ttf"), screen_height // 6)
+        large_font = get_font(
+            os.path.join("..", "toy_text", "font", "Minecraft.ttf"), screen_height // 6
+        )
         player_sum_text = large_font.render(str(player_sum), True, white)
         player_sum_text_rect = self.screen.blit(
             player_sum_text,
@@ -418,14 +435,13 @@ class JaxBlackJackEnv(gym.Env):
 
 
 if __name__ == "__main__":
-    
-    #simple rollout testcase
 
-    
-    #with jax.disable_jit(): #enable this for debugging
+    # simple rollout testcase
+
+    # with jax.disable_jit(): #enable this for debugging
     seed = int(time.time())
-    env = JaxBlackJackEnv(render_mode = 'human', natural = False, sutton_and_barto = True)
-    obs = env.reset(seed = seed)
+    env = JaxBlackJackEnv(render_mode="human", natural=False, sutton_and_barto=True)
+    obs = env.reset(seed=seed)
     print("START ROLLOUT:")
     done = False
     while True:
@@ -440,13 +456,8 @@ if __name__ == "__main__":
         print("REWARD")
         print(reward)
         if done:
-            print("Epsiode over")
+            print("Episode over")
             print("FINAL STATE")
             print(env.state)
             seed = int(time.time())
-            obs = env.reset(seed = seed)
-
-
-    
-    
-  
+            obs = env.reset(seed=seed)
