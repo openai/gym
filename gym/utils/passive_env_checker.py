@@ -62,9 +62,12 @@ def check_observation_space(observation_space):
             observation_space.shape == () and observation_space.n > 0
         ), f"Discrete observation space's number of dimensions must be positive, actual dimensions: {observation_space.n}"
     elif isinstance(observation_space, spaces.MultiDiscrete):
+        assert (
+            observation_space.shape == observation_space.nvec.shape
+        ), f"Expect the MultiDiscrete shape is be equal to nvec.shape, space shape: {observation_space.shape}, nvec shape: {observation_space.nvec.shape}"
         assert np.all(
             observation_space.nvec > 0
-        ), f"All dimensions of multi-discrete observation space must be greater than 0, actual shape: {observation_space.shape}"
+        ), f"All dimensions of multi-discrete observation space must be greater than 0, actual shape: {observation_space.nvec}"
     elif isinstance(observation_space, spaces.MultiBinary):
         assert np.all(
             np.asarray(observation_space.shape) > 0
@@ -152,9 +155,13 @@ def check_obs(obs, observation_space: spaces.Space, method_name: str):
             logger.warn(
                 f"{pre} was expecting an int or np.int64, actually type: {type(obs)}"
             )
-    elif isinstance(
-        observation_space, (spaces.Box, spaces.MultiBinary, spaces.MultiDiscrete)
-    ):
+    elif isinstance(observation_space, spaces.Box):
+        if observation_space.shape != ():
+            if not isinstance(obs, np.ndarray):
+                logger.warn(
+                    f"{pre} was expecting a numpy array, actually type: {type(obs)}"
+                )
+    elif isinstance(observation_space, (spaces.MultiBinary, spaces.MultiDiscrete)):
         if not isinstance(obs, np.ndarray):
             logger.warn(
                 f"{pre} was expecting a numpy array, actually type: {type(obs)}"
@@ -175,8 +182,11 @@ def check_obs(obs, observation_space: spaces.Space, method_name: str):
         for space_key in observation_space.spaces.keys():
             check_obs(obs[space_key], observation_space[space_key], method_name)
 
-    if obs not in observation_space:
-        logger.warn(f"{pre} is not within the observation space")
+    try:
+        if obs not in observation_space:
+            logger.warn(f"{pre} is not within the observation space")
+    except Exception as e:
+        logger.warn(f"{pre} is not within the observation space with exception: {e}")
 
 
 def passive_env_reset_checker(env, **kwargs):
@@ -264,10 +274,11 @@ def passive_env_step_checker(env, action):
         logger.warn(
             f"The reward returned by `step()` must be a float, int, np.integer or np.floating, actual type: {type(reward)}"
         )
-    if np.isnan(reward):
-        logger.warn("The reward is a NaN value.")
-    if np.isinf(reward):
-        logger.warn("The reward is an inf value.")
+    else:
+        if np.isnan(reward):
+            logger.warn("The reward is a NaN value.")
+        if np.isinf(reward):
+            logger.warn("The reward is an inf value.")
 
     assert isinstance(
         info, dict
@@ -309,9 +320,10 @@ def passive_env_render_checker(env, *args, **kwargs):
                     logger.warn(
                         f"Expects the `env.metadata['render_fps']` to be an integer, actual type: {type(render_fps)}."
                     )
-                assert (
-                    render_fps > 0
-                ), f"Expects the `env.metadata['render_fps']` to be greater than zero, actual value: {render_fps}."
+                else:
+                    assert (
+                        render_fps > 0
+                    ), f"Expects the `env.metadata['render_fps']` to be greater than zero, actual value: {render_fps}."
 
         # env.render is now an attribute with default None
         if len(render_modes) == 0:

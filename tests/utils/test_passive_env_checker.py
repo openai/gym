@@ -59,7 +59,7 @@ def _modify_space(space: spaces.Space, attribute: str, value):
         [
             AssertionError,
             spaces.Box(np.ones(5), np.zeros(5)),
-            "Agent's minimum observation value is greater than it's maximum",
+            "An Agent's minimum observation value is greater than it's maximum",
         ],
         [
             AssertionError,
@@ -79,8 +79,13 @@ def _modify_space(space: spaces.Space, attribute: str, value):
         ],
         [
             AssertionError,
-            _modify_space(spaces.MultiDiscrete([2, 2]), "_shape", (2, -1)),
-            "All dimensions of multi-discrete observation space must be greater than 0, actual shape: (2, -1)",
+            _modify_space(spaces.MultiDiscrete([2, 2]), "nvec", np.array([2, -1])),
+            "All dimensions of multi-discrete observation space must be greater than 0, actual shape: [ 2 -1]",
+        ],
+        [
+            AssertionError,
+            _modify_space(spaces.MultiDiscrete([2, 2]), "_shape", (2, 1, 2)),
+            "Expect the MultiDiscrete shape is be equal to nvec.shape, space shape: (2, 1, 2), nvec shape: (2,)",
         ],
         [
             AssertionError,
@@ -107,8 +112,10 @@ def test_check_observation_space(test, space, message: str):
         ):
             check_observation_space(space)
     else:
-        with pytest.raises(test, match=f"^{re.escape(message)}$"):
-            check_observation_space(space)
+        with pytest.warns(None) as warnings:
+            with pytest.raises(test, match=f"^{re.escape(message)}$"):
+                check_observation_space(space)
+        assert len(warnings) == 0
 
 
 @pytest.mark.parametrize(
@@ -172,36 +179,32 @@ def test_check_action_space(test, space: spaces.Space, message: str):
         ):
             check_action_space(space)
     else:
-        with pytest.raises(test, match=f"^{re.escape(message)}$"):
-            check_action_space(space)
+        with pytest.warns(None) as warnings:
+            with pytest.raises(test, match=f"^{re.escape(message)}$"):
+                check_action_space(space)
+        assert len(warnings) == 0
 
 
 @pytest.mark.parametrize(
     "test,obs,obs_space,message",
     [
         [
-            AssertionError,
+            UserWarning,
             3,
             spaces.Discrete(2),
             "The obs returned by the `testing()` method is not within the observation space",
         ],
         [
-            AssertionError,
-            np.array([1], dtype=np.uint8)[0],
+            UserWarning,
+            np.uint8(0),
             spaces.Discrete(1),
-            "The obs returned by the `testing()` method must be an int or np.int64, actually type: <class 'numpy.uint8'>",
+            "The obs returned by the `testing()` method was expecting an int or np.int64, actually type: <class 'numpy.uint8'>",
         ],
         [
-            AssertionError,
-            1,
-            spaces.Box(0, 1, ()),
-            "The obs returned by the `testing()` method must be a numpy array, actually type: <class 'int'>",
-        ],
-        [
-            AssertionError,
-            [1, 2],
+            UserWarning,
+            [0, 1],
             spaces.Tuple([spaces.Discrete(1), spaces.Discrete(2)]),
-            "The obs returned by the `testing()` method must be a tuple, actually type: <class 'list'>",
+            "The obs returned by the `testing()` method was expecting a tuple, actually type: <class 'list'>",
         ],
         [
             AssertionError,
@@ -231,8 +234,10 @@ def test_check_obs(test, obs, obs_space: spaces.Space, message: str):
         ):
             check_obs(obs, obs_space, "testing")
     else:
-        with pytest.raises(test, match=f"^{re.escape(message)}$"):
-            check_obs(obs, obs_space, "testing")
+        with pytest.warns(None) as warnings:
+            with pytest.raises(test, match=f"^{re.escape(message)}$"):
+                check_obs(obs, obs_space, "testing")
+        assert len(warnings) == 0
 
 
 def _reset_no_seed(self, return_info=False, options=None):
@@ -297,18 +302,6 @@ def _make_reset_results(results):
             "The second element returned by `env.reset(return_info=True)` was not a dictionary, actually type: <class 'set'>",
             {"return_info": True},
         ],
-        [
-            AssertionError,
-            _make_reset_results(2),
-            "The obs returned by the `reset()` method must be a numpy array, actually type: <class 'int'>",
-            {"return_info": False},
-        ],
-        [
-            AssertionError,
-            _make_reset_results((2, {})),
-            "The obs returned by the `reset()` method must be a numpy array, actually type: <class 'int'>",
-            {"return_info": True},
-        ],
     ],
 )
 def test_passive_env_reset_checker(test, func: callable, message: str, kwargs: Dict):
@@ -319,8 +312,10 @@ def test_passive_env_reset_checker(test, func: callable, message: str, kwargs: D
         ):
             passive_env_reset_checker(GenericTestEnv(reset_fn=func), **kwargs)
     else:
-        with pytest.raises(test, match=f"^{re.escape(message)}$"):
-            passive_env_reset_checker(GenericTestEnv(reset_fn=func), **kwargs)
+        with pytest.warns(None) as warnings:
+            with pytest.raises(test, match=f"^{re.escape(message)}$"):
+                passive_env_reset_checker(GenericTestEnv(reset_fn=func), **kwargs)
+        assert len(warnings) == 0
 
 
 def modified_step(
@@ -351,12 +346,12 @@ def modified_step(
             "The `done` signal must be a boolean, actual type: <class 'str'>",
         ],
         [
-            AssertionError,
+            UserWarning,
             lambda self, _: modified_step(self, terminated="error", truncated=False),
             "The `terminated` signal must be a boolean, actual type: <class 'str'>",
         ],
         [
-            AssertionError,
+            UserWarning,
             lambda self, _: modified_step(self, truncated="error"),
             "The `truncated` signal must be a boolean, actual type: <class 'str'>",
         ],
@@ -366,7 +361,7 @@ def modified_step(
             "Expected `Env.step` to return a four or five element tuple, actually number of elements returned: 3.",
         ],
         [
-            AssertionError,
+            UserWarning,
             lambda self, _: modified_step(self, reward="error"),
             "The reward returned by `step()` must be a float, int, np.integer or np.floating, actual type: <class 'str'>",
         ],
@@ -395,25 +390,27 @@ def test_passive_env_step_checker(test, func, message):
         ):
             passive_env_step_checker(GenericTestEnv(step_fn=func), 0)
     else:
-        with pytest.raises(test, match=f"^{re.escape(message)}$"):
-            passive_env_step_checker(GenericTestEnv(step_fn=func), 0)
+        with pytest.warns(None) as warnings:
+            with pytest.raises(test, match=f"^{re.escape(message)}$"):
+                passive_env_step_checker(GenericTestEnv(step_fn=func), 0)
+        assert len(warnings) == 0, [warning for warning in warnings.list]
 
 
 @pytest.mark.parametrize(
     "test,env,message",
     [
         [
-            gym.error.Error,
+            UserWarning,
             GenericTestEnv(render_modes=None),
             "No render modes was declared in the environment (env.metadata['render_modes'] is None or not defined), you may have trouble when calling `.render()`.",
         ],
         [
-            AssertionError,
+            UserWarning,
             GenericTestEnv(render_modes="Testing mode"),
             "Expects the render_modes to be a sequence (i.e. list, tuple), actual type: <class 'str'>",
         ],
         [
-            AssertionError,
+            UserWarning,
             GenericTestEnv(render_modes=["Testing mode", 1]),
             "Expects all render modes to be strings, actual types: [<class 'str'>, <class 'int'>].",
         ],
@@ -428,7 +425,7 @@ def test_passive_env_step_checker(test, func, message):
             "No render fps was declared in the environment (env.metadata['render_fps'] is None or not defined), rendering may occur at inconsistent fps.",
         ],
         [
-            AssertionError,
+            UserWarning,
             GenericTestEnv(render_modes=["Testing mode"], render_fps="fps"),
             "Expects the `env.metadata['render_fps']` to be an integer, actual type: <class 'str'>.",
         ],
@@ -448,12 +445,13 @@ def test_passive_env_step_checker(test, func, message):
 )
 def test_passive_render_checker(test, env: GenericTestEnv, message: str):
     """Tests the passive render checker."""
-    print(env.metadata)
     if test is UserWarning:
         with pytest.warns(
             UserWarning, match=f"^\\x1b\\[33mWARN: {re.escape(message)}\\x1b\\[0m$"
         ):
             passive_env_render_checker(env)
     else:
-        with pytest.raises(test, match=f"^{re.escape(message)}$"):
-            passive_env_render_checker(env)
+        with pytest.warns(None) as warnings:
+            with pytest.raises(test, match=f"^{re.escape(message)}$"):
+                passive_env_render_checker(env)
+        assert len(warnings) == 0

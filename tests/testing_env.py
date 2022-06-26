@@ -29,6 +29,10 @@ def basic_step_fn(self, action: ActType) -> Tuple[ObsType, float, bool, dict]:
     return self.observation_space.sample(), 0, False, {}
 
 
+def basic_render_fn(self):
+    pass
+
+
 # todo: change all testing environment to this generic class
 class GenericTestEnv(gym.Env):
     """A generic testing environment for use in testing with modified environments are required."""
@@ -39,7 +43,7 @@ class GenericTestEnv(gym.Env):
         observation_space: spaces.Space = spaces.Box(0, 1, (1,)),
         reset_fn: callable = basic_reset_fn,
         step_fn: callable = basic_step_fn,
-        render_fn: callable = None,
+        render_fn: callable = basic_render_fn,
         render_modes: Optional[List[str]] = None,
         render_fps: Optional[int] = None,
         render_mode: Optional[str] = None,

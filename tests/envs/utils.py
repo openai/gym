@@ -33,7 +33,7 @@ gym_testing_env_specs = [
     env_spec
     for env_spec in all_testing_env_specs
     if any(
-        f"gym.{ep}" in env_spec.entry_point
+        f"gym.envs.{ep}" in env_spec.entry_point
         for ep in ["box2d", "classic_control", "toy_text"]
     )
 ]
