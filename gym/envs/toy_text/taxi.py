@@ -466,5 +466,6 @@ class TaxiEnv(Env):
             pygame.display.quit()
             pygame.quit()
 
+
 # Taxi rider from https://franuka.itch.io/rpg-asset-pack
 # All other assets by Mel Tillery http://www.cyaneus.com/
