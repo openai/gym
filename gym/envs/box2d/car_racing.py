@@ -173,7 +173,7 @@ class CarRacing(gym.Env, EzPickle):
         EzPickle.__init__(self)
         self.continuous = continuous
         self.domain_randomize = domain_randomize
-        self._init_colors()
+        self._init_colors(domain_randomize)
 
         self.contactListener_keepref = FrictionDetector(self, lap_complete_percent)
         self.world = Box2D.b2World((0, 0), contactListener=self.contactListener_keepref)
@@ -219,8 +219,8 @@ class CarRacing(gym.Env, EzPickle):
         self.road = []
         self.car.destroy()
 
-    def _init_colors(self):
-        if self.domain_randomize:
+    def _init_colors(self, randomize: bool = False):
+        if randomize:
             # domain randomize the bg and grass colour
             self.road_color = self.np_random.uniform(0, 210, size=3)
 
@@ -440,7 +440,10 @@ class CarRacing(gym.Env, EzPickle):
         self.t = 0.0
         self.new_lap = False
         self.road_poly = []
-        self._init_colors()
+        if "randomize" in options:
+            self._init_colors(options["randomize"])
+        else:
+            self._init_colors(self.domain_randomize)
 
         while True:
             success = self._create_track()
