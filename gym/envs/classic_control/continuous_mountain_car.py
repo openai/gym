@@ -20,8 +20,8 @@ import numpy as np
 
 import gym
 from gym import spaces
+from gym.envs.classic_control import utils
 from gym.error import DependencyNotInstalled
-from gym.utils import option_parser
 from gym.utils.renderer import Renderer
 
 
@@ -182,12 +182,10 @@ class Continuous_MountainCarEnv(gym.Env):
     ):
         super().reset(seed=seed)
         # MountainCar expects states to be within -1.2 and 0.6.
-        low, high = option_parser.maybe_parse_reset_bounds(
+        low, high = utils.maybe_parse_reset_bounds(
+                options,
                 -0.6,  # default low
-                0.4,  # default high
-                -1.2,  # limit low
-                0.6,  # limit high
-                options)
+                0.4)  # default high
         self.state = np.array([self.np_random.uniform(low=low, high=high), 0])
         self.renderer.reset()
         self.renderer.render_step()

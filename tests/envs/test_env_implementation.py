@@ -83,59 +83,71 @@ def test_frozenlake_dfs_map_generation(map_size: int):
                         frontier.append((new_row, new_col))
     raise AssertionError("No path through the frozenlake was found.")
 
-
+@pytest.mark.parametrize(
+        "env_name",
+        ["Acrobot-v1", "CartPole-v1",
+         "MountainCar-v0", "MountainCarContinuous-v0"])
 @pytest.mark.parametrize("low_high",
                          [None,
-                          (-1.0, 1.0),
-                          (np.array(-1.0), np.array(1.0)),
-                          (-1., 2.),
-                          (np.array(-1.0), np.array(2.0)),
-                          (-2., 1.),
-                          (np.array(-2.0), np.array(1.0))])
-def test_customizable_resets(low_high: Optional[list]):
-    envs = {
-        'acrobot': gym.make('Acrobot-v1'),
-        'cartpole': gym.make('CartPole-v1'),
-        'mountaincar': gym.make('MountainCar-v0'),
-        'mountaincar_continuous': gym.make('MountainCarContinuous-v0'),
-        'pendulum': gym.make('Pendulum-v1'),
-    }
-    for env in envs:
-        # First ensure we can do a reset and the values are within expected ranges.
-        if low_high is None:
-            envs[env].reset()
-        else:
-            low, high = low_high
-            for i in range(15):
-                if env == 'pendulum':
-                    # Pendulum is initialized a little differently, where we specify the
-                    # x and y values for the upper limit (and lower limit is just the
-                    # negative of it).
-                    envs[env].reset(options={'x': low, 'y': high})
-                else:
-                    envs[env].reset(options={'low': low, 'high': high})
-                assert np.all((envs[env].state >= low) & (envs[env].state <= high))
-                if env.endswith('continuous') or env == 'pendulum':
-                    envs[env].step([0])
-                else:
-                    envs[env].step(0)
-
-@pytest.mark.parametrize("low_high",
-                         [('x', 'y'), ([-1.], [1.]),
-                          (np.array([-1.]), np.array([1.]))])
-def test_invalid_customizable_resets(low_high: list):
-    envs = {
-        'acrobot': gym.make('Acrobot-v1'),
-        'cartpole': gym.make('CartPole-v1'),
-        'mountaincar': gym.make('MountainCar-v0'),
-        'mountaincar_continuous': gym.make('MountainCarContinuous-v0'),
-        'pendulum': gym.make('Pendulum-v1'),
-    }
-    for env in envs:
+                          (-0.5, 0.5),
+                          (np.array(-0.5), np.array(0.5))])
+def test_customizable_resets(env_name: str, low_high: Optional[list]):
+    env = gym.make(env_name)
+    # First ensure we can do a reset.
+    if low_high is None:
+        env.reset()
+    else:
         low, high = low_high
-        if env == 'pendulum':
-            with pytest.raises(AssertionError):
-                envs[env].reset(options={'x': low, 'y': high})
-        else:
-            with pytest.raises(AssertionError):
-                envs[env].reset(options={'low': low, 'high': high})
+        for i in range(15):
+            env.reset(options={"low": low, "high": high})
+            assert np.all((env.state >= low) & (env.state <= high))
+            action = [0] if env_name.endswith("Continuous-v0") else 0
+            env.step(action)
+
+@pytest.mark.parametrize(
+        "env_name",
+        ["CartPole-v1", "MountainCar-v0", "MountainCarContinuous-v0"])
+@pytest.mark.parametrize("low_high",
+                         [(-10.0, -9.0),
+                          (np.array(-10.0), np.array(-9.0))])
+def test_customizable_out_of_bounds_resets(
+        env_name: str, low_high: Optional[list]):
+    env = gym.make(env_name)
+    low, high = low_high
+    with pytest.raises(AssertionError):
+        env.reset(options={"low": low, "high": high})
+
+# We test Pendulum separately, as the parameters are handled differently.
+@pytest.mark.parametrize("low_high",
+                         [None,
+                          (1.2, 1.0),
+                          (np.array(1.2), np.array(1.0)),
+                          ])
+def test_customizable_resets(low_high: Optional[list]):
+    env = gym.make("Pendulum-v1")
+    # First ensure we can do a reset and the values are within expected ranges.
+    if low_high is None:
+        env.reset()
+    else:
+        low, high = low_high
+        for i in range(15):
+            # Pendulum is initialized a little differently than the other
+            # environments, where we specify the x and y values for the upper
+            # limit (and lower limit is just the negative of it).
+            env.reset(options={"x": low, "y": high})
+            env.step([0])
+
+@pytest.mark.parametrize(
+        "env_name",
+        ["Acrobot-v1", "CartPole-v1", "MountainCar-v0",
+         "MountainCarContinuous-v0"])
+@pytest.mark.parametrize("low_high",
+                         [("x", "y"),
+                          (10.0, 8.0),
+                          ([-1.], [1.]),
+                          (np.array([-1.]), np.array([1.]))])
+def test_invalid_customizable_resets(env_name: str, low_high: list):
+    env = gym.make(env_name)
+    low, high = low_high
+    with pytest.raises(AssertionError):
+        env.reset(options={"low": low, "high": high})

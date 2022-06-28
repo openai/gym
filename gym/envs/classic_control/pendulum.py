@@ -7,8 +7,8 @@ import numpy as np
 
 import gym
 from gym import spaces
+from gym.envs.classic_control import utils
 from gym.error import DependencyNotInstalled
-from gym.utils import option_parser
 from gym.utils.renderer import Renderer
 
 
@@ -148,20 +148,13 @@ class PendulumEnv(gym.Env):
     ):
         super().reset(seed=seed)
         if options is None:
-            high = np.array([np.pi, 1])
+            high = np.array([DEFAULT_X, DEFAULT_Y])
         else:
-            x = options.pop('x', DEFAULT_X)
-            y = options.pop('y', DEFAULT_Y)
+            x = options.get('x') if 'x' in options else DEFAULT_X
+            y = options.get('y') if 'y' in options else DEFAULT_Y
             # We expect only numerical inputs.
-            assert option_parser.verify_number(x)
-            assert option_parser.verify_number(y)
-            # Since the same boundaries are used for all observations, we set the
-            # limits according to the most restrictive (sin/cos). Since these are
-            # the values that will be used for the `high` variable, we enforce them
-            # to be non-negative: (0., 1.).
-            x = max(0.0, min(1.0, x))
-            y = max(0.0, min(1.0, y))
-            assert x < y
+            assert utils.verify_number(x)
+            assert utils.verify_number(y)
             high = np.array([x, y])
         low = -high  # We enforce symmetric limits.
         self.state = self.np_random.uniform(low=low, high=high)

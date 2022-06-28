@@ -10,8 +10,8 @@ import numpy as np
 
 import gym
 from gym import logger, spaces
+from gym.envs.classic_control import utils
 from gym.error import DependencyNotInstalled
-from gym.utils import option_parser
 from gym.utils.renderer import Renderer
 
 
@@ -195,16 +195,10 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         options: Optional[dict] = None,
     ):
         super().reset(seed=seed)
-        # Since the same boundaries are used for all observations, we set the
-        # limits according to the most restrictive (pole angle). As per the
-        # documentation at the top of the file, we restrict them to be within
-        # (-.2, .2).
-        low, high = option_parser.maybe_parse_reset_bounds(
+        low, high = utils.maybe_parse_reset_bounds(
+                options,
                 -0.05,  # default low
-                0.05,  # default high
-                -0.2,  # limit low
-                0.2,  # limit high
-                options)
+                0.05)  # default high
         self.state = self.np_random.uniform(low=low, high=high, size=(4,))
         self.steps_beyond_done = None
         self.renderer.reset()

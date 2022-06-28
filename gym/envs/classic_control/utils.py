@@ -20,21 +20,19 @@ def verify_number(x: Union[int, float, np.ndarray]) -> bool:
     return False
 
 
-def maybe_parse_reset_bounds(default_low: float,
-                             default_high: float,
-                             limit_low: float,
-                             limit_high: float,
-                             options: Optional[dict] = None) -> [float, float]:
+def maybe_parse_reset_bounds(options: Optional[dict],
+                             default_low: float,
+                             default_high: float) -> [float, float]:
     """
     This function can be called during a reset() to customize the sampling
     ranges for setting the initial state distributions.
 
     Args:
+      options: (Optional) options passed in to reset().
       default_low: Default lower limit to use, if none specified in options.
       default_high: Default upper limit to use, if none specified in options.
       limit_low: Lowest allowable value for user-specified lower limit.
       limit_high: Highest allowable value for user-specified higher limit.
-      options: (Optional) options passed in to reset().
 
     Returns:
       Lower and higher limits.
@@ -42,12 +40,10 @@ def maybe_parse_reset_bounds(default_low: float,
     if options is None:
         return default_low, default_high
 
-    low = options.pop('low', default_low)
-    high = options.pop('high', default_high)
+    low = options.get('low') if 'low' in options else default_low
+    high = options.get('high') if 'high' in options else default_high
     # We expect only numerical inputs.
     assert verify_number(low)
     assert verify_number(high)
-    low = max(low, limit_low)
-    high = min(high, limit_high)
     assert low <= high
     return low, high
