@@ -440,10 +440,12 @@ class CarRacing(gym.Env, EzPickle):
         self.t = 0.0
         self.new_lap = False
         self.road_poly = []
-        if "randomize" in options:
-            self._init_colors(options["randomize"])
-        else:
-            self._init_colors(self.domain_randomize)
+
+        randomize = self.domain_randomize
+        if isinstance(options, dict):
+            if "randomize" in options:
+                randomize = options["randomize"]
+        self._init_colors(randomize)
 
         while True:
             success = self._create_track()
