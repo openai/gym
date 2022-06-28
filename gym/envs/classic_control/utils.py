@@ -3,6 +3,7 @@ Utility functions used for classic control environments.
 """
 
 from typing import Optional, Union
+
 import numpy as np
 
 
@@ -12,17 +13,17 @@ def verify_number(x: Union[int, float, np.ndarray]) -> bool:
         # A single value that is either an int or a float.
         return True
     if type(x) == np.ndarray:
-        if ((np.issubdtype(x.dtype, np.floating) or
-             np.issubdtype(x.dtype, np.integer)) and
-            len(x.shape) == 0):
+        if (
+            np.issubdtype(x.dtype, np.floating) or np.issubdtype(x.dtype, np.integer)
+        ) and len(x.shape) == 0:
             # A numpy single value that is either an int or a float.
             return True
     return False
 
 
-def maybe_parse_reset_bounds(options: Optional[dict],
-                             default_low: float,
-                             default_high: float) -> Union[float, float]:
+def maybe_parse_reset_bounds(
+    options: Optional[dict], default_low: float, default_high: float
+) -> Union[float, float]:
     """
     This function can be called during a reset() to customize the sampling
     ranges for setting the initial state distributions.
@@ -40,8 +41,8 @@ def maybe_parse_reset_bounds(options: Optional[dict],
     if options is None:
         return default_low, default_high
 
-    low = options.get('low') if 'low' in options else default_low
-    high = options.get('high') if 'high' in options else default_high
+    low = options.get("low") if "low" in options else default_low
+    high = options.get("high") if "high" in options else default_high
     # We expect only numerical inputs.
     assert verify_number(low)
     assert verify_number(high)

@@ -198,9 +198,8 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         # Note that if you use custom reset bounds, it may lead to out-of-bound
         # state/observations.
         low, high = utils.maybe_parse_reset_bounds(
-                options,
-                -0.05,  # default low
-                0.05)  # default high
+            options, -0.05, 0.05  # default low
+        )  # default high
         self.state = self.np_random.uniform(low=low, high=high, size=(4,))
         self.steps_beyond_done = None
         self.renderer.reset()

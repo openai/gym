@@ -191,9 +191,8 @@ class AcrobotEnv(core.Env):
         # Note that if you use custom reset bounds, it may lead to out-of-bound
         # state/observations.
         low, high = utils.maybe_parse_reset_bounds(
-                options,
-                -0.1,  # default low
-                0.1)  # default high
+            options, -0.1, 0.1  # default low
+        )  # default high
         self.state = self.np_random.uniform(low=low, high=high, size=(4,)).astype(
             np.float32
         )

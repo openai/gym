@@ -11,7 +11,6 @@ from gym.envs.classic_control import utils
 from gym.error import DependencyNotInstalled
 from gym.utils.renderer import Renderer
 
-
 DEFAULT_X = np.pi
 DEFAULT_Y = 1.0
 
@@ -152,8 +151,8 @@ class PendulumEnv(gym.Env):
         else:
             # Note that if you use custom reset bounds, it may lead to out-of-bound
             # state/observations.
-            x = options.get('x') if 'x' in options else DEFAULT_X
-            y = options.get('y') if 'y' in options else DEFAULT_Y
+            x = options.get("x") if "x" in options else DEFAULT_X
+            y = options.get("y") if "y" in options else DEFAULT_Y
             # We expect only numerical inputs.
             assert utils.verify_number(x)
             assert utils.verify_number(y)
