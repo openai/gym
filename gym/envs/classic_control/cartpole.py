@@ -195,6 +195,8 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         options: Optional[dict] = None,
     ):
         super().reset(seed=seed)
+        # Note that if you use custom reset bounds, it may lead to out-of-bound
+        # state/observations.
         low, high = utils.maybe_parse_reset_bounds(
                 options,
                 -0.05,  # default low

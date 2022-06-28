@@ -83,6 +83,27 @@ def test_frozenlake_dfs_map_generation(map_size: int):
                         frontier.append((new_row, new_col))
     raise AssertionError("No path through the frozenlake was found.")
 
+def test_taxi_action_mask():
+    env = TaxiEnv()
+
+    for state in env.P:
+        mask = env.action_mask(state)
+        for action, possible in enumerate(mask):
+            _, next_state, _, _ = env.P[state][action][0]
+            assert state != next_state if possible else state == next_state
+
+
+def test_taxi_encode_decode():
+    env = TaxiEnv()
+
+    state = env.reset()
+    for _ in range(100):
+        assert (
+            env.encode(*env.decode(state)) == state
+        ), f"state={state}, encode(decode(state))={env.encode(*env.decode(state))}"
+        state, _, _, _ = env.step(env.action_space.sample())
+
+
 @pytest.mark.parametrize(
         "env_name",
         ["Acrobot-v1", "CartPole-v1",
@@ -104,6 +125,7 @@ def test_customizable_resets(env_name: str, low_high: Optional[list]):
             action = [0] if env_name.endswith("Continuous-v0") else 0
             env.step(action)
 
+
 @pytest.mark.parametrize(
         "env_name",
         ["CartPole-v1", "MountainCar-v0", "MountainCarContinuous-v0"])
@@ -116,6 +138,7 @@ def test_customizable_out_of_bounds_resets(
     low, high = low_high
     with pytest.raises(AssertionError):
         env.reset(options={"low": low, "high": high})
+
 
 # We test Pendulum separately, as the parameters are handled differently.
 @pytest.mark.parametrize("low_high",
@@ -136,6 +159,7 @@ def test_customizable_resets(low_high: Optional[list]):
             # limit (and lower limit is just the negative of it).
             env.reset(options={"x": low, "y": high})
             env.step([0])
+
 
 @pytest.mark.parametrize(
         "env_name",

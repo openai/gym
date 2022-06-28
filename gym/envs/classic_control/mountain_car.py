@@ -155,7 +155,8 @@ class MountainCarEnv(gym.Env):
         options: Optional[dict] = None,
     ):
         super().reset(seed=seed)
-        # MountainCar expects states to be within -1.2 and 0.6.
+        # Note that if you use custom reset bounds, it may lead to out-of-bound
+        # state/observations.
         low, high = utils.maybe_parse_reset_bounds(
                 options,
                 -0.6,  # default low

@@ -150,6 +150,8 @@ class PendulumEnv(gym.Env):
         if options is None:
             high = np.array([DEFAULT_X, DEFAULT_Y])
         else:
+            # Note that if you use custom reset bounds, it may lead to out-of-bound
+            # state/observations.
             x = options.get('x') if 'x' in options else DEFAULT_X
             y = options.get('y') if 'y' in options else DEFAULT_Y
             # We expect only numerical inputs.
