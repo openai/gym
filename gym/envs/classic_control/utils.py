@@ -22,7 +22,7 @@ def verify_number(x: Union[int, float, np.ndarray]) -> bool:
 
 def maybe_parse_reset_bounds(options: Optional[dict],
                              default_low: float,
-                             default_high: float) -> [float, float]:
+                             default_high: float) -> Union[float, float]:
     """
     This function can be called during a reset() to customize the sampling
     ranges for setting the initial state distributions.
