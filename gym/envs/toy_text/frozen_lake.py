@@ -424,4 +424,4 @@ class FrozenLakeEnv(Env):
 
 
 # Elf and stool from https://franuka.itch.io/rpg-snow-tileset
-# All other assets by Mel Sawyer http://www.cyaneus.com/
+# All other assets by Mel Tillery http://www.cyaneus.com/
