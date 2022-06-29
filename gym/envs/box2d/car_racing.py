@@ -110,8 +110,10 @@ class CarRacing(gym.Env, EzPickle):
     and turn at the same time.
 
     ### Action Space
-    There are 3 actions: steering (-1 is full left, +1 is full right), gas,
-    and breaking.
+    If continuous:
+        There are 3 actions: steering (-1 is full left, +1 is full right), gas, and breaking.
+    If discrete:
+        There are 5 actions: do nothing, steer left, steer right, gas, brake.
 
     ### Observation Space
     State consists of 96x96 pixels.
