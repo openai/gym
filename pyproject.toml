@@ -10,6 +10,7 @@ exclude = [
     "**/__pycache__",
 
     "gym/envs/box2d/**",
+    "gym/spaces/graph.py",
     # "gym/envs/classic_control/**",
     "gym/envs/mujoco/**",
     "gym/utils/**",
