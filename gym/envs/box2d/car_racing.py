@@ -256,7 +256,7 @@ class CarRacing(gym.Env, EzPickle):
     def _reinit_colors(self, randomize):
         assert (
             self.domain_randomize
-        ), f"domain_randomize must be True to use this function."
+        ), "domain_randomize must be True to use this function."
 
         if randomize:
             # domain randomize the bg and grass colour
