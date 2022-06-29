@@ -103,6 +103,3 @@ def test_render_modes(spec):
             new_env.reset()
             new_env.step(new_env.action_space.sample())
             new_env.render()
-
-            new_env.close()
-    env.close()
