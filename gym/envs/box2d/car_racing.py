@@ -142,6 +142,7 @@ class CarRacing(gym.Env, EzPickle):
 
     ### Reset Arguments
     Passing the option `options["randomize"] = True` will change the current colour of the environment on demand.
+    Correspondingly, passing the option `options["randomize"] = False` will not change the current colour of the environment.
     `domain_randomize` must be `True` on init for this argument to work, otherwise, an assertation is raised.
     Example usage:
     ```py
