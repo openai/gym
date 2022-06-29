@@ -145,7 +145,7 @@ class CarRacing(gym.Env, EzPickle):
     `domain_randomize` must be `True` on init for this argument to work, otherwise, an assertation is raised.
     Example usage:
     ```py
-        env = gym.make("CarRacing-v1")
+        env = gym.make("CarRacing-v1", domain_randomize=True)
 
         # normal reset
         env.reset()
