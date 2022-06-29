@@ -3,6 +3,7 @@ from typing import Dict, List, Optional, Sequence, SupportsFloat, Tuple, Type, U
 
 import numpy as np
 
+import gym.error
 from gym import logger
 from gym.spaces.space import Space
 from gym.utils import seeding
@@ -161,7 +162,7 @@ class Box(Space[np.ndarray]):
         else:
             raise ValueError("manner is not in {'below', 'above', 'both'}")
 
-    def sample(self) -> np.ndarray:
+    def sample(self, mask: None = None) -> np.ndarray:
         r"""Generates a single random sample inside the Box.
 
         In creating a sample of the box, each coordinate is sampled (independently) from a distribution
@@ -172,9 +173,17 @@ class Box(Space[np.ndarray]):
         * :math:`(-\infty, b]` : shifted negative exponential distribution
         * :math:`(-\infty, \infty)` : normal distribution
 
+        Args:
+            mask: A mask for sampling values from the Box space, currently unsupported.
+
         Returns:
             A sampled value from the Box
         """
+        if mask is not None:
+            raise gym.error.Error(
+                f"Box.sample cannot be provided a mask, actual value: {mask}"
+            )
+
         high = self.high if self.dtype.kind == "f" else self.high.astype("int64") + 1
         sample = np.empty(self.shape)
 

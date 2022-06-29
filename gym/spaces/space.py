@@ -1,6 +1,7 @@
 """Implementation of the `Space` metaclass."""
 
 from typing import (
+    Any,
     Generic,
     Iterable,
     List,
@@ -81,8 +82,17 @@ class Space(Generic[T_cov]):
         """Return the shape of the space as an immutable property."""
         return self._shape
 
-    def sample(self) -> T_cov:
-        """Randomly sample an element of this space. Can be uniform or non-uniform sampling based on boundedness of space."""
+    def sample(self, mask: Optional[Any] = None) -> T_cov:
+        """Randomly sample an element of this space.
+
+        Can be uniform or non-uniform sampling based on boundedness of space.
+
+        Args:
+            mask: A mask used for sampling, expected ``dtype=np.int8`` and see sample implementation for expected shape.
+
+        Returns:
+            A sampled actions from the space
+        """
         raise NotImplementedError
 
     def seed(self, seed: Optional[int] = None) -> list:
