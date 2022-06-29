@@ -9,7 +9,7 @@ exclude = [
     "**/node_modules",
     "**/__pycache__",
 
-    "gym/envs/box2d/**",
+#    "gym/envs/box2d/**",
     "gym/spaces/graph.py",
     "gym/envs/mujoco/**",
     "gym/utils/**",
