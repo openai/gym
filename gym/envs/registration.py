@@ -118,6 +118,7 @@ class EnvSpec:
     max_episode_steps: Optional[int] = field(default=None)
     order_enforce: bool = field(default=True)
     autoreset: bool = field(default=False)
+    run_env_checker: bool = field(default=True)
     kwargs: dict = field(default_factory=dict)
 
     namespace: Optional[str] = field(init=False)
@@ -522,7 +523,7 @@ def make(
     id: Union[str, EnvSpec],
     max_episode_steps: Optional[int] = None,
     autoreset: bool = False,
-    disable_env_checker: bool = False,
+    disable_env_checker: Optional[bool] = None,
     **kwargs,
 ) -> Env:
     """Create an environment according to the given ID.
@@ -531,7 +532,8 @@ def make(
         id: Name of the environment. Optionally, a module to import can be included, eg. 'module:Env-v0'
         max_episode_steps: Maximum length of an episode (TimeLimit wrapper).
         autoreset: Whether to automatically reset the environment after each episode (AutoResetWrapper).
-        disable_env_checker: If to disable the environment checker
+        disable_env_checker: If to run the env checker, None will default to the environment `spec.run_env_checker`
+            (that is by default True), otherwise will run according to the parameter (True = not run, False = run)
         kwargs: Additional arguments to pass to the environment constructor.
 
     Returns:
@@ -605,7 +607,9 @@ def make(
     env.unwrapped.spec = spec_
 
     # Run the environment checker as the lowest level wrapper
-    if disable_env_checker is False:
+    if disable_env_checker is False or (
+        disable_env_checker is None and spec_.run_env_checker is True
+    ):
         env = PassiveEnvChecker(env)
 
     # Add the order enforcing wrapper

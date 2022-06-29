@@ -14,7 +14,7 @@ def make(
     num_envs: int = 1,
     asynchronous: bool = True,
     wrappers: Optional[Union[callable, List[callable]]] = None,
-    disable_env_checker: bool = False,
+    disable_env_checker: Optional[bool] = None,
     **kwargs,
 ) -> VectorEnv:
     """Create a vectorized environment from multiple copies of an environment, from its id.
@@ -41,8 +41,10 @@ def make(
         The vectorized environment.
     """
 
-    def create_env(_disable_env_checker):
+    def create_env(env_num: int):
         """Creates an environment that can enable or disable the environment checker."""
+        # If the env_num > 0 then disable the environment checker otherwise use the parameter
+        _disable_env_checker = True if env_num > 0 else disable_env_checker
 
         def _make_env():
             env = gym.envs.registration.make(
@@ -62,7 +64,5 @@ def make(
 
         return _make_env
 
-    env_fns = [
-        create_env(disable_env_checker or env_num > 0) for env_num in range(num_envs)
-    ]
+    env_fns = [create_env(env_num) for env_num in range(num_envs)]
     return AsyncVectorEnv(env_fns) if asynchronous else SyncVectorEnv(env_fns)
