@@ -142,6 +142,7 @@ class CarRacing(gym.Env, EzPickle):
 
     ### Reset Arguments
     Passing the option `options["randomize"] = True` will change the current colour of the environment on demand.
+    `domain_randomize` must be `True` on init for this argument to work, otherwise, an assertation is raised.
     Example usage:
     ```py
         env = gym.make("CarRacing-v1")
@@ -247,6 +248,21 @@ class CarRacing(gym.Env, EzPickle):
             self.road_color = np.array([102, 102, 102])
             self.bg_color = np.array([102, 204, 102])
             self.grass_color = np.array([102, 230, 102])
+
+    def _reinit_colors(self, randomize):
+        assert (
+            self.domain_randomize
+        ), f"domain_randomize must be True to use this function."
+
+        if randomize:
+            # domain randomize the bg and grass colour
+            self.road_color = self.np_random.uniform(0, 210, size=3)
+
+            self.bg_color = self.np_random.uniform(0, 210, size=3)
+
+            self.grass_color = np.copy(self.bg_color)
+            idx = self.np_random.integers(3)
+            self.grass_color[idx] += 20
 
     def _create_track(self):
         CHECKPOINTS = 12
@@ -454,11 +470,9 @@ class CarRacing(gym.Env, EzPickle):
         self.new_lap = False
         self.road_poly = []
 
-        randomize = self.domain_randomize
         if isinstance(options, dict):
             if "randomize" in options:
-                randomize = options["randomize"]
-        self._init_colors(randomize)
+                self._reinit_colors(options["randomize"])
 
         while True:
             success = self._create_track()
