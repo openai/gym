@@ -147,11 +147,14 @@ class CarRacing(gym.Env, EzPickle):
     ```py
         env = gym.make("CarRacing-v1", domain_randomize=True)
 
-        # normal reset
+        # normal reset, this changes the colour scheme by default
         env.reset()
 
         # reset with colour scheme change
         env.reset(options={"randomize": True})
+
+        # reset with no colour scheme change
+        env.reset(options={"randomize": False})
     ```
 
     ### Version History
