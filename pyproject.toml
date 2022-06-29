@@ -12,8 +12,6 @@ exclude = [
     "gym/envs/box2d/**",
     # "gym/envs/classic_control/**",
     "gym/envs/mujoco/**",
-    "gym/envs/toy_text/**",
-    "gym/spaces/**",
     "gym/utils/**",
     "gym/vector/**",
     "gym/wrappers/**",
