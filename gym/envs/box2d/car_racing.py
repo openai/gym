@@ -140,6 +140,19 @@ class CarRacing(gym.Env, EzPickle):
     Passing `continuous=False` converts the environment to use discrete action space.
     The discrete action space has 5 actions: [do nothing, left, right, gas, brake].
 
+    ### Reset Arguments
+    Passing the option `options["randomize"] = True` will change the current colour of the environment on demand.
+    Example usage:
+    ```py
+        env = gym.make("CarRacing-v1")
+
+        # normal reset
+        env.reset()
+
+        # reset with colour scheme change
+        env.reset(options={"randomize": True})
+    ```
+
     ### Version History
     - v1: Change track completion logic and add domain randomization (0.24.0)
     - v0: Original version
