@@ -299,7 +299,10 @@ class FrozenLakeEnv(Env):
             elif mode in {"rgb_array", "single_rgb_array"}:
                 self.window_surface = pygame.Surface(self.window_size)
 
-        assert isinstance(self.window_surface, pygame.Surface)
+        assert (
+            self.window_surface is not None
+        ), "Something went wrong with pygame. This should never happen."
+
         if self.clock is None:
             self.clock = pygame.time.Clock()
         if self.hole_img is None:
@@ -353,7 +356,7 @@ class FrozenLakeEnv(Env):
         start_img = pygame.transform.scale(self.start_img, (small_cell_w, small_cell_h))
 
         desc = self.desc.tolist()
-        assert isinstance(desc, list)
+        assert isinstance(desc, list), f"desc should be a list or an array, got {desc}"
         for y in range(self.nrow):
             for x in range(self.ncol):
                 rect = (x * cell_width, y * cell_height, cell_width, cell_height)
