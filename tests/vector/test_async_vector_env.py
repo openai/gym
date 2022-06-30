@@ -17,12 +17,10 @@ from tests.vector.utils import (
 @pytest.mark.parametrize("shared_memory", [True, False])
 def test_create_async_vector_env(shared_memory):
     env_fns = [make_env("CartPole-v1", i) for i in range(8)]
-    try:
-        env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
-    finally:
-        env.close()
 
+    env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
     assert env.num_envs == 8
+    env.close()
 
 
 @pytest.mark.parametrize("shared_memory", [True, False])
@@ -71,20 +69,20 @@ def test_reset_async_vector_env(shared_memory):
 @pytest.mark.parametrize("use_single_action_space", [True, False])
 def test_step_async_vector_env(shared_memory, use_single_action_space):
     env_fns = [make_env("CartPole-v1", i) for i in range(8)]
-    try:
-        env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
-        observations = env.reset()
 
-        assert isinstance(env.single_action_space, Discrete)
-        assert isinstance(env.action_space, MultiDiscrete)
+    env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
+    observations = env.reset()
 
-        if use_single_action_space:
-            actions = [env.single_action_space.sample() for _ in range(8)]
-        else:
-            actions = env.action_space.sample()
-        observations, rewards, dones, _ = env.step(actions)
-    finally:
-        env.close()
+    assert isinstance(env.single_action_space, Discrete)
+    assert isinstance(env.action_space, MultiDiscrete)
+
+    if use_single_action_space:
+        actions = [env.single_action_space.sample() for _ in range(8)]
+    else:
+        actions = env.action_space.sample()
+    observations, rewards, dones, _ = env.step(actions)
+
+    env.close()
 
     assert isinstance(env.observation_space, Box)
     assert isinstance(observations, np.ndarray)
@@ -106,13 +104,13 @@ def test_step_async_vector_env(shared_memory, use_single_action_space):
 @pytest.mark.parametrize("shared_memory", [True, False])
 def test_call_async_vector_env(shared_memory):
     env_fns = [make_env("CartPole-v1", i, render_mode="rgb_array") for i in range(4)]
-    try:
-        env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
-        _ = env.reset()
-        images = env.call("render")
-        gravity = env.call("gravity")
-    finally:
-        env.close()
+
+    env = AsyncVectorEnv(env_fns, shared_memory=shared_memory)
+    _ = env.reset()
+    images = env.call("render")
+    gravity = env.call("gravity")
+
+    env.close()
 
     assert isinstance(images, tuple)
     assert len(images) == 4
