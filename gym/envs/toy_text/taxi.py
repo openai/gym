@@ -307,6 +307,10 @@ class TaxiEnv(Env):
                 self.window = pygame.display.set_mode(WINDOW_SIZE)
             elif mode in {"rgb_array", "single_rgb_array"}:
                 self.window = pygame.Surface(WINDOW_SIZE)
+
+        assert (
+            self.window is not None
+        ), "Something went wrong with pygame. This should never happen."
         if self.clock is None:
             self.clock = pygame.time.Clock()
         if self.taxi_imgs is None:

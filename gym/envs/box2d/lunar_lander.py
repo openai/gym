@@ -220,7 +220,7 @@ class LunarLander(gym.Env, EzPickle):
         self.isopen = True
         self.world = Box2D.b2World(gravity=(0, gravity))
         self.moon = None
-        self.lander = None
+        self.lander: Optional[Box2D.b2Body] = None
         self.particles = []
 
         self.prev_reward = None
@@ -335,7 +335,7 @@ class LunarLander(gym.Env, EzPickle):
         self.moon.color2 = (0.0, 0.0, 0.0)
 
         initial_y = VIEWPORT_H / SCALE
-        self.lander = self.world.CreateDynamicBody(
+        self.lander: Box2D.b2Body = self.world.CreateDynamicBody(
             position=(VIEWPORT_W / SCALE / 2, initial_y),
             angle=0.0,
             fixtures=fixtureDef(
@@ -428,6 +428,7 @@ class LunarLander(gym.Env, EzPickle):
 
     def step(self, action):
         # Update wind
+        assert self.lander is not None, "You forgot to call reset()"
         if self.enable_wind and not (
             self.legs[0].ground_contact or self.legs[1].ground_contact
         ):
@@ -602,6 +603,10 @@ class LunarLander(gym.Env, EzPickle):
             self.screen = pygame.display.set_mode((VIEWPORT_W, VIEWPORT_H))
         if self.clock is None:
             self.clock = pygame.time.Clock()
+
+        assert (
+            self.screen is not None
+        ), "Something went wrong with pygame, there is no screen to render"
 
         self.surf = pygame.Surface((VIEWPORT_W, VIEWPORT_H))
 
