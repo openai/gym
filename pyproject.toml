@@ -33,7 +33,6 @@ exclude = [
     "tests/envs/test_env_implementation.py",
     "tests/utils/test_play.py",
     "tests/vector/test_async_vector_env.py",
-    "tests/vector/test_numpy_utils.py",
     "tests/vector/test_shared_memory.py",
     "tests/vector/test_spaces.py",
     "tests/vector/test_sync_vector_env.py",

@@ -9,8 +9,9 @@ import numpy as np
 from gym.error import CustomSpaceError
 from gym.spaces import Box, Dict, Discrete, MultiBinary, MultiDiscrete, Space, Tuple
 
-_BaseGymSpaces = (Box, Discrete, MultiDiscrete, MultiBinary)
-__all__ = ["_BaseGymSpaces", "batch_space", "iterate"]
+BaseGymSpaces = (Box, Discrete, MultiDiscrete, MultiBinary)
+_BaseGymSpaces = BaseGymSpaces
+__all__ = ["BaseGymSpaces", "_BaseGymSpaces", "batch_space", "iterate"]
 
 
 @singledispatch
@@ -179,7 +180,7 @@ def _iterate_tuple(space, items):
     # If this is a tuple of custom subspaces only, then simply iterate over items
     if all(
         isinstance(subspace, Space)
-        and (not isinstance(subspace, _BaseGymSpaces + (Tuple, Dict)))
+        and (not isinstance(subspace, BaseGymSpaces + (Tuple, Dict)))
         for subspace in space.spaces
     ):
         return iter(items)
