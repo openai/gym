@@ -5,7 +5,7 @@ import pytest
 
 from gym.spaces import Dict, Tuple
 from gym.vector.utils.numpy_utils import concatenate, create_empty_array
-from gym.vector.utils.spaces import _BaseGymSpaces
+from gym.vector.utils.spaces import BaseGymSpaces
 from tests.vector.utils import spaces
 
 
@@ -57,7 +57,7 @@ def test_concatenate(space):
 )
 def test_create_empty_array(space, n):
     def assert_nested_type(arr, space, n):
-        if isinstance(space, _BaseGymSpaces):
+        if isinstance(space, BaseGymSpaces):
             assert isinstance(arr, np.ndarray)
             assert arr.dtype == space.dtype
             assert arr.shape == (n,) + space.shape
@@ -87,7 +87,7 @@ def test_create_empty_array(space, n):
 )
 def test_create_empty_array_zeros(space, n):
     def assert_nested_type(arr, space, n):
-        if isinstance(space, _BaseGymSpaces):
+        if isinstance(space, BaseGymSpaces):
             assert isinstance(arr, np.ndarray)
             assert arr.dtype == space.dtype
             assert arr.shape == (n,) + space.shape
@@ -117,7 +117,7 @@ def test_create_empty_array_zeros(space, n):
 )
 def test_create_empty_array_none_shape_ones(space):
     def assert_nested_type(arr, space):
-        if isinstance(space, _BaseGymSpaces):
+        if isinstance(space, BaseGymSpaces):
             assert isinstance(arr, np.ndarray)
             assert arr.dtype == space.dtype
             assert arr.shape == space.shape
