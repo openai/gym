@@ -22,7 +22,6 @@ exclude = [
     "gym/vector/utils/__init__.py",
 
     "gym/wrappers/atari_preprocessing.py",
-    "gym/wrappers/env_checker.py",
     "gym/wrappers/gray_scale_observation.py",
     "gym/wrappers/human_rendering.py",
     "gym/wrappers/normalize.py",
