@@ -116,11 +116,10 @@ def test_batch_space_custom_space(space, expected_batch_space_4):
 def test_iterate(space, batch_space):
     items = batch_space.sample()
     iterator = iterate(batch_space, items)
-    final_i = 0
+    i = 0
     for i, item in enumerate(iterator):
         assert item in space
-        final_i = i
-    assert final_i == 3
+    assert i == 3
 
 
 @pytest.mark.parametrize(
@@ -131,11 +130,10 @@ def test_iterate(space, batch_space):
 def test_iterate_custom_space(space, batch_space):
     items = batch_space.sample()
     iterator = iterate(batch_space, items)
-    final_i = 0
+    i = 0
     for i, item in enumerate(iterator):
         assert item in space
-        final_i = i
-    assert final_i == 3
+    assert i == 3
 
 
 @pytest.mark.parametrize(

@@ -32,12 +32,12 @@ class GrayScaleObservation(gym.ObservationWrapper):
         self.keep_dim = keep_dim
 
         assert (
-            isinstance(env.observation_space, Box)
-            and len(env.observation_space.shape) == 3
-            and env.observation_space.shape[-1] == 3
+            isinstance(self.observation_space, Box)
+            and len(self.observation_space.shape) == 3
+            and self.observation_space.shape[-1] == 3
         )
 
-        obs_shape = env.observation_space.shape[:2]
+        obs_shape = self.observation_space.shape[:2]
         if self.keep_dim:
             self.observation_space = Box(
                 low=0, high=255, shape=(obs_shape[0], obs_shape[1], 1), dtype=np.uint8

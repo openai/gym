@@ -42,12 +42,6 @@ class ResizeObservation(gym.ObservationWrapper):
         assert isinstance(
             env.observation_space, Box
         ), f"Expected the observation space to be Box, actual type: {type(env.observation_space)}"
-        assert len(env.observation_space.shape) == 3 and env.observation_space.shape[
-            2
-        ] in [
-            1,
-            3,
-        ], f"Expect the observation space to be an image, actual shape: {env.observation_space.shape}"
         obs_shape = self.shape + env.observation_space.shape[2:]
         self.observation_space = Box(low=0, high=255, shape=obs_shape, dtype=np.uint8)
 
