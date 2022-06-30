@@ -120,7 +120,7 @@ class PixelObservationWrapper(gym.ObservationWrapper):
         elif self._observation_is_dict:
             self.observation_space = copy.deepcopy(wrapped_observation_space)
         else:
-            self.observation_space = spaces.Dict(STATE_KEY=wrapped_observation_space)
+            self.observation_space = spaces.Dict({STATE_KEY: wrapped_observation_space})
 
         # Extend observation space with pixels.
 
