@@ -31,7 +31,6 @@ exclude = [
     "gym/wrappers/resize_observation.py",
 
     "tests/envs/test_env_implementation.py",
-    "tests/spaces/test_spaces.py",
     "tests/utils/test_play.py",
     "tests/vector/test_async_vector_env.py",
     "tests/vector/test_numpy_utils.py",
