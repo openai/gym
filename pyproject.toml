@@ -9,7 +9,8 @@ exclude = [
     "**/node_modules",
     "**/__pycache__",
 
-    "gym/utils/play.py"
+    "gym/envs/mujoco/mujoco_env.py",
+    "gym/utils/play.py",
 ]
 
 strict = [
