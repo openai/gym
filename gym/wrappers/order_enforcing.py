@@ -49,3 +49,8 @@ class OrderEnforcing(gym.Wrapper):
                 "set `disable_render_order_enforcing=True` on the OrderEnforcer wrapper."
             )
         return self.env.render(*args, **kwargs)
+
+    @property
+    def has_reset(self):
+        """Returns if the environment has been reset before."""
+        return self._has_reset

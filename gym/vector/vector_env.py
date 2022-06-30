@@ -69,7 +69,7 @@ class VectorEnv(gym.Env):
         seed: Optional[Union[int, List[int]]] = None,
         return_info: bool = False,
         options: Optional[dict] = None,
-    ):
+    ) -> np.ndarray:
         """Retrieves the results of a :meth:`reset_async` call.
 
         A call to this method must always be preceded by a call to :meth:`reset_async`.
@@ -85,6 +85,7 @@ class VectorEnv(gym.Env):
         Raises:
             NotImplementedError: VectorEnv does not implement function
         """
+        raise NotImplementedError("VectorEnv does not implement function")
 
     def reset(
         self,

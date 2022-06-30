@@ -1,7 +1,7 @@
 from collections import OrderedDict
 from functools import partial
 from os import path
-from typing import Optional
+from typing import TYPE_CHECKING, Optional, Union
 
 import numpy as np
 
@@ -9,6 +9,12 @@ import gym
 from gym import error, logger, spaces
 from gym.spaces import Space
 from gym.utils.renderer import Renderer
+
+if TYPE_CHECKING:
+    from mujoco_py import MjRenderContextOffscreen, MjViewer
+
+    from gym.envs.mujoco import RenderContextOffscreen, Viewer
+
 
 DEFAULT_SIZE = 480
 
@@ -97,7 +103,9 @@ class MujocoEnv(gym.Env):
 
         self.frame_skip = frame_skip
 
-        self.viewer = None
+        self.viewer: Optional[
+            Union[MjViewer, Viewer, MjRenderContextOffscreen, RenderContextOffscreen]
+        ] = None
 
         assert self.metadata["render_modes"] == [
             "human",
@@ -296,7 +304,9 @@ class MujocoEnv(gym.Env):
             self.viewer = None
             self._viewers = {}
 
-    def _get_viewer(self, mode, width=DEFAULT_SIZE, height=DEFAULT_SIZE):
+    def _get_viewer(
+        self, mode, width=DEFAULT_SIZE, height=DEFAULT_SIZE
+    ) -> Union[MjViewer, Viewer, MjRenderContextOffscreen, RenderContextOffscreen]:
         self.viewer = self._viewers.get(mode)
         if self.viewer is None:
             if mode == "human":
@@ -322,6 +332,8 @@ class MujocoEnv(gym.Env):
                     self.viewer = RenderContextOffscreen(
                         width, height, self.model, self.data
                     )
+            else:
+                raise NotImplementedError("Unknown mujoco rendering type")
 
             self.viewer_setup()
             self._viewers[mode] = self.viewer

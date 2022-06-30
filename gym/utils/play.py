@@ -3,15 +3,22 @@ from collections import deque
 from typing import Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
-import pygame
-from pygame import Surface
-from pygame.event import Event
-from pygame.locals import VIDEORESIZE
 
+import gym.error
 from gym import Env, logger
 from gym.core import ActType, ObsType
 from gym.error import DependencyNotInstalled
 from gym.logger import deprecation
+
+try:
+    import pygame
+    from pygame import Surface
+    from pygame.event import Event
+    from pygame.locals import VIDEORESIZE
+except ImportError:
+    raise gym.error.DependencyNotInstalled(
+        "Pygame is not installed, run `pip install gym[classic_control]`"
+    )
 
 try:
     import matplotlib
@@ -20,7 +27,7 @@ try:
     import matplotlib.pyplot as plt
 except ImportError:
     logger.warn("Matplotlib is not installed, run `pip install gym[other]`")
-    matplotlib, plt = None, None
+    plt = None
 
 
 class MissingKeysToAction(Exception):
@@ -33,7 +40,7 @@ class PlayableGame:
     def __init__(
         self,
         env: Env,
-        keys_to_action: Optional[Dict[Tuple[int], int]] = None,
+        keys_to_action: Optional[Dict[Tuple[int, ...], int]] = None,
         zoom: Optional[float] = None,
     ):
         """Wraps an environment with a dictionary of keyboard buttons to action and if to zoom in on the environment.
@@ -63,12 +70,14 @@ class PlayableGame:
                     f"{self.env.spec.id} does not have explicit key to action mapping, "
                     "please specify one manually"
                 )
+        assert isinstance(keys_to_action, dict)
         relevant_keys = set(sum((list(k) for k in keys_to_action.keys()), []))
         return relevant_keys
 
     def _get_video_size(self, zoom: Optional[float] = None) -> Tuple[int, int]:
         # TODO: this needs to be updated when the render API change goes through
         rendered = self.env.render(mode="rgb_array")
+        assert isinstance(rendered, np.ndarray)
         video_size = [rendered.shape[1], rendered.shape[0]]
 
         if zoom is not None:
@@ -120,11 +129,11 @@ def display_arr(
 
 def play(
     env: Env,
+    keys_to_action: Dict[Union[Tuple[Union[str, int]], str], ActType],
     transpose: Optional[bool] = True,
     fps: Optional[int] = None,
     zoom: Optional[float] = None,
     callback: Optional[Callable] = None,
-    keys_to_action: Optional[Dict[Union[Tuple[Union[str, int]], str], ActType]] = None,
     seed: Optional[int] = None,
     noop: ActType = 0,
 ):
@@ -214,7 +223,7 @@ def play(
     if fps is None:
         fps = env.metadata.get("render_fps", 30)
 
-    done = True
+    done, obs = True, None
     clock = pygame.time.Clock()
 
     while game.running:
@@ -305,7 +314,7 @@ class PlayPlot:
         for axis, name in zip(self.ax, plot_names):
             axis.set_title(name)
         self.t = 0
-        self.cur_plot = [None for _ in range(num_plots)]
+        self.cur_plot: List[Optional[plt.Axes]] = [None for _ in range(num_plots)]
         self.data = [deque(maxlen=horizon_timesteps) for _ in range(num_plots)]
 
     def callback(
@@ -341,4 +350,9 @@ class PlayPlot:
                 range(xmin, xmax), list(self.data[i]), c="blue"
             )
             self.ax[i].set_xlim(xmin, xmax)
+
+        if plt is None:
+            raise DependencyNotInstalled(
+                "matplotlib is not installed, run `pip install gym[other]`"
+            )
         plt.pause(0.000001)

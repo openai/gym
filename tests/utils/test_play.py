@@ -174,7 +174,7 @@ def test_play_loop_real_env():
 
     # first action is 0 because at the first iteration
     # we can not inject a callback event into play()
-    env.step(0)
+    obs, _, _, _ = env.step(0)
     for e in keydown_events:
         action = keys_to_action[(e.key,)]
         obs, _, _, _ = env.step(action)

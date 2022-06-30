@@ -138,6 +138,7 @@ class Graph(Space):
         sampled_node_space = self._generate_sample_space(self.node_space, num_nodes)
         sampled_edge_space = self._generate_sample_space(self.edge_space, num_edges)
 
+        assert sampled_node_space is not None
         sampled_nodes = sampled_node_space.sample(node_space_mask)
         sampled_edges = (
             sampled_edge_space.sample(edge_space_mask)
