@@ -8,6 +8,8 @@ include = [
 exclude = [
     "**/node_modules",
     "**/__pycache__",
+
+    "gym/utils/play.py"
 ]
 
 strict = [

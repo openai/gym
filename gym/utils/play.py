@@ -129,11 +129,11 @@ def display_arr(
 
 def play(
     env: Env,
-    keys_to_action: Dict[Union[Tuple[Union[str, int]], str], ActType],
     transpose: Optional[bool] = True,
     fps: Optional[int] = None,
     zoom: Optional[float] = None,
     callback: Optional[Callable] = None,
+    keys_to_action: Optional[Dict[Union[Tuple[Union[str, int]], str], ActType]] = None,
     seed: Optional[int] = None,
     noop: ActType = 0,
 ):
