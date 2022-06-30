@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Tuple
 
 import numpy as np
 import pytest
@@ -9,7 +9,9 @@ from gym.wrappers.filter_observation import FilterObservation
 
 
 class FakeEnvironment(gym.Env):
-    def __init__(self, render_mode=None, observation_keys=("state")):
+    def __init__(
+        self, render_mode=None, observation_keys: Tuple[str, ...] = ("state",)
+    ):
         self.observation_space = spaces.Dict(
             {
                 name: spaces.Box(shape=(2,), low=-1, high=1, dtype=np.float32)
@@ -23,10 +25,16 @@ class FakeEnvironment(gym.Env):
         image_shape = (32, 32, 3)
         return np.zeros(image_shape, dtype=np.uint8)
 
-    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
+    def reset(
+        self,
+        *,
+        seed: Optional[int] = None,
+        return_info: bool = False,
+        options: Optional[dict] = None
+    ):
         super().reset(seed=seed)
         observation = self.observation_space.sample()
-        return observation
+        return observation if not return_info else (observation, {})
 
     def step(self, action):
         del action
@@ -79,8 +87,6 @@ class TestFilterObservation:
         self, filter_keys, error_type, error_match
     ):
         env = FakeEnvironment(observation_keys=("key1", "key2"))
-
-        ValueError
 
         with pytest.raises(error_type, match=error_match):
             FilterObservation(env, filter_keys=filter_keys)

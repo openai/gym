@@ -40,7 +40,6 @@ exclude = [
     "tests/vector/test_spaces.py",
     "tests/vector/test_sync_vector_env.py",
     "tests/vector/test_vector_env.py",
-    "tests/wrappers/test_filter_observation.py",
     "tests/wrappers/test_gray_scale_observation.py",
     "tests/wrappers/test_order_enforcing.py",
     "tests/wrappers/test_record_episode_statistics.py",
