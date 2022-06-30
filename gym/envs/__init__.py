@@ -90,25 +90,9 @@ register(
 )
 
 register(
-    id="CarRacingDomainRandomize-v1",
-    entry_point="gym.envs.box2d.car_racing:CarRacing",
-    kwargs={"domain_randomize": True},
-    max_episode_steps=1000,
-    reward_threshold=900,
-)
-
-register(
     id="CarRacingDiscrete-v1",
     entry_point="gym.envs.box2d.car_racing:CarRacing",
     kwargs={"continuous": False},
-    max_episode_steps=1000,
-    reward_threshold=900,
-)
-
-register(
-    id="CarRacingDomainRandomizeDiscrete-v1",
-    entry_point="gym.envs.box2d.car_racing:CarRacing",
-    kwargs={"domain_randomize": True, "continuous": False},
     max_episode_steps=1000,
     reward_threshold=900,
 )
