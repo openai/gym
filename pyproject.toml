@@ -10,7 +10,6 @@ exclude = [
     "**/__pycache__",
 
     "gym/envs/box2d/bipedal_walker.py",
-#    "gym/envs/box2d/lunar_lander.py",
     "gym/envs/box2d/car_racing.py",
 
     "gym/spaces/graph.py",
