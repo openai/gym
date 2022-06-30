@@ -69,4 +69,4 @@ reportPrivateUsage = "warning"
 reportUntypedFunctionDecorator = "none"
 reportMissingTypeStubs = false
 reportUnboundVariable = "warning"
-reportGeneralTypeIssues ="none"
+reportGeneralTypeIssues = "none"
