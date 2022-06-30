@@ -797,9 +797,9 @@ def test_space_legacy_state_pickling():
     space.__setstate__(legacy_state)
 
     assert space.shape == legacy_state["shape"]
-    assert space._shape == legacy_state["shape"]
+    assert space._shape == legacy_state["shape"]  # type: ignore
     assert space.np_random == legacy_state["np_random"]
-    assert space._np_random == legacy_state["np_random"]
+    assert space._np_random == legacy_state["np_random"]  # type: ignore
     assert space.n == 3
     assert space.dtype == legacy_state["dtype"]
 

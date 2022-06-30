@@ -69,3 +69,4 @@ reportUntypedFunctionDecorator = "none"
 reportMissingTypeStubs = false
 reportUnboundVariable = "warning"
 reportGeneralTypeIssues = "none"
+reportInvalidTypeVarUse = "none"
