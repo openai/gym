@@ -77,7 +77,7 @@ class PlayableGame:
     def _get_video_size(self, zoom: Optional[float] = None) -> Tuple[int, int]:
         # TODO: this needs to be updated when the render API change goes through
         rendered = self.env.render(mode="rgb_array")
-        assert isinstance(rendered, np.ndarray)
+        assert rendered is not None and isinstance(rendered, np.ndarray)
         video_size = [rendered.shape[1], rendered.shape[0]]
 
         if zoom is not None:
