@@ -226,9 +226,7 @@ def test_make_render_mode():
     # a keyword that is not `render_mode`
     with pytest.raises(
         TypeError,
-        match=re.escape(
-            "CarRacing.__init__() got an unexpected keyword argument 'render'"
-        ),
+        match=re.escape("got an unexpected keyword argument 'render'"),
     ):
         gym.make("CarRacing-v1", render="human")
 
