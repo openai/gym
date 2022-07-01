@@ -1,5 +1,6 @@
 """Core API for Environment, Wrapper, ActionWrapper, RewardWrapper and ObservationWrapper."""
 import sys
+from abc import ABC, abstractmethod
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -13,11 +14,10 @@ from typing import (
     TypeVar,
     Union,
 )
-from abc import ABC, abstractmethod
 
 from gym import spaces
+from gym.logger import deprecation, warn
 from gym.utils import seeding
-from gym.logger import warn, deprecation
 
 if sys.version_info[0:2] == (3, 6):
     warn(
@@ -42,7 +42,12 @@ class _EnvDecorator(type):  # TODO: remove with gym 1.0
         return super().__new__(cls, name, bases, attr)
 
     @staticmethod
-    def _deprecate_mode(render_func: Callable[[object, Tuple[Any, ...], Dict[str, Any]], Optional[Union[RenderFrame, List[RenderFrame]]]]): 
+    def _deprecate_mode(
+        render_func: Callable[
+            [object, Tuple[Any, ...], Dict[str, Any]],
+            Optional[Union[RenderFrame, List[RenderFrame]]],
+        ]
+    ):
         def render(
             self: object, *args: Tuple[Any, ...], **kwargs: Dict[str, Any]
         ) -> Optional[Union[RenderFrame, List[RenderFrame]]]:
@@ -114,8 +119,8 @@ class Env(Generic[ObsType, ActType], ABC, metaclass=decorator):
     spec: Optional["EnvSpec"] = None
 
     # Set these in ALL subclasses
-    action_space: spaces.Space[ActType]
-    observation_space: spaces.Space[ObsType]
+    action_space: spaces.Space
+    observation_space: spaces.Space
 
     # Created
     _np_random: Optional[seeding.RandomNumberGenerator] = None
@@ -316,8 +321,8 @@ class Wrapper(Env[ObsType, ActType], ABC):
         """
         self.env = env
 
-        self._action_space: Optional[spaces.Space[ActType]] = None
-        self._observation_space: Optional[spaces.Space[ObsType]] = None
+        self._action_space: Optional[spaces.Space] = None
+        self._observation_space: Optional[spaces.Space] = None
         self._reward_range: Optional[Tuple[SupportsFloat, SupportsFloat]] = None
         self._metadata: Optional[Dict[str, Any]] = None
 
@@ -338,25 +343,25 @@ class Wrapper(Env[ObsType, ActType], ABC):
         return cls.__name__
 
     @property
-    def action_space(self) -> spaces.Space[ActType]:
+    def action_space(self) -> spaces.Space:
         """Returns the action space of the environment."""
         if self._action_space is None:
             return self.env.action_space
         return self._action_space
 
     @action_space.setter
-    def action_space(self, space: spaces.Space[ActType]):
+    def action_space(self, space: spaces.Space):
         self._action_space = space
 
     @property
-    def observation_space(self) -> spaces.Space[ObsType]:
+    def observation_space(self) -> spaces.Space:
         """Returns the observation space of the environment."""
         if self._observation_space is None:
             return self.env.observation_space
         return self._observation_space
 
     @observation_space.setter
-    def observation_space(self, space: spaces.Space[ObsType]):
+    def observation_space(self, space: spaces.Space):
         self._observation_space = space
 
     @property
@@ -378,7 +383,7 @@ class Wrapper(Env[ObsType, ActType], ABC):
         return self._metadata
 
     @metadata.setter
-    def metadata(self, value):
+    def metadata(self, value: Dict[str, Any]):
         self._metadata = value
 
     @property
