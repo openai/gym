@@ -210,6 +210,17 @@ def play(
     """
     env.reset(seed=seed)
 
+    if keys_to_action is None:
+        if hasattr(env, "get_keys_to_action"):
+            keys_to_action = env.get_keys_to_action()
+        elif hasattr(env.unwrapped, "get_keys_to_action"):
+            keys_to_action = env.unwrapped.get_keys_to_action()
+        else:
+            raise MissingKeysToAction(
+                f"{env.spec.id} does not have explicit key to action mapping, "
+                "please specify one manually"
+            )
+
     key_code_to_action = {}
 
     for key_combination, action in keys_to_action.items():
