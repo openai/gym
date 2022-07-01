@@ -220,9 +220,9 @@ def play(
                 f"{env.spec.id} does not have explicit key to action mapping, "
                 "please specify one manually"
             )
+    assert keys_to_action is not None
 
     key_code_to_action = {}
-
     for key_combination, action in keys_to_action.items():
         key_code = tuple(
             sorted(ord(key) if isinstance(key, str) else key for key in key_combination)
