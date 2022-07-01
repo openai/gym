@@ -110,7 +110,7 @@ class Env(Generic[ObsType, ActType], metaclass=decorator):
     metadata = {"render_modes": []}
     render_mode = None  # define render_mode if your environment supports rendering
     reward_range = (-float("inf"), float("inf"))
-    spec: EnvSpec = None
+    spec: "EnvSpec" = None
 
     # Set these in ALL subclasses
     action_space: spaces.Space[ActType]
