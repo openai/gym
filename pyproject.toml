@@ -46,7 +46,7 @@ exclude = [
 ]
 
 strict = [
-
+    "gym/core.py"
 ]
 
 typeCheckingMode = "basic"

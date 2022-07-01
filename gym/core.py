@@ -1,7 +1,9 @@
 """Core API for Environment, Wrapper, ActionWrapper, RewardWrapper and ObservationWrapper."""
 import sys
 from typing import (
+    TYPE_CHECKING,
     Any,
+    Callable,
     Dict,
     Generic,
     List,
@@ -11,16 +13,19 @@ from typing import (
     TypeVar,
     Union,
 )
+from abc import ABC, abstractmethod
 
 from gym import spaces
-from gym.logger import deprecation, warn
 from gym.utils import seeding
-from gym.utils.seeding import RandomNumberGenerator
+from gym.logger import warn, deprecation
 
 if sys.version_info[0:2] == (3, 6):
     warn(
         "Gym minimally supports python 3.6 as the python foundation not longer supports the version, please update your version to 3.7+"
     )
+
+if TYPE_CHECKING:
+    from gym.envs.registration import EnvSpec
 
 ObsType = TypeVar("ObsType")
 ActType = TypeVar("ActType")
@@ -30,19 +35,17 @@ RenderFrame = TypeVar("RenderFrame")
 class _EnvDecorator(type):  # TODO: remove with gym 1.0
     """Metaclass used for adding deprecation warning to the mode kwarg in the render method."""
 
-    def __new__(cls, name, bases, attr):
+    def __new__(cls, name: str, bases: Tuple[type, ...], attr: Dict[str, Any]):
         if "render" in attr.keys():
             attr["render"] = _EnvDecorator._deprecate_mode(attr["render"])
 
         return super().__new__(cls, name, bases, attr)
 
     @staticmethod
-    def _deprecate_mode(render_func):  # type: ignore
-        render_return = Optional[Union[RenderFrame, List[RenderFrame]]]
-
+    def _deprecate_mode(render_func: Callable[[object, Tuple[Any, ...], Dict[str, Any]], Optional[Union[RenderFrame, List[RenderFrame]]]]): 
         def render(
-            self: object, *args: Tuple[Any], **kwargs: Dict[str, Any]
-        ) -> render_return:
+            self: object, *args: Tuple[Any, ...], **kwargs: Dict[str, Any]
+        ) -> Optional[Union[RenderFrame, List[RenderFrame]]]:
             if "mode" in kwargs.keys() or len(args) > 0:
                 deprecation(
                     "The argument mode in render method is deprecated; "
@@ -75,7 +78,7 @@ if sys.version_info[0:2] == (3, 6):
     decorator = _GenericEnvDecorator
 
 
-class Env(Generic[ObsType, ActType], metaclass=decorator):
+class Env(Generic[ObsType, ActType], ABC, metaclass=decorator):
     r"""The main OpenAI Gym class.
 
     It encapsulates an environment with arbitrary behind-the-scenes dynamics.
@@ -103,30 +106,35 @@ class Env(Generic[ObsType, ActType], metaclass=decorator):
     """
 
     # Set this in SOME subclasses
-    metadata = {"render_modes": []}
-    render_mode = None  # define render_mode if your environment supports rendering
-    reward_range = (-float("inf"), float("inf"))
-    spec = None
+    metadata: Dict[str, Any] = {"render_modes": []}
+    render_mode: Optional[
+        str
+    ] = None  # define render_mode if your environment supports rendering
+    reward_range: Tuple[SupportsFloat, SupportsFloat] = (-float("inf"), float("inf"))
+    spec: Optional["EnvSpec"] = None
 
     # Set these in ALL subclasses
     action_space: spaces.Space[ActType]
     observation_space: spaces.Space[ObsType]
 
     # Created
-    _np_random: Optional[RandomNumberGenerator] = None
+    _np_random: Optional[seeding.RandomNumberGenerator] = None
 
     @property
-    def np_random(self) -> RandomNumberGenerator:
+    def np_random(self) -> seeding.RandomNumberGenerator:
         """Returns the environment's internal :attr:`_np_random` that if not set will initialise with a random seed."""
         if self._np_random is None:
-            self._np_random, seed = seeding.np_random()
+            self._np_random, _ = seeding.np_random()
         return self._np_random
 
     @np_random.setter
-    def np_random(self, value: RandomNumberGenerator):
+    def np_random(self, value: seeding.RandomNumberGenerator):
         self._np_random = value
 
-    def step(self, action: ActType) -> Tuple[ObsType, float, bool, dict]:
+    @abstractmethod
+    def step(
+        self, action: ActType
+    ) -> Tuple[ObsType, SupportsFloat, bool, Dict[str, Any]]:
         """Run one timestep of the environment's dynamics.
 
         When end of episode is reached, you are responsible for calling :meth:`reset` to reset this environment's state.
@@ -155,8 +163,8 @@ class Env(Generic[ObsType, ActType], metaclass=decorator):
         *,
         seed: Optional[int] = None,
         return_info: bool = False,
-        options: Optional[dict] = None,
-    ) -> Union[ObsType, Tuple[ObsType, dict]]:
+        options: Optional[Dict[str, Any]] = None,
+    ) -> Union[ObsType, Tuple[ObsType, Dict[str, Any]]]:
         """Resets the environment to an initial state and returns the initial observation.
 
         This method can reset the environment's random number generator(s) if ``seed`` is an integer or
@@ -190,8 +198,13 @@ class Env(Generic[ObsType, ActType], metaclass=decorator):
         if seed is not None:
             self._np_random, seed = seeding.np_random(seed)
 
+        # for pyright type hinting to ignore there is no return
+        return None  # pyright: reportGeneralTypeIssues=false
+
     # TODO: remove kwarg mode with gym 1.0
-    def render(self, mode="human") -> Optional[Union[RenderFrame, List[RenderFrame]]]:
+    def render(
+        self, mode: str = "human"
+    ) -> Optional[Union[RenderFrame, List[RenderFrame]]]:
         """Compute the render frames as specified by render_mode attribute during initialization of the environment.
 
         The set of supported modes varies per environment. (And some
@@ -221,6 +234,7 @@ class Env(Generic[ObsType, ActType], metaclass=decorator):
         """
         raise NotImplementedError
 
+    @abstractmethod
     def close(self):
         """Override close in your subclass to perform any necessary cleanup.
 
@@ -229,7 +243,7 @@ class Env(Generic[ObsType, ActType], metaclass=decorator):
         """
         pass
 
-    def seed(self, seed=None):
+    def seed(self, seed: Optional[int] = None):
         """:deprecated: function that sets the seed for the environment's random number generator(s).
 
         Use `env.reset(seed=seed)` as the new API for setting the seed of the environment.
@@ -257,7 +271,7 @@ class Env(Generic[ObsType, ActType], metaclass=decorator):
         return [seed]
 
     @property
-    def unwrapped(self) -> "Env":
+    def unwrapped(self) -> "Env[ObsType, ActType]":
         """Returns the base non-wrapped environment.
 
         Returns:
@@ -276,14 +290,14 @@ class Env(Generic[ObsType, ActType], metaclass=decorator):
         """Support with-statement for the environment."""
         return self
 
-    def __exit__(self, *args):
+    def __exit__(self, *args: List[Any]):
         """Support with-statement for the environment."""
         self.close()
         # propagate exception
         return False
 
 
-class Wrapper(Env[ObsType, ActType]):
+class Wrapper(Env[ObsType, ActType], ABC):
     """Wraps an environment to allow a modular transformation of the :meth:`step` and :meth:`reset` methods.
 
     This class is the base class for all wrappers. The subclass could override
@@ -294,7 +308,7 @@ class Wrapper(Env[ObsType, ActType]):
         Don't forget to call ``super().__init__(env)`` if the subclass overrides :meth:`__init__`.
     """
 
-    def __init__(self, env: Env):
+    def __init__(self, env: Env[ObsType, ActType]):
         """Wraps an environment to allow a modular transformation of the :meth:`step` and :meth:`reset` methods.
 
         Args:
@@ -302,19 +316,19 @@ class Wrapper(Env[ObsType, ActType]):
         """
         self.env = env
 
-        self._action_space: Optional[spaces.Space] = None
-        self._observation_space: Optional[spaces.Space] = None
+        self._action_space: Optional[spaces.Space[ActType]] = None
+        self._observation_space: Optional[spaces.Space[ObsType]] = None
         self._reward_range: Optional[Tuple[SupportsFloat, SupportsFloat]] = None
-        self._metadata: Optional[dict] = None
+        self._metadata: Optional[Dict[str, Any]] = None
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str):
         """Returns an attribute with ``name``, unless ``name`` starts with an underscore."""
         if name.startswith("_"):
             raise AttributeError(f"accessing private attribute '{name}' is prohibited")
         return getattr(self.env, name)
 
     @property
-    def spec(self):
+    def spec(self) -> Optional["EnvSpec"]:
         """Returns the environment specification."""
         return self.env.spec
 
@@ -331,18 +345,18 @@ class Wrapper(Env[ObsType, ActType]):
         return self._action_space
 
     @action_space.setter
-    def action_space(self, space: spaces.Space):
+    def action_space(self, space: spaces.Space[ActType]):
         self._action_space = space
 
     @property
-    def observation_space(self) -> spaces.Space:
+    def observation_space(self) -> spaces.Space[ObsType]:
         """Returns the observation space of the environment."""
         if self._observation_space is None:
             return self.env.observation_space
         return self._observation_space
 
     @observation_space.setter
-    def observation_space(self, space: spaces.Space):
+    def observation_space(self, space: spaces.Space[ObsType]):
         self._observation_space = space
 
     @property
@@ -357,7 +371,7 @@ class Wrapper(Env[ObsType, ActType]):
         self._reward_range = value
 
     @property
-    def metadata(self) -> dict:
+    def metadata(self) -> Dict[str, Any]:
         """Returns the environment metadata."""
         if self._metadata is None:
             return self.env.metadata
@@ -373,12 +387,12 @@ class Wrapper(Env[ObsType, ActType]):
         return self.env.render_mode
 
     @property
-    def np_random(self) -> RandomNumberGenerator:
+    def np_random(self) -> seeding.RandomNumberGenerator:
         """Returns the environment np_random."""
         return self.env.np_random
 
     @np_random.setter
-    def np_random(self, value):
+    def np_random(self, value: seeding.RandomNumberGenerator):
         self.env.np_random = value
 
     @property
@@ -387,15 +401,23 @@ class Wrapper(Env[ObsType, ActType]):
             "Can't access `_np_random` of a wrapper, use `.unwrapped._np_random` or `.np_random`."
         )
 
-    def step(self, action: ActType) -> Tuple[ObsType, float, bool, dict]:
+    def step(
+        self, action: ActType
+    ) -> Tuple[ObsType, SupportsFloat, bool, Dict[str, Any]]:
         """Steps through the environment with action."""
         return self.env.step(action)
 
-    def reset(self, **kwargs) -> Union[ObsType, Tuple[ObsType, dict]]:
+    def reset(
+        self,
+        *,
+        seed: Optional[int] = None,
+        return_info: bool = False,
+        options: Optional[Dict[str, Any]] = None,
+    ) -> Union[ObsType, Tuple[ObsType, Dict[str, Any]]]:
         """Resets the environment with kwargs."""
-        return self.env.reset(**kwargs)
+        return self.env.reset(seed=seed, return_info=return_info, options=options)
 
-    def render(self, *args, **kwargs):
+    def render(self, *args: List[Any], **kwargs: Dict[str, Any]):
         """Renders the environment."""
         return self.env.render(*args, **kwargs)
 
@@ -403,7 +425,7 @@ class Wrapper(Env[ObsType, ActType]):
         """Closes the environment."""
         return self.env.close()
 
-    def seed(self, seed=None):
+    def seed(self, seed: Optional[int] = None):
         """Seeds the environment."""
         return self.env.seed(seed)
 
@@ -416,18 +438,18 @@ class Wrapper(Env[ObsType, ActType]):
         return str(self)
 
     @property
-    def unwrapped(self) -> Env:
+    def unwrapped(self) -> Env[ObsType, ActType]:
         """Returns the base environment of the wrapper."""
         return self.env.unwrapped
 
 
-class ObservationWrapper(Wrapper):
+class ObservationWrapper(Wrapper[ObsType, ActType], ABC):
     """Superclass of wrappers that can modify observations using :meth:`observation` for :meth:`reset` and :meth:`step`.
 
     If you would like to apply a function to the observation that is returned by the base environment before
     passing it to learning code, you can simply inherit from :class:`ObservationWrapper` and overwrite the method
     :meth:`observation` to implement that transformation. The transformation defined in that method must be
-    defined on the base environment’s observation space. However, it may take values in a different space.
+    defined on the base environment's observation space. However, it may take values in a different space.
     In that case, you need to specify the new observation space of the wrapper by setting :attr:`self.observation_space`
     in the :meth:`__init__` method of your wrapper.
 
@@ -449,25 +471,38 @@ class ObservationWrapper(Wrapper):
     index of the timestep to the observation.
     """
 
-    def reset(self, **kwargs):
+    def reset(
+        self,
+        *,
+        seed: Optional[int] = None,
+        return_info: bool = False,
+        options: Optional[Dict[str, Any]] = None,
+    ) -> Union[ObsType, Tuple[ObsType, Dict[str, Any]]]:
         """Resets the environment, returning a modified observation using :meth:`self.observation`."""
-        if kwargs.get("return_info", False):
-            obs, info = self.env.reset(**kwargs)
+        if return_info:
+            obs, info = self.env.reset(
+                seed=seed, return_info=return_info, options=options
+            )
             return self.observation(obs), info
         else:
-            return self.observation(self.env.reset(**kwargs))
+            return self.observation(
+                self.env.reset(seed=seed, return_info=return_info, options=options)
+            )
 
-    def step(self, action):
+    def step(
+        self, action: ActType
+    ) -> Tuple[ObsType, SupportsFloat, bool, Dict[str, Any]]:
         """Returns a modified observation using :meth:`self.observation` after calling :meth:`env.step`."""
         observation, reward, done, info = self.env.step(action)
         return self.observation(observation), reward, done, info
 
-    def observation(self, observation):
+    @abstractmethod
+    def observation(self, observation: ObsType) -> ObsType:
         """Returns a modified observation."""
         raise NotImplementedError
 
 
-class RewardWrapper(Wrapper):
+class RewardWrapper(Wrapper[ObsType, ActType], ABC):
     """Superclass of wrappers that can modify the returning reward from a step.
 
     If you would like to apply a function to the reward that is returned by the base environment before
@@ -491,17 +526,20 @@ class RewardWrapper(Wrapper):
                 return np.clip(reward, self.min_reward, self.max_reward)
     """
 
-    def step(self, action):
+    def step(
+        self, action: ActType
+    ) -> Tuple[ObsType, SupportsFloat, bool, Dict[str, Any]]:
         """Modifies the reward using :meth:`self.reward` after the environment :meth:`env.step`."""
         observation, reward, done, info = self.env.step(action)
         return observation, self.reward(reward), done, info
 
-    def reward(self, reward):
+    @abstractmethod
+    def reward(self, reward: SupportsFloat) -> SupportsFloat:
         """Returns a modified ``reward``."""
         raise NotImplementedError
 
 
-class ActionWrapper(Wrapper):
+class ActionWrapper(Wrapper[ObsType, ActType], ABC):
     """Superclass of wrappers that can modify the action before :meth:`env.step`.
 
     If you would like to apply a function to the action before passing it to the base environment,
@@ -511,7 +549,7 @@ class ActionWrapper(Wrapper):
     In that case, you need to specify the new action space of the wrapper by setting :attr:`self.action_space` in
     the :meth:`__init__` method of your wrapper.
 
-    Let’s say you have an environment with action space of type :class:`gym.spaces.Box`, but you would only like
+    Let's say you have an environment with action space of type :class:`gym.spaces.Box`, but you would only like
     to use a finite subset of actions. Then, you might want to implement the following wrapper::
 
         class DiscreteActions(gym.ActionWrapper):
@@ -533,14 +571,18 @@ class ActionWrapper(Wrapper):
     Among others, Gym provides the action wrappers :class:`ClipAction` and :class:`RescaleAction`.
     """
 
-    def step(self, action):
+    def step(
+        self, action: ActType
+    ) -> Tuple[ObsType, SupportsFloat, bool, Dict[str, Any]]:
         """Runs the environment :meth:`env.step` using the modified ``action`` from :meth:`self.action`."""
         return self.env.step(self.action(action))
 
-    def action(self, action):
+    @abstractmethod
+    def action(self, action: ActType) -> ActType:
         """Returns a modified action before :meth:`env.step` is called."""
         raise NotImplementedError
 
-    def reverse_action(self, action):
+    @abstractmethod
+    def reverse_action(self, action: ActType) -> ActType:
         """Returns a reversed ``action``."""
         raise NotImplementedError
