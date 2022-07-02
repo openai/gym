@@ -9,6 +9,7 @@ import gym
 from gym.envs.classic_control import cartpole
 from gym.wrappers import AutoResetWrapper, HumanRendering, OrderEnforcing, TimeLimit
 from gym.wrappers.env_checker import PassiveEnvChecker
+from tests.envs.test_envs import CHECK_ENV_IGNORE_WARNINGS
 from tests.envs.utils import all_testing_env_specs
 from tests.envs.utils_envs import ArgumentEnv, RegisterDuringMakeEnv
 from tests.wrappers.utils import has_wrapper
@@ -100,17 +101,48 @@ def test_gym_make_autoreset():
 
 def test_make_disable_env_checker():
     """Tests that `gym.make` disable env checker is applied only when `gym.make(..., disable_env_checker=False)`."""
-    env = gym.make("CartPole-v1")
+    spec = gym.spec("CartPole-v1")
+
+    # Test with spec disable env checker
+    spec.disable_env_checker = False
+    env = gym.make(spec)
+    assert has_wrapper(env, PassiveEnvChecker) is False
+    env.close()
+
+    # Test with overwritten spec using make disable env checker
+    assert spec.disable_env_checker is False
+    env = gym.make(spec, disable_env_checker=False)
     assert has_wrapper(env, PassiveEnvChecker)
     env.close()
 
-    env = gym.make("CartPole-v1", disable_env_checker=False)
+    # Test with spec enabled disable env checker
+    spec.disable_env_checker = True
+    env = gym.make(spec)
     assert has_wrapper(env, PassiveEnvChecker)
     env.close()
 
+    # Test with overwritten spec using make disable env checker
+    assert spec.disable_env_checker is True
     env = gym.make("CartPole-v1", disable_env_checker=True)
     assert has_wrapper(env, PassiveEnvChecker) is False
     env.close()
+
+
+@pytest.mark.parametrize(
+    "spec", all_testing_env_specs, ids=[spec.id for spec in all_testing_env_specs]
+)
+def test_passive_checker_wrapper_warnings(spec):
+    with pytest.warns(None) as warnings:
+        env = gym.make(spec)  # disable_env_checker=False
+        env.reset()
+        env.step(env.action_space.sample())
+        # todo, add check for render, bugged due to mujoco v2/3 and v4 envs
+
+        env.close()
+
+    for warning in warnings.list:
+        if warning.message.args[0] not in CHECK_ENV_IGNORE_WARNINGS:
+            raise gym.error.Error(f"Unexpected warning: {warning.message}")
 
 
 def test_make_order_enforcing():

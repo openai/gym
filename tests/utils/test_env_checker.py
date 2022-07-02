@@ -15,6 +15,39 @@ from gym.utils.env_checker import (
 from tests.testing_env import GenericTestEnv
 
 
+@pytest.mark.parametrize(
+    "env",
+    [
+        gym.make("CartPole-v1", disable_env_checker=True),
+        gym.make("MountainCar-v0", disable_env_checker=True),
+        GenericTestEnv(
+            observation_space=spaces.Dict(
+                a=spaces.Discrete(10), b=spaces.Box(np.zeros(2), np.ones(2))
+            )
+        ),
+        GenericTestEnv(
+            observation_space=spaces.Tuple(
+                [spaces.Discrete(10), spaces.Box(np.zeros(2), np.ones(2))]
+            )
+        ),
+        GenericTestEnv(
+            observation_space=spaces.Dict(
+                a=spaces.Tuple(
+                    [spaces.Discrete(10), spaces.Box(np.zeros(2), np.ones(2))]
+                ),
+                b=spaces.Box(np.zeros(2), np.ones(2)),
+            )
+        ),
+    ],
+)
+def test_no_error_warnings(env):
+    """A full version of this test with all gym envs is run in tests/envs/test_envs.py."""
+    with pytest.warns(None) as warnings:
+        check_env(env)
+
+    assert len(warnings) == 0, [warning.message for warning in warnings]
+
+
 def _no_super_reset(self, seed=None, return_info=False, options=None):
     self.np_random.random()  # generates a new prng
     # generate seed deterministic result
@@ -183,35 +216,3 @@ def test_check_env(env: gym.Env, message: str):
     """Tests the check_env function works as expected."""
     with pytest.raises(AssertionError, match=f"^{re.escape(message)}$"):
         check_env(env)
-
-
-@pytest.mark.parametrize(
-    "env",
-    [
-        gym.make("CartPole-v1", disable_env_checker=True),
-        gym.make("MountainCar-v0", disable_env_checker=True),
-        GenericTestEnv(
-            observation_space=spaces.Dict(
-                a=spaces.Discrete(10), b=spaces.Box(np.zeros(2), np.ones(2))
-            )
-        ),
-        GenericTestEnv(
-            observation_space=spaces.Tuple(
-                [spaces.Discrete(10), spaces.Box(np.zeros(2), np.ones(2))]
-            )
-        ),
-        GenericTestEnv(
-            observation_space=spaces.Dict(
-                a=spaces.Tuple(
-                    [spaces.Discrete(10), spaces.Box(np.zeros(2), np.ones(2))]
-                ),
-                b=spaces.Box(np.zeros(2), np.ones(2)),
-            )
-        ),
-    ],
-)
-def test_no_error_warnings(env):
-    with pytest.warns(None) as warnings:
-        check_env(env)
-
-    assert len(warnings) == 0, [warning.message for warning in warnings]

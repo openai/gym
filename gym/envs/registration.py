@@ -118,7 +118,7 @@ class EnvSpec:
     max_episode_steps: Optional[int] = field(default=None)
     order_enforce: bool = field(default=True)
     autoreset: bool = field(default=False)
-    run_env_checker: bool = field(default=True)
+    disable_env_checker: bool = field(default=True)
     kwargs: dict = field(default_factory=dict)
 
     namespace: Optional[str] = field(init=False)
@@ -631,9 +631,6 @@ def make(
         else:
             raise e
 
-    if apply_human_rendering:
-        env = HumanRendering(env)
-
     # Copies the environment creation specification and kwargs to add to the environment specification details
     spec_ = copy.deepcopy(spec_)
     spec_.kwargs = _kwargs
@@ -641,7 +638,7 @@ def make(
 
     # Run the environment checker as the lowest level wrapper
     if disable_env_checker is False or (
-        disable_env_checker is None and spec_.run_env_checker is True
+        disable_env_checker is None and spec_.disable_env_checker is False
     ):
         env = PassiveEnvChecker(env)
 
@@ -658,6 +655,10 @@ def make(
     # Add the autoreset wrapper
     if autoreset:
         env = AutoResetWrapper(env)
+
+    # Add human rendering wrapper
+    if apply_human_rendering:
+        env = HumanRendering(env)
 
     return env
 

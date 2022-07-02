@@ -4,9 +4,28 @@ import pytest
 
 import gym
 from gym.wrappers.env_checker import PassiveEnvChecker
+from tests.envs.test_envs import CHECK_ENV_IGNORE_WARNINGS
 from tests.envs.utils import all_testing_initialised_envs
 from tests.testing_env import GenericTestEnv
-from tests.wrappers.utils import has_wrapper
+
+
+@pytest.mark.parametrize(
+    "env",
+    all_testing_initialised_envs,
+    ids=[env.spec.id for env in all_testing_initialised_envs],
+)
+def test_passive_checker_wrapper_warnings(env):
+    with pytest.warns(None) as warnings:
+        checker_env = PassiveEnvChecker(env)
+        checker_env.reset()
+        checker_env.step(checker_env.action_space.sample())
+        # todo, add check for render, bugged due to mujoco v2/3 and v4 envs
+
+        checker_env.close()
+
+    for warning in warnings.list:
+        if warning.message.args[0] not in CHECK_ENV_IGNORE_WARNINGS:
+            raise gym.error.Error(f"Unexpected warning: {warning.message}")
 
 
 @pytest.mark.parametrize(
@@ -76,45 +95,5 @@ def test_api_failures():
     ):
         env.render()
     assert env.checked_render
-
-    env.close()
-
-
-IGNORE_WARNINGS = [
-    r"The environment \w+-v\d is out of date\. You should consider upgrading to version `v\d`\.",
-    re.escape(
-        "This version of the mujoco environments depends on the mujoco-py bindings, which are no longer maintained and may stop working. Please upgrade to the v4 versions of the environments (which depend on the mujoco python bindings instead), unless you are trying to precisely replicate previous works)."
-    ),
-]
-IGNORE_WARNINGS = [
-    f"^\\x1b\\[33mWARN: {warning}\\x1b\\[0m$" for warning in IGNORE_WARNINGS
-]
-
-
-RGB_SPECS = [
-    env.spec
-    for env in all_testing_initialised_envs
-    if "rgb_array" in env.metadata["render_modes"]
-]
-
-
-@pytest.mark.parametrize("spec", RGB_SPECS, ids=[spec.id for spec in RGB_SPECS])
-def test_wrapper_passes(spec):
-    with pytest.warns(None) as warnings:
-        env = gym.make(
-            spec.id
-        )  # render_mode="rgb_array" - todo, re-add, for mujoco this was bugged
-        assert has_wrapper(env, PassiveEnvChecker)
-
-        env.reset()
-        env.step(env.action_space.sample())
-
-    assert all(
-        any(
-            re.match(ignore_warning, warning.message.args[0])
-            for ignore_warning in IGNORE_WARNINGS
-        )
-        for warning in warnings
-    ), [warning.message.args[0] for warning in warnings]
 
     env.close()

@@ -7,30 +7,31 @@ from tests.envs.utils import all_testing_env_specs, assert_equals, gym_testing_e
 
 # This runs a smoketest on each official registered env. We may want
 # to try also running environments which are not officially registered envs.
-IGNORE_WARNINGS = [
+CHECK_ENV_IGNORE_WARNINGS = [
+    "This version of the mujoco environments depends on the mujoco-py bindings, which are no longer maintained and may stop working. Please upgrade to the v4 versions of the environments (which depend on the mujoco python bindings instead), unless you are trying to precisely replicate previous works).",
     "Agent's minimum observation space value is -infinity. This is probably too low.",
     "Agent's maximum observation space value is infinity. This is probably too high.",
     "We recommend you to use a symmetric and normalized Box action space (range=[-1, 1]) https://stable-baselines3.readthedocs.io/en/master/guide/rl_tips.html",
 ]
-IGNORE_WARNINGS = [f"\x1b[33mWARN: {message}\x1b[0m" for message in IGNORE_WARNINGS]
+CHECK_ENV_IGNORE_WARNINGS = [
+    f"\x1b[33mWARN: {message}\x1b[0m" for message in CHECK_ENV_IGNORE_WARNINGS
+]
 
 
 @pytest.mark.parametrize(
     "spec", all_testing_env_specs, ids=[spec.id for spec in all_testing_env_specs]
 )
-def test_env(spec):
-    # Capture warnings
-    env = spec.make(disable_env_checker=True)
-
-    # Test if env adheres to Gym API
+def test_envs_pass_env_checker(spec):
+    """Check that all environments pass the environment checker with no warnings other than the expected."""
     with pytest.warns(None) as warnings:
+        env = spec.make(disable_env_checker=True)
         check_env(env)
 
-    for warning in warnings.list:
-        if warning.message.args[0] not in IGNORE_WARNINGS:
-            raise gym.error.Error(f"Unexpected warning: {warning.message}")
+        env.close()
 
-    env.close()
+    for warning in warnings.list:
+        if warning.message.args[0] not in CHECK_ENV_IGNORE_WARNINGS:
+            raise gym.error.Error(f"Unexpected warning: {warning.message}")
 
 
 # Note that this precludes running this test in multiple threads.
