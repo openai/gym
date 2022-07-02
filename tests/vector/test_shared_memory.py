@@ -13,7 +13,7 @@ from gym.vector.utils.shared_memory import (
     read_from_shared_memory,
     write_to_shared_memory,
 )
-from gym.vector.utils.spaces import _BaseGymSpaces
+from gym.vector.utils.spaces import BaseGymSpaces
 from tests.vector.utils import custom_spaces, spaces
 
 expected_types = [
@@ -147,7 +147,7 @@ def test_read_from_shared_memory(space):
                     lhs[key], [rhs_[key] for rhs_ in rhs], space.spaces[key], n
                 )
 
-        elif isinstance(space, _BaseGymSpaces):
+        elif isinstance(space, BaseGymSpaces):
             assert isinstance(lhs, np.ndarray)
             assert lhs.shape == ((n,) + space.shape)
             assert lhs.dtype == space.dtype

@@ -8,9 +8,49 @@ from gym.envs.toy_text.frozen_lake import generate_random_map
 
 
 def test_lunar_lander_heuristics():
+    """Tests the LunarLander environment by checking if the heuristic lander works."""
     lunar_lander = gym.make("LunarLander-v2", disable_env_checker=True)
     total_reward = demo_heuristic_lander(lunar_lander, seed=1)
     assert total_reward > 100
+
+
+def test_carracing_domain_randomize():
+    """Tests the CarRacing Environment domain randomization.
+
+    CarRacing DomainRandomize should have different colours at every reset.
+    However, it should have same colours when `options={"randomize": False}` is given to reset.
+    """
+    env = gym.make("CarRacing-v1", domain_randomize=True)
+
+    road_color = env.road_color
+    bg_color = env.bg_color
+    grass_color = env.grass_color
+
+    env.reset(options={"randomize": False})
+
+    assert (
+        road_color == env.road_color
+    ).all(), f"Have different road color after reset with randomize turned off. Before: {road_color}, after: {env.road_color}."
+    assert (
+        bg_color == env.bg_color
+    ).all(), f"Have different bg color after reset with randomize turned off. Before: {bg_color}, after: {env.bg_color}."
+    assert (
+        grass_color == env.grass_color
+    ).all(), f"Have different grass color after reset with randomize turned off. Before: {grass_color}, after: {env.grass_color}."
+
+    env.reset()
+
+    assert (
+        road_color != env.road_color
+    ).all(), f"Have same road color after reset. Before: {road_color}, after: {env.road_color}."
+    assert (
+        bg_color != env.bg_color
+    ).all(), (
+        f"Have same bg color after reset. Before: {bg_color}, after: {env.bg_color}."
+    )
+    assert (
+        grass_color != env.grass_color
+    ).all(), f"Have same grass color after reset. Before: {grass_color}, after: {env.grass_color}."
 
 
 @pytest.mark.parametrize("seed", range(5))
