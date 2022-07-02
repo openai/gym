@@ -1,10 +1,11 @@
 import re
 
+import numpy as np
 import pytest
 
 import gym
 from gym.wrappers.env_checker import PassiveEnvChecker
-from tests.envs.test_envs import CHECK_ENV_IGNORE_WARNINGS
+from tests.envs.test_envs import PASSIVE_CHECK_IGNORE_WARNING
 from tests.envs.utils import all_testing_initialised_envs
 from tests.testing_env import GenericTestEnv
 
@@ -24,7 +25,7 @@ def test_passive_checker_wrapper_warnings(env):
         checker_env.close()
 
     for warning in warnings.list:
-        if warning.message.args[0] not in CHECK_ENV_IGNORE_WARNINGS:
+        if warning.message.args[0] not in PASSIVE_CHECK_IGNORE_WARNING:
             raise gym.error.Error(f"Unexpected warning: {warning.message}")
 
 
@@ -57,7 +58,7 @@ def test_initialise_failures(env, message):
 
 
 def _reset_failure(self, seed=None, return_info=False, options=None):
-    return "error"
+    return np.array([-1.0], dtype=np.float32)
 
 
 def _step_failure(self, action):
@@ -76,7 +77,7 @@ def test_api_failures():
     with pytest.warns(
         UserWarning,
         match=re.escape(
-            "The obs returned by the `reset()` method was expecting a numpy array, actually type: <class 'str'>"
+            "The obs returned by the `reset()` method is not within the observation space"
         ),
     ):
         env.reset()

@@ -9,7 +9,7 @@ import gym
 from gym.envs.classic_control import cartpole
 from gym.wrappers import AutoResetWrapper, HumanRendering, OrderEnforcing, TimeLimit
 from gym.wrappers.env_checker import PassiveEnvChecker
-from tests.envs.test_envs import CHECK_ENV_IGNORE_WARNINGS
+from tests.envs.test_envs import PASSIVE_CHECK_IGNORE_WARNING
 from tests.envs.utils import all_testing_env_specs
 from tests.envs.utils_envs import ArgumentEnv, RegisterDuringMakeEnv
 from tests.wrappers.utils import has_wrapper
@@ -106,25 +106,25 @@ def test_make_disable_env_checker():
     # Test with spec disable env checker
     spec.disable_env_checker = False
     env = gym.make(spec)
-    assert has_wrapper(env, PassiveEnvChecker) is False
+    assert has_wrapper(env, PassiveEnvChecker)
     env.close()
 
     # Test with overwritten spec using make disable env checker
     assert spec.disable_env_checker is False
-    env = gym.make(spec, disable_env_checker=False)
-    assert has_wrapper(env, PassiveEnvChecker)
+    env = gym.make(spec, disable_env_checker=True)
+    assert has_wrapper(env, PassiveEnvChecker) is False
     env.close()
 
     # Test with spec enabled disable env checker
     spec.disable_env_checker = True
     env = gym.make(spec)
-    assert has_wrapper(env, PassiveEnvChecker)
+    assert has_wrapper(env, PassiveEnvChecker) is False
     env.close()
 
     # Test with overwritten spec using make disable env checker
     assert spec.disable_env_checker is True
-    env = gym.make("CartPole-v1", disable_env_checker=True)
-    assert has_wrapper(env, PassiveEnvChecker) is False
+    env = gym.make("CartPole-v1", disable_env_checker=False)
+    assert has_wrapper(env, PassiveEnvChecker)
     env.close()
 
 
@@ -141,7 +141,7 @@ def test_passive_checker_wrapper_warnings(spec):
         env.close()
 
     for warning in warnings.list:
-        if warning.message.args[0] not in CHECK_ENV_IGNORE_WARNINGS:
+        if warning.message.args[0] not in PASSIVE_CHECK_IGNORE_WARNING:
             raise gym.error.Error(f"Unexpected warning: {warning.message}")
 
 

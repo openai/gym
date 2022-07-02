@@ -111,14 +111,30 @@ def get_env_id(ns: Optional[str], name: str, version: Optional[int]) -> str:
 
 @dataclass
 class EnvSpec:
+    """A specification for creating environments with `gym.make`.
+
+    * id: The string used to create the environment with `gym.make`
+    * entry_point: The location of the environment to create from
+    * reward_threshold: The reward threshold for completing the environment.
+    * nondeterministic: If the observation of an environment cannot be repeated with the same initial state, random number generator state and actions.
+    * max_episode_steps: The max number of steps that the environment can take before truncation
+    * order_enforce: If to enforce the order of `reset` before `step` and `render` functions
+    * autoreset: If to automatically reset the environment on episode end
+    * disable_env_checker: If to disable the environment checker wrapper by default in `gym.make`
+    * kwargs: Additional keyword arguments passed to the environments through `gym.make`
+    """
+
     id: str
     entry_point: Optional[Union[Callable, str]] = field(default=None)
     reward_threshold: Optional[float] = field(default=None)
     nondeterministic: bool = field(default=False)
+
+    # Wrappers
     max_episode_steps: Optional[int] = field(default=None)
     order_enforce: bool = field(default=True)
     autoreset: bool = field(default=False)
-    disable_env_checker: bool = field(default=True)
+    disable_env_checker: bool = field(default=False)
+    # Environment arguments
     kwargs: dict = field(default_factory=dict)
 
     namespace: Optional[str] = field(init=False)
@@ -532,7 +548,7 @@ def make(
         id: Name of the environment. Optionally, a module to import can be included, eg. 'module:Env-v0'
         max_episode_steps: Maximum length of an episode (TimeLimit wrapper).
         autoreset: Whether to automatically reset the environment after each episode (AutoResetWrapper).
-        disable_env_checker: If to run the env checker, None will default to the environment `spec.run_env_checker`
+        disable_env_checker: If to run the env checker, None will default to the environment `spec.disable_env_checker`
             (that is by default True), otherwise will run according to the parameter (True = not run, False = run)
         kwargs: Additional arguments to pass to the environment constructor.
 

@@ -7,14 +7,21 @@ from tests.envs.utils import all_testing_env_specs, assert_equals, gym_testing_e
 
 # This runs a smoketest on each official registered env. We may want
 # to try also running environments which are not officially registered envs.
-CHECK_ENV_IGNORE_WARNINGS = [
-    "This version of the mujoco environments depends on the mujoco-py bindings, which are no longer maintained and may stop working. Please upgrade to the v4 versions of the environments (which depend on the mujoco python bindings instead), unless you are trying to precisely replicate previous works).",
-    "Agent's minimum observation space value is -infinity. This is probably too low.",
-    "Agent's maximum observation space value is infinity. This is probably too high.",
-    "We recommend you to use a symmetric and normalized Box action space (range=[-1, 1]) https://stable-baselines3.readthedocs.io/en/master/guide/rl_tips.html",
+PASSIVE_CHECK_IGNORE_WARNING = [
+    f"\x1b[33mWARN: {message}\x1b[0m"
+    for message in [
+        "This version of the mujoco environments depends on the mujoco-py bindings, which are no longer maintained and may stop working. Please upgrade to the v4 versions of the environments (which depend on the mujoco python bindings instead), unless you are trying to precisely replicate previous works)."
+    ]
 ]
+
 CHECK_ENV_IGNORE_WARNINGS = [
-    f"\x1b[33mWARN: {message}\x1b[0m" for message in CHECK_ENV_IGNORE_WARNINGS
+    f"\x1b[33mWARN: {message}\x1b[0m"
+    for message in [
+        "This version of the mujoco environments depends on the mujoco-py bindings, which are no longer maintained and may stop working. Please upgrade to the v4 versions of the environments (which depend on the mujoco python bindings instead), unless you are trying to precisely replicate previous works).",
+        "The observation Box space minimum value is -infinity. This is probably too low.",
+        "The observation Box space maximum value is -infinity. This is probably too high.",
+        "We recommend you to use a symmetric and normalized Box action space (range=[-1, 1] or [0, 1]) https://stable-baselines3.readthedocs.io/en/master/guide/rl_tips.html",
+    ]
 ]
 
 

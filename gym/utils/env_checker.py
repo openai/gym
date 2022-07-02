@@ -24,9 +24,9 @@ from gym import logger, spaces
 from gym.utils.passive_env_checker import (
     check_action_space,
     check_observation_space,
-    passive_env_render_checker,
-    passive_env_reset_checker,
-    passive_env_step_checker,
+    env_render_passive_checker,
+    env_reset_passive_checker,
+    env_step_passive_checker,
 )
 
 
@@ -68,13 +68,20 @@ def check_reset_seed(env: gym.Env):
             even though `seed` or `kwargs` appear in the signature.
     """
     signature = inspect.signature(env.reset)
-    if "seed" in signature.parameters or "kwargs" in signature.parameters:
+    if "seed" in signature.parameters or (
+        "kwargs" in signature.parameters
+        and signature.parameters["kwargs"].kind is inspect.Parameter.VAR_KEYWORD
+    ):
         try:
             obs_1 = env.reset(seed=123)
             assert (
                 obs_1 in env.observation_space
             ), "The observation returned by `env.reset(seed=123)` is not within the observation space"
-            seed_123_rng = deepcopy(env.unwrapped.np_random)
+            assert (
+                env.unwrapped._np_random is not None
+            ), "Expects the random number generator to have been generated given a seed was passed to reset. Mostly likely the environment reset function does not call `super().reset(seed=seed)`."
+            seed_123_rng = deepcopy(env.unwrapped._np_random)
+
             obs_2 = env.reset(seed=123)
             assert (
                 obs_2 in env.observation_space
@@ -84,7 +91,7 @@ def check_reset_seed(env: gym.Env):
                     obs_1, obs_2
                 ), "`env.reset(seed=123)` is not deterministic as the observations are not equivalent"
             assert (
-                env.unwrapped.np_random.bit_generator.state
+                env.unwrapped._np_random.bit_generator.state
                 == seed_123_rng.bit_generator.state
             ), (
                 "Mostly likely the environment reset function does not call `super().reset(seed=seed)` "
@@ -96,7 +103,10 @@ def check_reset_seed(env: gym.Env):
                 obs_3 in env.observation_space
             ), "The observation returned by `env.reset(seed=456)` is not within the observation space"
             assert (
-                env.unwrapped.np_random.bit_generator.state
+                env.unwrapped._np_random is not None
+            ), "Expects the random number generator to have been generated given a seed was passed to reset. Mostly likely the environment reset function does not call `super().reset(seed=seed)`."
+            assert (
+                env.unwrapped._np_random.bit_generator.state
                 != seed_123_rng.bit_generator.state
             ), (
                 "Mostly likely the environment reset function does not call `super().reset(seed=seed)` "
@@ -142,7 +152,10 @@ def check_reset_info(env: gym.Env):
             even though `return_info` or `kwargs` appear in the signature.
     """
     signature = inspect.signature(env.reset)
-    if "return_info" in signature.parameters or "kwargs" in signature.parameters:
+    if "return_info" in signature.parameters or (
+        "kwargs" in signature.parameters
+        and signature.parameters["kwargs"].kind is inspect.Parameter.VAR_KEYWORD
+    ):
         try:
             obs = env.reset(return_info=False)
             assert (
@@ -156,6 +169,7 @@ def check_reset_info(env: gym.Env):
             assert (
                 len(result) == 2
             ), f"Calling the reset method with `return_info=True` did not return a 2-tuple, actual length: {len(result)}"
+
             obs, info = result
             assert (
                 obs in env.observation_space
@@ -186,7 +200,10 @@ def check_reset_options(env: gym.Env):
             even though `options` or `kwargs` appear in the signature.
     """
     signature = inspect.signature(env.reset)
-    if "options" in signature.parameters or "kwargs" in signature.parameters:
+    if "options" in signature.parameters or (
+        "kwargs" in signature.parameters
+        and signature.parameters["kwargs"].kind is inspect.Parameter.VAR_KEYWORD
+    ):
         try:
             env.reset(options={})
         except TypeError as e:
@@ -206,16 +223,16 @@ def check_space_limit(space, space_type: str):
     if isinstance(space, spaces.Box):
         if np.any(np.equal(space.low, -np.inf)):
             logger.warn(
-                f"Agent's minimum {space_type} space value is -infinity. This is probably too low."
+                f"The {space_type} Box space minimum value is -infinity. This is probably too low."
             )
         if np.any(np.equal(space.high, np.inf)):
             logger.warn(
-                f"Agent's maximum {space_type} space value is infinity. This is probably too high."
+                f"The {space_type} Box space maximum value is -infinity. This is probably too high."
             )
 
         # Check that the Box space is normalized
         if space_type == "action":
-            if space.shape == (1,):
+            if len(space.shape) == 1:  # for vector boxes
                 if (
                     np.any(
                         np.logical_and(
@@ -227,7 +244,7 @@ def check_space_limit(space, space_type: str):
                     or np.any(space.high > 1)
                 ):
                     logger.warn(
-                        "We recommend you to use a symmetric and normalized Box action space (range=[-1, 1]) "
+                        "We recommend you to use a symmetric and normalized Box action space (range=[-1, 1] or [0, 1]) "
                         "https://stable-baselines3.readthedocs.io/en/master/guide/rl_tips.html"  # TODO Add to gymlibrary.ml?
                     )
     elif isinstance(space, spaces.Tuple):
@@ -278,12 +295,12 @@ def check_env(env: gym.Env, warn: bool = None, skip_render_check: bool = False):
     check_reset_info(env)
 
     # ============ Check the returned values ===============
-    passive_env_reset_checker(env)
-    passive_env_step_checker(env, env.action_space.sample())
+    env_reset_passive_checker(env)
+    env_step_passive_checker(env, env.action_space.sample())
 
     # ==== Check the render method and the declared render modes ====
     if not skip_render_check:
         if env.render_mode is not None:
-            passive_env_render_checker(env)
+            env_render_passive_checker(env)
 
         # todo: recreate the environment with a different render_mode for check that each work

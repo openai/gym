@@ -604,10 +604,6 @@ class LunarLander(gym.Env, EzPickle):
         if self.clock is None:
             self.clock = pygame.time.Clock()
 
-        assert (
-            self.screen is not None
-        ), "Something went wrong with pygame, there is no screen to render"
-
         self.surf = pygame.Surface((VIEWPORT_W, VIEWPORT_H))
 
         pygame.transform.scale(self.surf, (SCALE, SCALE))

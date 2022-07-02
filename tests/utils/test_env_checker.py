@@ -82,7 +82,7 @@ def _reset_default_seed(
         [
             AssertionError,
             lambda self, seed, *_: self.observation_space.sample(),
-            "`env.reset(seed=123)` is not deterministic as the observations are not equivalent",
+            "Expects the random number generator to have been generated given a seed was passed to reset. Mostly likely the environment reset function does not call `super().reset(seed=seed)`.",
         ],
         [
             AssertionError,
@@ -92,7 +92,7 @@ def _reset_default_seed(
         [
             AssertionError,
             _super_reset_fixed,
-            "Mostly likely the environment reset function does not call `super().reset(seed=seed)` as the random generates are not different when different seeds are passed to `env.reset`.",
+            "Mostly likely the environment reset function does not call `super().reset(seed=seed)` as the random number generators are not different when different seeds are passed to `env.reset`."
         ],
         [
             UserWarning,

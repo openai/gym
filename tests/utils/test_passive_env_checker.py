@@ -1,5 +1,5 @@
 import re
-from typing import Dict
+from typing import Dict, Union
 
 import numpy as np
 import pytest
@@ -10,9 +10,9 @@ from gym.utils.passive_env_checker import (
     check_action_space,
     check_obs,
     check_observation_space,
-    passive_env_render_checker,
-    passive_env_reset_checker,
-    passive_env_step_checker,
+    env_render_passive_checker,
+    env_reset_passive_checker,
+    env_step_passive_checker,
 )
 from tests.testing_env import GenericTestEnv
 
@@ -28,69 +28,69 @@ def _modify_space(space: spaces.Space, attribute: str, value):
         [
             AssertionError,
             "error",
-            "Observation space does not inherit from `gym.spaces.Space`, actual type: <class 'str'>",
+            "observation space does not inherit from `gym.spaces.Space`, actual type: <class 'str'>",
         ],
         # ===== Check box observation space ====
         [
             UserWarning,
             spaces.Box(np.zeros((5, 5, 1)), 255 * np.ones((5, 5, 1)), dtype=np.int32),
-            "It seems that your observation space is an image but the `dtype` of your observation_space is not `np.uint8`, actual type: int32. If your observation is not an image, we recommend you to flatten the observation to have only a 1D vector",
+            "It seems a Box observation space is an image but the `dtype` is not `np.uint8`, actual type: int32. If the Box observation space is not an image, we recommend flattening the observation to have only a 1D vector."
         ],
         [
             UserWarning,
             spaces.Box(np.ones((2, 2, 1)), 255 * np.ones((2, 2, 1)), dtype=np.uint8),
-            "It seems that your observation space is an image but the upper and lower bounds are not in [0, 255]. Generally, CNN policies assume observations are within that range, so you may encounter an issue if the observation values are not.",
+            "It seems a Box observation space is an image but the upper and lower bounds are not in [0, 255]. Generally, CNN policies assume observations are within that range, so you may encounter an issue if the observation values are not.",
         ],
         [
             UserWarning,
             spaces.Box(np.zeros((5, 5, 1)), np.ones((5, 5, 1)), dtype=np.uint8),
-            "It seems that your observation space is an image but the upper and lower bounds are not in [0, 255]. Generally, CNN policies assume observations are within that range, so you may encounter an issue if the observation values are not.",
+            "It seems a Box observation space is an image but the upper and lower bounds are not in [0, 255]. Generally, CNN policies assume observations are within that range, so you may encounter an issue if the observation values are not.",
         ],
         [
             UserWarning,
             spaces.Box(np.zeros((5, 5)), np.ones((5, 5))),
-            "Your observation space has an unconventional shape (neither an image, nor a 1D vector). We recommend you to flatten the observation to have only a 1D vector or use a custom policy to properly process the data. Actual observation shape: (5, 5)",
+            "A Box observation space has an unconventional shape (neither an image, nor a 1D vector). We recommend flattening the observation to have only a 1D vector or use a custom policy to properly process the data. Actual observation shape: (5, 5)",
         ],
         [
             UserWarning,
             spaces.Box(np.zeros(5), np.zeros(5)),
-            "Agent's maximum and minimum observation space values are equal",
+            "A Box observation space maximum and minimum values are equal.",
         ],
         [
-            AssertionError,
+            UserWarning,
             spaces.Box(np.ones(5), np.zeros(5)),
-            "An Agent's minimum observation value is greater than it's maximum",
+            "A Box observation space low value is greater than a high value.",
         ],
         [
             AssertionError,
             _modify_space(spaces.Box(np.zeros(2), np.ones(2)), "low", np.zeros(3)),
-            "Agent's observation_space.low and observation_space have different shapes, low shape: (3,), box shape: (2,)",
+            "The Box observation space shape and low shape have different shapes, low shape: (3,), box shape: (2,)",
         ],
         [
             AssertionError,
             _modify_space(spaces.Box(np.zeros(2), np.ones(2)), "high", np.ones(3)),
-            "Agent's observation_space.high and observation_space have different shapes, high shape: (3,), box shape: (2,)",
+            "The Box observation space shape and high shape have have different shapes, high shape: (3,), box shape: (2,)",
         ],
         # ==== Other observation spaces (Discrete, MultiDiscrete, MultiBinary, Tuple, Dict)
         [
             AssertionError,
             _modify_space(spaces.Discrete(5), "n", -1),
-            "Discrete observation space's number of dimensions must be positive, actual dimensions: -1",
+            "Discrete observation space's number of elements must be positive, actual number of elements: -1",
         ],
         [
             AssertionError,
             _modify_space(spaces.MultiDiscrete([2, 2]), "nvec", np.array([2, -1])),
-            "All dimensions of multi-discrete observation space must be greater than 0, actual shape: [ 2 -1]",
+            "Multi-discrete observation space's all nvec elements must be greater than 0, actual nvec: [ 2 -1]",
         ],
         [
             AssertionError,
             _modify_space(spaces.MultiDiscrete([2, 2]), "_shape", (2, 1, 2)),
-            "Expect the MultiDiscrete shape is be equal to nvec.shape, space shape: (2, 1, 2), nvec shape: (2,)",
+            "Multi-discrete observation space's shape must be equal to the nvec shape, space shape: (2, 1, 2), nvec shape: (2,)",
         ],
         [
             AssertionError,
             _modify_space(spaces.MultiBinary((2, 2)), "_shape", (2, -1)),
-            "All dimensions of multi-binary observation space must be greater than 0, actual shape: (2, -1)",
+            "Multi-binary observation space's all shape elements must be greater than 0, actual shape: (2, -1)",
         ],
         [
             AssertionError,
@@ -124,44 +124,44 @@ def test_check_observation_space(test, space, message: str):
         [
             AssertionError,
             "error",
-            "Action space does not inherit from `gym.spaces.Space`, actual type: <class 'str'>",
+            "action space does not inherit from `gym.spaces.Space`, actual type: <class 'str'>",
         ],
         # ===== Check box observation space ====
         [
             UserWarning,
             spaces.Box(np.zeros(5), np.zeros(5)),
-            "Agent's maximum and minimum action space values are equal",
+            "A Box action space maximum and minimum values are equal.",
         ],
         [
-            AssertionError,
+            UserWarning,
             spaces.Box(np.ones(5), np.zeros(5)),
-            "Agent's minimum action value is greater than it's maximum",
+            "A Box action space low value is greater than a high value.",
         ],
         [
             AssertionError,
             _modify_space(spaces.Box(np.zeros(2), np.ones(2)), "low", np.zeros(3)),
-            "Agent's action_space.low and action_space have different shapes, low shape: (3,), box shape: (2,)",
+            "The Box action space shape and low shape have have different shapes, low shape: (3,), box shape: (2,)",
         ],
         [
             AssertionError,
             _modify_space(spaces.Box(np.zeros(2), np.ones(2)), "high", np.ones(3)),
-            "Agent's action_space.high and action_space have different shapes, high shape: (3,), box shape: (2,)",
+            "The Box action space shape and high shape have different shapes, high shape: (3,), box shape: (2,)",
         ],
         # ==== Other observation spaces (Discrete, MultiDiscrete, MultiBinary, Tuple, Dict)
         [
             AssertionError,
             _modify_space(spaces.Discrete(5), "n", -1),
-            "Discrete action space's number of dimensions must be positive, actual dimensions: -1",
+            "Discrete action space's number of elements must be positive, actual number of elements: -1",
         ],
         [
             AssertionError,
             _modify_space(spaces.MultiDiscrete([2, 2]), "_shape", (2, -1)),
-            "All dimensions of multi-discrete action space must be greater than 0, actual shape: (2, -1)",
+            "Multi-discrete action space's shape must be equal to the nvec shape, space shape: (2, -1), nvec shape: (2,)",
         ],
         [
             AssertionError,
             _modify_space(spaces.MultiBinary((2, 2)), "_shape", (2, -1)),
-            "All dimensions of multi-binary action space must be greater than 0, actual shape: (2, -1)",
+            "Multi-binary action space's all shape elements must be greater than 0, actual shape: (2, -1)",
         ],
         [
             AssertionError,
@@ -171,7 +171,7 @@ def test_check_observation_space(test, space, message: str):
         [AssertionError, spaces.Dict(), "An empty Dict action space is not allowed."],
     ],
 )
-def test_check_action_space(test, space: spaces.Space, message: str):
+def test_check_action_space(test: Union[UserWarning, type], space: spaces.Space, message: str):
     """Tests the check action space function."""
     if test is UserWarning:
         with pytest.warns(
@@ -192,19 +192,19 @@ def test_check_action_space(test, space: spaces.Space, message: str):
             UserWarning,
             3,
             spaces.Discrete(2),
-            "The obs returned by the `testing()` method is not within the observation space",
+            "The obs returned by the `testing()` method is not within the observation space.",
         ],
         [
             UserWarning,
             np.uint8(0),
             spaces.Discrete(1),
-            "The obs returned by the `testing()` method was expecting an int or np.int64, actually type: <class 'numpy.uint8'>",
+            "The obs returned by the `testing()` method should be an int or np.int64, actual type: <class 'numpy.uint8'>",
         ],
         [
             UserWarning,
             [0, 1],
             spaces.Tuple([spaces.Discrete(1), spaces.Discrete(2)]),
-            "The obs returned by the `testing()` method was expecting a tuple, actually type: <class 'list'>",
+            "The obs returned by the `testing()` method was expecting a tuple, actual type: <class 'list'>",
         ],
         [
             AssertionError,
@@ -216,7 +216,7 @@ def test_check_action_space(test, space: spaces.Space, message: str):
             AssertionError,
             {1, 2, 3},
             spaces.Dict(a=spaces.Discrete(1), b=spaces.Discrete(2)),
-            "The obs returned by the `testing()` method must be a dict, actually <class 'set'>",
+            "The obs returned by the `testing()` method must be a dict, actual type: <class 'set'>",
         ],
         [
             AssertionError,
@@ -293,13 +293,13 @@ def _make_reset_results(results):
         [
             AssertionError,
             _make_reset_results([0, {}]),
-            "The result returned by `env.reset(return_info=True)` was not a tuple, actually type: <class 'list'>",
+            "The result returned by `env.reset(return_info=True)` was not a tuple, actual type: <class 'list'>",
             {"return_info": True},
         ],
         [
             AssertionError,
             _make_reset_results((0, {1, 2})),
-            "The second element returned by `env.reset(return_info=True)` was not a dictionary, actually type: <class 'set'>",
+            "The second element returned by `env.reset(return_info=True)` was not a dictionary, actual type: <class 'set'>",
             {"return_info": True},
         ],
     ],
@@ -310,15 +310,15 @@ def test_passive_env_reset_checker(test, func: callable, message: str, kwargs: D
         with pytest.warns(
             UserWarning, match=f"^\\x1b\\[33mWARN: {re.escape(message)}\\x1b\\[0m$"
         ):
-            passive_env_reset_checker(GenericTestEnv(reset_fn=func), **kwargs)
+            env_reset_passive_checker(GenericTestEnv(reset_fn=func), **kwargs)
     else:
         with pytest.warns(None) as warnings:
             with pytest.raises(test, match=f"^{re.escape(message)}$"):
-                passive_env_reset_checker(GenericTestEnv(reset_fn=func), **kwargs)
+                env_reset_passive_checker(GenericTestEnv(reset_fn=func), **kwargs)
         assert len(warnings) == 0
 
 
-def modified_step(
+def _modified_step(
     self, obs=None, reward=0, terminated=False, truncated=None, info=None
 ):
     if obs is None:
@@ -342,57 +342,59 @@ def modified_step(
         ],
         [
             AssertionError,
-            lambda self, _: modified_step(self, terminated="error"),
+            lambda self, _: _modified_step(self, terminated="error"),
             "The `done` signal must be a boolean, actual type: <class 'str'>",
         ],
         [
             UserWarning,
-            lambda self, _: modified_step(self, terminated="error", truncated=False),
+            lambda self, _: _modified_step(self, terminated="error", truncated=False),
             "The `terminated` signal must be a boolean, actual type: <class 'str'>",
         ],
         [
             UserWarning,
-            lambda self, _: modified_step(self, truncated="error"),
+            lambda self, _: _modified_step(self, truncated="error"),
             "The `truncated` signal must be a boolean, actual type: <class 'str'>",
         ],
         [
             gym.error.Error,
             lambda self, _: (1, 2, 3),
-            "Expected `Env.step` to return a four or five element tuple, actually number of elements returned: 3.",
+            "Expected `Env.step` to return a four or five element tuple, actual number of elements returned: 3.",
         ],
         [
             UserWarning,
-            lambda self, _: modified_step(self, reward="error"),
+            lambda self, _: _modified_step(self, reward="error"),
             "The reward returned by `step()` must be a float, int, np.integer or np.floating, actual type: <class 'str'>",
         ],
         [
             UserWarning,
-            lambda self, _: modified_step(self, reward=np.nan),
+            lambda self, _: _modified_step(self, reward=np.nan),
             "The reward is a NaN value.",
         ],
         [
             UserWarning,
-            lambda self, _: modified_step(self, reward=np.inf),
+            lambda self, _: _modified_step(self, reward=np.inf),
             "The reward is an inf value.",
         ],
         [
             AssertionError,
-            lambda self, _: modified_step(self, info="error"),
+            lambda self, _: _modified_step(self, info="error"),
             "The `info` returned by `step()` must be a python dictionary, actual type: <class 'str'>",
         ],
     ],
 )
-def test_passive_env_step_checker(test, func, message):
+def test_passive_env_step_checker(
+    test: Union[UserWarning, type], func: callable, message: str
+):
     """Tests the passive env step checker."""
     if test is UserWarning:
         with pytest.warns(
             UserWarning, match=f"^\\x1b\\[33mWARN: {re.escape(message)}\\x1b\\[0m$"
         ):
-            passive_env_step_checker(GenericTestEnv(step_fn=func), 0)
+            env_step_passive_checker(GenericTestEnv(step_fn=func), 0)
     else:
         with pytest.warns(None) as warnings:
             with pytest.raises(test, match=f"^{re.escape(message)}$"):
-                passive_env_step_checker(GenericTestEnv(step_fn=func), 0)
+                env_step_passive_checker(GenericTestEnv(step_fn=func), 0)
         assert len(warnings) == 0, [warning for warning in warnings.list]
 
 
@@ -449,9 +451,9 @@ def test_passive_render_checker(test, env: GenericTestEnv, message: str):
         with pytest.warns(
             UserWarning, match=f"^\\x1b\\[33mWARN: {re.escape(message)}\\x1b\\[0m$"
         ):
-            passive_env_render_checker(env)
+            env_render_passive_checker(env)
     else:
         with pytest.warns(None) as warnings:
             with pytest.raises(test, match=f"^{re.escape(message)}$"):
-                passive_env_render_checker(env)
+                env_render_passive_checker(env)
         assert len(warnings) == 0
