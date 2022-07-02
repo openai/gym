@@ -1,5 +1,4 @@
 import os
-import time
 from functools import partial
 from typing import Optional
 
@@ -267,13 +266,21 @@ class JaxBlackJackEnv(gym.Env):
 
     def reset(
         self,
-        seed: Optional[int] = 0,
+        seed: Optional[int] = None,
         return_info: bool = False,
         options: Optional[dict] = None,
     ):
+
         super().reset(seed=seed)
 
-        key = random.PRNGKey(seed)
+        # we pick a random 64 bit signed integer to cover the entire input space
+        # of random.PRNGkey()
+        key = random.PRNGKey(
+            self.np_random.integers(
+                np.iinfo(np.int64).min, high=np.iinfo(np.int64).max + 1, dtype=np.int64
+            )
+        )
+
         new_state, observation = self.jit_reset(key)
         self.state = new_state
 
@@ -439,8 +446,10 @@ if __name__ == "__main__":
     # simple rollout testcase
 
     # with jax.disable_jit(): #enable this for debugging
-    seed = int(time.time())
+    # seed = int(time.time())
+    seed = 0
     env = JaxBlackJackEnv(render_mode="human", natural=False, sutton_and_barto=True)
+    # env = gym.make("Blackjack-v1")
     obs = env.reset(seed=seed)
     print("START ROLLOUT:")
     done = False
@@ -448,7 +457,7 @@ if __name__ == "__main__":
         print(obs)
         env.render()
         print("STATE:")
-        print(env.state)
+        # print(env.state)
         print("OBSERVATION")
         print(obs)
         action = int(input("action\n"))
@@ -458,6 +467,7 @@ if __name__ == "__main__":
         if done:
             print("Episode over")
             print("FINAL STATE")
-            print(env.state)
-            seed = int(time.time())
-            obs = env.reset(seed=seed)
+            # print(env.state)
+            # seed = int(time.time())
+
+            obs = env.reset()

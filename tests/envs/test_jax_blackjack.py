@@ -9,17 +9,16 @@ def test_jax_blackjack_wrapped_rollout():
     env = gym.make("Jax-BlackJack-v0")
     obs = env.reset(seed=0)
 
-    assert obs == (16, 10, 0)
+    assert obs == (19, 10, 0)
     action = 1
     result = env.step(action)
-    assert result == ((25, 10, 0), -1.0, True, {})
+    assert result == ((29, 10, 0), -1.0, True, {})
 
     obs = env.reset(seed=0)
-    assert obs == (16, 10, 0)
+    assert obs == (19, 10, 0)
     action = 0
     result = env.step(action)
-    print(result)
-    assert result == ((16, 10, 0), -1.0, True, {})
+    assert result == ((19, 10, 0), 1.0, True, {})
 
 
 def test_jax_blackjack_sutton_barto():
