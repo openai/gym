@@ -73,12 +73,12 @@ def check_reset_seed(env: gym.Env):
             obs_1 = env.reset(seed=123)
             assert (
                 obs_1 in env.observation_space
-            ), "The observation returns by `env.reset(seed=123)` is not within the observation space"
+            ), "The observation returned by `env.reset(seed=123)` is not within the observation space"
             seed_123_rng = deepcopy(env.unwrapped.np_random)
             obs_2 = env.reset(seed=123)
             assert (
                 obs_2 in env.observation_space
-            ), "The observation returns by `env.reset(seed=123)` is not within the observation space"
+            ), "The observation returned by `env.reset(seed=123)` is not within the observation space"
             if env.spec is not None and env.spec.nondeterministic is False:
                 assert data_equivalence(
                     obs_1, obs_2
@@ -94,13 +94,13 @@ def check_reset_seed(env: gym.Env):
             obs_3 = env.reset(seed=456)
             assert (
                 obs_3 in env.observation_space
-            ), "The observation returns by `env.reset(seed=456)` is not within the observation space"
+            ), "The observation returned by `env.reset(seed=456)` is not within the observation space"
             assert (
                 env.unwrapped.np_random.bit_generator.state
                 != seed_123_rng.bit_generator.state
             ), (
                 "Mostly likely the environment reset function does not call `super().reset(seed=seed)` "
-                "as the random generates are not different when different seeds are passed to `env.reset`."
+                "as the random number generators are not different when different seeds are passed to `env.reset`."
             )
 
         except TypeError as e:

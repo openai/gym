@@ -153,7 +153,7 @@ def check_obs(obs, observation_space: spaces.Space, method_name: str):
     if isinstance(observation_space, spaces.Discrete):
         if not isinstance(obs, (np.int64, int)):
             logger.warn(
-                f"{pre} was expecting an int or np.int64, actually type: {type(obs)}"
+                f"{pre} should be an int or np.int64, actually type: {type(obs)}"
             )
     elif isinstance(observation_space, spaces.Box):
         if observation_space.shape != ():
@@ -220,7 +220,7 @@ def passive_env_reset_checker(env, **kwargs):
 
     # Checks the result of env.reset with kwargs
     result = env.reset(**kwargs)
-    if "return_info" in kwargs and kwargs["return_info"] is True:
+    if kwargs.get("return_info", False) is True:
         assert isinstance(
             result, tuple
         ), f"The result returned by `env.reset(return_info=True)` was not a tuple, actually type: {type(result)}"
