@@ -92,7 +92,7 @@ def _reset_default_seed(
         [
             AssertionError,
             _super_reset_fixed,
-            "Mostly likely the environment reset function does not call `super().reset(seed=seed)` as the random number generators are not different when different seeds are passed to `env.reset`."
+            "Mostly likely the environment reset function does not call `super().reset(seed=seed)` as the random number generators are not different when different seeds are passed to `env.reset`.",
         ],
         [
             UserWarning,

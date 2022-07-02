@@ -34,7 +34,7 @@ def _modify_space(space: spaces.Space, attribute: str, value):
         [
             UserWarning,
             spaces.Box(np.zeros((5, 5, 1)), 255 * np.ones((5, 5, 1)), dtype=np.int32),
-            "It seems a Box observation space is an image but the `dtype` is not `np.uint8`, actual type: int32. If the Box observation space is not an image, we recommend flattening the observation to have only a 1D vector."
+            "It seems a Box observation space is an image but the `dtype` is not `np.uint8`, actual type: int32. If the Box observation space is not an image, we recommend flattening the observation to have only a 1D vector.",
         ],
         [
             UserWarning,
@@ -171,7 +171,9 @@ def test_check_observation_space(test, space, message: str):
         [AssertionError, spaces.Dict(), "An empty Dict action space is not allowed."],
     ],
 )
-def test_check_action_space(test: Union[UserWarning, type], space: spaces.Space, message: str):
+def test_check_action_space(
+    test: Union[UserWarning, type], space: spaces.Space, message: str
+):
     """Tests the check action space function."""
     if test is UserWarning:
         with pytest.warns(
