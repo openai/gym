@@ -1,6 +1,7 @@
 """Tests that gym.make works as expected."""
 
 import re
+from copy import deepcopy
 
 import numpy as np
 import pytest
@@ -101,7 +102,7 @@ def test_gym_make_autoreset():
 
 def test_make_disable_env_checker():
     """Tests that `gym.make` disable env checker is applied only when `gym.make(..., disable_env_checker=False)`."""
-    spec = gym.spec("CartPole-v1")
+    spec = deepcopy(gym.spec("CartPole-v1"))
 
     # Test with spec disable env checker
     spec.disable_env_checker = False
@@ -123,7 +124,7 @@ def test_make_disable_env_checker():
 
     # Test with overwritten spec using make disable env checker
     assert spec.disable_env_checker is True
-    env = gym.make("CartPole-v1", disable_env_checker=False)
+    env = gym.make(spec, disable_env_checker=False)
     assert has_wrapper(env, PassiveEnvChecker)
     env.close()
 
@@ -144,7 +145,7 @@ def test_passive_checker_wrapper_warnings(spec):
         if warning.message.args[0] not in PASSIVE_CHECK_IGNORE_WARNING:
             raise gym.error.Error(f"Unexpected warning: {warning.message}")
 
-
+#
 def test_make_order_enforcing():
     """Checks that gym.make wrappers the environment with the OrderEnforcing wrapper."""
     assert all(spec.order_enforce is True for spec in all_testing_env_specs)
