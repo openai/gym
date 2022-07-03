@@ -13,6 +13,14 @@ from tests.envs.utils import all_testing_env_specs
 from tests.envs.utils_envs import ArgumentEnv, RegisterDuringMakeEnv
 from tests.wrappers.utils import has_wrapper
 
+IGNORE_WARNINGS = [
+    f"\x1b[33mWARN: {message}\x1b[0m"
+    for message in [
+        "Initializing environment in old step API which returns one bool instead of two. It is recommended to set `new_step_api=True` to use new step API. This will be the default behaviour in future."
+    ]
+]
+
+
 gym.register(
     "RegisterDuringMakeEnv-v0",
     entry_point="tests.envs.utils_envs:RegisterDuringMakeEnv",
@@ -172,7 +180,9 @@ def test_make_render_mode():
         assert env.render_mode == valid_render_modes[0]
         env.close()
 
-    assert len(warnings) == 0
+    for warning in warnings.list:
+        if warning.message.args[0] not in IGNORE_WARNINGS:
+            raise gym.error.Error(f"Unexpected warning: {warning.message}")
 
     # Make sure that native rendering is used when possible
     env = gym.make("CartPole-v1", render_mode="human", disable_env_checker=True)
