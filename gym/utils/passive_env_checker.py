@@ -298,7 +298,7 @@ def env_render_passive_checker(env, *args, **kwargs):
                     or np.issubdtype(type(render_fps), np.floating)
                 ):
                     logger.warn(
-                        f"Expects the `env.metadata['render_fps']` to be an integer, actual type: {type(render_fps)}."
+                        f"Expects the `env.metadata['render_fps']` to be an integer or float, actual type: {type(render_fps)}."
                     )
                 else:
                     assert (
