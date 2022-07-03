@@ -13,14 +13,6 @@ from tests.envs.utils import all_testing_env_specs
 from tests.envs.utils_envs import ArgumentEnv, RegisterDuringMakeEnv
 from tests.wrappers.utils import has_wrapper
 
-IGNORE_WARNINGS = [
-    f"\x1b[33mWARN: {message}\x1b[0m"
-    for message in [
-        "Initializing environment in old step API which returns one bool instead of two. It is recommended to set `new_step_api=True` to use new step API. This will be the default behaviour in future."
-    ]
-]
-
-
 gym.register(
     "RegisterDuringMakeEnv-v0",
     entry_point="tests.envs.utils_envs:RegisterDuringMakeEnv",
@@ -181,7 +173,7 @@ def test_make_render_mode():
         env.close()
 
     for warning in warnings.list:
-        if warning.message.args[0] not in IGNORE_WARNINGS:
+        if not re.compile(".*step API.*").match(warning.message.args[0]):
             raise gym.error.Error(f"Unexpected warning: {warning.message}")
 
     # Make sure that native rendering is used when possible
