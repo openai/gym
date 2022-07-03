@@ -145,7 +145,7 @@ def test_passive_checker_wrapper_warnings(spec):
         if warning.message.args[0] not in PASSIVE_CHECK_IGNORE_WARNING:
             raise gym.error.Error(f"Unexpected warning: {warning.message}")
 
-#
+
 def test_make_order_enforcing():
     """Checks that gym.make wrappers the environment with the OrderEnforcing wrapper."""
     assert all(spec.order_enforce is True for spec in all_testing_env_specs)
