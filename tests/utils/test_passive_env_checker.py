@@ -415,8 +415,8 @@ def test_passive_env_step_checker(
         ],
         [
             UserWarning,
-            GenericTestEnv(render_modes=["Testing mode", 1]),
-            "Expects all render modes to be strings, actual types: [<class 'str'>, <class 'int'>].",
+            GenericTestEnv(render_modes=["Testing mode", 1], render_fps=1),
+            "Expects all render modes to be strings, actual types: [<class 'str'>, <class 'int'>]",
         ],
         [
             UserWarning,
@@ -431,7 +431,7 @@ def test_passive_env_step_checker(
         [
             UserWarning,
             GenericTestEnv(render_modes=["Testing mode"], render_fps="fps"),
-            "Expects the `env.metadata['render_fps']` to be an integer, actual type: <class 'str'>.",
+            "Expects the `env.metadata['render_fps']` to be an integer or a float, actual type: <class 'str'>",
         ],
         [
             AssertionError,

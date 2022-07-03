@@ -77,14 +77,12 @@ def check_reset_seed(env: gym.Env):
             assert (
                 obs_1 in env.observation_space
             ), "The observation returned by `env.reset(seed=123)` is not within the observation space"
+            # pyright: ignore [reportPrivateUsage]
             assert (
-                # pyright: ignore [reportPrivateUsage]
-                env.unwrapped._np_random
-                is not None
+                env.unwrapped._np_random is not None
             ), "Expects the random number generator to have been generated given a seed was passed to reset. Mostly likely the environment reset function does not call `super().reset(seed=seed)`."
-            seed_123_rng = deepcopy(
-                env.unwrapped._np_random  # pyright: ignore [reportPrivateUsage]
-            )
+            # pyright: ignore [reportPrivateUsage]
+            seed_123_rng = deepcopy(env.unwrapped._np_random)
 
             obs_2 = env.reset(seed=123)
             assert (
@@ -94,8 +92,9 @@ def check_reset_seed(env: gym.Env):
                 assert data_equivalence(
                     obs_1, obs_2
                 ), "`env.reset(seed=123)` is not deterministic as the observations are not equivalent"
+            # pyright: ignore [reportPrivateUsage]
             assert (
-                env.unwrapped._np_random.bit_generator.state  # pyright: ignore [reportPrivateUsage]
+                env.unwrapped._np_random.bit_generator.state
                 == seed_123_rng.bit_generator.state
             ), (
                 "Mostly likely the environment reset function does not call `super().reset(seed=seed)` "
@@ -106,13 +105,9 @@ def check_reset_seed(env: gym.Env):
             assert (
                 obs_3 in env.observation_space
             ), "The observation returned by `env.reset(seed=456)` is not within the observation space"
+            # pyright: ignore [reportPrivateUsage]
             assert (
-                # pyright: ignore [reportPrivateUsage]
-                env.unwrapped._np_random
-                is not None
-            ), "Expects the random number generator to have been generated given a seed was passed to reset. Mostly likely the environment reset function does not call `super().reset(seed=seed)`."
-            assert (
-                env.unwrapped._np_random.bit_generator.state  # pyright: ignore [reportPrivateUsage]
+                env.unwrapped._np_random.bit_generator.state
                 != seed_123_rng.bit_generator.state
             ), (
                 "Mostly likely the environment reset function does not call `super().reset(seed=seed)` "

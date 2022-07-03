@@ -280,9 +280,9 @@ def env_render_passive_checker(env, *args, **kwargs):
             logger.warn(
                 f"Expects the render_modes to be a sequence (i.e. list, tuple), actual type: {type(render_modes)}"
             )
-        if not all(isinstance(mode, str) for mode in render_modes):
+        elif not all(isinstance(mode, str) for mode in render_modes):
             logger.warn(
-                f"Expects all render modes to be strings, actual types: {[type(mode) for mode in render_modes]}."
+                f"Expects all render modes to be strings, actual types: {[type(mode) for mode in render_modes]}"
             )
 
         render_fps = env.metadata.get("render_fps")
@@ -298,12 +298,12 @@ def env_render_passive_checker(env, *args, **kwargs):
                     or np.issubdtype(type(render_fps), np.floating)
                 ):
                     logger.warn(
-                        f"Expects the `env.metadata['render_fps']` to be an integer or float, actual type: {type(render_fps)}."
+                        f"Expects the `env.metadata['render_fps']` to be an integer or a float, actual type: {type(render_fps)}"
                     )
                 else:
                     assert (
                         render_fps > 0
-                    ), f"Expects the `env.metadata['render_fps']` to be greater than zero, actual value: {render_fps}."
+                    ), f"Expects the `env.metadata['render_fps']` to be greater than zero, actual value: {render_fps}"
 
         # env.render is now an attribute with default None
         if len(render_modes) == 0:
