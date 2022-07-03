@@ -9,15 +9,40 @@ exclude = [
     "**/node_modules",
     "**/__pycache__",
 
-    "gym/envs/box2d/**",
-    # "gym/envs/classic_control/**",
+    "gym/envs/box2d/bipedal_walker.py",
+    "gym/envs/box2d/car_racing.py",
+
+    "gym/spaces/graph.py",
+
     "gym/envs/mujoco/**",
-    "gym/envs/toy_text/**",
-    "gym/spaces/**",
-    "gym/utils/**",
-    "gym/vector/**",
-    "gym/wrappers/**",
-    "tests/**"
+    "gym/utils/play.py",
+
+    "gym/vector/async_vector_env.py",
+    "gym/vector/utils/__init__.py",
+
+    "gym/wrappers/atari_preprocessing.py",
+    "gym/wrappers/gray_scale_observation.py",
+    "gym/wrappers/human_rendering.py",
+    "gym/wrappers/normalize.py",
+    "gym/wrappers/pixel_observation.py",
+    "gym/wrappers/record_video.py",
+    "gym/wrappers/monitoring/video_recorder.py",
+    "gym/wrappers/resize_observation.py",
+
+    "tests/envs/test_env_implementation.py",
+    "tests/utils/test_play.py",
+    "tests/vector/test_async_vector_env.py",
+    "tests/vector/test_shared_memory.py",
+    "tests/vector/test_spaces.py",
+    "tests/vector/test_sync_vector_env.py",
+    "tests/vector/test_vector_env.py",
+    "tests/wrappers/test_gray_scale_observation.py",
+    "tests/wrappers/test_order_enforcing.py",
+    "tests/wrappers/test_record_episode_statistics.py",
+    "tests/wrappers/test_resize_observation.py",
+    "tests/wrappers/test_time_aware_observation.py",
+    "tests/wrappers/test_video_recorder.py",
+
 ]
 
 strict = [
@@ -42,6 +67,7 @@ reportUntypedFunctionDecorator = "none"
 reportMissingTypeStubs = false
 reportUnboundVariable = "warning"
 reportGeneralTypeIssues ="none"
+reportInvalidTypeVarUse = "none"
 
 [tool.pytest.ini_options]
 filterwarnings = ['ignore:.*step API.*:DeprecationWarning'] # TODO: to be removed when old step API is removed

@@ -2,6 +2,7 @@ import numpy as np
 
 from gym import utils
 from gym.envs.mujoco import mujoco_env
+from gym.spaces import Box
 
 
 class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
@@ -17,8 +18,14 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     }
 
     def __init__(self, **kwargs):
+        observation_space = Box(low=-np.inf, high=np.inf, shape=(8,), dtype=np.float64)
         mujoco_env.MujocoEnv.__init__(
-            self, "swimmer.xml", 4, mujoco_bindings="mujoco_py", **kwargs
+            self,
+            "swimmer.xml",
+            4,
+            mujoco_bindings="mujoco_py",
+            observation_space=observation_space,
+            **kwargs
         )
         utils.EzPickle.__init__(self)
 

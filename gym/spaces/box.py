@@ -3,6 +3,7 @@ from typing import Dict, List, Optional, Sequence, SupportsFloat, Tuple, Type, U
 
 import numpy as np
 
+import gym.error
 from gym import logger
 from gym.spaces.space import Space
 from gym.utils import seeding
@@ -23,6 +24,11 @@ def _short_repr(arr: np.ndarray) -> str:
     if arr.size != 0 and np.min(arr) == np.max(arr):
         return str(np.min(arr))
     return str(arr)
+
+
+def is_float_integer(var) -> bool:
+    """Checks if a variable is an integer or float."""
+    return np.issubdtype(type(var), np.integer) or np.issubdtype(type(var), np.floating)
 
 
 class Box(Space[np.ndarray]):
@@ -64,8 +70,8 @@ class Box(Space[np.ndarray]):
         Args:
             low (Union[SupportsFloat, np.ndarray]): Lower bounds of the intervals.
             high (Union[SupportsFloat, np.ndarray]): Upper bounds of the intervals.
-            shape (Optional[Sequence[int]]): This only needs to be specified if both ``low`` and ``high`` are scalars and determines the shape of the space.
-                Otherwise, the shape is inferred from the shape of ``low`` or ``high``.
+            shape (Optional[Sequence[int]]): The shape is inferred from the shape of `low` or `high` `np.ndarray`s with
+                `low` and `high` scalars defaulting to a shape of (1,)
             dtype: The dtype of the elements of the space. If this is an integer type, the :class:`Box` is essentially a discrete space.
             seed: Optionally, you can use this argument to seed the RNG that is used to sample from the space.
 
@@ -73,35 +79,45 @@ class Box(Space[np.ndarray]):
             ValueError: If no shape information is provided (shape is None, low is None and high is None) then a
                 value error is raised.
         """
-        assert dtype is not None, "dtype must be explicitly provided. "
+        assert (
+            dtype is not None
+        ), "Box dtype must be explicitly provided, cannot be None."
         self.dtype = np.dtype(dtype)
 
         # determine shape if it isn't provided directly
         if shape is not None:
-            shape = tuple(shape)
-        elif not np.isscalar(low):
-            shape = low.shape  # type: ignore
-        elif not np.isscalar(high):
-            shape = high.shape  # type: ignore
+            assert all(
+                np.issubdtype(type(dim), np.integer) for dim in shape
+            ), f"Expect all shape elements to be an integer, actual type: {tuple(type(dim) for dim in shape)}"
+            shape = tuple(int(dim) for dim in shape)  # This changes any np types to int
+        elif isinstance(low, np.ndarray):
+            shape = low.shape
+        elif isinstance(high, np.ndarray):
+            shape = high.shape
+        elif is_float_integer(low) and is_float_integer(high):
+            shape = (1,)
         else:
             raise ValueError(
-                "shape must be provided or inferred from the shapes of low or high"
+                f"Box shape is inferred from low and high, expect their types to be np.ndarray, an integer or a float, actual type low: {type(low)}, high: {type(high)}"
             )
-        assert isinstance(shape, tuple)
 
         # Capture the boundedness information before replacing np.inf with get_inf
-        _low = np.full(shape, low, dtype=float) if np.isscalar(low) else low
-        self.bounded_below = -np.inf < _low  # type: ignore
-        _high = np.full(shape, high, dtype=float) if np.isscalar(high) else high
-        self.bounded_above = np.inf > _high  # type: ignore
+        _low = np.full(shape, low, dtype=float) if is_float_integer(low) else low
+        self.bounded_below = -np.inf < _low
+        _high = np.full(shape, high, dtype=float) if is_float_integer(high) else high
+        self.bounded_above = np.inf > _high
 
         low = _broadcast(low, dtype, shape, inf_sign="-")  # type: ignore
         high = _broadcast(high, dtype, shape, inf_sign="+")  # type: ignore
 
         assert isinstance(low, np.ndarray)
-        assert low.shape == shape, "low.shape doesn't match provided shape"
+        assert (
+            low.shape == shape
+        ), f"low.shape doesn't match provided shape, low.shape: {low.shape}, shape: {shape}"
         assert isinstance(high, np.ndarray)
-        assert high.shape == shape, "high.shape doesn't match provided shape"
+        assert (
+            high.shape == shape
+        ), f"high.shape doesn't match provided shape, high.shape: {high.shape}, shape: {shape}"
 
         self._shape: Tuple[int, ...] = shape
 
@@ -146,7 +162,7 @@ class Box(Space[np.ndarray]):
         else:
             raise ValueError("manner is not in {'below', 'above', 'both'}")
 
-    def sample(self) -> np.ndarray:
+    def sample(self, mask: None = None) -> np.ndarray:
         r"""Generates a single random sample inside the Box.
 
         In creating a sample of the box, each coordinate is sampled (independently) from a distribution
@@ -157,9 +173,17 @@ class Box(Space[np.ndarray]):
         * :math:`(-\infty, b]` : shifted negative exponential distribution
         * :math:`(-\infty, \infty)` : normal distribution
 
+        Args:
+            mask: A mask for sampling values from the Box space, currently unsupported.
+
         Returns:
             A sampled value from the Box
         """
+        if mask is not None:
+            raise gym.error.Error(
+                f"Box.sample cannot be provided a mask, actual value: {mask}"
+            )
+
         high = self.high if self.dtype.kind == "f" else self.high.astype("int64") + 1
         sample = np.empty(self.shape)
 
@@ -291,7 +315,7 @@ def _broadcast(
     inf_sign: str,
 ) -> np.ndarray:
     """Handle infinite bounds and broadcast at the same time if needed."""
-    if np.isscalar(value):
+    if is_float_integer(value):
         value = get_inf(dtype, inf_sign) if np.isinf(value) else value  # type: ignore
         value = np.full(shape, value, dtype=dtype)
     else:

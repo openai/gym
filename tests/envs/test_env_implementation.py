@@ -3,13 +3,54 @@ import pytest
 import gym
 from gym.envs.box2d import BipedalWalker
 from gym.envs.box2d.lunar_lander import demo_heuristic_lander
+from gym.envs.toy_text import TaxiEnv
 from gym.envs.toy_text.frozen_lake import generate_random_map
 
 
 def test_lunar_lander_heuristics():
+    """Tests the LunarLander environment by checking if the heuristic lander works."""
     lunar_lander = gym.make("LunarLander-v2", disable_env_checker=True)
     total_reward = demo_heuristic_lander(lunar_lander, seed=1)
     assert total_reward > 100
+
+
+def test_carracing_domain_randomize():
+    """Tests the CarRacing Environment domain randomization.
+
+    CarRacing DomainRandomize should have different colours at every reset.
+    However, it should have same colours when `options={"randomize": False}` is given to reset.
+    """
+    env = gym.make("CarRacing-v1", domain_randomize=True)
+
+    road_color = env.road_color
+    bg_color = env.bg_color
+    grass_color = env.grass_color
+
+    env.reset(options={"randomize": False})
+
+    assert (
+        road_color == env.road_color
+    ).all(), f"Have different road color after reset with randomize turned off. Before: {road_color}, after: {env.road_color}."
+    assert (
+        bg_color == env.bg_color
+    ).all(), f"Have different bg color after reset with randomize turned off. Before: {bg_color}, after: {env.bg_color}."
+    assert (
+        grass_color == env.grass_color
+    ).all(), f"Have different grass color after reset with randomize turned off. Before: {grass_color}, after: {env.grass_color}."
+
+    env.reset()
+
+    assert (
+        road_color != env.road_color
+    ).all(), f"Have same road color after reset. Before: {road_color}, after: {env.road_color}."
+    assert (
+        bg_color != env.bg_color
+    ).all(), (
+        f"Have same bg color after reset. Before: {bg_color}, after: {env.bg_color}."
+    )
+    assert (
+        grass_color != env.grass_color
+    ).all(), f"Have same grass color after reset. Before: {grass_color}, after: {env.grass_color}."
 
 
 @pytest.mark.parametrize("seed", range(5))
@@ -80,3 +121,24 @@ def test_frozenlake_dfs_map_generation(map_size: int):
                     if new_frozenlake[new_row][new_col] not in "#H":
                         frontier.append((new_row, new_col))
     raise AssertionError("No path through the frozenlake was found.")
+
+
+def test_taxi_action_mask():
+    env = TaxiEnv()
+
+    for state in env.P:
+        mask = env.action_mask(state)
+        for action, possible in enumerate(mask):
+            _, next_state, _, _ = env.P[state][action][0]
+            assert state != next_state if possible else state == next_state
+
+
+def test_taxi_encode_decode():
+    env = TaxiEnv()
+
+    state = env.reset()
+    for _ in range(100):
+        assert (
+            env.encode(*env.decode(state)) == state
+        ), f"state={state}, encode(decode(state))={env.encode(*env.decode(state))}"
+        state, _, _, _ = env.step(env.action_space.sample())
