@@ -52,6 +52,11 @@ class VectorEnv(gym.Env):
         self.single_action_space = action_space
 
         self.new_step_api = new_step_api
+        if not self.new_step_api:
+            deprecation(
+                "Initializing vector env in old step API which returns one bool array instead of two. "
+                "It is recommended to set `new_step_api=True` to use new step API. This will be the default behaviour in future. "
+            )
 
     def reset_async(
         self,

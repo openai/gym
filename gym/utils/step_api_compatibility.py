@@ -4,7 +4,6 @@ from typing import Tuple, Union
 import numpy as np
 
 from gym.core import ObsType
-from gym.logger import deprecation
 
 OldStepType = Tuple[
     Union[ObsType, np.ndarray],
@@ -35,13 +34,6 @@ def step_to_new_api(
         return step_returns
     else:
         assert len(step_returns) == 4
-        deprecation(
-            "Transforming code with old step API into new. "
-            "It is recommended to upgrade the core env to the new step API. This can also be done by setting `new_step_api=True` at make. "
-            "If 'TimeLimit.truncated' is set at truncation, terminated and truncated values will be accurate. "
-            "Otherwise, `terminated=done` and `truncated=False`"
-        )
-
         observations, rewards, dones, infos = step_returns
 
         terminateds = []
@@ -112,18 +104,9 @@ def step_to_old_api(
         is_vector_env (bool): Whether the step_returns are from a vector environment
     """
     if len(step_returns) == 4:
-        deprecation(
-            "Using old step API which returns one boolean (done). Please upgrade to new API to return two booleans - terminated, truncated"
-        )
-
         return step_returns
     else:
         assert len(step_returns) == 5
-        deprecation(
-            "Transforming code in new step API (which returns two booleans terminated, truncated) into old (returns one boolean done). "
-            "It is recommended to upgrade accompanying code to be compatible with the new API, and use the new API by setting `new_step_api=True`. "
-        )
-
         observations, rewards, terminateds, truncateds, infos = step_returns
         dones = []
         if not is_vector_env:

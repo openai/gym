@@ -321,6 +321,12 @@ class Wrapper(Env[ObsType, ActType]):
         self._metadata: Optional[dict] = None
         self.new_step_api = new_step_api
 
+        if not self.new_step_api:
+            deprecation(
+                "Initializing wrapper in old step API which returns one bool instead of two. "
+                "It is recommended to set `new_step_api=True` to use new step API. This will be the default behaviour in future. "
+            )
+
     def __getattr__(self, name):
         """Returns an attribute with ``name``, unless ``name`` starts with an underscore."""
         if name.startswith("_"):
