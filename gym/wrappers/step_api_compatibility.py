@@ -33,7 +33,7 @@ class StepAPICompatibility(gym.Wrapper):
             env (gym.Env): the env to wrap. Can be in old or new API
             new_step_api (bool): Whether the wrapper's step method outputs two booleans (new API) or one boolean (old API)
         """
-        super().__init__(env)
+        super().__init__(env, new_step_api)
         self.new_step_api = new_step_api
         if not self.new_step_api:
             deprecation(
