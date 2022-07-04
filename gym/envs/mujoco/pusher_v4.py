@@ -164,6 +164,7 @@ class PusherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         return ob, reward, done, dict(reward_dist=reward_dist, reward_ctrl=reward_ctrl)
 
     def viewer_setup(self):
+        assert self.viewer is not None
         self.viewer.cam.trackbodyid = -1
         self.viewer.cam.distance = 4.0
 

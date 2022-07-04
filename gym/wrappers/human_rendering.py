@@ -88,13 +88,16 @@ class HumanRendering(gym.Wrapper):
                 "pygame is not installed, run `pip install gym[box2d]`"
             )
         if self.env.render_mode == "rgb_array":
-            last_rgb_array = self.env.render(**kwargs)[-1]
+            last_rgb_array = self.env.render(**kwargs)
+            assert isinstance(last_rgb_array, list)
+            last_rgb_array = last_rgb_array[-1]
         elif self.env.render_mode == "single_rgb_array":
             last_rgb_array = self.env.render(**kwargs)
         else:
             raise Exception(
-                "Wrapped environment must have mode 'rgb_array' or 'single_rgb_array'"
+                f"Wrapped environment must have mode 'rgb_array' or 'single_rgb_array', actual render mode: {self.env.render_mode}"
             )
+        assert isinstance(last_rgb_array, np.ndarray)
 
         if mode == "human":
             rgb_array = np.transpose(last_rgb_array, axes=(1, 0, 2))
