@@ -9,6 +9,7 @@ Created by Oleg Klimov
 
 import math
 
+import Box2D
 import numpy as np
 
 from gym.error import DependencyNotInstalled
@@ -48,8 +49,8 @@ MUD_COLOR = (102, 102, 0)
 
 class Car:
     def __init__(self, world, init_angle, init_x, init_y):
-        self.world = world
-        self.hull = self.world.CreateDynamicBody(
+        self.world: Box2D.b2World = world
+        self.hull: Box2D.b2Body = self.world.CreateDynamicBody(
             position=(init_x, init_y),
             angle=init_angle,
             fixtures=[

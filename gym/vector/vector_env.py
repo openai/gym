@@ -85,6 +85,7 @@ class VectorEnv(gym.Env):
         Raises:
             NotImplementedError: VectorEnv does not implement function
         """
+        raise NotImplementedError("VectorEnv does not implement function")
 
     def reset(
         self,

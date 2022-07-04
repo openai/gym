@@ -6,7 +6,8 @@ from gym.vector.utils.shared_memory import (
     read_from_shared_memory,
     write_to_shared_memory,
 )
-from gym.vector.utils.spaces import BaseGymSpaces, _BaseGymSpaces, batch_space, iterate
+from gym.vector.utils.spaces import _BaseGymSpaces  # pyright: reportPrivateUsage=false
+from gym.vector.utils.spaces import BaseGymSpaces, batch_space, iterate
 
 __all__ = [
     "CloudpickleWrapper",
@@ -17,7 +18,6 @@ __all__ = [
     "read_from_shared_memory",
     "write_to_shared_memory",
     "BaseGymSpaces",
-    "_BaseGymSpaces",
     "batch_space",
     "iterate",
 ]

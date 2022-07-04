@@ -26,16 +26,16 @@ def test_order_enforcing():
 
     # Assert that the order enforcing works for step and render before reset
     order_enforced_env = OrderEnforcing(env)
-    assert order_enforced_env._has_reset is False
+    assert order_enforced_env.has_reset is False
     with pytest.raises(ResetNeeded):
         order_enforced_env.step(0)
     with pytest.raises(ResetNeeded):
         order_enforced_env.render(mode="rgb_array")
-    assert order_enforced_env._has_reset is False
+    assert order_enforced_env.has_reset is False
 
     # Assert that the Assertion errors are not raised after reset
     order_enforced_env.reset()
-    assert order_enforced_env._has_reset is True
+    assert order_enforced_env.has_reset is True
     order_enforced_env.step(0)
     order_enforced_env.render(mode="rgb_array")
 

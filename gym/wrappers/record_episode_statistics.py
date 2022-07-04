@@ -1,6 +1,7 @@
 """Wrapper that tracks the cumulative rewards and episode lengths."""
 import time
 from collections import deque
+from typing import Optional
 
 import numpy as np
 
@@ -86,8 +87,8 @@ class RecordEpisodeStatistics(gym.Wrapper):
         self.num_envs = getattr(env, "num_envs", 1)
         self.t0 = time.perf_counter()
         self.episode_count = 0
-        self.episode_returns = None
-        self.episode_lengths = None
+        self.episode_returns: Optional[np.ndarray] = None
+        self.episode_lengths: Optional[np.ndarray] = None
         self.return_queue = deque(maxlen=deque_size)
         self.length_queue = deque(maxlen=deque_size)
         self.is_vector_env = getattr(env, "is_vector_env", False)

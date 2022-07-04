@@ -33,9 +33,10 @@ def test_record_simple():
     rec = VideoRecorder(env)
     env.reset()
     rec.capture_frame()
+    assert rec.encoder is not None
     proc = rec.encoder.proc
 
-    assert proc.poll() is None  # subprocess is running
+    assert proc is not None and proc.poll() is None  # subprocess is running
 
     rec.close()
 
@@ -55,9 +56,10 @@ def test_autoclose():
         rec.capture_frame()
 
         rec_path = rec.path
+        assert rec.encoder is not None
         proc = rec.encoder.proc
 
-        assert proc.poll() is None  # subprocess is running
+        assert proc is not None and proc.poll() is None  # subprocess is running
 
         # The function ends without an explicit `rec.close()` call
         # The Python interpreter will implicitly do `del rec` on garbage cleaning
@@ -68,7 +70,7 @@ def test_autoclose():
     gc.collect()  # do explicit garbage collection for test
     time.sleep(5)  # wait for subprocess exiting
 
-    assert proc.poll() is not None  # subprocess is terminated
+    assert proc is not None and proc.poll() is not None  # subprocess is terminated
     assert os.path.exists(rec_path)
     f = open(rec_path)
     assert os.fstat(f.fileno()).st_size > 100
