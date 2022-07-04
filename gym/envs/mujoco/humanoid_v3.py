@@ -1,7 +1,7 @@
 import numpy as np
 
 from gym import utils
-from gym.envs.mujoco import mujoco_env
+from gym.envs.mujoco import MuJocoPyEnv
 from gym.spaces import Box
 
 DEFAULT_CAMERA_CONFIG = {
@@ -18,7 +18,7 @@ def mass_center(model, sim):
     return (np.sum(mass * xpos, axis=0) / np.sum(mass))[0:2].copy()
 
 
-class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
+class HumanoidEnv(MuJocoPyEnv, utils.EzPickle):
     metadata = {
         "render_modes": [
             "human",
@@ -68,13 +68,8 @@ class HumanoidEnv(mujoco_env.MujocoEnv, utils.EzPickle):
                 low=-np.inf, high=np.inf, shape=(378,), dtype=np.float64
             )
 
-        mujoco_env.MujocoEnv.__init__(
-            self,
-            xml_file,
-            5,
-            mujoco_bindings="mujoco_py",
-            observation_space=observation_space,
-            **kwargs
+        MuJocoPyEnv.__init__(
+            self, xml_file, 5, observation_space=observation_space, **kwargs
         )
 
     @property
