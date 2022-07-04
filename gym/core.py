@@ -1,6 +1,7 @@
 """Core API for Environment, Wrapper, ActionWrapper, RewardWrapper and ObservationWrapper."""
 import sys
 from typing import (
+    TYPE_CHECKING,
     Any,
     Dict,
     Generic,
@@ -16,6 +17,9 @@ from gym import spaces
 from gym.logger import deprecation, warn
 from gym.utils import seeding
 from gym.utils.seeding import RandomNumberGenerator
+
+if TYPE_CHECKING:
+    from gym.envs.registration import EnvSpec
 
 if sys.version_info[0:2] == (3, 6):
     warn(
@@ -106,7 +110,7 @@ class Env(Generic[ObsType, ActType], metaclass=decorator):
     metadata = {"render_modes": []}
     render_mode = None  # define render_mode if your environment supports rendering
     reward_range = (-float("inf"), float("inf"))
-    spec = None
+    spec: "EnvSpec" = None
 
     # Set these in ALL subclasses
     action_space: spaces.Space[ActType]

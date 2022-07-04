@@ -197,14 +197,14 @@ class CarRacing(gym.Env, EzPickle):
 
         self.contactListener_keepref = FrictionDetector(self, lap_complete_percent)
         self.world = Box2D.b2World((0, 0), contactListener=self.contactListener_keepref)
-        self.screen = None
+        self.screen: Optional[pygame.Surface] = None
         self.surf = None
         self.clock = None
         self.isopen = True
         self.invisible_state_window = None
         self.invisible_video_window = None
         self.road = None
-        self.car = None
+        self.car: Optional[Car] = None
         self.reward = 0.0
         self.prev_reward = 0.0
         self.verbose = verbose
@@ -237,6 +237,7 @@ class CarRacing(gym.Env, EzPickle):
         for t in self.road:
             self.world.DestroyBody(t)
         self.road = []
+        assert self.car is not None
         self.car.destroy()
 
     def _init_colors(self):
@@ -502,6 +503,7 @@ class CarRacing(gym.Env, EzPickle):
             return self.step(None)[0], {}
 
     def step(self, action: Union[np.ndarray, int]):
+        assert self.car is not None
         if action is not None:
             if self.continuous:
                 self.car.steer(-action[0])
@@ -575,6 +577,7 @@ class CarRacing(gym.Env, EzPickle):
 
         self.surf = pygame.Surface((WINDOW_W, WINDOW_H))
 
+        assert self.car is not None
         # computing transformations
         angle = -self.car.hull.angle
         # Animating first second zoom.
@@ -607,6 +610,7 @@ class CarRacing(gym.Env, EzPickle):
         if mode == "human":
             pygame.event.pump()
             self.clock.tick(self.metadata["render_fps"])
+            assert self.screen is not None
             self.screen.fill(0)
             self.screen.blit(self.surf, (0, 0))
             pygame.display.flip()
@@ -681,6 +685,7 @@ class CarRacing(gym.Env, EzPickle):
                 ((place + 0) * s, H - 2 * h),
             ]
 
+        assert self.car is not None
         true_speed = np.sqrt(
             np.square(self.car.hull.linearVelocity[0])
             + np.square(self.car.hull.linearVelocity[1])

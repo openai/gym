@@ -48,6 +48,7 @@ class ReacherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         )
 
     def viewer_setup(self):
+        assert self.viewer is not None
         self.viewer.cam.trackbodyid = 0
 
     def reset_model(self):

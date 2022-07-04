@@ -39,7 +39,10 @@ class ResizeObservation(gym.ObservationWrapper):
 
         self.shape = tuple(shape)
 
-        obs_shape = self.shape + self.observation_space.shape[2:]
+        assert isinstance(
+            env.observation_space, Box
+        ), f"Expected the observation space to be Box, actual type: {type(env.observation_space)}"
+        obs_shape = self.shape + env.observation_space.shape[2:]
         self.observation_space = Box(low=0, high=255, shape=obs_shape, dtype=np.uint8)
 
     def observation(self, observation):

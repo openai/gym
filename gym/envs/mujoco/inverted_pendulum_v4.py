@@ -127,6 +127,7 @@ class InvertedPendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         return np.concatenate([self.data.qpos, self.data.qvel]).ravel()
 
     def viewer_setup(self):
+        assert self.viewer is not None
         v = self.viewer
         v.cam.trackbodyid = 0
         v.cam.distance = self.model.stat.extent

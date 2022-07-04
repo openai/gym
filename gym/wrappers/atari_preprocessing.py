@@ -2,14 +2,15 @@
 import numpy as np
 
 import gym
-from gym.error import DependencyNotInstalled
 from gym.spaces import Box
 from gym.utils.step_api_compatibility import step_api_compatibility
 
 try:
     import cv2
 except ImportError:
-    cv2 = None
+    raise gym.error.DependencyNotInstalled(
+        "opencv-python package not installed, run `pip install gym[other]` to get dependencies for atari"
+    )
 
 
 class AtariPreprocessing(gym.Wrapper):
@@ -62,10 +63,6 @@ class AtariPreprocessing(gym.Wrapper):
             ValueError: Disable frame-skipping in the original env
         """
         super().__init__(env, new_step_api)
-        if cv2 is None:
-            raise DependencyNotInstalled(
-                "opencv-python package not installed, run `pip install gym[other]` to get dependencies for atari"
-            )
         assert frame_skip > 0
         assert screen_size > 0
         assert noop_max >= 0
@@ -89,6 +86,7 @@ class AtariPreprocessing(gym.Wrapper):
         self.scale_obs = scale_obs
 
         # buffer of most recent two observations for max pooling
+        assert isinstance(env.observation_space, Box)
         if grayscale_obs:
             self.obs_buffer = [
                 np.empty(env.observation_space.shape[:2], dtype=np.uint8),
@@ -116,7 +114,7 @@ class AtariPreprocessing(gym.Wrapper):
 
     def step(self, action):
         """Applies the preprocessing for an :meth:`env.step`."""
-        total_reward = 0.0
+        total_reward, terminated, truncated, info = 0.0, False, False, {}
 
         for t in range(self.frame_skip):
             _, reward, terminated, truncated, info = step_api_compatibility(

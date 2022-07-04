@@ -1,9 +1,10 @@
 """A synchronous vector environment."""
 from copy import deepcopy
-from typing import Any, Iterator, List, Optional, Sequence, Union
+from typing import Any, Callable, Iterator, List, Optional, Sequence, Union
 
 import numpy as np
 
+from gym import Env
 from gym.spaces import Space
 from gym.utils.step_api_compatibility import step_api_compatibility
 from gym.vector.utils import concatenate, create_empty_array, iterate
@@ -29,7 +30,7 @@ class SyncVectorEnv(VectorEnv):
 
     def __init__(
         self,
-        env_fns: Iterator[callable],
+        env_fns: Iterator[Callable[[], Env]],
         observation_space: Space = None,
         action_space: Space = None,
         copy: bool = True,
