@@ -18,8 +18,8 @@ from tests.testing_env import GenericTestEnv
 @pytest.mark.parametrize(
     "env",
     [
-        gym.make("CartPole-v1", disable_env_checker=True),
-        gym.make("MountainCar-v0", disable_env_checker=True),
+        gym.make("CartPole-v1", disable_env_checker=True).unwrapped,
+        gym.make("MountainCar-v0", disable_env_checker=True).unwrapped,
         GenericTestEnv(
             observation_space=spaces.Dict(
                 a=spaces.Discrete(10), b=spaces.Box(np.zeros(2), np.ones(2))
@@ -77,7 +77,7 @@ def _reset_default_seed(
         [
             gym.error.Error,
             lambda self: self.observation_space.sample(),
-            "The `reset` method does not provide the `seed` keyword argument",
+            "The `reset` method does not provide a `seed` or `**kwargs` keyword argument.",
         ],
         [
             AssertionError,
@@ -111,6 +111,10 @@ def test_check_reset_seed(test, func: callable, message: str):
     else:
         with pytest.raises(test, match=f"^{re.escape(message)}$"):
             check_reset_seed(GenericTestEnv(reset_fn=func))
+
+
+def _reset_var_keyword_kwargs(self, kwargs):
+    return self.observation_space.sample()
 
 
 def _reset_return_info_type(self, seed=None, return_info=False, options=None):
@@ -147,7 +151,12 @@ def _return_info_not_dict(self, seed=None, return_info=False, options=None):
         [
             gym.error.Error,
             lambda self, *_: self.observation_space.sample(),
-            "The `reset` method does not provide the `return_info` keyword argument",
+            "The `reset` method does not provide a `return_info` or `**kwargs` keyword argument.",
+        ],
+        [
+            gym.error.Error,
+            _reset_var_keyword_kwargs,
+            "The `reset` method does not provide a `return_info` or `**kwargs` keyword argument.",
         ],
         [
             AssertionError,
@@ -162,12 +171,12 @@ def _return_info_not_dict(self, seed=None, return_info=False, options=None):
         [
             AssertionError,
             _return_info_obs_outside,
-            "The first element returned by `env.reset(return_info=True)` is not within the observation space",
+            "The first element returned by `env.reset(return_info=True)` is not within the observation space.",
         ],
         [
             AssertionError,
             _return_info_not_dict,
-            "The second element returned by `env.reset(return_info=True)` was not a dictionary",
+            "The second element returned by `env.reset(return_info=True)` was not a dictionary, actual type: <class 'list'>",
         ],
     ],
 )
@@ -189,7 +198,7 @@ def test_check_reset_options():
     with pytest.raises(
         gym.error.Error,
         match=re.escape(
-            "The `reset` method does not provide the `options` keyword argument"
+            "The `reset` method does not provide an `options` or `**kwargs` keyword argument"
         ),
     ):
         check_reset_options(GenericTestEnv(reset_fn=lambda self: 0))
@@ -200,15 +209,15 @@ def test_check_reset_options():
     [
         [
             "Error",
-            "Your environment must inherit from the gym.Env class https://www.gymlibrary.ml/content/environment_creation/",
+            "The environment must inherit from the gym.Env class. See https://www.gymlibrary.ml/content/environment_creation/ for more info.",
         ],
         [
             GenericTestEnv(action_space=None),
-            "You must specify a action space. https://www.gymlibrary.ml/content/environment_creation/",
+            "The environment must specify an action space. See https://www.gymlibrary.ml/content/environment_creation/ for more info.",
         ],
         [
             GenericTestEnv(observation_space=None),
-            "You must specify an observation space. https://www.gymlibrary.ml/content/environment_creation/",
+            "The environment must specify an observation space. See https://www.gymlibrary.ml/content/environment_creation/ for more info.",
         ],
     ],
 )

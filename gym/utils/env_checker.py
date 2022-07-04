@@ -76,7 +76,7 @@ def check_reset_seed(env: gym.Env):
             obs_1 = env.reset(seed=123)
             assert (
                 obs_1 in env.observation_space
-            ), "The observation returned by `env.reset(seed=123)` is not within the observation space"
+            ), "The observation returned by `env.reset(seed=123)` is not within the observation space."
             # pyright: ignore [reportPrivateUsage]
             assert (
                 env.unwrapped._np_random is not None
@@ -87,58 +87,43 @@ def check_reset_seed(env: gym.Env):
             obs_2 = env.reset(seed=123)
             assert (
                 obs_2 in env.observation_space
-            ), "The observation returned by `env.reset(seed=123)` is not within the observation space"
+            ), "The observation returned by `env.reset(seed=123)` is not within the observation space."
             if env.spec is not None and env.spec.nondeterministic is False:
                 assert data_equivalence(
                     obs_1, obs_2
-                ), "`env.reset(seed=123)` is not deterministic as the observations are not equivalent"
+                ), "Using `env.reset(seed=123)` is non-deterministic as the observations are not equivalent."
             # pyright: ignore [reportPrivateUsage]
             assert (
                 env.unwrapped._np_random.bit_generator.state
                 == seed_123_rng.bit_generator.state
-            ), (
-                "Mostly likely the environment reset function does not call `super().reset(seed=seed)` "
-                "as the random generates are not same when the same seeds are passed to `env.reset`."
-            )
+            ), "Mostly likely the environment reset function does not call `super().reset(seed=seed)` as the random generates are not same when the same seeds are passed to `env.reset`."
 
             obs_3 = env.reset(seed=456)
             assert (
                 obs_3 in env.observation_space
-            ), "The observation returned by `env.reset(seed=456)` is not within the observation space"
+            ), "The observation returned by `env.reset(seed=456)` is not within the observation space."
             # pyright: ignore [reportPrivateUsage]
             assert (
                 env.unwrapped._np_random.bit_generator.state
                 != seed_123_rng.bit_generator.state
-            ), (
-                "Mostly likely the environment reset function does not call `super().reset(seed=seed)` "
-                "as the random number generators are not different when different seeds are passed to `env.reset`."
-            )
+            ), "Mostly likely the environment reset function does not call `super().reset(seed=seed)` as the random number generators are not different when different seeds are passed to `env.reset`."
 
         except TypeError as e:
             raise AssertionError(
                 "The environment cannot be reset with a random seed, even though `seed` or `kwargs` appear in the signature. "
-                "This should never happen, please report this issue. "
-                f"The error was: {e}"
-            )
-
-        if env.unwrapped._np_random is None:  # pyright: ignore [reportPrivateUsage]
-            logger.warn(
-                "Resetting the environment did not result in seeding its random number generator. "
-                "This is likely due to not calling `super().reset(seed=seed)` in the `reset` method. "
-                "If you do not use the python-level random number generator, this is not a problem."
+                f"This should never happen, please report this issue. The error was: {e}"
             )
 
         seed_param = signature.parameters.get("seed")
         # Check the default value is None
         if seed_param is not None and seed_param.default is not None:
             logger.warn(
-                "The default seed argument in reset should be `None`, "
-                "otherwise the environment will by default always be deterministic. "
+                "The default seed argument in reset should be `None`, otherwise the environment will by default always be deterministic. "
                 f"Actual default: {seed_param.default}"
             )
     else:
         raise gym.error.Error(
-            "The `reset` method does not provide the `seed` keyword argument"
+            "The `reset` method does not provide a `seed` or `**kwargs` keyword argument."
         )
 
 
@@ -161,7 +146,7 @@ def check_reset_info(env: gym.Env):
             obs = env.reset(return_info=False)
             assert (
                 obs in env.observation_space
-            ), "The value returned by `env.reset(return_info=True)` is not within the observation space"
+            ), "The value returned by `env.reset(return_info=True)` is not within the observation space."
 
             result = env.reset(return_info=True)
             assert isinstance(
@@ -174,19 +159,18 @@ def check_reset_info(env: gym.Env):
             obs, info = result
             assert (
                 obs in env.observation_space
-            ), "The first element returned by `env.reset(return_info=True)` is not within the observation space"
+            ), "The first element returned by `env.reset(return_info=True)` is not within the observation space."
             assert isinstance(
                 info, dict
-            ), "The second element returned by `env.reset(return_info=True)` was not a dictionary"
+            ), f"The second element returned by `env.reset(return_info=True)` was not a dictionary, actual type: {type(info)}"
         except TypeError as e:
             raise AssertionError(
-                "The environment cannot be reset with `return_info=True`, even though `return_info` or `kwargs` "
-                "appear in the signature. This should never happen, please report this issue. "
-                f"The error was: {e}"
+                "The environment cannot be reset with `return_info=True`, even though `return_info` or `kwargs` appear in the signature. "
+                f"This should never happen, please report this issue. The error was: {e}"
             )
     else:
         raise gym.error.Error(
-            "The `reset` method does not provide the `return_info` keyword argument"
+            "The `reset` method does not provide a `return_info` or `**kwargs` keyword argument."
         )
 
 
@@ -209,13 +193,12 @@ def check_reset_options(env: gym.Env):
             env.reset(options={})
         except TypeError as e:
             raise AssertionError(
-                "The environment cannot be reset with options, even though `options` or `kwargs` appear in the signature. "
-                "This should never happen, please report this issue. "
-                f"The error was: {e}"
+                "The environment cannot be reset with options, even though `options` or `**kwargs` appear in the signature. "
+                f"This should never happen, please report this issue. The error was: {e}"
             )
     else:
         raise gym.error.Error(
-            "The `reset` method does not provide the `options` keyword argument"
+            "The `reset` method does not provide an `options` or `**kwargs` keyword argument."
         )
 
 
@@ -224,11 +207,11 @@ def check_space_limit(space, space_type: str):
     if isinstance(space, spaces.Box):
         if np.any(np.equal(space.low, -np.inf)):
             logger.warn(
-                f"The {space_type} Box space minimum value is -infinity. This is probably too low."
+                f"A Box {space_type} space minimum value is -infinity. This is probably too low."
             )
         if np.any(np.equal(space.high, np.inf)):
             logger.warn(
-                f"The {space_type} Box space maximum value is -infinity. This is probably too high."
+                f"A Box {space_type} space maximum value is -infinity. This is probably too high."
             )
 
         # Check that the Box space is normalized
@@ -244,9 +227,10 @@ def check_space_limit(space, space_type: str):
                     or np.any(space.low < -1)
                     or np.any(space.high > 1)
                 ):
+                    # todo - Add to gymlibrary.ml?
                     logger.warn(
-                        "We recommend you to use a symmetric and normalized Box action space (range=[-1, 1] or [0, 1]) "
-                        "https://stable-baselines3.readthedocs.io/en/master/guide/rl_tips.html"  # TODO Add to gymlibrary.ml?
+                        "For Box action spaces, we recommend using a symmetric and normalized space (range=[-1, 1] or [0, 1]). "
+                        "See https://stable-baselines3.readthedocs.io/en/master/guide/rl_tips.html for more information."
                     )
     elif isinstance(space, spaces.Tuple):
         for subspace in space.spaces:
@@ -271,22 +255,27 @@ def check_env(env: gym.Env, warn: bool = None, skip_render_check: bool = False):
         skip_render_check: Whether to skip the checks for the render method. True by default (useful for the CI)
     """
     if warn is not None:
-        logger.warn("`check_env` warn parameter is now ignored.")
+        logger.warn("`check_env(warn=...)` parameter is now ignored.")
 
     assert isinstance(
         env, gym.Env
-    ), "Your environment must inherit from the gym.Env class https://www.gymlibrary.ml/content/environment_creation/"
+    ), "The environment must inherit from the gym.Env class. See https://www.gymlibrary.ml/content/environment_creation/ for more info."
+
+    if env.unwrapped is not env:
+        logger.warn(
+            f"The environment ({env}) is different from the unwrapped version ({env.unwrapped}). This could effect the environment checker as the environment most likely has a wrapper applied to it. We recommend using the raw environment for `check_env` using `env.unwrapped`."
+        )
 
     # ============= Check the spaces (observation and action) ================
     assert hasattr(
         env, "action_space"
-    ), "You must specify a action space. https://www.gymlibrary.ml/content/environment_creation/"
+    ), "The environment must specify an action space. See https://www.gymlibrary.ml/content/environment_creation/ for more info."
     check_action_space(env.action_space)
     check_space_limit(env.action_space, "action")
 
     assert hasattr(
         env, "observation_space"
-    ), "You must specify an observation space. https://www.gymlibrary.ml/content/environment_creation/"
+    ), "The environment must specify an observation space. See https://www.gymlibrary.ml/content/environment_creation/ for more info."
     check_observation_space(env.observation_space)
     check_space_limit(env.observation_space, "observation")
 

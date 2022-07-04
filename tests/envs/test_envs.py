@@ -18,9 +18,9 @@ CHECK_ENV_IGNORE_WARNINGS = [
     f"\x1b[33mWARN: {message}\x1b[0m"
     for message in [
         "This version of the mujoco environments depends on the mujoco-py bindings, which are no longer maintained and may stop working. Please upgrade to the v4 versions of the environments (which depend on the mujoco python bindings instead), unless you are trying to precisely replicate previous works).",
-        "The observation Box space minimum value is -infinity. This is probably too low.",
-        "The observation Box space maximum value is -infinity. This is probably too high.",
-        "We recommend you to use a symmetric and normalized Box action space (range=[-1, 1] or [0, 1]) https://stable-baselines3.readthedocs.io/en/master/guide/rl_tips.html",
+        "A Box observation space minimum value is -infinity. This is probably too low.",
+        "A Box observation space maximum value is -infinity. This is probably too high.",
+        "For Box action spaces, we recommend using a symmetric and normalized space (range=[-1, 1] or [0, 1]). See https://stable-baselines3.readthedocs.io/en/master/guide/rl_tips.html for more information.",
     ]
 ]
 
@@ -31,7 +31,7 @@ CHECK_ENV_IGNORE_WARNINGS = [
 def test_envs_pass_env_checker(spec):
     """Check that all environments pass the environment checker with no warnings other than the expected."""
     with pytest.warns(None) as warnings:
-        env = spec.make(disable_env_checker=True)
+        env = spec.make(disable_env_checker=True).unwrapped
         check_env(env)
 
         env.close()
