@@ -2,6 +2,7 @@ import numpy as np
 import pytest
 
 import gym
+from gym import spaces
 from gym.wrappers import AtariPreprocessing, GrayScaleObservation
 
 pytest.importorskip("gym.envs.atari")
@@ -20,7 +21,11 @@ def test_gray_scale_observation(env_id, keep_dim):
         gym.make(env_id, disable_env_checker=True), screen_size=84, grayscale_obs=False
     )
     wrapped_env = GrayScaleObservation(rgb_env, keep_dim=keep_dim)
+
+    assert isinstance(rgb_env.observation_space, spaces.Box)
     assert rgb_env.observation_space.shape[-1] == 3
+
+    assert isinstance(wrapped_env.observation_space, spaces.Box)
 
     seed = 0
 

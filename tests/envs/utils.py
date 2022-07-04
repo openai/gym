@@ -1,5 +1,5 @@
 """Finds all the specs that we can test with"""
-from typing import Optional
+from typing import List, Optional
 
 import numpy as np
 
@@ -18,22 +18,27 @@ def try_make_env(env_spec: EnvSpec) -> Optional[gym.Env]:
 
 
 # Tries to make all environment to test with
-all_testing_initialised_envs = list(
-    filter(None, [try_make_env(env_spec) for env_spec in gym.envs.registry.values()])
-)
+all_testing_initialised_envs: List[Optional[gym.Env]] = [
+    try_make_env(env_spec) for env_spec in gym.envs.registry.values()
+]
+all_testing_initialised_envs: List[gym.Env] = [
+    env for env in all_testing_initialised_envs if env is not None
+]
 
 # All testing, mujoco and gym environment specs
-all_testing_env_specs = [env.spec for env in all_testing_initialised_envs]
-mujoco_testing_env_specs = [
+all_testing_env_specs: List[EnvSpec] = [
+    env.spec for env in all_testing_initialised_envs
+]
+mujoco_testing_env_specs: List[EnvSpec] = [
     env_spec
     for env_spec in all_testing_env_specs
     if "gym.envs.mujoco" in env_spec.entry_point
 ]
-gym_testing_env_specs = [
+gym_testing_env_specs: List[EnvSpec] = [
     env_spec
     for env_spec in all_testing_env_specs
     if any(
-        f"gym.{ep}" in env_spec.entry_point
+        f"gym.envs.{ep}" in env_spec.entry_point
         for ep in ["box2d", "classic_control", "toy_text"]
     )
 ]

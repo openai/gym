@@ -83,6 +83,7 @@ class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         return self._get_obs()
 
     def viewer_setup(self):
+        assert self.viewer is not None
         self.viewer.cam.trackbodyid = 1
         self.viewer.cam.distance = self.model.stat.extent * 1.0
         self.viewer.cam.lookat[2] = 0.8925

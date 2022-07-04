@@ -569,7 +569,7 @@ class AsyncVectorEnv(VectorEnv):
 
         num_errors = self.num_envs - sum(successes)
         assert num_errors > 0
-        for _ in range(num_errors):
+        for i in range(num_errors):
             index, exctype, value = self.error_queue.get()
             logger.error(
                 f"Received the following error from Worker-{index}: {exctype.__name__}: {value}"
@@ -578,8 +578,9 @@ class AsyncVectorEnv(VectorEnv):
             self.parent_pipes[index].close()
             self.parent_pipes[index] = None
 
-        logger.error("Raising the last exception back to the main process.")
-        raise exctype(value)
+            if i == num_errors - 1:
+                logger.error("Raising the last exception back to the main process.")
+                raise exctype(value)
 
     def __del__(self):
         """On deleting the object, checks that the vector environment is closed."""
