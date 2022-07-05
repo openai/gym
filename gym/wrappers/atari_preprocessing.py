@@ -7,9 +7,7 @@ from gym.spaces import Box
 try:
     import cv2
 except ImportError:
-    raise gym.error.DependencyNotInstalled(
-        "opencv-python package not installed, run `pip install gym[other]` to get dependencies for atari"
-    )
+    cv2 = None
 
 
 class AtariPreprocessing(gym.Wrapper):
@@ -61,6 +59,10 @@ class AtariPreprocessing(gym.Wrapper):
             ValueError: Disable frame-skipping in the original env
         """
         super().__init__(env)
+        if cv2 is None:
+            raise gym.error.DependencyNotInstalled(
+                "opencv-python package not installed, run `pip install gym[other]` to get dependencies for atari"
+            )
         assert frame_skip > 0
         assert screen_size > 0
         assert noop_max >= 0
@@ -178,6 +180,7 @@ class AtariPreprocessing(gym.Wrapper):
     def _get_obs(self):
         if self.frame_skip > 1:  # more efficient in-place pooling
             np.maximum(self.obs_buffer[0], self.obs_buffer[1], out=self.obs_buffer[0])
+        assert cv2 is not None
         obs = cv2.resize(
             self.obs_buffer[0],
             (self.screen_size, self.screen_size),
