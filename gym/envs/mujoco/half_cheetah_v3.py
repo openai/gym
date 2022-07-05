@@ -4,6 +4,7 @@ import numpy as np
 
 from gym import utils
 from gym.envs.mujoco import mujoco_env
+from gym.spaces import Box
 
 DEFAULT_CAMERA_CONFIG = {
     "distance": 4.0,
@@ -43,8 +44,22 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             exclude_current_positions_from_observation
         )
 
+        if exclude_current_positions_from_observation:
+            observation_space = Box(
+                low=-np.inf, high=np.inf, shape=(17,), dtype=np.float64
+            )
+        else:
+            observation_space = Box(
+                low=-np.inf, high=np.inf, shape=(18,), dtype=np.float64
+            )
+
         mujoco_env.MujocoEnv.__init__(
-            self, xml_file, 5, mujoco_bindings="mujoco_py", **kwargs
+            self,
+            xml_file,
+            5,
+            mujoco_bindings="mujoco_py",
+            observation_space=observation_space,
+            **kwargs
         )
 
     def control_cost(self, action):
@@ -103,6 +118,7 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         return observation
 
     def viewer_setup(self):
+        assert self.viewer is not None
         for key, value in DEFAULT_CAMERA_CONFIG.items():
             if isinstance(value, np.ndarray):
                 getattr(self.viewer.cam, key)[:] = value

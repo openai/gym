@@ -2,7 +2,7 @@ __credits__ = ["Andrea PIERRÉ"]
 
 import math
 import warnings
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 import numpy as np
 
@@ -24,6 +24,11 @@ try:
     )
 except ImportError:
     raise DependencyNotInstalled("box2d is not installed, run `pip install gym[box2d]`")
+
+
+if TYPE_CHECKING:
+    import pygame
+
 
 FPS = 50
 SCALE = 30.0  # affects how fast-paced the game is, forces should be adjusted as well
@@ -215,12 +220,12 @@ class LunarLander(gym.Env, EzPickle):
         self.wind_idx = np.random.randint(-9999, 9999)
         self.torque_idx = np.random.randint(-9999, 9999)
 
-        self.screen = None
+        self.screen: pygame.Surface = None
         self.clock = None
         self.isopen = True
         self.world = Box2D.b2World(gravity=(0, gravity))
         self.moon = None
-        self.lander = None
+        self.lander: Optional[Box2D.b2Body] = None
         self.particles = []
 
         self.prev_reward = None
@@ -335,7 +340,7 @@ class LunarLander(gym.Env, EzPickle):
         self.moon.color2 = (0.0, 0.0, 0.0)
 
         initial_y = VIEWPORT_H / SCALE
-        self.lander = self.world.CreateDynamicBody(
+        self.lander: Box2D.b2Body = self.world.CreateDynamicBody(
             position=(VIEWPORT_W / SCALE / 2, initial_y),
             angle=0.0,
             fixtures=fixtureDef(
@@ -427,7 +432,10 @@ class LunarLander(gym.Env, EzPickle):
             self.world.DestroyBody(self.particles.pop(0))
 
     def step(self, action):
+        assert self.lander is not None
+
         # Update wind
+        assert self.lander is not None, "You forgot to call reset()"
         if self.enable_wind and not (
             self.legs[0].ground_contact or self.legs[1].ground_contact
         ):

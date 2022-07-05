@@ -14,6 +14,7 @@ def test_record_episode_statistics(env_id, deque_size):
 
     for n in range(5):
         env.reset()
+        assert env.episode_returns is not None and env.episode_lengths is not None
         assert env.episode_returns[0] == 0.0
         assert env.episode_lengths[0] == 0
         for t in range(env.spec.max_episode_steps):

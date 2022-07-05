@@ -2,11 +2,12 @@
 
 import re
 
+import numpy as np
 import pytest
 
 import gym
 from gym.envs.classic_control import cartpole
-from gym.wrappers import AutoResetWrapper, OrderEnforcing, TimeLimit
+from gym.wrappers import AutoResetWrapper, HumanRendering, OrderEnforcing, TimeLimit
 from gym.wrappers.env_checker import PassiveEnvChecker
 from tests.envs.utils import all_testing_env_specs
 from tests.envs.utils_envs import ArgumentEnv, RegisterDuringMakeEnv
@@ -24,6 +25,20 @@ gym.register(
         "arg1": "arg1",
         "arg2": "arg2",
     },
+)
+
+gym.register(
+    id="test/NoHuman-v0",
+    entry_point="tests.envs.utils_envs:NoHuman",
+)
+gym.register(
+    id="test/NoHumanOldAPI-v0",
+    entry_point="tests.envs.utils_envs:NoHumanOldAPI",
+)
+
+gym.register(
+    id="test/NoHumanNoRGB-v0",
+    entry_point="tests.envs.utils_envs:NoHumanNoRGB",
 )
 
 
@@ -124,6 +139,17 @@ def test_make_render_mode():
     assert env.render_mode is None
     env.close()
 
+    # Make sure that render_mode is applied correctly
+    env = gym.make("CartPole-v1", render_mode="rgb_array", disable_env_checker=True)
+    assert env.render_mode == "rgb_array"
+    env.reset()
+    renders = env.render()
+    assert isinstance(
+        renders, list
+    )  # Make sure that the `render` method does what is supposed to
+    assert isinstance(renders[0], np.ndarray)
+    env.close()
+
     env = gym.make("CartPole-v1", render_mode=None, disable_env_checker=True)
     assert env.render_mode is None
     valid_render_modes = env.metadata["render_modes"]
@@ -147,6 +173,69 @@ def test_make_render_mode():
         env.close()
 
     assert len(warnings) == 0
+
+    # Make sure that native rendering is used when possible
+    env = gym.make("CartPole-v1", render_mode="human", disable_env_checker=True)
+    assert not has_wrapper(env, HumanRendering)  # Should use native human-rendering
+    assert env.render_mode == "human"
+    env.close()
+
+    with pytest.warns(
+        Warning,
+        match=re.escape(
+            "You are trying to use 'human' rendering for an environment that doesn't natively support it. The HumanRendering wrapper is being applied to your environment."
+        ),
+    ):
+        # Make sure that `HumanRendering` is applied here
+        env = gym.make(
+            "test/NoHuman-v0", render_mode="human", disable_env_checker=True
+        )  # This environment doesn't use native rendering
+        assert has_wrapper(env, HumanRendering)
+        assert env.render_mode == "human"
+        env.close()
+
+    with pytest.raises(
+        TypeError, match=re.escape("got an unexpected keyword argument 'render_mode'")
+    ):
+        gym.make(
+            "test/NoHumanOldAPI-v0", render_mode="rgb_array", disable_env_checker=True
+        )
+
+    # Make sure that an additional error is thrown a user tries to use the wrapper on an environment with old API
+    with pytest.raises(
+        gym.error.Error,
+        match=re.escape(
+            "You passed render_mode='human' although test/NoHumanOldAPI-v0 doesn't implement human-rendering natively."
+        ),
+    ):
+        gym.make("test/NoHumanOldAPI-v0", render_mode="human", disable_env_checker=True)
+
+    # Make sure that the `HumanRendering` is not applied if the environment doesn't have rgb-rendering
+    with pytest.raises(
+        gym.error.Error,
+        match=re.escape(
+            "Invalid render_mode provided: human. Valid render_modes: None, ascii"
+        ),
+    ):
+        gym.make("test/NoHumanNoRGB-v0", render_mode="human", disable_env_checker=True)
+
+    # Make sure that an error is thrown if the mode is not supported
+    with pytest.raises(
+        gym.error.Error,
+        match=re.escape(
+            "Invalid render_mode provided: ascii. Valid render_modes: None, rgb_array"
+        ),
+    ):
+        gym.make("test/NoHuman-v0", render_mode="ascii", disable_env_checker=True)
+
+    # This test ensures that the additional exception "Gym tried to apply the HumanRendering wrapper but it looks like
+    # your environment is using the old rendering API" is *not* triggered by a TypeError that originate from
+    # a keyword that is not `render_mode`
+    with pytest.raises(
+        TypeError,
+        match=re.escape("got an unexpected keyword argument 'render'"),
+    ):
+        gym.make("CarRacing-v1", render="human")
 
 
 def test_make_kwargs():

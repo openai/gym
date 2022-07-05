@@ -54,9 +54,9 @@ class Renderer:
 
         This method should be usually called inside environment's step and reset method.
         """
-        if self.mode is not None and self.mode not in SINGLE_RENDER:
+        if self.mode is not None and self.mode not in self.single_render:
             render_return = self.render(self.mode)
-            if self.mode not in NO_RETURNS_RENDER:
+            if self.mode not in self.no_returns_render:
                 self.render_list.append(render_return)
 
     def get_renders(self) -> Optional[List]:
@@ -64,9 +64,9 @@ class Renderer:
 
         This method should be usually called in the environment's render method to retrieve the frames collected till this time step.
         """
-        if self.mode in SINGLE_RENDER:
+        if self.mode in self.single_render:
             return self.render(self.mode)
-        elif self.mode is not None and self.mode not in NO_RETURNS_RENDER:
+        elif self.mode is not None and self.mode not in self.no_returns_render:
             renders = self.render_list
             self.render_list = []
             return renders

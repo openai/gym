@@ -110,8 +110,10 @@ class CarRacing(gym.Env, EzPickle):
     and turn at the same time.
 
     ### Action Space
-    There are 3 actions: steering (-1 is full left, +1 is full right), gas,
-    and breaking.
+    If continuous:
+        There are 3 actions: steering (-1 is full left, +1 is full right), gas, and breaking.
+    If discrete:
+        There are 5 actions: do nothing, steer left, steer right, gas, brake.
 
     ### Observation Space
     State consists of 96x96 pixels.
@@ -139,6 +141,24 @@ class CarRacing(gym.Env, EzPickle):
 
     Passing `continuous=False` converts the environment to use discrete action space.
     The discrete action space has 5 actions: [do nothing, left, right, gas, brake].
+
+    ### Reset Arguments
+    Passing the option `options["randomize"] = True` will change the current colour of the environment on demand.
+    Correspondingly, passing the option `options["randomize"] = False` will not change the current colour of the environment.
+    `domain_randomize` must be `True` on init for this argument to work.
+    Example usage:
+    ```py
+        env = gym.make("CarRacing-v1", domain_randomize=True)
+
+        # normal reset, this changes the colour scheme by default
+        env.reset()
+
+        # reset with colour scheme change
+        env.reset(options={"randomize": True})
+
+        # reset with no colour scheme change
+        env.reset(options={"randomize": False})
+    ```
 
     ### Version History
     - v1: Change track completion logic and add domain randomization (0.24.0)
@@ -177,14 +197,14 @@ class CarRacing(gym.Env, EzPickle):
 
         self.contactListener_keepref = FrictionDetector(self, lap_complete_percent)
         self.world = Box2D.b2World((0, 0), contactListener=self.contactListener_keepref)
-        self.screen = None
+        self.screen: Optional[pygame.Surface] = None
         self.surf = None
         self.clock = None
         self.isopen = True
         self.invisible_state_window = None
         self.invisible_video_window = None
         self.road = None
-        self.car = None
+        self.car: Optional[Car] = None
         self.reward = 0.0
         self.prev_reward = 0.0
         self.verbose = verbose
@@ -217,6 +237,7 @@ class CarRacing(gym.Env, EzPickle):
         for t in self.road:
             self.world.DestroyBody(t)
         self.road = []
+        assert self.car is not None
         self.car.destroy()
 
     def _init_colors(self):
@@ -234,6 +255,21 @@ class CarRacing(gym.Env, EzPickle):
             self.road_color = np.array([102, 102, 102])
             self.bg_color = np.array([102, 204, 102])
             self.grass_color = np.array([102, 230, 102])
+
+    def _reinit_colors(self, randomize):
+        assert (
+            self.domain_randomize
+        ), "domain_randomize must be True to use this function."
+
+        if randomize:
+            # domain randomize the bg and grass colour
+            self.road_color = self.np_random.uniform(0, 210, size=3)
+
+            self.bg_color = self.np_random.uniform(0, 210, size=3)
+
+            self.grass_color = np.copy(self.bg_color)
+            idx = self.np_random.integers(3)
+            self.grass_color[idx] += 20
 
     def _create_track(self):
         CHECKPOINTS = 12
@@ -440,7 +476,14 @@ class CarRacing(gym.Env, EzPickle):
         self.t = 0.0
         self.new_lap = False
         self.road_poly = []
-        self._init_colors()
+
+        if self.domain_randomize:
+            randomize = True
+            if isinstance(options, dict):
+                if "randomize" in options:
+                    randomize = options["randomize"]
+
+            self._reinit_colors(randomize)
 
         while True:
             success = self._create_track()
@@ -460,6 +503,7 @@ class CarRacing(gym.Env, EzPickle):
             return self.step(None)[0], {}
 
     def step(self, action: Union[np.ndarray, int]):
+        assert self.car is not None
         if action is not None:
             if self.continuous:
                 self.car.steer(-action[0])
@@ -534,6 +578,7 @@ class CarRacing(gym.Env, EzPickle):
 
         self.surf = pygame.Surface((WINDOW_W, WINDOW_H))
 
+        assert self.car is not None
         # computing transformations
         angle = -self.car.hull.angle
         # Animating first second zoom.
@@ -566,6 +611,7 @@ class CarRacing(gym.Env, EzPickle):
         if mode == "human":
             pygame.event.pump()
             self.clock.tick(self.metadata["render_fps"])
+            assert self.screen is not None
             self.screen.fill(0)
             self.screen.blit(self.surf, (0, 0))
             pygame.display.flip()
@@ -640,6 +686,7 @@ class CarRacing(gym.Env, EzPickle):
                 ((place + 0) * s, H - 2 * h),
             ]
 
+        assert self.car is not None
         true_speed = np.sqrt(
             np.square(self.car.hull.linearVelocity[0])
             + np.square(self.car.hull.linearVelocity[1])

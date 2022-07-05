@@ -148,7 +148,9 @@ class VideoRecorder:  # TODO: remove with gym 1.0
             )
             self.output_frames_per_sec = self.backward_compatible_output_frames_per_sec
 
-        self.encoder = None  # lazily start the process
+        self.encoder: Optional[
+            Union[TextEncoder, ImageEncoder]
+        ] = None  # lazily start the process
         self.broken = False
 
         # Dump metadata
@@ -387,7 +389,7 @@ class ImageEncoder:
             InvalidFrame: Expects frame to have shape (w,h,3) or (w,h,4)
             DependencyNotInstalled: Found neither the ffmpeg nor avconv executables.
         """
-        self.proc = None
+        self.proc: Optional[subprocess.Popen] = None
         self.output_path = output_path
         # Frame shape should be lines-first, so w and h are swapped
         h, w, pixfmt = frame_shape
@@ -488,6 +490,7 @@ class ImageEncoder:
                 f"Your frame has data type {frame.dtype}, but we require uint8 (i.e. RGB values from 0-255)."
             )
 
+        assert self.proc is not None and self.proc.stdin is not None
         try:
             self.proc.stdin.write(frame.tobytes())
         except Exception:
@@ -496,6 +499,7 @@ class ImageEncoder:
 
     def close(self):
         """Closes the Image encoder."""
+        assert self.proc is not None and self.proc.stdin is not None
         self.proc.stdin.close()
         ret = self.proc.wait()
         if ret != 0:

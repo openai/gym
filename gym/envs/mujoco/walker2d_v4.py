@@ -2,6 +2,7 @@ import numpy as np
 
 from gym import utils
 from gym.envs.mujoco import mujoco_env
+from gym.spaces import Box
 
 DEFAULT_CAMERA_CONFIG = {
     "trackbodyid": 2,
@@ -182,7 +183,18 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             exclude_current_positions_from_observation
         )
 
-        mujoco_env.MujocoEnv.__init__(self, "walker2d.xml", 4, **kwargs)
+        if exclude_current_positions_from_observation:
+            observation_space = Box(
+                low=-np.inf, high=np.inf, shape=(17,), dtype=np.float64
+            )
+        else:
+            observation_space = Box(
+                low=-np.inf, high=np.inf, shape=(18,), dtype=np.float64
+            )
+
+        mujoco_env.MujocoEnv.__init__(
+            self, "walker2d.xml", 4, observation_space=observation_space, **kwargs
+        )
 
     @property
     def healthy_reward(self):
@@ -265,6 +277,7 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         return observation
 
     def viewer_setup(self):
+        assert self.viewer is not None
         for key, value in DEFAULT_CAMERA_CONFIG.items():
             if isinstance(value, np.ndarray):
                 getattr(self.viewer.cam, key)[:] = value

@@ -1,8 +1,6 @@
 """A passive environment checker wrapper for an environment's observation and action space along with the reset, step and render functions."""
-from typing import Tuple, Union
-
 import gym
-from gym.core import ActType, ObsType
+from gym.core import ActType
 from gym.utils.passive_env_checker import (
     check_action_space,
     check_observation_space,
@@ -32,7 +30,7 @@ class PassiveEnvChecker(gym.Wrapper):
         self.checked_step = False
         self.checked_render = False
 
-    def step(self, action: ActType) -> Tuple[ObsType, float, bool, dict]:
+    def step(self, action: ActType):
         """Steps through the environment that on the first call will run the `passive_env_step_check`."""
         if self.checked_step is False:
             self.checked_step = True
@@ -40,7 +38,7 @@ class PassiveEnvChecker(gym.Wrapper):
         else:
             return self.env.step(action)
 
-    def reset(self, **kwargs) -> Union[ObsType, Tuple[ObsType, dict]]:
+    def reset(self, **kwargs):
         """Resets the environment that on the first call will run the `passive_env_reset_check`."""
         if self.checked_reset is False:
             self.checked_reset = True

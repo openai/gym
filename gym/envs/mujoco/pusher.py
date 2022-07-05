@@ -2,6 +2,7 @@ import numpy as np
 
 from gym import utils
 from gym.envs.mujoco import mujoco_env
+from gym.spaces import Box
 
 
 class PusherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
@@ -18,8 +19,14 @@ class PusherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     def __init__(self, **kwargs):
         utils.EzPickle.__init__(self)
+        observation_space = Box(low=-np.inf, high=np.inf, shape=(23,), dtype=np.float64)
         mujoco_env.MujocoEnv.__init__(
-            self, "pusher.xml", 5, mujoco_bindings="mujoco_py", **kwargs
+            self,
+            "pusher.xml",
+            5,
+            mujoco_bindings="mujoco_py",
+            observation_space=observation_space,
+            **kwargs
         )
 
     def step(self, a):
@@ -40,6 +47,7 @@ class PusherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         return ob, reward, done, dict(reward_dist=reward_dist, reward_ctrl=reward_ctrl)
 
     def viewer_setup(self):
+        assert self.viewer is not None
         self.viewer.cam.trackbodyid = -1
         self.viewer.cam.distance = 4.0
 

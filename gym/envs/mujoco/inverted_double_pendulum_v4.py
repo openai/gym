@@ -2,6 +2,7 @@ import numpy as np
 
 from gym import utils
 from gym.envs.mujoco import mujoco_env
+from gym.spaces import Box
 
 
 class InvertedDoublePendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
@@ -123,7 +124,14 @@ class InvertedDoublePendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     }
 
     def __init__(self, **kwargs):
-        mujoco_env.MujocoEnv.__init__(self, "inverted_double_pendulum.xml", 5, **kwargs)
+        observation_space = Box(low=-np.inf, high=np.inf, shape=(11,), dtype=np.float64)
+        mujoco_env.MujocoEnv.__init__(
+            self,
+            "inverted_double_pendulum.xml",
+            5,
+            observation_space=observation_space,
+            **kwargs
+        )
         utils.EzPickle.__init__(self)
 
     def step(self, action):
@@ -161,6 +169,7 @@ class InvertedDoublePendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         return self._get_obs()
 
     def viewer_setup(self):
+        assert self.viewer is not None
         v = self.viewer
         v.cam.trackbodyid = 0
         v.cam.distance = self.model.stat.extent * 0.5

@@ -2,6 +2,7 @@ import numpy as np
 
 from gym import utils
 from gym.envs.mujoco import mujoco_env
+from gym.spaces import Box
 
 DEFAULT_CAMERA_CONFIG = {
     "distance": 4.0,
@@ -215,7 +216,19 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             exclude_current_positions_from_observation
         )
 
-        mujoco_env.MujocoEnv.__init__(self, xml_file, 5, **kwargs)
+        obs_shape = 27
+        if not exclude_current_positions_from_observation:
+            obs_shape += 2
+        if use_contact_forces:
+            obs_shape += 84
+
+        observation_space = Box(
+            low=-np.inf, high=np.inf, shape=(obs_shape,), dtype=np.float64
+        )
+
+        mujoco_env.MujocoEnv.__init__(
+            self, xml_file, 5, observation_space=observation_space, **kwargs
+        )
 
     @property
     def healthy_reward(self):
@@ -323,6 +336,7 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         return observation
 
     def viewer_setup(self):
+        assert self.viewer is not None
         for key, value in DEFAULT_CAMERA_CONFIG.items():
             if isinstance(value, np.ndarray):
                 getattr(self.viewer.cam, key)[:] = value
