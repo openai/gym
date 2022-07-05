@@ -1,9 +1,8 @@
-from typing import Optional
-
 import numpy as np
 
 from gym import utils
 from gym.envs.mujoco import mujoco_env
+from gym.spaces import Box
 
 
 class InvertedDoublePendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
@@ -39,7 +38,7 @@ class InvertedDoublePendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     The observation is a `ndarray` with shape `(11,)` where the elements correspond to the following:
 
     | Num | Observation                                                       | Min  | Max | Name (in corresponding XML file) | Joint | Unit                     |
-    |-----|-------------------------------------------------------------------|------|-----|----------------------------------|-------|--------------------------|
+    | --- | ----------------------------------------------------------------- | ---- | --- | -------------------------------- | ----- | ------------------------ |
     | 0   | position of the cart along the linear surface                     | -Inf | Inf | slider                           | slide | position (m)             |
     | 1   | sine of the angle between the cart and the first pole             | -Inf | Inf | sin(hinge)                       | hinge | unitless                 |
     | 2   | sine of the angle between the two poles                           | -Inf | Inf | sin(hinge2)                      | hinge | unitless                 |
@@ -54,7 +53,7 @@ class InvertedDoublePendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
 
     There is physical contact between the robots and their environment - and Mujoco
-    attempts at getting realistic physics simulations for the possible physical contact
+    attempts at getting realisitic physics simulations for the possible physical contact
     dynamics by aiming for physical accuracy and computational efficiency.
 
     There is one constraint force for contacts for each degree of freedom (3).
@@ -95,20 +94,14 @@ class InvertedDoublePendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     ### Arguments
 
-    No additional arguments are currently supported (in v2 and lower), but modifications can
-    be made to the XML file in the assets folder (or by changing the path to a modified XML
-    file in another folder)..
+    No additional arguments are currently supported.
 
     ```
-    env = gym.make('InvertedDoublePendulum-v2')
+    env = gym.make('InvertedDoublePendulum-v4')
     ```
     There is no v3 for InvertedPendulum, unlike the robot environments where a v3 and
     beyond take gym.make kwargs such as xml_file, ctrl_cost_weight, reset_noise_scale etc.
 
-    There is a v4 version that uses the mujoco-bindings
-    ```
-    env = gym.make('InvertedDoublePendulum-v4')
-    ```
 
     ### Version History
 
@@ -117,12 +110,27 @@ class InvertedDoublePendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     * v2: All continuous control environments now use mujoco_py >= 1.50
     * v1: max_time_steps raised to 1000 for robot based tasks (including inverted pendulum)
     * v0: Initial versions release (1.0.0)
-
     """
 
-    def __init__(self, render_mode: Optional[str] = None):
+    metadata = {
+        "render_modes": [
+            "human",
+            "rgb_array",
+            "depth_array",
+            "single_rgb_array",
+            "single_depth_array",
+        ],
+        "render_fps": 20,
+    }
+
+    def __init__(self, **kwargs):
+        observation_space = Box(low=-np.inf, high=np.inf, shape=(11,), dtype=np.float64)
         mujoco_env.MujocoEnv.__init__(
-            self, "inverted_double_pendulum.xml", 5, render_mode=render_mode
+            self,
+            "inverted_double_pendulum.xml",
+            5,
+            observation_space=observation_space,
+            **kwargs
         )
         utils.EzPickle.__init__(self)
 
@@ -161,6 +169,7 @@ class InvertedDoublePendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         return self._get_obs()
 
     def viewer_setup(self):
+        assert self.viewer is not None
         v = self.viewer
         v.cam.trackbodyid = 0
         v.cam.distance = self.model.stat.extent * 0.5

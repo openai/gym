@@ -1,6 +1,7 @@
 import pytest
 
 import gym
+from gym import spaces
 from gym.wrappers import ResizeObservation
 
 pytest.importorskip("gym.envs.atari")
@@ -11,9 +12,10 @@ pytest.importorskip("gym.envs.atari")
 )
 @pytest.mark.parametrize("shape", [16, 32, (8, 5), [10, 7]])
 def test_resize_observation(env_id, shape):
-    env = gym.make(env_id)
+    env = gym.make(env_id, disable_env_checker=True)
     env = ResizeObservation(env, shape)
 
+    assert isinstance(env.observation_space, spaces.Box)
     assert env.observation_space.shape[-1] == 3
     obs = env.reset()
     if isinstance(shape, int):

@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from itertools import product
 from typing import Callable
 
 import numpy as np
@@ -33,6 +34,15 @@ class DummyPlayEnv(gym.Env):
         return np.zeros((1, 1))
 
 
+class KeysToActionWrapper(gym.Wrapper):
+    def __init__(self, env, keys_to_action):
+        super().__init__(env)
+        self.keys_to_action = keys_to_action
+
+    def get_keys_to_action(self):
+        return self.keys_to_action
+
+
 class PlayStatus:
     def __init__(self, callback: Callable):
         self.data_callback = callback
@@ -49,6 +59,11 @@ class PlayStatus:
 
 def dummy_keys_to_action():
     return {(RELEVANT_KEY_1,): 0, (RELEVANT_KEY_2,): 1}
+
+
+def dummy_keys_to_action_str():
+    """{'a': 0, 'd': 1}"""
+    return {chr(RELEVANT_KEY_1): 0, chr(RELEVANT_KEY_2): 1}
 
 
 @pytest.fixture(autouse=True)
@@ -140,47 +155,66 @@ def test_play_loop_real_env():
     SEED = 42
     ENV = "CartPole-v1"
 
-    # set of key events to inject into the play loop as callback
-    callback_events = [
-        Event(KEYDOWN, {"key": RELEVANT_KEY_1}),
-        Event(KEYUP, {"key": RELEVANT_KEY_1}),
-        Event(KEYDOWN, {"key": RELEVANT_KEY_2}),
-        Event(KEYUP, {"key": RELEVANT_KEY_2}),
-        Event(KEYDOWN, {"key": RELEVANT_KEY_1}),
-        Event(KEYUP, {"key": RELEVANT_KEY_1}),
-        Event(KEYDOWN, {"key": RELEVANT_KEY_1}),
-        Event(KEYUP, {"key": RELEVANT_KEY_1}),
-        Event(KEYDOWN, {"key": RELEVANT_KEY_2}),
-        Event(KEYUP, {"key": RELEVANT_KEY_2}),
-        Event(QUIT),
-    ]
-    keydown_events = [k for k in callback_events if k.type == KEYDOWN]
+    # If apply_wrapper is true, we provide keys_to_action through the environment. If str_keys is true, the
+    # keys_to_action dictionary will have strings as keys
+    for apply_wrapper, str_keys in product([False, True], [False, True]):
+        # set of key events to inject into the play loop as callback
+        callback_events = [
+            Event(KEYDOWN, {"key": RELEVANT_KEY_1}),
+            Event(KEYUP, {"key": RELEVANT_KEY_1}),
+            Event(KEYDOWN, {"key": RELEVANT_KEY_2}),
+            Event(KEYUP, {"key": RELEVANT_KEY_2}),
+            Event(KEYDOWN, {"key": RELEVANT_KEY_1}),
+            Event(KEYUP, {"key": RELEVANT_KEY_1}),
+            Event(KEYDOWN, {"key": RELEVANT_KEY_1}),
+            Event(KEYUP, {"key": RELEVANT_KEY_1}),
+            Event(KEYDOWN, {"key": RELEVANT_KEY_2}),
+            Event(KEYUP, {"key": RELEVANT_KEY_2}),
+            Event(QUIT),
+        ]
+        keydown_events = [k for k in callback_events if k.type == KEYDOWN]
 
-    def callback(obs_t, obs_tp1, action, rew, done, info):
-        pygame_event = callback_events.pop(0)
-        event.post(pygame_event)
-
-        # after releasing a key, post new events until
-        # we have one keydown
-        while pygame_event.type == KEYUP:
+        def callback(obs_t, obs_tp1, action, rew, done, info):
             pygame_event = callback_events.pop(0)
             event.post(pygame_event)
 
-        return obs_t, obs_tp1, action, rew, done, info
+            # after releasing a key, post new events until
+            # we have one keydown
+            while pygame_event.type == KEYUP:
+                pygame_event = callback_events.pop(0)
+                event.post(pygame_event)
 
-    env = gym.make(ENV)
-    env.reset(seed=SEED)
-    keys_to_action = dummy_keys_to_action()
+            return obs_t, obs_tp1, action, rew, done, info
 
-    # first action is 0 because at the first iteration
-    # we can not inject a callback event into play()
-    env.step(0)
-    for e in keydown_events:
-        action = keys_to_action[(e.key,)]
-        obs, _, _, _ = env.step(action)
+        env = gym.make(ENV, disable_env_checker=True)
+        env.reset(seed=SEED)
+        keys_to_action = (
+            dummy_keys_to_action_str() if str_keys else dummy_keys_to_action()
+        )
 
-    env_play = gym.make(ENV)
-    status = PlayStatus(callback)
-    play(env_play, callback=status.callback, keys_to_action=keys_to_action, seed=SEED)
+        # first action is 0 because at the first iteration
+        # we can not inject a callback event into play()
+        obs, _, _, _ = env.step(0)
+        for e in keydown_events:
+            action = keys_to_action[chr(e.key) if str_keys else (e.key,)]
+            obs, _, _, _ = env.step(action)
 
-    assert (status.last_observation == obs).all()
+        env_play = gym.make(ENV, disable_env_checker=True)
+        if apply_wrapper:
+            env_play = KeysToActionWrapper(env, keys_to_action=keys_to_action)
+            assert hasattr(env_play, "get_keys_to_action")
+
+        status = PlayStatus(callback)
+        play(
+            env_play,
+            callback=status.callback,
+            keys_to_action=None if apply_wrapper else keys_to_action,
+            seed=SEED,
+        )
+
+        assert (status.last_observation == obs).all()
+
+
+def test_play_no_keys():
+    with pytest.raises(MissingKeysToAction):
+        play(gym.make("CartPole-v1"))

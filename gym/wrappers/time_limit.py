@@ -49,7 +49,10 @@ class TimeLimit(gym.Wrapper):
         observation, reward, done, info = self.env.step(action)
         self._elapsed_steps += 1
         if self._elapsed_steps >= self._max_episode_steps:
-            info["TimeLimit.truncated"] = not done
+            # TimeLimit.truncated key may have been already set by the environment
+            # do not overwrite it
+            episode_truncated = not done or info.get("TimeLimit.truncated", False)
+            info["TimeLimit.truncated"] = episode_truncated
             done = True
         return observation, reward, done, info
 

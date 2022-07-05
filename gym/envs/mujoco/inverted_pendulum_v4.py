@@ -1,9 +1,8 @@
-from typing import Optional
-
 import numpy as np
 
 from gym import utils
 from gym.envs.mujoco import mujoco_env
+from gym.spaces import Box
 
 
 class InvertedPendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
@@ -38,12 +37,12 @@ class InvertedPendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     The observation is a `ndarray` with shape `(4,)` where the elements correspond to the following:
 
-    | Num | Observation                                   | Min  | Max | Name (in corresponding XML file) | Joint | Unit                     |
-    |-----|-----------------------------------------------|------|-----|----------------------------------|-------|--------------------------|
-    | 0   | position of the cart along the linear surface | -Inf | Inf | slider                           | slide | position (m)             |
-    | 1   | vertical angle of the pole on the cart        | -Inf | Inf | hinge                            | hinge | angle (rad)              |
-    | 2   | linear velocity of the cart                   | -Inf | Inf | slider                           | slide | velocity (m/s)           |
-    | 3   | angular velocity of the pole on the cart      | -Inf | Inf | hinge                            | hinge | angular velocity (rad/s) |
+    | Num | Observation                                   | Min  | Max | Name (in corresponding XML file) | Joint | Unit                      |
+    | --- | --------------------------------------------- | ---- | --- | -------------------------------- | ----- | ------------------------- |
+    | 0   | position of the cart along the linear surface | -Inf | Inf | slider                           | slide | position (m)              |
+    | 1   | vertical angle of the pole on the cart        | -Inf | Inf | hinge                            | hinge | angle (rad)               |
+    | 2   | linear velocity of the cart                   | -Inf | Inf | slider                           | slide | velocity (m/s)            |
+    | 3   | angular velocity of the pole on the cart      | -Inf | Inf | hinge                            | hinge | anglular velocity (rad/s) |
 
 
     ### Rewards
@@ -66,21 +65,14 @@ class InvertedPendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     ### Arguments
 
-    No additional arguments are currently supported (in v2 and lower),
-    but modifications can be made to the XML file in the assets folder
-    (or by changing the path to a modified XML file in another folder).
+    No additional arguments are currently supported.
 
-    ```
-    env = gym.make('InvertedPendulum-v2')
-    ```
-
-    There is no v3 for InvertedPendulum, unlike the robot environments where a
-    v3 and beyond take gym.make kwargs such as xml_file, ctrl_cost_weight, reset_noise_scale etc.
-
-    There is a v4 version that uses the mujoco-bindings
     ```
     env = gym.make('InvertedPendulum-v4')
     ```
+    There is no v3 for InvertedPendulum, unlike the robot environments where a
+    v3 and beyond take gym.make kwargs such as xml_file, ctrl_cost_weight, reset_noise_scale etc.
+
 
     ### Version History
 
@@ -89,13 +81,28 @@ class InvertedPendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     * v2: All continuous control environments now use mujoco_py >= 1.50
     * v1: max_time_steps raised to 1000 for robot based tasks (including inverted pendulum)
     * v0: Initial versions release (1.0.0)
-
     """
 
-    def __init__(self, render_mode: Optional[str] = None):
+    metadata = {
+        "render_modes": [
+            "human",
+            "rgb_array",
+            "depth_array",
+            "single_rgb_array",
+            "single_depth_array",
+        ],
+        "render_fps": 25,
+    }
+
+    def __init__(self, **kwargs):
         utils.EzPickle.__init__(self)
+        observation_space = Box(low=-np.inf, high=np.inf, shape=(4,), dtype=np.float64)
         mujoco_env.MujocoEnv.__init__(
-            self, "inverted_pendulum.xml", 2, render_mode=render_mode
+            self,
+            "inverted_pendulum.xml",
+            2,
+            observation_space=observation_space,
+            **kwargs
         )
 
     def step(self, a):
@@ -123,6 +130,7 @@ class InvertedPendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         return np.concatenate([self.data.qpos, self.data.qvel]).ravel()
 
     def viewer_setup(self):
+        assert self.viewer is not None
         v = self.viewer
         v.cam.trackbodyid = 0
         v.cam.distance = self.model.stat.extent

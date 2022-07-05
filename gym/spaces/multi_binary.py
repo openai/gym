@@ -51,14 +51,36 @@ class MultiBinary(Space[np.ndarray]):
         """Has stricter type than gym.Space - never None."""
         return self._shape  # type: ignore
 
-    def sample(self) -> np.ndarray:
+    def sample(self, mask: Optional[np.ndarray] = None) -> np.ndarray:
         """Generates a single random sample from this space.
 
         A sample is drawn by independent, fair coin tosses (one toss per binary variable of the space).
 
+        Args:
+            mask: An optional np.ndarray to mask samples with expected shape of ``space.shape``.
+                Where mask == 0 then the samples will be 0.
+
         Returns:
             Sampled values from space
         """
+        if mask is not None:
+            assert isinstance(
+                mask, np.ndarray
+            ), f"The expected type of the mask is np.ndarray, actual type: {type(mask)}"
+            assert (
+                mask.dtype == np.int8
+            ), f"The expected dtype of the mask is np.int8, actual dtype: {mask.dtype}"
+            assert (
+                mask.shape == self.shape
+            ), f"The expected shape of the mask is {self.shape}, actual shape: {mask.shape}"
+            assert np.all(
+                np.logical_or(mask == 0, mask == 1)
+            ), f"All values of a mask should be 0 or 1, actual values: {mask}"
+
+            return mask * self.np_random.integers(
+                low=0, high=2, size=self.n, dtype=self.dtype
+            )
+
         return self.np_random.integers(low=0, high=2, size=self.n, dtype=self.dtype)
 
     def contains(self, x) -> bool:

@@ -9,15 +9,7 @@ exclude = [
     "**/node_modules",
     "**/__pycache__",
 
-    "gym/envs/box2d/**",
-    # "gym/envs/classic_control/**",
-    "gym/envs/mujoco/**",
-    "gym/envs/toy_text/**",
-    "gym/spaces/**",
-    "gym/utils/**",
-    "gym/vector/**",
-    "gym/wrappers/**",
-    "tests/**"
+    "gym/envs/mujoco/mujoco_env.py",
 ]
 
 strict = [
@@ -26,6 +18,7 @@ strict = [
 
 typeCheckingMode = "basic"
 pythonVersion = "3.6"
+pythonPlatform = "All"
 typeshedPath = "typeshed"
 enableTypeIgnoreComments = true
 
@@ -41,4 +34,5 @@ reportPrivateUsage = "warning"
 reportUntypedFunctionDecorator = "none"
 reportMissingTypeStubs = false
 reportUnboundVariable = "warning"
-reportGeneralTypeIssues ="none"
+reportGeneralTypeIssues = "none"
+reportInvalidTypeVarUse = "none"

@@ -1,5 +1,5 @@
 """Implementation of a space that represents the cartesian product of other spaces."""
-from typing import Iterable, List, Optional, Sequence, Union
+from typing import Iterable, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
 
@@ -72,14 +72,31 @@ class Tuple(Space[tuple], Sequence):
 
         return seeds
 
-    def sample(self) -> tuple:
+    def sample(self, mask: Optional[Tuple[Optional[np.ndarray]]] = None) -> tuple:
         """Generates a single random sample inside this space.
 
         This method draws independent samples from the subspaces.
 
+        Args:
+            mask: An optional tuple of optional masks for each of the subspace's samples,
+                expects the same number of masks as spaces
+
         Returns:
             Tuple of the subspace's samples
         """
+        if mask is not None:
+            assert isinstance(
+                mask, tuple
+            ), f"Expected type of mask is tuple, actual type: {type(mask)}"
+            assert len(mask) == len(
+                self.spaces
+            ), f"Expected length of mask is {len(self.spaces)}, actual length: {len(mask)}"
+
+            return tuple(
+                space.sample(mask=sub_mask)
+                for space, sub_mask in zip(self.spaces, mask)
+            )
+
         return tuple(space.sample() for space in self.spaces)
 
     def contains(self, x) -> bool:
