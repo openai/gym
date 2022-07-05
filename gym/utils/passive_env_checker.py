@@ -4,6 +4,7 @@ import inspect
 import numpy as np
 
 from gym import error, logger, spaces
+from gym.logger import deprecation
 
 
 def _check_box_observation_space(observation_space: spaces.Box):
@@ -253,6 +254,10 @@ def passive_env_step_check(env, action):
     """A passive check for the environment step, investigating the returning data then returning the data unchanged."""
     result = env.step(action)
     if len(result) == 4:
+        deprecation(
+            "Core environment is written in old step API which returns one bool instead of two. "
+            "It is recommended to rewrite the environment with new step API. "
+        )
         obs, reward, done, info = result
 
         assert isinstance(
