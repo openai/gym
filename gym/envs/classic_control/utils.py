@@ -7,18 +7,13 @@ from typing import Optional, Union
 import numpy as np
 
 
-def verify_number(x: Union[int, float, np.ndarray]) -> bool:
-    """Verify parameter is a single number."""
-    if type(x) == int or type(x) == float:
-        # A single value that is either an int or a float.
-        return True
-    if type(x) == np.ndarray:
-        if (
-            np.issubdtype(x.dtype, np.floating) or np.issubdtype(x.dtype, np.integer)
-        ) and len(x.shape) == 0:
-            # A numpy single value that is either an int or a float.
-            return True
-    return False
+def verify_number_and_cast(x: Union[int, float, np.ndarray]) -> float:
+    """Verify parameter is a single number and cast to a float."""
+    try:
+        x = float(x)
+    except (ValueError, TypeError):
+        raise ValueError(f"Your input must support being cast to a float: {x}")
+    return x
 
 
 def maybe_parse_reset_bounds(
@@ -44,7 +39,8 @@ def maybe_parse_reset_bounds(
     low = options.get("low") if "low" in options else default_low
     high = options.get("high") if "high" in options else default_high
     # We expect only numerical inputs.
-    assert verify_number(low)
-    assert verify_number(high)
-    assert low <= high
+    low = verify_number_and_cast(low)
+    high = verify_number_and_cast(high)
+    if low > high:
+        raise ValueError("Lower bound must be lower than higher bound.")
     return low, high

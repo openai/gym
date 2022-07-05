@@ -151,11 +151,10 @@ class PendulumEnv(gym.Env):
         else:
             # Note that if you use custom reset bounds, it may lead to out-of-bound
             # state/observations.
-            x = options.get("x") if "x" in options else DEFAULT_X
-            y = options.get("y") if "y" in options else DEFAULT_Y
-            # We expect only numerical inputs.
-            assert utils.verify_number(x)
-            assert utils.verify_number(y)
+            x = options.get("x_init") if "x_init" in options else DEFAULT_X
+            y = options.get("y_init") if "y_init" in options else DEFAULT_Y
+            x = utils.verify_number_and_cast(x)
+            y = utils.verify_number_and_cast(y)
             high = np.array([x, y])
         low = -high  # We enforce symmetric limits.
         self.state = self.np_random.uniform(low=low, high=high)
