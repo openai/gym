@@ -4,7 +4,7 @@ import pytest
 from gym.envs.registration import EnvSpec
 from gym.spaces import Box, Discrete, MultiDiscrete, Tuple
 from gym.vector.sync_vector_env import SyncVectorEnv
-from tests.envs.spec_list import spec_list
+from tests.envs.utils import all_testing_env_specs
 from tests.vector.utils import (
     CustomSpace,
     assert_rng_equal,
@@ -15,21 +15,17 @@ from tests.vector.utils import (
 
 def test_create_sync_vector_env():
     env_fns = [make_env("FrozenLake-v1", i) for i in range(8)]
-    try:
-        env = SyncVectorEnv(env_fns)
-    finally:
-        env.close()
+    env = SyncVectorEnv(env_fns)
+    env.close()
 
     assert env.num_envs == 8
 
 
 def test_reset_sync_vector_env():
     env_fns = [make_env("CartPole-v1", i) for i in range(8)]
-    try:
-        env = SyncVectorEnv(env_fns)
-        observations = env.reset()
-    finally:
-        env.close()
+    env = SyncVectorEnv(env_fns)
+    observations = env.reset()
+    env.close()
 
     assert isinstance(env.observation_space, Box)
     assert isinstance(observations, np.ndarray)
@@ -39,11 +35,9 @@ def test_reset_sync_vector_env():
 
     del observations
 
-    try:
-        env = SyncVectorEnv(env_fns)
-        observations = env.reset(return_info=False)
-    finally:
-        env.close()
+    env = SyncVectorEnv(env_fns)
+    observations = env.reset(return_info=False)
+    env.close()
 
     assert isinstance(env.observation_space, Box)
     assert isinstance(observations, np.ndarray)
@@ -54,11 +48,10 @@ def test_reset_sync_vector_env():
     del observations
 
     env_fns = [make_env("CartPole-v1", i) for i in range(8)]
-    try:
-        env = SyncVectorEnv(env_fns)
-        observations, infos = env.reset(return_info=True)
-    finally:
-        env.close()
+
+    env = SyncVectorEnv(env_fns)
+    observations, infos = env.reset(return_info=True)
+    env.close()
 
     assert isinstance(env.observation_space, Box)
     assert isinstance(observations, np.ndarray)
@@ -72,20 +65,20 @@ def test_reset_sync_vector_env():
 @pytest.mark.parametrize("use_single_action_space", [True, False])
 def test_step_sync_vector_env(use_single_action_space):
     env_fns = [make_env("FrozenLake-v1", i) for i in range(8)]
-    try:
-        env = SyncVectorEnv(env_fns)
-        observations = env.reset()
 
-        assert isinstance(env.single_action_space, Discrete)
-        assert isinstance(env.action_space, MultiDiscrete)
+    env = SyncVectorEnv(env_fns)
+    observations = env.reset()
 
-        if use_single_action_space:
-            actions = [env.single_action_space.sample() for _ in range(8)]
-        else:
-            actions = env.action_space.sample()
-        observations, rewards, dones, _ = env.step(actions)
-    finally:
-        env.close()
+    assert isinstance(env.single_action_space, Discrete)
+    assert isinstance(env.action_space, MultiDiscrete)
+
+    if use_single_action_space:
+        actions = [env.single_action_space.sample() for _ in range(8)]
+    else:
+        actions = env.action_space.sample()
+    observations, rewards, dones, _ = env.step(actions)
+
+    env.close()
 
     assert isinstance(env.observation_space, MultiDiscrete)
     assert isinstance(observations, np.ndarray)
@@ -106,13 +99,13 @@ def test_step_sync_vector_env(use_single_action_space):
 
 def test_call_sync_vector_env():
     env_fns = [make_env("CartPole-v1", i, render_mode="rgb_array") for i in range(4)]
-    try:
-        env = SyncVectorEnv(env_fns)
-        _ = env.reset()
-        images = env.call("render")
-        gravity = env.call("gravity")
-    finally:
-        env.close()
+
+    env = SyncVectorEnv(env_fns)
+    _ = env.reset()
+    images = env.call("render")
+    gravity = env.call("gravity")
+
+    env.close()
 
     assert isinstance(images, tuple)
     assert len(images) == 4
@@ -129,13 +122,13 @@ def test_call_sync_vector_env():
 
 def test_set_attr_sync_vector_env():
     env_fns = [make_env("CartPole-v1", i) for i in range(4)]
-    try:
-        env = SyncVectorEnv(env_fns)
-        env.set_attr("gravity", [9.81, 3.72, 8.87, 1.62])
-        gravity = env.get_attr("gravity")
-        assert gravity == (9.81, 3.72, 8.87, 1.62)
-    finally:
-        env.close()
+
+    env = SyncVectorEnv(env_fns)
+    env.set_attr("gravity", [9.81, 3.72, 8.87, 1.62])
+    gravity = env.get_attr("gravity")
+    assert gravity == (9.81, 3.72, 8.87, 1.62)
+
+    env.close()
 
 
 def test_check_spaces_sync_vector_env():
@@ -150,17 +143,17 @@ def test_check_spaces_sync_vector_env():
 
 def test_custom_space_sync_vector_env():
     env_fns = [make_custom_space_env(i) for i in range(4)]
-    try:
-        env = SyncVectorEnv(env_fns)
-        reset_observations = env.reset()
 
-        assert isinstance(env.single_action_space, CustomSpace)
-        assert isinstance(env.action_space, Tuple)
+    env = SyncVectorEnv(env_fns)
+    reset_observations = env.reset()
 
-        actions = ("action-2", "action-3", "action-5", "action-7")
-        step_observations, rewards, dones, _ = env.step(actions)
-    finally:
-        env.close()
+    assert isinstance(env.single_action_space, CustomSpace)
+    assert isinstance(env.action_space, Tuple)
+
+    actions = ("action-2", "action-3", "action-5", "action-7")
+    step_observations, rewards, dones, _ = env.step(actions)
+
+    env.close()
 
     assert isinstance(env.single_observation_space, CustomSpace)
     assert isinstance(env.observation_space, Tuple)
@@ -188,7 +181,9 @@ def test_sync_vector_env_seed():
         assert np.all(env_action == vector_action)
 
 
-@pytest.mark.parametrize("spec", spec_list, ids=[spec.id for spec in spec_list])
+@pytest.mark.parametrize(
+    "spec", all_testing_env_specs, ids=[spec.id for spec in all_testing_env_specs]
+)
 def test_sync_vector_determinism(spec: EnvSpec, seed: int = 123, n: int = 3):
     """Check that for all environments, the sync vector envs produce the same action samples using the same seeds"""
     env_1 = SyncVectorEnv([make_env(spec.id, seed=seed) for _ in range(n)])

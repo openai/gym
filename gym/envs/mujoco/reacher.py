@@ -1,16 +1,32 @@
-from typing import Optional
-
 import numpy as np
 
 from gym import utils
 from gym.envs.mujoco import mujoco_env
+from gym.spaces import Box
 
 
 class ReacherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
-    def __init__(self, render_mode: Optional[str] = None):
+    metadata = {
+        "render_modes": [
+            "human",
+            "rgb_array",
+            "depth_array",
+            "single_rgb_array",
+            "single_depth_array",
+        ],
+        "render_fps": 50,
+    }
+
+    def __init__(self, **kwargs):
         utils.EzPickle.__init__(self)
+        observation_space = Box(low=-np.inf, high=np.inf, shape=(11,), dtype=np.float64)
         mujoco_env.MujocoEnv.__init__(
-            self, "reacher.xml", 2, render_mode=render_mode, mujoco_bindings="mujoco_py"
+            self,
+            "reacher.xml",
+            2,
+            mujoco_bindings="mujoco_py",
+            observation_space=observation_space,
+            **kwargs
         )
 
     def step(self, a):
@@ -27,6 +43,7 @@ class ReacherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         return ob, reward, done, dict(reward_dist=reward_dist, reward_ctrl=reward_ctrl)
 
     def viewer_setup(self):
+        assert self.viewer is not None
         self.viewer.cam.trackbodyid = 0
 
     def reset_model(self):

@@ -1,9 +1,8 @@
-from typing import Optional
-
 import numpy as np
 
 from gym import utils
 from gym.envs.mujoco import mujoco_env
+from gym.spaces import Box
 
 DEFAULT_CAMERA_CONFIG = {
     "trackbodyid": 2,
@@ -28,9 +27,7 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     connecting the four body parts.
 
     ### Action Space
-    The agent take a 3-element vector for actions.
-    The action space is a continuous `(action, action, action)` all in `[-1, 1]`
-    , where `action` represents the numerical torques applied between *links*
+    The action space is a `Box(-1, 1, (3,), float32)`. An action represents the torques applied between *links*
 
     | Num | Action                             | Control Min | Control Max | Name (in corresponding XML file) | Joint | Unit         |
     |-----|------------------------------------|-------------|-------------|----------------------------------|-------|--------------|
@@ -40,39 +37,22 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     ### Observation Space
 
-    The state space consists of positional values of different body parts of the
+    Observations consist of positional values of different body parts of the
     hopper, followed by the velocities of those individual parts
     (their derivatives) with all the positions ordered before all the velocities.
 
-    The observation is a `ndarray` with shape `(11,)` where the elements
+    By default, observations do not include the x-coordinate of the hopper. It may
+    be included by passing `exclude_current_positions_from_observation=False` during construction.
+    In that case, the observation space will have 12 dimensions where the first dimension
+    represents the x-coordinate of the hopper.
+    Regardless of whether `exclude_current_positions_from_observation` was set to true or false, the x-coordinate
+    will be returned in `info` with key `"x_position"`.
+
+    However, by default, the observation is a `ndarray` with shape `(11,)` where the elements
     correspond to the following:
 
     | Num | Observation                                      | Min  | Max | Name (in corresponding XML file) | Joint | Unit                     |
-    |-----|--------------------------------------------------|------|-----|----------------------------------|-------|--------------------------|
-    | 0   | x-coordinate of the top                          | -Inf | Inf | rootx                            | slide | position (m)             |
-    | 1   | z-coordinate of the top (height of hopper)       | -Inf | Inf | rootz                            | slide | position (m)             |
-    | 2   | angle of the top                                 | -Inf | Inf | rooty                            | hinge | angle (rad)              |
-    | 3   | angle of the thigh joint                         | -Inf | Inf | thigh_joint                      | hinge | angle (rad)              |
-    | 4   | angle of the leg joint                           | -Inf | Inf | leg_joint                        | hinge | angle (rad)              |
-    | 5   | angle of the foot joint                          | -Inf | Inf | foot_joint                       | hinge | angle (rad)              |
-    | 6   | velocity of the x-coordinate of the top          | -Inf | Inf | rootx                            | slide | velocity (m/s)           |
-    | 7   | velocity of the z-coordinate (height) of the top | -Inf | Inf | rootz                            | slide | velocity (m/s)           |
-    | 8   | angular velocity of the angle of the top         | -Inf | Inf | rooty                            | hinge | angular velocity (rad/s) |
-    | 9   | angular velocity of the thigh hinge              | -Inf | Inf | thigh_joint                      | hinge | angular velocity (rad/s) |
-    | 10  | angular velocity of the leg hinge                | -Inf | Inf | leg_joint                        | hinge | angular velocity (rad/s) |
-    | 11  | angular velocity of the foot hinge               | -Inf | Inf | foot_joint                       | hinge | angular velocity (rad/s) |
-
-
-
-    **Note:**
-    In practice (and Gym implementation), the first positional element is
-    omitted from the state space since the reward function is calculated based
-    on that value. This value is hidden from the algorithm, which in turn has
-    to develop an abstract understanding of it from the observed rewards.
-    Therefore, observation space has shape `(11,)` instead of `(12,)` and looks like:
-
-    | Num | Observation                                      | Min  | Max | Name (in corresponding XML file) | Joint | Unit                     |
-    |-----|--------------------------------------------------|------|-----|----------------------------------|-------|--------------------------|
+    | --- | ------------------------------------------------ | ---- | --- | -------------------------------- | ----- | ------------------------ |
     | 0   | z-coordinate of the top (height of hopper)       | -Inf | Inf | rootz                            | slide | position (m)             |
     | 1   | angle of the top                                 | -Inf | Inf | rooty                            | hinge | angle (rad)              |
     | 2   | angle of the thigh joint                         | -Inf | Inf | thigh_joint                      | hinge | angle (rad)              |
@@ -85,41 +65,46 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     | 9   | angular velocity of the leg hinge                | -Inf | Inf | leg_joint                        | hinge | angular velocity (rad/s) |
     | 10  | angular velocity of the foot hinge               | -Inf | Inf | foot_joint                       | hinge | angular velocity (rad/s) |
 
+
     ### Rewards
     The reward consists of three parts:
-    - *alive bonus*: Every timestep that the hopper is alive, it gets a reward of 1,
-    - *reward_forward*: A reward of hopping forward which is measured
-    as *(x-coordinate before action - x-coordinate after action)/dt*. *dt* is
+    - *healthy_reward*: Every timestep that the hopper is healthy (see definition in section "Episode Termination"), it gets a reward of fixed value `healthy_reward`.
+    - *forward_reward*: A reward of hopping forward which is measured
+    as *`forward_reward_weight` * (x-coordinate before action - x-coordinate after action)/dt*. *dt* is
     the time between actions and is dependent on the frame_skip parameter
-    (default is 4), where the *dt* for one frame is 0.002 - making the
-    default *dt = 4*0.002 = 0.008*. This reward would be positive if the hopper
-    hops forward (right) desired.
-    - *reward_control*: A negative reward for penalising the hopper if it takes
-    actions that are too large. It is measured as *-coefficient **x**
-    sum(action<sup>2</sup>)* where *coefficient* is a parameter set for the
+    (fixed to 4), where the frametime is 0.002 - making the
+    default *dt = 4 * 0.002 = 0.008*. This reward would be positive if the hopper
+    hops forward (positive x direction).
+    - *ctrl_cost*: A cost for penalising the hopper if it takes
+    actions that are too large. It is measured as *`ctrl_cost_weight` *
+    sum(action<sup>2</sup>)* where *`ctrl_cost_weight`* is a parameter set for the
     control and has a default value of 0.001
 
-    The total reward returned is ***reward*** *=* *alive bonus + reward_forward + reward_control*
+    The total reward returned is ***reward*** *=* *healthy_reward + forward_reward - ctrl_cost* and `info` will also contain the individual reward terms
 
     ### Starting State
     All observations start in state
     (0.0, 1.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0) with a uniform noise
-     in the range of [-0.005, 0.005] added to the values for stochasticity.
+     in the range of [-`reset_noise_scale`, `reset_noise_scale`] added to the values for stochasticity.
 
     ### Episode Termination
-    The episode terminates when any of the following happens:
+    The hopper is said to be unhealthy if any of the following happens:
+
+    1. An element of `observation[1:]` (if  `exclude_current_positions_from_observation=True`, else `observation[2:]`) is no longer contained in the closed interval specified by the argument `healthy_state_range`
+    2. The height of the hopper (`observation[0]` if  `exclude_current_positions_from_observation=True`, else `observation[1]`) is no longer contained in the closed interval specified by the argument `healthy_z_range` (usually meaning that it has fallen)
+    3. The angle (`observation[1]` if  `exclude_current_positions_from_observation=True`, else `observation[2]`) is no longer contained in the closed interval specified by the argument `healthy_angle_range`
+
+    If `terminate_when_unhealthy=True` is passed during construction (which is the default),
+    the episode terminates when any of the following happens:
 
     1. The episode duration reaches a 1000 timesteps
-    2. Any of the state space values is no longer finite
-    3. The absolute value of any of the state variable indexed (angle and beyond) is greater than 100
-    4. The height of the hopper becomes greater than 0.7 metres (hopper has hopped too high).
-    5. The absolute value of the angle (index 2) is less than 0.2 radians (hopper has fallen down).
+    2. The hopper is unhealthy
+
+    If `terminate_when_unhealthy=False` is passed, the episode is terminated only when 1000 timesteps are exceeded.
 
     ### Arguments
 
-    No additional arguments are currently supported (in v2 and lower), but
-    modifications can be made to the XML file in the assets folder
-    (or by changing the path to a modified XML file in another folder).
+    No additional arguments are currently supported in v2 and lower.
 
     ```
     env = gym.make('Hopper-v2')
@@ -131,6 +116,19 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     env = gym.make('Hopper-v4', ctrl_cost_weight=0.1, ....)
     ```
 
+    | Parameter                                    | Type      | Default               | Description                                                                                                                                                                     |
+    | -------------------------------------------- | --------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+    | `xml_file`                                   | **str**   | `"hopper.xml"`        | Path to a MuJoCo model                                                                                                                                                          |
+    | `forward_reward_weight`                      | **float** | `1.0`                 | Weight for _forward_reward_ term (see section on reward)                                                                                                                        |
+    | `ctrl_cost_weight`                           | **float** | `0.001`               | Weight for _ctrl_cost_ reward (see section on reward)                                                                                                                           |
+    | `healthy_reward`                             | **float** | `1`                   | Constant reward given if the ant is "healthy" after timestep                                                                                                                    |
+    | `terminate_when_unhealthy`                   | **bool**  | `True`                | If true, issue a done signal if the hopper is no longer healthy                                                                                                                 |
+    | `healthy_state_range`                        | **tuple** | `(-100, 100)`         | The elements of `observation[1:]` (if `exclude_current_positions_from_observation=True`, else `observation[2:]`) must be in this range for the hopper to be considered healthy  |
+    | `healthy_z_range`                            | **tuple** | `(0.7, float("inf"))` | The z-coordinate must be in this range for the hopper to be considered healthy                                                                                                  |
+    | `healthy_angle_range`                        | **tuple** | `(-0.2, 0.2)`         | The angle given by `observation[1]` (if `exclude_current_positions_from_observation=True`, else `observation[2]`) must be in this range for the hopper to be considered healthy |
+    | `reset_noise_scale`                          | **float** | `5e-3`                | Scale of random perturbations of initial position and velocity (see section on Starting State)                                                                                  |
+    | `exclude_current_positions_from_observation` | **bool**  | `True`                | Whether or not to omit the x-coordinate from observations. Excluding the position can serve as an inductive bias to induce position-agnostic behavior in policies               |
+
     ### Version History
 
     * v4: all mujoco environments now use the mujoco bindings in mujoco>=2.1.3
@@ -140,9 +138,19 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     * v0: Initial versions release (1.0.0)
     """
 
+    metadata = {
+        "render_modes": [
+            "human",
+            "rgb_array",
+            "depth_array",
+            "single_rgb_array",
+            "single_depth_array",
+        ],
+        "render_fps": 125,
+    }
+
     def __init__(
         self,
-        render_mode: Optional[str] = None,
         forward_reward_weight=1.0,
         ctrl_cost_weight=1e-3,
         healthy_reward=1.0,
@@ -152,6 +160,7 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         healthy_angle_range=(-0.2, 0.2),
         reset_noise_scale=5e-3,
         exclude_current_positions_from_observation=True,
+        **kwargs
     ):
         utils.EzPickle.__init__(**locals())
 
@@ -172,7 +181,18 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             exclude_current_positions_from_observation
         )
 
-        mujoco_env.MujocoEnv.__init__(self, "hopper.xml", 4, render_mode=render_mode)
+        if exclude_current_positions_from_observation:
+            observation_space = Box(
+                low=-np.inf, high=np.inf, shape=(11,), dtype=np.float64
+            )
+        else:
+            observation_space = Box(
+                low=-np.inf, high=np.inf, shape=(12,), dtype=np.float64
+            )
+
+        mujoco_env.MujocoEnv.__init__(
+            self, "hopper.xml", 4, observation_space=observation_space, **kwargs
+        )
 
     @property
     def healthy_reward(self):
@@ -259,6 +279,7 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         return observation
 
     def viewer_setup(self):
+        assert self.viewer is not None
         for key, value in DEFAULT_CAMERA_CONFIG.items():
             if isinstance(value, np.ndarray):
                 getattr(self.viewer.cam, key)[:] = value

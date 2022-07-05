@@ -9,7 +9,7 @@ pytest.importorskip("gym.envs.atari")
 
 @pytest.fixture(scope="module")
 def env_fn():
-    return lambda: gym.make("PongNoFrameskip-v4")
+    return lambda: gym.make("PongNoFrameskip-v4", disable_env_checker=True)
 
 
 def test_atari_preprocessing_grayscale(env_fn):

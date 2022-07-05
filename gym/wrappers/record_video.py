@@ -1,6 +1,6 @@
 """Wrapper for recording videos."""
 import os
-from typing import Callable
+from typing import Callable, Optional
 
 import gym
 from gym import logger
@@ -67,7 +67,7 @@ class RecordVideo(gym.Wrapper):
 
         self.episode_trigger = episode_trigger
         self.step_trigger = step_trigger
-        self.video_recorder = None
+        self.video_recorder: Optional[video_recorder.VideoRecorder] = None
 
         self.video_folder = os.path.abspath(video_folder)
         # Create output folder if needed
@@ -93,6 +93,7 @@ class RecordVideo(gym.Wrapper):
         observations = super().reset(**kwargs)
         self.done = False
         if self.recording:
+            assert self.video_recorder is not None
             self.video_recorder.frames = []
             self.video_recorder.capture_frame()
             self.recorded_frames += 1
@@ -145,6 +146,7 @@ class RecordVideo(gym.Wrapper):
                 self.done = True
 
             if self.recording:
+                assert self.video_recorder is not None
                 self.video_recorder.capture_frame()
                 self.recorded_frames += 1
                 if self.video_length > 0:
@@ -165,6 +167,7 @@ class RecordVideo(gym.Wrapper):
     def close_video_recorder(self):
         """Closes the video recorder if currently recording."""
         if self.recording:
+            assert self.video_recorder is not None
             self.video_recorder.close()
         self.recording = False
         self.recorded_frames = 1

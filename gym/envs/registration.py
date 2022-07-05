@@ -23,7 +23,7 @@ from typing import (
 import numpy as np
 
 from gym.envs.__relocated__ import internal_env_relocation_map
-from gym.wrappers import AutoResetWrapper, OrderEnforcing, TimeLimit
+from gym.wrappers import AutoResetWrapper, HumanRendering, OrderEnforcing, TimeLimit
 from gym.wrappers.env_checker import PassiveEnvChecker
 
 if sys.version_info < (3, 10):
@@ -325,7 +325,7 @@ def make(id: Literal["LunarLander-v2", "LunarLanderContinuous-v2"], **kwargs) ->
 @overload
 def make(id: Literal["BipedalWalker-v3", "BipedalWalkerHardcore-v3"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, Sequence[SupportsFloat]]]: ...
 @overload
-def make(id: Literal["CarRacing-v1", "CarRacingDomainRandomize-v1"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, Sequence[SupportsFloat]]]: ...
+def make(id: Literal["CarRacing-v1"], **kwargs) -> Env[np.ndarray, Union[np.ndarray, Sequence[SupportsFloat]]]: ...
 
 # Toy Text
 # ----------------------------------------
@@ -589,7 +589,51 @@ def make(
         # Assume it's a string
         env_creator = load(spec_.entry_point)
 
-    env = env_creator(**_kwargs)
+    mode = _kwargs.get("render_mode")
+    apply_human_rendering = False
+
+    # If we have access to metadata we check that "render_mode" is valid
+    if hasattr(env_creator, "metadata"):
+        render_modes = env_creator.metadata["render_modes"]
+
+        # We might be able to fall back to the HumanRendering wrapper if 'human' rendering is not supported natively
+        if (
+            mode == "human"
+            and "human" not in render_modes
+            and ("single_rgb_array" in render_modes or "rgb_array" in render_modes)
+        ):
+            logger.warn(
+                "You are trying to use 'human' rendering for an environment that doesn't natively support it. "
+                "The HumanRendering wrapper is being applied to your environment."
+            )
+            _kwargs["render_mode"] = (
+                "single_rgb_array"
+                if "single_rgb_array" in env_creator.metadata["render_modes"]
+                else "rgb_array"
+            )
+            apply_human_rendering = True
+        elif mode is not None and mode not in render_modes:
+            raise error.Error(
+                f"Invalid render_mode provided: {mode}. Valid render_modes: None, {', '.join(render_modes)}"
+            )
+
+    try:
+        env = env_creator(**_kwargs)
+    except TypeError as e:
+        if (
+            str(e).find("got an unexpected keyword argument 'render_mode'") >= 0
+            and apply_human_rendering
+        ):
+            raise error.Error(
+                f"You passed render_mode='human' although {id} doesn't implement human-rendering natively. "
+                "Gym tried to apply the HumanRendering wrapper but it looks like your environment is using the old "
+                "rendering API, which is not supported by the HumanRendering wrapper."
+            )
+        else:
+            raise e
+
+    if apply_human_rendering:
+        env = HumanRendering(env)
 
     # Copies the environment creation specification and kwargs to add to the environment specification details
     spec_ = copy.deepcopy(spec_)

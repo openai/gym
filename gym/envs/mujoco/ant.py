@@ -1,15 +1,33 @@
-from typing import Optional
-
 import numpy as np
 
 from gym import utils
 from gym.envs.mujoco import mujoco_env
+from gym.spaces import Box
 
 
 class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
-    def __init__(self, render_mode: Optional[str] = None):
+    metadata = {
+        "render_modes": [
+            "human",
+            "rgb_array",
+            "depth_array",
+            "single_rgb_array",
+            "single_depth_array",
+        ],
+        "render_fps": 20,
+    }
+
+    def __init__(self, **kwargs):
+        observation_space = Box(
+            low=-np.inf, high=np.inf, shape=(111,), dtype=np.float64
+        )
         mujoco_env.MujocoEnv.__init__(
-            self, "ant.xml", 5, render_mode=render_mode, mujoco_bindings="mujoco_py"
+            self,
+            "ant.xml",
+            5,
+            mujoco_bindings="mujoco_py",
+            observation_space=observation_space,
+            **kwargs
         )
         utils.EzPickle.__init__(self)
 
@@ -61,4 +79,5 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         return self._get_obs()
 
     def viewer_setup(self):
+        assert self.viewer is not None
         self.viewer.cam.distance = self.model.stat.extent * 0.5

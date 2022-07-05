@@ -7,6 +7,7 @@ from gym.wrappers.filter_observation import FilterObservation
 from gym.wrappers.flatten_observation import FlattenObservation
 from gym.wrappers.frame_stack import FrameStack, LazyFrames
 from gym.wrappers.gray_scale_observation import GrayScaleObservation
+from gym.wrappers.human_rendering import HumanRendering
 from gym.wrappers.normalize import NormalizeObservation, NormalizeReward
 from gym.wrappers.order_enforcing import OrderEnforcing
 from gym.wrappers.record_episode_statistics import RecordEpisodeStatistics

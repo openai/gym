@@ -2,7 +2,6 @@
 import numpy as np
 
 import gym
-from gym.error import DependencyNotInstalled
 from gym.spaces import Box
 
 try:
@@ -61,7 +60,7 @@ class AtariPreprocessing(gym.Wrapper):
         """
         super().__init__(env)
         if cv2 is None:
-            raise DependencyNotInstalled(
+            raise gym.error.DependencyNotInstalled(
                 "opencv-python package not installed, run `pip install gym[other]` to get dependencies for atari"
             )
         assert frame_skip > 0
@@ -87,6 +86,7 @@ class AtariPreprocessing(gym.Wrapper):
         self.scale_obs = scale_obs
 
         # buffer of most recent two observations for max pooling
+        assert isinstance(env.observation_space, Box)
         if grayscale_obs:
             self.obs_buffer = [
                 np.empty(env.observation_space.shape[:2], dtype=np.uint8),
@@ -114,7 +114,7 @@ class AtariPreprocessing(gym.Wrapper):
 
     def step(self, action):
         """Applies the preprocessing for an :meth:`env.step`."""
-        total_reward = 0.0
+        total_reward, done, info = 0.0, False, {}
 
         for t in range(self.frame_skip):
             _, reward, done, info = self.env.step(action)
@@ -180,6 +180,7 @@ class AtariPreprocessing(gym.Wrapper):
     def _get_obs(self):
         if self.frame_skip > 1:  # more efficient in-place pooling
             np.maximum(self.obs_buffer[0], self.obs_buffer[1], out=self.obs_buffer[0])
+        assert cv2 is not None
         obs = cv2.resize(
             self.obs_buffer[0],
             (self.screen_size, self.screen_size),

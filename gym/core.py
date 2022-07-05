@@ -1,6 +1,7 @@
 """Core API for Environment, Wrapper, ActionWrapper, RewardWrapper and ObservationWrapper."""
 import sys
 from typing import (
+    TYPE_CHECKING,
     Any,
     Dict,
     Generic,
@@ -17,7 +18,10 @@ from gym.logger import deprecation, warn
 from gym.utils import seeding
 from gym.utils.seeding import RandomNumberGenerator
 
-if sys.version_info == (3, 6):
+if TYPE_CHECKING:
+    from gym.envs.registration import EnvSpec
+
+if sys.version_info[0:2] == (3, 6):
     warn(
         "Gym minimally supports python 3.6 as the python foundation not longer supports the version, please update your version to 3.7+"
     )
@@ -43,7 +47,7 @@ class _EnvDecorator(type):  # TODO: remove with gym 1.0
         def render(
             self: object, *args: Tuple[Any], **kwargs: Dict[str, Any]
         ) -> render_return:
-            if "mode" in kwargs.keys():
+            if "mode" in kwargs.keys() or len(args) > 0:
                 deprecation(
                     "The argument mode in render method is deprecated; "
                     "use render_mode during environment initialization instead.\n"
@@ -64,7 +68,18 @@ class _EnvDecorator(type):  # TODO: remove with gym 1.0
         return render
 
 
-class Env(Generic[ObsType, ActType]):
+decorator = _EnvDecorator
+if sys.version_info[0:2] == (3, 6):
+    # needed for https://github.com/python/typing/issues/449
+    from typing import GenericMeta
+
+    class _GenericEnvDecorator(GenericMeta, _EnvDecorator):
+        pass
+
+    decorator = _GenericEnvDecorator
+
+
+class Env(Generic[ObsType, ActType], metaclass=decorator):
     r"""The main OpenAI Gym class.
 
     It encapsulates an environment with arbitrary behind-the-scenes dynamics.
@@ -91,13 +106,11 @@ class Env(Generic[ObsType, ActType]):
     Note: a default reward range set to :math:`(-\infty,+\infty)` already exists. Set it if you want a narrower range.
     """
 
-    __metaclass__ = _EnvDecorator
-
     # Set this in SOME subclasses
     metadata = {"render_modes": []}
     render_mode = None  # define render_mode if your environment supports rendering
     reward_range = (-float("inf"), float("inf"))
-    spec = None
+    spec: "EnvSpec" = None
 
     # Set these in ALL subclasses
     action_space: spaces.Space[ActType]
@@ -231,7 +244,7 @@ class Env(Generic[ObsType, ActType]):
             there aren't accidental correlations between multiple generators.
 
         Args:
-            seed(Optional int): The seed value for the random number geneartor
+            seed(Optional int): The seed value for the random number generator
 
         Returns:
             seeds (List[int]): Returns the list of seeds used in this environment's random
@@ -386,9 +399,9 @@ class Wrapper(Env[ObsType, ActType]):
         """Resets the environment with kwargs."""
         return self.env.reset(**kwargs)
 
-    def render(self, **kwargs):
-        """Renders the environment with kwargs."""
-        return self.env.render(**kwargs)
+    def render(self, *args, **kwargs):
+        """Renders the environment."""
+        return self.env.render(*args, **kwargs)
 
     def close(self):
         """Closes the environment."""

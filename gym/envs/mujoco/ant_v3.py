@@ -1,9 +1,8 @@
-from typing import Optional
-
 import numpy as np
 
 from gym import utils
 from gym.envs.mujoco import mujoco_env
+from gym.spaces import Box
 
 DEFAULT_CAMERA_CONFIG = {
     "distance": 4.0,
@@ -11,9 +10,19 @@ DEFAULT_CAMERA_CONFIG = {
 
 
 class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
+    metadata = {
+        "render_modes": [
+            "human",
+            "rgb_array",
+            "depth_array",
+            "single_rgb_array",
+            "single_depth_array",
+        ],
+        "render_fps": 20,
+    }
+
     def __init__(
         self,
-        render_mode: Optional[str] = None,
         xml_file="ant.xml",
         ctrl_cost_weight=0.5,
         contact_cost_weight=5e-4,
@@ -23,6 +32,7 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         contact_force_range=(-1.0, 1.0),
         reset_noise_scale=0.1,
         exclude_current_positions_from_observation=True,
+        **kwargs
     ):
         utils.EzPickle.__init__(**locals())
 
@@ -41,7 +51,23 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             exclude_current_positions_from_observation
         )
 
-        mujoco_env.MujocoEnv.__init__(self, xml_file, 5, mujoco_bindings="mujoco_py")
+        if exclude_current_positions_from_observation:
+            observation_space = Box(
+                low=-np.inf, high=np.inf, shape=(111,), dtype=np.float64
+            )
+        else:
+            observation_space = Box(
+                low=-np.inf, high=np.inf, shape=(113,), dtype=np.float64
+            )
+
+        mujoco_env.MujocoEnv.__init__(
+            self,
+            xml_file,
+            5,
+            mujoco_bindings="mujoco_py",
+            observation_space=observation_space,
+            **kwargs
+        )
 
     @property
     def healthy_reward(self):
@@ -147,6 +173,7 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         return observation
 
     def viewer_setup(self):
+        assert self.viewer is not None
         for key, value in DEFAULT_CAMERA_CONFIG.items():
             if isinstance(value, np.ndarray):
                 getattr(self.viewer.cam, key)[:] = value

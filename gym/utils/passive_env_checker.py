@@ -290,7 +290,7 @@ def passive_env_step_check(env, action):
     return result
 
 
-def passive_env_render_check(env, **kwargs):
+def passive_env_render_check(env, *args, **kwargs):
     """A passive check of the `Env.render` that the declared render modes/fps in the metadata of the environment is decleared."""
     render_modes = env.metadata.get("render_modes")
     if render_modes is None:
@@ -307,4 +307,4 @@ def passive_env_render_check(env, **kwargs):
             "rendering may occur at inconsistent fps"
         )
 
-    return env.render(**kwargs)
+    return env.render(*args, **kwargs)

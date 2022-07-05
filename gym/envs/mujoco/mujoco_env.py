@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from functools import partial
 from os import path
 from typing import Optional
 
@@ -6,6 +7,7 @@ import numpy as np
 
 import gym
 from gym import error, logger, spaces
+from gym.spaces import Space
 from gym.utils.renderer import Renderer
 
 DEFAULT_SIZE = 480
@@ -38,7 +40,12 @@ class MujocoEnv(gym.Env):
         self,
         model_path,
         frame_skip,
+        observation_space: Space,
         render_mode: Optional[str] = None,
+        width: int = DEFAULT_SIZE,
+        height: int = DEFAULT_SIZE,
+        camera_id: Optional[int] = None,
+        camera_name: Optional[str] = None,
         mujoco_bindings="mujoco",
     ):
         if model_path.startswith("/"):
@@ -92,38 +99,36 @@ class MujocoEnv(gym.Env):
 
         self.viewer = None
 
-        self.metadata = {
-            "render_modes": [
-                "human",
-                "rgb_array",
-                "depth_array",
-                "single_rgb_array",
-                "single_depth_array",
-            ],
-            "render_fps": int(np.round(1.0 / self.dt)),
-        }
+        assert self.metadata["render_modes"] == [
+            "human",
+            "rgb_array",
+            "depth_array",
+            "single_rgb_array",
+            "single_depth_array",
+        ]
+        assert (
+            int(np.round(1.0 / self.dt)) == self.metadata["render_fps"]
+        ), f'Expected value: {int(np.round(1.0 / self.dt))}, Actual value: {self.metadata["render_fps"]}'
 
         self._set_action_space()
 
-        assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
-        self.renderer = Renderer(self.render_mode, self._render)
+        render_frame = partial(
+            self._render,
+            width=width,
+            height=height,
+            camera_name=camera_name,
+            camera_id=camera_id,
+        )
+        self.renderer = Renderer(self.render_mode, render_frame)
 
-        action = self.action_space.sample()
-        observation, _reward, done, _info = self.step(action)
-        assert not done
-
-        self._set_observation_space(observation)
+        self.observation_space = observation_space
 
     def _set_action_space(self):
         bounds = self.model.actuator_ctrlrange.copy().astype(np.float32)
         low, high = bounds.T
         self.action_space = spaces.Box(low=low, high=high, dtype=np.float32)
         return self.action_space
-
-    def _set_observation_space(self, observation):
-        self.observation_space = convert_observation_to_space(observation)
-        return self.observation_space
 
     # methods to override:
     # ----------------------------
@@ -207,15 +212,23 @@ class MujocoEnv(gym.Env):
 
     def render(
         self,
-        mode="human",
-        width=DEFAULT_SIZE,
-        height=DEFAULT_SIZE,
-        camera_id=None,
-        camera_name=None,
+        mode: str = "human",
+        width: Optional[int] = None,
+        height: Optional[int] = None,
+        camera_id: Optional[int] = None,
+        camera_name: Optional[str] = None,
     ):
         if self.render_mode is not None:
+            assert (
+                width is None
+                and height is None
+                and camera_id is None
+                and camera_name is None
+            ), "Unexpected argument for render. Specify render arguments at environment initialization."
             return self.renderer.get_renders()
         else:
+            width = width if width is not None else DEFAULT_SIZE
+            height = height if height is not None else DEFAULT_SIZE
             return self._render(
                 mode=mode,
                 width=width,
@@ -226,11 +239,11 @@ class MujocoEnv(gym.Env):
 
     def _render(
         self,
-        mode="human",
-        width=DEFAULT_SIZE,
-        height=DEFAULT_SIZE,
-        camera_id=None,
-        camera_name=None,
+        mode: str = "human",
+        width: int = DEFAULT_SIZE,
+        height: int = DEFAULT_SIZE,
+        camera_id: Optional[int] = None,
+        camera_name: Optional[str] = None,
     ):
         assert mode in self.metadata["render_modes"]
 
