@@ -2,12 +2,10 @@
 Utility functions used for classic control environments.
 """
 
-from typing import Optional, Union
-
-import numpy as np
+from typing import Optional, SupportsFloat, Union
 
 
-def verify_number_and_cast(x: Union[int, float, np.ndarray]) -> float:
+def verify_number_and_cast(x: SupportsFloat) -> float:
     """Verify parameter is a single number and cast to a float."""
     try:
         x = float(x)
