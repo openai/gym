@@ -152,7 +152,7 @@ def test_taxi_encode_decode():
     ["Acrobot-v1", "CartPole-v1", "MountainCar-v0", "MountainCarContinuous-v0"],
 )
 @pytest.mark.parametrize(
-    "low_high", [None, (-0.5, 0.5), (np.array(-0.5), np.array(0.5))]
+    "low_high", [None, (-0.4, 0.4), (np.array(-0.4), np.array(0.4))]
 )
 def test_customizable_resets(env_name: str, low_high: Optional[list]):
     env = gym.make(env_name)
