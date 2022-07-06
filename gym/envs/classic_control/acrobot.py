@@ -20,6 +20,7 @@ __author__ = "Christoph Dann <cdann@cdann.de>"
 
 # SOURCE:
 # https://github.com/rlpy/rlpy/blob/master/rlpy/Domains/Acrobot.py
+from gym.envs.classic_control import utils
 from gym.utils.renderer import Renderer
 
 
@@ -187,7 +188,12 @@ class AcrobotEnv(core.Env):
         options: Optional[dict] = None
     ):
         super().reset(seed=seed)
-        self.state = self.np_random.uniform(low=-0.1, high=0.1, size=(4,)).astype(
+        # Note that if you use custom reset bounds, it may lead to out-of-bound
+        # state/observations.
+        low, high = utils.maybe_parse_reset_bounds(
+            options, -0.1, 0.1  # default low
+        )  # default high
+        self.state = self.np_random.uniform(low=low, high=high, size=(4,)).astype(
             np.float32
         )
 
