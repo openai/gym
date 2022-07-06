@@ -1,7 +1,7 @@
 import numpy as np
 
 from gym import utils
-from gym.envs.mujoco import mujoco_env
+from gym.envs.mujoco import MuJocoPyEnv
 from gym.spaces import Box
 
 DEFAULT_CAMERA_CONFIG = {
@@ -12,7 +12,7 @@ DEFAULT_CAMERA_CONFIG = {
 }
 
 
-class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
+class Walker2dEnv(MuJocoPyEnv, utils.EzPickle):
     metadata = {
         "render_modes": [
             "human",
@@ -63,13 +63,8 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
                 low=-np.inf, high=np.inf, shape=(18,), dtype=np.float64
             )
 
-        mujoco_env.MujocoEnv.__init__(
-            self,
-            xml_file,
-            4,
-            mujoco_bindings="mujoco_py",
-            observation_space=observation_space,
-            **kwargs
+        MuJocoPyEnv.__init__(
+            self, xml_file, 4, observation_space=observation_space, **kwargs
         )
 
     @property
