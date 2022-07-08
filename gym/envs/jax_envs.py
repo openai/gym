@@ -1,9 +1,9 @@
-import abc
 import inspect
-from typing import Any, Callable, Dict, Optional, Tuple, Union
+from typing import Any, Callable, Dict, Generic, Optional, Tuple, TypeVar, Union
 
 import jax
 import jumpy as jp
+import numpy as np
 from flax import struct
 
 import gym
@@ -12,9 +12,11 @@ from gym.core import ActType, ObsType
 from gym.utils import seeding
 from gym.vector.utils import batch_space
 
+StateType = TypeVar("StateType")
+
 
 @struct.dataclass
-class JaxState:
+class JaxState(Generic[StateType]):
     """Environment state.
 
     * state: the hidden environment state
@@ -27,47 +29,50 @@ class JaxState:
 
     state: struct.dataclass
     obs: jp.ndarray
-    reward: jp.ndarray
-    terminate: jp.ndarray
-    truncate: jp.ndarray
-    info: Dict[str, Any]
+    reward: jp.ndarray = struct.field(default_factory=int)
+    terminated: jp.ndarray = struct.field(default_factory=bool)
+    truncated: jp.ndarray = struct.field(default_factory=bool)
+    info: Dict[str, Any] = struct.field(default_factory=dict)
 
 
-class JaxEnv(gym.Env[ObsType, ActType], abc.ABC):
+class JaxEnv(gym.Env[ObsType, ActType]):
     def __init__(
         self,
         observation_space: spaces.Space,
         action_space: spaces.Space,
-        reset_fn: Callable[[jax.ShapedArray, Optional[Dict[str, Any]]], JaxState],
-        step_fn: Callable[
-            [JaxState, jax.ShapedArray, jax.ShapedArray],
-            Tuple[JaxState, jax.ShapedArray],
+        reset_fn: Callable[
+            [jp.ndarray, Optional[Dict[str, Any]]], Tuple[JaxState, jp.ndarray]
         ],
-        jit_reset_fn: bool = True,
-        jit_step_fn: bool = True,
+        step_fn: Callable[
+            [JaxState, jp.ndarray, jp.ndarray],
+            Tuple[JaxState, jp.ndarray],
+        ],
+        jit_fn: bool = True,
     ):
         self.observation_space = observation_space
         self.action_space = action_space
 
         reset_signature = inspect.signature(reset_fn)
-        if "self" in reset_signature:
+        if "self" in reset_signature.parameters:
             logger.warn(
                 "The reset function contains the argument `self`, we recommend that the reset function is stateless and not include `self` for optimisation."
             )
         step_signature = inspect.signature(step_fn)
-        if "self" in step_signature:
+        if "self" in step_signature.parameters:
             logger.warn(
                 "The step function contains the argument `self`, we recommend that the step function is stateless and not include `self` for optimisation."
             )
 
         self.internal_reset = (
-            jax.jit(reset_fn, static_argnums=[1]) if jit_reset_fn else reset_fn
+            jax.jit(reset_fn, static_argnums=[1]) if jit_fn else reset_fn
         )
-        self.internal_step = jax.jit(step_fn) if jit_step_fn else step_fn
+        self.internal_step = jax.jit(step_fn) if jit_fn else step_fn
 
         self.state: Optional[JaxState] = None
         _, seed = seeding.np_random()
-        self.np_random = jax.random.PRNGKey(seed)
+        self.np_random = jax.random.PRNGKey(seed % np.iinfo(np.int64).max)
+
+        self._is_closed = False
 
     def reset(
         self,
@@ -98,10 +103,17 @@ class JaxEnv(gym.Env[ObsType, ActType], abc.ABC):
         return (
             self.state.obs,
             self.state.reward,
-            self.state.terminate,
-            self.state.truncate,
+            self.state.terminated,
+            self.state.truncated,
             self.state.info,
         )
+
+    def close(self):
+        self._is_closed = True
+
+    def __del__(self):
+        if getattr(self, "_is_close", False):
+            self.close()
 
 
 class VectorizeJaxEnv(gym.Env):
@@ -109,8 +121,7 @@ class VectorizeJaxEnv(gym.Env):
         self,
         env: JaxEnv,
         num_envs: int,
-        reset_device_parallelism: bool = False,
-        step_device_parallelism: bool = False,
+        device_parallelism: bool = False,
     ):
         self.env = env
 
@@ -124,7 +135,7 @@ class VectorizeJaxEnv(gym.Env):
 
         self.is_vector_env = True
 
-        if reset_device_parallelism:
+        if device_parallelism:
             self.vectorise_reset = jax.pmap(
                 env.internal_reset,
                 in_axes=[0, None],
@@ -132,15 +143,6 @@ class VectorizeJaxEnv(gym.Env):
                 axis_name="gym-reset",
                 axis_size=num_envs,
             )
-        else:
-            jax.vmap(
-                env.internal_reset,
-                in_axes=[0, None],
-                axis_name="gym-reset",
-                axis_size=num_envs,
-            )
-
-        if step_device_parallelism:
             self.vectorise_step = jax.pmap(
                 env.internal_step,
                 in_axes=[0, 0, 0],
@@ -148,6 +150,12 @@ class VectorizeJaxEnv(gym.Env):
                 axis_size=num_envs,
             )
         else:
+            self.vectorise_reset = jax.vmap(
+                env.internal_reset,
+                in_axes=[0, None],
+                axis_name="gym-reset",
+                axis_size=num_envs,
+            )
             self.vectorise_step = jax.vmap(
                 env.internal_step,
                 in_axes=[0, 0, 0],
@@ -158,7 +166,7 @@ class VectorizeJaxEnv(gym.Env):
         self.state: Optional[JaxState] = None
         _, seed = seeding.np_random()
         self.np_random: jp.ndarray = jax.random.split(
-            jax.random.PRNGKey(seed), num_envs
+            jax.random.PRNGKey(seed % np.iinfo(np.int64).max), num_envs
         )
 
     def reset(
@@ -187,8 +195,8 @@ class VectorizeJaxEnv(gym.Env):
         return (
             self.state.obs,
             self.state.reward,
-            self.state.terminate,
-            self.state.truncate,
+            self.state.terminated,
+            self.state.truncated,
             self.state.info,
         )
 
