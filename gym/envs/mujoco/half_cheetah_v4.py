@@ -3,7 +3,7 @@ __credits__ = ["Rushiv Arora"]
 import numpy as np
 
 from gym import utils
-from gym.envs.mujoco import mujoco_env
+from gym.envs.mujoco import MujocoEnv
 from gym.spaces import Box
 
 DEFAULT_CAMERA_CONFIG = {
@@ -11,7 +11,7 @@ DEFAULT_CAMERA_CONFIG = {
 }
 
 
-class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
+class HalfCheetahEnv(MujocoEnv, utils.EzPickle):
     """
     ### Description
 
@@ -172,7 +172,7 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
                 low=-np.inf, high=np.inf, shape=(18,), dtype=np.float64
             )
 
-        mujoco_env.MujocoEnv.__init__(
+        MujocoEnv.__init__(
             self, "half_cheetah.xml", 5, observation_space=observation_space, **kwargs
         )
 

@@ -1,11 +1,11 @@
 import numpy as np
 
 from gym import utils
-from gym.envs.mujoco import mujoco_env
+from gym.envs.mujoco import MujocoEnv
 from gym.spaces import Box
 
 
-class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
+class HumanoidStandupEnv(MujocoEnv, utils.EzPickle):
     """
     ### Description
 
@@ -193,7 +193,7 @@ class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         observation_space = Box(
             low=-np.inf, high=np.inf, shape=(376,), dtype=np.float64
         )
-        mujoco_env.MujocoEnv.__init__(
+        MujocoEnv.__init__(
             self,
             "humanoidstandup.xml",
             5,

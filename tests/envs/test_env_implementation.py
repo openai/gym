@@ -1,3 +1,6 @@
+from typing import Optional
+
+import numpy as np
 import pytest
 
 import gym
@@ -142,3 +145,80 @@ def test_taxi_encode_decode():
             env.encode(*env.decode(state)) == state
         ), f"state={state}, encode(decode(state))={env.encode(*env.decode(state))}"
         state, _, _, _, _ = env.step(env.action_space.sample())
+
+
+@pytest.mark.parametrize(
+    "env_name",
+    ["Acrobot-v1", "CartPole-v1", "MountainCar-v0", "MountainCarContinuous-v0"],
+)
+@pytest.mark.parametrize(
+    "low_high", [None, (-0.4, 0.4), (np.array(-0.4), np.array(0.4))]
+)
+def test_customizable_resets(env_name: str, low_high: Optional[list]):
+    env = gym.make(env_name)
+    env.action_space.seed(0)
+    # First ensure we can do a reset.
+    if low_high is None:
+        env.reset()
+    else:
+        low, high = low_high
+        env.reset(options={"low": low, "high": high})
+        assert np.all((env.state >= low) & (env.state <= high))
+    # Make sure we can take a step.
+    env.step(env.action_space.sample())
+
+
+@pytest.mark.parametrize(
+    "env_name", ["CartPole-v1", "MountainCar-v0", "MountainCarContinuous-v0"]
+)
+@pytest.mark.parametrize("low_high", [(-10.0, -9.0), (np.array(-10.0), np.array(-9.0))])
+def test_customizable_out_of_bounds_resets(env_name: str, low_high: Optional[list]):
+    env = gym.make(env_name)
+    low, high = low_high
+    with pytest.raises(AssertionError):
+        env.reset(options={"low": low, "high": high})
+
+
+# We test Pendulum separately, as the parameters are handled differently.
+@pytest.mark.parametrize(
+    "low_high",
+    [
+        None,
+        (1.2, 1.0),
+        (np.array(1.2), np.array(1.0)),
+    ],
+)
+def test_customizable_pendulum_resets(low_high: Optional[list]):
+    env = gym.make("Pendulum-v1")
+    env.action_space.seed(0)
+    # First ensure we can do a reset and the values are within expected ranges.
+    if low_high is None:
+        env.reset()
+    else:
+        low, high = low_high
+        # Pendulum is initialized a little differently than the other
+        # environments, where we specify the x and y values for the upper
+        # limit (and lower limit is just the negative of it).
+        env.reset(options={"x_init": low, "y_init": high})
+    # Make sure we can take a step.
+    env.step(env.action_space.sample())
+
+
+@pytest.mark.parametrize(
+    "env_name",
+    ["Acrobot-v1", "CartPole-v1", "MountainCar-v0", "MountainCarContinuous-v0"],
+)
+@pytest.mark.parametrize(
+    "low_high",
+    [
+        ("x", "y"),
+        (10.0, 8.0),
+        ([-1.0, -1.0], [1.0, 1.0]),
+        (np.array([-1.0, -1.0]), np.array([1.0, 1.0])),
+    ],
+)
+def test_invalid_customizable_resets(env_name: str, low_high: list):
+    env = gym.make(env_name)
+    low, high = low_high
+    with pytest.raises(ValueError):
+        env.reset(options={"low": low, "high": high})

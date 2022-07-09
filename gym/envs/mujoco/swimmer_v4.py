@@ -3,13 +3,13 @@ __credits__ = ["Rushiv Arora"]
 import numpy as np
 
 from gym import utils
-from gym.envs.mujoco import mujoco_env
+from gym.envs.mujoco import MujocoEnv
 from gym.spaces import Box
 
 DEFAULT_CAMERA_CONFIG = {}
 
 
-class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
+class SwimmerEnv(MujocoEnv, utils.EzPickle):
     """
     ### Description
 
@@ -161,7 +161,7 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             observation_space = Box(
                 low=-np.inf, high=np.inf, shape=(10,), dtype=np.float64
             )
-        mujoco_env.MujocoEnv.__init__(
+        MujocoEnv.__init__(
             self, "swimmer.xml", 4, observation_space=observation_space, **kwargs
         )
 

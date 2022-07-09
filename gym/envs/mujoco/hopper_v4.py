@@ -1,7 +1,7 @@
 import numpy as np
 
 from gym import utils
-from gym.envs.mujoco import mujoco_env
+from gym.envs.mujoco import MujocoEnv
 from gym.spaces import Box
 
 DEFAULT_CAMERA_CONFIG = {
@@ -12,7 +12,7 @@ DEFAULT_CAMERA_CONFIG = {
 }
 
 
-class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
+class HopperEnv(MujocoEnv, utils.EzPickle):
     """
     ### Description
 
@@ -190,7 +190,7 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
                 low=-np.inf, high=np.inf, shape=(12,), dtype=np.float64
             )
 
-        mujoco_env.MujocoEnv.__init__(
+        MujocoEnv.__init__(
             self, "hopper.xml", 4, observation_space=observation_space, **kwargs
         )
 
