@@ -172,7 +172,9 @@ def test_make_render_mode():
         assert env.render_mode == valid_render_modes[0]
         env.close()
 
-    assert len(warnings) == 0
+    for warning in warnings.list:
+        if not re.compile(".*step API.*").match(warning.message.args[0]):
+            raise gym.error.Error(f"Unexpected warning: {warning.message}")
 
     # Make sure that native rendering is used when possible
     env = gym.make("CartPole-v1", render_mode="human", disable_env_checker=True)

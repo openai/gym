@@ -97,9 +97,9 @@ class AntEnv(MuJocoPyEnv, utils.EzPickle):
         return is_healthy
 
     @property
-    def done(self):
-        done = not self.is_healthy if self._terminate_when_unhealthy else False
-        return done
+    def terminated(self):
+        terminated = not self.is_healthy if self._terminate_when_unhealthy else False
+        return terminated
 
     def step(self, action):
         xy_position_before = self.get_body_com("torso")[:2].copy()
@@ -121,7 +121,7 @@ class AntEnv(MuJocoPyEnv, utils.EzPickle):
         self.renderer.render_step()
 
         reward = rewards - costs
-        done = self.done
+        terminated = self.terminated
         observation = self._get_obs()
         info = {
             "reward_forward": forward_reward,
@@ -136,7 +136,7 @@ class AntEnv(MuJocoPyEnv, utils.EzPickle):
             "forward_reward": forward_reward,
         }
 
-        return observation, reward, done, info
+        return observation, reward, terminated, False, info
 
     def _get_obs(self):
         position = self.sim.data.qpos.flat.copy()

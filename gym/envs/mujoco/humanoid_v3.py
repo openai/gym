@@ -99,9 +99,9 @@ class HumanoidEnv(MuJocoPyEnv, utils.EzPickle):
         return is_healthy
 
     @property
-    def done(self):
-        done = (not self.is_healthy) if self._terminate_when_unhealthy else False
-        return done
+    def terminated(self):
+        terminated = (not self.is_healthy) if self._terminate_when_unhealthy else False
+        return terminated
 
     def _get_obs(self):
         position = self.sim.data.qpos.flat.copy()
@@ -148,7 +148,7 @@ class HumanoidEnv(MuJocoPyEnv, utils.EzPickle):
 
         observation = self._get_obs()
         reward = rewards - costs
-        done = self.done
+        terminated = self.terminated
         info = {
             "reward_linvel": forward_reward,
             "reward_quadctrl": -ctrl_cost,
@@ -162,7 +162,7 @@ class HumanoidEnv(MuJocoPyEnv, utils.EzPickle):
             "forward_reward": forward_reward,
         }
 
-        return observation, reward, done, info
+        return observation, reward, terminated, False, info
 
     def reset_model(self):
         noise_low = -self._reset_noise_scale

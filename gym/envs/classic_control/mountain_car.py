@@ -78,11 +78,11 @@ class MountainCarEnv(gym.Env):
     The position of the car is assigned a uniform random value in *[-0.6 , -0.4]*.
     The starting velocity of the car is always assigned to 0.
 
-    ### Episode Termination
+    ### Episode End
 
-    The episode terminates if either of the following happens:
-    1. The position of the car is greater than or equal to 0.5 (the goal position on top of the right hill)
-    2. The length of the episode is 200.
+    The episode ends if either of the following happens:
+    1. Termination: The position of the car is greater than or equal to 0.5 (the goal position on top of the right hill)
+    2. Truncation: The length of the episode is 200.
 
 
     ### Arguments
@@ -139,13 +139,14 @@ class MountainCarEnv(gym.Env):
         if position == self.min_position and velocity < 0:
             velocity = 0
 
-        done = bool(position >= self.goal_position and velocity >= self.goal_velocity)
+        terminated = bool(
+            position >= self.goal_position and velocity >= self.goal_velocity
+        )
         reward = -1.0
 
         self.state = (position, velocity)
-
         self.renderer.render_step()
-        return np.array(self.state, dtype=np.float32), reward, done, {}
+        return np.array(self.state, dtype=np.float32), reward, terminated, False, {}
 
     def reset(
         self,

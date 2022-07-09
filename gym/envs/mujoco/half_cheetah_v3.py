@@ -75,7 +75,7 @@ class HalfCheetahEnv(MuJocoPyEnv, utils.EzPickle):
 
         observation = self._get_obs()
         reward = forward_reward - ctrl_cost
-        done = False
+        terminated = False
         info = {
             "x_position": x_position_after,
             "x_velocity": x_velocity,
@@ -83,7 +83,7 @@ class HalfCheetahEnv(MuJocoPyEnv, utils.EzPickle):
             "reward_ctrl": -ctrl_cost,
         }
 
-        return observation, reward, done, info
+        return observation, reward, terminated, False, info
 
     def _get_obs(self):
         position = self.sim.data.qpos.flat.copy()

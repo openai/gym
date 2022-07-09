@@ -15,6 +15,7 @@ def make(
     asynchronous: bool = True,
     wrappers: Optional[Union[callable, List[callable]]] = None,
     disable_env_checker: bool = False,
+    new_step_api: bool = False,
     **kwargs,
 ) -> VectorEnv:
     """Create a vectorized environment from multiple copies of an environment, from its id.
@@ -35,6 +36,7 @@ def make(
         asynchronous: If `True`, wraps the environments in an :class:`AsyncVectorEnv` (which uses `multiprocessing`_ to run the environments in parallel). If ``False``, wraps the environments in a :class:`SyncVectorEnv`.
         wrappers: If not ``None``, then apply the wrappers to each internal environment during creation.
         disable_env_checker: If to disable the env checker, if True it will only run on the first environment created.
+        new_step_api: If True, the vector environment's step method outputs two booleans `terminated`, `truncated` instead of one `done`.
         **kwargs: Keywords arguments applied during gym.make
 
     Returns:
@@ -46,7 +48,10 @@ def make(
 
         def _make_env():
             env = gym.envs.registration.make(
-                id, disable_env_checker=_disable_env_checker, **kwargs
+                id,
+                disable_env_checker=_disable_env_checker,
+                new_step_api=True,
+                **kwargs,
             )
             if wrappers is not None:
                 if callable(wrappers):
@@ -65,4 +70,8 @@ def make(
     env_fns = [
         create_env(disable_env_checker or env_num > 0) for env_num in range(num_envs)
     ]
-    return AsyncVectorEnv(env_fns) if asynchronous else SyncVectorEnv(env_fns)
+    return (
+        AsyncVectorEnv(env_fns, new_step_api=new_step_api)
+        if asynchronous
+        else SyncVectorEnv(env_fns, new_step_api=new_step_api)
+    )
