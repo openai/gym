@@ -321,7 +321,7 @@ def test_passive_env_reset_checker(test, func: callable, message: str, kwargs: D
 
 
 def _modified_step(
-    self, obs=None, reward=0, terminated=False, truncated=None, info=None
+    self, obs=None, reward=0, terminated=False, truncated=False, info=None
 ):
     if obs is None:
         obs = self.observation_space.sample()
@@ -343,19 +343,19 @@ def _modified_step(
             "Expects step result to be a tuple, actual type: <class 'str'>",
         ],
         [
-            AssertionError,
-            lambda self, _: _modified_step(self, terminated="error"),
-            "The `done` signal must be a boolean, actual type: <class 'str'>",
+            UserWarning,
+            lambda self, _: _modified_step(self, terminated="error", truncated=None),
+            "Expects `done` signal to be a boolean, actual type: <class 'str'>",
         ],
         [
             UserWarning,
             lambda self, _: _modified_step(self, terminated="error", truncated=False),
-            "The `terminated` signal must be a boolean, actual type: <class 'str'>",
+            "Expects `terminated` signal to be a boolean, actual type: <class 'str'>",
         ],
         [
             UserWarning,
             lambda self, _: _modified_step(self, truncated="error"),
-            "The `truncated` signal must be a boolean, actual type: <class 'str'>",
+            "Expects `truncated` signal to be a boolean, actual type: <class 'str'>",
         ],
         [
             gym.error.Error,

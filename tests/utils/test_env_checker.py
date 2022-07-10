@@ -67,9 +67,9 @@ def _reset_default_seed(
     self: GenericTestEnv, seed="Error", return_info=False, options=None
 ):
     super(GenericTestEnv, self).reset(seed=seed)
-    self.observation_space._np_random = (
+    self.observation_space._np_random = (  # pyright: ignore [reportPrivateUsage]
         self.np_random
-    )  # pyright: ignore [reportPrivateUsage]
+    )
     return self.observation_space.sample()
 
 

@@ -6,8 +6,6 @@ from typing import Callable
 import numpy as np
 
 from gym import Space, error, logger, spaces
-from gym import error, logger, spaces
-from gym.logger import deprecation
 
 
 def _check_box_observation_space(observation_space: spaces.Box):
@@ -226,26 +224,25 @@ def env_step_passive_checker(env, action):
         result, tuple
     ), f"Expects step result to be a tuple, actual type: {type(result)}"
     if len(result) == 4:
-        deprecation(
+        logger.deprecation(
             "Core environment is written in old step API which returns one bool instead of two. "
             "It is recommended to rewrite the environment with new step API. "
         )
         obs, reward, done, info = result
 
-        assert isinstance(
-            done, (bool, np.bool_)
-        ), f"The `done` signal must be a boolean, actual type: {type(done)}"
+        if not isinstance(done, (bool, np.bool8)):
+            logger.warn(f"Expects `done` signal to be a boolean, actual type: {type(done)}")
     elif len(result) == 5:
         obs, reward, terminated, truncated, info = result
 
         # np.bool is actual python bool not np boolean type, therefore bool_ or bool8
         if not isinstance(terminated, (bool, np.bool8)):
             logger.warn(
-                f"The `terminated` signal must be a boolean, actual type: {type(terminated)}"
+                f"Expects `terminated` signal to be a boolean, actual type: {type(terminated)}"
             )
         if not isinstance(truncated, (bool, np.bool8)):
             logger.warn(
-                f"The `truncated` signal must be a boolean, actual type: {type(truncated)}"
+                f"Expects `truncated` signal to be a boolean, actual type: {type(truncated)}"
             )
     else:
         raise error.Error(

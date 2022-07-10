@@ -168,17 +168,6 @@ def test_customizable_resets(env_name: str, low_high: Optional[list]):
     env.step(env.action_space.sample())
 
 
-@pytest.mark.parametrize(
-    "env_name", ["CartPole-v1", "MountainCar-v0", "MountainCarContinuous-v0"]
-)
-@pytest.mark.parametrize("low_high", [(-10.0, -9.0), (np.array(-10.0), np.array(-9.0))])
-def test_customizable_out_of_bounds_resets(env_name: str, low_high: Optional[list]):
-    env = gym.make(env_name)
-    low, high = low_high
-    with pytest.raises(AssertionError):
-        env.reset(options={"low": low, "high": high})
-
-
 # We test Pendulum separately, as the parameters are handled differently.
 @pytest.mark.parametrize(
     "low_high",
@@ -221,4 +210,6 @@ def test_invalid_customizable_resets(env_name: str, low_high: list):
     env = gym.make(env_name)
     low, high = low_high
     with pytest.raises(ValueError):
+        # match=re.escape(f"Lower bound ({low}) must be lower than higher bound ({high}).")
+        # match=f"An option ({x}) could not be converted to a float."
         env.reset(options={"low": low, "high": high})
