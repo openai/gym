@@ -1,11 +1,11 @@
 import numpy as np
 
 from gym import utils
-from gym.envs.mujoco import mujoco_env
+from gym.envs.mujoco import MujocoEnv
 from gym.spaces import Box
 
 
-class InvertedPendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
+class InvertedPendulumEnv(MujocoEnv, utils.EzPickle):
     """
     ### Description
 
@@ -56,12 +56,12 @@ class InvertedPendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     (0.0, 0.0, 0.0, 0.0) with a uniform noise in the range
     of [-0.01, 0.01] added to the values for stochasticity.
 
-    ### Episode Termination
-    The episode terminates when any of the following happens:
+    ### Episode End
+    The episode ends when any of the following happens:
 
-    1. The episode duration reaches 1000 timesteps.
-    2. Any of the state space values is no longer finite.
-    3. The absolute value of the vertical angle between the pole and the cart is greater than 0.2 radians.
+    1. Truncation: The episode duration reaches 1000 timesteps.
+    2. Termination: Any of the state space values is no longer finite.
+    3. Termination: The absolutely value of the vertical angle between the pole and the cart is greater than 0.2 radian.
 
     ### Arguments
 
@@ -97,7 +97,7 @@ class InvertedPendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     def __init__(self, **kwargs):
         utils.EzPickle.__init__(self)
         observation_space = Box(low=-np.inf, high=np.inf, shape=(4,), dtype=np.float64)
-        mujoco_env.MujocoEnv.__init__(
+        MujocoEnv.__init__(
             self,
             "inverted_pendulum.xml",
             2,
@@ -109,12 +109,9 @@ class InvertedPendulumEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         reward = 1.0
         self.do_simulation(a, self.frame_skip)
         ob = self._get_obs()
-        notdone = np.isfinite(ob).all() and (np.abs(ob[1]) <= 0.2)
-        done = not notdone
-
+        terminated = bool(not np.isfinite(ob).all() or (np.abs(ob[1]) > 0.2))
         self.renderer.render_step()
-
-        return ob, reward, done, {}
+        return ob, reward, terminated, False, {}
 
     def reset_model(self):
         qpos = self.init_qpos + self.np_random.uniform(

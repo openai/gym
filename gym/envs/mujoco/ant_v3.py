@@ -1,7 +1,7 @@
 import numpy as np
 
 from gym import utils
-from gym.envs.mujoco import mujoco_env
+from gym.envs.mujoco import MuJocoPyEnv
 from gym.spaces import Box
 
 DEFAULT_CAMERA_CONFIG = {
@@ -9,7 +9,7 @@ DEFAULT_CAMERA_CONFIG = {
 }
 
 
-class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
+class AntEnv(MuJocoPyEnv, utils.EzPickle):
     metadata = {
         "render_modes": [
             "human",
@@ -60,13 +60,8 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
                 low=-np.inf, high=np.inf, shape=(113,), dtype=np.float64
             )
 
-        mujoco_env.MujocoEnv.__init__(
-            self,
-            xml_file,
-            5,
-            mujoco_bindings="mujoco_py",
-            observation_space=observation_space,
-            **kwargs
+        MuJocoPyEnv.__init__(
+            self, xml_file, 5, observation_space=observation_space, **kwargs
         )
 
     @property
@@ -102,9 +97,9 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         return is_healthy
 
     @property
-    def done(self):
-        done = not self.is_healthy if self._terminate_when_unhealthy else False
-        return done
+    def terminated(self):
+        terminated = not self.is_healthy if self._terminate_when_unhealthy else False
+        return terminated
 
     def step(self, action):
         xy_position_before = self.get_body_com("torso")[:2].copy()
@@ -126,7 +121,7 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         self.renderer.render_step()
 
         reward = rewards - costs
-        done = self.done
+        terminated = self.terminated
         observation = self._get_obs()
         info = {
             "reward_forward": forward_reward,
@@ -141,7 +136,7 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             "forward_reward": forward_reward,
         }
 
-        return observation, reward, done, info
+        return observation, reward, terminated, False, info
 
     def _get_obs(self):
         position = self.sim.data.qpos.flat.copy()

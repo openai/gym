@@ -11,6 +11,7 @@ from gym import error, spaces
 from gym.error import DependencyNotInstalled
 from gym.utils import EzPickle, colorize
 from gym.utils.renderer import Renderer
+from gym.utils.step_api_compatibility import step_api_compatibility
 
 try:
     import Box2D
@@ -577,16 +578,15 @@ class LunarLander(gym.Env, EzPickle):
         )  # less fuel spent is better, about -30 for heuristic landing
         reward -= s_power * 0.03
 
-        done = False
+        terminated = False
         if self.game_over or abs(state[0]) >= 1.0:
-            done = True
+            terminated = True
             reward = -100
         if not self.lander.awake:
-            done = True
+            terminated = True
             reward = +100
-
         self.renderer.render_step()
-        return np.array(state, dtype=np.float32), reward, done, {}
+        return np.array(state, dtype=np.float32), reward, terminated, False, {}
 
     def render(self, mode="human"):
         if self.render_mode is not None:
@@ -772,7 +772,7 @@ def demo_heuristic_lander(env, seed=None, render=False):
     s = env.reset(seed=seed)
     while True:
         a = heuristic(env, s)
-        s, r, done, info = env.step(a)
+        s, r, terminated, truncated, info = step_api_compatibility(env.step(a), True)
         total_reward += r
 
         if render:
@@ -780,11 +780,11 @@ def demo_heuristic_lander(env, seed=None, render=False):
             if still_open is False:
                 break
 
-        if steps % 20 == 0 or done:
+        if steps % 20 == 0 or terminated or truncated:
             print("observations:", " ".join([f"{x:+0.2f}" for x in s]))
             print(f"step {steps} total_reward {total_reward:+0.2f}")
         steps += 1
-        if done:
+        if terminated or truncated:
             break
     if render:
         env.close()

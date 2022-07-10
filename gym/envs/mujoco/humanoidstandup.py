@@ -1,11 +1,11 @@
 import numpy as np
 
 from gym import utils
-from gym.envs.mujoco import mujoco_env
+from gym.envs.mujoco import MuJocoPyEnv
 from gym.spaces import Box
 
 
-class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
+class HumanoidStandupEnv(MuJocoPyEnv, utils.EzPickle):
     metadata = {
         "render_modes": [
             "human",
@@ -21,11 +21,10 @@ class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         observation_space = Box(
             low=-np.inf, high=np.inf, shape=(376,), dtype=np.float64
         )
-        mujoco_env.MujocoEnv.__init__(
+        MuJocoPyEnv.__init__(
             self,
             "humanoidstandup.xml",
             5,
-            mujoco_bindings="mujoco_py",
             observation_space=observation_space,
             **kwargs
         )
@@ -57,11 +56,11 @@ class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
         self.renderer.render_step()
 
-        done = bool(False)
         return (
             self._get_obs(),
             reward,
-            done,
+            False,
+            False,
             dict(
                 reward_linup=uph_cost,
                 reward_quadctrl=-quad_ctrl_cost,

@@ -1,11 +1,11 @@
 import numpy as np
 
 from gym import utils
-from gym.envs.mujoco import mujoco_env
+from gym.envs.mujoco import MuJocoPyEnv
 from gym.spaces import Box
 
 
-class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
+class HopperEnv(MuJocoPyEnv, utils.EzPickle):
     metadata = {
         "render_modes": [
             "human",
@@ -19,13 +19,8 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     def __init__(self, **kwargs):
         observation_space = Box(low=-np.inf, high=np.inf, shape=(11,), dtype=np.float64)
-        mujoco_env.MujocoEnv.__init__(
-            self,
-            "hopper.xml",
-            4,
-            mujoco_bindings="mujoco_py",
-            observation_space=observation_space,
-            **kwargs
+        MuJocoPyEnv.__init__(
+            self, "hopper.xml", 4, observation_space=observation_space, **kwargs
         )
         utils.EzPickle.__init__(self)
 
@@ -41,14 +36,14 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         reward += alive_bonus
         reward -= 1e-3 * np.square(a).sum()
         s = self.state_vector()
-        done = not (
+        terminated = not (
             np.isfinite(s).all()
             and (np.abs(s[2:]) < 100).all()
             and (height > 0.7)
             and (abs(ang) < 0.2)
         )
         ob = self._get_obs()
-        return ob, reward, done, {}
+        return ob, reward, terminated, False, {}
 
     def _get_obs(self):
         return np.concatenate(

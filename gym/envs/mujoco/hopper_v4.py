@@ -1,7 +1,7 @@
 import numpy as np
 
 from gym import utils
-from gym.envs.mujoco import mujoco_env
+from gym.envs.mujoco import MujocoEnv
 from gym.spaces import Box
 
 DEFAULT_CAMERA_CONFIG = {
@@ -12,7 +12,7 @@ DEFAULT_CAMERA_CONFIG = {
 }
 
 
-class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
+class HopperEnv(MujocoEnv, utils.EzPickle):
     """
     ### Description
 
@@ -87,7 +87,7 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     (0.0, 1.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0) with a uniform noise
      in the range of [-`reset_noise_scale`, `reset_noise_scale`] added to the values for stochasticity.
 
-    ### Episode Termination
+    ### Episode End
     The hopper is said to be unhealthy if any of the following happens:
 
     1. An element of `observation[1:]` (if  `exclude_current_positions_from_observation=True`, else `observation[2:]`) is no longer contained in the closed interval specified by the argument `healthy_state_range`
@@ -95,12 +95,12 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     3. The angle (`observation[1]` if  `exclude_current_positions_from_observation=True`, else `observation[2]`) is no longer contained in the closed interval specified by the argument `healthy_angle_range`
 
     If `terminate_when_unhealthy=True` is passed during construction (which is the default),
-    the episode terminates when any of the following happens:
+    the episode ends when any of the following happens:
 
-    1. The episode duration reaches a 1000 timesteps
-    2. The hopper is unhealthy
+    1. Truncation: The episode duration reaches a 1000 timesteps
+    2. Termination: The hopper is unhealthy
 
-    If `terminate_when_unhealthy=False` is passed, the episode is terminated only when 1000 timesteps are exceeded.
+    If `terminate_when_unhealthy=False` is passed, the episode is ended only when 1000 timesteps are exceeded.
 
     ### Arguments
 
@@ -190,7 +190,7 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
                 low=-np.inf, high=np.inf, shape=(12,), dtype=np.float64
             )
 
-        mujoco_env.MujocoEnv.__init__(
+        MujocoEnv.__init__(
             self, "hopper.xml", 4, observation_space=observation_space, **kwargs
         )
 
@@ -223,9 +223,9 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         return is_healthy
 
     @property
-    def done(self):
-        done = not self.is_healthy if self._terminate_when_unhealthy else False
-        return done
+    def terminated(self):
+        terminated = not self.is_healthy if self._terminate_when_unhealthy else False
+        return terminated
 
     def _get_obs(self):
         position = self.data.qpos.flat.copy()
@@ -253,14 +253,14 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
         observation = self._get_obs()
         reward = rewards - costs
-        done = self.done
+        terminated = self.terminated
         info = {
             "x_position": x_position_after,
             "x_velocity": x_velocity,
         }
 
         self.renderer.render_step()
-        return observation, reward, done, info
+        return observation, reward, terminated, False, info
 
     def reset_model(self):
         noise_low = -self._reset_noise_scale

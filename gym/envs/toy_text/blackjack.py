@@ -137,13 +137,13 @@ class BlackjackEnv(gym.Env):
         if action:  # hit: add a card to players hand and return
             self.player.append(draw_card(self.np_random))
             if is_bust(self.player):
-                done = True
+                terminated = True
                 reward = -1.0
             else:
-                done = False
+                terminated = False
                 reward = 0.0
         else:  # stick: play out the dealers hand, and score
-            done = True
+            terminated = True
             while sum_hand(self.dealer) < 17:
                 self.dealer.append(draw_card(self.np_random))
             reward = cmp(score(self.player), score(self.dealer))
@@ -158,9 +158,8 @@ class BlackjackEnv(gym.Env):
             ):
                 # Natural gives extra points, but doesn't autowin. Legacy implementation
                 reward = 1.5
-
         self.renderer.render_step()
-        return self._get_obs(), reward, done, {}
+        return self._get_obs(), reward, terminated, False, {}
 
     def _get_obs(self):
         return (sum_hand(self.player), self.dealer[0], usable_ace(self.player))

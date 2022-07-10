@@ -6,6 +6,8 @@ from typing import Callable
 import numpy as np
 
 from gym import Space, error, logger, spaces
+from gym import error, logger, spaces
+from gym.logger import deprecation
 
 
 def _check_box_observation_space(observation_space: spaces.Box):
@@ -224,6 +226,10 @@ def env_step_passive_checker(env, action):
         result, tuple
     ), f"Expects step result to be a tuple, actual type: {type(result)}"
     if len(result) == 4:
+        deprecation(
+            "Core environment is written in old step API which returns one bool instead of two. "
+            "It is recommended to rewrite the environment with new step API. "
+        )
         obs, reward, done, info = result
 
         assert isinstance(

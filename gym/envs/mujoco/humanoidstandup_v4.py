@@ -1,11 +1,11 @@
 import numpy as np
 
 from gym import utils
-from gym.envs.mujoco import mujoco_env
+from gym.envs.mujoco import MujocoEnv
 from gym.spaces import Box
 
 
-class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
+class HumanoidStandupEnv(MujocoEnv, utils.EzPickle):
     """
     ### Description
 
@@ -151,11 +151,11 @@ class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     to be low, thereby indicating a laying down humanoid. The initial orientation is
     designed to make it face forward as well.
 
-    ### Episode Termination
-    The episode terminates when any of the following happens:
+    ### Episode End
+    The episode ends when any of the following happens:
 
-    1. The episode duration reaches a 1000 timesteps
-    2. Any of the state space values is no longer finite
+    1. Truncation: The episode duration reaches a 1000 timesteps
+    2. Termination: Any of the state space values is no longer finite
 
     ### Arguments
 
@@ -193,7 +193,7 @@ class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         observation_space = Box(
             low=-np.inf, high=np.inf, shape=(376,), dtype=np.float64
         )
-        mujoco_env.MujocoEnv.__init__(
+        MujocoEnv.__init__(
             self,
             "humanoidstandup.xml",
             5,
@@ -228,11 +228,11 @@ class HumanoidStandupEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
         self.renderer.render_step()
 
-        done = bool(False)
         return (
             self._get_obs(),
             reward,
-            done,
+            False,
+            False,
             dict(
                 reward_linup=uph_cost,
                 reward_quadctrl=-quad_ctrl_cost,

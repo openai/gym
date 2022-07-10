@@ -3,7 +3,7 @@ __credits__ = ["Rushiv Arora"]
 import numpy as np
 
 from gym import utils
-from gym.envs.mujoco import mujoco_env
+from gym.envs.mujoco import MuJocoPyEnv
 from gym.spaces import Box
 
 DEFAULT_CAMERA_CONFIG = {
@@ -14,7 +14,7 @@ DEFAULT_CAMERA_CONFIG = {
 }
 
 
-class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
+class HopperEnv(MuJocoPyEnv, utils.EzPickle):
     metadata = {
         "render_modes": [
             "human",
@@ -68,13 +68,8 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
                 low=-np.inf, high=np.inf, shape=(12,), dtype=np.float64
             )
 
-        mujoco_env.MujocoEnv.__init__(
-            self,
-            xml_file,
-            4,
-            mujoco_bindings="mujoco_py",
-            observation_space=observation_space,
-            **kwargs
+        MuJocoPyEnv.__init__(
+            self, xml_file, 4, observation_space=observation_space, **kwargs
         )
 
     @property
@@ -106,9 +101,9 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         return is_healthy
 
     @property
-    def done(self):
-        done = not self.is_healthy if self._terminate_when_unhealthy else False
-        return done
+    def terminated(self):
+        terminated = not self.is_healthy if self._terminate_when_unhealthy else False
+        return terminated
 
     def _get_obs(self):
         position = self.sim.data.qpos.flat.copy()
@@ -138,13 +133,13 @@ class HopperEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
         observation = self._get_obs()
         reward = rewards - costs
-        done = self.done
+        terminated = self.terminated
         info = {
             "x_position": x_position_after,
             "x_velocity": x_velocity,
         }
 
-        return observation, reward, done, info
+        return observation, reward, terminated, False, info
 
     def reset_model(self):
         noise_low = -self._reset_noise_scale

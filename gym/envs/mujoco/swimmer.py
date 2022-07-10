@@ -1,11 +1,11 @@
 import numpy as np
 
 from gym import utils
-from gym.envs.mujoco import mujoco_env
+from gym.envs.mujoco import MuJocoPyEnv
 from gym.spaces import Box
 
 
-class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
+class SwimmerEnv(MuJocoPyEnv, utils.EzPickle):
     metadata = {
         "render_modes": [
             "human",
@@ -19,13 +19,8 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     def __init__(self, **kwargs):
         observation_space = Box(low=-np.inf, high=np.inf, shape=(8,), dtype=np.float64)
-        mujoco_env.MujocoEnv.__init__(
-            self,
-            "swimmer.xml",
-            4,
-            mujoco_bindings="mujoco_py",
-            observation_space=observation_space,
-            **kwargs
+        MuJocoPyEnv.__init__(
+            self, "swimmer.xml", 4, observation_space=observation_space, **kwargs
         )
         utils.EzPickle.__init__(self)
 
@@ -41,7 +36,13 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         reward_ctrl = -ctrl_cost_coeff * np.square(a).sum()
         reward = reward_fwd + reward_ctrl
         ob = self._get_obs()
-        return ob, reward, False, dict(reward_fwd=reward_fwd, reward_ctrl=reward_ctrl)
+        return (
+            ob,
+            reward,
+            False,
+            False,
+            dict(reward_fwd=reward_fwd, reward_ctrl=reward_ctrl),
+        )
 
     def _get_obs(self):
         qpos = self.sim.data.qpos

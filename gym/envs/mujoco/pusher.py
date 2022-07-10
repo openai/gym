@@ -1,11 +1,11 @@
 import numpy as np
 
 from gym import utils
-from gym.envs.mujoco import mujoco_env
+from gym.envs.mujoco import MuJocoPyEnv
 from gym.spaces import Box
 
 
-class PusherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
+class PusherEnv(MuJocoPyEnv, utils.EzPickle):
     metadata = {
         "render_modes": [
             "human",
@@ -20,13 +20,8 @@ class PusherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     def __init__(self, **kwargs):
         utils.EzPickle.__init__(self)
         observation_space = Box(low=-np.inf, high=np.inf, shape=(23,), dtype=np.float64)
-        mujoco_env.MujocoEnv.__init__(
-            self,
-            "pusher.xml",
-            5,
-            mujoco_bindings="mujoco_py",
-            observation_space=observation_space,
-            **kwargs
+        MuJocoPyEnv.__init__(
+            self, "pusher.xml", 5, observation_space=observation_space, **kwargs
         )
 
     def step(self, a):
@@ -43,8 +38,13 @@ class PusherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         self.renderer.render_step()
 
         ob = self._get_obs()
-        done = False
-        return ob, reward, done, dict(reward_dist=reward_dist, reward_ctrl=reward_ctrl)
+        return (
+            ob,
+            reward,
+            False,
+            False,
+            dict(reward_dist=reward_dist, reward_ctrl=reward_ctrl),
+        )
 
     def viewer_setup(self):
         assert self.viewer is not None

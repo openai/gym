@@ -1,11 +1,11 @@
 import numpy as np
 
 from gym import utils
-from gym.envs.mujoco import mujoco_env
+from gym.envs.mujoco import MujocoEnv
 from gym.spaces import Box
 
 
-class PusherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
+class PusherEnv(MujocoEnv, utils.EzPickle):
     """
     ### Description
     "Pusher" is a multi-jointed robot arm which is very similar to that of a human.
@@ -99,12 +99,12 @@ class PusherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     The default framerate is 5 with each frame lasting for 0.01, giving rise to a *dt = 5 * 0.01 = 0.05*
 
-    ### Episode Termination
+    ### Episode End
 
-    The episode terminates when any of the following happens:
+    The episode ends when any of the following happens:
 
-    1. The episode duration reaches a 100 timesteps.
-    2. Any of the state space values is no longer finite.
+    1. Truncation: The episode duration reaches a 100 timesteps.
+    2. Termination: Any of the state space values is no longer finite.
 
     ### Arguments
 
@@ -142,7 +142,7 @@ class PusherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     def __init__(self, **kwargs):
         utils.EzPickle.__init__(self)
         observation_space = Box(low=-np.inf, high=np.inf, shape=(23,), dtype=np.float64)
-        mujoco_env.MujocoEnv.__init__(
+        MujocoEnv.__init__(
             self, "pusher.xml", 5, observation_space=observation_space, **kwargs
         )
 
@@ -157,11 +157,14 @@ class PusherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
         self.do_simulation(a, self.frame_skip)
         ob = self._get_obs()
-        done = False
-
         self.renderer.render_step()
-
-        return ob, reward, done, dict(reward_dist=reward_dist, reward_ctrl=reward_ctrl)
+        return (
+            ob,
+            reward,
+            False,
+            False,
+            dict(reward_dist=reward_dist, reward_ctrl=reward_ctrl),
+        )
 
     def viewer_setup(self):
         assert self.viewer is not None

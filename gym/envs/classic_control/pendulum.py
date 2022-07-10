@@ -7,8 +7,12 @@ import numpy as np
 
 import gym
 from gym import spaces
+from gym.envs.classic_control import utils
 from gym.error import DependencyNotInstalled
 from gym.utils.renderer import Renderer
+
+DEFAULT_X = np.pi
+DEFAULT_Y = 1.0
 
 
 class PendulumEnv(gym.Env):
@@ -64,9 +68,9 @@ class PendulumEnv(gym.Env):
 
     The starting state is a random angle in *[-pi, pi]* and a random angular velocity in *[-1,1]*.
 
-    ### Episode Termination
+    ### Episode Truncation
 
-    The episode terminates at 200 time steps.
+    The episode truncates at 200 time steps.
 
     ### Arguments
 
@@ -132,7 +136,7 @@ class PendulumEnv(gym.Env):
 
         self.state = np.array([newth, newthdot])
         self.renderer.render_step()
-        return self._get_obs(), -costs, False, {}
+        return self._get_obs(), -costs, False, False, {}
 
     def reset(
         self,
@@ -142,8 +146,18 @@ class PendulumEnv(gym.Env):
         options: Optional[dict] = None
     ):
         super().reset(seed=seed)
-        high = np.array([np.pi, 1])
-        self.state = self.np_random.uniform(low=-high, high=high)
+        if options is None:
+            high = np.array([DEFAULT_X, DEFAULT_Y])
+        else:
+            # Note that if you use custom reset bounds, it may lead to out-of-bound
+            # state/observations.
+            x = options.get("x_init") if "x_init" in options else DEFAULT_X
+            y = options.get("y_init") if "y_init" in options else DEFAULT_Y
+            x = utils.verify_number_and_cast(x)
+            y = utils.verify_number_and_cast(y)
+            high = np.array([x, y])
+        low = -high  # We enforce symmetric limits.
+        self.state = self.np_random.uniform(low=low, high=high)
         self.last_u = None
 
         self.renderer.reset()

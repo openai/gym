@@ -1,11 +1,11 @@
 import numpy as np
 
 from gym import utils
-from gym.envs.mujoco import mujoco_env
+from gym.envs.mujoco import MuJocoPyEnv
 from gym.spaces import Box
 
 
-class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
+class HalfCheetahEnv(MuJocoPyEnv, utils.EzPickle):
     metadata = {
         "render_modes": [
             "human",
@@ -19,13 +19,8 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     def __init__(self, **kwargs):
         observation_space = Box(low=-np.inf, high=np.inf, shape=(17,), dtype=np.float64)
-        mujoco_env.MujocoEnv.__init__(
-            self,
-            "half_cheetah.xml",
-            5,
-            mujoco_bindings="mujoco_py",
-            observation_space=observation_space,
-            **kwargs
+        MuJocoPyEnv.__init__(
+            self, "half_cheetah.xml", 5, observation_space=observation_space, **kwargs
         )
         utils.EzPickle.__init__(self)
 
@@ -40,8 +35,14 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         reward_ctrl = -0.1 * np.square(action).sum()
         reward_run = (xposafter - xposbefore) / self.dt
         reward = reward_ctrl + reward_run
-        done = False
-        return ob, reward, done, dict(reward_run=reward_run, reward_ctrl=reward_ctrl)
+        terminated = False
+        return (
+            ob,
+            reward,
+            terminated,
+            False,
+            dict(reward_run=reward_run, reward_ctrl=reward_ctrl),
+        )
 
     def _get_obs(self):
         return np.concatenate(

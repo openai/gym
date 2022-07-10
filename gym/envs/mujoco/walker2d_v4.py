@@ -1,7 +1,7 @@
 import numpy as np
 
 from gym import utils
-from gym.envs.mujoco import mujoco_env
+from gym.envs.mujoco import MujocoEnv
 from gym.spaces import Box
 
 DEFAULT_CAMERA_CONFIG = {
@@ -12,7 +12,7 @@ DEFAULT_CAMERA_CONFIG = {
 }
 
 
-class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
+class Walker2dEnv(MujocoEnv, utils.EzPickle):
     """
     ### Description
 
@@ -92,7 +92,7 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     (0.0, 1.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
     with a uniform noise in the range of [-`reset_noise_scale`, `reset_noise_scale`] added to the values for stochasticity.
 
-    ### Episode Termination
+    ### Episode End
     The walker is said to be unhealthy if any of the following happens:
 
     1. Any of the state space values is no longer finite
@@ -100,12 +100,12 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     3. The absolute value of the angle (`observation[1]` if `exclude_current_positions_from_observation=False`, else `observation[2]`) is ***not*** in the closed interval specified by `healthy_angle_range`
 
     If `terminate_when_unhealthy=True` is passed during construction (which is the default),
-    the episode terminates when any of the following happens:
+    the episode ends when any of the following happens:
 
-    1. The episode duration reaches a 1000 timesteps
-    2. The walker is unhealthy
+    1. Truncation: The episode duration reaches a 1000 timesteps
+    2. Termination: The walker is unhealthy
 
-    If `terminate_when_unhealthy=False` is passed, the episode is terminated only when 1000 timesteps are exceeded.
+    If `terminate_when_unhealthy=False` is passed, the episode is ended only when 1000 timesteps are exceeded.
 
     ### Arguments
 
@@ -192,7 +192,7 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
                 low=-np.inf, high=np.inf, shape=(18,), dtype=np.float64
             )
 
-        mujoco_env.MujocoEnv.__init__(
+        MujocoEnv.__init__(
             self, "walker2d.xml", 4, observation_space=observation_space, **kwargs
         )
 
@@ -221,9 +221,9 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         return is_healthy
 
     @property
-    def done(self):
-        done = not self.is_healthy if self._terminate_when_unhealthy else False
-        return done
+    def terminated(self):
+        terminated = not self.is_healthy if self._terminate_when_unhealthy else False
+        return terminated
 
     def _get_obs(self):
         position = self.data.qpos.flat.copy()
@@ -251,14 +251,14 @@ class Walker2dEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
         observation = self._get_obs()
         reward = rewards - costs
-        done = self.done
+        terminated = self.terminated
         info = {
             "x_position": x_position_after,
             "x_velocity": x_velocity,
         }
 
         self.renderer.render_step()
-        return observation, reward, done, info
+        return observation, reward, terminated, False, info
 
     def reset_model(self):
         noise_low = -self._reset_noise_scale

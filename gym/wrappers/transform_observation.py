@@ -27,7 +27,7 @@ class TransformObservation(gym.ObservationWrapper):
             env: The environment to apply the wrapper
             f: A function that transforms the observation
         """
-        super().__init__(env)
+        super().__init__(env, new_step_api=True)
         assert callable(f)
         self.f = f
 

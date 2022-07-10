@@ -1,11 +1,11 @@
 import numpy as np
 
 from gym import utils
-from gym.envs.mujoco import mujoco_env
+from gym.envs.mujoco import MuJocoPyEnv
 from gym.spaces import Box
 
 
-class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
+class AntEnv(MuJocoPyEnv, utils.EzPickle):
     metadata = {
         "render_modes": [
             "human",
@@ -21,13 +21,8 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         observation_space = Box(
             low=-np.inf, high=np.inf, shape=(111,), dtype=np.float64
         )
-        mujoco_env.MujocoEnv.__init__(
-            self,
-            "ant.xml",
-            5,
-            mujoco_bindings="mujoco_py",
-            observation_space=observation_space,
-            **kwargs
+        MuJocoPyEnv.__init__(
+            self, "ant.xml", 5, observation_space=observation_space, **kwargs
         )
         utils.EzPickle.__init__(self)
 
@@ -46,13 +41,16 @@ class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         survive_reward = 1.0
         reward = forward_reward - ctrl_cost - contact_cost + survive_reward
         state = self.state_vector()
-        notdone = np.isfinite(state).all() and state[2] >= 0.2 and state[2] <= 1.0
-        done = not notdone
+        not_terminated = (
+            np.isfinite(state).all() and state[2] >= 0.2 and state[2] <= 1.0
+        )
+        terminated = not not_terminated
         ob = self._get_obs()
         return (
             ob,
             reward,
-            done,
+            terminated,
+            False,
             dict(
                 reward_forward=forward_reward,
                 reward_ctrl=-ctrl_cost,

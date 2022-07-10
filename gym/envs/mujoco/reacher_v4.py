@@ -1,11 +1,11 @@
 import numpy as np
 
 from gym import utils
-from gym.envs.mujoco import mujoco_env
+from gym.envs.mujoco import MujocoEnv
 from gym.spaces import Box
 
 
-class ReacherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
+class ReacherEnv(MujocoEnv, utils.EzPickle):
     """
     ### Description
     "Reacher" is a two-jointed robot arm. The goal is to move the robot's end effector (called *fingertip*) close to a
@@ -89,12 +89,12 @@ class ReacherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     element ("fingertip" - "target") is calculated at the end once everything
     is set. The default setting has a framerate of 2 and a *dt = 2 * 0.01 = 0.02*
 
-    ### Episode Termination
+    ### Episode End
 
-    The episode terminates when any of the following happens:
+    The episode ends when any of the following happens:
 
-    1. The episode duration reaches a 50 timesteps (with a new random target popping up if the reacher's fingertip reaches it before 50 timesteps)
-    2. Any of the state space values is no longer finite.
+    1. Truncation: The episode duration reaches a 50 timesteps (with a new random target popping up if the reacher's fingertip reaches it before 50 timesteps)
+    2. Termination: Any of the state space values is no longer finite.
 
     ### Arguments
 
@@ -132,7 +132,7 @@ class ReacherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     def __init__(self, **kwargs):
         utils.EzPickle.__init__(self)
         observation_space = Box(low=-np.inf, high=np.inf, shape=(11,), dtype=np.float64)
-        mujoco_env.MujocoEnv.__init__(
+        MujocoEnv.__init__(
             self, "reacher.xml", 2, observation_space=observation_space, **kwargs
         )
 
@@ -143,11 +143,14 @@ class ReacherEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         reward = reward_dist + reward_ctrl
         self.do_simulation(a, self.frame_skip)
         ob = self._get_obs()
-        done = False
-
         self.renderer.render_step()
-
-        return ob, reward, done, dict(reward_dist=reward_dist, reward_ctrl=reward_ctrl)
+        return (
+            ob,
+            reward,
+            False,
+            False,
+            dict(reward_dist=reward_dist, reward_ctrl=reward_ctrl),
+        )
 
     def viewer_setup(self):
         assert self.viewer is not None

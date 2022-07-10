@@ -3,13 +3,13 @@ __credits__ = ["Rushiv Arora"]
 import numpy as np
 
 from gym import utils
-from gym.envs.mujoco import mujoco_env
+from gym.envs.mujoco import MujocoEnv
 from gym.spaces import Box
 
 DEFAULT_CAMERA_CONFIG = {}
 
 
-class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
+class SwimmerEnv(MujocoEnv, utils.EzPickle):
     """
     ### Description
 
@@ -89,8 +89,8 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     ### Starting State
     All observations start in state (0,0,0,0,0,0,0,0) with a Uniform noise in the range of [-`reset_noise_scale`, `reset_noise_scale`] is added to the initial state for stochasticity.
 
-    ### Episode Termination
-    The episode terminates when the episode length is greater than 1000.
+    ### Episode End
+    The episode truncates when the episode length is greater than 1000.
 
     ### Arguments
 
@@ -161,7 +161,7 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             observation_space = Box(
                 low=-np.inf, high=np.inf, shape=(10,), dtype=np.float64
             )
-        mujoco_env.MujocoEnv.__init__(
+        MujocoEnv.__init__(
             self, "swimmer.xml", 4, observation_space=observation_space, **kwargs
         )
 
@@ -183,7 +183,6 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
         observation = self._get_obs()
         reward = forward_reward - ctrl_cost
-        done = False
         info = {
             "reward_fwd": forward_reward,
             "reward_ctrl": -ctrl_cost,
@@ -196,7 +195,7 @@ class SwimmerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         }
 
         self.renderer.render_step()
-        return observation, reward, done, info
+        return observation, reward, False, False, info
 
     def _get_obs(self):
         position = self.data.qpos.flat.copy()

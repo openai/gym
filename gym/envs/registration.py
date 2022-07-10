@@ -23,7 +23,13 @@ from typing import (
 import numpy as np
 
 from gym.envs.__relocated__ import internal_env_relocation_map
-from gym.wrappers import AutoResetWrapper, HumanRendering, OrderEnforcing, TimeLimit
+from gym.wrappers import (
+    AutoResetWrapper,
+    HumanRendering,
+    OrderEnforcing,
+    StepAPICompatibility,
+    TimeLimit,
+)
 from gym.wrappers.env_checker import PassiveEnvChecker
 
 if sys.version_info < (3, 10):
@@ -134,6 +140,8 @@ class EnvSpec:
     order_enforce: bool = field(default=True)
     autoreset: bool = field(default=False)
     disable_env_checker: bool = field(default=False)
+    new_step_api: bool = field(default=False)
+
     # Environment arguments
     kwargs: dict = field(default_factory=dict)
 
@@ -539,6 +547,7 @@ def make(
     id: Union[str, EnvSpec],
     max_episode_steps: Optional[int] = None,
     autoreset: bool = False,
+    new_step_api: bool = False,
     disable_env_checker: Optional[bool] = None,
     **kwargs,
 ) -> Env:
@@ -548,6 +557,7 @@ def make(
         id: Name of the environment. Optionally, a module to import can be included, eg. 'module:Env-v0'
         max_episode_steps: Maximum length of an episode (TimeLimit wrapper).
         autoreset: Whether to automatically reset the environment after each episode (AutoResetWrapper).
+        new_step_api: Whether to use old or new step API (StepAPICompatibility wrapper). Will be removed at v1.0
         disable_env_checker: If to run the env checker, None will default to the environment `spec.disable_env_checker`
             (that is by default True), otherwise will run according to the parameter (True = not run, False = run)
         kwargs: Additional arguments to pass to the environment constructor.
@@ -661,19 +671,21 @@ def make(
     ):
         env = PassiveEnvChecker(env)
 
+    env = StepAPICompatibility(env, new_step_api)
+
     # Add the order enforcing wrapper
     if spec_.order_enforce:
         env = OrderEnforcing(env)
 
     # Add the time limit wrapper
     if max_episode_steps is not None:
-        env = TimeLimit(env, max_episode_steps)
+        env = TimeLimit(env, max_episode_steps, new_step_api)
     elif spec_.max_episode_steps is not None:
-        env = TimeLimit(env, spec_.max_episode_steps)
+        env = TimeLimit(env, spec_.max_episode_steps, new_step_api)
 
     # Add the autoreset wrapper
     if autoreset:
-        env = AutoResetWrapper(env)
+        env = AutoResetWrapper(env, new_step_api)
 
     # Add human rendering wrapper
     if apply_human_rendering:

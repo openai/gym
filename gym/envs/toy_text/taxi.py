@@ -156,7 +156,7 @@ class TaxiEnv(Env):
                             reward = (
                                 -1
                             )  # default reward when there is no pickup/dropoff
-                            done = False
+                            terminated = False
                             taxi_loc = (row, col)
 
                             if action == 0:
@@ -175,7 +175,7 @@ class TaxiEnv(Env):
                             elif action == 5:  # dropoff
                                 if (taxi_loc == locs[dest_idx]) and pass_idx == 4:
                                     new_pass_idx = dest_idx
-                                    done = True
+                                    terminated = True
                                     reward = 20
                                 elif (taxi_loc in locs) and pass_idx == 4:
                                     new_pass_idx = locs.index(taxi_loc)
@@ -184,7 +184,9 @@ class TaxiEnv(Env):
                             new_state = self.encode(
                                 new_row, new_col, new_pass_idx, dest_idx
                             )
-                            self.P[state][action].append((1.0, new_state, reward, done))
+                            self.P[state][action].append(
+                                (1.0, new_state, reward, terminated)
+                            )
         self.initial_state_distrib /= self.initial_state_distrib.sum()
         self.action_space = spaces.Discrete(num_actions)
         self.observation_space = spaces.Discrete(num_states)
@@ -254,12 +256,11 @@ class TaxiEnv(Env):
     def step(self, a):
         transitions = self.P[self.s][a]
         i = categorical_sample([t[0] for t in transitions], self.np_random)
-        p, s, r, d = transitions[i]
+        p, s, r, t = transitions[i]
         self.s = s
         self.lastaction = a
         self.renderer.render_step()
-
-        return int(s), r, d, {"prob": p, "action_mask": self.action_mask(s)}
+        return (int(s), r, t, False, {"prob": p, "action_mask": self.action_mask(s)})
 
     def reset(
         self,
