@@ -231,7 +231,9 @@ def env_step_passive_checker(env, action):
         obs, reward, done, info = result
 
         if not isinstance(done, (bool, np.bool8)):
-            logger.warn(f"Expects `done` signal to be a boolean, actual type: {type(done)}")
+            logger.warn(
+                f"Expects `done` signal to be a boolean, actual type: {type(done)}"
+            )
     elif len(result) == 5:
         obs, reward, terminated, truncated, info = result
 
