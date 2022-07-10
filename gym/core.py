@@ -92,7 +92,6 @@ class Env(Generic[ObsType, ActType], metaclass=decorator):
     - :meth:`reset` - Resets the environment to an initial state, returning the initial observation and more information.
     - :meth:`render` - Renders the environment observation with modes depending on the output
     - :meth:`close` - Closes the environment, important for rendering where pygame is imported
-    - :meth:`seed` - Seeds the environment's random number generator, :deprecated: in favor of `Env.reset(seed=seed)`.
 
     And set the following attributes:
 
@@ -240,33 +239,6 @@ class Env(Generic[ObsType, ActType], metaclass=decorator):
         garbage collected or when the program exits.
         """
         pass
-
-    def seed(self, seed=None):
-        """:deprecated: function that sets the seed for the environment's random number generator(s).
-
-        Use `env.reset(seed=seed)` as the new API for setting the seed of the environment.
-
-        Note:
-            Some environments use multiple pseudorandom number generators.
-            We want to capture all such seeds used in order to ensure that
-            there aren't accidental correlations between multiple generators.
-
-        Args:
-            seed(Optional int): The seed value for the random number generator
-
-        Returns:
-            seeds (List[int]): Returns the list of seeds used in this environment's random
-              number generators. The first value in the list should be the
-              "main" seed, or the value which a reproducer should pass to
-              'seed'. Often, the main seed equals the provided 'seed', but
-              this won't be true `if seed=None`, for example.
-        """
-        deprecation(
-            "Function `env.seed(seed)` is marked as deprecated and will be removed in the future. "
-            "Please use `env.reset(seed=seed)` instead."
-        )
-        self._np_random, seed = seeding.np_random(seed)
-        return [seed]
 
     @property
     def unwrapped(self) -> "Env":
@@ -430,10 +402,6 @@ class Wrapper(Env[ObsType, ActType]):
     def close(self):
         """Closes the environment."""
         return self.env.close()
-
-    def seed(self, seed=None):
-        """Seeds the environment."""
-        return self.env.seed(seed)
 
     def __str__(self):
         """Returns the wrapper name and the unwrapped environment string."""

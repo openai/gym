@@ -215,21 +215,6 @@ class VectorEnv(gym.Env):
         self.close_extras(**kwargs)
         self.closed = True
 
-    def seed(self, seed=None):
-        """Set the random seed in all parallel environments.
-
-        Args:
-            seed: Random seed for each parallel environment. If ``seed`` is a list of
-                length ``num_envs``, then the items of the list are chosen as random
-                seeds. If ``seed`` is an int, then each parallel environment uses the random
-                seed ``seed + n``, where ``n`` is the index of the parallel environment
-                (between ``0`` and ``num_envs - 1``).
-        """
-        deprecation(
-            "Function `env.seed(seed)` is marked as deprecated and will be removed in the future. "
-            "Please use `env.reset(seed=seed) instead in VectorEnvs."
-        )
-
     def _add_info(self, infos: dict, info: dict, env_num: int) -> dict:
         """Add env info to the info dictionary of the vectorized environment.
 
@@ -333,9 +318,6 @@ class VectorEnvWrapper(VectorEnv):
 
     def close_extras(self, **kwargs):
         return self.env.close_extras(**kwargs)
-
-    def seed(self, seed=None):
-        return self.env.seed(seed)
 
     def call(self, name, *args, **kwargs):
         return self.env.call(name, *args, **kwargs)

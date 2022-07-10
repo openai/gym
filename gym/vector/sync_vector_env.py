@@ -1,6 +1,6 @@
 """A synchronous vector environment."""
 from copy import deepcopy
-from typing import Any, Callable, Iterator, List, Optional, Sequence, Union
+from typing import Any, Callable, Iterator, List, Optional, Union
 
 import numpy as np
 
@@ -73,22 +73,6 @@ class SyncVectorEnv(VectorEnv):
         self._terminateds = np.zeros((self.num_envs,), dtype=np.bool_)
         self._truncateds = np.zeros((self.num_envs,), dtype=np.bool_)
         self._actions = None
-
-    def seed(self, seed: Optional[Union[int, Sequence[int]]] = None):
-        """Sets the seed in all sub-environments.
-
-        Args:
-            seed: The seed
-        """
-        super().seed(seed=seed)
-        if seed is None:
-            seed = [None for _ in range(self.num_envs)]
-        if isinstance(seed, int):
-            seed = [seed + i for i in range(self.num_envs)]
-        assert len(seed) == self.num_envs
-
-        for env, single_seed in zip(self.envs, seed):
-            env.seed(single_seed)
 
     def reset_wait(
         self,
