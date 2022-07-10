@@ -77,7 +77,7 @@ class PixelObservationWrapper(gym.ObservationWrapper):
                 specified ``pixel_keys``.
             TypeError: When an unexpected pixel type is used
         """
-        super().__init__(env)
+        super().__init__(env, new_step_api=True)
 
         # Avoid side-effects that occur when render_kwargs is manipulated
         render_kwargs = copy.deepcopy(render_kwargs)

@@ -4,6 +4,7 @@ from typing import Callable, Optional
 
 import gym
 from gym import logger
+from gym.utils.step_api_compatibility import step_api_compatibility
 from gym.wrappers.monitoring import video_recorder
 
 
@@ -32,7 +33,7 @@ class RecordVideo(gym.Wrapper):
     They should be functions returning a boolean that indicates whether a recording should be started at the
     current episode or step, respectively.
     If neither :attr:`episode_trigger` nor ``step_trigger`` is passed, a default ``episode_trigger`` will be employed.
-    By default, the recording will be stopped once a `done` signal has been emitted by the environment. However, you can
+    By default, the recording will be stopped once a `terminated` or `truncated` signal has been emitted by the environment. However, you can
     also create recordings of fixed length (possibly spanning several episodes) by passing a strictly positive value for
     ``video_length``.
     """
@@ -45,6 +46,7 @@ class RecordVideo(gym.Wrapper):
         step_trigger: Callable[[int], bool] = None,
         video_length: int = 0,
         name_prefix: str = "rl-video",
+        new_step_api: bool = False,
     ):
         """Wrapper records videos of rollouts.
 
@@ -56,8 +58,9 @@ class RecordVideo(gym.Wrapper):
             video_length (int): The length of recorded episodes. If 0, entire episodes are recorded.
                 Otherwise, snippets of the specified length are captured
             name_prefix (str): Will be prepended to the filename of the recordings
+            new_step_api (bool): Whether the wrapper's step method outputs two booleans (new API) or one boolean (old API)
         """
-        super().__init__(env)
+        super().__init__(env, new_step_api)
 
         if episode_trigger is None and step_trigger is None:
             episode_trigger = capped_cubic_video_schedule
@@ -83,7 +86,8 @@ class RecordVideo(gym.Wrapper):
         self.video_length = video_length
 
         self.recording = False
-        self.done = False
+        self.terminated = False
+        self.truncated = False
         self.recorded_frames = 0
         self.is_vector_env = getattr(env, "is_vector_env", False)
         self.episode_id = 0
@@ -91,7 +95,8 @@ class RecordVideo(gym.Wrapper):
     def reset(self, **kwargs):
         """Reset the environment using kwargs and then starts recording if video enabled."""
         observations = super().reset(**kwargs)
-        self.done = False
+        self.terminated = False
+        self.truncated = False
         if self.recording:
             assert self.video_recorder is not None
             self.video_recorder.frames = []
@@ -132,18 +137,26 @@ class RecordVideo(gym.Wrapper):
 
     def step(self, action):
         """Steps through the environment using action, recording observations if :attr:`self.recording`."""
-        observations, rewards, dones, infos = super().step(action)
+        (
+            observations,
+            rewards,
+            terminateds,
+            truncateds,
+            infos,
+        ) = step_api_compatibility(self.env.step(action), True, self.is_vector_env)
 
-        if not self.done:
+        if not (self.terminated or self.truncated):
             # increment steps and episodes
             self.step_id += 1
             if not self.is_vector_env:
-                if dones:
+                if terminateds or truncateds:
                     self.episode_id += 1
-                    self.done = True
-            elif dones[0]:
+                    self.terminated = terminateds
+                    self.truncated = truncateds
+            elif terminateds[0] or truncateds[0]:
                 self.episode_id += 1
-                self.done = True
+                self.terminated = terminateds[0]
+                self.truncated = truncateds[0]
 
             if self.recording:
                 assert self.video_recorder is not None
@@ -154,15 +167,19 @@ class RecordVideo(gym.Wrapper):
                         self.close_video_recorder()
                 else:
                     if not self.is_vector_env:
-                        if dones:
+                        if terminateds or truncateds:
                             self.close_video_recorder()
-                    elif dones[0]:
+                    elif terminateds[0] or truncateds[0]:
                         self.close_video_recorder()
 
             elif self._video_enabled():
                 self.start_video_recorder()
 
-        return observations, rewards, dones, infos
+        return step_api_compatibility(
+            (observations, rewards, terminateds, truncateds, infos),
+            self.new_step_api,
+            self.is_vector_env,
+        )
 
     def close_video_recorder(self):
         """Closes the video recorder if currently recording."""

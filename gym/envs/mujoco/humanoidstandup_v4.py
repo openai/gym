@@ -151,11 +151,11 @@ class HumanoidStandupEnv(MujocoEnv, utils.EzPickle):
     to be low, thereby indicating a laying down humanoid. The initial orientation is
     designed to make it face forward as well.
 
-    ### Episode Termination
-    The episode terminates when any of the following happens:
+    ### Episode End
+    The episode ends when any of the following happens:
 
-    1. The episode duration reaches a 1000 timesteps
-    2. Any of the state space values is no longer finite
+    1. Truncation: The episode duration reaches a 1000 timesteps
+    2. Termination: Any of the state space values is no longer finite
 
     ### Arguments
 
@@ -228,11 +228,11 @@ class HumanoidStandupEnv(MujocoEnv, utils.EzPickle):
 
         self.renderer.render_step()
 
-        done = bool(False)
         return (
             self._get_obs(),
             reward,
-            done,
+            False,
+            False,
             dict(
                 reward_linup=uph_cost,
                 reward_quadctrl=-quad_ctrl_cost,

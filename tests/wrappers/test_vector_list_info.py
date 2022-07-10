@@ -32,9 +32,9 @@ def test_info_to_list():
         _, _, dones, list_info = wrapped_env.step(action)
         for i, done in enumerate(dones):
             if done:
-                assert "terminal_observation" in list_info[i]
+                assert "final_observation" in list_info[i]
             else:
-                assert "terminal_observation" not in list_info[i]
+                assert "final_observation" not in list_info[i]
 
 
 def test_info_to_list_statistics():

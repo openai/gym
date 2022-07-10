@@ -56,11 +56,11 @@ class HumanoidStandupEnv(MuJocoPyEnv, utils.EzPickle):
 
         self.renderer.render_step()
 
-        done = bool(False)
         return (
             self._get_obs(),
             reward,
-            done,
+            False,
+            False,
             dict(
                 reward_linup=uph_cost,
                 reward_quadctrl=-quad_ctrl_cost,
