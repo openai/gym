@@ -192,7 +192,6 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         self,
         *,
         seed: Optional[int] = None,
-        return_info: bool = False,
         options: Optional[dict] = None,
     ):
         super().reset(seed=seed)
@@ -205,10 +204,7 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         self.steps_beyond_terminated = None
         self.renderer.reset()
         self.renderer.render_step()
-        if not return_info:
-            return np.array(self.state, dtype=np.float32)
-        else:
-            return np.array(self.state, dtype=np.float32), {}
+        return np.array(self.state, dtype=np.float32), {}
 
     def render(self, mode="human"):
         if self.render_mode is not None:

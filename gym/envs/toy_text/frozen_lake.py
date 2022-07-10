@@ -252,7 +252,6 @@ class FrozenLakeEnv(Env):
         self,
         *,
         seed: Optional[int] = None,
-        return_info: bool = False,
         options: Optional[dict] = None,
     ):
         super().reset(seed=seed)
@@ -262,10 +261,7 @@ class FrozenLakeEnv(Env):
         self.renderer.reset()
         self.renderer.render_step()
 
-        if not return_info:
-            return int(self.s)
-        else:
-            return int(self.s), {"prob": 1}
+        return int(self.s), {"prob": 1}
 
     def render(self, mode="human"):
         if self.render_mode is not None:

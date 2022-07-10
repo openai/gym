@@ -24,7 +24,7 @@ class DummyEnv(gym.Env):
 
     def reset(self):
         self.timestep = 0
-        return 0
+        return 0, {}
 
 
 @pytest.mark.parametrize("time_limit", [10, 20, 30])

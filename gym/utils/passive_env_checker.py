@@ -225,11 +225,6 @@ def passive_env_reset_check(env, **kwargs):
                 "The default seed argument in `Env.reset` should be `None`, otherwise the environment will by default always be deterministic"
             )
 
-    if "return_info" not in signature.parameters or "kwargs" in signature.parameters:
-        logger.warn(
-            "Future gym versions will require that `Env.reset` can be passed `return_info` to return information from the environment resetting."
-        )
-
     if "options" not in signature.parameters or "kwargs" in signature.parameters:
         logger.warn(
             "Future gym versions will require that `Env.reset` can be passed `options` to allow the environment initialisation to be passed additional information."
@@ -237,15 +232,11 @@ def passive_env_reset_check(env, **kwargs):
 
     # Checks the result of env.reset with kwargs
     result = env.reset(**kwargs)
-    if "return_info" in kwargs and kwargs["return_info"] is True:
-        obs, info = result
-        _check_obs(obs, env.observation_space, "reset")
-        assert isinstance(
-            info, dict
-        ), f"The second element returned by `env.reset(return_info=True)` was not a dictionary, actually {type(info)}"
-    else:
-        obs = result
-        _check_obs(obs, env.observation_space, "reset")
+    obs, info = result
+    _check_obs(obs, env.observation_space, "reset")
+    assert isinstance(
+        info, dict
+    ), f"The second element returned by `env.reset()` was not a dictionary, actually {type(info)}"
 
     return result
 

@@ -139,7 +139,7 @@ def test_taxi_action_mask():
 def test_taxi_encode_decode():
     env = TaxiEnv()
 
-    state = env.reset()
+    state, info = env.reset()
     for _ in range(100):
         assert (
             env.encode(*env.decode(state)) == state

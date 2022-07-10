@@ -69,15 +69,15 @@ def check_reset_seed(env: gym.Env):
     signature = inspect.signature(env.reset)
     if "seed" in signature.parameters or "kwargs" in signature.parameters:
         try:
-            obs_1 = env.reset(seed=123)
+            obs_1, info = env.reset(seed=123)
             assert obs_1 in env.observation_space
-            obs_2 = env.reset(seed=123)
+            obs_2, info = env.reset(seed=123)
             assert obs_2 in env.observation_space
             assert data_equivalence(obs_1, obs_2)
             seed_123_rng = deepcopy(env.unwrapped.np_random)
 
             # Note: for some environment, they may initialise at the same state, therefore we cannot check the obs_1 != obs_3
-            obs_4 = env.reset(seed=None)
+            obs_4, info = env.reset(seed=None)
             assert obs_4 in env.observation_space
 
             assert (
@@ -107,40 +107,7 @@ def check_reset_seed(env: gym.Env):
             )
     else:
         raise error.Error(
-            "The `reset` method does not provide the `return_info` keyword argument"
-        )
-
-
-def check_reset_info(env: gym.Env):
-    """Checks that :meth:`reset` supports the ``return_info`` keyword.
-
-    Args:
-        env: The environment to check
-
-    Raises:
-        AssertionError: The environment cannot be reset with `return_info=True`,
-            even though `return_info` or `kwargs` appear in the signature.
-    """
-    signature = inspect.signature(env.reset)
-    if "return_info" in signature.parameters or "kwargs" in signature.parameters:
-        try:
-            result = env.reset(return_info=True)
-            assert (
-                len(result) == 2
-            ), "Calling the reset method with `return_info=True` did not return a 2-tuple"
-            obs, info = result
-            assert isinstance(
-                info, dict
-            ), "The second element returned by `env.reset(return_info=True)` was not a dictionary"
-        except TypeError as e:
-            raise AssertionError(
-                "The environment cannot be reset with `return_info=True`, even though `return_info` or `kwargs` "
-                "appear in the signature. This should never happen, please report this issue. "
-                f"The error was: {e}"
-            )
-    else:
-        raise error.Error(
-            "The `reset` method does not provide the `return_info` keyword argument"
+            "The `reset` method does not provide the `seed` keyword argument"
         )
 
 
@@ -239,7 +206,6 @@ def check_env(env: gym.Env, warn: bool = None, skip_render_check: bool = True):
     # ==== Check the reset method ====
     check_reset_seed(env)
     check_reset_options(env)
-    check_reset_info(env)
 
     # ============ Check the returned values ===============
     passive_env_reset_check(env)

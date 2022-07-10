@@ -24,7 +24,7 @@ def test_create_sync_vector_env():
 def test_reset_sync_vector_env():
     env_fns = [make_env("CartPole-v1", i) for i in range(8)]
     env = SyncVectorEnv(env_fns)
-    observations = env.reset()
+    observations, infos = env.reset()
     env.close()
 
     assert isinstance(env.observation_space, Box)
@@ -34,32 +34,6 @@ def test_reset_sync_vector_env():
     assert observations.shape == env.observation_space.shape
 
     del observations
-
-    env = SyncVectorEnv(env_fns)
-    observations = env.reset(return_info=False)
-    env.close()
-
-    assert isinstance(env.observation_space, Box)
-    assert isinstance(observations, np.ndarray)
-    assert observations.dtype == env.observation_space.dtype
-    assert observations.shape == (8,) + env.single_observation_space.shape
-    assert observations.shape == env.observation_space.shape
-
-    del observations
-
-    env_fns = [make_env("CartPole-v1", i) for i in range(8)]
-
-    env = SyncVectorEnv(env_fns)
-    observations, infos = env.reset(return_info=True)
-    env.close()
-
-    assert isinstance(env.observation_space, Box)
-    assert isinstance(observations, np.ndarray)
-    assert observations.dtype == env.observation_space.dtype
-    assert observations.shape == (8,) + env.single_observation_space.shape
-    assert observations.shape == env.observation_space.shape
-    assert isinstance(infos, dict)
-    assert all([isinstance(info, dict) for info in infos])
 
 
 @pytest.mark.parametrize("use_single_action_space", [True, False])
@@ -145,7 +119,7 @@ def test_custom_space_sync_vector_env():
     env_fns = [make_custom_space_env(i) for i in range(4)]
 
     env = SyncVectorEnv(env_fns)
-    reset_observations = env.reset()
+    reset_observations, infos = env.reset()
 
     assert isinstance(env.single_action_space, CustomSpace)
     assert isinstance(env.action_space, Tuple)

@@ -132,22 +132,14 @@ class CliffWalkingEnv(Env):
         self.renderer.render_step()
         return (int(s), r, t, False, {"prob": p})
 
-    def reset(
-        self,
-        *,
-        seed: Optional[int] = None,
-        return_info: bool = False,
-        options: Optional[dict] = None
-    ):
+    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
         super().reset(seed=seed)
         self.s = categorical_sample(self.initial_state_distrib, self.np_random)
         self.lastaction = None
         self.renderer.reset()
         self.renderer.render_step()
-        if not return_info:
-            return int(self.s)
-        else:
-            return int(self.s), {"prob": 1}
+
+        return int(self.s), {"prob": 1}
 
     def render(self, mode="human"):
         if self.render_mode is not None:

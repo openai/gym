@@ -89,7 +89,7 @@ class Env(Generic[ObsType, ActType], metaclass=decorator):
 
     - :meth:`step` - Takes a step in the environment using an action returning the next observation, reward,
       if the environment terminated and more information.
-    - :meth:`reset` - Resets the environment to an initial state, returning the initial observation.
+    - :meth:`reset` - Resets the environment to an initial state, returning the initial observation and more information.
     - :meth:`render` - Renders the environment observation with modes depending on the output
     - :meth:`close` - Closes the environment, important for rendering where pygame is imported
     - :meth:`seed` - Seeds the environment's random number generator, :deprecated: in favor of `Env.reset(seed=seed)`.
@@ -170,9 +170,8 @@ class Env(Generic[ObsType, ActType], metaclass=decorator):
         self,
         *,
         seed: Optional[int] = None,
-        return_info: bool = False,
         options: Optional[dict] = None,
-    ) -> Union[ObsType, Tuple[ObsType, dict]]:
+    ) -> Tuple[ObsType, dict]:
         """Resets the environment to an initial state and returns the initial observation.
 
         This method can reset the environment's random number generator(s) if ``seed`` is an integer or
@@ -189,8 +188,6 @@ class Env(Generic[ObsType, ActType], metaclass=decorator):
                 If you pass an integer, the PRNG will be reset even if it already exists.
                 Usually, you want to pass an integer *right after the environment has been initialized and then never again*.
                 Please refer to the minimal example above to see this paradigm in action.
-            return_info (bool): If true, return additional information along with initial observation.
-                This info should be analogous to the info returned in :meth:`step`
             options (optional dict): Additional information to specify how the environment is reset (optional,
                 depending on the specific environment)
 
@@ -198,8 +195,7 @@ class Env(Generic[ObsType, ActType], metaclass=decorator):
         Returns:
             observation (object): Observation of the initial state. This will be an element of :attr:`observation_space`
                 (typically a numpy array) and is analogous to the observation returned by :meth:`step`.
-            info (optional dictionary): This will *only* be returned if ``return_info=True`` is passed.
-                It contains auxiliary information complementing ``observation``. This dictionary should be analogous to
+            info (dictionary):  This dictionary contains auxiliary information complementing ``observation``. It should be analogous to
                 the ``info`` returned by :meth:`step`.
         """
         # Initialize the RNG if the seed is manually passed
@@ -423,7 +419,7 @@ class Wrapper(Env[ObsType, ActType]):
 
         return step_api_compatibility(self.env.step(action), self.new_step_api)
 
-    def reset(self, **kwargs) -> Union[ObsType, Tuple[ObsType, dict]]:
+    def reset(self, **kwargs) -> Tuple[ObsType, dict]:
         """Resets the environment with kwargs."""
         return self.env.reset(**kwargs)
 
@@ -483,11 +479,8 @@ class ObservationWrapper(Wrapper):
 
     def reset(self, **kwargs):
         """Resets the environment, returning a modified observation using :meth:`self.observation`."""
-        if kwargs.get("return_info", False):
-            obs, info = self.env.reset(**kwargs)
-            return self.observation(obs), info
-        else:
-            return self.observation(self.env.reset(**kwargs))
+        obs, info = self.env.reset(**kwargs)
+        return self.observation(obs), info
 
     def step(self, action):
         """Returns a modified observation using :meth:`self.observation` after calling :meth:`env.step`."""

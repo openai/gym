@@ -15,8 +15,8 @@ def test_transform_observation(env_id):
         gym.make(env_id, disable_env_checker=True), lambda obs: affine_transform(obs)
     )
 
-    obs = env.reset(seed=0)
-    wrapped_obs = wrapped_env.reset(seed=0)
+    obs, info = env.reset(seed=0)
+    wrapped_obs, wrapped_obs_info = wrapped_env.reset(seed=0)
     assert np.allclose(wrapped_obs, affine_transform(obs))
 
     action = env.action_space.sample()

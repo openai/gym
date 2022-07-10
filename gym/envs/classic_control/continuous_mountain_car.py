@@ -174,13 +174,7 @@ class Continuous_MountainCarEnv(gym.Env):
         self.renderer.render_step()
         return self.state, reward, terminated, False, {}
 
-    def reset(
-        self,
-        *,
-        seed: Optional[int] = None,
-        return_info: bool = False,
-        options: Optional[dict] = None
-    ):
+    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
         super().reset(seed=seed)
         # Note that if you use custom reset bounds, it may lead to out-of-bound
         # state/observations.
@@ -190,10 +184,7 @@ class Continuous_MountainCarEnv(gym.Env):
         self.state = np.array([self.np_random.uniform(low=low, high=high), 0])
         self.renderer.reset()
         self.renderer.render_step()
-        if not return_info:
-            return np.array(self.state, dtype=np.float32)
-        else:
-            return np.array(self.state, dtype=np.float32), {}
+        return np.array(self.state, dtype=np.float32), {}
 
     def _height(self, xs):
         return np.sin(3 * xs) * 0.45 + 0.55

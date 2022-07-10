@@ -297,7 +297,6 @@ class LunarLander(gym.Env, EzPickle):
         self,
         *,
         seed: Optional[int] = None,
-        return_info: bool = False,
         options: Optional[dict] = None,
     ):
         super().reset(seed=seed)
@@ -405,10 +404,7 @@ class LunarLander(gym.Env, EzPickle):
         self.drawlist = [self.lander] + self.legs
 
         self.renderer.reset()
-        if not return_info:
-            return self.step(np.array([0, 0]) if self.continuous else 0)[0]
-        else:
-            return self.step(np.array([0, 0]) if self.continuous else 0)[0], {}
+        return self.step(np.array([0, 0]) if self.continuous else 0)[0], {}
 
     def _create_particle(self, mass, x, y, ttl):
         p = self.world.CreateDynamicBody(
@@ -768,7 +764,7 @@ def demo_heuristic_lander(env, seed=None, render=False):
 
     total_reward = 0
     steps = 0
-    s = env.reset(seed=seed)
+    s, info = env.reset(seed=seed)
     while True:
         a = heuristic(env, s)
         s, r, terminated, truncated, info = step_api_compatibility(env.step(a), True)

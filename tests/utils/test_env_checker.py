@@ -23,7 +23,7 @@ class ActionDictTestEnv(gym.Env):
 
     def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
         super().reset(seed=seed)
-        return np.array([1.0, 1.5, 0.5])
+        return np.array([1.0, 1.5, 0.5]), {}
 
     def render(self, mode: Optional[str] = "human"):
         pass

@@ -61,7 +61,6 @@ class VectorEnv(gym.Env):
     def reset_async(
         self,
         seed: Optional[Union[int, List[int]]] = None,
-        return_info: bool = False,
         options: Optional[dict] = None,
     ):
         """Reset the sub-environments asynchronously.
@@ -71,7 +70,6 @@ class VectorEnv(gym.Env):
 
         Args:
             seed: The reset seed
-            return_info: If to return info
             options: Reset options
         """
         pass
@@ -79,7 +77,6 @@ class VectorEnv(gym.Env):
     def reset_wait(
         self,
         seed: Optional[Union[int, List[int]]] = None,
-        return_info: bool = False,
         options: Optional[dict] = None,
     ):
         """Retrieves the results of a :meth:`reset_async` call.
@@ -88,7 +85,6 @@ class VectorEnv(gym.Env):
 
         Args:
             seed: The reset seed
-            return_info: If to return info
             options: Reset options
 
         Returns:
@@ -103,21 +99,19 @@ class VectorEnv(gym.Env):
         self,
         *,
         seed: Optional[Union[int, List[int]]] = None,
-        return_info: bool = False,
         options: Optional[dict] = None,
     ):
         """Reset all parallel environments and return a batch of initial observations.
 
         Args:
             seed: The environment reset seeds
-            return_info: If to return the info
             options: If to return the options
 
         Returns:
             A batch of observations from the vectorized environment.
         """
-        self.reset_async(seed=seed, return_info=return_info, options=options)
-        return self.reset_wait(seed=seed, return_info=return_info, options=options)
+        self.reset_async(seed=seed, options=options)
+        return self.reset_wait(seed=seed, options=options)
 
     def step_async(self, actions):
         """Asynchronously performs steps in the sub-environments.
