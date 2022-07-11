@@ -12,3 +12,4 @@ ale-py~=0.7.5
 mujoco==2.2.0
 mujoco_py<2.2,>=2.1
 imageio>=2.14.1
+jax~=0.3.14
