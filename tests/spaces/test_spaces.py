@@ -15,6 +15,7 @@ from gym.spaces import (
     Graph,
     MultiBinary,
     MultiDiscrete,
+    Space,
     Text,
     Tuple,
 )
@@ -202,7 +203,7 @@ CHI_SQUARED = np.array(
         MultiBinary([2, 4]),
     ],
 )
-def test_sample(space, n_trials: int = 1_000):
+def test_sample(space: Space, n_trials: int = 1_000):
     """Test the space sample has the expected distribution with the chi-squared test and KS test.
 
     Example code with scipy.stats.chisquared

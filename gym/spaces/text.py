@@ -10,12 +10,6 @@ alphanumeric: FrozenSet[str] = frozenset(
     "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 )
 
-# TODO: Add support for:
-#  * lexicons
-#  * regular expressions
-#     - for sample() and contains()
-#  * tokenization
-
 
 class Text(Space[str]):
     r"""A space representing a string comprised of characters from a given charset.
