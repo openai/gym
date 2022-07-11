@@ -1,14 +1,24 @@
 import copy
 import json  # note: ujson fails this test due to float equality
 import pickle
+import string
 import tempfile
 from typing import List, Union
 
 import numpy as np
 import pytest
 
-from gym import Space
-from gym.spaces import Box, Dict, Discrete, Graph, MultiBinary, MultiDiscrete, Tuple
+from gym.spaces import (
+    Box,
+    Dict,
+    Discrete,
+    Graph,
+    MultiBinary,
+    MultiDiscrete,
+    Space,
+    Text,
+    Tuple,
+)
 
 
 @pytest.mark.parametrize(
@@ -45,6 +55,8 @@ from gym.spaces import Box, Dict, Discrete, Graph, MultiBinary, MultiDiscrete, T
         Graph(node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=Discrete(5)),
         Graph(node_space=Discrete(5), edge_space=Box(low=-100, high=100, shape=(3, 4))),
         Graph(node_space=Discrete(5), edge_space=None),
+        Text(5),
+        Text(min_length=1, max_length=10, charset=string.digits),
     ],
 )
 def test_roundtripping(space):
@@ -102,6 +114,8 @@ def test_roundtripping(space):
         Graph(node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=Discrete(5)),
         Graph(node_space=Discrete(5), edge_space=Box(low=-100, high=100, shape=(3, 4))),
         Graph(node_space=Discrete(5), edge_space=None),
+        Text(5),
+        Text(min_length=1, max_length=10, charset=string.digits),
     ],
 )
 def test_equality(space):
@@ -143,6 +157,10 @@ def test_equality(space):
                 node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=Discrete(5)
             ),
             Graph(node_space=Discrete(5), edge_space=None),
+        ),
+        (
+            Text(5),
+            Text(min_length=1, max_length=10, charset=string.digits),
         ),
     ],
 )
@@ -466,6 +484,10 @@ def test_composite_space_sample_mask(space, mask):
             ),
             Graph(node_space=Discrete(5), edge_space=None),
         ),
+        (
+            Text(5),
+            Text(min_length=1, max_length=10, charset=string.digits),
+        ),
     ],
 )
 def test_class_inequality(spaces):
@@ -584,6 +606,8 @@ def test_box_dtype_check():
         Graph(node_space=Discrete(5), edge_space=Box(low=-100, high=100, shape=(3, 4))),
         Graph(node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=None),
         Graph(node_space=Discrete(5), edge_space=None),
+        Text(5),
+        Text(min_length=1, max_length=10, charset=string.digits),
     ],
 )
 def test_seed_returns_list(space):
@@ -647,6 +671,8 @@ def sample_equal(sample1, sample2):
         Graph(node_space=Discrete(5), edge_space=Box(low=-100, high=100, shape=(3, 4))),
         Graph(node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=None),
         Graph(node_space=Discrete(5), edge_space=None),
+        Text(5),
+        Text(min_length=1, max_length=10, charset=string.digits),
     ],
 )
 def test_seed_reproducibility(space):
@@ -691,6 +717,8 @@ def test_seed_reproducibility(space):
         Graph(node_space=Discrete(5), edge_space=Box(low=-100, high=100, shape=(3, 4))),
         Graph(node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=None),
         Graph(node_space=Discrete(5), edge_space=None),
+        Text(5),
+        Text(min_length=1, max_length=10, charset=string.digits),
     ],
 )
 def test_seed_subspace_incorrelated(space):
@@ -958,6 +986,8 @@ def test_box_legacy_state_pickling():
         Graph(node_space=Discrete(5), edge_space=Box(low=-100, high=100, shape=(3, 4))),
         Graph(node_space=Box(low=-100, high=100, shape=(3, 4)), edge_space=None),
         Graph(node_space=Discrete(5), edge_space=None),
+        Text(5),
+        Text(min_length=1, max_length=10, charset=string.digits),
     ],
 )
 def test_pickle(space):
